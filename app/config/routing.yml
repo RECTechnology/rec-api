@@ -1,0 +1,5 @@
+arbaf_financial_api:
+    resource: "@ArbafFinancialApiBundle/Controller/"
+    type:     annotation
+    prefix:   /
+
