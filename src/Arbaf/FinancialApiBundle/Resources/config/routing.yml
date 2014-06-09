@@ -1,0 +1,13 @@
+
+arbaf_financial_api_all:
+    pattern:  /users
+    defaults: { _controller: ArbafFinancialApiBundle:User:all, _format: ~ }
+    requirements:
+        _method: GET
+
+arbaf_financial_api_get:
+    pattern:  /users/{id}
+    defaults: { _controller: ArbafFinancialApiBundle:User:get, _format: ~ }
+    requirements:
+        _method: GET
+        id: "\d+"

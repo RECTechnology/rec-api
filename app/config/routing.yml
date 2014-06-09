@@ -1,7 +1,12 @@
 arbaf_financial_api:
-    resource: "@ArbafFinancialApiBundle/Controller/"
-    type:     annotation
+    resource: "@ArbafFinancialApiBundle/Resources/config/routing.yml"
+    host:     api.arbafinternational.com
     prefix:   /
+
+NelmioApiDocBundle:
+    resource: "@NelmioApiDocBundle/Resources/config/routing.yml"
+    host:     dev.arbafinternational.com
+    prefix:   /financial
 
 fos_user_security:
     resource: "@FOSUserBundle/Resources/config/routing/security.xml"

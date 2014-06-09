@@ -72,3 +72,6 @@ fos_user:
     db_driver: orm # other valid values are 'mongodb', 'couchdb' and 'propel'
     firewall_name: main
     user_class: Arbaf\FinancialApiBundle\Entity\User
+
+nelmio_api_doc:
+    name: Financial API - Arbaf International INC.
