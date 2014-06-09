@@ -75,3 +75,12 @@ fos_user:
 
 nelmio_api_doc:
     name: Financial API - Arbaf International INC.
+
+fos_rest:
+    format_listener:
+        rules:
+            - { priorities: [json, xml], fallback_format: json }
+
+sensio_framework_extra:
+    view:    { annotations: false }
+    router:  { annotations: true }

@@ -1,11 +1,17 @@
 
-arbaf_financial_api_all:
-    pattern:  /users
-    defaults: { _controller: ArbafFinancialApiBundle:User:all, _format: ~ }
+arbaf_financial_api_test_index:
+    pattern:  /test
+    defaults: { _controller: ArbafFinancialApiBundle:Test:index, _format: ~ }
     requirements:
         _method: GET
 
-arbaf_financial_api_get:
+arbaf_financial_api_users_index:
+    pattern:  /users
+    defaults: { _controller: ArbafFinancialApiBundle:User:index, _format: ~ }
+    requirements:
+        _method: GET
+
+arbaf_financial_api_users_get:
     pattern:  /users/{id}
     defaults: { _controller: ArbafFinancialApiBundle:User:get, _format: ~ }
     requirements:

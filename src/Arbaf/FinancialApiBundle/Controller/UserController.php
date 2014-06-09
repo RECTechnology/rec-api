@@ -16,39 +16,37 @@ use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
  */
 class UserController extends Controller
 {
-    function __construct(){
-        parent::__construct();
-        $this->userManager = $this->get("fos_user.user_manager");
-    }
     /**
-     * This is the documentation description of your method, it will appear
-     * on a specific pane. It will read all the text until the first
-     * annotation.
+     * This method returns all users registered in the system.
      *
      * @ApiDoc(
-     *   section="/users",
+     *   section="User Management",
      *   description="Returns all users"
      * )
      *
-     * @Rest\View
+     * @Rest\View(statusCode=200)
      */
-    public function allAction()
+    public function indexAction()
     {
-        $users = $this->userManager->findUsers();
+        $userManager = $this->get('fos_user.user_manager');
+        if($userManager==null) print_r("usermanager is null");
+        $users = $userManager->findUsers();
         return array('users' => $users);
     }
 
     /**
      * @ApiDoc(
-     *   section="/users",
-     *   description="Returns one user given its ID"
+     *   section="User Management",
+     *   description="Returns one user by ID"
      * )
      *
      * @Rest\View
      */
     public function getAction($id)
     {
-        $user = $this->userManager->findUserBy(array("id" => $id));
+
+        $userManager = $this->get('fos_user.user_manager');
+        $user = $userManager->findUserBy(array("id" => $id));
 
         if (!$user instanceof User) {
             throw new NotFoundHttpException('User not found');
