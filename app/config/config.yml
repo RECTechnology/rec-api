@@ -72,6 +72,8 @@ fos_user:
     db_driver: orm # other valid values are 'mongodb', 'couchdb' and 'propel'
     firewall_name: main
     user_class: Arbaf\FinancialApiBundle\Entity\User
+    group:
+      group_class: Arbaf\FinancialApiBundle\Entity\Group
 
 nelmio_api_doc:
     name: Financial API - Arbaf International INC.
@@ -84,3 +86,11 @@ fos_rest:
 sensio_framework_extra:
     view:    { annotations: false }
     router:  { annotations: true }
+
+services:
+    apikey_userprovider:
+        class:    Arbaf\FinancialApiBundle\Security\ApiKeyUserProvider
+        arguments: ["@fos_user.user_manager.default"]
+    apikey_authenticator:
+        class:     Arbaf\FinancialApiBundle\Security\ApiKeyAuthenticator
+        arguments: ["@apikey_userprovider"]

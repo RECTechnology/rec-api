@@ -9,17 +9,18 @@ security:
     providers:
         fos_userbundle:
             id: fos_user.user_provider.username
-        in_memory:
-            memory: ~
 
     firewalls:
-        main:
+        api_test:
+            pattern: ^/test/plain$
+            anonymous: true
+
+        api:
             pattern: ^/
-            form_login:
-                provider: fos_userbundle
-                csrf_provider: form.csrf_provider
-            logout:       true
-            anonymous:    true
+            stateless: true
+            simple_preauth:
+                authenticator: apikey_authenticator
+
         dev:
             pattern: ^/(_(profiler|wdt)|css|images|js)/
             security: false
@@ -28,7 +29,6 @@ security:
             anonymous: ~
 
     access_control:
-        - { path: ^/login$, role: IS_AUTHENTICATED_ANONYMOUSLY }
-        - { path: ^/register, role: IS_AUTHENTICATED_ANONYMOUSLY }
-        - { path: ^/resetting, role: IS_AUTHENTICATED_ANONYMOUSLY }
-        - { path: ^/admin/, role: ROLE_ADMIN }
+        - { host: api.arbafinternational.com, path: ^/clients/, role: ROLE_SUPER_ADMIN }
+        - { host: api.arbafinternational.com, path: ^/users/, role: ROLE_ADMIN }
+        - { host: api.arbafinternational.com, path: ^/services/, role: ROLE_USER }

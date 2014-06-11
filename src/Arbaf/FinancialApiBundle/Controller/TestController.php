@@ -7,7 +7,6 @@ use FOS\RestBundle\View\View;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Route;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Template;
 use FOS\RestBundle\Controller\Annotations as Rest;
-use Arbaf\FinancialApiBundle\Entity\User;
 use Nelmio\ApiDocBundle\Annotation\ApiDoc;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
@@ -28,9 +27,28 @@ class TestController extends FosRestController
      *
      * @Rest\View
      */
-    public function indexAction()
+    public function plainAction()
     {
-        $data=array('test' => true);
+        $data=array('test' => 'plain');
+
+        $view = $this->view($data, 200);
+
+        return $this->handleView($view);
+    }
+
+    /**
+     * This method returns a test response for improving the connection with the API given an authenticated request.
+     *
+     * @ApiDoc(
+     *   section="Test Section",
+     *   description="Returns a test response"
+     * )
+     *
+     * @Rest\View
+     */
+    public function authAction()
+    {
+        $data=array('test' => 'auth');
 
         $view = $this->view($data, 200);
 

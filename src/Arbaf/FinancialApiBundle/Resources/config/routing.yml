@@ -1,7 +1,13 @@
 
-arbaf_financial_api_test_index:
-    pattern:  /test
-    defaults: { _controller: ArbafFinancialApiBundle:Test:index, _format: ~ }
+arbaf_financial_api_test_plain:
+    pattern:  /test/plain
+    defaults: { _controller: ArbafFinancialApiBundle:Test:plain, _format: ~ }
+    requirements:
+        _method: GET
+
+arbaf_financial_api_test_auth:
+    pattern:  /test/auth
+    defaults: { _controller: ArbafFinancialApiBundle:Test:auth, _format: ~ }
     requirements:
         _method: GET
 

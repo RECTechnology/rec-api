@@ -18,7 +18,7 @@ class TestControllerTest extends WebTestCase
             'HTTP_HOST' => 'api.arbafinternational.com'
         ));
 
-        $client->request('GET', '/test');
+        $client->request('GET', '/test/plain');
 
         $this->assertTrue($client->getResponse()->isSuccessful());
     }
@@ -30,7 +30,7 @@ class TestControllerTest extends WebTestCase
             'HTTP_ACCEPT' => 'application/json'
         ));
 
-        $client->request('GET', '/test');
+        $client->request('GET', '/test/plain');
 
         $this->assertNotNull(json_decode($client->getResponse()->getContent()));
 
@@ -50,7 +50,7 @@ class TestControllerTest extends WebTestCase
             'HTTP_ACCEPT' => 'application/xml'
         ));
 
-        $client->request('GET', '/test');
+        $client->request('GET', '/test/plain');
 
 
         $this->assertTrue(
@@ -61,17 +61,17 @@ class TestControllerTest extends WebTestCase
         );
     }
 
-    public function testIndexShouldContainTestTrue() {
+    public function testIndexShouldContainTestPlain() {
 
         $client = static::createClient(array(), array(
             'HTTP_HOST' => 'api.arbafinternational.com',
             'HTTP_ACCEPT' => 'application/json'
         ));
 
-        $client->request('GET', '/test');
+        $client->request('GET', '/test/plain');
 
         $objectResponse = json_decode($client->getResponse()->getContent());
 
-        $this->assertTrue($objectResponse->test);
+        $this->assertEquals('plain', $objectResponse->test);
     }
 }
