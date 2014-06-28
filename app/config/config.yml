@@ -1,6 +1,7 @@
 imports:
     - { resource: parameters.yml }
     - { resource: security.yml }
+    - { resource: @ArbafFinancialApiBundle/Resources/config/services.yml }
 
 framework:
     #esi:             ~
@@ -77,6 +78,8 @@ fos_user:
 
 nelmio_api_doc:
     name: Financial API - Arbaf International INC.
+    sandbox:
+        enabled: true
 
 fos_rest:
     format_listener:
@@ -87,10 +90,10 @@ sensio_framework_extra:
     view:    { annotations: false }
     router:  { annotations: true }
 
-services:
-    apikey_userprovider:
-        class:    Arbaf\FinancialApiBundle\Security\ApiKeyUserProvider
-        arguments: ["@fos_user.user_manager.default"]
-    apikey_authenticator:
-        class:     Arbaf\FinancialApiBundle\Security\ApiKeyAuthenticator
-        arguments: ["@apikey_userprovider"]
+#services:
+#    apikey_userprovider:
+#        class:    Arbaf\FinancialApiBundle\Security\ApiKeyUserProvider
+#        arguments: ["@fos_user.user_manager.default"]
+#    apikey_authenticator:
+#        class:     Arbaf\FinancialApiBundle\Security\ApiKeyAuthenticator
+#        arguments: ["@apikey_userprovider"]

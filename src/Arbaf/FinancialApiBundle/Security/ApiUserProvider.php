@@ -8,23 +8,22 @@
 
 namespace Arbaf\FinancialApiBundle\Security;
 
-use FOS\UserBundle\Model\UserManagerInterface;
 use FOS\UserBundle\Security\UserProvider;
 use Symfony\Component\Security\Core\Exception\UnsupportedUserException;
 use Symfony\Component\Security\Core\Exception\UsernameNotFoundException;
 use Symfony\Component\Security\Core\User\UserInterface;
 
-class ApiKeyUserProvider extends  UserProvider{
+class ApiUserProvider extends  UserProvider{
 
-    public function getUsernameForAccessKey($accessKey)
+    public function loadUserByAccessKey($accessKey)
     {
         // Look up the username based on the token in the database, via
         // an API call, or do something entirely different
-        $user = $this->userManager->findUserBy(array('id' => $accessKey));
+        $user = $this->userManager->findUserBy(array('access_key' => $accessKey));
         if(!$user){
-            throw new UsernameNotFoundException(sprintf("User with id '%s' not found", $accessKey));
+            throw new UsernameNotFoundException(sprintf("User with access_key '%s' not found", $accessKey));
         }
-        return $user->getUsername();
+        return $user;
     }
 
     public function refreshUser(UserInterface $user) {

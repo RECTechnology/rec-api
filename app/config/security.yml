@@ -7,19 +7,26 @@ security:
         ROLE_SUPER_ADMIN: ROLE_ADMIN
 
     providers:
-        fos_userbundle:
-            id: fos_user.user_provider.username
+        arbaf_financial_api:
+            id: api.security.user_provider
 
     firewalls:
-        api_test:
-            pattern: ^/test/plain$
-            anonymous: true
 
-        api:
+        api_test_plain:
+            pattern: ^/test/plain$
+            host: api.arbafinternational.com
+            security: false
+
+        api_arbaf:
             pattern: ^/
+            host: api.arbafinternational.com
             stateless: true
-            simple_preauth:
-                authenticator: apikey_authenticator
+            api_arbaf: true
+
+        doc:
+            pattern: ^/
+            host: dev.arbafinternational.com
+            security: false
 
         dev:
             pattern: ^/(_(profiler|wdt)|css|images|js)/

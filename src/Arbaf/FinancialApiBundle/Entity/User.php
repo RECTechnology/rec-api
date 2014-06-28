@@ -9,7 +9,7 @@
 namespace Arbaf\FinancialApiBundle\Entity;
 
 use FOS\UserBundle\Model\User as BaseUser;
-use Doctrine\ORM\Mapping as ORM;
+use Doctrine\ORM\Mapping as ORM;use Symfony\Component\Security\Core\Util\SecureRandom;
 
 /**
  * @ORM\Entity
@@ -20,12 +20,16 @@ class User extends BaseUser
     public function __construct()
     {
         parent::__construct();
-        // your own logic
+        if($this->access_key == null){
+            $generator = new SecureRandom();
+            $this->access_key=sha1($generator->nextBytes(32));
+            $this->access_secret=base64_encode($generator->nextBytes(32));
+        }
     }
     /**
      * @ORM\Id
      * @ORM\Column(type="integer")
-     * @ORM\GeneratedValue(strategy="UUID")
+     * @ORM\GeneratedValue(strategy="AUTO")
      */
     protected $id;
 
@@ -38,5 +42,25 @@ class User extends BaseUser
      */
     protected $groups;
 
+
+    /**
+     * @ORM\Column(type="guid")
+     */
+    private $access_key;
+
+    /**
+     * @ORM\Column(type="guid")
+     */
+    private $access_secret;
+
+
+    public function getAccessKey(){
+        return $this->access_key;
+    }
+
+
+    public function getAccessSecret(){
+        return $this->access_secret;
+    }
 
 }

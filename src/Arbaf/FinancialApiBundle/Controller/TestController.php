@@ -21,8 +21,16 @@ class TestController extends FosRestController
      * This method returns a test response for improving the connection with the API.
      *
      * @ApiDoc(
-     *   section="Test Section",
-     *   description="Returns a test response"
+     *   section="Testing the API",
+     *   description="Returns a test response",
+     *     statusCodes={
+     *         200="Returned when successful",
+     *         403="Returned when the user is not authorized to say hello",
+     *         404={
+     *           "Returned when the user is not found",
+     *           "Returned when something else is not found"
+     *         }
+     *     }
      * )
      *
      * @Rest\View
@@ -40,7 +48,7 @@ class TestController extends FosRestController
      * This method returns a test response for improving the connection with the API given an authenticated request.
      *
      * @ApiDoc(
-     *   section="Test Section",
+     *   section="Testing the API",
      *   description="Returns a test response"
      * )
      *

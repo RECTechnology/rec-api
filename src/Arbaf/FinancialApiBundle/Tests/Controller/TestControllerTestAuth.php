@@ -5,7 +5,7 @@ namespace Arbaf\FinancialApiBundle\Tests\Controller;
 use Symfony\Bundle\FrameworkBundle\Test\WebTestCase;
 use Symfony\Component\HttpFoundation\Response;
 
-class TestControllerTest extends WebTestCase
+class TestControllerTestPlain extends WebTestCase
 {
 
     public function testTestIfTestAreRunnigProperly() {
