@@ -14,6 +14,7 @@ use Arbaf\FinancialApiBundle\Security\Authentication\Token\ApiToken;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpKernel\Event\GetResponseEvent;
 use Symfony\Component\Security\Core\Authentication\AuthenticationManagerInterface;
+use Symfony\Component\Security\Core\Exception\AuthenticationCredentialsNotFoundException;
 use Symfony\Component\Security\Core\Exception\AuthenticationException;
 use Symfony\Component\Security\Core\SecurityContextInterface;
 use Symfony\Component\Security\Http\Firewall\ListenerInterface;
@@ -31,22 +32,25 @@ class ApiListener implements ListenerInterface {
     }
 
     /**
-     * This interface must be implemented by firewall listeners.
-     *
      * @param GetResponseEvent $event
+     * @throws \Symfony\Component\Security\Core\Exception\AuthenticationCredentialsNotFoundException
      */
     public function handle(GetResponseEvent $event)
     {
         $request = $event->getRequest();
 
-        $authRequestRegex = '/Signature access-key="([^"]+)", nonce="([^"]+)", timestamp="([^"]+)", algorithm="([^"]+)", signature="([^"]+)"/';
-        if(
-            ! $request->headers->has('x-api-authorization')
-            ||
-            1 != preg_match($authRequestRegex, $request->headers->get('x-api-authorization'), $matches)
-        ){
-            return;
-        }
+        $authRequestRegex = '/Signature '
+            .'access-key="([^"]+)", '
+            .'nonce="([^"]+)", '
+            .'timestamp="([^"]+)", '
+            .'algorithm="([^"]+)", '
+            .'signature="([^"]+)"/';
+        $authHeaderName = 'x-api-authorization';
+
+
+        if(! $request->headers->has($authHeaderName)) return;
+        $signature = $request->headers->get($authHeaderName);
+        if(1 != preg_match($authRequestRegex, $signature, $matches)) return;
 
         $token = new ApiToken();
         $token->setUser($matches[1]);

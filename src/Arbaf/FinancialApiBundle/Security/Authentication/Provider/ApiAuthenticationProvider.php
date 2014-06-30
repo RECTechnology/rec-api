@@ -39,18 +39,14 @@ class ApiAuthenticationProvider implements AuthenticationProviderInterface {
     {
         $user = $this->userProvider->loadUserByAccessKey($token->getUsername());
 
-        if($user && $this->validateSignature($token->nonce, $token->timestamp, $token->algorithm, $token->signature, $user->getAccessSecret())){
+        if($user && $this->validateSignature($token->getUsername(), $token->nonce, $token->timestamp, $token->algorithm, $token->signature, $user->getAccessSecret())){
             $authenticatedToken = new ApiToken($user->getRoles());
             $authenticatedToken->setUser($user);
-
             return $authenticatedToken;
         }
         throw new AuthenticationException('The Api authentication failed.');
     }
-    protected function validateSignature($nonce, $timestamp, $algorithm, $signature, $secret){
-
-        return true;
-
+    protected function validateSignature($accessKey, $nonce, $timestamp, $algorithm, $signature, $secret){
         // Check created time is not in the future
         if ($timestamp > time()) {
             return false;
@@ -74,10 +70,7 @@ class ApiAuthenticationProvider implements AuthenticationProviderInterface {
         file_put_contents($this->cacheDir.'/'.$nonce, time());
 
         // Validate Secret
-        $expected = base64_encode(
-            hash_hmac($algorithm, base64_decode($nonce).$timestamp, $secret)
-        );
-
+        $expected = hash_hmac($algorithm, $accessKey.$nonce.$timestamp, base64_decode($secret));
         return $signature === $expected;
     }
 

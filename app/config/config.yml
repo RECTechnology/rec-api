@@ -29,6 +29,8 @@ framework:
 twig:
     debug:            "%kernel.debug%"
     strict_variables: "%kernel.debug%"
+    exception_controller: FOS\RestBundle\Controller\ExceptionController::showAction
+    #exception_controller: Arbaf\FinancialApiBundle\Controller\ApiExceptionController::showAction
 
 # Assetic Configuration
 assetic:
@@ -82,18 +84,17 @@ nelmio_api_doc:
         enabled: true
 
 fos_rest:
+
+    access_denied_listener:
+        json: true
+        xml: true
+
     format_listener:
         rules:
             - { priorities: [json, xml], fallback_format: json }
+
 
 sensio_framework_extra:
     view:    { annotations: false }
     router:  { annotations: true }
 
-#services:
-#    apikey_userprovider:
-#        class:    Arbaf\FinancialApiBundle\Security\ApiKeyUserProvider
-#        arguments: ["@fos_user.user_manager.default"]
-#    apikey_authenticator:
-#        class:     Arbaf\FinancialApiBundle\Security\ApiKeyAuthenticator
-#        arguments: ["@apikey_userprovider"]

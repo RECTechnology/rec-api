@@ -23,14 +23,10 @@ class TestController extends FosRestController
      * @ApiDoc(
      *   section="Testing the API",
      *   description="Returns a test response",
-     *     statusCodes={
-     *         200="Returned when successful",
-     *         403="Returned when the user is not authorized to say hello",
-     *         404={
-     *           "Returned when the user is not found",
-     *           "Returned when something else is not found"
-     *         }
-     *     }
+     *   statusCodes={
+     *       200="Returned when successful",
+     *       404="Returned when the resource is does not exists"
+     *   }
      * )
      *
      * @Rest\View
@@ -49,7 +45,45 @@ class TestController extends FosRestController
      *
      * @ApiDoc(
      *   section="Testing the API",
-     *   description="Returns a test response"
+     *   description="Returns a test response",
+     *   statusCodes={
+     *       200="Returned when successful",
+     *       401="Returned when the user is not authenticated",
+     *       403="Returned when the user is not authorized",
+     *       404="Returned when the resource is does not exists"
+     *   },
+     *   requirements={
+     *      {
+     *          "name"="access-key",
+     *          "dataType"="string",
+     *          "requirement"="[a-zA-Z0-9]+",
+     *          "description"="User api key"
+     *      },
+     *      {
+     *          "name"="nonce",
+     *          "dataType"="string",
+     *          "requirement"="[a-zA-Z0-9]+",
+     *          "description"="Once used number, this number must be different for every request"
+     *      },
+     *      {
+     *          "name"="timestamp",
+     *          "dataType"="integer",
+     *          "requirement"="[0-9]+",
+     *          "description"="Timestamp of the request"
+     *      },
+     *      {
+     *          "name"="algorithm",
+     *          "dataType"="string",
+     *          "requirement"="(SHA256|MD5)",
+     *          "description"="Algorithm used to make the signature"
+     *      },
+     *      {
+     *          "name"="signature",
+     *          "dataType"="string",
+     *          "requirement"="[a-zA-Z0-9]+",
+     *          "description"="Requirements (access-key+nonce+timestamp) encrypted with the given algorithm using the access-secret as encryption key."
+     *      }
+     *   }
      * )
      *
      * @Rest\View
