@@ -5,7 +5,7 @@ namespace Arbaf\FinancialApiBundle\Tests\Controller;
 use Symfony\Bundle\FrameworkBundle\Test\WebTestCase;
 use Symfony\Component\HttpFoundation\Response;
 
-class TestPlainControllerTest extends WebTestCase
+class PlainControllerTest extends WebTestCase
 {
 
     public function testIndexShouldBeSuccessful() {

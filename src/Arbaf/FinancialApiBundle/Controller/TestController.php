@@ -21,11 +21,11 @@ class TestController extends FosRestController
      * This method returns a test response for improving the connection with the API.
      *
      * @ApiDoc(
-     *   section="Testing the API",
+     *   section="0 - Testing the API",
      *   description="Returns a test response",
      *   statusCodes={
      *       200="Returned when successful",
-     *       404="Returned when the resource is does not exists"
+     *       404="Returned when the resource does not exists"
      *   }
      * )
      *
@@ -44,13 +44,13 @@ class TestController extends FosRestController
      * This method returns a test response for improving the connection with the API given an authenticated request.
      *
      * @ApiDoc(
-     *   section="Testing the API",
+     *   section="0 - Testing the API",
      *   description="Returns a test response",
      *   statusCodes={
      *       200="Returned when successful",
      *       401="Returned when the user is not authenticated",
      *       403="Returned when the user is not authorized",
-     *       404="Returned when the resource is does not exists"
+     *       404="Returned when the resource does not exists"
      *   },
      *   requirements={
      *      {
@@ -74,7 +74,7 @@ class TestController extends FosRestController
      *      {
      *          "name"="algorithm",
      *          "dataType"="string",
-     *          "requirement"="(SHA256|MD5)",
+     *          "requirement"="SHA256",
      *          "description"="Algorithm used to make the signature"
      *      },
      *      {
