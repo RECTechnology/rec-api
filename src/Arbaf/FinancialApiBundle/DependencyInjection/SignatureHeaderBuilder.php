@@ -6,7 +6,7 @@
  * Time: 1:16 AM
  */
 
-namespace Arbaf\FinancialApiBundle\Tests\RequestBuilder;
+namespace Arbaf\FinancialApiBundle\DependencyInjection;
 
 use Symfony\Component\Security\Core\Util\SecureRandom;
 

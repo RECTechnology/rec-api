@@ -1,9 +1,10 @@
 <?php
 
-namespace Arbaf\FinancialApiBundle\Tests\Controller;
+namespace Arbaf\FinancialApiBundle\Tests\Web\Controller;
 
 use Symfony\Bundle\FrameworkBundle\Test\WebTestCase;
 use Symfony\Component\HttpFoundation\Response;
+
 
 class PlainControllerTest extends WebTestCase
 {

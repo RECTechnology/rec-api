@@ -2,13 +2,11 @@
 
 namespace Arbaf\FinancialApiBundle\Tests\Controller;
 
-use Arbaf\FinancialApiBundle\Tests\RequestBuilder\SignatureHeaderBuilder;
-use Symfony\Bundle\FrameworkBundle\Test\WebTestCase;
-use Symfony\Component\BrowserKit\Tests\TestClient;
+use Arbaf\FinancialApiBundle\DependencyInjection\SignatureHeaderBuilder;
+use Arbaf\FinancialApiBundle\Tests\Web\AbstractApiWebTestCase;
 use Symfony\Component\HttpFoundation\Response;
-use Symfony\Component\Security\Core\Util\SecureRandom;
 
-class AuthControllerTest extends WebTestCase
+class AuthControllerTest extends AbstractApiWebTestCase
 {
     public function testIndexShouldBeSuccessful() {
 

@@ -1,14 +1,14 @@
 <?php
 
-namespace Arbaf\FinancialApiBundle\Tests\Controller;
+namespace Arbaf\FinancialApiBundle\Tests\Web\Controller;
 
-use Arbaf\FinancialApiBundle\Tests\RequestBuilder\SignatureHeaderBuilder;
-use Symfony\Bundle\FrameworkBundle\Test\WebTestCase;
+use Arbaf\FinancialApiBundle\DependencyInjection\SignatureHeaderBuilder;
+use Arbaf\FinancialApiBundle\Tests\Web\AbstractApiWebTestCase;
 use Symfony\Component\BrowserKit\Tests\TestClient;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Security\Core\Util\SecureRandom;
 
-class ClientsControllerTest extends WebTestCase
+class ClientsControllerTest extends AbstractApiWebTestCase
 {
     public function testGetAllClients() {
         $signatureHeader = SignatureHeaderBuilder::build(

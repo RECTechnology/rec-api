@@ -3,7 +3,7 @@ security:
         FOS\UserBundle\Model\UserInterface: sha512
 
     role_hierarchy:
-        ROLE_API_ADMIN:       ROLE_API_USER
+        ROLE_API_ADMIN:       ROLE_USER
         ROLE_API_SUPER_ADMIN: ROLE_API_ADMIN
 
     providers:
@@ -36,6 +36,13 @@ security:
             anonymous: ~
 
     access_control:
+        - { host: api.arbafinternational.com, path: ^/userdata/*, role: ROLE_USER }
+
         - { host: api.arbafinternational.com, path: ^/clients/*, role: ROLE_API_SUPER_ADMIN }
+        - { host: api.arbafinternational.com, path: ^/groups/*, role: ROLE_API_SUPER_ADMIN }
+
         - { host: api.arbafinternational.com, path: ^/users/*, role: ROLE_API_ADMIN }
-        - { host: api.arbafinternational.com, path: ^/services/*, role: ROLE_API_USER }
+
+        - { host: api.arbafinternational.com, path: ^/services/test/*, role: ROLE_API_SERVICES_TEST }
+        - { host: api.arbafinternational.com, path: ^/services/paynet/*, role: ROLE_API_SERVICES_PAYNET }
+        - { host: api.arbafinternational.com, path: ^/services/recargafon/*, role: ROLE_API_SERVICES_RECARGAFON }

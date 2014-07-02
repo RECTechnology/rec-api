@@ -14,3 +14,10 @@ web_profiler:
 
 swiftmailer:
     disable_delivery: true
+
+doctrine:
+    dbal:
+        host:     localhost
+        dbname:   api_arbaf_test
+        user:     arbaf
+        password: arbaf

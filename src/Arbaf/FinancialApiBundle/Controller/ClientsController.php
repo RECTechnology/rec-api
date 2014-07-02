@@ -28,6 +28,20 @@ class ClientsController extends FosRestController
      *   description="Returns all clients",
      *   statusCodes={
      *       200="Returned when successful",
+     *   },
+     *   filters={
+     *      {
+     *          "name"="limit",
+     *          "data-type"="integer",
+     *          "description"="Max numbers of items to get",
+     *          "default"="10"
+     *      },
+     *      {
+     *          "name"="offset",
+     *          "data-type"="integer",
+     *          "description"="Starting item to get",
+     *          "default"="0"
+     *      }
      *   }
      * )
      *
