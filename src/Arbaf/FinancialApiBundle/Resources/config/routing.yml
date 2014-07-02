@@ -112,12 +112,34 @@ arbaf_financial_api_groups_index:
     requirements:
         _method: GET
 
+arbaf_financial_api_groups_get:
+    pattern:  /groups/{id}
+    defaults: { _controller: ArbafFinancialApiBundle:Groups:get, _format: ~ }
+    requirements:
+        _method: GET
+        id: "[0-9]+"
+
+arbaf_financial_api_groups_add_roles:
+    pattern:  /groups/{id}/roles
+    defaults: { _controller: ArbafFinancialApiBundle:Groups:addRoles, _format: ~ }
+    requirements:
+        _method: POST
+        rol_name: "ROLE_[A-Z_]+"
+
+arbaf_financial_api_groups_delete_roles:
+    pattern:  /groups/{id}/roles/{rol_name}
+    defaults: { _controller: ArbafFinancialApiBundle:Groups:deleteRoles, _format: ~ }
+    requirements:
+        _method: DELETE
+        id: "[0-9]+"
+        rol_name: "ROLE_[A-Z_]+"
+
 arbaf_financial_api_groups_add:
     pattern:  /groups
     defaults: { _controller: ArbafFinancialApiBundle:Groups:add, _format: ~ }
     requirements:
         _method: POST
-        name: "[a-zA-Z0-9]+"
+        name: "[a-zA-Z0-9_]+"
 
 arbaf_financial_api_groups_delete:
     pattern:  /groups/{id}

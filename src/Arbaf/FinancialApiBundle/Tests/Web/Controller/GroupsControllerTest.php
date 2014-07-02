@@ -7,10 +7,30 @@ use Symfony\Component\HttpFoundation\Response;
 
 class GroupsControllerTest extends AbstractApiWebTestCase
 {
-    public function testGetAllReturnsOk() {
+
+    private function getAllGroups(){
+        $client = static::getTestClient('ROLE_API_SUPER_ADMIN');
+        $client->request('GET', '/groups');
+        $this->assertEquals(
+            Response::HTTP_OK,
+            $client->getResponse()->getStatusCode(), $client->getResponse()
+        );
+        $response = json_decode($client->getResponse()->getContent());
+        $this->assertTrue(
+            count($response->data->groups)>0
+            ,'Number of groups: '.count($response->data->groups)
+        );
+        return $response->data->groups;
+    }
+
+    public function testGetAllAndGetFirstIfAnyReturnsOk() {
+        $groups = $this->getAllGroups();
+
+        $firstGroup = $groups[0];
+
         $client = static::getTestClient('ROLE_API_SUPER_ADMIN');
 
-        $client->request('GET', '/groups');
+        $client->request('GET', '/groups/'.$firstGroup->id);
 
         $this->assertEquals(
             Response::HTTP_OK,
@@ -18,11 +38,10 @@ class GroupsControllerTest extends AbstractApiWebTestCase
         );
     }
 
+
     public function testAddGroupWithoutNameReturnsBadRequest() {
         $client = static::getTestClient('ROLE_API_SUPER_ADMIN');
-
         $client->request('POST', '/groups');
-
         $this->assertEquals(
             Response::HTTP_BAD_REQUEST,
             $client->getResponse()->getStatusCode(), $client->getResponse()
@@ -30,44 +49,76 @@ class GroupsControllerTest extends AbstractApiWebTestCase
     }
 
     public function testCreatesTestAndDeletesTest() {
+
+        #CREATING GROUP 'functionalTest' (OK)
         $client = static::getTestClient('ROLE_API_SUPER_ADMIN');
-
-        $params = array(
-            'name' => 'test'
-        );
-
+        $params = array('name' => 'functinoalTest');
         $client->request('POST', '/groups', $params);
-
         $this->assertEquals(
             Response::HTTP_CREATED,
             $client->getResponse()->getStatusCode(), $client->getResponse()
         );
 
+        #CREATING Again GROUP 'functionalTest' (CONFLICT)
         $client = static::getTestClient('ROLE_API_SUPER_ADMIN');
-
-        $client->request('GET', '/groups');
-
+        $params = array('name' => 'functinoalTest');
+        $client->request('POST', '/groups', $params);
         $this->assertEquals(
-            Response::HTTP_OK,
+            Response::HTTP_CONFLICT,
             $client->getResponse()->getStatusCode(), $client->getResponse()
         );
 
-        $response = json_decode($client->getResponse()->getContent());
 
-        $groups = $response->data->groups;
+        $groups = $this->getAllGroups();
 
         foreach($groups as $group){
-            if($group->name === 'test'){
+            if($group->name === 'functinoalTest'){
+
+                #DELETING GROUP 'functionalTest' (OK)
                 $client = static::getTestClient('ROLE_API_SUPER_ADMIN');
-
                 $client->request('DELETE', '/groups/'.$group->id);
-
                 $this->assertEquals(
                     Response::HTTP_NO_CONTENT,
                     $client->getResponse()->getStatusCode(), $client->getResponse()
                 );
+                return;
             }
         }
     }
+
+    public function testReadGroupAddAndDeleteRoleTest(){
+
+        $groups = $this->getAllGroups();
+        $firstGroup = $groups[0];
+
+        #ADDING ROLE to first group (OK)
+        $client = static::getTestClient('ROLE_API_SUPER_ADMIN');
+        $params = array('role_name' => 'ROLE_API_SERVICES_TEST');
+        $client->request('POST', '/groups/'.$firstGroup->id.'/roles', $params);
+        $this->assertEquals(
+            Response::HTTP_CREATED,
+            $client->getResponse()->getStatusCode(), $client->getResponse()
+        );
+
+        #ADDING ROLE to first group (CONFLICT)
+        $client = static::getTestClient('ROLE_API_SUPER_ADMIN');
+        $params = array('role_name' => 'ROLE_API_SERVICES_TEST');
+        $client->request('POST', '/groups/'.$firstGroup->id.'/roles', $params);
+        $this->assertEquals(
+            Response::HTTP_CONFLICT,
+            $client->getResponse()->getStatusCode(), $client->getResponse()
+        );
+
+        #ADDING ROLE to first group (CONFLICT)
+        $client = static::getTestClient('ROLE_API_SUPER_ADMIN');
+        $client->request('DELETE', '/groups/'.$firstGroup->id.'/roles/ROLE_API_SERVICES_TEST');
+        $this->assertEquals(
+            Response::HTTP_NO_CONTENT,
+            $client->getResponse()->getStatusCode(), $client->getResponse()
+        );
+
+
+    }
+
 
 }
