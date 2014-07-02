@@ -10,6 +10,7 @@ use Sensio\Bundle\FrameworkExtraBundle\Configuration\Template;
 use FOS\RestBundle\Controller\Annotations as Rest;
 use Arbaf\FinancialApiBundle\Entity\User;
 use Nelmio\ApiDocBundle\Annotation\ApiDoc;
+use Symfony\Component\HttpKernel\Exception\HttpException;
 use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
 
 /**
@@ -73,14 +74,21 @@ class UsersController extends FosRestController
      */
     public function getAction($id)
     {
-        $userManager = $this->get('fos_user.user_manager');
-        $user = $userManager->findUserBy(array("id" => $id));
+        $groupRepository = $this->getDoctrine()->getRepository("ArbafFinancialApiBundle:User");
 
-        if (!$user instanceof User) {
-            throw new NotFoundHttpException('User not found');
-        }
+        $entities = $groupRepository->findOneBy(array('id'=>$id));
 
-        return array('user' => $user);
+        if(empty($id)) throw new HttpException(400, "Missing parameter 'id'");
+
+        $resp = new ApiResponseBuilder(
+            200,
+            "User got successfully",
+            array('user'=>$entities)
+        );
+
+        $view = $this->view($resp, 200);
+
+        return $this->handleView($view);
     }
 
 
@@ -92,7 +100,7 @@ class UsersController extends FosRestController
      *
      * @Rest\View
      */
-    public function addAction($name, $email, $password) {
+    public function addAction() {
         return array();
     }
 
@@ -104,7 +112,7 @@ class UsersController extends FosRestController
      *
      * @Rest\View
      */
-    public function editAction($id, $name, $email, $password) {
+    public function editAction($id) {
         return array();
     }
 
