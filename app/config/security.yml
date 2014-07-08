@@ -17,6 +17,11 @@ security:
             host: api.arbafinternational.com
             security: false
 
+        charge2k:
+            pattern: ^/services/netpay/pos/
+            host: api.arbafinternational.com
+            security: false
+
         api_arbaf:
             pattern: ^/
             host: api.arbafinternational.com

@@ -179,45 +179,49 @@ class ServicesNetpayPosController extends FosRestController
      */
     public function transactionAction() {
 
-//build $params
-        $params = array(
-            "Auth",
-            "6501",
-            "POS",
-            "adm0n2",
-            "43620001",
-            "null",
-            "123.12",
-            "sdftesst",
-            "A",
-            "5454545454545454",
-            "123",
-            "12/16",
-            "null",
-            "null",
-            "1",
-            "null",
-            "null",
-            "null",
-            "null"
+        static $paramNames = array(
+            'trans_type',
+            'store_id',
+            'username',
+            'password',
+            'terminal_id',
+            'promotion',
+            'amount',
+            'order_id',
+            'mode',
+            'card_number',
+            'cvv2',
+            'exp_date',
+            'emv_tags',
+            'track2',
+            'cardholder_present_code',
+            'card_token',
+            'attribute1',
+            'ksn',
+            'track1'
         );
+
+        $request=$this->get('request_stack')->getCurrentRequest();
+        $params = array();
+        foreach($paramNames as $paramName){
+            $params[]=$request->get($paramName, 'null');
+        }
 
         $javaBin = "java";
 
-        $paths = array(
-            "vendor/netpay-pos/out/production/NetpayPOS/",
-            "vendor/netpay-pos/lib/NetPayJSONConnector.jar",
-            "vendor/netpay-pos/lib/gson-2.2.4.jar"
+        $libs = array(
+            "../vendor/netpay-pos/out/production/NetpayPOS/",
+            "../vendor/netpay-pos/lib/NetPayJSONConnector.jar",
+            "../vendor/netpay-pos/lib/gson-2.2.4.jar"
         );
         $class = "net.telepay.api.services.NetpayTransaction";
 
         $command = $javaBin." -classpath";
-        $command .= " ".implode(":",$paths);
+        $command .= " ".implode(":",$libs);
         $command .= " ".$class;
         $command .= " ".implode(" ",$params);
 
-        passthru($command, $output);
-
+        $output = passthru($command);
         $netpayResponse = json_decode($output);
 
         $view = $this->view($netpayResponse, 201);
