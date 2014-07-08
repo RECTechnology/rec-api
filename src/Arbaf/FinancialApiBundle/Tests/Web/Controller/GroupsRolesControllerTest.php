@@ -33,7 +33,7 @@ class GroupsRolesControllerTest extends AbstractApiWebTestCase
         $params = array('role_name' => 'ROLE_API_SERVICES_TEST');
         $client->request('POST', '/groups/'.$firstGroup->id.'/roles', $params);
         $this->assertEquals(
-            Response::HTTP_CREATED,
+            Response::HTTP_CONFLICT,
             $client->getResponse()->getStatusCode(), $client->getResponse()
         );
 
@@ -45,15 +45,15 @@ class GroupsRolesControllerTest extends AbstractApiWebTestCase
             Response::HTTP_CONFLICT,
             $client->getResponse()->getStatusCode(), $client->getResponse()
         );
-
-        #ADDING ROLE to first group (CONFLICT)
+/*
+        #DELETE ROLE to first group (CONFLICT)
         $client = static::getTestClient('ROLE_API_SUPER_ADMIN');
         $client->request('DELETE', '/groups/'.$firstGroup->id.'/roles/ROLE_API_SERVICES_TEST');
         $this->assertEquals(
             Response::HTTP_NO_CONTENT,
             $client->getResponse()->getStatusCode(), $client->getResponse()
         );
-
+*/
 
     }
 

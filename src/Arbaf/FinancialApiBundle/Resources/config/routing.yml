@@ -168,3 +168,35 @@ arbaf_financial_api_users_delete_groups:
         id: "[0-9]+"
         group_id: "[0-9]+"
 
+
+arbaf_financial_api_services_index:
+    pattern:  /services
+    defaults: { _controller: ArbafFinancialApiBundle:Services:index, _format: ~ }
+    requirements:
+        _method: GET
+
+arbaf_financial_api_services_test_index:
+    pattern:  /services/test
+    defaults: { _controller: ArbafFinancialApiBundle:ServicesTest:index, _format: ~ }
+    requirements:
+        _method: GET
+
+arbaf_financial_api_services_test_do:
+    pattern:  /services/test
+    defaults: { _controller: ArbafFinancialApiBundle:ServicesTest:do, _format: ~ }
+    requirements:
+        _method: POST
+
+
+arbaf_financial_api_services_netpay_pos_register:
+    pattern:  /services/netpay/pos/register
+    defaults: { _controller: ArbafFinancialApiBundle:ServicesNetpayPos:register, _format: ~ }
+    requirements:
+        _method: POST
+
+
+arbaf_financial_api_services_netpay_pos_transaction:
+    pattern:  /services/netpay/pos/transaction
+    defaults: { _controller: ArbafFinancialApiBundle:ServicesNetpayPos:transaction, _format: ~ }
+    requirements:
+        _method: POST

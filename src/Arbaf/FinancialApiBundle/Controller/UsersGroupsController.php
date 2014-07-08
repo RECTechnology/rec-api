@@ -29,10 +29,10 @@ class UsersGroupsController extends FosRestController
      *          "description"="User id"
      *      },
      *      {
-     *          "name"="rol_name",
-     *          "requirement"="ROLE_[A-Z]+",
-     *          "dataType"="string",
-     *          "description"="Group name"
+     *          "name"="group_id",
+     *          "requirement"="[0-9]+",
+     *          "dataType"="integer",
+     *          "description"="Group id"
      *      },
      *   }
      * )
@@ -90,10 +90,10 @@ class UsersGroupsController extends FosRestController
      *          "description"="User id"
      *      },
      *      {
-     *          "name"="rol_name",
-     *          "requirement"="ROLE_[A-Z]+",
-     *          "dataType"="string",
-     *          "description"="Group name"
+     *          "name"="group_id",
+     *          "requirement"="[0-9]+",
+     *          "dataType"="integer",
+     *          "description"="Group id"
      *      },
      *   }
      * )
@@ -113,7 +113,7 @@ class UsersGroupsController extends FosRestController
         if(!$group || !($group instanceof Group)) throw new HttpException(404, "Group id does not exists");
 
         if(!$user->hasGroup($group->getName()))
-            throw new HttpException(404, "Group not associated to specified user");
+            throw new HttpException(404, "User is not in the specified Group");
 
         $user->removeGroup($group);
 

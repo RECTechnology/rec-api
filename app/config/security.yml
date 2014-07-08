@@ -36,7 +36,7 @@ security:
             anonymous: ~
 
     access_control:
-        - { host: api.arbafinternational.com, path: ^/userdata/*, role: ROLE_USER }
+        - { host: api.arbafinternational.com, path: ^/panel/*, role: ROLE_USER }
 
         - { host: api.arbafinternational.com, path: ^/clients/*, role: ROLE_API_SUPER_ADMIN }
         - { host: api.arbafinternational.com, path: ^/groups/*, role: ROLE_API_SUPER_ADMIN }
@@ -44,5 +44,7 @@ security:
         - { host: api.arbafinternational.com, path: ^/users/*, role: ROLE_API_ADMIN }
 
         - { host: api.arbafinternational.com, path: ^/services/test/*, role: ROLE_API_SERVICES_TEST }
+        - { host: api.arbafinternational.com, path: ^/services/netpay/pos/*, role: ROLE_API_SERVICES_NETPAY_POS }
+
         - { host: api.arbafinternational.com, path: ^/services/paynet/*, role: ROLE_API_SERVICES_PAYNET }
         - { host: api.arbafinternational.com, path: ^/services/recargafon/*, role: ROLE_API_SERVICES_RECARGAFON }

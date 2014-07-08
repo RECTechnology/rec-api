@@ -21,6 +21,7 @@ class AuthenticationTest extends AbstractApiWebTestCase
                 array('path' => '/clients','code' => Response::HTTP_OK),
                 array('path' => '/users','code' => Response::HTTP_OK),
                 array('path' => '/groups','code' => Response::HTTP_OK),
+                array('path' => '/services/test','code' => Response::HTTP_FORBIDDEN),
             )
         ),
         array(
@@ -29,14 +30,17 @@ class AuthenticationTest extends AbstractApiWebTestCase
                 array('path' => '/clients','code' => Response::HTTP_FORBIDDEN),
                 array('path' => '/users','code' => Response::HTTP_OK),
                 array('path' => '/groups','code' => Response::HTTP_FORBIDDEN),
+                array('path' => '/services/test','code' => Response::HTTP_FORBIDDEN),
             )
         ),
         array(
-            'name' => 'ROLE_API_USER',
+            'name' => 'ROLE_API_SERVICES_TEST',
             'tests' => array(
                 array('path' => '/clients','code' => Response::HTTP_FORBIDDEN),
                 array('path' => '/users','code' => Response::HTTP_FORBIDDEN),
                 array('path' => '/groups','code' => Response::HTTP_FORBIDDEN),
+                array('path' => '/services/test','code' => Response::HTTP_OK),
+                array('path' => '/services/nonexistent','code' => Response::HTTP_NOT_FOUND),
             )
         ),
     );

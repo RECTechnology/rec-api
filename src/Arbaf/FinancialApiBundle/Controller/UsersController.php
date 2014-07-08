@@ -26,6 +26,9 @@ class UsersController extends FosRestController
      * @ApiDoc(
      *   section="2 - User Management",
      *   description="Returns all users",
+     *   output={
+     *      "class"="Arbaf\FinancialApiBundle\Entity\User",
+     *   },
      *   statusCodes={
      *       200="Returned when successful",
      *   },
