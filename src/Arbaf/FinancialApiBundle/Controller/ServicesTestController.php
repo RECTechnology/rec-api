@@ -21,7 +21,7 @@ class ServicesTestController extends FosRestController
      * This method returns the information attached to the service
      *
      * @ApiDoc(
-     *   section="7 - Test Service",
+     *   section="Test Service",
      *   description="Returns test service documentation",
      *   statusCodes={
      *       200="Returned when successful",
@@ -59,7 +59,7 @@ class ServicesTestController extends FosRestController
      * This method does nothing and returns HTTP 201 CREATED, its only for testing purposes.
      *
      * @ApiDoc(
-     *   section="7 - Test Service",
+     *   section="Test Service",
      *   description="Returns HTTP 201 CREATED",
      *   statusCodes={
      *       201="Returned when successful",

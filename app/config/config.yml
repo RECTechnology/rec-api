@@ -81,7 +81,7 @@ fos_user:
 nelmio_api_doc:
     name: Financial API - Arbaf International INC.
     exclude_sections:
-        ["1 - Client Management", "2 - User Management", "3 - Group Management", "4 - Roles of Groups"]
+        ["Client Management", "User Management", "Group Management", "Roles of Groups", "Groups of Users"]
     sandbox:
         enabled: true
         authentication:

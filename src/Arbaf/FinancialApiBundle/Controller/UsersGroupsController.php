@@ -19,7 +19,7 @@ class UsersGroupsController extends FosRestController
 {
     /**
      * @ApiDoc(
-     *   section="5 - Groups of Users",
+     *   section="Groups of Users",
      *   description="Adds a group to a user by id",
      *   requirements={
      *      {
@@ -80,7 +80,7 @@ class UsersGroupsController extends FosRestController
 
     /**
      * @ApiDoc(
-     *   section="5 - Groups of Users",
+     *   section="Groups of Users",
      *   description="Removes a group from a user by id",
      *   requirements={
      *      {

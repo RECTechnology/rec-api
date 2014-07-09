@@ -20,7 +20,7 @@ class GroupsController extends FosRestController
      * This method returns all users registered in the system.
      *
      * @ApiDoc(
-     *   section="3 - Group Management",
+     *   section="Group Management",
      *   description="Returns all groups",
      *   statusCodes={
      *       200="Returned when successful",
@@ -62,7 +62,7 @@ class GroupsController extends FosRestController
 
     /**
      * @ApiDoc(
-     *   section="3 - Group Management",
+     *   section="Group Management",
      *   description="Returns one group by ID"
      * )
      *
@@ -91,7 +91,7 @@ class GroupsController extends FosRestController
 
     /**
      * @ApiDoc(
-     *   section="3 - Group Management",
+     *   section="Group Management",
      *   description="Creates a new group",
      *   requirements={
      *      {
@@ -137,7 +137,7 @@ class GroupsController extends FosRestController
 
     /**
      * @ApiDoc(
-     *   section="2 - User Management",
+     *   section="User Management",
      *   description="Updates a user"
      * )
      *
@@ -149,7 +149,7 @@ class GroupsController extends FosRestController
 
     /**
      * @ApiDoc(
-     *   section="3 - Group Management",
+     *   section="Group Management",
      *   description="Removes a group",
      *   requirements={
      *      {

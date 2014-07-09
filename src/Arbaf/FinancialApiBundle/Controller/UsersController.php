@@ -24,7 +24,7 @@ class UsersController extends FosRestController
      * This method returns all users registered in the system.
      *
      * @ApiDoc(
-     *   section="2 - User Management",
+     *   section="User Management",
      *   description="Returns all users",
      *   output={
      *      "class"="Arbaf\FinancialApiBundle\Entity\User",
@@ -69,7 +69,7 @@ class UsersController extends FosRestController
 
     /**
      * @ApiDoc(
-     *   section="2 - User Management",
+     *   section="User Management",
      *   description="Returns one user by ID"
      * )
      *
@@ -97,7 +97,7 @@ class UsersController extends FosRestController
 
     /**
      * @ApiDoc(
-     *   section="2 - User Management",
+     *   section="User Management",
      *   description="Creates a new user"
      * )
      *
@@ -109,7 +109,7 @@ class UsersController extends FosRestController
 
     /**
      * @ApiDoc(
-     *   section="2 - User Management",
+     *   section="User Management",
      *   description="Updates a user"
      * )
      *
@@ -121,7 +121,7 @@ class UsersController extends FosRestController
 
     /**
      * @ApiDoc(
-     *   section="2 - User Management",
+     *   section="User Management",
      *   description="Removes a user"
      * )
      *

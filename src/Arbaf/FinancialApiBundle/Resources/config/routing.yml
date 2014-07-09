@@ -2,13 +2,13 @@
 ######################### TEST ############################
 
 arbaf_financial_api_test_plain:
-    pattern:  /test/plain
+    pattern:  /test/auth/ip
     defaults: { _controller: ArbafFinancialApiBundle:Test:plain, _format: ~ }
     requirements:
         _method: GET
 
 arbaf_financial_api_test_auth:
-    pattern:  /test/auth
+    pattern:  /test/auth/signature
     defaults: { _controller: ArbafFinancialApiBundle:Test:auth, _format: ~ }
     requirements:
         _method: GET

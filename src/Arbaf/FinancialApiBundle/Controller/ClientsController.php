@@ -24,7 +24,7 @@ class ClientsController extends FosRestController
      * This method returns all clients registered in the system.
      *
      * @ApiDoc(
-     *   section="1 - Client Management",
+     *   section="Client Management",
      *   description="Returns all clients",
      *   statusCodes={
      *       200="Returned when successful",
@@ -65,7 +65,7 @@ class ClientsController extends FosRestController
 
     /**
      * @ApiDoc(
-     *   section="1 - Client Management",
+     *   section="Client Management",
      *   description="Returns one client by ID"
      * )
      *
@@ -86,7 +86,7 @@ class ClientsController extends FosRestController
 
     /**
      * @ApiDoc(
-     *   section="1 - Client Management",
+     *   section="Client Management",
      *   description="Creates a new client"
      * )
      *
@@ -98,7 +98,7 @@ class ClientsController extends FosRestController
 
     /**
      * @ApiDoc(
-     *   section="1 - Client Management",
+     *   section="Client Management",
      *   description="Updates a client"
      * )
      *
@@ -110,7 +110,7 @@ class ClientsController extends FosRestController
 
     /**
      * @ApiDoc(
-     *   section="1 - Client Management",
+     *   section="Client Management",
      *   description="Removes a client"
      * )
      *

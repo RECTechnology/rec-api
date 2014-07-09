@@ -13,13 +13,15 @@ security:
     firewalls:
 
         api_test_plain:
-            pattern: ^/test/plain$
+            pattern: ^/test/auth/ip$
             host: api.arbafinternational.com
+            stateless: true
             security: false
 
         charge2k_exception:
             pattern: ^/services/netpay/pos/
             host: api.arbafinternational.com
+            stateless: true
             security: false
 
         api_arbaf:

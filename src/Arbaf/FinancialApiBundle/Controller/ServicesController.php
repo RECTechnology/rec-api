@@ -21,7 +21,7 @@ class ServicesController extends FosRestController
      * This method returns all services in the system.
      *
      * @ApiDoc(
-     *   section="6 - Services",
+     *   section="Services",
      *   description="Returns all services",
      *   statusCodes={
      *       200="Returned when successful",
