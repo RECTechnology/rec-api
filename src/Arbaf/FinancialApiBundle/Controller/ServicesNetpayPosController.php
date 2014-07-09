@@ -40,7 +40,6 @@ class ServicesNetpayPosController extends FosRestController
      *   }
      * )
      *
-     * @Rest\View(statusCode=201)
      */
     public function registerAction() {
         static $paramNames = array(
@@ -73,12 +72,24 @@ class ServicesNetpayPosController extends FosRestController
         $command .= " ".implode(":",$libs);
         $command .= " ".$class;
         $command .= " ".implode(" ",$params);
+        $command .= " 2>/dev/null";
 
-        $output = passthru($command);
-        $netpayResponse = json_decode($output);
+        exec($command, $outLines, $retVal);
 
-        $view = $this->view($netpayResponse, 201);
+        $output = implode("",$outLines);
 
+        if($retVal == 0){
+            $netpayResponse = json_decode($output, true);
+            $view = $this->view($netpayResponse, 201);
+        }
+        else{
+            $resp = new ApiResponseBuilder(
+                504,
+                "Empty response or timeout from NetPay",
+                array()
+            );
+            $view = $this->view($resp, 504);
+        }
         return $this->handleView($view);
     }
 
@@ -256,12 +267,24 @@ class ServicesNetpayPosController extends FosRestController
         $command .= " ".implode(":",$libs);
         $command .= " ".$class;
         $command .= " ".implode(" ",$params);
+        $command .= " 2>/dev/null";
 
-        $output = passthru($command);
-        $netpayResponse = json_decode($output);
+        exec($command, $outLines, $retVal);
 
-        $view = $this->view($netpayResponse, 201);
+        $output = implode("",$outLines);
 
+        if($retVal == 0){
+            $netpayResponse = json_decode($output, true);
+            $view = $this->view($netpayResponse, 201);
+        }
+        else{
+            $resp = new ApiResponseBuilder(
+                504,
+                "Empty response or timeout from NetPay",
+                array()
+            );
+            $view = $this->view($resp, 504);
+        }
         return $this->handleView($view);
 
     }
