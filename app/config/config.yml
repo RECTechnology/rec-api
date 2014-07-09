@@ -98,12 +98,14 @@ fos_rest:
         rules:
             - { priorities: [json, xml], fallback_format: json }
 
-#fos_oauth_server:
-#    db_driver:           orm
-#    client_class:        Arbaf\FinancialApiBundle\Entity\User
-#    access_token_class:  Arbaf\FinancialApiBundle\Entity\AccessToken
-#    refresh_token_class: Arbaf\FinancialApiBundle\Entity\RefreshToken
-#    auth_code_class:     Arbaf\FinancialApiBundle\Entity\AuthCode
+fos_oauth_server:
+    db_driver:           orm
+    client_class:        Arbaf\FinancialApiBundle\Entity\User
+    access_token_class:  Arbaf\FinancialApiBundle\Entity\AccessToken
+    refresh_token_class: Arbaf\FinancialApiBundle\Entity\RefreshToken
+    auth_code_class:     Arbaf\FinancialApiBundle\Entity\AuthCode
+    service:
+        user_provider: api.security.user_provider
 
 sensio_framework_extra:
     view:    { annotations: false }
