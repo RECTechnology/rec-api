@@ -43,7 +43,43 @@ class ServicesNetpayPosController extends FosRestController
      * @Rest\View(statusCode=201)
      */
     public function registerAction() {
-        return array();
+        static $paramNames = array(
+            'store_id',
+            'username',
+            'password',
+            'order_id',
+            'order_id',
+            'card_number',
+            'cvv2',
+            'exp_date'
+        );
+
+        $request=$this->get('request_stack')->getCurrentRequest();
+        $params = array();
+        foreach($paramNames as $paramName){
+            $params[]=$request->get($paramName, 'null');
+        }
+
+        $javaBin = "java";
+
+        $libs = array(
+            "../vendor/netpay-pos/out/production/NetpayPOS/",
+            "../vendor/netpay-pos/lib/NetPayJSONConnector.jar",
+            "../vendor/netpay-pos/lib/gson-2.2.4.jar"
+        );
+        $class = "net.telepay.api.services.NetpayRegister";
+
+        $command = $javaBin." -classpath";
+        $command .= " ".implode(":",$libs);
+        $command .= " ".$class;
+        $command .= " ".implode(" ",$params);
+
+        $output = passthru($command);
+        $netpayResponse = json_decode($output);
+
+        $view = $this->view($netpayResponse, 201);
+
+        return $this->handleView($view);
     }
 
 
