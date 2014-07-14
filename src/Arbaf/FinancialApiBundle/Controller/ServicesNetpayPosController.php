@@ -19,7 +19,6 @@ class ServicesNetpayPosController extends FosRestController
 {
 
 
-
     /**
      * This method allows card tokenization, and then make payments without sending the card number again.
      *

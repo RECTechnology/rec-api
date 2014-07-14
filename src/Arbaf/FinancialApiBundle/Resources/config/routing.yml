@@ -200,3 +200,27 @@ arbaf_financial_api_services_netpay_pos_transaction:
     defaults: { _controller: ArbafFinancialApiBundle:ServicesNetpayPos:transaction, _format: ~ }
     requirements:
         _method: POST
+
+arbaf_financial_api_services_paynet_reference_generate:
+    pattern:  /services/paynet/reference/generate
+    defaults: { _controller: ArbafFinancialApiBundle:ServicesPaynetReference:generate, _format: ~ }
+    requirements:
+        _method: POST
+
+arbaf_financial_api_services_paynet_reference_status:
+    pattern:  /services/paynet/reference/status
+    defaults: { _controller: ArbafFinancialApiBundle:ServicesPaynetReference:status, _format: ~ }
+    requirements:
+        _method: POST
+
+arbaf_financial_api_services_toditocash_payservices_request:
+    pattern:  /services/paynet/payservices/request
+    defaults: { _controller: ArbafFinancialApiBundle:ServicesToditocashPayservices:request, _format: ~ }
+    requirements:
+        _method: POST
+
+arbaf_financial_api_services_toditocash_payservices_reverso:
+    pattern:  /services/paynet/payservices/reverso
+    defaults: { _controller: ArbafFinancialApiBundle:ServicesToditocashPayservices:reverso, _format: ~ }
+    requirements:
+        _method: POST
