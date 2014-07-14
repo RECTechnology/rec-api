@@ -21,7 +21,7 @@ class TestController extends FosRestController
      * This method returns a test response for improving the connection with the API.
      *
      * @ApiDoc(
-     *   section="0 - Testing the API",
+     *   section="Testing the API",
      *   description="Returns a test response",
      *   statusCodes={
      *       200="Returned when successful",
@@ -44,7 +44,7 @@ class TestController extends FosRestController
      * This method returns a test response for improving the connection with the API given an authenticated request.
      *
      * @ApiDoc(
-     *   section="0 - Testing the API",
+     *   section="Testing the API",
      *   description="Returns a test response",
      *   statusCodes={
      *       200="Returned when successful",

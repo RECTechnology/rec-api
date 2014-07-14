@@ -18,7 +18,7 @@ class GroupsRolesController extends FosRestController
 {
     /**
      * @ApiDoc(
-     *   section="4 - Roles of Groups",
+     *   section="Roles of Groups",
      *   description="Adds a role to a group by id",
      *   requirements={
      *      {
@@ -77,7 +77,7 @@ class GroupsRolesController extends FosRestController
 
     /**
      * @ApiDoc(
-     *   section="4 - Roles of Groups",
+     *   section="Roles of Groups",
      *   description="Removes a role from a group by id",
      *   requirements={
      *      {
