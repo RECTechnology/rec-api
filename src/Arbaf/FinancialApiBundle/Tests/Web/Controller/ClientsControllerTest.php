@@ -21,7 +21,7 @@ class ClientsControllerTest extends AbstractApiWebTestCase
             'HTTP_X-API-AUTHORIZATION' => $signatureHeader
         ));
 
-        $client->request('GET', '/clients');
+        $client->request('GET', '/admin/clients');
 
         $this->assertEquals(
             Response::HTTP_OK,
@@ -42,7 +42,7 @@ class ClientsControllerTest extends AbstractApiWebTestCase
             'HTTP_X-API-AUTHORIZATION' => $signatureHeader
         ));
 
-        $client->request('GET', '/clients');
+        $client->request('GET', '/admin/clients');
 
         $this->assertEquals(
             Response::HTTP_OK,
@@ -67,7 +67,7 @@ class ClientsControllerTest extends AbstractApiWebTestCase
             'HTTP_X-API-AUTHORIZATION' => $signatureHeader
         ));
 
-        $client->request('GET', '/users');
+        $client->request('GET', '/admin/users');
 
         $this->assertEquals(
             Response::HTTP_OK,
@@ -91,7 +91,7 @@ class ClientsControllerTest extends AbstractApiWebTestCase
             'HTTP_X-API-AUTHORIZATION' => $signatureHeader
         ));
 
-        $client->request('GET', '/clients');
+        $client->request('GET', '/admin/clients');
 
         $this->assertEquals(
             Response::HTTP_FORBIDDEN,

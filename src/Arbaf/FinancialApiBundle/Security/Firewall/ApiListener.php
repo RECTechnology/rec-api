@@ -37,6 +37,7 @@ class ApiListener implements ListenerInterface {
      */
     public function handle(GetResponseEvent $event)
     {
+
         $request = $event->getRequest();
 
         $authRequestRegex = '/Signature '

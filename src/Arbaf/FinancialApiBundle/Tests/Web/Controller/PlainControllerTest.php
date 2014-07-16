@@ -15,7 +15,7 @@ class PlainControllerTest extends WebTestCase
             'HTTP_HOST' => 'api.arbafinternational.com'
         ));
 
-        $client->request('GET', '/test/plain');
+        $client->request('GET', '/test/auth/ip');
 
         $this->assertTrue($client->getResponse()->isSuccessful());
     }
@@ -27,7 +27,7 @@ class PlainControllerTest extends WebTestCase
             'HTTP_ACCEPT' => 'application/json'
         ));
 
-        $client->request('GET', '/test/plain');
+        $client->request('GET', '/test/auth/ip');
 
         $this->assertNotNull(json_decode($client->getResponse()->getContent()));
 
@@ -47,7 +47,7 @@ class PlainControllerTest extends WebTestCase
             'HTTP_ACCEPT' => 'application/xml'
         ));
 
-        $client->request('GET', '/test/plain');
+        $client->request('GET', '/test/auth/ip');
 
 
         $this->assertTrue(
@@ -65,7 +65,7 @@ class PlainControllerTest extends WebTestCase
             'HTTP_ACCEPT' => 'application/json'
         ));
 
-        $client->request('GET', '/test/plain');
+        $client->request('GET', '/test/auth/ip');
 
         $objectResponse = json_decode($client->getResponse()->getContent());
 

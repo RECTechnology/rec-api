@@ -10,3 +10,4 @@ services:
     api.security.user_provider:
         class: Arbaf\FinancialApiBundle\Security\ApiUserProvider
         arguments: ["@fos_user.user_manager"]
+

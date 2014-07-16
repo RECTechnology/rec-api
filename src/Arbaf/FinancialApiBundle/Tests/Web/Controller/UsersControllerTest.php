@@ -9,7 +9,7 @@ class UsersControllerTest extends AbstractApiWebTestCase
 {
     private function getAllUsers(){
         $client = static::getTestClient('ROLE_API_ADMIN');
-        $client->request('GET', '/users');
+        $client->request('GET', '/admin/users');
         $this->assertEquals(
             Response::HTTP_OK,
             $client->getResponse()->getStatusCode(), $client->getResponse()
@@ -29,7 +29,7 @@ class UsersControllerTest extends AbstractApiWebTestCase
 
         $client = static::getTestClient('ROLE_API_ADMIN');
 
-        $client->request('GET', '/users/'.$firstUser->id);
+        $client->request('GET', '/admin/users/'.$firstUser->id);
 
         $this->assertEquals(
             Response::HTTP_OK,

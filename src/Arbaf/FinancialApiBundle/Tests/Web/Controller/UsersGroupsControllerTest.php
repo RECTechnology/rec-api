@@ -10,7 +10,7 @@ class UsersGroupsControllerTest extends AbstractApiWebTestCase
 
     private function getAllUsers(){
         $client = static::getTestClient('ROLE_API_ADMIN');
-        $client->request('GET', '/users');
+        $client->request('GET', '/admin/users');
         $this->assertEquals(
             Response::HTTP_OK,
             $client->getResponse()->getStatusCode(), $client->getResponse()
@@ -25,7 +25,7 @@ class UsersGroupsControllerTest extends AbstractApiWebTestCase
 
     private function getAllGroups(){
         $client = static::getTestClient('ROLE_API_SUPER_ADMIN');
-        $client->request('GET', '/groups');
+        $client->request('GET', '/admin/groups');
         $this->assertEquals(
             Response::HTTP_OK,
             $client->getResponse()->getStatusCode(), $client->getResponse()
@@ -49,7 +49,7 @@ class UsersGroupsControllerTest extends AbstractApiWebTestCase
         #ADDING ROLE to first user (OK)
         $client = static::getTestClient('ROLE_API_ADMIN');
         $params = array('group_id' => $firstGroup->id);
-        $client->request('POST', '/users/'.$firstUser->id.'/groups', $params);
+        $client->request('POST', '/admin/users/'.$firstUser->id.'/groups', $params);
         $this->assertEquals(
             Response::HTTP_CONFLICT,
             $client->getResponse()->getStatusCode(), $client->getResponse()
@@ -58,7 +58,7 @@ class UsersGroupsControllerTest extends AbstractApiWebTestCase
         #ADDING ROLE to first user (CONFLICT)
         $client = static::getTestClient('ROLE_API_ADMIN');
         $params = array('group_id' => $firstGroup->id);
-        $client->request('POST', '/users/'.$firstUser->id.'/groups', $params);
+        $client->request('POST', '/admin/users/'.$firstUser->id.'/groups', $params);
         $this->assertEquals(
             Response::HTTP_CONFLICT,
             $client->getResponse()->getStatusCode(), $client->getResponse()
@@ -66,7 +66,7 @@ class UsersGroupsControllerTest extends AbstractApiWebTestCase
 /*
         #DELETE ROLE to first user (OK)
         $client = static::getTestClient('ROLE_API_ADMIN');
-        $client->request('DELETE', '/users/'.$firstUser->id.'/groups/'.$firstGroup->id);
+        $client->request('DELETE', '/admin/users/'.$firstUser->id.'/groups/'.$firstGroup->id);
         $this->assertEquals(
             Response::HTTP_NO_CONTENT,
             $client->getResponse()->getStatusCode(), $client->getResponse()

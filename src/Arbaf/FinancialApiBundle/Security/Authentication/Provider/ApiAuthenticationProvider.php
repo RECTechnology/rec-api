@@ -42,8 +42,11 @@ class ApiAuthenticationProvider implements AuthenticationProviderInterface {
         if($user && $this->validateSignature($token->getUsername(), $token->nonce, $token->timestamp, $token->algorithm, $token->signature, $user->getAccessSecret())){
             $authenticatedToken = new ApiToken($user->getRoles());
             $authenticatedToken->setUser($user);
+            //die("auth ok\n");
             return $authenticatedToken;
         }
+
+            //die("auth failed\n");
         throw new AuthenticationException('The Api authentication failed.');
     }
     protected function validateSignature($accessKey, $nonce, $timestamp, $algorithm, $signature, $secret){

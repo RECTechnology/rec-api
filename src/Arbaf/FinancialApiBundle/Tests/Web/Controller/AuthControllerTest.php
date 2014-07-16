@@ -21,7 +21,7 @@ class AuthControllerTest extends AbstractApiWebTestCase
             'HTTP_X-API-AUTHORIZATION' => $signatureHeader
         ));
 
-        $client->request('GET', '/test/auth');
+        $client->request('GET', '/test/auth/signature');
 
         $this->assertEquals(
             Response::HTTP_OK,
@@ -43,14 +43,14 @@ class AuthControllerTest extends AbstractApiWebTestCase
             'HTTP_X-API-AUTHORIZATION' => $signatureHeader
         ));
 
-        $client->request('GET', '/test/auth');
+        $client->request('GET', '/test/auth/signature');
 
         $this->assertEquals(
             Response::HTTP_OK,
             $client->getResponse()->getStatusCode()
         );
 
-        $client->request('GET', '/test/auth');
+        $client->request('GET', '/test/auth/signature');
 
         $this->assertEquals(
             Response::HTTP_FORBIDDEN,
@@ -64,7 +64,7 @@ class AuthControllerTest extends AbstractApiWebTestCase
             'HTTP_HOST' => 'api.arbafinternational.com'
         ));
 
-        $client->request('GET', '/test/auth');
+        $client->request('GET', '/test/auth/signature');
 
         $this->assertEquals(
             Response::HTTP_UNAUTHORIZED,

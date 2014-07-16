@@ -100,12 +100,14 @@ fos_rest:
 
 fos_oauth_server:
     db_driver:           orm
-    client_class:        Arbaf\FinancialApiBundle\Entity\User
+    client_class:        Arbaf\FinancialApiBundle\Entity\Client
     access_token_class:  Arbaf\FinancialApiBundle\Entity\AccessToken
     refresh_token_class: Arbaf\FinancialApiBundle\Entity\RefreshToken
     auth_code_class:     Arbaf\FinancialApiBundle\Entity\AuthCode
     service:
         user_provider: api.security.user_provider
+        options:
+            supported_scopes: admin services
 
 sensio_framework_extra:
     view:    { annotations: false }

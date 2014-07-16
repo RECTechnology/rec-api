@@ -53,7 +53,7 @@ class GroupsControllerTest extends AbstractApiWebTestCase
         #CREATING GROUP 'functionalTest' (OK)
         $client = static::getTestClient('ROLE_API_SUPER_ADMIN');
         $params = array('name' => 'functinoalTest');
-        $client->request('POST', '/groups', $params);
+        $client->request('POST', '/admin/groups', $params);
         $this->assertEquals(
             Response::HTTP_CREATED,
             $client->getResponse()->getStatusCode(), $client->getResponse()
@@ -62,7 +62,7 @@ class GroupsControllerTest extends AbstractApiWebTestCase
         #CREATING Again GROUP 'functionalTest' (CONFLICT)
         $client = static::getTestClient('ROLE_API_SUPER_ADMIN');
         $params = array('name' => 'functinoalTest');
-        $client->request('POST', '/groups', $params);
+        $client->request('POST', '/admin/groups', $params);
         $this->assertEquals(
             Response::HTTP_CONFLICT,
             $client->getResponse()->getStatusCode(), $client->getResponse()
@@ -76,7 +76,7 @@ class GroupsControllerTest extends AbstractApiWebTestCase
 
                 #DELETING GROUP 'functionalTest' (OK)
                 $client = static::getTestClient('ROLE_API_SUPER_ADMIN');
-                $client->request('DELETE', '/groups/'.$group->id);
+                $client->request('DELETE', '/admin/groups/'.$group->id);
                 $this->assertEquals(
                     Response::HTTP_NO_CONTENT,
                     $client->getResponse()->getStatusCode(), $client->getResponse()

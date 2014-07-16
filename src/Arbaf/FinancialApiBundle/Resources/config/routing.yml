@@ -23,20 +23,20 @@ arbaf_financial_api_test_auth:
 ##################### CLIENTS ############################
 
 arbaf_financial_api_clients_index:
-    pattern:  /clients
+    pattern:  /admin/clients
     defaults: { _controller: ArbafFinancialApiBundle:Clients:index, _format: ~ }
     requirements:
         _method: GET
 
 #arbaf_financial_api_clients_get:
-#    pattern:  /clients/{id}
+#    pattern:  /admin/clients/{id}
 #    defaults: { _controller: ArbafFinancialApiBundle:Clients:get, _format: ~ }
 #    requirements:
 #        _method: GET
 #        id: "[0-9]+"
 #
 #arbaf_financial_api_clients_add:
-#    pattern:  /clients
+#    pattern:  /admin/clients
 #    defaults: { _controller: ArbafFinancialApiBundle:Clients:add, _format: ~ }
 #    requirements:
 #        _method: POST
@@ -45,7 +45,7 @@ arbaf_financial_api_clients_index:
 #        password: "string"
 #
 #arbaf_financial_api_clients_edit:
-#    pattern:  /clients/{id}
+#    pattern:  /admin/clients/{id}
 #    defaults: { _controller: ArbafFinancialApiBundle:Clients:edit, _format: ~ }
 #    requirements:
 #        _method: PUT
@@ -55,7 +55,7 @@ arbaf_financial_api_clients_index:
 #        password: "string"
 #
 #arbaf_financial_api_clients_delete:
-#    pattern:  /clients/{id}
+#    pattern:  /admin/clients/{id}
 #    defaults: { _controller: ArbafFinancialApiBundle:Clients:delete, _format: ~ }
 #    requirements:
 #        _method: DELETE
@@ -65,20 +65,20 @@ arbaf_financial_api_clients_index:
 ##################### USERS ############################
 
 arbaf_financial_api_users_index:
-    pattern:  /users
+    pattern:  /admin/users
     defaults: { _controller: ArbafFinancialApiBundle:Users:index, _format: ~ }
     requirements:
         _method: GET
 
 arbaf_financial_api_users_get:
-    pattern:  /users/{id}
+    pattern:  /admin/users/{id}
     defaults: { _controller: ArbafFinancialApiBundle:Users:get, _format: ~ }
     requirements:
         _method: GET
         id: "[0-9]+"
 
 #arbaf_financial_api_users_add:
-#    pattern:  /users
+#    pattern:  /admin/users
 #    defaults: { _controller: ArbafFinancialApiBundle:Users:add, _format: ~ }
 #    requirements:
 #        _method: POST
@@ -87,7 +87,7 @@ arbaf_financial_api_users_get:
 #        password: "string"
 #
 #arbaf_financial_api_users_edit:
-#    pattern:  /users/{id}
+#    pattern:  /admin/users/{id}
 #    defaults: { _controller: ArbafFinancialApiBundle:Users:edit, _format: ~ }
 #    requirements:
 #        _method: PUT
@@ -97,7 +97,7 @@ arbaf_financial_api_users_get:
 #        password: "string"
 #
 #arbaf_financial_api_users_delete:
-#    pattern:  /users/{id}
+#    pattern:  /admin/users/{id}
 #    defaults: { _controller: ArbafFinancialApiBundle:Users:delete, _format: ~ }
 #    requirements:
 #        _method: DELETE
@@ -107,27 +107,27 @@ arbaf_financial_api_users_get:
 ##################### GROUPS ############################
 
 arbaf_financial_api_groups_index:
-    pattern:  /groups
+    pattern:  /admin/groups
     defaults: { _controller: ArbafFinancialApiBundle:Groups:index, _format: ~ }
     requirements:
         _method: GET
 
 arbaf_financial_api_groups_get:
-    pattern:  /groups/{id}
+    pattern:  /admin/groups/{id}
     defaults: { _controller: ArbafFinancialApiBundle:Groups:get, _format: ~ }
     requirements:
         _method: GET
         id: "[0-9]+"
 
 arbaf_financial_api_groups_add:
-    pattern:  /groups
+    pattern:  /admin/groups
     defaults: { _controller: ArbafFinancialApiBundle:Groups:add, _format: ~ }
     requirements:
         _method: POST
         name: "[a-zA-Z0-9_]+"
 
 arbaf_financial_api_groups_delete:
-    pattern:  /groups/{id}
+    pattern:  /admin/groups/{id}
     defaults: { _controller: ArbafFinancialApiBundle:Groups:delete, _format: ~ }
     requirements:
         _method: DELETE
@@ -137,14 +137,14 @@ arbaf_financial_api_groups_delete:
 
 
 arbaf_financial_api_groups_add_roles:
-    pattern:  /groups/{id}/roles
+    pattern:  /admin/groups/{id}/roles
     defaults: { _controller: ArbafFinancialApiBundle:GroupsRoles:addRoles, _format: ~ }
     requirements:
         _method: POST
         rol_name: "ROLE_[A-Z_]+"
 
 arbaf_financial_api_groups_delete_roles:
-    pattern:  /groups/{id}/roles/{rol_name}
+    pattern:  /admin/groups/{id}/roles/{rol_name}
     defaults: { _controller: ArbafFinancialApiBundle:GroupsRoles:deleteRoles, _format: ~ }
     requirements:
         _method: DELETE
@@ -154,14 +154,14 @@ arbaf_financial_api_groups_delete_roles:
 
 
 arbaf_financial_api_users_add_groups:
-    pattern:  /users/{id}/groups
+    pattern:  /admin/users/{id}/groups
     defaults: { _controller: ArbafFinancialApiBundle:UsersGroups:addGroups, _format: ~ }
     requirements:
         _method: POST
         group_id: "[0-9]+"
 
 arbaf_financial_api_users_delete_groups:
-    pattern:  /users/{id}/groups/{group_id}
+    pattern:  /admin/users/{id}/groups/{group_id}
     defaults: { _controller: ArbafFinancialApiBundle:UsersGroups:deleteGroups, _format: ~ }
     requirements:
         _method: DELETE

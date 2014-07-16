@@ -16,15 +16,21 @@ security:
             pattern: ^/oauth/v2/token
             security: false
 
+
+
         oauth_authorize:
             pattern: ^/oauth/v2/auth
-            security: false
+            form_login:
+                check_path: fos_user_security_check
+                login_path: fos_user_security_login
+            anonymous: true
 
-        management_zone:
-            pattern:    ^/manage
+        admin_zone:
+            pattern:    ^/admin
             fos_oauth:  true
             stateless:  true
             anonymous:  false
+
 
         api_test_plain:
             pattern: ^/test/auth/ip$
@@ -57,10 +63,10 @@ security:
             anonymous: ~
 
     access_control:
-        - { host: api.arbafinternational.com, path: ^/manage/clients/*, role: ROLE_API_SUPER_ADMIN }
-        - { host: api.arbafinternational.com, path: ^/manage/groups/*, role: ROLE_API_SUPER_ADMIN }
+        - { host: api.arbafinternational.com, path: ^/admin/clients/*, role: ROLE_API_SUPER_ADMIN }
+        - { host: api.arbafinternational.com, path: ^/admin/groups/*, role: ROLE_API_SUPER_ADMIN }
 
-        - { host: api.arbafinternational.com, path: ^/manage/users/*, role: ROLE_API_ADMIN }
+        - { host: api.arbafinternational.com, path: ^/admin/users/*, role: ROLE_API_ADMIN }
 
         - { host: api.arbafinternational.com, path: ^/services/test/*, role: ROLE_API_SERVICES_TEST }
         - { host: api.arbafinternational.com, path: ^/services/netpay/pos/*, role: ROLE_API_SERVICES_NETPAY_POS }
