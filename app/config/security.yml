@@ -3,8 +3,8 @@ security:
         FOS\UserBundle\Model\UserInterface: sha512
 
     role_hierarchy:
-        ROLE_API_ADMIN:       ROLE_USER
-        ROLE_SUPER_ADMIN: ROLE_ADMIN
+        ROLE_ADMIN:           ROLE_USER
+        ROLE_SUPER_ADMIN:     ROLE_ADMIN
 
     providers:
         arbaf_financial_api:
@@ -13,45 +13,46 @@ security:
     firewalls:
 
         oauth_token:
-            pattern: ^/oauth/v2/token
-            security: false
+            pattern:        ^/oauth/v2/token
+            security:       false
 
         oauth_authorize:
-            pattern: ^/oauth/v2/auth
+            pattern:        ^/oauth/v2/auth
             form_login:
                 check_path: fos_user_security_check
                 login_path: fos_user_security_login
             anonymous: true
 
-        admin_zone:
-            pattern:    ^/(admin|manage)/
+        panel:
+            pattern:    ^/(admin|manage|stats)/
+            host:       api.arbafinternational.com
             fos_oauth:  true
             stateless:  true
             anonymous:  false
 
 
         api_test_plain:
-            pattern: ^/test/auth/ip$
-            host: api.arbafinternational.com
-            stateless: true
-            security: false
+            pattern:    ^/test/auth/ip$
+            host:       api.arbafinternational.com
+            stateless:  true
+            security:   false
 
         charge2k_exception:
-            pattern: ^/services/netpay/pos/
-            host: api.arbafinternational.com
-            stateless: true
-            security: false
+            pattern:    ^/services/netpay/pos/
+            host:       api.arbafinternational.com
+            stateless:  true
+            security:   false
 
-        api_arbaf:
-            pattern: ^/
-            host: api.arbafinternational.com
-            stateless: true
-            api_arbaf: true
+        api:
+            pattern:    ^/services
+            host:       api.arbafinternational.com
+            stateless:  true
+            api_arbaf:  true
 
         doc:
-            pattern: ^/
-            host: dev.arbafinternational.com
-            security: false
+            pattern:    ^/
+            host:       dev.arbafinternational.com
+            security:   false
 
         dev:
             pattern: ^/(_(profiler|wdt)|css|images|js)/
