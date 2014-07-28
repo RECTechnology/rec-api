@@ -3,8 +3,8 @@ security:
         FOS\UserBundle\Model\UserInterface: sha512
 
     role_hierarchy:
-        ROLE_API_ADMIN:       ROLE_USER
-        ROLE_SUPER_ADMIN: ROLE_ADMIN
+        ROLE_ADMIN:       ROLE_USER
+        ROLE_SUPER_ADMIN:     ROLE_ADMIN
 
     providers:
         arbaf_financial_api:
@@ -23,8 +23,9 @@ security:
                 login_path: fos_user_security_login
             anonymous: true
 
-        admin_zone:
-            pattern:    ^/(admin|manage)/
+        panel:
+            pattern:    ^/(admin|manage|stats)/
+            host: api.arbafinternational.com
             fos_oauth:  true
             stateless:  true
             anonymous:  false
@@ -42,8 +43,8 @@ security:
             stateless: true
             security: false
 
-        api_arbaf:
-            pattern: ^/
+        api:
+            pattern: ^/services
             host: api.arbafinternational.com
             stateless: true
             api_arbaf: true
