@@ -4,7 +4,7 @@ security:
 
     role_hierarchy:
         ROLE_API_ADMIN:       ROLE_USER
-        ROLE_API_SUPER_ADMIN: ROLE_API_ADMIN
+        ROLE_SUPER_ADMIN: ROLE_ADMIN
 
     providers:
         arbaf_financial_api:
@@ -16,8 +16,6 @@ security:
             pattern: ^/oauth/v2/token
             security: false
 
-
-
         oauth_authorize:
             pattern: ^/oauth/v2/auth
             form_login:
@@ -26,7 +24,7 @@ security:
             anonymous: true
 
         admin_zone:
-            pattern:    ^/admin
+            pattern:    ^/(admin|manage)/
             fos_oauth:  true
             stateless:  true
             anonymous:  false
@@ -63,13 +61,13 @@ security:
             anonymous: ~
 
     access_control:
-        - { host: api.arbafinternational.com, path: ^/admin/clients/*, role: ROLE_API_SUPER_ADMIN }
-        - { host: api.arbafinternational.com, path: ^/admin/groups/*, role: ROLE_API_SUPER_ADMIN }
+        - { host: api.arbafinternational.com, path: ^/admin/*, role: ROLE_SUPER_ADMIN }
+        - { host: api.arbafinternational.com, path: ^/admin/*, role: ROLE_SUPER_ADMIN }
 
-        - { host: api.arbafinternational.com, path: ^/admin/users/*, role: ROLE_API_ADMIN }
+        - { host: api.arbafinternational.com, path: ^/manage/*, role: ROLE_ADMIN }
 
-        - { host: api.arbafinternational.com, path: ^/services/test/*, role: ROLE_API_SERVICES_TEST }
-        - { host: api.arbafinternational.com, path: ^/services/netpay/pos/*, role: ROLE_API_SERVICES_NETPAY_POS }
+        - { host: api.arbafinternational.com, path: ^/services/test/*, role: ROLE_SERVICES_TEST }
 
-        - { host: api.arbafinternational.com, path: ^/services/paynet/*, role: ROLE_API_SERVICES_PAYNET }
-        - { host: api.arbafinternational.com, path: ^/services/recargafon/*, role: ROLE_API_SERVICES_RECARGAFON }
+        - { host: api.arbafinternational.com, path: ^/services/netpay/pos/*, role: ROLE_SERVICES_NETPAY_POS }
+        - { host: api.arbafinternational.com, path: ^/services/paynet/*, role: ROLE_SERVICES_PAYNET }
+        - { host: api.arbafinternational.com, path: ^/services/recargafon/*, role: ROLE_SERVICES_RECARGAFON }
