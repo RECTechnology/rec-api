@@ -106,8 +106,6 @@ fos_oauth_server:
     auth_code_class:     Arbaf\FinancialApiBundle\Entity\AuthCode
     service:
         user_provider: api.security.user_provider
-        options:
-            supported_scopes: admin services
 
 sensio_framework_extra:
     view:    { annotations: false }

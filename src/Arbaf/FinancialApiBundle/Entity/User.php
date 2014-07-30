@@ -9,7 +9,8 @@
 namespace Arbaf\FinancialApiBundle\Entity;
 
 use FOS\UserBundle\Model\User as BaseUser;
-use Doctrine\ORM\Mapping as ORM;use Symfony\Component\Security\Core\Util\SecureRandom;
+use Doctrine\ORM\Mapping as ORM;
+use Symfony\Component\Security\Core\Util\SecureRandom;
 
 /**
  * @ORM\Entity
@@ -44,12 +45,12 @@ class User extends BaseUser
 
 
     /**
-     * @ORM\Column(type="guid")
+     * @ORM\Column(type="string")
      */
     private $access_key;
 
     /**
-     * @ORM\Column(type="guid")
+     * @ORM\Column(type="string")
      */
     private $access_secret;
 
