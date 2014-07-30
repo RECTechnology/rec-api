@@ -24,7 +24,7 @@ security:
             anonymous: true
 
         panel:
-            pattern:    ^/(admin|manage|stats)/
+            pattern:    ^/(admin|manager|user)/
             host:       api.arbafinternational.com
             fos_oauth:  true
             stateless:  true
@@ -64,7 +64,9 @@ security:
     access_control:
         - { host: api.arbafinternational.com, path: ^/admin/*, role: ROLE_SUPER_ADMIN }
 
-        - { host: api.arbafinternational.com, path: ^/manage/*, role: ROLE_ADMIN }
+        - { host: api.arbafinternational.com, path: ^/manager/*, role: ROLE_ADMIN }
+
+        - { host: api.arbafinternational.com, path: ^/user/*, role: ROLE_USER }
 
         - { host: api.arbafinternational.com, path: ^/services/test/*, role: ROLE_SERVICES_TEST }
 

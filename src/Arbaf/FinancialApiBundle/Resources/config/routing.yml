@@ -24,7 +24,7 @@ arbaf_financial_api_test_auth:
 
 arbaf_financial_api_clients_index:
     pattern:  /admin/clients
-    defaults: { _controller: ArbafFinancialApiBundle:Clients:index, _format: ~ }
+    defaults: { _controller: Arbaf\FinancialApiBundle\Controller\Admin\ClientsController::indexAction, _format: ~ }
     requirements:
         _method: GET
 
@@ -65,43 +65,45 @@ arbaf_financial_api_clients_index:
 ##################### USERS ############################
 
 arbaf_financial_api_users_index:
-    pattern:  /admin/users
-    defaults: { _controller: ArbafFinancialApiBundle:Users:index, _format: ~ }
+    pattern:  /manager/users
+    defaults: { _controller: Arbaf\FinancialApiBundle\Controller\Manager\UsersController::indexAction, _format: ~ }
     requirements:
         _method: GET
 
+
 arbaf_financial_api_users_get:
-    pattern:  /admin/users/{id}
-    defaults: { _controller: ArbafFinancialApiBundle:Users:get, _format: ~ }
+    pattern:  /manager/users/{id}
+    defaults: { _controller: Arbaf\FinancialApiBundle\Controller\Manager\UsersController::showAction, _format: ~ }
     requirements:
         _method: GET
         id: "[0-9]+"
 
-#arbaf_financial_api_users_add:
-#    pattern:  /admin/users
-#    defaults: { _controller: ArbafFinancialApiBundle:Users:add, _format: ~ }
-#    requirements:
-#        _method: POST
-#        name: "string"
-#        email: "email"
-#        password: "string"
-#
-#arbaf_financial_api_users_edit:
-#    pattern:  /admin/users/{id}
-#    defaults: { _controller: ArbafFinancialApiBundle:Users:edit, _format: ~ }
-#    requirements:
-#        _method: PUT
-#        id: "[0-9]+"
-#        name: "string"
-#        email: "email"
-#        password: "string"
-#
-#arbaf_financial_api_users_delete:
-#    pattern:  /admin/users/{id}
-#    defaults: { _controller: ArbafFinancialApiBundle:Users:delete, _format: ~ }
-#    requirements:
-#        _method: DELETE
-#        id: "[0-9]+"
+arbaf_financial_api_users_add:
+    pattern:  /manager/users
+    defaults: { _controller: Arbaf\FinancialApiBundle\Controller\Manager\UsersController::createAction, _format: ~ }
+    requirements:
+        _method: POST
+        name: "string"
+        email: "email"
+        password: "string"
+
+
+arbaf_financial_api_users_update:
+    pattern:  /manager/users/{id}
+    defaults: { _controller: Arbaf\FinancialApiBundle\Controller\Manager\UsersController::updateAction, _format: ~ }
+    requirements:
+        _method: PUT
+        id: "[0-9]+"
+        name: "string"
+        email: "email"
+        password: "string"
+
+arbaf_financial_api_users_delete:
+    pattern:  /manager/users/{id}
+    defaults: { _controller: Arbaf\FinancialApiBundle\Controller\Manager\UsersController::deleteAction, _format: ~ }
+    requirements:
+        _method: DELETE
+        id: "[0-9]+"
 
 ######################## END USERS ########################
 ##################### GROUPS ############################
