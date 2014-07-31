@@ -1,6 +1,6 @@
 <?php
 
-namespace Arbaf\FinancialApiBundle\Controller;
+namespace Arbaf\FinancialApiBundle\Controller\Admin;
 
 use Arbaf\FinancialApiBundle\Entity\Group;
 use Arbaf\FinancialApiBundle\Response\ApiResponseBuilder;
@@ -8,47 +8,30 @@ use Doctrine\DBAL\DBALException;
 use FOS\RestBundle\Controller\FOSRestController;
 use FOS\RestBundle\Controller\Annotations as Rest;
 use Nelmio\ApiDocBundle\Annotation\ApiDoc;
+use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpKernel\Exception\HttpException;
+use Arbaf\FinancialApiBundle\Controller\RestApiController;
 
 /**
  * Class GroupsController
  * @package Arbaf\FinancialApiBundle\Controller
  */
-class GroupsRolesController extends FosRestController
-{
+class GroupsRolesController extends RestApiController {
     /**
-     * @ApiDoc(
-     *   section="Roles of Groups",
-     *   description="Adds a role to a group by id",
-     *   requirements={
-     *      {
-     *          "name"="id",
-     *          "requirement"="[0-9]+",
-     *          "dataType"="integer",
-     *          "description"="Group id"
-     *      },
-     *      {
-     *          "name"="rol_name",
-     *          "requirement"="ROLE_[A-Z]+",
-     *          "dataType"="string",
-     *          "description"="Role name"
-     *      },
-     *   }
-     * )
-     *
+     * @Param role_name
      * @Rest\View
      */
-    public function addRolesAction($id) {
+    public function addRolesAction(Request $request, $id) {
         $em = $this->getDoctrine()->getManager();
 
-        $request=$this->get('request_stack')->getCurrentRequest();
         $roleName = $request->get('role_name');
-        if(empty($roleName))
-            throw new HttpException(400, "Missing parameter 'role_name'");
+
+        if(empty($roleName)) throw new HttpException(400, "Missing parameter 'role_name'");
 
         $groupRepository = $this->getDoctrine()->getRepository("ArbafFinancialApiBundle:Group");
 
         $group = $groupRepository->findOneBy(array('id'=>$id));
+        if(empty($group)) throw new HttpException(404, "Group not found");
 
         if($group->hasRole($roleName)){
             throw new HttpException(409, "Duplicated resource");
@@ -76,25 +59,6 @@ class GroupsRolesController extends FosRestController
     }
 
     /**
-     * @ApiDoc(
-     *   section="Roles of Groups",
-     *   description="Removes a role from a group by id",
-     *   requirements={
-     *      {
-     *          "name"="id",
-     *          "requirement"="[0-9]+",
-     *          "dataType"="integer",
-     *          "description"="Group id"
-     *      },
-     *      {
-     *          "name"="rol_name",
-     *          "requirement"="ROLE_[A-Z]+",
-     *          "dataType"="string",
-     *          "description"="Role name"
-     *      },
-     *   }
-     * )
-     *
      * @Rest\View
      */
     public function deleteRolesAction($id, $rol_name) {
@@ -104,23 +68,22 @@ class GroupsRolesController extends FosRestController
 
         $group = $groupRepository->findOneBy(array('id'=>$id));
 
+        if(empty($group)) throw new HttpException(404, "Group not found");
+
         if(!$group->hasRole($rol_name))
-            throw new HttpException(404, "Role not associated to specified group");
+            throw new HttpException(404, "Role not found in specified group");
 
         $group->removeRole($rol_name);
 
         $em->persist($group);
         $em->flush();
 
-        $resp = new ApiResponseBuilder(
+        $view = $this->buildRestView(
             204,
             "Role deleted from group successfully",
             array()
         );
 
-        $view = $this->view($resp, 204);
-
         return $this->handleView($view);
     }
-
 }
