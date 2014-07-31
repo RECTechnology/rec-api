@@ -14,6 +14,7 @@ abstract class RestApiController extends FosRestController{
 
     protected function buildRestView($code, $message, $data){
         return $this->view(array(
+            'code' => $code,
             'message' => $message,
             'data' => $data,
         ), $code);

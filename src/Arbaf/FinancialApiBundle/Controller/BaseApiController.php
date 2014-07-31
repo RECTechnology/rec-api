@@ -13,7 +13,7 @@ use FOS\RestBundle\Controller\FOSRestController;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpKernel\Exception\HttpException;
 
-abstract class BaseCRUDApiController extends RestApiController implements RepositoryController{
+abstract class BaseApiController extends RestApiController implements RepositoryController{
 
     abstract function getRepositoryName();
     abstract function getNewEntity();

@@ -2,7 +2,7 @@
 
 namespace Arbaf\FinancialApiBundle\Controller\Admin;
 
-use Arbaf\FinancialApiBundle\Controller\BaseCRUDApiController;
+use Arbaf\FinancialApiBundle\Controller\BaseApiController;
 use Arbaf\FinancialApiBundle\Entity\Group;
 use FOS\RestBundle\Controller\Annotations as Rest;
 use Nelmio\ApiDocBundle\Annotation\ApiDoc;
@@ -12,7 +12,7 @@ use Symfony\Component\HttpFoundation\Request;
  * Class GroupsController
  * @package Arbaf\FinancialApiBundle\Controller\Admin
  */
-class GroupsController extends BaseCRUDApiController
+class GroupsController extends BaseApiController
 {
     function getRepositoryName()
     {

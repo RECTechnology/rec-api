@@ -2,7 +2,7 @@
 
 namespace Arbaf\FinancialApiBundle\Controller\Admin;
 
-use Arbaf\FinancialApiBundle\Controller\BaseCRUDApiController;
+use Arbaf\FinancialApiBundle\Controller\BaseApiController;
 use Arbaf\FinancialApiBundle\Entity\Client;
 use FOS\RestBundle\Controller\Annotations as Rest;
 use Symfony\Component\HttpFoundation\Request;
@@ -11,7 +11,7 @@ use Symfony\Component\HttpFoundation\Request;
  * Class ClientController
  * @package Arbaf\FinancialApiBundle\Controller
  */
-class ClientsController extends BaseCRUDApiController {
+class ClientsController extends BaseApiController {
 
     function getRepositoryName() {
         return 'ArbafFinancialApiBundle:Client';

@@ -44,6 +44,10 @@ class User extends BaseUser
     protected $groups;
 
 
+
+    protected $ips;
+
+
     /**
      * @ORM\Column(type="string")
      */

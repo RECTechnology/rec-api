@@ -33,9 +33,8 @@ class GroupsRolesController extends RestApiController {
         $group = $groupRepository->findOneBy(array('id'=>$id));
         if(empty($group)) throw new HttpException(404, "Group not found");
 
-        if($group->hasRole($roleName)){
-            throw new HttpException(409, "Duplicated resource");
-        }
+        if($group->hasRole($roleName)) throw new HttpException(409, "Duplicated resource");
+
         $group->addRole($roleName);
 
         $em->persist($group);

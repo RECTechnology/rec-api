@@ -2,12 +2,13 @@
 
 namespace Arbaf\FinancialApiBundle\Controller;
 use Arbaf\FinancialApiBundle\Entity\IP;
+use Symfony\Component\HttpFoundation\Request;
 
 /**
  * Class IPsController
  * @package Arbaf\FinancialApiBundle\Controller
  */
-class IPsController extends BaseCRUDApiController {
+class IPsController extends BaseApiController {
 
     function getRepositoryName() {
         return "ArbafFinancialApiBundle:IP";
@@ -27,8 +28,8 @@ class IPsController extends BaseCRUDApiController {
     /**
      * @Rest\View
      */
-    public function createAction(){
-        return parent::createAction();
+    public function createAction(Request $request){
+        return parent::createAction($request);
     }
 
     /**
@@ -41,8 +42,8 @@ class IPsController extends BaseCRUDApiController {
     /**
      * @Rest\View
      */
-    public function updateAction($id){
-        return parent::updateAction($id);
+    public function updateAction(Request $request, $id){
+        return parent::updateAction($request, $id);
     }
 
     /**
