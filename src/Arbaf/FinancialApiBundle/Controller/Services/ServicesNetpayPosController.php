@@ -18,7 +18,6 @@ use Symfony\Component\HttpKernel\Exception\HttpException;
 class ServicesNetpayPosController extends FosRestController
 {
 
-
     /**
      * This method allows card tokenization, and then make payments without sending the card number again.
      *
@@ -40,6 +39,7 @@ class ServicesNetpayPosController extends FosRestController
      * )
      *
      */
+
     public function registerAction() {
         static $paramNames = array(
             'store_id',
@@ -91,7 +91,6 @@ class ServicesNetpayPosController extends FosRestController
         }
         return $this->handleView($view);
     }
-
 
 
     /**

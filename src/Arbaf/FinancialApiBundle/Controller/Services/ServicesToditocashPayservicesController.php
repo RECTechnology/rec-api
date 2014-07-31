@@ -2,13 +2,23 @@
 
 namespace Arbaf\FinancialApiBundle\Controller;
 
+use Arbaf\FinancialApiBundle\Response\ApiResponseBuilder;
 use FOS\RestBundle\Controller\FOSRestController;
 use FOS\RestBundle\Controller\Annotations as Rest;
 use Nelmio\ApiDocBundle\Annotation\ApiDoc;
+use ToditoCash;
+
+        class A{
+            private $a='a';
+        }
 
 
 class ServicesToditocashPayservicesController extends FosRestController
 {
+
+    public $contract_id=2801;
+    public $branch_id='test';
+
     /**
      * This method allows client to pay services with his own code.
      *
@@ -21,39 +31,27 @@ class ServicesToditocashPayservicesController extends FosRestController
      *   },
      *   parameters={
      *      {
-     *          "name"="idContrato",
+     *          "name"="transaction_id",
      *          "dataType"="int",
      *          "required"="true",
-     *          "description"="ID Cliente"
+     *          "description"="Unique transaction id"
      *      },
      *      {
-     *          "name"="idTrans",
-     *          "dataType"="int",
-     *          "required"="true",
-     *          "description"="ID Transacción"
-     *      },
-     *      {
-     *          "name"="idSucursal",
-     *          "dataType"="int",
-     *          "required"="true",
-     *          "description"="ID del punto de venta"
-     *      },
-     *      {
-     *          "name"="fecha",
+     *          "name"="date",
      *          "dataType"="string",
      *          "required"="true",
      *          "format"="YYYY-MM-DD",
      *          "description"="Transaction date."
      *      },
      *      {
-     *          "name"="hora",
+     *          "name"="hour",
      *          "dataType"="string",
      *          "required"="true",
      *          "format"="HH:MM:SS",
      *          "description"="Transaction hour."
      *      },
      *      {
-     *          "name"="numTarjeta",
+     *          "name"="card_number",
      *          "dataType"="string",
      *          "required"="true",
      *          "description"="Card Number"
@@ -62,28 +60,28 @@ class ServicesToditocashPayservicesController extends FosRestController
      *          "name"="nip",
      *          "dataType"="int",
      *          "required"="true",
-     *          "description"="nip."
+     *          "description"="nip->Personal number."
      *      },
      *      {
-     *          "name"="monto",
+     *          "name"="amount",
      *          "dataType"="int",
      *          "required"="true",
-     *          "description"="Monto de la compra."
+     *          "description"="Transaction amount."
      *      },
      *      {
-     *          "name"="concepto",
+     *          "name"="concept",
      *          "dataType"="string",
      *          "required"="false",
      *          "description"="Optional transaction description."
      *      },
      *      {
-     *          "name"="divisa",
+     *          "name"="badge",
      *          "dataType"="string",
      *          "required"="true",
-     *          "description"="MXN."
+     *          "description"="ISO-4217. f.e->MXN."
      *      },
      *      {
-     *          "name"="banProd",
+     *          "name"="production_flag",
      *          "dataType"="int",
      *          "required"="true",
      *          "description"="0 - Production , 1 - Test."
@@ -96,6 +94,44 @@ class ServicesToditocashPayservicesController extends FosRestController
 
     public function requestAction(){
 
+        static $paramNames = array(
+            'transaction_id',
+            'date',
+            'hour',
+            'card_number',
+            'nip',
+            'amount',
+            'concept',
+            'badge',
+            'production_flag'
+        );
+
+        //Get the parameters sent by POST and put them in a $params array
+        $request=$this->get('request_stack')->getCurrentRequest();
+        $params = array();
+        foreach($paramNames as $paramName){
+            $params[]=$request->get($paramName, 'null');
+        }
+
+        //Include the class
+        include("../vendor/toditocash/ToditoCash.php");
+
+        //Constructor
+        $constructor=new ToditoCash($this->contract_id,$this->branch_id);
+
+        //Info method
+        $datos=$constructor -> request($params[0],$params[1],$params[2],$params[3],$params[4],$params[5],$params[6],$params[7],$params[8]);
+        var_dump($datos);
+       //print_r(json_encode($datos));
+        $resp = new ApiResponseBuilder(
+            201,
+            "Reference created successfully",
+            new A()
+        );
+
+        $view = $this->view($resp, 201);
+
+        return $this->handleView($view);
 
     }
 
@@ -111,45 +147,33 @@ class ServicesToditocashPayservicesController extends FosRestController
      *   },
      *   parameters={
      *      {
-     *          "name"="idContrato",
+     *          "name"="transaction_id",
      *          "dataType"="int",
      *          "required"="true",
-     *          "description"="ID Cliente"
+     *          "description"="Unique transaction id"
      *      },
      *      {
-     *          "name"="idTrans",
-     *          "dataType"="int",
-     *          "required"="true",
-     *          "description"="ID Transacción"
-     *      },
-     *      {
-     *          "name"="idSucursal",
-     *          "dataType"="int",
-     *          "required"="true",
-     *          "description"="ID del punto de venta"
-     *      },
-     *      {
-     *          "name"="noTransaccionTC",
+     *          "name"="tc_number_transaction",
      *          "dataType"="int",
      *          "required"="true",
      *          "description"="TC Transaction number"
      *      },
      *      {
-     *          "name"="fecha",
+     *          "name"="date",
      *          "dataType"="string",
      *          "required"="true",
      *          "format"="YYYY-MM-DD",
      *          "description"="Transaction date."
      *      },
      *      {
-     *          "name"="hora",
+     *          "name"="hour",
      *          "dataType"="string",
      *          "required"="true",
      *          "format"="HH:MM:SS",
      *          "description"="Transaction hour."
      *      },
      *      {
-     *          "name"="numTarjeta",
+     *          "name"="card_number",
      *          "dataType"="string",
      *          "required"="true",
      *          "description"="Card Number"
@@ -161,10 +185,10 @@ class ServicesToditocashPayservicesController extends FosRestController
      *          "description"="0 - Production , 1 - Test."
      *      },
      *      {
-     *          "name"="monto",
+     *          "name"="amount",
      *          "dataType"="int",
      *          "required"="true",
-     *          "description"="Monto de la compra."
+     *          "description"="Transaction amount."
      *      }
      *   }
      * )
@@ -174,6 +198,41 @@ class ServicesToditocashPayservicesController extends FosRestController
 
     public function reversoAction(){
 
+        static $paramNames = array(
+            'tc_number_transaction',
+            'transaction_id',
+            'date',
+            'hour',
+            'card_number',
+            'amount',
+            'production_flag'
+        );
+
+        //Get the parameters and put them in a $params array
+        $request=$this->get('request_stack')->getCurrentRequest();
+        $params = array();
+        foreach($paramNames as $paramName){
+            $params[]=$request->get($paramName, 'null');
+        }
+
+        //Include the class
+        include("../vendor/toditocash/ToditoCash.php");
+
+        //Constructor
+        $constructor=new ToditoCash($this->contract_id,$this->branch_id);
+
+        //Reverso method
+        $datos=$constructor -> reverso($params[0],$params[1],$params[2],$params[3],$params[4],$params[5],$params[6]);
+
+        $resp = new ApiResponseBuilder(
+            201,
+            "Reference created successfully",
+            $datos
+        );
+
+        $view = $this->view($resp, 201);
+
+        return $this->handleView($view);
     }
 
 }

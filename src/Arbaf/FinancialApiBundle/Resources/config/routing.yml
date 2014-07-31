@@ -192,7 +192,7 @@ arbaf_financial_api_services_test_do:
 
 arbaf_financial_api_services_netpay_pos_register:
     pattern:  /services/netpay/pos/register
-    defaults: { _controller: ArbafFinancialApiBundle:ServicesNetpayPos:register, _format: ~ }
+    defaults: { _controller: Arbaf\FinancialApiBundle\Controller\Services\ServicesNetpayPosController::registerAction, _format: ~ }
     requirements:
         _method: POST
 
@@ -216,13 +216,31 @@ arbaf_financial_api_services_paynet_reference_status:
         _method: POST
 
 arbaf_financial_api_services_toditocash_payservices_request:
-    pattern:  /services/paynet/payservices/request
+    pattern:  /services/toditocash/payservices/request
     defaults: { _controller: ArbafFinancialApiBundle:ServicesToditocashPayservices:request, _format: ~ }
     requirements:
         _method: POST
 
 arbaf_financial_api_services_toditocash_payservices_reverso:
-    pattern:  /services/paynet/payservices/reverso
+    pattern:  /services/toditocash/payservices/reverso
     defaults: { _controller: ArbafFinancialApiBundle:ServicesToditocashPayservices:reverso, _format: ~ }
+    requirements:
+        _method: POST
+
+arbaf_financial_api_services_paynet_payment_info:
+    pattern:  /services/paynet/payment/info
+    defaults: { _controller: ArbafFinancialApiBundle:ServicesPaynetPayment:info, _format: ~ }
+    requirements:
+        _method: POST
+
+arbaf_financial_api_services_paynet_payment_ejecuta:
+    pattern:  /services/paynet/payment/ejecuta
+    defaults: { _controller: ArbafFinancialApiBundle:ServicesPaynetPayment:ejecuta, _format: ~ }
+    requirements:
+        _method: POST
+
+arbaf_financial_api_services_paynet_payment_reversa:
+    pattern:  /services/paynet/payment/reversa
+    defaults: { _controller: ArbafFinancialApiBundle:ServicesPaynetPayment:reversa, _format: ~ }
     requirements:
         _method: POST

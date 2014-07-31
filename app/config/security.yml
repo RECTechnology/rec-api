@@ -43,11 +43,23 @@ security:
             stateless:  true
             security:   false
 
-        api:
-            pattern:    ^/services
-            host:       api.arbafinternational.com
-            stateless:  true
-            api_arbaf:  true
+        paynet_exception:
+            pattern: ^/services/paynet/
+            host: api.arbafinternational.com
+            stateless: true
+            security: false
+
+        todito_exception:
+            pattern: ^/services/toditocash/
+            host: api.arbafinternational.com
+            stateless: true
+            security: false
+
+        api_arbaf:
+            pattern: ^/
+            host: api.arbafinternational.com
+            stateless: true
+            api_arbaf: true
 
         doc:
             pattern:    ^/

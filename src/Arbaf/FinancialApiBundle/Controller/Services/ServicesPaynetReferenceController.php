@@ -2,9 +2,14 @@
 
 namespace Arbaf\FinancialApiBundle\Controller;
 
+use Arbaf\FinancialApiBundle\Response\ApiResponseBuilder;
 use FOS\RestBundle\Controller\FOSRestController;
 use FOS\RestBundle\Controller\Annotations as Rest;
 use Nelmio\ApiDocBundle\Annotation\ApiDoc;
+use PaynetGetBarcode;
+use PaynetGetStatus;
+use Symfony\Component\HttpKernel\Exception\HttpException;
+
 
 
 class ServicesPaynetReferenceController extends FosRestController
@@ -21,13 +26,7 @@ class ServicesPaynetReferenceController extends FosRestController
      *   },
      *   parameters={
      *      {
-     *          "name"="issuerCod",
-     *          "dataType"="string",
-     *          "required"="true",
-     *          "description"="issuer Code for the reference generation. Ex: '000aaaa0-0000-0000-aa00-aaa0a00000aa'"
-     *      },
-     *      {
-     *          "name"="clientReference",
+     *          "name"="client_reference",
      *          "dataType"="string",
      *          "required"="true",
      *          "description"="Pay/Product reference/identifier. (max 12 chars).Ex: '000000000000'"
@@ -37,13 +36,6 @@ class ServicesPaynetReferenceController extends FosRestController
      *          "dataType"="string",
      *          "required"="true",
      *          "description"="Allowed mount. Ex: '00001000'"
-     *      },
-     *      {
-     *          "name"="dueDate",
-     *          "dataType"="string",
-     *          "required"="true",
-     *          "format"="YYYY-MM-DD",
-     *          "description"="Expiration date for the payment."
      *      },
      *      {
      *          "name"="description",
@@ -59,7 +51,40 @@ class ServicesPaynetReferenceController extends FosRestController
 
     public function generateAction(){
 
+        static $paramNames = array(
+            'client_reference',
+            'amount',
+            'description'
+        );
 
+        //Get the parameters sent by POST
+        $request=$this->get('request_stack')->getCurrentRequest();
+        $params = array();
+        foreach($paramNames as $paramName){
+            if(!$request->request ->has($paramName)){
+                throw new HttpException(400,"Missing parameter '$paramName'");
+            }
+            $params[]=$request->get($paramName, 'null');
+        }
+
+        //Include the class
+        include("../vendor/paynet-barcode/PaynetGetBarcode.php");
+
+        //Constructor
+        $constructor=new PaynetGetBarcode($params[0],$params[1],$params[2]);
+
+        //Request method
+        $datos=$constructor -> request();
+
+        $resp = new ApiResponseBuilder(
+            201,
+            "Reference created successfully",
+            $datos
+        );
+
+        $view = $this->view($resp, 201);
+
+        return $this->handleView($view);
     }
 
     /**
@@ -74,13 +99,7 @@ class ServicesPaynetReferenceController extends FosRestController
      *   },
      *   parameters={
      *      {
-     *          "name"="issuerCod",
-     *          "dataType"="string",
-     *          "required"="true",
-     *          "description"="issuer Code for the reference generation. Ex:'000aaaa0-0000-0000-aa00-aaa0a00000aa'"
-     *      },
-     *      {
-     *          "name"="clientReference",
+     *          "name"="client_reference",
      *          "dataType"="string",
      *          "required"="true",
      *          "description"="Pay/Product reference/identifier. (max 12 chars).Ex: '000000000000'"
@@ -93,6 +112,40 @@ class ServicesPaynetReferenceController extends FosRestController
      */
 
     public function statusAction(){
+
+        static $paramNames = array(
+            'client_reference'
+        );
+
+        //Get the parameters sent by POST
+        $request=$this->get('request_stack')->getCurrentRequest();
+        $params = array();
+        foreach($paramNames as $paramName){
+            if(!$request->request ->has($paramName)){
+                throw new HttpException(400,"Missing parameter '$paramName'");
+            }
+            $params[]=$request->get($paramName, 'null');
+        }
+
+        //Include the class
+        include("../vendor/paynet-barcode/PaynetGetStatus.php");
+
+        //Constructor
+        $constructor=new PaynetGetStatus($params[0]);
+
+        //Status method
+        $datos=$constructor -> status();
+
+        //Response
+        $resp = new ApiResponseBuilder(
+            201,
+            "Reference created successfully",
+            $datos
+        );
+
+        $view = $this->view($resp, 201);
+
+        return $this->handleView($view);
 
     }
 
