@@ -13,7 +13,7 @@ use Symfony\Component\Security\Core\Exception\UnsupportedUserException;
 use Symfony\Component\Security\Core\Exception\UsernameNotFoundException;
 use Symfony\Component\Security\Core\User\UserInterface;
 
-class ApiUserProvider extends  UserProvider{
+class ArbafUserProvider extends  UserProvider{
 
     public function loadUserByAccessKey($accessKey)
     {
@@ -22,6 +22,17 @@ class ApiUserProvider extends  UserProvider{
         $user = $this->userManager->findUserBy(array('access_key' => $accessKey));
         if(!$user){
             throw new UsernameNotFoundException(sprintf("User with access_key '%s' not found", $accessKey));
+        }
+        return $user;
+    }
+
+    public function loadUserByIP($ip)
+    {
+        // Look up the username based on the token in the database, via
+        // an API call, or do something entirely different
+        $user = $this->userManager->findUserBy(array('ip' => $ip));
+        if(!$user){
+            throw new UsernameNotFoundException(sprintf("User with IP '%s' not found", $ip));
         }
         return $user;
     }

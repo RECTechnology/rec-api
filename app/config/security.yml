@@ -8,7 +8,7 @@ security:
 
     providers:
         arbaf_financial_api:
-            id: api.security.user_provider
+            id: arbaf.security.user_provider
 
     firewalls:
 
@@ -55,11 +55,18 @@ security:
             stateless: true
             security: false
 
-        api_arbaf:
+        signature:
             pattern: ^/
             host: api.arbafinternational.com
             stateless: true
-            api_arbaf: true
+            signature_auth: true
+
+        ip:
+            pattern: ^/
+            host: api.arbafinternational.com
+            stateless: true
+            ip_auth: true
+
 
         doc:
             pattern:    ^/
@@ -74,14 +81,14 @@ security:
             anonymous: ~
 
     access_control:
-        - { host: api.arbafinternational.com, path: ^/admin/*, role: ROLE_SUPER_ADMIN }
+        - { host: api.arbafinternational.com, path: ^/admin/*, role: ROLE_SUPER_ADMIN, requires_channel: http }
 
-        - { host: api.arbafinternational.com, path: ^/manager/*, role: ROLE_ADMIN }
+        - { host: api.arbafinternational.com, path: ^/manager/*, role: ROLE_ADMIN, requires_channel: http }
 
-        - { host: api.arbafinternational.com, path: ^/user/*, role: ROLE_USER }
+        - { host: api.arbafinternational.com, path: ^/user/*, role: ROLE_USER, requires_channel: http }
 
-        - { host: api.arbafinternational.com, path: ^/services/test/*, role: ROLE_SERVICES_TEST }
+        - { host: api.arbafinternational.com, path: ^/services/test/*, role: ROLE_SERVICES_TEST, requires_channel: http }
 
-        - { host: api.arbafinternational.com, path: ^/services/netpay/pos/*, role: ROLE_SERVICES_NETPAY_POS }
-        - { host: api.arbafinternational.com, path: ^/services/paynet/*, role: ROLE_SERVICES_PAYNET }
-        - { host: api.arbafinternational.com, path: ^/services/recargafon/*, role: ROLE_SERVICES_RECARGAFON }
+        - { host: api.arbafinternational.com, path: ^/services/netpay/pos/*, role: ROLE_SERVICES_NETPAY_POS, requires_channel: http }
+        - { host: api.arbafinternational.com, path: ^/services/paynet/*, role: ROLE_SERVICES_PAYNET, requires_channel: http }
+        - { host: api.arbafinternational.com, path: ^/services/recargafon/*, role: ROLE_SERVICES_RECARGAFON, requires_channel: http }

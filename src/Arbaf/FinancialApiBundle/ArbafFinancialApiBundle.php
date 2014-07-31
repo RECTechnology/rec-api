@@ -4,7 +4,8 @@ namespace Arbaf\FinancialApiBundle;
 
 use Symfony\Component\HttpKernel\Bundle\Bundle;
 use Symfony\Component\DependencyInjection\ContainerBuilder;
-use Arbaf\FinancialApiBundle\Security\Factory\ApiFactory;
+use Arbaf\FinancialApiBundle\Security\Factory\SignatureSecurityFactory;
+use Arbaf\FinancialApiBundle\Security\Factory\IPSecurityFactory;
 
 class ArbafFinancialApiBundle extends Bundle
 {
@@ -18,6 +19,7 @@ class ArbafFinancialApiBundle extends Bundle
         parent::build($container);
 
         $extension = $container->getExtension('security');
-        $extension->addSecurityListenerFactory(new ApiFactory());
+        $extension->addSecurityListenerFactory(new SignatureSecurityFactory());
+        $extension->addSecurityListenerFactory(new IPSecurityFactory());
     }
 }

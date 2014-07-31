@@ -12,7 +12,7 @@ namespace Arbaf\FinancialApiBundle\Security\Authentication\Token;
 use Symfony\Component\Security\Core\Authentication\Token\AbstractToken;
 
 
-class ApiToken extends AbstractToken {
+class SignatureToken extends AbstractToken {
 
     public $nonce;
     public $timestamp;

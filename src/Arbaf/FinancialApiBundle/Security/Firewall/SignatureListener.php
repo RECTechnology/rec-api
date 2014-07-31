@@ -10,7 +10,7 @@
 namespace Arbaf\FinancialApiBundle\Security\Firewall;
 
 
-use Arbaf\FinancialApiBundle\Security\Authentication\Token\ApiToken;
+use Arbaf\FinancialApiBundle\Security\Authentication\Token\SignatureToken;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpKernel\Event\GetResponseEvent;
 use Symfony\Component\Security\Core\Authentication\AuthenticationManagerInterface;
@@ -19,7 +19,7 @@ use Symfony\Component\Security\Core\Exception\AuthenticationException;
 use Symfony\Component\Security\Core\SecurityContextInterface;
 use Symfony\Component\Security\Http\Firewall\ListenerInterface;
 
-class ApiListener implements ListenerInterface {
+class SignatureListener implements ListenerInterface {
 
     protected $securityContext;
     protected $authenticationManager;
@@ -46,14 +46,14 @@ class ApiListener implements ListenerInterface {
             .'timestamp="([^"]+)", '
             .'algorithm="([^"]+)", '
             .'signature="([^"]+)"/';
-        $authHeaderName = 'x-api-authorization';
+        $authHeaderName = 'x-signature-authorization';
 
 
         if(! $request->headers->has($authHeaderName)) return;
         $signature = $request->headers->get($authHeaderName);
         if(1 != preg_match($authRequestRegex, $signature, $matches)) return;
 
-        $token = new ApiToken();
+        $token = new SignatureToken();
         $token->setUser($matches[1]);
 
         $token->nonce = $matches[2];

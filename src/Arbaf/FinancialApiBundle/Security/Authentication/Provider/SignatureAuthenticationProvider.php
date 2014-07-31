@@ -8,14 +8,14 @@
 
 namespace Arbaf\FinancialApiBundle\Security\Authentication\Provider;
 
-use Arbaf\FinancialApiBundle\Security\Authentication\Token\ApiToken;
+use Arbaf\FinancialApiBundle\Security\Authentication\Token\SignatureToken;
 use Symfony\Component\Security\Core\Authentication\Provider\AuthenticationProviderInterface;
 use Symfony\Component\Security\Core\Authentication\Token\TokenInterface;
 use Symfony\Component\Security\Core\Exception\AuthenticationException;
 use Symfony\Component\Security\Core\Exception\NonceExpiredException;
 use Symfony\Component\Security\Core\User\UserProviderInterface;
 
-class ApiAuthenticationProvider implements AuthenticationProviderInterface {
+class SignatureAuthenticationProvider implements AuthenticationProviderInterface {
 
     private $userProvider;
     private $cacheDir;
@@ -47,7 +47,7 @@ class ApiAuthenticationProvider implements AuthenticationProviderInterface {
         }
 
             //die("auth failed\n");
-        throw new AuthenticationException('The Api authentication failed.');
+        throw new AuthenticationException('Signature authentication failed.');
     }
     protected function validateSignature($accessKey, $nonce, $timestamp, $algorithm, $signature, $secret){
         // Check created time is not in the future
@@ -85,6 +85,6 @@ class ApiAuthenticationProvider implements AuthenticationProviderInterface {
      * @return bool    true if the implementation supports the Token, false otherwise
      */
     public function supports(TokenInterface $token){
-        return $token instanceof ApiToken;
+        return $token instanceof SignatureToken;
     }
 }
