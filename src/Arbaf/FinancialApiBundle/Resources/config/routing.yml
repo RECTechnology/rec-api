@@ -1,8 +1,14 @@
 
 ######################### TEST ############################
 
-arbaf_services_test:
+arbaf_services_test_prod:
     pattern:  /v1/services/test
+    defaults: { _controller: Arbaf\FinancialApiBundle\Controller\Services\TestService::index, _format: ~ }
+    requirements:
+        _method: GET
+
+arbaf_services_test_test:
+    pattern:  /sandbox/v1/services/test
     defaults: { _controller: Arbaf\FinancialApiBundle\Controller\Services\TestService::index, _format: ~ }
     requirements:
         _method: GET
