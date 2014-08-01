@@ -16,33 +16,11 @@ class AuthenticationTest extends AbstractApiWebTestCase
 
     private static $ROLES_PATHS_PERMS = array(
         array(
-            'name' => 'ROLE_API_SUPER_ADMIN',
+            'name' => 'ROLE_USER',
             'tests' => array(
-                array('path' => '/admin/clients','code' => Response::HTTP_OK),
-                array('path' => '/admin/users','code' => Response::HTTP_OK),
-                array('path' => '/admin/groups','code' => Response::HTTP_OK),
-                array('path' => '/services/test','code' => Response::HTTP_FORBIDDEN),
+                array('path' => '/services/test','code' => Response::HTTP_OK)
             )
-        ),
-        array(
-            'name' => 'ROLE_API_ADMIN',
-            'tests' => array(
-                array('path' => '/admin/clients','code' => Response::HTTP_FORBIDDEN),
-                array('path' => '/admin/users','code' => Response::HTTP_OK),
-                array('path' => '/manage/groups','code' => Response::HTTP_FORBIDDEN),
-                array('path' => '/services/test','code' => Response::HTTP_FORBIDDEN),
-            )
-        ),
-        array(
-            'name' => 'ROLE_API_SERVICES_TEST',
-            'tests' => array(
-                array('path' => '/manage/clients','code' => Response::HTTP_FORBIDDEN),
-                array('path' => '/manage/users','code' => Response::HTTP_FORBIDDEN),
-                array('path' => '/manage/groups','code' => Response::HTTP_FORBIDDEN),
-                array('path' => '/services/test','code' => Response::HTTP_OK),
-                array('path' => '/services/nonexistent','code' => Response::HTTP_NOT_FOUND),
-            )
-        ),
+        )
     );
 
     public function testGetCodesAreOk() {
@@ -55,7 +33,7 @@ class AuthenticationTest extends AbstractApiWebTestCase
                 $this->assertEquals(
                     $test['code'],
                     $client->getResponse()->getStatusCode(),
-                    "Testing: ".$perm['name']." -> ".$test['path']
+                    "Testing: ".$perm['name']." -> ".$test['path']."\n<<<\n".$client->getResponse()."\n>>>"
                 );
            }
         }

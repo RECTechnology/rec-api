@@ -20,6 +20,5 @@ class ArbafFinancialApiBundle extends Bundle
 
         $extension = $container->getExtension('security');
         $extension->addSecurityListenerFactory(new SignatureSecurityFactory());
-        $extension->addSecurityListenerFactory(new IPSecurityFactory());
     }
 }

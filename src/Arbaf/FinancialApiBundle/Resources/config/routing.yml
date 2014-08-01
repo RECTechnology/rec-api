@@ -1,22 +1,22 @@
 
 ######################### TEST ############################
 
-arbaf_financial_api_test_plain:
-    pattern:  /test/auth/ip
-    defaults: { _controller: ArbafFinancialApiBundle:Test:plain, _format: ~ }
+arbaf_services_test:
+    pattern:  /services/test
+    defaults: { _controller: Arbaf\FinancialApiBundle\Controller\Services\TestController::plainAction, _format: ~ }
     requirements:
         _method: GET
 
-arbaf_financial_api_test_auth:
-    pattern:  /test/auth/signature
-    defaults: { _controller: ArbafFinancialApiBundle:Test:auth, _format: ~ }
-    requirements:
-        _method: GET
-        access-key: "[a-zA-Z0-9]+"
-        nonce: "[a-zA-Z0-9]+"
-        timestamp: "[0-9]+"
-        algorithm: "SHA256"
-        signature: "[a-zA-Z0-9]+"
+#arbaf_financial_api_test_auth:
+#    pattern:  /services/test
+#    defaults: { _controller: ArbafFinancialApiBundle:Test:auth, _format: ~ }
+#    requirements:
+#        _method: GET
+#        access-key: "[a-zA-Z0-9]+"
+#        nonce: "[a-zA-Z0-9]+"
+#        timestamp: "[0-9]+"
+#        algorithm: "SHA256"
+#        signature: "[a-zA-Z0-9]+"
 
 ######################## END TEST ############################
 
@@ -174,12 +174,6 @@ arbaf_financial_api_users_delete_groups:
 arbaf_financial_api_services_index:
     pattern:  /services
     defaults: { _controller: ArbafFinancialApiBundle:Services:index, _format: ~ }
-    requirements:
-        _method: GET
-
-arbaf_financial_api_services_test_index:
-    pattern:  /services/test
-    defaults: { _controller: ArbafFinancialApiBundle:ServicesTest:index, _format: ~ }
     requirements:
         _method: GET
 

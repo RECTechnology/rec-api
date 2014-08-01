@@ -15,7 +15,7 @@ abstract class AbstractApiWebTestCase extends WebTestCase
         return static::createClient(array(), array(
             'HTTP_HOST' => 'api.arbafinternational.com',
             'HTTP_ACCEPT' => 'application/json',
-            'HTTP_X-API-AUTHORIZATION' => TestClientFactory::get($role)
+            'HTTP_X-SIGNATURE' => TestClientFactory::get($role)
         ));
     }
 }

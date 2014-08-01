@@ -1,6 +1,6 @@
 <?php
 
-namespace Arbaf\FinancialApiBundle\Controller;
+namespace Arbaf\FinancialApiBundle\Controller\Services;
 
 use FOS\RestBundle\Controller\FOSRestController;
 use FOS\RestBundle\View\View;

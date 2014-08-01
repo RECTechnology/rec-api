@@ -40,7 +40,7 @@ class SignatureAuthenticationProvider implements AuthenticationProviderInterface
         $user = $this->userProvider->loadUserByAccessKey($token->getUsername());
 
         if($user && $this->validateSignature($token->getUsername(), $token->nonce, $token->timestamp, $token->algorithm, $token->signature, $user->getAccessSecret())){
-            $authenticatedToken = new ApiToken($user->getRoles());
+            $authenticatedToken = new SignatureToken($user->getRoles());
             $authenticatedToken->setUser($user);
             //die("auth ok\n");
             return $authenticatedToken;

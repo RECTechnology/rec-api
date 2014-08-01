@@ -3,19 +3,10 @@ services:
         class: Arbaf\FinancialApiBundle\Security\Authentication\Provider\SignatureAuthenticationProvider
         arguments: ["", "%kernel.cache_dir%/security/nonces"]
 
-    ip.security.authentication.provider:
-        class: Arbaf\FinancialApiBundle\Security\Authentication\Provider\IPAuthenticationProvider
-        arguments: ["", "%kernel.cache_dir%/security/nonces"]
-
     signature.security.authentication.listener:
         class: Arbaf\FinancialApiBundle\Security\Firewall\SignatureListener
         arguments: ["@security.context", "@security.authentication.manager"]
 
-    ip.security.authentication.listener:
-        class: Arbaf\FinancialApiBundle\Security\Firewall\IPListener
-        arguments: ["@security.context", "@security.authentication.manager"]
-
-    arbaf.security.user_provider:
-        class: Arbaf\FinancialApiBundle\Security\ArbafUserProvider
+    access_key.security.user_provider:
+        class: Arbaf\FinancialApiBundle\Security\AccessKeyUserProvider
         arguments: ["@fos_user.user_manager"]
-

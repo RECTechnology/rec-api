@@ -44,12 +44,6 @@ class User extends BaseUser
     protected $groups;
 
     /**
-    * @ORM\OneToMany(targetEntity="Arbaf\FinancialApiBundle\Entity\Group", mappedBy="user")
-    */
-    protected $ips;
-
-
-    /**
      * @ORM\Column(type="string")
      */
     private $access_key;

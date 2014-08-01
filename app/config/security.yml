@@ -7,8 +7,8 @@ security:
         ROLE_SUPER_ADMIN:     ROLE_ADMIN
 
     providers:
-        arbaf_financial_api:
-            id: arbaf.security.user_provider
+        by_access_key:
+            id: access_key.security.user_provider
 
     firewalls:
 
@@ -31,12 +31,6 @@ security:
             anonymous:  false
 
 
-        api_test_plain:
-            pattern:    ^/test/auth/ip$
-            host:       api.arbafinternational.com
-            stateless:  true
-            security:   false
-
         charge2k_exception:
             pattern:    ^/services/netpay/pos/
             host:       api.arbafinternational.com
@@ -55,18 +49,11 @@ security:
             stateless: true
             security: false
 
-        signature:
+        signature_access:
             pattern: ^/
             host: api.arbafinternational.com
             stateless: true
             signature_auth: true
-
-        ip:
-            pattern: ^/
-            host: api.arbafinternational.com
-            stateless: true
-            ip_auth: true
-
 
         doc:
             pattern:    ^/
@@ -87,7 +74,7 @@ security:
 
         - { host: api.arbafinternational.com, path: ^/user/*, role: ROLE_USER, requires_channel: http }
 
-        - { host: api.arbafinternational.com, path: ^/services/test/*, role: ROLE_SERVICES_TEST, requires_channel: http }
+        - { host: api.arbafinternational.com, path: ^/services/test/*, role: ROLE_USER, requires_channel: http }
 
         - { host: api.arbafinternational.com, path: ^/services/netpay/pos/*, role: ROLE_SERVICES_NETPAY_POS, requires_channel: http }
         - { host: api.arbafinternational.com, path: ^/services/paynet/*, role: ROLE_SERVICES_PAYNET, requires_channel: http }

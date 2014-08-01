@@ -46,8 +46,8 @@ class SignatureListener implements ListenerInterface {
             .'timestamp="([^"]+)", '
             .'algorithm="([^"]+)", '
             .'signature="([^"]+)"/';
-        $authHeaderName = 'x-signature-authorization';
 
+        $authHeaderName = 'x-signature';
 
         if(! $request->headers->has($authHeaderName)) return;
         $signature = $request->headers->get($authHeaderName);
