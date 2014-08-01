@@ -18,7 +18,7 @@ class AuthenticationTest extends AbstractApiWebTestCase
         array(
             'name' => 'ROLE_USER',
             'tests' => array(
-                array('path' => '/services/test','code' => Response::HTTP_OK)
+                array('path' => '/v1/services/test','code' => Response::HTTP_OK)
             )
         )
     );

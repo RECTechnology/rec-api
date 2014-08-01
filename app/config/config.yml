@@ -85,8 +85,9 @@ nelmio_api_doc:
     sandbox:
         enabled: true
         authentication:
-            name: signature
+            name: access-key
             delivery: header
+        #endpoint: http://api.arbafinternational.com/app_dev.php/
 
 fos_rest:
 
@@ -105,7 +106,7 @@ fos_oauth_server:
     refresh_token_class: Arbaf\FinancialApiBundle\Entity\RefreshToken
     auth_code_class:     Arbaf\FinancialApiBundle\Entity\AuthCode
     service:
-        user_provider: arbaf.security.user_provider
+        user_provider: access_key.security.user_provider
 
 sensio_framework_extra:
     view:    { annotations: false }

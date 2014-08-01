@@ -12,17 +12,17 @@ use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
 
 /**
- * Class TestController
- * @package Arbaf\FinancialApiBundle\Controller
+ * Class TestService
+ * @package Arbaf\FinancialApiBundle\Controller\Services
  */
-class TestController extends FosRestController
+class TestService extends FosRestController
 {
     /**
      * This method returns a test response for improving the connection with the API.
      *
      * @ApiDoc(
-     *   section="Testing the API",
-     *   description="Returns a test response",
+     *   section="Testing Service",
+     *   description="Service for testing correct connection to the api.",
      *   statusCodes={
      *       200="Returned when successful",
      *       404="Returned when the resource does not exists"
@@ -31,7 +31,7 @@ class TestController extends FosRestController
      *
      * @Rest\View
      */
-    public function plainAction()
+    public function index()
     {
         $data=array('test' => 'plain');
 
