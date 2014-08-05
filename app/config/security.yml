@@ -25,40 +25,49 @@ security:
 
         panel:
             pattern:    ^/(admin|manager|user)/
-            host:       api.arbafinternational.com
             fos_oauth:  true
             stateless:  true
             anonymous:  false
+            context:    panel
 
+        api_sandbox:
+            pattern:    ^/sandbox
+            fos_oauth:  true
+            stateless:  true
+            anonymous:  false
+            context:    panel
 
         charge2k_exception:
             pattern:    ^/services/netpay/pos/
-            host:       api.arbafinternational.com
             stateless:  true
             security:   false
 
         paynet_exception:
             pattern: ^/services/paynet/
-            host: api.arbafinternational.com
             stateless: true
             security: false
 
         todito_exception:
             pattern: ^/services/toditocash/
-            host: api.arbafinternational.com
             stateless: true
             security: false
 
+        doc:
+            pattern:    ^/financial
+            host:       dev-dev.telepay.net
+            security:   false
+            #context:    panel
+
         signature_access:
             pattern: ^/
-            host: api.arbafinternational.com
             stateless: true
             signature_auth: true
 
-        doc:
-            pattern:    ^/
-            host:       dev.arbafinternational.com
-            security:   false
+        signature_access:
+            pattern: ^/test
+            stateless: true
+            signature_auth: true
+
 
         dev:
             pattern: ^/(_(profiler|wdt)|css|images|js)/
@@ -68,14 +77,16 @@ security:
             anonymous: ~
 
     access_control:
-        - { host: api.arbafinternational.com, path: ^/admin/*, role: ROLE_SUPER_ADMIN, requires_channel: http }
+        #- { host: ((pre|dev)-)?dev.telepay.net, path: ^/financial/*, role: ROLE_USER, requires_channel: http }
 
-        - { host: api.arbafinternational.com, path: ^/manager/*, role: ROLE_ADMIN, requires_channel: http }
+        - { path: ^/admin/v[0-9]+/*, role: ROLE_SUPER_ADMIN, requires_channel: http }
 
-        - { host: api.arbafinternational.com, path: ^/user/*, role: ROLE_USER, requires_channel: http }
+        - { path: ^/manager/v[0-9]+/*, role: ROLE_ADMIN, requires_channel: http }
 
-        - { host: api.arbafinternational.com, path: ^/services/test/*, role: ROLE_USER, requires_channel: http }
+        - { path: ^/user/v[0-9]+/*, role: ROLE_USER, requires_channel: http }
 
-        - { host: api.arbafinternational.com, path: ^/services/netpay/pos/*, role: ROLE_SERVICES_NETPAY_POS, requires_channel: http }
-        - { host: api.arbafinternational.com, path: ^/services/paynet/*, role: ROLE_SERVICES_PAYNET, requires_channel: http }
-        - { host: api.arbafinternational.com, path: ^/services/recargafon/*, role: ROLE_SERVICES_RECARGAFON, requires_channel: http }
+        - { path: ^/((sandbox|test)/)?v[0-9]+/services/test/*, role: ROLE_USER, requires_channel: http }
+
+        - { path: ^/((sandbox|test)/)?v[0-9]+/services/netpay/pos/*, role: ROLE_SERVICES_NETPAY_POS, requires_channel: http }
+        - { path: ^/((sandbox|test)/)?v[0-9]+/services/paynet/*, role: ROLE_SERVICES_PAYNET, requires_channel: http }
+        - { path: ^/((sandbox|test)/)?v[0-9]+/services/recargafon/*, role: ROLE_SERVICES_RECARGAFON, requires_channel: http }

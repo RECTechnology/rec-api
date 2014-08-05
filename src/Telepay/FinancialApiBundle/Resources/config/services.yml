@@ -1,0 +1,12 @@
+services:
+    signature.security.authentication.provider:
+        class: Telepay\FinancialApiBundle\Security\Authentication\Provider\SignatureAuthenticationProvider
+        arguments: ["", "%kernel.cache_dir%/security/nonces"]
+
+    signature.security.authentication.listener:
+        class: Telepay\FinancialApiBundle\Security\Firewall\SignatureListener
+        arguments: ["@security.context", "@security.authentication.manager"]
+
+    access_key.security.user_provider:
+        class: Telepay\FinancialApiBundle\Security\AccessKeyUserProvider
+        arguments: ["@fos_user.user_manager"]

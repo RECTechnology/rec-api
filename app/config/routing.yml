@@ -1,11 +1,10 @@
-arbaf_financial_api:
-    resource: "@ArbafFinancialApiBundle/Resources/config/routing.yml"
-    host:     api.arbafinternational.com
+telepay_financial_api:
+    resource: "@TelepayFinancialApiBundle/Resources/config/routing.yml"
     prefix:   /
 
 NelmioApiDocBundle:
     resource: "@NelmioApiDocBundle/Resources/config/routing.yml"
-    host:     dev.arbafinternational.com
+    host:     dev-dev.telepay.net
     prefix:   /financial
 
 fos_oauth_server_token:

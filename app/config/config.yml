@@ -1,7 +1,7 @@
 imports:
     - { resource: parameters.yml }
     - { resource: security.yml }
-    - { resource: @ArbafFinancialApiBundle/Resources/config/services.yml }
+    - { resource: @TelepayFinancialApiBundle/Resources/config/services.yml }
 
 framework:
     #esi:             ~
@@ -30,7 +30,7 @@ twig:
     debug:            "%kernel.debug%"
     strict_variables: "%kernel.debug%"
     exception_controller: FOS\RestBundle\Controller\ExceptionController::showAction
-    #exception_controller: Arbaf\FinancialApiBundle\Controller\ApiExceptionController::showAction
+    #exception_controller: Telepay\FinancialApiBundle\Controller\ApiExceptionController::showAction
 
 # Assetic Configuration
 assetic:
@@ -74,20 +74,20 @@ swiftmailer:
 fos_user:
     db_driver: orm # other valid values are 'mongodb', 'couchdb' and 'propel'
     firewall_name: main
-    user_class: Arbaf\FinancialApiBundle\Entity\User
+    user_class: Telepay\FinancialApiBundle\Entity\User
     group:
-      group_class: Arbaf\FinancialApiBundle\Entity\Group
+      group_class: Telepay\FinancialApiBundle\Entity\Group
 
 nelmio_api_doc:
-    name: Financial API - Arbaf International INC.
+    name: Financial API - Telepay SL.
     exclude_sections:
         ["Client Management", "User Management", "Group Management", "Roles of Groups", "Groups of Users"]
     sandbox:
         enabled: true
         authentication:
-            name: access-key
-            delivery: header
-        endpoint: /sandbox/
+            name: access_token
+            delivery: query
+        endpoint: http://dev-api.telepay.net/sandbox
 
 fos_rest:
 
@@ -101,10 +101,10 @@ fos_rest:
 
 fos_oauth_server:
     db_driver:           orm
-    client_class:        Arbaf\FinancialApiBundle\Entity\Client
-    access_token_class:  Arbaf\FinancialApiBundle\Entity\AccessToken
-    refresh_token_class: Arbaf\FinancialApiBundle\Entity\RefreshToken
-    auth_code_class:     Arbaf\FinancialApiBundle\Entity\AuthCode
+    client_class:        Telepay\FinancialApiBundle\Entity\Client
+    access_token_class:  Telepay\FinancialApiBundle\Entity\AccessToken
+    refresh_token_class: Telepay\FinancialApiBundle\Entity\RefreshToken
+    auth_code_class:     Telepay\FinancialApiBundle\Entity\AuthCode
     service:
         user_provider: access_key.security.user_provider
 
