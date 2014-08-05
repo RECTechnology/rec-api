@@ -173,7 +173,7 @@ telepay_financial_api_services_toditocash_payservices_request:
         _method: POST
 
 telepay_financial_api_services_toditocash_payservices_reverso:
-    pattern:  /v1/services/toditocash/payservices/reverso
+    pattern:  /v1/services/toditocash/payservices/status
     defaults: { _controller: Telepay\FinancialApiBundle\Controller\Services\ServicesToditocashPayservicesController::reversoAction, _format: ~ }
     requirements:
         _method: POST
@@ -185,13 +185,13 @@ telepay_financial_api_services_paynet_payment_info:
         _method: POST
 
 telepay_financial_api_services_paynet_payment_ejecuta:
-    pattern:  /v1/services/paynet/payment/ejecuta
+    pattern:  /v1/services/paynet/payment/transaction
     defaults: { _controller: Telepay\FinancialApiBundle\Controller\Services\ServicesPaynetPaymentController::ejecutaAction, _format: ~ }
     requirements:
         _method: POST
 
 telepay_financial_api_services_paynet_payment_reversa:
-    pattern:  /v1/services/paynet/payment/reversa
+    pattern:  /v1/services/paynet/payment/status
     defaults: { _controller: Telepay\FinancialApiBundle\Controller\Services\ServicesPaynetPaymentController::reversaAction, _format: ~ }
     requirements:
         _method: POST
