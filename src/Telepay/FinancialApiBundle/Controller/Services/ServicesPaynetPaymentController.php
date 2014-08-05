@@ -5,7 +5,7 @@
  * Date: 24/07/14
  * Time: 08:54
  */
-namespace Telepay\FinancialApiBundle\Controller;
+namespace Telepay\FinancialApiBundle\Controller\Services;
 
 use Telepay\FinancialApiBundle\Response\ApiResponseBuilder;
 use FOS\RestBundle\Controller\FOSRestController;

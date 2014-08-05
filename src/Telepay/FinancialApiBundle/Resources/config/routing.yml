@@ -152,48 +152,60 @@ telepay_financial_api_services_netpay_pos_register:
 
 telepay_financial_api_services_netpay_pos_transaction:
     pattern:  /services/netpay/pos/transaction
-    defaults: { _controller: TelepayFinancialApiBundle:ServicesNetpayPos:transaction, _format: ~ }
+    defaults: { _controller: Telepay\FinancialApiBundle\Controller\Services\ServicesNetpayPosController::transactionAction, _format: ~ }
     requirements:
         _method: POST
 
 telepay_financial_api_services_paynet_reference_generate:
     pattern:  /services/paynet/reference/generate
-    defaults: { _controller: TelepayFinancialApiBundle:ServicesPaynetReference:generate, _format: ~ }
+    defaults: { _controller: Telepay\FinancialApiBundle\Controller\Services\ServicesPaynetReferenceController::generateAction, _format: ~ }
     requirements:
         _method: POST
 
 telepay_financial_api_services_paynet_reference_status:
     pattern:  /services/paynet/reference/status
-    defaults: { _controller: TelepayFinancialApiBundle:ServicesPaynetReference:status, _format: ~ }
+    defaults: { _controller: Telepay\FinancialApiBundle\Controller\Services\ServicesPaynetReferenceController::statusAction, _format: ~ }
     requirements:
         _method: POST
 
 telepay_financial_api_services_toditocash_payservices_request:
     pattern:  /services/toditocash/payservices/request
-    defaults: { _controller: TelepayFinancialApiBundle:ServicesToditocashPayservices:request, _format: ~ }
+    defaults: { _controller: Telepay\FinancialApiBundle\Controller\Services\ServicesToditocashPayservicesController::requestAction, _format: ~ }
     requirements:
         _method: POST
 
 telepay_financial_api_services_toditocash_payservices_reverso:
     pattern:  /services/toditocash/payservices/reverso
-    defaults: { _controller: TelepayFinancialApiBundle:ServicesToditocashPayservices:reverso, _format: ~ }
+    defaults: { _controller: Telepay\FinancialApiBundle\Controller\Services\ServicesToditocashPayservicesController::reversoAction, _format: ~ }
     requirements:
         _method: POST
 
 telepay_financial_api_services_paynet_payment_info:
     pattern:  /services/paynet/payment/info
-    defaults: { _controller: TelepayFinancialApiBundle:ServicesPaynetPayment:info, _format: ~ }
+    defaults: { _controller: Telepay\FinancialApiBundle\Controller\Services\ServicesPaynetPaymentController::infoAction, _format: ~ }
     requirements:
         _method: POST
 
 telepay_financial_api_services_paynet_payment_ejecuta:
     pattern:  /services/paynet/payment/ejecuta
-    defaults: { _controller: TelepayFinancialApiBundle:ServicesPaynetPayment:ejecuta, _format: ~ }
+    defaults: { _controller: Telepay\FinancialApiBundle\Controller\Services\ServicesPaynetPaymentController::ejecutaAction, _format: ~ }
     requirements:
         _method: POST
 
 telepay_financial_api_services_paynet_payment_reversa:
     pattern:  /services/paynet/payment/reversa
-    defaults: { _controller: TelepayFinancialApiBundle:ServicesPaynetPayment:reversa, _format: ~ }
+    defaults: { _controller: Telepay\FinancialApiBundle\Controller\Services\ServicesPaynetPaymentController::reversaAction, _format: ~ }
+    requirements:
+        _method: POST
+
+telepay_financial_api_services_ukash_redirect_request:
+    pattern:  /services/ukash/redirect/request
+    defaults: { _controller: Telepay\FinancialApiBundle\Controller\Services\ServicesUkashRedirectController::requestAction, _format: ~ }
+    requirements:
+        _method: POST
+
+telepay_financial_api_services_ukash_redirect_status:
+    pattern:  /services/ukash/redirect/status
+    defaults: { _controller: Telepay\FinancialApiBundle\Controller\Services\ServicesUkashRedirectController::statusAction, _format: ~ }
     requirements:
         _method: POST

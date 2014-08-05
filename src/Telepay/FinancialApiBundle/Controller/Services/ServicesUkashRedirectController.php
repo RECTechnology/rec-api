@@ -6,9 +6,9 @@
  * Time: 10:55
  */
 
-namespace Arbaf\FinancialApiBundle\Controller;
+namespace Telepay\FinancialApiBundle\Controller\Services;
 
-use Arbaf\FinancialApiBundle\Response\ApiResponseBuilder;
+use Telepay\FinancialApiBundle\Response\ApiResponseBuilder;
 use FOS\RestBundle\Controller\FOSRestController;
 use FOS\RestBundle\Controller\Annotations as Rest;
 use Nelmio\ApiDocBundle\Annotation\ApiDoc;
