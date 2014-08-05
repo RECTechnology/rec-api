@@ -4,14 +4,12 @@
 telepay_services_test:
     pattern:  /v1/services/test
     defaults: { _controller: Telepay\FinancialApiBundle\Controller\Services\TestService::index }
-    methods: [GET, OPTIONS]
     requirements:
         _method: GET
 
 telepay_services_test_sandbox:
     pattern:  /(sandbox|test)/v1/services/test
     defaults: { _controller: Telepay\FinancialApiBundle\Controller\Services\TestTestService::index }
-    methods: [GET, OPTIONS]
     requirements:
         _method: GET
 
@@ -21,7 +19,7 @@ telepay_services_test_sandbox:
 ##################### CLIENTS ############################
 
 telepay_financial_api_clients_index:
-    pattern:  /admin/clients
+    pattern:  /v1/admin/clients
     defaults: { _controller: Telepay\FinancialApiBundle\Controller\Admin\ClientsController::indexAction, _format: ~ }
     requirements:
         _method: GET
@@ -30,21 +28,21 @@ telepay_financial_api_clients_index:
 ##################### USERS ############################
 
 telepay_financial_api_users_index:
-    pattern:  /manager/users
+    pattern:  /v1/manager/users
     defaults: { _controller: Telepay\FinancialApiBundle\Controller\Manager\UsersController::indexAction, _format: ~ }
     requirements:
         _method: GET
 
 
 telepay_financial_api_users_get:
-    pattern:  /manager/users/{id}
+    pattern:  /v1/manager/users/{id}
     defaults: { _controller: Telepay\FinancialApiBundle\Controller\Manager\UsersController::showAction, _format: ~ }
     requirements:
         _method: GET
         id: "[0-9]+"
 
 telepay_financial_api_users_add:
-    pattern:  /manager/users
+    pattern:  /v1/manager/users
     defaults: { _controller: Telepay\FinancialApiBundle\Controller\Manager\UsersController::createAction, _format: ~ }
     requirements:
         _method: POST
@@ -54,7 +52,7 @@ telepay_financial_api_users_add:
 
 
 telepay_financial_api_users_update:
-    pattern:  /manager/users/{id}
+    pattern:  /v1/manager/users/{id}
     defaults: { _controller: Telepay\FinancialApiBundle\Controller\Manager\UsersController::updateAction, _format: ~ }
     requirements:
         _method: PUT
@@ -64,7 +62,7 @@ telepay_financial_api_users_update:
         password: "string"
 
 telepay_financial_api_users_delete:
-    pattern:  /manager/users/{id}
+    pattern:  /v1/manager/users/{id}
     defaults: { _controller: Telepay\FinancialApiBundle\Controller\Manager\UsersController::deleteAction, _format: ~ }
     requirements:
         _method: DELETE
@@ -74,27 +72,27 @@ telepay_financial_api_users_delete:
 ##################### GROUPS ############################
 
 telepay_financial_api_groups_index:
-    pattern:  /admin/groups
+    pattern:  /v1/admin/groups
     defaults: { _controller: TelepayFinancialApiBundle:Groups:index, _format: ~ }
     requirements:
         _method: GET
 
 telepay_financial_api_groups_get:
-    pattern:  /admin/groups/{id}
+    pattern:  /v1/admin/groups/{id}
     defaults: { _controller: TelepayFinancialApiBundle:Groups:get, _format: ~ }
     requirements:
         _method: GET
         id: "[0-9]+"
 
 telepay_financial_api_groups_add:
-    pattern:  /admin/groups
+    pattern:  /v1/admin/groups
     defaults: { _controller: TelepayFinancialApiBundle:Groups:add, _format: ~ }
     requirements:
         _method: POST
         name: "[a-zA-Z0-9_]+"
 
 telepay_financial_api_groups_delete:
-    pattern:  /admin/groups/{id}
+    pattern:  /v1/admin/groups/{id}
     defaults: { _controller: TelepayFinancialApiBundle:Groups:delete, _format: ~ }
     requirements:
         _method: DELETE
@@ -104,14 +102,14 @@ telepay_financial_api_groups_delete:
 
 
 telepay_financial_api_groups_add_roles:
-    pattern:  /admin/groups/{id}/roles
+    pattern:  /v1/admin/groups/{id}/roles
     defaults: { _controller: TelepayFinancialApiBundle:GroupsRoles:addRoles, _format: ~ }
     requirements:
         _method: POST
         rol_name: "ROLE_[A-Z_]+"
 
 telepay_financial_api_groups_delete_roles:
-    pattern:  /admin/groups/{id}/roles/{rol_name}
+    pattern:  /v1/admin/groups/{id}/roles/{rol_name}
     defaults: { _controller: TelepayFinancialApiBundle:GroupsRoles:deleteRoles, _format: ~ }
     requirements:
         _method: DELETE
@@ -121,14 +119,14 @@ telepay_financial_api_groups_delete_roles:
 
 
 telepay_financial_api_users_add_groups:
-    pattern:  /admin/users/{id}/groups
+    pattern:  /v1/admin/users/{id}/groups
     defaults: { _controller: TelepayFinancialApiBundle:UsersGroups:addGroups, _format: ~ }
     requirements:
         _method: POST
         group_id: "[0-9]+"
 
 telepay_financial_api_users_delete_groups:
-    pattern:  /admin/users/{id}/groups/{group_id}
+    pattern:  /v1/admin/users/{id}/groups/{group_id}
     defaults: { _controller: TelepayFinancialApiBundle:UsersGroups:deleteGroups, _format: ~ }
     requirements:
         _method: DELETE
@@ -137,75 +135,75 @@ telepay_financial_api_users_delete_groups:
 
 
 telepay_financial_api_services_index:
-    pattern:  /services
+    pattern:  /v1/services
     defaults: { _controller: TelepayFinancialApiBundle:Services:index, _format: ~ }
     requirements:
         _method: GET
 
 
 telepay_financial_api_services_netpay_pos_register:
-    pattern:  /services/netpay/pos/register
+    pattern:  /v1/services/netpay/pos/register
     defaults: { _controller: Telepay\FinancialApiBundle\Controller\Services\ServicesNetpayPosController::registerAction, _format: ~ }
     requirements:
         _method: POST
 
 
 telepay_financial_api_services_netpay_pos_transaction:
-    pattern:  /services/netpay/pos/transaction
+    pattern:  /v1/services/netpay/pos/transaction
     defaults: { _controller: Telepay\FinancialApiBundle\Controller\Services\ServicesNetpayPosController::transactionAction, _format: ~ }
     requirements:
         _method: POST
 
 telepay_financial_api_services_paynet_reference_generate:
-    pattern:  /services/paynet/reference/generate
+    pattern:  /v1/services/paynet/reference/generate
     defaults: { _controller: Telepay\FinancialApiBundle\Controller\Services\ServicesPaynetReferenceController::generateAction, _format: ~ }
     requirements:
         _method: POST
 
 telepay_financial_api_services_paynet_reference_status:
-    pattern:  /services/paynet/reference/status
+    pattern:  /v1/services/paynet/reference/status
     defaults: { _controller: Telepay\FinancialApiBundle\Controller\Services\ServicesPaynetReferenceController::statusAction, _format: ~ }
     requirements:
         _method: POST
 
 telepay_financial_api_services_toditocash_payservices_request:
-    pattern:  /services/toditocash/payservices/request
+    pattern:  /v1/services/toditocash/payservices/request
     defaults: { _controller: Telepay\FinancialApiBundle\Controller\Services\ServicesToditocashPayservicesController::requestAction, _format: ~ }
     requirements:
         _method: POST
 
 telepay_financial_api_services_toditocash_payservices_reverso:
-    pattern:  /services/toditocash/payservices/reverso
+    pattern:  /v1/services/toditocash/payservices/reverso
     defaults: { _controller: Telepay\FinancialApiBundle\Controller\Services\ServicesToditocashPayservicesController::reversoAction, _format: ~ }
     requirements:
         _method: POST
 
 telepay_financial_api_services_paynet_payment_info:
-    pattern:  /services/paynet/payment/info
+    pattern:  /v1/services/paynet/payment/info
     defaults: { _controller: Telepay\FinancialApiBundle\Controller\Services\ServicesPaynetPaymentController::infoAction, _format: ~ }
     requirements:
         _method: POST
 
 telepay_financial_api_services_paynet_payment_ejecuta:
-    pattern:  /services/paynet/payment/ejecuta
+    pattern:  /v1/services/paynet/payment/ejecuta
     defaults: { _controller: Telepay\FinancialApiBundle\Controller\Services\ServicesPaynetPaymentController::ejecutaAction, _format: ~ }
     requirements:
         _method: POST
 
 telepay_financial_api_services_paynet_payment_reversa:
-    pattern:  /services/paynet/payment/reversa
+    pattern:  /v1/services/paynet/payment/reversa
     defaults: { _controller: Telepay\FinancialApiBundle\Controller\Services\ServicesPaynetPaymentController::reversaAction, _format: ~ }
     requirements:
         _method: POST
 
 telepay_financial_api_services_ukash_redirect_request:
-    pattern:  /services/ukash/redirect/request
+    pattern:  /v1/services/ukash/redirect/request
     defaults: { _controller: Telepay\FinancialApiBundle\Controller\Services\ServicesUkashRedirectController::requestAction, _format: ~ }
     requirements:
         _method: POST
 
 telepay_financial_api_services_ukash_redirect_status:
-    pattern:  /services/ukash/redirect/status
+    pattern:  /v1/services/ukash/redirect/status
     defaults: { _controller: Telepay\FinancialApiBundle\Controller\Services\ServicesUkashRedirectController::statusAction, _format: ~ }
     requirements:
         _method: POST
