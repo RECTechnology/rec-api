@@ -1,20 +1,20 @@
 
-######################### TEST ############################
+######################### TEST SERVICE ############################
 
 telepay_services_test:
     pattern:  /v1/services/test
-    defaults: { _controller: Telepay\FinancialApiBundle\Controller\Services\TestService::index }
+    defaults: { _controller: Telepay\FinancialApiBundle\Controller\Services\TestService::test }
     requirements:
         _method: GET
 
 telepay_services_test_sandbox:
     pattern:  /(sandbox|test)/v1/services/test
-    defaults: { _controller: Telepay\FinancialApiBundle\Controller\Services\TestTestService::index }
+    defaults: { _controller: Telepay\FinancialApiBundle\Controller\Services\TestTestService::test }
     requirements:
         _method: GET
 
 
-######################## END TEST ############################
+######################## END TEST SERVICE ############################
 
 ##################### CLIENTS ############################
 

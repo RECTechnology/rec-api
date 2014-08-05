@@ -33,7 +33,7 @@ class TestService extends RestApiController
      *
      * @Rest\View
      */
-    public function index(Request $request) {
+    public function test(Request $request) {
 
         $mode = $request->get('mode');
         if(!isset($mode)) $mode = 'P';

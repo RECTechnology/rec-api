@@ -11,9 +11,9 @@ use Symfony\Component\HttpFoundation\Request;
  */
 class TestTestService extends TestService
 {
-    public function index(Request $request) {
+    public function test(Request $request) {
         $request->request->set('mode','T');
-        return parent::index($request);
+        return parent::test($request);
     }
 
 }

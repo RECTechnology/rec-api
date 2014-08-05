@@ -24,14 +24,14 @@ security:
             anonymous: true
 
         panel:
-            pattern:    ^/(admin|manager|user)/
+            pattern:    ^/v[0-9]+/(admin|manager|user)/
             fos_oauth:  true
             stateless:  true
             anonymous:  false
             context:    panel
 
         api_sandbox:
-            pattern:    ^/sandbox
+            pattern:    ^/sandbox/v[0-9]+/
             fos_oauth:  true
             stateless:  true
             anonymous:  false
@@ -42,16 +42,6 @@ security:
             stateless:  true
             security:   false
 
-        paynet_exception:
-            pattern: ^/services/paynet/
-            stateless: true
-            security: false
-
-        todito_exception:
-            pattern: ^/services/toditocash/
-            stateless: true
-            security: false
-
         doc:
             pattern:    ^/financial
             host:       dev-dev.telepay.net
@@ -59,12 +49,12 @@ security:
             #context:    panel
 
         signature_access:
-            pattern: ^/
+            pattern: ^/v[0-9]+/
             stateless: true
             signature_auth: true
 
         signature_access:
-            pattern: ^/test
+            pattern: ^/test/v[0-9]+/
             stateless: true
             signature_auth: true
 
@@ -79,11 +69,11 @@ security:
     access_control:
         #- { host: ((pre|dev)-)?dev.telepay.net, path: ^/financial/*, role: ROLE_USER, requires_channel: http }
 
-        - { path: ^/admin/v[0-9]+/*, role: ROLE_SUPER_ADMIN, requires_channel: http }
+        - { path: ^/v[0-9]+/admin/*, role: ROLE_SUPER_ADMIN, requires_channel: http }
 
-        - { path: ^/manager/v[0-9]+/*, role: ROLE_ADMIN, requires_channel: http }
+        - { path: ^/v[0-9]+/manager/*, role: ROLE_ADMIN, requires_channel: http }
 
-        - { path: ^/user/v[0-9]+/*, role: ROLE_USER, requires_channel: http }
+        - { path: ^/v[0-9]+/user/*, role: ROLE_USER, requires_channel: http }
 
         - { path: ^/((sandbox|test)/)?v[0-9]+/services/test/*, role: ROLE_USER, requires_channel: http }
 

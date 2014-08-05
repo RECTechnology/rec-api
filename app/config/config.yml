@@ -87,7 +87,12 @@ nelmio_api_doc:
         authentication:
             name: access_token
             delivery: query
+            type: bearer
         endpoint: http://dev-api.telepay.net/sandbox
+        request_format:
+            formats:                            # default `json` and `xml`,
+                json: application/json          # override to add custom formats or disable
+                xml: application/xml            # default formats
 
 fos_rest:
 
