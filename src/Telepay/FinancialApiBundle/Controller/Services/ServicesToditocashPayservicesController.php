@@ -6,11 +6,8 @@ use Telepay\FinancialApiBundle\Response\ApiResponseBuilder;
 use FOS\RestBundle\Controller\FOSRestController;
 use FOS\RestBundle\Controller\Annotations as Rest;
 use Nelmio\ApiDocBundle\Annotation\ApiDoc;
+use Symfony\Component\HttpKernel\Exception\HttpException;
 use ToditoCash;
-
-        class A{
-            private $a='a';
-        }
 
 
 class ServicesToditocashPayservicesController extends FosRestController
@@ -75,7 +72,7 @@ class ServicesToditocashPayservicesController extends FosRestController
      *          "description"="Optional transaction description."
      *      },
      *      {
-     *          "name"="badge",
+     *          "name"="currency",
      *          "dataType"="string",
      *          "required"="true",
      *          "description"="ISO-4217. f.e->MXN."
@@ -102,7 +99,7 @@ class ServicesToditocashPayservicesController extends FosRestController
             'nip',
             'amount',
             'concept',
-            'badge',
+            'currency',
             'production_flag'
         );
 
@@ -110,6 +107,9 @@ class ServicesToditocashPayservicesController extends FosRestController
         $request=$this->get('request_stack')->getCurrentRequest();
         $params = array();
         foreach($paramNames as $paramName){
+            if(!$request->request ->has($paramName)){
+                throw new HttpException(400,"Missing parameter '$paramName'");
+            }
             $params[]=$request->get($paramName, 'null');
         }
 
@@ -119,14 +119,14 @@ class ServicesToditocashPayservicesController extends FosRestController
         //Constructor
         $constructor=new ToditoCash($this->contract_id,$this->branch_id);
 
-        //Info method
+        //Request method
         $datos=$constructor -> request($params[0],$params[1],$params[2],$params[3],$params[4],$params[5],$params[6],$params[7],$params[8]);
         var_dump($datos);
        //print_r(json_encode($datos));
         $resp = new ApiResponseBuilder(
             201,
             "Reference created successfully",
-            new A()
+            $datos
         );
 
         $view = $this->view($resp, 201);

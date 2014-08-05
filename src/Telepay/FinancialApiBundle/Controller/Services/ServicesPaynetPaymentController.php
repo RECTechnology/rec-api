@@ -240,10 +240,10 @@ class ServicesPaynetPaymentController extends FosRestController
         include("../vendor/paynet-services/PaynetService.php");
 
         //Check if it's a Test or Production transaction
-        if($params['mode']=='T'){
+        if($params[7]=='T'){
             //Constructor in Test mode
             $constructor=new PaynetService($this->testArray['group_id'],$this->testArray['chain_id'],$this->testArray['shop_id'],$this->testArray['pos_id'],$this->testArray['cashier_id']);
-        }elseif($params['mode']=='P'){
+        }elseif($params[7]=='P'){
             //Constructor in Production mode
             $constructor=new PaynetService($this->prodArray['group_id'],$this->prodArray['chain_id'],$this->prodArray['shop_id'],$this->prodArray['pos_id'],$this->prodArray['cashier_id']);
         }else{
