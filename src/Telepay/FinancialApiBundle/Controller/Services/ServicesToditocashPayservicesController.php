@@ -2,6 +2,7 @@
 
 namespace Telepay\FinancialApiBundle\Controller\Services;
 
+use Symfony\Component\HttpFoundation\Request;
 use Telepay\FinancialApiBundle\Response\ApiResponseBuilder;
 use FOS\RestBundle\Controller\FOSRestController;
 use FOS\RestBundle\Controller\Annotations as Rest;
@@ -76,12 +77,6 @@ class ServicesToditocashPayservicesController extends FosRestController
      *          "dataType"="string",
      *          "required"="true",
      *          "description"="ISO-4217. f.e->MXN."
-     *      },
-     *      {
-     *          "name"="production_flag",
-     *          "dataType"="int",
-     *          "required"="true",
-     *          "description"="0 - Production , 1 - Test."
      *      }
      *   }
      * )
@@ -89,7 +84,7 @@ class ServicesToditocashPayservicesController extends FosRestController
      * @Rest\View(statusCode=201)
      */
 
-    public function requestAction(){
+    public function request(Request $request){
 
         static $paramNames = array(
             'transaction_id',
@@ -99,12 +94,10 @@ class ServicesToditocashPayservicesController extends FosRestController
             'nip',
             'amount',
             'concept',
-            'currency',
-            'production_flag'
+            'currency'
         );
 
         //Get the parameters sent by POST and put them in a $params array
-        $request=$this->get('request_stack')->getCurrentRequest();
         $params = array();
         foreach($paramNames as $paramName){
             if(!$request->request ->has($paramName)){
@@ -116,12 +109,23 @@ class ServicesToditocashPayservicesController extends FosRestController
         //Include the class
         include("../vendor/toditocash/ToditoCash.php");
 
+        $mode=$request->get('mode');
+        if(!isset($mode))   $mode='P';
+
         //Constructor
         $constructor=new ToditoCash($this->contract_id,$this->branch_id);
 
-        //Request method
-        $datos=$constructor -> request($params[0],$params[1],$params[2],$params[3],$params[4],$params[5],$params[6],$params[7],$params[8]);
-        var_dump($datos);
+        if($mode=='T'){
+            //Request method
+            $datos=$constructor -> request($params[0],$params[1],$params[2],$params[3],$params[4],$params[5],$params[6],$params[7],'0');
+        }elseif($mode=='P'){
+            //Request method
+            $datos=$constructor -> request($params[0],$params[1],$params[2],$params[3],$params[4],$params[5],$params[6],$params[7],'1');
+        }else{
+            //If is not one of the first shows an error message.
+            throw new HttpException(400,'Bad request');
+        }
+
        //print_r(json_encode($datos));
         $resp = new ApiResponseBuilder(
             201,
@@ -179,12 +183,6 @@ class ServicesToditocashPayservicesController extends FosRestController
      *          "description"="Card Number"
      *      },
      *      {
-     *          "name"="banProd",
-     *          "dataType"="int",
-     *          "required"="true",
-     *          "description"="0 - Production , 1 - Test."
-     *      },
-     *      {
      *          "name"="amount",
      *          "dataType"="int",
      *          "required"="true",
@@ -196,7 +194,7 @@ class ServicesToditocashPayservicesController extends FosRestController
      * @Rest\View(statusCode=201)
      */
 
-    public function reversoAction(){
+    public function reverso(Request $request){
 
         static $paramNames = array(
             'tc_number_transaction',
@@ -204,12 +202,10 @@ class ServicesToditocashPayservicesController extends FosRestController
             'date',
             'hour',
             'card_number',
-            'amount',
-            'production_flag'
+            'amount'
         );
 
         //Get the parameters and put them in a $params array
-        $request=$this->get('request_stack')->getCurrentRequest();
         $params = array();
         foreach($paramNames as $paramName){
             $params[]=$request->get($paramName, 'null');
@@ -218,11 +214,19 @@ class ServicesToditocashPayservicesController extends FosRestController
         //Include the class
         include("../vendor/toditocash/ToditoCash.php");
 
+        $mode=$request->get('mode');
+        if(!isset($mode))   $mode='P';
+
         //Constructor
         $constructor=new ToditoCash($this->contract_id,$this->branch_id);
 
-        //Reverso method
-        $datos=$constructor -> reverso($params[0],$params[1],$params[2],$params[3],$params[4],$params[5],$params[6]);
+        if($mode=='T'){
+            //Reverso test method
+            $datos=$constructor -> reverso($params[0],$params[1],$params[2],$params[3],$params[4],$params[5],'0');
+        }elseif($mode=='P'){
+            //Reverso production method
+            $datos=$constructor -> reverso($params[0],$params[1],$params[2],$params[3],$params[4],$params[5],'1');
+        }
 
         $resp = new ApiResponseBuilder(
             201,

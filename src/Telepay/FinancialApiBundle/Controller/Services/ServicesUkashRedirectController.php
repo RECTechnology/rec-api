@@ -8,6 +8,7 @@
 
 namespace Telepay\FinancialApiBundle\Controller\Services;
 
+use Symfony\Component\HttpFoundation\Request;
 use Telepay\FinancialApiBundle\Response\ApiResponseBuilder;
 use FOS\RestBundle\Controller\FOSRestController;
 use FOS\RestBundle\Controller\Annotations as Rest;
@@ -35,6 +36,24 @@ class ServicesUkashRedirectController extends FosRestController
      *          "required"="true",
      *          "description"="Transaction amount"
      *      },
+     *       {
+     *          "name"="transaction_id",
+     *          "dataType"="integer",
+     *          "required"="true",
+     *          "description"="Transaction ID"
+     *      },
+     *      {
+     *          "name"="consumer_id",
+     *          "dataType"="integer",
+     *          "required"="true",
+     *          "description"="Consumer ID"
+     *      },
+     *       {
+     *          "name"="currency",
+     *          "dataType"="string",
+     *          "required"="true",
+     *          "description"="Transaction currency ISO-4217"
+     *      },
      *      {
      *          "name"="url_succes",
      *          "dataType"="string",
@@ -52,12 +71,6 @@ class ServicesUkashRedirectController extends FosRestController
      *          "dataType"="string",
      *          "required"="true",
      *          "description"="URL for notification de payment"
-     *      },
-     *      {
-     *          "name"="mode",
-     *          "dataType"="string",
-     *          "required"="true",
-     *          "description"="T = Test , P = Production"
      *      }
      *   }
      * )
@@ -65,18 +78,19 @@ class ServicesUkashRedirectController extends FosRestController
      * @Rest\View(statusCode=201)
      */
 
-    public function requestAction(){
+    public function request(Request $request){
 
         static $paramNames = array(
             'total',
+            'transaction_id',
+            'consumer_id',
+            'currency',
             'url_succes',
             'url_fail',
-            'url_notification',
-            'mode'
+            'url_notification'
         );
 
         //Get the parameters sent by POST and put them in a $params array
-        $request=$this->get('request_stack')->getCurrentRequest();
         $params = array();
         foreach($paramNames as $paramName){
             if(!$request->request ->has($paramName)){
@@ -88,12 +102,15 @@ class ServicesUkashRedirectController extends FosRestController
         //Include the class
         include("../vendor/ukash/UkashRedirect.php");
 
+        $mode=$request->get('mode');
+        if(!isset($mode))   $mode='P';
+
         //Constructor
-        $constructor=new UkashRedirect($params[4]);
+        $constructor=new UkashRedirect($mode);
 
         //Request method
-        $datos=$constructor -> request($params[0],$params[1],$params[2],$params[3]);
-        //print_r(json_encode($datos));
+        $datos=$constructor -> request($params[0],$params[1],$params[2],$params[3],$params[4],$params[5],$params[6]);
+
         if(isset($datos['error_code'])){
             $resp = new ApiResponseBuilder(
                 400,
@@ -126,12 +143,6 @@ class ServicesUkashRedirectController extends FosRestController
      *   },
      *   parameters={
      *      {
-     *          "name"="mode",
-     *          "dataType"="string",
-     *          "required"="true",
-     *          "description"="T = Test , P = Production."
-     *      },
-     *      {
      *          "name"="utid",
      *          "dataType"="string",
      *          "required"="true",
@@ -143,7 +154,7 @@ class ServicesUkashRedirectController extends FosRestController
      * @Rest\View(statusCode=201)
      */
 
-    public function statusAction(){
+    public function status(){
 
         static $paramNames = array(
             'utid',

@@ -7,6 +7,7 @@
  */
 namespace Telepay\FinancialApiBundle\Controller\Services;
 
+use Symfony\Component\HttpFoundation\Request;
 use Telepay\FinancialApiBundle\Response\ApiResponseBuilder;
 use FOS\RestBundle\Controller\FOSRestController;
 use FOS\RestBundle\Controller\Annotations as Rest;
@@ -77,12 +78,6 @@ class ServicesPaynetPaymentController extends FosRestController
      *          "dataType"="string",
      *          "required"="true",
      *          "description"="This is a reference for the payment. Every service has a unique reference."
-     *      },
-     *      {
-     *          "name"="mode",
-     *          "dataType"="string",
-     *          "required"="true",
-     *          "description"="T -> Test , P -> Production"
      *      }
      *   }
      * )
@@ -90,7 +85,7 @@ class ServicesPaynetPaymentController extends FosRestController
      * @Rest\View(statusCode=201)
      */
 
-    public function infoAction(){
+    public function info(Request $request){
 
         //$user = $this->get('security.context')->getToken()->getUser();
 
@@ -99,12 +94,10 @@ class ServicesPaynetPaymentController extends FosRestController
             'local_hour',
             'transaction_id',
             'sku',
-            'reference',
-            'mode'
+            'reference'
         );
 
         //Get the parameters sent by POST and put them in $params array
-        $request=$this->get('request_stack')->getCurrentRequest();
         $params = array();
         foreach($paramNames as $paramName){
             if(!$request->request ->has($paramName)){
@@ -112,17 +105,18 @@ class ServicesPaynetPaymentController extends FosRestController
             }
             $params[]=$request->get($paramName, 'null');
         }
-
+        $mode = $request->get('mode');
+        if(!isset($mode)) $mode = 'P';
         //throw new HttpException(400,system("ls ../"));
 
         //Include the class
         include("../vendor/paynet-services/PaynetService.php");
 
         //Check if it's a Test or Production transaction
-        if($params[5]=='T'){
+        if($mode=='T'){
             //Constructor in Test mode
             $constructor=new PaynetService($this->testArray['group_id'],$this->testArray['chain_id'],$this->testArray['shop_id'],$this->testArray['pos_id'],$this->testArray['cashier_id']);
-        }elseif($params[5]=='P'){
+        }elseif($mode=='P'){
             //Constructor in Production mode
             $constructor=new PaynetService($this->prodArray['group_id'],$this->prodArray['chain_id'],$this->prodArray['shop_id'],$this->prodArray['pos_id'],$this->prodArray['cashier_id']);
         }else{
@@ -146,6 +140,10 @@ class ServicesPaynetPaymentController extends FosRestController
 
     }
 
+    public function infoTest(Request $request){
+        $request->request->set('mode','T');
+        return $this->info($request);
+    }
     /**
      * This method allows client to pay services.
      *
@@ -200,12 +198,6 @@ class ServicesPaynetPaymentController extends FosRestController
      *          "dataType"="double",
      *          "required"="true",
      *          "description"="Amount value must be the same value that appears in the table 1.x."
-     *      },
-     *      {
-     *          "name"="mode",
-     *          "dataType"="string",
-     *          "required"="true",
-     *          "description"="T -> Test , P -> Production"
      *      }
      *   }
      * )
@@ -213,7 +205,7 @@ class ServicesPaynetPaymentController extends FosRestController
      * @Rest\View(statusCode=201)
      */
 
-    public function ejecutaAction(){
+    public function ejecuta(Request $request){
 
         static $paramNames = array(
             'local_date',
@@ -222,12 +214,10 @@ class ServicesPaynetPaymentController extends FosRestController
             'sku',
             'fee',
             'reference',
-            'amount',
-            'mode'
+            'amount'
         );
 
         //Get the parameters sent by POST and put them in $params array
-        $request=$this->get('request_stack')->getCurrentRequest();
         $params = array();
         foreach($paramNames as $paramName){
             if(!$request->request ->has($paramName)){
@@ -239,11 +229,14 @@ class ServicesPaynetPaymentController extends FosRestController
         //Include the class
         include("../vendor/paynet-services/PaynetService.php");
 
+        $mode = $request->get('mode');
+        if(!isset($mode)) $mode = 'P';
+
         //Check if it's a Test or Production transaction
-        if($params[7]=='T'){
+        if($mode=='T'){
             //Constructor in Test mode
             $constructor=new PaynetService($this->testArray['group_id'],$this->testArray['chain_id'],$this->testArray['shop_id'],$this->testArray['pos_id'],$this->testArray['cashier_id']);
-        }elseif($params[7]=='P'){
+        }elseif($mode=='P'){
             //Constructor in Production mode
             $constructor=new PaynetService($this->prodArray['group_id'],$this->prodArray['chain_id'],$this->prodArray['shop_id'],$this->prodArray['pos_id'],$this->prodArray['cashier_id']);
         }else{
@@ -265,6 +258,11 @@ class ServicesPaynetPaymentController extends FosRestController
 
         return $this->handleView($view);
 
+    }
+
+    public function ejecutaTest(Request $request){
+        $request->request->set('mode','T');
+        return $this->ejecuta($request);
     }
 
     /**
@@ -315,12 +313,6 @@ class ServicesPaynetPaymentController extends FosRestController
      *          "dataType"="double",
      *          "required"="true",
      *          "description"="Amount value must be the same value that appears in the table 1.x."
-     *      },
-     *      {
-     *          "name"="mode",
-     *          "dataType"="string",
-     *          "required"="true",
-     *          "description"="T -> Test , P -> Production"
      *      }
      *   }
      * )
@@ -328,7 +320,7 @@ class ServicesPaynetPaymentController extends FosRestController
      * @Rest\View(statusCode=201)
      */
 
-    public function reversaAction(){
+    public function reversa(Request $request){
 
         static $paramNames = array(
             'local_date',
@@ -336,12 +328,10 @@ class ServicesPaynetPaymentController extends FosRestController
             'transaction_id',
             'sku',
             'reference',
-            'amount',
-            'mode'
+            'amount'
         );
 
         //Get the parameters sent by POST and put them in $params array
-        $request=$this->get('request_stack')->getCurrentRequest();
         $params = array();
         foreach($paramNames as $paramName){
             if(!$request->request ->has($paramName)){
@@ -353,11 +343,14 @@ class ServicesPaynetPaymentController extends FosRestController
         //Include the class
         include("../vendor/paynet-services/PaynetService.php");
 
+        $mode=$request->get('mode');
+        if(!isset ($mode)) $mode='P';
+
         //Check if it's a Test or Production transaction
-        if($params['mode']=='T'){
+        if($mode=='T'){
             //Constructor in Test mode
             $constructor=new PaynetService($this->testArray['group_id'],$this->testArray['chain_id'],$this->testArray['shop_id'],$this->testArray['pos_id'],$this->testArray['cashier_id']);
-        }elseif($params['mode']=='P'){
+        }elseif($mode=='P'){
             //Constructor in Production mode
             $constructor=new PaynetService($this->prodArray['group_id'],$this->prodArray['chain_id'],$this->prodArray['shop_id'],$this->prodArray['pos_id'],$this->prodArray['cashier_id']);
         }else{
@@ -378,5 +371,10 @@ class ServicesPaynetPaymentController extends FosRestController
 
         return $this->handleView($view);
 
+    }
+
+    public function reversaTest(Request $request){
+        $request->request->set('mode','T');
+        return $this->reversa($request);
     }
 }
