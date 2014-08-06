@@ -24,14 +24,14 @@ security:
             anonymous: true
 
         panel:
-            pattern:    ^/v[0-9]+/(admin|manager|user)/
+            pattern:    ^/(admin|manager|user)/
             fos_oauth:  true
             stateless:  true
             anonymous:  false
             context:    panel
 
         api_sandbox:
-            pattern:    ^/sandbox/v[0-9]+/
+            pattern:    ^/sandbox/
             fos_oauth:  true
             stateless:  true
             anonymous:  false
@@ -49,12 +49,12 @@ security:
             #context:    panel
 
         signature_access:
-            pattern: ^/v[0-9]+/
+            pattern: ^/
             stateless: true
             signature_auth: true
 
         signature_access:
-            pattern: ^/test/v[0-9]+/
+            pattern: ^/test/
             stateless: true
             signature_auth: true
 
@@ -69,14 +69,14 @@ security:
     access_control:
         #- { host: ((pre|dev)-)?dev.telepay.net, path: ^/financial/*, role: ROLE_USER, requires_channel: http }
 
-        - { path: ^/v[0-9]+/admin/*, role: ROLE_SUPER_ADMIN, requires_channel: http }
+        - { path: ^/admin/v[0-9]+/*, role: ROLE_SUPER_ADMIN, requires_channel: http }
 
-        - { path: ^/v[0-9]+/manager/*, role: ROLE_ADMIN, requires_channel: http }
+        - { path: ^/manager/v[0-9]+/*, role: ROLE_ADMIN, requires_channel: http }
 
-        - { path: ^/v[0-9]+/user/*, role: ROLE_USER, requires_channel: http }
+        - { path: ^/user/v[0-9]+/*, role: ROLE_USER, requires_channel: http }
 
-        - { path: ^/((sandbox|test)/)?v[0-9]+/services/test/*, role: ROLE_USER, requires_channel: http }
+        - { path: ^/((sandbox|test)/)?services/v[0-9]+/test/*, role: ROLE_USER, requires_channel: http }
 
-        - { path: ^/((sandbox|test)/)?v[0-9]+/services/netpay/pos/*, role: ROLE_SERVICES_NETPAY_POS, requires_channel: http }
-        - { path: ^/((sandbox|test)/)?v[0-9]+/services/paynet/*, role: ROLE_SERVICES_PAYNET, requires_channel: http }
-        - { path: ^/((sandbox|test)/)?v[0-9]+/services/recargafon/*, role: ROLE_SERVICES_RECARGAFON, requires_channel: http }
+        - { path: ^/((sandbox|test)/)?services/v[0-9]+/netpay/pos/*, role: ROLE_SERVICES_NETPAY_POS, requires_channel: http }
+        - { path: ^/((sandbox|test)/)?services/v[0-9]+/paynet/*, role: ROLE_SERVICES_PAYNET, requires_channel: http }
+        - { path: ^/((sandbox|test)/)?services/v[0-9]+/recargafon/*, role: ROLE_SERVICES_RECARGAFON, requires_channel: http }
