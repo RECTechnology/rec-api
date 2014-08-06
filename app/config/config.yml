@@ -112,6 +112,8 @@ fos_oauth_server:
     auth_code_class:     Telepay\FinancialApiBundle\Entity\AuthCode
     service:
         user_provider: access_key.security.user_provider
+        options:
+            supported_scopes: panel
 
 sensio_framework_extra:
     view:    { annotations: false }

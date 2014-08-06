@@ -45,8 +45,8 @@ security:
         doc:
             pattern:    ^/financial
             host:       dev-dev.telepay.net
-            security:   false
-            #context:    panel
+            fos_oauth:  true
+            context:    panel
 
         signature_access:
             pattern: ^/
