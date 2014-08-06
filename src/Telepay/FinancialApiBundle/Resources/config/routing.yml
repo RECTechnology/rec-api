@@ -180,13 +180,19 @@ telepay_financial_api_services_toditocash_payservices_request:
 
 telepay_financial_api_services_toditocash_payservices_request_sandbox:
     pattern:  /sandbox/services/v1/toditocash/payservices/request
-    defaults: { _controller: Telepay\FinancialApiBundle\Controller\Services\ServicesToditocashPayservicesController::request, _format: ~ }
+    defaults: { _controller: Telepay\FinancialApiBundle\Controller\Services\ServicesToditocashPayservicesController::requestTest, _format: ~ }
     requirements:
         _method: POST
 
 telepay_financial_api_services_toditocash_payservices_reverso:
     pattern:  /services/v1/toditocash/payservices/status
     defaults: { _controller: Telepay\FinancialApiBundle\Controller\Services\ServicesToditocashPayservicesController::reverso, _format: ~ }
+    requirements:
+        _method: POST
+
+telepay_financial_api_services_toditocash_payservices_reverso_sandbox:
+    pattern:  /sandbox/services/v1/toditocash/payservices/status
+    defaults: { _controller: Telepay\FinancialApiBundle\Controller\Services\ServicesToditocashPayservicesController::reversoTest, _format: ~ }
     requirements:
         _method: POST
 
@@ -198,7 +204,7 @@ telepay_financial_api_services_paynet_payment_info:
 
 telepay_financial_api_services_paynet_payment_info_sandbox:
     pattern:  /sandbox/services/v1/paynet/payment/info
-    defaults: { _controller: Telepay\FinancialApiBundle\Controller\Services\ServicesPaynetPaymentController::info, _format: ~ }
+    defaults: { _controller: Telepay\FinancialApiBundle\Controller\Services\ServicesPaynetPaymentController::infoTest, _format: ~ }
     requirements:
         _method: POST
 
@@ -210,7 +216,7 @@ telepay_financial_api_services_paynet_payment_ejecuta:
 
 telepay_financial_api_services_paynet_payment_ejecuta_sandbox:
     pattern:  /sandbox/services/v1/paynet/payment/transaction
-    defaults: { _controller: Telepay\FinancialApiBundle\Controller\Services\ServicesPaynetPaymentController::ejecuta, _format: ~ }
+    defaults: { _controller: Telepay\FinancialApiBundle\Controller\Services\ServicesPaynetPaymentController::ejecutaTest, _format: ~ }
     requirements:
         _method: POST
 
@@ -222,7 +228,7 @@ telepay_financial_api_services_paynet_payment_reversa:
 
 telepay_financial_api_services_paynet_payment_reversa_sandbox:
     pattern:  /sandbox/services/v1/paynet/payment/status
-    defaults: { _controller: Telepay\FinancialApiBundle\Controller\Services\ServicesPaynetPaymentController::reversa, _format: ~ }
+    defaults: { _controller: Telepay\FinancialApiBundle\Controller\Services\ServicesPaynetPaymentController::reversaTest, _format: ~ }
     requirements:
         _method: POST
 
@@ -234,7 +240,7 @@ telepay_financial_api_services_ukash_redirect_request:
 
 telepay_financial_api_services_ukash_redirect_request_sandbox:
     pattern:  /sandbox/services/v1/ukash/redirect/request
-    defaults: { _controller: Telepay\FinancialApiBundle\Controller\Services\ServicesUkashRedirectController::request, _format: ~ }
+    defaults: { _controller: Telepay\FinancialApiBundle\Controller\Services\ServicesUkashRedirectController::requestTest, _format: ~ }
     requirements:
         _method: POST
 
@@ -246,6 +252,6 @@ telepay_financial_api_services_ukash_redirect_status:
 
 telepay_financial_api_services_ukash_redirect_status_sandbox:
     pattern:  /sandbox/services/v1/ukash/redirect/status
-    defaults: { _controller: Telepay\FinancialApiBundle\Controller\Services\ServicesUkashRedirectController::status, _format: ~ }
+    defaults: { _controller: Telepay\FinancialApiBundle\Controller\Services\ServicesUkashRedirectController::statusTest, _format: ~ }
     requirements:
         _method: POST
