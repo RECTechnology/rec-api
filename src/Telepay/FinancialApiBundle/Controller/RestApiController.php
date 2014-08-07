@@ -10,14 +10,10 @@ namespace Telepay\FinancialApiBundle\Controller;
 
 use FOS\RestBundle\Controller\FOSRestController;
 
-abstract class RestApiController extends FosRestController{
+class RestApiController extends FosRestController{
 
     protected function buildRestView($code, $message, $data){
-        return $this->view(array(
-            'code' => $code,
-            'message' => $message,
-            'data' => $data,
-        ), $code);
+        return $this->view(new ApiResponse($code, $message, $data), $code);
     }
 
 }

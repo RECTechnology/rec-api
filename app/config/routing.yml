@@ -4,8 +4,7 @@ telepay_financial_api:
 
 NelmioApiDocBundle:
     resource: "@NelmioApiDocBundle/Resources/config/routing.yml"
-    host:     dev-dev.telepay.net
-    prefix:   /financial
+    prefix:   /doc/financial
 
 fos_oauth_server_token:
     resource: "@FOSOAuthServerBundle/Resources/config/routing/token.xml"

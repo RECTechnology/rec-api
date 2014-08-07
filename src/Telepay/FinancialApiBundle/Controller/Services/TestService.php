@@ -13,6 +13,9 @@ use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
 use Telepay\FinancialApiBundle\Controller\RestApiController;
 
+
+
+
 /**
  * Class TestService
  * @package Telepay\FinancialApiBundle\Controller\Services
@@ -25,6 +28,7 @@ class TestService extends RestApiController
      * @ApiDoc(
      *   section="0 - Testing Service",
      *   description="Service for test the right connection to the api.",
+     *   output="Telepay\FinancialApiBundle\Controller\Services\TestResponse",
      *   statusCodes={
      *       200="Returned when successful",
      *       404="Returned when the resource does not exists"
@@ -41,9 +45,18 @@ class TestService extends RestApiController
         $view = $this->buildRestView(
             200,
             "Request successful",
-            array('is_testing' => ($mode === 'T'))
+            new TestResponse(
+                ($mode === 'T'),
+                date('Y-m-d H:i:s')
+            )
         );
 
         return $this->handleView($view);
+    }
+
+
+    public function testTest(Request $request) {
+        $request->request->set('mode','T');
+        return $this->test($request);
     }
 }
