@@ -128,11 +128,19 @@ class ServicesPaynetPaymentController extends FosRestController
         $datos=$constructor -> info($params[0],$params[1],$params[2],$params[3],$params[4]);
 
         //Response
-        $resp = new ApiResponseBuilder(
-            201,
-            "Reference created successfully",
-            $datos
-        );
+        if(isset($datos['error_code'])){
+            $resp = new ApiResponseBuilder(
+                400,
+                "Bad request",
+                $datos
+            );
+        }else{
+            $resp = new ApiResponseBuilder(
+                201,
+                "Reference created successfully",
+                $datos
+            );
+        }
 
         $view = $this->view($resp, 201);
 

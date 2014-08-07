@@ -131,6 +131,11 @@ class ServicesUkashRedirectController extends FosRestController
 
     }
 
+    public function requestTest(Request $request){
+        $request->request->set('mode','T');
+        return $this->request($request);
+    }
+
     /**
      * This method obtain a payment status.
      *
@@ -154,11 +159,10 @@ class ServicesUkashRedirectController extends FosRestController
      * @Rest\View(statusCode=201)
      */
 
-    public function status(){
+    public function status(Request $request){
 
         static $paramNames = array(
-            'utid',
-            'mode'
+            'utid'
         );
 
         //Get the parameters sent by POST and put them in a $params array
@@ -174,8 +178,11 @@ class ServicesUkashRedirectController extends FosRestController
         //Include the class
         include("../vendor/ukash/UkashRedirect.php");
 
+        $mode=$request->get('mode');
+        if(!isset($mode))   $mode='P';
+
         //Constructor
-        $constructor=new UkashRedirect($params[1]);
+        $constructor=new UkashRedirect($mode);
 
         //Request method
         $datos=$constructor -> status($params[0]);
@@ -199,5 +206,10 @@ class ServicesUkashRedirectController extends FosRestController
 
         return $this->handleView($view);
 
+    }
+
+    public function statusTest(Request $request){
+        $request->request->set('mode','T');
+        return $this->status($request);
     }
 }

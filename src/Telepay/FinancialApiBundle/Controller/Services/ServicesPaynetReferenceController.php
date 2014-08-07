@@ -77,11 +77,19 @@ class ServicesPaynetReferenceController extends FosRestController
         //Request method
         $datos=$constructor -> request();
 
-        $resp = new ApiResponseBuilder(
-            201,
-            "Reference created successfully",
-            $datos
-        );
+        if(isset($datos['barcode'])){
+            $resp = new ApiResponseBuilder(
+                201,
+                "Reference created successfully",
+                $datos
+            );
+        }else{
+            $resp = new ApiResponseBuilder(
+                400,
+                "Bad request",
+                $datos
+            );
+        }
 
         $view = $this->view($resp, 201);
 
@@ -138,11 +146,21 @@ class ServicesPaynetReferenceController extends FosRestController
         $datos=$constructor -> status();
 
         //Response
-        $resp = new ApiResponseBuilder(
-            201,
-            "Reference created successfully",
-            $datos
-        );
+        if($datos['error_code']==0){
+            $resp = new ApiResponseBuilder(
+                201,
+                "Reference created successfully",
+                $datos
+            );
+        }else{
+            $resp = new ApiResponseBuilder(
+                400,
+                "Bad request",
+                $datos
+            );
+        }
+
+
 
         $view = $this->view($resp, 201);
 
