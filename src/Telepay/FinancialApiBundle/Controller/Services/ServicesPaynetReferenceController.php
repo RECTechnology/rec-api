@@ -2,6 +2,7 @@
 
 namespace Telepay\FinancialApiBundle\Controller\Services;
 
+use Symfony\Component\HttpFoundation\Request;
 use Telepay\FinancialApiBundle\Response\ApiResponseBuilder;
 use FOS\RestBundle\Controller\FOSRestController;
 use FOS\RestBundle\Controller\Annotations as Rest;
@@ -49,7 +50,7 @@ class ServicesPaynetReferenceController extends FosRestController
      * @Rest\View(statusCode=201)
      */
 
-    public function generateAction(){
+    public function generate(){
 
         static $paramNames = array(
             'client_reference',
@@ -111,7 +112,7 @@ class ServicesPaynetReferenceController extends FosRestController
      * @Rest\View(statusCode=201)
      */
 
-    public function statusAction(){
+    public function status(){
 
         static $paramNames = array(
             'client_reference'

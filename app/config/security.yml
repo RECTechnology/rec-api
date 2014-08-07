@@ -80,3 +80,4 @@ security:
         - { path: ^/((sandbox|test)/)?services/v[0-9]+/netpay/pos/*, role: ROLE_SERVICES_NETPAY_POS, requires_channel: http }
         - { path: ^/((sandbox|test)/)?services/v[0-9]+/paynet/*, role: ROLE_SERVICES_PAYNET, requires_channel: http }
         - { path: ^/((sandbox|test)/)?services/v[0-9]+/recargafon/*, role: ROLE_SERVICES_RECARGAFON, requires_channel: http }
+        
