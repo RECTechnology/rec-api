@@ -168,12 +168,18 @@ telepay_financial_api_services_paynet_reference_generate:
 
 telepay_financial_api_services_paynet_reference_generate_sandbox:
     pattern:  /sandbox/services/v1/paynet/reference/generate
-    defaults: { _controller: Telepay\FinancialApiBundle\Controller\Services\ServicesPaynetReferenceController::generate, _format: ~ }
+    defaults: { _controller: Telepay\FinancialApiBundle\Controller\Services\ServicesPaynetReferenceController::generateTest, _format: ~ }
     requirements:
         _method: POST
 
 telepay_financial_api_services_paynet_reference_status_sandbox:
     pattern:  /sandbox/services/v1/paynet/reference/status
+    defaults: { _controller: Telepay\FinancialApiBundle\Controller\Services\ServicesPaynetReferenceController::statusTest, _format: ~ }
+    requirements:
+        _method: POST
+
+telepay_financial_api_services_paynet_reference_status:
+    pattern:  /services/v1/paynet/reference/status
     defaults: { _controller: Telepay\FinancialApiBundle\Controller\Services\ServicesPaynetReferenceController::status, _format: ~ }
     requirements:
         _method: POST
@@ -186,7 +192,7 @@ telepay_financial_api_services_toditocash_payservices_request:
 
 telepay_financial_api_services_toditocash_payservices_request_sandbox:
     pattern:  /sandbox/services/v1/toditocash/payservices/request
-    defaults: { _controller: Telepay\FinancialApiBundle\Controller\Services\ServicesToditocashPayservicesController::request, _format: ~ }
+    defaults: { _controller: Telepay\FinancialApiBundle\Controller\Services\ServicesToditocashPayservicesController::requestTest, _format: ~ }
     requirements:
         _method: POST
 
@@ -261,3 +267,16 @@ telepay_financial_api_services_ukash_redirect_status_sandbox:
     defaults: { _controller: Telepay\FinancialApiBundle\Controller\Services\ServicesUkashRedirectController::statusTest, _format: ~ }
     requirements:
         _method: POST
+
+telepay_financial_api_services_safetypay_payment_request:
+    pattern:  /services/v1/safetypay/payment/request
+    defaults: { _controller: Telepay\FinancialApiBundle\Controller\Services\ServicesSafetypayPaymentController::request, _format: ~ }
+    requirements:
+        _method: POST
+
+telepay_financial_api_services_safetypay_payment_request_sandbox:
+    pattern:  /sandbox/services/v1/safetypay/payment/request
+    defaults: { _controller: Telepay\FinancialApiBundle\Controller\Services\ServicesSafetypayPaymentController::requestTest, _format: ~ }
+    requirements:
+        _method: POST
+
