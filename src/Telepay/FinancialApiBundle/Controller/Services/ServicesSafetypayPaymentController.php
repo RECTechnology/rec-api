@@ -27,7 +27,7 @@ class ServicesSafetypayPaymentController extends FOSRestController
         'language'          =>  'ES',
         'tracking_code'     =>  '',
         'expiration_time'   =>  '5',
-        'response_format'   =>  'XML',
+        'response_format'   =>  'CSV',
         'url_safety'        =>  'https://mws2.safetypay.com/Sandbox/express/post/v.2.2/CreateExpressToken.aspx'
     );
 
@@ -39,7 +39,7 @@ class ServicesSafetypayPaymentController extends FOSRestController
         'language'          =>  'ES',
         'tracking_code'     =>  '',
         'expiration_time'   =>  '5',
-        'response_format'   =>  'XML',
+        'response_format'   =>  'CSV',
         'url_safety'        =>  'https://mws2.safetypay.com/express/post/v.2.2/CreateExpressToken.aspx'
     );
 
@@ -50,6 +50,7 @@ class ServicesSafetypayPaymentController extends FOSRestController
      *   section="SafetyPay payments",
      *   description="Returns a JSON with the Info for the payment.",
      *   https="true",
+     *   output="Telepay\FinancialApiBundle\Controller\Services",
      *   statusCodes={
      *       201="Returned when the request was successful",
      *   },
@@ -131,16 +132,16 @@ class ServicesSafetypayPaymentController extends FOSRestController
         $datos=$constructor -> request($params[0],$params[1],$params[2],$params[3],$params[4]);
 
         //Response
-        if(isset($datos['error_code'])){
+        if($datos['error_number']==0){
             $resp = new ApiResponseBuilder(
-                400,
-                "Bad request",
+                201,
+                "Reference created successfully",
                 $datos
             );
         }else{
             $resp = new ApiResponseBuilder(
-                201,
-                "Reference created successfully",
+                400,
+                "Bad request",
                 $datos
             );
         }
