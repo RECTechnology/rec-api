@@ -48,12 +48,12 @@ security:
             stateless:  true
             context:    panel
 
-        signature_access_production:
+        api_production:
             pattern: ^/
             stateless: true
             signature_auth: true
 
-        signature_access_test:
+        api_test:
             pattern: ^/test/
             stateless: true
             signature_auth: true
