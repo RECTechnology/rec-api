@@ -85,9 +85,8 @@ nelmio_api_doc:
     sandbox:
         enabled: true
         authentication:
-            name: Authorization
-            delivery: http
-            type: bearer
+            name: access_token
+            delivery: query
         endpoint: /sandbox
         request_format:
             formats:                            # default `json` and `xml`,
