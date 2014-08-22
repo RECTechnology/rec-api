@@ -53,6 +53,11 @@ class User extends BaseUser
      */
     private $access_secret;
 
+    /**
+     * @ORM\Column(type="string")
+     */
+    private $name;
+
 
     public function getAccessKey(){
         return $this->access_key;
@@ -61,6 +66,22 @@ class User extends BaseUser
 
     public function getAccessSecret(){
         return $this->access_secret;
+    }
+
+    /**
+     * @return mixed
+     */
+    public function getName()
+    {
+        return $this->name;
+    }
+
+    /**
+     * @param mixed $name
+     */
+    public function setName($name)
+    {
+        $this->name = $name;
     }
 
 }
