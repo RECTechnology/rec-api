@@ -144,8 +144,6 @@ telepay_financial_api_groups_delete_roles:
     defaults: { _controller: Telepay\FinancialApiBundle\Controller\Admin\GroupsController::deleteRole, _format: ~ }
     requirements:
         _method: DELETE
-        id: "[0-9]+"
-        role_name: "ROLE_[A-Z_]+"
 
 telepay_financial_api_users_add_groups:
     pattern:  /admin/v1/users/{id}/groups
