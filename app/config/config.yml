@@ -118,3 +118,12 @@ sensio_framework_extra:
     view:    { annotations: false }
     router:  { annotations: true }
 
+doctrine_mongodb:
+    connections:
+        default:
+            server: mongodb://localhost:27017
+            options: {}
+    default_database: dev_api_telepay
+    document_managers:
+        default:
+            auto_mapping: true
