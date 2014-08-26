@@ -80,6 +80,9 @@ class ServicesUkashRedirectController extends FosRestController
 
     public function request(Request $request){
 
+        //Obtenemos el id de usuario para añadirlo a cada referencia única
+        $userid = $this->getUser()->getId();
+
         static $paramNames = array(
             'total',
             'transaction_id',
@@ -99,9 +102,23 @@ class ServicesUkashRedirectController extends FosRestController
             $params[]=$request->get($paramName, 'null');
         }
 
+        //Concatenamos la referencia añadiendole el idusuario (0000)
+        if($userid < 10){
+            $params[1]='000'.$userid.$params[1];
+        }elseif($userid<100){
+            $params[1]='00'.$userid.$params[1];
+        }elseif($userid<1000){
+            $params[1]='0'.$userid.$params[1];
+        }else{
+            $params[1]=$userid.$params[1];
+        }
+        //var_dump($params[1]);
+
         //Include the class
         include("../vendor/ukash/UkashRedirect.php");
 
+
+        //Comprobamos modo Test
         $mode=$request->get('mode');
         if(!isset($mode))   $mode='P';
 
@@ -178,6 +195,7 @@ class ServicesUkashRedirectController extends FosRestController
         //Include the class
         include("../vendor/ukash/UkashRedirect.php");
 
+        //Comprobamos modo Test
         $mode=$request->get('mode');
         if(!isset($mode))   $mode='P';
 

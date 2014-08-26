@@ -21,15 +21,17 @@ class ServicesPagofacilPaymentController extends FOSRestController
     //This parameters are unique for us. Don't give to the client
     private $testArray =array(
         'id_sucursal'   =>  '42ee3b415f4cebd37dffe881b929c0a0bac8a72c',
-        'id_usuario'  =>  '12a27c9c912ec6b4175c3bb316365965a19f6d31',
-        'id_servicio'  =>  '3'
+        'id_usuario'    =>  '12a27c9c912ec6b4175c3bb316365965a19f6d31',
+        'id_servicio'   =>  '3',
+        'url_flag'      =>  'test'
     );
 
     //Para producción
     private $prodArray =array(
         'id_sucursal'   =>  '77cd297945a1b75979f742f183544e4867935777',
-        'id_usuario'  =>  'd65a8ff620762e81c026f10b3d76752a7f32d46d',
-        'id_servicio'  =>  '3'
+        'id_usuario'    =>  'd65a8ff620762e81c026f10b3d76752a7f32d46d',
+        'id_servicio'   =>  '3',
+        'url_flag'      =>  'prod'
     );
 
     /**
@@ -153,7 +155,12 @@ class ServicesPagofacilPaymentController extends FOSRestController
      * @Rest\View(statusCode=201)
      */
 
-    public function transaction(Request $request){
+    public function transaction(Request $request)
+    {
+
+        //Obtenemos el id de usuario para añadirlo a cada referencia única
+        $userid = $this->getUser()->getId();
+
         static $paramNames = array(
             'name',
             'surname',
@@ -182,6 +189,20 @@ class ServicesPagofacilPaymentController extends FOSRestController
             }
             $params[]=$request->get($paramName, 'null');
         }
+
+        //Concatenamos la referencia añadiendole el idusuario (0000)
+        if($userid < 10){
+            $params[16]='000'.$userid.$params[16];
+        }elseif($userid<100){
+            $params[16]='00'.$userid.$params[16];
+        }elseif($userid<1000){
+            $params[16]='0'.$userid.$params[16];
+        }else{
+            $params[16]=$userid.$params[16];
+        }
+        //var_dump($params[16]);
+
+        //Comprobamos modo Test
         $mode = $request->get('mode');
         if(!isset($mode)) $mode = 'P';
 
@@ -191,10 +212,10 @@ class ServicesPagofacilPaymentController extends FOSRestController
         //Check if it's a Test or Production transaction
         if($mode=='T'){
             //Constructor in Test mode
-            $constructor=new PagofacilService($this->testArray['id_sucursal'],$this->testArray['id_usuario'],$this->testArray['id_servicio']);
+            $constructor=new PagofacilService($this->testArray['id_sucursal'],$this->testArray['id_usuario'],$this->testArray['id_servicio'],$this->testArray['url_flag']);
         }elseif($mode=='P'){
             //Constructor in Production mode
-            $constructor=new PagofacilService($this->prodArray['id_sucursal'],$this->prodArray['id_usuario'],$this->prodArray['id_servicio']);
+            $constructor=new PagofacilService($this->prodArray['id_sucursal'],$this->prodArray['id_usuario'],$this->prodArray['id_servicio'],$this->prodArray['url_flag']);
         }else{
             //If is not one of the first shows an error message.
             throw new HttpException(400,'Wrong request');
@@ -204,7 +225,7 @@ class ServicesPagofacilPaymentController extends FOSRestController
         $datos=$constructor -> request($params[0],$params[1],$params[2],$params[3],$params[4],$params[5],$params[6],$params[7],$params[8],$params[9],$params[10],$params[11],$params[12],$params[13],$params[14],$params[15],$params[16]);
 
         //Response
-        if(isset($datos['error_code'])){
+        if(isset($datos['error'])){
             $resp = new ApiResponseBuilder(
                 400,
                 "Bad request",
@@ -224,7 +245,7 @@ class ServicesPagofacilPaymentController extends FOSRestController
 
     }
     public function transactionTest(Request $request){
-        $request->request->set('mode','T');
+        $request->request->set('mode','P');
         return $this->transaction($request);
     }
 
@@ -252,6 +273,10 @@ class ServicesPagofacilPaymentController extends FOSRestController
      */
 
     public function status(Request $request){
+
+        //Obtenemos el id de usuario para añadirlo a cada referencia única
+        $userid = $this->getUser()->getId();
+
         static $paramNames = array(
             'transaction_id'
         );
@@ -264,6 +289,20 @@ class ServicesPagofacilPaymentController extends FOSRestController
             }
             $params[]=$request->get($paramName, 'null');
         }
+
+        //Concatenamos la referencia añadiendole el idusuario (0000)
+        if($userid < 10){
+            $params[0]='000'.$userid.$params[0];
+        }elseif($userid<100){
+            $params[0]='00'.$userid.$params[0];
+        }elseif($userid<1000){
+            $params[0]='0'.$userid.$params[0];
+        }else{
+            $params[0]=$userid.$params[0];
+        }
+        //var_dump($params[0]);
+
+        //Comprobamos modo Test
         $mode = $request->get('mode');
         if(!isset($mode)) $mode = 'P';
 
@@ -273,10 +312,10 @@ class ServicesPagofacilPaymentController extends FOSRestController
         //Check if it's a Test or Production transaction
         if($mode=='T'){
             //Constructor in Test mode
-            $constructor=new PagofacilService($this->testArray['id_sucursal'],$this->testArray['id_usuario'],$this->testArray['id_servicio']);
+            $constructor=new PagofacilService($this->testArray['id_sucursal'],$this->testArray['id_usuario'],$this->testArray['id_servicio'],$this->testArray['url_flag']);
         }elseif($mode=='P'){
             //Constructor in Production mode
-            $constructor=new PagofacilService($this->prodArray['id_sucursal'],$this->prodArray['id_usuario'],$this->prodArray['id_servicio']);
+            $constructor=new PagofacilService($this->prodArray['id_sucursal'],$this->prodArray['id_usuario'],$this->prodArray['id_servicio'],$this->prodArray['url_flag']);
         }else{
             //If is not one of the first shows an error message.
             throw new HttpException(400,'Wrong request');

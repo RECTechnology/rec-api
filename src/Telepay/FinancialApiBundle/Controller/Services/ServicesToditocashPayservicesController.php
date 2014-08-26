@@ -14,8 +14,8 @@ use ToditoCash;
 class ServicesToditocashPayservicesController extends FosRestController
 {
 
-    public $contract_id=2801;
-    public $branch_id='test';
+    private $contract_id=2801;
+    private $branch_id='test';
 
     /**
      * This method allows client to pay services with his own code.
@@ -86,6 +86,9 @@ class ServicesToditocashPayservicesController extends FosRestController
 
     public function request(Request $request){
 
+        //Obtenemos el id de usuario para añadirlo a cada referencia única
+        $userid = $this->getUser()->getId();
+
         static $paramNames = array(
             'transaction_id',
             'date',
@@ -106,9 +109,22 @@ class ServicesToditocashPayservicesController extends FosRestController
             $params[]=$request->get($paramName, 'null');
         }
 
+        //Concatenamos la referencia añadiendole el idusuario (0000)
+        if($userid < 10){
+            $params[0]='000'.$userid.$params[0];
+        }elseif($userid<100){
+            $params[0]='00'.$userid.$params[0];
+        }elseif($userid<1000){
+            $params[0]='0'.$userid.$params[0];
+        }else{
+            $params[0]=$userid.$params[0];
+        }
+        //var_dump($params[0]);
+
         //Include the class
         include("../vendor/toditocash/ToditoCash.php");
 
+        //Comprobamos modo Test
         $mode=$request->get('mode');
         if(!isset($mode))   $mode='P';
 
@@ -126,6 +142,9 @@ class ServicesToditocashPayservicesController extends FosRestController
             throw new HttpException(400,'Bad request');
         }
 
+        //Quitamos el id de usuario para devolverle el transaction_id al cliente
+        $datos['transaction_id']=substr($datos['transaction_id'],4);
+
        //print_r(json_encode($datos));
         $resp = new ApiResponseBuilder(
             201,
@@ -136,6 +155,12 @@ class ServicesToditocashPayservicesController extends FosRestController
         $view = $this->view($resp, 201);
 
         return $this->handleView($view);
+
+    }
+
+    public function requestTest(Request $request){
+        $request->request->set('mode','T');
+        return $this->request($request);
 
     }
 
@@ -196,6 +221,9 @@ class ServicesToditocashPayservicesController extends FosRestController
 
     public function reverso(Request $request){
 
+        //Obtenemos el id de usuario para añadirlo a cada referencia única
+        $userid = $this->getUser()->getId();
+
         static $paramNames = array(
             'tc_number_transaction',
             'transaction_id',
@@ -211,9 +239,23 @@ class ServicesToditocashPayservicesController extends FosRestController
             $params[]=$request->get($paramName, 'null');
         }
 
+        //Concatenamos la referencia añadiendole el idusuario (0000)
+        if($userid < 10){
+            $params[0]='000'.$userid.$params[0];
+        }elseif($userid<100){
+            $params[0]='00'.$userid.$params[0];
+        }elseif($userid<1000){
+            $params[0]='0'.$userid.$params[0];
+        }else{
+            $params[0]=$userid.$params[0];
+        }
+        //var_dump($params[0]);
+
         //Include the class
         include("../vendor/toditocash/ToditoCash.php");
 
+
+        //Comprobamos modo Test
         $mode=$request->get('mode');
         if(!isset($mode))   $mode='P';
 
@@ -228,6 +270,9 @@ class ServicesToditocashPayservicesController extends FosRestController
             $datos=$constructor -> reverso($params[0],$params[1],$params[2],$params[3],$params[4],$params[5],'1');
         }
 
+        //Quitamos el id de usuario para devolverle el transaction_id al cliente
+        $datos['transaction_id']=substr($datos['transaction_id'],4);
+
         $resp = new ApiResponseBuilder(
             201,
             "Reference created successfully",
@@ -237,6 +282,12 @@ class ServicesToditocashPayservicesController extends FosRestController
         $view = $this->view($resp, 201);
 
         return $this->handleView($view);
+    }
+
+    public function reversoTest(Request $request){
+        $request->request->set('mode','T');
+        return $this->reverso($request);
+
     }
 
 }

@@ -110,6 +110,8 @@ class ServicesSafetypayPaymentController extends FOSRestController
             }
             $params[]=$request->get($paramName, 'null');
         }
+
+        //Comprobamos modo Test
         $mode = $request->get('mode');
         if(!isset($mode)) $mode = 'P';
 

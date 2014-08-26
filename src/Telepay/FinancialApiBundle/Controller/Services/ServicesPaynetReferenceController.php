@@ -160,8 +160,6 @@ class ServicesPaynetReferenceController extends FosRestController
             );
         }
 
-
-
         $view = $this->view($resp, 201);
 
         return $this->handleView($view);

@@ -20,20 +20,20 @@ class ServicesPaynetPaymentController extends FosRestController
     //This parameters are unique for us. Don't give to the client
     //For Test are 7 , 1 , 1, 1 , 1
     private $testArray =array(
-        'group_id'   =>  7,
+        'group_id'  =>  7,
         'chain_id'  =>  1,
-        'shop_id'  =>  1,
-        'pos_id'     =>  1,
-        'cashier_id'  =>  1
+        'shop_id'   =>  1,
+        'pos_id'    =>  1,
+        'cashier_id'=>  1
     );
 
     //Para producción no los tenemos--de momento he puesto los mismos pero habrá que cambiarlos
     private $prodArray =array(
-        'group_id'   =>  7,
+        'group_id'  =>  7,
         'chain_id'  =>  1,
-        'shop_id'  =>  1,
-        'pos_id'     =>  1,
-        'cashier_id'  =>  1
+        'shop_id'   =>  1,
+        'pos_id'    =>  1,
+        'cashier_id'=>  1
     );
 
     /**
@@ -87,7 +87,8 @@ class ServicesPaynetPaymentController extends FosRestController
 
     public function info(Request $request){
 
-        //$user = $this->get('security.context')->getToken()->getUser();
+        //Obtenemos el id de usuario para añadirlo a cada referencia única
+        $userid = $this->getUser()->getId();
 
         static $paramNames = array(
             'local_date',
@@ -105,9 +106,22 @@ class ServicesPaynetPaymentController extends FosRestController
             }
             $params[]=$request->get($paramName, 'null');
         }
+
+        //Concatenamos la referencia añadiendole el idusuario (0000)
+        if($userid < 10){
+            $params[2]='000'.$userid.$params[2];
+        }elseif($userid<100){
+            $params[2]='00'.$userid.$params[2];
+        }elseif($userid<1000){
+            $params[2]='0'.$userid.$params[2];
+        }else{
+            $params[2]=$userid.$params[2];
+        }
+        //var_dump($params[2]);
+
+        //Comprobamos modo Test
         $mode = $request->get('mode');
         if(!isset($mode)) $mode = 'P';
-        //throw new HttpException(400,system("ls ../"));
 
         //Include the class
         include("../vendor/paynet-services/PaynetService.php");
@@ -215,6 +229,9 @@ class ServicesPaynetPaymentController extends FosRestController
 
     public function ejecuta(Request $request){
 
+        //Obtenemos el id de usuario para añadirlo a cada referencia única
+        $userid = $this->getUser()->getId();
+
         static $paramNames = array(
             'local_date',
             'local_hour',
@@ -234,9 +251,22 @@ class ServicesPaynetPaymentController extends FosRestController
             $params[]=$request->get($paramName, 'null');
         }
 
+        //Concatenamos la referencia añadiendole el idusuario (0000)
+        if($userid < 10){
+            $params[2]='000'.$userid.$params[2];
+        }elseif($userid<100){
+            $params[2]='00'.$userid.$params[2];
+        }elseif($userid<1000){
+            $params[2]='0'.$userid.$params[2];
+        }else{
+            $params[2]=$userid.$params[2];
+        }
+        //var_dump($params[2]);
+
         //Include the class
         include("../vendor/paynet-services/PaynetService.php");
 
+        //Comprobamos modo Test
         $mode = $request->get('mode');
         if(!isset($mode)) $mode = 'P';
 
@@ -338,6 +368,9 @@ class ServicesPaynetPaymentController extends FosRestController
 
     public function reversa(Request $request){
 
+        //Obtenemos el id de usuario para añadirlo a cada referencia única
+        $userid = $this->getUser()->getId();
+
         static $paramNames = array(
             'local_date',
             'local_hour',
@@ -356,9 +389,22 @@ class ServicesPaynetPaymentController extends FosRestController
             $params[]=$request->get($paramName, 'null');
         }
 
+        //Concatenamos la referencia añadiendole el idusuario (0000)
+        if($userid < 10){
+            $params[2]='000'.$userid.$params[2];
+        }elseif($userid<100){
+            $params[2]='00'.$userid.$params[2];
+        }elseif($userid<1000){
+            $params[2]='0'.$userid.$params[2];
+        }else{
+            $params[2]=$userid.$params[2];
+        }
+        //var_dump($params[2]);
+
         //Include the class
         include("../vendor/paynet-services/PaynetService.php");
 
+        //Comprobamos modo Test
         $mode=$request->get('mode');
         if(!isset ($mode)) $mode='P';
 
@@ -373,6 +419,7 @@ class ServicesPaynetPaymentController extends FosRestController
             //If is not one of the first shows an error message.
             throw new HttpException(400,'Wrong require->Test with T or P');
         }
+
         //Function reversa
         $datos=$constructor -> reversa($params[0],$params[1],$params[2],$params[3],$params[4],$params[5]);
 
