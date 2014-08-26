@@ -24,8 +24,15 @@ abstract class BaseApiController extends RestApiController implements Repository
             ->getRepository($this->getRepositoryName());
     }
 
-    protected function indexAction(){
-        $entities = $this->getRepository()->findAll();
+    protected function indexAction(Request $request){
+
+        if($request->query->has('limit')) $limit = $request->query->get('limit');
+        else $limit = 10;
+
+        if($request->query->has('offset')) $offset = $request->query->get('offset');
+        else $offset = 0;
+
+        $entities = $this->getRepository()->findBy(array(), null, $limit, $offset);
 
         $view = $this->buildRestView(200, "Request successful", $entities);
 

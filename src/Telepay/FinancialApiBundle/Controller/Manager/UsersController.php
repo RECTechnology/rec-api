@@ -28,8 +28,8 @@ class UsersController extends BaseApiController
     /**
      * @Rest\View
      */
-    public function indexAction(){
-        return parent::indexAction();
+    public function indexAction(Request $request){
+        return parent::indexAction($request);
     }
 
     /**

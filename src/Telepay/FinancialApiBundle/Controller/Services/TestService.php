@@ -12,8 +12,9 @@ use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
 use Telepay\FinancialApiBundle\Controller\RestApiController;
-
-
+use Telepay\FinancialApiBundle\Controller\ServiceManager;
+use Telepay\FinancialApiBundle\Document\Transaction;
+use Telepay\FinancialApiBundle\Entity\Service;
 
 
 /**
@@ -39,8 +40,15 @@ class TestService extends RestApiController
      */
     public function test(Request $request) {
 
+        $transaction = new Transaction();
+        $transaction->setService(Service::$SERVICE_TEST);
+        $transaction->setUser($this->get('security.context')->getToken()->getUser());
+        $transaction->setSentData($request);
+
         $mode = $request->get('mode');
         if(!isset($mode)) $mode = 'P';
+
+        $transaction->setMode($mode === 'P');
 
         $view = $this->buildRestView(
             200,
@@ -51,6 +59,10 @@ class TestService extends RestApiController
             )
         );
 
+        $transaction->setReceivedData($view);
+        $transaction->persist();
+        $transaction->flush();
+
         return $this->handleView($view);
     }
 
@@ -59,4 +71,5 @@ class TestService extends RestApiController
         $request->request->set('mode','T');
         return $this->test($request);
     }
+
 }

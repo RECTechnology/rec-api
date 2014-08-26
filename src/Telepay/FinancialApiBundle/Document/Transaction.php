@@ -17,6 +17,11 @@ use Doctrine\ODM\MongoDB\Mapping\Annotations as MongoDB;
  */
 class Transaction {
 
+    public function __construct(){
+        $this->completed = false;
+        $this->successful = false;
+    }
+
     /**
      * @var
      * @MongoDB\Id
@@ -58,6 +63,12 @@ class Transaction {
      * @MongoDB\String
      */
     private $receivedData;
+
+    /**
+     * @var
+     * @MongoDB\Boolean
+     */
+    private $mode;
 
     /**
      * @var
@@ -212,6 +223,28 @@ class Transaction {
     public function getReceivedData()
     {
         return $this->receivedData;
+    }
+
+    /**
+     * Set mode
+     *
+     * @param boolean $mode
+     * @return self
+     */
+    public function setMode($mode)
+    {
+        $this->mode = $mode;
+        return $this;
+    }
+
+    /**
+     * Get mode
+     *
+     * @return boolean $mode
+     */
+    public function getMode()
+    {
+        return $this->mode;
     }
 
     /**

@@ -8,69 +8,18 @@
 
 namespace Telepay\FinancialApiBundle\Entity;
 
-use Doctrine\ORM\Mapping as ORM;
-
-/**
- * @ORM\Entity
- */
 class Service {
 
-    /**
-     * @ORM\Id
-     * @ORM\Column(type="integer")
-     * @ORM\GeneratedValue(strategy="AUTO")
-     */
-    private $id;
+    public static $SERVICE_TEST = 0;
+    public static $SERVICE_TODITOCASH = 1;
+    public static $SERVICE_NETPAY = 2;
+    public static $SERVICE_UKASH = 3;
+    public static $SERVICE_HALCASH = 4;
+    public static $SERVICE_PAYSAFECARD = 5;
+    public static $SERVICE_UPAY = 6;
+    public static $SERVICE_PAGOFACIL = 7;
 
-    /**
-     * @ORM\Column(type="string")
-     */
-    private $name;
-
-    /**
-     * @ORM\Column(type="string")
-     */
-    private $role;
-
-    /**
-     * @return mixed
-     */
-    public function getId()
-    {
-        return $this->id;
-    }
-
-    /**
-     * @return mixed
-     */
-    public function getName()
-    {
-        return $this->name;
-    }
-
-    /**
-     * @param mixed $name
-     */
-    public function setName($name)
-    {
-        $this->name = $name;
-    }
-
-    /**
-     * @return mixed
-     */
-    public function getRole()
-    {
-        return $this->role;
-    }
-
-    /**
-     * @param mixed $role
-     */
-    public function setRole($role)
-    {
-        $this->role = $role;
-    }
-
+    public static $MODE_PRODUCTION = 1;
+    public static $MODE_TEST = 0;
 
 }
