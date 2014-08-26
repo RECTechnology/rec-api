@@ -43,7 +43,7 @@ abstract class BaseApiController extends RestApiController implements Repository
             "Request successful",
             array(
                 'total' => $total,
-                'start' => $offset,
+                'start' => intval($offset),
                 'end' => count($entities)+$offset,
                 'elements' => $entities
             )
