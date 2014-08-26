@@ -32,9 +32,20 @@ abstract class BaseApiController extends RestApiController implements Repository
         if($request->query->has('offset')) $offset = $request->query->get('offset');
         else $offset = 0;
 
-        $entities = $this->getRepository()->findBy(array(), null, $limit, $offset);
+        $all = $this->getRepository()->findAll();
 
-        $view = $this->buildRestView(200, "Request successful", $entities);
+        $total = count($all);
+
+        $entities = array_slice($all, $offset, $limit);
+
+        $view = $this->buildRestView(
+            200,
+            "Request successful",
+            array(
+                'total' => $total,
+                'elements' => $entities
+            )
+        );
 
         return $this->handleView($view);
     }
