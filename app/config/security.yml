@@ -67,17 +67,17 @@ security:
             anonymous: ~
 
     access_control:
-        - { host: path: ^/doc/financial/*, role: ROLE_USER, requires_channel: http }
+        - { host: path: ^/doc/financial/*, role: ROLE_USER, requires_channel: https }
 
-        - { path: ^/admin/v[0-9]+/*, role: ROLE_SUPER_ADMIN, requires_channel: http }
+        - { path: ^/admin/v[0-9]+/*, role: ROLE_SUPER_ADMIN, requires_channel: https }
 
-        - { path: ^/manager/v[0-9]+/*, role: ROLE_ADMIN, requires_channel: http }
+        - { path: ^/manager/v[0-9]+/*, role: ROLE_ADMIN, requires_channel: https }
 
-        - { path: ^/user/v[0-9]+/*, role: ROLE_USER, requires_channel: http }
+        - { path: ^/user/v[0-9]+/*, role: ROLE_USER, requires_channel: https }
 
-        - { path: ^/((sandbox|test)/)?services/v[0-9]+/test/*, role: ROLE_USER, requires_channel: http }
+        - { path: ^/((sandbox|test)/)?services/v[0-9]+/test/*, role: ROLE_USER, requires_channel: https }
 
-        - { path: ^/((sandbox|test)/)?services/v[0-9]+/netpay/pos/*, role: ROLE_SERVICES_NETPAY_POS, requires_channel: http }
-        - { path: ^/((sandbox|test)/)?services/v[0-9]+/paynet/*, role: ROLE_SERVICES_PAYNET, requires_channel: http }
-        - { path: ^/((sandbox|test)/)?services/v[0-9]+/recargafon/*, role: ROLE_SERVICES_RECARGAFON, requires_channel: http }
+        - { path: ^/((sandbox|test)/)?services/v[0-9]+/netpay/pos/*, role: ROLE_SERVICES_NETPAY_POS, requires_channel: https }
+        - { path: ^/((sandbox|test)/)?services/v[0-9]+/paynet/*, role: ROLE_SERVICES_PAYNET, requires_channel: https }
+        - { path: ^/((sandbox|test)/)?services/v[0-9]+/recargafon/*, role: ROLE_SERVICES_RECARGAFON, requires_channel: https }
         
