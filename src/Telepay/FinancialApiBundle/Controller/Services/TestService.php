@@ -58,7 +58,7 @@ class TestService extends RestApiController
             $response
         );
 
-        $transaction->setReceivedData(json_encode($response));
+        $transaction->setReceivedData($response);
         $dm = $this->get('doctrine_mongodb')->getManager();
         $transaction->setTimeOut(time());
         $dm->persist($transaction);

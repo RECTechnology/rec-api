@@ -28,4 +28,11 @@ class TestResponse{
         $this->testing=$testing;
         $this->server_time=$server_time;
     }
+
+    public function __toString(){
+        return json_encode(array(
+            'testing'=>$this->testing,
+            'server_time'=>$this->server_time
+        ));
+    }
 }
