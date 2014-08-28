@@ -10,16 +10,39 @@ namespace Telepay\FinancialApiBundle\Entity;
 
 class Service {
 
-    public static $SERVICE_TEST = 0;
-    public static $SERVICE_TODITOCASH = 1;
-    public static $SERVICE_NETPAY = 2;
-    public static $SERVICE_UKASH = 3;
-    public static $SERVICE_HALCASH = 4;
-    public static $SERVICE_PAYSAFECARD = 5;
-    public static $SERVICE_UPAY = 6;
-    public static $SERVICE_PAGOFACIL = 7;
+    private $id;
+    private $name;
+    private $role;
 
-    public static $MODE_PRODUCTION = 1;
-    public static $MODE_TEST = 0;
+    public function __construct($id, $name, $role){
+        $this->id=$id;
+        $this->name=$name;
+        $this->role=$role;
+    }
+
+    /**
+     * @return mixed
+     */
+    public function getName()
+    {
+        return $this->name;
+    }
+
+    /**
+     * @return mixed
+     */
+    public function getRole()
+    {
+        return $this->role;
+    }
+
+    /**
+     * @return mixed
+     */
+    public function getId()
+    {
+        return $this->id;
+    }
+
 
 }
