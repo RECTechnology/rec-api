@@ -41,8 +41,8 @@ class TestService extends RestApiController
     public function test(Request $request) {
 
         $transaction = new Transaction();
-        $transaction->setService($this->get('telepay.services')->findByName('Test'));
-        $transaction->setUser($this->get('security.context')->getToken()->getUser());
+        $transaction->setService($this->get('telepay.services')->findByName('Test')->getId());
+        $transaction->setUser($this->get('security.context')->getToken()->getUser()->getId());
         $transaction->setSentData($request);
 
         $mode = $request->get('mode');
@@ -50,17 +50,20 @@ class TestService extends RestApiController
 
         $transaction->setMode($mode === 'P');
 
+        $response = new TestResponse(
+            ($mode === 'T'),
+            date('Y-m-d H:i:s')
+        );
+
         $view = $this->buildRestView(
             200,
             "Request successful",
-            new TestResponse(
-                ($mode === 'T'),
-                date('Y-m-d H:i:s')
-            )
+            $response
         );
 
-        $transaction->setReceivedData($view);
+        $transaction->setReceivedData(json_encode($response));
         $dm = $this->get('doctrine_mongodb')->getManager();
+        //var_dump($dm);
         $dm->persist($transaction);
         $dm->flush();
 
