@@ -38,20 +38,16 @@ class TestService extends RestApiController
      *
      * @Rest\View
      */
-    public function test(Request $request) {
+    public function test(Request $request, $mode = true) {
 
         $transaction = new Transaction();
         $transaction->setService($this->get('telepay.services')->findByName('Test')->getId());
         $transaction->setUser($this->get('security.context')->getToken()->getUser()->getId());
         $transaction->setSentData($request);
-
-        $mode = $request->get('mode');
-        if(!isset($mode)) $mode = 'P';
-
-        $transaction->setMode($mode === 'P');
+        $transaction->setMode($mode);
 
         $response = new TestResponse(
-            ($mode === 'T'),
+            !$mode,
             date('Y-m-d H:i:s')
         );
 
@@ -63,7 +59,6 @@ class TestService extends RestApiController
 
         $transaction->setReceivedData(json_encode($response));
         $dm = $this->get('doctrine_mongodb')->getManager();
-        //var_dump($dm);
         $dm->persist($transaction);
         $dm->flush();
 
@@ -72,8 +67,7 @@ class TestService extends RestApiController
 
 
     public function testTest(Request $request) {
-        $request->request->set('mode','T');
-        return $this->test($request);
+        return $this->test($request, false);
     }
 
 }

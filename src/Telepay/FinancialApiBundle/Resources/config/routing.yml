@@ -19,6 +19,26 @@ telepay_services_test_test:
     requirements:
         _method: GET
 
+######################### TEST SERVICE STATS ############################
+
+telepay_services_test_transactions:
+    pattern:  /services/v1/test/transactions
+    defaults: { _controller: Telepay\FinancialApiBundle\Controller\Stats\TestStats::transactions }
+    requirements:
+        _method: GET
+
+telepay_services_test_sandbox_transactions:
+    pattern:  /sandbox/services/v1/test/transactions
+    defaults: { _controller: Telepay\FinancialApiBundle\Controller\Stats\TestStats::transactionsTest }
+    requirements:
+        _method: GET
+
+telepay_services_test_test_transactions:
+    pattern:  /test/services/v1/test/transactions
+    defaults: { _controller: Telepay\FinancialApiBundle\Controller\Stats\TestStats::transactionsTest }
+    requirements:
+        _method: GET
+
 
 ######################## END TEST SERVICE ############################
 
