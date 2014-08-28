@@ -60,8 +60,9 @@ class TestService extends RestApiController
         );
 
         $transaction->setReceivedData($view);
-        $transaction->persist();
-        $transaction->flush();
+        $dm = $this->get('doctrine_mongodb')->getManager();
+        $dm->persist($transaction);
+        $dm->flush();
 
         return $this->handleView($view);
     }
