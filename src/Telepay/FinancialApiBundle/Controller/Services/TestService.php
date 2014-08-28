@@ -41,7 +41,7 @@ class TestService extends RestApiController
     public function test(Request $request) {
 
         $transaction = new Transaction();
-        $transaction->setService(Service::$SERVICE_TEST);
+        $transaction->setService($this->get('telepay.services')->findByName('Test'));
         $transaction->setUser($this->get('security.context')->getToken()->getUser());
         $transaction->setSentData($request);
 

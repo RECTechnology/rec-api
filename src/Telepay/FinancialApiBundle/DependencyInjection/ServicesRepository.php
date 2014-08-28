@@ -14,7 +14,7 @@ namespace Telepay\FinancialApiBundle\DependencyInjection;
 
 use Telepay\FinancialApiBundle\Entity\Service;
 
-class ServiceRepository{
+class ServicesRepository{
 
     private static $SERVICES = array(
         array(
@@ -25,7 +25,7 @@ class ServiceRepository{
     );
 
     public function findById($id){
-        foreach(ServiceRepository::$SERVICES as $serviceArray){
+        foreach(ServicesRepository::$SERVICES as $serviceArray){
             if($serviceArray['id'] === $id){
                 return new Service(
                     $serviceArray['id'],
@@ -38,7 +38,7 @@ class ServiceRepository{
     }
 
     public function findByRole($role){
-        foreach(ServiceRepository::$SERVICES as $serviceArray){
+        foreach(ServicesRepository::$SERVICES as $serviceArray){
             if($serviceArray['role'] === $role){
                 return new Service(
                     $serviceArray['id'],
@@ -51,7 +51,7 @@ class ServiceRepository{
     }
 
     public function findByName($name){
-        foreach(ServiceRepository::$SERVICES as $serviceArray){
+        foreach(ServicesRepository::$SERVICES as $serviceArray){
             if($serviceArray['name'] === $name){
                 return new Service(
                     $serviceArray['id'],

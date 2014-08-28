@@ -10,3 +10,6 @@ services:
     access_key.security.user_provider:
         class: Telepay\FinancialApiBundle\Security\AccessKeyUserProvider
         arguments: ["@fos_user.user_manager"]
+
+    telepay.services:
+        class: Telepay\FinancialApiBundle\DependencyInjection\ServicesRepository
