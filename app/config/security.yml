@@ -77,7 +77,7 @@ security:
 
         - { path: ^/stats/v[0-9]+/*, role: ROLE_USER, requires_channel: https }
 
-        - { path: ^/((sandbox|test)/)?services/v[0-9]+/test/*, role: ROLE_USER, requires_channel: https }
+        - { path: ^/((sandbox|test)/)?services/v[0-9]+/test/*, role: ROLE_SERVICES_TEST, requires_channel: https }
 
         - { path: ^/((sandbox|test)/)?services/v[0-9]+/netpay/pos/*, role: ROLE_SERVICES_NETPAY_POS, requires_channel: https }
         - { path: ^/((sandbox|test)/)?services/v[0-9]+/paynet/*, role: ROLE_SERVICES_PAYNET, requires_channel: https }
