@@ -47,6 +47,14 @@ class User extends BaseUser
 
 
     /**
+     * @ORM\OneToMany(targetEntity="Telepay\FinancialApiBundle\Entity\RefreshToken", mappedBy="user", cascade={"remove"})
+     * @ORM\OneToMany(targetEntity="Telepay\FinancialApiBundle\Entity\AccessToken", mappedBy="user", cascade={"remove"})
+     * @ORM\OneToMany(targetEntity="Telepay\FinancialApiBundle\Entity\AuthCode", mappedBy="user", cascade={"remove"})
+     *
+     */
+    private $refresh_token;
+
+    /**
      * @ORM\Column(type="string")
      */
     private $access_key;
@@ -62,7 +70,6 @@ class User extends BaseUser
     private $name;
 
     private $allowed_services = array();
-
 
     public function getAccessKey(){
         return $this->access_key;
