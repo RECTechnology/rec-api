@@ -34,17 +34,14 @@ telepay_services_test_test_transactions:
         _method: GET
 
 
-######################## END TEST SERVICE ############################
-
 ##################### CLIENTS ############################
 
 telepay_financial_api_clients_index:
     pattern:  /admin/v1/clients
-    defaults: { _controller: Telepay\FinancialApiBundle\Controller\Admin\ClientsController::indexAction, _format: ~ }
+    defaults: { _controller: Telepay\FinancialApiBundle\Controller\Admin\ClientsController::indexAction }
     requirements:
         _method: GET
 
-######################## END CLIENTS ########################
 ##################### USERS ############################
 
 telepay_financial_api_users_index:
@@ -174,13 +171,21 @@ telepay_financial_api_users_delete_groups:
         id: "[0-9]+"
         group_id: "[0-9]+"
 
+############################## SERVICES MNGMNT ##########################################
 
 telepay_financial_api_services_index:
-    pattern:  /services/v1/
-    defaults: { _controller: TelepayFinancialApiBundle:Services:index, _format: ~ }
+    pattern:  /admin/v1/services
+    defaults: { _controller: Telepay\FinancialApiBundle\Controller\Admin\ServicesController::index }
     requirements:
         _method: GET
 
+telepay_financial_api_services_read:
+    pattern:  /manager/v1/services/{id}
+    defaults: { _controller: Telepay\FinancialApiBundle\Controller\Manager\ServicesController::read }
+    requirements:
+        _method: GET
+
+############################### SERVICES ############################################
 
 telepay_financial_api_services_netpay_pos_register:
     pattern:  /services/v1/netpay/pos/register

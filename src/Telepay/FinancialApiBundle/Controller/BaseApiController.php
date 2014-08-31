@@ -38,7 +38,7 @@ abstract class BaseApiController extends RestApiController implements Repository
 
         $entities = array_slice($all, $offset, $limit);
 
-        $view = $this->buildRestView(
+        return $this->handleRestView(
             200,
             "Request successful",
             array(
@@ -48,8 +48,6 @@ abstract class BaseApiController extends RestApiController implements Repository
                 'elements' => $entities
             )
         );
-
-        return $this->handleView($view);
     }
 
     protected function showAction($id){
@@ -61,9 +59,7 @@ abstract class BaseApiController extends RestApiController implements Repository
 
         if(empty($entities)) throw new HttpException(404, "Not found");
 
-        $view = $this->buildRestView(200, "Request successful", $entities);
-
-        return $this->handleView($view);
+        return $this->handleRestView(200, "Request successful", $entities);
     }
 
     protected function createAction(Request $request){
@@ -96,9 +92,7 @@ abstract class BaseApiController extends RestApiController implements Repository
             throw new HttpException(500, "Unknown error occurred when save");
         }
 
-        $view = $this->buildRestView(201, "Request successful", array('id'=>$entity->getId()));
-
-        return $this->handleView($view);
+        return $this->handleRestView(201, "Request successful", array('id'=>$entity->getId()));
     }
 
     protected function updateAction(Request $request, $id){
@@ -127,9 +121,7 @@ abstract class BaseApiController extends RestApiController implements Repository
         $em->persist($entity);
         $em->flush();
 
-        $view = $this->buildRestView(204, "Updated successfully", array());
-
-        return $this->handleView($view);
+        return $this->handleRestView(204, "Updated successfully", array());
     }
 
     protected function deleteAction($id){
@@ -145,9 +137,7 @@ abstract class BaseApiController extends RestApiController implements Repository
         $em->remove($entity);
         $em->flush();
 
-        $view = $this->buildRestView(204, "Deleted successfully", array());
-
-        return $this->handleView($view);
+        return $this->handleRestView(204, "Deleted successfully", array());
     }
 
     private function attributeToSetter($str) {

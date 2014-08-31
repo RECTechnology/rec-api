@@ -1,6 +1,6 @@
 <?php
 
-namespace Telepay\FinancialApiBundle\Controller\Admin;
+namespace Telepay\FinancialApiBundle\Controller\Manager;
 
 use Telepay\FinancialApiBundle\Controller\RestApiController;
 use Telepay\FinancialApiBundle\DependencyInjection\ServicesRepository;
@@ -15,20 +15,20 @@ use Symfony\Component\HttpKernel\Exception\HttpException;
 
 /**
  * Class ServicesController
- * @package Telepay\FinancialApiBundle\Controller\Admin
+ * @package Telepay\FinancialApiBundle\Controller\Manager
  */
-class ServicesController extends RestApiController
-{
+class ServicesController extends RestApiController {
+
     /**
      * @Rest\View()
      */
-    public function index() {
+    public function read($id) {
         $servicesRepo = new ServicesRepository();
-        return $this->handleView($this->buildRestView(
+        return $this->handleRestView(
             200,
-            "Services got successfully",
-            $servicesRepo->findAll()
-        ));
+            "Service got successfully",
+            $servicesRepo->findById($id)
+        );
     }
 
 }

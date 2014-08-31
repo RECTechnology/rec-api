@@ -16,4 +16,8 @@ class RestApiController extends FosRestController{
         return $this->view(new ApiResponse($code, $message, $data), $code);
     }
 
+    protected function handleRestView($code, $message, $data){
+        return $this->handleView($this->view(new ApiResponse($code, $message, $data), $code));
+    }
+
 }

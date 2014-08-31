@@ -6,27 +6,29 @@
  * Time: 3:13 PM
  */
 
-
-
-
 namespace Telepay\FinancialApiBundle\DependencyInjection;
 
 
+use Symfony\Component\HttpKernel\Exception\HttpException;
 use Telepay\FinancialApiBundle\Entity\Service;
 
 class ServicesRepository{
 
     private static $SERVICES = array(
         array(
-            'id' => 0,
+            'id' => 1,
             'name' => 'Test',
             'role' => 'ROLE_SERVICES_TEST',
         ),
     );
 
+    public function findAll(){
+        return ServicesRepository::$SERVICES;
+    }
+
     public function findById($id){
         foreach(ServicesRepository::$SERVICES as $serviceArray){
-            if($serviceArray['id'] === $id){
+            if($serviceArray['id'] == $id){
                 return new Service(
                     $serviceArray['id'],
                     $serviceArray['name'],
@@ -34,12 +36,12 @@ class ServicesRepository{
                 );
             }
         }
-        return null;
+        throw new HttpException(404, "Service not found");
     }
 
     public function findByRole($role){
         foreach(ServicesRepository::$SERVICES as $serviceArray){
-            if($serviceArray['role'] === $role){
+            if($serviceArray['role'] == $role){
                 return new Service(
                     $serviceArray['id'],
                     $serviceArray['name'],
@@ -47,12 +49,12 @@ class ServicesRepository{
                 );
             }
         }
-        return null;
+        throw new HttpException(404, "Service not found");
     }
 
     public function findByName($name){
         foreach(ServicesRepository::$SERVICES as $serviceArray){
-            if($serviceArray['name'] === $name){
+            if($serviceArray['name'] == $name){
                 return new Service(
                     $serviceArray['id'],
                     $serviceArray['name'],
@@ -60,7 +62,7 @@ class ServicesRepository{
                 );
             }
         }
-        return null;
+        throw new HttpException(404, "Service not found");
 
     }
 
