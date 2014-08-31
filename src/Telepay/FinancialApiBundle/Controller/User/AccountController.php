@@ -20,8 +20,8 @@ class AccountController extends RestApiController{
      */
     public function read(Request $request){
         $user = $this->get('security.context')->getToken()->getUser();
-        $resp = $this->buildRestView(200, "Account info got successfully", $user);
-        return $this->handleView($resp);
+        $user->setAllowedServices($user->getAllowedServices());
+        return $this->handleRestView(200, "Account info got successfully", $user);
     }
 
 }

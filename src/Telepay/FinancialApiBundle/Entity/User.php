@@ -10,7 +10,9 @@ namespace Telepay\FinancialApiBundle\Entity;
 
 use FOS\UserBundle\Model\User as BaseUser;
 use Doctrine\ORM\Mapping as ORM;
+use Symfony\Component\HttpKernel\Exception\HttpException;
 use Symfony\Component\Security\Core\Util\SecureRandom;
+use Telepay\FinancialApiBundle\DependencyInjection\ServicesRepository;
 
 /**
  * @ORM\Entity
@@ -43,6 +45,7 @@ class User extends BaseUser
      */
     protected $groups;
 
+
     /**
      * @ORM\Column(type="string")
      */
@@ -57,6 +60,8 @@ class User extends BaseUser
      * @ORM\Column(type="string")
      */
     private $name;
+
+    private $allowed_services = array();
 
 
     public function getAccessKey(){
@@ -82,6 +87,38 @@ class User extends BaseUser
     public function setName($name)
     {
         $this->name = $name;
+    }
+
+    /**
+     * @return array
+     */
+    public function getAllowedServices()
+    {
+        $services = array();
+        $servicesRepo = new ServicesRepository();
+        foreach($this->getRoles() as $role){
+            try{
+                $services []= $servicesRepo->findByRole($role);
+            }
+            catch(HttpException $e){ }
+        }
+        return $services;
+    }
+
+    /**
+     * @param Service $service
+     */
+    public function addAllowedService(Service $service)
+    {
+        $this->addRole($service->getRole());
+    }
+
+    /**
+     * @param array $allowed_services
+     */
+    public function setAllowedServices($allowed_services)
+    {
+        $this->allowed_services = $allowed_services;
     }
 
 }

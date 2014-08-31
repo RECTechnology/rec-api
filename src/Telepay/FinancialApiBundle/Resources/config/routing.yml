@@ -42,7 +42,7 @@ telepay_financial_api_clients_index:
     requirements:
         _method: GET
 
-##################### USERS ############################
+##################### manager/users ############################
 
 telepay_financial_api_users_index:
     pattern:  /manager/v1/users
@@ -85,91 +85,31 @@ telepay_financial_api_users_delete:
         _method: DELETE
         id: "[0-9]+"
 
-######################## END USERS ########################
-##################### GROUPS ############################
 
-telepay_financial_api_groups_index:
-    pattern:  /admin/v1/groups
-    defaults: { _controller: Telepay\FinancialApiBundle\Controller\Admin\GroupsController::indexAction, _format: ~ }
-    requirements:
-        _method: GET
-
-
-telepay_financial_api_groups_get:
-    pattern:  /admin/v1/groups/{id}
-    defaults: { _controller: Telepay\FinancialApiBundle\Controller\Admin\GroupsController::showAction, _format: ~ }
-    requirements:
-        _method: GET
-        id: "[0-9]+"
-
-telepay_financial_api_groups_add:
-    pattern:  /admin/v1/groups
-    defaults: { _controller: Telepay\FinancialApiBundle\Controller\Admin\GroupsController::createAction, _format: ~ }
+telepay_financial_api_users_add_service:
+    pattern:  /manager/v1/users/{id}
+    defaults: { _controller: Telepay\FinancialApiBundle\Controller\Manager\UsersController::addService }
     requirements:
         _method: POST
-        name: "string"
-
-
-telepay_financial_api_groups_update:
-    pattern:  /admin/v1/groups/{id}
-    defaults: { _controller: Telepay\FinancialApiBundle\Controller\Admin\GroupsController::updateAction, _format: ~ }
-    requirements:
-        _method: PUT
         id: "[0-9]+"
-        name: "string"
-        email: "email"
-        password: "string"
 
-telepay_financial_api_groups_delete:
-    pattern:  /admin/v1/groups/{id}
-    defaults: { _controller: Telepay\FinancialApiBundle\Controller\Admin\GroupsController::deleteAction, _format: ~ }
+telepay_financial_api_users_delete_service:
+    pattern:  /manager/v1/users/{id}/{service_id}
+    defaults: { _controller: Telepay\FinancialApiBundle\Controller\Manager\UsersController::deleteService }
     requirements:
         _method: DELETE
         id: "[0-9]+"
-
-######################## END USERS ########################
+        service_id: "[0-9]+"
 
 ######################## USER ACCOUNT ########################
 
 
 telepay_financial_api_user_account:
     pattern:  /user/v1/account
-    defaults: { _controller: Telepay\FinancialApiBundle\Controller\User\AccountController::read, _format: ~ }
+    defaults: { _controller: Telepay\FinancialApiBundle\Controller\User\AccountController::read }
     requirements:
         _method: GET
 
-
-######################## END USER ACCOUNT ########################
-
-
-telepay_financial_api_groups_add_roles:
-    pattern:  /admin/v1/groups/{id}/roles
-    defaults: { _controller: Telepay\FinancialApiBundle\Controller\Admin\GroupsController::addRole, _format: ~ }
-    requirements:
-        _method: POST
-        id: "[0-9]+"
-        role_name: "ROLE_[A-Z_]+"
-
-telepay_financial_api_groups_delete_roles:
-    pattern:  /admin/v1/groups/{id}/roles/{role_name}
-    defaults: { _controller: Telepay\FinancialApiBundle\Controller\Admin\GroupsController::deleteRole, _format: ~ }
-    requirements:
-        _method: DELETE
-
-telepay_financial_api_users_add_groups:
-    pattern:  /admin/v1/users/{id}/groups
-    defaults: { _controller: TelepayFinancialApiBundle:UsersGroups:addGroups, _format: ~ }
-    requirements:
-        _method: POST
-        group_id: "[0-9]+"
-
-telepay_financial_api_users_delete_groups:
-    pattern:  /admin/v1/users/{id}/groups/{group_id}
-    defaults: { _controller: TelepayFinancialApiBundle:UsersGroups:deleteGroups, _format: ~ }
-    requirements:
-        _method: DELETE
-        id: "[0-9]+"
-        group_id: "[0-9]+"
 
 ############################## SERVICES MNGMNT ##########################################
 

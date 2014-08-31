@@ -5,6 +5,8 @@ namespace Telepay\FinancialApiBundle\Controller\Manager;
 use Doctrine\DBAL\DBALException;
 use Symfony\Component\HttpKernel\Exception\HttpException;
 use Telepay\FinancialApiBundle\Controller\BaseApiController;
+use Telepay\FinancialApiBundle\DependencyInjection\ServicesRepository;
+use Telepay\FinancialApiBundle\Entity\Service;
 use Telepay\FinancialApiBundle\Entity\User;
 use FOS\RestBundle\Controller\Annotations as Rest;
 use Symfony\Component\HttpFoundation\Request;
@@ -63,6 +65,65 @@ class UsersController extends BaseApiController
      */
     public function deleteAction($id){
         return parent::deleteAction($id);
+    }
+
+
+
+    /**
+     * @Rest\View
+     */
+    public function addService(Request $request, $id){
+        $serviceId = $request->get('service_id');
+        if(empty($serviceId)) throw new HttpException(400, "Missing parameter 'service_id'");
+        $usersRepo = $this->getRepository();
+        $servicesRepo = new ServicesRepository();
+        $user = $usersRepo->findOneBy(array('id'=>$id));
+        $service = $servicesRepo->findById($serviceId);
+        if(empty($user)) throw new HttpException(404, 'User not found');
+        if(empty($service)) throw new HttpException(404, 'Service not found');
+        if($user->hasRole($service->getRole())) throw new HttpException(409, "User has already the service '$serviceId'");
+
+        $user->addRole($service->getRole());
+        $em = $this->getDoctrine()->getManager();
+        $em->persist($user);
+
+        try{
+            $em->flush();
+        } catch(DBALException $e){
+            if(preg_match('/SQLSTATE\[23000\]/',$e->getMessage()))
+                throw new HttpException(409, "Duplicated resource");
+            else
+                throw new HttpException(500, "Unknown error occurred when save");
+        }
+
+        return $this->handleRestView(201, "Service added successfully", array());
+
+    }
+
+    /**
+     * @Rest\View
+     */
+    public function deleteService($id, $service_id){
+        $usersRepo = $this->getRepository();
+        $servicesRepo = new ServicesRepository();
+        $service = $servicesRepo->findById($service_id);
+
+        $user = $usersRepo->findOneBy(array('id'=>$id));
+        if(empty($user)) throw new HttpException(404, "User not found");
+        if(!$user->hasRole($service->getRole())) throw new HttpException(404, "Service not found in specified user");
+
+        $user->removeRole($service->getRole());
+
+        $em = $this->getDoctrine()->getManager();
+
+        $em->persist($user);
+        $em->flush();
+
+        return $this->handleRestView(
+            204,
+            "Service deleted from user successfully",
+            array()
+        );
     }
 
 
