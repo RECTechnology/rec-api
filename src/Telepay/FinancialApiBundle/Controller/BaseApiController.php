@@ -105,6 +105,8 @@ abstract class BaseApiController extends RestApiController implements Repository
 
         $entity = $repo->findOneBy(array('id'=>$id));
 
+        if(empty($entity)) throw new HttpException(404, "Not found");
+
         foreach ($params as $name => $value) {
             if ($name != 'id') {
                 $setter = $this->attributeToSetter($name);
@@ -119,7 +121,15 @@ abstract class BaseApiController extends RestApiController implements Repository
 
         $em = $this->getDoctrine()->getManager();
         $em->persist($entity);
-        $em->flush();
+        try{
+            $em->flush();
+        } catch(DBALException $e){
+            if(preg_match('/1062 Duplicate entry/i',$e->getMessage()))
+                throw new HttpException(409, "Duplicated resource");
+            else if(preg_match('/1048 Column/i',$e->getMessage()))
+                throw new HttpException(400, "Bad parameters");
+            throw new HttpException(500, "Unknown error occurred when save");
+        }
 
         return $this->handleRestView(204, "Updated successfully", array());
     }

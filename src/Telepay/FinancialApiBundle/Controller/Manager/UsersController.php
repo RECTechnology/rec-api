@@ -57,6 +57,11 @@ class UsersController extends BaseApiController
      * @Rest\View
      */
     public function updateAction(Request $request, $id){
+        if($request->request->has('password')){
+            $password = $request->get('password');
+            $request->request->remove('password');
+            $request->request->add(array('plain_password'=>$password));
+        }
         return parent::updateAction($request, $id);
     }
 
