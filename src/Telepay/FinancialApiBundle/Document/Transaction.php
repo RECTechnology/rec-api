@@ -42,6 +42,12 @@ class Transaction {
 
     /**
      * @var
+     * @MongoDB\String
+     */
+    private $ip;
+
+    /**
+     * @var
      * @MongoDB\Timestamp
      */
     private $timeIn;
@@ -289,5 +295,21 @@ class Transaction {
     public function getSuccessful()
     {
         return $this->successful;
+    }
+
+    /**
+     * @return mixed
+     */
+    public function getIp()
+    {
+        return $this->ip;
+    }
+
+    /**
+     * @param mixed $ip
+     */
+    public function setIp($ip)
+    {
+        $this->ip = $ip;
     }
 }
