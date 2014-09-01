@@ -85,7 +85,6 @@ nelmio_api_doc:
     sandbox:
         enabled: true
         authentication:
-            name: access_token
             delivery: http
             type: bearer
         endpoint: /sandbox
