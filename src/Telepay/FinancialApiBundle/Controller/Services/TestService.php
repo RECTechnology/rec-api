@@ -62,6 +62,8 @@ class TestService extends RestApiController
         $transaction->setReceivedData($response);
         $dm = $this->get('doctrine_mongodb')->getManager();
         $transaction->setTimeOut(time());
+        $transaction->setCompleted(true);
+        $transaction->setSuccessful(true);
         $dm->persist($transaction);
         $dm->flush();
 
