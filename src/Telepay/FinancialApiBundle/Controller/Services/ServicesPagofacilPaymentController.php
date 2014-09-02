@@ -205,7 +205,7 @@ class ServicesPagofacilPaymentController extends FOSRestController
         //Comprobamos modo Test
         $mode = $request->get('mode');
         if(!isset($mode)) $mode = 'P';
-
+        //var_dump($mode);
         //Include the class
         include("../vendor/pagofacil/PagofacilService.php");
 
@@ -245,7 +245,7 @@ class ServicesPagofacilPaymentController extends FOSRestController
 
     }
     public function transactionTest(Request $request){
-        $request->request->set('mode','P');
+        $request->request->set('mode','T');
         return $this->transaction($request);
     }
 
