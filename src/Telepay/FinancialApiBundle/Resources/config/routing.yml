@@ -33,6 +33,12 @@ telepay_services_test_test_transactions:
     requirements:
         _method: GET
 
+telepay_services_test_stats:
+    pattern:  /stats/v1/test/sum
+    defaults: { _controller: Telepay\FinancialApiBundle\Controller\Stats\TestStats::stats }
+    requirements:
+        _method: GET
+
 
 ##################### CLIENTS ############################
 
