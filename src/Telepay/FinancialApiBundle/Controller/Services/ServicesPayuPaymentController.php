@@ -14,7 +14,9 @@ use FOS\RestBundle\Controller\FOSRestController;
 use FOS\RestBundle\Controller\Annotations as Rest;
 use Nelmio\ApiDocBundle\Annotation\ApiDoc;
 use PayUPayment;
+use PayUPaymentTest;
 use PayUReport;
+use PayUReportTest;
 use Symfony\Component\HttpKernel\Exception\HttpException;
 
 class ServicesPayuPaymentController extends FosRestController
@@ -165,16 +167,16 @@ class ServicesPayuPaymentController extends FosRestController
         //Comprobamos modo Test
         $mode = $request->get('mode');
         if(!isset($mode)) $mode = 'P';
-        //throw new HttpException(400,system("ls ../"));
-
-        //Include the class
-        include("../vendor/payu/PayUPayment.php");
 
         //Check if it's a Test or Production transaction
         if($mode=='T'){
+            //Include the class Test
+            include("../vendor/payu/PayUPaymentTest.php");
             //Constructor in Test mode
-            $constructor=new PayUPayment($this->varArray['account_id'],$this->varArray['installments_number'],$params[0],$params[1],$params[2],$params[3],$params[4],$params[5],$params[6]);
+            $constructor=new PayUPaymentTest($this->varArray['account_id'],$this->varArray['installments_number'],$params[0],$params[1],$params[2],$params[3],$params[4],$params[5],$params[6]);
         }elseif($mode=='P'){
+            //Include the class Prod
+            include("../vendor/payu/PayUPayment.php");
             //Constructor in Production mode
             $constructor=new PayUPayment($this->varArray['account_id'],$this->varArray['installments_number'],$params[0],$params[1],$params[2],$params[3],$params[4],$params[5],$params[6]);
 
@@ -316,17 +318,19 @@ class ServicesPayuPaymentController extends FosRestController
         }
 
         //Comprobamos modo Test
+        $mode = $request->get('mode');
         if(!isset($mode)) $mode = 'P';
-        //throw new HttpException(400,system("ls ../"));
-
-        //Include the class
-        include("../vendor/payu/PayUPayment.php");
+        //var_dump($mode);
 
         //Check if it's a Test or Production transaction
         if($mode=='T'){
+            //Include the class
+            include("../vendor/payu/PayUPaymentTest.php");
             //Constructor in Test mode
-            $constructor=new PayUPayment($this->varArray['account_id'],$this->varArray['installments_number'],$params[0],$params[1],$params[2],$params[3],$params[4],$params[5],$params[6]);
+            $constructor=new PayUPaymentTest($this->varArray['account_id'],$this->varArray['installments_number'],$params[0],$params[1],$params[2],$params[3],$params[4],$params[5],$params[6]);
         }elseif($mode=='P'){
+            //Include the class
+            include("../vendor/payu/PayUPayment.php");
             //Constructor in Production mode
             $constructor=new PayUPayment($this->varArray['account_id'],$this->varArray['installments_number'],$params[0],$params[1],$params[2],$params[3],$params[4],$params[5],$params[6]);
         }else{
@@ -359,7 +363,6 @@ class ServicesPayuPaymentController extends FosRestController
     }
 
     public function cashTest(Request $request){
-
         $request->request->set('mode','T');
         return $this->cash($request);
     }
@@ -412,16 +415,7 @@ class ServicesPayuPaymentController extends FosRestController
             $params[]=$request->get($paramName, 'null');
         }
 
-        //Concatenamos la referencia añadiendole el idusuario (0000)
-        if($userid < 10){
-            $params[1]='000'.$userid.$params[1];
-        }elseif($userid<100){
-            $params[1]='00'.$userid.$params[1];
-        }elseif($userid<1000){
-            $params[1]='0'.$userid.$params[1];
-        }else{
-            $params[1]=$userid.$params[1];
-        }
+
 
         //var_dump($params[1]);
 
@@ -429,14 +423,15 @@ class ServicesPayuPaymentController extends FosRestController
         $mode = $request->get('mode');
         if(!isset($mode)) $mode = 'P';
 
-        //Include the class
-        include("../vendor/payu/PayUReport.php");
-
         //Check if it's a Test or Production transaction
         if($mode=='T'){
+            //Include the class
+            include("../vendor/payu/PayUReportTest.php");
             //Constructor in Test mode
-            $constructor=new PayUReport($params[0]);
+            $constructor=new PayUReportTest($params[0]);
         }elseif($mode=='P'){
+            //Include the class
+            include("../vendor/payu/PayUReport.php");
             //Constructor in Production mode
             $constructor=new PayUReport($params[0]);
         }else{
@@ -448,6 +443,16 @@ class ServicesPayuPaymentController extends FosRestController
             //Function report_by_order_id
             $datos=$constructor -> report_by_order_id($params[1]);
         }elseif($params[0]='ref'){
+            //Concatenamos la referencia añadiendole el idusuario (0000)
+            if($userid < 10){
+                $params[1]='000'.$userid.$params[1];
+            }elseif($userid<100){
+                $params[1]='00'.$userid.$params[1];
+            }elseif($userid<1000){
+                $params[1]='0'.$userid.$params[1];
+            }else{
+                $params[1]=$userid.$params[1];
+            }
             //Function report_by_reference
             $datos=$constructor -> report_by_reference($params[1]);
         }elseif($params[0]=='trans'){
@@ -459,19 +464,20 @@ class ServicesPayuPaymentController extends FosRestController
         }
 
         //Response
-        /*if(isset($datos['error_code'])){
+        if(isset($datos['error_code'])){
             $resp = new ApiResponseBuilder(
                 400,
                 "Bad request",
                 $datos
             );
-        }else{*/
-        $resp = new ApiResponseBuilder(
-            201,
-            "Reference created successfully",
-            $datos
-        );
-        //}
+        }else{
+            $datos['referenceCode']=substr($datos["referenceCode"],4);
+            $resp = new ApiResponseBuilder(
+                201,
+                "Reference created successfully",
+                $datos
+            );
+        }
 
         $view = $this->view($resp, 201);
 
