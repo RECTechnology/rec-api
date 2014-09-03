@@ -6,7 +6,7 @@
  * Time: 6:36 PM
  */
 
-namespace Telepay\FinancialApiBundle\Controller\Stats;
+namespace Telepay\FinancialApiBundle\Controller\Analytics;
 
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpKernel\Exception\HttpException;
