@@ -11,10 +11,10 @@ namespace Telepay\FinancialApiBundle\Controller\Stats;
 use Symfony\Component\HttpFoundation\Request;
 use Telepay\FinancialApiBundle\Controller\RestApiController;
 
-class PaynetPaymentStats extends BaseStats{
+class ToditocashAnalytics extends BaseAnalytics{
 
     public function getServiceName(){
-        return 'PaynetPayment';
+        return 'Toditocash';
     }
 
     public function transactions(Request $request, $mode = true) {

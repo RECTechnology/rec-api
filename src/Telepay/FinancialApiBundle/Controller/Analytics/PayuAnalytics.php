@@ -11,10 +11,10 @@ namespace Telepay\FinancialApiBundle\Controller\Stats;
 use Symfony\Component\HttpFoundation\Request;
 use Telepay\FinancialApiBundle\Controller\RestApiController;
 
-class UkashStats extends BaseStats{
+class PayuAnalytics extends BaseAnalytics{
 
     public function getServiceName(){
-        return 'Ukash';
+        return 'Payu';
     }
 
     public function transactions(Request $request, $mode = true) {

@@ -23,19 +23,19 @@ telepay_services_test_test:
 
 telepay_services_test_transactions:
     pattern:  /analytics/v1/test/transactions
-    defaults: { _controller: Telepay\FinancialApiBundle\Controller\Stats\TestAnalytics::transactions }
+    defaults: { _controller: Telepay\FinancialApiBundle\Controller\Analytics\TestAnalytics::transactions }
     requirements:
         _method: GET
 
 telepay_services_test_test_transactions:
     pattern:  /analytics/v1/test/transactions/test
-    defaults: { _controller: Telepay\FinancialApiBundle\Controller\Stats\TestAnalytics::transactionsTest }
+    defaults: { _controller: Telepay\FinancialApiBundle\Controller\Analytics\TestAnalytics::transactionsTest }
     requirements:
         _method: GET
 
 telepay_services_test_stats:
     pattern:  /analytics/v1/test/sum
-    defaults: { _controller: Telepay\FinancialApiBundle\Controller\Stats\TestAnalytics::stats }
+    defaults: { _controller: Telepay\FinancialApiBundle\Controller\Analytics\TestAnalytics::stats }
     requirements:
         _method: GET
 
@@ -43,13 +43,13 @@ telepay_services_test_stats:
 
 telepay_services_ukash_transactions:
     pattern:  /stats/v1/ukash/transactions
-    defaults: { _controller: Telepay\FinancialApiBundle\Controller\Stats\UkashStats::transactions }
+    defaults: { _controller: Telepay\FinancialApiBundle\Controller\Analytics\UkashAnalytics::transactions }
     requirements:
         _method: GET
 
 telepay_services_ukash_test_transactions:
     pattern:  /stats/v1/ukash/transactions/test
-    defaults: { _controller: Telepay\FinancialApiBundle\Controller\Stats\UkashStats::transactionsTest }
+    defaults: { _controller: Telepay\FinancialApiBundle\Controller\Analytics\UkashAnalytics::transactionsTest }
     requirements:
         _method: GET
 
@@ -57,39 +57,39 @@ telepay_services_ukash_test_transactions:
 
 telepay_services_pagofacil_transactions:
     pattern:  /stats/v1/pagofacil/transactions
-    defaults: { _controller: Telepay\FinancialApiBundle\Controller\Stats\PagofacilStats::transactions }
+    defaults: { _controller: Telepay\FinancialApiBundle\Controller\Analytics\PagofacilAnalytics::transactions }
     requirements:
         _method: GET
 
 telepay_services_pagofacil_test_transactions:
     pattern:  /stats/v1/pagofacil/transactions/test
-    defaults: { _controller: Telepay\FinancialApiBundle\Controller\Stats\PagofacilStats::transactionsTest }
+    defaults: { _controller: Telepay\FinancialApiBundle\Controller\Analytics\PagofacilAnalytics::transactionsTest }
     requirements:
         _method: GET
 ######################### PAYNET PAYMENT SERVICE STATS ############################
 
 telepay_services_paynet_payment_transactions:
     pattern:  /stats/v1/paynet/payment/transactions
-    defaults: { _controller: Telepay\FinancialApiBundle\Controller\Stats\PaynetPaymentStats::transactions }
+    defaults: { _controller: Telepay\FinancialApiBundle\Controller\Analytics\PaynetPaymentAnalytics::transactions }
     requirements:
         _method: GET
 
 telepay_services_paynet_payment_test_transactions:
     pattern:  /stats/v1/paynet/payment/transactions/test
-    defaults: { _controller: Telepay\FinancialApiBundle\Controller\Stats\PaynetPaymentStats::transactionsTest }
+    defaults: { _controller: Telepay\FinancialApiBundle\Controller\Analytics\PaynetPaymentAnalytics::transactionsTest }
     requirements:
         _method: GET
 ######################### PAYNET REFERENCE SERVICE STATS ############################
 
 telepay_services_paynet_reference_transactions:
     pattern:  /stats/v1/paynet/reference/transactions
-    defaults: { _controller: Telepay\FinancialApiBundle\Controller\Stats\PaynetReferenceStats::transactions }
+    defaults: { _controller: Telepay\FinancialApiBundle\Controller\Analytics\PaynetReferenceAnalytics::transactions }
     requirements:
         _method: GET
 
 telepay_services_paynet_payment_test_transactions:
     pattern:  /stats/v1/paynet/reference/transactions/test
-    defaults: { _controller: Telepay\FinancialApiBundle\Controller\Stats\PaynetReferenceStats::transactionsTest }
+    defaults: { _controller: Telepay\FinancialApiBundle\Controller\Analytics\PaynetReferenceAnalytics::transactionsTest }
     requirements:
         _method: GET
 
@@ -97,13 +97,13 @@ telepay_services_paynet_payment_test_transactions:
 
 telepay_services_payu_transactions:
     pattern:  /stats/v1/payu/transactions
-    defaults: { _controller: Telepay\FinancialApiBundle\Controller\Stats\PayuStats::transactions }
+    defaults: { _controller: Telepay\FinancialApiBundle\Controller\Analytics\PayuAnalytics::transactions }
     requirements:
         _method: GET
 
 telepay_services_payu_test_transactions:
     pattern:  /stats/v1/payu/transactions/test
-    defaults: { _controller: Telepay\FinancialApiBundle\Controller\Stats\PayuStats::transactionsTest }
+    defaults: { _controller: Telepay\FinancialApiBundle\Controller\Analytics\PayuAnalytics::transactionsTest }
     requirements:
         _method: GET
 
@@ -111,13 +111,13 @@ telepay_services_payu_test_transactions:
 
 telepay_services_safetypay_transactions:
     pattern:  /stats/v1/safetypay/transactions
-    defaults: { _controller: Telepay\FinancialApiBundle\Controller\Stats\SafetypayStats::transactions }
+    defaults: { _controller: Telepay\FinancialApiBundle\Controller\Analytics\SafetypayAnalytics::transactions }
     requirements:
         _method: GET
 
 telepay_services_safetypay_test_transactions:
     pattern:  /stats/v1/safetypay/transactions/test
-    defaults: { _controller: Telepay\FinancialApiBundle\Controller\Stats\SafetypayStats::transactionsTest }
+    defaults: { _controller: Telepay\FinancialApiBundle\Controller\Analytics\SafetypayAnalytics::transactionsTest }
     requirements:
         _method: GET
 
@@ -125,13 +125,13 @@ telepay_services_safetypay_test_transactions:
 
 telepay_services_toditocash_transactions:
     pattern:  /stats/v1/toditocash/transactions
-    defaults: { _controller: Telepay\FinancialApiBundle\Controller\Stats\ToditocashStats::transactions }
+    defaults: { _controller: Telepay\FinancialApiBundle\Controller\Analytics\ToditocashAnalytics::transactions }
     requirements:
         _method: GET
 
 telepay_services_toditocash_test_transactions:
     pattern:  /stats/v1/toditocash/transactions/test
-    defaults: { _controller: Telepay\FinancialApiBundle\Controller\Stats\ToditocashStats::transactionsTest }
+    defaults: { _controller: Telepay\FinancialApiBundle\Controller\Analytics\ToditocashAnalytics::transactionsTest }
     requirements:
         _method: GET
 
