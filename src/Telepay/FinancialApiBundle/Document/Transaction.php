@@ -48,13 +48,13 @@ class Transaction {
 
     /**
      * @var
-     * @MongoDB\String
+     * @MongoDB\Date
      */
     private $timeIn;
 
     /**
      * @var
-     * @MongoDB\String
+     * @MongoDB\Date
      */
     private $timeOut;
 

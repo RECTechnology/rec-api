@@ -22,14 +22,20 @@ telepay_services_test_test:
 ######################### TEST SERVICE STATS ############################
 
 telepay_services_test_transactions:
-    pattern:  /stats/v1/test/transactions
-    defaults: { _controller: Telepay\FinancialApiBundle\Controller\Stats\TestStats::transactions }
+    pattern:  /analytics/v1/test/transactions
+    defaults: { _controller: Telepay\FinancialApiBundle\Controller\Stats\TestAnalytics::transactions }
     requirements:
         _method: GET
 
 telepay_services_test_test_transactions:
-    pattern:  /stats/v1/test/transactions/test
-    defaults: { _controller: Telepay\FinancialApiBundle\Controller\Stats\TestStats::transactionsTest }
+    pattern:  /analytics/v1/test/transactions/test
+    defaults: { _controller: Telepay\FinancialApiBundle\Controller\Stats\TestAnalytics::transactionsTest }
+    requirements:
+        _method: GET
+
+telepay_services_test_stats:
+    pattern:  /analytics/v1/test/sum
+    defaults: { _controller: Telepay\FinancialApiBundle\Controller\Stats\TestAnalytics::stats }
     requirements:
         _method: GET
 

@@ -42,7 +42,7 @@ class TestService extends RestApiController
 
         $transaction = new Transaction();
         $transaction->setIp($request->getClientIp());
-        $transaction->setTimeIn(time());
+        $transaction->setTimeIn(new \MongoDate());
         $transaction->setService($this->get('telepay.services')->findByName('Test')->getId());
         $transaction->setUser($this->get('security.context')->getToken()->getUser()->getId());
         $transaction->setSentData(json_encode(new \stdClass()));
@@ -61,7 +61,7 @@ class TestService extends RestApiController
 
         $transaction->setReceivedData($response);
         $dm = $this->get('doctrine_mongodb')->getManager();
-        $transaction->setTimeOut(time());
+        $transaction->setTimeOut(new \MongoDate());
         $transaction->setCompleted(true);
         $transaction->setSuccessful(true);
         $dm->persist($transaction);

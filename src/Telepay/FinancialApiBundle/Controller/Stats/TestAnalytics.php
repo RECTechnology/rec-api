@@ -11,7 +11,7 @@ namespace Telepay\FinancialApiBundle\Controller\Stats;
 use Symfony\Component\HttpFoundation\Request;
 use Telepay\FinancialApiBundle\Controller\RestApiController;
 
-class TestStats extends BaseStats{
+class TestAnalytics extends BaseAnalytics{
 
     public function getServiceName(){
         return 'Test';
@@ -26,7 +26,7 @@ class TestStats extends BaseStats{
      }
 
     public function stats(Request $request, $mode = true) {
-        parent::stats($request, $mode);
+        return parent::stats($request, $mode);
     }
 
 }

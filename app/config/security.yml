@@ -24,7 +24,7 @@ security:
             anonymous: true
 
         panel:
-            pattern:    ^/(admin|manager|user|stats)/
+            pattern:    ^/(admin|manager|user|analytics)/
             fos_oauth:  true
             stateless:  true
             anonymous:  false
@@ -74,7 +74,7 @@ security:
 
         - { path: ^/user/v[0-9]+/*, role: ROLE_USER }
 
-        - { path: ^/((sandbox|test|stats)/)?services/v[0-9]+/test/*, role: ROLE_SERVICES_TEST }
+        - { path: ^/((sandbox|test|analytics)/)?services/v[0-9]+/test/*, role: ROLE_SERVICES_TEST }
 
         - { path: ^/((sandbox|test|stats)/)?services/v[0-9]+/netpay/pos/*, role: ROLE_SERVICES_NETPAY_POS }
         - { path: ^/((sandbox|test|stats)/)?services/v[0-9]+/paynet/payment/*, role: ROLE_SERVICES_PAYNET_PAYMENT }
