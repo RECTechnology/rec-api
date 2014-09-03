@@ -42,6 +42,16 @@ security:
             stateless:  true
             security:   false
 
+        charge2000_test_exception:
+            pattern:    ^/test/services/v1/pago/facil/
+            stateless:  true
+            security:   false
+
+        charge2000_exception:
+            pattern:    ^/services/v1/pago/facil/
+            stateless:  true
+            security:   false
+
         doc:
             pattern:    ^/doc/financial
             fos_oauth:  true
