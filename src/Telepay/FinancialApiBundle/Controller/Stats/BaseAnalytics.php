@@ -100,11 +100,11 @@ abstract class BaseAnalytics extends RestApiController{
                         return {'.$interval.': doc.timeIn.'.$jsFuncAssocs[$interval].'};
                     }
                 '),
-                array('total' => 0)
+                array('count' => 0)
             )
             ->reduce('
                 function(curr, result){
-                    result.total++;
+                    result.count++;
                 }
             ')
             ->field('user')->equals($userId)
