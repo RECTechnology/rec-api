@@ -14,6 +14,7 @@ use FOS\RestBundle\Controller\Annotations as Rest;
 use Nelmio\ApiDocBundle\Annotation\ApiDoc;
 use PaynetService;
 use Symfony\Component\HttpKernel\Exception\HttpException;
+use Telepay\FinancialApiBundle\Document\Transaction;
 
 class ServicesPaynetPaymentController extends FosRestController
 {
@@ -123,6 +124,16 @@ class ServicesPaynetPaymentController extends FosRestController
         $mode = $request->get('mode');
         if(!isset($mode)) $mode = 'P';
 
+        //Guardamos la request en mongo
+        $transaction = new Transaction();
+        $transaction->setIp($request->getClientIp());
+        $transaction->setTimeIn(time());
+        $transaction->setService($this->get('telepay.services')->findByName('PaynetPayment')->getId());
+        $transaction->setUser($this->get('security.context')->getToken()->getUser()->getId());
+        $transaction->setSentData(json_encode($params));
+        $transaction->setMode($mode === 'P');
+
+
         //Include the class
         include("../vendor/paynet-services/PaynetService.php");
 
@@ -155,6 +166,15 @@ class ServicesPaynetPaymentController extends FosRestController
                 $datos
             );
         }
+
+        //Guardamos la respuesta
+        $transaction->setReceivedData(json_encode($datos));
+        $dm = $this->get('doctrine_mongodb')->getManager();
+        $transaction->setTimeOut(time());
+        $transaction->setCompleted(false);
+        $transaction->setSuccessful(true);
+        $dm->persist($transaction);
+        $dm->flush();
 
         $view = $this->view($resp, 201);
 
@@ -270,6 +290,15 @@ class ServicesPaynetPaymentController extends FosRestController
         $mode = $request->get('mode');
         if(!isset($mode)) $mode = 'P';
 
+        //Guardamos la request en mongo
+        $transaction = new Transaction();
+        $transaction->setIp($request->getClientIp());
+        $transaction->setTimeIn(time());
+        $transaction->setService($this->get('telepay.services')->findByName('PaynetPayment')->getId());
+        $transaction->setUser($this->get('security.context')->getToken()->getUser()->getId());
+        $transaction->setSentData(json_encode($params));
+        $transaction->setMode($mode === 'P');
+
         //Check if it's a Test or Production transaction
         if($mode=='T'){
             //Constructor in Test mode
@@ -299,6 +328,15 @@ class ServicesPaynetPaymentController extends FosRestController
                 $datos
             );
         }
+
+        //Guardamos la respuesta
+        $transaction->setReceivedData(json_encode($datos));
+        $dm = $this->get('doctrine_mongodb')->getManager();
+        $transaction->setTimeOut(time());
+        $transaction->setCompleted(true);
+        $transaction->setSuccessful(true);
+        $dm->persist($transaction);
+        $dm->flush();
 
         $view = $this->view($resp, 201);
 
@@ -408,6 +446,15 @@ class ServicesPaynetPaymentController extends FosRestController
         $mode=$request->get('mode');
         if(!isset ($mode)) $mode='P';
 
+        //Guardamos la request en mongo
+        $transaction = new Transaction();
+        $transaction->setIp($request->getClientIp());
+        $transaction->setTimeIn(time());
+        $transaction->setService($this->get('telepay.services')->findByName('PaynetPayment')->getId());
+        $transaction->setUser($this->get('security.context')->getToken()->getUser()->getId());
+        $transaction->setSentData(json_encode($params));
+        $transaction->setMode($mode === 'P');
+
         //Check if it's a Test or Production transaction
         if($mode=='T'){
             //Constructor in Test mode
@@ -429,6 +476,15 @@ class ServicesPaynetPaymentController extends FosRestController
             "Reference created successfully",
             $datos
         );
+
+        //Guardamos la respuesta
+        $transaction->setReceivedData(json_encode($datos));
+        $dm = $this->get('doctrine_mongodb')->getManager();
+        $transaction->setTimeOut(time());
+        $transaction->setCompleted(true);
+        $transaction->setSuccessful(true);
+        $dm->persist($transaction);
+        $dm->flush();
 
         $view = $this->view($resp, 201);
 

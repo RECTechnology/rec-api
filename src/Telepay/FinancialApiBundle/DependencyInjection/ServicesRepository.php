@@ -20,6 +20,41 @@ class ServicesRepository{
             'name' => 'Test',
             'role' => 'ROLE_SERVICES_TEST',
         ),
+        array(
+            'id' => 2,
+            'name' => 'PaynetPayment',
+            'role' => 'ROLE_SERVICES_PAYNET_PAYMENT',
+        ),
+        array(
+            'id' => 3,
+            'name' => 'Pagofacil',
+            'role' => 'ROLE_SERVICES_PAGOFACIL',
+        ),
+        array(
+            'id' => 4,
+            'name' => 'Payu',
+            'role' => 'ROLE_SERVICES_PAYU',
+        ),
+        array(
+            'id' => 5,
+            'name' => 'Safetypay',
+            'role' => 'ROLE_SERVICES_SAFETYPAY',
+        ),
+        array(
+            'id' => 6,
+            'name' => 'Toditocash',
+            'role' => 'ROLE_SERVICES_TODITOCASH',
+        ),
+        array(
+            'id' => 7,
+            'name' => 'Ukash',
+            'role' => 'ROLE_SERVICES_UKASH',
+        ),
+        array(
+            'id' => 8,
+            'name' => 'PaynetReference',
+            'role' => 'ROLE_SERVICES_PAYNET_REFERENCE',
+        ),
     );
 
     public function findAll(){

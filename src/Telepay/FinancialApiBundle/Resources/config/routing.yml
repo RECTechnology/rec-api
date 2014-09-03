@@ -33,6 +33,101 @@ telepay_services_test_test_transactions:
     requirements:
         _method: GET
 
+######################### UKASH SERVICE STATS ############################
+
+telepay_services_ukash_transactions:
+    pattern:  /stats/v1/ukash/transactions
+    defaults: { _controller: Telepay\FinancialApiBundle\Controller\Stats\UkashStats::transactions }
+    requirements:
+        _method: GET
+
+telepay_services_ukash_test_transactions:
+    pattern:  /stats/v1/ukash/transactions/test
+    defaults: { _controller: Telepay\FinancialApiBundle\Controller\Stats\UkashStats::transactionsTest }
+    requirements:
+        _method: GET
+
+######################### PAGOFACIL SERVICE STATS ############################
+
+telepay_services_pagofacil_transactions:
+    pattern:  /stats/v1/pagofacil/transactions
+    defaults: { _controller: Telepay\FinancialApiBundle\Controller\Stats\PagofacilStats::transactions }
+    requirements:
+        _method: GET
+
+telepay_services_pagofacil_test_transactions:
+    pattern:  /stats/v1/pagofacil/transactions/test
+    defaults: { _controller: Telepay\FinancialApiBundle\Controller\Stats\PagofacilStats::transactionsTest }
+    requirements:
+        _method: GET
+######################### PAYNET PAYMENT SERVICE STATS ############################
+
+telepay_services_paynet_payment_transactions:
+    pattern:  /stats/v1/paynet/payment/transactions
+    defaults: { _controller: Telepay\FinancialApiBundle\Controller\Stats\PaynetPaymentStats::transactions }
+    requirements:
+        _method: GET
+
+telepay_services_paynet_payment_test_transactions:
+    pattern:  /stats/v1/paynet/payment/transactions/test
+    defaults: { _controller: Telepay\FinancialApiBundle\Controller\Stats\PaynetPaymentStats::transactionsTest }
+    requirements:
+        _method: GET
+######################### PAYNET REFERENCE SERVICE STATS ############################
+
+telepay_services_paynet_reference_transactions:
+    pattern:  /stats/v1/paynet/reference/transactions
+    defaults: { _controller: Telepay\FinancialApiBundle\Controller\Stats\PaynetReferenceStats::transactions }
+    requirements:
+        _method: GET
+
+telepay_services_paynet_payment_test_transactions:
+    pattern:  /stats/v1/paynet/reference/transactions/test
+    defaults: { _controller: Telepay\FinancialApiBundle\Controller\Stats\PaynetReferenceStats::transactionsTest }
+    requirements:
+        _method: GET
+
+######################### PAYU SERVICE STATS ############################
+
+telepay_services_payu_transactions:
+    pattern:  /stats/v1/payu/transactions
+    defaults: { _controller: Telepay\FinancialApiBundle\Controller\Stats\PayuStats::transactions }
+    requirements:
+        _method: GET
+
+telepay_services_payu_test_transactions:
+    pattern:  /stats/v1/payu/transactions/test
+    defaults: { _controller: Telepay\FinancialApiBundle\Controller\Stats\PayuStats::transactionsTest }
+    requirements:
+        _method: GET
+
+######################### SAFETYPAY SERVICE STATS ############################
+
+telepay_services_safetypay_transactions:
+    pattern:  /stats/v1/safetypay/transactions
+    defaults: { _controller: Telepay\FinancialApiBundle\Controller\Stats\SafetypayStats::transactions }
+    requirements:
+        _method: GET
+
+telepay_services_safetypay_test_transactions:
+    pattern:  /stats/v1/safetypay/transactions/test
+    defaults: { _controller: Telepay\FinancialApiBundle\Controller\Stats\SafetypayStats::transactionsTest }
+    requirements:
+        _method: GET
+
+######################### TODITOCASH SERVICE STATS ############################
+
+telepay_services_toditocash_transactions:
+    pattern:  /stats/v1/toditocash/transactions
+    defaults: { _controller: Telepay\FinancialApiBundle\Controller\Stats\ToditocashStats::transactions }
+    requirements:
+        _method: GET
+
+telepay_services_toditocash_test_transactions:
+    pattern:  /stats/v1/toditocash/transactions/test
+    defaults: { _controller: Telepay\FinancialApiBundle\Controller\Stats\ToditocashStats::transactionsTest }
+    requirements:
+        _method: GET
 
 ##################### CLIENTS ############################
 

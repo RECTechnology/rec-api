@@ -10,6 +10,7 @@ use Nelmio\ApiDocBundle\Annotation\ApiDoc;
 use PaynetGetBarcode;
 use PaynetGetStatus;
 use Symfony\Component\HttpKernel\Exception\HttpException;
+use Telepay\FinancialApiBundle\Document\Transaction;
 
 
 
@@ -68,6 +69,16 @@ class ServicesPaynetReferenceController extends FosRestController
             $params[]=$request->get($paramName, 'null');
         }
 
+        //Guardamos la request en mongo
+        $transaction = new Transaction();
+        $transaction->setIp($request->getClientIp());
+        $transaction->setTimeIn(time());
+        $transaction->setService($this->get('telepay.services')->findByName('PaynetReference')->getId());
+        $transaction->setUser($this->get('security.context')->getToken()->getUser()->getId());
+        $transaction->setSentData(json_encode($params));
+        $transaction->setMode(true);
+
+
         //Include the class
         include("../vendor/paynet-barcode/PaynetGetBarcode.php");
 
@@ -90,6 +101,15 @@ class ServicesPaynetReferenceController extends FosRestController
                 $datos
             );
         }
+
+        //Guardamos la respuesta
+        $transaction->setReceivedData(json_encode($datos));
+        $dm = $this->get('doctrine_mongodb')->getManager();
+        $transaction->setTimeOut(time());
+        $transaction->setCompleted(true);
+        $transaction->setSuccessful(true);
+        $dm->persist($transaction);
+        $dm->flush();
 
         $view = $this->view($resp, 201);
 
@@ -136,6 +156,15 @@ class ServicesPaynetReferenceController extends FosRestController
             $params[]=$request->get($paramName, 'null');
         }
 
+        //Guardamos la request en mongo
+        $transaction = new Transaction();
+        $transaction->setIp($request->getClientIp());
+        $transaction->setTimeIn(time());
+        $transaction->setService($this->get('telepay.services')->findByName('PaynetReference')->getId());
+        $transaction->setUser($this->get('security.context')->getToken()->getUser()->getId());
+        $transaction->setSentData(json_encode($params));
+        $transaction->setMode(true);
+
         //Include the class
         include("../vendor/paynet-barcode/PaynetGetStatus.php");
 
@@ -159,6 +188,15 @@ class ServicesPaynetReferenceController extends FosRestController
                 $datos
             );
         }
+
+        //Guardamos la respuesta
+        $transaction->setReceivedData(json_encode($datos));
+        $dm = $this->get('doctrine_mongodb')->getManager();
+        $transaction->setTimeOut(time());
+        $transaction->setCompleted(true);
+        $transaction->setSuccessful(true);
+        $dm->persist($transaction);
+        $dm->flush();
 
         $view = $this->view($resp, 201);
 

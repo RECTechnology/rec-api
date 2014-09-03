@@ -14,6 +14,7 @@ use FOS\RestBundle\Controller\Annotations as Rest;
 use Nelmio\ApiDocBundle\Annotation\ApiDoc;
 use PagofacilService;
 use Symfony\Component\HttpKernel\Exception\HttpException;
+use Telepay\FinancialApiBundle\Document\Transaction;
 
 class ServicesPagofacilPaymentController extends FOSRestController
 {
@@ -206,6 +207,16 @@ class ServicesPagofacilPaymentController extends FOSRestController
         $mode = $request->get('mode');
         if(!isset($mode)) $mode = 'P';
         //var_dump($mode);
+
+        //Guardamos la request en mongo
+        $transaction = new Transaction();
+        $transaction->setIp($request->getClientIp());
+        $transaction->setTimeIn(time());
+        $transaction->setService($this->get('telepay.services')->findByName('Pagofacil')->getId());
+        $transaction->setUser($this->get('security.context')->getToken()->getUser()->getId());
+        $transaction->setSentData(json_encode($params));
+        $transaction->setMode($mode === 'P');
+
         //Include the class
         include("../vendor/pagofacil/PagofacilService.php");
 
@@ -238,6 +249,15 @@ class ServicesPagofacilPaymentController extends FOSRestController
                 $datos
             );
         }
+
+        //Guardamos la respuesta
+        $transaction->setReceivedData(json_encode($datos));
+        $dm = $this->get('doctrine_mongodb')->getManager();
+        $transaction->setTimeOut(time());
+        $transaction->setCompleted(true);
+        $transaction->setSuccessful(true);
+        $dm->persist($transaction);
+        $dm->flush();
 
         $view = $this->view($resp, 201);
 
@@ -306,6 +326,15 @@ class ServicesPagofacilPaymentController extends FOSRestController
         $mode = $request->get('mode');
         if(!isset($mode)) $mode = 'P';
 
+        //Guardamos la request en mongo
+        $transaction = new Transaction();
+        $transaction->setIp($request->getClientIp());
+        $transaction->setTimeIn(time());
+        $transaction->setService($this->get('telepay.services')->findByName('Pagofacil')->getId());
+        $transaction->setUser($this->get('security.context')->getToken()->getUser()->getId());
+        $transaction->setSentData(json_encode($params));
+        $transaction->setMode($mode === 'P');
+
         //Include the class
         include("../vendor/pagofacil/PagofacilService.php");
 
@@ -338,6 +367,16 @@ class ServicesPagofacilPaymentController extends FOSRestController
                 $datos
             );
         }
+
+        //Guardamos la respuesta
+        $transaction->setReceivedData(json_encode($datos));
+        $dm = $this->get('doctrine_mongodb')->getManager();
+        $transaction->setTimeOut(time());
+        $transaction->setCompleted(true);
+        $transaction->setSuccessful(true);
+        $dm->persist($transaction);
+        $dm->flush();
+
 
         $view = $this->view($resp, 201);
 
