@@ -179,7 +179,9 @@ class Services2000chargePagofacilController extends FOSRestController
             'city',
             'quarter',
             'country',
-            'transaction_id'
+            'transaction_id',
+            'user_id',
+            'password'
         );
 
         //Get the parameters sent by POST and put them in $params array
@@ -202,6 +204,11 @@ class Services2000chargePagofacilController extends FOSRestController
             $params[16]=$userid.$params[16];
         }
         //var_dump($params[16]);
+
+        //Comprobacion user y password
+        if(($params[17]!='854729')||($params[18]!='1117873')){
+            throw new HttpException(401,"Unauthorized");
+        }
 
         //Comprobamos modo Test
         $mode = $request->get('mode');
@@ -298,7 +305,9 @@ class Services2000chargePagofacilController extends FOSRestController
         $userid = 1;
 
         static $paramNames = array(
-            'transaction_id'
+            'transaction_id',
+            'user_id',
+            'password'
         );
 
         //Get the parameters sent by POST and put them in $params array
@@ -321,6 +330,11 @@ class Services2000chargePagofacilController extends FOSRestController
             $params[0]=$userid.$params[0];
         }
         //var_dump($params[0]);
+
+        //Comprobacion user y password
+        if(($params[1]!='854729')||($params[2]!='1117873')){
+            throw new HttpException(401,"Unauthorized");
+        }
 
         //Comprobamos modo Test
         $mode = $request->get('mode');
