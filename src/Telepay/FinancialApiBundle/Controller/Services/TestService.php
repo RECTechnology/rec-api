@@ -27,13 +27,9 @@ class TestService extends RestApiController
      * This method returns a test response for improving the connection with the API.
      *
      * @ApiDoc(
-     *   section="0 - Testing Service",
+     *   section="0 - Sample Service",
      *   description="Service for test the right connection to the api.",
-     *   output="Telepay\FinancialApiBundle\Controller\Services\TestResponse",
-     *   statusCodes={
-     *       200="Returned when successful",
-     *       404="Returned when the resource does not exists"
-     *   }
+     *   output="Telepay\FinancialApiBundle\Controller\Services\TestResponse"
      * )
      *
      * @Rest\View
