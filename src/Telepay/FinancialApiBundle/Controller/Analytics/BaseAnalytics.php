@@ -72,8 +72,8 @@ abstract class BaseAnalytics extends RestApiController{
         if($request->query->has('interval')) $interval = $request->query->get('interval');
         else $interval = 'day';
 
-        if($request->query->has('mode')) $mode = $request->query->get('mode') === 'real';
-        else $mode = true;
+        if($request->query->has('env')) $env = ($request->query->get('env') === 'real');
+        else $env = true;
 
         $jsFuncAssocs = array(
             'month' => 'getMonth()',
@@ -85,8 +85,6 @@ abstract class BaseAnalytics extends RestApiController{
             throw new HttpException(400, "Bad interval");
 
         $dm = $this->get('doctrine_mongodb')->getManager();
-
-        $transactionsRepo = $dm->getRepository('TelepayFinancialApiBundle:Transaction');
 
         $userId = $this->get('security.context')
                     ->getToken()->getUser()->getId();
@@ -109,7 +107,7 @@ abstract class BaseAnalytics extends RestApiController{
             ')
             ->field('user')->equals($userId)
             ->field('service')->equals($serviceId)
-            ->field('mode')->equals($mode)
+            ->field('mode')->equals($env)
             ->field('timeIn')->gt($start_time)
             ->field('timeIn')->lt($end_time)
             ->getQuery()
