@@ -63,7 +63,7 @@ abstract class BaseAnalytics extends RestApiController{
 
         if($request->query->has('start_time') && is_int($request->query->get('start_time')))
             $start_time = new \MongoDate($request->query->get('start_time'));
-        else $start_time = new \MongoDate(time()-30*24*6300); // 1 month ago
+        else $start_time = new \MongoDate(time()-31*24*3600); // 1 month ago
 
         if($request->query->has('end_time') && is_int($request->query->get('end_time')))
             $end_time = new \MongoDate($request->query->get('end_time'));
