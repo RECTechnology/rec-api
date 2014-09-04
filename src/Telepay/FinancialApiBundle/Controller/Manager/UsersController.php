@@ -27,11 +27,41 @@ class UsersController extends BaseApiController
         return new User();
     }
 
+
+
     /**
      * @Rest\View
      */
     public function indexAction(Request $request){
-        return parent::indexAction($request);
+        if($request->query->has('limit')) $limit = $request->query->get('limit');
+        else $limit = 10;
+
+        if($request->query->has('offset')) $offset = $request->query->get('offset');
+        else $offset = 0;
+
+        $all = $this->getRepository()->findAll();
+
+        $total = count($all);
+
+        $entities = array_slice($all, $offset, $limit);
+        array_map(function($elem){
+            $services = $elem->getAllowedServices();
+            $elem->setAllowedServices($services);
+            $elem->setAccessToken(null);
+            $elem->setRefreshToken(null);
+            $elem->setAuthCode(null);
+        }, $entities);
+
+        return $this->handleRestView(
+            200,
+            "Request successful",
+            array(
+                'total' => $total,
+                'start' => intval($offset),
+                'end' => count($entities)+$offset,
+                'elements' => $entities
+            )
+        );
     }
 
     /**
