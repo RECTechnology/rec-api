@@ -22,27 +22,27 @@ class ServicesRepository{
         ),
         array(
             'id' => 2,
-            'name' => 'PaynetPayment',
+            'name' => 'PayNet Payment',
             'role' => 'ROLE_SERVICES_PAYNET_PAYMENT',
         ),
         array(
             'id' => 3,
-            'name' => 'Pagofacil',
+            'name' => 'Pago Facil',
             'role' => 'ROLE_SERVICES_PAGOFACIL',
         ),
         array(
             'id' => 4,
-            'name' => 'Payu',
+            'name' => 'PayU',
             'role' => 'ROLE_SERVICES_PAYU',
         ),
         array(
             'id' => 5,
-            'name' => 'Safetypay',
+            'name' => 'SafetyPay',
             'role' => 'ROLE_SERVICES_SAFETYPAY',
         ),
         array(
             'id' => 6,
-            'name' => 'Toditocash',
+            'name' => 'ToditoCash',
             'role' => 'ROLE_SERVICES_TODITOCASH',
         ),
         array(
@@ -52,7 +52,7 @@ class ServicesRepository{
         ),
         array(
             'id' => 8,
-            'name' => 'PaynetReference',
+            'name' => 'PayNet Reference',
             'role' => 'ROLE_SERVICES_PAYNET_REFERENCE',
         ),
     );
