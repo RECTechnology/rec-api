@@ -1,0 +1,24 @@
+
+Sample:
+    resource: services/sample.yml
+
+Ukash:
+    resource: services/ukash.yml
+
+PagoFacil:
+    resource: services/pagofacil.yml
+
+PaynetPay:
+    resource: services/paynetpay.yml
+
+PaynetRef:
+    resource: services/paynetref.yml
+
+PayU:
+    resource: services/payu.yml
+
+SafetyPay:
+    resource: services/safetypay.yml
+
+ToditoCash:
+    resource: services/toditocash.yml

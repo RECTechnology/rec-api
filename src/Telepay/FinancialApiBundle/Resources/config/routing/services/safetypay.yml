@@ -1,0 +1,33 @@
+
+
+services_safetypay_payment_request:
+    pattern:  /services/v1/safetypay/payment/request
+    defaults: { _controller: Telepay\FinancialApiBundle\Controller\Services\ServicesSafetypayPaymentController::request, _format: ~ }
+    requirements:
+        _method: POST
+
+services_safetypay_payment_request_sandbox:
+    pattern:  /sandbox/services/v1/safetypay/payment/request
+    defaults: { _controller: Telepay\FinancialApiBundle\Controller\Services\ServicesSafetypayPaymentController::requestTest, _format: ~ }
+    requirements:
+        _method: POST
+
+services_safetypay_payment_request_test:
+    pattern:  /test/services/v1/safetypay/payment/request
+    defaults: { _controller: Telepay\FinancialApiBundle\Controller\Services\ServicesSafetypayPaymentController::requestTest, _format: ~ }
+    requirements:
+        _method: POST
+
+######################### SAFETYPAY SERVICE STATS ############################
+
+analytics_safetypay_transactions:
+    pattern:  /analytics/services/v1/safetypay/transactions
+    defaults: { _controller: Telepay\FinancialApiBundle\Controller\Analytics\SafetypayAnalytics::transactions }
+    requirements:
+        _method: GET
+
+analytics_safetypay_test_transactions:
+    pattern:  /analytics/services/v1/safetypay/transactions/test
+    defaults: { _controller: Telepay\FinancialApiBundle\Controller\Analytics\SafetypayAnalytics::transactionsTest }
+    requirements:
+        _method: GET

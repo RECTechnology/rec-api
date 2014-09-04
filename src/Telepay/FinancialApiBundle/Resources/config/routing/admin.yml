@@ -1,0 +1,91 @@
+
+##################### CLIENTS ############################
+
+admin_clients_index:
+    pattern:  /admin/v1/clients
+    defaults: { _controller: Telepay\FinancialApiBundle\Controller\Admin\ClientsController::indexAction }
+    requirements:
+        _method: GET
+
+##################### manager/users ############################
+
+admin_users_index:
+    pattern:  /manager/v1/users
+    defaults: { _controller: Telepay\FinancialApiBundle\Controller\Manager\UsersController::indexAction, _format: ~ }
+    requirements:
+        _method: GET
+
+
+admin_users_read:
+    pattern:  /manager/v1/users/{id}
+    defaults: { _controller: Telepay\FinancialApiBundle\Controller\Manager\UsersController::showAction, _format: ~ }
+    requirements:
+        _method: GET
+        id: "[0-9]+"
+
+admin_users_add:
+    pattern:  /manager/v1/users
+    defaults: { _controller: Telepay\FinancialApiBundle\Controller\Manager\UsersController::createAction, _format: ~ }
+    requirements:
+        _method: POST
+        name: "string"
+        email: "email"
+        password: "string"
+
+
+admin_users_update:
+    pattern:  /manager/v1/users/{id}
+    defaults: { _controller: Telepay\FinancialApiBundle\Controller\Manager\UsersController::updateAction, _format: ~ }
+    requirements:
+        _method: PUT
+        id: "[0-9]+"
+        name: "string"
+        email: "email"
+        password: "string"
+
+admin_users_delete:
+    pattern:  /manager/v1/users/{id}
+    defaults: { _controller: Telepay\FinancialApiBundle\Controller\Manager\UsersController::deleteAction, _format: ~ }
+    requirements:
+        _method: DELETE
+        id: "[0-9]+"
+
+
+admin_users_add_service:
+    pattern:  /manager/v1/users/{id}
+    defaults: { _controller: Telepay\FinancialApiBundle\Controller\Manager\UsersController::addService }
+    requirements:
+        _method: POST
+        id: "[0-9]+"
+
+admin_users_delete_service:
+    pattern:  /manager/v1/users/{id}/{service_id}
+    defaults: { _controller: Telepay\FinancialApiBundle\Controller\Manager\UsersController::deleteService }
+    requirements:
+        _method: DELETE
+        id: "[0-9]+"
+        service_id: "[0-9]+"
+
+######################## USER ACCOUNT ########################
+
+
+user_account:
+    pattern:  /user/v1/account
+    defaults: { _controller: Telepay\FinancialApiBundle\Controller\User\AccountController::read }
+    requirements:
+        _method: GET
+
+
+############################## SERVICES MNGMNT ##########################################
+
+admin_services_index:
+    pattern:  /admin/v1/services
+    defaults: { _controller: Telepay\FinancialApiBundle\Controller\Admin\ServicesController::index }
+    requirements:
+        _method: GET
+
+admin_services_read:
+    pattern:  /manager/v1/services/{id}
+    defaults: { _controller: Telepay\FinancialApiBundle\Controller\Manager\ServicesController::read }
+    requirements:
+        _method: GET

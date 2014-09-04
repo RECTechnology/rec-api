@@ -1,0 +1,55 @@
+
+
+services_toditocash_payservices_request:
+    pattern:  /services/v1/toditocash/payservices/request
+    defaults: { _controller: Telepay\FinancialApiBundle\Controller\Services\ServicesToditocashPayservicesController::request, _format: ~ }
+    requirements:
+        _method: POST
+
+services_toditocash_payservices_request_sandbox:
+    pattern:  /sandbox/services/v1/toditocash/payservices/request
+    defaults: { _controller: Telepay\FinancialApiBundle\Controller\Services\ServicesToditocashPayservicesController::requestTest, _format: ~ }
+    requirements:
+        _method: POST
+
+services_toditocash_payservices_request_test:
+    pattern:  /test/services/v1/toditocash/payservices/request
+    defaults: { _controller: Telepay\FinancialApiBundle\Controller\Services\ServicesToditocashPayservicesController::requestTest, _format: ~ }
+    requirements:
+        _method: POST
+
+services_toditocash_payservices_reverso:
+    pattern:  /services/v1/toditocash/payservices/status
+    defaults: { _controller: Telepay\FinancialApiBundle\Controller\Services\ServicesToditocashPayservicesController::reverso, _format: ~ }
+    requirements:
+        _method: POST
+
+services_toditocash_payservices_reverso_sandbox:
+    pattern:  /sandbox/services/v1/toditocash/payservices/status
+    defaults: { _controller: Telepay\FinancialApiBundle\Controller\Services\ServicesToditocashPayservicesController::reversoTest, _format: ~ }
+    requirements:
+        _method: POST
+
+services_toditocash_payservices_reverso_test:
+    pattern:  /test/services/v1/toditocash/payservices/status
+    defaults: { _controller: Telepay\FinancialApiBundle\Controller\Services\ServicesToditocashPayservicesController::reversoTest, _format: ~ }
+    requirements:
+        _method: POST
+
+
+
+
+
+######################### TODITOCASH SERVICE STATS ############################
+
+analytics_toditocash_transactions:
+    pattern:  /analytics/services/v1/toditocash/transactions
+    defaults: { _controller: Telepay\FinancialApiBundle\Controller\Analytics\ToditocashAnalytics::transactions }
+    requirements:
+        _method: GET
+
+analytics_toditocash_test_transactions:
+    pattern:  /analytics/services/v1/toditocash/transactions/test
+    defaults: { _controller: Telepay\FinancialApiBundle\Controller\Analytics\ToditocashAnalytics::transactionsTest }
+    requirements:
+        _method: GET

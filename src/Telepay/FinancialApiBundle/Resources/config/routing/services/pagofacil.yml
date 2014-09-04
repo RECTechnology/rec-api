@@ -1,0 +1,54 @@
+
+
+services_pagofacil_payment_transaction:
+    pattern:  /services/v1/pagofacil/payment/transaction
+    defaults: { _controller: Telepay\FinancialApiBundle\Controller\Services\ServicesPagofacilPaymentController::transaction, _format: ~ }
+    requirements:
+        _method: POST
+
+services_pagofacil_payment_transaction_sandbox:
+    pattern:  /sandbox/services/v1/pagofacil/payment/transaction
+    defaults: { _controller: Telepay\FinancialApiBundle\Controller\Services\ServicesPagofacilPaymentController::transactionTest, _format: ~ }
+    requirements:
+        _method: POST
+
+services_pagofacil_payment_transaction_test:
+    pattern:  /test/services/v1/pagofacil/payment/transaction
+    defaults: { _controller: Telepay\FinancialApiBundle\Controller\Services\ServicesPagofacilPaymentController::transactionTest, _format: ~ }
+    requirements:
+        _method: POST
+
+services_pagofacil_payment_status:
+    pattern:  /services/v1/pagofacil/payment/status
+    defaults: { _controller: Telepay\FinancialApiBundle\Controller\Services\ServicesPagofacilPaymentController::status, _format: ~ }
+    requirements:
+        _method: POST
+
+services_pagofacil_payment_status_sandbox:
+    pattern:  /sandbox/services/v1/pagofacil/payment/status
+    defaults: { _controller: Telepay\FinancialApiBundle\Controller\Services\ServicesPagofacilPaymentController::statusTest, _format: ~ }
+    requirements:
+        _method: POST
+
+services_pagofacil_payment_status_test:
+    pattern:  /test/services/v1/pagofacil/payment/status
+    defaults: { _controller: Telepay\FinancialApiBundle\Controller\Services\ServicesPagofacilPaymentController::statusTest, _format: ~ }
+    requirements:
+        _method: POST
+
+
+
+
+######################### PAGOFACIL SERVICE STATS ############################
+
+services_pagofacil_transactions:
+    pattern:  /analytics/services/v1/pagofacil/transactions
+    defaults: { _controller: Telepay\FinancialApiBundle\Controller\Analytics\PagofacilAnalytics::transactions }
+    requirements:
+        _method: GET
+
+services_pagofacil_test_transactions:
+    pattern:  /analytics/services/v1/pagofacil/transactions/test
+    defaults: { _controller: Telepay\FinancialApiBundle\Controller\Analytics\PagofacilAnalytics::transactionsTest }
+    requirements:
+        _method: GET

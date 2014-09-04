@@ -1,0 +1,77 @@
+
+
+
+services_paynet_payment_info:
+    pattern:  /services/v1/paynet/payment/info
+    defaults: { _controller: Telepay\FinancialApiBundle\Controller\Services\ServicesPaynetPaymentController::info, _format: ~ }
+    requirements:
+        _method: POST
+
+services_paynet_payment_info_sandbox:
+    pattern:  /sandbox/services/v1/paynet/payment/info
+    defaults: { _controller: Telepay\FinancialApiBundle\Controller\Services\ServicesPaynetPaymentController::infoTest, _format: ~ }
+    requirements:
+        _method: POST
+
+services_paynet_payment_info_test:
+    pattern:  /test/services/v1/paynet/payment/info
+    defaults: { _controller: Telepay\FinancialApiBundle\Controller\Services\ServicesPaynetPaymentController::infoTest, _format: ~ }
+    requirements:
+        _method: POST
+
+services_paynet_payment_ejecuta:
+    pattern:  /services/v1/paynet/payment/transaction
+    defaults: { _controller: Telepay\FinancialApiBundle\Controller\Services\ServicesPaynetPaymentController::ejecuta, _format: ~ }
+    requirements:
+        _method: POST
+
+services_paynet_payment_ejecuta_sandbox:
+    pattern:  /sandbox/services/v1/paynet/payment/transaction
+    defaults: { _controller: Telepay\FinancialApiBundle\Controller\Services\ServicesPaynetPaymentController::ejecutaTest, _format: ~ }
+    requirements:
+        _method: POST
+
+services_paynet_payment_ejecuta_test:
+    pattern:  /test/services/v1/paynet/payment/transaction
+    defaults: { _controller: Telepay\FinancialApiBundle\Controller\Services\ServicesPaynetPaymentController::ejecutaTest, _format: ~ }
+    requirements:
+        _method: POST
+
+services_paynet_payment_reversa:
+    pattern:  /services/v1/paynet/payment/status
+    defaults: { _controller: Telepay\FinancialApiBundle\Controller\Services\ServicesPaynetPaymentController::reversa, _format: ~ }
+    requirements:
+        _method: POST
+
+services_paynet_payment_reversa_sandbox:
+    pattern:  /sandbox/services/v1/paynet/payment/status
+    defaults: { _controller: Telepay\FinancialApiBundle\Controller\Services\ServicesPaynetPaymentController::reversaTest, _format: ~ }
+    requirements:
+        _method: POST
+
+services_paynet_payment_reversa_test:
+    pattern:  /test/services/v1/paynet/payment/status
+    defaults: { _controller: Telepay\FinancialApiBundle\Controller\Services\ServicesPaynetPaymentController::reversaTest, _format: ~ }
+    requirements:
+        _method: POST
+
+
+
+
+
+
+
+
+######################### PAYNET PAYMENT SERVICE STATS ############################
+
+analytics_paynet_payment_transactions:
+    pattern:  /analytics/services/v1/paynet/payment/transactions
+    defaults: { _controller: Telepay\FinancialApiBundle\Controller\Analytics\PaynetPaymentAnalytics::transactions }
+    requirements:
+        _method: GET
+
+analytics_paynet_payment_test_transactions:
+    pattern:  /analytics/services/v1/paynet/payment/transactions/test
+    defaults: { _controller: Telepay\FinancialApiBundle\Controller\Analytics\PaynetPaymentAnalytics::transactionsTest }
+    requirements:
+        _method: GET
