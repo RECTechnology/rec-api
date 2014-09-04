@@ -50,7 +50,20 @@ class UsersController extends BaseApiController
      * @Rest\View
      */
     public function showAction($id){
-        return parent::showAction($id);
+        if(empty($id)) throw new HttpException(400, "Missing parameter 'id'");
+
+        $repo = $this->getRepository();
+
+        $entities = $repo->findOneBy(array('id'=>$id));
+
+        if(empty($entities)) throw new HttpException(404, "Not found");
+
+        $services = $entities->getAllowedServices();
+        $entities->setAllowedServices($services);
+        $entities->setAccessToken(null);
+        $entities->setRefreshToken(null);
+        $entities->setAuthCode(null);
+        return $this->handleRestView(200, "Request successful", $entities);
     }
 
     /**

@@ -135,4 +135,52 @@ class User extends BaseUser
         $this->allowed_services = $allowed_services;
     }
 
+    /**
+     * @return mixed
+     */
+    public function getAccessToken()
+    {
+        return $this->access_token;
+    }
+
+    /**
+     * @param mixed $access_token
+     */
+    public function setAccessToken($access_token)
+    {
+        $this->access_token = $access_token;
+    }
+
+    /**
+     * @return mixed
+     */
+    public function getRefreshToken()
+    {
+        return $this->refresh_token;
+    }
+
+    /**
+     * @param mixed $refresh_token
+     */
+    public function setRefreshToken($refresh_token)
+    {
+        $this->refresh_token = $refresh_token;
+    }
+
+    /**
+     * @return mixed
+     */
+    public function getAuthCode()
+    {
+        return $this->auth_code;
+    }
+
+    /**
+     * @param mixed $auth_code
+     */
+    public function setAuthCode($auth_code)
+    {
+        $this->auth_code = $auth_code;
+    }
+
 }
