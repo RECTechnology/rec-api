@@ -3,19 +3,19 @@
 
 services_sample:
     pattern:  /services/v1/sample
-    defaults: { _controller: Telepay\FinancialApiBundle\Controller\Services\SampleService::test }
+    defaults: { _controller: Telepay\FinancialApiBundle\Controller\Services\SampleService::sample }
     requirements:
         _method: GET
 
 services_sample_sandbox:
     pattern:  /sandbox/services/v1/sample
-    defaults: { _controller: Telepay\FinancialApiBundle\Controller\Services\SampleService::testTest }
+    defaults: { _controller: Telepay\FinancialApiBundle\Controller\Services\SampleService::sampleTest }
     requirements:
         _method: GET
 
 services_sample_test:
     pattern:  /test/services/v1/sample
-    defaults: { _controller: Telepay\FinancialApiBundle\Controller\Services\SampleService::testTest }
+    defaults: { _controller: Telepay\FinancialApiBundle\Controller\Services\SampleService::sampleTest }
     requirements:
         _method: GET
 

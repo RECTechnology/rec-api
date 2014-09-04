@@ -12,7 +12,6 @@ use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
 use Telepay\FinancialApiBundle\Controller\RestApiController;
-use Telepay\FinancialApiBundle\Controller\ServiceManager;
 use Telepay\FinancialApiBundle\Document\Transaction;
 use Telepay\FinancialApiBundle\Entity\Service;
 
@@ -28,23 +27,23 @@ class SampleService extends RestApiController
      *
      * @ApiDoc(
      *   section="0 - Sample Service",
-     *   description="Service for test the right connection to the api.",
-     *   output="Telepay\FinancialApiBundle\Controller\Services\TestResponse"
+     *   description="Sample service for test the right connection to the api.",
+     *   output="Telepay\FinancialApiBundle\Controller\Services\SampleResponse"
      * )
      *
      * @Rest\View
      */
-    public function test(Request $request, $mode = true) {
+    public function sample(Request $request, $mode = true) {
 
         $transaction = new Transaction();
         $transaction->setIp($request->getClientIp());
         $transaction->setTimeIn(new \MongoDate());
-        $transaction->setService($this->get('telepay.services')->findByName('Test')->getId());
+        $transaction->setService($this->get('telepay.services')->findByName('Sample')->getId());
         $transaction->setUser($this->get('security.context')->getToken()->getUser()->getId());
         $transaction->setSentData(json_encode(new \stdClass()));
         $transaction->setMode($mode);
 
-        $response = new TestResponse(
+        $response = new SampleResponse(
             !$mode,
             date('Y-m-d H:i:s')
         );
@@ -67,8 +66,8 @@ class SampleService extends RestApiController
     }
 
 
-    public function testTest(Request $request) {
-        return $this->test($request, false);
+    public function sampleTest(Request $request) {
+        return $this->sample($request, false);
     }
 
 }

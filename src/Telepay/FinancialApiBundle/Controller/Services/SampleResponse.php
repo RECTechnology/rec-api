@@ -12,7 +12,7 @@ namespace Telepay\FinancialApiBundle\Controller\Services;
  * Class TestResponse
  * @package Telepay\FinancialApiBundle\Controller\Services
  */
-class TestResponse{
+class SampleResponse{
 
     /**
      * @var boolean
