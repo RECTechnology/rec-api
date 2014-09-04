@@ -21,7 +21,7 @@ use Telepay\FinancialApiBundle\Entity\Service;
  * Class TestService
  * @package Telepay\FinancialApiBundle\Controller\Services
  */
-class TestService extends RestApiController
+class SampleService extends RestApiController
 {
     /**
      * This method returns a test response for improving the connection with the API.

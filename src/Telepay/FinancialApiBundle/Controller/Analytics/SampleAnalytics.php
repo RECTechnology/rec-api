@@ -11,10 +11,10 @@ namespace Telepay\FinancialApiBundle\Controller\Analytics;
 use Symfony\Component\HttpFoundation\Request;
 use Telepay\FinancialApiBundle\Controller\RestApiController;
 
-class TestAnalytics extends BaseAnalytics{
+class SampleAnalytics extends BaseAnalytics{
 
     public function getServiceName(){
-        return 'Test';
+        return 'Sample';
     }
 
     public function transactions(Request $request, $mode = true) {

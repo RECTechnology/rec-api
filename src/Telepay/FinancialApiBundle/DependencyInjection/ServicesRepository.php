@@ -17,8 +17,8 @@ class ServicesRepository{
     private static $SERVICES = array(
         array(
             'id' => 1,
-            'name' => 'Test',
-            'role' => 'ROLE_SERVICES_TEST',
+            'name' => 'Sample',
+            'role' => 'ROLE_SERVICES_SAMPLE',
         ),
         array(
             'id' => 2,
