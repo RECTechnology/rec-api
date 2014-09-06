@@ -92,6 +92,11 @@ abstract class BaseAnalytics extends RestApiController{
                     ->findByName($this->getServiceName())->getId();
 
         $result = $dm->createQueryBuilder('TelepayFinancialApiBundle:Transaction')
+            ->field('user')->equals($userId)
+            ->field('service')->equals($serviceId)
+            ->field('mode')->equals($env)
+            ->field('timeIn')->gt($start_time)
+            ->field('timeIn')->lt($end_time)
             ->group(
                 new \MongoCode('
                     function(doc){
@@ -105,11 +110,6 @@ abstract class BaseAnalytics extends RestApiController{
                     result.count++;
                 }
             ')
-            ->field('user')->equals($userId)
-            ->field('service')->equals($serviceId)
-            ->field('mode')->equals($env)
-            ->field('timeIn')->gt($start_time)
-            ->field('timeIn')->lt($end_time)
             ->getQuery()
             ->execute();
 
