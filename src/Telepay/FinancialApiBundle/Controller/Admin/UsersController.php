@@ -32,8 +32,6 @@ class UsersController extends \Telepay\FinancialApiBundle\Controller\Manager\Use
         $user = $usersRepo->findOneBy(array('id'=>$id));
         if(empty($user))
             throw new HttpException(404, 'User not found');
-        if($user->hasRole($roleName))
-            throw new HttpException(409, "User has already the role '$roleName'");
 
         $user->removeRole('ROLE_SUPER_ADMIN');
         $user->removeRole('ROLE_ADMIN');
