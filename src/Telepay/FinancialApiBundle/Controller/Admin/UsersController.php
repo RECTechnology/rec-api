@@ -11,22 +11,35 @@ use Symfony\Component\HttpFoundation\Request;
 
 /**
  * Class UsersController
- * @package Telepay\FinancialApiBundle\Controller\Manager
+ * @package Telepay\FinancialApiBundle\Controller\Admin
  */
 class UsersController extends \Telepay\FinancialApiBundle\Controller\Manager\UsersController
 {
+
     /**
      * @Rest\View
      */
-    public function addRole(Request $request, $id){
+    public function setRole(Request $request, $id){
         $roleName = $request->get('role');
+
+        if(empty($roleName))
+            throw new HttpException(400, "Missing parameter 'role'");
+        if($roleName != 'ROLE_SUPER_ADMIN' and $roleName != 'ROLE_ADMIN' and $roleName != 'ROLE_USER'){
+            throw new HttpException(404, 'Role not found');
+        }
+
         $usersRepo = $this->getRepository();
         $user = $usersRepo->findOneBy(array('id'=>$id));
-        if(empty($user)) throw new HttpException(404, 'User not found');
-        if(empty($roleName)) throw new HttpException(400, "Missing parameter 'role'");
-        if($user->hasRole($roleName)) throw new HttpException(409, "User has already the role '$roleName'");
+        if(empty($user))
+            throw new HttpException(404, 'User not found');
+        if($user->hasRole($roleName))
+            throw new HttpException(409, "User has already the role '$roleName'");
 
-        $user->addRole($roleName);
+        $user->removeRole('ROLE_SUPER_ADMIN');
+        $user->removeRole('ROLE_ADMIN');
+
+        if($roleName == 'ROLE_SUPER_ADMIN' or $roleName == 'ROLE_ADMIN')
+            $user->addRole($roleName);
         $em = $this->getDoctrine()->getManager();
         $em->persist($user);
 
@@ -39,33 +52,8 @@ class UsersController extends \Telepay\FinancialApiBundle\Controller\Manager\Use
                 throw new HttpException(500, "Unknown error occurred when save");
         }
 
-        return $this->handleRestView(201, "Role added successfully", array());
+        return $this->handleRestView(201, "Role set successfully", array());
 
     }
-
-    /**
-     * @Rest\View
-     */
-    public function deleteRole($id, $role){
-        $usersRepo = $this->getRepository();
-        $user = $usersRepo->findOneBy(array('id'=>$id));
-
-        if(empty($user)) throw new HttpException(404, "User not found");
-        if(!$user->hasRole($role)) throw new HttpException(404, "Role not found in specified user");
-
-        $user->removeRole($role);
-
-        $em = $this->getDoctrine()->getManager();
-
-        $em->persist($user);
-        $em->flush();
-
-        return $this->handleRestView(
-            204,
-            "Role deleted from user successfully",
-            array()
-        );
-    }
-
 
 }

@@ -66,6 +66,14 @@ admin_users_delete_service:
         id: "[0-9]+"
         service_id: "[0-9]+"
 
+
+admin_users_set_role:
+    pattern:  /admin/v1/users/{id}
+    defaults: { _controller: Telepay\FinancialApiBundle\Controller\Admin\UsersController::setRole }
+    requirements:
+        _method: PUT
+        id: "[0-9]+"
+
 ######################## USER ACCOUNT ########################
 
 
