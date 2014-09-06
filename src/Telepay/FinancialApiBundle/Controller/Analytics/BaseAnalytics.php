@@ -75,13 +75,14 @@ abstract class BaseAnalytics extends RestApiController{
         if($request->query->has('env')) $env = ($request->query->get('env') === 'real');
         else $env = true;
 
-        $jsFuncAssocs = array(
+        $jsAssocs = array(
             'month' => 'getMonth()',
             'day' => 'getDay()',
             'date' => 'getDate()',
             'hour' => 'getHours()',
         );
-        if(!array_key_exists($interval, $jsFuncAssocs))
+
+        if(!array_key_exists($interval, $jsAssocs))
             throw new HttpException(400, "Bad interval");
 
         $dm = $this->get('doctrine_mongodb')->getManager();
@@ -99,15 +100,17 @@ abstract class BaseAnalytics extends RestApiController{
             ->field('timeIn')->lt($end_time)
             ->group(
                 new \MongoCode('
-                    function(doc){
-                        return {'.$interval.': doc.timeIn.'.$jsFuncAssocs[$interval].'};
+                    function(trans){
+                        return {
+                            '.$interval.': trans.timeIn.'.$jsAssocs[$interval].'
+                        };
                     }
                 '),
-                array('success' => 0, 'fail'=>0)
+                array('success' => 0, 'fail' => 0)
             )
             ->reduce('
                 function(curr, result){
-                    if(result.successful)
+                    if(curr.successful)
                         result.success++;
                     else
                         result.fail++;
