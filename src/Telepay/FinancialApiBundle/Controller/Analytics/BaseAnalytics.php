@@ -103,11 +103,14 @@ abstract class BaseAnalytics extends RestApiController{
                         return {'.$interval.': doc.timeIn.'.$jsFuncAssocs[$interval].'};
                     }
                 '),
-                array('count' => 0)
+                array('success' => 0, 'fail'=>0)
             )
             ->reduce('
                 function(curr, result){
-                    result.count++;
+                    if(result.successful)
+                        result.success++;
+                    else
+                        result.fail++;
                 }
             ')
             ->getQuery()
