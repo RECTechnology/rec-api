@@ -105,6 +105,11 @@ class UsersController extends BaseApiController
             $services=$request->get('services');
             $request->request->remove('services');
         }
+        $role = null;
+        if($request->request->has('role')){
+            $role=$request->get('role');
+            $request->request->remove('role');
+        }
         if($request->request->has('password')){
             $userManager = $this->container->get('access_key.security.user_provider');
             $user = $userManager->loadUserById($id);
@@ -113,9 +118,15 @@ class UsersController extends BaseApiController
             $request->request->remove('password');
         }
         $resp = parent::updateAction($request, $id);
-        if($resp->getStatusCode() == 204 and $services !== null){
-            $request->request->add(array('services'=>$services));
-            $this->_setServices($request, $id);
+        if($resp->getStatusCode() == 204){
+            if($services !== null){
+                $request->request->add(array('services'=>$services));
+                $this->_setServices($request, $id);
+            }
+            if($role !== null){
+                $request->request->add(array('role'=>$role));
+                $this->_setRole($request, $id);
+            }
         }
         return $resp;
     }
@@ -214,5 +225,41 @@ class UsersController extends BaseApiController
         $em->persist($user);
         $em->flush();
     }
+
+
+    public function _setRole(Request $request, $id){
+        $roleName = $request->get('role');
+
+        if(empty($roleName))
+            throw new HttpException(400, "Missing parameter 'role'");
+        if($roleName != 'ROLE_SUPER_ADMIN' and $roleName != 'ROLE_ADMIN' and $roleName != 'ROLE_USER'){
+            throw new HttpException(404, 'Role not found');
+        }
+
+        $usersRepo = $this->getRepository();
+        $user = $usersRepo->findOneBy(array('id'=>$id));
+        if(empty($user))
+            throw new HttpException(404, 'User not found');
+
+        $user->removeRole('ROLE_SUPER_ADMIN');
+        $user->removeRole('ROLE_ADMIN');
+
+        if($roleName == 'ROLE_SUPER_ADMIN' or $roleName == 'ROLE_ADMIN')
+            $user->addRole($roleName);
+        $em = $this->getDoctrine()->getManager();
+        $em->persist($user);
+
+        try{
+            $em->flush();
+        } catch(DBALException $e){
+            if(preg_match('/SQLSTATE\[23000\]/',$e->getMessage()))
+                throw new HttpException(409, "Duplicated resource");
+            else
+                throw new HttpException(500, "Unknown error occurred when save");
+        }
+
+    }
+
+
 
 }
