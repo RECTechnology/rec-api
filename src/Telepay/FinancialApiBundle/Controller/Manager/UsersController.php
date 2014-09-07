@@ -113,7 +113,7 @@ class UsersController extends BaseApiController
             $request->request->remove('password');
         }
         $resp = parent::updateAction($request, $id);
-        if($resp->getStatusCode() == 204 and $services != null){
+        if($resp->getStatusCode() == 204 and $services !== null){
             $request->request->add(array('services'=>$services));
             $this->_setServices($request, $id);
         }
@@ -131,7 +131,9 @@ class UsersController extends BaseApiController
     private function _setServices(Request $request, $id){
         if(empty($id)) throw new HttpException(400, "Missing parameter 'id'");
 
-        $putServices = explode(" ",$request->get('services'));
+        $putServices=array();
+        if(trim($request->get('services')) != "")
+            $putServices = explode(" ",$request->get('services'));
         $admin=$this->getUser();
         foreach($admin->getAllowedServices() as $adminService){
             try{
