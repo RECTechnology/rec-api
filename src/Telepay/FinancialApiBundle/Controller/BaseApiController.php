@@ -111,7 +111,7 @@ abstract class BaseApiController extends RestApiController implements Repository
             if ($name != 'id') {
                 $setter = $this->attributeToSetter($name);
                 if (method_exists($entity, $setter)) {
-                    call_user_func_array(array($entity, $setter), array($value));
+                    call_user_func(array($entity, $setter), $value);
                 }
                 else{
                     throw new HttpException(400, "Bad request, parameter '$name' is not allowed");
@@ -131,7 +131,7 @@ abstract class BaseApiController extends RestApiController implements Repository
             throw new HttpException(500, "Unknown error occurred when save");
         }
 
-        return $this->handleRestView(204, "Updated successfully", array());
+        return $this->handleRestView(204, "Updated successfully");
     }
 
     protected function deleteAction($id){
@@ -152,6 +152,6 @@ abstract class BaseApiController extends RestApiController implements Repository
 
     private function attributeToSetter($str) {
         $func = create_function('$c', 'return strtoupper($c[1]);');
-        return 'set' . preg_replace_callback('/_([a-z])/', $func, $str);
+        return preg_replace_callback('/_([a-z])/', $func, "set_".$str);
     }
 }

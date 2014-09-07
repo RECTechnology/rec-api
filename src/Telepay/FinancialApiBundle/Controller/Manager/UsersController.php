@@ -100,20 +100,22 @@ class UsersController extends BaseApiController
      * @Rest\View
      */
     public function updateAction(Request $request, $id){
+        $services = null;
         if($request->request->has('services')){
             $services=$request->get('services');
             $request->request->remove('services');
         }
         if($request->request->has('password')){
-            $password = $request->get('password');
+            $userManager = $this->container->get('access_key.security.user_provider');
+            $user = $userManager->loadUserById($id);
+            $user->setPlainPassword($request->get('password'));
+            $userManager->updatePassword($user);
             $request->request->remove('password');
-            $request->request->add(array('plain_password'=>$password));
         }
         $resp = parent::updateAction($request, $id);
-        if($resp->getStatusCode() == 204 and isset($services)){
+        if($resp->getStatusCode() == 204 and $services != null){
             $request->request->add(array('services'=>$services));
             $this->_setServices($request, $id);
-            return $resp;
         }
         return $resp;
     }

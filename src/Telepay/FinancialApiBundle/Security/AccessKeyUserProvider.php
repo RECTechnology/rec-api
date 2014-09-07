@@ -33,6 +33,20 @@ class AccessKeyUserProvider extends  UserProvider{
         return $user;
     }
 
+    public function loadUserById($id) {
+        $user = $this->userManager->findUserBy(array('id' => $id));
+        if(!$user){
+            throw new UsernameNotFoundException(sprintf("User with id '%s' not found", $id));
+        }
+        return $user;
+    }
+
+
+    public function updatePassword($user) {
+        $this->userManager->updatePassword($user);
+    }
+
+
     public function refreshUser(UserInterface $user) {
         throw new UnsupportedUserException();
     }
