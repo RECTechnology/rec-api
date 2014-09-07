@@ -50,14 +50,6 @@ admin_users_delete:
         _method: DELETE
         id: "[0-9]+"
 
-
-admin_users_set_services:
-    pattern:  /manager/v1/users/{id}
-    defaults: { _controller: Telepay\FinancialApiBundle\Controller\Manager\UsersController::setServices }
-    requirements:
-        _method: PUT
-        id: "[0-9]+"
-
 admin_users_add_service:
     pattern:  /manager/v1/users/{id}
     defaults: { _controller: Telepay\FinancialApiBundle\Controller\Manager\UsersController::addService }

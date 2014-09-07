@@ -100,12 +100,22 @@ class UsersController extends BaseApiController
      * @Rest\View
      */
     public function updateAction(Request $request, $id){
+        if($request->request->has('services')){
+            $services=$request->get('services');
+            $request->request->remove('services');
+        }
         if($request->request->has('password')){
             $password = $request->get('password');
             $request->request->remove('password');
             $request->request->add(array('plain_password'=>$password));
         }
-        return parent::updateAction($request, $id);
+        $resp = parent::updateAction($request, $id);
+        if($resp->getStatusCode() == 204 and isset($services)){
+            $request->request->add(array('services'=>$services));
+            $this->_setServices($request, $id);
+            return $resp;
+        }
+        return $resp;
     }
 
     /**
@@ -116,17 +126,22 @@ class UsersController extends BaseApiController
     }
 
 
-    /**
-     * @Rest\View
-     */
-    public function setServices(Request $request, $id){
+    private function _setServices(Request $request, $id){
+        if(empty($id)) throw new HttpException(400, "Missing parameter 'id'");
+
+        $putServices = explode(" ",$request->get('services'));
         $admin=$this->getUser();
-        foreach($admin->getAllowedServices() as $service){
-            $this->deleteService($id, $service->getId());
+        foreach($admin->getAllowedServices() as $adminService){
+            try{
+                $this->_deleteService($id, $adminService->getId());
+            }catch(HttpException $e){
+                if($e->getStatusCode() != 404){
+                    throw $e;
+                }
+            }
         }
-        $services = explode(" ",$request->get('services'));
-        foreach($services as $service){
-            $this->_addService($id, $service->getId());
+        foreach($putServices as $service){
+            $this->_addService($id, $service);
         }
 
         return $this->handleRestView(204, "Edited");
@@ -147,21 +162,7 @@ class UsersController extends BaseApiController
      * @Rest\View
      */
     public function deleteService($id, $service_id){
-        $usersRepo = $this->getRepository();
-        $servicesRepo = new ServicesRepository();
-        $service = $servicesRepo->findById($service_id);
-
-        $user = $usersRepo->findOneBy(array('id'=>$id));
-        if(empty($user)) throw new HttpException(404, "User not found");
-        if(!$user->hasRole($service->getRole())) throw new HttpException(404, "Service not found in specified user");
-
-        $user->removeRole($service->getRole());
-
-        $em = $this->getDoctrine()->getManager();
-
-        $em->persist($user);
-        $em->flush();
-
+        $this->_deleteService($id, $service_id);
         return $this->handleRestView(
             204,
             "Service deleted from user successfully"
@@ -191,6 +192,23 @@ class UsersController extends BaseApiController
                 throw new HttpException(500, "Unknown error occurred when save");
         }
 
+    }
+
+    private function _deleteService($id, $service_id){
+        $usersRepo = $this->getRepository();
+        $servicesRepo = new ServicesRepository();
+        $service = $servicesRepo->findById($service_id);
+
+        $user = $usersRepo->findOneBy(array('id'=>$id));
+        if(empty($user)) throw new HttpException(404, "User not found");
+        if(!$user->hasRole($service->getRole())) throw new HttpException(404, "Service not found in specified user");
+
+        $user->removeRole($service->getRole());
+
+        $em = $this->getDoctrine()->getManager();
+
+        $em->persist($user);
+        $em->flush();
     }
 
 }
