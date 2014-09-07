@@ -116,6 +116,22 @@ class UsersController extends BaseApiController
     }
 
 
+    /**
+     * @Rest\View
+     */
+    public function setServices(Request $request, $id){
+        $admin=$this->getUser();
+        foreach($admin->getAllowedServices() as $service){
+            $this->deleteService($id, $service->getId());
+        }
+        $services = explode(" ",$request->get('services'));
+        foreach($services as $service){
+            $this->_addService($id, $service->getId());
+        }
+
+        return $this->handleRestView(204, "Edited");
+    }
+
 
     /**
      * @Rest\View
@@ -123,29 +139,8 @@ class UsersController extends BaseApiController
     public function addService(Request $request, $id){
         $serviceId = $request->get('service_id');
         if(empty($serviceId)) throw new HttpException(400, "Missing parameter 'service_id'");
-        $usersRepo = $this->getRepository();
-        $servicesRepo = new ServicesRepository();
-        $user = $usersRepo->findOneBy(array('id'=>$id));
-        $service = $servicesRepo->findById($serviceId);
-        if(empty($user)) throw new HttpException(404, 'User not found');
-        if(empty($service)) throw new HttpException(404, 'Service not found');
-        if($user->hasRole($service->getRole())) throw new HttpException(409, "User has already the service '$serviceId'");
-
-        $user->addRole($service->getRole());
-        $em = $this->getDoctrine()->getManager();
-        $em->persist($user);
-
-        try{
-            $em->flush();
-        } catch(DBALException $e){
-            if(preg_match('/SQLSTATE\[23000\]/',$e->getMessage()))
-                throw new HttpException(409, "Duplicated resource");
-            else
-                throw new HttpException(500, "Unknown error occurred when save");
-        }
-
+        $this->_addService($id, $serviceId);
         return $this->handleRestView(201, "Service added successfully", array());
-
     }
 
     /**
@@ -169,10 +164,33 @@ class UsersController extends BaseApiController
 
         return $this->handleRestView(
             204,
-            "Service deleted from user successfully",
-            array()
+            "Service deleted from user successfully"
         );
     }
 
+
+    private function _addService($id, $serviceId){
+        $usersRepo = $this->getRepository();
+        $servicesRepo = new ServicesRepository();
+        $user = $usersRepo->findOneBy(array('id'=>$id));
+        $service = $servicesRepo->findById($serviceId);
+        if(empty($user)) throw new HttpException(404, 'User not found');
+        if(empty($service)) throw new HttpException(404, 'Service not found');
+        if($user->hasRole($service->getRole())) throw new HttpException(409, "User has already the service '$serviceId'");
+
+        $user->addRole($service->getRole());
+        $em = $this->getDoctrine()->getManager();
+        $em->persist($user);
+
+        try{
+            $em->flush();
+        } catch(DBALException $e){
+            if(preg_match('/SQLSTATE\[23000\]/',$e->getMessage()))
+                throw new HttpException(409, "Duplicated resource");
+            else
+                throw new HttpException(500, "Unknown error occurred when save");
+        }
+
+    }
 
 }
