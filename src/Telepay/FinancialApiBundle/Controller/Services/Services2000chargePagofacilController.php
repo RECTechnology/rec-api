@@ -35,126 +35,7 @@ class Services2000chargePagofacilController extends FOSRestController
         'url_flag'      =>  'prod'
     );
 
-    /**
-     * This method allows client to obtain info for the payment services.
-     *
-     * @ApiDoc(
-     *   section="PagoFacil payment with Credit Card",
-     *   description="Return a JSON with the response.",
-     *   https="true",
-     *   statusCodes={
-     *       201="Returned when the request was successful",
-     *   },
-     *   parameters={
-     *      {
-     *          "name"="name",
-     *          "dataType"="string",
-     *          "required"="true",
-     *          "description"="Credit Card name."
-     *      },
-     *      {
-     *          "name"="surname",
-     *          "dataType"="string",
-     *          "required"="true",
-     *          "description"="Credit Card surname."
-     *      },
-     *      {
-     *          "name"="card_number",
-     *          "dataType"="string",
-     *          "required"="true",
-     *          "description"="Credit card number."
-     *      },
-     *      {
-     *          "name"="cvt",
-     *          "dataType"="string",
-     *          "required"="true",
-     *          "description"="3 digits in the reverse of credit card (usually)."
-     *      },
-     *      {
-     *          "name"="cp",
-     *          "dataType"="string",
-     *          "required"="true",
-     *          "description"="Titular of credit card Postal Code."
-     *      },
-     *      {
-     *          "name"="expiration_month",
-     *          "dataType"="string",
-     *          "required"="true",
-     *          "format"="10",
-     *          "description"="Expiration month for the credit card. 2 numbers"
-     *      },
-     *      {
-     *          "name"="expiration_year",
-     *          "dataType"="string",
-     *          "required"="true",
-     *          "format"="15",
-     *          "description"="Expiration year for the credit card. Only last 2 numbers"
-     *      },
-     *      {
-     *          "name"="amount",
-     *          "dataType"="string",
-     *          "required"="true",
-     *          "description"="Transaction amount. Ex:100.00"
-     *      },
-     *      {
-     *          "name"="mail",
-     *          "dataType"="string",
-     *          "required"="true",
-     *          "description"="Mail."
-     *      },
-     *      {
-     *          "name"="phone",
-     *          "dataType"="string",
-     *          "required"="true",
-     *          "description"="Phone number."
-     *      },
-     *      {
-     *          "name"="mobile_phone",
-     *          "dataType"="string",
-     *          "required"="true",
-     *          "description"="Mobile phone number."
-     *      },
-     *      {
-     *          "name"="street_number",
-     *          "dataType"="string",
-     *          "required"="true",
-     *          "description"="The street and the number. Ex: C/ Geminis, 8"
-     *      },
-     *      {
-     *          "name"="colony",
-     *          "dataType"="string",
-     *          "required"="true",
-     *          "description"="District name. Ex: Polanco"
-     *      },
-     *      {
-     *          "name"="city",
-     *          "dataType"="string",
-     *          "required"="true",
-     *          "description"="Village name. Ex: Miguel Hidalgo"
-     *      },
-     *      {
-     *          "name"="quarter",
-     *          "dataType"="string",
-     *          "required"="true",
-     *          "description"="State name. Ex: Distrito Federal"
-     *      },
-     *      {
-     *          "name"="country",
-     *          "dataType"="string",
-     *          "required"="true",
-     *          "description"="Country name. Ex:Mexico"
-     *      },
-     *      {
-     *          "name"="transaction_id",
-     *          "dataType"="string",
-     *          "required"="true",
-     *          "description"="Transaction ID, this number must be unique. It's responsability for the client."
-     *      }
-     *   }
-     * )
-     *
-     * @Rest\View(statusCode=201)
-     */
+
 
     public function transaction(Request $request)
     {
@@ -276,28 +157,7 @@ class Services2000chargePagofacilController extends FOSRestController
         return $this->transaction($request);
     }
 
-    /**
-     * This method allows client to obtain info for the payment services.
-     *
-     * @ApiDoc(
-     *   section="PagoFacil payment with Credit Card",
-     *   description="Return a JSON with the response.",
-     *   https="true",
-     *   statusCodes={
-     *       201="Returned when the request was successful",
-     *   },
-     *   parameters={
-     *      {
-     *          "name"="transaction_id",
-     *          "dataType"="string",
-     *          "required"="true",
-     *          "description"="Transaction ID we want consult."
-     *      }
-     *   }
-     * )
-     *
-     * @Rest\View(statusCode=201)
-     */
+
 
     public function status(Request $request){
 
