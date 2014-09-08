@@ -76,6 +76,13 @@ user_account:
         _method: GET
 
 
+user_analytics:
+    pattern:  /user/v1/analytics
+    defaults: { _controller: Telepay\FinancialApiBundle\Controller\User\AccountController::analytics }
+    requirements:
+        _method: GET
+
+
 ############################## SERVICES MNGMNT ##########################################
 
 admin_services_index:
