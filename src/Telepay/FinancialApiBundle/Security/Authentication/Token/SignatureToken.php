@@ -16,7 +16,7 @@ class SignatureToken extends AbstractToken {
 
     public $nonce;
     public $timestamp;
-    public $algorithm;
+    public $version;
     public $signature;
 
     public function __construct(array $roles = array()){

@@ -8,6 +8,7 @@
 
 namespace Telepay\FinancialApiBundle\Security\Authentication\Provider;
 
+use Symfony\Component\HttpKernel\Exception\HttpException;
 use Telepay\FinancialApiBundle\Security\Authentication\Token\SignatureToken;
 use Symfony\Component\Security\Core\Authentication\Provider\AuthenticationProviderInterface;
 use Symfony\Component\Security\Core\Authentication\Token\TokenInterface;
@@ -39,18 +40,22 @@ class SignatureAuthenticationProvider implements AuthenticationProviderInterface
     {
         $user = $this->userProvider->loadUserByAccessKey($token->getUsername());
 
-        if($user && $this->validateSignature($token->getUsername(), $token->nonce, $token->timestamp, $token->algorithm, $token->signature, $user->getAccessSecret())){
+        if($user && $this->validateSignature($token->getUsername(), $token->nonce, $token->timestamp, $token->version, $token->signature, $user->getAccessSecret())){
             $authenticatedToken = new SignatureToken($user->getRoles());
             $authenticatedToken->setUser($user);
-            //die("auth ok\n");
             return $authenticatedToken;
         }
 
-            //die("auth failed\n");
         throw new AuthenticationException('Signature authentication failed.');
     }
-    protected function validateSignature($accessKey, $nonce, $timestamp, $algorithm, $signature, $secret){
+    protected function validateSignature($accessKey, $nonce, $timestamp, $version, $signature, $secret){
         // Check created time is not in the future
+
+        $algorithm = 'SHA256';
+
+        if($version!='1')
+            return false;
+
         if ($timestamp > time()) {
             return false;
         }

@@ -44,7 +44,7 @@ class SignatureListener implements ListenerInterface {
             .'access-key="([^"]+)", '
             .'nonce="([^"]+)", '
             .'timestamp="([^"]+)", '
-            .'algorithm="([^"]+)", '
+            .'version="([^"]+)", '
             .'signature="([^"]+)"/';
 
         $authHeaderName = 'x-signature';
@@ -58,7 +58,7 @@ class SignatureListener implements ListenerInterface {
 
         $token->nonce = $matches[2];
         $token->timestamp = $matches[3];
-        $token->algorithm = $matches[4];
+        $token->version = $matches[4];
         $token->signature = $matches[5];
 
         try{
