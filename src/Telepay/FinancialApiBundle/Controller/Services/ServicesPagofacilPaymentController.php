@@ -36,11 +36,11 @@ class ServicesPagofacilPaymentController extends FOSRestController
     );
 
     /**
-     * This method allows client to obtain info for the payment services.
+     * This method allows client to pay services with credit card.
      *
      * @ApiDoc(
      *   section="PagoFacil payment with Credit Card",
-     *   description="Return a JSON with the response.",
+     *   description="Makes a card transaction.",
      *   https="true",
      *   statusCodes={
      *       201="Returned when the request was successful",
@@ -270,11 +270,11 @@ class ServicesPagofacilPaymentController extends FOSRestController
     }
 
     /**
-     * This method allows client to obtain info for the payment services.
+     * This method allows client to consult transactions.
      *
      * @ApiDoc(
      *   section="PagoFacil payment with Credit Card",
-     *   description="Return a JSON with the response.",
+     *   description="Consult status transaction.",
      *   https="true",
      *   statusCodes={
      *       201="Returned when the request was successful",

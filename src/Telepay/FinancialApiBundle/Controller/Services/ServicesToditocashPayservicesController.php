@@ -23,7 +23,7 @@ class ServicesToditocashPayservicesController extends FosRestController
      *
      * @ApiDoc(
      *   section="Todito Cash",
-     *   description="Returns an array with the response",
+     *   description="Makes a credit card payment",
      *   https="true",
      *   statusCodes={
      *       201="Returned when the request was successful",
@@ -184,7 +184,7 @@ class ServicesToditocashPayservicesController extends FosRestController
     }
 
     /**
-     * This method allows client to know the status reference.
+     * This method allows client to know the payment status.
      *
      * @ApiDoc(
      *   section="Todito Cash",

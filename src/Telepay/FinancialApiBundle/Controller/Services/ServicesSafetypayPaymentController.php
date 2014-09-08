@@ -46,11 +46,11 @@ class ServicesSafetypayPaymentController extends FOSRestController
     );
 
     /**
-     * This method allows client to obtain info for the payment services.
+     * This method redirect clients to the SafetyPay getaway to finish the payment.
      *
      * @ApiDoc(
      *   section="SafetyPay payments",
-     *   description="Returns a JSON with the Info for the payment.",
+     *   description="Returns the redirection info.",
      *   https="true",
      *   output="Telepay\FinancialApiBundle\Controller\Services",
      *   statusCodes={

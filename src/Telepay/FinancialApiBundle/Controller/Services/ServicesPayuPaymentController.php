@@ -32,7 +32,7 @@ class ServicesPayuPaymentController extends FosRestController
      *
      * @ApiDoc(
      *   section="PayU Payment",
-     *   description="Returns a JSON with the payment response.",
+     *   description="Makes a card transaction.",
      *   https="true",
      *   statusCodes={
      *       201="Returned when the request was successful",
@@ -235,11 +235,11 @@ class ServicesPayuPaymentController extends FosRestController
     }
 
     /**
-     * This method allows client to do a credit card payment.
+     * This method allows client to do a cash payment.
      *
      * @ApiDoc(
      *   section="PayU Payment",
-     *   description="Returns a JSON with the payment information.",
+     *   description="Makes a cash transaction.",
      *   https="true",
      *   statusCodes={
      *       201="Returned when the request was successful",
@@ -405,11 +405,11 @@ class ServicesPayuPaymentController extends FosRestController
     }
 
     /**
-     * This method allows client to do a credit card payment.
+     * This method allows client consult status payment
      *
      * @ApiDoc(
      *   section="PayU Payment",
-     *   description="Returns a JSON with the payment information.",
+     *   description="Returns a JSON with the status information.",
      *   https="true",
      *   statusCodes={
      *       201="Returned when the request was successful",
