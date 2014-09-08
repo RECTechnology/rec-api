@@ -44,7 +44,7 @@ class SampleService extends RestApiController
         $transaction->setMode($mode);
 
         $response = new SampleResponse(
-            !$mode,
+            $mode?false:true,
             date('Y-m-d H:i:s')
         );
 
