@@ -12,36 +12,16 @@ use Telepay\FinancialApiBundle\Response\ApiResponseBuilder;
 use FOS\RestBundle\Controller\FOSRestController;
 use FOS\RestBundle\Controller\Annotations as Rest;
 use Nelmio\ApiDocBundle\Annotation\ApiDoc;
-use PagofacilService;
 use Symfony\Component\HttpKernel\Exception\HttpException;
 use Telepay\FinancialApiBundle\Document\Transaction;
 
 class Services2000chargePagofacilController extends FOSRestController
 {
 
-    //This parameters are unique for us. Don't give to the client
-    private $testArray =array(
-        'id_sucursal'   =>  '42ee3b415f4cebd37dffe881b929c0a0bac8a72c',
-        'id_usuario'    =>  '12a27c9c912ec6b4175c3bb316365965a19f6d31',
-        'id_servicio'   =>  '3',
-        'url_flag'      =>  'test'
-    );
-
-    //Para producción
-    private $prodArray =array(
-        'id_sucursal'   =>  '77cd297945a1b75979f742f183544e4867935777',
-        'id_usuario'    =>  'd65a8ff620762e81c026f10b3d76752a7f32d46d',
-        'id_servicio'   =>  '3',
-        'url_flag'      =>  'prod'
-    );
-
-
-
     public function transaction(Request $request)
     {
 
         //Obtenemos el id de usuario para añadirlo a cada referencia única
-        $userid = 1;
         $name='Juan';
         $surname='Lopez Hernandez';
         $cp='40500';
@@ -89,46 +69,22 @@ class Services2000chargePagofacilController extends FOSRestController
         $transaction = new Transaction();
         $transaction->setIp($request->getClientIp());
         $transaction->setTimeIn(time());
-        $transaction->setService($this->get('telepay.services')->findByName('Pagofacil')->getId());
+        $transaction->setService($this->get('telepay.services')->findByName('PagoFacil')->getId());
         $transaction->setUser(1);
         $transaction->setSentData(json_encode($params));
         $transaction->setMode($mode === 'P');
 
-        //Include the class
-        include("../vendor/pagofacil/PagofacilService.php");
-
         //Check if it's a Test or Production transaction
         if($mode=='T'){
             //Constructor in Test mode
-            $constructor=new PagofacilService($this->testArray['id_sucursal'],$this->testArray['id_usuario'],$this->testArray['id_servicio'],$this->testArray['url_flag']);
+            $datos=$this->get('pagofacil.service')->getPagofacilTest()->request($name,$surname,$params[0],$params[1],$cp,$params[2],$params[3],$params[4],$mail,$phone,$mobile_phone,$street_number,$colony,$city,$quarter,$country,$transaction_id);
         }elseif($mode=='P'){
             //Constructor in Production mode
-            $constructor=new PagofacilService($this->prodArray['id_sucursal'],$this->prodArray['id_usuario'],$this->prodArray['id_servicio'],$this->prodArray['url_flag']);
+            $datos=$this->get('pagofacil.service')->getPagofacil()->request($name,$surname,$params[0],$params[1],$cp,$params[2],$params[3],$params[4],$mail,$phone,$mobile_phone,$street_number,$colony,$city,$quarter,$country,$transaction_id);
         }else{
             //If is not one of the first shows an error message.
             throw new HttpException(400,'Wrong request');
         }
-
-        //Function Info
-        $datos=$constructor -> request(
-            $name,
-            $surname,
-            $params[0],
-            $params[1],
-            $cp,
-            $params[2],
-            $params[3],
-            $params[4],
-            $mail,
-            $phone,
-            $mobile_phone,
-            $street_number,
-            $colony,
-            $city,
-            $quarter,
-            $country,
-            $transaction_id
-        );
 
         //Response
         if(isset($datos['error'])){
@@ -211,7 +167,7 @@ class Services2000chargePagofacilController extends FOSRestController
         $transaction = new Transaction();
         $transaction->setIp($request->getClientIp());
         $transaction->setTimeIn(time());
-        $transaction->setService($this->get('telepay.services')->findByName('Pagofacil')->getId());
+        $transaction->setService($this->get('telepay.services')->findByName('PagoFacil')->getId());
         $transaction->setUser(1);
         $transaction->setSentData(json_encode($params));
         $transaction->setMode($mode === 'P');
@@ -222,17 +178,14 @@ class Services2000chargePagofacilController extends FOSRestController
         //Check if it's a Test or Production transaction
         if($mode=='T'){
             //Constructor in Test mode
-            $constructor=new PagofacilService($this->testArray['id_sucursal'],$this->testArray['id_usuario'],$this->testArray['id_servicio'],$this->testArray['url_flag']);
+            $datos=$this->get('pagofacil.service')->getPagofacilTest()->status($params[0]);
         }elseif($mode=='P'){
             //Constructor in Production mode
-            $constructor=new PagofacilService($this->prodArray['id_sucursal'],$this->prodArray['id_usuario'],$this->prodArray['id_servicio'],$this->prodArray['url_flag']);
+            $datos=$this->get('pagofacil.service')->getPagofacil()->status($params[0]);
         }else{
             //If is not one of the first shows an error message.
             throw new HttpException(400,'Wrong request');
         }
-
-        //Function Info
-        $datos=$constructor -> status($params[0]);
 
         //Response
         if(isset($datos['error_code'])){

@@ -13,19 +13,12 @@ use Telepay\FinancialApiBundle\Response\ApiResponseBuilder;
 use FOS\RestBundle\Controller\FOSRestController;
 use FOS\RestBundle\Controller\Annotations as Rest;
 use Nelmio\ApiDocBundle\Annotation\ApiDoc;
-use PayUPayment;
-use PayUPaymentTest;
-use PayUReport;
-use PayUReportTest;
 use Symfony\Component\HttpKernel\Exception\HttpException;
 use Telepay\FinancialApiBundle\Document\Transaction;
 
 class ServicesPayuPaymentController extends FosRestController
 {
-    private $varArray =array(
-        'installments_number'   =>  '3',
-        'account_id'            =>  '500547'
-    );
+
 
     /**
      * This method allows client to do a credit card payment.
@@ -121,7 +114,6 @@ class ServicesPayuPaymentController extends FosRestController
      *   }
      * )
      *
-     * @Rest\View(statusCode=201)
      */
 
     public function transaction(Request $request){
@@ -173,45 +165,37 @@ class ServicesPayuPaymentController extends FosRestController
         $transaction = new Transaction();
         $transaction->setIp($request->getClientIp());
         $transaction->setTimeIn(time());
-        $transaction->setService($this->get('telepay.services')->findByName('Payu')->getId());
+        $transaction->setService($this->get('telepay.services')->findByName('PayU')->getId());
         $transaction->setUser($this->get('security.context')->getToken()->getUser()->getId());
         $transaction->setSentData(json_encode($params));
         $transaction->setMode($mode === 'P');
 
         //Check if it's a Test or Production transaction
         if($mode=='T'){
-            //Include the class Test
-            include("../vendor/payu/PayUPaymentTest.php");
             //Constructor in Test mode
-            $constructor=new PayUPaymentTest($this->varArray['account_id'],$this->varArray['installments_number'],$params[0],$params[1],$params[2],$params[3],$params[4],$params[5],$params[6]);
+            $datos=$this->get('payu.service')->getPayUPaymentTest($params[0],$params[1],$params[2],$params[3],$params[4],$params[5],$params[6])->transaction($params[7],$params[8],$params[9],$params[10],$params[11],$params[12]);
         }elseif($mode=='P'){
-            //Include the class Prod
-            include("../vendor/payu/PayUPayment.php");
             //Constructor in Production mode
-            $constructor=new PayUPayment($this->varArray['account_id'],$this->varArray['installments_number'],$params[0],$params[1],$params[2],$params[3],$params[4],$params[5],$params[6]);
-
+            $datos=$this->get('payu.service')->getPayUPayment($params[0],$params[1],$params[2],$params[3],$params[4],$params[5],$params[6])->transaction($params[7],$params[8],$params[9],$params[10],$params[11],$params[12]);
         }else{
             //If is not one of the first shows an error message.
             throw new HttpException(400,'Wrong require');
         }
 
-        //Function Info
-        $datos=$constructor -> transaction($params[7],$params[8],$params[9],$params[10],$params[11],$params[12]);
-
         //Response
-        /*if(isset($datos['error_code'])){
+        if(isset($datos['message'])){
             $resp = new ApiResponseBuilder(
                 400,
                 "Bad request",
                 $datos
             );
-        }else{*/
+        }else{
             $resp = new ApiResponseBuilder(
                 201,
                 "Reference created successfully",
                 $datos
             );
-        //}
+        }
 
         //Guardamos la respuesta
         $transaction->setReceivedData(json_encode($datos));
@@ -297,7 +281,6 @@ class ServicesPayuPaymentController extends FosRestController
      *   }
      * )
      *
-     * @Rest\View(statusCode=201)
      */
 
     public function cash(Request $request){
@@ -345,29 +328,23 @@ class ServicesPayuPaymentController extends FosRestController
         $transaction = new Transaction();
         $transaction->setIp($request->getClientIp());
         $transaction->setTimeIn(time());
-        $transaction->setService($this->get('telepay.services')->findByName('Payu')->getId());
+        $transaction->setService($this->get('telepay.services')->findByName('PayU')->getId());
         $transaction->setUser($this->get('security.context')->getToken()->getUser()->getId());
         $transaction->setSentData(json_encode($params));
         $transaction->setMode($mode === 'P');
 
         //Check if it's a Test or Production transaction
         if($mode=='T'){
-            //Include the class
-            include("../vendor/payu/PayUPaymentTest.php");
             //Constructor in Test mode
-            $constructor=new PayUPaymentTest($this->varArray['account_id'],$this->varArray['installments_number'],$params[0],$params[1],$params[2],$params[3],$params[4],$params[5],$params[6]);
+            $datos=$this->get('payu.service')->getPayUPaymentTest($params[0],$params[1],$params[2],$params[3],$params[4],$params[5],$params[6])->payment($params[7]);
         }elseif($mode=='P'){
-            //Include the class
-            include("../vendor/payu/PayUPayment.php");
             //Constructor in Production mode
+            $datos=$this->get('payu.service')->getPayUPayment($params[0],$params[1],$params[2],$params[3],$params[4],$params[5],$params[6])->payment($params[7]);
             $constructor=new PayUPayment($this->varArray['account_id'],$this->varArray['installments_number'],$params[0],$params[1],$params[2],$params[3],$params[4],$params[5],$params[6]);
         }else{
             //If is not one of the first shows an error message.
             throw new HttpException(400,'Wrong require');
         }
-
-        //Function Info
-        $datos=$constructor -> payment($params[7]);
 
         //Response
         /*if(isset($datos['error_code'])){
@@ -461,30 +438,26 @@ class ServicesPayuPaymentController extends FosRestController
         $transaction = new Transaction();
         $transaction->setIp($request->getClientIp());
         $transaction->setTimeIn(time());
-        $transaction->setService($this->get('telepay.services')->findByName('Payu')->getId());
+        $transaction->setService($this->get('telepay.services')->findByName('PayU')->getId());
         $transaction->setUser($this->get('security.context')->getToken()->getUser()->getId());
         $transaction->setSentData(json_encode($params));
         $transaction->setMode($mode === 'P');
 
-        //Check if it's a Test or Production transaction
-        if($mode=='T'){
-            //Include the class
-            include("../vendor/payu/PayUReportTest.php");
-            //Constructor in Test mode
-            $constructor=new PayUReportTest($params[0]);
-        }elseif($mode=='P'){
-            //Include the class
-            include("../vendor/payu/PayUReport.php");
-            //Constructor in Production mode
-            $constructor=new PayUReport($params[0]);
-        }else{
-            //If is not one of the first shows an error message.
-            throw new HttpException(400,'Wrong require');
-        }
+
 
         if($params[0]=='order'){
             //Function report_by_order_id
-            $datos=$constructor -> report_by_order_id($params[1]);
+            //Check if it's a Test or Production transaction
+            if($mode=='T'){
+                //Constructor in Test mode
+                $datos=get('payu.service')->getPayuReportTest($params[0])->report_by_order_id($params[1]);
+            }elseif($mode=='P'){
+                //Constructor in Production mode
+                $datos=get('payu.service')->getPayuReport($params[0])->report_by_order_id($params[1]);
+            }else{
+                //If is not one of the first shows an error message.
+                throw new HttpException(400,'Wrong require');
+            }
         }elseif($params[0]='ref'){
             //Concatenamos la referencia añadiendole el idusuario (0000)
             if($userid < 10){
@@ -497,10 +470,28 @@ class ServicesPayuPaymentController extends FosRestController
                 $params[1]=$userid.$params[1];
             }
             //Function report_by_reference
-            $datos=$constructor -> report_by_reference($params[1]);
+            if($mode=='T'){
+                //Constructor in Test mode
+                $datos=$this->get('payu.service')->getPayuReportTest($params[0])->report_by_reference($params[1]);
+            }elseif($mode=='P'){
+                //Constructor in Production mode
+                $datos=$this->get('payu.service')->getPayuReport($params[0])->report_by_reference($params[1]);
+            }else{
+                //If is not one of the first shows an error message.
+                throw new HttpException(400,'Wrong require');
+            }
         }elseif($params[0]=='trans'){
             //Function report_by_transaction_id
-            $datos=$constructor -> report_by_transaction_id($params[1]);
+            if($mode=='T'){
+                //Constructor in Test mode
+                $datos=get('payu.service')->getPayuReportTest($params[0])->report_by_transaction_id($params[1]);
+            }elseif($mode=='P'){
+                //Constructor in Production mode
+                $datos=get('payu.service')->getPayuReport($params[0])->report_by_transactin_id($params[1]);
+            }else{
+                //If is not one of the first shows an error message.
+                throw new HttpException(400,'Wrong require');
+            }
         }else{
             //If is not one of the first shows an error message.
             throw new HttpException(400,'Wrong report_type');

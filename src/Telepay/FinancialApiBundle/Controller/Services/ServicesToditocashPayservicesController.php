@@ -8,15 +8,11 @@ use FOS\RestBundle\Controller\FOSRestController;
 use FOS\RestBundle\Controller\Annotations as Rest;
 use Nelmio\ApiDocBundle\Annotation\ApiDoc;
 use Symfony\Component\HttpKernel\Exception\HttpException;
-use ToditoCash;
 use Telepay\FinancialApiBundle\Document\Transaction;
 
 
 class ServicesToditocashPayservicesController extends FosRestController
 {
-
-    private $contract_id=2801;
-    private $branch_id='test';
 
     /**
      * This method allows client to pay services with his own code.
@@ -82,7 +78,6 @@ class ServicesToditocashPayservicesController extends FosRestController
      *   }
      * )
      *
-     * @Rest\View(statusCode=201)
      */
 
     public function request(Request $request){
@@ -120,10 +115,6 @@ class ServicesToditocashPayservicesController extends FosRestController
         }else{
             $params[0]=$userid.$params[0];
         }
-        //var_dump($params[0]);
-
-        //Include the class
-        include("../vendor/toditocash/ToditoCash.php");
 
         //Comprobamos modo Test
         $mode=$request->get('mode');
@@ -133,27 +124,24 @@ class ServicesToditocashPayservicesController extends FosRestController
         $transaction = new Transaction();
         $transaction->setIp($request->getClientIp());
         $transaction->setTimeIn(time());
-        $transaction->setService($this->get('telepay.services')->findByName('Toditocash')->getId());
+        $transaction->setService($this->get('telepay.services')->findByName('ToditoCash')->getId());
         $transaction->setUser($this->get('security.context')->getToken()->getUser()->getId());
         $transaction->setSentData(json_encode($params));
         $transaction->setMode($mode === 'P');
 
-        //Constructor
-        $constructor=new ToditoCash($this->contract_id,$this->branch_id);
-
         if($mode=='T'){
             //Request method
-            $datos=$constructor -> request($params[0],$params[1],$params[2],$params[3],$params[4],$params[5],$params[6],$params[7],'0');
+            $datos=$this->get('todito.service')->getToditoCash()-> request($params[0],$params[1],$params[2],$params[3],$params[4],$params[5],$params[6],$params[7],'0');
         }elseif($mode=='P'){
             //Request method
-            $datos=$constructor -> request($params[0],$params[1],$params[2],$params[3],$params[4],$params[5],$params[6],$params[7],'1');
+            $datos=$this->get('todito.service')->getToditoCash()-> request($params[0],$params[1],$params[2],$params[3],$params[4],$params[5],$params[6],$params[7],'1');
         }else{
             //If is not one of the first shows an error message.
             throw new HttpException(400,'Bad request');
         }
 
         //Quitamos el id de usuario para devolverle el transaction_id al cliente
-        $datos['transaction_id']=substr($datos['transaction_id'],4);
+        $datos['transaction_id']=substr($datos['transaction_id'],1);
 
        //print_r(json_encode($datos));
         $resp = new ApiResponseBuilder(
@@ -235,7 +223,6 @@ class ServicesToditocashPayservicesController extends FosRestController
      *   }
      * )
      *
-     * @Rest\View(statusCode=201)
      */
 
     public function reverso(Request $request){
@@ -260,19 +247,14 @@ class ServicesToditocashPayservicesController extends FosRestController
 
         //Concatenamos la referencia añadiendole el idusuario (0000)
         if($userid < 10){
-            $params[0]='000'.$userid.$params[0];
+            $params[1]='000'.$userid.$params[1];
         }elseif($userid<100){
-            $params[0]='00'.$userid.$params[0];
+            $params[1]='00'.$userid.$params[1];
         }elseif($userid<1000){
-            $params[0]='0'.$userid.$params[0];
+            $params[1]='0'.$userid.$params[1];
         }else{
-            $params[0]=$userid.$params[0];
+            $params[1]=$userid.$params[1];
         }
-        //var_dump($params[0]);
-
-        //Include the class
-        include("../vendor/toditocash/ToditoCash.php");
-
 
         //Comprobamos modo Test
         $mode=$request->get('mode');
@@ -282,30 +264,37 @@ class ServicesToditocashPayservicesController extends FosRestController
         $transaction = new Transaction();
         $transaction->setIp($request->getClientIp());
         $transaction->setTimeIn(time());
-        $transaction->setService($this->get('telepay.services')->findByName('Toditocash')->getId());
+        $transaction->setService($this->get('telepay.services')->findByName('ToditoCash')->getId());
         $transaction->setUser($this->get('security.context')->getToken()->getUser()->getId());
         $transaction->setSentData(json_encode($params));
         $transaction->setMode($mode === 'P');
 
-        //Constructor
-        $constructor=new ToditoCash($this->contract_id,$this->branch_id);
-
         if($mode=='T'){
             //Reverso test method
-            $datos=$constructor -> reverso($params[0],$params[1],$params[2],$params[3],$params[4],$params[5],'0');
+            $datos=$this->get('todito.service')->getToditoCash()-> reverso($params[0],$params[1],$params[2],$params[3],$params[4],$params[5],'0');
         }elseif($mode=='P'){
             //Reverso production method
-            $datos=$constructor -> reverso($params[0],$params[1],$params[2],$params[3],$params[4],$params[5],'1');
+            $datos=$this->get('todito.service')->getToditoCash()-> reverso($params[0],$params[1],$params[2],$params[3],$params[4],$params[5],'1');
         }
 
         //Quitamos el id de usuario para devolverle el transaction_id al cliente
-        $datos['transaction_id']=substr($datos['transaction_id'],4);
+        $datos['transaction_id']=substr($datos['transaction_id'],1);
 
-        $resp = new ApiResponseBuilder(
-            201,
-            "Reference created successfully",
-            $datos
-        );
+        if($datos['status']=='135'){
+            $resp = new ApiResponseBuilder(
+                201,
+                "Reference created successfully",
+                $datos
+            );
+        }else{
+            $resp = new ApiResponseBuilder(
+                400,
+                "Bad Request",
+                $datos['status_message']
+            );
+        }
+
+
 
         //Guardamos la respuesta
         $transaction->setReceivedData(json_encode($datos));

@@ -14,7 +14,6 @@ use FOS\RestBundle\Controller\FOSRestController;
 use FOS\RestBundle\Controller\Annotations as Rest;
 use Nelmio\ApiDocBundle\Annotation\ApiDoc;
 use Symfony\Component\HttpKernel\Exception\HttpException;
-use UkashRedirect;
 use Telepay\FinancialApiBundle\Document\Transaction;
 
 class ServicesUkashRedirectController extends FosRestController
@@ -76,7 +75,6 @@ class ServicesUkashRedirectController extends FosRestController
      *   }
      * )
      *
-     * @Rest\View(statusCode=201)
      */
 
     public function request(Request $request){
@@ -113,10 +111,6 @@ class ServicesUkashRedirectController extends FosRestController
         }else{
             $params[1]=$userid.$params[1];
         }
-        //var_dump($params[1]);
-
-        //Include the class
-        include("../vendor/ukash/UkashRedirect.php");
 
         //Comprobamos modo Test
         $mode=$request->get('mode');
@@ -132,10 +126,7 @@ class ServicesUkashRedirectController extends FosRestController
         $transaction->setMode($mode === 'P');
 
         //Constructor
-        $constructor=new UkashRedirect($mode);
-
-        //Request method
-        $datos=$constructor -> request($params[0],$params[1],$params[2],$params[3],$params[4],$params[5],$params[6]);
+        $datos=$this->get('ukash.service')->getUkash($mode)-> request($params[0],$params[1],$params[2],$params[3],$params[4],$params[5],$params[6]);
 
         if(isset($datos['error_code'])){
             $resp = new ApiResponseBuilder(
@@ -191,7 +182,6 @@ class ServicesUkashRedirectController extends FosRestController
      *   }
      * )
      *
-     * @Rest\View(statusCode=201)
      */
 
     public function status(Request $request){
@@ -201,7 +191,7 @@ class ServicesUkashRedirectController extends FosRestController
         );
 
         //Get the parameters sent by POST and put them in a $params array
-        $request=$this->get('request_stack')->getCurrentRequest();
+        //$request=$this->get('request_stack')->getCurrentRequest();
         $params = array();
         foreach($paramNames as $paramName){
             if(!$request->request ->has($paramName)){
@@ -209,9 +199,6 @@ class ServicesUkashRedirectController extends FosRestController
             }
             $params[]=$request->get($paramName, 'null');
         }
-
-        //Include the class
-        include("../vendor/ukash/UkashRedirect.php");
 
         //Comprobamos modo Test
         $mode=$request->get('mode');
@@ -226,13 +213,8 @@ class ServicesUkashRedirectController extends FosRestController
         $transaction->setSentData(json_encode($params));
         $transaction->setMode($mode === 'P');
 
-
         //Constructor
-        $constructor=new UkashRedirect($mode);
-
-        //Request method
-        $datos=$constructor -> status($params[0]);
-        //print_r(json_encode($datos));
+        $datos=$this->get('ukash.service')->getUkash($mode)-> status($params[0]);
 
         if (isset($datos['error_code'])){
             $resp = new ApiResponseBuilder(

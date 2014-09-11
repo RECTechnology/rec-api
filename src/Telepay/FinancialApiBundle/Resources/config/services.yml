@@ -13,3 +13,18 @@ services:
 
     telepay.services:
         class: Telepay\FinancialApiBundle\DependencyInjection\ServicesRepository
+
+    ukash.service:
+        class: Telepay\FinancialApiBundle\DependencyInjection\Services\Ukash
+
+    todito.service:
+        class: Telepay\FinancialApiBundle\DependencyInjection\Services\Todito
+
+    safetypay.service:
+        class: Telepay\FinancialApiBundle\DependencyInjection\Services\Safetypay
+
+    payu.service:
+        class: Telepay\FinancialApiBundle\DependencyInjection\Services\Payu
+
+    pagofacil.service:
+        class: Telepay\FinancialApiBundle\DependencyInjection\Services\Pagofacil

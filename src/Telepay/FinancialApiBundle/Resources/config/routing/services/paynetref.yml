@@ -1,6 +1,4 @@
 
-
-
 services_paynet_reference_generate:
     pattern:  /services/v1/paynet/reference/generate
     defaults: { _controller: Telepay\FinancialApiBundle\Controller\Services\ServicesPaynetReferenceController::generate, _format: ~ }

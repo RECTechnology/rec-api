@@ -12,28 +12,11 @@ use Telepay\FinancialApiBundle\Response\ApiResponseBuilder;
 use FOS\RestBundle\Controller\FOSRestController;
 use FOS\RestBundle\Controller\Annotations as Rest;
 use Nelmio\ApiDocBundle\Annotation\ApiDoc;
-use PagofacilService;
 use Symfony\Component\HttpKernel\Exception\HttpException;
 use Telepay\FinancialApiBundle\Document\Transaction;
 
 class ServicesPagofacilPaymentController extends FOSRestController
 {
-
-    //This parameters are unique for us. Don't give to the client
-    private $testArray =array(
-        'id_sucursal'   =>  '42ee3b415f4cebd37dffe881b929c0a0bac8a72c',
-        'id_usuario'    =>  '12a27c9c912ec6b4175c3bb316365965a19f6d31',
-        'id_servicio'   =>  '3',
-        'url_flag'      =>  'test'
-    );
-
-    //Para producción
-    private $prodArray =array(
-        'id_sucursal'   =>  '77cd297945a1b75979f742f183544e4867935777',
-        'id_usuario'    =>  'd65a8ff620762e81c026f10b3d76752a7f32d46d',
-        'id_servicio'   =>  '3',
-        'url_flag'      =>  'prod'
-    );
 
     /**
      * This method allows client to pay services with credit card.
@@ -153,7 +136,6 @@ class ServicesPagofacilPaymentController extends FOSRestController
      *   }
      * )
      *
-     * @Rest\View(statusCode=201)
      */
 
     public function transaction(Request $request)
@@ -206,34 +188,27 @@ class ServicesPagofacilPaymentController extends FOSRestController
         //Comprobamos modo Test
         $mode = $request->get('mode');
         if(!isset($mode)) $mode = 'P';
-        //var_dump($mode);
 
         //Guardamos la request en mongo
         $transaction = new Transaction();
         $transaction->setIp($request->getClientIp());
         $transaction->setTimeIn(time());
-        $transaction->setService($this->get('telepay.services')->findByName('Pagofacil')->getId());
+        $transaction->setService($this->get('telepay.services')->findByName('PagoFacil')->getId());
         $transaction->setUser($this->get('security.context')->getToken()->getUser()->getId());
         $transaction->setSentData(json_encode($params));
         $transaction->setMode($mode === 'P');
 
-        //Include the class
-        include("../vendor/pagofacil/PagofacilService.php");
-
         //Check if it's a Test or Production transaction
         if($mode=='T'){
             //Constructor in Test mode
-            $constructor=new PagofacilService($this->testArray['id_sucursal'],$this->testArray['id_usuario'],$this->testArray['id_servicio'],$this->testArray['url_flag']);
+            $datos=$this->get('pagofacil.service')->getPagofacilTest()->request($params[0],$params[1],$params[2],$params[3],$params[4],$params[5],$params[6],$params[7],$params[8],$params[9],$params[10],$params[11],$params[12],$params[13],$params[14],$params[15],$params[16]);
         }elseif($mode=='P'){
             //Constructor in Production mode
-            $constructor=new PagofacilService($this->prodArray['id_sucursal'],$this->prodArray['id_usuario'],$this->prodArray['id_servicio'],$this->prodArray['url_flag']);
+            $datos=$this->get('pagofacil.service')->getPagofacil()->request($params[0],$params[1],$params[2],$params[3],$params[4],$params[5],$params[6],$params[7],$params[8],$params[9],$params[10],$params[11],$params[12],$params[13],$params[14],$params[15],$params[16]);
         }else{
             //If is not one of the first shows an error message.
             throw new HttpException(400,'Wrong request');
         }
-
-        //Function Info
-        $datos=$constructor -> request($params[0],$params[1],$params[2],$params[3],$params[4],$params[5],$params[6],$params[7],$params[8],$params[9],$params[10],$params[11],$params[12],$params[13],$params[14],$params[15],$params[16]);
 
         //Response
         if(isset($datos['error'])){
@@ -289,7 +264,6 @@ class ServicesPagofacilPaymentController extends FOSRestController
      *   }
      * )
      *
-     * @Rest\View(statusCode=201)
      */
 
     public function status(Request $request){
@@ -320,7 +294,6 @@ class ServicesPagofacilPaymentController extends FOSRestController
         }else{
             $params[0]=$userid.$params[0];
         }
-        //var_dump($params[0]);
 
         //Comprobamos modo Test
         $mode = $request->get('mode');
@@ -330,31 +303,25 @@ class ServicesPagofacilPaymentController extends FOSRestController
         $transaction = new Transaction();
         $transaction->setIp($request->getClientIp());
         $transaction->setTimeIn(time());
-        $transaction->setService($this->get('telepay.services')->findByName('Pagofacil')->getId());
+        $transaction->setService($this->get('telepay.services')->findByName('PagoFacil')->getId());
         $transaction->setUser($this->get('security.context')->getToken()->getUser()->getId());
         $transaction->setSentData(json_encode($params));
         $transaction->setMode($mode === 'P');
 
-        //Include the class
-        include("../vendor/pagofacil/PagofacilService.php");
-
         //Check if it's a Test or Production transaction
         if($mode=='T'){
             //Constructor in Test mode
-            $constructor=new PagofacilService($this->testArray['id_sucursal'],$this->testArray['id_usuario'],$this->testArray['id_servicio'],$this->testArray['url_flag']);
+            $datos=$this->get('pagofacil.service')->getPagofacilTest()->status($params[0]);
         }elseif($mode=='P'){
             //Constructor in Production mode
-            $constructor=new PagofacilService($this->prodArray['id_sucursal'],$this->prodArray['id_usuario'],$this->prodArray['id_servicio'],$this->prodArray['url_flag']);
+            $datos=$this->get('pagofacil.service')->getPagofacil()->status($params[0]);
         }else{
             //If is not one of the first shows an error message.
             throw new HttpException(400,'Wrong request');
         }
 
-        //Function Info
-        $datos=$constructor -> status($params[0]);
-
         //Response
-        if(isset($datos['error_code'])){
+        if(isset($datos['WebServices_Transacciones']['verificar']['error'])){
             $resp = new ApiResponseBuilder(
                 400,
                 "Bad request",

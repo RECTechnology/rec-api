@@ -48,10 +48,9 @@ class ServicesPaynetReferenceController extends FosRestController
      *   }
      * )
      *
-     * @Rest\View(statusCode=201)
      */
 
-    public function generate(){
+    public function generate(Request $request){
 
         static $paramNames = array(
             'client_reference',
@@ -69,11 +68,15 @@ class ServicesPaynetReferenceController extends FosRestController
             $params[]=$request->get($paramName, 'null');
         }
 
+        //Comprobamos modo Test
+        $mode = $request->get('mode');
+        if(!isset($mode)) $mode = 'P';
+
         //Guardamos la request en mongo
         $transaction = new Transaction();
         $transaction->setIp($request->getClientIp());
         $transaction->setTimeIn(time());
-        $transaction->setService($this->get('telepay.services')->findByName('PaynetReference')->getId());
+        $transaction->setService($this->get('telepay.services')->findByName('PayNetReference')->getId());
         $transaction->setUser($this->get('security.context')->getToken()->getUser()->getId());
         $transaction->setSentData(json_encode($params));
         $transaction->setMode(true);
@@ -116,6 +119,11 @@ class ServicesPaynetReferenceController extends FosRestController
         return $this->handleView($view);
     }
 
+    public function generateTest(Request $request){
+        $request->request->set('mode','T');
+        return $this->generate($request);
+    }
+
     /**
      * This method allows client to know the status reference.
      *
@@ -137,7 +145,6 @@ class ServicesPaynetReferenceController extends FosRestController
      *   output="Telepay\FinancialApiBundle\Controller\Response"
      * )
      *
-     * @Rest\View(statusCode=201)
      */
 
     public function status(){
@@ -160,7 +167,7 @@ class ServicesPaynetReferenceController extends FosRestController
         $transaction = new Transaction();
         $transaction->setIp($request->getClientIp());
         $transaction->setTimeIn(time());
-        $transaction->setService($this->get('telepay.services')->findByName('PaynetReference')->getId());
+        $transaction->setService($this->get('telepay.services')->findByName('PayNetReference')->getId());
         $transaction->setUser($this->get('security.context')->getToken()->getUser()->getId());
         $transaction->setSentData(json_encode($params));
         $transaction->setMode(true);
@@ -202,6 +209,11 @@ class ServicesPaynetReferenceController extends FosRestController
 
         return $this->handleView($view);
 
+    }
+
+    public function statusTest(Request $request){
+        $request->request->set('mode','T');
+        return $this->status($request);
     }
 
 } 
