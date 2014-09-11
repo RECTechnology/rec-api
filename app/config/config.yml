@@ -136,9 +136,9 @@ sensio_framework_extra:
 doctrine_mongodb:
     connections:
         default:
-            server: mongodb://localhost:27017
+            server: %mongodb_server%
             options: {}
-    default_database: dev_api_telepay
+    default_database: %mongodb_db%
     document_managers:
         default:
             auto_mapping: true

@@ -30,6 +30,13 @@ class CreateClientCommand extends ContainerAwareCommand
                 null
             )
             ->addOption(
+                'name',
+                null,
+                InputOption::VALUE_REQUIRED,
+                'Sets name for client.',
+                null
+            )
+            ->addOption(
                 'grant-type',
                 null,
                 InputOption::VALUE_REQUIRED | InputOption::VALUE_IS_ARRAY,
@@ -50,6 +57,7 @@ EOT
     {
         $clientManager = $this->getContainer()->get('fos_oauth_server.client_manager.default');
         $client = $clientManager->createClient();
+        $client->setName($input->getOption('name'));
         $client->setRedirectUris($input->getOption('redirect-uri'));
         $client->setAllowedGrantTypes($input->getOption('grant-type'));
         $clientManager->updateClient($client);
