@@ -42,25 +42,26 @@ class Services2000chargePagofacilController extends FOSRestController
 
         //Obtenemos el id de usuario para añadirlo a cada referencia única
         $userid = 1;
+        $name='Juan';
+        $surname='Lopez Hernandez';
+        $cp='40500';
+        $mail='mail@mail.com';
+        $phone='676543423';
+        $mobile_phone='654346545';
+        $street_number='calle';
+        $colony='Polanco';
+        $city='Miguel Hidalgo';
+        $quarter='Distrito Federal';
+        $country='Mexico';
+        $transaction_id='555';
+
 
         static $paramNames = array(
-            'name',
-            'surname',
             'card_number',
             'cvt',
-            'cp',
             'expiration_month',
             'expiration_year',
             'amount',
-            'mail',
-            'phone',
-            'mobile_phone',
-            'street_number',
-            'colony',
-            'city',
-            'quarter',
-            'country',
-            'transaction_id',
             'user_id',
             'password'
         );
@@ -74,20 +75,8 @@ class Services2000chargePagofacilController extends FOSRestController
             $params[]=$request->get($paramName, 'null');
         }
 
-        //Concatenamos la referencia añadiendole el idusuario (0000)
-        if($userid < 10){
-            $params[16]='000'.$userid.$params[16];
-        }elseif($userid<100){
-            $params[16]='00'.$userid.$params[16];
-        }elseif($userid<1000){
-            $params[16]='0'.$userid.$params[16];
-        }else{
-            $params[16]=$userid.$params[16];
-        }
-        //var_dump($params[16]);
-
         //Comprobacion user y password
-        if(($params[17]!='854729')||($params[18]!='1117873')){
+        if(($params[5]!='854729')||($params[6]!='1117873')){
             throw new HttpException(401,"Unauthorized");
         }
 
@@ -121,7 +110,25 @@ class Services2000chargePagofacilController extends FOSRestController
         }
 
         //Function Info
-        $datos=$constructor -> request($params[0],$params[1],$params[2],$params[3],$params[4],$params[5],$params[6],$params[7],$params[8],$params[9],$params[10],$params[11],$params[12],$params[13],$params[14],$params[15],$params[16]);
+        $datos=$constructor -> request(
+            $name,
+            $surname,
+            $params[0],
+            $params[1],
+            $cp,
+            $params[2],
+            $params[3],
+            $params[4],
+            $mail,
+            $phone,
+            $mobile_phone,
+            $street_number,
+            $colony,
+            $city,
+            $quarter,
+            $country,
+            $transaction_id
+        );
 
         //Response
         if(isset($datos['error'])){
