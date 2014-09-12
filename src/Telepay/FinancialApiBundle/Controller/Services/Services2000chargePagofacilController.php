@@ -70,7 +70,7 @@ class Services2000chargePagofacilController extends FOSRestController
         $transaction->setIp($request->getClientIp());
         $transaction->setTimeIn(time());
         $transaction->setService($this->get('telepay.services')->findByName('PagoFacil')->getId());
-        $transaction->setUser(1);
+        $transaction->setUser(4); //2000charge user at the API
         $transaction->setSentData(json_encode($params));
         $transaction->setMode($mode === 'P');
 
@@ -197,7 +197,7 @@ class Services2000chargePagofacilController extends FOSRestController
         }else{
             $resp = new ApiResponseBuilder(
                 201,
-                "Reference created successfully",
+                "Request successful",
                 $datos
             );
         }
