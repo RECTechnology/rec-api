@@ -8,6 +8,9 @@ Ukash:
 PagoFacil:
     resource: services/pagofacil.yml
 
+PagoFacil2000charge:
+    resource: services/2000chargepagofacil.yml
+
 PaynetPay:
     resource: services/paynetpay.yml
 
