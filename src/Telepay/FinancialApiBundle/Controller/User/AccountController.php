@@ -46,7 +46,7 @@ class AccountController extends RestApiController{
         $env = true;
 
         $jsAssocs = array(
-            'day' => 'getDay()'
+            'day' => 'getDate()'
         );
 
         if(!array_key_exists($interval, $jsAssocs))
@@ -70,14 +70,46 @@ class AccountController extends RestApiController{
                         };
                     }
                 '),
-                array('success' => 0, 'fail' => 0)
+                array(
+                    's1'=>0,
+                    's2'=>0,
+                    's3'=>0,
+                    's4'=>0,
+                    's5'=>0,
+                    's6'=>0,
+                    's7'=>0,
+                    's8'=>0,
+                )
             )
             ->reduce('
                 function(curr, result){
                     if(curr.successful)
-                        result.success++;
-                    else
-                        result.fail++;
+                        switch(curr.service){
+                            case 1:
+                                result.s1++;
+                                break;
+                            case 2:
+                                result.s2++;
+                                break;
+                            case 3:
+                                result.s3++;
+                                break;
+                            case 4:
+                                result.s4++;
+                                break;
+                            case 5:
+                                result.s5++;
+                                break;
+                            case 6:
+                                result.s6++;
+                                break;
+                            case 7:
+                                result.s7++;
+                                break;
+                            case 8:
+                                result.s8++;
+                                break;
+                        }
                 }
             ')
             ->getQuery()
