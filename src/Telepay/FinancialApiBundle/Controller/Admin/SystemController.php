@@ -64,7 +64,7 @@ class SystemController extends RestApiController
      * @Rest\View()
      */
     public function net() {
-        $out = system("ifstat -q -i eth0 -S 0.1 1 | perl -n -e '/(\\d+\\.\\d+).*(\\d+\\.\\d+)/ && print \"$1/$2\n\"'");
+        $out = system("ifstat -i eth0 1 1 | tail -1 | awk '{print $1\"/\"$2}'");
         $all = explode("/", $out);
         $resp = array(
             'up' => floatval($all[1]),
