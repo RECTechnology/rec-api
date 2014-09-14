@@ -96,3 +96,17 @@ admin_services_read:
     defaults: { _controller: Telepay\FinancialApiBundle\Controller\Manager\ServicesController::read }
     requirements:
         _method: GET
+
+############################## SYSTEM MNGMNT ##########################################
+
+admin_system_load:
+    pattern:  /admin/v1/system/load
+    defaults: { _controller: Telepay\FinancialApiBundle\Controller\Admin\SystemController::load }
+    requirements:
+        _method: GET
+
+admin_system_cores:
+    pattern:  /admin/v1/system/cores
+    defaults: { _controller: Telepay\FinancialApiBundle\Controller\Admin\SystemController::cores }
+    requirements:
+        _method: GET
