@@ -37,7 +37,43 @@ class SystemController extends RestApiController
         return $this->handleView($this->buildRestView(
             200,
             "Number of CPU Cores got successfully",
-            system("nproc")
+            array('num_cpus' => intval(system("nproc")))
+        ));
+    }
+
+
+    /**
+     * @Rest\View()
+     */
+    public function mem() {
+        $out = system("free -m | grep Mem: | awk '{print $3\"/\"$2}'");
+        $all = explode("/", $out);
+        $resp = array(
+            'total' => intval($all[1]),
+            'used' => intval($all[0])
+        );
+        return $this->handleView($this->buildRestView(
+            200,
+            "Memory information got successfully",
+            $resp
+        ));
+    }
+
+
+    /**
+     * @Rest\View()
+     */
+    public function net() {
+        $out = system("ifstat -q -i eth0 -S 0.1 1 | perl -n -e '/(\\d+\\.\\d+).*(\\d+\\.\\d+)/ && print \"$1/$2\n\"'");
+        $all = explode("/", $out);
+        $resp = array(
+            'up' => floatval($all[1]),
+            'down' => floatval($all[0])
+        );
+        return $this->handleView($this->buildRestView(
+            200,
+            "Network information got successfully",
+            $resp
         ));
     }
 
