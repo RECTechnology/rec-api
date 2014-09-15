@@ -28,9 +28,9 @@ class SystemController extends RestApiController
             200,
             "Load got successfully",
             array(
-                '1min'=>$loadArray[0],
-                '5min'=>$loadArray[1],
-                '15min'=>$loadArray[2]
+                'avg1'=>$loadArray[0],
+                'avg5'=>$loadArray[1],
+                'avg15'=>$loadArray[2]
             )
         ));
     }
