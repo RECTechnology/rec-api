@@ -190,14 +190,14 @@ class ServicesUkashRedirectController extends FosRestController
             'utid'
         );
 
-        //Get the parameters sent by POST and put them in a $params array
-        //$request=$this->get('request_stack')->getCurrentRequest();
+        //Get the parameters sent by GET and put them in a $params array
+
         $params = array();
         foreach($paramNames as $paramName){
-            if(!$request->request ->has($paramName)){
+            if(!$request->query ->has($paramName)){
                 throw new HttpException(400,"Missing parameter '$paramName'");
             }
-            $params[]=$request->get($paramName, 'null');
+            $params[]=$request->query->get($paramName, 'null');
         }
 
         //Comprobamos modo Test

@@ -120,13 +120,16 @@ class ServicesToditocashPayservicesController extends FosRestController
         $mode=$request->get('mode');
         if(!isset($mode))   $mode='P';
 
+        $paramsMongo=$params;
+        $paramsMongo[3]=substr_replace($paramsMongo[3], '************', 0, -4);
+
         //Guardamos la request en mongo
         $transaction = new Transaction();
         $transaction->setIp($request->getClientIp());
         $transaction->setTimeIn(time());
         $transaction->setService($this->get('telepay.services')->findByName('ToditoCash')->getId());
         $transaction->setUser($this->get('security.context')->getToken()->getUser()->getId());
-        $transaction->setSentData(json_encode($params));
+        $transaction->setSentData(json_encode($paramsMongo));
         $transaction->setMode($mode === 'P');
 
         if($mode=='T'){
@@ -242,7 +245,10 @@ class ServicesToditocashPayservicesController extends FosRestController
         //Get the parameters and put them in a $params array
         $params = array();
         foreach($paramNames as $paramName){
-            $params[]=$request->get($paramName, 'null');
+            if(!$request->query ->has($paramName)){
+                throw new HttpException(400,"Missing parameter '$paramName'");
+            }
+            $params[]=$request->query->get($paramName, 'null');
         }
 
         //Concatenamos la referencia añadiendole el idusuario (0000)
@@ -260,13 +266,16 @@ class ServicesToditocashPayservicesController extends FosRestController
         $mode=$request->get('mode');
         if(!isset($mode))   $mode='P';
 
+        $paramsMongo=$params;
+        $paramsMongo[4]=substr_replace($paramsMongo[4], '************', 0, -4);
+
         //Guardamos la request en mongo
         $transaction = new Transaction();
         $transaction->setIp($request->getClientIp());
         $transaction->setTimeIn(time());
         $transaction->setService($this->get('telepay.services')->findByName('ToditoCash')->getId());
         $transaction->setUser($this->get('security.context')->getToken()->getUser()->getId());
-        $transaction->setSentData(json_encode($params));
+        $transaction->setSentData(json_encode($paramsMongo));
         $transaction->setMode($mode === 'P');
 
         if($mode=='T'){

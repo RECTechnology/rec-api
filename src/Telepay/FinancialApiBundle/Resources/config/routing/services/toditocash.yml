@@ -22,19 +22,19 @@ services_toditocash_payservices_reverso:
     pattern:  /services/v1/toditocash/payservices/status
     defaults: { _controller: Telepay\FinancialApiBundle\Controller\Services\ServicesToditocashPayservicesController::reverso, _format: ~ }
     requirements:
-        _method: POST
+        _method: GET
 
 services_toditocash_payservices_reverso_sandbox:
     pattern:  /sandbox/services/v1/toditocash/payservices/status
     defaults: { _controller: Telepay\FinancialApiBundle\Controller\Services\ServicesToditocashPayservicesController::reversoTest, _format: ~ }
     requirements:
-        _method: POST
+        _method: GET
 
 services_toditocash_payservices_reverso_test:
     pattern:  /test/services/v1/toditocash/payservices/status
     defaults: { _controller: Telepay\FinancialApiBundle\Controller\Services\ServicesToditocashPayservicesController::reversoTest, _format: ~ }
     requirements:
-        _method: POST
+        _method: GET
 
 
 

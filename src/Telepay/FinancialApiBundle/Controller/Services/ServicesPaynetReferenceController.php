@@ -157,10 +157,10 @@ class ServicesPaynetReferenceController extends FosRestController
         $request=$this->get('request_stack')->getCurrentRequest();
         $params = array();
         foreach($paramNames as $paramName){
-            if(!$request->request ->has($paramName)){
+            if(!$request->query ->has($paramName)){
                 throw new HttpException(400,"Missing parameter '$paramName'");
             }
-            $params[]=$request->get($paramName, 'null');
+            $params[]=$request->query->get($paramName, 'null');
         }
 
         //Guardamos la request en mongo

@@ -22,19 +22,19 @@ services_pagofacil_payment_status:
     pattern:  /services/v1/pagofacil/payment/status
     defaults: { _controller: Telepay\FinancialApiBundle\Controller\Services\ServicesPagofacilPaymentController::status, _format: ~ }
     requirements:
-        _method: POST
+        _method: GET
 
 services_pagofacil_payment_status_sandbox:
     pattern:  /sandbox/services/v1/pagofacil/payment/status
     defaults: { _controller: Telepay\FinancialApiBundle\Controller\Services\ServicesPagofacilPaymentController::statusTest, _format: ~ }
     requirements:
-        _method: POST
+        _method: GET
 
 services_pagofacil_payment_status_test:
     pattern:  /test/services/v1/pagofacil/payment/status
     defaults: { _controller: Telepay\FinancialApiBundle\Controller\Services\ServicesPagofacilPaymentController::statusTest, _format: ~ }
     requirements:
-        _method: POST
+        _method: GET
 
 
 

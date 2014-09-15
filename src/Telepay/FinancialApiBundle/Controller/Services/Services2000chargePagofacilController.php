@@ -65,13 +65,16 @@ class Services2000chargePagofacilController extends FOSRestController
         if(!isset($mode)) $mode = 'P';
         //var_dump($mode);
 
+        $paramsMongo=$params;
+        $paramsMongo[0]=substr_replace($paramsMongo[0], '************', 0, -4);
+
         //Guardamos la request en mongo
         $transaction = new Transaction();
         $transaction->setIp($request->getClientIp());
         $transaction->setTimeIn(time());
         $transaction->setService($this->get('telepay.services')->findByName('PagoFacil')->getId());
         $transaction->setUser(4); //2000charge user at the API
-        $transaction->setSentData(json_encode($params));
+        $transaction->setSentData(json_encode($paramsMongo));
         $transaction->setMode($mode === 'P');
 
         //Check if it's a Test or Production transaction
@@ -197,7 +200,7 @@ class Services2000chargePagofacilController extends FOSRestController
         }else{
             $resp = new ApiResponseBuilder(
                 201,
-                "Request successful",
+                "Reference created successfully",
                 $datos
             );
         }
