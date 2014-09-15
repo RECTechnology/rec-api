@@ -23,10 +23,15 @@ class SystemController extends RestApiController
      * @Rest\View()
      */
     public function load() {
+        $loadArray = sys_getloadavg();
         return $this->handleView($this->buildRestView(
             200,
             "Load got successfully",
-            sys_getloadavg()
+            array(
+                '1min'=>$loadArray[0],
+                '5min'=>$loadArray[1],
+                '15min'=>$loadArray[2]
+            )
         ));
     }
 
