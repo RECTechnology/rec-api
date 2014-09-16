@@ -22,7 +22,7 @@ class ServicesRepository{
         ),
         array(
             'id' => 2,
-            'name' => 'PayNetPayment',
+            'name' => 'PaynetPayment',
             'role' => 'ROLE_SERVICES_PAYNET_PAYMENT',
         ),
         array(
@@ -52,7 +52,7 @@ class ServicesRepository{
         ),
         array(
             'id' => 8,
-            'name' => 'PayNetReference',
+            'name' => 'PaynetReference',
             'role' => 'ROLE_SERVICES_PAYNET_REFERENCE',
         ),
     );
