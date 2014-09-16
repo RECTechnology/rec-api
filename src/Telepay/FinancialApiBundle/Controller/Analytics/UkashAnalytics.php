@@ -26,7 +26,7 @@ class UkashAnalytics extends BaseAnalytics{
      }
 
     public function stats(Request $request, $mode = true) {
-        parent::stats($request, $mode);
+        return parent::stats($request, $mode);
     }
 
 }
