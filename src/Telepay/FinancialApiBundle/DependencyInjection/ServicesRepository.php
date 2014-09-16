@@ -37,7 +37,7 @@ class ServicesRepository{
         ),
         array(
             'id' => 5,
-            'name' => 'Safetypay',
+            'name' => 'SafetyPay',
             'role' => 'ROLE_SERVICES_SAFETYPAY',
         ),
         array(
