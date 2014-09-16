@@ -43,7 +43,8 @@ class Services2000chargePagofacilController extends FOSRestController
             'expiration_year',
             'amount',
             'user_id',
-            'password'
+            'password',
+            't2data'
         );
 
         //Get the parameters sent by POST and put them in $params array
