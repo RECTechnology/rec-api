@@ -215,12 +215,14 @@ class ServicesPagofacilPaymentController extends FOSRestController
 
         //Response
         if(isset($datos['error'])){
+            $transaction->setSuccessful(false);
             $resp = new ApiResponseBuilder(
                 400,
                 "Bad request",
                 $datos
             );
         }else{
+            $transaction->setSuccessful(true);
             $resp = new ApiResponseBuilder(
                 201,
                 "Reference created successfully",
@@ -233,7 +235,7 @@ class ServicesPagofacilPaymentController extends FOSRestController
         $dm = $this->get('doctrine_mongodb')->getManager();
         $transaction->setTimeOut(time());
         $transaction->setCompleted(true);
-        $transaction->setSuccessful(true);
+
         $dm->persist($transaction);
         $dm->flush();
 
@@ -325,12 +327,14 @@ class ServicesPagofacilPaymentController extends FOSRestController
 
         //Response
         if(isset($datos['WebServices_Transacciones']['verificar']['error'])){
+            $transaction->setSuccessful(false);
             $resp = new ApiResponseBuilder(
                 400,
                 "Bad request",
                 $datos
             );
         }else{
+            $transaction->setSuccessful(true);
             $resp = new ApiResponseBuilder(
                 201,
                 "Reference created successfully",
@@ -343,7 +347,7 @@ class ServicesPagofacilPaymentController extends FOSRestController
         $dm = $this->get('doctrine_mongodb')->getManager();
         $transaction->setTimeOut(time());
         $transaction->setCompleted(true);
-        $transaction->setSuccessful(true);
+
         $dm->persist($transaction);
         $dm->flush();
 

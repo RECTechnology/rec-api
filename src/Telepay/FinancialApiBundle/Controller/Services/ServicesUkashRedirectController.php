@@ -129,12 +129,14 @@ class ServicesUkashRedirectController extends FosRestController
         $datos=$this->get('ukash.service')->getUkash($mode)-> request($params[0],$params[1],$params[2],$params[3],$params[4],$params[5],$params[6]);
 
         if(isset($datos['error_code'])){
+            $transaction->setSuccessful(false);
             $resp = new ApiResponseBuilder(
                 400,
                 "Bad request",
                 $datos
             );
         }else{
+            $transaction->setSuccessful(true);
             $resp = new ApiResponseBuilder(
                 201,
                 "Reference created successfully",
@@ -147,7 +149,7 @@ class ServicesUkashRedirectController extends FosRestController
         $dm = $this->get('doctrine_mongodb')->getManager();
         $transaction->setTimeOut(time());
         $transaction->setCompleted(true);
-        $transaction->setSuccessful(true);
+
         $dm->persist($transaction);
         $dm->flush();
 
@@ -217,12 +219,14 @@ class ServicesUkashRedirectController extends FosRestController
         $datos=$this->get('ukash.service')->getUkash($mode)-> status($params[0]);
 
         if (isset($datos['error_code'])){
+            $transaction->setSuccessful(false);
             $resp = new ApiResponseBuilder(
                 400,
                 "Bad request",
                 $datos
             );
         }else{
+            $transaction->setSuccessful(true);
             $resp = new ApiResponseBuilder(
                 201,
                 "Reference created successfully",
@@ -235,7 +239,7 @@ class ServicesUkashRedirectController extends FosRestController
         $dm = $this->get('doctrine_mongodb')->getManager();
         $transaction->setTimeOut(time());
         $transaction->setCompleted(true);
-        $transaction->setSuccessful(true);
+
         $dm->persist($transaction);
         $dm->flush();
 

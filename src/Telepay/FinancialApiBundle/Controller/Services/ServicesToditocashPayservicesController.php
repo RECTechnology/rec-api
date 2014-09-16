@@ -290,12 +290,16 @@ class ServicesToditocashPayservicesController extends FosRestController
         $datos['transaction_id']=substr($datos['transaction_id'],1);
 
         if($datos['status']=='135'){
+            $transaction->setSuccessful(true);
+
             $resp = new ApiResponseBuilder(
                 201,
                 "Reference created successfully",
                 $datos
             );
         }else{
+            $transaction->setSuccessful(false);
+
             $resp = new ApiResponseBuilder(
                 400,
                 "Bad Request",
@@ -310,7 +314,6 @@ class ServicesToditocashPayservicesController extends FosRestController
         $dm = $this->get('doctrine_mongodb')->getManager();
         $transaction->setTimeOut(time());
         $transaction->setCompleted(true);
-        $transaction->setSuccessful(true);
         $dm->persist($transaction);
         $dm->flush();
 

@@ -12,30 +12,11 @@ use Telepay\FinancialApiBundle\Response\ApiResponseBuilder;
 use FOS\RestBundle\Controller\FOSRestController;
 use FOS\RestBundle\Controller\Annotations as Rest;
 use Nelmio\ApiDocBundle\Annotation\ApiDoc;
-use PaynetService;
 use Symfony\Component\HttpKernel\Exception\HttpException;
 use Telepay\FinancialApiBundle\Document\Transaction;
 
 class ServicesPaynetPaymentController extends FosRestController
 {
-    //This parameters are unique for us. Don't give to the client
-    //For Test are 7 , 1 , 1, 1 , 1
-    private $testArray =array(
-        'group_id'  =>  7,
-        'chain_id'  =>  1,
-        'shop_id'   =>  1,
-        'pos_id'    =>  1,
-        'cashier_id'=>  1
-    );
-
-    //Para producción no los tenemos--de momento he puesto los mismos pero habrá que cambiarlos
-    private $prodArray =array(
-        'group_id'  =>  7,
-        'chain_id'  =>  1,
-        'shop_id'   =>  1,
-        'pos_id'    =>  1,
-        'cashier_id'=>  1
-    );
 
     /**
      * Returns a JSON with the Info for the payment. Some fields are required for the payment confirm..
@@ -132,33 +113,28 @@ class ServicesPaynetPaymentController extends FosRestController
         $transaction->setSentData(json_encode($params));
         $transaction->setMode($mode === 'P');
 
-
-        //Include the class
-        include("../vendor/paynet-services/PaynetService.php");
-
         //Check if it's a Test or Production transaction
         if($mode=='T'){
             //Constructor in Test mode
-            $constructor=new PaynetService($this->testArray['group_id'],$this->testArray['chain_id'],$this->testArray['shop_id'],$this->testArray['pos_id'],$this->testArray['cashier_id']);
+            $datos=$this->get('paynetpay.service')->getPaynetPayTest()-> info($params[0],$params[1],$params[2],$params[3],$params[4]);
         }elseif($mode=='P'){
             //Constructor in Production mode
-            $constructor=new PaynetService($this->prodArray['group_id'],$this->prodArray['chain_id'],$this->prodArray['shop_id'],$this->prodArray['pos_id'],$this->prodArray['cashier_id']);
+            $datos=$this->get('paynetpay.service')->getPaynetPay()->info($params[0],$params[1],$params[2],$params[3],$params[4]);
         }else{
             //If is not one of the first shows an error message.
             throw new HttpException(400,'Wrong require->Test with T or P');
         }
 
-        //Function Info
-        $datos=$constructor -> info($params[0],$params[1],$params[2],$params[3],$params[4]);
-
         //Response
         if(isset($datos['error_code'])){
+            $transaction->setSuccessful(false);
             $resp = new ApiResponseBuilder(
                 400,
                 "Bad request",
                 $datos
             );
         }else{
+            $transaction->setSuccessful(true);
             $resp = new ApiResponseBuilder(
                 201,
                 "Reference created successfully",
@@ -171,7 +147,7 @@ class ServicesPaynetPaymentController extends FosRestController
         $dm = $this->get('doctrine_mongodb')->getManager();
         $transaction->setTimeOut(time());
         $transaction->setCompleted(false);
-        $transaction->setSuccessful(true);
+
         $dm->persist($transaction);
         $dm->flush();
 
@@ -257,7 +233,8 @@ class ServicesPaynetPaymentController extends FosRestController
             'sku',
             'fee',
             'reference',
-            'amount'
+            'amount',
+            'dv'
         );
 
         //Get the parameters sent by POST and put them in $params array
@@ -281,9 +258,6 @@ class ServicesPaynetPaymentController extends FosRestController
         }
         //var_dump($params[2]);
 
-        //Include the class
-        include("../vendor/paynet-services/PaynetService.php");
-
         //Comprobamos modo Test
         $mode = $request->get('mode');
         if(!isset($mode)) $mode = 'P';
@@ -300,26 +274,25 @@ class ServicesPaynetPaymentController extends FosRestController
         //Check if it's a Test or Production transaction
         if($mode=='T'){
             //Constructor in Test mode
-            $constructor=new PaynetService($this->testArray['group_id'],$this->testArray['chain_id'],$this->testArray['shop_id'],$this->testArray['pos_id'],$this->testArray['cashier_id']);
+            $datos=$this->get('paynetpay.service')->getPaynetPayTest()-> ejecuta($params[0],$params[1],$params[2],$params[3],$params[4],$params[5],$params[6],$params[7]);
         }elseif($mode=='P'){
             //Constructor in Production mode
-            $constructor=new PaynetService($this->prodArray['group_id'],$this->prodArray['chain_id'],$this->prodArray['shop_id'],$this->prodArray['pos_id'],$this->prodArray['cashier_id']);
+            $datos=$this->get('paynetpay.service')->getPaynetPay()->ejecuta($params[0],$params[1],$params[2],$params[3],$params[4],$params[5],$params[6],$params[7]);
         }else{
             //If is not one of the first shows an error message.
             throw new HttpException(400,'Wrong require->Test with T or P');
         }
 
-        //Function ejecuta
-        $datos=$constructor -> ejecuta($params[0],$params[1],$params[2],$params[3],$params[4],$params[5],$params[6]);
-
         //Response
         if(isset($datos['error_code'])){
+            $transaction->setSuccessful(false);
             $resp = new ApiResponseBuilder(
                 400,
                 "Bad request",
                 $datos
             );
         }else{
+            $transaction->setSuccessful(true);
             $resp = new ApiResponseBuilder(
                 201,
                 "Reference created successfully",
@@ -332,7 +305,7 @@ class ServicesPaynetPaymentController extends FosRestController
         $dm = $this->get('doctrine_mongodb')->getManager();
         $transaction->setTimeOut(time());
         $transaction->setCompleted(true);
-        $transaction->setSuccessful(true);
+
         $dm->persist($transaction);
         $dm->flush();
 
@@ -436,9 +409,6 @@ class ServicesPaynetPaymentController extends FosRestController
         }
         //var_dump($params[2]);
 
-        //Include the class
-        include("../vendor/paynet-services/PaynetService.php");
-
         //Comprobamos modo Test
         $mode=$request->get('mode');
         if(!isset ($mode)) $mode='P';
@@ -455,17 +425,14 @@ class ServicesPaynetPaymentController extends FosRestController
         //Check if it's a Test or Production transaction
         if($mode=='T'){
             //Constructor in Test mode
-            $constructor=new PaynetService($this->testArray['group_id'],$this->testArray['chain_id'],$this->testArray['shop_id'],$this->testArray['pos_id'],$this->testArray['cashier_id']);
+            $datos=$this->get('paynetpay.service')->getPaynetPayTest()-> reversa($params[0],$params[1],$params[2],$params[3],$params[4],$params[5]);
         }elseif($mode=='P'){
             //Constructor in Production mode
-            $constructor=new PaynetService($this->prodArray['group_id'],$this->prodArray['chain_id'],$this->prodArray['shop_id'],$this->prodArray['pos_id'],$this->prodArray['cashier_id']);
+            $datos=$this->get('paynetpay.service')->getPaynetPay()-> reversa($params[0],$params[1],$params[2],$params[3],$params[4],$params[5]);
         }else{
             //If is not one of the first shows an error message.
             throw new HttpException(400,'Wrong require->Test with T or P');
         }
-
-        //Function reversa
-        $datos=$constructor -> reversa($params[0],$params[1],$params[2],$params[3],$params[4],$params[5]);
 
         //response
         $resp = new ApiResponseBuilder(

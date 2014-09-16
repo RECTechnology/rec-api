@@ -28,3 +28,9 @@ services:
 
     pagofacil.service:
         class: Telepay\FinancialApiBundle\DependencyInjection\Services\Pagofacil
+
+    paynetpay.service:
+        class: Telepay\FinancialApiBundle\DependencyInjection\Services\Paynetpay
+
+    paynetref.service:
+        class: Telepay\FinancialApiBundle\DependencyInjection\Services\Paynetbarcode

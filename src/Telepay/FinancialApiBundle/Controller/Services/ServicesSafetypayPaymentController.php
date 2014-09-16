@@ -115,12 +115,14 @@ class ServicesSafetypayPaymentController extends FOSRestController
 
         //Response
         if($datos['error_number']==0){
+            $transaction->setSuccessful(true);
             $resp = new ApiResponseBuilder(
                 201,
                 "Reference created successfully",
                 $datos
             );
         }else{
+            $transaction->setSuccessful(false);
             $resp = new ApiResponseBuilder(
                 400,
                 "Bad request",
@@ -133,7 +135,7 @@ class ServicesSafetypayPaymentController extends FOSRestController
         $dm = $this->get('doctrine_mongodb')->getManager();
         $transaction->setTimeOut(time());
         $transaction->setCompleted(true);
-        $transaction->setSuccessful(true);
+
         $dm->persist($transaction);
         $dm->flush();
 

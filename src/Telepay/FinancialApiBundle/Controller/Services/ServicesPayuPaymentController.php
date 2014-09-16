@@ -187,12 +187,14 @@ class ServicesPayuPaymentController extends FosRestController
 
         //Response
         if(isset($datos['message'])){
+            $transaction->setSuccessful(false);
             $resp = new ApiResponseBuilder(
                 400,
                 "Bad request",
                 $datos
             );
         }else{
+            $transaction->setSuccessful(true);
             $resp = new ApiResponseBuilder(
                 201,
                 "Reference created successfully",
@@ -205,7 +207,7 @@ class ServicesPayuPaymentController extends FosRestController
         $dm = $this->get('doctrine_mongodb')->getManager();
         $transaction->setTimeOut(time());
         $transaction->setCompleted(true);
-        $transaction->setSuccessful(true);
+
         $dm->persist($transaction);
         $dm->flush();
 
@@ -353,26 +355,28 @@ class ServicesPayuPaymentController extends FosRestController
         }
 
         //Response
-        /*if(isset($datos['error_code'])){
+        if(isset($datos['error_code'])){
+            $transaction->setSuccessful(false);
             $resp = new ApiResponseBuilder(
                 400,
                 "Bad request",
                 $datos
             );
-        }else{*/
-        $resp = new ApiResponseBuilder(
-            201,
-            "Reference created successfully",
-            $datos
-        );
-        //}
+        }else{
+            $transaction->setSuccessful(true);
+            $resp = new ApiResponseBuilder(
+                201,
+                "Reference created successfully",
+                $datos
+            );
+        }
 
         //Guardamos la respuesta
         $transaction->setReceivedData(json_encode($datos));
         $dm = $this->get('doctrine_mongodb')->getManager();
         $transaction->setTimeOut(time());
         $transaction->setCompleted(true);
-        $transaction->setSuccessful(true);
+
         $dm->persist($transaction);
         $dm->flush();
 
@@ -426,10 +430,10 @@ class ServicesPayuPaymentController extends FosRestController
             'reference_code'
         );
 
-        //Get the parameters sent by POST and put them in $params array
+        //Get the parameters sent by GET and put them in $params array
         $params = array();
         foreach($paramNames as $paramName){
-            if(!$request->query ->has($paramName)){
+            if(!$request->query->has($paramName)){
                 throw new HttpException(400,"Missing parameter '$paramName'");
             }
             $params[]=$request->query->get($paramName, 'null');
@@ -505,12 +509,14 @@ class ServicesPayuPaymentController extends FosRestController
 
         //Response
         if(isset($datos['error_code'])){
+            $transaction->setSuccessful(false);
             $resp = new ApiResponseBuilder(
                 400,
                 "Bad request",
                 $datos
             );
         }else{
+            $transaction->setSuccessful(true);
             $datos['referenceCode']=substr($datos["referenceCode"],4);
             $resp = new ApiResponseBuilder(
                 201,
@@ -524,7 +530,7 @@ class ServicesPayuPaymentController extends FosRestController
         $dm = $this->get('doctrine_mongodb')->getManager();
         $transaction->setTimeOut(time());
         $transaction->setCompleted(true);
-        $transaction->setSuccessful(true);
+
         $dm->persist($transaction);
         $dm->flush();
 

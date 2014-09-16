@@ -68,6 +68,11 @@ class Services2000chargePagofacilController extends FOSRestController
 
         $paramsMongo=$params;
         $paramsMongo[0]=substr_replace($paramsMongo[0], '************', 0, -4);
+        unset ($paramsMongo[5]);
+        unset ($paramsMongo[6]);
+
+
+
 
         //Guardamos la request en mongo
         $transaction = new Transaction();
@@ -92,12 +97,14 @@ class Services2000chargePagofacilController extends FOSRestController
 
         //Response
         if(isset($datos['error'])){
+            $transaction->setSuccessful(false);
             $resp = new ApiResponseBuilder(
                 400,
                 "Bad request",
                 $datos
             );
         }else{
+            $transaction->setSuccessful(true);
             $resp = new ApiResponseBuilder(
                 201,
                 "Reference created successfully",
@@ -110,7 +117,7 @@ class Services2000chargePagofacilController extends FOSRestController
         $dm = $this->get('doctrine_mongodb')->getManager();
         $transaction->setTimeOut(time());
         $transaction->setCompleted(true);
-        $transaction->setSuccessful(true);
+
         $dm->persist($transaction);
         $dm->flush();
 
@@ -193,12 +200,14 @@ class Services2000chargePagofacilController extends FOSRestController
 
         //Response
         if(isset($datos['error_code'])){
+            $transaction->setSuccessful(false);
             $resp = new ApiResponseBuilder(
                 400,
                 "Bad request",
                 $datos
             );
         }else{
+            $transaction->setSuccessful(true);
             $resp = new ApiResponseBuilder(
                 201,
                 "Reference created successfully",
@@ -211,7 +220,7 @@ class Services2000chargePagofacilController extends FOSRestController
         $dm = $this->get('doctrine_mongodb')->getManager();
         $transaction->setTimeOut(time());
         $transaction->setCompleted(true);
-        $transaction->setSuccessful(true);
+
         $dm->persist($transaction);
         $dm->flush();
 

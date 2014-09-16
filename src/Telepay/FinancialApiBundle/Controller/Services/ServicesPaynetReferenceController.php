@@ -7,8 +7,6 @@ use Telepay\FinancialApiBundle\Response\ApiResponseBuilder;
 use FOS\RestBundle\Controller\FOSRestController;
 use FOS\RestBundle\Controller\Annotations as Rest;
 use Nelmio\ApiDocBundle\Annotation\ApiDoc;
-use PaynetGetBarcode;
-use PaynetGetStatus;
 use Symfony\Component\HttpKernel\Exception\HttpException;
 use Telepay\FinancialApiBundle\Document\Transaction;
 
@@ -81,23 +79,18 @@ class ServicesPaynetReferenceController extends FosRestController
         $transaction->setSentData(json_encode($params));
         $transaction->setMode(true);
 
-
-        //Include the class
-        include("../vendor/paynet-barcode/PaynetGetBarcode.php");
-
         //Constructor
-        $constructor=new PaynetGetBarcode($params[0],$params[1],$params[2]);
-
-        //Request method
-        $datos=$constructor -> request();
+        $datos=$this->get('paynetref.service')->request($params[0],$params[1],$params[2]);
 
         if(isset($datos['barcode'])){
+            $transaction->setSuccessful(false);
             $resp = new ApiResponseBuilder(
                 201,
                 "Reference created successfully",
                 $datos
             );
         }else{
+            $transaction->setSuccessful(true);
             $resp = new ApiResponseBuilder(
                 400,
                 "Bad request",
@@ -110,7 +103,7 @@ class ServicesPaynetReferenceController extends FosRestController
         $dm = $this->get('doctrine_mongodb')->getManager();
         $transaction->setTimeOut(time());
         $transaction->setCompleted(true);
-        $transaction->setSuccessful(true);
+
         $dm->persist($transaction);
         $dm->flush();
 
@@ -172,23 +165,19 @@ class ServicesPaynetReferenceController extends FosRestController
         $transaction->setSentData(json_encode($params));
         $transaction->setMode(true);
 
-        //Include the class
-        include("../vendor/paynet-barcode/PaynetGetStatus.php");
-
         //Constructor
-        $constructor=new PaynetGetStatus($params[0]);
-
-        //Status method
-        $datos=$constructor -> status();
+        $datos=$this->get('paynetref.service')->status($params[0]);
 
         //Response
         if($datos['error_code']==0){
+            $transaction->setSuccessful(false);
             $resp = new ApiResponseBuilder(
                 201,
                 "Reference created successfully",
                 $datos
             );
         }else{
+            $transaction->setSuccessful(true);
             $resp = new ApiResponseBuilder(
                 400,
                 "Bad request",
