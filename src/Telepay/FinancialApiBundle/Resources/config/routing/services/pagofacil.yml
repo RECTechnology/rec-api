@@ -41,14 +41,20 @@ services_pagofacil_payment_status_test:
 
 ######################### PAGOFACIL SERVICE STATS ############################
 
-services_pagofacil_transactions:
+analytics_pagofacil_transactions:
     pattern:  /analytics/services/v1/pagofacil/transactions
     defaults: { _controller: Telepay\FinancialApiBundle\Controller\Analytics\PagofacilAnalytics::transactions }
     requirements:
         _method: GET
 
-services_pagofacil_test_transactions:
+analytics_pagofacil_test_transactions:
     pattern:  /analytics/services/v1/pagofacil/transactions/test
     defaults: { _controller: Telepay\FinancialApiBundle\Controller\Analytics\PagofacilAnalytics::transactionsTest }
+    requirements:
+        _method: GET
+
+analytics_pagofacil_sum:
+    pattern:  /analytics/services/v1/pagofacil/sum
+    defaults: { _controller: Telepay\FinancialApiBundle\Controller\Analytics\PagofacilAnalytics::stats }
     requirements:
         _method: GET
