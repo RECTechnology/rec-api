@@ -14,7 +14,7 @@ use Telepay\FinancialApiBundle\Controller\RestApiController;
 class SafetypayAnalytics extends BaseAnalytics{
 
     public function getServiceName(){
-        return 'Safetypay';
+        return 'SafetyPay';
     }
 
     public function transactions(Request $request, $mode = true) {

@@ -14,7 +14,7 @@ use Telepay\FinancialApiBundle\Controller\RestApiController;
 class ToditocashAnalytics extends BaseAnalytics{
 
     public function getServiceName(){
-        return 'Toditocash';
+        return 'ToditoCash';
     }
 
     public function transactions(Request $request, $mode = true) {

@@ -14,7 +14,7 @@ use Telepay\FinancialApiBundle\Controller\RestApiController;
 class PayuAnalytics extends BaseAnalytics{
 
     public function getServiceName(){
-        return 'Payu';
+        return 'PayU';
     }
 
     public function transactions(Request $request, $mode = true) {
