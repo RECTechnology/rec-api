@@ -45,13 +45,19 @@ services_paynet_reference_status_test:
 ######################### PAYNET REFERENCE SERVICE STATS ############################
 
 analytics_paynet_reference_transactions:
-    pattern:  /analytics/services/v1/paynet/reference/transactions
+    pattern:  /analytics/services/v1/paynetref/transactions
     defaults: { _controller: Telepay\FinancialApiBundle\Controller\Analytics\PaynetReferenceAnalytics::transactions }
     requirements:
         _method: GET
 
 analytics_paynet_payment_test_transactions:
-    pattern:  /analytics/services/v1/paynet/reference/transactions/test
+    pattern:  /analytics/services/v1/paynetref/transactions/test
     defaults: { _controller: Telepay\FinancialApiBundle\Controller\Analytics\PaynetReferenceAnalytics::transactionsTest }
+    requirements:
+        _method: GET
+
+analytics_paynet_ref_sum:
+    pattern:  /analytics/services/v1/paynetref/sum
+    defaults: { _controller: Telepay\FinancialApiBundle\Controller\Analytics\PaynetReferenceAnalytics::stats }
     requirements:
         _method: GET

@@ -53,3 +53,9 @@ analytics_toditocash_test_transactions:
     defaults: { _controller: Telepay\FinancialApiBundle\Controller\Analytics\ToditocashAnalytics::transactionsTest }
     requirements:
         _method: GET
+
+analytics_toditocash_sum:
+    pattern:  /analytics/services/v1/toditocash/sum
+    defaults: { _controller: Telepay\FinancialApiBundle\Controller\Analytics\ToditocashAnalytics::stats }
+    requirements:
+        _method: GET

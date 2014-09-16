@@ -55,8 +55,6 @@ services_payu_payment_report_test:
         _method: GET
 
 
-
-
 ######################### PAYU SERVICE STATS ############################
 
 analytics_payu_transactions:
@@ -68,5 +66,11 @@ analytics_payu_transactions:
 analytics_payu_test_transactions:
     pattern:  /analytics/services/v1/payu/transactions/test
     defaults: { _controller: Telepay\FinancialApiBundle\Controller\Analytics\PayuAnalytics::transactionsTest }
+    requirements:
+        _method: GET
+
+analytics_payu_sum:
+    pattern:  /analytics/services/v1/payu/sum
+    defaults: { _controller: Telepay\FinancialApiBundle\Controller\Analytics\PayuAnalytics::stats }
     requirements:
         _method: GET

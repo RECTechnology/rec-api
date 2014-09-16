@@ -31,3 +31,9 @@ analytics_safetypay_test_transactions:
     defaults: { _controller: Telepay\FinancialApiBundle\Controller\Analytics\SafetypayAnalytics::transactionsTest }
     requirements:
         _method: GET
+
+analytics_safetypay_sum:
+    pattern:  /analytics/services/v1/safetypay/sum
+    defaults: { _controller: Telepay\FinancialApiBundle\Controller\Analytics\SafetypayAnalytics::stats }
+    requirements:
+        _method: GET

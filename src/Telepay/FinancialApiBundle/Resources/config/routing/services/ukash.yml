@@ -53,3 +53,9 @@ analytics_ukash_test_transactions:
     defaults: { _controller: Telepay\FinancialApiBundle\Controller\Analytics\UkashAnalytics::transactionsTest }
     requirements:
         _method: GET
+
+analytics_ukash_sum:
+    pattern:  /analytics/services/v1/ukash/sum
+    defaults: { _controller: Telepay\FinancialApiBundle\Controller\Analytics\UkashAnalytics::stats }
+    requirements:
+        _method: GET
