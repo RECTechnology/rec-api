@@ -48,7 +48,7 @@ class ServicesPagofacilPaymentController extends FOSRestController
      *          "description"="Credit card number."
      *      },
      *      {
-     *          "name"="cvt",
+     *          "name"="cvv",
      *          "dataType"="string",
      *          "required"="true",
      *          "description"="3 digits in the reverse of credit card (usually)."
@@ -148,7 +148,7 @@ class ServicesPagofacilPaymentController extends FOSRestController
             'name',
             'surname',
             'card_number',
-            'cvt',
+            'cvv',
             'cp',
             'expiration_month',
             'expiration_year',

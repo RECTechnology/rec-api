@@ -34,7 +34,7 @@ class ServicesSafetypayPaymentController extends FOSRestController
      *   },
      *   parameters={
      *      {
-     *          "name"="request_date_time",
+     *          "name"="date_time",
      *          "dataType"="string",
      *          "required"="true",
      *          "format"="dd/mm/yyyyThh:mm:ss",
@@ -59,7 +59,7 @@ class ServicesSafetypayPaymentController extends FOSRestController
      *          "description"="Url if the transaction was completed succesfully."
      *      },
      *      {
-     *          "name"="url_error",
+     *          "name"="url_fail",
      *          "dataType"="string",
      *          "required"="true",
      *          "description"="Url if the transaction was an error."
@@ -72,11 +72,11 @@ class ServicesSafetypayPaymentController extends FOSRestController
     public function request(Request $request){
 
         static $paramNames = array(
-            'request_date_time',
+            'date_time',
             'currency',
             'amount',
             'url_success',
-            'url_error'
+            'url_fail'
         );
 
         //Get the parameters sent by POST and put them in $params array

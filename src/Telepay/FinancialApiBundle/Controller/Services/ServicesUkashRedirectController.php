@@ -29,22 +29,25 @@ class ServicesUkashRedirectController extends FosRestController
      *   statusCodes={
      *       201="Returned when the request was successful",
      *   },
+     *   output={
+     *
+     *      },
      *   parameters={
      *      {
-     *          "name"="total",
-     *          "dataType"="dbl",
+     *          "name"="amount",
+     *          "dataType"="string",
      *          "required"="true",
      *          "description"="Transaction amount"
      *      },
-     *       {
+     *      {
      *          "name"="transaction_id",
-     *          "dataType"="integer",
+     *          "dataType"="string",
      *          "required"="true",
      *          "description"="Transaction ID"
      *      },
      *      {
      *          "name"="consumer_id",
-     *          "dataType"="integer",
+     *          "dataType"="string",
      *          "required"="true",
      *          "description"="Consumer ID"
      *      },
@@ -83,7 +86,7 @@ class ServicesUkashRedirectController extends FosRestController
         $userid = $this->getUser()->getId();
 
         static $paramNames = array(
-            'total',
+            'amount',
             'transaction_id',
             'consumer_id',
             'currency',

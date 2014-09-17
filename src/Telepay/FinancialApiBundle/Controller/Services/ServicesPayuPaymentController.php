@@ -32,7 +32,7 @@ class ServicesPayuPaymentController extends FosRestController
      *   },
      *   parameters={
      *      {
-     *          "name"="payer_name",
+     *          "name"="name",
      *          "dataType"="string",
      *          "required"="true",
      *          "description"="Credit Card Name."
@@ -63,7 +63,7 @@ class ServicesPayuPaymentController extends FosRestController
      *          "description"="Transaction description."
      *      },
      *      {
-     *          "name"="value",
+     *          "name"="amount",
      *          "dataType"="string",
      *          "required"="true",
      *          "description"="Transaction amount. Ex: 100.00"
@@ -88,7 +88,7 @@ class ServicesPayuPaymentController extends FosRestController
      *          "description"="true if cvv is not needed or false if it's needed"
      *      },
      *      {
-     *          "name"="card_security_code",
+     *          "name"="cvv",
      *          "dataType"="string",
      *          "required"="true",
      *          "description"="3 digits at the back of the credit card"
@@ -122,12 +122,12 @@ class ServicesPayuPaymentController extends FosRestController
         $userid = $this->getUser()->getId();
 
         static $paramNames = array(
-            'payer_name',
+            'name',
             'country',
             'currency',
             'reference_code',
             'description',
-            'value',
+            'amount',
             'pay_method',
             'card_number',
             'expiration_date',
@@ -235,7 +235,7 @@ class ServicesPayuPaymentController extends FosRestController
      *   },
      *   parameters={
      *      {
-     *          "name"="payer_name",
+     *          "name"="name",
      *          "dataType"="string",
      *          "required"="true",
      *          "description"="Customer Name."
@@ -266,13 +266,13 @@ class ServicesPayuPaymentController extends FosRestController
      *          "description"="Transaction description."
      *      },
      *      {
-     *          "name"="value",
+     *          "name"="amount",
      *          "dataType"="string",
      *          "required"="true",
      *          "description"="Transaction amount. Ex: 100.00"
      *      },
      *      {
-     *          "name"="payment_method",
+     *          "name"="pay_method",
      *          "dataType"="string",
      *          "required"="true",
      *          "description"="Payment method as MASTERCARD,VISA..."

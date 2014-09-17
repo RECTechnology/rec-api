@@ -27,7 +27,7 @@ class ServicesToditocashPayservicesController extends FosRestController
      *   parameters={
      *      {
      *          "name"="transaction_id",
-     *          "dataType"="int",
+     *          "dataType"="string",
      *          "required"="true",
      *          "description"="Unique transaction id"
      *      },
@@ -53,13 +53,13 @@ class ServicesToditocashPayservicesController extends FosRestController
      *      },
      *      {
      *          "name"="nip",
-     *          "dataType"="int",
+     *          "dataType"="string",
      *          "required"="true",
      *          "description"="nip->Personal number."
      *      },
      *      {
      *          "name"="amount",
-     *          "dataType"="int",
+     *          "dataType"="string",
      *          "required"="true",
      *          "description"="Transaction amount."
      *      },

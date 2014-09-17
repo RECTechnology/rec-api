@@ -30,14 +30,14 @@ class ServicesPaynetPaymentController extends FosRestController
      *   },
      *   parameters={
      *      {
-     *          "name"="local_date",
+     *          "name"="date",
      *          "dataType"="string",
      *          "required"="true",
      *          "format"="dd/mm/yyyy",
      *          "description"="Transaction Date."
      *      },
      *      {
-     *          "name"="local_hour",
+     *          "name"="hour",
      *          "dataType"="string",
      *          "required"="true",
      *          "format"="HH:mm:ss",
@@ -45,7 +45,7 @@ class ServicesPaynetPaymentController extends FosRestController
      *      },
      *      {
      *          "name"="transaction_id",
-     *          "dataType"="long",
+     *          "dataType"="string",
      *          "required"="true",
      *          "description"="This id must be unique along the day."
      *      },
@@ -72,8 +72,8 @@ class ServicesPaynetPaymentController extends FosRestController
         $userid = $this->getUser()->getId();
 
         static $paramNames = array(
-            'local_date',
-            'local_hour',
+            'date',
+            'hour',
             'transaction_id',
             'sku',
             'reference'
@@ -173,14 +173,14 @@ class ServicesPaynetPaymentController extends FosRestController
      *   },
      *   parameters={
      *      {
-     *          "name"="local_date",
+     *          "name"="date",
      *          "dataType"="string",
      *          "required"="true",
      *          "format"="dd/mm/yyyy",
      *          "description"="Transaction Date."
      *      },
      *      {
-     *          "name"="local_hour",
+     *          "name"="hour",
      *          "dataType"="string",
      *          "required"="true",
      *          "format"="HH:mm:ss",
@@ -188,7 +188,7 @@ class ServicesPaynetPaymentController extends FosRestController
      *      },
      *      {
      *          "name"="transaction_id",
-     *          "dataType"="long",
+     *          "dataType"="string",
      *          "required"="true",
      *          "description"="This id must be the same that the info method."
      *      },
@@ -200,7 +200,7 @@ class ServicesPaynetPaymentController extends FosRestController
      *      },
      *      {
      *          "name"="fee",
-     *          "dataType"="double",
+     *          "dataType"="string",
      *          "required"="true",
      *          "description"="This comission value is obtained in the info method response"
      *      },
@@ -212,9 +212,15 @@ class ServicesPaynetPaymentController extends FosRestController
      *      },
      *      {
      *          "name"="amount",
-     *          "dataType"="double",
+     *          "dataType"="string",
      *          "required"="true",
      *          "description"="Amount value must be the same value that appears in the table 1.x."
+     *      },
+     *      {
+     *          "name"="dv",
+     *          "dataType"="string",
+     *          "required"="true",
+     *          "description"="Verification digits -> If is not needed we should write 0"
      *      }
      *   }
      * )
@@ -227,8 +233,8 @@ class ServicesPaynetPaymentController extends FosRestController
         $userid = $this->getUser()->getId();
 
         static $paramNames = array(
-            'local_date',
-            'local_hour',
+            'date',
+            'hour',
             'transaction_id',
             'sku',
             'fee',
@@ -332,14 +338,14 @@ class ServicesPaynetPaymentController extends FosRestController
      *   },
      *   parameters={
      *      {
-     *          "name"="local_date",
+     *          "name"="date",
      *          "dataType"="string",
      *          "required"="true",
      *          "format"="dd/mm/yyyy",
      *          "description"="Transaction Date."
      *      },
      *      {
-     *          "name"="local_hour",
+     *          "name"="hour",
      *          "dataType"="string",
      *          "required"="true",
      *          "format"="HH:mm:ss",
@@ -347,7 +353,7 @@ class ServicesPaynetPaymentController extends FosRestController
      *      },
      *      {
      *          "name"="transaction_id",
-     *          "dataType"="long",
+     *          "dataType"="string",
      *          "required"="true",
      *          "description"="This id must be the same that the ejecuta method."
      *      },
@@ -365,7 +371,7 @@ class ServicesPaynetPaymentController extends FosRestController
      *      },
      *      {
      *          "name"="amount",
-     *          "dataType"="double",
+     *          "dataType"="string",
      *          "required"="true",
      *          "description"="Amount value must be the same value that appears in the table 1.x."
      *      }
@@ -380,8 +386,8 @@ class ServicesPaynetPaymentController extends FosRestController
         $userid = $this->getUser()->getId();
 
         static $paramNames = array(
-            'local_date',
-            'local_hour',
+            'date',
+            'hour',
             'transaction_id',
             'sku',
             'reference',
