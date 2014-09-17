@@ -74,13 +74,13 @@ class ServicesPaynetReferenceController extends FosRestController
         $transaction = new Transaction();
         $transaction->setIp($request->getClientIp());
         $transaction->setTimeIn(time());
-        $transaction->setService($this->get('telepay.services')->findByName('PayNetReference')->getId());
+        $transaction->setService($this->get('telepay.services')->findByName('PaynetReference')->getId());
         $transaction->setUser($this->get('security.context')->getToken()->getUser()->getId());
         $transaction->setSentData(json_encode($params));
         $transaction->setMode(true);
 
         //Constructor
-        $datos=$this->get('paynetref.service')->request($params[0],$params[1],$params[2]);
+        $datos=$this->get('paynetref.service')->getPaynetGetBarcode()->request($params[0],$params[1],$params[2]);
 
         if(isset($datos['barcode'])){
             $transaction->setSuccessful(false);
@@ -160,13 +160,13 @@ class ServicesPaynetReferenceController extends FosRestController
         $transaction = new Transaction();
         $transaction->setIp($request->getClientIp());
         $transaction->setTimeIn(time());
-        $transaction->setService($this->get('telepay.services')->findByName('PayNetReference')->getId());
+        $transaction->setService($this->get('telepay.services')->findByName('PaynetReference')->getId());
         $transaction->setUser($this->get('security.context')->getToken()->getUser()->getId());
         $transaction->setSentData(json_encode($params));
         $transaction->setMode(true);
 
         //Constructor
-        $datos=$this->get('paynetref.service')->status($params[0]);
+        $datos=$this->get('paynetref.service')->getPaynetGetStatus()->status($params[0]);
 
         //Response
         if($datos['error_code']==0){
