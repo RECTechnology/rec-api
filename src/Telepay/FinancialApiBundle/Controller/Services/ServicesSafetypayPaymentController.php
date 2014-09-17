@@ -96,7 +96,7 @@ class ServicesSafetypayPaymentController extends FOSRestController
         $transaction = new Transaction();
         $transaction->setIp($request->getClientIp());
         $transaction->setTimeIn(time());
-        $transaction->setService($this->get('telepay.services')->findByName('Safetypay')->getId());
+        $transaction->setService($this->get('telepay.services')->findByName('SafetyPay')->getId());
         $transaction->setUser($this->get('security.context')->getToken()->getUser()->getId());
         $transaction->setSentData(json_encode($params));
         $transaction->setMode($mode === 'P');
