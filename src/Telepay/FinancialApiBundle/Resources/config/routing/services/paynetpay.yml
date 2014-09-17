@@ -56,12 +56,6 @@ services_paynet_payment_reversa_test:
         _method: GET
 
 
-
-
-
-
-
-
 ######################### PAYNET PAYMENT SERVICE STATS ############################
 
 analytics_paynet_payment_transactions:
@@ -70,7 +64,7 @@ analytics_paynet_payment_transactions:
     requirements:
         _method: GET
 
-analytics_paynet_payment_test_transactions:
+analytics_paynet_payment_transactions_test:
     pattern:  /analytics/services/v1/paynetpay/transactions/test
     defaults: { _controller: Telepay\FinancialApiBundle\Controller\Analytics\PaynetPaymentAnalytics::transactionsTest }
     requirements:

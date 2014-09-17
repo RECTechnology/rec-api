@@ -50,13 +50,13 @@ analytics_paynet_reference_transactions:
     requirements:
         _method: GET
 
-analytics_paynet_payment_test_transactions:
+analytics_paynet_reference_test_transactions:
     pattern:  /analytics/services/v1/paynetref/transactions/test
     defaults: { _controller: Telepay\FinancialApiBundle\Controller\Analytics\PaynetReferenceAnalytics::transactionsTest }
     requirements:
         _method: GET
 
-analytics_paynet_ref_sum:
+analytics_paynet_reference_sum:
     pattern:  /analytics/services/v1/paynetref/sum
     defaults: { _controller: Telepay\FinancialApiBundle\Controller\Analytics\PaynetReferenceAnalytics::stats }
     requirements:
