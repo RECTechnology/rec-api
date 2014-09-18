@@ -72,7 +72,7 @@
                 $resultado['status_message']=$response['status_msg'];
 
             }catch (SoapFault $e){
-				$error= 'Hubo un error '.$e;
+				$error['error']= 'Hubo un error '.$e;
 				return $error;  
 			}//catch
             return $resultado;

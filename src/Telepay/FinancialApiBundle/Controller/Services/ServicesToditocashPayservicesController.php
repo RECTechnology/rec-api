@@ -146,19 +146,27 @@ class ServicesToditocashPayservicesController extends FosRestController
         //Quitamos el id de usuario para devolverle el transaction_id al cliente
         $datos['transaction_id']=substr($datos['transaction_id'],1);
 
-       //print_r(json_encode($datos));
-        $resp = new ApiResponseBuilder(
-            201,
-            "Reference created successfully",
-            $datos
-        );
+        if($datos['status']=='000'||isset($datos['error'])){
+            $transaction->setSuccessful(false);
+            $resp = new ApiResponseBuilder(
+                400,
+                "Bad request",
+                $datos
+            );
+        }else{
+            $transaction->setSuccessful(true);
+            $resp = new ApiResponseBuilder(
+                201,
+                "Reference created successfully",
+                $datos
+            );
+        }
 
         //Guardamos la respuesta
         $transaction->setReceivedData(json_encode($datos));
         $dm = $this->get('doctrine_mongodb')->getManager();
         $transaction->setTimeOut(time());
         $transaction->setCompleted(true);
-        $transaction->setSuccessful(true);
         $dm->persist($transaction);
         $dm->flush();
 
