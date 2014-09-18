@@ -34,3 +34,6 @@ services:
 
     paynetref.service:
         class: Telepay\FinancialApiBundle\DependencyInjection\Services\Paynetbarcode
+
+    pademobile.service:
+            class: Telepay\FinancialApiBundle\DependencyInjection\Services\Pademobile

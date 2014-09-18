@@ -25,3 +25,6 @@ SafetyPay:
 
 ToditoCash:
     resource: services/toditocash.yml
+
+Pademobile:
+    resource: services/pademobile.yml

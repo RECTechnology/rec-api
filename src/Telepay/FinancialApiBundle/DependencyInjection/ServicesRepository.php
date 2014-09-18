@@ -55,6 +55,11 @@ class ServicesRepository{
             'name' => 'PaynetReference',
             'role' => 'ROLE_SERVICES_PAYNET_REFERENCE',
         ),
+        array(
+            'id' => 9,
+            'name' => 'Pademobile',
+            'role' => 'ROLE_SERVICES_PADEMOBILE',
+        ),
     );
 
     public function findAll(){

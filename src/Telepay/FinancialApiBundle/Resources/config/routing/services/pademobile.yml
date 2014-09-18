@@ -1,0 +1,43 @@
+
+
+######################### SERVICES ############################
+
+services_pademobile_redirect_request:
+    pattern:  /services/v1/pademobile/redirect/request
+    defaults: { _controller: Telepay\FinancialApiBundle\Controller\Services\ServicesPademobileRedirectController::request, _format: ~ }
+    requirements:
+        _method: POST
+
+services_pademobile_redirect_request_sandbox:
+    pattern:  /sandbox/services/v1/pademobile/redirect/request
+    defaults: { _controller: Telepay\FinancialApiBundle\Controller\Services\ServicesPademobileRedirectController::requestTest, _format: ~ }
+    requirements:
+        _method: POST
+
+services_pademobile_redirect_request_test:
+    pattern:  /test/services/v1/pademobile/redirect/request
+    defaults: { _controller: Telepay\FinancialApiBundle\Controller\Services\ServicesPademobileRedirectController::requestTest, _format: ~ }
+    requirements:
+        _method: POST
+
+
+
+######################### ANALYTICS ############################
+
+analytics_pademobile_transactions:
+    pattern:  /analytics/services/v1/pademobile/transactions
+    defaults: { _controller: Telepay\FinancialApiBundle\Controller\Analytics\PademobileAnalytics::transactions }
+    requirements:
+        _method: GET
+
+analytics_pademobile_test_transactions:
+    pattern:  /analytics/services/v1/pademobile/transactions/test
+    defaults: { _controller: Telepay\FinancialApiBundle\Controller\Analytics\PademobileAnalytics::transactionsTest }
+    requirements:
+        _method: GET
+
+analytics_pademobile_sum:
+    pattern:  /analytics/services/v1/pademobile/sum
+    defaults: { _controller: Telepay\FinancialApiBundle\Controller\Analytics\PademobileAnalytics::stats }
+    requirements:
+        _method: GET
