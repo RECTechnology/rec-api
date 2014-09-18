@@ -131,7 +131,7 @@ class ServicesPayuPaymentController extends FosRestController
             'pay_method',
             'card_number',
             'expiration_date',
-            'security_code',
+            'cvv',
             'without_cvv2',
             'tax_base',
             'tax_value'

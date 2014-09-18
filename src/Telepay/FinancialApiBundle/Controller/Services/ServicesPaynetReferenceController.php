@@ -83,14 +83,14 @@ class ServicesPaynetReferenceController extends FosRestController
         $datos=$this->get('paynetref.service')->getPaynetGetBarcode()->request($params[0],$params[1],$params[2]);
 
         if(isset($datos['barcode'])){
-            $transaction->setSuccessful(false);
+            $transaction->setSuccessful(true);
             $resp = new ApiResponseBuilder(
                 201,
                 "Reference created successfully",
                 $datos
             );
         }else{
-            $transaction->setSuccessful(true);
+            $transaction->setSuccessful(false);
             $resp = new ApiResponseBuilder(
                 400,
                 "Bad request",
