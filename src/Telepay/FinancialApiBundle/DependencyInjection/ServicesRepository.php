@@ -22,7 +22,7 @@ class ServicesRepository{
         ),
         array(
             'id' => 2,
-            'name' => 'PaynetPayment',
+            'name' => 'PayNetPayment',
             'role' => 'ROLE_SERVICES_PAYNET_PAYMENT',
         ),
         array(
