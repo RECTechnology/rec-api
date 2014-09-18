@@ -146,7 +146,7 @@ class ServicesToditocashPayservicesController extends FosRestController
         //Quitamos el id de usuario para devolverle el transaction_id al cliente
         $datos['transaction_id']=substr($datos['transaction_id'],1);
 
-        if($datos['status']=='000'||isset($datos['error'])){
+        if($datos['status']!='000'||isset($datos['error'])){
             $transaction->setSuccessful(false);
             $resp = new ApiResponseBuilder(
                 400,
