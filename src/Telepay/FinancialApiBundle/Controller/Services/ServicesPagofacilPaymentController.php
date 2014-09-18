@@ -173,6 +173,9 @@ class ServicesPagofacilPaymentController extends FOSRestController
             $params[]=$request->get($paramName, 'null');
         }
 
+        $paramsMongo=$params;
+        $paramsMongo[2]=substr_replace($paramsMongo[2], '************', 0, -4);
+
         //Concatenamos la referencia añadiendole el idusuario (0000)
         if($userid < 10){
             $params[16]='000'.$userid.$params[16];
@@ -188,9 +191,6 @@ class ServicesPagofacilPaymentController extends FOSRestController
         //Comprobamos modo Test
         $mode = $request->get('mode');
         if(!isset($mode)) $mode = 'P';
-
-        $paramsMongo=$params;
-        $paramsMongo[2]=substr_replace($paramsMongo[2], '************', 0, -4);
 
         //Guardamos la request en mongo
         $transaction = new Transaction();
@@ -289,6 +289,8 @@ class ServicesPagofacilPaymentController extends FOSRestController
             $params[]=$request->query->get($paramName, 'null');
         }
 
+        $paramsMongo=$params;
+
         //Concatenamos la referencia añadiendole el idusuario (0000)
         if($userid < 10){
             $params[0]='000'.$userid.$params[0];
@@ -310,7 +312,7 @@ class ServicesPagofacilPaymentController extends FOSRestController
         $transaction->setTimeIn(time());
         $transaction->setService($this->get('telepay.services')->findByName('PagoFacil')->getId());
         $transaction->setUser($this->get('security.context')->getToken()->getUser()->getId());
-        $transaction->setSentData(json_encode($params));
+        $transaction->setSentData(json_encode($paramsMongo));
         $transaction->setMode($mode === 'P');
 
         //Check if it's a Test or Production transaction

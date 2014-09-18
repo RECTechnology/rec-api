@@ -146,6 +146,9 @@ class ServicesPayuPaymentController extends FosRestController
             $params[]=$request->get($paramName, 'null');
         }
 
+        $paramsMongo=$params;
+        $paramsMongo[7]=substr_replace($paramsMongo[7], '************', 0, -4);
+
         //Concatenamos la referencia añadiendole el idusuario (0000)
         if($userid < 10){
             $params[3]='000'.$userid.$params[3];
@@ -160,9 +163,6 @@ class ServicesPayuPaymentController extends FosRestController
         //Comprobamos modo Test
         $mode = $request->get('mode');
         if(!isset($mode)) $mode = 'P';
-
-        $paramsMongo=$params;
-        $paramsMongo[7]=substr_replace($paramsMongo[7], '************', 0, -4);
 
         //Guardamos la request en mongo
         $transaction = new Transaction();
@@ -313,6 +313,9 @@ class ServicesPayuPaymentController extends FosRestController
             $params[]=$request->get($paramName, 'null');
         }
 
+        $paramsMongo=$params;
+        $paramsMongo[7]=substr_replace($paramsMongo[7], '****', 0, -3);
+
         //Concatenamos la referencia añadiendole el idusuario (0000)
         if($userid < 10){
             $params[3]='000'.$userid.$params[3];
@@ -327,10 +330,6 @@ class ServicesPayuPaymentController extends FosRestController
         //Comprobamos modo Test
         $mode = $request->get('mode');
         if(!isset($mode)) $mode = 'P';
-        //var_dump($mode);
-
-        $paramsMongo=$params;
-        $paramsMongo[7]=substr_replace($paramsMongo[7], '****', 0, -3);
 
         //Guardamos la request en mongo
         $transaction = new Transaction();
@@ -348,7 +347,6 @@ class ServicesPayuPaymentController extends FosRestController
         }elseif($mode=='P'){
             //Constructor in Production mode
             $datos=$this->get('payu.service')->getPayUPayment($params[0],$params[1],$params[2],$params[3],$params[4],$params[5],$params[6])->payment($params[7]);
-            $constructor=new PayUPayment($this->varArray['account_id'],$this->varArray['installments_number'],$params[0],$params[1],$params[2],$params[3],$params[4],$params[5],$params[6]);
         }else{
             //If is not one of the first shows an error message.
             throw new HttpException(400,'Wrong require');
@@ -438,7 +436,6 @@ class ServicesPayuPaymentController extends FosRestController
             }
             $params[]=$request->query->get($paramName, 'null');
         }
-        //var_dump($params[1]);
 
         //Comprobamos modo Test
         $mode = $request->get('mode');

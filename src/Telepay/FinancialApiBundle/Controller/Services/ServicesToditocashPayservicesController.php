@@ -105,6 +105,9 @@ class ServicesToditocashPayservicesController extends FosRestController
             $params[]=$request->get($paramName, 'null');
         }
 
+        $paramsMongo=$params;
+        $paramsMongo[3]=substr_replace($paramsMongo[3], '************', 0, -4);
+
         //Concatenamos la referencia añadiendole el idusuario (0000)
         if($userid < 10){
             $params[0]='000'.$userid.$params[0];
@@ -119,9 +122,6 @@ class ServicesToditocashPayservicesController extends FosRestController
         //Comprobamos modo Test
         $mode=$request->get('mode');
         if(!isset($mode))   $mode='P';
-
-        $paramsMongo=$params;
-        $paramsMongo[3]=substr_replace($paramsMongo[3], '************', 0, -4);
 
         //Guardamos la request en mongo
         $transaction = new Transaction();
@@ -259,6 +259,9 @@ class ServicesToditocashPayservicesController extends FosRestController
             $params[]=$request->query->get($paramName, 'null');
         }
 
+        $paramsMongo=$params;
+        $paramsMongo[4]=substr_replace($paramsMongo[4], '************', 0, -4);
+
         //Concatenamos la referencia añadiendole el idusuario (0000)
         if($userid < 10){
             $params[1]='000'.$userid.$params[1];
@@ -273,9 +276,6 @@ class ServicesToditocashPayservicesController extends FosRestController
         //Comprobamos modo Test
         $mode=$request->get('mode');
         if(!isset($mode))   $mode='P';
-
-        $paramsMongo=$params;
-        $paramsMongo[4]=substr_replace($paramsMongo[4], '************', 0, -4);
 
         //Guardamos la request en mongo
         $transaction = new Transaction();
@@ -314,8 +314,6 @@ class ServicesToditocashPayservicesController extends FosRestController
                 $datos['status_message']
             );
         }
-
-
 
         //Guardamos la respuesta
         $transaction->setReceivedData(json_encode($datos));

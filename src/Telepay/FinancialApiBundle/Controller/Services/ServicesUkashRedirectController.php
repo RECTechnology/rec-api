@@ -104,6 +104,8 @@ class ServicesUkashRedirectController extends FosRestController
             $params[]=$request->get($paramName, 'null');
         }
 
+        $paramsMongo=$params;
+
         //Concatenamos la referencia añadiendole el idusuario (0000)
         if($userid < 10){
             $params[1]='000'.$userid.$params[1];
@@ -125,7 +127,7 @@ class ServicesUkashRedirectController extends FosRestController
         $transaction->setTimeIn(time());
         $transaction->setService($this->get('telepay.services')->findByName('Ukash')->getId());
         $transaction->setUser($this->get('security.context')->getToken()->getUser()->getId());
-        $transaction->setSentData(json_encode($params));
+        $transaction->setSentData(json_encode($paramsMongo));
         $transaction->setMode($mode === 'P');
 
         //Constructor
