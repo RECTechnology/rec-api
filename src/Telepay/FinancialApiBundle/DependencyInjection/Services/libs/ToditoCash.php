@@ -39,8 +39,8 @@
 
             try {
 
-			    //$client = new SoapClient('http://200.23.37.104:3636/appr_tc/?wsdl');
-                $client = new SoapClient('http://localhost:3636/appr_tc/?wsdl');
+			    $client = new SoapClient('http://200.23.37.104:3636/appr_tc/?wsdl');
+                //$client = new SoapClient('http://localhost:3636/appr_tc/?wsdl');
 	  
 			    $request = new SoapVar(array(
                         'idContrato'	=>$this->contract_id,       //2801,

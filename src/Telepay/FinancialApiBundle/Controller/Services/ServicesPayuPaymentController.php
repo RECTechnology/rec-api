@@ -294,12 +294,12 @@ class ServicesPayuPaymentController extends FosRestController
         $userid = $this->getUser()->getId();
 
         static $paramNames = array(
-            'payer_name',
+            'name',
             'country',
             'currency',
             'reference_code',
             'description',
-            'value',
+            'amount',
             'pay_method',
             'payer_dni'
         );
