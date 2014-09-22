@@ -40,9 +40,8 @@ abstract class BaseAnalytics extends RestApiController{
             ->field('user')->equals($userId)
             ->field('service')->equals($serviceId)
             ->field('mode')->equals($mode)
+            ->sort('timeIn', 'desc')
             ->skip($offset)->limit($limit)->getQuery()->execute();
-
-        //die(print_r($transactions->toArray(), true));
 
         $tansArray = [];
         foreach($transactions->toArray() as $transaction){
