@@ -23,24 +23,7 @@ abstract class BaseAnalytics extends RestApiController{
 
         if($request->query->has('offset')) $offset = intval($request->query->get('offset'));
         else $offset = 0;
-/*
-        $transactionsRepo = $this->get('doctrine_mongodb')
-            ->getManager()
-            ->getRepository('TelepayFinancialApiBundle:Transaction');
 
-        $transactions = $transactionsRepo->findBy(
-            array(
-                'user' => $this->get('security.context')
-                        ->getToken()->getUser()->getId(),
-                'service' => $this->get('telepay.services')
-                        ->findByName($this->getServiceName())->getId(),
-                'mode'=> $mode
-            ),
-            array('timeIn'=>'DESC'),
-            $limit,
-            $offset
-        );
-*/
         $userId = $this->get('security.context')->getToken()->getUser()->getId();
         $serviceId = $this->get('telepay.services')
             ->findByName($this->getServiceName())->getId();
@@ -57,7 +40,7 @@ abstract class BaseAnalytics extends RestApiController{
             ->field('user')->equals($userId)
             ->field('service')->equals($serviceId)
             ->field('mode')->equals($mode)
-            ->getQuery()->execute();
+            ->skip($offset)->limit($limit)->getQuery()->execute();
 
         //die(print_r($transactions->toArray(), true));
 
