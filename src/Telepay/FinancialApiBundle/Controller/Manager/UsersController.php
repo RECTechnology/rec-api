@@ -40,10 +40,26 @@ class UsersController extends BaseApiController
         else $offset = 0;
 
         $all = $this->getRepository()->findAll();
+        $securityContext = $this->get('security.context');
 
-        $total = count($all);
+        if(!$securityContext->isGranted('ROLE_SUPER_ADMIN')){
+            $filtered = [];
+            foreach($all as $user){
+                if(!$user->hasRole('ROLE_SUPER_ADMIN'))
+                    $filtered []= $user;
+            }
+        }
+        else{
+            $filtered = $all;
+        }
 
-        $entities = array_slice($all, $offset, $limit);
+
+
+
+
+        $total = count($filtered);
+
+        $entities = array_slice($filtered, $offset, $limit);
         array_map(function($elem){
             $services = $elem->getAllowedServices();
             $elem->setAllowedServices($services);
