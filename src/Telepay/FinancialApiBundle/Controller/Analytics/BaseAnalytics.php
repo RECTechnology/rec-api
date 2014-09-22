@@ -23,7 +23,7 @@ abstract class BaseAnalytics extends RestApiController{
 
         if($request->query->has('offset')) $offset = intval($request->query->get('offset'));
         else $offset = 0;
-
+/*
         $transactionsRepo = $this->get('doctrine_mongodb')
             ->getManager()
             ->getRepository('TelepayFinancialApiBundle:Transaction');
@@ -40,10 +40,34 @@ abstract class BaseAnalytics extends RestApiController{
             $limit,
             $offset
         );
+*/
+        $userId = $this->get('security.context')->getToken()->getUser()->getId();
+        $serviceId = $this->get('telepay.services')
+            ->findByName($this->getServiceName())->getId();
 
-        $total = count($transactions);
+        $dm = $this->get('doctrine_mongodb')->getManager();
+
+        $total = $dm->createQueryBuilder('TelepayFinancialApiBundle:Transaction')
+            ->field('user')->equals($userId)
+            ->field('service')->equals($serviceId)
+            ->field('mode')->equals($mode)
+            ->count()->getQuery()->execute();
+
+        $transactions = $dm->createQueryBuilder('TelepayFinancialApiBundle:Transaction')
+            ->field('user')->equals($userId)
+            ->field('service')->equals($serviceId)
+            ->field('mode')->equals($mode)
+            ->getQuery()->execute();
+
+        //die(print_r($transactions->toArray(), true));
+
+        $tansArray = [];
+        foreach($transactions->toArray() as $transaction){
+            $tansArray []= $transaction;
+        }
+
         $start = $offset;
-        $end = $offset+$total;
+        $end = $offset+$limit;
 
         return $this->handleRestView(
             200,
@@ -52,7 +76,7 @@ abstract class BaseAnalytics extends RestApiController{
                 'total' => $total,
                 'start' => $start,
                 'end' => $end,
-                'transactions' => $transactions
+                'transactions' => $tansArray
             )
         );
     }

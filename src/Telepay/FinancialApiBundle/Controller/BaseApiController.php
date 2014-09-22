@@ -32,6 +32,7 @@ abstract class BaseApiController extends RestApiController implements Repository
         if($request->query->has('offset')) $offset = $request->query->get('offset');
         else $offset = 0;
 
+        //TODO: Improve performance (two queries)
         $all = $this->getRepository()->findAll();
 
         $total = count($all);

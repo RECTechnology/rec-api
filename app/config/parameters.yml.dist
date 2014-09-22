@@ -17,3 +17,8 @@ parameters:
     debug_toolbar:          true
     debug_redirects:        false
     use_assetic_controller: true
+
+    mongodb_server: mongodb://localhost:27017
+    mongodb_db: symfony
+    version: 1.0
+    build_id: "#1"
