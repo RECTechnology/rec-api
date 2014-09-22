@@ -37,11 +37,6 @@ services_paynet_reference_status_test:
 
 
 
-
-
-
-
-
 ######################### PAYNET REFERENCE SERVICE STATS ############################
 
 analytics_paynet_reference_transactions:

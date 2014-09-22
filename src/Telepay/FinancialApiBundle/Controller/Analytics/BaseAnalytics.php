@@ -18,17 +18,11 @@ abstract class BaseAnalytics extends RestApiController{
 
     public function transactions(Request $request, $mode = true) {
 
-        if($request->query->has('limit')) $limit = $request->query->get('limit');
+        if($request->query->has('limit')) $limit = intval($request->query->get('limit'));
         else $limit = 10;
 
-        if($request->query->has('offset')) $offset = $request->query->get('offset');
+        if($request->query->has('offset')) $offset = intval($request->query->get('offset'));
         else $offset = 0;
-
-        if($request->query->has('start_time')) $start_time = $request->query->get('start_time');
-        else $start_time = 10;
-
-        if($request->query->has('end_time')) $end_time = $request->query->get('end_time');
-        else $end_time = 0;
 
         $transactionsRepo = $this->get('doctrine_mongodb')
             ->getManager()
@@ -47,10 +41,19 @@ abstract class BaseAnalytics extends RestApiController{
             $offset
         );
 
+        $total = count($transactions);
+        $start = $offset;
+        $end = $offset+$total;
+
         return $this->handleRestView(
             200,
             "Request successful",
-            $transactions
+            array(
+                'total' => $total,
+                'start' => $start,
+                'end' => $end,
+                'transactions' => $transactions
+            )
         );
     }
 
