@@ -43,13 +43,13 @@ abstract class BaseAnalytics extends RestApiController{
             ->sort('timeIn', 'desc')
             ->skip($offset)->limit($limit)->getQuery()->execute();
 
-        $tansArray = [];
+        $transArray = [];
         foreach($transactions->toArray() as $transaction){
-            $tansArray []= $transaction;
+            $transArray []= $transaction;
         }
 
         $start = $offset;
-        $end = $offset+$limit;
+        $end = $offset+count($transArray);
 
         return $this->handleRestView(
             200,
@@ -58,7 +58,7 @@ abstract class BaseAnalytics extends RestApiController{
                 'total' => $total,
                 'start' => $start,
                 'end' => $end,
-                'transactions' => $tansArray
+                'transactions' => $transArray
             )
         );
     }
