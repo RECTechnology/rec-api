@@ -66,6 +66,12 @@ class ServicesPaynetReferenceController extends FosRestController
             $params[]=$request->get($paramName, 'null');
         }
 
+        $count=count($paramNames);
+        $paramsMongo=array();
+        for($i=0; $i<$count; $i++){
+            $paramsMongo[$paramNames[$i]]=$params[$i];
+        }
+
         //Comprobamos modo Test
         $mode = $request->get('mode');
         if(!isset($mode)) $mode = 'P';
@@ -76,7 +82,7 @@ class ServicesPaynetReferenceController extends FosRestController
         $transaction->setTimeIn(time());
         $transaction->setService($this->get('telepay.services')->findByName('PaynetReference')->getId());
         $transaction->setUser($this->get('security.context')->getToken()->getUser()->getId());
-        $transaction->setSentData(json_encode($params));
+        $transaction->setSentData(json_encode($paramsMongo));
         $transaction->setMode(true);
 
         //Constructor
@@ -156,13 +162,19 @@ class ServicesPaynetReferenceController extends FosRestController
             $params[]=$request->query->get($paramName, 'null');
         }
 
+        $count=count($paramNames);
+        $paramsMongo=array();
+        for($i=0; $i<$count; $i++){
+            $paramsMongo[$paramNames[$i]]=$params[$i];
+        }
+
         //Guardamos la request en mongo
         $transaction = new Transaction();
         $transaction->setIp($request->getClientIp());
         $transaction->setTimeIn(time());
         $transaction->setService($this->get('telepay.services')->findByName('PaynetReference')->getId());
         $transaction->setUser($this->get('security.context')->getToken()->getUser()->getId());
-        $transaction->setSentData(json_encode($params));
+        $transaction->setSentData(json_encode($paramsMongo));
         $transaction->setMode(true);
 
         //Constructor

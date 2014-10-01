@@ -175,8 +175,13 @@ class ServicesPagofacilPaymentController extends RestApiController
             $params[]=$request->get($paramName, 'null');
         }
 
-        $paramsMongo=$params;
-        $paramsMongo[2]=substr_replace($paramsMongo[2], '************', 0, -4);
+        $count=count($paramNames);
+        $paramsMongo=array();
+        for($i=0; $i<$count; $i++){
+            $paramsMongo[$paramNames[$i]]=$params[$i];
+        }
+
+        $paramsMongo['card_number']=substr_replace($paramsMongo['card_number'], '************', 0, -4);
 
         //Concatenamos la referencia añadiendole el idusuario (0000)
         if($userid < 10){
@@ -188,7 +193,6 @@ class ServicesPagofacilPaymentController extends RestApiController
         }else{
             $params[16]=$userid.$params[16];
         }
-        //var_dump($params[16]);
 
         //Comprobamos modo Test
         $mode = $request->get('mode');
@@ -289,7 +293,11 @@ class ServicesPagofacilPaymentController extends RestApiController
             $params[]=$request->query->get($paramName, 'null');
         }
 
-        $paramsMongo=$params;
+        $count=count($paramNames);
+        $paramsMongo=array();
+        for($i=0; $i<$count; $i++){
+            $paramsMongo[$paramNames[$i]]=$params[$i];
+        }
 
         //Comprobamos modo Test
         $mode = $request->get('mode');

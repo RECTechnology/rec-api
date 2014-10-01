@@ -88,6 +88,12 @@ class ServicesSafetypayPaymentController extends FOSRestController
             $params[]=$request->get($paramName, 'null');
         }
 
+        $count=count($paramNames);
+        $paramsMongo=array();
+        for($i=0; $i<$count; $i++){
+            $paramsMongo[$paramNames[$i]]=$params[$i];
+        }
+
         //Comprobamos modo Test
         $mode = $request->get('mode');
         if(!isset($mode)) $mode = 'P';
@@ -98,7 +104,7 @@ class ServicesSafetypayPaymentController extends FOSRestController
         $transaction->setTimeIn(time());
         $transaction->setService($this->get('telepay.services')->findByName('SafetyPay')->getId());
         $transaction->setUser($this->get('security.context')->getToken()->getUser()->getId());
-        $transaction->setSentData(json_encode($params));
+        $transaction->setSentData(json_encode($paramsMongo));
         $transaction->setMode($mode === 'P');
 
         //Check if it's a Test or Production transaction

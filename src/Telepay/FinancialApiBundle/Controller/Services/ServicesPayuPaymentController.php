@@ -146,8 +146,13 @@ class ServicesPayuPaymentController extends FosRestController
             $params[]=$request->get($paramName, 'null');
         }
 
-        $paramsMongo=$params;
-        $paramsMongo[7]=substr_replace($paramsMongo[7], '************', 0, -4);
+        $count=count($paramNames);
+        $paramsMongo=array();
+        for($i=0; $i<$count; $i++){
+            $paramsMongo[$paramNames[$i]]=$params[$i];
+        }
+
+        $paramsMongo['card_number']=substr_replace($paramsMongo['card_number'], '************', 0, -4);
 
         //Concatenamos la referencia añadiendole el idusuario (0000)
         if($userid < 10){
@@ -313,8 +318,13 @@ class ServicesPayuPaymentController extends FosRestController
             $params[]=$request->get($paramName, 'null');
         }
 
-        $paramsMongo=$params;
-        $paramsMongo[7]=substr_replace($paramsMongo[7], '****', 0, -3);
+        $count=count($paramNames);
+        $paramsMongo=array();
+        for($i=0; $i<$count; $i++){
+            $paramsMongo[$paramNames[$i]]=$params[$i];
+        }
+
+        $paramsMongo['payer_dni']=substr_replace($paramsMongo['payer_dni'], '****', 0, -3);
 
         //Concatenamos la referencia añadiendole el idusuario (0000)
         if($userid < 10){
@@ -437,6 +447,12 @@ class ServicesPayuPaymentController extends FosRestController
             $params[]=$request->query->get($paramName, 'null');
         }
 
+        $count=count($paramNames);
+        $paramsMongo=array();
+        for($i=0; $i<$count; $i++){
+            $paramsMongo[$paramNames[$i]]=$params[$i];
+        }
+
         //Comprobamos modo Test
         $mode = $request->get('mode');
         if(!isset($mode)) $mode = 'P';
@@ -447,7 +463,7 @@ class ServicesPayuPaymentController extends FosRestController
         $transaction->setTimeIn(time());
         $transaction->setService($this->get('telepay.services')->findByName('PayU')->getId());
         $transaction->setUser($this->get('security.context')->getToken()->getUser()->getId());
-        $transaction->setSentData(json_encode($params));
+        $transaction->setSentData(json_encode($paramsMongo));
         $transaction->setMode($mode === 'P');
 
 

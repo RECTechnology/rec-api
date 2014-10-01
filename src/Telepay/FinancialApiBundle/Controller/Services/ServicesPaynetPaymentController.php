@@ -88,6 +88,12 @@ class ServicesPaynetPaymentController extends FosRestController
             $params[]=$request->get($paramName, 'null');
         }
 
+        $count=count($paramNames);
+        $paramsMongo=array();
+        for($i=0; $i<$count; $i++){
+            $paramsMongo[$paramNames[$i]]=$params[$i];
+        }
+
         //Concatenamos la referencia añadiendole el idusuario (0000)
         if($userid < 10){
             $params[2]='000'.$userid.$params[2];
@@ -110,7 +116,7 @@ class ServicesPaynetPaymentController extends FosRestController
         $transaction->setTimeIn(time());
         $transaction->setService($this->get('telepay.services')->findByName('PayNetPayment')->getId());
         $transaction->setUser($this->get('security.context')->getToken()->getUser()->getId());
-        $transaction->setSentData(json_encode($params));
+        $transaction->setSentData(json_encode($paramsMongo));
         $transaction->setMode($mode === 'P');
 
         //Check if it's a Test or Production transaction
@@ -252,6 +258,12 @@ class ServicesPaynetPaymentController extends FosRestController
             $params[]=$request->get($paramName, 'null');
         }
 
+        $count=count($paramNames);
+        $paramsMongo=array();
+        for($i=0; $i<$count; $i++){
+            $paramsMongo[$paramNames[$i]]=$params[$i];
+        }
+
         //Concatenamos la referencia añadiendole el idusuario (0000)
         if($userid < 10){
             $params[2]='000'.$userid.$params[2];
@@ -274,7 +286,7 @@ class ServicesPaynetPaymentController extends FosRestController
         $transaction->setTimeIn(time());
         $transaction->setService($this->get('telepay.services')->findByName('PayNetPayment')->getId());
         $transaction->setUser($this->get('security.context')->getToken()->getUser()->getId());
-        $transaction->setSentData(json_encode($params));
+        $transaction->setSentData(json_encode($paramsMongo));
         $transaction->setMode($mode === 'P');
 
         //Check if it's a Test or Production transaction
@@ -403,6 +415,12 @@ class ServicesPaynetPaymentController extends FosRestController
             $params[]=$request->query->get($paramName, 'null');
         }
 
+        $count=count($paramNames);
+        $paramsMongo=array();
+        for($i=0; $i<$count; $i++){
+            $paramsMongo[$paramNames[$i]]=$params[$i];
+        }
+
         //Concatenamos la referencia añadiendole el idusuario (0000)
         if($userid < 10){
             $params[2]='000'.$userid.$params[2];
@@ -425,7 +443,7 @@ class ServicesPaynetPaymentController extends FosRestController
         $transaction->setTimeIn(time());
         $transaction->setService($this->get('telepay.services')->findByName('PayNetPayment')->getId());
         $transaction->setUser($this->get('security.context')->getToken()->getUser()->getId());
-        $transaction->setSentData(json_encode($params));
+        $transaction->setSentData(json_encode($paramsMongo));
         $transaction->setMode($mode === 'P');
 
         //Check if it's a Test or Production transaction

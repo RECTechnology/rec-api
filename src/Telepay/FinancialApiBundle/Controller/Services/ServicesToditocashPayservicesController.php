@@ -105,8 +105,13 @@ class ServicesToditocashPayservicesController extends FosRestController
             $params[]=$request->get($paramName, 'null');
         }
 
-        $paramsMongo=$params;
-        $paramsMongo[3]=substr_replace($paramsMongo[3], '************', 0, -4);
+        $count=count($paramNames);
+        $paramsMongo=array();
+        for($i=0; $i<$count; $i++){
+            $paramsMongo[$paramNames[$i]]=$params[$i];
+        }
+
+        $paramsMongo['card_number']=substr_replace($paramsMongo['card_number'], '************', 0, -4);
 
         //Concatenamos la referencia añadiendole el idusuario (0000)
         if($userid < 10){
@@ -140,7 +145,7 @@ class ServicesToditocashPayservicesController extends FosRestController
             $datos=$this->get('todito.service')->getToditoCash()-> request($params[0],$params[1],$params[2],$params[3],$params[4],$params[5],$params[6],$params[7],'1');
         }else{
             //If is not one of the first shows an error message.
-            throw new HttpException(400,'Bad request');
+            throw new HttpException(400,'Bad Request,check mode');
         }
 
         //Quitamos el id de usuario para devolverle el transaction_id al cliente
@@ -259,8 +264,13 @@ class ServicesToditocashPayservicesController extends FosRestController
             $params[]=$request->query->get($paramName, 'null');
         }
 
-        $paramsMongo=$params;
-        $paramsMongo[4]=substr_replace($paramsMongo[4], '************', 0, -4);
+        $count=count($paramNames);
+        $paramsMongo=array();
+        for($i=0; $i<$count; $i++){
+            $paramsMongo[$paramNames[$i]]=$params[$i];
+        }
+
+        $paramsMongo['card_number']=substr_replace($paramsMongo['card_number'], '************', 0, -4);
 
         //Concatenamos la referencia añadiendole el idusuario (0000)
         if($userid < 10){

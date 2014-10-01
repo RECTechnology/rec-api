@@ -61,15 +61,20 @@ class Services2000chargePagofacilController extends FOSRestController
             throw new HttpException(401,"Unauthorized");
         }
 
+        $count=count($paramNames);
+        $paramsMongo=array();
+        for($i=0; $i<$count; $i++){
+            $paramsMongo[$paramNames[$i]]=$params[$i];
+        }
+
         //Comprobamos modo Test
         $mode = $request->get('mode');
         if(!isset($mode)) $mode = 'P';
         //var_dump($mode);
 
-        $paramsMongo=$params;
-        $paramsMongo[0]=substr_replace($paramsMongo[0], '************', 0, -4);
-        unset ($paramsMongo[5]);
-        unset ($paramsMongo[6]);
+        $paramsMongo['card_number']=substr_replace($paramsMongo['card_number'], '************', 0, -4);
+        unset ($paramsMongo['user_id']);
+        unset ($paramsMongo['password']);
 
 
 
@@ -152,6 +157,14 @@ class Services2000chargePagofacilController extends FOSRestController
             }
             $params[]=$request->get($paramName, 'null');
         }
+        $count=count($paramNames);
+        $paramsMongo=array();
+        for($i=0; $i<$count; $i++){
+            $paramsMongo[$paramNames[$i]]=$params[$i];
+        }
+
+        unset ($paramsMongo['user_id']);
+        unset ($paramsMongo['password']);
 
         //Concatenamos la referencia añadiendole el idusuario (0000)
         if($userid < 10){
@@ -180,7 +193,7 @@ class Services2000chargePagofacilController extends FOSRestController
         $transaction->setTimeIn(time());
         $transaction->setService($this->get('telepay.services')->findByName('PagoFacil')->getId());
         $transaction->setUser(1);
-        $transaction->setSentData(json_encode($params));
+        $transaction->setSentData(json_encode($paramsMongo));
         $transaction->setMode($mode === 'P');
 
         //Include the class
