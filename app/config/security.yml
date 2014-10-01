@@ -52,6 +52,11 @@ security:
             stateless:  true
             security:   false
 
+        notifications_curl:
+            pattern:    ^/notifications/
+            stateless:  true
+            security:   false
+
         doc:
             pattern:    ^/doc/financial
             fos_oauth:  true

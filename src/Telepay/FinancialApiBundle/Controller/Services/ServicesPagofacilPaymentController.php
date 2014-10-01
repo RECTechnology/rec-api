@@ -8,6 +8,8 @@
 namespace Telepay\FinancialApiBundle\Controller\Services;
 
 use Symfony\Component\HttpFoundation\Request;
+use Telepay\FinancialApiBundle\Controller\BaseApiController;
+use Telepay\FinancialApiBundle\Controller\RestApiController;
 use Telepay\FinancialApiBundle\Response\ApiResponseBuilder;
 use FOS\RestBundle\Controller\FOSRestController;
 use FOS\RestBundle\Controller\Annotations as Rest;
@@ -15,7 +17,7 @@ use Nelmio\ApiDocBundle\Annotation\ApiDoc;
 use Symfony\Component\HttpKernel\Exception\HttpException;
 use Telepay\FinancialApiBundle\Document\Transaction;
 
-class ServicesPagofacilPaymentController extends FOSRestController
+class ServicesPagofacilPaymentController extends RestApiController
 {
 
     /**
@@ -216,14 +218,14 @@ class ServicesPagofacilPaymentController extends FOSRestController
         //Response
         if(isset($datos['error'])){
             $transaction->setSuccessful(false);
-            $resp = new ApiResponseBuilder(
+            $respView = $this->buildRestView(
                 400,
                 "Bad request",
                 $datos
             );
         }else{
             $transaction->setSuccessful(true);
-            $resp = new ApiResponseBuilder(
+            $respView = $this->buildRestView(
                 201,
                 "Reference created successfully",
                 $datos
@@ -239,9 +241,7 @@ class ServicesPagofacilPaymentController extends FOSRestController
         $dm->persist($transaction);
         $dm->flush();
 
-        $view = $this->view($resp, 201);
-
-        return $this->handleView($view);
+        return $this->handleView($respView);
 
     }
     public function transactionTest(Request $request){
@@ -290,17 +290,6 @@ class ServicesPagofacilPaymentController extends FOSRestController
         }
 
         $paramsMongo=$params;
-
-        //Concatenamos la referencia añadiendole el idusuario (0000)
-        if($userid < 10){
-            $params[0]='000'.$userid.$params[0];
-        }elseif($userid<100){
-            $params[0]='00'.$userid.$params[0];
-        }elseif($userid<1000){
-            $params[0]='0'.$userid.$params[0];
-        }else{
-            $params[0]=$userid.$params[0];
-        }
 
         //Comprobamos modo Test
         $mode = $request->get('mode');

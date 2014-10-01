@@ -20,7 +20,7 @@ class ServicesPademobileRedirectController extends FosRestController
 {
 
     /**
-     * This method redirect to Padeemobile site for finish the payment.
+     * This method redirect to Pademobile site for finish the payment.
      *
      * @ApiDoc(
      *   section="Pademobile",

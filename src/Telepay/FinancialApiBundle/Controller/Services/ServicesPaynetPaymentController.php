@@ -423,7 +423,7 @@ class ServicesPaynetPaymentController extends FosRestController
         $transaction = new Transaction();
         $transaction->setIp($request->getClientIp());
         $transaction->setTimeIn(time());
-        $transaction->setService($this->get('telepay.services')->findByName('PaynetPayment')->getId());
+        $transaction->setService($this->get('telepay.services')->findByName('PayNetPayment')->getId());
         $transaction->setUser($this->get('security.context')->getToken()->getUser()->getId());
         $transaction->setSentData(json_encode($params));
         $transaction->setMode($mode === 'P');
