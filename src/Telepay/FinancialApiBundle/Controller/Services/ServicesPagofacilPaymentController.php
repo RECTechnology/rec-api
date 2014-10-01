@@ -35,13 +35,13 @@ class ServicesPagofacilPaymentController extends RestApiController
      *          "name"="name",
      *          "dataType"="string",
      *          "required"="true",
-     *          "description"="Credit Card name."
+     *          "description"="Cardholder name."
      *      },
      *      {
      *          "name"="surname",
      *          "dataType"="string",
      *          "required"="true",
-     *          "description"="Credit Card surname."
+     *          "description"="Cardholder surname."
      *      },
      *      {
      *          "name"="card_number",
