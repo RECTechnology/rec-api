@@ -9,6 +9,7 @@
 		var $report_Type;
 		var $reference_code;
 		var $transaction_id;
+        var $order_id;
 		
 		function __construct($report_Type)
 		{

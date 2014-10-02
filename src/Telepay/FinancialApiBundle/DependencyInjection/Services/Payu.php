@@ -23,7 +23,7 @@ class Payu{
 
     public function getPayUPaymentTest($payer,$country,$currency,$reference_code,$description,$value,$pay_method){
         $this->payer=$payer;
-        $this->countr=$country;
+        $this->country=$country;
         $this->currency=$currency;
         $this->reference_code=$reference_code;
         $this->description=$description;
@@ -48,7 +48,7 @@ class Payu{
 
     public function getPayUPayment($payer_name,$country,$currency,$reference_code,$description,$value,$pay_method){
         $this->payer_name=$payer_name;
-        $this->countr=$country;
+        $this->country=$country;
         $this->currency=$currency;
         $this->reference_code=$reference_code;
         $this->description=$description;
@@ -86,7 +86,7 @@ class Payu{
         //Include the class
         include("libs/PayUReport.php");
 
-        return new PayUReportTest($report_type);
+        return new PayUReport($report_type);
     }
 
 }

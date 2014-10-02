@@ -20,6 +20,7 @@
 		var $without_cvv2;
 		var $tax_base;
 		var $tax_value;
+        var $dni;
 		
 		function __construct($account_id,$installments_number,$payer_name,$country,$currency,$reference_code,$description,$value,$pay_method)
 		{
@@ -99,7 +100,7 @@
 				//Ingrese aquí el número de cuotas.
 				PayUParameters::INSTALLMENTS_NUMBER => $this->installments_number, 
 				//Ingrese aquí el nombre del pais.
-				PayUParameters::COUNTRY => PayUCountries::$this->country, 
+				PayUParameters::COUNTRY => PayUCountries::$this->country,
 				//Ingrese aquí el identificador de la cuenta.
 				PayUParameters::ACCOUNT_ID => $this->account_id, 
 				//Cookie de la sesión actual.

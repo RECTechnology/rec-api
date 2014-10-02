@@ -94,7 +94,7 @@ class ServicesPayuPaymentController extends FosRestController
      *          "description"="3 digits at the back of the credit card"
      *      },
      *      {
-     *          "name"="payment_method",
+     *          "name"="pay_method",
      *          "dataType"="string",
      *          "required"="true",
      *          "description"="Payment method as MASTERCARD,VISA..."
@@ -285,7 +285,7 @@ class ServicesPayuPaymentController extends FosRestController
      *          "name"="pay_method",
      *          "dataType"="string",
      *          "required"="true",
-     *          "description"="Payment method as MASTERCARD,VISA..."
+     *          "description"="Payment method as OXXO"
      *      },
      *      {
      *          "name"="payer_dni",
@@ -488,10 +488,12 @@ class ServicesPayuPaymentController extends FosRestController
             //Check if it's a Test or Production transaction
             if($mode=='T'){
                 //Constructor in Test mode
-                $datos=get('payu.service')->getPayuReportTest($params[0])->report_by_order_id($params[1]);
+                $datos=$this->get('payu.service')->getPayuReportTest($params[0])->report_by_order_id($params[1]);
+                $datos=get_object_vars($datos);
             }elseif($mode=='P'){
                 //Constructor in Production mode
-                $datos=get('payu.service')->getPayuReport($params[0])->report_by_order_id($params[1]);
+                $datos=$this->get('payu.service')->getPayuReport($params[0])->report_by_order_id($params[1]);
+                $datos=get_object_vars($datos);
             }else{
                 //If is not one of the first shows an error message.
                 throw new HttpException(400,'Wrong require');
@@ -522,10 +524,10 @@ class ServicesPayuPaymentController extends FosRestController
             //Function report_by_transaction_id
             if($mode=='T'){
                 //Constructor in Test mode
-                $datos=get('payu.service')->getPayuReportTest($params[0])->report_by_transaction_id($params[1]);
+                $datos=$this->get('payu.service')->getPayuReportTest($params[0])->report_by_transaction_id($params[1]);
             }elseif($mode=='P'){
                 //Constructor in Production mode
-                $datos=get('payu.service')->getPayuReport($params[0])->report_by_transactin_id($params[1]);
+                $datos=$this->get('payu.service')->getPayuReport($params[0])->report_by_transactin_id($params[1]);
             }else{
                 //If is not one of the first shows an error message.
                 throw new HttpException(400,'Wrong require');
@@ -534,6 +536,8 @@ class ServicesPayuPaymentController extends FosRestController
             //If is not one of the first shows an error message.
             throw new HttpException(400,'Wrong report_type');
         }
+
+        die(print_r($datos,true));
 
         //Response
         if(isset($datos['error_code'])){
