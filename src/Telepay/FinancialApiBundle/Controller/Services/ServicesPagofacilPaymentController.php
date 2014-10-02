@@ -336,6 +336,7 @@ class ServicesPagofacilPaymentController extends RestApiController
 
         //Response
         if(isset($datos['WebServices_Transacciones']['verificar']['error'])){
+            unset ($datos['WebServices_Transacciones']['verificar']['data']);
             $transaction->setSuccessful(false);
             $resp = new ApiResponseBuilder(
                 400,
