@@ -16,7 +16,7 @@
             $this->mode=$mode;
 		}
 
-		public function request($total,$merchant_trans_id,$merchant_currency,$consumer_id,$url_succes,$url_fail,$url_notification){
+		public function request($total,$merchant_trans_id,$consumer_id,$merchant_currency,$url_succes,$url_fail,$url_notification){
 
             $this->url_succes=$url_succes;
             $this->url_fail=$url_fail;
@@ -25,6 +25,8 @@
             $this->merchant_trans_id=$merchant_trans_id;
             $this->merchant_currency=$merchant_currency;
             $this->consumer_id=$consumer_id;
+
+            //die(print_r($merchant_currency,true));
 
             function DoHttpPost($URL,$ArrayOfPostData){
                 /**
@@ -115,6 +117,7 @@
                 $UTID = (string)$node2[0];
                 //$values['security_token']=$security;
                 $values['utid']=$UTID;
+                $values['error_number']=$errCode;
             }else{
                 $errDescription=(string)$node4[0];
 
