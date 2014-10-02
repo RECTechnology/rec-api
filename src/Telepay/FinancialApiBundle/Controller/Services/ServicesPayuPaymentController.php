@@ -143,6 +143,11 @@ class ServicesPayuPaymentController extends FosRestController
             if(!$request->request ->has($paramName)){
                 throw new HttpException(400,"Missing parameter '$paramName'");
             }
+
+            if($request->get($paramName)===''){
+                throw new HttpException(400,"Missing value for '$paramName'");
+            }
+
             $params[]=$request->get($paramName, 'null');
         }
 
@@ -315,6 +320,11 @@ class ServicesPayuPaymentController extends FosRestController
             if(!$request->request ->has($paramName)){
                 throw new HttpException(400,"Missing parameter '$paramName'");
             }
+
+            if($request->get($paramName)===''){
+                throw new HttpException(400,"Missing value for '$paramName'");
+            }
+
             $params[]=$request->get($paramName, 'null');
         }
 
@@ -444,6 +454,11 @@ class ServicesPayuPaymentController extends FosRestController
             if(!$request->query->has($paramName)){
                 throw new HttpException(400,"Missing parameter '$paramName'");
             }
+
+            if($request->get($paramName)===''){
+                throw new HttpException(400,"Missing value for '$paramName'");
+            }
+
             $params[]=$request->query->get($paramName, 'null');
         }
 
