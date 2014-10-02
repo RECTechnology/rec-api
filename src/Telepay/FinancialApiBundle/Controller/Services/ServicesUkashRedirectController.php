@@ -137,7 +137,7 @@ class ServicesUkashRedirectController extends FosRestController
         //Constructor
         $datos=$this->get('ukash.service')->getUkash($mode)-> request($params[0],$params[1],$params[2],$params[3],$params[4],$params[5],$params[6]);
 
-        if(isset($datos['error_code'])){
+        if($datos['error_number']!=0){
             $transaction->setSuccessful(false);
             $resp = new ApiResponseBuilder(
                 400,

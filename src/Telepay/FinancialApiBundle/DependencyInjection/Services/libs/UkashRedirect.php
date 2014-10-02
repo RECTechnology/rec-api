@@ -101,11 +101,15 @@
             $node1 = $xml->xpath('/UKashRPP/SecurityToken');
 			$node2 = $xml->xpath('/UKashRPP/UTID');
             $node3 = $xml->xpath('/UKashRPP/errCode');
-            $node4 = $xml->xpath('/UKashRPP/errdescription');
+            $node4 = $xml->xpath('/UKashRPP/errDescription');
 
             $values=array();
 
+            //die(print_r($xml,true));
+
+
             $errCode=(string)$node3[0];
+
             if($errCode==0){
                 $security=(string)$node1[0];
                 $UTID = (string)$node2[0];
@@ -113,6 +117,7 @@
                 $values['utid']=$UTID;
             }else{
                 $errDescription=(string)$node4[0];
+
                 $values['error_number']=$errCode;
                 $values['error_description']=$errDescription;
             }
