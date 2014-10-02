@@ -118,7 +118,9 @@ class ServicesUkashGenerateController extends FosRestController
         //Constructor
         $datos=$this->get('ukashgenerate.service')->getUkashOnline()-> request($params[0],$params[1],$params[2],$params[3]);
 
-       if($datos['txCode']!=0){
+        $datos['transactionId'] = substr($datos['transactionId'], 4);
+
+        if($datos['txCode']!=0){
             $transaction->setSuccessful(false);
             $resp = new ApiResponseBuilder(
                 400,
