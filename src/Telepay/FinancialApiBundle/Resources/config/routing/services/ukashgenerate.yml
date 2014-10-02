@@ -1,0 +1,42 @@
+
+
+######################### ROUTING ############################
+
+services_ukash_generate_request:
+    pattern:  /services/v1/ukash/generate/request
+    defaults: { _controller: Telepay\FinancialApiBundle\Controller\Services\ServicesUkashGenerateController::request, _format: ~ }
+    requirements:
+        _method: POST
+
+services_ukash_generate_request_sandbox:
+    pattern:  /sandbox/services/v1/ukash/generate/request
+    defaults: { _controller: Telepay\FinancialApiBundle\Controller\Services\ServicesUkashGenerateController::requestTest, _format: ~ }
+    requirements:
+        _method: POST
+
+services_ukash_generate_request_test:
+    pattern:  /test/services/v1/ukash/generate/request
+    defaults: { _controller: Telepay\FinancialApiBundle\Controller\Services\ServicesUkashGenerateController::requestTest, _format: ~ }
+    requirements:
+        _method: POST
+
+
+######################### ANALYTICS ############################
+
+analytics_ukashgenerate_transactions:
+    pattern:  /analytics/services/v1/ukashgenerate/transactions
+    defaults: { _controller: Telepay\FinancialApiBundle\Controller\Analytics\UkashgenerateAnalytics::transactions }
+    requirements:
+        _method: GET
+
+analytics_ukashgenerate_test_transactions:
+    pattern:  /analytics/services/v1/ukashgenerate/transactions/test
+    defaults: { _controller: Telepay\FinancialApiBundle\Controller\Analytics\UkashgenerateAnalytics::transactionsTest }
+    requirements:
+        _method: GET
+
+analytics_ukashgenerate_sum:
+    pattern:  /analytics/services/v1/ukashgenerate/sum
+    defaults: { _controller: Telepay\FinancialApiBundle\Controller\Analytics\UkashgenerateAnalytics::stats }
+    requirements:
+        _method: GET

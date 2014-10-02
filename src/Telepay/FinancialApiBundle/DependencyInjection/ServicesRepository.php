@@ -60,6 +60,11 @@ class ServicesRepository{
             'name' => 'Pademobile',
             'role' => 'ROLE_SERVICES_PADEMOBILE',
         ),
+        array(
+            'id' => 10,
+            'name' => 'Ukashgenerate',
+            'role' => 'ROLE_SERVICES_UKASONLINE',
+        ),
     );
 
     public function findAll(){

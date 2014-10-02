@@ -37,3 +37,6 @@ services:
 
     pademobile.service:
             class: Telepay\FinancialApiBundle\DependencyInjection\Services\Pademobile
+
+    ukashgenerate.service:
+                class: Telepay\FinancialApiBundle\DependencyInjection\Services\Ukashgenerate

@@ -28,3 +28,6 @@ ToditoCash:
 
 Pademobile:
     resource: services/pademobile.yml
+
+Ukashgenerate:
+    resource: services/ukashgenerate.yml

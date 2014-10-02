@@ -67,7 +67,7 @@ class ServicesToditocashPayservicesController extends FosRestController
      *          "name"="concept",
      *          "dataType"="string",
      *          "required"="false",
-     *          "description"="Optional transaction description."
+     *          "description"="Transaction description."
      *      },
      *      {
      *          "name"="currency",
