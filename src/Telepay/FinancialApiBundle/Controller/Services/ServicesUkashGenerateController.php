@@ -106,6 +106,10 @@ class ServicesUkashGenerateController extends FosRestController
         $mode=$request->get('mode');
         if(!isset($mode))   $mode='P';
 
+        if($mode=='T'){
+            throw new HttpException(503,"Service unavailable");
+        }
+
         //Guardamos la request en mongo
         $transaction = new Transaction();
         $transaction->setIp($request->getClientIp());
