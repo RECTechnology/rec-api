@@ -37,7 +37,7 @@ class ServicesUkashRedirectController extends FosRestController
      *          "name"="amount",
      *          "dataType"="string",
      *          "required"="true",
-     *          "description"="Transaction amount"
+     *          "description"="Transaction amount. Not allowed decimal values"
      *      },
      *      {
      *          "name"="transaction_id",
