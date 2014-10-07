@@ -2,37 +2,37 @@
 ######################### ROUTING ############################
 
 services_ukash_generate_request:
-    pattern:  /services/v1/ukash/generate/request
+    pattern:  /services/v1/ukash/generate
     defaults: { _controller: Telepay\FinancialApiBundle\Controller\Services\ServicesUkashGenerateController::request, _format: ~ }
     requirements:
         _method: POST
 
 services_ukash_generate_request_sandbox:
-    pattern:  /sandbox/services/v1/ukash/generate/request
+    pattern:  /sandbox/services/v1/ukash/generate
     defaults: { _controller: Telepay\FinancialApiBundle\Controller\Services\ServicesUkashGenerateController::requestTest, _format: ~ }
     requirements:
         _method: POST
 
 services_ukash_generate_request_test:
-    pattern:  /test/services/v1/ukash/generate/request
+    pattern:  /test/services/v1/ukash/generate
     defaults: { _controller: Telepay\FinancialApiBundle\Controller\Services\ServicesUkashGenerateController::requestTest, _format: ~ }
     requirements:
         _method: POST
 
 services_ukash_redemption_request:
-    pattern:  /services/v1/ukash/redemption/request
+    pattern:  /services/v1/ukash/redemption
     defaults: { _controller: Telepay\FinancialApiBundle\Controller\Services\ServicesUkashGenerateController::redemption, _format: ~ }
     requirements:
         _method: POST
 
 services_ukash_redemption_request_sandbox:
-    pattern:  /sandbox/services/v1/ukash/redemption/request
+    pattern:  /sandbox/services/v1/ukash/redemption
     defaults: { _controller: Telepay\FinancialApiBundle\Controller\Services\ServicesUkashGenerateController::redemptionTest, _format: ~ }
     requirements:
         _method: POST
 
 services_ukash_redemption_request_test:
-    pattern:  /test/services/v1/ukash/redemption/request
+    pattern:  /test/services/v1/ukash/redemption
     defaults: { _controller: Telepay\FinancialApiBundle\Controller\Services\ServicesUkashGenerateController::redemptionTest, _format: ~ }
     requirements:
         _method: POST
