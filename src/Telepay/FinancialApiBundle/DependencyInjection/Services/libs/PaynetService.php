@@ -121,7 +121,9 @@
             </cCampo>
             <cCampo xsi:nil="true" />
           </cArrayCampos>
-        </Info>';                   
+        </Info>';
+
+
                         
       $url = 'https://www.integracionesqapx.com.mx/wsUniversal/pxUniversal.asmx?WSDL';
       $username='usr_ws';
@@ -384,6 +386,8 @@
                     </cArrayCampos>
                   </Ejecuta>';
         }
+
+        //die(print_r($params,true));
 
       $url = 'https://www.integracionesqapx.com.mx/wsUniversal/pxUniversal.asmx?WSDL';
       $username='usr_ws';

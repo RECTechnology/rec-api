@@ -312,7 +312,7 @@ class ServicesUkashGenerateController extends FosRestController
 
     public function redemptionTest(Request $request){
         $request->request->set('mode','T');
-        return $this->request($request);
+        return $this->redemption($request);
     }
 
 }
