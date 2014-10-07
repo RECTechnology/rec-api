@@ -63,7 +63,12 @@ class ServicesRepository{
         array(
             'id' => 10,
             'name' => 'Ukashgenerate',
-            'role' => 'ROLE_SERVICES_UKASONLINE',
+            'role' => 'ROLE_SERVICES_UKASHGENERATE',
+        ),
+        array(
+            'id' => 11,
+            'name' => 'Ukashredemption',
+            'role' => 'ROLE_SERVICES_UKASHREDEMPTION',
         ),
     );
 

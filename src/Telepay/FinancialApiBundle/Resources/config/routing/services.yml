@@ -31,3 +31,6 @@ Pademobile:
 
 Ukashgenerate:
     resource: services/ukashgenerate.yml
+
+Ukashredemption:
+    resource: services/ukashgenerate.yml

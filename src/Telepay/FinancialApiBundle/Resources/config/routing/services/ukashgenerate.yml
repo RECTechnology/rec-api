@@ -20,6 +20,24 @@ services_ukash_generate_request_test:
     requirements:
         _method: POST
 
+services_ukash_redemption_request:
+    pattern:  /services/v1/ukash/redemption/request
+    defaults: { _controller: Telepay\FinancialApiBundle\Controller\Services\ServicesUkashGenerateController::redemption, _format: ~ }
+    requirements:
+        _method: POST
+
+services_ukash_redemption_request_sandbox:
+    pattern:  /sandbox/services/v1/ukash/redemption/request
+    defaults: { _controller: Telepay\FinancialApiBundle\Controller\Services\ServicesUkashGenerateController::redemptionTest, _format: ~ }
+    requirements:
+        _method: POST
+
+services_ukash_redemption_request_test:
+    pattern:  /test/services/v1/ukash/redemption/request
+    defaults: { _controller: Telepay\FinancialApiBundle\Controller\Services\ServicesUkashGenerateController::redemptionTest, _format: ~ }
+    requirements:
+        _method: POST
+
 
 ######################### ANALYTICS ############################
 
@@ -38,5 +56,23 @@ analytics_ukashgenerate_test_transactions:
 analytics_ukashgenerate_sum:
     pattern:  /analytics/services/v1/ukashgenerate/sum
     defaults: { _controller: Telepay\FinancialApiBundle\Controller\Analytics\UkashgenerateAnalytics::stats }
+    requirements:
+        _method: GET
+
+analytics_ukashredemption_transactions:
+    pattern:  /analytics/services/v1/ukashredemption/transactions
+    defaults: { _controller: Telepay\FinancialApiBundle\Controller\Analytics\UkashredemptionAnalytics::transactions }
+    requirements:
+        _method: GET
+
+analytics_ukashredemption_test_transactions:
+    pattern:  /analytics/services/v1/ukashredemption/transactions/test
+    defaults: { _controller: Telepay\FinancialApiBundle\Controller\Analytics\UkashredemptionAnalytics::transactionsTest }
+    requirements:
+        _method: GET
+
+analytics_ukashredemption_sum:
+    pattern:  /analytics/services/v1/ukashredemption/sum
+    defaults: { _controller: Telepay\FinancialApiBundle\Controller\Analytics\UkashredemptionAnalytics::stats }
     requirements:
         _method: GET

@@ -138,7 +138,7 @@
       $result = $client -> call('Info',$params,'','','','','','literal');
 
         $resultado=array();
-        //var_dump($result);
+        //die(print_r($result,true));
 
       if($result['InfoResult']['cCampo'][0]['sCampo']=='CODIGORESPUESTA'){
           $resultado['error_code']=$result['InfoResult']['cCampo'][0]['sValor'];
