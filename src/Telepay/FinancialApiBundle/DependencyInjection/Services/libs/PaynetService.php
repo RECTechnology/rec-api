@@ -121,7 +121,9 @@
             </cCampo>
             <cCampo xsi:nil="true" />
           </cArrayCampos>
-        </Info>';                   
+        </Info>';
+
+
                         
       $url = 'https://www.integracionesqapx.com.mx/wsUniversal/pxUniversal.asmx?WSDL';
       $username='usr_ws';
@@ -138,7 +140,7 @@
       $result = $client -> call('Info',$params,'','','','','','literal');
 
         $resultado=array();
-        //var_dump($result);
+        //die(print_r($result,true));
 
       if($result['InfoResult']['cCampo'][0]['sCampo']=='CODIGORESPUESTA'){
           $resultado['error_code']=$result['InfoResult']['cCampo'][0]['sValor'];
@@ -384,6 +386,8 @@
                     </cArrayCampos>
                   </Ejecuta>';
         }
+
+        //die(print_r($params,true));
 
       $url = 'https://www.integracionesqapx.com.mx/wsUniversal/pxUniversal.asmx?WSDL';
       $username='usr_ws';

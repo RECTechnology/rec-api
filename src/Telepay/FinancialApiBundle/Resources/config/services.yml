@@ -36,7 +36,10 @@ services:
         class: Telepay\FinancialApiBundle\DependencyInjection\Services\Paynetbarcode
 
     pademobile.service:
-            class: Telepay\FinancialApiBundle\DependencyInjection\Services\Pademobile
+        class: Telepay\FinancialApiBundle\DependencyInjection\Services\Pademobile
 
     ukashgenerate.service:
-                class: Telepay\FinancialApiBundle\DependencyInjection\Services\Ukashgenerate
+        class: Telepay\FinancialApiBundle\DependencyInjection\Services\Ukashgenerate
+
+    ukashredemption.service:
+        class: Telepay\FinancialApiBundle\DependencyInjection\Services\Ukashgenerate
