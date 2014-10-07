@@ -119,7 +119,7 @@ class ServicesPaynetPaymentController extends FosRestController
         $transaction = new Transaction();
         $transaction->setIp($request->getClientIp());
         $transaction->setTimeIn(time());
-        $transaction->setService($this->get('telepay.services')->findByName('PayNetPayment')->getId());
+        $transaction->setService($this->get('telepay.services')->findByName('PaynetPayment')->getId());
         $transaction->setUser($this->get('security.context')->getToken()->getUser()->getId());
         $transaction->setSentData(json_encode($paramsMongo));
         $transaction->setMode($mode === 'P');
@@ -294,7 +294,7 @@ class ServicesPaynetPaymentController extends FosRestController
         $transaction = new Transaction();
         $transaction->setIp($request->getClientIp());
         $transaction->setTimeIn(time());
-        $transaction->setService($this->get('telepay.services')->findByName('PayNetPayment')->getId());
+        $transaction->setService($this->get('telepay.services')->findByName('PaynetPayment')->getId());
         $transaction->setUser($this->get('security.context')->getToken()->getUser()->getId());
         $transaction->setSentData(json_encode($paramsMongo));
         $transaction->setMode($mode === 'P');
@@ -456,7 +456,7 @@ class ServicesPaynetPaymentController extends FosRestController
         $transaction = new Transaction();
         $transaction->setIp($request->getClientIp());
         $transaction->setTimeIn(time());
-        $transaction->setService($this->get('telepay.services')->findByName('PayNetPayment')->getId());
+        $transaction->setService($this->get('telepay.services')->findByName('PaynetPayment')->getId());
         $transaction->setUser($this->get('security.context')->getToken()->getUser()->getId());
         $transaction->setSentData(json_encode($paramsMongo));
         $transaction->setMode($mode === 'P');
