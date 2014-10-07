@@ -40,3 +40,6 @@ services:
 
     ukashgenerate.service:
                 class: Telepay\FinancialApiBundle\DependencyInjection\Services\Ukashgenerate
+
+    ukashredemption.service:
+                    class: Telepay\FinancialApiBundle\DependencyInjection\Services\Ukashgenerate
