@@ -37,6 +37,24 @@ services_ukash_redemption_request_test:
     requirements:
         _method: POST
 
+services_ukash_redemption_status:
+    pattern:  /services/v1/ukash/redemption/status
+    defaults: { _controller: Telepay\FinancialApiBundle\Controller\Services\ServicesUkashGenerateController::status, _format: ~ }
+    requirements:
+        _method: GET
+
+services_ukash_redemption_status_sandbox:
+    pattern:  /sandbox/services/v1/ukash/redemption/status
+    defaults: { _controller: Telepay\FinancialApiBundle\Controller\Services\ServicesUkashGenerateController::statusTest, _format: ~ }
+    requirements:
+        _method: GET
+
+services_ukash_redemption_status_test:
+    pattern:  /test/services/v1/ukash/redemption/status
+    defaults: { _controller: Telepay\FinancialApiBundle\Controller\Services\ServicesUkashGenerateController::statusTest, _format: ~ }
+    requirements:
+        _method: GET
+
 
 ######################### ANALYTICS ############################
 

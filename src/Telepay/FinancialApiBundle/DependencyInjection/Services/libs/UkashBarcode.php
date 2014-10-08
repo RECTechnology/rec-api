@@ -141,5 +141,62 @@ XML;
 
     }
 
+    public function status($transaction_id,$currency,$voucher_value,$voucher_number,$transaction_amount){
+        $this->transaction_id=$transaction_id;
+        $this->currency=$currency;
+        $this->voucher_value=$voucher_value;
+        $this->voucher_number=$voucher_number;
+        $this->transaction_amount=$transaction_amount;
+
+        //comprobar importe sea decimal
+        if(strpos($voucher_value, ".")==false){
+            $this->voucher_value=$voucher_value.".00";
+        }
+
+        if(strpos($transaction_amount, ".")==false){
+            $this->transaction_amount=$transaction_amount.".00";
+        }
+
+        //fecha UKASH
+        $this->fecha = gmdate("Y-m-d H:i:s", time() + 7200); //Spain = GMT+1
+        //EUR by default
+
+        $this->sRequest = <<<XML
+    <UKashTransaction>
+        <ukashLogin>UKASH_Hipodromo</ukashLogin>
+        <ukashPassword>2eZLGxWuP9NhQOIN</ukashPassword>
+        <transactionId>$this->transaction_id</transactionId>
+        <brandId>UKASH19450</brandId>
+        <voucherNumber>$this->voucher_number</voucherNumber>
+        <voucherValue>$this->voucher_value</voucherValue>
+        <baseCurr>$this->currency</baseCurr>
+        <ticketValue>$this->transaction_amount</ticketValue>
+        <redemptionType>22</redemptionType>
+        <merchDateTime>$this->fecha</merchDateTime>
+        <merchCustomValue></merchCustomValue>
+        <storeLocationId></storeLocationId>
+        <amountReference></amountReference>
+        <ukashNumber></ukashNumber>
+        <ukashPin></ukashPin>
+    </UKashTransaction>
+XML;
+
+        $params = array('sRequest' => $this->sRequest);
+
+        $url='https://processing.ukash.com/gateway/Ukash.WSDL';
+
+        $client = new nusoap_client($url, true);
+
+        $result = $client -> call('TransactionEnquiry',$params);
+
+        $transaction = new SimpleXMLElement($result['TransactionEnquiryResult']);
+
+        $transaction=get_object_vars($transaction);
+
+        return $transaction;
+
+
+    }
+
 }
 
