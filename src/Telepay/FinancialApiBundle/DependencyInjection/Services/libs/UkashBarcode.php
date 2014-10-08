@@ -16,9 +16,10 @@ class UkashBarcode{
     var $voucher_number;
     var $voucher_value;
     var $transaction_amount;
+    var $mode;
 
-	function __construct(){
-
+	function __construct($mode){
+        $this->mode=$mode;
 	}
 
 	public function request($merchant_id,$currency,$transaction_id,$amount){
@@ -68,7 +69,11 @@ XML;
 
         $params = array('sRequest' => $this->sRequest);
 
-        $url='https://processing.ukash.com/gateway/Ukash.WSDL';
+        if($this->mode=='T'){
+            $url='https://processing.staging.ukash.com/gateway/Ukash.WSDL';
+        }else{
+            $url='https://processing.ukash.com/gateway/Ukash.WSDL';
+        }
 
         $client = new nusoap_client($url, true);
 

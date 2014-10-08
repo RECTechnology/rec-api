@@ -16,9 +16,9 @@ include("libs/UkashBarcode.php");
 
 class Ukashgenerate{
 
-    public function getUkashOnline(){
+    public function getUkashOnline($mode){
 
-        return new UkashBarcode();
+        return new UkashBarcode($mode);
 
     }
 

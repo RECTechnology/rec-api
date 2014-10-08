@@ -20,11 +20,11 @@ class ServicesUkashGenerateController extends FosRestController
 {
 
     /**
-     * This method returns a code to obtain the barcode.
+     * This method returns an Ukash code.
      *
      * @ApiDoc(
-     *   section="Ukash Generate",
-     *   description="Returns a JSON with the response",
+     *   section="Ukash",
+     *   description="Returns a JSON with the Ukash code",
      *   https="true",
      *   statusCodes={
      *       201="Returned when the request was successful",
@@ -40,7 +40,7 @@ class ServicesUkashGenerateController extends FosRestController
      *          "name"="currency",
      *          "dataType"="string",
      *          "required"="true",
-     *          "description"="This parameter is always MXN"
+     *          "description"="CUrrency. e.g:MXN"
      *      },
      *      {
      *          "name"="transaction_id",
@@ -106,10 +106,6 @@ class ServicesUkashGenerateController extends FosRestController
         $mode=$request->get('mode');
         if(!isset($mode))   $mode='P';
 
-        if($mode=='T'){
-            throw new HttpException(503,"Service unavailable");
-        }
-
         //Guardamos la request en mongo
         $transaction = new Transaction();
         $transaction->setIp($request->getClientIp());
@@ -120,17 +116,33 @@ class ServicesUkashGenerateController extends FosRestController
         $transaction->setMode($mode === 'P');
 
         //Constructor
-        $datos=$this->get('ukashgenerate.service')->getUkashOnline()-> request($params[0],$params[1],$params[2],$params[3]);
+        $datos=$this->get('ukashgenerate.service')->getUkashOnline($mode)-> request($params[0],$params[1],$params[2],$params[3]);
 
         $datos['transactionId'] = substr($datos['transactionId'], 4);
 
         if($datos['txCode']!=0){
-            $transaction->setSuccessful(false);
-            $resp = new ApiResponseBuilder(
-                400,
-                "Bad request",
-                $datos
-            );
+            if(($mode=="T")&&($datos['txCode']==1)){
+                $transaction->setSuccessful(true);
+                $datos['txCode']="0";
+                $datos['txDescription']='Accepted';
+                $datos['IssuedVoucherNumber']='1234567890123456789';
+                $datos['IssuedVoucherCurr']=$params[1];
+                $fecha = gmdate("Y-m-d H:i:s", time() + (3600*24*15));
+                $datos['IssuedExpiryDate']=$fecha;
+                $resp = new ApiResponseBuilder(
+                    201,
+                    "Reference created successfully",
+                    $datos
+                );
+            }else{
+                $transaction->setSuccessful(false);
+                $resp = new ApiResponseBuilder(
+                    400,
+                    "Bad request",
+                    $datos
+                );
+            }
+
         }else{
             $transaction->setSuccessful(true);
             $resp = new ApiResponseBuilder(
@@ -164,8 +176,8 @@ class ServicesUkashGenerateController extends FosRestController
      * This method allows to expend ukash voucher's.
      *
      * @ApiDoc(
-     *   section="Ukash Redemption",
-     *   description="Returns a JSON with the response",
+     *   section="Ukash",
+     *   description="Returns a JSON with the trasnaction response",
      *   https="true",
      *   statusCodes={
      *       201="Returned when the request was successful",
@@ -261,10 +273,6 @@ class ServicesUkashGenerateController extends FosRestController
         $mode=$request->get('mode');
         if(!isset($mode))   $mode='P';
 
-        if($mode=='T'){
-            throw new HttpException(503,"Service unavailable");
-        }
-
         //Guardamos la request en mongo
         $transaction = new Transaction();
         $transaction->setIp($request->getClientIp());
@@ -274,8 +282,59 @@ class ServicesUkashGenerateController extends FosRestController
         $transaction->setSentData(json_encode($paramsMongo));
         $transaction->setMode($mode === 'P');
 
+        if($mode=='T'){
+            if(strlen($params[4])!=19){
+                $datos['txCode']= "99";
+                $datos['txDescription']= "Failed";
+                $datos['settleAmount']= "";
+                $datos['transactionId']= $params[2];
+                $datos['changeIssueVoucherNumber']= "";
+                $datos['changeIssueVoucherCurr']= "";
+                $datos['changeIssueAmount']= "";
+                $datos['changeIssueExpiryDate']= "";
+                $datos['ukashTransactionId']= "";
+                $datos['currencyConversion']="";
+                $datos['errCode']= "219";
+                $datos['errDescription']= "Invalid Voucher Number";
+            }elseif($params[5]>$params[3]){
+                $datos['txCode']= "99";
+                $datos['txDescription']= "Failed";
+                $datos['settleAmount']= "";
+                $datos['transactionId']= $params[2];
+                $datos['changeIssueVoucherNumber']= "";
+                $datos['changeIssueVoucherCurr']= "";
+                $datos['changeIssueAmount']= "";
+                $datos['changeIssueExpiryDate']= "";
+                $datos['ukashTransactionId']= "";
+                $datos['currencyConversion']="";
+                $datos['errCode']= "220";
+                $datos['errDescription']= "Voucher value can't be lower than transaction amount";
+            }else{
+                $datos['txCode']= "0";
+                $datos['txDescription']= "Accepted";
+                $datos['settleAmount']= "";
+                $datos['transactionId']= $params[2];
+                $resto=$params[3]-$params[5];
+                if($resto>=1){
+                    $datos['changeIssueVoucherNumber']= "0111222333444555666";
+                }else{
+                    $datos['changeIssueVoucherNumber']= "";
+                }
+                $datos['changeIssueVoucherNumber']= "";
+                $datos['changeIssueVoucherCurr']= "";
+                $datos['changeIssueAmount']= $resto;
+                $fecha = gmdate("Y-m-d H:i:s", time() + (3600*24*15));
+                $datos['changeIssueExpiryDate']=$fecha;
+                $datos['ukashTransactionId']= "SV_GC_8765670984";
+                $datos['currencyConversion']="";
+                $datos['errCode']= "";
+                $datos['errDescription']= "";
+            }
+
+        }else{
+            $datos=$this->get('ukashredemption.service')->getUkashOnline($mode)-> redemption($params[0],$params[1],$params[2],$params[3],$params[4],$params[5]);
+        }
         //Constructor
-        $datos=$this->get('ukashredemption.service')->getUkashOnline()-> redemption($params[0],$params[1],$params[2],$params[3],$params[4],$params[5]);
 
         $datos['transactionId'] = substr($datos['transactionId'], 4);
 
@@ -319,8 +378,8 @@ class ServicesUkashGenerateController extends FosRestController
      * This method allows to know the ukash redemption status.
      *
      * @ApiDoc(
-     *   section="Ukash Redemption",
-     *   description="Returns a JSON with the response",
+     *   section="Ukash",
+     *   description="Returns a JSON with the transaction status",
      *   https="true",
      *   statusCodes={
      *       201="Returned when the request was successful",
@@ -411,7 +470,7 @@ class ServicesUkashGenerateController extends FosRestController
         if(!isset($mode))   $mode='P';
 
         if($mode=='T'){
-            throw new HttpException(503,"Service unavailable");
+            throw new HttpException(503,"Service unavailable in Test mode");
         }
 
         //Guardamos la request en mongo
@@ -424,7 +483,7 @@ class ServicesUkashGenerateController extends FosRestController
         $transaction->setMode($mode === 'P');
 
         //Constructor
-        $datos=$this->get('ukashredemption.service')->getUkashOnline()-> status($params[0],$params[1],$params[2],$params[3],$params[4]);
+        $datos=$this->get('ukashredemption.service')->getUkashOnline($mode)-> status($params[0],$params[1],$params[2],$params[3],$params[4]);
 
         $datos['transactionId'] = substr($datos['transactionId'], 4);
 
