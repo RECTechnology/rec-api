@@ -82,6 +82,12 @@ user_analytics:
     requirements:
         _method: GET
 
+user_transactions_speed:
+    pattern:  /user/v1/speed
+    defaults: { _controller: Telepay\FinancialApiBundle\Controller\User\AccountController::speed }
+    requirements:
+        _method: GET
+
 
 ############################## SERVICES MNGMNT ##########################################
 
