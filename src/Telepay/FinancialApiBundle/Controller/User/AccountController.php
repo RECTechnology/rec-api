@@ -31,6 +31,32 @@ class AccountController extends RestApiController{
     /**
      * @Rest\View
      */
+    public function speed(Request $request){
+        $end_time = new \MongoDate();
+        $start_time = new \MongoDate($end_time->sec-3600);
+
+        $dm = $this->get('doctrine_mongodb')->getManager();
+
+        $userId = $this->get('security.context')
+            ->getToken()->getUser()->getId();
+
+        $last1hTrans = $dm->createQueryBuilder('TelepayFinancialApiBundle:Transaction')
+            ->field('user')->equals($userId)
+            ->field('mode')->equals(true)
+            ->field('timeIn')->gt($start_time)
+            ->field('timeIn')->lt($end_time)
+            ->field('successful')->equals(true)
+            ->count()
+            ->getQuery()
+            ->execute();
+        return $this->handleRestView(
+            200, "Last hour speed got successfully", $last1hTrans
+        );
+    }
+
+    /**
+     * @Rest\View
+     */
     public function analytics(Request $request){
 
         if($request->query->has('start_time') && is_int($request->query->get('start_time')))
