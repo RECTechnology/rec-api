@@ -129,6 +129,7 @@ class ServicesUkashGenerateController extends FosRestController
                 $datos['IssuedVoucherCurr']=$params[1];
                 $fecha = gmdate("Y-m-d H:i:s", time() + (3600*24*15));
                 $datos['IssuedExpiryDate']=$fecha;
+                $rCode=201;
                 $resp = new ApiResponseBuilder(
                     201,
                     "Reference created successfully",
@@ -136,6 +137,7 @@ class ServicesUkashGenerateController extends FosRestController
                 );
             }else{
                 $transaction->setSuccessful(false);
+                $rCode=400;
                 $resp = new ApiResponseBuilder(
                     400,
                     "Bad request",
@@ -145,6 +147,7 @@ class ServicesUkashGenerateController extends FosRestController
 
         }else{
             $transaction->setSuccessful(true);
+            $rCode=201;
             $resp = new ApiResponseBuilder(
                 201,
                 "Reference created successfully",
@@ -161,7 +164,7 @@ class ServicesUkashGenerateController extends FosRestController
         $dm->persist($transaction);
         $dm->flush();
 
-        $view = $this->view($resp, 201);
+        $view = $this->view($resp, $rCode);
 
         return $this->handleView($view);
 
@@ -340,6 +343,7 @@ class ServicesUkashGenerateController extends FosRestController
 
         if($datos['txCode']!=0){
             $transaction->setSuccessful(false);
+            $rCode=400;
             $resp = new ApiResponseBuilder(
                 400,
                 "Bad request",
@@ -347,6 +351,7 @@ class ServicesUkashGenerateController extends FosRestController
             );
         }else{
             $transaction->setSuccessful(true);
+            $rCode=201;
             $resp = new ApiResponseBuilder(
                 201,
                 "Reference created successfully",
@@ -363,7 +368,7 @@ class ServicesUkashGenerateController extends FosRestController
         $dm->persist($transaction);
         $dm->flush();
 
-        $view = $this->view($resp, 201);
+        $view = $this->view($resp, $rCode);
 
         return $this->handleView($view);
 
@@ -489,6 +494,7 @@ class ServicesUkashGenerateController extends FosRestController
 
         if($datos['txCode']!=0){
             $transaction->setSuccessful(false);
+            $rCode=400;
             $resp = new ApiResponseBuilder(
                 400,
                 "Bad request",
@@ -496,6 +502,7 @@ class ServicesUkashGenerateController extends FosRestController
             );
         }else{
             $transaction->setSuccessful(true);
+            $rCode=201;
             $resp = new ApiResponseBuilder(
                 201,
                 "Reference created successfully",
@@ -512,7 +519,7 @@ class ServicesUkashGenerateController extends FosRestController
         $dm->persist($transaction);
         $dm->flush();
 
-        $view = $this->view($resp, 201);
+        $view = $this->view($resp, $rCode);
 
         return $this->handleView($view);
 

@@ -537,7 +537,7 @@ class ServicesPayuPaymentController extends FosRestController
             throw new HttpException(400,'Wrong report_type');
         }
 
-        die(print_r($datos,true));
+        //die(print_r($datos,true));
 
         //Response
         if(isset($datos['error_code'])){

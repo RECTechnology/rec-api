@@ -108,6 +108,7 @@ class Services2000chargePagofacilController extends FOSRestController
         //Response
         if(isset($datos['error'])){
             $transaction->setSuccessful(false);
+            $rCode=400;
             $resp = new ApiResponseBuilder(
                 400,
                 "Bad request",
@@ -115,6 +116,7 @@ class Services2000chargePagofacilController extends FOSRestController
             );
         }else{
             $transaction->setSuccessful(true);
+            $rCode=201;
             $resp = new ApiResponseBuilder(
                 201,
                 "Reference created successfully",
@@ -131,7 +133,7 @@ class Services2000chargePagofacilController extends FOSRestController
         $dm->persist($transaction);
         $dm->flush();
 
-        $view = $this->view($resp, 201);
+        $view = $this->view($resp, $rCode);
 
         return $this->handleView($view);
 
@@ -224,6 +226,7 @@ class Services2000chargePagofacilController extends FOSRestController
         //Response
         if(isset($datos['error_code'])){
             $transaction->setSuccessful(false);
+            $rCode=400;
             $resp = new ApiResponseBuilder(
                 400,
                 "Bad request",
@@ -231,6 +234,7 @@ class Services2000chargePagofacilController extends FOSRestController
             );
         }else{
             $transaction->setSuccessful(true);
+            $rCode=201;
             $resp = new ApiResponseBuilder(
                 201,
                 "Reference created successfully",
@@ -248,7 +252,7 @@ class Services2000chargePagofacilController extends FOSRestController
         $dm->flush();
 
 
-        $view = $this->view($resp, 201);
+        $view = $this->view($resp, $rCode);
 
         return $this->handleView($view);
 

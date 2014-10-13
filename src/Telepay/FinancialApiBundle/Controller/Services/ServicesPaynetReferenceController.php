@@ -95,6 +95,7 @@ class ServicesPaynetReferenceController extends FosRestController
 
         if(isset($datos['barcode'])){
             $transaction->setSuccessful(true);
+            $rCode=400;
             $resp = new ApiResponseBuilder(
                 201,
                 "Reference created successfully",
@@ -102,6 +103,7 @@ class ServicesPaynetReferenceController extends FosRestController
             );
         }else{
             $transaction->setSuccessful(false);
+            $rCode=201;
             $resp = new ApiResponseBuilder(
                 400,
                 "Bad request",
@@ -118,7 +120,7 @@ class ServicesPaynetReferenceController extends FosRestController
         $dm->persist($transaction);
         $dm->flush();
 
-        $view = $this->view($resp, 201);
+        $view = $this->view($resp, $rCode);
 
         return $this->handleView($view);
     }
@@ -193,6 +195,7 @@ class ServicesPaynetReferenceController extends FosRestController
         //Response
         if($datos['error_code']==0){
             $transaction->setSuccessful(false);
+            $rCode=400;
             $resp = new ApiResponseBuilder(
                 201,
                 "Reference created successfully",
@@ -200,6 +203,7 @@ class ServicesPaynetReferenceController extends FosRestController
             );
         }else{
             $transaction->setSuccessful(true);
+            $rCode=201;
             $resp = new ApiResponseBuilder(
                 400,
                 "Bad request",
@@ -216,7 +220,7 @@ class ServicesPaynetReferenceController extends FosRestController
         $dm->persist($transaction);
         $dm->flush();
 
-        $view = $this->view($resp, 201);
+        $view = $this->view($resp, $rCode);
 
         return $this->handleView($view);
 

@@ -106,6 +106,7 @@ class ServicesPademobileRedirectController extends FosRestController
 
         /*if($datos['status']=='false'){
             $transaction->setSuccessful(false);
+            $rCode=400;
             $resp = new ApiResponseBuilder(
                 400,
                 "Bad request",
@@ -113,6 +114,7 @@ class ServicesPademobileRedirectController extends FosRestController
             );
         }else{*/
             $transaction->setSuccessful(true);
+            $rCode=201;
             $resp = new ApiResponseBuilder(
                 201,
                 "Reference created successfully",
@@ -129,7 +131,7 @@ class ServicesPademobileRedirectController extends FosRestController
         $dm->persist($transaction);
         $dm->flush();
 
-        $view = $this->view($resp, 201);
+        $view = $this->view($resp, $rCode);
 
         return $this->handleView($view);
 

@@ -158,6 +158,7 @@ class ServicesToditocashPayservicesController extends FosRestController
 
         if($datos['status']!='000'||isset($datos['error'])){
             $transaction->setSuccessful(false);
+            $rCode=400;
             $resp = new ApiResponseBuilder(
                 400,
                 "Bad request",
@@ -165,6 +166,7 @@ class ServicesToditocashPayservicesController extends FosRestController
             );
         }else{
             $transaction->setSuccessful(true);
+            $rCode=201;
             $resp = new ApiResponseBuilder(
                 201,
                 "Reference created successfully",
@@ -180,7 +182,7 @@ class ServicesToditocashPayservicesController extends FosRestController
         $dm->persist($transaction);
         $dm->flush();
 
-        $view = $this->view($resp, 201);
+        $view = $this->view($resp, $rCode);
 
         return $this->handleView($view);
 
@@ -319,7 +321,7 @@ class ServicesToditocashPayservicesController extends FosRestController
 
         if($datos['status']=='135'){
             $transaction->setSuccessful(true);
-
+            $rCode=201;
             $resp = new ApiResponseBuilder(
                 201,
                 "Reference created successfully",
@@ -327,7 +329,7 @@ class ServicesToditocashPayservicesController extends FosRestController
             );
         }else{
             $transaction->setSuccessful(false);
-
+            $rCode=400;
             $resp = new ApiResponseBuilder(
                 400,
                 "Bad Request",
@@ -343,7 +345,7 @@ class ServicesToditocashPayservicesController extends FosRestController
         $dm->persist($transaction);
         $dm->flush();
 
-        $view = $this->view($resp, 201);
+        $view = $this->view($resp, $rCode);
 
         return $this->handleView($view);
     }

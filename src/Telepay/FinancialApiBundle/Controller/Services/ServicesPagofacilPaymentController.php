@@ -227,6 +227,7 @@ class ServicesPagofacilPaymentController extends RestApiController
         //Response
         if(isset($datos['error'])){
             $transaction->setSuccessful(false);
+            $rCode=400;
             $respView = $this->buildRestView(
                 400,
                 "Bad request",
@@ -234,6 +235,7 @@ class ServicesPagofacilPaymentController extends RestApiController
             );
         }else{
             $transaction->setSuccessful(true);
+            $rCode=201;
             $respView = $this->buildRestView(
                 201,
                 "Reference created successfully",
@@ -338,6 +340,7 @@ class ServicesPagofacilPaymentController extends RestApiController
         if(isset($datos['WebServices_Transacciones']['verificar']['error'])){
             unset ($datos['WebServices_Transacciones']['verificar']['data']);
             $transaction->setSuccessful(false);
+            $rCode=400;
             $resp = new ApiResponseBuilder(
                 400,
                 "Bad request",
@@ -345,6 +348,7 @@ class ServicesPagofacilPaymentController extends RestApiController
             );
         }else{
             $transaction->setSuccessful(true);
+            $rCode=201;
             $resp = new ApiResponseBuilder(
                 201,
                 "Reference created successfully",
@@ -362,7 +366,7 @@ class ServicesPagofacilPaymentController extends RestApiController
         $dm->flush();
 
 
-        $view = $this->view($resp, 201);
+        $view = $this->view($resp, $rCode);
 
         return $this->handleView($view);
 
