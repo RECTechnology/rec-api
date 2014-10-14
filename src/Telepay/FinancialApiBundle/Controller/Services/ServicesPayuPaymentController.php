@@ -198,6 +198,7 @@ class ServicesPayuPaymentController extends FosRestController
         //Response
         if(isset($datos['message'])){
             $transaction->setSuccessful(false);
+            $rCode=400;
             $resp = new ApiResponseBuilder(
                 400,
                 "Bad request",
@@ -205,6 +206,7 @@ class ServicesPayuPaymentController extends FosRestController
             );
         }else{
             $transaction->setSuccessful(true);
+            $rCode=201;
             $resp = new ApiResponseBuilder(
                 201,
                 "Reference created successfully",
@@ -221,7 +223,7 @@ class ServicesPayuPaymentController extends FosRestController
         $dm->persist($transaction);
         $dm->flush();
 
-        $view = $this->view($resp, 201);
+        $view = $this->view($resp, $rCode);
 
         return $this->handleView($view);
 
@@ -334,6 +336,7 @@ class ServicesPayuPaymentController extends FosRestController
             $paramsMongo[$paramNames[$i]]=$params[$i];
         }
 
+        //Type user dni
         $paramsMongo['payer_dni']=substr_replace($paramsMongo['payer_dni'], '****', 0, -3);
 
         //Concatenamos la referencia añadiendole el idusuario (0000)
@@ -347,11 +350,11 @@ class ServicesPayuPaymentController extends FosRestController
             $params[3]=$userid.$params[3];
         }
 
-        //Comprobamos modo Test
+        //Check Test mode
         $mode = $request->get('mode');
         if(!isset($mode)) $mode = 'P';
 
-        //Guardamos la request en mongo
+        //Save the request in Mongo
         $transaction = new Transaction();
         $transaction->setIp($request->getClientIp());
         $transaction->setTimeIn(time());
@@ -372,9 +375,12 @@ class ServicesPayuPaymentController extends FosRestController
             throw new HttpException(400,'Wrong require');
         }
 
+
+
         //Response
         if(isset($datos['error_code'])){
             $transaction->setSuccessful(false);
+            $rCode=400;
             $resp = new ApiResponseBuilder(
                 400,
                 "Bad request",
@@ -382,6 +388,7 @@ class ServicesPayuPaymentController extends FosRestController
             );
         }else{
             $transaction->setSuccessful(true);
+            $rCode=201;
             $resp = new ApiResponseBuilder(
                 201,
                 "Reference created successfully",
@@ -398,7 +405,7 @@ class ServicesPayuPaymentController extends FosRestController
         $dm->persist($transaction);
         $dm->flush();
 
-        $view = $this->view($resp, 201);
+        $view = $this->view($resp, $rCode);
 
         return $this->handleView($view);
 
@@ -542,6 +549,7 @@ class ServicesPayuPaymentController extends FosRestController
         //Response
         if(isset($datos['error_code'])){
             $transaction->setSuccessful(false);
+            $rCode=400;
             $resp = new ApiResponseBuilder(
                 400,
                 "Bad request",
@@ -549,6 +557,7 @@ class ServicesPayuPaymentController extends FosRestController
             );
         }else{
             $transaction->setSuccessful(true);
+            $rCode=201;
             $datos['referenceCode']=substr($datos["referenceCode"],4);
             $resp = new ApiResponseBuilder(
                 201,
@@ -566,7 +575,7 @@ class ServicesPayuPaymentController extends FosRestController
         $dm->persist($transaction);
         $dm->flush();
 
-        $view = $this->view($resp, 201);
+        $view = $this->view($resp, $rCode);
 
         return $this->handleView($view);
 

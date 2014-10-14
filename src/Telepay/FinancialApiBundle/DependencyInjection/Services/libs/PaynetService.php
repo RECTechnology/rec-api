@@ -17,6 +17,7 @@
     var $fee;
     var $amount;
     var $dv;
+    var $key='pxD4t09*09Wm';
     
     function __construct($group_id, $chain_id, $shop_id,$pos_id,$cashier_id){
       
@@ -35,6 +36,9 @@
       $this->transaction_id=$transaction_id;
       $this->sku=$sku;
       $this->reference=$reference;
+
+
+        exec('java -jar ../src/Telepay/FinancialApiBundle/DependencyInjection/Services/libs/jar/JAVAMUCOM.jar "E" "'.$reference.'" "'.$this->key.'"',$enc_ref);
 
       $params = '
         <Info xmlns="http://www.pagoexpress.com.mx/pxUniversal">
@@ -116,13 +120,14 @@
               <iTipo>AN</iTipo>
               <iLongitud>0</iLongitud>
               <iClase>0</iClase>
-              <sValor xsi:type="xsd:string">'.$this->reference.'</sValor>
+              <sValor xsi:type="xsd:string">'.$enc_ref[0].'</sValor>
               <bEncriptado>false</bEncriptado>
             </cCampo>
             <cCampo xsi:nil="true" />
           </cArrayCampos>
         </Info>';
 
+        //die(print_r($params,true));
 
                         
       $url = 'https://www.integracionesqapx.com.mx/wsUniversal/pxUniversal.asmx?WSDL';
@@ -147,7 +152,8 @@
           $resultado['error_description']=$result['InfoResult']['cCampo'][1]['sValor'];
       }else{
           $resultado['fee']=$result['InfoResult']['cCampo'][0]['sValor'];
-          $resultado['reference']=$result['InfoResult']['cCampo'][1]['sValor'];
+          exec('java -jar ../src/Telepay/FinancialApiBundle/DependencyInjection/Services/libs/jar/JAVAMUCOM.jar "D" "'.$result['InfoResult']['cCampo'][1]['sValor'].'" "'.$this->key.'"',$desenc_ref);
+          $resultado['reference']=$desenc_ref;
           if(isset($result['InfoResult']['cCampo'][2]['sValor'])){
               $resultado['amount']=$result['InfoResult']['cCampo'][2]['sValor'];
           }
@@ -172,6 +178,8 @@
       $this->reference=$reference;
       $this->amount=$amount;
       $this->dv=$dv;
+        exec('java -jar ../src/Telepay/FinancialApiBundle/DependencyInjection/Services/libs/jar/JAVAMUCOM.jar "E" "'.$reference.'" "'.$this->key.'"',$enc_ref);
+
         if($dv=='0'){
 
               $params = '
@@ -262,7 +270,7 @@
                         <iTipo>AN</iTipo>
                         <iLongitud>0</iLongitud>
                         <iClase>0</iClase>
-                        <sValor xsi:type="xsd:string">'.$this->reference.'</sValor>
+                        <sValor xsi:type="xsd:string">'.$enc_ref[0].'</sValor>
                         <bEncriptado>true</bEncriptado>
                       </cCampo>
                       <cCampo>
@@ -364,7 +372,7 @@
                         <iTipo>AN</iTipo>
                         <iLongitud>0</iLongitud>
                         <iClase>0</iClase>
-                        <sValor xsi:type="xsd:string">'.$this->reference.'</sValor>
+                        <sValor xsi:type="xsd:string">'.$enc_ref[0].'</sValor>
                         <bEncriptado>true</bEncriptado>
                       </cCampo>
                       <cCampo>
@@ -408,12 +416,15 @@
             $resultado['error_code']=$result['EjecutaResult']['cCampo'][0]['sValor'];
             $resultado['error_description']=$result['EjecutaResult']['cCampo'][1]['sValor'];
         }else{
-            $resultado['reference']=$result['EjecutaResult']['cCampo'][0]['sValor'];
+            exec('java -jar ../src/Telepay/FinancialApiBundle/DependencyInjection/Services/libs/jar/JAVAMUCOM.jar "D" "'.$result['EjecutaResult']['cCampo'][0]['sValor'].'" "'.$this->key.'"',$desenc_ref);
+            $resultado['reference']=$desenc_ref;
             $resultado['authorization']=$result['EjecutaResult']['cCampo'][1]['sValor'];
                 if(isset($result['EjecutaResult']['cCampo'][2]['sValor'])){
                     $resultado['amount']=$result['EjecutaResult']['cCampo'][2]['sValor'];
                     $resultado['fee']=$result['EjecutaResult']['cCampo'][3]['sValor'];
-                    $resultado['legend']=$result['EjecutaResult']['cCampo'][4]['sValor'];
+                    if(isset ($result['EjecutaResult']['cCampo'][4]['sValor'])){
+                        $resultado['legend']=$result['EjecutaResult']['cCampo'][4]['sValor'];
+                    }
                 }
         }
 
@@ -429,6 +440,8 @@
         $this->sku=$sku;
         $this->reference=$reference;
         $this->amount=$amount;
+
+        exec('java -jar ../src/Telepay/FinancialApiBundle/DependencyInjection/Services/libs/jar/JAVAMUCOM.jar "E" "'.$reference.'" "'.$this->key.'"',$enc_ref);
 
         $params = '
             <Reversa xmlns="http://www.pagoexpress.com.mx/pxUniversal">
@@ -510,7 +523,7 @@
                   <iTipo>AN</iTipo>
                   <iLongitud>0</iLongitud>
                   <iClase>0</iClase>
-                  <sValor xsi:type="xsd:string">'.$this->reference.'</sValor>
+                  <sValor xsi:type="xsd:string">'.$enc_ref[0].'</sValor>
                   <bEncriptado>true</bEncriptado>
                 </cCampo>
                 <cCampo>
