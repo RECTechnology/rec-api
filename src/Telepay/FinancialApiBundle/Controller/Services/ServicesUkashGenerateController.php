@@ -115,13 +115,8 @@ class ServicesUkashGenerateController extends FosRestController
         $transaction->setSentData(json_encode($paramsMongo));
         $transaction->setMode($mode === 'P');
 
-        //Constructor
-        $datos=$this->get('ukashgenerate.service')->getUkashOnline($mode)-> request($params[0],$params[1],$params[2],$params[3]);
-
-        $datos['transactionId'] = substr($datos['transactionId'], 4);
-
-        if($datos['txCode']!=0){
-            if(($mode=="T")&&($datos['txCode']==1)){
+        if(($mode=="T")){
+            if($params[1]=='MXN'||$params[1]=='EUR'){
                 $transaction->setSuccessful(true);
                 $datos['txCode']="0";
                 $datos['txDescription']='Accepted';
@@ -131,11 +126,36 @@ class ServicesUkashGenerateController extends FosRestController
                 $datos['IssuedExpiryDate']=$fecha;
                 $rCode=201;
                 $resp = new ApiResponseBuilder(
-                    201,
+                    $rCode,
                     "Reference created successfully",
                     $datos
                 );
             }else{
+                $transaction->setSuccessful(true);
+                $datos['txCode']="99";
+                $datos['txDescription']='Declined';
+                $datos['IssuedVoucherNumber']='';
+                $datos['IssuedVoucherCurr']=$params[1];
+                $fecha = gmdate("Y-m-d H:i:s", time() + (3600*24*15));
+                $datos['IssuedExpiryDate']="";
+                $rCode=201;
+                $resp = new ApiResponseBuilder(
+                    201,
+                    "Reference created successfully",
+                    $datos
+                );
+            }
+
+        }else{
+            //Constructor
+            $datos=$this->get('ukashgenerate.service')->getUkashOnline($mode)-> request($params[0],$params[1],$params[2],$params[3]);
+
+            $datos['transactionId'] = substr($datos['transactionId'], 4);
+
+            //die(print_r('caac',true));
+
+            if($datos['txCode']!=0){
+
                 $transaction->setSuccessful(false);
                 $rCode=400;
                 $resp = new ApiResponseBuilder(
@@ -143,17 +163,19 @@ class ServicesUkashGenerateController extends FosRestController
                     "Bad request",
                     $datos
                 );
-            }
 
-        }else{
-            $transaction->setSuccessful(true);
-            $rCode=201;
-            $resp = new ApiResponseBuilder(
-                201,
-                "Reference created successfully",
-                $datos
-            );
+            }else{
+                $transaction->setSuccessful(true);
+                $rCode=201;
+                $resp = new ApiResponseBuilder(
+                    201,
+                    "Reference created successfully",
+                    $datos
+                );
+            }
         }
+
+
 
         //Guardamos la respuesta
         $transaction->setReceivedData(json_encode($datos));
