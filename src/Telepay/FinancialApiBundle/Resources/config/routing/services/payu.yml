@@ -54,7 +54,6 @@ services_payu_payment_report_test:
     requirements:
         _method: GET
 
-
 ######################### PAYU SERVICE STATS ############################
 
 analytics_payu_transactions:

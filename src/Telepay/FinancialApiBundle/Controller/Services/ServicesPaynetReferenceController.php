@@ -115,7 +115,7 @@ class ServicesPaynetReferenceController extends FosRestController
         $transaction->setReceivedData(json_encode($datos));
         $dm = $this->get('doctrine_mongodb')->getManager();
         $transaction->setTimeOut(time());
-        $transaction->setCompleted(true);
+        $transaction->setCompleted(false);
 
         $dm->persist($transaction);
         $dm->flush();

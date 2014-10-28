@@ -34,3 +34,9 @@ Ukashgenerate:
 
 Ukashredemption:
     resource: services/ukashgenerate.yml
+
+HalcashSend:
+    resource: services/halcash.yml
+
+HalcashPayment:
+    resource: services/halcash.yml

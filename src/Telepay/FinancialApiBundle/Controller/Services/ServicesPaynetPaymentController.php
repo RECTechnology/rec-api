@@ -135,7 +135,7 @@ class ServicesPaynetPaymentController extends FosRestController
             //If is not one of the first shows an error message.
             throw new HttpException(400,'Wrong require->Test with T or P');
         }
-
+            //die(print_r($datos,true));
         //Response
         if(isset($datos['error_code'])){
             $transaction->setSuccessful(false);

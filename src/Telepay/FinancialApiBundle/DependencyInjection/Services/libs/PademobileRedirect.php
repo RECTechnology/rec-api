@@ -4,21 +4,23 @@
 
         private $mode;
         var $client='299249';
+        var $tp_url;
 
 		function __construct($mode){
             $this->mode=$mode;
 		}
-
-		public function request($country,$url,$description,$amount){
+        // TODO: Hay que cambiar el parametro url por el tx
+		public function request($country,$tx,$description,$amount){
             $this->country=$country;
-            $this->url=$url;
             $this->description=$description;
             $this->amount=$amount;
 
             if($this->mode=='T'){
                 $pm_url = 'https://staging.pademobile.com:700/comprar';
+                $this->tp_url='https://url de telapay de pruebas';
             }else{
                 $pm_url = 'https://www.pademobile.com/comprar';
+                $this->tp_url='https://url de telapay de produccion';
             }
 
             $pm_params = array(
@@ -26,7 +28,8 @@
                 'id_usuario' => $this->client,
                 'descripcion' => $description,
                 'importe' => $amount,
-                'url' => $url
+                'url' => $this->tp_url,
+                'tx'    =>$tx
             );
 
             $pm_params_string = '';

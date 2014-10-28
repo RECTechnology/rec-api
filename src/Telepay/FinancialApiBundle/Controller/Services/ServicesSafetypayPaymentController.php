@@ -112,6 +112,11 @@ class ServicesSafetypayPaymentController extends FOSRestController
         $transaction->setSentData(json_encode($paramsMongo));
         $transaction->setMode($mode === 'P');
 
+        $dms = $this->get('doctrine_mongodb')->getManager();
+        $dms->persist($transaction);
+        $id=$transaction->getId();
+        //die(print_r($id,true));
+
         //Check if it's a Test or Production transaction
         if($mode=='T'){
             //Constructor in Test mode
@@ -127,6 +132,7 @@ class ServicesSafetypayPaymentController extends FOSRestController
         //Response
         if($datos['error_number']==0){
             $transaction->setSuccessful(true);
+            $datos['id']=$id;
             $rCode=201;
             $resp = new ApiResponseBuilder(
                 201,
@@ -147,10 +153,12 @@ class ServicesSafetypayPaymentController extends FOSRestController
         $transaction->setReceivedData(json_encode($datos));
         $dm = $this->get('doctrine_mongodb')->getManager();
         $transaction->setTimeOut(time());
-        $transaction->setCompleted(true);
+        $transaction->setCompleted(false);
 
         $dm->persist($transaction);
         $dm->flush();
+
+        //$id2=$transaction->getId();
 
         $view = $this->view($resp, $rCode);
 

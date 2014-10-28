@@ -121,7 +121,7 @@
               <iLongitud>0</iLongitud>
               <iClase>0</iClase>
               <sValor xsi:type="xsd:string">'.$enc_ref[0].'</sValor>
-              <bEncriptado>false</bEncriptado>
+              <bEncriptado>true</bEncriptado>
             </cCampo>
             <cCampo xsi:nil="true" />
           </cArrayCampos>

@@ -100,9 +100,9 @@ class ServicesPademobileRedirectController extends FosRestController
         $transaction->setUser($this->get('security.context')->getToken()->getUser()->getId());
         $transaction->setSentData(json_encode($paramsMongo));
         $transaction->setMode($mode === 'P');
-
+        $tx=$transaction->getId();
         //Constructor
-        $datos=$this->get('pademobile.service')->getPademobile($mode)-> request($params[0],$params[1],$params[2],$params[3]);
+        $datos=$this->get('pademobile.service')->getPademobile($mode)-> request($params[0],$tx,$params[2],$params[3]);
 
         /*if($datos['status']=='false'){
             $transaction->setSuccessful(false);

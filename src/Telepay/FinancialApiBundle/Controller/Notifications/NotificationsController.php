@@ -15,39 +15,64 @@ use FOS\RestBundle\Controller\Annotations as Rest;
 use Nelmio\ApiDocBundle\Annotation\ApiDoc;
 use Symfony\Component\HttpKernel\Exception\HttpException;
 
+
 class NotificationsController extends FOSRestController{
 
     public function notify(Request $request){
 
         static $paramNames=array(
-            'UTID'
+            'tid',
+            'error'
         );
 
         //Get the parameters sent by POST and put them in $params array
         $params = array();
         foreach($paramNames as $paramName){
-            $params[]=$request->get($paramName, 'null');
+            if(!$request->query ->has($paramName)){
+                throw new HttpException(400,"Missing parameter '$paramName'");
+            }
+            $params[]=$request->query->get($paramName, 'null');
+        }
+        //die(print_r($params,true));
+
+        $tid=$params[0];
+        $dm = $this->get('doctrine_mongodb')->getManager();
+        //die(print_r($userId,true));
+        $transactions = $dm->getRepository('TelepayFinancialApiBundle:Transaction')
+            ->find($tid);
+
+        $transactions->setCompleted(true);
+
+        $query = $dm->createQueryBuilder('TelepayFinancialApiBundle:Transaction')
+            ->field('id')->equals($tid)
+            ->getQuery()->execute();
+        //die(print_r($transactions, true));
+        $transArray = [];
+        foreach($query->toArray() as $transaction){
+            $transArray []= $transaction;
         }
 
-        $dm = $this->get('doctrine_mongodb')->getManager();
+        $result=$transArray[0];
 
-        $consulta = $dm->createQueryBuilder('TelepayFinancialApiBundle:Transaction')
-            ->field('user')->equals(1)
-            ->getQuery()->execute();
+        $result=$result->getSentData();
+        $result=json_decode($result);
+        $result=get_object_vars($result);
+        //die(print_r($result,true));
+        $ch=curl_init();
+        curl_setopt($ch,CURLOPT_URL,$result['url_success']);
+        curl_setopt($ch,CURLOPT_RETURNTRANSFER,1);
+        $output=curl_exec($ch);
+        curl_close($ch);
 
-        $consulta->toArray();
-        print_r($consulta);
+        die(print_r($output,true));
 
-        //Response
-        $resp = new ApiResponseBuilder(
+        return $this->handleRestView(
             200,
-            "Bravo",
-            $consulta
+            "Request successful",
+            array(
+                'transactions' => $transArray
+            )
         );
-
-        $view = $this->view($resp, 201);
-
-        return $this->handleView($view);
 
     }
 }

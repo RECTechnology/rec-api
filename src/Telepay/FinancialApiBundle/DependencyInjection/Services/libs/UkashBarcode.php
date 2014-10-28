@@ -1,7 +1,5 @@
 <?php
 
-//namespace Paynet;
-
 require_once('includes/nusoap.php');
 
 class UkashBarcode{
@@ -76,7 +74,7 @@ XML;
         }
 
         $client = new nusoap_client($url, true);
-
+        //die(print_r($params,true));
         $result = $client -> call('IssueVoucher',$params);
 
         $transaction = new SimpleXMLElement($result['IssueVoucherResult']);
