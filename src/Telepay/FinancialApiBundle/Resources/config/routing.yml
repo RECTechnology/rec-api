@@ -10,4 +10,4 @@ notifications:
     pattern:  /notifications/v1
     defaults: { _controller: Telepay\FinancialApiBundle\Controller\Notifications\NotificationsController::notify, _format: ~ }
     requirements:
-        _method: POST
+        _method: GET

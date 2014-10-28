@@ -70,6 +70,16 @@ class ServicesRepository{
             'name' => 'Ukashredemption',
             'role' => 'ROLE_SERVICES_UKASHREDEMPTION',
         ),
+        array(
+            'id' => 12,
+            'name' => 'HalcashSend',
+            'role' => 'ROLE_SERVICES_HALCASHSEND',
+        ),
+        array(
+            'id' => 13,
+            'name' => 'HalcashPayment',
+            'role' => 'ROLE_SERVICES_HALCASHPAYMENT',
+        ),
     );
 
     public function findAll(){

@@ -43,3 +43,9 @@ services:
 
     ukashredemption.service:
         class: Telepay\FinancialApiBundle\DependencyInjection\Services\Ukashgenerate
+
+    halcashsend.service:
+        class: Telepay\FinancialApiBundle\DependencyInjection\Services\HalcashMx
+
+    halcashpayment.service:
+        class: Telepay\FinancialApiBundle\DependencyInjection\Services\HalcashMx
