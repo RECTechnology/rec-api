@@ -11,3 +11,10 @@ notifications:
     defaults: { _controller: Telepay\FinancialApiBundle\Controller\Notifications\NotificationsController::notify, _format: ~ }
     requirements:
         _method: GET
+
+
+api_version:
+    pattern:  /oauth/api/v1/version
+    defaults: { _controller: Telepay\FinancialApiBundle\Controller\User\ApiController::version, _format: ~ }
+    requirements:
+        _method: GET

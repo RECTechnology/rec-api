@@ -24,7 +24,7 @@ security:
             anonymous: true
 
         panel:
-            pattern:    ^/(admin|manager|user|analytics)/
+            pattern:    ^/(admin|manager|user|analytics|oauth)/
             fos_oauth:  true
             stateless:  true
             anonymous:  false
@@ -89,15 +89,17 @@ security:
 
         - { path: ^/user/v[0-9]+/*, role: ROLE_USER }
 
-        - { path: ^/((sandbox|test|analytics)/)?services/v[0-9]+/sample/*, role: ROLE_SERVICES_SAMPLE }
+        - { path: ^/oauth/api/v[0-9]+/*, role: ROLE_USER }
 
-        - { path: ^/((sandbox|test|analytics)/)?services/v[0-9]+/netpay/pos/*, role: ROLE_SERVICES_NETPAY_POS }
-        - { path: ^/((sandbox|test|analytics)/)?services/v[0-9]+/paynet/payment/*, role: ROLE_SERVICES_PAYNET_PAYMENT }
-        - { path: ^/((sandbox|test|analytics)/)?services/v[0-9]+/paynet/reference/*, role: ROLE_SERVICES_PAYNET_REFERENCE }
-        - { path: ^/((sandbox|test|analytics)/)?services/v[0-9]+/recargafon/*, role: ROLE_SERVICES_RECARGAFON }
-        - { path: ^/((sandbox|test|analytics)/)?services/v[0-9]+/pagofacil/*, role: ROLE_SERVICES_PAGOFACIL }
-        - { path: ^/((sandbox|test|analytics)/)?services/v[0-9]+/safetypay/*, role: ROLE_SERVICES_SAFETYPAY }
-        - { path: ^/((sandbox|test|analytics)/)?services/v[0-9]+/payu/*, role: ROLE_SERVICES_PAYU }
-        - { path: ^/((sandbox|test|analytics)/)?services/v[0-9]+/toditocash/*, role: ROLE_SERVICES_TODITOCASH }
-        - { path: ^/((sandbox|test|analytics)/)?services/v[0-9]+/ukash/*, role: ROLE_SERVICES_UKASH }
+        - { path: ^/((sandbox|test|analytics|oauth)/)?services/v[0-9]+/sample/*, role: ROLE_SERVICES_SAMPLE }
+
+        - { path: ^/((sandbox|test|analytics|oauth)/)?services/v[0-9]+/netpay/pos/*, role: ROLE_SERVICES_NETPAY_POS }
+        - { path: ^/((sandbox|test|analytics|oauth)/)?services/v[0-9]+/paynet/payment/*, role: ROLE_SERVICES_PAYNET_PAYMENT }
+        - { path: ^/((sandbox|test|analytics|oauth)/)?services/v[0-9]+/paynet/reference/*, role: ROLE_SERVICES_PAYNET_REFERENCE }
+        - { path: ^/((sandbox|test|analytics|oauth)/)?services/v[0-9]+/recargafon/*, role: ROLE_SERVICES_RECARGAFON }
+        - { path: ^/((sandbox|test|analytics|oauth)/)?services/v[0-9]+/pagofacil/*, role: ROLE_SERVICES_PAGOFACIL }
+        - { path: ^/((sandbox|test|analytics|oauth)/)?services/v[0-9]+/safetypay/*, role: ROLE_SERVICES_SAFETYPAY }
+        - { path: ^/((sandbox|test|analytics|oauth)/)?services/v[0-9]+/payu/*, role: ROLE_SERVICES_PAYU }
+        - { path: ^/((sandbox|test|analytics|oauth)/)?services/v[0-9]+/toditocash/*, role: ROLE_SERVICES_TODITOCASH }
+        - { path: ^/((sandbox|test|analytics|oauth)/)?services/v[0-9]+/ukash/*, role: ROLE_SERVICES_UKASH }
         
