@@ -117,8 +117,8 @@ class ServicesSafetypayPaymentController extends FOSRestController
         $id=$transaction->getId();
         //die(print_r($id,true));
 
-        $url_success='https://api.telepay.net/notifications/v1/safetypay?tid='.$id.'&error=0';
-        $url_fail='https://api.telepay.net/notifications/v1/safetypay?tid='.$id.'&error=1';
+        $url_success='https://api.telepay.net/notifications/v1?tid='.$id.'&error=0';
+        $url_fail='https://api.telepay.net/notifications/v1?tid='.$id.'&error=1';
 
         //Check if it's a Test or Production transaction
         if($mode=='T'){
