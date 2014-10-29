@@ -34,45 +34,63 @@ class NotificationsController extends FOSRestController{
             $params[]=$request->query->get($paramName, 'null');
         }
         //die(print_r($params,true));
+        if($params[1]=='0'){
+            $tid=$params[0];
+            $dm = $this->get('doctrine_mongodb')->getManager();
+            //die(print_r($userId,true));
+            $transactions = $dm->getRepository('TelepayFinancialApiBundle:Transaction')
+                ->find($tid);
 
-        $tid=$params[0];
-        $dm = $this->get('doctrine_mongodb')->getManager();
-        //die(print_r($userId,true));
-        $transactions = $dm->getRepository('TelepayFinancialApiBundle:Transaction')
-            ->find($tid);
+            $transactions->setCompleted(true);
 
-        $transactions->setCompleted(true);
+            $query = $dm->createQueryBuilder('TelepayFinancialApiBundle:Transaction')
+                ->field('id')->equals($tid)
+                ->getQuery()->execute();
+            //die(print_r($transactions, true));
+            $transArray = [];
+            foreach($query->toArray() as $transaction){
+                $transArray []= $transaction;
+            }
 
-        $query = $dm->createQueryBuilder('TelepayFinancialApiBundle:Transaction')
-            ->field('id')->equals($tid)
-            ->getQuery()->execute();
-        //die(print_r($transactions, true));
-        $transArray = [];
-        foreach($query->toArray() as $transaction){
-            $transArray []= $transaction;
+            $result=$transArray[0];
+
+            $result=$result->getSentData();
+            $result=json_decode($result);
+            $result=get_object_vars($result);
+
+
+            header('Location: '.$result['url_success']);
+        }else{
+            $tid=$params[0];
+            $dm = $this->get('doctrine_mongodb')->getManager();
+            //die(print_r($userId,true));
+            $query = $dm->createQueryBuilder('TelepayFinancialApiBundle:Transaction')
+                ->field('id')->equals($tid)
+                ->getQuery()->execute();
+            //die(print_r($transactions, true));
+            $transArray = [];
+            foreach($query->toArray() as $transaction){
+                $transArray []= $transaction;
+            }
+
+            $result=$transArray[0];
+
+            $result=$result->getSentData();
+            $result=json_decode($result);
+            $result=get_object_vars($result);
+
+
+            header('Location: '.$result['url_fail']);
         }
 
-        $result=$transArray[0];
 
-        $result=$result->getSentData();
-        $result=json_decode($result);
-        $result=get_object_vars($result);
-        //die(print_r($result,true));
-        $ch=curl_init();
-        curl_setopt($ch,CURLOPT_URL,$result['url_success']);
-        curl_setopt($ch,CURLOPT_RETURNTRANSFER,1);
-        $output=curl_exec($ch);
-        curl_close($ch);
-
-        die(print_r($output,true));
-
-        return $this->handleRestView(
+        /*return $this->handleRestView(
             200,
             "Request successful",
             array(
                 'transactions' => $transArray
             )
-        );
+        );*/
 
     }
 }
