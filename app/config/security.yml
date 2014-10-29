@@ -89,6 +89,8 @@ security:
 
         - { path: ^/user/v[0-9]+/*, role: ROLE_USER }
 
+        - { path: ^/api/v[0-9]+/*, role: ROLE_USER }
+
         - { path: ^/((sandbox|test|analytics)/)?services/v[0-9]+/sample/*, role: ROLE_SERVICES_SAMPLE }
 
         - { path: ^/((sandbox|test|analytics)/)?services/v[0-9]+/netpay/pos/*, role: ROLE_SERVICES_NETPAY_POS }
