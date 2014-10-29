@@ -117,13 +117,16 @@ class ServicesSafetypayPaymentController extends FOSRestController
         $id=$transaction->getId();
         //die(print_r($id,true));
 
+        $url_success='https://api.telepay.net/notifications/v1/safetypay?tid='.$id.'&error=0';
+        $url_fail='https://api.telepay.net/notifications/v1/safetypay?tid='.$id.'&error=1';
+
         //Check if it's a Test or Production transaction
         if($mode=='T'){
             //Constructor in Test mode
-            $datos=$this->get('safetypay.service')->getSafetypayTest()-> request($params[0],$params[1],$params[2],$params[3],$params[4]);
+            $datos=$this->get('safetypay.service')->getSafetypayTest()-> request($params[0],$params[1],$params[2],$url_success,$url_fail);
         }elseif($mode=='P'){
             //Constructor in Production mode
-            $datos=$this->get('safetypay.service')->getSafetypay()-> request($params[0],$params[1],$params[2],$params[3],$params[4]);
+            $datos=$this->get('safetypay.service')->getSafetypay()-> request($params[0],$params[1],$params[2],$url_success,$url_fail);
         }else{
             //If is not one of the first shows an error message.
             throw new HttpException(400,'Wrong request');

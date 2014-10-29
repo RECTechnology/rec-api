@@ -58,7 +58,7 @@ class ServicesUkashRedirectController extends FosRestController
      *          "description"="Transaction currency ISO-4217"
      *      },
      *      {
-     *          "name"="url_succes",
+     *          "name"="url_success",
      *          "dataType"="string",
      *          "required"="true",
      *          "description"="URL if the process has gone fine."
@@ -90,7 +90,7 @@ class ServicesUkashRedirectController extends FosRestController
             'transaction_id',
             'consumer_id',
             'currency',
-            'url_succes',
+            'url_success',
             'url_fail',
             'url_notification'
         );
@@ -141,8 +141,15 @@ class ServicesUkashRedirectController extends FosRestController
         $transaction->setSentData(json_encode($paramsMongo));
         $transaction->setMode($mode === 'P');
 
+        $dms = $this->get('doctrine_mongodb')->getManager();
+        $dms->persist($transaction);
+        $id=$transaction->getId();
+        //die(print_r($id,true));
+
+        $url_notification='https://api.telepay.net/notifications/v1/ukashredirect?tid='.$id.'&error=0';
+
         //Constructor
-        $datos=$this->get('ukash.service')->getUkash($mode)-> request($params[0],$params[1],$params[2],$params[3],$params[4],$params[5],$params[6]);
+        $datos=$this->get('ukash.service')->getUkash($mode)-> request($params[0],$params[1],$params[2],$params[3],$params[4],$params[5],$url_notification);
 
         if($datos['error_number']!=0){
             $transaction->setSuccessful(false);

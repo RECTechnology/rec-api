@@ -31,8 +31,8 @@ class Safetypay{
 
     //For production
     private $prodArray =array(
-        'api_key'           =>  '240f67fb0bf4689a27be8ce1e76af109',
-        'signature_key'     =>  'bbe1cb9502d4a8fae6bcfa08014e0433f4b1445e2a9b871f9e78f88d97',
+        'api_key'           =>  '8fc4c5ae3994b549709b741e37bf5500',
+        'signature_key'     =>  'bbe1cb9502d4a8fae6bcfa08014e0433',
         'merchant_reference'=>  '5339',
         'language'          =>  'ES',
         'tracking_code'     =>  '',
