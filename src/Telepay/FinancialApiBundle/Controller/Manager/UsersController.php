@@ -3,9 +3,11 @@
 namespace Telepay\FinancialApiBundle\Controller\Manager;
 
 use Doctrine\DBAL\DBALException;
+use Exception;
 use Symfony\Component\HttpKernel\Exception\HttpException;
 use Telepay\FinancialApiBundle\Controller\BaseApiController;
 use Telepay\FinancialApiBundle\DependencyInjection\ServicesRepository;
+use Telepay\FinancialApiBundle\Entity\AccessToken;
 use Telepay\FinancialApiBundle\Entity\Service;
 use Telepay\FinancialApiBundle\Entity\User;
 use FOS\RestBundle\Controller\Annotations as Rest;
@@ -28,6 +30,36 @@ class UsersController extends BaseApiController
     }
 
 
+    /**
+     * @Rest\View
+     */
+    public function su(Request $request, $id){
+
+        $em = $this->getDoctrine()->getManager();
+        $usersRepo = $em->getRepository("TelepayFinancialApiBundle:User");
+        $tokensRepo = $em->getRepository("TelepayFinancialApiBundle:AccessToken");
+
+        $user = $usersRepo->findOneBy(array('id'=>$id));
+
+        $token = $tokensRepo->findOneBy(
+            array('token'=>$this->get('security.context')->getToken()->getToken())
+        );
+
+        $token->setUser($user);
+        //$token->setAuthenticated(true);
+
+        $em->persist($token);
+        $token2 = $tokensRepo->findOneBy(
+            array('token'=>$this->get('security.context')->getToken()->getToken())
+        );
+
+        return $this->handleRestView(
+            200,
+            "yeagh accesstokensss",
+            $token2
+        );
+        //update access_token -> user with id $id
+    }
 
     /**
      * @Rest\View
@@ -110,6 +142,53 @@ class UsersController extends BaseApiController
         $entities->setRefreshToken(null);
         $entities->setAuthCode(null);
         return $this->handleRestView(200, "Request successful", $entities);
+    }
+
+
+
+    /**
+     * @Rest\View
+     */
+    public function setImage(Request $request, $id){
+        if(empty($id)) throw new HttpException(400, "Missing parameter 'id'");
+
+        if($request->request->has('base64_image')) $base64Image = $request->request->get('base64_image');
+        else throw new HttpException(400, "Missing parameter 'base64_image'");
+
+
+        $image = base64_decode($base64Image);
+
+        try {
+            imagecreatefromstring($image);
+        }catch (Exception $e){
+            throw new HttpException(400, "Invalid parameter 'base64_image'");
+        }
+
+        $repo = $this->getRepository();
+
+        $user = $repo->findOneBy(array('id'=>$id));
+
+        if(empty($user)) throw new HttpException(404, "User Not found");
+
+        $user->setBase64Image($base64Image);
+
+        $em = $this->getDoctrine()->getManager();
+        $em->persist($user);
+
+        try{
+            $em->flush();
+            return $this->handleRestView(
+                204,
+                "Image changed successfully"
+            );
+        } catch(DBALException $e){
+            if(preg_match('/SQLSTATE\[23000\]/',$e->getMessage()))
+                throw new HttpException(409, "Duplicated resource");
+            else
+                throw new HttpException(500, "Unknown error occurred when save");
+        }
+
+
     }
 
     /**
