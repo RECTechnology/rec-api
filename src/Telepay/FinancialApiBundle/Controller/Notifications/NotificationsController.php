@@ -58,8 +58,11 @@ class NotificationsController extends FOSRestController{
             $result=json_decode($result);
             $result=get_object_vars($result);
 
+            return $this->redirect($result['url_success']);
 
-            header('Location: '.$result['url_success']);
+
+            //header('Location: '.$result['url_success']);
+
         }else{
             $tid=$params[0];
             $dm = $this->get('doctrine_mongodb')->getManager();
@@ -79,17 +82,19 @@ class NotificationsController extends FOSRestController{
             $result=json_decode($result);
             $result=get_object_vars($result);
 
+            return $this->redirect($result['url_fail']);
 
-            header('Location: '.$result['url_fail']);
+            //header('Location: '.$result['url_fail']);
+
         }
+
+
 
 
         /*return $this->handleRestView(
             200,
             "Request successful",
-            array(
-                'transactions' => $transArray
-            )
+            $result
         );*/
 
     }
