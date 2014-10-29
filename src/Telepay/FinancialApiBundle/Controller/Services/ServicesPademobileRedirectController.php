@@ -100,9 +100,16 @@ class ServicesPademobileRedirectController extends FosRestController
         $transaction->setUser($this->get('security.context')->getToken()->getUser()->getId());
         $transaction->setSentData(json_encode($paramsMongo));
         $transaction->setMode($mode === 'P');
-        $tx=$transaction->getId();
+
+        $dms = $this->get('doctrine_mongodb')->getManager();
+        $dms->persist($transaction);
+        $id=$transaction->getId();
+        //die(print_r($id,true));
+
+        $url_notification='https://api.telepay.net/notifications/v1/pademobile?tid='.$id;
+
         //Constructor
-        $datos=$this->get('pademobile.service')->getPademobile($mode)-> request($params[0],$tx,$params[2],$params[3]);
+        $datos=$this->get('pademobile.service')->getPademobile($mode)-> request($params[0],$url_notification,$params[2],$params[3]);
 
         /*if($datos['status']=='false'){
             $transaction->setSuccessful(false);
