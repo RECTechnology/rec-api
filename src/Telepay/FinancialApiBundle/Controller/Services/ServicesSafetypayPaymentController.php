@@ -135,7 +135,7 @@ class ServicesSafetypayPaymentController extends FOSRestController
         //Response
         if($datos['error_number']==0){
             $transaction->setSuccessful(true);
-            $datos['id']=$id;
+            //$datos['id']=$id;
             $rCode=201;
             $resp = new ApiResponseBuilder(
                 201,
