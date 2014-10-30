@@ -77,7 +77,7 @@ class User extends BaseUser
     private $name;
 
     /**
-     * @ORM\Column(type="string")
+     * @ORM\Column(type="text")
      */
     private $base64_image;
 
