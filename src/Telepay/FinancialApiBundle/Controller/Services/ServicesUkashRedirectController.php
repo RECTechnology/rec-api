@@ -146,7 +146,7 @@ class ServicesUkashRedirectController extends FosRestController
         $id=$transaction->getId();
         //die(print_r($id,true));
 
-        $url_notification='https://api.telepay.net/notifications/v1/ukashredirect?tid='.$id.'&error=0';
+        $url_notification='https://api.telepay.net/notifications/v1/ukashredirect?tid='.$id;
 
         //Constructor
         $datos=$this->get('ukash.service')->getUkash($mode)-> request($params[0],$params[1],$params[2],$params[3],$params[4],$params[5],$url_notification);
@@ -162,6 +162,7 @@ class ServicesUkashRedirectController extends FosRestController
         }else{
             $transaction->setSuccessful(true);
             $rCode=201;
+            $datos['id']=$id;
             $resp = new ApiResponseBuilder(
                 201,
                 "Reference created successfully",
@@ -173,7 +174,7 @@ class ServicesUkashRedirectController extends FosRestController
         $transaction->setReceivedData(json_encode($datos));
         $dm = $this->get('doctrine_mongodb')->getManager();
         $transaction->setTimeOut(time());
-        $transaction->setCompleted(true);
+        $transaction->setCompleted(false);
 
         $dm->persist($transaction);
         $dm->flush();

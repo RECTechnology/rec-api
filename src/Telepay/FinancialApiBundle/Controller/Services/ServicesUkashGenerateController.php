@@ -138,10 +138,10 @@ class ServicesUkashGenerateController extends FosRestController
                 $datos['IssuedVoucherCurr']=$params[1];
                 $fecha = gmdate("Y-m-d H:i:s", time() + (3600*24*15));
                 $datos['IssuedExpiryDate']="";
-                $rCode=201;
+                $rCode=400;
                 $resp = new ApiResponseBuilder(
-                    201,
-                    "Reference created successfully",
+                    400,
+                    "Bad request",
                     $datos
                 );
             }

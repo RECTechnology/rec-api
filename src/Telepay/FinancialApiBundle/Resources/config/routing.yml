@@ -5,13 +5,27 @@ Admin:
 Services:
     resource: routing/services.yml
 
-
-notifications:
-    pattern:  /notifications/v1
-    defaults: { _controller: Telepay\FinancialApiBundle\Controller\Notifications\NotificationsController::notify, _format: ~ }
+SafetyNotifications:
+    pattern:  /notifications/v1/safetypay
+    defaults: { _controller: Telepay\FinancialApiBundle\Controller\Notifications\NotificationsController::safetypayNotification, _format: ~ }
     requirements:
         _method: GET
 
+UkashNotifications:
+    pattern:  /notifications/v1/ukashredirect
+    defaults: { _controller: Telepay\FinancialApiBundle\Controller\Notifications\NotificationsController::ukashredirectNotification, _format: ~ }
+
+PademobileNotifications:
+    pattern:  /notifications/v1/pademobile
+    defaults: { _controller: Telepay\FinancialApiBundle\Controller\Notifications\NotificationsController::pademobileNotification, _format: ~ }
+    requirements:
+        _method: GET
+
+PaynetNotifications:
+    pattern:  /notifications/v1/paynetreference
+    defaults: { _controller: Telepay\FinancialApiBundle\Controller\Notifications\NotificationsController::paynetreferenceNotification, _format: ~ }
+    requirements:
+        _method: GET
 
 api_version:
     pattern:  /oauth/api/v1/version

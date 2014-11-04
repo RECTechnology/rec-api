@@ -13,7 +13,7 @@ abstract class AbstractApiWebTestCase extends WebTestCase
 {
     protected  static function getTestClient($role){
         return static::createClient(array(), array(
-            'HTTP_HOST' => 'api.telepayinternational.com',
+            'HTTP_HOST' => 'api.telepay.net',
             'HTTP_ACCEPT' => 'application/json',
             'HTTP_X-SIGNATURE' => TestClientFactory::get($role)
         ));

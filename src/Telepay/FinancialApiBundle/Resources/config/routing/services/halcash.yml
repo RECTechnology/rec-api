@@ -38,37 +38,37 @@ services_halcash_payment_test:
 ######################### HALCASH SERVICE STATS ############################
 
 analytics_halcash_send_transactions:
-    pattern:  /analytics/services/v1/halcash/send/transactions
+    pattern:  /analytics/services/v1/halcashsend/transactions
     defaults: { _controller: Telepay\FinancialApiBundle\Controller\Analytics\HalcashSendAnalytics::transactions }
     requirements:
         _method: GET
 
 analytics_halcash_send_test_transactions:
-    pattern:  /analytics/services/v1/halcash/send/transactions/test
+    pattern:  /analytics/services/v1/halcashsend/transactions/test
     defaults: { _controller: Telepay\FinancialApiBundle\Controller\Analytics\HalcashSendAnalytics::transactionsTest }
     requirements:
         _method: GET
 
 analytics_halcash_send_sum:
-    pattern:  /analytics/services/v1/halcash/send/sum
+    pattern:  /analytics/services/v1/halcashsend/sum
     defaults: { _controller: Telepay\FinancialApiBundle\Controller\Analytics\HalcashSendAnalytics::stats }
     requirements:
         _method: GET
 
 analytics_halcash_payment_transactions:
-    pattern:  /analytics/services/v1/halcash/payment/transactions
+    pattern:  /analytics/services/v1/halcashpayment/transactions
     defaults: { _controller: Telepay\FinancialApiBundle\Controller\Analytics\HalcashPaymentAnalytics::transactions }
     requirements:
         _method: GET
 
 analytics_halcash_payment_test_transactions:
-    pattern:  /analytics/services/v1/halcash/payment/transactions/test
+    pattern:  /analytics/services/v1/halcashpayment/transactions/test
     defaults: { _controller: Telepay\FinancialApiBundle\Controller\Analytics\HalcashPaymentAnalytics::transactionsTest }
     requirements:
         _method: GET
 
 analytics_halcash_payment_sum:
-    pattern:  /analytics/services/v1/halcash/payment/sum
+    pattern:  /analytics/services/v1/halcashpayment/sum
     defaults: { _controller: Telepay\FinancialApiBundle\Controller\Analytics\HalcashPaymentAnalytics::stats }
     requirements:
         _method: GET

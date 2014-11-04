@@ -35,7 +35,7 @@
 
             // Convert array to post values in url format
             foreach ($pm_params as $key => $value) {
-                $pm_params_string .= $key . '=' . $value . '&';
+                $pm_params_string .= $key . '=' . urlencode($value) . '&';
             }
 
             // Remove extra '&' from end of string
@@ -44,9 +44,10 @@
             // Generate signature hash
             $private_key = 'i9839l6php8u21y'; // API Key proporcionada
             $firma = hash_hmac('sha1', $pm_params_string, $private_key);
+            //die(print_r($firma));
 
             // Append signature hash to end of request string
-            $pm_params_string .= '&firma=' . $firma;
+            $pm_params_string.='&firma=' . $firma;
 
             // OUTPUT IMPLEMENTATION
             $output = $pm_url . '?' . $pm_params_string;

@@ -34,7 +34,7 @@ class ServicesPademobileRedirectController extends FosRestController
      *          "name"="country",
      *          "dataType"="string",
      *          "required"="true",
-     *          "description"="Country. Ex: MXN"
+     *          "description"="Country. Ex: MX"
      *      },
      *      {
      *          "name"="url",
@@ -106,7 +106,11 @@ class ServicesPademobileRedirectController extends FosRestController
         $id=$transaction->getId();
         //die(print_r($id,true));
 
-        $url_notification='https://api.telepay.net/notifications/v1/pademobile?tid='.$id;
+        $url_base=$this->container->getParameter('api_url');
+
+        $url_notification=$url_base.'/notifications/v1/pademobile?tid='.$id;
+
+        die(print_r($url_notification,true));
 
         //Constructor
         $datos=$this->get('pademobile.service')->getPademobile($mode)-> request($params[0],$url_notification,$params[2],$params[3]);
