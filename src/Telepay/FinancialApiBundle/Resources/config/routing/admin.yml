@@ -16,6 +16,13 @@ admin_users_index:
         _method: GET
 
 
+admin_users_set_image:
+    pattern:  /manager/v1/users/{id}/image
+    defaults: { _controller: Telepay\FinancialApiBundle\Controller\Manager\UsersController::setImage, _format: ~ }
+    requirements:
+        _method: PUT
+
+
 admin_users_read:
     pattern:  /manager/v1/users/{id}
     defaults: { _controller: Telepay\FinancialApiBundle\Controller\Manager\UsersController::showAction, _format: ~ }
@@ -65,6 +72,12 @@ admin_users_delete_service:
         id: "[0-9]+"
         service_id: "[0-9]+"
 
+manager_su:
+    pattern:  /manager/v1/su/{id}
+    defaults: { _controller: Telepay\FinancialApiBundle\Controller\Manager\UsersController::su }
+    requirements:
+        _method: GET
+
 
 ######################## USER ACCOUNT ########################
 
@@ -97,7 +110,7 @@ admin_services_index:
     requirements:
         _method: GET
 
-admin_services_read:
+manager_services_read:
     pattern:  /manager/v1/services/{id}
     defaults: { _controller: Telepay\FinancialApiBundle\Controller\Manager\ServicesController::read }
     requirements:
