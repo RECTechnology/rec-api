@@ -110,8 +110,6 @@ class ServicesPademobileRedirectController extends FosRestController
 
         $url_notification=$url_base.'/notifications/v1/pademobile?tid='.$id;
 
-        die(print_r($url_notification,true));
-
         //Constructor
         $datos=$this->get('pademobile.service')->getPademobile($mode)-> request($params[0],$url_notification,$params[2],$params[3]);
 
