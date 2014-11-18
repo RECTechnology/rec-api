@@ -17,6 +17,7 @@
     var $fee;
     var $amount;
     var $dv;
+    var $token;
     var $key='pxD4t09*09Wm';
     
     function __construct($group_id, $chain_id, $shop_id,$pos_id,$cashier_id){
@@ -46,7 +47,7 @@
             <cCampo>
               <sCampo>IDGRUPO</sCampo>
               <iTipo>NE</iTipo>
-              <iLongitud>0</iLongitud>
+              <iLongitud>'.strlen($this->group_id).'</iLongitud>
               <iClase>0</iClase>
               <sValor xsi:type="xsd:int">'.$this->group_id.'</sValor>
               <bEncriptado>false</bEncriptado>
@@ -54,7 +55,7 @@
             <cCampo>
               <sCampo>IDCADENA</sCampo>
               <iTipo>NE</iTipo>
-              <iLongitud>0</iLongitud>
+              <iLongitud>'.strlen($this->chain_id).'</iLongitud>
               <iClase>0</iClase>
               <sValor xsi:type="xsd:int">'.$this->chain_id.'</sValor>
               <bEncriptado>false</bEncriptado>
@@ -62,7 +63,7 @@
             <cCampo>
               <sCampo>IDTIENDA</sCampo>
               <iTipo>NE</iTipo>
-              <iLongitud>0</iLongitud>
+              <iLongitud>'.strlen($this->shop_id).'</iLongitud>
               <iClase>0</iClase>
               <sValor xsi:type="xsd:int">'.$this->shop_id.'</sValor>
               <bEncriptado>false</bEncriptado>
@@ -70,7 +71,7 @@
             <cCampo>
               <sCampo>IDPOS</sCampo>
               <iTipo>NE</iTipo>
-              <iLongitud>0</iLongitud>
+              <iLongitud>'.strlen($this->pos_id).'</iLongitud>
               <iClase>0</iClase>
               <sValor xsi:type="xsd:int">'.$this->pos_id.'</sValor>
               <bEncriptado>false</bEncriptado>
@@ -78,7 +79,7 @@
             <cCampo>
               <sCampo>IDCAJERO</sCampo>
               <iTipo>NE</iTipo>
-              <iLongitud>0</iLongitud>
+              <iLongitud>'.strlen($this->cashier_id).'</iLongitud>
               <iClase>0</iClase>
               <sValor xsi:type="xsd:int">'.$this->cashier_id.'</sValor>
               <bEncriptado>false</bEncriptado>
@@ -86,7 +87,7 @@
             <cCampo>
               <sCampo>FECHALOCAL</sCampo>
               <iTipo>FD</iTipo>
-              <iLongitud>0</iLongitud>
+              <iLongitud>'.strlen($this->local_date).'</iLongitud>
               <iClase>0</iClase>
               <sValor xsi:type="xsd:string">'.$this->local_date.'</sValor>
               <bEncriptado>false</bEncriptado>
@@ -94,7 +95,7 @@
             <cCampo>
               <sCampo>HORALOCAL</sCampo>
               <iTipo>HR</iTipo>
-              <iLongitud>0</iLongitud>
+              <iLongitud>'.strlen($this->local_hour).'</iLongitud>
               <iClase>0</iClase>
               <sValor xsi:type="xsd:string">'.$this->local_hour.'</sValor>
               <bEncriptado>false</bEncriptado>
@@ -102,7 +103,7 @@
             <cCampo>
               <sCampo>TRANSACCION</sCampo>
               <iTipo>NE</iTipo>
-              <iLongitud>0</iLongitud>
+              <iLongitud>'.strlen($this->transaction_id).'</iLongitud>
               <iClase>0</iClase>
               <sValor xsi:type="xsd:long">'.$this->transaction_id.'</sValor>
               <bEncriptado>false</bEncriptado>
@@ -110,7 +111,7 @@
             <cCampo>
               <sCampo>SKU</sCampo>
               <iTipo>AN</iTipo>
-              <iLongitud>0</iLongitud>
+              <iLongitud>'.strlen($this->sku).'</iLongitud>
               <iClase>0</iClase>
               <sValor xsi:type="xsd:string">'.$this->sku.'</sValor>
               <bEncriptado>false</bEncriptado>
@@ -118,7 +119,7 @@
             <cCampo>
               <sCampo>REFERENCIA</sCampo>
               <iTipo>AN</iTipo>
-              <iLongitud>0</iLongitud>
+              <iLongitud>'.strlen($enc_ref[0]).'</iLongitud>
               <iClase>0</iClase>
               <sValor xsi:type="xsd:string">'.$enc_ref[0].'</sValor>
               <bEncriptado>true</bEncriptado>
@@ -144,6 +145,8 @@
       
       $result = $client -> call('Info',$params,'','','','','','literal');
 
+        //die(print_r($result,true));
+
         $resultado=array();
         //die(print_r($result,true));
 
@@ -158,7 +161,12 @@
               $resultado['amount']=$result['InfoResult']['cCampo'][2]['sValor'];
           }
           if(isset($result['InfoResult']['cCampo'][3]['sValor'])){
-              $resultado['dv']=$result['InfoResult']['cCampo'][3]['sValor'];
+              if($result['InfoResult']['cCampo'][3]['sCampo']=='TOKEN'){
+                  $resultado['token']=$result['InfoResult']['cCampo'][3]['sValor'];
+              }elseif($result['InfoResult']['cCampo'][3]['sCampo']=='DV'){
+                  $resultado['dv']=$result['InfoResult']['cCampo'][3]['sValor'];
+              }
+
           }
       }
 
@@ -168,7 +176,7 @@
 
     }
 
-    public function ejecuta($local_date, $local_hour, $transaction_id, $sku, $fee, $reference,$amount,$dv){
+    public function ejecuta($local_date, $local_hour, $transaction_id, $sku, $fee, $reference,$amount,$dv,$token){
 
       $this->local_date=$local_date;
       $this->local_hour=$local_hour;
@@ -178,9 +186,10 @@
       $this->reference=$reference;
       $this->amount=$amount;
       $this->dv=$dv;
+      $this->token=$token;
         exec('java -jar ../src/Telepay/FinancialApiBundle/DependencyInjection/Services/libs/jar/JAVAMUCOM.jar "E" "'.$reference.'" "'.$this->key.'"',$enc_ref);
 
-        if($dv=='0'){
+        if(($dv=='0')&&($token=='0')){
 
               $params = '
                   <Ejecuta xmlns="http://www.pagoexpress.com.mx/pxUniversal">
@@ -188,7 +197,7 @@
                       <cCampo>
                         <sCampo>IDGRUPO</sCampo>
                         <iTipo>NE</iTipo>
-                        <iLongitud>0</iLongitud>
+                        <iLongitud>'.strlen($this->group_id).'</iLongitud>
                         <iClase>0</iClase>
                         <sValor xsi:type="xsd:int">'.$this->group_id.'</sValor>
                         <bEncriptado>false</bEncriptado>
@@ -196,7 +205,7 @@
                       <cCampo>
                         <sCampo>IDCADENA</sCampo>
                         <iTipo>NE</iTipo>
-                        <iLongitud>0</iLongitud>
+                        <iLongitud>'.strlen($this->chain_id).'</iLongitud>
                         <iClase>0</iClase>
                         <sValor xsi:type="xsd:int">'.$this->chain_id.'</sValor>
                         <bEncriptado>false</bEncriptado>
@@ -204,7 +213,7 @@
                       <cCampo>
                         <sCampo>IDTIENDA</sCampo>
                         <iTipo>NE</iTipo>
-                        <iLongitud>0</iLongitud>
+                        <iLongitud>'.strlen($this->shop_id).'</iLongitud>
                         <iClase>0</iClase>
                         <sValor xsi:type="xsd:int">'.$this->shop_id.'</sValor>
                         <bEncriptado>false</bEncriptado>
@@ -212,7 +221,7 @@
                       <cCampo>
                         <sCampo>IDPOS</sCampo>
                         <iTipo>NE</iTipo>
-                        <iLongitud>0</iLongitud>
+                        <iLongitud>'.strlen($this->pos_id).'</iLongitud>
                         <iClase>0</iClase>
                         <sValor xsi:type="xsd:int">'.$this->pos_id.'</sValor>
                         <bEncriptado>false</bEncriptado>
@@ -220,7 +229,7 @@
                       <cCampo>
                         <sCampo>IDCAJERO</sCampo>
                         <iTipo>NE</iTipo>
-                        <iLongitud>0</iLongitud>
+                        <iLongitud>'.strlen($this->cashier_id).'</iLongitud>
                         <iClase>0</iClase>
                         <sValor xsi:type="xsd:int">'.$this->cashier_id.'</sValor>
                         <bEncriptado>false</bEncriptado>
@@ -228,7 +237,7 @@
                       <cCampo>
                         <sCampo>FECHALOCAL</sCampo>
                         <iTipo>FD</iTipo>
-                        <iLongitud>0</iLongitud>
+                        <iLongitud>'.strlen($this->local_date).'</iLongitud>
                         <iClase>0</iClase>
                         <sValor xsi:type="xsd:string">'.$this->local_date.'</sValor>
                         <bEncriptado>false</bEncriptado>
@@ -236,7 +245,7 @@
                       <cCampo>
                         <sCampo>HORALOCAL</sCampo>
                         <iTipo>HR</iTipo>
-                        <iLongitud>0</iLongitud>
+                        <iLongitud>'.strlen($this->local_hour).'</iLongitud>
                         <iClase>0</iClase>
                         <sValor xsi:type="xsd:string">'.$this->local_hour.'</sValor>
                         <bEncriptado>false</bEncriptado>
@@ -244,7 +253,7 @@
                       <cCampo>
                         <sCampo>TRANSACCION</sCampo>
                         <iTipo>NE</iTipo>
-                        <iLongitud>0</iLongitud>
+                        <iLongitud>'.strlen($this->transaction_id).'</iLongitud>
                         <iClase>0</iClase>
                         <sValor xsi:type="xsd:long">'.$this->transaction_id.'</sValor>
                         <bEncriptado>false</bEncriptado>
@@ -252,7 +261,7 @@
                       <cCampo>
                         <sCampo>SKU</sCampo>
                         <iTipo>AN</iTipo>
-                        <iLongitud>0</iLongitud>
+                        <iLongitud>'.strlen($this->sku).'</iLongitud>
                         <iClase>0</iClase>
                         <sValor xsi:type="xsd:string">'.$this->sku.'</sValor>
                         <bEncriptado>false</bEncriptado>
@@ -260,7 +269,7 @@
                       <cCampo>
                         <sCampo>COMISION</sCampo>
                         <iTipo>AN</iTipo>
-                        <iLongitud>0</iLongitud>
+                        <iLongitud>'.strlen($this->fee).'</iLongitud>
                         <iClase>0</iClase>
                         <sValor xsi:type="xsd:string">'.$this->fee.'</sValor>
                         <bEncriptado>false</bEncriptado>
@@ -268,7 +277,7 @@
                       <cCampo>
                         <sCampo>REFERENCIA</sCampo>
                         <iTipo>AN</iTipo>
-                        <iLongitud>0</iLongitud>
+                        <iLongitud>'.strlen($enc_ref[0]).'</iLongitud>
                         <iClase>0</iClase>
                         <sValor xsi:type="xsd:string">'.$enc_ref[0].'</sValor>
                         <bEncriptado>true</bEncriptado>
@@ -276,21 +285,23 @@
                       <cCampo>
                         <sCampo>MONTO</sCampo>
                         <iTipo>ND</iTipo>
-                        <iLongitud>0</iLongitud>
+                        <iLongitud>'.strlen($this->amount).'</iLongitud>
                         <iClase>0</iClase>
                         <sValor xsi:type="xsd:string">'.$this->amount.'</sValor>
                         <bEncriptado>false</bEncriptado>
                       </cCampo>
                     </cArrayCampos>
                   </Ejecuta>';
-        }else{
+
+        }elseif($dv!='0'){
+
             $params = '
                   <Ejecuta xmlns="http://www.pagoexpress.com.mx/pxUniversal">
                     <cArrayCampos>
                       <cCampo>
                         <sCampo>IDGRUPO</sCampo>
                         <iTipo>NE</iTipo>
-                        <iLongitud>0</iLongitud>
+                        <iLongitud>'.strlen($this->group_id).'</iLongitud>
                         <iClase>0</iClase>
                         <sValor xsi:type="xsd:int">'.$this->group_id.'</sValor>
                         <bEncriptado>false</bEncriptado>
@@ -298,7 +309,7 @@
                       <cCampo>
                         <sCampo>IDCADENA</sCampo>
                         <iTipo>NE</iTipo>
-                        <iLongitud>0</iLongitud>
+                        <iLongitud>'.strlen($this->chain_id).'</iLongitud>
                         <iClase>0</iClase>
                         <sValor xsi:type="xsd:int">'.$this->chain_id.'</sValor>
                         <bEncriptado>false</bEncriptado>
@@ -306,7 +317,7 @@
                       <cCampo>
                         <sCampo>IDTIENDA</sCampo>
                         <iTipo>NE</iTipo>
-                        <iLongitud>0</iLongitud>
+                        <iLongitud>'.strlen($this->shop_id).'</iLongitud>
                         <iClase>0</iClase>
                         <sValor xsi:type="xsd:int">'.$this->shop_id.'</sValor>
                         <bEncriptado>false</bEncriptado>
@@ -314,7 +325,7 @@
                       <cCampo>
                         <sCampo>IDPOS</sCampo>
                         <iTipo>NE</iTipo>
-                        <iLongitud>0</iLongitud>
+                        <iLongitud>'.strlen($this->pos_id).'</iLongitud>
                         <iClase>0</iClase>
                         <sValor xsi:type="xsd:int">'.$this->pos_id.'</sValor>
                         <bEncriptado>false</bEncriptado>
@@ -322,7 +333,7 @@
                       <cCampo>
                         <sCampo>IDCAJERO</sCampo>
                         <iTipo>NE</iTipo>
-                        <iLongitud>0</iLongitud>
+                        <iLongitud>'.strlen($this->cashier_id).'</iLongitud>
                         <iClase>0</iClase>
                         <sValor xsi:type="xsd:int">'.$this->cashier_id.'</sValor>
                         <bEncriptado>false</bEncriptado>
@@ -330,7 +341,7 @@
                       <cCampo>
                         <sCampo>FECHALOCAL</sCampo>
                         <iTipo>FD</iTipo>
-                        <iLongitud>0</iLongitud>
+                        <iLongitud>'.strlen($this->local_date).'</iLongitud>
                         <iClase>0</iClase>
                         <sValor xsi:type="xsd:string">'.$this->local_date.'</sValor>
                         <bEncriptado>false</bEncriptado>
@@ -338,7 +349,7 @@
                       <cCampo>
                         <sCampo>HORALOCAL</sCampo>
                         <iTipo>HR</iTipo>
-                        <iLongitud>0</iLongitud>
+                        <iLongitud>'.strlen($this->local_hour).'</iLongitud>
                         <iClase>0</iClase>
                         <sValor xsi:type="xsd:string">'.$this->local_hour.'</sValor>
                         <bEncriptado>false</bEncriptado>
@@ -346,7 +357,7 @@
                       <cCampo>
                         <sCampo>TRANSACCION</sCampo>
                         <iTipo>NE</iTipo>
-                        <iLongitud>0</iLongitud>
+                        <iLongitud>'.strlen($this->transaction_id).'</iLongitud>
                         <iClase>0</iClase>
                         <sValor xsi:type="xsd:long">'.$this->transaction_id.'</sValor>
                         <bEncriptado>false</bEncriptado>
@@ -354,7 +365,7 @@
                       <cCampo>
                         <sCampo>SKU</sCampo>
                         <iTipo>AN</iTipo>
-                        <iLongitud>0</iLongitud>
+                        <iLongitud>'.strlen($this->sku).'</iLongitud>
                         <iClase>0</iClase>
                         <sValor xsi:type="xsd:string">'.$this->sku.'</sValor>
                         <bEncriptado>false</bEncriptado>
@@ -362,7 +373,7 @@
                       <cCampo>
                         <sCampo>COMISION</sCampo>
                         <iTipo>AN</iTipo>
-                        <iLongitud>0</iLongitud>
+                        <iLongitud>'.strlen($this->fee).'</iLongitud>
                         <iClase>0</iClase>
                         <sValor xsi:type="xsd:string">'.$this->fee.'</sValor>
                         <bEncriptado>false</bEncriptado>
@@ -370,7 +381,7 @@
                       <cCampo>
                         <sCampo>REFERENCIA</sCampo>
                         <iTipo>AN</iTipo>
-                        <iLongitud>0</iLongitud>
+                        <iLongitud>'.strlen($enc_ref[0]).'</iLongitud>
                         <iClase>0</iClase>
                         <sValor xsi:type="xsd:string">'.$enc_ref[0].'</sValor>
                         <bEncriptado>true</bEncriptado>
@@ -378,7 +389,7 @@
                       <cCampo>
                         <sCampo>MONTO</sCampo>
                         <iTipo>ND</iTipo>
-                        <iLongitud>0</iLongitud>
+                        <iLongitud>'.strlen($this->amount).'</iLongitud>
                         <iClase>0</iClase>
                         <sValor xsi:type="xsd:string">'.$this->amount.'</sValor>
                         <bEncriptado>false</bEncriptado>
@@ -386,14 +397,126 @@
                       <cCampo>
                           <sCampo>DV</sCampo>
                           <iTipo>ND</iTipo>
-                          <iLongitud>0</iLongitud>
+                          <iLongitud>'.strlen($this->dv).'</iLongitud>
                           <iClase>0</iClase>
                           <sValor xsi:type="xsd:int">'.$this->dv.'</sValor>
                           <bEncriptado>false</bEncriptado>
                         </cCampo>
                     </cArrayCampos>
                   </Ejecuta>';
-        }
+
+        }elseif($token!='0'){
+
+                $params = '
+                  <Ejecuta xmlns="http://www.pagoexpress.com.mx/pxUniversal">
+                    <cArrayCampos>
+                      <cCampo>
+                        <sCampo>IDGRUPO</sCampo>
+                        <iTipo>NE</iTipo>
+                        <iLongitud>'.strlen($this->group_id).'</iLongitud>
+                        <iClase>0</iClase>
+                        <sValor xsi:type="xsd:int">'.$this->group_id.'</sValor>
+                        <bEncriptado>false</bEncriptado>
+                      </cCampo>
+                      <cCampo>
+                        <sCampo>IDCADENA</sCampo>
+                        <iTipo>NE</iTipo>
+                        <iLongitud>'.strlen($this->chain_id).'</iLongitud>
+                        <iClase>0</iClase>
+                        <sValor xsi:type="xsd:int">'.$this->chain_id.'</sValor>
+                        <bEncriptado>false</bEncriptado>
+                      </cCampo>
+                      <cCampo>
+                        <sCampo>IDTIENDA</sCampo>
+                        <iTipo>NE</iTipo>
+                        <iLongitud>'.strlen($this->shop_id).'</iLongitud>
+                        <iClase>0</iClase>
+                        <sValor xsi:type="xsd:int">'.$this->shop_id.'</sValor>
+                        <bEncriptado>false</bEncriptado>
+                      </cCampo>
+                      <cCampo>
+                        <sCampo>IDPOS</sCampo>
+                        <iTipo>NE</iTipo>
+                        <iLongitud>'.strlen($this->pos_id).'</iLongitud>
+                        <iClase>0</iClase>
+                        <sValor xsi:type="xsd:int">'.$this->pos_id.'</sValor>
+                        <bEncriptado>false</bEncriptado>
+                      </cCampo>
+                      <cCampo>
+                        <sCampo>IDCAJERO</sCampo>
+                        <iTipo>NE</iTipo>
+                        <iLongitud>'.strlen($this->cashier_id).'</iLongitud>
+                        <iClase>0</iClase>
+                        <sValor xsi:type="xsd:int">'.$this->cashier_id.'</sValor>
+                        <bEncriptado>false</bEncriptado>
+                      </cCampo>
+                      <cCampo>
+                        <sCampo>FECHALOCAL</sCampo>
+                        <iTipo>FD</iTipo>
+                        <iLongitud>'.strlen($this->local_date).'</iLongitud>
+                        <iClase>0</iClase>
+                        <sValor xsi:type="xsd:string">'.$this->local_date.'</sValor>
+                        <bEncriptado>false</bEncriptado>
+                      </cCampo>
+                      <cCampo>
+                        <sCampo>HORALOCAL</sCampo>
+                        <iTipo>HR</iTipo>
+                        <iLongitud>'.strlen($this->local_hour).'</iLongitud>
+                        <iClase>0</iClase>
+                        <sValor xsi:type="xsd:string">'.$this->local_hour.'</sValor>
+                        <bEncriptado>false</bEncriptado>
+                      </cCampo>
+                      <cCampo>
+                        <sCampo>TRANSACCION</sCampo>
+                        <iTipo>NE</iTipo>
+                        <iLongitud>'.strlen($this->transaction_id).'</iLongitud>
+                        <iClase>0</iClase>
+                        <sValor xsi:type="xsd:long">'.$this->transaction_id.'</sValor>
+                        <bEncriptado>false</bEncriptado>
+                      </cCampo>
+                      <cCampo>
+                        <sCampo>SKU</sCampo>
+                        <iTipo>AN</iTipo>
+                        <iLongitud>'.strlen($this->sku).'</iLongitud>
+                        <iClase>0</iClase>
+                        <sValor xsi:type="xsd:string">'.$this->sku.'</sValor>
+                        <bEncriptado>false</bEncriptado>
+                      </cCampo>
+                      <cCampo>
+                        <sCampo>COMISION</sCampo>
+                        <iTipo>AN</iTipo>
+                        <iLongitud>'.strlen($this->fee).'</iLongitud>
+                        <iClase>0</iClase>
+                        <sValor xsi:type="xsd:string">'.$this->fee.'</sValor>
+                        <bEncriptado>false</bEncriptado>
+                      </cCampo>
+                      <cCampo>
+                        <sCampo>REFERENCIA</sCampo>
+                        <iTipo>AN</iTipo>
+                        <iLongitud>'.strlen($enc_ref[0]).'</iLongitud>
+                        <iClase>0</iClase>
+                        <sValor xsi:type="xsd:string">'.$enc_ref[0].'</sValor>
+                        <bEncriptado>true</bEncriptado>
+                      </cCampo>
+                      <cCampo>
+                        <sCampo>MONTO</sCampo>
+                        <iTipo>ND</iTipo>
+                        <iLongitud>'.strlen($this->amount).'</iLongitud>
+                        <iClase>0</iClase>
+                        <sValor xsi:type="xsd:string">'.$this->amount.'</sValor>
+                        <bEncriptado>false</bEncriptado>
+                      </cCampo>
+                      <cCampo>
+                          <sCampo>TOKEN</sCampo>
+                          <iTipo>AN</iTipo>
+                          <iLongitud>'.strlen($this->token).'</iLongitud>
+                          <iClase>0</iClase>
+                          <sValor xsi:type="xsd:string">'.$this->token.'</sValor>
+                          <bEncriptado>false</bEncriptado>
+                        </cCampo>
+                    </cArrayCampos>
+                  </Ejecuta>';
+            }
 
         //die(print_r($params,true));
 
@@ -408,7 +531,7 @@
       $client->useHTTPPersistentConnection();
       $client->setCurlOption(CURLOPT_USERPWD, $username.':'.$password);
       $client->soap_defencoding = 'utf-8';
-    
+
       $result = $client -> call('Ejecuta',$params,'','','','','','literal');
         //var_dump($result);
       $resultado=array();
@@ -421,7 +544,12 @@
             $resultado['authorization']=$result['EjecutaResult']['cCampo'][1]['sValor'];
                 if(isset($result['EjecutaResult']['cCampo'][2]['sValor'])){
                     $resultado['amount']=$result['EjecutaResult']['cCampo'][2]['sValor'];
-                    $resultado['fee']=$result['EjecutaResult']['cCampo'][3]['sValor'];
+                    if($result['EjecutaResult']['cCampo'][3]['sValor']=="COMISION"){
+                        $resultado['fee']=$result['EjecutaResult']['cCampo'][3]['sValor'];
+                    }else{
+                        $resultado['legend']=utf8_decode($result['EjecutaResult']['cCampo'][3]['sValor']);
+                    }
+
                     if(isset ($result['EjecutaResult']['cCampo'][4]['sValor'])){
                         $resultado['legend']=$result['EjecutaResult']['cCampo'][4]['sValor'];
                     }

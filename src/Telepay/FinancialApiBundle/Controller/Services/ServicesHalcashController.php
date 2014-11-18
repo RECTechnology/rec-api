@@ -135,49 +135,47 @@ class ServicesHalcashController extends FosRestController
         $transaction->setMode($mode === 'P');
 
         //Constructor
-        if($params[1]='MXN'){
+        if($params[1]=='MXN'){
             $transaction->setService($this->get('telepay.services')->findByName('HalcashSend')->getId());
             $datos=$this->get('halcashsend.service')->getHalcashSend($mode)-> send($params[0],$params[2],$params[3],$params[4],$params[5]);
+
+            $datos=simplexml_load_string($datos);
+
+            $datos=get_object_vars($datos);
+
+
+            //die(print_r($datos,true));
+            if(isset($datos['ATM_ALTCEMERR'])){
+                $transaction->setSuccessful(false);
+                $datos=get_object_vars($datos['ATM_ALTCEMERR']);
+                $rCode=400;
+                $resp = new ApiResponseBuilder(
+                    400,
+                    "Bad request",
+                    $datos
+                );
+            }elseif(isset($datos['ATM_ALTCEMRES'])){
+                $transaction->setSuccessful(true);
+                $datos=get_object_vars($datos['ATM_ALTCEMRES']);
+                $rCode=201;
+                $resp = new ApiResponseBuilder(
+                    201,
+                    "Reference created successfully",
+                    $datos
+                );
+            }else{
+                $rCode=400;
+                $res='Unexpected error';
+                $resp = new ApiResponseBuilder(
+                    400,
+                    "Bad request",
+                    $res
+                );
+            }
         }else{
-            throw new HttpException(503,'Service uavailable');
-            //$transaction->setService($this->get('telepay.services')->findByName('HalcashSend')->getId());
-            //$datos=$this->get('halcash.service')->getHalcashSP($mode)-> request($params[0],$params[2],$params[3],$params[4],$params[5]);
-        }
-
-
-
-        $datos=simplexml_load_string($datos);
-
-        $datos=get_object_vars($datos);
-
-
-        //die(print_r($datos,true));
-        if(isset($datos['ATM_ALTCEMERR'])){
-            $transaction->setSuccessful(false);
-            $datos=get_object_vars($datos['ATM_ALTCEMERR']);
-            $rCode=400;
-            $resp = new ApiResponseBuilder(
-                400,
-                "Bad request",
-                $datos
-            );
-        }elseif(isset($datos['ATM_ALTCEMRES'])){
-            $transaction->setSuccessful(true);
-            $datos=get_object_vars($datos['ATM_ALTCEMRES']);
-            $rCode=201;
-            $resp = new ApiResponseBuilder(
-                201,
-                "Reference created successfully",
-                $datos
-            );
-        }else{
-            $rCode=400;
-            $res='Unexpected error';
-            $resp = new ApiResponseBuilder(
-                400,
-                "Bad request",
-                $res
-            );
+            $transaction->setService($this->get('telepay.services')->findByName('HalcashSend')->getId());
+            $datos=$this->get('halcashsendsp.service')->getHalcashSend($mode)-> send($params[0],$params[2],$params[3],$params[4],$params[5]);
+            die(print_r($datos,true));
         }
 
         //Guardamos la respuesta

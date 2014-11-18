@@ -234,6 +234,12 @@ class ServicesPaynetPaymentController extends FosRestController
      *          "dataType"="string",
      *          "required"="true",
      *          "description"="Verification digits -> If is not needed we should write 0"
+     *      },
+     *      {
+     *          "name"="token",
+     *          "dataType"="string",
+     *          "required"="true",
+     *          "description"="Token string -> If is not needed we should write 0"
      *      }
      *   }
      * )
@@ -253,7 +259,8 @@ class ServicesPaynetPaymentController extends FosRestController
             'fee',
             'reference',
             'amount',
-            'dv'
+            'dv',
+            'token'
         );
 
         //Get the parameters sent by POST and put them in $params array
@@ -304,10 +311,10 @@ class ServicesPaynetPaymentController extends FosRestController
         //Check if it's a Test or Production transaction
         if($mode=='T'){
             //Constructor in Test mode
-            $datos=$this->get('paynetpay.service')->getPaynetPayTest()-> ejecuta($params[0],$params[1],$params[2],$params[3],$params[4],$params[5],$params[6],$params[7]);
+            $datos=$this->get('paynetpay.service')->getPaynetPayTest()-> ejecuta($params[0],$params[1],$params[2],$params[3],$params[4],$params[5],$params[6],$params[7],$params[8]);
         }elseif($mode=='P'){
             //Constructor in Production mode
-            $datos=$this->get('paynetpay.service')->getPaynetPay()->ejecuta($params[0],$params[1],$params[2],$params[3],$params[4],$params[5],$params[6],$params[7]);
+            $datos=$this->get('paynetpay.service')->getPaynetPay()->ejecuta($params[0],$params[1],$params[2],$params[3],$params[4],$params[5],$params[6],$params[7],$params[8]);
         }else{
             //If is not one of the first shows an error message.
             throw new HttpException(400,'Wrong require->Test with T or P');
@@ -323,6 +330,7 @@ class ServicesPaynetPaymentController extends FosRestController
                 $datos
             );
         }else{
+            //die(print_r($datos,true));
             $transaction->setSuccessful(true);
             $rCode=201;
             $resp = new ApiResponseBuilder(

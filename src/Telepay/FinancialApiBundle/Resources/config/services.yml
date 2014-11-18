@@ -49,3 +49,9 @@ services:
 
     halcashpayment.service:
         class: Telepay\FinancialApiBundle\DependencyInjection\Services\HalcashMx
+
+    halcashsendsp.service:
+        class: Telepay\FinancialApiBundle\DependencyInjection\Services\HalcashSp
+
+    halcashpaymentsp.service:
+        class: Telepay\FinancialApiBundle\DependencyInjection\Services\HalcashSp
