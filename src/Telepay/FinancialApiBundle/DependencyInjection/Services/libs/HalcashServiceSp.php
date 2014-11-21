@@ -43,9 +43,9 @@
             );
 
 
-            if($this->mode=='P'){
-                //throw new HttpException(400,"Service unavailable");
-                $response='error1';
+            if($this->mode=='T'){
+                throw new HttpException(400,"Service unavailable");
+                //$response='error1';
 
             }else{
                 $url='http://hcsvc.telepay.net/HalCashGatewayIssue.asmx?wsdl';
@@ -66,10 +66,9 @@
                         //$response=$sError;
                     }
                 }
-
             }
-            return $response;
 
+            return $response;
 
         }
 
