@@ -43,7 +43,7 @@
             );
 
 
-            if($this->mode=='T'){
+            if($this->mode=='P'){
                 //throw new HttpException(400,"Service unavailable");
                 $response='error1';
 
@@ -51,19 +51,19 @@
                 $url='http://hcsvc.telepay.net/HalCashGatewayIssue.asmx?wsdl';
                 $client=new nusoap_client($url,true);
                 if ($sError = $client->getError()) {
-                    //throw new HttpException(400,"No se pudo completar la operacion [".$sError."]");
-                    $response='error2';
+                    throw new HttpException(400,"No se pudo completar la operacion [".$sError."]");
+                    //$response='error2';
                 }
                 $response=$client->call("Emision",$params);
                 if ($client->fault) { // Si
-                    //throw new HttpException(400,"No se pudo completar la operacion [".$sError."]");
-                    $response='error3';
+                    throw new HttpException(400,"No se pudo completar la operacion [".$sError."]");
+                    //$response='error3';
                 } else { // No
                     $sError = $client->getError();
                     // Hay algun error ?
                     if ($sError) { // Si
-                        //throw new HttpException(400,"No se pudo completar la operacion [".$sError."]");
-                        $response='error4';
+                        throw new HttpException(400,"No se pudo completar la operacion [".$sError."]");
+                        //$response=$sError;
                     }
                 }
 
