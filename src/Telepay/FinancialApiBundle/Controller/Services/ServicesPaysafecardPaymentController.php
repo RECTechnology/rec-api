@@ -134,10 +134,10 @@ class ServicesPaysafecardPaymentController extends FOSRestController
         $url_base=$this->container->getParameter('api_url');
 
         $url_notification=$url_base.'/notifications/v1/paysafecard';
-
+        die(print_r('antes de datos',true));
         //Check if it's a Test or Production transaction
         $datos=$this->get('paysafecard.service')->getPaysafecard()-> request($mode,$params[0],$params[1],$params[2],$params[3],$params[4],$url_notification,$params[6]);
-//die(print_r('caca',true));
+
         //Response
         if($datos['error_number']==0){
             $transaction->setSuccessful(true);
