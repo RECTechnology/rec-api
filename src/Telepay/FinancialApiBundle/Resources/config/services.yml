@@ -55,3 +55,6 @@ services:
 
     halcashpaymentsp.service:
         class: Telepay\FinancialApiBundle\DependencyInjection\Services\HalcashSp
+
+    paysafecard.service:
+        class: Telepay\FinancialApiBundle\DependencyInjection\Services\Paysafecard

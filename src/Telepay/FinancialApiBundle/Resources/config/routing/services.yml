@@ -40,3 +40,6 @@ HalcashSend:
 
 HalcashPayment:
     resource: services/halcash.yml
+
+Paysafecard:
+    resource: services/paysafecard.yml

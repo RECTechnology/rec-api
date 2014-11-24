@@ -80,6 +80,11 @@ class ServicesRepository{
             'name' => 'HalcashPayment',
             'role' => 'ROLE_SERVICES_HALCASHPAYMENT',
         ),
+        array(
+            'id' => 14,
+            'name' => 'Paysafecard',
+            'role' => 'ROLE_SERVICES_PAYSAFECARD',
+        )
     );
 
     public function findAll(){

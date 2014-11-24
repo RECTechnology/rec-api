@@ -32,3 +32,9 @@ api_version:
     defaults: { _controller: Telepay\FinancialApiBundle\Controller\User\ApiController::version, _format: ~ }
     requirements:
         _method: GET
+
+PaysafecardNotifications:
+    pattern:  /notifications/v1/paysafecard
+    defaults: { _controller: Telepay\FinancialApiBundle\Controller\Notifications\NotificationsController::paysafecardNotification, _format: ~ }
+    requirements:
+        _method: GET
