@@ -24,7 +24,7 @@
 		}
 
 		public function request($mode,$mtid,$currency,$amount,$okUrl,$nokUrl,$pnUrl,$mCId){
-
+die(print_r('proba',true));
             error_reporting( E_ALL );
             header( "Content-Type: text/html; charset=utf-8" );
             $start = microtime( true );
