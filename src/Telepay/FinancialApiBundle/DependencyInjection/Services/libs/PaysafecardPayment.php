@@ -19,12 +19,13 @@
 
 		function __construct($user,$pass)
 		{
+            die(print_r('constructor',true));
 			$this->username=$user;
 			$this->password=$pass;
 		}
 
 		public function request($mode,$mtid,$currency,$amount,$okUrl,$nokUrl,$pnUrl,$mCId){
-die(print_r('proba',true));
+die(print_r('request',true));
             error_reporting( E_ALL );
             header( "Content-Type: text/html; charset=utf-8" );
             $start = microtime( true );
