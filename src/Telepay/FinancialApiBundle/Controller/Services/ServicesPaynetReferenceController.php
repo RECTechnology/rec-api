@@ -57,7 +57,6 @@ class ServicesPaynetReferenceController extends FosRestController
         );
 
         //Get the parameters sent by POST
-        $request=$this->get('request_stack')->getCurrentRequest();
         $params = array();
         foreach($paramNames as $paramName){
             if(!$request->request ->has($paramName)){
