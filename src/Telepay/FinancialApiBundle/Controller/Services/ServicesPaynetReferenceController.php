@@ -152,14 +152,13 @@ class ServicesPaynetReferenceController extends FosRestController
      *
      */
 
-    public function status(){
+    public function status(Request $request){
 
         static $paramNames = array(
             'client_reference'
         );
 
         //Get the parameters sent by POST
-        $request=$this->get('request_stack')->getCurrentRequest();
         $params = array();
         foreach($paramNames as $paramName){
             if(!$request->query ->has($paramName)){
@@ -179,6 +178,10 @@ class ServicesPaynetReferenceController extends FosRestController
             $paramsMongo[$paramNames[$i]]=$params[$i];
         }
 
+        //Comprobamos modo Test
+        $mode = $request->get('mode');
+        if(!isset($mode)) $mode = 'P';
+
         //Guardamos la request en mongo
         $transaction = new Transaction();
         $transaction->setIp($request->getClientIp());
@@ -186,7 +189,7 @@ class ServicesPaynetReferenceController extends FosRestController
         $transaction->setService($this->get('telepay.services')->findByName('PaynetReference')->getId());
         $transaction->setUser($this->get('security.context')->getToken()->getUser()->getId());
         $transaction->setSentData(json_encode($paramsMongo));
-        $transaction->setMode(true);
+        $transaction->setMode($mode==='P');
 
         //Constructor
         $datos=$this->get('paynetref.service')->getPaynetGetStatus()->status($params[0]);
