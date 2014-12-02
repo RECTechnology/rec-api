@@ -29,7 +29,6 @@ class UsersController extends BaseApiController
         return new User();
     }
 
-
     /**
      * @Rest\View
      */
