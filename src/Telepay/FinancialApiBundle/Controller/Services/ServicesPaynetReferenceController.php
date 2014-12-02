@@ -87,14 +87,14 @@ class ServicesPaynetReferenceController extends FosRestController
         $transaction->setService($this->get('telepay.services')->findByName('PaynetReference')->getId());
         $transaction->setUser($this->get('security.context')->getToken()->getUser()->getId());
         $transaction->setSentData(json_encode($paramsMongo));
-        $transaction->setMode($mode);
+        $transaction->setMode($mode === 'P');
 
         //Constructor
         $datos=$this->get('paynetref.service')->getPaynetGetBarcode()->request($params[0],$params[1],$params[2]);
 
         if(isset($datos['barcode'])){
             $transaction->setSuccessful(true);
-            $rCode=400;
+            $rCode=201;
             $resp = new ApiResponseBuilder(
                 201,
                 "Reference created successfully",
@@ -102,7 +102,7 @@ class ServicesPaynetReferenceController extends FosRestController
             );
         }else{
             $transaction->setSuccessful(false);
-            $rCode=201;
+            $rCode=400;
             $resp = new ApiResponseBuilder(
                 400,
                 "Bad request",
