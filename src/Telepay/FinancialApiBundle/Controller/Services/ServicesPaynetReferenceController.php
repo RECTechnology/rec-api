@@ -88,7 +88,7 @@ class ServicesPaynetReferenceController extends FosRestController
         $transaction->setService($this->get('telepay.services')->findByName('PaynetReference')->getId());
         $transaction->setUser($this->get('security.context')->getToken()->getUser()->getId());
         $transaction->setSentData(json_encode($paramsMongo));
-        $transaction->setMode(true);
+        $transaction->setMode($mode);
 
         //Constructor
         $datos=$this->get('paynetref.service')->getPaynetGetBarcode()->request($params[0],$params[1],$params[2]);
