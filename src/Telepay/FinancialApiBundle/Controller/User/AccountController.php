@@ -61,11 +61,11 @@ class AccountController extends RestApiController{
 
         if($request->query->has('start_time') && is_int($request->query->get('start_time')))
             $start_time = new \MongoDate($request->query->get('start_time'));
-        else $start_time = new \MongoDate(time()-31*24*3600); // 1 month ago
+        else $start_time = new \MongoDate(strtotime(date('Y-m-01 00:00:00'))); // 1th of month
 
         if($request->query->has('end_time') && is_int($request->query->get('end_time')))
             $end_time = new \MongoDate($request->query->get('end_time'));
-        else $end_time = new \MongoDate(); // now
+        else $end_time = new \MongoDate(strtotime(date('Y-m-01 00:00:00'))+31*24*3600); // 1th of next month
 
         $interval = 'day';
 
