@@ -107,7 +107,9 @@ class AccountController extends RestApiController{
                     's8'=>0,
                     's9'=>0,
                     's10'=>0,
-                    's11'=>0
+                    's11'=>0,
+                    's12'=>0,
+                    's13'=>0
                 )
             )
             ->reduce('
@@ -146,6 +148,12 @@ class AccountController extends RestApiController{
                                 break;
                             case 11:
                                 result.s11++;
+                                break;
+                            case 12:
+                                result.s12++;
+                                break;
+                            case 13:
+                                result.s13++;
                                 break;
                         }
                 }
