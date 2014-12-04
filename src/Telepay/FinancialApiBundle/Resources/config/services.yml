@@ -58,3 +58,6 @@ services:
 
     paysafecard.service:
         class: Telepay\FinancialApiBundle\DependencyInjection\Services\Paysafecard
+
+    multiva.service:
+            class: Telepay\FinancialApiBundle\DependencyInjection\Services\MultivaTPV

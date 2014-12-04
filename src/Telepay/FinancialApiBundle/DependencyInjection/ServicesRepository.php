@@ -84,6 +84,11 @@ class ServicesRepository{
             'id' => 14,
             'name' => 'Paysafecard',
             'role' => 'ROLE_SERVICES_PAYSAFECARD',
+        ),
+        array(
+            'id' => 15,
+            'name' => 'Multiva',
+            'role' => 'ROLE_SERVICES_MULTIVA',
         )
     );
 

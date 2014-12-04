@@ -43,3 +43,6 @@ HalcashPayment:
 
 Paysafecard:
     resource: services/paysafecard.yml
+
+Multiva:
+    resource: services/multiva.yml
