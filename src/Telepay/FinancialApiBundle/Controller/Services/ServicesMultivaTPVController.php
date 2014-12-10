@@ -46,7 +46,7 @@ class ServicesMultivaTPVController extends FosRestController
      *          "name"="url_notification",
      *          "dataType"="string",
      *          "required"="true",
-     *          "description"="This id must be unique."
+     *          "description"="Url to notify the transaction."
      *      }
      *   }
      * )
@@ -109,13 +109,16 @@ class ServicesMultivaTPVController extends FosRestController
         $transaction->setSentData(json_encode($paramsMongo));
         $transaction->setMode($mode === 'P');
 
+        $url_base=$this->container->getParameter('api_url');
+        $url_notification=$url_base.'/notifications/v1/multiva';
+
         //Check if it's a Test or Production transaction
         if($mode=='T'){
             //Constructor in Test mode
-            $datos=$this->get('multiva.service')->getMultivaTest($params[0],$params[1])-> request();
+            $datos=$this->get('multiva.service')->getMultivaTest($params[0],$params[1],$url_notification)-> request();
         }elseif($mode=='P'){
             //Constructor in Production mode
-            $datos=$this->get('multiva.service')->getMultiva($params[0],$params[1])->request();
+            $datos=$this->get('multiva.service')->getMultiva($params[0],$params[1],$url_notification)->request();
         }else{
             //If is not one of the first shows an error message.
             throw new HttpException(400,'Wrong require->Test with T or P');

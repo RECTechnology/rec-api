@@ -273,4 +273,14 @@ class NotificationsController extends FOSRestController{
 
 
     }
+
+    public function multivaNotification(Request $request){
+        //aun no sabemos como sera
+
+    }
+
+    public function sabadellNotification(Request $request){
+        //aun no sabemos como sera
+
+    }
 }

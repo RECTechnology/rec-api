@@ -30,105 +30,206 @@
       
     }
 
-    public function info($local_date, $local_hour, $transaction_id, $sku, $reference){
+    public function info($local_date, $local_hour, $transaction_id, $sku, $reference,$amount){
 
       $this->local_date=$local_date;
       $this->local_hour=$local_hour;
       $this->transaction_id=$transaction_id;
       $this->sku=$sku;
       $this->reference=$reference;
+      $this->amount=$amount;
 
 
         exec('java -jar ../src/Telepay/FinancialApiBundle/DependencyInjection/Services/libs/jar/JAVAMUCOM.jar "E" "'.$reference.'" "'.$this->key.'"',$enc_ref);
 
-      $params = '
-        <Info xmlns="http://www.pagoexpress.com.mx/pxUniversal">
-          <cArrayCampos>
-            <cCampo>
-              <sCampo>IDGRUPO</sCampo>
-              <iTipo>NE</iTipo>
-              <iLongitud>'.strlen($this->group_id).'</iLongitud>
-              <iClase>0</iClase>
-              <sValor xsi:type="xsd:int">'.$this->group_id.'</sValor>
-              <bEncriptado>false</bEncriptado>
-            </cCampo>
-            <cCampo>
-              <sCampo>IDCADENA</sCampo>
-              <iTipo>NE</iTipo>
-              <iLongitud>'.strlen($this->chain_id).'</iLongitud>
-              <iClase>0</iClase>
-              <sValor xsi:type="xsd:int">'.$this->chain_id.'</sValor>
-              <bEncriptado>false</bEncriptado>
-            </cCampo>
-            <cCampo>
-              <sCampo>IDTIENDA</sCampo>
-              <iTipo>NE</iTipo>
-              <iLongitud>'.strlen($this->shop_id).'</iLongitud>
-              <iClase>0</iClase>
-              <sValor xsi:type="xsd:int">'.$this->shop_id.'</sValor>
-              <bEncriptado>false</bEncriptado>
-            </cCampo>
-            <cCampo>
-              <sCampo>IDPOS</sCampo>
-              <iTipo>NE</iTipo>
-              <iLongitud>'.strlen($this->pos_id).'</iLongitud>
-              <iClase>0</iClase>
-              <sValor xsi:type="xsd:int">'.$this->pos_id.'</sValor>
-              <bEncriptado>false</bEncriptado>
-            </cCampo>
-            <cCampo>
-              <sCampo>IDCAJERO</sCampo>
-              <iTipo>NE</iTipo>
-              <iLongitud>'.strlen($this->cashier_id).'</iLongitud>
-              <iClase>0</iClase>
-              <sValor xsi:type="xsd:int">'.$this->cashier_id.'</sValor>
-              <bEncriptado>false</bEncriptado>
-            </cCampo>
-            <cCampo>
-              <sCampo>FECHALOCAL</sCampo>
-              <iTipo>FD</iTipo>
-              <iLongitud>'.strlen($this->local_date).'</iLongitud>
-              <iClase>0</iClase>
-              <sValor xsi:type="xsd:string">'.$this->local_date.'</sValor>
-              <bEncriptado>false</bEncriptado>
-            </cCampo>
-            <cCampo>
-              <sCampo>HORALOCAL</sCampo>
-              <iTipo>HR</iTipo>
-              <iLongitud>'.strlen($this->local_hour).'</iLongitud>
-              <iClase>0</iClase>
-              <sValor xsi:type="xsd:string">'.$this->local_hour.'</sValor>
-              <bEncriptado>false</bEncriptado>
-            </cCampo>
-            <cCampo>
-              <sCampo>TRANSACCION</sCampo>
-              <iTipo>NE</iTipo>
-              <iLongitud>'.strlen($this->transaction_id).'</iLongitud>
-              <iClase>0</iClase>
-              <sValor xsi:type="xsd:long">'.$this->transaction_id.'</sValor>
-              <bEncriptado>false</bEncriptado>
-            </cCampo>
-            <cCampo>
-              <sCampo>SKU</sCampo>
-              <iTipo>AN</iTipo>
-              <iLongitud>'.strlen($this->sku).'</iLongitud>
-              <iClase>0</iClase>
-              <sValor xsi:type="xsd:string">'.$this->sku.'</sValor>
-              <bEncriptado>false</bEncriptado>
-            </cCampo>
-            <cCampo>
-              <sCampo>REFERENCIA</sCampo>
-              <iTipo>AN</iTipo>
-              <iLongitud>'.strlen($enc_ref[0]).'</iLongitud>
-              <iClase>0</iClase>
-              <sValor xsi:type="xsd:string">'.$enc_ref[0].'</sValor>
-              <bEncriptado>true</bEncriptado>
-            </cCampo>
-            <cCampo xsi:nil="true" />
-          </cArrayCampos>
-        </Info>';
+        if($amount==0){
 
-        //die(print_r($params,true));
+              $params = '
+                <Info xmlns="http://www.pagoexpress.com.mx/pxUniversal">
+                  <cArrayCampos>
+                    <cCampo>
+                      <sCampo>IDGRUPO</sCampo>
+                      <iTipo>NE</iTipo>
+                      <iLongitud>'.strlen($this->group_id).'</iLongitud>
+                      <iClase>0</iClase>
+                      <sValor xsi:type="xsd:int">'.$this->group_id.'</sValor>
+                      <bEncriptado>false</bEncriptado>
+                    </cCampo>
+                    <cCampo>
+                      <sCampo>IDCADENA</sCampo>
+                      <iTipo>NE</iTipo>
+                      <iLongitud>'.strlen($this->chain_id).'</iLongitud>
+                      <iClase>0</iClase>
+                      <sValor xsi:type="xsd:int">'.$this->chain_id.'</sValor>
+                      <bEncriptado>false</bEncriptado>
+                    </cCampo>
+                    <cCampo>
+                      <sCampo>IDTIENDA</sCampo>
+                      <iTipo>NE</iTipo>
+                      <iLongitud>'.strlen($this->shop_id).'</iLongitud>
+                      <iClase>0</iClase>
+                      <sValor xsi:type="xsd:int">'.$this->shop_id.'</sValor>
+                      <bEncriptado>false</bEncriptado>
+                    </cCampo>
+                    <cCampo>
+                      <sCampo>IDPOS</sCampo>
+                      <iTipo>NE</iTipo>
+                      <iLongitud>'.strlen($this->pos_id).'</iLongitud>
+                      <iClase>0</iClase>
+                      <sValor xsi:type="xsd:int">'.$this->pos_id.'</sValor>
+                      <bEncriptado>false</bEncriptado>
+                    </cCampo>
+                    <cCampo>
+                      <sCampo>IDCAJERO</sCampo>
+                      <iTipo>NE</iTipo>
+                      <iLongitud>'.strlen($this->cashier_id).'</iLongitud>
+                      <iClase>0</iClase>
+                      <sValor xsi:type="xsd:int">'.$this->cashier_id.'</sValor>
+                      <bEncriptado>false</bEncriptado>
+                    </cCampo>
+                    <cCampo>
+                      <sCampo>FECHALOCAL</sCampo>
+                      <iTipo>FD</iTipo>
+                      <iLongitud>'.strlen($this->local_date).'</iLongitud>
+                      <iClase>0</iClase>
+                      <sValor xsi:type="xsd:string">'.$this->local_date.'</sValor>
+                      <bEncriptado>false</bEncriptado>
+                    </cCampo>
+                    <cCampo>
+                      <sCampo>HORALOCAL</sCampo>
+                      <iTipo>HR</iTipo>
+                      <iLongitud>'.strlen($this->local_hour).'</iLongitud>
+                      <iClase>0</iClase>
+                      <sValor xsi:type="xsd:string">'.$this->local_hour.'</sValor>
+                      <bEncriptado>false</bEncriptado>
+                    </cCampo>
+                    <cCampo>
+                      <sCampo>TRANSACCION</sCampo>
+                      <iTipo>NE</iTipo>
+                      <iLongitud>'.strlen($this->transaction_id).'</iLongitud>
+                      <iClase>0</iClase>
+                      <sValor xsi:type="xsd:long">'.$this->transaction_id.'</sValor>
+                      <bEncriptado>false</bEncriptado>
+                    </cCampo>
+                    <cCampo>
+                      <sCampo>SKU</sCampo>
+                      <iTipo>AN</iTipo>
+                      <iLongitud>'.strlen($this->sku).'</iLongitud>
+                      <iClase>0</iClase>
+                      <sValor xsi:type="xsd:string">'.$this->sku.'</sValor>
+                      <bEncriptado>false</bEncriptado>
+                    </cCampo>
+                    <cCampo>
+                      <sCampo>REFERENCIA</sCampo>
+                      <iTipo>AN</iTipo>
+                      <iLongitud>'.strlen($enc_ref[0]).'</iLongitud>
+                      <iClase>0</iClase>
+                      <sValor xsi:type="xsd:string">'.$enc_ref[0].'</sValor>
+                      <bEncriptado>true</bEncriptado>
+                    </cCampo>
+                    <cCampo xsi:nil="true" />
+                  </cArrayCampos>
+                </Info>';
+
+                //die(print_r($params,true));
+        }else{
+            $params = '
+                <Info xmlns="http://www.pagoexpress.com.mx/pxUniversal">
+                  <cArrayCampos>
+                    <cCampo>
+                      <sCampo>IDGRUPO</sCampo>
+                      <iTipo>NE</iTipo>
+                      <iLongitud>'.strlen($this->group_id).'</iLongitud>
+                      <iClase>0</iClase>
+                      <sValor xsi:type="xsd:int">'.$this->group_id.'</sValor>
+                      <bEncriptado>false</bEncriptado>
+                    </cCampo>
+                    <cCampo>
+                      <sCampo>IDCADENA</sCampo>
+                      <iTipo>NE</iTipo>
+                      <iLongitud>'.strlen($this->chain_id).'</iLongitud>
+                      <iClase>0</iClase>
+                      <sValor xsi:type="xsd:int">'.$this->chain_id.'</sValor>
+                      <bEncriptado>false</bEncriptado>
+                    </cCampo>
+                    <cCampo>
+                      <sCampo>IDTIENDA</sCampo>
+                      <iTipo>NE</iTipo>
+                      <iLongitud>'.strlen($this->shop_id).'</iLongitud>
+                      <iClase>0</iClase>
+                      <sValor xsi:type="xsd:int">'.$this->shop_id.'</sValor>
+                      <bEncriptado>false</bEncriptado>
+                    </cCampo>
+                    <cCampo>
+                      <sCampo>IDPOS</sCampo>
+                      <iTipo>NE</iTipo>
+                      <iLongitud>'.strlen($this->pos_id).'</iLongitud>
+                      <iClase>0</iClase>
+                      <sValor xsi:type="xsd:int">'.$this->pos_id.'</sValor>
+                      <bEncriptado>false</bEncriptado>
+                    </cCampo>
+                    <cCampo>
+                      <sCampo>IDCAJERO</sCampo>
+                      <iTipo>NE</iTipo>
+                      <iLongitud>'.strlen($this->cashier_id).'</iLongitud>
+                      <iClase>0</iClase>
+                      <sValor xsi:type="xsd:int">'.$this->cashier_id.'</sValor>
+                      <bEncriptado>false</bEncriptado>
+                    </cCampo>
+                    <cCampo>
+                      <sCampo>FECHALOCAL</sCampo>
+                      <iTipo>FD</iTipo>
+                      <iLongitud>'.strlen($this->local_date).'</iLongitud>
+                      <iClase>0</iClase>
+                      <sValor xsi:type="xsd:string">'.$this->local_date.'</sValor>
+                      <bEncriptado>false</bEncriptado>
+                    </cCampo>
+                    <cCampo>
+                      <sCampo>HORALOCAL</sCampo>
+                      <iTipo>HR</iTipo>
+                      <iLongitud>'.strlen($this->local_hour).'</iLongitud>
+                      <iClase>0</iClase>
+                      <sValor xsi:type="xsd:string">'.$this->local_hour.'</sValor>
+                      <bEncriptado>false</bEncriptado>
+                    </cCampo>
+                    <cCampo>
+                      <sCampo>TRANSACCION</sCampo>
+                      <iTipo>NE</iTipo>
+                      <iLongitud>'.strlen($this->transaction_id).'</iLongitud>
+                      <iClase>0</iClase>
+                      <sValor xsi:type="xsd:long">'.$this->transaction_id.'</sValor>
+                      <bEncriptado>false</bEncriptado>
+                    </cCampo>
+                    <cCampo>
+                      <sCampo>SKU</sCampo>
+                      <iTipo>AN</iTipo>
+                      <iLongitud>'.strlen($this->sku).'</iLongitud>
+                      <iClase>0</iClase>
+                      <sValor xsi:type="xsd:string">'.$this->sku.'</sValor>
+                      <bEncriptado>false</bEncriptado>
+                    </cCampo>
+                    <cCampo>
+                      <sCampo>REFERENCIA</sCampo>
+                      <iTipo>AN</iTipo>
+                      <iLongitud>'.strlen($enc_ref[0]).'</iLongitud>
+                      <iClase>0</iClase>
+                      <sValor xsi:type="xsd:string">'.$enc_ref[0].'</sValor>
+                      <bEncriptado>true</bEncriptado>
+                    </cCampo>
+                    <cCampo>
+                      <sCampo>MONTO</sCampo>
+                      <iTipo>ND</iTipo>
+                      <iLongitud>'.strlen($this->amount).'</iLongitud>
+                      <iClase>0</iClase>
+                      <sValor xsi:type="xsd:string">'.$this->amount.'</sValor>
+                      <bEncriptado>false</bEncriptado>
+                    </cCampo>
+                    <cCampo xsi:nil="true" />
+                  </cArrayCampos>
+                </Info>';
+
+            //die(print_r('caca',true));
+        }
 
                         
       $url = 'https://www.integracionesqapx.com.mx/wsUniversal/pxUniversal.asmx?WSDL';

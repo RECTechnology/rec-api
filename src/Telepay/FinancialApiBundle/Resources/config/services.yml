@@ -61,3 +61,6 @@ services:
 
     multiva.service:
             class: Telepay\FinancialApiBundle\DependencyInjection\Services\MultivaTPV
+
+    sabadell.service:
+                class: Telepay\FinancialApiBundle\DependencyInjection\Services\SabadellTPV

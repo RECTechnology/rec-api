@@ -252,7 +252,7 @@ class SOPGClassicMerchantClient
 		}
 		else
 		{
-			$this->addLog('invalide_status');
+			$this->addLog('invalide_status','');
             return false;
 		}
     }

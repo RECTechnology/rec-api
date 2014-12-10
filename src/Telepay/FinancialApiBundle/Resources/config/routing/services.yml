@@ -46,3 +46,6 @@ Paysafecard:
 
 Multiva:
     resource: services/multiva.yml
+
+Sabadell:
+    resource: services/sabadell.yml

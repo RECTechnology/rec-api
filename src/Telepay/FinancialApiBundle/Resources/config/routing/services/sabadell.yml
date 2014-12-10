@@ -1,0 +1,40 @@
+
+services_sabadell_generate:
+    pattern:  /services/v1/sabadell/generate
+    defaults: { _controller: Telepay\FinancialApiBundle\Controller\Services\ServicesSabadellTPVController::generate, _format: ~ }
+    requirements:
+        _method: POST
+
+services_sabadell_generate_sandbox:
+    pattern:  /sandbox/services/v1/sabadell/generate
+    defaults: { _controller: Telepay\FinancialApiBundle\Controller\Services\ServicesSabadellTPVController::generateTest, _format: ~ }
+    requirements:
+        _method: POST
+
+services_sabadell_generate_test:
+    pattern:  /test/services/v1/sabadell/generate
+    defaults: { _controller: Telepay\FinancialApiBundle\Controller\Services\ServicesSabadellTPVController::generateTest, _format: ~ }
+    requirements:
+        _method: POST
+
+
+
+######################### MULTIVA TPV SERVICE STATS ############################
+
+analytics_sabadell_generate_transactions:
+    pattern:  /analytics/services/v1/sabadell/transactions
+    defaults: { _controller: Telepay\FinancialApiBundle\Controller\Analytics\SabadellAnalytics::transactions }
+    requirements:
+        _method: GET
+
+analytics_sabadell_generate_transactions:
+    pattern:  /analytics/services/v1/sabadell/transactions/test
+    defaults: { _controller: Telepay\FinancialApiBundle\Controller\Analytics\SabadellAnalytics::transactionsTest }
+    requirements:
+        _method: GET
+
+analytics_sabadell_generate_sum:
+    pattern:  /analytics/services/v1/sabadell/sum
+    defaults: { _controller: Telepay\FinancialApiBundle\Controller\Analytics\SabadellAnalytics::stats }
+    requirements:
+        _method: GET

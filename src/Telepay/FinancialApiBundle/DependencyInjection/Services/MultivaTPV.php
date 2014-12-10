@@ -24,7 +24,6 @@ class MultivaTPV{
         'commerchant'   =>  '7531853',
         'comstore'      =>  '1234',
         'comterm'       =>  '001',
-        'comurlback'    =>  ''
     );
 
     //Para producción no los tenemos--de momento he puesto los mismos pero habrá que cambiarlos
@@ -34,18 +33,17 @@ class MultivaTPV{
         'commerchant'   =>  '7531853',
         'comstore'      =>  '1234',
         'comterm'       =>  '001',
-        'comurlback'    =>  ''
     );
 
-    public function getMultivaTest($amount,$transaction_id){
+    public function getMultivaTest($amount,$transaction_id,$url_notification){
 
-        return new MultivaService($amount,$this->testArray['comcurrency'],$this->testArray['comaddress'],$transaction_id,$this->testArray['commerchant'],$this->testArray['comstore'],$this->testArray['comterm'],$this->testArray['comurlback']);
+        return new MultivaService($amount,$this->testArray['comcurrency'],$this->testArray['comaddress'],$transaction_id,$this->testArray['commerchant'],$this->testArray['comstore'],$this->testArray['comterm'],$url_notification);
 
     }
 
-    public function getMultiva($amount,$transaction_id){
+    public function getMultiva($amount,$transaction_id,$url_notification){
 
-        return new MultivaService($amount,$this->prodArray['comcurrency'],$this->prodArray['comaddress'],$transaction_id,$this->prodArray['commerchant'],$this->prodArray['comstore'],$this->prodArray['comterm'],$this->testArray['comurlback']);
+        return new MultivaService($amount,$this->prodArray['comcurrency'],$this->prodArray['comaddress'],$transaction_id,$this->prodArray['commerchant'],$this->prodArray['comstore'],$this->prodArray['comterm'],$url_notification);
 
     }
 

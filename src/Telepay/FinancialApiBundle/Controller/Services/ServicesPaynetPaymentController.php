@@ -60,6 +60,12 @@ class ServicesPaynetPaymentController extends FosRestController
      *          "dataType"="string",
      *          "required"="true",
      *          "description"="This is a reference for the payment. Every service has a unique reference."
+     *      },
+     *      {
+     *          "name"="amount",
+     *          "dataType"="string",
+     *          "required"="true",
+     *          "description"="Only for the phone recharge. If not used=0"
      *      }
      *   }
      * )
@@ -76,7 +82,8 @@ class ServicesPaynetPaymentController extends FosRestController
             'hour',
             'transaction_id',
             'sku',
-            'reference'
+            'reference',
+            'amount'
         );
 
         //Get the parameters sent by POST and put them in $params array
@@ -127,10 +134,10 @@ class ServicesPaynetPaymentController extends FosRestController
         //Check if it's a Test or Production transaction
         if($mode=='T'){
             //Constructor in Test mode
-            $datos=$this->get('paynetpay.service')->getPaynetPayTest()-> info($params[0],$params[1],$params[2],$params[3],$params[4]);
+            $datos=$this->get('paynetpay.service')->getPaynetPayTest()-> info($params[0],$params[1],$params[2],$params[3],$params[4],$params[5]);
         }elseif($mode=='P'){
             //Constructor in Production mode
-            $datos=$this->get('paynetpay.service')->getPaynetPay()->info($params[0],$params[1],$params[2],$params[3],$params[4]);
+            $datos=$this->get('paynetpay.service')->getPaynetPay()->info($params[0],$params[1],$params[2],$params[3],$params[4],$params[5]);
         }else{
             //If is not one of the first shows an error message.
             throw new HttpException(400,'Wrong require->Test with T or P');

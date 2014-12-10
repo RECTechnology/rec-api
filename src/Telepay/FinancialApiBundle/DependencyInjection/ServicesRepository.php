@@ -89,7 +89,13 @@ class ServicesRepository{
             'id' => 15,
             'name' => 'Multiva',
             'role' => 'ROLE_SERVICES_MULTIVA',
+        ),
+        array(
+            'id' => 16,
+            'name' => 'Sabadell',
+            'role' => 'ROLE_SERVICES_SABADELL',
         )
+
     );
 
     public function findAll(){
