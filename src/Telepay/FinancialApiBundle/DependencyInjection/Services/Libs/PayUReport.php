@@ -1,5 +1,8 @@
 <?php
-	require_once 'lib/PayU.php'; 
+
+namespace Telepay\FinancialApiBundle\DependencyInjection\Services\Libs;
+
+require_once 'lib/PayU.php';
 
 	/**
 	* 

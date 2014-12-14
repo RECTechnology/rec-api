@@ -118,6 +118,10 @@ fos_rest:
         rules:
             - { priorities: [json, xml], fallback_format: json }
 
+    exception:
+        enabled: true
+
+
 fos_oauth_server:
     db_driver:           orm
     client_class:        Telepay\FinancialApiBundle\Entity\Client

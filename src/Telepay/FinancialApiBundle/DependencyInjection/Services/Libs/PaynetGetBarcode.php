@@ -1,4 +1,5 @@
 <?php
+namespace Telepay\FinancialApiBundle\DependencyInjection\Services\Libs;
 
 //namespace Paynet;
 

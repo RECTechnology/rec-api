@@ -8,13 +8,9 @@
 
 namespace Telepay\FinancialApiBundle\DependencyInjection\Services;
 
-use Symfony\Component\HttpKernel\Exception\HttpException;
-use PaynetGetBarcode;
-use PaynetGetStatus;
+use Telepay\FinancialApiBundle\DependencyInjection\Services\Libs\PaynetGetBarcode;
+use Telepay\FinancialApiBundle\DependencyInjection\Services\Libs\PaynetGetStatus;
 
-//Include the class
-include("libs/PaynetGetBarcode.php");
-include("libs/PaynetGetStatus.php");
 
 class Paynetbarcode{
 

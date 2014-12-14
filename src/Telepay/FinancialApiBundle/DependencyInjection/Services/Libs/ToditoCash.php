@@ -1,6 +1,7 @@
 <?php
-	
-	ini_set("default_socket_timeout", 5);
+namespace Telepay\FinancialApiBundle\DependencyInjection\Services\Libs;
+
+ini_set("default_socket_timeout", 5);
 	ini_set("soap.wsdl_cache_enabled", 0);
 	
 	class ToditoCash{

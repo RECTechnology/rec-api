@@ -8,11 +8,8 @@
 
 namespace Telepay\FinancialApiBundle\DependencyInjection\Services;
 
-use Symfony\Component\HttpKernel\Exception\HttpException;
-use PademobileRedirect;
+use Telepay\FinancialApiBundle\DependencyInjection\Services\Libs\PademobileRedirect;
 
-//Include the class
-include("libs/PademobileRedirect.php");
 
 class Pademobile{
 

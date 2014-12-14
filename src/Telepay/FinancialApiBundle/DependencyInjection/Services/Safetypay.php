@@ -8,11 +8,7 @@
 
 namespace Telepay\FinancialApiBundle\DependencyInjection\Services;
 
-use Symfony\Component\HttpKernel\Exception\HttpException;
-use SafetyPayment;
-
-//Include the class
-include("libs/SafetyPayment.php");
+use Telepay\FinancialApiBundle\DependencyInjection\Services\Libs\SafetyPayment;
 
 class Safetypay{
 

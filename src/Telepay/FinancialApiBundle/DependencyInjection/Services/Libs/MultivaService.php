@@ -1,7 +1,8 @@
 <?php
 
+namespace Telepay\FinancialApiBundle\DependencyInjection\Services\Libs;
 
-  class MultivaService{
+class MultivaService{
 
     var $amount;
     var $currency;

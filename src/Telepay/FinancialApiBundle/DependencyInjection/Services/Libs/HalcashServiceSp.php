@@ -1,7 +1,10 @@
 <?php
+namespace Telepay\FinancialApiBundle\DependencyInjection\Services\Libs;
 
     require_once('includes/class.HALManager.php');
     require_once('includes/nusoap.php');
+    use nusoap_client;
+    use Symfony\Component\HttpKernel\Exception\HttpException;
 
 	class HalcashServiceSp{
 
@@ -44,7 +47,7 @@
 
 
             if($this->mode=='T'){
-                throw new HttpException(400,"Service unavailable");
+                throw new HttpException(501,"Test mode not implemented");
                 //$response='error1';
 
             }else{

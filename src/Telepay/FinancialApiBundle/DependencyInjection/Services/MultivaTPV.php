@@ -8,11 +8,8 @@
 
 namespace Telepay\FinancialApiBundle\DependencyInjection\Services;
 
-use Symfony\Component\HttpKernel\Exception\HttpException;
-use MultivaService;
+use Telepay\FinancialApiBundle\DependencyInjection\Services\Libs\MultivaService;
 
-//Include the class
-include("libs/MultivaService.php");
 
 class MultivaTPV{
 

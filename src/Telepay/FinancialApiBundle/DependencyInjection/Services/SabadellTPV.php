@@ -8,11 +8,7 @@
 
 namespace Telepay\FinancialApiBundle\DependencyInjection\Services;
 
-use Symfony\Component\HttpKernel\Exception\HttpException;
-use SabadellService;
-
-//Include the class
-include("libs/SabadellService.php");
+use Telepay\FinancialApiBundle\DependencyInjection\Services\Libs\SabadellService;
 
 class SabadellTPV{
 

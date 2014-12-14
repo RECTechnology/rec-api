@@ -8,11 +8,8 @@
 
 namespace Telepay\FinancialApiBundle\DependencyInjection\Services;
 
-use Symfony\Component\HttpKernel\Exception\HttpException;
-use HalcashServiceSp;
+use Telepay\FinancialApiBundle\DependencyInjection\Services\Libs\HalcashServiceSp;
 
-//Include the class
-include("libs/HalcashServiceSp.php");
 
 class HalcashSp{
 

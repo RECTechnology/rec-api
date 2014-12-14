@@ -1,6 +1,7 @@
 <?php
+namespace Telepay\FinancialApiBundle\DependencyInjection\Services\Libs;
 
-	/**
+/**
 	* 
 	*/
 	class PagofacilService
