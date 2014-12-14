@@ -11,7 +11,7 @@ namespace Telepay\FinancialApiBundle\Controller\Analytics;
 use Symfony\Component\HttpFoundation\Request;
 use Telepay\FinancialApiBundle\Controller\RestApiController;
 
-class sabadellAnalytics extends BaseAnalytics{
+class SabadellAnalytics extends BaseAnalytics{
 
     public function getServiceName(){
         return 'Sabadell';
