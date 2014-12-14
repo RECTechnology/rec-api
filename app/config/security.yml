@@ -102,4 +102,5 @@ security:
         - { path: ^/((sandbox|test|analytics|oauth)/)?services/v[0-9]+/payu/*, role: ROLE_SERVICES_PAYU }
         - { path: ^/((sandbox|test|analytics|oauth)/)?services/v[0-9]+/toditocash/*, role: ROLE_SERVICES_TODITOCASH }
         - { path: ^/((sandbox|test|analytics|oauth)/)?services/v[0-9]+/ukash/*, role: ROLE_SERVICES_UKASH }
+        - { path: ^/((sandbox|test|analytics|oauth)/)?services/v[0-9]+/halcash/*, role: ROLE_SERVICES_HALCASH }
         
