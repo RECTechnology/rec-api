@@ -312,11 +312,11 @@ class ServicesHalcashController extends FosRestController
         $transaction->setMode($mode === 'P');
 
         //Constructor
-        if($params[1]='MX') {
+        if($params[1]==='MX') {
             $transaction->setService($this->get('telepay.services')->findByName('HalcashPayment')->getId());
             $datos = $this->get('halcashpayment.service')->getHalcashPayment($mode)->payment($params[0], $params[2], $params[3], $params[4], $params[5]);
 
-        }elseif($params[1]='ES'){
+        }elseif($params[1]==='ES'){
             throw new HttpException(503,'Service unavailable');
             //$transaction->setService($this->get('telepay.services')->findByName('HalcashSend')->getId());
             //$datos=$this->get('halcash.service')->getHalcashSP($mode)-> request($params[0],$params[2],$params[3],$params[4],$params[5]);
@@ -326,6 +326,8 @@ class ServicesHalcashController extends FosRestController
 
 
         $datos=simplexml_load_string($datos);
+
+        if(!$datos) throw new HttpException(502, "Empty response from halcash service");
 
         $datos=get_object_vars($datos);
 
