@@ -10,6 +10,6 @@ use Symfony\Component\HttpFoundation\Request;
 class ExceptionController extends RestApiController{
 
     public function show(Request $request, Exception $exception){
-        //acabar!!
+        return $this->handleRestView($exception->getCode(), $exception->getMessage());
     }
 }
