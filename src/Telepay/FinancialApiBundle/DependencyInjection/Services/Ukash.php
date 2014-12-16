@@ -8,11 +8,7 @@
 
 namespace Telepay\FinancialApiBundle\DependencyInjection\Services;
 
-use Symfony\Component\HttpKernel\Exception\HttpException;
-use UkashRedirect;
-
-//Include the class
-include("libs/UkashRedirect.php");
+use Telepay\FinancialApiBundle\DependencyInjection\Services\Libs\UkashRedirect;
 
 class Ukash{
 

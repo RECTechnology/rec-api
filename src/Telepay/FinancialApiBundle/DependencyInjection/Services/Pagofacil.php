@@ -8,11 +8,8 @@
 
 namespace Telepay\FinancialApiBundle\DependencyInjection\Services;
 
-use Symfony\Component\HttpKernel\Exception\HttpException;
-use PagofacilService;
+use Telepay\FinancialApiBundle\DependencyInjection\Services\Libs\PagofacilService;
 
-//Include the class
-include("libs/PagofacilService.php");
 
 class Pagofacil{
 

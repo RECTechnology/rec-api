@@ -1,6 +1,7 @@
-<?php 
+<?php
+namespace Telepay\FinancialApiBundle\DependencyInjection\Services\Libs;
 
-	class PademobileRedirect{
+class PademobileRedirect{
 
         private $mode;
         var $client='299249';

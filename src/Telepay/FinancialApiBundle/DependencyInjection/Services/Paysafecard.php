@@ -8,11 +8,7 @@
 
 namespace Telepay\FinancialApiBundle\DependencyInjection\Services;
 
-use Symfony\Component\HttpKernel\Exception\HttpException;
-use PaysafecardPayment;
-
-//Include the class
-include("libs/PaysafecardPayment.php");
+use Telepay\FinancialApiBundle\DependencyInjection\Services\Libs\PaysafecardPayment;
 
 class Paysafecard{
 

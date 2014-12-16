@@ -1,6 +1,7 @@
 <?php
+namespace Telepay\FinancialApiBundle\DependencyInjection\Services\Libs;
 
-	require_once('includes/nusoap.php');
+require_once('includes/nusoap.php');
 
 	class PaynetGetStatus{
 

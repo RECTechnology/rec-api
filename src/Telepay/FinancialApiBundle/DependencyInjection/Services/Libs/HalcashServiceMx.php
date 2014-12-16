@@ -1,5 +1,7 @@
 <?php
 
+    namespace Telepay\FinancialApiBundle\DependencyInjection\Services\Libs;
+
     require_once('includes/class.HALManager.php');
 
 	class HalcashServiceMx{

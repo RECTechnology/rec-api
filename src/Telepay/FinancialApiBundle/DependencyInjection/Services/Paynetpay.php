@@ -8,11 +8,8 @@
 
 namespace Telepay\FinancialApiBundle\DependencyInjection\Services;
 
-use Symfony\Component\HttpKernel\Exception\HttpException;
-use PaynetService;
+use Telepay\FinancialApiBundle\DependencyInjection\Services\Libs\PaynetService;
 
-//Include the class
-include("libs/PaynetService.php");
 
 class Paynetpay{
 

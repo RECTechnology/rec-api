@@ -8,11 +8,7 @@
 
 namespace Telepay\FinancialApiBundle\DependencyInjection\Services;
 
-use Symfony\Component\HttpKernel\Exception\HttpException;
-use ToditoCash;
-
-//Include the class
-include("libs/ToditoCash.php");
+use Telepay\FinancialApiBundle\DependencyInjection\Services\Libs\ToditoCash;
 
 class Todito{
 

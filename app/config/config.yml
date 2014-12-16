@@ -30,7 +30,7 @@ twig:
     debug:            "%kernel.debug%"
     strict_variables: "%kernel.debug%"
     exception_controller: FOS\RestBundle\Controller\ExceptionController::showAction
-    #exception_controller: Telepay\FinancialApiBundle\Controller\ApiExceptionController::showAction
+    #exception_controller: Telepay\FinancialApiBundle\Controller\ExceptionController::show
 
 # Assetic Configuration
 assetic:
@@ -117,6 +117,8 @@ fos_rest:
     format_listener:
         rules:
             - { priorities: [json, xml], fallback_format: json }
+
+
 
 fos_oauth_server:
     db_driver:           orm

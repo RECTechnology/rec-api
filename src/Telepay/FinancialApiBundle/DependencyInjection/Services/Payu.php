@@ -8,11 +8,10 @@
 
 namespace Telepay\FinancialApiBundle\DependencyInjection\Services;
 
-use Symfony\Component\HttpKernel\Exception\HttpException;
-use PayUPayment;
-use PayUPaymentTest;
-use PayUReport;
-use PayUReportTest;
+use Telepay\FinancialApiBundle\DependencyInjection\Services\Libs\PayUPayment;
+use Telepay\FinancialApiBundle\DependencyInjection\Services\Libs\PayUPaymentTest;
+use Telepay\FinancialApiBundle\DependencyInjection\Services\Libs\PayUReport;
+use Telepay\FinancialApiBundle\DependencyInjection\Services\Libs\PayUReportTest;
 
 class Payu{
 
@@ -29,9 +28,6 @@ class Payu{
         $this->description=$description;
         $this->value=$value;
         $this->pay_method=$pay_method;
-
-        //Include the class
-        include("libs/PayUPaymentTest.php");
 
         return new PayUPaymentTest(
             $this->varArray['account_id'],
@@ -55,9 +51,6 @@ class Payu{
         $this->value=$value;
         $this->pay_method=$pay_method;
 
-        //Include the class
-        include("libs/PayUPayment.php");
-
         return new PayUPayment(
             $this->varArray['account_id'],
             $this->varArray['installments_number'],
@@ -74,17 +67,11 @@ class Payu{
     public function getPayuReportTest($report_type){
         $this->report_type=$report_type;
 
-        //Include the class
-        include("libs/PayUReportTest.php");
-
         return new PayUReportTest($report_type);
     }
 
     public function getPayuReport($report_type){
         $this->report_type=$report_type;
-
-        //Include the class
-        include("libs/PayUReport.php");
 
         return new PayUReport($report_type);
     }

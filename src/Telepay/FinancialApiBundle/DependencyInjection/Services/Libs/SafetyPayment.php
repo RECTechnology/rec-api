@@ -1,6 +1,8 @@
 <?php
 
-	/**
+namespace Telepay\FinancialApiBundle\DependencyInjection\Services\Libs;
+
+/**
 	* 
 	*/
 	class SafetyPayment

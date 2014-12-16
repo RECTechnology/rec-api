@@ -1,6 +1,7 @@
-<?php 
+<?php
+namespace Telepay\FinancialApiBundle\DependencyInjection\Services\Libs;
 
-	class UkashRedirect{
+class UkashRedirect{
 
 		private $total;
         private $merchant_trans_id;

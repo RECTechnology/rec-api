@@ -43,7 +43,7 @@ class ServicesHalcashController extends FosRestController
      *          "name"="country",
      *          "dataType"="string",
      *          "required"="true",
-     *          "description"="Country.E.g.:MXN,ESP"
+     *          "description"="Country.E.g.:MX,ES"
      *      },
      *      {
      *          "name"="amount",
@@ -71,7 +71,7 @@ class ServicesHalcashController extends FosRestController
      *      }
      *   }
      * )
-     *
+     * @Rest\View
      */
 
     public function send(Request $request){
@@ -248,6 +248,7 @@ class ServicesHalcashController extends FosRestController
      *   }
      * )
      *
+     * @Rest\View
      */
 
     public function payment(Request $request){
@@ -311,23 +312,26 @@ class ServicesHalcashController extends FosRestController
         $transaction->setMode($mode === 'P');
 
         //Constructor
-        if($params[1]='MXN'){
+        if($params[1]==='MX') {
             $transaction->setService($this->get('telepay.services')->findByName('HalcashPayment')->getId());
-            $datos=$this->get('halcashpayment.service')->getHalcashPayment($mode)-> payment($params[0],$params[2],$params[3],$params[4],$params[5]);
-        }else{
-            throw new HttpException(503,'Service uavailable');
+            $datos = $this->get('halcashpayment.service')->getHalcashPayment($mode)->payment($params[0], $params[2], $params[3], $params[4], $params[5]);
+
+        }elseif($params[1]==='ES'){
+            throw new HttpException(503,'Service unavailable');
             //$transaction->setService($this->get('telepay.services')->findByName('HalcashSend')->getId());
             //$datos=$this->get('halcash.service')->getHalcashSP($mode)-> request($params[0],$params[2],$params[3],$params[4],$params[5]);
         }
+        else throw new HttpException(400, "Bad country code");
 
 
 
         $datos=simplexml_load_string($datos);
 
+        if(!$datos) throw new HttpException(502, "Empty response from halcash service");
+
         $datos=get_object_vars($datos);
 
 
-        //die(print_r($datos,true));
         if(isset($datos['ATM_AUTCADERR'])){
             $transaction->setSuccessful(false);
             $datos=get_object_vars($datos['ATM_AUTCADERR']);
@@ -347,13 +351,7 @@ class ServicesHalcashController extends FosRestController
                 $datos
             );
         }else{
-            $rCode=400;
-            $res='Unexpected error';
-            $resp = new ApiResponseBuilder(
-                400,
-                "Bad request",
-                $res
-            );
+            throw new HttpException(502, "Bad service response");
         }
 
         //Guardamos la respuesta

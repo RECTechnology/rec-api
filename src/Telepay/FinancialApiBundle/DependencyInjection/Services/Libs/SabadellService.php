@@ -1,7 +1,8 @@
 <?php
+namespace Telepay\FinancialApiBundle\DependencyInjection\Services\Libs;
 
 
-  class SabadellService{
+class SabadellService{
 
     var $amount;
       var $transaction_id;

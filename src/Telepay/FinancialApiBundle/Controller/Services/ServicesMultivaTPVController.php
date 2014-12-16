@@ -26,7 +26,7 @@ class ServicesMultivaTPVController extends FosRestController
      *   description="This method allows client to get a TPV for finish the payment.",
      *   https="true",
      *   statusCodes={
-     *       201="Returned when the request was successful",ç
+     *       201="Returned when the request was successful",
      *       400="Returned when the request was bad",
      *   },
      *   parameters={

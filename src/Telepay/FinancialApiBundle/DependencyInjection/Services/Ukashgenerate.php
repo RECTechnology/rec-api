@@ -8,11 +8,7 @@
 
 namespace Telepay\FinancialApiBundle\DependencyInjection\Services;
 
-use Symfony\Component\HttpKernel\Exception\HttpException;
-use UkashBarcode;
-
-//Include the class
-include("libs/UkashBarcode.php");
+use Telepay\FinancialApiBundle\DependencyInjection\Services\Libs\UkashBarcode;
 
 class Ukashgenerate{
 
