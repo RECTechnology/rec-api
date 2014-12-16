@@ -85,18 +85,7 @@ class NotificationsController extends FOSRestController{
 
             return $this->redirect($result['url_fail']);
 
-            //header('Location: '.$result['url_fail']);
-
         }
-
-
-
-
-        /*return $this->handleRestView(
-            200,
-            "Request successful",
-            $result
-        );*/
 
     }
 
@@ -275,7 +264,66 @@ class NotificationsController extends FOSRestController{
     }
 
     public function multivaNotification(Request $request){
-        //aun no sabemos como sera
+
+        static $getNames=array(
+            'tid'
+        );
+
+        static $postNames=array(
+            'EM_Response',
+            'EM_Total',
+            'EM_OrderID',
+            'EM_Merchant',
+            'EM_Store',
+            'EM_Term',
+            'EM_RefNum',
+            'EM_Auth',
+            'EM_Digest'
+        );
+
+        $paramsPost=array();
+        $paramsGet = array();
+
+        foreach($postNames as $pramName){
+            if(!$request->request ->has($pramName)){
+                throw new HttpException(400,"Missing parameter '$pramName'");
+            }
+            $paramsPost[]=$request->request->get($pramName, 'null');
+        }
+
+        foreach($getNames as $paramName){
+            if(!$request->query ->has($paramName)){
+                throw new HttpException(400,"Missing parameter '$paramName'");
+            }
+            $paramsGet[]=$request->query->get($paramName, 'null');
+        }
+
+        //Comprobamos el digest para saber que la transaccion viene de PROSA y no ha sido alterada
+        //$newdigest  = sha1($paramsPost[1].$paramsPost[2].$paramsPost[3].$paramsPost[4].$paramsPost[5].$paramsPost[6]+"-"+$paramsPost[7]);
+        $newdigest=1;
+
+        //if($newdigest==$paramsPost[8]){
+        if($newdigest==1){
+            $dm = $this->get('doctrine_mongodb')->getManager();
+            $tid=$paramsGet[0];
+            $query = $dm->createQueryBuilder('TelepayFinancialApiBundle:Transaction')
+                ->field('id')->equals($tid)
+                ->getQuery()->execute();
+
+
+
+            $transArray = [];
+            foreach($query->toArray() as $transaction){
+                $transArray []= $transaction;
+            }
+
+            return $transArray[0];
+
+        }else{
+            //que hacemos si no es verdadera.?? supongo que redireccionar
+        }
+
+
 
     }
 
