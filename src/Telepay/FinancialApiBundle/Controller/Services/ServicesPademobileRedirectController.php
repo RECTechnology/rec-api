@@ -24,10 +24,10 @@ class ServicesPademobileRedirectController extends FosRestController
      *
      * @ApiDoc(
      *   section="Pademobile",
-     *   description="Returns a JSON with the response",
+     *   description="Returns a redirect for the new URL to follow",
      *   https="true",
      *   statusCodes={
-     *       201="Returned when the request was successful",
+     *       302="Returned request is successful",
      *   },
      *   parameters={
      *      {
@@ -111,7 +111,9 @@ class ServicesPademobileRedirectController extends FosRestController
         $url_notification=$url_base.'/notifications/v1/pademobile?tid='.$id;
 
         //Constructor
-        $datos=$this->get('pademobile.service')->getPademobile($mode)-> request($params[0],$url_notification,$params[2],$params[3]);
+        $datos = $this->get('pademobile.service')
+            ->getPademobile($mode)
+            ->request($params[0],$url_notification,$params[2],$params[3]);
 
         /*if($datos['status']=='false'){
             $transaction->setSuccessful(false);
@@ -123,10 +125,10 @@ class ServicesPademobileRedirectController extends FosRestController
             );
         }else{*/
             $transaction->setSuccessful(true);
-            $rCode=201;
+            $rCode=302;
             $resp = new ApiResponseBuilder(
-                201,
-                "Reference created successfully",
+                302,
+                "New Location generated successfully",
                 $datos
             );
         //}
