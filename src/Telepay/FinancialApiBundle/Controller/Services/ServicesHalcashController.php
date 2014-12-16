@@ -141,6 +141,8 @@ class ServicesHalcashController extends FosRestController
 
             $datos=simplexml_load_string($datos);
 
+            if(!$datos) throw new HttpException(502, "Empty response from halcash service");
+
             $datos=get_object_vars($datos);
 
 

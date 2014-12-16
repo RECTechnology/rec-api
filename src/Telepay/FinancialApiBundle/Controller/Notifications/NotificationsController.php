@@ -310,17 +310,27 @@ class NotificationsController extends FOSRestController{
                 ->field('id')->equals($tid)
                 ->getQuery()->execute();
 
-
-
             $transArray = [];
             foreach($query->toArray() as $transaction){
                 $transArray []= $transaction;
             }
+            $result=$transArray[0];
 
-            return $transArray[0];
+            $result->setCompleted(true);
+            $dm->persist($result);
+            $dm->flush();
+
+            $redirect=$result->getSentData();
+            $redirect=json_decode($redirect);
+            $redirect=get_object_vars($redirect);
+
+            //die(print_r($redirect['url_notification'],true));
+
+            return $this->redirect($redirect['url_notification']);
 
         }else{
-            //que hacemos si no es verdadera.?? supongo que redireccionar
+            //que hacemos si no es verdadera.?? supongo que redirecciona
+            return 'caca';
         }
 
 
