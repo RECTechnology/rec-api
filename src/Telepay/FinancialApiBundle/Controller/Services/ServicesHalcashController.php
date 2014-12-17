@@ -142,7 +142,7 @@ class ServicesHalcashController extends FosRestController
                 ->getHalcashSend($mode)
                 ->send($params[0],$params[2],$params[3],$params[4],$params[5]);
 
-        }elseif($params[1]==='MX'){
+        }elseif($params[1]==='ES'){
             $transaction->setService($this->get('telepay.services')
                 ->findByName('HalcashSend')->getId());
             $datos=$this->get('halcashsendsp.service')
