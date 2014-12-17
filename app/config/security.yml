@@ -101,8 +101,10 @@ security:
         - { path: ^/((sandbox|test|analytics|oauth)/)?services/v[0-9]+/safetypay/*, role: ROLE_SERVICES_SAFETYPAY }
         - { path: ^/((sandbox|test|analytics|oauth)/)?services/v[0-9]+/payu/*, role: ROLE_SERVICES_PAYU }
         - { path: ^/((sandbox|test|analytics|oauth)/)?services/v[0-9]+/toditocash/*, role: ROLE_SERVICES_TODITOCASH }
+
         - { path: ^/((sandbox|test|analytics|oauth)/)?services/v[0-9]+/ukash/generate, role: ROLE_SERVICES_UKASHGENERATE }
         - { path: ^/((sandbox|test|analytics|oauth)/)?services/v[0-9]+/ukash/payment, role: ROLE_SERVICES_UKASHPAYMENT }
         - { path: ^/((sandbox|test|analytics|oauth)/)?services/v[0-9]+/halcash/send, role: ROLE_SERVICES_HALCASHSEND }
         - { path: ^/((sandbox|test|analytics|oauth)/)?services/v[0-9]+/halcash/payment, role: ROLE_SERVICES_HALCASHPAYMENT }
+
 

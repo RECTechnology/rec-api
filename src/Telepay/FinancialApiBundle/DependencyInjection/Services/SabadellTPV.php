@@ -24,10 +24,9 @@ class SabadellTPV{
         'terminal'          =>  '1'
     );
 
-    //Para producción no los tenemos--de momento he puesto los mismos pero habrá que cambiarlos
     private $prodArray =array(
         'url_tpvv'          =>  'https://sis.redsys.es/sis/realizarPago',
-        'clave'             =>  'qwertyasdf0123456789',
+        'clave'             =>  'xuauoudpjpak78318334',
         'name'              =>  'Telepay',
         'code'              =>  '327714929',
         'currency'          =>  '978',

@@ -42,11 +42,7 @@ PaysafecardNotifications:
 MultivaNotifications:
     pattern:  /notifications/v1/multiva
     defaults: { _controller: Telepay\FinancialApiBundle\Controller\Notifications\NotificationsController::multivaNotification, _format: ~ }
-    requirements:
-        _method: GET
 
 SabadellNotifications:
     pattern:  /notifications/v1/sabadell
     defaults: { _controller: Telepay\FinancialApiBundle\Controller\Notifications\NotificationsController::sabadellNotification, _format: ~ }
-    requirements:
-        _method: GET
