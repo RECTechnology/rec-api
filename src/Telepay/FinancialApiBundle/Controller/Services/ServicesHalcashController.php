@@ -172,14 +172,10 @@ class ServicesHalcashController extends FosRestController
                 ->getHalcashSend($mode)
                 ->send($params[0],$params[2],$params[3],$params[4],$params[5]);
 
+            $datos=get_object_vars($datos);
+            $datos=get_object_vars($datos['EmisionResult']);
 
-            $rCode=201;
-            $res="HalCash generated successfully";
-            /*$datos=get_object_vars($datos);
-            $datos['error']=get_object_vars($datos['errorcode']);
-            $datos['ticket']=get_object_vars($datos['halcashticket']);*/
-
-           /* if($datos['error']=='99'){
+           if($datos['error']=='99'){
                 $rCode=503;
                 $res="Service temporally unavailable";
             }elseif($datos['error']=='0'){
@@ -188,7 +184,7 @@ class ServicesHalcashController extends FosRestController
             }else{
                 $rCode=503;
                 $res="Service Unavailable.";
-            }*/
+            }
 
 
         }
