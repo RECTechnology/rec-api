@@ -257,6 +257,10 @@ class NotificationsController extends FOSRestController{
 
         }else{
 
+            $view = $this->view('KO', '503');
+
+            return $this->handleView($view);
+
         }
 
 
@@ -299,11 +303,9 @@ class NotificationsController extends FOSRestController{
         }
 
         //Comprobamos el digest para saber que la transaccion viene de PROSA y no ha sido alterada
-        //$newdigest  = sha1($paramsPost[1].$paramsPost[2].$paramsPost[3].$paramsPost[4].$paramsPost[5].$paramsPost[6]+"-"+$paramsPost[7]);
-        $newdigest=1;
+        $newdigest  = sha1($paramsPost[1].$paramsPost[2].$paramsPost[3].$paramsPost[4].$paramsPost[5].$paramsPost[6]+"-"+$paramsPost[7]);
 
-        //if($newdigest==$paramsPost[8]){
-        if($newdigest==1){
+        if($newdigest==$paramsPost[8]){
             $dm = $this->get('doctrine_mongodb')->getManager();
             $tid=$paramsGet[0];
             $query = $dm->createQueryBuilder('TelepayFinancialApiBundle:Transaction')
@@ -316,21 +318,29 @@ class NotificationsController extends FOSRestController{
             }
             $result=$transArray[0];
 
-            $result->setCompleted(true);
-            $dm->persist($result);
-            $dm->flush();
+            if($paramsPost=='true'){
+                $status=1;
+                $result->setCompleted(true);
+                $dm->persist($result);
+                $dm->flush();
+            }else{
+                $status=0;
+            }
 
             $redirect=$result->getSentData();
             $redirect=json_decode($redirect);
             $redirect=get_object_vars($redirect);
 
             //die(print_r($redirect['url_notification'],true));
+            $redirect['url_notification']=$redirect['url_notification'].'?status='.$status;
 
             return $this->redirect($redirect['url_notification']);
 
         }else{
             //que hacemos si no es verdadera.?? supongo que redirecciona
-            return 'caca';
+            $view = $this->view('KO', '503');
+
+            return $this->handleView($view);
         }
 
 

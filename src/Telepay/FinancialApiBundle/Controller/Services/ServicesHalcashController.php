@@ -154,28 +154,16 @@ class ServicesHalcashController extends FosRestController
                 $transaction->setSuccessful(false);
                 $datos=get_object_vars($datos['ATM_ALTCEMERR']);
                 $rCode=400;
-                $resp = new ApiResponseBuilder(
-                    400,
-                    "Bad request",
-                    $datos
-                );
+                $res="Bad request";
             }elseif(isset($datos['ATM_ALTCEMRES'])){
                 $transaction->setSuccessful(true);
                 $datos=get_object_vars($datos['ATM_ALTCEMRES']);
                 $rCode=201;
-                $resp = new ApiResponseBuilder(
-                    201,
-                    "Reference created successfully",
-                    $datos
-                );
+                $res="Reference created successfully";
             }else{
                 $rCode=400;
-                $res='Unexpected error';
-                $resp = new ApiResponseBuilder(
-                    400,
-                    "Bad request",
-                    $res
-                );
+                $res='Bad Request';
+                $datos='Unexpected error';
             }
         }elseif($params[1]==='ES'){
             $transaction->setService($this->get('telepay.services')
@@ -184,12 +172,22 @@ class ServicesHalcashController extends FosRestController
                 ->getHalcashSend($mode)
                 ->send($params[0],$params[2],$params[3],$params[4],$params[5]);
 
-            $rCode=201;
-            $resp = new ApiResponseBuilder(
-                201,
-                "HalCash generated successfully",
-                $datos
-            );
+            $datos=get_object_vars($datos);
+            $datos['error']=get_object_vars($datos['errorcode']);
+            $datos['ticket']=get_object_vars($datos['halcashticket']);
+
+            if($datos['error']=='99'){
+                $rCode=503;
+                $res="Service temporally unavailable";
+            }elseif($datos['error']=='0'){
+                $rCode=201;
+                $res="HalCash generated successfully";
+            }else{
+                $rCode=503;
+                $res="Service Unavailable";
+            }
+
+
         }
         else throw new HttpException(400, "Bad country code");
 
@@ -201,6 +199,11 @@ class ServicesHalcashController extends FosRestController
 
         $dm->persist($transaction);
         $dm->flush();
+        $resp = new ApiResponseBuilder(
+            $rCode,
+            $res,
+            $datos
+        );
 
         $view = $this->view($resp, $rCode);
 
