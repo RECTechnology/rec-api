@@ -120,6 +120,7 @@ class UsersController extends BaseApiController
         $password = $request->get('password');
         $request->request->remove('password');
         $request->request->add(array('plain_password'=>$password));
+        $request->request->add(array('enabled'=>1));
         return parent::createAction($request);
     }
 
