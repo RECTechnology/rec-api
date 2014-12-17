@@ -135,15 +135,16 @@ class ServicesHalcashController extends FosRestController
         $transaction->setMode($mode === 'P');
 
         //Constructor
-        if($params[1]=='MX'){
+        if($params[1]==='MX'){
             $transaction->setService($this->get('telepay.services')
                 ->findByName('HalcashSend')->getId());
             $datos=$this->get('halcashsend.service')
                 ->getHalcashSend($mode)
                 ->send($params[0],$params[2],$params[3],$params[4],$params[5]);
 
-        }elseif($params[1]=='MX'){
-            $transaction->setService($this->get('telepay.services')->findByName('HalcashSend')->getId());
+        }elseif($params[1]==='MX'){
+            $transaction->setService($this->get('telepay.services')
+                ->findByName('HalcashSend')->getId());
             $datos=$this->get('halcashsendsp.service')
                 ->getHalcashSend($mode)
                 ->send($params[0],$params[2],$params[3],$params[4],$params[5]);
