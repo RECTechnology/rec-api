@@ -175,10 +175,10 @@ class ServicesHalcashController extends FosRestController
             $datos=get_object_vars($datos);
             $datos=get_object_vars($datos['EmisionResult']);
 
-           if($datos['error']=='99'){
+           if($datos['errorcode']=='99'){
                 $rCode=503;
                 $res="Service temporally unavailable";
-            }elseif($datos['error']=='0'){
+            }elseif($datos['errorcode']=='0'){
                 $rCode=201;
                 $res="HalCash generated successfully";
             }else{
