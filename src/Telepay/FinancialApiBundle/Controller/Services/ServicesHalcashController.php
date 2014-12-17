@@ -174,8 +174,9 @@ class ServicesHalcashController extends FosRestController
             }
         }else{
             $transaction->setService($this->get('telepay.services')->findByName('HalcashSend')->getId());
-            $datos=$this->get('halcashsendsp.service')->getHalcashSend($mode)-> send($params[0],$params[2],$params[3],$params[4],$params[5]);
-            die(print_r($datos,true));
+            $datos=$this->get('halcashsendsp.service')
+                ->getHalcashSend($mode)
+                ->send($params[0],$params[2],$params[3],$params[4],$params[5]);
         }
 
         //Guardamos la respuesta
