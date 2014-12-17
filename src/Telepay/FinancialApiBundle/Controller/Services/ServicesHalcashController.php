@@ -184,7 +184,7 @@ class ServicesHalcashController extends FosRestController
                 $res="HalCash generated successfully";
             }else{
                 $rCode=503;
-                $res="Service Unavailable";
+                $res="Service Unavailable.";
             }
 
 
