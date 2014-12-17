@@ -172,7 +172,7 @@ class ServicesHalcashController extends FosRestController
                 ->getHalcashSend($mode)
                 ->send($params[0],$params[2],$params[3],$params[4],$params[5]);
 
-            $datos=get_object_vars($datos);
+            //$datos=get_object_vars($datos);
             //$datos=get_object_vars($datos['EmisionResult']);
             $rCode=503;
             $res="Service temporally unavailable";
