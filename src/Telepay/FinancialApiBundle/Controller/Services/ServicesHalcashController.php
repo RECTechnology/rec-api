@@ -172,6 +172,8 @@ class ServicesHalcashController extends FosRestController
                 ->getHalcashSend($mode)
                 ->send($params[0],$params[2],$params[3],$params[4],$params[5]);
 
+            die(print_r($datos,true));
+
             $datos=get_object_vars($datos);
             $datos['error']=get_object_vars($datos['errorcode']);
             $datos['ticket']=get_object_vars($datos['halcashticket']);
