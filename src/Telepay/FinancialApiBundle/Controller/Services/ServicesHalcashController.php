@@ -172,9 +172,10 @@ class ServicesHalcashController extends FosRestController
                 ->getHalcashSend($mode)
                 ->send($params[0],$params[2],$params[3],$params[4],$params[5]);
 
-            $datos=$datos->EmisionResult;
+            $rCode=201;
+            $res="HalCash generated successfully";
 
-           if($datos->errorcode=='99'){
+           /*if($datos->errorcode=='99'){
                 $rCode=503;
                 $res="Service temporally unavailable";
             }elseif($datos->errorcode=='0'){
@@ -183,7 +184,7 @@ class ServicesHalcashController extends FosRestController
             }else{
                 $rCode=503;
                 $res="Service Unavailable.";
-            }
+            }*/
 
 
         }
