@@ -77,7 +77,7 @@ class ServicesMultivaTPVController extends FosRestController
 
             $params[]=$request->get($paramName, 'null');
         }
-die(print_r('caca',true));
+
         $count=count($paramNames);
         $paramsMongo=array();
         for($i=0; $i<$count; $i++){
@@ -99,7 +99,7 @@ die(print_r('caca',true));
         //Comprobamos modo Test
         $mode = $request->get('mode');
         if(!isset($mode)) $mode = 'P';
-
+        die(print_r('caca',true));
         //Guardamos la request en mongo
         $transaction = new Transaction();
         $transaction->setIp($request->getClientIp());
