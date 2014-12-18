@@ -54,7 +54,6 @@ class ServicesMultivaTPVController extends FosRestController
      */
 
     public function generate(Request $request){
-        die(print_r('caca',true));
         //Obtenemos el id de usuario para añadirlo a cada referencia única
         $userid = $this->getUser()->getId();
 
