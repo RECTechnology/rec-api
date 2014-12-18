@@ -115,7 +115,6 @@ class ServicesMultivaTPVController extends FosRestController
 
         $url_base=$this->container->getParameter('api_url');
         $url_notification=$url_base.'/notifications/v1/multiva?tid='.$id;
-die(print_r('caca',true));
         //Check if it's a Test or Production transaction
         if($mode=='T'){
             //Constructor in Test mode
