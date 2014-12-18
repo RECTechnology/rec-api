@@ -42,7 +42,6 @@ require_once('includes/nusoap.php');
 
 
         exec('java -jar ../src/Telepay/FinancialApiBundle/DependencyInjection/Services/libs/jar/JAVAMUCOM.jar "E" "'.$reference.'" "'.$this->key.'"',$enc_ref);
-
         if($amount==0){
 
               $params = '

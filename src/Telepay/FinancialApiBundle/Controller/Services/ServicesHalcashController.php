@@ -176,6 +176,7 @@ class ServicesHalcashController extends FosRestController
                 $rCode=503;
                 $res="Service temporally unavailable";
             }elseif($datos['errorcode']=='0'){
+                $transaction->setSuccessful(true);
                 $rCode=201;
                 $res="HalCash generated successfully";
             }else{
