@@ -73,6 +73,7 @@ namespace Telepay\FinancialApiBundle\DependencyInjection\Services\Libs;
 
             $response=$response['EmisionResult'];
 
+
             return $response;
 
         }
