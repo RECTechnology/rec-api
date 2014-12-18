@@ -99,7 +99,7 @@ class ServicesMultivaTPVController extends FosRestController
         //Comprobamos modo Test
         $mode = $request->get('mode');
         if(!isset($mode)) $mode = 'P';
-        die(print_r('caca',true));
+
         //Guardamos la request en mongo
         $transaction = new Transaction();
         $transaction->setIp($request->getClientIp());
@@ -112,7 +112,7 @@ class ServicesMultivaTPVController extends FosRestController
         $dms = $this->get('doctrine_mongodb')->getManager();
         $dms->persist($transaction);
         $id=$transaction->getId();
-
+        die(print_r('caca',true));
         $url_base=$this->container->getParameter('api_url');
         $url_notification=$url_base.'/notifications/v1/multiva?tid='.$id;
         //Check if it's a Test or Production transaction
