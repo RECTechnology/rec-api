@@ -174,7 +174,8 @@ class ServicesHalcashController extends FosRestController
 
             $rCode=201;
             $res="HalCash generated successfully";
-            $datos=$datos->EmisionResult;
+            $datos=get_object_vars($datos);
+            $datos=$datos['EmisionResult'];
 
            /*if($datos->errorcode=='99'){
                 $rCode=503;
