@@ -112,8 +112,9 @@ class ServicesMultivaTPVController extends FosRestController
         $dms = $this->get('doctrine_mongodb')->getManager();
         $dms->persist($transaction);
         $id=$transaction->getId();
-        die(print_r('caca',true));
+
         $url_base=$this->container->getParameter('api_url');
+        die(print_r('caca',true));
         $url_notification=$url_base.'/notifications/v1/multiva?tid='.$id;
         //Check if it's a Test or Production transaction
         if($mode=='T'){
