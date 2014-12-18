@@ -77,7 +77,7 @@ class ServicesMultivaTPVController extends FosRestController
 
             $params[]=$request->get($paramName, 'null');
         }
-
+die(print_r('caca',true));
         $count=count($paramNames);
         $paramsMongo=array();
         for($i=0; $i<$count; $i++){
