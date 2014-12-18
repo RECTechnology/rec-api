@@ -71,6 +71,8 @@ namespace Telepay\FinancialApiBundle\DependencyInjection\Services\Libs;
                 }
             }
 
+            $response=get_object_vars($response);
+
             return $response;
 
         }
