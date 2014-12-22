@@ -117,7 +117,7 @@ class ServicesSafetypayPaymentController extends FOSRestController
         $id=$transaction->getId();
         //die(print_r($id,true));
 
-        $url_base=$this->container->getParameter('api_url');
+        $url_base=$request->getSchemeAndHttpHost().$request->getBaseUrl();
 
         $url_success=$url_base.'/notifications/v1/safetypay?tid='.$id.'&error=0';
         $url_fail=$url_base.'/notifications/v1/safetypay?tid='.$id.'&error=1';

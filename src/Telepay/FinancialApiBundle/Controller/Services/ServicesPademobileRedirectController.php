@@ -104,9 +104,8 @@ class ServicesPademobileRedirectController extends FosRestController
         $dms = $this->get('doctrine_mongodb')->getManager();
         $dms->persist($transaction);
         $id=$transaction->getId();
-        //die(print_r($id,true));
 
-        $url_base=$this->container->getParameter('api_url');
+        $url_base=$request->getSchemeAndHttpHost().$request->getBaseUrl();
 
         $url_notification=$url_base.'/notifications/v1/pademobile?tid='.$id;
 

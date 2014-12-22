@@ -174,19 +174,19 @@ class ServicesHalcashController extends FosRestController
 
             if($datos['errorcode']=='99'){
                 $rCode=503;
-                $res="Service temporally unavailable";
+                $res="Service temporally unavailable, maybe deposit account has no funds?";
             }elseif($datos['errorcode']=='0'){
                 $transaction->setSuccessful(true);
                 $rCode=201;
                 $res="HalCash generated successfully";
             }else{
                 $rCode=503;
-                $res="Service Unavailable.";
+                $res="Service Unavailable, unknown error";
             }
 
 
         }
-        else throw new HttpException(400, "Bad country code");
+        else throw new HttpException(400, "Bad country code, allowed ones are MX and ES");
 
         //Guardamos la respuesta
         $transaction->setReceivedData(json_encode($datos));
