@@ -134,7 +134,7 @@ class ServicesSabadellTPVController extends FosRestController
         $dms->persist($transaction);
         $id=$transaction->getId();
 
-        $url_base=$this->container->getParameter('api_url');
+        $url_base=$request->getSchemeAndHttpHost().$request->getBaseUrl();
         $url_notification=$url_base.'/notifications/v1/sabadell?tid='.$id;
 
         //Check if it's a Test or Production transaction
