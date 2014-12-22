@@ -1,6 +1,9 @@
 <?php
 namespace Telepay\FinancialApiBundle\DependencyInjection\Services\Libs;
 
+use nusoap_client;
+use SimpleXMLElement;
+
 require_once('includes/nusoap.php');
 
 class UkashBarcode{
