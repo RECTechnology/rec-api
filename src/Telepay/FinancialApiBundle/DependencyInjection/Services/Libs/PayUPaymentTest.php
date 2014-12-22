@@ -2,6 +2,9 @@
 namespace Telepay\FinancialApiBundle\DependencyInjection\Services\Libs;
 
 require_once 'libTest/PayU.php';
+
+use PayUParameters;
+use PayUPayments;
 /**
  *
  */

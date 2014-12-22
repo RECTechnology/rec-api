@@ -1,6 +1,10 @@
 <?php
 namespace Telepay\FinancialApiBundle\DependencyInjection\Services\Libs;
 
+use soapclient;
+use SoapFault;
+use SoapVar;
+
 ini_set("default_socket_timeout", 5);
 	ini_set("soap.wsdl_cache_enabled", 0);
 	

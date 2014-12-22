@@ -1,6 +1,8 @@
 <?php
 namespace Telepay\FinancialApiBundle\DependencyInjection\Services\Libs;
 
+use SimpleXMLElement;
+
 class UkashRedirect{
 
 		private $total;
