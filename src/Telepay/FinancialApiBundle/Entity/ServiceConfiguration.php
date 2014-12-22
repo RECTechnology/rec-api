@@ -35,11 +35,19 @@ class ServiceConfiguration {
      */
     private $parameters;
 
-
+    /**
+     * @ORM\ManyToOne(targetEntity="Telepay\FinancialApiBundle\Entity\Service")
+     */
     private $service;
 
+    /**
+     * @ORM\ManyToOne(targetEntity="Telepay\FinancialApiBundle\Entity\User")
+     */
     private $user;
 
+    /**
+     * @ORM\ManyToOne(targetEntity="Telepay\FinancialApiBundle\Entity\TPV")
+     */
     private $tpv;
 
     /**
@@ -80,6 +88,54 @@ class ServiceConfiguration {
     public function setParameters($parameters)
     {
         $this->parameters = $parameters;
+    }
+
+    /**
+     * @return mixed
+     */
+    public function getService()
+    {
+        return $this->service;
+    }
+
+    /**
+     * @param mixed $service
+     */
+    public function setService($service)
+    {
+        $this->service = $service;
+    }
+
+    /**
+     * @return mixed
+     */
+    public function getUser()
+    {
+        return $this->user;
+    }
+
+    /**
+     * @param mixed $user
+     */
+    public function setUser($user)
+    {
+        $this->user = $user;
+    }
+
+    /**
+     * @return mixed
+     */
+    public function getTPV()
+    {
+        return $this->tpv;
+    }
+
+    /**
+     * @param mixed $tpv
+     */
+    public function setTPV($tpv)
+    {
+        $this->tpv = $tpv;
     }
 
 

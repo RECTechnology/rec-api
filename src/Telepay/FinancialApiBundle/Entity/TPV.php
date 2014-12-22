@@ -31,9 +31,9 @@ class TPV {
 
 
     /**
-     * @ORM\Column(type="string")
+     * @ORM\ManyToOne(targetEntity="Telepay\FinancialApiBundle\Entity\User")
      */
-    private $parameters;
+    private $user;
 
     /**
      * @return mixed
@@ -41,6 +41,22 @@ class TPV {
     public function getId()
     {
         return $this->id;
+    }
+
+    /**
+     * @return mixed
+     */
+    public function getUser()
+    {
+        return $this->user;
+    }
+
+    /**
+     * @param mixed $user
+     */
+    public function setUser($user)
+    {
+        $this->user = $user;
     }
 
     /**
@@ -58,22 +74,5 @@ class TPV {
     {
         $this->name = $name;
     }
-
-    /**
-     * @return mixed
-     */
-    public function getParameters()
-    {
-        return $this->parameters;
-    }
-
-    /**
-     * @param mixed $parameters
-     */
-    public function setParameters($parameters)
-    {
-        $this->parameters = $parameters;
-    }
-
 
 }
