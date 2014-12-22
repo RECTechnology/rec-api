@@ -27,7 +27,7 @@ analytics_sabadell_generate_transactions:
     requirements:
         _method: GET
 
-analytics_sabadell_generate_transactions:
+analytics_sabadell_generate_transactions_test:
     pattern:  /analytics/services/v1/sabadell/transactions/test
     defaults: { _controller: Telepay\FinancialApiBundle\Controller\Analytics\SabadellAnalytics::transactionsTest }
     requirements:
