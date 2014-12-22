@@ -29,8 +29,8 @@ framework:
 twig:
     debug:            "%kernel.debug%"
     strict_variables: "%kernel.debug%"
-    exception_controller: FOS\RestBundle\Controller\ExceptionController::showAction
-    #exception_controller: Telepay\FinancialApiBundle\Controller\ExceptionController::show
+    #exception_controller: FOS\RestBundle\Controller\ExceptionController::showAction
+    exception_controller: Telepay\FinancialApiBundle\Controller\ApiExceptionController::showAction
 
 # Assetic Configuration
 assetic:
