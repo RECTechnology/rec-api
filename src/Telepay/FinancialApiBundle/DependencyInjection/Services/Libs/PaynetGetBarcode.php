@@ -3,6 +3,8 @@ namespace Telepay\FinancialApiBundle\DependencyInjection\Services\Libs;
 
 //namespace Paynet;
 
+use nusoap_client;
+
 require_once('includes/nusoap.php');
 
 class PaynetGetBarcode{
