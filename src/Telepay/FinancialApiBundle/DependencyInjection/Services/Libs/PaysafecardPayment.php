@@ -1,5 +1,6 @@
 <?php
 namespace Telepay\FinancialApiBundle\DependencyInjection\Services\Libs;
+use SOPGClassicMerchantClient;
 
 /**
 	* 
