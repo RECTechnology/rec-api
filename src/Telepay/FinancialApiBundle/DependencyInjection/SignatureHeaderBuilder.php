@@ -16,6 +16,7 @@ class SignatureHeaderBuilder {
         $generator = new SecureRandom();
         $nonce = md5($generator->nextBytes(32));
         $timestamp = time();
+        $version = 1;
         $algorithm = "SHA256";
         $stringToEncrypt = $access_key.$nonce.$timestamp;
         $signature = hash_hmac($algorithm, $stringToEncrypt, $access_secret);
@@ -23,7 +24,7 @@ class SignatureHeaderBuilder {
             ."access-key=\"$access_key\", "
             ."nonce=\"$nonce\", "
             ."timestamp=\"$timestamp\", "
-            ."algorithm=\"$algorithm\", "
+            ."version=\"$version\", "
             ."signature=\"$signature\"";
     }
 }

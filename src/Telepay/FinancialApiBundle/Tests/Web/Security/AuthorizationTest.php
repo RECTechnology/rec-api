@@ -9,16 +9,25 @@ use Symfony\Component\HttpFoundation\Response;
  * Class AuthenticationTest
  * @package Telepay\FinancialApiBundle\Tests\Controller
  *
- * This Test should test all routes with all types of basic roles (API_SUPER_ADMIN, API_ADMIN, API_USER)
+ * This Test should test all routes with all types of basic roles (ROLE_SUPERADMIN, ROLE_ADMIN, ROLE_USER)
  */
-class AuthenticationTest extends AbstractApiWebTestCase
+class AuthorizationTest extends AbstractApiWebTestCase
 {
 
     private static $ROLES_PATHS_PERMS = array(
         array(
-            'name' => 'ROLE_USER',
+            'name' => 'user_no_services',
             'tests' => array(
-                array('path' => '/v1/services/test','code' => Response::HTTP_OK)
+                array(
+                    'method' => 'GET',
+                    'path' => '/services/v1/sample',
+                    'code' => Response::HTTP_FORBIDDEN
+                ),
+                array(
+                    'method' => 'POST',
+                    'path' => '/services/v1/pademobile/redirect/request',
+                    'code' => Response::HTTP_FORBIDDEN
+                )
             )
         )
     );
@@ -28,7 +37,7 @@ class AuthenticationTest extends AbstractApiWebTestCase
         foreach(static::$ROLES_PATHS_PERMS as $perm){
             foreach($perm['tests'] as $test){
                 $client = static::getTestClient($perm['name']);
-                $client->request('GET', $test['path']);
+                $client->request($test['method'], $test['path']);
 
                 $this->assertEquals(
                     $test['code'],
