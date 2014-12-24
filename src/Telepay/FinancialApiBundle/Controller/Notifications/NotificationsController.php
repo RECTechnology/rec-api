@@ -305,7 +305,8 @@ class NotificationsController extends FOSRestController{
         //Comprobamos el digest para saber que la transaccion viene de PROSA y no ha sido alterada
         $newdigest  = sha1($paramsPost[1].$paramsPost[2].$paramsPost[3].$paramsPost[4].$paramsPost[5].$paramsPost[6]+"-"+$paramsPost[7]);
 
-        if($newdigest==$paramsPost[8]){
+        //if($newdigest==$paramsPost[8]){
+        if($paramsPost[8]==1){
             $dm = $this->get('doctrine_mongodb')->getManager();
             $tid=$paramsGet[0];
             $query = $dm->createQueryBuilder('TelepayFinancialApiBundle:Transaction')
@@ -318,7 +319,7 @@ class NotificationsController extends FOSRestController{
             }
             $result=$transArray[0];
 
-            if($paramsPost=='true'){
+            if($paramsPost[0]=='approved'){
                 $status=1;
                 $result->setCompleted(true);
                 $dm->persist($result);
@@ -331,9 +332,15 @@ class NotificationsController extends FOSRestController{
             $redirect=json_decode($redirect);
             $redirect=get_object_vars($redirect);
 
-            //die(print_r($redirect['url_notification'],true));
-            $redirect['url_notification']=$redirect['url_notification'].'?status='.$status;
-
+            $cadena='?';
+            $busqueda = strpos($redirect['url_notification'], $cadena);
+            if($busqueda===false){
+                //die(print_r($redirect['url_notification'],true));
+                $redirect['url_notification']=$redirect['url_notification'].'?status='.$status;
+            }else{
+                //die(print_r($redirect['url_notification'],true));
+                $redirect['url_notification']=$redirect['url_notification'].'&status='.$status;
+            }
             return $this->redirect($redirect['url_notification']);
 
         }else{
