@@ -305,8 +305,7 @@ class NotificationsController extends FOSRestController{
         //Comprobamos el digest para saber que la transaccion viene de PROSA y no ha sido alterada
         $newdigest  = sha1($paramsPost[1].$paramsPost[2].$paramsPost[3].$paramsPost[4].$paramsPost[5].$paramsPost[6]+"-"+$paramsPost[7]);
 
-        //if($newdigest==$paramsPost[8]){
-        if($paramsPost[8]==1){
+        if($newdigest==$paramsPost[8]){
             $dm = $this->get('doctrine_mongodb')->getManager();
             $tid=$paramsGet[0];
             $query = $dm->createQueryBuilder('TelepayFinancialApiBundle:Transaction')
