@@ -124,6 +124,7 @@ class ServicesUkashGenerateController extends FosRestController
                 $datos['IssuedVoucherCurr']=$params[1];
                 $fecha = gmdate("Y-m-d H:i:s", time() + (3600*24*15));
                 $datos['IssuedExpiryDate']=$fecha;
+                $datos['IssuedAmount']=$params[3];
                 $rCode=201;
                 $resp = new ApiResponseBuilder(
                     $rCode,
@@ -131,7 +132,7 @@ class ServicesUkashGenerateController extends FosRestController
                     $datos
                 );
             }else{
-                $transaction->setSuccessful(true);
+                $transaction->setSuccessful(false);
                 $datos['txCode']="99";
                 $datos['txDescription']='Declined';
                 $datos['IssuedVoucherNumber']='';
