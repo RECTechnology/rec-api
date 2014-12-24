@@ -1,6 +1,8 @@
 <?php
 namespace Telepay\FinancialApiBundle\DependencyInjection\Services\Libs;
 
+use nusoap_client;
+
 require_once('includes/nusoap.php');
 
   class PaynetService{
@@ -39,7 +41,6 @@ require_once('includes/nusoap.php');
       $this->sku=$sku;
       $this->reference=$reference;
       $this->amount=$amount;
-
 
         exec('java -jar ../src/Telepay/FinancialApiBundle/DependencyInjection/Services/libs/jar/JAVAMUCOM.jar "E" "'.$reference.'" "'.$this->key.'"',$enc_ref);
         if($amount==0){
@@ -133,105 +134,11 @@ require_once('includes/nusoap.php');
 
                 //die(print_r($params,true));
         }else{
-            $params = '
-                <Info xmlns="http://www.pagoexpress.com.mx/pxUniversal">
-                  <cArrayCampos>
-                    <cCampo>
-                      <sCampo>IDGRUPO</sCampo>
-                      <iTipo>NE</iTipo>
-                      <iLongitud>'.strlen($this->group_id).'</iLongitud>
-                      <iClase>0</iClase>
-                      <sValor xsi:type="xsd:int">'.$this->group_id.'</sValor>
-                      <bEncriptado>false</bEncriptado>
-                    </cCampo>
-                    <cCampo>
-                      <sCampo>IDCADENA</sCampo>
-                      <iTipo>NE</iTipo>
-                      <iLongitud>'.strlen($this->chain_id).'</iLongitud>
-                      <iClase>0</iClase>
-                      <sValor xsi:type="xsd:int">'.$this->chain_id.'</sValor>
-                      <bEncriptado>false</bEncriptado>
-                    </cCampo>
-                    <cCampo>
-                      <sCampo>IDTIENDA</sCampo>
-                      <iTipo>NE</iTipo>
-                      <iLongitud>'.strlen($this->shop_id).'</iLongitud>
-                      <iClase>0</iClase>
-                      <sValor xsi:type="xsd:int">'.$this->shop_id.'</sValor>
-                      <bEncriptado>false</bEncriptado>
-                    </cCampo>
-                    <cCampo>
-                      <sCampo>IDPOS</sCampo>
-                      <iTipo>NE</iTipo>
-                      <iLongitud>'.strlen($this->pos_id).'</iLongitud>
-                      <iClase>0</iClase>
-                      <sValor xsi:type="xsd:int">'.$this->pos_id.'</sValor>
-                      <bEncriptado>false</bEncriptado>
-                    </cCampo>
-                    <cCampo>
-                      <sCampo>IDCAJERO</sCampo>
-                      <iTipo>NE</iTipo>
-                      <iLongitud>'.strlen($this->cashier_id).'</iLongitud>
-                      <iClase>0</iClase>
-                      <sValor xsi:type="xsd:int">'.$this->cashier_id.'</sValor>
-                      <bEncriptado>false</bEncriptado>
-                    </cCampo>
-                    <cCampo>
-                      <sCampo>FECHALOCAL</sCampo>
-                      <iTipo>FD</iTipo>
-                      <iLongitud>'.strlen($this->local_date).'</iLongitud>
-                      <iClase>0</iClase>
-                      <sValor xsi:type="xsd:string">'.$this->local_date.'</sValor>
-                      <bEncriptado>false</bEncriptado>
-                    </cCampo>
-                    <cCampo>
-                      <sCampo>HORALOCAL</sCampo>
-                      <iTipo>HR</iTipo>
-                      <iLongitud>'.strlen($this->local_hour).'</iLongitud>
-                      <iClase>0</iClase>
-                      <sValor xsi:type="xsd:string">'.$this->local_hour.'</sValor>
-                      <bEncriptado>false</bEncriptado>
-                    </cCampo>
-                    <cCampo>
-                      <sCampo>TRANSACCION</sCampo>
-                      <iTipo>NE</iTipo>
-                      <iLongitud>'.strlen($this->transaction_id).'</iLongitud>
-                      <iClase>0</iClase>
-                      <sValor xsi:type="xsd:long">'.$this->transaction_id.'</sValor>
-                      <bEncriptado>false</bEncriptado>
-                    </cCampo>
-                    <cCampo>
-                      <sCampo>SKU</sCampo>
-                      <iTipo>AN</iTipo>
-                      <iLongitud>'.strlen($this->sku).'</iLongitud>
-                      <iClase>0</iClase>
-                      <sValor xsi:type="xsd:string">'.$this->sku.'</sValor>
-                      <bEncriptado>false</bEncriptado>
-                    </cCampo>
-                    <cCampo>
-                      <sCampo>REFERENCIA</sCampo>
-                      <iTipo>AN</iTipo>
-                      <iLongitud>'.strlen($enc_ref[0]).'</iLongitud>
-                      <iClase>0</iClase>
-                      <sValor xsi:type="xsd:string">'.$enc_ref[0].'</sValor>
-                      <bEncriptado>true</bEncriptado>
-                    </cCampo>
-                    <cCampo>
-                      <sCampo>MONTO</sCampo>
-                      <iTipo>ND</iTipo>
-                      <iLongitud>'.strlen($this->amount).'</iLongitud>
-                      <iClase>0</iClase>
-                      <sValor xsi:type="xsd:string">'.$this->amount.'</sValor>
-                      <bEncriptado>false</bEncriptado>
-                    </cCampo>
-                    <cCampo xsi:nil="true" />
-                  </cArrayCampos>
-                </Info>';
+            $params = '<Info xmlns="http://www.pagoexpress.com.mx/pxUniversal"><cArrayCampos><cCampo><sCampo>IDGRUPO</sCampo><iTipo>NE</iTipo><iLongitud>'.strlen($this->group_id).'</iLongitud><iClase>0</iClase><sValor xsi:type="xsd:int">'.$this->group_id.'</sValor><bEncriptado>false</bEncriptado></cCampo><cCampo><sCampo>IDCADENA</sCampo><iTipo>NE</iTipo><iLongitud>'.strlen($this->chain_id).'</iLongitud><iClase>0</iClase><sValor xsi:type="xsd:int">'.$this->chain_id.'</sValor><bEncriptado>false</bEncriptado></cCampo><cCampo><sCampo>IDTIENDA</sCampo><iTipo>NE</iTipo><iLongitud>'.strlen($this->shop_id).'</iLongitud><iClase>0</iClase><sValor xsi:type="xsd:int">'.$this->shop_id.'</sValor><bEncriptado>false</bEncriptado></cCampo><cCampo><sCampo>IDPOS</sCampo><iTipo>NE</iTipo><iLongitud>'.strlen($this->pos_id).'</iLongitud><iClase>0</iClase><sValor xsi:type="xsd:int">'.$this->pos_id.'</sValor><bEncriptado>false</bEncriptado></cCampo><cCampo><sCampo>IDCAJERO</sCampo><iTipo>NE</iTipo><iLongitud>'.strlen($this->cashier_id).'</iLongitud><iClase>0</iClase><sValor xsi:type="xsd:int">'.$this->cashier_id.'</sValor><bEncriptado>false</bEncriptado></cCampo><cCampo><sCampo>FECHALOCAL</sCampo><iTipo>FD</iTipo><iLongitud>'.strlen($this->local_date).'</iLongitud><iClase>0</iClase><sValor xsi:type="xsd:string">'.$this->local_date.'</sValor><bEncriptado>false</bEncriptado></cCampo><cCampo><sCampo>HORALOCAL</sCampo><iTipo>HR</iTipo><iLongitud>'.strlen($this->local_hour).'</iLongitud><iClase>0</iClase><sValor xsi:type="xsd:string">'.$this->local_hour.'</sValor><bEncriptado>false</bEncriptado></cCampo><cCampo><sCampo>TRANSACCION</sCampo><iTipo>NE</iTipo><iLongitud>'.strlen($this->transaction_id).'</iLongitud><iClase>0</iClase><sValor xsi:type="xsd:long">'.$this->transaction_id.'</sValor><bEncriptado>false</bEncriptado></cCampo><cCampo><sCampo>SKU</sCampo><iTipo>AN</iTipo><iLongitud>'.strlen($this->sku).'</iLongitud><iClase>0</iClase><sValor xsi:type="xsd:string">'.$this->sku.'</sValor><bEncriptado>false</bEncriptado></cCampo><cCampo><sCampo>REFERENCIA</sCampo><iTipo>AN</iTipo><iLongitud>'.strlen($enc_ref[0]).'</iLongitud><iClase>0</iClase><sValor xsi:type="xsd:string">'.$enc_ref[0].'</sValor><bEncriptado>true</bEncriptado></cCampo><cCampo><sCampo>MONTO</sCampo><iTipo>ND</iTipo><iLongitud>'.strlen($this->amount).'</iLongitud><iClase>0</iClase><sValor xsi:type="xsd:string">'.$this->amount.'</sValor><bEncriptado>false</bEncriptado></cCampo><cCampo xsi:nil="true" /></cArrayCampos></Info>';
 
             //die(print_r('caca',true));
         }
 
-                        
       $url = 'https://www.integracionesqapx.com.mx/wsUniversal/pxUniversal.asmx?WSDL';
       $username='usr_ws';
       $password='usr123';
@@ -272,7 +179,6 @@ require_once('includes/nusoap.php');
       }
 
 
-
       return $resultado;
 
     }
@@ -292,107 +198,7 @@ require_once('includes/nusoap.php');
 
         if(($dv=='0')&&($token=='0')){
 
-              $params = '
-                  <Ejecuta xmlns="http://www.pagoexpress.com.mx/pxUniversal">
-                    <cArrayCampos>
-                      <cCampo>
-                        <sCampo>IDGRUPO</sCampo>
-                        <iTipo>NE</iTipo>
-                        <iLongitud>'.strlen($this->group_id).'</iLongitud>
-                        <iClase>0</iClase>
-                        <sValor xsi:type="xsd:int">'.$this->group_id.'</sValor>
-                        <bEncriptado>false</bEncriptado>
-                      </cCampo>
-                      <cCampo>
-                        <sCampo>IDCADENA</sCampo>
-                        <iTipo>NE</iTipo>
-                        <iLongitud>'.strlen($this->chain_id).'</iLongitud>
-                        <iClase>0</iClase>
-                        <sValor xsi:type="xsd:int">'.$this->chain_id.'</sValor>
-                        <bEncriptado>false</bEncriptado>
-                      </cCampo>
-                      <cCampo>
-                        <sCampo>IDTIENDA</sCampo>
-                        <iTipo>NE</iTipo>
-                        <iLongitud>'.strlen($this->shop_id).'</iLongitud>
-                        <iClase>0</iClase>
-                        <sValor xsi:type="xsd:int">'.$this->shop_id.'</sValor>
-                        <bEncriptado>false</bEncriptado>
-                      </cCampo>
-                      <cCampo>
-                        <sCampo>IDPOS</sCampo>
-                        <iTipo>NE</iTipo>
-                        <iLongitud>'.strlen($this->pos_id).'</iLongitud>
-                        <iClase>0</iClase>
-                        <sValor xsi:type="xsd:int">'.$this->pos_id.'</sValor>
-                        <bEncriptado>false</bEncriptado>
-                      </cCampo>
-                      <cCampo>
-                        <sCampo>IDCAJERO</sCampo>
-                        <iTipo>NE</iTipo>
-                        <iLongitud>'.strlen($this->cashier_id).'</iLongitud>
-                        <iClase>0</iClase>
-                        <sValor xsi:type="xsd:int">'.$this->cashier_id.'</sValor>
-                        <bEncriptado>false</bEncriptado>
-                      </cCampo>
-                      <cCampo>
-                        <sCampo>FECHALOCAL</sCampo>
-                        <iTipo>FD</iTipo>
-                        <iLongitud>'.strlen($this->local_date).'</iLongitud>
-                        <iClase>0</iClase>
-                        <sValor xsi:type="xsd:string">'.$this->local_date.'</sValor>
-                        <bEncriptado>false</bEncriptado>
-                      </cCampo>
-                      <cCampo>
-                        <sCampo>HORALOCAL</sCampo>
-                        <iTipo>HR</iTipo>
-                        <iLongitud>'.strlen($this->local_hour).'</iLongitud>
-                        <iClase>0</iClase>
-                        <sValor xsi:type="xsd:string">'.$this->local_hour.'</sValor>
-                        <bEncriptado>false</bEncriptado>
-                      </cCampo>
-                      <cCampo>
-                        <sCampo>TRANSACCION</sCampo>
-                        <iTipo>NE</iTipo>
-                        <iLongitud>'.strlen($this->transaction_id).'</iLongitud>
-                        <iClase>0</iClase>
-                        <sValor xsi:type="xsd:long">'.$this->transaction_id.'</sValor>
-                        <bEncriptado>false</bEncriptado>
-                      </cCampo>
-                      <cCampo>
-                        <sCampo>SKU</sCampo>
-                        <iTipo>AN</iTipo>
-                        <iLongitud>'.strlen($this->sku).'</iLongitud>
-                        <iClase>0</iClase>
-                        <sValor xsi:type="xsd:string">'.$this->sku.'</sValor>
-                        <bEncriptado>false</bEncriptado>
-                      </cCampo>
-                      <cCampo>
-                        <sCampo>COMISION</sCampo>
-                        <iTipo>AN</iTipo>
-                        <iLongitud>'.strlen($this->fee).'</iLongitud>
-                        <iClase>0</iClase>
-                        <sValor xsi:type="xsd:string">'.$this->fee.'</sValor>
-                        <bEncriptado>false</bEncriptado>
-                      </cCampo>
-                      <cCampo>
-                        <sCampo>REFERENCIA</sCampo>
-                        <iTipo>AN</iTipo>
-                        <iLongitud>'.strlen($enc_ref[0]).'</iLongitud>
-                        <iClase>0</iClase>
-                        <sValor xsi:type="xsd:string">'.$enc_ref[0].'</sValor>
-                        <bEncriptado>true</bEncriptado>
-                      </cCampo>
-                      <cCampo>
-                        <sCampo>MONTO</sCampo>
-                        <iTipo>ND</iTipo>
-                        <iLongitud>'.strlen($this->amount).'</iLongitud>
-                        <iClase>0</iClase>
-                        <sValor xsi:type="xsd:string">'.$this->amount.'</sValor>
-                        <bEncriptado>false</bEncriptado>
-                      </cCampo>
-                    </cArrayCampos>
-                  </Ejecuta>';
+              $params = '<Ejecuta xmlns="http://www.pagoexpress.com.mx/pxUniversal"><cArrayCampos><cCampo><sCampo>IDGRUPO</sCampo><iTipo>NE</iTipo><iLongitud>'.strlen($this->group_id).'</iLongitud><iClase>0</iClase><sValor xsi:type="xsd:int">'.$this->group_id.'</sValor><bEncriptado>false</bEncriptado></cCampo><cCampo><sCampo>IDCADENA</sCampo><iTipo>NE</iTipo><iLongitud>'.strlen($this->chain_id).'</iLongitud><iClase>0</iClase><sValor xsi:type="xsd:int">'.$this->chain_id.'</sValor><bEncriptado>false</bEncriptado></cCampo><cCampo><sCampo>IDTIENDA</sCampo><iTipo>NE</iTipo><iLongitud>'.strlen($this->shop_id).'</iLongitud><iClase>0</iClase><sValor xsi:type="xsd:int">'.$this->shop_id.'</sValor><bEncriptado>false</bEncriptado></cCampo><cCampo><sCampo>IDPOS</sCampo><iTipo>NE</iTipo><iLongitud>'.strlen($this->pos_id).'</iLongitud><iClase>0</iClase><sValor xsi:type="xsd:int">'.$this->pos_id.'</sValor><bEncriptado>false</bEncriptado></cCampo><cCampo><sCampo>IDCAJERO</sCampo><iTipo>NE</iTipo><iLongitud>'.strlen($this->cashier_id).'</iLongitud><iClase>0</iClase><sValor xsi:type="xsd:int">'.$this->cashier_id.'</sValor><bEncriptado>false</bEncriptado></cCampo><cCampo><sCampo>FECHALOCAL</sCampo><iTipo>FD</iTipo><iLongitud>'.strlen($this->local_date).'</iLongitud><iClase>0</iClase><sValor xsi:type="xsd:string">'.$this->local_date.'</sValor><bEncriptado>false</bEncriptado></cCampo><cCampo><sCampo>HORALOCAL</sCampo><iTipo>HR</iTipo><iLongitud>'.strlen($this->local_hour).'</iLongitud><iClase>0</iClase><sValor xsi:type="xsd:string">'.$this->local_hour.'</sValor><bEncriptado>false</bEncriptado></cCampo><cCampo><sCampo>TRANSACCION</sCampo><iTipo>NE</iTipo><iLongitud>'.strlen($this->transaction_id).'</iLongitud><iClase>0</iClase><sValor xsi:type="xsd:long">'.$this->transaction_id.'</sValor><bEncriptado>false</bEncriptado></cCampo><cCampo><sCampo>SKU</sCampo><iTipo>AN</iTipo><iLongitud>'.strlen($this->sku).'</iLongitud><iClase>0</iClase><sValor xsi:type="xsd:string">'.$this->sku.'</sValor><bEncriptado>false</bEncriptado></cCampo><cCampo><sCampo>COMISION</sCampo><iTipo>AN</iTipo><iLongitud>'.strlen($this->fee).'</iLongitud><iClase>0</iClase><sValor xsi:type="xsd:string">'.$this->fee.'</sValor><bEncriptado>false</bEncriptado></cCampo><cCampo><sCampo>REFERENCIA</sCampo><iTipo>AN</iTipo><iLongitud>'.strlen($enc_ref[0]).'</iLongitud><iClase>0</iClase><sValor xsi:type="xsd:string">'.$enc_ref[0].'</sValor><bEncriptado>true</bEncriptado></cCampo><cCampo><sCampo>MONTO</sCampo><iTipo>ND</iTipo><iLongitud>'.strlen($this->amount).'</iLongitud><iClase>0</iClase><sValor xsi:type="xsd:string">'.$this->amount.'</sValor><bEncriptado>false</bEncriptado></cCampo></cArrayCampos></Ejecuta>';
 
         }elseif($dv!='0'){
 
@@ -639,6 +445,13 @@ require_once('includes/nusoap.php');
         if($result['EjecutaResult']['cCampo'][0]['sCampo']=='CODIGORESPUESTA'){
             $resultado['error_code']=$result['EjecutaResult']['cCampo'][0]['sValor'];
             $resultado['error_description']=$result['EjecutaResult']['cCampo'][1]['sValor'];
+        }elseif($result['EjecutaResult']['cCampo'][0]['sCampo']=='PROVEEDOR'){
+            exec('java -jar ../src/Telepay/FinancialApiBundle/DependencyInjection/Services/libs/jar/JAVAMUCOM.jar "D" "'.$result['EjecutaResult']['cCampo'][1]['sValor'].'" "'.$this->key.'"',$desenc_ref);
+            $resultado['provider']=$result['EjecutaResult']['cCampo'][0]['sValor'];
+            $resultado['reference']=$desenc_ref;
+            $resultado['authorization']=$result['EjecutaResult']['cCampo'][2]['sValor'];
+            $resultado['amount']=$result['EjecutaResult']['cCampo'][3]['sValor'];
+            $resultado['legend']=$result['EjecutaResult']['cCampo'][4]['sValor'];
         }else{
             exec('java -jar ../src/Telepay/FinancialApiBundle/DependencyInjection/Services/libs/jar/JAVAMUCOM.jar "D" "'.$result['EjecutaResult']['cCampo'][0]['sValor'].'" "'.$this->key.'"',$desenc_ref);
             $resultado['reference']=$desenc_ref;
@@ -650,7 +463,6 @@ require_once('includes/nusoap.php');
                     }else{
                         $resultado['legend']=utf8_decode($result['EjecutaResult']['cCampo'][3]['sValor']);
                     }
-
                     if(isset ($result['EjecutaResult']['cCampo'][4]['sValor'])){
                         $resultado['legend']=$result['EjecutaResult']['cCampo'][4]['sValor'];
                     }
