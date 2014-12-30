@@ -24,7 +24,7 @@ class ServicesUkashRedirectController extends FosRestController
      *
      * @ApiDoc(
      *   section="Ukash",
-     *   description="Returns a JSON with the url",
+     *   description="Redirects to Ukash to finish the payment.",
      *   https="true",
      *   statusCodes={
      *       201="Returned when the request was successful",
@@ -195,7 +195,7 @@ class ServicesUkashRedirectController extends FosRestController
      *
      * @ApiDoc(
      *   section="Ukash",
-     *   description="Returns a JSON with the transaction status",
+     *   description="Returns Ukash transaction status ",
      *   https="true",
      *   statusCodes={
      *       201="Returned when the request was successful",

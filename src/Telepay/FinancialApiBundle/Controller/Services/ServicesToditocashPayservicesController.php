@@ -199,7 +199,7 @@ class ServicesToditocashPayservicesController extends FosRestController
      *
      * @ApiDoc(
      *   section="Todito Cash",
-     *   description="Returns an array with the status",
+     *   description="Returns status for a payment",
      *   https="true",
      *   statusCodes={
      *       201="Returned when the request was successful",

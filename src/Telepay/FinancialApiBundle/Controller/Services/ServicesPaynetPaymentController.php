@@ -19,11 +19,11 @@ class ServicesPaynetPaymentController extends FosRestController
 {
 
     /**
-     * Returns a JSON with the Info for the payment. Some fields are required for the payment confirm..
+     * Register a transaction in the Paynet system. It's mandatory do the Ejecuta method to finish the payment.
      *
      * @ApiDoc(
      *   section="Paynet Payment for Services",
-     *   description="This method allows client to obtain info for the payment services.",
+     *   description="Register a transaction in the Paynet system.",
      *   https="true",
      *   statusCodes={
      *       201="Returned when the request was successful",
@@ -182,11 +182,11 @@ class ServicesPaynetPaymentController extends FosRestController
         return $this->info($request);
     }
     /**
-     * Confirm the payment and returns an array. Some fields are required for the reversa method.
+     * Confirm the payment in the Paynet system. It's mandatory do the Info method first to register the transaction.
      *
      * @ApiDoc(
      *   section="Paynet Payment for Services",
-     *   description="This method allows client to pay services.",
+     *   description="This method allows client finish the service payment.",
      *   https="true",
      *   statusCodes={
      *       201="Returned when the request was successful",
@@ -368,11 +368,11 @@ class ServicesPaynetPaymentController extends FosRestController
     }
 
     /**
-     * This method allows client to obtain reverse for the payment.
+     * This method allows client to obtain reverse for a payment.
      *
      * @ApiDoc(
      *   section="Paynet Payment for Services",
-     *   description="Returns an array with transaction information payment.",
+     *   description="Consult a transaction done with Paynet.",
      *   https="true",
      *   statusCodes={
      *       201="Returned when the request was successful",

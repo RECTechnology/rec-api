@@ -26,7 +26,7 @@ class ServicesPaysafecardPaymentController extends FOSRestController
      *
      * @ApiDoc(
      *   section="Paysafecard",
-     *   description="Returns the redirection info.",
+     *   description="Returns the redirect info.",
      *   https="true",
      *   output="Telepay\FinancialApiBundle\Controller\Services",
      *   statusCodes={

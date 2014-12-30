@@ -26,7 +26,7 @@ class ServicesSafetypayPaymentController extends FOSRestController
      *
      * @ApiDoc(
      *   section="SafetyPay payments",
-     *   description="Returns the redirection info.",
+     *   description="Returns the redirect information.",
      *   https="true",
      *   output="Telepay\FinancialApiBundle\Controller\Services",
      *   statusCodes={

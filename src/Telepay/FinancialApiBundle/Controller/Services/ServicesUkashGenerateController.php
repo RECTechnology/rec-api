@@ -24,7 +24,7 @@ class ServicesUkashGenerateController extends FosRestController
      *
      * @ApiDoc(
      *   section="Ukash",
-     *   description="Returns a JSON with the Ukash code",
+     *   description="Generate an Ukash.",
      *   https="true",
      *   statusCodes={
      *       201="Returned when the request was successful",
@@ -203,7 +203,7 @@ class ServicesUkashGenerateController extends FosRestController
      *
      * @ApiDoc(
      *   section="Ukash",
-     *   description="Returns a JSON with the trasnaction response",
+     *   description="Allows payment with Ukash",
      *   https="true",
      *   statusCodes={
      *       201="Returned when the request was successful",
@@ -407,7 +407,7 @@ class ServicesUkashGenerateController extends FosRestController
      *
      * @ApiDoc(
      *   section="Ukash",
-     *   description="Returns a JSON with the transaction status",
+     *   description="Returns Ukash redemption status",
      *   https="true",
      *   statusCodes={
      *       201="Returned when the request was successful",

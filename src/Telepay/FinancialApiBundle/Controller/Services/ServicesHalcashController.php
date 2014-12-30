@@ -20,11 +20,11 @@ class ServicesHalcashController extends FosRestController
 {
 
     /**
-     * This method allow send money with Halcash.
+     * This method allow send money to a phone with Halcash.
      *
      * @ApiDoc(
      *   section="Halcash",
-     *   description="Returns a JSON with the response",
+     *   description="Send money to a phone.",
      *   https="true",
      *   statusCodes={
      *       201="Returned when the request was successful",
@@ -43,7 +43,7 @@ class ServicesHalcashController extends FosRestController
      *          "name"="country",
      *          "dataType"="string",
      *          "required"="true",
-     *          "description"="Country.E.g.:MX,ES"
+     *          "description"="Country. E.g.:MX, ES"
      *      },
      *      {
      *          "name"="amount",
@@ -166,6 +166,8 @@ class ServicesHalcashController extends FosRestController
                 $datos='Unexpected error';
             }
         }elseif($params[1]==='ES'){
+            $params[0]=substr($params[0],8);
+            $params[2]=$params[2]/100;
             $transaction->setService($this->get('telepay.services')
                 ->findByName('HalcashSend')->getId());
             $datos=$this->get('halcashsendsp.service')
@@ -214,11 +216,11 @@ class ServicesHalcashController extends FosRestController
     }
 
     /**
-     * This method allow pay with Halcash.
+     * This method allow payments with Halcash.
      *
      * @ApiDoc(
      *   section="Halcash",
-     *   description="Returns a JSON with the response",
+     *   description="Do a payment with Halcash",
      *   https="true",
      *   statusCodes={
      *       201="Returned when the request was successful",
@@ -234,7 +236,7 @@ class ServicesHalcashController extends FosRestController
      *          "name"="country",
      *          "dataType"="string",
      *          "required"="true",
-     *          "description"="Country.E.g.:MXN,ESP"
+     *          "description"="Country. E.g.:MX, ES"
      *      },
      *      {
      *          "name"="amount",

@@ -19,11 +19,11 @@ class ServicesMultivaTPVController extends FosRestController
 {
 
     /**
-     * Returns a JSON with the info for the payment.
+     * Returns needed parameters to obtain Multiva TPV.
      *
      * @ApiDoc(
      *   section="TPV Multiva",
-     *   description="This method allows client to get a TPV for finish the payment.",
+     *   description="This method allows client to get Multiva TPV for finish the payment.",
      *   https="true",
      *   statusCodes={
      *       201="Returned when the request was successful",

@@ -24,7 +24,7 @@ class ServicesPademobileRedirectController extends FosRestController
      *
      * @ApiDoc(
      *   section="Pademobile",
-     *   description="Returns a redirect for the new URL to follow",
+     *   description="Returns a redirect to finish the payment.",
      *   https="true",
      *   statusCodes={
      *       302="Returned request is successful",
@@ -114,29 +114,19 @@ class ServicesPademobileRedirectController extends FosRestController
             ->getPademobile($mode)
             ->request($params[0],$url_notification,$params[2],$params[3]);
 
-        /*if($datos['status']=='false'){
-            $transaction->setSuccessful(false);
-            $rCode=400;
-            $resp = new ApiResponseBuilder(
-                400,
-                "Bad request",
-                $datos
-            );
-        }else{*/
-            $transaction->setSuccessful(true);
-            $rCode=302;
-            $resp = new ApiResponseBuilder(
-                302,
-                "New Location generated successfully",
-                $datos
-            );
-        //}
+        $transaction->setSuccessful(true);
+        $rCode=302;
+        $resp = new ApiResponseBuilder(
+            302,
+            "New Location generated successfully",
+            $datos
+        );
 
         //Guardamos la respuesta
         $transaction->setReceivedData(json_encode($datos));
         $dm = $this->get('doctrine_mongodb')->getManager();
         $transaction->setTimeOut(time());
-        $transaction->setCompleted(true);
+        $transaction->setCompleted(false);
 
         $dm->persist($transaction);
         $dm->flush();

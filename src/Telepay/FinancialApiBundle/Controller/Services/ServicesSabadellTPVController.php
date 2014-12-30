@@ -19,7 +19,7 @@ class ServicesSabadellTPVController extends FosRestController
 {
 
     /**
-     * Returns a JSON with the info for the payment.
+     * Returns needed parameters to obtain Sabadell TPV.
      *
      * @ApiDoc(
      *   section="TPV Sabadell",

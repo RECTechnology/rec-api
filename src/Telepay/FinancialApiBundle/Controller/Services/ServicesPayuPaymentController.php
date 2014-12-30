@@ -421,7 +421,7 @@ class ServicesPayuPaymentController extends FosRestController
      *
      * @ApiDoc(
      *   section="PayU Payment",
-     *   description="Returns a JSON with the status information.",
+     *   description="Returns information about the payment.",
      *   https="true",
      *   statusCodes={
      *       201="Returned when the request was successful",

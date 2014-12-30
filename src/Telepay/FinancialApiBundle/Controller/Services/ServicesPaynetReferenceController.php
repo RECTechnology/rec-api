@@ -15,7 +15,7 @@ use Telepay\FinancialApiBundle\Document\Transaction;
 class ServicesPaynetReferenceController extends FosRestController
 {
     /**
-     * Returns a code and after we have to put this code into a url to obtain the barcode.
+     * Returns a code and after you have to put this code into a url to obtain the barcode.
      *
      * @ApiDoc(
      *   section="Paynet Reference",
@@ -134,7 +134,7 @@ class ServicesPaynetReferenceController extends FosRestController
      *
      * @ApiDoc(
      *   section="Paynet Reference",
-     *   description="Returns an array with the status",
+     *   description="Returns the status for the generate reference",
      *   https="true",
      *   statusCodes={
      *       201="Returned when the request was successful",
