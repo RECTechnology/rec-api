@@ -434,7 +434,7 @@ class ServicesPayuPaymentController extends FosRestController
      *          "description"="Report_type can be order,ref or trans."
      *      },
      *      {
-     *          "name"="code",
+     *          "name"="reference_code",
      *          "dataType"="string",
      *          "required"="true",
      *          "description"="Code to report. (order_id,reference_code,transaction_id"

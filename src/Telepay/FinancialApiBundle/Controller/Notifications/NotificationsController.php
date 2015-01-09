@@ -142,9 +142,6 @@ class NotificationsController extends FOSRestController{
 
             return $this->redirect($result['url']);
 
-
-            //header('Location: '.$result['url_success']);
-
         }else{
             $tid=$params[0];
             $dm = $this->get('doctrine_mongodb')->getManager();

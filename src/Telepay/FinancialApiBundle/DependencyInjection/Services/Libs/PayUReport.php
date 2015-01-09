@@ -4,6 +4,12 @@ namespace Telepay\FinancialApiBundle\DependencyInjection\Services\Libs;
 
 require_once 'lib/PayU.php';
 
+use PaymentMethods;
+use PayUCountries;
+use PayUParameters;
+use PayUPayments;
+use PayUReports;
+
 	/**
 	* 
 	*/

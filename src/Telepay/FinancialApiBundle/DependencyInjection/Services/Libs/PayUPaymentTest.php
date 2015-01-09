@@ -3,6 +3,8 @@ namespace Telepay\FinancialApiBundle\DependencyInjection\Services\Libs;
 
 require_once 'libTest/PayU.php';
 
+use PaymentMethods;
+use PayUCountries;
 use PayUParameters;
 use PayUPayments;
 /**
