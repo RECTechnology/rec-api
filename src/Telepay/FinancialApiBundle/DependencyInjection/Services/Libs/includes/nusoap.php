@@ -2327,7 +2327,7 @@ class soap_transport_http extends nusoap_base {
 	* @return	boolean true if connected, false if not
 	* @access   private
 	*/
-	function connect($connection_timeout=0,$response_timeout=30){
+	function connect($connection_timeout=0,$response_timeout=120){
 	  	// For PHP 4.3 with OpenSSL, change https scheme to ssl, then treat like
 	  	// "regular" socket.
 	  	// TODO: disabled for now because OpenSSL must be *compiled* in (not just

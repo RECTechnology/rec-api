@@ -135,6 +135,7 @@ class ServicesPaynetPaymentController extends FosRestController
         if($mode=='T'){
             //Constructor in Test mode
             $datos=$this->get('paynetpay.service')->getPaynetPayTest()-> info($params[0],$params[1],$params[2],$params[3],$params[4],$params[5]);
+            //die(print_r($datos,true));
         }elseif($mode=='P'){
             //Constructor in Production mode
             $datos=$this->get('paynetpay.service')->getPaynetPay()->info($params[0],$params[1],$params[2],$params[3],$params[4],$params[5]);
