@@ -37,7 +37,13 @@ class ServicesHalcashController extends FosRestController
      *          "name"="phone_number",
      *          "dataType"="string",
      *          "required"="true",
-     *          "description"="Phone number to receive the money with 17 digits. E.g.:00034000606152121"
+     *          "description"="Phone number to receive the money . E.g.:606152121"
+     *      },
+     *      {
+     *          "name"="phone_prefix",
+     *          "dataType"="string",
+     *          "required"="true",
+     *          "description"="Phone prefix. E.g.: 34"
      *      },
      *      {
      *          "name"="country",
@@ -85,7 +91,8 @@ class ServicesHalcashController extends FosRestController
             'amount',
             'reference',
             'pin',
-            'transaction_id'
+            'transaction_id',
+            'phone_prefix'
         );
 
         //Get the parameters sent by POST and put them in a $params array
@@ -111,15 +118,15 @@ class ServicesHalcashController extends FosRestController
         }
 
         //Concatenamos la referencia añadiendole el idusuario (0000)
-        /*if($userid < 10){
-            $params[1]='000'.$userid.$params[1];
+        if($userid < 10){
+            $params[5]='000'.$userid.$params[5];
         }elseif($userid<100){
-            $params[1]='00'.$userid.$params[1];
+            $params[5]='00'.$userid.$params[5];
         }elseif($userid<1000){
-            $params[1]='0'.$userid.$params[1];
+            $params[5]='0'.$userid.$params[5];
         }else{
-            $params[1]=$userid.$params[1];
-        }*/
+            $params[5]=$userid.$params[5];
+        }
 
         //Comprobamos modo Test
         $mode=$request->get('mode');
@@ -166,13 +173,17 @@ class ServicesHalcashController extends FosRestController
                 $datos='Unexpected error';
             }
         }elseif($params[1]==='ES'){
-            $params[0]=substr($params[0],8);
+            //arreglamos los centimos y el numero de telefono
             $params[2]=$params[2]/100;
+            if(substr($params[6],0,1)=='+'){
+                $params[6]=substr($params[6],1);
+            }
+
             $transaction->setService($this->get('telepay.services')
                 ->findByName('HalcashSend')->getId());
             $datos=$this->get('halcashsendsp.service')
                 ->getHalcashSend($mode)
-                ->send($params[0],$params[2],$params[3],$params[4],$params[5]);
+                ->send($params[0],$params[6],$params[2],$params[3],$params[4],$params[5]);
 
             if($datos['errorcode']=='99'){
                 $rCode=503;

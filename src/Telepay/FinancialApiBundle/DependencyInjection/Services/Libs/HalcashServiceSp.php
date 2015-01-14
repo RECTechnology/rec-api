@@ -10,13 +10,13 @@ namespace Telepay\FinancialApiBundle\DependencyInjection\Services\Libs;
 
         private $user='halcash';
         private $password="t3l3p4y";
-        private $prefix='34';
+        private $prefix;
         private $mode;
         private $phone;
         private $amount;
         private $reference;
         private $pin;
-        private $alias='generica';
+        private $alias='ASOC ROBOT';
         private $transaction_id;
         private $hal;
 
@@ -24,9 +24,10 @@ namespace Telepay\FinancialApiBundle\DependencyInjection\Services\Libs;
             $this->mode=$mode;
 		}
 
-		public function send($phone,$amount,$reference,$pin,$transaction_id){
+		public function send($phone,$prefix,$amount,$reference,$pin,$transaction_id){
 
             $this->phone=$phone;
+            $this->prefix=$prefix;
             $this->amount=$amount;
             $this->reference=$reference;
             $this->pin=$pin;
