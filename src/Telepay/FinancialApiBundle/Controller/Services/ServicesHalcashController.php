@@ -687,6 +687,10 @@ class ServicesHalcashController extends FosRestController
         $transaction->setSentData(json_encode($params));
         $transaction->setMode($mode === 'P');
 
+        if($mode=='T'){
+            throw new HttpException(503,'Test service unavailable');
+        }
+
         //Constructor
         if($params[0]==='MX'){
 
