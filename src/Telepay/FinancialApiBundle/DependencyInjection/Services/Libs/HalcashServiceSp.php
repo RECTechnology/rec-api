@@ -16,7 +16,7 @@ namespace Telepay\FinancialApiBundle\DependencyInjection\Services\Libs;
         private $amount;
         private $reference;
         private $pin;
-        private $alias='ASOC ROBOT';
+        private $alias;
         private $transaction_id;
         private $hal;
 
@@ -24,10 +24,64 @@ namespace Telepay\FinancialApiBundle\DependencyInjection\Services\Libs;
             $this->mode=$mode;
 		}
 
-		public function send($phone,$prefix,$amount,$reference,$pin,$transaction_id){
+        public function send($phone,$amount,$reference,$pin,$transaction_id){
+
+            $this->phone=$phone;
+            $this->amount=$amount;
+            $this->reference=$reference;
+            $this->pin=$pin;
+            $this->transaction_id=$transaction_id;
+            $caducity=gmdate("Y-m-d",time()+604800);
+
+            $params=array(
+                'usuario'		=>	$this->user,
+                'contrasenia'	=>	$this->password,
+                'prefijo'		=>	'34',
+                'telefono'		=>	$phone,
+                'importe'		=>	$amount,
+                'concepto'		=>	$reference,
+                'pin'			=>	$pin,
+                'aliascuenta'	=>	'ASOC ROBOT',
+                'caducidad'		=>	$caducity
+            );
+
+
+            if($this->mode=='T'){
+                throw new HttpException(501,"Test mode not implemented");
+                //$response='error1';
+
+            }else{
+                $url='http://hcsvc.telepay.net/HalCashGatewayIssue.asmx?wsdl';
+                $client=new nusoap_client($url,true);
+                if ($sError = $client->getError()) {
+                    throw new HttpException(400,"No se pudo completar la operacion [".$sError."]");
+                    //$response='error2';
+                }
+                $response=$client->call("Emision",$params);
+                if ($client->fault) { // Si
+                    throw new HttpException(400,"No se pudo completar la operacion [".$sError."]");
+                    //$response='error3';
+                } else { // No
+                    $sError = $client->getError();
+                    // Hay algun error ?
+                    if ($sError) { // Si
+                        throw new HttpException(400,"No se pudo completar la operacion [".$sError."]");
+                        //$response=$sError;
+                    }
+                }
+            }
+
+            $response=$response['EmisionResult'];
+
+            return $response;
+
+        }
+
+		public function sendV2($phone,$prefix,$amount,$reference,$pin,$transaction_id,$alias){
 
             $this->phone=$phone;
             $this->prefix=$prefix;
+            $this->alias=$alias;
             $this->amount=$amount;
             $this->reference=$reference;
             $this->pin=$pin;
@@ -98,6 +152,50 @@ namespace Telepay\FinancialApiBundle\DependencyInjection\Services\Libs;
             }
 
             return $hal->getresultado();
+
+        }
+
+        public function cancelation($ticket,$reference){
+
+            $this->reference=$reference;
+            $this->hal=$ticket;
+
+            $params=array(
+                'usuario'		=>	$this->user,
+                'contrasenia'	=>	$this->password,
+                'ticket'        =>  $this->hal,
+                'motivo'		=>	$reference
+            );
+
+
+            if($this->mode=='T'){
+                throw new HttpException(501,"Test mode not implemented");
+                //$response='error1';
+
+            }else{
+                $url='http://hcsvc.telepay.net/HalCashGatewayIssue.asmx?wsdl';
+                $client=new nusoap_client($url,true);
+                if ($sError = $client->getError()) {
+                    throw new HttpException(400,"No se pudo completar la operacion [".$sError."]");
+                    //$response='error2';
+                }
+                $response=$client->call("Cancelacion",$params);
+                if ($client->fault) { // Si
+                    throw new HttpException(400,"No se pudo completar la operacion [".$sError."]");
+                    //$response='error3';
+                } else { // No
+                    $sError = $client->getError();
+                    // Hay algun error ?
+                    if ($sError) { // Si
+                        throw new HttpException(400,"No se pudo completar la operacion [".$sError."]");
+                        //$response=$sError;
+                    }
+                }
+            }
+
+            $response=$response['CancelacionResult'];
+
+            return $response;
 
         }
 
