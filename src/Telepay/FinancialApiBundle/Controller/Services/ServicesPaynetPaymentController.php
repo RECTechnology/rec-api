@@ -331,6 +331,8 @@ class ServicesPaynetPaymentController extends FosRestController
         //Response
         if(isset($datos['error_code'])){
             $transaction->setSuccessful(false);
+            $transaction->setCompleted(false);
+
             $rCode=400;
             $resp = new ApiResponseBuilder(
                 400,
@@ -340,6 +342,8 @@ class ServicesPaynetPaymentController extends FosRestController
         }else{
             //die(print_r($datos,true));
             $transaction->setSuccessful(true);
+            $transaction->setCompleted(true);
+
             $rCode=201;
             $resp = new ApiResponseBuilder(
                 201,
@@ -352,7 +356,6 @@ class ServicesPaynetPaymentController extends FosRestController
         $transaction->setReceivedData(json_encode($datos));
         $dm = $this->get('doctrine_mongodb')->getManager();
         $transaction->setTimeOut(time());
-        $transaction->setCompleted(true);
 
         $dm->persist($transaction);
         $dm->flush();
