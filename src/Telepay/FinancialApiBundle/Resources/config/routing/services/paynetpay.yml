@@ -1,6 +1,4 @@
 
-
-
 services_paynet_payment_info:
     pattern:  /services/v1/paynet/payment/info
     defaults: { _controller: Telepay\FinancialApiBundle\Controller\Services\ServicesPaynetPaymentController::info, _format: ~ }
@@ -34,6 +32,42 @@ services_paynet_payment_ejecuta_sandbox:
 services_paynet_payment_ejecuta_test:
     pattern:  /test/services/v1/paynet/payment/transaction
     defaults: { _controller: Telepay\FinancialApiBundle\Controller\Services\ServicesPaynetPaymentController::ejecutaTest, _format: ~ }
+    requirements:
+        _method: POST
+
+services_paynet_payment_infoV2:
+    pattern:  /services/v2/paynet/payment/info
+    defaults: { _controller: Telepay\FinancialApiBundle\Controller\Services\ServicesPaynetPaymentController::infoV2, _format: ~ }
+    requirements:
+        _method: POST
+
+services_paynet_payment_infoV2_sandbox:
+    pattern:  /sandbox/services/v2/paynet/payment/info
+    defaults: { _controller: Telepay\FinancialApiBundle\Controller\Services\ServicesPaynetPaymentController::infoTestV2, _format: ~ }
+    requirements:
+        _method: POST
+
+services_paynet_payment_infoV2_test:
+    pattern:  /test/services/v2/paynet/payment/info
+    defaults: { _controller: Telepay\FinancialApiBundle\Controller\Services\ServicesPaynetPaymentController::infoTestV2, _format: ~ }
+    requirements:
+        _method: POST
+
+services_paynet_payment_ejecutaV2:
+    pattern:  /services/v2/paynet/payment/transaction
+    defaults: { _controller: Telepay\FinancialApiBundle\Controller\Services\ServicesPaynetPaymentController::ejecutaV2, _format: ~ }
+    requirements:
+        _method: POST
+
+services_paynet_payment_ejecutaV2_sandbox:
+    pattern:  /sandbox/services/v2/paynet/payment/transaction
+    defaults: { _controller: Telepay\FinancialApiBundle\Controller\Services\ServicesPaynetPaymentController::ejecutaTestV2, _format: ~ }
+    requirements:
+        _method: POST
+
+services_paynet_payment_ejecutaV2_test:
+    pattern:  /test/services/v2/paynet/payment/transaction
+    defaults: { _controller: Telepay\FinancialApiBundle\Controller\Services\ServicesPaynetPaymentController::ejecutaTestV2, _format: ~ }
     requirements:
         _method: POST
 
