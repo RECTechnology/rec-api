@@ -34,7 +34,7 @@ class ServicesMultivaTPVController extends FosRestController
      *          "name"="amount",
      *          "dataType"="string",
      *          "required"="true",
-     *          "description"="Transaction Amount."
+     *          "description"="Transaction Amount in cents. Ej=>100.00=10000"
      *      },
      *      {
      *          "name"="transaction_id",
