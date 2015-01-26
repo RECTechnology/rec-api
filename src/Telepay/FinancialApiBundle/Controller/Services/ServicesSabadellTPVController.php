@@ -34,7 +34,7 @@ class ServicesSabadellTPVController extends FosRestController
      *          "name"="amount",
      *          "dataType"="string",
      *          "required"="true",
-     *          "description"="Transaction Amount."
+     *          "description"="Transaction Amount in cents Eg: 100.00 = 10000."
      *      },
      *      {
      *          "name"="transaction_id",
@@ -115,7 +115,6 @@ class ServicesSabadellTPVController extends FosRestController
         }else{
             $params[1]=$userid.$params[1];
         }
-        //var_dump($params[2]);
 
         //Comprobamos modo Test
         $mode = $request->get('mode');
