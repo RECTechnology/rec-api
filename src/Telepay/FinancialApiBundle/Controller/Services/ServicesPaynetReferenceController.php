@@ -35,7 +35,7 @@ class ServicesPaynetReferenceController extends FosRestController
      *          "name"="amount",
      *          "dataType"="string",
      *          "required"="true",
-     *          "description"="Allowed mount. Ex: '00001000'"
+     *          "description"="Allowed amount in cents. Eg: 100.00 = 10000."
      *      },
      *      {
      *          "name"="description",
@@ -89,8 +89,11 @@ class ServicesPaynetReferenceController extends FosRestController
         $transaction->setSentData(json_encode($paramsMongo));
         $transaction->setMode($mode === 'P');
 
+        //Convertimos el amount de centimos a dos decimales
+        $amount=$params[1]/100;
+
         //Constructor
-        $datos=$this->get('paynetref.service')->getPaynetGetBarcode()->request($params[0],$params[1],$params[2]);
+        $datos=$this->get('paynetref.service')->getPaynetGetBarcode()->request($params[0],$amount,$params[2]);
 
         if(isset($datos['barcode'])){
             $transaction->setSuccessful(true);
