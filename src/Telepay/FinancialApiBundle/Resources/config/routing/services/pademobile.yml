@@ -20,6 +20,24 @@ services_pademobile_redirect_request_test:
     requirements:
         _method: POST
 
+services_pademobile_redirect_request_v2:
+    pattern:  /services/v2/pademobile/redirect/request
+    defaults: { _controller: Telepay\FinancialApiBundle\Controller\Services\ServicesPademobileRedirectController::requestV2, _format: ~ }
+    requirements:
+        _method: POST
+
+services_pademobile_redirect_request_sandbox_v2:
+    pattern:  /sandbox/services/v2/pademobile/redirect/request
+    defaults: { _controller: Telepay\FinancialApiBundle\Controller\Services\ServicesPademobileRedirectController::requestTestV2, _format: ~ }
+    requirements:
+        _method: POST
+
+services_pademobile_redirect_request_test_v2:
+    pattern:  /test/services/v2/pademobile/redirect/request
+    defaults: { _controller: Telepay\FinancialApiBundle\Controller\Services\ServicesPademobileRedirectController::requestTestV2, _format: ~ }
+    requirements:
+        _method: POST
+
 
 
 ######################### ANALYTICS ############################
