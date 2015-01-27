@@ -61,7 +61,7 @@ class ServicesToditocashPayservicesController extends FosRestController
      *          "name"="amount",
      *          "dataType"="string",
      *          "required"="true",
-     *          "description"="Transaction amount."
+     *          "description"="Transaction amount in cents. Eg: 100.00 = 10000."
      *      },
      *      {
      *          "name"="concept",
@@ -142,12 +142,14 @@ class ServicesToditocashPayservicesController extends FosRestController
         $transaction->setSentData(json_encode($paramsMongo));
         $transaction->setMode($mode === 'P');
 
+        $amount=$params[5]/100;
+
         if($mode=='T'){
             //Request method
-            $datos=$this->get('todito.service')->getToditoCash()-> request($params[0],$params[1],$params[2],$params[3],$params[4],$params[5],$params[6],$params[7],'0');
+            $datos=$this->get('todito.service')->getToditoCash()-> request($params[0],$params[1],$params[2],$params[3],$params[4],$amount,$params[6],$params[7],'0');
         }elseif($mode=='P'){
             //Request method
-            $datos=$this->get('todito.service')->getToditoCash()-> request($params[0],$params[1],$params[2],$params[3],$params[4],$params[5],$params[6],$params[7],'1');
+            $datos=$this->get('todito.service')->getToditoCash()-> request($params[0],$params[1],$params[2],$params[3],$params[4],$amount,$params[6],$params[7],'1');
         }else{
             //If is not one of the first shows an error message.
             throw new HttpException(400,'Bad Request,check mode');
