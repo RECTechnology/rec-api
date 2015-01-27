@@ -52,7 +52,7 @@ class ServicesUkashGenerateController extends FosRestController
      *          "name"="amount",
      *          "dataType"="string",
      *          "required"="true",
-     *          "description"="Shopping amount"
+     *          "description"="Shopping amount in cents"
      *      }
      *   }
      * )
@@ -115,6 +115,8 @@ class ServicesUkashGenerateController extends FosRestController
         $transaction->setSentData(json_encode($paramsMongo));
         $transaction->setMode($mode === 'P');
 
+        $amount=$params[3]/100;
+
         if(($mode=="T")){
             if($params[1]=='MXN'||$params[1]=='EUR'){
                 $transaction->setSuccessful(true);
@@ -124,7 +126,7 @@ class ServicesUkashGenerateController extends FosRestController
                 $datos['IssuedVoucherCurr']=$params[1];
                 $fecha = gmdate("Y-m-d H:i:s", time() + (3600*24*15));
                 $datos['IssuedExpiryDate']=$fecha;
-                $datos['IssuedAmount']=$params[3];
+                $datos['IssuedAmount']=$amount;
                 $rCode=201;
                 $resp = new ApiResponseBuilder(
                     $rCode,
@@ -149,11 +151,9 @@ class ServicesUkashGenerateController extends FosRestController
 
         }else{
             //Constructor
-            $datos=$this->get('ukashgenerate.service')->getUkashOnline($mode)-> request($params[0],$params[1],$params[2],$params[3]);
+            $datos=$this->get('ukashgenerate.service')->getUkashOnline($mode)-> request($params[0],$params[1],$params[2],$amount);
 
             $datos['transactionId'] = substr($datos['transactionId'], 4);
-
-            //die(print_r('caac',true));
 
             if($datos['txCode']!=0){
 
