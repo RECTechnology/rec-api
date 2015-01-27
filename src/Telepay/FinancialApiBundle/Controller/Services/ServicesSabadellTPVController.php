@@ -136,13 +136,15 @@ class ServicesSabadellTPVController extends FosRestController
         $url_base=$request->getSchemeAndHttpHost().$request->getBaseUrl();
         $url_notification=$url_base.'/notifications/v1/sabadell?tid='.$id;
 
+        $amount=$params[0]/100;
+
         //Check if it's a Test or Production transaction
         if($mode=='T'){
             //Constructor in Test mode
-            $datos=$this->get('sabadell.service')->getSabadellTest($params[0],$params[1],$params[2],$url_notification,$params[4],$params[5])-> request();
+            $datos=$this->get('sabadell.service')->getSabadellTest($amount,$params[1],$params[2],$url_notification,$params[4],$params[5])-> request();
         }elseif($mode=='P'){
             //Constructor in Production mode
-            $datos=$this->get('sabadell.service')->getSabadell($params[0],$params[1],$params[2],$url_notification,$params[4],$params[5])->request();
+            $datos=$this->get('sabadell.service')->getSabadell($amount,$params[1],$params[2],$url_notification,$params[4],$params[5])->request();
         }else{
             //If is not one of the first shows an error message.
             throw new HttpException(400,'Wrong require->Test with T or P');
