@@ -161,6 +161,7 @@ class ServicesHalcashController extends FosRestController
                 $res="Bad request";
             }elseif(isset($datos['ATM_ALTCEMRES'])){
                 $transaction->setSuccessful(true);
+                $transaction->setStatus('ISSUED');
                 $datos=get_object_vars($datos['ATM_ALTCEMRES']);
                 $rCode=201;
                 $res="Reference created successfully";
@@ -182,6 +183,7 @@ class ServicesHalcashController extends FosRestController
                 $res="Service temporally unavailable, maybe deposit account has no funds?";
             }elseif($datos['errorcode']=='0'){
                 $transaction->setSuccessful(true);
+                $transaction->setStatus('ISSUED');
                 $rCode=201;
                 $res="HalCash generated successfully";
             }else{
@@ -315,8 +317,6 @@ class ServicesHalcashController extends FosRestController
             $params[]=$request->get($paramName, 'null');
         }
 
-        //die(print_r($params,true));
-
         $count=count($paramNames);
         $paramsMongo=array();
         for($i=0; $i<$count; $i++){
@@ -371,6 +371,7 @@ class ServicesHalcashController extends FosRestController
                 $res="Bad request";
             }elseif(isset($datos['ATM_ALTCEMRES'])){
                 $transaction->setSuccessful(true);
+                $transaction->setStatus('ISSUED');
                 $datos=get_object_vars($datos['ATM_ALTCEMRES']);
                 $rCode=201;
                 $res="Reference created successfully";
@@ -382,9 +383,7 @@ class ServicesHalcashController extends FosRestController
         }elseif($params[1]==='ES'){
             //arreglamos los centimos y el numero de telefono
             $params[2]=$params[2]/100;
-            if(substr($params[6],0,1)=='+'){
-                $params[6]=substr($params[6],1);
-            }
+            $params[6]=str_replace('+','',$params[6]);
 
             $transaction->setService($this->get('telepay.services')
                 ->findByName('HalcashSend')->getId());
@@ -397,6 +396,7 @@ class ServicesHalcashController extends FosRestController
                 $res="Service temporally unavailable, maybe deposit account has no funds?";
             }elseif($datos['errorcode']=='0'){
                 $transaction->setSuccessful(true);
+                $transaction->setStatus('ISSUED');
                 $rCode=201;
                 $res="HalCash generated successfully";
             }else{
@@ -416,6 +416,7 @@ class ServicesHalcashController extends FosRestController
 
         $dm->persist($transaction);
         $dm->flush();
+        $datos['id_telepay']=$transaction->getId();
         $resp = new ApiResponseBuilder(
             $rCode,
             $res,
@@ -514,8 +515,6 @@ class ServicesHalcashController extends FosRestController
             $params[]=$request->get($paramName, 'null');
         }
 
-        //die(print_r($params,true));
-
         $count=count($paramNames);
         $paramsMongo=array();
         for($i=0; $i<$count; $i++){
@@ -561,14 +560,11 @@ class ServicesHalcashController extends FosRestController
         }
         else throw new HttpException(400, "Bad country code");
 
-
-
         $datos=simplexml_load_string($datos);
 
         if(!$datos) throw new HttpException(502, "Empty response from halcash service");
 
         $datos=get_object_vars($datos);
-
 
         if(isset($datos['ATM_AUTCADERR'])){
             $transaction->setSuccessful(false);
@@ -639,7 +635,7 @@ class ServicesHalcashController extends FosRestController
      *          "description"="Cancel description"
      *      },
      *       {
-     *          "name"="ticket",
+     *          "name"="id_telepay",
      *          "dataType"="string",
      *          "required"="true",
      *          "description"="Ticket number to cancel."
@@ -657,7 +653,7 @@ class ServicesHalcashController extends FosRestController
         static $paramNames = array(
             'country',
             'reference',
-            'ticket'
+            'id_telepay'
         );
 
         //Get the parameters sent by POST and put them in a $params array
@@ -678,15 +674,6 @@ class ServicesHalcashController extends FosRestController
         $mode=$request->get('mode');
         if(!isset($mode))   $mode='P';
 
-        //Guardamos la request en mongo
-        $transaction = new Transaction();
-        $transaction->setIp($request->getClientIp());
-        $transaction->setTimeIn(time());
-
-        $transaction->setUser($this->get('security.context')->getToken()->getUser()->getId());
-        $transaction->setSentData(json_encode($params));
-        $transaction->setMode($mode === 'P');
-
         if($mode=='T'){
             throw new HttpException(503,'Test service unavailable');
         }
@@ -698,17 +685,25 @@ class ServicesHalcashController extends FosRestController
 
         }elseif($params[0]==='ES'){
 
+            $dm = $this->get('doctrine_mongodb')->getManager();
+            $transaction = $dm->getRepository('TelepayFinancialApiBundle:Transaction')
+                ->find($params[2]);
+            $ticket=$transaction->getReceivedData();
+            $ticket=json_decode($ticket);
+            $ticket=$ticket->halcashticket;
+            $reference=$params[1];
+
             $transaction->setService($this->get('telepay.services')
                 ->findByName('HalcashSend')->getId());
             $datos=$this->get('halcashsendsp.service')
                 ->getHalcashSend($mode)
-                ->send($params[0],$params[2],$params[3],$params[4],$params[5]);
+                ->cancelation($ticket,$reference);
 
             if($datos['errorcode']=='99'){
                 $rCode=503;
                 $res="Service temporally unavailable, maybe deposit account has no funds?";
             }elseif($datos['errorcode']=='0'){
-                $transaction->setSuccessful(true);
+                $transaction->setStatus('CANCELLED');
                 $rCode=201;
                 $res="HalCash generated successfully";
             }else{
@@ -716,16 +711,10 @@ class ServicesHalcashController extends FosRestController
                 $res="Service Unavailable, unknown error";
             }
 
-
         }
         else throw new HttpException(400, "Bad country code, allowed ones are MX and ES");
 
         //Guardamos la respuesta
-        $transaction->setReceivedData(json_encode($datos));
-        $dm = $this->get('doctrine_mongodb')->getManager();
-        $transaction->setTimeOut(time());
-        $transaction->setCompleted(true);
-
         $dm->persist($transaction);
         $dm->flush();
         $resp = new ApiResponseBuilder(

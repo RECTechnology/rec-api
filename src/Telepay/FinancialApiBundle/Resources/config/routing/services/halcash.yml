@@ -57,19 +57,19 @@ services_halcash_cancel:
     pattern:  /services/v1/halcash/cancel
     defaults: { _controller: Telepay\FinancialApiBundle\Controller\Services\ServicesHalcashController::cancel, _format: ~ }
     requirements:
-        _method: POST
+        _method: PUT
 
 services_halcash_cancel_sandbox:
     pattern:  /sandbox/services/v1/halcash/cancel
     defaults: { _controller: Telepay\FinancialApiBundle\Controller\Services\ServicesHalcashController::cancelTest, _format: ~ }
     requirements:
-        _method: POST
+        _method: PUT
 
 services_halcash_cancel_test:
     pattern:  /test/services/v1/halcash/cancel
     defaults: { _controller: Telepay\FinancialApiBundle\Controller\Services\ServicesHalcashController::cancelTest, _format: ~ }
     requirements:
-        _method: POST
+        _method: PUT
 
 ######################### HALCASH SERVICE STATS ############################
 
