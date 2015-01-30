@@ -148,19 +148,13 @@ class ServicesPaynetPaymentController extends FosRestController
         if(isset($datos['error_code'])){
             $transaction->setSuccessful(false);
             $rCode=400;
-            $resp = new ApiResponseBuilder(
-                400,
-                "Bad request",
-                $datos
-            );
+            $res="Bad request";
+
         }else{
             $transaction->setSuccessful(true);
             $rCode=201;
-            $resp = new ApiResponseBuilder(
-                201,
-                "Reference created successfully",
-                $datos
-            );
+            $res="Reference created successfully";
+
         }
 
         //Guardamos la respuesta
@@ -171,6 +165,12 @@ class ServicesPaynetPaymentController extends FosRestController
 
         $dm->persist($transaction);
         $dm->flush();
+
+        $resp = new ApiResponseBuilder(
+            $rCode,
+            $res,
+            $datos
+        );
 
         $view = $this->view($resp, $rCode);
 
@@ -299,23 +299,23 @@ class ServicesPaynetPaymentController extends FosRestController
             //If is not one of the first shows an error message.
             throw new HttpException(400,'Wrong require->Test with T or P');
         }
-        //die(print_r($datos,true));
+
         //Response
         if(isset($datos['error_code'])){
             $rCode=400;
-            $resp = new ApiResponseBuilder(
-                400,
-                "Bad request",
-                $datos
-            );
+            $res="Bad request";
+
         }else{
             $rCode=201;
-            $resp = new ApiResponseBuilder(
-                201,
-                "Reference created successfully",
-                $datos
-            );
+            $res="Reference created successfully";
+
         }
+
+        $resp = new ApiResponseBuilder(
+            $rCode,
+            $res,
+            $datos
+        );
 
         $view = $this->view($resp, $rCode);
 
@@ -667,24 +667,14 @@ class ServicesPaynetPaymentController extends FosRestController
         if(isset($datos['error_code'])){
             $transaction->setSuccessful(false);
             $transaction->setCompleted(false);
-
             $rCode=400;
-            $resp = new ApiResponseBuilder(
-                400,
-                "Bad request",
-                $datos
-            );
+            $res="Bad request";
         }else{
-            //die(print_r($datos,true));
             $transaction->setSuccessful(true);
             $transaction->setCompleted(true);
-
             $rCode=201;
-            $resp = new ApiResponseBuilder(
-                201,
-                "Reference created successfully",
-                $datos
-            );
+            $res="Reference created successfully";
+
         }
 
         //Guardamos la respuesta
@@ -694,6 +684,14 @@ class ServicesPaynetPaymentController extends FosRestController
 
         $dm->persist($transaction);
         $dm->flush();
+
+        $datos['id_telepay']=$transaction->getId();
+
+        $resp = new ApiResponseBuilder(
+            $rCode,
+            $res,
+            $datos
+        );
 
         $view = $this->view($resp, $rCode);
 

@@ -202,19 +202,13 @@ class ServicesPayuPaymentController extends FosRestController
         if(isset($datos['message'])){
             $transaction->setSuccessful(false);
             $rCode=400;
-            $resp = new ApiResponseBuilder(
-                400,
-                "Bad request",
-                $datos
-            );
+            $res="Bad request";
+
         }else{
             $transaction->setSuccessful(true);
             $rCode=201;
-            $resp = new ApiResponseBuilder(
-                201,
-                "Reference created successfully",
-                $datos
-            );
+            $res="Reference created successfully";
+
         }
 
         //Guardamos la respuesta
@@ -225,6 +219,14 @@ class ServicesPayuPaymentController extends FosRestController
 
         $dm->persist($transaction);
         $dm->flush();
+
+        $datos['id_telepay']=$transaction->getId();
+
+        $resp = new ApiResponseBuilder(
+            $rCode,
+            $res,
+            $datos
+        );
 
         $view = $this->view($resp, $rCode);
 
@@ -381,25 +383,17 @@ class ServicesPayuPaymentController extends FosRestController
             throw new HttpException(400,'Wrong require');
         }
 
-
-
         //Response
         if(isset($datos['error_code'])){
             $transaction->setSuccessful(false);
             $rCode=400;
-            $resp = new ApiResponseBuilder(
-                400,
-                "Bad request",
-                $datos
-            );
+            $res="Bad request";
+
         }else{
             $transaction->setSuccessful(true);
             $rCode=201;
-            $resp = new ApiResponseBuilder(
-                201,
-                "Reference created successfully",
-                $datos
-            );
+            $res="Reference created successfully";
+
         }
 
         //Guardamos la respuesta
@@ -410,6 +404,14 @@ class ServicesPayuPaymentController extends FosRestController
 
         $dm->persist($transaction);
         $dm->flush();
+
+        $datos['id_telepay']=$transaction->getId();
+
+        $resp = new ApiResponseBuilder(
+            $rCode,
+            $res,
+            $datos
+        );
 
         $view = $this->view($resp, $rCode);
 
@@ -451,6 +453,8 @@ class ServicesPayuPaymentController extends FosRestController
      * @Rest\View(statusCode=201)
      */
 
+
+    //TODO:esto esta mal
     public function report(Request $request){
 
         //Obtenemos el id de usuario para añadirlo a cada referencia única
@@ -493,8 +497,6 @@ class ServicesPayuPaymentController extends FosRestController
         $transaction->setUser($this->get('security.context')->getToken()->getUser()->getId());
         $transaction->setSentData(json_encode($paramsMongo));
         $transaction->setMode($mode === 'P');
-
-
 
         if($params[0]=='order'){
             //Function report_by_order_id

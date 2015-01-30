@@ -139,21 +139,14 @@ class ServicesSafetypayPaymentController extends FOSRestController
         //Response
         if($datos['error_number']==0){
             $transaction->setSuccessful(true);
-            //$datos['id']=$id;
             $rCode=201;
-            $resp = new ApiResponseBuilder(
-                201,
-                "Reference created successfully",
-                $datos
-            );
+            $res="Reference created successfully";
+
         }else{
             $transaction->setSuccessful(false);
             $rCode=400;
-            $resp = new ApiResponseBuilder(
-                400,
-                "Bad request",
-                $datos
-            );
+            $res="Bad request";
+
         }
 
         //Guardamos la respuesta
@@ -165,7 +158,13 @@ class ServicesSafetypayPaymentController extends FOSRestController
         $dm->persist($transaction);
         $dm->flush();
 
-        //$id2=$transaction->getId();
+        $datos['id_telepay']=$id;
+
+        $resp = new ApiResponseBuilder(
+            $rCode,
+            $res,
+            $datos
+        );
 
         $view = $this->view($resp, $rCode);
 

@@ -128,11 +128,7 @@ class ServicesUkashGenerateController extends FosRestController
                 $datos['IssuedExpiryDate']=$fecha;
                 $datos['IssuedAmount']=$amount;
                 $rCode=201;
-                $resp = new ApiResponseBuilder(
-                    $rCode,
-                    "Reference created successfully",
-                    $datos
-                );
+                $res="Reference created successfully";
             }else{
                 $transaction->setSuccessful(false);
                 $datos['txCode']="99";
@@ -142,11 +138,7 @@ class ServicesUkashGenerateController extends FosRestController
                 $fecha = gmdate("Y-m-d H:i:s", time() + (3600*24*15));
                 $datos['IssuedExpiryDate']="";
                 $rCode=400;
-                $resp = new ApiResponseBuilder(
-                    400,
-                    "Bad request",
-                    $datos
-                );
+                $res="Bad request";
             }
 
         }else{
@@ -159,20 +151,14 @@ class ServicesUkashGenerateController extends FosRestController
 
                 $transaction->setSuccessful(false);
                 $rCode=400;
-                $resp = new ApiResponseBuilder(
-                    400,
-                    "Bad request",
-                    $datos
-                );
+                $res="Bad request";
+
 
             }else{
                 $transaction->setSuccessful(true);
                 $rCode=201;
-                $resp = new ApiResponseBuilder(
-                    201,
-                    "Reference created successfully",
-                    $datos
-                );
+                $res="Reference created successfully";
+
             }
         }
 
@@ -186,6 +172,14 @@ class ServicesUkashGenerateController extends FosRestController
 
         $dm->persist($transaction);
         $dm->flush();
+
+        $datos['id_telepay']=$transaction->getId();
+
+        $resp = new ApiResponseBuilder(
+            $rCode,
+            $res,
+            $datos
+        );
 
         $view = $this->view($resp, $rCode);
 
@@ -367,19 +361,13 @@ class ServicesUkashGenerateController extends FosRestController
         if($datos['txCode']!=0){
             $transaction->setSuccessful(false);
             $rCode=400;
-            $resp = new ApiResponseBuilder(
-                400,
-                "Bad request",
-                $datos
-            );
+            $res="Bad request";
+
         }else{
             $transaction->setSuccessful(true);
             $rCode=201;
-            $resp = new ApiResponseBuilder(
-                201,
-                "Reference created successfully",
-                $datos
-            );
+            $res="Reference created successfully";
+
         }
 
         //Guardamos la respuesta
@@ -390,6 +378,14 @@ class ServicesUkashGenerateController extends FosRestController
 
         $dm->persist($transaction);
         $dm->flush();
+
+        $datos['id_telepay']=$transaction->getId();
+
+        $resp = new ApiResponseBuilder(
+            $rCode,
+            $res,
+            $datos
+        );
 
         $view = $this->view($resp, $rCode);
 
@@ -449,6 +445,7 @@ class ServicesUkashGenerateController extends FosRestController
      *
      */
 
+    //TODO: esta mal
     public function status(Request $request){
 
         //Obtenemos el id de usuario para añadirlo a cada referencia única

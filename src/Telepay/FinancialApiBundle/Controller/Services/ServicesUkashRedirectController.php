@@ -156,20 +156,13 @@ class ServicesUkashRedirectController extends FosRestController
         if($datos['error_number']!=0){
             $transaction->setSuccessful(false);
             $rCode=400;
-            $resp = new ApiResponseBuilder(
-                400,
-                "Bad request",
-                $datos
-            );
+            $res="Bad request";
+
         }else{
             $transaction->setSuccessful(true);
             $rCode=201;
-            $datos['id']=$id;
-            $resp = new ApiResponseBuilder(
-                201,
-                "Reference created successfully",
-                $datos
-            );
+            $res="Reference created successfully";
+
         }
 
         //Guardamos la respuesta
@@ -180,6 +173,14 @@ class ServicesUkashRedirectController extends FosRestController
 
         $dm->persist($transaction);
         $dm->flush();
+
+        $datos['id_telepay']=$id;
+
+        $resp = new ApiResponseBuilder(
+            $rCode,
+            $res,
+            $datos
+        );
 
         $view = $this->view($resp, $rCode);
 
@@ -213,6 +214,8 @@ class ServicesUkashRedirectController extends FosRestController
      * )
      *
      */
+
+    //TODO:esta mal
 
     public function status(Request $request){
 

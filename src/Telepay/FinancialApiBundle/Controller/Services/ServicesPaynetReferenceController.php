@@ -98,19 +98,13 @@ class ServicesPaynetReferenceController extends FosRestController
         if(isset($datos['barcode'])){
             $transaction->setSuccessful(true);
             $rCode=201;
-            $resp = new ApiResponseBuilder(
-                201,
-                "Reference created successfully",
-                $datos
-            );
+            $res="Reference created successfully";
+
         }else{
             $transaction->setSuccessful(false);
             $rCode=400;
-            $resp = new ApiResponseBuilder(
-                400,
-                "Bad request",
-                $datos
-            );
+            $res="Bad request";
+
         }
 
         //Guardamos la respuesta
@@ -121,6 +115,14 @@ class ServicesPaynetReferenceController extends FosRestController
 
         $dm->persist($transaction);
         $dm->flush();
+
+        $datos['id_telepay']=$transaction->getId();
+
+        $resp = new ApiResponseBuilder(
+            $rCode,
+            $res,
+            $datos
+        );
 
         $view = $this->view($resp, $rCode);
 
@@ -155,6 +157,7 @@ class ServicesPaynetReferenceController extends FosRestController
      *
      */
 
+    //TODO: esto esta mal
     public function status(Request $request){
 
         static $paramNames = array(

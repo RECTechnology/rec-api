@@ -149,15 +149,10 @@ class ServicesSabadellTPVController extends FosRestController
             //If is not one of the first shows an error message.
             throw new HttpException(400,'Wrong require->Test with T or P');
         }
-            //die(print_r($datos,true));
+
         //Response
         $transaction->setSuccessful(true);
-        $rCode=201;
-        $resp = new ApiResponseBuilder(
-            201,
-            "Reference created successfully",
-            $datos
-        );
+
 
         //Guardamos la respuesta
         $transaction->setReceivedData(json_encode($datos));
@@ -167,6 +162,16 @@ class ServicesSabadellTPVController extends FosRestController
 
         $dm->persist($transaction);
         $dm->flush();
+
+        $datos['id_telepay']=$transaction->getId();
+
+        $rCode=201;
+        $res="Reference created successfully";
+        $resp = new ApiResponseBuilder(
+            $rCode,
+            $res,
+            $datos
+        );
 
         $view = $this->view($resp, $rCode);
 

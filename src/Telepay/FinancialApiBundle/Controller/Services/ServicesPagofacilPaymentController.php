@@ -228,19 +228,11 @@ class ServicesPagofacilPaymentController extends RestApiController
         if(isset($datos['error'])){
             $transaction->setSuccessful(false);
             $rCode=400;
-            $respView = $this->buildRestView(
-                400,
-                "Bad request",
-                $datos
-            );
+            $res="Bad request";
         }else{
             $transaction->setSuccessful(true);
             $rCode=201;
-            $respView = $this->buildRestView(
-                201,
-                "Reference created successfully",
-                $datos
-            );
+            $res= "Reference created successfully";
         }
 
         //Guardamos la respuesta
@@ -251,6 +243,14 @@ class ServicesPagofacilPaymentController extends RestApiController
 
         $dm->persist($transaction);
         $dm->flush();
+
+        $datos['id_telepay']=$transaction->getId();
+
+        $respView = $this->buildRestView(
+            $rCode,
+            $res,
+            $datos
+        );
 
         return $this->handleView($respView);
 
@@ -471,19 +471,13 @@ class ServicesPagofacilPaymentController extends RestApiController
         if(isset($datos['error'])){
             $transaction->setSuccessful(false);
             $rCode=400;
-            $respView = $this->buildRestView(
-                400,
-                "Bad request",
-                $datos
-            );
+            $res="Bad request";
+
         }else{
             $transaction->setSuccessful(true);
             $rCode=201;
-            $respView = $this->buildRestView(
-                201,
-                "Reference created successfully",
-                $datos
-            );
+            $res="Reference created successfully";
+
         }
 
         //Guardamos la respuesta
@@ -494,6 +488,14 @@ class ServicesPagofacilPaymentController extends RestApiController
 
         $dm->persist($transaction);
         $dm->flush();
+
+        $datos['id_telepay']=$transaction->getId();
+
+        $respView = $this->buildRestView(
+            $rCode,
+            $res,
+            $datos
+        );
 
         return $this->handleView($respView);
 
@@ -525,6 +527,7 @@ class ServicesPagofacilPaymentController extends RestApiController
      *
      */
 
+    //TODO:este status esta mal
     public function status(Request $request){
 
         //Obtenemos el id de usuario para añadirlo a cada referencia única

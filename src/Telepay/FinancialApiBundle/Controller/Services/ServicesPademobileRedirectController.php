@@ -115,12 +115,6 @@ class ServicesPademobileRedirectController extends FosRestController
             ->request($params[0],$url_notification,$params[2],$params[3]);
 
         $transaction->setSuccessful(true);
-        $rCode=302;
-        $resp = new ApiResponseBuilder(
-            302,
-            "New Location generated successfully",
-            $datos
-        );
 
         //Guardamos la respuesta
         $transaction->setReceivedData(json_encode($datos));
@@ -130,6 +124,15 @@ class ServicesPademobileRedirectController extends FosRestController
 
         $dm->persist($transaction);
         $dm->flush();
+
+        $rCode=302;
+        $datos['id_telepay']=$transaction->getId();
+
+        $resp = new ApiResponseBuilder(
+            $rCode,
+            "New Location generated successfully",
+            $datos
+        );
 
         $view = $this->view($resp, $rCode);
 
@@ -241,12 +244,6 @@ class ServicesPademobileRedirectController extends FosRestController
             ->request($params[0],$url_notification,$params[2],$amount);
 
         $transaction->setSuccessful(true);
-        $rCode=302;
-        $resp = new ApiResponseBuilder(
-            302,
-            "New Location generated successfully",
-            $datos
-        );
 
         //Guardamos la respuesta
         $transaction->setReceivedData(json_encode($datos));
@@ -256,6 +253,14 @@ class ServicesPademobileRedirectController extends FosRestController
 
         $dm->persist($transaction);
         $dm->flush();
+
+        $rCode=302;
+        $datos['id_telepay']=$transaction->getId();
+        $resp = new ApiResponseBuilder(
+            $rCode,
+            "New Location generated successfully",
+            $datos
+        );
 
         $view = $this->view($resp, $rCode);
 

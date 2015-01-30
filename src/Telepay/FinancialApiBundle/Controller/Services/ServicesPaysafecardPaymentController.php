@@ -129,33 +129,24 @@ class ServicesPaysafecardPaymentController extends FOSRestController
         $dms = $this->get('doctrine_mongodb')->getManager();
         $dms->persist($transaction);
         $id=$transaction->getId();
-        //die(print_r($id,true));
 
         $url_base=$request->getSchemeAndHttpHost().$request->getBaseUrl();
 
         $url_notification=$url_base.'/notifications/v1/paysafecard';
-        //die(print_r('antes de datos',true));
         //Check if it's a Test or Production transaction
         $datos=$this->get('paysafecard.service')->getPaysafecard()-> request($mode,$params[0],$params[1],$params[2],$params[3],$params[4],$url_notification,$params[6]);
 
         //Response
         if($datos['error_number']==0){
             $transaction->setSuccessful(true);
-            //$datos['id']=$id;
             $rCode=201;
-            $resp = new ApiResponseBuilder(
-                201,
-                "Reference created successfully",
-                $datos
-            );
+            $res="Reference created successfully";
+
         }else{
             $transaction->setSuccessful(false);
             $rCode=400;
-            $resp = new ApiResponseBuilder(
-                400,
-                "Bad request",
-                $datos
-            );
+            $res="Bad request";
+
         }
 
         //Guardamos la respuesta
@@ -167,7 +158,13 @@ class ServicesPaysafecardPaymentController extends FOSRestController
         $dm->persist($transaction);
         $dm->flush();
 
-        //$id2=$transaction->getId();
+        $datos['id_telepay']=$transaction->getId();
+
+        $resp = new ApiResponseBuilder(
+            $rCode,
+            $res,
+            $datos
+        );
 
         $view = $this->view($resp, $rCode);
 
@@ -301,21 +298,14 @@ class ServicesPaysafecardPaymentController extends FOSRestController
         //Response
         if($datos['error_number']==0){
             $transaction->setSuccessful(true);
-            //$datos['id']=$id;
             $rCode=201;
-            $resp = new ApiResponseBuilder(
-                201,
-                "Reference created successfully",
-                $datos
-            );
+            $res="Reference created successfully";
+
         }else{
             $transaction->setSuccessful(false);
             $rCode=400;
-            $resp = new ApiResponseBuilder(
-                400,
-                "Bad request",
-                $datos
-            );
+            $res="Bad request";
+
         }
 
         //Guardamos la respuesta
@@ -326,6 +316,14 @@ class ServicesPaysafecardPaymentController extends FOSRestController
 
         $dm->persist($transaction);
         $dm->flush();
+
+        $datos['id_telepay']=$id;
+
+        $resp = new ApiResponseBuilder(
+            $rCode,
+            $res,
+            $datos
+        );
 
         $view = $this->view($resp, $rCode);
 

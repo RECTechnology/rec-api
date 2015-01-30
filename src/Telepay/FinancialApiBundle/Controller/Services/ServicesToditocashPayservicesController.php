@@ -160,29 +160,33 @@ class ServicesToditocashPayservicesController extends FosRestController
 
         if($datos['status']!='000'||isset($datos['error'])){
             $transaction->setSuccessful(false);
+            $transaction->setCompleted(false);
             $rCode=400;
-            $resp = new ApiResponseBuilder(
-                400,
-                "Bad request",
-                $datos
-            );
+            $res="Bad request";
+
         }else{
             $transaction->setSuccessful(true);
+            $transaction->setCompleted(true);
             $rCode=201;
-            $resp = new ApiResponseBuilder(
-                201,
-                "Reference created successfully",
-                $datos
-            );
+            $res="Reference created successfully";
+
         }
 
         //Guardamos la respuesta
         $transaction->setReceivedData(json_encode($datos));
         $dm = $this->get('doctrine_mongodb')->getManager();
         $transaction->setTimeOut(time());
-        $transaction->setCompleted(true);
+
         $dm->persist($transaction);
         $dm->flush();
+
+        $datos['id_telepay']=$transaction->getId();
+
+        $resp = new ApiResponseBuilder(
+            $rCode,
+            $res,
+            $datos
+        );
 
         $view = $this->view($resp, $rCode);
 
@@ -250,6 +254,8 @@ class ServicesToditocashPayservicesController extends FosRestController
      *
      */
 
+
+    //TODO: esto esta mal
     public function reverso(Request $request){
 
         //Obtenemos el id de usuario para añadirlo a cada referencia única
