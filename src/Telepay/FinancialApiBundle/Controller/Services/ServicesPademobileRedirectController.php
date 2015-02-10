@@ -126,7 +126,6 @@ class ServicesPademobileRedirectController extends FosRestController
         $dm->flush();
 
         $rCode=302;
-        $datos['id_telepay']=$transaction->getId();
 
         $resp = new ApiResponseBuilder(
             $rCode,
