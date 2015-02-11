@@ -44,5 +44,5 @@ MultivaNotifications:
     defaults: { _controller: Telepay\FinancialApiBundle\Controller\Notifications\NotificationsController::multivaNotification, _format: ~ }
 
 SabadellNotifications:
-    pattern:  /notifications/v1/sabadell
+    pattern:  /notifications/v1/sabadell/{id}
     defaults: { _controller: Telepay\FinancialApiBundle\Controller\Notifications\NotificationsController::sabadellNotification, _format: ~ }

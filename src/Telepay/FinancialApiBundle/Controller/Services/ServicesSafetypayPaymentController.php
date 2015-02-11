@@ -50,7 +50,7 @@ class ServicesSafetypayPaymentController extends FOSRestController
      *          "name"="amount",
      *          "dataType"="string",
      *          "required"="true",
-     *          "description"="Amount for the transaction. Ex: 100.00"
+     *          "description"="Amount for the transaction. Eg: 100.00 = 10000"
      *      },
      *      {
      *          "name"="url_success",
@@ -115,20 +115,22 @@ class ServicesSafetypayPaymentController extends FOSRestController
         $dms = $this->get('doctrine_mongodb')->getManager();
         $dms->persist($transaction);
         $id=$transaction->getId();
-        //die(print_r($id,true));
 
         $url_base=$request->getSchemeAndHttpHost().$request->getBaseUrl();
 
         $url_success=$url_base.'/notifications/v1/safetypay?tid='.$id.'&error=0';
         $url_fail=$url_base.'/notifications/v1/safetypay?tid='.$id.'&error=1';
 
+        //Convertimos de cents a 2 decimales
+        $amount= $params[2]/100;
+
         //Check if it's a Test or Production transaction
         if($mode=='T'){
             //Constructor in Test mode
-            $datos=$this->get('safetypay.service')->getSafetypayTest()-> request($params[0],$params[1],$params[2],$url_success,$url_fail);
+            $datos=$this->get('safetypay.service')->getSafetypayTest()-> request($params[0],$params[1],$amount,$url_success,$url_fail);
         }elseif($mode=='P'){
             //Constructor in Production mode
-            $datos=$this->get('safetypay.service')->getSafetypay()-> request($params[0],$params[1],$params[2],$url_success,$url_fail);
+            $datos=$this->get('safetypay.service')->getSafetypay()-> request($params[0],$params[1],$amount,$url_success,$url_fail);
         }else{
             //If is not one of the first shows an error message.
             throw new HttpException(400,'Wrong request');
@@ -137,21 +139,14 @@ class ServicesSafetypayPaymentController extends FOSRestController
         //Response
         if($datos['error_number']==0){
             $transaction->setSuccessful(true);
-            //$datos['id']=$id;
             $rCode=201;
-            $resp = new ApiResponseBuilder(
-                201,
-                "Reference created successfully",
-                $datos
-            );
+            $res="Reference created successfully";
+
         }else{
             $transaction->setSuccessful(false);
             $rCode=400;
-            $resp = new ApiResponseBuilder(
-                400,
-                "Bad request",
-                $datos
-            );
+            $res="Bad request";
+
         }
 
         //Guardamos la respuesta
@@ -163,7 +158,13 @@ class ServicesSafetypayPaymentController extends FOSRestController
         $dm->persist($transaction);
         $dm->flush();
 
-        //$id2=$transaction->getId();
+        $datos['id_telepay']=$id;
+
+        $resp = new ApiResponseBuilder(
+            $rCode,
+            $res,
+            $datos
+        );
 
         $view = $this->view($resp, $rCode);
 

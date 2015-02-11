@@ -22,3 +22,5 @@ parameters:
     mongodb_db: symfony
     version: 1.0
     build_id: "#1"
+
+    sabadell_secret: xuauoudpjpak78318334

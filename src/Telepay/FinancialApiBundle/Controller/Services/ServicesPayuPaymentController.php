@@ -66,7 +66,7 @@ class ServicesPayuPaymentController extends FosRestController
      *          "name"="amount",
      *          "dataType"="string",
      *          "required"="true",
-     *          "description"="Transaction amount. Ex: 100.00"
+     *          "description"="Transaction amount. Eg: 100.00 = 10000"
      *      },
      *      {
      *          "name"="card_number",
@@ -183,13 +183,16 @@ class ServicesPayuPaymentController extends FosRestController
         $transaction->setSentData(json_encode($paramsMongo));
         $transaction->setMode($mode === 'P');
 
+        //Convertimos de cents a dos decimales
+        $amount=$params[5]/100;
+
         //Check if it's a Test or Production transaction
         if($mode=='T'){
             //Constructor in Test mode
-            $datos=$this->get('payu.service')->getPayUPaymentTest($params[0],$params[1],$params[2],$params[3],$params[4],$params[5],$params[6])->transaction($params[7],$params[8],$params[9],$params[10],$params[11],$params[12]);
+            $datos=$this->get('payu.service')->getPayUPaymentTest($params[0],$params[1],$params[2],$params[3],$params[4],$amount,$params[6])->transaction($params[7],$params[8],$params[9],$params[10],$params[11],$params[12]);
         }elseif($mode=='P'){
             //Constructor in Production mode
-            $datos=$this->get('payu.service')->getPayUPayment($params[0],$params[1],$params[2],$params[3],$params[4],$params[5],$params[6])->transaction($params[7],$params[8],$params[9],$params[10],$params[11],$params[12]);
+            $datos=$this->get('payu.service')->getPayUPayment($params[0],$params[1],$params[2],$params[3],$params[4],$amount,$params[6])->transaction($params[7],$params[8],$params[9],$params[10],$params[11],$params[12]);
         }else{
             //If is not one of the first shows an error message.
             throw new HttpException(400,'Wrong require');
@@ -199,19 +202,13 @@ class ServicesPayuPaymentController extends FosRestController
         if(isset($datos['message'])){
             $transaction->setSuccessful(false);
             $rCode=400;
-            $resp = new ApiResponseBuilder(
-                400,
-                "Bad request",
-                $datos
-            );
+            $res="Bad request";
+
         }else{
             $transaction->setSuccessful(true);
             $rCode=201;
-            $resp = new ApiResponseBuilder(
-                201,
-                "Reference created successfully",
-                $datos
-            );
+            $res="Reference created successfully";
+
         }
 
         //Guardamos la respuesta
@@ -222,6 +219,14 @@ class ServicesPayuPaymentController extends FosRestController
 
         $dm->persist($transaction);
         $dm->flush();
+
+        $datos['id_telepay']=$transaction->getId();
+
+        $resp = new ApiResponseBuilder(
+            $rCode,
+            $res,
+            $datos
+        );
 
         $view = $this->view($resp, $rCode);
 
@@ -281,7 +286,7 @@ class ServicesPayuPaymentController extends FosRestController
      *          "name"="amount",
      *          "dataType"="string",
      *          "required"="true",
-     *          "description"="Transaction amount. Ex: 100.00"
+     *          "description"="Transaction amount. Eg: 100.00 = 10000."
      *      },
      *      {
      *          "name"="pay_method",
@@ -363,37 +368,32 @@ class ServicesPayuPaymentController extends FosRestController
         $transaction->setSentData(json_encode($paramsMongo));
         $transaction->setMode($mode === 'P');
 
+        //Convertimos de cents a dos decimales
+        $amount=$params[5]/100;
+
         //Check if it's a Test or Production transaction
         if($mode=='T'){
             //Constructor in Test mode
-            $datos=$this->get('payu.service')->getPayUPaymentTest($params[0],$params[1],$params[2],$params[3],$params[4],$params[5],$params[6])->payment($params[7]);
+            $datos=$this->get('payu.service')->getPayUPaymentTest($params[0],$params[1],$params[2],$params[3],$params[4],$amount,$params[6])->payment($params[7]);
         }elseif($mode=='P'){
             //Constructor in Production mode
-            $datos=$this->get('payu.service')->getPayUPayment($params[0],$params[1],$params[2],$params[3],$params[4],$params[5],$params[6])->payment($params[7]);
+            $datos=$this->get('payu.service')->getPayUPayment($params[0],$params[1],$params[2],$params[3],$params[4],$amount,$params[6])->payment($params[7]);
         }else{
             //If is not one of the first shows an error message.
             throw new HttpException(400,'Wrong require');
         }
 
-
-
         //Response
         if(isset($datos['error_code'])){
             $transaction->setSuccessful(false);
             $rCode=400;
-            $resp = new ApiResponseBuilder(
-                400,
-                "Bad request",
-                $datos
-            );
+            $res="Bad request";
+
         }else{
             $transaction->setSuccessful(true);
             $rCode=201;
-            $resp = new ApiResponseBuilder(
-                201,
-                "Reference created successfully",
-                $datos
-            );
+            $res="Reference created successfully";
+
         }
 
         //Guardamos la respuesta
@@ -404,6 +404,14 @@ class ServicesPayuPaymentController extends FosRestController
 
         $dm->persist($transaction);
         $dm->flush();
+
+        $datos['id_telepay']=$transaction->getId();
+
+        $resp = new ApiResponseBuilder(
+            $rCode,
+            $res,
+            $datos
+        );
 
         $view = $this->view($resp, $rCode);
 
@@ -445,6 +453,8 @@ class ServicesPayuPaymentController extends FosRestController
      * @Rest\View(statusCode=201)
      */
 
+
+    //TODO:esto esta mal
     public function report(Request $request){
 
         //Obtenemos el id de usuario para añadirlo a cada referencia única
@@ -487,8 +497,6 @@ class ServicesPayuPaymentController extends FosRestController
         $transaction->setUser($this->get('security.context')->getToken()->getUser()->getId());
         $transaction->setSentData(json_encode($paramsMongo));
         $transaction->setMode($mode === 'P');
-
-
 
         if($params[0]=='order'){
             //Function report_by_order_id

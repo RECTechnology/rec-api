@@ -88,6 +88,12 @@ class Transaction {
      */
     private $successful;
 
+    /**
+     * @var
+     * @MongoDB\String
+     */
+    private $status;
+
 
     /**
      * Get id
@@ -311,5 +317,21 @@ class Transaction {
     public function setIp($ip)
     {
         $this->ip = $ip;
+    }
+
+    /**
+     * @return mixed
+     */
+    public function getStatus()
+    {
+        return $this->status;
+    }
+
+    /**
+     * @param mixed $status
+     */
+    public function setStatus($status)
+    {
+        $this->status = $status;
     }
 }

@@ -34,7 +34,7 @@ class ServicesMultivaTPVController extends FosRestController
      *          "name"="amount",
      *          "dataType"="string",
      *          "required"="true",
-     *          "description"="Transaction Amount."
+     *          "description"="Transaction Amount in cents. Ej=>100.00=10000"
      *      },
      *      {
      *          "name"="transaction_id",
@@ -126,15 +126,10 @@ class ServicesMultivaTPVController extends FosRestController
             //If is not one of the first shows an error message.
             throw new HttpException(400,'Wrong require->Test with T or P');
         }
-            //die(print_r($datos,true));
+
         //Response
         $transaction->setSuccessful(true);
-        $rCode=201;
-        $resp = new ApiResponseBuilder(
-            201,
-            "Reference created successfully",
-            $datos
-        );
+
 
         //Guardamos la respuesta
         $transaction->setReceivedData(json_encode($datos));
@@ -144,6 +139,14 @@ class ServicesMultivaTPVController extends FosRestController
 
         $dm->persist($transaction);
         $dm->flush();
+
+        $rCode=201;
+        $datos['id_telepay']=$transaction->getId();
+        $resp = new ApiResponseBuilder(
+            201,
+            "Reference created successfully",
+            $datos
+        );
 
         $view = $this->view($resp, $rCode);
 

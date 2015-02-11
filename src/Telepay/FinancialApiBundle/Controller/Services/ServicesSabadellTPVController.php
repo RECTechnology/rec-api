@@ -34,7 +34,7 @@ class ServicesSabadellTPVController extends FosRestController
      *          "name"="amount",
      *          "dataType"="string",
      *          "required"="true",
-     *          "description"="Transaction Amount."
+     *          "description"="Transaction Amount in cents Eg: 100.00 = 10000."
      *      },
      *      {
      *          "name"="transaction_id",
@@ -115,7 +115,6 @@ class ServicesSabadellTPVController extends FosRestController
         }else{
             $params[1]=$userid.$params[1];
         }
-        //var_dump($params[2]);
 
         //Comprobamos modo Test
         $mode = $request->get('mode');
@@ -135,28 +134,25 @@ class ServicesSabadellTPVController extends FosRestController
         $id=$transaction->getId();
 
         $url_base=$request->getSchemeAndHttpHost().$request->getBaseUrl();
-        $url_notification=$url_base.'/notifications/v1/sabadell?tid='.$id;
+        $url_notification=$url_base.'/notifications/v1/sabadell/'.$id;
+
+        $amount=$params[0];
 
         //Check if it's a Test or Production transaction
         if($mode=='T'){
             //Constructor in Test mode
-            $datos=$this->get('sabadell.service')->getSabadellTest($params[0],$params[1],$params[2],$url_notification,$params[4],$params[5])-> request();
+            $datos=$this->get('sabadell.service')->getSabadellTest($amount,$params[1],$params[2],$url_notification,$params[4],$params[5])-> request();
         }elseif($mode=='P'){
             //Constructor in Production mode
-            $datos=$this->get('sabadell.service')->getSabadell($params[0],$params[1],$params[2],$url_notification,$params[4],$params[5])->request();
+            $datos=$this->get('sabadell.service')->getSabadell($amount,$params[1],$params[2],$url_notification,$params[4],$params[5])->request();
         }else{
             //If is not one of the first shows an error message.
             throw new HttpException(400,'Wrong require->Test with T or P');
         }
-            //die(print_r($datos,true));
+
         //Response
         $transaction->setSuccessful(true);
-        $rCode=201;
-        $resp = new ApiResponseBuilder(
-            201,
-            "Reference created successfully",
-            $datos
-        );
+
 
         //Guardamos la respuesta
         $transaction->setReceivedData(json_encode($datos));
@@ -166,6 +162,16 @@ class ServicesSabadellTPVController extends FosRestController
 
         $dm->persist($transaction);
         $dm->flush();
+
+        $datos['id_telepay']=$transaction->getId();
+
+        $rCode=201;
+        $res="Reference created successfully";
+        $resp = new ApiResponseBuilder(
+            $rCode,
+            $res,
+            $datos
+        );
 
         $view = $this->view($resp, $rCode);
 

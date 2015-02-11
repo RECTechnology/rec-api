@@ -61,7 +61,7 @@ class ServicesToditocashPayservicesController extends FosRestController
      *          "name"="amount",
      *          "dataType"="string",
      *          "required"="true",
-     *          "description"="Transaction amount."
+     *          "description"="Transaction amount in cents. Eg: 100.00 = 10000."
      *      },
      *      {
      *          "name"="concept",
@@ -142,12 +142,14 @@ class ServicesToditocashPayservicesController extends FosRestController
         $transaction->setSentData(json_encode($paramsMongo));
         $transaction->setMode($mode === 'P');
 
+        $amount=$params[5]/100;
+
         if($mode=='T'){
             //Request method
-            $datos=$this->get('todito.service')->getToditoCash()-> request($params[0],$params[1],$params[2],$params[3],$params[4],$params[5],$params[6],$params[7],'0');
+            $datos=$this->get('todito.service')->getToditoCash()-> request($params[0],$params[1],$params[2],$params[3],$params[4],$amount,$params[6],$params[7],'0');
         }elseif($mode=='P'){
             //Request method
-            $datos=$this->get('todito.service')->getToditoCash()-> request($params[0],$params[1],$params[2],$params[3],$params[4],$params[5],$params[6],$params[7],'1');
+            $datos=$this->get('todito.service')->getToditoCash()-> request($params[0],$params[1],$params[2],$params[3],$params[4],$amount,$params[6],$params[7],'1');
         }else{
             //If is not one of the first shows an error message.
             throw new HttpException(400,'Bad Request,check mode');
@@ -158,29 +160,33 @@ class ServicesToditocashPayservicesController extends FosRestController
 
         if($datos['status']!='000'||isset($datos['error'])){
             $transaction->setSuccessful(false);
+            $transaction->setCompleted(false);
             $rCode=400;
-            $resp = new ApiResponseBuilder(
-                400,
-                "Bad request",
-                $datos
-            );
+            $res="Bad request";
+
         }else{
             $transaction->setSuccessful(true);
+            $transaction->setCompleted(true);
             $rCode=201;
-            $resp = new ApiResponseBuilder(
-                201,
-                "Reference created successfully",
-                $datos
-            );
+            $res="Reference created successfully";
+
         }
 
         //Guardamos la respuesta
         $transaction->setReceivedData(json_encode($datos));
         $dm = $this->get('doctrine_mongodb')->getManager();
         $transaction->setTimeOut(time());
-        $transaction->setCompleted(true);
+
         $dm->persist($transaction);
         $dm->flush();
+
+        $datos['id_telepay']=$transaction->getId();
+
+        $resp = new ApiResponseBuilder(
+            $rCode,
+            $res,
+            $datos
+        );
 
         $view = $this->view($resp, $rCode);
 
@@ -248,6 +254,8 @@ class ServicesToditocashPayservicesController extends FosRestController
      *
      */
 
+
+    //TODO: esto esta mal
     public function reverso(Request $request){
 
         //Obtenemos el id de usuario para añadirlo a cada referencia única

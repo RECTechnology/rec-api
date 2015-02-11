@@ -37,7 +37,7 @@ class ServicesUkashRedirectController extends FosRestController
      *          "name"="amount",
      *          "dataType"="string",
      *          "required"="true",
-     *          "description"="Transaction amount."
+     *          "description"="Transaction amount in cents."
      *      },
      *      {
      *          "name"="transaction_id",
@@ -144,30 +144,25 @@ class ServicesUkashRedirectController extends FosRestController
         $dms = $this->get('doctrine_mongodb')->getManager();
         $dms->persist($transaction);
         $id=$transaction->getId();
-        //die(print_r($id,true));
 
         $url_notification='https://api.telepay.net/notifications/v1/ukashredirect?tid='.$id;
 
+        //Convertimos el amount de cents a 2 decimales
+        $amount=$params[0]/100;
+
         //Constructor
-        $datos=$this->get('ukash.service')->getUkash($mode)-> request($params[0],$params[1],$params[2],$params[3],$params[4],$params[5],$url_notification);
+        $datos=$this->get('ukash.service')->getUkash($mode)-> request($amount,$params[1],$params[2],$params[3],$params[4],$params[5],$url_notification);
 
         if($datos['error_number']!=0){
             $transaction->setSuccessful(false);
             $rCode=400;
-            $resp = new ApiResponseBuilder(
-                400,
-                "Bad request",
-                $datos
-            );
+            $res="Bad request";
+
         }else{
             $transaction->setSuccessful(true);
             $rCode=201;
-            $datos['id']=$id;
-            $resp = new ApiResponseBuilder(
-                201,
-                "Reference created successfully",
-                $datos
-            );
+            $res="Reference created successfully";
+
         }
 
         //Guardamos la respuesta
@@ -178,6 +173,14 @@ class ServicesUkashRedirectController extends FosRestController
 
         $dm->persist($transaction);
         $dm->flush();
+
+        $datos['id_telepay']=$id;
+
+        $resp = new ApiResponseBuilder(
+            $rCode,
+            $res,
+            $datos
+        );
 
         $view = $this->view($resp, $rCode);
 
@@ -211,6 +214,8 @@ class ServicesUkashRedirectController extends FosRestController
      * )
      *
      */
+
+    //TODO:esta mal
 
     public function status(Request $request){
 

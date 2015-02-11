@@ -35,7 +35,7 @@ class ServicesPaynetReferenceController extends FosRestController
      *          "name"="amount",
      *          "dataType"="string",
      *          "required"="true",
-     *          "description"="Allowed mount. Ex: '00001000'"
+     *          "description"="Allowed amount in cents. Eg: 100.00 = 10000."
      *      },
      *      {
      *          "name"="description",
@@ -89,25 +89,22 @@ class ServicesPaynetReferenceController extends FosRestController
         $transaction->setSentData(json_encode($paramsMongo));
         $transaction->setMode($mode === 'P');
 
+        //Convertimos el amount de centimos a dos decimales
+        $amount=$params[1]/100;
+
         //Constructor
-        $datos=$this->get('paynetref.service')->getPaynetGetBarcode()->request($params[0],$params[1],$params[2]);
+        $datos=$this->get('paynetref.service')->getPaynetGetBarcode()->request($params[0],$amount,$params[2]);
 
         if(isset($datos['barcode'])){
             $transaction->setSuccessful(true);
             $rCode=201;
-            $resp = new ApiResponseBuilder(
-                201,
-                "Reference created successfully",
-                $datos
-            );
+            $res="Reference created successfully";
+
         }else{
             $transaction->setSuccessful(false);
             $rCode=400;
-            $resp = new ApiResponseBuilder(
-                400,
-                "Bad request",
-                $datos
-            );
+            $res="Bad request";
+
         }
 
         //Guardamos la respuesta
@@ -118,6 +115,14 @@ class ServicesPaynetReferenceController extends FosRestController
 
         $dm->persist($transaction);
         $dm->flush();
+
+        $datos['id_telepay']=$transaction->getId();
+
+        $resp = new ApiResponseBuilder(
+            $rCode,
+            $res,
+            $datos
+        );
 
         $view = $this->view($resp, $rCode);
 
@@ -152,6 +157,7 @@ class ServicesPaynetReferenceController extends FosRestController
      *
      */
 
+    //TODO: esto esta mal
     public function status(Request $request){
 
         static $paramNames = array(
@@ -172,55 +178,29 @@ class ServicesPaynetReferenceController extends FosRestController
             $params[]=$request->query->get($paramName, 'null');
         }
 
-        $count=count($paramNames);
-        $paramsMongo=array();
-        for($i=0; $i<$count; $i++){
-            $paramsMongo[$paramNames[$i]]=$params[$i];
-        }
-
         //Comprobamos modo Test
         $mode = $request->get('mode');
         if(!isset($mode)) $mode = 'P';
-
-        //Guardamos la request en mongo
-        $transaction = new Transaction();
-        $transaction->setIp($request->getClientIp());
-        $transaction->setTimeIn(time());
-        $transaction->setService($this->get('telepay.services')->findByName('PaynetReference')->getId());
-        $transaction->setUser($this->get('security.context')->getToken()->getUser()->getId());
-        $transaction->setSentData(json_encode($paramsMongo));
-        $transaction->setMode($mode==='P');
 
         //Constructor
         $datos=$this->get('paynetref.service')->getPaynetGetStatus()->status($params[0]);
 
         //Response
         if($datos['error_code']==0){
-            $transaction->setSuccessful(false);
-            $rCode=400;
+            $rCode=201;
             $resp = new ApiResponseBuilder(
                 201,
-                "Reference created successfully",
+                "Request info successfully",
                 $datos
             );
         }else{
-            $transaction->setSuccessful(true);
-            $rCode=201;
+            $rCode=400;
             $resp = new ApiResponseBuilder(
                 400,
                 "Bad request",
                 $datos
             );
         }
-
-        //Guardamos la respuesta
-        $transaction->setReceivedData(json_encode($datos));
-        $dm = $this->get('doctrine_mongodb')->getManager();
-        $transaction->setTimeOut(time());
-        $transaction->setCompleted(true);
-        $transaction->setSuccessful(true);
-        $dm->persist($transaction);
-        $dm->flush();
 
         $view = $this->view($resp, $rCode);
 

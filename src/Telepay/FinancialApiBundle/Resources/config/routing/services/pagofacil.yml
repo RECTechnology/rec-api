@@ -1,4 +1,8 @@
+#######################  SERVICES ######################
 
+     #####   TRANSACTIONS   #####
+
+          ###   v1   ###
 
 services_pagofacil_payment_transaction:
     pattern:  /services/v1/pagofacil/payment/transaction
@@ -17,6 +21,28 @@ services_pagofacil_payment_transaction_test:
     defaults: { _controller: Telepay\FinancialApiBundle\Controller\Services\ServicesPagofacilPaymentController::transactionTest, _format: ~ }
     requirements:
         _method: POST
+
+          ###   V2   ###
+
+services_pagofacil_payment_transaction_v2:
+    pattern:  /services/v2/pagofacil/payment/transaction
+    defaults: { _controller: Telepay\FinancialApiBundle\Controller\Services\ServicesPagofacilPaymentController::transactionV2, _format: ~ }
+    requirements:
+        _method: POST
+
+services_pagofacil_payment_transaction_sandbox_v2:
+    pattern:  /sandbox/services/v2/pagofacil/payment/transaction
+    defaults: { _controller: Telepay\FinancialApiBundle\Controller\Services\ServicesPagofacilPaymentController::transactionTestV2, _format: ~ }
+    requirements:
+        _method: POST
+
+services_pagofacil_payment_transaction_test_v2:
+    pattern:  /test/services/v2/pagofacil/payment/transaction
+    defaults: { _controller: Telepay\FinancialApiBundle\Controller\Services\ServicesPagofacilPaymentController::transactionTestV2, _format: ~ }
+    requirements:
+        _method: POST
+
+     #####   STATUS   #####
 
 services_pagofacil_payment_status:
     pattern:  /services/v1/pagofacil/payment/status

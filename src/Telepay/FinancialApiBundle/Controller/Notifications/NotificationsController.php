@@ -300,7 +300,7 @@ class NotificationsController extends FOSRestController{
         }
 
         //Comprobamos el digest para saber que la transaccion viene de PROSA y no ha sido alterada
-        $newdigest  = sha1($paramsPost[1].$paramsPost[2].$paramsPost[3].$paramsPost[4].$paramsPost[5].$paramsPost[6]+"-"+$paramsPost[7]);
+        $newdigest  = sha1($paramsPost[1].$paramsPost[2].$paramsPost[3].$paramsPost[4].$paramsPost[5].$paramsPost[6]."-".$paramsPost[7]);
 
         if($newdigest==$paramsPost[8]){
             $dm = $this->get('doctrine_mongodb')->getManager();
@@ -346,12 +346,115 @@ class NotificationsController extends FOSRestController{
             return $this->handleView($view);
         }
 
+    }
 
+    public function sabadellNotification(Request $request,$id){
+
+        static $paramNames = array(
+            'Ds_Date',
+            'Ds_Hour',
+            'Ds_Amount',
+            'Ds_Currency',
+            'Ds_Order',
+            'Ds_MerchantCode',
+            'Ds_Terminal',
+            'Ds_Signature',
+            'Ds_Response',
+            'Ds_TransactionType',
+            'Ds_SecurePayment',
+            'Ds_MerchantData',
+            'Ds_Card_Country',
+            'Ds_AuthorisationCode',
+            'Ds_ConsumerLenguage',
+            'Ds_Card_Type'
+        );
+
+        $params=array();
+        foreach ($paramNames as $paramName){
+            $params[]=$request->get($paramName, 'null');
+        }
+
+        //Comprobamos modo Test
+        $mode = $request->get('mode');
+        if(!isset($mode)) $mode = 'P';
+
+        if($mode=='T'){
+            // Compute hash to sign form data
+            // $signature=sha1_hex($amount,$order,$code,$currency,$response,$clave);
+            $message = $params[2].$params[4].$params[5].$params[3].$params[8].$this->container->getParameter('sabadell_secret');
+        }else{
+            // Compute hash to sign form data
+            // $signature=sha1_hex($amount,$order,$code,$currency,$response,$clave);
+            $message = $params[2].$params[4].$params[5].$params[3].$params[8].$this->container->getParameter('sabadell_secret_test');
+        }
+
+        $signature = strtoupper(sha1($message));
+
+        if($signature==$params[7]){
+
+            $dm = $this->get('doctrine_mongodb')->getManager();
+            $query = $dm->createQueryBuilder('TelepayFinancialApiBundle:Transaction')
+                ->field('id')->equals($id)
+                ->getQuery()->execute();
+
+            $transArray = [];
+            foreach($query->toArray() as $transaction){
+                $transArray []= $transaction;
+            }
+            $result=$transArray[0];
+
+            if (!$result) {
+                throw new HttpException(400,'No transaction found');
+            }
+
+            $redirect=$result->getSentData();
+            $redirect=json_decode($redirect);
+            $redirect=get_object_vars($redirect);
+
+            if($params[8]<=99){
+
+                $status=1;
+                $result->setCompleted(true);
+                $dm->persist($result);
+                $dm->flush();
+
+            }else{
+
+                $status=0;
+
+            }
+
+            $data=array(
+                'status'=>$status,
+                'telepay_id'
+            );
+            // create curl resource
+            $ch = curl_init();
+            // set url
+            curl_setopt($ch, CURLOPT_URL, $redirect['url_notification']);
+            //return the transfer as a string
+            curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
+            curl_setopt($ch,CURLOPT_POST,true);
+            curl_setopt($ch,CURLOPT_POSTFIELDS,$data);
+            // $output contains the output string
+            $output = curl_exec($ch);
+            // close curl resource to free up system resources
+            curl_close($ch);
+
+            $view = $this->view('OK', '200');
+
+            return $this->handleView($view);
+
+        }
+
+        $view = $this->view('Error', '402');
+
+        return $this->handleView($view);
 
     }
 
-    public function sabadellNotification(Request $request){
-        //aun no sabemos como sera
-
+    public function sabadellNotificationTest(Request $request,$id){
+        $request->request->set('mode','T');
+        return $this->sabadellNotification($request,$id);
     }
 }
