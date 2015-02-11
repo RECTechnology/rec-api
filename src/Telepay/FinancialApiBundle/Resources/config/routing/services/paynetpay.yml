@@ -1,4 +1,3 @@
-
 services_paynet_payment_info:
     pattern:  /services/v1/paynet/payment/info
     defaults: { _controller: Telepay\FinancialApiBundle\Controller\Services\ServicesPaynetPaymentController::info, _format: ~ }

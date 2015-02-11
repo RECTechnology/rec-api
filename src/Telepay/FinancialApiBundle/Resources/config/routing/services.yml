@@ -49,3 +49,6 @@ Multiva:
 
 Sabadell:
     resource: services/sabadell.yml
+
+TransactionStatus:
+    resource: services/transactionstatus.yml

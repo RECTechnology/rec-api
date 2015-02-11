@@ -1,0 +1,20 @@
+
+######################### ROUTING ############################
+
+services_transaction_status:
+    pattern:  /services/v1/transaction/status/{id}
+    defaults: { _controller: Telepay\FinancialApiBundle\Controller\Services\TransactionStatus::status, _format: ~ }
+    requirements:
+        _method: GET
+
+services_transaction_status_sandbox:
+    pattern:  /sandbox/services/v1/transaction/status/{id}
+    defaults: { _controller: Telepay\FinancialApiBundle\Controller\Services\TransactionStatus::statusTest, _format: ~ }
+    requirements:
+        _method: GET
+
+services_transaction_status_test:
+    pattern:  /test/services/v1/transaction/status/{id}
+    defaults: { _controller: Telepay\FinancialApiBundle\Controller\Services\TranactionStatus::statusTest, _format: ~ }
+    requirements:
+        _method: GET
