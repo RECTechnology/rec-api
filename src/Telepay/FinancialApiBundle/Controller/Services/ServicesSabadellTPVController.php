@@ -134,7 +134,7 @@ class ServicesSabadellTPVController extends FosRestController
         $id=$transaction->getId();
 
         $url_base=$request->getSchemeAndHttpHost().$request->getBaseUrl();
-        $url_notification=$url_base.'/notifications/v1/sabadell?tid='.$id;
+        $url_notification=$url_base.'/notifications/v1/sabadell/'.$id;
 
         $amount=$params[0];
 
