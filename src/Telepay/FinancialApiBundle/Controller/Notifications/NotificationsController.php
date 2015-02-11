@@ -374,9 +374,19 @@ class NotificationsController extends FOSRestController{
             $params[]=$request->get($paramName, 'null');
         }
 
-        // Compute hash to sign form data
-        // $signature=sha1_hex($amount,$order,$code,$currency,$response,$clave);
-        $message = $params[2].$params[4].$params[5].$params[3].$params[8].$this->container->getParameter('sabadell_secret');
+        //Comprobamos modo Test
+        $mode = $request->get('mode');
+        if(!isset($mode)) $mode = 'P';
+
+        if($mode=='T'){
+            // Compute hash to sign form data
+            // $signature=sha1_hex($amount,$order,$code,$currency,$response,$clave);
+            $message = $params[2].$params[4].$params[5].$params[3].$params[8].$this->container->getParameter('sabadell_secret');
+        }else{
+            // Compute hash to sign form data
+            // $signature=sha1_hex($amount,$order,$code,$currency,$response,$clave);
+            $message = $params[2].$params[4].$params[5].$params[3].$params[8].$this->container->getParameter('sabadell_secret_test');
+        }
 
         $signature = strtoupper(sha1($message));
 
@@ -441,5 +451,10 @@ class NotificationsController extends FOSRestController{
 
         return $this->handleView($view);
 
+    }
+
+    public function sabadellNotificationTest(Request $request,$id){
+        $request->request->set('mode','T');
+        return $this->sabadellNotification($request,$id);
     }
 }
