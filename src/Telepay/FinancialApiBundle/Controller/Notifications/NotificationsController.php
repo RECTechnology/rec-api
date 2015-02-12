@@ -425,8 +425,8 @@ class NotificationsController extends FOSRestController{
             }
 
             $fields=array(
-                'status'        =>  urlencode($status),
-                'telepay_id'    =>  urlencode($id)
+                'status'        =>  $status,
+                'telepay_id'    =>  $id
             );
 
             $fields_string='';
