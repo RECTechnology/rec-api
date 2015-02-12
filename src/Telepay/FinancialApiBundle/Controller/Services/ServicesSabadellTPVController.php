@@ -134,15 +134,17 @@ class ServicesSabadellTPVController extends FosRestController
         $id=$transaction->getId();
 
         $url_base=$request->getSchemeAndHttpHost().$request->getBaseUrl();
-        $url_notification=$url_base.'/notifications/v1/sabadell/'.$id;
+
 
         $amount=$params[0];
 
         //Check if it's a Test or Production transaction
         if($mode=='T'){
+            $url_notification=$url_base.'/test/notifications/v1/sabadell/'.$id;
             //Constructor in Test mode
             $datos=$this->get('sabadell.service')->getSabadellTest($amount,$params[1],$params[2],$url_notification,$params[4],$params[5])-> request();
         }elseif($mode=='P'){
+            $url_notification=$url_base.'/notifications/v1/sabadell/'.$id;
             //Constructor in Production mode
             $datos=$this->get('sabadell.service')->getSabadell($amount,$params[1],$params[2],$url_notification,$params[4],$params[5])->request();
         }else{
