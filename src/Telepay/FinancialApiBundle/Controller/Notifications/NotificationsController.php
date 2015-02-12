@@ -434,7 +434,7 @@ class NotificationsController extends FOSRestController{
             curl_setopt($ch, CURLOPT_URL, $redirect['url_notification']);
             //return the transfer as a string
             curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
-            curl_setopt($ch,CURLOPT_POST,count($fields));
+            curl_setopt($ch,CURLOPT_POST,true);
             curl_setopt($ch,CURLOPT_POSTFIELDS,$fields);
             // $output contains the output string
             $output = curl_exec($ch);
