@@ -424,8 +424,10 @@ class NotificationsController extends FOSRestController{
 
             }
 
+            $id='"'.$id.'"';
+
             $fields=array(
-                'telepay_id'    =>  urldecode($id)
+                'telepay_id'    =>  $id
             );
 
             // create curl resource
