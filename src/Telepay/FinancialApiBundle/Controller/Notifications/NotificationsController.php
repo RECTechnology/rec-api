@@ -381,11 +381,11 @@ class NotificationsController extends FOSRestController{
         if($mode=='T'){
             // Compute hash to sign form data
             // $signature=sha1_hex($amount,$order,$code,$currency,$response,$clave);
-            $message = $params[2].$params[4].$params[5].$params[3].$params[8].$this->container->getParameter('sabadell_secret');
+            $message = $params[2].$params[4].$params[5].$params[3].$params[8].$this->container->getParameter('sabadell_secret_test');
         }else{
             // Compute hash to sign form data
             // $signature=sha1_hex($amount,$order,$code,$currency,$response,$clave);
-            $message = $params[2].$params[4].$params[5].$params[3].$params[8].$this->container->getParameter('sabadell_secret_test');
+            $message = $params[2].$params[4].$params[5].$params[3].$params[8].$this->container->getParameter('sabadell_secret');
         }
 
         $signature = strtoupper(sha1($message));
