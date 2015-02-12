@@ -424,19 +424,23 @@ class NotificationsController extends FOSRestController{
 
             }
 
-            $data=array(
-                'status'        =>  $status,
+            $fields=array(
+                'status'        =>  urlencode($status),
                 'telepay_id'    =>  urlencode($id)
             );
-            $datos=http_build_query($data);
+
+            $fields_string='';
+
+            foreach($fields as $key=>$value) { $fields_string .= $key.'='.$value.'&'; }
+            rtrim($fields_string, '&');
             // create curl resource
             $ch = curl_init();
             // set url
             curl_setopt($ch, CURLOPT_URL, $redirect['url_notification']);
             //return the transfer as a string
             curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
-            curl_setopt($ch,CURLOPT_POST,true);
-            curl_setopt($ch,CURLOPT_POSTFIELDS,$datos);
+            curl_setopt($ch,CURLOPT_POST,count($fields));
+            curl_setopt($ch,CURLOPT_POSTFIELDS,$fields_string);
             // $output contains the output string
             $output = curl_exec($ch);
             // close curl resource to free up system resources
