@@ -424,10 +424,9 @@ class NotificationsController extends FOSRestController{
 
             }
 
-            $data=array(
-                'status'=>$status,
-                'telepay_id'
-            );
+            $data='status='.urlencode($status).'&telepay_id='.$id;
+
+            
             // create curl resource
             $ch = curl_init();
             // set url
