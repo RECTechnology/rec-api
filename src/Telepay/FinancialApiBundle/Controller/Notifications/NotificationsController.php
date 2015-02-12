@@ -374,7 +374,6 @@ class NotificationsController extends FOSRestController{
             $params[]=$request->get($paramName, 'null');
         }
 
-        //TODO hgk
         //Comprobamos modo Test
         $mode = $request->get('mode');
         if(!isset($mode)) $mode = 'P';
@@ -427,7 +426,7 @@ class NotificationsController extends FOSRestController{
 
             $data=array(
                 'status'=>$status,
-                'telepay_id'
+                'telepay_id'=>$id
             );
             // create curl resource
             $ch = curl_init();
