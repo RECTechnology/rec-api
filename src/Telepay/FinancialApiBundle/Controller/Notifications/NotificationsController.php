@@ -425,8 +425,7 @@ class NotificationsController extends FOSRestController{
             }
 
             $fields=array(
-                'telepay_id'    =>  $id,
-                'status'    =>  $status
+                'telepay_id'    =>  $id
             );
 
             // create curl resource
@@ -436,7 +435,7 @@ class NotificationsController extends FOSRestController{
             //return the transfer as a string
             curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
             curl_setopt($ch,CURLOPT_POST,true);
-            curl_setopt($ch,CURLOPT_POSTFIELDS,$fields);
+            curl_setopt($ch,CURLOPT_POSTFIELDS,$id);
             // $output contains the output string
             $output = curl_exec($ch);
             // close curl resource to free up system resources
