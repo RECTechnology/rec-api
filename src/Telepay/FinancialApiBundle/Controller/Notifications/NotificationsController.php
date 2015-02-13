@@ -407,6 +407,8 @@ class NotificationsController extends FOSRestController{
                 throw new HttpException(400,'No transaction found');
             }
 
+            $transaction_id=$result->getId();
+
             $redirect=$result->getSentData();
             $redirect=json_decode($redirect);
             $redirect=get_object_vars($redirect);
@@ -425,7 +427,7 @@ class NotificationsController extends FOSRestController{
             }
 
             $fields=array(
-                'telepay_id'    =>  $redirect->getId()
+                'telepay_id'    =>  $transaction_id
             );
 
             // create curl resource
