@@ -25,7 +25,7 @@ class AccountController extends RestApiController{
         $user->setAccessToken(null);
         $user->setRefreshToken(null);
         $user->setAuthCode(null);
-        return $this->handleRestView(200, "Account info got successfully", $user);
+        return $this->rest(200, "Account info got successfully", $user);
     }
 
     /**
@@ -49,7 +49,7 @@ class AccountController extends RestApiController{
             ->count()
             ->getQuery()
             ->execute();
-        return $this->handleRestView(
+        return $this->rest(
             200, "Last hour speed got successfully", $last1hTrans
         );
     }
@@ -161,7 +161,7 @@ class AccountController extends RestApiController{
             ->getQuery()
             ->execute();
 
-        return $this->handleRestView(
+        return $this->rest(
             200,
             "Request successful",
             array(
