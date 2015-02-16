@@ -381,11 +381,11 @@ class NotificationsController extends FOSRestController{
         if($mode=='T'){
             // Compute hash to sign form data
             // $signature=sha1_hex($amount,$order,$code,$currency,$response,$clave);
-            $message = $params[2].$params[4].$params[5].$params[3].$params[8].$this->container->getParameter('sabadell_secret');
+            $message = $params[2].$params[4].$params[5].$params[3].$params[8].$this->container->getParameter('sabadell_secret_test');
         }else{
             // Compute hash to sign form data
             // $signature=sha1_hex($amount,$order,$code,$currency,$response,$clave);
-            $message = $params[2].$params[4].$params[5].$params[3].$params[8].$this->container->getParameter('sabadell_secret_test');
+            $message = $params[2].$params[4].$params[5].$params[3].$params[8].$this->container->getParameter('sabadell_secret');
         }
 
         $signature = strtoupper(sha1($message));
@@ -407,6 +407,8 @@ class NotificationsController extends FOSRestController{
                 throw new HttpException(400,'No transaction found');
             }
 
+            $transaction_id=$result->getId();
+
             $redirect=$result->getSentData();
             $redirect=json_decode($redirect);
             $redirect=get_object_vars($redirect);
@@ -424,10 +426,10 @@ class NotificationsController extends FOSRestController{
 
             }
 
-            $data=array(
-                'status'=>$status,
-                'telepay_id'
+            $fields=array(
+                'telepay_id'    =>  $transaction_id
             );
+
             // create curl resource
             $ch = curl_init();
             // set url
@@ -435,7 +437,7 @@ class NotificationsController extends FOSRestController{
             //return the transfer as a string
             curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
             curl_setopt($ch,CURLOPT_POST,true);
-            curl_setopt($ch,CURLOPT_POSTFIELDS,$data);
+            curl_setopt($ch,CURLOPT_POSTFIELDS,$fields);
             // $output contains the output string
             $output = curl_exec($ch);
             // close curl resource to free up system resources

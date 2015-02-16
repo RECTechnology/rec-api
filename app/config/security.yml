@@ -53,7 +53,12 @@ security:
             security:   false
 
         notifications_curl:
-            pattern:    ^/notifications/
+            pattern:    ^/notifications
+            stateless:  true
+            security:   false
+
+        notifications_test:
+            pattern:    ^/test/notifications
             stateless:  true
             security:   false
 
