@@ -39,7 +39,7 @@ abstract class BaseApiController extends RestApiController implements Repository
 
         $entities = array_slice($all, $offset, $limit);
 
-        return $this->handleRestView(
+        return $this->rest(
             200,
             "Request successful",
             array(
@@ -60,7 +60,7 @@ abstract class BaseApiController extends RestApiController implements Repository
 
         if(empty($entities)) throw new HttpException(404, "Not found");
 
-        return $this->handleRestView(200, "Request successful", $entities);
+        return $this->rest(200, "Request successful", $entities);
     }
 
     protected function createAction(Request $request){
@@ -93,7 +93,7 @@ abstract class BaseApiController extends RestApiController implements Repository
             throw new HttpException(500, "Unknown error occurred when save");
         }
 
-        return $this->handleRestView(201, "Request successful", array('id'=>$entity->getId()));
+        return $this->rest(201, "Request successful", array('id'=>$entity->getId()));
     }
 
     protected function updateAction(Request $request, $id){
@@ -132,7 +132,7 @@ abstract class BaseApiController extends RestApiController implements Repository
             throw new HttpException(500, "Unknown error occurred when save");
         }
 
-        return $this->handleRestView(204, "Updated successfully");
+        return $this->rest(204, "Updated successfully");
     }
 
     protected function deleteAction($id){
@@ -148,7 +148,7 @@ abstract class BaseApiController extends RestApiController implements Repository
         $em->remove($entity);
         $em->flush();
 
-        return $this->handleRestView(204, "Deleted successfully", array());
+        return $this->rest(204, "Deleted successfully", array());
     }
 
     private function attributeToSetter($str) {

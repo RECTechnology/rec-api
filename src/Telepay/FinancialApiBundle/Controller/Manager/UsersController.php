@@ -52,7 +52,7 @@ class UsersController extends BaseApiController
             array('token'=>$this->get('security.context')->getToken()->getToken())
         );
 
-        return $this->handleRestView(
+        return $this->rest(
             200,
             "yeagh accesstokensss",
             $token2
@@ -99,7 +99,7 @@ class UsersController extends BaseApiController
             $elem->setAuthCode(null);
         }, $entities);
 
-        return $this->handleRestView(
+        return $this->rest(
             200,
             "Request successful",
             array(
@@ -142,7 +142,7 @@ class UsersController extends BaseApiController
         $entities->setAccessToken(null);
         $entities->setRefreshToken(null);
         $entities->setAuthCode(null);
-        return $this->handleRestView(200, "Request successful", $entities);
+        return $this->rest(200, "Request successful", $entities);
     }
 
 
@@ -178,7 +178,7 @@ class UsersController extends BaseApiController
 
         try{
             $em->flush();
-            return $this->handleRestView(
+            return $this->rest(
                 204,
                 "Image changed successfully"
             );
@@ -255,7 +255,7 @@ class UsersController extends BaseApiController
             $this->_addService($id, $service);
         }
 
-        return $this->handleRestView(204, "Edited");
+        return $this->rest(204, "Edited");
     }
 
 
@@ -266,7 +266,7 @@ class UsersController extends BaseApiController
         $serviceId = $request->get('service_id');
         if(empty($serviceId)) throw new HttpException(400, "Missing parameter 'service_id'");
         $this->_addService($id, $serviceId);
-        return $this->handleRestView(201, "Service added successfully", array());
+        return $this->rest(201, "Service added successfully", array());
     }
 
     /**
@@ -274,7 +274,7 @@ class UsersController extends BaseApiController
      */
     public function deleteService($id, $service_id){
         $this->_deleteService($id, $service_id);
-        return $this->handleRestView(
+        return $this->rest(
             204,
             "Service deleted from user successfully"
         );

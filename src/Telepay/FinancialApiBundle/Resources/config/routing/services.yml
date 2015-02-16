@@ -50,5 +50,8 @@ Multiva:
 Sabadell:
     resource: services/sabadell.yml
 
+Bitcoin:
+    resource: services/bitcoin.yml
+
 TransactionStatus:
     resource: services/transactionstatus.yml
