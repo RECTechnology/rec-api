@@ -148,7 +148,7 @@ class Bitcoin extends UserServiceController {
      * @Rest\View
      */
     public function createPaymentTest(Request $request) {
-        throw new HttpException(501, "Test method not implemented / TODO");
+        throw new HttpException(501, "Test method not implemented");
     }
 
     /**
@@ -207,7 +207,7 @@ class Bitcoin extends UserServiceController {
      * @Rest\View
      */
     public function checkPaymentTest(Request $request, $id, $mode = true) {
-        throw new HttpException(501, "Test method not implemented / TODO");
+        throw new HttpException(501, "Test method not implemented");
     }
 
 
