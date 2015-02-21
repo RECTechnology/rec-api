@@ -1,0 +1,19 @@
+{
+  "name": "Telepay Management API",
+  "version": "0.2.1",
+  "description": "Documentation for management API in Telepay",
+  "title": "Telepay - Management API",
+  "url" : "https://api.telepay.net",
+  "sampleUrl" : "https://api.telepay.net/sandbox",
+  "order": [
+    "GenerateAccessToken",
+    "GetClients",
+    "GetClient",
+    "UpdateClient",
+    "DeleteClient"
+  ],
+  "template": {
+    "withCompare": true,
+    "withGenerator": true
+  }
+}
