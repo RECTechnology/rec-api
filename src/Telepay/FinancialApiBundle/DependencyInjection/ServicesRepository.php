@@ -94,6 +94,11 @@ class ServicesRepository{
             'id' => 16,
             'name' => 'Sabadell',
             'role' => 'ROLE_SERVICES_SABADELL',
+        ),
+        array(
+            'id' => 17,
+            'name' => 'BitcoinCharge',
+            'role' => 'ROLE_SERVICES_BITCOIN_CHARGE',
         )
 
     );

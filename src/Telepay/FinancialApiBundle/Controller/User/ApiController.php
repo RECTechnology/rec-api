@@ -20,7 +20,7 @@ class ApiController extends RestApiController{
      * @Rest\View
      */
     public function version(Request $request){
-        return $this->handleRestView(
+        return $this->rest(
             200,
             "Version info got successfully",
             array(

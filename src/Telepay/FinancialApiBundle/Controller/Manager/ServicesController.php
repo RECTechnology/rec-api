@@ -24,7 +24,7 @@ class ServicesController extends RestApiController {
      */
     public function read($id) {
         $servicesRepo = new ServicesRepository();
-        return $this->handleRestView(
+        return $this->rest(
             200,
             "Service got successfully",
             $servicesRepo->findById($id)

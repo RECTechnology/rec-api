@@ -51,7 +51,7 @@ abstract class BaseAnalytics extends RestApiController{
         $start = $offset;
         $end = $offset+count($transArray);
 
-        return $this->handleRestView(
+        return $this->rest(
             200,
             "Request successful",
             array(
@@ -128,7 +128,7 @@ abstract class BaseAnalytics extends RestApiController{
             ->getQuery()
             ->execute();
 
-        return $this->handleRestView(
+        return $this->rest(
             200,
             "Request successful",
             array(
