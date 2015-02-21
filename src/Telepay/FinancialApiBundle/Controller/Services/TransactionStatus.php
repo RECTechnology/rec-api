@@ -29,13 +29,17 @@ class TransactionStatus extends FOSRestController{
             ->field('user')->equals($user)
             ->getQuery()->execute();
 
+        if(!$query){
+            throw new HttpException(400,'User not found');
+        }
+
         $transArray = [];
         foreach($query->toArray() as $transaction){
             $transArray []= $transaction;
+            //die(print_r($transaction,true));
         }
+
         $result=$transArray[0];
-
-
 
         $resp = new ApiResponseBuilder(
             $rCode=201,
@@ -46,7 +50,6 @@ class TransactionStatus extends FOSRestController{
         $view = $this->view($resp, $rCode);
 
         return $this->handleView($view);
-
 
     }
 

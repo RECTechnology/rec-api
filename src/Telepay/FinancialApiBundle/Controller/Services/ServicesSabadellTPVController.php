@@ -185,4 +185,64 @@ class ServicesSabadellTPVController extends FosRestController
         $request->request->set('mode','T');
         return $this->generate($request);
     }
+
+    /**
+     * Returns needed parameters to obtain Sabadell TPV.
+     *
+     * @ApiDoc(
+     *   section="TPV Sabadell",
+     *   description="This method allows client to get the parameters for generate a tpv of an existing transaction.",
+     *   https="true",
+     *   statusCodes={
+     *       201="Returned when the request was successful",
+     *       400="Returned when the request was bad",
+     *   },
+     *   parameters={}
+     * )
+     *
+     */
+
+    public function regenerate(Request $request,$id){
+
+        $user=$this->get('security.context')->getToken()->getUser()->getId();
+
+        $dm = $this->get('doctrine_mongodb')->getManager();
+        $tid=$id;
+        $query = $dm->createQueryBuilder('TelepayFinancialApiBundle:Transaction')
+            ->field('id')->equals($tid)
+            ->field('user')->equals($user)
+            ->getQuery()->execute();
+
+        if(!$query){
+            throw new HttpException(400,'User not found');
+        }
+
+        $transArray = [];
+        foreach($query->toArray() as $transaction){
+            $transArray []= $transaction;
+            //die(print_r($transaction,true));
+        }
+
+        $result=$transArray[0]->getReceivedData();
+
+        $result=json_decode($result);
+
+        $result=get_object_vars($result);
+
+        $resp = new ApiResponseBuilder(
+            $rCode=201,
+            "Transaction info got succesfull",
+            $result
+        );
+
+        $view = $this->view($resp, $rCode);
+
+        return $this->handleView($view);
+
+    }
+
+    public function regenerateTest(Request $request,$id){
+        $request->request->set('mode','T');
+        return $this->regenerate($request,$id);
+    }
 }
