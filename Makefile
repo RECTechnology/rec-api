@@ -1,8 +1,8 @@
 
-all: check-deps doc
+all: test doc
 
-check-deps:
-	which apidoc
+test:
+	phpunit
 
 doc:
 	apidoc -i src/ -o build/doc/services
