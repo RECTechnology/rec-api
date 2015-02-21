@@ -5,6 +5,13 @@
   "title": "Services API - Telepay",
   "url" : "https://api.telepay.net/services",
   "sampleUrl" : "https://api.telepay.net/sandbox/services",
+  "header": {
+    "title": "Services API",
+    "filename": "header.md"
+  },
+  "footer": {
+    "filename": "../footer.md"
+  },
   "order": [
     "GenerateAccessToken",
     "GetClients",
@@ -14,6 +21,6 @@
   ],
   "template": {
     "withCompare": true,
-    "withGenerator": true
+    "withGenerator": false
   }
 }
