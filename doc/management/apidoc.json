@@ -1,8 +1,8 @@
 {
   "name": "Telepay Management API",
-  "version": "0.2.1",
-  "description": "Documentation for management API in Telepay",
-  "title": "Telepay - Management API",
+  "version": "0.1.0",
+  "description": "Documentation for Telepay Management API",
+  "title": "Management API - Telepay",
   "url" : "https://api.telepay.net",
   "sampleUrl" : "https://api.telepay.net/sandbox",
   "order": [
