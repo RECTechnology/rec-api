@@ -1,5 +1,5 @@
 
-all: test doc
+all: clean test doc
 
 test:
 	phpunit
