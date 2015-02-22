@@ -105,15 +105,16 @@ class ServicesSabadellTPVController extends FosRestController
             $paramsMongo[$paramNames[$i]]=$params[$i];
         }
 
-        //Concatenamos la referencia añadiendole el idusuario (0000)
+        //Concatenamos la referencia añadiendole el idusuario (0000) i le ponemos 2 ceros detras
+        //que son como un contador para que la misma tpv se pueda generar varias veces
         if($userid < 10){
-            $params[1]='000'.$userid.$params[1];
+            $params[1]='000'.$userid.$params[1].'00';
         }elseif($userid<100){
-            $params[1]='00'.$userid.$params[1];
+            $params[1]='00'.$userid.$params[1].'00';
         }elseif($userid<1000){
-            $params[1]='0'.$userid.$params[1];
+            $params[1]='0'.$userid.$params[1].'00';
         }else{
-            $params[1]=$userid.$params[1];
+            $params[1]=$userid.$params[1].'00';
         }
 
         //Comprobamos modo Test
@@ -134,7 +135,6 @@ class ServicesSabadellTPVController extends FosRestController
         $id=$transaction->getId();
 
         $url_base=$request->getSchemeAndHttpHost().$request->getBaseUrl();
-
 
         $amount=$params[0];
 
@@ -223,7 +223,53 @@ class ServicesSabadellTPVController extends FosRestController
             //die(print_r($transaction,true));
         }
 
-        $result=$transArray[0]->getReceivedData();
+        //RECUPERAMOS TODOS LOS PARAMETROS Y VOLVEMOS A MONTAR LA TPV PARA PODER CAMBIAR EL TRANSACTION ID Y VOLVER A CALCULAR AL FIRMA Y TO DO
+
+        $tpv_data=$transArray[0]->getSentData();
+
+        $tpv_data=json_decode(($tpv_data));
+
+        $tpv_data=get_object_vars($tpv_data);
+
+        $mode=$transArray[0]->getMode();
+
+        if($mode==true){
+            $mode='P';
+        }else{
+            $mode='T';
+        }
+
+        $amount=$tpv_data['amount'];
+        $tpv_data['transaction_id']=$tpv_data['transaction_id']+1;
+        $transaction_id=$tpv_data['transaction_id'];
+        $description=$tpv_data['description'];
+        $url_notification=$tpv_data['url_notification'];
+        $url_ok=$tpv_data['url_ok'];
+        $url_ko=$tpv_data['url_ko'];
+
+        //Check if it's a Test or Production transaction
+        if($mode=='T'){
+            //Constructor in Test mode
+            $datos=$this->get('sabadell.service')->getSabadellTest($amount,$transaction_id,$description,$url_notification,$url_ok,$url_ko)-> request();
+        }elseif($mode=='P'){
+            //Constructor in Production mode
+            $datos=$this->get('sabadell.service')->getSabadell($amount,$transaction_id,$description,$url_notification,$url_ok,$url_ko)->request();
+        }else{
+            //If is not one of the first shows an error message.
+            throw new HttpException(400,'Wrong require->Test with T or P');
+        }
+
+        $trans=$transArray[0];
+        $trans->setSentData(json_encode($tpv_data));
+        $trans->setReceivedData(json_encode($datos));
+
+
+        $dms = $this->get('doctrine_mongodb')->getManager();
+        $dms->persist($trans);
+        $dms->flush();
+
+
+        $result=$trans->getReceivedData();
 
         $result=json_decode($result);
 

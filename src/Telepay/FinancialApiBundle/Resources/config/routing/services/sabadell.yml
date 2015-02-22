@@ -22,19 +22,19 @@ services_sabadell_regenerate:
     pattern:  /services/v1/sabadell/generate/{id}
     defaults: { _controller: Telepay\FinancialApiBundle\Controller\Services\ServicesSabadellTPVController::regenerate, _format: ~ }
     requirements:
-        _method: GET
+        _method: PUT
 
 services_sabadell_regenerate_sandbox:
     pattern:  /sandbox/services/v1/sabadell/generate/{id}
     defaults: { _controller: Telepay\FinancialApiBundle\Controller\Services\ServicesSabadellTPVController::regenerateTest, _format: ~ }
     requirements:
-        _method: GET
+        _method: PUT
 
 services_sabadell_regenerate_test:
     pattern:  /test/services/v1/sabadell/generate/{id}
     defaults: { _controller: Telepay\FinancialApiBundle\Controller\Services\ServicesSabadellTPVController::regenerateTest, _format: ~ }
     requirements:
-        _method: GET
+        _method: PUT
 
 
 
