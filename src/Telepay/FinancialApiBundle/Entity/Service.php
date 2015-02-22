@@ -8,23 +8,27 @@
 
 namespace Telepay\FinancialApiBundle\Entity;
 
-use Doctrine\ORM\Mapping as ORM;
-
 
 class Service {
 
     private $id;
 
-
     private $name;
 
+    private $cannonical_name;
+
+    private $url;
+
+    private $base64_image;
 
     private $role;
 
-    public function __construct($id, $name, $role){
+    public function __construct($id, $name, $cname, $base64Image, $role){
         $this->id=$id;
         $this->name=$name;
         $this->role=$role;
+        $this->cannonical_name=$cname;
+        $this->base64_image=$base64Image;
     }
 
     /**
@@ -51,6 +55,29 @@ class Service {
         return $this->id;
     }
 
+    /**
+     * @return mixed
+     */
+    public function getCannonicalName()
+    {
+        return $this->cannonical_name;
+    }
+
+    /**
+     * @return mixed
+     */
+    public function getBase64Image()
+    {
+        return $this->base64_image;
+    }
+
+    /**
+     * @return mixed
+     */
+    public function getUrl()
+    {
+        return $this->url;
+    }
 
 
 }
