@@ -23,7 +23,8 @@ class ServicesController extends RestApiController
      * @Rest\View()
      */
     public function index() {
-        $servicesRepo = new ServicesRepository();
+        $servicesRepo = $this->get('telepay.services');
+
         return $this->handleView($this->buildRestView(
             200,
             "Services got successfully",

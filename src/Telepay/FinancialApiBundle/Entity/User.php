@@ -12,6 +12,7 @@ use FOS\UserBundle\Model\User as BaseUser;
 use Doctrine\ORM\Mapping as ORM;
 use Symfony\Component\HttpKernel\Exception\HttpException;
 use Symfony\Component\Security\Core\Util\SecureRandom;
+//use Telepay\FinancialApiBundle\DependencyInjection\Services\Core\Service;
 use Telepay\FinancialApiBundle\DependencyInjection\ServicesRepository;
 
 /**
@@ -113,6 +114,7 @@ class User extends BaseUser
      */
     public function getAllowedServices()
     {
+        return array();
         $services = array();
         $servicesRepo = new ServicesRepository();
         foreach($this->getRoles() as $role){
@@ -127,7 +129,7 @@ class User extends BaseUser
     /**
      * @param Service $service
      */
-    public function addAllowedService(Service $service)
+    public function addAllowedService($service)
     {
         $this->addRole($service->getRole());
     }

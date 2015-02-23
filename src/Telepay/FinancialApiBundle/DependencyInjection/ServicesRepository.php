@@ -10,11 +10,10 @@ namespace Telepay\FinancialApiBundle\DependencyInjection;
 
 
 use Symfony\Component\HttpKernel\Exception\HttpException;
-use Telepay\FinancialApiBundle\Entity\Service;
 
 class ServicesRepository{
 
-
+/**
     public static $SERVICES_SAMPLE = "sample";
     public static $SERVICES_PAYNET_PAYMENT = "paynet_payment";
     public static $SERVICES_PAGOFACIL = "pagofacil";
@@ -192,6 +191,7 @@ class ServicesRepository{
     }
 
     public function findByCName($name){
+        return $this
         foreach(ServicesRepository::$SERVICES as $serviceArray){
             if($serviceArray['cname'] == $name){
                 return new Service(
@@ -206,5 +206,5 @@ class ServicesRepository{
         throw new HttpException(404, "Service not found");
 
     }
-
+*/
 }

@@ -55,3 +55,21 @@ Bitcoin:
 
 TransactionStatus:
     resource: services/transactionstatus.yml
+
+
+service_test_call:
+    pattern:  /sandbox/services/v1/{service_cname}/{service_function}
+    defaults: { _controller: Telepay\FinancialApiBundle\Controller\Transactions\TransactionsController::makeTest, _format: ~ }
+    requirements:
+        _method: GET|POST
+        service_cname: "[a-z0-9_]+"
+        service_function: "[a-z0-9_]+"
+
+service_test_call_with_id:
+    pattern:  /sandbox/services/v1/{service_cname}/{service_function}/{id}
+    defaults: { _controller: Telepay\FinancialApiBundle\Controller\Transactions\TransactionsController::makeTest, _format: ~ }
+    requirements:
+        _method: POST
+        service_cname: "[a-z0-9_]+"
+        service_function: "[a-z0-9_]+"
+        id: "[a-z0-9]+"

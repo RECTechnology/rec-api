@@ -12,7 +12,18 @@ services:
         arguments: ["@fos_user.user_manager"]
 
     telepay.services:
-        class: Telepay\FinancialApiBundle\DependencyInjection\ServicesRepository
+        class: Telepay\FinancialApiBundle\DependencyInjection\ServicesRepository2
+        arguments:
+            sample: "@net.telepay.services.sample"
+            sample2: "@net.telepay.services.sample"
+
+
+    net.telepay.services.ukash:
+        class: Telepay\FinancialApiBundle\DependencyInjection\Services\Ukash
+
+    net.telepay.services.sample:
+        class: Telepay\FinancialApiBundle\DependencyInjection\Transactions\SampleService
+        arguments: ["@security.context","@doctrine_mongodb","@doctrine"]
 
     ukash.service:
         class: Telepay\FinancialApiBundle\DependencyInjection\Services\Ukash
@@ -60,7 +71,7 @@ services:
         class: Telepay\FinancialApiBundle\DependencyInjection\Services\Paysafecard
 
     multiva.service:
-            class: Telepay\FinancialApiBundle\DependencyInjection\Services\MultivaTPV
+        class: Telepay\FinancialApiBundle\DependencyInjection\Services\MultivaTPV
 
     sabadell.service:
-                class: Telepay\FinancialApiBundle\DependencyInjection\Services\SabadellTPV
+        class: Telepay\FinancialApiBundle\DependencyInjection\Services\SabadellTPV

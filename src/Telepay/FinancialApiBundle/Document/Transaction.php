@@ -9,6 +9,7 @@
 namespace Telepay\FinancialApiBundle\Document;
 
 use Doctrine\ODM\MongoDB\Mapping\Annotations as MongoDB;
+use Telepay\FinancialApiBundle\DependencyInjection\Services\Core\TransactionContext;
 
 /**
  * Class Transaction
@@ -17,9 +18,23 @@ use Doctrine\ODM\MongoDB\Mapping\Annotations as MongoDB;
  */
 class Transaction {
 
+    public static $MODE_REAL = true;
+    public static $MODE_TEST = false;
+
     public function __construct(){
         $this->completed = false;
         $this->successful = false;
+    }
+
+    public static function createFromContext(TransactionContext $context){
+        $transaction = new Transaction();
+        $transaction->setIp($context->getRequest()->getClientIp());
+        $transaction->setTimeIn(new \MongoDate());
+        //$transaction->setService($context->getId());
+        $transaction->setUser($context->getUser()->getId());
+        $transaction->setDebugIn($context->getRequest());
+        //$transaction->setMode(Transaction::$MODE_TEST);
+        return $transaction;
     }
 
     /**
@@ -97,10 +112,21 @@ class Transaction {
 
     /**
      * @var
-     * @MongoDB\Collection
+     * @MongoDB\String
+     */
+    private $debugIn;
+
+    /**
+     * @var
+     * @MongoDB\String
      */
     private $data;
 
+    /**
+     * @var
+     * @MongoDB\String
+     */
+    private $debugOut;
 
     /**
      * Get id
@@ -356,5 +382,37 @@ class Transaction {
     public function setData($data)
     {
         $this->data = $data;
+    }
+
+    /**
+     * @return mixed
+     */
+    public function getDebugIn()
+    {
+        return $this->debugIn;
+    }
+
+    /**
+     * @param mixed $debugIn
+     */
+    public function setDebugIn($debugIn)
+    {
+        $this->debugIn = $debugIn;
+    }
+
+    /**
+     * @return mixed
+     */
+    public function getDebugOut()
+    {
+        return $this->debugOut;
+    }
+
+    /**
+     * @param mixed $debugOut
+     */
+    public function setDebugOut($debugOut)
+    {
+        $this->debugOut = $debugOut;
     }
 }

@@ -23,64 +23,39 @@ security:
                 login_path: fos_user_security_login
             anonymous: true
 
-        panel:
-            pattern:    ^/(admin|manager|user|analytics|oauth)/
+        services_sandbox:
+            pattern:    ^/sandbox/services
             fos_oauth:  true
             stateless:  true
             anonymous:  false
             context:    panel
 
-        api_sandbox:
-            pattern:    ^/sandbox/
-            fos_oauth:  true
-            stateless:  true
-            anonymous:  false
-            context:    panel
+        services:
+            pattern: ^/services
+            stateless: true
+            signature_auth: true
 
-        charge2k_exception:
-            pattern:    ^/services/netpay/pos/
-            stateless:  true
-            security:   false
+        services_test:
+            pattern: ^/test/services
+            stateless: true
+            signature_auth: true
 
-        charge2000_test_exception:
-            pattern:    ^/test/services/v1/pago/facil/
-            stateless:  true
-            security:   false
-
-        charge2000_exception:
-            pattern:    ^/services/v1/pago/facil/
-            stateless:  true
-            security:   false
-
-        notifications_curl:
+        notifications:
             pattern:    ^/notifications
             stateless:  true
             security:   false
 
-        notifications_test:
+        notifications:
             pattern:    ^/test/notifications
             stateless:  true
             security:   false
 
-        doc:
-            pattern:    ^/doc/financial
+        oauth:
+            pattern:    ^/
             fos_oauth:  true
             stateless:  true
+            anonymous:  false
             context:    panel
-
-        api_production:
-            pattern: ^/
-            stateless: true
-            signature_auth: true
-
-        api_test:
-            pattern: ^/test/
-            stateless: true
-            signature_auth: true
-
-        dev:
-            pattern: ^/(_(profiler|wdt)|css|images|js)/
-            security: false
 
         default:
             anonymous: ~
