@@ -1,5 +1,5 @@
 <?php
-namespace Telepay\FinancialApiBundle\DependencyInjection\Services\Libs;
+namespace Telepay\FinancialApiBundle\DependencyInjection\Transactions\Libs;
 
 require_once 'libTest/PayU.php';
 

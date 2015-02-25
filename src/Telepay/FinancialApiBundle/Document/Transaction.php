@@ -9,7 +9,7 @@
 namespace Telepay\FinancialApiBundle\Document;
 
 use Doctrine\ODM\MongoDB\Mapping\Annotations as MongoDB;
-use Telepay\FinancialApiBundle\DependencyInjection\Services\Core\TransactionContext;
+use Telepay\FinancialApiBundle\DependencyInjection\Transactions\Core\TransactionContext;
 
 /**
  * Class Transaction

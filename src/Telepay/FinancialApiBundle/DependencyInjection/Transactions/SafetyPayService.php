@@ -6,11 +6,12 @@
  * Time: 9:58
  */
 
-namespace Telepay\FinancialApiBundle\DependencyInjection\Services;
+namespace Telepay\FinancialApiBundle\DependencyInjection\Transactions;
 
-use Telepay\FinancialApiBundle\DependencyInjection\Services\Libs\SafetyPayment;
+use Telepay\FinancialApiBundle\DependencyInjection\Transactions\Core\BaseService;
+use Telepay\FinancialApiBundle\DependencyInjection\Transactions\Libs\SafetyPayment;
 
-class Safetypay{
+class SafetyPayService extends BaseService{
 
     //This parameters are unique for us. Don't give to the client
     //For Test
@@ -68,4 +69,18 @@ class Safetypay{
 
     }
 
+    public function getReceivedData()
+    {
+        // TODO: Implement getReceivedData() method.
+    }
+
+    public function getStatus()
+    {
+        // TODO: Implement getStatus() method.
+    }
+
+    public function getSentData()
+    {
+        // TODO: Implement getSentData() method.
+    }
 }

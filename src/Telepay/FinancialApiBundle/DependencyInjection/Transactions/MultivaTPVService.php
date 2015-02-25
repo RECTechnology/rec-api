@@ -6,12 +6,13 @@
  * Time: 9:58
  */
 
-namespace Telepay\FinancialApiBundle\DependencyInjection\Services;
+namespace Telepay\FinancialApiBundle\DependencyInjection\Transactions;
 
-use Telepay\FinancialApiBundle\DependencyInjection\Services\Libs\MultivaService;
+use Telepay\FinancialApiBundle\DependencyInjection\Transactions\Libs\MultivaService;
+use Telepay\FinancialApiBundle\DependencyInjection\Transactions\Core\BaseService;
 
 
-class MultivaTPV{
+class MultivaTPVService extends BaseService{
 
     //This parameters are unique for us. Don't give to the client
     //For Test are 7 , 1 , 1, 1 , 1
@@ -44,4 +45,18 @@ class MultivaTPV{
 
     }
 
+    public function getReceivedData()
+    {
+        // TODO: Implement getReceivedData() method.
+    }
+
+    public function getStatus()
+    {
+        // TODO: Implement getStatus() method.
+    }
+
+    public function getSentData()
+    {
+        // TODO: Implement getSentData() method.
+    }
 }

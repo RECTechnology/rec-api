@@ -8,24 +8,20 @@ use Sensio\Bundle\FrameworkExtraBundle\Configuration\Route;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Template;
 use FOS\RestBundle\Controller\Annotations as Rest;
 use Symfony\Component\HttpFoundation\Request;
+use Symfony\Component\HttpFoundation\RequestStack;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
 use Telepay\FinancialApiBundle\Controller\Services\SampleResponse;
 use Telepay\FinancialApiBundle\Document\Transaction;
 
-abstract class BaseService implements Service, TransactionContext, ServiceLifeCycle, BeforeRequestCallbacks, AfterRequestCallbacks {
+abstract class BaseService extends AbstractService implements ServiceLifeCycle, BeforeRequestCallbacks, AfterRequestCallbacks {
 
-    private $request;
-    private $user;
-    private $odm;
-    private $orm;
+    private $transactionContext;
     private $transaction;
 
-    public function __construct(Request $request, $user, $odm, $orm){
-        $this->request=$request;
-        $this->user=$user;
-        $this->odm=$odm;
-        $this->orm=$orm;
+    public function __construct($name, $cname, $role, $base64Image, TransactionContextInterface $transactionContext){
+        parent::__construct($name, $cname, $role, $base64Image);
+        $this->transactionContext = $transactionContext;
         $this->transaction = null;
     }
 
@@ -60,42 +56,10 @@ abstract class BaseService implements Service, TransactionContext, ServiceLifeCy
     }
 
     /**
-     * @return Request
-     */
-    public function getRequest()
-    {
-        return $this->request;
-    }
-
-    /**
-     * @return mixed
-     */
-    public function getUser()
-    {
-        return $this->user;
-    }
-
-    /**
-     * @return mixed
-     */
-    public function getOdm()
-    {
-        return $this->odm;
-    }
-
-    /**
-     * @return mixed
-     */
-    public function getOrm()
-    {
-        return $this->orm;
-    }
-
-    /**
      * @return null
      */
-    public function getTransaction()
-    {
+    public function getTransaction(){
         return $this->transaction;
     }
+
 }

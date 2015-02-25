@@ -1,6 +1,6 @@
 <?php
 
-namespace Telepay\FinancialApiBundle\DependencyInjection\Services\Libs;
+namespace Telepay\FinancialApiBundle\DependencyInjection\Transactions\Libs;
 
 class MultivaService{
 

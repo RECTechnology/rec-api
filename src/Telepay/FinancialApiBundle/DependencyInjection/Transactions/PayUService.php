@@ -6,14 +6,15 @@
  * Time: 9:58
  */
 
-namespace Telepay\FinancialApiBundle\DependencyInjection\Services;
+namespace Telepay\FinancialApiBundle\DependencyInjection\Transactions;
 
-use Telepay\FinancialApiBundle\DependencyInjection\Services\Libs\PayUPayment;
-use Telepay\FinancialApiBundle\DependencyInjection\Services\Libs\PayUPaymentTest;
-use Telepay\FinancialApiBundle\DependencyInjection\Services\Libs\PayUReport;
-use Telepay\FinancialApiBundle\DependencyInjection\Services\Libs\PayUReportTest;
+use Telepay\FinancialApiBundle\DependencyInjection\Transactions\Libs\PayUPayment;
+use Telepay\FinancialApiBundle\DependencyInjection\Transactions\Libs\PayUPaymentTest;
+use Telepay\FinancialApiBundle\DependencyInjection\Transactions\Libs\PayUReport;
+use Telepay\FinancialApiBundle\DependencyInjection\Transactions\Libs\PayUReportTest;
+use Telepay\FinancialApiBundle\DependencyInjection\Transactions\Core\BaseService;
 
-class Payu{
+class PayUService extends BaseService{
 
     private $varArray =array(
         'installments_number'   =>  '3',
@@ -76,4 +77,18 @@ class Payu{
         return new PayUReport($report_type);
     }
 
+    public function getReceivedData()
+    {
+        // TODO: Implement getReceivedData() method.
+    }
+
+    public function getStatus()
+    {
+        // TODO: Implement getStatus() method.
+    }
+
+    public function getSentData()
+    {
+        // TODO: Implement getSentData() method.
+    }
 }

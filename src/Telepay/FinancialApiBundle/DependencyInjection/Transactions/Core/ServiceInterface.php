@@ -9,11 +9,9 @@
 namespace Telepay\FinancialApiBundle\DependencyInjection\Transactions\Core;
 
 
-interface Service {
-    public function getId();
+interface ServiceInterface {
     public function getName();
     public function getRole();
     public function getCname();
     public function getBase64Image();
-
 }

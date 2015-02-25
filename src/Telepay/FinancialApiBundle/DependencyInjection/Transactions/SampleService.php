@@ -13,7 +13,7 @@ use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
 use Telepay\FinancialApiBundle\Controller\Services\SampleResponse;
 use Telepay\FinancialApiBundle\DependencyInjection\Transactions\Core\BaseService;
-use Telepay\FinancialApiBundle\DependencyInjection\Transacttions\Services\Sample;
+use Telepay\FinancialApiBundle\DependencyInjection\Transactions\Services\Sample;
 use Telepay\FinancialApiBundle\Document\Transaction;
 
 
@@ -30,30 +30,6 @@ class SampleService extends BaseService implements Sample {
         );
     }
 
-    public function getId()
-    {
-        return 1;
-    }
-
-    public function getName()
-    {
-        // TODO: Implement getName() method.
-    }
-
-    public function getRole()
-    {
-        // TODO: Implement getRole() method.
-    }
-
-    public function getCname()
-    {
-        // TODO: Implement getCname() method.
-    }
-
-    public function getBase64Image()
-    {
-        // TODO: Implement getBase64Image() method.
-    }
 
     /**
      * @return mixed
