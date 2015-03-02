@@ -10,21 +10,29 @@ namespace Telepay\FinancialApiBundle\DependencyInjection\Transactions;
 
 
 use Telepay\FinancialApiBundle\DependencyInjection\Transactions\Core\BaseService;
+use Telepay\FinancialApiBundle\Document\Transaction;
 
 class HalcashSendService extends BaseService {
 
-    public function getReceivedData()
-    {
-        // TODO: Implement getReceivedData() method.
+    public function getFields(){
+        return array(
+            'phone_number',
+            'phone_prefix',
+            'country',
+            'amount',
+            'reference',
+            'pin',
+            'transaction_id',
+            'alias'
+        );
     }
 
-    public function getStatus()
-    {
-        // TODO: Implement getStatus() method.
+    public function create(Transaction $t){
+        die(print_r($this->getFields(), true));
+    }
+    
+    public function update(Transaction $t, $data){
+
     }
 
-    public function getSentData()
-    {
-        // TODO: Implement getSentData() method.
-    }
 }

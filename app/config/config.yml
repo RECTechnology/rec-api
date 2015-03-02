@@ -4,6 +4,7 @@ imports:
     - { resource: @TelepayFinancialApiBundle/Resources/config/services.yml }
     - { resource: @TelepayFinancialApiBundle/Resources/config/telepay_services.yml }
     - { resource: @TelepayFinancialApiBundle/Resources/config/telepay_commons.yml }
+    - { resource: @TelepayFinancialApiBundle/Resources/config/telepay_providers.yml }
 
 
 framework:

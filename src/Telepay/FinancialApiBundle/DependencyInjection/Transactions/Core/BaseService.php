@@ -31,8 +31,8 @@ abstract class BaseService extends AbstractService {
         return $this->transactionContext;
     }
 
-    public function check($id){
-        return $this->getTransactionContext()->getODM()->find($id);
+    public function check(Transaction $t){
+        return $t;
     }
 
 }

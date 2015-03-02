@@ -24,3 +24,13 @@ parameters:
     build_id: "#1"
 
     sabadell_secret: xuauoudpjpak78318334
+
+    bitcoind_user: btcuser
+    bitcoind_pass: btcpass
+    bitcoind_host: localhost
+    bitcoind_port: 8333
+
+    faircoind_user: facuser
+    faircoind_pass: facpass
+    faircoind_host: localhost
+    faircoind_port: 46393

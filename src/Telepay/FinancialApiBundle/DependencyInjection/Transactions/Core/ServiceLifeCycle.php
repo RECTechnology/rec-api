@@ -12,7 +12,7 @@ namespace Telepay\FinancialApiBundle\DependencyInjection\Transactions\Core;
 use Telepay\FinancialApiBundle\Document\Transaction;
 
 interface ServiceLifeCycle {
-    public function create(Transaction $t);
-    public function update($id, $data);
-    public function check($id);
+    public function create(Transaction $transaction);
+    public function update(Transaction $transaction, $data);
+    public function check(Transaction $transaction);
 }

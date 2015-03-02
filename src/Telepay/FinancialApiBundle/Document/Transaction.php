@@ -25,7 +25,7 @@ class Transaction implements TransactionTiming {
         $transaction->setIp($context->getRequestStack()->getCurrentRequest()->getClientIp());
         $transaction->setTimeIn(new \MongoDate());
         $transaction->setUser($context->getUser()->getId());
-        $transaction->setDebugIn($context->getRequestStack()->getCurrentRequest());
+        $transaction->setDataIn($context->getRequestStack()->getCurrentRequest());
         $transaction->setMode($context->getMode());
         return $transaction;
     }
@@ -81,21 +81,27 @@ class Transaction implements TransactionTiming {
 
     /**
      * @var
-     * @MongoDB\String
+     * @MongoDB\Hash
      */
-    private $debugIn;
+    private $dataIn;
 
     /**
      * @var
-     * @MongoDB\String
+     * @MongoDB\Hash
      */
     private $data;
 
     /**
      * @var
-     * @MongoDB\String
+     * @MongoDB\Hash
      */
-    private $debugOut;
+    private $dataOut;
+
+    /**
+     * @var
+     * @MongoDB\Hash
+     */
+    private $debugData;
 
     /**
      * Get id
@@ -268,32 +274,48 @@ class Transaction implements TransactionTiming {
     /**
      * @return mixed
      */
-    public function getDebugIn()
+    public function getDataIn()
     {
-        return $this->debugIn;
+        return $this->dataIn;
     }
 
     /**
-     * @param mixed $debugIn
+     * @param mixed $dataIn
      */
-    public function setDebugIn($debugIn)
+    public function setDataIn($dataIn)
     {
-        $this->debugIn = $debugIn;
+        $this->dataIn = $dataIn;
     }
 
     /**
      * @return mixed
      */
-    public function getDebugOut()
+    public function getDataOut()
     {
-        return $this->debugOut;
+        return $this->dataOut;
     }
 
     /**
-     * @param mixed $debugOut
+     * @param mixed $dataOut
      */
-    public function setDebugOut($debugOut)
+    public function setDataOut($dataOut)
     {
-        $this->debugOut = $debugOut;
+        $this->dataOut = $dataOut;
+    }
+
+    /**
+     * @return mixed
+     */
+    public function getDebugData()
+    {
+        return $this->debugData;
+    }
+
+    /**
+     * @param mixed $debugData
+     */
+    public function setDebugData($debugData)
+    {
+        $this->debugData = $debugData;
     }
 }

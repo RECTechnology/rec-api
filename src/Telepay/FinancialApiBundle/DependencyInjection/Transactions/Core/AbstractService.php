@@ -11,8 +11,12 @@ namespace Telepay\FinancialApiBundle\DependencyInjection\Transactions\Core;
 
 use Telepay\FinancialApiBundle\Document\Transaction;
 
-abstract class AbstractService implements ServiceInterface, \Serializable {
+class AbstractService implements ServiceInterface, ServiceLifeCycle {
 
+    public function getFields(){}
+    public function create(Transaction $t){}
+    public function update(Transaction $t, $data){}
+    public function check(Transaction $t){}
     /**
      * @var string name
      */
@@ -71,12 +75,13 @@ abstract class AbstractService implements ServiceInterface, \Serializable {
         return $this->base64_image;
     }
 
+    /*
     /**
      * (PHP 5 &gt;= 5.1.0)<br/>
      * String representation of object
      * @link http://php.net/manual/en/serializable.serialize.php
      * @return string the string representation of the object or null
-     */
+
     public function serialize($array = array()) {
         $array['name'] = $this->name;
         $array['cname'] = $this->cname;
@@ -93,7 +98,7 @@ abstract class AbstractService implements ServiceInterface, \Serializable {
      * The string representation of the object.
      * </p>
      * @return void
-     */
+
     public function unserialize($serialized) {
         $datas = unserialize($serialized);
         $this->name = $datas['name'];
@@ -101,5 +106,6 @@ abstract class AbstractService implements ServiceInterface, \Serializable {
         $this->role = $datas['role'];
         $this->name = $datas['base64_image'];
     }
+    */
 
 }

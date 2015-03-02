@@ -9,6 +9,8 @@
 namespace Telepay\FinancialApiBundle\DependencyInjection\Transactions\Core;
 
 
+use Telepay\FinancialApiBundle\Document\Transaction;
+
 interface ServiceInterface {
     public function getName();
     public function getRole();

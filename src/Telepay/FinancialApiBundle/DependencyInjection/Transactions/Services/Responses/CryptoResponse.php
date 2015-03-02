@@ -9,12 +9,12 @@
 namespace Telepay\FinancialApiBundle\DependencyInjection\Transactions\Services\Responses;
 
 
-class BitcoinResponse implements \JsonSerializable, \Serializable{
+class CryptoResponse implements \JsonSerializable{
 
     private $id;
     private $expires_in = 3600;
     private $address;
-    private $satoshis;
+    private $amount;
     private $confirmations;
 
     /**
@@ -57,18 +57,13 @@ class BitcoinResponse implements \JsonSerializable, \Serializable{
         return $this->confirmations;
     }
 
-    public function __construct($id, $expires_in, $address, $satoshis, $confirmations){
+    public function __construct($id, $expires_in, $address, $amount, $confirmations){
         $this->id = $id;
         $this->expires_in = $expires_in;
         $this->address = $address;
-        $this->satoshis = $satoshis;
+        $this->amount = $amount;
         $this->confirmations = $confirmations;
     }
-
-    public function toString(){
-        return json_encode($this->jsonSerialize(), true);
-    }
-
 
     /**
      * (PHP 5 &gt;= 5.4.0)<br/>
@@ -82,33 +77,9 @@ class BitcoinResponse implements \JsonSerializable, \Serializable{
             'id' => $this->id,
             'expires_in' => $this->expires_in,
             'address' => $this->address,
-            'satoshis' => $this->expires_in,
-            'confirmations' => $this->expires_in,
+            'amount' => $this->amount,
+            'confirmations' => $this->confirmations
         );
     }
 
-    /**
-     * (PHP 5 &gt;= 5.1.0)<br/>
-     * String representation of object
-     * @link http://php.net/manual/en/serializable.serialize.php
-     * @return string the string representation of the object or null
-     */
-    public function serialize()
-    {
-        // TODO: Implement serialize() method.
-    }
-
-    /**
-     * (PHP 5 &gt;= 5.1.0)<br/>
-     * Constructs the object
-     * @link http://php.net/manual/en/serializable.unserialize.php
-     * @param string $serialized <p>
-     * The string representation of the object.
-     * </p>
-     * @return void
-     */
-    public function unserialize($serialized)
-    {
-        // TODO: Implement unserialize() method.
-    }
 }

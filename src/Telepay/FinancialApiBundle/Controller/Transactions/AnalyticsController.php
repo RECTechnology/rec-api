@@ -16,7 +16,6 @@ class AnalyticsController extends RestApiController {
 
     static $OLD_CNAME_ID_MAPPINGS = array(
         "sample" => 1,
-        "aa" => 2,
         "aaa" => 3,
         "aaaa" => 4
     );
@@ -76,23 +75,25 @@ class AnalyticsController extends RestApiController {
             ->limit($limit)
             ->getQuery()->execute();
 
-        $transactionsOld = $dm->createQueryBuilder('TelepayFinancialApiBundle:Transaction')
-            ->field('user')->equals($userId)
-            ->field('service')->equals(static::$OLD_CNAME_ID_MAPPINGS[$service->getCname()])
-            ->field('mode')->equals($mode)
-            ->field('timeIn')->gt($start_time)
-            ->field('timeIn')->lt($end_time)
-            ->sort('timeIn', 'desc')
-            ->skip($offset)
-            ->limit($limit)
-            ->getQuery()->execute();
-
         $transArray = [];
         foreach($transactions->toArray() as $transaction){
             $transArray []= $transaction;
         }
-        foreach($transactionsOld->toArray() as $transaction){
-            $transArray []= $transaction;
+
+        if(array_key_exists($service->getCname(),static::$OLD_CNAME_ID_MAPPINGS)) {
+            $transactionsOld = $dm->createQueryBuilder('TelepayFinancialApiBundle:Transaction')
+                ->field('user')->equals($userId)
+                ->field('service')->equals(static::$OLD_CNAME_ID_MAPPINGS[$service->getCname()])
+                ->field('mode')->equals($mode)
+                ->field('timeIn')->gt($start_time)
+                ->field('timeIn')->lt($end_time)
+                ->sort('timeIn', 'desc')
+                ->skip($offset)
+                ->limit($limit)
+                ->getQuery()->execute();
+            foreach($transactionsOld->toArray() as $transaction){
+                $transArray []= $transaction;
+            }
         }
 
         return $this->rest(

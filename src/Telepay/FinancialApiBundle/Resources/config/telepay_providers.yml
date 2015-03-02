@@ -1,0 +1,17 @@
+services:
+
+    net.telepay.provider.btc:
+        class: Telepay\FinancialApiBundle\DependencyInjection\Telepay\Providers\EasyBitcoin
+        arguments:
+            - "%bitcoind_user%"
+            - "%bitcoind_pass%"
+            - "%bitcoind_host%"
+            - "%bitcoind_port%"
+
+    net.telepay.provider.fac:
+        class: Telepay\FinancialApiBundle\DependencyInjection\Telepay\Providers\EasyBitcoin
+        arguments:
+            - "%faircoind_user%"
+            - "%faircoind_pass%"
+            - "%faircoind_host%"
+            - "%faircoind_port%"
