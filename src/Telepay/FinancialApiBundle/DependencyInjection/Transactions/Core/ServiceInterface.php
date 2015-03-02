@@ -14,4 +14,5 @@ interface ServiceInterface {
     public function getRole();
     public function getCname();
     public function getBase64Image();
+    public function getFields();
 }

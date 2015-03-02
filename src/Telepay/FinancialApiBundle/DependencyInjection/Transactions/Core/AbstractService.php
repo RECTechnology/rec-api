@@ -9,7 +9,9 @@
 namespace Telepay\FinancialApiBundle\DependencyInjection\Transactions\Core;
 
 
-class AbstractService implements ServiceInterface, \Serializable {
+use Telepay\FinancialApiBundle\Document\Transaction;
+
+abstract class AbstractService implements ServiceInterface, \Serializable {
 
     /**
      * @var string name
@@ -27,6 +29,7 @@ class AbstractService implements ServiceInterface, \Serializable {
      * @var string base64_image
      */
     private $base64_image;
+
 
     function __construct($name, $cname, $role, $base64_image)
     {
@@ -98,4 +101,5 @@ class AbstractService implements ServiceInterface, \Serializable {
         $this->role = $datas['role'];
         $this->name = $datas['base64_image'];
     }
+
 }

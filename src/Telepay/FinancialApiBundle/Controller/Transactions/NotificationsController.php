@@ -6,7 +6,7 @@
  * Time: 9:11 PM
  */
 
-namespace Telepay\FinancialApiBundle\Controller\Notifications;
+namespace Telepay\FinancialApiBundle\Controller\Transactions;
 
 use Symfony\Component\HttpFoundation\Request;
 use Telepay\FinancialApiBundle\Response\ApiResponseBuilder;

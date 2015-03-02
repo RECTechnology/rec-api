@@ -18,6 +18,14 @@ abstract class BaseAnalytics extends RestApiController{
 
     public function transactions(Request $request, $mode = true) {
 
+        if($request->query->has('start_time') && is_numeric($request->query->get('start_time')))
+            $start_time = new \MongoDate($request->query->get('start_time'));
+        else $start_time = new \MongoDate(time()-3*31*24*3600); // 3 month ago
+
+        if($request->query->has('end_time') && is_numeric($request->query->get('end_time')))
+            $end_time = new \MongoDate($request->query->get('end_time'));
+        else $end_time = new \MongoDate(); // now
+
         if($request->query->has('limit')) $limit = intval($request->query->get('limit'));
         else $limit = 10;
 
@@ -25,8 +33,7 @@ abstract class BaseAnalytics extends RestApiController{
         else $offset = 0;
 
         $userId = $this->get('security.context')->getToken()->getUser()->getId();
-        $serviceId = $this->get('telepay.services')
-            ->findByName($this->getServiceName())->getId();
+        $serviceId = $this->get('telepay.services')->findByName($this->getServiceName())->getId();
 
         $dm = $this->get('doctrine_mongodb')->getManager();
 
@@ -34,12 +41,16 @@ abstract class BaseAnalytics extends RestApiController{
             ->field('user')->equals($userId)
             ->field('service')->equals($serviceId)
             ->field('mode')->equals($mode)
+            ->field('timeIn')->gt($start_time)
+            ->field('timeIn')->lt($end_time)
             ->count()->getQuery()->execute();
 
         $transactions = $dm->createQueryBuilder('TelepayFinancialApiBundle:Transaction')
             ->field('user')->equals($userId)
             ->field('service')->equals($serviceId)
             ->field('mode')->equals($mode)
+            ->field('timeIn')->gt($start_time)
+            ->field('timeIn')->lt($end_time)
             ->sort('timeIn', 'desc')
             ->skip($offset)->limit($limit)->getQuery()->execute();
 

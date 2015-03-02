@@ -13,6 +13,7 @@ use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
 use Telepay\FinancialApiBundle\Controller\Services\SampleResponse;
 use Telepay\FinancialApiBundle\DependencyInjection\Transactions\Core\BaseService;
+use Telepay\FinancialApiBundle\DependencyInjection\Transactions\Core\ServiceLifeCycle;
 use Telepay\FinancialApiBundle\DependencyInjection\Transactions\Services\Sample;
 use Telepay\FinancialApiBundle\Document\Transaction;
 
@@ -25,29 +26,9 @@ class SampleService extends BaseService implements Sample {
 
     public function sample() {
         return new SampleResponse(
-            $this->getMode()==='test'?false:true,
+            $this->getTransactionContext()->getMode(),
             date('Y-m-d H:i:s')
         );
     }
-
-
-    /**
-     * @return mixed
-     */
-    public function getReceivedData()
-    {
-        return $this->receivedData;
-    }
-
-
-    public function getStatus()
-    {
-        return 'OK';
-    }
-
-    public function getSentData()
-    {
-        return json_encode(new \stdClass());
-    }
-
+    
 }

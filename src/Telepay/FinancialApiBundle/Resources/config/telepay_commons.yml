@@ -1,0 +1,4 @@
+services:
+
+    net.telepay.commons.method_manipulator:
+        class: Telepay\FinancialApiBundle\DependencyInjection\Telepay\Commons\MethodManipulator

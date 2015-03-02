@@ -9,19 +9,25 @@
 namespace Telepay\FinancialApiBundle\DependencyInjection\Transactions\Core;
 
 
+use Telepay\FinancialApiBundle\DependencyInjection\Telepay\Commons\StringManipulator;
+
 class TransactionContext implements TransactionContextInterface {
 
     private $requestStack;
+    private $mode;
     private $user;
     private $odm;
     private $orm;
-
-    function __construct($requestStack, $user, $odm, $orm)
+    function __construct($requestStack, $securityContext, $odm, $orm)
     {
         $this->requestStack = $requestStack;
-        $this->user = $user;
+        $this->user = $securityContext->getToken()->getUser();
         $this->odm = $odm;
         $this->orm = $orm;
+        $sm = new StringManipulator();
+        if($sm->endsWith('Test', $requestStack->getCurrentRequest()->attributes->get('_controller')))
+            $this->mode = 'test';
+        else $this->mode = 'real';
     }
 
     /**
@@ -57,4 +63,8 @@ class TransactionContext implements TransactionContextInterface {
     }
 
 
+    public function getMode()
+    {
+        return $this->mode;
+    }
 }

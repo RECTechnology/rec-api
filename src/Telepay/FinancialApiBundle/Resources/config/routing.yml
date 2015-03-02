@@ -2,51 +2,17 @@
 Admin:
     resource: routing/admin.yml
 
+Manager:
+    resource: routing/manager.yml
+
 Services:
-    resource: routing/services.yml
+    resource: routing/incoming.yml
 
-SafetyNotifications:
-    pattern:  /notifications/v1/safetypay
-    defaults: { _controller: Telepay\FinancialApiBundle\Controller\Notifications\NotificationsController::safetypayNotification, _format: ~ }
-    requirements:
-        _method: GET
+Analytics:
+    resource: routing/analytics.yml
 
-UkashNotifications:
-    pattern:  /notifications/v1/ukashredirect
-    defaults: { _controller: Telepay\FinancialApiBundle\Controller\Notifications\NotificationsController::ukashredirectNotification, _format: ~ }
+Notifications:
+    resource: routing/notifications.yml
 
-PademobileNotifications:
-    pattern:  /notifications/v1/pademobile
-    defaults: { _controller: Telepay\FinancialApiBundle\Controller\Notifications\NotificationsController::pademobileNotification, _format: ~ }
-    requirements:
-        _method: GET
-
-PaynetNotifications:
-    pattern:  /notifications/v1/paynetreference
-    defaults: { _controller: Telepay\FinancialApiBundle\Controller\Notifications\NotificationsController::paynetreferenceNotification, _format: ~ }
-    requirements:
-        _method: GET
-
-api_version:
-    pattern:  /oauth/api/v1/version
-    defaults: { _controller: Telepay\FinancialApiBundle\Controller\User\ApiController::version, _format: ~ }
-    requirements:
-        _method: GET
-
-PaysafecardNotifications:
-    pattern:  /notifications/v1/paysafecard
-    defaults: { _controller: Telepay\FinancialApiBundle\Controller\Notifications\NotificationsController::paysafecardNotification, _format: ~ }
-    requirements:
-        _method: GET
-
-MultivaNotifications:
-    pattern:  /notifications/v1/multiva
-    defaults: { _controller: Telepay\FinancialApiBundle\Controller\Notifications\NotificationsController::multivaNotification, _format: ~ }
-
-SabadellNotifications:
-    pattern:  /notifications/v1/sabadell/{id}
-    defaults: { _controller: Telepay\FinancialApiBundle\Controller\Notifications\NotificationsController::sabadellNotification, _format: ~ }
-
-SabadellNotifications_test:
-    pattern:  /test/notifications/v1/sabadell/{id}
-    defaults: { _controller: Telepay\FinancialApiBundle\Controller\Notifications\NotificationsController::sabadellNotificationTest, _format: ~ }
+Wallet:
+    resource: routing/wallet.yml

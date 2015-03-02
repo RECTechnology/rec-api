@@ -2,17 +2,15 @@
 /**
  * Created by PhpStorm.
  * User: lluis
- * Date: 2/23/15
- * Time: 12:28 AM
+ * Date: 3/1/15
+ * Time: 8:56 PM
  */
 
 namespace Telepay\FinancialApiBundle\DependencyInjection\Transactions\Core;
 
-
 use Telepay\FinancialApiBundle\Document\Transaction;
 
-interface ServiceLifeCycle {
-    public function create(Transaction $t);
-    public function update($id, $data);
-    public function check($id);
+interface TelepayResponse {
+    public function init(Transaction $baseTransaction);
+    public function getTransaction();
 }

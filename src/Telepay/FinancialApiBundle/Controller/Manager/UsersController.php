@@ -91,8 +91,7 @@ class UsersController extends BaseApiController
 
         $entities = array_slice($filtered, $offset, $limit);
         array_map(function($elem){
-            $services = $elem->getAllowedServices();
-            $elem->setAllowedServices($services);
+            $elem->setAllowedServices($this->get('net.telepay.service_provider')->findByRoles($this->getUser()->getRoles()));
             $elem->setAccessToken(null);
             $elem->setRefreshToken(null);
             $elem->setAuthCode(null);
@@ -234,16 +233,17 @@ class UsersController extends BaseApiController
     }
 
 
-    private function _setServices(Request $request, $id){
-        if(empty($id)) throw new HttpException(400, "Missing parameter 'id'");
+    private function _setServices(Request $request, $cname){
+        if(empty($cname)) throw new HttpException(400, "Missing parameter 'id'");
 
         $putServices=array();
         if(trim($request->get('services')) != "")
             $putServices = explode(" ",$request->get('services'));
-        $admin=$this->getUser();
-        foreach($admin->getAllowedServices() as $adminService){
+        $userEditor = $this->getUser();
+        $editorServices = $this->get('net.telepay.service_provider')->findByRoles($this->getUser()->getRoles());
+        foreach($editorServices as $editorService){
             try{
-                $this->_deleteService($id, $adminService->getId());
+                $this->_deleteService($cname, $editorService->getCname());
             }catch(HttpException $e){
                 if($e->getStatusCode() != 404){
                     throw $e;
@@ -251,7 +251,7 @@ class UsersController extends BaseApiController
             }
         }
         foreach($putServices as $service){
-            $this->_addService($id, $service);
+            $this->_addService($cname, $service);
         }
 
         return $this->rest(204, "Edited");
@@ -280,14 +280,14 @@ class UsersController extends BaseApiController
     }
 
 
-    private function _addService($id, $serviceId){
+    private function _addService($id, $cname){
         $usersRepo = $this->getRepository();
-        $servicesRepo = new ServicesRepository();
+        $servicesRepo = $this->get('net.telepay.service_provider');
         $user = $usersRepo->findOneBy(array('id'=>$id));
-        $service = $servicesRepo->findById($serviceId);
+        $service = $servicesRepo->findByCname($cname);
         if(empty($user)) throw new HttpException(404, 'User not found');
         if(empty($service)) throw new HttpException(404, 'Service not found');
-        if($user->hasRole($service->getRole())) throw new HttpException(409, "User has already the service '$serviceId'");
+        if($user->hasRole($service->getRole())) throw new HttpException(409, "User has already the service '$cname'");
 
         $user->addRole($service->getRole());
         $em = $this->getDoctrine()->getManager();
@@ -304,10 +304,9 @@ class UsersController extends BaseApiController
 
     }
 
-    private function _deleteService($id, $service_id){
+    private function _deleteService($id, $cname){
         $usersRepo = $this->getRepository();
-        $servicesRepo = new ServicesRepository();
-        $service = $servicesRepo->findById($service_id);
+        $service = $this->get('net.telepay.service_provider')->findByCname($cname);// $servicesRepo->findById($cname);
 
         $user = $usersRepo->findOneBy(array('id'=>$id));
         if(empty($user)) throw new HttpException(404, "User not found");
