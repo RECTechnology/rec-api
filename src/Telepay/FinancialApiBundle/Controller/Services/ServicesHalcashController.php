@@ -704,7 +704,7 @@ class ServicesHalcashController extends FosRestController
             $ticket=$ticket['halcashticket'];
             $reference=$params[1];
 
-            $transaction->setService($this->get('net.telepay.provider.halcash_es')->getCname());
+            $transaction->setService($this->get('net.telepay.services.halcash_send')->getCname());
             $datos=$this->get('net.telepay.provider.halcash_es')
                 ->cancelation($ticket,$reference);
 
