@@ -22,3 +22,15 @@ services:
             - "%halcash_user%"
             - "%halcash_pass%"
             - "%halcash_alias%"
+
+    net.telepay.provider.sabadell:
+        class: Telepay\FinancialApiBundle\DependencyInjection\Transactions\Libs\SabadellService
+        arguments:
+            - "%sabadell_url_tpvv%"
+            - "%sabadell_secret%"
+            - "%sabadell_name%"
+            - "%sabadell_code%"
+            - "%sabadell_currency%"
+            - "%sabadell_transaction_type%"
+            - "%sabadell_terminal%"
+            - "%sabadell_base_url%"

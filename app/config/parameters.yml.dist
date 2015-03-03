@@ -23,8 +23,6 @@ parameters:
     version: 1.0
     build_id: "#1"
 
-    sabadell_secret: xuauoudpjpak78318334
-
     bitcoind_user: btcuser
     bitcoind_pass: btcpass
     bitcoind_host: localhost
@@ -38,3 +36,12 @@ parameters:
     halcash_user: user
     halcash_pass: pass
     halcash_alias: alias
+
+    sabadell_url_tpvv: url
+    sabadell_secret: sabadell_secret
+    sabadell_name: name
+    sabadell_code: code
+    sabadell_currency: currency
+    sabadell_transaction_type: 0
+    sabadell_terminal: 1
+    sabadell_base_url: ""

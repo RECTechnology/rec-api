@@ -19,6 +19,12 @@ services_halcash_cancel:
     requirements:
         _method: PUT
 
+services_sabadell_generate:
+    pattern:  /services/v1/sabadell/generate
+    defaults: { _controller: Telepay\FinancialApiBundle\Controller\Services\ServicesSabadellTPVController::generate, _format: ~ }
+    requirements:
+        _method: POST
+
 service_call_update:
     pattern:  /services/v1/{service_cname}/{id}
     defaults: { _controller: Telepay\FinancialApiBundle\Controller\Transactions\IncomingController::update, _format: ~ }
