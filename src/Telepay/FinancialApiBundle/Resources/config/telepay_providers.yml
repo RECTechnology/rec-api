@@ -34,3 +34,8 @@ services:
             - "%sabadell_transaction_type%"
             - "%sabadell_terminal%"
             - "%sabadell_base_url%"
+
+    net.telepay.provider.paynet_reference:
+        class: Telepay\FinancialApiBundle\DependencyInjection\Transactions\Libs\PaynetGetBarcode
+        arguments:
+            - "%paynet_reference_issuer%"

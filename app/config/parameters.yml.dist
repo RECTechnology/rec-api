@@ -45,3 +45,5 @@ parameters:
     sabadell_transaction_type: 0
     sabadell_terminal: 1
     sabadell_base_url: ""
+
+    paynet_reference_issuer: ""
