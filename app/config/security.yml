@@ -23,12 +23,10 @@ security:
                 login_path: fos_user_security_login
             anonymous: true
 
-        #services_sandbox:
-        #    pattern:    ^/sandbox/services
-        #    fos_oauth:  true
-        #    stateless:  true
-        #    anonymous:  false
-        #    context:    panel
+        notifications:
+            pattern:    ^/notifications
+            stateless:  true
+            security:   false
 
         services:
             pattern: ^/services
@@ -36,27 +34,11 @@ security:
             fos_oauth:  true
             signature_auth: true
 
-        #services_test:
-        #    pattern: ^/test/services
-        #    stateless: true
-        #    signature_auth: true
-
-        notifications:
-            pattern:    ^/notifications
-            stateless:  true
-            security:   false
-
-        #notifications_test:
-        #    pattern:    ^/test/notifications
-        #    stateless:  true
-        #    security:   false
-
         oauth:
             pattern:    ^/
             fos_oauth:  true
             stateless:  true
             anonymous:  false
-            context:    panel
 
         default:
             anonymous: ~
@@ -66,5 +48,7 @@ security:
         - { path: ^/manager/v[0-9]+/*, role: ROLE_ADMIN }
         - { path: ^/user/v[0-9]+/*, role: ROLE_USER }
         - { path: ^/services/v[0-9]+/*, role: ROLE_USER }
+        - { path: ^/pos/v[0-9]+/*, role: ROLE_COMMERCE }
+        - { path: ^/wallet/v[0-9]+/*, role: ROLE_WALLET }
 
 
