@@ -11,8 +11,5 @@ User:
 Transactions:
     resource: routing/transactions.yml
 
-Notifications:
-    resource: routing/notifications.yml
-
 Wallet:
     resource: routing/wallet.yml

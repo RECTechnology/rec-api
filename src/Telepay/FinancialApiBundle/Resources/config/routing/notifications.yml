@@ -1,8 +1,0 @@
-
-service_notifications:
-    pattern:  /notifications/v1/{service_cname}/{id}
-    defaults: { _controller: Telepay\FinancialApiBundle\Controller\Notifications\NotificationsController::process, _format: ~ }
-    requirements:
-        _method: POST
-        service_cname: "[a-z0-9_]+"
-        id: "[a-z0-9]+"

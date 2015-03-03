@@ -160,6 +160,15 @@ class IncomingController extends RestApiController{
             $transArray
         );
     }
+
+    /**
+     * @Rest\View
+     */
+    public function notificate(Request $request, $service_cname, $id)
+    {
+        $service = $this->get('net.telepay.services.' . $service_cname);
+
+    }
 }
 
 
