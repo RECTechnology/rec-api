@@ -90,6 +90,8 @@ class IncomingController extends RestApiController{
             ->getRepository('TelepayFinancialApiBundle:Transaction')
             ->find($id);
 
+        if(!$transaction) throw new HttpException(404, 'Transaction not found');
+
         if($transaction->getService() != $service->getCname()) throw new HttpException(404, 'Transaction not found');
         $transaction = $service->check($transaction);
         return $this->rest(200, "Successful", $transaction->getData());
@@ -164,10 +166,25 @@ class IncomingController extends RestApiController{
     /**
      * @Rest\View
      */
-    public function notificate(Request $request, $service_cname, $id)
-    {
-        $service = $this->get('net.telepay.services.' . $service_cname);
+    public function notificate(Request $request, $service_cname, $id) {
 
+        $service = $this->get('net.telepay.services.'.$service_cname);
+
+        $transaction =$service
+            ->getTransactionContext()
+            ->getODM()
+            ->getRepository('TelepayFinancialApiBundle:Transaction')
+            ->find($id);
+
+        if(!$transaction) throw new HttpException(404, 'Transaction not found');
+
+        if($transaction->getService() != $service->getCname()) throw new HttpException(404, 'Transaction not found');
+
+        $transaction = $service->notificate($transaction, $request->request->all());
+
+        if(!$transaction) throw new HttpException(500, "oOps, the notification failed");
+
+        return $this->rest(200, "Notification successful");
     }
 }
 
