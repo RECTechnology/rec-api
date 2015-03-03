@@ -77,8 +77,8 @@ class IncomingController extends RestApiController{
     /**
      * @Rest\View
      */
-    public function check(Request $request, $service_cname, $id){
-        $service = $this->get('net.telepay.services.'.$service_cname);
+    public function check(Request $request, $version_number, $service_cname, $id){
+        $service = $this->get('net.telepay.services.'.$service_cname.'.v'.$version_number);
 
         if (false === $this->get('security.authorization_checker')->isGranted($service->getRole())) {
             throw $this->createAccessDeniedException();
@@ -101,8 +101,8 @@ class IncomingController extends RestApiController{
     /**
      * @Rest\View
      */
-    public function find(Request $request, $service_cname){
-        $service = $this->get('net.telepay.services.'.$service_cname);
+    public function find(Request $request, $version_number, $service_cname){
+        $service = $this->get('net.telepay.services.'.$service_cname.'.v'.$version_number);
 
         if (false === $this->get('security.authorization_checker')->isGranted($service->getRole())) {
             throw $this->createAccessDeniedException();
@@ -166,9 +166,9 @@ class IncomingController extends RestApiController{
     /**
      * @Rest\View
      */
-    public function notificate(Request $request, $service_cname, $id) {
+    public function notificate(Request $request, $version_number, $service_cname, $id) {
 
-        $service = $this->get('net.telepay.services.'.$service_cname);
+        $service = $this->get('net.telepay.services.'.$service_cname.'.v'.$version_number);
 
         $transaction =$service
             ->getTransactionContext()

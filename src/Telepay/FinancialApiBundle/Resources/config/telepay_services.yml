@@ -21,7 +21,6 @@ services:
                 - "@net.telepay.services.paysafecard.v1"
                 - "@net.telepay.services.multiva.v1"
                 - "@net.telepay.services.sabadell.v1"
-                - "@net.telepay.services.sabadell.v2"
                 - "@net.telepay.services.btc_pay.v1"
                 - "@net.telepay.services.fac_pay.v1"
 

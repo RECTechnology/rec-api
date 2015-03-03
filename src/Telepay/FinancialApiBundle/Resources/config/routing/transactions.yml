@@ -26,7 +26,7 @@ services_sabadell_generate:
         _method: POST
 
 service_call_update:
-    pattern:  /services/v1/{service_cname}/{id}
+    pattern:  /services/v{version_number}/{service_cname}/{id}
     defaults: { _controller: Telepay\FinancialApiBundle\Controller\Transactions\IncomingController::update, _format: ~ }
     requirements:
         _method: PUT
@@ -34,14 +34,14 @@ service_call_update:
         id: "[a-z0-9]+"
 
 service_call_find:
-    pattern:  /services/v1/{service_cname}
+    pattern:  /services/v{version_number}/{service_cname}
     defaults: { _controller: Telepay\FinancialApiBundle\Controller\Transactions\IncomingController::find, _format: ~ }
     requirements:
         _method: GET
         service_cname: "[a-z0-9_]+"
 
 service_call_check:
-    pattern:  /services/v1/{service_cname}/{id}
+    pattern:  /services/v{version_number}/{service_cname}/{id}
     defaults: { _controller: Telepay\FinancialApiBundle\Controller\Transactions\IncomingController::check, _format: ~ }
     requirements:
         _method: GET
@@ -50,7 +50,7 @@ service_call_check:
 
 
 service_notificate:
-    pattern:  /notifications/v1/{service_cname}/{id}
+    pattern:  /notifications/v{version_number}/{service_cname}/{id}
     defaults: { _controller: Telepay\FinancialApiBundle\Controller\Transactions\IncomingController::notificate, _format: ~ }
     requirements:
         _method: POST
