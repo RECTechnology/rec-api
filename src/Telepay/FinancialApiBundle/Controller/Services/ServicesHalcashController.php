@@ -696,15 +696,16 @@ class ServicesHalcashController extends FosRestController
             $dm = $this->get('doctrine_mongodb')->getManager();
             $transaction = $dm->getRepository('TelepayFinancialApiBundle:Transaction')
                 ->find($params[2]);
-            $ticket=$transaction->getReceivedData();
-            $ticket=json_decode($ticket);
-            $ticket=$ticket->halcashticket;
+            if(!$transaction){
+                throw new HttpException(400,'User not found');
+            }
+
+            $ticket=$transaction->getDataOut();
+            $ticket=$ticket['halcashticket'];
             $reference=$params[1];
 
-            $transaction->setService($this->get('telepay.services')
-                ->findByName('HalcashSend')->getId());
-            $datos=$this->get('halcashsendsp.service')
-                ->getHalcashSend($mode)
+            $transaction->setService($this->get('net.telepay.provider.halcash_es')->getCname());
+            $datos=$this->get('net.telepay.provider.halcash_es')
                 ->cancelation($ticket,$reference);
 
             if($datos['errorcode']=='99'){

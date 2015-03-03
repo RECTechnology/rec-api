@@ -7,11 +7,17 @@ service_call_create:
         _method: POST
         service_cname: "[a-z0-9_]+"
 
-services_halcash_send:
+services_halcash_send_v2:
     pattern:  /services/v2/halcash/send
     defaults: { _controller: Telepay\FinancialApiBundle\Controller\Services\ServicesHalcashController::sendV2, _format: ~ }
     requirements:
         _method: POST
+
+services_halcash_cancel:
+    pattern:  /services/v1/halcash/cancel
+    defaults: { _controller: Telepay\FinancialApiBundle\Controller\Services\ServicesHalcashController::cancel, _format: ~ }
+    requirements:
+        _method: PUT
 
 service_call_update:
     pattern:  /services/v1/{service_cname}/{id}
