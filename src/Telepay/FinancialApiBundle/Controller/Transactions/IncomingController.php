@@ -22,7 +22,7 @@ class IncomingController extends RestApiController{
     /**
      * @Rest\View
      */
-    public function make(Request $request, $service_cname, $service_function, $id = null){
+    public function make(Request $request, $service_cname, $id = null){
 
         $service = $this->get('net.telepay.services.'.$service_cname);
 
@@ -66,17 +66,6 @@ class IncomingController extends RestApiController{
 
     public function update(){
 
-    }
-
-    public function updateTest(){
-
-    }
-
-    /**
-     * @Rest\View
-     */
-    public function makeTest(Request $request, $service_cname, $service_function, $id = null){
-        return $this->make($request, $service_cname, $service_function, $id);
     }
 
 }

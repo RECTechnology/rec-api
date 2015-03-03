@@ -8,7 +8,7 @@
 
 namespace Telepay\FinancialApiBundle\DependencyInjection\Services;
 
-use Telepay\FinancialApiBundle\DependencyInjection\Services\Libs\HalcashServiceSp;
+use Telepay\FinancialApiBundle\DependencyInjection\Transactions\Libs\HalcashServiceSp;
 
 
 class HalcashSp{

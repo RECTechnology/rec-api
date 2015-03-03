@@ -192,7 +192,6 @@ services:
     net.telepay.services.fac_pay:
         class: Telepay\FinancialApiBundle\DependencyInjection\Transactions\CryptoPaymentService
         arguments:
-
             - "Faircoin Payment"
             - "fac_pay"
             - "ROLE_SERVICES_FAIRCOIN_CHARGE"

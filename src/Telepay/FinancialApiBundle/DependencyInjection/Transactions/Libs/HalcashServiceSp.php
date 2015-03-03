@@ -8,8 +8,10 @@ namespace Telepay\FinancialApiBundle\DependencyInjection\Transactions\Libs;
 
 	class HalcashServiceSp{
 
-        private $user='halcash';
-        private $password="t3l3p4y";
+
+
+        //private $user='halcash';
+        //private $password="t3l3p4y";
         private $prefix;
         private $mode;
         private $phone;
@@ -20,9 +22,13 @@ namespace Telepay\FinancialApiBundle\DependencyInjection\Transactions\Libs;
         private $transaction_id;
         private $hal;
 
-		function __construct($mode){
-            $this->mode=$mode;
-		}
+        function __construct($user, $password, $alias)
+        {
+            $this->alias = $alias;
+            $this->user = $user;
+            $this->password = $password;
+            if($user === 'fake') $this->mode = 'T';
+        }
 
         public function send($phone,$amount,$reference,$pin,$transaction_id){
 

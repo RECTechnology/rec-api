@@ -15,3 +15,10 @@ services:
             - "%faircoind_pass%"
             - "%faircoind_host%"
             - "%faircoind_port%"
+
+    net.telepay.provider.halcash_es:
+        class: Telepay\FinancialApiBundle\DependencyInjection\Transactions\Libs\HalcashServiceSp
+        arguments:
+            - "%halcash_user%"
+            - "%halcash_pass%"
+            - "%halcash_alias%"

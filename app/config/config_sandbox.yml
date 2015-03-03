@@ -21,3 +21,9 @@ parameters:
     faircoind_pass: 6kXJpCPPT2gc1J9rKipfjpGjFQ5Zb5tE2aq2LEQnencD
     faircoind_host: test.chip-chap.com
     faircoind_port: 18392
+
+    halcash_user: fake
+    halcash_pass: fake
+    halcash_alias: fake
+
+

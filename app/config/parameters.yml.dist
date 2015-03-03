@@ -34,3 +34,7 @@ parameters:
     faircoind_pass: facpass
     faircoind_host: localhost
     faircoind_port: 46393
+
+    halcash_user: user
+    halcash_pass: pass
+    halcash_alias: alias
