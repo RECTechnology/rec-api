@@ -8,57 +8,62 @@
 
 namespace Telepay\FinancialApiBundle\DependencyInjection\Transactions;
 
+use Symfony\Component\HttpKernel\Exception\HttpException;
 use Telepay\FinancialApiBundle\DependencyInjection\Transactions\Libs\SabadellService;
 use Telepay\FinancialApiBundle\DependencyInjection\Transactions\Core\BaseService;
+use Telepay\FinancialApiBundle\Document\Transaction;
 
 class SabadellTPVService extends BaseService{
 
-    //This parameters are unique for us. Don't give to the client
-    //For Test are 7 , 1 , 1, 1 , 1
-    private $testArray =array(
-        'url_tpvv'          =>  'https://sis-t.redsys.es:25443/sis/realizarPago',
-        'clave'             =>  'qwertyasdf0123456789',
-        'name'              =>  'Telepay',
-        'code'              =>  '327714929',
-        'currency'          =>  '978',
-        'transaction_type'  =>  '0',
-        'terminal'          =>  '1'
-    );
+    private $sabadellProvider;
 
-    private $prodArray =array(
-        'url_tpvv'          =>  'https://sis.redsys.es/sis/realizarPago',
-        'clave'             =>  'xuauoudpjpak78318334',
-        'name'              =>  'Telepay',
-        'code'              =>  '327714929',
-        'currency'          =>  '978',
-        'transaction_type'  =>  '0',
-        'terminal'          =>  '1'
-    );
+    public function __construct($name, $cname, $role, $base64Image, $sabadellProvider, $transactionContext){
+        parent::__construct($name, $cname, $role, $base64Image, $transactionContext);
+        $this->sabadellProvider = $sabadellProvider;
+    }
 
-    public function getSabadellTest($amount,$transaction_id,$description,$url_notification,$url_ok,$url_ko){
+    public function getFields(){
+        return array(
+            'amount','description','url_notification','url_ok','url_ko'
+        );
+    }
 
-        return new SabadellService($amount,$transaction_id,$description,$url_notification,$url_ok,$url_ko,$this->testArray['url_tpvv'],$this->testArray['clave'],$this->testArray['name'],$this->testArray['code'],$this->testArray['currency'],$this->testArray['transaction_type'],$this->testArray['terminal']);
+    public function create(Transaction $baseTransaction = null){
+
+        if($baseTransaction === null) $baseTransaction = new Transaction();
+        $amount = $baseTransaction->getDataIn()['amount'];
+        $description = $baseTransaction->getDataIn()['description'];
+        $url_ok = $baseTransaction->getDataIn()['url_ok'];
+        $url_ko = $baseTransaction->getDataIn()['url_ko'];
+        $id=$baseTransaction->getId();
+        $request=$this->getTransactionContext()->getRequestStack()->getCurrentRequest();
+        $url_base=$request->getSchemeAndHttpHost().$request->getBaseUrl();
+
+        $url_final='/notifications/v1/sabadell/'.$id;
+
+        $barcode = $this->sabadellProvider->request($amount,$id,$description,$url_base,$url_ok,$url_ko,$url_final);
+
+        if($barcode === false)
+            throw new HttpException(503, "Service temporarily unavailable, please try again in a few minutes");
+
+        $baseTransaction->setData($barcode);
+
+        return $baseTransaction;
 
     }
 
-    public function getSabadell($amount,$transaction_id,$description,$url_notification,$url_ok,$url_ko){
-
-        return new SabadellService($amount,$transaction_id,$description,$url_notification,$url_ok,$url_ko,$this->prodArray['url_tpvv'],$this->prodArray['clave'],$this->prodArray['name'],$this->prodArray['code'],$this->prodArray['currency'],$this->prodArray['transaction_type'],$this->prodArray['terminal']);
+    public function update(Transaction $transaction, $data){
 
     }
 
-    public function getReceivedData()
-    {
-        // TODO: Implement getReceivedData() method.
+    public function check(Transaction $transaction){
+        $client_reference=$transaction->getId();
+
+        $status=$this->sabadellProvider->status($client_reference);
+
+        $transaction->setData($status);
+
+        return $transaction;
     }
 
-    public function getStatus()
-    {
-        // TODO: Implement getStatus() method.
-    }
-
-    public function getSentData()
-    {
-        // TODO: Implement getSentData() method.
-    }
 }
