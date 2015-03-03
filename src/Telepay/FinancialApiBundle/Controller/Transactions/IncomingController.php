@@ -47,6 +47,7 @@ class IncomingController extends RestApiController{
 
         $transaction = Transaction::createFromContext($this->get('transaction.context'));
         $transaction->setService($service_cname);
+        $transaction->setVersion($version_number);
         $transaction->setStatus("CREATED");
         $transaction->setDataIn($dataIn);
         $this->get('doctrine_mongodb')->getManager()->persist($transaction);

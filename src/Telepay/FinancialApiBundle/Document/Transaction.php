@@ -78,6 +78,12 @@ class Transaction implements TransactionTiming {
      */
     private $status;
 
+    /**
+     * @var
+     * @MongoDB\Int
+     */
+    private $version;
+
 
     /**
      * @var
@@ -317,5 +323,21 @@ class Transaction implements TransactionTiming {
     public function setDebugData($debugData)
     {
         $this->debugData = $debugData;
+    }
+
+    /**
+     * @return mixed
+     */
+    public function getVersion()
+    {
+        return $this->version;
+    }
+
+    /**
+     * @param mixed $version
+     */
+    public function setVersion($version)
+    {
+        $this->version = $version;
     }
 }
