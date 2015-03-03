@@ -22,9 +22,6 @@ class AnalyticsController extends RestApiController {
 
 
     /**
-     * @param Request $request
-     * @param $service_cname
-     * @param null $id
      * @Rest\View
      */
     public function process(Request $request, $service_cname, $id = null){
@@ -33,10 +30,6 @@ class AnalyticsController extends RestApiController {
     }
 
     /**
-     * @param Request $request
-     * @param $service_cname
-     * @param null $id
-     * @return RestView
      * @Rest\View
      */
     public function processTest(Request $request, $service_cname, $id = null){

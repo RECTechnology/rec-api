@@ -67,6 +67,7 @@ class SignatureListener implements ListenerInterface {
             return;
         } catch(AuthenticationException $failed){
             //TODO: log something here
+            //return;
         }
 
         $response = new Response();

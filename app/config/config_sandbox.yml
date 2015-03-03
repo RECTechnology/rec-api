@@ -1,0 +1,23 @@
+imports:
+    - { resource: config.yml }
+
+
+parameters:
+    locale: en
+    secret: ThisTokenIsNotSoSecretChangeIt
+    mongodb_server: 'mongodb://localhost:27017'
+    mongodb_db: telepay_api_sandbox
+    version: 0.9
+    build_id: '#22'
+
+    sabadell_secret: xuauoudpjpak78318334
+
+    bitcoind_user: bitcoinrpc
+    bitcoind_pass: 5WGq8FxFQJzsq1GTCd7seDuDwLc6rUyTZsXw4jg1H8ko
+    bitcoind_host: test.chip-chap.com
+    bitcoind_port: 18332
+
+    faircoind_user: faircoinrpc
+    faircoind_pass: 6kXJpCPPT2gc1J9rKipfjpGjFQ5Zb5tE2aq2LEQnencD
+    faircoind_host: test.chip-chap.com
+    faircoind_port: 18392

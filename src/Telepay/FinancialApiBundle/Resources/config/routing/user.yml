@@ -1,0 +1,23 @@
+
+######################## USER ACCOUNT ########################
+
+
+user_account:
+    pattern:  /user/v1/account
+    defaults: { _controller: Telepay\FinancialApiBundle\Controller\User\AccountController::read }
+    requirements:
+        _method: GET
+
+
+user_analytics:
+    pattern:  /user/v1/analytics
+    defaults: { _controller: Telepay\FinancialApiBundle\Controller\User\AccountController::analytics }
+    requirements:
+        _method: GET
+
+user_transactions_speed:
+    pattern:  /user/v1/speed
+    defaults: { _controller: Telepay\FinancialApiBundle\Controller\User\AccountController::speed }
+    requirements:
+        _method: GET
+

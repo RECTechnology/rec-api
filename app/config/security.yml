@@ -23,32 +23,33 @@ security:
                 login_path: fos_user_security_login
             anonymous: true
 
-        services_sandbox:
-            pattern:    ^/sandbox/services
-            fos_oauth:  true
-            stateless:  true
-            anonymous:  false
-            context:    panel
+        #services_sandbox:
+        #    pattern:    ^/sandbox/services
+        #    fos_oauth:  true
+        #    stateless:  true
+        #    anonymous:  false
+        #    context:    panel
 
         services:
             pattern: ^/services
             stateless: true
+            fos_oauth:  true
             signature_auth: true
 
-        services_test:
-            pattern: ^/test/services
-            stateless: true
-            signature_auth: true
+        #services_test:
+        #    pattern: ^/test/services
+        #    stateless: true
+        #    signature_auth: true
 
         notifications:
             pattern:    ^/notifications
             stateless:  true
             security:   false
 
-        notifications:
-            pattern:    ^/test/notifications
-            stateless:  true
-            security:   false
+        #notifications_test:
+        #    pattern:    ^/test/notifications
+        #    stateless:  true
+        #    security:   false
 
         oauth:
             pattern:    ^/
@@ -61,36 +62,9 @@ security:
             anonymous: ~
 
     access_control:
-        - { host: path: ^/doc/financial/*, role: ROLE_USER }
-
         - { path: ^/admin/v[0-9]+/*, role: ROLE_SUPER_ADMIN }
-
         - { path: ^/manager/v[0-9]+/*, role: ROLE_ADMIN }
-
         - { path: ^/user/v[0-9]+/*, role: ROLE_USER }
-
-        - { path: ^/oauth/api/v[0-9]+/*, role: ROLE_USER }
-        - { path: ^/((sandbox|test|analytics|oauth)/)?services/v[0-9]+/transaction/*, role: ROLE_USER }
-        - { path: ^/((sandbox|test|analytics|oauth)/)?services/v[0-9]+/sample/*, role: ROLE_SERVICES_SAMPLE }
-
-        - { path: ^/((sandbox|test|analytics|oauth)/)?services/v[0-9]+/netpay/pos/*, role: ROLE_SERVICES_NETPAY_POS }
-        - { path: ^/((sandbox|test|analytics|oauth)/)?services/v[0-9]+/paynet/payment/*, role: ROLE_SERVICES_PAYNET_PAYMENT }
-        - { path: ^/((sandbox|test|analytics|oauth)/)?services/v[0-9]+/paynet/reference/*, role: ROLE_SERVICES_PAYNET_REFERENCE }
-        - { path: ^/((sandbox|test|analytics|oauth)/)?services/v[0-9]+/recargafon/*, role: ROLE_SERVICES_RECARGAFON }
-        - { path: ^/((sandbox|test|analytics|oauth)/)?services/v[0-9]+/pagofacil/*, role: ROLE_SERVICES_PAGOFACIL }
-        - { path: ^/((sandbox|test|analytics|oauth)/)?services/v[0-9]+/safetypay/*, role: ROLE_SERVICES_SAFETYPAY }
-        - { path: ^/((sandbox|test|analytics|oauth)/)?services/v[0-9]+/payu/*, role: ROLE_SERVICES_PAYU }
-        - { path: ^/((sandbox|test|analytics|oauth)/)?services/v[0-9]+/toditocash/*, role: ROLE_SERVICES_TODITOCASH }
-
-        - { path: ^/((sandbox|test|analytics|oauth)/)?services/v[0-9]+/ukash/generate, role: ROLE_SERVICES_UKASHGENERATE }
-        - { path: ^/((sandbox|test|analytics|oauth)/)?services/v[0-9]+/ukash/payment, role: ROLE_SERVICES_UKASHPAYMENT }
-        - { path: ^/((sandbox|test|analytics|oauth)/)?services/v[0-9]+/halcash/send, role: ROLE_SERVICES_HALCASHSEND }
-        - { path: ^/((sandbox|test|analytics|oauth)/)?services/v[0-9]+/halcash/payment, role: ROLE_SERVICES_HALCASHPAYMENT }
-        - { path: ^/((sandbox|test|analytics|oauth)/)?services/v[0-9]+/multiva/*, role: ROLE_SERVICES_MULTIVA }
-        - { path: ^/((sandbox|test|analytics|oauth)/)?services/v[0-9]+/pademobile/*, role: ROLE_SERVICES_PADEMOBILE }
-        - { path: ^/((sandbox|test|analytics|oauth)/)?services/v[0-9]+/paysafecard/*, role: ROLE_SERVICES_PAYSAFECARD }
-        - { path: ^/((sandbox|test|analytics|oauth)/)?services/v[0-9]+/sabadell/*, role: ROLE_SERVICES_SABADELL }
-
-
+        - { path: ^/services/v[0-9]+/*, role: ROLE_USER }
 
 
