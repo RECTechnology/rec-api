@@ -9,14 +9,26 @@
 namespace Telepay\FinancialApiBundle\DependencyInjection\Transactions\Core;
 
 
+use Symfony\Component\HttpKernel\Exception\HttpException;
 use Telepay\FinancialApiBundle\Document\Transaction;
 
 class AbstractService implements ServiceInterface, ServiceLifeCycle {
 
-    public function getFields(){}
-    public function create(Transaction $t){}
-    public function update(Transaction $t, $data){}
-    public function check(Transaction $t){}
+    public function getFields(){
+        throw new HttpException(501, "Method not implemented");
+    }
+    public function create(Transaction $t){
+        throw new HttpException(501, "Method not implemented");
+    }
+    public function update(Transaction $t, $data){
+        throw new HttpException(501, "Method not implemented");
+    }
+    public function check(Transaction $t){
+        throw new HttpException(501, "Method not implemented");
+    }
+    public function notificate(Transaction $transaction, $data){
+        throw new HttpException(501, "Method not implemented");
+    }
     /**
      * @var string name
      */
@@ -107,5 +119,4 @@ class AbstractService implements ServiceInterface, ServiceLifeCycle {
         $this->name = $datas['base64_image'];
     }
     */
-
 }

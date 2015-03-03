@@ -15,4 +15,5 @@ interface ServiceLifeCycle {
     public function create(Transaction $transaction);
     public function update(Transaction $transaction, $data);
     public function check(Transaction $transaction);
+    public function notificate(Transaction $transaction, $data);
 }

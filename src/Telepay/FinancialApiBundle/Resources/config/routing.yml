@@ -5,17 +5,11 @@ Admin:
 Manager:
     resource: routing/manager.yml
 
-Manager:
+User:
     resource: routing/user.yml
 
-Services:
-    resource: routing/incoming.yml
-
-Analytics:
-    resource: routing/analytics.yml
-
-Notifications:
-    resource: routing/notifications.yml
+Transactions:
+    resource: routing/transactions.yml
 
 Wallet:
     resource: routing/wallet.yml

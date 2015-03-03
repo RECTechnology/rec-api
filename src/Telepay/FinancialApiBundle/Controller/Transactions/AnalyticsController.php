@@ -20,23 +20,15 @@ class AnalyticsController extends RestApiController {
         "aaaa" => 4
     );
 
-
     /**
      * @Rest\View
      */
     public function process(Request $request, $service_cname, $id = null){
-        return $this->findTransactions($request, $service_cname, $id, 'real');
+        return $this->findTransactions($request, $service_cname, $id);
 
     }
 
-    /**
-     * @Rest\View
-     */
-    public function processTest(Request $request, $service_cname, $id = null){
-        return $this->findTransactions($request, $service_cname, $id, 'test');
-    }
-
-    private function findTransactions(Request $request, $service_cname, $id = null, $mode = 'real'){
+    private function findTransactions(Request $request, $service_cname, $id = null){
 
         if($request->query->has('start_time') && is_numeric($request->query->get('start_time')))
             $start_time = new \MongoDate($request->query->get('start_time'));
@@ -60,7 +52,6 @@ class AnalyticsController extends RestApiController {
         $transactions = $dm->createQueryBuilder('TelepayFinancialApiBundle:Transaction')
             ->field('user')->equals($userId)
             ->field('service')->equals($service->getCname())
-            ->field('mode')->equals($mode)
             ->field('timeIn')->gt($start_time)
             ->field('timeIn')->lt($end_time)
             ->sort('timeIn', 'desc')
@@ -77,7 +68,6 @@ class AnalyticsController extends RestApiController {
             $transactionsOld = $dm->createQueryBuilder('TelepayFinancialApiBundle:Transaction')
                 ->field('user')->equals($userId)
                 ->field('service')->equals(static::$OLD_CNAME_ID_MAPPINGS[$service->getCname()])
-                ->field('mode')->equals($mode)
                 ->field('timeIn')->gt($start_time)
                 ->field('timeIn')->lt($end_time)
                 ->sort('timeIn', 'desc')
