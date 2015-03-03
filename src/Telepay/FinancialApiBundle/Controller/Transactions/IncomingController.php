@@ -28,9 +28,9 @@ class IncomingController extends RestApiController{
     /**
      * @Rest\View
      */
-    public function make(Request $request, $service_cname, $id = null){
+    public function make(Request $request, $version_number, $service_cname, $id = null){
 
-        $service = $this->get('net.telepay.services.'.$service_cname);
+        $service = $this->get('net.telepay.services.'.$service_cname.'.v'.$version_number);
 
         if (false === $this->get('security.authorization_checker')->isGranted($service->getRole())) {
             throw $this->createAccessDeniedException();

@@ -1,7 +1,7 @@
 #################################################### REAL SERVICE CALLS ##############################################
 
 service_call_create:
-    pattern:  /services/v1/{service_cname}
+    pattern:  /services/v{version_number}/{service_cname}
     defaults: { _controller: Telepay\FinancialApiBundle\Controller\Transactions\IncomingController::make, _format: ~ }
     requirements:
         _method: POST
