@@ -8,10 +8,6 @@ namespace Telepay\FinancialApiBundle\DependencyInjection\Transactions\Libs;
 
 	class HalcashServiceSp{
 
-
-
-        //private $user='halcash';
-        //private $password="t3l3p4y";
         private $prefix;
         private $mode;
         private $phone;
