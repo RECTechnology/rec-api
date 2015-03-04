@@ -49,8 +49,10 @@ namespace Telepay\FinancialApiBundle\DependencyInjection\Transactions\Libs;
 
 
             if($this->mode=='T'){
-                throw new HttpException(501,"Test mode not implemented");
-                //$response='error1';
+                $response=array(
+                    'errorcode'=>'0',
+                    'halcashticket'=>'1234567890'
+                );
 
             }else{
                 $url='http://hcsvc.telepay.net/HalCashGatewayIssue.asmx?wsdl';
@@ -161,8 +163,10 @@ namespace Telepay\FinancialApiBundle\DependencyInjection\Transactions\Libs;
 
 
             if($this->mode=='T'){
-                throw new HttpException(501,"Test mode not implemented");
-                //$response='error1';
+                $response=array(
+                    'errorcode'=>'0',
+                    'halcashticket'=>'1234567890'
+                );
 
             }else{
                 $url='http://hcsvc.telepay.net/HalCashGatewayIssue.asmx?wsdl';
