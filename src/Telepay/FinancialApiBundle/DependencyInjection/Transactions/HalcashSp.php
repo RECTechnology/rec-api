@@ -40,7 +40,6 @@ class HalcashSp extends BaseService{
         $reference = $baseTransaction->getDataIn()['reference'];
         $pin = $baseTransaction->getDataIn()['pin'];
         $transaction_id=$baseTransaction->getId();
-        $alias='ASOC ROBOT';
 
         $hal = $this->halcashSpProvider->sendV3($phone_number,$phone_prefix,$amount,$reference,$pin,$transaction_id);
 
