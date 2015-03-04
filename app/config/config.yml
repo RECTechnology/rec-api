@@ -83,21 +83,6 @@ fos_user:
     group:
       group_class: Telepay\FinancialApiBundle\Entity\Group
 
-nelmio_api_doc:
-    name: Financial API - Telepay.
-    exclude_sections:
-        ["Client Management", "User Management", "Group Management", "Roles of Groups", "Groups of Users"]
-    sandbox:
-        enabled: true
-        authentication:
-            delivery: http
-            type: bearer
-        endpoint: /sandbox
-        request_format:
-            formats:                            # default `json` and `xml`,
-                json: application/json          # override to add custom formats or disable
-                xml: application/xml            # default formats
-
 nelmio_cors:
    defaults:
        allow_credentials: true
