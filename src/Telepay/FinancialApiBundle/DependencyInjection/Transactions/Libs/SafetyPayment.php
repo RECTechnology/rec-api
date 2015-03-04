@@ -21,7 +21,7 @@ namespace Telepay\FinancialApiBundle\DependencyInjection\Transactions\Libs;
 		var $url_error;
 		var $url_safety;
 
-		function __construct($api_key,$signature_key,$merchant_reference,$lang,$tracking_code,$expiration,$response_format,$url_safety,$signature_key)
+		function __construct($api_key,$signature_key,$merchant_reference,$lang,$tracking_code,$expiration,$response_format,$url_safety)
 		{
 			$this->api_key=$api_key;
 			$this->signature_key=$signature_key;
@@ -31,7 +31,6 @@ namespace Telepay\FinancialApiBundle\DependencyInjection\Transactions\Libs;
 			$this->expiration=$expiration;
 			$this->response_format=$response_format;
 			$this->url_safety=$url_safety;
-			$this->signature_key;
 		}
 
 		public function request($date_time,$currency,$amount,$url_success,$url_error){

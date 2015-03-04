@@ -58,3 +58,17 @@ parameters:
     pademobile_client: 000000
     pademobile_url : url
     pademobile_env_url: env
+
+    pagofacil_id_sucursal: sucursal
+    pagofacil_id_usuario: usuario
+    pagofacil_id_servicio: servicio
+    pagofacil_url_flag: prod
+
+    safetypay_api_key: api_key
+    safetypay_signature_key: signature_key
+    safetypay_merchant_reference: merchant
+    safetypay_language: ES
+    safetypay_tracking_code: ""
+    safetypay_expiration_time: 5
+    safetypay_response_format: CSV
+    safetypay_url: "safety_url"

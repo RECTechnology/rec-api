@@ -65,3 +65,14 @@ services:
             - "%pagofacil_id_servicio%"
             - "%pagofacil_url_flag%"
 
+    net.telepay.provider.safetypay:
+        class: Telepay\FinancialApiBundle\DependencyInjection\Transactions\Libs\SafetyPayment
+        arguments:
+            - "%safetypay_api_key%"
+            - "%safetypay_signature_key%"
+            - "%safetypay_merchant_reference%"
+            - "%safetypay_language%"
+            - "%safetypay_tracking_code%"
+            - "%safetypay_expiration_time%"
+            - "%safetypay_response_format%"
+            - "%safetypay_url%"
