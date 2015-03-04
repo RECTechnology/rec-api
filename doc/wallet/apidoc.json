@@ -3,8 +3,8 @@
   "version": "0.0.1",
   "description": "Documentation for the Telepay Wallet API",
   "title": "Wallet API - Telepay",
-  "url" : "https://api.telepay.net/wallet",
-  "sampleUrl" : "https://api.telepay.net/wallet/sandbox",
+  "url" : "https://api.telepay.net",
+  "sampleUrl" : "https://api.telepay.net/test",
   "header": {
     "title": "Wallet API",
     "filename": "header.md"

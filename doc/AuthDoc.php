@@ -7,8 +7,8 @@
 
 
 /**
- * @api {post} /oauth/v2/token Create access token
- * @apiName GenerateAccessToken
+ * @api {post} /oauth/v2/token OAuth2 Token
+ * @apiName OAuthToken
  * @apiDescription Creates an access token to be used in each request
  * @apiVersion 2.0.0
  * @apiGroup Authentication
@@ -64,7 +64,16 @@
  *          "error_description": "Invalid username and password combination"
  *    }
  *
- * @apiSampleRequest http://dev-api.telepay.net/app_dev.php/oauth/v2/token
+ * @apiSampleRequest http://dev-api.telepay.net/test/oauth/v2/token
  *
  */
 
+
+/**
+ * @api {post} /services/v1/sample Signed request
+ * @apiName SignedRequest
+ * @apiDescription Creates a transaction to the sample service with tie signed request
+ * @apiVersion 1.0.0
+ * @apiGroup Authentication
+ *
+ */
