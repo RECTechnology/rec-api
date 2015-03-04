@@ -18,9 +18,9 @@ class CryptoPaymentService extends BaseService {
 
     private $cryptoProvider;
 
-    public function __construct($name, $cname, $role, $base64Image, $halcashSpProvider, $transactionContext){
+    public function __construct($name, $cname, $role, $base64Image, $cryptoProvider, $transactionContext){
         parent::__construct($name, $cname, $role, $base64Image, $transactionContext);
-        $this->cryptoProvider = $halcashSpProvider;
+        $this->cryptoProvider = $cryptoProvider;
     }
 
     public function getFields(){

@@ -54,3 +54,7 @@ parameters:
     multiva_comstore: store
     multiva_comterm: terminal
     multiva_base_url: ""
+
+    pademobile_client: 000000
+    pademobile_url : url
+    pademobile_env_url: env

@@ -42,4 +42,8 @@ parameters:
     multiva_comterm: 001
     multiva_base_url: "/test"
 
+    pademobile_client: 299249
+    pademobile_url : 'https://staging.pademobile.com:700/comprar'
+    pademobile_env_url: "test"
+
 

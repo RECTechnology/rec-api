@@ -41,11 +41,19 @@ services:
             - "%paynet_reference_issuer%"
 
     net.telepay.provider.multiva:
-            class: Telepay\FinancialApiBundle\DependencyInjection\Transactions\Libs\MultivaService
-            arguments:
-                - "%multiva_comcurrency%"
-                - "%multiva_comaddress%"
-                - "%multiva_commerchant%"
-                - "%multiva_comstore%"
-                - "%multiva_comterm%"
-                - "%multiva_base_url%"
+        class: Telepay\FinancialApiBundle\DependencyInjection\Transactions\Libs\MultivaService
+        arguments:
+            - "%multiva_comcurrency%"
+            - "%multiva_comaddress%"
+            - "%multiva_commerchant%"
+            - "%multiva_comstore%"
+            - "%multiva_comterm%"
+            - "%multiva_base_url%"
+
+    net.telepay.provider.pademobile:
+        class: Telepay\FinancialApiBundle\DependencyInjection\Transactions\Libs\PademobileRedirect
+        arguments:
+            - "%pademobile_client%"
+            - "%pademobile_url%"
+            - "%pademobile_env_url%"
+
