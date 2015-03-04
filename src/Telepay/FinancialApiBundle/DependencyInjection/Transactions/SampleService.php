@@ -22,13 +22,6 @@ use Telepay\FinancialApiBundle\Document\Transaction;
  * Class SampleService
  * @package Telepay\FinancialApiBundle\DependencyInjection\Services
  */
-class SampleService extends BaseService implements Sample {
-
-    public function sample() {
-        return new SampleResponse(
-            $this->getTransactionContext()->getMode(),
-            date('Y-m-d H:i:s')
-        );
-    }
+class SampleService extends BaseService {
     
 }
