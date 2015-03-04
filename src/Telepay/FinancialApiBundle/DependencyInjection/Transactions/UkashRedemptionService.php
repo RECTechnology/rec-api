@@ -9,49 +9,49 @@
 namespace Telepay\FinancialApiBundle\DependencyInjection\Transactions;
 
 use Symfony\Component\HttpKernel\Exception\HttpException;
+use Telepay\FinancialApiBundle\DependencyInjection\Transactions\Libs\UkashBarcode;
 use Telepay\FinancialApiBundle\DependencyInjection\Transactions\Core\BaseService;
-use Telepay\FinancialApiBundle\DependencyInjection\Transactions\Libs\UkashRedirect;
 use Telepay\FinancialApiBundle\Document\Transaction;
 
-class UkashTPVService extends BaseService{
+class UkashRedemptionService extends BaseService{
 
-    private $ukashProvider;
+    private $ukashRedemptionProvider;
 
-    public function __construct($name, $cname, $role, $base64Image, $ukashProvider, $transactionContext){
+    public function __construct($name, $cname, $role, $base64Image, $ukashRedemptionProvider, $transactionContext){
         parent::__construct($name, $cname, $role, $base64Image, $transactionContext);
-        $this->ukashProvider = $ukashProvider;
+        $this->ukashRedemptionProvider = $ukashRedemptionProvider;
     }
 
     public function getFields(){
         return array(
-            'amount',
             'currency',
-            'url_success',
-            'url_fail',
-            'url_notification'
+            'voucher_value',
+            'voucher_number',
+            'amount'
         );
     }
 
     public function create(Transaction $baseTransaction = null){
 
         if($baseTransaction === null) $baseTransaction = new Transaction();
-        $amount = $baseTransaction->getDataIn()['amount'];
         $currency = $baseTransaction->getDataIn()['currency'];
-        $url_success = $baseTransaction->getDataIn()['url_success'];
-        $url_fail = $baseTransaction->getDataIn()['url_fail'];
-        $consumer_id='Telepay';
+        $amount = $baseTransaction->getDataIn()['amount'];
+        $voucher_value = $baseTransaction->getDataIn()['voucher_value'];
+        $voucher_number = $baseTransaction->getDataIn()['voucher_number'];
+
+        $merchant_id='Telepay';
 
         $id=$baseTransaction->getId();
 
-        $request=$this->getTransactionContext()->getRequestStack()->getCurrentRequest();
-        $url_base=$request->getSchemeAndHttpHost().$request->getBaseUrl();
-
-        $url_final='/notifications/v1/ukash/'.$id;
-
-        $ukash = $this->ukashProvider->request($amount,$id,$consumer_id,$currency,$url_success,$url_fail,$url_base,$url_final);
+        $ukash = $this->ukashRedemptionProvider->redemption($merchant_id,$currency,$id,$voucher_value,$voucher_number,$amount);
 
         if($ukash === false)
             throw new HttpException(503, "Service temporarily unavailable, please try again in a few minutes");
+
+
+        if($ukash['txCode']==99){
+            throw new HttpException(400,$ukash['errDescription']);
+        }
 
         $baseTransaction->setData($ukash);
 
@@ -62,4 +62,5 @@ class UkashTPVService extends BaseService{
     public function update(Transaction $transaction, $data){
 
     }
+
 }

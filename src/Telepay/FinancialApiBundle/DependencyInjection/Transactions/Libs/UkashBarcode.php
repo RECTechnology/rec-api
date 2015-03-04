@@ -8,23 +8,33 @@ require_once('includes/nusoap.php');
 
 class UkashBarcode{
 
-    var $merchant_id;
-    var $currency;
-    var $fecha;
-    var $certificado;
-    var $sRequest;
-    var $transaction_id;
-    var $amount;
-    var $voucher_number;
-    var $voucher_value;
-    var $transaction_amount;
-    var $mode;
+    private $merchant_id;
+    private $currency;
+    private $fecha;
+    private $certificado;
+    private $sRequest;
+    private $transaction_id;
+    private $amount;
+    private $voucher_number;
+    private $voucher_value;
+    private $transaction_amount;
+    private $mode;
+    private $username;
+    private $password;
+    private $brand_id;
+    private $production_flag;
 
-	function __construct($mode){
-        $this->mode=$mode;
-	}
+    function __construct($username, $password, $brand_id,$production_flag)
+    {
+        $this->username = $username;
+        $this->password = $password;
+        $this->brand_id = $brand_id;
+        $this->production_flag=$production_flag;
+    }
 
-	public function request($merchant_id,$currency,$transaction_id,$amount){
+
+    public function request($merchant_id,$currency,$transaction_id,$amount){
+
         $this->merchant_id=$merchant_id;
         $this->currency=$currency;
         $this->transaction_id=$transaction_id;
@@ -51,10 +61,10 @@ class UkashBarcode{
 
         $this->sRequest = <<<XML
     <UKashTransaction>
-        <ukashLogin>UKASH_Telepay</ukashLogin>
-        <ukashPassword>gdf58a4rtdut5tdy</ukashPassword>
-        <transactionId>$this->transaction_id</transactionId>
-        <brandId>UKASH17740</brandId>
+        <ukashLogin>$this->username</ukashLogin>
+        <ukashPassword>$this->password</ukashPassword>
+        <transactionId>1</transactionId>
+        <brandId>$this->brand_id</brandId>
         <voucherNumber>$this->certificado</voucherNumber>
         <voucherValue>$this->amount</voucherValue>
         <baseCurr>$this->currency</baseCurr>
@@ -71,14 +81,14 @@ XML;
 
         $params = array('sRequest' => $this->sRequest);
 
-        if($this->mode=='T'){
+        if($this->production_flag==0){
             $url='https://processing.staging.ukash.com/gateway/Ukash.WSDL';
         }else{
             $url='https://processing.ukash.com/gateway/Ukash.WSDL';
         }
 
         $client = new nusoap_client($url, true);
-        //die(print_r($params,true));
+
         $result = $client -> call('IssueVoucher',$params);
 
         $transaction = new SimpleXMLElement($result['IssueVoucherResult']);
@@ -113,10 +123,10 @@ XML;
 
         $this->sRequest = <<<XML
     <UKashTransaction>
-        <ukashLogin>UKASH_Hipodromo</ukashLogin>
-        <ukashPassword>2eZLGxWuP9NhQOIN</ukashPassword>
+        <ukashLogin>$this->username</ukashLogin>
+        <ukashPassword>this->password</ukashPassword>
         <transactionId>$this->transaction_id</transactionId>
-        <brandId>UKASH19450</brandId>
+        <brandId>$this->brand_id</brandId>
         <voucherNumber>$this->voucher_number</voucherNumber>
         <voucherValue>$this->voucher_value</voucherValue>
         <baseCurr>$this->currency</baseCurr>

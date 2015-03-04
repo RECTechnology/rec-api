@@ -7,25 +7,28 @@ use SOPGClassicMerchantClient;
 	*/
 	class PaysafecardPayment
 	{
-		var $username;
-        var $password;
-        var $sysLang = 'en';
+		private $username;
+        private $password;
+        private $sysLang = 'en';
         //Debug true/false
-        var $debug = true;
+        private $debug = true;
         //Display Debug true/fam_close(fam)
-        var $show_debug = false;
+        private $show_debug = false;
         //Display Errors true/false
-        var $show_error = false;
+        private $show_error = false;
         //AutoCorrect true/false
-        var $autoCorrect = true;
+        private $autoCorrect = true;
+        private $env_url;
 
-		function __construct($user,$pass)
+		function __construct($user,$pass,$env_url)
 		{
 			$this->username=$user;
 			$this->password=$pass;
+            $this->env_url=$env_url;
 		}
 
-		public function request($mode,$mtid,$currency,$amount,$okUrl,$nokUrl,$pnUrl,$mCId){
+		public function request($mtid,$currency,$amount,$okUrl,$nokUrl,$mCId,$url_base,$url_final){
+            $pnUrl=$url_base.$this->env_url.$url_final;
             error_reporting( E_ALL );
             header( "Content-Type: text/html; charset=utf-8" );
             $start = microtime( true );
@@ -36,10 +39,10 @@ use SOPGClassicMerchantClient;
             //laden der PSC-Klasse
             include_once ( 'lib/class.php' );
 
-            if($mode=='T'){
-                $mode='test';
-            }else{
+            if($this->env_url==''){
                 $mode='live';
+            }else{
+                $mode='test';
             }
 
             $test = new SOPGClassicMerchantClient( $this->debug, $this->sysLang, $this->autoCorrect, $mode );
