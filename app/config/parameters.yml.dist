@@ -76,3 +76,7 @@ parameters:
     tc_contract_id: xxx
     tc_branch_id: prod
     tc_url_flag: 1
+
+    psc_username: user
+    psc_password: pass
+    psc_env_url: ""
