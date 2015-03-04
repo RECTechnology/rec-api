@@ -60,4 +60,8 @@ parameters:
     safetypay_response_format: CSV
     safetypay_url: "https://mws2.safetypay.com/Sandbox/express/post/v.2.2/CreateExpressToken.aspx"
 
+    tc_contract_id: 2801
+    tc_branch_id: test
+    tc_url_flag: 0
+
 

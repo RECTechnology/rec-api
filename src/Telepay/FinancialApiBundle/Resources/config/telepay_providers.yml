@@ -76,3 +76,10 @@ services:
             - "%safetypay_expiration_time%"
             - "%safetypay_response_format%"
             - "%safetypay_url%"
+
+    net.telepay.provider.tc:
+        class: Telepay\FinancialApiBundle\DependencyInjection\Transactions\Libs\ToditoCash
+        arguments:
+            - "%tc_contract_id%"
+            - "%tc_branch_id%"
+            - "%tc_url_flag%"

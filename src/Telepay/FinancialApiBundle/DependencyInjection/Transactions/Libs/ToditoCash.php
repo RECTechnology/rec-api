@@ -25,12 +25,13 @@ ini_set("default_socket_timeout", 5);
         var $response;
         var $arrayResponse=array();
 		
-		function __construct($contract_id,$branch_id){
+		function __construct($contract_id,$branch_id,$url_flag){
 			$this->contract_id=$contract_id;
 			$this->branch_id=$branch_id;
+            $this->production_flag=$url_flag;
 		}
 
-		public function request($transaction_id,$date,$hour,$card_number,$nip,$amount,$concept,$currency,$production_flag){
+		public function request($transaction_id,$date,$hour,$card_number,$nip,$amount,$concept,$currency){
 
 			$this->transaction_id=$transaction_id;
 			$this->date=$date;
@@ -40,7 +41,6 @@ ini_set("default_socket_timeout", 5);
 			$this->amount=$amount;
 			$this->concept=$concept;
             $this->currency=$currency;
-			$this->production_flag=$production_flag;
 
             try {
 
