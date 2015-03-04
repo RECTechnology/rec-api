@@ -14,9 +14,13 @@ use Symfony\Component\HttpKernel\Exception\HttpException;
 use Symfony\Component\Security\Core\Util\SecureRandom;
 use Telepay\FinancialApiBundle\DependencyInjection\ServicesRepository;
 
+use JMS\Serializer\Annotation\ExclusionPolicy;
+use JMS\Serializer\Annotation\Expose;
+
 /**
  * @ORM\Entity
  * @ORM\Table(name="fos_user")
+ * @ExclusionPolicy("all")
  */
 class User extends BaseUser
 {
@@ -48,6 +52,7 @@ class User extends BaseUser
 
     /**
      * @ORM\OneToMany(targetEntity="Telepay\FinancialApiBundle\Entity\AccessToken", mappedBy="user", cascade={"remove"})
+     *
      */
     private $access_token;
 
@@ -73,14 +78,19 @@ class User extends BaseUser
 
     /**
      * @ORM\Column(type="string")
+     * @Expose
      */
     private $name;
 
     /**
      * @ORM\Column(type="text")
+     * @Expose
      */
     private $base64_image;
 
+    /**
+     * @Expose
+     */
     private $allowed_services = array();
 
     public function getAccessKey(){
@@ -109,25 +119,9 @@ class User extends BaseUser
     }
 
     /**
-     * @return array
-     */
-    public function getAllowedServices()
-    {
-        $services = array();
-        $servicesRepo = new ServicesRepository();
-        foreach($this->getRoles() as $role){
-            try{
-                $services []= $servicesRepo->findByRole($role);
-            }
-            catch(HttpException $e){ }
-        }
-        return $services;
-    }
-
-    /**
      * @param Service $service
      */
-    public function addAllowedService(Service $service)
+    public function addAllowedService($service)
     {
         $this->addRole($service->getRole());
     }

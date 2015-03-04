@@ -131,7 +131,7 @@ class ServicesHalcashController extends FosRestController
         $transaction->setTimeIn(time());
 
         $transaction->setUser($this->get('security.context')->getToken()->getUser()->getId());
-        $transaction->setSentData(json_encode($paramsMongo));
+        $transaction->setDataIn($paramsMongo);
         $transaction->setMode($mode === 'P');
 
         //Constructor
@@ -174,9 +174,12 @@ class ServicesHalcashController extends FosRestController
 
             $transaction->setService($this->get('telepay.services')
                 ->findByName('HalcashSend')->getId());
+            /*
             $datos=$this->get('halcashsendsp.service')
                 ->getHalcashSend($mode)
                 ->send($params[0],$params[2],$params[3],$params[4],$params[5]);
+*/
+            $datos = array('errorcode'=>'0','halcashticket'=>'12346789');
 
             if($datos['errorcode']=='99'){
                 $rCode=503;
@@ -347,12 +350,13 @@ class ServicesHalcashController extends FosRestController
         $transaction->setTimeIn(time());
 
         $transaction->setUser($this->get('security.context')->getToken()->getUser()->getId());
-        $transaction->setSentData(json_encode($paramsMongo));
+        $transaction->setDataIn($paramsMongo);
         $transaction->setMode($mode === 'P');
 
         //Constructor
         if($params[1]==='MX'){
-            $phone='0005200'.$params[0];
+            throw new HttpException(500,'Service unavailable,use v3.');
+            /*$phone='0005200'.$params[0];
             $transaction->setService($this->get('telepay.services')
                 ->findByName('HalcashSend')->getId());
             $datos=$this->get('halcashsend.service')
@@ -382,23 +386,21 @@ class ServicesHalcashController extends FosRestController
                 $rCode=400;
                 $res='Bad Request';
                 $datos='Unexpected error';
-            }
+            }*/
         }elseif($params[1]==='ES'){
             //arreglamos los centimos y el numero de telefono
             $params[2]=$params[2]/100;
             $params[6]=str_replace('+','',$params[6]);
 
-            $transaction->setService($this->get('telepay.services')
-                ->findByName('HalcashSend')->getId());
-            $datos=$this->get('halcashsendsp.service')
-                ->getHalcashSend($mode)
+            $transaction->setService($this->get('net.telepay.services.halcash_send.v2')->getCname());
+
+            $datos=$this->get('net.telepay.provider.halcash_es')
                 ->sendV2($params[0],$params[6],$params[2],$params[3],$params[4],$params[5],$params[7]);
 
             if($datos['errorcode']=='99'){
                 $rCode=503;
                 $res="Service temporally unavailable, maybe deposit account has no funds?";
             }elseif($datos['errorcode']=='0'){
-                $transaction->setSuccessful(true);
                 $transaction->setStatus('ISSUED');
                 $rCode=201;
                 $res="HalCash generated successfully";
@@ -412,13 +414,14 @@ class ServicesHalcashController extends FosRestController
         else throw new HttpException(400, "Bad country code, allowed ones are MX and ES");
 
         //Guardamos la respuesta
-        $transaction->setReceivedData(json_encode($datos));
+        $transaction->setDataOut($datos);
         $dm = $this->get('doctrine_mongodb')->getManager();
         $transaction->setTimeOut(time());
-        $transaction->setCompleted(true);
 
         $dm->persist($transaction);
+        var_dump($transaction);
         $dm->flush();
+
         $datos['id_telepay']=$transaction->getId();
         $resp = new ApiResponseBuilder(
             $rCode,
@@ -693,15 +696,16 @@ class ServicesHalcashController extends FosRestController
             $dm = $this->get('doctrine_mongodb')->getManager();
             $transaction = $dm->getRepository('TelepayFinancialApiBundle:Transaction')
                 ->find($params[2]);
-            $ticket=$transaction->getReceivedData();
-            $ticket=json_decode($ticket);
-            $ticket=$ticket->halcashticket;
+            if(!$transaction){
+                throw new HttpException(400,'User not found');
+            }
+
+            $ticket=$transaction->getDataOut();
+            $ticket=$ticket['halcashticket'];
             $reference=$params[1];
 
-            $transaction->setService($this->get('telepay.services')
-                ->findByName('HalcashSend')->getId());
-            $datos=$this->get('halcashsendsp.service')
-                ->getHalcashSend($mode)
+            $transaction->setService($this->get('net.telepay.services.halcash_send')->getCname());
+            $datos=$this->get('net.telepay.provider.halcash_es')
                 ->cancelation($ticket,$reference);
 
             if($datos['errorcode']=='99'){

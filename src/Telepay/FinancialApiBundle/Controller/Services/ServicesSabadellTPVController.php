@@ -125,10 +125,9 @@ class ServicesSabadellTPVController extends FosRestController
         $transaction = new Transaction();
         $transaction->setIp($request->getClientIp());
         $transaction->setTimeIn(time());
-        $transaction->setService($this->get('telepay.services')->findByName('PaynetPayment')->getId());
+        $transaction->setService($this->get('net.telepay.services.sabadell.v1')->getCname());
         $transaction->setUser($this->get('security.context')->getToken()->getUser()->getId());
-        $transaction->setSentData(json_encode($paramsMongo));
-        $transaction->setMode($mode === 'P');
+        $transaction->setDataIn($paramsMongo);
 
         $dms = $this->get('doctrine_mongodb')->getManager();
         $dms->persist($transaction);
@@ -139,28 +138,14 @@ class ServicesSabadellTPVController extends FosRestController
         $amount=$params[0];
 
         //Check if it's a Test or Production transaction
-        if($mode=='T'){
-            $url_notification=$url_base.'/test/notifications/v1/sabadell/'.$id;
-            //Constructor in Test mode
-            $datos=$this->get('sabadell.service')->getSabadellTest($amount,$params[1],$params[2],$url_notification,$params[4],$params[5])-> request();
-        }elseif($mode=='P'){
-            $url_notification=$url_base.'/notifications/v1/sabadell/'.$id;
-            //Constructor in Production mode
-            $datos=$this->get('sabadell.service')->getSabadell($amount,$params[1],$params[2],$url_notification,$params[4],$params[5])->request();
-        }else{
-            //If is not one of the first shows an error message.
-            throw new HttpException(400,'Wrong require->Test with T or P');
-        }
-
-        //Response
-        $transaction->setSuccessful(true);
-
+        $url_final='/notifications/v1/sabadell/'.$id;
+        //Constructor in Test mode
+        $datos=$this->get('net.telepay.provider.sabadell')->request($amount,$params[1],$params[2],$url_base,$params[4],$params[5],$url_final);
 
         //Guardamos la respuesta
-        $transaction->setReceivedData(json_encode($datos));
+        $transaction->setDataOut($datos);
         $dm = $this->get('doctrine_mongodb')->getManager();
         $transaction->setTimeOut(time());
-        $transaction->setCompleted(false);
 
         $dm->persist($transaction);
         $dm->flush();

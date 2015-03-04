@@ -7,17 +7,19 @@
  */
 
 namespace Telepay\FinancialApiBundle\Controller\Services;
+use Telepay\FinancialApiBundle\DependencyInjection\Transactions\Core\TelepayResponse;
+use Telepay\FinancialApiBundle\Document\Transaction;
 
 /**
  * Class TestResponse
  * @package Telepay\FinancialApiBundle\Controller\Services
  */
-class SampleResponse{
+class SampleResponse implements TelepayResponse {
 
     /**
      * @var boolean
      */
-    private $testing;
+    private $mode;
 
     /**
      * @var \DateTime
@@ -25,14 +27,23 @@ class SampleResponse{
     private $server_time;
 
     public function __construct($testing, $server_time){
-        $this->testing=$testing;
+        $this->mode=$testing;
         $this->server_time=$server_time;
     }
 
     public function __toString(){
         return json_encode(array(
-            'testing'=>$this->testing,
-            'server_time'=>$this->server_time
+            'mode' => $this->mode,
+            'server_time' => $this->server_time
         ));
+    }
+
+    public function getTransaction(Transaction $baseTransaction) {
+        $outData = array(
+            'mode' => $this->mode,
+            'server_time' => $this->server_time
+        );
+        $baseTransaction->setData(json_encode($outData));
+        return $baseTransaction;
     }
 }

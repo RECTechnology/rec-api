@@ -1,0 +1,33 @@
+{
+  "name": "Telepay API Documentation",
+  "version": "0.1.0",
+  "description": "Documentation for Telepay API",
+  "title": "API Doc - Telepay",
+  "url" : "https://api.telepay.net",
+  "sampleUrl" : "https://api.telepay.net/test",
+  "header": {
+    "title": "Telepay API",
+    "filename": "header.md"
+  },
+  "footer": {
+    "filename": "footer.md"
+  },
+  "order": [
+    "OAuthToken",
+    "SignedRequest",
+    "NewTransaction",
+    "Check",
+    "Sample",
+    "BtcPay",
+    "FacPay",
+    "PagoFacil",
+    "ToditoCash",
+    "HalcashSend",
+    "HalcashPay",
+    "ReadUsers"
+  ],
+  "template": {
+    "withCompare": true,
+    "withGenerator": false
+  }
+}

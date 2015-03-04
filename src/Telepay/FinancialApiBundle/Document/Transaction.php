@@ -9,17 +9,25 @@
 namespace Telepay\FinancialApiBundle\Document;
 
 use Doctrine\ODM\MongoDB\Mapping\Annotations as MongoDB;
+use Telepay\FinancialApiBundle\DependencyInjection\Telepay\Interfaces\TransactionTiming;
+use Telepay\FinancialApiBundle\DependencyInjection\Transactions\Core\TransactionContext;
+use Telepay\FinancialApiBundle\DependencyInjection\Transactions\Core\TransactionContextInterface;
 
 /**
  * Class Transaction
  * @package Telepay\FinancialApiBundle\Document
  * @MongoDB\Document
  */
-class Transaction {
+class Transaction implements TransactionTiming {
 
-    public function __construct(){
-        $this->completed = false;
-        $this->successful = false;
+    public static function createFromContext(TransactionContextInterface $context){
+        $transaction = new Transaction();
+        $transaction->setIp($context->getRequestStack()->getCurrentRequest()->getClientIp());
+        $transaction->setTimeIn(new \MongoDate());
+        $transaction->setUser($context->getUser()->getId());
+        $transaction->setDataIn($context->getRequestStack()->getCurrentRequest());
+        $transaction->setMode($context->getMode());
+        return $transaction;
     }
 
     /**
@@ -36,7 +44,7 @@ class Transaction {
 
     /**
      * @var
-     * @MongoDB\Int
+     * @MongoDB\String
      */
     private $service;
 
@@ -62,31 +70,7 @@ class Transaction {
      * @var
      * @MongoDB\String
      */
-    private $sentData;
-
-    /**
-     * @var
-     * @MongoDB\String
-     */
-    private $receivedData;
-
-    /**
-     * @var
-     * @MongoDB\Boolean
-     */
     private $mode;
-
-    /**
-     * @var
-     * @MongoDB\Boolean
-     */
-    private $completed;
-
-    /**
-     * @var
-     * @MongoDB\Boolean
-     */
-    private $successful;
 
     /**
      * @var
@@ -94,13 +78,36 @@ class Transaction {
      */
     private $status;
 
+    /**
+     * @var
+     * @MongoDB\Int
+     */
+    private $version;
+
 
     /**
      * @var
-     * @MongoDB\Collection
+     * @MongoDB\Hash
+     */
+    private $dataIn;
+
+    /**
+     * @var
+     * @MongoDB\Hash
      */
     private $data;
 
+    /**
+     * @var
+     * @MongoDB\Hash
+     */
+    private $dataOut;
+
+    /**
+     * @var
+     * @MongoDB\Hash
+     */
+    private $debugData;
 
     /**
      * Get id
@@ -201,53 +208,9 @@ class Transaction {
     }
 
     /**
-     * Set sentData
-     *
-     * @param string $sentData
-     * @return self
-     */
-    public function setSentData($sentData)
-    {
-        $this->sentData = $sentData;
-        return $this;
-    }
-
-    /**
-     * Get sentData
-     *
-     * @return string $sentData
-     */
-    public function getSentData()
-    {
-        return $this->sentData;
-    }
-
-    /**
-     * Set receivedData
-     *
-     * @param string $receivedData
-     * @return self
-     */
-    public function setReceivedData($receivedData)
-    {
-        $this->receivedData = $receivedData;
-        return $this;
-    }
-
-    /**
-     * Get receivedData
-     *
-     * @return string $receivedData
-     */
-    public function getReceivedData()
-    {
-        return $this->receivedData;
-    }
-
-    /**
      * Set mode
      *
-     * @param boolean $mode
+     * @param string $mode
      * @return self
      */
     public function setMode($mode)
@@ -259,55 +222,11 @@ class Transaction {
     /**
      * Get mode
      *
-     * @return boolean $mode
+     * @return string $mode
      */
     public function getMode()
     {
         return $this->mode;
-    }
-
-    /**
-     * Set completed
-     *
-     * @param boolean $completed
-     * @return self
-     */
-    public function setCompleted($completed)
-    {
-        $this->completed = $completed;
-        return $this;
-    }
-
-    /**
-     * Get completed
-     *
-     * @return boolean $completed
-     */
-    public function getCompleted()
-    {
-        return $this->completed;
-    }
-
-    /**
-     * Set successful
-     *
-     * @param boolean $successful
-     * @return self
-     */
-    public function setSuccessful($successful)
-    {
-        $this->successful = $successful;
-        return $this;
-    }
-
-    /**
-     * Get successful
-     *
-     * @return boolean $successful
-     */
-    public function getSuccessful()
-    {
-        return $this->successful;
     }
 
     /**
@@ -356,5 +275,69 @@ class Transaction {
     public function setData($data)
     {
         $this->data = $data;
+    }
+
+    /**
+     * @return mixed
+     */
+    public function getDataIn()
+    {
+        return $this->dataIn;
+    }
+
+    /**
+     * @param mixed $dataIn
+     */
+    public function setDataIn($dataIn)
+    {
+        $this->dataIn = $dataIn;
+    }
+
+    /**
+     * @return mixed
+     */
+    public function getDataOut()
+    {
+        return $this->dataOut;
+    }
+
+    /**
+     * @param mixed $dataOut
+     */
+    public function setDataOut($dataOut)
+    {
+        $this->dataOut = $dataOut;
+    }
+
+    /**
+     * @return mixed
+     */
+    public function getDebugData()
+    {
+        return $this->debugData;
+    }
+
+    /**
+     * @param mixed $debugData
+     */
+    public function setDebugData($debugData)
+    {
+        $this->debugData = $debugData;
+    }
+
+    /**
+     * @return mixed
+     */
+    public function getVersion()
+    {
+        return $this->version;
+    }
+
+    /**
+     * @param mixed $version
+     */
+    public function setVersion($version)
+    {
+        $this->version = $version;
     }
 }

@@ -2,10 +2,6 @@ telepay_financial_api:
     resource: "@TelepayFinancialApiBundle/Resources/config/routing.yml"
     prefix:   /
 
-NelmioApiDocBundle:
-    resource: "@NelmioApiDocBundle/Resources/config/routing.yml"
-    prefix:   /doc/financial
-
 fos_oauth_server_token:
     resource: "@FOSOAuthServerBundle/Resources/config/routing/token.xml"
 
