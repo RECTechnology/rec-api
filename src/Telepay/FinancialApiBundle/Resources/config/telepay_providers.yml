@@ -85,8 +85,8 @@ services:
             - "%tc_url_flag%"
 
     net.telepay.provider.psc:
-            class: Telepay\FinancialApiBundle\DependencyInjection\Transactions\Libs\PaysafecardPayment
-            arguments:
-                - "%psc_username%"
-                - "%psc_password%"
-                - "%psc_env_url%"
+        class: Telepay\FinancialApiBundle\DependencyInjection\Transactions\Libs\PaysafecardPayment
+        arguments:
+            - "%psc_username%"
+            - "%psc_password%"
+            - "%psc_env_url%"
