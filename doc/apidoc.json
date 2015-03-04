@@ -2,9 +2,9 @@
   "name": "Telepay API Documentation",
   "version": "0.1.0",
   "description": "Documentation for Telepay API",
-  "title": "API Doc - Telepay",
-  "url" : "https://api.telepay.net",
-  "sampleUrl" : "https://api.telepay.net/test",
+  "title": "REST API - Telepay",
+  "url" : "https://pre-api.telepay.net",
+  "sampleUrl" : "https://pre-api.telepay.net/test",
   "header": {
     "title": "Telepay API",
     "filename": "header.md"
