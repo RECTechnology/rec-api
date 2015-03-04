@@ -102,13 +102,11 @@ namespace Telepay\FinancialApiBundle\DependencyInjection\Transactions\Libs;
                 'caducidad'		=>	$caducity
             );
 
-
             if($this->mode=='T'){
                 $response=array(
                     'errorcode'=>'0',
                     'halcashticket'=>'1234567890'
                 );
-
 
             }else{
                 $url='http://hcsvc.telepay.net/HalCashGatewayIssue.asmx?wsdl';
