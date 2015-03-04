@@ -4,30 +4,36 @@ namespace Telepay\FinancialApiBundle\DependencyInjection\Transactions\Libs;
 
 class MultivaService{
 
-    var $amount;
-    var $currency;
-    var $address;
-    var $order_id;
-    var $merchant;
-    var $store;
-    var $terminal;
-    var $urlback;
+    private $amount;
+    private $currency;
+    private $address;
+    private $order_id;
+    private $merchant;
+    private $store;
+    private $terminal;
+    private $urlback;
+    private $env_url;
 
     
-    function __construct($comtotal, $comcurrency, $comaddress,$comorder_id,$commerchant,$comstore,$comterminal,$comurlback){
-      
-      $this->amount=$comtotal;
-      $this->currency=$comcurrency;
-      $this->address=$comaddress;
-      $this->order_id=$comorder_id;
-      $this->merchant=$commerchant;
-      $this->store=$comstore;
-      $this->terminal=$comterminal;
-      $this->urlback=$comurlback;
-      
+    function __construct($comcurrency,$comaddress,$commerchant,$comstore,$comterminal,$env_url){
+
+        $this->currency=$comcurrency;
+        $this->address=$comaddress;
+        $this->merchant=$commerchant;
+        $this->store=$comstore;
+        $this->terminal=$comterminal;
+        $this->env_url=$env_url;
+
     }
 
-    public function request(){
+    public function request($comtotal,  $comorder_id,$url_base,$url_final){
+
+        $this->amount=$comtotal;
+        $this->order_id=$comorder_id;
+        $this->url_base=$url_base;
+        $this->url_final=$url_final;
+
+        $url_notification=$url_base.$this->env_url.$url_final;
 
         $digest=sha1($this->merchant.$this->store.$this->terminal.$this->amount.$this->currency.$this->order_id);
 
@@ -43,7 +49,7 @@ class MultivaService{
             'comterm'       =>  $this->terminal,
             'comdigest'     =>  $digest,
             'comaction'     =>  $url,
-            'comurlback'    =>  $this->urlback
+            'comurlback'    =>  $url_notification
         );
 
         return $response;

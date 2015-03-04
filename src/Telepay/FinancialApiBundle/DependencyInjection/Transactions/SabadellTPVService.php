@@ -17,9 +17,9 @@ class SabadellTPVService extends BaseService{
 
     private $sabadellProvider;
 
-    public function __construct($name, $cname, $role, $base64Image, $sabadellProvider, $transactionContext){
+    public function __construct($name, $cname, $role, $base64Image, $halcashSpProvider, $transactionContext){
         parent::__construct($name, $cname, $role, $base64Image, $transactionContext);
-        $this->sabadellProvider = $sabadellProvider;
+        $this->sabadellProvider = $halcashSpProvider;
     }
 
     public function getFields(){
@@ -39,7 +39,7 @@ class SabadellTPVService extends BaseService{
         $request=$this->getTransactionContext()->getRequestStack()->getCurrentRequest();
         $url_base=$request->getSchemeAndHttpHost().$request->getBaseUrl();
 
-        $url_final='/notifications/v1/sabadell/'.$id;
+        $url_final='/notifications/v2/sabadell/'.$id;
 
         $barcode = $this->sabadellProvider->request($amount,$id,$description,$url_base,$url_ok,$url_ko,$url_final);
 

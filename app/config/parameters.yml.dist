@@ -47,3 +47,10 @@ parameters:
     sabadell_base_url: ""
 
     paynet_reference_issuer: ""
+
+    multiva_comcurrency: currency number
+    multiva_comaddress: ADDRESS
+    multiva_commerchant: merchant code
+    multiva_comstore: store
+    multiva_comterm: terminal
+    multiva_base_url: ""

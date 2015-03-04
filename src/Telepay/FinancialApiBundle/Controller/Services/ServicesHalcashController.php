@@ -392,7 +392,7 @@ class ServicesHalcashController extends FosRestController
             $params[2]=$params[2]/100;
             $params[6]=str_replace('+','',$params[6]);
 
-            $transaction->setService($this->get('net.telepay.services.halcash_send')->getCname());
+            $transaction->setService($this->get('net.telepay.services.halcash_send.v2')->getCname());
 
             $datos=$this->get('net.telepay.provider.halcash_es')
                 ->sendV2($params[0],$params[6],$params[2],$params[3],$params[4],$params[5],$params[7]);

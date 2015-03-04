@@ -35,4 +35,11 @@ parameters:
 
     paynet_reference_issuer: "467accc5-4051-4472-bb17-dad1f68779bf"
 
+    multiva_comcurrency: 484
+    multiva_comaddress: PROSA
+    multiva_commerchant: 7531853
+    multiva_comstore: 1234
+    multiva_comterm: 001
+    multiva_base_url: "/test"
+
 

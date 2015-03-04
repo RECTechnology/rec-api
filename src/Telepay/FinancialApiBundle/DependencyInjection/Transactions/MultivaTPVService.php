@@ -8,55 +8,62 @@
 
 namespace Telepay\FinancialApiBundle\DependencyInjection\Transactions;
 
+use Symfony\Component\HttpKernel\Exception\HttpException;
 use Telepay\FinancialApiBundle\DependencyInjection\Transactions\Libs\MultivaService;
 use Telepay\FinancialApiBundle\DependencyInjection\Transactions\Core\BaseService;
+use Telepay\FinancialApiBundle\Document\Transaction;
 
 
 class MultivaTPVService extends BaseService{
 
-    //This parameters are unique for us. Don't give to the client
-    //For Test are 7 , 1 , 1, 1 , 1
-    private $testArray =array(
-        'comcurrency'   =>  '484',
-        'comaddress'    =>  'PROSA',
-        'commerchant'   =>  '7531853',
-        'comstore'      =>  '1234',
-        'comterm'       =>  '001',
-    );
+    private $paynetReferenceProvider;
 
-    //Para producción no los tenemos--de momento he puesto los mismos pero habrá que cambiarlos
-    private $prodArray =array(
-        'comcurrency'   =>  '484',
-        'comaddress'    =>  'PROSA',
-        'commerchant'   =>  '7531853',
-        'comstore'      =>  '1234',
-        'comterm'       =>  '001',
-    );
+    public function __construct($name, $cname, $role, $base64Image, $halcashSpProvider, $transactionContext){
+        parent::__construct($name, $cname, $role, $base64Image, $transactionContext);
+        $this->paynetReferenceProvider = $halcashSpProvider;
+    }
 
-    public function getMultivaTest($amount,$transaction_id,$url_notification){
+    public function getFields(){
+        return array(
+            'amount','url_notification'
+        );
+    }
 
-        return new MultivaService($amount,$this->testArray['comcurrency'],$this->testArray['comaddress'],$transaction_id,$this->testArray['commerchant'],$this->testArray['comstore'],$this->testArray['comterm'],$url_notification);
+    public function create(Transaction $baseTransaction = null){
+
+        if($baseTransaction === null) $baseTransaction = new Transaction();
+        $amount = $baseTransaction->getDataIn()['amount'];
+
+        $id=$baseTransaction->getId();
+
+        $request=$this->getTransactionContext()->getRequestStack()->getCurrentRequest();
+        $url_base=$request->getSchemeAndHttpHost().$request->getBaseUrl();
+
+        $url_final='/notifications/v1/multiva/'.$id;
+
+        $tpv = $this->paynetReferenceProvider->request($amount, $id, $url_base,$url_final);
+
+        if($tpv === false)
+            throw new HttpException(503, "Service temporarily unavailable, please try again in a few minutes");
+
+        $baseTransaction->setData($tpv);
+
+        return $baseTransaction;
 
     }
 
-    public function getMultiva($amount,$transaction_id,$url_notification){
-
-        return new MultivaService($amount,$this->prodArray['comcurrency'],$this->prodArray['comaddress'],$transaction_id,$this->prodArray['commerchant'],$this->prodArray['comstore'],$this->prodArray['comterm'],$url_notification);
+    public function update(Transaction $transaction, $data){
 
     }
 
-    public function getReceivedData()
-    {
-        // TODO: Implement getReceivedData() method.
+    public function check(Transaction $transaction){
+        $client_reference=$transaction->getId();
+
+        $status=$this->paynetReferenceProvider->status($client_reference);
+
+        $transaction->setData($status);
+
+        return $transaction;
     }
 
-    public function getStatus()
-    {
-        // TODO: Implement getStatus() method.
-    }
-
-    public function getSentData()
-    {
-        // TODO: Implement getSentData() method.
-    }
 }
