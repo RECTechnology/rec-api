@@ -17,6 +17,8 @@ namespace Telepay\FinancialApiBundle\DependencyInjection\Transactions\Libs;
         private $alias;
         private $transaction_id;
         private $hal;
+        private $user;
+        private $password;
 
         function __construct($user, $password, $alias)
         {
