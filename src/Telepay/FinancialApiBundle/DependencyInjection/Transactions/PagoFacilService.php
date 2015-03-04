@@ -8,60 +8,85 @@
 
 namespace Telepay\FinancialApiBundle\DependencyInjection\Transactions;
 
+use Symfony\Component\HttpKernel\Exception\HttpException;
 use Telepay\FinancialApiBundle\DependencyInjection\Transactions\Core\BaseService;
+use Telepay\FinancialApiBundle\Document\Transaction;
 
 
 class PagoFacilService extends BaseService{
 
-    //This parameters are unique for us. Don't give to the client
-    private $testArray =array(
-        'id_sucursal'   =>  '42ee3b415f4cebd37dffe881b929c0a0bac8a72c',
-        'id_usuario'    =>  '12a27c9c912ec6b4175c3bb316365965a19f6d31',
-        'id_servicio'   =>  '3',
-        'url_flag'      =>  'test'
-    );
+    private $pagofacilProvider;
 
-    //Para producción
-    private $prodArray =array(
-        'id_sucursal'   =>  '77cd297945a1b75979f742f183544e4867935777',
-        'id_usuario'    =>  'd65a8ff620762e81c026f10b3d76752a7f32d46d',
-        'id_servicio'   =>  '3',
-        'url_flag'      =>  'prod'
-    );
+    public function __construct($name, $cname, $role, $base64Image, $pagofacilProvider, $transactionContext){
+        parent::__construct($name, $cname, $role, $base64Image, $transactionContext);
+        $this->pagofacilProvider = $pagofacilProvider;
+    }
 
-    public function getPagofacilTest(){
-
-        return new PagofacilService(
-            $this->testArray['id_sucursal'],
-            $this->testArray['id_usuario'],
-            $this->testArray['id_servicio'],
-            $this->testArray['url_flag']
+    public function getFields(){
+        return array(
+            'name',
+            'surname',
+            'card_number',
+            'cvv',
+            'cp',
+            'expiration_month',
+            'expiration_year',
+            'amount',
+            'email',
+            'phone',
+            'mobile_phone',
+            'street_number',
+            'colony',
+            'city',
+            'quarter',
+            'country'
         );
     }
 
-    public function getPagofacil(){
+    public function create(Transaction $baseTransaction = null){
 
-        return new PagofacilService(
-            $this->prodArray['id_sucursal'],
-            $this->prodArray['id_usuario'],
-            $this->prodArray['id_servicio'],
-            $this->prodArray['url_flag']
-        );
+        if($baseTransaction === null) $baseTransaction = new Transaction();
+        $name = $baseTransaction->getDataIn()['name'];
+        $surname = $baseTransaction->getDataIn()['surname'];
+        $card_number = $baseTransaction->getDataIn()['card_number'];
+        //TODO hay que ocultar los numeros de la tarjeta para guardarlo en la base de datos
+        $cvv = $baseTransaction->getDataIn()['cvv'];
+        $cp = $baseTransaction->getDataIn()['cp'];
+        $expiration_month = $baseTransaction->getDataIn()['expiration_month'];
+        $expiration_year = $baseTransaction->getDataIn()['expiration_year'];
+        $amount = $baseTransaction->getDataIn()['amount'];
+        $email = $baseTransaction->getDataIn()['email'];
+        $phone = $baseTransaction->getDataIn()['phone'];
+        $mobile_phone = $baseTransaction->getDataIn()['mobile_phone'];
+        $street_number = $baseTransaction->getDataIn()['street_number'];
+        $colony = $baseTransaction->getDataIn()['colony'];
+        $city = $baseTransaction->getDataIn()['city'];
+        $quarter = $baseTransaction->getDataIn()['quarter'];
+        $country = $baseTransaction->getDataIn()['country'];
+        $id = $baseTransaction->getId();
+
+        $pagofacil = $this->pagofacilProvider->request($name,$surname,$card_number,$cvv,$cp,$expiration_month,$expiration_year,$amount,$email,$phone,$mobile_phone,$street_number,$colony,$city,$quarter,$country,$id);
+
+        if($pagofacil === false)
+            throw new HttpException(503, "Service temporarily unavailable, please try again in a few minutes");
+
+        $baseTransaction->setData($pagofacil);
+
+        return $baseTransaction;
 
     }
 
-    public function getReceivedData()
-    {
-        // TODO: Implement getReceivedData() method.
+    public function update(Transaction $transaction, $data){
+
     }
 
-    public function getStatus()
-    {
-        // TODO: Implement getStatus() method.
-    }
+    public function check(Transaction $transaction){
+        $client_reference=$transaction->getId();
 
-    public function getSentData()
-    {
-        // TODO: Implement getSentData() method.
+        $status=$this->pagofacilProvider->status($client_reference);
+
+        $transaction->setData($status);
+
+        return $transaction;
     }
 }

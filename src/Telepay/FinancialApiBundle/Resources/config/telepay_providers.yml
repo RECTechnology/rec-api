@@ -57,3 +57,11 @@ services:
             - "%pademobile_url%"
             - "%pademobile_env_url%"
 
+    net.telepay.provider.pagofacil:
+        class: Telepay\FinancialApiBundle\DependencyInjection\Transactions\Libs\PagofacilService
+        arguments:
+            - "%pagofacil_id_sucursal%"
+            - "%pagofacil_id_usuario%"
+            - "%pagofacil_id_servicio%"
+            - "%pagofacil_url_flag%"
+

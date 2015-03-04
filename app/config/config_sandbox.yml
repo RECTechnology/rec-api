@@ -46,4 +46,9 @@ parameters:
     pademobile_url : 'https://staging.pademobile.com:700/comprar'
     pademobile_env_url: "test"
 
+    pagofacil_id_sucursal: 42ee3b415f4cebd37dffe881b929c0a0bac8a72c
+    pagofacil_id_usuario: 12a27c9c912ec6b4175c3bb316365965a19f6d31
+    pagofacil_id_servicio: 3
+    pagofacil_url_flag: test
+
 
