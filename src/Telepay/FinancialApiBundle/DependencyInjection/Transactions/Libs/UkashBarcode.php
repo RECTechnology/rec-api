@@ -123,10 +123,10 @@ XML;
 
         $this->sRequest = <<<XML
     <UKashTransaction>
-        <ukashLogin>UKASH_Hipodromo</ukashLogin>
-        <ukashPassword>2eZLGxWuP9NhQOIN</ukashPassword>
+        <ukashLogin>$this->username</ukashLogin>
+        <ukashPassword>this->password</ukashPassword>
         <transactionId>$this->transaction_id</transactionId>
-        <brandId>UKASH19450</brandId>
+        <brandId>$this->brand_id</brandId>
         <voucherNumber>$this->voucher_number</voucherNumber>
         <voucherValue>$this->voucher_value</voucherValue>
         <baseCurr>$this->currency</baseCurr>

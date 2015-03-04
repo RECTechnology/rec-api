@@ -73,4 +73,9 @@ parameters:
     ukash_generate_brand_id: UKASH17740
     ukash_generate_production_flag: 0
 
+    ukash_redemption_username: "UKASH_Hipodromo"
+    ukash_redemption_password: 2eZLGxWuP9NhQOIN
+    ukash_redemption_brand_id: UKASH19450
+    ukash_redemption_production_flag: 0
+
 

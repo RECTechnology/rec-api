@@ -98,3 +98,11 @@ services:
             - "%ukash_generate_password%"
             - "%ukash_generate_brand_id%"
             - "%ukash_generate_production_flag%"
+
+    net.telepay.provider.ukash_redemption:
+        class: Telepay\FinancialApiBundle\DependencyInjection\Transactions\Libs\UkashBarcode
+        arguments:
+            - "%ukash_redemption_username%"
+            - "%ukash_redemption_password%"
+            - "%ukash_redemption_brand_id%"
+            - "%ukash_redemption_production_flag%"
