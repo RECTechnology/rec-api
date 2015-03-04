@@ -427,7 +427,8 @@ class NotificationsController extends FOSRestController{
             }
 
             $fields=array(
-                'telepay_id'    =>  $transaction_id
+                'telepay_id'    =>  $transaction_id,
+                'status'        =>  $status
             );
 
             // create curl resource
@@ -442,6 +443,8 @@ class NotificationsController extends FOSRestController{
             $output = curl_exec($ch);
             // close curl resource to free up system resources
             curl_close($ch);
+
+
 
             $view = $this->view('OK', '200');
 

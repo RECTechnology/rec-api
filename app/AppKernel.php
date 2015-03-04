@@ -20,7 +20,6 @@ class AppKernel extends Kernel
             new Telepay\FinancialApiBundle\TelepayFinancialApiBundle(),
             new FOS\RestBundle\FOSRestBundle(),
             new JMS\SerializerBundle\JMSSerializerBundle(),
-            new Nelmio\ApiDocBundle\NelmioApiDocBundle(),
             new FOS\OAuthServerBundle\FOSOAuthServerBundle(),
             new Doctrine\Bundle\MongoDBBundle\DoctrineMongoDBBundle(),
             new Nelmio\CorsBundle\NelmioCorsBundle(),

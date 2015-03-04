@@ -29,5 +29,4 @@ class ApiController extends RestApiController{
             )
         );
     }
-
 }
