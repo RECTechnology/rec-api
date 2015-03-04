@@ -78,4 +78,9 @@ parameters:
     ukash_redemption_brand_id: UKASH19450
     ukash_redemption_production_flag: 0
 
+    ukash_redirect_security_token: 12345678901234567890
+    ukash_redirect_brand_id: UKASH10082
+    ukash_redirect_language_code: EN
+    ukash_redirect_env_url: "/test"
+
 
