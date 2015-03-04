@@ -80,3 +80,8 @@ parameters:
     psc_username: user
     psc_password: pass
     psc_env_url: ""
+
+    ukash_generate_username: user
+    ukash_generate_password: pass
+    ukash_generate_brand_id: brand
+    ukash_generate_production_flag: 0

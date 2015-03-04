@@ -90,3 +90,11 @@ services:
             - "%psc_username%"
             - "%psc_password%"
             - "%psc_env_url%"
+
+    net.telepay.provider.ukash_generate:
+        class: Telepay\FinancialApiBundle\DependencyInjection\Transactions\Libs\UkashBarcode
+        arguments:
+            - "%ukash_generate_username%"
+            - "%ukash_generate_password%"
+            - "%ukash_generate_brand_id%"
+            - "%ukash_generate_production_flag%"

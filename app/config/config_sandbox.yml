@@ -68,4 +68,9 @@ parameters:
     psc_password: bJnAWBTUlAelk
     psc_env_url: "/test"
 
+    ukash_generate_username: "UKASH_Telepay"
+    ukash_generate_password: gdf58a4rtdut5tdy
+    ukash_generate_brand_id: UKASH17740
+    ukash_generate_production_flag: 0
+
 

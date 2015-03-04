@@ -8,30 +8,51 @@
 
 namespace Telepay\FinancialApiBundle\DependencyInjection\Transactions;
 
+use Symfony\Component\HttpKernel\Exception\HttpException;
 use Telepay\FinancialApiBundle\DependencyInjection\Transactions\Libs\UkashBarcode;
 use Telepay\FinancialApiBundle\DependencyInjection\Transactions\Core\BaseService;
+use Telepay\FinancialApiBundle\Document\Transaction;
 
 class UkashGenerateService extends BaseService{
 
-    public function getUkashOnline($mode){
+    private $ukashGenerateProvider;
 
-        return new UkashBarcode($mode);
+    public function __construct($name, $cname, $role, $base64Image, $ukashGenerateProvider, $transactionContext){
+        parent::__construct($name, $cname, $role, $base64Image, $transactionContext);
+        $this->ukashGenerateProvider = $ukashGenerateProvider;
+    }
+
+    public function getFields(){
+        return array(
+            'currency','amount'
+        );
+    }
+
+    public function create(Transaction $baseTransaction = null){
+
+        if($baseTransaction === null) $baseTransaction = new Transaction();
+        $currency = $baseTransaction->getDataIn()['currency'];
+        $amount = $baseTransaction->getDataIn()['amount'];
+        $merchant_id='Telepay';
+
+        $id=$baseTransaction->getId();
+
+        $barcode = $this->ukashGenerateProvider->request($merchant_id,$currency,$id,$amount);
+
+        if($barcode === false)
+            throw new HttpException(503, "Service temporarily unavailable, please try again in a few minutes");
+
+        if($barcode['txCode']==99){
+            throw new HttpException(400,$barcode['errDescription']);
+        }
+        $baseTransaction->setData($barcode);
+
+        return $baseTransaction;
 
     }
 
+    public function update(Transaction $transaction, $data){
 
-    public function getReceivedData()
-    {
-        // TODO: Implement getReceivedData() method.
     }
 
-    public function getStatus()
-    {
-        // TODO: Implement getStatus() method.
-    }
-
-    public function getSentData()
-    {
-        // TODO: Implement getSentData() method.
-    }
 }
