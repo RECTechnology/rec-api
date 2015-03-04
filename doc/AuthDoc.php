@@ -63,17 +63,31 @@
  *          "error": "invalid_grant",
  *          "error_description": "Invalid username and password combination"
  *    }
- *
- * @apiSampleRequest http://dev-api.telepay.net/test/oauth/v2/token
+ */
+
+/**
+ * @apiDefine OAuth2Header Authentication Header
+ * @apiHeader (Bearer) {String} Authorization=Bearer:
+ * OAuth2 access token authentication header
  *
  */
+
+/**
+ * @apiDefine SignatureHeader
+ * @apiHeader (Signature) {String} X-Signature
+ * Signed request authentication header
+ *
+ */
+
 
 
 /**
  * @api {post} /services/v1/sample Signed request
  * @apiName SignedRequest
- * @apiDescription Creates a transaction to the sample service with tie signed request
+ * @apiDescription Creates a transaction to the sample service with tie signed request, this authentication schema
+ * is used by all the Telepay SDKs and should be used from machine-to-machine interaction.
  * @apiVersion 1.0.0
  * @apiGroup Authentication
- *
+ * @apiUse SignatureHeader
+ * @apiUse OAuth2Header
  */

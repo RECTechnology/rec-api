@@ -15,8 +15,6 @@
   "order": [
     "OAuthToken",
     "SignedRequest",
-    "NewTransaction",
-    "Check",
     "Sample",
     "BtcPay",
     "FacPay",
