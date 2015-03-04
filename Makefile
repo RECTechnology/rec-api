@@ -7,20 +7,12 @@ test:
 clean:
 	rm -rf build
 
-doc: clean-doc doc-management doc-services doc-wallet
+doc: clean-doc doc-api
 	cp -r doc/web/* build/doc/
 
-doc-management:
-	cd doc/management && apidoc -i ../../src/ -o ../../build/doc/api/management
-	cp web/favicon.ico build/doc/api/management/img
-
-doc-services:
-	cd doc/services && apidoc -i ../../src/ -o ../../build/doc/api/services
-	cp web/favicon.ico build/doc/api/services/img
-
-doc-wallet:
-	cd doc/wallet && apidoc -i ../../src/ -o ../../build/doc/api/wallet
-	cp web/favicon.ico build/doc/api/wallet/img
+doc-api:
+	cd doc && apidoc -i . -o ../build/doc/api
+	cp web/favicon.ico build/doc/api/img
 
 clean-doc:
 	rm -rf build/doc

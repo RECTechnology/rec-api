@@ -1,6 +1,6 @@
 <?php
 
-namespace Telepay\FinancialApiBundle\Controller\Admin;
+namespace Telepay\FinancialApiBundle\Controller\Management\Admin;
 
 use Telepay\FinancialApiBundle\Controller\BaseApiController;
 use Telepay\FinancialApiBundle\Entity\Client;
@@ -9,7 +9,7 @@ use Symfony\Component\HttpFoundation\Request;
 
 /**
  * Class ClientController
- * @package Telepay\FinancialApiBundle\Controller
+ * @package Telepay\FinancialApiBundle\Controller\Management\Admin
  */
 class ClientsController extends BaseApiController {
 

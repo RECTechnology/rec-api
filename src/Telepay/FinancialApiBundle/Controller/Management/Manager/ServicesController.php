@@ -1,6 +1,6 @@
 <?php
 
-namespace Telepay\FinancialApiBundle\Controller\Manager;
+namespace Telepay\FinancialApiBundle\Controller\Management\Manager;
 
 use Telepay\FinancialApiBundle\Controller\RestApiController;
 use Telepay\FinancialApiBundle\DependencyInjection\ServicesRepository;
@@ -15,7 +15,7 @@ use Symfony\Component\HttpKernel\Exception\HttpException;
 
 /**
  * Class ServicesController
- * @package Telepay\FinancialApiBundle\Controller\Manager
+ * @package Telepay\FinancialApiBundle\Controller\Management\Manager
  */
 class ServicesController extends RestApiController {
 
