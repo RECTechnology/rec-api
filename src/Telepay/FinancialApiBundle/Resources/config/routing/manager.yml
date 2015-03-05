@@ -3,21 +3,21 @@
 
 admin_users_index:
     pattern:  /manager/v1/users
-    defaults: { _controller: Telepay\FinancialApiBundle\Controller\Manager\UsersController::indexAction, _format: ~ }
+    defaults: { _controller: Telepay\FinancialApiBundle\Controller\Management\Manager\UsersController::indexAction, _format: ~ }
     requirements:
         _method: GET
 
 
 admin_users_set_image:
     pattern:  /manager/v1/users/{id}/image
-    defaults: { _controller: Telepay\FinancialApiBundle\Controller\Manager\UsersController::setImage, _format: ~ }
+    defaults: { _controller: Telepay\FinancialApiBundle\Controller\Management\Manager\UsersController::setImage, _format: ~ }
     requirements:
         _method: PUT
 
 
 admin_users_read:
     pattern:  /manager/v1/users/{id}
-    defaults: { _controller: Telepay\FinancialApiBundle\Controller\Manager\UsersController::showAction, _format: ~ }
+    defaults: { _controller: Telepay\FinancialApiBundle\Controller\Management\Manager\UsersController::showAction, _format: ~ }
     requirements:
         _method: GET
         id: "[0-9]+"
