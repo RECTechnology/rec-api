@@ -163,7 +163,6 @@ namespace Telepay\FinancialApiBundle\DependencyInjection\Transactions\Libs;
                 'caducidad'		=>	$caducity
             );
 
-
             if($this->mode=='T'){
                 $response=array(
                     'errorcode'=>'0',
