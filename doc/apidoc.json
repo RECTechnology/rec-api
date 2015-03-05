@@ -15,6 +15,7 @@
   "order": [
     "OAuthToken",
     "SignedRequest",
+
     "Sample",
     "BtcPay",
     "FacPay",
@@ -22,6 +23,12 @@
     "ToditoCash",
     "HalcashSend",
     "HalcashPay",
+
+    "ReadClients",
+    "ReadClient",
+    "UpdateClient",
+    "DeleteClient",
+
     "ReadUsers"
   ],
   "template": {

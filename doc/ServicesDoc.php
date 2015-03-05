@@ -8,7 +8,7 @@
 
 
 
-/**
+/*
  *
  * @api {post} /services/v1/{service} New transaction
  * @apiName NewTransaction
@@ -19,7 +19,7 @@
  */
 
 
-/**
+/*
  *
  * @api {get} /services/{version}/{service}/{id} Check transaction
  * @apiName Check
@@ -36,7 +36,7 @@
  * @apiName BtcPay
  * @apiDescription Creates an new transaction to the 'service' service
  * @apiVersion 1.0.0
- * @apiGroup Service List
+ * @apiGroup Services
  *
  */
 
@@ -46,7 +46,7 @@
  * @apiName FacPay
  * @apiDescription Creates an new transaction with FairCoin
  * @apiVersion 1.0.0
- * @apiGroup Service List
+ * @apiGroup Services
  *
  *
  *
@@ -59,7 +59,7 @@
  * @apiName PagoFacil
  * @apiDescription Creates an new transaction with Pagofacil MXN provider
  * @apiVersion 1.0.0
- * @apiGroup Service List
+ * @apiGroup Services
  *
  *
  *
@@ -72,7 +72,7 @@
  * @apiName ToditoCash
  * @apiDescription Creates an new transaction with ToditoCash MXN provider
  * @apiVersion 1.0.0
- * @apiGroup Service List
+ * @apiGroup Services
  *
  *
  *
@@ -85,7 +85,7 @@
  * @apiName HalcashSend
  * @apiDescription Sends money via HalCash to any number in Spain and Mexico.
  * @apiVersion 1.0.0
- * @apiGroup Service List
+ * @apiGroup Services
  *
  *
  *
@@ -98,7 +98,7 @@
  * @apiName HalcashPay
  * @apiDescription Pay with HalCash in Mexico shops.
  * @apiVersion 1.0.0
- * @apiGroup Service List
+ * @apiGroup Services
  *
  *
  *

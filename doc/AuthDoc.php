@@ -67,8 +67,9 @@
 
 /**
  * @apiDefine OAuth2Header Authentication Header
- * @apiHeader (Bearer) {String} Authorization=Bearer:
- * OAuth2 access token authentication header
+ * @apiHeader (Authorization) {String="Bearer: [access_token]"} Authorization The access token
+ * @apiHeaderExample {String} Authorization Example
+ *      Authorization: Bearer NTM2MDQ0ZjFhYWI4Zjk4OGMwNGVmYjg4NzJmZGU3YWI1ZWIyYzQyYWM2YTAwMzlmNzNmZDNkNzZkYzZlNTViYg
  *
  */
 
@@ -88,6 +89,5 @@
  * is used by all the Telepay SDKs and should be used from machine-to-machine interaction.
  * @apiVersion 1.0.0
  * @apiGroup Authentication
- * @apiUse SignatureHeader
  * @apiUse OAuth2Header
  */
