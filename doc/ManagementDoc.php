@@ -36,8 +36,6 @@
  *
  * @apiError {String} lastname  Lastname of the User.
  *
- *
- *
  */
 
 /**
