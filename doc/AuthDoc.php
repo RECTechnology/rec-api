@@ -89,5 +89,4 @@
  * is used by all the Telepay SDKs and should be used from machine-to-machine interaction.
  * @apiVersion 1.0.0
  * @apiGroup Authentication
- * @apiUse OAuth2Header
  */
