@@ -65,7 +65,7 @@ body{
 	width: 340px;
 	float: left;
 	margin: 0 auto;
-	margin-top: 50px;
+	margin-top: 30px;
 }
 .box:last-child{
 	float: right;
@@ -100,6 +100,6 @@ body{
 	color: #fff;
 	background: url("../img/footer.jpg");
 	background-size: cover;
-	margin: 50px 0 0 0;
+	margin: 30px 0 0 0;
 	font-weight: bold;
 }
