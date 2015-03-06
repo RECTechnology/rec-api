@@ -15,7 +15,7 @@ class CryptoResponse implements \JsonSerializable{
     private $expires_in = 3600;
     private $address;
     private $amount;
-    private $confirmations;
+    private $min_confirmations;
 
     /**
      * @return mixed
@@ -52,9 +52,9 @@ class CryptoResponse implements \JsonSerializable{
     /**
      * @return mixed
      */
-    public function getConfirmations()
+    public function getMinConfirmations()
     {
-        return $this->confirmations;
+        return $this->min_confirmations;
     }
 
     public function __construct($id, $expires_in, $address, $amount, $confirmations){
@@ -62,7 +62,7 @@ class CryptoResponse implements \JsonSerializable{
         $this->expires_in = $expires_in;
         $this->address = $address;
         $this->amount = $amount;
-        $this->confirmations = $confirmations;
+        $this->min_confirmations = $confirmations;
     }
 
     /**
@@ -78,7 +78,7 @@ class CryptoResponse implements \JsonSerializable{
             'expires_in' => $this->expires_in,
             'address' => $this->address,
             'amount' => $this->amount,
-            'confirmations' => $this->confirmations
+            'min_confirmations' => $this->min_confirmations
         );
     }
 
