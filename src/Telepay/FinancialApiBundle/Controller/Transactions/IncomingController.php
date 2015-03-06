@@ -48,14 +48,15 @@ class IncomingController extends RestApiController{
         $transaction = Transaction::createFromContext($this->get('transaction.context'));
         $transaction->setService($service_cname);
         $transaction->setVersion($version_number);
-        $transaction->setStatus("CREATED");
+        $transaction->setStatus("created");
         $transaction->setDataIn($dataIn);
         $this->get('doctrine_mongodb')->getManager()->persist($transaction);
 
         try {
             $transaction = $service->create($transaction);
         }catch (HttpException $e){
-            $transaction->setStatus("FAILED");
+            if($transaction->getStatus() === "created")
+                $transaction->setStatus("failed");
             $dm->persist($transaction);
             $dm->flush();
             throw $e;
@@ -67,12 +68,20 @@ class IncomingController extends RestApiController{
 
         if($transaction == false) throw new HttpException(500, "oOps, some error has occurred within the call");
 
-        return $this->rest(200, "Successful", $transaction->getData());
+        return $this->restTransaction($transaction, "Done");
     }
 
 
-    public function update(){
+    /**
+     * @Rest\View
+     */
+    public function update(Request $request, $version_number, $service_cname, $id){
 
+        $service = $this->get('net.telepay.services.'.$service_cname.'.v'.$version_number);
+
+        if (false === $this->get('security.authorization_checker')->isGranted($service->getRole())) {
+            throw $this->createAccessDeniedException();
+        }
     }
 
     /**
@@ -95,7 +104,9 @@ class IncomingController extends RestApiController{
 
         if($transaction->getService() != $service->getCname()) throw new HttpException(404, 'Transaction not found');
         $transaction = $service->check($transaction);
-        return $this->rest(200, "Successful", $transaction->getData());
+        $this->get('doctrine_mongodb')->getManager()->persist($transaction);
+        $this->get('doctrine_mongodb')->getManager()->flush();
+        return $this->restTransaction($transaction, "Got ok");
     }
 
 
@@ -157,8 +168,9 @@ class IncomingController extends RestApiController{
             }
         }
 
-        return $this->rest(
+        return $this->restV2(
             200,
+            "ok",
             "Request successful",
             $transArray
         );
@@ -185,7 +197,7 @@ class IncomingController extends RestApiController{
 
         if(!$transaction) throw new HttpException(500, "oOps, the notification failed");
 
-        return $this->rest(200, "Notification successful");
+        return $this->restV2(200, "ok", "Notification successful");
     }
 }
 

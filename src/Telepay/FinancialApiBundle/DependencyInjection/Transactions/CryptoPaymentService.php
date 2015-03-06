@@ -40,15 +40,15 @@ class CryptoPaymentService extends BaseService {
         if($address === false)
             throw new HttpException(503, "Service temporarily unavailable, please try again in a few minutes");
 
-        $data = new CryptoResponse(
-            $baseTransaction->getId(),
-            3600,
-            $address,
-            $amount,
-            $confirmations
-        );
-
-        $baseTransaction->setData($data->jsonSerialize());
+        $baseTransaction->setData(array(
+            'id' => $baseTransaction->getId(),
+            'address'=>$address,
+            'expires_in'=>3600,
+            'amount'=>intval($amount),
+            'received'=>0.0,
+            'min_confirmations'=>intval($confirmations),
+            'confirmations'=>0,
+        ));
 
         return $baseTransaction;
 
@@ -56,24 +56,25 @@ class CryptoPaymentService extends BaseService {
 
     public function check(Transaction $transaction){
 
-        $data = $transaction->getData();
-        if($transaction->getStatus() === 'SUCCESS' || $transaction->getStatus() === 'EXPIRED')
+        $currentData = $transaction->getData();
+        $transaction->setStatus('created');
+        if($transaction->getStatus() === 'success' || $transaction->getStatus() === 'expired')
             return $transaction;
-        $address = $data['address'];
-        $amount = $data['amount'];
-        $minConfirmations = $data['min_confirmations'];
+        $address = $currentData['address'];
+        $amount = $currentData['amount'];
         $allReceived = $this->cryptoProvider->listreceivedbyaddress(0, true);
-        foreach($allReceived as $account){
-            if($account['address'] == $address && $account['amount'] >= $amount*1e8){
-                $data['received'] = $account['amount'];
-                $data['confirmations'] = $account['confirmations'];
-                if($minConfirmations >= $account['min_confirmations'])
-                    $transaction->setStatus("SUCCESS");
+        foreach($allReceived as $cryptoData){
+            if($cryptoData['address'] == $address && floatval($cryptoData['amount'])*1e8 >= $amount){
+                $currentData['received'] = floatval($cryptoData['amount'])*1e8;
+                $currentData['confirmations'] = $cryptoData['confirmations'];
+                if($currentData['confirmations'] >= $currentData['min_confirmations'])
+                    $transaction->setStatus("success");
                 else
-                    $transaction->getStatus("RECEIVED");
+                    $transaction->setStatus("received");
+                $transaction->setData($currentData);
+                return $transaction;
             }
         }
-
         return $transaction;
     }
 }
