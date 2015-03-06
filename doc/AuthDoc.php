@@ -183,8 +183,9 @@
 /**
  * @api {post} /services/v1/sample Sample OAuth 2.0
  * @apiName TestOAuth2
- * @apiDescription Creates a transaction to the sample service the OAuth2 <code>access_token</code>
- * (obtained in <a href="#api-Authentication-OAuthToken">Create access_token</a> section).
+ * @apiDescription This is a sample service for make tests with the different auhentication methods, this creates a
+ * transaction to the sample service the OAuth2 <code>access_token</code> (obtained in
+ * <a href="#api-Authentication-OAuthToken">Create access_token</a> section).
  * @apiVersion 0.1.0
  * @apiGroup Authentication
  * @apiUse SampleResponse

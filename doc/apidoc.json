@@ -14,11 +14,13 @@
   },
   "order": [
     "OAuthToken",
-    "SignedRequest",
+    "TestOAuth2",
+    "TestSignedRequest",
 
-    "Sample",
-    "BtcPay",
-    "FacPay",
+    "BtcPayCreate",
+    "BtcPayCheck",
+    "FacPayCreate",
+    "FacPayCheck",
     "PagoFacil",
     "ToditoCash",
     "HalcashSend",
