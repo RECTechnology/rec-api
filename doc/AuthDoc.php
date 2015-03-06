@@ -32,6 +32,7 @@
  * @apiError {String} error_description  The description of the error.
  *
  * @apiSuccessExample Client Credentials Success
+ *    HTTP/1.1 200 OK
  *    {
  *          "access_token": "YmIwNDY5M2JjNWVlNWUyN2E5NWE4ZDBmMGVkNWU1MjU0NmE3N2FkMzQ1MWNkNjM1ZjJhNWY2ZGFmZTI5NTA1ZQ",
  *          "expires_in": 3600,
@@ -39,6 +40,7 @@
  *          "scope": "panel"
  *    }
  * @apiSuccessExample Password Success
+ *    HTTP/1.1 200 OK
  *    {
  *          "access_token": "NTM2MDQ0ZjFhYWI4Zjk4OGMwNGVmYjg4NzJmZGU3YWI1ZWIyYzQyYWM2YTAwMzlmNzNmZDNkNzZkYzZlNTViYg",
  *          "expires_in": 3600,
@@ -48,19 +50,19 @@
  *    }
  *
  * @apiErrorExample Invalid Grant Type
- *    Error 400: Bad Request
+ *    HTTP/1.1 400: Bad Request
  *    {
  *          "error": "invalid_request",
  *          "error_description": "Invalid grant_type parameter or parameter missing"
  *    }
  * @apiErrorExample Invalid Scope
- *    Error 400: Bad Request
+ *    HTTP/1.1 400: Bad Request
  *    {
  *          "error": "invalid_scope",
  *          "error_description": "An unsupported scope was requested."
  *    }
  * @apiErrorExample Invalid Credentials
- *    Error 400: Bad Request
+ *    HTTP/1.1 400: Bad Request
  *    {
  *          "error": "invalid_grant",
  *          "error_description": "Invalid username and password combination"
@@ -140,6 +142,7 @@
  *
  * @apiDefine SampleResponseExample
  * @apiSuccessExample {json} Success
+ * HTTP/1.1 200 OK
  * {
  *   "code": 200,
  *   "message": "Successful",
@@ -158,7 +161,7 @@
  *
  * @apiDefine NotAuthenticated
  * @apiErrorExample {json} Unauthorized
- * Error 401: Unauthorized
+ * HTTP/1.1 401 Unauthorized
  * {
  *     "code": 401,
  *     "message": "You are not authenticated"
@@ -170,7 +173,7 @@
  *
  * @apiDefine BadSignature
  * @apiErrorExample {json} Bad signature
- * Error 403: Forbidden
+ * HTTP/1.1 403 Forbidden
  *
  */
 
