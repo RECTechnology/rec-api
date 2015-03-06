@@ -15,7 +15,7 @@ use Telepay\FinancialApiBundle\Document\Transaction;
 class AbstractService implements ServiceInterface, ServiceLifeCycle {
 
     public function getFields(){
-        throw new HttpException(501, "Method not implemented");
+        return array();
     }
     public function create(Transaction $t){
         throw new HttpException(501, "Method not implemented");

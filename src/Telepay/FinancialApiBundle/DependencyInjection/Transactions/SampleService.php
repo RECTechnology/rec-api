@@ -14,7 +14,6 @@ use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
 use Telepay\FinancialApiBundle\Controller\Services\SampleResponse;
 use Telepay\FinancialApiBundle\DependencyInjection\Transactions\Core\BaseService;
 use Telepay\FinancialApiBundle\DependencyInjection\Transactions\Core\ServiceLifeCycle;
-use Telepay\FinancialApiBundle\DependencyInjection\Transactions\Services\Sample;
 use Telepay\FinancialApiBundle\Document\Transaction;
 
 
@@ -23,5 +22,18 @@ use Telepay\FinancialApiBundle\Document\Transaction;
  * @package Telepay\FinancialApiBundle\DependencyInjection\Services
  */
 class SampleService extends BaseService {
-    
+    public function getFields(){
+        return array('param');
+    }
+
+    public function create(Transaction $baseTransaction = null){
+
+        $baseTransaction->setData(array(
+            'param' => $baseTransaction->getDataIn()['param'],
+            'server_time' => new \MongoDate()
+        ));
+
+        return $baseTransaction;
+    }
+
 }

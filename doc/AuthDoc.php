@@ -126,12 +126,67 @@
 
 
 /**
- * @api {post} /services/v1/sample Test OAuth2 authentication
+ * @apiDefine SampleResponse
+ * @apiParam {String} param Sample parameter
+ * @apiSuccess {String} param The sent parameter
+ * @apiSuccess {Object} server_time The server time
+ * @apiSuccess {Integer} server_time.secs The server time seconds
+ * @apiSuccess {Integer} server_time.usec The server time time part micro seconds
+ *
+ */
+
+
+/**
+ *
+ * @apiDefine SampleResponseExample
+ * @apiSuccessExample {json} Success
+ * {
+ *   "code": 200,
+ *   "message": "Successful",
+ *   "data": {
+ *       "param": "hello, this is a testing parameter",
+ *       "server_time": {
+ *           "sec": 1425605649,
+ *           "usec": 27000
+ *       }
+ *   }
+ * }
+ *
+ */
+
+/**
+ *
+ * @apiDefine NotAuthenticated
+ * @apiErrorExample {json} Unauthorized
+ * Error 401: Unauthorized
+ * {
+ *     "code": 401,
+ *     "message": "You are not authenticated"
+ * }
+ *
+ */
+
+/**
+ *
+ * @apiDefine BadSignature
+ * @apiErrorExample {json} Bad signature
+ * Error 403: Forbidden
+ *
+ */
+
+
+
+
+/**
+ * @api {post} /services/v1/sample Sample OAuth 2.0
  * @apiName TestOAuth2
  * @apiDescription Creates a transaction to the sample service the OAuth2 <code>access_token</code>
  * (obtained in <a href="#api-Authentication-OAuthToken">Create access_token</a> section).
- * @apiVersion 0.1.1
+ * @apiVersion 0.1.0
  * @apiGroup Authentication
+ * @apiUse SampleResponse
+ * @apiUse SampleResponseExample
+ * @apiUse NotAuthenticated
  * @apiUse OAuth2Header
  *
  */
@@ -139,14 +194,16 @@
 
 
 /**
- * @api {post} /services/v1/sample Test signed request
+ * @api {post} /services/v1/sample Sample signature
  * @apiName TestSignedRequest
  * @apiDescription Creates a transaction to the sample service with tie signed request, this authentication schema
  * allows to make a single call (OAuth 2.0 needs user interaction and needs two calls) is used by all the Telepay
  * SDKs and should be used for <a href="http://en.wikipedia.org/wiki/Machine_to_machine">machine-to-machine</a>
  * interaction.
- * @apiVersion 0.1.0
+ * @apiVersion 0.1.1
  * @apiGroup Authentication
+ * @apiUse SampleResponse
+ * @apiUse BadSignature
  * @apiUse SignatureHeader
  *
  */
