@@ -68,11 +68,13 @@ class User extends BaseUser
 
     /**
      * @ORM\Column(type="string")
+     * @Expose
      */
     private $access_key;
 
     /**
      * @ORM\Column(type="string")
+     * @Expose
      */
     private $access_secret;
 

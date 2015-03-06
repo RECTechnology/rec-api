@@ -7,9 +7,11 @@
 
 
 /**
- * @api {post} /oauth/v2/token OAuth2 Token
+ * @api {post} /oauth/v2/token Create access_token
  * @apiName OAuthToken
- * @apiDescription Creates an access token to be used in each request
+ * @apiDescription Creates one <code>access_token</code> to be used in each request
+ * (see <a href="#api-Authentication-TestOAuth2">Test OAuth2 authentication</a>), for simpleness we will use this
+ * authentication method in all the <code>sandbox/test</code> calls.
  * @apiVersion 2.0.0
  * @apiGroup Authentication
  *
@@ -65,29 +67,86 @@
  *    }
  */
 
+
 /**
- * @apiDefine OAuth2Header Authentication Header
- * @apiHeader (Headers) {String="Bearer: <access_token>"} Authorization The bearer <code>access_token</code> got in the <code>/oauth/v2/token</code> call.
- * @apiHeaderExample {String} Authorization Example
+ * @apiDefine OAuth2Header
+ * @apiHeader (Headers) {String="Bearer: access_token"} Authorization The bearer <code>access_token</code>.
+ * @apiHeaderExample {String} OAuth2 Header Example
  *      Authorization: Bearer NTM2MDQ0ZjFhYWI4Zjk4OGMwNGVmYjg4NzJmZGU3YWI1ZWIyYzQyYWM2YTAwMzlmNzNmZDNkNzZkYzZlNTViYg
  *
  */
 
+
 /**
  * @apiDefine SignatureHeader
- * @apiHeader (Headers) {String} X-Signature
+ * @apiHeader (Authentication) {String} X-Signature
  * Signed request authentication header
+ *
+ * @apiExample {python} Signed requests authentication schema
+ * # Authenticaton scheme explained in pseudo-code
+ *
+ * # The authentication credentials provided in https://cp.telepay.net/user/account
+ * access_key = "edbeb673024f2d0e23752e2814ca1ac4c589f761"
+ * access_secret = "wlqDEET8uIr5RN00AMuuceI9LLKMTNLpzlETlX3djVg="
+ *
+ * # access_secret bytes, used later as a key to make the signature
+ * access_secret_bin = base64_decode(access_secret)
+ *
+ * # Number used for a single use, see http://en.wikipedia.org/wiki/Cryptographic_nonce
+ * nonce = "1570156405"
+ *
+ * # Current unix timestamp, see http://en.wikipedia.org/wiki/Unix_time
+ * timestamp = "1411000260"
+ *
+ * # Authentication scheme version, now 1
+ * version = "1"
+ *
+ * # Concat access_key, nonce and timestamp as a new string
+ * string_to_sign = access_key + nonce + timestamp
+ *
+ * # Encrypt the above string with sha256 hash hmac algorithm and the access_secret_bin as a key
+ * signature = hash_hmac_256(string_to_sign, access_secret_bin)
+ *
+ * # Build and add X-Signature header to the http request (without line endings)
+ * 'X-Signature: Signature access-key="'+access_key+'",
+ *      nonce="'+nonce+'",
+ *          timestamp="'+timestamp+'",
+ *              version="1",
+ *                  signature="'+signature+'"'
+ *
+ * # The resulting header should be like (without line endings)
+ * X-Signature: Signature access-key="edbeb673024f2d0e23752e2814ca1ac4c589f761",
+ *      nonce="1570156405",
+ *          timestamp="1411000260",
+ *              version="1",
+ *                  signature="a481af8644e99b120a312009176a115e1673d81f12ccf12e178a5cb0a59ea9db"
+ *
+ *
+ */
+
+
+/**
+ * @api {post} /services/v1/sample Test OAuth2 authentication
+ * @apiName TestOAuth2
+ * @apiDescription Creates a transaction to the sample service the OAuth2 <code>access_token</code>
+ * (obtained in <a href="#api-Authentication-OAuthToken">Create access_token</a> section).
+ * @apiVersion 0.1.1
+ * @apiGroup Authentication
+ * @apiUse OAuth2Header
  *
  */
 
 
 
 /**
- * @api {post} /services/v1/sample Signed request
- * @apiName SignedRequest
+ * @api {post} /services/v1/sample Test signed request
+ * @apiName TestSignedRequest
  * @apiDescription Creates a transaction to the sample service with tie signed request, this authentication schema
- * is used by all the Telepay SDKs and should be used from machine-to-machine interaction.
- * @apiVersion 1.0.0
+ * allows to make a single call (OAuth 2.0 needs user interaction and needs two calls) is used by all the Telepay
+ * SDKs and should be used for <a href="http://en.wikipedia.org/wiki/Machine_to_machine">machine-to-machine</a>
+ * interaction.
+ * @apiVersion 0.1.0
  * @apiGroup Authentication
- * @apiUse OAuth2Header
+ * @apiUse SignatureHeader
+ *
  */
