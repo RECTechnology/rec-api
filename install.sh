@@ -4,10 +4,10 @@ cat <<EOF
 *** Telepay Installer started ***
 EOF
 
-if [[ "$IS_PRODUCTION" != "yes" ]];then
+if [[ "$SYMFONY_ENV" != "prod" ]];then
     cat <<EOF
 Warning, this script must not be used you are not sure because it will override the parameters.yml file.
-If you want to execute this script please set the environment var IS_PRODUCTION to 'yes'.
+If you want to execute this script please export the environment var SYMFONY_ENV as 'prod'.
 *** Installer finished failed ***
 EOF
     exit -1
