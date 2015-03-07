@@ -1,6 +1,9 @@
 
 all: clean test doc
 
+install:
+	bash install.sh
+
 test:
 	phpunit
 
