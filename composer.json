@@ -24,7 +24,8 @@
         "friendsofsymfony/oauth-server-bundle": "dev-master",
         "doctrine/mongodb-odm": "1.0.*@dev",
         "doctrine/mongodb-odm-bundle": "3.0.*@dev",
-        "nelmio/cors-bundle": "~1.0"
+        "nelmio/cors-bundle": "~1.0",
+        "telepay/php-sdk": "dev-master"
     },
     "require-dev": {
         "sensio/generator-bundle": "~2.3"

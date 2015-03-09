@@ -10,13 +10,12 @@ use Symfony\Component\HttpKernel\Log\DebugLoggerInterface;
 
 class ApiExceptionController extends ExceptionController{
 
-    protected function createExceptionWrapper(array $parameters)
-    {
-
+    protected function createExceptionWrapper(array $parameters) {
+        //die(print_r($parameters, true));
         if (isset($parameters['errors'])) {
             return new RestExceptionWrapper($parameters['status_code'], $parameters['message'], $parameters['errors']);
         }
-        return new RestExceptionWrapper($parameters['status_code'], $parameters['message']);
+        return new RestExceptionWrapper("error", $parameters['message']);
 
     }
 
