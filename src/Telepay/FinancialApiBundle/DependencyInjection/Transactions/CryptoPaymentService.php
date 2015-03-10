@@ -56,13 +56,21 @@ class CryptoPaymentService extends BaseService {
         return $baseTransaction;
 
     }
+    private function hasExpired($transaction){
+        return $transaction->getTimeIn()+$transaction->getData()['expires_in'] < time();
+    }
 
     public function check(Transaction $transaction){
 
         $currentData = $transaction->getData();
-        $transaction->setStatus('created');
+
+        if($transaction->getStatus() === 'created' && $this->hasExpired($transaction))
+            $transaction->setStatus('expired');
+
         if($transaction->getStatus() === 'success' || $transaction->getStatus() === 'expired')
             return $transaction;
+
+
         $address = $currentData['address'];
         $amount = $currentData['amount'];
         $allReceived = $this->cryptoProvider->listreceivedbyaddress(0, true);
