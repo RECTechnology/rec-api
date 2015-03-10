@@ -8,6 +8,7 @@
 
 namespace Telepay\FinancialApiBundle\Entity;
 use Symfony\Component\HttpKernel\Exception\HttpException;
+use Telepay\FinancialApiBundle\Financial\CashOut;
 use Telepay\FinancialApiBundle\Financial\Currency;
 
 use Doctrine\ORM\Mapping as ORM;
@@ -16,17 +17,8 @@ use Doctrine\ORM\Mapping as ORM;
 /**
  * @ORM\Entity
  */
-class BTCWallet extends AbstractWallet {
+class BTCWallet extends AbstractWallet implements ExternallyDrived {
 
-    /**
-     * @ORM\Column(type="string")
-     */
-    private $seedWords;
-
-    /**
-     * @ORM\Column(type="string")
-     */
-    private $mpk;
 
     public function receive($amount)
     {
@@ -51,5 +43,10 @@ class BTCWallet extends AbstractWallet {
     public function getCurrency()
     {
         return Currency::$BTC;
+    }
+
+    public function getDriverName()
+    {
+        return 'net.telepay.provider.btc';
     }
 }
