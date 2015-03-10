@@ -34,7 +34,8 @@ class PaynetReferenceService extends BaseService{
     public function create(Transaction $baseTransaction = null){
 
         if($baseTransaction === null) $baseTransaction = new Transaction();
-        $amount = $baseTransaction->getDataIn()['amount'];
+        //lo dividimos por 100 porque lo recibimos en centimos i lo tenemos que enviar en euros
+        $amount = $baseTransaction->getDataIn()['amount']/100;
         $description = $baseTransaction->getDataIn()['description'];
         $id=$baseTransaction->getId();
 

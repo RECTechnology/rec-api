@@ -35,7 +35,7 @@ class SafetyPayService extends BaseService{
 
         if($baseTransaction === null) $baseTransaction = new Transaction();
         $currency = $baseTransaction->getDataIn()['currency'];
-        $amount = $baseTransaction->getDataIn()['amount'];
+        $amount = round($baseTransaction->getDataIn()['amount']/100,2);
         $url_success = $baseTransaction->getDataIn()['url_success'];
         $url_fail = $baseTransaction->getDataIn()['url_fail'];
 

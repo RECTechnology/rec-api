@@ -419,7 +419,7 @@ class ServicesHalcashController extends FosRestController
         $transaction->setTimeOut(time());
 
         $dm->persist($transaction);
-        var_dump($transaction);
+        //var_dump($transaction);
         $dm->flush();
 
         $datos['id_telepay']=$transaction->getId();

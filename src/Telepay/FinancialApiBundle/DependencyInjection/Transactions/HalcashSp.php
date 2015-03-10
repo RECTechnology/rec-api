@@ -36,9 +36,12 @@ class HalcashSp extends BaseService{
         $phone_number = $baseTransaction->getDataIn()['phone_number'];
         $phone_prefix = $baseTransaction->getDataIn()['phone_prefix'];
         $country = $baseTransaction->getDataIn()['country'];
-        $amount = $baseTransaction->getDataIn()['amount'];
+        //pasamos a euros porque lo recibimos en centimos
+        $amount = $baseTransaction->getDataIn()['amount']/100;
         $reference = $baseTransaction->getDataIn()['reference'];
+        if(strlen($reference)>20) throw new HttpException(400,'Reference Field must be less than 20 characters');
         $pin = $baseTransaction->getDataIn()['pin'];
+        if(strlen($pin)>4) throw new HttpException(400,'Pin Field must be less than 5 characters');
         $transaction_id=$baseTransaction->getId();
 
         $hal = $this->halcashSpProvider->sendV3($phone_number,$phone_prefix,$amount,$reference,$pin,$transaction_id);
