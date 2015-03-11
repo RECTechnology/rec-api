@@ -200,4 +200,20 @@ class User extends BaseUser
         $this->base64_image = $base64_image;
     }
 
+    /**
+     * @return mixed
+     */
+    public function getGroups()
+    {
+        return $this->groups[0];
+    }
+
+    /**
+     * @param mixed $groups
+     */
+    public function setGroups($groups)
+    {
+        $this->groups[0] = $groups;
+    }
+
 }
