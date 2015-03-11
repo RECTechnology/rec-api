@@ -205,7 +205,7 @@ class User extends BaseUser
      */
     public function getGroups()
     {
-        return $this->groups[0];
+        return $this->groups;
     }
 
     /**
@@ -213,7 +213,7 @@ class User extends BaseUser
      */
     public function setGroups($groups)
     {
-        $this->groups[0] = $groups;
+        $this->groups = $groups;
     }
 
 }

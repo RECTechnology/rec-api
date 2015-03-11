@@ -20,7 +20,7 @@ class UsersGroupsController extends RestApiController{
      * @Rest\View
      */
     public function createAction(Request $request, $id){
-die(print_r('caca',true));
+
         $groupsRepository = $this->getDoctrine()->getRepository("TelepayFinancialApiBundle:Group");
         $group = $groupsRepository->find($id);
         if(!$group) throw new HttpException(404, "Group not found");
