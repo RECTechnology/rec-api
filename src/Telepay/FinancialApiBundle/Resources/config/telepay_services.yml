@@ -1,5 +1,6 @@
 services:
 
+
     net.telepay.service_provider:
         class: Telepay\FinancialApiBundle\DependencyInjection\TelepayServiceProvider
         arguments:

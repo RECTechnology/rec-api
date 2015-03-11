@@ -33,6 +33,19 @@ class AccessKeyUserProvider extends  UserProvider{
         return $user;
     }
 
+
+    public function loadUserByUsername($username)
+    {
+        return $this->userManager->findUserByUsername($username);
+    }
+
+    public function loadUserByUsernameOrEmail($usernameOrEmail)
+    {
+        return $this->userManager->findUserByUsernameOrEmail($usernameOrEmail);
+    }
+
+
+
     public function loadUserById($id) {
         $user = $this->userManager->findUserBy(array('id' => $id));
         if(!$user){

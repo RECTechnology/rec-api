@@ -16,7 +16,6 @@ use Doctrine\ORM\Mapping as ORM;
  */
 class ServiceFee implements Fee{
 
-
     /**
      * @ORM\Id
      * @ORM\Column(type="integer")
