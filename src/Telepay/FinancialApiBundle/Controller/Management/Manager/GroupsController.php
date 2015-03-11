@@ -40,6 +40,9 @@ class GroupsController extends BaseApiController
      * @Rest\View
      */
     public function createAction(Request $request){
+
+        $request->request->set('roles',array('ROLE_USER'));
+
         return parent::createAction($request);
     }
 
@@ -64,9 +67,11 @@ class GroupsController extends BaseApiController
 
         $groupsRepo=$this->getDoctrine()->getRepository("TelepayFinancialApiBundle:Group");
 
-        $group_name = $groupsRepo->find($id)->getName();
+        $group = $groupsRepo->find($id);
 
-        if($group_name=='Default') throw new HttpException(400,"This group can't be deleted.");
+        if($group->getName()=='Default') throw new HttpException(400,"This group can't be deleted.");
+
+        if(count($group->getUsers())>0) throw new HttpException(400,"This group can't be deleted because has users.");
 
         return parent::deleteAction($id);
     }

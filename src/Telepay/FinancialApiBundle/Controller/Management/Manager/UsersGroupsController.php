@@ -63,6 +63,7 @@ class UsersGroupsController extends RestApiController{
         if(!$group_default) {
             $group_default=new Group();
             $group_default->setName('Default');
+            $request->request->set('roles',array('ROLE_USER'));
         }
 
         $user->addGroup($group_default);
