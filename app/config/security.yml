@@ -30,12 +30,14 @@ security:
 
         services:
             pattern: ^/services
+            switch_user:  { role: ROLE_ADMIN, parameter: su }
             stateless: true
             fos_oauth:  true
             signature_auth: true
 
         oauth:
             pattern:    ^/
+            switch_user:  { role: ROLE_ADMIN, parameter: su }
             fos_oauth:  true
             stateless:  true
             anonymous:  false

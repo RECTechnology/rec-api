@@ -20,6 +20,7 @@ class AccountController extends RestApiController{
      * @Rest\View
      */
     public function read(Request $request){
+        //die(print_r(get_class($this->get('security.token_storage')->getToken()), true));
         $user = $this->get('security.context')->getToken()->getUser();
         $user->setAllowedServices(
             $this->get('net.telepay.service_provider')->findByRoles($user->getRoles())

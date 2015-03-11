@@ -70,7 +70,6 @@ class CryptoPaymentService extends BaseService {
         if($transaction->getStatus() === 'success' || $transaction->getStatus() === 'expired')
             return $transaction;
 
-
         $address = $currentData['address'];
         $amount = $currentData['amount'];
         $allReceived = $this->cryptoProvider->listreceivedbyaddress(0, true);
