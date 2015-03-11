@@ -32,7 +32,7 @@ class UkashGenerateService extends BaseService{
 
         if($baseTransaction === null) $baseTransaction = new Transaction();
         $currency = $baseTransaction->getDataIn()['currency'];
-        $amount = $baseTransaction->getDataIn()['amount'];
+        $amount = round($baseTransaction->getDataIn()['amount']/100,2);
         $merchant_id='Telepay';
 
         $id=$baseTransaction->getId();

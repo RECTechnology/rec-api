@@ -35,7 +35,7 @@ class UkashTPVService extends BaseService{
     public function create(Transaction $baseTransaction = null){
 
         if($baseTransaction === null) $baseTransaction = new Transaction();
-        $amount = $baseTransaction->getDataIn()['amount'];
+        $amount = round($baseTransaction->getDataIn()['amount']/100,2);
         $currency = $baseTransaction->getDataIn()['currency'];
         $url_success = $baseTransaction->getDataIn()['url_success'];
         $url_fail = $baseTransaction->getDataIn()['url_fail'];
