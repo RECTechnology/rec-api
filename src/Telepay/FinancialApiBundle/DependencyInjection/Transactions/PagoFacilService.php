@@ -64,11 +64,7 @@ class PagoFacilService extends BaseService{
         $country = $baseTransaction->getDataIn()['country'];
         $id = $baseTransaction->getId();
 
-
-
         $pagofacil = $this->pagofacilProvider->request($name,$surname,$card_number,$cvv,$cp,$expiration_month,$expiration_year,$amount,$email,$phone,$mobile_phone,$street_number,$colony,$city,$quarter,$country,$id);
-
-        //TODO hay que ocultar los numeros de la tarjeta para guardarlo en la base de datos
 
         $new_card_number=substr_replace($card_number, '************', 0, -4);
         $dataIn=$baseTransaction->getDataIn();
