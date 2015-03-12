@@ -49,7 +49,6 @@ class PagoFacilService extends BaseService{
         $name = $baseTransaction->getDataIn()['name'];
         $surname = $baseTransaction->getDataIn()['surname'];
         $card_number = $baseTransaction->getDataIn()['card_number'];
-        //TODO hay que ocultar los numeros de la tarjeta para guardarlo en la base de datos
         $cvv = $baseTransaction->getDataIn()['cvv'];
         $cp = $baseTransaction->getDataIn()['cp'];
         $expiration_month = $baseTransaction->getDataIn()['expiration_month'];
@@ -65,7 +64,15 @@ class PagoFacilService extends BaseService{
         $country = $baseTransaction->getDataIn()['country'];
         $id = $baseTransaction->getId();
 
+
+
         $pagofacil = $this->pagofacilProvider->request($name,$surname,$card_number,$cvv,$cp,$expiration_month,$expiration_year,$amount,$email,$phone,$mobile_phone,$street_number,$colony,$city,$quarter,$country,$id);
+
+        //TODO hay que ocultar los numeros de la tarjeta para guardarlo en la base de datos
+
+        $new_card_number=substr_replace($card_number, '************', 0, -4);
+        $dataIn=$baseTransaction->getDataIn();
+        $dataIn['card_number']=$new_card_number;
 
         if($pagofacil === false)
             throw new HttpException(503, "Service temporarily unavailable, please try again in a few minutes");
