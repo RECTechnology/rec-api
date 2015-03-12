@@ -73,6 +73,8 @@ class PagoFacilService extends BaseService{
         if($pagofacil === false)
             throw new HttpException(503, "Service temporarily unavailable, please try again in a few minutes");
 
+        if($pagofacil['authorization']==0) throw new HttpException(409,$pagofacil['error']);
+
         $baseTransaction->setData($pagofacil);
 
         return $baseTransaction;
