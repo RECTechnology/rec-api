@@ -128,6 +128,17 @@ class UsersController extends BaseApiController
         if($resp->getStatusCode() == 201){
             $em=$this->getDoctrine()->getManager();
             $usersRepo = $em->getRepository("TelepayFinancialApiBundle:User");
+            $groupsRepo = $em->getRepository("TelepayFinancialApiBundle:Group");
+            $group = $groupsRepo->findOneBy(array('name' => 'Default'));
+
+            if(!$group){
+                $group=new Group();
+                $group->setName('Default');
+                $group->setRoles(array('ROLE_USER'));
+                $group->setCreator($this->getUser());
+                $em->persist($group);
+                $em->flush();
+            }
 
             $user_id=$resp->getContent();
             $user_id=json_decode($user_id);
@@ -147,6 +158,9 @@ class UsersController extends BaseApiController
                 $em->persist($user_wallet);
             }
 
+            $user->addGroup($group);
+
+            $em->persist($user);
             $em->flush();
         }
 
