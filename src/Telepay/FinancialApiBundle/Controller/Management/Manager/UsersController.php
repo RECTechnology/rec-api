@@ -94,7 +94,7 @@ class UsersController extends BaseApiController
 
         $entities = array_slice($filtered, $offset, $limit);
         array_map(function($elem){
-            $elem->setAllowedServices($this->get('net.telepay.service_provider')->findByRoles($this->getUser()->getRoles()));
+            $elem->setAllowedServices($this->get('net.telepay.service_provider')->findByRoles($elem->getRoles()));
             $elem->setAccessToken(null);
             $elem->setRefreshToken(null);
             $elem->setAuthCode(null);
@@ -137,7 +137,7 @@ class UsersController extends BaseApiController
             $user = $usersRepo->findOneBy(array('id'=>$user_id));
 
             $currencies=Currency::$LISTA;
-            
+
             foreach($currencies as $currency){
                 $user_wallet = new UserWallet();
                 $user_wallet->setBalance(0);
