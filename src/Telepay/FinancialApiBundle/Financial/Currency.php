@@ -14,4 +14,5 @@ class Currency {
     public static $USD = "USD";
     public static $FAC = "FAC";
     public static $MXN = "MXN";
+    public static $LISTA = array("BTC","EUR","USD","FAC","MXN");
 }

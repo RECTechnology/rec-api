@@ -40,7 +40,7 @@ class GroupsController extends BaseApiController
      * @Rest\View
      */
     public function createAction(Request $request){
-        
+
         $admin=$this->get('security.context')->getToken()->getUser();
 
         $request->request->set('roles',array('ROLE_USER'));

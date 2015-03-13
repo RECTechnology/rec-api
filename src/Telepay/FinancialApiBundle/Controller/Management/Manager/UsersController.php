@@ -12,6 +12,8 @@ use Telepay\FinancialApiBundle\Entity\Group;
 use Telepay\FinancialApiBundle\Entity\User;
 use FOS\RestBundle\Controller\Annotations as Rest;
 use Symfony\Component\HttpFoundation\Request;
+use Telepay\FinancialApiBundle\Entity\UserWallet;
+use Telepay\FinancialApiBundle\Financial\Currency;
 
 /**
  * Class UsersController
@@ -121,7 +123,36 @@ class UsersController extends BaseApiController
         $request->request->add(array('plain_password'=>$password));
         $request->request->add(array('enabled'=>1));
         $request->request->add(array('base64_image'=>''));
-        return parent::createAction($request);
+        $resp= parent::createAction($request);
+
+        if($resp->getStatusCode() == 201){
+            $em=$this->getDoctrine()->getManager();
+            $usersRepo = $em->getRepository("TelepayFinancialApiBundle:User");
+
+            $user_id=$resp->getContent();
+            $user_id=json_decode($user_id);
+            $user_id=$user_id->data;
+            $user_id=$user_id->id;
+            
+            $user = $usersRepo->findOneBy(array('id'=>$user_id));
+
+            $currencies=Currency::$LISTA;
+
+            foreach($currencies as $currency){
+                $user_wallet = new UserWallet();
+                $user_wallet->setBalance(0);
+                $user_wallet->setAvailable(0);
+                $user_wallet->setCurrency($currency);
+                $user_wallet->setUser($user);
+                $em->persist($user_wallet);
+            }
+
+            $em->flush();
+        }
+
+        return $resp;
+
+
     }
 
     /**
