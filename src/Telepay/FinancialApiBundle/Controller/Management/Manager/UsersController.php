@@ -133,11 +133,11 @@ class UsersController extends BaseApiController
             $user_id=json_decode($user_id);
             $user_id=$user_id->data;
             $user_id=$user_id->id;
-            
+
             $user = $usersRepo->findOneBy(array('id'=>$user_id));
 
             $currencies=Currency::$LISTA;
-
+            
             foreach($currencies as $currency){
                 $user_wallet = new UserWallet();
                 $user_wallet->setBalance(0);
