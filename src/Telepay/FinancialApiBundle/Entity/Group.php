@@ -36,6 +36,11 @@ class Group extends BaseGroup
     protected $users;
 
     /**
+     * @ORM\ManyToOne(targetEntity="Telepay\FinancialApiBundle\Entity\User")
+     */
+    private $creator;
+
+    /**
      * @return mixed
      */
     public function getUsers()
@@ -65,6 +70,22 @@ class Group extends BaseGroup
     public function setId($id)
     {
         $this->id = $id;
+    }
+
+    /**
+     * @return mixed
+     */
+    public function getCreator()
+    {
+        return $this->creator;
+    }
+
+    /**
+     * @param mixed $creator
+     */
+    public function setCreator($creator)
+    {
+        $this->creator = $creator;
     }
 
 

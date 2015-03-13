@@ -41,7 +41,12 @@ class GroupsController extends BaseApiController
      */
     public function createAction(Request $request){
 
+        //TODO pillar el accestoken i sacar al cliente para meterlo en creator
+        $admin=$this->get('security.context')->getToken()->getUser();
+        //die(print_r($admin->getId(),true));
+
         $request->request->set('roles',array('ROLE_USER'));
+        $request->request->set('creator',$admin);
 
         return parent::createAction($request);
     }
