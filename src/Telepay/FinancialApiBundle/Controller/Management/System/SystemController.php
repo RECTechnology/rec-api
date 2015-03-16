@@ -4,12 +4,6 @@ namespace Telepay\FinancialApiBundle\Controller\Management\Admin;
 
 use Symfony\Component\HttpFoundation\Request;
 use Telepay\FinancialApiBundle\Controller\RestApiController;
-use Telepay\FinancialApiBundle\DependencyInjection\ServicesRepository;
-use Telepay\FinancialApiBundle\Entity\Group;
-use Telepay\FinancialApiBundle\Entity\User;
-use Telepay\FinancialApiBundle\Response\ApiResponseBuilder;
-use Doctrine\DBAL\DBALException;
-use FOS\RestBundle\Controller\FOSRestController;
 use FOS\RestBundle\Controller\Annotations as Rest;
 use Symfony\Component\HttpKernel\Exception\HttpException;
 
@@ -36,7 +30,7 @@ class SystemController extends RestApiController
         $resp->avg15 = $loadArray[2];
         return $this->handleView($this->buildRestView(
             200,
-            "Load got successfully",
+            "Load average",
             $resp
         ));
     }
@@ -48,7 +42,7 @@ class SystemController extends RestApiController
 
         return $this->handleView($this->buildRestView(
             200,
-            "Number of CPU Cores got successfully",
+            "Number of CPU Cores",
             array('num_cpus' => intval(`nproc`))
         ));
     }
@@ -66,7 +60,7 @@ class SystemController extends RestApiController
         );
         return $this->handleView($this->buildRestView(
             200,
-            "Memory information got successfully",
+            "Memory information",
             $resp
         ));
     }
@@ -84,7 +78,7 @@ class SystemController extends RestApiController
         );
         return $this->handleView($this->buildRestView(
             200,
-            "Network information got successfully",
+            "Network information",
             $resp
         ));
     }
@@ -96,7 +90,7 @@ class SystemController extends RestApiController
     public function version(Request $request){
         return $this->rest(
             200,
-            "Version info got successfully",
+            "Version information",
             array(
                 'build_id'  => $this->container->getParameter('build_id'),
                 'version'  => $this->container->getParameter('version')
