@@ -61,6 +61,11 @@ class LimitDefinition implements Limit {
      */
     private $group;
 
+    /**
+     * @ORM\Column(type="string")
+     */
+    private $cname;
+
 
     /**
      * @return mixed
@@ -180,6 +185,22 @@ class LimitDefinition implements Limit {
     public function getId()
     {
         return $this->id;
+    }
+
+    /**
+     * @return mixed
+     */
+    public function getCname()
+    {
+        return $this->cname;
+    }
+
+    /**
+     * @param mixed $cname
+     */
+    public function setCname($cname)
+    {
+        $this->cname = $cname;
     }
 
 }

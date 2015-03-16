@@ -35,9 +35,9 @@ class ServiceFee implements Fee{
     private $variable;
 
     /**
-     * @ORM\Column(type="integer")
+     * @ORM\Column(type="string")
      */
-    private $service_id;
+    private $service_name;
 
     /**
      * @ORM\ManyToOne(targetEntity="Telepay\FinancialApiBundle\Entity\Group")
@@ -76,21 +76,7 @@ class ServiceFee implements Fee{
         $this->variable = $variable;
     }
 
-    /**
-     * @return mixed
-     */
-    public function getServiceId()
-    {
-        return $this->service_id;
-    }
 
-    /**
-     * @param mixed $service_id
-     */
-    public function setServiceId($service_id)
-    {
-        $this->service_id = $service_id;
-    }
 
     /**
      * @return mixed
@@ -114,5 +100,21 @@ class ServiceFee implements Fee{
     public function getId()
     {
         return $this->id;
+    }
+
+    /**
+     * @return mixed
+     */
+    public function getServiceName()
+    {
+        return $this->service_name;
+    }
+
+    /**
+     * @param mixed $service_name
+     */
+    public function setServiceName($service_name)
+    {
+        $this->service_name = $service_name;
     }
 }
