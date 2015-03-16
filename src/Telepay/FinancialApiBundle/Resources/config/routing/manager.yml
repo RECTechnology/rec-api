@@ -99,8 +99,15 @@ admin_groups_update:
         name: "string"
 
 admin_groups_update_limit:
-    pattern:  /manager/v1/groups/{id}
-    defaults: { _controller: Telepay\FinancialApiBundle\Controller\Management\Manager\GroupsController::updateLimit, _format: ~ }
+    pattern:  /manager/v1/groups/limit/{id}
+    defaults: { _controller: Telepay\FinancialApiBundle\Controller\Management\Manager\LimitsGroupController::updateAction, _format: ~ }
+    requirements:
+        _method: PUT
+        id: "[0-9]+"
+
+admin_groups_update_commission:
+    pattern:  /manager/v1/groups/commission/{id}
+    defaults: { _controller: Telepay\FinancialApiBundle\Controller\Management\Manager\CommissionsGroupController::updateAction, _format: ~ }
     requirements:
         _method: PUT
         id: "[0-9]+"
