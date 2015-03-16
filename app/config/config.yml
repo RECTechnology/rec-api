@@ -116,7 +116,6 @@ jms_serializer:
                 path: "%kernel.root_dir%/serializer/FOSUserBundle"
 
 
-
 fos_oauth_server:
     db_driver:           orm
     client_class:        Telepay\FinancialApiBundle\Entity\Client

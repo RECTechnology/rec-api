@@ -23,26 +23,33 @@ manager_services_read:
 
 ############################## SYSTEM MNGMNT ##########################################
 
-admin_system_load:
-    pattern:  /admin/v1/system/load
-    defaults: { _controller: Telepay\FinancialApiBundle\Controller\Management\Admin\SystemController::load }
+system_load:
+    pattern:  /system/v1/load
+    defaults: { _controller: Telepay\FinancialApiBundle\Controller\Management\System\SystemController::load }
     requirements:
         _method: GET
 
-admin_system_cores:
-    pattern:  /admin/v1/system/cores
-    defaults: { _controller: Telepay\FinancialApiBundle\Controller\Management\Admin\SystemController::cores }
+system_cores:
+    pattern:  /system/v1/cores
+    defaults: { _controller: Telepay\FinancialApiBundle\Controller\Management\System\SystemController::cores }
     requirements:
         _method: GET
 
-admin_system_mem:
-    pattern:  /admin/v1/system/mem
-    defaults: { _controller: Telepay\FinancialApiBundle\Controller\Management\Admin\SystemController::mem }
+system_mem:
+    pattern:  /system/v1/mem
+    defaults: { _controller: Telepay\FinancialApiBundle\Controller\Management\System\SystemController::mem }
     requirements:
         _method: GET
 
-admin_system_net:
-    pattern:  /admin/v1/system/net
-    defaults: { _controller: Telepay\FinancialApiBundle\Controller\Management\Admin\SystemController::net }
+system_net:
+    pattern:  /system/v1/net
+    defaults: { _controller: Telepay\FinancialApiBundle\Controller\Management\System\SystemController::net }
+    requirements:
+        _method: GET
+
+
+system_api_version:
+    pattern:  /system/v1/version
+    defaults: { _controller: Telepay\FinancialApiBundle\Controller\Management\System\SystemController::version }
     requirements:
         _method: GET
