@@ -41,6 +41,18 @@ class Group extends BaseGroup
     private $creator;
 
     /**
+     * @ORM\OneToMany(targetEntity="Telepay\FinancialApiBundle\Entity\LimitDefinition", mappedBy="group", cascade={"remove"})
+     *
+     */
+    private $limits;
+
+    /**
+     * @ORM\OneToMany(targetEntity="Telepay\FinancialApiBundle\Entity\ServiceFee", mappedBy="group", cascade={"remove"})
+     *
+     */
+    private $commissions;
+
+    /**
      * @return mixed
      */
     public function getUsers()
@@ -86,6 +98,38 @@ class Group extends BaseGroup
     public function setCreator($creator)
     {
         $this->creator = $creator;
+    }
+
+    /**
+     * @return mixed
+     */
+    public function getLimits()
+    {
+        return $this->limits;
+    }
+
+    /**
+     * @param mixed $limits
+     */
+    public function setLimits($limits)
+    {
+        $this->limits = $limits;
+    }
+
+    /**
+     * @return mixed
+     */
+    public function getCommissions()
+    {
+        return $this->commissions;
+    }
+
+    /**
+     * @param mixed $commissions
+     */
+    public function setCommissions($commissions)
+    {
+        $this->commissions = $commissions;
     }
 
 
