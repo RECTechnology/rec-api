@@ -9,6 +9,7 @@ use Telepay\FinancialApiBundle\Controller\BaseApiController;
 use Telepay\FinancialApiBundle\DependencyInjection\ServicesRepository;
 use Telepay\FinancialApiBundle\Entity\AccessToken;
 use Telepay\FinancialApiBundle\Entity\Group;
+use Telepay\FinancialApiBundle\Entity\LimitCount;
 use Telepay\FinancialApiBundle\Entity\User;
 use FOS\RestBundle\Controller\Annotations as Rest;
 use Symfony\Component\HttpFoundation\Request;
@@ -311,6 +312,7 @@ class UsersController extends BaseApiController
         $serviceId = $request->get('service_id');
         if(empty($serviceId)) throw new HttpException(400, "Missing parameter 'service_id'");
         $this->_addService($id, $serviceId);
+        //TODO crear limite del usuario para este servicio
         return $this->rest(201, "Service added successfully", array());
     }
 
@@ -335,8 +337,24 @@ class UsersController extends BaseApiController
         if(empty($service)) throw new HttpException(404, 'Service not found');
         if($user->hasRole($service->getRole())) throw new HttpException(409, "User has already the service '$cname'");
 
+        //TODO crear el limitCounter si no existe
         $user->addRole($service->getRole());
         $em = $this->getDoctrine()->getManager();
+        $limitRepo = $em->getRepository("TelepayFinancialApiBundle:LimitCount");
+        $limit = $limitRepo->findOneBy(array('cname' => $cname, 'user' => $user));
+        if(!$limit){
+            $limit = new LimitCount();
+            $limit->setUser($user);
+            $limit->setCname($cname);
+            $limit->setSingle(0);
+            $limit->setDay(0);
+            $limit->setWeek(0);
+            $limit->setMonth(0);
+            $limit->setYear(0);
+            $limit->setTotal(0);
+            $em->persist($limit);
+        }
+        
         $em->persist($user);
 
         try{

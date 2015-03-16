@@ -55,11 +55,15 @@ class LimitCount implements Limit {
      */
     private $total;
 
-
     /**
      * @ORM\ManyToOne(targetEntity="Telepay\FinancialApiBundle\Entity\User")
      */
     private $user;
+
+    /**
+     * @ORM\Column(type="string")
+     */
+    private $cname;
 
 
     /**
@@ -180,6 +184,22 @@ class LimitCount implements Limit {
     public function getId()
     {
         return $this->id;
+    }
+
+    /**
+     * @return mixed
+     */
+    public function getCname()
+    {
+        return $this->cname;
+    }
+
+    /**
+     * @param mixed $cname
+     */
+    public function setCname($cname)
+    {
+        $this->cname = $cname;
     }
 
 }
