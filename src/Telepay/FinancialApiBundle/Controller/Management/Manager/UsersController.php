@@ -312,7 +312,6 @@ class UsersController extends BaseApiController
         $serviceId = $request->get('service_id');
         if(empty($serviceId)) throw new HttpException(400, "Missing parameter 'service_id'");
         $this->_addService($id, $serviceId);
-        //TODO crear limite del usuario para este servicio
         return $this->rest(201, "Service added successfully", array());
     }
 
@@ -337,7 +336,6 @@ class UsersController extends BaseApiController
         if(empty($service)) throw new HttpException(404, 'Service not found');
         if($user->hasRole($service->getRole())) throw new HttpException(409, "User has already the service '$cname'");
 
-        //TODO crear el limitCounter si no existe
         $user->addRole($service->getRole());
         $em = $this->getDoctrine()->getManager();
         $limitRepo = $em->getRepository("TelepayFinancialApiBundle:LimitCount");
@@ -354,7 +352,7 @@ class UsersController extends BaseApiController
             $limit->setTotal(0);
             $em->persist($limit);
         }
-        
+
         $em->persist($user);
 
         try{
