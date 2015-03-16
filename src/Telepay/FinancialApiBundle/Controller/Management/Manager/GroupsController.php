@@ -57,7 +57,6 @@ class GroupsController extends BaseApiController
             $groupsRepo = $em->getRepository("TelepayFinancialApiBundle:Group");
             $group = $groupsRepo->findOneBy(array('name' => $group_name));
 
-            //TODO crear comisiones (1 por servicio i grupo) despues de que se cree el grupo para poder añadirlo
             $servicesRepo = $this->get('net.telepay.service_provider');
             $services = $servicesRepo->findAll();
 
