@@ -10,6 +10,8 @@ use Telepay\FinancialApiBundle\DependencyInjection\ServicesRepository;
 use Telepay\FinancialApiBundle\Entity\AccessToken;
 use Telepay\FinancialApiBundle\Entity\Group;
 use Telepay\FinancialApiBundle\Entity\LimitCount;
+use Telepay\FinancialApiBundle\Entity\LimitDefinition;
+use Telepay\FinancialApiBundle\Entity\ServiceFee;
 use Telepay\FinancialApiBundle\Entity\User;
 use FOS\RestBundle\Controller\Annotations as Rest;
 use Symfony\Component\HttpFoundation\Request;
@@ -138,6 +140,29 @@ class UsersController extends BaseApiController
                 $group->setRoles(array('ROLE_USER'));
                 $group->setCreator($this->getUser());
                 $em->persist($group);
+                $em->flush();
+                $servicesRepo = $this->get('net.telepay.service_provider');
+                $services = $servicesRepo->findAll();
+
+                foreach($services as $service){
+                    $limit_def = new LimitDefinition();
+                    $limit_def->setCname($service->getCname());
+                    $limit_def->setSingle(0);
+                    $limit_def->setDay(0);
+                    $limit_def->setWeek(0);
+                    $limit_def->setMonth(0);
+                    $limit_def->setYear(0);
+                    $limit_def->setTotal(0);
+                    $limit_def->setGroup($group);
+                    $commission = new ServiceFee();
+                    $commission->setGroup($group);
+                    $commission->setFixed(0);
+                    $commission->setVariable(0);
+                    $commission->setServiceName($service->getCname());
+                    $em->persist($commission);
+                    $em->persist($limit_def);
+
+                }
                 $em->flush();
             }
 
