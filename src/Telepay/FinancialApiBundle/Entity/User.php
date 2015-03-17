@@ -27,6 +27,7 @@ class User extends BaseUser
     public function __construct()
     {
         parent::__construct();
+        $this->groups = new ArrayCollection();
         if($this->access_key == null){
             $generator = new SecureRandom();
             $this->access_key=sha1($generator->nextBytes(32));
