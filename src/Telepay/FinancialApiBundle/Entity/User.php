@@ -8,6 +8,7 @@
 
 namespace Telepay\FinancialApiBundle\Entity;
 
+use Doctrine\Common\Collections\ArrayCollection;
 use FOS\UserBundle\Model\User as BaseUser;
 use Doctrine\ORM\Mapping as ORM;
 use Symfony\Component\HttpKernel\Exception\HttpException;
@@ -64,6 +65,12 @@ class User extends BaseUser
      * @ORM\OneToMany(targetEntity="Telepay\FinancialApiBundle\Entity\AuthCode", mappedBy="user", cascade={"remove"})
      */
     private $auth_code;
+
+    /**
+     * @ORM\OneToMany(targetEntity="Telepay\FinancialApiBundle\Entity\LimitCount", mappedBy="user", cascade={"remove"})
+     *
+     */
+    private $limit_count;
 
     /**
      * @ORM\Column(type="string")
@@ -199,6 +206,20 @@ class User extends BaseUser
         $this->base64_image = $base64_image;
     }
 
+    /**
+     * @return mixed
+     */
+    public function getLimitCount()
+    {
+        return $this->limit_count;
+    }
 
+    /**
+     * @param mixed $limit_count
+     */
+    public function setLimitCount($limit_count)
+    {
+        $this->limit_count = $limit_count;
+    }
 
 }

@@ -104,4 +104,14 @@ class UserWallet extends AbstractWallet implements ExternallyDrived {
     {
         $this->user = $user;
     }
+
+    /**
+     * Returns the user unique id.
+     *
+     * @return mixed
+     */
+    public function getId()
+    {
+        return $this->id;
+    }
 }
