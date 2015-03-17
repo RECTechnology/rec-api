@@ -32,15 +32,11 @@ class CreateWalletCommand extends ContainerAwareCommand
 
     protected function execute(InputInterface $input, OutputInterface $output)
     {
-        //TODO obtener los users
         $em = $this->getContainer()->get('doctrine')->getManager();
         $usersRepo = $em->getRepository('TelepayFinancialApiBundle:User')->findAll();
-        //TODO obtener los wallets
         $walletsRepo = $em->getRepository('TelepayFinancialApiBundle:UserWallet');
-        //TODO Obtener las currencies
         $currencies=Currency::$LISTA;
         $contador=0;
-        //TODO por cada usuario consultar los wallets que tiene
         foreach ( $usersRepo as $user ){
             foreach ( $currencies as $currency ){
                 $wallet=$walletsRepo->findOneBy(array('user' => $user,'currency' => $currency));
