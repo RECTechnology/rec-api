@@ -9,9 +9,7 @@
 namespace Telepay\FinancialApiBundle\DependencyInjection\Transactions;
 
 use Symfony\Component\HttpKernel\Exception\HttpException;
-use Telepay\FinancialApiBundle\Controller\Services\Cryptos\Lib\EasyBitcoin\EasyBitcoin;
 use Telepay\FinancialApiBundle\DependencyInjection\Transactions\Core\BaseService;
-use Telepay\FinancialApiBundle\DependencyInjection\Transactions\Services\Responses\CryptoResponse;
 use Telepay\FinancialApiBundle\Document\Transaction;
 
 class CryptoPaymentService extends BaseService {

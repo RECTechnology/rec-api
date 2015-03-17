@@ -4,8 +4,6 @@
 namespace Telepay\FinancialApiBundle\Controller;
 
 use FOS\RestBundle\Controller\ExceptionController;
-use Symfony\Component\HttpFoundation\Request;
-use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpKernel\Log\DebugLoggerInterface;
 
 class ApiExceptionController extends ExceptionController{
