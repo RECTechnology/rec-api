@@ -58,16 +58,13 @@ class IncomingController extends RestApiController{
         $this->get('doctrine_mongodb')->getManager()->persist($transaction);
 
         //TODO posible millora en un query molon
-        //TODO comprobar limites
-        //obtener limit usuario
+        //obtain and check limits
         $user=$this->getUser();
-
 
         $limits=$user->getLimitCount();
         foreach ( $limits as $limit ){
             if($limit->getCname()==$service_cname){
 
-                //TODO implementar un limitAdder
                 $user_limit=$limit;
             }
         }
@@ -75,7 +72,6 @@ class IncomingController extends RestApiController{
         $em = $this->getDoctrine()->getManager();
 
         if(!$user_limit){
-            //TODO crear el limite
             $user_limit = new LimitCount();
             $user_limit->setUser($user);
             $user_limit->setCname($service_cname);
@@ -100,7 +96,6 @@ class IncomingController extends RestApiController{
         }
 
         if(!$group_limit){
-            //TODO crear el limite
             $group_limit = new LimitDefinition();
             $group_limit->setCname($service_cname);
             $group_limit->setSingle(0);
@@ -124,6 +119,25 @@ class IncomingController extends RestApiController{
 
         if($checker==false) throw new HttpException(509,'Limit exceeded');
 
+        //TODO comprobar que el servicio sea de cashout
+        //obtain wallet and and check founds for cash_out services
+        $wallets=$user->getWallets();
+        //TODO comprobar la currency para comprobar ese wallet
+        $service_currency = 'EUR';
+        $current_wallet=null;
+        foreach ( $wallets as $wallet){
+            if ($wallet->getCurrency()==$service_currency){
+                if($wallet->getAvailable()<=$amount) throw new HttpException(509,'Not founds enough');
+                //Bloqueamos la pasta en el wallet
+                $actual_available=$wallet->getAvailable();
+                $new_available=$actual_available-$amount;
+                $wallet->setAvailable($new_available);
+                $em->persist($wallet);
+                $em->flush();
+                $current_wallet=$wallet;
+            }
+        }
+
         try {
             $transaction = $service->create($transaction);
         }catch (HttpException $e){
@@ -131,8 +145,15 @@ class IncomingController extends RestApiController{
                 $transaction->setStatus("failed");
             $dm->persist($transaction);
             $dm->flush();
+            $current_wallet->setAvailable($current_wallet->getAvailable()+$amount);
+            $em->persist($current_wallet);
+            $em->flush();
             throw $e;
         }
+
+        $current_wallet->setBalance($current_wallet->getBalance()-$amount);
+        $em->persist($current_wallet);
+        $em->flush();
 
         $transaction->setTimeOut(new \MongoDate());
         $dm->persist($transaction);
