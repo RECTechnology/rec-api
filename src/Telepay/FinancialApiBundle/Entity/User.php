@@ -74,6 +74,12 @@ class User extends BaseUser
     private $limit_count;
 
     /**
+     * @ORM\OneToMany(targetEntity="Telepay\FinancialApiBundle\Entity\UserWallet", mappedBy="user", cascade={"remove"})
+     * @Expose
+     */
+    private $wallets;
+
+    /**
      * @ORM\Column(type="string")
      * @Expose
      */
