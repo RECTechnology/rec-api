@@ -15,7 +15,12 @@ use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpKernel\Exception\HttpException;
 use Telepay\FinancialApiBundle\Controller\RestApiController;
 use FOS\RestBundle\Controller\Annotations as Rest;
+
+use Telepay\FinancialApiBundle\DependencyInjection\Telepay\Commons\LimitAdder;
+use Telepay\FinancialApiBundle\DependencyInjection\Telepay\Commons\LimitChecker;
 use Telepay\FinancialApiBundle\Document\Transaction;
+use Telepay\FinancialApiBundle\Entity\LimitCount;
+use Telepay\FinancialApiBundle\Entity\LimitDefinition;
 
 class IncomingController extends RestApiController{
 
@@ -51,6 +56,74 @@ class IncomingController extends RestApiController{
         $transaction->setStatus("created");
         $transaction->setDataIn($dataIn);
         $this->get('doctrine_mongodb')->getManager()->persist($transaction);
+
+        //TODO posible millora en un query molon
+        //TODO comprobar limites
+        //obtener limit usuario
+        $user=$this->getUser();
+
+
+        $limits=$user->getLimitCount();
+        foreach ( $limits as $limit ){
+            if($limit->getCname()==$service_cname){
+
+                //TODO implementar un limitAdder
+                $user_limit=$limit;
+            }
+        }
+
+        $em = $this->getDoctrine()->getManager();
+
+        if(!$user_limit){
+            //TODO crear el limite
+            $user_limit = new LimitCount();
+            $user_limit->setUser($user);
+            $user_limit->setCname($service_cname);
+            $user_limit->setSingle(0);
+            $user_limit->setDay(0);
+            $user_limit->setWeek(0);
+            $user_limit->setMonth(0);
+            $user_limit->setYear(0);
+            $user_limit->setTotal(0);
+            $em->persist($user_limit);
+            $em->flush();
+        }
+
+        //obtener limit group
+        $group=$user->getGroups()[0];
+
+        $group_limits=$group->getLimits();
+        foreach ( $group_limits as $limit ){
+            if($limit->getCname()==$service_cname){
+                $group_limit=$limit;
+            }
+        }
+
+        if(!$group_limit){
+            //TODO crear el limite
+            $group_limit = new LimitDefinition();
+            $group_limit->setCname($service_cname);
+            $group_limit->setSingle(0);
+            $group_limit->setDay(0);
+            $group_limit->setWeek(0);
+            $group_limit->setMonth(0);
+            $group_limit->setYear(0);
+            $group_limit->setTotal(0);
+            $group_limit->setGroup($group);
+            $em->persist($group_limit);
+            $em->flush();
+        }
+
+        $amount=$dataIn['amount'];
+
+        $new_user_limit = new LimitAdder();
+        $new_user_limit->add($user_limit,$amount);
+
+
+        $checker = new LimitChecker();
+        $checker = $checker->leq($new_user_limit,$group_limit);
+
+        if($checker==false) throw new HttpException(509,'Limit exceeded');
 
         try {
             $transaction = $service->create($transaction);

@@ -45,7 +45,7 @@ class SignatureAuthenticationProvider implements AuthenticationProviderInterface
             $authenticatedToken = new SignatureToken($user->getRoles());
             $authenticatedToken->setUser($user);
             if($user->isLocked()) throw new AuthenticationException('User is locked');
-            if($user->isDisabled()) throw new AuthenticationException('User is disabled');
+            if(!$user->isEnabled()) throw new AuthenticationException('User is disabled');
             return $authenticatedToken;
         }
 
