@@ -229,4 +229,20 @@ class User extends BaseUser
         $this->limit_count = $limit_count;
     }
 
+    /**
+     * @return mixed
+     */
+    public function getWallets()
+    {
+        return $this->wallets;
+    }
+
+    /**
+     * @param mixed $wallets
+     */
+    public function setWallets($wallets)
+    {
+        $this->wallets = $wallets;
+    }
+
 }
