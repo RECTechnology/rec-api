@@ -120,9 +120,9 @@ class IncomingController extends RestApiController{
         $new_user_limit->add($user_limit,$amount);
 
         $checker = new LimitChecker();
-        $checker = $checker->leq($user_limit,$group_limit);
 
-        if($checker==false) throw new HttpException(509,'Limit exceeded');
+        if(!$checker->leq($user_limit,$group_limit))
+            throw new HttpException(509,'Limit exceeded');
 
         try {
             $transaction = $service->create($transaction);
