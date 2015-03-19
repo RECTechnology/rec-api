@@ -33,7 +33,9 @@ class CryptoPaymentService extends BaseService {
         $amount = $baseTransaction->getDataIn()['amount'];
         $confirmations = $baseTransaction->getDataIn()['confirmations'];
 
-        if($amount <= 0 ) throw new HttpException(400, "Amount must be positive");
+        if(!is_int($amount)) throw new HttpException(400, "Amount must be an integer");
+        if(!is_int($confirmations)) throw new HttpException(400, "Confirmations must be an integer");
+        if($amount <= 0 || bcmod($amount, 1) > 0) throw new HttpException(400, "Amount must be positive");
         if($confirmations < 0 ) throw new HttpException(400, "Confirmation number can't be negative");
 
         $address = $this->cryptoProvider->getnewaddress();
