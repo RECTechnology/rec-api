@@ -151,8 +151,8 @@ class IncomingController extends RestApiController{
             throw $e;
         }
 
-        //$current_wallet->setBalance($current_wallet->getBalance()-$amount);
-        //$em->persist($current_wallet);
+        $current_wallet->setBalance($current_wallet->getBalance()-$amount);
+        $em->persist($current_wallet);
         $em->flush();
 
         $transaction->setTimeOut(new \MongoDate());
