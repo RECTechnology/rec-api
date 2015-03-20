@@ -6,8 +6,8 @@ user_account:
     requirements:
         _method: GET
 
-user_wallets:
-    pattern:  /user/v1/wallets
+user_wallet:
+    pattern:  /user/v1/wallet
     defaults: { _controller: Telepay\FinancialApiBundle\Controller\Management\User\WalletController::read }
     requirements:
         _method: GET
