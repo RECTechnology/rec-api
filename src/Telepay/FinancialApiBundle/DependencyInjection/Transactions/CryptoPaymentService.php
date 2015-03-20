@@ -9,6 +9,7 @@
 namespace Telepay\FinancialApiBundle\DependencyInjection\Transactions;
 
 use Symfony\Component\HttpKernel\Exception\HttpException;
+use Telepay\FinancialApiBundle\DependencyInjection\Telepay\Commons\IntegerManipulator;
 use Telepay\FinancialApiBundle\DependencyInjection\Transactions\Core\BaseService;
 use Telepay\FinancialApiBundle\Document\Transaction;
 
@@ -33,7 +34,10 @@ class CryptoPaymentService extends BaseService {
         $amount = $baseTransaction->getDataIn()['amount'];
         $confirmations = $baseTransaction->getDataIn()['confirmations'];
 
-        if($amount <= 0 ) throw new HttpException(400, "Amount must be positive");
+        $im = new IntegerManipulator();
+        if(!$im->isInteger($amount)) throw new HttpException(400, "Amount must be an integer (".$amount.") given");
+        if(!$im->isInteger($confirmations)) throw new HttpException(400, "Confirmations must be an integer");
+        if($amount <= 0) throw new HttpException(400, "Amount must be positive");
         if($confirmations < 0 ) throw new HttpException(400, "Confirmation number can't be negative");
 
         $address = $this->cryptoProvider->getnewaddress();
@@ -45,7 +49,7 @@ class CryptoPaymentService extends BaseService {
             'id' => $baseTransaction->getId(),
             'address' => $address,
             'expires_in' => 3600,
-            'amount' => intval($amount),
+            'amount' => doubleval($amount),
             'received' => 0.0,
             'min_confirmations' => intval($confirmations),
             'confirmations' => 0,
@@ -72,8 +76,8 @@ class CryptoPaymentService extends BaseService {
         $amount = $currentData['amount'];
         $allReceived = $this->cryptoProvider->listreceivedbyaddress(0, true);
         foreach($allReceived as $cryptoData){
-            if($cryptoData['address'] == $address && floatval($cryptoData['amount'])*1e8 >= $amount){
-                $currentData['received'] = floatval($cryptoData['amount'])*1e8;
+            if($cryptoData['address'] == $address && doubleval($cryptoData['amount'])*1e8 >= $amount){
+                $currentData['received'] = doubleval($cryptoData['amount'])*1e8;
                 $currentData['confirmations'] = $cryptoData['confirmations'];
                 if($currentData['confirmations'] >= $currentData['min_confirmations'])
                     $transaction->setStatus("success");

@@ -59,7 +59,7 @@ class SignatureAuthenticationProvider implements AuthenticationProviderInterface
         if($version!='1')
             return false;
 
-        if ($timestamp > time()) {
+        if ($timestamp - 30 > time()) {
             return false;
         }
 
