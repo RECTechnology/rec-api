@@ -33,11 +33,14 @@ class WalletController extends RestApiController{
         }
 
         //quitamos el user con to do lo que conlleva detras
-        array_map(function($elem){
-            $elem->setUser(null);
-        }, $filtered);
+        array_map(
+            function($elem){
+                $elem->setUser(null);
+            },
+            $filtered
+        );
 
-        return $this->rest(200, "Account info got successfully", $filtered);
+        return $this->restV2(200, "ok", "Wallet info got successfully", $filtered);
 
     }
 
