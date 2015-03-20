@@ -22,6 +22,23 @@ class WalletController extends RestApiController{
      */
     public function read(){
 
+        $user = $this->get('security.context')->getToken()->getUser();
+        //obtener los wallets
+        $wallets=$user->getWallets();
+
+        $filtered=[];
+
+        foreach($wallets as $wallet){
+            $filtered[]=$wallet;
+        }
+
+        //quitamos el user con to do lo que conlleva detras
+        array_map(function($elem){
+            $elem->setUser(null);
+        }, $filtered);
+
+        return $this->rest(200, "Account info got successfully", $filtered);
+
     }
 
     /**
