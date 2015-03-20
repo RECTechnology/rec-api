@@ -51,6 +51,5 @@ security:
         - { path: ^/user/v[0-9]+/*, role: ROLE_USER }
         - { path: ^/services/v[0-9]+/*, role: ROLE_USER }
         - { path: ^/pos/v[0-9]+/*, role: ROLE_COMMERCE }
-        - { path: ^/wallet/v[0-9]+/*, role: ROLE_WALLET }
 
 
