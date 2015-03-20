@@ -9,6 +9,7 @@
 namespace Telepay\FinancialApiBundle\DependencyInjection\Transactions;
 
 use Symfony\Component\HttpKernel\Exception\HttpException;
+use Telepay\FinancialApiBundle\DependencyInjection\Telepay\Commons\IntegerManipulator;
 use Telepay\FinancialApiBundle\DependencyInjection\Transactions\Core\BaseService;
 use Telepay\FinancialApiBundle\Document\Transaction;
 
@@ -33,9 +34,9 @@ class CryptoPaymentService extends BaseService {
         $amount = $baseTransaction->getDataIn()['amount'];
         $confirmations = $baseTransaction->getDataIn()['confirmations'];
 
-
-        if(!is_int($amount)) throw new HttpException(400, "Amount must be an integer (".$amount.") given");
-        if(!is_int($confirmations)) throw new HttpException(400, "Confirmations must be an integer");
+        $im = new IntegerManipulator();
+        if(!$im->isInteger($amount)) throw new HttpException(400, "Amount must be an integer (".$amount.") given");
+        if(!$im->isInteger($confirmations)) throw new HttpException(400, "Confirmations must be an integer");
         if($amount <= 0) throw new HttpException(400, "Amount must be positive");
         if($confirmations < 0 ) throw new HttpException(400, "Confirmation number can't be negative");
 
