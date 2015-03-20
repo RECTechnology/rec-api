@@ -104,6 +104,12 @@ class User extends BaseUser
     private $base64_image;
 
     /**
+     * @ORM\Column(type="string")
+     * @Expose
+     */
+    private $default_currency;
+
+    /**
      * @Expose
      */
     private $allowed_services = array();
@@ -243,6 +249,22 @@ class User extends BaseUser
     public function setWallets($wallets)
     {
         $this->wallets = $wallets;
+    }
+
+    /**
+     * @return mixed
+     */
+    public function getDefaultCurrency()
+    {
+        return $this->default_currency;
+    }
+
+    /**
+     * @param mixed $default_currency
+     */
+    public function setDefaultCurrency($default_currency)
+    {
+        $this->default_currency = $default_currency;
     }
 
 }

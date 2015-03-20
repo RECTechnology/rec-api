@@ -126,6 +126,7 @@ class UsersController extends BaseApiController
         $request->request->add(array('plain_password'=>$password));
         $request->request->add(array('enabled'=>1));
         $request->request->add(array('base64_image'=>''));
+        $request->request->add(array('default_currency'=>'EUR'));
         $resp= parent::createAction($request);
 
         if($resp->getStatusCode() == 201){
