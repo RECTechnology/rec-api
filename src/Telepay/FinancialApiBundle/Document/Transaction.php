@@ -26,7 +26,6 @@ class Transaction implements TransactionTiming {
         $transaction->setTimeIn(new \MongoDate());
         $transaction->setUser($context->getUser()->getId());
         $transaction->setDataIn($context->getRequestStack()->getCurrentRequest());
-        $transaction->setMode($context->getMode());
         return $transaction;
     }
 
@@ -65,12 +64,6 @@ class Transaction implements TransactionTiming {
      * @MongoDB\Date
      */
     private $timeOut;
-
-    /**
-     * @var
-     * @MongoDB\String
-     */
-    private $mode;
 
     /**
      * @var
@@ -205,28 +198,6 @@ class Transaction implements TransactionTiming {
     public function getTimeOut()
     {
         return $this->timeOut;
-    }
-
-    /**
-     * Set mode
-     *
-     * @param string $mode
-     * @return self
-     */
-    public function setMode($mode)
-    {
-        $this->mode = $mode;
-        return $this;
-    }
-
-    /**
-     * Get mode
-     *
-     * @return string $mode
-     */
-    public function getMode()
-    {
-        return $this->mode;
     }
 
     /**

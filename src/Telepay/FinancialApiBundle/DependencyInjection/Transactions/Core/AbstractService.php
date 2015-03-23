@@ -14,6 +14,15 @@ use Telepay\FinancialApiBundle\Document\Transaction;
 
 class AbstractService implements ServiceInterface, ServiceLifeCycle {
 
+    /**
+     * @var
+     */
+    private $cash_direction;
+    /**
+     * @var
+     */
+    private $currency;
+
     public function getFields(){
         return array();
     }
@@ -29,6 +38,7 @@ class AbstractService implements ServiceInterface, ServiceLifeCycle {
     public function notificate(Transaction $transaction, $data){
         throw new HttpException(501, "Method not implemented");
     }
+
     /**
      * @var string name
      */
@@ -47,12 +57,15 @@ class AbstractService implements ServiceInterface, ServiceLifeCycle {
     private $base64_image;
 
 
-    function __construct($name, $cname, $role, $base64_image)
+
+    function __construct($name, $cname, $role, $cash_direction, $currency, $base64_image)
     {
         $this->name = $name;
         $this->role = $role;
         $this->cname = $cname;
         $this->base64_image = $base64_image;
+        $this->cash_direction = $cash_direction;
+        $this->currency = $currency;
     }
 
     /**
@@ -87,36 +100,20 @@ class AbstractService implements ServiceInterface, ServiceLifeCycle {
         return $this->base64_image;
     }
 
-    /*
     /**
-     * (PHP 5 &gt;= 5.1.0)<br/>
-     * String representation of object
-     * @link http://php.net/manual/en/serializable.serialize.php
-     * @return string the string representation of the object or null
-
-    public function serialize($array = array()) {
-        $array['name'] = $this->name;
-        $array['cname'] = $this->cname;
-        $array['role'] = $this->role;
-        $array['base64_image'] = $this->base64_image;
-        return serialize($array);
+     * @return mixed
+     */
+    public function getCashDirection()
+    {
+        return $this->cash_direction;
     }
 
     /**
-     * (PHP 5 &gt;= 5.1.0)<br/>
-     * Constructs the object
-     * @link http://php.net/manual/en/serializable.unserialize.php
-     * @param string $serialized <p>
-     * The string representation of the object.
-     * </p>
-     * @return void
-
-    public function unserialize($serialized) {
-        $datas = unserialize($serialized);
-        $this->name = $datas['name'];
-        $this->cname = $datas['cname'];
-        $this->role = $datas['role'];
-        $this->name = $datas['base64_image'];
+     * @return mixed
+     */
+    public function getCurrency()
+    {
+        return $this->currency;
     }
-    */
+
 }

@@ -17,8 +17,8 @@ class UkashRedemptionService extends BaseService{
 
     private $ukashRedemptionProvider;
 
-    public function __construct($name, $cname, $role, $base64Image, $ukashRedemptionProvider, $transactionContext){
-        parent::__construct($name, $cname, $role, $base64Image, $transactionContext);
+    public function __construct($name, $cname, $role, $cash_direction, $currency, $base64Image, $ukashRedemptionProvider, $transactionContext){
+        parent::__construct($name, $cname, $role, $cash_direction, $currency, $base64Image, $transactionContext);
         $this->ukashRedemptionProvider = $ukashRedemptionProvider;
     }
 

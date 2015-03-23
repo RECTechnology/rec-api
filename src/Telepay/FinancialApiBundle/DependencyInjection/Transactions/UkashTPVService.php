@@ -17,8 +17,8 @@ class UkashTPVService extends BaseService{
 
     private $ukashProvider;
 
-    public function __construct($name, $cname, $role, $base64Image, $ukashProvider, $transactionContext){
-        parent::__construct($name, $cname, $role, $base64Image, $transactionContext);
+    public function __construct($name, $cname, $role, $cash_direction, $currency, $base64Image, $ukashProvider, $transactionContext){
+        parent::__construct($name, $cname, $role, $cash_direction, $currency, $base64Image, $transactionContext);
         $this->ukashProvider = $ukashProvider;
     }
 

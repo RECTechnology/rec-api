@@ -62,9 +62,9 @@ class IncomingController extends RestApiController{
         $user=$this->getUser();
 
         $limits=$user->getLimitCount();
+        $user_limit = false;
         foreach ( $limits as $limit ){
             if($limit->getCname()==$service_cname){
-
                 $user_limit=$limit;
             }
         }
@@ -89,7 +89,8 @@ class IncomingController extends RestApiController{
         $group=$user->getGroups()[0];
 
         $group_limits=$group->getLimits();
-        foreach ( $group_limits as $limit ){
+        $group_limit = false;
+        foreach ($group_limits as $limit ){
             if($limit->getCname()==$service_cname){
                 $group_limit=$limit;
             }

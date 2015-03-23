@@ -216,7 +216,7 @@ class ServicesSabadellTPVController extends FosRestController
 
         $tpv_data=get_object_vars($tpv_data);
 
-        $mode=$transArray[0]->getMode();
+        $mode='P';
 
         if($mode==true){
             $mode='P';
