@@ -107,45 +107,25 @@ class WalletController extends RestApiController{
      */
     public function exchange(UserWallet $wallet,$currency){
 
-        $dm=$this->getDoctrine()->getManager();
-        $exchangeRepo=$dm->getRepository('TelepayFinancialApiBundle:Exchange');
-        $exchangeQuery = $exchangeRepo->createQueryBuilder('p')
-            ->orderBy('p.id', 'DESC')
-            ->setMaxResults(1)
-            ->getQuery();
-
-        $exchange = $exchangeQuery->getSingleResult();
-
-        if(!$exchange) throw new HttpException(404,'Exchange not found');
-        $price=$exchange->getExchange($currency);
-
-        //si ya esta en la currency que queremos lo devolvewmos tal cual
-        if($wallet->getCurrency()==$currency){
+        $currency_actual=$wallet->getCurrency();
+        if($currency_actual==$currency){
             $response['available']=$wallet->getAvailable();
             $response['balance']=$wallet->getBalance();
             return $response;
         }
+        $dm=$this->getDoctrine()->getManager();
+        $exchangeRepo=$dm->getRepository('TelepayFinancialApiBundle:Exchange');
+        $exchange = $exchangeRepo->findBy(
+            array('src'=>$currency_actual,'dst'=>$currency),
+            array('id'=>'DESC')
+        );
 
-        //pasamos primero a euros
-        $currency_actual=$wallet->getCurrency();
-        if($currency_actual!='EUR'){
-            $cur_price=$exchange->getExchange($currency_actual);
-            $eur_available=$wallet->getAvailable()*$cur_price;
-            $eur_balance=$wallet->getBalance()*$cur_price;
+        if(!$exchange) throw new HttpException(404,'Exchange not found');
 
-        }else{
-            $eur_available=$wallet->getAvailable();
-            $eur_balance=$wallet->getBalance();
-        }
+        $price=$exchange[0]->getPrice();
 
-        //pasamos a la currency corresponduiente
-
-        $available=$eur_available/$price;
-        $balance=$eur_balance/$price;
-
-        $response['available']=$available;
-        $response['balance']=$balance;
-
+        $response['available']=$wallet->getAvailable()*$price;
+        $response['balance']=$wallet->getBalance()*$price;
         return $response;
 
     }

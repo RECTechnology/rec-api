@@ -23,31 +23,26 @@ class Exchange {
      */
     private $id;
 
+    /**
+     * @ORM\Column(type="datetime")
+     */
+    protected $date;
+
 
     /**
-     * @ORM\Column(type="integer")
+     * @ORM\Column(type="string")
      */
-    private $eur;
+    private $src;
 
     /**
-     * @ORM\Column(type="float")
+     * @ORM\Column(type="string")
      */
-    private $usd;
-
-    /**
-     * @ORM\Column(type="float")
-     */
-    private $mxn;
-
-    /**
-     * @ORM\Column(type="float")
-     */
-    private $btc;
+    private $dst;
 
     /**
      * @ORM\Column(type="float")
      */
-    private $fac;
+    private $price;
 
     /**
      * @return mixed
@@ -68,108 +63,65 @@ class Exchange {
     /**
      * @return mixed
      */
-    public function getEur()
+    public function getSrc()
     {
-        return $this->eur;
+        return $this->src;
     }
 
     /**
-     * @param mixed $eur
+     * @param mixed $src
      */
-    public function setEur($eur)
+    public function setSrc($src)
     {
-        $this->eur = $eur;
-    }
-
-    /**
-     * @return mixed
-     */
-    public function getUsd()
-    {
-        return $this->usd;
-    }
-
-    /**
-     * @param mixed $usd
-     */
-    public function setUsd($usd)
-    {
-        $this->usd = $usd;
+        $this->src = $src;
     }
 
     /**
      * @return mixed
      */
-    public function getMxn()
+    public function getDst()
     {
-        return $this->mxn;
+        return $this->dst;
     }
 
     /**
-     * @param mixed $mxn
+     * @param mixed $dst
      */
-    public function setMxn($mxn)
+    public function setDst($dst)
     {
-        $this->mxn = $mxn;
-    }
-
-    /**
-     * @return mixed
-     */
-    public function getBtc()
-    {
-        return $this->btc;
-    }
-
-    /**
-     * @param mixed $btc
-     */
-    public function setBtc($btc)
-    {
-        $this->btc = $btc;
+        $this->dst = $dst;
     }
 
     /**
      * @return mixed
      */
-    public function getFac()
+    public function getPrice()
     {
-        return $this->fac;
+        return $this->price;
     }
 
     /**
-     * @param mixed $fac
+     * @param mixed $price
      */
-    public function setFac($fac)
+    public function setPrice($price)
     {
-        $this->fac = $fac;
+        $this->price = $price;
     }
 
     /**
-     * @param $currency
-     * @return mixed
+     * @return \DateTime
      */
-    public function getExchange($currency)
+    public function getDate()
     {
-        $exchange=null;
-        switch($currency){
-            case 'EUR':
-                $exchange=$this->getEur();
-                break;
-            case 'USD':
-                $exchange=$this->getUsd();
-                break;
-            case 'MXN':
-                $exchange=$this->getMxn();
-                break;
-            case 'BTC':
-                $exchange=$this->getBtc();
-                break;
-            case 'FAC':
-                $exchange=$this->getFac();
-                break;
-        }
-        return $exchange;
+        return $this->date;
+    }
+
+    /**
+     * @param \DateTime $date
+     */
+    public function setDate($date)
+    {
+        $this->date = $date;
     }
 
 
