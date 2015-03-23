@@ -62,8 +62,8 @@ class WalletController extends RestApiController{
         $multidivisa['balance']=$balance;
         $filtered[]=$multidivisa;
 
-        return $this->rest(201, "Account info got successfully", $filtered);
-        //return $this->restV2(200, "ok", "Wallet info got successfully", $filtered);
+        //return $this->rest(201, "Account info got successfully", $filtered);
+        return $this->restV2(200, "ok", "Wallet info got successfully", $filtered);
 
     }
 

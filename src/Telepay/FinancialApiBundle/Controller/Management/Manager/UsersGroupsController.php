@@ -13,6 +13,7 @@ use Symfony\Component\HttpKernel\Exception\HttpException;
 use FOS\RestBundle\Controller\Annotations as Rest;
 use Telepay\FinancialApiBundle\Controller\RestApiController;
 use Telepay\FinancialApiBundle\Entity\Group;
+use Telepay\FinancialApiBundle\Entity\User;
 
 class UsersGroupsController extends RestApiController{
 
@@ -29,18 +30,21 @@ class UsersGroupsController extends RestApiController{
         $user = $usersRepository->find($request->get('user_id'));
         if(!$user) throw new HttpException(404, "User not found");
 
-        foreach($user->getGroups() as $grupo){
-            $user->removeGroup($grupo);
+        if($user->hasGroup($group)) throw new HttpException(409, "User alredy in group");
+
+        foreach($user->getGroups() as $g){
+            $user->removeGroup($g);
         }
 
         $user->addGroup($group);
 
         $em = $this->getDoctrine()->getManager();
 
+        $em->persist($group);
         $em->persist($user);
         $em->flush();
 
-        return $this->rest(201, "User added successfully");
+        return $this->restV2(201, "ok", "User added successfully");
     }
 
 

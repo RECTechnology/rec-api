@@ -24,7 +24,7 @@ class PayUService extends BaseService{
     public function getPayUPaymentTest($payer,$country,$currency,$reference_code,$description,$value,$pay_method){
         $this->payer=$payer;
         $this->country=$country;
-        $this->currency=$currency;
+        //$this->currency=$currency;
         $this->reference_code=$reference_code;
         $this->description=$description;
         $this->value=$value;
@@ -46,7 +46,7 @@ class PayUService extends BaseService{
     public function getPayUPayment($payer_name,$country,$currency,$reference_code,$description,$value,$pay_method){
         $this->payer_name=$payer_name;
         $this->country=$country;
-        $this->currency=$currency;
+        //$this->currency=$currency;
         $this->reference_code=$reference_code;
         $this->description=$description;
         $this->value=$value;

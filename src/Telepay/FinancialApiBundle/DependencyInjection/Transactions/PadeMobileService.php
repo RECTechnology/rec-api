@@ -18,8 +18,8 @@ class PadeMobileService extends BaseService{
 
     private $pademobileProvider;
 
-    public function __construct($name, $cname, $role, $base64Image, $pademobileProvider, $transactionContext){
-        parent::__construct($name, $cname, $role, $base64Image, $transactionContext);
+    public function __construct($name, $cname, $role, $cash_direction, $currency, $base64Image, $pademobileProvider, $transactionContext){
+        parent::__construct($name, $cname, $role, $cash_direction, $currency, $base64Image, $transactionContext);
         $this->pademobileProvider = $pademobileProvider;
     }
 

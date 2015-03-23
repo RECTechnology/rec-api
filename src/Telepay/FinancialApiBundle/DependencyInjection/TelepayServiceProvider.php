@@ -31,6 +31,8 @@ class TelepayServiceProvider{
                 $service->getName(),
                 $service->getCname(),
                 $service->getRole(),
+                $service->getCashDirection(),
+                $service->getCurrency(),
                 $service->getBase64Image()
             );
         }
@@ -53,6 +55,8 @@ class TelepayServiceProvider{
                     $this->servicesByRole[$role]->getName(),
                     $this->servicesByRole[$role]->getCname(),
                     $this->servicesByRole[$role]->getRole(),
+                    $this->servicesByRole[$role]->getCashDirection(),
+                    $this->servicesByRole[$role]->getCurrency(),
                     $this->servicesByRole[$role]->getBase64Image()
                 );
         }

@@ -18,8 +18,8 @@ abstract class BaseService extends AbstractService {
 
     private $transactionContext;
 
-    public function __construct($name, $cname, $role, $base64Image, TransactionContextInterface $transactionContext){
-        parent::__construct($name, $cname, $role, $base64Image);
+    public function __construct($name, $cname, $role, $cash_direction, $currency, $base64Image, TransactionContextInterface $transactionContext){
+        parent::__construct($name, $cname, $role, $cash_direction, $currency, $base64Image);
         $this->transactionContext = $transactionContext;
     }
 

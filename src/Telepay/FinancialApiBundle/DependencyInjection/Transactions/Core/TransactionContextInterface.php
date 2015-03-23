@@ -10,7 +10,6 @@ namespace Telepay\FinancialApiBundle\DependencyInjection\Transactions\Core;
 
 interface TransactionContextInterface{
     public function getRequestStack();
-    public function getMode();
     public function getUser();
     public function getODM();
     public function getORM();

@@ -17,8 +17,8 @@ class PaySafeCardService extends BaseService{
 
     private $paysafecardProvider;
 
-    public function __construct($name, $cname, $role, $base64Image, $paysafecardProvider, $transactionContext){
-        parent::__construct($name, $cname, $role, $base64Image, $transactionContext);
+    public function __construct($name, $cname, $role, $cash_direction, $currency, $base64Image, $paysafecardProvider, $transactionContext){
+        parent::__construct($name, $cname, $role, $cash_direction, $currency, $base64Image, $transactionContext);
         $this->paysafecardProvider = $paysafecardProvider;
     }
 
