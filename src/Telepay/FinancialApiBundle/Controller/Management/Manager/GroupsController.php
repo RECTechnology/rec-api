@@ -109,6 +109,8 @@ class GroupsController extends BaseApiController
 
         $group = $groupsRepo->find($id);
 
+        if(!$group) throw new HttpException(404,'Group not found');
+
         if($group->getName()=='Default') throw new HttpException(400,"This group can't be deleted.");
 
         if(count($group->getUsers())>0) throw new HttpException(400,"This group can't be deleted because has users.");
