@@ -109,11 +109,14 @@ class WalletController extends RestApiController{
 
         $dm=$this->getDoctrine()->getManager();
         $exchangeRepo=$dm->getRepository('TelepayFinancialApiBundle:Exchange');
-        $exchange=$exchangeRepo->findAll();
+        $exchangeQuery = $exchangeRepo->createQueryBuilder('p')
+            ->orderBy('p.id', 'DESC')
+            ->setMaxResults(1)
+            ->getQuery();
+
+        $exchange = $exchangeQuery->getSingleResult();
 
         if(!$exchange) throw new HttpException(404,'Exchange not found');
-
-        $exchange=$exchange[0];
         $price=$exchange->getExchange($currency);
 
         //si ya esta en la currency que queremos lo devolvewmos tal cual
