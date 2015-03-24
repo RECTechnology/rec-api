@@ -11,6 +11,7 @@
 namespace Telepay\FinancialApiBundle\Controller\Transactions;
 
 
+use Symfony\Component\EventDispatcher\Tests\Service;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpKernel\Exception\HttpException;
 use Telepay\FinancialApiBundle\Controller\RestApiController;
@@ -21,6 +22,8 @@ use Telepay\FinancialApiBundle\DependencyInjection\Telepay\Commons\LimitChecker;
 use Telepay\FinancialApiBundle\Document\Transaction;
 use Telepay\FinancialApiBundle\Entity\LimitCount;
 use Telepay\FinancialApiBundle\Entity\LimitDefinition;
+use Telepay\FinancialApiBundle\Entity\ServiceFee;
+use Telepay\FinancialApiBundle\Entity\User;
 
 class IncomingController extends RestApiController{
 
@@ -49,6 +52,7 @@ class IncomingController extends RestApiController{
         }
 
         $dm = $this->get('doctrine_mongodb')->getManager();
+        $em = $this->getDoctrine()->getManager();
 
         $transaction = Transaction::createFromContext($this->get('transaction.context'));
         $transaction->setService($service_cname);
@@ -61,6 +65,42 @@ class IncomingController extends RestApiController{
         //obtain and check limits
         $user=$this->getUser();
 
+        //obtener group
+        $group=$user->getGroups()[0];
+
+        //obtener comissiones del grupo
+        $group_commissions=$group->getCommissions();
+        $group_commission=false;
+        foreach ( $group_commissions as $commission ){
+            if ( $commission->getServiceName() == $service_cname ){
+                $group_commission = $commission;
+            }
+        }
+
+        //si no existe la comission para el grupo la creamos
+        if(!$group_commission){
+            $group_commission = new ServiceFee();
+            $group_commission->setFixed(0);
+            $group_commission->setVariable(0);
+            $group_commission->setServiceName($service_cname);
+            $group_commission->setGroup($group);
+            $em->persist($group_commission);
+            $em->flush();
+        }
+
+        $amount=$dataIn['amount'];
+
+        //añadimos las comisiones para chekear
+        $fixed_fee=$group_commission->getFixed();
+        $variable_fee=$group_commission->getVariable()*$amount;
+
+        //comprobamos si es cash out
+        if($service->getcashDirection()=='out'){
+            $total=$amount+$variable_fee+$fixed_fee;
+        }else{
+            $total=$amount;
+        }
+
         $limits=$user->getLimitCount();
         $user_limit = false;
         foreach ( $limits as $limit ){
@@ -69,8 +109,7 @@ class IncomingController extends RestApiController{
             }
         }
 
-        $em = $this->getDoctrine()->getManager();
-
+        //si el usuario no tiene limitCount se lo creamos
         if(!$user_limit){
             $user_limit = new LimitCount();
             $user_limit->setUser($user);
@@ -85,17 +124,16 @@ class IncomingController extends RestApiController{
             $em->flush();
         }
 
-        //obtener limit group
-        $group=$user->getGroups()[0];
-
+        //obtener limites del grupo
         $group_limits=$group->getLimits();
         $group_limit = false;
-        foreach ($group_limits as $limit ){
-            if($limit->getCname()==$service_cname){
-                $group_limit=$limit;
+        foreach ( $group_limits as $limit ){
+            if( $limit->getCname() == $service_cname){
+                $group_limit = $limit;
             }
         }
 
+        //si no existe el limite del grupo lo creamos
         if(!$group_limit){
             $group_limit = new LimitDefinition();
             $group_limit->setCname($service_cname);
@@ -110,59 +148,177 @@ class IncomingController extends RestApiController{
             $em->flush();
         }
 
-        $amount=$dataIn['amount'];
-
         $new_user_limit = new LimitAdder();
-        $new_user_limit->add($user_limit,$amount);
+        $new_user_limit->add($user_limit,$total);
 
         $checker = new LimitChecker();
 
-        if(!$checker->leq($user_limit,$group_limit))
+        if(!$checker->leq($new_user_limit,$group_limit))
             throw new HttpException(509,'Limit exceeded');
 
-        //TODO comprobar que el servicio sea de cashout
-        //obtain wallet and and check founds for cash_out services
+        //obtain wallet and check founds for cash_out services
         $wallets=$user->getWallets();
-        //TODO comprobar la currency para comprobar ese wallet
-        $service_currency = 'EUR';
+        $service_currency = $service->getCurrency();
         $current_wallet=null;
-        foreach ( $wallets as $wallet){
-            if ($wallet->getCurrency()==$service_currency){
-                if($wallet->getAvailable()<=$amount) throw new HttpException(509,'Not founds enough');
-                //Bloqueamos la pasta en el wallet
-                $actual_available=$wallet->getAvailable();
-                $new_available=$actual_available-$amount;
-                $wallet->setAvailable($new_available);
-                $em->persist($wallet);
-                $em->flush();
-                $current_wallet=$wallet;
-            }
-        }
 
-        try {
-            $transaction = $service->create($transaction);
-        }catch (HttpException $e){
-            if($transaction->getStatus() === "created")
-                $transaction->setStatus("failed");
-            $dm->persist($transaction);
-            $dm->flush();
-            $current_wallet->setAvailable($current_wallet->getAvailable()+$amount);
+        //comprobamos si es cash out
+        if($service->getcashDirection()=='out'){
+
+            foreach ( $wallets as $wallet){
+                if ($wallet->getCurrency()==$service_currency){
+                    if($wallet->getAvailable()<=$total) throw new HttpException(509,'Not founds enough');
+                    //Bloqueamos la pasta en el wallet
+                    $actual_available=$wallet->getAvailable();
+                    $new_available=$actual_available-$amount;
+                    $wallet->setAvailable($new_available);
+                    $em->persist($wallet);
+                    $em->flush();
+                    $current_wallet=$wallet;
+                }
+            }
+
+            try {
+                $transaction = $service->create($transaction);
+            }catch (HttpException $e){
+                if($transaction->getStatus() === "created")
+                    $transaction->setStatus("failed");
+                $dm->persist($transaction);
+                $dm->flush();
+                $current_wallet->setAvailable($current_wallet->getAvailable()+$amount);
+                $em->persist($current_wallet);
+                $em->flush();
+                throw $e;
+            }
+
+            $current_wallet->setBalance($current_wallet->getBalance()-$amount);
             $em->persist($current_wallet);
             $em->flush();
-            throw $e;
+
+            $transaction->setTimeOut(new \MongoDate());
+            $dm->persist($transaction);
+            $dm->flush();
+
+            //si la transaccion se finaliza se suma al wallet i se reparten las comisiones
+            if($transaction->getStatus()=='success'){
+                //amount fixed variable
+                $user_amount=$amount+$fixed_fee+$variable_fee;
+                //sumar al usuario el amount
+                $current_wallet->setAvailable($current_wallet->getAvailable()-$user_amount);
+                $current_wallet->setBalance($current_wallet->getBalance()-$user_amount);
+                $em->persist($current_wallet);
+                $em->flush();
+
+                //empezamos el reparto
+                $creator=$group->getCreator();
+
+                if(!$creator) throw new HttpException(404,'Creator not found');
+
+                $this->cashInDealer($creator,$amount,$service_cname,$service_currency);
+            }
+
+        }else{     //cashIn
+
+            foreach ( $wallets as $wallet){
+                if ($wallet->getCurrency()==$service_currency){
+                    $current_wallet=$wallet;
+                }
+            }
+
+            try {
+                $transaction = $service->create($transaction);
+            }catch (HttpException $e){
+                if($transaction->getStatus() === "created")
+                    $transaction->setStatus("failed");
+                $dm->persist($transaction);
+                $dm->flush();
+                throw $e;
+            }
+
+            $em->flush();
+
+            $transaction->setTimeOut(new \MongoDate());
+            $dm->persist($transaction);
+            $dm->flush();
+
+            //si la transaccion se finaliza se suma al wallet i se reparten las comisiones
+            if($transaction->getStatus()=='success'){
+                //amount fixed variable
+                $user_amount=$amount-$fixed_fee-$variable_fee;
+                //sumar al usuario el amount
+                $current_wallet->setAvailable($current_wallet->getAvailable()+$user_amount);
+                $current_wallet->setBalance($current_wallet->getBalance()+$user_amount);
+                $em->persist($current_wallet);
+                $em->flush();
+
+                //empezamos el reparto
+                $creator=$group->getCreator();
+
+                if(!$creator) throw new HttpException(404,'Creator not found');
+
+                $this->cashInDealer($creator,$amount,$service_cname,$service_currency);
+            }
+
+
+
         }
 
-        $current_wallet->setBalance($current_wallet->getBalance()-$amount);
-        $em->persist($current_wallet);
-        $em->flush();
-
-        $transaction->setTimeOut(new \MongoDate());
-        $dm->persist($transaction);
-        $dm->flush();
 
         if($transaction == false) throw new HttpException(500, "oOps, some error has occurred within the call");
 
         return $this->restTransaction($transaction, "Done");
+    }
+
+    public function cashInDealer(User $creator,$amount,$service_cname,$currency){
+
+        //obtenemos el grupo
+        $group=$creator->getGroups()[0];
+
+        $em = $this->getDoctrine()->getManager();
+
+        //obtener comissiones del grupo
+        $commissions=$group->getCommissions();
+        $group_commission=false;
+        foreach ( $commissions as $commission ){
+            if ( $commission->getServiceName() == $service_cname ){
+                $group_commission = $commission;
+            }
+        }
+
+        //si no existe la comission para el grupo la creamos
+        if(!$group_commission){
+            $group_commission = new ServiceFee();
+            $group_commission->setFixed(0);
+            $group_commission->setVariable(0);
+            $group_commission->setServiceName($service_cname);
+            $group_commission->setGroup($group);
+            $em->persist($group_commission);
+            $em->flush();
+        }
+
+        $fixed=$group_commission->getFixed();
+        $variable=$group_commission->getVariable()*$amount;
+        $total=$fixed+$variable;
+
+        //Ahora lo añadimos al wallet correspondiente
+        $wallets=$creator->getWallets();
+        foreach($wallets as $wallet){
+            if($wallet->getCurrency()==$currency){
+
+                //Añadimos la pasta al wallet
+                $wallet->setAvailable($wallet->getAvailable()+$total);
+                $wallet->setBalance($wallet->getBalance()+$total);
+                $em->persist($wallet);
+                $em->flush();
+            }
+        }
+
+        if(!$creator->hasRole('ROLE_SUPER_ADMIN')){
+            $new_creator=$group->getCreator();
+            $this->cashInDealer($new_creator,$amount,$service_cname,$currency);
+        }
+
+        return true;
+
     }
 
 

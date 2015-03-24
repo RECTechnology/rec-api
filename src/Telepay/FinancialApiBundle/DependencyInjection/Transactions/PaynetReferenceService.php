@@ -45,6 +45,7 @@ class PaynetReferenceService extends BaseService{
             throw new HttpException(503, "Service temporarily unavailable, please try again in a few minutes");
 
         $baseTransaction->setData($barcode);
+        $baseTransaction->setStatus('pending');
 
         return $baseTransaction;
 

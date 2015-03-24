@@ -54,6 +54,7 @@ class CryptoPaymentService extends BaseService {
             'min_confirmations' => intval($confirmations),
             'confirmations' => 0,
         ));
+        $baseTransaction->setStatus('pending');
 
         return $baseTransaction;
 
