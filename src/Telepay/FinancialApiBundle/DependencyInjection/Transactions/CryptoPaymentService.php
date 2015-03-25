@@ -24,7 +24,7 @@ class CryptoPaymentService extends BaseService {
 
     public function getFields(){
         return array(
-            'amount', 'confirmations'
+            'amount', 'confirmations', 'expires_in'
         );
     }
 
@@ -33,10 +33,12 @@ class CryptoPaymentService extends BaseService {
         if($baseTransaction === null) $baseTransaction = new Transaction();
         $amount = $baseTransaction->getDataIn()['amount'];
         $confirmations = $baseTransaction->getDataIn()['confirmations'];
+        $expires_in = $baseTransaction->getDataIn()['expires_in'];
 
         $im = new IntegerManipulator();
-        if(!$im->isInteger($amount)) throw new HttpException(400, "Amount must be an integer (".$amount.") given");
-        if(!$im->isInteger($confirmations)) throw new HttpException(400, "Confirmations must be an integer");
+        if(!$im->isInteger($amount)) throw new HttpException(400, "amount must be an integer (".$amount.") given");
+        if(!$im->isInteger($confirmations)) throw new HttpException(400, "confirmations must be an integer");
+        if(!$im->isInteger($expires_in)) throw new HttpException(400, "expires_in must be an integer");
         if($amount <= 0) throw new HttpException(400, "Amount must be positive");
         if($confirmations < 0 ) throw new HttpException(400, "Confirmation number can't be negative");
 
@@ -48,7 +50,7 @@ class CryptoPaymentService extends BaseService {
         $baseTransaction->setData(array(
             'id' => $baseTransaction->getId(),
             'address' => $address,
-            'expires_in' => 30,
+            'expires_in' => $expires_in,
             'amount' => doubleval($amount),
             'received' => 0.0,
             'min_confirmations' => intval($confirmations),
