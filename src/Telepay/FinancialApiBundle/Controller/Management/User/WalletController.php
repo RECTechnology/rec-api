@@ -93,7 +93,50 @@ class WalletController extends RestApiController{
         );
     }
 
-    
+    /**
+     * reads transactions by wallets
+     */
+    public function walletTransactions(Request $request){
+
+        if($request->query->has('limit')) $limit = $request->query->get('limit');
+        else $limit = 10;
+
+        if($request->query->has('offset')) $offset = $request->query->get('offset');
+        else $offset = 0;
+
+        $dm = $this->get('doctrine_mongodb')->getManager();
+        $userId = $this->get('security.context')
+            ->getToken()->getUser()->getId();
+
+        $transactions = $dm->createQueryBuilder('TelepayFinancialApiBundle:Transaction')
+            ->field('user')->equals($userId)
+            ->getQuery()
+            ->execute();
+
+
+        $resArray = [];
+        foreach($transactions->toArray() as $res){
+            $resArray []= $res;
+
+        }
+
+        $total = count($resArray);
+
+        $entities = array_slice($resArray, $offset, $limit);
+
+
+        return $this->rest(
+            200,
+            "Request successful",
+            array(
+                'total' => $total,
+                'start' => intval($offset),
+                'end' => count($entities)+$offset,
+                'elements' => $entities
+            )
+        );
+
+    }
 
     /**
      * sends money to another user

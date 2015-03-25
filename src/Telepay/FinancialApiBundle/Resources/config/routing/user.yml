@@ -12,6 +12,12 @@ user_wallet:
     requirements:
         _method: GET
 
+user_wallet_transactions:
+    pattern:  /user/v1/wallet/transactions
+    defaults: { _controller: Telepay\FinancialApiBundle\Controller\Management\User\WalletController::walletTransactions }
+    requirements:
+        _method: GET
+
 user_analytics:
     pattern:  /user/v1/analytics
     defaults: { _controller: Telepay\FinancialApiBundle\Controller\Management\User\AccountController::analytics }
