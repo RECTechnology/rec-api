@@ -93,6 +93,8 @@ class IncomingController extends RestApiController{
         $fixed_fee=$group_commission->getFixed();
         $variable_fee=$group_commission->getVariable()*$amount;
 
+        //TODO incloure les fees en la transacció
+
         //comprobamos si es cash out
         if($service->getcashDirection()=='out'){
             $total=$amount+$variable_fee+$fixed_fee;
@@ -168,7 +170,7 @@ class IncomingController extends RestApiController{
                     if($wallet->getAvailable()<=$total) throw new HttpException(509,'Not founds enough');
                     //Bloqueamos la pasta en el wallet
                     $actual_available=$wallet->getAvailable();
-                    $new_available=$actual_available-$amount;
+                    $new_available=$actual_available-$total;
                     $wallet->setAvailable($new_available);
                     $em->persist($wallet);
                     $em->flush();

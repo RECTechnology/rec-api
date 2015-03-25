@@ -7,6 +7,7 @@
  */
 
 namespace Telepay\FinancialApiBundle\Controller\Management\User;
+use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpKernel\Exception\HttpException;
 use Telepay\FinancialApiBundle\Controller\RestApiController;
 use Telepay\FinancialApiBundle\Entity\UserWallet;
@@ -51,9 +52,6 @@ class WalletController extends RestApiController{
             $filtered
         );
 
-        //Todo calcular el wallet multidivisa
-
-
         //montamos el wallet
         $multidivisa=[];
         $multidivisa['id']='multidivisa';
@@ -66,6 +64,36 @@ class WalletController extends RestApiController{
         return $this->restV2(200, "ok", "Wallet info got successfully", $filtered);
 
     }
+
+    /**
+     * read last ten transactions
+     */
+    public function last(Request $request){
+
+        $dm = $this->get('doctrine_mongodb')->getManager();
+
+        $userId = $this->get('security.context')
+            ->getToken()->getUser()->getId();
+
+        $last10Trans = $dm->createQueryBuilder('TelepayFinancialApiBundle:Transaction')
+            ->field('user')->equals($userId)
+            ->limit(10)
+            ->sort('id','desc')
+            ->getQuery()
+            ->execute();
+
+        $resArray = [];
+        foreach($last10Trans->toArray() as $res){
+            $resArray []= $res;
+
+        }
+
+        return $this->rest(
+            200, "Last 10 transactions got successfully", $resArray
+        );
+    }
+
+    
 
     /**
      * sends money to another user
