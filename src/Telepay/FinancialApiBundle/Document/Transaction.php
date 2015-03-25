@@ -13,18 +13,40 @@ use Telepay\FinancialApiBundle\DependencyInjection\Telepay\Interfaces\Transactio
 use Telepay\FinancialApiBundle\DependencyInjection\Transactions\Core\TransactionContext;
 use Telepay\FinancialApiBundle\DependencyInjection\Transactions\Core\TransactionContextInterface;
 
+use JMS\Serializer\Annotation\ExclusionPolicy;
+use JMS\Serializer\Annotation\Exclude;
+
 /**
  * Class Transaction
  * @package Telepay\FinancialApiBundle\Document
  * @MongoDB\Document
+ * @ExclusionPolicy("none")
  */
 class Transaction implements TransactionTiming {
 
-
+    /**
+     * @Exclude
+     */
     public static $STATUS_CREATED = "created";
+
+    /**
+     * @Exclude
+     */
     public static $STATUS_EXPIRED = "expired";
+
+    /**
+     * @Exclude
+     */
     public static $STATUS_RECEIVED = "received";
+
+    /**
+     * @Exclude
+     */
     public static $STATUS_SUCCESS = "success";
+
+    /**
+     * @Exclude
+     */
     public static $STATUS_FAILED = "failed";
 
     public static function createFromContext(TransactionContextInterface $context){

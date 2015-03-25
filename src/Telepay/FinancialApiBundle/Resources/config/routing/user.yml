@@ -24,3 +24,9 @@ user_transactions_speed:
     requirements:
         _method: GET
 
+user_transactions_last10:
+    pattern:  /user/v1/last
+    defaults: { _controller: Telepay\FinancialApiBundle\Controller\Management\User\AccountController::last }
+    requirements:
+        _method: GET
+

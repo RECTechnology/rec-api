@@ -171,5 +171,33 @@ class AccountController extends RestApiController{
         );
     }
 
+    /**
+     * @Rest\View
+     */
+    public function last(Request $request){
+
+        $dm = $this->get('doctrine_mongodb')->getManager();
+
+        $userId = $this->get('security.context')
+            ->getToken()->getUser()->getId();
+
+        $last10Trans = $dm->createQueryBuilder('TelepayFinancialApiBundle:Transaction')
+            ->field('user')->equals($userId)
+            ->limit(10)
+            ->sort('id','desc')
+            ->getQuery()
+            ->execute();
+
+        $resArray = [];
+        foreach($last10Trans->toArray() as $res){
+            $resArray []= $res;
+
+        }
+
+        return $this->rest(
+            200, "Last 10 transactions got successfully", $resArray
+        );
+    }
+
 
 }
