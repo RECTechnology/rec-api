@@ -15,7 +15,6 @@ services:
         class: Telepay\FinancialApiBundle\DependencyInjection\Transactions\Core\TransactionContext
         arguments: ["@request_stack", "@security.context", "@doctrine_mongodb", "@doctrine"]
 
-
     security.authentication.switchuser_listener:
         class: Telepay\FinancialApiBundle\Security\Firewall\SwitchUserListener
         public: false

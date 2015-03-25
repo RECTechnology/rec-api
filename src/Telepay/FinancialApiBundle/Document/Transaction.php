@@ -20,12 +20,20 @@ use Telepay\FinancialApiBundle\DependencyInjection\Transactions\Core\Transaction
  */
 class Transaction implements TransactionTiming {
 
+
+    public static $STATUS_CREATED = "created";
+    public static $STATUS_EXPIRED = "expired";
+    public static $STATUS_RECEIVED = "received";
+    public static $STATUS_SUCCESS = "success";
+    public static $STATUS_FAILED = "failed";
+
     public static function createFromContext(TransactionContextInterface $context){
         $transaction = new Transaction();
         $transaction->setIp($context->getRequestStack()->getCurrentRequest()->getClientIp());
         $transaction->setTimeIn(new \MongoDate());
         $transaction->setUser($context->getUser()->getId());
         $transaction->setDataIn($context->getRequestStack()->getCurrentRequest());
+        $transaction->setStatus(Transaction::$STATUS_CREATED);
         return $transaction;
     }
 

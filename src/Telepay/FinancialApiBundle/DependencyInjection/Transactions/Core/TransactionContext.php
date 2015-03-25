@@ -8,9 +8,6 @@
 
 namespace Telepay\FinancialApiBundle\DependencyInjection\Transactions\Core;
 
-
-use Telepay\FinancialApiBundle\DependencyInjection\Telepay\Commons\StringManipulator;
-
 class TransactionContext implements TransactionContextInterface {
 
     private $requestStack;

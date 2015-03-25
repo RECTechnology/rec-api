@@ -57,9 +57,8 @@ class IncomingController extends RestApiController{
         $transaction = Transaction::createFromContext($this->get('transaction.context'));
         $transaction->setService($service_cname);
         $transaction->setVersion($version_number);
-        $transaction->setStatus("created");
         $transaction->setDataIn($dataIn);
-        $this->get('doctrine_mongodb')->getManager()->persist($transaction);
+        $dm->persist($transaction);
 
         //TODO posible millora en un query molon
         //obtain and check limits
@@ -180,8 +179,8 @@ class IncomingController extends RestApiController{
             try {
                 $transaction = $service->create($transaction);
             }catch (HttpException $e){
-                if($transaction->getStatus() === "created")
-                    $transaction->setStatus("failed");
+                if($transaction->getStatus() === Transaction::$STATUS_CREATED)
+                    $transaction->setStatus(Transaction::$STATUS_FAILED);
                 $dm->persist($transaction);
                 $dm->flush();
                 $current_wallet->setAvailable($current_wallet->getAvailable()+$amount);
@@ -199,7 +198,7 @@ class IncomingController extends RestApiController{
             $dm->flush();
 
             //si la transaccion se finaliza se suma al wallet i se reparten las comisiones
-            if($transaction->getStatus()=='success'){
+            if($transaction->getStatus() === Transaction::$STATUS_SUCCESS){
                 //amount fixed variable
                 $user_amount=$amount+$fixed_fee+$variable_fee;
                 //sumar al usuario el amount
@@ -219,7 +218,7 @@ class IncomingController extends RestApiController{
         }else{     //cashIn
 
             foreach ( $wallets as $wallet){
-                if ($wallet->getCurrency()==$service_currency){
+                if ($wallet->getCurrency() === $service_currency){
                     $current_wallet=$wallet;
                 }
             }
@@ -227,8 +226,8 @@ class IncomingController extends RestApiController{
             try {
                 $transaction = $service->create($transaction);
             }catch (HttpException $e){
-                if($transaction->getStatus() === "created")
-                    $transaction->setStatus("failed");
+                if($transaction->getStatus() === Transaction::$STATUS_CREATED)
+                    $transaction->setStatus(Transaction::$STATUS_FAILED);
                 $dm->persist($transaction);
                 $dm->flush();
                 throw $e;
@@ -241,7 +240,7 @@ class IncomingController extends RestApiController{
             $dm->flush();
 
             //si la transaccion se finaliza se suma al wallet i se reparten las comisiones
-            if($transaction->getStatus()=='success'){
+            if($transaction->getStatus() === Transaction::$STATUS_SUCCESS){
                 //amount fixed variable
                 $user_amount=$amount-$fixed_fee-$variable_fee;
                 //sumar al usuario el amount
@@ -302,7 +301,7 @@ class IncomingController extends RestApiController{
         //Ahora lo añadimos al wallet correspondiente
         $wallets=$creator->getWallets();
         foreach($wallets as $wallet){
-            if($wallet->getCurrency()==$currency){
+            if($wallet->getCurrency() === $currency){
 
                 //Añadimos la pasta al wallet
                 $wallet->setAvailable($wallet->getAvailable()+$total);
@@ -354,8 +353,9 @@ class IncomingController extends RestApiController{
 
         if($transaction->getService() != $service->getCname()) throw new HttpException(404, 'Transaction not found');
         $transaction = $service->check($transaction);
-        $this->get('doctrine_mongodb')->getManager()->persist($transaction);
-        $this->get('doctrine_mongodb')->getManager()->flush();
+        $mongo = $this->get('doctrine_mongodb')->getManager();
+        $mongo->persist($transaction);
+        $mongo->flush();
         return $this->restTransaction($transaction, "Got ok");
     }
 
