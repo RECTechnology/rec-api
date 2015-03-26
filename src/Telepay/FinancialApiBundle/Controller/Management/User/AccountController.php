@@ -34,6 +34,8 @@ class AccountController extends BaseApiController{
      * @Rest\View
      */
     public function updateAction(Request $request,$id=null){
+        //Todo comprobacions de passwords
+        //Todo
         $user = $this->get('security.context')->getToken()->getUser();
         $id=$user->getId();
         return parent::updateAction($request, $id);
