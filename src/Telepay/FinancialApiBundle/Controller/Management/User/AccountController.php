@@ -9,12 +9,14 @@
 
 namespace Telepay\FinancialApiBundle\Controller\Management\User;
 
+use Proxies\__CG__\Telepay\FinancialApiBundle\Entity\User;
 use Symfony\Component\HttpKernel\Exception\HttpException;
+use Telepay\FinancialApiBundle\Controller\BaseApiController;
 use Telepay\FinancialApiBundle\Controller\RestApiController;
 use FOS\RestBundle\Controller\Annotations as Rest;
 use Symfony\Component\HttpFoundation\Request;
 
-class AccountController extends RestApiController{
+class AccountController extends BaseApiController{
 
     /**
      * @Rest\View
@@ -26,6 +28,16 @@ class AccountController extends RestApiController{
             $this->get('net.telepay.service_provider')->findByRoles($user->getRoles())
         );
         return $this->rest(200, "Account info got successfully", $user);
+    }
+
+    /**
+     * @Rest\View
+     */
+    public function updateAction(Request $request,$id=null){
+        $user = $this->get('security.context')->getToken()->getUser();
+        $id=$user->getId();
+        return parent::updateAction($request, $id);
+
     }
 
     /**
@@ -194,6 +206,13 @@ class AccountController extends RestApiController{
     }
 
 
+    function getRepositoryName()
+    {
+        return "TelepayFinancialApiBundle:User";
+    }
 
-
+    function getNewEntity()
+    {
+        return new User();
+    }
 }
