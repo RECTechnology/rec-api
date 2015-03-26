@@ -43,7 +43,7 @@ class PaynetGetBarcode{
             $code=$result['GetPaynetReferenceResult']['PaynetReference'];
             $resultado=array(
                 'id'                =>  $this->client_reference,
-                'amount'            =>  $this->amount,
+                'amount'            =>  $this->amount*100,
                 'expiration_date'   =>  $caducity,
                 'description'       =>  $this->description,
                 'barcode'           =>  $code

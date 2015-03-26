@@ -17,6 +17,7 @@ use Symfony\Component\HttpKernel\Exception\HttpException;
 use Telepay\FinancialApiBundle\Controller\RestApiController;
 use FOS\RestBundle\Controller\Annotations as Rest;
 
+use Telepay\FinancialApiBundle\DependencyInjection\Telepay\Commons\FeeDeal;
 use Telepay\FinancialApiBundle\DependencyInjection\Telepay\Commons\LimitAdder;
 use Telepay\FinancialApiBundle\DependencyInjection\Telepay\Commons\LimitChecker;
 use Telepay\FinancialApiBundle\Document\Transaction;
@@ -92,14 +93,21 @@ class IncomingController extends RestApiController{
         //añadimos las comisiones para chekear
         $fixed_fee=$group_commission->getFixed();
         $variable_fee=$group_commission->getVariable()*$amount;
+        $total_fee=$fixed_fee+$variable_fee;
 
-        //TODO incloure les fees en la transacció
+        //incloure les fees en la transacció
+        $transaction->setVariableFee($group_commission->getVariable());
+        $transaction->setFixedFee($group_commission->getFixed());
+        $dm->persist($transaction);
 
         //comprobamos si es cash out
         if($service->getcashDirection()=='out'){
             $total=$amount+$variable_fee+$fixed_fee;
+            //le cambiamos el signo para guardarla i marcarla como salida en el wallet
+            $transaction->setTotal($total*-1);
         }else{
-            $total=$amount;
+            $total=$amount-$variable_fee-$fixed_fee;
+            $transaction->setTotal($total);
         }
 
         $limits=$user->getLimitCount();
@@ -162,6 +170,8 @@ class IncomingController extends RestApiController{
         $service_currency = $service->getCurrency();
         $current_wallet=null;
 
+        $transaction->setCurrency($service_currency);
+
         //comprobamos si es cash out
         if($service->getcashDirection()=='out'){
 
@@ -185,15 +195,11 @@ class IncomingController extends RestApiController{
                     $transaction->setStatus(Transaction::$STATUS_FAILED);
                 $dm->persist($transaction);
                 $dm->flush();
-                $current_wallet->setAvailable($current_wallet->getAvailable()+$amount);
+                $current_wallet->setAvailable($current_wallet->getAvailable()+$total);
                 $em->persist($current_wallet);
                 $em->flush();
                 throw $e;
             }
-
-            $current_wallet->setBalance($current_wallet->getBalance()-$amount);
-            $em->persist($current_wallet);
-            $em->flush();
 
             $transaction->setTimeOut(new \MongoDate());
             $dm->persist($transaction);
@@ -201,11 +207,9 @@ class IncomingController extends RestApiController{
 
             //si la transaccion se finaliza se suma al wallet i se reparten las comisiones
             if($transaction->getStatus() === Transaction::$STATUS_SUCCESS){
-                //amount fixed variable
-                $user_amount=$amount+$fixed_fee+$variable_fee;
+
                 //sumar al usuario el amount
-                $current_wallet->setAvailable($current_wallet->getAvailable()-$user_amount);
-                $current_wallet->setBalance($current_wallet->getBalance()-$user_amount);
+                $current_wallet->setBalance($current_wallet->getBalance()-$total);
                 $em->persist($current_wallet);
                 $em->flush();
 
@@ -214,7 +218,12 @@ class IncomingController extends RestApiController{
 
                 if(!$creator) throw new HttpException(404,'Creator not found');
 
-                $this->cashInDealer($creator,$amount,$service_cname,$service_currency);
+                //hacemos el reparto
+                //$this->cashInDealer($creator,$amount,$service_cname,$service_currency);
+                $dealer=new FeeDeal();
+                $dealer->deal($creator,$amount,$service_cname,$service_currency,$total_fee);
+
+
             }
 
         }else{     //cashIn
@@ -243,11 +252,10 @@ class IncomingController extends RestApiController{
 
             //si la transaccion se finaliza se suma al wallet i se reparten las comisiones
             if($transaction->getStatus() === Transaction::$STATUS_SUCCESS){
-                //amount fixed variable
-                $user_amount=$amount-$fixed_fee-$variable_fee;
+
                 //sumar al usuario el amount
-                $current_wallet->setAvailable($current_wallet->getAvailable()+$user_amount);
-                $current_wallet->setBalance($current_wallet->getBalance()+$user_amount);
+                $current_wallet->setAvailable($current_wallet->getAvailable()+$total);
+                $current_wallet->setBalance($current_wallet->getBalance()+$total);
                 $em->persist($current_wallet);
                 $em->flush();
 
@@ -256,7 +264,10 @@ class IncomingController extends RestApiController{
 
                 if(!$creator) throw new HttpException(404,'Creator not found');
 
-                $this->cashInDealer($creator,$amount,$service_cname,$service_currency);
+                $dealer=new FeeDeal();
+                $dealer->deal($creator,$amount,$service_cname,$service_currency,$total_fee);
+
+                //$this->cashInDealer($creator,$amount,$service_cname,$service_currency);
             }
 
 

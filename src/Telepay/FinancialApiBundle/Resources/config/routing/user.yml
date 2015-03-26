@@ -18,6 +18,12 @@ user_wallet_transactions:
     requirements:
         _method: GET
 
+user_wallet_transactions_sum:
+    pattern:  /user/v1/wallet/earnings
+    defaults: { _controller: Telepay\FinancialApiBundle\Controller\Management\User\WalletController::benefits }
+    requirements:
+        _method: GET
+
 user_analytics:
     pattern:  /user/v1/analytics
     defaults: { _controller: Telepay\FinancialApiBundle\Controller\Management\User\AccountController::analytics }
@@ -35,4 +41,10 @@ user_transactions_last10:
     defaults: { _controller: Telepay\FinancialApiBundle\Controller\Management\User\WalletController::last }
     requirements:
         _method: GET
+
+user_set_default_currency:
+    pattern:  /user/v1/currency
+    defaults: { _controller: Telepay\FinancialApiBundle\Controller\Management\User\AccountController::updateCurrency }
+    requirements:
+        _method: PUT
 

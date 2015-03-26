@@ -57,6 +57,16 @@ class CryptoPaymentService extends BaseService {
             'confirmations' => 0,
         ));
 
+        $baseTransaction->setDataOut(array(
+            'id' => $baseTransaction->getId(),
+            'address' => $address,
+            'expires_in' => $expires_in,
+            'amount' => doubleval($amount),
+            'received' => 0.0,
+            'min_confirmations' => intval($confirmations),
+            'confirmations' => 0,
+        ));
+
         return $baseTransaction;
 
     }
@@ -86,6 +96,7 @@ class CryptoPaymentService extends BaseService {
                 else
                     $transaction->setStatus("received");
                 $transaction->setData($currentData);
+                $transaction->setDataOut($currentData);
                 return $transaction;
             }
         }

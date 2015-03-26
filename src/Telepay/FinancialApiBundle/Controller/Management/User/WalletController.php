@@ -139,6 +139,154 @@ class WalletController extends RestApiController{
     }
 
     /**
+     * return transaction sum by day. week and month
+     */
+    public function benefits(Request $request){
+
+        $user = $this->get('security.context')
+            ->getToken()->getUser();
+
+        $default_currency=$user->getDefaultCurrency();
+
+        $day=$this->_getBenefits('day');
+
+        $week=$this->_getBenefits('week');
+
+        $month=$this->_getBenefits('month');
+
+
+        return $this->rest(
+            200,
+            "Request successful",
+            array(
+                'day'       =>  $day,
+                'week'      =>  $week,
+                'month'     =>  $month,
+                'currency'  =>  $default_currency
+            )
+        );
+    }
+
+    public function _exchange($amount,$curr_in,$curr_out){
+
+        $dm=$this->getDoctrine()->getManager();
+        $exchangeRepo=$dm->getRepository('TelepayFinancialApiBundle:Exchange');
+        $exchange = $exchangeRepo->findBy(
+            array('src'=>$curr_in,'dst'=>$curr_out),
+            array('id'=>'DESC')
+        );
+
+        if(!$exchange) throw new HttpException(404,'Exchange not found');
+
+        $price=$exchange[0]->getPrice();
+
+        $total=$amount*$price;
+        return $total;
+
+    }
+
+    public function _getBenefits($interval){
+
+        $user = $this->get('security.context')
+            ->getToken()->getUser();
+
+        $userId=$user->getId();
+
+        $default_currency=$user->getDefaultCurrency();
+
+        switch($interval){
+            case 'day':
+                $start_time = new \MongoDate(strtotime(date('Y-m-d 00:00:00'))); // 00:00
+                $end_time = new \MongoDate(strtotime(date('Y-m-d 23:59:59'))); // 23:59
+                break;
+            case 'month':
+                $start_time = new \MongoDate(strtotime(date('Y-m-01 00:00:00'))); // 1th of month
+                $end_time = new \MongoDate(strtotime(date('Y-m-01 00:00:00'))+31*24*3600); // 1th of next month
+                break;
+            case 'week':
+                $start_time = new \MongoDate(strtotime(date('Y-m-d 00:00:00',strtotime('last monday')))); // Monday
+                $end_time = new \MongoDate(strtotime(date('Y-m-d 00:00:00',strtotime('next monday')))); // Sunday
+                break;
+        }
+
+        $dm = $this->get('doctrine_mongodb')->getManager();
+
+        //TODO añadir ->field('status')->equals('success') para que solo cuente las transacciones succesfull
+
+        $result = $dm->createQueryBuilder('TelepayFinancialApiBundle:Transaction')
+            ->field('user')->equals($userId)
+            ->field('timeIn')->gt($start_time)
+            ->field('timeIn')->lt($end_time)
+            ->group(
+                new \MongoCode('
+                    function(trans){
+                        return {
+                            currency : trans.currency
+                        };
+                    }
+                '),
+                array(
+                    'total'=>0
+                )
+            )
+            ->reduce('
+                function(curr, result){
+                    switch(curr.currency){
+                        case "EUR":
+                            if(curr.total){
+                                result.total+=curr.total;
+                            }
+                            break;
+                        case "MXN":
+                            if(curr.total){
+                                result.total+=curr.total;
+                            }
+                            break;
+                        case "USD":
+                            if(curr.total){
+                                result.total+=curr.total;
+                            }
+                            break;
+                        case "BTC":
+                            if(curr.total){
+                                result.total+=curr.total;
+                            }
+                            break;
+                        case "FAC":
+                            if(curr.total){
+                                result.total+=curr.total;
+                            }
+                            break;
+                        case "":
+                            if(curr.total){
+                                result.total+=curr.total;
+                            }
+                            break;
+                    }
+                }
+            ')
+            ->getQuery()
+            ->execute();
+
+        $total=0;
+
+        foreach($result->toArray() as $d){
+            if($d['currency']!=''){
+                if($default_currency==$d['currency']){
+                    $total=$total+$d['total'];
+                }else{
+                    $change=$this->_exchange($d['total'],$d['currency'],$default_currency);
+                    $total=$total+$change;
+                }
+
+            }
+        }
+
+        return $total;
+
+    }
+
+    /**
      * sends money to another user
      */
     public function send(){

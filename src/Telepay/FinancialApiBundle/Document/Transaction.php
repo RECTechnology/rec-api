@@ -133,6 +133,30 @@ class Transaction implements TransactionTiming {
     private $debugData;
 
     /**
+     * @var
+     * @MongoDB\String
+     */
+    private $currency;
+
+    /**
+     * @var
+     * @MongoDB\Float
+     */
+    private $variableFee;
+
+    /**
+     * @var
+     * @MongoDB\Int
+     */
+    private $fixedFee;
+
+    /**
+     * @var
+     * @MongoDB\float
+     */
+    private $total;
+
+    /**
      * Get id
      *
      * @return id $id
@@ -340,5 +364,69 @@ class Transaction implements TransactionTiming {
     public function setVersion($version)
     {
         $this->version = $version;
+    }
+
+    /**
+     * @return mixed
+     */
+    public function getCurrency()
+    {
+        return $this->currency;
+    }
+
+    /**
+     * @param mixed $currency
+     */
+    public function setCurrency($currency)
+    {
+        $this->currency = $currency;
+    }
+
+    /**
+     * @return mixed
+     */
+    public function getVariableFee()
+    {
+        return $this->variableFee;
+    }
+
+    /**
+     * @param mixed $variableFee
+     */
+    public function setVariableFee($variableFee)
+    {
+        $this->variableFee = $variableFee;
+    }
+
+    /**
+     * @return mixed
+     */
+    public function getFixedFee()
+    {
+        return $this->fixedFee;
+    }
+
+    /**
+     * @param mixed $fixedFee
+     */
+    public function setFixedFee($fixedFee)
+    {
+        $this->fixedFee = $fixedFee;
+    }
+
+    /**
+     * @return mixed
+     */
+    public function getTotal()
+    {
+        return $this->total;
+    }
+
+    /**
+     * @param mixed $total
+     */
+    public function setTotal($total)
+    {
+        $this->total = $total;
     }
 }

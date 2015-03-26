@@ -171,6 +171,28 @@ class AccountController extends RestApiController{
         );
     }
 
+    /**
+     * @Rest\View
+     */
+    public function updateCurrency(Request $request){
+
+        $user = $this->get('security.context')->getToken()->getUser();
+
+        if($request->request->has('currency'))
+            $currency=$request->request->get('currency');
+        else
+            throw new HttpException(404,'currency not found');
+
+        $em=$this->getDoctrine()->getManager();
+
+        $user->setDefaultCurrency(strtoupper($currency));
+
+        $em->persist($user);
+        $em->flush();
+
+        return $this->rest(200, "Account info got successfully", $user);
+    }
+
 
 
 
