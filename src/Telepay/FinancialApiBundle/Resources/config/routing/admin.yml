@@ -21,6 +21,14 @@ manager_services_read:
     requirements:
         _method: GET
 
+############################## TRANSACTIONS MNGMNT ##########################################
+
+super_admin_transaction_delete:
+    pattern:  /admin/v1/transaction/{id}
+    defaults: { _controller: Telepay\FinancialApiBundle\Controller\Management\Admin\TransactionsController::deleteAction }
+    requirements:
+        _method: DELETE
+
 ############################## SYSTEM MNGMNT ##########################################
 
 system_load:
