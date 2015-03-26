@@ -34,10 +34,24 @@ class AccountController extends BaseApiController{
      * @Rest\View
      */
     public function updateAction(Request $request,$id=null){
-        //Todo comprobacions de passwords
-        //Todo
+
         $user = $this->get('security.context')->getToken()->getUser();
         $id=$user->getId();
+
+        if($request->request->has('password')){
+            if($request->request->has('repassword')){
+                $userManager = $this->container->get('access_key.security.user_provider');
+                $user = $userManager->loadUserById($id);
+                $user->setPlainPassword($request->get('password'));
+                $userManager->updatePassword($user);
+                $request->request->remove('password');
+                $request->request->remove('repassword');
+            }else{
+                throw new HttpException(404,'Parameter repassword not found');
+            }
+
+        }
+
         return parent::updateAction($request, $id);
 
     }

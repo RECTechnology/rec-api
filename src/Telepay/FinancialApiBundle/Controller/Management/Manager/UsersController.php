@@ -278,11 +278,17 @@ class UsersController extends BaseApiController
             $request->request->remove('role');
         }
         if($request->request->has('password')){
-            $userManager = $this->container->get('access_key.security.user_provider');
-            $user = $userManager->loadUserById($id);
-            $user->setPlainPassword($request->get('password'));
-            $userManager->updatePassword($user);
-            $request->request->remove('password');
+            if($request->request->has('repassword')){
+                $userManager = $this->container->get('access_key.security.user_provider');
+                $user = $userManager->loadUserById($id);
+                $user->setPlainPassword($request->get('password'));
+                $userManager->updatePassword($user);
+                $request->request->remove('password');
+                $request->request->remove('repassword');
+            }else{
+                throw new HttpException(404,'Parameter repassword not found');
+            }
+
         }
         $resp = parent::updateAction($request, $id);
         if($resp->getStatusCode() == 204){
