@@ -13,6 +13,14 @@ use Telepay\FinancialApiBundle\Entity\User;
 
 class FeeDeal{
 
+    /**
+     * Group creator
+     * Transaction amount
+     * Service name
+     * Transaction currency
+     * Creator fee
+     */
+
     public function deal(User $creator,$amount,$service_cname,$currency,$fee){
 
         if(!$creator->hasRole('ROLE_SUPER_ADMIN')){
@@ -32,7 +40,7 @@ class FeeDeal{
             $variable=$group_commission->getVariable()*$amount;
             $total=$fixed+$variable;
         }else{
-            $total=$fee;
+            $total=0;
         }
 
         $em = $this->getDoctrine()->getManager();
@@ -43,8 +51,8 @@ class FeeDeal{
             if($wallet->getCurrency() === $currency){
 
                 //Añadimos la pasta al wallet
-                $wallet->setAvailable($wallet->getAvailable()+$total);
-                $wallet->setBalance($wallet->getBalance()+$total);
+                $wallet->setAvailable($wallet->getAvailable()+$fee-$total);
+                $wallet->setBalance($wallet->getBalance()+$fee-$total);
                 $em->persist($wallet);
                 $em->flush();
             }
@@ -52,7 +60,7 @@ class FeeDeal{
 
         if(!$creator->hasRole('ROLE_SUPER_ADMIN')){
             $new_creator=$group->getCreator();
-            $this->deal($new_creator,$amount,$service_cname,$currency,$fee);
+            $this->deal($new_creator,$amount,$service_cname,$currency,$total);
         }
 
         return true;

@@ -15,8 +15,6 @@ use Symfony\Component\HttpFoundation\Request;
  */
 class TransactionsController extends RestApiController {
 
-    
-
     /**
      * @Rest\View
      */
