@@ -211,12 +211,11 @@ class WalletController extends RestApiController{
 
         $dm = $this->get('doctrine_mongodb')->getManager();
 
-        //TODO añadir ->field('status')->equals('success') para que solo cuente las transacciones succesfull
-
         $result = $dm->createQueryBuilder('TelepayFinancialApiBundle:Transaction')
             ->field('user')->equals($userId)
             ->field('timeIn')->gt($start_time)
             ->field('timeIn')->lt($end_time)
+            ->field('status')->equals('success')
             ->group(
                 new \MongoCode('
                     function(trans){
