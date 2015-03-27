@@ -284,6 +284,9 @@ class UsersController extends BaseApiController
         }
         if($request->request->has('password')){
             if($request->request->has('repassword')){
+                $password = $request->get('password');
+                $repassword = $request->get('repassword');
+                if($password!=$repassword) throw new HttpException(400, "Password and repassword are differents.");
                 $userManager = $this->container->get('access_key.security.user_provider');
                 $user = $userManager->loadUserById($id);
                 $user->setPlainPassword($request->get('password'));
@@ -291,7 +294,7 @@ class UsersController extends BaseApiController
                 $request->request->remove('password');
                 $request->request->remove('repassword');
             }else{
-                throw new HttpException(404,'Parameter repassword not found');
+                throw new HttpException(400,"Missing parameter 'repassword'");
             }
 
         }
