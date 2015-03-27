@@ -89,10 +89,6 @@ class UsersController extends BaseApiController
             $filtered = $all;
         }
 
-
-
-
-
         $total = count($filtered);
 
         $entities = array_slice($filtered, $offset, $limit);
