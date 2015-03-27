@@ -110,6 +110,7 @@ class WalletController extends RestApiController{
 
         $transactions = $dm->createQueryBuilder('TelepayFinancialApiBundle:Transaction')
             ->field('user')->equals($userId)
+            ->sort('id','desc')
             ->getQuery()
             ->execute();
 
