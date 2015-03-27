@@ -11,7 +11,7 @@ use Telepay\FinancialApiBundle\DependencyInjection\Telepay\Commons\FeeDeal;
 use Telepay\FinancialApiBundle\Document\Transaction;
 use Telepay\FinancialApiBundle\Entity\Exchange;
 
-class CheckFacCommand extends ContainerAwareCommand
+class CheckBtcCommand extends ContainerAwareCommand
 {
     protected function configure()
     {
