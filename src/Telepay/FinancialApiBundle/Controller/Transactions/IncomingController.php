@@ -280,59 +280,6 @@ class IncomingController extends RestApiController{
         return $this->restTransaction($transaction, "Done");
     }
 
-    public function cashInDealer(User $creator,$amount,$service_cname,$currency){
-
-        //obtenemos el grupo
-        $group=$creator->getGroups()[0];
-
-        $em = $this->getDoctrine()->getManager();
-
-        //obtener comissiones del grupo
-        $commissions=$group->getCommissions();
-        $group_commission=false;
-        foreach ( $commissions as $commission ){
-            if ( $commission->getServiceName() == $service_cname ){
-                $group_commission = $commission;
-            }
-        }
-
-        //si no existe la comission para el grupo la creamos
-        if(!$group_commission){
-            $group_commission = new ServiceFee();
-            $group_commission->setFixed(0);
-            $group_commission->setVariable(0);
-            $group_commission->setServiceName($service_cname);
-            $group_commission->setGroup($group);
-            $em->persist($group_commission);
-            $em->flush();
-        }
-
-        $fixed=$group_commission->getFixed();
-        $variable=$group_commission->getVariable()*$amount;
-        $total=$fixed+$variable;
-
-        //Ahora lo añadimos al wallet correspondiente
-        $wallets=$creator->getWallets();
-        foreach($wallets as $wallet){
-            if($wallet->getCurrency() === $currency){
-
-                //Añadimos la pasta al wallet
-                $wallet->setAvailable($wallet->getAvailable()+$total);
-                $wallet->setBalance($wallet->getBalance()+$total);
-                $em->persist($wallet);
-                $em->flush();
-            }
-        }
-
-        if(!$creator->hasRole('ROLE_SUPER_ADMIN')){
-            $new_creator=$group->getCreator();
-            $this->cashInDealer($new_creator,$amount,$service_cname,$currency);
-        }
-
-        return true;
-
-    }
-
 
     /**
      * @Rest\View
@@ -350,6 +297,7 @@ class IncomingController extends RestApiController{
      * @Rest\View
      */
     public function check(Request $request, $version_number, $service_cname, $id){
+
         $service = $this->get('net.telepay.services.'.$service_cname.'.v'.$version_number);
 
         if (false === $this->get('security.authorization_checker')->isGranted($service->getRole())) {
