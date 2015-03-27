@@ -121,8 +121,13 @@ class UsersController extends BaseApiController
     public function createAction(Request $request){
         if(!$request->request->has('password'))
             throw new HttpException(400, "Missing parameter 'password'");
+        if(!$request->request->has('repassword'))
+            throw new HttpException(400, "Missing parameter 'repassword'");
         $password = $request->get('password');
+        $repassword = $request->get('repassword');
+        if($password!=$repassword) throw new HttpException(400, "Password and repassword are differents.");
         $request->request->remove('password');
+        $request->request->remove('repassword');
         $request->request->add(array('plain_password'=>$password));
         $request->request->add(array('enabled'=>1));
         $request->request->add(array('base64_image'=>''));
