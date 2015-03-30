@@ -35,12 +35,14 @@ class WalletController extends RestApiController{
         $filtered=[];
         $available=0;
         $balance=0;
+        $scale=0;
 
         foreach($wallets as $wallet){
-            $filtered[]=$wallet;
+            $filtered[]=$wallet->getWalletView();
             $new_wallet=$this->exchange($wallet,$currency);
             $available=$available+$new_wallet['available'];
             $balance=$balance+$new_wallet['balance'];
+            if($new_wallet['scale']!=null) $scale=$new_wallet['scale'];
         }
 
 
@@ -58,6 +60,7 @@ class WalletController extends RestApiController{
         $multidivisa['currency']=$currency;
         $multidivisa['available']=$available;
         $multidivisa['balance']=$balance;
+        $multidivisa['scale']=$scale;
         $filtered[]=$multidivisa;
 
         //return $this->rest(201, "Account info got successfully", $filtered);
@@ -437,6 +440,7 @@ class WalletController extends RestApiController{
         if($currency_actual==$currency){
             $response['available']=$wallet->getAvailable();
             $response['balance']=$wallet->getBalance();
+            $response['scale']=$wallet->getScale();
             return $response;
         }
         $dm=$this->getDoctrine()->getManager();
@@ -452,6 +456,7 @@ class WalletController extends RestApiController{
 
         $response['available']=$wallet->getAvailable()*$price;
         $response['balance']=$wallet->getBalance()*$price;
+        $response['scale']=null;
         return $response;
 
     }

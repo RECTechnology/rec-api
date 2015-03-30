@@ -65,6 +65,9 @@ class UserWallet extends AbstractWallet implements ExternallyDrived {
      */
     private $balance;
 
+
+    private $scale;
+
     /**
      * @return mixed
      */
@@ -113,5 +116,36 @@ class UserWallet extends AbstractWallet implements ExternallyDrived {
     public function getId()
     {
         return $this->id;
+    }
+
+    public function getWalletView(){
+        $this->scale=$this->getScale();
+        return $this;
+    }
+
+    public function getScale(){
+        $currency=$this->getCurrency();
+        $scale=0;
+        switch($currency){
+            case "EUR":
+                $scale=2;
+                break;
+            case "MXN":
+                $scale=2;
+                break;
+            case "USD":
+                $scale=2;
+                break;
+            case "BTC":
+                $scale=8;
+                break;
+            case "FAC":
+                $scale=8;
+                break;
+            case "":
+                $scale=0;
+                break;
+        }
+        return $scale;
     }
 }
