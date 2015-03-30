@@ -28,7 +28,7 @@ class TransactionsController extends RestApiController {
         $dm->remove($trans);
         $dm->flush();
 
-        return $this->rest(204, "Deleted");
+        return $this->restV2(204,"ok", "Deleted");
     }
 
 

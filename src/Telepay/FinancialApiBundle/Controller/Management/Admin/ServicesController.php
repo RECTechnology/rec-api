@@ -17,8 +17,9 @@ class ServicesController extends RestApiController
      */
     public function index() {
         $services = $this->get('net.telepay.service_provider')->findAll();
-        return $this->rest(
+        return $this->restV2(
             200,
+            "ok",
             "Services got successfully",
             $services
         );
