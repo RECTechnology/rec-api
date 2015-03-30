@@ -202,6 +202,65 @@ class WalletController extends RestApiController{
         );
     }
 
+    /**
+     * return country benefits group by IP
+     */
+    public function countryBenefits(Request $request){
+
+        $user = $this->get('security.context')
+            ->getToken()->getUser();
+
+        $userId=$user->getId();
+        $default_currency=$user->getDefaultCurrency();
+
+        $dm = $this->get('doctrine_mongodb')->getManager();
+        $result = $dm->createQueryBuilder('TelepayFinancialApiBundle:Transaction')
+            ->field('user')->equals($userId)
+            ->field('status')->equals('success')
+            ->group(
+                new \MongoCode('
+                    function(trans){
+                        return {
+                            ip : trans.ip
+                        };
+                    }
+                '),
+                array(
+                    'total'=>0
+                )
+            )
+            ->reduce('
+                function(curr, result){
+                    result.total+=1;
+                }
+            ')
+            ->getQuery()
+            ->execute();
+
+        if(count($result)==0) throw new HttpException(400,'Not transactions found');
+
+        $total=[];
+
+        foreach($result->toArray() as $res){
+            $json = file_get_contents('http://www.geoplugin.net/json.gp?ip='.$res['ip']);
+            $data = json_decode($json);
+            $res['country']=$data->geoplugin_countryName;
+            if($res['country']==''){
+                $total['not located']=$res['total'];
+            }else{
+                $total[$res['country']]=$res['total'];
+            }
+        }
+
+        //$total['currency']=$default_currency;
+
+        return $this->rest(
+            200,
+            "Request successful",
+            $total
+        );
+    }
+
     public function _exchange($amount,$curr_in,$curr_out){
 
         $dm=$this->getDoctrine()->getManager();
