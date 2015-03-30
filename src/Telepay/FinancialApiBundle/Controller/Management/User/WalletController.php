@@ -66,7 +66,7 @@ class WalletController extends RestApiController{
     }
 
     /**
-     * read last ten transactions
+     * read last 10 transactions
      */
     public function last(Request $request){
 
@@ -88,9 +88,7 @@ class WalletController extends RestApiController{
 
         }
 
-        return $this->rest(
-            200, "Last 10 transactions got successfully", $resArray
-        );
+        return $this->restV2(200, "ok", "Last 10 transactions got successfully", $resArray);
     }
 
     /**
@@ -126,8 +124,9 @@ class WalletController extends RestApiController{
         $entities = array_slice($resArray, $offset, $limit);
 
 
-        return $this->rest(
+        return $this->restV2(
             200,
+            "ok",
             "Request successful",
             array(
                 'total' => $total,
@@ -156,8 +155,9 @@ class WalletController extends RestApiController{
         $month=$this->_getBenefits('month');
 
 
-        return $this->rest(
+        return $this->restV2(
             200,
+            "ok",
             "Request successful",
             array(
                 'day'       =>  $day,
@@ -195,8 +195,9 @@ class WalletController extends RestApiController{
 
         $monthly['currency']=$default_currency;
 
-        return $this->rest(
+        return $this->restV2(
             200,
+            "ok",
             "Request successful",
             $monthly
         );
@@ -262,8 +263,9 @@ class WalletController extends RestApiController{
 
         //$total['currency']=$default_currency;
 
-        return $this->rest(
+        return $this->restV2(
             200,
+            "ok",
             "Request successful",
             $total
         );
