@@ -168,6 +168,40 @@ class WalletController extends RestApiController{
         );
     }
 
+    /**
+     * return transaction sum by day. week and month
+     */
+    public function monthBenefits(Request $request){
+
+        $user = $this->get('security.context')
+            ->getToken()->getUser();
+
+        $default_currency=$user->getDefaultCurrency();
+
+        $day1=date('Y-m-1 00:00:00');
+
+        $monthly=[];
+
+        for($i=0;$i<12;$i++){
+            $actual_month=strtotime("-".$i." month",strtotime($day1));
+            $next_month=$actual_month+31*24*3600;
+            $start_time=strtotime(date('Y-m-d',$actual_month));
+            $end_time=strtotime(date('Y-m-d',$next_month));
+            $month=$this->_getBenefits('month',$start_time,$end_time);
+            $strmonth=getdate($actual_month);
+            $monthly[$strmonth['month']]=$month;
+
+        }
+
+        $monthly['currency']=$default_currency;
+
+        return $this->rest(
+            200,
+            "Request successful",
+            $monthly
+        );
+    }
+
     public function _exchange($amount,$curr_in,$curr_out){
 
         $dm=$this->getDoctrine()->getManager();
@@ -186,7 +220,7 @@ class WalletController extends RestApiController{
 
     }
 
-    public function _getBenefits($interval){
+    public function _getBenefits($interval,$start = null, $end =null){
 
         $user = $this->get('security.context')
             ->getToken()->getUser();
@@ -195,14 +229,22 @@ class WalletController extends RestApiController{
 
         $default_currency=$user->getDefaultCurrency();
 
+        $start_time=$start;
+        $end_time=$end;
+
         switch($interval){
             case 'day':
                 $start_time = new \MongoDate(strtotime(date('Y-m-d 00:00:00'))); // 00:00
                 $end_time = new \MongoDate(strtotime(date('Y-m-d 23:59:59'))); // 23:59
                 break;
             case 'month':
-                $start_time = new \MongoDate(strtotime(date('Y-m-01 00:00:00'))); // 1th of month
-                $end_time = new \MongoDate(strtotime(date('Y-m-01 00:00:00'))+31*24*3600); // 1th of next month
+                if($start==null||$end== null){
+                    $start_time = new \MongoDate(strtotime(date('Y-m-01 00:00:00'))); // 1th of month
+                    $end_time = new \MongoDate(strtotime(date('Y-m-01 00:00:00'))+31*24*3600); // 1th of next month
+                }else{
+                    $start_time = new \MongoDate($start); // 1th of month
+                    $end_time = new \MongoDate($end); // 1th of next month
+                }
                 break;
             case 'week':
                 $start_time = new \MongoDate(strtotime(date('Y-m-d 00:00:00',strtotime('last monday')))); // Monday
@@ -211,12 +253,11 @@ class WalletController extends RestApiController{
         }
 
         $dm = $this->get('doctrine_mongodb')->getManager();
-
         $result = $dm->createQueryBuilder('TelepayFinancialApiBundle:Transaction')
             ->field('user')->equals($userId)
             ->field('timeIn')->gt($start_time)
             ->field('timeIn')->lt($end_time)
-            ->field('status')->equals('success')
+            //->field('status')->equals('success')
             ->group(
                 new \MongoCode('
                     function(trans){
