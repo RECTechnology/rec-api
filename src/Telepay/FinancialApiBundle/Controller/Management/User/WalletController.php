@@ -188,8 +188,8 @@ class WalletController extends RestApiController{
             $start_time=strtotime(date('Y-m-d',$actual_month));
             $end_time=strtotime(date('Y-m-d',$next_month));
             $month=$this->_getBenefits('month',$start_time,$end_time);
-            $strmonth=getdate($actual_month);
-            $monthly[$strmonth['month']]=$month;
+            $strmonth=date('Y-m',$actual_month);
+            $monthly[$strmonth]=$month;
 
         }
 
