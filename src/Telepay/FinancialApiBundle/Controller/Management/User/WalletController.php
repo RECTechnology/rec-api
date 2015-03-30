@@ -169,7 +169,7 @@ class WalletController extends RestApiController{
     }
 
     /**
-     * return transaction sum by day. week and month
+     * return transaction sum by month (last 12 months)
      */
     public function monthBenefits(Request $request){
 
