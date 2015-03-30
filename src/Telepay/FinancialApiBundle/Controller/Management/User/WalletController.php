@@ -229,9 +229,6 @@ class WalletController extends RestApiController{
 
         $default_currency=$user->getDefaultCurrency();
 
-        $start_time=$start;
-        $end_time=$end;
-
         switch($interval){
             case 'day':
                 $start_time = new \MongoDate(strtotime(date('Y-m-d 00:00:00'))); // 00:00
