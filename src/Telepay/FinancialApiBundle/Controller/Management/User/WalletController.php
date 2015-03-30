@@ -166,7 +166,8 @@ class WalletController extends RestApiController{
                 'day'       =>  $day,
                 'week'      =>  $week,
                 'month'     =>  $month,
-                'currency'  =>  $default_currency
+                'currency'  =>  $default_currency,
+                'scale'     =>  $this->_getScale($default_currency)
             )
         );
     }
@@ -197,6 +198,8 @@ class WalletController extends RestApiController{
         }
 
         $monthly['currency']=$default_currency;
+
+        $monthly['scale']=$this->_getScale($default_currency);
 
         return $this->restV2(
             200,
@@ -458,6 +461,34 @@ class WalletController extends RestApiController{
         $response['balance']=$wallet->getBalance()*$price;
         $response['scale']=null;
         return $response;
+
+    }
+
+    public  function _getScale($currency){
+
+        $scale=0;
+        switch($currency){
+            case "EUR":
+                $scale=2;
+                break;
+            case "MXN":
+                $scale=2;
+                break;
+            case "USD":
+                $scale=2;
+                break;
+            case "BTC":
+                $scale=8;
+                break;
+            case "FAC":
+                $scale=8;
+                break;
+            case "":
+                $scale=0;
+                break;
+        }
+
+        return $scale;
 
     }
 
