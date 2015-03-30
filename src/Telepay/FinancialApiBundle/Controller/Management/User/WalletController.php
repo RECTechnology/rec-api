@@ -246,9 +246,17 @@ class WalletController extends RestApiController{
             $data = json_decode($json);
             $res['country']=$data->geoplugin_countryName;
             if($res['country']==''){
-                $total['not located']=$res['total'];
+                $country['name']='not located';
+                $country['code']='';
+                $country['flag']='';
+                $country['value']=$res['total'];
+                $total[]=$country;
             }else{
-                $total[$res['country']]=$res['total'];
+                $country['name']=$data->geoplugin_countryName;
+                $country['code']=$data->geoplugin_countryCode;
+                $country['flag']=strtolower($data->geoplugin_countryCode);
+                $country['value']=$res['total'];
+                $total[]=$country;
             }
         }
 
