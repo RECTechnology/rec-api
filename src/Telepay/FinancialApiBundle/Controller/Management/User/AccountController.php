@@ -27,7 +27,7 @@ class AccountController extends BaseApiController{
         $user->setAllowedServices(
             $this->get('net.telepay.service_provider')->findByRoles($user->getRoles())
         );
-        return $this->rest(200, "Account info got successfully", $user);
+        return $this->restV2(200,"ok", "Account info got successfully", $user);
     }
 
     /**
@@ -77,8 +77,8 @@ class AccountController extends BaseApiController{
             ->count()
             ->getQuery()
             ->execute();
-        return $this->rest(
-            200, "Last hour speed got successfully", $last1hTrans
+        return $this->restV2(
+            200,"ok", "Last hour speed got successfully", $last1hTrans
         );
     }
 
@@ -189,8 +189,9 @@ class AccountController extends BaseApiController{
             ->getQuery()
             ->execute();
 
-        return $this->rest(
+        return $this->restV2(
             200,
+            "ok",
             "Request successful",
             array(
                 'total'=>$result->getCommandResult()['count'],
@@ -218,7 +219,7 @@ class AccountController extends BaseApiController{
         $em->persist($user);
         $em->flush();
 
-        return $this->rest(200, "Account info got successfully", $user);
+        return $this->restV2(200,"ok", "Account info got successfully", $user);
     }
 
 
