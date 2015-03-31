@@ -207,6 +207,7 @@ class LimitDefinition implements Limit {
         $this->cname = $cname;
     }
 
+    //TODO quitar esto de aqui porque se repite en varios sitios
     public function setScale($currency)
     {
         $scale=0;
