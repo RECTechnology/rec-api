@@ -328,7 +328,7 @@ class WalletController extends RestApiController{
             ->field('user')->equals($userId)
             ->field('timeIn')->gt($start_time)
             ->field('timeIn')->lt($end_time)
-            //->field('status')->equals('success')
+            ->field('status')->equals('success')
             ->group(
                 new \MongoCode('
                     function(trans){
