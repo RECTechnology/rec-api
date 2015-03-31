@@ -188,6 +188,10 @@ class IncomingController extends RestApiController{
                 }
             }
 
+            $scale=$current_wallet->getScale();
+            $transaction->setScale($scale);
+
+
             try {
                 $transaction = $service->create($transaction);
             }catch (HttpException $e){
@@ -234,6 +238,10 @@ class IncomingController extends RestApiController{
                 }
             }
 
+            $scale=$current_wallet->getScale();
+            $transaction->setScale($scale);
+
+
             try {
                 $transaction = $service->create($transaction);
             }catch (HttpException $e){
@@ -273,7 +281,6 @@ class IncomingController extends RestApiController{
 
 
         }
-
 
         if($transaction == false) throw new HttpException(500, "oOps, some error has occurred within the call");
 

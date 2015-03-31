@@ -157,6 +157,12 @@ class Transaction implements TransactionTiming {
     private $total;
 
     /**
+     * @var
+     * @MongoDB\Int
+     */
+    private $scale;
+
+    /**
      * Get id
      *
      * @return id $id
@@ -428,5 +434,21 @@ class Transaction implements TransactionTiming {
     public function setTotal($total)
     {
         $this->total = $total;
+    }
+
+    /**
+     * @return mixed
+     */
+    public function getScale()
+    {
+        return $this->scale;
+    }
+
+    /**
+     * @param mixed $scale
+     */
+    public function setScale($scale)
+    {
+        $this->scale = $scale;
     }
 }

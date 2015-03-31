@@ -152,9 +152,7 @@ class WalletController extends RestApiController{
         $default_currency=$user->getDefaultCurrency();
 
         $day=$this->_getBenefits('day');
-
         $week=$this->_getBenefits('week');
-
         $month=$this->_getBenefits('month');
 
 
@@ -281,16 +279,17 @@ class WalletController extends RestApiController{
 
         $dm=$this->getDoctrine()->getManager();
         $exchangeRepo=$dm->getRepository('TelepayFinancialApiBundle:Exchange');
-        $exchange = $exchangeRepo->findBy(
+        $exchange = $exchangeRepo->findOneBy(
             array('src'=>$curr_in,'dst'=>$curr_out),
             array('id'=>'DESC')
         );
 
         if(!$exchange) throw new HttpException(404,'Exchange not found');
 
-        $price=$exchange[0]->getPrice();
+        $price=$exchange->getPrice();
 
         $total=$amount*$price;
+
         return $total;
 
     }
@@ -329,7 +328,7 @@ class WalletController extends RestApiController{
             ->field('user')->equals($userId)
             ->field('timeIn')->gt($start_time)
             ->field('timeIn')->lt($end_time)
-            ->field('status')->equals('success')
+            //->field('status')->equals('success')
             ->group(
                 new \MongoCode('
                     function(trans){
@@ -382,7 +381,7 @@ class WalletController extends RestApiController{
             ->execute();
 
         $total=0;
-
+        //die(print_r($result,true));
         foreach($result->toArray() as $d){
             if($d['currency']!=''){
                 if($default_currency==$d['currency']){
