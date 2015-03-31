@@ -57,6 +57,15 @@ class GroupsController extends BaseApiController
                 $fee->setCurrency( $currency);
                 $fee->setScale($currency);
             }
+            $limits=$group->getLimits();
+            foreach ( $limits as $lim ){
+                $service_cname=$lim->getCname();
+                //TODO hay que hacer expresion regular para que valga para todas las versiones
+                $service = $this->get('net.telepay.services.'.$service_cname.'.v1');
+                $currency= $service->getCurrency();
+                $lim->setCurrency( $currency);
+                $lim->setScale($currency);
+            }
 
         }
         $entities = array_slice($all, $offset, $limit);
@@ -155,29 +164,5 @@ class GroupsController extends BaseApiController
         return parent::deleteAction($id);
     }
 
-    public function _getScale($currency){
-        $scale=0;
-        switch($currency){
-            case "EUR":
-                $scale=2;
-                break;
-            case "MXN":
-                $scale=2;
-                break;
-            case "USD":
-                $scale=2;
-                break;
-            case "BTC":
-                $scale=8;
-                break;
-            case "FAC":
-                $scale=8;
-                break;
-            case "":
-                $scale=0;
-                break;
-        }
-        return $scale;
-    }
 
 }

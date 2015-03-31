@@ -66,6 +66,10 @@ class LimitDefinition implements Limit {
      */
     private $cname;
 
+    private $scale;
+
+    private $currency;
+
 
     /**
      * @return mixed
@@ -201,6 +205,40 @@ class LimitDefinition implements Limit {
     public function setCname($cname)
     {
         $this->cname = $cname;
+    }
+
+    public function setScale($currency)
+    {
+        $scale=0;
+        switch($currency){
+            case "EUR":
+                $scale=2;
+                break;
+            case "MXN":
+                $scale=2;
+                break;
+            case "USD":
+                $scale=2;
+                break;
+            case "BTC":
+                $scale=8;
+                break;
+            case "FAC":
+                $scale=8;
+                break;
+            case "":
+                $scale=0;
+                break;
+        }
+        $this-> scale=$scale;
+    }
+
+    /**
+     * @param mixed $currency
+     */
+    public function setCurrency($currency)
+    {
+        $this->currency = $currency;
     }
 
 }
