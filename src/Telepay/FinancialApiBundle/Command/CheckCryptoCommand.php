@@ -56,6 +56,7 @@ class CheckCryptoCommand extends ContainerAwareCommand
                         $service_currency = $check->getCurrency();
                         $current_wallet=null;
 
+
                         foreach ( $wallets as $wallet){
                             if ($wallet->getCurrency()==$service_currency){
                                 $current_wallet=$wallet;
@@ -80,7 +81,7 @@ class CheckCryptoCommand extends ContainerAwareCommand
                         $creator=$group->getCreator();
 
                         //luego a la ruleta de admins
-                        $dealer=new FeeDeal();
+                        $dealer=$this->getContainer()->get('net.telepay.commons.fee_deal');
                         $dealer->deal($creator,$amount,$service_cname,$service_currency,$total_fee);
                     }
                 }

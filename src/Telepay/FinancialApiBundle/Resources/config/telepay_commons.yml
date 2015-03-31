@@ -2,3 +2,8 @@ services:
 
     net.telepay.commons.method_manipulator:
         class: Telepay\FinancialApiBundle\DependencyInjection\Telepay\Commons\MethodManipulator
+
+    net.telepay.commons.fee_deal:
+        class: Telepay\FinancialApiBundle\DependencyInjection\Telepay\Commons\FeeDeal
+        arguments:
+            - "@doctrine"

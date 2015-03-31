@@ -12,6 +12,11 @@ use Telepay\FinancialApiBundle\Entity\ServiceFee;
 use Telepay\FinancialApiBundle\Entity\User;
 
 class FeeDeal{
+    private $doctrine;
+
+    public function __construct($doctrine){
+        $this->doctrine=$doctrine;
+    }
 
     /**
      * Group creator
@@ -43,7 +48,7 @@ class FeeDeal{
             $total=0;
         }
 
-        $em = $this->getDoctrine()->getManager();
+        $em = $this->doctrine->getManager();
 
         //Ahora lo añadimos al wallet correspondiente
         $wallets=$creator->getWallets();
