@@ -44,6 +44,10 @@ class ServiceFee implements Fee{
      */
     private $group;
 
+    private  $scale;
+
+    private $currency;
+
     /**
      * @return mixed
      */
@@ -116,5 +120,46 @@ class ServiceFee implements Fee{
     public function setServiceName($service_name)
     {
         $this->service_name = $service_name;
+    }
+
+    public function setScale($currency){
+        $scale=0;
+        switch($currency){
+            case "EUR":
+                $scale=2;
+                break;
+            case "MXN":
+                $scale=2;
+                break;
+            case "USD":
+                $scale=2;
+                break;
+            case "BTC":
+                $scale=8;
+                break;
+            case "FAC":
+                $scale=8;
+                break;
+            case "":
+                $scale=0;
+                break;
+        }
+        $this-> scale=$scale;
+    }
+
+    /**
+     * @return mixed
+     */
+    public function getCurrency()
+    {
+        return $this->currency;
+    }
+
+    /**
+     * @param mixed $currency
+     */
+    public function setCurrency($currency)
+    {
+        $this->currency = $currency;
     }
 }

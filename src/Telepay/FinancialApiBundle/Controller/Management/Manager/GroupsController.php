@@ -35,7 +35,44 @@ class GroupsController extends BaseApiController
      * @Rest\View
      */
     public function indexAction(Request $request){
-        return parent::indexAction($request);
+
+        if($request->query->has('limit')) $limit = $request->query->get('limit');
+        else $limit = 10;
+
+        if($request->query->has('offset')) $offset = $request->query->get('offset');
+        else $offset = 0;
+
+        //TODO: Improve performance (two queries)
+        $all = $this->getRepository()->findAll();
+
+        $total = count($all);
+
+        foreach ($all as $group){
+            $fees=$group->getCommissions();
+            foreach ( $fees as $fee ){
+                $service_cname=$fee->getServiceName();
+                //TODO hay que hacer expresion regular para que valga para todas las versiones
+                $service = $this->get('net.telepay.services.'.$service_cname.'.v1');
+                $currency= $service->getCurrency();
+                $fee->setCurrency( $currency);
+                $fee->setScale($currency);
+            }
+
+        }
+        $entities = array_slice($all, $offset, $limit);
+
+        return $this->restV2(
+            200,
+            "ok",
+            "Request successful",
+            array(
+                'total' => $total,
+                'start' => intval($offset),
+                'end' => count($entities)+$offset,
+                'elements' => $entities
+            )
+        );
+
     }
 
     /**
@@ -116,6 +153,31 @@ class GroupsController extends BaseApiController
         if(count($group->getUsers())>0) throw new HttpException(400,"This group can't be deleted because has users.");
 
         return parent::deleteAction($id);
+    }
+
+    public function _getScale($currency){
+        $scale=0;
+        switch($currency){
+            case "EUR":
+                $scale=2;
+                break;
+            case "MXN":
+                $scale=2;
+                break;
+            case "USD":
+                $scale=2;
+                break;
+            case "BTC":
+                $scale=8;
+                break;
+            case "FAC":
+                $scale=8;
+                break;
+            case "":
+                $scale=0;
+                break;
+        }
+        return $scale;
     }
 
 }
