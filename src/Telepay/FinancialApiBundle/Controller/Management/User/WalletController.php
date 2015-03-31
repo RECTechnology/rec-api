@@ -242,8 +242,6 @@ class WalletController extends RestApiController{
             ->getQuery()
             ->execute();
 
-        if(count($result)==0) throw new HttpException(400,'Not transactions found');
-
         $total=[];
 
         foreach($result->toArray() as $res){
