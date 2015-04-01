@@ -55,17 +55,20 @@ class AddGroupCommand extends ContainerAwareCommand
 
         }
 
+        $contador=0;
+
         foreach ( $users as $user ){
             $grup=$user->getGroups()[0];
             if(!$grup){
                 $user->addGroup($group);
                 $em->persist($user);
                 $em->flush();
+                $contador++;
             }
 
         }
 
-        $output->writeln('Groups created');
+        $output->writeln($contador.' Users Added');
     }
 
 
