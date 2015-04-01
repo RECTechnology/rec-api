@@ -49,6 +49,23 @@ class Transaction implements TransactionTiming {
      */
     public static $STATUS_FAILED = "failed";
 
+    /**
+     * @var
+     * @MongoDB\Date
+     */
+    private $created;
+
+    /**
+     * @var
+     * @MongoDB\Date
+     */
+    private $updated;
+
+    public function __construct(){
+        $this->created=new \MongoDate();
+        $this->updated=new \MongoDate();
+    }
+
     public static function createFromContext(TransactionContextInterface $context){
         $transaction = new Transaction();
         $transaction->setIp($context->getRequestStack()->getCurrentRequest()->getClientIp());
@@ -472,5 +489,37 @@ class Transaction implements TransactionTiming {
     public function setAmount($amount)
     {
         $this->amount = $amount;
+    }
+
+    /**
+     * @return mixed
+     */
+    public function getCreated()
+    {
+        return $this->created;
+    }
+
+    /**
+     * @param mixed $created
+     */
+    public function setCreated($created)
+    {
+        $this->created = $created;
+    }
+
+    /**
+     * @return mixed
+     */
+    public function getUpdated()
+    {
+        return $this->updated;
+    }
+
+    /**
+     * @param mixed $updated
+     */
+    public function setUpdated($updated)
+    {
+        $this->updated = $updated;
     }
 }

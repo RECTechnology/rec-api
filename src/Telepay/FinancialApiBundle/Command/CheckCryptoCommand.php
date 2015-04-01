@@ -37,7 +37,6 @@ class CheckCryptoCommand extends ContainerAwareCommand
                 ->field('status')->in(array('created','received'))
                 ->getQuery();
 
-
             $resArray = [];
             foreach($qb->toArray() as $res){
                 $data=$res->getDataIn();
@@ -57,7 +56,6 @@ class CheckCryptoCommand extends ContainerAwareCommand
                         $wallets=$user->getWallets();
                         $service_currency = $check->getCurrency();
                         $current_wallet=null;
-
 
                         foreach ( $wallets as $wallet){
                             if ($wallet->getCurrency()==$service_currency){
@@ -80,7 +78,6 @@ class CheckCryptoCommand extends ContainerAwareCommand
 
                             $em->persist($current_wallet);
                             $em->flush();
-
 
                             $creator=$group->getCreator();
 
@@ -127,8 +124,10 @@ class CheckCryptoCommand extends ContainerAwareCommand
                 $currentData['confirmations'] = $cryptoData['confirmations'];
                 if($currentData['confirmations'] >= $currentData['min_confirmations']){
                     $transaction->setStatus("success");
+                    $transaction->setUpdated(new \MongoDate());
                 }else{
                     $transaction->setStatus("received");
+                    $transaction->setUpdated(new \MongoDate());
                 }
                 $transaction->setData($currentData);
                 $transaction->setDataOut($currentData);

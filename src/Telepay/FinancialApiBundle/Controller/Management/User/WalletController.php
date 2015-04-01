@@ -81,6 +81,7 @@ class WalletController extends RestApiController{
         $last10Trans = $dm->createQueryBuilder('TelepayFinancialApiBundle:Transaction')
             ->field('user')->equals($userId)
             ->limit(10)
+            ->sort('updated','desc')
             ->sort('id','desc')
             ->getQuery()
             ->execute();
