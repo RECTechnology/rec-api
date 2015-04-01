@@ -45,7 +45,7 @@ class CheckCryptoCommand extends ContainerAwareCommand
                     $resArray []= $res;
                     $check=$this->check($res);
                     $dm->flush();
-                    if($check->getStatus()=='created'){
+                    if($check->getStatus()=='success'){
                         //hacemos el reparto
                         //primero al user
                         $id=$check->getUser();
