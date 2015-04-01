@@ -37,14 +37,16 @@ class PaynetReferenceService extends BaseService{
         //lo dividimos por 100 porque lo recibimos en centimos i lo tenemos que enviar en euros
         $amount = $baseTransaction->getDataIn()['amount']/100;
         $description = $baseTransaction->getDataIn()['description'];
-        $id=$baseTransaction->getId();
+        $id_telepay=$baseTransaction->getId();
+        $id=microtime(true)*10000;
 
         $barcode = $this->paynetReferenceProvider->request($id,$amount,$description);
 
         if($barcode === false)
             throw new HttpException(503, "Service temporarily unavailable, please try again in a few minutes");
 
-        $baseTransaction->setData($barcode);
+        $baseTransaction->setData(array('id_paynet'=>$id));
+        $barcode['id']=$id_telepay;
         $baseTransaction->setDataOut($barcode);
 
         return $baseTransaction;
@@ -56,11 +58,12 @@ class PaynetReferenceService extends BaseService{
     }
 
     public function check(Transaction $transaction){
-        $client_reference=$transaction->getId();
+        $data=$transaction->getData();
+        $client_reference=$data['id_paynet'];
 
         $status=$this->paynetReferenceProvider->status($client_reference);
 
-        $transaction->setData($status);
+        $transaction->setDataOut($status);
 
         return $transaction;
     }
