@@ -91,7 +91,7 @@ class WalletController extends RestApiController{
             //comprobar si es cashIn o cashOut para mostrar el amount en + ó -
 
             $service_cname=$res->getService();
-            if(is_int($service_cname)) continue;
+            if(is_numeric($service_cname)) continue;
             $version_number=$res->getVersion();
             $service = $this->get('net.telepay.services.'.$service_cname.'.v'.$version_number);
 
