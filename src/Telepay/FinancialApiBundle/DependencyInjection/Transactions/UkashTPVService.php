@@ -41,7 +41,9 @@ class UkashTPVService extends BaseService{
         $url_fail = $baseTransaction->getDataIn()['url_fail'];
         $consumer_id='Telepay';
 
-        $id=$baseTransaction->getId();
+        //todo hay que quitar esta id porque el servicio de ukash no se la traga
+        //$id=$baseTransaction->getId();
+        $id='2345H411111111111111';
 
         $request=$this->getTransactionContext()->getRequestStack()->getCurrentRequest();
         $url_base=$request->getSchemeAndHttpHost().$request->getBaseUrl();
@@ -54,6 +56,7 @@ class UkashTPVService extends BaseService{
             throw new HttpException(503, "Service temporarily unavailable, please try again in a few minutes");
 
         $baseTransaction->setData($ukash);
+        $baseTransaction->setDataOut($ukash);
 
         return $baseTransaction;
 
