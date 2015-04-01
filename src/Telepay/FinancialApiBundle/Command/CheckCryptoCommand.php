@@ -45,10 +45,12 @@ class CheckCryptoCommand extends ContainerAwareCommand
                     $resArray []= $res;
                     $check=$this->check($res);
                     $dm->flush();
-                    if($check->getStatus()=='success'){
+                    if($check->getStatus()=='created'){
                         //hacemos el reparto
                         //primero al user
                         $id=$check->getUser();
+
+                        $transaction_id=$check->getId();
 
                         $user=$repo->find($id);
 
@@ -82,15 +84,17 @@ class CheckCryptoCommand extends ContainerAwareCommand
 
                         //luego a la ruleta de admins
                         $dealer=$this->getContainer()->get('net.telepay.commons.fee_deal');
-                        $dealer->deal($creator,$amount,$service_cname,$service_currency,$total_fee);
+                        $dealer->deal($creator,$amount,$service,$service_currency,$total_fee,$transaction_id);
+
                     }
                 }
 
             }
+
             $output->writeln($service.' transactions checked');
         }
 
-        $dm->flush();
+        //$dm->flush();
 
         $output->writeln('Crypto transactions checked');
     }

@@ -7,3 +7,4 @@ services:
         class: Telepay\FinancialApiBundle\DependencyInjection\Telepay\Commons\FeeDeal
         arguments:
             - "@doctrine"
+            - "@doctrine_mongodb"

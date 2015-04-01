@@ -224,8 +224,9 @@ class IncomingController extends RestApiController{
 
                 //hacemos el reparto
                 //$this->cashInDealer($creator,$amount,$service_cname,$service_currency);
-                $dealer=new FeeDeal();
-                $dealer->deal($creator,$amount,$service_cname,$service_currency,$total_fee);
+                $transaction_id=$transaction->getId();
+                $dealer=$this->get('net.telepay.commons.fee_deal');
+                $dealer->deal($creator,$amount,$service_cname,$service_currency,$total_fee,$transaction_id);
 
 
             }
@@ -272,8 +273,9 @@ class IncomingController extends RestApiController{
 
                 if(!$creator) throw new HttpException(404,'Creator not found');
 
-                $dealer=new FeeDeal();
-                $dealer->deal($creator,$amount,$service_cname,$service_currency,$total_fee);
+                $transaction_id=$transaction->getId();
+                $dealer=$this->get('net.telepay.commons.fee_deal');
+                $dealer->deal($creator,$amount,$service_cname,$service_currency,$total_fee,$transaction_id);
 
                 //$this->cashInDealer($creator,$amount,$service_cname,$service_currency);
             }
