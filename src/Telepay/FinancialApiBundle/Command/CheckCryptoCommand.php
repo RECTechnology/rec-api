@@ -65,26 +65,35 @@ class CheckCryptoCommand extends ContainerAwareCommand
                             }
                         }
 
-                        $group=$user->getGroups()[0];
-
                         $amount=$data['amount'];
 
-                        $fixed_fee=$check->getFixedFee();
-                        $variable_fee=$check->getVariableFee()*$amount;
-                        $total_fee=$fixed_fee+$variable_fee;
-                        $total=$amount-$total_fee;
+                        if(!$user->hasRole('ROLE_SUPER_ADMIN')){
+                            $group=$user->getGroups()[0];
 
-                        $current_wallet->setAvailable($current_wallet->getAvailable()+$total);
-                        $current_wallet->setBalance($current_wallet->getBalance()+$total);
+                            $fixed_fee=$check->getFixedFee();
+                            $variable_fee=$check->getVariableFee()*$amount;
+                            $total_fee=$fixed_fee+$variable_fee;
+                            $total=$amount-$total_fee;
 
-                        $em->persist($current_wallet);
-                        $em->flush();
+                            $current_wallet->setAvailable($current_wallet->getAvailable()+$total);
+                            $current_wallet->setBalance($current_wallet->getBalance()+$total);
 
-                        $creator=$group->getCreator();
+                            $em->persist($current_wallet);
+                            $em->flush();
 
-                        //luego a la ruleta de admins
-                        $dealer=$this->getContainer()->get('net.telepay.commons.fee_deal');
-                        $dealer->deal($creator,$amount,$service,$service_currency,$total_fee,$transaction_id);
+
+                            $creator=$group->getCreator();
+
+                            //luego a la ruleta de admins
+                            $dealer=$this->getContainer()->get('net.telepay.commons.fee_deal');
+                            $dealer->deal($creator,$amount,$service,$service_currency,$total_fee,$transaction_id);
+                        }else{
+                            $current_wallet->setAvailable($current_wallet->getAvailable()+$amount);
+                            $current_wallet->setBalance($current_wallet->getBalance()+$amount);
+
+                            $em->persist($current_wallet);
+                            $em->flush();
+                        }
 
                     }
                 }
@@ -94,7 +103,7 @@ class CheckCryptoCommand extends ContainerAwareCommand
             $output->writeln($service.' transactions checked');
         }
 
-        //$dm->flush();
+        $dm->flush();
 
         $output->writeln('Crypto transactions checked');
     }

@@ -89,6 +89,7 @@ class IncomingController extends RestApiController{
         }
 
         $amount=$dataIn['amount'];
+        $transaction->setAmount($amount);
 
         //añadimos las comisiones para chekear
         $fixed_fee=$group_commission->getFixed();
@@ -104,10 +105,10 @@ class IncomingController extends RestApiController{
         if($service->getcashDirection()=='out'){
             $total=$amount+$variable_fee+$fixed_fee;
             //le cambiamos el signo para guardarla i marcarla como salida en el wallet
-            $transaction->setTotal($total*-1);
+            $transaction->setTotal($amount*-1);
         }else{
             $total=$amount-$variable_fee-$fixed_fee;
-            $transaction->setTotal($total);
+            $transaction->setTotal($amount);
         }
 
         $limits=$user->getLimitCount();

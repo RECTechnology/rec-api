@@ -49,7 +49,7 @@ class FeeDeal{
             $variable=$group_commission->getVariable();
             $total=$fixed+$variable*$amount;
         }else{
-            $total=$amount;
+            $total=0;
             $variable=0;
             $fixed=0;
         }
@@ -78,6 +78,7 @@ class FeeDeal{
                 $transaction->setUser($creator->getId());
                 $transaction->setService($service_cname);
                 $transaction->setVersion(1);
+                $transaction->setAmount($fee-$total);
                 $transaction->setDataIn(array(
                     'user' => $creator->getId(),
                     'amount' => doubleval($amount),
@@ -93,7 +94,7 @@ class FeeDeal{
                 $transaction->setCurrency($currency);
                 $transaction->setVariableFee($variable);
                 $transaction->setFixedFee($fixed);
-                $transaction->setTotal($amount);
+                $transaction->setTotal($fee-$total);
                 $transaction->setScale($wallet->getScale());
                 $dm->persist($transaction);
                 $dm->flush();

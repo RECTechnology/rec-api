@@ -142,6 +142,12 @@ class Transaction implements TransactionTiming {
      * @var
      * @MongoDB\Float
      */
+    private $amount;
+
+    /**
+     * @var
+     * @MongoDB\Float
+     */
     private $variableFee;
 
     /**
@@ -450,5 +456,21 @@ class Transaction implements TransactionTiming {
     public function setScale($scale)
     {
         $this->scale = $scale;
+    }
+
+    /**
+     * @return mixed
+     */
+    public function getAmount()
+    {
+        return $this->amount;
+    }
+
+    /**
+     * @param mixed $amount
+     */
+    public function setAmount($amount)
+    {
+        $this->amount = $amount;
     }
 }
