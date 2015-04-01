@@ -37,6 +37,8 @@ class AddGroupCommand extends ContainerAwareCommand
 
         $creator=0;
 
+        $contador_group=0;
+
         if(!$group){
             $users=$repo->findAll();
 
@@ -52,6 +54,7 @@ class AddGroupCommand extends ContainerAwareCommand
             $group->setCreator($creator);
             $em->persist($group);
             $em->flush();
+            $contador_group++;
 
         }
 
@@ -68,7 +71,7 @@ class AddGroupCommand extends ContainerAwareCommand
 
         }
 
-        $output->writeln($contador.' Users Added');
+        $output->writeln($contador.' Users Added and '.$contador_group.' groups created');
     }
 
 
