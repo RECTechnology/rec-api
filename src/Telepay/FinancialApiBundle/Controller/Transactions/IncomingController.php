@@ -158,8 +158,7 @@ class IncomingController extends RestApiController{
             $em->flush();
         }
 
-        $new_user_limit = new LimitAdder();
-        $new_user_limit->add($user_limit,$total);
+        $new_user_limit=(new LimitAdder())->add($user_limit,$total);
 
         $checker = new LimitChecker();
 
