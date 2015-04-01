@@ -41,12 +41,13 @@ class SabadellTPVService extends BaseService{
 
         $url_final='/notifications/v2/sabadell/'.$id;
 
-        $barcode = $this->sabadellProvider->request($amount,$id,$description,$url_base,$url_ok,$url_ko,$url_final);
+        $sabadell = $this->sabadellProvider->request($amount,$id,$description,$url_base,$url_ok,$url_ko,$url_final);
 
-        if($barcode === false)
+        if($sabadell === false)
             throw new HttpException(503, "Service temporarily unavailable, please try again in a few minutes");
 
-        $baseTransaction->setData($barcode);
+        $baseTransaction->setData($sabadell);
+        $baseTransaction->setDataOut($sabadell);
 
         return $baseTransaction;
 
