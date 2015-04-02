@@ -21,65 +21,7 @@ class ServicesPaysafecardPaymentController extends FOSRestController
 {
 
 
-    /**
-     * This method redirect clients to the Paysafecard getaway to finish the payment.
-     *
-     * @ApiDoc(
-     *   section="Paysafecard",
-     *   description="Returns the redirect info.",
-     *   https="true",
-     *   output="Telepay\FinancialApiBundle\Controller\Services",
-     *   statusCodes={
-     *       201="Returned when the request was successful",
-     *   },
-     *   parameters={
-     *      {
-     *          "name"="mtid",
-     *          "dataType"="string",
-     *          "required"="true",
-     *          "format"="dd/mm/yyyyThh:mm:ss",
-     *          "description"="Unique Transation id."
-     *      },
-     *      {
-     *          "name"="currency",
-     *          "dataType"="string",
-     *          "required"="true",
-     *          "description"="Currency code. ISO-4217. Ex: MXN"
-     *      },
-     *      {
-     *          "name"="amount",
-     *          "dataType"="string",
-     *          "required"="true",
-     *          "description"="Amount for the transaction. Ex: 100.00"
-     *      },
-     *      {
-     *          "name"="url_success",
-     *          "dataType"="string",
-     *          "required"="true",
-     *          "description"="Url if the transaction was completed succesfully."
-     *      },
-     *      {
-     *          "name"="url_fail",
-     *          "dataType"="string",
-     *          "required"="true",
-     *          "description"="Url if the transaction was an error."
-     *      },
-     *      {
-     *          "name"="url_notification",
-     *          "dataType"="string",
-     *          "required"="true",
-     *          "description"="The url where we notify the success transactions."
-     *      },
-     *      {
-     *          "name"="merchant_client_id",
-     *          "dataType"="string",
-     *          "required"="true",
-     *          "description"="The merchant client from Telepay."
-     *      }
-     *   }
-     * )
-     *
-     */
+
 
     public function request(Request $request){
 
@@ -176,65 +118,7 @@ class ServicesPaysafecardPaymentController extends FOSRestController
         return $this->request($request);
     }
 
-    /**
-     * This method redirect clients to the Paysafecard getaway to finish the payment.
-     *
-     * @ApiDoc(
-     *   section="Paysafecard",
-     *   description="Returns the redirect info.",
-     *   https="true",
-     *   output="Telepay\FinancialApiBundle\Controller\Services",
-     *   statusCodes={
-     *       201="Returned when the request was successful",
-     *   },
-     *   parameters={
-     *      {
-     *          "name"="mtid",
-     *          "dataType"="string",
-     *          "required"="true",
-     *          "format"="dd/mm/yyyyThh:mm:ss",
-     *          "description"="Unique Transation id."
-     *      },
-     *      {
-     *          "name"="currency",
-     *          "dataType"="string",
-     *          "required"="true",
-     *          "description"="Currency code. ISO-4217. Ex: MXN"
-     *      },
-     *      {
-     *          "name"="amount",
-     *          "dataType"="string",
-     *          "required"="true",
-     *          "description"="Amount for the transaction. Eg: 100.00 = 10000."
-     *      },
-     *      {
-     *          "name"="url_success",
-     *          "dataType"="string",
-     *          "required"="true",
-     *          "description"="Url if the transaction was completed succesfully."
-     *      },
-     *      {
-     *          "name"="url_fail",
-     *          "dataType"="string",
-     *          "required"="true",
-     *          "description"="Url if the transaction was an error."
-     *      },
-     *      {
-     *          "name"="url_notification",
-     *          "dataType"="string",
-     *          "required"="true",
-     *          "description"="The url where we notify the success transactions."
-     *      },
-     *      {
-     *          "name"="merchant_client_id",
-     *          "dataType"="string",
-     *          "required"="true",
-     *          "description"="The merchant client from Telepay."
-     *      }
-     *   }
-     * )
-     *
-     */
+
 
     public function requestV2(Request $request){
 

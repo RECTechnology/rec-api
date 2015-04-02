@@ -18,40 +18,7 @@ use Telepay\FinancialApiBundle\Document\Transaction;
 class ServicesMultivaTPVController extends FosRestController
 {
 
-    /**
-     * Returns needed parameters to obtain Multiva TPV.
-     *
-     * @ApiDoc(
-     *   section="TPV Multiva",
-     *   description="This method allows client to get Multiva TPV for finish the payment.",
-     *   https="true",
-     *   statusCodes={
-     *       201="Returned when the request was successful",
-     *       400="Returned when the request was bad",
-     *   },
-     *   parameters={
-     *      {
-     *          "name"="amount",
-     *          "dataType"="string",
-     *          "required"="true",
-     *          "description"="Transaction Amount in cents. Ej=>100.00=10000"
-     *      },
-     *      {
-     *          "name"="transaction_id",
-     *          "dataType"="string",
-     *          "required"="true",
-     *          "description"="This id must be unique."
-     *      },
-     *      {
-     *          "name"="url_notification",
-     *          "dataType"="string",
-     *          "required"="true",
-     *          "description"="Url to notify the transaction."
-     *      }
-     *   }
-     * )
-     *
-     */
+
 
     public function generate(Request $request){
 

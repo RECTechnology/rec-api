@@ -18,59 +18,6 @@ use Telepay\FinancialApiBundle\Document\Transaction;
 class ServicesSabadellTPVController extends FosRestController
 {
 
-    /**
-     * Returns needed parameters to obtain Sabadell TPV.
-     *
-     * @ApiDoc(
-     *   section="TPV Sabadell",
-     *   description="This method allows client to get a TPV for finish the payment.",
-     *   https="true",
-     *   statusCodes={
-     *       201="Returned when the request was successful",
-     *       400="Returned when the request was bad",
-     *   },
-     *   parameters={
-     *      {
-     *          "name"="amount",
-     *          "dataType"="string",
-     *          "required"="true",
-     *          "description"="Transaction Amount in cents Eg: 100.00 = 10000."
-     *      },
-     *      {
-     *          "name"="transaction_id",
-     *          "dataType"="string",
-     *          "required"="true",
-     *          "description"="This id must be unique."
-     *      },
-     *      {
-     *          "name"="description",
-     *          "dataType"="string",
-     *          "required"="true",
-     *          "description"="Transaction description."
-     *      },
-     *      {
-     *          "name"="url_notification",
-     *          "dataType"="string",
-     *          "required"="true",
-     *          "description"="Url to notify the transaction."
-     *      },
-     *      {
-     *          "name"="url_ok",
-     *          "dataType"="string",
-     *          "required"="true",
-     *          "description"="Url to redirect client if the transaction was correct."
-     *      },
-     *      {
-     *          "name"="url_ko",
-     *          "dataType"="string",
-     *          "required"="true",
-     *          "description"="Url to redirect client if something went wrong."
-     *      }
-     *   }
-     * )
-     *
-     */
-
     public function generate(Request $request){
 
         //Obtenemos el id de usuario para añadirlo a cada referencia única
@@ -171,21 +118,6 @@ class ServicesSabadellTPVController extends FosRestController
         return $this->generate($request);
     }
 
-    /**
-     * Returns needed parameters to obtain Sabadell TPV.
-     *
-     * @ApiDoc(
-     *   section="TPV Sabadell",
-     *   description="This method allows client to get the parameters for generate a tpv of an existing transaction.",
-     *   https="true",
-     *   statusCodes={
-     *       201="Returned when the request was successful",
-     *       400="Returned when the request was bad",
-     *   },
-     *   parameters={}
-     * )
-     *
-     */
 
     public function regenerate(Request $request,$id){
 

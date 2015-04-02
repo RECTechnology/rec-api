@@ -21,53 +21,7 @@ class ServicesSafetypayPaymentController extends FOSRestController
 {
 
 
-    /**
-     * This method redirect clients to the SafetyPay getaway to finish the payment.
-     *
-     * @ApiDoc(
-     *   section="SafetyPay payments",
-     *   description="Returns the redirect information.",
-     *   https="true",
-     *   output="Telepay\FinancialApiBundle\Controller\Services",
-     *   statusCodes={
-     *       201="Returned when the request was successful",
-     *   },
-     *   parameters={
-     *      {
-     *          "name"="date_time",
-     *          "dataType"="string",
-     *          "required"="true",
-     *          "format"="dd/mm/yyyyThh:mm:ss",
-     *          "description"="Transaction Date."
-     *      },
-     *      {
-     *          "name"="currency",
-     *          "dataType"="string",
-     *          "required"="true",
-     *          "description"="Currency code. ISO-4217. Ex: MXN"
-     *      },
-     *      {
-     *          "name"="amount",
-     *          "dataType"="string",
-     *          "required"="true",
-     *          "description"="Amount for the transaction. Eg: 100.00 = 10000"
-     *      },
-     *      {
-     *          "name"="url_success",
-     *          "dataType"="string",
-     *          "required"="true",
-     *          "description"="Url if the transaction was completed succesfully."
-     *      },
-     *      {
-     *          "name"="url_fail",
-     *          "dataType"="string",
-     *          "required"="true",
-     *          "description"="Url if the transaction was an error."
-     *      }
-     *   }
-     * )
-     *
-     */
+
 
     public function request(Request $request){
 

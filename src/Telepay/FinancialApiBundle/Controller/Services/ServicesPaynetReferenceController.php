@@ -14,39 +14,7 @@ use Telepay\FinancialApiBundle\Document\Transaction;
 
 class ServicesPaynetReferenceController extends FosRestController
 {
-    /**
-     * Returns a code and after you have to put this code into a url to obtain the barcode.
-     *
-     * @ApiDoc(
-     *   section="Paynet Reference",
-     *   description="This method allows client to get a barcode with the reference for the payment",
-     *   https="true",
-     *   statusCodes={
-     *       201="Returned when the request was successful",
-     *   },
-     *   parameters={
-     *      {
-     *          "name"="client_reference",
-     *          "dataType"="string",
-     *          "required"="true",
-     *          "description"="Pay/Product reference/identifier. (max 12 chars).Ex: '000000000000'"
-     *      },
-     *      {
-     *          "name"="amount",
-     *          "dataType"="string",
-     *          "required"="true",
-     *          "description"="Allowed amount in cents. Eg: 100.00 = 10000."
-     *      },
-     *      {
-     *          "name"="description",
-     *          "dataType"="string",
-     *          "required"="true",
-     *          "description"="Product description. Ex: 'television'"
-     *      }
-     *   }
-     * )
-     *
-     */
+
 
     public function generate(Request $request){
 
@@ -134,28 +102,6 @@ class ServicesPaynetReferenceController extends FosRestController
         return $this->generate($request);
     }
 
-    /**
-     * This method allows client to know the status reference.
-     *
-     * @ApiDoc(
-     *   section="Paynet Reference",
-     *   description="Returns the status for the generate reference",
-     *   https="true",
-     *   statusCodes={
-     *       201="Returned when the request was successful",
-     *   },
-     *   parameters={
-     *      {
-     *          "name"="client_reference",
-     *          "dataType"="string",
-     *          "required"="true",
-     *          "description"="Pay/Product reference/identifier. (max 12 chars).Ex: '000000000000'"
-     *      }
-     *   },
-     *   output="Telepay\FinancialApiBundle\Controller\Response"
-     * )
-     *
-     */
 
     //TODO: esto esta mal
     public function status(Request $request){

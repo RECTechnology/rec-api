@@ -18,59 +18,7 @@ use Telepay\FinancialApiBundle\Document\Transaction;
 class ServicesPaynetPaymentController extends FosRestController
 {
 
-    /**
-     * Register a transaction in the Paynet system. It's mandatory do the Ejecuta method to finish the payment.
-     *
-     * @ApiDoc(
-     *   section="Paynet Payment for Services",
-     *   description="Register a transaction in the Paynet system.",
-     *   https="true",
-     *   statusCodes={
-     *       201="Returned when the request was successful",
-     *   },
-     *   parameters={
-     *      {
-     *          "name"="date",
-     *          "dataType"="string",
-     *          "required"="true",
-     *          "format"="dd/mm/yyyy",
-     *          "description"="Transaction Date."
-     *      },
-     *      {
-     *          "name"="hour",
-     *          "dataType"="string",
-     *          "required"="true",
-     *          "format"="HH:mm:ss",
-     *          "description"="Transaction Hour."
-     *      },
-     *      {
-     *          "name"="transaction_id",
-     *          "dataType"="string",
-     *          "required"="true",
-     *          "description"="This id must be unique along the day."
-     *      },
-     *      {
-     *          "name"="sku",
-     *          "dataType"="string",
-     *          "required"="true",
-     *          "description"="This is a sku reference for the payment. Every service has a unique sku reference."
-     *      },
-     *      {
-     *          "name"="reference",
-     *          "dataType"="string",
-     *          "required"="true",
-     *          "description"="This is a reference for the payment. Every service has a unique reference."
-     *      },
-     *      {
-     *          "name"="amount",
-     *          "dataType"="string",
-     *          "required"="true",
-     *          "description"="Only for the phone recharge. If not used=0"
-     *      }
-     *   }
-     * )
-     *
-     */
+
 
     public function info(Request $request){
 
@@ -183,59 +131,7 @@ class ServicesPaynetPaymentController extends FosRestController
         return $this->info($request);
     }
 
-    /**
-     * Register a transaction in the Paynet system. It's mandatory do the Ejecuta method to finish the payment.
-     *
-     * @ApiDoc(
-     *   section="Paynet Payment for Services",
-     *   description="Register a transaction in the Paynet system.",
-     *   https="true",
-     *   statusCodes={
-     *       201="Returned when the request was successful",
-     *   },
-     *   parameters={
-     *      {
-     *          "name"="date",
-     *          "dataType"="string",
-     *          "required"="true",
-     *          "format"="dd/mm/yyyy",
-     *          "description"="Transaction Date."
-     *      },
-     *      {
-     *          "name"="hour",
-     *          "dataType"="string",
-     *          "required"="true",
-     *          "format"="HH:mm:ss",
-     *          "description"="Transaction Hour."
-     *      },
-     *      {
-     *          "name"="transaction_id",
-     *          "dataType"="string",
-     *          "required"="true",
-     *          "description"="This id must be unique along the day."
-     *      },
-     *      {
-     *          "name"="sku",
-     *          "dataType"="string",
-     *          "required"="true",
-     *          "description"="This is a sku reference for the payment. Every service has a unique sku reference."
-     *      },
-     *      {
-     *          "name"="reference",
-     *          "dataType"="string",
-     *          "required"="true",
-     *          "description"="This is a reference for the payment. Every service has a unique reference."
-     *      },
-     *      {
-     *          "name"="amount",
-     *          "dataType"="string",
-     *          "required"="true",
-     *          "description"="Only for the phone recharge. If not used=0"
-     *      }
-     *   }
-     * )
-     *
-     */
+
 
     public function infoV2(Request $request){
 
@@ -328,77 +224,7 @@ class ServicesPaynetPaymentController extends FosRestController
         return $this->infoV2($request);
     }
 
-    /**
-     * Confirm the payment in the Paynet system. It's mandatory do the Info method first to register the transaction.
-     *
-     * @ApiDoc(
-     *   section="Paynet Payment for Services",
-     *   description="This method allows client finish the service payment.",
-     *   https="true",
-     *   statusCodes={
-     *       201="Returned when the request was successful",
-     *   },
-     *   parameters={
-     *      {
-     *          "name"="date",
-     *          "dataType"="string",
-     *          "required"="true",
-     *          "format"="dd/mm/yyyy",
-     *          "description"="Transaction Date."
-     *      },
-     *      {
-     *          "name"="hour",
-     *          "dataType"="string",
-     *          "required"="true",
-     *          "format"="HH:mm:ss",
-     *          "description"="Transaction Hour."
-     *      },
-     *      {
-     *          "name"="transaction_id",
-     *          "dataType"="string",
-     *          "required"="true",
-     *          "description"="This id must be the same that the info method."
-     *      },
-     *      {
-     *          "name"="sku",
-     *          "dataType"="string",
-     *          "required"="true",
-     *          "description"="This is a sku reference for the payment. Every service has a unique sku reference."
-     *      },
-     *      {
-     *          "name"="fee",
-     *          "dataType"="string",
-     *          "required"="true",
-     *          "description"="This comission value is obtained in the info method response"
-     *      },
-     *      {
-     *          "name"="reference",
-     *          "dataType"="string",
-     *          "required"="true",
-     *          "description"="This reference is returned in the info method array."
-     *      },
-     *      {
-     *          "name"="amount",
-     *          "dataType"="string",
-     *          "required"="true",
-     *          "description"="Amount value must be the same value that appears in the table 1.x."
-     *      },
-     *      {
-     *          "name"="dv",
-     *          "dataType"="string",
-     *          "required"="true",
-     *          "description"="Verification digits -> If is not needed we should write 0"
-     *      },
-     *      {
-     *          "name"="token",
-     *          "dataType"="string",
-     *          "required"="true",
-     *          "description"="Token string -> If is not needed we should write 0"
-     *      }
-     *   }
-     * )
-     *
-     */
+
 
     public function ejecuta(Request $request){
 
@@ -517,77 +343,6 @@ class ServicesPaynetPaymentController extends FosRestController
         return $this->ejecuta($request);
     }
 
-    /**
-     * Confirm the payment in the Paynet system. It's mandatory do the Info method first to register the transaction.
-     *
-     * @ApiDoc(
-     *   section="Paynet Payment for Services",
-     *   description="This method allows client finish the service payment.",
-     *   https="true",
-     *   statusCodes={
-     *       201="Returned when the request was successful",
-     *   },
-     *   parameters={
-     *      {
-     *          "name"="date",
-     *          "dataType"="string",
-     *          "required"="true",
-     *          "format"="dd/mm/yyyy",
-     *          "description"="Transaction Date."
-     *      },
-     *      {
-     *          "name"="hour",
-     *          "dataType"="string",
-     *          "required"="true",
-     *          "format"="HH:mm:ss",
-     *          "description"="Transaction Hour."
-     *      },
-     *      {
-     *          "name"="transaction_id",
-     *          "dataType"="string",
-     *          "required"="true",
-     *          "description"="This id must be the same that the info method."
-     *      },
-     *      {
-     *          "name"="sku",
-     *          "dataType"="string",
-     *          "required"="true",
-     *          "description"="This is a sku reference for the payment. Every service has a unique sku reference."
-     *      },
-     *      {
-     *          "name"="fee",
-     *          "dataType"="string",
-     *          "required"="true",
-     *          "description"="This comission value is obtained in the info method response"
-     *      },
-     *      {
-     *          "name"="reference",
-     *          "dataType"="string",
-     *          "required"="true",
-     *          "description"="This reference is returned in the info method array."
-     *      },
-     *      {
-     *          "name"="amount",
-     *          "dataType"="string",
-     *          "required"="true",
-     *          "description"="Amount value must be the same value that appears in the table 1.x."
-     *      },
-     *      {
-     *          "name"="dv",
-     *          "dataType"="string",
-     *          "required"="true",
-     *          "description"="Verification digits -> If is not needed we should write 0"
-     *      },
-     *      {
-     *          "name"="token",
-     *          "dataType"="string",
-     *          "required"="true",
-     *          "description"="Token string -> If is not needed we should write 0"
-     *      }
-     *   }
-     * )
-     *
-     */
 
     public function ejecutaV2(Request $request){
 
@@ -704,59 +459,7 @@ class ServicesPaynetPaymentController extends FosRestController
         return $this->ejecutaV2($request);
     }
 
-    /**
-     * This method allows client to obtain reverse for a payment.
-     *
-     * @ApiDoc(
-     *   section="Paynet Payment for Services",
-     *   description="Consult a transaction done with Paynet.",
-     *   https="true",
-     *   statusCodes={
-     *       201="Returned when the request was successful",
-     *   },
-     *   parameters={
-     *      {
-     *          "name"="date",
-     *          "dataType"="string",
-     *          "required"="true",
-     *          "format"="dd/mm/yyyy",
-     *          "description"="Transaction Date."
-     *      },
-     *      {
-     *          "name"="hour",
-     *          "dataType"="string",
-     *          "required"="true",
-     *          "format"="HH:mm:ss",
-     *          "description"="Transaction Hour."
-     *      },
-     *      {
-     *          "name"="transaction_id",
-     *          "dataType"="string",
-     *          "required"="true",
-     *          "description"="This id must be the same that the ejecuta method."
-     *      },
-     *      {
-     *          "name"="sku",
-     *          "dataType"="string",
-     *          "required"="true",
-     *          "description"="This is a sku reference for the payment. Every service has a unique sku reference."
-     *      },
-     *      {
-     *          "name"="reference",
-     *          "dataType"="string",
-     *          "required"="true",
-     *          "description"="This is a reference for the payment. Every service has a unique reference."
-     *      },
-     *      {
-     *          "name"="amount",
-     *          "dataType"="string",
-     *          "required"="true",
-     *          "description"="Amount value must be the same value that appears in the table 1.x."
-     *      }
-     *   }
-     * )
-     *
-     */
+
 
     public function reversa(Request $request){
 

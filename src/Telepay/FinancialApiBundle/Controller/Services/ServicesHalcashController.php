@@ -19,60 +19,7 @@ use Telepay\FinancialApiBundle\Document\Transaction;
 class ServicesHalcashController extends FosRestController
 {
 
-    /**
-     * This method allow send money to a phone with Halcash.
-     *
-     * @ApiDoc(
-     *   section="Halcash",
-     *   description="Send money to a phone.",
-     *   https="true",
-     *   statusCodes={
-     *       201="Returned when the request was successful",
-     *   },
-     *   output={
-     *
-     *      },
-     *   parameters={
-     *      {
-     *          "name"="phone_number",
-     *          "dataType"="string",
-     *          "required"="true",
-     *          "description"="Phone number to receive the money . E.g.:666000111"
-     *      },
-     *      {
-     *          "name"="country",
-     *          "dataType"="string",
-     *          "required"="true",
-     *          "description"="Country. E.g.:MX, ES"
-     *      },
-     *      {
-     *          "name"="amount",
-     *          "dataType"="string",
-     *          "required"="true",
-     *          "description"="Amount in euros E.g: 100€=100."
-     *      },
-     *      {
-     *          "name"="reference",
-     *          "dataType"="string",
-     *          "required"="true",
-     *          "description"="Transaction description"
-     *      },
-     *       {
-     *          "name"="pin",
-     *          "dataType"="string",
-     *          "required"="true",
-     *          "description"="Secure pin for the transaction with 4 digits. This number must be communicated to the receiver."
-     *      },
-     *      {
-     *          "name"="transaction_id",
-     *          "dataType"="string",
-     *          "required"="true",
-     *          "description"="Unique transaction id."
-     *      }
-     *   }
-     * )
-     * @Rest\View
-     */
+
 
     public function send(Request $request){
 
@@ -226,72 +173,7 @@ class ServicesHalcashController extends FosRestController
         return $this->send($request);
     }
 
-    /**
-     * This method allow send money to a phone with Halcash.
-     *
-     * @ApiDoc(
-     *   section="Halcash",
-     *   description="Send money to a phone.",
-     *   https="true",
-     *   statusCodes={
-     *       201="Returned when the request was successful",
-     *   },
-     *   output={
-     *
-     *      },
-     *   parameters={
-     *      {
-     *          "name"="phone_number",
-     *          "dataType"="string",
-     *          "required"="true",
-     *          "description"="Phone number to receive the money . E.g.:606152121."
-     *      },
-     *      {
-     *          "name"="phone_prefix",
-     *          "dataType"="string",
-     *          "required"="true",
-     *          "description"="Phone prefix. E.g.: 34"
-     *      },
-     *      {
-     *          "name"="country",
-     *          "dataType"="string",
-     *          "required"="true",
-     *          "description"="Country. E.g.:MX, ES"
-     *      },
-     *      {
-     *          "name"="amount",
-     *          "dataType"="string",
-     *          "required"="true",
-     *          "description"="Amount in cents E.g: 100€=10000."
-     *      },
-     *      {
-     *          "name"="reference",
-     *          "dataType"="string",
-     *          "required"="true",
-     *          "description"="Transaction description"
-     *      },
-     *       {
-     *          "name"="pin",
-     *          "dataType"="string",
-     *          "required"="true",
-     *          "description"="Secure pin for the transaction with 4 digits. This number must be communicated to the receiver."
-     *      },
-     *      {
-     *          "name"="transaction_id",
-     *          "dataType"="string",
-     *          "required"="true",
-     *          "description"="Unique transaction id."
-     *      },
-     *      {
-     *          "name"="alias",
-     *          "dataType"="string",
-     *          "required"="true",
-     *          "description"="Alias assigned by Telepay"
-     *      }
-     *   }
-     * )
-     * @Rest\View
-     */
+
 
     public function sendV2(Request $request){
 
@@ -440,58 +322,7 @@ class ServicesHalcashController extends FosRestController
         return $this->sendV2($request);
     }
 
-    /**
-     * This method allow payments with Halcash.
-     *
-     * @ApiDoc(
-     *   section="Halcash",
-     *   description="Do a payment with Halcash",
-     *   https="true",
-     *   statusCodes={
-     *       201="Returned when the request was successful",
-     *   },
-     *   parameters={
-     *      {
-     *          "name"="phone_number",
-     *          "dataType"="string",
-     *          "required"="true",
-     *          "description"="Phone number to receive the money with 17 digits. E.g.:00034000606152121"
-     *      },
-     *      {
-     *          "name"="country",
-     *          "dataType"="string",
-     *          "required"="true",
-     *          "description"="Country. E.g.:MX, ES"
-     *      },
-     *      {
-     *          "name"="amount",
-     *          "dataType"="string",
-     *          "required"="true",
-     *          "description"="Amount in cents E.g: 100€=10000."
-     *      },
-     *      {
-     *          "name"="reference",
-     *          "dataType"="string",
-     *          "required"="true",
-     *          "description"="Transaction description"
-     *      },
-     *       {
-     *          "name"="pin",
-     *          "dataType"="string",
-     *          "required"="true",
-     *          "description"="Secure pin for the transaction with 4 digits. This number must be communicated to the receiver."
-     *      },
-     *      {
-     *          "name"="transaction_id",
-     *          "dataType"="string",
-     *          "required"="true",
-     *          "description"="Unique transaction id."
-     *      }
-     *   }
-     * )
-     *
-     * @Rest\View
-     */
+
 
     public function payment(Request $request){
 
@@ -616,42 +447,7 @@ class ServicesHalcashController extends FosRestController
         return $this->payment($request);
     }
 
-    /**
-     * This method allow cancel Halcash tickets.
-     *
-     * @ApiDoc(
-     *   section="Halcash",
-     *   description="Cancel Halcash tickets.",
-     *   https="true",
-     *   statusCodes={
-     *       201="Returned when the request was successful",
-     *   },
-     *   output={
-     *
-     *      },
-     *   parameters={
-     *      {
-     *          "name"="country",
-     *          "dataType"="string",
-     *          "required"="true",
-     *          "description"="Country. E.g.:MX, ES"
-     *      },
-     *      {
-     *          "name"="reference",
-     *          "dataType"="string",
-     *          "required"="true",
-     *          "description"="Cancel description"
-     *      },
-     *       {
-     *          "name"="id_telepay",
-     *          "dataType"="string",
-     *          "required"="true",
-     *          "description"="Ticket number to cancel."
-     *      }
-     *   }
-     * )
-     * @Rest\View
-     */
+
 
     public function cancel(Request $request){
 

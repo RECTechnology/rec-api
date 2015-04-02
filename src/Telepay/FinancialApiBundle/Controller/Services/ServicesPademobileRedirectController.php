@@ -19,45 +19,7 @@ use Telepay\FinancialApiBundle\Document\Transaction;
 class ServicesPademobileRedirectController extends FosRestController
 {
 
-    /**
-     * This method redirect to Pademobile site for finish the payment.
-     *
-     * @ApiDoc(
-     *   section="Pademobile",
-     *   description="Returns a redirect to finish the payment.",
-     *   https="true",
-     *   statusCodes={
-     *       302="Returned request is successful",
-     *   },
-     *   parameters={
-     *      {
-     *          "name"="country",
-     *          "dataType"="string",
-     *          "required"="true",
-     *          "description"="Country. Ex: MX"
-     *      },
-     *      {
-     *          "name"="url",
-     *          "dataType"="string",
-     *          "required"="true",
-     *          "description"="URL for notification de payment"
-     *      },
-     *      {
-     *          "name"="description",
-     *          "dataType"="string",
-     *          "required"="true",
-     *          "description"="Product description"
-     *      },
-     *      {
-     *          "name"="amount",
-     *          "dataType"="string",
-     *          "required"="true",
-     *          "description"="Shopping amount with two decimals. Eg => 100.00"
-     *      }
-     *   }
-     * )
-     *
-     */
+
 
     public function request(Request $request){
 
@@ -144,45 +106,7 @@ class ServicesPademobileRedirectController extends FosRestController
         return $this->request($request);
     }
 
-    /**
-     * This method redirect to Pademobile site for finish the payment.
-     *
-     * @ApiDoc(
-     *   section="Pademobile",
-     *   description="Returns a redirect to finish the payment.",
-     *   https="true",
-     *   statusCodes={
-     *       302="Returned request is successful",
-     *   },
-     *   parameters={
-     *      {
-     *          "name"="country",
-     *          "dataType"="string",
-     *          "required"="true",
-     *          "description"="Country. Ex: MX"
-     *      },
-     *      {
-     *          "name"="url",
-     *          "dataType"="string",
-     *          "required"="true",
-     *          "description"="URL for notification de payment"
-     *      },
-     *      {
-     *          "name"="description",
-     *          "dataType"="string",
-     *          "required"="true",
-     *          "description"="Product description"
-     *      },
-     *      {
-     *          "name"="amount",
-     *          "dataType"="string",
-     *          "required"="true",
-     *          "description"="Shopping amount in cents. Eg => 100.00= 10000."
-     *      }
-     *   }
-     * )
-     *
-     */
+
 
     public function requestV2(Request $request){
 

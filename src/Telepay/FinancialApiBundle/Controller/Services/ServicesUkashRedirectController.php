@@ -19,67 +19,6 @@ use Telepay\FinancialApiBundle\Document\Transaction;
 class ServicesUkashRedirectController extends FosRestController
 {
 
-    /**
-     * This method redirect to Ukash site for finish the payment.
-     *
-     * @ApiDoc(
-     *   section="Ukash",
-     *   description="Redirects to Ukash to finish the payment.",
-     *   https="true",
-     *   statusCodes={
-     *       201="Returned when the request was successful",
-     *   },
-     *   output={
-     *
-     *      },
-     *   parameters={
-     *      {
-     *          "name"="amount",
-     *          "dataType"="string",
-     *          "required"="true",
-     *          "description"="Transaction amount in cents."
-     *      },
-     *      {
-     *          "name"="transaction_id",
-     *          "dataType"="string",
-     *          "required"="true",
-     *          "description"="Transaction ID"
-     *      },
-     *      {
-     *          "name"="consumer_id",
-     *          "dataType"="string",
-     *          "required"="true",
-     *          "description"="Consumer ID"
-     *      },
-     *       {
-     *          "name"="currency",
-     *          "dataType"="string",
-     *          "required"="true",
-     *          "description"="Transaction currency ISO-4217"
-     *      },
-     *      {
-     *          "name"="url_success",
-     *          "dataType"="string",
-     *          "required"="true",
-     *          "description"="URL if the process has gone fine."
-     *      },
-     *      {
-     *          "name"="url_fail",
-     *          "dataType"="string",
-     *          "required"="true",
-     *          "description"="URL if the process has failed."
-     *      },
-     *      {
-     *          "name"="url_notification",
-     *          "dataType"="string",
-     *          "required"="true",
-     *          "description"="URL for notification de payment"
-     *      }
-     *   }
-     * )
-     *
-     */
-
     public function request(Request $request){
 
         //Obtenemos el id de usuario para añadirlo a cada referencia única
@@ -192,28 +131,6 @@ class ServicesUkashRedirectController extends FosRestController
         $request->request->set('mode','T');
         return $this->request($request);
     }
-
-    /**
-     * This method obtain a payment status.
-     *
-     * @ApiDoc(
-     *   section="Ukash",
-     *   description="Returns Ukash transaction status ",
-     *   https="true",
-     *   statusCodes={
-     *       201="Returned when the request was successful",
-     *   },
-     *   parameters={
-     *      {
-     *          "name"="utid",
-     *          "dataType"="string",
-     *          "required"="true",
-     *          "description"="Unique transaction id from the payment we want consult."
-     *      }
-     *   }
-     * )
-     *
-     */
 
     //TODO:esta mal
 

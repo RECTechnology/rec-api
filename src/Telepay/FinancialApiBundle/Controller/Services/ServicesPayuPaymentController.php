@@ -20,102 +20,6 @@ class ServicesPayuPaymentController extends FosRestController
 {
 
 
-    /**
-     * This method allows client to do a credit card payment.
-     *
-     * @ApiDoc(
-     *   section="PayU Payment",
-     *   description="Makes a card transaction.",
-     *   https="true",
-     *   statusCodes={
-     *       201="Returned when the request was successful",
-     *   },
-     *   parameters={
-     *      {
-     *          "name"="name",
-     *          "dataType"="string",
-     *          "required"="true",
-     *          "description"="Credit Card Name."
-     *      },
-     *      {
-     *          "name"="country",
-     *          "dataType"="string",
-     *          "required"="true",
-     *          "description"="Payer Country."
-     *      },
-     *      {
-     *          "name"="reference_code",
-     *          "dataType"="string",
-     *          "required"="true",
-     *          "description"="Reference payment code."
-     *      },
-     *      {
-     *          "name"="currency",
-     *          "dataType"="string",
-     *          "required"="true",
-     *          "description"="Currency ISO...."
-     *      },
-     *      {
-     *          "name"="description",
-     *          "dataType"="string",
-     *          "required"="true",
-     *          "format"="HH:mm:ss",
-     *          "description"="Transaction description."
-     *      },
-     *      {
-     *          "name"="amount",
-     *          "dataType"="string",
-     *          "required"="true",
-     *          "description"="Transaction amount. Eg: 100.00 = 10000"
-     *      },
-     *      {
-     *          "name"="card_number",
-     *          "dataType"="string",
-     *          "required"="true",
-     *          "description"="Credit card number."
-     *      },
-     *      {
-     *          "name"="expiration_date",
-     *          "dataType"="string",
-     *          "required"="true",
-     *          "format"="YYYY/MM",
-     *          "description"="Expiration date for the credit card. Ex: 2015/01"
-     *      },
-     *      {
-     *          "name"="without_cvv2",
-     *          "dataType"="boolean",
-     *          "required"="true",
-     *          "description"="true if cvv is not needed or false if it's needed"
-     *      },
-     *      {
-     *          "name"="cvv",
-     *          "dataType"="string",
-     *          "required"="true",
-     *          "description"="3 digits at the back of the credit card"
-     *      },
-     *      {
-     *          "name"="pay_method",
-     *          "dataType"="string",
-     *          "required"="true",
-     *          "description"="Payment method as MASTERCARD,VISA..."
-     *      },
-     *      {
-     *          "name"="tax_base",
-     *          "dataType"="string",
-     *          "required"="true",
-     *          "description"="Pretax Base."
-     *      },
-     *      {
-     *          "name"="tax_value",
-     *          "dataType"="string",
-     *          "required"="true",
-     *          "description"="Tax value. Ex: 16.00"
-     *      }
-     *   }
-     * )
-     *
-     */
-
     public function transaction(Request $request){
 
         //Obtenemos el id de usuario para añadirlo a cada referencia única
@@ -240,70 +144,7 @@ class ServicesPayuPaymentController extends FosRestController
 
     }
 
-    /**
-     * This method allows client to do a cash payment.
-     *
-     * @ApiDoc(
-     *   section="PayU Payment",
-     *   description="Makes a cash transaction.",
-     *   https="true",
-     *   statusCodes={
-     *       201="Returned when the request was successful",
-     *   },
-     *   parameters={
-     *      {
-     *          "name"="name",
-     *          "dataType"="string",
-     *          "required"="true",
-     *          "description"="Customer Name."
-     *      },
-     *      {
-     *          "name"="country",
-     *          "dataType"="string",
-     *          "required"="true",
-     *          "description"="Payer Country."
-     *      },
-     *      {
-     *          "name"="reference_code",
-     *          "dataType"="string",
-     *          "required"="true",
-     *          "description"="Reference payment code."
-     *      },
-     *      {
-     *          "name"="currency",
-     *          "dataType"="string",
-     *          "required"="true",
-     *          "description"="Currency ISO...."
-     *      },
-     *      {
-     *          "name"="description",
-     *          "dataType"="string",
-     *          "required"="true",
-     *          "format"="HH:mm:ss",
-     *          "description"="Transaction description."
-     *      },
-     *      {
-     *          "name"="amount",
-     *          "dataType"="string",
-     *          "required"="true",
-     *          "description"="Transaction amount. Eg: 100.00 = 10000."
-     *      },
-     *      {
-     *          "name"="pay_method",
-     *          "dataType"="string",
-     *          "required"="true",
-     *          "description"="Payment method as OXXO"
-     *      },
-     *      {
-     *          "name"="payer_dni",
-     *          "dataType"="string",
-     *          "required"="true",
-     *          "description"="Customer Dni."
-     *      }
-     *   }
-     * )
-     *
-     */
+
 
     public function cash(Request $request){
 
@@ -424,34 +265,6 @@ class ServicesPayuPaymentController extends FosRestController
         return $this->cash($request);
     }
 
-    /**
-     * This method allows client consult status payment
-     *
-     * @ApiDoc(
-     *   section="PayU Payment",
-     *   description="Returns information about the payment.",
-     *   https="true",
-     *   statusCodes={
-     *       201="Returned when the request was successful",
-     *   },
-     *   parameters={
-     *      {
-     *          "name"="report_type",
-     *          "dataType"="string",
-     *          "required"="true",
-     *          "description"="Report_type can be order,ref or trans."
-     *      },
-     *      {
-     *          "name"="reference_code",
-     *          "dataType"="string",
-     *          "required"="true",
-     *          "description"="Code to report. (order_id,reference_code,transaction_id"
-     *      }
-     *   }
-     * )
-     *
-     * @Rest\View(statusCode=201)
-     */
 
 
     //TODO:esto esta mal

@@ -14,72 +14,6 @@ use Telepay\FinancialApiBundle\Document\Transaction;
 class ServicesToditocashPayservicesController extends FosRestController
 {
 
-    /**
-     * This method allows client to pay services with his own code.
-     *
-     * @ApiDoc(
-     *   section="Todito Cash",
-     *   description="Makes a credit card payment",
-     *   https="true",
-     *   statusCodes={
-     *       201="Returned when the request was successful",
-     *   },
-     *   parameters={
-     *      {
-     *          "name"="transaction_id",
-     *          "dataType"="string",
-     *          "required"="true",
-     *          "description"="Unique transaction id"
-     *      },
-     *      {
-     *          "name"="date",
-     *          "dataType"="string",
-     *          "required"="true",
-     *          "format"="YYYY-MM-DD",
-     *          "description"="Transaction date."
-     *      },
-     *      {
-     *          "name"="hour",
-     *          "dataType"="string",
-     *          "required"="true",
-     *          "format"="HH:MM:SS",
-     *          "description"="Transaction hour."
-     *      },
-     *      {
-     *          "name"="card_number",
-     *          "dataType"="string",
-     *          "required"="true",
-     *          "description"="Card Number"
-     *      },
-     *      {
-     *          "name"="nip",
-     *          "dataType"="string",
-     *          "required"="true",
-     *          "description"="nip->Personal number."
-     *      },
-     *      {
-     *          "name"="amount",
-     *          "dataType"="string",
-     *          "required"="true",
-     *          "description"="Transaction amount in cents. Eg: 100.00 = 10000."
-     *      },
-     *      {
-     *          "name"="concept",
-     *          "dataType"="string",
-     *          "required"="false",
-     *          "description"="Transaction description."
-     *      },
-     *      {
-     *          "name"="currency",
-     *          "dataType"="string",
-     *          "required"="true",
-     *          "description"="ISO-4217. f.e->MXN."
-     *      }
-     *   }
-     * )
-     *
-     */
-
     public function request(Request $request){
 
         //Obtenemos el id de usuario para añadirlo a cada referencia única
@@ -199,61 +133,6 @@ class ServicesToditocashPayservicesController extends FosRestController
         return $this->request($request);
 
     }
-
-    /**
-     * This method allows client to know the payment status.
-     *
-     * @ApiDoc(
-     *   section="Todito Cash",
-     *   description="Returns status for a payment",
-     *   https="true",
-     *   statusCodes={
-     *       201="Returned when the request was successful",
-     *   },
-     *   parameters={
-     *      {
-     *          "name"="transaction_id",
-     *          "dataType"="int",
-     *          "required"="true",
-     *          "description"="Unique transaction id"
-     *      },
-     *      {
-     *          "name"="tc_number_transaction",
-     *          "dataType"="int",
-     *          "required"="true",
-     *          "description"="TC Transaction number"
-     *      },
-     *      {
-     *          "name"="date",
-     *          "dataType"="string",
-     *          "required"="true",
-     *          "format"="YYYY-MM-DD",
-     *          "description"="Transaction date."
-     *      },
-     *      {
-     *          "name"="hour",
-     *          "dataType"="string",
-     *          "required"="true",
-     *          "format"="HH:MM:SS",
-     *          "description"="Transaction hour."
-     *      },
-     *      {
-     *          "name"="card_number",
-     *          "dataType"="string",
-     *          "required"="true",
-     *          "description"="Card Number"
-     *      },
-     *      {
-     *          "name"="amount",
-     *          "dataType"="int",
-     *          "required"="true",
-     *          "description"="Transaction amount."
-     *      }
-     *   }
-     * )
-     *
-     */
-
 
     //TODO: esto esta mal
     public function reverso(Request $request){

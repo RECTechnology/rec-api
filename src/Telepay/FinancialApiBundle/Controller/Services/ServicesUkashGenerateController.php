@@ -19,46 +19,6 @@ use Telepay\FinancialApiBundle\Document\Transaction;
 class ServicesUkashGenerateController extends FosRestController
 {
 
-    /**
-     * This method returns an Ukash code.
-     *
-     * @ApiDoc(
-     *   section="Ukash",
-     *   description="Generate an Ukash.",
-     *   https="true",
-     *   statusCodes={
-     *       201="Returned when the request was successful",
-     *   },
-     *   parameters={
-     *      {
-     *          "name"="merchant_id",
-     *          "dataType"="string",
-     *          "required"="true",
-     *          "description"="Merchant Id"
-     *      },
-     *      {
-     *          "name"="currency",
-     *          "dataType"="string",
-     *          "required"="true",
-     *          "description"="CUrrency. e.g:MXN"
-     *      },
-     *      {
-     *          "name"="transaction_id",
-     *          "dataType"="string",
-     *          "required"="true",
-     *          "description"="Unique transaction id"
-     *      },
-     *      {
-     *          "name"="amount",
-     *          "dataType"="string",
-     *          "required"="true",
-     *          "description"="Shopping amount in cents"
-     *      }
-     *   }
-     * )
-     *
-     */
-
     public function request(Request $request){
 
         //Obtenemos el id de usuario para añadirlo a cada referencia única
@@ -191,58 +151,6 @@ class ServicesUkashGenerateController extends FosRestController
         $request->request->set('mode','T');
         return $this->request($request);
     }
-
-    /**
-     * This method allows to expend ukash voucher's.
-     *
-     * @ApiDoc(
-     *   section="Ukash",
-     *   description="Allows payment with Ukash",
-     *   https="true",
-     *   statusCodes={
-     *       201="Returned when the request was successful",
-     *   },
-     *   parameters={
-     *      {
-     *          "name"="merchant_id",
-     *          "dataType"="string",
-     *          "required"="true",
-     *          "description"="Merchant Id"
-     *      },
-     *      {
-     *          "name"="currency",
-     *          "dataType"="string",
-     *          "required"="true",
-     *          "description"="This parameter is always MXN"
-     *      },
-     *      {
-     *          "name"="transaction_id",
-     *          "dataType"="string",
-     *          "required"="true",
-     *          "description"="Unique transaction id"
-     *      },
-     *      {
-     *          "name"="voucher_value",
-     *          "dataType"="string",
-     *          "required"="true",
-     *          "description"="Ukash voucher value"
-     *      },
-     *      {
-     *          "name"="voucher_number",
-     *          "dataType"="string",
-     *          "required"="true",
-     *          "description"="Ukash voucher number. 19 digits."
-     *      },
-     *      {
-     *          "name"="transaction_amount",
-     *          "dataType"="string",
-     *          "required"="true",
-     *          "description"="Purchase amount"
-     *      }
-     *   }
-     * )
-     *
-     */
 
     public function redemption(Request $request){
 
@@ -397,53 +305,6 @@ class ServicesUkashGenerateController extends FosRestController
         $request->request->set('mode','T');
         return $this->redemption($request);
     }
-
-    /**
-     * This method allows to know the ukash redemption status.
-     *
-     * @ApiDoc(
-     *   section="Ukash",
-     *   description="Returns Ukash redemption status",
-     *   https="true",
-     *   statusCodes={
-     *       201="Returned when the request was successful",
-     *   },
-     *   parameters={
-     *      {
-     *          "name"="transaction_id",
-     *          "dataType"="string",
-     *          "required"="true",
-     *          "description"="Unique transaction id"
-     *      },
-     *      {
-     *          "name"="currency",
-     *          "dataType"="string",
-     *          "required"="true",
-     *          "description"="This parameter is always MXN"
-     *      },
-     *
-     *      {
-     *          "name"="voucher_value",
-     *          "dataType"="string",
-     *          "required"="true",
-     *          "description"="Ukash voucher value"
-     *      },
-     *      {
-     *          "name"="voucher_number",
-     *          "dataType"="string",
-     *          "required"="true",
-     *          "description"="Ukash voucher number. 19 digits."
-     *      },
-     *      {
-     *          "name"="transaction_amount",
-     *          "dataType"="string",
-     *          "required"="true",
-     *          "description"="Purchase amount"
-     *      }
-     *   }
-     * )
-     *
-     */
 
     //TODO: esta mal
     public function status(Request $request){
