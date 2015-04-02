@@ -3,7 +3,9 @@ security:
         FOS\UserBundle\Model\UserInterface: sha512
 
     role_hierarchy:
-        ROLE_ADMIN:           ROLE_USER
+        ROLE_COMMERCE:        ROLE_USER
+        ROLE_INTEGRATOR:      ROLE_COMMERCE
+        ROLE_ADMIN:           ROLE_INTEGRATOR
         ROLE_SUPER_ADMIN:     ROLE_ADMIN
 
     providers:
@@ -48,8 +50,8 @@ security:
     access_control:
         - { path: ^/admin/v[0-9]+/*, role: ROLE_SUPER_ADMIN }
         - { path: ^/manager/v[0-9]+/*, role: ROLE_ADMIN }
-        - { path: ^/user/v[0-9]+/*, role: ROLE_USER }
-        - { path: ^/services/v[0-9]+/*, role: ROLE_USER }
+        - { path: ^/services/v[0-9]+/*, role: ROLE_INTEGRATOR }
         - { path: ^/pos/v[0-9]+/*, role: ROLE_COMMERCE }
+        - { path: ^/user/v[0-9]+/*, role: ROLE_USER }
 
 
