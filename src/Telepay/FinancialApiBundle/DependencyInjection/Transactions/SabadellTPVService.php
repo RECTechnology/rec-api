@@ -47,10 +47,15 @@ class SabadellTPVService extends BaseService{
         if($sabadell === false)
             throw new HttpException(503, "Service temporarily unavailable, please try again in a few minutes");
 
+        $timestamp=new \DateTime();
+        $timestamp=$timestamp->getTimestamp();
+        $trans_id=$timestamp;
+
         $important_data=array(
             'url_base'  =>  $url_base,
             'url_final' =>  $url_final,
-            'contador'  =>  0
+            'contador'  =>  0,
+            'transaction_id'    =>  $trans_id
         );
 
         $baseTransaction->setData($important_data);
@@ -75,13 +80,8 @@ class SabadellTPVService extends BaseService{
         $url_final=$important_data['url_final'];
         $url_ok=$datos['Ds_Merchant_UrlOK'];
         $url_ko=$datos['Ds_Merchant_UrlKO'];
-        //TODO hay que ir cambiiando el id para que no falle la tpv
-        //el id no puede ser de mas de 12 caracteres
-        $contador=$important_data['contador'];
-        $timestamp=new \DateTime();
-        $timestamp=$timestamp->getTimestamp();
-        $trans_id=$timestamp.'-'.$contador;
-        $important_data['contador']=$contador+1;
+        $trans_id=$important_data['transaction_id'].$important_data['contador'];
+        $important_data['contador']=$important_data['contador']+1;
         $important_data['transaction_id']= $trans_id;
         $transaction->setData($important_data);
 
