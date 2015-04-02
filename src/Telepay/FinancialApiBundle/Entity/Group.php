@@ -12,9 +12,13 @@ use Doctrine\Common\Collections\ArrayCollection;
 use FOS\UserBundle\Model\Group as BaseGroup;
 use Doctrine\ORM\Mapping as ORM;
 
+use JMS\Serializer\Annotation\ExclusionPolicy;
+use JMS\Serializer\Annotation\Exclude;
+
 /**
  * @ORM\Entity
  * @ORM\Table(name="fos_group")
+ * @ExclusionPolicy("none")
  */
 class Group extends BaseGroup
 {
@@ -32,6 +36,7 @@ class Group extends BaseGroup
 
     /**
      * @ORM\ManyToMany(targetEntity="Telepay\FinancialApiBundle\Entity\User", mappedBy="groups")
+     * @Exclude
      */
     protected $users;
 
