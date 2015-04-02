@@ -7,7 +7,5 @@ FOS\UserBundle\Model\User:
             expose: true
         roles:
             expose: true
-        groups:
-            expose: true
         email:
             expose: true
