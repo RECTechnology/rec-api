@@ -46,15 +46,44 @@ class SabadellTPVService extends BaseService{
         if($sabadell === false)
             throw new HttpException(503, "Service temporarily unavailable, please try again in a few minutes");
 
-        $baseTransaction->setData($sabadell);
+        $important_data=array(
+            'url_base'  =>  $url_base,
+            'url_final' =>  $url_final,
+            'contador'  =>  0
+        );
+
+        $baseTransaction->setData($important_data);
+        $sabadell['id_telepay']=$id;
         $baseTransaction->setDataOut($sabadell);
 
         return $baseTransaction;
 
     }
 
+    //Regenera la tpv con los mismos datos
     public function update(Transaction $transaction, $data){
 
+        // pillar la id
+        $id=$transaction->getId();
+        $datos=$transaction->getDataOut();
+        $datos_in=$transaction->getDataIn();
+        $important_data=$transaction->getData();
+        $amount=$datos['Ds_Merchant_Amount'];
+        $description=$datos_in['description'];
+        $url_base=$important_data['url_base'];
+        $url_final=$important_data['url_final'];
+        $url_ok=$datos['Ds_Merchant_UrlOK'];
+        $url_ko=$datos['Ds_Merchant_UrlKO'];
+        //TODO hay que ir cambiiando el id para que no falle la tpv
+        $contador=$important_data['contador'];
+        $trans_id=$id.'-'.$contador;
+        $important_data['contador']=$contador+1;
+        $transaction->setData($important_data);
+
+        $sabadell = $this->sabadellProvider->request($amount,$trans_id,$description,$url_base,$url_ok,$url_ko,$url_final);
+        $transaction->setDataOut($sabadell);
+
+        return $transaction;
     }
 
     public function check(Transaction $transaction){
@@ -66,5 +95,6 @@ class SabadellTPVService extends BaseService{
 
         return $transaction;
     }
+
 
 }

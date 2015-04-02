@@ -7,6 +7,7 @@
  */
 namespace Telepay\FinancialApiBundle\Controller\Services;
 
+use Symfony\Component\Config\Definition\Exception\Exception;
 use Symfony\Component\HttpFoundation\Request;
 use Telepay\FinancialApiBundle\Response\ApiResponseBuilder;
 use FOS\RestBundle\Controller\FOSRestController;
@@ -137,47 +138,27 @@ class ServicesSabadellTPVController extends FosRestController
         $transArray = [];
         foreach($query->toArray() as $transaction){
             $transArray []= $transaction;
-            //die(print_r($transaction,true));
         }
 
         //RECUPERAMOS TODOS LOS PARAMETROS Y VOLVEMOS A MONTAR LA TPV PARA PODER CAMBIAR EL TRANSACTION ID Y VOLVER A CALCULAR AL FIRMA Y TO DO
 
-        $tpv_data=$transArray[0]->getSentData();
 
-        $tpv_data=json_decode(($tpv_data));
+        $tpv_data=$transArray[0]->getDataOut();
+        $tpv_data_in=$transArray[0]->getDataIn();
 
-        $tpv_data=get_object_vars($tpv_data);
-
-        $mode='P';
-
-        if($mode==true){
-            $mode='P';
-        }else{
-            $mode='T';
-        }
-
-        $amount=$tpv_data['amount'];
-        $tpv_data['transaction_id']=$tpv_data['transaction_id']+1;
+        $amount=$tpv_data['Ds_Merchant_Amount'];
+        $tpv_data['transaction_id']=$tpv_data['Ds_Merchant_Order']+1;
         $transaction_id=$tpv_data['transaction_id'];
-        $description=$tpv_data['description'];
-        $url_ok=$tpv_data['url_ok'];
-        $url_ko=$tpv_data['url_ko'];
+        $description=$tpv_data_in['description'];
+        $url_ok=$tpv_data['Ds_Merchant_UrlOK'];
+        $url_ko=$tpv_data['Ds_Merchant_UrlKO'];
 
         $url_base=$request->getSchemeAndHttpHost().$request->getBaseUrl();
 
-        //Check if it's a Test or Production transaction
-        if($mode=='T'){
-            $url_notification=$url_base.'/test/notifications/v1/sabadell/'.$id;
-            //Constructor in Test mode
-            $datos=$this->get('sabadell.service')->getSabadellTest($amount,$transaction_id,$description,$url_notification,$url_ok,$url_ko)-> request();
-        }elseif($mode=='P'){
-            $url_notification=$url_base.'/notifications/v1/sabadell/'.$id;
-            //Constructor in Production mode
-            $datos=$this->get('sabadell.service')->getSabadell($amount,$transaction_id,$description,$url_notification,$url_ok,$url_ko)->request();
-        }else{
-            //If is not one of the first shows an error message.
-            throw new HttpException(400,'Wrong require->Test with T or P');
-        }
+        $url_notification=$url_base.'/notifications/v1/sabadell/'.$id;
+        //Constructor in Production mode
+        $datos=$this->get('net.telepay.provider.sabadell')->request($amount,$transaction_id,$description,$url_notification,$url_ok,$url_ko);
+
 
         $trans=$transArray[0];
         $trans->setSentData(json_encode($tpv_data));

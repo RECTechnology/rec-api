@@ -300,6 +300,23 @@ class IncomingController extends RestApiController{
         if (false === $this->get('security.authorization_checker')->isGranted($service->getRole())) {
             throw $this->createAccessDeniedException();
         }
+
+        $data=$request->request->all();
+
+        $transaction =$service
+            ->getTransactionContext()
+            ->getODM()
+            ->getRepository('TelepayFinancialApiBundle:Transaction')
+            ->find($id);
+
+        if(!$transaction) throw new HttpException(404, 'Transaction not found');
+
+        if($transaction->getService() != $service->getCname()) throw new HttpException(404, 'Transaction not found');
+        $transaction = $service->update($transaction,$data);
+        $mongo = $this->get('doctrine_mongodb')->getManager();
+        $mongo->persist($transaction);
+        $mongo->flush();
+        return $this->restTransaction($transaction, "Got ok");
     }
 
     /**
