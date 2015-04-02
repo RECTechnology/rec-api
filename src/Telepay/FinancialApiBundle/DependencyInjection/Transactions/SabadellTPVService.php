@@ -9,6 +9,7 @@
 namespace Telepay\FinancialApiBundle\DependencyInjection\Transactions;
 
 use Symfony\Component\HttpKernel\Exception\HttpException;
+use Symfony\Component\Validator\Constraints\DateTime;
 use Telepay\FinancialApiBundle\DependencyInjection\Transactions\Libs\SabadellService;
 use Telepay\FinancialApiBundle\DependencyInjection\Transactions\Core\BaseService;
 use Telepay\FinancialApiBundle\Document\Transaction;
@@ -75,9 +76,13 @@ class SabadellTPVService extends BaseService{
         $url_ok=$datos['Ds_Merchant_UrlOK'];
         $url_ko=$datos['Ds_Merchant_UrlKO'];
         //TODO hay que ir cambiiando el id para que no falle la tpv
+        //el id no puede ser de mas de 12 caracteres
         $contador=$important_data['contador'];
-        $trans_id=$id.'-'.$contador;
+        $timestamp=new \DateTime();
+        $timestamp=$timestamp->getTimestamp();
+        $trans_id=$timestamp.'-'.$contador;
         $important_data['contador']=$contador+1;
+        $important_data['transaction_id']= $trans_id;
         $transaction->setData($important_data);
 
         $sabadell = $this->sabadellProvider->request($amount,$trans_id,$description,$url_base,$url_ok,$url_ko,$url_final);
