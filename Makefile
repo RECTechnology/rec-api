@@ -16,8 +16,8 @@ doc: clean-doc doc-api
 doc-api:
 	cd doc && apidoc -i public -o ../build/doc/public
 	cd doc && apidoc -i private -o ../build/doc/private
-	cp web/favicon.ico build/doc/public/img
-	cp web/favicon.ico build/doc/private/img
+	cp doc/web/favicon.ico build/doc/public/img
+	cp doc/web/favicon.ico build/doc/private/img
 	cp doc/private/.htaccess build/doc/private
 
 clean-doc:
