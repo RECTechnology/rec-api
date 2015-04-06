@@ -3,8 +3,8 @@
   "version": "0.1.0",
   "description": "Documentation for Telepay API",
   "title": "REST API - Telepay",
-  "url" : "https://pre-api.telepay.net",
-  "sampleUrl" : "https://pre-api.telepay.net/test",
+  "url" : "https://api.telepay.net",
+  "sampleUrl" : "https://api.telepay.net/test",
   "header": {
     "title": "Telepay API",
     "filename": "header.md"
@@ -24,14 +24,8 @@
     "PagoFacil",
     "ToditoCash",
     "HalcashSend",
-    "HalcashPay",
+    "HalcashPay"
 
-    "ReadClients",
-    "ReadClient",
-    "UpdateClient",
-    "DeleteClient",
-
-    "ReadUsers"
   ],
   "template": {
     "withCompare": true,
