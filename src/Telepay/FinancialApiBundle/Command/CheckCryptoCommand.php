@@ -117,7 +117,12 @@ class CheckCryptoCommand extends ContainerAwareCommand
 
         $address = $currentData['address'];
         $amount = $currentData['amount'];
-        $allReceived = $this->getContainer()->get('net.telepay.provider.fac')->listreceivedbyaddress(0, true);
+        if($transaction->getCurrency()=='BTC'){
+            $allReceived = $this->getContainer()->get('net.telepay.provider.btc')->listreceivedbyaddress(0, true);
+        }else{
+            $allReceived = $this->getContainer()->get('net.telepay.provider.fac')->listreceivedbyaddress(0, true);
+        }
+
         foreach($allReceived as $cryptoData){
             if($cryptoData['address'] == $address && doubleval($cryptoData['amount'])*1e8 >= $amount){
                 $currentData['received'] = doubleval($cryptoData['amount'])*1e8;
