@@ -49,20 +49,22 @@ class HalcashSp extends BaseService{
         if($hal === false)
             throw new HttpException(503, "Service temporarily unavailable, please try again in a few minutes");
 
+        $baseTransaction->setData($hal);
+        $baseTransaction->setDataOut($hal);
+
         switch($hal['errorcode']){
             case 0:
                 $baseTransaction->setStatus('success');
                 break;
             case 44:
+                $baseTransaction->setStatus('failed');
                 throw new HttpException(502,'Invalid credentials');
                 break;
             case 99:
+                $baseTransaction->setStatus('failed');
                 throw new HttpException(503,'No founds');
                 break;
         }
-
-        $baseTransaction->setData($hal);
-        $baseTransaction->setDataOut($hal);
 
         return $baseTransaction;
 
