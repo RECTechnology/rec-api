@@ -15,7 +15,7 @@
   "order": [
     "OAuthToken",
     "TestOAuth2",
-    "TestSignedRequest",
+    "EchoSignedRequest",
 
     "ReadClients",
     "ReadClient",

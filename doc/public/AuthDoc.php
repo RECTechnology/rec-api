@@ -127,27 +127,40 @@
  */
 
 
+
 /**
- * @apiDefine SampleResponse
+ * @apiDefine EchoResponse
  * @apiParam {String} param Sample parameter
- * @apiSuccess {String} param The sent parameter
- * @apiSuccess {Object} server_time The server time
- * @apiSuccess {Integer} server_time.secs The server time seconds
- * @apiSuccess {Integer} server_time.usec The server time time part micro seconds
+ * @apiParam {Float} amount Sample amount
+ * @apiParam {String} currency Sample currency
+ * @apiSuccess {String} status The resulting status of the transaction
+ * @apiSuccess {String} message A explanation message of the succeeded
+ * @apiSuccess {String} id The ID of the transaction
+ * @apiSuccess {Integer} amount The sent amount represented in the minimum division
+ * @apiSuccess {Integer} scale The number of decimal digits in the amount
+ * @apiSuccess {String} currency The sent currency
+ * @apiSuccess {Object} data The additional data of the transaction
+ * @apiSuccess {String} data.param The sent param
+ * @apiSuccess {Object} data.server_time The server time
+ * @apiSuccess {Integer} data.server_time.secs The server time seconds
+ * @apiSuccess {Integer} data.server_time.usec The server time time part micro seconds
  *
  */
 
-
 /**
  *
- * @apiDefine SampleResponseExample
+ * @apiDefine EchoResponseExample
  * @apiSuccessExample {json} Success
  * HTTP/1.1 200 OK
  * {
- *   "code": 200,
- *   "message": "Successful",
+ *   "status": "ok",
+ *   "message": "Echo successful",
+ *   "id": "7db2fa72a2229732e1",
+ *   "amount": 2303,
+ *   "scale": 2,
+ *   "currency": "USD",
  *   "data": {
- *       "param": "hello, this is a testing parameter",
+ *       "param": "hello, this is the sent param",
  *       "server_time": {
  *           "sec": 1425605649,
  *           "usec": 27000
@@ -163,7 +176,7 @@
  * @apiErrorExample {json} Unauthorized
  * HTTP/1.1 401 Unauthorized
  * {
- *     "code": 401,
+ *     "status": "error",
  *     "message": "You are not authenticated"
  * }
  *
@@ -181,15 +194,16 @@
 
 
 /**
- * @api {post} /services/v1/sample Sample OAuth 2.0
+ * @api {post} /services/v1/echo Sample OAuth 2.0
  * @apiName TestOAuth2
- * @apiDescription This is a sample service for make tests with the different auhentication methods, this creates a
- * transaction to the sample service the OAuth2 <code>access_token</code> (obtained in
+ * @apiDescription The Echo service is a sample service that replies your request,
+ * it's designed to make tests with the different auhentication methods, this example creates a
+ * transaction to the echo service with the OAuth2 <code>access_token</code> (obtained in
  * <a href="#api-Authentication-OAuthToken">Create access_token</a> section).
  * @apiVersion 0.1.0
  * @apiGroup Authentication
- * @apiUse SampleResponse
- * @apiUse SampleResponseExample
+ * @apiUse EchoResponse
+ * @apiUse EchoResponseExample
  * @apiUse NotAuthenticated
  * @apiUse OAuth2Header
  *
@@ -198,15 +212,15 @@
 
 
 /**
- * @api {post} /services/v1/sample Sample signature
- * @apiName TestSignedRequest
- * @apiDescription Creates a transaction to the sample service with tie signed request, this authentication schema
+ * @api {post} /services/v1/echo Sample signature
+ * @apiName EchoSignedRequest
+ * @apiDescription Creates a transaction to the echo service with the signed request, this authentication schema
  * allows to make a single call (OAuth 2.0 needs user interaction and needs two calls) is used by all the Telepay
  * SDKs and should be used for <a href="http://en.wikipedia.org/wiki/Machine_to_machine">machine-to-machine</a>
  * interaction.
  * @apiVersion 0.1.1
  * @apiGroup Authentication
- * @apiUse SampleResponse
+ * @apiUse EchoResponse
  * @apiUse BadSignature
  * @apiUse SignatureHeader
  *
