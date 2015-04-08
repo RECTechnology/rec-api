@@ -20,12 +20,13 @@ class LimitChecker {
      * @return bool
      */
     public function leq(Limit $status, Limit $configured){
+
         return
-            $status->getSingle() <= $configured->getSingle() and
-            $status->getDay() <= $configured->getDay() and
-            $status->getWeek() <= $configured->getWeek() and
-            $status->getMonth() <= $configured->getMonth() and
-            $status->getYear() <= $configured->getYear() and
-            $status->getTotal() <= $configured->getTotal();
+            ($configured->getSingle()<0 or $status->getSingle() <= $configured->getSingle()) and
+            ($status->getDay()<0 or  $status->getDay() <= $configured->getDay()) and
+            ($status->getWeek()<0 or $status->getWeek() <= $configured->getWeek()) and
+            ($status->getMonth()<0 or $status->getMonth() <= $configured->getMonth()) and
+            ($status->getYear()<0 or $status->getYear() <= $configured->getYear()) and
+            ($status->getTotal()<0 or $status->getTotal() <= $configured->getTotal());
     }
 }
