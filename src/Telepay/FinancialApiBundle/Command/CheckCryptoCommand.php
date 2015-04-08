@@ -89,6 +89,7 @@ class CheckCryptoCommand extends ContainerAwareCommand
                             $feeTransaction->setIp($check->getIp());
                             $feeTransaction->setFixedFee($fixed_fee);
                             $feeTransaction->setVariableFee($variable_fee);
+                            $feeTransaction->setVersion($check->getVersion());
                             $feeTransaction->setDataIn(array(
                                 'previous_transaction'  =>  $check->getId(),
                                 'amount'    =>  -$total_fee
