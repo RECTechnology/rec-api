@@ -212,10 +212,37 @@ class IncomingController extends RestApiController{
             //si la transaccion se finaliza se suma al wallet i se reparten las comisiones
             if($transaction->getStatus() === Transaction::$STATUS_SUCCESS){
 
-                //sumar al usuario el amount
+                //restar al usuario el amount + comisiones
                 $current_wallet->setBalance($current_wallet->getBalance()-$total);
                 $em->persist($current_wallet);
                 $em->flush();
+
+                //todo nueva transaccion restando la comision al user
+                $feeTransaction=new Transaction();
+                $feeTransaction->setStatus('success');
+                $feeTransaction->setScale($scale);
+                $feeTransaction->setAmount($total_fee*-1);
+                $feeTransaction->setUser($user);
+                $feeTransaction->setCreated(new \MongoDate());
+                $feeTransaction->setTimeOut(new \MongoDate());
+                $feeTransaction->setTimeIn(new \MongoDate());
+                $feeTransaction->setUpdated(new \MongoDate());
+                $feeTransaction->setIp($transaction->getIp());
+                $feeTransaction->setFixedFee($fixed_fee);
+                $feeTransaction->setVariableFee($variable_fee);
+                $feeTransaction->setDataIn(array(
+                    'previous_transaction'  =>  $transaction->getId()
+                ));
+                $feeTransaction->setDebugData(array(
+                    'previous_balance'  =>  $current_wallet->getBalance(),
+                    'previous_transaction'  =>  $transaction->getId()
+                ));
+                $feeTransaction->setTotal($total_fee*-1);
+                $feeTransaction->setCurrency($transaction->getCurrency());
+                $feeTransaction->setService($service_cname);
+
+                $dm->persist($transaction);
+                $dm->flush();
 
                 //empezamos el reparto
                 $creator=$group->getCreator();
@@ -262,11 +289,38 @@ class IncomingController extends RestApiController{
             //si la transaccion se finaliza se suma al wallet i se reparten las comisiones
             if($transaction->getStatus() === Transaction::$STATUS_SUCCESS){
 
-                //sumar al usuario el amount
+                //sumar al usuario el amount completo
                 $current_wallet->setAvailable($current_wallet->getAvailable()+$total);
                 $current_wallet->setBalance($current_wallet->getBalance()+$total);
                 $em->persist($current_wallet);
                 $em->flush();
+
+                //todo nueva transaccion restando la comision al user
+                $feeTransaction=new Transaction();
+                $feeTransaction->setStatus('success');
+                $feeTransaction->setScale($scale);
+                $feeTransaction->setAmount($total_fee*-1);
+                $feeTransaction->setUser($user);
+                $feeTransaction->setCreated(new \MongoDate());
+                $feeTransaction->setTimeOut(new \MongoDate());
+                $feeTransaction->setTimeIn(new \MongoDate());
+                $feeTransaction->setUpdated(new \MongoDate());
+                $feeTransaction->setIp($transaction->getIp());
+                $feeTransaction->setFixedFee($fixed_fee);
+                $feeTransaction->setVariableFee($variable_fee);
+                $feeTransaction->setDataIn(array(
+                    'previous_transaction'  =>  $transaction->getId()
+                ));
+                $feeTransaction->setDebugData(array(
+                    'previous_balance'  =>  $current_wallet->getBalance(),
+                    'previous_transaction'  =>  $transaction->getId()
+                ));
+                $feeTransaction->setTotal($total_fee*-1);
+                $feeTransaction->setCurrency($transaction->getCurrency());
+                $feeTransaction->setService($service_cname);
+
+                $dm->persist($transaction);
+                $dm->flush();
 
                 //empezamos el reparto
                 $creator=$group->getCreator();
@@ -277,10 +331,7 @@ class IncomingController extends RestApiController{
                 $dealer=$this->get('net.telepay.commons.fee_deal');
                 $dealer->deal($creator,$amount,$service_cname,$service_currency,$total_fee,$transaction_id);
 
-                //$this->cashInDealer($creator,$amount,$service_cname,$service_currency);
             }
-
-
 
         }
 
