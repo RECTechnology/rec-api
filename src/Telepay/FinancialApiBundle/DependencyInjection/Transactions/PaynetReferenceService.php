@@ -51,6 +51,7 @@ class PaynetReferenceService extends BaseService{
         ));
 
         unset($barcode['id']);
+        unset($barcode['amount']);
 
         $baseTransaction->setDataOut($barcode);
 
