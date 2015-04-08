@@ -221,18 +221,22 @@
  */
 
 
+//##################################### HALCASH_SEND ###################################
+
 /**
  *
- * @api {post} /services/v3/halcash_send HalCash send
+ * @api {post} /services/v4/halcash_send HalCash send
  * @apiName HalcashSend
- * @apiDescription Sends money via HalCash to any number in Spain and Poland.
- * @apiVersion 0.3.0
+ * @apiDescription Sends money via HalCash to any number in <code>Spain</code> and <code>Poland</code>.
+ * @apiVersion 0.4.0
  * @apiGroup Services
  * @apiUse OAuth2Header
  * @apiParam {Integer} amount The desired amount in <code>EUR</code> or <code>PLN</code> <code>cents</code>
  * @apiParam {String="ES, PL"} country The withdrawal country
- * @apiParam {String} prefix="+34" The prefix of the target phone
+ * @apiParam {String} phone_prefix="+34" The prefix of the target phone
  * @apiParam {Integer} phone_number The target phone number
+ * @apiParam {Integer} pin The issuer pin (must have 4 digits)
+ * @apiParam {String} text The issuer text to include in the SMS (max length: 17 chars)
  * @apiSuccess {String} status The resulting status of the transaction
  * @apiSuccess {String} message The message about the result of the request
  * @apiSuccess {String} id The ID of the transaction
@@ -240,8 +244,8 @@
  * @apiSuccess {Integer=2} scale The number of decimals to represent the amount
  * @apiSuccess {String="EUR, PLN"} currency The currency
  * @apiSuccess {Object} data The data of the request
- * @apiSuccess {Integer} data.errorcode=0 The received halcash error
- * @apiSuccess {String} data.halcashticket The received halcash ticket
+ * @apiSuccess {Integer} data.errorcode=0 The halcash error (<code>0</code> means that all goes fine)
+ * @apiSuccess {String} data.halcashticket The halcash ticket
  * @apiUse NotAuthenticated
  *
  */

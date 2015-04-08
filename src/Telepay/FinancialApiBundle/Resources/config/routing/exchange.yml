@@ -1,0 +1,6 @@
+
+admin_clients_index:
+    pattern:  /exchange/v1/ticker/{currency}
+    defaults: { _controller: Telepay\FinancialApiBundle\Controller\Exchange\TickerController::tick }
+    requirements:
+        _method: GET

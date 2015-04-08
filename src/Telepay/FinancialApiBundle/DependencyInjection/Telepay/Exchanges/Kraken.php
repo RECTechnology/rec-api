@@ -37,23 +37,18 @@ class Kraken implements ExchangeInterface {
         $this->krakenPass = $krakenPass;
     }
 
+    public function getPrice()
+    {
+        // TODO: Implement getPrice() method.
+    }
 
-    public function getCurrencyIn()
+    public function getFirst()
     {
         return Currency::$BTC;
     }
 
-    public function getCurrencyOut()
+    public function getSecond()
     {
         return Currency::$EUR;
     }
-
-    public function getB($currencyIn){
-
-    }
-
-    public function getA($currencyIn){
-
-    }
-
 }
