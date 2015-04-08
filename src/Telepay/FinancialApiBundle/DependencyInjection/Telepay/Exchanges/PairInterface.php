@@ -2,13 +2,15 @@
 /**
  * Created by PhpStorm.
  * User: lluis
- * Date: 3/10/15
- * Time: 8:16 PM
+ * Date: 4/7/15
+ * Time: 1:54 AM
  */
-
 
 namespace Telepay\FinancialApiBundle\DependencyInjection\Telepay\Exchanges;
 
-interface ExchangeInterface extends PairInterface {
-    public function getPrice();
+
+
+interface PairInterface {
+    public function getFirst();
+    public function getSecond();
 }

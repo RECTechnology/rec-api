@@ -95,3 +95,6 @@ parameters:
     ukash_redirect_brand_id: UKASH10082
     ukash_redirect_language_code: EN
     ukash_redirect_env_url: ""
+
+    kraken_api_key: ""
+    kraken_private_key: ""

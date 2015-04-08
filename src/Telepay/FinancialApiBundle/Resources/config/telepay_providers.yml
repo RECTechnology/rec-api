@@ -1,5 +1,24 @@
 services:
 
+    kraken:
+        class: Payward\KrakenAPI
+        arguments:
+            - "%kraken_api_key%"
+            - "%kraken_private_key%"
+
+    getfaircoin:
+        class: GetFaircoin\Ticker
+
+    net.telepay.exchange.btcxeur:
+        class: Telepay\FinancialApiBundle\DependencyInjection\Telepay\Exchanges\BtcEurExchange
+        arguments:
+            - "@kraken"
+
+    net.telepay.exchange.facxeur:
+        class: Telepay\FinancialApiBundle\DependencyInjection\Telepay\Exchanges\FacEurExchange
+        arguments:
+            - "@getfaircoin"
+
     net.telepay.provider.btc:
         class: Telepay\FinancialApiBundle\DependencyInjection\Telepay\Providers\EasyBitcoin
         arguments:

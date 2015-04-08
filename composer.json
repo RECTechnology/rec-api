@@ -25,6 +25,8 @@
         "doctrine/mongodb-odm": "1.0.*@dev",
         "doctrine/mongodb-odm-bundle": "3.0.*@dev",
         "nelmio/cors-bundle": "~1.0",
+        "payward/kraken-api-client": "dev-master",
+        "rickmoreno/getfaircoin-api": "dev-master",
         "telepay/php-sdk": "dev-master"
     },
     "require-dev": {
