@@ -60,6 +60,7 @@ class FeeDeal{
         //Ahora lo añadimos al wallet correspondiente
         $wallets=$creator->getWallets();
 
+        $scale=0;
         foreach($wallets as $wallet){
 
             if($wallet->getCurrency() === $currency){
@@ -69,6 +70,8 @@ class FeeDeal{
                 $wallet->setBalance($wallet->getBalance()+$fee-$total);
                 $em->persist($wallet);
                 $em->flush();
+
+                $scale=$wallet->getScale();
                 //$dm = $this->get('doctrine_mongodb')->getManager();
                 //$em = $this->getDoctrine()->getManager();
 
@@ -80,11 +83,7 @@ class FeeDeal{
                 $transaction->setVersion(1);
                 $transaction->setAmount($fee);
                 $transaction->setDataIn(array(
-                    'user' => $creator->getId(),
-                    'amount' => doubleval($amount),
-                    'service_cname' => $service_cname,
-                    'currency' => $currency,
-                    'total_fee' => $fee
+                    'parent_id' => $transaction_id
                 ));
                 $transaction->setData(array(
                     'parent_id' => $transaction_id
@@ -95,36 +94,10 @@ class FeeDeal{
                 $transaction->setVariableFee($variable);
                 $transaction->setFixedFee($fixed);
                 $transaction->setTotal($fee);
-                $transaction->setScale($wallet->getScale());
+                $transaction->setScale($scale);
                 $dm->persist($transaction);
                 $dm->flush();
 
-                $feeTransaction = new Transaction();
-                $feeTransaction->setIp('127.0.0.1');
-                $feeTransaction->setTimeIn(new \MongoDate());
-                $feeTransaction->setUser($creator->getId());
-                $feeTransaction->setService($service_cname);
-                $feeTransaction->setVersion(1);
-                $feeTransaction->setAmount($total*-1);
-                $feeTransaction->setDataIn(array(
-                    'user' => $creator->getId(),
-                    'amount' => doubleval($amount),
-                    'service_cname' => $service_cname,
-                    'currency' => $currency,
-                    'total_fee' => $fee
-                ));
-                $feeTransaction->setData(array(
-                    'parent_id' => $transaction->getId()
-                ));
-                //incloure les fees en la transacció
-                $feeTransaction->setStatus('success');
-                $feeTransaction->setCurrency($currency);
-                $feeTransaction->setVariableFee($variable);
-                $feeTransaction->setFixedFee($fixed);
-                $feeTransaction->setTotal($total*-1);
-                $feeTransaction->setScale($wallet->getScale());
-                $dm->persist($feeTransaction);
-                $dm->flush();
 
                 $id=$transaction->getId();
 
@@ -132,6 +105,29 @@ class FeeDeal{
         }
 
         if(!$creator->hasRole('ROLE_SUPER_ADMIN')){
+
+            $feeTransaction = new Transaction();
+            $feeTransaction->setIp('127.0.0.1');
+            $feeTransaction->setTimeIn(new \MongoDate());
+            $feeTransaction->setUser($creator->getId());
+            $feeTransaction->setService($service_cname);
+            $feeTransaction->setVersion(1);
+            $feeTransaction->setAmount($total*-1);
+            $feeTransaction->setDataIn(array(
+                'parent_id' => $transaction->getId()
+            ));
+            $feeTransaction->setData(array(
+                'parent_id' => $transaction->getId()
+            ));
+            //incloure les fees en la transacció
+            $feeTransaction->setStatus('success');
+            $feeTransaction->setCurrency($currency);
+            $feeTransaction->setVariableFee($variable);
+            $feeTransaction->setFixedFee($fixed);
+            $feeTransaction->setTotal($total*-1);
+            $feeTransaction->setScale($scale);
+            $dm->persist($feeTransaction);
+            $dm->flush();
 
             $new_creator=$group->getCreator();
             $this->deal($new_creator,$amount,$service_cname,$currency,$total,$id);

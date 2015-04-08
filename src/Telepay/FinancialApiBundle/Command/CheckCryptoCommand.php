@@ -80,8 +80,8 @@ class CheckCryptoCommand extends ContainerAwareCommand
                             $feeTransaction=new Transaction();
                             $feeTransaction->setStatus('success');
                             $feeTransaction->setScale($check->getScale());
-                            $feeTransaction->setAmount($total_fee*-1);
-                            $feeTransaction->setUser($user);
+                            $feeTransaction->setAmount(-$total_fee);
+                            $feeTransaction->setUser($user->getId());
                             $feeTransaction->setCreated(new \MongoDate());
                             $feeTransaction->setTimeOut(new \MongoDate());
                             $feeTransaction->setTimeIn(new \MongoDate());
