@@ -22,10 +22,14 @@ class PublicController extends RestApiController{
     public function ticker(Request $request, $currency){
         $lowCurrency = strtolower($currency);
 
-        return $this->restV2(200, "ok", "Ticker", array(
+        return $this->restV2(200, "ok", "Ticker",$this->get('net.telepay.exchange.btcx'.$lowCurrency)->getPrice());
+
+        /*
+        array(
             Currency::$BTC.'x'.Currency::$EUR => $this->get('net.telepay.exchange.btcx'.$lowCurrency)->getPrice(),
             Currency::$FAC.'x'.Currency::$EUR => $this->get('net.telepay.exchange.facx'.$lowCurrency)->getPrice(),
         ));
+        */
     }
 
 
