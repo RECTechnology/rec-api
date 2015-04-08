@@ -45,8 +45,13 @@ class PaynetReferenceService extends BaseService{
         if($barcode === false)
             throw new HttpException(503, "Service temporarily unavailable, please try again in a few minutes");
 
-        $baseTransaction->setData(array('id_paynet'=>$id));
-        $barcode['id']=$id_telepay;
+        $baseTransaction->setData(array(
+            'receivedData'  =>  $barcode,
+            'id_paynet'     =>  $id
+        ));
+
+        unset($barcode['id']);
+
         $baseTransaction->setDataOut($barcode);
 
         return $baseTransaction;

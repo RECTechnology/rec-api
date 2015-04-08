@@ -58,10 +58,8 @@ class CryptoPaymentService extends BaseService {
         ));
 
         $baseTransaction->setDataOut(array(
-            'id' => $baseTransaction->getId(),
             'address' => $address,
             'expires_in' => intval($expires_in),
-            'amount' => doubleval($amount),
             'received' => 0.0,
             'min_confirmations' => intval($confirmations),
             'confirmations' => 0,
