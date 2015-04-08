@@ -99,7 +99,7 @@ class CheckCryptoCommand extends ContainerAwareCommand
                             ));
                             $feeTransaction->setTotal($total_fee*-1);
                             $feeTransaction->setCurrency($check->getCurrency());
-                            $feeTransaction->setService($service_cname);
+                            $feeTransaction->setService($service);
 
                             $dm->persist($feeTransaction);
                             $dm->flush();
