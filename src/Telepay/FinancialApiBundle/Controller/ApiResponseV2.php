@@ -11,19 +11,11 @@ namespace Telepay\FinancialApiBundle\Controller;
 class ApiResponseV2{
     private $status;
     private $message;
-    private $id;
-    private $amount;
-    private $scale;
-    private $currency;
     private $data;
 
-    public function __construct($status, $message, $id, $amount, $scale, $currency, $data){
+    public function __construct($status, $message,  $data){
         $this->status=$status;
         $this->message=$message;
-        $this->id=$id;
-        $this->amount=$amount;
-        $this->scale=$scale;
-        $this->currency=$currency;
         $this->data=$data;
     }
 }

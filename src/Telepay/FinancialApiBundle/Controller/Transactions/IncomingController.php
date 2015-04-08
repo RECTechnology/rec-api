@@ -470,10 +470,6 @@ class IncomingController extends RestApiController{
             200,
             "ok",
             "Request successful",
-            '',
-            '',
-            '',
-            '',
             $transArray
         );
     }
@@ -499,7 +495,7 @@ class IncomingController extends RestApiController{
 
         if(!$transaction) throw new HttpException(500, "oOps, the notification failed");
 
-        return $this->restV2(200, "ok", "Notification successful","","","");
+        return $this->restV2(200, "ok", "Notification successful");
     }
 
     /**
@@ -548,10 +544,6 @@ class IncomingController extends RestApiController{
             $code,
             $transaction->getStatus(),
             $message,
-            $transaction->getId(),
-            $transaction->getAmount(),
-            $transaction->getScale(),
-            $transaction->getCurrency(),
             $transaction->dataOut()
         );
 
