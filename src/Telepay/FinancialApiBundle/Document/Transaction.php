@@ -55,6 +55,16 @@ class Transaction implements TransactionTiming {
     public static $STATUS_CANCELLED = "cancelled";
 
     /**
+     * @Exclude
+     */
+    public static $STATUS_LOCKED = "locked";
+
+    /**
+     * @Exclude
+     */
+    public static $STATUS_RETURNED = "returned";
+
+    /**
      * @var
      * @MongoDB\Date
      */
