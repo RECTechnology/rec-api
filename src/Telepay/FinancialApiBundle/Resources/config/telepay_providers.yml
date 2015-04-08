@@ -12,12 +12,12 @@ services:
     net.telepay.exchange.btcxeur:
         class: Telepay\FinancialApiBundle\DependencyInjection\Telepay\Exchanges\BtcEurExchange
         arguments:
-            - "kraken"
+            - "@kraken"
 
     net.telepay.exchange.facxeur:
         class: Telepay\FinancialApiBundle\DependencyInjection\Telepay\Exchanges\FacEurExchange
         arguments:
-            - "getfaircoin"
+            - "@getfaircoin"
 
     net.telepay.provider.btc:
         class: Telepay\FinancialApiBundle\DependencyInjection\Telepay\Providers\EasyBitcoin
