@@ -75,6 +75,33 @@ class CheckPaynetReferenceCommand extends ContainerAwareCommand
                     $em->persist($current_wallet);
                     $em->flush();
 
+                    // restar las comisiones
+                    $feeTransaction=new Transaction();
+                    $feeTransaction->setStatus('success');
+                    $feeTransaction->setScale($check->getScale());
+                    $feeTransaction->setAmount($total_fee*-1);
+                    $feeTransaction->setUser($user);
+                    $feeTransaction->setCreated(new \MongoDate());
+                    $feeTransaction->setTimeOut(new \MongoDate());
+                    $feeTransaction->setTimeIn(new \MongoDate());
+                    $feeTransaction->setUpdated(new \MongoDate());
+                    $feeTransaction->setIp($check->getIp());
+                    $feeTransaction->setFixedFee($fixed_fee);
+                    $feeTransaction->setVariableFee($variable_fee);
+                    $feeTransaction->setDataIn(array(
+                        'previous_transaction'  =>  $check->getId()
+                    ));
+                    $feeTransaction->setDebugData(array(
+                        'previous_balance'  =>  $current_wallet->getBalance(),
+                        'previous_transaction'  =>  $check->getId()
+                    ));
+                    $feeTransaction->setTotal($total_fee*-1);
+                    $feeTransaction->setCurrency($check->getCurrency());
+                    $feeTransaction->setService($service_cname);
+
+                    $dm->persist($feeTransaction);
+                    $dm->flush();
+
                     $creator=$group->getCreator();
 
                     //luego a la ruleta de admins
@@ -124,10 +151,13 @@ class CheckPaynetReferenceCommand extends ContainerAwareCommand
                 case 'Printed':
                     break;
                 case 'Reversed':
+                    $transaction->setStatus('returned');
                     break;
                 case 'Reserved':
+                    $transaction->setStatus('locked');
                     break;
                 case 'Revision':
+                    $transaction->setStatus('locked');
                     break;
             }
         }else{

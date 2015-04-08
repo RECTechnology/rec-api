@@ -295,7 +295,7 @@ class IncomingController extends RestApiController{
                 $em->persist($current_wallet);
                 $em->flush();
 
-                //todo nueva transaccion restando la comision al user
+                // nueva transaccion restando la comision al user
                 $feeTransaction=new Transaction();
                 $feeTransaction->setStatus('success');
                 $feeTransaction->setScale($scale);
