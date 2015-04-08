@@ -23,8 +23,8 @@ class PublicController extends RestApiController{
         $lowCurrency = strtolower($currency);
 
         return array(
-            Currency::$BTC.'x'.Currency::$EUR => $this->get('net.telepay.exchanges.btcx'.$lowCurrency)->getPrice(),
-            Currency::$FAC.'x'.Currency::$EUR => $this->get('net.telepay.exchanges.facx'.$lowCurrency)->getPrice(),
+            Currency::$BTC.'x'.Currency::$EUR => $this->get('net.telepay.exchange.btcx'.$lowCurrency)->getPrice(),
+            Currency::$FAC.'x'.Currency::$EUR => $this->get('net.telepay.exchange.facx'.$lowCurrency)->getPrice(),
         );
     }
 
