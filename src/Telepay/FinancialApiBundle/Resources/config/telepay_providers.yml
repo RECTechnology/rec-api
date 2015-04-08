@@ -10,12 +10,12 @@ services:
         class: GetFaircoin\Ticker
 
     net.telepay.exchange.btcxeur:
-        class: Telepay\FinancialApiBundle\DependencyInjection\Telepay\BtcEuroExchange
+        class: Telepay\FinancialApiBundle\DependencyInjection\Telepay\Exchanges\BtcEuroExchange
         arguments:
             - "kraken"
 
     net.telepay.exchange.facxeur:
-        class: Telepay\FinancialApiBundle\DependencyInjection\Telepay\FacEuroExchange
+        class: Telepay\FinancialApiBundle\DependencyInjection\Telepay\Exchanges\FacEuroExchange
         arguments:
             - "getfaircoin"
 
