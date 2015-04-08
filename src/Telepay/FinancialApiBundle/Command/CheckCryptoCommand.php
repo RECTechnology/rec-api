@@ -76,6 +76,33 @@ class CheckCryptoCommand extends ContainerAwareCommand
                             $current_wallet->setAvailable($current_wallet->getAvailable()+$total);
                             $current_wallet->setBalance($current_wallet->getBalance()+$total);
 
+                            //todo restar las comisiones
+                            $feeTransaction=new Transaction();
+                            $feeTransaction->setStatus('success');
+                            $feeTransaction->setScale($check->getScale());
+                            $feeTransaction->setAmount($total_fee*-1);
+                            $feeTransaction->setUser($user);
+                            $feeTransaction->setCreated(new \MongoDate());
+                            $feeTransaction->setTimeOut(new \MongoDate());
+                            $feeTransaction->setTimeIn(new \MongoDate());
+                            $feeTransaction->setUpdated(new \MongoDate());
+                            $feeTransaction->setIp($check->getIp());
+                            $feeTransaction->setFixedFee($fixed_fee);
+                            $feeTransaction->setVariableFee($variable_fee);
+                            $feeTransaction->setDataIn(array(
+                                'previous_transaction'  =>  $check->getId()
+                            ));
+                            $feeTransaction->setDebugData(array(
+                                'previous_balance'  =>  $current_wallet->getBalance(),
+                                'previous_transaction'  =>  $check->getId()
+                            ));
+                            $feeTransaction->setTotal($total_fee*-1);
+                            $feeTransaction->setCurrency($check->getCurrency());
+                            $feeTransaction->setService($service_cname);
+
+                            $dm->persist($feeTransaction);
+                            $dm->flush();
+
                             $em->persist($current_wallet);
                             $em->flush();
 

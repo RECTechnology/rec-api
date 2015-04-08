@@ -319,7 +319,7 @@ class IncomingController extends RestApiController{
                 $feeTransaction->setCurrency($transaction->getCurrency());
                 $feeTransaction->setService($service_cname);
 
-                $dm->persist($transaction);
+                $dm->persist($feeTransaction);
                 $dm->flush();
 
                 //empezamos el reparto
