@@ -389,11 +389,18 @@ class IncomingController extends RestApiController{
 
         if(!$transaction) throw new HttpException(404, 'Transaction not found');
 
-        if($transaction->getService() != $service->getCname()) throw new HttpException(404, 'Transaction not found');
-        $transaction = $service->check($transaction);
-        $mongo = $this->get('doctrine_mongodb')->getManager();
-        $mongo->persist($transaction);
-        $mongo->flush();
+        if($transaction->getStatus()=='created' || $transaction->getStatus=='received'){
+            if($transaction->getService() != $service->getCname()) throw new HttpException(404, 'Transaction not found');
+            $transaction = $service->check($transaction);
+            $mongo = $this->get('doctrine_mongodb')->getManager();
+            $mongo->persist($transaction);
+            $mongo->flush();
+
+            if($transaction->getStatus()=='success'){
+                //todo afegir la pasta al wallet i fer el reparto
+            }
+        }
+
 
         return $this->restTransaction($transaction, "Got ok");
 
@@ -526,6 +533,8 @@ class IncomingController extends RestApiController{
             if($transaction->getStatus()=='Cancelled'){
                 $message='Cancel got ok';
                 $code=200;
+
+                //todo desbloquear la pasta del wallet
             }else{
                 $message='Not cancelled';
                 $code=409;
