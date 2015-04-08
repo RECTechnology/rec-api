@@ -13,10 +13,10 @@ use Payward\KrakenAPI;
 use Telepay\FinancialApiBundle\Financial\Currency;
 
 /**
- * Class BitcoinToEuroExchange
+ * Class BtcEurExchange
  * @package Telepay\FinancialApiBundle\DependencyInjection\Telepay\Exchanges
  */
-class BitcoinToEuroExchange implements ExchangeInterface {
+class BtcEurExchange implements ExchangeInterface {
 
     private $kraken;
 

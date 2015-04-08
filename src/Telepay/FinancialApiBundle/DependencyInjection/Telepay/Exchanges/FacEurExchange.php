@@ -10,7 +10,7 @@ namespace Telepay\FinancialApiBundle\DependencyInjection\Telepay\Exchanges;
 use GetFaircoin\Ticker;
 use Telepay\FinancialApiBundle\Financial\Currency;
 
-class FacToEuroExchange implements ExchangeInterface {
+class FacEurExchange implements ExchangeInterface {
 
     private $getFaircoinTicker;
 
