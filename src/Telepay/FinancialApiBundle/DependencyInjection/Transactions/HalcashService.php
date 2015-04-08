@@ -14,13 +14,13 @@ use Telepay\FinancialApiBundle\DependencyInjection\Transactions\Libs\HalcashServ
 use Telepay\FinancialApiBundle\Document\Transaction;
 
 
-class HalcashSp extends BaseService{
+class HalcashService extends BaseService{
 
-    private $halcashSpProvider;
+    private $halcashProvider;
 
-    public function __construct($name, $cname, $role, $cash_direction, $currency, $base64Image, $halcashSpProvider, $transactionContext){
+    public function __construct($name, $cname, $role, $cash_direction, $currency, $base64Image, $halcashProvider, $transactionContext){
         parent::__construct($name, $cname, $role, $cash_direction, $currency, $base64Image, $transactionContext);
-        $this->halcashSpProvider = $halcashSpProvider;
+        $this->halcashSpProvider = $halcashProvider;
     }
 
     public function getFields(){
@@ -44,7 +44,13 @@ class HalcashSp extends BaseService{
         if(strlen($pin)>4) throw new HttpException(400,'Pin Field must be less than 5 characters');
         $transaction_id=$baseTransaction->getId();
 
-        $hal = $this->halcashSpProvider->sendV3($phone_number,$phone_prefix,$amount,$reference,$pin,$transaction_id);
+        //Todo comprobar el pais para utilizar uno u otro
+        if($country=='ES'){
+            $hal = $this->halcashProvider->sendV3($phone_number,$phone_prefix,$amount,$reference,$pin,$transaction_id);
+        }else{
+            $hal = $this->halcashProvider->sendInternational($phone_number,$phone_prefix,$amount,$reference,$pin,$transaction_id,$country);
+        }
+
 
         if($hal === false)
             throw new HttpException(503, "Service temporarily unavailable, please try again in a few minutes");
@@ -76,7 +82,56 @@ class HalcashSp extends BaseService{
 
     public function cancel(Transaction $transaction,$data){
 
+        $ticket=$transaction->getDataOut()['halcashticket'];
 
+        $hal = $this->halcashProvider->cancelation($ticket, $data['reference']);
+
+        if($hal['errorcode']==0){
+            $transaction->setStatus('cancelled');
+        }
+
+        return $transaction;
+
+    }
+
+    public function check(Transaction $transaction){
+
+        $ticket=$transaction->getDataOut()['halcashticket'];
+
+        $hal = $this->halcashProvider->status($ticket);
+
+        if($hal['errorcode']==0){
+
+            switch($hal['estado']){
+                case 'Autorizada':
+                    $transaction->setStatus('created');
+                    break;
+                case 'Preautorizada':
+                    $transaction->setStatus('created');
+                    break;
+                case 'Anulada':
+                    $transaction->setStatus('cancelled');
+                    break;
+                case 'BloqueadaPorCaducidad':
+                    $transaction->setStatus('locked');
+                    break;
+                case 'BloqueadaPorReintentos':
+                    $transaction->setStatus('locked');
+                    break;
+                case 'Devuelta':
+                    $transaction->setStatus('returned');
+                    break;
+                case 'Dispuesta':
+                    $transaction->setStatus('consumed');
+                    break;
+                case 'EstadoDesconocido':
+                    $transaction->setStatus('unknown');
+                    break;
+            }
+
+        }
+
+        return $transaction;
 
     }
 

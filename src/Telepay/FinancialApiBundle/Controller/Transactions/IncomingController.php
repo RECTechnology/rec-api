@@ -343,7 +343,9 @@ class IncomingController extends RestApiController{
         $mongo = $this->get('doctrine_mongodb')->getManager();
         $mongo->persist($transaction);
         $mongo->flush();
+
         return $this->restTransaction($transaction, "Got ok");
+
     }
 
 
@@ -405,10 +407,15 @@ class IncomingController extends RestApiController{
             }
         }
 
+        //esto es asi porque hemos cambiado la respuesta en restV2 ( ahora tiene algunos campos más ).
         return $this->restV2(
             200,
             "ok",
             "Request successful",
+            '',
+            '',
+            '',
+            '',
             $transArray
         );
     }
@@ -434,7 +441,60 @@ class IncomingController extends RestApiController{
 
         if(!$transaction) throw new HttpException(500, "oOps, the notification failed");
 
-        return $this->restV2(200, "ok", "Notification successful");
+        return $this->restV2(200, "ok", "Notification successful","","","");
+    }
+
+    /**
+     * @Rest\View
+     */
+    public function cancel(Request $request, $version_number, $service_cname, $id) {
+
+        $service = $this->get('net.telepay.services.'.$service_cname.'.v'.$version_number);
+
+        if (false === $this->get('security.authorization_checker')->isGranted($service->getRole())) {
+            throw $this->createAccessDeniedException();
+        }
+
+        $data=$request->request->all();
+
+        $transaction =$service
+            ->getTransactionContext()
+            ->getODM()
+            ->getRepository('TelepayFinancialApiBundle:Transaction')
+            ->find($id);
+
+        if(!$transaction) throw new HttpException(404, 'Transaction not found');
+
+        if($transaction->getStatus()=='created'){
+            if($transaction->getService() != $service->getCname()) throw new HttpException(404, 'Transaction not found');
+            $transaction = $service->cancel($transaction,$data);
+            $mongo = $this->get('doctrine_mongodb')->getManager();
+            $mongo->persist($transaction);
+            $mongo->flush();
+
+            if($transaction->getStatus()=='Cancelled'){
+                $message='Cancel got ok';
+                $code=200;
+            }else{
+                $message='Not cancelled';
+                $code=409;
+            }
+        }else{
+            $message='Cancel forbidden';
+            $code=409;
+        }
+
+        return $this->restV2(
+            $code,
+            $transaction->getStatus(),
+            $message,
+            $transaction->getId(),
+            $transaction->getAmount(),
+            $transaction->getScale(),
+            $transaction->getCurrency(),
+            $transaction->dataOut()
+        );
+
     }
 }
 
