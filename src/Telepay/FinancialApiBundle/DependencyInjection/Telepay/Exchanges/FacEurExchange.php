@@ -22,7 +22,7 @@ class FacEurExchange implements ExchangeInterface {
 
     public function getPrice()
     {
-        $prices = $this->getFaircoinTicker()->tick(); //json_decode(file_get_contents("https://getfaircoin.net/api/ticker"));
+        $prices = $this->getFaircoinTicker->tick();
         return $prices[Currency::$EUR];
     }
 
