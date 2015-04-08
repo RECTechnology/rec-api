@@ -9,37 +9,24 @@
 
 namespace Telepay\FinancialApiBundle\DependencyInjection\Telepay\Exchanges;
 
+use Payward\KrakenAPI;
 use Telepay\FinancialApiBundle\Financial\Currency;
 
 /**
- * Class Kraken
+ * Class BitcoinToEuroExchange
  * @package Telepay\FinancialApiBundle\DependencyInjection\Telepay\Exchanges
  */
-class Kraken implements ExchangeInterface {
+class BitcoinToEuroExchange implements ExchangeInterface {
 
-    /**
-     * @var
-     */
-    private $krakenUrl;
-    /**
-     * @var
-     */
-    private $krakenUser;
-    /**
-     * @var
-     */
-    private $krakenPass;
+    private $kraken;
 
-    public function __construct($krakenUrl, $krakenUser, $krakenPass){
-
-        $this->krakenUrl = $krakenUrl;
-        $this->krakenUser = $krakenUser;
-        $this->krakenPass = $krakenPass;
+    public function __construct(KrakenAPI $kraken){
+        $this->kraken = $kraken;
     }
 
     public function getPrice()
     {
-        // TODO: Implement getPrice() method.
+        return $this->kraken->QueryPublic('Ticker', array('pair' => 'XXBTZEUR'));
     }
 
     public function getFirst()
