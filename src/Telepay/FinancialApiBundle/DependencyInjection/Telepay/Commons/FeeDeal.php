@@ -83,7 +83,8 @@ class FeeDeal{
                 $transaction->setVersion(1);
                 $transaction->setAmount($fee);
                 $transaction->setDataIn(array(
-                    'parent_id' => $transaction_id
+                    'parent_id' => $transaction_id,
+                    'amount'    =>  $fee
                 ));
                 $transaction->setData(array(
                     'parent_id' => $transaction_id
@@ -114,7 +115,8 @@ class FeeDeal{
             $feeTransaction->setVersion(1);
             $feeTransaction->setAmount($total*-1);
             $feeTransaction->setDataIn(array(
-                'parent_id' => $transaction->getId()
+                'parent_id' => $transaction->getId(),
+                'amount'    =>  $total
             ));
             $feeTransaction->setData(array(
                 'parent_id' => $transaction->getId()

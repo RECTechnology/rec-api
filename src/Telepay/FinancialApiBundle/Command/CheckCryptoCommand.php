@@ -90,7 +90,8 @@ class CheckCryptoCommand extends ContainerAwareCommand
                             $feeTransaction->setFixedFee($fixed_fee);
                             $feeTransaction->setVariableFee($variable_fee);
                             $feeTransaction->setDataIn(array(
-                                'previous_transaction'  =>  $check->getId()
+                                'previous_transaction'  =>  $check->getId(),
+                                'amount'    =>  -$total_fee
                             ));
                             $feeTransaction->setDebugData(array(
                                 'previous_balance'  =>  $current_wallet->getBalance(),
