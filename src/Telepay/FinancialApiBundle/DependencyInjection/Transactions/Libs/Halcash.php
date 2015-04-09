@@ -6,7 +6,7 @@ namespace Telepay\FinancialApiBundle\DependencyInjection\Transactions\Libs;
     use nusoap_client;
     use Symfony\Component\HttpKernel\Exception\HttpException;
 
-	class HalcashServiceSp{
+	class Halcash{
 
         private $prefix;
         private $mode;

@@ -10,7 +10,7 @@ namespace Telepay\FinancialApiBundle\DependencyInjection\Transactions;
 
 use Symfony\Component\HttpKernel\Exception\HttpException;
 use Telepay\FinancialApiBundle\DependencyInjection\Transactions\Core\BaseService;
-use Telepay\FinancialApiBundle\DependencyInjection\Transactions\Libs\HalcashServiceSp;
+use Telepay\FinancialApiBundle\DependencyInjection\Transactions\Libs\Halcash;
 use Telepay\FinancialApiBundle\Document\Transaction;
 
 
