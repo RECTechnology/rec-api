@@ -44,13 +44,12 @@ class HalcashService extends BaseService{
         if(strlen($pin)>4) throw new HttpException(400,'Pin Field must be less than 5 characters');
         $transaction_id=$baseTransaction->getId();
 
-        //Todo comprobar el pais para utilizar uno u otro
+        //comprobar el pais para utilizar uno u otro
         if($country=='ES'){
             $hal = $this->halcashProvider->sendV3($phone_number,$phone_prefix,$amount,$reference,$pin,$transaction_id);
         }else{
             $hal = $this->halcashProvider->sendInternational($phone_number,$phone_prefix,$amount,$reference,$pin,$transaction_id,$country);
         }
-
 
         if($hal === false)
             throw new HttpException(503, "Service temporarily unavailable, please try again in a few minutes");
