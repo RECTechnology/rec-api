@@ -216,7 +216,7 @@ namespace Telepay\FinancialApiBundle\DependencyInjection\Transactions\Libs;
                 'telefono'		=>	$phone,
                 'importe_destino'=>	$amount,
                 'pais'          =>  $country,
-                'idioma'        =>  'ESP',
+                'idioma'        =>  'POL',
                 'concepto'		=>	$reference,
                 'pin'			=>	$pin,
                 'aliascuenta'	=>	'ASOC ROBOT',
