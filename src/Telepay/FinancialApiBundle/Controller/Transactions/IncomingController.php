@@ -167,7 +167,18 @@ class IncomingController extends RestApiController{
 
         //obtain wallet and check founds for cash_out services
         $wallets=$user->getWallets();
-        $service_currency = $service->getCurrency();
+        //comprobamos si el servicio es halcash porque tenemos varias monedas
+        if($service_cname == 'halcash_send'){
+            if(isset($dataIn) && $dataIn['country'] == 'PL'){
+                $service_currency = 'PLN';
+            }else{
+                $service_currency = $service->getCurrency();
+            }
+
+        }else{
+            $service_currency = $service->getCurrency();
+        }
+
         $current_wallet=null;
 
         $transaction->setCurrency($service_currency);
