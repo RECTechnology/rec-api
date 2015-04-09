@@ -65,6 +65,11 @@ class Transaction implements TransactionTiming {
     public static $STATUS_RETURNED = "returned";
 
     /**
+     * @Exclude
+     */
+    public static $STATUS_UNKNOWN = "unknown";
+
+    /**
      * @var
      * @MongoDB\Date
      */
