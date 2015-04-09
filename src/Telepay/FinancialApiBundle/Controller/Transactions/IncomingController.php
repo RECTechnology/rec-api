@@ -230,6 +230,7 @@ class IncomingController extends RestApiController{
                 $feeTransaction->setIp($transaction->getIp());
                 $feeTransaction->setFixedFee($fixed_fee);
                 $feeTransaction->setVariableFee($variable_fee);
+                $feeTransaction->setVersion($transaction->getVersion());
                 $feeTransaction->setDataIn(array(
                     'previous_transaction'  =>  $transaction->getId()
                 ));
@@ -253,7 +254,7 @@ class IncomingController extends RestApiController{
                 //$this->cashInDealer($creator,$amount,$service_cname,$service_currency);
                 $transaction_id=$transaction->getId();
                 $dealer=$this->get('net.telepay.commons.fee_deal');
-                $dealer->deal($creator,$amount,$service_cname,$service_currency,$total_fee,$transaction_id);
+                $dealer->deal($creator,$amount,$service_cname,$service_currency,$total_fee,$transaction_id,$transaction->getVersion());
 
 
             }
@@ -308,6 +309,7 @@ class IncomingController extends RestApiController{
                 $feeTransaction->setIp($transaction->getIp());
                 $feeTransaction->setFixedFee($fixed_fee);
                 $feeTransaction->setVariableFee($variable_fee);
+                $feeTransaction->setVersion($transaction->getVersion());
                 $feeTransaction->setDataIn(array(
                     'previous_transaction'  =>  $transaction->getId()
                 ));
@@ -329,7 +331,7 @@ class IncomingController extends RestApiController{
 
                 $transaction_id=$transaction->getId();
                 $dealer=$this->get('net.telepay.commons.fee_deal');
-                $dealer->deal($creator,$amount,$service_cname,$service_currency,$total_fee,$transaction_id);
+                $dealer->deal($creator,$amount,$service_cname,$service_currency,$total_fee,$transaction_id,$transaction->getVersion());
 
             }
 

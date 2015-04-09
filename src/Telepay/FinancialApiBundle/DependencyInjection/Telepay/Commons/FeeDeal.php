@@ -29,7 +29,7 @@ class FeeDeal{
      * Creator fee
      */
 
-    public function deal(User $creator,$amount,$service_cname,$currency,$fee,$transaction_id){
+    public function deal(User $creator,$amount,$service_cname,$currency,$fee,$transaction_id,$version){
 
         if(!$creator->hasRole('ROLE_SUPER_ADMIN')){
             //obtenemos el grupo
@@ -80,7 +80,7 @@ class FeeDeal{
                 $transaction->setTimeIn(new \MongoDate());
                 $transaction->setUser($creator->getId());
                 $transaction->setService($service_cname);
-                $transaction->setVersion(1);
+                $transaction->setVersion($version);
                 $transaction->setAmount($fee);
                 $transaction->setDataIn(array(
                     'parent_id' => $transaction_id,
@@ -112,7 +112,7 @@ class FeeDeal{
             $feeTransaction->setTimeIn(new \MongoDate());
             $feeTransaction->setUser($creator->getId());
             $feeTransaction->setService($service_cname);
-            $feeTransaction->setVersion(1);
+            $feeTransaction->setVersion($version);
             $feeTransaction->setAmount($total*-1);
             $feeTransaction->setDataIn(array(
                 'parent_id' => $transaction->getId(),
@@ -132,7 +132,7 @@ class FeeDeal{
             $dm->flush();
 
             $new_creator=$group->getCreator();
-            $this->deal($new_creator,$amount,$service_cname,$currency,$total,$id);
+            $this->deal($new_creator,$amount,$service_cname,$currency,$total,$id,$version);
         }
 
         return true;

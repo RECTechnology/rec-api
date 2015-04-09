@@ -88,6 +88,7 @@ class CheckPaynetReferenceCommand extends ContainerAwareCommand
                     $feeTransaction->setIp($check->getIp());
                     $feeTransaction->setFixedFee($fixed_fee);
                     $feeTransaction->setVariableFee($variable_fee);
+                    $feeTransaction->setVersion($check->getVersion());
                     $feeTransaction->setDataIn(array(
                         'previous_transaction'  =>  $check->getId()
                     ));
@@ -106,7 +107,7 @@ class CheckPaynetReferenceCommand extends ContainerAwareCommand
 
                     //luego a la ruleta de admins
                     $dealer=$this->getContainer()->get('net.telepay.commons.fee_deal');
-                    $dealer->deal($creator,$amount,$service_cname,$service_currency,$total_fee,$transaction_id);
+                    $dealer->deal($creator,$amount,$service_cname,$service_currency,$total_fee,$transaction_id,$check->getVersion());
                 }else{
                     $current_wallet->setAvailable($current_wallet->getAvailable()+$amount);
                     $current_wallet->setBalance($current_wallet->getBalance()+$amount);
