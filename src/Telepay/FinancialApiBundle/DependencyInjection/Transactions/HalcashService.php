@@ -20,7 +20,7 @@ class HalcashService extends BaseService{
 
     public function __construct($name, $cname, $role, $cash_direction, $currency, $base64Image, $halcashProvider, $transactionContext){
         parent::__construct($name, $cname, $role, $cash_direction, $currency, $base64Image, $transactionContext);
-        $this->halcashSpProvider = $halcashProvider;
+        $this->halcashProvider = $halcashProvider;
     }
 
     public function getFields(){
