@@ -378,6 +378,11 @@ class WalletController extends RestApiController{
                                 result.total+=curr.total;
                             }
                             break;
+                        case "PLN":
+                            if(curr.total){
+                                result.total+=curr.total;
+                            }
+                            break;
                         case "":
                             if(curr.total){
                                 result.total+=curr.total;
@@ -489,6 +494,9 @@ class WalletController extends RestApiController{
                 $scale=8;
                 break;
             case "FAC":
+                $scale=8;
+                break;
+            case "PLN":
                 $scale=8;
                 break;
             case "":
