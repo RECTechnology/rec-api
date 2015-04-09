@@ -143,6 +143,9 @@ class UserWallet extends AbstractWallet implements ExternallyDrived {
             case "FAC":
                 $scale=8;
                 break;
+            case "PLN":
+                $scale=2;
+                break;
             case "":
                 $scale=0;
                 break;
