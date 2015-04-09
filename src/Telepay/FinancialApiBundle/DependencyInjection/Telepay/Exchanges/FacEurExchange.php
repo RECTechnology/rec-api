@@ -33,6 +33,6 @@ class FacEurExchange implements ExchangeInterface {
 
     public function getSecond()
     {
-        return $this->getFaircoinTicker;
+        return Currency::$EUR;
     }
 }
