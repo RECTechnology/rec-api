@@ -294,6 +294,17 @@ class UsersController extends BaseApiController
             }
 
         }
+        $balance=null;
+        if($request->request->has('addBalance')){
+            $balance=$request->get('addBalance');
+            $request->request->remove('addBalance');
+            $currency='default';
+            if($request->request->has('currency')){
+                $currency=$request->request->get('currency');
+                $request->request->remove('currency');
+            }
+            $adder = $this->_addBalance( $id, $currency, $balance );
+        }
         $resp = parent::updateAction($request, $id);
         if($resp->getStatusCode() == 204){
             if($services !== null){
@@ -449,6 +460,37 @@ class UsersController extends BaseApiController
             else
                 throw new HttpException(500, "Unknown error occurred when save");
         }
+
+    }
+
+    public function _addBalance($user_id, $currency, $amount){
+
+        $em = $this->getDoctrine()->getManager();
+
+        $usersRepo = $this->getRepository();
+        $user = $usersRepo->find($user_id);
+
+        if($currency == 'default') $currency=$user->getDefaultCurrency();
+
+        $currency = strtoupper($currency);
+        $wallets=$user->getWallets();
+
+        $find_wallet = 0;
+        foreach ( $wallets as $wallet ){
+            if ($wallet->getCurrency() == $currency ){
+
+                $wallet->setAvailable( $wallet->getAvailable() + $amount );
+                $wallet->setBalance( $wallet->getBalance() + $amount );
+
+                $find_wallet = 1;
+                $em->persist($wallet);
+                $em->flush();
+            }
+        }
+
+        if($find_wallet==0) throw new HttpException(400,'Wallet not found');
+
+        return true;
 
     }
 

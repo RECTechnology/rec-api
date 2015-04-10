@@ -48,6 +48,8 @@ class AddBalanceCommand extends ContainerAwareCommand
         $amount=$input->getOption('amount');
         $currency=$input->getOption('currency');
 
+        $currency=strtoupper($currency);
+
         if(!$user_id) throw new HttpException(400,'Missing value user.');
 
         //buscamos el user
