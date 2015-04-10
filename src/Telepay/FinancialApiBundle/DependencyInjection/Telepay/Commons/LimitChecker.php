@@ -34,7 +34,7 @@ class LimitChecker {
             else throw new HttpException(509,'Year Limit exceeded');
         if($configured->getTotal()<0 or $status->getTotal() <= $configured->getTotal());
             else throw new HttpException(509,'Total Limit exceeded');
-        
+
         return true;
 
     }
