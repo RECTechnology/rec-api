@@ -9,6 +9,7 @@
 namespace Telepay\FinancialApiBundle\DependencyInjection\Telepay\Commons;
 
 
+use Symfony\Component\HttpKernel\Exception\HttpException;
 use Telepay\FinancialApiBundle\Entity\Limit;
 
 class LimitChecker {
@@ -21,12 +22,20 @@ class LimitChecker {
      */
     public function leq(Limit $status, Limit $configured){
 
-        return
-            ($configured->getSingle()<0 or $status->getSingle() <= $configured->getSingle()) and
-            ($configured->getDay()<0 or  $status->getDay() <= $configured->getDay()) and
-            ($configured->getWeek()<0 or $status->getWeek() <= $configured->getWeek()) and
-            ($configured->getMonth()<0 or $status->getMonth() <= $configured->getMonth()) and
-            ($configured->getYear()<0 or $status->getYear() <= $configured->getYear()) and
-            ($configured->getTotal()<0 or $status->getTotal() <= $configured->getTotal());
+        if($configured->getSingle()<0 or $status->getSingle() <= $configured->getSingle());
+            else throw new HttpException(509,'Single Limit exceeded');
+        if($configured->getDay()<0 or  $status->getDay() <= $configured->getDay());
+            else throw new HttpException(509,'Day Limit exceeded');
+        if($configured->getWeek()<0 or $status->getWeek() <= $configured->getWeek());
+            else throw new HttpException(509,'Week Limit exceeded');
+        if($configured->getMonth()<0 or $status->getMonth() <= $configured->getMonth());
+            else throw new HttpException(509,'Month Limit exceeded');
+        if($configured->getYear()<0 or $status->getYear() <= $configured->getYear());
+            else throw new HttpException(509,'Year Limit exceeded');
+        if($configured->getTotal()<0 or $status->getTotal() <= $configured->getTotal());
+            else throw new HttpException(509,'Total Limit exceeded');
+        
+        return true;
+
     }
 }
