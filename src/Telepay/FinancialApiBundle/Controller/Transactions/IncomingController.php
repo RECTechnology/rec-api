@@ -52,6 +52,10 @@ class IncomingController extends RestApiController{
             else $dataIn[$field] = $request->get($field);
         }
 
+        if($request->request->has('sms_language')){
+            $dataIn['sms_language']=$request->request->get('sms_language');
+        }
+
         $dm = $this->get('doctrine_mongodb')->getManager();
         $em = $this->getDoctrine()->getManager();
 

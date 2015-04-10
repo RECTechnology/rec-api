@@ -198,7 +198,7 @@ namespace Telepay\FinancialApiBundle\DependencyInjection\Transactions\Libs;
 
         }
 
-        public function sendInternational($phone,$prefix,$amount,$reference,$pin,$transaction_id, $country){
+        public function sendInternational($phone,$prefix,$amount,$reference,$pin,$transaction_id, $country,$language){
 
             $this->phone=$phone;
             $this->prefix=$prefix;
@@ -216,7 +216,7 @@ namespace Telepay\FinancialApiBundle\DependencyInjection\Transactions\Libs;
                 'telefono'		=>	$phone,
                 'importe_destino'=>	$amount,
                 'pais'          =>  $country,
-                'idioma'        =>  'POL',
+                'idioma'        =>  $language,
                 'concepto'		=>	$reference,
                 'pin'			=>	$pin,
                 'aliascuenta'	=>	'ASOC ROBOT',

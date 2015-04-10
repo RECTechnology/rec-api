@@ -35,6 +35,12 @@ class HalcashService extends BaseService{
 
         $phone_number = $baseTransaction->getDataIn()['phone_number'];
         $phone_prefix = $baseTransaction->getDataIn()['phone_prefix'];
+        if(isset($baseTransaction->getDataIn()['sms_language'])){
+            $language = strtoupper($baseTransaction->getDataIn()['sms_language']);
+        }else{
+            $language = 'ESP';
+        }
+
         $country = $baseTransaction->getDataIn()['country'];
         //pasamos a euros porque lo recibimos en centimos
         $amount = $baseTransaction->getDataIn()['amount']/100;
@@ -48,7 +54,7 @@ class HalcashService extends BaseService{
         if($country=='ES'){
             $hal = $this->halcashProvider->sendV3($phone_number,$phone_prefix,$amount,$reference,$pin,$transaction_id);
         }else{
-            $hal = $this->halcashProvider->sendInternational($phone_number,$phone_prefix,$amount,$reference,$pin,$transaction_id,$country);
+            $hal = $this->halcashProvider->sendInternational($phone_number,$phone_prefix,$amount,$reference,$pin,$transaction_id,$country,$language);
         }
 
         if($hal === false)
