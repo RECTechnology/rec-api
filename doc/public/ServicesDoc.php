@@ -271,3 +271,54 @@
  * @apiUse NotAuthenticated
  *
  */
+
+
+//##################################### PAYNET_REFERENCE ###################################
+
+/**
+ *
+ * @api {post} /services/v1/paynet_reference Paynet Reference
+ * @apiName PaynetReference
+ * @apiDescription Receive payments with Paynet.
+ * @apiVersion 0.1.0
+ * @apiGroup Services
+ * @apiUse OAuth2Header
+ * @apiParam {Integer} amount The desired amount in <code>MXN</code> <code>cents</code>
+ * @apiParam {String} description The issuer text to include in the transaction description
+ * @apiSuccess {String} status The resulting status of the transaction
+ * @apiSuccess {String} message The message about the result of the request
+ * @apiSuccess {String} id The ID of the transaction
+ * @apiSuccess {Integer} amount The total amount to send in <code>EUR</code> or <code>PLN</code> <code>cents</code>
+ * @apiSuccess {Integer=2} scale The number of decimals to represent the amount
+ * @apiSuccess {String="MXN"} currency The currency
+ * @apiSuccess {Object} data The data of the request
+ * @apiSuccess {Integer} data.expiration_date The expire date.
+ * @apiSuccess {String} data.description The description sent in the request
+ * @apiSuccess {String} data.barcode The code to generate the barcode neede to finish the payment
+ * @apiUse NotAuthenticated
+ *
+ */
+
+/**
+ *
+ * @api {get} /services/v1/paynet_reference/:id Paynet Reference Check
+ * @apiName PaynetReferenceCheck
+ * @apiDescription Checks the status of the paynet reference transaction
+ * @apiVersion 0.1.0
+ * @apiGroup Services
+ * @apiUse OAuth2Header
+ * @apiParam {String} id The transaction <code>id</code>
+ * @apiSuccess {String="sent, consumed, cancelled, error"} status The status of the transaction
+ * @apiSuccess {String} message The message about the result of the request
+ * @apiSuccess {String} id The ID of the transaction
+ * @apiSuccess {Integer} amount The total amount to send in <code>EUR</code> or <code>PLN</code> <code>cents</code>
+ * @apiSuccess {Integer=2} scale The number of decimals to represent the amount
+ * @apiSuccess {String="MXN"} currency The currency
+ * @apiSuccess {Object} data The data of the request
+ * @apiSuccess {Integer} data.error_code=0 The received halcash error code
+ * @apiSuccess {Integer} data.error_description The received halcash error description
+ * @apiSuccess {Integer} data.status_code=0 The transaction status code
+ * @apiSuccess {String} data.status_description The transaction status description
+ * @apiUse NotAuthenticated
+ *
+ */
