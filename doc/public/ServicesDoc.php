@@ -294,7 +294,7 @@
  * @apiSuccess {Object} data The data of the request
  * @apiSuccess {Integer} data.expiration_date The expire date.
  * @apiSuccess {String} data.description The description sent in the request
- * @apiSuccess {String} data.barcode The code to generate the barcode neede to finish the payment
+ * @apiSuccess {String} data.barcode The code to generate the barcode needed to finish the payment
  * @apiUse NotAuthenticated
  *
  */
@@ -322,3 +322,32 @@
  * @apiUse NotAuthenticated
  *
  */
+
+//##################################### SAFETYPAY ###################################
+
+/**
+ *
+ * @api {post} /services/v1/safetypay SafetyPay
+ * @apiName Safetypay
+ * @apiDescription Receive payments with safety gateway.
+ * @apiVersion 0.1.0
+ * @apiGroup Services
+ * @apiUse OAuth2Header
+ * @apiParam {String="EUR,USD,MXN"} currency The transaction currency ISO-8601
+ * @apiParam {String} amount The desired amount with 2 decimals.
+ * @apiParam {String} url_success The url to redirect the client when the transaction is successfull
+ * @apiParam {String} url_fail The url to redirect the client when the transaction is unsuccesfull
+ * @apiSuccess {String} status The resulting status of the transaction
+ * @apiSuccess {String} message The message about the result of the request
+ * @apiSuccess {String} id The ID of the transaction
+ * @apiSuccess {Integer} amount The total amount to pay in <code>cents</code>
+ * @apiSuccess {Integer=2} scale The number of decimals to represent the amount
+ * @apiSuccess {String="EUR,USD,MXN"} currency The currency
+ * @apiSuccess {Object} data The data of the request
+ * @apiSuccess {Integer} data.error_number The error number. (<code>0</code> means that all goes fine)
+ * @apiSuccess {String} data.url Url to redirect the client to finish the payment.
+ * @apiSuccess {String} data.signature This parameter must be sent by <code>POST</code> to the obtained url to validate the sesion.
+ * @apiUse NotAuthenticated
+ *
+ */
+

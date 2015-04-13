@@ -24,7 +24,10 @@
     "PagoFacil",
     "ToditoCash",
     "HalcashSend",
-    "HalcashPay"
+    "HalcashPay",
+    "PaynetReference",
+    "PaynetReferenceCheck",
+    "Safetypay"
 
   ],
   "template": {

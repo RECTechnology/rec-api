@@ -45,6 +45,8 @@ class IncomingController extends RestApiController{
             throw $this->createAccessDeniedException();
         }
 
+        $url_base=$request->getSchemeAndHttpHost().$request->getBaseUrl();
+
         $dataIn = array();
         foreach($service->getFields() as $field){
             if(!$request->request->has($field))
@@ -63,6 +65,9 @@ class IncomingController extends RestApiController{
         $transaction->setService($service_cname);
         $transaction->setVersion($version_number);
         $transaction->setDataIn($dataIn);
+        $transaction->setData(array(
+            'url_base'  =>  $url_base
+        ));
         $dm->persist($transaction);
 
         //TODO posible millora en un query molon
@@ -257,7 +262,7 @@ class IncomingController extends RestApiController{
                 $feeTransaction->setCurrency($transaction->getCurrency());
                 $feeTransaction->setService($service_cname);
 
-                $dm->persist($transaction);
+                $dm->persist($feeTransaction);
                 $dm->flush();
 
                 //empezamos el reparto
@@ -316,7 +321,7 @@ class IncomingController extends RestApiController{
                 $feeTransaction->setStatus('success');
                 $feeTransaction->setScale($scale);
                 $feeTransaction->setAmount($total_fee*-1);
-                $feeTransaction->setUser($user);
+                $feeTransaction->setUser($user->getId());
                 $feeTransaction->setCreated(new \MongoDate());
                 $feeTransaction->setTimeOut(new \MongoDate());
                 $feeTransaction->setTimeIn(new \MongoDate());

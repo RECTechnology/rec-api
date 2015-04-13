@@ -96,6 +96,18 @@ class Transaction implements TransactionTiming {
         return $transaction;
     }
 
+    public static function createFromTransaction(Transaction $trans){
+        $transaction = new Transaction();
+        $transaction->setStatus('success');
+        $transaction->setScale($trans->getScale());
+        $transaction->setCurrency($trans->getCurrency());
+        $transaction->setIp($trans->getIp());
+        $transaction->setTimeIn(new \MongoDate());
+        $transaction->setVersion($trans->getVersion());
+        $transaction->setService($trans->getService());
+        return $transaction;
+    }
+
     /**
      * @var
      * @MongoDB\Id
