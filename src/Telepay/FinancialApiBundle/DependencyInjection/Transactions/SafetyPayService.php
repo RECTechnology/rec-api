@@ -40,8 +40,12 @@ class SafetyPayService extends BaseService{
         $amount = round($baseTransaction->getDataIn()['amount']/100,2);
         //prepare notification urls
         $id=$baseTransaction->getId();
-        $url_success = $baseTransaction->getData()['url_base'].'/notifications/v1/safetypay?tid='.$id.'&error=0';
-        $url_fail = $baseTransaction->getData()['url_base'].'/notifications/v1/safetypay?tid='.$id.'&error=1';
+
+        $request=$this->getTransactionContext()->getRequestStack()->getCurrentRequest();
+        $url_base=$request->getSchemeAndHttpHost().$request->getBaseUrl();
+
+        $url_success=$url_base.'/notifications/v1/safetypay?tid='.$id.'&error=0';
+        $url_fail = $url_base.'/notifications/v1/safetypay?tid='.$id.'&error=1';
 
         $baseTransaction->setDebugData(array(
             'url_success'   =>  $url_success,

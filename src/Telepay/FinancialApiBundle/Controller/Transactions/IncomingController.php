@@ -45,8 +45,6 @@ class IncomingController extends RestApiController{
             throw $this->createAccessDeniedException();
         }
 
-        $url_base=$request->getSchemeAndHttpHost().$request->getBaseUrl();
-
         $dataIn = array();
         foreach($service->getFields() as $field){
             if(!$request->request->has($field))
@@ -65,9 +63,6 @@ class IncomingController extends RestApiController{
         $transaction->setService($service_cname);
         $transaction->setVersion($version_number);
         $transaction->setDataIn($dataIn);
-        $transaction->setData(array(
-            'url_base'  =>  $url_base
-        ));
         $dm->persist($transaction);
 
         //TODO posible millora en un query molon
