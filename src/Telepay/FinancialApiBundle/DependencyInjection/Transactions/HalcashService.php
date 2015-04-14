@@ -68,13 +68,10 @@ class HalcashService extends BaseService{
                 $baseTransaction->setStatus('success');
                 break;
             case 44:
-                $baseTransaction->setStatus('failed');
                 throw new HttpException(502,'Invalid credentials');
-                break;
-            case 99:
-                $baseTransaction->setStatus('failed');
-                throw new HttpException(503,'No founds');
-                break;
+            default:
+                throw new HttpException(503,'Service unavailable');
+
         }
 
         return $baseTransaction;
