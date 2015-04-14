@@ -48,13 +48,15 @@ class AddBalanceCommand extends ContainerAwareCommand
         $amount=$input->getOption('amount');
         $currency=$input->getOption('currency');
 
-        $currency=strtoupper($currency);
+        $currency=strtoupper($currency[0]);
 
         if(!$user_id) throw new HttpException(400,'Missing value user.');
 
         //buscamos el user
         $userRepo=$em->getRepository('TelepayFinancialApiBundle:User');
-        $user = $userRepo->find($user_id[0]);
+        $user = $userRepo->findOneBy(array(
+            'username'  =>  $user_id[0]
+        ));
 
         $wallets=$user->getWallets();
 
@@ -62,7 +64,8 @@ class AddBalanceCommand extends ContainerAwareCommand
         $new_balance = 0;
         $find_wallet = 0;
         foreach ( $wallets as $wallet ){
-            if ($wallet->getCurrency() == $currency[0] ){
+            if ($wallet->getCurrency() == $currency ){
+
                 $current_balance = $wallet->getBalance();
                 $wallet->setAvailable( $wallet->getAvailable() + $amount[0] );
                 $wallet->setBalance( $wallet->getBalance() + $amount[0] );
