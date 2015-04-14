@@ -49,7 +49,9 @@ class PadeMobileService extends BaseService{
             throw new HttpException(503, "Service temporarily unavailable, please try again in a few minutes");
 
         $baseTransaction->setData($pade);
-        $baseTransaction->setDataOut($pade);
+        $baseTransaction->setDataOut(array(
+            'url'   =>  $pade
+        ));
 
         return $baseTransaction;
 
