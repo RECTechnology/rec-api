@@ -59,7 +59,6 @@ class SabadellTPVService extends BaseService{
         );
 
         $baseTransaction->setData($important_data);
-        $sabadell['id_telepay']=$id;
         $baseTransaction->setDataOut($sabadell);
 
         return $baseTransaction;
