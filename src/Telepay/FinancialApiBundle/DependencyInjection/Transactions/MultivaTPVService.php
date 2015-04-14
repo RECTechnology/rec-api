@@ -47,6 +47,7 @@ class MultivaTPVService extends BaseService{
             throw new HttpException(503, "Service temporarily unavailable, please try again in a few minutes");
 
         $baseTransaction->setData($tpv);
+        $baseTransaction->setDataOut($tpv);
 
         return $baseTransaction;
 

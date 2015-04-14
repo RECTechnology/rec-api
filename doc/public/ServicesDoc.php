@@ -363,8 +363,8 @@
  * @apiUse OAuth2Header
  * @apiParam {String} country The country.
  * @apiParam {String} url Url When we will notificate the transaction result.
- * @apiParam {String} description A simple produc description.
- * @apiParam {String} amount Transaction amount in <code>cents</code>
+ * @apiParam {String} description A simple product description.
+ * @apiParam {Integer} amount Transaction amount in <code>cents</code>
  * @apiSuccess {String} status The resulting status of the transaction
  * @apiSuccess {String} message The message about the result of the request
  * @apiSuccess {String} id The ID of the transaction
@@ -373,6 +373,41 @@
  * @apiSuccess {String="EUR,USD,MXN"} currency The currency
  * @apiSuccess {Object} data The data of the request
  * @apiSuccess {String} data.url Url to redirect the client to finish the payment.
+ * @apiUse NotAuthenticated
+ *
+ */
+
+//##################################### MULTIVA ###################################
+
+/**
+ *
+ * @api {post} /services/v1/multiva Multiva
+ * @apiName Multiva
+ * @apiDescription Receive payments with Multiva TPV.
+ * @apiVersion 0.1.0
+ * @apiGroup Services
+ * @apiUse OAuth2Header
+ * @apiParam {Integer} amount Transaction amount in <code>cents</code>
+ * @apiParam {String} url_notification Url When we will notificate the transaction result.
+ * @apiParam {String} description A simple product description.
+ * @apiParam {String} amount Transaction amount in <code>cents</code>
+ * @apiSuccess {String} status The resulting status of the transaction
+ * @apiSuccess {String} message The message about the result of the request
+ * @apiSuccess {String} id The ID of the transaction
+ * @apiSuccess {Integer} amount The total amount to pay in <code>cents</code>
+ * @apiSuccess {Integer=2} scale The number of decimals to represent the amount
+ * @apiSuccess {String="MXN"} currency The currency
+ * @apiSuccess {Object} data The data of the form to generate the TPV.
+ * @apiSuccess {String} data.comtotal Total Transaction.
+ * @apiSuccess {Integer} data.comcurrency Currency code.
+ * @apiSuccess {String} data.comaddress PROSA.
+ * @apiSuccess {String} data.comorder_id Telepay id.
+ * @apiSuccess {Integer} data.commerchant Merchant id.
+ * @apiSuccess {Integer} data.comstore Store reference asigned by Telepay.
+ * @apiSuccess {Integer} data.comterm Terminal code asigned by Telepay.
+ * @apiSuccess {String} data.comdigest Multiva digest.
+ * @apiSuccess {String} data.comaction Form action url.
+ * @apiSuccess {String} data.comurlback Telepay notification url.
  * @apiUse NotAuthenticated
  *
  */

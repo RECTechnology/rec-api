@@ -21,13 +21,16 @@
     "BtcPayCheck",
     "FacPayCreate",
     "FacPayCheck",
-    "PagoFacil",
-    "ToditoCash",
     "HalcashSend",
-    "HalcashPay",
+    "HalcashCheck",
     "PaynetReference",
     "PaynetReferenceCheck",
-    "Safetypay"
+    "Safetypay",
+    "Pademobile",
+    "Multiva",
+    "PagoFacil",
+    "ToditoCash",
+    "HalcashPay"
 
   ],
   "template": {
