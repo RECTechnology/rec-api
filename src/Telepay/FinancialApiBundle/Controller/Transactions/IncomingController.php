@@ -390,6 +390,7 @@ class IncomingController extends RestApiController{
 
         $mongo = $this->get('doctrine_mongodb')->getManager();
 
+        //todo esto esta a medias
         //retry=true y cancel=true aqui
         if( isset( $data['retry'] ) || isset ( $data ['cancel'] )){
             if( isset( $data['retry'] ) && $data['retry'] == true ){
