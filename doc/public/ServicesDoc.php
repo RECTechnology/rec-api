@@ -225,7 +225,7 @@
 
 /**
  *
- * @api {post} /services/v4/halcash_send HalCash send
+ * @api {post} /services/v3/halcash_send HalCash send
  * @apiName HalcashSend
  * @apiDescription Sends money via HalCash to any number in <code>Spain</code> and <code>Poland</code>.
  * @apiVersion 0.4.0
@@ -236,7 +236,7 @@
  * @apiParam {String} phone_prefix="+34" The prefix of the target phone
  * @apiParam {Integer} phone_number The target phone number
  * @apiParam {Integer} pin The issuer pin (must have 4 digits)
- * @apiParam {String} text The issuer text to include in the SMS (max length: 17 chars)
+ * @apiParam {String} reference The issuer text to include in the SMS (max length: 17 chars)
  * @apiSuccess {String} status The resulting status of the transaction
  * @apiSuccess {String} message The message about the result of the request
  * @apiSuccess {String} id The ID of the transaction
