@@ -449,3 +449,45 @@
  *
  */
 
+//##################################### PAGOFACIL ###################################
+
+/**
+ *
+ * @api {post} /services/v1/pagofacil Pagofacil
+ * @apiName Pagofacil
+ * @apiDescription Receive payments with Pagofacil Gateway.
+ * @apiVersion 0.1.0
+ * @apiGroup Services
+ * @apiUse OAuth2Header
+ * @apiParam {String} name Cardholder name.
+ * @apiParam {String} surname Cardholder surname.
+ * @apiParam {String} card_number Card number.
+ * @apiParam {String} cvv Verificator digit.
+ * @apiParam {String} cp Postal Code.
+ * @apiParam {String} expiration_month Card expiration month.
+ * @apiParam {String} expiration_year Card espiration year.
+ * @apiParam {String} amount Transaction amount in <code>cents</code>.
+ * @apiParam {String} email E-mail.
+ * @apiParam {String} phone Phone number.
+ * @apiParam {String} mobile_phone Mobile phone number.
+ * @apiParam {String} street_number Cardholder street number.
+ * @apiParam {String} colony Colony.
+ * @apiParam {String} city City.
+ * @apiParam {String} quarter Quarter.
+ * @apiParam {String} country Country.
+ * @apiSuccess {String} status The resulting status of the transaction
+ * @apiSuccess {String} message The message about the result of the request
+ * @apiSuccess {String} id The ID of the transaction
+ * @apiSuccess {Integer} amount The total amount to pay in <code>cents</code>
+ * @apiSuccess {Integer=2} scale The number of decimals to represent the amount
+ * @apiSuccess {String="MXN"} currency The currency
+ * @apiSuccess {Object} data The data to the request.
+ * @apiSuccess {String} data.authorization Authorization flag.
+ * @apiSuccess {Integer} data.authorization_id Authorization id.
+ * @apiSuccess {String} data.transaction_id Transaction id.
+ * @apiSuccess {String} data.text Transacition description.
+ * @apiSuccess {String} data.mode Transaction mode.
+ * @apiSuccess {String} data.type_card Credit card type.
+ * @apiUse NotAuthenticated
+ *
+ */
