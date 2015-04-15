@@ -38,7 +38,7 @@ class HalcashService extends BaseService{
         if(isset($baseTransaction->getDataIn()['sms_language'])){
             $language = strtoupper($baseTransaction->getDataIn()['sms_language']);
         }else{
-            $language = 'ESP';
+            $language = 'ENG';
         }
 
         $country = $baseTransaction->getDataIn()['country'];
@@ -51,7 +51,7 @@ class HalcashService extends BaseService{
         $transaction_id=$baseTransaction->getId();
 
         //comprobar el pais para utilizar uno u otro
-        if($country=='ES'){
+        if($country==='ES'){
             $hal = $this->halcashProvider->sendV3($phone_number,$phone_prefix,$amount,$reference,$pin,$transaction_id);
         }else{
             $hal = $this->halcashProvider->sendInternational($phone_number,$phone_prefix,$amount,$reference,$pin,$transaction_id,$country,$language);

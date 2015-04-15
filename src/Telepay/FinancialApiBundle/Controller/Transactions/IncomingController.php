@@ -206,18 +206,25 @@ class IncomingController extends RestApiController{
             $scale=$current_wallet->getScale();
             $transaction->setScale($scale);
 
-
             try {
                 $transaction = $service->create($transaction);
             }catch (HttpException $e){
-                if($transaction->getStatus() === Transaction::$STATUS_CREATED)
-                    $transaction->setStatus(Transaction::$STATUS_FAILED);
-                $dm->persist($transaction);
-                $dm->flush();
-                $current_wallet->setAvailable($current_wallet->getAvailable()+$total);
-                $em->persist($current_wallet);
-                $em->flush();
-                throw $e;
+                if( $transaction->getStatus() === Transaction::$STATUS_CREATED ){
+                    if($e->getStatusCode()>=500){
+                        $transaction->setStatus(Transaction::$STATUS_REVIEW);
+                    }else{
+                        $transaction->setStatus( Transaction::$STATUS_FAILED );
+                        $current_wallet->setAvailable($current_wallet->getAvailable()+$total);
+                        $em->persist($current_wallet);
+                        $em->flush();
+                        $dm->persist($transaction);
+                        $dm->flush();
+
+                        throw $e;
+                    }
+
+                }
+
             }
 
             $transaction->setTimeOut(new \MongoDate());
@@ -380,10 +387,52 @@ class IncomingController extends RestApiController{
         if(!$transaction) throw new HttpException(404, 'Transaction not found');
 
         if($transaction->getService() != $service->getCname()) throw new HttpException(404, 'Transaction not found');
-        $transaction = $service->update($transaction,$data);
+
         $mongo = $this->get('doctrine_mongodb')->getManager();
+
+        //retry=true y cancel=true aqui
+        if( isset( $data['retry'] ) || isset ( $data ['cancel'] )){
+            if( isset( $data['retry'] ) && $data['retry'] == true ){
+
+                if( $transaction->getStatus()== Transaction::$STATUS_REVIEW ){
+                    try {
+                        $transaction = $service->create($transaction);
+                    }catch (HttpException $e){
+                        if($e->getStatusCode()>=500){
+                            $transaction->setStatus(Transaction::$STATUS_REVIEW);
+                        }else{
+                            $transaction->setStatus( Transaction::$STATUS_FAILED );
+                            $mongo->persist($transaction);
+                            $mongo->flush();
+
+                            throw $e;
+                        }
+
+                    }
+
+                }
+
+            }
+
+            if( isset( $data['cancel'] ) && $data['cancel'] == true ){
+
+                $ticket=$transaction->getDataOut()['halcashticket'];
+
+                $hal = $this->halcashProvider->cancelation($ticket, $data['reference']);
+
+                if($hal['errorcode']==0){
+                    $transaction->setStatus('cancelled');
+                }
+
+            }
+        }else{
+            $transaction = $service->update($transaction,$data);
+        }
+
+
         $mongo->persist($transaction);
         $mongo->flush();
+
         return $this->restTransaction($transaction, "Got ok");
     }
 
