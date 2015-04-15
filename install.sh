@@ -15,7 +15,7 @@ fi
 
 if [[ -t 0 ]];then
     cat <<EOF
-You must provide the content of parameters.yml from stin
+You must provide the content of parameters.yml from stdin
 *** Installer finished failed ***
 EOF
     exit -2
