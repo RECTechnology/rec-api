@@ -1181,12 +1181,12 @@
             "source": {
                 "type": "git",
                 "url": "https://github.com/FriendsOfSymfony/FOSUserBundle.git",
-                "reference": "808672b01f6aa6777417551c72a0be2c3545eafe"
+                "reference": "c773f9705ebebbafeb335b8c5a32a9495293b17e"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/FriendsOfSymfony/FOSUserBundle/zipball/808672b01f6aa6777417551c72a0be2c3545eafe",
-                "reference": "808672b01f6aa6777417551c72a0be2c3545eafe",
+                "url": "https://api.github.com/repos/FriendsOfSymfony/FOSUserBundle/zipball/c773f9705ebebbafeb335b8c5a32a9495293b17e",
+                "reference": "c773f9705ebebbafeb335b8c5a32a9495293b17e",
                 "shasum": ""
             },
             "require": {
@@ -1240,7 +1240,7 @@
             "keywords": [
                 "User management"
             ],
-            "time": "2015-03-12 11:42:34"
+            "time": "2015-04-15 13:21:25"
         },
         {
             "name": "incenteev/composer-parameter-handler",
@@ -2488,12 +2488,12 @@
             "source": {
                 "type": "git",
                 "url": "https://github.com/Telepay/PHP-SDK.git",
-                "reference": "6699b8e6bf3305841e556a78a3bd2e2f157a876f"
+                "reference": "bcf9edd6b828146cdf9a6738d4417d4a799bf319"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/Telepay/PHP-SDK/zipball/6699b8e6bf3305841e556a78a3bd2e2f157a876f",
-                "reference": "6699b8e6bf3305841e556a78a3bd2e2f157a876f",
+                "url": "https://api.github.com/repos/Telepay/PHP-SDK/zipball/bcf9edd6b828146cdf9a6738d4417d4a799bf319",
+                "reference": "bcf9edd6b828146cdf9a6738d4417d4a799bf319",
                 "shasum": ""
             },
             "require": {
@@ -2513,7 +2513,7 @@
                 }
             ],
             "description": "The Telepay PHP SDK for easy integrate Telepay APIs from PHP",
-            "time": "2015-04-02 11:08:19"
+            "time": "2015-04-15 10:47:38"
         },
         {
             "name": "twig/extensions",
