@@ -52,6 +52,11 @@ class Transaction implements TransactionTiming {
     /**
      * @Exclude
      */
+    public static $STATUS_REVIEW = "review";
+
+    /**
+     * @Exclude
+     */
     public static $STATUS_CANCELLED = "cancelled";
 
     /**
