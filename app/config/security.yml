@@ -43,6 +43,13 @@ security:
             signature_auth: true
             switch_user:  { role: ROLE_ADMIN, parameter: su }
 
+        user:
+            pattern: ^/user
+            stateless: true
+            fos_oauth:  true
+            signature_auth: true
+            switch_user:  { role: ROLE_ADMIN, parameter: su }
+
         oauth:
             pattern:    ^/
             fos_oauth:  true
