@@ -76,6 +76,7 @@ class PagoFacilService extends BaseService{
         if($pagofacil['authorization']==0) throw new HttpException(409,$pagofacil['error']);
 
         $baseTransaction->setData($pagofacil);
+        $baseTransaction->setDataOut($pagofacil);
 
         return $baseTransaction;
 
