@@ -191,7 +191,7 @@ class IncomingController extends RestApiController{
         if($service->getcashDirection()=='out'){
 
             foreach ( $wallets as $wallet){
-                if ($wallet->getCurrency()==$service_currency){
+                if ($wallet->getCurrency() == $service_currency){
                     if($wallet->getAvailable()<=$total) throw new HttpException(509,'Not founds enough');
                     //Bloqueamos la pasta en el wallet
                     $actual_available=$wallet->getAvailable();
@@ -244,7 +244,7 @@ class IncomingController extends RestApiController{
                 $feeTransaction->setStatus('success');
                 $feeTransaction->setScale($scale);
                 $feeTransaction->setAmount($total_fee*-1);
-                $feeTransaction->setUser($user);
+                $feeTransaction->setUser($user->getId());
                 $feeTransaction->setCreated(new \MongoDate());
                 $feeTransaction->setTimeOut(new \MongoDate());
                 $feeTransaction->setTimeIn(new \MongoDate());
