@@ -98,7 +98,7 @@ class CheckCryptoCommand extends ContainerAwareCommand
                                 'previous_balance'  =>  $current_wallet->getBalance(),
                                 'previous_transaction'  =>  $check->getId()
                             ));
-                            $feeTransaction->setTotal($total_fee*-1);
+                            $feeTransaction->setTotal(-$total_fee);
                             $feeTransaction->setCurrency($check->getCurrency());
                             $feeTransaction->setService($service);
 
