@@ -325,7 +325,7 @@ class IncomingController extends RestApiController{
                 $feeTransaction=new Transaction();
                 $feeTransaction->setStatus('success');
                 $feeTransaction->setScale($scale);
-                $feeTransaction->setAmount(-$total_fee);
+                $feeTransaction->setAmount($total_fee);
                 $feeTransaction->setUser($user->getId());
                 $feeTransaction->setCreated(new \MongoDate());
                 $feeTransaction->setTimeOut(new \MongoDate());
