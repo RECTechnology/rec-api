@@ -87,7 +87,8 @@ class FeeDeal{
                     'amount'    =>  $fee
                 ));
                 $transaction->setData(array(
-                    'parent_id' => $transaction_id
+                    'parent_id' =>  $transaction_id,
+                    'type'      =>  'suma_amount'
                 ));
                 //incloure les fees en la transacció
                 $transaction->setStatus('success');
@@ -119,7 +120,8 @@ class FeeDeal{
                 'amount'    =>  $total
             ));
             $feeTransaction->setData(array(
-                'parent_id' => $transaction->getId()
+                'parent_id' => $transaction->getId(),
+                'type'      =>  'resta_fee'
             ));
             //incloure les fees en la transacció
             $feeTransaction->setStatus('success');
