@@ -93,7 +93,7 @@ class IncomingController extends RestApiController{
         }
 
         $amount=$dataIn['amount'];
-        $transaction->setTotal($amount);
+        $transaction->setAmount($amount);
 
         //añadimos las comisiones para chekear
         $fixed_fee=$group_commission->getFixed();
@@ -108,11 +108,11 @@ class IncomingController extends RestApiController{
         //comprobamos si es cash out
         if($service->getcashDirection()=='out'){
             //le cambiamos el signo para guardarla i marcarla como salida en el wallet
-            $transaction->setAmount(-$amount);
+            $transaction->setTotal(-$amount);
             $total=$amount+$variable_fee+$fixed_fee;
         }else{
             $total=$amount-$variable_fee-$fixed_fee;
-            $transaction->setAmount($amount);
+            $transaction->setTotal($amount);
         }
 
         $limits=$user->getLimitCount();
@@ -243,7 +243,7 @@ class IncomingController extends RestApiController{
                 $feeTransaction=new Transaction();
                 $feeTransaction->setStatus('success');
                 $feeTransaction->setScale($scale);
-                $feeTransaction->setAmount(-$total_fee);
+                $feeTransaction->setAmount($total_fee);
                 $feeTransaction->setUser($user->getId());
                 $feeTransaction->setCreated(new \MongoDate());
                 $feeTransaction->setTimeOut(new \MongoDate());
@@ -264,7 +264,7 @@ class IncomingController extends RestApiController{
                     'previous_balance'  =>  $current_wallet->getBalance(),
                     'previous_transaction'  =>  $transaction->getId()
                 ));
-                $feeTransaction->setTotal($total_fee);
+                $feeTransaction->setTotal(-$total_fee);
                 $feeTransaction->setCurrency($transaction->getCurrency());
                 $feeTransaction->setService($service_cname);
 
@@ -325,7 +325,7 @@ class IncomingController extends RestApiController{
                 $feeTransaction=new Transaction();
                 $feeTransaction->setStatus('success');
                 $feeTransaction->setScale($scale);
-                $feeTransaction->setAmount(-$total_fee);
+                $feeTransaction->setAmount($total_fee);
                 $feeTransaction->setUser($user->getId());
                 $feeTransaction->setCreated(new \MongoDate());
                 $feeTransaction->setTimeOut(new \MongoDate());
@@ -348,7 +348,7 @@ class IncomingController extends RestApiController{
                     'previous_balance'  =>  $current_wallet->getBalance(),
                     'previous_transaction'  =>  $transaction->getId()
                 ));
-                $feeTransaction->setTotal($total_fee);
+                $feeTransaction->setTotal(-$total_fee);
                 $feeTransaction->setCurrency($transaction->getCurrency());
                 $feeTransaction->setService($service_cname);
 

@@ -80,7 +80,7 @@ class CheckCryptoCommand extends ContainerAwareCommand
                             $feeTransaction=new Transaction();
                             $feeTransaction->setStatus('success');
                             $feeTransaction->setScale($check->getScale());
-                            $feeTransaction->setAmount(-$total_fee);
+                            $feeTransaction->setAmount($total_fee);
                             $feeTransaction->setUser($user->getId());
                             $feeTransaction->setCreated(new \MongoDate());
                             $feeTransaction->setTimeOut(new \MongoDate());
@@ -98,7 +98,7 @@ class CheckCryptoCommand extends ContainerAwareCommand
                                 'previous_balance'  =>  $current_wallet->getBalance(),
                                 'previous_transaction'  =>  $check->getId()
                             ));
-                            $feeTransaction->setTotal($total_fee);
+                            $feeTransaction->setTotal(-$total_fee);
                             $feeTransaction->setCurrency($check->getCurrency());
                             $feeTransaction->setService($service);
 
