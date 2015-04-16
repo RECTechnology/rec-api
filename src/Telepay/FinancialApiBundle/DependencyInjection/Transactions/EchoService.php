@@ -71,6 +71,7 @@ class EchoService extends BaseService {
         }
 
 
+        $baseTransaction->setCurrency($currency);
 
         $baseTransaction->setStatus('success');
         $baseTransaction->setData(array(

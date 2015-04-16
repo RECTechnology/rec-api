@@ -287,16 +287,6 @@ class IncomingController extends RestApiController{
 
         }else{     //cashIn
 
-            foreach ( $wallets as $wallet){
-                if ($wallet->getCurrency() === $service_currency){
-                    $current_wallet=$wallet;
-                }
-            }
-
-            $scale=$current_wallet->getScale();
-            $transaction->setScale($scale);
-
-
             try {
                 $transaction = $service->create($transaction);
             }catch (HttpException $e){
@@ -308,6 +298,15 @@ class IncomingController extends RestApiController{
             }
 
             $em->flush();
+
+            foreach ( $wallets as $wallet){
+                if ($wallet->getCurrency() === $transaction->getCurrency()){
+                    $current_wallet=$wallet;
+                }
+            }
+
+            $scale=$current_wallet->getScale();
+            $transaction->setScale($scale);
 
             $transaction->setTimeOut(new \MongoDate());
             $dm->persist($transaction);
@@ -420,6 +419,11 @@ class IncomingController extends RestApiController{
                         }
 
                     }
+
+                    //transaccion exitosa
+                    //TODO actualizar el wallet del user
+                    //TODO cobrar comisiones
+                    //TODO hacer el reparto
 
                 }
 
