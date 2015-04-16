@@ -243,7 +243,7 @@ class IncomingController extends RestApiController{
                 $feeTransaction=new Transaction();
                 $feeTransaction->setStatus('success');
                 $feeTransaction->setScale($scale);
-                $feeTransaction->setAmount($total_fee*-1);
+                $feeTransaction->setAmount(-$total_fee);
                 $feeTransaction->setUser($user->getId());
                 $feeTransaction->setCreated(new \MongoDate());
                 $feeTransaction->setTimeOut(new \MongoDate());
@@ -264,7 +264,7 @@ class IncomingController extends RestApiController{
                     'previous_balance'  =>  $current_wallet->getBalance(),
                     'previous_transaction'  =>  $transaction->getId()
                 ));
-                $feeTransaction->setTotal($total_fee*-1);
+                $feeTransaction->setTotal(-$total_fee);
                 $feeTransaction->setCurrency($transaction->getCurrency());
                 $feeTransaction->setService($service_cname);
 
@@ -326,7 +326,7 @@ class IncomingController extends RestApiController{
                 $feeTransaction=new Transaction();
                 $feeTransaction->setStatus('success');
                 $feeTransaction->setScale($scale);
-                $feeTransaction->setAmount($total_fee*-1);
+                $feeTransaction->setAmount(-$total_fee);
                 $feeTransaction->setUser($user->getId());
                 $feeTransaction->setCreated(new \MongoDate());
                 $feeTransaction->setTimeOut(new \MongoDate());
@@ -349,7 +349,7 @@ class IncomingController extends RestApiController{
                     'previous_balance'  =>  $current_wallet->getBalance(),
                     'previous_transaction'  =>  $transaction->getId()
                 ));
-                $feeTransaction->setTotal($total_fee*-1);
+                $feeTransaction->setTotal(-$total_fee);
                 $feeTransaction->setCurrency($transaction->getCurrency());
                 $feeTransaction->setService($service_cname);
 
