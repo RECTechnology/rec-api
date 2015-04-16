@@ -114,7 +114,7 @@ class FeeDeal{
             $feeTransaction->setUser($creator->getId());
             $feeTransaction->setService($service_cname);
             $feeTransaction->setVersion($version);
-            $feeTransaction->setAmount($total);
+            $feeTransaction->setAmount(-$total);
             $feeTransaction->setDataIn(array(
                 'parent_id' => $transaction->getId(),
                 'amount'    =>  -$total
@@ -128,7 +128,7 @@ class FeeDeal{
             $feeTransaction->setCurrency($currency);
             $feeTransaction->setVariableFee($variable);
             $feeTransaction->setFixedFee($fixed);
-            $feeTransaction->setTotal(-$total);
+            $feeTransaction->setTotal($total);
             $feeTransaction->setScale($scale);
             $dm->persist($feeTransaction);
             $dm->flush();
