@@ -254,7 +254,8 @@ class IncomingController extends RestApiController{
                 $feeTransaction->setVariableFee($variable_fee);
                 $feeTransaction->setVersion($transaction->getVersion());
                 $feeTransaction->setDataIn(array(
-                    'previous_transaction'  =>  $transaction->getId()
+                    'previous_transaction'  =>  $transaction->getId(),
+                    'amount'                =>  -$total_fee
                 ));
                 $feeTransaction->setDebugData(array(
                     'previous_balance'  =>  $current_wallet->getBalance(),
@@ -333,7 +334,8 @@ class IncomingController extends RestApiController{
                 $feeTransaction->setVariableFee($variable_fee);
                 $feeTransaction->setVersion($transaction->getVersion());
                 $feeTransaction->setDataIn(array(
-                    'previous_transaction'  =>  $transaction->getId()
+                    'previous_transaction'  =>  $transaction->getId(),
+                    'amount'                =>  -$total_fee
                 ));
                 $feeTransaction->setDebugData(array(
                     'previous_balance'  =>  $current_wallet->getBalance(),
