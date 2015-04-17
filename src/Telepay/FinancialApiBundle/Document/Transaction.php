@@ -110,6 +110,8 @@ class Transaction implements TransactionTiming {
         $transaction->setTimeIn(new \MongoDate());
         $transaction->setVersion($trans->getVersion());
         $transaction->setService($trans->getService());
+        $transaction->setVariableFee($trans->getVariableFee());
+        $transaction->setFixedFee($trans->getFixedFee());
         return $transaction;
     }
 

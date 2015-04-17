@@ -239,7 +239,7 @@ class IncomingController extends RestApiController{
                 $em->persist($current_wallet);
                 $em->flush();
 
-                //todo nueva transaccion restando la comision al user
+                //nueva transaccion restando la comision al user
                 $feeTransaction=new Transaction();
                 $feeTransaction->setStatus('success');
                 $feeTransaction->setScale($scale);
@@ -399,23 +399,56 @@ class IncomingController extends RestApiController{
 
         $mongo = $this->get('doctrine_mongodb')->getManager();
 
-        //todo esto esta a medias
         //retry=true y cancel=true aqui
         if( isset( $data['retry'] ) || isset ( $data ['cancel'] )){
 
             if( isset( $data['retry'] ) && $data['retry'] == true ){
 
                 if( $transaction->getStatus()== Transaction::$STATUS_REVIEW ){
+
+                    $user_id = $transaction->getUser();
+
+                    $em=$this->getDoctrine()->getManager();
+
+                    $user =$em->getRepository('TelepayFinancialApiBundle:User')->find($user_id);
+                    $currency = $transaction->getCurrency();
+
+                    $wallets = $user->getWallets();
+
+                    $current_wallet = null;
+                    foreach($wallets as $wallet ){
+                        if($wallet->getCurrency() == $currency){
+                            $current_wallet = $wallet;
+
+                        }
+                    }
+
+                    if($current_wallet == null) throw new HttpException(404,'Wallet not found');
+
+                    $transaction_amount = $transaction->getTotal();
+                    $amount = $transaction->getAmount();
+                    $total_fee = $transaction->getFixedFee() + $transaction->getVariableFee();
+                    $total_amount = $transaction_amount - $total_fee ;
+
                     try {
+
                         $transaction = $service->create($transaction);
+
                     }catch (HttpException $e){
+
                         if($e->getStatusCode()>=500){
                             $transaction->setStatus(Transaction::$STATUS_REVIEW);
                         }else{
                             $transaction->setStatus( Transaction::$STATUS_FAILED );
                             $mongo->persist($transaction);
                             $mongo->flush();
-                            //todo devolver la pasta de la transaccion al wallet si es cash out (al available)
+                            //devolver la pasta de la transaccion al wallet si es cash out (al available)
+                            if( $service->getcashDirection() == 'out' ){
+                                $current_wallet->setAvailable($current_wallet->getAvailable() + $amount + $total_fee );
+                            }
+
+                            $em->persist($current_wallet);
+                            $em->flush();
 
                             throw $e;
                         }
@@ -425,38 +458,16 @@ class IncomingController extends RestApiController{
                     $mongo->persist($transaction);
                     $mongo->flush();
                     //transaccion exitosa
-                    //TODO actualizar el wallet del user if success
+                    //actualizar el wallet del user if success
 
                     if( $transaction->getStatus() == Transaction::$STATUS_SUCCESS ){
 
                         //sumamos la pasta al wallet
-                        //TODO cobrar comisiones
-                        //necesitamos: la transaccion, el wallet, el user
-                        $user_id = $transaction->getUser();
 
-                        $em=$this->getDoctrine()->getManager();
-
-                        $user =$em->getRepository('TelepayFinancialApiBundle:User')->find($user_id);
-                        $currency = $transaction->getCurrency();
-
-                        $wallets = $user->getWallets();
-
-                        $current_wallet = null;
-                        foreach($wallets as $wallet ){
-                            if($wallet->getCurrency() == $currency){
-                                $current_wallet = $wallet;
-
-                            }
-                        }
-
-                        if($current_wallet == null) throw new HttpException(404,'Wallet not found');
 
                         //si es cashout hay que actualizar el available i si es cash in los dos
-                        //TODO restar las comisionses en ambos casos al wallet
-                        $transaction_amount = $transaction->getTotal();
-                        $amount = $transaction->getAmount();
-                        $total_fee = $transaction->getFixedFee() + $transaction->getVariableFee();
-                        $total_amount = $transaction_amount - $total_fee ;
+                        //restar las comisionses en ambos casos al wallet
+
 
                         if( $service->getcashDirection() == 'out' ){
                             $current_wallet->setBalance($current_wallet->getBalance() + $total_amount );
@@ -472,8 +483,6 @@ class IncomingController extends RestApiController{
 
                         $feeTransaction = Transaction::createFromTransaction($transaction);
                         $feeTransaction->setAmount($total_fee);
-                        $feeTransaction->setFixedFee($transaction->getFixedFee());
-                        $feeTransaction->setVariableFee($transaction->getVariableFee());
                         $feeTransaction->setDataIn(array(
                             'previous_transaction'  =>  $transaction->getId(),
                             'amount'                =>  -$total_fee
