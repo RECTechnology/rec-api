@@ -402,38 +402,36 @@ class IncomingController extends RestApiController{
         //retry=true y cancel=true aqui
         if( isset( $data['retry'] ) || isset ( $data ['cancel'] )){
 
+            $user_id = $transaction->getUser();
+
+            $em=$this->getDoctrine()->getManager();
+
+            $user =$em->getRepository('TelepayFinancialApiBundle:User')->find($user_id);
+            $currency = $transaction->getCurrency();
+
+            $wallets = $user->getWallets();
+
+            $current_wallet = null;
+            foreach($wallets as $wallet ){
+                if($wallet->getCurrency() == $currency){
+                    $current_wallet = $wallet;
+
+                }
+            }
+
+            if($current_wallet == null) throw new HttpException(404,'Wallet not found');
+
+            $transaction_amount = $transaction->getTotal();
+            $amount = $transaction->getAmount();
+            $total_fee = $transaction->getFixedFee() + $transaction->getVariableFee();
+            $total_amount = $transaction_amount - $total_fee ;
+
             if( isset( $data['retry'] ) && $data['retry'] == true ){
 
                 if( $transaction->getStatus()== Transaction::$STATUS_REVIEW ){
 
-                    $user_id = $transaction->getUser();
-
-                    $em=$this->getDoctrine()->getManager();
-
-                    $user =$em->getRepository('TelepayFinancialApiBundle:User')->find($user_id);
-                    $currency = $transaction->getCurrency();
-
-                    $wallets = $user->getWallets();
-
-                    $current_wallet = null;
-                    foreach($wallets as $wallet ){
-                        if($wallet->getCurrency() == $currency){
-                            $current_wallet = $wallet;
-
-                        }
-                    }
-
-                    if($current_wallet == null) throw new HttpException(404,'Wallet not found');
-
-                    $transaction_amount = $transaction->getTotal();
-                    $amount = $transaction->getAmount();
-                    $total_fee = $transaction->getFixedFee() + $transaction->getVariableFee();
-                    $total_amount = $transaction_amount - $total_fee ;
-
                     try {
-
                         $transaction = $service->create($transaction);
-
                     }catch (HttpException $e){
 
                         if($e->getStatusCode()>=500){
@@ -519,13 +517,40 @@ class IncomingController extends RestApiController{
 
             if( isset( $data['cancel'] ) && $data['cancel'] == true ){
 
-                $ticket=$transaction->getDataOut()['halcashticket'];
+                if($transaction->getStatus()=='created'){
 
-                $hal = $this->halcashProvider->cancelation($ticket, $data['reference']);
+                    $transaction = $service->cancel($transaction,$data);
+                    $mongo = $this->get('doctrine_mongodb')->getManager();
+                    $mongo->persist($transaction);
+                    $mongo->flush();
 
-                if($hal['errorcode']==0){
-                    $transaction->setStatus('cancelled');
+                    if($transaction->getStatus()=='Cancelled'){
+                        $message='Cancel got ok';
+                        $code=200;
+
+                        //devolver la pasta de la transaccion al wallet si es cash out (al available)
+                        if( $service->getcashDirection() == 'out' ){
+                            $current_wallet->setAvailable($current_wallet->getAvailable() + $amount + $total_fee );
+                        }
+
+                        $em->persist($current_wallet);
+                        $em->flush();
+
+                    }else{
+                        $message='Not cancelled';
+                        $code=409;
+                    }
+                }else{
+                    $message='Cancel forbidden';
+                    $code=409;
                 }
+
+                return $this->restV2(
+                    $code,
+                    $transaction->getStatus(),
+                    $message,
+                    $transaction->dataOut()
+                );
 
             }
         }else{
