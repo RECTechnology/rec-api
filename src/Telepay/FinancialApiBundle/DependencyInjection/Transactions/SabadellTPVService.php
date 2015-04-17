@@ -90,6 +90,12 @@ class SabadellTPVService extends BaseService{
         return $transaction;
     }
 
+    public function cancel(Transaction $transaction,$data){
+
+        throw new HttpException(400,'Method not implemented');
+
+    }
+
     public function check(Transaction $transaction){
         $client_reference=$transaction->getId();
 
@@ -99,6 +105,8 @@ class SabadellTPVService extends BaseService{
 
         return $transaction;
     }
+
+
 
 
 }

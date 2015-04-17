@@ -65,4 +65,10 @@ class UkashTPVService extends BaseService{
     public function update(Transaction $transaction, $data){
 
     }
+
+    public function cancel(Transaction $transaction,$data){
+
+        throw new HttpException(400,'Method not implemented');
+
+    }
 }

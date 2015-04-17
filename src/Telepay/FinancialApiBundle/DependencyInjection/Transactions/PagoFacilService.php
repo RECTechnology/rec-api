@@ -86,6 +86,12 @@ class PagoFacilService extends BaseService{
 
     }
 
+    public function cancel(Transaction $transaction,$data){
+
+        throw new HttpException(400,'Method not implemented');
+
+    }
+
     public function check(Transaction $transaction){
         $client_reference=$transaction->getId();
 

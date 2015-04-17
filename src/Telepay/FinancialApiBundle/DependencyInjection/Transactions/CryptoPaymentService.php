@@ -100,4 +100,10 @@ class CryptoPaymentService extends BaseService {
         }
         return $transaction;
     }
+
+    public function cancel(Transaction $transaction,$data){
+
+        throw new HttpException(400,'Method not implemented');
+
+    }
 }

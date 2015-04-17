@@ -63,6 +63,12 @@ class PaynetReferenceService extends BaseService{
 
     }
 
+    public function cancel(Transaction $transaction,$data){
+
+        throw new HttpException(400,'Method not implemented');
+
+    }
+
     public function check(Transaction $transaction){
         $data=$transaction->getData();
         $client_reference=$data['id_paynet'];
