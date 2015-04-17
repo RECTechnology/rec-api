@@ -101,8 +101,8 @@ class IncomingController extends RestApiController{
         $total_fee=$fixed_fee+$variable_fee;
 
         //incloure les fees en la transacció
-        $transaction->setVariableFee($group_commission->getVariable());
-        $transaction->setFixedFee($group_commission->getFixed());
+        $transaction->setVariableFee($fixed_fee);
+        $transaction->setFixedFee($variable_fee);
         $dm->persist($transaction);
 
         //comprobamos si es cash out
@@ -402,6 +402,7 @@ class IncomingController extends RestApiController{
         //todo esto esta a medias
         //retry=true y cancel=true aqui
         if( isset( $data['retry'] ) || isset ( $data ['cancel'] )){
+
             if( isset( $data['retry'] ) && $data['retry'] == true ){
 
                 if( $transaction->getStatus()== Transaction::$STATUS_REVIEW ){
@@ -414,16 +415,94 @@ class IncomingController extends RestApiController{
                             $transaction->setStatus( Transaction::$STATUS_FAILED );
                             $mongo->persist($transaction);
                             $mongo->flush();
+                            //todo devolver la pasta de la transaccion al wallet si es cash out (al available)
 
                             throw $e;
                         }
 
                     }
 
+                    $mongo->persist($transaction);
+                    $mongo->flush();
                     //transaccion exitosa
-                    //TODO actualizar el wallet del user
-                    //TODO cobrar comisiones
-                    //TODO hacer el reparto
+                    //TODO actualizar el wallet del user if success
+
+                    if( $transaction->getStatus() == Transaction::$STATUS_SUCCESS ){
+
+                        //sumamos la pasta al wallet
+                        //TODO cobrar comisiones
+                        //necesitamos: la transaccion, el wallet, el user
+                        $user_id = $transaction->getUser();
+
+                        $em=$this->getDoctrine()->getManager();
+
+                        $user =$em->getRepository('TelepayFinancialApiBundle:User')->find($user_id);
+                        $currency = $transaction->getCurrency();
+
+                        $wallets = $user->getWallets();
+
+                        $current_wallet = null;
+                        foreach($wallets as $wallet ){
+                            if($wallet->getCurrency() == $currency){
+                                $current_wallet = $wallet;
+
+                            }
+                        }
+
+                        if($current_wallet == null) throw new HttpException(404,'Wallet not found');
+
+                        //si es cashout hay que actualizar el available i si es cash in los dos
+                        //TODO restar las comisionses en ambos casos al wallet
+                        $transaction_amount = $transaction->getTotal();
+                        $amount = $transaction->getAmount();
+                        $total_fee = $transaction->getFixedFee() + $transaction->getVariableFee();
+                        $total_amount = $transaction_amount - $total_fee ;
+
+                        if( $service->getcashDirection() == 'out' ){
+                            $current_wallet->setBalance($current_wallet->getBalance() + $total_amount );
+                        }else{
+                            $current_wallet->setAvailable($current_wallet->getAvailable() + $total_amount );
+                            $current_wallet->setBalance($current_wallet->getBalance() + $total_amount);
+                        }
+
+                        $em->persist($current_wallet);
+                        $em->flush();
+
+                        //cobramos comisiones al user y hacemos el reparto
+
+                        $feeTransaction = Transaction::createFromTransaction($transaction);
+                        $feeTransaction->setAmount($total_fee);
+                        $feeTransaction->setFixedFee($transaction->getFixedFee());
+                        $feeTransaction->setVariableFee($transaction->getVariableFee());
+                        $feeTransaction->setDataIn(array(
+                            'previous_transaction'  =>  $transaction->getId(),
+                            'amount'                =>  -$total_fee
+                        ));
+                        $feeTransaction->setData(array(
+                            'previous_transaction'  =>  $transaction->getId(),
+                            'amount'                =>  -$total_fee,
+                            'type'                  =>  'resta_fee'
+                        ));
+                        $feeTransaction->setDebugData(array(
+                            'previous_balance'  =>  $current_wallet->getBalance(),
+                            'previous_transaction'  =>  $transaction->getId()
+                        ));
+                        $feeTransaction->setTotal(-$total_fee);
+
+                        $mongo->persist($feeTransaction);
+
+                        //empezamos el reparto
+                        $group = $user->getGroups()[0];
+                        $creator=$group->getCreator();
+
+                        if(!$creator) throw new HttpException(404,'Creator not found');
+
+                        $transaction_id=$transaction->getId();
+                        $dealer=$this->get('net.telepay.commons.fee_deal');
+                        $dealer->deal($creator,$amount,$service_cname,$currency,$total_fee,$transaction_id,$transaction->getVersion());
+
+                    }
+
 
                 }
 
