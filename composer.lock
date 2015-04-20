@@ -2491,12 +2491,12 @@
             "source": {
                 "type": "git",
                 "url": "https://github.com/Telepay/PHP-SDK.git",
-                "reference": "1751618ee3bf3c436517eb19ae624ae8fe632b31"
+                "reference": "c590f006c1b06e83e869f7d599065b53fde826c3"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/Telepay/PHP-SDK/zipball/1751618ee3bf3c436517eb19ae624ae8fe632b31",
-                "reference": "1751618ee3bf3c436517eb19ae624ae8fe632b31",
+                "url": "https://api.github.com/repos/Telepay/PHP-SDK/zipball/c590f006c1b06e83e869f7d599065b53fde826c3",
+                "reference": "c590f006c1b06e83e869f7d599065b53fde826c3",
                 "shasum": ""
             },
             "require": {
@@ -2516,7 +2516,7 @@
                 }
             ],
             "description": "The Telepay PHP SDK for easy integrate Telepay APIs from PHP",
-            "time": "2015-04-15 17:14:45"
+            "time": "2015-04-20 10:26:04"
         },
         {
             "name": "twig/extensions",
@@ -2572,20 +2572,20 @@
         },
         {
             "name": "twig/twig",
-            "version": "v1.18.0",
+            "version": "v1.18.1",
             "source": {
                 "type": "git",
                 "url": "https://github.com/twigphp/Twig.git",
-                "reference": "4cf7464348e7f9893a93f7096a90b73722be99cf"
+                "reference": "9f70492f44398e276d1b81c1b43adfe6751c7b7f"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/twigphp/Twig/zipball/4cf7464348e7f9893a93f7096a90b73722be99cf",
-                "reference": "4cf7464348e7f9893a93f7096a90b73722be99cf",
+                "url": "https://api.github.com/repos/twigphp/Twig/zipball/9f70492f44398e276d1b81c1b43adfe6751c7b7f",
+                "reference": "9f70492f44398e276d1b81c1b43adfe6751c7b7f",
                 "shasum": ""
             },
             "require": {
-                "php": ">=5.2.4"
+                "php": ">=5.2.7"
             },
             "type": "library",
             "extra": {
@@ -2625,7 +2625,7 @@
             "keywords": [
                 "templating"
             ],
-            "time": "2015-01-25 17:32:08"
+            "time": "2015-04-19 08:30:27"
         },
         {
             "name": "willdurand/jsonp-callback-validator",
