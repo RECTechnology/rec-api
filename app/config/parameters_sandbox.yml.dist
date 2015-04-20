@@ -37,7 +37,7 @@ parameters:
     halcash_pass: fake
     halcash_alias: fake
 
-    sabadell_url_tpvv: 'https://sis-t.REDSYS.es:25443/canales'
+    sabadell_url_tpvv: 'https://sis-t.redsys.es:25443/sis/realizarPago'
     sabadell_secret: 'qwertyasdf0123456789'
     sabadell_name: Telepay
     sabadell_code: 327234688
