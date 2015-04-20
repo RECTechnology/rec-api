@@ -75,7 +75,44 @@ class PaynetReferenceService extends BaseService{
 
         $status=$this->paynetReferenceProvider->status($client_reference);
 
-        $transaction->setDataOut($status);
+        //$transaction->setDataOut($status);
+        if($status['error_code']==0){
+
+            switch ($status['status_code']) {
+                case 0:
+                    $status['status_description']='Printed';
+                    $transaction->setStatus('created');
+                    break;
+                case 1:
+                    $status['status_description']='Pending';
+                    $transaction->setStatus('review');
+                    break;
+                case 2:
+                    $status['status_description']='Authorized';
+                    $transaction->setStatus('success');
+                    break;
+                case 3:
+                    $status['status_description']='Canceled';
+                    $transaction->setStatus('cancelled');
+                    break;
+                case 4:
+                    $status['status_description']='Reversed';
+                    $transaction->setStatus('review');
+                    break;
+                case 5:
+                    $status['status_description']='Reserved';
+                    $transaction->setStatus('review');
+                    break;
+                case 6:
+                    $status['status_description']='Revision';
+                    $transaction->setStatus('review');
+                    break;
+                default:
+                    $status['status_description']='Unexpected error';
+                    break;
+            }
+
+        }
 
         return $transaction;
     }

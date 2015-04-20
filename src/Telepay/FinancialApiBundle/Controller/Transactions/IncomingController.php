@@ -590,8 +590,11 @@ class IncomingController extends RestApiController{
             $mongo->persist($transaction);
             $mongo->flush();
 
-            if($transaction->getStatus()=='success'){
+            $transaction->setUpdated(new \MongoDate());
+
+            if($transaction->getStatus()== Transaction::$STATUS_SUCCESS ){
                 //todo afegir la pasta al wallet i fer el reparto
+
             }
         }
 
