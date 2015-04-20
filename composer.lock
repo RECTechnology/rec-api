@@ -758,12 +758,12 @@
             "source": {
                 "type": "git",
                 "url": "https://github.com/doctrine/mongodb-odm.git",
-                "reference": "683728eb0b4723dd5551686addc724f8f1b13afe"
+                "reference": "94bc60445c95f627228fa7e72cc9958f70c033eb"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/doctrine/mongodb-odm/zipball/683728eb0b4723dd5551686addc724f8f1b13afe",
-                "reference": "683728eb0b4723dd5551686addc724f8f1b13afe",
+                "url": "https://api.github.com/repos/doctrine/mongodb-odm/zipball/94bc60445c95f627228fa7e72cc9958f70c033eb",
+                "reference": "94bc60445c95f627228fa7e72cc9958f70c033eb",
                 "shasum": ""
             },
             "require": {
@@ -828,7 +828,7 @@
                 "odm",
                 "persistence"
             ],
-            "time": "2015-04-07 14:09:54"
+            "time": "2015-04-17 14:05:34"
         },
         {
             "name": "doctrine/mongodb-odm-bundle",
@@ -836,24 +836,27 @@
             "source": {
                 "type": "git",
                 "url": "https://github.com/doctrine/DoctrineMongoDBBundle.git",
-                "reference": "1ac417f1e1374474778707f9f0d7d82b19d17922"
+                "reference": "428c21fd3bea9e27281784bcae2db9b7516b318e"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/doctrine/DoctrineMongoDBBundle/zipball/1ac417f1e1374474778707f9f0d7d82b19d17922",
-                "reference": "1ac417f1e1374474778707f9f0d7d82b19d17922",
+                "url": "https://api.github.com/repos/doctrine/DoctrineMongoDBBundle/zipball/428c21fd3bea9e27281784bcae2db9b7516b318e",
+                "reference": "428c21fd3bea9e27281784bcae2db9b7516b318e",
                 "shasum": ""
             },
             "require": {
                 "doctrine/mongodb-odm": "~1.0.0-beta10@dev",
                 "php": ">=5.3.2",
+                "symfony/config": "~2.2",
+                "symfony/console": "~2.1",
+                "symfony/dependency-injection": "~2.2",
                 "symfony/doctrine-bridge": "~2.1",
                 "symfony/framework-bundle": "~2.1",
                 "symfony/options-resolver": "~2.1"
             },
             "require-dev": {
                 "doctrine/data-fixtures": "@dev",
-                "symfony/form": "~2.1",
+                "symfony/form": "~2.3",
                 "symfony/yaml": "~2.1"
             },
             "suggest": {
@@ -895,7 +898,7 @@
                 "persistence",
                 "symfony"
             ],
-            "time": "2015-03-14 10:57:16"
+            "time": "2015-04-15 14:15:44"
         },
         {
             "name": "doctrine/orm",
@@ -981,12 +984,12 @@
             "source": {
                 "type": "git",
                 "url": "https://github.com/FriendsOfSymfony/FOSOAuthServerBundle.git",
-                "reference": "bbce53348576e8d6038902e7471a5c258a1bd19e"
+                "reference": "5cbc3ab2aebda1313d9f4c61a7f129c945b11c6a"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/FriendsOfSymfony/FOSOAuthServerBundle/zipball/bbce53348576e8d6038902e7471a5c258a1bd19e",
-                "reference": "bbce53348576e8d6038902e7471a5c258a1bd19e",
+                "url": "https://api.github.com/repos/FriendsOfSymfony/FOSOAuthServerBundle/zipball/5cbc3ab2aebda1313d9f4c61a7f129c945b11c6a",
+                "reference": "5cbc3ab2aebda1313d9f4c61a7f129c945b11c6a",
                 "shasum": ""
             },
             "require": {
@@ -1041,7 +1044,7 @@
                 "oauth2",
                 "server"
             ],
-            "time": "2014-11-06 08:02:11"
+            "time": "2015-04-18 08:33:23"
         },
         {
             "name": "friendsofsymfony/oauth2-php",
@@ -1181,12 +1184,12 @@
             "source": {
                 "type": "git",
                 "url": "https://github.com/FriendsOfSymfony/FOSUserBundle.git",
-                "reference": "c773f9705ebebbafeb335b8c5a32a9495293b17e"
+                "reference": "192c53916942847aee687722af54f431aead0b70"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/FriendsOfSymfony/FOSUserBundle/zipball/c773f9705ebebbafeb335b8c5a32a9495293b17e",
-                "reference": "c773f9705ebebbafeb335b8c5a32a9495293b17e",
+                "url": "https://api.github.com/repos/FriendsOfSymfony/FOSUserBundle/zipball/192c53916942847aee687722af54f431aead0b70",
+                "reference": "192c53916942847aee687722af54f431aead0b70",
                 "shasum": ""
             },
             "require": {
@@ -1240,7 +1243,7 @@
             "keywords": [
                 "User management"
             ],
-            "time": "2015-04-15 13:21:25"
+            "time": "2015-04-16 23:14:14"
         },
         {
             "name": "incenteev/composer-parameter-handler",
@@ -2488,12 +2491,12 @@
             "source": {
                 "type": "git",
                 "url": "https://github.com/Telepay/PHP-SDK.git",
-                "reference": "bcf9edd6b828146cdf9a6738d4417d4a799bf319"
+                "reference": "1751618ee3bf3c436517eb19ae624ae8fe632b31"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/Telepay/PHP-SDK/zipball/bcf9edd6b828146cdf9a6738d4417d4a799bf319",
-                "reference": "bcf9edd6b828146cdf9a6738d4417d4a799bf319",
+                "url": "https://api.github.com/repos/Telepay/PHP-SDK/zipball/1751618ee3bf3c436517eb19ae624ae8fe632b31",
+                "reference": "1751618ee3bf3c436517eb19ae624ae8fe632b31",
                 "shasum": ""
             },
             "require": {
@@ -2513,7 +2516,7 @@
                 }
             ],
             "description": "The Telepay PHP SDK for easy integrate Telepay APIs from PHP",
-            "time": "2015-04-15 10:47:38"
+            "time": "2015-04-15 17:14:45"
         },
         {
             "name": "twig/extensions",
