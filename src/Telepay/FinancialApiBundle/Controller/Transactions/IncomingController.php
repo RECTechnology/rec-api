@@ -512,7 +512,6 @@ class IncomingController extends RestApiController{
                             $dealer->deal($creator,$amount,$service_cname,$currency,$total_fee,$transaction_id,$transaction->getVersion());
                         }
 
-                        
                     }
 
 
