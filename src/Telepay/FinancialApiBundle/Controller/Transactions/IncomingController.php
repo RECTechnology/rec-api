@@ -234,10 +234,12 @@ class IncomingController extends RestApiController{
             //si la transaccion se finaliza se suma al wallet i se reparten las comisiones
             if($transaction->getStatus() === Transaction::$STATUS_SUCCESS){
 
-                //restar al usuario el amount + comisiones
-                $current_wallet->setBalance($current_wallet->getBalance()-$total);
-                $em->persist($current_wallet);
-                $em->flush();
+                if( $service_cname != 'echo'){
+                    //restar al usuario el amount + comisiones
+                    $current_wallet->setBalance($current_wallet->getBalance()-$total);
+                    $em->persist($current_wallet);
+                    $em->flush();
+                }
 
                 if( $total_fee != 0){
                     //nueva transaccion restando la comision al user
@@ -485,36 +487,39 @@ class IncomingController extends RestApiController{
                             $em->persist($current_wallet);
                             $em->flush();
 
-                            //cobramos comisiones al user y hacemos el reparto
+                            if($total_fee != 0){
+                                //cobramos comisiones al user y hacemos el reparto
 
-                            $feeTransaction = Transaction::createFromTransaction($transaction);
-                            $feeTransaction->setAmount($total_fee);
-                            $feeTransaction->setDataIn(array(
-                                'previous_transaction'  =>  $transaction->getId(),
-                                'amount'                =>  -$total_fee
-                            ));
-                            $feeTransaction->setData(array(
-                                'previous_transaction'  =>  $transaction->getId(),
-                                'amount'                =>  -$total_fee,
-                                'type'                  =>  'resta_fee'
-                            ));
-                            $feeTransaction->setDebugData(array(
-                                'previous_balance'  =>  $current_wallet->getBalance(),
-                                'previous_transaction'  =>  $transaction->getId()
-                            ));
-                            $feeTransaction->setTotal(-$total_fee);
+                                $feeTransaction = Transaction::createFromTransaction($transaction);
+                                $feeTransaction->setAmount($total_fee);
+                                $feeTransaction->setDataIn(array(
+                                    'previous_transaction'  =>  $transaction->getId(),
+                                    'amount'                =>  -$total_fee
+                                ));
+                                $feeTransaction->setData(array(
+                                    'previous_transaction'  =>  $transaction->getId(),
+                                    'amount'                =>  -$total_fee,
+                                    'type'                  =>  'resta_fee'
+                                ));
+                                $feeTransaction->setDebugData(array(
+                                    'previous_balance'  =>  $current_wallet->getBalance(),
+                                    'previous_transaction'  =>  $transaction->getId()
+                                ));
+                                $feeTransaction->setTotal(-$total_fee);
 
-                            $mongo->persist($feeTransaction);
+                                $mongo->persist($feeTransaction);
 
-                            //empezamos el reparto
-                            $group = $user->getGroups()[0];
-                            $creator=$group->getCreator();
+                                //empezamos el reparto
+                                $group = $user->getGroups()[0];
+                                $creator=$group->getCreator();
 
-                            if(!$creator) throw new HttpException(404,'Creator not found');
+                                if(!$creator) throw new HttpException(404,'Creator not found');
 
-                            $transaction_id=$transaction->getId();
-                            $dealer=$this->get('net.telepay.commons.fee_deal');
-                            $dealer->deal($creator,$amount,$service_cname,$currency,$total_fee,$transaction_id,$transaction->getVersion());
+                                $transaction_id=$transaction->getId();
+                                $dealer=$this->get('net.telepay.commons.fee_deal');
+                                $dealer->deal($creator,$amount,$service_cname,$currency,$total_fee,$transaction_id,$transaction->getVersion());
+                            }
+
                         }
 
                     }
