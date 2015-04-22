@@ -56,8 +56,8 @@ parameters:
     multiva_base_url: "/test"
 
     pademobile_client: 299249
-    pademobile_url: 'https://www.pademobile.com/comprar'
-    pademobile_env_url: 'test'
+    pademobile_url: 'https://staging.pademobile.com:700/comprar'
+    pademobile_env_url: '/test'
 
     pagofacil_id_sucursal: sucursal
     pagofacil_id_usuario: usuario
