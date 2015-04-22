@@ -214,6 +214,7 @@ class IncomingController extends RestApiController{
                         $transaction->setStatus(Transaction::$STATUS_REVIEW);
                     }else{
                         $transaction->setStatus( Transaction::$STATUS_FAILED );
+                        //desbloqueamos la pasta del wallet
                         $current_wallet->setAvailable($current_wallet->getAvailable()+$total);
                         $em->persist($current_wallet);
                         $em->flush();
@@ -369,9 +370,7 @@ class IncomingController extends RestApiController{
                         $dealer->deal($creator,$amount,$service_cname,$service_currency,$total_fee,$transaction_id,$transaction->getVersion());
                     }
 
-
                 }
-
 
             }
 
@@ -531,20 +530,31 @@ class IncomingController extends RestApiController{
 
             if( isset( $data['cancel'] ) && $data['cancel'] == true ){
 
-                if($transaction->getStatus()=='created'){
+                //el cash-out solo se puede cancelar si esta en created review o success
+                //el cash-in de momento no se puede cancelar
+                if($transaction->getStatus()== Transaction::$STATUS_CREATED || $transaction->getStatus() == Transaction::$STATUS_SUCCESS || $transaction->getStatus() == Transaction::$STATUS_REVIEW){
 
+                    $previous_status = $transaction->getStatus();
                     $transaction = $service->cancel($transaction,$data);
                     $mongo = $this->get('doctrine_mongodb')->getManager();
                     $mongo->persist($transaction);
                     $mongo->flush();
 
-                    if($transaction->getStatus()=='Cancelled'){
+                    if( $transaction->getStatus() == Transaction::$STATUS_CANCELLED ){
                         $message='Cancel got ok';
                         $code=200;
-
-                        //devolver la pasta de la transaccion al wallet si es cash out (al available)
-                        if( $service->getcashDirection() == 'out' ){
-                            $current_wallet->setAvailable($current_wallet->getAvailable() + $amount + $total_fee );
+                        //si estaba created solo hay que desbloquear la pasta
+                        if( $previous_status == Transaction::$STATUS_CREATED || $previous_status == Transaction::$STATUS_REVIEW){
+                            //devolver la pasta de la transaccion al wallet si es cash out (al available)
+                            if( $service->getcashDirection() == 'out' ){
+                                $current_wallet->setAvailable($current_wallet->getAvailable() + $amount );
+                            }
+                        //si estaba success hay que devolver la pasta al available i al balance
+                        }elseif ( $previous_status == Transaction::$STATUS_SUCCESS ){
+                            if( $service->getcashDirection() == 'out' ){
+                                $current_wallet->setAvailable($current_wallet->getAvailable() + $amount );
+                                $current_wallet->setBalance($current_wallet->getBalance() + $amount );
+                            }
                         }
 
                         $em->persist($current_wallet);
@@ -606,8 +616,23 @@ class IncomingController extends RestApiController{
 
             $transaction->setUpdated(new \MongoDate());
 
-            if($transaction->getStatus()== Transaction::$STATUS_SUCCESS ){
-                //todo afegir la pasta al wallet i fer el reparto
+            if($transaction->getStatus()== Transaction::$STATUS_CANCELLED ){
+                //DEVOLVER LA PASTA AL WALLET PERO NO LAS COMISIONES
+                if($service->getcashDirection() == 'out'){
+                    $user_id = $transaction->getUser();
+                    $em = $this->getDoctrine()->getManager();
+                    $user = $em->getRepository('TelepayFinancialApiBundle:User')->find($user_id);
+                    $wallets = $user->getWallets();
+                    foreach( $wallets as $wallet){
+                        if($wallet->getCurrency() == $transaction->getCurrency()){
+                            $wallet->setAvailable($wallet->getAvailable()+$transaction->getAmount());
+                            $wallet->setBalance($wallet->getBalance()+$transaction->getAmount());
+                            $em->persist($wallet);
+                            $em->flush();
+                        }
+                    }
+                }
+
 
             }
         }

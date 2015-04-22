@@ -11,7 +11,7 @@ use SOPGClassicMerchantClient;
         private $password;
         private $sysLang = 'en';
         //Debug true/false
-        private $debug = true;
+        private $debug = false;
         //Display Debug true/fam_close(fam)
         private $show_debug = false;
         //Display Errors true/false
@@ -61,9 +61,11 @@ use SOPGClassicMerchantClient;
                     if ( $testexecute === true )
                     {
                         // here user account topup -EXECUTE DEBIT SUCCESSFUL- !!!
+
                         show_debug();
                     }
                 }
+
                 show_debug();
             }
             elseif ( isset( $_GET['ok'] ) )

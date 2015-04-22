@@ -45,13 +45,13 @@ class HalcashService extends BaseService{
         //pasamos a euros porque lo recibimos en centimos
         $amount = $baseTransaction->getDataIn()['amount']/100;
         $reference = $baseTransaction->getDataIn()['reference'];
-        if(strlen($reference)>20) throw new HttpException(400,'Reference Field must be less than 20 characters');
+        if(strlen($reference) > 20) throw new HttpException(400,'Reference Field must be less than 20 characters');
         $pin = $baseTransaction->getDataIn()['pin'];
-        if(strlen($pin)>4) throw new HttpException(400,'Pin Field must be less than 5 characters');
-        $transaction_id=$baseTransaction->getId();
+        if(strlen($pin) > 4) throw new HttpException(400,'Pin Field must be less than 5 characters');
+        $transaction_id = $baseTransaction->getId();
 
         //comprobar el pais para utilizar uno u otro
-        if($country==='ES'){
+        if($country ==='ES'){
             $hal = $this->halcashProvider->sendV3($phone_number,$phone_prefix,$amount,$reference,$pin,$transaction_id);
         }else{
             $hal = $this->halcashProvider->sendInternational($phone_number,$phone_prefix,$amount,$reference,$pin,$transaction_id,$country,$language);
@@ -106,10 +106,10 @@ class HalcashService extends BaseService{
 
             switch($hal['estado']){
                 case 'Autorizada':
-                    $transaction->setStatus('created');
+                    $transaction->setStatus('success');
                     break;
                 case 'Preautorizada':
-                    $transaction->setStatus('created');
+                    $transaction->setStatus('success');
                     break;
                 case 'Anulada':
                     $transaction->setStatus('cancelled');

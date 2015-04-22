@@ -77,9 +77,9 @@ parameters:
     tc_branch_id: prod
     tc_url_flag: 1
 
-    psc_username: user
-    psc_password: pass
-    psc_env_url: ""
+    psc_username: psc_telepay_test
+    psc_password: bJnAWBTUlAelk
+    psc_env_url: '/test'
 
     ukash_generate_username: user
     ukash_generate_password: pass
