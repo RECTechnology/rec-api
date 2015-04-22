@@ -517,13 +517,30 @@ class IncomingController extends RestApiController{
                                 $transaction_id=$transaction->getId();
                                 $dealer=$this->get('net.telepay.commons.fee_deal');
                                 $dealer->deal($creator,$amount,$service_cname,$currency,$total_fee,$transaction_id,$transaction->getVersion());
+
+
                             }
 
                         }
 
+                        $code = 200;
+                        $message = 'Transaction retried';
+
+                    }else{
+                        $code = 409;
+                        $message = 'transaction under review';
                     }
 
+                    return $this->restV2(
+                        $code,
+                        $transaction->getStatus(),
+                        $message,
+                        $transaction->dataOut()
+                    );
 
+
+                }else{
+                    throw new HttpException(409,"This transaction can't be retried");
                 }
 
             }
