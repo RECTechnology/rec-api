@@ -607,7 +607,7 @@ class IncomingController extends RestApiController{
 
         if(!$transaction) throw new HttpException(404, 'Transaction not found');
 
-        if($transaction->getStatus()=='created' || $transaction->getStatus=='received'){
+        if($transaction->getStatus() == Transaction::$STATUS_CREATED || $transaction->getStatus == Transaction::$STATUS_RECEIVED ){
             if($transaction->getService() != $service->getCname()) throw new HttpException(404, 'Transaction not found');
             $transaction = $service->check($transaction);
             $mongo = $this->get('doctrine_mongodb')->getManager();
@@ -616,7 +616,7 @@ class IncomingController extends RestApiController{
 
             $transaction->setUpdated(new \MongoDate());
 
-            if($transaction->getStatus()== Transaction::$STATUS_CANCELLED ){
+            if($transaction->getStatus() == Transaction::$STATUS_CANCELLED ){
                 //DEVOLVER LA PASTA AL WALLET PERO NO LAS COMISIONES
                 if($service->getcashDirection() == 'out'){
                     $user_id = $transaction->getUser();
@@ -755,14 +755,14 @@ class IncomingController extends RestApiController{
 
         if(!$transaction) throw new HttpException(404, 'Transaction not found');
 
-        if($transaction->getStatus()=='created'){
+        if( $transaction->getStatus() == Transaction::$STATUS_CREATED ){
             if($transaction->getService() != $service->getCname()) throw new HttpException(404, 'Transaction not found');
             $transaction = $service->cancel($transaction,$data);
             $mongo = $this->get('doctrine_mongodb')->getManager();
             $mongo->persist($transaction);
             $mongo->flush();
 
-            if($transaction->getStatus()=='Cancelled'){
+            if( $transaction->getStatus() == Transaction::$STATUS_CANCELLED ){
                 $message='Cancel got ok';
                 $code=200;
 
