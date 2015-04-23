@@ -9,33 +9,6 @@ use Telepay\FinancialApiBundle\Security\Factory\IPSecurityFactory;
 
 class TelepayFinancialApiBundle extends Bundle {
 
-    /**
-     * ApiDoc Definitions
-     *
-     * @apiDefine UnauthorizedError
-     * @apiErrorExample Unauthorized
-     *    Error 401: Unauthorized
-     *    {
-     *          "code": 401,
-     *          "message": "You are not authenticated"
-     *    }
-     *
-     *
-     */
-
-
-
-
-
-
-
-
-
-
-
-
-
-
     public function getParent()
     {
         return 'FOSUserBundle';

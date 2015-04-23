@@ -28,7 +28,7 @@ class PublicController extends RestApiController{
         $testParam = $this->container->getParameter('testing_param');
         $dm = $this->getDoctrine()->getManager();
 
-        $usersRepo = $dm->getRepository('TelepayFinancialBundle:User');
+        $usersRepo = $dm->getRepository('TelepayFinancialApiBundle:User');
         $usersCount = count($usersRepo->findAll());
         return $this->restV2(200, "ok", "Testing Param", array( 'testparam'=>$testParam, 'userscount'=>$usersCount));
 
