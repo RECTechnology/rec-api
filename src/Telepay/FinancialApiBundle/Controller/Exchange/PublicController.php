@@ -25,8 +25,9 @@ class PublicController extends RestApiController{
         $btc2eur = $this->get('net.telepay.exchange.btcx'.$lowCurrency);
         $btc2eurPrice = $btc2eur->getPrice()->result->XXBTZEUR->b[0];
 
+        $testParam = $this->container->getParameter('testing_param');
 
-        return $this->restV2(200, "ok", "Ticker", $btc2eurPrice);
+        return $this->restV2(200, "ok", "Testing Param", $testParam);
 
         /*
         array(
