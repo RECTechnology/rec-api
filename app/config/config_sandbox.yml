@@ -1,5 +1,5 @@
 imports:
-    - { resource: parameters_sandbox.yml }
     - { resource: config.yml }
+    - { resource: parameters_sandbox.yml }
 
 
