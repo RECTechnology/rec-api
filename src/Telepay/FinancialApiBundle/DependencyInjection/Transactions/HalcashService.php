@@ -65,7 +65,7 @@ class HalcashService extends BaseService{
 
         switch($hal['errorcode']){
             case 0:
-                $baseTransaction->setStatus('success');
+                $baseTransaction->setStatus('created');
                 break;
             case 44:
                 throw new HttpException(502,'Invalid credentials');
@@ -106,25 +106,25 @@ class HalcashService extends BaseService{
 
             switch($hal['estado']){
                 case 'Autorizada':
-                    $transaction->setStatus('success');
+                    $transaction->setStatus('created');
                     break;
                 case 'Preautorizada':
-                    $transaction->setStatus('success');
+                    $transaction->setStatus('created');
                     break;
                 case 'Anulada':
                     $transaction->setStatus('cancelled');
                     break;
                 case 'BloqueadaPorCaducidad':
-                    $transaction->setStatus('locked');
+                    $transaction->setStatus('expired');
                     break;
                 case 'BloqueadaPorReintentos':
-                    $transaction->setStatus('locked');
+                    $transaction->setStatus('failed');
                     break;
                 case 'Devuelta':
                     $transaction->setStatus('returned');
                     break;
                 case 'Dispuesta':
-                    $transaction->setStatus('consumed');
+                    $transaction->setStatus('success');
                     break;
                 case 'EstadoDesconocido':
                     $transaction->setStatus('unknown');
