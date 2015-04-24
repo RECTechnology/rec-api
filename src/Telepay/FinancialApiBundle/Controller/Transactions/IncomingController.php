@@ -654,7 +654,6 @@ class IncomingController extends RestApiController{
             }
         }
 
-
         return $this->restTransaction($transaction, "Got ok");
 
     }
@@ -664,6 +663,7 @@ class IncomingController extends RestApiController{
      * @Rest\View
      */
     public function find(Request $request, $version_number, $service_cname){
+
         $service = $this->get('net.telepay.services.'.$service_cname.'.v'.$version_number);
 
         if (false === $this->get('security.authorization_checker')->isGranted($service->getRole())) {
@@ -747,6 +747,83 @@ class IncomingController extends RestApiController{
         $transaction = $service->notificate($transaction, $request->request->all());
 
         if(!$transaction) throw new HttpException(500, "oOps, the notification failed");
+
+        if($transaction->getStatus() == Transaction::$STATUS_SUCCESS ){
+            //sumar la pasta al wallet
+            $user_id = $transaction->getUser();
+
+            $em=$this->getDoctrine()->getManager();
+
+            $user =$em->getRepository('TelepayFinancialApiBundle:User')->find($user_id);
+            $currency = $transaction->getCurrency();
+
+            $wallets = $user->getWallets();
+
+            $current_wallet = null;
+            foreach($wallets as $wallet ){
+                if($wallet->getCurrency() == $currency){
+                    $current_wallet = $wallet;
+
+                }
+            }
+
+            if($current_wallet == null) throw new HttpException(404,'Wallet not found');
+
+            $transaction_amount = $transaction->getTotal();
+            $amount = $transaction->getAmount();
+            $total_fee = $transaction->getFixedFee() + $transaction->getVariableFee();
+            $total_amount = $transaction_amount - $total_fee ;
+
+            if( $service->getcashDirection() == 'out' ){
+                $current_wallet->setBalance($current_wallet->getBalance() + $total_amount );
+            }else{
+                $current_wallet->setAvailable($current_wallet->getAvailable() + $total_amount );
+                $current_wallet->setBalance($current_wallet->getBalance() + $total_amount);
+            }
+
+            $em->persist($current_wallet);
+            $em->flush();
+
+            if($total_fee != 0){
+                //cobramos comisiones al user y hacemos el reparto
+
+                $feeTransaction = Transaction::createFromTransaction($transaction);
+                $feeTransaction->setAmount($total_fee);
+                $feeTransaction->setDataIn(array(
+                    'previous_transaction'  =>  $transaction->getId(),
+                    'amount'                =>  -$total_fee
+                ));
+                $feeTransaction->setData(array(
+                    'previous_transaction'  =>  $transaction->getId(),
+                    'amount'                =>  -$total_fee,
+                    'type'                  =>  'resta_fee'
+                ));
+                $feeTransaction->setDebugData(array(
+                    'previous_balance'  =>  $current_wallet->getBalance(),
+                    'previous_transaction'  =>  $transaction->getId()
+                ));
+                $feeTransaction->setTotal(-$total_fee);
+
+                $mongo = $this->get('doctrine_mongodb')->getManager();
+                $mongo->persist($feeTransaction);
+                $mongo->flush();
+
+                //empezamos el reparto
+                $group = $user->getGroups()[0];
+                $creator=$group->getCreator();
+
+                if(!$creator) throw new HttpException(404,'Creator not found');
+
+                $transaction_id=$transaction->getId();
+                $dealer=$this->get('net.telepay.commons.fee_deal');
+                $dealer->deal($creator,$amount,$service_cname,$currency,$total_fee,$transaction_id,$transaction->getVersion());
+
+
+            }
+
+
+
+        }
 
         return $this->restV2(200, "ok", "Notification successful");
     }
