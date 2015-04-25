@@ -106,7 +106,77 @@ class SabadellTPVService extends BaseService{
         return $transaction;
     }
 
+    public function notificate(Transaction $transaction , $request){
 
+        static $paramNames = array(
+            'Ds_Date',
+            'Ds_Hour',
+            'Ds_Amount',
+            'Ds_Currency',
+            'Ds_Order',
+            'Ds_MerchantCode',
+            'Ds_Terminal',
+            'Ds_Signature',
+            'Ds_Response',
+            'Ds_TransactionType',
+            'Ds_SecurePayment',
+            'Ds_MerchantData',
+            'Ds_Card_Country',
+            'Ds_AuthorisationCode',
+            'Ds_ConsumerLenguage',
+            'Ds_Card_Type'
+        );
 
+        $params=array();
+        foreach ($paramNames as $paramName){
+            if(isset($request[$paramName])){
+                $params[]=$request[$paramName];
+            }else{
+                throw new HttpException(404,'Param '.$paramName.' not found');
+            }
+
+        }
+
+        $notification = $this->sabadellProvider->notification($params);
+
+        if($notification){
+            $dm = $this->get('doctrine_mongodb')->getManager();
+
+            $data = $transaction->getDataIn();
+            $redirect = $data['url_notification'];
+
+            $fields=array(
+                'telepay_id'    =>  $transaction->getId(),
+                'status'        =>  $notification
+            );
+
+            if($notification == 1){
+                $transaction->setStatus(Transaction::$STATUS_SUCCESS);
+            }else{
+                $transaction->setStatus(Transaction::$STATUS_CANCELLED);
+            }
+
+            $dm->persist($transaction);
+            $dm->flush();
+
+            //notificar al usuario
+            // create curl resource
+            $ch = curl_init();
+            // set url
+            curl_setopt($ch, CURLOPT_URL, $redirect);
+            //return the transfer as a string
+            curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
+            curl_setopt($ch,CURLOPT_POST,true);
+            curl_setopt($ch,CURLOPT_POSTFIELDS,$fields);
+            // $output contains the output string
+            $output = curl_exec($ch);
+            // close curl resource to free up system resources
+            curl_close($ch);
+
+        }
+
+        return $transaction;
+
+    }
 
 }

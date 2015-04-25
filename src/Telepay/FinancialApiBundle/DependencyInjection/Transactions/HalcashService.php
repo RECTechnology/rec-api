@@ -86,7 +86,7 @@ class HalcashService extends BaseService{
 
         $ticket=$transaction->getDataOut()['halcashticket'];
 
-        $hal = $this->halcashProvider->cancelation($ticket, $data['reference']);
+        $hal = $this->halcashProvider->cancelation($ticket, 'Telepay cancelation');
 
         if($hal['errorcode']==0){
             $transaction->setStatus('cancelled');

@@ -47,6 +47,11 @@ class Transaction implements TransactionTiming {
     /**
      * @Exclude
      */
+    public static $STATUS_ERROR = "error";
+
+    /**
+     * @Exclude
+     */
     public static $STATUS_FAILED = "failed";
 
     /**

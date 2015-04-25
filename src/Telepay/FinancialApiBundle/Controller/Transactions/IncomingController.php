@@ -211,9 +211,9 @@ class IncomingController extends RestApiController{
             }catch (HttpException $e){
                 if( $transaction->getStatus() === Transaction::$STATUS_CREATED ){
                     if($e->getStatusCode()>=500){
-                        $transaction->setStatus(Transaction::$STATUS_REVIEW);
+                        $transaction->setStatus(Transaction::$STATUS_FAILED);
                     }else{
-                        $transaction->setStatus( Transaction::$STATUS_FAILED );
+                        $transaction->setStatus( Transaction::$STATUS_ERROR );
                         //desbloqueamos la pasta del wallet
                         $current_wallet->setAvailable($current_wallet->getAvailable()+$total);
                         $em->persist($current_wallet);
@@ -450,7 +450,7 @@ class IncomingController extends RestApiController{
                             $mongo->flush();
                             //devolver la pasta de la transaccion al wallet si es cash out (al available)
                             if( $service->getcashDirection() == 'out' ){
-                                $current_wallet->setAvailable($current_wallet->getAvailable() + $amount + $total_fee );
+                                $current_wallet->setAvailable($current_wallet->getAvailable() + $amount );
                             }
 
                             $em->persist($current_wallet);
@@ -549,49 +549,43 @@ class IncomingController extends RestApiController{
 
                 //el cash-out solo se puede cancelar si esta en created review o success
                 //el cash-in de momento no se puede cancelar
-                if($transaction->getStatus()== Transaction::$STATUS_CREATED || $transaction->getStatus() == Transaction::$STATUS_SUCCESS || $transaction->getStatus() == Transaction::$STATUS_REVIEW){
+                if($transaction->getStatus()== Transaction::$STATUS_CREATED || $transaction->getStatus() == Transaction::$STATUS_SUCCESS || $transaction->getStatus() == Transaction::$STATUS_REVIEW || $transaction->getStatus() == Transaction::$STATUS_FAILED){
 
-                    $previous_status = $transaction->getStatus();
-                    $transaction = $service->cancel($transaction,$data);
-                    $mongo = $this->get('doctrine_mongodb')->getManager();
-                    $mongo->persist($transaction);
-                    $mongo->flush();
-
-                    if( $transaction->getStatus() == Transaction::$STATUS_CANCELLED ){
-                        $message='Cancel got ok';
-                        $code=200;
-                        //si estaba created solo hay que desbloquear la pasta
-                        if( $previous_status == Transaction::$STATUS_CREATED || $previous_status == Transaction::$STATUS_REVIEW){
-                            //devolver la pasta de la transaccion al wallet si es cash out (al available)
-                            if( $service->getcashDirection() == 'out' ){
-                                $current_wallet->setAvailable($current_wallet->getAvailable() + $amount );
-                            }
-                        //si estaba success hay que devolver la pasta al available i al balance
-                        }elseif ( $previous_status == Transaction::$STATUS_SUCCESS ){
-                            if( $service->getcashDirection() == 'out' ){
-                                $current_wallet->setAvailable($current_wallet->getAvailable() + $amount );
-                                $current_wallet->setBalance($current_wallet->getBalance() + $amount );
-                            }
+                    if( $transaction->getStatus() == Transaction::$STATUS_REVIEW || $transaction->getStatus() == Transaction::$STATUS_FAILED || $transaction->getStatus() == Transaction::$STATUS_CREATED ){
+                        $transaction->setStatus(Transaction::$STATUS_CANCELLED );
+                        $mongo->persist($transaction);
+                        $mongo->flush();
+                        //desbloquear pasta del wallet
+                        if( $service->getcashDirection() == 'out' ){
+                            $current_wallet->setAvailable($current_wallet->getAvailable() + $amount );
                         }
 
                         $em->persist($current_wallet);
                         $em->flush();
 
                     }else{
-                        $message='Not cancelled';
-                        $code=409;
-                    }
-                }else{
-                    $message='Cancel forbidden';
-                    $code=409;
-                }
+                        $transaction = $service->cancel($transaction,$data);
+                        $mongo->persist($transaction);
+                        $mongo->flush();
 
-                return $this->restV2(
-                    $code,
-                    $transaction->getStatus(),
-                    $message,
-                    $transaction->dataOut()
-                );
+                        if( $transaction->getStatus() == Transaction::$STATUS_CANCELLED ){
+                            //si estaba success hay que devolver la pasta al available i al balance
+                            if( $service->getcashDirection() == 'out' ){
+                                $current_wallet->setAvailable($current_wallet->getAvailable() + $amount );
+                                $current_wallet->setBalance($current_wallet->getBalance() + $amount );
+                            }
+
+                            $em->persist($current_wallet);
+                            $em->flush();
+
+                        }else{
+                            throw new HttpException(403, "This transaction can't be cancelled.");
+                        }
+                    }
+
+                }else{
+                    throw new HttpException(403, "This transaction can't be cancelled.");
+                }
 
             }
         }else{
@@ -654,7 +648,6 @@ class IncomingController extends RestApiController{
             }
         }
 
-
         return $this->restTransaction($transaction, "Got ok");
 
     }
@@ -664,6 +657,7 @@ class IncomingController extends RestApiController{
      * @Rest\View
      */
     public function find(Request $request, $version_number, $service_cname){
+
         $service = $this->get('net.telepay.services.'.$service_cname.'.v'.$version_number);
 
         if (false === $this->get('security.authorization_checker')->isGranted($service->getRole())) {
@@ -747,6 +741,83 @@ class IncomingController extends RestApiController{
         $transaction = $service->notificate($transaction, $request->request->all());
 
         if(!$transaction) throw new HttpException(500, "oOps, the notification failed");
+
+        if($transaction->getStatus() == Transaction::$STATUS_SUCCESS ){
+            //sumar la pasta al wallet
+            $user_id = $transaction->getUser();
+
+            $em=$this->getDoctrine()->getManager();
+
+            $user =$em->getRepository('TelepayFinancialApiBundle:User')->find($user_id);
+            $currency = $transaction->getCurrency();
+
+            $wallets = $user->getWallets();
+
+            $current_wallet = null;
+            foreach($wallets as $wallet ){
+                if($wallet->getCurrency() == $currency){
+                    $current_wallet = $wallet;
+
+                }
+            }
+
+            if($current_wallet == null) throw new HttpException(404,'Wallet not found');
+
+            $transaction_amount = $transaction->getTotal();
+            $amount = $transaction->getAmount();
+            $total_fee = $transaction->getFixedFee() + $transaction->getVariableFee();
+            $total_amount = $transaction_amount - $total_fee ;
+
+            if( $service->getcashDirection() == 'out' ){
+                $current_wallet->setBalance($current_wallet->getBalance() + $total_amount );
+            }else{
+                $current_wallet->setAvailable($current_wallet->getAvailable() + $total_amount );
+                $current_wallet->setBalance($current_wallet->getBalance() + $total_amount);
+            }
+
+            $em->persist($current_wallet);
+            $em->flush();
+
+            if($total_fee != 0){
+                //cobramos comisiones al user y hacemos el reparto
+
+                $feeTransaction = Transaction::createFromTransaction($transaction);
+                $feeTransaction->setAmount($total_fee);
+                $feeTransaction->setDataIn(array(
+                    'previous_transaction'  =>  $transaction->getId(),
+                    'amount'                =>  -$total_fee
+                ));
+                $feeTransaction->setData(array(
+                    'previous_transaction'  =>  $transaction->getId(),
+                    'amount'                =>  -$total_fee,
+                    'type'                  =>  'resta_fee'
+                ));
+                $feeTransaction->setDebugData(array(
+                    'previous_balance'  =>  $current_wallet->getBalance(),
+                    'previous_transaction'  =>  $transaction->getId()
+                ));
+                $feeTransaction->setTotal(-$total_fee);
+
+                $mongo = $this->get('doctrine_mongodb')->getManager();
+                $mongo->persist($feeTransaction);
+                $mongo->flush();
+
+                //empezamos el reparto
+                $group = $user->getGroups()[0];
+                $creator=$group->getCreator();
+
+                if(!$creator) throw new HttpException(404,'Creator not found');
+
+                $transaction_id=$transaction->getId();
+                $dealer=$this->get('net.telepay.commons.fee_deal');
+                $dealer->deal($creator,$amount,$service_cname,$currency,$total_fee,$transaction_id,$transaction->getVersion());
+
+
+            }
+
+
+
+        }
 
         return $this->restV2(200, "ok", "Notification successful");
     }

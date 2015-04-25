@@ -2,6 +2,8 @@
 namespace Telepay\FinancialApiBundle\DependencyInjection\Transactions\Libs;
 
 
+use Symfony\Component\HttpKernel\Exception\HttpException;
+
 class SabadellService{
 
     private $amount;
@@ -63,6 +65,29 @@ class SabadellService{
 
         return $response;
 
+    }
+
+    public function notification($params){
+
+        // Compute hash to sign form data
+        // $signature=sha1_hex($amount,$order,$code,$currency,$response,$clave);
+        $message = $params[2].$params[4].$params[5].$params[3].$params[8].$this->clave;
+
+        $signature = strtoupper(sha1($message));
+
+        if($signature==$params[7]){
+            if($params[8]<=99){
+                $status = 1;
+
+            }else{
+
+                $status = 0;
+
+            }
+            return $status;
+        }else{
+            throw new HttpException(403,'Forbidden');
+        }
     }
 
   }
