@@ -14,7 +14,7 @@ doc: clean-doc doc-api
 	cp -r doc/web/* build/doc/
 
 doc-api:
-    bash doc_install.sh
+	bash doc_install.sh
 	cd build/tmp && apidoc -i public -o ../build/doc/public
 	cd build/tmp && apidoc -i private -o ../build/doc/private
 	cp build/tmp/web/favicon.ico build/doc/public/img
