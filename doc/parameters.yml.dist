@@ -7,4 +7,5 @@ github_php_sdk: https://github.com/Telepay/PHP-SDK
 github_java_sdk: https://github.com/Telepay/Java-SDK
 github_android_sdk: https://github.com/Telepay
 github_nodejs_sdk: https://github.com/Telepay/NodeJS-SDK
+commerce_panel_url: https://cp.telepay.net
 

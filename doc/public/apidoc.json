@@ -1,12 +1,12 @@
 {
-  "name": "Telepay API Documentation",
+  "name": "{{ name }} API Documentation",
   "version": "0.1.0",
-  "description": "Documentation for Telepay API",
-  "title": "REST API - Telepay",
-  "url" : "https://api.telepay.net",
-  "sampleUrl" : "https://api.telepay.net/test",
+  "description": "Documentation for {{ name }} API",
+  "title": "REST API - {{ name }}",
+  "url" : "{{ url }}",
+  "sampleUrl" : "{{ url }}/test",
   "header": {
-    "title": "Telepay API",
+    "title": "{{ name }} API",
     "filename": "header.md"
   },
   "footer": {
