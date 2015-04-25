@@ -1,0 +1,10 @@
+name: Telepay
+title: Telepay Developers
+subtitle: Financial Services
+url: https://api.telepay.net
+github_root: https://github.com/Telepay
+github_php_sdk: https://github.com/Telepay/PHP-SDK
+github_java_sdk: https://github.com/Telepay/Java-SDK
+github_android_sdk: https://github.com/Telepay
+github_nodejs_sdk: https://github.com/Telepay/NodeJS-SDK
+
