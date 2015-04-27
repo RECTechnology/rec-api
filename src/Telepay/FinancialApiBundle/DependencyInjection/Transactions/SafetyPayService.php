@@ -40,12 +40,14 @@ class SafetyPayService extends BaseService{
         $amount = round($baseTransaction->getDataIn()['amount']/100,2);
         //prepare notification urls
         $id=$baseTransaction->getId();
+        $v = $baseTransaction->getVersion();
 
         $request=$this->getTransactionContext()->getRequestStack()->getCurrentRequest();
         $url_base=$request->getSchemeAndHttpHost().$request->getBaseUrl();
 
-        $url_success=$url_base.'/notifications/v1/safetypay?tid='.$id.'&error=0';
-        $url_fail = $url_base.'/notifications/v1/safetypay?tid='.$id.'&error=1';
+        //control service version for the notification
+        $url_success=$url_base.'/notifications/v'.$v.'/safetypay/'.$id.'?error=0';
+        $url_fail = $url_base.'/notifications/v'.$v.'/safetypay/'.$id.'?error=1';
 
         $baseTransaction->setDebugData(array(
             'url_success'   =>  $url_success,
@@ -74,6 +76,25 @@ class SafetyPayService extends BaseService{
     public function cancel(Transaction $transaction,$data){
 
         throw new HttpException(400,'Method not implemented');
+
+    }
+
+    public function notificate(Transaction $transaction,$data){
+
+        //redirect to corersponding url
+        $error = $data['error'];
+
+        if( $error == '0' ){
+
+            $transaction->setStatus(Transaction::$STATUS_SUCCESS);
+
+        }else{
+
+            $transaction->setStatus(Transaction::$STATUS_CANCELLED);
+
+        }
+
+        return $transaction;
 
     }
 

@@ -722,12 +722,16 @@ class IncomingController extends RestApiController{
 
         if($transaction->getService() != $service->getCname()) throw new HttpException(404, 'Transaction not found');
 
-        $transaction = $service->notificate($transaction, $request->request->all());
+        if($service_cname == 'safetypay' ){
+            $transaction = $service->notificate($transaction, $request->query->all());
+        }else{
+            $transaction = $service->notificate($transaction, $request->request->all());
+        }
 
         if(!$transaction) throw new HttpException(500, "oOps, the notification failed");
 
         if($transaction->getStatus() == Transaction::$STATUS_SUCCESS ){
-            //sumar la pasta al wallet
+            //update wallet
             $user_id = $transaction->getUser();
 
             $em=$this->getDoctrine()->getManager();
@@ -799,11 +803,19 @@ class IncomingController extends RestApiController{
 
             }
 
-
+            if($service_cname == 'safetypay' ){
+                return $this->redirect($transaction->getDataIn()['url_success']);
+            }
 
         }
 
-        return $this->restV2(200, "ok", "Notification successful");
+        if($service_cname == 'safetypay' ){
+            return $this->redirect($transaction->getDataIn()['url_fail']);
+        }else{
+            return $this->restV2(200, "ok", "Notification successful");
+        }
+
+
     }
 
     /**

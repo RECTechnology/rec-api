@@ -65,14 +65,14 @@ parameters:
     pagofacil_id_servicio: servicio
     pagofacil_url_flag: prod
 
-    safetypay_api_key: api_key
-    safetypay_signature_key: signature_key
-    safetypay_merchant_reference: merchant
+    safetypay_api_key: 247acc3167b49419634fe3b87e8623ef
+    safetypay_signature_key: 43b4da81e4a4fc2a1c1f1b45d53bf577
+    safetypay_merchant_reference: 5170
     safetypay_language: ES
-    safetypay_tracking_code: ""
+    safetypay_tracking_code: ''
     safetypay_expiration_time: 5
     safetypay_response_format: CSV
-    safetypay_url: "safety_url"
+    safetypay_url: 'https://mws2.safetypay.com/Sandbox/express/post/v.2.2/CreateExpressToken.aspx'
 
     tc_contract_id: xxx
     tc_branch_id: prod
