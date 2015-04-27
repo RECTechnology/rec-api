@@ -18,8 +18,8 @@ doc-api:
 	bash doc_install.sh
 	cd $(DOC_TMP_DIR) && apidoc -i public -o ../../doc/public
 	cd $(DOC_TMP_DIR) && apidoc -i private -o ../../doc/private
-	cp $(DOC_TMP_DIR)/web/favicon.ico build/doc/public/img
-	cp $(DOC_TMP_DIR)/web/favicon.ico build/doc/private/img
+	cp $(DOC_TMP_DIR)/web/*.ico build/doc/public/img
+	cp $(DOC_TMP_DIR)/web/*.ico build/doc/private/img
 	cp $(DOC_TMP_DIR)/private/.htaccess build/doc/private
 	cp $(DOC_TMP_DIR)/web/js/* build/doc/public/vendor
 	sed -i '11 i\  <script src="vendor/MagicAccessToken.js"></script>' build/doc/public/index.html

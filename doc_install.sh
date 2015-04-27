@@ -2,7 +2,7 @@
 
 
 if ! test -f doc/parameters.yml;then
-    echo "'doc_parameters.yml' file not found, please create it" >&2
+    echo "'doc/parameters.yml' file not found, please create it" >&2
     exit 1
 fi
 
