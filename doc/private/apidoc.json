@@ -1,12 +1,12 @@
 {
-  "name": "Telepay Internal API",
+  "name": "{{ name }} Internal API",
   "version": "0.1.0",
-  "description": "Documentation for the internal Telepay API",
-  "title": "REST API - Telepay",
-  "url" : "https://pre-api.telepay.net",
-  "sampleUrl" : "https://pre-api.telepay.net/test",
+  "description": "Documentation for the internal {{ name }} API",
+  "title": "REST API - {{ name }}",
+  "url" : "{{ url }}",
+  "sampleUrl" : "{{ url }}/test",
   "header": {
-    "title": "Telepay Internal API",
+    "title": "{{ name }} Internal API",
     "filename": "header.md"
   },
   "footer": {

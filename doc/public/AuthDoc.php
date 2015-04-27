@@ -87,7 +87,7 @@
  * @apiExample {python} Signed requests authentication schema
  * # Authenticaton scheme explained in pseudo-code
  *
- * # The authentication credentials provided in https://cp.telepay.net/user/account
+ * # The authentication credentials provided in {{ commerce_panel_url }}/user/account
  * access_key = "edbeb673024f2d0e23752e2814ca1ac4c589f761"
  * access_secret = "wlqDEET8uIr5RN00AMuuceI9LLKMTNLpzlETlX3djVg="
  *
@@ -215,7 +215,7 @@
  * @api {post} /services/v1/echo Sample signature
  * @apiName EchoSignedRequest
  * @apiDescription Creates a transaction to the echo service with the signed request, this authentication schema
- * allows to make a single call (OAuth 2.0 needs user interaction and needs two calls) is used by all the Telepay
+ * allows to make a single call (OAuth 2.0 needs user interaction and needs two calls) is used by all the {{ name }}
  * SDKs and should be used for <a href="http://en.wikipedia.org/wiki/Machine_to_machine">machine-to-machine</a>
  * interaction.
  * @apiVersion 0.1.1

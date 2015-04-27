@@ -306,13 +306,13 @@
  * @apiSuccess {String} data.comtotal Total Transaction.
  * @apiSuccess {Integer} data.comcurrency Currency code.
  * @apiSuccess {String} data.comaddress PROSA.
- * @apiSuccess {String} data.comorder_id Telepay id.
+ * @apiSuccess {String} data.comorder_id {{ name }} id.
  * @apiSuccess {Integer} data.commerchant Merchant id.
- * @apiSuccess {Integer} data.comstore Store reference asigned by Telepay.
- * @apiSuccess {Integer} data.comterm Terminal code asigned by Telepay.
+ * @apiSuccess {Integer} data.comstore Store reference asigned by {{ name }}.
+ * @apiSuccess {Integer} data.comterm Terminal code asigned by {{ name }}.
  * @apiSuccess {String} data.comdigest Multiva digest.
  * @apiSuccess {String} data.comaction Form action url.
- * @apiSuccess {String} data.comurlback Telepay notification url.
+ * @apiSuccess {String} data.comurlback {{ name }} notification url.
  * @apiUse NotAuthenticated
  *
  */
@@ -341,11 +341,11 @@
  * @apiSuccess {Object} data The data for the form to generate the TPV.
  * @apiSuccess {String} data.Ds_Merchant_Amount Total transaction amount.
  * @apiSuccess {Integer} data.Ds_Merchant_Currency Currency code ISO-8601.
- * @apiSuccess {String} data.Ds_Merchant_Order Telepay transaction id.
- * @apiSuccess {Integer} data.Ds_Merchant_MerchantCode Telepay merchant code.
- * @apiSuccess {Integer} data.Ds_Merchant_Terminal Telepay terminal.
+ * @apiSuccess {String} data.Ds_Merchant_Order {{ name }} transaction id.
+ * @apiSuccess {Integer} data.Ds_Merchant_MerchantCode {{ name }} merchant code.
+ * @apiSuccess {Integer} data.Ds_Merchant_Terminal {{ name }} terminal.
  * @apiSuccess {Integer} data.Ds_Merchant_TransactionType Transaction type.
- * @apiSuccess {String} data.Ds_Merchant_MerchantURL Telepay url notification.
+ * @apiSuccess {String} data.Ds_Merchant_MerchantURL {{ name }} url notification.
  * @apiSuccess {String} data.Ds_Merchant_UrlOK Url to redirect the client when the transaction was successful.
  * @apiSuccess {String} data.Ds_Merchant_UrlKO Url to redirect the client when the transaction was unsuccessful.
  * @apiSuccess {String} data.Ds_Merchant_Signature Url to redirect the client to finish the payment.

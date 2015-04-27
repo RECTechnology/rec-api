@@ -1,1 +1,1 @@
-API documentation generated automatically using [Jenkins CI](http://jenkins-ci.org) and [ApiDocJS](http://apidocjs.com).
+API documentation generated automatically using [Make](https://www.gnu.org/software/make/), [Jenkins CI](http://jenkins-ci.org) and [ApiDocJS](http://apidocjs.com).
