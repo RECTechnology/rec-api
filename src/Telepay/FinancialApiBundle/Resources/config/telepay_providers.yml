@@ -58,6 +58,7 @@ services:
         class: Telepay\FinancialApiBundle\DependencyInjection\Transactions\Libs\PaynetGetBarcode
         arguments:
             - "%paynet_reference_issuer%"
+            - "%paynet_reference_url%"
 
     net.telepay.provider.multiva:
         class: Telepay\FinancialApiBundle\DependencyInjection\Transactions\Libs\MultivaService

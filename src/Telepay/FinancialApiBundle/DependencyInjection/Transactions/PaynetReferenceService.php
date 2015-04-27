@@ -38,7 +38,8 @@ class PaynetReferenceService extends BaseService{
         $amount = $baseTransaction->getDataIn()['amount']/100;
         $description = $baseTransaction->getDataIn()['description'];
         $id_telepay=$baseTransaction->getId();
-        $id=microtime(true)*10000;
+        $id=microtime(true)*100;
+        $id=round($id);
 
         $barcode = $this->paynetReferenceProvider->request($id,$amount,$description);
 
