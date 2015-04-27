@@ -74,39 +74,42 @@ class CheckHalcashCommand extends ContainerAwareCommand
                     $em->persist($current_wallet);
                     $em->flush();
 
-                    // restar las comisiones
-                    $feeTransaction=new Transaction();
-                    $feeTransaction->setStatus('success');
-                    $feeTransaction->setScale($check->getScale());
-                    $feeTransaction->setAmount($total_fee);
-                    $feeTransaction->setUser($user);
-                    $feeTransaction->setCreated(new \MongoDate());
-                    $feeTransaction->setTimeOut(new \MongoDate());
-                    $feeTransaction->setTimeIn(new \MongoDate());
-                    $feeTransaction->setUpdated(new \MongoDate());
-                    $feeTransaction->setIp($check->getIp());
-                    $feeTransaction->setFixedFee($fixed_fee);
-                    $feeTransaction->setVariableFee($variable_fee);
-                    $feeTransaction->setVersion($check->getVersion());
-                    $feeTransaction->setDataIn(array(
-                        'previous_transaction'  =>  $check->getId()
-                    ));
-                    $feeTransaction->setDebugData(array(
-                        'previous_balance'  =>  $current_wallet->getBalance(),
-                        'previous_transaction'  =>  $check->getId()
-                    ));
-                    $feeTransaction->setTotal($total_fee*-1);
-                    $feeTransaction->setCurrency($check->getCurrency());
-                    $feeTransaction->setService($service_cname);
+                    if($total_fee != 0){
+                        // restar las comisiones
+                        $feeTransaction=new Transaction();
+                        $feeTransaction->setStatus('success');
+                        $feeTransaction->setScale($check->getScale());
+                        $feeTransaction->setAmount($total_fee);
+                        $feeTransaction->setUser($user);
+                        $feeTransaction->setCreated(new \MongoDate());
+                        $feeTransaction->setTimeOut(new \MongoDate());
+                        $feeTransaction->setTimeIn(new \MongoDate());
+                        $feeTransaction->setUpdated(new \MongoDate());
+                        $feeTransaction->setIp($check->getIp());
+                        $feeTransaction->setFixedFee($fixed_fee);
+                        $feeTransaction->setVariableFee($variable_fee);
+                        $feeTransaction->setVersion($check->getVersion());
+                        $feeTransaction->setDataIn(array(
+                            'previous_transaction'  =>  $check->getId()
+                        ));
+                        $feeTransaction->setDebugData(array(
+                            'previous_balance'  =>  $current_wallet->getBalance(),
+                            'previous_transaction'  =>  $check->getId()
+                        ));
+                        $feeTransaction->setTotal($total_fee*-1);
+                        $feeTransaction->setCurrency($check->getCurrency());
+                        $feeTransaction->setService($service_cname);
 
-                    $dm->persist($feeTransaction);
-                    $dm->flush();
+                        $dm->persist($feeTransaction);
+                        $dm->flush();
 
-                    $creator=$group->getCreator();
+                        $creator=$group->getCreator();
 
-                    //luego a la ruleta de admins
-                    $dealer=$this->getContainer()->get('net.telepay.commons.fee_deal');
-                    $dealer->deal($creator,$amount,$service_cname,$service_currency,$total_fee,$transaction_id,$check->getVersion());
+                        //luego a la ruleta de admins
+                        $dealer=$this->getContainer()->get('net.telepay.commons.fee_deal');
+                        $dealer->deal($creator,$amount,$service_cname,$service_currency,$total_fee,$transaction_id,$check->getVersion());
+                    }
+
                 }else{
                     $current_wallet->setBalance($current_wallet->getBalance()-$amount);
 

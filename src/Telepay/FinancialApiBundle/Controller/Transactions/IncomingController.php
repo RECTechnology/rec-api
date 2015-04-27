@@ -187,7 +187,7 @@ class IncomingController extends RestApiController{
 
         $transaction->setCurrency($service_currency);
 
-        //comprobamos si es cash out
+        //******    comprobamos si es cash out     ********
         if($service->getcashDirection()=='out'){
 
             foreach ( $wallets as $wallet){
