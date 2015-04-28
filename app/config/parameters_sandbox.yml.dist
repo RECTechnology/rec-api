@@ -99,3 +99,9 @@ parameters:
 
     kraken_api_key: ""
     kraken_private_key: ""
+
+    spei_enterprise: 'TELEPAY'
+    spei_account: '846180000300000004'
+    spei_partner: '846'
+    spei_operant: '90646'
+    spei_passphrase: '12345678'
