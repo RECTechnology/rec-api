@@ -10,6 +10,7 @@ function registraOrden($data, $pemFile, $passphrase){
 	//echo $dataToSign.'<br>';
   	$retVal = signInfo($pemFile, $dataToSign, $passphrase);
 	//echo "<br>retVal :<BR>$retVal<br><br>";
+    //die(print_r($dataToSign,true));
   	$data->set_firma($retVal);
   	//echo "<br>value :<BR>".$data->get_empresa()."<br><br>";
 
