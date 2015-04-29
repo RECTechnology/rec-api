@@ -55,8 +55,15 @@ class CryptoSendService extends BaseService {
             'txid' => $crypto->txid
         ));
 
+        if($crypto->txid){
+            $baseTransaction->setStatus('success');
+            $response = $crypto->txid;
+        }else{
+            $baseTransaction->setStatus('failed');
+            $response = $crypto;
+        }
         $baseTransaction->setDataOut(array(
-            'txid' => $crypto->txid
+            'txid' => $response
         ));
 
         return $baseTransaction;
