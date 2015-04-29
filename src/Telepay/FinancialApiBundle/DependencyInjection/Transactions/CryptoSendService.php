@@ -16,10 +16,12 @@ use Telepay\FinancialApiBundle\Document\Transaction;
 class CryptoSendService extends BaseService {
 
     private $cryptoProvider;
+    private $minimum_amount;
 
-    public function __construct($name, $cname, $role, $cash_direction, $currency, $base64Image, $cryptoProvider, $transactionContext){
+    public function __construct($name, $cname, $role, $cash_direction, $currency, $base64Image, $cryptoProvider, $transactionContext,$minimum_amount){
         parent::__construct($name, $cname, $role, $cash_direction, $currency, $base64Image, $transactionContext);
         $this->cryptoProvider = $cryptoProvider;
+        $this->minimum_amount = $minimum_amount;
     }
 
     public function getFields(){
@@ -37,6 +39,8 @@ class CryptoSendService extends BaseService {
         $im = new IntegerManipulator();
         if(!$im->isInteger($amount)) throw new HttpException(400, "amount must be an integer (".$amount.") given");
         if($amount <= 0) throw new HttpException(400, "Amount must be positive");
+
+        if($amount < $this->minimum_amount) throw new HttpException(400,"Minimum amount not reached");
 
         //verify crypto address
         $address_verification = $this->cryptoProvider->validateaddress($address);
