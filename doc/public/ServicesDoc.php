@@ -320,7 +320,7 @@
 //##################################### SABADELL ###################################
 
 /**
- *
+ * @apiIgnore Not finished method
  * @api {post} /services/v1/sabadell Sabadell
  * @apiName Sabadell
  * @apiDescription Receive payments with Sabadell TPV.
