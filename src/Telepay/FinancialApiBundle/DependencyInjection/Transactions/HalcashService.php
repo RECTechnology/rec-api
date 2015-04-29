@@ -118,7 +118,7 @@ class HalcashService extends BaseService{
                     $transaction->setStatus('expired');
                     break;
                 case 'BloqueadaPorReintentos':
-                    $transaction->setStatus('failed');
+                    $transaction->setStatus('locked');
                     break;
                 case 'Devuelta':
                     $transaction->setStatus('returned');

@@ -67,12 +67,14 @@ xmlns:h2h="http://h2h.integration.spei.enlacefi.lgec.com/">
 	
 	
 
-	$data = curl_exec($curl); 
+	$data = curl_exec($curl);
+    $error = 0;
 	if (curl_errno($curl)) 
 	{ 	
 		//$id_respuesta = -1;
 		//print "Error: " . curl_error($curl);
-        $data = curl_error($curl);
+        $error = curl_error($curl);
+
 	} 
 	else 
 	{ 	//var_dump($data);
@@ -92,6 +94,25 @@ xmlns:h2h="http://h2h.integration.spei.enlacefi.lgec.com/">
 	} 
 	
 	curl_close($curl);
-	return($data);
+
+    $response = preg_match('/<return>.*<\/return>/',$data,$return);
+
+    $xml = new SimpleXMLElement($return[0]);
+    $res = get_object_vars($xml);
+    if(isset($res['descripcionError'])){
+        $spei_response = array(
+            'error' =>  1,
+            'description'   =>  $res['descripcionError'],
+            'id'    =>  $res['id']
+        );
+    }else{
+        $spei_response = array(
+            'error' =>  0,
+            'error_description'   =>  '',
+            'id'    =>  $res['id']
+        );
+    }
+
+    return($spei_response);
 	
 }
