@@ -140,7 +140,12 @@ class CheckPaynetReferenceCommand extends ContainerAwareCommand
 
         $status=$this->getContainer()->get('net.telepay.provider.paynet_reference')->status($client_reference);
 
-        $status_description=$status['status_description'];
+        if(isset($status['status_description'])){
+            $status_description = $status['status_description'];
+        }else{
+            $status_description = 'Cancelled';
+        }
+
 
         if($status['error_code']==0){
             switch($status_description){
@@ -170,6 +175,11 @@ class CheckPaynetReferenceCommand extends ContainerAwareCommand
         return $transaction;
     }
     private function hasExpired($transaction){
-        return strtotime($transaction->getDataOut()['expiration_date']) < time();
+        if(isset($transaction->getDataOut()['expiration_date'])){
+            return strtotime($transaction->getDataOut()['expiration_date']) < time();
+        }else{
+            return true;
+        }
+
     }
 }
