@@ -383,7 +383,7 @@ class OrdenPago
         $retVal .= $this->medioEntrega."|";
         $retVal .= $this->prioridad."|";
         //die(print_r($this->iva,true));
-        $retVal .= "|||";
+        $retVal .= "||";
 
         return $retVal;
     }
