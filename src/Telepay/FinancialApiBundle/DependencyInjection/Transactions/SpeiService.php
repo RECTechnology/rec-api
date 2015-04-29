@@ -56,7 +56,7 @@ class SpeiService extends BaseService{
 
         if($stp['error'] == 1){
             $baseTransaction->setStatus(Transaction::$STATUS_ERROR);
-            throw new HttpException(404,'Bad request');
+            //throw new HttpException(404,'Bad request');
         }
 
 
