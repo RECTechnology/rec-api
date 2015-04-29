@@ -44,7 +44,7 @@ class SpeiService extends BaseService{
 
         $transaction_id = $baseTransaction->getId();
 
-        $stp = $this->speiProvider->register($name,$amount,$reference,$transaction_id);
+        $stp = $this->speiProvider->register($name,$reference,$amount,$transaction_id);
 
         if($stp === false)
             throw new HttpException(503, "Service temporarily unavailable, please try again in a few minutes");

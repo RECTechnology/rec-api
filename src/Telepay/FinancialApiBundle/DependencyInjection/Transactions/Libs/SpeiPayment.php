@@ -29,23 +29,23 @@ class SpeiPayment{
         $data->set_empresa($this->enterprise);
         $data->set_claveRastreo($transaction_id);
         $data->set_conceptoPago($reference);
-        $data->set_cuentaBeneficiario($this->partner);
+        $data->set_cuentaBeneficiario($this->account);
         //$data->set_cuentaOrdenante("846180000050000011");
         $data->set_referenciaNumerica(2);
         $data->set_monto($amount);
         $data->set_tipoCuentaBeneficiario(40);
         $data->set_tipoPago(1);
-        $data->set_institucionContraparte(846);
-        $data->set_nombreBeneficiario("PERE");
-        $data->set_institucionOperante(90646);
+        $data->set_institucionContraparte($this->partner);
+        $data->set_nombreBeneficiario($name);
+        $data->set_institucionOperante($this->operant);
         //$data->set_iva(16);
         //$data->set_fechaOperacion('20141112');
         //$data->set_nombreOrdenante("Juan Lopez");
         //$data->set_rfcCurpBeneficiario("RFCBEN");
         //$data->set_rfcCurpOrdenante("RFCORD");
         //$data->set_tipoCuentaOrdenante(40);
-
-        $pemFile='includes/prueba-key.pem';
+        //die(print_r($data,true));
+        $pemFile='prueba-key.pem';
         $passphrase = $this->passphrase;
 
         $response = registraOrden($data, $pemFile, $passphrase);

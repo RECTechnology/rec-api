@@ -4,14 +4,15 @@ require_once('CryptoHandlerSTP.php');
 include('STPLib.php');
 
 function registraOrden($data, $pemFile, $passphrase){
-	
+
 	$dataToSign = $data->_getDataToSign("UTF-8");
-	echo $dataToSign.'<br>';
+
+	//echo $dataToSign.'<br>';
   	$retVal = signInfo($pemFile, $dataToSign, $passphrase);
-	echo "<br>retVal :<BR>$retVal<br><br>";
+	//echo "<br>retVal :<BR>$retVal<br><br>";
   	$data->set_firma($retVal);
-  	echo "<br>value :<BR>".$data->get_empresa()."<br><br>";
-	
+  	//echo "<br>value :<BR>".$data->get_empresa()."<br><br>";
+
 	$curl = curl_init();
 	
 	$ordenPago = '<soapenv:Envelope
@@ -68,16 +69,17 @@ xmlns:h2h="http://h2h.integration.spei.enlacefi.lgec.com/">
 	$data = curl_exec($curl); 
 	if (curl_errno($curl)) 
 	{ 	
-		$id_respuesta = -1;
-		print "Error: " . curl_error($curl); 
+		//$id_respuesta = -1;
+		//print "Error: " . curl_error($curl);
+        $data = curl_error($curl);
 	} 
 	else 
 	{ 	//var_dump($data);
 		//print_r($data);
 		//echo '<br><br>';
 		//echo $data;		
-		echo '<br><br>';		
-		echo 'El resultado es: '.$data.'<br>';
+		//echo '<br><br>';
+		//echo 'El resultado es: '.$data.'<br>';
 		
 		/*$id_respuesta =preg_replace("/[^0-9]/", "", $data);
 		settype($id_respuesta, "int");
@@ -89,11 +91,6 @@ xmlns:h2h="http://h2h.integration.spei.enlacefi.lgec.com/">
 	} 
 	
 	curl_close($curl);
-	return($id_respuesta);
-	
-	
-	echo '<h2>Request</h2><pre>' . htmlspecialchars($client->request, ENT_QUOTES) . '</pre>';
-	echo '<h2>Response</h2><pre>' . htmlspecialchars($client->response, ENT_QUOTES) . '</pre>';
+	return($data);
 	
 }
-?>
