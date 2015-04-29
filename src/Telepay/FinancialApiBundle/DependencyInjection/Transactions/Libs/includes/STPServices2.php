@@ -103,13 +103,15 @@ xmlns:h2h="http://h2h.integration.spei.enlacefi.lgec.com/">
         $spei_response = array(
             'error' =>  1,
             'description'   =>  $res['descripcionError'],
-            'id'    =>  $res['id']
+            'id'    =>  $res['id'],
+            'data_to_sing'  =>  $dataToSign
         );
     }else{
         $spei_response = array(
             'error' =>  0,
             'error_description'   =>  '',
-            'id'    =>  $res['id']
+            'id'    =>  $res['id'],
+            'data_to_sing'  =>  $dataToSign
         );
     }
 
