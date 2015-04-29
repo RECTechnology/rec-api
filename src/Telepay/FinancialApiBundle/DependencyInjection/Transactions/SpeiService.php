@@ -52,7 +52,7 @@ class SpeiService extends BaseService{
         $baseTransaction->setData($stp);
         $baseTransaction->setDataOut($stp);
 
-        //todo control de errores
+        //control de errores
 
         if($stp['error'] == 1){
             $baseTransaction->setStatus(Transaction::$STATUS_ERROR);
