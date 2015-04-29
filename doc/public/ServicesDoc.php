@@ -259,7 +259,7 @@
 //##################################### PADEMOBILE ###################################
 
 /**
- *
+ * @apiIgnore Not finished method
  * @api {post} /services/v1/pademobile Pademobile
  * @apiName Pademobile
  * @apiDescription Receive payments with pademobile gateway.
@@ -285,7 +285,7 @@
 //##################################### MULTIVA ###################################
 
 /**
- *
+ * @apiIgnore Not finished method
  * @api {post} /services/v1/multiva Multiva
  * @apiName Multiva
  * @apiDescription Receive payments with Multiva TPV.
