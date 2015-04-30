@@ -106,11 +106,15 @@ class SafetyPayService extends BaseService{
     public function notificate(Transaction $transaction,$data){
 
         //TODO notify vrification
-        $error_number = $data['ErrorNumber'];
+        /*$error_number = $data['ErrorNumber'];
         $dateTime = $data['ResponseDateTime'];
         $merchantReference = $data['MerchantReferenceNo'];
         $order = $data['OrderNo'];
-        $signature = $data['signature'];
+        $signature = $data['signature'];*/
+
+        //$data=$this->date_time.$this->currency.$this->amount.$this->merchant_reference.$this->lang.$this->tracking_code.$this->expiration.$this->url_success.$this->url_error.$this->signature_key;
+
+        //$signature_telepay=hash('sha256', $data,false);
 
         //redirect to corersponding url
         $error = $data['error'];
