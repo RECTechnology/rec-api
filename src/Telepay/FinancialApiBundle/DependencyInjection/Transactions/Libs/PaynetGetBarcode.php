@@ -15,10 +15,12 @@ class PaynetGetBarcode{
 	var $issuer;
 	var $caducity;
 	var $resultado;
+    var $url;
 
-    function __construct($issuer)
+    function __construct($issuer,$url)
     {
         $this->issuer = $issuer;
+        $this->url = $url;
     }
 
     public function request($client_reference,$amount,$description){
@@ -35,8 +37,12 @@ class PaynetGetBarcode{
 			'description' 		=> 	$this->description          //'television'
     	);
 
-    	$client = new nusoap_client('http://201.147.99.51/PaynetCE/WSPaynetCE.asmx?WSDL', true);
-		
+        //URL de Test
+    	//$client = new nusoap_client('http://201.147.99.51/PaynetCE/WSPaynetCE.asmx?WSDL', true);
+        //URL de prod
+        //$client = new nusoap_client('https://www.datalogic.com.mx/PaynetCE/WSPaynetCE.asmx?WSDL', true);
+        $client = new nusoap_client($this->url, true);
+
 		$result = $client -> call('GetPaynetReference',$params);
 
 		if($result['GetPaynetReferenceResult']['RespCode']=="0"){
@@ -89,7 +95,7 @@ class PaynetGetBarcode{
             'clientReference' 	=>  $this->client_reference
         );
 
-        $client = new nusoap_client('http://201.147.99.51/PaynetCE/WSPaynetCE.asmx?WSDL', true);
+        $client = new nusoap_client($this->url, true);
 
         $result = $client -> call('GetPaynetReferenceStatus',$params);
 

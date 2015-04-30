@@ -11,20 +11,20 @@ use Telepay\FinancialApiBundle\DependencyInjection\Telepay\Commons\FeeDeal;
 use Telepay\FinancialApiBundle\Document\Transaction;
 use Telepay\FinancialApiBundle\Entity\Exchange;
 
-class CheckPaynetReferenceCommand extends ContainerAwareCommand
+class CheckHalcashCommand extends ContainerAwareCommand
 {
     protected function configure()
     {
         $this
-            ->setName('telepay:paynet_ref:check')
-            ->setDescription('Check paynet reference transactions')
+            ->setName('telepay:halcash:check')
+            ->setDescription('Check halcash transactions')
         ;
     }
 
     protected function execute(InputInterface $input, OutputInterface $output)
     {
 
-        $service_cname='paynet_reference';
+        $service_cname='halcash_send';
 
         $dm = $this->getContainer()->get('doctrine_mongodb')->getManager();
         $em = $this->getContainer()->get('doctrine')->getManager();
@@ -32,7 +32,7 @@ class CheckPaynetReferenceCommand extends ContainerAwareCommand
 
         $qb=$dm->createQueryBuilder('TelepayFinancialApiBundle:Transaction')
             ->field('service')->equals($service_cname)
-            ->field('status')->in(array('created','received'))
+            ->field('status')->in(array('created','received','failed','review'))
             ->getQuery();
 
         $resArray = [];
@@ -67,10 +67,9 @@ class CheckPaynetReferenceCommand extends ContainerAwareCommand
                     $fixed_fee=$check->getFixedFee();
                     $variable_fee=$check->getVariableFee()*$amount;
                     $total_fee=$fixed_fee+$variable_fee;
-                    $total=$amount-$total_fee;
+                    $total=$amount+$total_fee;
 
-                    $current_wallet->setAvailable($current_wallet->getAvailable()+$total);
-                    $current_wallet->setBalance($current_wallet->getBalance()+$total);
+                    $current_wallet->setBalance($current_wallet->getBalance()-$total);
 
                     $em->persist($current_wallet);
                     $em->flush();
@@ -112,8 +111,7 @@ class CheckPaynetReferenceCommand extends ContainerAwareCommand
                     }
 
                 }else{
-                    $current_wallet->setAvailable($current_wallet->getAvailable()+$amount);
-                    $current_wallet->setBalance($current_wallet->getBalance()+$amount);
+                    $current_wallet->setBalance($current_wallet->getBalance()-$amount);
 
                     $em->persist($current_wallet);
                     $em->flush();
@@ -124,62 +122,47 @@ class CheckPaynetReferenceCommand extends ContainerAwareCommand
 
         $dm->flush();
 
-        $output->writeln('Paynet Reference transactions checked');
+        $output->writeln('Halcash send transactions checked');
     }
 
     public function check(Transaction $transaction){
 
-        if($transaction->getStatus() === 'created' && $this->hasExpired($transaction))
-            $transaction->setStatus('expired');
+        $ticket = $transaction->getDataOut()['halcashticket'];
 
-        if($transaction->getStatus() === 'success' || $transaction->getStatus() === 'expired')
-            return $transaction;
+        $status=$this->getContainer()->get('net.telepay.provider.halcash_send')->status($ticket);
 
-        $data=$transaction->getData();
-        $client_reference=$data['id_paynet'];
+        if($status['errorcode']==0){
 
-        $status=$this->getContainer()->get('net.telepay.provider.paynet_reference')->status($client_reference);
-
-        if(isset($status['status_description'])){
-            $status_description = $status['status_description'];
-        }else{
-            $status_description = 'Cancelled';
-        }
-
-
-        if($status['error_code']==0){
-            switch($status_description){
-                case 'Authorized':
-                    $transaction->setStatus('success');
+            switch($status['estado']){
+                case 'Autorizada':
+                    $transaction->setStatus('created');
                     break;
-                case 'Cancelled':
+                case 'Preautorizada':
+                    $transaction->setStatus('created');
+                    break;
+                case 'Anulada':
                     $transaction->setStatus('cancelled');
                     break;
-                case 'Pending':
+                case 'BloqueadaPorCaducidad':
+                    $transaction->setStatus('expired');
                     break;
-                case 'Printed':
+                case 'BloqueadaPorReintentos':
+                    $transaction->setStatus('failed');
                     break;
-                case 'Reversed':
+                case 'Devuelta':
                     $transaction->setStatus('returned');
                     break;
-                case 'Reserved':
-                    $transaction->setStatus('locked');
+                case 'Dispuesta':
+                    $transaction->setStatus('success');
                     break;
-                case 'Revision':
-                    $transaction->setStatus('locked');
+                case 'EstadoDesconocido':
+                    $transaction->setStatus('unknown');
                     break;
             }
-        }else{
-            $transaction->setStatus('failed');
-        }
-        return $transaction;
-    }
-    private function hasExpired($transaction){
-        if(isset($transaction->getDataOut()['expiration_date'])){
-            return strtotime($transaction->getDataOut()['expiration_date']) < time();
-        }else{
-            return true;
+
         }
 
+        return $transaction;
     }
+
 }

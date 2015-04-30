@@ -67,7 +67,7 @@ namespace Telepay\FinancialApiBundle\DependencyInjection\Transactions\Libs;
 	 
 			//le decimos que queremos recoger una respuesta (si no esperas respuesta, ponlo a false)
 			curl_setopt($ch,CURLOPT_RETURNTRANSFER,true);
-	 
+
 			//recogemos la respuesta
 			$respuesta = curl_exec ($ch);
 
@@ -80,8 +80,10 @@ namespace Telepay\FinancialApiBundle\DependencyInjection\Transactions\Libs;
             $res=explode(',',$respuesta);
 
 			if($error){
+
 				return $error;
 			}elseif($res[0]!=0){
+
                 $response['error_number']=$res[0];
                 $response['res1']=$res[1];
                 $response['res2']=$res[2];
@@ -91,8 +93,9 @@ namespace Telepay\FinancialApiBundle\DependencyInjection\Transactions\Libs;
                 $response['error_number']=$res[0];
                 $response['url']=$res[2];
                 $response['signature']=$res[3];
-				return $response;
+
 			}
+            return $response;
 
 		}
 	}

@@ -58,6 +58,7 @@ services:
         class: Telepay\FinancialApiBundle\DependencyInjection\Transactions\Libs\PaynetGetBarcode
         arguments:
             - "%paynet_reference_issuer%"
+            - "%paynet_reference_url%"
 
     net.telepay.provider.multiva:
         class: Telepay\FinancialApiBundle\DependencyInjection\Transactions\Libs\MultivaService
@@ -133,3 +134,12 @@ services:
             - "%ukash_redirect_brand_id%"
             - "%ukash_redirect_language_code%"
             - "%ukash_redirect_env_url%"
+
+    net.telepay.provider.spei:
+        class: Telepay\FinancialApiBundle\DependencyInjection\Transactions\Libs\SpeiPayment
+        arguments:
+            - "%spei_enterprise%"
+            - "%spei_account%"
+            - "%spei_partner%"
+            - "%spei_operant%"
+            - "%spei_passphrase%"

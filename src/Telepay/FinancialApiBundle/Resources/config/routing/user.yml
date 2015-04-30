@@ -66,3 +66,9 @@ user_set_default_currency:
     requirements:
         _method: PUT
 
+user_get_exchange:
+    pattern:  /user/v1/exchange
+    defaults: { _controller: Telepay\FinancialApiBundle\Controller\Management\User\ExchangeController::read }
+    requirements:
+        _method: GET
+

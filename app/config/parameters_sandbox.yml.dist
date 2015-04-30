@@ -33,53 +33,54 @@ parameters:
     faircoind_host: localhost
     faircoind_port: 46393
 
-    halcash_user: user
-    halcash_pass: pass
-    halcash_alias: alias
+    halcash_user: fake
+    halcash_pass: fake
+    halcash_alias: fake
 
-    sabadell_url_tpvv: url
-    sabadell_secret: sabadell_secret
-    sabadell_name: name
-    sabadell_code: code
-    sabadell_currency: currency
+    sabadell_url_tpvv: 'https://sis-t.redsys.es:25443/sis/realizarPago'
+    sabadell_secret: 'qwertyasdf0123456789'
+    sabadell_name: Telepay
+    sabadell_code: 327234688
+    sabadell_currency: 978
     sabadell_transaction_type: 0
     sabadell_terminal: 1
-    sabadell_base_url: ""
+    sabadell_base_url: "/test"
 
-    paynet_reference_issuer: ""
+    paynet_reference_issuer: '467accc5-4051-4472-bb17-dad1f68779bf'
+    paynet_reference_url: 'http://201.147.99.51/PaynetCE/WSPaynetCE.asmx?WSDL'
 
-    multiva_comcurrency: currency number
-    multiva_comaddress: ADDRESS
-    multiva_commerchant: merchant code
-    multiva_comstore: store
-    multiva_comterm: terminal
-    multiva_base_url: ""
+    multiva_comcurrency: 484
+    multiva_comaddress: PROSA
+    multiva_commerchant: 7531853
+    multiva_comstore: 1234
+    multiva_comterm: 1
+    multiva_base_url: "/test"
 
-    pademobile_client: 000000
-    pademobile_url : url
-    pademobile_env_url: env
+    pademobile_client: 299249
+    pademobile_url: 'https://staging.pademobile.com:700/comprar'
+    pademobile_env_url: '/test'
 
     pagofacil_id_sucursal: sucursal
     pagofacil_id_usuario: usuario
     pagofacil_id_servicio: servicio
     pagofacil_url_flag: prod
 
-    safetypay_api_key: api_key
-    safetypay_signature_key: signature_key
-    safetypay_merchant_reference: merchant
+    safetypay_api_key: 247acc3167b49419634fe3b87e8623ef
+    safetypay_signature_key: 43b4da81e4a4fc2a1c1f1b45d53bf577
+    safetypay_merchant_reference: 5170
     safetypay_language: ES
-    safetypay_tracking_code: ""
+    safetypay_tracking_code: ''
     safetypay_expiration_time: 5
     safetypay_response_format: CSV
-    safetypay_url: "safety_url"
+    safetypay_url: 'https://mws2.safetypay.com/Sandbox/express/post/v.2.2/CreateExpressToken.aspx'
 
     tc_contract_id: xxx
     tc_branch_id: prod
     tc_url_flag: 1
 
-    psc_username: user
-    psc_password: pass
-    psc_env_url: ""
+    psc_username: psc_telepay_test
+    psc_password: bJnAWBTUlAelk
+    psc_env_url: '/test'
 
     ukash_generate_username: user
     ukash_generate_password: pass
@@ -98,3 +99,9 @@ parameters:
 
     kraken_api_key: ""
     kraken_private_key: ""
+
+    spei_enterprise: 'TELEPAY'
+    spei_account: '846180000300000004'
+    spei_partner: '846'
+    spei_operant: '90646'
+    spei_passphrase: '12345678'

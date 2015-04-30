@@ -17,7 +17,15 @@ class TransactionContext implements TransactionContextInterface {
     function __construct($requestStack, $securityContext, $odm, $orm)
     {
         $this->requestStack = $requestStack;
-        $this->user = $securityContext->getToken()->getUser();
+        //die(print_r($this->requestStack->getCurrentRequest()->get('id'),true));
+        if($this->requestStack->getCurrentRequest()->get('_route') === 'service_notificate'){
+            $transaction_id = $this->requestStack->getCurrentRequest()->get('id');
+            $transaction = $odm->getRepository('TelepayFinancialApiBundle:Transaction')->find($transaction_id);
+            //die(print_r($transaction->getUser(),true));
+            $this->user = $orm->getRepository('TelepayFinancialApiBundle:User')->find($transaction->getUser());
+        }else{
+            $this->user = $securityContext->getToken()->getUser();
+        }
         $this->odm = $odm;
         $this->orm = $orm;
     }

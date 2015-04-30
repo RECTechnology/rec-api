@@ -1,4 +1,4 @@
-This doc explains how to interact with the Telapay REST APIs, using the different authentication mechanisms and options.
+This doc explains how to interact with the {{ name }} REST APIs, using the different authentication mechanisms and options.
 
 
 #### Authentication
@@ -15,7 +15,7 @@ The services API has the following *features*
 
 The available payment services
 
-- Sample service (for testing)
+- Echo service (for testing)
 - Halcash Send
 - Halcash Pay
 - Ukash Generate

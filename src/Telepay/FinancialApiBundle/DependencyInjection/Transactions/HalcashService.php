@@ -45,13 +45,13 @@ class HalcashService extends BaseService{
         //pasamos a euros porque lo recibimos en centimos
         $amount = $baseTransaction->getDataIn()['amount']/100;
         $reference = $baseTransaction->getDataIn()['reference'];
-        if(strlen($reference)>20) throw new HttpException(400,'Reference Field must be less than 20 characters');
+        if(strlen($reference) > 20) throw new HttpException(400,'Reference Field must be less than 20 characters');
         $pin = $baseTransaction->getDataIn()['pin'];
-        if(strlen($pin)>4) throw new HttpException(400,'Pin Field must be less than 5 characters');
-        $transaction_id=$baseTransaction->getId();
+        if(strlen($pin) > 4) throw new HttpException(400,'Pin Field must be less than 5 characters');
+        $transaction_id = $baseTransaction->getId();
 
         //comprobar el pais para utilizar uno u otro
-        if($country==='ES'){
+        if($country ==='ES'){
             $hal = $this->halcashProvider->sendV3($phone_number,$phone_prefix,$amount,$reference,$pin,$transaction_id);
         }else{
             $hal = $this->halcashProvider->sendInternational($phone_number,$phone_prefix,$amount,$reference,$pin,$transaction_id,$country,$language);
@@ -65,7 +65,7 @@ class HalcashService extends BaseService{
 
         switch($hal['errorcode']){
             case 0:
-                $baseTransaction->setStatus('success');
+                $baseTransaction->setStatus('created');
                 break;
             case 44:
                 throw new HttpException(502,'Invalid credentials');
@@ -86,7 +86,7 @@ class HalcashService extends BaseService{
 
         $ticket=$transaction->getDataOut()['halcashticket'];
 
-        $hal = $this->halcashProvider->cancelation($ticket, $data['reference']);
+        $hal = $this->halcashProvider->cancelation($ticket, 'Telepay cancelation');
 
         if($hal['errorcode']==0){
             $transaction->setStatus('cancelled');
@@ -115,7 +115,7 @@ class HalcashService extends BaseService{
                     $transaction->setStatus('cancelled');
                     break;
                 case 'BloqueadaPorCaducidad':
-                    $transaction->setStatus('locked');
+                    $transaction->setStatus('expired');
                     break;
                 case 'BloqueadaPorReintentos':
                     $transaction->setStatus('locked');
@@ -124,7 +124,7 @@ class HalcashService extends BaseService{
                     $transaction->setStatus('returned');
                     break;
                 case 'Dispuesta':
-                    $transaction->setStatus('consumed');
+                    $transaction->setStatus('success');
                     break;
                 case 'EstadoDesconocido':
                     $transaction->setStatus('unknown');

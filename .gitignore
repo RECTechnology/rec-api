@@ -2,6 +2,7 @@
 /app/bootstrap.php.cache
 /app/cache/*
 /app/config/parameters.yml
+/doc/parameters.yml
 /app/config/parameters_sandbox.yml
 /app/logs/*
 !app/cache/.gitkeep

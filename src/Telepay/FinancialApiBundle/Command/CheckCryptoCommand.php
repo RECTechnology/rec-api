@@ -76,43 +76,46 @@ class CheckCryptoCommand extends ContainerAwareCommand
                             $current_wallet->setAvailable($current_wallet->getAvailable()+$total);
                             $current_wallet->setBalance($current_wallet->getBalance()+$total);
 
-                            // restar las comisiones
-                            $feeTransaction=new Transaction();
-                            $feeTransaction->setStatus('success');
-                            $feeTransaction->setScale($check->getScale());
-                            $feeTransaction->setAmount($total_fee);
-                            $feeTransaction->setUser($user->getId());
-                            $feeTransaction->setCreated(new \MongoDate());
-                            $feeTransaction->setTimeOut(new \MongoDate());
-                            $feeTransaction->setTimeIn(new \MongoDate());
-                            $feeTransaction->setUpdated(new \MongoDate());
-                            $feeTransaction->setIp($check->getIp());
-                            $feeTransaction->setFixedFee($fixed_fee);
-                            $feeTransaction->setVariableFee($variable_fee);
-                            $feeTransaction->setVersion($check->getVersion());
-                            $feeTransaction->setDataIn(array(
-                                'previous_transaction'  =>  $check->getId(),
-                                'amount'    =>  -$total_fee
-                            ));
-                            $feeTransaction->setDebugData(array(
-                                'previous_balance'  =>  $current_wallet->getBalance(),
-                                'previous_transaction'  =>  $check->getId()
-                            ));
-                            $feeTransaction->setTotal(-$total_fee);
-                            $feeTransaction->setCurrency($check->getCurrency());
-                            $feeTransaction->setService($service);
+                            if($total_fee != 0){
+                                // restar las comisiones
+                                $feeTransaction=new Transaction();
+                                $feeTransaction->setStatus('success');
+                                $feeTransaction->setScale($check->getScale());
+                                $feeTransaction->setAmount($total_fee);
+                                $feeTransaction->setUser($user->getId());
+                                $feeTransaction->setCreated(new \MongoDate());
+                                $feeTransaction->setTimeOut(new \MongoDate());
+                                $feeTransaction->setTimeIn(new \MongoDate());
+                                $feeTransaction->setUpdated(new \MongoDate());
+                                $feeTransaction->setIp($check->getIp());
+                                $feeTransaction->setFixedFee($fixed_fee);
+                                $feeTransaction->setVariableFee($variable_fee);
+                                $feeTransaction->setVersion($check->getVersion());
+                                $feeTransaction->setDataIn(array(
+                                    'previous_transaction'  =>  $check->getId(),
+                                    'amount'    =>  -$total_fee
+                                ));
+                                $feeTransaction->setDebugData(array(
+                                    'previous_balance'  =>  $current_wallet->getBalance(),
+                                    'previous_transaction'  =>  $check->getId()
+                                ));
+                                $feeTransaction->setTotal(-$total_fee);
+                                $feeTransaction->setCurrency($check->getCurrency());
+                                $feeTransaction->setService($service);
 
-                            $dm->persist($feeTransaction);
-                            $dm->flush();
+                                $dm->persist($feeTransaction);
+                                $dm->flush();
 
-                            $em->persist($current_wallet);
-                            $em->flush();
+                                $em->persist($current_wallet);
+                                $em->flush();
 
-                            $creator=$group->getCreator();
+                                $creator=$group->getCreator();
 
-                            //luego a la ruleta de admins
-                            $dealer=$this->getContainer()->get('net.telepay.commons.fee_deal');
-                            $dealer->deal($creator,$amount,$service,$service_currency,$total_fee,$transaction_id,$check->getVersion());
+                                //luego a la ruleta de admins
+                                $dealer=$this->getContainer()->get('net.telepay.commons.fee_deal');
+                                $dealer->deal($creator,$amount,$service,$service_currency,$total_fee,$transaction_id,$check->getVersion());
+                            }
+
                         }else{
                             $current_wallet->setAvailable($current_wallet->getAvailable()+$amount);
                             $current_wallet->setBalance($current_wallet->getBalance()+$amount);
