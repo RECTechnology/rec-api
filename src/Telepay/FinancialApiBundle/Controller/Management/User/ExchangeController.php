@@ -41,7 +41,7 @@ class ExchangeController extends RestApiController{
                     $price = $this->_exchange(1, $default_currency, $currency);
                     $result[$currency]=$price;
                 }catch (HttpException $e){
-                    $result[$currency] = $e;
+                    $result[$currency] = $e->getMessage();
                 }
 
             }
