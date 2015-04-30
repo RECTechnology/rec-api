@@ -41,7 +41,7 @@ class ExchangeController extends RestApiController{
                     $price = $this->_exchange(1, $default_currency, $currency);
                     $result[$currency]=$price;
                 }catch (HttpException $e){
-                    $result[$currency]='NaN';
+                    $result[$currency] = $e;
                 }
 
             }
@@ -61,7 +61,7 @@ class ExchangeController extends RestApiController{
             array('id'=>'DESC')
         );
 
-        if(!$exchange) throw new HttpException(404,'Exchange not found');
+        if(!$exchange) throw new HttpException(404,'Exchange not found -> '.$curr_in.' TO '.$curr_out);
 
         $price=$exchange->getPrice();
 
