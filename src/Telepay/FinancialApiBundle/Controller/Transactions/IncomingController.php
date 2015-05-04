@@ -101,8 +101,8 @@ class IncomingController extends RestApiController{
         $total_fee=$fixed_fee+$variable_fee;
 
         //incloure les fees en la transacció
-        $transaction->setVariableFee($fixed_fee);
-        $transaction->setFixedFee($variable_fee);
+        $transaction->setVariableFee($variable_fee);
+        $transaction->setFixedFee($fixed_fee);
         $dm->persist($transaction);
 
         //comprobamos si es cash out
