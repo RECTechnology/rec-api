@@ -133,7 +133,7 @@ class CheckHalcashCommand extends ContainerAwareCommand
 
         if($status['errorcode']==0){
 
-            switch($status['estado']){
+            switch($status['estadoticket']){
                 case 'Autorizada':
                     $transaction->setStatus('created');
                     break;
