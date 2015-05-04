@@ -129,7 +129,7 @@ class CheckHalcashCommand extends ContainerAwareCommand
 
         $ticket = $transaction->getDataOut()['halcashticket'];
 
-        $status=$this->getContainer()->get('net.telepay.provider.halcash_send')->status($ticket);
+        $status=$this->getContainer()->get('net.telepay.provider.halcash')->status($ticket);
 
         if($status['errorcode']==0){
 
