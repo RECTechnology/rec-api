@@ -151,15 +151,7 @@ class IncomingController extends RestApiController{
 
         //if limit doesn't exist create it
         if(!$group_limit){
-            $group_limit = new LimitDefinition();
-            $group_limit->setCname($service_cname);
-            $group_limit->setSingle(0);
-            $group_limit->setDay(0);
-            $group_limit->setWeek(0);
-            $group_limit->setMonth(0);
-            $group_limit->setYear(0);
-            $group_limit->setTotal(0);
-            $group_limit->setGroup($group);
+            $group_limit = LimitDefinition::createFromController($service_cname,$group);
             $em->persist($group_limit);
             $em->flush();
         }

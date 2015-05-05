@@ -70,6 +70,19 @@ class LimitDefinition implements Limit {
 
     private $currency;
 
+    public static function createFromController($service_cname, Group $group){
+        $limit = new LimitDefinition();
+        $limit->setCname($service_cname);
+        $limit->setSingle(0);
+        $limit->setDay(0);
+        $limit->setWeek(0);
+        $limit->setMonth(0);
+        $limit->setYear(0);
+        $limit->setTotal(0);
+        $limit->setGroup($group);
+        return $limit;
+    }
+
 
     /**
      * @return mixed
