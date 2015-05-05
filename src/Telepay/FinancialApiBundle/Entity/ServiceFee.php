@@ -9,7 +9,6 @@
 namespace Telepay\FinancialApiBundle\Entity;
 
 use Doctrine\ORM\Mapping as ORM;
-use FOS\UserBundle\Propel\Group;
 
 /**
  * @ORM\Entity
