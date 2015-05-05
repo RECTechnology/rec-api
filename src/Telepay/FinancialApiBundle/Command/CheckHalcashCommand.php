@@ -80,7 +80,7 @@ class CheckHalcashCommand extends ContainerAwareCommand
                         $feeTransaction->setStatus('success');
                         $feeTransaction->setScale($check->getScale());
                         $feeTransaction->setAmount($total_fee);
-                        $feeTransaction->setUser($user);
+                        $feeTransaction->setUser($id);
                         $feeTransaction->setCreated(new \MongoDate());
                         $feeTransaction->setTimeOut(new \MongoDate());
                         $feeTransaction->setTimeIn(new \MongoDate());
