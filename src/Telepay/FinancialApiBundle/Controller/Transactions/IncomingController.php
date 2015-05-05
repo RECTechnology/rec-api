@@ -84,11 +84,7 @@ class IncomingController extends RestApiController{
 
         //if group commission not exists we create it
         if(!$group_commission){
-            $group_commission = new ServiceFee();
-            $group_commission->setFixed(0);
-            $group_commission->setVariable(0);
-            $group_commission->setServiceName($service_cname);
-            $group_commission->setGroup($group);
+            $group_commission = ServiceFee::createFromController($service_cname, $group);
             $em->persist($group_commission);
             $em->flush();
         }
