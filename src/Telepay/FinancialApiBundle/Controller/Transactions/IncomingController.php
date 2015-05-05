@@ -127,15 +127,7 @@ class IncomingController extends RestApiController{
 
         //if user hasn't limit create it
         if(!$user_limit){
-            $user_limit = new LimitCount();
-            $user_limit->setUser($user);
-            $user_limit->setCname($service_cname);
-            $user_limit->setSingle(0);
-            $user_limit->setDay(0);
-            $user_limit->setWeek(0);
-            $user_limit->setMonth(0);
-            $user_limit->setYear(0);
-            $user_limit->setTotal(0);
+            $user_limit = LimitCount::createFromController($service_cname,$user);
             $em->persist($user_limit);
             $em->flush();
         }
