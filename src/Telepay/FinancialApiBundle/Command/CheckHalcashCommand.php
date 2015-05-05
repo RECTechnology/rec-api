@@ -38,14 +38,12 @@ class CheckHalcashCommand extends ContainerAwareCommand
         $resArray = [];
         foreach($qb->toArray() as $res){
             $data=$res->getDataIn();
-            $transaction_id=$res->getId();
-            $resArray []= $res;
+            $resArray [] = $res;
 
             $check=$this->check($res);
             $dm->flush();
             if($check->getStatus()=='success'){
-                //hacemos el reparto
-                //primero al user
+
                 $id=$check->getUser();
 
                 $user=$repo->find($id);
@@ -58,16 +56,15 @@ class CheckHalcashCommand extends ContainerAwareCommand
                         $current_wallet=$wallet;
                     }
                 }
-                $group=$user->getGroups()[0];
 
                 $amount=$data['amount'];
 
                 if(!$user->hasRole('ROLE_SUPER_ADMIN')){
 
-                    $fixed_fee=$check->getFixedFee();
-                    $variable_fee=$check->getVariableFee()*$amount;
-                    $total_fee=$fixed_fee+$variable_fee;
-                    $total=$amount+$total_fee;
+                    $fixed_fee = $check->getFixedFee();
+                    $variable_fee = $check->getVariableFee();
+                    $total_fee = $fixed_fee + $variable_fee;
+                    $total = $amount + $total_fee;
 
                     $current_wallet->setBalance($current_wallet->getBalance()-$total);
 

@@ -64,10 +64,10 @@ class CheckPaynetReferenceCommand extends ContainerAwareCommand
 
                 if(!$user->hasRole('ROLE_SUPER_ADMIN')){
 
-                    $fixed_fee=$check->getFixedFee();
-                    $variable_fee=$check->getVariableFee()*$amount;
-                    $total_fee=$fixed_fee+$variable_fee;
-                    $total=$amount-$total_fee;
+                    $fixed_fee = $check->getFixedFee();
+                    $variable_fee = $check->getVariableFee();
+                    $total_fee = $fixed_fee + $variable_fee;
+                    $total = $amount - $total_fee;
 
                     $current_wallet->setAvailable($current_wallet->getAvailable()+$total);
                     $current_wallet->setBalance($current_wallet->getBalance()+$total);
