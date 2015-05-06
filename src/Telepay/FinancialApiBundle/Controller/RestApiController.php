@@ -31,7 +31,7 @@ class RestApiController extends FosRestController{
     }
 
     protected function restTransaction(Transaction $transaction, $message = "No info"){
-        return $this->restV3(200, $transaction->getStatus(), $message, $transaction->getId(), $transaction->getAmount(), $transaction->getScale(), $transaction->getCurrency(), $transaction->getCreated(), $transaction->getDataOut());
+        return $this->restV3(200, $transaction->getStatus(), $message, $transaction->getId(), $transaction->getAmount(), $transaction->getScale(), $transaction->getCurrency(), $transaction->getUpdated(), $transaction->getDataOut());
     }
 
 }
