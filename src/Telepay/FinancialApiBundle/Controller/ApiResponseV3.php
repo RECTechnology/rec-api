@@ -15,17 +15,18 @@ class ApiResponseV3{
     private $amount;
     private $scale;
     private $currency;
-    private $data;
     private $update;
+    private $data;
 
-    public function __construct($status, $message,$id, $amount, $scale, $currency, $data,$update){
+
+    public function __construct($status, $message,$id, $amount, $scale, $currency,$update, $data){
         $this->status=$status;
         $this->message=$message;
         $this->id=$id;
         $this->amount=$amount;
         $this->scale=$scale;
         $this->currency=$currency;
-        $this->data=$data;
         $this->update = $update;
+        $this->data=$data;
     }
 }
