@@ -16,8 +16,9 @@ class ApiResponseV3{
     private $scale;
     private $currency;
     private $data;
+    private $update;
 
-    public function __construct($status, $message,$id, $amount, $scale, $currency, $data){
+    public function __construct($status, $message,$id, $amount, $scale, $currency, $data,$update){
         $this->status=$status;
         $this->message=$message;
         $this->id=$id;
@@ -25,5 +26,6 @@ class ApiResponseV3{
         $this->scale=$scale;
         $this->currency=$currency;
         $this->data=$data;
+        $this->update = $update;
     }
 }

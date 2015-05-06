@@ -9,6 +9,7 @@
 namespace Telepay\FinancialApiBundle\Controller;
 
 use FOS\RestBundle\Controller\FOSRestController;
+use Symfony\Component\Validator\Constraints\DateTime;
 use Telepay\FinancialApiBundle\Document\Transaction;
 
 class RestApiController extends FosRestController{
@@ -25,12 +26,12 @@ class RestApiController extends FosRestController{
         return $this->handleView($this->view(new ApiResponseV2($status, $message, $data), $httpCode));
     }
 
-    protected function restV3($httpCode, $status, $message = "No info", $id, $amount, $scale, $currency, $data = array()){
-        return $this->handleView($this->view(new ApiResponseV3($status, $message, $id, $amount, $scale, $currency , $data), $httpCode));
+    protected function restV3($httpCode, $status, $message = "No info", $id, $amount, $scale, $currency, $data = array(),$update){
+        return $this->handleView($this->view(new ApiResponseV3($status, $message, $id, $amount, $scale, $currency , $data, $update), $httpCode));
     }
 
     protected function restTransaction(Transaction $transaction, $message = "No info"){
-        return $this->restV3(200, $transaction->getStatus(), $message, $transaction->getId(), $transaction->getAmount(), $transaction->getScale(), $transaction->getCurrency(), $transaction->getDataOut());
+        return $this->restV3(200, $transaction->getStatus(), $message, $transaction->getId(), $transaction->getAmount(), $transaction->getScale(), $transaction->getCurrency(), $transaction->getDataOut(), $transaction->getCreated());
     }
 
 }
