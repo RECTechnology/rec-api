@@ -430,16 +430,36 @@ class IncomingController extends RestApiController{
                 //el cash-in de momento no se puede cancelar
                 if($transaction->getStatus()== Transaction::$STATUS_CREATED || $transaction->getStatus() == Transaction::$STATUS_REVIEW || $transaction->getStatus() == Transaction::$STATUS_FAILED){
 
-                    $transaction->setStatus(Transaction::$STATUS_CANCELLED );
-                    $mongo->persist($transaction);
-                    $mongo->flush();
-                    //desbloquear pasta del wallet
-                    if( $service->getcashDirection() == 'out' ){
-                        $current_wallet->setAvailable($current_wallet->getAvailable() + $amount );
-                    }
+                    if($transaction->getStatus() == Transaction::$STATUS_FAILED){
+                        $transaction->setStatus(Transaction::$STATUS_CANCELLED );
+                        $mongo->persist($transaction);
+                        $mongo->flush();
+                        //desbloquear pasta del wallet
+                        if( $service->getcashDirection() == 'out' ){
+                            $current_wallet->setAvailable($current_wallet->getAvailable() + $amount );
+                        }
 
-                    $em->persist($current_wallet);
-                    $em->flush();
+                        $em->persist($current_wallet);
+                        $em->flush();
+                    }else{
+                        try {
+                            $transaction = $service->cancel($transaction);
+                        }catch (HttpException $e){
+                            throw $e;
+                        }
+
+                        $transaction->setStatus(Transaction::$STATUS_CANCELLED );
+                        $mongo->persist($transaction);
+                        $mongo->flush();
+                        //desbloquear pasta del wallet
+                        if( $service->getcashDirection() == 'out' ){
+                            $current_wallet->setAvailable($current_wallet->getAvailable() + $amount );
+                        }
+
+                        $em->persist($current_wallet);
+                        $em->flush();
+
+                    }
 
                 }else{
                     throw new HttpException(403, "This transaction can't be cancelled.");
