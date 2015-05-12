@@ -26,7 +26,9 @@ class BtcEurExchange implements ExchangeInterface {
 
     public function getPrice()
     {
-        return $this->kraken->QueryPublic('Ticker', array('pair' => 'XXBTZEUR'));
+        $price = $this->kraken->QueryPublic('Ticker', array('pair' => 'XXBTZEUR'))['result']['XXBTZEUR']['a'][0];
+        //die(print_r($this->kraken->QueryPublic('Ticker', array('pair' => 'XXBTZEUR'))['result']['XXBTZEUR']['a'][0],true));
+        return $price;
     }
 
     public function getFirst()

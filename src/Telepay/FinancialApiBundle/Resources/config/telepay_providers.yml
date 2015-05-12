@@ -19,6 +19,9 @@ services:
         arguments:
             - "@getfaircoin"
 
+    net.telepay.exchange.usdxeur:
+            class: Telepay\FinancialApiBundle\DependencyInjection\Telepay\Exchanges\UsdEurExchange
+
     net.telepay.provider.btc:
         class: Telepay\FinancialApiBundle\DependencyInjection\Telepay\Providers\EasyBitcoin
         arguments:
