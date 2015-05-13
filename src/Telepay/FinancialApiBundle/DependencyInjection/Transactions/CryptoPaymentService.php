@@ -76,9 +76,6 @@ class CryptoPaymentService extends BaseService {
 
         $currentData = $transaction->getData();
 
-        if($transaction->getStatus() === 'created' && $this->hasExpired($transaction))
-            $transaction->setStatus('expired');
-
         if($transaction->getStatus() === 'success' || $transaction->getStatus() === 'expired')
             return $transaction;
 
@@ -98,6 +95,10 @@ class CryptoPaymentService extends BaseService {
                 return $transaction;
             }
         }
+
+        if($transaction->getStatus() === 'created' && $this->hasExpired($transaction))
+            $transaction->setStatus('expired');
+
         return $transaction;
     }
 
