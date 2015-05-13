@@ -10,6 +10,7 @@ use Symfony\Component\HttpKernel\Exception\HttpException;
 use Telepay\FinancialApiBundle\DependencyInjection\Telepay\Commons\FeeDeal;
 use Telepay\FinancialApiBundle\Document\Transaction;
 use Telepay\FinancialApiBundle\Entity\Exchange;
+use Telepay\FinancialApiBundle\Financial\Currency;
 
 class CheckCryptoCommand extends ContainerAwareCommand
 {
@@ -146,23 +147,25 @@ class CheckCryptoCommand extends ContainerAwareCommand
 
         $address = $currentData['address'];
         $amount = $currentData['amount'];
-        if($transaction->getCurrency()=='BTC'){
-            $allReceived = $this->getContainer()->get('net.telepay.provider.btc')->listreceivedbyaddress(0, true);
-        }else{
-            $allReceived = $this->getContainer()->get('net.telepay.provider.fac')->listreceivedbyaddress(0, true);
-        }
+        if($transaction->getCurrency() === Currency::$BTC)
+            $providerName = 'net.telepay.provider.btc';
+        else
+            $providerName = 'net.telepay.provider.fac';
+
+        $cryptoProvider = $this->getContainer()->get($providerName);
+
+        $allReceived = $cryptoProvider->listreceivedbyaddress(0, true);
 
         foreach($allReceived as $cryptoData){
-            if($cryptoData['address'] === $address && doubleval($cryptoData['amount'])*1e8 >= $amount){
+            if($cryptoData['address'] === $address and doubleval($cryptoData['amount'])*1e8 >= $amount){
                 $currentData['received'] = doubleval($cryptoData['amount'])*1e8;
                 $currentData['confirmations'] = $cryptoData['confirmations'];
                 if($currentData['confirmations'] >= $currentData['min_confirmations']){
                     $transaction->setStatus("success");
-                    $transaction->setUpdated(new \MongoDate());
                 }else{
                     $transaction->setStatus("received");
-                    $transaction->setUpdated(new \MongoDate());
                 }
+                $transaction->setUpdated(new \MongoDate());
                 $transaction->setData($currentData);
                 $transaction->setDataOut($currentData);
                 return $transaction;

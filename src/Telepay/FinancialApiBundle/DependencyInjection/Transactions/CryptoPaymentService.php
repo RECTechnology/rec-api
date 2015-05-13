@@ -83,10 +83,8 @@ class CryptoPaymentService extends BaseService {
         $amount = $currentData['amount'];
         $allReceived = $this->cryptoProvider->listreceivedbyaddress(0, true);
 
-        //$received = $this->cryptoProvider->getreceivedbyaddress($address, 0);
-
         foreach($allReceived as $cryptoData){
-            if($cryptoData['address'] === $address && doubleval($cryptoData['amount'])*1e8 >= $amount){
+            if($cryptoData['address'] === $address and doubleval($cryptoData['amount'])*1e8 >= $amount){
                 $currentData['received'] = doubleval($cryptoData['amount'])*1e8;
                 $currentData['confirmations'] = $cryptoData['confirmations'];
                 if($currentData['confirmations'] >= $currentData['min_confirmations'])
@@ -105,7 +103,7 @@ class CryptoPaymentService extends BaseService {
         return $transaction;
     }
 
-    public function cancel(Transaction $transaction,$data){
+    public function cancel(Transaction $transaction, $data){
 
         throw new HttpException(400,'Method not implemented');
 
