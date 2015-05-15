@@ -76,32 +76,35 @@ class CryptoPaymentService extends BaseService {
 
         $currentData = $transaction->getData();
 
-        if($transaction->getStatus() === 'created' && $this->hasExpired($transaction))
-            $transaction->setStatus('expired');
-
         if($transaction->getStatus() === 'success' || $transaction->getStatus() === 'expired')
             return $transaction;
 
         $address = $currentData['address'];
         $amount = $currentData['amount'];
         $allReceived = $this->cryptoProvider->listreceivedbyaddress(0, true);
+
         foreach($allReceived as $cryptoData){
-            if($cryptoData['address'] == $address && doubleval($cryptoData['amount'])*1e8 >= $amount){
+            if($cryptoData['address'] === $address and doubleval($cryptoData['amount'])*1e8 >= $amount){
                 $currentData['received'] = doubleval($cryptoData['amount'])*1e8;
                 $currentData['confirmations'] = $cryptoData['confirmations'];
                 if($currentData['confirmations'] >= $currentData['min_confirmations'])
                     $transaction->setStatus("success");
                 else
                     $transaction->setStatus("received");
+                $transaction->setUpdated(new \MongoDate());
                 $transaction->setData($currentData);
                 $transaction->setDataOut($currentData);
                 return $transaction;
             }
         }
+
+        if($transaction->getStatus() === 'created' && $this->hasExpired($transaction))
+            $transaction->setStatus('expired');
+
         return $transaction;
     }
 
-    public function cancel(Transaction $transaction,$data){
+    public function cancel(Transaction $transaction, $data){
 
         throw new HttpException(400,'Method not implemented');
 

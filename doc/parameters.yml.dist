@@ -8,6 +8,6 @@ github_java_sdk: https://github.com/Telepay/Java-SDK
 github_android_sdk: https://github.com/Telepay
 github_nodejs_sdk: https://github.com/Telepay/NodeJS-SDK
 commerce_panel_url: https://cp.telepay.net
-favicon_path: https://dev.chip-chap.com/favicon_chipchap.ico
+favicon_path: https://dev.chip-chap.com/favicon_telepay.ico
 logo_header_path: https://dev.chip-chap.com/img/chipchap_logo.png
 
