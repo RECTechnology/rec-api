@@ -72,3 +72,9 @@ user_get_exchange:
     requirements:
         _method: GET
 
+user_transfer_wallet_to_wallet:
+    pattern:  /user/v1/wallet/send/{currency}
+    defaults: { _controller: Telepay\FinancialApiBundle\Controller\Management\User\WalletController::walletToWallet }
+    requirements:
+        _method: POST
+

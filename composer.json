@@ -27,7 +27,8 @@
         "nelmio/cors-bundle": "~1.0",
         "payward/kraken-api-client": "dev-master",
         "rickmoreno/getfaircoin-api": "dev-master",
-        "telepay/php-sdk": "dev-master"
+        "telepay/php-sdk": "dev-master",
+        "ramsey/uuid": "~2.8"
     },
     "require-dev": {
         "sensio/generator-bundle": "~2.3"

@@ -9,12 +9,19 @@
 
 namespace Telepay\FinancialApiBundle\Controller\Management\User;
 
-use Proxies\__CG__\Telepay\FinancialApiBundle\Entity\User;
+use Telepay\FinancialApiBundle\Entity\Device;
+use Telepay\FinancialApiBundle\Entity\Group;
+use Telepay\FinancialApiBundle\Entity\LimitDefinition;
+use Telepay\FinancialApiBundle\Entity\ServiceFee;
+use Telepay\FinancialApiBundle\Entity\User;
+use Rhumsaa\Uuid\Uuid;
 use Symfony\Component\HttpKernel\Exception\HttpException;
 use Telepay\FinancialApiBundle\Controller\BaseApiController;
 use Telepay\FinancialApiBundle\Controller\RestApiController;
 use FOS\RestBundle\Controller\Annotations as Rest;
 use Symfony\Component\HttpFoundation\Request;
+use Telepay\FinancialApiBundle\Entity\UserWallet;
+use Telepay\FinancialApiBundle\Financial\Currency;
 
 class AccountController extends BaseApiController{
 
@@ -232,4 +239,121 @@ class AccountController extends BaseApiController{
     {
         return new User();
     }
+
+    /**
+     * @Rest\View
+     */
+    public function registerAction(Request $request){
+
+        if(!$request->request->has('device_id')) throw new HttpException(400,'Paramater device_id not found');
+        $device_id = $request->request->get('device_id');
+        $request->request->remove('device_id');
+
+        //password is optional
+        if(!$request->request->has('password')){
+            //nos lo inventamos
+            $password = Uuid::uuid1()->toString();
+            $request->request->add(array('plain_password'=>$password));
+
+        }else{
+            if(!$request->request->has('repassword')){
+                throw new HttpException(400, "Missing parameter 'repassword'");
+            }else{
+                $password = $request->get('password');
+                $repassword = $request->get('repassword');
+                if($password!=$repassword) throw new HttpException(400, "Password and repassword are differents.");
+                $request->request->remove('password');
+                $request->request->remove('repassword');
+                $request->request->add(array('plain_password'=>$password));
+            }
+
+        }
+
+        $username = Uuid::uuid1()->toString();
+        //username fake
+        if(!$request->request->has('username')){
+            //invent the username
+            $request->request->add(array('username'=>$username));
+        }
+
+        //name fake
+        if(!$request->request->has('name')){
+            //invent the name
+            $request->request->add(array('name'=>$username));
+        }
+
+        if(!$request->request->has('phone')){
+            $request->request->add(array('phone'=>''));
+            $request->request->add(array('prefix'=>''));
+        }else{
+            if(!$request->request->has('prefix')){
+                throw new HttpException(400, "Missing parameter 'prefix'");
+            }
+        }
+
+        if(!$request->request->has('email')){
+            $email = $username.'@default.com';
+            $request->request->add(array('email'=>$email));
+        }
+
+        $request->request->add(array('enabled'=>1));
+        $request->request->add(array('base64_image'=>''));
+        $request->request->add(array('default_currency'=>'EUR'));
+        $resp= parent::createAction($request);
+
+        if($resp->getStatusCode() == 201){
+            $em=$this->getDoctrine()->getManager();
+
+            $groupsRepo = $em->getRepository("TelepayFinancialApiBundle:Group");
+            $group = $groupsRepo->findOneBy(array('name' => 'Level0'));
+            if(!$group) throw new HttpException(404,'Group Level0 not found');
+
+            $usersRepo = $em->getRepository("TelepayFinancialApiBundle:User");
+            $data = $resp->getContent();
+            $data = json_decode($data);
+            $data = $data->data;
+            $user_id=$data->id;
+
+            $user = $usersRepo->findOneBy(array('id'=>$user_id));
+
+            $currencies=Currency::$LISTA;
+
+            foreach($currencies as $currency){
+                $user_wallet = new UserWallet();
+                $user_wallet->setBalance(0);
+                $user_wallet->setAvailable(0);
+                $user_wallet->setCurrency($currency);
+                $user_wallet->setUser($user);
+                $em->persist($user_wallet);
+            }
+
+            $user->addGroup($group);
+
+            $em->persist($user);
+            $em->flush();
+
+            $device = new Device();
+            $device->setUser($user);
+            $device->setDeviceId($device_id);
+
+            $em->persist($device);
+            $em->flush();
+
+            $response = array(
+                'id'        =>  $user_id,
+                'username'  =>  $username,
+                'password'  =>  $password
+            );
+
+            return $this->restV2(201,"ok", "Request successful", $response);
+        }else{
+
+            return $resp;
+        }
+
+
+
+
+    }
+
 }

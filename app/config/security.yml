@@ -66,5 +66,6 @@ security:
         - { path: ^/services/v[0-9]+/*, role: ROLE_INTEGRATOR }
         - { path: ^/pos/v[0-9]+/*, role: ROLE_COMMERCE }
         - { path: ^/user/v[0-9]+/*, role: ROLE_USER }
+        - { path: ^/register/v[0-9]+, roles: IS_AUTHENTICATED_ANONYMOUSLY }
 
 

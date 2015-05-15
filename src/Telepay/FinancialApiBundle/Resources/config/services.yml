@@ -31,3 +31,4 @@ services:
            - su
            - ROLE_ALLOWED_TO_SWITCH
            - @event_dispatcher
+

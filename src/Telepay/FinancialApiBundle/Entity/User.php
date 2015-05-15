@@ -50,7 +50,6 @@ class User extends BaseUser
      */
     protected $groups;
 
-
     /**
      * @ORM\OneToMany(targetEntity="Telepay\FinancialApiBundle\Entity\AccessToken", mappedBy="user", cascade={"remove"})
      *
@@ -78,6 +77,12 @@ class User extends BaseUser
      * @Expose
      */
     private $wallets;
+
+    /**
+     * @ORM\OneToMany(targetEntity="Telepay\FinancialApiBundle\Entity\Device", mappedBy="user", cascade={"remove"})
+     * @Expose
+     */
+    private $device;
 
     /**
      * @ORM\Column(type="string")
@@ -108,6 +113,18 @@ class User extends BaseUser
      * @Expose
      */
     private $default_currency;
+
+    /**
+     * @ORM\Column(type="integer")
+     * @Expose
+     */
+    private $prefix;
+
+    /**
+     * @ORM\Column(type="string")
+     * @Expose
+     */
+    private $phone;
 
     /**
      * @Expose
@@ -265,6 +282,54 @@ class User extends BaseUser
     public function setDefaultCurrency($default_currency)
     {
         $this->default_currency = $default_currency;
+    }
+
+    /**
+     * @return mixed
+     */
+    public function getPrefix()
+    {
+        return $this->prefix;
+    }
+
+    /**
+     * @param mixed $prefix
+     */
+    public function setPrefix($prefix)
+    {
+        $this->prefix = $prefix;
+    }
+
+    /**
+     * @return mixed
+     */
+    public function getPhone()
+    {
+        return $this->phone;
+    }
+
+    /**
+     * @param mixed $phone
+     */
+    public function setPhone($phone)
+    {
+        $this->phone = $phone;
+    }
+
+    /**
+     * @return mixed
+     */
+    public function getDevice()
+    {
+        return $this->device;
+    }
+
+    /**
+     * @param mixed $device
+     */
+    public function setDevice($device)
+    {
+        $this->device = $device;
     }
 
 }

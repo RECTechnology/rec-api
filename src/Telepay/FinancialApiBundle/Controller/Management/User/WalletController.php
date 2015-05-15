@@ -10,6 +10,7 @@ namespace Telepay\FinancialApiBundle\Controller\Management\User;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpKernel\Exception\HttpException;
 use Telepay\FinancialApiBundle\Controller\RestApiController;
+use Telepay\FinancialApiBundle\Document\Transaction;
 use Telepay\FinancialApiBundle\Entity\UserWallet;
 
 
@@ -272,6 +273,138 @@ class WalletController extends RestApiController{
             "Request successful",
             $total
         );
+    }
+
+    /**
+     * send money between wallets
+     */
+    public function walletToWallet(Request $request, $currency){
+
+        //sender user
+        $user = $this->get('security.context')
+            ->getToken()->getUser();
+
+        $parameters = array(
+            'username',
+            'amount'
+        );
+
+        $params = array();
+
+        //Obtain the parameters
+        foreach ($parameters as $param){
+            if($request->request->has($param))
+                $params[$param] = $request->request->get($param);
+            else
+                throw new HttpException(400,'Parameter '.$param.' not found');
+
+        }
+
+        //Search receiver user
+        $em = $this->getDoctrine()->getManager();
+        $receiver = $em->getRepository('TelepayFinancialApiBundle:User')
+            ->findOneBy(array('username'=>$params['username']));
+
+        if (!$receiver) throw new HttpException(404,'Receiver not found');
+
+        //Check founds in sender wallet
+        $sender_wallets = $user->getWallets();
+        $sender_wallet = null;
+        foreach( $sender_wallets as $wallet){
+            if( $wallet->getCurrency() == strtoupper($currency)){
+                $sender_wallet = $wallet;
+            }
+        }
+
+        if(!$sender_wallet) throw new HttpException(400,'Sender wallet not found');
+
+        if($sender_wallet->getAvailable() < $params['amount']) throw new HttpException(401, 'Not founds enought');
+
+        //obtaining receiver wallet
+        $receiver_wallets = $receiver->getWallets();
+        $receiver_wallet = null;
+        foreach( $receiver_wallets as $wallet){
+            if( $wallet->getCurrency() == strtoupper($currency)){
+                $receiver_wallet = $wallet;
+            }
+        }
+
+        if(!$receiver_wallet) throw new HttpException(400,'Receiver wallet not found');
+
+        //Generate transactions and update wallets - without fees
+        //SENDER TRANSACTION
+        $sender_transaction = new Transaction();
+        $sender_transaction->setStatus('success');
+        $sender_transaction->setScale($sender_wallet->getScale());
+        $sender_transaction->setCurrency($sender_wallet->getCurrency());
+        $sender_transaction->setIp('');
+        $sender_transaction->setTimeIn(new \MongoDate());
+        $sender_transaction->setVersion('');
+        $sender_transaction->setService('transfer');
+        $sender_transaction->setVariableFee(0);
+        $sender_transaction->setFixedFee(0);
+        $sender_transaction->setAmount($params['amount']);
+        $sender_transaction->setDataIn('');
+        $sender_transaction->setDataOut(array(
+            'sent_to'   =>  $receiver->getUsername(),
+            'id_to'     =>  $receiver->getId(),
+            'amount'    =>  -$params['amount'],
+            'currency'  =>  strtoupper($currency)
+        ));
+        $sender_transaction->setTotal(-$params['amount']);
+        $sender_transaction->setUser($user->getId());
+
+
+        $dm = $this->get('doctrine_mongodb')->getManager();
+
+        $dm->persist($sender_transaction);
+        $dm->flush();
+
+        //RECEIVER TRANSACTION
+        $receiver_transaction = new Transaction();
+        $receiver_transaction->setStatus('success');
+        $receiver_transaction->setScale($sender_wallet->getScale());
+        $receiver_transaction->setCurrency($sender_wallet->getCurrency());
+        $receiver_transaction->setIp('');
+        $receiver_transaction->setTimeIn(new \MongoDate());
+        $receiver_transaction->setVersion('');
+        $receiver_transaction->setService('transfer');
+        $receiver_transaction->setVariableFee(0);
+        $receiver_transaction->setFixedFee(0);
+        $receiver_transaction->setAmount($params['amount']);
+        $receiver_transaction->setDataOut(array(
+            'received_from' =>  $user->getUsername(),
+            'id_from'       =>  $user->getId(),
+            'amount'        =>  $params['amount'],
+            'currency'      =>  $receiver_wallet->getCurrency(),
+            'previous_transaction'  =>  $sender_transaction->getId()
+        ));
+        $receiver_transaction->setDataIn(array(
+            'sent_to'   =>  $receiver->getUsername(),
+            'id_to'     =>  $receiver->getId(),
+            'amount'    =>  -$params['amount'],
+            'currency'  =>  strtoupper($currency)
+        ));
+        $receiver_transaction->setTotal($params['amount']);
+        $receiver_transaction->setUser($receiver->getId());
+
+        $dm->persist($receiver_transaction);
+        $dm->flush();
+
+        //todo update wallets
+        $sender_wallet->setAvailable($sender_wallet->getAvailable()-$params['amount']);
+        $sender_wallet->setBalance($sender_wallet->getBalance()-$params['amount']);
+
+        $receiver_wallet->setAvailable($receiver_wallet->getAvailable()+$params['amount']);
+        $receiver_wallet->setBalance($receiver_wallet->getBalance()+$params['amount']);
+
+        $em->persist($sender_wallet);
+        $em->persist($receiver_wallet);
+        $em->flush();
+
+        return $this->restV2(200, "ok", "Transaction got successfully");
+
+
     }
 
     public function _exchange($amount,$curr_in,$curr_out){
