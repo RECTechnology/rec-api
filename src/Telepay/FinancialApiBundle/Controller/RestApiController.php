@@ -26,8 +26,8 @@ class RestApiController extends FosRestController{
         return $this->handleView($this->view(new ApiResponseV2($status, $message, $data), $httpCode));
     }
 
-    protected function restV3($httpCode, $status, $message = "No info", $id, $amount, $scale, $currency, $update, $data = array()){
-        return $this->handleView($this->view(new ApiResponseV3($status, $message, $id, $amount, $scale, $currency , $update, $data), $httpCode));
+    protected function restV3($httpCode, $status, $message = "No info", $id, $amount, $scale, $currency, $updated, $data = array()){
+        return $this->handleView($this->view(new ApiResponseV3($status, $message, $id, $amount, $scale, $currency , $updated, $data), $httpCode));
     }
 
     protected function restTransaction(Transaction $transaction, $message = "No info"){

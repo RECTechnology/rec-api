@@ -506,7 +506,6 @@ class IncomingController extends RestApiController{
             $mongo->flush();
 
 
-
             //if previous status != current status update wallets
             if( $previuos_status != $transaction->getStatus()){
                 $user_id = $transaction->getUser();
