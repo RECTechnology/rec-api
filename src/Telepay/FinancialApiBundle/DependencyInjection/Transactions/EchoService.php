@@ -30,67 +30,27 @@ class EchoService extends BaseService {
 
     public function create(Transaction $baseTransaction = null){
 
-        //comprobar que la currency existe y sacar el scale correspondiente
-        $currencies=Currency::$LISTA;
-        $currency_found = 0;
-        foreach($currencies as $currency ){
-            if($currency == $baseTransaction->getDataIn()['currency'] ){
-                $currency_found = 1;
-                $scale=0;
-                switch($currency){
-                    case "EUR":
-                        $scale=2;
-                        break;
-                    case "MXN":
-                        $scale=2;
-                        break;
-                    case "USD":
-                        $scale=2;
-                        break;
-                    case "BTC":
-                        $scale=8;
-                        break;
-                    case "FAC":
-                        $scale=8;
-                        break;
-                    case "PLN":
-                        $scale=2;
-                        break;
-                    case "":
-                        $scale=0;
-                        break;
-                }
-                $baseTransaction->setScale($scale);
-            }
+        $currency = $baseTransaction->getDataIn()['currency'];
+        if(!array_key_exists($currency, Currency::$SCALE)){
+            throw new HttpException(400, "Invalid currency");
         }
-
-        if( $currency_found == 0 ){
-            throw new HttpException(400,'Bad currency');
-        }else{
-            $baseTransaction->setCurrency($baseTransaction->getDataIn()['currency']);
-        }
-
-
         $baseTransaction->setCurrency($currency);
+        $baseTransaction->setScale(Currency::$SCALE[$currency]);
 
         $baseTransaction->setStatus('success');
         $baseTransaction->setData(array(
             'param' => $baseTransaction->getDataIn()['param'],
-            'server_time' => new \MongoDate()
+            'server_time' => new \MongoDate(),
+            'currency' => $currency
         ));
 
         $baseTransaction->setDataOut(array(
             'param' => $baseTransaction->getDataIn()['param'],
-            'server_time' => new \MongoDate()
+            'server_time' => new \MongoDate(),
+            'currency' => $currency
         ));
 
         return $baseTransaction;
-    }
-
-    public function cancel(Transaction $transaction,$data){
-
-        throw new HttpException(400,'Method not implemented');
-
     }
 
 }
