@@ -76,6 +76,28 @@ services:
             - "@getfaircoin"
             - "MXN"
 
+    net.telepay.exchange.MXNxEUR:
+        class: Telepay\FinancialApiBundle\DependencyInjection\Telepay\Exchanges\ChainedExchange
+        arguments:
+            exchange_chain:
+                - "@net.telepay.exchange.MXNxFAC"
+                - "@net.telepay.exchange.FACxBTC"
+                - "@net.telepay.exchange.BTCxEUR"
+
+    net.telepay.exchange.PLNxEUR:
+        class: Telepay\FinancialApiBundle\DependencyInjection\Telepay\Exchanges\ChainedExchange
+        arguments:
+            exchange_chain:
+                - "@net.telepay.exchange.PLNxFAC"
+                - "@net.telepay.exchange.FACxBTC"
+                - "@net.telepay.exchange.BTCxEUR"
+
+
+    net.telepay.exchange.PLNxFAC:
+        class: Telepay\FinancialApiBundle\DependencyInjection\Telepay\Exchanges\InversedExchange
+        arguments:
+            - "@net.telepay.exchange.FACxPLN"
+
     net.telepay.exchange.MXNxFAC:
         class: Telepay\FinancialApiBundle\DependencyInjection\Telepay\Exchanges\InversedExchange
         arguments:
