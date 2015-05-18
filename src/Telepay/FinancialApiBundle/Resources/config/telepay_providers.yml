@@ -26,6 +26,23 @@ services:
         arguments:
             - "@kraken"
 
+    net.telepay.exchange.BTCxUSD:
+        class: Telepay\FinancialApiBundle\DependencyInjection\Telepay\Exchanges\BtcUsdExchange
+        arguments:
+            - "@kraken"
+
+    net.telepay.exchange.USDxBTC:
+        class: Telepay\FinancialApiBundle\DependencyInjection\Telepay\Exchanges\InversedExchange
+        arguments:
+            - "@net.telepay.exchange.BTCxUSD"
+
+    net.telepay.exchange.USDxEUR:
+        class: Telepay\FinancialApiBundle\DependencyInjection\Telepay\Exchanges\ChainedExchange
+        arguments:
+            exchange_chain:
+                - "@net.telepay.exchange.USDxBTC"
+                - "@net.telepay.exchange.BTCxEUR"
+
     net.telepay.exchange.FACxEUR.v1:
         class: Telepay\FinancialApiBundle\DependencyInjection\Telepay\Exchanges\FacCommonExchange
         arguments:
