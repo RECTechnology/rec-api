@@ -10,28 +10,30 @@ namespace Telepay\FinancialApiBundle\DependencyInjection\Telepay\Exchanges;
 use GetFaircoin\Ticker;
 use Telepay\FinancialApiBundle\Financial\Currency;
 
-class FacEurExchange implements ExchangeInterface {
+class FacCommonExchange implements ExchangeInterface {
 
     private $getFaircoinTicker;
+    private $commonCurrency;
 
-    function __construct(Ticker $getFaircoinTicker)
+    function __construct(Ticker $getFaircoinTicker, $commonCurrency)
     {
         $this->getFaircoinTicker = $getFaircoinTicker;
+        $this->commonCurrency= $commonCurrency;
     }
 
 
-    public function getPrice()
-    {
+    public function getPrice() {
         $prices = $this->getFaircoinTicker->tick();
-        return $prices[Currency::$EUR];
+        $ovars = get_object_vars($prices);
+        return $ovars[$this->commonCurrency]->last;
     }
 
-    public function getFirst()
+    public function getInCurrency()
     {
         return Currency::$FAC;
     }
 
-    public function getSecond()
+    public function getOutCurrency()
     {
         return Currency::$EUR;
     }
