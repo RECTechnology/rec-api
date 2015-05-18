@@ -9,6 +9,8 @@
 
 namespace Telepay\FinancialApiBundle\DependencyInjection\Telepay\Exchanges;
 
-interface ExchangeInterface extends PairInterface {
+interface ExchangeInterface {
     public function getPrice();
+    public function getInCurrency();
+    public function getOutCurrency();
 }

@@ -21,16 +21,16 @@ class UsdEurExchange implements ExchangeInterface {
     public function getPrice()
     {
 
-        die(print_r('caca',true));
+        return 1;
 
     }
 
-    public function getFirst()
+    public function getInCurrency()
     {
         return Currency::$USD;
     }
 
-    public function getSecond()
+    public function getOutCurrency()
     {
         return Currency::$EUR;
     }

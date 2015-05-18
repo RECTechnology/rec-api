@@ -6,20 +6,51 @@ services:
             - "%kraken_api_key%"
             - "%kraken_private_key%"
 
+    bittrex:
+        class: Telepay\FinancialApiBundle\DependencyInjection\Telepay\Providers\Bittrex
+        arguments:
+            - "%bittrex_api_url%"
+            - "%bittrex_api_key%"
+            - "%bittrex_api_secret%"
+
     getfaircoin:
         class: GetFaircoin\Ticker
 
-    net.telepay.exchange.btcxeur:
+    net.telepay.exchange.FACxBTC:
+        class: Telepay\FinancialApiBundle\DependencyInjection\Telepay\Exchanges\FacBtcExchange
+        arguments:
+            - "@bittrex"
+
+    net.telepay.exchange.BTCxEUR:
         class: Telepay\FinancialApiBundle\DependencyInjection\Telepay\Exchanges\BtcEurExchange
         arguments:
             - "@kraken"
 
-    net.telepay.exchange.facxeur:
-        class: Telepay\FinancialApiBundle\DependencyInjection\Telepay\Exchanges\FacEurExchange
+    net.telepay.exchange.FACxEUR:
+        class: Telepay\FinancialApiBundle\DependencyInjection\Telepay\Exchanges\FacCommonExchange
         arguments:
             - "@getfaircoin"
+            - "EUR"
 
-    net.telepay.exchange.usdxeur:
+    net.telepay.exchange.FACxUSD:
+        class: Telepay\FinancialApiBundle\DependencyInjection\Telepay\Exchanges\FacCommonExchange
+        arguments:
+            - "@getfaircoin"
+            - "USD"
+
+    net.telepay.exchange.FACxPLN:
+        class: Telepay\FinancialApiBundle\DependencyInjection\Telepay\Exchanges\FacCommonExchange
+        arguments:
+            - "@getfaircoin"
+            - "PLN"
+
+    net.telepay.exchange.FACxMXN:
+        class: Telepay\FinancialApiBundle\DependencyInjection\Telepay\Exchanges\FacCommonExchange
+        arguments:
+            - "@getfaircoin"
+            - "MXN"
+
+    net.telepay.exchange.USDxEUR:
             class: Telepay\FinancialApiBundle\DependencyInjection\Telepay\Exchanges\UsdEurExchange
 
     net.telepay.provider.btc:
