@@ -16,7 +16,7 @@ class ChainedExchange implements ExchangeInterface {
 
     private $exchangeChain;
 
-    public function __construct($exchange_chain){
+    public function __construct(array $exchange_chain){
         $this->exchangeChain = $exchange_chain;
     }
 
