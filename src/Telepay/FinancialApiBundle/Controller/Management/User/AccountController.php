@@ -9,6 +9,7 @@
 
 namespace Telepay\FinancialApiBundle\Controller\Management\User;
 
+use Symfony\Component\Security\Core\Util\SecureRandom;
 use Telepay\FinancialApiBundle\Entity\Device;
 use Telepay\FinancialApiBundle\Entity\Group;
 use Telepay\FinancialApiBundle\Entity\LimitDefinition;
@@ -351,8 +352,27 @@ class AccountController extends BaseApiController{
             return $resp;
         }
 
+    }
 
+    /**
+     * @Rest\View
+     */
+    public function resetCredentials(Request $request){
 
+        $user = $this->get('security.context')->getToken()->getUser();
+
+        $generator = new SecureRandom();
+        $access_key=sha1($generator->nextBytes(32));
+        $access_secret=base64_encode($generator->nextBytes(32));
+
+        $user->setAccessSecret($access_secret);
+        $user->setAccessKey($access_key);
+
+        $em = $this->getDoctrine()->getManager();
+        $em->persist($user);
+        $em->flush();
+
+        return $this->restV2(204,"ok", "Updated successfully");
 
     }
 

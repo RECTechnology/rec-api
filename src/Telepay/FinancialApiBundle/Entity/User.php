@@ -332,4 +332,20 @@ class User extends BaseUser
         $this->device = $device;
     }
 
+    /**
+     * @param mixed $access_key
+     */
+    public function setAccessKey($access_key)
+    {
+        $this->access_key = $access_key;
+    }
+
+    /**
+     * @param mixed $access_secret
+     */
+    public function setAccessSecret($access_secret)
+    {
+        $this->access_secret = $access_secret;
+    }
+
 }
