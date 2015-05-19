@@ -53,6 +53,11 @@ class IncomingController extends RestApiController{
             else $dataIn[$field] = $request->get($field);
         }
 
+        //si en service->getFields no esta url_notification y si esta en el request lo añadimos al data in
+        if(!isset($service->getFields()['url_notification']) && $request->request->has('url_notification')){
+            $dataIn['url_notification'] = $request->request->get('url_notification');
+        }
+
         if($request->request->has('sms_language')){
             $dataIn['sms_language']=$request->request->get('sms_language');
         }
@@ -637,11 +642,7 @@ class IncomingController extends RestApiController{
 
         if($transaction->getService() != $service->getCname()) throw new HttpException(404, 'Transaction not found');
 
-        if($service_cname == 'safetypay' ){
-            $transaction = $service->notificate($transaction, $request->query->all());
-        }else{
-            $transaction = $service->notificate($transaction, $request->request->all());
-        }
+        $transaction = $service->notificate($transaction, $request->request->all());
 
         if(!$transaction) throw new HttpException(500, "oOps, the notification failed");
 

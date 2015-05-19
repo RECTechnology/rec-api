@@ -103,6 +103,9 @@ class Transaction implements TransactionTiming {
         $transaction->setUser($context->getUser()->getId());
         $transaction->setDataIn($context->getRequestStack()->getCurrentRequest());
         $transaction->setStatus(Transaction::$STATUS_CREATED);
+        $transaction->setNotificationTries(0);
+        $transaction->setMaxNotificationTries(3);
+        $transaction->setNotified(false);
         return $transaction;
     }
 
@@ -228,6 +231,24 @@ class Transaction implements TransactionTiming {
      * @MongoDB\Int
      */
     private $scale;
+
+    /**
+     * @var
+     * @MongoDB\Int
+     */
+    private $max_notification_tries;
+
+    /**
+     * @var
+     * @MongoDB\Int
+     */
+    private $notification_tries;
+
+    /**
+     * @var
+     * @MongoDB\Boolean
+     */
+    private $notified;
 
     /**
      * Get id
@@ -565,5 +586,53 @@ class Transaction implements TransactionTiming {
     public function setUpdated($updated)
     {
         $this->updated = $updated;
+    }
+
+    /**
+     * @return mixed
+     */
+    public function getMaxNotificationTries()
+    {
+        return $this->max_notification_tries;
+    }
+
+    /**
+     * @param mixed $max_notification_tries
+     */
+    public function setMaxNotificationTries($max_notification_tries)
+    {
+        $this->max_notification_tries = $max_notification_tries;
+    }
+
+    /**
+     * @return mixed
+     */
+    public function getNotificationTries()
+    {
+        return $this->notification_tries;
+    }
+
+    /**
+     * @param mixed $notification_tries
+     */
+    public function setNotificationTries($notification_tries)
+    {
+        $this->notification_tries = $notification_tries;
+    }
+
+    /**
+     * @return mixed
+     */
+    public function getNotified()
+    {
+        return $this->notified;
+    }
+
+    /**
+     * @param mixed $notified
+     */
+    public function setNotified($notified)
+    {
+        $this->notified = $notified;
     }
 }
