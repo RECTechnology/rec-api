@@ -12,6 +12,7 @@ use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpKernel\Exception\HttpException;
 use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
+use Symfony\Component\Intl\Exception\NotImplementedException;
 use Telepay\FinancialApiBundle\Controller\Services\SampleResponse;
 use Telepay\FinancialApiBundle\DependencyInjection\Transactions\Core\BaseService;
 use Telepay\FinancialApiBundle\DependencyInjection\Transactions\Core\ServiceLifeCycle;
@@ -30,6 +31,8 @@ class EchoService extends BaseService {
 
     public function create(Transaction $baseTransaction = null){
 
+        if($this->getTransactionContext()->getEnvironment() === 'prod')
+            throw new HttpException(503, "Method unavailable in production environment");
         $currency = $baseTransaction->getDataIn()['currency'];
         if(!array_key_exists($currency, Currency::$SCALE)){
             throw new HttpException(400, "Invalid currency");
