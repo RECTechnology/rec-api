@@ -32,7 +32,8 @@ class EchoService extends BaseService {
     public function create(Transaction $baseTransaction = null){
 
         if($this->getTransactionContext()->getEnvironment() === 'prod')
-            throw new HttpException(503, "Method unavailable in production environment");
+            throw new HttpException(503, "Method unavailable for production environment");
+
         $currency = $baseTransaction->getDataIn()['currency'];
         if(!array_key_exists($currency, Currency::$SCALE)){
             throw new HttpException(400, "Invalid currency");
