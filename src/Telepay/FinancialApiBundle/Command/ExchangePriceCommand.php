@@ -17,7 +17,7 @@ class ExchangePriceCommand extends ContainerAwareCommand
     {
         $this
             ->setName('telepay:exchange:price:update')
-            ->setDescription('Update exchange price')
+            ->setDescription('Update all exchange prices')
         ;
     }
 

@@ -35,6 +35,6 @@ class FacCommonExchange implements ExchangeInterface {
 
     public function getOutCurrency()
     {
-        return Currency::$EUR;
+        return $this->commonCurrency;
     }
 }
