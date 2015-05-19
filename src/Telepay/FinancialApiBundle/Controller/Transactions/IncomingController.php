@@ -506,10 +506,9 @@ class IncomingController extends RestApiController{
             $previuos_status = $transaction->getStatus();
             $transaction = $service->check($transaction);
             $mongo = $this->get('doctrine_mongodb')->getManager();
-            $transaction->setUpdated(new \MongoDate());
+            $transaction->setUpdated(new \DateTime());
             $mongo->persist($transaction);
             $mongo->flush();
-
 
             //if previous status != current status update wallets
             if( $previuos_status != $transaction->getStatus()){
