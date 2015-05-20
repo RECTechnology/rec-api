@@ -71,12 +71,12 @@ class SabadellService{
 
         // Compute hash to sign form data
         // $signature=sha1_hex($amount,$order,$code,$currency,$response,$clave);
-        $message = $params[2].$params[4].$params[5].$params[3].$params[8].$this->clave;
+        $message = $params[0].$params[2].$params[3].$params[1].$params[5].$this->clave;
 
         $signature = strtoupper(sha1($message));
 
-        if($signature==$params[7]){
-            if($params[8]<=99){
+        if($signature == $params[4]){
+            if($params[5]<=99){
                 $status = 1;
 
             }else{

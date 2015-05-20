@@ -109,30 +109,20 @@ class SabadellTPVService extends BaseService{
     public function notificate(Transaction $transaction , $request){
 
         static $paramNames = array(
-            'Ds_Date',
-            'Ds_Hour',
             'Ds_Amount',
             'Ds_Currency',
             'Ds_Order',
             'Ds_MerchantCode',
-            'Ds_Terminal',
             'Ds_Signature',
-            'Ds_Response',
-            'Ds_TransactionType',
-            'Ds_SecurePayment',
-            'Ds_MerchantData',
-            'Ds_Card_Country',
-            'Ds_AuthorisationCode',
-            'Ds_ConsumerLenguage',
-            'Ds_Card_Type'
+            'Ds_Response'
         );
 
-        $params=array();
+        $params = array();
         foreach ($paramNames as $paramName){
-            if(isset($request[$paramName])){
-                $params[]=$request[$paramName];
+            if(isset( $request[$paramName] )){
+                $params[] = $request[$paramName];
             }else{
-                throw new HttpException(404,'Param '.$paramName.' not found');
+                throw new HttpException(404,'Param '.$paramName.' not found ');
             }
 
         }
@@ -152,8 +142,10 @@ class SabadellTPVService extends BaseService{
 
             if($notification == 1){
                 $transaction->setStatus(Transaction::$STATUS_SUCCESS);
+                $transaction->setDebugData($request);
             }else{
                 $transaction->setStatus(Transaction::$STATUS_CANCELLED);
+                $transaction->setDebugData($request);
             }
 
             $dm->persist($transaction);
