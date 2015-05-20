@@ -8,26 +8,22 @@
 
 namespace Telepay\FinancialApiBundle\DependencyInjection\Transactions\Core;
 
+use Symfony\Component\DependencyInjection\ContainerInterface;
+
 class TransactionContext implements TransactionContextInterface {
 
-    private $requestStack;
-    private $user;
-    private $odm;
-    private $orm;
-    function __construct($requestStack, $securityContext, $odm, $orm)
+    private $container;
+
+    function __construct(ContainerInterface $container)
     {
-        $this->requestStack = $requestStack;
-        //die(print_r($this->requestStack->getCurrentRequest()->get('id'),true));
-        if($this->requestStack->getCurrentRequest()->get('_route') === 'service_notificate'){
-            $transaction_id = $this->requestStack->getCurrentRequest()->get('id');
-            $transaction = $odm->getRepository('TelepayFinancialApiBundle:Transaction')->find($transaction_id);
-            //die(print_r($transaction->getUser(),true));
-            $this->user = $orm->getRepository('TelepayFinancialApiBundle:User')->find($transaction->getUser());
+        $this->container = $container;
+        if($this->getRequestStack()->getCurrentRequest()->get('_route') === 'service_notificate'){
+            $transaction_id = $this->getRequestStack()->getCurrentRequest()->get('id');
+            $transaction = $this->getODM()->getRepository('TelepayFinancialApiBundle:Transaction')->find($transaction_id);
+            $this->user = $this->getORM()->getRepository('TelepayFinancialApiBundle:User')->find($transaction->getUser());
         }else{
-            $this->user = $securityContext->getToken()->getUser();
+            $this->user = $this->container->get('security.context')->getToken()->getUser();
         }
-        $this->odm = $odm;
-        $this->orm = $orm;
     }
 
     /**
@@ -35,7 +31,7 @@ class TransactionContext implements TransactionContextInterface {
      */
     public function getRequestStack()
     {
-        return $this->requestStack;
+        return $this->container->get('request_stack');
     }
 
     /**
@@ -51,7 +47,7 @@ class TransactionContext implements TransactionContextInterface {
      */
     public function getODM()
     {
-        return $this->odm;
+        return $this->container->get('doctrine_mongodb');
     }
 
     /**
@@ -59,7 +55,11 @@ class TransactionContext implements TransactionContextInterface {
      */
     public function getORM()
     {
-        return $this->orm;
+        return $this->container->get('doctrine');
     }
 
+    public function getEnvironment()
+    {
+        return $this->container->get('kernel')->getEnvironment();
+    }
 }
