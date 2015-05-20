@@ -730,6 +730,11 @@ class IncomingController extends RestApiController{
 
         if(!$transaction) throw new HttpException(500, "oOps, the notification failed");
 
+        $mongo = $this->get('doctrine_mongodb')->getManager();
+
+        $mongo->persist($transaction);
+        $mongo->flush();
+
         if($transaction->getStatus() == Transaction::$STATUS_SUCCESS ){
             //update wallet
             $user_id = $transaction->getUser();
@@ -786,7 +791,6 @@ class IncomingController extends RestApiController{
                 ));
                 $feeTransaction->setTotal(-$total_fee);
 
-                $mongo = $this->get('doctrine_mongodb')->getManager();
                 $mongo->persist($feeTransaction);
                 $mongo->flush();
 
