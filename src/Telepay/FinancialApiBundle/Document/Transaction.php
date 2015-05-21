@@ -99,7 +99,7 @@ class Transaction implements TransactionTiming {
     public static function createFromContext(TransactionContextInterface $context){
         $transaction = new Transaction();
         $transaction->setIp($context->getRequestStack()->getCurrentRequest()->getClientIp());
-        $transaction->setTimeIn(new \MongoDate());
+        $transaction->setTimeIn(new \DateTime());
         $transaction->setUser($context->getUser()->getId());
         $transaction->setDataIn($context->getRequestStack()->getCurrentRequest());
         $transaction->setStatus(Transaction::$STATUS_CREATED);
@@ -115,7 +115,7 @@ class Transaction implements TransactionTiming {
         $transaction->setScale($trans->getScale());
         $transaction->setCurrency($trans->getCurrency());
         $transaction->setIp($trans->getIp());
-        $transaction->setTimeIn(new \MongoDate());
+        $transaction->setTimeIn(new \DateTime());
         $transaction->setVersion($trans->getVersion());
         $transaction->setService($trans->getService());
         $transaction->setVariableFee($trans->getVariableFee());
