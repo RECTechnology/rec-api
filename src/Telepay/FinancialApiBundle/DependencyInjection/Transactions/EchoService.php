@@ -30,6 +30,10 @@ class EchoService extends BaseService {
 
     public function create(Transaction $baseTransaction = null){
 
+        $logger = $this->getTransactionContext()->getContainer()->get('logger');
+        $logger->info('I just got the logger');
+        $logger->error('An error occurred');
+
         $currency = $baseTransaction->getDataIn()['currency'];
         if(!array_key_exists($currency, Currency::$SCALE)){
             throw new HttpException(400, "Invalid currency");
