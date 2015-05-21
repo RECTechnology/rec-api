@@ -62,4 +62,9 @@ class TransactionContext implements TransactionContextInterface {
     {
         return $this->container->get('kernel')->getEnvironment();
     }
+
+    public function getContainer()
+    {
+        return $this->container;
+    }
 }
