@@ -641,6 +641,8 @@ class IncomingController extends RestApiController{
 
         if($transaction->getService() != $service->getCname()) throw new HttpException(404, 'Transaction not found');
 
+        if( $transaction->getStatus() != Transaction::$STATUS_CREATED ) throw new HttpException(409,'Tranasction already processed.');
+
         $transaction = $service->notificate($transaction, $request->request->all());
 
         $mongo = $this->get('doctrine_mongodb')->getManager();
