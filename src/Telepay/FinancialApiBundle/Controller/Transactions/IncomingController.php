@@ -200,6 +200,7 @@ class IncomingController extends RestApiController{
                 if( $transaction->getStatus() === Transaction::$STATUS_CREATED ){
                     if($e->getStatusCode()>=500){
                         $transaction->setStatus(Transaction::$STATUS_FAILED);
+                        $this->container->get('notificator')->notificate($transaction);
                     }else{
                         $transaction->setStatus( Transaction::$STATUS_ERROR );
                         //desbloqueamos la pasta del wallet
@@ -208,6 +209,8 @@ class IncomingController extends RestApiController{
                         $em->flush();
                         $dm->persist($transaction);
                         $dm->flush();
+
+                        $this->container->get('notificator')->notificate($transaction);
 
                         throw $e;
                     }
@@ -220,6 +223,7 @@ class IncomingController extends RestApiController{
 
             //pay fees and dealer always
             if( $transaction->getStatus() === Transaction::$STATUS_CREATED || $transaction->getStatus() === Transaction::$STATUS_SUCCESS ){
+                $this->container->get('notificator')->notificate($transaction);
                 if( $service_cname != 'echo'){
                     //restar al usuario el amount + comisiones
                     $current_wallet->setBalance($current_wallet->getBalance()-$total);
@@ -244,6 +248,7 @@ class IncomingController extends RestApiController{
             }catch (HttpException $e){
                 if($transaction->getStatus() === Transaction::$STATUS_CREATED)
                     $transaction->setStatus(Transaction::$STATUS_FAILED);
+                $this->container->get('notificator')->notificate($transaction);
                 $dm->persist($transaction);
                 $dm->flush();
                 throw $e;
@@ -260,10 +265,7 @@ class IncomingController extends RestApiController{
             $scale=$current_wallet->getScale();
             $transaction->setScale($scale);
 
-           
 
-
-            $transaction = $this->get('notificator')->notificate($transaction);
             $transaction->setUpdated(new \DateTime());
 
             $dm->persist($transaction);
@@ -271,6 +273,7 @@ class IncomingController extends RestApiController{
 
             //si la transaccion se finaliza se suma al wallet i se reparten las comisiones
             if($transaction->getStatus() === Transaction::$STATUS_SUCCESS && $service_cname != 'echo' ){
+                $transaction = $this->get('notificator')->notificate($transaction);
                 //sumar al usuario el amount completo
                 $current_wallet->setAvailable($current_wallet->getAvailable()+$total);
                 $current_wallet->setBalance($current_wallet->getBalance()+$total);
@@ -361,6 +364,7 @@ class IncomingController extends RestApiController{
 
                         if($e->getStatusCode()>=500){
                             $transaction->setStatus(Transaction::$STATUS_FAILED);
+                            $transaction = $this->get('notificator')->notificate($transaction);
                         }else{
                             $transaction->setStatus( Transaction::$STATUS_ERROR );
                             $mongo->persist($transaction);
@@ -369,6 +373,8 @@ class IncomingController extends RestApiController{
                             if( $service->getcashDirection() == 'out' ){
                                 $current_wallet->setAvailable($current_wallet->getAvailable() + $amount );
                             }
+
+                            $transaction = $this->get('notificator')->notificate($transaction);
 
                             $em->persist($current_wallet);
                             $em->flush();
@@ -384,6 +390,7 @@ class IncomingController extends RestApiController{
                     //actualizar el wallet del user if success
 
                     if( $transaction->getStatus() == Transaction::$STATUS_CREATED && $service->getcashDirection() == 'out' && $service_cname != 'echo'){
+                        $transaction = $this->get('notificator')->notificate($transaction);
                         //sumamos la pasta al wallet
 
                         if($total_fee != 0){
@@ -400,6 +407,7 @@ class IncomingController extends RestApiController{
                     }
 
                     if( $transaction->getStatus() == Transaction::$STATUS_SUCCESS && $service_cname != 'echo' ){
+                        $transaction = $this->get('notificator')->notificate($transaction);
 
                         if( $service->getcashDirection() == 'out' ){
                             $current_wallet->setBalance($current_wallet->getBalance() - $amount - $total_fee );
@@ -422,8 +430,6 @@ class IncomingController extends RestApiController{
 
                         }
 
-
-
                     }
 
                 }else{
@@ -440,6 +446,7 @@ class IncomingController extends RestApiController{
 
                     if($transaction->getStatus() == Transaction::$STATUS_FAILED){
                         $transaction->setStatus(Transaction::$STATUS_CANCELLED );
+
                         $mongo->persist($transaction);
                         $mongo->flush();
                         //desbloquear pasta del wallet
@@ -466,6 +473,8 @@ class IncomingController extends RestApiController{
 
                         $em->persist($current_wallet);
                         $em->flush();
+
+                        $transaction = $this->get('notificator')->notificate($transaction);
 
                     }
 
@@ -504,7 +513,11 @@ class IncomingController extends RestApiController{
 
         if(!$transaction) throw new HttpException(404, 'Transaction not found');
 
-        if($transaction->getStatus() == Transaction::$STATUS_CREATED || $transaction->getStatus() == Transaction::$STATUS_RECEIVED || $transaction->getStatus() == Transaction::$STATUS_FAILED || $transaction->getStatus() == Transaction::$STATUS_REVIEW ){
+        if($transaction->getStatus() == Transaction::$STATUS_CREATED ||
+            $transaction->getStatus() == Transaction::$STATUS_RECEIVED ||
+            $transaction->getStatus() == Transaction::$STATUS_FAILED ||
+            $transaction->getStatus() == Transaction::$STATUS_REVIEW ){
+
             if($transaction->getService() != $service->getCname()) throw new HttpException(404, 'Transaction not found');
             $previuos_status = $transaction->getStatus();
             $transaction = $service->check($transaction);
@@ -515,6 +528,7 @@ class IncomingController extends RestApiController{
 
             //if previous status != current status update wallets
             if( $previuos_status != $transaction->getStatus()){
+                $transaction = $this->get('notificator')->notificate($transaction);
                 $user_id = $transaction->getUser();
                 $em = $this->getDoctrine()->getManager();
                 $user = $em->getRepository('TelepayFinancialApiBundle:User')->find($user_id);
