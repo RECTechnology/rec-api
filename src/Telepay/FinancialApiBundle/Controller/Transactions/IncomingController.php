@@ -14,6 +14,7 @@ namespace Telepay\FinancialApiBundle\Controller\Transactions;
 use Symfony\Component\EventDispatcher\Tests\Service;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpKernel\Exception\HttpException;
+use Symfony\Component\Validator\Constraints\DateTime;
 use Telepay\FinancialApiBundle\Controller\RestApiController;
 use FOS\RestBundle\Controller\Annotations as Rest;
 
@@ -263,6 +264,11 @@ class IncomingController extends RestApiController{
             $transaction->setScale($scale);
 
             $transaction->setTimeOut(new \MongoDate());
+
+
+            $transaction = $this->get('notificator')->notificate($transaction);
+            $transaction->setUpdated(new \DateTime());
+
             $dm->persist($transaction);
             $dm->flush();
 
@@ -588,9 +594,9 @@ class IncomingController extends RestApiController{
         $transactions = $dm->createQueryBuilder('TelepayFinancialApiBundle:Transaction')
             ->field('user')->equals($userId)
             ->field('service')->equals($service->getCname())
-            ->field('timeIn')->gt($start_time)
-            ->field('timeIn')->lt($end_time)
-            ->sort('timeIn', 'desc')
+            ->field('created')->gt($start_time)
+            ->field('created')->lt($end_time)
+            ->sort('created', 'desc')
             ->skip($offset)
             ->limit($limit)
             ->getQuery()->execute();
@@ -604,9 +610,9 @@ class IncomingController extends RestApiController{
             $transactionsOld = $dm->createQueryBuilder('TelepayFinancialApiBundle:Transaction')
                 ->field('user')->equals($userId)
                 ->field('service')->equals(static::$OLD_CNAME_ID_MAPPINGS[$service->getCname()])
-                ->field('timeIn')->gt($start_time)
-                ->field('timeIn')->lt($end_time)
-                ->sort('timeIn', 'desc')
+                ->field('created')->gt($start_time)
+                ->field('created')->lt($end_time)
+                ->sort('created', 'desc')
                 ->skip($offset)
                 ->limit($limit)
                 ->getQuery()->execute();
@@ -643,7 +649,7 @@ class IncomingController extends RestApiController{
 
         if( $transaction->getStatus() != Transaction::$STATUS_CREATED ) throw new HttpException(409,'Tranasction already processed.');
 
-        $transaction = $service->notificate($transaction, $request->request->all());
+
 
         $mongo = $this->get('doctrine_mongodb')->getManager();
         $transaction->setUpdated(new \DateTime());
@@ -653,12 +659,14 @@ class IncomingController extends RestApiController{
         if(!$transaction) throw new HttpException(500, "oOps, the notification failed");
 
         if($transaction->getStatus() == Transaction::$STATUS_SUCCESS ){
+            //notify changed status
+            $transaction = $service->notificate($transaction, $request->request->all());
             //update wallet
             $user_id = $transaction->getUser();
 
             $em=$this->getDoctrine()->getManager();
 
-            $user =$em->getRepository('TelepayFinancialApiBundle:User')->find($user_id);
+            $user = $em->getRepository('TelepayFinancialApiBundle:User')->find($user_id);
             $currency = $transaction->getCurrency();
 
             $wallets = $user->getWallets();
