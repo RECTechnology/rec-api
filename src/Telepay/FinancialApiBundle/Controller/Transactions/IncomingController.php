@@ -14,7 +14,6 @@ namespace Telepay\FinancialApiBundle\Controller\Transactions;
 use Symfony\Component\EventDispatcher\Tests\Service;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpKernel\Exception\HttpException;
-use Symfony\Component\Validator\Constraints\DateTime;
 use Telepay\FinancialApiBundle\Controller\RestApiController;
 use FOS\RestBundle\Controller\Annotations as Rest;
 
@@ -216,8 +215,6 @@ class IncomingController extends RestApiController{
                 }
 
             }
-
-            $transaction->setTimeOut(new \MongoDate());
             $dm->persist($transaction);
             $dm->flush();
 
@@ -263,7 +260,7 @@ class IncomingController extends RestApiController{
             $scale=$current_wallet->getScale();
             $transaction->setScale($scale);
 
-            $transaction->setTimeOut(new \MongoDate());
+           
 
 
             $transaction = $this->get('notificator')->notificate($transaction);
@@ -649,7 +646,7 @@ class IncomingController extends RestApiController{
 
         if( $transaction->getStatus() != Transaction::$STATUS_CREATED ) throw new HttpException(409,'Tranasction already processed.');
 
-
+        $transaction = $service->notificate($transaction, $request->request->all());
 
         $mongo = $this->get('doctrine_mongodb')->getManager();
         $transaction->setUpdated(new \DateTime());
@@ -659,14 +656,12 @@ class IncomingController extends RestApiController{
         if(!$transaction) throw new HttpException(500, "oOps, the notification failed");
 
         if($transaction->getStatus() == Transaction::$STATUS_SUCCESS ){
-            //notify changed status
-            $transaction = $service->notificate($transaction, $request->request->all());
             //update wallet
             $user_id = $transaction->getUser();
 
             $em=$this->getDoctrine()->getManager();
 
-            $user = $em->getRepository('TelepayFinancialApiBundle:User')->find($user_id);
+            $user =$em->getRepository('TelepayFinancialApiBundle:User')->find($user_id);
             $currency = $transaction->getCurrency();
 
             $wallets = $user->getWallets();

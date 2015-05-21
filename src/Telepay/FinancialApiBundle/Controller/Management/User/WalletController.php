@@ -338,7 +338,6 @@ class WalletController extends RestApiController{
         $sender_transaction->setScale($sender_wallet->getScale());
         $sender_transaction->setCurrency($sender_wallet->getCurrency());
         $sender_transaction->setIp('');
-        $sender_transaction->setTimeIn(new \MongoDate());
         $sender_transaction->setVersion('');
         $sender_transaction->setService('transfer');
         $sender_transaction->setVariableFee(0);
@@ -366,7 +365,6 @@ class WalletController extends RestApiController{
         $receiver_transaction->setScale($sender_wallet->getScale());
         $receiver_transaction->setCurrency($sender_wallet->getCurrency());
         $receiver_transaction->setIp('');
-        $receiver_transaction->setTimeIn(new \MongoDate());
         $receiver_transaction->setVersion('');
         $receiver_transaction->setService('transfer');
         $receiver_transaction->setVariableFee(0);

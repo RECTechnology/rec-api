@@ -9,6 +9,6 @@
 namespace Telepay\FinancialApiBundle\DependencyInjection\Telepay\Interfaces;
 
 interface TransactionTiming {
-    public function getTimeIn();
-    public function getTimeOut();
+    public function getCreated();
+    public function getUpdated();
 }

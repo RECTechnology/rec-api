@@ -92,14 +92,13 @@ class Transaction implements TransactionTiming {
     private $updated;
 
     public function __construct(){
-        $this->created=new \MongoDate();
-        $this->updated=new \MongoDate();
+        $this->created=new \DateTime();
+        $this->updated=new \DateTime();
     }
 
     public static function createFromContext(TransactionContextInterface $context){
         $transaction = new Transaction();
         $transaction->setIp($context->getRequestStack()->getCurrentRequest()->getClientIp());
-        $transaction->setTimeIn(new \MongoDate());
         $transaction->setUser($context->getUser()->getId());
         $transaction->setDataIn($context->getRequestStack()->getCurrentRequest());
         $transaction->setStatus(Transaction::$STATUS_CREATED);
@@ -115,7 +114,6 @@ class Transaction implements TransactionTiming {
         $transaction->setScale($trans->getScale());
         $transaction->setCurrency($trans->getCurrency());
         $transaction->setIp($trans->getIp());
-        $transaction->setTimeIn(new \MongoDate());
         $transaction->setVersion($trans->getVersion());
         $transaction->setService($trans->getService());
         $transaction->setVariableFee($trans->getVariableFee());
@@ -146,18 +144,6 @@ class Transaction implements TransactionTiming {
      * @MongoDB\String
      */
     private $ip;
-
-    /**
-     * @var
-     * @MongoDB\Date
-     */
-    private $timeIn;
-
-    /**
-     * @var
-     * @MongoDB\Date
-     */
-    private $timeOut;
 
     /**
      * @var
@@ -302,50 +288,6 @@ class Transaction implements TransactionTiming {
     public function getService()
     {
         return $this->service;
-    }
-
-    /**
-     * Set timeIn
-     *
-     * @param timestamp $timeIn
-     * @return self
-     */
-    public function setTimeIn($timeIn)
-    {
-        $this->timeIn = $timeIn;
-        return $this;
-    }
-
-    /**
-     * Get timeIn
-     *
-     * @return timestamp $timeIn
-     */
-    public function getTimeIn()
-    {
-        return $this->timeIn;
-    }
-
-    /**
-     * Set timeOut
-     *
-     * @param timestamp $timeOut
-     * @return self
-     */
-    public function setTimeOut($timeOut)
-    {
-        $this->timeOut = $timeOut;
-        return $this;
-    }
-
-    /**
-     * Get timeOut
-     *
-     * @return timestamp $timeOut
-     */
-    public function getTimeOut()
-    {
-        return $this->timeOut;
     }
 
     /**
