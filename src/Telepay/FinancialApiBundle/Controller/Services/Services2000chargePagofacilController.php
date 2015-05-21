@@ -127,7 +127,6 @@ class Services2000chargePagofacilController extends FOSRestController
         //Guardamos la respuesta
         $transaction->setReceivedData(json_encode($datos));
         $dm = $this->get('doctrine_mongodb')->getManager();
-        $transaction->setTimeOut(time());
         $transaction->setCompleted(true);
 
         $dm->persist($transaction);
@@ -245,7 +244,6 @@ class Services2000chargePagofacilController extends FOSRestController
         //Guardamos la respuesta
         $transaction->setReceivedData(json_encode($datos));
         $dm = $this->get('doctrine_mongodb')->getManager();
-        $transaction->setTimeOut(time());
         $transaction->setCompleted(true);
 
         $dm->persist($transaction);

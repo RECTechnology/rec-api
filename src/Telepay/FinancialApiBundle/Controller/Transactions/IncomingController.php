@@ -215,8 +215,6 @@ class IncomingController extends RestApiController{
                 }
 
             }
-
-            $transaction->setTimeOut(new \MongoDate());
             $dm->persist($transaction);
             $dm->flush();
 
@@ -262,7 +260,6 @@ class IncomingController extends RestApiController{
             $scale=$current_wallet->getScale();
             $transaction->setScale($scale);
 
-            $transaction->setTimeOut(new \MongoDate());
             $dm->persist($transaction);
             $dm->flush();
 

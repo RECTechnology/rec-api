@@ -109,7 +109,6 @@ class ServicesToditocashPayservicesController extends FosRestController
         //Guardamos la respuesta
         $transaction->setReceivedData(json_encode($datos));
         $dm = $this->get('doctrine_mongodb')->getManager();
-        $transaction->setTimeOut(time());
 
         $dm->persist($transaction);
         $dm->flush();
@@ -227,7 +226,6 @@ class ServicesToditocashPayservicesController extends FosRestController
         //Guardamos la respuesta
         $transaction->setReceivedData(json_encode($datos));
         $dm = $this->get('doctrine_mongodb')->getManager();
-        $transaction->setTimeOut(time());
         $transaction->setCompleted(true);
         $dm->persist($transaction);
         $dm->flush();

@@ -55,7 +55,6 @@ class SampleService extends RestApiController
 
         $transaction->setReceivedData($response);
         $dm = $this->get('doctrine_mongodb')->getManager();
-        $transaction->setTimeOut(new \MongoDate());
         $transaction->setCompleted(true);
         $transaction->setSuccessful(true);
         $dm->persist($transaction);

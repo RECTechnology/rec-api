@@ -93,7 +93,6 @@ class ServicesSabadellTPVController extends FosRestController
         //Guardamos la respuesta
         $transaction->setDataOut($datos);
         $dm = $this->get('doctrine_mongodb')->getManager();
-        $transaction->setTimeOut(time());
 
         $dm->persist($transaction);
         $dm->flush();

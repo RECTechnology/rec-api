@@ -94,7 +94,6 @@ class ServicesPaysafecardPaymentController extends FOSRestController
         //Guardamos la respuesta
         $transaction->setReceivedData(json_encode($datos));
         $dm = $this->get('doctrine_mongodb')->getManager();
-        $transaction->setTimeOut(time());
         $transaction->setCompleted(false);
 
         $dm->persist($transaction);
@@ -195,7 +194,6 @@ class ServicesPaysafecardPaymentController extends FOSRestController
         //Guardamos la respuesta
         $transaction->setReceivedData(json_encode($datos));
         $dm = $this->get('doctrine_mongodb')->getManager();
-        $transaction->setTimeOut(time());
         $transaction->setCompleted(false);
 
         $dm->persist($transaction);

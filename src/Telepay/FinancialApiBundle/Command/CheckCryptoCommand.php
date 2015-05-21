@@ -85,8 +85,6 @@ class CheckCryptoCommand extends ContainerAwareCommand
                                 $feeTransaction->setAmount($total_fee);
                                 $feeTransaction->setUser($user->getId());
                                 $feeTransaction->setCreated(new \MongoDate());
-                                $feeTransaction->setTimeOut(new \MongoDate());
-                                $feeTransaction->setTimeIn(new \MongoDate());
                                 $feeTransaction->setUpdated(new \MongoDate());
                                 $feeTransaction->setIp($check->getIp());
                                 $feeTransaction->setFixedFee($fixed_fee);

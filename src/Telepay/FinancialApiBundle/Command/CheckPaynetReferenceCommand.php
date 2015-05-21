@@ -83,8 +83,6 @@ class CheckPaynetReferenceCommand extends ContainerAwareCommand
                         $feeTransaction->setAmount($total_fee);
                         $feeTransaction->setUser($id);
                         $feeTransaction->setCreated(new \MongoDate());
-                        $feeTransaction->setTimeOut(new \MongoDate());
-                        $feeTransaction->setTimeIn(new \MongoDate());
                         $feeTransaction->setUpdated(new \MongoDate());
                         $feeTransaction->setIp($check->getIp());
                         $feeTransaction->setFixedFee($fixed_fee);
