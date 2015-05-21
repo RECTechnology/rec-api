@@ -36,7 +36,6 @@ class SampleService extends RestApiController
 
         $transaction = new Transaction();
         $transaction->setIp($request->getClientIp());
-        $transaction->setTimeIn(new \MongoDate());
         $transaction->setService($this->get('telepay.services')->findByName('Sample')->getId());
         $transaction->setUser($this->get('security.context')->getToken()->getUser()->getId());
         $transaction->setSentData(json_encode(new \stdClass()));

@@ -72,7 +72,6 @@ class ServicesSabadellTPVController extends FosRestController
         //Guardamos la request en mongo
         $transaction = new Transaction();
         $transaction->setIp($request->getClientIp());
-        $transaction->setTimeIn(time());
         $transaction->setService($this->get('net.telepay.services.sabadell.v1')->getCname());
         $transaction->setUser($this->get('security.context')->getToken()->getUser()->getId());
         $transaction->setDataIn($paramsMongo);

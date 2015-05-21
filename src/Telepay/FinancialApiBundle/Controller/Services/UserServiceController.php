@@ -40,7 +40,6 @@ abstract class UserServiceController extends RestApiController {
         if($this->currentTransaction === null){
             $this->currentTransaction = new Transaction();
             $this->currentTransaction->setIp($this->get('request')->getClientIp());
-            $this->currentTransaction->setTimeIn(new \MongoDate());
             $this->currentTransaction->setMode($mode);
             $this->currentTransaction->setService($this->getService()->getId());
             $this->currentTransaction->setUser($this->get('security.context')->getToken()->getUser()->getId());

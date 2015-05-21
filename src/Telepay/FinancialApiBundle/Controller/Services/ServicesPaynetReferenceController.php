@@ -51,7 +51,6 @@ class ServicesPaynetReferenceController extends FosRestController
         //Guardamos la request en mongo
         $transaction = new Transaction();
         $transaction->setIp($request->getClientIp());
-        $transaction->setTimeIn(time());
         $transaction->setService($this->get('telepay.services')->findByName('PaynetReference')->getId());
         $transaction->setUser($this->get('security.context')->getToken()->getUser()->getId());
         $transaction->setSentData(json_encode($paramsMongo));
