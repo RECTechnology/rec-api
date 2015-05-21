@@ -17,7 +17,6 @@ services:
                 - "@net.telepay.services.pademobile.v1"
                 - "@net.telepay.services.ukash_generate.v1"
                 - "@net.telepay.services.ukash_redemption.v1"
-                - "@net.telepay.services.halcash.v1"
                 - "@net.telepay.services.halcash_send.v1"
                 - "@net.telepay.services.halcash_payment.v1"
                 - "@net.telepay.services.paysafecard.v1"
@@ -169,11 +168,11 @@ services:
             - "@net.telepay.provider.ukash_redemption"
             - "@transaction.context"
 
-    net.telepay.services.halcash.v1:
+    net.telepay.services.halcash_send.v2:
          class: Telepay\FinancialApiBundle\DependencyInjection\Transactions\HalcashV2SendService
          arguments:
-             - "Halcash Send V2"
-             - "halcash"
+             - "Halcash Send"
+             - "halcash_send"
              - "ROLE_SERVICES_HALCASHSEND"
              - "out"
              - "EUR"
