@@ -159,6 +159,8 @@
  *   "amount": 2303,
  *   "scale": 2,
  *   "currency": "USD",
+ *   "created": "2015-05-21T18:32:38+0200",
+ *   "updated": "2015-05-21T18:32:38+0200",
  *   "data": {
  *       "param": "hello, this is the sent param",
  *       "server_time": {
