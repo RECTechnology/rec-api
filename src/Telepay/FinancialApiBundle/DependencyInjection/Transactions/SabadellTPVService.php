@@ -130,7 +130,6 @@ class SabadellTPVService extends BaseService{
         $notification = $this->sabadellProvider->notification($params);
 
         if($notification){
-            $dm = $this->get('doctrine_mongodb')->getManager();
 
             $data = $transaction->getDataIn();
             $redirect = $data['url_notification'];
@@ -147,9 +146,6 @@ class SabadellTPVService extends BaseService{
                 $transaction->setStatus(Transaction::$STATUS_CANCELLED);
                 $transaction->setDebugData($request);
             }
-
-            $dm->persist($transaction);
-            $dm->flush();
 
             //notificar al usuario
             // create curl resource

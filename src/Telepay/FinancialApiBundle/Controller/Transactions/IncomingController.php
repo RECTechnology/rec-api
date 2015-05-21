@@ -643,6 +643,11 @@ class IncomingController extends RestApiController{
 
         $transaction = $service->notificate($transaction, $request->request->all());
 
+        $mongo = $this->get('doctrine_mongodb')->getManager();
+        $transaction->setUpdated(new \DateTime());
+        $mongo->persist($transaction);
+        $mongo->flush();
+        
         if(!$transaction) throw new HttpException(500, "oOps, the notification failed");
 
         if($transaction->getStatus() == Transaction::$STATUS_SUCCESS ){
