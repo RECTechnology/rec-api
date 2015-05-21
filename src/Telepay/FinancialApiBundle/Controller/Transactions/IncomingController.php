@@ -647,7 +647,7 @@ class IncomingController extends RestApiController{
         $transaction->setUpdated(new \DateTime());
         $mongo->persist($transaction);
         $mongo->flush();
-        
+
         if(!$transaction) throw new HttpException(500, "oOps, the notification failed");
 
         if($transaction->getStatus() == Transaction::$STATUS_SUCCESS ){
@@ -697,18 +697,9 @@ class IncomingController extends RestApiController{
 
             }
 
-            if($service_cname == 'safetypay' ){
-                return $this->redirect($transaction->getDataIn()['url_success']);
-            }
-
         }
 
-        if($service_cname == 'safetypay' ){
-            return $this->redirect($transaction->getDataIn()['url_fail']);
-        }else{
-            return $this->restV2(200, "ok", "Notification successful");
-        }
-
+        return $this->restV2(200, "ok", "Notification successful");
 
     }
 
