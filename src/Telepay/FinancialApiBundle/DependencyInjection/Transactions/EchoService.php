@@ -38,6 +38,9 @@ class EchoService extends BaseService {
         if(!array_key_exists($currency, Currency::$SCALE)){
             throw new HttpException(400, "Invalid currency");
         }
+        if(!is_numeric($baseTransaction->getDataIn()['amount'])){
+            throw new HttpException(400, "Amount must be numeric");
+        }
         $baseTransaction->setCurrency($currency);
         $baseTransaction->setScale(Currency::$SCALE[$currency]);
 
