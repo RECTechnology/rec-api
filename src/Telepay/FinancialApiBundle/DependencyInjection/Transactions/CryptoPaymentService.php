@@ -69,7 +69,7 @@ class CryptoPaymentService extends BaseService {
 
     }
     private function hasExpired($transaction){
-        return $transaction->getTimeIn()->getTimestamp()+$transaction->getData()['expires_in'] < time();
+        return $transaction->getCreated()->getTimestamp()+$transaction->getData()['expires_in'] < time();
     }
 
     public function check(Transaction $transaction){
