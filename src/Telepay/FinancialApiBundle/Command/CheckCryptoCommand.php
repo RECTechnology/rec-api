@@ -155,15 +155,15 @@ class CheckCryptoCommand extends ContainerAwareCommand
         $allReceived = $cryptoProvider->listreceivedbyaddress(0, true);
 
         if($amount<=100)
-            $ratio = 0;
+            $margin = 0;
         else
-            $ratio = 100;
+            $margin = 100;
 
-        $allowed_amount = $amount - $ratio;
+        $allowed_amount = $amount - $margin;
 
         foreach($allReceived as $cryptoData){
             if($cryptoData['address'] === $address and doubleval($cryptoData['amount'])*1e8 >= $allowed_amount){
-                $currentData['received'] = doubleval($cryptoData['amount'])*1e8;
+                $currentData['received'] = $amount; //doubleval($cryptoData['amount'])*1e8;
                 $currentData['confirmations'] = $cryptoData['confirmations'];
                 if($currentData['confirmations'] >= $currentData['min_confirmations'])
                     $transaction->setStatus("success");
