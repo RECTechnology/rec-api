@@ -154,7 +154,11 @@ class CheckCryptoCommand extends ContainerAwareCommand
 
         $allReceived = $cryptoProvider->listreceivedbyaddress(0, true);
 
-        $ratio = 100;
+        if($amount<=100)
+            $ratio = 0;
+        else
+            $ratio = 100;
+
         $allowed_amount = $amount - $ratio;
 
         foreach($allReceived as $cryptoData){
