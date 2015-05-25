@@ -180,6 +180,6 @@ class CheckCryptoCommand extends ContainerAwareCommand
         return $transaction;
     }
     private function hasExpired($transaction){
-        return $transaction->getTimeIn()->getTimestamp()+$transaction->getData()['expires_in'] < time();
+        return $transaction->getCreated()->getTimestamp()+$transaction->getData()['expires_in'] < time();
     }
 }
