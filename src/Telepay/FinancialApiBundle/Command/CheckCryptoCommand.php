@@ -70,7 +70,7 @@ class CheckCryptoCommand extends ContainerAwareCommand
                             $group=$user->getGroups()[0];
 
                             $fixed_fee=$check->getFixedFee();
-                            $variable_fee=$check->getVariableFee()*$amount;
+                            $variable_fee=$check->getVariableFee();
                             $total_fee=$fixed_fee+$variable_fee;
                             $total=$amount-$total_fee;
 
