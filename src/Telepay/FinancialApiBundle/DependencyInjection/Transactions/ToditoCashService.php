@@ -17,8 +17,8 @@ class ToditoCashService extends BaseService{
 
     private $tcProvider;
 
-    public function __construct($name, $cname, $role, $cash_direction, $currency, $base64Image, $tcProvider, $transactionContext){
-        parent::__construct($name, $cname, $role, $cash_direction, $currency, $base64Image, $transactionContext);
+    public function __construct($name, $cname, $role, $cash_direction, $currency, $base64Image, $tcProvider, $container){
+        parent::__construct($name, $cname, $role, $cash_direction, $currency, $base64Image, $container);
         $this->tcProvider = $tcProvider;
     }
 

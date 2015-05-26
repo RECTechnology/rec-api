@@ -18,8 +18,8 @@ class MultivaTPVService extends BaseService{
 
     private $multivaProvider;
 
-    public function __construct($name, $cname, $role, $cash_direction, $currency, $base64Image, $multivaProvider, $transactionContext){
-        parent::__construct($name, $cname, $role, $cash_direction, $currency, $base64Image, $transactionContext);
+    public function __construct($name, $cname, $role, $cash_direction, $currency, $base64Image, $multivaProvider, $container){
+        parent::__construct($name, $cname, $role, $cash_direction, $currency, $base64Image, $container);
         $this->multivaProvider = $multivaProvider;
     }
 
@@ -36,12 +36,9 @@ class MultivaTPVService extends BaseService{
 
         $id=$baseTransaction->getId();
 
-        $request=$this->getTransactionContext()->getRequestStack()->getCurrentRequest();
-        $url_base=$request->getSchemeAndHttpHost().$request->getBaseUrl();
-
         $url_final='/notifications/v1/multiva/'.$id;
 
-        $tpv = $this->multivaProvider->request($amount, $id, $url_base,$url_final);
+        $tpv = $this->multivaProvider->request($amount, $id,$url_final);
 
         if($tpv === false)
             throw new HttpException(503, "Service temporarily unavailable, please try again in a few minutes");

@@ -23,6 +23,8 @@ parameters:
     version: 1.0
     build_id: "#1"
 
+    base_url: 'http://dev-api.telepay.net/'
+
     bitcoind_user: btcuser
     bitcoind_pass: btcpass
     bitcoind_host: localhost

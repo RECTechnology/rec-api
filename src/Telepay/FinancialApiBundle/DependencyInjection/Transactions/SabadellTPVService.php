@@ -18,8 +18,8 @@ class SabadellTPVService extends BaseService{
 
     private $sabadellProvider;
 
-    public function __construct($name, $cname, $role, $cash_direction, $currency, $base64Image, $sabadellProvider, $transactionContext){
-        parent::__construct($name, $cname, $role, $cash_direction, $currency, $base64Image, $transactionContext);
+    public function __construct($name, $cname, $role, $cash_direction, $currency, $base64Image, $sabadellProvider, $container){
+        parent::__construct($name, $cname, $role, $cash_direction, $currency, $base64Image, $container);
         $this->sabadellProvider = $sabadellProvider;
     }
 
@@ -37,12 +37,10 @@ class SabadellTPVService extends BaseService{
         $url_ok = $baseTransaction->getDataIn()['url_ok'];
         $url_ko = $baseTransaction->getDataIn()['url_ko'];
         $id=$baseTransaction->getId();
-        $request=$this->getTransactionContext()->getRequestStack()->getCurrentRequest();
-        $url_base=$request->getSchemeAndHttpHost().$request->getBaseUrl();
 
         $url_final='/notifications/v2/sabadell/'.$id;
 
-        $sabadell = $this->sabadellProvider->request($amount,$id,$description,$url_base,$url_ok,$url_ko,$url_final);
+        $sabadell = $this->sabadellProvider->request($amount, $id,$description, $url_ok, $url_ko, $url_final);
 
         if($sabadell === false)
             throw new HttpException(503, "Service temporarily unavailable, please try again in a few minutes");
@@ -52,7 +50,6 @@ class SabadellTPVService extends BaseService{
         $trans_id=$timestamp;
 
         $important_data=array(
-            'url_base'  =>  $url_base,
             'url_final' =>  $url_final,
             'contador'  =>  0,
             'transaction_id'    =>  $trans_id

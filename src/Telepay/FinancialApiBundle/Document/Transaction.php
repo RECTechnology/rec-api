@@ -9,6 +9,7 @@
 namespace Telepay\FinancialApiBundle\Document;
 
 use Doctrine\ODM\MongoDB\Mapping\Annotations as MongoDB;
+use Symfony\Component\HttpFoundation\Request;
 use Telepay\FinancialApiBundle\DependencyInjection\Telepay\Interfaces\TransactionTiming;
 use Telepay\FinancialApiBundle\DependencyInjection\Transactions\Core\TransactionContext;
 use Telepay\FinancialApiBundle\DependencyInjection\Transactions\Core\TransactionContextInterface;
@@ -96,11 +97,9 @@ class Transaction implements TransactionTiming {
         $this->updated=new \DateTime();
     }
 
-    public static function createFromContext(TransactionContextInterface $context){
+    public static function createFromRequest(Request $request){
         $transaction = new Transaction();
-        $transaction->setIp($context->getRequestStack()->getCurrentRequest()->getClientIp());
-        $transaction->setUser($context->getUser()->getId());
-        $transaction->setDataIn($context->getRequestStack()->getCurrentRequest());
+        $transaction->setIp($request->getClientIp());
         $transaction->setStatus(Transaction::$STATUS_CREATED);
         $transaction->setNotificationTries(0);
         $transaction->setMaxNotificationTries(3);

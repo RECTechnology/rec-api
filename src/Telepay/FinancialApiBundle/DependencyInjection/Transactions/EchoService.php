@@ -30,7 +30,7 @@ class EchoService extends BaseService {
 
     public function create(Transaction $baseTransaction = null){
 
-        $logger = $this->getTransactionContext()->getContainer()->get('logger');
+        $logger = $this->getContainer()->get('logger');
         $logger->info('I just got the logger');
         $logger->error('An error occurred');
 
@@ -44,7 +44,7 @@ class EchoService extends BaseService {
         $baseTransaction->setCurrency($currency);
         $baseTransaction->setScale(Currency::$SCALE[$currency]);
 
-        if($this->getTransactionContext()->getEnvironment() === 'prod')
+        if($this->getContainer()->get('kernel')->getEnvironment() === 'prod')
             throw new HttpException(503, "Method unavailable for production environment");
 
         $baseTransaction->setStatus('success');

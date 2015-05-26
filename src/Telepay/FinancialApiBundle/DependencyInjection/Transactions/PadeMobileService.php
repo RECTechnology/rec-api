@@ -18,8 +18,8 @@ class PadeMobileService extends BaseService{
 
     private $pademobileProvider;
 
-    public function __construct($name, $cname, $role, $cash_direction, $currency, $base64Image, $pademobileProvider, $transactionContext){
-        parent::__construct($name, $cname, $role, $cash_direction, $currency, $base64Image, $transactionContext);
+    public function __construct($name, $cname, $role, $cash_direction, $currency, $base64Image, $pademobileProvider, $container){
+        parent::__construct($name, $cname, $role, $cash_direction, $currency, $base64Image, $container);
         $this->pademobileProvider = $pademobileProvider;
     }
 
@@ -38,12 +38,9 @@ class PadeMobileService extends BaseService{
 
         $id=$baseTransaction->getId();
 
-        $request=$this->getTransactionContext()->getRequestStack()->getCurrentRequest();
-        $url_base=$request->getSchemeAndHttpHost().$request->getBaseUrl();
-
         $url_final='/notifications/v1/pademobile/'.$id;
 
-        $pade = $this->pademobileProvider->request($amount,$country,$description, $url_base,$url_final);
+        $pade = $this->pademobileProvider->request($amount, $country, $description, $url_final);
 
         if($pade === false)
             throw new HttpException(503, "Service temporarily unavailable, please try again in a few minutes");

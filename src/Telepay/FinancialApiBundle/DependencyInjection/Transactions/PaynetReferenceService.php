@@ -20,8 +20,8 @@ class PaynetReferenceService extends BaseService{
 
     private $paynetReferenceProvider;
 
-    public function __construct($name, $cname, $role, $cash_direction, $currency, $base64Image, $paynetReferenceProvider, $transactionContext){
-        parent::__construct($name, $cname, $role, $cash_direction, $currency, $base64Image, $transactionContext);
+    public function __construct($name, $cname, $role, $cash_direction, $currency, $base64Image, $paynetReferenceProvider, $container){
+        parent::__construct($name, $cname, $role, $cash_direction, $currency, $base64Image, $container);
         $this->paynetReferenceProvider = $paynetReferenceProvider;
     }
 

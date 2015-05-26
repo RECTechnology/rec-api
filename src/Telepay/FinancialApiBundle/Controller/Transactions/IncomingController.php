@@ -29,12 +29,6 @@ use Telepay\FinancialApiBundle\Entity\UserWallet;
 
 class IncomingController extends RestApiController{
 
-    static $OLD_CNAME_ID_MAPPINGS = array(
-        "sample" => 1,
-        "aaa" => 3,
-        "aaaa" => 4
-    );
-
     /**
      * @Rest\View
      */
@@ -65,15 +59,16 @@ class IncomingController extends RestApiController{
         $dm = $this->get('doctrine_mongodb')->getManager();
         $em = $this->getDoctrine()->getManager();
 
-        $transaction = Transaction::createFromContext($this->get('transaction.context'));
+        $user = $this->container->get('security.context')->getToken()->getUser();
+        $transaction = Transaction::createFromRequest($request);
         $transaction->setService($service_cname);
+        $transaction->setUser($user->getId());
         $transaction->setVersion($version_number);
         $transaction->setDataIn($dataIn);
         $dm->persist($transaction);
 
         //TODO posible millora en un query molon
         //obtain and check limits
-        $user=$this->getUser();
 
         //obtener group
         $group=$user->getGroups()[0];
@@ -312,17 +307,15 @@ class IncomingController extends RestApiController{
 
         $data=$request->request->all();
 
-        $transaction =$service
-            ->getTransactionContext()
-            ->getODM()
-            ->getRepository('TelepayFinancialApiBundle:Transaction')
-            ->find($id);
+        $mongo = $this->get('doctrine_mongodb')->getManager();
+
+        $transaction =$mongo->getRepository('TelepayFinancialApiBundle:Transaction')->find($id);
 
         if(!$transaction) throw new HttpException(404, 'Transaction not found');
 
         if($transaction->getService() != $service->getCname()) throw new HttpException(404, 'Transaction not found');
 
-        $mongo = $this->get('doctrine_mongodb')->getManager();
+
 
         //retry=true y cancel=true aqui
         if( isset( $data['retry'] ) || isset ( $data ['cancel'] )){
@@ -505,11 +498,8 @@ class IncomingController extends RestApiController{
             throw $this->createAccessDeniedException();
         }
 
-        $transaction =$service
-            ->getTransactionContext()
-            ->getODM()
-            ->getRepository('TelepayFinancialApiBundle:Transaction')
-            ->find($id);
+        $mongo = $this->get('doctrine_mongodb')->getManager();
+        $transaction =$mongo->getRepository('TelepayFinancialApiBundle:Transaction')->find($id);
 
         if(!$transaction) throw new HttpException(404, 'Transaction not found');
 
@@ -521,7 +511,7 @@ class IncomingController extends RestApiController{
             if($transaction->getService() != $service->getCname()) throw new HttpException(404, 'Transaction not found');
             $previuos_status = $transaction->getStatus();
             $transaction = $service->check($transaction);
-            $mongo = $this->get('doctrine_mongodb')->getManager();
+
             $transaction->setUpdated(new \DateTime());
             $mongo->persist($transaction);
             $mongo->flush();
@@ -648,11 +638,9 @@ class IncomingController extends RestApiController{
 
         $service = $this->get('net.telepay.services.'.$service_cname.'.v'.$version_number);
 
-        $transaction =$service
-            ->getTransactionContext()
-            ->getODM()
-            ->getRepository('TelepayFinancialApiBundle:Transaction')
-            ->find($id);
+        $mongo = $this->get('doctrine_mongodb')->getManager();
+
+        $transaction =$mongo->getRepository('TelepayFinancialApiBundle:Transaction')->find($id);
 
         if(!$transaction) throw new HttpException(404, 'Transaction not found');
 
@@ -662,7 +650,6 @@ class IncomingController extends RestApiController{
 
         $transaction = $service->notificate($transaction, $request->request->all());
 
-        $mongo = $this->get('doctrine_mongodb')->getManager();
         $transaction->setUpdated(new \DateTime());
         $mongo->persist($transaction);
         $mongo->flush();

@@ -7,6 +7,7 @@ use FOS\RestBundle\View\View;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Route;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Template;
 use FOS\RestBundle\Controller\Annotations as Rest;
+use Symfony\Component\DependencyInjection\ContainerInterface;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\RequestStack;
 use Symfony\Component\HttpFoundation\Response;
@@ -16,19 +17,19 @@ use Telepay\FinancialApiBundle\Document\Transaction;
 
 abstract class BaseService extends AbstractService {
 
-    private $transactionContext;
+    private $container;
 
-    public function __construct($name, $cname, $role, $cash_direction, $currency, $base64Image, TransactionContextInterface $transactionContext){
+    public function __construct($name, $cname, $role, $cash_direction, $currency, $base64Image, ContainerInterface $container){
         parent::__construct($name, $cname, $role, $cash_direction, $currency, $base64Image);
-        $this->transactionContext = $transactionContext;
+        $this->container = $container;
     }
 
     /**
      * @return TransactionContextInterface
      */
-    public function getTransactionContext()
+    public function getContainer()
     {
-        return $this->transactionContext;
+        return $this->container;
     }
 
     public function check(Transaction $t){

@@ -17,8 +17,8 @@ class UkashGenerateService extends BaseService{
 
     private $ukashGenerateProvider;
 
-    public function __construct($name, $cname, $role, $cash_direction, $currency, $base64Image, $ukashGenerateProvider, $transactionContext){
-        parent::__construct($name, $cname, $role, $cash_direction, $currency, $base64Image, $transactionContext);
+    public function __construct($name, $cname, $role, $cash_direction, $currency, $base64Image, $ukashGenerateProvider, $container){
+        parent::__construct($name, $cname, $role, $cash_direction, $currency, $base64Image, $container);
         $this->ukashGenerateProvider = $ukashGenerateProvider;
     }
 

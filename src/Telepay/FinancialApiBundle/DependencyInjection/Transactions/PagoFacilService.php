@@ -17,8 +17,8 @@ class PagoFacilService extends BaseService{
 
     private $pagofacilProvider;
 
-    public function __construct($name, $cname, $role, $cash_direction, $currency, $base64Image, $pagofacilProvider, $transactionContext){
-        parent::__construct($name, $cname, $role, $cash_direction, $currency, $base64Image, $transactionContext);
+    public function __construct($name, $cname, $role, $cash_direction, $currency, $base64Image, $pagofacilProvider, $container){
+        parent::__construct($name, $cname, $role, $cash_direction, $currency, $base64Image, $container);
         $this->pagofacilProvider = $pagofacilProvider;
     }
 

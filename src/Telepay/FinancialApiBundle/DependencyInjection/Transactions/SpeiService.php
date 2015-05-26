@@ -18,8 +18,8 @@ class SpeiService extends BaseService{
 
     private $speiProvider;
 
-    public function __construct($name, $cname, $role, $cash_direction, $currency, $base64Image, $speiProvider, $transactionContext){
-        parent::__construct($name, $cname, $role, $cash_direction, $currency, $base64Image, $transactionContext);
+    public function __construct($name, $cname, $role, $cash_direction, $currency, $base64Image, $speiProvider, $container){
+        parent::__construct($name, $cname, $role, $cash_direction, $currency, $base64Image, $container);
         $this->speiProvider = $speiProvider;
     }
 

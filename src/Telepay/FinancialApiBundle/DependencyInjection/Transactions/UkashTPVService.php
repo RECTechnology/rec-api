@@ -17,8 +17,8 @@ class UkashTPVService extends BaseService{
 
     private $ukashProvider;
 
-    public function __construct($name, $cname, $role, $cash_direction, $currency, $base64Image, $ukashProvider, $transactionContext){
-        parent::__construct($name, $cname, $role, $cash_direction, $currency, $base64Image, $transactionContext);
+    public function __construct($name, $cname, $role, $cash_direction, $currency, $base64Image, $ukashProvider, $container){
+        parent::__construct($name, $cname, $role, $cash_direction, $currency, $base64Image, $container);
         $this->ukashProvider = $ukashProvider;
     }
 
@@ -45,7 +45,7 @@ class UkashTPVService extends BaseService{
         //$id=$baseTransaction->getId();
         $id='2345H411111111111111';
 
-        $request=$this->getTransactionContext()->getRequestStack()->getCurrentRequest();
+        $request=$this->getContainer()->getRequestStack()->getCurrentRequest();
         $url_base=$request->getSchemeAndHttpHost().$request->getBaseUrl();
 
         $url_final='/notifications/v1/ukash/'.$id;
