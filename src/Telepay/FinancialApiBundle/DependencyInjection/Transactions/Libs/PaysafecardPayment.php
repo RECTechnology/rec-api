@@ -18,19 +18,17 @@ use SOPGClassicMerchantClient;
         private $show_error = false;
         //AutoCorrect true/false
         private $autoCorrect = true;
-        private $env_url;
         private $base_url;
 
-		function __construct($user, $pass, $env_url, $base_url)
+		function __construct($user, $pass, $base_url)
 		{
 			$this->username = $user;
 			$this->password = $pass;
-            $this->env_url = $env_url;
             $this->base_url = $base_url;
 		}
 
 		public function request($mtid,$currency,$amount,$okUrl,$nokUrl,$mCId,$url_final){
-            $pnUrl=$this->base_url.$this->env_url.$url_final;
+            $pnUrl=$this->base_url.$url_final;
             error_reporting( E_ALL );
             header( "Content-Type: text/html; charset=utf-8" );
             $start = microtime( true );

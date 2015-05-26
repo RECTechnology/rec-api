@@ -156,7 +156,6 @@ services:
             - "%multiva_commerchant%"
             - "%multiva_comstore%"
             - "%multiva_comterm%"
-            - "%multiva_base_url%"
             - "%base_url%"
 
     net.telepay.provider.pademobile:
@@ -164,7 +163,6 @@ services:
         arguments:
             - "%pademobile_client%"
             - "%pademobile_url%"
-            - "%pademobile_env_url%"
             - "%base_url%"
 
     net.telepay.provider.pagofacil:
@@ -199,7 +197,6 @@ services:
         arguments:
             - "%psc_username%"
             - "%psc_password%"
-            - "%psc_env_url%"
             - "%base_url%"
 
     net.telepay.provider.ukash_generate:

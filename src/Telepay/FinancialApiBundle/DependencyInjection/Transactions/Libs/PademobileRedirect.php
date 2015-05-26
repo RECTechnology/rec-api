@@ -6,19 +6,17 @@ class PademobileRedirect{
     private $client;
     private $tp_url;
     private $pm_url;
-    private $env_url;
     private $base_url;
 
-    function __construct($pademobile_client, $url, $env_url, $base_url){
+    function __construct($pademobile_client, $url, $base_url){
         $this->client = $pademobile_client;
         $this->pm_url = $url;
-        $this->env_url = $env_url;
         $this->base_url = $base_url;
     }
 
     public function request($amount, $country, $description, $url_final){
 
-        $this->tp_url=$this->base_url.$this->env_url.$url_final;
+        $this->tp_url=$this->base_url.$url_final;
 
         $pm_params = array(
             'pais' => $country,

@@ -23,7 +23,7 @@ parameters:
     version: 1.0
     build_id: "#1"
 
-    base_url: 'http://dev-api.telepay.net/'
+    base_url: 'http://dev-api.telepay.net/test'
 
     bitcoind_user: btcuser
     bitcoind_pass: btcpass
@@ -56,11 +56,9 @@ parameters:
     multiva_commerchant: merchant code
     multiva_comstore: store
     multiva_comterm: terminal
-    multiva_base_url: ""
 
     pademobile_client: 000000
     pademobile_url : url
-    pademobile_env_url: env
 
     pagofacil_id_sucursal: sucursal
     pagofacil_id_usuario: usuario
@@ -82,7 +80,6 @@ parameters:
 
     psc_username: user
     psc_password: pass
-    psc_env_url: ""
 
     ukash_generate_username: user
     ukash_generate_password: pass

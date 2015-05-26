@@ -11,19 +11,16 @@ class MultivaService{
     private $merchant;
     private $store;
     private $terminal;
-    private $urlback;
-    private $env_url;
     private $base_url;
 
     
-    function __construct($comcurrency, $comaddress, $commerchant, $comstore, $comterminal, $env_url, $base_url){
+    function __construct($comcurrency, $comaddress, $commerchant, $comstore, $comterminal, $base_url){
 
         $this->currency = $comcurrency;
         $this->address = $comaddress;
         $this->merchant = $commerchant;
         $this->store = $comstore;
         $this->terminal = $comterminal;
-        $this->env_url = $env_url;
         $this->base_url = $base_url;
 
     }
@@ -34,7 +31,7 @@ class MultivaService{
         $this->order_id=$comorder_id;
         $this->url_final=$url_final;
 
-        $url_notification=$this->base_url.$this->env_url.$url_final;
+        $url_notification=$this->base_url.$url_final;
 
         $digest=sha1($this->merchant.$this->store.$this->terminal.$this->amount.$this->currency.$this->order_id);
 

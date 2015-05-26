@@ -56,11 +56,9 @@ parameters:
     multiva_commerchant: 7531853
     multiva_comstore: 1234
     multiva_comterm: 1
-    multiva_base_url: "/test"
 
     pademobile_client: 299249
     pademobile_url: 'https://staging.pademobile.com:700/comprar'
-    pademobile_env_url: '/test'
 
     pagofacil_id_sucursal: sucursal
     pagofacil_id_usuario: usuario
@@ -82,7 +80,6 @@ parameters:
 
     psc_username: psc_telepay_test
     psc_password: bJnAWBTUlAelk
-    psc_env_url: '/test'
 
     ukash_generate_username: user
     ukash_generate_password: pass
