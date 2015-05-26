@@ -83,9 +83,12 @@ class CryptoPaymentService extends BaseService {
         $amount = $currentData['amount'];
         $allReceived = $this->cryptoProvider->listreceivedbyaddress(0, true);
 
+        $margin = 100;
+        $allowed_amount = $amount - $margin;
+
         foreach($allReceived as $cryptoData){
-            if($cryptoData['address'] === $address and doubleval($cryptoData['amount'])*1e8 >= $amount){
-                $currentData['received'] = doubleval($cryptoData['amount'])*1e8;
+            if($cryptoData['address'] === $address and doubleval($cryptoData['amount'])*1e8 >= $allowed_amount){
+                $currentData['received'] = $amount; //doubleval($cryptoData['amount'])*1e8;
                 $currentData['confirmations'] = $cryptoData['confirmations'];
                 if($currentData['confirmations'] >= $currentData['min_confirmations'])
                     $transaction->setStatus("success");
