@@ -29,6 +29,12 @@ use Telepay\FinancialApiBundle\Entity\UserWallet;
 
 class IncomingController extends RestApiController{
 
+    static $OLD_CNAME_ID_MAPPINGS = array(
+        "sample" => 1,
+        "aaa" => 3,
+        "aaaa" => 4
+    );
+
     /**
      * @Rest\View
      */
@@ -307,15 +313,17 @@ class IncomingController extends RestApiController{
 
         $data=$request->request->all();
 
-        $mongo = $this->get('doctrine_mongodb')->getManager();
-
-        $transaction =$mongo->getRepository('TelepayFinancialApiBundle:Transaction')->find($id);
+        $transaction =$service
+            ->getTransactionContext()
+            ->getODM()
+            ->getRepository('TelepayFinancialApiBundle:Transaction')
+            ->find($id);
 
         if(!$transaction) throw new HttpException(404, 'Transaction not found');
 
         if($transaction->getService() != $service->getCname()) throw new HttpException(404, 'Transaction not found');
 
-
+        $mongo = $this->get('doctrine_mongodb')->getManager();
 
         //retry=true y cancel=true aqui
         if( isset( $data['retry'] ) || isset ( $data ['cancel'] )){
@@ -501,6 +509,8 @@ class IncomingController extends RestApiController{
         $mongo = $this->get('doctrine_mongodb')->getManager();
         $transaction =$mongo->getRepository('TelepayFinancialApiBundle:Transaction')->find($id);
 
+        die(print_r($transaction,true));
+
         if(!$transaction) throw new HttpException(404, 'Transaction not found');
 
         if($transaction->getStatus() == Transaction::$STATUS_CREATED ||
@@ -638,9 +648,11 @@ class IncomingController extends RestApiController{
 
         $service = $this->get('net.telepay.services.'.$service_cname.'.v'.$version_number);
 
-        $mongo = $this->get('doctrine_mongodb')->getManager();
-
-        $transaction =$mongo->getRepository('TelepayFinancialApiBundle:Transaction')->find($id);
+        $transaction =$service
+            ->getTransactionContext()
+            ->getODM()
+            ->getRepository('TelepayFinancialApiBundle:Transaction')
+            ->find($id);
 
         if(!$transaction) throw new HttpException(404, 'Transaction not found');
 
@@ -650,6 +662,7 @@ class IncomingController extends RestApiController{
 
         $transaction = $service->notificate($transaction, $request->request->all());
 
+        $mongo = $this->get('doctrine_mongodb')->getManager();
         $transaction->setUpdated(new \DateTime());
         $mongo->persist($transaction);
         $mongo->flush();
