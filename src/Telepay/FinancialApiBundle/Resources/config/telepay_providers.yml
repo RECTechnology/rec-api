@@ -199,31 +199,6 @@ services:
             - "%psc_password%"
             - "%base_url%"
 
-    net.telepay.provider.ukash_generate:
-        class: Telepay\FinancialApiBundle\DependencyInjection\Transactions\Libs\UkashBarcode
-        arguments:
-            - "%ukash_generate_username%"
-            - "%ukash_generate_password%"
-            - "%ukash_generate_brand_id%"
-            - "%ukash_generate_production_flag%"
-
-    net.telepay.provider.ukash_redemption:
-        class: Telepay\FinancialApiBundle\DependencyInjection\Transactions\Libs\UkashBarcode
-        arguments:
-            - "%ukash_redemption_username%"
-            - "%ukash_redemption_password%"
-            - "%ukash_redemption_brand_id%"
-            - "%ukash_redemption_production_flag%"
-
-    net.telepay.provider.ukash:
-        class: Telepay\FinancialApiBundle\DependencyInjection\Transactions\Libs\UkashRedirect
-        arguments:
-            - "%ukash_redirect_security_token%"
-            - "%ukash_redirect_brand_id%"
-            - "%ukash_redirect_language_code%"
-            - "%ukash_redirect_env_url%"
-            - "%base_url%"
-
     net.telepay.provider.spei:
         class: Telepay\FinancialApiBundle\DependencyInjection\Transactions\Libs\SpeiPayment
         arguments:

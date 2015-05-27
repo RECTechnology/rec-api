@@ -81,21 +81,6 @@ parameters:
     psc_username: psc_telepay_test
     psc_password: bJnAWBTUlAelk
 
-    ukash_generate_username: user
-    ukash_generate_password: pass
-    ukash_generate_brand_id: brand
-    ukash_generate_production_flag: 0
-
-    ukash_redemption_username: "usery"
-    ukash_redemption_password: passs
-    ukash_redemption_brand_id: brand
-    ukash_redemption_production_flag: 0
-
-    ukash_redirect_security_token: 12345678901234567890
-    ukash_redirect_brand_id: UKASH10082
-    ukash_redirect_language_code: EN
-    ukash_redirect_env_url: ""
-
     kraken_api_key: ""
     kraken_private_key: ""
 
