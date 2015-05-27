@@ -522,8 +522,7 @@ class IncomingController extends RestApiController{
             if($transaction->getService() != $service->getCname()) throw new HttpException(404, 'Transaction not found');
             $previuos_status = $transaction->getStatus();
             $transaction = $service->check($transaction);
-
-            $transaction->setUpdated(new \DateTime());
+            
             $mongo->persist($transaction);
             $mongo->flush();
 
