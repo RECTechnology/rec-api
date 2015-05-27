@@ -168,10 +168,15 @@ class CheckCryptoCommand extends ContainerAwareCommand
             if($cryptoData['address'] === $address and doubleval($cryptoData['amount'])*1e8 >= $allowed_amount){
                 $currentData['received'] = $amount; //doubleval($cryptoData['amount'])*1e8;
                 $currentData['confirmations'] = $cryptoData['confirmations'];
-                if($currentData['confirmations'] >= $currentData['min_confirmations'])
+                if($currentData['confirmations'] >= $currentData['min_confirmations']){
                     $transaction->setStatus("success");
-                else
-                    $transaction->setStatus("received");
+                    $transaction->setUpdated(new \MongoDate());
+                }else{
+                    if($transaction->getStatus() != 'received'){
+                        $transaction->setStatus("received");
+                        $transaction->setUpdated(new \MongoDate());
+                    }
+                }
                 $transaction->setUpdated(new \MongoDate());
                 $transaction->setData($currentData);
                 $transaction->setDataOut($currentData);
