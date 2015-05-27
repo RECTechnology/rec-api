@@ -77,6 +77,9 @@ class CheckCryptoCommand extends ContainerAwareCommand
                             $current_wallet->setAvailable($current_wallet->getAvailable()+$total);
                             $current_wallet->setBalance($current_wallet->getBalance()+$total);
 
+                            $em->persist($current_wallet);
+                            $em->flush();
+
                             if($total_fee != 0){
                                 // restar las comisiones
                                 $feeTransaction=new Transaction();
