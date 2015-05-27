@@ -40,7 +40,7 @@ class Notificator {
 
         $key = $user->getAccessSecret();
 
-        $data_to_sign = $id + $status + $amount;
+        $data_to_sign = $id.$status.$amount;
 
         $signature = hash_hmac('sha256',$data_to_sign,$key);
 
