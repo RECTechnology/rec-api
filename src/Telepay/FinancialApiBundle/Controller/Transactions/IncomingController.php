@@ -507,9 +507,10 @@ class IncomingController extends RestApiController{
         }
 
         $mongo = $this->get('doctrine_mongodb')->getManager();
-        $transaction =$mongo->getRepository('TelepayFinancialApiBundle:Transaction')->find($id);
-
-        die(print_r($transaction,true));
+        $transaction =$mongo->getRepository('TelepayFinancialApiBundle:Transaction')->findOneBy(array(
+            'id'        => $id,
+            'service'   =>  $service_cname
+        ));
 
         if(!$transaction) throw new HttpException(404, 'Transaction not found');
 
