@@ -140,6 +140,7 @@ services:
             - "%sabadell_transaction_type%"
             - "%sabadell_terminal%"
             - "%sabadell_base_url%"
+            - "%base_url%"
 
     net.telepay.provider.paynet_reference:
         class: Telepay\FinancialApiBundle\DependencyInjection\Transactions\Libs\PaynetGetBarcode
@@ -155,14 +156,14 @@ services:
             - "%multiva_commerchant%"
             - "%multiva_comstore%"
             - "%multiva_comterm%"
-            - "%multiva_base_url%"
+            - "%base_url%"
 
     net.telepay.provider.pademobile:
         class: Telepay\FinancialApiBundle\DependencyInjection\Transactions\Libs\PademobileRedirect
         arguments:
             - "%pademobile_client%"
             - "%pademobile_url%"
-            - "%pademobile_env_url%"
+            - "%base_url%"
 
     net.telepay.provider.pagofacil:
         class: Telepay\FinancialApiBundle\DependencyInjection\Transactions\Libs\PagofacilService
@@ -196,31 +197,7 @@ services:
         arguments:
             - "%psc_username%"
             - "%psc_password%"
-            - "%psc_env_url%"
-
-    net.telepay.provider.ukash_generate:
-        class: Telepay\FinancialApiBundle\DependencyInjection\Transactions\Libs\UkashBarcode
-        arguments:
-            - "%ukash_generate_username%"
-            - "%ukash_generate_password%"
-            - "%ukash_generate_brand_id%"
-            - "%ukash_generate_production_flag%"
-
-    net.telepay.provider.ukash_redemption:
-        class: Telepay\FinancialApiBundle\DependencyInjection\Transactions\Libs\UkashBarcode
-        arguments:
-            - "%ukash_redemption_username%"
-            - "%ukash_redemption_password%"
-            - "%ukash_redemption_brand_id%"
-            - "%ukash_redemption_production_flag%"
-
-    net.telepay.provider.ukash:
-        class: Telepay\FinancialApiBundle\DependencyInjection\Transactions\Libs\UkashRedirect
-        arguments:
-            - "%ukash_redirect_security_token%"
-            - "%ukash_redirect_brand_id%"
-            - "%ukash_redirect_language_code%"
-            - "%ukash_redirect_env_url%"
+            - "%base_url%"
 
     net.telepay.provider.spei:
         class: Telepay\FinancialApiBundle\DependencyInjection\Transactions\Libs\SpeiPayment

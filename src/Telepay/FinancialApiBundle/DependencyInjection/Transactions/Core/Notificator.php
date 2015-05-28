@@ -22,6 +22,10 @@ class Notificator {
 
     public function notificate(Transaction $transaction){
 
+        if(isset($transaction->getDataIn()['url_notification']))
+            $url_notification = $transaction->getDataIn()['url_notification'];
+        else
+            return $transaction;
 
         $user = $this->container->get('doctrine')->getRepository('TelepayFinancialApiBundle:User')
             ->find($transaction->getUser());
@@ -39,8 +43,6 @@ class Notificator {
         $data_to_sign = $id + $status + $amount;
 
         $signature = hash_hmac('sha256',$data_to_sign,$key);
-
-        $url_notification = $transaction->getDataIn()['url_notification'];
 
         $params = array(
             'id'        =>   $id,

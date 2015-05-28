@@ -11,17 +11,10 @@ services:
         class: Telepay\FinancialApiBundle\Security\AccessKeyUserProvider
         arguments: ["@fos_user.user_manager"]
 
-    transaction.context:
-        class: Telepay\FinancialApiBundle\DependencyInjection\Transactions\Core\TransactionContext
-        arguments:
-            - "@service_container"
-        #arguments: ["@request_stack", "@security.context", "@doctrine_mongodb", "@doctrine"]
-
     notificator:
         class: Telepay\FinancialApiBundle\DependencyInjection\Transactions\Core\Notificator
         arguments:
             - "@service_container"
-        #arguments: ["@request_stack", "@security.context", "@doctrine_mongodb", "@doctrine"]
 
     security.authentication.switchuser_listener:
         class: Telepay\FinancialApiBundle\Security\Firewall\SwitchUserListener

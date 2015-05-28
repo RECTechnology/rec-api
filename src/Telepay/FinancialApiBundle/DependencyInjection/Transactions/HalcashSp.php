@@ -18,8 +18,8 @@ class HalcashSp extends BaseService{
 
     private $halcashSpProvider;
 
-    public function __construct($name, $cname, $role, $cash_direction, $currency, $base64Image, $halcashSpProvider, $transactionContext){
-        parent::__construct($name, $cname, $role, $cash_direction, $currency, $base64Image, $transactionContext);
+    public function __construct($name, $cname, $role, $cash_direction, $currency, $base64Image, $halcashSpProvider, $container){
+        parent::__construct($name, $cname, $role, $cash_direction, $currency, $base64Image, $container);
         $this->halcashSpProvider = $halcashSpProvider;
     }
 

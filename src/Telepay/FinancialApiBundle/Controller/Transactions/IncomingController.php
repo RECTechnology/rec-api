@@ -65,15 +65,16 @@ class IncomingController extends RestApiController{
         $dm = $this->get('doctrine_mongodb')->getManager();
         $em = $this->getDoctrine()->getManager();
 
-        $transaction = Transaction::createFromContext($this->get('transaction.context'));
+        $user = $this->container->get('security.context')->getToken()->getUser();
+        $transaction = Transaction::createFromRequest($request);
         $transaction->setService($service_cname);
+        $transaction->setUser($user->getId());
         $transaction->setVersion($version_number);
         $transaction->setDataIn($dataIn);
         $dm->persist($transaction);
 
         //TODO posible millora en un query molon
         //obtain and check limits
-        $user=$this->getUser();
 
         //obtener group
         $group=$user->getGroups()[0];
@@ -505,11 +506,11 @@ class IncomingController extends RestApiController{
             throw $this->createAccessDeniedException();
         }
 
-        $transaction =$service
-            ->getTransactionContext()
-            ->getODM()
-            ->getRepository('TelepayFinancialApiBundle:Transaction')
-            ->find($id);
+        $mongo = $this->get('doctrine_mongodb')->getManager();
+        $transaction =$mongo->getRepository('TelepayFinancialApiBundle:Transaction')->findOneBy(array(
+            'id'        => $id,
+            'service'   =>  $service_cname
+        ));
 
         if(!$transaction) throw new HttpException(404, 'Transaction not found');
 
@@ -521,7 +522,7 @@ class IncomingController extends RestApiController{
             if($transaction->getService() != $service->getCname()) throw new HttpException(404, 'Transaction not found');
             $previuos_status = $transaction->getStatus();
             $transaction = $service->check($transaction);
-            $mongo = $this->get('doctrine_mongodb')->getManager();
+
             $transaction->setUpdated(new \DateTime());
             $mongo->persist($transaction);
             $mongo->flush();

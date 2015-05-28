@@ -17,8 +17,8 @@ class CryptoPaymentService extends BaseService {
 
     private $cryptoProvider;
 
-    public function __construct($name, $cname, $role, $cash_direction, $currency, $base64Image, $cryptoProvider, $transactionContext){
-        parent::__construct($name, $cname, $role, $cash_direction, $currency, $base64Image, $transactionContext);
+    public function __construct($name, $cname, $role, $cash_direction, $currency, $base64Image, $cryptoProvider, $container){
+        parent::__construct($name, $cname, $role, $cash_direction, $currency, $base64Image, $container);
         $this->cryptoProvider = $cryptoProvider;
     }
 
