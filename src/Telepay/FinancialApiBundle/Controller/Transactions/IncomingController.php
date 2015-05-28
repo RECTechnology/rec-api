@@ -313,17 +313,15 @@ class IncomingController extends RestApiController{
 
         $data=$request->request->all();
 
-        $transaction =$service
-            ->getTransactionContext()
-            ->getODM()
-            ->getRepository('TelepayFinancialApiBundle:Transaction')
-            ->find($id);
+        $mongo = $this->get('doctrine_mongodb')->getManager();
+        $transaction =$mongo->getRepository('TelepayFinancialApiBundle:Transaction')->findOneBy(array(
+            'id'        => $id,
+            'service'   =>  $service_cname
+        ));
 
         if(!$transaction) throw new HttpException(404, 'Transaction not found');
 
         if($transaction->getService() != $service->getCname()) throw new HttpException(404, 'Transaction not found');
-
-        $mongo = $this->get('doctrine_mongodb')->getManager();
 
         //retry=true y cancel=true aqui
         if( isset( $data['retry'] ) || isset ( $data ['cancel'] )){
@@ -390,7 +388,9 @@ class IncomingController extends RestApiController{
                     //transaccion exitosa
                     //actualizar el wallet del user if success
 
-                    if( $transaction->getStatus() == Transaction::$STATUS_CREATED && $service->getcashDirection() == 'out' && $service_cname != 'echo'){
+                    if( $transaction->getStatus() == Transaction::$STATUS_CREATED
+                        && $service->getcashDirection() == 'out'
+                        && $service_cname != 'echo'){
                         $transaction = $this->get('notificator')->notificate($transaction);
                         //sumamos la pasta al wallet
 
@@ -447,6 +447,7 @@ class IncomingController extends RestApiController{
 
                     if($transaction->getStatus() == Transaction::$STATUS_FAILED){
                         $transaction->setStatus(Transaction::$STATUS_CANCELLED );
+                        $transaction = $this->get('notificator')->notificate($transaction);
 
                         $mongo->persist($transaction);
                         $mongo->flush();
@@ -648,11 +649,11 @@ class IncomingController extends RestApiController{
 
         $service = $this->get('net.telepay.services.'.$service_cname.'.v'.$version_number);
 
-        $transaction =$service
-            ->getTransactionContext()
-            ->getODM()
-            ->getRepository('TelepayFinancialApiBundle:Transaction')
-            ->find($id);
+        $mongo = $this->get('doctrine_mongodb')->getManager();
+        $transaction =$mongo->getRepository('TelepayFinancialApiBundle:Transaction')->findOneBy(array(
+            'id'        => $id,
+            'service'   =>  $service_cname
+        ));
 
         if(!$transaction) throw new HttpException(404, 'Transaction not found');
 
@@ -717,6 +718,9 @@ class IncomingController extends RestApiController{
             }
 
         }
+
+        //notificar al cliente
+        $transaction = $this->get('notificator')->notificate($transaction);
 
         return $this->restV2(200, "ok", "Notification successful");
 

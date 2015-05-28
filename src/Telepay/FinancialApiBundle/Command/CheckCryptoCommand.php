@@ -143,8 +143,9 @@ class CheckCryptoCommand extends ContainerAwareCommand
 
         $currentData = $transaction->getData();
 
-        if($transaction->getStatus() === 'success' || $transaction->getStatus() === 'expired')
+        if($transaction->getStatus() === 'success' || $transaction->getStatus() === 'expired'){
             return $transaction;
+        }
 
         $address = $currentData['address'];
         $amount = $currentData['amount'];
@@ -171,10 +172,12 @@ class CheckCryptoCommand extends ContainerAwareCommand
                 if($currentData['confirmations'] >= $currentData['min_confirmations']){
                     $transaction->setStatus("success");
                     $transaction->setUpdated(new \MongoDate());
+                    $transaction = $this->get('notificator')->notificate($transaction);
                 }else{
                     if($transaction->getStatus() != 'received'){
                         $transaction->setStatus("received");
                         $transaction->setUpdated(new \MongoDate());
+                        $transaction = $this->get('notificator')->notificate($transaction);
                     }
                 }
                 $transaction->setData($currentData);
@@ -183,12 +186,17 @@ class CheckCryptoCommand extends ContainerAwareCommand
             }
         }
 
-        if($transaction->getStatus() === 'created' && $this->hasExpired($transaction))
+        if($transaction->getStatus() === 'created' && $this->hasExpired($transaction)){
+            $transaction = $this->getContainer()->get('notificator')->notificate($transaction);
             $transaction->setStatus('expired');
+        }
 
         return $transaction;
     }
+
     private function hasExpired($transaction){
+
         return $transaction->getCreated()->getTimestamp()+$transaction->getData()['expires_in'] < time();
+
     }
 }

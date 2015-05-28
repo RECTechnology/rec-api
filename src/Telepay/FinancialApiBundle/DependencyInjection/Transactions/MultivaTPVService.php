@@ -60,5 +60,11 @@ class MultivaTPVService extends BaseService{
 
     }
 
+    public function notificate(Transaction $transaction,$data){
+
+        return $transaction;
+
+    }
+
 
 }
