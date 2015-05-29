@@ -225,6 +225,7 @@ class IncomingController extends RestApiController{
             //pay fees and dealer always
             if( $transaction->getStatus() === Transaction::$STATUS_CREATED || $transaction->getStatus() === Transaction::$STATUS_SUCCESS ){
                 $this->container->get('notificator')->notificate($transaction);
+
                 if( $service_cname != 'echo'){
                     //restar al usuario el amount + comisiones
                     $current_wallet->setBalance($current_wallet->getBalance()-$total);
@@ -255,6 +256,7 @@ class IncomingController extends RestApiController{
                 throw $e;
             }
 
+            $transaction = $this->get('notificator')->notificate($transaction);
             $em->flush();
 
             foreach ( $wallets as $wallet){
