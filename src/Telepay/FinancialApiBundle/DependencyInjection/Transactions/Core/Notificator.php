@@ -59,6 +59,8 @@ class Notificator {
         curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
         curl_setopt($ch,CURLOPT_POST,true);
         curl_setopt($ch,CURLOPT_POSTFIELDS,$params);
+        //fix bug 417 Expectation Failed
+        curl_setopt($ch,CURLOPT_HTTPHEADER,array("Expect:  "));
         // $output contains the output string
         $output = curl_exec($ch);
 
