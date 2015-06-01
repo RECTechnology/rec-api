@@ -164,7 +164,6 @@ class CheckCryptoCommand extends ContainerAwareCommand
             $margin = 100;
 
         $allowed_amount = $amount - $margin;
-
         foreach($allReceived as $cryptoData){
             if($cryptoData['address'] === $address and doubleval($cryptoData['amount'])*1e8 >= $allowed_amount){
                 $currentData['received'] = $amount; //doubleval($cryptoData['amount'])*1e8;
@@ -172,12 +171,12 @@ class CheckCryptoCommand extends ContainerAwareCommand
                 if($currentData['confirmations'] >= $currentData['min_confirmations']){
                     $transaction->setStatus("success");
                     $transaction->setUpdated(new \MongoDate());
-                    $transaction = $this->get('notificator')->notificate($transaction);
+                    $transaction = $this->getContainer()->get('notificator')->notificate($transaction);
                 }else{
                     if($transaction->getStatus() != 'received'){
                         $transaction->setStatus("received");
                         $transaction->setUpdated(new \MongoDate());
-                        $transaction = $this->get('notificator')->notificate($transaction);
+                        $transaction = $this->getContainer()->get('notificator')->notificate($transaction);
                     }
                 }
                 $transaction->setData($currentData);
