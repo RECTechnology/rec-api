@@ -186,8 +186,8 @@ class CheckCryptoCommand extends ContainerAwareCommand
         }
 
         if($transaction->getStatus() === 'created' && $this->hasExpired($transaction)){
-            $transaction = $this->getContainer()->get('notificator')->notificate($transaction);
             $transaction->setStatus('expired');
+            $transaction = $this->getContainer()->get('notificator')->notificate($transaction);
         }
 
         return $transaction;
