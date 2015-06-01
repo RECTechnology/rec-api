@@ -40,8 +40,16 @@ class CheckHalcashCommand extends ContainerAwareCommand
             $data=$res->getDataIn();
             $resArray [] = $res;
 
+            $previous_status = $res->getStatus();
+
             $check=$this->check($res);
+
+            if($previous_status != $check->getStatus()){
+                $check = $this->getContainer()->get('notificator')->notificate($check);
+            }
+
             $dm->flush();
+
             if($check->getStatus()=='success'){
 
                 $id=$check->getUser();
