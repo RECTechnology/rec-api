@@ -105,7 +105,7 @@ class CryptoSendService extends BaseService {
                 $transaction->setDataOut($currentData);
                 return $transaction;
             }
-                 
+
         }
         return $transaction;
     }
