@@ -91,17 +91,21 @@ class CryptoSendService extends BaseService {
         $amount = $currentData['amount'];
         $allReceived = $this->cryptoProvider->listreceivedbyaddress(0, true);
         foreach($allReceived as $cryptoData){
-            if($cryptoData['address'] == $address && doubleval($cryptoData['amount'])*1e8 >= $amount){
+            if($cryptoData['address'] == $address){
                 $currentData['received'] = doubleval($cryptoData['amount'])*1e8;
-                $currentData['confirmations'] = $cryptoData['confirmations'];
-                if($currentData['confirmations'] >= $currentData['min_confirmations'])
-                    $transaction->setStatus("success");
-                else
-                    $transaction->setStatus("received");
+                if( doubleval($cryptoData['amount'])*1e8 >= $amount){
+                    $currentData['confirmations'] = $cryptoData['confirmations'];
+                    if($currentData['confirmations'] >= $currentData['min_confirmations'])
+                        $transaction->setStatus("success");
+                    else
+                        $transaction->setStatus("received");
+
+                }
                 $transaction->setData($currentData);
                 $transaction->setDataOut($currentData);
                 return $transaction;
             }
+                 
         }
         return $transaction;
     }
