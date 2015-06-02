@@ -165,7 +165,7 @@ class CheckCryptoCommand extends ContainerAwareCommand
 
         foreach($allReceived as $cryptoData){
             if($cryptoData['address'] === $address){
-                $currentData['received'] = doubleval($cryptoData['amount'])*1e8;; //doubleval($cryptoData['amount'])*1e8;
+                $currentData['received'] = doubleval($cryptoData['amount'])*1e8; //doubleval($cryptoData['amount'])*1e8;
                 if(doubleval($cryptoData['amount'])*1e8 >= $allowed_amount){
                     $currentData['confirmations'] = $cryptoData['confirmations'];
                     if($currentData['confirmations'] >= $currentData['min_confirmations'])
