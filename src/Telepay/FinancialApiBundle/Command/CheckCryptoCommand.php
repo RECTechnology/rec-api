@@ -10,6 +10,7 @@ use Symfony\Component\HttpKernel\Exception\HttpException;
 use Telepay\FinancialApiBundle\DependencyInjection\Telepay\Commons\FeeDeal;
 use Telepay\FinancialApiBundle\Document\Transaction;
 use Telepay\FinancialApiBundle\Entity\Exchange;
+use Telepay\FinancialApiBundle\Financial\Currency;
 
 class CheckCryptoCommand extends ContainerAwareCommand
 {
@@ -69,7 +70,7 @@ class CheckCryptoCommand extends ContainerAwareCommand
                             $group=$user->getGroups()[0];
 
                             $fixed_fee=$check->getFixedFee();
-                            $variable_fee=$check->getVariableFee()*$amount;
+                            $variable_fee=$check->getVariableFee();
                             $total_fee=$fixed_fee+$variable_fee;
                             $total=$amount-$total_fee;
 
@@ -146,30 +147,35 @@ class CheckCryptoCommand extends ContainerAwareCommand
 
         $address = $currentData['address'];
         $amount = $currentData['amount'];
-        if($transaction->getCurrency()=='BTC'){
-            $allReceived = $this->getContainer()->get('net.telepay.provider.btc')->listreceivedbyaddress(0, true);
-        }else{
-            $allReceived = $this->getContainer()->get('net.telepay.provider.fac')->listreceivedbyaddress(0, true);
-        }
+        if($transaction->getCurrency() === Currency::$BTC)
+            $providerName = 'net.telepay.provider.btc';
+        else
+            $providerName = 'net.telepay.provider.fac';
+
+        $cryptoProvider = $this->getContainer()->get($providerName);
+
+        $allReceived = $cryptoProvider->listreceivedbyaddress(0, true);
+
+        if($amount<=100)
+            $margin = 0;
+        else
+            $margin = 100;
+
+        $allowed_amount = $amount - $margin;
 
         foreach($allReceived as $cryptoData){
-            if($cryptoData['address'] == $address){
-                $currentData['received'] = doubleval($cryptoData['amount'])*1e8;
-                if(doubleval($cryptoData['amount'])*1e8 >= $amount){
-                    $currentData['confirmations'] = $cryptoData['confirmations'];
-                    if($currentData['confirmations'] >= $currentData['min_confirmations']){
-                        $transaction->setStatus("success");
-                        $transaction->setUpdated(new \MongoDate());
-                    }else{
-                        $transaction->setStatus("received");
-                        $transaction->setUpdated(new \MongoDate());
-                    }
-                    $transaction->setData($currentData);
-                    $transaction->setDataOut($currentData);
-                    return $transaction;
-                }
+            if($cryptoData['address'] === $address and doubleval($cryptoData['amount'])*1e8 >= $allowed_amount){
+                $currentData['received'] = $amount; //doubleval($cryptoData['amount'])*1e8;
+                $currentData['confirmations'] = $cryptoData['confirmations'];
+                if($currentData['confirmations'] >= $currentData['min_confirmations'])
+                    $transaction->setStatus("success");
+                else
+                    $transaction->setStatus("received");
+                $transaction->setUpdated(new \MongoDate());
+                $transaction->setData($currentData);
+                $transaction->setDataOut($currentData);
+                return $transaction;
             }
-
         }
 
         if($transaction->getStatus() === 'created' && $this->hasExpired($transaction))
