@@ -165,24 +165,30 @@ class CheckCryptoCommand extends ContainerAwareCommand
 
         $allowed_amount = $amount - $margin;
         foreach($allReceived as $cryptoData){
-            if($cryptoData['address'] === $address and doubleval($cryptoData['amount'])*1e8 >= $allowed_amount){
-                $currentData['received'] = $amount; //doubleval($cryptoData['amount'])*1e8;
-                $currentData['confirmations'] = $cryptoData['confirmations'];
-                if($currentData['confirmations'] >= $currentData['min_confirmations']){
-                    $transaction->setStatus("success");
-                    $transaction->setUpdated(new \MongoDate());
-                    $transaction = $this->getContainer()->get('notificator')->notificate($transaction);
-                }else{
-                    if($transaction->getStatus() != 'received'){
-                        $transaction->setStatus("received");
+            if($cryptoData['address'] === $address){
+                $currentData['received'] = doubleval($cryptoData['amount'])*1e8; //doubleval($cryptoData['amount'])*1e8;
+                if(doubleval($cryptoData['amount'])*1e8 >= $allowed_amount){
+                    $currentData['confirmations'] = $cryptoData['confirmations'];
+                    if($currentData['confirmations'] >= $currentData['min_confirmations']){
+                        $transaction->setStatus("success");
                         $transaction->setUpdated(new \MongoDate());
                         $transaction = $this->getContainer()->get('notificator')->notificate($transaction);
+                    }else{
+                        if($transaction->getStatus() != 'received'){
+                            $transaction->setStatus("received");
+                            $transaction->setUpdated(new \MongoDate());
+                            $transaction = $this->getContainer()->get('notificator')->notificate($transaction);
+                        }
                     }
+
                 }
+
                 $transaction->setData($currentData);
                 $transaction->setDataOut($currentData);
+                
                 return $transaction;
             }
+
         }
 
         if($transaction->getStatus() === 'created' && $this->hasExpired($transaction)){
