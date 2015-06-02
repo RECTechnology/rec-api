@@ -153,20 +153,23 @@ class CheckCryptoCommand extends ContainerAwareCommand
         }
 
         foreach($allReceived as $cryptoData){
-            if($cryptoData['address'] == $address && doubleval($cryptoData['amount'])*1e8 >= $amount){
+            if($cryptoData['address'] == $address){
                 $currentData['received'] = doubleval($cryptoData['amount'])*1e8;
-                $currentData['confirmations'] = $cryptoData['confirmations'];
-                if($currentData['confirmations'] >= $currentData['min_confirmations']){
-                    $transaction->setStatus("success");
-                    $transaction->setUpdated(new \MongoDate());
-                }else{
-                    $transaction->setStatus("received");
-                    $transaction->setUpdated(new \MongoDate());
+                if(doubleval($cryptoData['amount'])*1e8 >= $amount){
+                    $currentData['confirmations'] = $cryptoData['confirmations'];
+                    if($currentData['confirmations'] >= $currentData['min_confirmations']){
+                        $transaction->setStatus("success");
+                        $transaction->setUpdated(new \MongoDate());
+                    }else{
+                        $transaction->setStatus("received");
+                        $transaction->setUpdated(new \MongoDate());
+                    }
+                    $transaction->setData($currentData);
+                    $transaction->setDataOut($currentData);
+                    return $transaction;
                 }
-                $transaction->setData($currentData);
-                $transaction->setDataOut($currentData);
-                return $transaction;
             }
+
         }
 
         if($transaction->getStatus() === 'created' && $this->hasExpired($transaction))
