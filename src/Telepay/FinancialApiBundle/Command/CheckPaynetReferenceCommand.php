@@ -47,7 +47,7 @@ class CheckPaynetReferenceCommand extends ContainerAwareCommand
             if($previous_status != $check->getStatus()){
                 $check = $this->getContainer()->get('notificator')->notificate($check);
             }
-            
+
             $dm->flush();
             if($check->getStatus()=='success'){
                 //hacemos el reparto
