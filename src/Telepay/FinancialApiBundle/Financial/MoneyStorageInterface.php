@@ -8,7 +8,7 @@
 
 namespace Telepay\FinancialApiBundle\Financial;
 
-interface MoneyStorage {
+interface MoneyStorageInterface {
     public function getAmount();
     public function getAvailable();
     public function getCurrency();

@@ -17,7 +17,7 @@ use Doctrine\ORM\Mapping as ORM;
 /**
  * @ORM\Entity
  */
-class UserWallet extends AbstractWallet implements ExternallyDrived {
+class UserWallet implements ExternallyDrived {
 
 
     public function receive($amount)

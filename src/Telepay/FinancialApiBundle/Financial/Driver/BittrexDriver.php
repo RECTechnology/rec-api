@@ -1,12 +1,11 @@
 <?php
 
-namespace Telepay\FinancialApiBundle\DependencyInjection\Telepay\Providers;
+namespace Telepay\FinancialApiBundle\Financial\Driver;
 
 use TelepayApi\Core\ApiRequest;
 use TelepayApi\Core\JsonRequester;
-use TelepayApi\Core\Request;
 
-class Bittrex extends JsonRequester {
+class BittrexDriver extends JsonRequester {
     private $requestBuilder;
 
     public function __construct($bittrex_url, $bittrex_key, $bittrex_secret) {
@@ -19,6 +18,65 @@ class Bittrex extends JsonRequester {
             array('market' => $market)
         ));
     }
+
+    public function getOrderBook($market, $type = 'both', $depth = 20){
+        return $this->send($this->requestBuilder->build(
+            'public/getorderbook',
+            array(
+                'market' => $market,
+                'type' => $type,
+                'depth' => $depth
+            )
+        ));
+    }
+
+    public function getBalances() {
+        return $this->send($this->requestBuilder->build(
+            'account/getbalances'
+        ));
+    }
+
+    public function getBalance($currency) {
+        return $this->send($this->requestBuilder->build(
+            'account/getbalance',
+            array('currency' => $currency)
+        ));
+    }
+
+    public function withdraw($currency, $quantity, $address) {
+        return $this->send($this->requestBuilder->build(
+            'account/withdraw',
+            array(
+                'currency' => $currency,
+                'quantity' => $quantity,
+                'address' => $address,
+            )
+        ));
+    }
+
+    public function buy($market, $quantity, $rate){
+        return $this->send($this->requestBuilder->build(
+            'market/buylimit',
+            array(
+                'market' => $market,
+                'quantity' => $quantity,
+                'rate' => $rate
+            )
+        ));
+    }
+
+    public function sell($market, $quantity, $rate){
+        return $this->send($this->requestBuilder->build(
+            'market/selllimit',
+            array(
+                'market' => $market,
+                'quantity' => $quantity,
+                'rate' => $rate
+            )
+        ));
+    }
+
+
 }
 
 class BittrexRequestBuilder {
@@ -28,7 +86,7 @@ class BittrexRequestBuilder {
         $this->bittrexKey = $bittrex_key;
         $this->bittrexSecret = $bittrex_secret;
     }
-    public function build($function, $params){
+    public function build($function, $params = array()){
         return new BittrexRequest(
             $this->bittrexUrl,
             $this->bittrexKey,

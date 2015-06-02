@@ -8,8 +8,8 @@
 
 namespace Telepay\FinancialApiBundle\DependencyInjection\Telepay\Exchanges;
 
-use Telepay\FinancialApiBundle\DependencyInjection\Telepay\Providers\Bittrex;
 use Telepay\FinancialApiBundle\Financial\Currency;
+use Telepay\FinancialApiBundle\Financial\Connector\BittrexDriver;
 
 /**
  * Class FacBtcExchange
@@ -19,7 +19,7 @@ class FacBtcExchange implements ExchangeInterface {
 
     private $bittrex;
 
-    public function __construct(Bittrex $bittrex){
+    public function __construct(BittrexDriver $bittrex){
         $this->bittrex = $bittrex;
     }
 

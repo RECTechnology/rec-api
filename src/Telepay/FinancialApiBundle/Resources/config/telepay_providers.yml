@@ -1,5 +1,11 @@
 services:
 
+    net.telepay.trader.FACxBTC:
+        class: Telepay\FinancialApiBundle\Financial\Trader\BittrexTrader
+        arguments:
+            - "@bittrex"
+
+
     kraken:
         class: Payward\KrakenAPI
         arguments:
@@ -7,7 +13,7 @@ services:
             - "%kraken_private_key%"
 
     bittrex:
-        class: Telepay\FinancialApiBundle\DependencyInjection\Telepay\Providers\Bittrex
+        class: Telepay\FinancialApiBundle\Financial\Driver\BittrexDriver
         arguments:
             - "%bittrex_api_url%"
             - "%bittrex_api_key%"
