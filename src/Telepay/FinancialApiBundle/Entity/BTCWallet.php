@@ -56,6 +56,14 @@ class BTCWallet extends AbstractWallet implements ExternallyDrived {
     private $cypher_data;
 
     /**
+     * @param mixed $user
+     */
+    public function setUser($user)
+    {
+        $this->user = $user;
+    }
+
+    /**
      * @return mixed
      */
     public function getCypherData()

@@ -10,6 +10,7 @@
 namespace Telepay\FinancialApiBundle\Controller\Management\User;
 
 use Symfony\Component\Security\Core\Util\SecureRandom;
+use Telepay\FinancialApiBundle\Entity\BTCWallet;
 use Telepay\FinancialApiBundle\Entity\Device;
 use Telepay\FinancialApiBundle\Entity\Group;
 use Telepay\FinancialApiBundle\Entity\LimitDefinition;
@@ -246,9 +247,17 @@ class AccountController extends BaseApiController{
      */
     public function registerAction(Request $request){
 
-        if(!$request->request->has('device_id')) throw new HttpException(400,'Paramater device_id not found');
-        $device_id = $request->request->get('device_id');
-        $request->request->remove('device_id');
+        //cypher_wallet is mandatory
+        if(!$request->request->has('cypher_wallet')) throw new HttpException(400, "Paramter cypher_wallet is missing.");
+        $cypher_wallet = $request->request->get('cypher_wallet');
+        $request->request->remove('cypher_wallet');
+
+        //device_id is optional
+        $device_id = null;
+        if($request->request->has('device_id')){
+            $device_id = $request->request->get('device_id');
+            $request->request->remove('device_id');
+        }
 
         //password is optional
         if(!$request->request->has('password')){
@@ -333,11 +342,19 @@ class AccountController extends BaseApiController{
             $em->persist($user);
             $em->flush();
 
-            $device = new Device();
-            $device->setUser($user);
-            $device->setDeviceId($device_id);
+            if( $device_id != null){
+                $device = new Device();
+                $device->setUser($user);
+                $device->setDeviceId($device_id);
 
-            $em->persist($device);
+                $em->persist($device);
+            }
+
+            $btc_wallet = new BTCWallet();
+            $btc_wallet->setCypherData($cypher_wallet);
+            $btc_wallet->setUser($user);
+
+            $em->persist($btc_wallet);
             $em->flush();
 
             $response = array(
