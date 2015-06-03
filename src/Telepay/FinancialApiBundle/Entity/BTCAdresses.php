@@ -17,7 +17,7 @@ use Doctrine\ORM\Mapping as ORM;
 /**
  * @ORM\Entity
  */
-class BTCWallet extends AbstractWallet implements ExternallyDrived {
+class BTCAdresses extends AbstractWallet implements ExternallyDrived {
 
 
     public function receive($amount)
@@ -53,21 +53,23 @@ class BTCWallet extends AbstractWallet implements ExternallyDrived {
     /**
      * @ORM\Column(type="string")
      */
-    private $cypher_data;
+    private $address;
 
     /**
      * @return mixed
      */
-    public function getCypherData()
+    public function getAddress()
     {
-        return $this->cypher_data;
+        return $this->address;
     }
 
     /**
-     * @param mixed $cypher_data
+     * @param mixed $address
      */
-    public function setCypherData($cypher_data)
+    public function setAddress($address)
     {
-        $this->cypher_data = $cypher_data;
+        $this->address = $address;
     }
+
+
 }
