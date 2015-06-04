@@ -181,12 +181,13 @@ class CheckCryptoCommand extends ContainerAwareCommand
                         }
                     }
 
+                    $transaction->setData($currentData);
+                    $transaction->setDataOut($currentData);
+
+                    return $transaction;
                 }
 
-                $transaction->setData($currentData);
-                $transaction->setDataOut($currentData);
 
-                return $transaction;
             }
 
         }
