@@ -11,13 +11,17 @@ use Symfony\Component\HttpKernel\Exception\HttpException;
 use Telepay\FinancialApiBundle\Financial\CashOut;
 use Telepay\FinancialApiBundle\Financial\Currency;
 
+use JMS\Serializer\Annotation\ExclusionPolicy;
+use JMS\Serializer\Annotation\Expose;
+
 use Doctrine\ORM\Mapping as ORM;
 
 
 /**
  * @ORM\Entity
+ * @ExclusionPolicy("all")
  */
-class BTCAdresses extends AbstractWallet implements ExternallyDrived {
+class BTCAddresses extends AbstractWallet implements ExternallyDrived {
 
 
     public function receive($amount)
@@ -51,9 +55,34 @@ class BTCAdresses extends AbstractWallet implements ExternallyDrived {
     }
 
     /**
-     * @ORM\Column(type="string")
+     * @ORM\Column(type="string", unique=true)
+     * @Expose
      */
     private $address;
+
+    /**
+     * @ORM\Column(type="string")
+     * @Expose
+     */
+    private $label;
+
+    /**
+     * @param mixed $user
+     */
+    public function setUser($user)
+    {
+        $this->user = $user;
+    }
+
+    /**
+     * Returns the user unique id.
+     *
+     * @return mixed
+     */
+    public function getId()
+    {
+        return $this->id;
+    }
 
     /**
      * @return mixed
@@ -69,6 +98,22 @@ class BTCAdresses extends AbstractWallet implements ExternallyDrived {
     public function setAddress($address)
     {
         $this->address = $address;
+    }
+
+    /**
+     * @return mixed
+     */
+    public function getLabel()
+    {
+        return $this->label;
+    }
+
+    /**
+     * @param mixed $label
+     */
+    public function setLabel($label)
+    {
+        $this->label = $label;
     }
 
 

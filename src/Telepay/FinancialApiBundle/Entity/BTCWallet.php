@@ -64,6 +64,16 @@ class BTCWallet extends AbstractWallet implements ExternallyDrived {
     }
 
     /**
+     * Returns the user unique id.
+     *
+     * @return mixed
+     */
+    public function getId()
+    {
+        return $this->id;
+    }
+
+    /**
      * @return mixed
      */
     public function getCypherData()

@@ -279,17 +279,20 @@ class AccountController extends BaseApiController{
 
         }
 
-        $username = Uuid::uuid1()->toString();
+        $fake = Uuid::uuid1()->toString();
         //username fake
         if(!$request->request->has('username')){
             //invent the username
-            $request->request->add(array('username'=>$username));
+            $username = $fake;
+            $request->request->add(array('username'=>$fake));
+        }else{
+            $username = $request->get('username');
         }
 
         //name fake
         if(!$request->request->has('name')){
             //invent the name
-            $request->request->add(array('name'=>$username));
+            $request->request->add(array('name'=>$fake));
         }
 
         if(!$request->request->has('phone')){
@@ -302,7 +305,7 @@ class AccountController extends BaseApiController{
         }
 
         if(!$request->request->has('email')){
-            $email = $username.'@default.com';
+            $email = $fake.'@default.com';
             $request->request->add(array('email'=>$email));
         }
 

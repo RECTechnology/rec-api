@@ -84,3 +84,27 @@ user_reset_client_credentials:
     requirements:
         _method: PUT
 
+user_btc_wallet_read:
+    pattern:  /user/v1/btc_wallet
+    defaults: { _controller: Telepay\FinancialApiBundle\Controller\Management\User\BTCWalletController::read }
+    requirements:
+        _method: GET
+
+user_btc_adresses_read:
+    pattern:  /user/v1/btc_adresses
+    defaults: { _controller: Telepay\FinancialApiBundle\Controller\Management\User\BTCWalletController::indexAction }
+    requirements:
+        _method: GET
+
+user_btc_adresses_create:
+    pattern:  /user/v1/btc_adresses
+    defaults: { _controller: Telepay\FinancialApiBundle\Controller\Management\User\BTCWalletController::addAdress }
+    requirements:
+        _method: POST
+
+user_btc_adresses_update:
+    pattern:  /user/v1/btc_adresses/{id}
+    defaults: { _controller: Telepay\FinancialApiBundle\Controller\Management\User\BTCWalletController::updateAddress }
+    requirements:
+        _method: PUT
+

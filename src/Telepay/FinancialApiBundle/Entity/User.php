@@ -85,10 +85,10 @@ class User extends BaseUser
     private $btc_wallet;
 
     /**
-     * @ORM\OneToMany(targetEntity="Telepay\FinancialApiBundle\Entity\BTCAdresses", mappedBy="user", cascade={"remove"})
+     * @ORM\OneToMany(targetEntity="Telepay\FinancialApiBundle\Entity\BTCAddresses", mappedBy="user", cascade={"remove"})
      * @Expose
      */
-    private $btc_adresses;
+    private $btc_addresses;
 
     /**
      * @ORM\OneToMany(targetEntity="Telepay\FinancialApiBundle\Entity\Device", mappedBy="user", cascade={"remove"})
@@ -379,17 +379,18 @@ class User extends BaseUser
     /**
      * @return mixed
      */
-    public function getBtcAdresses()
+    public function getBtcAddresses()
     {
-        return $this->btc_adresses;
+        return $this->btc_addresses;
     }
 
     /**
-     * @param mixed $btc_adresses
+     * @param mixed $btc_addresses
      */
-    public function setBtcAdresses($btc_adresses)
+    public function setBtcAddresses($btc_addresses)
     {
-        $this->btc_adresses = $btc_adresses;
+        $this->btc_addresses = $btc_addresses;
     }
+
 
 }
