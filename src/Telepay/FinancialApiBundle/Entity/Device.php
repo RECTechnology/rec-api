@@ -28,6 +28,7 @@ class Device
      * @ORM\Id
      * @ORM\Column(type="integer")
      * @ORM\GeneratedValue(strategy="AUTO")
+     * @Expose
      */
     protected $id;
 
@@ -41,6 +42,16 @@ class Device
      * @Expose
      */
     private $device_id;
+
+    /**
+     * Returns the user unique id.
+     *
+     * @return mixed
+     */
+    public function getId()
+    {
+        return $this->id;
+    }
 
     /**
      * @return mixed

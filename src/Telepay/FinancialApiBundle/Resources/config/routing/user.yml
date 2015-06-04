@@ -91,20 +91,38 @@ user_btc_wallet_read:
         _method: GET
 
 user_btc_adresses_read:
-    pattern:  /user/v1/btc_adresses
+    pattern:  /user/v1/btc_addresses
     defaults: { _controller: Telepay\FinancialApiBundle\Controller\Management\User\BTCWalletController::indexAction }
     requirements:
         _method: GET
 
 user_btc_adresses_create:
-    pattern:  /user/v1/btc_adresses
-    defaults: { _controller: Telepay\FinancialApiBundle\Controller\Management\User\BTCWalletController::addAdress }
+    pattern:  /user/v1/btc_addresses
+    defaults: { _controller: Telepay\FinancialApiBundle\Controller\Management\User\BTCWalletController::addAddress }
     requirements:
         _method: POST
 
 user_btc_adresses_update:
-    pattern:  /user/v1/btc_adresses/{id}
+    pattern:  /user/v1/btc_addresses/{id}
     defaults: { _controller: Telepay\FinancialApiBundle\Controller\Management\User\BTCWalletController::updateAddress }
+    requirements:
+        _method: PUT
+
+user_devices_index:
+    pattern:  /user/v1/devices
+    defaults: { _controller: Telepay\FinancialApiBundle\Controller\Management\User\BTCWalletController::indexDevices }
+    requirements:
+        _method: GET
+
+user_devices_create:
+    pattern:  /user/v1/devices
+    defaults: { _controller: Telepay\FinancialApiBundle\Controller\Management\User\BTCWalletController::addDevice }
+    requirements:
+        _method: POST
+
+user_devices_update:
+    pattern:  /user/v1/devices/{id}
+    defaults: { _controller: Telepay\FinancialApiBundle\Controller\Management\User\BTCWalletController::updateDevice }
     requirements:
         _method: PUT
 

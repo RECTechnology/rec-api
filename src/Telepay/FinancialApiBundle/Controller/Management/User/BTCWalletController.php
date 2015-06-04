@@ -11,6 +11,7 @@ use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpKernel\Exception\HttpException;
 use Telepay\FinancialApiBundle\Controller\RestApiController;
 use Telepay\FinancialApiBundle\Entity\BTCAddresses;
+use Telepay\FinancialApiBundle\Entity\Device;
 
 
 /**
@@ -62,7 +63,7 @@ class BTCWalletController extends RestApiController{
 
     }
 
-    public function addAdress(Request $request){
+    public function addAddress(Request $request){
 
         $user = $this->get('security.context')->getToken()->getUser();
 
@@ -92,7 +93,7 @@ class BTCWalletController extends RestApiController{
 
     public function deleteAddress($id){
 
-        //TODO delete : if an address has btc, can be cancelled?
+        //TODO delete : if an address has btc, can be cancelled??
 
     }
 
@@ -118,6 +119,43 @@ class BTCWalletController extends RestApiController{
         $em->flush();
 
         return $this->restV2(204, "ok");
+    }
+
+    public function indexDevices(){
+
+        $user = $this->get('security.context')->getToken()->getUser();
+
+        $device = $user->getDevice();
+
+        //die(print_r($device[0],true));
+
+        return $this->restV2(200, "ok", "Devices info got successfully", $device);
+
+    }
+
+    public function addDevice(Request $request){
+
+        $user = $this->get('security.context')->getToken()->getUser();
+
+        if(!$request->request->has('device_id')) throw new HttpException(400,'Missing parameter device_id');
+
+        $device_id = $request->get('device_id');
+
+        $device = new Device();
+        $device->setUser($user);
+        $device->setDeviceId($device_id);
+
+        $em = $this->getDoctrine()->getManager();
+        $em->persist($device);
+        $em->flush();
+
+        return $this->restV2(204, "ok");
+
+    }
+
+    public function deleteDevice(){
+
+        //TODO delete device
     }
 
     /**
