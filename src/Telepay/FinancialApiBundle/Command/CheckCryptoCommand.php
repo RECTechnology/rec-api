@@ -173,11 +173,12 @@ class CheckCryptoCommand extends ContainerAwareCommand
                     else
                         $transaction->setStatus("received");
 
+                    $transaction->setUpdated(new \MongoDate());
+                    $transaction->setData($currentData);
+                    $transaction->setDataOut($currentData);
+                    return $transaction;
                 }
-                $transaction->setUpdated(new \MongoDate());
-                $transaction->setData($currentData);
-                $transaction->setDataOut($currentData);
-                return $transaction;
+
             }
 
         }
