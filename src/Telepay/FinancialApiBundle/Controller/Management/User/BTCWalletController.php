@@ -145,6 +145,12 @@ class BTCWalletController extends RestApiController{
         $device->setUser($user);
         $device->setDeviceId($device_id);
 
+        if($request->request->has('label')){
+            $device->setLabel($request->get('label'));
+        }else{
+            $device->setLabel('');
+        }
+
         $em = $this->getDoctrine()->getManager();
         $em->persist($device);
         $em->flush();

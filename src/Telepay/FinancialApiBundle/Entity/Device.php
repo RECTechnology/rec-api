@@ -44,6 +44,12 @@ class Device
     private $device_id;
 
     /**
+     * @ORM\Column(type="string")
+     * @Expose
+     */
+    private $label;
+
+    /**
      * Returns the user unique id.
      *
      * @return mixed
@@ -83,5 +89,21 @@ class Device
     public function setDeviceId($device_id)
     {
         $this->device_id = $device_id;
+    }
+
+    /**
+     * @return mixed
+     */
+    public function getLabel()
+    {
+        return $this->label;
+    }
+
+    /**
+     * @param mixed $label
+     */
+    public function setLabel($label)
+    {
+        $this->label = $label;
     }
 }
