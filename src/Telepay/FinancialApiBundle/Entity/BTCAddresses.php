@@ -67,6 +67,12 @@ class BTCAddresses extends AbstractWallet implements ExternallyDrived {
     private $label;
 
     /**
+     * @ORM\Column(type="boolean")
+     * @Expose
+     */
+    private $archived;
+
+    /**
      * @param mixed $user
      */
     public function setUser($user)
@@ -114,6 +120,22 @@ class BTCAddresses extends AbstractWallet implements ExternallyDrived {
     public function setLabel($label)
     {
         $this->label = $label;
+    }
+
+    /**
+     * @return mixed
+     */
+    public function getArchived()
+    {
+        return $this->archived;
+    }
+
+    /**
+     * @param mixed $archived
+     */
+    public function setArchived($archived)
+    {
+        $this->archived = $archived;
     }
 
 

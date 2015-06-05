@@ -76,6 +76,7 @@ class BTCWalletController extends RestApiController{
         $address = new BTCAddresses();
         $address->setUser($user);
         $address->setAddress($received_address);
+        $address->setArchived(false);
 
         if($request->request->has('label')){
             $label = $request->get('label');
@@ -101,10 +102,6 @@ class BTCWalletController extends RestApiController{
 
         $user = $this->get('security.context')->getToken()->getUser();
 
-        if(!$request->request->has('label')) throw new HttpException(400,'Missing parameter label');
-
-        $label = $request->get('label');
-
         $em = $this->getDoctrine()->getManager();
 
         $address = $em->getRepository('TelepayFinancialApiBundle:BTCAddresses')
@@ -113,7 +110,15 @@ class BTCWalletController extends RestApiController{
                 'user'  =>  $user->getId()
         ));
 
-        $address->setLabel($label);
+        if($request->request->has('label')){
+            $label = $request->get('label');
+            $address->setLabel($label);
+        }
+
+        if($request->request->has('archived')){
+            $archived = $request->get('archived');
+            $address->setArchived($archived);
+        }
 
         $em->persist($address);
         $em->flush();
