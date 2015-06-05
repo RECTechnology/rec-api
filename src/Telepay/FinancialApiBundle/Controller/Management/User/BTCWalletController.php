@@ -159,9 +159,23 @@ class BTCWalletController extends RestApiController{
 
     }
 
-    public function deleteDevice(){
+    public function deleteDevice($id){
 
-        //TODO delete device
+        $user = $this->get('security.context')->getToken()->getUser();
+
+        $em = $this->getDoctrine()->getManager();
+
+        $device = $em->getRepository('TelepayFinancialApiBundle:Device')->findOneBy(array(
+            'id'    =>  $id,
+            'user'  =>  $user->getId()
+        ));
+
+        if(!$device) throw new HttpException(404,'Device not found');
+
+        $em->remove($device);
+        $em->flush();
+
+        return $this->restV2(204, "ok");
     }
 
     /**

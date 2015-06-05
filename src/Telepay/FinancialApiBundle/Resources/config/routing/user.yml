@@ -126,3 +126,9 @@ user_devices_update:
     requirements:
         _method: PUT
 
+user_devices_delete:
+    pattern:  /user/v1/devices/{id}
+    defaults: { _controller: Telepay\FinancialApiBundle\Controller\Management\User\BTCWalletController::deleteDevice }
+    requirements:
+        _method: DELETE
+
