@@ -128,14 +128,6 @@ class SabadellTPVService extends BaseService{
 
         if($notification){
 
-            $data = $transaction->getDataIn();
-            $redirect = $data['url_notification'];
-
-            $fields=array(
-                'telepay_id'    =>  $transaction->getId(),
-                'status'        =>  $notification
-            );
-
             if($notification == 1){
                 $transaction->setStatus(Transaction::$STATUS_SUCCESS);
                 $transaction->setDebugData($request);
@@ -143,20 +135,6 @@ class SabadellTPVService extends BaseService{
                 $transaction->setStatus(Transaction::$STATUS_CANCELLED);
                 $transaction->setDebugData($request);
             }
-
-            //notificar al usuario
-            // create curl resource
-            $ch = curl_init();
-            // set url
-            curl_setopt($ch, CURLOPT_URL, $redirect);
-            //return the transfer as a string
-            curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
-            curl_setopt($ch,CURLOPT_POST,true);
-            curl_setopt($ch,CURLOPT_POSTFIELDS,$fields);
-            // $output contains the output string
-            $output = curl_exec($ch);
-            // close curl resource to free up system resources
-            curl_close($ch);
 
         }
 
