@@ -30,6 +30,13 @@ class BittrexDriver extends JsonRequester {
         ));
     }
 
+    public function getDepositAddress($currency){
+        return $this->send($this->requestBuilder->build(
+            'account/getdepositaddress',
+            array('currency' => $currency)
+        ));
+    }
+
     public function getBalances() {
         return $this->send($this->requestBuilder->build(
             'account/getbalances'

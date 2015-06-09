@@ -6,16 +6,13 @@
  * Time: 8:13 PM
  */
 
-namespace Telepay\FinancialApiBundle\DependencyInjection\Telepay\Exchanges;
+namespace Telepay\FinancialApiBundle\Financial\Ticker;
 
 use Telepay\FinancialApiBundle\Financial\Currency;
-use Telepay\FinancialApiBundle\Financial\Connector\BittrexDriver;
+use Telepay\FinancialApiBundle\Financial\Driver\BittrexDriver;
+use Telepay\FinancialApiBundle\Financial\TickerInterface;
 
-/**
- * Class FacBtcExchange
- * @package Telepay\FinancialApiBundle\DependencyInjection\Telepay\Exchanges
- */
-class FacBtcExchange implements ExchangeInterface {
+class BittrexTicker implements TickerInterface {
 
     private $bittrex;
 

@@ -7,9 +7,9 @@
  */
 
 
-namespace Telepay\FinancialApiBundle\DependencyInjection\Telepay\Exchanges;
+namespace Telepay\FinancialApiBundle\Financial;
 
-interface ExchangeInterface {
+interface TickerInterface {
     public function getPrice();
     public function getInCurrency();
     public function getOutCurrency();

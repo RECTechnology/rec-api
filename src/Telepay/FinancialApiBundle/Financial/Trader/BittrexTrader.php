@@ -32,20 +32,17 @@ class BittrexTrader implements TraderInterface {
         foreach($buyOrders as $order){
             $sum += $order->Quantity;
             if($sum >= $amount){
-                $quantity = $order->Quantity - $sum + $amount;
-                $resp = $this->bittrexDriver->sell('BTC-FAIR', $quantity, $order->Rate);
+                $resp = $this->bittrexDriver->sell('BTC-FAIR', $amount, $order->Rate);
                 if(!$resp->success) throw new \LogicException("Sell action not worked");
-                break;
-            }
-            else {
-                $resp = $this->bittrexDriver->sell('BTC-FAIR', $order->Quantity, $order->Rate);
-                if(!$resp->success) throw new \LogicException("Sell action not worked");
+                //echo "buy " . $amount . " by " . $order->Rate;
+                return;
             }
         }
     }
 
-    public function withdraw(){
-        //return $this->bittrexDriver->withdraw('BTC', 1.4, '13bkZYQgC46W4QHK3snE3NwN5RnDb1Jjsc');
+    public function withdraw($amount, $address){
+        return $this->bittrexDriver->withdraw('BTC', $amount, $address);
     }
+
 
 }

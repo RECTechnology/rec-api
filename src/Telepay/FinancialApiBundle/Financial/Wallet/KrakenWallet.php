@@ -15,9 +15,29 @@ use Telepay\FinancialApiBundle\Financial\WalletInterface;
 
 class KrakenWallet implements WalletInterface {
 
+    private $krakenDriver;
+    private $currency;
+    private $krakenCurrencyNames = array(
+        'BTC' => 'XXBT',
+        'EUR' => 'ZEUR',
+    );
+
+    function __construct($krakenDriver, $currency)
+    {
+        $this->krakenDriver = $krakenDriver;
+        $this->currency = $currency;
+    }
+
+
     public function getAddress()
     {
-        // TODO: Implement getAddress() method.
+        return $this->krakenDriver->QueryPrivate(
+            'DepositAddresses',
+            array(
+                'asset' => 'XXBT',
+                'method' => 'Bitcoin'
+            )
+        )['result'][0]['address'];
     }
 
     public function confirmReceived($amount, $token)
@@ -27,21 +47,31 @@ class KrakenWallet implements WalletInterface {
 
     public function send(CashInInterface $dst, MoneyBundleInterface $money)
     {
-        // TODO: Implement send() method.
+
+        //TODO: donar d alta la address
+
+        return $this->krakenDriver->QueryPrivate(
+            'Withdraw',
+            array(
+                'asset' => $this->krakenCurrencyNames[$this->getCurrency()],
+                'key' => 'concentradora',
+                'amount' => $money->getAmount()
+            )
+        )['result'][0]['address'];
     }
 
-    public function getAmount()
+    public function getBalance()
     {
-        // TODO: Implement getAmount() method.
+        return $this->getAvailable();
     }
 
     public function getAvailable()
     {
-        // TODO: Implement getAvailable() method.
+        return $this->krakenDriver->QueryPrivate('Balance')['result'][$this->krakenCurrencyNames[$this->getCurrency()]];
     }
 
     public function getCurrency()
     {
-        // TODO: Implement getCurrency() method.
+        return $this->currency;
     }
 }

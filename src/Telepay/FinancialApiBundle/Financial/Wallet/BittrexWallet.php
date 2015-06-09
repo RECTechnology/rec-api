@@ -8,7 +8,6 @@
 
 namespace Telepay\FinancialApiBundle\Financial\Wallet;
 
-
 use Telepay\FinancialApiBundle\Financial\CashInInterface;
 use Telepay\FinancialApiBundle\Financial\Driver\BittrexDriver;
 use Telepay\FinancialApiBundle\Financial\MoneyBundleInterface;
@@ -16,37 +15,53 @@ use Telepay\FinancialApiBundle\Financial\WalletInterface;
 
 class BittrexWallet implements WalletInterface {
 
-    private $bittrexInteractor;
+    private $bittrexDriver;
+    private $currency;
 
-    function __construct(BittrexDriver $bittrexInteractor)
+    function __construct(BittrexDriver $bittrexDriver, $currency)
     {
-        $this->bittrexInteractor = $bittrexInteractor;
+        $this->bittrexDriver = $bittrexDriver;
+        $this->currency = $currency;
     }
 
 
     public function getAddress()
     {
-        // TODO: Implement getAddress() method.
+        $resp = $this->bittrexDriver->getDepositAddress(
+            $this->getCurrency()
+        );
+        return $resp->result->Address;
     }
 
     public function send(CashInInterface $dst, MoneyBundleInterface $money)
     {
-        // TODO: Implement send() method.
+        return $this->bittrexDriver->withdraw(
+            $money->getCurrency(),
+            $money->getAmount(),
+            $dst->getAddress()
+        );
     }
 
-    public function getAmount()
+    public function getBalance()
     {
-        // TODO: Implement getAmount() method.
+        $resp = $this->bittrexDriver->getBalance(
+            $this->getCurrency()
+        );
+        return $resp->result->Balance;
     }
 
     public function getAvailable()
     {
-        // TODO: Implement getAvailable() method.
+        $resp = $this->bittrexDriver->getBalance(
+            $this->getCurrency()
+        );
+
+        return $resp->result->Available;
     }
 
     public function getCurrency()
     {
-        // TODO: Implement getCurrency() method.
+        return $this->currency;
     }
 
     public function confirmReceived($amount, $token)

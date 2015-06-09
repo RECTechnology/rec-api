@@ -29,14 +29,14 @@ class FullNode implements WalletInterface {
         // TODO: Implement send() method.
     }
 
-    public function getAmount()
+    public function getBalance()
     {
         // TODO: Implement getAmount() method.
     }
 
     public function getAvailable()
     {
-        return $this->getAmount();
+        return $this->getBalance();
     }
 
     public function getCurrency()

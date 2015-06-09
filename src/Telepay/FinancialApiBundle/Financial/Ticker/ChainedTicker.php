@@ -6,13 +6,10 @@
  * Time: 8:13 PM
  */
 
-namespace Telepay\FinancialApiBundle\DependencyInjection\Telepay\Exchanges;
+namespace Telepay\FinancialApiBundle\Financial\Ticker;
+use Telepay\FinancialApiBundle\Financial\TickerInterface;
 
-/**
- * Class ChainedExchange
- * @package Telepay\FinancialApiBundle\DependencyInjection\Telepay\Exchanges
- */
-class ChainedExchange implements ExchangeInterface {
+class ChainedTicker implements TickerInterface {
 
     private $exchangeChain;
 
