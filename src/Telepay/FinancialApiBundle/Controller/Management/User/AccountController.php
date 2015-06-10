@@ -254,9 +254,13 @@ class AccountController extends BaseApiController{
 
         //device_id is optional
         $device_id = null;
+        $gcm_token = null;
         if($request->request->has('device_id')){
+            if(!$request->request->has('gcm_token')) throw new HttpException(400, 'Missing parameter gcm_token');
+            $gcm_token = $request->request->get(('gcm_token'));
             $device_id = $request->request->get('device_id');
             $request->request->remove('device_id');
+            $request->request->remove('gcm_token');
         }
 
         //password is optional
@@ -312,6 +316,8 @@ class AccountController extends BaseApiController{
         $request->request->add(array('enabled'=>1));
         $request->request->add(array('base64_image'=>''));
         $request->request->add(array('default_currency'=>'EUR'));
+        $request->request->add(array('gcm_group_key'=>''));
+
         $resp= parent::createAction($request);
 
         if($resp->getStatusCode() == 201){
@@ -349,6 +355,7 @@ class AccountController extends BaseApiController{
                 $device = new Device();
                 $device->setUser($user);
                 $device->setDeviceId($device_id);
+                $device->setGcmToken($gcm_token);
 
                 $em->persist($device);
             }

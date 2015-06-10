@@ -93,4 +93,8 @@ class Notificator {
         return $transaction;
 
     }
+
+    public function gcm_notificate($user_id, $message){
+
+    }
 }

@@ -131,6 +131,8 @@ class UsersController extends BaseApiController
         $request->request->add(array('enabled'=>1));
         $request->request->add(array('base64_image'=>''));
         $request->request->add(array('default_currency'=>'EUR'));
+        $request->request->add(array('gcm_group_key'=>''));
+
         $resp= parent::createAction($request);
 
         if($resp->getStatusCode() == 201){

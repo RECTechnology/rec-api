@@ -12,6 +12,7 @@ use Symfony\Component\HttpKernel\Exception\HttpException;
 use Telepay\FinancialApiBundle\Controller\RestApiController;
 use Telepay\FinancialApiBundle\Entity\BTCAddresses;
 use Telepay\FinancialApiBundle\Entity\Device;
+use Telepay\FinancialApiBundle\Entity\User;
 
 
 /**
@@ -144,11 +145,15 @@ class BTCWalletController extends RestApiController{
 
         if(!$request->request->has('device_id')) throw new HttpException(400,'Missing parameter device_id');
 
+        if(!$request->request->has('gcm_token')) throw new HttpException(400,'Missing parameter gcm_token');
+
         $device_id = $request->get('device_id');
+        $gcm_token = $request->get('gcm_token');
 
         $device = new Device();
         $device->setUser($user);
         $device->setDeviceId($device_id);
+        $device->setGcmToken($gcm_token);
 
         if($request->request->has('label')){
             $device->setLabel($request->get('label'));
@@ -157,10 +162,158 @@ class BTCWalletController extends RestApiController{
         }
 
         $em = $this->getDoctrine()->getManager();
+
+        if($user->getGcmGroupKey() == ''){
+            try{
+                $notification_key = $this->_gcmCreateGroup($user, $gcm_token);
+                $user->setGcmGroupKey($notification_key);
+                $em->persist($user);
+            }catch (HttpException $e){
+                throw new HttpException(400,$e->getMessage());
+            }
+
+        }else{
+            try{
+                $this->_gcmManageDevice($user, $gcm_token, 'add');
+            }catch (HttpException $e){
+                throw new HttpException(400,$e->getMessage());
+            }
+
+        }
+
         $em->persist($device);
         $em->flush();
 
+        $this->_sendGcmNotification($user, 'New device '.$device->getDeviceId().' added succesfully');
+
         return $this->restV2(204, "ok");
+
+    }
+
+    private function _gcmCreateGroup(User $user, $gcm_token){
+
+        $notification_key_name = $user->getId();
+        $registration_ids = $gcm_token;
+
+        $params = array(
+            'operation'             =>  'create',
+            'notification_key_name' =>  'Telepay'.$notification_key_name,
+            'registration_ids'      =>  array($registration_ids)
+        );
+
+        $params = json_encode($params);
+
+        $header = array(
+            'Authorization: key=AIzaSyDyArDU-UH2gQSROYUrFSUNuKQfrehOKio',
+            'Content-Type: application/json',
+            'project_id: 953900913241'
+        );
+
+        // create curl resource
+        $ch = curl_init();
+        // set url
+        curl_setopt($ch, CURLOPT_URL, 'https://android.googleapis.com/gcm/notification');
+        //return the transfer as a string
+        curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
+        curl_setopt($ch,CURLOPT_POST,true);
+        curl_setopt($ch,CURLOPT_POSTFIELDS,$params);
+        curl_setopt($ch,CURLOPT_HTTPHEADER, $header);
+        // $output contains the output string
+        $output = curl_exec($ch);
+
+        // close curl resource to free up system resources
+        curl_close($ch);
+
+        $response = json_decode($output);
+
+        if(isset($response->error)) throw new HttpException(400,$response->error);
+
+        return $response->notification_key;
+
+    }
+
+    private function _gcmManageDevice(User $user, $gcm_token, $action){
+
+        $notification_key = $user->getGcmGroupKey();
+        $registration_ids = $gcm_token;
+
+        $params = array(
+            'operation'             =>  $action,
+            'notification_key_name' =>  'Telepay'.$user->getId(),
+            'notification_key'      =>  $notification_key,
+            'registration_ids'      =>  array($registration_ids)
+        );
+
+        $params = json_encode($params);
+
+        $header = array(
+            'Authorization: key=AIzaSyDyArDU-UH2gQSROYUrFSUNuKQfrehOKio',
+            'Content-Type: application/json',
+            'project_id: 953900913241'
+        );
+
+        // create curl resource
+        $ch = curl_init();
+        // set url
+        curl_setopt($ch, CURLOPT_URL, 'https://android.googleapis.com/gcm/notification');
+        //return the transfer as a string
+        curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
+        curl_setopt($ch,CURLOPT_POST,true);
+        curl_setopt($ch,CURLOPT_POSTFIELDS,$params);
+        curl_setopt($ch,CURLOPT_HTTPHEADER, $header);
+        // $output contains the output string
+        $output = curl_exec($ch);
+
+        // close curl resource to free up system resources
+        curl_close($ch);
+
+        $response = json_decode($output);
+
+        if(isset($response->error)) throw new HttpException(400,$response->error);
+
+        return true;
+
+    }
+
+    private function _sendGcmNotification(User $user, $message){
+
+        $notification_key = $user->getGcmGroupKey();
+        $data = array(
+            'message'   =>  $message
+        );
+
+        $params = array(
+            'to'    =>  $notification_key,
+            'data'  =>  $data
+        );
+
+        $params = json_encode($params);
+
+        $header = array(
+            'Authorization: key=AIzaSyDyArDU-UH2gQSROYUrFSUNuKQfrehOKio',
+            'Content-Type: application/json'
+        );
+
+        // create curl resource
+        $ch = curl_init();
+        // set url
+        curl_setopt($ch, CURLOPT_URL, 'https://gcm-http.googleapis.com/gcm/send');
+        //return the transfer as a string
+        curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
+        curl_setopt($ch,CURLOPT_POST,true);
+        curl_setopt($ch,CURLOPT_POSTFIELDS,$params);
+        curl_setopt($ch,CURLOPT_HTTPHEADER, $header);
+        // $output contains the output string
+        $output = curl_exec($ch);
+
+        // close curl resource to free up system resources
+        curl_close($ch);
+
+        $response = json_decode($output);
+
+        if(isset($response->error)) throw new HttpException(400,$response->error);
+
+        return true;
 
     }
 
@@ -177,8 +330,25 @@ class BTCWalletController extends RestApiController{
 
         if(!$device) throw new HttpException(404,'Device not found');
 
+        $devices = $em->getRepository('TelepayFinancialApiBundle:Device')->findBy(array(
+            'user'  =>  $user->getId()
+        ));
+
+        try{
+            $this->_gcmManageDevice($user,$device->getGcmToken(),'remove');
+        }catch (HttpException $e){
+            throw new HttpException(400,'Delete device error');
+        }
+
+        if(count($devices) == 1){
+            $user->setGcmGroupKey('');
+            $em->persist($user);
+        }
+
         $em->remove($device);
         $em->flush();
+
+        $this->_sendGcmNotification($user, 'Device '.$device->getDeviceId().' removed succesfully');
 
         return $this->restV2(204, "ok");
     }

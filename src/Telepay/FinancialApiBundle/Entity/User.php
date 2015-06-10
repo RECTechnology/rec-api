@@ -139,6 +139,12 @@ class User extends BaseUser
     private $phone;
 
     /**
+     * @ORM\Column(type="string")
+     * @Expose
+     */
+    private $gcm_group_key;
+
+    /**
      * @Expose
      */
     private $allowed_services = array();
@@ -390,6 +396,22 @@ class User extends BaseUser
     public function setBtcAddresses($btc_addresses)
     {
         $this->btc_addresses = $btc_addresses;
+    }
+
+    /**
+     * @return mixed
+     */
+    public function getGcmGroupKey()
+    {
+        return $this->gcm_group_key;
+    }
+
+    /**
+     * @param mixed $gcm_group_key
+     */
+    public function setGcmGroupKey($gcm_group_key)
+    {
+        $this->gcm_group_key = $gcm_group_key;
     }
 
 
