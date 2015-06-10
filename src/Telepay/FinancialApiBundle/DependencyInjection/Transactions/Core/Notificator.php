@@ -40,7 +40,7 @@ class Notificator {
 
         $key = $user->getAccessSecret();
 
-        $data_to_sign = $id + $status + $amount;
+        $data_to_sign = $id.$status.$amount;
 
         $signature = hash_hmac('sha256',$data_to_sign,$key);
 
@@ -59,6 +59,8 @@ class Notificator {
         curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
         curl_setopt($ch,CURLOPT_POST,true);
         curl_setopt($ch,CURLOPT_POSTFIELDS,$params);
+        //fix bug 417 Expectation Failed
+        curl_setopt($ch,CURLOPT_HTTPHEADER,array("Expect:  "));
         // $output contains the output string
         $output = curl_exec($ch);
 
@@ -69,14 +71,17 @@ class Notificator {
 
             if( $info['http_code'] >= 200 && $info['http_code'] <=299 ){
                 //notificado
-                $transaction->setNotified(true);
+                $notified = true;
             }else{
-                $transaction->setNotified(false);
+                $notified = false;
 
                 //no notificado
             }
 
-            $transaction->setNotificationTries($transaction->getNotificationTries()+1);
+            if( $notified == true && $transaction->getStatus()==Transaction::$STATUS_SUCCESS){
+                $transaction->setNotified(true);
+                $transaction->setNotificationTries($transaction->getNotificationTries()+1);
+            }
 
         }
         // close curl resource to free up system resources
