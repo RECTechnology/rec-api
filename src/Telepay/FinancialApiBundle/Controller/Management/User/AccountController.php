@@ -354,7 +354,6 @@ class AccountController extends BaseApiController{
             if( $device_id != null){
                 $device = new Device();
                 $device->setUser($user);
-                $device->setDeviceId($device_id);
                 $device->setGcmToken($gcm_token);
 
                 $em->persist($device);
