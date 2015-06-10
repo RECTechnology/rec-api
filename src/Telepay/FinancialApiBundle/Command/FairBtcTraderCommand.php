@@ -36,6 +36,7 @@ class FairBtcTraderCommand extends ContainerAwareCommand
         //$output->writeln(print_r($krakenBtcWallet->getAddress(), true));
 
         //$client = new Client("wss://echo.websocket.org");
+        /*
         $client = new Client("wss://ws.blockchain.info/inv");
         $i=0;
         while($i==0 || $client->isConnected()) {
@@ -61,6 +62,7 @@ class FairBtcTraderCommand extends ContainerAwareCommand
                 echo "No data ping\n";
             }
         }
+        */
         $output->writeln("Sold");
 
 

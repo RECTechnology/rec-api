@@ -23,6 +23,9 @@ services:
             - "@net.telepay.driver.kraken"
             - "BTC"
 
+    net.telepay.driver.bitso:
+        class: Telepay\FinancialApiBundle\Financial\Driver\BitsoDriver
+
     net.telepay.driver.kraken:
         class: Payward\KrakenAPI
         arguments:
@@ -99,8 +102,7 @@ services:
         class: Telepay\FinancialApiBundle\Financial\Ticker\ChainedTicker
         arguments:
             exchange_chain:
-                - "@net.telepay.ticker.MXNxFAC"
-                - "@net.telepay.ticker.FACxBTC"
+                - "@net.telepay.ticker.MXNxBTC"
                 - "@net.telepay.ticker.BTCxEUR"
 
     net.telepay.ticker.PLNxEUR:
@@ -121,6 +123,18 @@ services:
         class: Telepay\FinancialApiBundle\Financial\Ticker\InversedTicker
         arguments:
             - "@net.telepay.ticker.FACxMXN"
+
+    net.telepay.ticker.BTCxMXN:
+        class: Telepay\FinancialApiBundle\Financial\Ticker\BitsoTicker
+        arguments:
+            - "@net.telepay.driver.bitso"
+            - "btc_mxn"
+
+    net.telepay.ticker.MXNxBTC:
+        class: Telepay\FinancialApiBundle\Financial\Ticker\BitsoTicker
+        arguments:
+            - "@net.telepay.driver.bitso"
+            - "mxn_btc"
 
     net.telepay.provider.btc:
         class: Telepay\FinancialApiBundle\DependencyInjection\Telepay\Providers\EasyBitcoin
