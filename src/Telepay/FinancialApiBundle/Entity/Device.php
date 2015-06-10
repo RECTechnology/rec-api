@@ -38,12 +38,6 @@ class Device
     private $user;
 
     /**
-     * @ORM\Column(type="string", unique=true)
-     * @Expose
-     */
-    private $device_id;
-
-    /**
      * @ORM\Column(type="string")
      * @Expose
      */
@@ -79,22 +73,6 @@ class Device
     public function setUser($user)
     {
         $this->user = $user;
-    }
-
-    /**
-     * @return mixed
-     */
-    public function getDeviceId()
-    {
-        return $this->device_id;
-    }
-
-    /**
-     * @param mixed $device_id
-     */
-    public function setDeviceId($device_id)
-    {
-        $this->device_id = $device_id;
     }
 
     /**

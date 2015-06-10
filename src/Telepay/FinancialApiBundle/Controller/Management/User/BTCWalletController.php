@@ -148,16 +148,12 @@ class BTCWalletController extends RestApiController{
 
         $user = $this->get('security.context')->getToken()->getUser();
 
-        if(!$request->request->has('device_id')) throw new HttpException(400,'Missing parameter device_id');
-
         if(!$request->request->has('gcm_token')) throw new HttpException(400,'Missing parameter gcm_token');
 
-        $device_id = $request->get('device_id');
         $gcm_token = $request->get('gcm_token');
 
         $device = new Device();
         $device->setUser($user);
-        $device->setDeviceId($device_id);
         $device->setGcmToken($gcm_token);
 
         if($request->request->has('label')){
@@ -189,7 +185,7 @@ class BTCWalletController extends RestApiController{
         $em->persist($device);
         $em->flush();
 
-        $this->_sendGcmNotification($user, 'New device '.$device->getDeviceId().' added succesfully');
+        $this->_sendGcmNotification($user, 'New device added succesfully');
 
         return $this->restV2(204, "ok");
 
@@ -353,7 +349,7 @@ class BTCWalletController extends RestApiController{
         $em->remove($device);
         $em->flush();
 
-        $this->_sendGcmNotification($user, 'Device '.$device->getDeviceId().' removed succesfully');
+        $this->_sendGcmNotification($user, 'Device removed succesfully');
 
         return $this->restV2(204, "ok");
     }
