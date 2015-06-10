@@ -8,9 +8,6 @@
 
 namespace Telepay\FinancialApiBundle\Entity;
 use Symfony\Component\HttpKernel\Exception\HttpException;
-use Telepay\FinancialApiBundle\Financial\CashOut;
-use Telepay\FinancialApiBundle\Financial\Currency;
-
 use Doctrine\ORM\Mapping as ORM;
 
 
@@ -49,6 +46,13 @@ class UserWallet implements ExternallyDrived {
     {
         return 'net.telepay.provider.btc';
     }
+
+    /**
+     * @ORM\Id
+     * @ORM\Column(type="integer")
+     * @ORM\GeneratedValue(strategy="AUTO")
+     */
+    protected $id;
 
     /**
      * @ORM\Column(type="string")
