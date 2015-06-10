@@ -73,6 +73,11 @@ class BTCWalletController extends RestApiController{
         if(!$request->request->has('address')) throw new HttpException(400,'Missing parameter address');
         $received_address = $request->get('address');
 
+        $cryptoProvider = $this->get('net.telepay.provider.btc');
+
+        $isValid = $cryptoProvider->validateaddress($received_address);
+
+        if($isValid['isvalid'] != true) throw new HttpException(400,'BTC address not valid');
 
         $address = new BTCAddresses();
         $address->setUser($user);
