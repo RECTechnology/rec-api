@@ -10,6 +10,7 @@
 namespace Telepay\FinancialApiBundle\Controller\Management\User;
 
 use Symfony\Component\Security\Core\Util\SecureRandom;
+use Telepay\FinancialApiBundle\Entity\BTCWallet;
 use Telepay\FinancialApiBundle\Entity\Device;
 use Telepay\FinancialApiBundle\Entity\Group;
 use Telepay\FinancialApiBundle\Entity\LimitDefinition;
@@ -249,9 +250,21 @@ class AccountController extends BaseApiController{
      */
     public function registerAction(Request $request){
 
-        if(!$request->request->has('device_id')) throw new HttpException(400,'Paramater device_id not found');
-        $device_id = $request->request->get('device_id');
-        $request->request->remove('device_id');
+        //cypher_wallet is mandatory
+        if(!$request->request->has('cypher_wallet')) throw new HttpException(400, "Paramter cypher_wallet is missing.");
+        $cypher_wallet = $request->request->get('cypher_wallet');
+        $request->request->remove('cypher_wallet');
+
+        //device_id is optional
+        $device_id = null;
+        $gcm_token = null;
+        if($request->request->has('device_id')){
+            if(!$request->request->has('gcm_token')) throw new HttpException(400, 'Missing parameter gcm_token');
+            $gcm_token = $request->request->get(('gcm_token'));
+            $device_id = $request->request->get('device_id');
+            $request->request->remove('device_id');
+            $request->request->remove('gcm_token');
+        }
 
         //password is optional
         if(!$request->request->has('password')){
@@ -273,17 +286,20 @@ class AccountController extends BaseApiController{
 
         }
 
-        $username = Uuid::uuid1()->toString();
+        $fake = Uuid::uuid1()->toString();
         //username fake
         if(!$request->request->has('username')){
             //invent the username
-            $request->request->add(array('username'=>$username));
+            $username = $fake;
+            $request->request->add(array('username'=>$fake));
+        }else{
+            $username = $request->get('username');
         }
 
         //name fake
         if(!$request->request->has('name')){
             //invent the name
-            $request->request->add(array('name'=>$username));
+            $request->request->add(array('name'=>$fake));
         }
 
         if(!$request->request->has('phone')){
@@ -296,13 +312,15 @@ class AccountController extends BaseApiController{
         }
 
         if(!$request->request->has('email')){
-            $email = $username.'@default.com';
+            $email = $fake.'@default.com';
             $request->request->add(array('email'=>$email));
         }
 
         $request->request->add(array('enabled'=>1));
         $request->request->add(array('base64_image'=>''));
         $request->request->add(array('default_currency'=>'EUR'));
+        $request->request->add(array('gcm_group_key'=>''));
+
         $resp= parent::createAction($request);
 
         if($resp->getStatusCode() == 201){
@@ -336,11 +354,20 @@ class AccountController extends BaseApiController{
             $em->persist($user);
             $em->flush();
 
-            $device = new Device();
-            $device->setUser($user);
-            $device->setDeviceId($device_id);
+            if( $device_id != null){
+                $device = new Device();
+                $device->setUser($user);
+                $device->setDeviceId($device_id);
+                $device->setGcmToken($gcm_token);
 
-            $em->persist($device);
+                $em->persist($device);
+            }
+
+            $btc_wallet = new BTCWallet();
+            $btc_wallet->setCypherData($cypher_wallet);
+            $btc_wallet->setUser($user);
+
+            $em->persist($btc_wallet);
             $em->flush();
 
             $response = array(

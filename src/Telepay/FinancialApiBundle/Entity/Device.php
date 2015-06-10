@@ -28,6 +28,7 @@ class Device
      * @ORM\Id
      * @ORM\Column(type="integer")
      * @ORM\GeneratedValue(strategy="AUTO")
+     * @Expose
      */
     protected $id;
 
@@ -37,10 +38,32 @@ class Device
     private $user;
 
     /**
-     * @ORM\Column(type="string")
+     * @ORM\Column(type="string", unique=true)
      * @Expose
      */
     private $device_id;
+
+    /**
+     * @ORM\Column(type="string")
+     * @Expose
+     */
+    private $label;
+
+    /**
+     * @ORM\Column(type="string")
+     * @Expose
+     */
+    private $gcm_token;
+
+    /**
+     * Returns the user unique id.
+     *
+     * @return mixed
+     */
+    public function getId()
+    {
+        return $this->id;
+    }
 
     /**
      * @return mixed
@@ -72,5 +95,37 @@ class Device
     public function setDeviceId($device_id)
     {
         $this->device_id = $device_id;
+    }
+
+    /**
+     * @return mixed
+     */
+    public function getLabel()
+    {
+        return $this->label;
+    }
+
+    /**
+     * @param mixed $label
+     */
+    public function setLabel($label)
+    {
+        $this->label = $label;
+    }
+
+    /**
+     * @return mixed
+     */
+    public function getGcmToken()
+    {
+        return $this->gcm_token;
+    }
+
+    /**
+     * @param mixed $gcm_token
+     */
+    public function setGcmToken($gcm_token)
+    {
+        $this->gcm_token = $gcm_token;
     }
 }

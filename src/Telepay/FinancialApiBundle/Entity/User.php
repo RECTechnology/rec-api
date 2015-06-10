@@ -79,6 +79,18 @@ class User extends BaseUser
     private $wallets;
 
     /**
+     * @ORM\OneToOne(targetEntity="Telepay\FinancialApiBundle\Entity\BTCWallet", mappedBy="user", cascade={"remove"})
+     * @Expose
+     */
+    private $btc_wallet;
+
+    /**
+     * @ORM\OneToMany(targetEntity="Telepay\FinancialApiBundle\Entity\BTCAddresses", mappedBy="user", cascade={"remove"})
+     * @Expose
+     */
+    private $btc_addresses;
+
+    /**
      * @ORM\OneToMany(targetEntity="Telepay\FinancialApiBundle\Entity\Device", mappedBy="user", cascade={"remove"})
      * @Expose
      */
@@ -125,6 +137,12 @@ class User extends BaseUser
      * @Expose
      */
     private $phone;
+
+    /**
+     * @ORM\Column(type="string")
+     * @Expose
+     */
+    private $gcm_group_key;
 
     /**
      * @Expose
@@ -347,5 +365,54 @@ class User extends BaseUser
     {
         $this->access_secret = $access_secret;
     }
+
+    /**
+     * @return mixed
+     */
+    public function getBtcWallet()
+    {
+        return $this->btc_wallet;
+    }
+
+    /**
+     * @param mixed $btc_wallet
+     */
+    public function setBtcWallet($btc_wallet)
+    {
+        $this->btc_wallet = $btc_wallet;
+    }
+
+    /**
+     * @return mixed
+     */
+    public function getBtcAddresses()
+    {
+        return $this->btc_addresses;
+    }
+
+    /**
+     * @param mixed $btc_addresses
+     */
+    public function setBtcAddresses($btc_addresses)
+    {
+        $this->btc_addresses = $btc_addresses;
+    }
+
+    /**
+     * @return mixed
+     */
+    public function getGcmGroupKey()
+    {
+        return $this->gcm_group_key;
+    }
+
+    /**
+     * @param mixed $gcm_group_key
+     */
+    public function setGcmGroupKey($gcm_group_key)
+    {
+        $this->gcm_group_key = $gcm_group_key;
+    }
+
 
 }
