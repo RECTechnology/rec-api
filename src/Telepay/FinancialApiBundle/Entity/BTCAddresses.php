@@ -21,7 +21,7 @@ use Doctrine\ORM\Mapping as ORM;
  * @ORM\Entity
  * @ExclusionPolicy("all")
  */
-class BTCAddresses extends AbstractWallet implements ExternallyDrived {
+class BTCAddresses {
 
 
     public function receive($amount)
@@ -53,6 +53,13 @@ class BTCAddresses extends AbstractWallet implements ExternallyDrived {
     {
         return 'net.telepay.provider.btc';
     }
+
+    /**
+     * @ORM\Id
+     * @ORM\Column(type="integer")
+     * @ORM\GeneratedValue(strategy="AUTO")
+     */
+    protected $id;
 
     /**
      * @ORM\Column(type="string", unique=true)

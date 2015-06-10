@@ -32,11 +32,11 @@ class AccountController extends BaseApiController{
      */
     public function read(Request $request){
         $user = $this->get('security.context')->getToken()->getUser();
-        //$user->setAllowedServices(
-        //    $this->get('net.telepay.service_provider')->findByRoles($user->getRoles())
-        //);
+        $user->setAllowedServices(
+            $this->get('net.telepay.service_provider')->findByRoles($user->getRoles())
+        );
         //die(print_r($user->getLimitCount()[0]->getUser(), true));
-        return $this->restV2(200, "ok", "OLE", $user->getLimitCount()[0]);
+        //return $this->restV2(200, "ok", "OLE", $user->getLimitCount()[0]);
 
 
         return $this->restV2(200, "ok", "Account info got successfully", $user);
