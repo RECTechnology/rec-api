@@ -28,6 +28,11 @@ class User extends BaseUser
     {
         parent::__construct();
         $this->groups = new ArrayCollection();
+        $this->limit_counts = new ArrayCollection();
+        $this->wallets = new ArrayCollection();
+        $this->btc_addresses = new ArrayCollection();
+        $this->devices = new ArrayCollection();
+
         if($this->access_key == null){
             $generator = new SecureRandom();
             $this->access_key=sha1($generator->nextBytes(32));
@@ -70,7 +75,7 @@ class User extends BaseUser
      * @ORM\OneToMany(targetEntity="Telepay\FinancialApiBundle\Entity\LimitCount", mappedBy="user", cascade={"remove"})
      * @Expose
      */
-    private $limit_count;
+    private $limit_counts;
 
     /**
      * @ORM\OneToMany(targetEntity="Telepay\FinancialApiBundle\Entity\UserWallet", mappedBy="user", cascade={"remove"})
@@ -94,7 +99,7 @@ class User extends BaseUser
      * @ORM\OneToMany(targetEntity="Telepay\FinancialApiBundle\Entity\Device", mappedBy="user", cascade={"remove"})
      * @Expose
      */
-    private $device;
+    private $devices;
 
     /**
      * @ORM\Column(type="string")
@@ -259,7 +264,7 @@ class User extends BaseUser
      */
     public function getLimitCount()
     {
-        return $this->limit_count;
+        return $this->limit_counts;
     }
 
     /**
@@ -337,17 +342,9 @@ class User extends BaseUser
     /**
      * @return mixed
      */
-    public function getDevice()
+    public function getDevices()
     {
-        return $this->device;
-    }
-
-    /**
-     * @param mixed $device
-     */
-    public function setDevice($device)
-    {
-        $this->device = $device;
+        return $this->devices;
     }
 
     /**

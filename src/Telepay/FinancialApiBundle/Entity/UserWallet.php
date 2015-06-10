@@ -7,7 +7,6 @@
  */
 
 namespace Telepay\FinancialApiBundle\Entity;
-use Symfony\Component\HttpKernel\Exception\HttpException;
 use Doctrine\ORM\Mapping as ORM;
 
 
@@ -15,27 +14,6 @@ use Doctrine\ORM\Mapping as ORM;
  * @ORM\Entity
  */
 class UserWallet {
-
-    public function send($amount)
-    {
-        // TODO: Implement send() method.
-    }
-
-    public function getAmount()
-    {
-        // TODO: Implement getAmount() method.
-    }
-
-    public function getAvailable()
-    {
-        return $this->available;
-    }
-
-    public function getCurrency()
-    {
-        return $this->currency;
-    }
-
     /**
      * @ORM\Id
      * @ORM\Column(type="integer")
@@ -58,8 +36,23 @@ class UserWallet {
      */
     private $balance;
 
-
     private $scale;
+
+    /**
+     * @ORM\ManyToOne(targetEntity="Telepay\FinancialApiBundle\Entity\User")
+     */
+    private $user;
+
+
+    public function getAvailable()
+    {
+        return $this->available;
+    }
+
+    public function getCurrency()
+    {
+        return $this->currency;
+    }
 
     /**
      * @return mixed
