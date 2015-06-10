@@ -27,11 +27,24 @@ class RestApiController extends FosRestController{
     }
 
     protected function restV3($httpCode, $status, $message = "No info", $id, $amount, $scale, $currency, $updated, $data = array()){
-        return $this->handleView($this->view(new ApiResponseV3($status, $message, $id, $amount, $scale, $currency , $updated, $data), $httpCode));
+        return $this->handleView($this->view(
+            new ApiResponseV3($status, $message, $id, $amount, $scale, $currency , $updated, $data),
+            $httpCode
+        ));
     }
 
     protected function restTransaction(Transaction $transaction, $message = "No info"){
-        return $this->restV3(200, $transaction->getStatus(), $message, $transaction->getId(), $transaction->getAmount(), $transaction->getScale(), $transaction->getCurrency(), $transaction->getUpdated(), $transaction->getDataOut());
+        return $this->restV3(
+            200,
+            $transaction->getStatus(),
+            $message,
+            $transaction->getId(),
+            $transaction->getAmount(),
+            $transaction->getScale(),
+            $transaction->getCurrency(),
+            $transaction->getUpdated(),
+            $transaction->getDataOut()
+        );
     }
 
 }

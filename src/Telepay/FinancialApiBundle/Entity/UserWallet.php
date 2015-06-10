@@ -14,13 +14,7 @@ use Doctrine\ORM\Mapping as ORM;
 /**
  * @ORM\Entity
  */
-class UserWallet implements ExternallyDrived {
-
-
-    public function receive($amount)
-    {
-        throw new HttpException(501, "Method receive not implemented");
-    }
+class UserWallet {
 
     public function send($amount)
     {
@@ -40,11 +34,6 @@ class UserWallet implements ExternallyDrived {
     public function getCurrency()
     {
         return $this->currency;
-    }
-
-    public function getDriverName()
-    {
-        return 'net.telepay.provider.btc';
     }
 
     /**
