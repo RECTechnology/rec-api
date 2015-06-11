@@ -9,6 +9,7 @@
 
 namespace Telepay\FinancialApiBundle\Controller\Management\User;
 
+use FOS\OAuthServerBundle\Document\RefreshToken;
 use Symfony\Component\Security\Core\Util\SecureRandom;
 use Telepay\FinancialApiBundle\Entity\BTCWallet;
 use Telepay\FinancialApiBundle\Entity\Device;
@@ -247,11 +248,6 @@ class AccountController extends BaseApiController{
      */
     public function registerAction(Request $request){
 
-        //cypher_wallet is mandatory
-        if(!$request->request->has('cypher_wallet')) throw new HttpException(400, "Paramter cypher_wallet is missing.");
-        $cypher_wallet = $request->request->get('cypher_wallet');
-        $request->request->remove('cypher_wallet');
-
         //device_id is optional
         $device_id = null;
         $gcm_token = null;
@@ -359,17 +355,19 @@ class AccountController extends BaseApiController{
                 $em->persist($device);
             }
 
-            $btc_wallet = new BTCWallet();
-            $btc_wallet->setCypherData($cypher_wallet);
-            $btc_wallet->setUser($user);
+            
+            $em->persist($user);
 
-            $em->persist($btc_wallet);
             $em->flush();
+
+            //TODO conseguir el refresh_token
+
+
 
             $response = array(
                 'id'        =>  $user_id,
                 'username'  =>  $username,
-                'password'  =>  $password
+                'refresh_token'  =>  $user->getRefreshToken()
             );
 
             return $this->restV2(201,"ok", "Request successful", $response);
