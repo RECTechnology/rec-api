@@ -27,7 +27,7 @@ class ExchangePriceCommand extends ContainerAwareCommand
         foreach(Currency::$ALL as $inputCurrency){
             foreach(Currency::$ALL as $outputCurrency){
                 if($inputCurrency !== $outputCurrency){
-                    $providerName = 'net.telepay.exchange.' . $inputCurrency . 'x' . $outputCurrency;
+                    $providerName = 'net.telepay.ticker.' . $inputCurrency . 'x' . $outputCurrency;
                     try {
                         $provider = $this->getContainer()->get($providerName);
                         if($provider->getInCurrency() === $inputCurrency && $provider->getInCurrency() === $inputCurrency) {
