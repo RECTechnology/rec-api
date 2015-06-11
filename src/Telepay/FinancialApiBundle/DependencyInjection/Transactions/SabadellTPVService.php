@@ -18,8 +18,8 @@ class SabadellTPVService extends BaseService{
 
     private $sabadellProvider;
 
-    public function __construct($name, $cname, $role, $cash_direction, $currency, $base64Image, $sabadellProvider, $transactionContext){
-        parent::__construct($name, $cname, $role, $cash_direction, $currency, $base64Image, $transactionContext);
+    public function __construct($name, $cname, $role, $cash_direction, $currency, $base64Image, $sabadellProvider, $container){
+        parent::__construct($name, $cname, $role, $cash_direction, $currency, $base64Image, $container);
         $this->sabadellProvider = $sabadellProvider;
     }
 
@@ -37,12 +37,10 @@ class SabadellTPVService extends BaseService{
         $url_ok = $baseTransaction->getDataIn()['url_ok'];
         $url_ko = $baseTransaction->getDataIn()['url_ko'];
         $id=$baseTransaction->getId();
-        $request=$this->getTransactionContext()->getRequestStack()->getCurrentRequest();
-        $url_base=$request->getSchemeAndHttpHost().$request->getBaseUrl();
 
         $url_final='/notifications/v2/sabadell/'.$id;
 
-        $sabadell = $this->sabadellProvider->request($amount,$id,$description,$url_base,$url_ok,$url_ko,$url_final);
+        $sabadell = $this->sabadellProvider->request($amount, $id,$description, $url_ok, $url_ko, $url_final);
 
         if($sabadell === false)
             throw new HttpException(503, "Service temporarily unavailable, please try again in a few minutes");
@@ -131,14 +129,6 @@ class SabadellTPVService extends BaseService{
 
         if($notification){
 
-            $data = $transaction->getDataIn();
-            $redirect = $data['url_notification'];
-
-            $fields=array(
-                'telepay_id'    =>  $transaction->getId(),
-                'status'        =>  $notification
-            );
-
             if($notification == 1){
                 $transaction->setStatus(Transaction::$STATUS_SUCCESS);
                 $transaction->setDebugData($request);
@@ -146,20 +136,6 @@ class SabadellTPVService extends BaseService{
                 $transaction->setStatus(Transaction::$STATUS_CANCELLED);
                 $transaction->setDebugData($request);
             }
-
-            //notificar al usuario
-            // create curl resource
-            $ch = curl_init();
-            // set url
-            curl_setopt($ch, CURLOPT_URL, $redirect);
-            //return the transfer as a string
-            curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
-            curl_setopt($ch,CURLOPT_POST,true);
-            curl_setopt($ch,CURLOPT_POSTFIELDS,$fields);
-            // $output contains the output string
-            $output = curl_exec($ch);
-            // close curl resource to free up system resources
-            curl_close($ch);
 
         }
 

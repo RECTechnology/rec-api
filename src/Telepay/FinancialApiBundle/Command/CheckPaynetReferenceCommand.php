@@ -41,7 +41,13 @@ class CheckPaynetReferenceCommand extends ContainerAwareCommand
             $transaction_id=$res->getId();
             $resArray []= $res;
 
+            $previous_status = $res->getStatus();
             $check=$this->check($res);
+
+            if($previous_status != $check->getStatus()){
+                $check = $this->getContainer()->get('notificator')->notificate($check);
+            }
+
             $dm->flush();
             if($check->getStatus()=='success'){
                 //hacemos el reparto
@@ -64,10 +70,10 @@ class CheckPaynetReferenceCommand extends ContainerAwareCommand
 
                 if(!$user->hasRole('ROLE_SUPER_ADMIN')){
 
-                    $fixed_fee=$check->getFixedFee();
-                    $variable_fee=$check->getVariableFee()*$amount;
-                    $total_fee=$fixed_fee+$variable_fee;
-                    $total=$amount-$total_fee;
+                    $fixed_fee = $check->getFixedFee();
+                    $variable_fee = $check->getVariableFee();
+                    $total_fee = $fixed_fee + $variable_fee;
+                    $total = $amount - $total_fee;
 
                     $current_wallet->setAvailable($current_wallet->getAvailable()+$total);
                     $current_wallet->setBalance($current_wallet->getBalance()+$total);
@@ -81,10 +87,8 @@ class CheckPaynetReferenceCommand extends ContainerAwareCommand
                         $feeTransaction->setStatus('success');
                         $feeTransaction->setScale($check->getScale());
                         $feeTransaction->setAmount($total_fee);
-                        $feeTransaction->setUser($user);
+                        $feeTransaction->setUser($id);
                         $feeTransaction->setCreated(new \MongoDate());
-                        $feeTransaction->setTimeOut(new \MongoDate());
-                        $feeTransaction->setTimeIn(new \MongoDate());
                         $feeTransaction->setUpdated(new \MongoDate());
                         $feeTransaction->setIp($check->getIp());
                         $feeTransaction->setFixedFee($fixed_fee);
@@ -129,23 +133,23 @@ class CheckPaynetReferenceCommand extends ContainerAwareCommand
 
     public function check(Transaction $transaction){
 
-        if($transaction->getStatus() === 'created' && $this->hasExpired($transaction))
+        if($transaction->getStatus() === 'created' && $this->hasExpired($transaction)){
             $transaction->setStatus('expired');
+        }
 
         if($transaction->getStatus() === 'success' || $transaction->getStatus() === 'expired')
             return $transaction;
 
-        $data=$transaction->getData();
-        $client_reference=$data['id_paynet'];
+        $data = $transaction->getData();
+        $client_reference = $data['id_paynet'];
 
-        $status=$this->getContainer()->get('net.telepay.provider.paynet_reference')->status($client_reference);
+        $status = $this->getContainer()->get('net.telepay.provider.paynet_reference')->status($client_reference);
 
         if(isset($status['status_description'])){
             $status_description = $status['status_description'];
         }else{
             $status_description = 'Cancelled';
         }
-
 
         if($status['error_code']==0){
             switch($status_description){
@@ -174,6 +178,7 @@ class CheckPaynetReferenceCommand extends ContainerAwareCommand
         }
         return $transaction;
     }
+
     private function hasExpired($transaction){
         if(isset($transaction->getDataOut()['expiration_date'])){
             return strtotime($transaction->getDataOut()['expiration_date']) < time();

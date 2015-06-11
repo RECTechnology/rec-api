@@ -16,4 +16,13 @@ class Currency {
     public static $MXN = "MXN";
     public static $PLN = "PLN";
     public static $LISTA = array("BTC","EUR","USD","FAC","MXN","PLN");
+    public static $ALL = array("BTC","EUR","USD","FAC","MXN","PLN");
+    public static $SCALE = array(
+        "BTC" => 8,
+        "EUR" => 2,
+        "USD" => 2,
+        "FAC" => 8,
+        "MXN" => 2,
+        "PLN" => 2
+    );
 }

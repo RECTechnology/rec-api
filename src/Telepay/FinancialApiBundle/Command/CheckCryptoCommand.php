@@ -69,13 +69,16 @@ class CheckCryptoCommand extends ContainerAwareCommand
                         if(!$user->hasRole('ROLE_SUPER_ADMIN')){
                             $group=$user->getGroups()[0];
 
-                            $fixed_fee=$check->getFixedFee();
-                            $variable_fee=$check->getVariableFee();
-                            $total_fee=$fixed_fee+$variable_fee;
-                            $total=$amount-$total_fee;
+                            $fixed_fee = $check->getFixedFee();
+                            $variable_fee = $check->getVariableFee();
+                            $total_fee = $fixed_fee + $variable_fee;
+                            $total = $amount - $total_fee;
 
                             $current_wallet->setAvailable($current_wallet->getAvailable()+$total);
                             $current_wallet->setBalance($current_wallet->getBalance()+$total);
+
+                            $em->persist($current_wallet);
+                            $em->flush();
 
                             if($total_fee != 0){
                                 // restar las comisiones
@@ -85,8 +88,6 @@ class CheckCryptoCommand extends ContainerAwareCommand
                                 $feeTransaction->setAmount($total_fee);
                                 $feeTransaction->setUser($user->getId());
                                 $feeTransaction->setCreated(new \MongoDate());
-                                $feeTransaction->setTimeOut(new \MongoDate());
-                                $feeTransaction->setTimeIn(new \MongoDate());
                                 $feeTransaction->setUpdated(new \MongoDate());
                                 $feeTransaction->setIp($check->getIp());
                                 $feeTransaction->setFixedFee($fixed_fee);
@@ -142,8 +143,9 @@ class CheckCryptoCommand extends ContainerAwareCommand
 
         $currentData = $transaction->getData();
 
-        if($transaction->getStatus() === 'success' || $transaction->getStatus() === 'expired')
+        if($transaction->getStatus() === 'success' || $transaction->getStatus() === 'expired'){
             return $transaction;
+        }
 
         $address = $currentData['address'];
         $amount = $currentData['amount'];
@@ -162,33 +164,45 @@ class CheckCryptoCommand extends ContainerAwareCommand
             $margin = 100;
 
         $allowed_amount = $amount - $margin;
-
         foreach($allReceived as $cryptoData){
             if($cryptoData['address'] === $address){
                 $currentData['received'] = doubleval($cryptoData['amount'])*1e8; //doubleval($cryptoData['amount'])*1e8;
                 if(doubleval($cryptoData['amount'])*1e8 >= $allowed_amount){
                     $currentData['confirmations'] = $cryptoData['confirmations'];
-                    if($currentData['confirmations'] >= $currentData['min_confirmations'])
+                    if($currentData['confirmations'] >= $currentData['min_confirmations']){
                         $transaction->setStatus("success");
-                    else
-                        $transaction->setStatus("received");
+                        $transaction->setUpdated(new \MongoDate());
+                        $transaction = $this->getContainer()->get('notificator')->notificate($transaction);
+                    }else{
+                        if($transaction->getStatus() != 'received'){
+                            $transaction->setStatus("received");
+                            $transaction->setUpdated(new \MongoDate());
+                            $transaction = $this->getContainer()->get('notificator')->notificate($transaction);
+                        }
+                    }
 
-                    $transaction->setUpdated(new \MongoDate());
                     $transaction->setData($currentData);
                     $transaction->setDataOut($currentData);
+
                     return $transaction;
                 }
+
 
             }
 
         }
 
-        if($transaction->getStatus() === 'created' && $this->hasExpired($transaction))
+        if($transaction->getStatus() === 'created' && $this->hasExpired($transaction)){
             $transaction->setStatus('expired');
+            $transaction = $this->getContainer()->get('notificator')->notificate($transaction);
+        }
 
         return $transaction;
     }
+
     private function hasExpired($transaction){
-        return $transaction->getTimeIn()->getTimestamp()+$transaction->getData()['expires_in'] < time();
+
+        return $transaction->getCreated()->getTimestamp()+$transaction->getData()['expires_in'] < time();
+
     }
 }

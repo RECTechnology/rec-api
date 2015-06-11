@@ -9,12 +9,21 @@
 
 namespace Telepay\FinancialApiBundle\Controller\Management\User;
 
-use Proxies\__CG__\Telepay\FinancialApiBundle\Entity\User;
+use Symfony\Component\Security\Core\Util\SecureRandom;
+use Telepay\FinancialApiBundle\Entity\BTCWallet;
+use Telepay\FinancialApiBundle\Entity\Device;
+use Telepay\FinancialApiBundle\Entity\Group;
+use Telepay\FinancialApiBundle\Entity\LimitDefinition;
+use Telepay\FinancialApiBundle\Entity\ServiceFee;
+use Telepay\FinancialApiBundle\Entity\User;
+use Rhumsaa\Uuid\Uuid;
 use Symfony\Component\HttpKernel\Exception\HttpException;
 use Telepay\FinancialApiBundle\Controller\BaseApiController;
 use Telepay\FinancialApiBundle\Controller\RestApiController;
 use FOS\RestBundle\Controller\Annotations as Rest;
 use Symfony\Component\HttpFoundation\Request;
+use Telepay\FinancialApiBundle\Entity\UserWallet;
+use Telepay\FinancialApiBundle\Financial\Currency;
 
 class AccountController extends BaseApiController{
 
@@ -22,12 +31,15 @@ class AccountController extends BaseApiController{
      * @Rest\View
      */
     public function read(Request $request){
-        //die(print_r(get_class($this->get('security.token_storage')->getToken()), true));
         $user = $this->get('security.context')->getToken()->getUser();
         $user->setAllowedServices(
             $this->get('net.telepay.service_provider')->findByRoles($user->getRoles())
         );
-        return $this->restV2(200,"ok", "Account info got successfully", $user);
+        //die(print_r($user->getLimitCount()[0]->getUser(), true));
+        //return $this->restV2(200, "ok", "OLE", $user->getLimitCount()[0]);
+
+
+        return $this->restV2(200, "ok", "Account info got successfully", $user);
     }
 
     /**
@@ -232,4 +244,166 @@ class AccountController extends BaseApiController{
     {
         return new User();
     }
+
+    /**
+     * @Rest\View
+     */
+    public function registerAction(Request $request){
+
+        //cypher_wallet is mandatory
+        if(!$request->request->has('cypher_wallet')) throw new HttpException(400, "Paramter cypher_wallet is missing.");
+        $cypher_wallet = $request->request->get('cypher_wallet');
+        $request->request->remove('cypher_wallet');
+
+        //device_id is optional
+        $device_id = null;
+        $gcm_token = null;
+        if($request->request->has('device_id')){
+            if(!$request->request->has('gcm_token')) throw new HttpException(400, 'Missing parameter gcm_token');
+            $gcm_token = $request->request->get(('gcm_token'));
+            $device_id = $request->request->get('device_id');
+            $request->request->remove('device_id');
+            $request->request->remove('gcm_token');
+        }
+
+        //password is optional
+        if(!$request->request->has('password')){
+            //nos lo inventamos
+            $password = Uuid::uuid1()->toString();
+            $request->request->add(array('plain_password'=>$password));
+
+        }else{
+            if(!$request->request->has('repassword')){
+                throw new HttpException(400, "Missing parameter 'repassword'");
+            }else{
+                $password = $request->get('password');
+                $repassword = $request->get('repassword');
+                if($password!=$repassword) throw new HttpException(400, "Password and repassword are differents.");
+                $request->request->remove('password');
+                $request->request->remove('repassword');
+                $request->request->add(array('plain_password'=>$password));
+            }
+
+        }
+
+        $fake = Uuid::uuid1()->toString();
+        //username fake
+        if(!$request->request->has('username')){
+            //invent the username
+            $username = $fake;
+            $request->request->add(array('username'=>$fake));
+        }else{
+            $username = $request->get('username');
+        }
+
+        //name fake
+        if(!$request->request->has('name')){
+            //invent the name
+            $request->request->add(array('name'=>$fake));
+        }
+
+        if(!$request->request->has('phone')){
+            $request->request->add(array('phone'=>''));
+            $request->request->add(array('prefix'=>''));
+        }else{
+            if(!$request->request->has('prefix')){
+                throw new HttpException(400, "Missing parameter 'prefix'");
+            }
+        }
+
+        if(!$request->request->has('email')){
+            $email = $fake.'@default.com';
+            $request->request->add(array('email'=>$email));
+        }
+
+        $request->request->add(array('enabled'=>1));
+        $request->request->add(array('base64_image'=>''));
+        $request->request->add(array('default_currency'=>'EUR'));
+        $request->request->add(array('gcm_group_key'=>''));
+
+        $resp= parent::createAction($request);
+
+        if($resp->getStatusCode() == 201){
+            $em=$this->getDoctrine()->getManager();
+
+            $groupsRepo = $em->getRepository("TelepayFinancialApiBundle:Group");
+            $group = $groupsRepo->findOneBy(array('name' => 'Level0'));
+            if(!$group) throw new HttpException(404,'Group Level0 not found');
+
+            $usersRepo = $em->getRepository("TelepayFinancialApiBundle:User");
+            $data = $resp->getContent();
+            $data = json_decode($data);
+            $data = $data->data;
+            $user_id=$data->id;
+
+            $user = $usersRepo->findOneBy(array('id'=>$user_id));
+
+            $currencies=Currency::$LISTA;
+
+            foreach($currencies as $currency){
+                $user_wallet = new UserWallet();
+                $user_wallet->setBalance(0);
+                $user_wallet->setAvailable(0);
+                $user_wallet->setCurrency($currency);
+                $user_wallet->setUser($user);
+                $em->persist($user_wallet);
+            }
+
+            $user->addGroup($group);
+
+            $em->persist($user);
+            $em->flush();
+
+            if( $device_id != null){
+                $device = new Device();
+                $device->setUser($user);
+                $device->setDeviceId($device_id);
+                $device->setGcmToken($gcm_token);
+
+                $em->persist($device);
+            }
+
+            $btc_wallet = new BTCWallet();
+            $btc_wallet->setCypherData($cypher_wallet);
+            $btc_wallet->setUser($user);
+
+            $em->persist($btc_wallet);
+            $em->flush();
+
+            $response = array(
+                'id'        =>  $user_id,
+                'username'  =>  $username,
+                'password'  =>  $password
+            );
+
+            return $this->restV2(201,"ok", "Request successful", $response);
+        }else{
+
+            return $resp;
+        }
+
+    }
+
+    /**
+     * @Rest\View
+     */
+    public function resetCredentials(Request $request){
+
+        $user = $this->get('security.context')->getToken()->getUser();
+
+        $generator = new SecureRandom();
+        $access_key=sha1($generator->nextBytes(32));
+        $access_secret=base64_encode($generator->nextBytes(32));
+
+        $user->setAccessSecret($access_secret);
+        $user->setAccessKey($access_key);
+
+        $em = $this->getDoctrine()->getManager();
+        $em->persist($user);
+        $em->flush();
+
+        return $this->restV2(204,"ok", "Updated successfully");
+
+    }
+
 }

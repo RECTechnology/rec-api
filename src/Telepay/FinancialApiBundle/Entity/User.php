@@ -28,6 +28,11 @@ class User extends BaseUser
     {
         parent::__construct();
         $this->groups = new ArrayCollection();
+        $this->limit_counts = new ArrayCollection();
+        $this->wallets = new ArrayCollection();
+        $this->btc_addresses = new ArrayCollection();
+        $this->devices = new ArrayCollection();
+
         if($this->access_key == null){
             $generator = new SecureRandom();
             $this->access_key=sha1($generator->nextBytes(32));
@@ -50,7 +55,6 @@ class User extends BaseUser
      */
     protected $groups;
 
-
     /**
      * @ORM\OneToMany(targetEntity="Telepay\FinancialApiBundle\Entity\AccessToken", mappedBy="user", cascade={"remove"})
      *
@@ -71,13 +75,31 @@ class User extends BaseUser
      * @ORM\OneToMany(targetEntity="Telepay\FinancialApiBundle\Entity\LimitCount", mappedBy="user", cascade={"remove"})
      * @Expose
      */
-    private $limit_count;
+    private $limit_counts;
 
     /**
      * @ORM\OneToMany(targetEntity="Telepay\FinancialApiBundle\Entity\UserWallet", mappedBy="user", cascade={"remove"})
      * @Expose
      */
     private $wallets;
+
+    /**
+     * @ORM\OneToOne(targetEntity="Telepay\FinancialApiBundle\Entity\BTCWallet", mappedBy="user", cascade={"remove"})
+     * @Expose
+     */
+    private $btc_wallet;
+
+    /**
+     * @ORM\OneToMany(targetEntity="Telepay\FinancialApiBundle\Entity\BTCAddresses", mappedBy="user", cascade={"remove"})
+     * @Expose
+     */
+    private $btc_addresses;
+
+    /**
+     * @ORM\OneToMany(targetEntity="Telepay\FinancialApiBundle\Entity\Device", mappedBy="user", cascade={"remove"})
+     * @Expose
+     */
+    private $devices;
 
     /**
      * @ORM\Column(type="string")
@@ -108,6 +130,24 @@ class User extends BaseUser
      * @Expose
      */
     private $default_currency;
+
+    /**
+     * @ORM\Column(type="integer")
+     * @Expose
+     */
+    private $prefix;
+
+    /**
+     * @ORM\Column(type="string")
+     * @Expose
+     */
+    private $phone;
+
+    /**
+     * @ORM\Column(type="string")
+     * @Expose
+     */
+    private $gcm_group_key;
 
     /**
      * @Expose
@@ -224,7 +264,7 @@ class User extends BaseUser
      */
     public function getLimitCount()
     {
-        return $this->limit_count;
+        return $this->limit_counts;
     }
 
     /**
@@ -266,5 +306,110 @@ class User extends BaseUser
     {
         $this->default_currency = $default_currency;
     }
+
+    /**
+     * @return mixed
+     */
+    public function getPrefix()
+    {
+        return $this->prefix;
+    }
+
+    /**
+     * @param mixed $prefix
+     */
+    public function setPrefix($prefix)
+    {
+        $this->prefix = $prefix;
+    }
+
+    /**
+     * @return mixed
+     */
+    public function getPhone()
+    {
+        return $this->phone;
+    }
+
+    /**
+     * @param mixed $phone
+     */
+    public function setPhone($phone)
+    {
+        $this->phone = $phone;
+    }
+
+    /**
+     * @return mixed
+     */
+    public function getDevices()
+    {
+        return $this->devices;
+    }
+
+    /**
+     * @param mixed $access_key
+     */
+    public function setAccessKey($access_key)
+    {
+        $this->access_key = $access_key;
+    }
+
+    /**
+     * @param mixed $access_secret
+     */
+    public function setAccessSecret($access_secret)
+    {
+        $this->access_secret = $access_secret;
+    }
+
+    /**
+     * @return mixed
+     */
+    public function getBtcWallet()
+    {
+        return $this->btc_wallet;
+    }
+
+    /**
+     * @param mixed $btc_wallet
+     */
+    public function setBtcWallet($btc_wallet)
+    {
+        $this->btc_wallet = $btc_wallet;
+    }
+
+    /**
+     * @return mixed
+     */
+    public function getBtcAddresses()
+    {
+        return $this->btc_addresses;
+    }
+
+    /**
+     * @param mixed $btc_addresses
+     */
+    public function setBtcAddresses($btc_addresses)
+    {
+        $this->btc_addresses = $btc_addresses;
+    }
+
+    /**
+     * @return mixed
+     */
+    public function getGcmGroupKey()
+    {
+        return $this->gcm_group_key;
+    }
+
+    /**
+     * @param mixed $gcm_group_key
+     */
+    public function setGcmGroupKey($gcm_group_key)
+    {
+        $this->gcm_group_key = $gcm_group_key;
+    }
+
 
 }

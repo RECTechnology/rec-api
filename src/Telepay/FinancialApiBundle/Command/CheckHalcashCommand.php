@@ -38,14 +38,20 @@ class CheckHalcashCommand extends ContainerAwareCommand
         $resArray = [];
         foreach($qb->toArray() as $res){
             $data=$res->getDataIn();
-            $transaction_id=$res->getId();
-            $resArray []= $res;
+            $resArray [] = $res;
+
+            $previous_status = $res->getStatus();
 
             $check=$this->check($res);
+
+            if($previous_status != $check->getStatus()){
+                $check = $this->getContainer()->get('notificator')->notificate($check);
+            }
+
             $dm->flush();
+
             if($check->getStatus()=='success'){
-                //hacemos el reparto
-                //primero al user
+
                 $id=$check->getUser();
 
                 $user=$repo->find($id);
@@ -58,57 +64,20 @@ class CheckHalcashCommand extends ContainerAwareCommand
                         $current_wallet=$wallet;
                     }
                 }
-                $group=$user->getGroups()[0];
 
                 $amount=$data['amount'];
 
                 if(!$user->hasRole('ROLE_SUPER_ADMIN')){
 
-                    $fixed_fee=$check->getFixedFee();
-                    $variable_fee=$check->getVariableFee()*$amount;
-                    $total_fee=$fixed_fee+$variable_fee;
-                    $total=$amount+$total_fee;
+                    $fixed_fee = $check->getFixedFee();
+                    $variable_fee = $check->getVariableFee();
+                    $total_fee = $fixed_fee + $variable_fee;
+                    $total = $amount + $total_fee;
 
                     $current_wallet->setBalance($current_wallet->getBalance()-$total);
 
                     $em->persist($current_wallet);
                     $em->flush();
-
-                    if($total_fee != 0){
-                        // restar las comisiones
-                        $feeTransaction=new Transaction();
-                        $feeTransaction->setStatus('success');
-                        $feeTransaction->setScale($check->getScale());
-                        $feeTransaction->setAmount($total_fee);
-                        $feeTransaction->setUser($id);
-                        $feeTransaction->setCreated(new \MongoDate());
-                        $feeTransaction->setTimeOut(new \MongoDate());
-                        $feeTransaction->setTimeIn(new \MongoDate());
-                        $feeTransaction->setUpdated(new \MongoDate());
-                        $feeTransaction->setIp($check->getIp());
-                        $feeTransaction->setFixedFee($fixed_fee);
-                        $feeTransaction->setVariableFee($variable_fee);
-                        $feeTransaction->setVersion($check->getVersion());
-                        $feeTransaction->setDataIn(array(
-                            'previous_transaction'  =>  $check->getId()
-                        ));
-                        $feeTransaction->setDebugData(array(
-                            'previous_balance'  =>  $current_wallet->getBalance(),
-                            'previous_transaction'  =>  $check->getId()
-                        ));
-                        $feeTransaction->setTotal($total_fee*-1);
-                        $feeTransaction->setCurrency($check->getCurrency());
-                        $feeTransaction->setService($service_cname);
-
-                        $dm->persist($feeTransaction);
-                        $dm->flush();
-
-                        $creator=$group->getCreator();
-
-                        //luego a la ruleta de admins
-                        $dealer=$this->getContainer()->get('net.telepay.commons.fee_deal');
-                        $dealer->deal($creator,$amount,$service_cname,$service_currency,$total_fee,$transaction_id,$check->getVersion());
-                    }
 
                 }else{
                     $current_wallet->setBalance($current_wallet->getBalance()-$amount);

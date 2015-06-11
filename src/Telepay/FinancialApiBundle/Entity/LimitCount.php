@@ -65,6 +65,18 @@ class LimitCount implements Limit {
      */
     private $cname;
 
+    public static function createFromController($service_cname, User $user){
+        $limit = new LimitCount();
+        $limit->setUser($user);
+        $limit->setCname($service_cname);
+        $limit->setSingle(0);
+        $limit->setDay(0);
+        $limit->setWeek(0);
+        $limit->setMonth(0);
+        $limit->setYear(0);
+        $limit->setTotal(0);
+        return $limit;
+    }
 
     /**
      * @return mixed

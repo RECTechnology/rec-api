@@ -7,6 +7,7 @@ use Exception;
 use Symfony\Component\HttpKernel\Exception\HttpException;
 use Telepay\FinancialApiBundle\Controller\BaseApiController;
 use Telepay\FinancialApiBundle\DependencyInjection\ServicesRepository;
+use Telepay\FinancialApiBundle\Document\Transaction;
 use Telepay\FinancialApiBundle\Entity\AccessToken;
 use Telepay\FinancialApiBundle\Entity\Group;
 use Telepay\FinancialApiBundle\Entity\LimitCount;
@@ -124,10 +125,14 @@ class UsersController extends BaseApiController
         if($password!=$repassword) throw new HttpException(400, "Password and repassword are differents.");
         $request->request->remove('password');
         $request->request->remove('repassword');
+        if(!$request->request->has('phone')) $request->request->add(array('phone'=>''));
+        if(!$request->request->has('prefix')) $request->request->add(array('prefix'=>''));
         $request->request->add(array('plain_password'=>$password));
         $request->request->add(array('enabled'=>1));
         $request->request->add(array('base64_image'=>''));
         $request->request->add(array('default_currency'=>'EUR'));
+        $request->request->add(array('gcm_group_key'=>''));
+
         $resp= parent::createAction($request);
 
         if($resp->getStatusCode() == 201){
@@ -481,6 +486,32 @@ class UsersController extends BaseApiController
 
                 $wallet->setAvailable( $wallet->getAvailable() + $amount );
                 $wallet->setBalance( $wallet->getBalance() + $amount );
+
+                //create transaction
+                $transaction = new Transaction();
+                $transaction->setStatus('success');
+                $transaction->setScale($wallet->getScale());
+                $transaction->setCurrency($wallet->getCurrency());
+                $transaction->setIp('');
+                $transaction->setVersion('');
+                $transaction->setService('cash_in');
+                $transaction->setVariableFee(0);
+                $transaction->setFixedFee(0);
+                $transaction->setAmount($amount);
+                $transaction->setTotal($amount);
+                $transaction->setNotified(true);
+                $transaction->setCreated(new \MongoDate());
+                $transaction->setUpdated(new \MongoDate());
+                $transaction->setUser($user_id);
+                $transaction->setDataIn(array(
+                    'currency'  =>  $currency,
+                    'amount'    =>  $amount,
+                    'user_id'   =>  $user_id
+                ));
+
+                $dm = $this->get('doctrine_mongodb')->getmanager();
+                $dm->persist($transaction);
+                $dm->flush();
 
                 $find_wallet = 1;
                 $em->persist($wallet);

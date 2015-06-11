@@ -81,7 +81,6 @@ class ServicesPayuPaymentController extends FosRestController
         //Guardamos la request en mongo
         $transaction = new Transaction();
         $transaction->setIp($request->getClientIp());
-        $transaction->setTimeIn(time());
         $transaction->setService($this->get('telepay.services')->findByName('PayU')->getId());
         $transaction->setUser($this->get('security.context')->getToken()->getUser()->getId());
         $transaction->setSentData(json_encode($paramsMongo));
@@ -118,7 +117,6 @@ class ServicesPayuPaymentController extends FosRestController
         //Guardamos la respuesta
         $transaction->setReceivedData(json_encode($datos));
         $dm = $this->get('doctrine_mongodb')->getManager();
-        $transaction->setTimeOut(time());
         $transaction->setCompleted(true);
 
         $dm->persist($transaction);
@@ -203,7 +201,6 @@ class ServicesPayuPaymentController extends FosRestController
         //Save the request in Mongo
         $transaction = new Transaction();
         $transaction->setIp($request->getClientIp());
-        $transaction->setTimeIn(time());
         $transaction->setService($this->get('telepay.services')->findByName('PayU')->getId());
         $transaction->setUser($this->get('security.context')->getToken()->getUser()->getId());
         $transaction->setSentData(json_encode($paramsMongo));
@@ -240,7 +237,6 @@ class ServicesPayuPaymentController extends FosRestController
         //Guardamos la respuesta
         $transaction->setReceivedData(json_encode($datos));
         $dm = $this->get('doctrine_mongodb')->getManager();
-        $transaction->setTimeOut(time());
         $transaction->setCompleted(true);
 
         $dm->persist($transaction);
@@ -305,7 +301,6 @@ class ServicesPayuPaymentController extends FosRestController
         //Guardamos la request en mongo
         $transaction = new Transaction();
         $transaction->setIp($request->getClientIp());
-        $transaction->setTimeIn(time());
         $transaction->setService($this->get('telepay.services')->findByName('PayU')->getId());
         $transaction->setUser($this->get('security.context')->getToken()->getUser()->getId());
         $transaction->setSentData(json_encode($paramsMongo));
@@ -390,7 +385,6 @@ class ServicesPayuPaymentController extends FosRestController
         //Guardamos la respuesta
         $transaction->setReceivedData(json_encode($datos));
         $dm = $this->get('doctrine_mongodb')->getManager();
-        $transaction->setTimeOut(time());
         $transaction->setCompleted(true);
 
         $dm->persist($transaction);

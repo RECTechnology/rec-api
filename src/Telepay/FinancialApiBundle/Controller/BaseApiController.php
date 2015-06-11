@@ -81,7 +81,6 @@ abstract class BaseApiController extends RestApiController implements Repository
             }
         }
 
-
         $em = $this->getDoctrine()->getManager();
         $em->persist($entity);
         try{

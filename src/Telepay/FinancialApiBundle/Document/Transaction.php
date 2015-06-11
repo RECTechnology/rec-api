@@ -9,6 +9,7 @@
 namespace Telepay\FinancialApiBundle\Document;
 
 use Doctrine\ODM\MongoDB\Mapping\Annotations as MongoDB;
+use Symfony\Component\HttpFoundation\Request;
 use Telepay\FinancialApiBundle\DependencyInjection\Telepay\Interfaces\TransactionTiming;
 use Telepay\FinancialApiBundle\DependencyInjection\Transactions\Core\TransactionContext;
 use Telepay\FinancialApiBundle\DependencyInjection\Transactions\Core\TransactionContextInterface;
@@ -92,17 +93,17 @@ class Transaction implements TransactionTiming {
     private $updated;
 
     public function __construct(){
-        $this->created=new \MongoDate();
-        $this->updated=new \MongoDate();
+        $this->created=new \DateTime();
+        $this->updated=new \DateTime();
     }
 
-    public static function createFromContext(TransactionContextInterface $context){
+    public static function createFromRequest(Request $request){
         $transaction = new Transaction();
-        $transaction->setIp($context->getRequestStack()->getCurrentRequest()->getClientIp());
-        $transaction->setTimeIn(new \MongoDate());
-        $transaction->setUser($context->getUser()->getId());
-        $transaction->setDataIn($context->getRequestStack()->getCurrentRequest());
+        $transaction->setIp($request->getClientIp());
         $transaction->setStatus(Transaction::$STATUS_CREATED);
+        $transaction->setNotificationTries(0);
+        $transaction->setMaxNotificationTries(3);
+        $transaction->setNotified(false);
         return $transaction;
     }
 
@@ -112,7 +113,6 @@ class Transaction implements TransactionTiming {
         $transaction->setScale($trans->getScale());
         $transaction->setCurrency($trans->getCurrency());
         $transaction->setIp($trans->getIp());
-        $transaction->setTimeIn(new \MongoDate());
         $transaction->setVersion($trans->getVersion());
         $transaction->setService($trans->getService());
         $transaction->setVariableFee($trans->getVariableFee());
@@ -143,18 +143,6 @@ class Transaction implements TransactionTiming {
      * @MongoDB\String
      */
     private $ip;
-
-    /**
-     * @var
-     * @MongoDB\Date
-     */
-    private $timeIn;
-
-    /**
-     * @var
-     * @MongoDB\Date
-     */
-    private $timeOut;
 
     /**
      * @var
@@ -230,6 +218,24 @@ class Transaction implements TransactionTiming {
     private $scale;
 
     /**
+     * @var
+     * @MongoDB\Int
+     */
+    private $max_notification_tries;
+
+    /**
+     * @var
+     * @MongoDB\Int
+     */
+    private $notification_tries;
+
+    /**
+     * @var
+     * @MongoDB\Boolean
+     */
+    private $notified;
+
+    /**
      * Get id
      *
      * @return id $id
@@ -281,50 +287,6 @@ class Transaction implements TransactionTiming {
     public function getService()
     {
         return $this->service;
-    }
-
-    /**
-     * Set timeIn
-     *
-     * @param timestamp $timeIn
-     * @return self
-     */
-    public function setTimeIn($timeIn)
-    {
-        $this->timeIn = $timeIn;
-        return $this;
-    }
-
-    /**
-     * Get timeIn
-     *
-     * @return timestamp $timeIn
-     */
-    public function getTimeIn()
-    {
-        return $this->timeIn;
-    }
-
-    /**
-     * Set timeOut
-     *
-     * @param timestamp $timeOut
-     * @return self
-     */
-    public function setTimeOut($timeOut)
-    {
-        $this->timeOut = $timeOut;
-        return $this;
-    }
-
-    /**
-     * Get timeOut
-     *
-     * @return timestamp $timeOut
-     */
-    public function getTimeOut()
-    {
-        return $this->timeOut;
     }
 
     /**
@@ -565,5 +527,53 @@ class Transaction implements TransactionTiming {
     public function setUpdated($updated)
     {
         $this->updated = $updated;
+    }
+
+    /**
+     * @return mixed
+     */
+    public function getMaxNotificationTries()
+    {
+        return $this->max_notification_tries;
+    }
+
+    /**
+     * @param mixed $max_notification_tries
+     */
+    public function setMaxNotificationTries($max_notification_tries)
+    {
+        $this->max_notification_tries = $max_notification_tries;
+    }
+
+    /**
+     * @return mixed
+     */
+    public function getNotificationTries()
+    {
+        return $this->notification_tries;
+    }
+
+    /**
+     * @param mixed $notification_tries
+     */
+    public function setNotificationTries($notification_tries)
+    {
+        $this->notification_tries = $notification_tries;
+    }
+
+    /**
+     * @return mixed
+     */
+    public function getNotified()
+    {
+        return $this->notified;
+    }
+
+    /**
+     * @param mixed $notified
+     */
+    public function setNotified($notified)
+    {
+        $this->notified = $notified;
     }
 }

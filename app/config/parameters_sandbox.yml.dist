@@ -23,6 +23,8 @@ parameters:
     version: 1.0
     build_id: "#1"
 
+    base_url: 'http://dev-api.telepay.net/'
+
     bitcoind_user: btcuser
     bitcoind_pass: btcpass
     bitcoind_host: localhost
@@ -54,11 +56,9 @@ parameters:
     multiva_commerchant: 7531853
     multiva_comstore: 1234
     multiva_comterm: 1
-    multiva_base_url: "/test"
 
     pademobile_client: 299249
     pademobile_url: 'https://staging.pademobile.com:700/comprar'
-    pademobile_env_url: '/test'
 
     pagofacil_id_sucursal: sucursal
     pagofacil_id_usuario: usuario
@@ -80,22 +80,6 @@ parameters:
 
     psc_username: psc_telepay_test
     psc_password: bJnAWBTUlAelk
-    psc_env_url: '/test'
-
-    ukash_generate_username: user
-    ukash_generate_password: pass
-    ukash_generate_brand_id: brand
-    ukash_generate_production_flag: 0
-
-    ukash_redemption_username: "usery"
-    ukash_redemption_password: passs
-    ukash_redemption_brand_id: brand
-    ukash_redemption_production_flag: 0
-
-    ukash_redirect_security_token: 12345678901234567890
-    ukash_redirect_brand_id: UKASH10082
-    ukash_redirect_language_code: EN
-    ukash_redirect_env_url: ""
 
     kraken_api_key: ""
     kraken_private_key: ""
@@ -105,3 +89,8 @@ parameters:
     spei_partner: '846'
     spei_operant: '90646'
     spei_passphrase: '12345678'
+
+
+    bittrex_api_url: 'https://bittrex.com/api/v1.1'
+    bittrex_api_key: ''
+    bittrex_api_secret: ''

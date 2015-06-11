@@ -77,7 +77,6 @@ class FeeDeal{
 
                 $transaction = new Transaction();
                 $transaction->setIp('127.0.0.1');
-                $transaction->setTimeIn(new \MongoDate());
                 $transaction->setUser($creator->getId());
                 $transaction->setService($service_cname);
                 $transaction->setVersion($version);
@@ -110,7 +109,6 @@ class FeeDeal{
 
             $feeTransaction = new Transaction();
             $feeTransaction->setIp('127.0.0.1');
-            $feeTransaction->setTimeIn(new \MongoDate());
             $feeTransaction->setUser($creator->getId());
             $feeTransaction->setService($service_cname);
             $feeTransaction->setVersion($version);

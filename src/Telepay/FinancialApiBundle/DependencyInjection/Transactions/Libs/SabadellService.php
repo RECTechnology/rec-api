@@ -19,30 +19,31 @@ class SabadellService{
     private $currency;
     private $transaction_type;
     private $terminal;
-    private $url_base;
+    private $url_env;
     private $url_final;
-
+    private $url_base;
     
-    function __construct($url_tpvv,$clave,$name,$code,$currency,$transaction_type,$terminal,$url_base){
+    function __construct($url_tpvv, $clave, $name, $code, $currency, $transaction_type, $terminal, $url_env, $url_base){
 
-        $this->url_tpvv=$url_tpvv;
-        $this->clave=$clave;
-        $this->name=$name;
-        $this->code=$code;
-        $this->currency=$currency;
-        $this->transaction_type=$transaction_type;
-        $this->terminal=$terminal;
-        $this->url_base=$url_base;
-      
+        $this->url_tpvv = $url_tpvv;
+        $this->clave = $clave;
+        $this->name = $name;
+        $this->code = $code;
+        $this->currency = $currency;
+        $this->transaction_type = $transaction_type;
+        $this->terminal = $terminal;
+        $this->url_env = $url_env;
+        $this->url_base = $url_base;
+
     }
 
-    public function request($amount,$transaction_id,$description,$url_notification,$url_ok,$url_ko,$url_final){
+    public function request($amount,$transaction_id,$description,$url_ok,$url_ko,$url_final){
 
         $this->amount=$amount;
         $this->transaction_id=$transaction_id;
         $this->description=$description;
         $this->url_final=$url_final;
-        $this->url_notification=$url_notification.$this->url_base.$this->url_final;
+        $this->url_notification=$this->url_base.$this->url_env.$this->url_final;
         $this->url_ok=$url_ok;
         $this->url_ko=$url_ko;
         $message=$this->amount.$this->transaction_id.$this->code.$this->currency.$this->transaction_type.$this->url_notification.$this->clave;

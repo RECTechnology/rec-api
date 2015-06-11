@@ -87,7 +87,6 @@ class Services2000chargePagofacilController extends FOSRestController
         //Guardamos la request en mongo
         $transaction = new Transaction();
         $transaction->setIp($request->getClientIp());
-        $transaction->setTimeIn(time());
         $transaction->setService($this->get('telepay.services')->findByName('PagoFacil')->getId());
         $transaction->setUser(4); //2000charge user at the API
         $transaction->setSentData(json_encode($paramsMongo));
@@ -127,7 +126,6 @@ class Services2000chargePagofacilController extends FOSRestController
         //Guardamos la respuesta
         $transaction->setReceivedData(json_encode($datos));
         $dm = $this->get('doctrine_mongodb')->getManager();
-        $transaction->setTimeOut(time());
         $transaction->setCompleted(true);
 
         $dm->persist($transaction);
@@ -202,7 +200,6 @@ class Services2000chargePagofacilController extends FOSRestController
         //Guardamos la request en mongo
         $transaction = new Transaction();
         $transaction->setIp($request->getClientIp());
-        $transaction->setTimeIn(time());
         $transaction->setService($this->get('telepay.services')->findByName('PagoFacil')->getId());
         $transaction->setUser(1);
         $transaction->setSentData(json_encode($paramsMongo));
@@ -245,7 +242,6 @@ class Services2000chargePagofacilController extends FOSRestController
         //Guardamos la respuesta
         $transaction->setReceivedData(json_encode($datos));
         $dm = $this->get('doctrine_mongodb')->getManager();
-        $transaction->setTimeOut(time());
         $transaction->setCompleted(true);
 
         $dm->persist($transaction);

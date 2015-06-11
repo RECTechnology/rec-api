@@ -48,6 +48,16 @@ class ServiceFee implements Fee{
 
     private $currency;
 
+
+    public static function createFromController($service_cname, Group $group){
+        $fee = new ServiceFee();
+        $fee->setFixed(0);
+        $fee->setVariable(0);
+        $fee->setServiceName($service_cname);
+        $fee->setGroup($group);
+        return $fee;
+    }
+
     /**
      * @return mixed
      */

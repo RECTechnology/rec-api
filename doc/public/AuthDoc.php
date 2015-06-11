@@ -159,6 +159,8 @@
  *   "amount": 2303,
  *   "scale": 2,
  *   "currency": "USD",
+ *   "created": "2015-05-21T18:32:38+0200",
+ *   "updated": "2015-05-21T18:32:38+0200",
  *   "data": {
  *       "param": "hello, this is the sent param",
  *       "server_time": {
@@ -194,7 +196,7 @@
 
 
 /**
- * @api {post} /services/v1/echo Sample OAuth 2.0
+ * @api {post} /services/v1/echo Call with OAuth 2.0
  * @apiName TestOAuth2
  * @apiDescription The Echo service is a sample service that replies your request,
  * it's designed to make tests with the different auhentication methods, this example creates a
@@ -212,7 +214,7 @@
 
 
 /**
- * @api {post} /services/v1/echo Sample signature
+ * @api {post} /services/v1/echo Call with signature
  * @apiName EchoSignedRequest
  * @apiDescription Creates a transaction to the echo service with the signed request, this authentication schema
  * allows to make a single call (OAuth 2.0 needs user interaction and needs two calls) is used by all the {{ name }}

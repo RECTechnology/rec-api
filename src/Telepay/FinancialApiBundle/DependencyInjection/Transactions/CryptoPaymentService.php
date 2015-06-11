@@ -17,8 +17,8 @@ class CryptoPaymentService extends BaseService {
 
     private $cryptoProvider;
 
-    public function __construct($name, $cname, $role, $cash_direction, $currency, $base64Image, $cryptoProvider, $transactionContext){
-        parent::__construct($name, $cname, $role, $cash_direction, $currency, $base64Image, $transactionContext);
+    public function __construct($name, $cname, $role, $cash_direction, $currency, $base64Image, $cryptoProvider, $container){
+        parent::__construct($name, $cname, $role, $cash_direction, $currency, $base64Image, $container);
         $this->cryptoProvider = $cryptoProvider;
     }
 
@@ -69,7 +69,7 @@ class CryptoPaymentService extends BaseService {
 
     }
     private function hasExpired($transaction){
-        return $transaction->getTimeIn()->getTimestamp()+$transaction->getData()['expires_in'] < time();
+        return $transaction->getCreated()->getTimestamp()+$transaction->getData()['expires_in'] < time();
     }
 
     public function check(Transaction $transaction){
@@ -89,7 +89,7 @@ class CryptoPaymentService extends BaseService {
         foreach($allReceived as $cryptoData){
             if($cryptoData['address'] === $address){
                 $currentData['received'] = doubleval($cryptoData['amount'])*1e8;
-                if (doubleval($cryptoData['amount'])*1e8 >= $allowed_amount){
+                if(doubleval($cryptoData['amount'])*1e8 >= $allowed_amount){
                     $currentData['confirmations'] = $cryptoData['confirmations'];
                     if($currentData['confirmations'] >= $currentData['min_confirmations'])
                         $transaction->setStatus("success");
@@ -97,12 +97,11 @@ class CryptoPaymentService extends BaseService {
                         $transaction->setStatus("received");
 
                 }
-
+                
                 $transaction->setUpdated(new \MongoDate());
                 $transaction->setData($currentData);
                 $transaction->setDataOut($currentData);
                 return $transaction;
-
             }
         }
 

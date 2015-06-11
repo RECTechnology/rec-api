@@ -8,8 +8,10 @@
 
 namespace Telepay\FinancialApiBundle\DependencyInjection\Transactions\Core;
 
-interface TransactionContextInterface{
+
+interface TransactionContextInterface extends ContainerAwareInterface{
     public function getRequestStack();
+    public function getEnvironment();
     public function getUser();
     public function getODM();
     public function getORM();
