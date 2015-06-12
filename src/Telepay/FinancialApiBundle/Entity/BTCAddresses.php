@@ -21,28 +21,8 @@ use Doctrine\ORM\Mapping as ORM;
  * @ORM\Entity
  * @ExclusionPolicy("all")
  */
-class BTCAddresses extends AbstractWallet implements ExternallyDrived {
+class BTCAddresses implements OwnByUserInterface {
 
-
-    public function receive($amount)
-    {
-        throw new HttpException(501, "Method receive not implemented");
-    }
-
-    public function send($amount)
-    {
-        // TODO: Implement send() method.
-    }
-
-    public function getAmount()
-    {
-        // TODO: Implement getAmount() method.
-    }
-
-    public function getAvailable()
-    {
-        return $this->getAmount();
-    }
 
     public function getCurrency()
     {
@@ -53,6 +33,13 @@ class BTCAddresses extends AbstractWallet implements ExternallyDrived {
     {
         return 'net.telepay.provider.btc';
     }
+
+    /**
+     * @ORM\Id
+     * @ORM\Column(type="integer")
+     * @ORM\GeneratedValue(strategy="AUTO")
+     */
+    protected $id;
 
     /**
      * @ORM\Column(type="string", unique=true)
@@ -71,6 +58,12 @@ class BTCAddresses extends AbstractWallet implements ExternallyDrived {
      * @Expose
      */
     private $archived;
+
+
+    /**
+     * @ORM\ManyToOne(targetEntity="Telepay\FinancialApiBundle\Entity\User")
+     */
+    private $user;
 
     /**
      * @param mixed $user
@@ -139,4 +132,8 @@ class BTCAddresses extends AbstractWallet implements ExternallyDrived {
     }
 
 
+    public function getUser()
+    {
+        return $this->user;
+    }
 }

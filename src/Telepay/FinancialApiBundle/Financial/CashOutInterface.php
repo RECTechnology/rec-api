@@ -8,6 +8,7 @@
 
 namespace Telepay\FinancialApiBundle\Financial;
 
-interface CashIn {
-    public function receive($amount);
+
+interface CashOutInterface {
+    public function send(CashInInterface $dst, MoneyBundleInterface $money);
 }

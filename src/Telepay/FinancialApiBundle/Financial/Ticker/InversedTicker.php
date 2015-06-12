@@ -6,17 +6,16 @@
  * Time: 8:13 PM
  */
 
-namespace Telepay\FinancialApiBundle\DependencyInjection\Telepay\Exchanges;
+namespace Telepay\FinancialApiBundle\Financial\Ticker;
 
-/**
- * Class InversedExchange
- * @package Telepay\FinancialApiBundle\DependencyInjection\Telepay\Exchanges
- */
-class InversedExchange implements ExchangeInterface {
+
+use Telepay\FinancialApiBundle\Financial\TickerInterface;
+
+class InversedTicker implements TickerInterface {
 
     private $exchange;
 
-    public function __construct(ExchangeInterface $exchange){
+    public function __construct(TickerInterface $exchange){
         $this->exchange = $exchange;
     }
 

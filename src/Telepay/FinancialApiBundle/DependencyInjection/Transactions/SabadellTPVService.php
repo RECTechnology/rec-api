@@ -50,6 +50,7 @@ class SabadellTPVService extends BaseService{
         $trans_id=$timestamp;
 
         $important_data=array(
+            'url_base'  =>  $url_base,
             'url_final' =>  $url_final,
             'contador'  =>  0,
             'transaction_id'    =>  $trans_id

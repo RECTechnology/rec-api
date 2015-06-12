@@ -75,6 +75,7 @@ class IncomingController extends RestApiController{
 
         //TODO posible millora en un query molon
         //obtain and check limits
+        $user=$this->getUser();
 
         //obtener group
         $group=$user->getGroups()[0];
