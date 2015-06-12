@@ -30,15 +30,12 @@ class BTCWalletController extends RestApiController{
         $user = $this->get('security.context')->getToken()->getUser();
 
         if(!$request->request->has('cypher_wallet')) throw new HttpException(400,'Missing parameter cypher_wallet');
-        if(!$request->request->has('salt')) throw new HttpException(400,'Missing parameter salt');
 
         $cypher_wallet = $request->request->get('cypher_wallet');
-        $salt = $request->request->get('salt');
 
         $wallet = new BTCWallet();
         $wallet->setUser($user);
         $wallet->setCypherData($cypher_wallet);
-        $wallet->setSalt($salt);
 
         $em = $this->getDoctrine()->getManager();
         $em->persist($wallet);
