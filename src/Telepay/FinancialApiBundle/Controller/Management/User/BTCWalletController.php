@@ -11,6 +11,7 @@ use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpKernel\Exception\HttpException;
 use Telepay\FinancialApiBundle\Controller\RestApiController;
 use Telepay\FinancialApiBundle\Entity\BTCAddresses;
+use Telepay\FinancialApiBundle\Entity\BTCWallet;
 use Telepay\FinancialApiBundle\Entity\Device;
 use Telepay\FinancialApiBundle\Entity\User;
 
@@ -21,6 +22,31 @@ use Telepay\FinancialApiBundle\Entity\User;
  */
 class BTCWalletController extends RestApiController{
 
+    /**
+     * obtain cypher wallet
+     */
+    public function createBTCWallet(Request $request){
+
+        $user = $this->get('security.context')->getToken()->getUser();
+
+        if(!$request->request->has('cypher_wallet')) throw new HttpException(400,'Missing parameter cypher_wallet');
+        if(!$request->request->has('salt')) throw new HttpException(400,'Missing parameter salt');
+
+        $cypher_wallet = $request->request->get('cypher_wallet');
+        $salt = $request->request->get('salt');
+
+        $wallet = new BTCWallet();
+        $wallet->setUser($user);
+        $wallet->setCypherData($cypher_wallet);
+        $wallet->setSalt($salt);
+
+        $em = $this->getDoctrine()->getManager();
+        $em->persist($wallet);
+        $em->flush();
+
+        return $this->restV2(201, "ok", "BTCWallet created", $wallet);
+
+    }
 
     /**
      * obtain cypher wallet
@@ -31,8 +57,6 @@ class BTCWalletController extends RestApiController{
 
         //obtener los wallets
         $wallet = $user->getBtcWallet();
-
-        //TODO NOT return the user data
 
         return $this->restV2(200, "ok", "Wallet info got successfully", $wallet);
 

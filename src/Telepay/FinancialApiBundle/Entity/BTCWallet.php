@@ -56,6 +56,11 @@ class BTCWallet extends AbstractWallet implements ExternallyDrived {
     private $cypher_data;
 
     /**
+     * @ORM\Column(type="string")
+     */
+    private $salt;
+
+    /**
      * @param mixed $user
      */
     public function setUser($user)
@@ -87,5 +92,21 @@ class BTCWallet extends AbstractWallet implements ExternallyDrived {
     public function setCypherData($cypher_data)
     {
         $this->cypher_data = $cypher_data;
+    }
+
+    /**
+     * @return mixed
+     */
+    public function getSalt()
+    {
+        return $this->salt;
+    }
+
+    /**
+     * @param mixed $salt
+     */
+    public function setSalt($salt)
+    {
+        $this->salt = $salt;
     }
 }

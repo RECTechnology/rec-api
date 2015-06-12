@@ -359,43 +359,10 @@ class AccountController extends BaseApiController{
             $em->persist($user);
             $em->flush();
 
-            $access = $em->getRepository('TelepayFinancialApiBundle:AccessToken')
-                ->findOneBy(array(
-                    'token' =>  $this->get('security.context')->getToken()->getToken()
-                ));
-
-            $client_id = $access->getClient()->getId().'_'.$access->getClient()->getRandomId();
-            $client_secret = $access->getClient()->getSecret();
-
-            $url = $this->container->getParameter('base_url').'/oauth/v2/token';
-
-            $params = array(
-                'client_id'     =>  $client_id,
-                'client_secret' =>  $client_secret,
-                'grant_type'    =>  'password',
-                'username'      =>  $username,
-                'password'      =>  $password
-            );
-
-            // create curl resource
-            $ch = curl_init();
-            // set url
-            curl_setopt($ch, CURLOPT_URL, $url);
-            //return the transfer as a string
-            curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
-            curl_setopt($ch,CURLOPT_POST,true);
-            curl_setopt($ch,CURLOPT_POSTFIELDS,$params);
-            // $output contains the output string
-            $output = curl_exec($ch);
-
-            curl_close($ch);
-
-            $output = json_decode($output);
-
             $response = array(
                 'id'        =>  $user_id,
                 'username'  =>  $username,
-                'refresh_token'  =>  $output->refresh_token
+                'pasword'   =>  $password
             );
 
             return $this->restV2(201,"ok", "Request successful", $response);
