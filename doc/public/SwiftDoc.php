@@ -88,7 +88,7 @@
 //##################################### CREATE BTC ######################################
 
 /**
- * @api {post} /api/send Creates a BTC transaction
+ * @api {post} /api/send Bitcoin pay
  * @apiName CreateTransaction
  * @apiDescription Creates a new BTC transaction
  * @apiVersion 1.0.0
@@ -109,7 +109,7 @@
 //##################################### CHECK BTC ######################################
 
 /**
- * @api {get} /api/check/{id} Check a BTC transaction
+ * @api {get} /api/check/{id} Bitcoin check
  * @apiName GetTransaction
  * @apiDescription Check a BTC transaction by transaction_id
  * @apiVersion 1.0.0
