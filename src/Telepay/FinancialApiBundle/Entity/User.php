@@ -150,6 +150,12 @@ class User extends BaseUser
     private $gcm_group_key;
 
     /**
+     * @ORM\OneToMany(targetEntity="Telepay\FinancialApiBundle\Entity\Balance", mappedBy="user", cascade={"remove"})
+     * @Expose
+     */
+    private $balance;
+
+    /**
      * @Expose
      */
     private $allowed_services = array();
@@ -409,6 +415,22 @@ class User extends BaseUser
     public function setGcmGroupKey($gcm_group_key)
     {
         $this->gcm_group_key = $gcm_group_key;
+    }
+
+    /**
+     * @return mixed
+     */
+    public function getBalance()
+    {
+        return $this->balance;
+    }
+
+    /**
+     * @param mixed $balance
+     */
+    public function setBalance($balance)
+    {
+        $this->balance = $balance;
     }
 
 
