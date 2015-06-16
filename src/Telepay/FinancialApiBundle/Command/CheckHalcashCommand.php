@@ -42,10 +42,13 @@ class CheckHalcashCommand extends ContainerAwareCommand
 
             $previous_status = $res->getStatus();
 
-            $check=$this->check($res);
+            $check = $this->check($res);
 
             if($previous_status != $check->getStatus()){
                 $check = $this->getContainer()->get('notificator')->notificate($check);
+                $check->setUpdated(new \MongoDate());
+                $em->persist($check);
+                $em->flush();
             }
 
             $dm->flush();
@@ -76,15 +79,12 @@ class CheckHalcashCommand extends ContainerAwareCommand
 
                     $current_wallet->setBalance($current_wallet->getBalance()-$total);
 
-                    $em->persist($current_wallet);
-                    $em->flush();
-
                 }else{
                     $current_wallet->setBalance($current_wallet->getBalance()-$amount);
-
-                    $em->persist($current_wallet);
-                    $em->flush();
                 }
+
+                $em->persist($current_wallet);
+                $em->flush();
             }
 
         }
@@ -98,7 +98,7 @@ class CheckHalcashCommand extends ContainerAwareCommand
 
         $ticket = $transaction->getDataOut()['halcashticket'];
 
-        $status=$this->getContainer()->get('net.telepay.provider.halcash')->status($ticket);
+        $status = $this->getContainer()->get('net.telepay.provider.halcash')->status($ticket);
 
         if($status['errorcode']==0){
 
