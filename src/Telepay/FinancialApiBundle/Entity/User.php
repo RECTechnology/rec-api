@@ -164,7 +164,6 @@ class User extends BaseUser
         return $this->access_key;
     }
 
-
     public function getAccessSecret(){
         return $this->access_secret;
     }

@@ -62,7 +62,7 @@ class Balance
     private $currency;
 
     /**
-     * @ORM\Column(type="integer")
+     * @ORM\Column(type="string")
      * @Expose
      */
     private $transaction_id;

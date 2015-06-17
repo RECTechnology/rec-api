@@ -83,7 +83,8 @@ class FeeDeal{
                 $transaction->setAmount($fee);
                 $transaction->setDataIn(array(
                     'parent_id' => $transaction_id,
-                    'amount'    =>  $fee
+                    'amount'    =>  $fee,
+                    'description'   =>$service_cname.'->fee'
                 ));
                 $transaction->setData(array(
                     'parent_id' =>  $transaction_id,
@@ -96,9 +97,12 @@ class FeeDeal{
                 $transaction->setFixedFee($fixed);
                 $transaction->setTotal($fee);
                 $transaction->setScale($scale);
+
                 $dm->persist($transaction);
                 $dm->flush();
 
+                $balancer = $this->getContainer()->get('net.telepay.commons.balance_manipulator');
+                $balancer->addBalance($creator, $fee, $transaction);
 
                 $id=$transaction->getId();
 
@@ -115,7 +119,8 @@ class FeeDeal{
             $feeTransaction->setAmount($total);
             $feeTransaction->setDataIn(array(
                 'parent_id' => $transaction->getId(),
-                'amount'    =>  -$total
+                'amount'    =>  -$total,
+                'description'   =>  $service_cname.'->fee'
             ));
             $feeTransaction->setData(array(
                 'parent_id' => $transaction->getId(),
@@ -128,8 +133,12 @@ class FeeDeal{
             $feeTransaction->setFixedFee($fixed);
             $feeTransaction->setTotal(-$total);
             $feeTransaction->setScale($scale);
+
             $dm->persist($feeTransaction);
             $dm->flush();
+
+            $balancer = $this->getContainer()->get('net.telepay.commons.balance_manipulator');
+            $balancer->addBalance($creator, -$total, $feeTransaction);
 
             $new_creator=$group->getCreator();
             $this->deal($new_creator,$amount,$service_cname,$currency,$total,$id,$version);
@@ -138,4 +147,5 @@ class FeeDeal{
         return true;
 
     }
+
 }

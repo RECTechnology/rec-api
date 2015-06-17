@@ -21,6 +21,7 @@ use Telepay\FinancialApiBundle\DependencyInjection\Telepay\Commons\FeeDeal;
 use Telepay\FinancialApiBundle\DependencyInjection\Telepay\Commons\LimitAdder;
 use Telepay\FinancialApiBundle\DependencyInjection\Telepay\Commons\LimitChecker;
 use Telepay\FinancialApiBundle\Document\Transaction;
+use Telepay\FinancialApiBundle\Entity\Balance;
 use Telepay\FinancialApiBundle\Entity\LimitCount;
 use Telepay\FinancialApiBundle\Entity\LimitDefinition;
 use Telepay\FinancialApiBundle\Entity\ServiceFee;
@@ -61,6 +62,13 @@ class IncomingController extends RestApiController{
         if($request->request->has('sms_language')){
             $dataIn['sms_language']=$request->request->get('sms_language');
         }
+
+        $concept = '';
+        if($request->request->has('description')) $concept = $request->request->get('description');
+        if($request->request->has('concept')) $concept = $request->request->get('concept');
+        if($request->request->has('reference')) $concept = $request->request->get('reference');
+
+        $dataIn['description'] = $concept;
 
         $dm = $this->get('doctrine_mongodb')->getManager();
         $em = $this->getDoctrine()->getManager();
@@ -178,7 +186,7 @@ class IncomingController extends RestApiController{
         $transaction->setCurrency($service_currency);
 
         //******    CHECK IF THE TRANSACTION IS CASH-OUT     ********
-        if($service->getcashDirection()=='out'){
+        if($service->getcashDirection() == 'out'){
 
             foreach ( $wallets as $wallet){
                 if ($wallet->getCurrency() == $service_currency){
@@ -220,16 +228,21 @@ class IncomingController extends RestApiController{
                 }
 
             }
+
             $dm->persist($transaction);
             $dm->flush();
 
-            //pay fees and dealer always
+            //pay fees and dealer always and set new balance
             if( $transaction->getStatus() === Transaction::$STATUS_CREATED || $transaction->getStatus() === Transaction::$STATUS_SUCCESS ){
                 $this->container->get('notificator')->notificate($transaction);
 
                 if( $service_cname != 'echo'){
                     //restar al usuario el amount + comisiones
                     $current_wallet->setBalance($current_wallet->getBalance()-$total);
+                    //TODO insert new line in the balance
+                    $balancer = $this->get('net.telepay.commons.balance_manipulator');
+                    $balancer->addBalance($user, -$amount, $transaction);
+
                     $em->persist($current_wallet);
                     $em->flush();
                 }
@@ -281,6 +294,10 @@ class IncomingController extends RestApiController{
                 //sumar al usuario el amount completo
                 $current_wallet->setAvailable($current_wallet->getAvailable()+$total);
                 $current_wallet->setBalance($current_wallet->getBalance()+$total);
+
+                $balancer = $this->get('net.telepay.commons.balance_manipulator');
+                $balancer->addBalance($user, $amount, $transaction);
+
                 $em->persist($current_wallet);
                 $em->flush();
 
@@ -334,7 +351,7 @@ class IncomingController extends RestApiController{
 
             $em=$this->getDoctrine()->getManager();
 
-            $user =$em->getRepository('TelepayFinancialApiBundle:User')->find($user_id);
+            $user = $em->getRepository('TelepayFinancialApiBundle:User')->find($user_id);
             $currency = $transaction->getCurrency();
 
             //Search wallet
@@ -396,7 +413,8 @@ class IncomingController extends RestApiController{
                         && $service_cname != 'echo'){
                         $transaction = $this->get('notificator')->notificate($transaction);
                         //sumamos la pasta al wallet
-
+                        $balancer = $this->get('net.telepay.commons.balance_manipulator');
+                        $balancer->addBalance($user, -$amount, $transaction);
                         if($total_fee != 0){
                             //cobramos comisiones al user y hacemos el reparto
 
@@ -415,9 +433,13 @@ class IncomingController extends RestApiController{
 
                         if( $service->getcashDirection() == 'out' ){
                             $current_wallet->setBalance($current_wallet->getBalance() - $amount - $total_fee );
+                            $balancer = $this->get('net.telepay.commons.balance_manipulator');
+                            $balancer->addBalance($user, -$amount, $transaction);
                         }else{
                             $current_wallet->setAvailable($current_wallet->getAvailable() + $total_amount );
                             $current_wallet->setBalance($current_wallet->getBalance() + $total_amount);
+                            $balancer = $this->get('net.telepay.commons.balance_manipulator');
+                            $balancer->addBalance($user, $amount, $transaction);
                         }
 
                         $em->persist($current_wallet);
@@ -446,7 +468,9 @@ class IncomingController extends RestApiController{
 
                 //el cash-out solo se puede cancelar si esta en created review o success
                 //el cash-in de momento no se puede cancelar
-                if($transaction->getStatus()== Transaction::$STATUS_CREATED || $transaction->getStatus() == Transaction::$STATUS_REVIEW || $transaction->getStatus() == Transaction::$STATUS_FAILED){
+                if($transaction->getStatus()== Transaction::$STATUS_CREATED
+                    || $transaction->getStatus() == Transaction::$STATUS_REVIEW
+                    || $transaction->getStatus() == Transaction::$STATUS_FAILED){
 
                     if($transaction->getStatus() == Transaction::$STATUS_FAILED){
                         $transaction->setStatus(Transaction::$STATUS_CANCELLED );
@@ -474,6 +498,8 @@ class IncomingController extends RestApiController{
                         //desbloquear pasta del wallet
                         if( $service->getcashDirection() == 'out' ){
                             $current_wallet->setAvailable($current_wallet->getAvailable() + $amount );
+                            $balancer = $this->get('net.telepay.commons.balance_manipulator');
+                            $balancer->addBalance($user, $amount, $transaction);
                         }
 
                         $em->persist($current_wallet);
@@ -546,7 +572,9 @@ class IncomingController extends RestApiController{
 
                 if(!$current_wallet) throw new HttpException(404,'Wallet not found');
 
-                if($transaction->getStatus() == Transaction::$STATUS_CANCELLED || $transaction->getStatus() == Transaction::$STATUS_EXPIRED || $transaction->getStatus() == Transaction::$STATUS_ERROR){
+                if($transaction->getStatus() == Transaction::$STATUS_CANCELLED ||
+                    $transaction->getStatus() == Transaction::$STATUS_EXPIRED ||
+                    $transaction->getStatus() == Transaction::$STATUS_ERROR){
                     //unblock available wallet if cash-out
                     if($service->getcashDirection() == 'out'){
                         $current_wallet->setAvailable($current_wallet->getAvailable() + $transaction->getAmount());
@@ -564,6 +592,8 @@ class IncomingController extends RestApiController{
                     }else{
                         $current_wallet->setAvailable($current_wallet->getAvailable() + $transaction->getAmount());
                         $current_wallet->setBalance($current_wallet->getBalance() + $transaction->getAmount());
+                        $balancer = $this->get('net.telepay.commons.balance_manipulator');
+                        $balancer->addBalance($user, $transaction->getAmount(), $transaction);
                         $em->persist($current_wallet);
                         $em->flush();
                     }
@@ -695,7 +725,6 @@ class IncomingController extends RestApiController{
             if($current_wallet == null) throw new HttpException(404,'Wallet not found');
 
             $transaction_amount = $transaction->getTotal();
-            $amount = $transaction->getAmount();
             $total_fee = $transaction->getFixedFee() + $transaction->getVariableFee();
             $total_amount = $transaction_amount - $total_fee ;
 
@@ -704,6 +733,8 @@ class IncomingController extends RestApiController{
             }else{
                 $current_wallet->setAvailable($current_wallet->getAvailable() + $total_amount );
                 $current_wallet->setBalance($current_wallet->getBalance() + $total_amount);
+                $balancer = $this->get('net.telepay.commons.balance_manipulator');
+                $balancer->addBalance($user, $transaction->getAmount(), $transaction);
             }
 
             $em->persist($current_wallet);
@@ -729,11 +760,12 @@ class IncomingController extends RestApiController{
 
     }
 
-    public function _dealer(Transaction $transaction, UserWallet $current_wallet){
+    private function _dealer(Transaction $transaction, UserWallet $current_wallet){
 
         $amount = $transaction->getAmount();
         $currency = $transaction->getCurrency();
         $service_cname = $transaction->getService();
+
         $em = $this->getDoctrine()->getManager();
 
         $total_fee = $transaction->getFixedFee() + $transaction->getVariableFee();
@@ -744,7 +776,8 @@ class IncomingController extends RestApiController{
         $feeTransaction->setAmount($total_fee);
         $feeTransaction->setDataIn(array(
             'previous_transaction'  =>  $transaction->getId(),
-            'amount'                =>  -$total_fee
+            'amount'                =>  -$total_fee,
+            'description'           =>  $service_cname.'->fee'
         ));
         $feeTransaction->setData(array(
             'previous_transaction'  =>  $transaction->getId(),
@@ -761,6 +794,9 @@ class IncomingController extends RestApiController{
         $mongo = $this->get('doctrine_mongodb')->getManager();
         $mongo->persist($feeTransaction);
         $mongo->flush();
+
+        $balancer = $this->get('net.telepay.commons.balance_manipulator');
+        $balancer->addBalance($user, -$total_fee, $feeTransaction );
 
         //empezamos el reparto
         $group = $user->getGroups()[0];
