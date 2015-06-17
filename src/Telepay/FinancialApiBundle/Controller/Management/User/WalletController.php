@@ -456,8 +456,8 @@ class WalletController extends RestApiController{
         $dm = $this->get('doctrine_mongodb')->getManager();
         $result = $dm->createQueryBuilder('TelepayFinancialApiBundle:Transaction')
             ->field('user')->equals($userId)
-            ->field('timeIn')->gt($start_time)
-            ->field('timeIn')->lt($end_time)
+            ->field('created')->gt($start_time)
+            ->field('created')->lt($end_time)
             ->field('status')->equals('success')
             ->group(
                 new \MongoCode('
