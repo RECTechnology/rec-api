@@ -506,12 +506,16 @@ class UsersController extends BaseApiController
                 $transaction->setDataIn(array(
                     'currency'  =>  $currency,
                     'amount'    =>  $amount,
-                    'user_id'   =>  $user_id
+                    'user_id'   =>  $user_id,
+                    'description'   =>  'add balance'
                 ));
 
                 $dm = $this->get('doctrine_mongodb')->getmanager();
                 $dm->persist($transaction);
                 $dm->flush();
+
+                $balancer = $this->get('net.telepay.commons.balance_manipulator');
+                $balancer->addBalance($user, $amount, $transaction);
 
                 $find_wallet = 1;
                 $em->persist($wallet);
