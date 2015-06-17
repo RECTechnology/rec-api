@@ -77,4 +77,5 @@ class BTCWallet implements OwnByUserInterface {
     {
         // TODO: Implement getUser() method.
     }
+
 }

@@ -11,6 +11,7 @@ use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpKernel\Exception\HttpException;
 use Telepay\FinancialApiBundle\Controller\RestApiController;
 use Telepay\FinancialApiBundle\Entity\BTCAddresses;
+use Telepay\FinancialApiBundle\Entity\BTCWallet;
 use Telepay\FinancialApiBundle\Entity\Device;
 use Telepay\FinancialApiBundle\Entity\User;
 
@@ -21,6 +22,28 @@ use Telepay\FinancialApiBundle\Entity\User;
  */
 class BTCWalletController extends RestApiController{
 
+    /**
+     * obtain cypher wallet
+     */
+    public function createBTCWallet(Request $request){
+
+        $user = $this->get('security.context')->getToken()->getUser();
+
+        if(!$request->request->has('cypher_wallet')) throw new HttpException(400,'Missing parameter cypher_wallet');
+
+        $cypher_wallet = $request->request->get('cypher_wallet');
+
+        $wallet = new BTCWallet();
+        $wallet->setUser($user);
+        $wallet->setCypherData($cypher_wallet);
+
+        $em = $this->getDoctrine()->getManager();
+        $em->persist($wallet);
+        $em->flush();
+
+        return $this->restV2(201, "ok", "BTCWallet created", $wallet);
+
+    }
 
     /**
      * obtain cypher wallet
@@ -31,8 +54,6 @@ class BTCWalletController extends RestApiController{
 
         //obtener los wallets
         $wallet = $user->getBtcWallet();
-
-        //TODO NOT return the user data
 
         return $this->restV2(200, "ok", "Wallet info got successfully", $wallet);
 
@@ -73,6 +94,11 @@ class BTCWalletController extends RestApiController{
         if(!$request->request->has('address')) throw new HttpException(400,'Missing parameter address');
         $received_address = $request->get('address');
 
+        $cryptoProvider = $this->get('net.telepay.provider.btc');
+
+        $isValid = $cryptoProvider->validateaddress($received_address);
+
+        if($isValid['isvalid'] != true) throw new HttpException(400,'BTC address not valid');
 
         $address = new BTCAddresses();
         $address->setUser($user);
@@ -143,16 +169,12 @@ class BTCWalletController extends RestApiController{
 
         $user = $this->get('security.context')->getToken()->getUser();
 
-        if(!$request->request->has('device_id')) throw new HttpException(400,'Missing parameter device_id');
-
         if(!$request->request->has('gcm_token')) throw new HttpException(400,'Missing parameter gcm_token');
 
-        $device_id = $request->get('device_id');
         $gcm_token = $request->get('gcm_token');
 
         $device = new Device();
         $device->setUser($user);
-        $device->setDeviceId($device_id);
         $device->setGcmToken($gcm_token);
 
         if($request->request->has('label')){
@@ -184,7 +206,7 @@ class BTCWalletController extends RestApiController{
         $em->persist($device);
         $em->flush();
 
-        $this->_sendGcmNotification($user, 'New device '.$device->getDeviceId().' added succesfully');
+        $this->_sendGcmNotification($user, 'New device added succesfully');
 
         return $this->restV2(204, "ok");
 
@@ -348,7 +370,7 @@ class BTCWalletController extends RestApiController{
         $em->remove($device);
         $em->flush();
 
-        $this->_sendGcmNotification($user, 'Device '.$device->getDeviceId().' removed succesfully');
+        $this->_sendGcmNotification($user, 'Device removed succesfully');
 
         return $this->restV2(204, "ok");
     }
