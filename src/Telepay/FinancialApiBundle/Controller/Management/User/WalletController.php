@@ -343,7 +343,9 @@ class WalletController extends RestApiController{
         $sender_transaction->setVariableFee(0);
         $sender_transaction->setFixedFee(0);
         $sender_transaction->setAmount($params['amount']);
-        $sender_transaction->setDataIn('');
+        $sender_transaction->setDataIn(array(
+            'description'   =>  'transfer->'.$currency
+        ));
         $sender_transaction->setDataOut(array(
             'sent_to'   =>  $receiver->getUsername(),
             'id_to'     =>  $receiver->getId(),
@@ -358,6 +360,9 @@ class WalletController extends RestApiController{
 
         $dm->persist($sender_transaction);
         $dm->flush();
+
+        $balancer = $this->get('net.telepay.commons.balance_manipulator');
+        $balancer->addBalance($user, -$params['amount'], $sender_transaction);
 
         //RECEIVER TRANSACTION
         $receiver_transaction = new Transaction();
@@ -381,13 +386,17 @@ class WalletController extends RestApiController{
             'sent_to'   =>  $receiver->getUsername(),
             'id_to'     =>  $receiver->getId(),
             'amount'    =>  -$params['amount'],
-            'currency'  =>  strtoupper($currency)
+            'currency'  =>  strtoupper($currency),
+            'description'   =>  'transfer->'.$currency
         ));
         $receiver_transaction->setTotal($params['amount']);
         $receiver_transaction->setUser($receiver->getId());
 
         $dm->persist($receiver_transaction);
         $dm->flush();
+
+        $balancer = $this->get('net.telepay.commons.balance_manipulator');
+        $balancer->addBalance($receiver, $params['amount'], $receiver_transaction);
 
         //todo update wallets
         $sender_wallet->setAvailable($sender_wallet->getAvailable()-$params['amount']);

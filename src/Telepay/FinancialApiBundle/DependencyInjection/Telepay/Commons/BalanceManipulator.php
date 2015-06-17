@@ -39,8 +39,22 @@ class BalanceManipulator{
                 )
             );
 
-        if(!$prev_balance) $prev_balance = 0;
-        else $prev_balance = $prev_balance->getBalance();
+        if(!$prev_balance){
+            $balance = new Balance();
+            $balance->setUser($user);
+            $balance->setAmount(0);
+            $balance->setBalance(0);
+            $balance->setConcept('Start transaction');
+            $balance->setCurrency($transaction->getCurrency());
+            $balance->setDate(new \DateTime());
+            $balance->setTransactionId(0);
+
+            $em->persist($balance);
+            $em->flush();
+            $prev_balance = 0;
+        }else{
+            $prev_balance = $prev_balance->getBalance();
+        }
 
         $balance = new Balance();
         $balance->setUser($user);
