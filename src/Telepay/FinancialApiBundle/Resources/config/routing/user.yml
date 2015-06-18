@@ -90,7 +90,7 @@ user_btc_wallet_read:
     requirements:
         _method: GET
 
-user_btc_wallet_read:
+user_btc_wallet_create:
     pattern:  /user/v1/btc_wallet
     defaults: { _controller: Telepay\FinancialApiBundle\Controller\Management\User\BTCWalletController::createBTCWallet }
     requirements:
