@@ -93,3 +93,12 @@ parameters:
     bittrex_api_url: 'https://bittrex.com/api/v1.1'
     bittrex_api_key: ''
     bittrex_api_secret: ''
+
+    abanca_url_tpvv: 'https://sis-t.redsys.es:25443/sis/realizarPago'
+    abanca_secret: qwertyasdf0123456789
+    abanca_name: ENTROPY FACTORY S.L.
+    abanca_code: 251042362
+    abanca_currency: 978
+    abanca_transaction_type: 0
+    abanca_terminal: 1
+    abanca_base_url: '/test'

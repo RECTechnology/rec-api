@@ -10,17 +10,17 @@ namespace Telepay\FinancialApiBundle\DependencyInjection\Transactions;
 
 use Symfony\Component\HttpKernel\Exception\HttpException;
 use Symfony\Component\Validator\Constraints\DateTime;
-use Telepay\FinancialApiBundle\DependencyInjection\Transactions\Libs\SabadellService;
+use Telepay\FinancialApiBundle\DependencyInjection\Transactions\Libs\AbancaService;
 use Telepay\FinancialApiBundle\DependencyInjection\Transactions\Core\BaseService;
 use Telepay\FinancialApiBundle\Document\Transaction;
 
-class SabadellTPVService extends BaseService{
+class AbancaTPVService extends BaseService{
 
-    private $sabadellProvider;
+    private $abancaProvider;
 
-    public function __construct($name, $cname, $role, $cash_direction, $currency, $base64Image, $sabadellProvider, $container){
+    public function __construct($name, $cname, $role, $cash_direction, $currency, $base64Image, $abancaProvider, $container){
         parent::__construct($name, $cname, $role, $cash_direction, $currency, $base64Image, $container);
-        $this->sabadellProvider = $sabadellProvider;
+        $this->abancaProvider = $abancaProvider;
     }
 
     public function getFields(){
@@ -38,11 +38,11 @@ class SabadellTPVService extends BaseService{
         $url_ko = $baseTransaction->getDataIn()['url_ko'];
         $id=$baseTransaction->getId();
 
-        $url_final='/notifications/v2/sabadell/'.$id;
+        $url_final='/notifications/v2/abanca/'.$id;
 
-        $sabadell = $this->sabadellProvider->request($amount, $id,$description, $url_ok, $url_ko, $url_final);
+        $abanca = $this->abancaProvider->request($amount, $id,$description, $url_ok, $url_ko, $url_final);
 
-        if($sabadell === false)
+        if($abanca === false)
             throw new HttpException(503, "Service temporarily unavailable, please try again in a few minutes");
 
         $timestamp=new \DateTime();
@@ -56,7 +56,7 @@ class SabadellTPVService extends BaseService{
         );
 
         $baseTransaction->setData($important_data);
-        $baseTransaction->setDataOut($sabadell);
+        $baseTransaction->setDataOut($abanca);
 
         return $baseTransaction;
 
@@ -81,8 +81,8 @@ class SabadellTPVService extends BaseService{
         $important_data['transaction_id']= $trans_id;
         $transaction->setData($important_data);
 
-        $sabadell = $this->sabadellProvider->request($amount,$trans_id,$description,$url_base,$url_ok,$url_ko,$url_final);
-        $transaction->setDataOut($sabadell);
+        $abanca = $this->abancaProvider->request($amount,$trans_id,$description,$url_base,$url_ok,$url_ko,$url_final);
+        $transaction->setDataOut($abanca);
 
         return $transaction;
     }
@@ -96,7 +96,7 @@ class SabadellTPVService extends BaseService{
     public function check(Transaction $transaction){
         $client_reference=$transaction->getId();
 
-        $status=$this->sabadellProvider->status($client_reference);
+        $status=$this->abancaProvider->status($client_reference);
 
         $transaction->setData($status);
 
@@ -124,7 +124,7 @@ class SabadellTPVService extends BaseService{
 
         }
 
-        $notification = $this->sabadellProvider->notification($params);
+        $notification = $this->abancaProvider->notification($params);
 
         if($notification){
 

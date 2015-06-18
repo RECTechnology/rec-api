@@ -172,6 +172,19 @@ services:
             - "%sabadell_base_url%"
             - "%base_url%"
 
+    net.telepay.provider.abanca:
+        class: Telepay\FinancialApiBundle\DependencyInjection\Transactions\Libs\AbancaService
+        arguments:
+            - "%abanca_url_tpvv%"
+            - "%abanca_secret%"
+            - "%abanca_name%"
+            - "%abanca_code%"
+            - "%abanca_currency%"
+            - "%abanca_transaction_type%"
+            - "%abanca_terminal%"
+            - "%abanca_base_url%"
+            - "%base_url%"
+
     net.telepay.provider.paynet_reference:
         class: Telepay\FinancialApiBundle\DependencyInjection\Transactions\Libs\PaynetGetBarcode
         arguments:
