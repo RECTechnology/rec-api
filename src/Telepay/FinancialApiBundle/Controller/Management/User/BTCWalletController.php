@@ -157,7 +157,7 @@ class BTCWalletController extends RestApiController{
 
         $user = $this->get('security.context')->getToken()->getUser();
 
-        $device = $user->getDevice();
+        $device = $user->getDevices();
 
         //die(print_r($device[0],true));
 
