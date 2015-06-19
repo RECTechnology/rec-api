@@ -43,7 +43,7 @@ class AbancaTPVService extends BaseService{
         $trans_id = $timestamp;
         $contador = 0;
 
-        $url_final='/notifications/v2/abanca/'.$id;
+        $url_final='/notifications/v1/abanca/'.$id;
 
         $abanca = $this->abancaProvider->request($amount, $trans_id.$contador, $description, $url_ok, $url_ko, $url_final);
 
