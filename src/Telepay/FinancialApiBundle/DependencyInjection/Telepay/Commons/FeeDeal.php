@@ -15,10 +15,12 @@ use Telepay\FinancialApiBundle\Entity\User;
 class FeeDeal{
     private $doctrine;
     private $mongo;
+    private $balance_manipulator;
 
-    public function __construct($doctrine,$mongo){
-        $this->doctrine=$doctrine;
-        $this->mongo=$mongo;
+    public function __construct($doctrine, $mongo, $balance_manipulator){
+        $this->doctrine = $doctrine;
+        $this->mongo = $mongo;
+        $this->balance_manipulator = $balance_manipulator;
     }
 
     /**
@@ -45,13 +47,13 @@ class FeeDeal{
                 }
             }
 
-            $fixed=$group_commission->getFixed();
-            $variable=$group_commission->getVariable();
-            $total=$fixed+$variable*$amount;
+            $fixed = $group_commission->getFixed();
+            $variable = $group_commission->getVariable();
+            $total = $fixed + $variable*$amount;
         }else{
-            $total=0;
-            $variable=0;
-            $fixed=0;
+            $total = 0;
+            $variable = 0;
+            $fixed = 0;
         }
 
         $em = $this->doctrine->getManager();
@@ -101,8 +103,7 @@ class FeeDeal{
                 $dm->persist($transaction);
                 $dm->flush();
 
-                $balancer = $this->getContainer()->get('net.telepay.commons.balance_manipulator');
-                $balancer->addBalance($creator, $fee, $transaction);
+                $this->balance_manipulator->addBalance($creator, $fee, $transaction);
 
                 $id=$transaction->getId();
 
@@ -137,8 +138,7 @@ class FeeDeal{
             $dm->persist($feeTransaction);
             $dm->flush();
 
-            $balancer = $this->getContainer()->get('net.telepay.commons.balance_manipulator');
-            $balancer->addBalance($creator, -$total, $feeTransaction);
+            $this->balance_manipulator->addBalance($creator, -$total, $feeTransaction);
 
             $new_creator=$group->getCreator();
             $this->deal($new_creator,$amount,$service_cname,$currency,$total,$id,$version);
