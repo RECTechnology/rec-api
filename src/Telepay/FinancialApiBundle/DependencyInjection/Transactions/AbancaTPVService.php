@@ -73,7 +73,6 @@ class AbancaTPVService extends BaseService{
         $important_data = $transaction->getData();
         $amount = $datos['Ds_Merchant_Amount'];
         $description = $datos_in['description'];
-        $url_base = $important_data['url_base'];
         $url_final = $important_data['url_final'];
         $url_ok = $datos['Ds_Merchant_UrlOK'];
         $url_ko = $datos['Ds_Merchant_UrlKO'];
@@ -82,7 +81,7 @@ class AbancaTPVService extends BaseService{
         $important_data['transaction_id'] = $trans_id;
         $transaction->setData($important_data);
 
-        $abanca = $this->abancaProvider->request($amount,$trans_id,$description,$url_base,$url_ok,$url_ko,$url_final);
+        $abanca = $this->abancaProvider->request($amount, $trans_id, $description, $url_ok, $url_ko, $url_final);
         $transaction->setDataOut($abanca);
 
         return $transaction;
