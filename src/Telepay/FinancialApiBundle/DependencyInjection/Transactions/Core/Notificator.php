@@ -27,6 +27,8 @@ class Notificator {
         else
             return $transaction;
 
+        if($url_notification == null) return $transaction;
+
         $user = $this->container->get('doctrine')->getRepository('TelepayFinancialApiBundle:User')
             ->find($transaction->getUser());
 
@@ -45,7 +47,7 @@ class Notificator {
         $signature = hash_hmac('sha256',$data_to_sign,$key);
 
         $params = array(
-            'id'        =>   $id,
+            'id'        =>  $id,
             'status'    =>  $status,
             'amount'    =>  $amount,
             'signature' =>  $signature
