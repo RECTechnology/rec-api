@@ -38,20 +38,21 @@ class AbancaTPVService extends BaseService{
         $url_ko = $baseTransaction->getDataIn()['url_ko'];
         $id=$baseTransaction->getId();
 
+        $timestamp = new \DateTime();
+        $timestamp = $timestamp->getTimestamp();
+        $trans_id = $timestamp;
+        $contador = 0;
+
         $url_final='/notifications/v2/abanca/'.$id;
 
-        $abanca = $this->abancaProvider->request($amount, $id,$description, $url_ok, $url_ko, $url_final);
+        $abanca = $this->abancaProvider->request($amount, $trans_id.$contador, $description, $url_ok, $url_ko, $url_final);
 
         if($abanca === false)
             throw new HttpException(503, "Service temporarily unavailable, please try again in a few minutes");
 
-        $timestamp=new \DateTime();
-        $timestamp=$timestamp->getTimestamp();
-        $trans_id=$timestamp;
-
         $important_data=array(
             'url_final' =>  $url_final,
-            'contador'  =>  0,
+            'contador'  =>  1,
             'transaction_id'    =>  $trans_id
         );
 
@@ -66,19 +67,19 @@ class AbancaTPVService extends BaseService{
     public function update(Transaction $transaction, $data){
 
         // pillar la id
-        $id=$transaction->getId();
-        $datos=$transaction->getDataOut();
-        $datos_in=$transaction->getDataIn();
-        $important_data=$transaction->getData();
-        $amount=$datos['Ds_Merchant_Amount'];
-        $description=$datos_in['description'];
-        $url_base=$important_data['url_base'];
-        $url_final=$important_data['url_final'];
-        $url_ok=$datos['Ds_Merchant_UrlOK'];
-        $url_ko=$datos['Ds_Merchant_UrlKO'];
-        $trans_id=$important_data['transaction_id'].$important_data['contador'];
-        $important_data['contador']=$important_data['contador']+1;
-        $important_data['transaction_id']= $trans_id;
+        $id = $transaction->getId();
+        $datos = $transaction->getDataOut();
+        $datos_in = $transaction->getDataIn();
+        $important_data = $transaction->getData();
+        $amount = $datos['Ds_Merchant_Amount'];
+        $description = $datos_in['description'];
+        $url_base = $important_data['url_base'];
+        $url_final = $important_data['url_final'];
+        $url_ok = $datos['Ds_Merchant_UrlOK'];
+        $url_ko = $datos['Ds_Merchant_UrlKO'];
+        $trans_id = $important_data['transaction_id'].$important_data['contador'];
+        $important_data['contador'] = $important_data['contador']+1;
+        $important_data['transaction_id'] = $trans_id;
         $transaction->setData($important_data);
 
         $abanca = $this->abancaProvider->request($amount,$trans_id,$description,$url_base,$url_ok,$url_ko,$url_final);
