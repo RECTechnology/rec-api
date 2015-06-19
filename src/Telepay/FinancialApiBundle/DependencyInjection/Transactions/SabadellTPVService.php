@@ -36,22 +36,24 @@ class SabadellTPVService extends BaseService{
         $description = $baseTransaction->getDataIn()['description'];
         $url_ok = $baseTransaction->getDataIn()['url_ok'];
         $url_ko = $baseTransaction->getDataIn()['url_ko'];
-        $id=$baseTransaction->getId();
+        $id = $baseTransaction->getId();
+        $timestamp = new \DateTime();
+        $timestamp = $timestamp->getTimestamp();
+        $trans_id = $timestamp;
+        $contador = 0;
 
         $url_final='/notifications/v2/sabadell/'.$id;
 
-        $sabadell = $this->sabadellProvider->request($amount, $id,$description, $url_ok, $url_ko, $url_final);
+        $sabadell = $this->sabadellProvider->request($amount, $trans_id.$contador,$description, $url_ok, $url_ko, $url_final);
 
         if($sabadell === false)
             throw new HttpException(503, "Service temporarily unavailable, please try again in a few minutes");
 
-        $timestamp=new \DateTime();
-        $timestamp=$timestamp->getTimestamp();
-        $trans_id=$timestamp;
+
 
         $important_data=array(
             'url_final' =>  $url_final,
-            'contador'  =>  0,
+            'contador'  =>  1,
             'transaction_id'    =>  $trans_id
         );
 
