@@ -320,11 +320,10 @@
 //##################################### SABADELL ###################################
 
 /**
- * @apiIgnore Not finished method
- * @api {post} /services/v1/sabadell Sabadell
+ * @api {post} /services/v2/sabadell Sabadell
  * @apiName Sabadell
  * @apiDescription Receive payments with Sabadell TPV.
- * @apiVersion 0.1.0
+ * @apiVersion 0.2.0
  * @apiGroup Services
  * @apiUse OAuth2Header
  * @apiParam {Integer} amount Transaction amount in <code>cents</code>
@@ -393,6 +392,42 @@
  * @apiSuccess {String} data.text Transacition description.
  * @apiSuccess {String} data.mode Transaction mode.
  * @apiSuccess {String} data.type_card Credit card type.
+ * @apiUse NotAuthenticated
+ *
+ */
+
+//##################################### SABADELL ###################################
+
+/**
+ * @api {post} /services/v1/abanca Abanca
+ * @apiName Abanca
+ * @apiDescription Receive payments with Abanca TPV.
+ * @apiVersion 0.2.0
+ * @apiGroup Services
+ * @apiUse OAuth2Header
+ * @apiParam {Integer} amount Transaction amount in <code>cents</code>
+ * @apiParam {String} description A simple product description.
+ * @apiParam {String} url_notification Url When we will notificate the transaction result.
+ * @apiParam {String} url_ok Url When we will redirect the user if the transaction was successful.
+ * @apiParam {String} url_ko Url When we will redirect the user if the transaction was unsuccessful.
+ * @apiSuccess {String} status The resulting status of the transaction
+ * @apiSuccess {String} message The message about the result of the request
+ * @apiSuccess {String} id The ID of the transaction
+ * @apiSuccess {Integer} amount The total amount to pay in <code>cents</code>
+ * @apiSuccess {Integer=2} scale The number of decimals to represent the amount
+ * @apiSuccess {String="EUR"} currency The currency
+ * @apiSuccess {Object} data The data for the form to generate the TPV.
+ * @apiSuccess {String} data.Ds_Merchant_Amount Total transaction amount.
+ * @apiSuccess {Integer} data.Ds_Merchant_Currency Currency code ISO-8601.
+ * @apiSuccess {String} data.Ds_Merchant_Order {{ name }} transaction id.
+ * @apiSuccess {Integer} data.Ds_Merchant_MerchantCode {{ name }} merchant code.
+ * @apiSuccess {Integer} data.Ds_Merchant_Terminal {{ name }} terminal.
+ * @apiSuccess {Integer} data.Ds_Merchant_TransactionType Transaction type.
+ * @apiSuccess {String} data.Ds_Merchant_MerchantURL {{ name }} url notification.
+ * @apiSuccess {String} data.Ds_Merchant_UrlOK Url to redirect the client when the transaction was successful.
+ * @apiSuccess {String} data.Ds_Merchant_UrlKO Url to redirect the client when the transaction was unsuccessful.
+ * @apiSuccess {String} data.Ds_Merchant_Signature Url to redirect the client to finish the payment.
+ * @apiSuccess {String} data.Ds_Merchant_TpvV Url to redirect the client to finish the payment.
  * @apiUse NotAuthenticated
  *
  */

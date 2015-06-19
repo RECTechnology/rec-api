@@ -46,7 +46,7 @@ parameters:
     sabadell_currency: currency
     sabadell_transaction_type: 0
     sabadell_terminal: 1
-    sabadell_base_url: ""
+    sabadell_base_url: "/test"
 
     paynet_reference_issuer: '467accc5-4051-4472-bb17-dad1f68779bf'
     paynet_reference_url: 'http://201.147.99.51/PaynetCE/WSPaynetCE.asmx?WSDL'
