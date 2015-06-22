@@ -77,7 +77,7 @@ class SabadellService{
         $signature = strtoupper(sha1($message));
 
         if($signature == $params[4]){
-            if($params[5]<=99){
+            if($params[5] <= 99 ){
                 $status = 1;
 
             }else{
