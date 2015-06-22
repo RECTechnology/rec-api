@@ -127,16 +127,12 @@ class SabadellTPVService extends BaseService{
 
         $notification = $this->sabadellProvider->notification($params);
 
-        if($notification){
-
-            if($notification == 1){
-                $transaction->setStatus(Transaction::$STATUS_SUCCESS);
-                $transaction->setDebugData($request);
-            }else{
-                $transaction->setStatus(Transaction::$STATUS_CANCELLED);
-                $transaction->setDebugData($request);
-            }
-
+        if($notification == 1){
+            $transaction->setStatus(Transaction::$STATUS_SUCCESS);
+            $transaction->setDebugData($request);
+        }else{
+            $transaction->setStatus(Transaction::$STATUS_CANCELLED);
+            $transaction->setDebugData($request);
         }
 
         return $transaction;
