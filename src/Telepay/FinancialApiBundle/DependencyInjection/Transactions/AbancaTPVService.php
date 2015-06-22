@@ -126,17 +126,19 @@ class AbancaTPVService extends BaseService{
 
         $notification = $this->abancaProvider->notification($params);
 
-        if($notification){
-
-            if($notification == 1){
-                $transaction->setStatus(Transaction::$STATUS_SUCCESS);
-                $transaction->setDebugData($request);
-            }else{
-                $transaction->setStatus(Transaction::$STATUS_CANCELLED);
-                $transaction->setDebugData($request);
-            }
-
+        if($notification == 1){
+            $transaction->setStatus(Transaction::$STATUS_SUCCESS);
+        }else{
+            $transaction->setStatus(Transaction::$STATUS_CANCELLED);
         }
+
+        $debug = array(
+            'notification'  =>  $notification,
+            'request'   =>  $request,
+            'params'    =>  $params
+        );
+
+        $transaction->setDebugData($debug);
 
         return $transaction;
 
