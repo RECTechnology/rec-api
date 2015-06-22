@@ -116,7 +116,7 @@ class CheckHalcashCommand extends ContainerAwareCommand
                     $transaction->setStatus('expired');
                     break;
                 case 'BloqueadaPorReintentos':
-                    $transaction->setStatus('failed');
+                    $transaction->setStatus('error');
                     break;
                 case 'Devuelta':
                     $transaction->setStatus('returned');
