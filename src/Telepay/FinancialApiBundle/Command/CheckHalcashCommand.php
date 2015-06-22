@@ -111,27 +111,65 @@ class CheckHalcashCommand extends ContainerAwareCommand
                     break;
                 case 'Anulada':
                     $transaction->setStatus('cancelled');
+                    $this->sendEmail('Check hal --> '.$transaction->getStatus(), 'Transaccion '.$status['estadoticket']);
                     break;
                 case 'BloqueadaPorCaducidad':
                     $transaction->setStatus('expired');
+                    $transaction->setDebugData(array(
+                        'estadoticket'  =>  $status['estadoticket']
+                    ));
+                    $this->sendEmail('Check hal --> '.$transaction->getStatus(), 'Transaccion '.$status['estadoticket']);
                     break;
                 case 'BloqueadaPorReintentos':
                     $transaction->setStatus('error');
+                    $transaction->setDebugData(array(
+                        'estadoticket'  =>  $status['estadoticket']
+                    ));
+                    $this->sendEmail('Check hal --> '.$transaction->getStatus(), 'Transaccion '.$status['estadoticket']);
                     break;
                 case 'Devuelta':
                     $transaction->setStatus('returned');
+                    $transaction->setDebugData(array(
+                        'estadoticket'  =>  $status['estadoticket']
+                    ));
+                    $this->sendEmail('Check hal --> '.$transaction->getStatus(), 'Transaccion '.$status['estadoticket']);
                     break;
                 case 'Dispuesta':
                     $transaction->setStatus('success');
                     break;
                 case 'EstadoDesconocido':
                     $transaction->setStatus('unknown');
+                    $transaction->setDebugData(array(
+                        'estadoticket'  =>  $status['estadoticket']
+                    ));
+                    $this->sendEmail('Check hal --> '.$transaction->getStatus(), 'Transaccion '.$status['estadoticket']);
                     break;
             }
 
         }
 
         return $transaction;
+    }
+
+    public function sendEmail($subject, $body){
+
+        $message = \Swift_Message::newInstance()
+            ->setSubject($subject)
+            ->setFrom('no-reply@chip-chap.com')
+            ->setTo(array(
+                'pere@playa-almarda.es',
+                'support@chip-chap.com'
+            ))
+            ->setBody(
+                $this->getContainer()->get('templating')
+                    ->render('TelepayFinancialApiBundle:Email:support.html.twig',
+                        array(
+                            'message'        =>  $body
+                        )
+                    )
+            );
+
+        $this->getContainer()->get('mailer')->send($message);
     }
 
 }

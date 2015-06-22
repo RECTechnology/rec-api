@@ -707,9 +707,9 @@ class IncomingController extends RestApiController{
             //update wallet
             $user_id = $transaction->getUser();
 
-            $em=$this->getDoctrine()->getManager();
+            $em = $this->getDoctrine()->getManager();
 
-            $user =$em->getRepository('TelepayFinancialApiBundle:User')->find($user_id);
+            $user = $em->getRepository('TelepayFinancialApiBundle:User')->find($user_id);
             $currency = $transaction->getCurrency();
 
             $wallets = $user->getWallets();
@@ -718,7 +718,6 @@ class IncomingController extends RestApiController{
             foreach($wallets as $wallet ){
                 if($wallet->getCurrency() == $currency){
                     $current_wallet = $wallet;
-
                 }
             }
 
