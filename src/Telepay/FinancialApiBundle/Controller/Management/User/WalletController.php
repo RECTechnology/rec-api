@@ -29,7 +29,7 @@ class WalletController extends RestApiController{
         $user = $this->get('security.context')->getToken()->getUser();
         //obtener los wallets
         $wallets = $user->getWallets();
-
+die(print_r(count($wallets),true));
         //obtenemos la default currency
         $currency = $user->getDefaultCurrency();
 
@@ -44,10 +44,8 @@ class WalletController extends RestApiController{
             $available = $available + $new_wallet['available'];
             $balance = $balance + $new_wallet['balance'];
             if($new_wallet['scale'] != null) $scale = $new_wallet['scale'];
-            print_r($wallet->getId(),true);
         }
 
-die();
         //quitamos el user con to do lo que conlleva detras
         /*array_map(
             function($elem){
