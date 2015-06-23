@@ -1,0 +1,6 @@
+services:
+    
+    net.telepay.trader.FACxBTC:
+        class: Telepay\FinancialApiBundle\Financial\Trader\BittrexTrader
+        arguments:
+            - "@net.telepay.driver.bittrex"
