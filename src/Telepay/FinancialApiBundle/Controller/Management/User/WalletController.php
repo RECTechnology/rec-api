@@ -39,6 +39,7 @@ class WalletController extends RestApiController{
         $scale=0;
 
         foreach($wallets as $wallet){
+            die(print_r($wallet,true));
             $filtered[]=$wallet->getWalletView();
             $new_wallet=$this->exchange($wallet,$currency);
             $available=$available+$new_wallet['available'];
@@ -46,7 +47,7 @@ class WalletController extends RestApiController{
             if($new_wallet['scale']!=null) $scale=$new_wallet['scale'];
         }
 
-        die(print_r($currency,true));
+
         //quitamos el user con to do lo que conlleva detras
         /*array_map(
             function($elem){
