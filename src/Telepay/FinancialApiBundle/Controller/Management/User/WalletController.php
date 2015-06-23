@@ -47,7 +47,7 @@ class WalletController extends RestApiController{
             print_r($wallet->getId(),true);
         }
 
-
+die();
         //quitamos el user con to do lo que conlleva detras
         /*array_map(
             function($elem){
