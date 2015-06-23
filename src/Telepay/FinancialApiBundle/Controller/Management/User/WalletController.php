@@ -39,19 +39,11 @@ class WalletController extends RestApiController{
         $scale = 0;
 
         foreach($wallets as $wallet){
-
             $filtered[] = $wallet->getWalletView();
-            try{
-                $new_wallet = $this->exchange($wallet, $currency);
-            }catch (HttpException $e){
-                throw new HttpException(400, $e->getMessage());
-            }
-
-            //$available = $available + $new_wallet['available'];
-            //$balance = $balance + $new_wallet['balance'];
-            //if($new_wallet['scale'] != null) $scale = $new_wallet['scale'];
-
-
+            $new_wallet = $this->exchange($wallet, $currency);
+            $available = $available + $new_wallet['available'];
+            $balance = $balance + $new_wallet['balance'];
+            if($new_wallet['scale'] != null) $scale = $new_wallet['scale'];
         }
 
         //quitamos el user con to do lo que conlleva detras
@@ -598,18 +590,19 @@ class WalletController extends RestApiController{
         }
         $dm = $this->getDoctrine()->getManager();
         $exchangeRepo = $dm->getRepository('TelepayFinancialApiBundle:Exchange');
-        $exchange = $exchangeRepo->findBy(
+        $exchange = $exchangeRepo->findOneBy(
             array('src'=>$currency_actual,'dst'=>$currency),
             array('id'=>'DESC')
         );
 
         if(!$exchange) throw new HttpException(404,'Exchange not found');
 
-        $price = $exchange[0]->getPrice();
+        $price = $exchange->getPrice();
 
         $response['available'] = $wallet->getAvailable()*$price;
         $response['balance'] = $wallet->getBalance()*$price;
         $response['scale'] = null;
+
         return $response;
 
     }
