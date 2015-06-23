@@ -28,11 +28,11 @@ class WalletController extends RestApiController{
 
         $user = $this->get('security.context')->getToken()->getUser();
         //obtener los wallets
-        $wallets=$user->getWallets();
+        $wallets = $user->getWallets();
 
         //obtenemos la default currency
-        $currency=$user->getDefaultCurrency();
-
+        $currency = $user->getDefaultCurrency();
+die(print_r('currency',true));
         $filtered=[];
         $available=0;
         $balance=0;
