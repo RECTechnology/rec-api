@@ -32,7 +32,7 @@ class WalletController extends RestApiController{
 
         //obtenemos la default currency
         $currency = $user->getDefaultCurrency();
-die(print_r('currency',true));
+
         $filtered=[];
         $available=0;
         $balance=0;
@@ -46,7 +46,7 @@ die(print_r('currency',true));
             if($new_wallet['scale']!=null) $scale=$new_wallet['scale'];
         }
 
-
+        die(print_r($currency,true));
         //quitamos el user con to do lo que conlleva detras
         /*array_map(
             function($elem){
