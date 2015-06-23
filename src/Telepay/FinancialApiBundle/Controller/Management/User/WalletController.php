@@ -41,7 +41,12 @@ class WalletController extends RestApiController{
         foreach($wallets as $wallet){
 
             $filtered[] = $wallet->getWalletView();
-            $new_wallet = $this->exchange($wallet,$currency);
+            try{
+                $new_wallet = $this->exchange($wallet, $currency);
+            }catch (HttpException $e){
+                throw new HttpException(400, $e->getMessage());
+            }
+
             //$available = $available + $new_wallet['available'];
             //$balance = $balance + $new_wallet['balance'];
             //if($new_wallet['scale'] != null) $scale = $new_wallet['scale'];
@@ -582,17 +587,17 @@ class WalletController extends RestApiController{
     /**
      * makes an exchange between currencies in the wallet
      */
-    public function exchange(UserWallet $wallet,$currency){
+    public function exchange(UserWallet $wallet, $currency){
 
-        $currency_actual=$wallet->getCurrency();
-        if($currency_actual==$currency){
-            $response['available']=$wallet->getAvailable();
-            $response['balance']=$wallet->getBalance();
-            $response['scale']=$wallet->getScale();
+        $currency_actual = $wallet->getCurrency();
+        if($currency_actual == $currency){
+            $response['available'] = $wallet->getAvailable();
+            $response['balance'] = $wallet->getBalance();
+            $response['scale'] = $wallet->getScale();
             return $response;
         }
-        $dm=$this->getDoctrine()->getManager();
-        $exchangeRepo=$dm->getRepository('TelepayFinancialApiBundle:Exchange');
+        $dm = $this->getDoctrine()->getManager();
+        $exchangeRepo = $dm->getRepository('TelepayFinancialApiBundle:Exchange');
         $exchange = $exchangeRepo->findBy(
             array('src'=>$currency_actual,'dst'=>$currency),
             array('id'=>'DESC')
@@ -600,11 +605,11 @@ class WalletController extends RestApiController{
 
         if(!$exchange) throw new HttpException(404,'Exchange not found');
 
-        $price=$exchange[0]->getPrice();
+        $price = $exchange[0]->getPrice();
 
-        $response['available']=$wallet->getAvailable()*$price;
-        $response['balance']=$wallet->getBalance()*$price;
-        $response['scale']=null;
+        $response['available'] = $wallet->getAvailable()*$price;
+        $response['balance'] = $wallet->getBalance()*$price;
+        $response['scale'] = null;
         return $response;
 
     }
