@@ -33,20 +33,18 @@ class WalletController extends RestApiController{
         //obtenemos la default currency
         $currency = $user->getDefaultCurrency();
 
-        $filtered=[];
-        $available=0;
-        $balance=0;
-        $scale=0;
+        $filtered = [];
+        $available = 0;
+        $balance = 0;
+        $scale = 0;
 
         foreach($wallets as $wallet){
-
-            $filtered[]=$wallet->getWalletView();
-
-            $new_wallet=$this->exchange($wallet,$currency);
-            $available=$available+$new_wallet['available'];
-            $balance=$balance+$new_wallet['balance'];
-            if($new_wallet['scale']!=null) $scale=$new_wallet['scale'];
-            die(print_r($wallet->getId(),true));
+            $filtered[] = $wallet->getWalletView();
+            $new_wallet = $this->exchange($wallet,$currency);
+            $available = $available + $new_wallet['available'];
+            $balance = $balance + $new_wallet['balance'];
+            if($new_wallet['scale'] != null) $scale = $new_wallet['scale'];
+            print_r($wallet->getId(),true);
         }
 
 
@@ -59,13 +57,13 @@ class WalletController extends RestApiController{
         );*/
 
         //montamos el wallet
-        $multidivisa=[];
-        $multidivisa['id']='multidivisa';
-        $multidivisa['currency']=$currency;
-        $multidivisa['available']=$available;
-        $multidivisa['balance']=$balance;
-        $multidivisa['scale']=$scale;
-        $filtered[]=$multidivisa;
+        $multidivisa = [];
+        $multidivisa['id'] = 'multidivisa';
+        $multidivisa['currency'] = $currency;
+        $multidivisa['available'] = $available;
+        $multidivisa['balance'] = $balance;
+        $multidivisa['scale'] = $scale;
+        $filtered[] = $multidivisa;
 
         //return $this->rest(201, "Account info got successfully", $filtered);
         return $this->restV2(200, "ok", "Wallet info got successfully", $filtered);
@@ -93,7 +91,7 @@ class WalletController extends RestApiController{
         $resArray = [];
         foreach($last10Trans->toArray() as $res){
 
-            $resArray []= $res;
+            $resArray [] = $res;
 
         }
 
@@ -156,9 +154,9 @@ class WalletController extends RestApiController{
 
         $default_currency=$user->getDefaultCurrency();
 
-        $day=$this->_getBenefits('day');
-        $week=$this->_getBenefits('week');
-        $month=$this->_getBenefits('month');
+        $day = $this->_getBenefits('day');
+        $week = $this->_getBenefits('week');
+        $month = $this->_getBenefits('month');
 
 
         return $this->restV2(
@@ -185,24 +183,24 @@ class WalletController extends RestApiController{
 
         $default_currency=$user->getDefaultCurrency();
 
-        $day1=date('Y-m-1 00:00:00');
+        $day1 = date('Y-m-1 00:00:00');
 
-        $monthly=[];
+        $monthly = [];
 
         for($i=0;$i<12;$i++){
-            $actual_month=strtotime("-".$i." month",strtotime($day1));
-            $next_month=$actual_month+31*24*3600;
-            $start_time=strtotime(date('Y-m-d',$actual_month));
-            $end_time=strtotime(date('Y-m-d',$next_month));
-            $month=$this->_getBenefits('month',$start_time,$end_time);
-            $strmonth=date('Y-m',$actual_month);
-            $monthly[$strmonth]=$month;
+            $actual_month = strtotime("-".$i." month",strtotime($day1));
+            $next_month = $actual_month+31*24*3600;
+            $start_time = strtotime(date('Y-m-d',$actual_month));
+            $end_time = strtotime(date('Y-m-d',$next_month));
+            $month = $this->_getBenefits('month',$start_time,$end_time);
+            $strmonth = date('Y-m',$actual_month);
+            $monthly[$strmonth] = $month;
 
         }
 
-        $monthly['currency']=$default_currency;
+        $monthly['currency'] = $default_currency;
 
-        $monthly['scale']=$this->_getScale($default_currency);
+        $monthly['scale'] = $this->_getScale($default_currency);
 
         return $this->restV2(
             200,
@@ -220,8 +218,8 @@ class WalletController extends RestApiController{
         $user = $this->get('security.context')
             ->getToken()->getUser();
 
-        $userId=$user->getId();
-        $default_currency=$user->getDefaultCurrency();
+        $userId = $user->getId();
+        $default_currency = $user->getDefaultCurrency();
 
         $dm = $this->get('doctrine_mongodb')->getManager();
         $result = $dm->createQueryBuilder('TelepayFinancialApiBundle:Transaction')
@@ -252,19 +250,19 @@ class WalletController extends RestApiController{
         foreach($result->toArray() as $res){
             $json = file_get_contents('http://www.geoplugin.net/json.gp?ip='.$res['ip']);
             $data = json_decode($json);
-            $res['country']=$data->geoplugin_countryName;
-            if($res['country']==''){
-                $country['name']='not located';
-                $country['code']='';
-                $country['flag']='';
-                $country['value']=$res['total'];
-                $total[]=$country;
+            $res['country'] = $data->geoplugin_countryName;
+            if($res['country'] == ''){
+                $country['name'] = 'not located';
+                $country['code'] = '';
+                $country['flag'] = '';
+                $country['value'] = $res['total'];
+                $total[] = $country;
             }else{
-                $country['name']=$data->geoplugin_countryName;
-                $country['code']=$data->geoplugin_countryCode;
-                $country['flag']=strtolower($data->geoplugin_countryCode);
-                $country['value']=$res['total'];
-                $total[]=$country;
+                $country['name'] = $data->geoplugin_countryName;
+                $country['code'] = $data->geoplugin_countryCode;
+                $country['flag'] = strtolower($data->geoplugin_countryCode);
+                $country['value'] = $res['total'];
+                $total[] = $country;
             }
         }
 
