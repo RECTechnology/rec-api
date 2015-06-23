@@ -48,12 +48,12 @@ class WalletController extends RestApiController{
 
 
         //quitamos el user con to do lo que conlleva detras
-        array_map(
+        /*array_map(
             function($elem){
                 $elem->setUser(null);
             },
             $filtered
-        );
+        );*/
 
         //montamos el wallet
         $multidivisa=[];

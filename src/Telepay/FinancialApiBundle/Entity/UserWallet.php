@@ -106,7 +106,13 @@ class UserWallet {
 
     public function getWalletView(){
         $this->scale=$this->getScale();
-        return $this;
+        $wallet['id'] = $this->getId();
+        $wallet['currency'] = $this->getCurrency();
+        $wallet['available'] = $this->getAvailable();
+        $wallet['balance'] = $this->getBalance();
+        $wallet['scale'] = $this->getScale();
+
+        return $wallet;
     }
 
     //TODO quitar esto de aqui porque se repite en varios sitios
