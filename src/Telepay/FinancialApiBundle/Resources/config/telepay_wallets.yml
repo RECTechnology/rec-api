@@ -1,0 +1,19 @@
+services:
+
+    net.telepay.wallet.bittrex.fair:
+        class: Telepay\FinancialApiBundle\Financial\Wallet\BittrexWallet
+        arguments:
+            - "@net.telepay.driver.bittrex"
+            - "FAIR"
+
+    net.telepay.wallet.bittrex.btc:
+        class: Telepay\FinancialApiBundle\Financial\Wallet\BittrexWallet
+        arguments:
+            - "@net.telepay.driver.bittrex"
+            - "BTC"
+
+    net.telepay.wallet.kraken.btc:
+        class: Telepay\FinancialApiBundle\Financial\Wallet\KrakenWallet
+        arguments:
+            - "@net.telepay.driver.kraken"
+            - "BTC"
