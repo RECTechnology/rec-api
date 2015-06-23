@@ -41,11 +41,12 @@ class WalletController extends RestApiController{
         foreach($wallets as $wallet){
 
             $filtered[]=$wallet->getWalletView();
-            die(print_r($wallet->getId(),true));
+
             $new_wallet=$this->exchange($wallet,$currency);
             $available=$available+$new_wallet['available'];
             $balance=$balance+$new_wallet['balance'];
             if($new_wallet['scale']!=null) $scale=$new_wallet['scale'];
+            die(print_r($wallet->getId(),true));
         }
 
 
