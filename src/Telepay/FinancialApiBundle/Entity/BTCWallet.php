@@ -30,7 +30,7 @@ class BTCWallet implements OwnByUserInterface {
     }
 
     /**
-     * @ORM\Column(type="string")
+     * @ORM\Column(type="text")
      */
     private $cypher_data;
 
