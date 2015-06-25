@@ -17,8 +17,8 @@ class BitsoTicker implements TickerInterface {
     private $bitsoDriver;
     private $direction;
 
-    public function __construct(BitsoDriver $bittrexDriver, $direction){
-        $this->bitsoDriver = $bittrexDriver;
+    public function __construct(BitsoDriver $bitsoDriver, $direction){
+        $this->bitsoDriver = $bitsoDriver;
         $this->direction = $direction;
     }
 
@@ -34,11 +34,17 @@ class BitsoTicker implements TickerInterface {
 
     public function getInCurrency()
     {
-        return Currency::$BTC;
+        if($this->direction == 'btc_mxn')
+            return Currency::$BTC;
+        else
+            return Currency::$MXN;
     }
 
     public function getOutCurrency()
     {
-        return Currency::$MXN;
+        if($this->direction == 'mxn_btc')
+            return Currency::$MXN;
+        else
+            return Currency::$BTC;
     }
 }

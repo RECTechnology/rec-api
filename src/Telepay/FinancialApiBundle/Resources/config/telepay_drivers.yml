@@ -1,0 +1,21 @@
+services:
+
+    net.telepay.driver.bitso:
+        class: Telepay\FinancialApiBundle\Financial\Driver\BitsoDriver
+
+    net.telepay.driver.kraken:
+        class: Payward\KrakenAPI
+        arguments:
+            - "%kraken_api_key%"
+            - "%kraken_private_key%"
+
+    net.telepay.driver.bittrex:
+        class: Telepay\FinancialApiBundle\Financial\Driver\BittrexDriver
+        arguments:
+            - "%bittrex_api_url%"
+            - "%bittrex_api_key%"
+            - "%bittrex_api_secret%"
+
+    net.telepay.driver.getfaircoin:
+        class: GetFaircoin\Ticker
+
