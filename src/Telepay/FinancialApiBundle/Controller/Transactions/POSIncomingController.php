@@ -46,6 +46,13 @@ class POSIncomingController extends RestApiController{
             throw $this->createAccessDeniedException();
         }
 
+        if($service_cname == 'btc_pay'){
+            $request->request->add(array(
+                'confirmations' =>  1,
+                'expires_in'    =>  1200
+            ));
+        }
+
         $dataIn = array();
         foreach($service->getFields() as $field){
             if(!$request->request->has($field))
