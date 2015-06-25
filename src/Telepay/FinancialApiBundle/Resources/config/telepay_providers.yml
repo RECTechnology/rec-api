@@ -185,6 +185,19 @@ services:
             - "%abanca_base_url%"
             - "%base_url%"
 
+    net.telepay.provider.ruralvia:
+        class: Telepay\FinancialApiBundle\DependencyInjection\Transactions\Libs\RedsysService
+        arguments:
+            - "%ruralvia_url_tpvv%"
+            - "%ruralvia_secret%"
+            - "%ruralvia_name%"
+            - "%ruralvia_code%"
+            - "%ruralvia_currency%"
+            - "%ruralvia_transaction_type%"
+            - "%ruralvia_terminal%"
+            - "%ruralvia_base_url%"
+            - "%base_url%"
+
     net.telepay.provider.paynet_reference:
         class: Telepay\FinancialApiBundle\DependencyInjection\Transactions\Libs\PaynetGetBarcode
         arguments:

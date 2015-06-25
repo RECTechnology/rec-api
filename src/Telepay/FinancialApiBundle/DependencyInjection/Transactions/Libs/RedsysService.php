@@ -4,7 +4,7 @@ namespace Telepay\FinancialApiBundle\DependencyInjection\Transactions\Libs;
 
 use Symfony\Component\HttpKernel\Exception\HttpException;
 
-class AbancaService{
+class RedsysService{
 
     private $amount;
     private $transaction_id;

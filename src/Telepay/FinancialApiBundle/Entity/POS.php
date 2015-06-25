@@ -10,22 +10,28 @@ namespace Telepay\FinancialApiBundle\Entity;
 
 use Doctrine\ORM\Mapping as ORM;
 
+use JMS\Serializer\Annotation\ExclusionPolicy;
+use JMS\Serializer\Annotation\Expose;
+
 /**
  * @ORM\Entity
- * @ORM\Table(name="tpvs")
+ * @ORM\Table(name="POS")
+ * @ExclusionPolicy("all")
  */
-class TPV {
+class POS {
 
     /**
      * @ORM\Id
      * @ORM\Column(type="integer")
      * @ORM\GeneratedValue(strategy="AUTO")
+     * @Expose
      */
     private $id;
 
 
     /**
      * @ORM\Column(type="string")
+     * @Expose
      */
     private $name;
 
@@ -34,6 +40,17 @@ class TPV {
      * @ORM\ManyToOne(targetEntity="Telepay\FinancialApiBundle\Entity\User")
      */
     private $user;
+
+    /**
+     * @ORM\Column(type="string")
+     * @Expose
+     */
+    private $cname;
+
+    /**
+     * @Expose
+     */
+    private $url;
 
     /**
      * @return mixed
@@ -73,6 +90,31 @@ class TPV {
     public function setName($name)
     {
         $this->name = $name;
+    }
+
+    /**
+     * @return mixed
+     */
+    public function getCname()
+    {
+        return $this->cname;
+    }
+
+    /**
+     * @param mixed $cname
+     */
+    public function setCname($cname)
+    {
+        $this->cname = $cname;
+    }
+
+    /**
+     * @return mixed
+     */
+    public function getTpvView()
+    {
+        $this->url = 'https://pos.chip-chap.com/'.$this->getId();
+        return $this;
     }
 
 }

@@ -16,7 +16,6 @@ class SabadellService{
     private $clave;
     private $name;
     private $code;
-    private $currency;
     private $transaction_type;
     private $terminal;
     private $url_env;
@@ -29,7 +28,6 @@ class SabadellService{
         $this->clave = $clave;
         $this->name = $name;
         $this->code = $code;
-        $this->currency = $currency;
         $this->transaction_type = $transaction_type;
         $this->terminal = $terminal;
         $this->url_env = $url_env;
@@ -37,7 +35,7 @@ class SabadellService{
 
     }
 
-    public function request($amount,$transaction_id,$description,$url_ok,$url_ko,$url_final){
+    public function request($amount, $transaction_id, $currency, $description, $url_ok, $url_ko, $url_final){
 
         $this->amount = $amount;
         $this->transaction_id = $transaction_id;
@@ -46,12 +44,12 @@ class SabadellService{
         $this->url_notification = $this->url_base.$this->url_env.$this->url_final;
         $this->url_ok = $url_ok;
         $this->url_ko = $url_ko;
-        $message = $this->amount.$this->transaction_id.$this->code.$this->currency.$this->transaction_type.$this->url_notification.$this->clave;
+        $message = $this->amount.$this->transaction_id.$this->code.$currency.$this->transaction_type.$this->url_notification.$this->clave;
         $signature=strtoupper(sha1($message));
 
         $response=array(
             'Ds_Merchant_Amount'        =>  $this->amount,
-            'Ds_Merchant_Currency'      =>  $this->currency,
+            'Ds_Merchant_Currency'      =>  $currency,
             'Ds_Merchant_Order'         =>  $this->transaction_id,
             'Ds_Merchant_MerchantCode'  =>  $this->code,
             'Ds_Merchant_Terminal'      =>  $this->terminal,

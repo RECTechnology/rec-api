@@ -14,6 +14,9 @@ Transactions:
 Exchange:
     resource: routing/exchange.yml
 
+POS:
+    resource: routing/pos.yml
+
 OldVersions:
     resource: routing/old_services.yml
 

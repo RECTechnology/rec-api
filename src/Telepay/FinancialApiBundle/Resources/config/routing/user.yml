@@ -12,6 +12,9 @@ user_account_edit:
     requirements:
         _method: PUT
 
+
+######################## USER WALLET ########################
+
 user_wallet:
     pattern:  /user/v1/wallet
     defaults: { _controller: Telepay\FinancialApiBundle\Controller\Management\User\WalletController::read }
@@ -41,6 +44,9 @@ user_wallet_transactions_sum_country:
     defaults: { _controller: Telepay\FinancialApiBundle\Controller\Management\User\WalletController::countryBenefits }
     requirements:
         _method: GET
+
+
+######################## USER ANALYTICS ########################
 
 user_analytics:
     pattern:  /user/v1/analytics
@@ -83,6 +89,9 @@ user_reset_client_credentials:
     defaults: { _controller: Telepay\FinancialApiBundle\Controller\Management\User\AccountController::resetCredentials }
     requirements:
         _method: PUT
+
+
+######################## USER BTCWALLET ########################
 
 user_btc_wallet_read:
     pattern:  /user/v1/btc_wallet
@@ -137,4 +146,5 @@ user_devices_delete:
     defaults: { _controller: Telepay\FinancialApiBundle\Controller\Management\User\BTCWalletController::deleteDevice }
     requirements:
         _method: DELETE
+
 

@@ -25,9 +25,13 @@ security:
                 login_path: fos_user_security_login
             anonymous: true
 
-
         exchange_ticker:
             pattern:    ^/exchange/v[0-9]+/(currencies|ticker)*
+            stateless:  true
+            security:   false
+
+        POS:
+            pattern:    ^/pos/v[0-9]+/transaction/*
             stateless:  true
             security:   false
 
@@ -64,6 +68,9 @@ security:
         - { path: ^/admin/v[0-9]+/*, role: ROLE_SUPER_ADMIN }
         - { path: ^/manager/v[0-9]+/*, role: ROLE_ADMIN }
         - { path: ^/services/v[0-9]+/*, role: ROLE_INTEGRATOR }
+
+        - { path: ^/pos/v[0-9]+/transaction/*, role: IS_AUTHENTICATED_ANONYMOUSLY, ip: ["127.0.0.1"] }
+
         - { path: ^/pos/v[0-9]+/*, role: ROLE_COMMERCE }
         - { path: ^/user/v[0-9]+/*, role: ROLE_USER }
         - { path: ^/register/v[0-9]+, roles: IS_AUTHENTICATED_ANONYMOUSLY }
