@@ -48,6 +48,12 @@ class POS {
     private $cname;
 
     /**
+     * @ORM\Column(type="string")
+     * @Expose
+     */
+    private $currency;
+
+    /**
      * @Expose
      */
     private $url;
@@ -115,6 +121,22 @@ class POS {
     {
         $this->url = 'https://pos.chip-chap.com/'.$this->getId();
         return $this;
+    }
+
+    /**
+     * @return mixed
+     */
+    public function getCurrency()
+    {
+        return $this->currency;
+    }
+
+    /**
+     * @param mixed $currency
+     */
+    public function setCurrency($currency)
+    {
+        $this->currency = $currency;
     }
 
 }
