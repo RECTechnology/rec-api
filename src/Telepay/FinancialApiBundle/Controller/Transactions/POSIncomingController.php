@@ -46,35 +46,12 @@ class POSIncomingController extends RestApiController{
             throw $this->createAccessDeniedException();
         }
 
-        if($service_cname == 'btc_pay'){
-            $request->request->add(array(
-                'confirmations' =>  1,
-                'expires_in'    =>  1200
-            ));
-        }
-
         $dataIn = array();
         foreach($service->getFields() as $field){
             if(!$request->request->has($field))
                 throw new HttpException(400, "Parameter '".$field."' not found");
             else $dataIn[$field] = $request->get($field);
         }
-
-        //si en service->getFields no esta url_notification y si esta en el request lo añadimos al data in
-        if(!isset($service->getFields()['url_notification']) && $request->request->has('url_notification')){
-            $dataIn['url_notification'] = $request->request->get('url_notification');
-        }
-
-        if($request->request->has('sms_language')){
-            $dataIn['sms_language']=$request->request->get('sms_language');
-        }
-
-        $concept = '';
-        if($request->request->has('description')) $concept = $request->request->get('description');
-        if($request->request->has('concept')) $concept = $request->request->get('concept');
-        if($request->request->has('reference')) $concept = $request->request->get('reference');
-
-        $dataIn['description'] = $concept;
 
         $dm = $this->get('doctrine_mongodb')->getManager();
 
@@ -107,7 +84,7 @@ class POSIncomingController extends RestApiController{
             $em->flush();
         }
 
-        $amount=$dataIn['amount'];
+        $amount = $dataIn['amount'];
         $transaction->setAmount($amount);
 
         //add commissions to check
@@ -120,10 +97,8 @@ class POSIncomingController extends RestApiController{
         $transaction->setFixedFee($fixed_fee);
         $dm->persist($transaction);
 
-
         $total = $amount - $variable_fee - $fixed_fee;
         $transaction->setTotal($amount);
-
 
         //obtain user limits
         $limits = $user->getLimitCount();
@@ -206,9 +181,8 @@ class POSIncomingController extends RestApiController{
             }
         }
 
-        $scale=$current_wallet->getScale();
+        $scale = $current_wallet->getScale();
         $transaction->setScale($scale);
-
 
         $transaction->setUpdated(new \DateTime());
 
