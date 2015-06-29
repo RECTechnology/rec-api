@@ -22,6 +22,7 @@ class MoneyStoresManagerCommand extends ContainerAwareCommand
 
     protected function execute(InputInterface $input, OutputInterface $output)
     {
+
         $ways = $this->getContainer()->get('net.telepay.ways')->findAll();
 
         foreach($ways as $way){
