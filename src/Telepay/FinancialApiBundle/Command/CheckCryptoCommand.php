@@ -25,52 +25,57 @@ class CheckCryptoCommand extends ContainerAwareCommand
     protected function execute(InputInterface $input, OutputInterface $output)
     {
 
-        $service_cname=array('fac_pay','btc_pay');
+        $service_cname = array('fac_pay','btc_pay');
 
         //$em= $this->getContainer()->get('doctrine')->getManager();
         $dm = $this->getContainer()->get('doctrine_mongodb')->getManager();
         $em = $this->getContainer()->get('doctrine')->getManager();
-        $repo=$em->getRepository('TelepayFinancialApiBundle:User');
+        $repo = $em->getRepository('TelepayFinancialApiBundle:User');
 
         foreach($service_cname as $service){
-            $qb=$dm->createQueryBuilder('TelepayFinancialApiBundle:Transaction')
+            $qb = $dm->createQueryBuilder('TelepayFinancialApiBundle:Transaction')
                 ->field('service')->equals($service)
                 ->field('status')->in(array('created','received'))
                 ->getQuery();
 
             $resArray = [];
-            foreach($qb->toArray() as $res){
-                $data=$res->getDataIn();
+            foreach($qb->toArray() as $transaction){
+
+                $data = $transaction->getDataIn();
+
                 if(isset($data['expires_in'])){
-                    $resArray []= $res;
-                    $check=$this->check($res);
+
+                    $resArray [] = $transaction;
+                    $checked_transaction = $this->check($transaction);
+
                     $dm->flush();
-                    if($check->getStatus()=='success'){
+
+                    if($checked_transaction->getStatus()=='success'){
                         //hacemos el reparto
                         //primero al user
-                        $id=$check->getUser();
+                        $id = $checked_transaction->getUser();
 
-                        $transaction_id=$check->getId();
+                        $transaction_id = $checked_transaction->getId();
 
-                        $user=$repo->find($id);
+                        $user = $repo->find($id);
 
-                        $wallets=$user->getWallets();
-                        $service_currency = $check->getCurrency();
-                        $current_wallet=null;
+                        $wallets = $user->getWallets();
+                        $service_currency = $checked_transaction->getCurrency();
+                        $current_wallet = null;
 
                         foreach ( $wallets as $wallet){
-                            if ($wallet->getCurrency()==$service_currency){
-                                $current_wallet=$wallet;
+                            if ($wallet->getCurrency() == $service_currency){
+                                $current_wallet = $wallet;
                             }
                         }
 
-                        $amount=$data['amount'];
+                        $amount = $data['amount'];
 
                         if(!$user->hasRole('ROLE_SUPER_ADMIN')){
-                            $group=$user->getGroups()[0];
+                            $group = $user->getGroups()[0];
 
-                            $fixed_fee = $check->getFixedFee();
-                            $variable_fee = $check->getVariableFee();
+                            $fixed_fee = $checked_transaction->getFixedFee();
+                            $variable_fee = $checked_transaction->getVariableFee();
                             $total_fee = $fixed_fee + $variable_fee;
                             $total = $amount - $total_fee;
 
@@ -84,25 +89,25 @@ class CheckCryptoCommand extends ContainerAwareCommand
                                 // restar las comisiones
                                 $feeTransaction=new Transaction();
                                 $feeTransaction->setStatus('success');
-                                $feeTransaction->setScale($check->getScale());
+                                $feeTransaction->setScale($checked_transaction->getScale());
                                 $feeTransaction->setAmount($total_fee);
                                 $feeTransaction->setUser($user->getId());
                                 $feeTransaction->setCreated(new \MongoDate());
                                 $feeTransaction->setUpdated(new \MongoDate());
-                                $feeTransaction->setIp($check->getIp());
+                                $feeTransaction->setIp($checked_transaction->getIp());
                                 $feeTransaction->setFixedFee($fixed_fee);
                                 $feeTransaction->setVariableFee($variable_fee);
-                                $feeTransaction->setVersion($check->getVersion());
+                                $feeTransaction->setVersion($checked_transaction->getVersion());
                                 $feeTransaction->setDataIn(array(
-                                    'previous_transaction'  =>  $check->getId(),
+                                    'previous_transaction'  =>  $checked_transaction->getId(),
                                     'amount'    =>  -$total_fee
                                 ));
                                 $feeTransaction->setDebugData(array(
                                     'previous_balance'  =>  $current_wallet->getBalance(),
-                                    'previous_transaction'  =>  $check->getId()
+                                    'previous_transaction'  =>  $checked_transaction->getId()
                                 ));
                                 $feeTransaction->setTotal(-$total_fee);
-                                $feeTransaction->setCurrency($check->getCurrency());
+                                $feeTransaction->setCurrency($checked_transaction->getCurrency());
                                 $feeTransaction->setService($service);
 
                                 $dm->persist($feeTransaction);
@@ -111,16 +116,16 @@ class CheckCryptoCommand extends ContainerAwareCommand
                                 $em->persist($current_wallet);
                                 $em->flush();
 
-                                $creator=$group->getCreator();
+                                $creator = $group->getCreator();
 
                                 //luego a la ruleta de admins
-                                $dealer=$this->getContainer()->get('net.telepay.commons.fee_deal');
-                                $dealer->deal($creator,$amount,$service,$service_currency,$total_fee,$transaction_id,$check->getVersion());
+                                $dealer = $this->getContainer()->get('net.telepay.commons.fee_deal');
+                                $dealer->deal($creator,$amount,$service,$service_currency,$total_fee,$transaction_id,$checked_transaction->getVersion());
                             }
 
                         }else{
-                            $current_wallet->setAvailable($current_wallet->getAvailable()+$amount);
-                            $current_wallet->setBalance($current_wallet->getBalance()+$amount);
+                            $current_wallet->setAvailable($current_wallet->getAvailable() + $amount);
+                            $current_wallet->setBalance($current_wallet->getBalance() + $amount);
 
                             $em->persist($current_wallet);
                             $em->flush();
@@ -158,7 +163,7 @@ class CheckCryptoCommand extends ContainerAwareCommand
 
         $allReceived = $cryptoProvider->listreceivedbyaddress(0, true);
 
-        if($amount<=100)
+        if($amount <= 100)
             $margin = 0;
         else
             $margin = 100;

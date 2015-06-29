@@ -30,34 +30,35 @@ class CheckPaynetReferenceCommand extends ContainerAwareCommand
         $em = $this->getContainer()->get('doctrine')->getManager();
         $repo=$em->getRepository('TelepayFinancialApiBundle:User');
 
-        $qb=$dm->createQueryBuilder('TelepayFinancialApiBundle:Transaction')
+        $qb = $dm->createQueryBuilder('TelepayFinancialApiBundle:Transaction')
             ->field('service')->equals($service_cname)
             ->field('status')->in(array('created','received'))
             ->getQuery();
 
         $resArray = [];
-        foreach($qb->toArray() as $res){
-            $data=$res->getDataIn();
-            $transaction_id=$res->getId();
-            $resArray []= $res;
 
-            $previous_status = $res->getStatus();
-            $check=$this->check($res);
+        foreach($qb->toArray() as $transaction){
+            $data = $transaction->getDataIn();
+            $transaction_id = $transaction->getId();
+            $resArray [] = $transaction;
 
-            if($previous_status != $check->getStatus()){
-                $check = $this->getContainer()->get('notificator')->notificate($check);
+            $previous_status = $transaction->getStatus();
+            $checked_transaction = $this->check($transaction);
+
+            if($previous_status != $checked_transaction->getStatus()){
+                $checked_transaction = $this->getContainer()->get('notificator')->notificate($checked_transaction);
             }
 
             $dm->flush();
-            if($check->getStatus()=='success'){
+            if($checked_transaction->getStatus()=='success'){
                 //hacemos el reparto
                 //primero al user
-                $id=$check->getUser();
+                $id=$checked_transaction->getUser();
 
                 $user=$repo->find($id);
 
                 $wallets=$user->getWallets();
-                $service_currency = $check->getCurrency();
+                $service_currency = $checked_transaction->getCurrency();
                 $current_wallet=null;
                 foreach ( $wallets as $wallet){
                     if ($wallet->getCurrency()==$service_currency){
@@ -70,8 +71,8 @@ class CheckPaynetReferenceCommand extends ContainerAwareCommand
 
                 if(!$user->hasRole('ROLE_SUPER_ADMIN')){
 
-                    $fixed_fee = $check->getFixedFee();
-                    $variable_fee = $check->getVariableFee();
+                    $fixed_fee = $checked_transaction->getFixedFee();
+                    $variable_fee = $checked_transaction->getVariableFee();
                     $total_fee = $fixed_fee + $variable_fee;
                     $total = $amount - $total_fee;
 
@@ -85,24 +86,24 @@ class CheckPaynetReferenceCommand extends ContainerAwareCommand
                         // restar las comisiones
                         $feeTransaction=new Transaction();
                         $feeTransaction->setStatus('success');
-                        $feeTransaction->setScale($check->getScale());
+                        $feeTransaction->setScale($checked_transaction->getScale());
                         $feeTransaction->setAmount($total_fee);
                         $feeTransaction->setUser($id);
                         $feeTransaction->setCreated(new \MongoDate());
                         $feeTransaction->setUpdated(new \MongoDate());
-                        $feeTransaction->setIp($check->getIp());
+                        $feeTransaction->setIp($checked_transaction->getIp());
                         $feeTransaction->setFixedFee($fixed_fee);
                         $feeTransaction->setVariableFee($variable_fee);
-                        $feeTransaction->setVersion($check->getVersion());
+                        $feeTransaction->setVersion($checked_transaction->getVersion());
                         $feeTransaction->setDataIn(array(
-                            'previous_transaction'  =>  $check->getId()
+                            'previous_transaction'  =>  $checked_transaction->getId()
                         ));
                         $feeTransaction->setDebugData(array(
                             'previous_balance'  =>  $current_wallet->getBalance(),
-                            'previous_transaction'  =>  $check->getId()
+                            'previous_transaction'  =>  $checked_transaction->getId()
                         ));
                         $feeTransaction->setTotal($total_fee*-1);
-                        $feeTransaction->setCurrency($check->getCurrency());
+                        $feeTransaction->setCurrency($checked_transaction->getCurrency());
                         $feeTransaction->setService($service_cname);
 
                         $dm->persist($feeTransaction);
@@ -112,7 +113,7 @@ class CheckPaynetReferenceCommand extends ContainerAwareCommand
 
                         //luego a la ruleta de admins
                         $dealer=$this->getContainer()->get('net.telepay.commons.fee_deal');
-                        $dealer->deal($creator,$amount,$service_cname,$service_currency,$total_fee,$transaction_id,$check->getVersion());
+                        $dealer->deal($creator,$amount,$service_cname,$service_currency,$total_fee,$transaction_id,$checked_transaction->getVersion());
                     }
 
                 }else{
