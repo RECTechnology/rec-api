@@ -52,4 +52,4 @@ services:
         arguments:
             - "@net.telepay.wallet.kraken.eur"
             - "@net.telepay.wallet.caixacoves.eur"
-            - "150"
+            - "500"
