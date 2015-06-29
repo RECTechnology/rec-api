@@ -47,10 +47,11 @@ class CheckHalcashCommand extends ContainerAwareCommand
             if($previous_status != $check->getStatus()){
                 $check = $this->getContainer()->get('notificator')->notificate($check);
                 $check->setUpdated(new \MongoDate());
-                $em->persist($check);
-                $em->flush();
-            }
 
+            }
+            $em->persist($check);
+            $em->flush();
+            
             $dm->flush();
 
             if($check->getStatus()=='success'){
