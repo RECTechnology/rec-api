@@ -10,5 +10,5 @@ namespace Telepay\FinancialApiBundle\Financial;
 
 
 interface CashOutInterface {
-    public function send(CashInInterface $dst, MoneyBundleInterface $money);
+    public function send(CashInInterface $dst, $amount);
 }
