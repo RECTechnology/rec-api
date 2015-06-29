@@ -101,7 +101,7 @@ class CheckHalcashCommand extends ContainerAwareCommand
 
         $status = $this->getContainer()->get('net.telepay.provider.halcash')->status($ticket);
 
-        if($status['errorcode']==0){
+        if($status['errorcode'] == 0){
 
             switch($status['estadoticket']){
                 case 'Autorizada':
