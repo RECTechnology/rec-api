@@ -49,7 +49,7 @@ class CheckHalcashCommand extends ContainerAwareCommand
                 $checked_transaction->setUpdated(new \MongoDate());
 
             }
-            $em->persist($checked_transaction);
+            $dm->persist($checked_transaction);
             $em->flush();
 
             $dm->flush();
