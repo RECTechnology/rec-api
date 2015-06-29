@@ -29,7 +29,6 @@ class FullNodeWallet implements WalletInterface, MiniumBalanceInterface {
         $this->minBalance = $minBalance;
     }
 
-
     public function send(CashInInterface $dst, $amount)
     {
         return $this->nodeLink->sendtoaddress($dst->getAddress(), $amount);
