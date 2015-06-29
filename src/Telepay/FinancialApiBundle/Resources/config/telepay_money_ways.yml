@@ -1,0 +1,55 @@
+services:
+
+    net.telepay.ways:
+        class: Telepay\FinancialApiBundle\Financial\ObjectRegister
+        arguments:
+            objects:
+                - "@net.telepay.trader.bittrex.fair_btc"
+                - "@net.telepay.trader.kraken.btc_eur"
+                - "@net.telepay.link.fullnode_btc_kraken"
+                - "@net.telepay.link.fullnode_fair_bittrex"
+                - "@net.telepay.link.bittrex_kraken"
+                - "@net.telepay.link.kraken_caixacoves"
+
+    net.telepay.trader.bittrex.fair_btc:
+        class: Telepay\FinancialApiBundle\Financial\Linker\BasicTrader
+        arguments:
+            - "@net.telepay.wallet.bittrex.fair"
+            - "@net.telepay.wallet.bittrex.btc"
+            - "0.01"
+
+    net.telepay.trader.kraken.btc_eur:
+        class: Telepay\FinancialApiBundle\Financial\Linker\BasicTrader
+        arguments:
+            - "@net.telepay.wallet.kraken.btc"
+            - "@net.telepay.wallet.kraken.eur"
+            - "0.01"
+
+    net.telepay.link.fullnode_btc_kraken:
+        class: Telepay\FinancialApiBundle\Financial\Linker\BasicLinker
+        arguments:
+            - "@net.telepay.wallet.fullnode.btc"
+            - "@net.telepay.wallet.kraken.btc"
+            - "0.01"
+
+    net.telepay.link.fullnode_fair_bittrex:
+        class: Telepay\FinancialApiBundle\Financial\Linker\BasicLinker
+        arguments:
+            - "@net.telepay.wallet.fullnode.fair"
+            - "@net.telepay.wallet.bittrex.fair"
+            - "0.01"
+
+    net.telepay.link.bittrex_kraken:
+        class: Telepay\FinancialApiBundle\Financial\Linker\BasicLinker
+        arguments:
+            - "@net.telepay.wallet.bittrex.btc"
+            - "@net.telepay.wallet.kraken.btc"
+            - "0.01"
+
+
+    net.telepay.link.kraken_caixacoves:
+        class: Telepay\FinancialApiBundle\Financial\Linker\BasicLinker
+        arguments:
+            - "@net.telepay.wallet.kraken.eur"
+            - "@net.telepay.wallet.caixacoves.eur"
+            - "150"

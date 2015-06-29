@@ -2,12 +2,13 @@
 /**
  * Created by PhpStorm.
  * User: lluis
- * Date: 2/13/15
- * Time: 6:35 PM
+ * Date: 5/28/15
+ * Time: 8:05 PM
  */
 
 namespace Telepay\FinancialApiBundle\Financial;
 
-interface CashInInterface {
-    public function getAddress();
+
+interface RegisterInterface {
+    public function findAll();
 }

@@ -8,6 +8,6 @@
 
 namespace Telepay\FinancialApiBundle\Financial;
 
-interface TraderInterface extends TickerInterface {
-    public function sell($amount);
+interface RouterInterface {
+    public function getRoute(MoneyStorageInterface $startNode, MoneyStorageInterface $endNode);
 }

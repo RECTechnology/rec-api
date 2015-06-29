@@ -1,10 +1,21 @@
 services:
 
+    net.telepay.wallets:
+        class: Telepay\FinancialApiBundle\Financial\ObjectRegister
+        arguments:
+            objects:
+                - "@net.telepay.wallet.bittrex.fair"
+                - "@net.telepay.wallet.bittrex.btc"
+                - "@net.telepay.wallet.kraken.btc"
+                - "@net.telepay.wallet.kraken.eur"
+                - "@net.telepay.wallet.fullnode.btc"
+
     net.telepay.wallet.bittrex.fair:
         class: Telepay\FinancialApiBundle\Financial\Wallet\BittrexWallet
         arguments:
             - "@net.telepay.driver.bittrex"
             - "FAIR"
+            - "10000"
 
     net.telepay.wallet.bittrex.btc:
         class: Telepay\FinancialApiBundle\Financial\Wallet\BittrexWallet
@@ -17,3 +28,28 @@ services:
         arguments:
             - "@net.telepay.driver.kraken"
             - "BTC"
+
+    net.telepay.wallet.kraken.eur:
+        class: Telepay\FinancialApiBundle\Financial\Wallet\KrakenWallet
+        arguments:
+            - "@net.telepay.driver.kraken"
+            - "EUR"
+
+    net.telepay.wallet.fullnode.btc:
+        class: Telepay\FinancialApiBundle\Financial\Wallet\FullNodeWallet
+        arguments:
+            - "@net.telepay.provider.btc"
+            - "BTC"
+            - "1.5"
+
+    net.telepay.wallet.fullnode.fair:
+        class: Telepay\FinancialApiBundle\Financial\Wallet\FullNodeWallet
+        arguments:
+            - "@net.telepay.provider.fac"
+            - "FAIR"
+            - "5000"
+
+    net.telepay.wallet.caixacoves.eur:
+        class: Telepay\FinancialApiBundle\Financial\Wallet\CaixaCovesWallet
+        arguments:
+            - ""

@@ -9,6 +9,4 @@
 namespace Telepay\FinancialApiBundle\Financial;
 
 
-interface WalletInterface extends CashInInterface, CashOutInterface, MoneyStorageInterface{
-
-}
+interface WalletInterface extends CashInInterface, CashOutInterface, MoneyStorageInterface { }

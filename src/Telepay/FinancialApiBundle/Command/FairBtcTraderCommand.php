@@ -24,13 +24,18 @@ class FairBtcTraderCommand extends ContainerAwareCommand
         $fairBtcTrader = $this->getContainer()->get('net.telepay.trader.FACxBTC');
 
         $bittrexBtcWallet = $this->getContainer()->get('net.telepay.wallet.bittrex.btc');
+        $bittrexFacWallet = $this->getContainer()->get('net.telepay.wallet.bittrex.fair');
         $krakenBtcWallet = $this->getContainer()->get('net.telepay.wallet.kraken.btc');
 
-        //$fairBtcTrader->sell(2368.53045801);
-        //$output->writeln(print_r($fairBtcTrader->withdraw(1.26707722, '13bkZYQgC46W4QHK3snE3NwN5RnDb1Jjsc'), true));
+        //$fairBtcTrader->sell(4174.48031281);
+        //$output->writeln(print_r($fairBtcTrader->withdraw(0.48611404, '13bkZYQgC46W4QHK3snE3NwN5RnDb1Jjsc'), true));
 
-        //$output->writeln(print_r($bittrexBtcWallet->getAddress(), true));
+        $output->writeln(print_r($bittrexFacWallet->getAddress(), true));
+        $output->writeln(print_r($bittrexFacWallet->getAvailable(), true));
+
+
         //$output->writeln(print_r($bittrexBtcWallet->getAvailable(), true));
+        //$output->writeln(print_r($krakenBtcWallet->getAvailable(), true));
 
         //$output->writeln(print_r($krakenBtcWallet->getAvailable(), true));
         //$output->writeln(print_r($krakenBtcWallet->getAddress(), true));
