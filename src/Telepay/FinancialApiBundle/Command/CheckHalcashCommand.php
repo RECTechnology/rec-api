@@ -51,7 +51,7 @@ class CheckHalcashCommand extends ContainerAwareCommand
             }
             $em->persist($check);
             $em->flush();
-            
+
             $dm->flush();
 
             if($check->getStatus()=='success'){
