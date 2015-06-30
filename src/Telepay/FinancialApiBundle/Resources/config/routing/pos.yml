@@ -35,3 +35,9 @@ user_POS_transaction:
     defaults: { _controller: Telepay\FinancialApiBundle\Controller\Transactions\POSIncomingController::createTransaction }
     requirements:
         _method: POST
+
+new_btc_address:
+    pattern:  /pos/v{version_number}/address
+    defaults: { _controller: Telepay\FinancialApiBundle\Controller\Transactions\POSIncomingController::generateAddress }
+    requirements:
+        _method: POST

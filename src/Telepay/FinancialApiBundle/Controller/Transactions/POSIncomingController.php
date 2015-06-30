@@ -188,6 +188,17 @@ class POSIncomingController extends RestApiController{
         return $this->restTransaction($transaction, "Done");
     }
 
+    /**
+     * @Rest\View
+     */
+    public function generateAddress(){
+
+        $address = $this->container->get('net.telepay.provider.btc')->getnewaddress();
+
+        return $address;
+
+    }
+
 
 }
 

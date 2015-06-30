@@ -35,9 +35,9 @@ class PosService extends BaseService{
         $trans_id = $timestamp;
         $contador = 1;
 
-        $url_final='/notifications/v1/pos/'.$id;
+        $url_final ='/notifications/v1/pos/'.$id;
 
-        $important_data=array(
+        $important_data = array(
             'url_final' =>  $url_final,
             'contador'  =>  1,
             'transaction_id'    =>  $trans_id
@@ -47,6 +47,10 @@ class PosService extends BaseService{
             'pos_id'    => $trans_id.$contador,
             'url_notification'  =>  $url_final
         );
+
+        if($baseTransaction->getCurrency() == 'BTC'){
+            $out['address'] = $this->getContainer()->get('net.telepay.provider.btc')->getnewaddress();
+        }
 
         $baseTransaction->setData($important_data);
         $baseTransaction->setDataOut($out);
