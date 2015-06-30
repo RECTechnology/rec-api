@@ -77,6 +77,9 @@ class POSController extends BaseApiController{
         ));
 
         //TODO comprobar que el servicio existe.
+        $currency = $request->request->get('currency');
+        $request->request->remove('currency');
+        $request->request->add(array('currency'=> strtoupper($currency)));
 
         return parent::createAction($request);
 

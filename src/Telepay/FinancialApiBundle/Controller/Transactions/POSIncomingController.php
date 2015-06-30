@@ -40,7 +40,7 @@ class POSIncomingController extends RestApiController{
 
         $user = $tpvRepo->getUser();
 
-        $service_currency = $tpvRepo->getCurrency();
+        $service_currency = strtoupper($tpvRepo->getCurrency());
 
         $service = $this->get('net.telepay.services.'.$service_cname.'.v'.$version_number);
 
@@ -54,6 +54,8 @@ class POSIncomingController extends RestApiController{
                 throw new HttpException(400, "Parameter '".$field."' not found");
             else $dataIn[$field] = $request->get($field);
         }
+
+        if($dataIn['currency'] != $service_currency) throw new HttpException(403, 'Currency not allowed');
 
         $dm = $this->get('doctrine_mongodb')->getManager();
 
