@@ -40,6 +40,8 @@ class POSIncomingController extends RestApiController{
 
         $user = $tpvRepo->getUser();
 
+        $service_currency = $tpvRepo->getCurrency();
+
         $service = $this->get('net.telepay.services.'.$service_cname.'.v'.$version_number);
 
         if (false === $user->hasRole($service->getRole())) {
@@ -69,8 +71,8 @@ class POSIncomingController extends RestApiController{
         $group = $user->getGroups()[0];
 
         //obtener comissiones del grupo
-        $group_commissions=$group->getCommissions();
-        $group_commission=false;
+        $group_commissions = $group->getCommissions();
+        $group_commission = false;
         foreach ( $group_commissions as $commission ){
             if ( $commission->getServiceName() == $service_cname ){
                 $group_commission = $commission;
@@ -144,16 +146,6 @@ class POSIncomingController extends RestApiController{
 
         //TODO check tpv currency
         //check if the service is halcash because we have various currencys
-        if($service_cname == 'halcash_send'){
-            if(isset($dataIn) && $dataIn['country'] == 'PL'){
-                $service_currency = 'PLN';
-            }else{
-                $service_currency = $service->getCurrency();
-            }
-
-        }else{
-            $service_currency = $service->getCurrency();
-        }
 
         $current_wallet = null;
 
@@ -177,7 +169,7 @@ class POSIncomingController extends RestApiController{
 
         foreach ( $wallets as $wallet){
             if ($wallet->getCurrency() === $transaction->getCurrency()){
-                $current_wallet=$wallet;
+                $current_wallet = $wallet;
             }
         }
 
