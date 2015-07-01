@@ -201,7 +201,6 @@ class POSIncomingController extends RestApiController{
 
     public function notificate(Request $request, $id){
 
-        //todo localizar la transaccion
         $dm = $this->get('doctrine_mongodb')->getManager();
         $transaction = $dm->getRepository('TelepayFinancialApiBundle:Transaction')->find($id);
 
