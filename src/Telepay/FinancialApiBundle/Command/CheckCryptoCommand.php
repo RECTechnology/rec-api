@@ -27,7 +27,6 @@ class CheckCryptoCommand extends ContainerAwareCommand
 
         $service_cname = array('fac_pay','btc_pay');
 
-        //$em= $this->getContainer()->get('doctrine')->getManager();
         $dm = $this->getContainer()->get('doctrine_mongodb')->getManager();
         $em = $this->getContainer()->get('doctrine')->getManager();
         $repo = $em->getRepository('TelepayFinancialApiBundle:User');
