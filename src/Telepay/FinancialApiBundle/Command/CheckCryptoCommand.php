@@ -46,8 +46,17 @@ class CheckCryptoCommand extends ContainerAwareCommand
                 if(isset($data['expires_in'])){
 
                     $resArray [] = $transaction;
+                    $previous_status = $transaction->getStatus();
+
                     $checked_transaction = $this->check($transaction);
 
+                    if($previous_status != $checked_transaction->getStatus()){
+                        $checked_transaction = $this->getContainer()->get('notificator')->notificate($checked_transaction);
+                        $checked_transaction->setUpdated(new \MongoDate());
+
+                    }
+                    
+                    $dm->persist($checked_transaction);
                     $dm->flush();
 
                     if($checked_transaction->getStatus()=='success'){
@@ -176,13 +185,9 @@ class CheckCryptoCommand extends ContainerAwareCommand
                     $currentData['confirmations'] = $cryptoData['confirmations'];
                     if($currentData['confirmations'] >= $currentData['min_confirmations']){
                         $transaction->setStatus("success");
-                        $transaction->setUpdated(new \MongoDate());
-                        $transaction = $this->getContainer()->get('notificator')->notificate($transaction);
                     }else{
                         if($transaction->getStatus() != 'received'){
                             $transaction->setStatus("received");
-                            $transaction->setUpdated(new \MongoDate());
-                            $transaction = $this->getContainer()->get('notificator')->notificate($transaction);
                         }
                     }
 
