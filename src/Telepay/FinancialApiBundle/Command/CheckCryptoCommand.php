@@ -163,19 +163,23 @@ class CheckCryptoCommand extends ContainerAwareCommand
 
         $address = $currentData['address'];
         $amount = $currentData['amount'];
-        if($transaction->getCurrency() === Currency::$BTC)
+        if($transaction->getCurrency() === Currency::$BTC){
             $providerName = 'net.telepay.provider.btc';
-        else
+            if($amount <= 100)
+                $margin = 0;
+            else
+                $margin = 100;
+        }else{
             $providerName = 'net.telepay.provider.fac';
+            if($amount <= 10000)
+                $margin = 0;
+            else
+                $margin = 10000;
+        }
 
         $cryptoProvider = $this->getContainer()->get($providerName);
 
         $allReceived = $cryptoProvider->listreceivedbyaddress(0, true);
-
-        if($amount <= 100)
-            $margin = 0;
-        else
-            $margin = 100;
 
         $allowed_amount = $amount - $margin;
         foreach($allReceived as $cryptoData){
@@ -196,7 +200,6 @@ class CheckCryptoCommand extends ContainerAwareCommand
 
                     return $transaction;
                 }
-
 
             }
 
