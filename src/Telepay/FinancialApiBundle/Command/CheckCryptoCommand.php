@@ -55,7 +55,7 @@ class CheckCryptoCommand extends ContainerAwareCommand
                         $checked_transaction->setUpdated(new \MongoDate());
 
                     }
-                    
+
                     $dm->persist($checked_transaction);
                     $dm->flush();
 
