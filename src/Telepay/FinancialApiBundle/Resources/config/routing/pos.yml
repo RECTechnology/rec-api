@@ -41,3 +41,9 @@ new_btc_address:
     defaults: { _controller: Telepay\FinancialApiBundle\Controller\Transactions\POSIncomingController::generateAddress }
     requirements:
         _method: POST
+
+pos_notifications:
+    pattern:  /pos/v{version_number}/notification/{id}
+    defaults: { _controller: Telepay\FinancialApiBundle\Controller\Transactions\POSIncomingController::notificate }
+    requirements:
+        _method: POST
