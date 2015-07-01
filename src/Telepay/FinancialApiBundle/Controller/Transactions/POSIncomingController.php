@@ -199,6 +199,36 @@ class POSIncomingController extends RestApiController{
 
     }
 
+    public function notificate(Request $request, $id){
+
+        //todo localizar la transaccion
+        $dm = $this->get('doctrine_mongodb')->getManager();
+        $transaction = $dm->getRepository('TelepayFinancialApiBundle:Transaction')->find($id);
+
+        if(!$transaction) throw new HttpException(400,'Transaction not found');
+
+        $status = $request->request->get('status');
+
+        if ($status == 1){
+            //set transaction cancelled
+            $transaction->setStatus('success');
+        }else{
+            //set transaction success
+            $transaction->setStatus('cancelled');
+        }
+
+        $transaction->setUpdated(new \MongoDate());
+
+        $dm->persist($transaction);
+        $dm->flush();
+
+        $transaction = $this->get('notificator')->notificate($transaction);
+
+        return $this->restV2(200, "ok", "Notification successful");
+
+
+    }
+
 
 }
 
