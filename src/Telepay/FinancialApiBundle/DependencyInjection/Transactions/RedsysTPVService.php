@@ -24,7 +24,7 @@ class RedsysTPVService extends BaseService{
 
     public function getFields(){
         return array(
-            'amount','description','currency', 'url_notification','url_ok','url_ko'
+            'amount','description','currency', 'url_notification','url_ok','url_ko','order_id'
         );
     }
 
