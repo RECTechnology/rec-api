@@ -74,28 +74,14 @@ class POSIncomingController extends RestApiController{
         //obtener group
         $group = $user->getGroups()[0];
 
-        //obtener comissiones del grupo
-        $group_commissions = $group->getCommissions();
-        $group_commission = false;
-        foreach ( $group_commissions as $commission ){
-            if ( $commission->getServiceName() == $service_cname ){
-                $group_commission = $commission;
-            }
-        }
 
-        //if group commission not exists we create it
-        if(!$group_commission){
-            $group_commission = ServiceFee::createFromController($service_cname, $group);
-            $em->persist($group_commission);
-            $em->flush();
-        }
 
         $amount = $dataIn['amount'];
         $transaction->setAmount($amount);
 
         //add commissions to check
-        $fixed_fee = $group_commission->getFixed();
-        $variable_fee = $group_commission->getVariable()*$amount;
+        $fixed_fee = 0;
+        $variable_fee = 0;
         $total_fee = $fixed_fee + $variable_fee;
 
         //add fee to transaction
@@ -106,50 +92,8 @@ class POSIncomingController extends RestApiController{
         $total = $amount - $variable_fee - $fixed_fee;
         $transaction->setTotal($amount);
 
-        //obtain user limits
-        $limits = $user->getLimitCount();
-        $user_limit = false;
-        foreach ( $limits as $limit ){
-            if($limit->getCname() == $service_cname){
-                $user_limit=$limit;
-            }
-        }
-
-        //if user hasn't limit create it
-        if(!$user_limit){
-            $user_limit = LimitCount::createFromController($service_cname, $user);
-            $em->persist($user_limit);
-            $em->flush();
-        }
-
-        //obtain group limit
-        $group_limits=$group->getLimits();
-        $group_limit = false;
-        foreach ( $group_limits as $limit ){
-            if( $limit->getCname() == $service_cname){
-                $group_limit = $limit;
-            }
-        }
-
-        //if limit doesn't exist create it
-        if(!$group_limit){
-            $group_limit = LimitDefinition::createFromController($service_cname, $group);
-            $em->persist($group_limit);
-            $em->flush();
-        }
-
-        $new_user_limit = (new LimitAdder())->add($user_limit, $total);
-
-        $checker = new LimitChecker();
-
-        if(!$checker->leq($new_user_limit, $group_limit))
-            throw new HttpException(509,'Limit exceeded');
-
         //obtain wallet and check founds for cash_out services
         $wallets = $user->getWallets();
-
-        //TODO check tpv currency
-        //check if the service is halcash because we have various currencys
 
         $current_wallet = null;
 
