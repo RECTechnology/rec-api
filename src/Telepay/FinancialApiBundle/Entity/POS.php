@@ -54,6 +54,12 @@ class POS {
     private $currency;
 
     /**
+     * @ORM\Column(type="string")
+     * @Expose
+     */
+    private $pos_id;
+
+    /**
      * @Expose
      */
     private $url;
@@ -119,7 +125,7 @@ class POS {
      */
     public function getTpvView()
     {
-        $this->url = 'https://pos.chip-chap.com/'.$this->getId();
+        $this->url = 'https://pos.chip-chap.com/'.$this->getPosId();
         return $this;
     }
 
@@ -137,6 +143,22 @@ class POS {
     public function setCurrency($currency)
     {
         $this->currency = $currency;
+    }
+
+    /**
+     * @return mixed
+     */
+    public function getPosId()
+    {
+        return $this->pos_id;
+    }
+
+    /**
+     * @param mixed $pos_id
+     */
+    public function setPosId($pos_id)
+    {
+        $this->pos_id = $pos_id;
     }
 
 }

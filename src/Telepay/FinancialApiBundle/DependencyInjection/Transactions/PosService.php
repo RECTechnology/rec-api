@@ -30,10 +30,7 @@ class PosService extends BaseService{
         if($baseTransaction === null) $baseTransaction = new Transaction();
         $id = $baseTransaction->getId();
 
-        $timestamp = new \DateTime();
-        $timestamp = $timestamp->getTimestamp();
-        $trans_id = $timestamp;
-        $contador = 1;
+        $trans_id = rand();
 
         $url_final ='/notifications/v1/pos/'.$id;
 
@@ -44,7 +41,7 @@ class PosService extends BaseService{
         );
 
         $out = array(
-            'pos_id'    => $trans_id.$contador,
+            'transaction_pos_id'    => $trans_id,
             'url_notification'  =>  $url_final
         );
 

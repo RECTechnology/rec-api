@@ -34,7 +34,9 @@ class POSIncomingController extends RestApiController{
 
         //TODO con el id obtenemos la informacion de la tpv
         $em = $this->getDoctrine()->getManager();
-        $tpvRepo = $em->getRepository('TelepayFinancialApiBundle:POS')->find($id);
+        $tpvRepo = $em->getRepository('TelepayFinancialApiBundle:POS')->findOneBy(array(
+            'pos_id'    =>  $id
+        ));
 
         $service_cname = $tpvRepo->getCname();
 
