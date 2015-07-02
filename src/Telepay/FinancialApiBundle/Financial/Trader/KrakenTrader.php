@@ -21,6 +21,7 @@ class KrakenTrader implements TraderInterface {
 
     public function __construct($krakenDriver){
         $this->krakenDriver = $krakenDriver;
+
     }
 
     public function sell($amount)
