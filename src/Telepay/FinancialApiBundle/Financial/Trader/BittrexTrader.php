@@ -54,8 +54,4 @@ class BittrexTrader implements TraderInterface {
         return Currency::$BTC;
     }
 
-    public function send(MoneyStorageInterface $startNode, MoneyStorageInterface $endNode, $amount)
-    {
-        // TODO: Implement send() method.
-    }
 }
