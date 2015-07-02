@@ -23,7 +23,10 @@ class KrakenTrader implements TraderInterface {
         $this->krakenDriver = $krakenDriver;
     }
 
-
+    public function sell($amount)
+    {
+        // TODO: Implement sell() method.
+    }
 
     public function getPrice()
     {
@@ -38,10 +41,5 @@ class KrakenTrader implements TraderInterface {
     public function getOutCurrency()
     {
         // TODO: Implement getOutCurrency() method.
-    }
-
-    public function send(MoneyStorageInterface $startNode, MoneyStorageInterface $endNode, $amount)
-    {
-        // TODO: Implement send() method.
     }
 }
