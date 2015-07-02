@@ -40,8 +40,8 @@ class KrakenTrader implements TraderInterface {
         // TODO: Implement getOutCurrency() method.
     }
 
-    public function send(MoneyStorageInterface $startNode, MoneyStorageInterface $endNode, $amount)
+    public function sell($amount)
     {
-        // TODO: Implement send() method.
+        // TODO: Implement sell() method.
     }
 }
