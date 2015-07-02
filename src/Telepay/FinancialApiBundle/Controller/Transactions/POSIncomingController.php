@@ -32,7 +32,6 @@ class POSIncomingController extends RestApiController{
      */
     public function createTransaction(Request $request, $version_number,  $id){
 
-        //TODO con el id obtenemos la informacion de la tpv
         $em = $this->getDoctrine()->getManager();
         $tpvRepo = $em->getRepository('TelepayFinancialApiBundle:POS')->findOneBy(array(
             'pos_id'    =>  $id
@@ -67,14 +66,6 @@ class POSIncomingController extends RestApiController{
         $transaction->setVersion($version_number);
         $transaction->setDataIn($dataIn);
         $dm->persist($transaction);
-
-        //TODO posible millora en un query molon
-        //obtain and check limits
-
-        //obtener group
-        $group = $user->getGroups()[0];
-
-
 
         $amount = $dataIn['amount'];
         $transaction->setAmount($amount);
