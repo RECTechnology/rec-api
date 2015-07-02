@@ -23,7 +23,6 @@ class KrakenTrader implements TraderInterface {
         $this->krakenDriver = $krakenDriver;
     }
 
-
     public function sell($amount)
     {
         // TODO: Implement sell() method.
