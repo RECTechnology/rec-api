@@ -53,6 +53,8 @@ class Notificator {
             'signature' =>  $signature
         );
 
+        if(isset($transaction->getDataIn()['order_id'])) $params['order_id'] = $transaction->getDataIn()['order_id'];
+
         // create curl resource
         $ch = curl_init();
         // set url
