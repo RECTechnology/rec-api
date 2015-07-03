@@ -32,7 +32,8 @@
     "ToditoCash",
     "SabadellTPV",
     "AbancaTPV",
-    "HalcashPay"
+    "HalcashPay",
+    "POS"
 
   ],
   "template": {
