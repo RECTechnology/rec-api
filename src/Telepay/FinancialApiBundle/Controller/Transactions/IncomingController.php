@@ -558,6 +558,10 @@ class IncomingController extends RestApiController{
 
             //if previous status != current status update wallets
             if( $previuos_status != $transaction->getStatus()){
+                $transaction->setUpdated(new \MongoDate());
+                $mongo->persist($transaction);
+                $mongo->flush();
+
                 $transaction = $this->get('notificator')->notificate($transaction);
                 $user_id = $transaction->getUser();
                 $em = $this->getDoctrine()->getManager();

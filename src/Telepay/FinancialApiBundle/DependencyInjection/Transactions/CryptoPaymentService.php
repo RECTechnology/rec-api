@@ -98,7 +98,6 @@ class CryptoPaymentService extends BaseService {
 
                 }
                 
-                $transaction->setUpdated(new \MongoDate());
                 $transaction->setData($currentData);
                 $transaction->setDataOut($currentData);
                 return $transaction;
