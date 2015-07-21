@@ -86,6 +86,7 @@ class Notificator {
                 $transaction->setNotified(true);
                 $transaction->setNotificationTries($transaction->getNotificationTries()+1);
             }
+            $transaction->setNotificationTries($transaction->getNotificationTries()+1);
 
         }else{
             $transaction->setNotificationTries($transaction->getNotificationTries()+1);
