@@ -78,7 +78,7 @@ class Notificator {
                 $transaction->setNotificationTries($transaction->getNotificationTries()+1);
             }else{
                 $transaction->setNotified(false);
-                $transaction->setNotificationTries($transaction->getNotificationTries()+1);
+                $transaction->setNotificationTries($transaction->getNotificationTries()+2);
                 //no notificado
             }
 
