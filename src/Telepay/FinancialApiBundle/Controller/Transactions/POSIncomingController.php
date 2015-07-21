@@ -143,6 +143,8 @@ class POSIncomingController extends RestApiController{
 
         if(!$transaction) throw new HttpException(400,'Transaction not found');
 
+        if($transaction->getNotified() == true) throw new HttpException(409,'Duplicate notification');
+        
         $status = $request->request->get('status');
 
         if ($status == 1){
