@@ -158,7 +158,7 @@ class POSIncomingController extends RestApiController{
         $dm->persist($transaction);
         $dm->flush();
 
-        $this->get('notificator')->notificate($transaction);
+        $transaction = $this->get('notificator')->notificate($transaction);
 
         return $this->restV2(200, "ok", "Notification successful");
 
