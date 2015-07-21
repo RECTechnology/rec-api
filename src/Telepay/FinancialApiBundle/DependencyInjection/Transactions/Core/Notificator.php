@@ -73,13 +73,15 @@ class Notificator {
         {
             $info = curl_getinfo($ch);
 
-            if( $info['http_code'] >= 200 && $info['http_code'] <=299 && $transaction->getStatus()==Transaction::$STATUS_SUCCESS){
-                $transaction->setNotified(true);
-                $transaction->setNotificationTries($transaction->getNotificationTries()+1);
-            }else{
-                $transaction->setNotified(false);
-                $transaction->setNotificationTries($transaction->getNotificationTries()+2);
-                //no notificado
+            if( $transaction->getStatus()==Transaction::$STATUS_SUCCESS){
+                if( $info['http_code'] >= 200 && $info['http_code'] <=299){
+                    $transaction->setNotified(true);
+                    $transaction->setNotificationTries($transaction->getNotificationTries()+1);
+                }else{
+                    $transaction->setNotified(false);
+                    $transaction->setNotificationTries($transaction->getNotificationTries()+1);
+                    //no notificado
+                }
             }
 
         }
