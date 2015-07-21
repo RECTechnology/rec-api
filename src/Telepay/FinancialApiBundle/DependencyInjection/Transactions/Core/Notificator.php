@@ -87,6 +87,8 @@ class Notificator {
                 $transaction->setNotificationTries($transaction->getNotificationTries()+1);
             }
 
+        }else{
+            $transaction->setNotificationTries($transaction->getNotificationTries()+1);
         }
         // close curl resource to free up system resources
         curl_close($ch);
