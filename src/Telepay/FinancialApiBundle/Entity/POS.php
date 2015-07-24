@@ -60,6 +60,12 @@ class POS {
     private $pos_id;
 
     /**
+     * @ORM\Column(type="integer")
+     * @Expose
+     */
+    private $expires_in;
+
+    /**
      * @Expose
      */
     private $url;
@@ -159,6 +165,22 @@ class POS {
     public function setPosId($pos_id)
     {
         $this->pos_id = $pos_id;
+    }
+
+    /**
+     * @return mixed
+     */
+    public function getExpiresIn()
+    {
+        return $this->expires_in;
+    }
+
+    /**
+     * @param mixed $expires_in
+     */
+    public function setExpiresIn($expires_in)
+    {
+        $this->expires_in = $expires_in;
     }
 
 }

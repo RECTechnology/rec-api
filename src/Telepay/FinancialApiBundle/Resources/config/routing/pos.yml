@@ -6,7 +6,7 @@ user_POS_index:
     requirements:
         _method: GET
 
-user_POS_index:
+user_POS_show:
     pattern:  /user/v1/pos/{id}
     defaults: { _controller: Telepay\FinancialApiBundle\Controller\Management\User\POSController::showAction }
     requirements:
@@ -35,6 +35,12 @@ user_POS_transaction:
     defaults: { _controller: Telepay\FinancialApiBundle\Controller\Transactions\POSIncomingController::createTransaction }
     requirements:
         _method: POST
+
+user_POS_check:
+    pattern:  /pos/v{version_number}/check/{id}
+    defaults: { _controller: Telepay\FinancialApiBundle\Controller\Transactions\POSIncomingController::checkTransaction }
+    requirements:
+        _method: GET
 
 new_btc_address:
     pattern:  /pos/v{version_number}/address

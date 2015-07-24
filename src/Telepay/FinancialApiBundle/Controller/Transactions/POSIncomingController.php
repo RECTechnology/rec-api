@@ -136,6 +136,18 @@ class POSIncomingController extends RestApiController{
 
     }
 
+    /**
+     * @Rest\View
+     */
+    public function checkTransaction(Request $request, $id){
+
+        $em = $this->get('doctrine_mongodb')->getManager();
+        $transaction = $em->getRepository('TelepayFinancialApiBundle:Transaction')->find($id);
+
+        return $this->restTransaction($transaction, "Got ok");
+
+    }
+
     public function notificate(Request $request, $id){
 
         $dm = $this->get('doctrine_mongodb')->getManager();
