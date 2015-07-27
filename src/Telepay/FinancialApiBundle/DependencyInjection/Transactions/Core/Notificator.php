@@ -46,11 +46,6 @@ class Notificator {
 
         $signature = hash_hmac('sha256',$data_to_sign,$key);
 
-        $logger = $this->container->get('logger');
-        $logger->info('DataToSign '.$data_to_sign);
-        $logger->info('Signature '.$signature);
-        $logger->info('Key '.$key);
-
         $params = array(
             'id'        =>  $id,
             'status'    =>  $status,
