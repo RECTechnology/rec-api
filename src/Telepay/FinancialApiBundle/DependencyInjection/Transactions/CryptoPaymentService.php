@@ -137,7 +137,10 @@ class CryptoPaymentService extends BaseService {
 
         $this->sendEmail(
             'Btc_pay notification --> '.$transaction->getId(),
-            'Balance --> '.$params[0].' Unconfirmed --> '.$params[1].' address --> '.$params[2]);
+            'Balance --> '.$params[0].' Unconfirmed --> '.$params[1].' address --> '.$params[2]
+        );
+
+        return $transaction;
 
     }
 
