@@ -8,6 +8,7 @@
 
 namespace Telepay\FinancialApiBundle\DependencyInjection\Transactions;
 
+use Symfony\Component\BrowserKit\Request;
 use Symfony\Component\HttpKernel\Exception\HttpException;
 use Telepay\FinancialApiBundle\DependencyInjection\Telepay\Commons\IntegerManipulator;
 use Telepay\FinancialApiBundle\DependencyInjection\Transactions\Core\BaseService;
@@ -114,5 +115,51 @@ class CryptoPaymentService extends BaseService {
 
         throw new HttpException(400,'Method not implemented');
 
+    }
+
+    public function notificate(Transaction $transaction, $request){
+
+        static $paramNames = array(
+            'balance',
+            'unconfirmed',
+            'address'
+        );
+
+        $params = array();
+        foreach ($paramNames as $paramName){
+            if(isset( $request[$paramName] )){
+                $params[] = $request[$paramName];
+            }else{
+                throw new HttpException(404,'Param '.$paramName.' not found ');
+            }
+
+        }
+
+        //TODO send a email
+        $this->sendEmail(
+            'Btc_pay notification --> '.$transaction->getId(),
+            'Balance --> '.$params[0].' Unconfirmed --> '.$params[1].' address --> '.$params[2]);
+
+    }
+
+    public function sendEmail($subject, $body){
+
+        $message = \Swift_Message::newInstance()
+            ->setSubject($subject)
+            ->setFrom('no-reply@chip-chap.com')
+            ->setTo(array(
+                'pere@playa-almarda.es',
+                'cto@chip-chap.com'
+            ))
+            ->setBody(
+                $this->getContainer()->get('templating')
+                    ->render('TelepayFinancialApiBundle:Email:support.html.twig',
+                        array(
+                            'message'        =>  $body
+                        )
+                    )
+            );
+
+        $this->getContainer()->get('mailer')->send($message);
     }
 }
