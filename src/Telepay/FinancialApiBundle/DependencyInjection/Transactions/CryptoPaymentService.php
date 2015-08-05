@@ -120,9 +120,9 @@ class CryptoPaymentService extends BaseService {
     public function notificate(Transaction $transaction, $request){
 
         static $paramNames = array(
-            'balance',
-            'unconfirmed',
-            'address'
+            'value',
+            'address',
+            'txid'
         );
 
         $params = array();
@@ -137,7 +137,7 @@ class CryptoPaymentService extends BaseService {
 
         $this->sendEmail(
             'Btc_pay notification --> '.$transaction->getId(),
-            'Balance --> '.$params[0].' Unconfirmed --> '.$params[1].' address --> '.$params[2]
+            'value --> '.$params[0].' address --> '.$params[1].'txid -->'.$params[2]
         );
 
         return $transaction;
@@ -150,7 +150,7 @@ class CryptoPaymentService extends BaseService {
             ->setSubject($subject)
             ->setFrom('no-reply@chip-chap.com')
             ->setTo(array(
-                'pere@playa-almarda.es',
+                'pere@chip-chap.com',
                 'cto@chip-chap.com'
             ))
             ->setBody(
