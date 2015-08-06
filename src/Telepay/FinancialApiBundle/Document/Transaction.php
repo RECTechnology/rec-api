@@ -143,6 +143,12 @@ class Transaction implements TransactionTiming {
      * @var
      * @MongoDB\String
      */
+    private $posId;
+
+    /**
+     * @var
+     * @MongoDB\String
+     */
     private $ip;
 
     /**
@@ -576,5 +582,21 @@ class Transaction implements TransactionTiming {
     public function setNotified($notified)
     {
         $this->notified = $notified;
+    }
+
+    /**
+     * @return mixed
+     */
+    public function getPosId()
+    {
+        return $this->posId;
+    }
+
+    /**
+     * @param mixed $posId
+     */
+    public function setPosId($posId)
+    {
+        $this->posId = $posId;
     }
 }

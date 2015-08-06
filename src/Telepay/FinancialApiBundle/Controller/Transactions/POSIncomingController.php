@@ -65,8 +65,8 @@ class POSIncomingController extends RestApiController{
         $transaction->setUser($user->getId());
         $transaction->setVersion($version_number);
         $transaction->setDataIn($dataIn);
+        $transaction->setPosId($id);
         $dm->persist($transaction);
-
         $amount = $dataIn['amount'];
         $transaction->setAmount($amount);
 
@@ -146,6 +146,60 @@ class POSIncomingController extends RestApiController{
 
         return $this->restTransaction($transaction, "Got ok");
 
+    }
+
+    /**
+     * @Rest\View
+     */
+    public function find(Request $request, $version_number, $pos_id){
+
+        $service = $this->get('net.telepay.services.pos.v'.$version_number);
+
+        if (false === $this->get('security.authorization_checker')->isGranted($service->getRole())) {
+            throw $this->createAccessDeniedException();
+        }
+
+        if($request->query->has('start_time') && is_numeric($request->query->get('start_time')))
+            $start_time = new \MongoDate($request->query->get('start_time'));
+        else $start_time = new \MongoDate(time()-3*31*24*3600); // 3 month ago
+
+        if($request->query->has('end_time') && is_numeric($request->query->get('end_time')))
+            $end_time = new \MongoDate($request->query->get('end_time'));
+        else $end_time = new \MongoDate(); // now
+
+        if($request->query->has('limit')) $limit = intval($request->query->get('limit'));
+        else $limit = 10;
+
+        if($request->query->has('offset')) $offset = intval($request->query->get('offset'));
+        else $offset = 0;
+
+        $userId = $this->get('security.context')->getToken()->getUser()->getId();
+
+        $dm = $this->get('doctrine_mongodb')->getManager();
+
+        $transactions = $dm->createQueryBuilder('TelepayFinancialApiBundle:Transaction')
+            ->field('user')->equals($userId)
+            ->field('service')->equals($service->getCname())
+            ->field('posId')->equals($pos_id)
+            ->field('created')->gt($start_time)
+            ->field('created')->lt($end_time)
+            ->sort('created', 'desc')
+            ->skip($offset)
+            ->limit($limit)
+            ->getQuery()->execute();
+
+        $transArray = [];
+        foreach($transactions->toArray() as $transaction){
+            $transArray []= $transaction;
+        }
+
+        //esto es asi porque hemos cambiado la respuesta en restV2 ( ahora tiene algunos campos más ).
+        return $this->restV2(
+            200,
+            "ok",
+            "Request successful",
+            $transArray
+        );
     }
 
     public function notificate(Request $request, $id){

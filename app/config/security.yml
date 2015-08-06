@@ -31,7 +31,7 @@ security:
             security:   false
 
         POS:
-            pattern:    ^/pos/v[0-9]+/*
+            pattern:    ^/pos/v[0-9]+/transaction/*
             stateless:  true
             security:   false
 
