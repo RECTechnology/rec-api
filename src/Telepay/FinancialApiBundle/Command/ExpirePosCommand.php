@@ -39,7 +39,6 @@ class ExpirePosCommand extends ContainerAwareCommand
         $contador = 0;
         foreach($qb->toArray() as $transaction){
 
-            //todo pillar los parametros de la tpv
             $pos_id = $transaction->getPosId();
             $posRepo = $em->getRepository('TelepayFinancialApiBundle:POS')->findBy(array(
                 'pos_id' =>  $pos_id
