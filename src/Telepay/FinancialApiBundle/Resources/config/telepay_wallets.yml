@@ -40,7 +40,7 @@ services:
         arguments:
             - "@net.telepay.provider.btc"
             - "BTC"
-            - "1.5"
+            - "15"
 
     net.telepay.wallet.fullnode.fair:
         class: Telepay\FinancialApiBundle\Financial\Wallet\FullNodeWallet
