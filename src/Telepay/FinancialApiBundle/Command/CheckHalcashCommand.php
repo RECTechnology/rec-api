@@ -49,6 +49,7 @@ class CheckHalcashCommand extends ContainerAwareCommand
                 $checked_transaction->setUpdated(new \MongoDate());
 
             }
+
             $dm->persist($checked_transaction);
             $em->flush();
 
@@ -152,7 +153,7 @@ class CheckHalcashCommand extends ContainerAwareCommand
         return $transaction;
     }
 
-    public function sendEmail($subject, $body){
+    private function sendEmail($subject, $body){
 
         $message = \Swift_Message::newInstance()
             ->setSubject($subject)

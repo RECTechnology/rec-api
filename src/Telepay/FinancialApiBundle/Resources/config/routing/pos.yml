@@ -1,31 +1,31 @@
 ######################## USER POS ########################
 
 user_POS_index:
-    pattern:  /pos/v1/manager
+    pattern:  /user/v1/pos
     defaults: { _controller: Telepay\FinancialApiBundle\Controller\Management\User\POSController::indexAction }
     requirements:
         _method: GET
 
-user_POS_index:
-    pattern:  /pos/v1/manager/{id}
+user_POS_show:
+    pattern:  /user/v1/pos/{id}
     defaults: { _controller: Telepay\FinancialApiBundle\Controller\Management\User\POSController::showAction }
     requirements:
         _method: GET
 
 user_POS_create:
-    pattern:  /pos/v1/manager
+    pattern:  /user/v1/pos
     defaults: { _controller: Telepay\FinancialApiBundle\Controller\Management\User\POSController::createAction }
     requirements:
         _method: POST
 
 user_POS_update:
-    pattern:  /pos/v1/manager/{id}
+    pattern:  /user/v1/pos/{id}
     defaults: { _controller: Telepay\FinancialApiBundle\Controller\Management\User\POSController::updateAction }
     requirements:
         _method: PUT
 
 user_POS_delete:
-    pattern:  /pos/v1/manager/{id}
+    pattern:  /user/v1/pos/{id}
     defaults: { _controller: Telepay\FinancialApiBundle\Controller\Management\User\POSController::deleteAction }
     requirements:
         _method: DELETE
@@ -33,5 +33,29 @@ user_POS_delete:
 user_POS_transaction:
     pattern:  /pos/v{version_number}/transaction/{id}
     defaults: { _controller: Telepay\FinancialApiBundle\Controller\Transactions\POSIncomingController::createTransaction }
+    requirements:
+        _method: POST
+
+user_POS_find_transactions:
+    pattern:  /pos/v{version_number}/{pos_id}
+    defaults: { _controller: Telepay\FinancialApiBundle\Controller\Transactions\POSIncomingController::find }
+    requirements:
+        _method: GET
+
+user_POS_check:
+    pattern:  /pos/v{version_number}/check/{id}
+    defaults: { _controller: Telepay\FinancialApiBundle\Controller\Transactions\POSIncomingController::checkTransaction }
+    requirements:
+        _method: GET
+
+new_btc_address:
+    pattern:  /pos/v{version_number}/address
+    defaults: { _controller: Telepay\FinancialApiBundle\Controller\Transactions\POSIncomingController::generateAddress }
+    requirements:
+        _method: POST
+
+pos_notifications:
+    pattern:  /pos/v{version_number}/notification/{id}
+    defaults: { _controller: Telepay\FinancialApiBundle\Controller\Transactions\POSIncomingController::notificate }
     requirements:
         _method: POST

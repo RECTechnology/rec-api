@@ -128,3 +128,7 @@ services:
             - "%spei_partner%"
             - "%spei_operant%"
             - "%spei_passphrase%"
+
+    net.telepay.provider.easypay:
+        class: Telepay\FinancialApiBundle\DependencyInjection\Transactions\Libs\EasyPay
+        arguments:

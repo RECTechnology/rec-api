@@ -32,14 +32,14 @@ namespace Telepay\FinancialApiBundle\DependencyInjection\Transactions\Libs;
 
         public function send($phone,$amount,$reference,$pin,$transaction_id){
 
-            $this->phone=$phone;
-            $this->amount=$amount;
-            $this->reference=$reference;
-            $this->pin=$pin;
-            $this->transaction_id=$transaction_id;
-            $caducity=gmdate("Y-m-d",time()+604800);
+            $this->phone = $phone;
+            $this->amount = $amount;
+            $this->reference = $reference;
+            $this->pin = $pin;
+            $this->transaction_id = $transaction_id;
+            $caducity = gmdate("Y-m-d",time()+604800);
 
-            $params=array(
+            $params = array(
                 'usuario'		=>	$this->user,
                 'contrasenia'	=>	$this->password,
                 'prefijo'		=>	'34',
@@ -52,20 +52,20 @@ namespace Telepay\FinancialApiBundle\DependencyInjection\Transactions\Libs;
             );
 
 
-            if($this->mode=='T'){
-                $response=array(
+            if($this->mode == 'T'){
+                $response = array(
                     'errorcode'=>'0',
                     'halcashticket'=>'1234567890'
                 );
 
             }else{
-                $url='http://hcsvc.telepay.net/HalCashGatewayIssue.asmx?wsdl';
-                $client=new nusoap_client($url,true);
+                $url = 'http://hcsvc.telepay.net/HalCashGatewayIssue.asmx?wsdl';
+                $client = new nusoap_client($url,true);
                 if ($sError = $client->getError()) {
                     throw new HttpException(400,"No se pudo completar la operacion [".$sError."]");
                     //$response='error2';
                 }
-                $response=$client->call("Emision",$params);
+                $response = $client->call("Emision",$params);
                 if ($client->fault) { // Si
                     throw new HttpException(400,"No se pudo completar la operacion [".$sError."]");
                     //$response='error3';
@@ -79,7 +79,7 @@ namespace Telepay\FinancialApiBundle\DependencyInjection\Transactions\Libs;
                 }
             }
 
-            $response=$response['EmisionResult'];
+            $response = $response['EmisionResult'];
 
             return $response;
 
@@ -87,16 +87,16 @@ namespace Telepay\FinancialApiBundle\DependencyInjection\Transactions\Libs;
 
 		public function sendV2($phone,$prefix,$amount,$reference,$pin,$transaction_id,$alias){
 
-            $this->phone=$phone;
-            $this->prefix=$prefix;
-            $this->alias=$alias;
-            $this->amount=$amount;
-            $this->reference=$reference;
-            $this->pin=$pin;
-            $this->transaction_id=$transaction_id;
-            $caducity=gmdate("Y-m-d",time()+604800);
+            $this->phone = $phone;
+            $this->prefix = $prefix;
+            $this->alias = $alias;
+            $this->amount = $amount;
+            $this->reference = $reference;
+            $this->pin = $pin;
+            $this->transaction_id = $transaction_id;
+            $caducity = gmdate("Y-m-d",time()+604800);
 
-            $params=array(
+            $params = array(
                 'usuario'		=>	$this->user,
                 'contrasenia'	=>	$this->password,
                 'prefijo'		=>	$this->prefix,
@@ -108,20 +108,20 @@ namespace Telepay\FinancialApiBundle\DependencyInjection\Transactions\Libs;
                 'caducidad'		=>	$caducity
             );
 
-            if($this->mode=='T'){
-                $response=array(
+            if($this->mode == 'T'){
+                $response = array(
                     'errorcode'=>'0',
                     'halcashticket'=>'1234567890'
                 );
 
             }else{
-                $url='http://hcsvc.telepay.net/HalCashGatewayIssue.asmx?wsdl';
-                $client=new nusoap_client($url,true);
+                $url = 'http://hcsvc.telepay.net/HalCashGatewayIssue.asmx?wsdl';
+                $client = new nusoap_client($url,true);
                 if ($sError = $client->getError()) {
                     throw new HttpException(400,"No se pudo completar la operacion [".$sError."]");
                     //$response='error2';
                 }
-                $response=$client->call("Emision",$params);
+                $response = $client->call("Emision",$params);
                 if ($client->fault) { // Si
                     throw new HttpException(400,"No se pudo completar la operacion [".$sError."]");
                     //$response='error3';
@@ -134,7 +134,7 @@ namespace Telepay\FinancialApiBundle\DependencyInjection\Transactions\Libs;
                     }
                 }
 
-                $response=$response['EmisionResult'];
+                $response = $response['EmisionResult'];
             }
 
 
@@ -145,15 +145,15 @@ namespace Telepay\FinancialApiBundle\DependencyInjection\Transactions\Libs;
 
         public function sendV3($phone,$prefix,$amount,$reference,$pin,$transaction_id){
 
-            $this->phone=$phone;
-            $this->prefix=$prefix;
-            $this->amount=$amount;
-            $this->reference=$reference;
-            $this->pin=$pin;
-            $this->transaction_id=$transaction_id;
-            $caducity=gmdate("Y-m-d",time()+604800);
+            $this->phone = $phone;
+            $this->prefix = $prefix;
+            $this->amount = $amount;
+            $this->reference = $reference;
+            $this->pin = $pin;
+            $this->transaction_id = $transaction_id;
+            $caducity = gmdate("Y-m-d",time()+604800);
 
-            $params=array(
+            $params = array(
                 'usuario'		=>	$this->user,
                 'contrasenia'	=>	$this->password,
                 'prefijo'		=>	$this->prefix,
@@ -165,20 +165,20 @@ namespace Telepay\FinancialApiBundle\DependencyInjection\Transactions\Libs;
                 'caducidad'		=>	$caducity
             );
 
-            if($this->mode=='T'){
-                $response=array(
+            if($this->mode == 'T'){
+                $response = array(
                     'errorcode'=>'0',
                     'halcashticket'=>'1234567890'
                 );
 
             }else{
-                $url='http://hcsvc.telepay.net/HalCashGatewayIssue.asmx?wsdl';
-                $client=new nusoap_client($url,true);
+                $url = 'http://hcsvc.telepay.net/HalCashGatewayIssue.asmx?wsdl';
+                $client = new nusoap_client($url,true);
                 if ($sError = $client->getError()) {
                     throw new HttpException(503,"No se pudo completar la operacion [".$sError."]");
                     //$response='error2';
                 }
-                $response=$client->call("Emision",$params);
+                $response = $client->call("Emision",$params);
                 if ($client->fault) { // Si
                     throw new HttpException(503,"No se pudo completar la operacion [".$sError."]");
                     //$response='error3';
@@ -192,7 +192,7 @@ namespace Telepay\FinancialApiBundle\DependencyInjection\Transactions\Libs;
                 }
             }
 
-            $response=$response['EmisionResult'];
+            $response = $response['EmisionResult'];
 
             return $response;
 
@@ -200,16 +200,16 @@ namespace Telepay\FinancialApiBundle\DependencyInjection\Transactions\Libs;
 
         public function sendInternational($phone,$prefix,$amount,$reference,$pin,$transaction_id, $country,$language){
 
-            $this->phone=$phone;
-            $this->prefix=$prefix;
-            $this->amount=$amount;
-            $this->reference=$reference;
-            $this->pin=$pin;
-            $this->transaction_id=$transaction_id;
-            $this->country=$country;
-            $caducity=gmdate("Y-m-d",time()+604800);
+            $this->phone = $phone;
+            $this->prefix = $prefix;
+            $this->amount = $amount;
+            $this->reference = $reference;
+            $this->pin = $pin;
+            $this->transaction_id = $transaction_id;
+            $this->country = $country;
+            $caducity = gmdate("Y-m-d",time()+604800);
 
-            $params=array(
+            $params = array(
                 'usuario'		=>	$this->user,
                 'contrasenia'	=>	$this->password,
                 'prefijo'		=>	$this->prefix,
@@ -223,20 +223,20 @@ namespace Telepay\FinancialApiBundle\DependencyInjection\Transactions\Libs;
                 'caducidad'		=>	$caducity
             );
 
-            if($this->mode=='T'){
-                $response=array(
+            if($this->mode == 'T'){
+                $response = array(
                     'errorcode'=>'0',
                     'halcashticket'=>'1234567890'
                 );
 
             }else{
-                $url='http://hcsvc.telepay.net/HalCashGatewayIssue.asmx?wsdl';
-                $client=new nusoap_client($url,true);
+                $url = 'http://hcsvc.telepay.net/HalCashGatewayIssue.asmx?wsdl';
+                $client = new nusoap_client($url,true);
                 if ($sError = $client->getError()) {
                     throw new HttpException(400,"No se pudo completar la operacion [".$sError."]");
                     //$response='error2';
                 }
-                $response=$client->call("EmisionInternacional",$params);
+                $response = $client->call("EmisionInternacional",$params);
                 if ($client->fault) { // Si
                     throw new HttpException(400,"No se pudo completar la operacion [".$sError."]");
                     //$response='error3';
@@ -250,7 +250,7 @@ namespace Telepay\FinancialApiBundle\DependencyInjection\Transactions\Libs;
                 }
             }
 
-            $response=$response['EmisionInternacionalResult'];
+            $response = $response['EmisionInternacionalResult'];
 
             return $response;
 
@@ -258,17 +258,17 @@ namespace Telepay\FinancialApiBundle\DependencyInjection\Transactions\Libs;
 
         public function payment($phone,$amount,$reference,$pin,$transaction_id){
 
-            $this->phone=$phone;
-            $this->amount=$amount;
-            $this->reference=$reference;
-            $this->pin=$pin;
-            $this->transaction_id=$transaction_id;
+            $this->phone = $phone;
+            $this->amount = $amount;
+            $this->reference = $reference;
+            $this->pin = $pin;
+            $this->transaction_id = $transaction_id;
 
-            $hal=new HALManager();
+            $hal = new HALManager();
 
             $hal->cargaentradapago($this->phone, $this->amount, $this->reference, $this->pin, $this->transaction_id );
 
-            if($this->mode=='T'){
+            if($this->mode == 'T'){
                 $hal->enviadatosTest( $hal->servicios('PAGO') );
                 //die(print_r($hal,true));
             }else{
@@ -281,10 +281,10 @@ namespace Telepay\FinancialApiBundle\DependencyInjection\Transactions\Libs;
 
         public function cancelation($ticket,$reference){
 
-            $this->reference=$reference;
-            $this->hal=$ticket;
+            $this->reference = $reference;
+            $this->hal = $ticket;
 
-            $params=array(
+            $params = array(
                 'usuario'		=>	$this->user,
                 'contrasenia'	=>	$this->password,
                 'ticket'        =>  $this->hal,
@@ -292,18 +292,18 @@ namespace Telepay\FinancialApiBundle\DependencyInjection\Transactions\Libs;
             );
 
 
-            if($this->mode=='T'){
+            if($this->mode == 'T'){
                 throw new HttpException(501,"Test mode not implemented");
                 //$response='error1';
 
             }else{
-                $url='http://hcsvc.telepay.net/HalCashGatewayIssue.asmx?wsdl';
-                $client=new nusoap_client($url,true);
+                $url = 'http://hcsvc.telepay.net/HalCashGatewayIssue.asmx?wsdl';
+                $client = new nusoap_client($url,true);
                 if ($sError = $client->getError()) {
                     throw new HttpException(400,"No se pudo completar la operacion [".$sError."]");
                     //$response='error2';
                 }
-                $response=$client->call("Cancelacion",$params);
+                $response = $client->call("Cancelacion",$params);
                 if ($client->fault) { // Si
                     throw new HttpException(400,"No se pudo completar la operacion [".$sError."]");
                     //$response='error3';
@@ -317,7 +317,7 @@ namespace Telepay\FinancialApiBundle\DependencyInjection\Transactions\Libs;
                 }
             }
 
-            $response=$response['CancelacionResult'];
+            $response = $response['CancelacionResult'];
 
             return $response;
 
@@ -325,26 +325,26 @@ namespace Telepay\FinancialApiBundle\DependencyInjection\Transactions\Libs;
 
         public function status($ticket){
 
-            $this->hal=$ticket;
+            $this->hal = $ticket;
 
-            $params=array(
+            $params = array(
                 'usuario'		=>	$this->user,
                 'contrasenia'	=>	$this->password,
                 'ticket'        =>  $this->hal
             );
 
-            if($this->mode=='T'){
+            if($this->mode == 'T'){
                 throw new HttpException(501,"Test mode not implemented");
                 //$response='error1';
 
             }else{
-                $url='http://hcsvc.telepay.net/HalCashGatewayIssue.asmx?wsdl';
-                $client=new nusoap_client($url,true);
+                $url = 'http://hcsvc.telepay.net/HalCashGatewayIssue.asmx?wsdl';
+                $client = new nusoap_client($url,true);
                 if ($sError = $client->getError()) {
                     throw new HttpException(400,"No se pudo completar la operacion [".$sError."]");
                     //$response='error2';
                 }
-                $response=$client->call("Estado",$params);
+                $response = $client->call("Estado",$params);
                 if ($client->fault) { // Si
                     throw new HttpException(400,"No se pudo completar la operacion [".$sError."]");
                     //$response='error3';
@@ -358,7 +358,46 @@ namespace Telepay\FinancialApiBundle\DependencyInjection\Transactions\Libs;
                 }
             }
 
-            $response=$response['EstadoResult'];
+            $response = $response['EstadoResult'];
+
+            return $response;
+
+        }
+
+        public function price($country){
+
+            $params = array(
+                'usuario'		=>	$this->user,
+                'contrasenia'	=>	$this->password,
+                'pais'        =>  $country
+            );
+
+            if($this->mode == 'T'){
+                throw new HttpException(501,"Test mode not implemented");
+                //$response='error1';
+
+            }else{
+                $url='http://hcsvc.telepay.net/HalCashGatewayIssue.asmx?wsdl';
+                $client = new nusoap_client($url,true);
+                if ($sError = $client->getError()) {
+                    throw new HttpException(400,"No se pudo completar la operacion [".$sError."]");
+                    //$response='error2';
+                }
+                $response = $client->call("Precio",$params);
+                if ($client->fault) { // Si
+                    throw new HttpException(400,"No se pudo completar la operacion [".$sError."]");
+                    //$response='error3';
+                } else { // No
+                    $sError = $client->getError();
+                    // Hay algun error ?
+                    if ($sError) { // Si
+                        throw new HttpException(400,"No se pudo completar la operacion [".$sError."]");
+                        //$response=$sError;
+                    }
+                }
+            }
+
+            $response = $response['PrecioResult'];
 
             return $response;
 

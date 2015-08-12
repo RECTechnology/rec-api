@@ -27,7 +27,6 @@ class CheckCryptoCommand extends ContainerAwareCommand
 
         $service_cname = array('fac_pay','btc_pay');
 
-        //$em= $this->getContainer()->get('doctrine')->getManager();
         $dm = $this->getContainer()->get('doctrine_mongodb')->getManager();
         $em = $this->getContainer()->get('doctrine')->getManager();
         $repo = $em->getRepository('TelepayFinancialApiBundle:User');
@@ -46,8 +45,17 @@ class CheckCryptoCommand extends ContainerAwareCommand
                 if(isset($data['expires_in'])){
 
                     $resArray [] = $transaction;
+                    $previous_status = $transaction->getStatus();
+
                     $checked_transaction = $this->check($transaction);
 
+                    if($previous_status != $checked_transaction->getStatus()){
+                        $checked_transaction = $this->getContainer()->get('notificator')->notificate($checked_transaction);
+                        $checked_transaction->setUpdated(new \MongoDate());
+
+                    }
+
+                    $dm->persist($checked_transaction);
                     $dm->flush();
 
                     if($checked_transaction->getStatus()=='success'){
@@ -154,19 +162,23 @@ class CheckCryptoCommand extends ContainerAwareCommand
 
         $address = $currentData['address'];
         $amount = $currentData['amount'];
-        if($transaction->getCurrency() === Currency::$BTC)
+        if($transaction->getCurrency() === Currency::$BTC){
             $providerName = 'net.telepay.provider.btc';
-        else
+            if($amount <= 100)
+                $margin = 0;
+            else
+                $margin = 100;
+        }else{
             $providerName = 'net.telepay.provider.fac';
+            if($amount <= 10000)
+                $margin = 0;
+            else
+                $margin = 10000;
+        }
 
         $cryptoProvider = $this->getContainer()->get($providerName);
 
         $allReceived = $cryptoProvider->listreceivedbyaddress(0, true);
-
-        if($amount <= 100)
-            $margin = 0;
-        else
-            $margin = 100;
 
         $allowed_amount = $amount - $margin;
         foreach($allReceived as $cryptoData){
@@ -176,13 +188,9 @@ class CheckCryptoCommand extends ContainerAwareCommand
                     $currentData['confirmations'] = $cryptoData['confirmations'];
                     if($currentData['confirmations'] >= $currentData['min_confirmations']){
                         $transaction->setStatus("success");
-                        $transaction->setUpdated(new \MongoDate());
-                        $transaction = $this->getContainer()->get('notificator')->notificate($transaction);
                     }else{
                         if($transaction->getStatus() != 'received'){
                             $transaction->setStatus("received");
-                            $transaction->setUpdated(new \MongoDate());
-                            $transaction = $this->getContainer()->get('notificator')->notificate($transaction);
                         }
                     }
 
@@ -191,7 +199,6 @@ class CheckCryptoCommand extends ContainerAwareCommand
 
                     return $transaction;
                 }
-
 
             }
 

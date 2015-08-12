@@ -21,7 +21,7 @@ class PosService extends BaseService{
 
     public function getFields(){
         return array(
-            'amount','description','currency', 'url_notification','url_ok','url_ko'
+            'amount', 'description', 'currency', 'url_notification', 'url_ok', 'url_ko', 'order_id'
         );
     }
 
@@ -30,23 +30,24 @@ class PosService extends BaseService{
         if($baseTransaction === null) $baseTransaction = new Transaction();
         $id = $baseTransaction->getId();
 
-        $timestamp = new \DateTime();
-        $timestamp = $timestamp->getTimestamp();
-        $trans_id = $timestamp;
-        $contador = 1;
+        $trans_id = rand();
 
-        $url_final='/notifications/v1/pos/'.$id;
+        $url_final ='/notifications/v1/pos/'.$id;
 
-        $important_data=array(
+        $important_data = array(
             'url_final' =>  $url_final,
             'contador'  =>  1,
             'transaction_id'    =>  $trans_id
         );
 
         $out = array(
-            'pos_id'    => $trans_id.$contador,
+            'transaction_pos_id'    => $trans_id,
             'url_notification'  =>  $url_final
         );
+
+        if($baseTransaction->getCurrency() == 'BTC'){
+            $out['address'] = $this->getContainer()->get('net.telepay.provider.btc')->getnewaddress();
+        }
 
         $baseTransaction->setData($important_data);
         $baseTransaction->setDataOut($out);
