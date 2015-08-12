@@ -57,8 +57,16 @@ class POSIncomingController extends RestApiController{
         }
 
         if($dataIn['currency'] != $service_currency) throw new HttpException(403, 'Currency not allowed');
+        //TODO if order_id exists in this tpv duplicate resource or something like that
 
         $dm = $this->get('doctrine_mongodb')->getManager();
+
+        $qb = $dm->createQueryBuilder('TelepayFinancialApiBundle:Transaction')
+            ->field('posId')->equals($id)
+            ->field('dataIn.order_id')->equals($dataIn['order_id'])
+            ->getQuery();
+
+        if( count($qb) > 0 ) throw new HttpException(409,'Duplicated resource');
 
         $transaction = Transaction::createFromRequest($request);
         $transaction->setService($service_cname);
