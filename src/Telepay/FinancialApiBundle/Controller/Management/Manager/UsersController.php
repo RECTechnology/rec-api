@@ -275,19 +275,19 @@ class UsersController extends BaseApiController
     public function updateAction(Request $request, $id){
         $services = null;
         if($request->request->has('services')){
-            $services=$request->get('services');
+            $services = $request->get('services');
             $request->request->remove('services');
         }
         $role = null;
         if($request->request->has('role')){
-            $role=$request->get('role');
+            $role = $request->get('role');
             $request->request->remove('role');
         }
         if($request->request->has('password')){
             if($request->request->has('repassword')){
                 $password = $request->get('password');
                 $repassword = $request->get('repassword');
-                if($password!=$repassword) throw new HttpException(400, "Password and repassword are differents.");
+                if($password != $repassword) throw new HttpException(400, "Password and repassword are differents.");
                 $userManager = $this->container->get('access_key.security.user_provider');
                 $user = $userManager->loadUserById($id);
                 $user->setPlainPassword($request->get('password'));
@@ -301,11 +301,11 @@ class UsersController extends BaseApiController
         }
         $balance=null;
         if($request->request->has('addBalance')){
-            $balance=$request->get('addBalance');
+            $balance = $request->get('addBalance');
             $request->request->remove('addBalance');
-            $currency='default';
+            $currency = 'default';
             if($request->request->has('currency')){
-                $currency=$request->request->get('currency');
+                $currency = $request->request->get('currency');
                 $request->request->remove('currency');
             }
             $adder = $this->_addBalance( $id, $currency, $balance );
