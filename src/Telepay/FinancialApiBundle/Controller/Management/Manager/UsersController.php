@@ -115,6 +115,65 @@ class UsersController extends BaseApiController
     /**
      * @Rest\View
      */
+    public function indexByGroup(Request $request, $id){
+
+        $admin = $this->get('security.context')->getToken()->getUser();
+
+        if($request->query->has('limit')) $limit = $request->query->get('limit');
+        else $limit = 10;
+
+        if($request->query->has('offset')) $offset = $request->query->get('offset');
+        else $offset = 0;
+
+        $all = $this->getRepository()->findAll();
+
+        $securityContext = $this->get('security.context');
+
+        if(!$securityContext->isGranted('ROLE_SUPER_ADMIN')){
+            $filtered = [];
+            foreach($all as $user){
+                if(!$user->hasRole('ROLE_SUPER_ADMIN')){
+                    if(count($user->getGroups()) >= 1){
+                        $groups = $user->getGroups();
+                        foreach($groups as $group){
+                            if($group->getId() == $id){
+                                $filtered []= $user;
+                            }
+                        }
+
+                    }
+
+                }
+            }
+        }
+        else{
+            $filtered = $all;
+        }
+        $total = count($filtered);
+
+        $entities = array_slice($filtered, $offset, $limit);
+        array_map(function($elem){
+            $elem->setAllowedServices($this->get('net.telepay.service_provider')->findByRoles($elem->getRoles()));
+            $elem->setAccessToken(null);
+            $elem->setRefreshToken(null);
+            $elem->setAuthCode(null);
+        }, $entities);
+
+        return $this->rest(
+            200,
+            "Request successful",
+            array(
+                'total' => $total,
+                'start' => intval($offset),
+                'end' => count($entities)+$offset,
+                'elements' => $entities
+            )
+        );
+    }
+
+    /**
+     * @Rest\View
+     */
     public function createAction(Request $request){
         if(!$request->request->has('password'))
             throw new HttpException(400, "Missing parameter 'password'");
@@ -275,19 +334,15 @@ class UsersController extends BaseApiController
     public function updateAction(Request $request, $id){
         $services = null;
         if($request->request->has('services')){
-            $services=$request->get('services');
+            $services = $request->get('services');
             $request->request->remove('services');
         }
-        $role = null;
-        if($request->request->has('role')){
-            $role=$request->get('role');
-            $request->request->remove('role');
-        }
+
         if($request->request->has('password')){
             if($request->request->has('repassword')){
                 $password = $request->get('password');
                 $repassword = $request->get('repassword');
-                if($password!=$repassword) throw new HttpException(400, "Password and repassword are differents.");
+                if($password != $repassword) throw new HttpException(400, "Password and repassword are differents.");
                 $userManager = $this->container->get('access_key.security.user_provider');
                 $user = $userManager->loadUserById($id);
                 $user->setPlainPassword($request->get('password'));
@@ -301,11 +356,11 @@ class UsersController extends BaseApiController
         }
         $balance=null;
         if($request->request->has('addBalance')){
-            $balance=$request->get('addBalance');
+            $balance = $request->get('addBalance');
             $request->request->remove('addBalance');
-            $currency='default';
+            $currency = 'default';
             if($request->request->has('currency')){
-                $currency=$request->request->get('currency');
+                $currency = $request->request->get('currency');
                 $request->request->remove('currency');
             }
             $adder = $this->_addBalance( $id, $currency, $balance );
@@ -316,10 +371,7 @@ class UsersController extends BaseApiController
                 $request->request->add(array('services'=>$services));
                 $this->_setServices($request, $id);
             }
-            if($role !== null){
-                $request->request->add(array('role'=>$role));
-                $this->_setRole($request, $id);
-            }
+
         }
         return $resp;
     }
