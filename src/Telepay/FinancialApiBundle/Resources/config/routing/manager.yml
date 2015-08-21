@@ -7,6 +7,12 @@ admin_users_index:
     requirements:
         _method: GET
 
+admin_users_index_by_group:
+    pattern:  /manager/v1/usersbygroup/{id}
+    defaults: { _controller: Telepay\FinancialApiBundle\Controller\Management\Manager\UsersController::indexByGroup, _format: ~ }
+    requirements:
+        _method: GET
+
 
 admin_users_set_image:
     pattern:  /manager/v1/users/{id}/image
@@ -73,6 +79,12 @@ manager_su:
 admin_groups_index:
     pattern:  /manager/v1/groups
     defaults: { _controller: Telepay\FinancialApiBundle\Controller\Management\Manager\GroupsController::indexAction, _format: ~ }
+    requirements:
+        _method: GET
+
+admin_groups_index_by_user:
+    pattern:  /manager/v1/groupsbyuser
+    defaults: { _controller: Telepay\FinancialApiBundle\Controller\Management\Manager\GroupsController::indexByUser, _format: ~ }
     requirements:
         _method: GET
 

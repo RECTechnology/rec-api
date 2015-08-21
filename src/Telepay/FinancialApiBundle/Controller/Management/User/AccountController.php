@@ -266,7 +266,7 @@ class AccountController extends BaseApiController{
         //password is optional
         if(!$request->request->has('password')){
             //nos lo inventamos
-            $password = Uuid::uuid1()->toString();
+                $password = Uuid::uuid1()->toString();
             $request->request->add(array('plain_password'=>$password));
 
         }else{
