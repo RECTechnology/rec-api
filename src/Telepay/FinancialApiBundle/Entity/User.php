@@ -52,7 +52,6 @@ class User extends BaseUser
      *      joinColumns={@ORM\JoinColumn(name="user_id", referencedColumnName="id")},
      *      inverseJoinColumns={@ORM\JoinColumn(name="group_id", referencedColumnName="id")}
      * )
-     * @Expose
      */
     protected $groups;
 
