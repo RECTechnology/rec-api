@@ -175,6 +175,16 @@ class UsersController extends BaseApiController
      * @Rest\View
      */
     public function createAction(Request $request){
+
+        $admin = $this->get('security.context')->getToken()->getUser();
+
+        if($request->request->has('group_id')){
+            $groupId = $request->request->get('group_id');
+            $request->request->remove('group_id');
+        }else{
+            $groupId = null;
+        }
+
         if(!$request->request->has('password'))
             throw new HttpException(400, "Missing parameter 'password'");
         if(!$request->request->has('repassword'))
@@ -195,13 +205,20 @@ class UsersController extends BaseApiController
         $resp= parent::createAction($request);
 
         if($resp->getStatusCode() == 201){
-            $em=$this->getDoctrine()->getManager();
+            $em = $this->getDoctrine()->getManager();
             $usersRepo = $em->getRepository("TelepayFinancialApiBundle:User");
             $groupsRepo = $em->getRepository("TelepayFinancialApiBundle:Group");
-            $group = $groupsRepo->findOneBy(array('name' => 'Default'));
+
+            if($groupId != null){
+                $group = $groupsRepo->find($groupId);
+                if(!$group) throw new HttpException(404, 'Group not found');
+                if($group->getCreator()->getId() != $admin->getId()) throw new HttpException(403, 'You have not the necessary permissions');
+            }else{
+                $group = $groupsRepo->findOneBy(array('name' => 'Default'));
+            }
 
             if(!$group){
-                $group=new Group();
+                $group = new Group();
                 $group->setName('Default');
                 $group->setRoles(array('ROLE_USER'));
                 $group->setCreator($this->getUser());
@@ -232,11 +249,10 @@ class UsersController extends BaseApiController
                 $em->flush();
             }
 
-            $user_id=$resp->getContent();
-            $user_id=json_decode($user_id);
-            $user_id=$user_id->data;
-            $user_id=$user_id->id;
-
+            $user_id = $resp->getContent();
+            $user_id = json_decode($user_id);
+            $user_id = $user_id->data;
+            $user_id = $user_id->id;
             $user = $usersRepo->findOneBy(array('id'=>$user_id));
 
             $currencies=Currency::$LISTA;
