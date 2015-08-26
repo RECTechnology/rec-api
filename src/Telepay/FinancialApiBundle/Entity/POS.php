@@ -66,6 +66,12 @@ class POS {
     private $expires_in;
 
     /**
+     * @ORM\Column(type="boolean")
+     * @Expose
+     */
+    private $active;
+
+    /**
      * @Expose
      */
     private $url;
@@ -181,6 +187,22 @@ class POS {
     public function setExpiresIn($expires_in)
     {
         $this->expires_in = $expires_in;
+    }
+
+    /**
+     * @return mixed
+     */
+    public function getActive()
+    {
+        return $this->active;
+    }
+
+    /**
+     * @param mixed $active
+     */
+    public function setActive($active)
+    {
+        $this->active = $active;
     }
 
 }
