@@ -287,7 +287,15 @@ class UsersController extends BaseApiController
      * @Rest\View
      */
     public function setImage(Request $request, $id){
-        if(empty($id)) throw new HttpException(400, "Missing parameter 'id'");
+        if(empty($id) && $id !=0) throw new HttpException(400, "Missing parameter 'id'");
+
+        if($id == 0){
+            $username = $request->get('username');
+            $repo = $this->getRepository();
+            $user = $repo->findOneBy(array('username'=>$username));
+            if(empty($user)) throw new HttpException(404, 'User not found');
+            $id = $user->getId();
+        }
 
         if($request->request->has('base64_image')) $base64Image = $request->request->get('base64_image');
         else throw new HttpException(400, "Missing parameter 'base64_image'");
@@ -332,6 +340,16 @@ class UsersController extends BaseApiController
      * @Rest\View
      */
     public function updateAction(Request $request, $id){
+        if(empty($id) && $id !=0) throw new HttpException(400, "Missing parameter 'id'");
+
+        if($id == 0){
+            $username = $request->get('username');
+            $repo = $this->getRepository();
+            $user = $repo->findOneBy(array('username'=>$username));
+            if(empty($user)) throw new HttpException(404, 'User not found');
+            $id = $user->getId();
+        }
+
         $services = null;
         if($request->request->has('services')){
             $services = $request->get('services');
@@ -381,6 +399,17 @@ class UsersController extends BaseApiController
      */
     public function deleteAction($id){
         return parent::deleteAction($id);
+    }
+
+    /**
+     * @Rest\View
+     */
+    public function deleteByNameAction($username){
+        $repo = $this->getRepository();
+        $user = $repo->findOneBy(array('username'=>$username));
+        if(empty($user)) throw new HttpException(404, 'User not found');
+        $idUser = $user->getId();
+        return parent::deleteAction($idUser);
     }
 
 
