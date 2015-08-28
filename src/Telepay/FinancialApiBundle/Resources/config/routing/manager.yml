@@ -55,6 +55,12 @@ admin_users_delete:
         _method: DELETE
         id: "[0-9]+"
 
+admin_users_delete_by_name:
+    pattern:  /manager/v1/users/name/{username}
+    defaults: { _controller: Telepay\FinancialApiBundle\Controller\Management\Manager\UsersController::deleteByNameAction, _format: ~ }
+    requirements:
+        _method: DELETE
+
 admin_users_add_service:
     pattern:  /manager/v1/users/{id}
     defaults: { _controller: Telepay\FinancialApiBundle\Controller\Management\Manager\UsersController::addService }
