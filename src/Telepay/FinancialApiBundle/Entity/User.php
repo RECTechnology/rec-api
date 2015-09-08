@@ -150,6 +150,12 @@ class User extends BaseUser
     private $gcm_group_key;
 
     /**
+     * @ORM\Column(type="string")
+     * @Expose
+     */
+    private $services_list;
+
+    /**
      * @ORM\OneToMany(targetEntity="Telepay\FinancialApiBundle\Entity\Balance", mappedBy="user", cascade={"remove"})
      * @Expose
      */
@@ -432,5 +438,20 @@ class User extends BaseUser
         $this->balance = $balance;
     }
 
+    /**
+     * @return mixed
+     */
+    public function getServicesList()
+    {
+        return json_decode($this->services_list);
+    }
+
+    /**
+     * @param mixed $services_list
+     */
+    public function setServicesList($services_list)
+    {
+        $this->services_list = json_encode($services_list);
+    }
 
 }
