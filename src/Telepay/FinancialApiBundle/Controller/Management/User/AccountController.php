@@ -34,13 +34,10 @@ class AccountController extends BaseApiController{
      */
     public function read(Request $request){
         $user = $this->get('security.context')->getToken()->getUser();
+        $listServices = $user->getServicesList();
         $user->setAllowedServices(
-            $this->get('net.telepay.service_provider')->findByRoles($user->getRoles())
+            $this->get('net.telepay.service_provider')->findByCNames($listServices)
         );
-        //die(print_r($user->getLimitCount()[0]->getUser(), true));
-        //return $this->restV2(200, "ok", "OLE", $user->getLimitCount()[0]);
-
-
         return $this->restV2(200, "ok", "Account info got successfully", $user);
     }
 
@@ -266,7 +263,7 @@ class AccountController extends BaseApiController{
         //password is optional
         if(!$request->request->has('password')){
             //nos lo inventamos
-                $password = Uuid::uuid1()->toString();
+            $password = Uuid::uuid1()->toString();
             $request->request->add(array('plain_password'=>$password));
 
         }else{
