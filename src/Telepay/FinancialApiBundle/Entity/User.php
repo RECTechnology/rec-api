@@ -454,4 +454,21 @@ class User extends BaseUser
         $this->services_list = json_encode($services_list);
     }
 
+    /**
+     * @param mixed $cname
+     */
+    public function addService($cname){
+        $new = array($cname);
+        $merge = array_merge($this->services_list, $new);
+        $result = array_unique($merge, SORT_REGULAR);
+        $this->services_list = json_encode($result);
+    }
+
+    /**
+     * @param mixed $cname
+     */
+    public function removeService($cname){
+        $result = array_diff(json_decode($this->services_list), array($cname));
+        $this->services_list = json_encode(array_values($result));
+    }
 }
