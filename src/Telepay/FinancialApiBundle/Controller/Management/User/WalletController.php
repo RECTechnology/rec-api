@@ -14,6 +14,25 @@ use Telepay\FinancialApiBundle\Document\Transaction;
 use Telepay\FinancialApiBundle\Entity\UserWallet;
 
 
+class Test {
+    public $name;
+    public $address;
+    public $address2;
+    public $address3;
+    public $address4;
+    public $address5;
+
+    function __construct($address, $address2, $address3, $address4, $address5, $name)
+    {
+        $this->address = $address;
+        $this->address2 = $address2;
+        $this->address3 = $address3;
+        $this->address4 = $address4;
+        $this->address5 = $address5;
+        $this->name = $name;
+    }
+}
+
 /**
  * Class WalletController
  * @package Telepay\FinancialApiBundle\Controller\Management\User
@@ -68,6 +87,8 @@ class WalletController extends RestApiController{
 
     }
 
+
+
     /**
      * read last 10 transactions
      */
@@ -100,6 +121,64 @@ class WalletController extends RestApiController{
      * reads transactions by wallets
      */
     public function walletTransactions(Request $request){
+
+        if($request->query->has('limit')) $limit = $request->query->get('limit');
+        else $limit = 10;
+
+        if($request->query->has('offset')) $offset = $request->query->get('offset');
+        else $offset = 0;
+
+        if($request->query->get('query') != ''){
+            $query = $request->query->get('query');
+            $search = $query['search'];
+            $order = $query['order'];
+            $dir = $query['dir'];
+
+        }else{
+            $search = "";
+            $order = "id";
+            $dir = "desc";
+        }
+        $dm = $this->get('doctrine_mongodb')->getManager();
+        $userId = $this->get('security.context')
+            ->getToken()->getUser()->getId();
+
+        $transactions = $dm->createQueryBuilder('TelepayFinancialApiBundle:Transaction')
+            ->field('user')->equals($userId)
+            ->sort($order,$dir)
+            ->getQuery()
+            ->execute();
+
+
+        $resArray = [];
+        foreach($transactions->toArray() as $res){
+            $resArray []= $res;
+
+        }
+
+        $total = count($resArray);
+
+        $entities = array_slice($resArray, $offset, $limit);
+
+        return $this->restV2(
+            200,
+            "ok",
+            "Request successful",
+            array(
+                'total' => $total,
+                'start' => intval($offset),
+                'end' => count($entities)+$offset,
+                'elements' => $entities
+            )
+        );
+
+    }
+
+    /**
+     * reads information about all wallets
+     */
+    public function walletTransactionsV2(Request $request){
+
 
         if($request->query->has('limit')) $limit = $request->query->get('limit');
         else $limit = 10;
