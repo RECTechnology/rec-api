@@ -363,7 +363,7 @@ class AccountController extends BaseApiController{
             $response = array(
                 'id'        =>  $user_id,
                 'username'  =>  $username,
-                'pasword'   =>  $password
+                'password'   =>  $password
             );
 
             return $this->restV2(201,"ok", "Request successful", $response);
