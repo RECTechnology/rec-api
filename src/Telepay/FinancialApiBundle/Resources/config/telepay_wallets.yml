@@ -34,13 +34,14 @@ services:
         arguments:
             - "@net.telepay.driver.kraken"
             - "EUR"
+            - "500000"
 
     net.telepay.wallet.fullnode.btc:
         class: Telepay\FinancialApiBundle\Financial\Wallet\FullNodeWallet
         arguments:
             - "@net.telepay.provider.btc"
             - "BTC"
-            - "15"
+            - "1000"
 
     net.telepay.wallet.fullnode.fair:
         class: Telepay\FinancialApiBundle\Financial\Wallet\FullNodeWallet
