@@ -190,19 +190,21 @@ class IncomingController extends RestApiController{
 
             foreach ( $wallets as $wallet){
                 if ($wallet->getCurrency() == $service_currency){
-                    if($wallet->getAvailable()<=$total) throw new HttpException(509,'Not founds enough');
+                    if($wallet->getAvailable() <= $total) throw new HttpException(509,'Not founds enough');
                     //Bloqueamos la pasta en el wallet
-                    $actual_available=$wallet->getAvailable();
-                    $new_available=$actual_available-$total;
+                    $actual_available = $wallet->getAvailable();
+                    $new_available = $actual_available-$total;
                     $wallet->setAvailable($new_available);
                     $em->persist($wallet);
                     $em->flush();
-                    $current_wallet=$wallet;
+                    $current_wallet = $wallet;
                 }
             }
 
-            $scale=$current_wallet->getScale();
+            $scale = $current_wallet->getScale();
             $transaction->setScale($scale);
+            $dm->persist($transaction);
+            $dm->flush();
 
             try {
                 $transaction = $service->create($transaction);
@@ -259,6 +261,16 @@ class IncomingController extends RestApiController{
 
         }else{     //CASH - IN
 
+            foreach ( $wallets as $wallet){
+                if ($wallet->getCurrency() === $transaction->getCurrency()){
+                    $current_wallet=$wallet;
+                }
+            }
+
+            $scale=$current_wallet->getScale();
+            $transaction->setScale($scale);
+            $dm->persist($transaction);
+            $dm->flush();
             try {
                 $transaction = $service->create($transaction);
             }catch (HttpException $e){
@@ -273,14 +285,7 @@ class IncomingController extends RestApiController{
             $transaction = $this->get('notificator')->notificate($transaction);
             $em->flush();
 
-            foreach ( $wallets as $wallet){
-                if ($wallet->getCurrency() === $transaction->getCurrency()){
-                    $current_wallet=$wallet;
-                }
-            }
 
-            $scale=$current_wallet->getScale();
-            $transaction->setScale($scale);
 
 
             $transaction->setUpdated(new \DateTime());
