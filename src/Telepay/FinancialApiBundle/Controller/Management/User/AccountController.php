@@ -276,6 +276,7 @@ class AccountController extends BaseApiController{
                 $request->request->remove('password');
                 $request->request->remove('repassword');
                 $request->request->add(array('plain_password'=>$password));
+                $request->request->add(array('services_list'=>array('sample')));
             }
 
         }
