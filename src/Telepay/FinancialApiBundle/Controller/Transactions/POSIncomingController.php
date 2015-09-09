@@ -165,7 +165,8 @@ class POSIncomingController extends RestApiController{
 
         $service = $this->get('net.telepay.services.pos.v'.$version_number);
 
-        if (false === $this->get('security.authorization_checker')->isGranted($service->getRole())) {
+        $service_list = $this->get('security.context')->getToken()->getUser()->getServicesList();
+        if (!in_array('pos', $service_list)) {
             throw $this->createAccessDeniedException();
         }
 
