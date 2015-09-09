@@ -88,8 +88,10 @@ abstract class BaseApiController extends RestApiController implements Repository
         } catch(DBALException $e){
             if(preg_match('/1062 Duplicate entry/i',$e->getMessage()))
                 throw new HttpException(409, "Duplicated resource");
-            else if(preg_match('/1048 Column/i',$e->getMessage()))
+            else if(preg_match('/1048 Column/i',$e->getMessage())){
+                die(print_r($e->getMessage()));
                 throw new HttpException(400, "Bad parameters");
+            }
             throw new HttpException(500, "Unknown error occurred when save");
         }
 
