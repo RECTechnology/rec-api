@@ -43,7 +43,9 @@ class IncomingController extends RestApiController{
 
         $service = $this->get('net.telepay.services.'.$service_cname.'.v'.$version_number);
 
-        if (false === $this->get('security.authorization_checker')->isGranted($service->getRole())) {
+        $service_list = $this->get('security.context')->getToken()->getUser()->getServicesList();
+
+        if (!in_array($service_cname, $service_list)) {
             throw $this->createAccessDeniedException();
         }
 
@@ -332,7 +334,9 @@ class IncomingController extends RestApiController{
 
         $service = $this->get('net.telepay.services.'.$service_cname.'.v'.$version_number);
 
-        if (false === $this->get('security.authorization_checker')->isGranted($service->getRole())) {
+        $service_list = $this->get('security.context')->getToken()->getUser()->getServicesList();
+
+        if (!in_array($service_cname, $service_list)) {
             throw $this->createAccessDeniedException();
         }
 
@@ -537,7 +541,9 @@ class IncomingController extends RestApiController{
 
         $service = $this->get('net.telepay.services.'.$service_cname.'.v'.$version_number);
 
-        if (false === $this->get('security.authorization_checker')->isGranted($service->getRole())) {
+        $service_list = $this->get('security.context')->getToken()->getUser()->getServicesList();
+
+        if (!in_array($service_cname, $service_list)) {
             throw $this->createAccessDeniedException();
         }
 
@@ -623,7 +629,9 @@ class IncomingController extends RestApiController{
 
         $service = $this->get('net.telepay.services.'.$service_cname.'.v'.$version_number);
 
-        if (false === $this->get('security.authorization_checker')->isGranted($service->getRole())) {
+        $service_list = $this->get('security.context')->getToken()->getUser()->getServicesList();
+
+        if (!in_array($service_cname, $service_list)) {
             throw $this->createAccessDeniedException();
         }
 
