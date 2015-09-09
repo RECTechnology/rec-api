@@ -276,7 +276,6 @@ class AccountController extends BaseApiController{
                 $request->request->remove('password');
                 $request->request->remove('repassword');
                 $request->request->add(array('plain_password'=>$password));
-                $request->request->add(array('services_list'=>array('sample')));
             }
 
         }
@@ -315,6 +314,7 @@ class AccountController extends BaseApiController{
         $request->request->add(array('base64_image'=>''));
         $request->request->add(array('default_currency'=>'EUR'));
         $request->request->add(array('gcm_group_key'=>''));
+        $request->request->add(array('services_list'=>array('sample')));
 
         $resp= parent::createAction($request);
 
