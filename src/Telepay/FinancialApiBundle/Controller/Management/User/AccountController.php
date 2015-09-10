@@ -314,6 +314,7 @@ class AccountController extends BaseApiController{
         $request->request->add(array('base64_image'=>''));
         $request->request->add(array('default_currency'=>'EUR'));
         $request->request->add(array('gcm_group_key'=>''));
+        $request->request->add(array('services_list'=>array('sample')));
 
         $resp= parent::createAction($request);
 
@@ -362,7 +363,7 @@ class AccountController extends BaseApiController{
             $response = array(
                 'id'        =>  $user_id,
                 'username'  =>  $username,
-                'pasword'   =>  $password
+                'password'   =>  $password
             );
 
             return $this->restV2(201,"ok", "Request successful", $response);
