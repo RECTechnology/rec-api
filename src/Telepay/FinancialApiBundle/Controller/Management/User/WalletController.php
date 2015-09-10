@@ -146,10 +146,27 @@ class WalletController extends RestApiController{
         $qb = $dm->createQueryBuilder('TelepayFinancialApiBundle:Transaction');
         $transactions = $qb
             ->field('user')->equals($userId)
-            ->addOr($qb->expr()->field('service')->equals(new \MongoRegex('/.*'.$search.'.*/i')))
-            ->addOr($qb->expr()->field('status')->equals(new \MongoRegex('/.*'.$search.'.*/i')))
-            ->addOr($qb->expr()->field('id')->equals(new \MongoRegex('/.*'.$search.'.*/i')))
-            ->addOr($qb->expr()->field('data_id')->equals(new \MongoRegex('/.*'.$search.'.*/i')))
+            ->where("function() {
+            var good = false;
+            if (typeof this.dataIn.phone !== 'undefined') {
+              if(this.dataIn.phone.indexOf('$search') > -1){
+                good = true;
+              }
+            }
+            if (typeof this.dataIn.address !== 'undefined') {
+              if(this.dataIn.address.indexOf('$search') > -1){
+                good = true;
+              }
+            }
+            return (
+            (this.status.indexOf('$search') > -1)
+             ||
+            (this.service.indexOf('$search') > -1)
+             ||
+            (this._id == '$search')
+             ||
+            (Boolean(good))
+            );}")
             ->sort($order,$dir)
             ->getQuery()
             ->execute();
