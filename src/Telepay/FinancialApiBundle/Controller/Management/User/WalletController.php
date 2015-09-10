@@ -143,56 +143,14 @@ class WalletController extends RestApiController{
         $userId = $this->get('security.context')
             ->getToken()->getUser()->getId();
 
-        $transactions = $dm->createQueryBuilder('TelepayFinancialApiBundle:Transaction')
+        $qb = $dm->createQueryBuilder('TelepayFinancialApiBundle:Transaction');
+        $transactions = $qb
             ->field('user')->equals($userId)
+            ->addOr($qb->expr()->field('service')->equals(new \MongoRegex('/.*'.$search.'.*/i')))
+            ->addOr($qb->expr()->field('status')->equals(new \MongoRegex('/.*'.$search.'.*/i')))
+            ->addOr($qb->expr()->field('id')->equals(new \MongoRegex('/.*'.$search.'.*/i')))
+            ->addOr($qb->expr()->field('data_id')->equals(new \MongoRegex('/.*'.$search.'.*/i')))
             ->sort($order,$dir)
-            ->getQuery()
-            ->execute();
-
-
-        $resArray = [];
-        foreach($transactions->toArray() as $res){
-            $resArray []= $res;
-
-        }
-
-        $total = count($resArray);
-
-        $entities = array_slice($resArray, $offset, $limit);
-
-        return $this->restV2(
-            200,
-            "ok",
-            "Request successful",
-            array(
-                'total' => $total,
-                'start' => intval($offset),
-                'end' => count($entities)+$offset,
-                'elements' => $entities
-            )
-        );
-
-    }
-
-    /**
-     * reads information about all wallets
-     */
-    public function walletTransactionsV2(Request $request){
-
-
-        if($request->query->has('limit')) $limit = $request->query->get('limit');
-        else $limit = 10;
-
-        if($request->query->has('offset')) $offset = $request->query->get('offset');
-        else $offset = 0;
-
-        $dm = $this->get('doctrine_mongodb')->getManager();
-        $userId = $this->get('security.context')
-            ->getToken()->getUser()->getId();
-
-        $transactions = $dm->createQueryBuilder('TelepayFinancialApiBundle:Transaction')
-            ->field('user')->equals($userId)
-            ->sort('id','desc')
             ->getQuery()
             ->execute();
 
