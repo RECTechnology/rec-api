@@ -128,35 +128,31 @@ class WalletController extends RestApiController{
         if($request->query->has('offset')) $offset = $request->query->get('offset');
         else $offset = 0;
 
+        $dm = $this->get('doctrine_mongodb')->getManager();
+        $userId = $this->get('security.context')
+            ->getToken()->getUser()->getId();
+
+        $qb = $dm->createQueryBuilder('TelepayFinancialApiBundle:Transaction');
+
         if($request->query->get('query') != ''){
             $query = $request->query->get('query');
             $search = $query['search'];
             $order = $query['order'];
             $dir = $query['dir'];
 
-        }else{
-            $search = "";
-            $order = "id";
-            $dir = "desc";
-        }
-        $dm = $this->get('doctrine_mongodb')->getManager();
-        $userId = $this->get('security.context')
-            ->getToken()->getUser()->getId();
-
-        $qb = $dm->createQueryBuilder('TelepayFinancialApiBundle:Transaction');
-        $transactions = $qb
-            ->field('user')->equals($userId)
-            ->where("function() {
+            $transactions = $qb
+                ->field('user')->equals($userId)
+                ->where("function() {
             if (typeof this.dataIn !== 'undefined') {
                 if (typeof this.dataIn.phone !== 'undefined') {
-                  if(this.dataIn.phone.indexOf('$search') > -1){
-                    return true;
-                  }
+                    if(this.dataIn.phone.indexOf('$search') > -1){
+                        return true;
+                    }
                 }
                 if (typeof this.dataIn.address !== 'undefined') {
-                  if(this.dataIn.address.indexOf('$search') > -1){
-                    return true;
-                  }
+                    if(this.dataIn.address.indexOf('$search') > -1){
+                        return true;
+                    }
                 }
             }
             return (
@@ -166,10 +162,20 @@ class WalletController extends RestApiController{
              ||
             (String(this._id).indexOf('$search') > -1)
             );}")
-            ->sort($order,$dir)
-            ->getQuery()
-            ->execute();
+                ->sort($order,$dir)
+                ->getQuery()
+                ->execute();
 
+        }else{
+            $order = "id";
+            $dir = "desc";
+
+            $transactions = $qb
+                ->field('user')->equals($userId)
+                ->sort($order,$dir)
+                ->getQuery()
+                ->execute();
+        }
 
         $resArray = [];
         foreach($transactions->toArray() as $res){
@@ -192,7 +198,6 @@ class WalletController extends RestApiController{
                 'elements' => $entities
             )
         );
-
     }
 
     /**
