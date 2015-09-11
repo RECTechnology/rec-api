@@ -147,15 +147,17 @@ class WalletController extends RestApiController{
         $transactions = $qb
             ->field('user')->equals($userId)
             ->where("function() {
-            if (typeof this.dataIn.phone !== 'undefined') {
-              if(this.dataIn.phone.indexOf('$search') > -1){
-                return true;
-              }
-            }
-            if (typeof this.dataIn.address !== 'undefined') {
-              if(this.dataIn.address.indexOf('$search') > -1){
-                return true;
-              }
+            if (typeof this.dataIn !== 'undefined') {
+                if (typeof this.dataIn.phone !== 'undefined') {
+                  if(this.dataIn.phone.indexOf('$search') > -1){
+                    return true;
+                  }
+                }
+                if (typeof this.dataIn.address !== 'undefined') {
+                  if(this.dataIn.address.indexOf('$search') > -1){
+                    return true;
+                  }
+                }
             }
             return (
             (this.status.indexOf('$search') > -1)
