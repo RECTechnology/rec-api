@@ -155,8 +155,8 @@ class WalletController extends RestApiController{
                     }
                 }
             }
-            if(typeof this.status !== 'undefined' && this.status.indexOf('$search') > -1){ return true;}
-            if(typeof this.service !== 'undefined' && this.service.indexOf('$search') > -1){ return true;}
+            if(typeof this.status !== 'undefined' && String(this.status).indexOf('$search') > -1){ return true;}
+            if(typeof this.service !== 'undefined' && String(this.service).indexOf('$search') > -1){ return true;}
             if(String(this._id).indexOf('$search') > -1){ return true;}
 
             return false;
@@ -175,7 +175,6 @@ class WalletController extends RestApiController{
                 ->getQuery()
                 ->execute();
         }
-
         $resArray = [];
         foreach($transactions->toArray() as $res){
             $resArray []= $res;
