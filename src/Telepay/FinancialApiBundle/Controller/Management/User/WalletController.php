@@ -155,13 +155,12 @@ class WalletController extends RestApiController{
                     }
                 }
             }
-            return (
-            (this.status.indexOf('$search') > -1)
-             ||
-            (this.service.indexOf('$search') > -1)
-             ||
-            (String(this._id).indexOf('$search') > -1)
-            );}")
+            if(typeof this.status !== 'undefined' && this.status.indexOf('$search') > -1){ return true;}
+            if(typeof this.service !== 'undefined' && this.service.indexOf('$search') > -1){ return true;}
+            if(String(this._id).indexOf('$search') > -1){ return true;}
+
+            return false;
+            }")
                 ->sort($order,$dir)
                 ->getQuery()
                 ->execute();
