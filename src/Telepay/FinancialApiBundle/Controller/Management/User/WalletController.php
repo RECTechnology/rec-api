@@ -139,13 +139,17 @@ class WalletController extends RestApiController{
             $search = $query['search'];
             $order = $query['order'];
             $dir = $query['dir'];
+            $start_time = new \MongoDate(strtotime(date($query['start_date'].' 00:00:00')));//date('Y-m-d 00:00:00')
+            $finish_time = new \MongoDate(strtotime(date($query['finish_date'].' 23:59:59')));
 
             $transactions = $qb
                 ->field('user')->equals($userId)
+                ->field('created')->gte($start_time)
+                ->field('created')->lte($finish_time)
                 ->where("function() {
             if (typeof this.dataIn !== 'undefined') {
-                if (typeof this.dataIn.phone !== 'undefined') {
-                    if(this.dataIn.phone.indexOf('$search') > -1){
+                if (typeof this.dataIn.phone_number !== 'undefined') {
+                    if(this.dataIn.phone_number.indexOf('$search') > -1){
                         return true;
                     }
                 }
@@ -154,6 +158,49 @@ class WalletController extends RestApiController{
                         return true;
                     }
                 }
+                if (typeof this.dataIn.reference !== 'undefined') {
+                    if(this.dataIn.reference.indexOf('$search') > -1){
+                        return true;
+                    }
+                }
+                if (typeof this.dataIn.pin !== 'undefined') {
+                    if(this.dataIn.pin.indexOf('$search') > -1){
+                        return true;
+                    }
+                }
+                if (typeof this.dataIn.order_id !== 'undefined') {
+                    if(this.dataIn.order_id.indexOf('$search') > -1){
+                        return true;
+                    }
+                }
+            }
+            if (typeof this.dataOut !== 'undefined') {
+                if (typeof this.dataOut.transaction_pos_id !== 'undefined') {
+                    if(String(this.dataOut.transaction_pos_id).indexOf('$search') > -1){
+                        return true;
+                    }
+                }
+                if (typeof this.dataOut.halcashticket !== 'undefined') {
+                    if(this.dataOut.halcashticket.indexOf('$search') > -1){
+                        return true;
+                    }
+                }
+                if (typeof this.dataOut.txid !== 'undefined') {
+                    if(this.dataOut.txid.indexOf('$search') > -1){
+                        return true;
+                    }
+                }
+                if (typeof this.dataOut.address !== 'undefined') {
+                    if(String(this.dataOut.address).indexOf('$search') > -1){
+                        return true;
+                    }
+                }
+                if (typeof this.dataOut.id !== 'undefined') {
+                    if(String(this.dataOut.id).indexOf('$search') > -1){
+                        return true;
+                    }
+                }
+
             }
             if(typeof this.status !== 'undefined' && String(this.status).indexOf('$search') > -1){ return true;}
             if(typeof this.service !== 'undefined' && String(this.service).indexOf('$search') > -1){ return true;}
