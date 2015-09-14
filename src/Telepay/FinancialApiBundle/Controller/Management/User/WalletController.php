@@ -149,27 +149,27 @@ class WalletController extends RestApiController{
                 ->where("function() {
             if (typeof this.dataIn !== 'undefined') {
                 if (typeof this.dataIn.phone_number !== 'undefined') {
-                    if(this.dataIn.phone_number.indexOf('$search') > -1){
+                    if(String(this.dataIn.phone_number).indexOf('$search') > -1){
                         return true;
                     }
                 }
                 if (typeof this.dataIn.address !== 'undefined') {
-                    if(this.dataIn.address.indexOf('$search') > -1){
+                    if(String(this.dataIn.address).indexOf('$search') > -1){
                         return true;
                     }
                 }
                 if (typeof this.dataIn.reference !== 'undefined') {
-                    if(this.dataIn.reference.indexOf('$search') > -1){
+                    if(String(this.dataIn.reference).indexOf('$search') > -1){
                         return true;
                     }
                 }
                 if (typeof this.dataIn.pin !== 'undefined') {
-                    if(this.dataIn.pin.indexOf('$search') > -1){
+                    if(String(this.dataIn.pin).indexOf('$search') > -1){
                         return true;
                     }
                 }
                 if (typeof this.dataIn.order_id !== 'undefined') {
-                    if(this.dataIn.order_id.indexOf('$search') > -1){
+                    if(String(this.dataIn.order_id).indexOf('$search') > -1){
                         return true;
                     }
                 }
@@ -181,12 +181,12 @@ class WalletController extends RestApiController{
                     }
                 }
                 if (typeof this.dataOut.halcashticket !== 'undefined') {
-                    if(this.dataOut.halcashticket.indexOf('$search') > -1){
+                    if(String(this.dataOut.halcashticket).indexOf('$search') > -1){
                         return true;
                     }
                 }
                 if (typeof this.dataOut.txid !== 'undefined') {
-                    if(this.dataOut.txid.indexOf('$search') > -1){
+                    if(String(this.dataOut.txid).indexOf('$search') > -1){
                         return true;
                     }
                 }
@@ -200,7 +200,6 @@ class WalletController extends RestApiController{
                         return true;
                     }
                 }
-
             }
             if(typeof this.status !== 'undefined' && String(this.status).indexOf('$search') > -1){ return true;}
             if(typeof this.service !== 'undefined' && String(this.service).indexOf('$search') > -1){ return true;}
