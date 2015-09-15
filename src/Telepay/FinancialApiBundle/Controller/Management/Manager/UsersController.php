@@ -70,14 +70,41 @@ class UsersController extends BaseApiController
      * @Rest\View
      */
     public function indexAction(Request $request){
+
         if($request->query->has('limit')) $limit = $request->query->get('limit');
         else $limit = 10;
 
         if($request->query->has('offset')) $offset = $request->query->get('offset');
         else $offset = 0;
 
-        $all = $this->getRepository()->findAll();
         $securityContext = $this->get('security.context');
+
+        $userRepo = $this->getDoctrine()->getRepository('TelepayFinancialApiBundle:User');
+        $em = $this->getDoctrine()->getManager();
+        $qb = $em->createQueryBuilder('TelepayFinancialApiBundle:User');
+
+        if($request->query->get('query') != ''){
+            $query = $request->query->get('query');
+            $search = $query['search'];
+            $order = $query['order'];
+            $dir = $query['dir'];
+        }else{
+            $search = '';
+            $order = 'id';
+            $dir = 'DESC';
+        }
+
+        $userQuery = $userRepo->createQueryBuilder('p')
+            ->orderBy('p.'.$order, $dir)
+            ->where($qb->expr()->orX(
+                $qb->expr()->like('p.username', $qb->expr()->literal('%'.$search.'%')),
+                $qb->expr()->like('p.id', $qb->expr()->literal('%'.$search.'%')),
+                $qb->expr()->like('p.email', $qb->expr()->literal('%'.$search.'%')),
+                $qb->expr()->like('p.name', $qb->expr()->literal('%'.$search.'%'))
+            ))
+            ->getQuery();
+
+        $all = $userQuery->getResult();
 
         if(!$securityContext->isGranted('ROLE_SUPER_ADMIN')){
             $filtered = [];
@@ -89,7 +116,6 @@ class UsersController extends BaseApiController
         else{
             $filtered = $all;
         }
-
         $total = count($filtered);
 
         $entities = array_slice($filtered, $offset, $limit);
