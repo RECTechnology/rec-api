@@ -213,6 +213,123 @@ class POSIncomingController extends RestApiController{
         );
     }
 
+    /**
+     * @Rest\View
+     */
+    public function findV2(Request $request, $version_number, $pos_id){
+
+        $service = $this->get('net.telepay.services.pos.v'.$version_number);
+
+        $service_list = $this->get('security.context')->getToken()->getUser()->getServicesList();
+        if (!in_array('pos', $service_list)) {
+            throw $this->createAccessDeniedException();
+        }
+
+        if($request->query->has('limit')) $limit = $request->query->get('limit');
+        else $limit = 10;
+
+        if($request->query->has('offset')) $offset = $request->query->get('offset');
+        else $offset = 0;
+
+        $dm = $this->get('doctrine_mongodb')->getManager();
+        $userId = $this->get('security.context')
+            ->getToken()->getUser()->getId();
+
+        $qb = $dm->createQueryBuilder('TelepayFinancialApiBundle:Transaction');
+
+        if($request->query->get('query') != ''){
+            $query = $request->query->get('query');
+            $search = $query['search'];
+            $order = $query['order'];
+            $dir = $query['dir'];
+            $start_time = new \MongoDate(strtotime(date($query['start_date'].' 00:00:00')));//date('Y-m-d 00:00:00')
+            $finish_time = new \MongoDate(strtotime(date($query['finish_date'].' 23:59:59')));
+
+            $transactions = $qb
+                ->field('user')->equals($userId)
+                ->field('service')->equals($service->getCname())
+                ->field('posId')->equals($pos_id)
+                ->field('created')->gte($start_time)
+                ->field('created')->lte($finish_time)
+                ->where("function() {
+            if (typeof this.dataIn !== 'undefined') {
+                if (typeof this.dataIn.order_id !== 'undefined') {
+                    if(String(this.dataIn.order_id).indexOf('$search') > -1){
+                        return true;
+                    }
+                }
+
+            }
+            if (typeof this.dataOut !== 'undefined') {
+                if (typeof this.dataOut.transaction_pos_id !== 'undefined') {
+                    if(String(this.dataOut.transaction_pos_id).indexOf('$search') > -1){
+                        return true;
+                    }
+                }
+
+            }
+            if(typeof this.status !== 'undefined' && String(this.status).indexOf('$search') > -1){ return true;}
+            if(typeof this.amount !== 'undefined' && String(this.amount).indexOf('$search') > -1){ return true;}
+            if(String(this._id).indexOf('$search') > -1){ return true;}
+
+            return false;
+            }")
+                ->sort($order,$dir)
+                ->getQuery()
+                ->execute();
+
+        }else{
+            $order = "id";
+            $dir = "desc";
+
+            $transactions = $qb
+                ->field('user')->equals($userId)
+                ->field('service')->equals($service->getCname())
+                ->field('posId')->equals($pos_id)
+                ->sort($order,$dir)
+                ->getQuery()
+                ->execute();
+        }
+        $resArray = [];
+        foreach($transactions->toArray() as $res){
+            $resArray []= $res;
+
+        }
+
+        $total = count($resArray);
+
+        $page_amount = 0;
+        $total_amount = 0;
+
+        foreach ($resArray as $array){
+            if($array->getStatus() == 'success'){
+                $total_amount = $total_amount + $array->getAmount();
+            }
+        }
+
+        $entities = array_slice($resArray, $offset, $limit);
+
+        foreach ($entities as $ent){
+            if($ent->getStatus() == 'success'){
+                $page_amount = $page_amount + $ent->getAmount();
+            }
+        }
+
+        return $this->restV2(
+            200,
+            "ok",
+            "Request successful",
+            array(
+                'total' => $total,
+                'start' => intval($offset),
+                'end' => count($entities)+$offset,
+                'elements' => $entities,
+                'page_amount' => $page_amount,
+                'total_amount' => $total_amount
+            )
+        );
+    }
+
     public function notificate(Request $request, $id){
 
         $dm = $this->get('doctrine_mongodb')->getManager();

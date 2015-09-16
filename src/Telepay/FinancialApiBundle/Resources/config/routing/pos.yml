@@ -38,7 +38,7 @@ user_POS_transaction:
 
 user_POS_find_transactions:
     pattern:  /pos/v{version_number}/{pos_id}
-    defaults: { _controller: Telepay\FinancialApiBundle\Controller\Transactions\POSIncomingController::find }
+    defaults: { _controller: Telepay\FinancialApiBundle\Controller\Transactions\POSIncomingController::findV2 }
     requirements:
         _method: GET
 
