@@ -203,6 +203,11 @@ class POSIncomingController extends RestApiController{
                         return true;
                     }
                 }
+                if (typeof this.dataIn.description !== 'undefined') {
+                    if(String(this.dataIn.description).indexOf('$search') > -1){
+                        return true;
+                    }
+                }
 
             }
             if (typeof this.dataOut !== 'undefined') {
