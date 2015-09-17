@@ -155,26 +155,23 @@ class UsersController extends BaseApiController
 
         $securityContext = $this->get('security.context');
 
-        if(!$securityContext->isGranted('ROLE_SUPER_ADMIN')){
-            $filtered = [];
-            foreach($all as $user){
-                if(!$user->hasRole('ROLE_SUPER_ADMIN')){
-                    if(count($user->getGroups()) >= 1){
-                        $groups = $user->getGroups();
-                        foreach($groups as $group){
-                            if($group->getId() == $id){
-                                $filtered []= $user;
-                            }
+        $filtered = [];
+        foreach($all as $user){
+            if(count($user->getGroups()) >= 1){
+                $groups = $user->getGroups();
+                foreach($groups as $group){
+                    if($group->getId() == $id){
+                        if(!$user->hasRole('ROLE_SUPER_ADMIN')){
+                            $filtered []= $user;
                         }
 
                     }
-
                 }
+
             }
+
         }
-        else{
-            $filtered = $all;
-        }
+
         $total = count($filtered);
 
         $entities = array_slice($filtered, $offset, $limit);
