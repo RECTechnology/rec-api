@@ -47,7 +47,7 @@ class AccountController extends BaseApiController{
     public function updateAction(Request $request,$id=null){
 
         $user = $this->get('security.context')->getToken()->getUser();
-        $id=$user->getId();
+        $id = $user->getId();
 
         if($request->request->has('password')){
             if($request->request->has('repassword')){
@@ -322,8 +322,8 @@ class AccountController extends BaseApiController{
             $em=$this->getDoctrine()->getManager();
 
             $groupsRepo = $em->getRepository("TelepayFinancialApiBundle:Group");
-            $group = $groupsRepo->findOneBy(array('name' => 'Level0'));
-            if(!$group) throw new HttpException(404,'Group Level0 not found');
+            $group = $groupsRepo->find($this->container->getParameter('id_group_level_0'));
+            if(!$group) throw new HttpException(404,'Group Level 0 not found');
 
             $usersRepo = $em->getRepository("TelepayFinancialApiBundle:User");
             $data = $resp->getContent();

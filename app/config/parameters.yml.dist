@@ -114,3 +114,6 @@ parameters:
 
     gcm_authorization_key: ''
     gcm_project_id: ''
+
+    id_group_default:
+    id_group_level_0:

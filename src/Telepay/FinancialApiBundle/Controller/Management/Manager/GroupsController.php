@@ -157,7 +157,7 @@ class GroupsController extends BaseApiController
         $request->request->set('roles',array('ROLE_USER'));
         $request->request->set('creator',$admin);
 
-        $group_name=$request->request->get('name');
+        $group_name = $request->request->get('name');
 
         $resp = parent::createAction($request);
 

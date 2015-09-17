@@ -208,7 +208,7 @@ class UsersController extends BaseApiController
             $groupId = $request->request->get('group_id');
             $request->request->remove('group_id');
         }else{
-            $groupId = null;
+            $groupId = $this->container->getParameter('id_group_default');
         }
 
         if(!$request->request->has('password'))
@@ -236,13 +236,9 @@ class UsersController extends BaseApiController
             $usersRepo = $em->getRepository("TelepayFinancialApiBundle:User");
             $groupsRepo = $em->getRepository("TelepayFinancialApiBundle:Group");
 
-            if($groupId != null){
-                $group = $groupsRepo->find($groupId);
-                if(!$group) throw new HttpException(404, 'Group not found');
-                if($group->getCreator()->getId() != $admin->getId()) throw new HttpException(403, 'You have not the necessary permissions');
-            }else{
-                $group = $groupsRepo->findOneBy(array('name' => 'Default'));
-            }
+            $group = $groupsRepo->find($groupId);
+            if(!$group) throw new HttpException(404, 'Group not found');
+            if($group->getCreator()->getId() != $admin->getId()) throw new HttpException(403, 'You have not the necessary permissions');
 
             if(!$group){
                 $group = new Group();
