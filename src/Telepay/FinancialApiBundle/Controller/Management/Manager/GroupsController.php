@@ -220,7 +220,7 @@ class GroupsController extends BaseApiController
         $level0_group = $this->container->getParameter('id_group_level_0');
 
         if($id == $default_group || $id == $level0_group ) throw new HttpException(405, 'Not allowed');
-        
+
         $group = $groupsRepo->find($id);
 
         if(!$group) throw new HttpException(404,'Group not found');
