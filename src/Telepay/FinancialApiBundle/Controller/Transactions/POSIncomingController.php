@@ -165,7 +165,7 @@ class POSIncomingController extends RestApiController{
 
         $service = $this->get('net.telepay.services.pos.v'.$version_number);
 
-        //todo POS is not a service, omly needs a role commerce
+        //POS is not a service, omly needs a role commerce
         if (!$this->get('security.authorization_checker')->isGranted('ROLE_COMMERCE')) {
             throw $this->createAccessDeniedException();
         }
