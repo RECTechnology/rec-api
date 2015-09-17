@@ -464,6 +464,47 @@ class IncomingController extends RestApiController{
 
                     }
 
+                }elseif( $transaction->getStatus()== Transaction::$STATUS_CREATED ){
+                    //FIRST CANCEL AND THEN SEND
+                    try {
+                        $transaction = $service->cancel($transaction);
+                    }catch (HttpException $e){
+                        throw $e;
+                    }
+
+                    $transaction->setStatus(Transaction::$STATUS_CANCELLED );
+                    $mongo->persist($transaction);
+                    $mongo->flush();
+
+                    if( $transaction->getStatus() == Transaction::$STATUS_CREATED
+                        && $service->getcashDirection() == 'out'
+                        && $service_cname != 'echo'){
+                        $transaction = $this->get('notificator')->notificate($transaction);
+                        //sumamos la pasta al wallet
+                        if($total_fee != 0){
+                            //cobramos comisiones al user y hacemos el reparto
+
+                            try{
+                                $this->_dealer($transaction,$current_wallet);
+                            }catch (HttpException $e){
+                                throw $e;
+                            }
+
+                        }
+
+                    }elseif( $transaction->getStatus() != Transaction::$STATUS_CREATED
+                        && $service->getcashDirection() == 'out'
+                        && $service_cname != 'echo'){
+                        $transaction->setStatus(Transaction::$STATUS_CANCELLED);
+                        $current_wallet->setAvailable($current_wallet->getAvailable() + $amount );
+                        $balancer = $this->get('net.telepay.commons.balance_manipulator');
+                        $balancer->addBalance($user, $amount, $transaction);
+                        $em->persist($current_wallet);
+                        $em->flush();
+                        $mongo->persist($transaction);
+                        $mongo->flush();
+                    }
+
                 }else{
                     throw new HttpException(409,"This transaction can't be retried");
                 }
