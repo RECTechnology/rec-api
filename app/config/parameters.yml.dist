@@ -111,3 +111,6 @@ parameters:
     ruralvia_transaction_type: 0
     ruralvia_terminal: 1
     ruralvia_base_url: ''
+
+    gcm_authorization_key: ''
+    gcm_project_id: ''
