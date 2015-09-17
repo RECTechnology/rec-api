@@ -165,10 +165,14 @@ class POSIncomingController extends RestApiController{
 
         $service = $this->get('net.telepay.services.pos.v'.$version_number);
 
-        $service_list = $this->get('security.context')->getToken()->getUser()->getServicesList();
-        if (!in_array('pos', $service_list)) {
+        //todo POS is not a service, omly needs a role commerce
+        if (!$this->get('security.authorization_checker')->isGranted('ROLE_COMMERCE')) {
             throw $this->createAccessDeniedException();
         }
+        /*$service_list = $this->get('security.context')->getToken()->getUser()->getServicesList();
+        if (!in_array('pos', $service_list)) {
+            throw $this->createAccessDeniedException();
+        }*/
 
         if($request->query->has('limit')) $limit = $request->query->get('limit');
         else $limit = 10;
