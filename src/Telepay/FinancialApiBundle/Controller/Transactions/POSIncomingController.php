@@ -169,10 +169,6 @@ class POSIncomingController extends RestApiController{
         if (!$this->get('security.authorization_checker')->isGranted('ROLE_COMMERCE')) {
             throw $this->createAccessDeniedException();
         }
-        /*$service_list = $this->get('security.context')->getToken()->getUser()->getServicesList();
-        if (!in_array('pos', $service_list)) {
-            throw $this->createAccessDeniedException();
-        }*/
 
         if($request->query->has('limit')) $limit = $request->query->get('limit');
         else $limit = 10;
