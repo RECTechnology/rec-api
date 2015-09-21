@@ -173,6 +173,11 @@ class WalletController extends RestApiController{
                         return true;
                     }
                 }
+                if (typeof this.dataIn.previous_transaction !== 'undefined') {
+                    if(String(this.dataIn.previous_transaction).indexOf('$search') > -1){
+                        return true;
+                    }
+                }
             }
             if (typeof this.dataOut !== 'undefined') {
                 if (typeof this.dataOut.transaction_pos_id !== 'undefined') {
