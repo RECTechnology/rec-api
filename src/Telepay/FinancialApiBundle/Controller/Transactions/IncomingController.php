@@ -476,6 +476,32 @@ class IncomingController extends RestApiController{
                     $mongo->persist($transaction);
                     $mongo->flush();
 
+                    try {
+                        $transaction = $service->create($transaction);
+                    }catch (HttpException $e){
+
+                        if($e->getStatusCode()>=500){
+                            $transaction->setStatus(Transaction::$STATUS_FAILED);
+                            $transaction = $this->get('notificator')->notificate($transaction);
+                        }else{
+                            $transaction->setStatus( Transaction::$STATUS_ERROR );
+                            $mongo->persist($transaction);
+                            $mongo->flush();
+                            //devolver la pasta de la transaccion al wallet si es cash out (al available)
+                            if( $service->getcashDirection() == 'out' ){
+                                $current_wallet->setAvailable($current_wallet->getAvailable() + $amount );
+                            }
+
+                            $transaction = $this->get('notificator')->notificate($transaction);
+
+                            $em->persist($current_wallet);
+                            $em->flush();
+
+                            throw $e;
+                        }
+
+                    }
+
                     if( $transaction->getStatus() == Transaction::$STATUS_CREATED
                         && $service->getcashDirection() == 'out'
                         && $service_cname != 'echo'){
