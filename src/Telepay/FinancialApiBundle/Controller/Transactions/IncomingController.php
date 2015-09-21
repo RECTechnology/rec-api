@@ -476,6 +476,7 @@ class IncomingController extends RestApiController{
                     $mongo->persist($transaction);
                     $mongo->flush();
 
+                    //send transaction
                     try {
                         $transaction = $service->create($transaction);
                     }catch (HttpException $e){
