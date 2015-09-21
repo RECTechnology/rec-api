@@ -123,9 +123,9 @@ class IncomingController extends RestApiController{
         if($service->getcashDirection()=='out'){
             //le cambiamos el signo para guardarla i marcarla como salida en el wallet
             $transaction->setTotal(-$amount);
-            $total=$amount+$variable_fee+$fixed_fee;
+            $total = $amount + $variable_fee + $fixed_fee;
         }else{
-            $total=$amount-$variable_fee-$fixed_fee;
+            $total = $amount - $variable_fee - $fixed_fee;
             $transaction->setTotal($amount);
         }
 

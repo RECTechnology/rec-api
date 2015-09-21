@@ -31,7 +31,7 @@ class FeeDeal{
      * Creator fee
      */
 
-    public function deal(User $creator,$amount,$service_cname,$currency,$fee,$transaction_id,$version){
+    public function deal(User $creator, $amount, $service_cname, $currency, $fee, $transaction_id, $version){
 
         if(!$creator->hasRole('ROLE_SUPER_ADMIN')){
             //obtenemos el grupo
