@@ -111,7 +111,7 @@ class IncomingController extends RestApiController{
 
         //add commissions to check
         $fixed_fee = $group_commission->getFixed();
-        $variable_fee = $group_commission->getVariable()*$amount;
+        $variable_fee = ($group_commission->getVariable()/100)*$amount;
         $total_fee = $fixed_fee + $variable_fee;
 
         //add fee to transaction
