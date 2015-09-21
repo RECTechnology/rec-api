@@ -464,17 +464,7 @@ class IncomingController extends RestApiController{
 
                     }
 
-                }elseif( $transaction->getStatus()== Transaction::$STATUS_CREATED ){
-                    //FIRST CANCEL AND THEN SEND
-                    try {
-                        $transaction = $service->cancel($transaction);
-                    }catch (HttpException $e){
-                        throw $e;
-                    }
-
-                    $transaction->setStatus(Transaction::$STATUS_CANCELLED );
-                    $mongo->persist($transaction);
-                    $mongo->flush();
+                }elseif( $transaction->getStatus()== Transaction::$STATUS_CANCELLED ){
 
                     //send transaction
                     try {
@@ -533,7 +523,7 @@ class IncomingController extends RestApiController{
                     }
 
                 }else{
-                    throw new HttpException(409,"This transaction can't be retried");
+                    throw new HttpException(409,"This transaction can't be retried. First has to be cancelled");
                 }
 
             }
