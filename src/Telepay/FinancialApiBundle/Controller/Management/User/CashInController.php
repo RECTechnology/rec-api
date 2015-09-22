@@ -67,7 +67,7 @@ class CashInController extends BaseApiController{
         //check if the service is allowed
         $services = $user->getServicesList();
 
-        if(!in_array('easypay', $services) || !in_array('bank_transfer', $services)) throw new HttpException(405, 'Service not allowed');
+        if(!in_array($service, $services)) throw new HttpException(405, 'Service not allowed');
 
         //check if is created yet because only one per service is allowed
 
@@ -87,9 +87,15 @@ class CashInController extends BaseApiController{
 
         $response = parent::createAction($request);
 
+        $data = $response->getContent();
+        $data = json_decode($data);
+        $data = $data->data;
+        $id = $data->id;
+
         if($response->getStatusCode() == 201){
             $resp = array(
-                'token' =>  $token
+                'token' =>  $token,
+                'id'    =>  $id
             );
         }else{
             return $response;
