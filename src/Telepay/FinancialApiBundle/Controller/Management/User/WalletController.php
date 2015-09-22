@@ -39,7 +39,6 @@ class Test {
  */
 class WalletController extends RestApiController{
 
-
     /**
      * reads information about all wallets
      */
@@ -86,8 +85,6 @@ class WalletController extends RestApiController{
         return $this->restV2(200, "ok", "Wallet info got successfully", $filtered);
 
     }
-
-
 
     /**
      * read last 10 transactions

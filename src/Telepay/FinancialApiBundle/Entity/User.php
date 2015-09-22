@@ -166,6 +166,12 @@ class User extends BaseUser
      */
     private $allowed_services = array();
 
+    /**
+     * @ORM\OneToMany(targetEntity="Telepay\FinancialApiBundle\Entity\CashInTokens", mappedBy="user", cascade={"remove"})
+     * @Expose
+     */
+    private $cash_in_tokens;
+
     public function getAccessKey(){
         return $this->access_key;
     }
@@ -470,5 +476,21 @@ class User extends BaseUser
     public function removeService($cname){
         $result = array_diff(json_decode($this->services_list), array($cname));
         $this->services_list = json_encode(array_values($result));
+    }
+
+    /**
+     * @return mixed
+     */
+    public function getCashInTokens()
+    {
+        return $this->cash_in_tokens;
+    }
+
+    /**
+     * @param mixed $cash_in_tokens
+     */
+    public function setCashInTokens($cash_in_tokens)
+    {
+        $this->cash_in_tokens = $cash_in_tokens;
     }
 }
