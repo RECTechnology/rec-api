@@ -103,18 +103,43 @@ class CashInController extends BaseApiController{
 
 
 
-        return $this->restV2(200, "ok", "Token created succesfull", $resp);
+        return $this->restV2(201, "ok", "Token created succesfull", $resp);
 
     }
 
     /**
      * @Rest\View
      */
-    public function updateAction(Request $request, $id=null){
+    public function updateAction(Request $request, $id){
 
-        if($request->request->has('cname')) throw new HttpException(400, "Parameter cname can't be changed");
+        $user = $this->get('security.context')->getToken()->getUser();
 
-        return parent::updateAction($request, $id);
+        $em = $this->getDoctrine()->getManager();
+        $actual_token = $em->getRepository('TelepayFinancialApiBundle:CashInTokens')->findOneBy(array(
+            'user'  =>  $user,
+            'id'   =>  $id
+        ));
+
+        if(!$actual_token) throw new HttpException(405, 'Not allowed');
+
+        $new_token = $this->getReference();
+        $request->request->add(array(
+            'token' =>  $new_token
+        ));
+
+        $response = parent::updateAction($request, $id);
+
+        if($response->getStatusCode() == 204){
+            $resp = array(
+                'token' =>  $actual_token->getToken(),
+                'id'    =>  $id
+            );
+        }else{
+            return $response;
+        }
+
+        return $this->restV2(200, "ok", "Token updated succesfull", $resp);
+
 
     }
 
@@ -128,7 +153,7 @@ class CashInController extends BaseApiController{
 
     function getRepositoryName()
     {
-        return "TelepayFinancialApiBundle:POS";
+        return "TelepayFinancialApiBundle:CashInTokens";
     }
 
     function getNewEntity()
