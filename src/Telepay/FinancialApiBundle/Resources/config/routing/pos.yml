@@ -2,31 +2,31 @@
 
 user_POS_index:
     pattern:  /user/v1/pos
-    defaults: { _controller: Telepay\FinancialApiBundle\Controller\Management\User\POSController::indexAction }
+    defaults: { _controller: Telepay\FinancialApiBundle\Controller\Management\Commerce\POSController::indexAction }
     requirements:
         _method: GET
 
 user_POS_show:
     pattern:  /user/v1/pos/{id}
-    defaults: { _controller: Telepay\FinancialApiBundle\Controller\Management\User\POSController::showAction }
+    defaults: { _controller: Telepay\FinancialApiBundle\Controller\Management\Commerce\POSController::showAction }
     requirements:
         _method: GET
 
 user_POS_create:
     pattern:  /user/v1/pos
-    defaults: { _controller: Telepay\FinancialApiBundle\Controller\Management\User\POSController::createAction }
+    defaults: { _controller: Telepay\FinancialApiBundle\Controller\Management\Commerce\POSController::createAction }
     requirements:
         _method: POST
 
 user_POS_update:
     pattern:  /user/v1/pos/{id}
-    defaults: { _controller: Telepay\FinancialApiBundle\Controller\Management\User\POSController::updateAction }
+    defaults: { _controller: Telepay\FinancialApiBundle\Controller\Management\Commerce\POSController::updateAction }
     requirements:
         _method: PUT
 
 user_POS_delete:
     pattern:  /user/v1/pos/{id}
-    defaults: { _controller: Telepay\FinancialApiBundle\Controller\Management\User\POSController::deleteAction }
+    defaults: { _controller: Telepay\FinancialApiBundle\Controller\Management\Commerce\POSController::deleteAction }
     requirements:
         _method: DELETE
 

@@ -7,7 +7,7 @@
  * Time: 6:33 PM
  */
 
-namespace Telepay\FinancialApiBundle\Controller\Management\User;
+namespace Telepay\FinancialApiBundle\Controller\Management\Commerce;
 
 use FOS\OAuthServerBundle\Document\RefreshToken;
 use Symfony\Component\Security\Core\Util\SecureRandom;

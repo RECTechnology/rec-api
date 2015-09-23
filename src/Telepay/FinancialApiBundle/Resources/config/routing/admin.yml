@@ -16,8 +16,8 @@ admin_services_index:
         _method: GET
 
 manager_services_read:
-    pattern:  /manager/v1/services/{service}
-    defaults: { _controller: Telepay\FinancialApiBundle\Controller\Management\Manager\ServicesController::read }
+    pattern:  /user/v1/services/{service}
+    defaults: { _controller: Telepay\FinancialApiBundle\Controller\Management\Integrator\ServicesController::read }
     requirements:
         _method: GET
 
