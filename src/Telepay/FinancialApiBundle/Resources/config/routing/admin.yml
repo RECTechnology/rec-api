@@ -16,7 +16,7 @@ admin_services_index:
         _method: GET
 
 manager_services_read:
-    pattern:  /manager/v1/services/{id}
+    pattern:  /manager/v1/services/{service}
     defaults: { _controller: Telepay\FinancialApiBundle\Controller\Management\Manager\ServicesController::read }
     requirements:
         _method: GET
@@ -68,3 +68,11 @@ system_api_financial:
     defaults: { _controller: Telepay\FinancialApiBundle\Controller\Management\System\SystemController::financial }
     requirements:
         _method: GET
+
+##################### SPECIAL ACTIONS ############################
+
+admin_cash_in_validate:
+    pattern:  /admin/v1/cash_in/validate
+    defaults: { _controller: Telepay\FinancialApiBundle\Controller\Management\Admin\SpecialActionsController::cashInValidation }
+    requirements:
+        _method: POST

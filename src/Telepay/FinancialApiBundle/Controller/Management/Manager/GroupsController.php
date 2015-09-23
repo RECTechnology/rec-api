@@ -87,14 +87,77 @@ class GroupsController extends BaseApiController
     /**
      * @Rest\View
      */
+    public function indexByUser(Request $request){
+
+        $admin = $this->get('security.context')->getToken()->getUser();
+
+        if (!$admin) throw new HttpException(404, 'Not user found');
+
+        $roles = $admin->getRoles();
+
+        if(!in_array('ROLE_ADMIN',$roles)) throw new HttpException(403,'You don\'t have the necessary permissions');
+
+        if($request->query->has('limit')) $limit = $request->query->get('limit');
+        else $limit = 10;
+
+        if($request->query->has('offset')) $offset = $request->query->get('offset');
+        else $offset = 0;
+
+        //TODO: Improve performance (two queries)
+        $all = $this->getRepository()->findBy(array(
+            'creator'   =>  $admin->getId()
+        ));
+
+        $total = count($all);
+
+        foreach ($all as $group){
+            $fees=$group->getCommissions();
+            foreach ( $fees as $fee ){
+                $service_cname=$fee->getServiceName();
+                //TODO hay que hacer expresion regular para que valga para todas las versiones
+                $service = $this->get('net.telepay.services.'.$service_cname.'.v1');
+                $currency= $service->getCurrency();
+                $fee->setCurrency( $currency);
+                $fee->setScale($currency);
+            }
+            $limits=$group->getLimits();
+            foreach ( $limits as $lim ){
+                $service_cname=$lim->getCname();
+                //TODO hay que hacer expresion regular para que valga para todas las versiones
+                $service = $this->get('net.telepay.services.'.$service_cname.'.v1');
+                $currency= $service->getCurrency();
+                $lim->setCurrency( $currency);
+                $lim->setScale($currency);
+            }
+
+        }
+        $entities = array_slice($all, $offset, $limit);
+
+        return $this->restV2(
+            200,
+            "ok",
+            "Request successful",
+            array(
+                'total' => $total,
+                'start' => intval($offset),
+                'end' => count($entities)+$offset,
+                'elements' => $entities
+            )
+        );
+
+    }
+
+    /**
+     * @Rest\View
+     */
     public function createAction(Request $request){
 
-        $admin=$this->get('security.context')->getToken()->getUser();
+        $admin = $this->get('security.context')->getToken()->getUser();
 
         $request->request->set('roles',array('ROLE_USER'));
         $request->request->set('creator',$admin);
 
-        $group_name=$request->request->get('name');
+        $group_name = $request->request->get('name');
 
         $resp = parent::createAction($request);
 
@@ -152,6 +215,11 @@ class GroupsController extends BaseApiController
     public function deleteAction($id){
 
         $groupsRepo=$this->getDoctrine()->getRepository("TelepayFinancialApiBundle:Group");
+
+        $default_group = $this->container->getParameter('id_group_default');
+        $level0_group = $this->container->getParameter('id_group_level_0');
+
+        if($id == $default_group || $id == $level0_group ) throw new HttpException(405, 'Not allowed');
 
         $group = $groupsRepo->find($id);
 

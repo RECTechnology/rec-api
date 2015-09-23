@@ -30,7 +30,7 @@ class UsersGroupsController extends RestApiController{
         $user = $usersRepository->find($request->get('user_id'));
         if(!$user) throw new HttpException(404, "User not found");
 
-        if($user->hasGroup($group)) throw new HttpException(409, "User alredy in group");
+        if($user->hasGroup($group)) throw new HttpException(409, "User already in group");
 
         foreach($user->getGroups() as $g){
             $user->removeGroup($g);

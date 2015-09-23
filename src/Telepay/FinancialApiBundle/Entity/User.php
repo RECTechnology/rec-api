@@ -150,6 +150,12 @@ class User extends BaseUser
     private $gcm_group_key;
 
     /**
+     * @ORM\Column(type="string")
+     * @Expose
+     */
+    private $services_list;
+
+    /**
      * @ORM\OneToMany(targetEntity="Telepay\FinancialApiBundle\Entity\Balance", mappedBy="user", cascade={"remove"})
      * @Expose
      */
@@ -159,6 +165,12 @@ class User extends BaseUser
      * @Expose
      */
     private $allowed_services = array();
+
+    /**
+     * @ORM\OneToMany(targetEntity="Telepay\FinancialApiBundle\Entity\CashInTokens", mappedBy="user", cascade={"remove"})
+     * @Expose
+     */
+    private $cash_in_tokens;
 
     public function getAccessKey(){
         return $this->access_key;
@@ -432,5 +444,53 @@ class User extends BaseUser
         $this->balance = $balance;
     }
 
+    /**
+     * @return mixed
+     */
+    public function getServicesList()
+    {
+        return json_decode($this->services_list);
+    }
 
+    /**
+     * @param mixed $services_list
+     */
+    public function setServicesList($services_list)
+    {
+        $this->services_list = json_encode($services_list);
+    }
+
+    /**
+     * @param mixed $cname
+     */
+    public function addService($cname){
+        $new = array($cname);
+        $merge = array_merge($this->services_list, $new);
+        $result = array_unique($merge, SORT_REGULAR);
+        $this->services_list = json_encode($result);
+    }
+
+    /**
+     * @param mixed $cname
+     */
+    public function removeService($cname){
+        $result = array_diff(json_decode($this->services_list), array($cname));
+        $this->services_list = json_encode(array_values($result));
+    }
+
+    /**
+     * @return mixed
+     */
+    public function getCashInTokens()
+    {
+        return $this->cash_in_tokens;
+    }
+
+    /**
+     * @param mixed $cash_in_tokens
+     */
+    public function setCashInTokens($cash_in_tokens)
+    {
+        $this->cash_in_tokens = $cash_in_tokens;
+    }
 }

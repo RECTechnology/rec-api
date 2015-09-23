@@ -93,8 +93,8 @@ class Transaction implements TransactionTiming {
     private $updated;
 
     public function __construct(){
-        $this->created=new \DateTime();
-        $this->updated=new \DateTime();
+        $this->created = new \DateTime();
+        $this->updated = new \DateTime();
     }
 
     public static function createFromRequest(Request $request){

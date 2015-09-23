@@ -14,12 +14,30 @@ use Telepay\FinancialApiBundle\Document\Transaction;
 use Telepay\FinancialApiBundle\Entity\UserWallet;
 
 
+class Test {
+    public $name;
+    public $address;
+    public $address2;
+    public $address3;
+    public $address4;
+    public $address5;
+
+    function __construct($address, $address2, $address3, $address4, $address5, $name)
+    {
+        $this->address = $address;
+        $this->address2 = $address2;
+        $this->address3 = $address3;
+        $this->address4 = $address4;
+        $this->address5 = $address5;
+        $this->name = $name;
+    }
+}
+
 /**
  * Class WalletController
  * @package Telepay\FinancialApiBundle\Controller\Management\User
  */
 class WalletController extends RestApiController{
-
 
     /**
      * reads information about all wallets
@@ -111,13 +129,100 @@ class WalletController extends RestApiController{
         $userId = $this->get('security.context')
             ->getToken()->getUser()->getId();
 
-        $transactions = $dm->createQueryBuilder('TelepayFinancialApiBundle:Transaction')
-            ->field('user')->equals($userId)
-            ->sort('id','desc')
-            ->getQuery()
-            ->execute();
+        $qb = $dm->createQueryBuilder('TelepayFinancialApiBundle:Transaction');
 
+        if($request->query->get('query') != ''){
+            $query = $request->query->get('query');
+            $search = $query['search'];
+            $order = $query['order'];
+            $dir = $query['dir'];
+            $start_time = new \MongoDate(strtotime(date($query['start_date'].' 00:00:00')));//date('Y-m-d 00:00:00')
+            $finish_time = new \MongoDate(strtotime(date($query['finish_date'].' 23:59:59')));
 
+            $transactions = $qb
+                ->field('user')->equals($userId)
+                ->field('created')->gte($start_time)
+                ->field('created')->lte($finish_time)
+                ->where("function() {
+            if (typeof this.dataIn !== 'undefined') {
+                if (typeof this.dataIn.phone_number !== 'undefined') {
+                    if(String(this.dataIn.phone_number).indexOf('$search') > -1){
+                        return true;
+                    }
+                }
+                if (typeof this.dataIn.address !== 'undefined') {
+                    if(String(this.dataIn.address).indexOf('$search') > -1){
+                        return true;
+                    }
+                }
+                if (typeof this.dataIn.reference !== 'undefined') {
+                    if(String(this.dataIn.reference).indexOf('$search') > -1){
+                        return true;
+                    }
+                }
+                if (typeof this.dataIn.pin !== 'undefined') {
+                    if(String(this.dataIn.pin).indexOf('$search') > -1){
+                        return true;
+                    }
+                }
+                if (typeof this.dataIn.order_id !== 'undefined') {
+                    if(String(this.dataIn.order_id).indexOf('$search') > -1){
+                        return true;
+                    }
+                }
+                if (typeof this.dataIn.previous_transaction !== 'undefined') {
+                    if(String(this.dataIn.previous_transaction).indexOf('$search') > -1){
+                        return true;
+                    }
+                }
+            }
+            if (typeof this.dataOut !== 'undefined') {
+                if (typeof this.dataOut.transaction_pos_id !== 'undefined') {
+                    if(String(this.dataOut.transaction_pos_id).indexOf('$search') > -1){
+                        return true;
+                    }
+                }
+                if (typeof this.dataOut.halcashticket !== 'undefined') {
+                    if(String(this.dataOut.halcashticket).indexOf('$search') > -1){
+                        return true;
+                    }
+                }
+                if (typeof this.dataOut.txid !== 'undefined') {
+                    if(String(this.dataOut.txid).indexOf('$search') > -1){
+                        return true;
+                    }
+                }
+                if (typeof this.dataOut.address !== 'undefined') {
+                    if(String(this.dataOut.address).indexOf('$search') > -1){
+                        return true;
+                    }
+                }
+                if (typeof this.dataOut.id !== 'undefined') {
+                    if(String(this.dataOut.id).indexOf('$search') > -1){
+                        return true;
+                    }
+                }
+            }
+            if(typeof this.status !== 'undefined' && String(this.status).indexOf('$search') > -1){ return true;}
+            if(typeof this.service !== 'undefined' && String(this.service).indexOf('$search') > -1){ return true;}
+            if(String(this._id).indexOf('$search') > -1){ return true;}
+
+            return false;
+            }")
+                ->sort($order,$dir)
+                ->getQuery()
+                ->execute();
+
+        }else{
+            $order = "id";
+            $dir = "desc";
+
+            $transactions = $qb
+                ->field('user')->equals($userId)
+                ->sort($order,$dir)
+                ->getQuery()
+                ->execute();
+        }
         $resArray = [];
         foreach($transactions->toArray() as $res){
             $resArray []= $res;
@@ -139,7 +244,6 @@ class WalletController extends RestApiController{
                 'elements' => $entities
             )
         );
-
     }
 
     /**

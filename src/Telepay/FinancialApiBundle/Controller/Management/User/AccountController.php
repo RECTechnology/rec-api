@@ -34,13 +34,10 @@ class AccountController extends BaseApiController{
      */
     public function read(Request $request){
         $user = $this->get('security.context')->getToken()->getUser();
+        $listServices = $user->getServicesList();
         $user->setAllowedServices(
-            $this->get('net.telepay.service_provider')->findByRoles($user->getRoles())
+            $this->get('net.telepay.service_provider')->findByCNames($listServices)
         );
-        //die(print_r($user->getLimitCount()[0]->getUser(), true));
-        //return $this->restV2(200, "ok", "OLE", $user->getLimitCount()[0]);
-
-
         return $this->restV2(200, "ok", "Account info got successfully", $user);
     }
 
@@ -50,7 +47,7 @@ class AccountController extends BaseApiController{
     public function updateAction(Request $request,$id=null){
 
         $user = $this->get('security.context')->getToken()->getUser();
-        $id=$user->getId();
+        $id = $user->getId();
 
         if($request->request->has('password')){
             if($request->request->has('repassword')){
@@ -317,6 +314,7 @@ class AccountController extends BaseApiController{
         $request->request->add(array('base64_image'=>''));
         $request->request->add(array('default_currency'=>'EUR'));
         $request->request->add(array('gcm_group_key'=>''));
+        $request->request->add(array('services_list'=>array('sample')));
 
         $resp= parent::createAction($request);
 
@@ -324,8 +322,8 @@ class AccountController extends BaseApiController{
             $em=$this->getDoctrine()->getManager();
 
             $groupsRepo = $em->getRepository("TelepayFinancialApiBundle:Group");
-            $group = $groupsRepo->findOneBy(array('name' => 'Level0'));
-            if(!$group) throw new HttpException(404,'Group Level0 not found');
+            $group = $groupsRepo->find($this->container->getParameter('id_group_level_0'));
+            if(!$group) throw new HttpException(404,'Group Level 0 not found');
 
             $usersRepo = $em->getRepository("TelepayFinancialApiBundle:User");
             $data = $resp->getContent();
@@ -365,7 +363,7 @@ class AccountController extends BaseApiController{
             $response = array(
                 'id'        =>  $user_id,
                 'username'  =>  $username,
-                'pasword'   =>  $password
+                'password'   =>  $password
             );
 
             return $this->restV2(201,"ok", "Request successful", $response);

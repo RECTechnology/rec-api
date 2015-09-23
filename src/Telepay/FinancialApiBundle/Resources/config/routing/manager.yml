@@ -7,6 +7,12 @@ admin_users_index:
     requirements:
         _method: GET
 
+admin_users_index_by_group:
+    pattern:  /manager/v1/usersbygroup/{id}
+    defaults: { _controller: Telepay\FinancialApiBundle\Controller\Management\Manager\UsersController::indexByGroup, _format: ~ }
+    requirements:
+        _method: GET
+
 
 admin_users_set_image:
     pattern:  /manager/v1/users/{id}/image
@@ -49,6 +55,12 @@ admin_users_delete:
         _method: DELETE
         id: "[0-9]+"
 
+admin_users_delete_by_name:
+    pattern:  /manager/v1/users/name/{username}
+    defaults: { _controller: Telepay\FinancialApiBundle\Controller\Management\Manager\UsersController::deleteByNameAction, _format: ~ }
+    requirements:
+        _method: DELETE
+
 admin_users_add_service:
     pattern:  /manager/v1/users/{id}
     defaults: { _controller: Telepay\FinancialApiBundle\Controller\Management\Manager\UsersController::addService }
@@ -62,7 +74,6 @@ admin_users_delete_service:
     requirements:
         _method: DELETE
         id: "[0-9]+"
-        service_id: "[0-9]+"
 
 manager_su:
     pattern:  /manager/v1/su/{id}
@@ -73,6 +84,12 @@ manager_su:
 admin_groups_index:
     pattern:  /manager/v1/groups
     defaults: { _controller: Telepay\FinancialApiBundle\Controller\Management\Manager\GroupsController::indexAction, _format: ~ }
+    requirements:
+        _method: GET
+
+admin_groups_index_by_user:
+    pattern:  /manager/v1/groupsbyuser
+    defaults: { _controller: Telepay\FinancialApiBundle\Controller\Management\Manager\GroupsController::indexByUser, _format: ~ }
     requirements:
         _method: GET
 
