@@ -42,7 +42,7 @@ class SpecialActionsController extends RestApiController {
             }
         }
 
-        //TODO search reference to get the user
+        //search reference to get the user
         $em = $this->getDoctrine()->getManager();
         $token = $em->getRepository('TelepayFinancialApiBundle:CashInTokens')->findBy(array(
             'token' =>  $params['reference']
