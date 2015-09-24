@@ -767,8 +767,10 @@ class IncomingController extends RestApiController{
         else $offset = 0;
 
         $dm = $this->get('doctrine_mongodb')->getManager();
-        $userId = $this->get('security.context')
-            ->getToken()->getUser()->getId();
+        $user = $this->get('security.context')
+            ->getToken()->getUser();
+
+        $userId = $user->getId();
 
         $qb = $dm->createQueryBuilder('TelepayFinancialApiBundle:Transaction');
 
@@ -869,7 +871,32 @@ class IncomingController extends RestApiController{
 
         $total = count($resArray);
 
+        $page_amount = 0;
+        $total_amount = 0;
+
+        foreach ($resArray as $array){
+            if($array->getStatus() == 'success'){
+                $total_amount = $total_amount + $array->getAmount();
+            }
+        }
+        $wallets = $user->getWallets();
+        $service_currency = $service->getCurrency();
+
+        foreach ( $wallets as $wallet){
+            if ($wallet->getCurrency() == $service_currency){
+                $current_wallet = $wallet;
+            }
+        }
+
+        $scale = $current_wallet->getScale();
+
         $entities = array_slice($resArray, $offset, $limit);
+
+        foreach ($entities as $ent){
+            if($ent->getStatus() == 'success'){
+                $page_amount = $page_amount + $ent->getAmount();
+            }
+        }
 
         return $this->restV2(
             200,
@@ -879,7 +906,10 @@ class IncomingController extends RestApiController{
                 'total' => $total,
                 'start' => intval($offset),
                 'end' => count($entities)+$offset,
-                'elements' => $entities
+                'elements' => $entities,
+                'page_amount' => $page_amount,
+                'total_amount' => $total_amount,
+                'scale' =>  $scale
             )
         );
     }
