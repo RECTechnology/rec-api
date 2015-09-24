@@ -37,7 +37,7 @@ class GroupsController extends BaseApiController
     public function indexAction(Request $request){
 
         if($request->query->has('limit')) $limit = $request->query->get('limit');
-        else $limit = 10;
+        else $limit = 100;
 
         if($request->query->has('offset')) $offset = $request->query->get('offset');
         else $offset = 0;

@@ -3,11 +3,11 @@
 namespace Telepay\FinancialApiBundle\Controller\Management\Admin;
 
 use Symfony\Component\HttpKernel\Exception\HttpException;
-use Telepay\FinancialApiBundle\Controller\BaseApiController;
 use Telepay\FinancialApiBundle\Controller\RestApiController;
 use Telepay\FinancialApiBundle\Document\Transaction;
 use FOS\RestBundle\Controller\Annotations as Rest;
 use Symfony\Component\HttpFoundation\Request;
+use Telepay\FinancialApiBundle\Entity\ServiceFee;
 use Telepay\FinancialApiBundle\Entity\UserWallet;
 
 /**
@@ -58,6 +58,7 @@ class SpecialActionsController extends RestApiController {
         $group = $user->getGroups()[0];
 
         $group_commissions = $group->getCommissions();
+
         $group_commission = false;
         foreach ( $group_commissions as $commission ){
             if ( $commission->getServiceName() == $service ){
@@ -182,7 +183,15 @@ class SpecialActionsController extends RestApiController {
 
         $transaction_id = $transaction->getId();
         $dealer = $this->get('net.telepay.commons.fee_deal');
-        $dealer->deal($creator,$amount,$service_cname,$currency,$total_fee,$transaction_id,$transaction->getVersion());
+        $dealer->deal(
+            $creator,
+            $amount,
+            $service_cname,
+            $currency,
+            $total_fee,
+            $transaction_id,
+            $transaction->getVersion()
+        );
 
     }
 
