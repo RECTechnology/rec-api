@@ -95,8 +95,6 @@ class GroupsController extends BaseApiController
 
         $roles = $admin->getRoles();
 
-        if(!in_array('ROLE_ADMIN',$roles)) throw new HttpException(403,'You don\'t have the necessary permissions');
-
         if($request->query->has('limit')) $limit = $request->query->get('limit');
         else $limit = 10;
 
