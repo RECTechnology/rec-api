@@ -37,7 +37,7 @@ class GroupsController extends BaseApiController
     public function indexAction(Request $request){
 
         if($request->query->has('limit')) $limit = $request->query->get('limit');
-        else $limit = 10;
+        else $limit = 100;
 
         if($request->query->has('offset')) $offset = $request->query->get('offset');
         else $offset = 0;
@@ -94,8 +94,6 @@ class GroupsController extends BaseApiController
         if (!$admin) throw new HttpException(404, 'Not user found');
 
         $roles = $admin->getRoles();
-
-        if(!in_array('ROLE_ADMIN',$roles)) throw new HttpException(403,'You don\'t have the necessary permissions');
 
         if($request->query->has('limit')) $limit = $request->query->get('limit');
         else $limit = 10;
