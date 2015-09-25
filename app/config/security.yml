@@ -31,17 +31,12 @@ security:
             security:   false
 
         POS:
-            pattern:    ^/pos/v[0-9]+/transaction/*
+            pattern:    ^/pos/v[0-9]+/*
             stateless:  true
             security:   false
 
         notifications:
             pattern:    ^/notifications
-            stateless:  true
-            security:   false
-
-        POS_notifications:
-            pattern:    ^/pos/v[0-9]+/notification/*
             stateless:  true
             security:   false
 
