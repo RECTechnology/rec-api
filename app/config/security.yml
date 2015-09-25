@@ -81,7 +81,7 @@ security:
         - { path: ^/services/v[0-9]+/*, role: ROLE_INTEGRATOR }
 
         - { path: ^/pos/v[0-9]+/transaction/*, role: IS_AUTHENTICATED_ANONYMOUSLY, ip: ["127.0.0.1"] }
-        - { path: ^/pos/v[0-9]+/check/*, role: IS_AUTHENTICATED_ANONYMOUSLY, ip: ["127.0.0.1"] }
+        - { path: ^/pos/v[0-9]+/check/*, role: IS_AUTHENTICATED_ANONYMOUSLY }
 
         - { path: ^/pos/v[0-9]+/*, role: ROLE_COMMERCE }
         - { path: ^/user/v[0-9]+/*, role: ROLE_USER }
