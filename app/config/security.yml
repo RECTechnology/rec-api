@@ -45,7 +45,7 @@ security:
             stateless:  true
             security:   false
 
-        POS_notifications:
+        POS_check:
             pattern:    ^/pos/v[0-9]+/check/*
             stateless:  true
             security:   false
