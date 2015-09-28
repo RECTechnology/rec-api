@@ -34,6 +34,7 @@ class ExpirePosCommand extends ContainerAwareCommand
         $qb = $dm->createQueryBuilder('TelepayFinancialApiBundle:Transaction')
             ->field('service')->equals($service_cname)
             ->field('status')->equals('created')
+            ->field('currency')->equals('EUR')
             ->getQuery();
 
         $contador = 0;
