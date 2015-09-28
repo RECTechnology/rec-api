@@ -101,10 +101,7 @@ class CashInController extends BaseApiController{
             return $response;
         }
 
-
-
         return $this->restV2(201, "ok", "Token created succesfull", $resp);
-
     }
 
     /**

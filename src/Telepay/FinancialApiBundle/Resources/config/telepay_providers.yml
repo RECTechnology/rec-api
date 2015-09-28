@@ -97,3 +97,7 @@ services:
     net.telepay.provider.bank_transfer:
         class: Telepay\FinancialApiBundle\DependencyInjection\Transactions\Libs\BankTransfer
         arguments:
+
+    net.telepay.provider.cryptocapital:
+        class: Telepay\FinancialApiBundle\DependencyInjection\Transactions\Libs\Cryptocapital
+        arguments:
