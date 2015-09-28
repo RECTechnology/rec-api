@@ -12,7 +12,7 @@ use Telepay\FinancialApiBundle\Document\Transaction;
 use Telepay\FinancialApiBundle\Entity\Exchange;
 use Telepay\FinancialApiBundle\Financial\Currency;
 
-class CheckCryptoCommand extends ContainerAwareCommand
+class CheckCryptoPOSCommand extends ContainerAwareCommand
 {
     protected function configure()
     {
