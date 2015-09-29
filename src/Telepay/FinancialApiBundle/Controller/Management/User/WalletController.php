@@ -11,6 +11,7 @@ use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpKernel\Exception\HttpException;
 use Telepay\FinancialApiBundle\Controller\RestApiController;
 use Telepay\FinancialApiBundle\Document\Transaction;
+use Telepay\FinancialApiBundle\Entity\ServiceFee;
 use Telepay\FinancialApiBundle\Entity\UserWallet;
 
 
@@ -708,6 +709,199 @@ class WalletController extends RestApiController{
         $response['scale'] = null;
 
         return $response;
+
+    }
+
+    /**
+     * makes an exchange between wallets
+     */
+    public function currencyExchange(Request $request){
+
+        $user = $this->get('security.context')->getToken()->getUser();
+
+        if(!$user) throw new HttpException(404, 'User not found');
+
+        //get params
+        $paramNames = array(
+            'amount',
+            'currency_in',
+            'currency_out'
+        );
+
+        $params = array();
+        foreach($paramNames as $paramName){
+            if($request->request->has($paramName)){
+                $params[$paramName] = $request->request->get($paramName);
+            }else{
+                throw new HttpException(404, 'Parameter "'.$paramName.'" not found');
+            }
+        }
+
+        $currency_in = strtoupper($params['currency_in']);
+        $currency_out = strtoupper($params['currency_out']);
+        $service = 'exchange'.'_'.$currency_in.'to'.$currency_out;
+
+        //getExchange
+        $exchange = $this->_exchange($params['amount'], $currency_in, $currency_out);
+
+        //checkWallet sender
+        $wallets = $user->getWallets();
+        $senderWallet = null;
+        $receiverWallet = null;
+        foreach($wallets as $wallet){
+            if($params['currency_in'] == $wallet->getCurrency()){
+                $senderWallet = $wallet;
+            }elseif($params['currency_out'] == $wallet->getCurrency()){
+                $receiverWallet = $wallet;
+            }
+        }
+
+        if($senderWallet == null) throw new HttpException(404, 'Sender Wallet not found');
+        if($receiverWallet == null) throw new HttpException(404, 'Receeiver Wallet not found');
+
+        if($params['amount'] > $senderWallet->getAvailable()) throw new HttpException(404, 'Not funds enough.');
+
+        //getFees
+        $group = $user->getGroups()[0];
+
+        $fees = $group->getCommissions();
+
+
+        $fixed_fee = null;
+        $variable_fee = null;
+        foreach($fees as $fee){
+            if($fee->getServiceName() == $service){
+                $fixed_fee = $fee->getFixed();
+                $variable_fee = ($fee->getVariable()/100)*$exchange;
+            }
+        }
+
+        $em = $this->getDoctrine()->getManager();
+        if(!$fixed_fee || !$variable_fee) {
+            $group_commission = ServiceFee::createFromController($service, $group);
+            $em->persist($group_commission);
+            $em->flush();
+        }
+
+        $dm = $this->get('doctrine_mongodb')->getManager();
+        //cashOut transaction
+        $cashOut = Transaction::createFromRequest($request);
+        $cashOut->setAmount($params['amount']);
+        $cashOut->setCurrency($currency_in);
+        $cashOut->setDataIn($params);
+        $cashOut->setFixedFee(0);
+        $cashOut->setVariableFee(0);
+        $cashOut->setTotal(-$params['amount']);
+        $cashOut->setService($service);
+        $cashOut->setUser($user->getId());
+        $cashOut->setVersion(1);
+        $cashOut->setScale($senderWallet->getScale());
+        $cashOut->setStatus('success');
+        $cashOut->setDataIn($params);
+        $cashOut->setDataOut(array(
+            $currency_in =>  $params['amount'],
+            $currency_out=>     $exchange
+        ));
+
+        $dm->persist($cashOut);
+        $dm->flush();
+
+        //cashIn transaction
+        $cashIn = Transaction::createFromRequest($request);
+        $cashIn->setAmount($exchange);
+        $cashIn->setCurrency($currency_out);
+        $cashIn->setDataIn($params);
+        $cashIn->setFixedFee(0);
+        $cashIn->setVariableFee(0);
+        $cashIn->setTotal($exchange);
+        $cashIn->setService($service);
+        $cashIn->setUser($user->getId());
+        $cashIn->setVersion(1);
+        $cashIn->setScale($receiverWallet->getScale());
+        $cashIn->setStatus('success');
+        $cashIn->setDataIn($params);
+        $cashIn->setDataOut(array(
+            'previous_transaction'  =>  $cashOut->getId(),
+            $currency_in    =>  $params['amount'],
+            $currency_out   =>  $exchange
+        ));
+
+        $dm->persist($cashIn);
+        $dm->flush();
+
+        //update wallets
+        $senderWallet->setAvailable($senderWallet->getAvailable() - $params['amount']);
+        $senderWallet->setBalance($senderWallet->getBalance() - $params['amount']);
+
+        $receiverWallet->setAvailable($receiverWallet->getAvailable() - $exchange - $fixed_fee - $variable_fee);
+        $receiverWallet->setBalance($receiverWallet->getBalance() - $exchange - $fixed_fee - $variable_fee);
+
+        //dealer
+        $total_fee = $fixed_fee + $variable_fee;
+        if( $total_fee != 0){
+            //nueva transaccion restando la comision al user
+            try{
+                $this->_dealer($cashIn, $receiverWallet);
+            }catch (HttpException $e){
+                throw $e;
+            }
+        }
+
+        //notification
+        $this->container->get('notificator')->notificate($cashIn);
+
+        //return
+        return $this->restV2(200, "ok", "Exchange got successfully");
+
+    }
+
+    private function _dealer(Transaction $transaction, UserWallet $current_wallet){
+
+        $amount = $transaction->getAmount();
+        $currency = $transaction->getCurrency();
+        $service_cname = $transaction->getService();
+
+        $em = $this->getDoctrine()->getManager();
+
+        $total_fee = $transaction->getFixedFee() + $transaction->getVariableFee();
+
+        $user = $em->getRepository('TelepayFinancialApiBundle:User')->find($transaction->getUser());
+
+        $feeTransaction = Transaction::createFromTransaction($transaction);
+        $feeTransaction->setAmount($total_fee);
+        $feeTransaction->setDataIn(array(
+            'previous_transaction'  =>  $transaction->getId(),
+            'amount'                =>  -$total_fee,
+            'description'           =>  $service_cname.'->fee'
+        ));
+        $feeTransaction->setData(array(
+            'previous_transaction'  =>  $transaction->getId(),
+            'amount'                =>  -$total_fee,
+            'type'                  =>  'resta_fee'
+        ));
+        $feeTransaction->setDebugData(array(
+            'previous_balance'  =>  $current_wallet->getBalance(),
+            'previous_transaction'  =>  $transaction->getId()
+        ));
+
+        $feeTransaction->setTotal(-$total_fee);
+
+        $mongo = $this->get('doctrine_mongodb')->getManager();
+        $mongo->persist($feeTransaction);
+        $mongo->flush();
+
+        $balancer = $this->get('net.telepay.commons.balance_manipulator');
+        $balancer->addBalance($user, -$total_fee, $feeTransaction );
+
+        //empezamos el reparto
+        $group = $user->getGroups()[0];
+        $creator = $group->getCreator();
+
+        if(!$creator) throw new HttpException(404,'Creator not found');
+
+        $transaction_id = $transaction->getId();
+        $dealer = $this->get('net.telepay.commons.fee_deal');
+        $dealer->deal($creator,$amount,$service_cname,$currency,$total_fee,$transaction_id,$transaction->getVersion());
 
     }
 

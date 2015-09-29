@@ -323,7 +323,6 @@ class IncomingController extends RestApiController{
         return $this->restTransaction($transaction, "Done");
     }
 
-
     /**
      * @Rest\View
      */
@@ -676,81 +675,10 @@ class IncomingController extends RestApiController{
 
     }
 
-
     /**
      * @Rest\View
      */
     public function find(Request $request, $version_number, $service_cname){
-
-        $service = $this->get('net.telepay.services.'.$service_cname.'.v'.$version_number);
-
-        $service_list = $this->get('security.context')->getToken()->getUser()->getServicesList();
-
-        if (!in_array($service_cname, $service_list)) {
-            throw $this->createAccessDeniedException();
-        }
-
-        if($request->query->has('start_time') && is_numeric($request->query->get('start_time')))
-            $start_time = new \MongoDate($request->query->get('start_time'));
-        else $start_time = new \MongoDate(time()-3*31*24*3600); // 3 month ago
-
-        if($request->query->has('end_time') && is_numeric($request->query->get('end_time')))
-            $end_time = new \MongoDate($request->query->get('end_time'));
-        else $end_time = new \MongoDate(); // now
-
-        if($request->query->has('limit')) $limit = intval($request->query->get('limit'));
-        else $limit = 10;
-
-        if($request->query->has('offset')) $offset = intval($request->query->get('offset'));
-        else $offset = 0;
-
-        $userId = $this->get('security.context')->getToken()->getUser()->getId();
-
-        $dm = $this->get('doctrine_mongodb')->getManager();
-
-        $transactions = $dm->createQueryBuilder('TelepayFinancialApiBundle:Transaction')
-            ->field('user')->equals($userId)
-            ->field('service')->equals($service->getCname())
-            ->field('created')->gt($start_time)
-            ->field('created')->lt($end_time)
-            ->sort('created', 'desc')
-            ->skip($offset)
-            ->limit($limit)
-            ->getQuery()->execute();
-
-        $transArray = [];
-        foreach($transactions->toArray() as $transaction){
-            $transArray []= $transaction;
-        }
-
-        if(array_key_exists($service->getCname(),static::$OLD_CNAME_ID_MAPPINGS)) {
-            $transactionsOld = $dm->createQueryBuilder('TelepayFinancialApiBundle:Transaction')
-                ->field('user')->equals($userId)
-                ->field('service')->equals(static::$OLD_CNAME_ID_MAPPINGS[$service->getCname()])
-                ->field('created')->gt($start_time)
-                ->field('created')->lt($end_time)
-                ->sort('created', 'desc')
-                ->skip($offset)
-                ->limit($limit)
-                ->getQuery()->execute();
-            foreach($transactionsOld->toArray() as $transaction){
-                $transArray []= $transaction;
-            }
-        }
-
-        //esto es asi porque hemos cambiado la respuesta en restV2 ( ahora tiene algunos campos más ).
-        return $this->restV2(
-            200,
-            "ok",
-            "Request successful",
-            $transArray
-        );
-    }
-
-    /**
-     * @Rest\View
-     */
-    public function findV2(Request $request, $version_number, $service_cname){
 
         $service = $this->get('net.telepay.services.'.$service_cname.'.v'.$version_number);
 
