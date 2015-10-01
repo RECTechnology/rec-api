@@ -48,22 +48,14 @@ class GroupsController extends BaseApiController
         $total = count($all);
 
         foreach ($all as $group){
-            $fees=$group->getCommissions();
+            $fees = $group->getCommissions();
             foreach ( $fees as $fee ){
-                $service_cname=$fee->getServiceName();
-                //TODO hay que hacer expresion regular para que valga para todas las versiones
-                $service = $this->get('net.telepay.services.'.$service_cname.'.v1');
-                $currency= $service->getCurrency();
-                $fee->setCurrency( $currency);
+                $currency = $fee->getCurrency();
                 $fee->setScale($currency);
             }
-            $limits=$group->getLimits();
+            $limits = $group->getLimits();
             foreach ( $limits as $lim ){
-                $service_cname=$lim->getCname();
-                //TODO hay que hacer expresion regular para que valga para todas las versiones
-                $service = $this->get('net.telepay.services.'.$service_cname.'.v1');
-                $currency= $service->getCurrency();
-                $lim->setCurrency( $currency);
+                $currency = $lim->getCurrency();
                 $lim->setScale($currency);
             }
 
@@ -107,29 +99,23 @@ class GroupsController extends BaseApiController
         ));
 
         $total = count($all);
-
+        //TODO: return only the limits of active services
         foreach ($all as $group){
-            $fees=$group->getCommissions();
+            $fees = $group->getCommissions();
             foreach ( $fees as $fee ){
-                $service_cname=$fee->getServiceName();
-                //TODO hay que hacer expresion regular para que valga para todas las versiones
-                $service = $this->get('net.telepay.services.'.$service_cname.'.v1');
-                $currency= $service->getCurrency();
-                $fee->setCurrency( $currency);
+                $currency = $fee->getCurrency();
                 $fee->setScale($currency);
             }
-            $limits=$group->getLimits();
+            $limits = $group->getLimits();
             foreach ( $limits as $lim ){
-                $service_cname=$lim->getCname();
-                //TODO hay que hacer expresion regular para que valga para todas las versiones
-                $service = $this->get('net.telepay.services.'.$service_cname.'.v1');
-                $currency= $service->getCurrency();
-                $lim->setCurrency( $currency);
+                $currency = $lim->getCurrency();
                 $lim->setScale($currency);
             }
 
         }
         $entities = array_slice($all, $offset, $limit);
+
+//        die(print_r($entities,true));
 
         return $this->restV2(
             200,

@@ -68,6 +68,9 @@ class LimitDefinition implements Limit {
 
     private $scale;
 
+    /**
+     * @ORM\Column(type="string")
+     */
     private $currency;
 
     public static function createFromController($service_cname, Group $group){
@@ -256,6 +259,14 @@ class LimitDefinition implements Limit {
     public function setCurrency($currency)
     {
         $this->currency = $currency;
+    }
+
+    /**
+     * @return mixed
+     */
+    public function getCurrency()
+    {
+        return $this->currency;
     }
 
 }

@@ -1,0 +1,15 @@
+services:
+
+
+#    net.telepay.exchange_provider:
+#        class: Telepay\FinancialApiBundle\DependencyInjection\TelepayExchangeProvider
+#        arguments:
+#            services:
+#                - "@net.telepay.services.echo.v1"
+
+    net.telepay.exchanges.BTCtoEUR.v1:
+        class: Telepay\FinancialApiBundle\DependencyInjection\Transactions\Exchange
+        arguments:
+            - "BTC"
+            - "EUR"
+            - "BTCtoEUR"
