@@ -31,6 +31,12 @@ class ServicesController extends RestApiController
 
         }
 
+        if ($this->get('security.authorization_checker')->isGranted('ROLE_SUPER_COMMERCE')) {
+            //todo: add pos service
+        }
+
+        //TODO: add exchange service
+
         return $this->restV2(
             200,
             "ok",

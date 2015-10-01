@@ -111,8 +111,6 @@ class GroupsController extends BaseApiController
         }
         $entities = array_slice($all, $offset, $limit);
 
-//        die(print_r($entities,true));
-
         return $this->restV2(
             200,
             "ok",
@@ -142,32 +140,39 @@ class GroupsController extends BaseApiController
         $resp = parent::createAction($request);
 
         if($resp->getStatusCode() == 201){
-            $em=$this->getDoctrine()->getManager();
+            $em = $this->getDoctrine()->getManager();
             $groupsRepo = $em->getRepository("TelepayFinancialApiBundle:Group");
             $group = $groupsRepo->findOneBy(array('name' => $group_name));
 
             $servicesRepo = $this->get('net.telepay.service_provider');
             $services = $servicesRepo->findAll();
 
+            $admin = $group->getCreator();
+            $servicesList = $admin->getServicesList();
             foreach($services as $service){
-                $limit_def = new LimitDefinition();
-                $limit_def->setCname($service->getCname());
-                $limit_def->setSingle(0);
-                $limit_def->setDay(0);
-                $limit_def->setWeek(0);
-                $limit_def->setMonth(0);
-                $limit_def->setYear(0);
-                $limit_def->setTotal(0);
-                $limit_def->setGroup($group);
-                $commission = new ServiceFee();
-                $commission->setGroup($group);
-                $commission->setFixed(0);
-                $commission->setVariable(0);
-                $commission->setServiceName($service->getCname());
-                $em->persist($commission);
-                $em->persist($limit_def);
+                if(in_array($service->getCname(),$servicesList)){
+                    $limit_def = new LimitDefinition();
+                    $limit_def->setCname($service->getCname());
+                    $limit_def->setSingle(0);
+                    $limit_def->setDay(0);
+                    $limit_def->setWeek(0);
+                    $limit_def->setMonth(0);
+                    $limit_def->setYear(0);
+                    $limit_def->setTotal(0);
+                    $limit_def->setGroup($group);
+                    $limit_def->setCurrency($service->getCurrency());
+                    $commission = new ServiceFee();
+                    $commission->setGroup($group);
+                    $commission->setFixed(0);
+                    $commission->setVariable(0);
+                    $commission->setServiceName($service->getCname());
+                    $commission->setCurrency($service->getCurrency());
+                    $em->persist($commission);
+                    $em->persist($limit_def);
+                }
 
             }
+
             $em->flush();
 
         }
@@ -194,7 +199,7 @@ class GroupsController extends BaseApiController
      */
     public function deleteAction($id){
 
-        $groupsRepo=$this->getDoctrine()->getRepository("TelepayFinancialApiBundle:Group");
+        $groupsRepo = $this->getDoctrine()->getRepository("TelepayFinancialApiBundle:Group");
 
         $default_group = $this->container->getParameter('id_group_default');
         $level0_group = $this->container->getParameter('id_group_level_0');
@@ -205,11 +210,12 @@ class GroupsController extends BaseApiController
 
         if(!$group) throw new HttpException(404,'Group not found');
 
-        if($group->getName()=='Default') throw new HttpException(400,"This group can't be deleted.");
+        if($group->getName() == 'Default') throw new HttpException(405,"This group can't be deleted.");
 
-        if(count($group->getUsers())>0) throw new HttpException(400,"This group can't be deleted because has users.");
+        if(count($group->getUsers()) > 0) throw new HttpException(405,"This group can't be deleted because has users.");
 
         return parent::deleteAction($id);
+
     }
 
 

@@ -34,10 +34,6 @@ class UpdateGroupsFeesLimitsCommand extends ContainerAwareCommand
         $groupsRepo = $em->getRepository('TelepayFinancialApiBundle:Group');
         $groups = $groupsRepo->findAll();
 
-        //id group default
-        $idGroupDefault = $this->getContainer()->getParameter('id_group_default');
-        $groupDefault = $groupsRepo->find($idGroupDefault);
-
         $superadmin = $input->getOption('superadmin');
 
         $superuser = $em->getRepository('TelepayFinancialApiBundle:User')->findOneBy(array(

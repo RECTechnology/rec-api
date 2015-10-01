@@ -77,10 +77,10 @@ class IncomingController extends RestApiController{
 
         //TODO posible millora en un query molon
         //obtain and check limits
-        $user=$this->getUser();
+        $user = $this->getUser();
 
         //obtener group
-        $group=$user->getGroups()[0];
+        $group = $user->getGroups()[0];
 
         //obtener comissiones del grupo
         $group_commissions=$group->getCommissions();
@@ -98,7 +98,7 @@ class IncomingController extends RestApiController{
             $em->flush();
         }
 
-        $amount=$dataIn['amount'];
+        $amount = $dataIn['amount'];
         $transaction->setAmount($amount);
 
         //add commissions to check
@@ -161,7 +161,7 @@ class IncomingController extends RestApiController{
             throw new HttpException(509,'Limit exceeded');
 
         //obtain wallet and check founds for cash_out services
-        $wallets=$user->getWallets();
+        $wallets = $user->getWallets();
 
         //check if the service is halcash because we have various currencys
         if($service_cname == 'halcash_send'){
@@ -175,7 +175,7 @@ class IncomingController extends RestApiController{
             $service_currency = $service->getCurrency();
         }
 
-        $current_wallet=null;
+        $current_wallet = null;
 
         $transaction->setCurrency($service_currency);
 
