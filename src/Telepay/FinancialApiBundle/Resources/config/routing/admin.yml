@@ -15,12 +15,6 @@ admin_services_index:
     requirements:
         _method: GET
 
-manager_services_read:
-    pattern:  /user/v1/services/{service}
-    defaults: { _controller: Telepay\FinancialApiBundle\Controller\Management\Integrator\ServicesController::read }
-    requirements:
-        _method: GET
-
 ############################## TRANSACTIONS MNGMNT ##########################################
 
 super_admin_transaction_delete:
