@@ -779,6 +779,7 @@ class WalletController extends RestApiController{
         $em = $this->getDoctrine()->getManager();
         if(!$fixed_fee || !$variable_fee) {
             $group_commission = ServiceFee::createFromController($service, $group);
+            $group_commission->setCurrency($service->getCurrencyOut());
             $em->persist($group_commission);
             $em->flush();
         }
@@ -811,8 +812,8 @@ class WalletController extends RestApiController{
         $cashIn->setAmount($exchange);
         $cashIn->setCurrency($currency_out);
         $cashIn->setDataIn($params);
-        $cashIn->setFixedFee(0);
-        $cashIn->setVariableFee(0);
+        $cashIn->setFixedFee($fixed_fee);
+        $cashIn->setVariableFee($variable_fee);
         $cashIn->setTotal($exchange);
         $cashIn->setService($service);
         $cashIn->setUser($user->getId());

@@ -95,7 +95,7 @@ class GroupsController extends BaseApiController
         ));
 
         $total = count($all);
-        //TODO: return only the limits of active services
+        //return only the limits of active services
         foreach ($all as $group){
             $fees = $group->getCommissions();
             foreach ( $fees as $fee ){
@@ -109,6 +109,7 @@ class GroupsController extends BaseApiController
             }
 
         }
+
         $entities = array_slice($all, $offset, $limit);
 
         return $this->restV2(
@@ -170,6 +171,34 @@ class GroupsController extends BaseApiController
                     $em->persist($commission);
                     $em->persist($limit_def);
                 }
+
+            }
+
+            $exchanges = $this->getContainer()->get('net.telepay.exchange_provider')->findAll();
+
+            foreach($exchanges as $exchange){
+                //create limit for this group
+                //create fee for this group
+                    $limit = new LimitDefinition();
+                    $limit->setDay(0);
+                    $limit->setWeek(0);
+                    $limit->setMonth(0);
+                    $limit->setYear(0);
+                    $limit->setTotal(0);
+                    $limit->setSingle(0);
+                    $limit->setCname($exchange->getCname());
+                    $limit->setCurrency($exchange->getCurrencyOut());
+                    $limit->setGroup($group);
+
+                    $fee = new ServiceFee();
+                    $fee->setFixed(0);
+                    $fee->setVariable(0);
+                    $fee->setCurrency($exchange->getCurrencyOut());
+                    $fee->setServiceName($exchange->getCname());
+                    $fee->setGroup($group);
+
+                    $em->persist($limit);
+                    $em->persist($fee);
 
             }
 

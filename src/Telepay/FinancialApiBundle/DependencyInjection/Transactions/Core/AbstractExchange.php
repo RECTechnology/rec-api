@@ -8,10 +8,6 @@
 
 namespace Telepay\FinancialApiBundle\DependencyInjection\Transactions\Core;
 
-
-use Symfony\Component\HttpKernel\Exception\HttpException;
-use Telepay\FinancialApiBundle\Document\Transaction;
-
 class AbstractExchange implements ExchangeInterface {
 
 
@@ -61,9 +57,9 @@ class AbstractExchange implements ExchangeInterface {
 
     function __construct($currency_in, $currency_out, $cname)
     {
-        $this->cname = $cname;
         $this->currency_in = $currency_in;
         $this->currency_out = $currency_out;
+        $this->cname = $cname;
     }
 
 }
