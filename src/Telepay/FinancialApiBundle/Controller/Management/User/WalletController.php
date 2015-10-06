@@ -518,6 +518,27 @@ class WalletController extends RestApiController{
 
     }
 
+    /**
+     * check user fees
+     */
+    public function userFees(Request $request){
+
+        //get user
+        $user = $this->get('security.context')->getToken()->getUser();
+        //get group
+        $group  = $user->getGroups()[0];
+        //getFees
+        $fees = $group->getCommissions();
+
+        foreach ( $fees as $fee){
+            $currency = $fee->getCurrency();
+            $fee->setScale($currency);
+        }
+
+        return $this->restV2(200, "ok", "Fees info got successfully", $fees);
+
+    }
+
     public function _exchange($amount, $curr_in, $curr_out){
 
         $dm=$this->getDoctrine()->getManager();
@@ -766,7 +787,6 @@ class WalletController extends RestApiController{
 
         $fees = $group->getCommissions();
 
-
         $fixed_fee = null;
         $variable_fee = null;
         foreach($fees as $fee){
@@ -775,14 +795,7 @@ class WalletController extends RestApiController{
                 $variable_fee = ($fee->getVariable()/100)*$exchange;
             }
         }
-
         $em = $this->getDoctrine()->getManager();
-        if(!$fixed_fee || !$variable_fee) {
-            $group_commission = ServiceFee::createFromController($service, $group);
-            $group_commission->setCurrency($service->getCurrencyOut());
-            $em->persist($group_commission);
-            $em->flush();
-        }
 
         $dm = $this->get('doctrine_mongodb')->getManager();
         //cashOut transaction
@@ -807,6 +820,8 @@ class WalletController extends RestApiController{
         $dm->persist($cashOut);
         $dm->flush();
 
+        $paramsOut = $params;
+        $paramsOut['amount'] = $exchange;
         //cashIn transaction
         $cashIn = Transaction::createFromRequest($request);
         $cashIn->setAmount($exchange);
@@ -820,7 +835,7 @@ class WalletController extends RestApiController{
         $cashIn->setVersion(1);
         $cashIn->setScale($receiverWallet->getScale());
         $cashIn->setStatus('success');
-        $cashIn->setDataIn($params);
+        $cashIn->setDataIn($paramsOut);
         $cashIn->setDataOut(array(
             'previous_transaction'  =>  $cashOut->getId(),
             $currency_in    =>  $params['amount'],

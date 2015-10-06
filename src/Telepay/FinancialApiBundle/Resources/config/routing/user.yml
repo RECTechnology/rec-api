@@ -179,3 +179,10 @@ user_cash_in_update:
     requirements:
         _method: PUT
 
+######################## USER FEES ########################
+
+user_fees:
+    pattern:  /user/v1/fees
+    defaults: { _controller: Telepay\FinancialApiBundle\Controller\Management\User\WalletController::userFees }
+    requirements:
+        _method: GET
