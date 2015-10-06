@@ -8,14 +8,27 @@
 
 namespace Telepay\FinancialApiBundle\Controller;
 
-class ApiResponseV2{
-    private $status;
-    private $message;
-    private $data;
+use JMS\Serializer\Annotation\XmlKeyValuePairs;
 
-    public function __construct($status, $message,  $data){
-        $this->status=$status;
-        $this->message=$message;
-        $this->data=$data;
+class ApiResponseV2 {
+
+    /** @XmlKeyValuePairs */
+    public $data;
+
+    public $status;
+
+    public $message;
+
+    /**
+     * ApiResponse constructor.
+     * @param $status
+     * @param $data
+     */
+    public function __construct($status, $message, $data)
+    {
+        $this->data = $data;
+        $this->status = $status;
+        $this->message = $message;
     }
+
 }
