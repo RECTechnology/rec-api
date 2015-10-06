@@ -849,8 +849,12 @@ class WalletController extends RestApiController{
         $senderWallet->setAvailable($senderWallet->getAvailable() - $params['amount']);
         $senderWallet->setBalance($senderWallet->getBalance() - $params['amount']);
 
-        $receiverWallet->setAvailable($receiverWallet->getAvailable() - $exchange - $fixed_fee - $variable_fee);
-        $receiverWallet->setBalance($receiverWallet->getBalance() - $exchange - $fixed_fee - $variable_fee);
+        $receiverWallet->setAvailable($receiverWallet->getAvailable() + $exchange - $fixed_fee - $variable_fee);
+        $receiverWallet->setBalance($receiverWallet->getBalance() + $exchange - $fixed_fee - $variable_fee);
+
+        $em->persist($senderWallet);
+        $em->persist($receiverWallet);
+        $em->flush();
 
         //dealer
         $total_fee = $fixed_fee + $variable_fee;
