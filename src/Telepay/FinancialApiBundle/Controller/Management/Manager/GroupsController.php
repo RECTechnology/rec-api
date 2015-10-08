@@ -213,7 +213,36 @@ class GroupsController extends BaseApiController
      * @Rest\View
      */
     public function showAction($id){
-        return parent::showAction($id);
+
+        $admin = $this->get('security.context')->getToken()->getUser();
+
+        if (!$admin) throw new HttpException(404, 'Not user found');
+
+        //TODO: Improve performance (two queries)
+        $group = $this->getRepository()->find($id);
+
+        $fees = $group->getCommissions();
+        foreach ( $fees as $fee ){
+            $currency = $fee->getCurrency();
+            $fee->setScale($currency);
+        }
+        $limits = $group->getLimits();
+        foreach ( $limits as $lim ){
+            $currency = $lim->getCurrency();
+            $lim->setScale($currency);
+        }
+
+        return $this->restV2(
+            200,
+            "ok",
+            "Request successful",
+            array(
+                'total' => 1,
+                'start' => 0,
+                'end' => 1,
+                'elements' => $group
+            )
+        );
     }
 
     /**
