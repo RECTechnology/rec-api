@@ -12,7 +12,7 @@ use Telepay\FinancialApiBundle\Document\Transaction;
 use Telepay\FinancialApiBundle\Entity\Exchange;
 use Telepay\FinancialApiBundle\Financial\Currency;
 
-class CheckCryptoCommand extends ContainerAwareCommand
+class CheckCryptoPOSCommand extends ContainerAwareCommand
 {
     protected function configure()
     {
@@ -75,7 +75,7 @@ class CheckCryptoCommand extends ContainerAwareCommand
                     }
                 }
 
-                $amount = $data['amount'];
+                $amount = $checked_transaction->getAmount();
 
                 if(!$user->hasRole('ROLE_SUPER_ADMIN')){
                     $group = $user->getGroups()[0];
@@ -163,7 +163,7 @@ class CheckCryptoCommand extends ContainerAwareCommand
         }
 
         $address = $currentData['address'];
-        $amount = $currentData['amount'];
+        $amount = $transaction->getAmount();
         if($transaction->getCurrency() === Currency::$BTC){
             $providerName = 'net.telepay.provider.btc';
             if($amount <= 100)

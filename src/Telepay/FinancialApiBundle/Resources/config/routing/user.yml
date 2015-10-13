@@ -12,6 +12,12 @@ user_account_edit:
     requirements:
         _method: PUT
 
+user_service_read:
+    pattern:  /user/v1/services/{service}
+    defaults: { _controller: Telepay\FinancialApiBundle\Controller\Management\Integrator\ServicesController::read }
+    requirements:
+        _method: GET
+
 
 ######################## USER WALLET ########################
 
@@ -50,6 +56,12 @@ user_wallet_transactions_sum_country:
     defaults: { _controller: Telepay\FinancialApiBundle\Controller\Management\User\WalletController::countryBenefits }
     requirements:
         _method: GET
+
+user_wallet_currency_exchange:
+    pattern:  /user/v1/wallet/currency_exchange
+    defaults: { _controller: Telepay\FinancialApiBundle\Controller\Management\User\WalletController::currencyExchange, _format: ~ }
+    requirements:
+        _method: POST
 
 
 ######################## USER ANALYTICS ########################
@@ -167,3 +179,10 @@ user_cash_in_update:
     requirements:
         _method: PUT
 
+######################## USER FEES ########################
+
+user_fees:
+    pattern:  /user/v1/fees
+    defaults: { _controller: Telepay\FinancialApiBundle\Controller\Management\User\WalletController::userFees }
+    requirements:
+        _method: GET
