@@ -70,3 +70,27 @@ admin_cash_in_validate:
     defaults: { _controller: Telepay\FinancialApiBundle\Controller\Management\Admin\SpecialActionsController::cashInValidation }
     requirements:
         _method: POST
+
+admin_sepa_in_list:
+    pattern:  /admin/v1/sepa_in
+    defaults: { _controller: Telepay\FinancialApiBundle\Controller\Management\Admin\SpecialActionsController::sepaInList }
+    requirements:
+        _method: GET
+
+admin_sepa_in_validate:
+    pattern:  /admin/v1/sepa_in/{id}
+    defaults: { _controller: Telepay\FinancialApiBundle\Controller\Management\Admin\SpecialActionsController::sepaInValidation }
+    requirements:
+        _method: POST
+
+admin_sepa_out_list:
+    pattern:  /admin/v1/sepa_out
+    defaults: { _controller: Telepay\FinancialApiBundle\Controller\Management\Admin\SpecialActionsController::sepaOutList }
+    requirements:
+        _method: GET
+
+admin_sepa_out_validate:
+    pattern:  /admin/v1/sepa_out/{id}
+    defaults: { _controller: Telepay\FinancialApiBundle\Controller\Management\Admin\SpecialActionsController::sepaOutValidation }
+    requirements:
+        _method: POST

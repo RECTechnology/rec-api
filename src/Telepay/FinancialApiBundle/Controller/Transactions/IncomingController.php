@@ -83,8 +83,8 @@ class IncomingController extends RestApiController{
         $group = $user->getGroups()[0];
 
         //obtener comissiones del grupo
-        $group_commissions=$group->getCommissions();
-        $group_commission=false;
+        $group_commissions = $group->getCommissions();
+        $group_commission = false;
         foreach ( $group_commissions as $commission ){
             if ( $commission->getServiceName() == $service_cname ){
                 $group_commission = $commission;
@@ -94,6 +94,7 @@ class IncomingController extends RestApiController{
         //if group commission not exists we create it
         if(!$group_commission){
             $group_commission = ServiceFee::createFromController($service_cname, $group);
+            $group_commission->setCurrency($service->getCurrency());
             $em->persist($group_commission);
             $em->flush();
         }
@@ -122,7 +123,7 @@ class IncomingController extends RestApiController{
         }
 
         //obtain user limits
-        $limits=$user->getLimitCount();
+        $limits = $user->getLimitCount();
         $user_limit = false;
         foreach ( $limits as $limit ){
             if($limit->getCname() == $service_cname){
@@ -149,6 +150,7 @@ class IncomingController extends RestApiController{
         //if limit doesn't exist create it
         if(!$group_limit){
             $group_limit = LimitDefinition::createFromController($service_cname,$group);
+            $group_limit->setCurrency($service->getCurrency());
             $em->persist($group_limit);
             $em->flush();
         }
@@ -322,7 +324,8 @@ class IncomingController extends RestApiController{
 
         $service = $this->get('net.telepay.services.'.$service_cname.'.v'.$version_number);
 
-        $service_list = $this->get('security.context')->getToken()->getUser()->getServicesList();
+        $user = $this->get('security.context')->getToken()->getUser();
+        $service_list = $user->getServicesList();
 
         if (!in_array($service_cname, $service_list)) {
             throw $this->createAccessDeniedException();
@@ -333,7 +336,8 @@ class IncomingController extends RestApiController{
         $mongo = $this->get('doctrine_mongodb')->getManager();
         $transaction =$mongo->getRepository('TelepayFinancialApiBundle:Transaction')->findOneBy(array(
             'id'        => $id,
-            'service'   =>  $service_cname
+            'service'   =>  $service_cname,
+            'user'      =>  $user->getId()
         ));
 
         if(!$transaction) throw new HttpException(404, 'Transaction not found');
@@ -346,7 +350,7 @@ class IncomingController extends RestApiController{
             //Search user
             $user_id = $transaction->getUser();
 
-            $em=$this->getDoctrine()->getManager();
+            $em = $this->getDoctrine()->getManager();
 
             $user = $em->getRepository('TelepayFinancialApiBundle:User')->find($user_id);
             $currency = $transaction->getCurrency();
@@ -587,7 +591,8 @@ class IncomingController extends RestApiController{
 
         $service = $this->get('net.telepay.services.'.$service_cname.'.v'.$version_number);
 
-        $service_list = $this->get('security.context')->getToken()->getUser()->getServicesList();
+        $user = $this->get('security.context')->getToken()->getUser();
+        $service_list = $user->getServicesList();
 
         if (!in_array($service_cname, $service_list)) {
             throw $this->createAccessDeniedException();
@@ -596,7 +601,8 @@ class IncomingController extends RestApiController{
         $mongo = $this->get('doctrine_mongodb')->getManager();
         $transaction =$mongo->getRepository('TelepayFinancialApiBundle:Transaction')->findOneBy(array(
             'id'        => $id,
-            'service'   =>  $service_cname
+            'service'   =>  $service_cname,
+            'user'      =>  $user->getId()
         ));
 
         if(!$transaction) throw new HttpException(404, 'Transaction not found');

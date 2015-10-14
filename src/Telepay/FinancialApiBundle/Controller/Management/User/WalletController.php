@@ -203,6 +203,11 @@ class WalletController extends RestApiController{
                         return true;
                     }
                 }
+                if (typeof this.dataOut.reference !== 'undefined') {
+                    if(String(this.dataOut.reference).indexOf('$search') > -1){
+                        return true;
+                    }
+                }
             }
             if(typeof this.status !== 'undefined' && String(this.status).indexOf('$search') > -1){ return true;}
             if(typeof this.service !== 'undefined' && String(this.service).indexOf('$search') > -1){ return true;}
@@ -792,9 +797,10 @@ class WalletController extends RestApiController{
         foreach($fees as $fee){
             if($fee->getServiceName() == $service){
                 $fixed_fee = $fee->getFixed();
-                $variable_fee = ($fee->getVariable()/100)*$exchange;
+                $variable_fee = (($fee->getVariable()/100)*$exchange)/100;
             }
         }
+
         $em = $this->getDoctrine()->getManager();
 
         $dm = $this->get('doctrine_mongodb')->getManager();

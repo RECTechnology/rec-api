@@ -101,3 +101,11 @@ services:
     net.telepay.provider.cryptocapital:
         class: Telepay\FinancialApiBundle\DependencyInjection\Transactions\Libs\Cryptocapital
         arguments:
+
+    net.telepay.provider.sepa_in:
+        class: Telepay\FinancialApiBundle\DependencyInjection\Transactions\Libs\SepaIn
+        arguments:
+
+    net.telepay.provider.sepa_out:
+        class: Telepay\FinancialApiBundle\DependencyInjection\Transactions\Libs\SepaOut
+        arguments:
