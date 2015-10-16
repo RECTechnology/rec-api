@@ -26,7 +26,7 @@ class CryptocapitalService extends BaseService{
 
     public function getFields(){
         return array(
-            'amount','description'
+            'currency', 'amount', 'email', 'description'
         );
     }
 
@@ -36,10 +36,13 @@ class CryptocapitalService extends BaseService{
         $amount = $baseTransaction->getDataIn()['amount'];
         $description = $baseTransaction->getDataIn()['description'];
 
-        $id=$baseTransaction->getId();
+        $id = $baseTransaction->getId();
+
+        $currency = strtoupper($baseTransaction->getDataIn()['currency']);
+        $email = $baseTransaction->getDataIn()['email'];
 
         try{
-            $cryptocapital = $this->cryptocapitalProvider->request();
+            $cryptocapital = $this->cryptocapitalProvider->request($currency, $amount, $email, $description, $id);
         }catch (Exception $e){
             throw new HttpException(400,$e->getMessage());
         }
@@ -48,8 +51,38 @@ class CryptocapitalService extends BaseService{
         if($cryptocapital === false)
             throw new HttpException(503, "Service temporarily unavailable, please try again in a few minutes");
 
-        $baseTransaction->setData($cryptocapital);
-        $baseTransaction->setDataOut($cryptocapital);
+        $params = $cryptocapital['params'];
+
+        if(isset($params['id'])){
+            $response = array(
+                "id"    =>  $params['id'],
+                "date"  =>  $params['date'],
+                "sendCurrency"  =>  $params['sendCurrency'],
+                "receiveCurrency" =>  $params['receiveCurrency'],
+                "sendAmount"    =>  $params['sendAmount'],
+                "receiveAmount" =>  $params['receiveAmount'],
+                "narrative" =>  $params['narrative']
+            );
+            $baseTransaction->setStatus(Transaction::$STATUS_SUCCESS);
+            $baseTransaction->setDebugData($cryptocapital);
+            $baseTransaction->setData($response);
+            $baseTransaction->setDataOut($response);
+
+        }else{
+            if($params['msg'] == 'Insufficient funds'){
+                $baseTransaction->setStatus(Transaction::$STATUS_FAILED);
+                $baseTransaction->setDebugData($cryptocapital);
+                $response = array(
+                    'message'   =>  'Service temporally unavailable'
+                );
+                $baseTransaction->setData($response);
+                $baseTransaction->setDataOut($response);
+            }else{
+                $baseTransaction->setStatus(Transaction::$STATUS_ERROR);
+                $baseTransaction->setData($params);
+                $baseTransaction->setDataOut($params);
+            }
+        }
 
         return $baseTransaction;
 
@@ -57,24 +90,6 @@ class CryptocapitalService extends BaseService{
 
     //Regenera la tpv con los mismos datos
     public function update(Transaction $transaction, $data){
-
-        // pillar la id
-        $id = $transaction->getId();
-        $datos = $transaction->getDataOut();
-        $datos_in = $transaction->getDataIn();
-        $important_data = $transaction->getData();
-        $amount = $datos['Ds_Merchant_Amount'];
-        $description = $datos_in['description'];
-        $url_final = $important_data['url_final'];
-        $url_ok = $datos['Ds_Merchant_UrlOK'];
-        $url_ko = $datos['Ds_Merchant_UrlKO'];
-        $trans_id = $important_data['transaction_id'].$important_data['contador'];
-        $important_data['contador'] = $important_data['contador']+1;
-        $important_data['transaction_id'] = $trans_id;
-        $transaction->setData($important_data);
-
-        $cryptocapital = $this->cryptocapitalProvider->request($amount, $trans_id, $description, $url_ok, $url_ko, $url_final);
-        $transaction->setDataOut($cryptocapital);
 
         return $transaction;
     }
@@ -86,51 +101,11 @@ class CryptocapitalService extends BaseService{
     }
 
     public function check(Transaction $transaction){
-        $client_reference=$transaction->getId();
-
-        $status=$this->cryptocapitalProvider->status($client_reference);
-
-        $transaction->setData($status);
 
         return $transaction;
     }
 
     public function notificate(Transaction $transaction , $request){
-
-        static $paramNames = array(
-            'Ds_Amount',
-            'Ds_Currency',
-            'Ds_Order',
-            'Ds_MerchantCode',
-            'Ds_Signature',
-            'Ds_Response'
-        );
-
-        $params = array();
-        foreach ($paramNames as $paramName){
-            if(isset( $request[$paramName] )){
-                $params[] = $request[$paramName];
-            }else{
-                throw new HttpException(404,'Param '.$paramName.' not found ');
-            }
-
-        }
-
-        $notification = $this->cryptocapitalProvider->notification($params);
-
-        if($notification == 1){
-            $transaction->setStatus(Transaction::$STATUS_SUCCESS);
-        }else{
-            $transaction->setStatus(Transaction::$STATUS_CANCELLED);
-        }
-
-        $debug = array(
-            'notification'  =>  $notification,
-            'request'   =>  $request,
-            'params'    =>  $params
-        );
-
-        $transaction->setDebugData($debug);
 
         return $transaction;
 
