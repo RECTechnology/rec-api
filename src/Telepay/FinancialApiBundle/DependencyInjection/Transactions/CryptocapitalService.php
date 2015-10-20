@@ -52,7 +52,6 @@ class CryptocapitalService extends BaseService{
         if($cryptocapital === false)
             throw new HttpException(503, "Service temporarily unavailable, please try again in a few minutes");
 
-        //die(print_r('caca2',true));
         $params = $cryptocapital['params'];
 
         if(isset($params['id'])){
