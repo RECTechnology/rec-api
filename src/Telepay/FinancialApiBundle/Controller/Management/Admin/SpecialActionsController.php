@@ -160,7 +160,7 @@ class SpecialActionsController extends RestApiController {
         $em = $this->getDoctrine()->getManager();
         $user = $em->getRepository('TelepayFinancialApiBundle:User')->find($transaction->getUser());
 
-        //obtain wallet and check founds for cash_in services
+        //obtain wallet
         $wallets = $user->getWallets();
 
         $current_wallet = null;
@@ -184,14 +184,17 @@ class SpecialActionsController extends RestApiController {
             $em->persist($current_wallet);
             $em->flush();
 
-            if($total_fee != 0){
-                // nueva transaccion restando la comision al user
-                try{
-                    $this->_dealer($transaction,$current_wallet);
-                }catch (HttpException $e){
-                    throw $e;
+//            if(!$user->hasRole('ROLE_SUPERADMIN')){
+                if($total_fee != 0){
+                    // nueva transaccion restando la comision al user
+                    try{
+                        $this->_dealer($transaction,$current_wallet);
+                    }catch (HttpException $e){
+                        throw $e;
+                    }
                 }
-            }
+//            }
+
 
             $transaction = $this->get('notificator')->notificate($transaction);
 

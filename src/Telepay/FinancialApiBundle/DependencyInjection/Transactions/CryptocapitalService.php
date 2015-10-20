@@ -8,6 +8,7 @@
 
 namespace Telepay\FinancialApiBundle\DependencyInjection\Transactions;
 
+use Symfony\Component\DependencyInjection\Exception\RuntimeException;
 use Symfony\Component\HttpKernel\Exception\HttpException;
 use Symfony\Component\Security\Acl\Exception\Exception;
 use Symfony\Component\Validator\Constraints\DateTime;
@@ -43,14 +44,15 @@ class CryptocapitalService extends BaseService{
 
         try{
             $cryptocapital = $this->cryptocapitalProvider->request($currency, $amount, $email, $description, $id);
-        }catch (Exception $e){
-            throw new HttpException(400,$e->getMessage());
+        }catch (\RuntimeException $r){
+            throw new HttpException(400,$r->getMessage());
         }
 
 
         if($cryptocapital === false)
             throw new HttpException(503, "Service temporarily unavailable, please try again in a few minutes");
 
+        //die(print_r('caca2',true));
         $params = $cryptocapital['params'];
 
         if(isset($params['id'])){
