@@ -14,8 +14,7 @@ class Cryptocapital{
 
         $position = __DIR__;
         $amount = number_format((float)$amount/100, 2, '.', '');
-//        $process = new Process('nodejs '.$position.'/nodejs/transfer.js -c '.$currency.' -a '.$amount.' -n "'.$narrative.','.$description.'-'.$id.'"');
-        $process = new Process('whoami');
+        $process = new Process('nodejs '.$position.'/nodejs/transfer.js -c '.$currency.' -a '.$amount.' -n "'.$narrative.','.$description.'-'.$id.'"');
 //        we can up the timeout for security
         $process->setTimeout(160);
 
@@ -27,7 +26,6 @@ class Cryptocapital{
         }
 
         $response = $process->getOutput();
-die(print_r($response,true));
         $response = json_decode($response,true);
 
 //        ******* ERROR *****
