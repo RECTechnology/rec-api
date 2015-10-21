@@ -41,6 +41,8 @@ class CheckHalcashCommand extends ContainerAwareCommand
             $resArray [] = $transaction;
 
             $previous_status = $transaction->getStatus();
+            $output->writeln('txid: '.$transaction->getId());
+            $output->writeln('status: '.$transaction->getStatus());
 
             $checked_transaction = $this->check($transaction);
 
@@ -154,7 +156,7 @@ class CheckHalcashCommand extends ContainerAwareCommand
 
         $logger = $this->getContainer()->get('logger');
         $logger->info('HALCASH->check by cron');
-        $logger->info('HALCASH: ticket-> '.$ticket.', status->'.$status);
+//        $logger->info('HALCASH: ticket-> '.$ticket.', status->'.$status);
 
         return $transaction;
     }
