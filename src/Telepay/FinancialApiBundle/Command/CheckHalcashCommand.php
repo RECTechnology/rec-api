@@ -36,7 +36,10 @@ class CheckHalcashCommand extends ContainerAwareCommand
             ->getQuery();
 
         $resArray = [];
+        $contador = 0;
+        $contador_success = 0;
         foreach($qb->toArray() as $transaction){
+            $contador ++;
             $data = $transaction->getDataIn();
             $resArray [] = $transaction;
 
@@ -56,7 +59,7 @@ class CheckHalcashCommand extends ContainerAwareCommand
             $dm->flush();
 
             if($checked_transaction->getStatus() == 'success'){
-
+                $contador_success ++;
                 $id = $checked_transaction->getUser();
 
                 $user = $repo->find($id);
@@ -94,6 +97,8 @@ class CheckHalcashCommand extends ContainerAwareCommand
         $dm->flush();
 
         $output->writeln('Halcash send transactions checked');
+        $output->writeln('Total checked transactions: '.$contador);
+        $output->writeln('Success transactions');
     }
 
     public function check(Transaction $transaction){
