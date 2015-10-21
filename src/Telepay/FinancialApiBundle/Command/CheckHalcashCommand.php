@@ -29,7 +29,7 @@ class CheckHalcashCommand extends ContainerAwareCommand
 
         $qb = $dm->createQueryBuilder('TelepayFinancialApiBundle:Transaction')
             ->field('service')->equals($service_cname)
-            ->field('status')->in(array('created','received','failed','review'))
+            ->field('status')->equals('created')
             ->getQuery();
 
         $resArray = [];
