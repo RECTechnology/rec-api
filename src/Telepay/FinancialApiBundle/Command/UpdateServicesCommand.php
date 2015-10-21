@@ -77,8 +77,8 @@ class UpdateServicesCommand extends ContainerAwareCommand
 
         $output->writeln('Deleted services: '.$deleted_string);
         $output->writeln('LimitDefinitions deleted: '.$limitDefinitionCounter);
-        $output->writeln('ServicesFee: '.$serviceFeeCounter);
-        $output->writeln('LimitCounts: '.$limitCountsCounter);
+        $output->writeln('ServicesFee deleted: '.$serviceFeeCounter);
+        $output->writeln('LimitCounts deleted: '.$limitCountsCounter);
 
 
     }

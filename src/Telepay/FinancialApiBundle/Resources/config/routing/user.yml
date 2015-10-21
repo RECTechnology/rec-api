@@ -12,6 +12,9 @@ user_account_edit:
     requirements:
         _method: PUT
 
+
+######################## USER WALLET ########################
+
 user_wallet:
     pattern:  /user/v1/wallet
     defaults: { _controller: Telepay\FinancialApiBundle\Controller\Management\User\WalletController::read }
@@ -21,6 +24,12 @@ user_wallet:
 user_wallet_transactions:
     pattern:  /user/v1/wallet/transactions
     defaults: { _controller: Telepay\FinancialApiBundle\Controller\Management\User\WalletController::walletTransactions }
+    requirements:
+        _method: GET
+
+user_wallet_transactions_v2:
+    pattern:  /user/v2/wallet/transactions
+    defaults: { _controller: Telepay\FinancialApiBundle\Controller\Management\User\WalletController::walletTransactionsV2 }
     requirements:
         _method: GET
 
@@ -41,6 +50,9 @@ user_wallet_transactions_sum_country:
     defaults: { _controller: Telepay\FinancialApiBundle\Controller\Management\User\WalletController::countryBenefits }
     requirements:
         _method: GET
+
+
+######################## USER ANALYTICS ########################
 
 user_analytics:
     pattern:  /user/v1/analytics
@@ -84,13 +96,16 @@ user_reset_client_credentials:
     requirements:
         _method: PUT
 
+
+######################## USER BTCWALLET ########################
+
 user_btc_wallet_read:
     pattern:  /user/v1/btc_wallet
     defaults: { _controller: Telepay\FinancialApiBundle\Controller\Management\User\BTCWalletController::read }
     requirements:
         _method: GET
 
-user_btc_wallet_read:
+user_btc_wallet_create:
     pattern:  /user/v1/btc_wallet
     defaults: { _controller: Telepay\FinancialApiBundle\Controller\Management\User\BTCWalletController::createBTCWallet }
     requirements:
@@ -137,4 +152,18 @@ user_devices_delete:
     defaults: { _controller: Telepay\FinancialApiBundle\Controller\Management\User\BTCWalletController::deleteDevice }
     requirements:
         _method: DELETE
+
+######################## USER CASH IN TOKEN ########################
+
+user_cash_in_create:
+    pattern:  /user/v1/cash_in_token
+    defaults: { _controller: Telepay\FinancialApiBundle\Controller\Management\User\CashInController::createAction }
+    requirements:
+        _method: POST
+
+user_cash_in_update:
+    pattern:  /user/v1/cash_in_token/{id}
+    defaults: { _controller: Telepay\FinancialApiBundle\Controller\Management\User\CashInController::updateAction }
+    requirements:
+        _method: PUT
 

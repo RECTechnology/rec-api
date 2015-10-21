@@ -35,7 +35,7 @@ service_call_update:
 
 service_call_find:
     pattern:  /services/v{version_number}/{service_cname}
-    defaults: { _controller: Telepay\FinancialApiBundle\Controller\Transactions\IncomingController::find, _format: ~ }
+    defaults: { _controller: Telepay\FinancialApiBundle\Controller\Transactions\IncomingController::findV2, _format: ~ }
     requirements:
         _method: GET
         service_cname: "[a-z0-9_]+"
@@ -47,7 +47,6 @@ service_call_check:
         _method: GET
         service_cname: "[a-z0-9_]+"
         id: "[a-z0-9]+"
-
 
 service_notificate:
     pattern:  /notifications/v{version_number}/{service_cname}/{id}

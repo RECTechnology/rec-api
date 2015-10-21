@@ -15,10 +15,12 @@ use Telepay\FinancialApiBundle\Entity\User;
 class FeeDeal{
     private $doctrine;
     private $mongo;
+    private $balance_manipulator;
 
-    public function __construct($doctrine,$mongo){
-        $this->doctrine=$doctrine;
-        $this->mongo=$mongo;
+    public function __construct($doctrine, $mongo, $balance_manipulator){
+        $this->doctrine = $doctrine;
+        $this->mongo = $mongo;
+        $this->balance_manipulator = $balance_manipulator;
     }
 
     /**
@@ -29,7 +31,7 @@ class FeeDeal{
      * Creator fee
      */
 
-    public function deal(User $creator,$amount,$service_cname,$currency,$fee,$transaction_id,$version){
+    public function deal(User $creator, $amount, $service_cname, $currency, $fee, $transaction_id, $version){
 
         if(!$creator->hasRole('ROLE_SUPER_ADMIN')){
             //obtenemos el grupo
@@ -45,13 +47,13 @@ class FeeDeal{
                 }
             }
 
-            $fixed=$group_commission->getFixed();
-            $variable=$group_commission->getVariable();
-            $total=$fixed+$variable*$amount;
+            $fixed = $group_commission->getFixed();
+            $variable = $group_commission->getVariable();
+            $total = $fixed + $variable*$amount;
         }else{
-            $total=0;
-            $variable=0;
-            $fixed=0;
+            $total = 0;
+            $variable = 0;
+            $fixed = 0;
         }
 
         $em = $this->doctrine->getManager();
@@ -83,7 +85,8 @@ class FeeDeal{
                 $transaction->setAmount($fee);
                 $transaction->setDataIn(array(
                     'parent_id' => $transaction_id,
-                    'amount'    =>  $fee
+                    'amount'    =>  $fee,
+                    'description'   =>$service_cname.'->fee'
                 ));
                 $transaction->setData(array(
                     'parent_id' =>  $transaction_id,
@@ -96,9 +99,11 @@ class FeeDeal{
                 $transaction->setFixedFee($fixed);
                 $transaction->setTotal($fee);
                 $transaction->setScale($scale);
+
                 $dm->persist($transaction);
                 $dm->flush();
 
+                $this->balance_manipulator->addBalance($creator, $fee, $transaction);
 
                 $id=$transaction->getId();
 
@@ -115,7 +120,8 @@ class FeeDeal{
             $feeTransaction->setAmount($total);
             $feeTransaction->setDataIn(array(
                 'parent_id' => $transaction->getId(),
-                'amount'    =>  -$total
+                'amount'    =>  -$total,
+                'description'   =>  $service_cname.'->fee'
             ));
             $feeTransaction->setData(array(
                 'parent_id' => $transaction->getId(),
@@ -128,8 +134,11 @@ class FeeDeal{
             $feeTransaction->setFixedFee($fixed);
             $feeTransaction->setTotal(-$total);
             $feeTransaction->setScale($scale);
+
             $dm->persist($feeTransaction);
             $dm->flush();
+
+            $this->balance_manipulator->addBalance($creator, -$total, $feeTransaction);
 
             $new_creator=$group->getCreator();
             $this->deal($new_creator,$amount,$service_cname,$currency,$total,$id,$version);
@@ -138,4 +147,5 @@ class FeeDeal{
         return true;
 
     }
+
 }

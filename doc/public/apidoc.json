@@ -31,7 +31,9 @@
     "PagoFacil",
     "ToditoCash",
     "SabadellTPV",
-    "HalcashPay"
+    "AbancaTPV",
+    "HalcashPay",
+    "POS"
 
   ],
   "template": {

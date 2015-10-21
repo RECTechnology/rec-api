@@ -9,7 +9,10 @@
 namespace Telepay\FinancialApiBundle\Financial\Trader;
 
 
+use Telepay\FinancialApiBundle\Financial\Currency;
 use Telepay\FinancialApiBundle\Financial\Driver\BittrexDriver;
+use Telepay\FinancialApiBundle\Financial\MoneyStorageInterface;
+use Telepay\FinancialApiBundle\Financial\Ticker\BittrexTicker;
 use Telepay\FinancialApiBundle\Financial\TraderInterface;
 
 class BittrexTrader implements TraderInterface {
@@ -19,11 +22,6 @@ class BittrexTrader implements TraderInterface {
     function __construct(BittrexDriver $bittrexDriver)
     {
         $this->bittrexDriver = $bittrexDriver;
-    }
-
-    public function buy($amount)
-    {
-        //$this->bittrexDriver->getOrderBook('BTC-FAIR');
     }
 
     public function sell($amount) {
@@ -40,9 +38,20 @@ class BittrexTrader implements TraderInterface {
         }
     }
 
-    public function withdraw($amount, $address){
-        return $this->bittrexDriver->withdraw('BTC', $amount, $address);
+    public function getPrice()
+    {
+        $ticker = new BittrexTicker($this->bittrexDriver);
+        return $ticker->getPrice();
     }
 
+    public function getInCurrency()
+    {
+        return Currency::$FAC;
+    }
+
+    public function getOutCurrency()
+    {
+        return Currency::$BTC;
+    }
 
 }

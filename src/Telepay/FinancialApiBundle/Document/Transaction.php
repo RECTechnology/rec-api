@@ -93,8 +93,8 @@ class Transaction implements TransactionTiming {
     private $updated;
 
     public function __construct(){
-        $this->created=new \DateTime();
-        $this->updated=new \DateTime();
+        $this->created = new \DateTime();
+        $this->updated = new \DateTime();
     }
 
     public static function createFromRequest(Request $request){
@@ -138,6 +138,12 @@ class Transaction implements TransactionTiming {
      * @MongoDB\String
      */
     private $service;
+
+    /**
+     * @var
+     * @MongoDB\String
+     */
+    private $posId;
 
     /**
      * @var
@@ -576,5 +582,21 @@ class Transaction implements TransactionTiming {
     public function setNotified($notified)
     {
         $this->notified = $notified;
+    }
+
+    /**
+     * @return mixed
+     */
+    public function getPosId()
+    {
+        return $this->posId;
+    }
+
+    /**
+     * @param mixed $posId
+     */
+    public function setPosId($posId)
+    {
+        $this->posId = $posId;
     }
 }

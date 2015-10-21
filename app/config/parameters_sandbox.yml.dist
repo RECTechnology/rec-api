@@ -39,15 +39,6 @@ parameters:
     halcash_pass: fake
     halcash_alias: fake
 
-    sabadell_url_tpvv: 'https://sis-t.redsys.es:25443/sis/realizarPago'
-    sabadell_secret: 'qwertyasdf0123456789'
-    sabadell_name: Telepay
-    sabadell_code: 327234688
-    sabadell_currency: 978
-    sabadell_transaction_type: 0
-    sabadell_terminal: 1
-    sabadell_base_url: "/test"
-
     paynet_reference_issuer: '467accc5-4051-4472-bb17-dad1f68779bf'
     paynet_reference_url: 'http://201.147.99.51/PaynetCE/WSPaynetCE.asmx?WSDL'
 
@@ -89,7 +80,6 @@ parameters:
     spei_partner: '846'
     spei_operant: '90646'
     spei_passphrase: '12345678'
-
 
     bittrex_api_url: 'https://bittrex.com/api/v1.1'
     bittrex_api_key: ''

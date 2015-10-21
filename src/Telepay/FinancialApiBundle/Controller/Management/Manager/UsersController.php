@@ -70,14 +70,41 @@ class UsersController extends BaseApiController
      * @Rest\View
      */
     public function indexAction(Request $request){
+
         if($request->query->has('limit')) $limit = $request->query->get('limit');
         else $limit = 10;
 
         if($request->query->has('offset')) $offset = $request->query->get('offset');
         else $offset = 0;
 
-        $all = $this->getRepository()->findAll();
         $securityContext = $this->get('security.context');
+
+        $userRepo = $this->getDoctrine()->getRepository('TelepayFinancialApiBundle:User');
+        $em = $this->getDoctrine()->getManager();
+        $qb = $em->createQueryBuilder('TelepayFinancialApiBundle:User');
+
+        if($request->query->get('query') != ''){
+            $query = $request->query->get('query');
+            $search = $query['search'];
+            $order = $query['order'];
+            $dir = $query['dir'];
+        }else{
+            $search = '';
+            $order = 'id';
+            $dir = 'DESC';
+        }
+
+        $userQuery = $userRepo->createQueryBuilder('p')
+            ->orderBy('p.'.$order, $dir)
+            ->where($qb->expr()->orX(
+                $qb->expr()->like('p.username', $qb->expr()->literal('%'.$search.'%')),
+                $qb->expr()->like('p.id', $qb->expr()->literal('%'.$search.'%')),
+                $qb->expr()->like('p.email', $qb->expr()->literal('%'.$search.'%')),
+                $qb->expr()->like('p.name', $qb->expr()->literal('%'.$search.'%'))
+            ))
+            ->getQuery();
+
+        $all = $userQuery->getResult();
 
         if(!$securityContext->isGranted('ROLE_SUPER_ADMIN')){
             $filtered = [];
@@ -89,12 +116,67 @@ class UsersController extends BaseApiController
         else{
             $filtered = $all;
         }
+        $total = count($filtered);
+
+        $entities = array_slice($filtered, $offset, $limit);
+        array_map(function($elem){
+            $elem->setAllowedServices($this->get('net.telepay.service_provider')->findByCNames($elem->getServicesList()));
+            $elem->setAccessToken(null);
+            $elem->setRefreshToken(null);
+            $elem->setAuthCode(null);
+        }, $entities);
+
+        return $this->rest(
+            200,
+            "Request successful",
+            array(
+                'total' => $total,
+                'start' => intval($offset),
+                'end' => count($entities)+$offset,
+                'elements' => $entities
+            )
+        );
+    }
+
+    /**
+     * @Rest\View
+     */
+    public function indexByGroup(Request $request, $id){
+
+        $admin = $this->get('security.context')->getToken()->getUser();
+
+        if($request->query->has('limit')) $limit = $request->query->get('limit');
+        else $limit = 10;
+
+        if($request->query->has('offset')) $offset = $request->query->get('offset');
+        else $offset = 0;
+
+        $all = $this->getRepository()->findAll();
+
+        $securityContext = $this->get('security.context');
+
+        $filtered = [];
+        foreach($all as $user){
+            if(count($user->getGroups()) >= 1){
+                $groups = $user->getGroups();
+                foreach($groups as $group){
+                    if($group->getId() == $id){
+                        if(!$user->hasRole('ROLE_SUPER_ADMIN')){
+                            $filtered []= $user;
+                        }
+
+                    }
+                }
+
+            }
+
+        }
 
         $total = count($filtered);
 
         $entities = array_slice($filtered, $offset, $limit);
         array_map(function($elem){
-            $elem->setAllowedServices($this->get('net.telepay.service_provider')->findByRoles($elem->getRoles()));
+            $elem->setAllowedServices($this->get('net.telepay.service_provider')->findByCNames($elem->getServicesList()));
             $elem->setAccessToken(null);
             $elem->setRefreshToken(null);
             $elem->setAuthCode(null);
@@ -116,6 +198,16 @@ class UsersController extends BaseApiController
      * @Rest\View
      */
     public function createAction(Request $request){
+
+        $admin = $this->get('security.context')->getToken()->getUser();
+
+        if($request->request->has('group_id')){
+            $groupId = $request->request->get('group_id');
+            $request->request->remove('group_id');
+        }else{
+            $groupId = $this->container->getParameter('id_group_default');
+        }
+
         if(!$request->request->has('password'))
             throw new HttpException(400, "Missing parameter 'password'");
         if(!$request->request->has('repassword'))
@@ -132,17 +224,21 @@ class UsersController extends BaseApiController
         $request->request->add(array('base64_image'=>''));
         $request->request->add(array('default_currency'=>'EUR'));
         $request->request->add(array('gcm_group_key'=>''));
+        $request->request->add(array('services_list'=>array('sample')));
 
         $resp= parent::createAction($request);
 
         if($resp->getStatusCode() == 201){
-            $em=$this->getDoctrine()->getManager();
+            $em = $this->getDoctrine()->getManager();
             $usersRepo = $em->getRepository("TelepayFinancialApiBundle:User");
             $groupsRepo = $em->getRepository("TelepayFinancialApiBundle:Group");
-            $group = $groupsRepo->findOneBy(array('name' => 'Default'));
+
+            $group = $groupsRepo->find($groupId);
+            if(!$group) throw new HttpException(404, 'Group not found');
+            if($group->getCreator()->getId() != $admin->getId()) throw new HttpException(403, 'You have not the necessary permissions');
 
             if(!$group){
-                $group=new Group();
+                $group = new Group();
                 $group->setName('Default');
                 $group->setRoles(array('ROLE_USER'));
                 $group->setCreator($this->getUser());
@@ -173,11 +269,10 @@ class UsersController extends BaseApiController
                 $em->flush();
             }
 
-            $user_id=$resp->getContent();
-            $user_id=json_decode($user_id);
-            $user_id=$user_id->data;
-            $user_id=$user_id->id;
-
+            $user_id = $resp->getContent();
+            $user_id = json_decode($user_id);
+            $user_id = $user_id->data;
+            $user_id = $user_id->id;
             $user = $usersRepo->findOneBy(array('id'=>$user_id));
 
             $currencies=Currency::$LISTA;
@@ -214,8 +309,8 @@ class UsersController extends BaseApiController
 
         if(empty($entities)) throw new HttpException(404, "Not found");
 
-        $services = $entities->getAllowedServices();
-        $entities->setAllowedServices($services);
+        $services = $entities->getServicesList();
+        $entities->setAllowedServices($this->get('net.telepay.service_provider')->findByCNames($services));
         $entities->setAccessToken(null);
         $entities->setRefreshToken(null);
         $entities->setAuthCode(null);
@@ -228,7 +323,15 @@ class UsersController extends BaseApiController
      * @Rest\View
      */
     public function setImage(Request $request, $id){
-        if(empty($id)) throw new HttpException(400, "Missing parameter 'id'");
+        if(empty($id) && $id !=0) throw new HttpException(400, "Missing parameter 'id'");
+
+        if($id == 0){
+            $username = $request->get('username');
+            $repo = $this->getRepository();
+            $user = $repo->findOneBy(array('username'=>$username));
+            if(empty($user)) throw new HttpException(404, 'User not found');
+            $id = $user->getId();
+        }
 
         if($request->request->has('base64_image')) $base64Image = $request->request->get('base64_image');
         else throw new HttpException(400, "Missing parameter 'base64_image'");
@@ -273,21 +376,29 @@ class UsersController extends BaseApiController
      * @Rest\View
      */
     public function updateAction(Request $request, $id){
+        if(empty($id) && $id !=0) throw new HttpException(400, "Missing parameter 'id'");
+
+        if($id == 0){
+            $username = $request->get('username');
+            $repo = $this->getRepository();
+            $user = $repo->findOneBy(array('username'=>$username));
+            if(empty($user)) throw new HttpException(404, 'User not found');
+            $id = $user->getId();
+            $request->request->remove('username');
+        }
+
         $services = null;
         if($request->request->has('services')){
-            $services=$request->get('services');
+            $services = $request->get('services');
             $request->request->remove('services');
+            $request->request->add(array('services_list' =>$services));
         }
-        $role = null;
-        if($request->request->has('role')){
-            $role=$request->get('role');
-            $request->request->remove('role');
-        }
+
         if($request->request->has('password')){
             if($request->request->has('repassword')){
                 $password = $request->get('password');
                 $repassword = $request->get('repassword');
-                if($password!=$repassword) throw new HttpException(400, "Password and repassword are differents.");
+                if($password != $repassword) throw new HttpException(400, "Password and repassword are differents.");
                 $userManager = $this->container->get('access_key.security.user_provider');
                 $user = $userManager->loadUserById($id);
                 $user->setPlainPassword($request->get('password'));
@@ -301,11 +412,11 @@ class UsersController extends BaseApiController
         }
         $balance=null;
         if($request->request->has('addBalance')){
-            $balance=$request->get('addBalance');
+            $balance = $request->get('addBalance');
             $request->request->remove('addBalance');
-            $currency='default';
+            $currency = 'default';
             if($request->request->has('currency')){
-                $currency=$request->request->get('currency');
+                $currency = $request->request->get('currency');
                 $request->request->remove('currency');
             }
             $adder = $this->_addBalance( $id, $currency, $balance );
@@ -316,10 +427,7 @@ class UsersController extends BaseApiController
                 $request->request->add(array('services'=>$services));
                 $this->_setServices($request, $id);
             }
-            if($role !== null){
-                $request->request->add(array('role'=>$role));
-                $this->_setRole($request, $id);
-            }
+
         }
         return $resp;
     }
@@ -331,28 +439,30 @@ class UsersController extends BaseApiController
         return parent::deleteAction($id);
     }
 
+    /**
+     * @Rest\View
+     */
+    public function deleteByNameAction($username){
+        $repo = $this->getRepository();
+        $user = $repo->findOneBy(array('username'=>$username));
+        if(empty($user)) throw new HttpException(404, 'User not found');
+        $idUser = $user->getId();
+        return parent::deleteAction($idUser);
+    }
 
-    private function _setServices(Request $request, $cname){
-        if(empty($cname)) throw new HttpException(400, "Missing parameter 'id'");
 
-        $putServices=array();
-        if(trim($request->get('services')) != "")
-            $putServices = explode(" ",$request->get('services'));
-        $userEditor = $this->getUser();
-        $editorServices = $this->get('net.telepay.service_provider')->findByRoles($this->getUser()->getRoles());
-        foreach($editorServices as $editorService){
-            try{
-                $this->_deleteService($cname, $editorService->getCname());
-            }catch(HttpException $e){
-                if($e->getStatusCode() != 404){
-                    throw $e;
-                }
+    private function _setServices(Request $request, $id){
+        if(empty($id)) throw new HttpException(400, "Missing parameter 'id'");
+        $usersRepo = $this->getRepository();
+        $user = $usersRepo->findOneBy(array('id'=>$id));
+        $listServices = $user->getServicesList();
+
+        $putServices = $request->get('services');
+        foreach($putServices as $service){
+            if(!in_array($service, $listServices)){
+                $this->_addService($id, $service);
             }
         }
-        foreach($putServices as $service){
-            $this->_addService($cname, $service);
-        }
-
         return $this->rest(204, "Edited");
     }
 
@@ -372,10 +482,7 @@ class UsersController extends BaseApiController
      */
     public function deleteService($id, $service_id){
         $this->_deleteService($id, $service_id);
-        return $this->rest(
-            204,
-            "Service deleted from user successfully"
-        );
+        return $this->rest(204,"Service deleted from user successfully");
     }
 
 
@@ -386,9 +493,8 @@ class UsersController extends BaseApiController
         $service = $servicesRepo->findByCname($cname);
         if(empty($user)) throw new HttpException(404, 'User not found');
         if(empty($service)) throw new HttpException(404, 'Service not found');
-        if($user->hasRole($service->getRole())) throw new HttpException(409, "User has already the service '$cname'");
 
-        $user->addRole($service->getRole());
+        $user->addService($cname);
         $em = $this->getDoctrine()->getManager();
         $limitRepo = $em->getRepository("TelepayFinancialApiBundle:LimitCount");
         $limit = $limitRepo->findOneBy(array('cname' => $cname, 'user' => $user));
@@ -405,8 +511,6 @@ class UsersController extends BaseApiController
             $em->persist($limit);
         }
 
-        $em->persist($user);
-
         try{
             $em->flush();
         } catch(DBALException $e){
@@ -415,21 +519,17 @@ class UsersController extends BaseApiController
             else
                 throw new HttpException(500, "Unknown error occurred when save");
         }
-
     }
 
     private function _deleteService($id, $cname){
         $usersRepo = $this->getRepository();
-        $service = $this->get('net.telepay.service_provider')->findByCname($cname);// $servicesRepo->findById($cname);
-
+        $service = $this->get('net.telepay.service_provider')->findByCname($cname);
         $user = $usersRepo->findOneBy(array('id'=>$id));
         if(empty($user)) throw new HttpException(404, "User not found");
-        if(!$user->hasRole($service->getRole())) throw new HttpException(404, "Service not found in specified user");
+        if(empty($service)) throw new HttpException(404, 'Service not found');
 
-        $user->removeRole($service->getRole());
-
+        $user->removeService($cname);
         $em = $this->getDoctrine()->getManager();
-
         $em->persist($user);
         $em->flush();
     }
@@ -506,12 +606,16 @@ class UsersController extends BaseApiController
                 $transaction->setDataIn(array(
                     'currency'  =>  $currency,
                     'amount'    =>  $amount,
-                    'user_id'   =>  $user_id
+                    'user_id'   =>  $user_id,
+                    'description'   =>  'add balance'
                 ));
 
                 $dm = $this->get('doctrine_mongodb')->getmanager();
                 $dm->persist($transaction);
                 $dm->flush();
+
+                $balancer = $this->get('net.telepay.commons.balance_manipulator');
+                $balancer->addBalance($user, $amount, $transaction);
 
                 $find_wallet = 1;
                 $em->persist($wallet);

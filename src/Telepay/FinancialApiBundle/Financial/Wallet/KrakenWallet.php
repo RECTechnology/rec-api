@@ -10,10 +10,13 @@ namespace Telepay\FinancialApiBundle\Financial\Wallet;
 
 
 use Telepay\FinancialApiBundle\Financial\CashInInterface;
-use Telepay\FinancialApiBundle\Financial\MoneyBundleInterface;
+use Telepay\FinancialApiBundle\Financial\Currency;
+use Telepay\FinancialApiBundle\Financial\KrakenCashOutInterface;
+use Telepay\FinancialApiBundle\Financial\MiniumBalanceInterface;
+use Telepay\FinancialApiBundle\Financial\TraderInterface;
 use Telepay\FinancialApiBundle\Financial\WalletInterface;
 
-class KrakenWallet implements WalletInterface {
+class KrakenWallet implements WalletInterface, TraderInterface, MiniumBalanceInterface {
 
     private $krakenDriver;
     private $currency;
@@ -22,10 +25,20 @@ class KrakenWallet implements WalletInterface {
         'EUR' => 'ZEUR',
     );
 
-    function __construct($krakenDriver, $currency)
+    private $minBalance;
+
+
+    private static $krakenMarketsMap = array(
+        'EUR' => 'XXBTZEUR',
+        'USD' => 'XXBTZUSD'
+    );
+
+
+    function __construct($krakenDriver, $currency, $minBalance = 0)
     {
         $this->krakenDriver = $krakenDriver;
         $this->currency = $currency;
+        $this->minBalance = $minBalance;
     }
 
 
@@ -35,43 +48,89 @@ class KrakenWallet implements WalletInterface {
             'DepositAddresses',
             array(
                 'asset' => 'XXBT',
-                'method' => 'Bitcoin'
+                'method' => 'Bitcoin',
+                'new' => true
             )
         )['result'][0]['address'];
     }
 
-    public function confirmReceived($amount, $token)
-    {
-        // TODO: Implement confirmReceived() method.
-    }
 
-    public function send(CashInInterface $dst, MoneyBundleInterface $money)
+    public function send(CashInInterface $dst, $amount)
     {
-
-        //TODO: donar d alta la address
+        if(!($dst instanceof KrakenCashOutInterface))
+            throw new \LogicException("Cash out must be setup in the kraken exchange");
 
         return $this->krakenDriver->QueryPrivate(
             'Withdraw',
             array(
                 'asset' => $this->krakenCurrencyNames[$this->getCurrency()],
-                'key' => 'concentradora',
-                'amount' => $money->getAmount()
+                'key' => $dst->getKrakenLabel(),
+                'amount' => $amount
             )
-        )['result'][0]['address'];
+        )['result'];
     }
+
 
     public function getBalance()
     {
-        return $this->getAvailable();
-    }
-
-    public function getAvailable()
-    {
-        return $this->krakenDriver->QueryPrivate('Balance')['result'][$this->krakenCurrencyNames[$this->getCurrency()]];
+        return $this->krakenDriver->QueryPrivate(
+            'Balance'
+        )['result'][$this->krakenCurrencyNames[$this->getCurrency()]];
     }
 
     public function getCurrency()
     {
         return $this->currency;
+    }
+
+
+    public function sell($amount)
+    {
+        $buyOrders = $this->krakenDriver->QueryPublic(
+            'Depth',
+            array('pair' => 'XXBTZEUR')
+        )['result']['XXBTZEUR']['bids'];
+
+        $sum = 0.0;
+        foreach($buyOrders as $order){
+            $sum += $order[1];
+            if($sum >= $amount){
+                $resp = $this->krakenDriver->QueryPrivate(
+                    'AddOrder',
+                    array(
+                        'pair' => 'XXBTZEUR',
+                        'type' => 'sell',
+                        'ordertype' => 'limit',
+                        'price' => $order[0],
+                        'volume' => $amount
+                    )
+                );
+                if(count($resp['error']) > 0) throw new \LogicException("Sell action not worked");
+                return $resp;
+            }
+        }
+    }
+
+    public function getPrice()
+    {
+        $price = $this->krakenDriver->QueryPublic(
+            'Ticker', array('pair' => 'XXBTZEUR')
+        )['result']['XXBTZEUR']['b'][0];
+        return $price;
+    }
+
+    public function getInCurrency()
+    {
+        return Currency::$BTC;
+    }
+
+    public function getOutCurrency()
+    {
+        return Currency::$EUR;
+    }
+
+    public function getMiniumBalance()
+    {
+        return $this->minBalance;
     }
 }

@@ -10,5 +10,4 @@ namespace Telepay\FinancialApiBundle\Financial;
 
 interface CashInInterface {
     public function getAddress();
-    public function confirmReceived($amount, $token);
 }

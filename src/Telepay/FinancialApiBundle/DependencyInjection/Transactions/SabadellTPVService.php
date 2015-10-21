@@ -36,23 +36,24 @@ class SabadellTPVService extends BaseService{
         $description = $baseTransaction->getDataIn()['description'];
         $url_ok = $baseTransaction->getDataIn()['url_ok'];
         $url_ko = $baseTransaction->getDataIn()['url_ko'];
-        $id=$baseTransaction->getId();
+        $id = $baseTransaction->getId();
+        $timestamp = new \DateTime();
+        $timestamp = $timestamp->getTimestamp();
+        $trans_id = $timestamp;
+        $contador = 0;
 
         $url_final='/notifications/v2/sabadell/'.$id;
 
-        $sabadell = $this->sabadellProvider->request($amount, $id,$description, $url_ok, $url_ko, $url_final);
+        $sabadell = $this->sabadellProvider->request($amount, $trans_id.$contador,$description, $url_ok, $url_ko, $url_final);
 
         if($sabadell === false)
             throw new HttpException(503, "Service temporarily unavailable, please try again in a few minutes");
 
-        $timestamp=new \DateTime();
-        $timestamp=$timestamp->getTimestamp();
-        $trans_id=$timestamp;
+
 
         $important_data=array(
-            'url_base'  =>  $url_base,
             'url_final' =>  $url_final,
-            'contador'  =>  0,
+            'contador'  =>  1,
             'transaction_id'    =>  $trans_id
         );
 
@@ -73,7 +74,6 @@ class SabadellTPVService extends BaseService{
         $important_data=$transaction->getData();
         $amount=$datos['Ds_Merchant_Amount'];
         $description=$datos_in['description'];
-        $url_base=$important_data['url_base'];
         $url_final=$important_data['url_final'];
         $url_ok=$datos['Ds_Merchant_UrlOK'];
         $url_ko=$datos['Ds_Merchant_UrlKO'];
@@ -82,7 +82,7 @@ class SabadellTPVService extends BaseService{
         $important_data['transaction_id']= $trans_id;
         $transaction->setData($important_data);
 
-        $sabadell = $this->sabadellProvider->request($amount,$trans_id,$description,$url_base,$url_ok,$url_ko,$url_final);
+        $sabadell = $this->sabadellProvider->request($amount, $trans_id, $description, $url_ok, $url_ko, $url_final);
         $transaction->setDataOut($sabadell);
 
         return $transaction;
@@ -127,17 +127,19 @@ class SabadellTPVService extends BaseService{
 
         $notification = $this->sabadellProvider->notification($params);
 
-        if($notification){
-
-            if($notification == 1){
-                $transaction->setStatus(Transaction::$STATUS_SUCCESS);
-                $transaction->setDebugData($request);
-            }else{
-                $transaction->setStatus(Transaction::$STATUS_CANCELLED);
-                $transaction->setDebugData($request);
-            }
-
+        if($notification == 1){
+            $transaction->setStatus(Transaction::$STATUS_SUCCESS);
+        }else{
+            $transaction->setStatus(Transaction::$STATUS_CANCELLED);
         }
+
+        $debug = array(
+            'notification'  =>  $notification,
+            'request'   =>  $request,
+            'params'    =>  $params
+        );
+
+        $transaction->setDebugData($debug);
 
         return $transaction;
 

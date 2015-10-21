@@ -27,6 +27,8 @@ class Notificator {
         else
             return $transaction;
 
+        if($url_notification == null) return $transaction;
+
         $user = $this->container->get('doctrine')->getRepository('TelepayFinancialApiBundle:User')
             ->find($transaction->getUser());
 
@@ -45,11 +47,13 @@ class Notificator {
         $signature = hash_hmac('sha256',$data_to_sign,$key);
 
         $params = array(
-            'id'        =>   $id,
+            'id'        =>  $id,
             'status'    =>  $status,
             'amount'    =>  $amount,
             'signature' =>  $signature
         );
+
+        if(isset($transaction->getDataIn()['order_id'])) $params['order_id'] = $transaction->getDataIn()['order_id'];
 
         // create curl resource
         $ch = curl_init();
@@ -69,18 +73,15 @@ class Notificator {
         {
             $info = curl_getinfo($ch);
 
-            if( $info['http_code'] >= 200 && $info['http_code'] <=299 ){
-                //notificado
-                $notified = true;
-            }else{
-                $notified = false;
-
-                //no notificado
-            }
-
-            if( $notified == true && $transaction->getStatus()==Transaction::$STATUS_SUCCESS){
-                $transaction->setNotified(true);
-                $transaction->setNotificationTries($transaction->getNotificationTries()+1);
+            if( $transaction->getStatus()==Transaction::$STATUS_SUCCESS || $transaction->getStatus()==Transaction::$STATUS_CANCELLED){
+                if( $info['http_code'] >= 200 && $info['http_code'] <=299){
+                    $transaction->setNotified(true);
+                    $transaction->setNotificationTries($transaction->getNotificationTries()+1);
+                }else{
+                    $transaction->setNotified(false);
+                    $transaction->setNotificationTries($transaction->getNotificationTries()+1);
+                    //no notificado
+                }
             }
 
         }

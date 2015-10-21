@@ -157,7 +157,7 @@ class BTCWalletController extends RestApiController{
 
         $user = $this->get('security.context')->getToken()->getUser();
 
-        $device = $user->getDevice();
+        $device = $user->getDevices();
 
         //die(print_r($device[0],true));
 
@@ -226,9 +226,9 @@ class BTCWalletController extends RestApiController{
         $params = json_encode($params);
 
         $header = array(
-            'Authorization: key=AIzaSyDyArDU-UH2gQSROYUrFSUNuKQfrehOKio',
+            'Authorization: key='.$this->container->getParameter('gcm_authorization_key'),
             'Content-Type: application/json',
-            'project_id: 953900913241'
+            'project_id: '.$this->container->getParameter('gcm_project_id')
         );
 
         // create curl resource
@@ -269,9 +269,9 @@ class BTCWalletController extends RestApiController{
         $params = json_encode($params);
 
         $header = array(
-            'Authorization: key=AIzaSyDyArDU-UH2gQSROYUrFSUNuKQfrehOKio',
+            'Authorization: key='.$this->container->getParameter('gcm_authorization_key'),
             'Content-Type: application/json',
-            'project_id: 953900913241'
+            'project_id: '.$this->container->getParameter('gcm_project_id')
         );
 
         // create curl resource
@@ -312,7 +312,7 @@ class BTCWalletController extends RestApiController{
         $params = json_encode($params);
 
         $header = array(
-            'Authorization: key=AIzaSyDyArDU-UH2gQSROYUrFSUNuKQfrehOKio',
+            'Authorization: key='.$this->container->getParameter('gcm_authorization_key'),
             'Content-Type: application/json'
         );
 

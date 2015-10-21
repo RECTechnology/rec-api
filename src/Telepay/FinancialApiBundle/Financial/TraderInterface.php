@@ -8,7 +8,6 @@
 
 namespace Telepay\FinancialApiBundle\Financial;
 
-interface TraderInterface {
-    public function buy($amount);
+interface TraderInterface extends TickerInterface {
     public function sell($amount);
 }
