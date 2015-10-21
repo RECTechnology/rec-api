@@ -57,6 +57,11 @@ class HalcashService extends BaseService{
             $hal = $this->halcashProvider->sendInternational($phone_number,$phone_prefix,$amount,$reference,$pin,$transaction_id,$country,$language);
         }
 
+        $logger = $this->getContainer()->get('logger');
+        $logger->info('HALCASH->create');
+        $logger->info('HALCASH: phone->'.$phone_number.', amount->'.$amount.', id->'.$transaction_id);
+        $logger->info('HALCASH: response->'.$hal);
+
         if($hal === false)
             throw new HttpException(503, "Service temporarily unavailable, please try again in a few minutes");
 
@@ -91,6 +96,10 @@ class HalcashService extends BaseService{
         if($hal['errorcode']==0){
             $transaction->setStatus('cancelled');
         }
+
+        $logger = $this->getContainer()->get('logger');
+        $logger->info('HALCASH->cancel');
+        $logger->info('HALCASH: response-> '.$hal);
 
         return $transaction;
 
@@ -132,6 +141,10 @@ class HalcashService extends BaseService{
             }
 
         }
+
+        $logger = $this->getContainer()->get('logger');
+        $logger->info('HALCASH->check');
+        $logger->info('HALCASH: response-> '.$hal);
 
         return $transaction;
 
