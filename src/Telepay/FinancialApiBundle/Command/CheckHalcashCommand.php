@@ -6,10 +6,7 @@ use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
-use Symfony\Component\HttpKernel\Exception\HttpException;
-use Telepay\FinancialApiBundle\DependencyInjection\Telepay\Commons\FeeDeal;
 use Telepay\FinancialApiBundle\Document\Transaction;
-use Telepay\FinancialApiBundle\Entity\Exchange;
 
 class CheckHalcashCommand extends ContainerAwareCommand
 {
@@ -98,7 +95,7 @@ class CheckHalcashCommand extends ContainerAwareCommand
 
         $output->writeln('Halcash send transactions checked');
         $output->writeln('Total checked transactions: '.$contador);
-        $output->writeln('Success transactions');
+        $output->writeln('Success transactions: '.$contador_success);
     }
 
     public function check(Transaction $transaction){
