@@ -24,67 +24,72 @@ class CheckHalcashCommand extends ContainerAwareCommand
     protected function execute(InputInterface $input, OutputInterface $output)
     {
 
-        $service_cname='halcash_send';
+        $service_cname = 'halcash_send';
 
         $dm = $this->getContainer()->get('doctrine_mongodb')->getManager();
         $em = $this->getContainer()->get('doctrine')->getManager();
         $repo=$em->getRepository('TelepayFinancialApiBundle:User');
 
-        $qb=$dm->createQueryBuilder('TelepayFinancialApiBundle:Transaction')
+        $qb = $dm->createQueryBuilder('TelepayFinancialApiBundle:Transaction')
             ->field('service')->equals($service_cname)
             ->field('status')->in(array('created','received','failed','review'))
             ->getQuery();
 
         $resArray = [];
-        foreach($qb->toArray() as $res){
-            $data=$res->getDataIn();
-            $resArray [] = $res;
+        $contador = 0;
+        $contador_success = 0;
+        foreach($qb->toArray() as $transaction){
+            $contador ++;
+            $data = $transaction->getDataIn();
+            $resArray [] = $transaction;
 
-            $previous_status = $res->getStatus();
+            $previous_status = $transaction->getStatus();
 
-            $check=$this->check($res);
+            $checked_transaction = $this->check($transaction);
 
-            if($previous_status != $check->getStatus()){
-                $check = $this->getContainer()->get('notificator')->notificate($check);
+            if($previous_status != $checked_transaction->getStatus()){
+                $checked_transaction = $this->getContainer()->get('notificator')->notificate($checked_transaction);
+                $checked_transaction->setUpdated(new \MongoDate());
+
             }
+
+            $dm->persist($checked_transaction);
+            $em->flush();
 
             $dm->flush();
 
-            if($check->getStatus()=='success'){
+            if($checked_transaction->getStatus() == 'success'){
+                $contador_success ++;
+                $id = $checked_transaction->getUser();
 
-                $id=$check->getUser();
+                $user = $repo->find($id);
 
-                $user=$repo->find($id);
-
-                $wallets=$user->getWallets();
-                $service_currency = $check->getCurrency();
-                $current_wallet=null;
+                $wallets = $user->getWallets();
+                $service_currency = $checked_transaction->getCurrency();
+                $current_wallet = null;
                 foreach ( $wallets as $wallet){
-                    if ($wallet->getCurrency()==$service_currency){
-                        $current_wallet=$wallet;
+                    if ($wallet->getCurrency() == $service_currency){
+                        $current_wallet = $wallet;
                     }
                 }
 
-                $amount=$data['amount'];
+                $amount = $data['amount'];
 
                 if(!$user->hasRole('ROLE_SUPER_ADMIN')){
 
-                    $fixed_fee = $check->getFixedFee();
-                    $variable_fee = $check->getVariableFee();
+                    $fixed_fee = $checked_transaction->getFixedFee();
+                    $variable_fee = $checked_transaction->getVariableFee();
                     $total_fee = $fixed_fee + $variable_fee;
                     $total = $amount + $total_fee;
 
-                    $current_wallet->setBalance($current_wallet->getBalance()-$total);
-
-                    $em->persist($current_wallet);
-                    $em->flush();
+                    $current_wallet->setBalance($current_wallet->getBalance() - $total);
 
                 }else{
-                    $current_wallet->setBalance($current_wallet->getBalance()-$amount);
-
-                    $em->persist($current_wallet);
-                    $em->flush();
+                    $current_wallet->setBalance($current_wallet->getBalance() - $amount);
                 }
+
+                $em->persist($current_wallet);
+                $em->flush();
             }
 
         }
@@ -92,15 +97,17 @@ class CheckHalcashCommand extends ContainerAwareCommand
         $dm->flush();
 
         $output->writeln('Halcash send transactions checked');
+        $output->writeln('Total checked transactions: '.$contador);
+        $output->writeln('Success transactions');
     }
 
     public function check(Transaction $transaction){
 
         $ticket = $transaction->getDataOut()['halcashticket'];
 
-        $status=$this->getContainer()->get('net.telepay.provider.halcash')->status($ticket);
+        $status = $this->getContainer()->get('net.telepay.provider.halcash')->status($ticket);
 
-        if($status['errorcode']==0){
+        if($status['errorcode'] == 0){
 
             switch($status['estadoticket']){
                 case 'Autorizada':
@@ -111,21 +118,38 @@ class CheckHalcashCommand extends ContainerAwareCommand
                     break;
                 case 'Anulada':
                     $transaction->setStatus('cancelled');
+                    $this->sendEmail('Check hal --> '.$transaction->getStatus(), 'Transaccion '.$status['estadoticket']);
                     break;
                 case 'BloqueadaPorCaducidad':
                     $transaction->setStatus('expired');
+                    $transaction->setDebugData(array(
+                        'estadoticket'  =>  $status['estadoticket']
+                    ));
+                    $this->sendEmail('Check hal --> '.$transaction->getStatus(), 'Transaccion '.$status['estadoticket']);
                     break;
                 case 'BloqueadaPorReintentos':
-                    $transaction->setStatus('failed');
+                    $transaction->setStatus('error');
+                    $transaction->setDebugData(array(
+                        'estadoticket'  =>  $status['estadoticket']
+                    ));
+                    $this->sendEmail('Check hal --> '.$transaction->getStatus(), 'Transaccion '.$status['estadoticket']);
                     break;
                 case 'Devuelta':
                     $transaction->setStatus('returned');
+                    $transaction->setDebugData(array(
+                        'estadoticket'  =>  $status['estadoticket']
+                    ));
+                    $this->sendEmail('Check hal --> '.$transaction->getStatus(), 'Transaccion '.$status['estadoticket']);
                     break;
                 case 'Dispuesta':
                     $transaction->setStatus('success');
                     break;
                 case 'EstadoDesconocido':
                     $transaction->setStatus('unknown');
+                    $transaction->setDebugData(array(
+                        'estadoticket'  =>  $status['estadoticket']
+                    ));
+                    $this->sendEmail('Check hal --> '.$transaction->getStatus(), 'Transaccion '.$status['estadoticket']);
                     break;
             }
 
@@ -136,6 +160,27 @@ class CheckHalcashCommand extends ContainerAwareCommand
         $logger->info('HALCASH: ticket-> '.$ticket.', status->'.$status);
 
         return $transaction;
+    }
+
+    private function sendEmail($subject, $body){
+
+        $message = \Swift_Message::newInstance()
+            ->setSubject($subject)
+            ->setFrom('no-reply@chip-chap.com')
+            ->setTo(array(
+                'pere@playa-almarda.es',
+                'support@chip-chap.com'
+            ))
+            ->setBody(
+                $this->getContainer()->get('templating')
+                    ->render('TelepayFinancialApiBundle:Email:support.html.twig',
+                        array(
+                            'message'        =>  $body
+                        )
+                    )
+            );
+
+        $this->getContainer()->get('mailer')->send($message);
     }
 
 }
