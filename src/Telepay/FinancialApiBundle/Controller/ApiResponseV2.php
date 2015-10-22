@@ -26,9 +26,9 @@ class ApiResponseV2 {
      */
     public function __construct($status, $message, $data)
     {
-        $this->data = $data;
         $this->status = $status;
         $this->message = $message;
+        $this->data = $data;
     }
 
 }
