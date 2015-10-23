@@ -6,10 +6,7 @@ use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
-use Symfony\Component\HttpKernel\Exception\HttpException;
-use Telepay\FinancialApiBundle\DependencyInjection\Telepay\Commons\FeeDeal;
 use Telepay\FinancialApiBundle\Document\Transaction;
-use Telepay\FinancialApiBundle\Entity\Exchange;
 
 class CheckHalcashCommand extends ContainerAwareCommand
 {
@@ -32,7 +29,7 @@ class CheckHalcashCommand extends ContainerAwareCommand
 
         $qb = $dm->createQueryBuilder('TelepayFinancialApiBundle:Transaction')
             ->field('service')->equals($service_cname)
-            ->field('status')->in(array('created','received','failed','review'))
+            ->field('status')->equals('created')
             ->getQuery();
 
         $resArray = [];
