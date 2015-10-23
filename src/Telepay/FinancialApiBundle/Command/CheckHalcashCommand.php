@@ -156,7 +156,7 @@ class CheckHalcashCommand extends ContainerAwareCommand
 
         $logger = $this->getContainer()->get('logger');
         $logger->info('HALCASH->check by cron');
-//        $logger->info('HALCASH: ticket-> '.$ticket.', status->'.$status);
+        $logger->info('HALCASH: ticket-> '.$ticket.', status->'.$status['estadoticket']);
 
         return $transaction;
     }
