@@ -167,8 +167,7 @@ class CheckHalcashCommand extends ContainerAwareCommand
             ->setSubject($subject)
             ->setFrom('no-reply@chip-chap.com')
             ->setTo(array(
-                'pere@playa-almarda.es',
-                'support@chip-chap.com'
+                'pere@chip-chap.com'
             ))
             ->setBody(
                 $this->getContainer()->get('templating')
@@ -177,7 +176,8 @@ class CheckHalcashCommand extends ContainerAwareCommand
                             'message'        =>  $body
                         )
                     )
-            );
+            )
+            ->setContentType('text/html');
 
         $this->getContainer()->get('mailer')->send($message);
     }
