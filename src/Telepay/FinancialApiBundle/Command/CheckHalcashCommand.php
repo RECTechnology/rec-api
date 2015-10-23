@@ -95,7 +95,7 @@ class CheckHalcashCommand extends ContainerAwareCommand
 
         $output->writeln('Halcash send transactions checked');
         $output->writeln('Total checked transactions: '.$contador);
-        $output->writeln('Success transactions');
+        $output->writeln('Success transactions: '.$contador_success);
     }
 
     public function check(Transaction $transaction){
