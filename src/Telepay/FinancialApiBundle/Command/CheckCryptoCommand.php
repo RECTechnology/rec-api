@@ -147,7 +147,7 @@ class CheckCryptoCommand extends ContainerAwareCommand
                         }
 
                     }elseif($checked_transaction->getStatus() == Transaction::$STATUS_EXPIRED){
-                        //todo SEND AN EMAIL
+                        //SEND AN EMAIL
                         $this->sendEmail(
                             $service.' Expired --> '.$checked_transaction->getStatus(),
                             'Transaction created at: '.$checked_transaction->getCreated().' - Updated at: '.$checked_transaction->getUpdated().' Time server: '.date("Y-m-d H:i:s"));
