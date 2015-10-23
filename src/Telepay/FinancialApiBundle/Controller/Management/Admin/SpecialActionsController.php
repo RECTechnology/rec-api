@@ -66,9 +66,14 @@ class SpecialActionsController extends RestApiController {
             }
         }
 
+        //TODO obtain service provaider to get the currency
+
+        $service_provider = $this->get('net.telepay.services.'.$service.'.v1');
+
         //if group commission not exists we create it
         if(!$group_commission){
             $group_commission = ServiceFee::createFromController($service, $group);
+            $group_commission->setCurrency($service_provider->getCurrency());
             $em->persist($group_commission);
             $em->flush();
         }
@@ -96,7 +101,7 @@ class SpecialActionsController extends RestApiController {
         $total = $variable_fee + $fixed_fee + $params['amount'];
         $total_fee = $fixed_fee + $variable_fee;
 
-        $transaction->setCurrency('EUR');
+        $transaction->setCurrency($service_provider->getCurrency());
         $transaction->setScale(2);
         $transaction->setStatus(Transaction::$STATUS_SUCCESS);
         $dm->persist($transaction);

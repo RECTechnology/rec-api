@@ -206,20 +206,22 @@ class IncomingController extends RestApiController{
                 $transaction = $service->create($transaction);
             }catch (HttpException $e){
                 if( $transaction->getStatus() === Transaction::$STATUS_CREATED ){
+
                     if($e->getStatusCode()>=500){
                         $transaction->setStatus(Transaction::$STATUS_FAILED);
-                        $this->container->get('notificator')->notificate($transaction);
                     }else{
                         $transaction->setStatus( Transaction::$STATUS_ERROR );
-                        //desbloqueamos la pasta del wallet
-                        $current_wallet->setAvailable($current_wallet->getAvailable()+$total);
-                        $em->persist($current_wallet);
-                        $em->flush();
-                        $dm->persist($transaction);
-                        $dm->flush();
+                    }
+                    //desbloqueamos la pasta del wallet
+                    $current_wallet->setAvailable($current_wallet->getAvailable()+$total);
+                    $em->persist($current_wallet);
+                    $em->flush();
+                    $dm->persist($transaction);
+                    $dm->flush();
 
-                        $this->container->get('notificator')->notificate($transaction);
+                    $this->container->get('notificator')->notificate($transaction);
 
+                    if ($transaction->getStatus() == Transaction::$STATUS_ERROR){
                         throw $e;
                     }
 
@@ -377,30 +379,36 @@ class IncomingController extends RestApiController{
             if( isset( $data['retry'] ) && $data['retry'] == true ){
 
                 if( $transaction->getStatus()== Transaction::$STATUS_FAILED ){
-
+                    //discount available
+                    $current_wallet->setAvailable($current_wallet->getAvailable() - $amount );
+                    $em->persist($current_wallet);
+                    $em->flush();
                     try {
                         $transaction = $service->create($transaction);
                     }catch (HttpException $e){
 
                         if($e->getStatusCode()>=500){
                             $transaction->setStatus(Transaction::$STATUS_FAILED);
-                            $transaction = $this->get('notificator')->notificate($transaction);
                         }else{
                             $transaction->setStatus( Transaction::$STATUS_ERROR );
-                            $mongo->persist($transaction);
-                            $mongo->flush();
-                            //devolver la pasta de la transaccion al wallet si es cash out (al available)
-                            if( $service->getcashDirection() == 'out' ){
-                                $current_wallet->setAvailable($current_wallet->getAvailable() + $amount );
-                            }
 
-                            $transaction = $this->get('notificator')->notificate($transaction);
+                        }
+                        $mongo->persist($transaction);
+                        $mongo->flush();
+                        //devolver la pasta de la transaccion al wallet si es cash out (al available)
+                        if( $service->getcashDirection() == 'out' ){
+                            $current_wallet->setAvailable($current_wallet->getAvailable() + $amount );
+                        }
 
-                            $em->persist($current_wallet);
-                            $em->flush();
+                        $transaction = $this->get('notificator')->notificate($transaction);
 
+                        $em->persist($current_wallet);
+                        $em->flush();
+
+                        if($transaction->getStatus() == Transaction::$STATUS_ERROR){
                             throw $e;
                         }
+
 
                     }
 
