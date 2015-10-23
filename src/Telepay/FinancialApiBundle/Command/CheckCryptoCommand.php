@@ -58,7 +58,7 @@ class CheckCryptoCommand extends ContainerAwareCommand
                     $dm->persist($checked_transaction);
                     $dm->flush();
 
-                    if($checked_transaction->getStatus()=='success'){
+                    if($checked_transaction->getStatus() == Transaction::$STATUS_SUCCESS){
                         //hacemos el reparto
                         //primero al user
                         $id = $checked_transaction->getUser();
@@ -95,7 +95,7 @@ class CheckCryptoCommand extends ContainerAwareCommand
 
                             if($total_fee != 0){
                                 // restar las comisiones
-                                $feeTransaction=new Transaction();
+                                $feeTransaction = new Transaction();
                                 $feeTransaction->setStatus('success');
                                 $feeTransaction->setScale($checked_transaction->getScale());
                                 $feeTransaction->setAmount($total_fee);
@@ -128,7 +128,14 @@ class CheckCryptoCommand extends ContainerAwareCommand
 
                                 //luego a la ruleta de admins
                                 $dealer = $this->getContainer()->get('net.telepay.commons.fee_deal');
-                                $dealer->deal($creator,$amount,$service,$service_currency,$total_fee,$transaction_id,$checked_transaction->getVersion());
+                                $dealer->deal(
+                                    $creator,
+                                    $amount,
+                                    $service,
+                                    $service_currency,
+                                    $total_fee,
+                                    $transaction_id,
+                                    $checked_transaction->getVersion());
                             }
 
                         }else{
@@ -139,6 +146,11 @@ class CheckCryptoCommand extends ContainerAwareCommand
                             $em->flush();
                         }
 
+                    }elseif($checked_transaction->getStatus() == Transaction::$STATUS_EXPIRED){
+                        //todo SEND AN EMAIL
+                        $this->sendEmail(
+                            $service.' Expired --> '.$checked_transaction->getStatus(),
+                            'Transaction created at: '.$checked_transaction->getCreated().' - Updated at: '.$checked_transaction->getUpdated().' Time server: '.date("Y-m-d H:i:s"));
                     }
                 }
 
@@ -214,7 +226,27 @@ class CheckCryptoCommand extends ContainerAwareCommand
 
     private function hasExpired($transaction){
 
-        return $transaction->getCreated()->getTimestamp()+$transaction->getData()['expires_in'] < time();
+        return $transaction->getCreated()->getTimestamp() + $transaction->getData()['expires_in'] < time();
 
+    }
+
+    private function sendEmail($subject, $body){
+
+        $message = \Swift_Message::newInstance()
+            ->setSubject($subject)
+            ->setFrom('no-reply@chip-chap.com')
+            ->setTo(array(
+                'pere@chip-chap.com'
+            ))
+            ->setBody(
+                $this->getContainer()->get('templating')
+                    ->render('TelepayFinancialApiBundle:Email:support.html.twig',
+                        array(
+                            'message'        =>  $body
+                        )
+                    )
+            );
+
+        $this->getContainer()->get('mailer')->send($message);
     }
 }
