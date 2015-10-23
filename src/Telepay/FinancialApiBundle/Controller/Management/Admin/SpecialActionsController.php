@@ -19,7 +19,7 @@ class SpecialActionsController extends RestApiController {
     /**
      * @Rest\View
      */
-    public function cashInValidation(Request $request){
+    public function rechargeValidation(Request $request){
 
         //only superadmin allowed
         if (!$this->get('security.authorization_checker')->isGranted('ROLE_SUPER_ADMIN')) {
@@ -140,16 +140,14 @@ class SpecialActionsController extends RestApiController {
     /**
      * @Rest\View
      */
-    public function sepaInValidation(Request $request, $id){
+    public function cashInValidation(Request $request, $id){
 
         //only superadmin allowed
         if (!$this->get('security.authorization_checker')->isGranted('ROLE_SUPER_ADMIN')) {
             throw $this->createAccessDeniedException();
         }
 
-        $service = 'sepa_in';
-
-        if(!$request->request->has('validate')) throw new HttpException(404, 'Parameter "validate" not foound');
+        if(!$request->request->has('validate')) throw new HttpException(404, 'Parameter "validate" not found');
         else $validate = $request->request->get('validate');
 
         $dm = $this->get('doctrine_mongodb')->getManager();
@@ -210,14 +208,12 @@ class SpecialActionsController extends RestApiController {
     /**
      * @Rest\View
      */
-    public function sepaInList(Request $request){
+    public function cashInList(Request $request, $service){
 
         //only superadmin allowed
         if (!$this->get('security.authorization_checker')->isGranted('ROLE_SUPER_ADMIN')) {
             throw $this->createAccessDeniedException();
         }
-
-        $service = 'sepa_in';
 
         $dm = $this->get('doctrine_mongodb')->getManager();
         $transactions = $dm->getRepository('TelepayFinancialApiBundle:Transaction')

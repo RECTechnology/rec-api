@@ -65,21 +65,21 @@ system_api_financial:
 
 ##################### SPECIAL ACTIONS ############################
 
-admin_cash_in_validate:
-    pattern:  /admin/v1/cash_in/validate
-    defaults: { _controller: Telepay\FinancialApiBundle\Controller\Management\Admin\SpecialActionsController::cashInValidation }
+admin_recharge_validate:
+    pattern:  /admin/v1/recharge/validate
+    defaults: { _controller: Telepay\FinancialApiBundle\Controller\Management\Admin\SpecialActionsController::rechargeValidation }
     requirements:
         _method: POST
 
-admin_sepa_in_list:
-    pattern:  /admin/v1/sepa_in
-    defaults: { _controller: Telepay\FinancialApiBundle\Controller\Management\Admin\SpecialActionsController::sepaInList }
+admin_cash_in_list:
+    pattern:  /admin/v1/cash_in/{service}
+    defaults: { _controller: Telepay\FinancialApiBundle\Controller\Management\Admin\SpecialActionsController::cashInList }
     requirements:
         _method: GET
 
-admin_sepa_in_validate:
-    pattern:  /admin/v1/sepa_in/{id}
-    defaults: { _controller: Telepay\FinancialApiBundle\Controller\Management\Admin\SpecialActionsController::sepaInValidation }
+admin_cash_in_validate:
+    pattern:  /admin/v1/cash_in/{id}
+    defaults: { _controller: Telepay\FinancialApiBundle\Controller\Management\Admin\SpecialActionsController::cashInValidation }
     requirements:
         _method: POST
 
