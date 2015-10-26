@@ -26,11 +26,23 @@ class AccountController extends BaseApiController{
      * @Rest\View
      */
     public function read(Request $request){
+
         $user = $this->get('security.context')->getToken()->getUser();
         $listServices = $user->getServicesList();
         $user->setAllowedServices(
             $this->get('net.telepay.service_provider')->findByCNames($listServices)
         );
+
+        $group = $user->getGroups()[0];
+
+        $group_data = array();
+        $group_data['id'] = $group->getId();
+        $group_data['name'] = $group->getName();
+        $group_data['admin'] = $group->getCreator()->getName();
+        $group_data['email'] = $group->getCreator()->getEmail();
+
+        $user->setGroupData($group_data);
+
         return $this->restV2(200, "ok", "Account info got successfully", $user);
     }
 

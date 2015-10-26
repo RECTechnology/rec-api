@@ -628,6 +628,4 @@ class UsersController extends BaseApiController
 
     }
 
-
-
 }

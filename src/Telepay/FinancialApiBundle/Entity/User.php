@@ -157,9 +157,14 @@ class User extends BaseUser
 
     /**
      * @ORM\OneToMany(targetEntity="Telepay\FinancialApiBundle\Entity\Balance", mappedBy="user", cascade={"remove"})
-     * @Expose
      */
     private $balance;
+
+    /**
+     * @ORM\OneToMany(targetEntity="Telepay\FinancialApiBundle\Entity\CashInTokens", mappedBy="user", cascade={"remove"})
+     * @Expose
+     */
+    private $cash_in_tokens;
 
     /**
      * @Expose
@@ -167,10 +172,9 @@ class User extends BaseUser
     private $allowed_services = array();
 
     /**
-     * @ORM\OneToMany(targetEntity="Telepay\FinancialApiBundle\Entity\CashInTokens", mappedBy="user", cascade={"remove"})
      * @Expose
      */
-    private $cash_in_tokens;
+    private $group_data = array();
 
     public function getAccessKey(){
         return $this->access_key;
@@ -493,4 +497,13 @@ class User extends BaseUser
     {
         $this->cash_in_tokens = $cash_in_tokens;
     }
+
+    /**
+     * @param array $group_data
+     */
+    public function setGroupData($group_data)
+    {
+        $this->group_data = $group_data;
+    }
+
 }
