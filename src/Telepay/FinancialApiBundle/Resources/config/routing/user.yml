@@ -192,3 +192,9 @@ user_fees:
     defaults: { _controller: Telepay\FinancialApiBundle\Controller\Management\User\WalletController::userFees }
     requirements:
         _method: GET
+
+user_limits:
+    pattern:  /user/v1/limits
+    defaults: { _controller: Telepay\FinancialApiBundle\Controller\Management\User\WalletController::userLimits }
+    requirements:
+        _method: GET

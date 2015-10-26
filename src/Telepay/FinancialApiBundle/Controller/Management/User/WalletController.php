@@ -544,6 +544,27 @@ class WalletController extends RestApiController{
 
     }
 
+    /**
+     * check user limits
+     */
+    public function userLimits(Request $request){
+
+        //get user
+        $user = $this->get('security.context')->getToken()->getUser();
+        //get group
+        $group  = $user->getGroups()[0];
+        //getFees
+        $limits = $group->getLimits();
+
+        foreach ( $limits as $limit){
+            $currency = $limit->getCurrency();
+            $limit->setScale($currency);
+        }
+
+        return $this->restV2(200, "ok", "Fees info got successfully", $limits);
+
+    }
+
     public function _exchange($amount, $curr_in, $curr_out){
 
         $dm=$this->getDoctrine()->getManager();
