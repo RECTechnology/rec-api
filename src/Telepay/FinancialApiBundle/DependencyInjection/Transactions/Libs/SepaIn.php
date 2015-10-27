@@ -5,8 +5,13 @@ use Symfony\Component\HttpKernel\Exception\HttpException;
 
 class SepaIn{
 
-    function __construct()
+    private $iban;
+    private $bic_swift;
+
+    function __construct($iban, $bic_swift)
     {
+        $this->iban = $iban;
+        $this->bic_swift = $bic_swift;
     }
 
     public function request(){
@@ -14,7 +19,9 @@ class SepaIn{
         $reference = $this->getReference();
 
         $response = array(
-            'reference' =>  $reference
+            'reference' =>  $reference,
+            'iban'      =>  $this->iban,
+            'bic_swift' =>  $this->bic_swift
         );
 
         return $response;
