@@ -95,6 +95,7 @@ services:
         arguments:
             - "%easypay_iban%"
             - "%easypay_bic_swift%"
+            - "%beneficiary%"
 
     net.telepay.provider.cryptocapital:
         class: Telepay\FinancialApiBundle\DependencyInjection\Transactions\Libs\Cryptocapital
@@ -105,6 +106,7 @@ services:
         arguments:
             - "%sepa_in_iban%"
             - "%sepa_in_bic_swift%"
+            - "%beneficiary%"
 
     net.telepay.provider.sepa_out:
         class: Telepay\FinancialApiBundle\DependencyInjection\Transactions\Libs\SepaOut

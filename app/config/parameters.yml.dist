@@ -93,5 +93,7 @@ parameters:
 
     easypay_iban: ''
     easypay_bic_swift: ''
+    easypay_beneficiary: ''
     sepa_in_iban: ''
     sepa_in_bic_swift: ''
+    sepa_in_beneficiary: ''

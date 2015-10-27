@@ -7,11 +7,13 @@ class SepaIn{
 
     private $iban;
     private $bic_swift;
+    private $beneficiary;
 
-    function __construct($iban, $bic_swift)
+    function __construct($iban, $bic_swift, $beneficiary)
     {
         $this->iban = $iban;
         $this->bic_swift = $bic_swift;
+        $this->beneficiary = $beneficiary;
     }
 
     public function request(){
@@ -21,7 +23,8 @@ class SepaIn{
         $response = array(
             'reference' =>  $reference,
             'iban'      =>  $this->iban,
-            'bic_swift' =>  $this->bic_swift
+            'bic_swift' =>  $this->bic_swift,
+            'beneficiary'   =>  $this->beneficiary
         );
 
         return $response;
