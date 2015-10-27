@@ -978,7 +978,15 @@ class IncomingController extends RestApiController{
 
         $transaction_id = $transaction->getId();
         $dealer = $this->get('net.telepay.commons.fee_deal');
-        $dealer->deal($creator,$amount,$service_cname,$currency,$total_fee,$transaction_id,$transaction->getVersion());
+        $dealer->deal(
+            $creator,
+            $amount,
+            $service_cname,
+            $currency,
+            $total_fee,
+            $transaction_id,
+            $transaction->getVersion()
+        );
 
     }
 
