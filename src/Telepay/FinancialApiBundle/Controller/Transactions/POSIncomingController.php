@@ -35,12 +35,6 @@ class POSIncomingController extends RestApiController{
 
         $service = $this->get('net.telepay.services.'.$service_cname.'.v'.$version_number);
 
-        $service_list = $user->getServicesList();
-
-        if (!in_array($service_cname, $service_list)) {
-            throw $this->createAccessDeniedException();
-        }
-
         $dataIn = array();
         foreach($service->getFields() as $field){
             if(!$request->request->has($field))
