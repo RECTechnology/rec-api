@@ -31,6 +31,8 @@ class POSIncomingController extends RestApiController{
 
         $user = $tpvRepo->getUser();
 
+        if($tpvRepo->getActive() == 0) throw new HttpException(400, 'Service Temporally unavailable');
+
         $service_currency = strtoupper($tpvRepo->getCurrency());
 
         $service = $this->get('net.telepay.services.'.$service_cname.'.v'.$version_number);
