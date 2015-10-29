@@ -46,6 +46,9 @@ class ServiceFee implements Fee{
 
     private  $scale;
 
+    /**
+     * @ORM\Column(type="string")
+     */
     private $currency;
 
 

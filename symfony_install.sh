@@ -36,9 +36,6 @@ php app/console doctrine:mongodb:schema:create --env=sandbox
 php app/console cache:clear --env=prod
 php app/console cache:clear --env=sandbox
 
-php app/console telepay:services:update --env=prod
-php app/console telepay:services:update --env=sandbox
-
 cat <<EOF
 *** Installer finished success ***
 EOF

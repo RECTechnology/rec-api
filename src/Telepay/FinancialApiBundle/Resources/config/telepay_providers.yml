@@ -93,7 +93,21 @@ services:
     net.telepay.provider.easypay:
         class: Telepay\FinancialApiBundle\DependencyInjection\Transactions\Libs\EasyPay
         arguments:
+            - "%easypay_iban%"
+            - "%easypay_bic_swift%"
+            - "%easypay_beneficiary%"
 
-    net.telepay.provider.bank_transfer:
-        class: Telepay\FinancialApiBundle\DependencyInjection\Transactions\Libs\BankTransfer
+    net.telepay.provider.cryptocapital:
+        class: Telepay\FinancialApiBundle\DependencyInjection\Transactions\Libs\Cryptocapital
+        arguments:
+
+    net.telepay.provider.sepa_in:
+        class: Telepay\FinancialApiBundle\DependencyInjection\Transactions\Libs\SepaIn
+        arguments:
+            - "%sepa_in_iban%"
+            - "%sepa_in_bic_swift%"
+            - "%sepa_in_beneficiary%"
+
+    net.telepay.provider.sepa_out:
+        class: Telepay\FinancialApiBundle\DependencyInjection\Transactions\Libs\SepaOut
         arguments:

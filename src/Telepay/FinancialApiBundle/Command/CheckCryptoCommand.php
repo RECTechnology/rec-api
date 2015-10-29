@@ -147,7 +147,7 @@ class CheckCryptoCommand extends ContainerAwareCommand
                         }
 
                     }elseif($checked_transaction->getStatus() == Transaction::$STATUS_EXPIRED){
-                        //todo SEND AN EMAIL
+                        //SEND AN EMAIL
                         $this->sendEmail(
                             $service.' Expired --> '.$checked_transaction->getStatus(),
                             'Transaction created at: '.$checked_transaction->getCreated().' - Updated at: '.$checked_transaction->getUpdated().' Time server: '.date("Y-m-d H:i:s"));
@@ -195,7 +195,7 @@ class CheckCryptoCommand extends ContainerAwareCommand
         $allowed_amount = $amount - $margin;
         foreach($allReceived as $cryptoData){
             if($cryptoData['address'] === $address){
-                $currentData['received'] = doubleval($cryptoData['amount'])*1e8; //doubleval($cryptoData['amount'])*1e8;
+                $currentData['received'] = doubleval($cryptoData['amount'])*1e8;
                 if(doubleval($cryptoData['amount'])*1e8 >= $allowed_amount){
                     $currentData['confirmations'] = $cryptoData['confirmations'];
                     if($currentData['confirmations'] >= $currentData['min_confirmations']){

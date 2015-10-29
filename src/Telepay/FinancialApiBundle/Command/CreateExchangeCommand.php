@@ -6,7 +6,6 @@ use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
-use Symfony\Component\HttpKernel\Exception\HttpException;
 use Telepay\FinancialApiBundle\Entity\Exchange;
 
 class CreateExchangeCommand extends ContainerAwareCommand
@@ -42,17 +41,17 @@ class CreateExchangeCommand extends ContainerAwareCommand
 
     protected function execute(InputInterface $input, OutputInterface $output)
     {
-        $em= $this->getContainer()->get('doctrine')->getManager();
+        $em = $this->getContainer()->get('doctrine')->getManager();
 
-        $src=$input->getOption('src');
-        $dst=$input->getOption('dst');
-        $price=$input->getOption('price');
+        $src = $input->getOption('src');
+        $dst = $input->getOption('dst');
+        $price = $input->getOption('price');
 
-        $exchange=new Exchange();
+        $exchange = new Exchange();
         $exchange->setSrc($src[0]);
         $exchange->setDst($dst[0]);
         $exchange->setPrice($price[0]);
-        $date=new \DateTime();
+        $date = new \DateTime();
         $exchange->setDate($date);
 
         $em->persist($exchange);

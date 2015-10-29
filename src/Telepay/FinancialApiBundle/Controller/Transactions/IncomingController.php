@@ -6,26 +6,18 @@
  * Time: 8:16 PM
  */
 
-
-
 namespace Telepay\FinancialApiBundle\Controller\Transactions;
 
-
-use Symfony\Component\EventDispatcher\Tests\Service;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpKernel\Exception\HttpException;
 use Telepay\FinancialApiBundle\Controller\RestApiController;
 use FOS\RestBundle\Controller\Annotations as Rest;
-
-use Telepay\FinancialApiBundle\DependencyInjection\Telepay\Commons\FeeDeal;
 use Telepay\FinancialApiBundle\DependencyInjection\Telepay\Commons\LimitAdder;
 use Telepay\FinancialApiBundle\DependencyInjection\Telepay\Commons\LimitChecker;
 use Telepay\FinancialApiBundle\Document\Transaction;
-use Telepay\FinancialApiBundle\Entity\Balance;
 use Telepay\FinancialApiBundle\Entity\LimitCount;
 use Telepay\FinancialApiBundle\Entity\LimitDefinition;
 use Telepay\FinancialApiBundle\Entity\ServiceFee;
-use Telepay\FinancialApiBundle\Entity\User;
 use Telepay\FinancialApiBundle\Entity\UserWallet;
 
 class IncomingController extends RestApiController{
@@ -85,14 +77,14 @@ class IncomingController extends RestApiController{
 
         //TODO posible millora en un query molon
         //obtain and check limits
-        $user=$this->getUser();
+        $user = $this->getUser();
 
         //obtener group
-        $group=$user->getGroups()[0];
+        $group = $user->getGroups()[0];
 
         //obtener comissiones del grupo
-        $group_commissions=$group->getCommissions();
-        $group_commission=false;
+        $group_commissions = $group->getCommissions();
+        $group_commission = false;
         foreach ( $group_commissions as $commission ){
             if ( $commission->getServiceName() == $service_cname ){
                 $group_commission = $commission;
@@ -102,11 +94,12 @@ class IncomingController extends RestApiController{
         //if group commission not exists we create it
         if(!$group_commission){
             $group_commission = ServiceFee::createFromController($service_cname, $group);
+            $group_commission->setCurrency($service->getCurrency());
             $em->persist($group_commission);
             $em->flush();
         }
 
-        $amount=$dataIn['amount'];
+        $amount = $dataIn['amount'];
         $transaction->setAmount($amount);
 
         //add commissions to check
@@ -130,7 +123,7 @@ class IncomingController extends RestApiController{
         }
 
         //obtain user limits
-        $limits=$user->getLimitCount();
+        $limits = $user->getLimitCount();
         $user_limit = false;
         foreach ( $limits as $limit ){
             if($limit->getCname() == $service_cname){
@@ -157,6 +150,7 @@ class IncomingController extends RestApiController{
         //if limit doesn't exist create it
         if(!$group_limit){
             $group_limit = LimitDefinition::createFromController($service_cname,$group);
+            $group_limit->setCurrency($service->getCurrency());
             $em->persist($group_limit);
             $em->flush();
         }
@@ -169,7 +163,7 @@ class IncomingController extends RestApiController{
             throw new HttpException(509,'Limit exceeded');
 
         //obtain wallet and check founds for cash_out services
-        $wallets=$user->getWallets();
+        $wallets = $user->getWallets();
 
         //check if the service is halcash because we have various currencys
         if($service_cname == 'halcash_send'){
@@ -183,7 +177,7 @@ class IncomingController extends RestApiController{
             $service_currency = $service->getCurrency();
         }
 
-        $current_wallet=null;
+        $current_wallet = null;
 
         $transaction->setCurrency($service_currency);
 
@@ -212,20 +206,22 @@ class IncomingController extends RestApiController{
                 $transaction = $service->create($transaction);
             }catch (HttpException $e){
                 if( $transaction->getStatus() === Transaction::$STATUS_CREATED ){
+
                     if($e->getStatusCode()>=500){
                         $transaction->setStatus(Transaction::$STATUS_FAILED);
-                        $this->container->get('notificator')->notificate($transaction);
                     }else{
                         $transaction->setStatus( Transaction::$STATUS_ERROR );
-                        //desbloqueamos la pasta del wallet
-                        $current_wallet->setAvailable($current_wallet->getAvailable()+$total);
-                        $em->persist($current_wallet);
-                        $em->flush();
-                        $dm->persist($transaction);
-                        $dm->flush();
+                    }
+                    //desbloqueamos la pasta del wallet
+                    $current_wallet->setAvailable($current_wallet->getAvailable()+$total);
+                    $em->persist($current_wallet);
+                    $em->flush();
+                    $dm->persist($transaction);
+                    $dm->flush();
 
-                        $this->container->get('notificator')->notificate($transaction);
+                    $this->container->get('notificator')->notificate($transaction);
 
+                    if ($transaction->getStatus() == Transaction::$STATUS_ERROR){
                         throw $e;
                     }
 
@@ -323,7 +319,6 @@ class IncomingController extends RestApiController{
         return $this->restTransaction($transaction, "Done");
     }
 
-
     /**
      * @Rest\View
      */
@@ -331,7 +326,8 @@ class IncomingController extends RestApiController{
 
         $service = $this->get('net.telepay.services.'.$service_cname.'.v'.$version_number);
 
-        $service_list = $this->get('security.context')->getToken()->getUser()->getServicesList();
+        $user = $this->get('security.context')->getToken()->getUser();
+        $service_list = $user->getServicesList();
 
         if (!in_array($service_cname, $service_list)) {
             throw $this->createAccessDeniedException();
@@ -342,7 +338,8 @@ class IncomingController extends RestApiController{
         $mongo = $this->get('doctrine_mongodb')->getManager();
         $transaction =$mongo->getRepository('TelepayFinancialApiBundle:Transaction')->findOneBy(array(
             'id'        => $id,
-            'service'   =>  $service_cname
+            'service'   =>  $service_cname,
+            'user'      =>  $user->getId()
         ));
 
         if(!$transaction) throw new HttpException(404, 'Transaction not found');
@@ -355,7 +352,7 @@ class IncomingController extends RestApiController{
             //Search user
             $user_id = $transaction->getUser();
 
-            $em=$this->getDoctrine()->getManager();
+            $em = $this->getDoctrine()->getManager();
 
             $user = $em->getRepository('TelepayFinancialApiBundle:User')->find($user_id);
             $currency = $transaction->getCurrency();
@@ -382,30 +379,36 @@ class IncomingController extends RestApiController{
             if( isset( $data['retry'] ) && $data['retry'] == true ){
 
                 if( $transaction->getStatus()== Transaction::$STATUS_FAILED ){
-
+                    //discount available
+                    $current_wallet->setAvailable($current_wallet->getAvailable() - $amount );
+                    $em->persist($current_wallet);
+                    $em->flush();
                     try {
                         $transaction = $service->create($transaction);
                     }catch (HttpException $e){
 
                         if($e->getStatusCode()>=500){
                             $transaction->setStatus(Transaction::$STATUS_FAILED);
-                            $transaction = $this->get('notificator')->notificate($transaction);
                         }else{
                             $transaction->setStatus( Transaction::$STATUS_ERROR );
-                            $mongo->persist($transaction);
-                            $mongo->flush();
-                            //devolver la pasta de la transaccion al wallet si es cash out (al available)
-                            if( $service->getcashDirection() == 'out' ){
-                                $current_wallet->setAvailable($current_wallet->getAvailable() + $amount );
-                            }
 
-                            $transaction = $this->get('notificator')->notificate($transaction);
+                        }
+                        $mongo->persist($transaction);
+                        $mongo->flush();
+                        //devolver la pasta de la transaccion al wallet si es cash out (al available)
+                        if( $service->getcashDirection() == 'out' ){
+                            $current_wallet->setAvailable($current_wallet->getAvailable() + $amount );
+                        }
 
-                            $em->persist($current_wallet);
-                            $em->flush();
+                        $transaction = $this->get('notificator')->notificate($transaction);
 
+                        $em->persist($current_wallet);
+                        $em->flush();
+
+                        if($transaction->getStatus() == Transaction::$STATUS_ERROR){
                             throw $e;
                         }
+
 
                     }
 
@@ -596,7 +599,8 @@ class IncomingController extends RestApiController{
 
         $service = $this->get('net.telepay.services.'.$service_cname.'.v'.$version_number);
 
-        $service_list = $this->get('security.context')->getToken()->getUser()->getServicesList();
+        $user = $this->get('security.context')->getToken()->getUser();
+        $service_list = $user->getServicesList();
 
         if (!in_array($service_cname, $service_list)) {
             throw $this->createAccessDeniedException();
@@ -605,7 +609,8 @@ class IncomingController extends RestApiController{
         $mongo = $this->get('doctrine_mongodb')->getManager();
         $transaction =$mongo->getRepository('TelepayFinancialApiBundle:Transaction')->findOneBy(array(
             'id'        => $id,
-            'service'   =>  $service_cname
+            'service'   =>  $service_cname,
+            'user'      =>  $user->getId()
         ));
 
         if(!$transaction) throw new HttpException(404, 'Transaction not found');
@@ -676,81 +681,10 @@ class IncomingController extends RestApiController{
 
     }
 
-
     /**
      * @Rest\View
      */
     public function find(Request $request, $version_number, $service_cname){
-
-        $service = $this->get('net.telepay.services.'.$service_cname.'.v'.$version_number);
-
-        $service_list = $this->get('security.context')->getToken()->getUser()->getServicesList();
-
-        if (!in_array($service_cname, $service_list)) {
-            throw $this->createAccessDeniedException();
-        }
-
-        if($request->query->has('start_time') && is_numeric($request->query->get('start_time')))
-            $start_time = new \MongoDate($request->query->get('start_time'));
-        else $start_time = new \MongoDate(time()-3*31*24*3600); // 3 month ago
-
-        if($request->query->has('end_time') && is_numeric($request->query->get('end_time')))
-            $end_time = new \MongoDate($request->query->get('end_time'));
-        else $end_time = new \MongoDate(); // now
-
-        if($request->query->has('limit')) $limit = intval($request->query->get('limit'));
-        else $limit = 10;
-
-        if($request->query->has('offset')) $offset = intval($request->query->get('offset'));
-        else $offset = 0;
-
-        $userId = $this->get('security.context')->getToken()->getUser()->getId();
-
-        $dm = $this->get('doctrine_mongodb')->getManager();
-
-        $transactions = $dm->createQueryBuilder('TelepayFinancialApiBundle:Transaction')
-            ->field('user')->equals($userId)
-            ->field('service')->equals($service->getCname())
-            ->field('created')->gt($start_time)
-            ->field('created')->lt($end_time)
-            ->sort('created', 'desc')
-            ->skip($offset)
-            ->limit($limit)
-            ->getQuery()->execute();
-
-        $transArray = [];
-        foreach($transactions->toArray() as $transaction){
-            $transArray []= $transaction;
-        }
-
-        if(array_key_exists($service->getCname(),static::$OLD_CNAME_ID_MAPPINGS)) {
-            $transactionsOld = $dm->createQueryBuilder('TelepayFinancialApiBundle:Transaction')
-                ->field('user')->equals($userId)
-                ->field('service')->equals(static::$OLD_CNAME_ID_MAPPINGS[$service->getCname()])
-                ->field('created')->gt($start_time)
-                ->field('created')->lt($end_time)
-                ->sort('created', 'desc')
-                ->skip($offset)
-                ->limit($limit)
-                ->getQuery()->execute();
-            foreach($transactionsOld->toArray() as $transaction){
-                $transArray []= $transaction;
-            }
-        }
-
-        //esto es asi porque hemos cambiado la respuesta en restV2 ( ahora tiene algunos campos más ).
-        return $this->restV2(
-            200,
-            "ok",
-            "Request successful",
-            $transArray
-        );
-    }
-
-    /**
-     * @Rest\View
-     */
-    public function findV2(Request $request, $version_number, $service_cname){
 
         $service = $this->get('net.telepay.services.'.$service_cname.'.v'.$version_number);
 
@@ -1044,7 +978,15 @@ class IncomingController extends RestApiController{
 
         $transaction_id = $transaction->getId();
         $dealer = $this->get('net.telepay.commons.fee_deal');
-        $dealer->deal($creator,$amount,$service_cname,$currency,$total_fee,$transaction_id,$transaction->getVersion());
+        $dealer->deal(
+            $creator,
+            $amount,
+            $service_cname,
+            $currency,
+            $total_fee,
+            $transaction_id,
+            $transaction->getVersion()
+        );
 
     }
 

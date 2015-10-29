@@ -9,19 +9,12 @@
 
 namespace Telepay\FinancialApiBundle\Controller\Management\User;
 
-use FOS\OAuthServerBundle\Document\RefreshToken;
 use Symfony\Component\Security\Core\Util\SecureRandom;
-use Telepay\FinancialApiBundle\Entity\AccessToken;
-use Telepay\FinancialApiBundle\Entity\BTCWallet;
 use Telepay\FinancialApiBundle\Entity\Device;
-use Telepay\FinancialApiBundle\Entity\Group;
-use Telepay\FinancialApiBundle\Entity\LimitDefinition;
-use Telepay\FinancialApiBundle\Entity\ServiceFee;
 use Telepay\FinancialApiBundle\Entity\User;
 use Rhumsaa\Uuid\Uuid;
 use Symfony\Component\HttpKernel\Exception\HttpException;
 use Telepay\FinancialApiBundle\Controller\BaseApiController;
-use Telepay\FinancialApiBundle\Controller\RestApiController;
 use FOS\RestBundle\Controller\Annotations as Rest;
 use Symfony\Component\HttpFoundation\Request;
 use Telepay\FinancialApiBundle\Entity\UserWallet;
@@ -33,11 +26,23 @@ class AccountController extends BaseApiController{
      * @Rest\View
      */
     public function read(Request $request){
+
         $user = $this->get('security.context')->getToken()->getUser();
         $listServices = $user->getServicesList();
         $user->setAllowedServices(
             $this->get('net.telepay.service_provider')->findByCNames($listServices)
         );
+
+        $group = $user->getGroups()[0];
+
+        $group_data = array();
+        $group_data['id'] = $group->getId();
+        $group_data['name'] = $group->getName();
+        $group_data['admin'] = $group->getCreator()->getName();
+        $group_data['email'] = $group->getCreator()->getEmail();
+
+        $user->setGroupData($group_data);
+
         return $this->restV2(200, "ok", "Account info got successfully", $user);
     }
 

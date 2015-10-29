@@ -7,11 +7,9 @@
  */
 
 namespace Telepay\FinancialApiBundle\Controller\Management\User;
-use Symfony\Component\Config\Definition\Exception\Exception;
-use Symfony\Component\HttpFoundation\Request;
+
 use Symfony\Component\HttpKernel\Exception\HttpException;
 use Telepay\FinancialApiBundle\Controller\RestApiController;
-use Telepay\FinancialApiBundle\Entity\UserWallet;
 use Telepay\FinancialApiBundle\Financial\Currency;
 
 /**
