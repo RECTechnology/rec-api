@@ -24,7 +24,7 @@ class SepaOutService extends BaseService{
 
     public function getFields(){
         return array(
-            'beneficiary', 'iban', 'amount'
+            'beneficiary', 'iban', 'amount', 'bic_swift'
         );
     }
 
@@ -32,11 +32,14 @@ class SepaOutService extends BaseService{
 
         if($baseTransaction === null) $baseTransaction = new Transaction();
         $amount = $baseTransaction->getDataIn()['amount'];
+        //TODO check correct iban
         $iban = $baseTransaction->getDataIn()['iban'];
         $beneficiary = $baseTransaction->getDataIn()['beneficiary'];
         $concept = $baseTransaction->getDataIn()['description'];
+        //TODO check correct swift_bic
+        $swift_bic = $baseTransaction->getDataIn()['swift_bic'];
 
-        $sepaOut = $this->sepaOutProvider->request($amount, $iban, $beneficiary, $concept);
+        $sepaOut = $this->sepaOutProvider->request($amount, $iban, $swift_bic, $beneficiary, $concept);
 
         if($sepaOut === false)
             throw new HttpException(503, "Service temporarily unavailable, please try again in a few minutes");

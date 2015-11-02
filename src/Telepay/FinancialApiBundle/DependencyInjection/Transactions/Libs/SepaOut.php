@@ -7,7 +7,7 @@ class SepaOut{
     {
     }
 
-    public function request($amount, $iban, $beneficiary, $concept){
+    public function request($amount, $iban, $swift_bic, $beneficiary, $concept){
 
         $response = array(
             'authorization_code' =>  99,
