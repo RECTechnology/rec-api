@@ -40,6 +40,8 @@ class Notificator {
         $status = $transaction->getStatus();
         $amount = $transaction->getAmount();
 
+        $data = $transaction->getDataOut();
+
         $key = $user->getAccessSecret();
 
         $data_to_sign = $id.$status.$amount;
