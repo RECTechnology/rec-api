@@ -62,6 +62,12 @@ class IncomingController extends RestApiController{
         if($request->request->has('concept')) $concept = $request->request->get('concept');
         if($request->request->has('reference')) $concept = $request->request->get('reference');
 
+        if(isset($dataIn['email'])){
+            if (!filter_var($dataIn['email'], FILTER_VALIDATE_EMAIL)) {
+                throw new HttpException(400, 'Invalid email');
+            }
+        }
+
         $dataIn['description'] = $concept;
 
         $dm = $this->get('doctrine_mongodb')->getManager();
