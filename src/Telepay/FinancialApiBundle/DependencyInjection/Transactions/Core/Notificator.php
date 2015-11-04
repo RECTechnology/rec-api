@@ -52,7 +52,8 @@ class Notificator {
             'id'        =>  $id,
             'status'    =>  $status,
             'amount'    =>  $amount,
-            'signature' =>  $signature
+            'signature' =>  $signature,
+            'data'      =>  json_encode($data)
         );
 
         if(isset($transaction->getDataIn()['order_id'])) $params['order_id'] = $transaction->getDataIn()['order_id'];
