@@ -21,34 +21,34 @@ namespace Telepay\FinancialApiBundle\DependencyInjection\Transactions\Libs;
 		var $url_error;
 		var $url_safety;
 
-		function __construct($api_key,$signature_key,$merchant_reference,$lang,$tracking_code,$expiration,$response_format,$url_safety)
+		function __construct($api_key, $signature_key, $merchant_reference, $lang, $tracking_code, $expiration, $response_format, $url_safety)
 		{
-			$this->api_key=$api_key;
-			$this->signature_key=$signature_key;
-			$this->merchant_reference=$merchant_reference;
-			$this->lang=$lang;
-			$this->tracking_code=$tracking_code;
-			$this->expiration=$expiration;
-			$this->response_format=$response_format;
-			$this->url_safety=$url_safety;
+			$this->api_key = $api_key;
+			$this->signature_key = $signature_key;
+			$this->merchant_reference = $merchant_reference;
+			$this->lang = $lang;
+			$this->tracking_code = $tracking_code;
+			$this->expiration = $expiration;
+			$this->response_format = $response_format;
+			$this->url_safety = $url_safety;
 		}
 
-		public function request($date_time,$currency,$amount,$url_success,$url_error){
+		public function request($date_time, $currency, $amount, $url_success, $url_error){
 
-			$this->date_time=$date_time;
-			$this->currency=$currency;
-			$this->amount=$amount;
-			$this->url_success=$url_success;
-			$this->url_error=$url_error;
+			$this->date_time = $date_time;
+			$this->currency = $currency;
+			$this->amount = $amount;
+			$this->url_success = $url_success;
+			$this->url_error = $url_error;
 
-			$ch=curl_init($this->url_safety);
+			$ch = curl_init($this->url_safety);
 			curl_setopt ($ch, CURLOPT_POST, 1);
 
-			$data=$this->date_time.$this->currency.$this->amount.$this->merchant_reference.$this->lang.$this->tracking_code.$this->expiration.$this->url_success.$this->url_error.$this->signature_key;
+			$data = $this->date_time.$this->currency.$this->amount.$this->merchant_reference.$this->lang.$this->tracking_code.$this->expiration.$this->url_success.$this->url_error.$this->signature_key;
 
-            $signature=hash('sha256', $data,false);
+            $signature = hash('sha256', $data,false);
 
-			$params=array(
+			$params = array(
 				'ApiKey'				=>	$this->api_key,
 				'RequestDateTime'		=>	$this->date_time,
 				'CurrencyCode'			=>	$this->currency,
@@ -66,7 +66,7 @@ namespace Telepay\FinancialApiBundle\DependencyInjection\Transactions\Libs;
 			curl_setopt ($ch, CURLOPT_POSTFIELDS, $params);
 	 
 			//le decimos que queremos recoger una respuesta (si no esperas respuesta, ponlo a false)
-			curl_setopt($ch,CURLOPT_RETURNTRANSFER,true);
+			curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
 
 			//recogemos la respuesta
 			$respuesta = curl_exec ($ch);
@@ -77,22 +77,22 @@ namespace Telepay\FinancialApiBundle\DependencyInjection\Transactions\Libs;
 			//y finalmente cerramos curl
 			curl_close ($ch);
 
-            $res=explode(',',$respuesta);
+            $res = explode(',',$respuesta);
 
 			if($error){
 
 				return $error;
-			}elseif($res[0]!=0){
+			}elseif($res[0] != 0){
 
-                $response['error_number']=$res[0];
-                $response['res1']=$res[1];
-                $response['res2']=$res[2];
-                $response['res3']=$res[3];
+                $response['error_number'] = $res[0];
+                $response['res1'] = $res[1];
+                $response['res2'] = $res[2];
+                $response['res3'] = $res[3];
 
             }else{
-                $response['error_number']=$res[0];
-                $response['url']=$res[2];
-                $response['signature']=$res[3];
+                $response['error_number'] = $res[0];
+                $response['url'] = $res[2];
+                $response['signature'] = $res[3];
 
 			}
             return $response;
