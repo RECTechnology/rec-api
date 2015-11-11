@@ -40,6 +40,8 @@ class Notificator {
         $status = $transaction->getStatus();
         $amount = $transaction->getAmount();
 
+        $data = $transaction->getDataOut();
+
         $key = $user->getAccessSecret();
 
         $data_to_sign = $id.$status.$amount;
@@ -50,7 +52,8 @@ class Notificator {
             'id'        =>  $id,
             'status'    =>  $status,
             'amount'    =>  $amount,
-            'signature' =>  $signature
+            'signature' =>  $signature,
+            'data'      =>  json_encode($data)
         );
 
         if(isset($transaction->getDataIn()['order_id'])) $params['order_id'] = $transaction->getDataIn()['order_id'];

@@ -62,6 +62,12 @@ class IncomingController extends RestApiController{
         if($request->request->has('concept')) $concept = $request->request->get('concept');
         if($request->request->has('reference')) $concept = $request->request->get('reference');
 
+        if(isset($dataIn['email'])){
+            if (!filter_var($dataIn['email'], FILTER_VALIDATE_EMAIL)) {
+                throw new HttpException(400, 'Invalid email');
+            }
+        }
+
         $dataIn['description'] = $concept;
 
         $dm = $this->get('doctrine_mongodb')->getManager();
@@ -104,7 +110,7 @@ class IncomingController extends RestApiController{
 
         //add commissions to check
         $fixed_fee = $group_commission->getFixed();
-        $variable_fee = ($group_commission->getVariable()/100)*$amount;
+        $variable_fee = round(($group_commission->getVariable()/100)*$amount, 0);
         $total_fee = $fixed_fee + $variable_fee;
 
         //add fee to transaction
