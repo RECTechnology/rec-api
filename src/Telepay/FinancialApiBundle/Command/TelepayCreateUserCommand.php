@@ -88,6 +88,10 @@ EOT
         $user->setBase64Image("");
         $user->setUsername($username);
         $user->setDefaultCurrency($defaultCurrency);
+        $user->setPrefix(34);
+        $user->setPhone("666777888");
+        $user->setGcmGroupKey("hello");
+        $user->setServicesList("");
         $em->persist($user);
         $em->flush();
 
@@ -160,7 +164,7 @@ EOT
             $input->setArgument('password', $password);
         }
         if (!$input->getArgument('default_currency')) {
-            $defaultCurrency = $this->getHelper('dialog')->askHiddenResponseAndValidate(
+            $defaultCurrency = $this->getHelper('dialog')->askAndValidate(
                 $output,
                 'Please choose a the default currency:',
                 function($defaultCurrency) {
