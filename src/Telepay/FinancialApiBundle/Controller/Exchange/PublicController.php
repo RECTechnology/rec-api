@@ -62,10 +62,10 @@ class PublicController extends RestApiController{
             if($currency != $default_currency ){
                 try{
                     $currency_scale = $this->_getScale($currency);
-                    $scale=$currency_scale-$default_currency_scale;
-                    $number =pow(10,$scale);
-                    $price = $this->_exchange($number, $currency,$default_currency);
-                    $result[$currency.'x'.$default_currency]=$price;
+                    $scale = $currency_scale - $default_currency_scale;
+                    $number = pow(10,$scale);
+                    $price = $this->_exchange($number, $currency, $default_currency);
+                    $result[$currency.'x'.$default_currency] = round($price, $default_currency_scale);
                 }catch (HttpException $e){
                     $result[$currency.'x'.$default_currency] = $e->getMessage();
                 }
@@ -74,8 +74,6 @@ class PublicController extends RestApiController{
         }
 
         return $this->restV2(200, "ok", "Exchange info got successfully", $result);
-
-
 
     }
 
@@ -105,9 +103,9 @@ class PublicController extends RestApiController{
 
         if(!$exchange) throw new HttpException(404,'Exchange not found -> '.$curr_in.' TO '.$curr_out);
 
-        $price=$exchange->getPrice();
+        $price = $exchange->getPrice();
 
-        $total=$amount*$price;
+        $total = $amount * $price;
 
         return $total;
 
