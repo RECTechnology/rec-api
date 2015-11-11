@@ -11,6 +11,11 @@ services:
             - "@net.telepay.driver.kraken"
             - "EUR"
 
+    net.telepay.ticker.EURxBTC:
+        class: Telepay\FinancialApiBundle\Financial\Ticker\InversedTicker
+        arguments:
+            - "@net.telepay.ticker.BTCxEUR"
+
     net.telepay.ticker.BTCxUSD:
         class: Telepay\FinancialApiBundle\Financial\Ticker\KrakenTicker
         arguments:
