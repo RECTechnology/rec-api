@@ -134,10 +134,9 @@ services:
             - "btc_mxn"
 
     net.telepay.ticker.MXNxBTC:
-        class: Telepay\FinancialApiBundle\Financial\Ticker\BitsoTicker
+        class: Telepay\FinancialApiBundle\Financial\Ticker\InversedTicker
         arguments:
-            - "@net.telepay.driver.bitso"
-            - "mxn_btc"
+            - "@net.telepay.ticker.BTCxMXN"
 
     net.telepay.ticker.BTCxPLN:
         class: Telepay\FinancialApiBundle\Financial\Ticker\ChainedTicker

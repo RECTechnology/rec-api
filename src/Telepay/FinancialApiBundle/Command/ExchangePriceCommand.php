@@ -30,7 +30,7 @@ class ExchangePriceCommand extends ContainerAwareCommand
                     $providerName = 'net.telepay.ticker.' . $inputCurrency . 'x' . $outputCurrency;
                     try {
                         $provider = $this->getContainer()->get($providerName);
-                        if($provider->getInCurrency() === $inputCurrency && $provider->getInCurrency() === $inputCurrency) {
+                        if($provider->getInCurrency() === $inputCurrency && $provider->getOutCurrency() === $outputCurrency) {
                             $price = $provider->getPrice() * pow(10, (Currency::$SCALE[$outputCurrency] - Currency::$SCALE[$inputCurrency]));
                             $exchange = new Exchange();
                             $exchange->setSrc($inputCurrency);

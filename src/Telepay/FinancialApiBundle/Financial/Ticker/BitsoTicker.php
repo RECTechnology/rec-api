@@ -34,17 +34,15 @@ class BitsoTicker implements TickerInterface {
 
     public function getInCurrency()
     {
-        if($this->direction == 'btc_mxn')
-            return Currency::$BTC;
-        else
-            return Currency::$MXN;
+
+        return Currency::$BTC;
+
     }
 
     public function getOutCurrency()
     {
-        if($this->direction == 'mxn_btc')
-            return Currency::$MXN;
-        else
-            return Currency::$BTC;
+
+        return Currency::$MXN;
+
     }
 }
