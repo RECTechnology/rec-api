@@ -5,6 +5,11 @@ services:
         arguments:
             - "@net.telepay.driver.bittrex"
 
+    net.telepay.ticker.BTCxFAC:
+        class: Telepay\FinancialApiBundle\Financial\Ticker\InversedTicker
+        arguments:
+            - "@net.telepay.ticker.FACxBTC"
+
     net.telepay.ticker.BTCxEUR:
         class: Telepay\FinancialApiBundle\Financial\Ticker\KrakenTicker
         arguments:
@@ -34,6 +39,11 @@ services:
                 - "@net.telepay.ticker.USDxBTC"
                 - "@net.telepay.ticker.BTCxEUR"
 
+    net.telepay.ticker.EURxUSD:
+        class: Telepay\FinancialApiBundle\Financial\Ticker\InversedTicker
+        arguments:
+            - "@net.telepay.ticker.USDxEUR"
+
     net.telepay.ticker.FACxEUR:
         class: Telepay\FinancialApiBundle\Financial\Ticker\ChainedTicker
         arguments:
@@ -41,12 +51,21 @@ services:
                 - "@net.telepay.ticker.FACxBTC"
                 - "@net.telepay.ticker.BTCxEUR"
 
+    net.telepay.ticker.EURxFAC:
+        class: Telepay\FinancialApiBundle\Financial\Ticker\InversedTicker
+        arguments:
+            - "@net.telepay.ticker.FACxEUR"
 
     net.telepay.ticker.FACxUSD:
         class: Telepay\FinancialApiBundle\Financial\Ticker\GetFaircoinTicker
         arguments:
             - "@net.telepay.driver.getfaircoin"
             - "USD"
+
+    net.telepay.ticker.USDxFAC:
+        class: Telepay\FinancialApiBundle\Financial\Ticker\InversedTicker
+        arguments:
+            - "@net.telepay.ticker.FACxUSD"
 
     net.telepay.ticker.FACxPLN:
         class: Telepay\FinancialApiBundle\Financial\Ticker\GetFaircoinTicker
@@ -68,6 +87,18 @@ services:
                 - "@net.telepay.ticker.MXNxBTC"
                 - "@net.telepay.ticker.BTCxEUR"
 
+    net.telepay.ticker.USDxMXN:
+        class: Telepay\FinancialApiBundle\Financial\Ticker\ChainedTicker
+        arguments:
+            exchange_chain:
+                - "@net.telepay.ticker.USDxEUR"
+                - "@net.telepay.ticker.EURxMXN"
+
+    net.telepay.ticker.EURxMXN:
+        class: Telepay\FinancialApiBundle\Financial\Ticker\InversedTicker
+        arguments:
+            - "@net.telepay.ticker.MXNxEUR"
+
     net.telepay.ticker.PLNxEUR:
         class: Telepay\FinancialApiBundle\Financial\Ticker\ChainedTicker
         arguments:
@@ -76,6 +107,10 @@ services:
                 - "@net.telepay.ticker.FACxBTC"
                 - "@net.telepay.ticker.BTCxEUR"
 
+    net.telepay.ticker.EURxPLN:
+        class: Telepay\FinancialApiBundle\Financial\Ticker\InversedTicker
+        arguments:
+            - "@net.telepay.ticker.PLNxEUR"
 
     net.telepay.ticker.PLNxFAC:
         class: Telepay\FinancialApiBundle\Financial\Ticker\InversedTicker
@@ -98,3 +133,22 @@ services:
         arguments:
             - "@net.telepay.driver.bitso"
             - "mxn_btc"
+
+    net.telepay.ticker.BTCxPLN:
+        class: Telepay\FinancialApiBundle\Financial\Ticker\ChainedTicker
+        arguments:
+            exchange_chain:
+                - "@net.telepay.ticker.BTCxFAC"
+                - "@net.telepay.ticker.FACxPLN"
+
+    net.telepay.ticker.USDxPLN :
+        class: Telepay\FinancialApiBundle\Financial\Ticker\ChainedTicker
+        arguments:
+            exchange_chain:
+                - "@net.telepay.ticker.USDxFAC"
+                - "@net.telepay.ticker.FACxPLN"
+
+    net.telepay.ticker.PLNxUSD :
+        class: Telepay\FinancialApiBundle\Financial\Ticker\InversedTicker
+        arguments:
+            - "@net.telepay.ticker.USDxPLN"
