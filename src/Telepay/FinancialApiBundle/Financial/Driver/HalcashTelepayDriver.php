@@ -40,7 +40,7 @@ class HalcashTelepayDriver{
         $client = new nusoap_client($url,true);
 
         $response = $client->call("Precio",$params);
-
+print_r($response);
         if ($client->fault) { // Si
 
             //$response='error3';
@@ -55,7 +55,7 @@ class HalcashTelepayDriver{
             }
         }
 
-        $response = $response['PrecioResult'];
+        $response = $response['precio'];
         $precio = preg_replace('/,/','.',$response);
         $precio = doubleval($precio)/100.0;
 
