@@ -56,10 +56,10 @@ class HalcashTelepayDriver{
         }
 
         $response = $response['PrecioResult'];
-        $precio = preg_replace(',','.',$response);
+        $precio = preg_replace('/,/','.',$response);
         $precio = $precio/100;
 
-        return $response;
+        return $precio;
 
     }
 
