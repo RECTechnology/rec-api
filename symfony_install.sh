@@ -25,7 +25,7 @@ cat > app/config/parameters.yml
 
 curl -sS https://getcomposer.org/installer -s | php
 php composer.phar install --no-scripts --no-dev --optimize-autoloader --quiet
-php vendor/sensio/distribution-bundle/Sensio/Bundle/DistributionBundle/Resources/bin/build_bootstrap.php
+#php vendor/sensio/distribution-bundle/Sensio/Bundle/DistributionBundle/Resources/bin/build_bootstrap.php
 
 #php app/console doctrine:schema:update --force --env=prod
 
