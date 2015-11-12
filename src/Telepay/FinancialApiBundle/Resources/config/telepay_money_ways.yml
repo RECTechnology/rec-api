@@ -16,7 +16,7 @@ services:
         arguments:
             - "@net.telepay.wallet.bittrex.fair"
             - "@net.telepay.wallet.bittrex.btc"
-            - "0.01"
+            - "100"
 
     net.telepay.trader.kraken.btc_eur:
         class: Telepay\FinancialApiBundle\Financial\Linker\BasicTrader
