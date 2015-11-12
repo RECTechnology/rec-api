@@ -108,16 +108,14 @@ services:
             - "@net.telepay.ticker.MXNxEUR"
 
     net.telepay.ticker.PLNxEUR:
-        class: Telepay\FinancialApiBundle\Financial\Ticker\HalcashTelepayTicker
+        class: Telepay\FinancialApiBundle\Financial\Ticker\InversedTicker
         arguments:
-            - "@net.telepay.driver.halcash"
-            - "PL"
+            - "@net.telepay.ticker.EURxPLN"
 
     net.telepay.ticker.EURxPLN:
         class: Telepay\FinancialApiBundle\Financial\Ticker\HalcashTelepayTicker
         arguments:
-            - "@net.telepay.driver.halcash"
-            - "ES"
+            - "@net.telepay.driver.halcash.telepay"
 
     net.telepay.ticker.PLNxFAC:
         class: Telepay\FinancialApiBundle\Financial\Ticker\InversedTicker

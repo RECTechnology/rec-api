@@ -16,27 +16,23 @@ use Telepay\FinancialApiBundle\Financial\TickerInterface;
 class HalcashTelepayTicker implements TickerInterface {
 
     private $halcashDriver;
-    private $country;
 
-    public function __construct(HalcashTelepayDriver $halcashDriver, $country){
+    public function __construct(HalcashTelepayDriver $halcashDriver){
         $this->halcashDriver = $halcashDriver;
-        $this->country = $country;
     }
 
     public function getPrice()
     {
-        $resp = $this->halcashDriver->ticker($this->country);
+        $resp = $this->halcashDriver->ticker('PL');
 
         return $resp;
     }
 
     public function getInCurrency()
     {
-        if($this->country == 'ES'){
-            return Currency::$EUR;
-        }else{
-            return Currency::$PLN;
-        }
+
+        return Currency::$EUR;
+
 
 
     }
@@ -44,11 +40,9 @@ class HalcashTelepayTicker implements TickerInterface {
     public function getOutCurrency()
     {
 
-        if($this->country == 'ES'){
-            return Currency::$PLN;
-        }else{
-            return Currency::$EUR;
-        }
+
+        return Currency::$PLN;
+
 
     }
 }
