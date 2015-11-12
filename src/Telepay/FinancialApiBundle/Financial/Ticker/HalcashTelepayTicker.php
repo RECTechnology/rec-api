@@ -30,13 +30,13 @@ class HalcashTelepayTicker implements TickerInterface {
 
     public function getInCurrency()
     {
-        return Currency::$EUR;
+        return Currency::$PLN;
 
     }
 
     public function getOutCurrency()
     {
-        return Currency::$PLN;
+        return Currency::$EUR;
 
     }
 }
