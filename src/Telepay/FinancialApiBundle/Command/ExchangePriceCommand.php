@@ -30,7 +30,7 @@ class ExchangePriceCommand extends ContainerAwareCommand
                     $providerName = 'net.telepay.ticker.' . $inputCurrency . 'x' . $outputCurrency;
                     try {
                         $provider = $this->getContainer()->get($providerName);
-                        if($provider->getInCurrency() === $inputCurrency && $provider->getInCurrency() === $inputCurrency) {
+                        if($provider->getInCurrency() === $inputCurrency && $provider->getOutCurrency() === $outputCurrency) {
                             $price = $provider->getPrice() * pow(10, (Currency::$SCALE[$outputCurrency] - Currency::$SCALE[$inputCurrency]));
                             $exchange = new Exchange();
                             $exchange->setSrc($inputCurrency);
@@ -45,9 +45,13 @@ class ExchangePriceCommand extends ContainerAwareCommand
                             );
                         }
                         else {
+                            //send email
+                            $this->sendEmail('Exchange error', "ERROR: Bad exchange, unexpected input or output currencies:".$inputCurrency.'<->'.$outputCurrency);
                             throw new \LogicException("ERROR: Bad exchange, unexpected input or output currencies");
                         }
                     }catch (Exception $e) {
+                        //send email
+                        $this->sendEmail('Fatal Exchange error', $inputCurrency.'<->'.$outputCurrency.' Error Message: '.$e->getMessage());
                         $output->writeln("ERROR: " . $e->getMessage());
                     }
                 }
@@ -56,5 +60,27 @@ class ExchangePriceCommand extends ContainerAwareCommand
         }
 
         $output->writeln("FINISHED");
+    }
+
+    private function sendEmail($subject, $body){
+
+        $message = \Swift_Message::newInstance()
+            ->setSubject($subject)
+            ->setFrom('no-reply@chip-chap.com')
+            ->setTo(array(
+                'pere@chip-chap.com',
+                'cto@chip-chap.com'
+            ))
+            ->setBody(
+                $this->getContainer()->get('templating')
+                    ->render('TelepayFinancialApiBundle:Email:support.html.twig',
+                        array(
+                            'message'        =>  $body
+                        )
+                    )
+            )
+            ->setContentType('text/html');
+
+        $this->getContainer()->get('mailer')->send($message);
     }
 }

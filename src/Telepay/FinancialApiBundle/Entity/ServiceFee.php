@@ -9,10 +9,13 @@
 namespace Telepay\FinancialApiBundle\Entity;
 
 use Doctrine\ORM\Mapping as ORM;
+use JMS\Serializer\Annotation\ExclusionPolicy;
+use JMS\Serializer\Annotation\Exclude;
 
 /**
  * @ORM\Entity
  * @ORM\Table(name="service_fees")
+ * @ExclusionPolicy("none")
  */
 class ServiceFee implements Fee{
 
@@ -41,6 +44,7 @@ class ServiceFee implements Fee{
 
     /**
      * @ORM\ManyToOne(targetEntity="Telepay\FinancialApiBundle\Entity\Group")
+     * @Exclude
      */
     private $group;
 

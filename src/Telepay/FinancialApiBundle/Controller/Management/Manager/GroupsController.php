@@ -174,7 +174,7 @@ class GroupsController extends BaseApiController
 
             }
 
-            $exchanges = $this->getContainer()->get('net.telepay.exchange_provider')->findAll();
+            $exchanges = $this->container->get('net.telepay.exchange_provider')->findAll();
 
             foreach($exchanges as $exchange){
                 //create limit for this group
