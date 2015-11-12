@@ -23,7 +23,7 @@ class HalcashTelepayTicker implements TickerInterface {
 
     public function getPrice()
     {
-        $resp = $this->halcashDriver->ticker('PL');
+        $resp = $this->halcashDriver->ticker('ES');
 
         return $resp;
     }
