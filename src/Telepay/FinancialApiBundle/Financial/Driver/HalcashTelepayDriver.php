@@ -55,7 +55,7 @@ print_r($response);
             }
         }
 
-        $response = $response['precio'];
+        $response = $response['PrecioResult']['precio'];
         $precio = preg_replace('/,/','.',$response);
         $precio = doubleval($precio)/100.0;
 
