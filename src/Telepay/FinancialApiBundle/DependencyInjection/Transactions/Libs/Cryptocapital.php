@@ -21,22 +21,9 @@ class Cryptocapital{
 
 
         if($this->account_number == 'fake'){
-            $this->_sendFakeEmail();
-            $fake = array(
-                'params'    =>  array(
-                    'id'    =>  $id,
-                    'date'  =>  "2015-11-10",
-                    'sendCurrency'  =>  'EUR',
-                    'receiveCurrency'   =>  'EUR',
-                    'sendAmount'    =>  $amount,
-                    'receiveAmount' =>  $amount,
-                    'narrative' =>  $narrative.','.$description.'-'.$id
-                    )
 
-                );
-            //'{"id":"11473","date":"2015-11-10","sendCurrency":"EUR","receiveCurrency":"EUR","sendAmount":"10.00","receiveAmount":"10.00","narrative":"iiija@robotunion.org,-56425803f446502c1d8b4567"}'
+            $response = 'fake';
 
-            $response = $fake;
         }else{
             $position = __DIR__;
             $amount = number_format((float)$amount/100, 2, '.', '');
@@ -93,10 +80,7 @@ class Cryptocapital{
 
     }
 
-    private function _sendFakeEmail(){
-        //TODO send an email like entropay to fake the transaction
 
-    }
 
 
 }

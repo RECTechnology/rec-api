@@ -52,7 +52,22 @@ class CryptocapitalService extends BaseService{
         if($cryptocapital === false)
             throw new HttpException(503, "Service temporarily unavailable, please try again in a few minutes");
 
-        $params = $cryptocapital['params'];
+        if($cryptocapital == 'fake'){
+                $params = array(
+                    'id'    =>  $id,
+                    'date'  =>  $baseTransaction->getCreated(),
+                    'sendCurrency'  =>  'EUR',
+                    'receiveCurrency'   =>  'EUR',
+                    'sendAmount'    =>  $amount,
+                    'receiveAmount' =>  $amount,
+                    'narrative' =>  $email.','.$description.'-'.$id
+                );
+
+            $this->_sendFakeEmail($currency, $amount, $email, $description, $id);
+
+        }else{
+            $params = $cryptocapital['params'];
+        }
 
         if(isset($params['id'])){
             $response = array(
@@ -112,4 +127,36 @@ class CryptocapitalService extends BaseService{
 
     }
 
+    private function _sendFakeEmail($currency, $amount, $email, $description, $id){
+        //send an email like entropay to fake the transaction
+        $fake = array(
+            'id'    =>  $id,
+            'date'  =>  "2015-11-10",
+            'sendCurrency'  =>  'EUR',
+            'receiveCurrency'   =>  'EUR',
+            'sendAmount'    =>  $amount,
+            'receiveAmount' =>  $amount,
+            'narrative' =>  $email.','.$description.'-'.$id
+        );
+
+        $body = implode(",", $fake);
+
+        $message = \Swift_Message::newInstance()
+            ->setSubject('CRYPTOCAPITAL transaction')
+            ->setFrom('no-reply@chip-chap.com')
+            ->setTo(array(
+                $email
+            ))
+            ->setBody(
+                $this->getContainer()->get('templating')
+                    ->render('TelepayFinancialApiBundle:Email:support.html.twig',
+                        array(
+                            'message'        =>  $body
+                        )
+                    )
+            );
+
+        $this->getContainer()->get('mailer')->send($message);
+
+    }
 }
