@@ -21,12 +21,14 @@ namespace Telepay\FinancialApiBundle\DependencyInjection\Transactions\Libs;
         private $password;
         private $country;
         private $language;
+        private $url;
 
-        function __construct($user, $password, $alias)
+        function __construct($user, $password, $alias, $url)
         {
             $this->alias = $alias;
             $this->user = $user;
             $this->password = $password;
+            $this->url = $url;
             if($user === 'fake') $this->mode = 'T';
         }
 
@@ -59,7 +61,7 @@ namespace Telepay\FinancialApiBundle\DependencyInjection\Transactions\Libs;
                 );
 
             }else{
-                $url = 'http://hcsvc.telepay.net/HalCashGatewayIssue.asmx?wsdl';
+                $url = $this->url.'/HalCashGatewayIssue.asmx?wsdl';
                 $client = new nusoap_client($url,true);
                 if ($sError = $client->getError()) {
                     throw new HttpException(400,"No se pudo completar la operacion [".$sError."]");
@@ -115,7 +117,7 @@ namespace Telepay\FinancialApiBundle\DependencyInjection\Transactions\Libs;
                 );
 
             }else{
-                $url = 'http://hcsvc.telepay.net/HalCashGatewayIssue.asmx?wsdl';
+                $url = $this->url.'/HalCashGatewayIssue.asmx?wsdl';
                 $client = new nusoap_client($url,true);
                 if ($sError = $client->getError()) {
                     throw new HttpException(400,"No se pudo completar la operacion [".$sError."]");
@@ -172,7 +174,7 @@ namespace Telepay\FinancialApiBundle\DependencyInjection\Transactions\Libs;
                 );
 
             }else{
-                $url = 'http://hcsvc.telepay.net/HalCashGatewayIssue.asmx?wsdl';
+                $url = $this->url.'/HalCashGatewayIssue.asmx?wsdl';
                 $client = new nusoap_client($url,true);
                 if ($sError = $client->getError()) {
                     throw new HttpException(503,"No se pudo completar la operacion [".$sError."]");
@@ -230,7 +232,7 @@ namespace Telepay\FinancialApiBundle\DependencyInjection\Transactions\Libs;
                 );
 
             }else{
-                $url = 'http://hcsvc.telepay.net/HalCashGatewayIssue.asmx?wsdl';
+                $url = $this->url.'/HalCashGatewayIssue.asmx?wsdl';
                 $client = new nusoap_client($url,true);
                 if ($sError = $client->getError()) {
                     throw new HttpException(400,"No se pudo completar la operacion [".$sError."]");
@@ -301,7 +303,7 @@ namespace Telepay\FinancialApiBundle\DependencyInjection\Transactions\Libs;
                 //$response='error1';
 
             }else{
-                $url = 'http://hcsvc.telepay.net/HalCashGatewayIssue.asmx?wsdl';
+                $url = $this->url.'/HalCashGatewayIssue.asmx?wsdl';
                 $client = new nusoap_client($url,true);
                 if ($sError = $client->getError()) {
                     throw new HttpException(400,"No se pudo completar la operacion [".$sError."]");
@@ -344,7 +346,7 @@ namespace Telepay\FinancialApiBundle\DependencyInjection\Transactions\Libs;
                 //$response='error1';
 
             }else{
-                $url = 'http://hcsvc.telepay.net/HalCashGatewayIssue.asmx?wsdl';
+                $url = $this->url.'/HalCashGatewayIssue.asmx?wsdl';
                 $client = new nusoap_client($url,true);
                 if ($sError = $client->getError()) {
                     throw new HttpException(400,"No se pudo completar la operacion [".$sError."]");
@@ -388,7 +390,7 @@ namespace Telepay\FinancialApiBundle\DependencyInjection\Transactions\Libs;
                 //$response='error1';
 
             }else{
-                $url='http://hcsvc.telepay.net/HalCashGatewayIssue.asmx?wsdl';
+                $url = $this->url.'/HalCashGatewayIssue.asmx?wsdl';
                 $client = new nusoap_client($url,true);
                 if ($sError = $client->getError()) {
                     throw new HttpException(400,"No se pudo completar la operacion [".$sError."]");

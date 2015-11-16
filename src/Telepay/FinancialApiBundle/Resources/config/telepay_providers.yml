@@ -23,6 +23,7 @@ services:
             - "%halcash_user%"
             - "%halcash_pass%"
             - "%halcash_alias%"
+            - "%halcash_url%"
 
     net.telepay.provider.paynet_reference:
         class: Telepay\FinancialApiBundle\DependencyInjection\Transactions\Libs\PaynetGetBarcode

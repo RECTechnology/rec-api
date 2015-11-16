@@ -19,12 +19,14 @@ class HalcashTelepayDriver{
     private $user;
     private $password;
     private $language;
+    private $url;
 
-    function __construct($user, $password, $alias)
+    function __construct($user, $password, $alias, $url)
     {
         $this->alias = $alias;
         $this->user = $user;
         $this->password = $password;
+        $this->url = $url;
         if($user === 'fake') $this->mode = 'T';
     }
 
@@ -36,7 +38,7 @@ class HalcashTelepayDriver{
             'pais'          =>  $country
         );
 
-        $url='http://hcsvc.telepay.net/HalCashGatewayIssue.asmx?wsdl';
+        $url = $this->url.'/HalCashGatewayIssue.asmx?wsdl';
         $client = new nusoap_client($url,true);
 
         $response = $client->call("Precio",$params);
