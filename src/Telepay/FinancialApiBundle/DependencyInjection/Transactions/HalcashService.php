@@ -89,11 +89,11 @@ class HalcashService extends BaseService{
 
     public function cancel(Transaction $transaction,$data){
 
-        $ticket=$transaction->getDataOut()['halcashticket'];
+        $ticket = $transaction->getDataOut()['halcashticket'];
 
         $hal = $this->halcashProvider->cancelation($ticket, 'Telepay cancelation');
 
-        if($hal['errorcode']==0){
+        if($hal['errorcode'] == 0){
             $transaction->setStatus('cancelled');
         }
 

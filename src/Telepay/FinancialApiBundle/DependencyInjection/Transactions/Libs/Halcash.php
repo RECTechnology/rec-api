@@ -248,9 +248,11 @@ namespace Telepay\FinancialApiBundle\DependencyInjection\Transactions\Libs;
                         //$response=$sError;
                     }
                 }
+
+                $response = $response['EmisionInternacionalResult'];
             }
 
-            $response = $response['EmisionInternacionalResult'];
+
 
             return $response;
 
@@ -293,7 +295,9 @@ namespace Telepay\FinancialApiBundle\DependencyInjection\Transactions\Libs;
 
 
             if($this->mode == 'T'){
-                throw new HttpException(501,"Test mode not implemented");
+                $response = array(
+                    'errorcode'=>'0'
+                );
                 //$response='error1';
 
             }else{
@@ -315,9 +319,8 @@ namespace Telepay\FinancialApiBundle\DependencyInjection\Transactions\Libs;
                         //$response=$sError;
                     }
                 }
+                $response = $response['CancelacionResult'];
             }
-
-            $response = $response['CancelacionResult'];
 
             return $response;
 
@@ -334,7 +337,10 @@ namespace Telepay\FinancialApiBundle\DependencyInjection\Transactions\Libs;
             );
 
             if($this->mode == 'T'){
-                throw new HttpException(501,"Test mode not implemented");
+                $response = array(
+                    'errorcode'=>'0',
+                    'status'=>'Autorizada'
+                );
                 //$response='error1';
 
             }else{
@@ -356,9 +362,11 @@ namespace Telepay\FinancialApiBundle\DependencyInjection\Transactions\Libs;
                         //$response=$sError;
                     }
                 }
+
+                $response = $response['EstadoResult'];
             }
 
-            $response = $response['EstadoResult'];
+
 
             return $response;
 
@@ -373,7 +381,10 @@ namespace Telepay\FinancialApiBundle\DependencyInjection\Transactions\Libs;
             );
 
             if($this->mode == 'T'){
-                throw new HttpException(501,"Test mode not implemented");
+                $response = array(
+                    'errorcode' =>  0,
+                    'price' =>  '0.24'
+                );
                 //$response='error1';
 
             }else{
@@ -395,9 +406,11 @@ namespace Telepay\FinancialApiBundle\DependencyInjection\Transactions\Libs;
                         //$response=$sError;
                     }
                 }
+
+                $response = $response['PrecioResult'];
             }
 
-            $response = $response['PrecioResult'];
+
 
             return $response;
 
