@@ -191,6 +191,7 @@ class CheckCryptoCommand extends ContainerAwareCommand
         $cryptoProvider = $this->getContainer()->get($providerName);
 
         $allReceived = $cryptoProvider->listreceivedbyaddress(0, true);
+//        $allReceived = $cryptoProvider->getreceivedbyaddress($address, 0);
 
         $allowed_amount = $amount - $margin;
         foreach($allReceived as $cryptoData){
