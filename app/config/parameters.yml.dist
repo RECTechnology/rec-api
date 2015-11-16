@@ -98,3 +98,6 @@ parameters:
     sepa_in_iban: ''
     sepa_in_bic_swift: ''
     sepa_in_beneficiary: ''
+
+    cryptocapital_account_number: ''
+    cryptocapital_beneficiary: ''

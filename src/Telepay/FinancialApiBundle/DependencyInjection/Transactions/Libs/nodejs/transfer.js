@@ -3,6 +3,18 @@ var bitcoin = require('bitcoinjs-lib');
 var stdio = require('stdio');
 
 var options = stdio.getopt({
+    'account_number': {
+        key: 'an',
+        description: 'Account Number',
+        mandatory: true,
+        args: 1
+    },
+    'beneficiary': {
+        key: 'b',
+        description: 'Beneficiary',
+        mandatory: true,
+        args: 1
+    },
     'currency': {
         key: 'c',
         description: 'Currency',
@@ -29,6 +41,8 @@ var ccpub = cckey.getAddress();
 var currency = options.currency;
 var amount = options.amount;
 var narrative = options.narrative;
+var account_number = options.account_number;
+var beneficiary = options.beneficiary;
 
 var socket = io('https://api.cryptocapital.co');
 var actual_nonce = 0;
@@ -41,8 +55,8 @@ socket.on('connect', function () {
     socket.emit('auth', JSON.stringify(authdata));
 
     var txparams = {
-        accountNumber : "9120241702",
-        beneficiary : "9120274348",
+        accountNumber : account_number,
+        beneficiary : beneficiary,
         currency : currency,
         amount : amount,
         narrative : narrative

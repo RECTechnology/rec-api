@@ -101,6 +101,8 @@ services:
     net.telepay.provider.cryptocapital:
         class: Telepay\FinancialApiBundle\DependencyInjection\Transactions\Libs\Cryptocapital
         arguments:
+            - "%cryptocapital_account_number%"
+            - "%cryptocapital_beneficiary%"
 
     net.telepay.provider.sepa_in:
         class: Telepay\FinancialApiBundle\DependencyInjection\Transactions\Libs\SepaIn
