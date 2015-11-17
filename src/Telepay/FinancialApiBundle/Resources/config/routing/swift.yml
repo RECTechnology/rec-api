@@ -1,0 +1,7 @@
+######################## USER ACCOUNT ########################
+
+user_account:
+    pattern:  /hello
+    defaults: { _controller: Telepay\FinancialApiBundle\Controller\Management\User\AccountController::read }
+    requirements:
+        _method: GET
