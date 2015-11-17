@@ -14,7 +14,7 @@ services:
                 - "@net.telepay.services.toditocash.v1"
                 - "@net.telepay.services.paynet_reference.v1"
                 - "@net.telepay.services.pademobile.v1"
-                - "@net.telepay.services.halcash_send.v1"
+                - "@net.telepay.services.halcash_send.v3"
                 - "@net.telepay.services.halcash_payment.v1"
                 - "@net.telepay.services.paysafecard.v1"
                 - "@net.telepay.services.multiva.v1"
