@@ -39,10 +39,10 @@ class HalcashTelepayDriver{
         );
 
         $url = $this->url.'/HalCashGatewayIssue.asmx?wsdl';
+
         $client = new nusoap_client($url,true);
 
         $response = $client->call("Precio",$params);
-
         if ($client->fault) { // Si
 
             //$response='error3';

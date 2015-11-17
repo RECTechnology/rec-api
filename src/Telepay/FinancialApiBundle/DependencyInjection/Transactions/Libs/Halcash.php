@@ -390,6 +390,7 @@ namespace Telepay\FinancialApiBundle\DependencyInjection\Transactions\Libs;
                 //$response='error1';
 
             }else{
+
                 $url = $this->url.'/HalCashGatewayIssue.asmx?wsdl';
                 $client = new nusoap_client($url,true);
                 if ($sError = $client->getError()) {
