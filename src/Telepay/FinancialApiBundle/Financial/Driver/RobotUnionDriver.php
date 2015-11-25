@@ -13,22 +13,23 @@ use TelepayApi\Core\JsonRequester;
 
 class RobotUnionDriver {
 
-    private $botId;
+    private $botName;
 
     /**
      * RobotUnionDriver constructor.
-     * @param $botId
+     * @param $botName
      */
-    public function __construct($botId) {
-        $this->botId = $botId;
+    public function __construct($botName) {
+        $this->botName = $botName;
     }
 
     public function __call($name, $userArgs) {
+        if($name != "execute") throw new \LogicException("Method '" . $name . "' is not defined");
         $args['execute'] = "now";
         $args['args'] = "\"" . implode("\" \"", $userArgs) . "\"";
         $request = new ApiRequest(
-            "https://bots.robotunion.org/jobs/" . $this->botId,
-            $name,
+            "https://bots.robotunion.org/jobs/",
+            $this->botName,
             array(),
             "PUT",
             $args,
