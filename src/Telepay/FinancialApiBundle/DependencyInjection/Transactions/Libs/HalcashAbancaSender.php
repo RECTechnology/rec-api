@@ -14,7 +14,7 @@ class HalcashAbancaSender extends Halcash {
 
     public function sendV3($phone, $prefix, $amount, $reference, $pin, $transaction_id) {
         $result = $this->abancHalcashDriver->execute($amount, $pin, $phone, "Chip-Chap", $reference);
-        if($result->status != "ok") throw new HttpException(503, "Halcash send failed");
+        if($result->status != "ok") return $result;
         return array("errorcode" => 0, "halcashticket" => $result->data->last_halcash_ticket);
     }
 
