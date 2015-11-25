@@ -11,12 +11,12 @@ namespace Telepay\FinancialApiBundle\Financial\Driver;
 use TelepayApi\Core\ApiRequest;
 use TelepayApi\Core\JsonRequester;
 
-class BotDriver {
+class RobotUnionDriver {
 
     private $botId;
 
     /**
-     * BotDriver constructor.
+     * RobotUnionDriver constructor.
      * @param $botId
      */
     public function __construct($botId) {
