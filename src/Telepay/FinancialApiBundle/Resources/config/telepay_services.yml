@@ -301,3 +301,24 @@ services:
             - "@net.telepay.provider.sepa_out"
             - "@service_container"
 
+    net.telepay.in.btc.v1:
+        class: Telepay\FinancialApiBundle\Financial\Methods\BtcMethod
+        arguments:
+            - "Btc"
+            - "btc"
+            - "cash_in"
+            - "BTC"
+            - "image"
+            - "@service_container"
+            - "@net.telepay.driver.easybitcoin.btc"
+
+    net.telepay.out.halcash_es.v1:
+        class: Telepay\FinancialApiBundle\Financial\Methods\HalcashMethod
+        arguments:
+            - "Btc"
+            - "btc"
+            - "cash_in"
+            - "EUR"
+            - "image"
+            - "@service_container"
+            - "net.telepay.driver.halcash.telepay"

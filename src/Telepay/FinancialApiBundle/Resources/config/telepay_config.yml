@@ -1,0 +1,10 @@
+services:
+
+#fixed, variable
+
+    net.telepay.config.halcash_es:
+        class: Telepay\FinancialApiBundle\Financial\Methods\MethodConfiguration
+        arguments:
+            - "100"
+            - "2"
+

@@ -145,7 +145,7 @@ class IncomingController extends RestApiController{
         }
 
         //obtain group limit
-        $group_limits=$group->getLimits();
+        $group_limits = $group->getLimits();
         $group_limit = false;
         foreach ( $group_limits as $limit ){
             if( $limit->getCname() == $service_cname){
