@@ -1,422 +1,422 @@
 <?php
 namespace Telepay\FinancialApiBundle\DependencyInjection\Transactions\Libs;
 
-    require_once('includes/class.HALManager.php');
-    require_once('includes/nusoap.php');
-    use nusoap_client;
-    use Symfony\Component\HttpKernel\Exception\HttpException;
+require_once('includes/class.HALManager.php');
+require_once('includes/nusoap.php');
+use nusoap_client;
+use Symfony\Component\HttpKernel\Exception\HttpException;
 
-	class Halcash{
+class Halcash{
 
-        private $prefix;
-        private $mode;
-        private $phone;
-        private $amount;
-        private $reference;
-        private $pin;
-        private $alias;
-        private $transaction_id;
-        private $hal;
-        private $user;
-        private $password;
-        private $country;
-        private $language;
-        private $url;
+    protected $prefix;
+    protected $mode;
+    protected $phone;
+    protected $amount;
+    protected $reference;
+    protected $pin;
+    protected $alias;
+    protected $transaction_id;
+    protected $hal;
+    protected $user;
+    protected $password;
+    protected $country;
+    protected $language;
+    protected $url;
 
-        function __construct($user, $password, $alias, $url)
-        {
-            $this->alias = $alias;
-            $this->user = $user;
-            $this->password = $password;
-            $this->url = $url;
-            if($user === 'fake') $this->mode = 'T';
-        }
+    function __construct($user, $password, $alias, $url)
+    {
+        $this->alias = $alias;
+        $this->user = $user;
+        $this->password = $password;
+        $this->url = $url;
+        if($user === 'fake') $this->mode = 'T';
+    }
 
-        public function send($phone,$amount,$reference,$pin,$transaction_id){
+    public function send($phone,$amount,$reference,$pin,$transaction_id){
 
-            $this->phone = $phone;
-            $this->amount = $amount;
-            $this->reference = $reference;
-            $this->pin = $pin;
-            $this->transaction_id = $transaction_id;
-            $caducity = gmdate("Y-m-d",time()+604800);
+        $this->phone = $phone;
+        $this->amount = $amount;
+        $this->reference = $reference;
+        $this->pin = $pin;
+        $this->transaction_id = $transaction_id;
+        $caducity = gmdate("Y-m-d",time()+604800);
 
-            $params = array(
-                'usuario'		=>	$this->user,
-                'contrasenia'	=>	$this->password,
-                'prefijo'		=>	'34',
-                'telefono'		=>	$phone,
-                'importe'		=>	$amount,
-                'concepto'		=>	$reference,
-                'pin'			=>	$pin,
-                'aliascuenta'	=>	'ASOC ROBOT',
-                'caducidad'		=>	$caducity
+        $params = array(
+            'usuario'		=>	$this->user,
+            'contrasenia'	=>	$this->password,
+            'prefijo'		=>	'34',
+            'telefono'		=>	$phone,
+            'importe'		=>	$amount,
+            'concepto'		=>	$reference,
+            'pin'			=>	$pin,
+            'aliascuenta'	=>	'ASOC ROBOT',
+            'caducidad'		=>	$caducity
+        );
+
+
+        if($this->mode == 'T'){
+            $response = array(
+                'errorcode'=>'0',
+                'halcashticket'=>'1234567890'
             );
 
-
-            if($this->mode == 'T'){
-                $response = array(
-                    'errorcode'=>'0',
-                    'halcashticket'=>'1234567890'
-                );
-
-            }else{
-                $url = $this->url.'/HalCashGatewayIssue.asmx?wsdl';
-                $client = new nusoap_client($url,true);
-                if ($sError = $client->getError()) {
+        }else{
+            $url = $this->url.'/HalCashGatewayIssue.asmx?wsdl';
+            $client = new nusoap_client($url,true);
+            if ($sError = $client->getError()) {
+                throw new HttpException(400,"No se pudo completar la operacion [".$sError."]");
+                //$response='error2';
+            }
+            $response = $client->call("Emision",$params);
+            if ($client->fault) { // Si
+                throw new HttpException(400,"No se pudo completar la operacion [".$sError."]");
+                //$response='error3';
+            } else { // No
+                $sError = $client->getError();
+                // Hay algun error ?
+                if ($sError) { // Si
                     throw new HttpException(400,"No se pudo completar la operacion [".$sError."]");
-                    //$response='error2';
+                    //$response=$sError;
                 }
-                $response = $client->call("Emision",$params);
-                if ($client->fault) { // Si
+            }
+        }
+
+        $response = $response['EmisionResult'];
+
+        return $response;
+
+    }
+
+    public function sendV2($phone,$prefix,$amount,$reference,$pin,$transaction_id,$alias){
+
+        $this->phone = $phone;
+        $this->prefix = $prefix;
+        $this->alias = $alias;
+        $this->amount = $amount;
+        $this->reference = $reference;
+        $this->pin = $pin;
+        $this->transaction_id = $transaction_id;
+        $caducity = gmdate("Y-m-d",time()+604800);
+
+        $params = array(
+            'usuario'		=>	$this->user,
+            'contrasenia'	=>	$this->password,
+            'prefijo'		=>	$this->prefix,
+            'telefono'		=>	$phone,
+            'importe'		=>	$amount,
+            'concepto'		=>	$reference,
+            'pin'			=>	$pin,
+            'aliascuenta'	=>	$this->alias,
+            'caducidad'		=>	$caducity
+        );
+
+        if($this->mode == 'T'){
+            $response = array(
+                'errorcode'=>'0',
+                'halcashticket'=>'1234567890'
+            );
+
+        }else{
+            $url = $this->url.'/HalCashGatewayIssue.asmx?wsdl';
+            $client = new nusoap_client($url,true);
+            if ($sError = $client->getError()) {
+                throw new HttpException(400,"No se pudo completar la operacion [".$sError."]");
+                //$response='error2';
+            }
+            $response = $client->call("Emision",$params);
+            if ($client->fault) { // Si
+                throw new HttpException(400,"No se pudo completar la operacion [".$sError."]");
+                //$response='error3';
+            } else { // No
+                $sError = $client->getError();
+                // Hay algun error ?
+                if ($sError) { // Si
                     throw new HttpException(400,"No se pudo completar la operacion [".$sError."]");
-                    //$response='error3';
-                } else { // No
-                    $sError = $client->getError();
-                    // Hay algun error ?
-                    if ($sError) { // Si
-                        throw new HttpException(400,"No se pudo completar la operacion [".$sError."]");
-                        //$response=$sError;
-                    }
+                    //$response=$sError;
                 }
             }
 
             $response = $response['EmisionResult'];
-
-            return $response;
-
         }
 
-		public function sendV2($phone,$prefix,$amount,$reference,$pin,$transaction_id,$alias){
 
-            $this->phone = $phone;
-            $this->prefix = $prefix;
-            $this->alias = $alias;
-            $this->amount = $amount;
-            $this->reference = $reference;
-            $this->pin = $pin;
-            $this->transaction_id = $transaction_id;
-            $caducity = gmdate("Y-m-d",time()+604800);
 
-            $params = array(
-                'usuario'		=>	$this->user,
-                'contrasenia'	=>	$this->password,
-                'prefijo'		=>	$this->prefix,
-                'telefono'		=>	$phone,
-                'importe'		=>	$amount,
-                'concepto'		=>	$reference,
-                'pin'			=>	$pin,
-                'aliascuenta'	=>	$this->alias,
-                'caducidad'		=>	$caducity
+        return $response;
+
+    }
+
+    public function sendV3($phone,$prefix,$amount,$reference,$pin,$transaction_id){
+
+        $this->phone = $phone;
+        $this->prefix = $prefix;
+        $this->amount = $amount;
+        $this->reference = $reference;
+        $this->pin = $pin;
+        $this->transaction_id = $transaction_id;
+        $caducity = gmdate("Y-m-d",time()+604800);
+
+        $params = array(
+            'usuario'		=>	$this->user,
+            'contrasenia'	=>	$this->password,
+            'prefijo'		=>	$this->prefix,
+            'telefono'		=>	$phone,
+            'importe'		=>	$amount,
+            'concepto'		=>	$reference,
+            'pin'			=>	$pin,
+            'aliascuenta'	=>	'ASOC ROBOT',
+            'caducidad'		=>	$caducity
+        );
+
+        if($this->mode == 'T'){
+            $response = array(
+                'errorcode'=>'0',
+                'halcashticket'=>'1234567890'
             );
 
-            if($this->mode == 'T'){
-                $response = array(
-                    'errorcode'=>'0',
-                    'halcashticket'=>'1234567890'
-                );
-
-            }else{
-                $url = $this->url.'/HalCashGatewayIssue.asmx?wsdl';
-                $client = new nusoap_client($url,true);
-                if ($sError = $client->getError()) {
-                    throw new HttpException(400,"No se pudo completar la operacion [".$sError."]");
-                    //$response='error2';
-                }
-                $response = $client->call("Emision",$params);
-                if ($client->fault) { // Si
-                    throw new HttpException(400,"No se pudo completar la operacion [".$sError."]");
-                    //$response='error3';
-                } else { // No
-                    $sError = $client->getError();
-                    // Hay algun error ?
-                    if ($sError) { // Si
-                        throw new HttpException(400,"No se pudo completar la operacion [".$sError."]");
-                        //$response=$sError;
-                    }
-                }
-
-                $response = $response['EmisionResult'];
+        }else{
+            $url = $this->url.'/HalCashGatewayIssue.asmx?wsdl';
+            $client = new nusoap_client($url,true);
+            if ($sError = $client->getError()) {
+                throw new HttpException(503,"No se pudo completar la operacion [".$sError."]");
+                //$response='error2';
             }
-
-
-
-            return $response;
-
-        }
-
-        public function sendV3($phone,$prefix,$amount,$reference,$pin,$transaction_id){
-
-            $this->phone = $phone;
-            $this->prefix = $prefix;
-            $this->amount = $amount;
-            $this->reference = $reference;
-            $this->pin = $pin;
-            $this->transaction_id = $transaction_id;
-            $caducity = gmdate("Y-m-d",time()+604800);
-
-            $params = array(
-                'usuario'		=>	$this->user,
-                'contrasenia'	=>	$this->password,
-                'prefijo'		=>	$this->prefix,
-                'telefono'		=>	$phone,
-                'importe'		=>	$amount,
-                'concepto'		=>	$reference,
-                'pin'			=>	$pin,
-                'aliascuenta'	=>	'ASOC ROBOT',
-                'caducidad'		=>	$caducity
-            );
-
-            if($this->mode == 'T'){
-                $response = array(
-                    'errorcode'=>'0',
-                    'halcashticket'=>'1234567890'
-                );
-
-            }else{
-                $url = $this->url.'/HalCashGatewayIssue.asmx?wsdl';
-                $client = new nusoap_client($url,true);
-                if ($sError = $client->getError()) {
+            $response = $client->call("Emision",$params);
+            if ($client->fault) { // Si
+                throw new HttpException(503,"No se pudo completar la operacion [".$sError."]");
+                //$response='error3';
+            } else { // No
+                $sError = $client->getError();
+                // Hay algun error ?
+                if ($sError) { // Si
                     throw new HttpException(503,"No se pudo completar la operacion [".$sError."]");
-                    //$response='error2';
-                }
-                $response = $client->call("Emision",$params);
-                if ($client->fault) { // Si
-                    throw new HttpException(503,"No se pudo completar la operacion [".$sError."]");
-                    //$response='error3';
-                } else { // No
-                    $sError = $client->getError();
-                    // Hay algun error ?
-                    if ($sError) { // Si
-                        throw new HttpException(503,"No se pudo completar la operacion [".$sError."]");
-                        //$response=$sError;
-                    }
+                    //$response=$sError;
                 }
             }
-
-            $response = $response['EmisionResult'];
-
-            return $response;
-
         }
 
-        public function sendInternational($phone,$prefix,$amount,$reference,$pin,$transaction_id, $country,$language){
+        $response = $response['EmisionResult'];
 
-            $this->phone = $phone;
-            $this->prefix = $prefix;
-            $this->amount = $amount;
-            $this->reference = $reference;
-            $this->pin = $pin;
-            $this->transaction_id = $transaction_id;
-            $this->country = $country;
-            $caducity = gmdate("Y-m-d",time()+604800);
+        return $response;
 
-            $params = array(
-                'usuario'		=>	$this->user,
-                'contrasenia'	=>	$this->password,
-                'prefijo'		=>	$this->prefix,
-                'telefono'		=>	$phone,
-                'importe_destino'=>	$amount,
-                'pais'          =>  $country,
-                'idioma'        =>  $language,
-                'concepto'		=>	$reference,
-                'pin'			=>	$pin,
-                'aliascuenta'	=>	'ASOC ROBOT',
-                'caducidad'		=>	$caducity
+    }
+
+    public function sendInternational($phone,$prefix,$amount,$reference,$pin,$transaction_id, $country,$language){
+
+        $this->phone = $phone;
+        $this->prefix = $prefix;
+        $this->amount = $amount;
+        $this->reference = $reference;
+        $this->pin = $pin;
+        $this->transaction_id = $transaction_id;
+        $this->country = $country;
+        $caducity = gmdate("Y-m-d",time()+604800);
+
+        $params = array(
+            'usuario'		=>	$this->user,
+            'contrasenia'	=>	$this->password,
+            'prefijo'		=>	$this->prefix,
+            'telefono'		=>	$phone,
+            'importe_destino'=>	$amount,
+            'pais'          =>  $country,
+            'idioma'        =>  $language,
+            'concepto'		=>	$reference,
+            'pin'			=>	$pin,
+            'aliascuenta'	=>	'ASOC ROBOT',
+            'caducidad'		=>	$caducity
+        );
+
+        if($this->mode == 'T'){
+            $response = array(
+                'errorcode'=>'0',
+                'halcashticket'=>'1234567890'
             );
 
-            if($this->mode == 'T'){
-                $response = array(
-                    'errorcode'=>'0',
-                    'halcashticket'=>'1234567890'
-                );
-
-            }else{
-                $url = $this->url.'/HalCashGatewayIssue.asmx?wsdl';
-                $client = new nusoap_client($url,true);
-                if ($sError = $client->getError()) {
+        }else{
+            $url = $this->url.'/HalCashGatewayIssue.asmx?wsdl';
+            $client = new nusoap_client($url,true);
+            if ($sError = $client->getError()) {
+                throw new HttpException(400,"No se pudo completar la operacion [".$sError."]");
+                //$response='error2';
+            }
+            $response = $client->call("EmisionInternacional",$params);
+            if ($client->fault) { // Si
+                throw new HttpException(400,"No se pudo completar la operacion [".$sError."]");
+                //$response='error3';
+            } else { // No
+                $sError = $client->getError();
+                // Hay algun error ?
+                if ($sError) { // Si
                     throw new HttpException(400,"No se pudo completar la operacion [".$sError."]");
-                    //$response='error2';
+                    //$response=$sError;
                 }
-                $response = $client->call("EmisionInternacional",$params);
-                if ($client->fault) { // Si
-                    throw new HttpException(400,"No se pudo completar la operacion [".$sError."]");
-                    //$response='error3';
-                } else { // No
-                    $sError = $client->getError();
-                    // Hay algun error ?
-                    if ($sError) { // Si
-                        throw new HttpException(400,"No se pudo completar la operacion [".$sError."]");
-                        //$response=$sError;
-                    }
-                }
-
-                $response = $response['EmisionInternacionalResult'];
             }
 
-
-
-            return $response;
-
+            $response = $response['EmisionInternacionalResult'];
         }
 
-        public function payment($phone,$amount,$reference,$pin,$transaction_id){
 
-            $this->phone = $phone;
-            $this->amount = $amount;
-            $this->reference = $reference;
-            $this->pin = $pin;
-            $this->transaction_id = $transaction_id;
 
-            $hal = new HALManager();
+        return $response;
 
-            $hal->cargaentradapago($this->phone, $this->amount, $this->reference, $this->pin, $this->transaction_id );
+    }
 
-            if($this->mode == 'T'){
-                $hal->enviadatosTest( $hal->servicios('PAGO') );
-                //die(print_r($hal,true));
-            }else{
-                $hal->enviadatos( $hal->servicios('PAGO') );
-            }
+    public function payment($phone,$amount,$reference,$pin,$transaction_id){
 
-            return $hal->getresultado();
+        $this->phone = $phone;
+        $this->amount = $amount;
+        $this->reference = $reference;
+        $this->pin = $pin;
+        $this->transaction_id = $transaction_id;
 
+        $hal = new HALManager();
+
+        $hal->cargaentradapago($this->phone, $this->amount, $this->reference, $this->pin, $this->transaction_id );
+
+        if($this->mode == 'T'){
+            $hal->enviadatosTest( $hal->servicios('PAGO') );
+            //die(print_r($hal,true));
+        }else{
+            $hal->enviadatos( $hal->servicios('PAGO') );
         }
 
-        public function cancelation($ticket,$reference){
+        return $hal->getresultado();
 
-            $this->reference = $reference;
-            $this->hal = $ticket;
+    }
 
-            $params = array(
-                'usuario'		=>	$this->user,
-                'contrasenia'	=>	$this->password,
-                'ticket'        =>  $this->hal,
-                'motivo'		=>	$reference
+    public function cancelation($ticket,$reference){
+
+        $this->reference = $reference;
+        $this->hal = $ticket;
+
+        $params = array(
+            'usuario'		=>	$this->user,
+            'contrasenia'	=>	$this->password,
+            'ticket'        =>  $this->hal,
+            'motivo'		=>	$reference
+        );
+
+
+        if($this->mode == 'T'){
+            $response = array(
+                'errorcode'=>'0'
             );
+            //$response='error1';
 
-
-            if($this->mode == 'T'){
-                $response = array(
-                    'errorcode'=>'0'
-                );
-                //$response='error1';
-
-            }else{
-                $url = $this->url.'/HalCashGatewayIssue.asmx?wsdl';
-                $client = new nusoap_client($url,true);
-                if ($sError = $client->getError()) {
-                    throw new HttpException(400,"No se pudo completar la operacion [".$sError."]");
-                    //$response='error2';
-                }
-                $response = $client->call("Cancelacion",$params);
-                if ($client->fault) { // Si
-                    throw new HttpException(400,"No se pudo completar la operacion [".$sError."]");
-                    //$response='error3';
-                } else { // No
-                    $sError = $client->getError();
-                    // Hay algun error ?
-                    if ($sError) { // Si
-                        throw new HttpException(400,"No se pudo completar la operacion [".$sError."]");
-                        //$response=$sError;
-                    }
-                }
-                $response = $response['CancelacionResult'];
+        }else{
+            $url = $this->url.'/HalCashGatewayIssue.asmx?wsdl';
+            $client = new nusoap_client($url,true);
+            if ($sError = $client->getError()) {
+                throw new HttpException(400,"No se pudo completar la operacion [".$sError."]");
+                //$response='error2';
             }
-
-            return $response;
-
+            $response = $client->call("Cancelacion",$params);
+            if ($client->fault) { // Si
+                throw new HttpException(400,"No se pudo completar la operacion [".$sError."]");
+                //$response='error3';
+            } else { // No
+                $sError = $client->getError();
+                // Hay algun error ?
+                if ($sError) { // Si
+                    throw new HttpException(400,"No se pudo completar la operacion [".$sError."]");
+                    //$response=$sError;
+                }
+            }
+            $response = $response['CancelacionResult'];
         }
 
-        public function status($ticket){
+        return $response;
 
-            $this->hal = $ticket;
+    }
 
-            $params = array(
-                'usuario'		=>	$this->user,
-                'contrasenia'	=>	$this->password,
-                'ticket'        =>  $this->hal
+    public function status($ticket){
+
+        $this->hal = $ticket;
+
+        $params = array(
+            'usuario'		=>	$this->user,
+            'contrasenia'	=>	$this->password,
+            'ticket'        =>  $this->hal
+        );
+
+        if($this->mode == 'T'){
+            $response = array(
+                'errorcode'=>'0',
+                'status'=>'Autorizada'
             );
+            //$response='error1';
 
-            if($this->mode == 'T'){
-                $response = array(
-                    'errorcode'=>'0',
-                    'status'=>'Autorizada'
-                );
-                //$response='error1';
-
-            }else{
-                $url = $this->url.'/HalCashGatewayIssue.asmx?wsdl';
-                $client = new nusoap_client($url,true);
-                if ($sError = $client->getError()) {
+        }else{
+            $url = $this->url.'/HalCashGatewayIssue.asmx?wsdl';
+            $client = new nusoap_client($url,true);
+            if ($sError = $client->getError()) {
+                throw new HttpException(400,"No se pudo completar la operacion [".$sError."]");
+                //$response='error2';
+            }
+            $response = $client->call("Estado",$params);
+            if ($client->fault) { // Si
+                throw new HttpException(400,"No se pudo completar la operacion [".$sError."]");
+                //$response='error3';
+            } else { // No
+                $sError = $client->getError();
+                // Hay algun error ?
+                if ($sError) { // Si
                     throw new HttpException(400,"No se pudo completar la operacion [".$sError."]");
-                    //$response='error2';
+                    //$response=$sError;
                 }
-                $response = $client->call("Estado",$params);
-                if ($client->fault) { // Si
-                    throw new HttpException(400,"No se pudo completar la operacion [".$sError."]");
-                    //$response='error3';
-                } else { // No
-                    $sError = $client->getError();
-                    // Hay algun error ?
-                    if ($sError) { // Si
-                        throw new HttpException(400,"No se pudo completar la operacion [".$sError."]");
-                        //$response=$sError;
-                    }
-                }
-
-                $response = $response['EstadoResult'];
             }
 
-
-
-            return $response;
-
+            $response = $response['EstadoResult'];
         }
 
-        public function price($country){
 
-            $params = array(
-                'usuario'		=>	$this->user,
-                'contrasenia'	=>	$this->password,
-                'pais'        =>  $country
+
+        return $response;
+
+    }
+
+    public function price($country){
+
+        $params = array(
+            'usuario'		=>	$this->user,
+            'contrasenia'	=>	$this->password,
+            'pais'        =>  $country
+        );
+
+        if($this->mode == 'T'){
+            $response = array(
+                'errorcode' =>  0,
+                'price' =>  '0.24'
             );
+            //$response='error1';
 
-            if($this->mode == 'T'){
-                $response = array(
-                    'errorcode' =>  0,
-                    'price' =>  '0.24'
-                );
-                //$response='error1';
+        }else{
 
-            }else{
-
-                $url = $this->url.'/HalCashGatewayIssue.asmx?wsdl';
-                $client = new nusoap_client($url,true);
-                if ($sError = $client->getError()) {
+            $url = $this->url.'/HalCashGatewayIssue.asmx?wsdl';
+            $client = new nusoap_client($url,true);
+            if ($sError = $client->getError()) {
+                throw new HttpException(400,"No se pudo completar la operacion [".$sError."]");
+                //$response='error2';
+            }
+            $response = $client->call("Precio",$params);
+            if ($client->fault) { // Si
+                throw new HttpException(400,"No se pudo completar la operacion [".$sError."]");
+                //$response='error3';
+            } else { // No
+                $sError = $client->getError();
+                // Hay algun error ?
+                if ($sError) { // Si
                     throw new HttpException(400,"No se pudo completar la operacion [".$sError."]");
-                    //$response='error2';
+                    //$response=$sError;
                 }
-                $response = $client->call("Precio",$params);
-                if ($client->fault) { // Si
-                    throw new HttpException(400,"No se pudo completar la operacion [".$sError."]");
-                    //$response='error3';
-                } else { // No
-                    $sError = $client->getError();
-                    // Hay algun error ?
-                    if ($sError) { // Si
-                        throw new HttpException(400,"No se pudo completar la operacion [".$sError."]");
-                        //$response=$sError;
-                    }
-                }
-
-                $response = $response['PrecioResult'];
             }
 
-
-
-            return $response;
-
+            $response = $response['PrecioResult'];
         }
 
-	}
+
+
+        return $response;
+
+    }
+
+}

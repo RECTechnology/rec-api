@@ -43,4 +43,9 @@ services:
             - "%faircoind_host%"
             - "%faircoind_port%"
 
+    net.telepay.driver.abanca_issue_hal:
+        class: Telepay\FinancialApiBundle\Financial\Driver\RobotUnionDriver
+        arguments:
+            - "abanca_issue_hal"
+
 

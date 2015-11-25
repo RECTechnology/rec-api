@@ -27,12 +27,6 @@ curl -sS https://getcomposer.org/installer -s | php
 php composer.phar install --no-scripts --no-dev --optimize-autoloader --quiet
 php vendor/sensio/distribution-bundle/Sensio/Bundle/DistributionBundle/Resources/bin/build_bootstrap.php
 
-#php app/console doctrine:schema:update --force --env=prod
-
-#php app/console doctrine:mongodb:schema:create --env=prod
-
-#php app/console cache:clear --env=prod
-
 cat <<EOF
 *** Installer finished success ***
 EOF
