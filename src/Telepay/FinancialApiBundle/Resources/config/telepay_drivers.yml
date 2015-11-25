@@ -27,4 +27,9 @@ services:
             - "%halcash_alias%"
             - "%halcash_url%"
 
+    net.telepay.driver.abanca_halcash_bot:
+        class: Telepay\FinancialApiBundle\Financial\Driver\BotDriver
+        arguments:
+            - "19"
+
 
