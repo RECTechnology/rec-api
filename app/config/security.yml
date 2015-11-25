@@ -64,6 +64,13 @@ security:
             signature_auth: true
             switch_user:  { role: ROLE_ADMIN, parameter: su }
 
+        swift_api:
+            pattern:  ^/swift
+            stateless: true
+            fos_oauth:  true
+            signature_auth: true
+            anonymous: true
+
         oauth:
             pattern:    ^/
             fos_oauth:  true

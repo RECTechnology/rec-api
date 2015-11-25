@@ -11,6 +11,7 @@ imports:
     - { resource: @TelepayFinancialApiBundle/Resources/config/telepay_wallets.yml }
     - { resource: @TelepayFinancialApiBundle/Resources/config/telepay_money_ways.yml }
     - { resource: @TelepayFinancialApiBundle/Resources/config/telepay_exchanges.yml }
+    - { resource: @TelepayFinancialApiBundle/Resources/config/telepay_config.yml }
 
 
 framework:

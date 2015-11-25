@@ -243,6 +243,42 @@ class Transaction implements TransactionTiming {
     private $notified;
 
     /**
+     * @var
+     * @MongoDB\Hash
+     */
+    private $pay_in_info;
+
+    /**
+     * @var
+     * @MongoDB\Hash
+     */
+    private $pay_out_info;
+
+    /**
+     * @var
+     * @MongoDB\String
+     */
+    private $method_in;
+
+    /**
+     * @var
+     * @MongoDB\String
+     */
+    private $method_out;
+
+    /**
+     * @var
+     * @MongoDB\String
+     */
+    private $type;
+
+    /**
+     * @var
+     * @MongoDB\Int
+     */
+    private $price;
+
+    /**
      * Get id
      *
      * @return id $id
@@ -598,5 +634,101 @@ class Transaction implements TransactionTiming {
     public function setPosId($posId)
     {
         $this->posId = $posId;
+    }
+
+    /**
+     * @return mixed
+     */
+    public function getPayInInfo()
+    {
+        return $this->pay_in_info;
+    }
+
+    /**
+     * @param mixed $pay_in_info
+     */
+    public function setPayInInfo($pay_in_info)
+    {
+        $this->pay_in_info = $pay_in_info;
+    }
+
+    /**
+     * @return mixed
+     */
+    public function getPayOutInfo()
+    {
+        return $this->pay_out_info;
+    }
+
+    /**
+     * @param mixed $pay_out_info
+     */
+    public function setPayOutInfo($pay_out_info)
+    {
+        $this->pay_out_info = $pay_out_info;
+    }
+
+    /**
+     * @return mixed
+     */
+    public function getMethodIn()
+    {
+        return $this->method_in;
+    }
+
+    /**
+     * @param mixed $method_in
+     */
+    public function setMethodIn($method_in)
+    {
+        $this->method_in = $method_in;
+    }
+
+    /**
+     * @return mixed
+     */
+    public function getMethodOut()
+    {
+        return $this->method_out;
+    }
+
+    /**
+     * @param mixed $method_out
+     */
+    public function setMethodOut($method_out)
+    {
+        $this->method_out = $method_out;
+    }
+
+    /**
+     * @return mixed
+     */
+    public function getType()
+    {
+        return $this->type;
+    }
+
+    /**
+     * @param mixed $type
+     */
+    public function setType($type)
+    {
+        $this->type = $type;
+    }
+
+    /**
+     * @return mixed
+     */
+    public function getPrice()
+    {
+        return $this->price;
+    }
+
+    /**
+     * @param mixed $price
+     */
+    public function setPrice($price)
+    {
+        $this->price = $price;
     }
 }

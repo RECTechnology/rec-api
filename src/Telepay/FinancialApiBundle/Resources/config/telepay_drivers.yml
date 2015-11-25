@@ -27,4 +27,20 @@ services:
             - "%halcash_alias%"
             - "%halcash_url%"
 
+    net.telepay.driver.easybitcoin.btc:
+        class: Telepay\FinancialApiBundle\Financial\Driver\EasyBitcoinDriver
+        arguments:
+            - "%bitcoind_user%"
+            - "%bitcoind_pass%"
+            - "%bitcoind_host%"
+            - "%bitcoind_port%"
+
+    net.telepay.driver.easybitcoin.fac:
+        class: Telepay\FinancialApiBundle\Financial\Driver\EasyBitcoinDriver
+        arguments:
+            - "%faircoind_user%"
+            - "%faircoind_pass%"
+            - "%faircoind_host%"
+            - "%faircoind_port%"
+
 

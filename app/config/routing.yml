@@ -1,10 +1,7 @@
+
 telepay_financial_api:
     resource: "@TelepayFinancialApiBundle/Resources/config/routing.yml"
     prefix:   /
-
-chipchap_swift_api:
-    resource: "@TelepayFinancialApiBundle/Resources/config/swift.yml"
-    prefix:   /api
 
 fos_oauth_server_token:
     resource: "@FOSOAuthServerBundle/Resources/config/routing/token.xml"

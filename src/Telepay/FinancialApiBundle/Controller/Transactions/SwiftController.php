@@ -22,9 +22,144 @@ use Telepay\FinancialApiBundle\Entity\UserWallet;
 
 class SwiftController extends RestApiController{
 
-    public function btcHalcash(Request $request){
+    public function make(Request $request, $version_number, $type_in, $type_out){
 
 
+        $dm = $this->get('doctrine_mongodb')->getManager();
+        $em = $this->getDoctrine()->getManager();
+
+        $admin = $em->getRepository('TelepayFinancialApiBundle:User')->findOneById(1);
+
+        if ($this->get('security.authorization_checker')->isGranted('IS_AUTHENTICATED_FULLY')) {
+
+            //transaction authenticated with user/pass or credentials
+            $user = $this->container->get('security.context')->getToken()->getUser();
+
+            $tokenManager = $this->container->get('fos_oauth_server.access_token_manager.default');
+            $accessToken = $tokenManager->findTokenByToken(
+                $this->container->get('security.context')->getToken()->getToken()
+            );
+            $client = $accessToken->getClient();
+
+            if(!$user){
+
+                $user = $client->getUser();
+            }
+
+        }else{
+            //TODO get user superadmin
+
+            $user = $admin;
+
+        }
+
+        if(!$request->request->has('amount')) throw new HttpException(404, 'Param amount not found');
+
+        $amount = $request->request->get('amount');
+
+        //Create transaction
+        $transaction = new Transaction();
+        $transaction->createFromRequest($request);
+        $transaction->setAmount($amount);
+        $transaction->setTotal($amount);
+        $transaction->setFixedFee(0);
+        $transaction->setVersion($version_number);
+        $transaction->setVariableFee(0);
+        $transaction->setService($type_in.'_'.$type_out);
+        $transaction->setUser($user->getId());
+
+        //GET METHODS
+        $cashInMethod = $this->container->get('net.telepay.in.'.$type_in.'.v'.$version_number);
+
+        $cashOutMethod = $this->container->get('net.telepay.out.'.$type_out.'.v'.$version_number);
+
+        //GET PAYOUT INFO(parameters sent by user
+        $pay_out_info = $cashOutMethod->getPayOutInfo($request);
+        $transaction->setDataIn($pay_out_info);
+        $transaction->setPayOutInfo($pay_out_info);
+
+        //GET/ PAYOUT CURRENCY FOR THE TRANSATION
+        $transaction->setCurrency($cashOutMethod->getCurrency());
+        //TODO get scale in and out
+        $transaction->setScale(2);
+
+        //get configuration(method)
+        $swift_config = $this->container->get('net.telepay.config.'.$type_out);
+        $methodFees = $swift_config->getFees();
+        $service_fee = ($amount * ($methodFees->getVariable()/100) + $methodFees->getFixed());
+
+        //get client fees (fixed & variable)
+        $clientFees = $em->getRepository('TelepayFinancialApiBundle:SwiftFee')->findOneBy(array(
+            'client'    =>  $client->getId(),
+            'cname' =>  $type_in.'_'.$type_out
+        ));
+
+        $clientLimits = $em->getRepository('TelepayFinancialApiBundle:SwiftLimit')->findOneBy(array(
+            'client'    =>  $client->getId(),
+            'cname' =>  $type_in.'_'.$type_out
+        ));
+
+        $clientLimitsCount = $em->getRepository('TelepayFinancialApiBundle:SwiftLimitCount')->findOneBy(array(
+            'client'    =>  $client->getId(),
+            'cname' =>  $type_in.'_'.$type_out
+        ));
+
+        if(!$clientFees) throw new HttpException(404, 'Fees not found');
+        if(!$clientLimits) throw new HttpException(404, 'Limits not found');
+        if(!$clientLimitsCount) throw new HttpException(404, 'Limits count not found');
+
+        $client_fee = ($amount * ($clientFees->getVariable()/100) + $clientFees->getFixed());
+        $total_fee = $client_fee + $service_fee;
+        $total = round($amount + $total_fee, 0);
+
+        //ADD AND CHECK LIMITS
+        $clientLimitsCount = (new LimitAdder())->add($clientLimitsCount, $total);
+        $checker = new LimitChecker();
+        if(!$checker->leq($clientLimitsCount , $clientLimits))
+            throw new HttpException(509,'Limit exceeded');
+
+        $em->persist($clientLimitsCount);
+        $em->flush();
+
+        $exchange = $this->_exchange($total  , $cashOutMethod->getCurrency(), $cashInMethod->getCurrency());
+
+        try{
+            $pay_in_info = $cashInMethod->getPayInInfo($exchange);
+
+        }catch (HttpException $e){
+            $transaction->setStatus(Transaction::$STATUS_ERROR);
+            $dm->persist($transaction);
+            $dm->flush();
+            throw new HttpException(400,'Service Temporally unavailable.');
+        }
+
+        $price = round($total/($pay_in_info['btc_amount']/1e8),0);
+        $transaction->setPrice($price);
+
+        $transaction->setPayInInfo($pay_in_info);
+        $transaction->setStatus(Transaction::$STATUS_CREATED);
+        $dm->persist($transaction);
+        $dm->flush();
+
+        return $this->swiftTransaction($transaction, "Done");
+
+    }
+
+    public function _exchange($amount,$curr_in,$curr_out){
+
+        $dm=$this->getDoctrine()->getManager();
+        $exchangeRepo=$dm->getRepository('TelepayFinancialApiBundle:Exchange');
+        $exchange = $exchangeRepo->findOneBy(
+            array('src'=>$curr_in,'dst'=>$curr_out),
+            array('id'=>'DESC')
+        );
+
+        if(!$exchange) throw new HttpException(404,'Exchange not found -> '.$curr_in.' TO '.$curr_out);
+
+        $price = $exchange->getPrice();
+        $total = round($amount * $price,0);
+
+        return $total;
 
     }
 
