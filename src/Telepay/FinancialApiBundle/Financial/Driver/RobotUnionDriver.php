@@ -28,7 +28,7 @@ class RobotUnionDriver {
         $args['execute'] = "now";
         $args['args'] = "\"" . implode("\" \"", $userArgs) . "\"";
         $request = new ApiRequest(
-            "https://bots.robotunion.org/jobs/",
+            "https://bots.robotunion.org/jobs",
             $this->botName,
             array(),
             "PUT",
