@@ -27,7 +27,6 @@ class SwiftController extends RestApiController{
 
     public function make(Request $request, $version_number, $type_in, $type_out){
 
-
         $dm = $this->get('doctrine_mongodb')->getManager();
         $em = $this->getDoctrine()->getManager();
 
@@ -51,8 +50,6 @@ class SwiftController extends RestApiController{
             }
 
         }else{
-            //TODO get user superadmin
-
             $user = $admin;
             $client = $em->getRepository('TelepayFinancialApiBundle:Client')->findOneById($client_default_id);
 
