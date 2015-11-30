@@ -51,7 +51,7 @@ class SwiftController extends RestApiController{
             //TODO get user superadmin
 
             $user = $admin;
-            $client = $em->getRepository('TelepayFinancialApiBundle:Client')->findOneById(2);
+            $client = $em->getRepository('TelepayFinancialApiBundle:Client')->findOneById(49);
 
         }
 
