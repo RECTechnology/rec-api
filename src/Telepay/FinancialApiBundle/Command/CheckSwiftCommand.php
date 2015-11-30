@@ -37,6 +37,9 @@ class CheckSwiftCommand extends ContainerAwareCommand
 
         $output->writeln(count($qb->toArray()).'... transactions to check');
 
+        $root_id = $this->getContainer()->getParameter('admin_user_id');
+        $root = $em->getRepository('TelepayFinancialApiBundle:User')->find($root_id);
+
         foreach($qb->toArray() as $transaction){
             $output->writeln('nueva transaccion');
             if($transaction->getMethodIn() != ''){
@@ -103,56 +106,56 @@ class CheckSwiftCommand extends ContainerAwareCommand
                         $output->writeln('Status failed');
                     }
 
-                    $transaction->setPayOutInfo($pay_out_info);
-                    $transaction->setStatus('success');
-                    $output->writeln('Status success');
+                    if($pay_out_info['status'] == 'success'){
+                        $transaction->setPayOutInfo($pay_out_info);
+                        $transaction->setStatus('success');
+                        $output->writeln('Status success');
 
-                    //Generate fee transactions. One for the user and one for the root
-                    $output->writeln('Generating userFee for: '.$transaction->getId());
+                        //Generate fee transactions. One for the user and one for the root
+                        $output->writeln('Generating userFee for: '.$transaction->getId());
 
-                    //client fees goes to the user
-                    $userFee = new Transaction();
-                    $userFee->setUser($transaction->getUser());
-                    $userFee->setType('fee');
-                    $userFee->setCurrency($transaction->getCurrency());
-                    $userFee->setScale($transaction->getScale());
-                    $userFee->setAmount($client_fee);
-                    $userFee->setFixedFee($clientFees->getFixed());
-                    $userFee->setVariableFee($amount * ($clientFees->getVariable()/100));
-                    $userFee->setService($method_in.'_'.$method_out);
-                    $userFee->setStatus('success');
-                    $userFee->setTotal($client_fee);
-                    $userFee->setDataIn(array(
-                        'previous_transaction'  =>  $transaction->getId(),
-                        'transaction_amount'    =>  $transaction->getAmount(),
-                        'total_fee' =>  $client_fee + $service_fee
-                    ));
-                    $userFee->setClient($client);
+                        //client fees goes to the user
+                        $userFee = new Transaction();
+                        $userFee->setUser($transaction->getUser());
+                        $userFee->setType('fee');
+                        $userFee->setCurrency($transaction->getCurrency());
+                        $userFee->setScale($transaction->getScale());
+                        $userFee->setAmount($client_fee);
+                        $userFee->setFixedFee($clientFees->getFixed());
+                        $userFee->setVariableFee($amount * ($clientFees->getVariable()/100));
+                        $userFee->setService($method_in.'_'.$method_out);
+                        $userFee->setStatus('success');
+                        $userFee->setTotal($client_fee);
+                        $userFee->setDataIn(array(
+                            'previous_transaction'  =>  $transaction->getId(),
+                            'transaction_amount'    =>  $transaction->getAmount(),
+                            'total_fee' =>  $client_fee + $service_fee
+                        ));
+                        $userFee->setClient($client);
 
-                    $output->writeln('Generating rootFee for: '.$transaction->getId());
-                    //service fees goes to root
-                    $rootFee = new Transaction();
-                    $root_id = $this->getContainer()->getParameter('admin_user_id');
-                    $root = $em->getRepository('TelepayFinancialApiBundle:User')->find($root_id);
-                    $rootFee->setUser($root);
-                    $rootFee->setType('fee');
-                    $rootFee->setCurrency($transaction->getCurrency());
-                    $rootFee->setScale($transaction->getScale());
-                    $rootFee->setAmount($service_fee);
-                    $rootFee->setFixedFee($methodFees->getFixed());
-                    $rootFee->setVariableFee($amount * ($methodFees->getVariable()/100));
-                    $rootFee->setService($method_in.'_'.$method_out);
-                    $rootFee->setStatus('success');
-                    $rootFee->setTotal($service_fee);
-                    $rootFee->setDataIn(array(
-                        'previous_transaction'  =>  $transaction->getId(),
-                        'transaction_amount'    =>  $transaction->getAmount(),
-                        'total_fee' =>  $client_fee + $service_fee
-                    ));
-                    $rootFee->setClient($client);
+                        $output->writeln('Generating rootFee for: '.$transaction->getId());
+                        //service fees goes to root
+                        $rootFee = new Transaction();
+                        $rootFee->setUser($root);
+                        $rootFee->setType('fee');
+                        $rootFee->setCurrency($transaction->getCurrency());
+                        $rootFee->setScale($transaction->getScale());
+                        $rootFee->setAmount($service_fee);
+                        $rootFee->setFixedFee($methodFees->getFixed());
+                        $rootFee->setVariableFee($amount * ($methodFees->getVariable()/100));
+                        $rootFee->setService($method_in.'_'.$method_out);
+                        $rootFee->setStatus('success');
+                        $rootFee->setTotal($service_fee);
+                        $rootFee->setDataIn(array(
+                            'previous_transaction'  =>  $transaction->getId(),
+                            'transaction_amount'    =>  $transaction->getAmount(),
+                            'total_fee' =>  $client_fee + $service_fee
+                        ));
+                        $rootFee->setClient($client);
+                        $dm->persist($userFee);
+                        $dm->persist($rootFee);
 
-                    $dm->persist($userFee);
-                    $dm->persist($rootFee);
+                    }
                     $dm->flush();
 
                 }
