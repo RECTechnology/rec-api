@@ -7,6 +7,18 @@ admin_clients_index:
     requirements:
         _method: GET
 
+admin_clients_create:
+    pattern:  /admin/v1/clients
+    defaults: { _controller: Telepay\FinancialApiBundle\Controller\Management\Admin\ClientsController::createAction }
+    requirements:
+        _method: POST
+
+admin_clients_update:
+    pattern:  /admin/v1/clients/{id}
+    defaults: { _controller: Telepay\FinancialApiBundle\Controller\Management\Admin\ClientsController::updateAction }
+    requirements:
+        _method: PUT
+
 ############################## SERVICES MNGMNT ##########################################
 
 admin_services_index:

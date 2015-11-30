@@ -66,7 +66,7 @@ class SwiftLimitCount implements Limit {
     private $cname;
 
     public static function createFromController($service_cname, Client $client){
-        $limit = new LimitCount();
+        $limit = new SwiftLimitCount();
         $limit->setClient($client);
         $limit->setCname($service_cname);
         $limit->setSingle(0);

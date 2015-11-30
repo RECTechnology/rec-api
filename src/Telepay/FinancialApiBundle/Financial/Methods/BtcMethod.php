@@ -29,7 +29,7 @@ class BtcMethod implements CashInInterface, CashOutInterface {
         if(!$address) throw new HttpException(404,'Service Temporally unavailable');
 
         $response = array(
-            'btc_amount'    =>  $amount,
+            'amount'    =>  $amount,
             'currency'  =>  $this->getCurrency(),
             'scale' =>  8,
             'address' => $address,
@@ -37,12 +37,11 @@ class BtcMethod implements CashInInterface, CashOutInterface {
             'received' => 0.0,
             'min_confirmations' => intval(1),
             'confirmations' => 0,
+            'status'    =>  'created'
         );
 
         return $response;
     }
-
-
 
     public function getCurrency()
     {
@@ -54,14 +53,42 @@ class BtcMethod implements CashInInterface, CashOutInterface {
         // TODO: Implement send() method.
     }
 
-    public function checkPayOutInfo($request)
-    {
-        // TODO: Implement checkPayOutInfo() method.
-    }
-
     public function getPayInStatus($paymentInfo)
     {
-        // TODO: Implement getPayInStatus() method.
+        $allReceived = $this->driver->listreceivedbyaddress(0, true);
+//        $allReceived = $cryptoProvider->getreceivedbyaddress($address, 0);
+
+        $amount = $paymentInfo['amount'];
+        $address = $paymentInfo['address'];
+
+        if($amount <= 100)
+            $margin = 0;
+        else
+            $margin = 100;
+
+        $allowed_amount = $amount - $margin;
+        foreach($allReceived as $cryptoData){
+            if($cryptoData['address'] === $address){
+                $paymentInfo['received'] = doubleval($cryptoData['amount'])*1e8;
+                if(doubleval($cryptoData['amount'])*1e8 >= $allowed_amount){
+                    $paymentInfo['confirmations'] = $cryptoData['confirmations'];
+                    if($paymentInfo['confirmations'] >= $paymentInfo['min_confirmations']){
+                        $status = 'success';
+                    }else{
+                        $status = 'received';
+                    }
+
+                }else{
+                    $status = 'created';
+                }
+
+                $paymentInfo['status'] = $status;
+                return $paymentInfo;
+
+            }
+
+        }
+
     }
 
     public function getPayOutStatus($id)

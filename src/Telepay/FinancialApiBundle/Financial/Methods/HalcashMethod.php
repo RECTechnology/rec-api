@@ -31,7 +31,27 @@ class HalcashMethod implements  CashInInterface, CashOutInterface{
 
     public function send($paymentInfo)
     {
-        // TODO: Implement send() method.
+        $phone = $paymentInfo['phone'];
+        $prefix = $paymentInfo['prefix'];
+        $amount = $paymentInfo['amount']/100;
+        $reference = $paymentInfo['description'];
+
+        if($paymentInfo['pin']){
+            $pin = $paymentInfo['pin'];
+        }else{
+            $pin = rand(1000,9999);
+        }
+
+        $hal = $this->driver->sendV3($phone,$prefix,$amount,$reference,$pin);
+
+        if($hal['errorcode'] == 0){
+            $paymentInfo['status'] = 'success';
+            $paymentInfo['halcashticket'] = $hal['halcashticket'];
+        }elseif($hal['errorcode'] == 99){
+            $paymentInfo['status'] = 'failed';
+        }
+
+        return $paymentInfo;
     }
 
     public function getPayInInfo($amount)
@@ -41,7 +61,6 @@ class HalcashMethod implements  CashInInterface, CashOutInterface{
 
     public function getPayOutInfo($request)
     {
-        // TODO: Implement getPayOutInfo() method.
         $paramNames = array(
             'amount',
             'phone',

@@ -32,6 +32,7 @@ class User extends BaseUser
         $this->wallets = new ArrayCollection();
         $this->btc_addresses = new ArrayCollection();
         $this->devices = new ArrayCollection();
+        $this->clients = new ArrayCollection();
 
         if($this->access_key == null){
             $generator = new SecureRandom();
@@ -165,6 +166,12 @@ class User extends BaseUser
      * @Expose
      */
     private $cash_in_tokens;
+
+    /**
+     * @ORM\OneToMany(targetEntity="Telepay\FinancialApiBundle\Entity\Client", mappedBy="user", cascade={"remove"})
+     * @Expose
+     */
+    private $clients;
 
     /**
      * @Expose
@@ -504,6 +511,22 @@ class User extends BaseUser
     public function setGroupData($group_data)
     {
         $this->group_data = $group_data;
+    }
+
+    /**
+     * @return mixed
+     */
+    public function getClients()
+    {
+        return $this->clients;
+    }
+
+    /**
+     * @param mixed $clients
+     */
+    public function setClients($clients)
+    {
+        $this->clients = $clients;
     }
 
 }

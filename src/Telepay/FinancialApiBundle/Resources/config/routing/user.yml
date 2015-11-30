@@ -198,3 +198,24 @@ user_limits:
     defaults: { _controller: Telepay\FinancialApiBundle\Controller\Management\User\WalletController::userLimits }
     requirements:
         _method: GET
+
+######################## USER SWIFT ########################
+
+user_swift_clients:
+    pattern:  /user/v1/swift
+    defaults: { _controller: Telepay\FinancialApiBundle\Controller\Management\User\SwiftController::read }
+    requirements:
+        _method: GET
+
+user_swift_edit_fees:
+    pattern:  /user/v1/swift
+    defaults: { _controller: Telepay\FinancialApiBundle\Controller\Management\User\SwiftController::updateAction }
+    requirements:
+        _method: PUT
+
+user_swift_get:
+    pattern:  /user/v1/swift/{id}
+    defaults: { _controller: Telepay\FinancialApiBundle\Controller\Management\Integrator\SwiftController::read }
+    requirements:
+        _method: GET
+

@@ -279,6 +279,12 @@ class Transaction implements TransactionTiming {
     private $price;
 
     /**
+     * @var
+     * @MongoDB\Int
+     */
+    private $client;
+
+    /**
      * Get id
      *
      * @return id $id
@@ -730,5 +736,21 @@ class Transaction implements TransactionTiming {
     public function setPrice($price)
     {
         $this->price = $price;
+    }
+
+    /**
+     * @return mixed
+     */
+    public function getClient()
+    {
+        return $this->client;
+    }
+
+    /**
+     * @param mixed $client
+     */
+    public function setClient($client)
+    {
+        $this->client = $client;
     }
 }

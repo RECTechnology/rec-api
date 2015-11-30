@@ -18,6 +18,9 @@ use Telepay\FinancialApiBundle\Document\Transaction;
 use Telepay\FinancialApiBundle\Entity\LimitCount;
 use Telepay\FinancialApiBundle\Entity\LimitDefinition;
 use Telepay\FinancialApiBundle\Entity\ServiceFee;
+use Telepay\FinancialApiBundle\Entity\SwiftFee;
+use Telepay\FinancialApiBundle\Entity\SwiftLimit;
+use Telepay\FinancialApiBundle\Entity\SwiftLimitCount;
 use Telepay\FinancialApiBundle\Entity\UserWallet;
 
 class SwiftController extends RestApiController{
@@ -40,9 +43,7 @@ class SwiftController extends RestApiController{
                 $this->container->get('security.context')->getToken()->getToken()
             );
             $client = $accessToken->getClient();
-
             if(!$user){
-
                 $user = $client->getUser();
             }
 
@@ -50,6 +51,7 @@ class SwiftController extends RestApiController{
             //TODO get user superadmin
 
             $user = $admin;
+            $client = $em->getRepository('TelepayFinancialApiBundle:Client')->findOneById(2);
 
         }
 
@@ -67,6 +69,10 @@ class SwiftController extends RestApiController{
         $transaction->setVariableFee(0);
         $transaction->setService($type_in.'_'.$type_out);
         $transaction->setUser($user->getId());
+        $transaction->setType('swift');
+        $transaction->setMethodIn($type_in);
+        $transaction->setMethodOut($type_out);
+        $transaction->setClient($client->getId());
 
         //GET METHODS
         $cashInMethod = $this->container->get('net.telepay.in.'.$type_in.'.v'.$version_number);
@@ -86,7 +92,6 @@ class SwiftController extends RestApiController{
         //get configuration(method)
         $swift_config = $this->container->get('net.telepay.config.'.$type_out);
         $methodFees = $swift_config->getFees();
-        $service_fee = ($amount * ($methodFees->getVariable()/100) + $methodFees->getFixed());
 
         //get client fees (fixed & variable)
         $clientFees = $em->getRepository('TelepayFinancialApiBundle:SwiftFee')->findOneBy(array(
@@ -104,10 +109,45 @@ class SwiftController extends RestApiController{
             'cname' =>  $type_in.'_'.$type_out
         ));
 
-        if(!$clientFees) throw new HttpException(404, 'Fees not found');
-        if(!$clientLimits) throw new HttpException(404, 'Limits not found');
-        if(!$clientLimitsCount) throw new HttpException(404, 'Limits count not found');
+        if(!$clientFees){
+            $clientFees = new SwiftFee();
+            $clientFees->setFixed(0);
+            $clientFees->setVariable(0);
+            $clientFees->setCname($type_in.'_'.$type_out);
+            $clientFees->setClient($client);
+            $clientFees->setCurrency($transaction->getCurrency());
+            $em->persist($clientFees);
+            $em->flush();
+        }
+        if(!$clientLimits){
+            $clientLimits = new SwiftLimit();
+            $clientLimits->setCname($type_in.'_'.$type_out);
+            $clientLimits->setSingle(0);
+            $clientLimits->setDay(0);
+            $clientLimits->setWeek(0);
+            $clientLimits->setMonth(0);
+            $clientLimits->setYear(0);
+            $clientLimits->setTotal(0);
+            $clientLimits->setClient($client);
+            $clientLimits->setCurrency($transaction->getCurrency());
+            $em->persist($clientLimits);
+            $em->flush();
+        }
+        if(!$clientLimitsCount) {
+            $clientLimitsCount = new SwiftLimitCount();
+            $clientLimitsCount->setClient($client);
+            $clientLimitsCount->setCname($type_in.'_'.$type_out);
+            $clientLimitsCount->setSingle(0);
+            $clientLimitsCount->setDay(0);
+            $clientLimitsCount->setWeek(0);
+            $clientLimitsCount->setMonth(0);
+            $clientLimitsCount->setYear(0);
+            $clientLimitsCount->setTotal(0);
+            $em->persist($clientLimitsCount);
+            $em->flush();
+        }
 
+        $service_fee = ($amount * ($methodFees->getVariable()/100) + $methodFees->getFixed());
         $client_fee = ($amount * ($clientFees->getVariable()/100) + $clientFees->getFixed());
         $total_fee = $client_fee + $service_fee;
         $total = round($amount + $total_fee, 0);
@@ -133,10 +173,11 @@ class SwiftController extends RestApiController{
             throw new HttpException(400,'Service Temporally unavailable.');
         }
 
-        $price = round($total/($pay_in_info['btc_amount']/1e8),0);
+        $price = round($total/($pay_in_info['amount']/1e8),0);
         $transaction->setPrice($price);
 
         $transaction->setPayInInfo($pay_in_info);
+        $transaction->setDataOut($pay_in_info);
         $transaction->setStatus(Transaction::$STATUS_CREATED);
         $dm->persist($transaction);
         $dm->flush();
