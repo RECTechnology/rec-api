@@ -36,7 +36,7 @@ class HalcashMethod implements  CashInInterface, CashOutInterface{
         $amount = $paymentInfo['amount']/100;
         $reference = $paymentInfo['description'];
 
-        if($paymentInfo['pin']){
+        if(isset($paymentInfo['pin'])){
             $pin = $paymentInfo['pin'];
         }else{
             $pin = rand(1000,9999);

@@ -10,6 +10,7 @@
 namespace Telepay\FinancialApiBundle\Controller\Management\User;
 
 use FOS\OAuthServerBundle\Model\Client;
+use Symfony\Component\HttpKernel\Exception\HttpException;
 use Telepay\FinancialApiBundle\Controller\BaseApiController;
 use FOS\RestBundle\Controller\Annotations as Rest;
 use Symfony\Component\HttpFoundation\Request;
@@ -90,6 +91,37 @@ class SwiftController extends BaseApiController{
     function getNewEntity()
     {
         return new Client();
+    }
+
+    /**
+     * @Rest\View
+     */
+    public function updateFees(Request $request, $id){
+
+        $user = $this->get('security.context')->getToken()->getUser();
+
+        $em = $this->getDoctrine()->getManager();
+
+        $fee = $em->getRepository('TelepayFinancialApiBundle:SwiftFee')->find($id);
+
+        if(!$fee) throw new HttpException(404, 'Fee not found');
+
+        if($user != $fee->getClient()->getUser()) throw new HttpException(403, 'You don\'t have the necessary permissions to change this fee');
+
+        if($request->request->has('fixed')){
+            $fee->setFixed($request->request->get('fixed'));
+        }
+
+        if($request->request->has('variable')){
+            $fee->setVariable($request->request->get('variable'));
+         }
+
+        $em->persist($fee);
+        $em->flush();
+
+        return $this->restV2(204,"ok", "Updated successfully");
+
+
     }
 
 }

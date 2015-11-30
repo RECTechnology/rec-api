@@ -321,4 +321,4 @@ services:
             - "EUR"
             - "image"
             - "@service_container"
-            - "net.telepay.driver.halcash.telepay"
+            - "@net.telepay.driver.halcash.telepay"
