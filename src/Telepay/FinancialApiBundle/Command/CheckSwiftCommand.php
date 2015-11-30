@@ -91,8 +91,10 @@ class CheckSwiftCommand extends ContainerAwareCommand
 
                 }elseif($pay_in_info['status'] == 'received'){
                     $transaction->setStatus('received');
+                    $transaction->setDataOut($pay_in_info);
                     $output->writeln('Status received');
                 }elseif($pay_in_info['status'] == 'success'){
+                    $transaction->setDataOut($pay_in_info);
                     try{
                         $pay_out_info = $cashOutMethod->send($pay_out_info);
                     }catch (HttpException $e){
