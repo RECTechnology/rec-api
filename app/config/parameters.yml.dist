@@ -101,3 +101,6 @@ parameters:
 
     cryptocapital_account_number: ''
     cryptocapital_beneficiary: ''
+
+    admin_user_id: ''
+    swift_client_id_default: ''

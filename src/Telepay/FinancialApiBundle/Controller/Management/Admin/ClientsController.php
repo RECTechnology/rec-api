@@ -100,5 +100,51 @@ class ClientsController extends BaseApiController {
         return parent::deleteAction($id);
     }
 
+    /**
+     * @Rest\View
+     */
+    public function updateLimits(Request $request, $id){
+
+        $em = $this->getDoctrine()->getManager();
+
+        $limit = $em->getRepository('TelepayFinancialApiBundle:SwiftLimit')->find($id);
+
+        if($request->request->has('single')){
+            $limit->setSingle($request->request->get('single'));
+
+        }
+
+        if($request->request->has('day')){
+            $limit->setDay($request->request->get('day'));
+
+        }
+
+        if($request->request->has('week')){
+            $limit->setWeek($request->request->get('week'));
+
+        }
+
+        if($request->request->has('month')){
+            $limit->setMonth($request->request->get('month'));
+
+        }
+
+        if($request->request->has('year')){
+            $limit->setYear($request->request->get('year'));
+
+        }
+
+        if($request->request->has('total')){
+            $limit->setTotal($request->request->get('total'));
+
+        }
+
+        $em->persist($limit);
+        $em->flush();
+
+        return $this->restV2(204,"ok", "Updated successfully");
+
+
+    }
 
 }

@@ -19,6 +19,12 @@ admin_clients_update:
     requirements:
         _method: PUT
 
+admin_clients_update_limit:
+    pattern:  /admin/v1/clients/limit/{id}
+    defaults: { _controller: Telepay\FinancialApiBundle\Controller\Management\Admin\ClientsController::updateLimits }
+    requirements:
+        _method: PUT
+
 ############################## SERVICES MNGMNT ##########################################
 
 admin_services_index:

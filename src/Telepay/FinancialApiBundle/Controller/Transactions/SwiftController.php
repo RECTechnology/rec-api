@@ -31,7 +31,10 @@ class SwiftController extends RestApiController{
         $dm = $this->get('doctrine_mongodb')->getManager();
         $em = $this->getDoctrine()->getManager();
 
-        $admin = $em->getRepository('TelepayFinancialApiBundle:User')->findOneById(49);
+        $admin_id = $this->container->getParameter('admin_user_id');
+        $client_default_id = $this->container->getParameter('swift_client_id_default');
+
+        $admin = $em->getRepository('TelepayFinancialApiBundle:User')->findOneById($admin_id);
 
         if ($this->get('security.authorization_checker')->isGranted('IS_AUTHENTICATED_FULLY')) {
 
@@ -51,7 +54,7 @@ class SwiftController extends RestApiController{
             //TODO get user superadmin
 
             $user = $admin;
-            $client = $em->getRepository('TelepayFinancialApiBundle:Client')->findOneById(7);
+            $client = $em->getRepository('TelepayFinancialApiBundle:Client')->findOneById($client_default_id);
 
         }
 
