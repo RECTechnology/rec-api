@@ -31,7 +31,7 @@ class SwiftController extends RestApiController{
         $dm = $this->get('doctrine_mongodb')->getManager();
         $em = $this->getDoctrine()->getManager();
 
-        $admin = $em->getRepository('TelepayFinancialApiBundle:User')->findOneById(1);
+        $admin = $em->getRepository('TelepayFinancialApiBundle:User')->findOneById(49);
 
         if ($this->get('security.authorization_checker')->isGranted('IS_AUTHENTICATED_FULLY')) {
 
