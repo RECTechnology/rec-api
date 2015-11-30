@@ -23,8 +23,8 @@ class BtcMethod implements CashInInterface, CashOutInterface {
 
     public function getPayInInfo($amount)
     {
-//        $address = $this->driver->getnewaddress();
-        $address = 'dfghjklñ';
+        $address = $this->driver->getnewaddress();
+//        $address = 'dfghjklñ';
 
         if(!$address) throw new HttpException(404,'Service Temporally unavailable');
 
