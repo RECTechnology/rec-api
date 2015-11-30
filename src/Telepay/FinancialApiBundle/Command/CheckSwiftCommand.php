@@ -127,11 +127,14 @@ class CheckSwiftCommand extends ContainerAwareCommand
                         'transaction_amount'    =>  $transaction->getAmount(),
                         'total_fee' =>  $client_fee + $service_fee
                     ));
+                    $userFee->setClient($client);
 
                     $output->writeln('Generating rootFee for: '.$transaction->getId());
                     //service fees goes to root
                     $rootFee = new Transaction();
-                    $rootFee->setUser(1);
+                    $root_id = $this->getContainer()->getParameter('admin_user_id');
+                    $root = $em->getRepository('TelepayFinancialApiBundle:User')->find($root_id);
+                    $rootFee->setUser($root);
                     $rootFee->setType('fee');
                     $rootFee->setCurrency($transaction->getCurrency());
                     $rootFee->setScale($transaction->getScale());
@@ -146,6 +149,7 @@ class CheckSwiftCommand extends ContainerAwareCommand
                         'transaction_amount'    =>  $transaction->getAmount(),
                         'total_fee' =>  $client_fee + $service_fee
                     ));
+                    $rootFee->setClient($client);
 
                     $dm->persist($userFee);
                     $dm->persist($rootFee);
