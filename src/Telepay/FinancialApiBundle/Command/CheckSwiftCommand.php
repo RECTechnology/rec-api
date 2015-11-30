@@ -136,7 +136,7 @@ class CheckSwiftCommand extends ContainerAwareCommand
                         $output->writeln('Generating rootFee for: '.$transaction->getId());
                         //service fees goes to root
                         $rootFee = new Transaction();
-                        $rootFee->setUser($root);
+                        $rootFee->setUser($root->getId());
                         $rootFee->setType('fee');
                         $rootFee->setCurrency($transaction->getCurrency());
                         $rootFee->setScale($transaction->getScale());
