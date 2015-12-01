@@ -162,7 +162,7 @@ class SwiftController extends BaseApiController{
                 }
 
                 $transaction->setPayOutInfo($payOutInfo);
-                $transaction->setSatatus(Transaction::$STATUS_CANCELLED);
+                $transaction->setStatus(Transaction::$STATUS_CANCELLED);
                 $message = 'Transaction cancelled successfully';
 
             }else{
