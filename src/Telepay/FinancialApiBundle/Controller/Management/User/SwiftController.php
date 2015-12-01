@@ -162,6 +162,7 @@ class SwiftController extends BaseApiController{
                 }
 
                 $transaction->setPayOutInfo($payOutInfo);
+                $transaction->setSatatus(Transaction::$STATUS_CANCELLED);
                 $message = 'Transaction cancelled successfully';
 
             }else{
@@ -179,6 +180,7 @@ class SwiftController extends BaseApiController{
                 //TODO if previous status = failed generate fees transactions
 
                 $transaction->setPayOutInfo($payOutInfo);
+                $transaction->setStatus(Transaction::$STATUS_SUCCESS);
                 $message = 'Transaction resend successfully';
 
             }
