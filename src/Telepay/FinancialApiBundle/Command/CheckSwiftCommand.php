@@ -111,6 +111,7 @@ class CheckSwiftCommand extends ContainerAwareCommand
                     if($pay_out_info['status'] == 'sent'){
                         $transaction->setPayOutInfo($pay_out_info);
                         $transaction->setStatus('success');
+                        $transaction->setDataIn($pay_out_info);
                         $output->writeln('Status success');
 
                         //Generate fee transactions. One for the user and one for the root
