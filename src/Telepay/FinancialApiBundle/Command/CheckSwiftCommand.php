@@ -106,7 +106,7 @@ class CheckSwiftCommand extends ContainerAwareCommand
                         $output->writeln('Status failed');
                     }
 
-                    if($pay_out_info['status'] == 'success'){
+                    if($pay_out_info['status'] == 'sent'){
                         $transaction->setPayOutInfo($pay_out_info);
                         $transaction->setStatus('success');
                         $output->writeln('Status success');
@@ -156,6 +156,7 @@ class CheckSwiftCommand extends ContainerAwareCommand
                         $dm->persist($rootFee);
 
                     }
+
                     $dm->flush();
 
                 }

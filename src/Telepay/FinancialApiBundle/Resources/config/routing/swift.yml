@@ -8,6 +8,14 @@ btc_halcash:
         type_in: "[a-z0-9_]+"
         type_out: "[a-z0-9_]+"
 
+check_swift:
+    pattern:  /swift/v{version_number}/{type_in}/{type_out}/{id}
+    defaults: { _controller: Telepay\FinancialApiBundle\Controller\Transactions\SwiftController::check ,_format: ~}
+    requirements:
+        _method: GET
+        type_in: "[a-z0-9_]+"
+        type_out: "[a-z0-9_]+"
+
 
 #service_call_create:
 #    pattern:  /services/v{version_number}/{service_cname}

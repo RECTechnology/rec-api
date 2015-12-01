@@ -10,6 +10,7 @@
 namespace Telepay\FinancialApiBundle\Controller\Management\User;
 
 use FOS\OAuthServerBundle\Model\Client;
+use MongoDBODMProxies\__CG__\Telepay\FinancialApiBundle\Document\Transaction;
 use Symfony\Component\HttpKernel\Exception\HttpException;
 use Telepay\FinancialApiBundle\Controller\BaseApiController;
 use FOS\RestBundle\Controller\Annotations as Rest;
@@ -121,6 +122,74 @@ class SwiftController extends BaseApiController{
 
         return $this->restV2(204,"ok", "Updated successfully");
 
+
+    }
+
+    /**
+     * @Rest\View
+     */
+    public function updateTransaction(Request $request, $id){
+
+        $user = $this->get('security.context')->getToken()->getUser();
+
+        $dm = $this->get('doctrine_mongodb')->getManager();
+
+        if(!$request->request->has('option')) throw new HttpException(404, 'Missing parameter \'option\'');
+
+        $option = $request->request->get('option');
+
+        $transaction = $dm->getRepository('TelepayFinancialApiBundle:Transaction')->findOneBy(array(
+            'id'    =>  $id,
+            'type'  =>  'swift',
+            'user'  =>  $user->getId()
+        ));
+
+        if(!$transaction) throw new HttpException(404, 'Transaction not found');
+
+        $payInInfo = $transaction->getPayInInfo();
+        $payOutInfo = $transaction->getPayOutInfo();
+
+        $method_in = $this->get('net.telepay.in.'.$transaction->getMethodIn().'v1');
+        $method_out = $this->get('net.telepay.out.'.$transaction->getMethodOut().'v1');
+
+        if($option == 'cancel'){
+            if($transaction->getStatus() == Transaction::$STATUS_SUCCESS && $payOutInfo['status'] == 'sent'){
+                //cancel transaction
+                try{
+                    $payOutInfo = $method_out->cancel($payOutInfo);
+                }catch (HttpException $e){
+                    throw new HttpException(400, 'Cancel transaction error');
+                }
+
+                $transaction->setPayOutInfo($payOutInfo);
+                $message = 'Transaction cancelled successfully';
+
+            }else{
+                throw new HttpException(403, 'Transaction can\'t be cancelled');
+            }
+        }elseif($option == 'resend'){
+            if($transaction->getStatus() == Transaction::$STATUS_FAILED || $transaction->getStatus() == Transaction::$STATUS_CANCELLED){
+                //resend out method
+                try{
+                    $payOutInfo = $method_out->send($payOutInfo);
+                }catch (HttpException $e){
+                    throw new HttpException(400, 'Resend transaction error');
+                }
+
+                //TODO if previous status = failed generate fees transactions
+
+                $transaction->setPayOutInfo($payOutInfo);
+                $message = 'Transaction resend successfully';
+
+            }
+        }else{
+            throw new HttpException(400, 'Bad parameter \'option\'');
+        }
+
+        $dm->persist($transaction);
+        $dm->flush();
+
+        return $this->restV2(204,"ok", $message);
 
     }
 

@@ -45,7 +45,7 @@ class HalcashMethod implements  CashInInterface, CashOutInterface{
         $hal = $this->driver->sendV3($phone,$prefix,$amount,$reference,$pin);
 
         if($hal['errorcode'] == 0){
-            $paymentInfo['status'] = 'success';
+            $paymentInfo['status'] = 'sent';
             $paymentInfo['halcashticket'] = $hal['halcashticket'];
         }elseif($hal['errorcode'] == 99){
             $paymentInfo['status'] = 'failed';
@@ -76,6 +76,9 @@ class HalcashMethod implements  CashInInterface, CashOutInterface{
 
         }
 
+        $params['final'] = false;
+        $params['status'] = false;
+
         return $params;
     }
 
@@ -87,5 +90,21 @@ class HalcashMethod implements  CashInInterface, CashOutInterface{
     public function getPayOutStatus($id)
     {
         // TODO: Implement getPayOutStatus() method.
+    }
+
+    public function cancel($paymentInfo){
+
+        $halcashticket = $paymentInfo['halcashticket'];
+
+        $response = $this->driver->cancelation($halcashticket, 'ChipChap cancelation');
+
+        if($response['errorcode'] == 0){
+            $paymentInfo['status'] = 'cancelled';
+        }else{
+            throw new HttpException(409, 'Transaction can\'t be cancelled');
+        }
+
+        return $paymentInfo;
+
     }
 }

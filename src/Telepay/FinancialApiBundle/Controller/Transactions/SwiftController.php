@@ -186,6 +186,33 @@ class SwiftController extends RestApiController{
 
     }
 
+    public function check(Request $request, $version_number, $type_in, $type_out, $id){
+        //Get transaction by id
+        $dm = $dm = $this->get('doctrine_mongodb')->getManager();
+        $transaction = $dm->getRepository('TelepayFinancialApiBundle:Transaction')->findOneBy(array(
+            'id'    =>  $id,
+            'type'  =>  'swift',
+            'method_in' =>  $type_in,
+            'method_out'    =>  $type_out
+        ));
+
+        if(!$transaction) throw new HttpException(404, 'Transaction not found');
+
+        return $this->swiftTransaction($transaction, "Done");
+
+    }
+
+    public function update(Request $request, $version_number, $type_in, $type_out, $id){
+
+        $dm = $this->get('doctrine_mongodb')->getManager();
+        $transaction = $dm->getRepository('TelepayFinancialApiBundle:Transaction')->findOneBy(array(
+            'id'    =>  $id
+        ));
+
+        if(!$request->request->has('option')) throw new HttpException(404, 'Missing parameter "option"');
+
+    }
+
     public function _exchange($amount,$curr_in,$curr_out){
 
         $dm=$this->getDoctrine()->getManager();
