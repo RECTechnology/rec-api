@@ -149,8 +149,8 @@ class SwiftController extends BaseApiController{
         $payInInfo = $transaction->getPayInInfo();
         $payOutInfo = $transaction->getPayOutInfo();
 
-        $method_in = $this->get('net.telepay.in.'.$transaction->getMethodIn().'v1');
-        $method_out = $this->get('net.telepay.out.'.$transaction->getMethodOut().'v1');
+        $method_in = $this->get('net.telepay.in.'.$transaction->getMethodIn().'.v1');
+        $method_out = $this->get('net.telepay.out.'.$transaction->getMethodOut().'.v1');
 
         if($option == 'cancel'){
             if($transaction->getStatus() == Transaction::$STATUS_SUCCESS && $payOutInfo['status'] == 'sent'){
