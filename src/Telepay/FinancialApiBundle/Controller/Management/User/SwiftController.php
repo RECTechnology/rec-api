@@ -163,6 +163,7 @@ class SwiftController extends BaseApiController{
 
                 $transaction->setPayOutInfo($payOutInfo);
                 $transaction->setStatus(Transaction::$STATUS_CANCELLED);
+                $transaction->setUpdated(new \DateTime());
                 $message = 'Transaction cancelled successfully';
 
             }else{
@@ -181,6 +182,7 @@ class SwiftController extends BaseApiController{
 
                 $transaction->setPayOutInfo($payOutInfo);
                 $transaction->setStatus(Transaction::$STATUS_SUCCESS);
+                $transaction->setUpdated(new \DateTime());
                 $message = 'Transaction resend successfully';
 
             }

@@ -75,6 +75,9 @@ class CheckSwiftCommand extends ContainerAwareCommand
                     //check if hasExpired
                     if($this->hasExpired($transaction)){
                         $transaction->setStatus('expired');
+                        $pay_in_info['status'] = 'expired';
+                        $transaction->setPayInInfo($pay_in_info);
+                        $transaction->setUpdated(new \DateTime());
                         $dm->persist($transaction);
                         $dm->flush();
                         $output->writeln('Status expired');
@@ -96,10 +99,12 @@ class CheckSwiftCommand extends ContainerAwareCommand
                     $transaction->setStatus('received');
                     $transaction->setDataOut($pay_in_info);
                     $transaction->setPayInInfo($pay_in_info);
+                    $transaction->setUpdated(new \DateTime());
                     $output->writeln('Status '.$pay_in_info['status']);
                 }elseif($pay_in_info['status'] == 'success'){
                     $transaction->setPayInInfo($pay_in_info);
                     $transaction->setDataOut($pay_in_info);
+                    $transaction->setUpdated(new \DateTime());
                     try{
                         $pay_out_info = $cashOutMethod->send($pay_out_info);
                     }catch (HttpException $e){
@@ -169,6 +174,7 @@ class CheckSwiftCommand extends ContainerAwareCommand
 
             }else{
                 $transaction->setStatus('error');
+                $transaction->setUpdated(new \DateTime());
                 $dm->persist($transaction);
                 $dm->flush();
                 $output->writeln('Bad values in transaction '.$transaction->getId());
