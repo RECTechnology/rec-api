@@ -14,7 +14,6 @@ class HalcashTelepayDriver{
     private $reference;
     private $pin;
     private $alias;
-    private $transaction_id;
     private $hal;
     private $user;
     private $password;
@@ -45,7 +44,6 @@ class HalcashTelepayDriver{
         $response = $client->call("Precio",$params);
         if ($client->fault) { // Si
 
-            //$response='error3';
         } else { // No
 
             $sError = $client->getError();
@@ -53,7 +51,6 @@ class HalcashTelepayDriver{
             // Hay algun error ?
             if ($sError) { // Si
                 throw new HttpException(400,"No se pudo completar la operacion [".$sError."]");
-                //$response=$sError;
             }
         }
 
@@ -97,18 +94,15 @@ class HalcashTelepayDriver{
             $client = new nusoap_client($url,true);
             if ($sError = $client->getError()) {
                 throw new HttpException(503,"No se pudo completar la operacion [".$sError."]");
-                //$response='error2';
             }
             $response = $client->call("Emision",$params);
             if ($client->fault) { // Si
                 throw new HttpException(503,"No se pudo completar la operacion [".$sError."]");
-                //$response='error3';
             } else { // No
                 $sError = $client->getError();
                 // Hay algun error ?
                 if ($sError) { // Si
                     throw new HttpException(503,"No se pudo completar la operacion [".$sError."]");
-                    //$response=$sError;
                 }
             }
         }
@@ -154,25 +148,20 @@ class HalcashTelepayDriver{
             $client = new nusoap_client($url,true);
             if ($sError = $client->getError()) {
                 throw new HttpException(400,"No se pudo completar la operacion [".$sError."]");
-                //$response='error2';
             }
             $response = $client->call("EmisionInternacional",$params);
             if ($client->fault) { // Si
                 throw new HttpException(400,"No se pudo completar la operacion [".$sError."]");
-                //$response='error3';
             } else { // No
                 $sError = $client->getError();
                 // Hay algun error ?
                 if ($sError) { // Si
                     throw new HttpException(400,"No se pudo completar la operacion [".$sError."]");
-                    //$response=$sError;
                 }
             }
 
             $response = $response['EmisionInternacionalResult'];
         }
-
-
 
         return $response;
 

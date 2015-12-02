@@ -40,6 +40,7 @@ class HalcashMethod implements  CashInInterface, CashOutInterface{
             $pin = $paymentInfo['pin'];
         }else{
             $pin = rand(1000,9999);
+            $paymentInfo['pin'] = $pin;
         }
 
         $hal = $this->driver->sendV3($phone,$prefix,$amount,$reference,$pin);
