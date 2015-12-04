@@ -30,34 +30,7 @@ class HalcashTelepayDriver{
 
     public function ticker($country){
 
-        $params = array(
-            'usuario'		=>	$this->user,
-            'contrasenia'	=>	$this->password,
-            'pais'          =>  $country
-        );
-
-        $url='http://hcsvc.telepay.net/HalCashGatewayIssue.asmx?wsdl';
-        $client = new nusoap_client($url,true);
-
-        $response = $client->call("Precio",$params);
-
-        if ($client->fault) { // Si
-
-            //$response='error3';
-        } else { // No
-
-            $sError = $client->getError();
-
-            // Hay algun error ?
-            if ($sError) { // Si
-                throw new HttpException(400,"No se pudo completar la operacion [".$sError."]");
-                //$response=$sError;
-            }
-        }
-
-        $response = $response['PrecioResult']['precio'];
-        $precio = preg_replace('/,/','.',$response);
-        $precio = doubleval($precio)/100.0;
+        $precio = 0.2389;
 
         return $precio;
 
