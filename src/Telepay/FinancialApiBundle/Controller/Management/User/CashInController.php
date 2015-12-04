@@ -30,18 +30,13 @@ class CashInController extends BaseApiController{
 
         $total = count($all);
 
-        $filtered = [];
-        foreach($all as $tpv){
-            $filtered[] = $tpv->getTpvView();
-        }
-
         return $this->restV2(
             200,
             "ok",
             "Request successful",
             array(
                 'total' => $total,
-                'elements' => $filtered
+                'elements' => $all
             )
         );
     }
@@ -101,10 +96,7 @@ class CashInController extends BaseApiController{
             return $response;
         }
 
-
-
         return $this->restV2(201, "ok", "Token created succesfull", $resp);
-
     }
 
     /**

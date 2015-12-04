@@ -15,12 +15,6 @@ admin_services_index:
     requirements:
         _method: GET
 
-manager_services_read:
-    pattern:  /user/v1/services/{service}
-    defaults: { _controller: Telepay\FinancialApiBundle\Controller\Management\Integrator\ServicesController::read }
-    requirements:
-        _method: GET
-
 ############################## TRANSACTIONS MNGMNT ##########################################
 
 super_admin_transaction_delete:
@@ -71,8 +65,32 @@ system_api_financial:
 
 ##################### SPECIAL ACTIONS ############################
 
+admin_recharge_validate:
+    pattern:  /admin/v1/recharge/validate
+    defaults: { _controller: Telepay\FinancialApiBundle\Controller\Management\Admin\SpecialActionsController::rechargeValidation }
+    requirements:
+        _method: POST
+
+admin_cash_in_list:
+    pattern:  /admin/v1/cash_in/{service}
+    defaults: { _controller: Telepay\FinancialApiBundle\Controller\Management\Admin\SpecialActionsController::cashInList }
+    requirements:
+        _method: GET
+
 admin_cash_in_validate:
-    pattern:  /admin/v1/cash_in/validate
+    pattern:  /admin/v1/cash_in/{id}
     defaults: { _controller: Telepay\FinancialApiBundle\Controller\Management\Admin\SpecialActionsController::cashInValidation }
+    requirements:
+        _method: POST
+
+admin_sepa_out_list:
+    pattern:  /admin/v1/sepa_out
+    defaults: { _controller: Telepay\FinancialApiBundle\Controller\Management\Admin\SpecialActionsController::sepaOutList }
+    requirements:
+        _method: GET
+
+admin_sepa_out_validate:
+    pattern:  /admin/v1/sepa_out/{id}
+    defaults: { _controller: Telepay\FinancialApiBundle\Controller\Management\Admin\SpecialActionsController::sepaOutValidation }
     requirements:
         _method: POST

@@ -10,6 +10,7 @@ imports:
     - { resource: @TelepayFinancialApiBundle/Resources/config/telepay_traders.yml }
     - { resource: @TelepayFinancialApiBundle/Resources/config/telepay_wallets.yml }
     - { resource: @TelepayFinancialApiBundle/Resources/config/telepay_money_ways.yml }
+    - { resource: @TelepayFinancialApiBundle/Resources/config/telepay_exchanges.yml }
 
 
 framework:
@@ -90,6 +91,8 @@ swiftmailer:
     host:      "%mailer_host%"
     username:  "%mailer_user%"
     password:  "%mailer_password%"
+    auth_mode: login
+    encryption: tls
     spool:     { type: memory }
 
 fos_user:
@@ -131,6 +134,9 @@ jms_serializer:
             FOSUB:
                 namespace_prefix: "FOS\\UserBundle"
                 path: "%kernel.root_dir%/serializer/FOSUserBundle"
+    visitors:
+        json:
+            options: JSON_UNESCAPED_SLASHES
 
 
 fos_oauth_server:

@@ -8,21 +8,11 @@
 
 namespace Telepay\FinancialApiBundle\Controller\Transactions;
 
-use Symfony\Component\EventDispatcher\Tests\Service;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpKernel\Exception\HttpException;
 use Telepay\FinancialApiBundle\Controller\RestApiController;
 use FOS\RestBundle\Controller\Annotations as Rest;
-
-use Telepay\FinancialApiBundle\DependencyInjection\Telepay\Commons\FeeDeal;
-use Telepay\FinancialApiBundle\DependencyInjection\Telepay\Commons\LimitAdder;
-use Telepay\FinancialApiBundle\DependencyInjection\Telepay\Commons\LimitChecker;
 use Telepay\FinancialApiBundle\Document\Transaction;
-use Telepay\FinancialApiBundle\Entity\Balance;
-use Telepay\FinancialApiBundle\Entity\LimitCount;
-use Telepay\FinancialApiBundle\Entity\LimitDefinition;
-use Telepay\FinancialApiBundle\Entity\ServiceFee;
-use Telepay\FinancialApiBundle\Entity\User;
 use Telepay\FinancialApiBundle\Entity\UserWallet;
 
 class POSIncomingController extends RestApiController{
@@ -41,13 +31,11 @@ class POSIncomingController extends RestApiController{
 
         $user = $tpvRepo->getUser();
 
+        if($tpvRepo->getActive() == 0) throw new HttpException(400, 'Service Temporally unavailable');
+
         $service_currency = strtoupper($tpvRepo->getCurrency());
 
         $service = $this->get('net.telepay.services.'.$service_cname.'.v'.$version_number);
-
-        if (false === $user->hasRole($service->getRole())) {
-            throw $this->createAccessDeniedException();
-        }
 
         $dataIn = array();
         foreach($service->getFields() as $field){

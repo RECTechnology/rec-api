@@ -9,24 +9,11 @@
 
 namespace Telepay\FinancialApiBundle\Controller\Management\Commerce;
 
-use FOS\OAuthServerBundle\Document\RefreshToken;
-use Symfony\Component\Security\Core\Util\SecureRandom;
-use Telepay\FinancialApiBundle\Entity\AccessToken;
-use Telepay\FinancialApiBundle\Entity\BTCWallet;
-use Telepay\FinancialApiBundle\Entity\Device;
-use Telepay\FinancialApiBundle\Entity\Group;
-use Telepay\FinancialApiBundle\Entity\LimitDefinition;
 use Telepay\FinancialApiBundle\Entity\POS;
-use Telepay\FinancialApiBundle\Entity\ServiceFee;
-use Telepay\FinancialApiBundle\Entity\User;
-use Rhumsaa\Uuid\Uuid;
 use Symfony\Component\HttpKernel\Exception\HttpException;
 use Telepay\FinancialApiBundle\Controller\BaseApiController;
-use Telepay\FinancialApiBundle\Controller\RestApiController;
 use FOS\RestBundle\Controller\Annotations as Rest;
 use Symfony\Component\HttpFoundation\Request;
-use Telepay\FinancialApiBundle\Entity\UserWallet;
-use Telepay\FinancialApiBundle\Financial\Currency;
 
 class POSController extends BaseApiController{
 

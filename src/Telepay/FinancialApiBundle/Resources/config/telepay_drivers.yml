@@ -19,3 +19,11 @@ services:
     net.telepay.driver.getfaircoin:
         class: GetFaircoin\Ticker
 
+    net.telepay.driver.halcash.telepay:
+        class: Telepay\FinancialApiBundle\Financial\Driver\HalcashTelepayDriver
+        arguments:
+            - "%halcash_user%"
+            - "%halcash_pass%"
+            - "%halcash_alias%"
+
+

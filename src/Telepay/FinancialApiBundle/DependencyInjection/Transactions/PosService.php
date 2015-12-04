@@ -47,6 +47,9 @@ class PosService extends BaseService{
 
         if($baseTransaction->getCurrency() == 'BTC'){
             $out['address'] = $this->getContainer()->get('net.telepay.provider.btc')->getnewaddress();
+            $out['received'] = 0.0;
+            $out['min_confirmations'] = 1;
+            $out['confirmations'] = 0;
         }
 
         $baseTransaction->setData($important_data);

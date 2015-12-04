@@ -40,7 +40,7 @@ class SafetyPayService extends BaseService{
         //enviamos la transaccion con dos decimales
         $amount = round($baseTransaction->getDataIn()['amount']/100,2);
         //prepare notification urls
-        $id=$baseTransaction->getId();
+        $id = $baseTransaction->getId();
         //control service version for the notification
         $url_success = $baseTransaction->getDataIn()['url_success'];
         $url_fail = $baseTransaction->getDataIn()['url_fail'];
@@ -50,10 +50,10 @@ class SafetyPayService extends BaseService{
             'url_fail'      =>  $url_fail
         ));
 
-        $date_time=new \DateTime();
-        $date_time=date_format($date_time,'Y-m-dTH:i:s');
+        $date_time = new \DateTime();
+        $date_time = date_format($date_time,'Y-m-dTH:i:s');
 
-        $safety = $this->safetypayProvider->request($date_time,$currency,$amount,$url_success,$url_fail);
+        $safety = $this->safetypayProvider->request($date_time, $currency, $amount, $url_success, $url_fail);
 
         if($safety === false)
             throw new HttpException(503, "Service temporarily unavailable, please try again in a few minutes");

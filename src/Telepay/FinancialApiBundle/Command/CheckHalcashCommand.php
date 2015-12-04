@@ -41,6 +41,8 @@ class CheckHalcashCommand extends ContainerAwareCommand
             $resArray [] = $transaction;
 
             $previous_status = $transaction->getStatus();
+            $output->writeln('txid: '.$transaction->getId());
+            $output->writeln('status: '.$transaction->getStatus());
 
             $checked_transaction = $this->check($transaction);
 
@@ -154,7 +156,7 @@ class CheckHalcashCommand extends ContainerAwareCommand
 
         $logger = $this->getContainer()->get('logger');
         $logger->info('HALCASH->check by cron');
-//        $logger->info('HALCASH: ticket-> '.$ticket.', status->'.$status);
+        $logger->info('HALCASH: ticket-> '.$ticket.', status->'.$status['estadoticket']);
 
         return $transaction;
     }
@@ -165,8 +167,7 @@ class CheckHalcashCommand extends ContainerAwareCommand
             ->setSubject($subject)
             ->setFrom('no-reply@chip-chap.com')
             ->setTo(array(
-                'pere@playa-almarda.es',
-                'support@chip-chap.com'
+                'pere@chip-chap.com'
             ))
             ->setBody(
                 $this->getContainer()->get('templating')
@@ -175,7 +176,8 @@ class CheckHalcashCommand extends ContainerAwareCommand
                             'message'        =>  $body
                         )
                     )
-            );
+            )
+            ->setContentType('text/html');
 
         $this->getContainer()->get('mailer')->send($message);
     }
