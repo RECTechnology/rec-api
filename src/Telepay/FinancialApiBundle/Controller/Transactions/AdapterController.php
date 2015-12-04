@@ -144,6 +144,7 @@ class AdapterController extends RestApiController{
 
     private function _btcHalcashCheck($id){
 
+        //TODO implementar polsky
         $response = $this->forward('Telepay\FinancialApiBundle\Controller\Transactions\SwiftController::check', array(
             'version_number'    =>  1,
             'type_in'   =>  'btc',
@@ -173,14 +174,12 @@ class AdapterController extends RestApiController{
             $customResponse['dst_coin'] = 'eur';
             $customResponse['dst_scale'] = 100;
             $customResponse['dst_amount'] = $array_response['pay_out_info']['amount'];
-            //TODO calcular bien el precio
-            $customResponse['price'] = ($array_response['pay_out_info']['amount']/100)/($array_response['pay_in_info']['amount']/1e8);
+            $customResponse['price'] = round(($array_response['pay_out_info']['amount']/100)/($array_response['pay_in_info']['amount']/1e8),2);
             $customResponse['address'] = $array_response['pay_in_info']['address'];
             $customResponse['confirmations'] = $array_response['pay_in_info']['confirmations'];
             $customResponse['received'] = $array_response['pay_in_info']['received'];
             $customResponse['phone'] = $array_response['pay_out_info']['phone'];
             $customResponse['prefix'] = $array_response['pay_out_info']['prefix'];
-            //TODO El pin no se ha generado todavia
             $customResponse['pin'] = $array_response['pay_out_info']['pin'];
 
             return $this->restPlain($response->getStatusCode(), $customResponse);
