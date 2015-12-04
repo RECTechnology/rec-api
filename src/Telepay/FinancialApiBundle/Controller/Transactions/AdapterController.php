@@ -35,7 +35,19 @@ class AdapterController extends RestApiController{
             }
 
         }elseif($type_in == 'fac'){
+            if($type_out == 'halcash'){
 
+                return $this->_facHalcash($request);
+
+            }elseif($type_out == 'cryptocapital'){
+
+
+
+            }elseif($type_out == 'bank_transfer'){
+
+            }else{
+
+            }
         }else{
 
         }
@@ -61,7 +73,19 @@ class AdapterController extends RestApiController{
             }
 
         }elseif($type_in == 'fac'){
+            if($type_out == 'halcash'){
 
+                return $this->_facHalcashCheck($id);
+
+            }elseif($type_out == 'cryptocapital'){
+
+
+
+            }elseif($type_out == 'bank_transfer'){
+
+            }else{
+
+            }
         }else{
 
         }
@@ -169,6 +193,111 @@ class AdapterController extends RestApiController{
             $customResponse['id'] = $array_response['id'];
             $customResponse['type'] = 'btc_halcash';
             $customResponse['orig_coin'] = 'btc';
+            $customResponse['orig_scale'] = 100000000;
+            $customResponse['orig_amount'] = $array_response['pay_in_info']['amount'];
+            $customResponse['dst_coin'] = 'eur';
+            $customResponse['dst_scale'] = 100;
+            $customResponse['dst_amount'] = $array_response['pay_out_info']['amount'];
+            $customResponse['price'] = round(($array_response['pay_out_info']['amount']/100)/($array_response['pay_in_info']['amount']/1e8),2);
+            $customResponse['address'] = $array_response['pay_in_info']['address'];
+            $customResponse['confirmations'] = $array_response['pay_in_info']['confirmations'];
+            $customResponse['received'] = $array_response['pay_in_info']['received'];
+            $customResponse['phone'] = $array_response['pay_out_info']['phone'];
+            $customResponse['prefix'] = $array_response['pay_out_info']['prefix'];
+            $customResponse['pin'] = $array_response['pay_out_info']['pin'];
+
+            return $this->restPlain($response->getStatusCode(), $customResponse);
+
+        }else{
+            return $this->restPlain($response->getStatusCode(), $array_response);
+        }
+
+    }
+
+    private function _facHalcash(Request $request){
+
+        //country, phone_number, amount, prefix
+        $paramNames = array(
+            'amount',
+            'phone_number',
+            'phone_prefix',
+            'country'
+        );
+
+        $params = $this->_receiver($request, $paramNames);
+
+        $request->request->remove('phone_number');
+        $request->request->remove('country');
+        $request->request->remove('phone_prefix');
+        $request->request->remove('amount');
+
+        $request->request->add(array(
+            'phone' =>  $params['phone_number'],
+            'prefix'    =>  $params['phone_prefix'],
+            'amount'    =>  $params['amount']*100,
+            'description'   =>  'description'
+        ));
+
+        $method_in = 'fac';
+        if($params['country'] == 'ES'){
+            $meyhod_out = 'halcash_es';
+        }else{
+            $meyhod_out = 'halcash_pl';
+        }
+
+        $response = $this->forward('Telepay\FinancialApiBundle\Controller\Transactions\SwiftController::make', array(
+            'request'  => $request,
+            'version_number' => '1',
+            'type_in'   =>  $method_in,
+            'type_out'  =>  $meyhod_out
+        ));
+
+        $array_response = json_decode($response->getContent(), true);
+        if($response->getStatusCode() == 200){
+            //status, ticcket_id, id, address,amount, pin
+            $customResponse = array();
+            $customResponse['status'] = 'ok';
+            $customResponse['ticket_id'] = $array_response['id'];
+            $customResponse['id'] = $array_response['id'];
+            $customResponse['address'] = $array_response['pay_in_info']['address'];
+            $customResponse['amount'] = $array_response['pay_in_info']['amount'];
+            $customResponse['pin'] = $array_response['pay_out_info']['pin'];
+
+            return $this->restPlain($response->getStatusCode(), $customResponse);
+
+        }else{
+            return $this->restPlain($response->getStatusCode(), $array_response);
+        }
+
+    }
+
+    private function _facHalcashCheck($id){
+
+        //TODO implementar polsky
+        $response = $this->forward('Telepay\FinancialApiBundle\Controller\Transactions\SwiftController::check', array(
+            'version_number'    =>  1,
+            'type_in'   =>  'fac',
+            'type_out'  =>  'halcash_es',
+            'id'    =>  $id
+        ));
+
+        $array_response = json_decode($response->getContent(), true);
+        if($response->getStatusCode() == 200){
+            //status,created,ticket_id,id,type,orig_coin,orig_scale,orig_amount,dst_coin,dst_scale,
+            //dst_amount,price,address,confirmations,received,phone,prefix,pin
+
+            $customResponse = array();
+            if($array_response['status'] == 'created'){
+                $customResponse['status'] = 'pending';
+            }else{
+                $customResponse['status'] = $array_response['status'];
+            }
+
+            $customResponse['created'] = $array_response['created'];
+            $customResponse['ticket_id'] = $array_response['id'];
+            $customResponse['id'] = $array_response['id'];
+            $customResponse['type'] = 'fac_halcash';
+            $customResponse['orig_coin'] = 'fac';
             $customResponse['orig_scale'] = 100000000;
             $customResponse['orig_amount'] = $array_response['pay_in_info']['amount'];
             $customResponse['dst_coin'] = 'eur';

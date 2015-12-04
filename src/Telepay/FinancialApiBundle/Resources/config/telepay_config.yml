@@ -8,3 +8,9 @@ services:
             - "100"
             - "2"
 
+    net.telepay.config.halcash_pl:
+        class: Telepay\FinancialApiBundle\Financial\Methods\MethodConfiguration
+        arguments:
+            - "200"
+            - "2"
+
