@@ -174,7 +174,7 @@ class AdapterController extends RestApiController{
             $customResponse['dst_scale'] = 100;
             $customResponse['dst_amount'] = $array_response['pay_out_info']['amount'];
             //TODO calcular bien el precio
-            $customResponse['price'] = ($array_response['pay_out_info']['amount']/100)/($array_response['pay_in_info']['amount']*1e8);
+            $customResponse['price'] = ($array_response['pay_out_info']['amount']/100)/($array_response['pay_in_info']['amount']/1e8);
             $customResponse['address'] = $array_response['pay_in_info']['address'];
             $customResponse['confirmations'] = $array_response['pay_in_info']['confirmations'];
             $customResponse['received'] = $array_response['pay_in_info']['received'];
