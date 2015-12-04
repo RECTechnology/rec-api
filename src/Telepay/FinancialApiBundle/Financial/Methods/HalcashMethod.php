@@ -13,7 +13,7 @@ use Telepay\FinancialApiBundle\DependencyInjection\Transactions\Core\CashInInter
 use Telepay\FinancialApiBundle\DependencyInjection\Transactions\Core\CashOutInterface;
 
 
-class HalcashEsMethod implements  CashInInterface, CashOutInterface{
+class HalcashMethod implements  CashInInterface, CashOutInterface{
 
     private $driver;
     private $currency;
