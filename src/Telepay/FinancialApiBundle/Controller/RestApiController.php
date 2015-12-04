@@ -33,11 +33,15 @@ class RestApiController extends FosRestController{
         ));
     }
 
-    protected function restSwift($httpCode, $status, $message = "No info", $id, $amount, $scale, $currency, $updated, $pay_in_info = array(),$pay_out_info = array() ){
+    protected function restSwift($httpCode, $status, $message = "No info", $id, $amount, $scale, $currency,$created, $updated, $pay_in_info = array(),$pay_out_info = array() ){
         return $this->handleView($this->view(
-            new SwiftResponse($status, $message, $id, $amount, $scale, $currency , $updated, $pay_in_info,$pay_out_info),
+            new SwiftResponse($status, $message, $id, $amount, $scale, $currency ,$created, $updated, $pay_in_info,$pay_out_info),
             $httpCode
         ));
+    }
+
+    protected function restPlain($code, $data = array()){
+        return $this->handleView($this->view($data, $code));
     }
 
 
@@ -65,6 +69,7 @@ class RestApiController extends FosRestController{
             $transaction->getAmount(),
             $transaction->getScale(),
             $transaction->getCurrency(),
+            $transaction->getCreated(),
             $transaction->getUpdated(),
             $transaction->getPayInInfo(),
             $transaction->getPayOutInfo()

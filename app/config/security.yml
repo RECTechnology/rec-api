@@ -71,6 +71,13 @@ security:
             signature_auth: true
             anonymous: true
 
+        old_api:
+            pattern:  ^/api
+            stateless: true
+            fos_oauth:  true
+            signature_auth: true
+            anonymous: true
+
         oauth:
             pattern:    ^/
             fos_oauth:  true

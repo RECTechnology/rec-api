@@ -17,9 +17,26 @@ check_swift:
         type_out: "[a-z0-9_]+"
 
 
+
+
 #service_call_create:
 #    pattern:  /services/v{version_number}/{service_cname}
 #    defaults: { _controller: Telepay\FinancialApiBundle\Controller\Transactions\IncomingController::make, _format: ~ }
 #    requirements:
 #        _method: POST
 #        service_cname: "[a-z0-9_]+"
+
+
+###########################  OLD SERVICES ########################
+
+old_btc_halcash:
+    pattern:  /api/send
+    defaults: { _controller: Telepay\FinancialApiBundle\Controller\Transactions\AdapterController::make ,_format: ~ ,type_in: 'btc' ,type_out: 'halcash'}
+    requirements:
+        _method: POST
+
+old_btc_halcash_check:
+    pattern:  /api/send/{id}
+    defaults: { _controller: Telepay\FinancialApiBundle\Controller\Transactions\AdapterController::check ,_format: ~ ,type_in: 'btc' ,type_out: 'halcash', version_number: '1'}
+    requirements:
+        _method: GET
