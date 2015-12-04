@@ -13,7 +13,7 @@ use Telepay\FinancialApiBundle\DependencyInjection\Transactions\Core\CashInInter
 use Telepay\FinancialApiBundle\DependencyInjection\Transactions\Core\CashOutInterface;
 
 
-class HalcashMethod implements  CashInInterface, CashOutInterface{
+class HalcashEsMethod implements  CashInInterface, CashOutInterface{
 
     private $driver;
     private $currency;
@@ -43,7 +43,12 @@ class HalcashMethod implements  CashInInterface, CashOutInterface{
             $paymentInfo['pin'] = $pin;
         }
 
-        $hal = $this->driver->sendV3($phone,$prefix,$amount,$reference,$pin);
+        if($this->currency == 'EUR'){
+            $hal = $this->driver->sendV3($phone,$prefix,$amount,$reference,$pin);
+        }else{
+            $hal = $this->driver->sendInternational($phone,$prefix,$amount,$reference,$pin, 'PL', 'POL');
+        }
+
 
         if($hal['errorcode'] == 0){
             $paymentInfo['status'] = 'sent';

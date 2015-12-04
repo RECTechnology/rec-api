@@ -312,13 +312,35 @@ services:
             - "@service_container"
             - "@net.telepay.driver.easybitcoin.btc"
 
+    net.telepay.in.fac.v1:
+        class: Telepay\FinancialApiBundle\Financial\Methods\FacMethod
+        arguments:
+            - "Fac"
+            - "fac"
+            - "cash_in"
+            - "FAC"
+            - "image"
+            - "@service_container"
+            - "@net.telepay.driver.easybitcoin.fac"
+
     net.telepay.out.halcash_es.v1:
         class: Telepay\FinancialApiBundle\Financial\Methods\HalcashMethod
         arguments:
-            - "Btc"
-            - "btc"
+            - "Halcash ES"
+            - "halcash_es"
             - "cash_in"
             - "EUR"
+            - "image"
+            - "@service_container"
+            - "@net.telepay.driver.halcash.telepay"
+
+    net.telepay.out.halcash_pl.v1:
+        class: Telepay\FinancialApiBundle\Financial\Methods\HalcashMethod
+        arguments:
+            - "Halcash PL"
+            - "halcash_pl"
+            - "cash_in"
+            - "PLN"
             - "image"
             - "@service_container"
             - "@net.telepay.driver.halcash.telepay"
