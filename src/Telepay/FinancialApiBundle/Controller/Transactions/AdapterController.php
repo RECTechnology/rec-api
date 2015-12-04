@@ -147,7 +147,7 @@ class AdapterController extends RestApiController{
         $response = $this->forward('Telepay\FinancialApiBundle\Controller\Transactions\SwiftController::check', array(
             'version_number'    =>  1,
             'type_in'   =>  'btc',
-            'type_out'  =>  'halcash',
+            'type_out'  =>  'halcash_es',
             'id'    =>  $id
         ));
 
