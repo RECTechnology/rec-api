@@ -77,6 +77,13 @@ class HalcashMethod implements  CashInInterface, CashOutInterface{
 
         }
 
+        if($request->request->has('pin')){
+            $pin = $request->request->get('pin');
+        }else{
+            $pin = rand(1000,9999);
+        }
+
+        $params['pin'] = $pin;
         $params['final'] = false;
         $params['status'] = false;
 
