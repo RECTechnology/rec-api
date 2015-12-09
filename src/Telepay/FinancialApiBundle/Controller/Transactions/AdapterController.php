@@ -473,6 +473,39 @@ class AdapterController extends RestApiController{
 
     }
 
+    private function _paynetFacCheck($id){
+
+        $response = $this->forward('Telepay\FinancialApiBundle\Controller\Transactions\SwiftController::check', array(
+            'version_number'    =>  1,
+            'type_in'   =>  'paynet_reference',
+            'type_out'  =>  'fac',
+            'id'    =>  $id
+        ));
+
+        $array_response = json_decode($response->getContent(), true);
+        if($response->getStatusCode() == 200){
+            //status,created,ticket_id,id,type,orig_coin,orig_scale,orig_amount,dst_coin,dst_scale,
+            //dst_amount,price,address,confirmations,received,phone,prefix,pin
+
+            $customResponse = array();
+            if($array_response['status'] == 'created'){
+                $customResponse['status'] = 'ok';
+            }else{
+                $customResponse['status'] = $array_response['status'];
+            }
+
+            $customResponse['ticket_id'] = $array_response['id'];
+            $customResponse['amount'] = $array_response['pay_in_info']['amount'];
+            $customResponse['expired'] = $array_response['pay_in_info']['expires_in'];
+
+            return $this->restPlain($response->getStatusCode(), $customResponse);
+
+        }else{
+            return $this->restPlain($response->getStatusCode(), $array_response);
+        }
+
+    }
+
 
 }
 
