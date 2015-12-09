@@ -344,3 +344,25 @@ services:
             - "image"
             - "@service_container"
             - "@net.telepay.driver.halcash.telepay"
+
+    net.telepay.in.paynet_reference.v1:
+        class: Telepay\FinancialApiBundle\Financial\Methods\PaynetReferenceMethod
+        arguments:
+            - "Paynet Reference"
+            - "paynet_reference"
+            - "cash_in"
+            - "MXN"
+            - "image"
+            - "@service_container"
+            - "@net.telepay.driver.paynet_reference"
+
+    net.telepay.out.btc.v1:
+        class: Telepay\FinancialApiBundle\Financial\Methods\BtcMethod
+        arguments:
+            - "Btc"
+            - "btc"
+            - "cash_out"
+            - "BTC"
+            - "image"
+            - "@service_container"
+            - "@net.telepay.driver.easybitcoin.btc"

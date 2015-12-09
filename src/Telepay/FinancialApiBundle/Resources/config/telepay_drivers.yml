@@ -48,4 +48,8 @@ services:
         arguments:
             - "abanca_issue_hal"
 
-
+    net.telepay.driver.paynet_reference:
+        class: Telepay\FinancialApiBundle\Financial\Driver\PaynetReferenceDriver
+        arguments:
+            - "%paynet_reference_issuer%"
+            - "%paynet_reference_url%"

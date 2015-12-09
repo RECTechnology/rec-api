@@ -57,6 +57,8 @@ class SwiftController extends RestApiController{
 
         if(!$request->request->has('amount')) throw new HttpException(404, 'Param amount not found');
 
+        //TODO optional url_notification param
+
         $amount = $request->request->get('amount');
 
         //Create transaction
@@ -147,8 +149,18 @@ class SwiftController extends RestApiController{
             $em->flush();
         }
 
-        $service_fee = ($amount * ($methodFees->getVariable()/100) + $methodFees->getFixed());
-        $client_fee = ($amount * ($clientFees->getVariable()/100) + $clientFees->getFixed());
+        if($methodFees->getVariable() == 0){
+            $service_fee = ($methodFees->getFixed());
+        }else{
+            $service_fee = ($amount * ($methodFees->getVariable()/100) + $methodFees->getFixed());
+        }
+
+        if($clientFees->getVariable() == 0){
+            $client_fee = ($clientFees->getFixed());
+        }else{
+            $client_fee = ($amount * ($clientFees->getVariable()/100) + $clientFees->getFixed());
+        }
+
         $total_fee = $client_fee + $service_fee;
         $total = round($amount + $total_fee, 0);
 
@@ -174,6 +186,7 @@ class SwiftController extends RestApiController{
         }
 
         $price = round($total/($pay_in_info['amount']/1e8),0);
+
         $transaction->setPrice($price);
 
         $transaction->setPayInInfo($pay_in_info);

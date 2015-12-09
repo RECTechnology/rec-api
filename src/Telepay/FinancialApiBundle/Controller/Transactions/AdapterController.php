@@ -135,16 +135,16 @@ class AdapterController extends RestApiController{
 
         $method_in = 'btc';
         if($params['country'] == 'ES'){
-            $meyhod_out = 'halcash_es';
+            $method_out = 'halcash_es';
         }else{
-            $meyhod_out = 'halcash_pl';
+            $method_out = 'halcash_pl';
         }
 
         $response = $this->forward('Telepay\FinancialApiBundle\Controller\Transactions\SwiftController::make', array(
             'request'  => $request,
             'version_number' => '1',
             'type_in'   =>  $method_in,
-            'type_out'  =>  $meyhod_out
+            'type_out'  =>  $method_out
         ));
 
         $array_response = json_decode($response->getContent(), true);
@@ -240,16 +240,16 @@ class AdapterController extends RestApiController{
 
         $method_in = 'fac';
         if($params['country'] == 'ES'){
-            $meyhod_out = 'halcash_es';
+            $method_out = 'halcash_es';
         }else{
-            $meyhod_out = 'halcash_pl';
+            $method_out = 'halcash_pl';
         }
 
         $response = $this->forward('Telepay\FinancialApiBundle\Controller\Transactions\SwiftController::make', array(
             'request'  => $request,
             'version_number' => '1',
             'type_in'   =>  $method_in,
-            'type_out'  =>  $meyhod_out
+            'type_out'  =>  $method_out
         ));
 
         $array_response = json_decode($response->getContent(), true);

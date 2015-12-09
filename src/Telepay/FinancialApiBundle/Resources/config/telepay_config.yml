@@ -14,3 +14,9 @@ services:
             - "200"
             - "2"
 
+    net.telepay.config.btc:
+        class: Telepay\FinancialApiBundle\Financial\Methods\MethodConfiguration
+        arguments:
+            - "0"
+            - "0"
+
