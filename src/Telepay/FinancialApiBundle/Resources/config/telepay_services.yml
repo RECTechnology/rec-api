@@ -366,3 +366,14 @@ services:
             - "image"
             - "@service_container"
             - "@net.telepay.driver.easybitcoin.btc"
+
+    net.telepay.out.fac.v1:
+        class: Telepay\FinancialApiBundle\Financial\Methods\FacMethod
+        arguments:
+            - "Fac"
+            - "fac"
+            - "cash_out"
+            - "FAC"
+            - "image"
+            - "@service_container"
+            - "@net.telepay.driver.easybitcoin.fac"

@@ -50,7 +50,21 @@ class FacMethod implements CashInInterface, CashOutInterface {
 
     public function send($paymentInfo)
     {
-        // TODO: Implement send() method.
+        $address = $paymentInfo['address'];
+        $amount = $paymentInfo['amount'];
+
+        $crypto = $this->driver->sendtoaddress($address, $amount/1e8);
+
+        if($crypto === false){
+            $paymentInfo['status'] = Transaction::$STATUS_FAILED;
+            $paymentInfo['final'] = false;
+        }else{
+            $paymentInfo['txid'] = $crypto->txid;
+            $paymentInfo['status'] = 'send';
+            $paymentInfo['final'] = true;
+        }
+
+        return $paymentInfo;
     }
 
     public function getPayInStatus($paymentInfo)
@@ -98,6 +112,27 @@ class FacMethod implements CashInInterface, CashOutInterface {
 
     public function getPayOutInfo($request)
     {
-        // TODO: Implement getPayOutInfo() method.
+        $paramNames = array(
+            'amount',
+            'address'
+        );
+
+        $params = array();
+
+        foreach($paramNames as $param){
+            if(!$request->request->has($param)) throw new HttpException(404, 'Parameter '.$param.' not found');
+            $params[$param] = $request->request->get($param);
+
+        }
+        $address_verification = $this->driver->validateaddress($params['address']);
+
+        if(!$address_verification['isvalid']) throw new HttpException(400,'Invalid address.');
+        $params['currency'] = 'FAC';
+        $params['scale'] = 8;
+        $params['final'] = false;
+        $params['status'] = false;
+
+
+        return $params;
     }
 }

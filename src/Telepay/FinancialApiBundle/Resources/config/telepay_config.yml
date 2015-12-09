@@ -20,3 +20,9 @@ services:
             - "0"
             - "0"
 
+    net.telepay.config.fac:
+        class: Telepay\FinancialApiBundle\Financial\Methods\MethodConfiguration
+        arguments:
+            - "0"
+            - "0"
+
