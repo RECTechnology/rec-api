@@ -52,3 +52,15 @@ old_btc_halcash_check:
     defaults: { _controller: Telepay\FinancialApiBundle\Controller\Transactions\AdapterController::check ,_format: ~ ,type_in: 'fac' ,type_out: 'halcash', version_number: '1'}
     requirements:
         _method: GET
+
+old_paynet_btc:
+    pattern:  /api/paynet/btc
+    defaults: { _controller: Telepay\FinancialApiBundle\Controller\Transactions\AdapterController::make ,_format: ~ ,type_in: 'paynet' ,type_out: 'btc'}
+    requirements:
+        _method: POST
+
+old_paynet_btc:
+    pattern:  /api/fac/paynet
+    defaults: { _controller: Telepay\FinancialApiBundle\Controller\Transactions\AdapterController::make ,_format: ~ ,type_in: 'paynet' ,type_out: 'fac'}
+    requirements:
+        _method: POST

@@ -48,6 +48,19 @@ class AdapterController extends RestApiController{
             }else{
 
             }
+        }elseif($type_in == 'paynet'){
+            if($type_out == 'btc'){
+
+                return $this->_paynetBtc($request);
+
+            }elseif($type_out == 'fac'){
+
+                return $this->_paynetFac($request);
+
+            }else{
+
+            }
+
         }else{
 
         }
@@ -317,6 +330,106 @@ class AdapterController extends RestApiController{
             return $this->restPlain($response->getStatusCode(), $array_response);
         }
 
+    }
+
+    private function _paynetBtc(Request $request){
+
+        //description, btc_address, amount
+        $paramNames = array(
+            'amount',
+            'btc_address',
+            'description'
+        );
+
+        $params = $this->_receiver($request, $paramNames);
+
+        $request->request->remove('btc_address');
+        $request->request->remove('amount');
+
+        $request->request->add(array(
+            'address'    =>  $params['btc_address'],
+            'amount'    =>  $params['amount']*100,
+            'description'   =>  $params['description']
+        ));
+
+        $method_in = 'paynet_reference';
+        $method_out = 'btc';
+
+        $response = $this->forward('Telepay\FinancialApiBundle\Controller\Transactions\SwiftController::make', array(
+            'request'  => $request,
+            'version_number' => '1',
+            'type_in'   =>  $method_in,
+            'type_out'  =>  $method_out
+        ));
+
+        $array_response = json_decode($response->getContent(), true);
+        if($response->getStatusCode() == 200){
+            //status, ticcket_id, id, address,amount, pin
+            $customResponse = array();
+            $customResponse['status'] = 'ok';
+            $customResponse['ticket_id'] = $array_response['id'];
+            $customResponse['id'] = $array_response['id'];
+            $customResponse['barcode'] = $array_response['pay_in_info']['barcode'];
+            $customResponse['url'] = "https://www.datalogic.com.mx/PaynetCE/GetBarcodeImage.pn?text=".$array_response['pay_in_info']['barcode']."&bh=50&bw=1";
+            $customResponse['amount'] = $array_response['pay_in_info']['amount'];
+            $customResponse['expiration_date'] = $array_response['pay_in_info']['expires_in'];
+            $customResponse['description'] = $array_response['pay_in_info']['description'];
+
+            return $this->restPlain($response->getStatusCode(), $customResponse);
+
+        }else{
+            return $this->restPlain($response->getStatusCode(), $array_response);
+        }
+
+    }
+
+    private function _paynetFac(Request $request){
+        //description, fac_address, amount
+        $paramNames = array(
+            'amount',
+            'fac_address',
+            'description'
+        );
+
+        $params = $this->_receiver($request, $paramNames);
+
+        $request->request->remove('fac_address');
+        $request->request->remove('amount');
+
+        $request->request->add(array(
+            'address'    =>  $params['fac_address'],
+            'amount'    =>  $params['amount']*100,
+            'description'   =>  $params['description']
+        ));
+
+        $method_in = 'paynet_reference';
+        $method_out = 'fac';
+
+        $response = $this->forward('Telepay\FinancialApiBundle\Controller\Transactions\SwiftController::make', array(
+            'request'  => $request,
+            'version_number' => '1',
+            'type_in'   =>  $method_in,
+            'type_out'  =>  $method_out
+        ));
+
+        $array_response = json_decode($response->getContent(), true);
+        if($response->getStatusCode() == 200){
+            //status, ticcket_id, id, address,amount, pin
+            $customResponse = array();
+            $customResponse['status'] = 'ok';
+            $customResponse['ticket_id'] = $array_response['id'];
+            $customResponse['id'] = $array_response['id'];
+            $customResponse['barcode'] = $array_response['pay_in_info']['barcode'];
+            $customResponse['url'] = "https://www.datalogic.com.mx/PaynetCE/GetBarcodeImage.pn?text=".$array_response['pay_in_info']['barcode']."&bh=50&bw=1";
+            $customResponse['amount'] = $array_response['pay_in_info']['amount'];
+            $customResponse['expiration_date'] = $array_response['pay_in_info']['expires_in'];
+            $customResponse['description'] = $array_response['pay_in_info']['description'];
+
+            return $this->restPlain($response->getStatusCode(), $customResponse);
+
+        }else{
+            return $this->restPlain($response->getStatusCode(), $array_response);
+        }
     }
 
 
