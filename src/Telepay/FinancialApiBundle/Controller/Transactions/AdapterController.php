@@ -99,6 +99,14 @@ class AdapterController extends RestApiController{
             }else{
 
             }
+        }elseif($type_in == 'paynet'){
+            if($type_out == 'btc'){
+                return $this->_paynetBtcCheck($id);
+            }elseif($type_out == 'fac'){
+                return $this->_paynetFacCheck($id);
+            }else{
+
+            }
         }else{
 
         }
@@ -373,7 +381,7 @@ class AdapterController extends RestApiController{
             $customResponse['url'] = "https://www.datalogic.com.mx/PaynetCE/GetBarcodeImage.pn?text=".$array_response['pay_in_info']['barcode']."&bh=50&bw=1";
             $customResponse['amount'] = $array_response['pay_in_info']['amount'];
             $customResponse['expiration_date'] = $array_response['pay_in_info']['expires_in'];
-            $customResponse['description'] = $array_response['pay_in_info']['description'];
+//            $customResponse['description'] = $array_response['pay_in_info']['description'];
 
             return $this->restPlain($response->getStatusCode(), $customResponse);
 
@@ -430,6 +438,39 @@ class AdapterController extends RestApiController{
         }else{
             return $this->restPlain($response->getStatusCode(), $array_response);
         }
+    }
+
+    private function _paynetBtcCheck($id){
+
+        $response = $this->forward('Telepay\FinancialApiBundle\Controller\Transactions\SwiftController::check', array(
+            'version_number'    =>  1,
+            'type_in'   =>  'paynet_reference',
+            'type_out'  =>  'btc',
+            'id'    =>  $id
+        ));
+
+        $array_response = json_decode($response->getContent(), true);
+        if($response->getStatusCode() == 200){
+            //status,created,ticket_id,id,type,orig_coin,orig_scale,orig_amount,dst_coin,dst_scale,
+            //dst_amount,price,address,confirmations,received,phone,prefix,pin
+
+            $customResponse = array();
+            if($array_response['status'] == 'created'){
+                $customResponse['status'] = 'ok';
+            }else{
+                $customResponse['status'] = $array_response['status'];
+            }
+
+            $customResponse['ticket_id'] = $array_response['id'];
+            $customResponse['amount'] = $array_response['pay_in_info']['amount'];
+            $customResponse['expired'] = $array_response['pay_in_info']['expires_in'];
+
+            return $this->restPlain($response->getStatusCode(), $customResponse);
+
+        }else{
+            return $this->restPlain($response->getStatusCode(), $array_response);
+        }
+
     }
 
 

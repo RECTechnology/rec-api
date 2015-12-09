@@ -59,8 +59,20 @@ old_paynet_btc:
     requirements:
         _method: POST
 
+old_paynet_btc_check:
+    pattern:  /api/paynet/btc/{id}
+    defaults: { _controller: Telepay\FinancialApiBundle\Controller\Transactions\AdapterController::check ,_format: ~ ,type_in: 'paynet' ,type_out: 'btc', version_number: '1'}
+    requirements:
+        _method: GET
+
 old_paynet_btc:
     pattern:  /api/fac/paynet
     defaults: { _controller: Telepay\FinancialApiBundle\Controller\Transactions\AdapterController::make ,_format: ~ ,type_in: 'paynet' ,type_out: 'fac'}
     requirements:
         _method: POST
+
+old_paynet_fac_check:
+    pattern:  /api/fac/paynet/{id}
+    defaults: { _controller: Telepay\FinancialApiBundle\Controller\Transactions\AdapterController::check ,_format: ~ ,type_in: 'paynet' ,type_out: 'fac', version_number: '1'}
+    requirements:
+        _method: GET
