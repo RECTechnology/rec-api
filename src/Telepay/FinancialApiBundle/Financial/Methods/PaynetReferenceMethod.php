@@ -11,6 +11,7 @@ namespace Telepay\FinancialApiBundle\Financial\Methods;
 use Symfony\Component\HttpKernel\Exception\HttpException;
 use Telepay\FinancialApiBundle\DependencyInjection\Transactions\Core\CashInInterface;
 use Telepay\FinancialApiBundle\DependencyInjection\Transactions\Core\CashOutInterface;
+use Telepay\FinancialApiBundle\Financial\Currency;
 
 
 class PaynetReferenceMethod implements  CashInInterface{
@@ -41,7 +42,7 @@ class PaynetReferenceMethod implements  CashInInterface{
             $response = array(
                 'amount'    =>  $amount,
                 'currency'  =>  $this->getCurrency(),
-                'scale' =>  2,
+                'scale' =>  Currency::$SCALE[$this->getCurrency()],
                 'expires_in' => $barcode['expiration_date'],
                 'received' => 0.0,
                 'barcode'   =>  $barcode['barcode'],

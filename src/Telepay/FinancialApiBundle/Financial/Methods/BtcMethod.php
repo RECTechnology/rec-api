@@ -32,7 +32,7 @@ class BtcMethod implements CashInInterface, CashOutInterface {
         $response = array(
             'amount'    =>  $amount,
             'currency'  =>  $this->getCurrency(),
-            'scale' =>  8,
+            'scale' =>  Currency::$SCALE[$this->getCurrency()],
             'address' => $address,
             'expires_in' => intval(1200),
             'received' => 0.0,
@@ -129,8 +129,8 @@ class BtcMethod implements CashInInterface, CashOutInterface {
 
         if(!$address_verification['isvalid']) throw new HttpException(400,'Invalid address.');
 
-        $params['currency'] = 'BTC';
-        $params['scale'] = 8;
+        $params['currency'] = $this->getCurrency();
+        $params['scale'] = Currency::$SCALE[$this->getCurrency()];
         $params['final'] = false;
         $params['status'] = false;
 
