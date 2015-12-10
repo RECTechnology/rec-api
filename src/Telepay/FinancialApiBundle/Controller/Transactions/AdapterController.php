@@ -30,6 +30,7 @@ class AdapterController extends RestApiController{
 
             }elseif($type_out == 'bank_transfer'){
 
+                return $this->_btcBankTransfer($request);
             }else{
 
             }
@@ -44,6 +45,8 @@ class AdapterController extends RestApiController{
 
 
             }elseif($type_out == 'bank_transfer'){
+
+                return $this->_facBankTransfer($request);
 
             }else{
 
@@ -80,6 +83,8 @@ class AdapterController extends RestApiController{
 
             }elseif($type_out == 'bank_transfer'){
 
+                return $this->_btcBankTransferCheck($id);
+
             }else{
 
             }
@@ -94,6 +99,8 @@ class AdapterController extends RestApiController{
 
 
             }elseif($type_out == 'bank_transfer'){
+
+                return $this->_facBankTransferCheck($request);
 
             }else{
 
@@ -507,6 +514,209 @@ class AdapterController extends RestApiController{
             return $this->restPlain($response->getStatusCode(), $array_response);
         }
 
+    }
+
+    private function _btcBankTransfer(Request $request){
+
+        $paramNames = array(
+            'beneficiary',
+            'iban',
+            'amount',
+            'bic_swift',
+            'concept'
+        );
+
+        $params = $this->_receiver($request, $paramNames);
+
+        $request->request->remove('concept');
+        $request->request->remove('amount');
+
+        $request->request->add(array(
+            'amount'    =>  $params['amount']*100,
+            'description'   =>  $params['concept']
+        ));
+
+        $method_in = 'btc';
+
+        $method_out = 'sepa';
+
+        $response = $this->forward('Telepay\FinancialApiBundle\Controller\Transactions\SwiftController::make', array(
+            'request'  => $request,
+            'version_number' => '1',
+            'type_in'   =>  $method_in,
+            'type_out'  =>  $method_out
+        ));
+
+
+        $array_response = json_decode($response->getContent(), true);
+        if($response->getStatusCode() == 200){
+            //status, ticcket_id, id, address,amount, pin
+            $customResponse = array();
+            $customResponse['status'] = 'ok';
+            $customResponse['created'] = $array_response['created'];
+            $customResponse['ticket_id'] = $array_response['id'];
+            $customResponse['id'] = $array_response['id'];
+            $customResponse['type'] = 'btc_bank_transfer';
+            $customResponse['orig_coin'] = 'btc';
+            $customResponse['orig_scale'] = 100000000;
+            $customResponse['orig_amount'] = $array_response['pay_in_info']['amount'];
+            $customResponse['dst_coin'] = 'eur';
+            $customResponse['dst_scale'] = 100;
+            $customResponse['dst_amount'] = $array_response['pay_out_info']['amount'];
+            $customResponse['price'] = round(($array_response['pay_out_info']['amount']/100)/($array_response['pay_in_info']['amount']/1e8),2)*100;
+            $customResponse['address'] = $array_response['pay_in_info']['address'];
+            $customResponse['confirmations'] = $array_response['pay_in_info']['confirmations'];
+            $customResponse['received'] = $array_response['pay_in_info']['received'];
+            $customResponse['message'] = 'After the payment you will receive the transfer during the next 24/48h.';
+
+            return $this->restPlain($response->getStatusCode(), $customResponse);
+
+        }else{
+            return $this->restPlain($response->getStatusCode(), $array_response);
+        }
+
+    }
+
+    private function _btcBankTransferCheck($id){
+
+        $response = $this->forward('Telepay\FinancialApiBundle\Controller\Transactions\SwiftController::check', array(
+            'version_number'    =>  1,
+            'type_in'   =>  'btc',
+            'type_out'  =>  'sepa',
+            'id'    =>  $id
+        ));
+
+        $array_response = json_decode($response->getContent(), true);
+        if($response->getStatusCode() == 200){
+
+            $customResponse = array();
+            if($array_response['status'] == 'created'){
+                $customResponse['status'] = 'pending';
+            }else{
+                $customResponse['status'] = $array_response['status'];
+            }
+
+            $customResponse['created'] = $array_response['created'];
+            $customResponse['ticket_id'] = $array_response['id'];
+            $customResponse['id'] = $array_response['id'];
+            $customResponse['type'] = 'btc_bank_transfer';
+            $customResponse['orig_coin'] = 'btc';
+            $customResponse['orig_scale'] = 100000000;
+            $customResponse['orig_amount'] = $array_response['pay_in_info']['amount'];
+            $customResponse['dst_coin'] = 'eur';
+            $customResponse['dst_scale'] = 100;
+            $customResponse['dst_amount'] = $array_response['pay_out_info']['amount'];
+            $customResponse['price'] = round(($array_response['pay_out_info']['amount']/100)/($array_response['pay_in_info']['amount']/1e8),2)*100;
+            $customResponse['address'] = $array_response['pay_in_info']['address'];
+            $customResponse['confirmations'] = $array_response['pay_in_info']['confirmations'];
+            $customResponse['received'] = $array_response['pay_in_info']['received'];
+            $customResponse['beneficiary'] = $array_response['pay_in_info']['beneficiary'];
+
+            return $this->restPlain($response->getStatusCode(), $customResponse);
+
+        }else{
+            return $this->restPlain($response->getStatusCode(), $array_response);
+        }
+    }
+
+    private function _facBankTransfer(Request $request){
+        $paramNames = array(
+            'beneficiary',
+            'iban',
+            'amount',
+            'bic_swift',
+            'concept'
+        );
+
+        $params = $this->_receiver($request, $paramNames);
+
+        $request->request->remove('concept');
+        $request->request->remove('amount');
+
+        $request->request->add(array(
+            'amount'    =>  $params['amount']*100,
+            'description'   =>  $params['concept']
+        ));
+
+        $method_in = 'fac';
+
+        $method_out = 'sepa';
+
+        $response = $this->forward('Telepay\FinancialApiBundle\Controller\Transactions\SwiftController::make', array(
+            'request'  => $request,
+            'version_number' => '1',
+            'type_in'   =>  $method_in,
+            'type_out'  =>  $method_out
+        ));
+
+
+        $array_response = json_decode($response->getContent(), true);
+        if($response->getStatusCode() == 200){
+            //status, ticcket_id, id, address,amount, pin
+            $customResponse = array();
+            $customResponse['status'] = 'ok';
+            $customResponse['created'] = $array_response['created'];
+            $customResponse['ticket_id'] = $array_response['id'];
+            $customResponse['id'] = $array_response['id'];
+            $customResponse['type'] = 'btc_bank_transfer';
+            $customResponse['orig_coin'] = 'btc';
+            $customResponse['orig_scale'] = 100000000;
+            $customResponse['orig_amount'] = $array_response['pay_in_info']['amount'];
+            $customResponse['dst_coin'] = 'eur';
+            $customResponse['dst_scale'] = 100;
+            $customResponse['dst_amount'] = $array_response['pay_out_info']['amount'];
+            $customResponse['price'] = round(($array_response['pay_out_info']['amount']/100)/($array_response['pay_in_info']['amount']/1e8),2)*100;
+            $customResponse['address'] = $array_response['pay_in_info']['address'];
+            $customResponse['confirmations'] = $array_response['pay_in_info']['confirmations'];
+            $customResponse['received'] = $array_response['pay_in_info']['received'];
+            $customResponse['message'] = 'After the payment you will receive the transfer during the next 24/48h.';
+
+            return $this->restPlain($response->getStatusCode(), $customResponse);
+
+        }else{
+            return $this->restPlain($response->getStatusCode(), $array_response);
+        }
+    }
+
+    private function _facBankTransferCheck($id){
+        $response = $this->forward('Telepay\FinancialApiBundle\Controller\Transactions\SwiftController::check', array(
+            'version_number'    =>  1,
+            'type_in'   =>  'fac',
+            'type_out'  =>  'sepa',
+            'id'    =>  $id
+        ));
+
+        $array_response = json_decode($response->getContent(), true);
+        if($response->getStatusCode() == 200){
+
+            $customResponse = array();
+            if($array_response['status'] == 'created'){
+                $customResponse['status'] = 'pending';
+            }else{
+                $customResponse['status'] = $array_response['status'];
+            }
+
+            $customResponse['created'] = $array_response['created'];
+            $customResponse['ticket_id'] = $array_response['id'];
+            $customResponse['id'] = $array_response['id'];
+            $customResponse['type'] = 'fac_bank_transfer';
+            $customResponse['orig_coin'] = 'fac';
+            $customResponse['orig_scale'] = 100000000;
+            $customResponse['orig_amount'] = $array_response['pay_in_info']['amount'];
+            $customResponse['dst_coin'] = 'eur';
+            $customResponse['dst_scale'] = 100;
+            $customResponse['dst_amount'] = $array_response['pay_out_info']['amount'];
+            $customResponse['price'] = round(($array_response['pay_out_info']['amount']/100)/($array_response['pay_in_info']['amount']/1e8),2)*100;
+            $customResponse['address'] = $array_response['pay_in_info']['address'];
+            $customResponse['confirmations'] = $array_response['pay_in_info']['confirmations'];
+            $customResponse['received'] = $array_response['pay_in_info']['received'];
+            $customResponse['beneficiary'] = $array_response['pay_in_info']['beneficiary'];
+
+            return $this->restPlain($response->getStatusCode(), $customResponse);
+
+        }else{
+            return $this->restPlain($response->getStatusCode(), $array_response);
+        }
     }
 
 }
