@@ -26,3 +26,9 @@ services:
             - "0"
             - "0"
 
+    net.telepay.config.sepa:
+        class: Telepay\FinancialApiBundle\Financial\Methods\MethodConfiguration
+        arguments:
+            - "100"
+            - "1"
+

@@ -377,3 +377,14 @@ services:
             - "image"
             - "@service_container"
             - "@net.telepay.driver.easybitcoin.fac"
+
+    net.telepay.out.sepa.v1:
+        class: Telepay\FinancialApiBundle\Financial\Methods\SepaMethod
+        arguments:
+            - "Sepa Out"
+            - "sepa_out"
+            - "cash_out"
+            - "EUR"
+            - "image"
+            - "@service_container"
+            - "@net.telepay.driver.sepa"

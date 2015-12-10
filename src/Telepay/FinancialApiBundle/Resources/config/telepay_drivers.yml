@@ -53,3 +53,7 @@ services:
         arguments:
             - "%paynet_reference_issuer%"
             - "%paynet_reference_url%"
+
+    net.telepay.driver.sepa:
+        class: Telepay\FinancialApiBundle\Financial\Driver\SepaDriver
+        arguments:

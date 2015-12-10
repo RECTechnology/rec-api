@@ -70,7 +70,6 @@ class AdapterController extends RestApiController{
     public function check(Request $request, $version_number, $type_in, $type_out, $id){
 
         if($type_in == 'btc'){
-
             if($type_out == 'halcash'){
 
                 return $this->_btcHalcashCheck($id);
@@ -101,9 +100,13 @@ class AdapterController extends RestApiController{
             }
         }elseif($type_in == 'paynet'){
             if($type_out == 'btc'){
+
                 return $this->_paynetBtcCheck($id);
+
             }elseif($type_out == 'fac'){
+
                 return $this->_paynetFacCheck($id);
+
             }else{
 
             }
@@ -505,7 +508,6 @@ class AdapterController extends RestApiController{
         }
 
     }
-
 
 }
 

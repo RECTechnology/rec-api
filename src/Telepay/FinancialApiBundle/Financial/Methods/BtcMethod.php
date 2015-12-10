@@ -127,7 +127,7 @@ class BtcMethod implements CashInInterface, CashOutInterface {
         }
         $address_verification = $this->driver->validateaddress($params['address']);
 
-//        if(!$address_verification['isvalid']) throw new HttpException(400,'Invalid address.');
+        if(!$address_verification['isvalid']) throw new HttpException(400,'Invalid address.');
 
         $params['currency'] = 'BTC';
         $params['scale'] = 8;
