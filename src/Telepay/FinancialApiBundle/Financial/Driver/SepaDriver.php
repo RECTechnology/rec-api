@@ -11,6 +11,10 @@ class SepaDriver{
 
     }
 
+    public function send(){}
+
+    public function check(){}
+
     public function validateiban($iban){
 
         return true;
@@ -20,11 +24,6 @@ class SepaDriver{
     public function validatebic($bic){
 
         return true;
-
-    }
-
-    public function status($ticket){
-
 
     }
 

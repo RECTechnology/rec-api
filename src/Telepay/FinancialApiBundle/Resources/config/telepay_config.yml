@@ -32,3 +32,9 @@ services:
             - "100"
             - "1"
 
+    net.telepay.config.cryptocapital:
+        class: Telepay\FinancialApiBundle\Financial\Methods\MethodConfiguration
+        arguments:
+            - "100"
+            - "1"
+

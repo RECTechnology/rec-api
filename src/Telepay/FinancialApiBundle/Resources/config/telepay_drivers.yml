@@ -57,3 +57,9 @@ services:
     net.telepay.driver.sepa:
         class: Telepay\FinancialApiBundle\Financial\Driver\SepaDriver
         arguments:
+
+    net.telepay.driver.cryptocapital:
+        class: Telepay\FinancialApiBundle\Financial\Driver\CryptocapitalDriver
+        arguments:
+            - "%cryptocapital_account_number%"
+            - "%cryptocapital_beneficiary%"
