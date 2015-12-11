@@ -26,7 +26,7 @@ class AdapterController extends RestApiController{
 
             }elseif($type_out == 'cryptocapital'){
 
-
+                return $this->_btcCryptocapital($request);
 
             }elseif($type_out == 'bank_transfer'){
 
@@ -42,7 +42,7 @@ class AdapterController extends RestApiController{
 
             }elseif($type_out == 'cryptocapital'){
 
-
+                return $this->_facCryptocapital($request);
 
             }elseif($type_out == 'bank_transfer'){
 
@@ -79,7 +79,7 @@ class AdapterController extends RestApiController{
 
             }elseif($type_out == 'cryptocapital'){
 
-
+                return $this->_btcCryptocapitalCheck($id);
 
             }elseif($type_out == 'bank_transfer'){
 
@@ -96,11 +96,11 @@ class AdapterController extends RestApiController{
 
             }elseif($type_out == 'cryptocapital'){
 
-
+                return $this->_facCryptocapitalCheck($id);
 
             }elseif($type_out == 'bank_transfer'){
 
-                return $this->_facBankTransferCheck($request);
+                return $this->_facBankTransferCheck($id);
 
             }else{
 
@@ -711,6 +711,202 @@ class AdapterController extends RestApiController{
             $customResponse['confirmations'] = $array_response['pay_in_info']['confirmations'];
             $customResponse['received'] = $array_response['pay_in_info']['received'];
             $customResponse['beneficiary'] = $array_response['pay_in_info']['beneficiary'];
+
+            return $this->restPlain($response->getStatusCode(), $customResponse);
+
+        }else{
+            return $this->restPlain($response->getStatusCode(), $array_response);
+        }
+    }
+
+    private function _btcCryptocapital(Request $request){
+
+        $paramNames = array(
+            'amount',
+            'email'
+        );
+
+        $params = $this->_receiver($request, $paramNames);
+
+        $request->request->remove('amount');
+
+        $request->request->add(array(
+            'amount'    =>  $params['amount']*100
+        ));
+
+        $method_in = 'btc';
+
+        $method_out = 'cryptocapital';
+
+        $response = $this->forward('Telepay\FinancialApiBundle\Controller\Transactions\SwiftController::make', array(
+            'request'  => $request,
+            'version_number' => '1',
+            'type_in'   =>  $method_in,
+            'type_out'  =>  $method_out
+        ));
+
+
+        $array_response = json_decode($response->getContent(), true);
+        if($response->getStatusCode() == 200){
+            //status, ticcket_id, id, address,amount, pin
+            $customResponse = array();
+            $customResponse['status'] = 'ok';
+            $customResponse['created'] = $array_response['created'];
+            $customResponse['ticket_id'] = $array_response['id'];
+            $customResponse['id'] = $array_response['id'];
+            $customResponse['type'] = 'btc_cryptocapital';
+            $customResponse['orig_coin'] = 'btc';
+            $customResponse['orig_scale'] = 100000000;
+            $customResponse['orig_amount'] = $array_response['pay_in_info']['amount'];
+            $customResponse['dst_coin'] = 'eur';
+            $customResponse['dst_scale'] = 100;
+            $customResponse['dst_amount'] = $array_response['pay_out_info']['amount'];
+            $customResponse['price'] = round(($array_response['pay_out_info']['amount']/100)/($array_response['pay_in_info']['amount']/1e8),2)*100;
+            $customResponse['address'] = $array_response['pay_in_info']['address'];
+            $customResponse['confirmations'] = $array_response['pay_in_info']['confirmations'];
+            $customResponse['received'] = $array_response['pay_in_info']['received'];
+            $customResponse['message'] = 'After the payment you will receive an email with the instructions.';
+
+            return $this->restPlain($response->getStatusCode(), $customResponse);
+
+        }else{
+            return $this->restPlain($response->getStatusCode(), $array_response);
+        }
+
+    }
+
+    private function _btcCryptocapitalCheck($id){
+
+        $response = $this->forward('Telepay\FinancialApiBundle\Controller\Transactions\SwiftController::check', array(
+            'version_number'    =>  1,
+            'type_in'   =>  'btc',
+            'type_out'  =>  'cryptocapital',
+            'id'    =>  $id
+        ));
+
+        $array_response = json_decode($response->getContent(), true);
+        if($response->getStatusCode() == 200){
+
+            $customResponse = array();
+            if($array_response['status'] == 'created'){
+                $customResponse['status'] = 'pending';
+            }else{
+                $customResponse['status'] = $array_response['status'];
+            }
+
+            $customResponse['created'] = $array_response['created'];
+            $customResponse['ticket_id'] = $array_response['id'];
+            $customResponse['id'] = $array_response['id'];
+            $customResponse['type'] = 'btc_cryptocapital';
+            $customResponse['orig_coin'] = 'btc';
+            $customResponse['orig_scale'] = 100000000;
+            $customResponse['orig_amount'] = $array_response['pay_in_info']['amount'];
+            $customResponse['dst_coin'] = 'eur';
+            $customResponse['dst_scale'] = 100;
+            $customResponse['dst_amount'] = $array_response['pay_out_info']['amount'];
+            $customResponse['price'] = round(($array_response['pay_out_info']['amount']/100)/($array_response['pay_in_info']['amount']/1e8),2)*100;
+            $customResponse['address'] = $array_response['pay_in_info']['address'];
+            $customResponse['confirmations'] = $array_response['pay_in_info']['confirmations'];
+            $customResponse['received'] = $array_response['pay_in_info']['received'];
+            $customResponse['email'] = $array_response['pay_in_info']['email'];
+
+            return $this->restPlain($response->getStatusCode(), $customResponse);
+
+        }else{
+            return $this->restPlain($response->getStatusCode(), $array_response);
+        }
+    }
+
+    private function _facCryptocapital(Request $request){
+
+        $paramNames = array(
+            'amount',
+            'email'
+        );
+
+        $params = $this->_receiver($request, $paramNames);
+
+        $request->request->remove('amount');
+
+        $request->request->add(array(
+            'amount'    =>  $params['amount']*100
+        ));
+
+        $method_in = 'fac';
+
+        $method_out = 'cryptocapital';
+
+        $response = $this->forward('Telepay\FinancialApiBundle\Controller\Transactions\SwiftController::make', array(
+            'request'  => $request,
+            'version_number' => '1',
+            'type_in'   =>  $method_in,
+            'type_out'  =>  $method_out
+        ));
+
+
+        $array_response = json_decode($response->getContent(), true);
+        if($response->getStatusCode() == 200){
+            //status, ticcket_id, id, address,amount, pin
+            $customResponse = array();
+            $customResponse['status'] = 'ok';
+            $customResponse['created'] = $array_response['created'];
+            $customResponse['ticket_id'] = $array_response['id'];
+            $customResponse['id'] = $array_response['id'];
+            $customResponse['type'] = 'fac_cryptocapital';
+            $customResponse['orig_coin'] = 'btc';
+            $customResponse['orig_scale'] = 100000000;
+            $customResponse['orig_amount'] = $array_response['pay_in_info']['amount'];
+            $customResponse['dst_coin'] = 'eur';
+            $customResponse['dst_scale'] = 100;
+            $customResponse['dst_amount'] = $array_response['pay_out_info']['amount'];
+            $customResponse['price'] = round(($array_response['pay_out_info']['amount']/100)/($array_response['pay_in_info']['amount']/1e8),2)*100;
+            $customResponse['address'] = $array_response['pay_in_info']['address'];
+            $customResponse['confirmations'] = $array_response['pay_in_info']['confirmations'];
+            $customResponse['received'] = $array_response['pay_in_info']['received'];
+            $customResponse['message'] = 'After the payment you will receive an email with the instructions.';
+
+            return $this->restPlain($response->getStatusCode(), $customResponse);
+
+        }else{
+            return $this->restPlain($response->getStatusCode(), $array_response);
+        }
+
+    }
+
+    private function _facCryptocapitalCheck($id){
+
+        $response = $this->forward('Telepay\FinancialApiBundle\Controller\Transactions\SwiftController::check', array(
+            'version_number'    =>  1,
+            'type_in'   =>  'fac',
+            'type_out'  =>  'cryptocapital',
+            'id'    =>  $id
+        ));
+
+        $array_response = json_decode($response->getContent(), true);
+        if($response->getStatusCode() == 200){
+
+            $customResponse = array();
+            if($array_response['status'] == 'created'){
+                $customResponse['status'] = 'pending';
+            }else{
+                $customResponse['status'] = $array_response['status'];
+            }
+
+            $customResponse['created'] = $array_response['created'];
+            $customResponse['ticket_id'] = $array_response['id'];
+            $customResponse['id'] = $array_response['id'];
+            $customResponse['type'] = 'btc_cryptocapital';
+            $customResponse['orig_coin'] = 'btc';
+            $customResponse['orig_scale'] = 100000000;
+            $customResponse['orig_amount'] = $array_response['pay_in_info']['amount'];
+            $customResponse['dst_coin'] = 'eur';
+            $customResponse['dst_scale'] = 100;
+            $customResponse['dst_amount'] = $array_response['pay_out_info']['amount'];
+            $customResponse['price'] = round(($array_response['pay_out_info']['amount']/100)/($array_response['pay_in_info']['amount']/1e8),2)*100;
+            $customResponse['address'] = $array_response['pay_in_info']['address'];
+            $customResponse['confirmations'] = $array_response['pay_in_info']['confirmations'];
+            $customResponse['received'] = $array_response['pay_in_info']['received'];
+            $customResponse['email'] = $array_response['pay_in_info']['email'];
 
             return $this->restPlain($response->getStatusCode(), $customResponse);
 
