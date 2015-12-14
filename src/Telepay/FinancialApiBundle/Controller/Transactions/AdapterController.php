@@ -199,13 +199,26 @@ class AdapterController extends RestApiController{
 
     private function _btcHalcashCheck($id){
 
-        //TODO implementar polsky
         $response = $this->forward('Telepay\FinancialApiBundle\Controller\Transactions\SwiftController::check', array(
             'version_number'    =>  1,
             'type_in'   =>  'btc',
             'type_out'  =>  'halcash_es',
             'id'    =>  $id
         ));
+
+        $dst_coin = 'eur';
+
+        //If not found check if is a polsky transaction
+        if($response->getStatusCode() == 404){
+            $response = $this->forward('Telepay\FinancialApiBundle\Controller\Transactions\SwiftController::check', array(
+                'version_number'    =>  1,
+                'type_in'   =>  'btc',
+                'type_out'  =>  'halcash_pl',
+                'id'    =>  $id
+            ));
+
+            $dst_coin = 'pln';
+        }
 
         $array_response = json_decode($response->getContent(), true);
         if($response->getStatusCode() == 200){
@@ -215,6 +228,8 @@ class AdapterController extends RestApiController{
             $customResponse = array();
             if($array_response['status'] == 'created'){
                 $customResponse['status'] = 'pending';
+            }elseif($array_response['status'] == 'success'){
+                $customResponse['status'] = 'sent';
             }else{
                 $customResponse['status'] = $array_response['status'];
             }
@@ -226,7 +241,7 @@ class AdapterController extends RestApiController{
             $customResponse['orig_coin'] = 'btc';
             $customResponse['orig_scale'] = 100000000;
             $customResponse['orig_amount'] = $array_response['pay_in_info']['amount'];
-            $customResponse['dst_coin'] = 'eur';
+            $customResponse['dst_coin'] = $dst_coin;
             $customResponse['dst_scale'] = 100;
             $customResponse['dst_amount'] = $array_response['pay_out_info']['amount'];
             $customResponse['price'] = round(($array_response['pay_out_info']['amount']/100)/($array_response['pay_in_info']['amount']/1e8),2);
