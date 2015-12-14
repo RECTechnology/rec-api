@@ -319,13 +319,26 @@ class AdapterController extends RestApiController{
 
     private function _facHalcashCheck($id){
 
-        //TODO implementar polsky
         $response = $this->forward('Telepay\FinancialApiBundle\Controller\Transactions\SwiftController::check', array(
             'version_number'    =>  1,
             'type_in'   =>  'fac',
             'type_out'  =>  'halcash_es',
             'id'    =>  $id
         ));
+
+        $dst_coin = 'eur';
+
+        //If not found check if is a polsky transaction
+        if($response->getStatusCode() == 404){
+            $response = $this->forward('Telepay\FinancialApiBundle\Controller\Transactions\SwiftController::check', array(
+                'version_number'    =>  1,
+                'type_in'   =>  'btc',
+                'type_out'  =>  'halcash_pl',
+                'id'    =>  $id
+            ));
+
+            $dst_coin = 'pln';
+        }
 
         $array_response = json_decode($response->getContent(), true);
         if($response->getStatusCode() == 200){
@@ -346,7 +359,7 @@ class AdapterController extends RestApiController{
             $customResponse['orig_coin'] = 'fac';
             $customResponse['orig_scale'] = 100000000;
             $customResponse['orig_amount'] = $array_response['pay_in_info']['amount'];
-            $customResponse['dst_coin'] = 'eur';
+            $customResponse['dst_coin'] = $dst_coin;
             $customResponse['dst_scale'] = 100;
             $customResponse['dst_amount'] = $array_response['pay_out_info']['amount'];
             $customResponse['price'] = round(($array_response['pay_out_info']['amount']/100)/($array_response['pay_in_info']['amount']/1e8),2);
@@ -621,7 +634,7 @@ class AdapterController extends RestApiController{
             $customResponse['dst_coin'] = 'eur';
             $customResponse['dst_scale'] = 100;
             $customResponse['dst_amount'] = $array_response['pay_out_info']['amount'];
-            $customResponse['price'] = round(($array_response['pay_out_info']['amount']/100)/($array_response['pay_in_info']['amount']/1e8),2)*100;
+            $customResponse['price'] = round(($array_response['pay_out_info']['amount']/100)/($array_response['pay_in_info']['amount']/1e8),2);
             $customResponse['address'] = $array_response['pay_in_info']['address'];
             $customResponse['confirmations'] = $array_response['pay_in_info']['confirmations'];
             $customResponse['received'] = $array_response['pay_in_info']['received'];
