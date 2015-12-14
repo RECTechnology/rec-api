@@ -34,6 +34,9 @@ class SepaMethod implements CashInInterface, CashOutInterface {
 
     public function send($paymentInfo)
     {
+        $paymentInfo['status'] = 'pending';
+
+        return $paymentInfo;
 
     }
 
