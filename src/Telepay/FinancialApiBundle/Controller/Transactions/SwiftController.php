@@ -22,6 +22,7 @@ use Telepay\FinancialApiBundle\Entity\SwiftFee;
 use Telepay\FinancialApiBundle\Entity\SwiftLimit;
 use Telepay\FinancialApiBundle\Entity\SwiftLimitCount;
 use Telepay\FinancialApiBundle\Entity\UserWallet;
+use Telepay\FinancialApiBundle\Financial\Currency;
 
 class SwiftController extends RestApiController{
 
@@ -86,7 +87,7 @@ class SwiftController extends RestApiController{
         $transaction->setDataIn($pay_out_info);
         $transaction->setPayOutInfo($pay_out_info);
 
-        //GET/ PAYOUT CURRENCY FOR THE TRANSATION
+        //GET PAYOUT CURRENCY FOR THE TRANSATION
         $transaction->setCurrency($cashOutMethod->getCurrency());
         //TODO get scale in and out
         $transaction->setScale(2);
@@ -223,6 +224,126 @@ class SwiftController extends RestApiController{
         ));
 
         if(!$request->request->has('option')) throw new HttpException(404, 'Missing parameter "option"');
+
+    }
+
+    public function hello(Request $request, $version_number, $currency){
+
+        $dm = $this->get('doctrine_mongodb')->getManager();
+        $em = $this->getDoctrine()->getManager();
+
+        $admin_id = $this->container->getParameter('admin_user_id');
+        $client_default_id = $this->container->getParameter('swift_client_id_default');
+
+        $admin = $em->getRepository('TelepayFinancialApiBundle:User')->findOneById($admin_id);
+
+        if ($this->get('security.authorization_checker')->isGranted('IS_AUTHENTICATED_FULLY')) {
+
+            //transaction authenticated with user/pass or credentials
+            $user = $this->container->get('security.context')->getToken()->getUser();
+
+            $tokenManager = $this->container->get('fos_oauth_server.access_token_manager.default');
+            $accessToken = $tokenManager->findTokenByToken(
+                $this->container->get('security.context')->getToken()->getToken()
+            );
+            $client = $accessToken->getClient();
+            if(!$user){
+                $user = $client->getUser();
+            }
+
+        }else{
+            $user = $admin;
+            $client = $em->getRepository('TelepayFinancialApiBundle:Client')->findOneById($client_default_id);
+
+        }
+
+        $swiftServices = array(
+            'btc_halcash_es'    =>  array('btc','halcash_es'),
+            'btc_halcash_pl'    =>  array('btc','halcash_pl'),
+            'btc_bank_transfer' =>  array('btc','sepa'),
+            'btc_cryptocapital' =>  array('btc','cryptocapital'),
+            'paynet_btc'        =>  array('paynet_reference','btc')
+        );
+
+        $response = array();
+
+        foreach($swiftServices as $swift => $methods){
+            $service = $swift;
+            $type_in = $methods[0];
+            $type_out = $methods[1];
+
+            //get configuration(method)
+            $swift_config = $this->container->get('net.telepay.config.'.$type_out);
+            $methodFees = $swift_config->getFees();
+
+            //get client fees (fixed & variable)
+            $clientFees = $em->getRepository('TelepayFinancialApiBundle:SwiftFee')->findOneBy(array(
+                'client'    =>  $client->getId(),
+                'cname' =>  $type_in.'_'.$type_out
+            ));
+
+            $clientLimits = $em->getRepository('TelepayFinancialApiBundle:SwiftLimit')->findOneBy(array(
+                'client'    =>  $client->getId(),
+                'cname' =>  $type_in.'_'.$type_out
+            ));
+
+            $fixed_fee = $methodFees->getFixed() + $clientFees->getFixed();
+            $variable_fee = $methodFees->getVariable() + $clientFees->getVariable();
+
+            $cashInMethod = $this->container->get('net.telepay.in.'.$type_in.'.v'.$version_number);
+            $cashOutMethod = $this->container->get('net.telepay.out.'.$type_out.'.v'.$version_number);
+
+            $currency_in = $cashInMethod->getCurrency();
+            $currency_out = $cashOutMethod->getCurrency();
+
+            $scale_in = Currency::$SCALE[$currency_in];
+
+            $amount = pow(10,$scale_in);
+
+            $exchange = $this->_exchange($amount , $currency_in, $currency_out);
+
+            $values = array();
+
+            if($clientLimits->getSingle() > 0){
+
+                for($i = 10;$i <= $clientLimits->getSingle(); $i=+10){
+                    array_push($values, $i);
+                }
+            }else{
+
+                for($i = 10;$i <= 1000; $i+=10){
+                    array_push($values, $i);
+                }
+            }
+
+            $response[$service] = array(
+                'price' =>  $exchange,
+                'limits'    =>  array(
+                    'single'    =>  ($clientLimits->getSingle() >= 0) ? $clientLimits->getSingle(): 'unlimited',
+                    'daily'     =>  ($clientLimits->getDay() >= 0) ? $clientLimits->getDay() : 'unlimited',
+                    'weekly'    =>  ($clientLimits->getWeek() >= 0) ? $clientLimits->getWeek() : 'unlimited',
+                    'monthly'   =>  ($clientLimits->getMonth() >= 0) ? $clientLimits->getMonth() : 'unlimited',
+                    'yearly'    =>  ($clientLimits->getYear() >=0) ? $clientLimits->getYear() : 'unlimited',
+                    'total'     =>  ($clientLimits->getTotal() >= 0) ? $clientLimits->getTotal() : 'unlimited'
+                ),
+                'fees'  =>  array(
+                    'fixed' =>  $fixed_fee,
+                    'variable'  =>  $variable_fee
+                ),
+                'values'    =>  $values
+            );
+
+        }
+
+        $resp = array(
+            'swift_methods' =>  $response,
+            'confirmations' =>  1,
+            'timeout'   =>  1200,
+            'terms' =>  "http://www.chip-chap.com/legal.html",
+            'title' =>  'ChipChap'
+        );
+
+        return $this->restPlain(200, $resp);
 
     }
 

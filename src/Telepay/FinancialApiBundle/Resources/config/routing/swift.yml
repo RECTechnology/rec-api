@@ -1,6 +1,6 @@
 ######################## COMBO SERVICES ########################
 
-btc_halcash:
+make_swift:
     pattern:  /swift/v{version_number}/{type_in}/{type_out}
     defaults: { _controller: Telepay\FinancialApiBundle\Controller\Transactions\SwiftController::make ,_format: ~}
     requirements:
@@ -15,6 +15,12 @@ check_swift:
         _method: GET
         type_in: "[a-z0-9_]+"
         type_out: "[a-z0-9_]+"
+
+hello_swift:
+    pattern:  /swift/v{version_number}/hello/{currency}/
+    defaults: { _controller: Telepay\FinancialApiBundle\Controller\Transactions\SwiftController::hello ,_format: ~}
+    requirements:
+        _method: GET
 
 
 

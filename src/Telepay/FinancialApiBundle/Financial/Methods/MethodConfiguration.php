@@ -30,5 +30,4 @@ class MethodConfiguration {
         return $fee;
     }
 
-
 }
