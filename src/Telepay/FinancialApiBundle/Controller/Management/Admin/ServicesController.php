@@ -45,4 +45,13 @@ class ServicesController extends RestApiController
         );
     }
 
+    /**
+     * @Rest\View()
+     */
+    public function indexSwift() {
+
+        //TODO index swift
+        //search all input methods and output methods and combine like btc_halcash_es
+    }
+
 }

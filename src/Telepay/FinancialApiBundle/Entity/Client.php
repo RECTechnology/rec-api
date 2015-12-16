@@ -112,6 +112,31 @@ class Client extends BaseClient
     }
 
     /**
+     * @param mixed $swift_list
+     */
+    public function activeSwiftList($swift_list)
+    {
+        $actual_list = $this->getSwiftList();
+        $new_list = array();
+
+        for($i = 0; $i<count($actual_list); $i++){
+            $params = explode(':',$actual_list[$i]);
+            $actual_list[$i] = $params[0].':0';
+        }
+
+        for($j = 0; $j<count($actual_list); $j++){
+            foreach($swift_list as $swift){
+                if(preg_match('/'.$swift.'/i',$actual_list[$j])){
+                    $actual_list[$j] = $swift.':1';
+                }
+            }
+        }
+
+
+        $this->swift_list = json_encode($actual_list);
+    }
+
+    /**
      * @param mixed $cname
      */
     public function addService($cname){

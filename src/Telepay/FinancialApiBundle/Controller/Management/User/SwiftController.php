@@ -81,7 +81,38 @@ class SwiftController extends BaseApiController{
      */
     public function updateAction(Request $request,$id=null){
 
-        return parent::updateAction($request, $id);
+        //todo active methods or inactive.
+        //get client
+        $user = $this->get('security.context')->getToken()->getUser();
+
+        $em = $this->getDoctrine()->getManager();
+        $client = $em->getRepository('TelepayFinancialApiBundle:Client')->findOneBy(array(
+            'id'    =>  $id,
+            'user'  =>  $user
+        ));
+
+        //To activate services we have to send all the services we want activate
+        if($request->request->has('services')){
+
+            $services = $request->get('services');
+            $request->request->remove('services');
+        }
+
+        $response = parent::updateAction($request, $id);
+
+        if($services){
+            if($response->getStatusCode() == 204){
+                $client = $em->getRepository('TelepayFinancialApiBundle:Client')->find($id);
+
+                $client->activeSwiftList($services);
+
+                $em->persist($client);
+                $em->flush();
+            }
+        }
+
+        return $response;
+
 
     }
 
