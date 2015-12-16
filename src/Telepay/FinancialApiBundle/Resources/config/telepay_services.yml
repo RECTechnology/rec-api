@@ -1,6 +1,5 @@
 services:
 
-
     net.telepay.service_provider:
         class: Telepay\FinancialApiBundle\DependencyInjection\TelepayServiceProvider
         arguments:
@@ -388,7 +387,6 @@ services:
             - "image"
             - "@service_container"
             - "@net.telepay.driver.sepa"
-
 
     net.telepay.out.cryptocapital.v1:
         class: Telepay\FinancialApiBundle\Financial\Methods\CryptocapitalMethod

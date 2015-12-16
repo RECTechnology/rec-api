@@ -56,6 +56,8 @@ class SwiftController extends RestApiController{
 
         }
 
+        //TODO check if user has this service active
+
         if(!$request->request->has('amount')) throw new HttpException(404, 'Param amount not found');
 
         //TODO optional url_notification param
@@ -79,7 +81,6 @@ class SwiftController extends RestApiController{
 
         //GET METHODS
         $cashInMethod = $this->container->get('net.telepay.in.'.$type_in.'.v'.$version_number);
-
         $cashOutMethod = $this->container->get('net.telepay.out.'.$type_out.'.v'.$version_number);
 
         //GET PAYOUT INFO(parameters sent by user

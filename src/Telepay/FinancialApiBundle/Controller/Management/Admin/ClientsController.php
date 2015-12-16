@@ -48,7 +48,10 @@ class ClientsController extends BaseApiController {
 
         if(!$user) throw new HttpException(404, 'User not found');
 
-        $request->request->add(array('allowed_grant_types' => array('client_credentials')));
+        $request->request->add(array(
+            'allowed_grant_types' => array('client_credentials'),
+            'swift_list'    =>  array()
+        ));
 
         $response = parent::createAction($request);
 
@@ -80,17 +83,26 @@ class ClientsController extends BaseApiController {
      */
     public function updateAction(Request $request, $id){
 
+        $em = $this->getDoctrine()->getManager();
         if($request->request->has('user')){
             $user_id = $request->request->get('user');
             $request->request->remove('user');
-            $em = $this->getDoctrine()->getManager();
+
             $user = $em->getRepository('TelepayFinancialApiBundle:User')->find($user_id);
             $request->request->add(array(
                 'user'  =>  $user
             ));
         }
 
+        $services = null;
+        if($request->request->has('services')){
+            $services = $request->get('services');
+            $request->request->remove('services');
+            $request->request->add(array('swift_list' =>$services));
+        }
+
         return parent::updateAction($request, $id);
+
     }
 
     /**
@@ -146,5 +158,9 @@ class ClientsController extends BaseApiController {
 
 
     }
+
+
+
+
 
 }
