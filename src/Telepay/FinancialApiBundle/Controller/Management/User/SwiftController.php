@@ -91,6 +91,7 @@ class SwiftController extends BaseApiController{
             'user'  =>  $user
         ));
 
+        $services = null;
         //To activate services we have to send all the services we want activate
         if($request->request->has('services')){
 
@@ -100,7 +101,7 @@ class SwiftController extends BaseApiController{
 
         $response = parent::updateAction($request, $id);
 
-        if($services){
+        if($services != null){
             if($response->getStatusCode() == 204){
                 $client = $em->getRepository('TelepayFinancialApiBundle:Client')->find($id);
 

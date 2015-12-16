@@ -163,6 +163,37 @@ class CheckSwiftCommand extends ContainerAwareCommand
                         $dm->persist($userFee);
                         $dm->persist($rootFee);
 
+                        //TODO get wallets and add fees to both, user and wallet
+                        $rootWallets = $root->getWallets();
+                        $current_wallet = null;
+
+                        foreach ( $rootWallets as $wallet){
+                            if ($wallet->getCurrency() == $rootFee->getCurrency()){
+                                $current_wallet = $wallet;
+                            }
+                        }
+
+                        $current_wallet->setAvailable($current_wallet->getAvailable() + $service_fee);
+                        $current_wallet->setBalance($current_wallet->getBalance() + $service_fee);
+
+                        $em->persist($current_wallet);
+                        $em->flush();
+
+                        $userWallets = $client->getUser()->getWallets();
+                        $current_wallet = null;
+
+                        foreach ( $userWallets as $wallet){
+                            if ($wallet->getCurrency() == $userFee->getCurrency()){
+                                $current_wallet = $wallet;
+                            }
+                        }
+
+                        $current_wallet->setAvailable($current_wallet->getAvailable() + $client_fee);
+                        $current_wallet->setBalance($current_wallet->getBalance() + $client_fee);
+
+                        $em->persist($current_wallet);
+                        $em->flush();
+
                         //if status out == pending we have to send the transaction manually
                     }elseif($pay_out_info['status'] == 'pending'){
                         $transaction->setPayOutInfo($pay_out_info);
