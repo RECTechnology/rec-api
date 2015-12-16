@@ -55,8 +55,12 @@ class SwiftController extends RestApiController{
             $client = $em->getRepository('TelepayFinancialApiBundle:Client')->findOneById($client_default_id);
 
         }
+        
+        //check if user has this service and if is active
+        $services = $client->getSwiftList();
+        if(!$services) throw new HttpException(403,'Method not allowed');
 
-        //TODO check if user has this service active
+        if(!in_array($type_in.'_'.$type_out.':1', $services)) throw new HttpException(403, 'Method not allowed');
 
         if(!$request->request->has('amount')) throw new HttpException(404, 'Param amount not found');
 

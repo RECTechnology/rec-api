@@ -86,14 +86,17 @@ class Client extends BaseClient
     {
         $actual_list = $this->getSwiftList();
         $new_list = array();
-        foreach($actual_list as $actual){
-            for($i = 0; $i < count($swift_list); $i++){
-                if(preg_match('/'.$swift_list[$i].'/i',$actual)){
-                    $new_list[] = $actual;
-                    unset($swift_list[$i]);
+        if($actual_list != ''){
+            foreach($actual_list as $actual){
+                for($i = 0; $i < count($swift_list); $i++){
+                    if(preg_match('/'.$swift_list[$i].'/i',$actual)){
+                        $new_list[] = $actual;
+                        unset($swift_list[$i]);
+                    }
                 }
             }
         }
+
 
         foreach ($swift_list as $swift){
             $new_list[] = $swift.':0';
