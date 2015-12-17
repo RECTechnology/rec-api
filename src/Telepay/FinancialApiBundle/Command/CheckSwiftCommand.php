@@ -140,7 +140,7 @@ class CheckSwiftCommand extends ContainerAwareCommand
                             'transaction_amount'    =>  $transaction->getAmount(),
                             'total_fee' =>  $client_fee + $service_fee
                         ));
-                        $userFee->setClient($client->getId());
+                        $userFee->setClient($client);
 
                         $output->writeln('Generating rootFee for: '.$transaction->getId());
                         //service fees goes to root
@@ -160,7 +160,7 @@ class CheckSwiftCommand extends ContainerAwareCommand
                             'transaction_amount'    =>  $transaction->getAmount(),
                             'total_fee' =>  $client_fee + $service_fee
                         ));
-                        $rootFee->setClient($client->getId());
+                        $rootFee->setClient($client);
                         $dm->persist($userFee);
                         $dm->persist($rootFee);
                         $dm->flush();
@@ -181,7 +181,8 @@ class CheckSwiftCommand extends ContainerAwareCommand
                         $em->persist($current_wallet);
                         $em->flush();
 
-                        $userWallets = $client->getUser()->getWallets();
+                        $user = $em->getRepository('TelepayFinancialApiBundle:User')->find($transaction->getId());
+                        $userWallets = $user->getWallets();
                         $current_wallet = null;
 
                         foreach ( $userWallets as $wallet){
