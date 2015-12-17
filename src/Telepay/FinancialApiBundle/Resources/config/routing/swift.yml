@@ -20,7 +20,7 @@ update_swift:
     pattern:  /swift/v{version_number}/{type_in}/{type_out}/{id}
     defaults: { _controller: Telepay\FinancialApiBundle\Controller\Transactions\SwiftController::update ,_format: ~}
     requirements:
-        _method: GET
+        _method: PUT
         type_in: "[a-z0-9_]+"
         type_out: "[a-z0-9_]+"
 
