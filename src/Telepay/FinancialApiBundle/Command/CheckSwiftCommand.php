@@ -118,7 +118,8 @@ class CheckSwiftCommand extends ContainerAwareCommand
                         $transaction->setStatus('success');
                         $transaction->setDataIn($pay_out_info);
                         $output->writeln('Status success');
-
+                        $dm->persist($transaction);
+                        $dm->flush();
                         //Generate fee transactions. One for the user and one for the root
                         $output->writeln('Generating userFee for: '.$transaction->getId());
 
@@ -139,7 +140,7 @@ class CheckSwiftCommand extends ContainerAwareCommand
                             'transaction_amount'    =>  $transaction->getAmount(),
                             'total_fee' =>  $client_fee + $service_fee
                         ));
-                        $userFee->setClient($client);
+                        $userFee->setClient($client->getId());
 
                         $output->writeln('Generating rootFee for: '.$transaction->getId());
                         //service fees goes to root
@@ -159,9 +160,10 @@ class CheckSwiftCommand extends ContainerAwareCommand
                             'transaction_amount'    =>  $transaction->getAmount(),
                             'total_fee' =>  $client_fee + $service_fee
                         ));
-                        $rootFee->setClient($client);
+                        $rootFee->setClient($client->getId());
                         $dm->persist($userFee);
                         $dm->persist($rootFee);
+                        $dm->flush();
 
                         //TODO get wallets and add fees to both, user and wallet
                         $rootWallets = $root->getWallets();
