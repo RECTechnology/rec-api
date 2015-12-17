@@ -223,10 +223,12 @@ class SwiftController extends RestApiController{
 
     public function update(Request $request, $version_number, $type_in, $type_out, $id){
 
-        $user = $this->get('security.context')->getToken()->getUser();
-
-        if(!$user) throw new HttpException(403, 'You don have the necessary permissions');
-
+        if ($this->get('security.authorization_checker')->isGranted('IS_AUTHENTICATED_FULLY')) {
+            $user = $this->get('security.context')->getToken()->getUser();
+        }else{
+            throw new HttpException(403, 'You don have the necessary permissions');
+        }
+        
         $dm = $this->get('doctrine_mongodb')->getManager();
 
         if(!$request->request->has('option')) throw new HttpException(404, 'Missing parameter \'option\'');
