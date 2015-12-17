@@ -181,7 +181,7 @@ class CheckSwiftCommand extends ContainerAwareCommand
                         $em->persist($current_wallet);
                         $em->flush();
 
-                        $user = $em->getRepository('TelepayFinancialApiBundle:User')->find($transaction->getId());
+                        $user = $em->getRepository('TelepayFinancialApiBundle:User')->find($transaction->getUser());
                         $userWallets = $user->getWallets();
                         $current_wallet = null;
 
