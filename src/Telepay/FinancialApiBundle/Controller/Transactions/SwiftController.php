@@ -1,9 +1,9 @@
 <?php
 /**
  * Created by PhpStorm.
- * User: lluis
- * Date: 2/22/15
- * Time: 8:16 PM
+ * User: pere
+ * Date: 12/12/15
+ * Time: 8:16 AM
  */
 
 namespace Telepay\FinancialApiBundle\Controller\Transactions;
@@ -15,13 +15,9 @@ use FOS\RestBundle\Controller\Annotations as Rest;
 use Telepay\FinancialApiBundle\DependencyInjection\Telepay\Commons\LimitAdder;
 use Telepay\FinancialApiBundle\DependencyInjection\Telepay\Commons\LimitChecker;
 use Telepay\FinancialApiBundle\Document\Transaction;
-use Telepay\FinancialApiBundle\Entity\LimitCount;
-use Telepay\FinancialApiBundle\Entity\LimitDefinition;
-use Telepay\FinancialApiBundle\Entity\ServiceFee;
 use Telepay\FinancialApiBundle\Entity\SwiftFee;
 use Telepay\FinancialApiBundle\Entity\SwiftLimit;
 use Telepay\FinancialApiBundle\Entity\SwiftLimitCount;
-use Telepay\FinancialApiBundle\Entity\UserWallet;
 use Telepay\FinancialApiBundle\Financial\Currency;
 
 class SwiftController extends RestApiController{
@@ -268,6 +264,11 @@ class SwiftController extends RestApiController{
             }
         }elseif($option == 'resend'){
             if($transaction->getStatus() == Transaction::$STATUS_FAILED || $transaction->getStatus() == Transaction::$STATUS_CANCELLED){
+
+                $previous_status = $transaction->getStatus();
+
+                //TODO implement a resend with changed params
+
                 //resend out method
                 try{
                     $payOutInfo = $method_out->send($payOutInfo);
@@ -275,16 +276,89 @@ class SwiftController extends RestApiController{
                     throw new HttpException(400, 'Resend transaction error');
                 }
 
-                //TODO if previous status = failed generate fees transactions
-
                 $transaction->setPayOutInfo($payOutInfo);
                 $transaction->setStatus(Transaction::$STATUS_SUCCESS);
                 $transaction->setUpdated(new \DateTime());
                 $message = 'Transaction resend successfully';
 
+                $dm->persist($transaction);
+                $dm->flush();
+
+                //if previous status == failed generate fees transactions
+                if($previous_status == Transaction::$STATUS_FAILED){
+                    $this->_generateFees($transaction, $method_in, $method_out);
+                }
+
             }
         }elseif($option = 'refund'){
 
+            if($transaction->getStatus() == Transaction::$STATUS_FAILED || $transaction->getStatus() == Transaction::$STATUS_CANCELLED){
+                //for refund we need different values foreach services
+                //if pay_in is with bitcoins we need btc address
+                if($request->request->has('amount')){
+                    $request->request->remove('amount');
+                }
+
+                $request->request->add(array(
+                    'amount'    =>  $payInInfo['amount']
+                ));
+
+                $refund_info = $method_out->getPayOutInfo($request);
+
+                try{
+                    $refund_info = $method_out->send($refund_info);
+                }catch (HttpException $e){
+                    throw new HttpException($e->getStatusCode(), $e->getMessage());
+                }
+
+                $payInInfo['status'] = 'refund';
+                $payInInfo['refund_info'] = $refund_info;
+                $transaction->setStatus('refund');
+                $transaction->setUpdated(new \DateTime());
+                $transaction->setPayInInfo($payInInfo);
+
+                $dm->persist($transaction);
+                $dm->flush();
+
+                //TODO get feeTransactions and refund too - restar al wallet porque antes se las hemos sumado.
+                //get fee transactions to refund.
+//                $feesTransactions = $dm->getRepository('TelepayFinancialApiBundle:Transaction')->findBy(array(
+//                    'type'  =>  'fee',
+//                    'method_in' =>  $type_in,
+//                    'method_out'    =>  $type_out,
+//                    'previous_transaction' => $transaction->getId()
+//                ));
+                $qb = $dm->createQueryBuilder('TelepayFinancialApiBundle:Transaction');
+                $transaction_id = $transaction->getId();
+                $transactions = $qb
+                    ->field('type')->equals('fee')
+                    ->where("function() {
+            if (typeof this.dataIn !== 'undefined') {
+                if (typeof this.dataIn.previous_transaction !== 'undefined') {
+                    if(String(this.dataIn.previous_transaction).indexOf('$transaction_id') > -1){
+                        return true;
+                    }
+                }
+            }
+
+            return false;
+            }")
+                    ->sort($order,$dir)
+                    ->getQuery()
+                    ->execute();
+
+                $resArray = [];
+                foreach($transactions->toArray() as $res){
+                    $resArray []= $res;
+
+                }
+
+                $total = count($resArray);
+
+                die(print_r($total,true));
+
+
+            }
             throw new HttpException(403, 'Method not implemented yet');
 
         }else{
@@ -418,7 +492,7 @@ class SwiftController extends RestApiController{
 
     }
 
-    public function _exchange($amount,$curr_in,$curr_out){
+    private function _exchange($amount,$curr_in,$curr_out){
 
         $dm=$this->getDoctrine()->getManager();
         $exchangeRepo=$dm->getRepository('TelepayFinancialApiBundle:Exchange');
@@ -433,6 +507,104 @@ class SwiftController extends RestApiController{
         $total = round($amount * $price,0);
 
         return $total;
+
+    }
+
+    private function _generateFees(Transaction $transaction, $method_in, $method_out){
+
+        $em = $this->getDoctrine()->getManager();
+        $dm = $this->get('doctrine_mongodb')->getManager();
+        $client = $transaction->getClient();
+        $amount = $transaction->getAmount();
+
+        $root_id = $this->getContainer()->getParameter('admin_user_id');
+        $root = $em->getRepository('TelepayFinancialApiBundle:User')->find($root_id);
+
+        //get configuration(method)
+        $swift_config = $this->getContainer()->get('net.telepay.config.'.$method_out);
+        $methodFees = $swift_config->getFees();
+
+        //get client fees (fixed & variable)
+        $clientFees = $em->getRepository('TelepayFinancialApiBundle:SwiftFee')->findOneBy(array(
+            'client'    =>  $client,
+            'cname' =>  $method_in.'_'.$method_out
+        ));
+
+        $client_fee = ($amount * ($clientFees->getVariable()/100) + $clientFees->getFixed());
+        $service_fee = ($amount * ($methodFees->getVariable()/100) + $methodFees->getFixed());
+
+        //client fees goes to the user
+        $userFee = new Transaction();
+        $userFee->setUser($transaction->getUser());
+        $userFee->setType('fee');
+        $userFee->setCurrency($transaction->getCurrency());
+        $userFee->setScale($transaction->getScale());
+        $userFee->setAmount($client_fee);
+        $userFee->setFixedFee($clientFees->getFixed());
+        $userFee->setVariableFee($amount * ($clientFees->getVariable()/100));
+        $userFee->setService($method_in.'_'.$method_out);
+        $userFee->setStatus('success');
+        $userFee->setTotal($client_fee);
+        $userFee->setDataIn(array(
+            'previous_transaction'  =>  $transaction->getId(),
+            'transaction_amount'    =>  $transaction->getAmount(),
+            'total_fee' =>  $client_fee + $service_fee
+        ));
+        $userFee->setClient($client);
+
+        //service fees goes to root
+        $rootFee = new Transaction();
+        $rootFee->setUser($root->getId());
+        $rootFee->setType('fee');
+        $rootFee->setCurrency($transaction->getCurrency());
+        $rootFee->setScale($transaction->getScale());
+        $rootFee->setAmount($service_fee);
+        $rootFee->setFixedFee($methodFees->getFixed());
+        $rootFee->setVariableFee($amount * ($methodFees->getVariable()/100));
+        $rootFee->setService($method_in.'_'.$method_out);
+        $rootFee->setStatus('success');
+        $rootFee->setTotal($service_fee);
+        $rootFee->setDataIn(array(
+            'previous_transaction'  =>  $transaction->getId(),
+            'transaction_amount'    =>  $transaction->getAmount(),
+            'total_fee' =>  $client_fee + $service_fee
+        ));
+        $rootFee->setClient($client);
+        $dm->persist($userFee);
+        $dm->persist($rootFee);
+        $dm->flush();
+
+        //TODO get wallets and add fees to both, user and wallet
+        $rootWallets = $root->getWallets();
+        $current_wallet = null;
+
+        foreach ( $rootWallets as $wallet){
+            if ($wallet->getCurrency() == $rootFee->getCurrency()){
+                $current_wallet = $wallet;
+            }
+        }
+
+        $current_wallet->setAvailable($current_wallet->getAvailable() + $service_fee);
+        $current_wallet->setBalance($current_wallet->getBalance() + $service_fee);
+
+        $em->persist($current_wallet);
+        $em->flush();
+
+        $user = $em->getRepository('TelepayFinancialApiBundle:User')->find($transaction->getUser());
+        $userWallets = $user->getWallets();
+        $current_wallet = null;
+
+        foreach ( $userWallets as $wallet){
+            if ($wallet->getCurrency() == $userFee->getCurrency()){
+                $current_wallet = $wallet;
+            }
+        }
+
+        $current_wallet->setAvailable($current_wallet->getAvailable() + $client_fee);
+        $current_wallet->setBalance($current_wallet->getBalance() + $client_fee);
+
+        $em->persist($current_wallet);
+        $em->flush();
 
     }
 
