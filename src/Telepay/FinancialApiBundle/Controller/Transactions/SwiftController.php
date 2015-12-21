@@ -303,7 +303,7 @@ class SwiftController extends RestApiController{
                     'amount'    =>  $payInInfo['amount']
                 ));
 
-                $refund_info = $method_out->getPayOutInfo($request);
+                $refund_info = $method_in->getPayOutInfo($request);
 
                 try{
                     $refund_info = $method_out->send($refund_info);
@@ -343,7 +343,6 @@ class SwiftController extends RestApiController{
 
             return false;
             }")
-                    ->sort($order,$dir)
                     ->getQuery()
                     ->execute();
 
