@@ -306,7 +306,7 @@ class SwiftController extends RestApiController{
                 $refund_info = $method_in->getPayOutInfo($request);
 
                 try{
-                    $refund_info = $method_out->send($refund_info);
+                    $refund_info = $method_in->send($refund_info);
                 }catch (HttpException $e){
                     throw new HttpException($e->getStatusCode(), $e->getMessage());
                 }
