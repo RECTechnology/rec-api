@@ -24,17 +24,14 @@ fi
 cat > app/config/parameters.yml
 
 curl -sS https://getcomposer.org/installer -s | php
-php composer.phar install --no-scripts --no-dev --optimize-autoloader --quiet
+php composer.phar install --no-scripts --no-dev --optimize-autoloader #--quiet
 php vendor/sensio/distribution-bundle/Sensio/Bundle/DistributionBundle/Resources/bin/build_bootstrap.php
 
-php app/console doctrine:schema:update --force --env=prod
-php app/console doctrine:schema:update --force --env=sandbox
+#php app/console doctrine:schema:update --force --env=prod
 
-php app/console doctrine:mongodb:schema:create --env=prod
-php app/console doctrine:mongodb:schema:create --env=sandbox
+#php app/console doctrine:mongodb:schema:create --env=prod
 
-php app/console cache:clear --env=prod
-php app/console cache:clear --env=sandbox
+#php app/console cache:clear --env=prod
 
 cat <<EOF
 *** Installer finished success ***

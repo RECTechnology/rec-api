@@ -5,7 +5,6 @@ namespace Telepay\FinancialApiBundle\Controller\Management\System;
 use Symfony\Component\HttpFoundation\Request;
 use Telepay\FinancialApiBundle\Controller\RestApiController;
 use FOS\RestBundle\Controller\Annotations as Rest;
-use Symfony\Component\HttpKernel\Exception\HttpException;
 
 class Resp{
     public $avg1;

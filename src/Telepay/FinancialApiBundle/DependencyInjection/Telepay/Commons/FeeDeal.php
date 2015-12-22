@@ -31,15 +31,15 @@ class FeeDeal{
      * Creator fee
      */
 
-    public function deal(User $creator,$amount,$service_cname,$currency,$fee,$transaction_id,$version){
+    public function deal(User $creator, $amount, $service_cname, $currency, $fee, $transaction_id, $version){
 
         if(!$creator->hasRole('ROLE_SUPER_ADMIN')){
             //obtenemos el grupo
-            $group=$creator->getGroups()[0];
+            $group = $creator->getGroups()[0];
 
             //obtener comissiones del grupo
-            $commissions=$group->getCommissions();
-            $group_commission=false;
+            $commissions = $group->getCommissions();
+            $group_commission = false;
 
             foreach ( $commissions as $commission ){
                 if ( $commission->getServiceName() == $service_cname ){
@@ -62,7 +62,7 @@ class FeeDeal{
         //Ahora lo añadimos al wallet correspondiente
         $wallets=$creator->getWallets();
 
-        $scale=0;
+        $scale = 0;
         foreach($wallets as $wallet){
 
             if($wallet->getCurrency() === $currency){
@@ -141,7 +141,7 @@ class FeeDeal{
             $this->balance_manipulator->addBalance($creator, -$total, $feeTransaction);
 
             $new_creator=$group->getCreator();
-            $this->deal($new_creator,$amount,$service_cname,$currency,$total,$id,$version);
+            $this->deal($new_creator, $amount, $service_cname, $currency, $total, $id, $version);
         }
 
         return true;

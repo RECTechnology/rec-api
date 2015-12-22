@@ -4,7 +4,6 @@ namespace Telepay\FinancialApiBundle\Controller\Management\Admin;
 
 use Telepay\FinancialApiBundle\Controller\RestApiController;
 use FOS\RestBundle\Controller\Annotations as Rest;
-use Nelmio\ApiDocBundle\Annotation\ApiDoc;
 
 /**
  * Class ServicesController
@@ -16,12 +15,33 @@ class ServicesController extends RestApiController
      * @Rest\View()
      */
     public function index() {
+
         $services = $this->get('net.telepay.service_provider')->findAll();
+
+        if ($this->get('security.authorization_checker')->isGranted('ROLE_SUPER_ADMIN')) {
+            $allowed_services = $services;
+        }else{
+            $admin = $this->get('security.context')->getToken()->getUser();
+            $admin_services = $admin->getServicesList();
+            foreach($services as $service){
+                if(in_array($service->getCname(),$admin_services)){
+                    $allowed_services[] = $service;
+                }
+            }
+
+        }
+
+        if ($this->get('security.authorization_checker')->isGranted('ROLE_SUPER_COMMERCE')) {
+            //todo: add pos service
+        }
+
+        //TODO: add exchange service
+
         return $this->restV2(
             200,
             "ok",
             "Services got successfully",
-            $services
+            $allowed_services
         );
     }
 

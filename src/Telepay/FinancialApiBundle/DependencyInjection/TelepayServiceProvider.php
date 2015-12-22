@@ -63,6 +63,20 @@ class TelepayServiceProvider{
         return $services;
     }
 
-
+    public function findByCNames(array $cnames){
+        $services = array();
+        foreach($cnames as $cname){
+            if(array_key_exists($cname, $this->servicesByCName))
+                $services []= new AbstractService(
+                    $this->servicesByCName[$cname]->getName(),
+                    $this->servicesByCName[$cname]->getCname(),
+                    $this->servicesByCName[$cname]->getRole(),
+                    $this->servicesByCName[$cname]->getCashDirection(),
+                    $this->servicesByCName[$cname]->getCurrency(),
+                    $this->servicesByCName[$cname]->getBase64Image()
+                );
+        }
+        return $services;
+    }
 
 }

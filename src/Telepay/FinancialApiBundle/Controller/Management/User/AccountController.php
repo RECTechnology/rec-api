@@ -9,19 +9,12 @@
 
 namespace Telepay\FinancialApiBundle\Controller\Management\User;
 
-use FOS\OAuthServerBundle\Document\RefreshToken;
 use Symfony\Component\Security\Core\Util\SecureRandom;
-use Telepay\FinancialApiBundle\Entity\AccessToken;
-use Telepay\FinancialApiBundle\Entity\BTCWallet;
 use Telepay\FinancialApiBundle\Entity\Device;
-use Telepay\FinancialApiBundle\Entity\Group;
-use Telepay\FinancialApiBundle\Entity\LimitDefinition;
-use Telepay\FinancialApiBundle\Entity\ServiceFee;
 use Telepay\FinancialApiBundle\Entity\User;
 use Rhumsaa\Uuid\Uuid;
 use Symfony\Component\HttpKernel\Exception\HttpException;
 use Telepay\FinancialApiBundle\Controller\BaseApiController;
-use Telepay\FinancialApiBundle\Controller\RestApiController;
 use FOS\RestBundle\Controller\Annotations as Rest;
 use Symfony\Component\HttpFoundation\Request;
 use Telepay\FinancialApiBundle\Entity\UserWallet;
@@ -33,13 +26,22 @@ class AccountController extends BaseApiController{
      * @Rest\View
      */
     public function read(Request $request){
-        $user = $this->get('security.context')->getToken()->getUser();
-        $user->setAllowedServices(
-            $this->get('net.telepay.service_provider')->findByRoles($user->getRoles())
-        );
-        //die(print_r($user->getLimitCount()[0]->getUser(), true));
-        //return $this->restV2(200, "ok", "OLE", $user->getLimitCount()[0]);
 
+        $user = $this->get('security.context')->getToken()->getUser();
+        $listServices = $user->getServicesList();
+        $user->setAllowedServices(
+            $this->get('net.telepay.service_provider')->findByCNames($listServices)
+        );
+
+        $group = $user->getGroups()[0];
+
+        $group_data = array();
+        $group_data['id'] = $group->getId();
+        $group_data['name'] = $group->getName();
+        $group_data['admin'] = $group->getCreator()->getName();
+        $group_data['email'] = $group->getCreator()->getEmail();
+
+        $user->setGroupData($group_data);
 
         return $this->restV2(200, "ok", "Account info got successfully", $user);
     }
@@ -50,7 +52,7 @@ class AccountController extends BaseApiController{
     public function updateAction(Request $request,$id=null){
 
         $user = $this->get('security.context')->getToken()->getUser();
-        $id=$user->getId();
+        $id = $user->getId();
 
         if($request->request->has('password')){
             if($request->request->has('repassword')){
@@ -266,7 +268,7 @@ class AccountController extends BaseApiController{
         //password is optional
         if(!$request->request->has('password')){
             //nos lo inventamos
-                $password = Uuid::uuid1()->toString();
+            $password = Uuid::uuid1()->toString();
             $request->request->add(array('plain_password'=>$password));
 
         }else{
@@ -317,6 +319,7 @@ class AccountController extends BaseApiController{
         $request->request->add(array('base64_image'=>''));
         $request->request->add(array('default_currency'=>'EUR'));
         $request->request->add(array('gcm_group_key'=>''));
+        $request->request->add(array('services_list'=>array('sample')));
 
         $resp= parent::createAction($request);
 
@@ -324,8 +327,8 @@ class AccountController extends BaseApiController{
             $em=$this->getDoctrine()->getManager();
 
             $groupsRepo = $em->getRepository("TelepayFinancialApiBundle:Group");
-            $group = $groupsRepo->findOneBy(array('name' => 'Level0'));
-            if(!$group) throw new HttpException(404,'Group Level0 not found');
+            $group = $groupsRepo->find($this->container->getParameter('id_group_level_0'));
+            if(!$group) throw new HttpException(404,'Group Level 0 not found');
 
             $usersRepo = $em->getRepository("TelepayFinancialApiBundle:User");
             $data = $resp->getContent();
@@ -365,7 +368,7 @@ class AccountController extends BaseApiController{
             $response = array(
                 'id'        =>  $user_id,
                 'username'  =>  $username,
-                'pasword'   =>  $password
+                'password'   =>  $password
             );
 
             return $this->restV2(201,"ok", "Request successful", $response);

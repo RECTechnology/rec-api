@@ -6,10 +6,7 @@ use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
-use Symfony\Component\HttpKernel\Exception\HttpException;
-use Telepay\FinancialApiBundle\DependencyInjection\Telepay\Commons\FeeDeal;
 use Telepay\FinancialApiBundle\Document\Transaction;
-use Telepay\FinancialApiBundle\Entity\Exchange;
 
 class CheckHalcashCommand extends ContainerAwareCommand
 {
@@ -32,15 +29,20 @@ class CheckHalcashCommand extends ContainerAwareCommand
 
         $qb = $dm->createQueryBuilder('TelepayFinancialApiBundle:Transaction')
             ->field('service')->equals($service_cname)
-            ->field('status')->in(array('created','received','failed','review'))
+            ->field('status')->equals('created')
             ->getQuery();
 
         $resArray = [];
+        $contador = 0;
+        $contador_success = 0;
         foreach($qb->toArray() as $transaction){
+            $contador ++;
             $data = $transaction->getDataIn();
             $resArray [] = $transaction;
 
             $previous_status = $transaction->getStatus();
+            $output->writeln('txid: '.$transaction->getId());
+            $output->writeln('status: '.$transaction->getStatus());
 
             $checked_transaction = $this->check($transaction);
 
@@ -56,7 +58,7 @@ class CheckHalcashCommand extends ContainerAwareCommand
             $dm->flush();
 
             if($checked_transaction->getStatus() == 'success'){
-
+                $contador_success ++;
                 $id = $checked_transaction->getUser();
 
                 $user = $repo->find($id);
@@ -94,6 +96,8 @@ class CheckHalcashCommand extends ContainerAwareCommand
         $dm->flush();
 
         $output->writeln('Halcash send transactions checked');
+        $output->writeln('Total checked transactions: '.$contador);
+        $output->writeln('Success transactions: '.$contador_success);
     }
 
     public function check(Transaction $transaction){
@@ -150,6 +154,10 @@ class CheckHalcashCommand extends ContainerAwareCommand
 
         }
 
+        $logger = $this->getContainer()->get('logger');
+        $logger->info('HALCASH->check by cron');
+        $logger->info('HALCASH: ticket-> '.$ticket.', status->'.$status['estadoticket']);
+
         return $transaction;
     }
 
@@ -159,8 +167,7 @@ class CheckHalcashCommand extends ContainerAwareCommand
             ->setSubject($subject)
             ->setFrom('no-reply@chip-chap.com')
             ->setTo(array(
-                'pere@playa-almarda.es',
-                'support@chip-chap.com'
+                'pere@chip-chap.com'
             ))
             ->setBody(
                 $this->getContainer()->get('templating')
@@ -169,7 +176,8 @@ class CheckHalcashCommand extends ContainerAwareCommand
                             'message'        =>  $body
                         )
                     )
-            );
+            )
+            ->setContentType('text/html');
 
         $this->getContainer()->get('mailer')->send($message);
     }

@@ -3,11 +3,8 @@
 namespace Telepay\FinancialApiBundle\Controller\Management\Admin;
 
 use Symfony\Component\HttpKernel\Exception\HttpException;
-use Telepay\FinancialApiBundle\Controller\BaseApiController;
 use Telepay\FinancialApiBundle\Controller\RestApiController;
-use Telepay\FinancialApiBundle\Document\Transaction;
 use FOS\RestBundle\Controller\Annotations as Rest;
-use Symfony\Component\HttpFoundation\Request;
 
 /**
  * Class TransactionsController

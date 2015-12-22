@@ -11,7 +11,7 @@ class BitsoDriver extends JsonRequester {
 
     public function ticker($book) {
         return $this->send($this->buildRequest(
-            'public/getticker',
+            'ticker',
             array('book' => $book),
             "GET"
         ));
