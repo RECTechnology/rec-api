@@ -322,39 +322,11 @@ class SwiftController extends RestApiController{
 
                 //TODO get feeTransactions and refund too - restar al wallet porque antes se las hemos sumado.
                 //get fee transactions to refund.
-//                $feesTransactions = $dm->getRepository('TelepayFinancialApiBundle:Transaction')->findBy(array(
-//                    'type'  =>  'fee',
-//                    'method_in' =>  $type_in,
-//                    'method_out'    =>  $type_out,
-//                    'previous_transaction' => $transaction->getId()
-//                ));
-                $qb = $dm->createQueryBuilder('TelepayFinancialApiBundle:Transaction');
-                $transaction_id = $transaction->getId();
-                $transactions = $qb
-                    ->field('type')->equals('fee')
-                    ->where("function() {
-            if (typeof this.dataIn !== 'undefined') {
-                if (typeof this.dataIn.previous_transaction !== 'undefined') {
-                    if(String(this.dataIn.previous_transaction).indexOf('$transaction_id') > -1){
-                        return true;
-                    }
-                }
-            }
 
-            return false;
-            }")
-                    ->getQuery()
-                    ->execute();
+                $this->_returnFees($transaction);
 
-                $resArray = [];
-                foreach($transactions->toArray() as $res){
-                    $resArray []= $res;
 
-                }
-
-                $total = count($resArray);
-
-                die(print_r($total,true));
+                die(print_r('caca',true));
 
 
             }
@@ -604,6 +576,76 @@ class SwiftController extends RestApiController{
 
         $em->persist($current_wallet);
         $em->flush();
+
+    }
+
+    private function _returnFees(Transaction $transaction){
+
+        $dm = $dm = $this->get('doctrine_mongodb')->getManager();
+        $em = $this->getDoctrine()->getManager();
+        $qb = $dm->createQueryBuilder('TelepayFinancialApiBundle:Transaction');
+        $transaction_id = $transaction->getId();
+        $transactions = $qb
+            ->field('type')->equals('fee')
+            ->where("function() {
+                                if (typeof this.dataIn !== 'undefined') {
+                                    if (typeof this.dataIn.previous_transaction !== 'undefined') {
+                                        if(String(this.dataIn.previous_transaction).indexOf('$transaction_id') > -1){
+                                            return true;
+                                        }
+                                    }
+                                }
+
+                                return false;
+                                }")
+            ->getQuery()
+            ->execute();
+
+        $resArray = [];
+        foreach($transactions->toArray() as $res){
+            $resArray []= $res;
+
+        }
+
+        $total = count($resArray);
+
+        foreach($resArray as $fee){
+
+            $feeTransaction = new Transaction();
+            $feeTransaction->setUser($fee->getUser());
+            $feeTransaction->setType('fee');
+            $feeTransaction->setCurrency($fee->getCurrency());
+            $feeTransaction->setScale($fee->getScale());
+            $feeTransaction->setAmount(-$fee->getAmount());
+            $feeTransaction->setService($fee->getService());
+            $feeTransaction->setStatus('success');
+            $feeTransaction->setTotal(-$fee->getTotal());
+            $feeTransaction->setClient($fee->getClient());
+            $feeTransaction->setDataIn(array(
+                'previous_fee'  =>  $fee->getId()
+            ));
+
+            $dm->persist($feeTransaction);
+            $dm->flush();
+
+            //getWallet and discount fee
+            $user = $em->getRepository('TelepayFinancialApiBundle:User')->find($transaction->getUser());
+            $userWallets = $user->getWallets();
+            $current_wallet = null;
+
+            foreach ( $userWallets as $wallet){
+                if ($wallet->getCurrency() == $feeTransaction->getCurrency()){
+                    $current_wallet = $wallet;
+                }
+            }
+
+            $current_wallet->setAvailable($current_wallet->getAvailable() - $fee->getAmount());
+            $current_wallet->setBalance($current_wallet->getBalance() - $fee->getAmount());
+
+            $em->persist($current_wallet);
+            $em->flush();
+
+        }
 
     }
 

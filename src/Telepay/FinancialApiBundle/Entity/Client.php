@@ -84,29 +84,30 @@ class Client extends BaseClient
      */
     public function setSwiftList($swift_list)
     {
+
         $actual_list = $this->getSwiftList();
         $new_list = array();
+        $add_list = array();
         if($actual_list != ''){
-            foreach($actual_list as $actual){
-                for($i = 0; $i < count($swift_list); $i++){
-                    if(preg_match('/'.$swift_list[$i].'/i',$actual)){
-                        $new_list[] = $actual;
-                        unset($swift_list[$i]);
-                    }
+            foreach ($swift_list as $swift){
+                $matriz = preg_grep('/'.$swift.'/i',$actual_list);
+
+                if(count($matriz) >= 1){
+                    $new_list[] = implode('',$matriz);
+                }else{
+                    $add_list[] = $swift;
                 }
+
+            }
+            foreach($add_list as $add){
+                $new_list[] = $add.':0';
+            }
+
+        }else{
+            foreach($swift_list as $swift){
+                $new_list[] = $swift.':0';
             }
         }
-
-
-        foreach ($swift_list as $swift){
-            $new_list[] = $swift.':0';
-        }
-
-        //si actual lo tiene y swift lo tiene nada
-
-        //si actual lo tiene y swift no lo tiene se elimina
-
-        //si actual no lo tiene y swift lo tien se añade con indice 0
 
         $this->swift_list = json_encode($new_list);
     }
