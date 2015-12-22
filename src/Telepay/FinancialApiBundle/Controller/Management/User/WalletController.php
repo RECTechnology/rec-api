@@ -60,8 +60,8 @@ class WalletController extends RestApiController{
         foreach($wallets as $wallet){
             $filtered[] = $wallet->getWalletView();
             $new_wallet = $this->exchange($wallet, $currency);
-            $available = $available + $new_wallet['available'];
-            $balance = $balance + $new_wallet['balance'];
+            $available = round($available + $new_wallet['available'],0);
+            $balance = round($balance + $new_wallet['balance'],0);
             if($new_wallet['scale'] != null) $scale = $new_wallet['scale'];
         }
 
@@ -751,8 +751,8 @@ class WalletController extends RestApiController{
 
         $price = $exchange->getPrice();
 
-        $response['available'] = $wallet->getAvailable()*$price;
-        $response['balance'] = $wallet->getBalance()*$price;
+        $response['available'] = round($wallet->getAvailable() * $price, 0);
+        $response['balance'] = round($wallet->getBalance() * $price,0);
         $response['scale'] = null;
 
         return $response;

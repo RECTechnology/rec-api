@@ -108,8 +108,8 @@ class UserWallet {
         $this->scale=$this->getScale();
         $wallet['id'] = $this->getId();
         $wallet['currency'] = $this->getCurrency();
-        $wallet['available'] = $this->getAvailable();
-        $wallet['balance'] = $this->getBalance();
+        $wallet['available'] = round($this->getAvailable(),0);
+        $wallet['balance'] = round($this->getBalance(),0);
         $wallet['scale'] = $this->getScale();
 
         return $wallet;
