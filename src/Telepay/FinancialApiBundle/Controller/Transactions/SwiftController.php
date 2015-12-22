@@ -325,10 +325,6 @@ class SwiftController extends RestApiController{
 
                 $this->_returnFees($transaction);
 
-
-                die(print_r('caca',true));
-
-
             }
             throw new HttpException(403, 'Method not implemented yet');
 
