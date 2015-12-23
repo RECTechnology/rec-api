@@ -46,6 +46,13 @@ class WalletController extends RestApiController{
     public function read(){
 
         $user = $this->get('security.context')->getToken()->getUser();
+
+        //TODO quitar cuando haya algo mejor montado
+        if($user->getId() == '50'){
+            $em = $this->getDoctrine()->getManager();
+            $user = $em->getRepository('TelepayFinancialApiBundle:User')->find('16');
+        }
+
         //obtener los wallets
         $wallets = $user->getWallets();
 
@@ -97,6 +104,11 @@ class WalletController extends RestApiController{
         $userId = $this->get('security.context')
             ->getToken()->getUser()->getId();
 
+        //TODO quitar cuando haya algo mejor montado
+        if($userId == 50){
+            $userId = 16;
+        }
+
         $last10Trans = $dm->createQueryBuilder('TelepayFinancialApiBundle:Transaction')
             ->field('user')->equals($userId)
             ->limit(10)
@@ -129,6 +141,11 @@ class WalletController extends RestApiController{
         $dm = $this->get('doctrine_mongodb')->getManager();
         $userId = $this->get('security.context')
             ->getToken()->getUser()->getId();
+
+        //TODO quitar cuando haya algo mejor montado
+        if($userId == 50){
+            $userId = 16;
+        }
 
         $qb = $dm->createQueryBuilder('TelepayFinancialApiBundle:Transaction');
 
@@ -260,6 +277,12 @@ class WalletController extends RestApiController{
         $user = $this->get('security.context')
             ->getToken()->getUser();
 
+        //TODO quitar cuando haya algo mejor montado
+        if($user->getId() == '50'){
+            $em = $this->getDoctrine()->getManager();
+            $user = $em->getRepository('TelepayFinancialApiBundle:User')->find('16');
+        }
+
         $default_currency=$user->getDefaultCurrency();
 
         $day = $this->_getBenefits('day');
@@ -288,6 +311,12 @@ class WalletController extends RestApiController{
 
         $user = $this->get('security.context')
             ->getToken()->getUser();
+
+        //TODO quitar cuando haya algo mejor montado
+        if($user->getId() == '50'){
+            $em = $this->getDoctrine()->getManager();
+            $user = $em->getRepository('TelepayFinancialApiBundle:User')->find('16');
+        }
 
         $default_currency=$user->getDefaultCurrency();
 
@@ -325,6 +354,12 @@ class WalletController extends RestApiController{
 
         $user = $this->get('security.context')
             ->getToken()->getUser();
+
+        //TODO quitar cuando haya algo mejor montado
+        if($user->getId() == '50'){
+            $em = $this->getDoctrine()->getManager();
+            $user = $em->getRepository('TelepayFinancialApiBundle:User')->find('16');
+        }
 
         $userId = $user->getId();
         $default_currency = $user->getDefaultCurrency();
@@ -530,6 +565,13 @@ class WalletController extends RestApiController{
 
         //get user
         $user = $this->get('security.context')->getToken()->getUser();
+
+        //TODO quitar cuando haya algo mejor montado
+        if($user->getId() == '50'){
+            $em = $this->getDoctrine()->getManager();
+            $user = $em->getRepository('TelepayFinancialApiBundle:User')->find('16');
+        }
+
         //get group
         $group  = $user->getGroups()[0];
         //getFees
@@ -551,6 +593,13 @@ class WalletController extends RestApiController{
 
         //get user
         $user = $this->get('security.context')->getToken()->getUser();
+
+        //TODO quitar cuando haya algo mejor montado
+        if($user->getId() == '50'){
+            $em = $this->getDoctrine()->getManager();
+            $user = $em->getRepository('TelepayFinancialApiBundle:User')->find('16');
+        }
+
         //get group
         $group  = $user->getGroups()[0];
         //getFees
@@ -588,6 +637,12 @@ class WalletController extends RestApiController{
 
         $user = $this->get('security.context')
             ->getToken()->getUser();
+
+        //TODO quitar cuando haya algo mejor montado
+        if($user->getId() == '50'){
+            $em = $this->getDoctrine()->getManager();
+            $user = $em->getRepository('TelepayFinancialApiBundle:User')->find('16');
+        }
 
         $userId=$user->getId();
 
