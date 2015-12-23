@@ -322,9 +322,7 @@ class SwiftController extends RestApiController{
                 $dm->persist($transaction);
                 $dm->flush();
 
-                //TODO get feeTransactions and refund too - restar al wallet porque antes se las hemos sumado.
                 //get fee transactions to refund.
-
                 $this->_returnFees($transaction);
 
             }else{
