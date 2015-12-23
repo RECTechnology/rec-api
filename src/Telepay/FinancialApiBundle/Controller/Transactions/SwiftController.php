@@ -289,6 +289,8 @@ class SwiftController extends RestApiController{
                     $this->_generateFees($transaction, $method_in, $method_out);
                 }
 
+            }else{
+                throw new HttpException(403, 'Transaction can\'t be resent');
             }
         }elseif($option = 'refund'){
 
@@ -325,8 +327,9 @@ class SwiftController extends RestApiController{
 
                 $this->_returnFees($transaction);
 
+            }else{
+                throw new HttpException(403, 'Transaction can\'t be refund');
             }
-            throw new HttpException(403, 'Method not implemented yet');
 
         }else{
             throw new HttpException(400, 'Bad parameter \'option\'');
