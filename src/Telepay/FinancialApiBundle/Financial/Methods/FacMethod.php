@@ -9,15 +9,17 @@
 namespace Telepay\FinancialApiBundle\Financial\Methods;
 
 use Symfony\Component\HttpKernel\Exception\HttpException;
+use Telepay\FinancialApiBundle\DependencyInjection\Transactions\Core\BaseMethod;
 use Telepay\FinancialApiBundle\DependencyInjection\Transactions\Core\CashInInterface;
 use Telepay\FinancialApiBundle\DependencyInjection\Transactions\Core\CashOutInterface;
 use Telepay\FinancialApiBundle\Financial\Currency;
 
-class FacMethod implements CashInInterface, CashOutInterface {
+class FacMethod extends  BaseMethod {
 
     private $driver;
 
     public function __construct($name, $cname, $type, $currency, $base64Image, $container, $driver){
+        parent::__construct($name, $cname, $type, $currency, $base64Image, $container);
         $this->driver = $driver;
     }
 

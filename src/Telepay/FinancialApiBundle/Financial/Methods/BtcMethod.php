@@ -10,18 +10,21 @@ namespace Telepay\FinancialApiBundle\Financial\Methods;
 
 use MongoDBODMProxies\__CG__\Telepay\FinancialApiBundle\Document\Transaction;
 use Symfony\Component\HttpKernel\Exception\HttpException;
+use Telepay\FinancialApiBundle\DependencyInjection\Transactions\Core\BaseMethod;
 use Telepay\FinancialApiBundle\DependencyInjection\Transactions\Core\CashInInterface;
 use Telepay\FinancialApiBundle\DependencyInjection\Transactions\Core\CashOutInterface;
 use Telepay\FinancialApiBundle\Financial\Currency;
 
-class BtcMethod implements CashInInterface, CashOutInterface {
+class BtcMethod extends BaseMethod {
 
     private $driver;
 
     public function __construct($name, $cname, $type, $currency, $base64Image, $container, $driver){
+        parent::__construct($name, $cname, $type, $currency, $base64Image, $container);
         $this->driver = $driver;
     }
 
+    //PAY IN
     public function getPayInInfo($amount)
     {
         $address = $this->driver->getnewaddress();
@@ -42,30 +45,6 @@ class BtcMethod implements CashInInterface, CashOutInterface {
         );
 
         return $response;
-    }
-
-    public function getCurrency()
-    {
-        return Currency::$BTC;
-    }
-
-    public function send($paymentInfo)
-    {
-        $address = $paymentInfo['address'];
-        $amount = $paymentInfo['amount'];
-
-        $crypto = $this->driver->sendtoaddress($address, $amount/1e8);
-
-        if($crypto === false){
-            $paymentInfo['status'] = Transaction::$STATUS_FAILED;
-            $paymentInfo['final'] = false;
-        }else{
-            $paymentInfo['txid'] = $crypto->txid;
-            $paymentInfo['status'] = 'send';
-            $paymentInfo['final'] = true;
-        }
-
-        return $paymentInfo;
     }
 
     public function getPayInStatus($paymentInfo)
@@ -106,11 +85,8 @@ class BtcMethod implements CashInInterface, CashOutInterface {
 
     }
 
-    public function getPayOutStatus($id)
-    {
-        // TODO: Implement getPayOutStatus() method.
-    }
 
+    //PAY OUT
     public function getPayOutInfo($request)
     {
         $paramNames = array(
@@ -137,4 +113,30 @@ class BtcMethod implements CashInInterface, CashOutInterface {
 
         return $params;
     }
+
+    public function send($paymentInfo)
+    {
+        $address = $paymentInfo['address'];
+        $amount = $paymentInfo['amount'];
+
+        $crypto = $this->driver->sendtoaddress($address, $amount/1e8);
+
+        if($crypto === false){
+            $paymentInfo['status'] = Transaction::$STATUS_FAILED;
+            $paymentInfo['final'] = false;
+        }else{
+            $paymentInfo['txid'] = $crypto->txid;
+            $paymentInfo['status'] = 'send';
+            $paymentInfo['final'] = true;
+        }
+
+        return $paymentInfo;
+    }
+
+    public function getPayOutStatus($id)
+    {
+        // TODO: Implement getPayOutStatus() method.
+    }
+
+
 }

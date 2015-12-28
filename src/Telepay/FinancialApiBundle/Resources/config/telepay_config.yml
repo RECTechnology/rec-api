@@ -1,6 +1,6 @@
 services:
 
-#fixed, variable
+#fixed, variable,¿ range, min_value, countries, text ?
 
     net.telepay.config.halcash_es:
         class: Telepay\FinancialApiBundle\Financial\Methods\MethodConfiguration

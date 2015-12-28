@@ -57,6 +57,7 @@ class SwiftController extends RestApiController{
         if(!$services) throw new HttpException(403,'Method not allowed');
 
         if(!in_array($type_in.'_'.$type_out.':1', $services)) throw new HttpException(403, 'Method not allowed');
+        die(print_r($services,true));
 
         if(!$request->request->has('amount')) throw new HttpException(404, 'Param amount not found');
 
@@ -430,6 +431,13 @@ class SwiftController extends RestApiController{
             }
 
             $response[$service] = array(
+                'orig'  =>  $cashInMethod->getName(),
+                'dst'   =>  $cashOutMethod->getName(),
+//                'countries' =>  '',
+//                'text'  =>  '',
+//                'status'    =>  '',
+//                'message'   =>  '',
+//                'delay' =>  '',
                 'price' =>  $exchange,
                 'limits'    =>  array(
                     'single'    =>  ($clientLimits->getSingle() >= 0) ? $clientLimits->getSingle(): 'unlimited',
@@ -444,7 +452,9 @@ class SwiftController extends RestApiController{
                     'variable'  =>  $variable_fee
                 ),
                 'values'    =>  $values
+
             );
+//            die(print_r($response,true));
 
         }
 

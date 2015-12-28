@@ -9,29 +9,23 @@
 namespace Telepay\FinancialApiBundle\Financial\Methods;
 
 use Symfony\Component\HttpKernel\Exception\HttpException;
+use Telepay\FinancialApiBundle\DependencyInjection\Transactions\Core\BaseMethod;
 use Telepay\FinancialApiBundle\DependencyInjection\Transactions\Core\CashInInterface;
 use Telepay\FinancialApiBundle\DependencyInjection\Transactions\Core\CashOutInterface;
 use Telepay\FinancialApiBundle\Financial\Currency;
 
 
-class PaynetReferenceMethod implements  CashInInterface{
+class PaynetReferenceMethod extends BaseMethod{
 
     private $driver;
-    private $currency;
 
     public function __construct($name, $cname, $type, $currency, $base64Image, $container, $driver){
+        parent::__construct($name, $cname, $type, $currency, $base64Image, $container);
         $this->driver = $driver;
-        $this->currency = $currency;
-    }
-
-    public function getCurrency()
-    {
-        return $this->currency;
     }
 
     public function getPayInInfo($amount)
     {
-
         $id = microtime(true)*100;
         $id = round($id);
         $description = 'ChipChap Payment';

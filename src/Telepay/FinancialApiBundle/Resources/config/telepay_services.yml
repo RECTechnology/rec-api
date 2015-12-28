@@ -28,6 +28,22 @@ services:
                 - "@net.telepay.services.sepa_in.v1"
                 - "@net.telepay.services.sepa_out.v1"
 
+
+    net.telepay.swift_provider:
+        class: Telepay\FinancialApiBundle\DependencyInjection\TelepayMethodProvider
+        arguments:
+            services:
+                - "@net.telepay.out.btc.v1"
+                - "@net.telepay.in.btc.v1"
+                - "@net.telepay.in.fac.v1"
+                - "@net.telepay.out.halcash_es.v1"
+                - "@net.telepay.out.halcash_pl.v1"
+                - "@net.telepay.in.paynet_reference.v1"
+                - "@net.telepay.out.fac.v1"
+                - "@net.telepay.out.sepa.v1"
+                - "@net.telepay.out.cryptocapital.v1"
+
+
     net.telepay.services.sample.v1:
         class: Telepay\FinancialApiBundle\DependencyInjection\Transactions\SampleService
         arguments:
@@ -327,7 +343,7 @@ services:
         arguments:
             - "Halcash ES"
             - "halcash_es"
-            - "cash_in"
+            - "cash_out"
             - "EUR"
             - "image"
             - "@service_container"
@@ -338,7 +354,7 @@ services:
         arguments:
             - "Halcash PL"
             - "halcash_pl"
-            - "cash_in"
+            - "cash_out"
             - "PLN"
             - "image"
             - "@service_container"

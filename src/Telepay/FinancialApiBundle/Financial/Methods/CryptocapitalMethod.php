@@ -11,26 +11,19 @@ namespace Telepay\FinancialApiBundle\Financial\Methods;
 use MongoDBODMProxies\__CG__\Telepay\FinancialApiBundle\Document\Transaction;
 use Symfony\Component\HttpKernel\Exception\HttpException;
 use Symfony\Component\Validator\Constraints\DateTime;
+use Telepay\FinancialApiBundle\DependencyInjection\Transactions\Core\BaseMethod;
 use Telepay\FinancialApiBundle\DependencyInjection\Transactions\Core\CashInInterface;
 use Telepay\FinancialApiBundle\DependencyInjection\Transactions\Core\CashOutInterface;
 use Telepay\FinancialApiBundle\Financial\Currency;
 
 
-class CryptocapitalMethod implements  CashOutInterface{
+class CryptocapitalMethod extends BaseMethod {
 
     private $driver;
-    private $currency;
-    private $container;
 
     public function __construct($name, $cname, $type, $currency, $base64Image, $container, $driver){
+        parent::__construct($name, $cname, $type, $currency, $base64Image, $container);
         $this->driver = $driver;
-        $this->currency = $currency;
-        $this->container = $container;
-    }
-
-    public function getCurrency()
-    {
-        return $this->currency;
     }
 
     public function send($paymentInfo)
@@ -154,7 +147,7 @@ class CryptocapitalMethod implements  CashOutInterface{
                 $email
             ))
             ->setBody(
-                $this->container->get('templating')
+                $this->getContainer()->get('templating')
                     ->render('TelepayFinancialApiBundle:Email:support.html.twig',
                         array(
                             'message'        =>  $body
@@ -162,7 +155,7 @@ class CryptocapitalMethod implements  CashOutInterface{
                     )
             );
 
-        $this->container->get('mailer')->send($message);
+        $this->getContainer()->get('mailer')->send($message);
 
     }
 }
