@@ -7,7 +7,6 @@ use Telepay\FinancialApiBundle\Controller\BaseApiController;
 use Telepay\FinancialApiBundle\Entity\Client;
 use FOS\RestBundle\Controller\Annotations as Rest;
 use Symfony\Component\HttpFoundation\Request;
-use Telepay\FinancialApiBundle\Entity\SwiftLimit;
 
 /**
  * Class ClientController

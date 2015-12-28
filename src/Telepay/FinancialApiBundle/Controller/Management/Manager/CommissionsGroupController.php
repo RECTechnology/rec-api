@@ -3,7 +3,6 @@
 namespace Telepay\FinancialApiBundle\Controller\Management\Manager;
 
 use Telepay\FinancialApiBundle\Controller\BaseApiController;
-use Telepay\FinancialApiBundle\DependencyInjection\ServicesRepository;
 use Telepay\FinancialApiBundle\Entity\ServiceFee;
 use FOS\RestBundle\Controller\Annotations as Rest;
 use Symfony\Component\HttpFoundation\Request;

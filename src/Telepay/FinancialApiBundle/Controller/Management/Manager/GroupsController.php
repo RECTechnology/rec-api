@@ -4,7 +4,6 @@ namespace Telepay\FinancialApiBundle\Controller\Management\Manager;
 
 use Symfony\Component\HttpKernel\Exception\HttpException;
 use Telepay\FinancialApiBundle\Controller\BaseApiController;
-use Telepay\FinancialApiBundle\DependencyInjection\ServicesRepository;
 use Telepay\FinancialApiBundle\Entity\Group;
 use Telepay\FinancialApiBundle\Entity\LimitDefinition;
 use Telepay\FinancialApiBundle\Entity\ServiceFee;

@@ -9,7 +9,6 @@
 namespace Telepay\FinancialApiBundle\Controller;
 
 use Doctrine\DBAL\DBALException;
-use FOS\RestBundle\Controller\FOSRestController;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpKernel\Exception\HttpException;
 

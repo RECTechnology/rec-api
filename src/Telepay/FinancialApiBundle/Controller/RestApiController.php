@@ -9,7 +9,6 @@
 namespace Telepay\FinancialApiBundle\Controller;
 
 use FOS\RestBundle\Controller\FOSRestController;
-use Symfony\Component\Validator\Constraints\DateTime;
 use Telepay\FinancialApiBundle\Document\Transaction;
 
 class RestApiController extends FosRestController{

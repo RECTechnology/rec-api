@@ -10,7 +10,6 @@ namespace Telepay\FinancialApiBundle\Controller\Transactions;
 
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpKernel\Exception\HttpException;
-use Symfony\Component\Validator\Constraints\DateTime;
 use Telepay\FinancialApiBundle\Controller\RestApiController;
 use FOS\RestBundle\Controller\Annotations as Rest;
 use Telepay\FinancialApiBundle\DependencyInjection\Telepay\Commons\LimitAdder;

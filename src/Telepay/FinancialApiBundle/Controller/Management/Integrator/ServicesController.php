@@ -3,7 +3,6 @@
 namespace Telepay\FinancialApiBundle\Controller\Management\Integrator;
 
 use Telepay\FinancialApiBundle\Controller\RestApiController;
-use Telepay\FinancialApiBundle\DependencyInjection\ServicesRepository;
 use FOS\RestBundle\Controller\Annotations as Rest;
 
 /**
