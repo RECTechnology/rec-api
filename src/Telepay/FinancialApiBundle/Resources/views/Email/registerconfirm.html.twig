@@ -1,2 +1,32 @@
-<a href="{{ message }}">Confirmation Link</a>
-<p>{{ message }}</p>
+
+<html>
+<head>
+    <title>Confirmation mail</title>
+    <meta charset="UTF-8">
+
+    {#<link rel="stylesheet" type="text/css" href="style.css">#}
+    <link rel="stylesheet" type="text/css" href="{{ asset('bundles/telepayfinancialapi/css/style.css') }}">
+
+</head>
+<body>
+<header>
+    <img src="{{ asset('bundles/telepayfinancialapi/images/logo.png') }}">
+    <h1>Welcome to Chip-Chap</h1>
+</header>
+<article>
+    <p>Bienvenido al sistema de pagos de Chip-Chap. Desde nuestro panel de control puedes controlar todas tus transacciónes, utilizar nuestros métodos financieros para explotar sistemas de pago y cobro.
+        <br>
+        <br>
+        Ponemos a tu disposición herramientas para la nueva economía basada en las cryptodivisas, una economía sostenible y descentralizada.</p>
+
+    <div>
+        <p>Clicka el siguiente link para confirmar tu cuenta:</p>
+        <a href="{{ message }}">link de redirección al panel</a>
+        <p>{{ message }}</p>
+    </div>
+</article>
+<footer>
+    <a href="https://chip-chap.com/">www.chip-chap.com</a>
+</footer>
+</body>
+</html>
