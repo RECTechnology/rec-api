@@ -293,6 +293,7 @@ class AccountController extends BaseApiController{
             $request->request->add(array('username'=>$fake));
         }else{
             $username = $request->get('username');
+
         }
 
         //name fake
@@ -310,9 +311,12 @@ class AccountController extends BaseApiController{
             }
         }
 
+        $confirmation_mail = 0;
         if(!$request->request->has('email')){
             $email = $fake.'@default.com';
             $request->request->add(array('email'=>$email));
+        }else{
+            $confirmation_mail = 1;
         }
 
         $request->request->add(array('enabled'=>1));
@@ -362,6 +366,22 @@ class AccountController extends BaseApiController{
                 $em->persist($device);
             }
 
+            if($confirmation_mail == 1){
+                $tokenManager = $this->container->get('fos_oauth_server.access_token_manager.default');
+                $accessToken = $tokenManager->findTokenByToken(
+                    $this->container->get('security.context')->getToken()->getToken()
+                );
+                $client = $accessToken->getClient();
+                $urls = $client->getRedirectUris();
+
+                $tokenGenerator = $this->container->get('fos_user.util.token_generator');
+                $user->setConfirmationToken($tokenGenerator->generateToken());
+                $em->persist($user);
+                $em->flush();
+                $url = $urls[0].$user->getConfirmationToken();
+                $this->_sendEmail('Chip-Chap confirmation e-mail', $url, $user->getEmail());
+            }
+
             $em->persist($user);
             $em->flush();
 
@@ -399,6 +419,27 @@ class AccountController extends BaseApiController{
 
         return $this->restV2(204,"ok", "Updated successfully");
 
+    }
+
+    private function _sendEmail($subject, $body, $to){
+
+        $message = \Swift_Message::newInstance()
+            ->setSubject($subject)
+            ->setFrom('no-reply@chip-chap.com')
+            ->setTo(array(
+                $to
+            ))
+            ->setBody(
+                $this->container->get('templating')
+                    ->render('TelepayFinancialApiBundle:Email:registerconfirm.html.twig',
+                        array(
+                            'message'        =>  $body
+                        )
+                    )
+            )
+            ->setContentType('text/html');
+
+        $this->container->get('mailer')->send($message);
     }
 
 }
