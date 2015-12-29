@@ -22,6 +22,16 @@ use Telepay\FinancialApiBundle\Financial\Currency;
 
 class AccountController extends BaseApiController{
 
+    function getRepositoryName()
+    {
+        return "TelepayFinancialApiBundle:User";
+    }
+
+    function getNewEntity()
+    {
+        return new User();
+    }
+
     /**
      * @Rest\View
      */
@@ -238,17 +248,6 @@ class AccountController extends BaseApiController{
         return $this->restV2(200,"ok", "Account info got successfully", $user);
     }
 
-
-    function getRepositoryName()
-    {
-        return "TelepayFinancialApiBundle:User";
-    }
-
-    function getNewEntity()
-    {
-        return new User();
-    }
-
     /**
      * @Rest\View
      */
@@ -312,11 +311,11 @@ class AccountController extends BaseApiController{
         }
 
         $confirmation_mail = 0;
-        if(!$request->request->has('email')){
+        if($request->request->has('email') && $request->request->get('email') != ''){
+            $confirmation_mail = 1;
+        }else{
             $email = $fake.'@default.com';
             $request->request->add(array('email'=>$email));
-        }else{
-            $confirmation_mail = 1;
         }
 
         $request->request->add(array('enabled'=>1));
@@ -418,6 +417,14 @@ class AccountController extends BaseApiController{
         $em->flush();
 
         return $this->restV2(204,"ok", "Updated successfully");
+
+    }
+
+    /**
+     * @Rest\View
+     */
+    public function validationEmail(){
+        //TODO check if token exists and validate email
 
     }
 
