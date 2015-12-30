@@ -28,3 +28,9 @@ register:
     defaults: { _controller: Telepay\FinancialApiBundle\Controller\Management\User\AccountController::registerAction }
     requirements:
         _method: POST
+
+validate_email:
+    pattern:  /register/v1/validate_email
+    defaults: { _controller: Telepay\FinancialApiBundle\Controller\Management\User\AccountController::validateEmail }
+    requirements:
+        _method: POST

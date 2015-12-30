@@ -11,6 +11,8 @@ namespace Telepay\FinancialApiBundle\Controller\Management\User;
 
 use Symfony\Component\Security\Core\Util\SecureRandom;
 use Telepay\FinancialApiBundle\Entity\Device;
+use Telepay\FinancialApiBundle\Entity\TierValidation;
+use Telepay\FinancialApiBundle\Entity\TierValidations;
 use Telepay\FinancialApiBundle\Entity\User;
 use Rhumsaa\Uuid\Uuid;
 use Symfony\Component\HttpKernel\Exception\HttpException;
@@ -377,7 +379,7 @@ class AccountController extends BaseApiController{
                 $user->setConfirmationToken($tokenGenerator->generateToken());
                 $em->persist($user);
                 $em->flush();
-                $url = $urls[0].'/validation/'.$user->getConfirmationToken();
+                $url = $urls[0].'/user/validation/'.$user->getConfirmationToken();
                 $this->_sendEmail('Chip-Chap validation e-mail', $url, $user->getEmail());
             }
 
@@ -423,8 +425,34 @@ class AccountController extends BaseApiController{
     /**
      * @Rest\View
      */
-    public function validationEmail(){
-        //TODO check if token exists and validate email
+    public function validateEmail(Request $request){
+
+        $em = $this->getDoctrine()->getManager();
+
+        if(!$request->request->has('confirmation_token')) throw new HttpException(404, 'Param confirmation_token not found');
+
+        $user = $em->getRepository('TelepayFinancialApiBundle:User')->findOneBy(array(
+            'confirmationToken' => $request->request->get('confirmation_token')
+        ));
+
+        if(!$user) throw new HttpException(400, 'User not found');
+
+        $tierValidation = $em->getRepository('TelepayFinancialApiBundle:TierValidations')->findOneBy(array(
+            'user' => $user
+        ));
+
+        if(!$tierValidation){
+            $tier = new TierValidations();
+            $tier->setUser($user);
+            $tier->setEmail(true);
+
+            $em->persist($tier);
+            $em->flush();
+        }else{
+            throw new HttpException(409, 'Validation not allowed');
+        }
+
+        return $this->restV2(204,"ok", "Validation successfully");
 
     }
 
