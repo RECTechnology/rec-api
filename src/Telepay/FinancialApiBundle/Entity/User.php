@@ -183,6 +183,12 @@ class User extends BaseUser
      */
     private $group_data = array();
 
+    /**
+     * @ORM\OneToOne(targetEntity="Telepay\FinancialApiBundle\Entity\TierValidations", mappedBy="user", cascade={"remove"})
+     * @Expose
+     */
+    private $tier_validations;
+
     public function getAccessKey(){
         return $this->access_key;
     }
@@ -527,6 +533,22 @@ class User extends BaseUser
     public function setClients($clients)
     {
         $this->clients = $clients;
+    }
+
+    /**
+     * @return mixed
+     */
+    public function getTierValidations()
+    {
+        return $this->tier_validations;
+    }
+
+    /**
+     * @param mixed $tier_validations
+     */
+    public function setTierValidations($tier_validations)
+    {
+        $this->tier_validations = $tier_validations;
     }
 
 }
