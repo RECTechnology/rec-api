@@ -452,7 +452,12 @@ class AccountController extends BaseApiController{
             throw new HttpException(409, 'Validation not allowed');
         }
 
-        return $this->restV2(204,"ok", "Validation successfully");
+        $response = array(
+            'username'  =>  $user->getUsername(),
+            'email'     =>  $user->getEmail()
+        );
+
+        return $this->restV2(201,"ok", "Validation email succesfully", $response);
 
     }
 
