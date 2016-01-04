@@ -372,15 +372,6 @@ class SwiftController extends RestApiController{
         }
 
         $swiftServices = $client->getSwiftList();
-//        die(print_r($swiftServices,true));
-//
-//        $swiftServices = array(
-//            'btc_halcash_es'    =>  array('btc','halcash_es'),
-//            'btc_halcash_pl'    =>  array('btc','halcash_pl'),
-//            'btc_bank_transfer' =>  array('btc','sepa'),
-//            'btc_cryptocapital' =>  array('btc','cryptocapital'),
-//            'paynet_btc'        =>  array('paynet_reference','btc')
-//        );
 
         $response = array();
 
