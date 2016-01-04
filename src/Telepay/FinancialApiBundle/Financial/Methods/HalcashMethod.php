@@ -105,6 +105,7 @@ class HalcashMethod extends BaseMethod{
 
         if($response['errorcode'] == 0){
             $paymentInfo['status'] = 'cancelled';
+            $paymentInfo['halcashticket'] = false;
         }else{
             throw new HttpException(409, 'Transaction can\'t be cancelled');
         }
