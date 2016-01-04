@@ -7,6 +7,8 @@ use Telepay\FinancialApiBundle\Controller\BaseApiController;
 use Telepay\FinancialApiBundle\Entity\Client;
 use FOS\RestBundle\Controller\Annotations as Rest;
 use Symfony\Component\HttpFoundation\Request;
+use Telepay\FinancialApiBundle\Entity\SwiftFee;
+use Telepay\FinancialApiBundle\Entity\SwiftLimit;
 
 /**
  * Class ClientController
@@ -100,8 +102,14 @@ class ClientsController extends BaseApiController {
             $request->request->add(array('swift_list' =>$services));
         }
 
-        return parent::updateAction($request, $id);
+        $response = parent::updateAction($request, $id);
 
+        if($response->getStatusCode() == 204){
+            $client = $em->getRepository('TelepayFinancialApiBundle:Client')->find($id);
+            $this->_createLimitsFees($client, $services);
+        }
+
+        return $response;
     }
 
     /**
@@ -158,8 +166,41 @@ class ClientsController extends BaseApiController {
 
     }
 
+    private function _createLimitsFees(Client $client, $services){
 
+        $em = $this->getDoctrine()->getManager();
+        foreach($services as $service){
+            $limit = $em->getRepository('TelepayFinancialApiBundle:SwiftLimit')->findOneBy(array(
+                'client' =>  $client->getId(),
+                'cname' =>  $service
+            ));
 
+            $types = preg_split('/_/', $service, 2);
+            $cashOutMethod = $this->container->get('net.telepay.out.'.$types[1].'.v1');
 
+            if(!$limit){
+                $limit = new SwiftLimit();
+                $limit = $limit->createFromController($service, $client);
+                $limit->setCurrency($cashOutMethod->getCurrency());
+                $em->persist($limit);
+                $em->flush();
+            }
+
+            $fee = $em->getRepository('TelepayFinancialApiBundle:SwiftFee')->findOneBy(array(
+                'client' =>  $client->getId(),
+                'cname' =>  $service
+            ));
+
+            if(!$fee){
+                $fee = new SwiftFee();
+                $fee = $fee->createFromController($service, $client);
+                $fee->setCurrency($cashOutMethod->getCurrency());
+                $em->persist($fee);
+                $em->flush();
+
+            }
+        }
+
+    }
 
 }

@@ -57,7 +57,7 @@ class SwiftController extends RestApiController{
         if(!$services) throw new HttpException(403,'Method not allowed');
 
         if(!in_array($type_in.'_'.$type_out.':1', $services)) throw new HttpException(403, 'Method not allowed');
-        die(print_r($services,true));
+//        die(print_r($services,true));
 
         if(!$request->request->has('amount')) throw new HttpException(404, 'Param amount not found');
 
@@ -371,24 +371,32 @@ class SwiftController extends RestApiController{
 
         }
 
-        $swiftServices = array(
-            'btc_halcash_es'    =>  array('btc','halcash_es'),
-            'btc_halcash_pl'    =>  array('btc','halcash_pl'),
-            'btc_bank_transfer' =>  array('btc','sepa'),
-            'btc_cryptocapital' =>  array('btc','cryptocapital'),
-            'paynet_btc'        =>  array('paynet_reference','btc')
-        );
+        $swiftServices = $client->getSwiftList();
+//        die(print_r($swiftServices,true));
+//
+//        $swiftServices = array(
+//            'btc_halcash_es'    =>  array('btc','halcash_es'),
+//            'btc_halcash_pl'    =>  array('btc','halcash_pl'),
+//            'btc_bank_transfer' =>  array('btc','sepa'),
+//            'btc_cryptocapital' =>  array('btc','cryptocapital'),
+//            'paynet_btc'        =>  array('paynet_reference','btc')
+//        );
 
         $response = array();
 
-        foreach($swiftServices as $swift => $methods){
-            $service = $swift;
-            $type_in = $methods[0];
-            $type_out = $methods[1];
+        foreach($swiftServices as $swift){
+            $method = preg_split('/:/', $swift);
+            $status = $method[1];
+            $service = $method[0];
+
+            $types = preg_split('/_/', $method[0], 2);
+            $type_in = $types[0];
+            $type_out = $types[1];
 
             //get configuration(method)
             $swift_config = $this->container->get('net.telepay.config.'.$type_out);
             $methodFees = $swift_config->getFees();
+            $swiftInfo = $swift_config->getInfo();
 
             //get client fees (fixed & variable)
             $clientFees = $em->getRepository('TelepayFinancialApiBundle:SwiftFee')->findOneBy(array(
@@ -418,14 +426,14 @@ class SwiftController extends RestApiController{
 
             $values = array();
 
-            if($clientLimits->getSingle() > 0){
+            if($clientLimits->getSingle() > 0 && $clientLimits->getSingle() <= $swiftInfo['max_value']){
 
-                for($i = 10;$i <= $clientLimits->getSingle(); $i=+10){
+                for($i = $swiftInfo['min_value'];$i <= $clientLimits->getSingle(); $i=+$swiftInfo['range']){
                     array_push($values, $i);
                 }
             }else{
 
-                for($i = 10;$i <= 1000; $i+=10){
+                for($i = $swiftInfo['min_value'];$i <= $swiftInfo['max_value']; $i+=$swiftInfo['range']){
                     array_push($values, $i);
                 }
             }
@@ -433,9 +441,9 @@ class SwiftController extends RestApiController{
             $response[$service] = array(
                 'orig'  =>  $cashInMethod->getName(),
                 'dst'   =>  $cashOutMethod->getName(),
-//                'countries' =>  '',
+                'countries' =>  $swiftInfo['countries'],
 //                'text'  =>  '',
-//                'status'    =>  '',
+                'status'    =>  ($status == 1) ? 'available' : 'unavailable',
 //                'message'   =>  '',
 //                'delay' =>  '',
                 'price' =>  $exchange,
@@ -454,7 +462,6 @@ class SwiftController extends RestApiController{
                 'values'    =>  $values
 
             );
-//            die(print_r($response,true));
 
         }
 
