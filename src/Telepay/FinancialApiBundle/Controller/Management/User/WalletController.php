@@ -9,7 +9,6 @@
 namespace Telepay\FinancialApiBundle\Controller\Management\User;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpKernel\Exception\HttpException;
-use Symfony\Component\Validator\Constraints\Currency;
 use Telepay\FinancialApiBundle\Controller\RestApiController;
 use Telepay\FinancialApiBundle\Document\Transaction;
 use Telepay\FinancialApiBundle\Entity\UserWallet;
@@ -794,7 +793,7 @@ class WalletController extends RestApiController{
         $exchange = $this->_exchange($amount, $currency_in, $currency_out);
 
         if($exchange == 0) throw new HttpException(403, 'Amount must be bigger');
-        
+
         //checkWallet sender
         $wallets = $user->getWallets();
         $senderWallet = null;
@@ -844,7 +843,7 @@ class WalletController extends RestApiController{
         $cashOut->setStatus('success');
         $cashOut->setDataIn($params);
         $cashOut->setDataOut(array(
-            $currency_in =>  $params['amount'],
+            $currency_in =>  $amount,
             $currency_out=>     $exchange
         ));
 
@@ -869,7 +868,7 @@ class WalletController extends RestApiController{
         $cashIn->setDataIn($paramsOut);
         $cashIn->setDataOut(array(
             'previous_transaction'  =>  $cashOut->getId(),
-            $currency_in    =>  $params['amount'],
+            $currency_in    =>  $amount,
             $currency_out   =>  $exchange
         ));
 
@@ -877,8 +876,8 @@ class WalletController extends RestApiController{
         $dm->flush();
 
         //update wallets
-        $senderWallet->setAvailable($senderWallet->getAvailable() - $params['amount']);
-        $senderWallet->setBalance($senderWallet->getBalance() - $params['amount']);
+        $senderWallet->setAvailable($senderWallet->getAvailable() - $amount);
+        $senderWallet->setBalance($senderWallet->getBalance() - $amount);
 
         $receiverWallet->setAvailable($receiverWallet->getAvailable() + $exchange - $fixed_fee - $variable_fee);
         $receiverWallet->setBalance($receiverWallet->getBalance() + $exchange - $fixed_fee - $variable_fee);
