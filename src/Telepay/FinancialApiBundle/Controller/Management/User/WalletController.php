@@ -9,6 +9,7 @@
 namespace Telepay\FinancialApiBundle\Controller\Management\User;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpKernel\Exception\HttpException;
+use Symfony\Component\Validator\Constraints\Currency;
 use Telepay\FinancialApiBundle\Controller\RestApiController;
 use Telepay\FinancialApiBundle\Document\Transaction;
 use Telepay\FinancialApiBundle\Entity\UserWallet;
@@ -577,7 +578,7 @@ class WalletController extends RestApiController{
 
         $price = $exchange->getPrice();
 
-        $total = $amount * $price;
+        $total = round($amount * $price,0);
 
         return $total;
 
@@ -783,13 +784,17 @@ class WalletController extends RestApiController{
             }
         }
 
+        $amount = floor($params['amount']);
+
         $currency_in = strtoupper($params['currency_in']);
         $currency_out = strtoupper($params['currency_out']);
         $service = 'exchange'.'_'.$currency_in.'to'.$currency_out;
 
         //getExchange
-        $exchange = $this->_exchange($params['amount'], $currency_in, $currency_out);
+        $exchange = $this->_exchange($amount, $currency_in, $currency_out);
 
+        if($exchange == 0) throw new HttpException(403, 'Amount must be bigger');
+        
         //checkWallet sender
         $wallets = $user->getWallets();
         $senderWallet = null;
@@ -805,7 +810,7 @@ class WalletController extends RestApiController{
         if($senderWallet == null) throw new HttpException(404, 'Sender Wallet not found');
         if($receiverWallet == null) throw new HttpException(404, 'Receeiver Wallet not found');
 
-        if($params['amount'] > $senderWallet->getAvailable()) throw new HttpException(404, 'Not funds enough.');
+        if($amount > $senderWallet->getAvailable()) throw new HttpException(404, 'Not funds enough.');
 
         //getFees
         $group = $user->getGroups()[0];
@@ -826,7 +831,7 @@ class WalletController extends RestApiController{
         $dm = $this->get('doctrine_mongodb')->getManager();
         //cashOut transaction
         $cashOut = Transaction::createFromRequest($request);
-        $cashOut->setAmount($params['amount']);
+        $cashOut->setAmount($amount);
         $cashOut->setCurrency($currency_in);
         $cashOut->setDataIn($params);
         $cashOut->setFixedFee(0);
