@@ -175,7 +175,7 @@ class ClientsController extends BaseApiController {
                 'cname' =>  $service
             ));
 
-            $types = preg_split('/_/', $service, 2);
+            $types = preg_split('/-/', $service, 2);
             $cashOutMethod = $this->container->get('net.telepay.out.'.$types[1].'.v1');
 
             if(!$limit){

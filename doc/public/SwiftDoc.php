@@ -10,8 +10,8 @@
 //##################################### HELLO BTC ######################################
 
 /**
- * @api {get} /api/hello Bitcoin configuration
- * @apiName GetConfiguration
+ * @api {get} /api/hello Hello Btc
+ * @apiName Hello_btc
  * @apiDescription Read bitcoin configuration service
  * @apiVersion 1.0.0
  * @apiGroup Swift
@@ -28,8 +28,8 @@
  */
 
 /**
- * @api {get} /api/v2/hello Bitcoin configuration
- * @apiName GetConfiguration
+ * @api {get} /api/v2/hello Hello Btc
+ * @apiName Hello_btc
  * @apiDescription Read bitcoin configuration service
  * @apiVersion 2.0.0
  * @apiGroup Swift
@@ -48,8 +48,8 @@
  */
 
 /**
- * @api {get} /api/v3/hello Bitcoin configuration
- * @apiName GetConfiguration
+ * @api {get} /api/v3/hello Hello Btc
+ * @apiName Hello_btc
  * @apiDescription Read bitcoin configuration service
  * @apiVersion 3.0.0
  * @apiGroup Swift
@@ -88,10 +88,10 @@
 //##################################### CREATE BTC ######################################
 
 /**
- * @api {post} /api/send Bitcoin pay
- * @apiName CreateTransaction
+ * @api {post} /api/send Bitcoin to Halcash_ES
+ * @apiName btc_halcash_es
  * @apiDescription Creates a new BTC transaction
- * @apiVersion 1.0.0
+ * @apiVersion 0.5.0
  * @apiGroup Swift
  * @apiParam {String} country Country service ES or PL
  * @apiParam {Integer} amount Transaction amount in EUR
@@ -106,13 +106,56 @@
  *
  */
 
+/**
+ * @api {post} /swift/v1/btc/halcash_es Bitcoin to Halcash_ES
+ * @apiName btc_halcash_es
+ * @apiDescription Creates a new BTC transaction
+ * @apiVersion 1.0.0
+ * @apiGroup Swift
+ * @apiParam {Integer} amount Transaction amount in EUR
+ * @apiParam {Integer} phone Phone number to send Hal
+ * @apiParam {Integer} prefix Prefix phone number
+ * @apiParam {Text} description Description (optional)
+ * @apiSuccess {String} status The resulting status of the transaction
+ * @apiSuccess {String} message Information message
+ * @apiSuccess {String} id Transaction id
+ * @apiSuccess {String} amount Halcash amount in <code>cents</code>
+ * @apiSuccess {Integer} scale scale
+ * @apiSuccess {String} currency Halcash currency
+ * @apiSuccess {DateTime} created When transaction was created
+ * @apiSuccess {DateTime} updated When transaction was updated last time
+ * @apiSuccess {Object} pay_in_info Btc payment info
+ * @apiSuccess {String} pay_in_info.amount Btc transaction amount in <code>satoshis</code>
+ * @apiSuccess {String} pay_in_info.currency Btc
+ * @apiSuccess {Integer} pay_in_info.scale Btc scale
+ * @apiSuccess {String} pay_in_info.address BTC address where the user must send the BTC
+ * @apiSuccess {Integer} pay_in_info.expires_in Transaction expiration time
+ * @apiSuccess {Integer} pay_in_info.received Received amount
+ * @apiSuccess {Integer} pay_in_info.min_confirmations Minimum confirmations for validate transaction
+ * @apiSuccess {Integer} pay_in_info.confirmations Confirmations for the current transaction
+ * @apiSuccess {Integer} pay_in_info.status Bitcoin status payment
+ * @apiSuccess {Object} pay_out_info Halcash info
+ * @apiSuccess {String} pay_out_info.amount Halcash amount in <code>cents</code>
+ * @apiSuccess {String} pay_out_info.currency Eur
+ * @apiSuccess {Integer} pay_out_info.scale Eur scale
+ * @apiSuccess {Integer} pay_out_info.phone Phone where the halcash was sent
+ * @apiSuccess {Integer} pay_out_info.prefix Prefix for the phone number
+ * @apiSuccess {Text} pay_out_info.description Halcash description
+ * @apiSuccess {Integer} pay_out_info.pin Number with four digits
+ * @apiSuccess {Boolean} pay_out_info.final Is final status?
+ * @apiSuccess {String} pay_out_info.status Halcash status
+ * @apiSuccess {String} pay_out_info.halcashticket Generated Halcashticket(only if the transaction was successful)
+ *
+ */
+
+
 //##################################### CHECK BTC ######################################
 
 /**
- * @api {get} /api/check/:id Bitcoin check
- * @apiName GetTransaction
+ * @api {get} /api/check/:id Bitcoin to Halcash_ES Check
+ * @apiName btc_halcash_es_check
  * @apiDescription Check a BTC transaction by transaction_id
- * @apiVersion 1.0.0
+ * @apiVersion 0.1.0
  * @apiGroup Swift
  * @apiSuccess {String} status The resulting status of the transaction
  * @apiSuccess {Integer} confirmations Number of confirmations
@@ -122,11 +165,57 @@
  *
  */
 
+/**
+ * @api {get} /swift/v1/btc/halcash_es/:id Bitcoin to Halcash_ES Check
+ * @apiName btc_halcash_es_check
+ * @apiDescription Check a BTC transaction by transaction_id
+ * @apiVersion 1.0.0
+ * @apiGroup Swift
+ * @apiParam {String} id Unique transaction id
+ * @apiSuccess {String} status Current transaction status
+ * @apiSuccess {String} message Information message
+ * @apiSuccess {String} id Transaction id
+ * @apiSuccess {String} amount Halcash amount in <code>cents</code>
+ * @apiSuccess {Integer} scale scale
+ * @apiSuccess {String} currency Halcash currency
+ * @apiSuccess {DateTime} created When transaction was created
+ * @apiSuccess {DateTime} updated When transaction was updated last time
+ * @apiSuccess {Object} pay_in_info Btc payment info
+ * @apiSuccess {String} pay_in_info.amount Btc transaction amount in <code>satoshis</code>
+ * @apiSuccess {String} pay_in_info.currency Btc
+ * @apiSuccess {Integer} pay_in_info.scale Btc scale
+ * @apiSuccess {String} pay_in_info.address BTC address where the user must send the BTC
+ * @apiSuccess {Integer} pay_in_info.expires_in Transaction expiration time
+ * @apiSuccess {Integer} pay_in_info.received Received amount
+ * @apiSuccess {Integer} pay_in_info.min_confirmations Minimum confirmations for validate transaction
+ * @apiSuccess {Integer} pay_in_info.confirmations Confirmations for the current transaction
+ * @apiSuccess {Integer} pay_in_info.status Bitcoin status payment
+ * @apiSuccess {Object} pay_in_info.refund_info Only if the bitcoin transaction has been refund
+ * @apiSuccess {Integer} pay_in_info.refund_info.amount Btc amount for the refund transaction
+ * @apiSuccess {String} pay_in_info.refund_info.address Btc address where bitcoins were refund in <code>satoshis</code>
+ * @apiSuccess {String} pay_in_info.refund_info.currency Btc
+ * @apiSuccess {Integer} pay_in_info.refund_info.scale Btc scale
+ * @apiSuccess {Boolean} pay_in_info.refund_info.final is final status?
+ * @apiSuccess {String} pay_in_info.refund_info.status Refund transaction status
+ * @apiSuccess {Object} pay_out_info Halcash info
+ * @apiSuccess {String} pay_out_info.amount Halcash amount in <code>cents</code>
+ * @apiSuccess {String} pay_out_info.currency Eur
+ * @apiSuccess {Integer} pay_out_info.scale Eur scale
+ * @apiSuccess {Integer} pay_out_info.phone Phone where the halcash was sent
+ * @apiSuccess {Integer} pay_out_info.prefix Prefix for the phone number
+ * @apiSuccess {Text} pay_out_info.description Halcash description
+ * @apiSuccess {Integer} pay_out_info.pin Number with four digits
+ * @apiSuccess {Boolean} pay_out_info.final Is final status?
+ * @apiSuccess {String} pay_out_info.status Halcash status
+ * @apiSuccess {String} pay_out_info.halcashticket Generated Halcashticket(only if the transaction was successful)
+ * @apiError {Text} TransactionNotFound The <code>id</code> of the transaction was not found
+ */
+
 //##################################### HELLO FAC ######################################
 
 /**
- * @api {get} /api/fac/hello Faircoin configuration
- * @apiName GetConfiguration
+ * @api {get} /api/fac/hello Hello Fac
+ * @apiName Hello_fac
  * @apiDescription Read faircoin configuration service
  * @apiVersion 1.0.0
  * @apiGroup Swift
@@ -143,8 +232,8 @@
  */
 
 /**
- * @api {get} /api/v2/fac/hello Faircoin configuration
- * @apiName GetConfiguration
+ * @api {get} /api/v2/fac/hello Hello Fac
+ * @apiName Hello_fac
  * @apiDescription Read faircoin configuration service
  * @apiVersion 2.0.0
  * @apiGroup Swift
@@ -164,8 +253,8 @@
 
 
 /**
- * @api {get} /api/v3/fac/hello Faircoin configuration
- * @apiName GetConfiguration
+ * @api {get} /api/v3/fac/hello Hello Fac
+ * @apiName Hello_fac
  * @apiDescription Read faircoin configuration service
  * @apiVersion 3.0.0
  * @apiGroup Swift
@@ -203,8 +292,8 @@
 //##################################### CREATE FAC ######################################
 
 /**
- * @api {post} /api/fac/send Faircoin pay
- * @apiName CreateTransaction
+ * @api {post} /api/fac/send Faircoin to Halcash_ES
+ * @apiName fac_halcash_es
  * @apiDescription Creates a new FAC transaction
  * @apiVersion 1.0.0
  * @apiGroup Swift
@@ -224,8 +313,8 @@
 //##################################### CHECK FAC ######################################
 
 /**
- * @api {get} /api/fac/check/:id Faircoin check
- * @apiName GetTransaction
+ * @api {get} /api/fac/check/:id Faircoin to Halcash_ES Check
+ * @apiName fac_halcash_es_check
  * @apiDescription Check a FAC transaction by transaction_id
  * @apiVersion 1.0.0
  * @apiGroup Swift
@@ -234,16 +323,17 @@
  * @apiSuccess {Integer} fac Transaction amount in FAC
  * @apiSuccess {Boolean} expired True or false
  * @apiSuccess {String} ticket_id Transaction ticket id
+ * @apiError {Text} TransactionNotFound The <code>id</code> of the transaction was not found
  *
  */
 
 //##################################### CREATE PAYNET/BTC ######################################
 
 /**
- * @api {post} /api/paynet/btc Paynet-Bitcoin
- * @apiName CreatePaynetTransaction
+ * @api {post} /api/paynet/btc Paynet to Bitcoin
+ * @apiName paynet_btc
  * @apiDescription Creates a new Paynet-Btc transaction
- * @apiVersion 1.0.0
+ * @apiVersion 0.1.0
  * @apiGroup Swift
  * @apiParam {String} description Transaction description
  * @apiParam {Integer} amount Transaction amount in MXN
@@ -259,11 +349,83 @@
  *
  */
 
+/**
+ * @api {post} /swift/v1/paynet/btc Paynet to Bitcoin
+ * @apiName paynet_btc
+ * @apiDescription Creates a new Paynet-Btc transaction
+ * @apiVersion 1.0.0
+ * @apiGroup Swift
+ * @apiParam {Integer} amount Transaction amount in <code>satoshis</code>
+ * @apiParam {String} address Address where we have to send the bitcoins if transaction was successful
+ * @apiParam {Text} description Description (optional)
+ * @apiSuccess {String} status The resulting status for the transaction
+ * @apiSuccess {String} message Information message
+ * @apiSuccess {String} id Transaction id
+ * @apiSuccess {String} amount Btc amount in <code>satoshis</code>
+ * @apiSuccess {Integer} scale Btc scale
+ * @apiSuccess {String} currency <code>BTC</code> currency
+ * @apiSuccess {DateTime} created When transaction was created
+ * @apiSuccess {DateTime} updated When transaction was updated last time
+ * @apiSuccess {Object} pay_in_info Paynet payment info
+ * @apiSuccess {String} pay_in_info.amount MXN transaction amount in <code>cents</code>
+ * @apiSuccess {String} pay_in_info.currency <code>MXN</code>
+ * @apiSuccess {Integer} pay_in_info.scale <code>MXN</code> scale
+ * @apiSuccess {Date} pay_in_info.expires_in Transaction expiration date
+ * @apiSuccess {Integer} pay_in_info.received Received amount
+ * @apiSuccess {String} pay_in_info.barcode code for generate the barcode for the payment
+ * @apiSuccess {String} pay_in_info.paynet_id transaction id generated by paynet
+ * @apiSuccess {Integer} pay_in_info.status Paynet status payment
+ * @apiSuccess {Object} pay_out_info Bitcoin transaction info
+ * @apiSuccess {String} pay_out_info.amount Bitcoin amount in <code>satoshis</code>
+ * @apiSuccess {String} pay_out_info.address Bitcoin address were bitcoin will be sent when the cash in is successful
+ * @apiSuccess {String} pay_out_info.currency <code>BTC</code>
+ * @apiSuccess {Integer} pay_out_info.scale <code>BTC</code> scale
+ * @apiSuccess {Boolean} pay_out_info.final Is final status?
+ * @apiSuccess {String} pay_out_info.status Btc transaction status
+ *
+ */
+
+/**
+ * @api {get} /swift/v1/paynet/btc/:id Paynet to Bitcoin Check
+ * @apiName paynet_btc_check
+ * @apiDescription Check Paynet-Btc transaction
+ * @apiVersion 1.0.0
+ * @apiGroup Swift
+ * @apiParam {String} id Unique transaction id
+ * @apiSuccess {String} status The resulting status for the transaction
+ * @apiSuccess {String} message Information message
+ * @apiSuccess {String} id Transaction id
+ * @apiSuccess {String} amount Btc amount in <code>satoshis</code>
+ * @apiSuccess {Integer} scale Btc scale
+ * @apiSuccess {String} currency <code>BTC</code> currency
+ * @apiSuccess {DateTime} created When transaction was created
+ * @apiSuccess {DateTime} updated When transaction was updated last time
+ * @apiSuccess {Object} pay_in_info Paynet payment info
+ * @apiSuccess {String} pay_in_info.amount MXN transaction amount in <code>cents</code>
+ * @apiSuccess {String} pay_in_info.currency <code>MXN</code>
+ * @apiSuccess {Integer} pay_in_info.scale <code>MXN</code> scale
+ * @apiSuccess {Date} pay_in_info.expires_in Transaction expiration date
+ * @apiSuccess {Integer} pay_in_info.received Received amount
+ * @apiSuccess {String} pay_in_info.barcode code for generate the barcode for the payment
+ * @apiSuccess {String} pay_in_info.paynet_id transaction id generated by paynet
+ * @apiSuccess {Integer} pay_in_info.status Paynet status payment
+ * @apiSuccess {Object} pay_out_info Bitcoin transaction info
+ * @apiSuccess {String} pay_out_info.amount Bitcoin amount in <code>satoshis</code>
+ * @apiSuccess {String} pay_out_info.address Bitcoin address were bitcoin will be sent when the cash in is successful
+ * @apiSuccess {String} pay_out_info.currency <code>BTC</code>
+ * @apiSuccess {Integer} pay_out_info.scale <code>BTC</code> scale
+ * @apiSuccess {Boolean} pay_out_info.final Is final status?
+ * @apiSuccess {String} pay_out_info.status Btc transaction status
+ * @apiError {Text} TransactionNotFound The <code>id</code> of the transaction was not found
+ *
+ */
+
+
 //##################################### CREATE PAYNET/FAC ######################################
 
 /**
- * @api {post} /api/fac/paynet Paynet-Faircoin
- * @apiName CreatePaynetTransaction
+ * @api {post} /api/fac/paynet Paynet to Faircoin
+ * @apiName paynet_fac
  * @apiDescription Creates a new Paynet-Fac transaction
  * @apiVersion 1.0.0
  * @apiGroup Swift
@@ -278,5 +440,173 @@
  * @apiSuccess {String} expiration_date Expiration date for the payment
  * @apiSuccess {String} description Your own description sent before
  * @apiSuccess {String} ticket_id Transaction ticket id
+ *
+ */
+
+//##################################   BTC-CRYPTOCAPITAL  #########################################
+
+/**
+ * @api {post} /swift/v1/btc/cryptocapital Bitcoin to Cryptocapital
+ * @apiName btc_cryptocapital
+ * @apiDescription Creates a virtual Visa Paying with bitcoins
+ * @apiVersion 1.0.0
+ * @apiGroup Swift
+ * @apiParam {Integer} amount Transaction amount in <code>cents</code>.
+ * @apiParam {String} email Email where we will send the virtual visa information
+ * @apiSuccess {String} status The resulting status for this transaction
+ * @apiSuccess {String} message Information message
+ * @apiSuccess {String} id Transaction id
+ * @apiSuccess {String} amount Amount in <code>cents</code>
+ * @apiSuccess {Integer} scale scale
+ * @apiSuccess {String} currency <code>EUR</code>
+ * @apiSuccess {DateTime} created When transaction was created
+ * @apiSuccess {DateTime} updated When transaction was updated last time
+ * @apiSuccess {Object} pay_in_info Btc payment info
+ * @apiSuccess {String} pay_in_info.amount Btc transaction amount in <code>satoshis</code>
+ * @apiSuccess {String} pay_in_info.currency Btc
+ * @apiSuccess {Integer} pay_in_info.scale Btc scale
+ * @apiSuccess {String} pay_in_info.address BTC address where the user must send the BTC
+ * @apiSuccess {Integer} pay_in_info.expires_in Transaction expiration time
+ * @apiSuccess {Integer} pay_in_info.received Received amount
+ * @apiSuccess {Integer} pay_in_info.min_confirmations Minimum confirmations for validate transaction
+ * @apiSuccess {Integer} pay_in_info.confirmations Confirmations for the current transaction
+ * @apiSuccess {Integer} pay_in_info.status Bitcoin status payment
+ * @apiSuccess {Object} pay_in_info.refund_info Only if the bitcoin transaction has been refund
+ * @apiSuccess {Integer} pay_in_info.refund_info.amount Btc amount for the refund transaction
+ * @apiSuccess {String} pay_in_info.refund_info.address Btc address where bitcoins were refund in <code>satoshis</code>
+ * @apiSuccess {String} pay_in_info.refund_info.currency Btc
+ * @apiSuccess {Integer} pay_in_info.refund_info.scale Btc scale
+ * @apiSuccess {Boolean} pay_in_info.refund_info.final is final status?
+ * @apiSuccess {String} pay_in_info.refund_info.status Refund transaction status
+ * @apiSuccess {Object} pay_out_info Cryptocapital info
+ * @apiSuccess {String} pay_out_info.amount Virtual Visa amount in <code>cents</code>
+ * @apiSuccess {String} pay_out_info.currency <code>EUR</code>
+ * @apiSuccess {Integer} pay_out_info.scale <code>EUR</code> scale
+ * @apiSuccess {String} pay_out_info.email Email
+ * @apiSuccess {Boolean} pay_out_info.final Is final status?
+ * @apiSuccess {String} pay_out_info.status Cryptocapital status
+ *
+ */
+
+/**
+ * @api {get} /swift/v1/btc/cryptocapital/:id Bitcoin to Cryptocapital check
+ * @apiName btc_cryptocapital_check
+ * @apiDescription Check cryptocapital transaction
+ * @apiVersion 1.0.0
+ * @apiGroup Swift
+ * @apiParam {String} id Unique transaction Id
+ * @apiSuccess {String} status The resulting status for this transaction
+ * @apiSuccess {String} message Information message
+ * @apiSuccess {String} id Transaction id
+ * @apiSuccess {String} amount Amount in <code>cents</code>
+ * @apiSuccess {Integer} scale scale
+ * @apiSuccess {String} currency <code>EUR</code>
+ * @apiSuccess {DateTime} created When transaction was created
+ * @apiSuccess {DateTime} updated When transaction was updated last time
+ * @apiSuccess {Object} pay_in_info Btc payment info
+ * @apiSuccess {String} pay_in_info.amount Btc transaction amount in <code>satoshis</code>
+ * @apiSuccess {String} pay_in_info.currency Btc
+ * @apiSuccess {Integer} pay_in_info.scale Btc scale
+ * @apiSuccess {String} pay_in_info.address BTC address where the user must send the BTC
+ * @apiSuccess {Integer} pay_in_info.expires_in Transaction expiration time
+ * @apiSuccess {Integer} pay_in_info.received Received amount
+ * @apiSuccess {Integer} pay_in_info.min_confirmations Minimum confirmations for validate transaction
+ * @apiSuccess {Integer} pay_in_info.confirmations Confirmations for the current transaction
+ * @apiSuccess {Integer} pay_in_info.status Bitcoin status payment
+ * @apiSuccess {Object} pay_out_info Cryptocapital info
+ * @apiSuccess {String} pay_out_info.amount Virtual Visa amount in <code>cents</code>
+ * @apiSuccess {String} pay_out_info.currency <code>EUR</code>
+ * @apiSuccess {Integer} pay_out_info.scale <code>EUR</code> scale
+ * @apiSuccess {String} pay_out_info.email Email
+ * @apiSuccess {Boolean} pay_out_info.final Is final status?
+ * @apiSuccess {String} pay_out_info.status Cryptocapital status
+ * @apiError {Text} TransactionNotFound The <code>id</code> of the transaction was not found
+ *
+ */
+
+
+//##################################   BTC-SEPA  #########################################
+
+/**
+ * @api {post} /swift/v1/btc/sepa Bitcoin to sepa
+ * @apiName btc_sepa
+ * @apiDescription Sell bitcoins and send a bank transfer
+ * @apiVersion 1.0.0
+ * @apiGroup Swift
+ * @apiParam {Integer} amount Transaction amount in <code>cents</code>.
+ * @apiParam {String} beneficiary Bank account beneficiary
+ * @apiParam {String} iban IBAN
+ * @apiParam {String} bic_swift BIC/SWIFT
+ * @apiParam {String} description Optianl description for the transaction
+ * @apiSuccess {String} status The resulting status for this transaction
+ * @apiSuccess {String} message Information message
+ * @apiSuccess {String} id Transaction id
+ * @apiSuccess {String} amount Amount in <code>cents</code>
+ * @apiSuccess {Integer} scale scale
+ * @apiSuccess {String} currency <code>EUR</code>
+ * @apiSuccess {DateTime} created When transaction was created
+ * @apiSuccess {DateTime} updated When transaction was updated last time
+ * @apiSuccess {Object} pay_in_info Btc payment info
+ * @apiSuccess {String} pay_in_info.amount Btc transaction amount in <code>satoshis</code>
+ * @apiSuccess {String} pay_in_info.currency Btc
+ * @apiSuccess {Integer} pay_in_info.scale Btc scale
+ * @apiSuccess {String} pay_in_info.address BTC address where the user must send the BTC
+ * @apiSuccess {Integer} pay_in_info.expires_in Transaction expiration time
+ * @apiSuccess {Integer} pay_in_info.received Received amount
+ * @apiSuccess {Integer} pay_in_info.min_confirmations Minimum confirmations for validate transaction
+ * @apiSuccess {Integer} pay_in_info.confirmations Confirmations for the current transaction
+ * @apiSuccess {Integer} pay_in_info.status Bitcoin status payment
+ * @apiSuccess {Object} pay_in_info.refund_info Only if the bitcoin transaction has been refund
+ * @apiSuccess {Integer} pay_in_info.refund_info.amount Btc amount for the refund transaction
+ * @apiSuccess {String} pay_in_info.refund_info.address Btc address where bitcoins were refund in <code>satoshis</code>
+ * @apiSuccess {String} pay_in_info.refund_info.currency Btc
+ * @apiSuccess {Integer} pay_in_info.refund_info.scale Btc scale
+ * @apiSuccess {Boolean} pay_in_info.refund_info.final is final status?
+ * @apiSuccess {String} pay_in_info.refund_info.status Refund transaction status
+ * @apiSuccess {Object} pay_out_info Cryptocapital info
+ * @apiSuccess {String} pay_out_info.amount Bank transfer mount in <code>cents</code>
+ * @apiSuccess {String} pay_out_info.currency <code>EUR</code>
+ * @apiSuccess {Integer} pay_out_info.scale <code>EUR</code> scale
+ * @apiSuccess {String} pay_out_info.beneficiary Name of the beneficiary account
+ * @apiSuccess {String} pay_out_info.iban IBAN
+ * @apiSuccess {String} pay_out_info.bic_swift BIC/SWIFT
+ * @apiSuccess {Boolean} pay_out_info.final Is final status?
+ * @apiSuccess {String} pay_out_info.status Cryptocapital status
+ *
+ */
+
+/**
+ * @api {get} /swift/v1/btc/sepa/:id Bitcoin to sepa check
+ * @apiName btc_sepa_check
+ * @apiDescription Check BTC-Sepa transaction
+ * @apiVersion 1.0.0
+ * @apiGroup Swift
+ * @apiParam {String} id Unique transaction Id
+ * @apiSuccess {String} status The resulting status for this transaction
+ * @apiSuccess {String} message Information message
+ * @apiSuccess {String} id Transaction id
+ * @apiSuccess {String} amount Amount in <code>cents</code>
+ * @apiSuccess {Integer} scale scale
+ * @apiSuccess {String} currency <code>EUR</code>
+ * @apiSuccess {DateTime} created When transaction was created
+ * @apiSuccess {DateTime} updated When transaction was updated last time
+ * @apiSuccess {Object} pay_in_info Btc payment info
+ * @apiSuccess {String} pay_in_info.amount Btc transaction amount in <code>satoshis</code>
+ * @apiSuccess {String} pay_in_info.currency Btc
+ * @apiSuccess {Integer} pay_in_info.scale Btc scale
+ * @apiSuccess {String} pay_in_info.address BTC address where the user must send the BTC
+ * @apiSuccess {Integer} pay_in_info.expires_in Transaction expiration time
+ * @apiSuccess {Integer} pay_in_info.received Received amount
+ * @apiSuccess {Integer} pay_in_info.min_confirmations Minimum confirmations for validate transaction
+ * @apiSuccess {Integer} pay_in_info.confirmations Confirmations for the current transaction
+ * @apiSuccess {Integer} pay_in_info.status Bitcoin status payment
+ * @apiSuccess {Object} pay_out_info Cryptocapital info
+ * @apiSuccess {String} pay_out_info.amount Virtual Visa amount in <code>cents</code>
+ * @apiSuccess {String} pay_out_info.currency <code>EUR</code>
+ * @apiSuccess {Integer} pay_out_info.scale <code>EUR</code> scale
+ * @apiSuccess {String} pay_out_info.email Email
+ * @apiSuccess {Boolean} pay_out_info.final Is final status?
+ * @apiSuccess {String} pay_out_info.status Cryptocapital status
+ * @apiError {Text} TransactionNotFound The <code>id</code> of the transaction was not found
  *
  */

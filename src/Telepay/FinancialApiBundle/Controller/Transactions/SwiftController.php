@@ -56,7 +56,7 @@ class SwiftController extends RestApiController{
         $services = $client->getSwiftList();
         if(!$services) throw new HttpException(403,'Method not allowed');
 
-        if(!in_array($type_in.'_'.$type_out.':1', $services)) throw new HttpException(403, 'Method not allowed');
+        if(!in_array($type_in.'-'.$type_out.':1', $services)) throw new HttpException(403, 'Method not allowed');
 //        die(print_r($services,true));
 
         if(!$request->request->has('amount')) throw new HttpException(404, 'Param amount not found');
@@ -73,7 +73,7 @@ class SwiftController extends RestApiController{
         $transaction->setFixedFee(0);
         $transaction->setVersion($version_number);
         $transaction->setVariableFee(0);
-        $transaction->setService($type_in.'_'.$type_out);
+        $transaction->setService($type_in.'-'.$type_out);
         $transaction->setUser($user->getId());
         $transaction->setType('swift');
         $transaction->setMethodIn($type_in);
@@ -109,24 +109,24 @@ class SwiftController extends RestApiController{
         //get client fees (fixed & variable)
         $clientFees = $em->getRepository('TelepayFinancialApiBundle:SwiftFee')->findOneBy(array(
             'client'    =>  $client->getId(),
-            'cname' =>  $type_in.'_'.$type_out
+            'cname' =>  $type_in.'-'.$type_out
         ));
 
         $clientLimits = $em->getRepository('TelepayFinancialApiBundle:SwiftLimit')->findOneBy(array(
             'client'    =>  $client->getId(),
-            'cname' =>  $type_in.'_'.$type_out
+            'cname' =>  $type_in.'-'.$type_out
         ));
 
         $clientLimitsCount = $em->getRepository('TelepayFinancialApiBundle:SwiftLimitCount')->findOneBy(array(
             'client'    =>  $client->getId(),
-            'cname' =>  $type_in.'_'.$type_out
+            'cname' =>  $type_in.'-'.$type_out
         ));
 
         if(!$clientFees){
             $clientFees = new SwiftFee();
             $clientFees->setFixed(0);
             $clientFees->setVariable(0);
-            $clientFees->setCname($type_in.'_'.$type_out);
+            $clientFees->setCname($type_in.'-'.$type_out);
             $clientFees->setClient($client);
             $clientFees->setCurrency($transaction->getCurrency());
             $em->persist($clientFees);
@@ -134,7 +134,7 @@ class SwiftController extends RestApiController{
         }
         if(!$clientLimits){
             $clientLimits = new SwiftLimit();
-            $clientLimits->setCname($type_in.'_'.$type_out);
+            $clientLimits->setCname($type_in.'-'.$type_out);
             $clientLimits->setSingle(0);
             $clientLimits->setDay(0);
             $clientLimits->setWeek(0);
@@ -149,7 +149,7 @@ class SwiftController extends RestApiController{
         if(!$clientLimitsCount) {
             $clientLimitsCount = new SwiftLimitCount();
             $clientLimitsCount->setClient($client);
-            $clientLimitsCount->setCname($type_in.'_'.$type_out);
+            $clientLimitsCount->setCname($type_in.'-'.$type_out);
             $clientLimitsCount->setSingle(0);
             $clientLimitsCount->setDay(0);
             $clientLimitsCount->setWeek(0);
@@ -388,7 +388,7 @@ class SwiftController extends RestApiController{
             $status = $method[1];
             $service = $method[0];
 
-            $types = preg_split('/_/', $method[0], 2);
+            $types = preg_split('/-/', $method[0], 2);
             $type_in = $types[0];
             $type_out = $types[1];
 
@@ -400,12 +400,12 @@ class SwiftController extends RestApiController{
             //get client fees (fixed & variable)
             $clientFees = $em->getRepository('TelepayFinancialApiBundle:SwiftFee')->findOneBy(array(
                 'client'    =>  $client->getId(),
-                'cname' =>  $type_in.'_'.$type_out
+                'cname' =>  $type_in.'-'.$type_out
             ));
 
             $clientLimits = $em->getRepository('TelepayFinancialApiBundle:SwiftLimit')->findOneBy(array(
                 'client'    =>  $client->getId(),
-                'cname' =>  $type_in.'_'.$type_out
+                'cname' =>  $type_in.'-'.$type_out
             ));
 
             $fixed_fee = $methodFees->getFixed() + $clientFees->getFixed();
@@ -511,7 +511,7 @@ class SwiftController extends RestApiController{
         //get client fees (fixed & variable)
         $clientFees = $em->getRepository('TelepayFinancialApiBundle:SwiftFee')->findOneBy(array(
             'client'    =>  $client,
-            'cname' =>  $method_in.'_'.$method_out
+            'cname' =>  $method_in.'-'.$method_out
         ));
 
         $client_fee = ($amount * ($clientFees->getVariable()/100) + $clientFees->getFixed());
@@ -526,7 +526,7 @@ class SwiftController extends RestApiController{
         $userFee->setAmount($client_fee);
         $userFee->setFixedFee($clientFees->getFixed());
         $userFee->setVariableFee($amount * ($clientFees->getVariable()/100));
-        $userFee->setService($method_in.'_'.$method_out);
+        $userFee->setService($method_in.'-'.$method_out);
         $userFee->setStatus('success');
         $userFee->setTotal($client_fee);
         $userFee->setDataIn(array(
@@ -545,7 +545,7 @@ class SwiftController extends RestApiController{
         $rootFee->setAmount($service_fee);
         $rootFee->setFixedFee($methodFees->getFixed());
         $rootFee->setVariableFee($amount * ($methodFees->getVariable()/100));
-        $rootFee->setService($method_in.'_'.$method_out);
+        $rootFee->setService($method_in.'-'.$method_out);
         $rootFee->setStatus('success');
         $rootFee->setTotal($service_fee);
         $rootFee->setDataIn(array(
