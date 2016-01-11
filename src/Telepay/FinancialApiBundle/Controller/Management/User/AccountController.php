@@ -326,6 +326,24 @@ class AccountController extends BaseApiController{
         $request->request->add(array('gcm_group_key'=>''));
         $request->request->add(array('services_list'=>array('sample')));
 
+        if($request->request->has('captcha')){
+            $captcha = $request->request->get('captcha');
+            $request->request->remove('captcha');
+
+            $g_url = 'https://www.google.com/recaptcha/api/siteverify?secret=6LeWBBUTAAAAAB_z2gTNI2yu4jerUql7WN_t29Aj&response='.$captcha;
+            $g_ch = curl_init();
+            curl_setopt($g_ch,CURLOPT_URL, $g_url);
+            curl_setopt($g_ch,CURLOPT_RETURNTRANSFER,true);
+            $g_result = curl_exec($g_ch);
+            curl_close($g_ch);
+            $g_result = json_decode($g_result,true);
+
+            if($g_result['success'] != 1){
+                throw new HttpException(403, 'You are a bot');
+            }
+
+        }
+
         $resp= parent::createAction($request);
 
         if($resp->getStatusCode() == 201){
