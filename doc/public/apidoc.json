@@ -39,7 +39,12 @@
     "Hello_fac",
     "fac_halcash_es",
     "fac_halcash_es_check",
-    "paynet_fac"
+    "fac_cryptocapital",
+    "fac_cryptocapital_check",
+    "fac_sepa",
+    "fac_sepa_check",
+    "paynet_fac",
+    "paynet_fac_check"
 
   ],
   "template": {

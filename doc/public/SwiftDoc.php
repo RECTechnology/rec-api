@@ -767,7 +767,7 @@
 //##################################   FAC-SEPA  #########################################
 
 /**
- * @api {post} /swift/v1/fac/sepa Bitcoin to sepa
+ * @api {post} /swift/v1/fac/sepa Faircoin to sepa
  * @apiName fac_sepa
  * @apiDescription Sell faircoins and send a bank transfer
  * @apiVersion 1.0.0
