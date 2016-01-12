@@ -17,9 +17,7 @@ class Login2faController extends RestApiController {
         $password = $request->get('password');
         $pin = $request->get('pin');
 
-        $user =  $this->get('security.context')->getToken()->getUser();
-        return $user;
-
+        /*
         return $this->call(
             'cp.api/app_dev.php/oauth/v2/token',
             'POST',
@@ -33,6 +31,7 @@ class Login2faController extends RestApiController {
             ),
             array('Accept'=>'application/json')
         );
+        */
 
         $token = array(
             'access_token' => 2,
