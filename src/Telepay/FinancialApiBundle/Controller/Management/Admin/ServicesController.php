@@ -49,6 +49,7 @@ class ServicesController extends RestApiController
      * @Rest\View()
      */
     public function indexSwift() {
+
         //search all input methods and output methods and combine like btc_halcash_es
         $services = $this->get('net.telepay.swift_provider')->findAll();
 
@@ -87,7 +88,7 @@ class ServicesController extends RestApiController
             foreach($methods_out as $method_out){
                 $swift = array();
                 $swift['name'] = $method_in->getName().' to '.$method_out->getName();
-                $swift['cname'] = $method_in->getCname().'_'.$method_out->getCname();
+                $swift['cname'] = $method_in->getCname().'-'.$method_out->getCname();
                 $swift['orig_coin'] = $method_in->getCurrency();
                 $swift['dst_coin']  = $method_out->getCurrency();
                 $swift_methods[] = $swift;

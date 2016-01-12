@@ -32,7 +32,7 @@ class MethodConfiguration {
     public function getInfo(){
         $response = array(
             'min_value' =>  $this->min_value,
-            'max_value' =>  $this->range,
+            'max_value' =>  $this->max_value,
             'range'     =>  $this->range,
             'countries' =>  $this->countries
         );

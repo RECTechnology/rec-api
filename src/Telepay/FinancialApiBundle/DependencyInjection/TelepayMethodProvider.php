@@ -15,7 +15,7 @@ class TelepayMethodProvider{
     private $methodsByCName;
 
     public function __construct($methods){
-        $this->servicesByCName = array();
+        $this->methodsByCName = array();
         foreach($methods as $method){
             $this->methodsByCName[$method->getCName()] = $method;
         }
@@ -31,6 +31,7 @@ class TelepayMethodProvider{
                 $method->getCurrency(),
                 $method->getBase64Image()
             );
+
         }
         return $methods;
     }
@@ -52,6 +53,14 @@ class TelepayMethodProvider{
                 );
         }
         return $methods;
+    }
+
+    public function isValidMethod($cname){
+        if(isset($this->methodsByCName[$cname])){
+            return true;
+        }else{
+            return false;
+        }
     }
 
 }

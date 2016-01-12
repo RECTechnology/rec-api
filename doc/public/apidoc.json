@@ -4,7 +4,7 @@
   "description": "Documentation for {{ name }} API",
   "title": "REST API - {{ name }}",
   "url" : "{{ url }}",
-  "sampleUrl" : "{{ url }}/test",
+  "sampleUrl" : "{{ url }}/app_dev.php",
   "header": {
     "title": "{{ name }} API",
     "filename": "header.md"
@@ -25,15 +25,21 @@
     "HalcashCheck",
     "PaynetReference",
     "PaynetReferenceCheck",
-    "Safetypay",
-    "Pademobile",
-    "Multiva",
-    "PagoFacil",
-    "ToditoCash",
-    "SabadellTPV",
-    "AbancaTPV",
-    "HalcashPay",
-    "POS"
+    "POS",
+
+    "Hello_btc",
+    "btc_halcash_es",
+    "btc_halcash_es_check",
+    "btc_cryptocapital",
+    "btc_cryptocapital_check",
+    "btc_sepa",
+    "btc_sepa_check",
+    "paynet_btc",
+    "paynet_btc_check",
+    "Hello_fac",
+    "fac_halcash_es",
+    "fac_halcash_es_check",
+    "paynet_fac"
 
   ],
   "template": {

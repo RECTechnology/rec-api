@@ -103,7 +103,7 @@ class SwiftController extends BaseApiController{
 
         if($services != null){
             if($response->getStatusCode() == 204){
-                $client = $em->getRepository('TelepayFinancialApiBundle:Client')->find($id);
+//                $client = $em->getRepository('TelepayFinancialApiBundle:Client')->find($id);
 
                 $client->activeSwiftList($services);
 

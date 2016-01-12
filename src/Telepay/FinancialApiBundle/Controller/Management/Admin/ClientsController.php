@@ -9,6 +9,7 @@ use FOS\RestBundle\Controller\Annotations as Rest;
 use Symfony\Component\HttpFoundation\Request;
 use Telepay\FinancialApiBundle\Entity\SwiftFee;
 use Telepay\FinancialApiBundle\Entity\SwiftLimit;
+use WebSocket\Exception;
 
 /**
  * Class ClientController
@@ -97,7 +98,32 @@ class ClientsController extends BaseApiController {
 
         $services = null;
         if($request->request->has('services')){
+
             $services = $request->get('services');
+            foreach($services as $service){
+                $method = explode('-',$service,2);
+
+                $exist_method_in = $this->get('net.telepay.swift_provider')->isValidMethod($method[0]);
+
+                if($exist_method_in == false){
+                    throw new HttpException(404, 'Cash in method '.$method[0].' not found');
+                }else{
+                    $method_in = $this->get('net.telepay.swift_provider')->findByCname($method[0]);
+                    if($method_in->getType() != 'cash_in') throw new HttpException(404, 'Cash in method '.$method[0].' not found');
+                }
+
+                if(!isset($method[1]) ) throw new HttpException(404, 'Cash out method not found');
+
+                $exist_method_out = $this->get('net.telepay.swift_provider')->isValidMethod($method[1]);
+
+                if($exist_method_out == false){
+                    throw new HttpException(404, 'Cash out method '.$method[1].' not found');
+                }else{
+                    $method_out = $this->get('net.telepay.swift_provider')->findByCname($method[1]);
+                    if($method_out->getType() != 'cash_out') throw new HttpException(404, 'Cash out method '.$method[1].' not found');
+                }
+
+            }
             $request->request->remove('services');
             $request->request->add(array('swift_list' =>$services));
         }
@@ -175,7 +201,7 @@ class ClientsController extends BaseApiController {
                 'cname' =>  $service
             ));
 
-            $types = preg_split('/_/', $service, 2);
+            $types = preg_split('/-/', $service, 2);
             $cashOutMethod = $this->container->get('net.telepay.out.'.$types[1].'.v1');
 
             if(!$limit){
