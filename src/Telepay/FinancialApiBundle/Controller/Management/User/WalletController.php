@@ -7,6 +7,8 @@
  */
 
 namespace Telepay\FinancialApiBundle\Controller\Management\User;
+use DateInterval;
+use DateTime;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpKernel\Exception\HttpException;
 use Telepay\FinancialApiBundle\Controller\RestApiController;
@@ -136,8 +138,20 @@ class WalletController extends RestApiController{
             $search = $query['search'];
             $order = $query['order'];
             $dir = $query['dir'];
-            $start_time = new \MongoDate(strtotime(date($query['start_date'].' 00:00:00')));//date('Y-m-d 00:00:00')
-            $finish_time = new \MongoDate(strtotime(date($query['finish_date'].' 23:59:59')));
+            if(isset($query['start_date'])){
+                $start_time = new \MongoDate(strtotime(date($query['start_date'].' 00:00:00')));//date('Y-m-d 00:00:00')
+//                die(print_r($start_time,true));
+            }else{
+                $fecha = new DateTime();
+                $fecha->sub(new DateInterval('P3M'));
+                $start_time = new \MongoDate($fecha->getTimestamp());
+            }
+
+            if(isset($query['finish_date'])){
+                $finish_time = new \MongoDate(strtotime(date($query['finish_date'].' 23:59:59')));
+            }else{
+                $finish_time = new \MongoDate();
+            }
 
             $transactions = $qb
                 ->field('user')->equals($userId)

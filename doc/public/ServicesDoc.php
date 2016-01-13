@@ -16,6 +16,60 @@
  * }
  */
 
+/**
+ * @api {get} /exchange/v1/ticker/:currency Ticker by currency
+ * @apiName TickerByCurrency
+ * @apiDescription Ticker by currency
+ * @apiVersion 0.1.0
+ * @apiGroup Public
+ * @apiParam {String} currency The <code>currency</code>
+ * @apiSuccess {String} status The resulting status of the request
+ * @apiSuccess {String} message The message about the result of the request
+ * @apiSuccess {String} data Data with the exchange values
+ * @apiSuccessExample Success
+ *    HTTP/1.1 200 OK
+ *    {
+ *          "status": "ok",
+ *          "message": "Exchange info got successful",
+ *          "data":
+ *                  {
+ *                  "BTCxEUR": 333.94,
+ *                  "USDxEUR": 0.92,
+ *                  "FACxEUR": 0,
+ *                  "MXNxEUR": 0.06,
+ *                  "PLNxEUR": 0.24
+ *                  }
+ *    }
+ *
+ */
+
+/**
+ * @api {get} /exchange/v1/currencies Get currencies
+ * @apiName GetCurrencies
+ * @apiDescription Get available currencies
+ * @apiVersion 0.1.0
+ * @apiGroup Public
+ * @apiSuccess {String} status The resulting status of the request
+ * @apiSuccess {String} message The message about the result of the request
+ * @apiSuccess {String} data Data with the available currencies
+ * @apiSuccessExample Success
+ *    HTTP/1.1 200 OK
+ *    {
+ *          "status": "ok",
+ *          "message": "Currency info got successful",
+ *          "data":
+ *                  {
+ *                  "EUR",
+ *                  "BTC",
+ *                  "FAC",
+ *                  "MXN",
+ *                  "PLN",
+ *                  "USD"
+ *                  }
+ *    }
+ *
+ */
+
 
 //##################################### BTC_PAY ###################################
 

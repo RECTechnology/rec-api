@@ -9,6 +9,7 @@
 
 
 /**
+ * @apiIgnore Method not checked
  * @api {post} /wallet/v1 Read balance
  * @apiName GetBalance
  * @apiDescription Creates an access token to be used in each request

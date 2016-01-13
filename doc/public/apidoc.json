@@ -13,10 +13,16 @@
     "filename": "footer.md"
   },
   "order": [
+    "Authentication",
     "OAuthToken",
     "TestOAuth2",
     "EchoSignedRequest",
 
+    "Public",
+    "TickerByCurrency",
+    "GetCurrencies",
+
+    "Services",
     "BtcPayCreate",
     "BtcPayCheck",
     "FacPayCreate",
@@ -27,6 +33,7 @@
     "PaynetReferenceCheck",
     "POS",
 
+    "Swift",
     "Hello_btc",
     "btc_halcash_es",
     "btc_halcash_es_check",
@@ -44,7 +51,16 @@
     "fac_sepa",
     "fac_sepa_check",
     "paynet_fac",
-    "paynet_fac_check"
+    "paynet_fac_check",
+
+    "User",
+    "ReadAccount",
+    "ReadWallets",
+    "Read10LastTransactions",
+    "ReadMonthEarnings",
+    "ReadCountryEarnings",
+    "WalletToWallet",
+    "Exchange"
 
   ],
   "template": {
