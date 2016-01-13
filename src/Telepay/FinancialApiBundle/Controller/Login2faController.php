@@ -2,11 +2,19 @@
 
 namespace Telepay\FinancialApiBundle\Controller;
 
+use FOS\OAuthServerBundle\Controller\TokenController as BaseController;
 use Symfony\Bundle\FrameworkBundle\Controller\Controller;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 
-class Login2faController extends RestApiController {
+class Login2faController extends BaseController {
+
+    public function tokenAction(Request $request)
+    {
+        $response = parent::tokenAction($request);
+        // ... do custom stuff
+        return $response;
+    }
 
     public function loginAction(Request $request)
     {
