@@ -163,7 +163,7 @@ class User extends BaseUser
     private $twoFactorAuthentication = false;
 
     /**
-     * @ORM\Column(type="integer", nullable=true)
+     * @ORM\Column(type="string", nullable=true)
      * @Expose
      */
     private $twoFactorCode;

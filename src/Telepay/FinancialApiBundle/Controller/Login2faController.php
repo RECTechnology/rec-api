@@ -2,32 +2,27 @@
 
 namespace Telepay\FinancialApiBundle\Controller;
 
-use FOS\OAuthServerBundle\Controller\TokenController as BaseController;
-use Symfony\Bundle\FrameworkBundle\Controller\Controller;
+use Telepay\FinancialApiBundle\Controller\RestApiController;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 
-class Login2faController extends BaseController {
 
-    public function tokenAction(Request $request)
-    {
-        $response = parent::tokenAction($request);
-        // ... do custom stuff
-        return $response;
-    }
+class Login2faController extends RestApiController{
+    public function loginAction(Request $request){
+        $headers = array(
+            'Content-Type' => 'application/json',
+            'Cache-Control' => 'no-store',
+            'Pragma' => 'no-cache',
+        );
 
-    public function loginAction(Request $request)
-    {
-        //http://stackoverflow.com/questions/17055721/call-a-method-after-user-login
         $clientId = $request->get('client_id');
         $clientSecret = $request->get('client_secret');
-        $username = $request->get('email');
+        $username = $request->get('username');
         $password = $request->get('password');
         $pin = $request->get('pin');
 
-        /*
-        return $this->call(
-            'cp.api/app_dev.php/oauth/v2/token',
+        $token = $this->call(
+            $request->getHttpHost() . $request->getBaseUrl() . '/oauth/v2/token',
             'POST',
             array(),
             array(
@@ -39,20 +34,20 @@ class Login2faController extends BaseController {
             ),
             array('Accept'=>'application/json')
         );
-        */
-
-        $token = array(
-            'access_token' => 2,
-            'expires_in' => 3,
-            'token_type' => 3,
-            'scope' => 3,
-            'refresh_token' => 3
-        );
-        $headers = array(
-            'Content-Type' => 'application/json',
-            'Cache-Control' => 'no-store',
-            'Pragma' => 'no-cache',
-        );
+        if(!isset($token->error)){
+            $em = $this->getDoctrine()->getManager();
+            $user = $em->getRepository('TelepayFinancialApiBundle:User')->findBy(array('username' => $username));
+            if($user[0]->getTwoFactorAuthentication() == 1) {
+                $Google2FA = new Google2FA();
+                $twoFactorCode = $user[0]->getTwoFactorCode();
+                if (!$Google2FA->verify_key($twoFactorCode, $pin)) {
+                    $token = array(
+                        "error" => "invalid_grant",
+                        "error_description" => "Invalid Google authenticator code"
+                    );
+                }
+            }
+        }
         return new Response(json_encode($token), 200, $headers);
     }
 
@@ -83,15 +78,6 @@ class Login2faController extends BaseController {
                 break;
         }
         $response = json_decode(curl_exec($ch));
-        $response->httpCode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
-
-        if(!isset($response->status) && !isset($response->access_token)){
-            $response = new \stdClass();
-            $response->httpCode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
-            $response->status="error";
-            $response->message='Unexpected response (HttpCode='.$response->httpCode.')';
-            $response->data=array();
-        }
         curl_close ($ch);
         return $response;
     }
