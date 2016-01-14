@@ -17,7 +17,7 @@ class TelepayMethodProvider{
     public function __construct($methods){
         $this->methodsByCName = array();
         foreach($methods as $method){
-            $this->methodsByCName[$method->getCName()] = $method;
+            $this->methodsByCName[$method->getCName().'-'.$method->getType()] = $method;
         }
     }
 
@@ -37,10 +37,12 @@ class TelepayMethodProvider{
     }
 
     public function findByCName($cname){
+        //this cname must be with this form method-type ex:btc-cash_in
         return $this->methodsByCName[$cname];
     }
 
     public function findByCNames(array $cnames){
+        //this cnames must be with this form method-type ex:btc-cash_in
         $methods = array();
         foreach($cnames as $cname){
             if(array_key_exists($cname, $this->methodsByCName))
@@ -56,6 +58,7 @@ class TelepayMethodProvider{
     }
 
     public function isValidMethod($cname){
+        //this cname must be with this form method-type ex:btc-cash_in
         if(isset($this->methodsByCName[$cname])){
             return true;
         }else{
