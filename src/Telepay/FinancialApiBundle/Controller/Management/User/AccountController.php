@@ -21,6 +21,7 @@ use FOS\RestBundle\Controller\Annotations as Rest;
 use Symfony\Component\HttpFoundation\Request;
 use Telepay\FinancialApiBundle\Entity\UserWallet;
 use Telepay\FinancialApiBundle\Financial\Currency;
+use Telepay\FinancialApiBundle\Controller\Google2FA;
 
 class AccountController extends BaseApiController{
 
@@ -247,6 +248,47 @@ class AccountController extends BaseApiController{
         $em->persist($user);
         $em->flush();
 
+        return $this->restV2(200,"ok", "Account info got successfully", $user);
+    }
+
+    /**
+     * @Rest\View
+     */
+    public function active2faAction(Request $request){
+        $user = $this->get('security.context')->getToken()->getUser();
+        $em=$this->getDoctrine()->getManager();
+        $user->setTwoFactorAuthentication(true);
+        if($user->getTwoFactorCode()==""){
+            $Google2FA = new Google2FA();
+            $user->setTwoFactorCode($Google2FA->generate_secret_key());
+        }
+        $em->persist($user);
+        $em->flush();
+        return $this->restV2(200,"ok", "Account info got successfully", $user);
+    }
+
+    /**
+     * @Rest\View
+     */
+    public function deactive2faAction(Request $request){
+        $user = $this->get('security.context')->getToken()->getUser();
+        $em=$this->getDoctrine()->getManager();
+        $user->setTwoFactorAuthentication(false);
+        $em->persist($user);
+        $em->flush();
+        return $this->restV2(200,"ok", "Account info got successfully", $user);
+    }
+
+    /**
+     * @Rest\View
+     */
+    public function update2faAction(Request $request){
+        $user = $this->get('security.context')->getToken()->getUser();
+        $em=$this->getDoctrine()->getManager();
+        $Google2FA = new Google2FA();
+        $user->setTwoFactorCode($Google2FA->generate_secret_key());
+        $em->persist($user);
+        $em->flush();
         return $this->restV2(200,"ok", "Account info got successfully", $user);
     }
 
