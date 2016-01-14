@@ -33,6 +33,12 @@ class IncomingController extends RestApiController{
      */
     public function make(Request $request, $version_number, $service_cname, $id = null){
 
+        /*
+        //GET METHODS
+        $cashInMethod = $this->container->get('net.telepay.in.'.$type_in.'.v'.$version_number);
+        $cashOutMethod = $this->container->get('net.telepay.out.'.$type_out.'.v'.$version_number);
+        */
+
         $service = $this->get('net.telepay.services.'.$service_cname.'.v'.$version_number);
 
         $service_list = $this->get('security.context')->getToken()->getUser()->getServicesList();

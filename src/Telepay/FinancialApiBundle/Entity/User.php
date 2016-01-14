@@ -157,6 +157,18 @@ class User extends BaseUser
     private $services_list;
 
     /**
+     * @ORM\Column(type="boolean")
+     * @Expose
+     */
+    private $twoFactorAuthentication = false;
+
+    /**
+     * @ORM\Column(type="string", nullable=true)
+     * @Expose
+     */
+    private $twoFactorCode;
+
+    /**
      * @ORM\OneToMany(targetEntity="Telepay\FinancialApiBundle\Entity\Balance", mappedBy="user", cascade={"remove"})
      */
     private $balance;
@@ -549,6 +561,38 @@ class User extends BaseUser
     public function setTierValidations($tier_validations)
     {
         $this->tier_validations = $tier_validations;
+    }
+
+    /**
+     * @return mixed
+     */
+    public function getTwoFactorAuthentication()
+    {
+        return $this->twoFactorAuthentication;
+    }
+
+    /**
+     * @param mixed $twoFactorAuthentication
+     */
+    public function setTwoFactorAuthentication($twoFactorAuthentication)
+    {
+        $this->twoFactorAuthentication = $twoFactorAuthentication;
+    }
+
+    /**
+     * @return mixed
+     */
+    public function getTwoFactorCode()
+    {
+        return $this->twoFactorCode;
+    }
+
+    /**
+     * @param mixed $twoFactorCode
+     */
+    public function setTwoFactorCode($twoFactorCode)
+    {
+        $this->twoFactorCode = $twoFactorCode;
     }
 
 }

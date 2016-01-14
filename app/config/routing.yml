@@ -3,6 +3,12 @@ telepay_financial_api:
     resource: "@TelepayFinancialApiBundle/Resources/config/routing.yml"
     prefix:   /
 
+telepay_login_2FA:
+    pattern:  /oauth/v3/token
+    defaults: { _controller: Telepay\FinancialApiBundle\Controller\Login2faController::loginAction }
+    requirements:
+        _method: POST
+
 fos_oauth_server_token:
     resource: "@FOSOAuthServerBundle/Resources/config/routing/token.xml"
 
