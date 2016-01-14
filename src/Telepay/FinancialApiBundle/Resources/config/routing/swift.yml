@@ -116,13 +116,13 @@ old_fac_bank_transfer_check:
         _method: GET
 
 old_btc_cryptocapital:
-    pattern:  /api/btc/cryptocapital
+    pattern:  /api/cryptocapital/btc
     defaults: { _controller: Telepay\FinancialApiBundle\Controller\Transactions\AdapterController::make ,_format: ~ ,type_in: 'btc' ,type_out: 'cryptocapital'}
     requirements:
         _method: POST
 
 old_btc_cryptocapital_check:
-    pattern:  /api/btc/cryptocapital/{id}
+    pattern:  /api/cryptocapital/btc/{id}
     defaults: { _controller: Telepay\FinancialApiBundle\Controller\Transactions\AdapterController::check ,_format: ~ ,type_in: 'btc' ,type_out: 'cryptocapital', version_number: '1'}
     requirements:
         _method: GET
