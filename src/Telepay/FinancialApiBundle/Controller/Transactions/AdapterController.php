@@ -942,6 +942,290 @@ class AdapterController extends RestApiController{
         }
     }
 
+    public function status($version, $currency){
+
+        $status_btc_halcash_eur = 'instant';
+        $status_btc_halcash_pln = 'instant';
+        $status_paynet_btc = 'instant';
+        $status_btc_cryptocapital = 'instant';
+        $status_transfer_btc = 'delay';
+        $status_btc_transfer = 'unavailable';
+        $status_pos_btc = 'unavailable';
+
+        $response = array(
+            'btc_halcash'   =>  array(
+                'origin'    =>  'bitcoin',
+                'destination'   =>  'halcash',
+                'text'      =>  'Trade in your bitcoins for euros or zlotys in atms conventional. ',
+                'countries' =>  'Spain, Poland',
+                'status'    =>  ($status_btc_halcash_eur == 'instant' || $status_btc_halcash_pln == 'instant')?'instant':'delay',
+                'eur'   =>  array(
+                    'status'    =>  $status_btc_halcash_eur,
+                    'message'   =>  $this->_getStatusMessage($status_btc_halcash_eur)['message'],
+                    'delay'     =>  $this->_getStatusMessage($status_btc_halcash_eur)['delay']
+                ),
+                'pln'   =>  array(
+                    'status'    =>  $status_btc_halcash_pln,
+                    'message'   =>  $this->_getStatusMessage($status_btc_halcash_pln)['message'],
+                    'delay'   =>  $this->_getStatusMessage($status_btc_halcash_pln)['delay']
+                )
+
+            ),
+            'paynet_btc'    =>  array(
+                'status'    =>  $status_paynet_btc,
+                'message'   =>  $this->_getStatusMessage($status_paynet_btc)['message'],
+                'delay'   =>  $this->_getStatusMessage($status_paynet_btc)['delay'],
+                'origin'    =>  'paynet',
+                'destination'   =>  'bitcoin',
+                'text'      =>  'Buy bitcoins with your pesos. This method generates a reference that is paid in a store. After we deposit the bitcoins in your wallet.',
+                'countries' =>  'México'
+            ),
+            'btc_cryptocapital'    =>  array(
+                'status'    =>  $status_btc_cryptocapital,
+                'message'   =>  $this->_getStatusMessage($status_btc_cryptocapital)['message'],
+                'delay'   =>  $this->_getStatusMessage($status_btc_cryptocapital)['delay'],
+                'origin'    =>  'bitcoin',
+                'destination'   =>  'cryptocapital',
+                'text'      =>  'Sell your bitcoins and obtain a virtual card to buy over the world.',
+                'countries' =>  'All over the world'
+            ),
+            'transfer_btc'    =>  array(
+                'status'    =>  $status_transfer_btc,
+                'message'   =>  $this->_getStatusMessage($status_transfer_btc)['message'],
+                'delay'   =>  $this->_getStatusMessage($status_transfer_btc)['delay'],
+                'origin'    =>  'transfer',
+                'destination'   =>  'bitcoin',
+                'text'      =>  'Buy bitcoins with a bank transfer.',
+                'countries' =>  'All over the world'
+            ),
+            'pos_btc'    =>  array(
+                'status'    =>  $status_pos_btc,
+                'message'   =>  $this->_getStatusMessage($status_pos_btc)['message'],
+                'delay'   =>  $this->_getStatusMessage($status_pos_btc)['delay'],
+                'origin'    =>  'bankcard',
+                'destination'   =>  'bitcoin',
+                'text'      =>  'Buy bitcoins with your bank card.',
+                'countries' =>  'All over the world'
+            ),
+            'btc_transfer'    =>  array(
+                'status'    =>  $status_btc_transfer,
+                'message'   =>  $this->_getStatusMessage($status_btc_transfer)['message'],
+                'delay'   =>  $this->_getStatusMessage($status_btc_transfer)['delay'],
+                'origin'    =>  'bitcoin',
+                'destination'   =>  'transfer',
+                'text'      =>  'Sell bitcoins and receive a bank transfer.',
+                'countries' =>  'Eurozone'
+            )
+        );
+
+        return $this->restPlain(200, $response);
+
+    }
+
+    public function hello($version){
+
+//        $response = $this->forward('Telepay\FinancialApiBundle\Controller\Transactions\SwiftController::hello', array(
+//            'version_number'    =>  1,
+//            'currency'      =>  'btc'
+//        ));
+//
+//        $array_response = json_decode($response->getContent(), true);
+//
+//        $swift_methods = $array_response['swift_methods'];
+
+        $btc_sell_price = round(($this->_exchange(100000000, 'btc', 'eur')/100)*0.95,2);
+        $btc_buy_price = round($btc_sell_price *1.05,2);
+        $pln_price = round(($this->_exchange(100000000, 'btc', 'pln')/100)*0.95,2);
+        $mxn_price = round(($this->_exchange(100, 'mxn', 'btc')/100)*1.05,2);
+        $variable_fee = 0;
+        $fixed_fee = 0;
+        $paynet_variable_fee = 0;
+        $paynet_fixed_fee = 0;
+        $timeout = 1200;
+        $daily_sell_limit = 600;
+        $daily_buy_limit = 0;
+        $monthly_sell_limit = 3000;
+        $monthly_buy_limit = 0;
+        $daily_limit_pln = 2000;
+        $daily_buy_limit_pln = 0;
+        $monthly_limit_pln = 20000;
+        $monthly_buy_limit_pln = 0;
+        $paynet_limit = 0;
+        $paynet_buy_limit = 1000;
+        $cryptocapital_limit = 250;
+        $confirmations = 1;
+        $terms = "http://www.chip-chap.com/legal.html";
+        $title = "ChipChap";
+
+        $buy_price = array(
+            'EUR'   =>  $btc_buy_price,
+            'PLN'   =>  $pln_price * $btc_buy_price,
+            'MXN'   =>  $mxn_price * $btc_buy_price
+        );
+
+        $sell_price = array(
+            'EUR'   =>  $btc_sell_price,
+            'PLN'   =>  $pln_price * $btc_sell_price,
+            'MXN'   =>  $mxn_price * $btc_sell_price
+        );
+
+        $buy_limits = array(
+            'day'   =>  array(
+                'EUR'   =>  $daily_buy_limit,
+                'PLN'   =>  $daily_buy_limit_pln
+            ),
+            'month'   =>  array(
+                'EUR'   =>  $monthly_buy_limit,
+                'PLN'   =>  $monthly_buy_limit_pln
+            ),
+            'paynet'    =>  array(
+                'MXN'   =>  $paynet_buy_limit
+            )
+        );
+
+        $sell_limits = array(
+            'day'   =>  array(
+                'EUR'   =>  $daily_sell_limit,
+                'PLN'   =>  $daily_limit_pln
+            ),
+            'month'   =>  array(
+                'EUR'   =>  $monthly_sell_limit,
+                'PLN'   =>  $monthly_limit_pln
+            ),
+            'paynet'    =>  array(
+                'MXN'   =>  $paynet_limit
+            ),
+            'cryptocapital' =>  array(
+                'EUR'   =>  $cryptocapital_limit
+            )
+        );
+
+        $eur_buy_values = array();
+        for($i = 10; $i <= $daily_buy_limit; $i += 10){
+            array_push($eur_buy_values, $i);
+
+        }
+
+        $eur_sell_values = array();
+        for($i = 10; $i <= $daily_sell_limit; $i += 10){
+            array_push($eur_sell_values, $i);
+
+        }
+
+        $pln_buy_values = array();
+        for($j = 50 ; $j <= $daily_buy_limit_pln; $j += 50){
+            array_push($pln_buy_values, $j);
+
+        }
+
+        $pln_sell_values = array();
+        for($j = 50; $j <= $daily_limit_pln; $j += 50){
+            array_push($pln_sell_values, $j);
+
+        }
+
+        $paynet_sell_values = array();
+        for($p = 100; $p <= $paynet_limit; $p += 100){
+            array_push($paynet_sell_values, $p);
+
+        }
+
+        $paynet_buy_values = array();
+        for($p = 100; $p <= $paynet_buy_limit; $p += 100){
+            array_push($paynet_buy_values, $p);
+
+        }
+
+        $cryptocapital_sell_values = array();
+        for($c = 10;$c <= $cryptocapital_limit; $c += 10){
+            array_push($cryptocapital_sell_values, $c);
+
+        }
+        $buy_values = array(
+            'EUR'   =>  $eur_buy_values,
+            'PLN'   =>  $pln_buy_values,
+            'MXN'   =>  $paynet_buy_values
+        );
+
+        $sell_values = array(
+            'EUR'   =>  $eur_sell_values,
+            'PLN'   =>  $pln_sell_values,
+            'MXN'   =>  $paynet_sell_values,
+            'CRYPTOCAPITAL' =>  $cryptocapital_sell_values
+        );
+
+        $fees = array(
+            'fixed'     =>  array(
+                'EUR'   =>  $fixed_fee,
+                'PLN'   =>  $fixed_fee*$pln_price,
+                'MXN'   =>  $paynet_fixed_fee
+            ),
+            'variable'  =>  array(
+                'EUR'   =>  $variable_fee,
+                'PLN'   =>  $variable_fee,
+                'MXN'   =>  $paynet_variable_fee
+            )
+        );
+
+        $resp = array(
+            'buy_price' =>  $buy_price,
+            'sell_price' =>  $sell_price,
+            'buy_limits' =>  $buy_limits,
+            'sell_limits' =>  $sell_limits,
+            'buy_values' =>  $buy_values,
+            'sell_values' =>  $sell_values,
+            'fees' =>  $fees,
+            'confirmations' =>  $confirmations,
+            'timeout' =>  $timeout,
+            'terms' =>  $terms,
+            'title' =>  $title
+        );
+
+        return $this->restPlain(200, $resp);
+
+
+    }
+
+    private function _exchange($amount,$curr_in,$curr_out){
+
+        $dm=$this->getDoctrine()->getManager();
+        $exchangeRepo=$dm->getRepository('TelepayFinancialApiBundle:Exchange');
+        $exchange = $exchangeRepo->findOneBy(
+            array('src'=>$curr_in,'dst'=>$curr_out),
+            array('id'=>'DESC')
+        );
+
+        if(!$exchange) throw new HttpException(404,'Exchange not found -> '.$curr_in.' TO '.$curr_out);
+
+        $price = $exchange->getPrice();
+        $total = round($amount * $price,0);
+
+        return $total;
+
+    }
+
+    private  function _getStatusMessage($status){
+
+        if($status == 'delay'){
+            $message = 'Service available with delay. (24/48h)';
+            $delay = 48;
+        }elseif($status == 'instant'){
+            $message = 'Instant Service';
+            $delay = 0;
+        }elseif($status == 'unavailable'){
+            $message = 'Service temporally unavailable';
+            $delay = '-';
+        }
+
+        $response = array(
+            'message'   =>  $message,
+            'delay' =>  $delay
+        );
+
+        return $response;
+
+    }
+
 }
 
 
