@@ -948,8 +948,8 @@ class AdapterController extends RestApiController{
         $status_btc_halcash_pln = 'instant';
         $status_paynet_btc = 'instant';
         $status_btc_cryptocapital = 'instant';
-        $status_transfer_btc = 'delay';
-        $status_btc_transfer = 'unavailable';
+        $status_transfer_btc = 'unavailable';
+        $status_btc_transfer = 'delay';
         $status_pos_btc = 'unavailable';
 
         $response = array(
