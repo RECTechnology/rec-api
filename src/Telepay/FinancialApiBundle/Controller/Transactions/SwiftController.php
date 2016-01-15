@@ -99,6 +99,8 @@ class SwiftController extends RestApiController{
         $methodInfo = $swift_config->getInfo();
 
         //check amount
+        if($amount == '') throw new HttpException(400, 'Amount is empty');
+
         if($amount < $methodInfo['min_value']) throw new HttpException(403, 'Amount must be greater than '.$methodInfo['min_value']);
 
         if($amount % $methodInfo['range'] != 0) throw new HttpException(403, 'Amount must be multiple of '.$methodInfo['range']);

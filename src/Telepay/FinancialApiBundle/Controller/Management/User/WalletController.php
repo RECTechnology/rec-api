@@ -140,7 +140,6 @@ class WalletController extends RestApiController{
             $dir = $query['dir'];
             if(isset($query['start_date'])){
                 $start_time = new \MongoDate(strtotime(date($query['start_date'].' 00:00:00')));//date('Y-m-d 00:00:00')
-//                die(print_r($start_time,true));
             }else{
                 $fecha = new DateTime();
                 $fecha->sub(new DateInterval('P3M'));

@@ -32,8 +32,13 @@ class CryptocapitalMethod extends BaseMethod {
         $amount = $paymentInfo['amount'];
         $email = $paymentInfo['email'];
         $description = $paymentInfo['description'];
-//        $id = $paymentInfo['id'];
-        $id = '4356543';
+        $id = $paymentInfo['id'];
+//        $id = '4356543';
+
+        if (!filter_var($email, FILTER_VALIDATE_EMAIL)) {
+            throw new HttpException(400, 'Invalid email');
+        }
+
         try{
             $cryptocapital = $this->driver->request($currency, $amount, $email, $description, $id);
         }catch (\RuntimeException $r){
