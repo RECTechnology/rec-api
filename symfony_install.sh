@@ -1,12 +1,12 @@
 #!/bin/bash
 
 cat <<EOF
-*** Telepay Installer started ***
+*** Chip-Chap Installer started ***
 EOF
 
 if [[ "$SYMFONY_ENV" != "prod" ]];then
     cat <<EOF
-Warning, this script must not be used you are not sure because it will override the parameters.yml file.
+Warning, this script must not be used if you are not sure because it will override the parameters.yml file.
 If you want to execute this script please export the environment var SYMFONY_ENV as 'prod'.
 *** Installer finished failed ***
 EOF
