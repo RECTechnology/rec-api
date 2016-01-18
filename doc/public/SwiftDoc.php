@@ -829,6 +829,73 @@
 //##################################   BTC-SEPA  #########################################
 
 /**
+ * @api {post} /api/btc/bank_transfer Bitcoin to Bank Transfer
+ * @apiName btc_sepa
+ * @apiDescription Sell bitcoins and send a bank transfer
+ * @apiVersion 0.1.0
+ * @apiGroup Swift
+ * @apiParam {Integer} amount Transaction amount in <code>cents</code>.
+ * @apiParam {String} beneficiary Bank account beneficiary
+ * @apiParam {String} iban IBAN
+ * @apiParam {String} bic_swift BIC/SWIFT
+ * @apiParam {String} concept Optional description for the transaction
+ * @apiSuccess {String} status The resulting status of the transaction
+ * @apiSuccess {String} created Creation date
+ * @apiSuccess {Integer} ticket_id The ID of the transaction
+ * @apiSuccess {String} type Transaction type
+ * @apiSuccess {String} orig_coin <code>BTC</code>
+ * @apiSuccess {Integer} orig_scale 100000000
+ * @apiSuccess {Integer} orig_amount Amount to send in <code>satoshis</code>
+ * @apiSuccess {String} dst_coin <code>EUR</code>
+ * @apiSuccess {Integer} dst_scale 100
+ * @apiSuccess {Integer} dst_amount Virtual Visa amount in <code>cents</code>
+ * @apiSuccess {Integer} price Bitcoin Price
+ * @apiSuccess {String} address Address where user has to send bitcoins
+ * @apiSuccess {Number} confirmations Current transaction confirmations
+ * @apiSuccess {Number} received Received bitcoins in <code>satoshis</code>
+ * @apiSuccess {String} message Information message about these type of transactions
+ *
+ * @apiError {String} status Error occurred.
+ * @apiError {String} message  The description of the error.
+ *
+ * @apiSuccessExample Success
+ *    HTTP/1.1 200 OK
+ *    {
+ *          "status": "ok",
+ *          "created": "2016-01-15T11:42:52+0100",
+ *          "ticket_id": 15053,
+ *          "type": "btc_transfer",
+ *          "orig_coin": "btc",
+ *          "orig_scale": 100000000,
+ *          "orig_amount": 2697672,
+ *          "dst_coin": "eur",
+ *          "dst_scale": 100,
+ *          "dst_amount": 1000,
+ *          "price": 37069,
+ *          "address": "17JiT4kiaxaSbw57UiT1nz2Wn2MLH5LA6Z",
+ *          "confirmations": -1,
+ *          "received": 0,
+ *          "message": "After the payment you will receive an email with the instructions"
+ *    }
+ *
+ * @apiErrorExample Parameter not found
+ *    HTTP/1.1 404: Not found
+ *    {
+ *          "status": "error",
+ *          "message": "Parameter beneficiary not found"
+ *    }
+ *
+ * @apiErrorExample Invalid Amount
+ *    HTTP/1.1 400: Bad Request
+ *    {
+ *          "status": "error",
+ *          "message": "Amount must be greater than 1000"
+ *    }
+ *
+ */
+
+
+/**
  * @api {post} /swift/v1/btc/sepa Bitcoin to sepa
  * @apiName btc_sepa
  * @apiDescription Sell bitcoins and send a bank transfer
@@ -874,7 +941,90 @@
  * @apiSuccess {Boolean} pay_out_info.final Is final status?
  * @apiSuccess {String} pay_out_info.status Cryptocapital status
  *
+ * @apiSuccessExample Success
+ *    HTTP/1.1 200 OK
+ *    {
+ *          "status": "created",
+ *          "message": "Done",
+ *          "id": "56991f4314227e42308b4567",
+ *          "amount": "1000",
+ *          "scale": 2,
+ *          "currency": "EUR",
+ *          "created": "2016-01-15T17:33:07+0100",
+ *          "updated": "2016-01-15T17:33:07+0100",
+ *          "pay_in_info": {
+ *              "amount": 3066044,
+ *              "currency": "BTC",
+ *              "scale": 8,
+ *              "address": "13cPLaRAduHKV3oT8wzU1j7DUtPnry917K",
+ *              "expires_in": 1200,
+ *              "received": 0,
+ *              "min_confirmations": 1,
+ *              "confirmations": 0,
+ *              "status": "created"
+ *          },
+ *          "pay_out_info": {
+ *              "beneficiary": "Default default default",
+ *              "iban": "sdfgfdsa",
+ *              "amount": "1000",
+ *              "bic_swift": "hjkl",
+ *              "currency": "EUR",
+ *              "scale": 2,
+ *              "final": false,
+ *              "status": false
+ *          }
+ *    }
+ *
  */
+
+
+/**
+ * @api {get} /api/cryptocapital/btc/:id Bitcoin to Cryptocapital Check
+ * @apiName btc_cryptocapital_check
+ * @apiDescription Check cryptocapital transaction
+ * @apiVersion 0.1.0
+ * @apiGroup Swift
+ * @apiParam {Integer} id Transaction id
+ * @apiSuccess {String} status The resulting status of the transaction
+ * @apiSuccess {String} created Creation date
+ * @apiSuccess {Integer} ticket_id The ID of the transaction
+ * @apiSuccess {String} type Transaction type
+ * @apiSuccess {String} orig_coin <code>BTC</code>
+ * @apiSuccess {Integer} orig_scale 100000000
+ * @apiSuccess {Integer} orig_amount Amount to send in <code>satoshis</code>
+ * @apiSuccess {String} dst_coin <code>EUR</code>
+ * @apiSuccess {Integer} dst_scale 100
+ * @apiSuccess {Integer} dst_amount Virtual Visa amount in <code>cents</code>
+ * @apiSuccess {Integer} price Bitcoin Price
+ * @apiSuccess {String} address Address where user has to send bitcoins
+ * @apiSuccess {Number} confirmations Current transaction confirmations
+ * @apiSuccess {Number} received Received bitcoins in <code>satoshis</code>
+ * @apiSuccess {String} email Email
+ *
+ * @apiUse TransactionNotFoundError
+ *
+ * @apiSuccessExample Success
+ *    HTTP/1.1 200 OK
+ *    {
+ *          "status": "ok",
+ *          "created": "2016-01-15T11:42:52+0100",
+ *          "ticket_id": 15053,
+ *          "type": "btc_cryptocapital",
+ *          "orig_coin": "btc",
+ *          "orig_scale": 100000000,
+ *          "orig_amount": 2697672,
+ *          "dst_coin": "eur",
+ *          "dst_scale": 100,
+ *          "dst_amount": 1000,
+ *          "price": 37069,
+ *          "address": "17JiT4kiaxaSbw57UiT1nz2Wn2MLH5LA6Z",
+ *          "confirmations": -1,
+ *          "received": 0,
+ *          "email": "default@default.com"
+ *    }
+ *
+ */
+
 
 /**
  * @api {get} /swift/v1/btc/sepa/:id Bitcoin to sepa check
@@ -914,6 +1064,8 @@
  */
 
 //##################################   FAC-CRYPTOCAPITAL  #########################################
+
+
 
 /**
  * @api {post} /swift/v1/fac/cryptocapital Faircoin to Cryptocapital
