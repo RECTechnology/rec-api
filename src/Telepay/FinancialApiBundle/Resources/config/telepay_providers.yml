@@ -112,9 +112,7 @@ services:
     net.telepay.provider.easypay:
         class: Telepay\FinancialApiBundle\DependencyInjection\Transactions\Libs\EasyPay
         arguments:
-            - "%easypay_iban%"
-            - "%easypay_bic_swift%"
-            - "%easypay_beneficiary%"
+            - "%easypay_account%"
 
     net.telepay.provider.cryptocapital:
         class: Telepay\FinancialApiBundle\DependencyInjection\Transactions\Libs\Cryptocapital

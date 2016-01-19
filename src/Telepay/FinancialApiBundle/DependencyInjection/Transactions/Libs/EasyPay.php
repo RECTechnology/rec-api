@@ -5,15 +5,11 @@ use Symfony\Component\HttpKernel\Exception\HttpException;
 
 class EasyPay{
 
-    private $iban;
-    private $bic_swift;
-    private $beneficiary;
+    private $account;
 
-    function __construct($iban, $bic_swift, $beneficiary)
+    function __construct($account)
     {
-        $this->iban = $iban;
-        $this->bic_swift = $bic_swift;
-        $this->beneficiary = $beneficiary;
+        $this->account = $account;
     }
 
     public function request(){
@@ -22,9 +18,7 @@ class EasyPay{
 
         $response = array(
             'reference' =>  $reference,
-            'iban'      =>  $this->iban,
-            'bic_swift' =>  $this->bic_swift,
-            'beneficiary'   =>  $this->beneficiary
+            'account'      =>  $this->account
         );
 
         return $response;

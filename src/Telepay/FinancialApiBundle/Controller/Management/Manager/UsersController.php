@@ -320,8 +320,6 @@ class UsersController extends BaseApiController
         return $this->rest(200, "Request successful", $entities);
     }
 
-
-
     /**
      * @Rest\View
      */
