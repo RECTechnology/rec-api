@@ -1167,19 +1167,33 @@ class AdapterController extends RestApiController{
             )
         );
 
-        $resp = array(
-            'buy_price' =>  $buy_price,
-            'sell_price' =>  $sell_price,
-            'buy_limits' =>  $buy_limits,
-            'sell_limits' =>  $sell_limits,
-            'buy_values' =>  $buy_values,
-            'sell_values' =>  $sell_values,
-            'fees' =>  $fees,
-            'confirmations' =>  $confirmations,
-            'timeout' =>  $timeout,
-            'terms' =>  $terms,
-            'title' =>  $title
-        );
+        if($version == 4){
+            $resp = array(
+                'buy_price' =>  $btc_sell_price,
+                'sell_price' =>  $sell_price,
+                'buy_limits' =>  $buy_limits,
+                'sell_limits' =>  $sell_limits,
+                'buy_values' =>  $buy_values,
+                'sell_values' =>  $sell_values,
+                'fees' =>  $fees,
+                'confirmations' =>  $confirmations,
+                'timeout' =>  $timeout,
+                'terms' =>  $terms,
+                'title' =>  $title
+            );
+        }else{
+            $resp = array(
+                'price' => $sell_price,
+                'variable_fee' => $variable_fee,
+                'fixed_fee' => $fixed_fee,
+                'timeout' => $timeout,
+                'daily_limit' => 600,
+                'monthly_limit' => 3000,
+                'confirmations' => $confirmations,
+                'terms' => $terms,
+                'title' => $title
+            );
+        }
 
         return $this->restPlain(200, $resp);
 
