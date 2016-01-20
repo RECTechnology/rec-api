@@ -162,3 +162,9 @@ old_hello:
     defaults: { _controller: Telepay\FinancialApiBundle\Controller\Transactions\AdapterController::hello ,_format: ~ }
     requirements:
         _method: GET
+        
+old_hello_v1:
+    pattern:  /api/hello
+    defaults: { _controller: Telepay\FinancialApiBundle\Controller\Transactions\AdapterController::hello ,_format: ~ ,version: '1' }
+    requirements:
+        _method: GET
