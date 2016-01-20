@@ -1169,7 +1169,7 @@ class AdapterController extends RestApiController{
 
         if($version == 4){
             $resp = array(
-                'buy_price' =>  $btc_sell_price,
+                'buy_price' =>  $buy_price,
                 'sell_price' =>  $sell_price,
                 'buy_limits' =>  $buy_limits,
                 'sell_limits' =>  $sell_limits,
