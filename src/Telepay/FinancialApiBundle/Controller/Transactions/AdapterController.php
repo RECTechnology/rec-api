@@ -1183,7 +1183,7 @@ class AdapterController extends RestApiController{
             );
         }else{
             $resp = array(
-                'price' => $sell_price,
+                'price' => $btc_sell_price,
                 'variable_fee' => $variable_fee,
                 'fixed_fee' => $fixed_fee,
                 'timeout' => $timeout,
