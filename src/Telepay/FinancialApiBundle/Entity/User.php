@@ -32,6 +32,7 @@ class User extends BaseUser
         $this->wallets = new ArrayCollection();
         $this->btc_addresses = new ArrayCollection();
         $this->devices = new ArrayCollection();
+        $this->clients = new ArrayCollection();
 
         if($this->access_key == null){
             $generator = new SecureRandom();
@@ -156,6 +157,18 @@ class User extends BaseUser
     private $services_list;
 
     /**
+     * @ORM\Column(type="boolean")
+     * @Expose
+     */
+    private $twoFactorAuthentication = false;
+
+    /**
+     * @ORM\Column(type="string", nullable=true)
+     * @Expose
+     */
+    private $twoFactorCode;
+
+    /**
      * @ORM\OneToMany(targetEntity="Telepay\FinancialApiBundle\Entity\Balance", mappedBy="user", cascade={"remove"})
      */
     private $balance;
@@ -167,6 +180,12 @@ class User extends BaseUser
     private $cash_in_tokens;
 
     /**
+     * @ORM\OneToMany(targetEntity="Telepay\FinancialApiBundle\Entity\Client", mappedBy="user", cascade={"remove"})
+     * @Expose
+     */
+    private $clients;
+
+    /**
      * @Expose
      */
     private $allowed_services = array();
@@ -175,6 +194,12 @@ class User extends BaseUser
      * @Expose
      */
     private $group_data = array();
+
+    /**
+     * @ORM\OneToOne(targetEntity="Telepay\FinancialApiBundle\Entity\TierValidations", mappedBy="user", cascade={"remove"})
+     * @Expose
+     */
+    private $tier_validations;
 
     public function getAccessKey(){
         return $this->access_key;
@@ -504,6 +529,70 @@ class User extends BaseUser
     public function setGroupData($group_data)
     {
         $this->group_data = $group_data;
+    }
+
+    /**
+     * @return mixed
+     */
+    public function getClients()
+    {
+        return $this->clients;
+    }
+
+    /**
+     * @param mixed $clients
+     */
+    public function setClients($clients)
+    {
+        $this->clients = $clients;
+    }
+
+    /**
+     * @return mixed
+     */
+    public function getTierValidations()
+    {
+        return $this->tier_validations;
+    }
+
+    /**
+     * @param mixed $tier_validations
+     */
+    public function setTierValidations($tier_validations)
+    {
+        $this->tier_validations = $tier_validations;
+    }
+
+    /**
+     * @return mixed
+     */
+    public function getTwoFactorAuthentication()
+    {
+        return $this->twoFactorAuthentication;
+    }
+
+    /**
+     * @param mixed $twoFactorAuthentication
+     */
+    public function setTwoFactorAuthentication($twoFactorAuthentication)
+    {
+        $this->twoFactorAuthentication = $twoFactorAuthentication;
+    }
+
+    /**
+     * @return mixed
+     */
+    public function getTwoFactorCode()
+    {
+        return $this->twoFactorCode;
+    }
+
+    /**
+     * @param mixed $twoFactorCode
+     */
+    public function setTwoFactorCode($twoFactorCode)
+    {
+        $this->twoFactorCode = $twoFactorCode;
     }
 
 }

@@ -15,7 +15,7 @@ security:
     firewalls:
 
         oauth_token:
-            pattern:        ^/oauth/v2/token
+            pattern:        ^/oauth/v[0-9]+/token
             security:       false
 
         oauth_authorize:
@@ -63,6 +63,20 @@ security:
             fos_oauth:  true
             signature_auth: true
             switch_user:  { role: ROLE_ADMIN, parameter: su }
+
+        swift_api:
+            pattern:  ^/swift
+            stateless: true
+            fos_oauth:  true
+            signature_auth: true
+            anonymous: true
+
+        old_api:
+            pattern:  ^/api
+            stateless: true
+            fos_oauth:  true
+            signature_auth: true
+            anonymous: true
 
         oauth:
             pattern:    ^/

@@ -18,6 +18,17 @@ class LimitAdder implements Limit {
         return $limit;
     }
 
+    public function restore(Limit $limit, $amount) {
+        //$limit->setSingleTransaction($limit->getSingleTransaction()+$amount);
+        $limit->setDay($limit->getDay()-$amount);
+        $limit->setWeek($limit->getWeek()-$amount);
+        $limit->setMonth($limit->getMonth()-$amount);
+        $limit->setYear($limit->getYear()-$amount);
+        $limit->setTotal($limit->getTotal()-$amount);
+
+        return $limit;
+    }
+
 
     public function getSingle()
     {

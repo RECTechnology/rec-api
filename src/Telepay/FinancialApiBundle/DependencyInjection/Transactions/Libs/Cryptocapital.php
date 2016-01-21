@@ -1,32 +1,47 @@
 <?php
 namespace Telepay\FinancialApiBundle\DependencyInjection\Transactions\Libs;
 
+use Doctrine\ODM\MongoDB\Mapping\Annotations\Date;
 use Symfony\Component\HttpKernel\Exception\HttpException;
 use Symfony\Component\Process\Process;
+use Symfony\Component\Validator\Constraints\DateTime;
 
 class Cryptocapital{
 
-    function __construct()
+    private $account_number;
+    private $beneficiary;
+
+    function __construct($account_number, $beneficiary)
     {
+        $this->account_number = $account_number;
+        $this->beneficiary = $beneficiary;
     }
 
     public function request($currency, $amount, $narrative, $description, $id){
 
-        $position = __DIR__;
-        $amount = number_format((float)$amount/100, 2, '.', '');
-        $process = new Process('nodejs '.$position.'/nodejs/transfer.js -c '.$currency.' -a '.$amount.' -n "'.$narrative.','.$description.'-'.$id.'"');
+
+        if($this->account_number == 'fake'){
+
+            $response = 'fake';
+
+        }else{
+            $position = __DIR__;
+            $amount = number_format((float)$amount/100, 2, '.', '');
+            $process = new Process('nodejs '.$position.'/nodejs/transfer.js -an "'.$this->account_number.'" -b "'.$this->beneficiary.'" -c '.$currency.' -a '.$amount.' -n "'.$narrative.','.$description.'-'.$id.'"');
 //        we can up the timeout for security
-        $process->setTimeout(160);
+            $process->setTimeout(160);
 
-        $process->run();
+            $process->run();
 
-        // executes after the command finishes
-        if (!$process->isSuccessful()) {
-            throw new \RuntimeException($process->getErrorOutput());
+            // executes after the command finishes
+            if (!$process->isSuccessful()) {
+                throw new \RuntimeException($process->getErrorOutput());
+            }
+
+            $response = $process->getOutput();
+            $response = json_decode($response,true);
         }
 
-        $response = $process->getOutput();
-        $response = json_decode($response,true);
 
 //        ******* ERROR *****
 //        "apiVersion": 1,
@@ -64,6 +79,8 @@ class Cryptocapital{
         return $response;
 
     }
+
+
 
 
 }

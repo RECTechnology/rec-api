@@ -9,7 +9,6 @@
 namespace Telepay\FinancialApiBundle\Controller;
 
 use FOS\RestBundle\Controller\FOSRestController;
-use Symfony\Component\Validator\Constraints\DateTime;
 use Telepay\FinancialApiBundle\Document\Transaction;
 
 class RestApiController extends FosRestController{
@@ -33,6 +32,19 @@ class RestApiController extends FosRestController{
         ));
     }
 
+    protected function restSwift($httpCode, $status, $message = "No info", $id, $amount, $scale, $currency,$created, $updated, $pay_in_info = array(),$pay_out_info = array() ){
+        return $this->handleView($this->view(
+            new SwiftResponse($status, $message, $id, $amount, $scale, $currency ,$created, $updated, $pay_in_info,$pay_out_info),
+            $httpCode
+        ));
+    }
+
+    protected function restPlain($code, $data = array()){
+        return $this->handleView($this->view($data, $code));
+    }
+
+
+
     protected function restTransaction(Transaction $transaction, $message = "No info"){
         return $this->restV3(
             200,
@@ -44,6 +56,22 @@ class RestApiController extends FosRestController{
             $transaction->getCurrency(),
             $transaction->getUpdated(),
             $transaction->getDataOut()
+        );
+    }
+
+    protected function swiftTransaction(Transaction $transaction, $message = "No info"){
+        return $this->restSwift(
+            200,
+            $transaction->getStatus(),
+            $message,
+            $transaction->getId(),
+            $transaction->getAmount(),
+            $transaction->getScale(),
+            $transaction->getCurrency(),
+            $transaction->getCreated(),
+            $transaction->getUpdated(),
+            $transaction->getPayInInfo(),
+            $transaction->getPayOutInfo()
         );
     }
 

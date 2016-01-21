@@ -6,7 +6,6 @@ use Doctrine\DBAL\DBALException;
 use Exception;
 use Symfony\Component\HttpKernel\Exception\HttpException;
 use Telepay\FinancialApiBundle\Controller\BaseApiController;
-use Telepay\FinancialApiBundle\DependencyInjection\ServicesRepository;
 use Telepay\FinancialApiBundle\Document\Transaction;
 use Telepay\FinancialApiBundle\Entity\Group;
 use Telepay\FinancialApiBundle\Entity\LimitCount;
@@ -150,9 +149,12 @@ class UsersController extends BaseApiController
         if($request->query->has('offset')) $offset = $request->query->get('offset');
         else $offset = 0;
 
-        $all = $this->getRepository()->findAll();
+        $current_group = $this->getDoctrine()->getRepository('TelepayFinancialApiBundle:Group')->find($id);
+        if(!$current_group) throw new HttpException(404, 'Group not found');
 
-        $securityContext = $this->get('security.context');
+        if($current_group->getCreator()->getId() != $admin->getId()) throw new HttpException(403, 'You don\'t have the necessary permissions');
+
+        $all = $this->getRepository()->findAll();
 
         $filtered = [];
         foreach($all as $user){
@@ -199,6 +201,9 @@ class UsersController extends BaseApiController
     public function createAction(Request $request){
 
         $admin = $this->get('security.context')->getToken()->getUser();
+        $em = $this->getDoctrine()->getManager();
+        $usersRepo = $em->getRepository("TelepayFinancialApiBundle:User");
+        $groupsRepo = $em->getRepository("TelepayFinancialApiBundle:Group");
 
         if($request->request->has('group_id')){
             $groupId = $request->request->get('group_id');
@@ -206,6 +211,10 @@ class UsersController extends BaseApiController
         }else{
             $groupId = $this->container->getParameter('id_group_default');
         }
+
+        $group = $groupsRepo->find($groupId);
+        if(!$group) throw new HttpException(404, 'Group not found');
+        if($group->getCreator()->getId() != $admin->getId()) throw new HttpException(403, 'You don\'t have the necessary permissions to add a user in this group');
 
         if(!$request->request->has('password'))
             throw new HttpException(400, "Missing parameter 'password'");
@@ -216,8 +225,10 @@ class UsersController extends BaseApiController
         if($password!=$repassword) throw new HttpException(400, "Password and repassword are differents.");
         $request->request->remove('password');
         $request->request->remove('repassword');
+
         if(!$request->request->has('phone')) $request->request->add(array('phone'=>''));
         if(!$request->request->has('prefix')) $request->request->add(array('prefix'=>''));
+
         $request->request->add(array('plain_password'=>$password));
         $request->request->add(array('enabled'=>1));
         $request->request->add(array('base64_image'=>''));
@@ -228,13 +239,6 @@ class UsersController extends BaseApiController
         $resp= parent::createAction($request);
 
         if($resp->getStatusCode() == 201){
-            $em = $this->getDoctrine()->getManager();
-            $usersRepo = $em->getRepository("TelepayFinancialApiBundle:User");
-            $groupsRepo = $em->getRepository("TelepayFinancialApiBundle:Group");
-
-            $group = $groupsRepo->find($groupId);
-            if(!$group) throw new HttpException(404, 'Group not found');
-            if($group->getCreator()->getId() != $admin->getId()) throw new HttpException(403, 'You have not the necessary permissions');
 
             if(!$group){
                 $group = new Group();
@@ -315,8 +319,6 @@ class UsersController extends BaseApiController
         $entities->setAuthCode(null);
         return $this->rest(200, "Request successful", $entities);
     }
-
-
 
     /**
      * @Rest\View

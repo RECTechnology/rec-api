@@ -19,14 +19,14 @@ class ApiResponseV3{
     private $data;
 
 
-    public function __construct($status, $message,$id, $amount, $scale, $currency,$updated, $data){
-        $this->status=$status;
-        $this->message=$message;
-        $this->id=$id;
-        $this->amount=$amount;
-        $this->scale=$scale;
-        $this->currency=$currency;
+    public function __construct($status, $message, $id, $amount, $scale, $currency, $updated, $data){
+        $this->status = $status;
+        $this->message = $message;
+        $this->id = $id;
+        $this->amount = $amount;
+        $this->scale = $scale;
+        $this->currency = $currency;
         $this->updated = $updated;
-        $this->data=$data;
+        $this->data = $data;
     }
 }

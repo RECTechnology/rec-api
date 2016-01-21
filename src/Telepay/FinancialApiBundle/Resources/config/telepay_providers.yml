@@ -23,6 +23,25 @@ services:
             - "%halcash_user%"
             - "%halcash_pass%"
             - "%halcash_alias%"
+            - "%halcash_url%"
+
+    net.telepay.provider.halcash_abanca:
+        class: Telepay\FinancialApiBundle\DependencyInjection\Transactions\Libs\HalcashAbancaSender
+        arguments:
+            - "%halcash_user%"
+            - "%halcash_pass%"
+            - "%halcash_alias%"
+            - "%halcash_url%"
+            - "@net.telepay.driver.abanca_issue_hal"
+
+    net.telepay.provider.halcash_failover:
+        class: Telepay\FinancialApiBundle\DependencyInjection\Transactions\Libs\FailoverHalcashSender
+        arguments:
+            - "%halcash_user%"
+            - "%halcash_pass%"
+            - "%halcash_alias%"
+            - "%halcash_url%"
+            - "@net.telepay.driver.abanca_issue_hal"
 
     net.telepay.provider.paynet_reference:
         class: Telepay\FinancialApiBundle\DependencyInjection\Transactions\Libs\PaynetGetBarcode
@@ -93,13 +112,13 @@ services:
     net.telepay.provider.easypay:
         class: Telepay\FinancialApiBundle\DependencyInjection\Transactions\Libs\EasyPay
         arguments:
-            - "%easypay_iban%"
-            - "%easypay_bic_swift%"
-            - "%easypay_beneficiary%"
+            - "%easypay_account%"
 
     net.telepay.provider.cryptocapital:
         class: Telepay\FinancialApiBundle\DependencyInjection\Transactions\Libs\Cryptocapital
         arguments:
+            - "%cryptocapital_account_number%"
+            - "%cryptocapital_beneficiary%"
 
     net.telepay.provider.sepa_in:
         class: Telepay\FinancialApiBundle\DependencyInjection\Transactions\Libs\SepaIn

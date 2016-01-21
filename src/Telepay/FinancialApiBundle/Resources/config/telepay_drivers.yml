@@ -25,5 +25,41 @@ services:
             - "%halcash_user%"
             - "%halcash_pass%"
             - "%halcash_alias%"
+            - "%halcash_url%"
 
+    net.telepay.driver.easybitcoin.btc:
+        class: Telepay\FinancialApiBundle\Financial\Driver\EasyBitcoinDriver
+        arguments:
+            - "%bitcoind_user%"
+            - "%bitcoind_pass%"
+            - "%bitcoind_host%"
+            - "%bitcoind_port%"
 
+    net.telepay.driver.easybitcoin.fac:
+        class: Telepay\FinancialApiBundle\Financial\Driver\EasyBitcoinDriver
+        arguments:
+            - "%faircoind_user%"
+            - "%faircoind_pass%"
+            - "%faircoind_host%"
+            - "%faircoind_port%"
+
+    net.telepay.driver.abanca_issue_hal:
+        class: Telepay\FinancialApiBundle\Financial\Driver\RobotUnionDriver
+        arguments:
+            - "abanca_issue_hal"
+
+    net.telepay.driver.paynet_reference:
+        class: Telepay\FinancialApiBundle\Financial\Driver\PaynetReferenceDriver
+        arguments:
+            - "%paynet_reference_issuer%"
+            - "%paynet_reference_url%"
+
+    net.telepay.driver.sepa:
+        class: Telepay\FinancialApiBundle\Financial\Driver\SepaDriver
+        arguments:
+
+    net.telepay.driver.cryptocapital:
+        class: Telepay\FinancialApiBundle\Financial\Driver\CryptocapitalDriver
+        arguments:
+            - "%cryptocapital_account_number%"
+            - "%cryptocapital_beneficiary%"

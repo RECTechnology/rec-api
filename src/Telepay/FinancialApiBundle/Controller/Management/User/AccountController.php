@@ -11,6 +11,8 @@ namespace Telepay\FinancialApiBundle\Controller\Management\User;
 
 use Symfony\Component\Security\Core\Util\SecureRandom;
 use Telepay\FinancialApiBundle\Entity\Device;
+use Telepay\FinancialApiBundle\Entity\TierValidation;
+use Telepay\FinancialApiBundle\Entity\TierValidations;
 use Telepay\FinancialApiBundle\Entity\User;
 use Rhumsaa\Uuid\Uuid;
 use Symfony\Component\HttpKernel\Exception\HttpException;
@@ -19,8 +21,19 @@ use FOS\RestBundle\Controller\Annotations as Rest;
 use Symfony\Component\HttpFoundation\Request;
 use Telepay\FinancialApiBundle\Entity\UserWallet;
 use Telepay\FinancialApiBundle\Financial\Currency;
+use Telepay\FinancialApiBundle\Controller\Google2FA;
 
 class AccountController extends BaseApiController{
+
+    function getRepositoryName()
+    {
+        return "TelepayFinancialApiBundle:User";
+    }
+
+    function getNewEntity()
+    {
+        return new User();
+    }
 
     /**
      * @Rest\View
@@ -245,15 +258,45 @@ class AccountController extends BaseApiController{
         return $this->restV2(200,"ok", "Account info got successfully", $user);
     }
 
-
-    function getRepositoryName()
-    {
-        return "TelepayFinancialApiBundle:User";
+    /**
+     * @Rest\View
+     */
+    public function active2faAction(Request $request){
+        $user = $this->get('security.context')->getToken()->getUser();
+        $em=$this->getDoctrine()->getManager();
+        $user->setTwoFactorAuthentication(true);
+        if($user->getTwoFactorCode()==""){
+            $Google2FA = new Google2FA();
+            $user->setTwoFactorCode($Google2FA->generate_secret_key());
+        }
+        $em->persist($user);
+        $em->flush();
+        return $this->restV2(200,"ok", "Account info got successfully", $user);
     }
 
-    function getNewEntity()
-    {
-        return new User();
+    /**
+     * @Rest\View
+     */
+    public function deactive2faAction(Request $request){
+        $user = $this->get('security.context')->getToken()->getUser();
+        $em=$this->getDoctrine()->getManager();
+        $user->setTwoFactorAuthentication(false);
+        $em->persist($user);
+        $em->flush();
+        return $this->restV2(200,"ok", "Account info got successfully", $user);
+    }
+
+    /**
+     * @Rest\View
+     */
+    public function update2faAction(Request $request){
+        $user = $this->get('security.context')->getToken()->getUser();
+        $em=$this->getDoctrine()->getManager();
+        $Google2FA = new Google2FA();
+        $user->setTwoFactorCode($Google2FA->generate_secret_key());
+        $em->persist($user);
+        $em->flush();
+        return $this->restV2(200,"ok", "Account info got successfully", $user);
     }
 
     /**
@@ -300,6 +343,7 @@ class AccountController extends BaseApiController{
             $request->request->add(array('username'=>$fake));
         }else{
             $username = $request->get('username');
+
         }
 
         //name fake
@@ -317,7 +361,10 @@ class AccountController extends BaseApiController{
             }
         }
 
-        if(!$request->request->has('email')){
+        $confirmation_mail = 0;
+        if($request->request->has('email') && $request->request->get('email') != ''){
+            $confirmation_mail = 1;
+        }else{
             $email = $fake.'@default.com';
             $request->request->add(array('email'=>$email));
         }
@@ -327,6 +374,24 @@ class AccountController extends BaseApiController{
         $request->request->add(array('default_currency'=>'EUR'));
         $request->request->add(array('gcm_group_key'=>''));
         $request->request->add(array('services_list'=>array('sample')));
+
+        if($request->request->has('captcha')){
+            $captcha = $request->request->get('captcha');
+            $request->request->remove('captcha');
+
+            $g_url = 'https://www.google.com/recaptcha/api/siteverify?secret=6LeWBBUTAAAAAB_z2gTNI2yu4jerUql7WN_t29Aj&response='.$captcha;
+            $g_ch = curl_init();
+            curl_setopt($g_ch,CURLOPT_URL, $g_url);
+            curl_setopt($g_ch,CURLOPT_RETURNTRANSFER,true);
+            $g_result = curl_exec($g_ch);
+            curl_close($g_ch);
+            $g_result = json_decode($g_result,true);
+
+            if($g_result['success'] != 1){
+                throw new HttpException(403, 'You are a bot');
+            }
+
+        }
 
         $resp= parent::createAction($request);
 
@@ -369,6 +434,22 @@ class AccountController extends BaseApiController{
                 $em->persist($device);
             }
 
+            if($confirmation_mail == 1){
+                $tokenManager = $this->container->get('fos_oauth_server.access_token_manager.default');
+                $accessToken = $tokenManager->findTokenByToken(
+                    $this->container->get('security.context')->getToken()->getToken()
+                );
+                $client = $accessToken->getClient();
+                $urls = $client->getRedirectUris();
+
+                $tokenGenerator = $this->container->get('fos_user.util.token_generator');
+                $user->setConfirmationToken($tokenGenerator->generateToken());
+                $em->persist($user);
+                $em->flush();
+                $url = $urls[0].'/user/validation/'.$user->getConfirmationToken();
+                $this->_sendEmail('Chip-Chap validation e-mail', $url, $user->getEmail());
+            }
+
             $em->persist($user);
             $em->flush();
 
@@ -406,6 +487,66 @@ class AccountController extends BaseApiController{
 
         return $this->restV2(204,"ok", "Updated successfully");
 
+    }
+
+    /**
+     * @Rest\View
+     */
+    public function validateEmail(Request $request){
+
+        $em = $this->getDoctrine()->getManager();
+
+        if(!$request->request->has('confirmation_token')) throw new HttpException(404, 'Param confirmation_token not found');
+
+        $user = $em->getRepository('TelepayFinancialApiBundle:User')->findOneBy(array(
+            'confirmationToken' => $request->request->get('confirmation_token')
+        ));
+
+        if(!$user) throw new HttpException(400, 'User not found');
+
+        $tierValidation = $em->getRepository('TelepayFinancialApiBundle:TierValidations')->findOneBy(array(
+            'user' => $user
+        ));
+
+        if(!$tierValidation){
+            $tier = new TierValidations();
+            $tier->setUser($user);
+            $tier->setEmail(true);
+
+            $em->persist($tier);
+            $em->flush();
+        }else{
+            throw new HttpException(409, 'Validation not allowed');
+        }
+
+        $response = array(
+            'username'  =>  $user->getUsername(),
+            'email'     =>  $user->getEmail()
+        );
+
+        return $this->restV2(201,"ok", "Validation email succesfully", $response);
+
+    }
+
+    private function _sendEmail($subject, $body, $to){
+
+        $message = \Swift_Message::newInstance()
+            ->setSubject($subject)
+            ->setFrom('no-reply@chip-chap.com')
+            ->setTo(array(
+                $to
+            ))
+            ->setBody(
+                $this->container->get('templating')
+                    ->render('TelepayFinancialApiBundle:Email:registerconfirm.html.twig',
+                        array(
+                            'message'        =>  $body
+                        )
+                    )
+            )
+            ->setContentType('text/html');
+
+        $this->container->get('mailer')->send($message);
     }
 
 }

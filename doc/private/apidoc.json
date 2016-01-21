@@ -4,7 +4,7 @@
   "description": "Documentation for the internal {{ name }} API",
   "title": "REST API - {{ name }}",
   "url" : "{{ url }}",
-  "sampleUrl" : "{{ url }}/test",
+  "sampleUrl" : "{{ url }}/app_dev.php",
   "header": {
     "title": "{{ name }} Internal API",
     "filename": "header.md"
@@ -13,16 +13,43 @@
     "filename": "footer.md"
   },
   "order": [
+    "Authentication",
     "OAuthToken",
     "TestOAuth2",
     "EchoSignedRequest",
 
+    "Clients",
+    "CreateClient",
     "ReadClients",
     "ReadClient",
     "UpdateClient",
     "DeleteClient",
+    "UpdateGroupClient",
 
-    "ReadUsers"
+    "Users",
+    "CreateUser",
+    "ReadUsers",
+    "ReadUser",
+    "ReadUsersByGroup",
+    "UpdateUser",
+    "DeleteUser",
+    "UserAddService",
+    "UpdateImageUser",
+
+    "Groups",
+    "CreateGroup",
+    "ReadGroups",
+    "ReadGroup",
+    "ReadGroupsByUser",
+    "UpdateGroup",
+    "DeleteGroup",
+    "UpdateGroupLimit",
+    "UpdateGroupFee",
+
+    "Wallet"
+
+
+
   ],
   "template": {
     "withCompare": true,

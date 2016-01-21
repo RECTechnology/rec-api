@@ -90,6 +90,24 @@ user_set_default_currency:
     requirements:
         _method: PUT
 
+user_active_2fa:
+    pattern:  /user/v1/active2fa
+    defaults: { _controller: Telepay\FinancialApiBundle\Controller\Management\User\AccountController::active2faAction }
+    requirements:
+        _method: PUT
+
+user_deactive_2fa:
+    pattern:  /user/v1/deactive2fa
+    defaults: { _controller: Telepay\FinancialApiBundle\Controller\Management\User\AccountController::deactive2faAction }
+    requirements:
+        _method: PUT
+
+user_update_2fa_code:
+    pattern:  /user/v1/update2fa
+    defaults: { _controller: Telepay\FinancialApiBundle\Controller\Management\User\AccountController::update2faAction }
+    requirements:
+        _method: PUT
+
 user_get_exchange:
     pattern:  /user/v1/exchange
     defaults: { _controller: Telepay\FinancialApiBundle\Controller\Management\User\ExchangeController::read }
@@ -198,3 +216,30 @@ user_limits:
     defaults: { _controller: Telepay\FinancialApiBundle\Controller\Management\User\WalletController::userLimits }
     requirements:
         _method: GET
+
+######################## USER SWIFT ########################
+
+user_swift_clients:
+    pattern:  /user/v1/swift
+    defaults: { _controller: Telepay\FinancialApiBundle\Controller\Management\User\SwiftController::read }
+    requirements:
+        _method: GET
+
+user_swift_edit_client:
+    pattern:  /user/v1/swift/{id}
+    defaults: { _controller: Telepay\FinancialApiBundle\Controller\Management\User\SwiftController::updateAction }
+    requirements:
+        _method: PUT
+
+user_swift_update_fees:
+    pattern:  /user/v1/swift/fees/{id}
+    defaults: { _controller: Telepay\FinancialApiBundle\Controller\Management\User\SwiftController::updateFees }
+    requirements:
+        _method: PUT
+
+user_swift_update_transaction:
+    pattern:  /user/v1/swift/transaction/{id}
+    defaults: { _controller: Telepay\FinancialApiBundle\Controller\Management\User\SwiftController::updateTransaction }
+    requirements:
+        _method: PUT
+

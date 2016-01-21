@@ -1,0 +1,63 @@
+services:
+
+#fixed, variable, min_value, max_value, range, countries
+
+    net.telepay.config.halcash_es:
+        class: Telepay\FinancialApiBundle\Financial\Methods\MethodConfiguration
+        arguments:
+            - "100"
+            - "2"
+            - "1000"
+            - "60000"
+            - "1000"
+            - "Spain"
+
+    net.telepay.config.halcash_pl:
+        class: Telepay\FinancialApiBundle\Financial\Methods\MethodConfiguration
+        arguments:
+            - "200"
+            - "2"
+            - "5000"
+            - "300000"
+            - "5000"
+            - "Poland"
+
+    net.telepay.config.btc:
+        class: Telepay\FinancialApiBundle\Financial\Methods\MethodConfiguration
+        arguments:
+            - "0"
+            - "0"
+            - "10000"
+            - "1000000000"
+            - "10000"
+            - "All over the world"
+
+    net.telepay.config.fac:
+        class: Telepay\FinancialApiBundle\Financial\Methods\MethodConfiguration
+        arguments:
+            - "0"
+            - "0"
+            - "100000000"
+            - "1000000000000"
+            - "100000000"
+            - "All over the world"
+
+    net.telepay.config.sepa:
+        class: Telepay\FinancialApiBundle\Financial\Methods\MethodConfiguration
+        arguments:
+            - "100"
+            - "1"
+            - "1000"
+            - "300000"
+            - "50"
+            - "All over the world"
+
+    net.telepay.config.cryptocapital:
+        class: Telepay\FinancialApiBundle\Financial\Methods\MethodConfiguration
+        arguments:
+            - "100"
+            - "1"
+            - "1000"
+            - "25000"
+            - "10"
+            - "All over the world"

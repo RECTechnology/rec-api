@@ -4,7 +4,6 @@ namespace Telepay\FinancialApiBundle\Controller\Management\Manager;
 
 use Symfony\Component\HttpKernel\Exception\HttpException;
 use Telepay\FinancialApiBundle\Controller\BaseApiController;
-use Telepay\FinancialApiBundle\DependencyInjection\ServicesRepository;
 use Telepay\FinancialApiBundle\Entity\Group;
 use Telepay\FinancialApiBundle\Entity\LimitDefinition;
 use Telepay\FinancialApiBundle\Entity\ServiceFee;
@@ -38,6 +37,7 @@ class GroupsController extends BaseApiController
         if($request->query->has('offset')) $offset = $request->query->get('offset');
         else $offset = 0;
 
+        //TODO only the superadmin can access here
         //TODO: Improve performance (two queries)
         $all = $this->getRepository()->findAll();
 

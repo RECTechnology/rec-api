@@ -1,12 +1,12 @@
 #!/bin/bash
 
 cat <<EOF
-*** Telepay Installer started ***
+*** Chip-Chap Installer started ***
 EOF
 
 if [[ "$SYMFONY_ENV" != "prod" ]];then
     cat <<EOF
-Warning, this script must not be used you are not sure because it will override the parameters.yml file.
+Warning, this script must not be used if you are not sure because it will override the parameters.yml file.
 If you want to execute this script please export the environment var SYMFONY_ENV as 'prod'.
 *** Installer finished failed ***
 EOF
@@ -24,14 +24,8 @@ fi
 cat > app/config/parameters.yml
 
 curl -sS https://getcomposer.org/installer -s | php
-php composer.phar install --no-scripts --no-dev --optimize-autoloader #--quiet
+php composer.phar install --no-scripts --no-dev --optimize-autoloader --quiet
 php vendor/sensio/distribution-bundle/Sensio/Bundle/DistributionBundle/Resources/bin/build_bootstrap.php
-
-#php app/console doctrine:schema:update --force --env=prod
-
-#php app/console doctrine:mongodb:schema:create --env=prod
-
-#php app/console cache:clear --env=prod
 
 cat <<EOF
 *** Installer finished success ***

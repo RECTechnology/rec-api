@@ -7,11 +7,12 @@
  */
 
 namespace Telepay\FinancialApiBundle\Controller\Management\User;
+use DateInterval;
+use DateTime;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpKernel\Exception\HttpException;
 use Telepay\FinancialApiBundle\Controller\RestApiController;
 use Telepay\FinancialApiBundle\Document\Transaction;
-use Telepay\FinancialApiBundle\Entity\ServiceFee;
 use Telepay\FinancialApiBundle\Entity\UserWallet;
 
 
@@ -67,8 +68,8 @@ class WalletController extends RestApiController{
         foreach($wallets as $wallet){
             $filtered[] = $wallet->getWalletView();
             $new_wallet = $this->exchange($wallet, $currency);
-            $available = $available + $new_wallet['available'];
-            $balance = $balance + $new_wallet['balance'];
+            $available = round($available + $new_wallet['available'],0);
+            $balance = round($balance + $new_wallet['balance'],0);
             if($new_wallet['scale'] != null) $scale = $new_wallet['scale'];
         }
 
@@ -154,8 +155,19 @@ class WalletController extends RestApiController{
             $search = $query['search'];
             $order = $query['order'];
             $dir = $query['dir'];
-            $start_time = new \MongoDate(strtotime(date($query['start_date'].' 00:00:00')));//date('Y-m-d 00:00:00')
-            $finish_time = new \MongoDate(strtotime(date($query['finish_date'].' 23:59:59')));
+            if(isset($query['start_date'])){
+                $start_time = new \MongoDate(strtotime(date($query['start_date'].' 00:00:00')));//date('Y-m-d 00:00:00')
+            }else{
+                $fecha = new DateTime();
+                $fecha->sub(new DateInterval('P3M'));
+                $start_time = new \MongoDate($fecha->getTimestamp());
+            }
+
+            if(isset($query['finish_date'])){
+                $finish_time = new \MongoDate(strtotime(date($query['finish_date'].' 23:59:59')));
+            }else{
+                $finish_time = new \MongoDate();
+            }
 
             $transactions = $qb
                 ->field('user')->equals($userId)
@@ -627,7 +639,7 @@ class WalletController extends RestApiController{
 
         $price = $exchange->getPrice();
 
-        $total = $amount * $price;
+        $total = round($amount * $price,0);
 
         return $total;
 
@@ -806,8 +818,8 @@ class WalletController extends RestApiController{
 
         $price = $exchange->getPrice();
 
-        $response['available'] = $wallet->getAvailable()*$price;
-        $response['balance'] = $wallet->getBalance()*$price;
+        $response['available'] = round($wallet->getAvailable() * $price, 0);
+        $response['balance'] = round($wallet->getBalance() * $price,0);
         $response['scale'] = null;
 
         return $response;
@@ -839,12 +851,16 @@ class WalletController extends RestApiController{
             }
         }
 
+        $amount = floor($params['amount']);
+
         $currency_in = strtoupper($params['currency_in']);
         $currency_out = strtoupper($params['currency_out']);
         $service = 'exchange'.'_'.$currency_in.'to'.$currency_out;
 
         //getExchange
-        $exchange = $this->_exchange($params['amount'], $currency_in, $currency_out);
+        $exchange = $this->_exchange($amount, $currency_in, $currency_out);
+
+        if($exchange == 0) throw new HttpException(403, 'Amount must be bigger');
 
         //checkWallet sender
         $wallets = $user->getWallets();
@@ -861,7 +877,7 @@ class WalletController extends RestApiController{
         if($senderWallet == null) throw new HttpException(404, 'Sender Wallet not found');
         if($receiverWallet == null) throw new HttpException(404, 'Receeiver Wallet not found');
 
-        if($params['amount'] > $senderWallet->getAvailable()) throw new HttpException(404, 'Not funds enough.');
+        if($amount > $senderWallet->getAvailable()) throw new HttpException(404, 'Not funds enough.');
 
         //getFees
         $group = $user->getGroups()[0];
@@ -882,7 +898,7 @@ class WalletController extends RestApiController{
         $dm = $this->get('doctrine_mongodb')->getManager();
         //cashOut transaction
         $cashOut = Transaction::createFromRequest($request);
-        $cashOut->setAmount($params['amount']);
+        $cashOut->setAmount($amount);
         $cashOut->setCurrency($currency_in);
         $cashOut->setDataIn($params);
         $cashOut->setFixedFee(0);
@@ -895,7 +911,7 @@ class WalletController extends RestApiController{
         $cashOut->setStatus('success');
         $cashOut->setDataIn($params);
         $cashOut->setDataOut(array(
-            $currency_in =>  $params['amount'],
+            $currency_in =>  $amount,
             $currency_out=>     $exchange
         ));
 
@@ -920,7 +936,7 @@ class WalletController extends RestApiController{
         $cashIn->setDataIn($paramsOut);
         $cashIn->setDataOut(array(
             'previous_transaction'  =>  $cashOut->getId(),
-            $currency_in    =>  $params['amount'],
+            $currency_in    =>  $amount,
             $currency_out   =>  $exchange
         ));
 
@@ -928,8 +944,8 @@ class WalletController extends RestApiController{
         $dm->flush();
 
         //update wallets
-        $senderWallet->setAvailable($senderWallet->getAvailable() - $params['amount']);
-        $senderWallet->setBalance($senderWallet->getBalance() - $params['amount']);
+        $senderWallet->setAvailable($senderWallet->getAvailable() - $amount);
+        $senderWallet->setBalance($senderWallet->getBalance() - $amount);
 
         $receiverWallet->setAvailable($receiverWallet->getAvailable() + $exchange - $fixed_fee - $variable_fee);
         $receiverWallet->setBalance($receiverWallet->getBalance() + $exchange - $fixed_fee - $variable_fee);
