@@ -45,7 +45,7 @@ class CryptocapitalService extends BaseService{
         try{
             $cryptocapital = $this->cryptocapitalProvider->request($currency, $amount, $email, $description, $id);
         }catch (\RuntimeException $r){
-            throw new HttpException(400,$r->getMessage());
+            throw new HttpException(400,"Error in the request execution: " . $r->getMessage());
         }
 
 
