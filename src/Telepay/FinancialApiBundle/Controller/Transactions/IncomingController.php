@@ -555,6 +555,13 @@ class IncomingController extends RestApiController{
         $service = $this->get('net.telepay.services.'.$service_cname.'.v'.$version_number);
 
         $user = $this->get('security.context')->getToken()->getUser();
+
+        //TODO quitar cuando haya algo mejor montado
+        if($user->getId() == '50'){
+            $em = $this->getDoctrine()->getManager();
+            $user = $em->getRepository('TelepayFinancialApiBundle:User')->find('16');
+        }
+
         $service_list = $user->getServicesList();
 
         if (!in_array($service_cname, $service_list)) {
@@ -643,7 +650,17 @@ class IncomingController extends RestApiController{
 
         $service = $this->get('net.telepay.services.'.$service_cname.'.v'.$version_number);
 
-        $service_list = $this->get('security.context')->getToken()->getUser()->getServicesList();
+        $dm = $this->get('doctrine_mongodb')->getManager();
+        $user = $this->get('security.context')
+            ->getToken()->getUser();
+
+        //TODO quitar cuando haya algo mejor montado
+        if($user->getId() == '50'){
+            $em = $this->getDoctrine()->getManager();
+            $user = $em->getRepository('TelepayFinancialApiBundle:User')->find('16');
+        }
+
+        $service_list = $user->getServicesList();
 
         if (!in_array($service_cname, $service_list)) {
             throw $this->createAccessDeniedException();
@@ -654,10 +671,6 @@ class IncomingController extends RestApiController{
 
         if($request->query->has('offset')) $offset = $request->query->get('offset');
         else $offset = 0;
-
-        $dm = $this->get('doctrine_mongodb')->getManager();
-        $user = $this->get('security.context')
-            ->getToken()->getUser();
 
         $userId = $user->getId();
 

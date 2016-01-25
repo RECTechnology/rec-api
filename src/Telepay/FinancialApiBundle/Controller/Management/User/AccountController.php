@@ -41,6 +41,13 @@ class AccountController extends BaseApiController{
     public function read(Request $request){
 
         $user = $this->get('security.context')->getToken()->getUser();
+
+        //TODO quitar cuando haya algo mejor montado
+        if($user->getId() == '87'){
+            $em = $this->getDoctrine()->getManager();
+            $user = $em->getRepository('TelepayFinancialApiBundle:User')->find('50');
+        }
+
         $listServices = $user->getServicesList();
         $user->setAllowedServices(
             $this->get('net.telepay.service_provider')->findByCNames($listServices)
