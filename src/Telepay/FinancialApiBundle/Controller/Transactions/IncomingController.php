@@ -361,7 +361,7 @@ class IncomingController extends RestApiController{
         //retry=true y cancel=true aqui
         if( isset( $data['retry'] ) || isset ( $data ['cancel'] )){
 
-            if($transaction->getCashDirection() != 'out') throw new HttpException(403, 'Forbidden action for this transaction ');
+            if($service->getcashDirection() != 'out') throw new HttpException(403, 'Forbidden action for this transaction ');
 
             //Search user
             $user_id = $transaction->getUser();
