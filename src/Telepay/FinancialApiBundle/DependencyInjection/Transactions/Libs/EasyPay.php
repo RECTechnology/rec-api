@@ -14,7 +14,7 @@ class EasyPay{
 
     public function request(){
 
-        $reference = $this->getReference();
+        $reference = 'BUY BITCOIN '.$this->getReference();
 
         $response = array(
             'reference' =>  $reference,
@@ -25,7 +25,7 @@ class EasyPay{
 
     }
 
-    function getReference(){
+    private function getReference(){
         $chars = "ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789";
 
         $array_chars = str_split($chars);
