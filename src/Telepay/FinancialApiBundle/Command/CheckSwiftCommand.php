@@ -84,7 +84,7 @@ class CheckSwiftCommand extends ContainerAwareCommand
 
                         $clientLimitsCount = $em->getRepository('TelepayFinancialApiBundle:SwiftLimitCount')->findOneBy(array(
                             'client'    =>  $client,
-                            'cname' =>  $method_in.'_'.$method_out
+                            'cname' =>  $method_in.'-'.$method_out
                         ));
 
                         $clientLimitsCount = (new LimitAdder())->restore($clientLimitsCount, $amount + $client_fee + $service_fee);
