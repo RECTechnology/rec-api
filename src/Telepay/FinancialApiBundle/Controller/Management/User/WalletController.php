@@ -891,7 +891,7 @@ class WalletController extends RestApiController{
         foreach($fees as $fee){
             if($fee->getServiceName() == $service){
                 $fixed_fee = $fee->getFixed();
-                $variable_fee = (($fee->getVariable()/100)*$exchange)/100;
+                $variable_fee = round((($fee->getVariable()/100) * $exchange)/100,0);
             }
         }
 
