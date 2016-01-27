@@ -153,6 +153,7 @@ class WalletController extends RestApiController{
         if($request->query->get('query') != ''){
             $query = $request->query->get('query');
             $search = $query['search'];
+            $services = $query['services'];
             $order = $query['order'];
             $dir = $query['dir'];
             if(isset($query['start_date'])){
@@ -175,6 +176,7 @@ class WalletController extends RestApiController{
                 ->field('created')->lte($finish_time)
                 ->where("function() {
             if (typeof this.dataIn !== 'undefined') {
+                if (typeof this.service === 'undefined' || $services.indexOf(String(this.service)) == -1){ return false;}
                 if (typeof this.dataIn.phone_number !== 'undefined') {
                     if(String(this.dataIn.phone_number).indexOf('$search') > -1){
                         return true;
