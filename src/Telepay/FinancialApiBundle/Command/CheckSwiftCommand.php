@@ -65,7 +65,7 @@ class CheckSwiftCommand extends ContainerAwareCommand
                 //get client fees (fixed & variable)
                 $clientFees = $em->getRepository('TelepayFinancialApiBundle:SwiftFee')->findOneBy(array(
                     'client'    =>  $client,
-                    'cname' =>  $method_in.'_'.$method_out
+                    'cname' =>  $method_in.'-'.$method_out
                 ));
 
                 $client_fee = ($amount * ($clientFees->getVariable()/100) + $clientFees->getFixed());
