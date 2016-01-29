@@ -11,6 +11,10 @@ namespace Telepay\FinancialApiBundle\Entity;
 
 use Doctrine\ORM\Mapping as ORM;
 
+use JMS\Serializer\Annotation\ExclusionPolicy;
+use JMS\Serializer\Annotation\Expose;
+use JMS\Serializer\Annotation\Exclude;
+
 
 /**
  * @ORM\Entity
@@ -58,6 +62,7 @@ class LimitDefinition implements Limit {
 
     /**
      * @ORM\ManyToOne(targetEntity="Telepay\FinancialApiBundle\Entity\Group")
+     * @Exclude
      */
     private $group;
 

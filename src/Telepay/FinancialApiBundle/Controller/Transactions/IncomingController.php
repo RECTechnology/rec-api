@@ -654,11 +654,11 @@ class IncomingController extends RestApiController{
         $user = $this->get('security.context')
             ->getToken()->getUser();
 
-        //TODO quitar cuando haya algo mejor montado
-        if($user->getId() == '50'){
-            $em = $this->getDoctrine()->getManager();
-            $user = $em->getRepository('TelepayFinancialApiBundle:User')->find('16');
-        }
+//        //TODO quitar cuando haya algo mejor montado
+//        if($user->getId() == '50'){
+//            $em = $this->getDoctrine()->getManager();
+//            $user = $em->getRepository('TelepayFinancialApiBundle:User')->find('16');
+//        }
 
         $service_list = $user->getServicesList();
 

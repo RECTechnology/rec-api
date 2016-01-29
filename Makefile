@@ -5,6 +5,9 @@ all: clean test doc
 install:
 	bash symfony_install.sh
 
+reload:
+	bash symfony_reload.sh
+
 test:
 	phpunit
 

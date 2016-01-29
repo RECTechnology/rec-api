@@ -65,7 +65,7 @@ class CheckSwiftCommand extends ContainerAwareCommand
                 //get client fees (fixed & variable)
                 $clientFees = $em->getRepository('TelepayFinancialApiBundle:SwiftFee')->findOneBy(array(
                     'client'    =>  $client,
-                    'cname' =>  $method_in.'_'.$method_out
+                    'cname' =>  $method_in.'-'.$method_out
                 ));
 
                 $client_fee = ($amount * ($clientFees->getVariable()/100) + $clientFees->getFixed());
@@ -84,7 +84,7 @@ class CheckSwiftCommand extends ContainerAwareCommand
 
                         $clientLimitsCount = $em->getRepository('TelepayFinancialApiBundle:SwiftLimitCount')->findOneBy(array(
                             'client'    =>  $client,
-                            'cname' =>  $method_in.'_'.$method_out
+                            'cname' =>  $method_in.'-'.$method_out
                         ));
 
                         $clientLimitsCount = (new LimitAdder())->restore($clientLimitsCount, $amount + $client_fee + $service_fee);
@@ -132,7 +132,7 @@ class CheckSwiftCommand extends ContainerAwareCommand
                         $userFee->setAmount($client_fee);
                         $userFee->setFixedFee($clientFees->getFixed());
                         $userFee->setVariableFee($amount * ($clientFees->getVariable()/100));
-                        $userFee->setService($method_in.'_'.$method_out);
+                        $userFee->setService($method_in.'-'.$method_out);
                         $userFee->setStatus('success');
                         $userFee->setTotal($client_fee);
                         $userFee->setDataIn(array(
@@ -152,7 +152,7 @@ class CheckSwiftCommand extends ContainerAwareCommand
                         $rootFee->setAmount($service_fee);
                         $rootFee->setFixedFee($methodFees->getFixed());
                         $rootFee->setVariableFee($amount * ($methodFees->getVariable()/100));
-                        $rootFee->setService($method_in.'_'.$method_out);
+                        $rootFee->setService($method_in.'-'.$method_out);
                         $rootFee->setStatus('success');
                         $rootFee->setTotal($service_fee);
                         $rootFee->setDataIn(array(
