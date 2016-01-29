@@ -176,7 +176,7 @@ class WalletController extends RestApiController{
                 ->field('created')->lte($finish_time)
                 ->where("function() {
             if (typeof this.dataIn !== 'undefined') {
-                if (typeof this.service === 'undefined' || String($services).indexOf(String(this.service)) == -1){ return false;}
+                if (String($services).indexOf(\" + String(this.service) + \") == -1){ return false;}
                 if (typeof this.dataIn.phone_number !== 'undefined') {
                     if(String(this.dataIn.phone_number).indexOf('$search') > -1){
                         return true;
