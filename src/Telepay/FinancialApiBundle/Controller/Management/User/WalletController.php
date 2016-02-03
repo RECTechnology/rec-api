@@ -11,6 +11,7 @@ use DateInterval;
 use DateTime;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpKernel\Exception\HttpException;
+use Symfony\Component\Validator\Constraints\Null;
 use Telepay\FinancialApiBundle\Controller\RestApiController;
 use Telepay\FinancialApiBundle\Document\Transaction;
 use Telepay\FinancialApiBundle\Entity\UserWallet;
@@ -49,10 +50,10 @@ class WalletController extends RestApiController{
         $user = $this->get('security.context')->getToken()->getUser();
 
         //TODO quitar cuando haya algo mejor montado
-//        if($user->getId() == '50'){
-//            $em = $this->getDoctrine()->getManager();
-//            $user = $em->getRepository('TelepayFinancialApiBundle:User')->find('16');
-//        }
+        if($user->getId() == '50'){
+            $em = $this->getDoctrine()->getManager();
+            $user = $em->getRepository('TelepayFinancialApiBundle:User')->find('16');
+        }
 
         //obtener los wallets
         $wallets = $user->getWallets();
@@ -154,6 +155,9 @@ class WalletController extends RestApiController{
             $query = $request->query->get('query');
             $search = $query['search'];
             $services = $query['services'];
+            if(isset($query['clients'])){
+                $clients = json_decode($query['clients'], true);
+            }
             $order = $query['order'];
             $dir = $query['dir'];
             if(isset($query['start_date'])){
@@ -176,7 +180,7 @@ class WalletController extends RestApiController{
                 ->field('created')->lte($finish_time)
                 ->where("function() {
             if (typeof this.dataIn !== 'undefined') {
-                //if (typeof this.service === 'undefined' || $services.indexOf(String(this.service)) == -1){ return false;}
+                if (JSON.parse(String('$services')).indexOf(String(this.service)) == -1){ return false;}
                 if (typeof this.dataIn.phone_number !== 'undefined') {
                     if(String(this.dataIn.phone_number).indexOf('$search') > -1){
                         return true;
@@ -260,10 +264,35 @@ class WalletController extends RestApiController{
                 ->getQuery()
                 ->execute();
         }
+
+        $em = $this->getDoctrine()->getManager();
+        $clientsInfo = $em->getRepository('TelepayFinancialApiBundle:Client')->findby(array('user' => $userId));
+        $listClients = array();
+        foreach($clientsInfo as $c){
+            $listClients[$c->getId()]=$c->getName();
+        }
+
         $resArray = [];
         foreach($transactions->toArray() as $res){
-            $resArray []= $res;
-
+            if(!isset($clients)){
+                $resArray []= $res;
+            }
+            else{
+                if(!$res->getClient()){
+                    if(in_array("0", $clients)){
+                        $resArray []= $res;
+                    }
+                }
+                elseif(in_array($res->getClient(), $clients)){
+                    $res->setClientData(
+                        array(
+                            "id" => $res->getClient(),
+                            "name" => $listClients[$res->getClient()]
+                        )
+                    );
+                    $resArray []= $res;
+                }
+            }
         }
 
         $total = count($resArray);
@@ -609,10 +638,10 @@ class WalletController extends RestApiController{
         $user = $this->get('security.context')->getToken()->getUser();
 
         //TODO quitar cuando haya algo mejor montado
-//        if($user->getId() == '50'){
-//            $em = $this->getDoctrine()->getManager();
-//            $user = $em->getRepository('TelepayFinancialApiBundle:User')->find('16');
-//        }
+        if($user->getId() == '50'){
+            $em = $this->getDoctrine()->getManager();
+            $user = $em->getRepository('TelepayFinancialApiBundle:User')->find('16');
+        }
 
         //get group
         $group  = $user->getGroups()[0];

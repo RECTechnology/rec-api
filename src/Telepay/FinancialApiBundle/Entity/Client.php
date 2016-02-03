@@ -155,4 +155,12 @@ class Client extends BaseClient
         $this->swift_list = json_encode(array_values($result));
     }
 
+    /**
+     * @return mixed
+     */
+    public function getId()
+    {
+        return $this->id;
+    }
+
 }
