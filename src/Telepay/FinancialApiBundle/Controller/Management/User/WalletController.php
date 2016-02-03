@@ -155,7 +155,9 @@ class WalletController extends RestApiController{
             $query = $request->query->get('query');
             $search = $query['search'];
             $services = $query['services'];
-            $clients = json_decode($query['clients'], true);
+            if(isset($query['clients'])){
+                $clients = json_decode($query['clients'], true);
+            }
             $order = $query['order'];
             $dir = $query['dir'];
             if(isset($query['start_date'])){
