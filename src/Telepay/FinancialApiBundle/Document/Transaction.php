@@ -285,6 +285,10 @@ class Transaction implements TransactionTiming {
     private $client;
 
     /**
+     */
+    private $client_data = array();
+
+    /**
      * Get id
      *
      * @return id $id
@@ -752,5 +756,21 @@ class Transaction implements TransactionTiming {
     public function setClient($client)
     {
         $this->client = $client;
+    }
+
+    /**
+     * @return mixed
+     */
+    public function getClientData()
+    {
+        return $this->client_data;
+    }
+
+    /**
+     * @param mixed $client_data
+     */
+    public function setClientData($client_data)
+    {
+        $this->client_data = $client_data;
     }
 }

@@ -11,6 +11,7 @@ use DateInterval;
 use DateTime;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpKernel\Exception\HttpException;
+use Symfony\Component\Validator\Constraints\Null;
 use Telepay\FinancialApiBundle\Controller\RestApiController;
 use Telepay\FinancialApiBundle\Document\Transaction;
 use Telepay\FinancialApiBundle\Entity\UserWallet;
@@ -154,6 +155,7 @@ class WalletController extends RestApiController{
             $query = $request->query->get('query');
             $search = $query['search'];
             $services = $query['services'];
+            $clients = json_decode($query['clients'], true);
             $order = $query['order'];
             $dir = $query['dir'];
             if(isset($query['start_date'])){
@@ -260,10 +262,35 @@ class WalletController extends RestApiController{
                 ->getQuery()
                 ->execute();
         }
+
+        $em = $this->getDoctrine()->getManager();
+        $clientsInfo = $em->getRepository('TelepayFinancialApiBundle:Client')->findby(array('user' => $userId));
+        $listClients = array();
+        foreach($clientsInfo as $c){
+            $listClients[$c->getId()]=$c->getName();
+        }
+
         $resArray = [];
         foreach($transactions->toArray() as $res){
-            $resArray []= $res;
-
+            if(!isset($clients)){
+                $resArray []= $res;
+            }
+            else{
+                if(!$res->getClient()){
+                    if(in_array("0", $clients)){
+                        $resArray []= $res;
+                    }
+                }
+                elseif(in_array($res->getClient(), $clients)){
+                    $res->setClientData(
+                        array(
+                            "id" => $res->getClient(),
+                            "name" => $listClients[$res->getClient()]
+                        )
+                    );
+                    $resArray []= $res;
+                }
+            }
         }
 
         $total = count($resArray);
