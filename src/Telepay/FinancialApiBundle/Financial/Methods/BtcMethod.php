@@ -30,7 +30,7 @@ class BtcMethod extends BaseMethod {
         $address = $this->driver->getnewaddress();
 //        $address = 'dfghjklñ';
 
-        if(!$address) throw new HttpException(404,'Service Temporally unavailable');
+        if(!$address) throw new HttpException(400,'Service Temporally unavailable');
 
         $response = array(
             'amount'    =>  $amount,
@@ -97,7 +97,7 @@ class BtcMethod extends BaseMethod {
         $params = array();
 
         foreach($paramNames as $param){
-            if(!$request->request->has($param)) throw new HttpException(404, 'Parameter '.$param.' not found');
+            if(!$request->request->has($param)) throw new HttpException(400, 'Parameter '.$param.' not found');
             $params[$param] = $request->request->get($param);
 
         }
@@ -136,6 +136,10 @@ class BtcMethod extends BaseMethod {
     public function getPayOutStatus($id)
     {
         // TODO: Implement getPayOutStatus() method.
+    }
+
+    public function cancel($payment_info){
+        throw new HttpException('Method not implemented');
     }
 
 

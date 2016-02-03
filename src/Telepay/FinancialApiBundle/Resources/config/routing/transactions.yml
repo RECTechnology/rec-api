@@ -7,6 +7,13 @@ service_call_create:
         _method: POST
         service_cname: "[a-z0-9_]+"
 
+method_call_create:
+    pattern:  /methods/v{version_number}/{type}/{method_cname}
+    defaults: { _controller: Telepay\FinancialApiBundle\Controller\Transactions\IncomingController2::make, _format: ~ }
+    requirements:
+        _method: POST
+        service_cname: "[a-z0-9_]+"
+
 services_halcash_send_v2:
     pattern:  /services/v2/halcash/send
     defaults: { _controller: Telepay\FinancialApiBundle\Controller\Services\ServicesHalcashController::sendV2, _format: ~ }
@@ -56,4 +63,33 @@ service_notificate:
         service_cname: "[a-z0-9_]+"
         id: "[a-z0-9]+"
 
+method_call_update:
+    pattern:  /methods/v{version_number}/{type}/{method_cname}/{id}
+    defaults: { _controller: Telepay\FinancialApiBundle\Controller\Transactions\IncomingController2::update, _format: ~ }
+    requirements:
+        _method: PUT
+        service_cname: "[a-z0-9_]+"
+        id: "[a-z0-9]+"
 
+service_call_find:
+    pattern:  /methods/v{version_number}/{type}/{method_cname}
+    defaults: { _controller: Telepay\FinancialApiBundle\Controller\Transactions\IncomingController2::find, _format: ~ }
+    requirements:
+        _method: GET
+        service_cname: "[a-z0-9_]+"
+
+service_call_check:
+    pattern:  /methods/v{version_number}/{type}/{method_cname}/{id}
+    defaults: { _controller: Telepay\FinancialApiBundle\Controller\Transactions\IncomingController2::check, _format: ~ }
+    requirements:
+        _method: GET
+        service_cname: "[a-z0-9_]+"
+        id: "[a-z0-9]+"
+
+service_notificate:
+    pattern:  /notifications/v{version_number}/{type}/{method_cname}/{id}
+    defaults: { _controller: Telepay\FinancialApiBundle\Controller\Transactions\IncomingController2::notificate, _format: ~ }
+    requirements:
+        _method: POST
+        service_cname: "[a-z0-9_]+"
+        id: "[a-z0-9]+"
