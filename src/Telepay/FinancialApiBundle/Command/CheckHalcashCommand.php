@@ -25,7 +25,7 @@ class CheckHalcashCommand extends ContainerAwareCommand
 
         $dm = $this->getContainer()->get('doctrine_mongodb')->getManager();
         $em = $this->getContainer()->get('doctrine')->getManager();
-        $repo=$em->getRepository('TelepayFinancialApiBundle:User');
+        $repo = $em->getRepository('TelepayFinancialApiBundle:User');
 
         $qb = $dm->createQueryBuilder('TelepayFinancialApiBundle:Transaction')
             ->field('service')->equals($service_cname)
@@ -57,39 +57,39 @@ class CheckHalcashCommand extends ContainerAwareCommand
 
             $dm->flush();
 
-            if($checked_transaction->getStatus() == 'success'){
-                $contador_success ++;
-                $id = $checked_transaction->getUser();
-
-                $user = $repo->find($id);
-
-                $wallets = $user->getWallets();
-                $service_currency = $checked_transaction->getCurrency();
-                $current_wallet = null;
-                foreach ( $wallets as $wallet){
-                    if ($wallet->getCurrency() == $service_currency){
-                        $current_wallet = $wallet;
-                    }
-                }
-
-                $amount = $data['amount'];
-
-                if(!$user->hasRole('ROLE_SUPER_ADMIN')){
-
-                    $fixed_fee = $checked_transaction->getFixedFee();
-                    $variable_fee = $checked_transaction->getVariableFee();
-                    $total_fee = $fixed_fee + $variable_fee;
-                    $total = $amount + $total_fee;
-
-                    $current_wallet->setBalance($current_wallet->getBalance() - $total);
-
-                }else{
-                    $current_wallet->setBalance($current_wallet->getBalance() - $amount);
-                }
-
-                $em->persist($current_wallet);
-                $em->flush();
-            }
+//            if($checked_transaction->getStatus() == 'success'){
+//                $contador_success ++;
+//                $id = $checked_transaction->getUser();
+//
+//                $user = $repo->find($id);
+//
+//                $wallets = $user->getWallets();
+//                $service_currency = $checked_transaction->getCurrency();
+//                $current_wallet = null;
+//                foreach ( $wallets as $wallet){
+//                    if ($wallet->getCurrency() == $service_currency){
+//                        $current_wallet = $wallet;
+//                    }
+//                }
+//
+//                $amount = $data['amount'];
+//
+//                if(!$user->hasRole('ROLE_SUPER_ADMIN')){
+//
+//                    $fixed_fee = $checked_transaction->getFixedFee();
+//                    $variable_fee = $checked_transaction->getVariableFee();
+//                    $total_fee = $fixed_fee + $variable_fee;
+//                    $total = $amount + $total_fee;
+//
+//                    $current_wallet->setBalance($current_wallet->getBalance() - $total);
+//
+//                }else{
+//                    $current_wallet->setBalance($current_wallet->getBalance() - $amount);
+//                }
+//
+//                $em->persist($current_wallet);
+//                $em->flush();
+//            }
 
         }
 
