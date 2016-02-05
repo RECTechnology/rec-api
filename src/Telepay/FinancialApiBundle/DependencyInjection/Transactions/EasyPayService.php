@@ -130,4 +130,10 @@ class EasyPayService extends BaseService{
 
     }
 
+    public function getInfo(){
+        $response = $this->easypayProvider->getInfo();
+
+        return $response;
+    }
+
 }

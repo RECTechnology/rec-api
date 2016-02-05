@@ -66,4 +66,10 @@ class SepaInService extends BaseService{
 
     }
 
+    public function getInfo(){
+        $response = $this->sepaInProvider->getInfo();
+
+        return $response;
+    }
+
 }
