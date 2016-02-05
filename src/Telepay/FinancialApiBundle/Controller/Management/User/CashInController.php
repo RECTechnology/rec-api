@@ -30,7 +30,6 @@ class CashInController extends BaseApiController{
 
         $total = count($all);
 
-        //TODO return account_number, swift and beneficiary foreach token
         foreach($all as $one){
             $service_cname = $one->getService();
             $service = $this->get('net.telepay.services.'.$service_cname.'.v1');
@@ -102,7 +101,6 @@ class CashInController extends BaseApiController{
         $data = $data->data;
         $id = $data->id;
 
-        //TODO return account_number, swift and beneficiary foreach token
         if($response->getStatusCode() == 201){
             $resp = $service->getInfo();
             $resp['token'] =  $token;
