@@ -324,14 +324,19 @@ class UsersController extends BaseApiController
      * @Rest\View
      */
     public function setImage(Request $request, $id){
-        if(empty($id) && $id !=0) throw new HttpException(400, "Missing parameter 'id'");
+        if(empty($id)) throw new HttpException(400, "Missing parameter 'id'");
 
         if($id == 0){
             $username = $request->get('username');
-            $repo = $this->getRepository();
-            $user = $repo->findOneBy(array('username'=>$username));
-            if(empty($user)) throw new HttpException(404, 'User not found');
-            $id = $user->getId();
+            if($username==""){
+                $id = $this->get('security.context')->getToken()->getUser()->getId();
+            }
+            else {
+                $repo = $this->getRepository();
+                $user = $repo->findOneBy(array('username' => $username));
+                if (empty($user)) throw new HttpException(404, 'User not found');
+                $id = $user->getId();
+            }
         }
 
         if($request->request->has('base64_image')) $base64Image = $request->request->get('base64_image');
