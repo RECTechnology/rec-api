@@ -40,9 +40,24 @@ service_call_update:
         service_cname: "[a-z0-9_]+"
         id: "[a-z0-9]+"
 
+method_call_update:
+    pattern:  /methods/v{version_number}/{type}/{method_cname}/{id}
+    defaults: { _controller: Telepay\FinancialApiBundle\Controller\Transactions\IncomingController2::update, _format: ~ }
+    requirements:
+        _method: PUT
+        service_cname: "[a-z0-9_]+"
+        id: "[a-z0-9]+"
+
 service_call_find:
     pattern:  /services/v{version_number}/{service_cname}
     defaults: { _controller: Telepay\FinancialApiBundle\Controller\Transactions\IncomingController::find, _format: ~ }
+    requirements:
+        _method: GET
+        service_cname: "[a-z0-9_]+"
+
+method_call_find:
+    pattern:  /methods/v{version_number}/{type}/{method_cname}
+    defaults: { _controller: Telepay\FinancialApiBundle\Controller\Transactions\IncomingController2::find, _format: ~ }
     requirements:
         _method: GET
         service_cname: "[a-z0-9_]+"
@@ -55,30 +70,7 @@ service_call_check:
         service_cname: "[a-z0-9_]+"
         id: "[a-z0-9]+"
 
-service_notificate:
-    pattern:  /notifications/v{version_number}/{service_cname}/{id}
-    defaults: { _controller: Telepay\FinancialApiBundle\Controller\Transactions\IncomingController::notificate, _format: ~ }
-    requirements:
-        _method: POST
-        service_cname: "[a-z0-9_]+"
-        id: "[a-z0-9]+"
-
-method_call_update:
-    pattern:  /methods/v{version_number}/{type}/{method_cname}/{id}
-    defaults: { _controller: Telepay\FinancialApiBundle\Controller\Transactions\IncomingController2::update, _format: ~ }
-    requirements:
-        _method: PUT
-        service_cname: "[a-z0-9_]+"
-        id: "[a-z0-9]+"
-
-service_call_find:
-    pattern:  /methods/v{version_number}/{type}/{method_cname}
-    defaults: { _controller: Telepay\FinancialApiBundle\Controller\Transactions\IncomingController2::find, _format: ~ }
-    requirements:
-        _method: GET
-        service_cname: "[a-z0-9_]+"
-
-service_call_check:
+method_call_check:
     pattern:  /methods/v{version_number}/{type}/{method_cname}/{id}
     defaults: { _controller: Telepay\FinancialApiBundle\Controller\Transactions\IncomingController2::check, _format: ~ }
     requirements:
@@ -87,8 +79,8 @@ service_call_check:
         id: "[a-z0-9]+"
 
 service_notificate:
-    pattern:  /notifications/v{version_number}/{type}/{method_cname}/{id}
-    defaults: { _controller: Telepay\FinancialApiBundle\Controller\Transactions\IncomingController2::notificate, _format: ~ }
+    pattern:  /notifications/v{version_number}/{service_cname}/{id}
+    defaults: { _controller: Telepay\FinancialApiBundle\Controller\Transactions\IncomingController::notificate, _format: ~ }
     requirements:
         _method: POST
         service_cname: "[a-z0-9_]+"

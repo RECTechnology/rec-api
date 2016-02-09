@@ -37,12 +37,12 @@ class TelepayMethodProvider{
     }
 
     public function findByCName($cname){
-        //this cname must be with this form method-type ex:btc-cash_in
+        //this cname must be with this form method-type ex:btc-in
         return $this->methodsByCName[$cname];
     }
 
     public function findByCNames(array $cnames){
-        //this cnames must be with this form method-type ex:btc-cash_in
+        //this cnames must be with this form method-type ex:btc-in
         $methods = array();
         foreach($cnames as $cname){
             if(array_key_exists($cname, $this->methodsByCName))

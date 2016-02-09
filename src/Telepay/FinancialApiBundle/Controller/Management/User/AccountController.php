@@ -22,6 +22,7 @@ use Symfony\Component\HttpFoundation\Request;
 use Telepay\FinancialApiBundle\Entity\UserWallet;
 use Telepay\FinancialApiBundle\Financial\Currency;
 use Telepay\FinancialApiBundle\Controller\Google2FA;
+use WebSocket\Exception;
 
 class AccountController extends BaseApiController{
 
@@ -49,9 +50,12 @@ class AccountController extends BaseApiController{
         }
 
         $listServices = $user->getServicesList();
-        $user->setAllowedServices(
-            $this->get('net.telepay.service_provider')->findByCNames($listServices)
-        );
+
+        //TODO use method provider
+//        $allowedServices = $this->get('net.telepay.service_provider')->findByCNames($listServices);
+        $allowedServices = $this->get('net.telepay.method_provider')->findByCNames($listServices);
+
+        $user->setAllowedServices($allowedServices);
 
         $group = $user->getGroups()[0];
 
@@ -69,7 +73,7 @@ class AccountController extends BaseApiController{
     /**
      * @Rest\View
      */
-    public function updateAction(Request $request,$id=null){
+    public function updateAction(Request $request,$id = null){
 
         $user = $this->get('security.context')->getToken()->getUser();
         $id = $user->getId();
@@ -244,11 +248,11 @@ class AccountController extends BaseApiController{
         $user = $this->get('security.context')->getToken()->getUser();
 
         if($request->request->has('currency'))
-            $currency=$request->request->get('currency');
+            $currency = $request->request->get('currency');
         else
             throw new HttpException(404,'currency not found');
 
-        $em=$this->getDoctrine()->getManager();
+        $em = $this->getDoctrine()->getManager();
 
         $user->setDefaultCurrency(strtoupper($currency));
 
@@ -263,9 +267,9 @@ class AccountController extends BaseApiController{
      */
     public function active2faAction(Request $request){
         $user = $this->get('security.context')->getToken()->getUser();
-        $em=$this->getDoctrine()->getManager();
+        $em = $this->getDoctrine()->getManager();
         $user->setTwoFactorAuthentication(true);
-        if($user->getTwoFactorCode()==""){
+        if($user->getTwoFactorCode() == ""){
             $Google2FA = new Google2FA();
             $user->setTwoFactorCode($Google2FA->generate_secret_key());
         }
@@ -279,7 +283,7 @@ class AccountController extends BaseApiController{
      */
     public function deactive2faAction(Request $request){
         $user = $this->get('security.context')->getToken()->getUser();
-        $em=$this->getDoctrine()->getManager();
+        $em = $this->getDoctrine()->getManager();
         $user->setTwoFactorAuthentication(false);
         $em->persist($user);
         $em->flush();
@@ -291,7 +295,7 @@ class AccountController extends BaseApiController{
      */
     public function update2faAction(Request $request){
         $user = $this->get('security.context')->getToken()->getUser();
-        $em=$this->getDoctrine()->getManager();
+        $em = $this->getDoctrine()->getManager();
         $Google2FA = new Google2FA();
         $user->setTwoFactorCode($Google2FA->generate_secret_key());
         $em->persist($user);
@@ -343,7 +347,6 @@ class AccountController extends BaseApiController{
             $request->request->add(array('username'=>$fake));
         }else{
             $username = $request->get('username');
-
         }
 
         //name fake
@@ -396,7 +399,7 @@ class AccountController extends BaseApiController{
         $resp= parent::createAction($request);
 
         if($resp->getStatusCode() == 201){
-            $em=$this->getDoctrine()->getManager();
+            $em = $this->getDoctrine()->getManager();
 
             $groupsRepo = $em->getRepository("TelepayFinancialApiBundle:Group");
             $group = $groupsRepo->find($this->container->getParameter('id_group_level_0'));
@@ -406,7 +409,7 @@ class AccountController extends BaseApiController{
             $data = $resp->getContent();
             $data = json_decode($data);
             $data = $data->data;
-            $user_id=$data->id;
+            $user_id = $data->id;
 
             $user = $usersRepo->findOneBy(array('id'=>$user_id));
 
@@ -475,8 +478,8 @@ class AccountController extends BaseApiController{
         $user = $this->get('security.context')->getToken()->getUser();
 
         $generator = new SecureRandom();
-        $access_key=sha1($generator->nextBytes(32));
-        $access_secret=base64_encode($generator->nextBytes(32));
+        $access_key = sha1($generator->nextBytes(32));
+        $access_secret = base64_encode($generator->nextBytes(32));
 
         $user->setAccessSecret($access_secret);
         $user->setAccessKey($access_key);
