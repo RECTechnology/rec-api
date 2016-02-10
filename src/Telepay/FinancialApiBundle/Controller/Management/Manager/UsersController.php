@@ -345,11 +345,13 @@ class UsersController extends BaseApiController
 
         $image = base64_decode($base64Image);
 
+        /*
         try {
             imagecreatefromstring($image);
         }catch (Exception $e){
             throw new HttpException(400, "Invalid parameter 'base64_image'");
         }
+        */
 
         $repo = $this->getRepository();
 
