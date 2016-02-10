@@ -326,8 +326,6 @@ class UsersController extends BaseApiController
     public function setImage(Request $request, $id){
         if($id == "") throw new HttpException(400, "Missing parameter 'id'");
 
-        throw new HttpException(400, "Good parameter 'id' =" + $id );
-
         if($id == 0){
             $username = $request->get('username');
             if($username==""){
