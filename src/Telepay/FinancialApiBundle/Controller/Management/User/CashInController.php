@@ -30,6 +30,20 @@ class CashInController extends BaseApiController{
 
         $total = count($all);
 
+        foreach($all as $one){
+            $service_cname = $one->getService();
+            $service = $this->get('net.telepay.services.'.$service_cname.'.v1');
+            $info = $service->getInfo();
+            if($service_cname == 'easypay'){
+                $one->setAccountNumber($info['account_number']);
+            }elseif($service_cname == 'sepa_in'){
+                $one->setAccountNumber($info['iban']);
+                $one->setBeneficiary($info['beneficiary']);
+                $one->setBicSwift($info['bic_swift']);
+            }
+
+        }
+
         return $this->restV2(
             200,
             "ok",
@@ -88,10 +102,10 @@ class CashInController extends BaseApiController{
         $id = $data->id;
 
         if($response->getStatusCode() == 201){
-            $resp = array(
-                'token' =>  $token,
-                'id'    =>  $id
-            );
+            $resp = $service->getInfo();
+            $resp['token'] =  $token;
+            $resp['id']    =  $id;
+
         }else{
             return $response;
         }
