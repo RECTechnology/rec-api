@@ -16,6 +16,7 @@ use Symfony\Component\Security\Core\Util\SecureRandom;
 
 use JMS\Serializer\Annotation\ExclusionPolicy;
 use JMS\Serializer\Annotation\Expose;
+use JMS\Serializer\Annotation\Exclude;
 
 /**
  * @ORM\Entity
@@ -157,6 +158,12 @@ class User extends BaseUser
     private $services_list;
 
     /**
+     * @ORM\Column(type="string")
+     * @Expose
+     */
+    private $methods_list;
+
+    /**
      * @ORM\Column(type="boolean")
      * @Expose
      */
@@ -193,6 +200,11 @@ class User extends BaseUser
     /**
      * @Expose
      */
+    private $allowed_methods = array();
+
+    /**
+     * @Expose
+     */
     private $group_data = array();
 
     /**
@@ -223,14 +235,6 @@ class User extends BaseUser
     public function setName($name)
     {
         $this->name = $name;
-    }
-
-    /**
-     * @param Service $service
-     */
-    public function addAllowedService($service)
-    {
-        $this->addRole($service->getRole());
     }
 
     /**
@@ -318,7 +322,7 @@ class User extends BaseUser
      */
     public function setLimitCount($limit_count)
     {
-        $this->limit_count = $limit_count;
+        $this->limit_counts = $limit_count;
     }
 
     /**
@@ -593,6 +597,48 @@ class User extends BaseUser
     public function setTwoFactorCode($twoFactorCode)
     {
         $this->twoFactorCode = $twoFactorCode;
+    }
+
+    /**
+     * @param mixed $allowed_methods
+     */
+    public function setAllowedMethods($allowed_methods)
+    {
+        $this->allowed_methods = $allowed_methods;
+    }
+
+    /**
+     * @return mixed
+     */
+    public function getMethodsList()
+    {
+        return json_decode($this->methods_list);
+    }
+
+    /**
+     * @param mixed $methods_list
+     */
+    public function setMethodsList($methods_list)
+    {
+        $this->methods_list = json_encode($methods_list);
+    }
+
+    /**
+     * @param mixed $cname
+     */
+    public function addMethod($cname){
+        $new = array($cname);
+        $merge = array_merge($this->methods_list, $new);
+        $result = array_unique($merge, SORT_REGULAR);
+        $this->methods_list = json_encode($result);
+    }
+
+    /**
+     * @param mixed $cname
+     */
+    public function removeMethod($cname){
+        $result = array_diff(json_decode($this->methods_list), array($cname));
+        $this->methods_list = json_encode(array_values($result));
     }
 
 }

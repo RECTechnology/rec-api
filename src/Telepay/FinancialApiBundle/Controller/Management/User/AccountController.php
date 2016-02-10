@@ -44,18 +44,20 @@ class AccountController extends BaseApiController{
         $user = $this->get('security.context')->getToken()->getUser();
 
         //TODO quitar cuando haya algo mejor montado
-        if($user->getId() == '87'){
+        if($user->getId() == $this->container->getParameter('read_only_user_id')){
             $em = $this->getDoctrine()->getManager();
-            $user = $em->getRepository('TelepayFinancialApiBundle:User')->find('50');
+            $user = $em->getRepository('TelepayFinancialApiBundle:User')->find('chipchap_user_id');
         }
 
-        $listServices = $user->getServicesList();
+//        $listServices = $user->getServicesList();
+        $listMethods = $user->getMethodsList();
 
         //TODO use method provider
 //        $allowedServices = $this->get('net.telepay.service_provider')->findByCNames($listServices);
-        $allowedServices = $this->get('net.telepay.method_provider')->findByCNames($listServices);
+        $allowedMethods = $this->get('net.telepay.method_provider')->findByCNames($listMethods);
 
-        $user->setAllowedServices($allowedServices);
+//        $user->setAllowedServices($allowedServices);
+        $user->setAllowedMethods($allowedMethods);
 
         $group = $user->getGroups()[0];
 
