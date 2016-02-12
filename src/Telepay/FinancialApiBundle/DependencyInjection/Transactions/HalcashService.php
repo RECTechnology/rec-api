@@ -44,6 +44,7 @@ class HalcashService extends BaseService{
         $country = $baseTransaction->getDataIn()['country'];
         //pasamos a euros porque lo recibimos en centimos
         $amount = $baseTransaction->getDataIn()['amount']/100;
+        if($amount < 0) throw new HttpException(400,'Amount must be bigger than 0');
         $reference = $baseTransaction->getDataIn()['reference'];
         if(strlen($reference) > 20) throw new HttpException(400,'Reference Field must be less than 20 characters');
         $pin = $baseTransaction->getDataIn()['pin'];
