@@ -36,7 +36,7 @@ class IncomingController2 extends RestApiController{
         $method = $this->get('net.telepay.'.$type.'.'.$method_cname.'.v'.$version_number);
 
         //¿?services list should be method_type ex-> btc_in or btc_out the same for all limits and fees
-        $method_list = $this->get('security.context')->getToken()->getUser()->getServicesList();
+        $method_list = $this->get('security.context')->getToken()->getUser()->getMethodsList();
 
         if (!in_array($method_cname.'-'.$type, $method_list)) {
             throw $this->createAccessDeniedException();
