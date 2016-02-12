@@ -280,6 +280,12 @@ class POSIncomingController extends RestApiController{
         if($transaction->getNotified() == true) throw new HttpException(409,'Duplicate notification');
         
         $status = $request->request->get('status');
+        $received_params = 'Params not received';
+        if(!$request->request->has('params')){
+            $received_params = $request->request->get('params');
+        }
+
+        $transaction->setDebugData($received_params);
 
         if ($status == 1){
             //set transaction cancelled
@@ -328,8 +334,6 @@ class POSIncomingController extends RestApiController{
             $transaction->setStatus('cancelled');
 
         }
-
-
 
         $transaction->setUpdated(new \MongoDate());
 

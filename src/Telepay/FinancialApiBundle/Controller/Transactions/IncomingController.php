@@ -557,9 +557,9 @@ class IncomingController extends RestApiController{
         $user = $this->get('security.context')->getToken()->getUser();
 
         //TODO quitar cuando haya algo mejor montado
-        if($user->getId() == '50'){
+        if($user->getId() == $this->container->getParameter('read_only_user_id')){
             $em = $this->getDoctrine()->getManager();
-            $user = $em->getRepository('TelepayFinancialApiBundle:User')->find('16');
+            $user = $em->getRepository('TelepayFinancialApiBundle:User')->find($this->container->getParameter('chipchap_user_id'));
         }
 
         $service_list = $user->getServicesList();
@@ -655,9 +655,9 @@ class IncomingController extends RestApiController{
             ->getToken()->getUser();
 
         //TODO quitar cuando haya algo mejor montado
-        if($user->getId() == '50'){
+        if($user->getId() == $this->container->getParameter('read_only_user_id')){
             $em = $this->getDoctrine()->getManager();
-            $user = $em->getRepository('TelepayFinancialApiBundle:User')->find('16');
+            $user = $em->getRepository('TelepayFinancialApiBundle:User')->find('chipchap_user_id');
         }
 
         $service_list = $user->getServicesList();

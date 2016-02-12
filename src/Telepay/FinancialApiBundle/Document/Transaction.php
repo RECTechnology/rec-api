@@ -143,6 +143,12 @@ class Transaction implements TransactionTiming {
      * @var
      * @MongoDB\String
      */
+    private $method;
+
+    /**
+     * @var
+     * @MongoDB\String
+     */
     private $posId;
 
     /**
@@ -772,5 +778,21 @@ class Transaction implements TransactionTiming {
     public function setClientData($client_data)
     {
         $this->client_data = $client_data;
+    }
+
+    /**
+     * @return mixed
+     */
+    public function getMethod()
+    {
+        return $this->method;
+    }
+
+    /**
+     * @param mixed $method
+     */
+    public function setMethod($method)
+    {
+        $this->method = $method;
     }
 }

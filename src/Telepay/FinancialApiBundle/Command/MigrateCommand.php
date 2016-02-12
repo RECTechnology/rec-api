@@ -25,7 +25,7 @@ class MigrateCommand extends ContainerAwareCommand
     protected function configure()
     {
         $this
-            ->setName('telepay:migrate')
+            ->setName('telepay:migrate:services')
             ->setDescription('Migrate services')
         ;
     }
@@ -38,15 +38,58 @@ class MigrateCommand extends ContainerAwareCommand
         $array_de_results = array();
         foreach ($users as $user) {
             $results = array();
-            $list_services = $this->getContainer()->get('net.telepay.service_provider')->findByRoles($user->getRoles());
-            foreach ($list_services as $serv) {
-                $results[] = $serv->getCname();
-            }
-            $user->setServicesList($results);
+            $services = $user->getServicesList();
+            $methods = $this->_convert($services);
+
+            $user->setMethodsList($methods);
             $em->persist($user);
             $em->flush();
             $array_de_results[]=json_encode($results);
         }
         $output->writeln('All done');
+    }
+
+    private function _convert($services){
+
+        $methods = array();
+
+        foreach($services as $service){
+            switch ($service){
+                case 'paynet_reference':
+                    $methods[] = 'paynet_reference-in';
+                    break;
+                case 'halcash_send':
+                    $methods[] = 'halcash_es-out';
+                    $methods[] = 'halcash_pl-out';
+                    break;
+                case 'btc_pay':
+                    $methods[] = 'btc-in';
+                    break;
+                case 'btc_send':
+                    $methods[] = 'btc-out';
+                    break;
+                case 'sepa_in':
+                    $methods[] = 'sepa-in';
+                    break;
+                case 'sepa_out':
+                    $methods[] = 'sepa-out';
+                    break;
+                case 'cryptocapital':
+                    $methods[] = 'cryptocapital-out';
+                    break;
+                case 'fac_pay':
+                    $methods[] = 'fac-in';
+                    break;
+                case 'fac_send':
+                    $methods[] = 'fac-out';
+                    break;
+                default:
+                    break;
+            }
+
+        }
+
+        return $methods;
+
     }
 }

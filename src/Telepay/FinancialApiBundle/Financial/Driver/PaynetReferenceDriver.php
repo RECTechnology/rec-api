@@ -19,7 +19,7 @@ class PaynetReferenceDriver{
         $this->url = $url;
     }
 
-    public function request($client_reference,$amount,$description){
+    public function request($client_reference, $amount, $description){
         $this->client_reference = $client_reference;
         $this->amount = $amount;
         $this->description = $description;
@@ -87,7 +87,9 @@ class PaynetReferenceDriver{
     }
 
     public function status($client_reference){
-        $this->client_reference=$client_reference;
+
+        $this->client_reference = $client_reference;
+
         $params = array(
             'issuerCod'         =>  $this->issuer,
             'clientReference' 	=>  $this->client_reference
@@ -97,11 +99,11 @@ class PaynetReferenceDriver{
 
         $result = $client -> call('GetPaynetReferenceStatus',$params);
 
-        if($result['GetPaynetReferenceStatusResult']['RespCode']=="0"){
-            $resultado=$result['GetPaynetReferenceStatusResult']['Status'];
-            $error=0;
-            $description=0;
-            $resultArray=array(
+        if($result['GetPaynetReferenceStatusResult']['RespCode'] == "0"){
+            $resultado = $result['GetPaynetReferenceStatusResult']['Status'];
+            $error = 0;
+            $description = 0;
+            $resultArray = array(
                 'error_code'        =>  $error,
                 'error_description' =>  $description,
                 'status_code'       =>  $resultado
@@ -109,48 +111,54 @@ class PaynetReferenceDriver{
 
             switch ($resultado) {
                 case 0:
-                    $resultArray['status_description']='Printed';
+                    $resultArray['status_description'] = 'Printed';
+                    $resultArray['status'] = 'created';
                     return $resultArray;
                     break;
                 case 1:
-                    $resultArray['status_description']='Pending';
+                    $resultArray['status_description'] = 'Pending';
+                    $resultArray['status'] = 'created';
                     return $resultArray;
                     break;
                 case 2:
-                    $resultArray['status_description']='Authorized';
+                    $resultArray['status_description'] = 'Authorized';
+                    $resultArray['status'] = 'success';
                     return $resultArray;
                     break;
                 case 3:
-                    $resultArray['status_description']='Canceled';
+                    $resultArray['status_description'] = 'Canceled';
+                    $resultArray['status'] = 'cancelled';
                     return $resultArray;
                     break;
                 case 4:
-                    $resultArray['status_description']='Reversed';
+                    $resultArray['status_description'] = 'Reversed';
+                    $resultArray['status'] = 'refund';
                     return $resultArray;
                     break;
                 case 5:
-                    $resultArray['status_description']='Reserved';
+                    $resultArray['status_description'] = 'Reserved';
+                    $resultArray['status'] = 'review';
                     return $resultArray;
                     break;
                 case 6:
-                    $resultArray['status_description']='Revision';
+                    $resultArray['status_description'] = 'Revision';
+                    $resultArray['status'] = 'review';
                     return $resultArray;
                     break;
                 default:
-                    $resultArray['status_description']='Unexpected error';
+                    $resultArray['status_description'] = 'Unexpected error';
+                    $resultArray['status'] = 'error';
                     return $resultArray;
                     break;
             }
         }else{
-            $resultado=$result['GetPaynetReferenceStatusResult']['RespDesc'];
-            $error_code=$result['GetPaynetReferenceStatusResult']['RespCode'];
-            $resultArray=array(
-                'error_code'    =>  $error_code,
+            $resultado = $result['GetPaynetReferenceStatusResult']['RespDesc'];
+            $error_code = $result['GetPaynetReferenceStatusResult']['RespCode'];
+            $resultArray = array(
+                'error_code'        =>  $error_code,
                 'error_description' =>  $resultado
             );
             return $resultArray;
         }
     }
-
 }
-

@@ -38,7 +38,7 @@ class IncomingController2 extends RestApiController{
         //¿?services list should be method_type ex-> btc_in or btc_out the same for all limits and fees
         $method_list = $this->get('security.context')->getToken()->getUser()->getServicesList();
 
-        if (!in_array($method_cname.'_'.$type, $method_list)) {
+        if (!in_array($method_cname.'-'.$type, $method_list)) {
             throw $this->createAccessDeniedException();
         }
 
@@ -47,10 +47,10 @@ class IncomingController2 extends RestApiController{
 
         $user = $this->container->get('security.context')->getToken()->getUser();
         $transaction = Transaction::createFromRequest($request);
-        $transaction->setService($method);
+        $transaction->setService($method_cname);
         $transaction->setUser($user->getId());
         $transaction->setVersion($version_number);
-        $transaction->setType('cash_'.$type);
+        $transaction->setType($type);
         $dm->persist($transaction);
 
         if($request->request->has('concept')) $concept = $request->request->get('concept');
@@ -97,14 +97,14 @@ class IncomingController2 extends RestApiController{
         $group_commissions = $group->getCommissions();
         $group_commission = false;
         foreach ( $group_commissions as $commission ){
-            if ( $commission->getServiceName() == $method_cname.'_'.$type ){
+            if ( $commission->getServiceName() == $method_cname.'-'.$type ){
                 $group_commission = $commission;
             }
         }
 
         //if group commission not exists we create it
         if(!$group_commission){
-            $group_commission = ServiceFee::createFromController($method_cname.'_'.$type, $group);
+            $group_commission = ServiceFee::createFromController($method_cname.'-'.$type, $group);
             $group_commission->setCurrency($method->getCurrency());
             $em->persist($group_commission);
             $em->flush();
@@ -137,14 +137,14 @@ class IncomingController2 extends RestApiController{
         $limits = $user->getLimitCount();
         $user_limit = false;
         foreach ( $limits as $limit ){
-            if($limit->getCname() == $method_cname.'_'.$type){
+            if($limit->getCname() == $method_cname.'-'.$type){
                 $user_limit = $limit;
             }
         }
 
         //if user hasn't limit create it
         if(!$user_limit){
-            $user_limit = LimitCount::createFromController($method_cname.'_'.$type, $user);
+            $user_limit = LimitCount::createFromController($method_cname.'-'.$type, $user);
             $em->persist($user_limit);
             $em->flush();
         }
@@ -153,14 +153,14 @@ class IncomingController2 extends RestApiController{
         $group_limits = $group->getLimits();
         $group_limit = false;
         foreach ( $group_limits as $limit ){
-            if( $limit->getCname() == $method_cname.'_'.$type){
+            if( $limit->getCname() == $method_cname.'-'.$type){
                 $group_limit = $limit;
             }
         }
 
         //if limit doesn't exist create it
         if(!$group_limit){
-            $group_limit = LimitDefinition::createFromController($method_cname.'_'.$type, $group);
+            $group_limit = LimitDefinition::createFromController($method_cname.'-'.$type, $group);
             $group_limit->setCurrency($method->getCurrency());
             $em->persist($group_limit);
             $em->flush();
@@ -178,8 +178,6 @@ class IncomingController2 extends RestApiController{
         $current_wallet = null;
 
         $transaction->setCurrency($method->getCurrency());
-
-
 
         //******    CHECK IF THE TRANSACTION IS CASH-OUT     ********
         if($type == 'out'){
@@ -248,7 +246,7 @@ class IncomingController2 extends RestApiController{
                 if( $total_fee != 0){
                     //nueva transaccion restando la comision al user
                     try{
-                        $this->_dealer($transaction,$current_wallet);
+                        $this->_dealer($transaction, $current_wallet);
                     }catch (HttpException $e){
                         throw $e;
                     }
@@ -292,7 +290,7 @@ class IncomingController2 extends RestApiController{
 
         $method_list = $this->get('security.context')->getToken()->getUser()->getServicesList();
 
-        if (!in_array($method_cname.'_'.$type, $method_list)) {
+        if (!in_array($method_cname.'-'.$type, $method_list)) {
             throw $this->createAccessDeniedException();
         }
 
@@ -507,7 +505,7 @@ class IncomingController2 extends RestApiController{
      */
     public function check(Request $request, $version_number, $type, $method_cname, $id){
 
-        $method = $this->get('net.telepay.'.$method_cname.'.'.$type.'.v'.$version_number);
+        $method = $this->get('net.telepay.'.$type.'.'.$method_cname.'.v'.$version_number);
 
         $user = $this->get('security.context')->getToken()->getUser();
 
@@ -519,11 +517,12 @@ class IncomingController2 extends RestApiController{
 
         $service_list = $user->getServicesList();
 
-        if (!in_array($method_cname, $service_list)) {
+        if (!in_array($method_cname.'-'.$type, $service_list)) {
             throw $this->createAccessDeniedException();
         }
 
         $mongo = $this->get('doctrine_mongodb')->getManager();
+
         $transaction =$mongo->getRepository('TelepayFinancialApiBundle:Transaction')->findOneBy(array(
             'id'        => $id,
             'service'   =>  $method_cname,
@@ -541,11 +540,11 @@ class IncomingController2 extends RestApiController{
             $previuos_status = $transaction->getStatus();
             if($transaction->getType() == 'in'){
                 $payment_info = $transaction->getPayInInfo();
-                $payment_info = $method->getPayInInfo();
+                $payment_info = $method->getPayInStatus($payment_info);
                 $transaction->setPayInInfo($payment_info);
             }else{
                 $payment_info = $transaction->getPayOutInfo();
-                $payment_info = $method->getPayOutInfo();
+                $payment_info = $method->getPayOutStatus($payment_info);
                 $transaction->setPayOutInfo($payment_info);
             }
 
@@ -605,7 +604,7 @@ class IncomingController2 extends RestApiController{
 
         }
 
-        return $this->restTransaction($transaction, "Got ok");
+        return $this->methodTransaction(200,$transaction, "Got ok");
 
     }
 
@@ -614,7 +613,7 @@ class IncomingController2 extends RestApiController{
      */
     public function find(Request $request, $version_number, $type, $method_cname){
 
-        $method = $this->get('net.telepay.'.$method_cname.'.'.$type.'.v'.$version_number);
+        $method = $this->get('net.telepay.'.$type.'.'.$method_cname.'.v'.$version_number);
 
         $dm = $this->get('doctrine_mongodb')->getManager();
         $user = $this->get('security.context')
@@ -628,7 +627,7 @@ class IncomingController2 extends RestApiController{
 
         $service_list = $user->getServicesList();
 
-        if (!in_array($method_cname, $service_list)) {
+        if (!in_array($method_cname.'-'.$type, $service_list)) {
             throw $this->createAccessDeniedException();
         }
 
@@ -728,6 +727,7 @@ class IncomingController2 extends RestApiController{
             $transactions = $qb
                 ->field('user')->equals($userId)
                 ->field('service')->equals($method->getCname())
+                ->field('type')->equals($method->getType())
                 ->sort($order,$dir)
                 ->getQuery()
                 ->execute();
