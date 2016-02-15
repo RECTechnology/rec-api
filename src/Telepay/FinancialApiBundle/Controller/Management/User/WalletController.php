@@ -155,7 +155,6 @@ class WalletController extends RestApiController{
             $query = $request->query->get('query');
             $search = $query['search'];
             $services = $query['services'];
-//            die(print_r($query,true));
             if(isset($query['clients'])){
                 $clients = json_decode($query['clients'], true);
             }
@@ -275,22 +274,23 @@ class WalletController extends RestApiController{
 
         $resArray = [];
         foreach($transactions->toArray() as $res){
-            if(!isset($clients)){
-                $resArray []= $res;
+            if($res->getClient()){
+                $res->setClientData(
+                    array(
+                        "id" => $res->getClient(),
+                        "name" => $listClients[$res->getClient()]
+                    )
+                );
+            }
+
+            if(!isset($clients)) {
+                $resArray [] = $res;
             }
             else{
-                if(!$res->getClient()){
-                    if(in_array("0", $clients)){
-                        $resArray []= $res;
-                    }
+                if(in_array("0", $clients)){
+                    $resArray []= $res;
                 }
                 elseif(in_array($res->getClient(), $clients)){
-                    $res->setClientData(
-                        array(
-                            "id" => $res->getClient(),
-                            "name" => $listClients[$res->getClient()]
-                        )
-                    );
                     $resArray []= $res;
                 }
             }
