@@ -441,7 +441,13 @@ class WalletController extends RestApiController{
         }
 
         $data = array();
+        $scales = array();
         foreach($transactions->toArray() as $res){
+
+            if(!array_key_exists($res->getCurrency(), $scales)){
+                $scales[$res->getCurrency()]=$res->getScale();
+            }
+
             $created = $res->getCreated();
             if($created!="" && $created!=null ){
                 $day = $created->format('Y') . "/" . $created->format('m') . "/" . $created->format('d');
@@ -461,7 +467,8 @@ class WalletController extends RestApiController{
             "ok",
             "Request successful",
             array(
-                'daily' => $data
+                'daily' => $data,
+                'scales' => $scales
             )
         );
     }
