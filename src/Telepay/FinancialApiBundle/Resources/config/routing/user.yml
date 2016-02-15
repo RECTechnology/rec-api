@@ -33,6 +33,12 @@ user_wallet_transactions:
     requirements:
         _method: GET
 
+user_wallet_transactions_daily_group:
+    pattern:  /user/v1/wallet/dailytransactions
+    defaults: { _controller: Telepay\FinancialApiBundle\Controller\Management\User\WalletController::walletDailySumTransactions }
+    requirements:
+        _method: GET
+
 user_wallet_transactions_v2:
     pattern:  /user/v2/wallet/transactions
     defaults: { _controller: Telepay\FinancialApiBundle\Controller\Management\User\WalletController::walletTransactionsV2 }
