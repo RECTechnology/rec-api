@@ -443,13 +443,15 @@ class WalletController extends RestApiController{
         $data = array();
         foreach($transactions->toArray() as $res){
             $created = $res->getCreated();
-            $day = $created->format('Y') . "/" . $created->format('m') . "/" . $created->format('d');
-            if(!isset($clients)) {
-                array_key_exists($res->getCurrency(), $data[$day])? $data[$day][$res->getCurrency()] += $res->getAmount():$data[$day][$res->getCurrency()] = $res->getAmount();
-            }
-            else{
-                if(in_array("0", $clients) || in_array($res->getClient(), $clients)){
+            if($created!="" && $created!=null ){
+                $day = $created->format('Y') . "/" . $created->format('m') . "/" . $created->format('d');
+                if(!isset($clients)) {
                     array_key_exists($res->getCurrency(), $data[$day])? $data[$day][$res->getCurrency()] += $res->getAmount():$data[$day][$res->getCurrency()] = $res->getAmount();
+                }
+                else{
+                    if(in_array("0", $clients) || in_array($res->getClient(), $clients)){
+                        array_key_exists($res->getCurrency(), $data[$day])? $data[$day][$res->getCurrency()] += $res->getAmount():$data[$day][$res->getCurrency()] = $res->getAmount();
+                    }
                 }
             }
         }
