@@ -355,7 +355,8 @@ class WalletController extends RestApiController{
                 ->field('created')->lte($finish_time)
                 ->where("function() {
             if (typeof this.dataIn !== 'undefined') {
-                if (JSON.parse(String('$services')).indexOf(String(this.service)) == -1){ return false;}
+                if (JSON.parse(String('$services')).indexOf(String(this.service)) == -1) { return false;}
+                if (typeof this.status !== 'undefined' || this.status != 'success') { return false;}
                 if (typeof this.dataIn.phone_number !== 'undefined') {
                     if(String(this.dataIn.phone_number).indexOf('$search') > -1){
                         return true;
@@ -443,7 +444,6 @@ class WalletController extends RestApiController{
         $data = array();
         $scales = array();
         foreach($transactions->toArray() as $res){
-
             if(!array_key_exists($res->getCurrency(), $scales)){
                 $scales[$res->getCurrency()]=$res->getScale();
             }
