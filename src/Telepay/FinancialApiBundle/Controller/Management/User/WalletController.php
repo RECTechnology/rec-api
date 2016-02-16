@@ -356,7 +356,7 @@ class WalletController extends RestApiController{
                 ->where("function() {
             if (typeof this.dataIn !== 'undefined') {
                 if (JSON.parse(String('$services')).indexOf(String(this.service)) == -1) { return false;}
-                if (typeof this.status !== 'undefined' || this.status != 'success') { return false;}
+                if (this.status != 'success') { return false;}
                 if (typeof this.dataIn.phone_number !== 'undefined') {
                     if(String(this.dataIn.phone_number).indexOf('$search') > -1){
                         return true;
