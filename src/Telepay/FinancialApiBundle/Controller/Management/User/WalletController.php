@@ -432,7 +432,7 @@ class WalletController extends RestApiController{
 
         }else{
             $order = "id";
-            $dir = "desc";
+            $dir = "asc";
 
             $transactions = $qb
                 ->field('user')->equals($userId)
