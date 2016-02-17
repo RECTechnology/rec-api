@@ -101,6 +101,38 @@ class AccountController extends BaseApiController{
     /**
      * @Rest\View
      */
+    public function setImage(Request $request){
+
+        $id = $this->get('security.context')->getToken()->getUser()->getId();
+
+        if($request->request->has('base64_image')) $base64Image = $request->request->get('base64_image');
+        else throw new HttpException(400, "Missing parameter 'base64_image'");
+
+        $repo = $this->getRepository();
+        $user = $repo->findOneBy(array('id'=>$id));
+        if(empty($user)) throw new HttpException(404, "User Not found");
+        $user->setBase64Image($base64Image);
+
+        $em = $this->getDoctrine()->getManager();
+        $em->persist($user);
+
+        try{
+            $em->flush();
+            return $this->rest(
+                204,
+                "Image changed successfully"
+            );
+        } catch(DBALException $e){
+            if(preg_match('/SQLSTATE\[23000\]/',$e->getMessage()))
+                throw new HttpException(409, "Duplicated resource");
+            else
+                throw new HttpException(500, "Unknown error occurred when save");
+        }
+    }
+
+    /**
+     * @Rest\View
+     */
     public function speed(Request $request){
         $end_time = new \MongoDate();
         $start_time = new \MongoDate($end_time->sec-3600);

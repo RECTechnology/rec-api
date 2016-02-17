@@ -78,6 +78,12 @@ user_analytics:
     requirements:
         _method: GET
 
+user_set_image:
+    pattern:  /user/v1/image
+    defaults: { _controller: Telepay\FinancialApiBundle\Controller\Management\User\AccountController::setImage }
+    requirements:
+        _method: PUT
+
 user_transactions_speed:
     pattern:  /user/v1/speed
     defaults: { _controller: Telepay\FinancialApiBundle\Controller\Management\User\AccountController::speed }
