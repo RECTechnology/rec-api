@@ -41,6 +41,7 @@ class IncomingController2 extends RestApiController{
         $user = $this->container->get('security.context')->getToken()->getUser();
         $transaction = Transaction::createFromRequest($request);
         $transaction->setService($method_cname);
+        $transaction->setMethod($method_cname);
         $transaction->setUser($user->getId());
         $transaction->setVersion($version_number);
         $transaction->setType($type);
