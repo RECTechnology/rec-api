@@ -303,7 +303,6 @@ class POSIncomingController extends RestApiController{
             foreach($wallets as $wallet ){
                 if($wallet->getCurrency() == $transaction->getCurrency()){
                     $current_wallet = $wallet;
-
                 }
             }
 
@@ -343,7 +342,6 @@ class POSIncomingController extends RestApiController{
         $transaction = $this->get('notificator')->notificate($transaction);
 
         return $this->restV2(200, "ok", "Notification successful");
-
 
     }
 
