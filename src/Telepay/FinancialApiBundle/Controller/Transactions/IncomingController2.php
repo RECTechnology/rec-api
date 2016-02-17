@@ -55,24 +55,27 @@ class IncomingController2 extends RestApiController{
 
         //Aqui hay que distinguir entre in i out
         //para in es getPayInInfo y para out es getPayOutInfo
+        if($request->request->has('amount')) $amount = $request->request->get('amount');
+        else throw new HttpException(400, 'Param amount not found');
+
         if($type == 'in'){
-            if($request->request->has('amount')) $amount = $request->request->get('amount');
-            else throw new HttpException(400, 'Param amount not found');
 
             $dataIn = array(
                 'amount'    =>  $amount,
                 'concept'   =>  $concept,
                 'url_notification'  =>  $url_notification
             );
-
             $payment_info = $method->getPayInInfo($amount);
             $transaction->setPayInInfo($payment_info);
 
         }else{
-
             $payment_info = $method->getPayOutInfo($request);
             $transaction->setPayOutInfo($payment_info);
-            $dataIn = array();
+            $dataIn = array(
+                'amount'    =>  $amount,
+                'concept'   =>  $concept,
+                'url_notification'  =>  $url_notification
+            );
         }
 
         $dataIn['url_notification'] = $url_notification;
