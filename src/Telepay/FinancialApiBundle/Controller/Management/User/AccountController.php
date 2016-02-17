@@ -379,6 +379,7 @@ class AccountController extends BaseApiController{
         $request->request->add(array('default_currency'=>'EUR'));
         $request->request->add(array('gcm_group_key'=>''));
         $request->request->add(array('services_list'=>array('sample')));
+        $request->request->add(array('methods_list'=>array('sample')));
 
         if($request->request->has('captcha')){
             $captcha = $request->request->get('captcha');
