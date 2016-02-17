@@ -27,15 +27,8 @@ class IncomingController2 extends RestApiController{
      */
     public function make(Request $request, $version_number, $type, $method_cname, $id = null){
 
-        /*
-        //GET METHODS
-        $cashInMethod = $this->container->get('net.telepay.in.'.$type_in.'.v'.$version_number);
-        $cashOutMethod = $this->container->get('net.telepay.out.'.$type_out.'.v'.$version_number);
-        */
-
         $method = $this->get('net.telepay.'.$type.'.'.$method_cname.'.v'.$version_number);
 
-        //¿?services list should be method_type ex-> btc_in or btc_out the same for all limits and fees
         $method_list = $this->get('security.context')->getToken()->getUser()->getMethodsList();
 
         if (!in_array($method_cname.'-'.$type, $method_list)) {
@@ -73,7 +66,6 @@ class IncomingController2 extends RestApiController{
 
             $payment_info = $method->getPayInInfo($amount);
             $transaction->setPayInInfo($payment_info);
-
 
         }else{
 
@@ -510,14 +502,14 @@ class IncomingController2 extends RestApiController{
         $user = $this->get('security.context')->getToken()->getUser();
 
         //TODO quitar cuando haya algo mejor montado
-        if($user->getId() == '50'){
+        if($user->getId() == $this->container->getParameter('read_only_user_id')){
             $em = $this->getDoctrine()->getManager();
-            $user = $em->getRepository('TelepayFinancialApiBundle:User')->find('16');
+            $user = $em->getRepository('TelepayFinancialApiBundle:User')->find($this->container->getParameter('chipchap_user_id'));
         }
 
-        $service_list = $user->getServicesList();
+        $method_list = $user->getMethodsList();
 
-        if (!in_array($method_cname.'-'.$type, $service_list)) {
+        if (!in_array($method_cname.'-'.$type, $method_list)) {
             throw $this->createAccessDeniedException();
         }
 
@@ -525,7 +517,7 @@ class IncomingController2 extends RestApiController{
 
         $transaction =$mongo->getRepository('TelepayFinancialApiBundle:Transaction')->findOneBy(array(
             'id'        => $id,
-            'service'   =>  $method_cname,
+            'method'   =>  $method_cname,
             'user'      =>  $user->getId(),
             'type'      =>  $type
         ));
@@ -620,14 +612,14 @@ class IncomingController2 extends RestApiController{
             ->getToken()->getUser();
 
         //TODO quitar cuando haya algo mejor montado
-        if($user->getId() == '50'){
+        if($user->getId() == $this->container->getParameter('read_only_user_id')){
             $em = $this->getDoctrine()->getManager();
-            $user = $em->getRepository('TelepayFinancialApiBundle:User')->find('16');
+            $user = $em->getRepository('TelepayFinancialApiBundle:User')->find($this->container->getParameter('chipchap_user_id'));
         }
 
-        $service_list = $user->getServicesList();
+        $method_list = $user->getMethodsList();
 
-        if (!in_array($method_cname.'-'.$type, $service_list)) {
+        if (!in_array($method_cname.'-'.$type, $method_list)) {
             throw $this->createAccessDeniedException();
         }
 
@@ -651,7 +643,7 @@ class IncomingController2 extends RestApiController{
 
             $transactions = $qb
                 ->field('user')->equals($userId)
-                ->field('service')->equals($method->getCname())
+                ->field('method')->equals($method->getCname())
                 ->field('type')->equals($type)
                 ->field('created')->gte($start_time)
                 ->field('created')->lte($finish_time)
