@@ -355,7 +355,6 @@ class WalletController extends RestApiController{
                 ->field('created')->lte($finish_time)
                 ->where("function() {
             if (typeof this.dataIn !== 'undefined') {
-                if (JSON.parse(String('$services')).indexOf(String(this.service)) == -1) { return false;}
                 if (this.status != 'success') { return false;}
                 if (typeof this.dataIn.phone_number !== 'undefined') {
                     if(String(this.dataIn.phone_number).indexOf('$search') > -1){
@@ -420,6 +419,7 @@ class WalletController extends RestApiController{
                     }
                 }
             }
+            if(JSON.parse(String('$services')).indexOf(String(this.service)) > -1) { return true;}
             if(typeof this.status !== 'undefined' && String(this.status).indexOf('$search') > -1){ return true;}
             if(typeof this.service !== 'undefined' && String(this.service).indexOf('$search') > -1){ return true;}
             if(String(this._id).indexOf('$search') > -1){ return true;}
