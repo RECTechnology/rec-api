@@ -209,45 +209,45 @@ class IncomingController2 extends RestApiController{
             $logger->info('Incomig transaction...SEND');
 
             try {
-                $transaction = $method->send($payment_info);
+                $payment_info = $method->send($payment_info);
             }catch (HttpException $e){
                 $logger->error('Incomig transaction...ERROR');
-                if( $transaction->getStatus() === Transaction::$STATUS_CREATED ){
 
-                    if($e->getStatusCode()>=500){
-                        $transaction->setStatus(Transaction::$STATUS_FAILED);
-                    }else{
-                        $transaction->setStatus( Transaction::$STATUS_ERROR );
-                    }
-                    //desbloqueamos la pasta del wallet
-                    $current_wallet->setAvailable($current_wallet->getAvailable() + $total);
-                    $em->persist($current_wallet);
-                    $em->flush();
-                    $dm->persist($transaction);
-                    $dm->flush();
-
-                    $this->container->get('notificator')->notificate($transaction);
-
-                    if ($transaction->getStatus() == Transaction::$STATUS_ERROR){
-                        throw $e;
-                    }
-
+                if($e->getStatusCode()>=500){
+                    $transaction->setStatus(Transaction::$STATUS_FAILED);
+                }else{
+                    $transaction->setStatus( Transaction::$STATUS_ERROR );
                 }
+                //desbloqueamos la pasta del wallet
+                $current_wallet->setAvailable($current_wallet->getAvailable() + $total);
+                $em->persist($current_wallet);
+                $em->flush();
+                $dm->persist($transaction);
+                $dm->flush();
+
+                $this->container->get('notificator')->notificate($transaction);
+
+                throw $e;
 
             }
-
-            $transaction->setStatus($payment_info['status']);
 
             $dm->persist($transaction);
             $dm->flush();
 
             //pay fees and dealer always and set new balance
-            if( $transaction->getStatus() === Transaction::$STATUS_CREATED || $transaction->getStatus() === Transaction::$STATUS_SUCCESS ){
+            if( $payment_info['status'] == 'sent' ){
+
+                $transaction->setStatus(Transaction::$STATUS_SUCCESS);
+                $transaction->setPayOutInfo($payment_info);
+                $dm->persist($transaction);
+                $dm->flush();
+                
                 $this->container->get('notificator')->notificate($transaction);
 
                 //restar al usuario el amount + comisiones
                 $current_wallet->setBalance($current_wallet->getBalance() - $total);
-                //TODO insert new line in the balance
+
+                //insert new line in the balance
                 $balancer = $this->get('net.telepay.commons.balance_manipulator');
                 $balancer->addBalance($user, -$amount, $transaction);
 
