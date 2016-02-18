@@ -347,6 +347,34 @@ class SpecialActionsController extends RestApiController {
 
     }
 
+    /**
+     * @Rest\View
+     */
+    public function updateTransactionStatus(Request $request, $id){
+
+        if (!$this->get('security.authorization_checker')->isGranted('ROLE_SUPER_ADMIN')) {
+            throw $this->createAccessDeniedException();
+        }
+
+        //Get transaction and change status
+        $dm = $this->get('doctrine_mongodb')->getManager();
+        $trans = $dm->getRepository('TelepayFinancialApiBundle:Transaction')->find($id);
+
+        if(!$trans) throw new HttpException(404,'Not found');
+
+        if($request->request->has('status')){
+            $status = $request->request->get('status');
+        }else{
+            throw new HttpException(404, 'Param status not found');
+        }
+
+        $trans->setStatus($status);
+        $dm->persist($trans);
+        $dm->flush();
+
+        return $this->restTransaction($trans, "Done");
+    }
+
     private function _dealer(Transaction $transaction, UserWallet $current_wallet){
 
         $amount = $transaction->getAmount();
