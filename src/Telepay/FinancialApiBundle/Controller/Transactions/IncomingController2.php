@@ -230,7 +230,7 @@ class IncomingController2 extends RestApiController{
                 throw $e;
 
             }
-
+            $logger->info('Incomig transaction...PAYMENT STATUS: '.$payment_info['status']);
             $dm->persist($transaction);
             $dm->flush();
 
@@ -241,7 +241,7 @@ class IncomingController2 extends RestApiController{
                 $transaction->setPayOutInfo($payment_info);
                 $dm->persist($transaction);
                 $dm->flush();
-                
+
                 $this->container->get('notificator')->notificate($transaction);
 
                 //restar al usuario el amount + comisiones
