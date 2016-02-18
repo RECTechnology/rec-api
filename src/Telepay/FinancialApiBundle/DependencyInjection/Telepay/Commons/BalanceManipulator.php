@@ -17,7 +17,7 @@ class BalanceManipulator{
     private $doctrine;
 
     public function __construct($doctrine){
-        $this->doctrine=$doctrine;
+        $this->doctrine = $doctrine;
     }
 
     /**
@@ -56,11 +56,16 @@ class BalanceManipulator{
             $prev_balance = $prev_balance->getBalance();
         }
 
+        if($transaction->getDataIn()['description']){
+            $concept = $transaction->getDataIn()['description'];
+        }else{
+            $concept = $transaction->getDataIn()['concept'];
+        }
         $balance = new Balance();
         $balance->setUser($user);
         $balance->setAmount($amount);
         $balance->setBalance($prev_balance + $amount);
-        $balance->setConcept($transaction->getDataIn()['description']);
+        $balance->setConcept($concept);
         $balance->setCurrency($transaction->getCurrency());
         $balance->setDate(new \DateTime());
         $balance->setTransactionId($transaction->getId());
