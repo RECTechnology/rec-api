@@ -119,7 +119,7 @@ class BtcMethod extends BaseMethod {
         $address = $paymentInfo['address'];
         $amount = $paymentInfo['amount'];
 
-        $crypto = $this->driver->sendtoaddress($address, $amount);
+        $crypto = $this->driver->sendtoaddress($address, $amount/1e8);
 
         if($crypto === false){
             $paymentInfo['status'] = Transaction::$STATUS_FAILED;

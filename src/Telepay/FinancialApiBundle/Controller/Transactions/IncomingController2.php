@@ -231,6 +231,7 @@ class IncomingController2 extends RestApiController{
 
             }
             $logger->info('Incomig transaction...PAYMENT STATUS: '.$payment_info['status']);
+            $transaction->setPayOutInfo($payment_info);
             $dm->persist($transaction);
             $dm->flush();
 
@@ -238,7 +239,7 @@ class IncomingController2 extends RestApiController{
             if( $payment_info['status'] == 'sent' ){
 
                 $transaction->setStatus(Transaction::$STATUS_SUCCESS);
-                $transaction->setPayOutInfo($payment_info);
+
                 $dm->persist($transaction);
                 $dm->flush();
 
@@ -262,6 +263,18 @@ class IncomingController2 extends RestApiController{
                         throw $e;
                     }
                 }
+            }else{
+
+                $transaction->setStatus($payment_info['status']);
+                //desbloqueamos la pasta del wallet
+                $current_wallet->setAvailable($current_wallet->getAvailable() + $total);
+                $em->persist($current_wallet);
+                $em->flush();
+                $dm->persist($transaction);
+                $dm->flush();
+
+                $this->container->get('notificator')->notificate($transaction);
+
             }
 
         }else{     //CASH - IN
