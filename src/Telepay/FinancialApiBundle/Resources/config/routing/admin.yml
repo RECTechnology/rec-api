@@ -118,3 +118,9 @@ admin_sepa_out_validate:
     defaults: { _controller: Telepay\FinancialApiBundle\Controller\Management\Admin\SpecialActionsController::sepaOutValidation }
     requirements:
         _method: POST
+
+admin_update_status_transaction:
+    pattern:  /admin/v1/transaction/status/{id}
+    defaults: { _controller: Telepay\FinancialApiBundle\Controller\Management\Admin\SpecialActionsController::updateTransactionStatus }
+    requirements:
+        _method: PUT

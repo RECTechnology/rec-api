@@ -119,14 +119,14 @@ class BtcMethod extends BaseMethod {
         $address = $paymentInfo['address'];
         $amount = $paymentInfo['amount'];
 
-        $crypto = $this->driver->sendtoaddress($address, $amount/1e8);
+        $crypto = $this->driver->sendtoaddress($address, $amount);
 
         if($crypto === false){
             $paymentInfo['status'] = Transaction::$STATUS_FAILED;
             $paymentInfo['final'] = false;
         }else{
             $paymentInfo['txid'] = $crypto->txid;
-            $paymentInfo['status'] = 'send';
+            $paymentInfo['status'] = 'success';
             $paymentInfo['final'] = true;
         }
 

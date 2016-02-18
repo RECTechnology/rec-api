@@ -38,6 +38,9 @@ class IncomingController2 extends RestApiController{
         $dm = $this->get('doctrine_mongodb')->getManager();
         $em = $this->getDoctrine()->getManager();
 
+        $logger = $this->get('logger');
+        $logger->info('Incomig transaction...Method-> '.$method_cname.' Direction -> '.$type);
+
         $user = $this->container->get('security.context')->getToken()->getUser();
         $transaction = Transaction::createFromRequest($request);
         $transaction->setService($method_cname);
@@ -55,16 +58,18 @@ class IncomingController2 extends RestApiController{
 
         //Aqui hay que distinguir entre in i out
         //para in es getPayInInfo y para out es getPayOutInfo
+        if($request->request->has('amount')) $amount = $request->request->get('amount');
+        else throw new HttpException(400, 'Param amount not found');
+
+        $logger->info('Incomig transaction...getPaymentInfo');
+
         if($type == 'in'){
-            if($request->request->has('amount')) $amount = $request->request->get('amount');
-            else throw new HttpException(400, 'Param amount not found');
 
             $dataIn = array(
                 'amount'    =>  $amount,
                 'concept'   =>  $concept,
                 'url_notification'  =>  $url_notification
             );
-
             $payment_info = $method->getPayInInfo($amount);
             $transaction->setPayInInfo($payment_info);
 
@@ -72,7 +77,11 @@ class IncomingController2 extends RestApiController{
 
             $payment_info = $method->getPayOutInfo($request);
             $transaction->setPayOutInfo($payment_info);
-            $dataIn = array();
+            $dataIn = array(
+                'amount'    =>  $amount,
+                'concept'   =>  $concept,
+                'url_notification'  =>  $url_notification
+            );
         }
 
         $dataIn['url_notification'] = $url_notification;
@@ -85,6 +94,8 @@ class IncomingController2 extends RestApiController{
 
         //obtener group
         $group = $user->getGroups()[0];
+
+        $logger->info('Incomig transaction...FEES');
 
         //obtener comissiones del grupo
         $group_commissions = $group->getCommissions();
@@ -125,6 +136,8 @@ class IncomingController2 extends RestApiController{
             $total = $amount - $variable_fee - $fixed_fee;
             $transaction->setTotal($amount);
         }
+
+        $logger->info('Incomig transaction...LIMITS');
 
         //obtain user limits
         $limits = $user->getLimitCount();
@@ -174,7 +187,7 @@ class IncomingController2 extends RestApiController{
 
         //******    CHECK IF THE TRANSACTION IS CASH-OUT     ********
         if($type == 'out'){
-
+            $logger->info('Incomig transaction...OUT');
             foreach ( $wallets as $wallet){
                 if ($wallet->getCurrency() == $method->getCurrency()){
                     if($wallet->getAvailable() <= $total) throw new HttpException(509,'Not founds enough');
@@ -193,9 +206,12 @@ class IncomingController2 extends RestApiController{
             $dm->persist($transaction);
             $dm->flush();
 
+            $logger->info('Incomig transaction...SEND');
+
             try {
                 $transaction = $method->send($payment_info);
             }catch (HttpException $e){
+                $logger->error('Incomig transaction...ERROR');
                 if( $transaction->getStatus() === Transaction::$STATUS_CREATED ){
 
                     if($e->getStatusCode()>=500){
@@ -219,6 +235,8 @@ class IncomingController2 extends RestApiController{
                 }
 
             }
+
+            $transaction->setStatus($payment_info['status']);
 
             $dm->persist($transaction);
             $dm->flush();
@@ -247,7 +265,7 @@ class IncomingController2 extends RestApiController{
             }
 
         }else{     //CASH - IN
-
+            $logger->info('Incomig transaction...IN');
             foreach ( $wallets as $wallet){
                 if ($wallet->getCurrency() === $transaction->getCurrency()){
                     $current_wallet = $wallet;
@@ -268,6 +286,8 @@ class IncomingController2 extends RestApiController{
             $dm->flush();
 
         }
+
+        $logger->info('Incomig transaction...FINAL');
 
         if($transaction == false) throw new HttpException(500, "oOps, some error has occurred within the call");
 
