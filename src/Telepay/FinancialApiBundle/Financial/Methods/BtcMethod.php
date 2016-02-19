@@ -41,7 +41,8 @@ class BtcMethod extends BaseMethod {
             'received' => 0.0,
             'min_confirmations' => intval(1),
             'confirmations' => 0,
-            'status'    =>  'created'
+            'status'    =>  'created',
+            'final'     =>  false
         );
 
         return $response;
@@ -68,6 +69,8 @@ class BtcMethod extends BaseMethod {
                     $paymentInfo['confirmations'] = $cryptoData['confirmations'];
                     if($paymentInfo['confirmations'] >= $paymentInfo['min_confirmations']){
                         $status = 'success';
+                        $final = true;
+                        $paymentInfo['final'] = $final;
                     }else{
                         $status = 'received';
                     }
