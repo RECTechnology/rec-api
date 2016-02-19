@@ -25,6 +25,7 @@ class CheckPaynetReferenceCommand extends ContainerAwareCommand
     {
 
         $method_cname = 'paynet_reference';
+        $type = 'in';
 
         $dm = $this->getContainer()->get('doctrine_mongodb')->getManager();
         $em = $this->getContainer()->get('doctrine')->getManager();
@@ -120,7 +121,7 @@ class CheckPaynetReferenceCommand extends ContainerAwareCommand
                             $creator,
                             $amount,
                             $method_cname,
-                            'in',
+                            $type,
                             $service_currency,
                             $total_fee,
                             $transaction_id,
@@ -166,8 +167,8 @@ class CheckPaynetReferenceCommand extends ContainerAwareCommand
     }
 
     private function hasExpired($transaction){
-        if(isset($transaction->getDataOut()['expiration_date'])){
-            return strtotime($transaction->getDataOut()['expiration_date']) < time();
+        if(isset($transaction->getPayInInfo()['expires_in'])){
+            return strtotime($transaction->getPayInInfo()['expires_in']) < time();
         }else{
             return true;
         }
