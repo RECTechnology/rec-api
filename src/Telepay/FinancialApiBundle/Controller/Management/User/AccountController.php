@@ -52,7 +52,7 @@ class AccountController extends BaseApiController{
         $listServices = $user->getServicesList();
         $listMethods = $user->getMethodsList();
 
-        //TODO use method provider
+        //TODO al final habra que quitar lo de services porque estara deprecated
         $allowedServices = $this->get('net.telepay.service_provider')->findByCNames($listServices);
         $allowedMethods = $this->get('net.telepay.method_provider')->findByCNames($listMethods);
 

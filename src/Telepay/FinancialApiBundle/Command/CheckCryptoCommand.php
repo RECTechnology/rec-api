@@ -41,35 +41,35 @@ class CheckCryptoCommand extends ContainerAwareCommand
             $resArray = [];
             foreach($qb->toArray() as $transaction){
 
-                $data = $transaction->getDataIn();
+                $data = $transaction->getPayInInfo();
 
                 if(isset($data['expires_in'])){
 
                     $resArray [] = $transaction;
                     $previous_status = $transaction->getStatus();
 
-                    $checked_transaction = $this->check($transaction);
+                    $transaction = $this->check($transaction);
 
-                    if($previous_status != $checked_transaction->getStatus()){
-                        $checked_transaction = $this->getContainer()->get('notificator')->notificate($checked_transaction);
-                        $checked_transaction->setUpdated(new \MongoDate());
+                    if($previous_status != $transaction->getStatus()){
+                        $transaction = $this->getContainer()->get('notificator')->notificate($transaction);
+                        $transaction->setUpdated(new \MongoDate());
 
                     }
 
-                    $dm->persist($checked_transaction);
+                    $dm->persist($transaction);
                     $dm->flush();
 
-                    if($checked_transaction->getStatus() == Transaction::$STATUS_SUCCESS){
+                    if($transaction->getStatus() == Transaction::$STATUS_SUCCESS){
                         //hacemos el reparto
                         //primero al user
-                        $id = $checked_transaction->getUser();
+                        $id = $transaction->getUser();
 
-                        $transaction_id = $checked_transaction->getId();
+                        $transaction_id = $transaction->getId();
 
                         $user = $repo->find($id);
 
                         $wallets = $user->getWallets();
-                        $service_currency = $checked_transaction->getCurrency();
+                        $service_currency = $transaction->getCurrency();
                         $current_wallet = null;
 
                         foreach ( $wallets as $wallet){
@@ -83,8 +83,8 @@ class CheckCryptoCommand extends ContainerAwareCommand
                         if(!$user->hasRole('ROLE_SUPER_ADMIN')){
                             $group = $user->getGroups()[0];
 
-                            $fixed_fee = $checked_transaction->getFixedFee();
-                            $variable_fee = $checked_transaction->getVariableFee();
+                            $fixed_fee = $transaction->getFixedFee();
+                            $variable_fee = $transaction->getVariableFee();
                             $total_fee = $fixed_fee + $variable_fee;
                             $total = $amount - $total_fee;
 
@@ -98,25 +98,25 @@ class CheckCryptoCommand extends ContainerAwareCommand
                                 // restar las comisiones
                                 $feeTransaction = new Transaction();
                                 $feeTransaction->setStatus('success');
-                                $feeTransaction->setScale($checked_transaction->getScale());
+                                $feeTransaction->setScale($transaction->getScale());
                                 $feeTransaction->setAmount($total_fee);
                                 $feeTransaction->setUser($user->getId());
                                 $feeTransaction->setCreated(new \MongoDate());
                                 $feeTransaction->setUpdated(new \MongoDate());
-                                $feeTransaction->setIp($checked_transaction->getIp());
+                                $feeTransaction->setIp($transaction->getIp());
                                 $feeTransaction->setFixedFee($fixed_fee);
                                 $feeTransaction->setVariableFee($variable_fee);
-                                $feeTransaction->setVersion($checked_transaction->getVersion());
+                                $feeTransaction->setVersion($transaction->getVersion());
                                 $feeTransaction->setDataIn(array(
-                                    'previous_transaction'  =>  $checked_transaction->getId(),
+                                    'previous_transaction'  =>  $transaction->getId(),
                                     'amount'    =>  -$total_fee
                                 ));
                                 $feeTransaction->setDebugData(array(
                                     'previous_balance'  =>  $current_wallet->getBalance(),
-                                    'previous_transaction'  =>  $checked_transaction->getId()
+                                    'previous_transaction'  =>  $transaction->getId()
                                 ));
                                 $feeTransaction->setTotal(-$total_fee);
-                                $feeTransaction->setCurrency($checked_transaction->getCurrency());
+                                $feeTransaction->setCurrency($transaction->getCurrency());
                                 $feeTransaction->setService($method);
                                 $feeTransaction->setMethod($method);
                                 $feeTransaction->setType('fee');
@@ -140,7 +140,7 @@ class CheckCryptoCommand extends ContainerAwareCommand
                                     $service_currency,
                                     $total_fee,
                                     $transaction_id,
-                                    $checked_transaction->getVersion());
+                                    $transaction->getVersion());
                             }
 
                         }else{
@@ -151,11 +151,11 @@ class CheckCryptoCommand extends ContainerAwareCommand
                             $em->flush();
                         }
 
-                    }elseif($checked_transaction->getStatus() == Transaction::$STATUS_EXPIRED){
+                    }elseif($transaction->getStatus() == Transaction::$STATUS_EXPIRED){
                         //SEND AN EMAIL
                         $this->sendEmail(
-                            $method.' Expired --> '.$checked_transaction->getStatus(),
-                            'Transaction created at: '.$checked_transaction->getCreated().' - Updated at: '.$checked_transaction->getUpdated().' Time server: '.date("Y-m-d H:i:s"));
+                            $method.' Expired --> '.$transaction->getStatus(),
+                            'Transaction created at: '.$transaction->getCreated().' - Updated at: '.$transaction->getUpdated().' Time server: '.date("Y-m-d H:i:s"));
                     }
                 }
 
@@ -171,61 +171,22 @@ class CheckCryptoCommand extends ContainerAwareCommand
 
     public function check(Transaction $transaction){
 
-        $currentData = $transaction->getData();
+        $paymentInfo = $transaction->getPayInInfo();
 
         if($transaction->getStatus() === 'success' || $transaction->getStatus() === 'expired'){
             return $transaction;
         }
 
-        $address = $currentData['address'];
-        $amount = $currentData['amount'];
-        if($transaction->getCurrency() === Currency::$BTC){
-            $providerName = 'net.telepay.provider.btc';
-            if($amount <= 100)
-                $margin = 0;
-            else
-                $margin = 100;
-        }else{
-            $providerName = 'net.telepay.provider.fac';
-            if($amount <= 10000)
-                $margin = 0;
-            else
-                $margin = 10000;
-        }
-
+        $providerName = 'net.telepay.'.$transaction->getType().'.'.$transaction->getMethod().'.v1';
         $cryptoProvider = $this->getContainer()->get($providerName);
 
-        $allReceived = $cryptoProvider->listreceivedbyaddress(0, true);
-//        $allReceived = $cryptoProvider->getreceivedbyaddress($address, 0);
+        $paymentInfo = $cryptoProvider->getPayInStatus($paymentInfo);
 
-        $allowed_amount = $amount - $margin;
-        foreach($allReceived as $cryptoData){
-            if($cryptoData['address'] === $address){
-                $currentData['received'] = doubleval($cryptoData['amount'])*1e8;
-                if(doubleval($cryptoData['amount'])*1e8 >= $allowed_amount){
-                    $currentData['confirmations'] = $cryptoData['confirmations'];
-                    if($currentData['confirmations'] >= $currentData['min_confirmations']){
-                        $transaction->setStatus("success");
-                    }else{
-                        if($transaction->getStatus() != 'received'){
-                            $transaction->setStatus("received");
-                        }
-                    }
-
-                    $transaction->setData($currentData);
-                    $transaction->setDataOut($currentData);
-
-                    return $transaction;
-                }
-
-            }
-
-        }
+        $transaction->setStatus($paymentInfo['status']);
+        $transaction->setPayInInfo($paymentInfo);
 
         if($transaction->getStatus() === 'created' && $this->hasExpired($transaction)){
             $transaction->setStatus('expired');
-            //No hace falta notificar aqui porque las notificaciones llegan dos veces
-            //$transaction = $this->getContainer()->get('notificator')->notificate($transaction);
         }
 
         return $transaction;
