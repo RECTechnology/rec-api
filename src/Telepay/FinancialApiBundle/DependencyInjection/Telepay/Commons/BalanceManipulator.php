@@ -10,7 +10,6 @@ namespace Telepay\FinancialApiBundle\DependencyInjection\Telepay\Commons;
 
 use Telepay\FinancialApiBundle\Document\Transaction;
 use Telepay\FinancialApiBundle\Entity\Balance;
-use Telepay\FinancialApiBundle\Entity\ServiceFee;
 use Telepay\FinancialApiBundle\Entity\User;
 
 class BalanceManipulator{

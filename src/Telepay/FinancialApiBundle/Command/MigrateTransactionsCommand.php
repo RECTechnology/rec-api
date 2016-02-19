@@ -92,6 +92,42 @@ class MigrateTransactionsCommand extends ContainerAwareCommand
                 $transaction->setMethod('paynet_payment');
                 $transaction->setType('out');
                 break;
+            case 'sample':
+                $transaction->setMethod('sample');
+                $transaction->setType('in');
+                break;
+            case 'easypay':
+                $transaction->setMethod('easypay');
+                $transaction->setType('in');
+                break;
+            case 'bank_transfer':
+                $transaction->setMethod('sepa');
+                $transaction->setType('in');
+                break;
+            case 'safetypay':
+                $transaction->setMethod('safetypay');
+                $transaction->setType('in');
+                break;
+            case 'multiva':
+                $transaction->setMethod('multiva');
+                $transaction->setType('in');
+                break;
+            case 'paysafecard':
+                $transaction->setMethod('paysafecard');
+                $transaction->setType('in');
+                break;
+            case 'payu':
+                $transaction->setMethod('payu');
+                $transaction->setType('in');
+                break;
+            case 'toditocash':
+                $transaction->setMethod('toditocash');
+                $transaction->setType('in');
+                break;
+            case 'pos':
+                $transaction->setMethod('pos');
+                $transaction->setType('in');
+                break;
             default:
                 break;
         }

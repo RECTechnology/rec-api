@@ -97,6 +97,7 @@ class IncomingController2 extends RestApiController{
 
         $logger->info('Incomig transaction...FEES');
 
+        //TODO crear FeeManipulator
         //obtener comissiones del grupo
         $group_commissions = $group->getCommissions();
         $group_commission = false;
@@ -943,6 +944,7 @@ class IncomingController2 extends RestApiController{
             $creator,
             $amount,
             $service_cname,
+            $transaction->getType(),
             $currency,
             $total_fee,
             $transaction_id,

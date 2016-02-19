@@ -25,15 +25,16 @@ class CheckCryptoCommand extends ContainerAwareCommand
     protected function execute(InputInterface $input, OutputInterface $output)
     {
 
-        $service_cname = array('fac_pay','btc_pay');
+        $method_cname = array('fac','btc');
+        $type = 'in';
 
         $dm = $this->getContainer()->get('doctrine_mongodb')->getManager();
         $em = $this->getContainer()->get('doctrine')->getManager();
         $repo = $em->getRepository('TelepayFinancialApiBundle:User');
 
-        foreach($service_cname as $service){
+        foreach($method_cname as $method){
             $qb = $dm->createQueryBuilder('TelepayFinancialApiBundle:Transaction')
-                ->field('service')->equals($service)
+                ->field('method')->equals($method)
                 ->field('status')->in(array('created','received'))
                 ->getQuery();
 
@@ -116,7 +117,10 @@ class CheckCryptoCommand extends ContainerAwareCommand
                                 ));
                                 $feeTransaction->setTotal(-$total_fee);
                                 $feeTransaction->setCurrency($checked_transaction->getCurrency());
-                                $feeTransaction->setService($service);
+                                $feeTransaction->setService($method);
+                                $feeTransaction->setMethod($method);
+                                $feeTransaction->setType('fee');
+
 
                                 $dm->persist($feeTransaction);
                                 $dm->flush();
@@ -131,7 +135,8 @@ class CheckCryptoCommand extends ContainerAwareCommand
                                 $dealer->deal(
                                     $creator,
                                     $amount,
-                                    $service,
+                                    $method,
+                                    $type,
                                     $service_currency,
                                     $total_fee,
                                     $transaction_id,
@@ -149,14 +154,14 @@ class CheckCryptoCommand extends ContainerAwareCommand
                     }elseif($checked_transaction->getStatus() == Transaction::$STATUS_EXPIRED){
                         //SEND AN EMAIL
                         $this->sendEmail(
-                            $service.' Expired --> '.$checked_transaction->getStatus(),
+                            $method.' Expired --> '.$checked_transaction->getStatus(),
                             'Transaction created at: '.$checked_transaction->getCreated().' - Updated at: '.$checked_transaction->getUpdated().' Time server: '.date("Y-m-d H:i:s"));
                     }
                 }
 
             }
 
-            $output->writeln($service.' transactions checked');
+            $output->writeln($method.' transactions checked');
         }
 
         $dm->flush();

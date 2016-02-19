@@ -115,6 +115,8 @@ class Transaction implements TransactionTiming {
         $transaction->setIp($trans->getIp());
         $transaction->setVersion($trans->getVersion());
         $transaction->setService($trans->getService());
+        $transaction->setMethod($trans->getMethod());
+        $transaction->setType($trans->getType());
         $transaction->setVariableFee($trans->getVariableFee());
         $transaction->setFixedFee($trans->getFixedFee());
         $transaction->setUser($trans->getUser());
