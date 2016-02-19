@@ -232,6 +232,7 @@ class IncomingController2 extends RestApiController{
 
             }
             $logger->info('Incomig transaction...PAYMENT STATUS: '.$payment_info['status']);
+
             $transaction->setPayOutInfo($payment_info);
             $dm->persist($transaction);
             $dm->flush();
@@ -898,7 +899,7 @@ class IncomingController2 extends RestApiController{
 
         $amount = $transaction->getAmount();
         $currency = $transaction->getCurrency();
-        $service_cname = $transaction->getService();
+        $method_cname = $transaction->getMethod();
 
         $em = $this->getDoctrine()->getManager();
 
@@ -911,7 +912,7 @@ class IncomingController2 extends RestApiController{
         $feeTransaction->setDataIn(array(
             'previous_transaction'  =>  $transaction->getId(),
             'amount'                =>  -$total_fee,
-            'description'           =>  $service_cname.'->fee'
+            'description'           =>  $method_cname.'->fee'
         ));
         $feeTransaction->setData(array(
             'previous_transaction'  =>  $transaction->getId(),
@@ -922,6 +923,8 @@ class IncomingController2 extends RestApiController{
             'previous_balance'  =>  $current_wallet->getBalance(),
             'previous_transaction'  =>  $transaction->getId()
         ));
+
+        $feeTransaction->setType('fee');
 
         $feeTransaction->setTotal(-$total_fee);
 
@@ -943,7 +946,7 @@ class IncomingController2 extends RestApiController{
         $dealer->deal(
             $creator,
             $amount,
-            $service_cname,
+            $method_cname,
             $transaction->getType(),
             $currency,
             $total_fee,

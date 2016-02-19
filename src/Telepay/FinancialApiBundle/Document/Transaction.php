@@ -81,6 +81,31 @@ class Transaction implements TransactionTiming {
     public static $STATUS_UNKNOWN = "unknown";
 
     /**
+     * @Exclude
+     */
+    public static $TYPE_IN = "in";
+
+    /**
+     * @Exclude
+     */
+    public static $TYPE_OUT = "out";
+
+    /**
+     * @Exclude
+     */
+    public static $TYPE_SWIFT = "swift";
+
+    /**
+     * @Exclude
+     */
+    public static $TYPE_FEE = "fee";
+
+    /**
+     * @Exclude
+     */
+    public static $TYPE_EXCHANGE = "exchange";
+
+    /**
      * @var
      * @MongoDB\Date
      */
