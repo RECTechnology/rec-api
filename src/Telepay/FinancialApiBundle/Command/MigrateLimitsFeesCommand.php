@@ -64,84 +64,74 @@ class MigrateLimitsFeesCommand extends ContainerAwareCommand
 
         $em = $this->getContainer()->get('doctrine')->getManager();
 
-        $new_limit = new LimitDefinition();
-        $new_limit->setCurrency($limit->getCurrency());
-        $new_limit->setDay($limit->getDay());
-        $new_limit->setWeek($limit->getWeek());
-        $new_limit->setMonth($limit->getMonth());
-        $new_limit->setYear($limit->getYear());
-        $new_limit->setTotal($limit->getTotal());
-        $new_limit->setSingle($limit->getSingle());
-        $new_limit->setGroup($limit->getGroup());
-
         switch ($limit->getCname()){
             case 'paynet_reference':
-                $new_limit->setCname('paynet_reference-in');
+                $limit->setCname('paynet_reference-in');
                 break;
             case 'halcash_send':
-                $new_limit->setCname('halcash_es-out');
+                $limit->setCname('halcash_es-out');
                 break;
             case 'btc_pay':
-                $new_limit->setCname('btc-in');
+                $limit->setCname('btc-in');
                 break;
             case 'btc_send':
-                $new_limit->setCname('btc-out');
+                $limit->setCname('btc-out');
                 break;
             case 'sepa_in':
-                $new_limit->setCname('sepa-in');
+                $limit->setCname('sepa-in');
                 break;
             case 'sepa_out':
-                $new_limit->setCname('sepa-out');
+                $limit->setCname('sepa-out');
                 break;
             case 'cryptocapital':
-                $new_limit->setCname('cryptocapital-out');
+                $limit->setCname('cryptocapital-out');
                 break;
             case 'fac_pay':
-                $new_limit->setCname('fac-in');
+                $limit->setCname('fac-in');
                 break;
             case 'fac_send':
-                $new_limit->setCname('fac-out');
+                $limit->setCname('fac-out');
                 break;
             case 'pagofacil':
-                $new_limit->setCname('pagofacil-in');
+                $limit->setCname('pagofacil-in');
                 break;
             case 'paynet_payment':
-                $new_limit->setCname('paynet_payment-out');
+                $limit->setCname('paynet_payment-out');
                 break;
             case 'sample':
-                $new_limit->setCname('sample-in');
+                $limit->setCname('sample-in');
                 break;
             case 'easypay':
-                $new_limit->setCname('easypay-in');
+                $limit->setCname('easypay-in');
                 break;
             case 'bank_transfer':
-                $new_limit->setCname('sepa-in');
+                $limit->setCname('sepa-in');
                 break;
             case 'safetypay':
-                $new_limit->setCname('safetypay-in');
+                $limit->setCname('safetypay-in');
                 break;
             case 'multiva':
-                $new_limit->setCname('multiva-in');
+                $limit->setCname('multiva-in');
                 break;
             case 'paysafecard':
-                $new_limit->setCname('paysafecard-in');
+                $limit->setCname('paysafecard-in');
                 break;
             case 'payu':
-                $new_limit->setCname('payu-in');
+                $limit->setCname('payu-in');
                 break;
             case 'toditocash':
-                $new_limit->setCname('toditocash-in');
+                $limit->setCname('toditocash-in');
                 break;
             case 'pos':
-                $new_limit->setCname('pos-in');
+                $limit->setCname('pos-in');
                 break;
             default:
-                $new_limit->setCname($limit->getCname());
+                $limit->setCname($limit->getCname());
                 break;
         }
 
-        $em->persist($new_limit);
-        $em->flush($new_limit);
+        $em->persist($limit);
+        $em->flush($limit);
 
     }
 
@@ -149,80 +139,74 @@ class MigrateLimitsFeesCommand extends ContainerAwareCommand
 
         $em = $this->getContainer()->get('doctrine')->getManager();
 
-        $new_fee = new ServiceFee();
-        $new_fee->setCurrency($fee->getCurrency());
-        $new_fee->setGroup($fee->getGroup());
-        $new_fee->setFixed($fee->getFixed());
-        $new_fee->setVariable($fee->getVariable());
-
         switch ($fee->getServiceName()){
             case 'paynet_reference':
-                $new_fee->setServiceName('paynet_reference-in');
+                $fee->setServiceName('paynet_reference-in');
                 break;
             case 'halcash_send':
-                $new_fee->setServiceName('halcash_es-out');
+                $fee->setServiceName('halcash_es-out');
                 break;
             case 'btc_pay':
-                $new_fee->setServiceName('btc-in');
+                $fee->setServiceName('btc-in');
                 break;
             case 'btc_send':
-                $new_fee->setServiceName('btc-out');
+                $fee->setServiceName('btc-out');
                 break;
             case 'sepa_in':
-                $new_fee->setServiceName('sepa-in');
+                $fee->setServiceName('sepa-in');
                 break;
             case 'sepa_out':
-                $new_fee->setServiceName('sepa-out');
+                $fee->setServiceName('sepa-out');
                 break;
             case 'cryptocapital':
-                $new_fee->setServiceName('cryptocapital-out');
+                $fee->setServiceName('cryptocapital-out');
                 break;
             case 'fac_pay':
-                $new_fee->setServiceName('fac-in');
+                $fee->setServiceName('fac-in');
                 break;
             case 'fac_send':
-                $new_fee->setServiceName('fac-out');
+                $fee->setServiceName('fac-out');
                 break;
             case 'pagofacil':
-                $new_fee->setServiceName('pagofacil-in');
+                $fee->setServiceName('pagofacil-in');
                 break;
             case 'paynet_payment':
-                $new_fee->setServiceName('paynet_payment-out');
+                $fee->setServiceName('paynet_payment-out');
                 break;
             case 'sample':
-                $new_fee->setServiceName('sample-in');
+                $fee->setServiceName('sample-in');
                 break;
             case 'easypay':
-                $new_fee->setServiceName('easypay-in');
+                $fee->setServiceName('easypay-in');
                 break;
             case 'bank_transfer':
-                $new_fee->setServiceName('sepa-in');
+                $fee->setServiceName('sepa-in');
                 break;
             case 'safetypay':
-                $new_fee->setServiceName('safetypay-in');
+                $fee->setServiceName('safetypay-in');
                 break;
             case 'multiva':
-                $new_fee->setServiceName('multiva-in');
+                $fee->setServiceName('multiva-in');
                 break;
             case 'paysafecard':
-                $new_fee->setServiceName('paysafecard-in');
+                $fee->setServiceName('paysafecard-in');
                 break;
             case 'payu':
-                $new_fee->setServiceName('payu-in');
+                $fee->setServiceName('payu-in');
                 break;
             case 'toditocash':
-                $new_fee->setServiceName('toditocash-in');
+                $fee->setServiceName('toditocash-in');
                 break;
             case 'pos':
-                $new_fee->setServiceName('pos-in');
+                $fee->setServiceName('pos-in');
                 break;
             default:
-                $new_fee->setServiceName($fee->getServiceName());
+                $fee->setServiceName($fee->getServiceName());
                 break;
         }
 
-        $em->persist($new_fee);
-        $em->flush($new_fee);
+        $em->persist($fee);
+        $em->flush($fee);
 
     }
 }
