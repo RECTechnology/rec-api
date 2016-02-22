@@ -26,7 +26,7 @@ class HalcashMethod extends BaseMethod{
         $phone = $paymentInfo['phone'];
         $prefix = $paymentInfo['prefix'];
         $amount = $paymentInfo['amount']/100;
-        $reference = $paymentInfo['description'];
+        $reference = $paymentInfo['concept'];
 
         if(isset($paymentInfo['pin'])){
             $pin = $paymentInfo['pin'];

@@ -50,8 +50,14 @@ class IncomingController2 extends RestApiController{
         $transaction->setType($type);
         $dm->persist($transaction);
 
-        if($request->request->has('concept')) $concept = $request->request->get('concept');
-        else $concept = '';
+        if($request->request->has('concept')){
+            $concept = $request->request->get('concept');
+        }else{
+            $concept = '';
+            $request->request->add(array(
+                'concept'   =>  $concept
+            ));
+        }
 
         if($request->request->has('url_notification')) $url_notification = $request->request->get('url_notification');
         else $url_notification = '';
