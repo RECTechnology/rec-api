@@ -63,7 +63,7 @@ class HalcashMethod extends BaseMethod{
             'amount',
             'phone',
             'prefix',
-            'description'
+            'concept'
         );
 
         $params = array();
