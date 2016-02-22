@@ -44,9 +44,11 @@ class HalcashMethod extends BaseMethod{
 
         if($hal['errorcode'] == 0){
             $paymentInfo['status'] = 'sent';
+            $paymentInfo['final'] = false;
             $paymentInfo['halcashticket'] = $hal['halcashticket'];
         }elseif($hal['errorcode'] == 99){
             $paymentInfo['status'] = 'failed';
+            $paymentInfo['final'] = false;
         }
 
         return $paymentInfo;
