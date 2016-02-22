@@ -496,12 +496,13 @@ class IncomingController2 extends RestApiController{
                         throw new HttpException(403, 'Mothod not implemented');
                     }else{
                         try {
-                            $transaction = $method->cancel($payment_info);
+                            $payment_info = $method->cancel($payment_info);
                         }catch (HttpException $e){
                             throw $e;
                         }
 
                         $transaction->setStatus(Transaction::$STATUS_CANCELLED );
+                        $transaction->setPayOutInfo($payment_info);
                         $transaction->setUpdated(new \DateTime());
                         $mongo->persist($transaction);
                         $mongo->flush();
