@@ -218,7 +218,7 @@ class IncomingController2 extends RestApiController{
             try {
                 $payment_info = $method->send($payment_info);
             }catch (HttpException $e){
-                $logger->error('Incomig transaction...ERROR');
+                $logger->error('Incomig transaction...ERROR '.$e->getMessage());
 
                 if($e->getStatusCode()>=500){
                     $transaction->setStatus(Transaction::$STATUS_FAILED);
@@ -234,7 +234,7 @@ class IncomingController2 extends RestApiController{
 
                 $this->container->get('notificator')->notificate($transaction);
 
-                throw $e;
+                throw new HttpException($e->getStatusCode(), $e->getMessage());
 
             }
             $logger->info('Incomig transaction...PAYMENT STATUS: '.$payment_info['status']);
