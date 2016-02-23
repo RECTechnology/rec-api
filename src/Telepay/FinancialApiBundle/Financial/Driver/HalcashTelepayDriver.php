@@ -57,7 +57,7 @@ class HalcashTelepayDriver{
             'aliascuenta'	=>	'ASOC ROBOT',
             'caducidad'		=>	$caducity
         );
-
+die(print_r($params,true));
         if($this->mode == 'T'){
             $response = array(
                 'errorcode'=>'0',
