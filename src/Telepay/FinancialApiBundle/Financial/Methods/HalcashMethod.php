@@ -35,11 +35,16 @@ class HalcashMethod extends BaseMethod{
             $paymentInfo['pin'] = $pin;
         }
 
-        if($this->getCurrency() == 'EUR'){
-            $hal = $this->driver->sendV3($phone,$prefix,$amount,$reference,$pin);
-        }else{
-            $hal = $this->driver->sendInternational($phone,$prefix,$amount,$reference,$pin, 'PL', 'POL');
+        try{
+            if($this->getCurrency() == 'EUR'){
+                $hal = $this->driver->sendV3($phone,$prefix,$amount,$reference,$pin);
+            }else{
+                $hal = $this->driver->sendInternational($phone,$prefix,$amount,$reference,$pin, 'PL', 'POL');
+            }
+        }catch (HttpException $e){
+            throw new HttpException($e->getStatusCode(),$e->getMessage());
         }
+
 
 
         if($hal['errorcode'] == 0){
