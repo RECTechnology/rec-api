@@ -32,11 +32,16 @@ class MigrateTransactionsCommand extends ContainerAwareCommand
 
         $transactions = $dm->getRepository("TelepayFinancialApiBundle:Transaction")->findAll();
 
+        $output->writeln('Migrating '.count($transactions).' transactions...');
+        $counterTransactions = 0;
         foreach($transactions as $transaction){
             $transaction = $this->_convert($transaction);
             $dm->persist($transaction);
             $dm->flush($transaction);
+            $counterTransactions ++;
         }
+
+        $output->writeln($counterTransactions.' transactions updated');
 
         $output->writeln('All done');
     }
@@ -131,7 +136,6 @@ class MigrateTransactionsCommand extends ContainerAwareCommand
             default:
                 break;
         }
-
 
         return $transaction;
 
