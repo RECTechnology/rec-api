@@ -82,7 +82,6 @@ class HalcashTelepayDriver{
             }
         }
 
-        die(print_r($response,true));
         $response = $response['EmisionResult'];
 
         return $response;
