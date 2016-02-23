@@ -34,11 +34,11 @@ class HalcashService extends BaseService{
         if($baseTransaction === null) $baseTransaction = new Transaction();
 
         $phone_number = $baseTransaction->getDataIn()['phone_number'];
-        if(strlen($phone_number)>0){
+        if(strlen($phone_number)<1){
             throw new HttpException(400,'phone_number is required');
         }
         $phone_prefix = $baseTransaction->getDataIn()['phone_prefix'];
-        if(strlen($phone_prefix)>0){
+        if(strlen($phone_prefix)<1){
             throw new HttpException(400,'phone_prefix is required');
         }
         if(isset($baseTransaction->getDataIn()['sms_language'])){
