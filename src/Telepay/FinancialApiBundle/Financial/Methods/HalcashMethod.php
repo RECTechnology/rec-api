@@ -26,7 +26,7 @@ class HalcashMethod extends BaseMethod{
         $phone = $paymentInfo['phone'];
         $prefix = $paymentInfo['prefix'];
         $amount = $paymentInfo['amount']/100;
-        $reference = $paymentInfo['description'];
+        $reference = $paymentInfo['concept'];
 
         if(isset($paymentInfo['pin'])){
             $pin = $paymentInfo['pin'];
@@ -44,9 +44,11 @@ class HalcashMethod extends BaseMethod{
 
         if($hal['errorcode'] == 0){
             $paymentInfo['status'] = 'sent';
+            $paymentInfo['final'] = false;
             $paymentInfo['halcashticket'] = $hal['halcashticket'];
         }elseif($hal['errorcode'] == 99){
             $paymentInfo['status'] = 'failed';
+            $paymentInfo['final'] = false;
         }
 
         return $paymentInfo;
@@ -63,7 +65,7 @@ class HalcashMethod extends BaseMethod{
             'amount',
             'phone',
             'prefix',
-            'description'
+            'concept'
         );
 
         $params = array();

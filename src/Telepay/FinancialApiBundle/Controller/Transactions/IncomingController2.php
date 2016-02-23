@@ -50,8 +50,14 @@ class IncomingController2 extends RestApiController{
         $transaction->setType($type);
         $dm->persist($transaction);
 
-        if($request->request->has('concept')) $concept = $request->request->get('concept');
-        else $concept = '';
+        if($request->request->has('concept')){
+            $concept = $request->request->get('concept');
+        }else{
+            $concept = '';
+            $request->request->add(array(
+                'concept'   =>  $concept
+            ));
+        }
 
         if($request->request->has('url_notification')) $url_notification = $request->request->get('url_notification');
         else $url_notification = '';
@@ -97,6 +103,7 @@ class IncomingController2 extends RestApiController{
 
         $logger->info('Incomig transaction...FEES');
 
+        //TODO crear FeeManipulator
         //obtener comissiones del grupo
         $group_commissions = $group->getCommissions();
         $group_commission = false;
@@ -209,45 +216,48 @@ class IncomingController2 extends RestApiController{
             $logger->info('Incomig transaction...SEND');
 
             try {
-                $transaction = $method->send($payment_info);
+                $payment_info = $method->send($payment_info);
             }catch (HttpException $e){
                 $logger->error('Incomig transaction...ERROR');
-                if( $transaction->getStatus() === Transaction::$STATUS_CREATED ){
 
-                    if($e->getStatusCode()>=500){
-                        $transaction->setStatus(Transaction::$STATUS_FAILED);
-                    }else{
-                        $transaction->setStatus( Transaction::$STATUS_ERROR );
-                    }
-                    //desbloqueamos la pasta del wallet
-                    $current_wallet->setAvailable($current_wallet->getAvailable() + $total);
-                    $em->persist($current_wallet);
-                    $em->flush();
-                    $dm->persist($transaction);
-                    $dm->flush();
-
-                    $this->container->get('notificator')->notificate($transaction);
-
-                    if ($transaction->getStatus() == Transaction::$STATUS_ERROR){
-                        throw $e;
-                    }
-
+                if($e->getStatusCode()>=500){
+                    $transaction->setStatus(Transaction::$STATUS_FAILED);
+                }else{
+                    $transaction->setStatus( Transaction::$STATUS_ERROR );
                 }
+                //desbloqueamos la pasta del wallet
+                $current_wallet->setAvailable($current_wallet->getAvailable() + $total);
+                $em->persist($current_wallet);
+                $em->flush();
+                $dm->persist($transaction);
+                $dm->flush();
+
+                $this->container->get('notificator')->notificate($transaction);
+
+                throw $e;
 
             }
+            $logger->info('Incomig transaction...PAYMENT STATUS: '.$payment_info['status']);
 
-            $transaction->setStatus($payment_info['status']);
-
+            $transaction->setPayOutInfo($payment_info);
             $dm->persist($transaction);
             $dm->flush();
 
             //pay fees and dealer always and set new balance
-            if( $transaction->getStatus() === Transaction::$STATUS_CREATED || $transaction->getStatus() === Transaction::$STATUS_SUCCESS ){
+            if( $payment_info['status'] == 'sent' ){
+
+                if($payment_info['final'] == true) $transaction->setStatus(Transaction::$STATUS_SUCCESS);
+                else $transaction->setStatus(Transaction::$STATUS_CREATED);
+
+                $dm->persist($transaction);
+                $dm->flush();
+
                 $this->container->get('notificator')->notificate($transaction);
 
                 //restar al usuario el amount + comisiones
                 $current_wallet->setBalance($current_wallet->getBalance() - $total);
-                //TODO insert new line in the balance
+
+                //insert new line in the balance
                 $balancer = $this->get('net.telepay.commons.balance_manipulator');
                 $balancer->addBalance($user, -$amount, $transaction);
 
@@ -262,6 +272,18 @@ class IncomingController2 extends RestApiController{
                         throw $e;
                     }
                 }
+            }else{
+
+                $transaction->setStatus($payment_info['status']);
+                //desbloqueamos la pasta del wallet
+                $current_wallet->setAvailable($current_wallet->getAvailable() + $total);
+                $em->persist($current_wallet);
+                $em->flush();
+                $dm->persist($transaction);
+                $dm->flush();
+
+                $this->container->get('notificator')->notificate($transaction);
+
             }
 
         }else{     //CASH - IN
@@ -301,7 +323,7 @@ class IncomingController2 extends RestApiController{
 
         $method = $this->get('net.telepay.'.$type.'.'.$method_cname.'.v'.$version_number);
 
-        $method_list = $this->get('security.context')->getToken()->getUser()->getServicesList();
+        $method_list = $this->get('security.context')->getToken()->getUser()->getMethodsList();
 
         if (!in_array($method_cname.'-'.$type, $method_list)) {
             throw $this->createAccessDeniedException();
@@ -313,14 +335,13 @@ class IncomingController2 extends RestApiController{
 
         $mongo = $this->get('doctrine_mongodb')->getManager();
         $transaction =$mongo->getRepository('TelepayFinancialApiBundle:Transaction')->findOneBy(array(
-            'id'        => $id,
-            'method'   =>  $method_cname,
-            'user'      =>  $user->getId()
+            'id'        =>  $id,
+            'method'    =>  $method_cname,
+            'user'      =>  $user->getId(),
+            'type'      =>  $type
         ));
 
         if(!$transaction) throw new HttpException(404, 'Transaction not found');
-
-        if($transaction->getService() != $method->getCname()) throw new HttpException(404, 'Transaction not found');
 
         //retry=true y cancel=true aqui
         if( isset( $data['retry'] ) || isset ( $data ['cancel'] )){
@@ -475,12 +496,13 @@ class IncomingController2 extends RestApiController{
                         throw new HttpException(403, 'Mothod not implemented');
                     }else{
                         try {
-                            $transaction = $method->cancel($payment_info);
+                            $payment_info = $method->cancel($payment_info);
                         }catch (HttpException $e){
                             throw $e;
                         }
 
                         $transaction->setStatus(Transaction::$STATUS_CANCELLED );
+                        $transaction->setPayOutInfo($payment_info);
                         $transaction->setUpdated(new \DateTime());
                         $mongo->persist($transaction);
                         $mongo->flush();
@@ -884,7 +906,7 @@ class IncomingController2 extends RestApiController{
 
         $amount = $transaction->getAmount();
         $currency = $transaction->getCurrency();
-        $service_cname = $transaction->getService();
+        $method_cname = $transaction->getMethod();
 
         $em = $this->getDoctrine()->getManager();
 
@@ -897,7 +919,7 @@ class IncomingController2 extends RestApiController{
         $feeTransaction->setDataIn(array(
             'previous_transaction'  =>  $transaction->getId(),
             'amount'                =>  -$total_fee,
-            'description'           =>  $service_cname.'->fee'
+            'description'           =>  $method_cname.'->fee'
         ));
         $feeTransaction->setData(array(
             'previous_transaction'  =>  $transaction->getId(),
@@ -908,6 +930,8 @@ class IncomingController2 extends RestApiController{
             'previous_balance'  =>  $current_wallet->getBalance(),
             'previous_transaction'  =>  $transaction->getId()
         ));
+
+        $feeTransaction->setType('fee');
 
         $feeTransaction->setTotal(-$total_fee);
 
@@ -929,7 +953,8 @@ class IncomingController2 extends RestApiController{
         $dealer->deal(
             $creator,
             $amount,
-            $service_cname,
+            $method_cname,
+            $transaction->getType(),
             $currency,
             $total_fee,
             $transaction_id,

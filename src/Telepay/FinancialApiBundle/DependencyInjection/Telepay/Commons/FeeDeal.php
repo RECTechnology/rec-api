@@ -9,7 +9,6 @@
 namespace Telepay\FinancialApiBundle\DependencyInjection\Telepay\Commons;
 
 use Telepay\FinancialApiBundle\Document\Transaction;
-use Telepay\FinancialApiBundle\Entity\ServiceFee;
 use Telepay\FinancialApiBundle\Entity\User;
 
 class FeeDeal{
@@ -31,7 +30,7 @@ class FeeDeal{
      * Creator fee
      */
 
-    public function deal(User $creator, $amount, $service_cname, $currency, $fee, $transaction_id, $version){
+    public function deal(User $creator, $amount, $service_cname, $type, $currency, $fee, $transaction_id, $version){
 
         if(!$creator->hasRole('ROLE_SUPER_ADMIN')){
             //obtenemos el grupo
@@ -42,7 +41,7 @@ class FeeDeal{
             $group_commission = false;
 
             foreach ( $commissions as $commission ){
-                if ( $commission->getServiceName() == $service_cname ){
+                if ( $commission->getServiceName() == $service_cname.'-'.$type ){
                     $group_commission = $commission;
                 }
             }
@@ -60,7 +59,7 @@ class FeeDeal{
         $dm = $this->mongo->getManager();
 
         //Ahora lo añadimos al wallet correspondiente
-        $wallets=$creator->getWallets();
+        $wallets = $creator->getWallets();
 
         $scale = 0;
         foreach($wallets as $wallet){
@@ -74,15 +73,15 @@ class FeeDeal{
                 $em->flush();
 
                 $scale=$wallet->getScale();
-                //$dm = $this->get('doctrine_mongodb')->getManager();
-                //$em = $this->getDoctrine()->getManager();
 
                 $transaction = new Transaction();
                 $transaction->setIp('127.0.0.1');
                 $transaction->setUser($creator->getId());
                 $transaction->setService($service_cname);
+                $transaction->setMethod($service_cname);
                 $transaction->setVersion($version);
                 $transaction->setAmount($fee);
+                $transaction->setType('fee');
                 $transaction->setDataIn(array(
                     'parent_id' => $transaction_id,
                     'amount'    =>  $fee,
@@ -116,6 +115,8 @@ class FeeDeal{
             $feeTransaction->setIp('127.0.0.1');
             $feeTransaction->setUser($creator->getId());
             $feeTransaction->setService($service_cname);
+            $feeTransaction->setMethod($service_cname);
+            $feeTransaction->setType('fee');
             $feeTransaction->setVersion($version);
             $feeTransaction->setAmount($total);
             $feeTransaction->setDataIn(array(
@@ -140,8 +141,8 @@ class FeeDeal{
 
             $this->balance_manipulator->addBalance($creator, -$total, $feeTransaction);
 
-            $new_creator=$group->getCreator();
-            $this->deal($new_creator, $amount, $service_cname, $currency, $total, $id, $version);
+            $new_creator = $group->getCreator();
+            $this->deal($new_creator, $amount, $service_cname, $type, $currency, $total, $id, $version);
         }
 
         return true;
