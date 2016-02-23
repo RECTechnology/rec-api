@@ -45,8 +45,6 @@ class HalcashMethod extends BaseMethod{
             throw new HttpException($e->getStatusCode(),$e->getMessage());
         }
 
-
-
         if($hal['errorcode'] == 0){
             $paymentInfo['status'] = 'sent';
             $paymentInfo['final'] = false;
