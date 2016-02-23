@@ -70,7 +70,8 @@ class HalcashService extends BaseService{
         $logger = $this->getContainer()->get('logger');
         $logger->info('HALCASH->create');
         $logger->info('HALCASH: phone->'.$phone_number.', amount->'.$amount.', id->'.$transaction_id);
-        $logger->info('HALCASH: response->'.$hal);
+        $logger->info('HALCASH: response code->'.$hal['errorcode']);
+        $logger->info('HALCASH: response ticket->'.$hal['halcashticket']);
 
         if($hal === false)
             throw new HttpException(503, "Service temporarily unavailable, please try again in a few minutes");
