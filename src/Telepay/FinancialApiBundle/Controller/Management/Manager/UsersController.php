@@ -315,7 +315,7 @@ class UsersController extends BaseApiController
         if(empty($entities)) throw new HttpException(404, "Not found");
 
         $entities->setAllowedServices($this->get('net.telepay.service_provider')->findByCNames($entities->getServicesList()));
-        $entities->setAllowedMethods($this->get('net.telepay.method_provider')->findByCNames($entities->getMrthodsList()));
+        $entities->setAllowedMethods($this->get('net.telepay.method_provider')->findByCNames($entities->getMethodsList()));
         $entities->setAccessToken(null);
         $entities->setRefreshToken(null);
         $entities->setAuthCode(null);
