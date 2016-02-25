@@ -63,3 +63,7 @@ services:
         arguments:
             - "%cryptocapital_account_number%"
             - "%cryptocapital_beneficiary%"
+
+    net.telepay.driver.echo:
+            class: Telepay\FinancialApiBundle\Financial\Driver\EchoDriver
+            arguments:
