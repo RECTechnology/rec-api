@@ -314,11 +314,22 @@ class UsersController extends BaseApiController
 
         if(empty($entities)) throw new HttpException(404, "Not found");
 
-        $services = $entities->getServicesList();
-        $entities->setAllowedServices($this->get('net.telepay.service_provider')->findByCNames($services));
+        $entities->setAllowedServices($this->get('net.telepay.service_provider')->findByCNames($entities->getServicesList()));
+        $entities->setAllowedMethods($this->get('net.telepay.method_provider')->findByCNames($entities->getMrthodsList()));
         $entities->setAccessToken(null);
         $entities->setRefreshToken(null);
         $entities->setAuthCode(null);
+
+        $group = $entities->getGroups()[0];
+
+        $group_data = array();
+        $group_data['id'] = $group->getId();
+        $group_data['name'] = $group->getName();
+        $group_data['admin'] = $group->getCreator()->getName();
+        $group_data['email'] = $group->getCreator()->getEmail();
+
+        $entities->setGroupData($group_data);
+
         return $this->rest(200, "Request successful", $entities);
     }
 
@@ -404,6 +415,13 @@ class UsersController extends BaseApiController
             $request->request->add(array('services_list' =>$services));
         }
 
+        $methods = null;
+        if($request->request->has('methods')){
+            $services = $request->get('methods');
+            $request->request->remove('methods');
+            $request->request->add(array('methods_list' =>$methods));
+        }
+
         if($request->request->has('password')){
             if($request->request->has('repassword')){
                 $password = $request->get('password');
@@ -436,6 +454,10 @@ class UsersController extends BaseApiController
             if($services !== null){
                 $request->request->add(array('services'=>$services));
                 $this->_setServices($request, $id);
+            }
+            if($methods !== null){
+                $request->request->add(array('methods'=>$methods));
+                $this->_setMethods($request, $id);
             }
 
         }
@@ -476,6 +498,21 @@ class UsersController extends BaseApiController
         return $this->rest(204, "Edited");
     }
 
+    private function _setMethods(Request $request, $id){
+        if(empty($id)) throw new HttpException(400, "Missing parameter 'id'");
+        $usersRepo = $this->getRepository();
+        $user = $usersRepo->findOneBy(array('id'=>$id));
+        $listMethods = $user->getMethodsList();
+
+        $putMethods = $request->get('methods');
+        foreach($putMethods as $method){
+            if(!in_array($method, $listMethods)){
+                $this->_addMethod($id, $method);
+            }
+        }
+        return $this->rest(204, "Edited");
+    }
+
 
     /**
      * @Rest\View
@@ -505,6 +542,41 @@ class UsersController extends BaseApiController
         if(empty($service)) throw new HttpException(404, 'Service not found');
 
         $user->addService($cname);
+        $em = $this->getDoctrine()->getManager();
+        $limitRepo = $em->getRepository("TelepayFinancialApiBundle:LimitCount");
+        $limit = $limitRepo->findOneBy(array('cname' => $cname, 'user' => $user));
+        if(!$limit){
+            $limit = new LimitCount();
+            $limit->setUser($user);
+            $limit->setCname($cname);
+            $limit->setSingle(0);
+            $limit->setDay(0);
+            $limit->setWeek(0);
+            $limit->setMonth(0);
+            $limit->setYear(0);
+            $limit->setTotal(0);
+            $em->persist($limit);
+        }
+
+        try{
+            $em->flush();
+        } catch(DBALException $e){
+            if(preg_match('/SQLSTATE\[23000\]/',$e->getMessage()))
+                throw new HttpException(409, "Duplicated resource");
+            else
+                throw new HttpException(500, "Unknown error occurred when save");
+        }
+    }
+
+    private function _addMethod($id, $cname){
+        $usersRepo = $this->getRepository();
+        $methodsRepo = $this->get('net.telepay.method_provider');
+        $user = $usersRepo->findOneBy(array('id'=>$id));
+        $method = $methodsRepo->findByCname($cname);
+        if(empty($user)) throw new HttpException(404, 'User not found');
+        if(empty($method)) throw new HttpException(404, 'Method not found');
+
+        $user->addMethod($cname);
         $em = $this->getDoctrine()->getManager();
         $limitRepo = $em->getRepository("TelepayFinancialApiBundle:LimitCount");
         $limit = $limitRepo->findOneBy(array('cname' => $cname, 'user' => $user));
