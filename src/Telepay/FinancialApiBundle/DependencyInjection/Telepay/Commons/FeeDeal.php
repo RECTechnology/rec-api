@@ -267,7 +267,7 @@ class FeeDeal{
             $this->balance_manipulator->addBalance($creator, -$total, $feeTransaction);
 
             $new_creator = $group->getCreator();
-            $this->deal($new_creator, $amount, $service_cname, $type, $currency, $total, $id, $version);
+            $this->inversedDeal($new_creator, $amount, $service_cname, $type, $currency, $total, $id, $version);
         }
 
         return true;

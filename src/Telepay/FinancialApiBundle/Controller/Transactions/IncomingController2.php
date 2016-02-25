@@ -388,7 +388,7 @@ class IncomingController2 extends RestApiController{
                         $payment_info = $method->send($payment_info);
                     }catch (HttpException $e){
 
-                        if($e->getStatusCode()>=500){
+                        if($e->getStatusCode() >= 500){
                             $transaction->setStatus(Transaction::$STATUS_FAILED);
                         }else{
                             $transaction->setStatus( Transaction::$STATUS_ERROR );
