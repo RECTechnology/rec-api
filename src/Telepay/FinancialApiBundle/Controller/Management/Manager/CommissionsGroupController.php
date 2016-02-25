@@ -29,7 +29,9 @@ class CommissionsGroupController extends BaseApiController
      */
     public function updateAction(Request $request, $id){
 
-        //TODO negative values not allowed in variable and fixed field
+        //TODO check if this user is the group crator or superadmin, if not access not allowed
+
+        //negative values not allowed in variable and fixed field
         if($request->request->has('fixed')){
             if($request->request->get('fixed') < 0) throw new HttpException(404, 'Parameter fixed must be positive.');
         }

@@ -441,7 +441,7 @@ class IncomingController2 extends RestApiController{
                     $em->flush();
                     //send transaction
                     try {
-                        $transaction = $method->send($payment_info);
+                        $payment_info = $method->send($payment_info);
                     }catch (HttpException $e){
 
                         if($e->getStatusCode() >= 500){
@@ -472,6 +472,7 @@ class IncomingController2 extends RestApiController{
                     }
 
                     $transaction->setUpdated(new \DateTime());
+                    $transaction->setPayOutInfo($payment_info);
                     $transaction->setStatus(Transaction::$STATUS_CREATED);
                     $current_wallet->setBalance($current_wallet->getBalance() - $amount );
 
@@ -481,6 +482,15 @@ class IncomingController2 extends RestApiController{
                     $mongo->persist($transaction);
                     $mongo->flush();
 
+                    if($total_fee != 0){
+
+                        try{
+                            $this->_dealer($transaction,$current_wallet);
+                        }catch (HttpException $e){
+                            throw $e;
+                        }
+
+                    }
 
 
                 }else{
@@ -1053,6 +1063,10 @@ class IncomingController2 extends RestApiController{
             $transaction->getVersion()
         );
 
+    }
+
+    private function _getCurrentWallet(){
+        
     }
 
 }
