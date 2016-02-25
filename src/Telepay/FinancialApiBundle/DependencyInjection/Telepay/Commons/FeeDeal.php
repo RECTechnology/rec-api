@@ -48,7 +48,7 @@ class FeeDeal{
 
             $fixed = $group_commission->getFixed();
             $variable = $group_commission->getVariable();
-            $total = $fixed + $variable*$amount;
+            $total = $fixed + ($variable/100) * $amount;
         }else{
             $total = 0;
             $variable = 0;
@@ -167,7 +167,7 @@ class FeeDeal{
 
             $fixed = $group_commission->getFixed();
             $variable = $group_commission->getVariable();
-            $total = $fixed + $variable*$amount;
+            $total = $fixed + ($variable/100) * $amount;
         }else{
             $total = 0;
             $variable = 0;

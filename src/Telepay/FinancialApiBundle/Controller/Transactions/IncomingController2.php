@@ -126,7 +126,7 @@ class IncomingController2 extends RestApiController{
 
         //add commissions to check
         $fixed_fee = $group_commission->getFixed();
-        $variable_fee = round(($group_commission->getVariable()/100)*$amount, 0);
+        $variable_fee = round(($group_commission->getVariable()/100) * $amount, 0);
         $total_fee = $fixed_fee + $variable_fee;
 
         //add fee to transaction
@@ -334,7 +334,7 @@ class IncomingController2 extends RestApiController{
         $data = $request->request->all();
 
         $mongo = $this->get('doctrine_mongodb')->getManager();
-        $transaction =$mongo->getRepository('TelepayFinancialApiBundle:Transaction')->findOneBy(array(
+        $transaction = $mongo->getRepository('TelepayFinancialApiBundle:Transaction')->findOneBy(array(
             'id'        =>  $id,
             'method'    =>  $method_cname,
             'user'      =>  $user->getId(),
