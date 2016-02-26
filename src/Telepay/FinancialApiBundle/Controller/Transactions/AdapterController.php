@@ -160,7 +160,7 @@ class AdapterController extends RestApiController{
             'phone' =>  $params['phone_number'],
             'prefix'    =>  $params['phone_prefix'],
             'amount'    =>  $params['amount']*100,
-            'description'   =>  'description'
+            'concept'   =>  'adapter transaction'
         ));
 
         $method_in = 'btc';
@@ -280,7 +280,7 @@ class AdapterController extends RestApiController{
             'phone' =>  $params['phone_number'],
             'prefix'    =>  $params['phone_prefix'],
             'amount'    =>  $params['amount']*100,
-            'description'   =>  'description'
+            'concept'   =>  'adapter transaction'
         ));
 
         $method_in = 'fac';
@@ -394,7 +394,7 @@ class AdapterController extends RestApiController{
         $request->request->add(array(
             'address'    =>  $params['btc_address'],
             'amount'    =>  $params['amount']*100,
-            'description'   =>  $params['description']
+            'concept'   =>  $params['description']
         ));
 
         $method_in = 'paynet_reference';
@@ -444,7 +444,7 @@ class AdapterController extends RestApiController{
         $request->request->add(array(
             'address'    =>  $params['fac_address'],
             'amount'    =>  $params['amount']*100,
-            'description'   =>  $params['description']
+            'concept'   =>  $params['description']
         ));
 
         $method_in = 'paynet_reference';
@@ -560,7 +560,7 @@ class AdapterController extends RestApiController{
 
         $request->request->add(array(
             'amount'    =>  $params['amount']*100,
-            'description'   =>  $params['concept']
+            'concept'   =>  $params['concept']
         ));
 
         $method_in = 'btc';
@@ -662,7 +662,7 @@ class AdapterController extends RestApiController{
 
         $request->request->add(array(
             'amount'    =>  $params['amount']*100,
-            'description'   =>  $params['concept']
+            'concept'   =>  $params['concept']
         ));
 
         $method_in = 'fac';
