@@ -15,9 +15,11 @@ use FOS\RestBundle\Controller\Annotations as Rest;
 use Telepay\FinancialApiBundle\DependencyInjection\Telepay\Commons\LimitAdder;
 use Telepay\FinancialApiBundle\DependencyInjection\Telepay\Commons\LimitChecker;
 use Telepay\FinancialApiBundle\Document\Transaction;
+use Telepay\FinancialApiBundle\Entity\Group;
 use Telepay\FinancialApiBundle\Entity\LimitCount;
 use Telepay\FinancialApiBundle\Entity\LimitDefinition;
 use Telepay\FinancialApiBundle\Entity\ServiceFee;
+use Telepay\FinancialApiBundle\Entity\User;
 use Telepay\FinancialApiBundle\Entity\UserWallet;
 
 class IncomingController2 extends RestApiController{
@@ -62,13 +64,13 @@ class IncomingController2 extends RestApiController{
         if($request->request->has('url_notification')) $url_notification = $request->request->get('url_notification');
         else $url_notification = '';
 
-        //Aqui hay que distinguir entre in i out
-        //para in es getPayInInfo y para out es getPayOutInfo
         if($request->request->has('amount')) $amount = $request->request->get('amount');
         else throw new HttpException(400, 'Param amount not found');
 
         $logger->info('Incomig transaction...getPaymentInfo');
 
+        //Aqui hay que distinguir entre in i out
+        //para in es getPayInInfo y para out es getPayOutInfo
         if($type == 'in'){
 
             $dataIn = array(
@@ -90,12 +92,9 @@ class IncomingController2 extends RestApiController{
             );
         }
 
-        $dataIn['url_notification'] = $url_notification;
-        $dataIn['concept'] = $concept;
-
         $transaction->setDataIn($dataIn);
 
-        //obtain and check limits
+        //obtain user and check limits
         $user = $this->getUser();
 
         //obtener group
@@ -104,22 +103,8 @@ class IncomingController2 extends RestApiController{
         $logger->info('Incomig transaction...FEES');
 
         //TODO crear FeeManipulator
-        //obtener comissiones del grupo
-        $group_commissions = $group->getCommissions();
-        $group_commission = false;
-        foreach ( $group_commissions as $commission ){
-            if ( $commission->getServiceName() == $method_cname.'-'.$type ){
-                $group_commission = $commission;
-            }
-        }
 
-        //if group commission not exists we create it
-        if(!$group_commission){
-            $group_commission = ServiceFee::createFromController($method_cname.'-'.$type, $group);
-            $group_commission->setCurrency($method->getCurrency());
-            $em->persist($group_commission);
-            $em->flush();
-        }
+        $group_commission = $this->_getFees($group, $method);
 
         $amount = $dataIn['amount'];
         $transaction->setAmount($amount);
@@ -147,37 +132,10 @@ class IncomingController2 extends RestApiController{
         $logger->info('Incomig transaction...LIMITS');
 
         //obtain user limits
-        $limits = $user->getLimitCount();
-        $user_limit = false;
-        foreach ( $limits as $limit ){
-            if($limit->getCname() == $method_cname.'-'.$type){
-                $user_limit = $limit;
-            }
-        }
-
-        //if user hasn't limit create it
-        if(!$user_limit){
-            $user_limit = LimitCount::createFromController($method_cname.'-'.$type, $user);
-            $em->persist($user_limit);
-            $em->flush();
-        }
+        $user_limit = $this->_getLimitCount($user, $method);
 
         //obtain group limit
-        $group_limits = $group->getLimits();
-        $group_limit = false;
-        foreach ( $group_limits as $limit ){
-            if( $limit->getCname() == $method_cname.'-'.$type){
-                $group_limit = $limit;
-            }
-        }
-
-        //if limit doesn't exist create it
-        if(!$group_limit){
-            $group_limit = LimitDefinition::createFromController($method_cname.'-'.$type, $group);
-            $group_limit->setCurrency($method->getCurrency());
-            $em->persist($group_limit);
-            $em->flush();
-        }
+        $group_limit = $this->_getLimits($group, $method);
 
         $new_user_limit = (new LimitAdder())->add( $user_limit, $total);
 
@@ -1067,6 +1025,72 @@ class IncomingController2 extends RestApiController{
 
     private function _getCurrentWallet(){
 
+    }
+
+    private function _getFees(Group $group, $method){
+        $em = $this->getDoctrine()->getManager();
+
+        $group_commissions = $group->getCommissions();
+        $group_commission = false;
+
+        foreach ( $group_commissions as $commission ){
+            if ( $commission->getServiceName() == $method->getCname().'-'.$method->getType() ){
+                $group_commission = $commission;
+            }
+        }
+
+        //if group commission not exists we create it
+        if(!$group_commission){
+            $group_commission = ServiceFee::createFromController($method->getCname().'-'.$method->getType(), $group);
+            $group_commission->setCurrency($method->getCurrency());
+            $em->persist($group_commission);
+            $em->flush();
+        }
+
+        return $group_commission;
+    }
+
+    public function _getLimitCount(User $user, $method){
+        $em = $this->getDoctrine()->getManager();
+
+        $limits = $user->getLimitCount();
+        $user_limit = false;
+        foreach ( $limits as $limit ){
+            if($limit->getCname() == $method->getCname().'-'.$method->getType()){
+                $user_limit = $limit;
+            }
+        }
+
+        //if user hasn't limit create it
+        if(!$user_limit){
+            $user_limit = LimitCount::createFromController($method->getCname().'-'.$method->getType(), $user);
+            $em->persist($user_limit);
+            $em->flush();
+        }
+
+        return $user_limit;
+    }
+
+    public function _getLimits(Group $group, $method){
+        $em = $this->getDoctrine()->getManager();
+
+        $group_limits = $group->getLimits();
+        $group_limit = false;
+        foreach ( $group_limits as $limit ){
+            if( $limit->getCname() == $method->getCname().'-'.$method->getType()){
+                $group_limit = $limit;
+            }
+        }
+
+        //if limit doesn't exist create it
+        if(!$group_limit){
+            $group_limit = LimitDefinition::createFromController($method->getCname().'-'.$method->getType(), $group);
+            $group_limit->setCurrency($method->getCurrency());
+            $em->persist($group_limit);
+            $em->flush();
+        }
+
+        return $group_limit;
     }
 
 }
