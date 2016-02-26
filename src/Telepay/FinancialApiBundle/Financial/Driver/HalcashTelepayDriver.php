@@ -66,7 +66,7 @@ class HalcashTelepayDriver{
 
         }else{
             $url = $this->url.'/HalCashGatewayIssue.asmx?wsdl';
-            $client = new nusoap_client($url,true);
+            $client = new nusoap_client($url, true, false, false, false, false, 5, 60);
             if ($sError = $client->getError()) {
                 throw new HttpException(503,"No se pudo completar la operacion [".$sError."]");
             }
@@ -120,7 +120,7 @@ class HalcashTelepayDriver{
 
         }else{
             $url = $this->url.'/HalCashGatewayIssue.asmx?wsdl';
-            $client = new nusoap_client($url,true);
+            $client = new nusoap_client($url, true, false, false, false, false, 5, 60);
             if ($sError = $client->getError()) {
                 throw new HttpException(400,"No se pudo completar la operacion [".$sError."]");
             }
