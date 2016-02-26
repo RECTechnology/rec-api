@@ -83,11 +83,28 @@ class MigrateCommand extends ContainerAwareCommand
                 case 'fac_send':
                     $methods[] = 'fac-out';
                     break;
+                case 'pagofacil':
+                    $methods[] = 'pagofacil-in';
+                    break;
+                case 'paynet_payment':
+                    $methods[] = 'paynet_payment-out';
+                    break;
+                case 'safetypay':
+                    $methods[] = 'safetypay-in';
+                    break;
+                case 'pademobile':
+                    $methods[] = 'pademobile-in';
+                    break;
+                case 'paysafecard':
+                    $methods[] = 'paysafecard-in';
+                    break;
                 default:
                     break;
             }
 
         }
+
+        $methods[] = 'echo-in';
 
         return $methods;
 

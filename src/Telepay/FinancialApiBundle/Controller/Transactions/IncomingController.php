@@ -455,7 +455,7 @@ class IncomingController extends RestApiController{
                         $transaction = $service->create($transaction);
                     }catch (HttpException $e){
 
-                        if($e->getStatusCode()>=500){
+                        if($e->getStatusCode() >= 500){
                             $transaction->setStatus(Transaction::$STATUS_FAILED);
                             $transaction = $this->get('notificator')->notificate($transaction);
                             $current_wallet->setAvailable($current_wallet->getAvailable() + $amount );
