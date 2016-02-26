@@ -522,10 +522,10 @@ class IncomingController2 extends RestApiController{
                         $mongo->flush();
 
                         //desbloquear pasta del wallet
-                        $current_wallet->setAvailable($current_wallet->getAvailable() + $amount );
-                        $current_wallet->setBalance($current_wallet->getBalance() + $amount );
+                        $current_wallet->setAvailable($current_wallet->getAvailable() + $total_amount );
+                        $current_wallet->setBalance($current_wallet->getBalance() + $total_amount );
                         $balancer = $this->get('net.telepay.commons.balance_manipulator');
-                        $balancer->addBalance($user, $amount, $transaction);
+                        $balancer->addBalance($user, $total_amount, $transaction);
 
                         $em->persist($current_wallet);
                         $em->flush();
@@ -1066,7 +1066,7 @@ class IncomingController2 extends RestApiController{
     }
 
     private function _getCurrentWallet(){
-        
+
     }
 
 }
