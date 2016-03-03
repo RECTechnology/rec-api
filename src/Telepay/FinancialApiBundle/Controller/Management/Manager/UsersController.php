@@ -123,6 +123,12 @@ class UsersController extends BaseApiController
             $elem->setAccessToken(null);
             $elem->setRefreshToken(null);
             $elem->setAuthCode(null);
+            $groups = array();
+            $list_groups = $elem->getGroups();
+            foreach($list_groups as $group){
+                $groups[] = $group->getName();
+            }
+            $elem->setGroupData($groups);
         }, $entities);
 
         return $this->rest(
