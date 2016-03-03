@@ -185,7 +185,7 @@ class POSIncomingController extends RestApiController{
         $transaction->setAmount($amount);
         $transaction->setType('POS-'.$posType);
 
-        $group = $user->getGroups[0];
+        $group = $user->getGroups()[0];
         //get fees from group
         $group_commission = $this->_getFees($group, 'POS-'.$posType, strtoupper($dataIn['currency']));
 
