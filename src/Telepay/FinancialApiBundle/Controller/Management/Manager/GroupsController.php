@@ -37,7 +37,10 @@ class GroupsController extends BaseApiController
         if($request->query->has('offset')) $offset = $request->query->get('offset');
         else $offset = 0;
 
-        //TODO only the superadmin can access here
+        //only the superadmin can access here
+        if(!$this->get('security.context')->isGranted('ROLE_SUPER_ADMIN'))
+            throw new HttpException(403, 'You have not the necessary permissions');
+
         //TODO: Improve performance (two queries)
         $all = $this->getRepository()->findAll();
 
@@ -219,7 +222,14 @@ class GroupsController extends BaseApiController
         if (!$admin) throw new HttpException(404, 'Not user found');
 
         //TODO: Improve performance (two queries)
-        $group = $this->getRepository()->find($id);
+        $group = $this->getRepository()->findOneBy(
+            array(
+                'id'        =>  $id,
+                'creator'   =>  $admin
+            )
+        );
+
+        if(!$group) throw new HttpException(404,'Group not found');
 
         $fees = $group->getCommissions();
         foreach ( $fees as $fee ){
@@ -257,6 +267,8 @@ class GroupsController extends BaseApiController
      */
     public function deleteAction($id){
 
+        $user = $this->get('security.context')->getToken()->getUser();
+
         $groupsRepo = $this->getDoctrine()->getRepository("TelepayFinancialApiBundle:Group");
 
         $default_group = $this->container->getParameter('id_group_default');
@@ -265,6 +277,8 @@ class GroupsController extends BaseApiController
         if($id == $default_group || $id == $level0_group ) throw new HttpException(405, 'Not allowed');
 
         $group = $groupsRepo->find($id);
+
+        if($group->getCreator() != $user) throw new HttpException(403, 'You do not have the necessary permissions');
 
         if(!$group) throw new HttpException(404,'Group not found');
 
