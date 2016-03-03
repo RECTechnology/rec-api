@@ -259,6 +259,7 @@ class GroupsController extends BaseApiController
      * @Rest\View
      */
     public function updateAction(Request $request, $id){
+        //TODO check that this user is the creator of this group or is the superadmin
         return parent::updateAction($request, $id);
     }
 
