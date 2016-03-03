@@ -8,12 +8,14 @@
 
 namespace Telepay\FinancialApiBundle\Controller\Transactions;
 
+use Symfony\Component\Config\Definition\Exception\Exception;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpKernel\Exception\HttpException;
 use Telepay\FinancialApiBundle\Controller\RestApiController;
 use FOS\RestBundle\Controller\Annotations as Rest;
 use Telepay\FinancialApiBundle\Document\Transaction;
 use Telepay\FinancialApiBundle\Entity\UserWallet;
+use Telepay\FinancialApiBundle\Financial\Currency;
 
 class POSIncomingController extends RestApiController{
 
@@ -123,6 +125,136 @@ class POSIncomingController extends RestApiController{
         if($transaction == false) throw new HttpException(500, "oOps, some error has occurred within the call");
 
         return $this->restTransaction($transaction, "Done");
+    }
+
+    /**
+     * @Rest\View
+     */
+    public function createTransactionTest(Request $request,  $id){
+
+        $em = $this->getDoctrine()->getManager();
+        $tpvRepo = $em->getRepository('TelepayFinancialApiBundle:POS')->findOneBy(array(
+            'pos_id'    =>  $id
+        ));
+
+        $posType = $tpvRepo->getType();
+
+        $service_cname = $tpvRepo->getCname();
+
+        $user = $tpvRepo->getUser();
+
+        if($tpvRepo->getActive() == 0) throw new HttpException(400, 'Service Temporally unavailable');
+
+        $service_currency = strtoupper($tpvRepo->getCurrency());
+
+        $paramNames = array(
+            'amount',
+            'concept',
+            'currency',
+            'url_notification',
+            'url_ok',
+            'url_ko',
+            'order_id'
+        );
+
+        $dataIn = array();
+        foreach($paramNames as $paramName){
+            if(!$request->request->has($paramName))
+                throw new HttpException(400, "Parameter '".$paramName."' not found");
+            else $dataIn[$paramName] = $request->get($paramName);
+        }
+
+        $dm = $this->get('doctrine_mongodb')->getManager();
+
+        //Check unique order_id by user and tpv
+        $qb = $dm->createQueryBuilder('TelepayFinancialApiBundle:Transaction')
+            ->field('posId')->equals($id)
+            ->field('user')->equals($user->getId())
+            ->field('dataIn.order_id')->equals($dataIn['order_id'])
+            ->getQuery();
+
+        if( count($qb) > 0 ) throw new HttpException(409,'Duplicated resource');
+
+        //create transaction
+        $transaction = Transaction::createFromRequest($request);
+        $transaction->setService($posType);
+        $transaction->setUser($user->getId());
+        $transaction->setVersion(1);
+        $transaction->setDataIn($dataIn);
+        $transaction->setPosId($id);
+        $dm->persist($transaction);
+        $amount = $dataIn['amount'];
+        $transaction->setAmount($amount);
+        $transaction->setType('POS-'.$posType);
+
+        //add commissions to check
+        $fixed_fee = 0;
+        $variable_fee = 0;
+
+        //add fee to transaction
+        $transaction->setVariableFee($variable_fee);
+        $transaction->setFixedFee($fixed_fee);
+        $dm->persist($transaction);
+
+        $total = $amount - $variable_fee - $fixed_fee;
+        $transaction->setTotal($total);
+
+        $current_wallet = null;
+
+        $transaction->setCurrency(strtoupper($dataIn['currency']));
+        $transaction->setScale(Currency::$SCALE[strtoupper($dataIn['currency'])]);
+
+        //CASH - IN
+        //distinguirn entre los distintos tipos de tpv
+        if($posType == 'PNP'){
+
+        }elseif($posType == 'BTC'){
+            //Calcular el amount dependiendo de la moneda de entrada
+            if(strtoupper($dataIn['currency']) != 'BTC'){
+                $exchange = $em->getRepository('TelepayFinancialApiBundle:Exchange')->findOneBy(
+                    array(
+                        'src'   =>  'BTC',
+                        'dst'   =>  $dataIn['currency']
+                    ),
+                    array('id'  =>  'DESC')
+                );
+                $amount = round($dataIn['amount']/$exchange->getPrice(),0);
+            }else{
+                $amount = $dataIn['amount'];
+            }
+
+            $address = $this->generateAddress();
+
+//            if(!$address) throw new HttpException(403, 'Service temporally unavailable');
+
+            $paymentInfo = array(
+                'amount'    =>  $amount,
+                'currency'  =>  'BTC',
+                'scale'     =>  Currency::$SCALE['BTC'],
+                'address'   =>  $address,
+                'expires_in'=>  $tpvRepo->getExpiresIn(),
+                'received'  =>  0,
+                'min_confirmations' =>  0,
+                'confirmations' =>  1,
+                'url_ok'    =>  $dataIn['url_ok'],
+                'url_ko'    =>  $dataIn['url_ko']
+            );
+
+        }
+
+        $transaction->setPayInInfo($paymentInfo);
+
+        $transaction = $this->get('notificator')->notificate($transaction);
+        $em->flush();
+
+        $transaction->setUpdated(new \DateTime());
+
+        $dm->persist($transaction);
+        $dm->flush();
+
+        if($transaction == false) throw new HttpException(500, "oOps, some error has occurred within the call");
+
+        return $this->posTransaction(201, $transaction, "Done");
     }
 
     /**

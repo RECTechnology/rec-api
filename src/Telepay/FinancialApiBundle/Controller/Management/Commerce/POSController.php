@@ -64,11 +64,17 @@ class POSController extends BaseApiController{
         ));
 
         $currency = $request->request->get('currency');
+        $type = $request->request->get('type');
         $request->request->remove('currency');
-        $request->request->add(array('currency'=> strtoupper($currency)));
+        $request->request->remove('type');
+        $request->request->add(array(
+            'currency'  => strtoupper($currency),
+            'type'      =>  strtoupper($type)
+        ));
 
         $request->request->add(array(
-            'pos_id'    =>  uniqid()
+            'pos_id'    =>  uniqid(),
+            'cname'     =>  'POS-'.$type
         ));
 
         return parent::createAction($request);
