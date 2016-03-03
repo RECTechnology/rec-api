@@ -14,6 +14,8 @@ use Symfony\Component\HttpKernel\Exception\HttpException;
 use Telepay\FinancialApiBundle\Controller\RestApiController;
 use FOS\RestBundle\Controller\Annotations as Rest;
 use Telepay\FinancialApiBundle\Document\Transaction;
+use Telepay\FinancialApiBundle\Entity\Group;
+use Telepay\FinancialApiBundle\Entity\ServiceFee;
 use Telepay\FinancialApiBundle\Entity\UserWallet;
 use Telepay\FinancialApiBundle\Financial\Currency;
 
@@ -139,13 +141,9 @@ class POSIncomingController extends RestApiController{
 
         $posType = $tpvRepo->getType();
 
-        $service_cname = $tpvRepo->getCname();
-
         $user = $tpvRepo->getUser();
 
         if($tpvRepo->getActive() == 0) throw new HttpException(400, 'Service Temporally unavailable');
-
-        $service_currency = strtoupper($tpvRepo->getCurrency());
 
         $paramNames = array(
             'amount',
@@ -187,9 +185,13 @@ class POSIncomingController extends RestApiController{
         $transaction->setAmount($amount);
         $transaction->setType('POS-'.$posType);
 
+        $group = $user->getGroups[0];
+        //get fees from group
+        $group_commission = $this->_getFees($group, 'POS-'.$posType, strtoupper($dataIn['currency']));
+
         //add commissions to check
-        $fixed_fee = 0;
-        $variable_fee = 0;
+        $fixed_fee = $group_commission->getFixed();
+        $variable_fee = round(($group_commission->getVariable()/100) * $amount, 0);
 
         //add fee to transaction
         $transaction->setVariableFee($variable_fee);
@@ -525,6 +527,30 @@ class POSIncomingController extends RestApiController{
         $dealer = $this->get('net.telepay.commons.fee_deal');
         $dealer->deal($creator, $amount, $service_cname, $currency, $total_fee, $transaction_id, $transaction->getVersion());
 
+    }
+
+    private function _getFees(Group $group, $method, $currency){
+
+        $em = $this->getDoctrine()->getManager();
+
+        $group_commissions = $group->getCommissions();
+        $group_commission = false;
+
+        foreach ( $group_commissions as $commission ){
+            if ( $commission->getServiceName() == $method && $commission->getCurrency() == $currency ){
+                $group_commission = $commission;
+            }
+        }
+
+        //if group commission not exists we create it
+        if(!$group_commission){
+            $group_commission = ServiceFee::createFromController($method, $group);
+            $group_commission->setCurrency($currency);
+            $em->persist($group_commission);
+            $em->flush();
+        }
+
+        return $group_commission;
     }
 
 
