@@ -225,7 +225,7 @@ class POSIncomingController extends RestApiController{
 
             $address = $this->generateAddress();
 
-//            if(!$address) throw new HttpException(403, 'Service temporally unavailable');
+            if(!$address) throw new HttpException(403, 'Service temporally unavailable');
 
             $paymentInfo = array(
                 'amount'    =>  $amount,
