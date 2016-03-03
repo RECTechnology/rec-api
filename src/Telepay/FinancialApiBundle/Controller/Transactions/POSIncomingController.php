@@ -177,7 +177,7 @@ class POSIncomingController extends RestApiController{
 
         //create transaction
         $transaction = Transaction::createFromRequest($request);
-        $transaction->setService($posType);
+        $transaction->setService('POS-'.$posType);
         $transaction->setUser($user->getId());
         $transaction->setVersion(1);
         $transaction->setDataIn($dataIn);
@@ -276,7 +276,7 @@ class POSIncomingController extends RestApiController{
         $em = $this->get('doctrine_mongodb')->getManager();
         $transaction = $em->getRepository('TelepayFinancialApiBundle:Transaction')->find($id);
 
-        return $this->restTransaction($transaction, "Got ok");
+        return $this->posTransaction(200,$transaction, "Got ok");
 
     }
 
