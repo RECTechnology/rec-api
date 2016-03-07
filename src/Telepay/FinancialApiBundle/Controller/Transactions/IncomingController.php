@@ -233,9 +233,7 @@ class IncomingController extends RestApiController{
 
                     $this->container->get('notificator')->notificate($transaction);
 
-                    if ($transaction->getStatus() == Transaction::$STATUS_ERROR){
-                        throw $e;
-                    }
+                    throw new HttpException($e->getStatusCode(), $e->getMessage());
 
                 }
 
