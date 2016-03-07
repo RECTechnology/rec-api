@@ -130,7 +130,8 @@ class CheckCryptoPOSV2Command extends ContainerAwareCommand
                         $dealer->deal(
                             $creator,
                             $amount,
-                            $service_cname,
+                            'POS',
+                            'BTC',
                             $currency_out ,
                             $total_fee,
                             $transaction_id,
