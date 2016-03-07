@@ -409,8 +409,18 @@ class UsersController extends BaseApiController
      * @Rest\View
      */
     public function updateAction(Request $request, $id){
+
         if(empty($id) && $id !=0) throw new HttpException(400, "Missing parameter 'id'");
 
+        //TODO check if this admin is admin of this user
+        $role_commerce = null;
+        if($request->request->has('roles')){
+            $roles = $request->request->get('roles');
+            if(in_array('ROLE_COMMERCE', $roles)){
+                $role_commerce = true;
+            }
+            die(print_r($request->request->get('roles'),true));
+        }
         if($id == 0){
             $username = $request->get('username');
             $repo = $this->getRepository();
@@ -470,6 +480,12 @@ class UsersController extends BaseApiController
             if($methods !== null){
                 $request->request->add(array('methods'=>$methods));
                 $this->_setMethods($request, $id);
+            }
+
+            if($role_commerce !== null){
+                //TODO check if the admins have POS FEES for all the admins
+
+
             }
 
         }
