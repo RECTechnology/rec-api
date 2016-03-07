@@ -199,7 +199,7 @@ class POSIncomingController extends RestApiController{
         $dm->persist($transaction);
 
         $total = $amount - $variable_fee - $fixed_fee;
-        $transaction->setTotal($total);
+        $transaction->setTotal($amount);
 
         $current_wallet = null;
 
