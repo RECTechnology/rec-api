@@ -419,7 +419,7 @@ class UsersController extends BaseApiController
             if(in_array('ROLE_COMMERCE', $roles)){
                 $role_commerce = true;
             }
-            die(print_r($request->request->get('roles'),true));
+            //die(print_r($request->request->get('roles'),true));
         }
         if($id == 0){
             $username = $request->get('username');
