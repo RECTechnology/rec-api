@@ -145,10 +145,13 @@ class POSIncomingController extends RestApiController{
 
         if($tpvRepo->getActive() == 0) throw new HttpException(400, 'Service Temporally unavailable');
 
+        $pos_config = $this->container->get('net.telepay.config.pos_'.strtolower($posType))->getInfo();
+
         $paramNames = array(
             'amount',
             'concept',
-            'currency',
+            'currency_in',
+            'currency_out',
             'url_notification',
             'url_ok',
             'url_ko',
@@ -173,6 +176,39 @@ class POSIncomingController extends RestApiController{
 
         if( count($qb) > 0 ) throw new HttpException(409,'Duplicated resource');
 
+        if(!in_array(strtoupper($dataIn['currency_in']), $pos_config['allowed_currencies_in'])){
+            throw new HttpException(404, 'Currency_in not allowed');
+        }
+        if(!in_array(strtoupper($dataIn['currency_out']), $pos_config['allowed_currencies_out'])){
+            throw new HttpException(404, 'Currency_in not allowed');
+        }
+
+        if(strtoupper($dataIn['currency_in']) != $pos_config['currency']){
+            $exchange = $em->getRepository('TelepayFinancialApiBundle:Exchange')->findOneBy(
+                array(
+                    'src'   =>  $dataIn['currency_in'],
+                    'dst'   =>  $pos_config['currency']
+                ),
+                array('id'  =>  'DESC')
+            );
+            $pos_amount = round($dataIn['amount']*$exchange->getPrice(),0);
+        }else{
+            $pos_amount = $dataIn['amount'];
+        }
+
+        if(strtoupper($dataIn['currency_out']) != $pos_config['currency']){
+            $exchange = $em->getRepository('TelepayFinancialApiBundle:Exchange')->findOneBy(
+                array(
+                    'src'   =>  $pos_config['currency'],
+                    'dst'   =>  $dataIn['currency_out']
+                ),
+                array('id'  =>  'DESC')
+            );
+            $amount = round($pos_amount * $exchange->getPrice(),0);
+        }else{
+            $amount = $pos_amount;
+        }
+
         //create transaction
         $transaction = Transaction::createFromRequest($request);
         $transaction->setService('POS-'.$posType);
@@ -181,13 +217,12 @@ class POSIncomingController extends RestApiController{
         $transaction->setDataIn($dataIn);
         $transaction->setPosId($id);
         $dm->persist($transaction);
-        $amount = $dataIn['amount'];
         $transaction->setAmount($amount);
         $transaction->setType('POS-'.$posType);
 
         $group = $user->getGroups()[0];
         //get fees from group
-        $group_commission = $this->_getFees($group, 'POS-'.$posType, strtoupper($dataIn['currency']));
+        $group_commission = $this->_getFees($group, 'POS-'.$posType, strtoupper($dataIn['currency_out']));
 
         //add commissions to check
         $fixed_fee = $group_commission->getFixed();
@@ -203,8 +238,8 @@ class POSIncomingController extends RestApiController{
 
         $current_wallet = null;
 
-        $transaction->setCurrency(strtoupper($dataIn['currency']));
-        $transaction->setScale(Currency::$SCALE[strtoupper($dataIn['currency'])]);
+        $transaction->setCurrency(strtoupper($dataIn['currency_out']));
+        $transaction->setScale(Currency::$SCALE[strtoupper($dataIn['currency_out'])]);
 
         //CASH - IN
         //distinguirn entre los distintos tipos de tpv
@@ -219,29 +254,16 @@ class POSIncomingController extends RestApiController{
                 'url_ok'    =>  $dataIn['url_ok'],
                 'url_ko'    =>  $dataIn['url_ko']
             );
-                        
+
 
         }elseif($posType == 'BTC'){
-            //Calcular el amount dependiendo de la moneda de entrada
-            if(strtoupper($dataIn['currency']) != 'BTC'){
-                $exchange = $em->getRepository('TelepayFinancialApiBundle:Exchange')->findOneBy(
-                    array(
-                        'src'   =>  'BTC',
-                        'dst'   =>  $dataIn['currency']
-                    ),
-                    array('id'  =>  'DESC')
-                );
-                $amount = round($dataIn['amount']/$exchange->getPrice(),0);
-            }else{
-                $amount = $dataIn['amount'];
-            }
 
             $address = $this->generateAddress();
 
             if(!$address) throw new HttpException(403, 'Service temporally unavailable');
 
             $paymentInfo = array(
-                'amount'    =>  $amount,
+                'amount'    =>  $pos_amount,
                 'currency'  =>  'BTC',
                 'scale'     =>  Currency::$SCALE['BTC'],
                 'address'   =>  $address,
