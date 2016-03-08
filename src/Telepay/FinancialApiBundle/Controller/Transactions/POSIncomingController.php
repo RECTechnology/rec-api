@@ -210,6 +210,17 @@ class POSIncomingController extends RestApiController{
         //distinguirn entre los distintos tipos de tpv
         if($posType == 'PNP'){
 
+            $trans_pos_id = rand();
+            $paymentInfo = array(
+                'amount'    =>  $amount,
+                'currency'  =>  'EUR',
+                'scale'     =>  Currency::$SCALE['EUR'],
+                'transaction_pos_id'    =>  $trans_pos_id,
+                'url_ok'    =>  $dataIn['url_ok'],
+                'url_ko'    =>  $dataIn['url_ko']
+            );
+                        
+
         }elseif($posType == 'BTC'){
             //Calcular el amount dependiendo de la moneda de entrada
             if(strtoupper($dataIn['currency']) != 'BTC'){
