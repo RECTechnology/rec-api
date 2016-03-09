@@ -151,7 +151,6 @@ class POSIncomingController extends RestApiController{
             'amount',
             'concept',
             'currency_in',
-            'currency_out',
             'url_notification',
             'url_ok',
             'url_ko',
@@ -163,6 +162,12 @@ class POSIncomingController extends RestApiController{
             if(!$request->request->has($paramName))
                 throw new HttpException(400, "Parameter '".$paramName."' not found");
             else $dataIn[$paramName] = $request->get($paramName);
+        }
+
+        if($request->request->has('currency_out')){
+            $dataIn['currency_out'] = $request->request->get('currency_out');
+        }else{
+            $dataIn['currency_out'] = $pos_config['default_currency'];
         }
 
         $dm = $this->get('doctrine_mongodb')->getManager();
