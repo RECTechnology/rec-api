@@ -23,7 +23,7 @@ class ScheduledController extends BaseApiController{
     /**
      * @Rest\View
      */
-    public function createActions(Request $request){
+    public function createAction(Request $request){
         $user = $this->get('security.context')->getToken()->getUser();
         $request->request->add("user", $user);
 
