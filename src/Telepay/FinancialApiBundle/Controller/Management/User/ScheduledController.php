@@ -25,7 +25,9 @@ class ScheduledController extends BaseApiController{
      */
     public function createAction(Request $request){
         $user = $this->get('security.context')->getToken()->getUser();
-        $request->request->add("user", $user);
+        $request->request->add(array(
+            'user'   =>  $user
+        ));
 
         if(!$request->request->has('wallet')) throw new HttpException(400,'Missing parameter wallet');
         $wallet = $request->request->get('wallet');
