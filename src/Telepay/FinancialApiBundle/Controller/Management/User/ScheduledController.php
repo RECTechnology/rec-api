@@ -56,7 +56,7 @@ class ScheduledController extends BaseApiController{
         if($method == "sepa"){
             if(!$request->request->has('iban')) throw new HttpException(400,'Missing parameter iban');
             $iban = $request->request->get('iban');
-            if($this->checkIBAN($iban)){
+            if(!$this->checkIBAN($iban)){
                 throw new HttpException(400,'Iban incorrect');
             }
             $request->request->remove('iban');
