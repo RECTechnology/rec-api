@@ -74,11 +74,14 @@ class ScheduledController extends BaseApiController{
                 throw new HttpException(400,'Concept must be defined');
             }
             $request->request->remove('concept');
-            $request->request->add("info", json_encode(array(
-                "iban" => $iban,
-                "swift" => $swift,
-                "concept" => $concept
-            )));
+            $request->request->add(array(
+                'info'    =>  json_encode(array(
+                        "iban" => $iban,
+                        "swift" => $swift,
+                        "concept" => $concept
+                    )
+                ))
+            );
         }
         return parent::createAction($request);
     }
