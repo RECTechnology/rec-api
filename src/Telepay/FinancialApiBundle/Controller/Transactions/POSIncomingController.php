@@ -220,6 +220,8 @@ class POSIncomingController extends RestApiController{
         $transaction->setAmount($amount);
         $transaction->setType('POS-'.$posType);
 
+        $transaction->setLastPriceAt(new \DateTime());
+
         $group = $user->getGroups()[0];
         //get fees from group
         $group_commission = $this->_getFees($group, 'POS-'.$posType, strtoupper($dataIn['currency_out']));
@@ -275,7 +277,8 @@ class POSIncomingController extends RestApiController{
                 'min_confirmations' =>  0,
                 'confirmations' =>  1,
                 'url_ok'    =>  $dataIn['url_ok'],
-                'url_ko'    =>  $dataIn['url_ko']
+                'url_ko'    =>  $dataIn['url_ko'],
+                'last_price_at' =>  new \DateTime()
             );
 
         }
@@ -314,6 +317,10 @@ class POSIncomingController extends RestApiController{
         $em = $this->get('doctrine_mongodb')->getManager();
         $transaction = $em->getRepository('TelepayFinancialApiBundle:Transaction')->find($id);
 
+        if($transaction->getLastPriceAt()){
+            //TODO if han pasado mas de 5 minutos cambiar el precio i todos los amounts correspondientes
+
+        }
         return $this->posTransaction(200,$transaction, "Got ok");
 
     }
