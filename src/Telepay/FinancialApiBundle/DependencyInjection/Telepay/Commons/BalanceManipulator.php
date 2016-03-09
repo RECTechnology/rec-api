@@ -62,7 +62,7 @@ class BalanceManipulator{
         }
 
         if(!$concept) $concept = 'Default content';
-        
+
         $balance = new Balance();
         $balance->setUser($user);
         $balance->setAmount($amount);
