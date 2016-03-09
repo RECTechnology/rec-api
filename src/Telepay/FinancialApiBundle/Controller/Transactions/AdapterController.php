@@ -626,7 +626,7 @@ class AdapterController extends RestApiController{
             $customResponse['created'] = $array_response['created'];
             $customResponse['ticket_id'] = $array_response['id'];
             $customResponse['id'] = $array_response['id'];
-            $customResponse['type'] = 'btc_bank_transfer';
+            $customResponse['type'] = 'btc_transfer';
             $customResponse['orig_coin'] = 'btc';
             $customResponse['orig_scale'] = 100000000;
             $customResponse['orig_amount'] = $array_response['pay_in_info']['amount'];
