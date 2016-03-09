@@ -318,6 +318,12 @@ class Transaction implements TransactionTiming {
     private $client;
 
     /**
+     * @var
+     * @MongoDB\Date
+     */
+    private $last_price_at;
+
+    /**
      */
     private $client_data = array();
 
@@ -821,5 +827,21 @@ class Transaction implements TransactionTiming {
     public function setMethod($method)
     {
         $this->method = $method;
+    }
+
+    /**
+     * @return mixed
+     */
+    public function getLastPriceAt()
+    {
+        return $this->last_price_at;
+    }
+
+    /**
+     * @param mixed $last_price_at
+     */
+    public function setLastPriceAt($last_price_at)
+    {
+        $this->last_price_at = $last_price_at;
     }
 }

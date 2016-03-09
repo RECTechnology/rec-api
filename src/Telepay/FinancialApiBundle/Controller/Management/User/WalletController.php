@@ -636,7 +636,8 @@ class WalletController extends RestApiController{
 
         $parameters = array(
             'username',
-            'amount'
+            'amount',
+            'concept'
         );
 
         $params = array();
@@ -694,7 +695,8 @@ class WalletController extends RestApiController{
         $sender_transaction->setFixedFee(0);
         $sender_transaction->setAmount($params['amount']);
         $sender_transaction->setDataIn(array(
-            'description'   =>  'transfer->'.$currency
+            'description'   =>  'transfer->'.$currency,
+            'concept'       =>  $params['concept']
         ));
         $sender_transaction->setDataOut(array(
             'sent_to'   =>  $receiver->getUsername(),
@@ -737,7 +739,8 @@ class WalletController extends RestApiController{
             'id_to'     =>  $receiver->getId(),
             'amount'    =>  -$params['amount'],
             'currency'  =>  strtoupper($currency),
-            'description'   =>  'transfer->'.$currency
+            'description'   =>  'transfer->'.$currency,
+            'concept'   =>  $params['concept']
         ));
         $receiver_transaction->setTotal($params['amount']);
         $receiver_transaction->setUser($receiver->getId());

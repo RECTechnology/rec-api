@@ -60,6 +60,9 @@ class BalanceManipulator{
         }else{
             $concept = $transaction->getDataIn()['concept'];
         }
+
+        if(!$concept) $concept = 'Default content';
+        
         $balance = new Balance();
         $balance->setUser($user);
         $balance->setAmount($amount);
