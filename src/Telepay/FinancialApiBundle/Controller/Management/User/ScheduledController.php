@@ -1,9 +1,11 @@
 <?php
 
 namespace Telepay\FinancialApiBundle\Controller\Management\User;
-use Symfony\Component\HttpFoundation\Request;
+
 use Symfony\Component\HttpKernel\Exception\HttpException;
 use Telepay\FinancialApiBundle\Controller\BaseApiController;
+use FOS\RestBundle\Controller\Annotations as Rest;
+use Symfony\Component\HttpFoundation\Request;
 use Telepay\FinancialApiBundle\Entity\Scheduled;
 
 class ScheduledController extends BaseApiController{
@@ -18,6 +20,9 @@ class ScheduledController extends BaseApiController{
         return new Scheduled();
     }
 
+    /**
+     * @Rest\View
+     */
     public function createActions(Request $request){
         $user = $this->get('security.context')->getToken()->getUser();
         $request->request->add("user", $user);
@@ -76,6 +81,9 @@ class ScheduledController extends BaseApiController{
         return parent::createAction($request);
     }
 
+    /**
+     * @Rest\View
+     */
     public function indexAction(Request $request){
         $user = $this->get('security.context')->getToken()->getUser();
 
@@ -96,9 +104,15 @@ class ScheduledController extends BaseApiController{
         );
     }
 
+    /**
+     * @Rest\View
+     */
     public function deleteAction(Request $request, $id){
     }
 
+    /**
+     * @Rest\View
+     */
     public function updateAction(Request $request, $id){
     }
 
