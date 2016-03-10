@@ -227,7 +227,7 @@ class CheckSwiftCommand extends ContainerAwareCommand
 
     private function hasExpired($transaction){
 
-        if($transaction->getMethodIn() == 'paynet'){
+        if($transaction->getMethodIn() == 'paynet_reference'){
             $expires_in = strtotime($transaction->getPayInInfo()['expires_in']);
             $response = $expires_in < time();
         }else{
