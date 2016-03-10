@@ -91,7 +91,7 @@ class SwiftController extends RestApiController{
         //GET PAYOUT CURRENCY FOR THE TRANSATION
         $transaction->setCurrency($cashOutMethod->getCurrency());
         //TODO get scale in and out
-        $transaction->setScale(2);
+        $transaction->setScale(Currency::$SCALE[$cashOutMethod->getCurrency()]);
 
         //get configuration(method)
         $swift_config = $this->container->get('net.telepay.config.'.$type_out);

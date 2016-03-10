@@ -29,7 +29,7 @@ services:
             - "0"
             - "10000"
             - "1000000000"
-            - "10000"
+            - "1"
             - "All over the world"
 
     net.telepay.config.fac:
@@ -39,7 +39,7 @@ services:
             - "0"
             - "100000000"
             - "1000000000000"
-            - "100000000"
+            - "1"
             - "All over the world"
 
     net.telepay.config.sepa:
