@@ -502,7 +502,10 @@ class AdapterController extends RestApiController{
 
                 $customResponse['ticket_id'] = $array_response['id'];
                 $customResponse['amount'] = $array_response['pay_in_info']['amount'];
-                $customResponse['expired'] = $array_response['pay_in_info']['expires_in'];
+                $customResponse['url'] = 'https://www.datalogic.com.mx/PaynetCE/GetBarcodeImage.pn?text='.$array_response['pay_in_info']['barcode'].'&bh=50&bw=1';
+                $customResponse['barcode'] = $array_response['pay_in_info']['barcode'];
+                $customResponse['type'] = 'paynet_btc';
+                $customResponse['expiration_date'] = $array_response['pay_in_info']['expires_in'];
             }else{
 
                 $customResponse['created'] = $array_response['created'];
