@@ -76,13 +76,12 @@ class SepaMethod extends BaseMethod {
             $concept = 'Sepa transaction';
         }
 
-        $params[$concept];
+        $params['concept'] = $concept;
 
         $params['currency'] = $this->getCurrency();
         $params['scale'] = Currency::$SCALE[$this->getCurrency()];
         $params['final'] = false;
         $params['status'] = false;
-
 
         return $params;
     }
