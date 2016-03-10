@@ -198,9 +198,9 @@ class CheckSwiftCommand extends ContainerAwareCommand
                         $em->flush();
 
                         //if status out == pending we have to send the transaction manually
-                    }elseif($pay_out_info['status'] == 'pending'){
+                    }elseif($pay_out_info['status'] == 'sending'){
                         $transaction->setPayOutInfo($pay_out_info);
-                        $transaction->setStatus('pending');
+                        $transaction->setStatus('sending');
                         $transaction->setDataIn($pay_out_info);
                         $output->writeln('Status pending_send');
                     }

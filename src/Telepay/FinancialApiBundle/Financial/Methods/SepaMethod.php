@@ -31,7 +31,7 @@ class SepaMethod extends BaseMethod {
 
     public function send($paymentInfo)
     {
-        $paymentInfo['status'] = 'pending';
+        $paymentInfo['status'] = 'sending';
 
         return $paymentInfo;
 
