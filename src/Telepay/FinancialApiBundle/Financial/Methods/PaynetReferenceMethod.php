@@ -30,6 +30,8 @@ class PaynetReferenceMethod extends BaseMethod{
         $id = round($id);
         $description = 'ChipChap Payment';
 
+        $amount = round($amount, -4);
+        
         $barcode = $this->driver->request($id, $amount, $description);
 
         if($barcode['error_code'] == 0){
