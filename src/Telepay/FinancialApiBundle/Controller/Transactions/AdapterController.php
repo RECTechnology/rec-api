@@ -419,7 +419,7 @@ class AdapterController extends RestApiController{
             $customResponse['url'] = "https://www.datalogic.com.mx/PaynetCE/GetBarcodeImage.pn?text=".$array_response['pay_in_info']['barcode']."&bh=50&bw=1";
             $customResponse['amount'] = $array_response['pay_in_info']['amount'];
             $customResponse['expiration_date'] = $array_response['pay_in_info']['expires_in'];
-//            $customResponse['description'] = $array_response['pay_in_info']['description'];
+            $customResponse['description'] = $array_response['pay_out_info']['concept'];
 
             return $this->restPlain($response->getStatusCode(), $customResponse);
 

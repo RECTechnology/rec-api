@@ -88,7 +88,6 @@ class BtcMethod extends BaseMethod {
 
     }
 
-
     //PAY OUT
     public function getPayOutInfo($request)
     {
@@ -107,6 +106,12 @@ class BtcMethod extends BaseMethod {
         $address_verification = $this->driver->validateaddress($params['address']);
 
         if(!$address_verification['isvalid']) throw new HttpException(400,'Invalid address.');
+
+        if($request->request->has('concept')){
+            $params['concept'] = $request->request->get('concept');
+        }else{
+            $params['concept'] = 'Btc out Transaction';
+        }
 
         $params['currency'] = $this->getCurrency();
         $params['scale'] = Currency::$SCALE[$this->getCurrency()];
