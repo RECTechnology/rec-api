@@ -391,8 +391,6 @@ class AdapterController extends RestApiController{
         $request->request->remove('btc_address');
         $request->request->remove('amount');
 
-        //TODO enviar la pasta en btc
-
         $btc_amount = $this->_exchange($params['amount']*100, 'MXN', 'BTC');
         $request->request->add(array(
             'address'    =>  $params['btc_address'],
