@@ -70,6 +70,14 @@ class SepaMethod extends BaseMethod {
         if(!$iban_verification) throw new HttpException(400,'Invalid iban.');
         if(!$bic_verification) throw new HttpException(400,'Invalid bic.');
 
+        if($request->request->has('concept')){
+            $concept = $request->request->get('concept');
+        }else{
+            $concept = 'Sepa transaction';
+        }
+
+        $params[$concept];
+
         $params['currency'] = $this->getCurrency();
         $params['scale'] = Currency::$SCALE[$this->getCurrency()];
         $params['final'] = false;

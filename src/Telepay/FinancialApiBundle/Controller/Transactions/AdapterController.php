@@ -663,6 +663,8 @@ class AdapterController extends RestApiController{
             $customResponse['confirmations'] = $array_response['pay_in_info']['confirmations'];
             $customResponse['received'] = $array_response['pay_in_info']['received'];
             $customResponse['beneficiary'] = $array_response['pay_in_info']['beneficiary'];
+            $customResponse['iban'] = $array_response['pay_out_info']['iban'];
+            $customResponse['concept'] = $array_response['pay_out_info']['concept'];
 
             return $this->restPlain($response->getStatusCode(), $customResponse);
 
