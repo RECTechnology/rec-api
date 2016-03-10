@@ -391,9 +391,12 @@ class AdapterController extends RestApiController{
         $request->request->remove('btc_address');
         $request->request->remove('amount');
 
+        //TODO enviar la pasta en btc
+
+        $btc_amount = $this->_exchange($params['amount']*100, 'MXN', 'BTC');
         $request->request->add(array(
             'address'    =>  $params['btc_address'],
-            'amount'    =>  $params['amount']*100,
+            'amount'    =>  $btc_amount,
             'concept'   =>  $params['description']
         ));
 
@@ -862,7 +865,7 @@ class AdapterController extends RestApiController{
             $customResponse['address'] = $array_response['pay_in_info']['address'];
             $customResponse['confirmations'] = $array_response['pay_in_info']['confirmations'];
             $customResponse['received'] = $array_response['pay_in_info']['received'];
-            $customResponse['email'] = $array_response['pay_in_info']['email'];
+            $customResponse['email'] = $array_response['pay_out_info']['email'];
 
             return $this->restPlain($response->getStatusCode(), $customResponse);
 
@@ -1042,6 +1045,15 @@ class AdapterController extends RestApiController{
                 'destination'   =>  'transfer',
                 'text'      =>  'Sell bitcoins and receive a bank transfer.',
                 'countries' =>  'Eurozone'
+            ),
+            'bankcard_btc'    =>  array(
+                'status'    =>  $status_pos_btc,
+                'message'   =>  $this->_getStatusMessage($status_pos_btc)['message'],
+                'delay'   =>  $this->_getStatusMessage($status_pos_btc)['delay'],
+                'origin'    =>  'bankcard',
+                'destination'   =>  'bitcoin',
+                'text'      =>  'Buy bitcoins with your bank card.',
+                'countries' =>  'All over the world'
             )
         );
 
