@@ -61,12 +61,7 @@ class PaynetReferenceMethod extends BaseMethod{
     {
         $client_reference = $paymentInfo['paynet_id'];
 
-        if($client_reference == '145762616608'){
-            $result = $this->driver->status($client_reference);
-        }else{
-            $result['status'] = 'success';
-            $result['status_description'] = 'Authorized';
-        }
+        $result = $this->driver->status($client_reference);
 
         $paymentInfo['status'] = $result['status'];
         $paymentInfo['paynet_status'] = $result['status_description'];
