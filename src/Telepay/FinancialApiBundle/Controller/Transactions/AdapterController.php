@@ -1080,13 +1080,13 @@ class AdapterController extends RestApiController{
         $paynet_fixed_fee = 0;
         $timeout = 1200;
         $daily_sell_limit = 600;
-        $daily_buy_limit = 0;
+        $daily_buy_limit = 500;
         $monthly_sell_limit = 3000;
-        $monthly_buy_limit = 0;
+        $monthly_buy_limit = 5000;
         $daily_limit_pln = 2000;
-        $daily_buy_limit_pln = 0;
+        $daily_buy_limit_pln = 1000;
         $monthly_limit_pln = 20000;
-        $monthly_buy_limit_pln = 0;
+        $monthly_buy_limit_pln = 5000;
         $paynet_limit = 0;
         $paynet_buy_limit = 1000;
         $cryptocapital_limit = 250;
