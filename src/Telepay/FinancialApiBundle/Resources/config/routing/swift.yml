@@ -50,7 +50,7 @@ old_btc_halcash:
         _method: POST
 
 old_btc_halcash_check:
-    pattern:  /api/send/{id}
+    pattern:  /api/check/{id}
     defaults: { _controller: Telepay\FinancialApiBundle\Controller\Transactions\AdapterController::check ,_format: ~ ,type_in: 'btc' ,type_out: 'halcash', version_number: '1'}
     requirements:
         _method: GET
