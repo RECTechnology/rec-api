@@ -107,7 +107,7 @@ class AdapterController extends RestApiController{
         }elseif($type_in == 'paynet'){
             if($type_out == 'btc'){
 
-                return $this->_paynetBtcCheck($id);
+                return $this->_paynetBtcCheck($id, $version_number);
 
             }elseif($type_out == 'fac'){
 
