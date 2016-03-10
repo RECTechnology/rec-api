@@ -165,7 +165,7 @@ class CheckSwiftCommand extends ContainerAwareCommand
                         $dm->persist($rootFee);
                         $dm->flush();
 
-                        //TODO get wallets and add fees to both, user and wallet
+                        //get wallets and add fees to both, user and wallet
                         $rootWallets = $root->getWallets();
                         $current_wallet = null;
 
@@ -227,7 +227,13 @@ class CheckSwiftCommand extends ContainerAwareCommand
 
     private function hasExpired($transaction){
 
-        return $transaction->getCreated()->getTimestamp() + $transaction->getPayInInfo()['expires_in'] < time();
+        if($transaction->getMethodIn() == 'paynet'){
+            $expires_in = strtotime($transaction->getPayInInfo()['expires_in']);
+            $response = $expires_in < time();
+        }else{
+            $response = $transaction->getCreated()->getTimestamp() + $transaction->getPayInInfo()['expires_in'] < time();
+        }
+        return $response;
 
     }
 
