@@ -15,7 +15,7 @@ use FOS\RestBundle\Controller\Annotations as Rest;
 
 class AdapterController extends RestApiController{
 
-    public function make(Request $request, $type_in, $type_out){
+    public function make(Request $request, $type_in, $type_out, $version_number = 1){
 
         if($type_in == 'btc'){
 
@@ -477,7 +477,7 @@ class AdapterController extends RestApiController{
         }
     }
 
-    private function _paynetBtcCheck($id){
+    private function _paynetBtcCheck($id, $version_number = 1){
 
         $response = $this->forward('Telepay\FinancialApiBundle\Controller\Transactions\SwiftController::check', array(
             'version_number'    =>  1,
@@ -490,17 +490,39 @@ class AdapterController extends RestApiController{
         if($response->getStatusCode() == 200){
             //status,created,ticket_id,id,type,orig_coin,orig_scale,orig_amount,dst_coin,dst_scale,
             //dst_amount,price,address,confirmations,received,phone,prefix,pin
-
             $customResponse = array();
+
             if($array_response['status'] == 'created'){
                 $customResponse['status'] = 'ok';
             }else{
                 $customResponse['status'] = $array_response['status'];
             }
 
-            $customResponse['ticket_id'] = $array_response['id'];
-            $customResponse['amount'] = $array_response['pay_in_info']['amount'];
-            $customResponse['expired'] = $array_response['pay_in_info']['expires_in'];
+            if($version_number == 1){
+
+                $customResponse['ticket_id'] = $array_response['id'];
+                $customResponse['amount'] = $array_response['pay_in_info']['amount'];
+                $customResponse['expired'] = $array_response['pay_in_info']['expires_in'];
+            }else{
+
+                $customResponse['created'] = $array_response['created'];
+                $customResponse['ticket_id'] = $array_response['id'];
+                $customResponse['orig_coin'] = 'MXN';
+                $customResponse['orig_scale'] = 100;
+                $customResponse['orig_amount'] = $array_response['pay_in_info']['amount'];
+                $customResponse['dst_coin'] = 'BTC';
+                $customResponse['dst_scale'] = 100000000;
+                $customResponse['dst_amount'] = $array_response['pay_out_info']['amount'];
+                $customResponse['received'] = $array_response['pay_out_info']['received'];
+                $customResponse['address'] = $array_response['pay_out_info']['address'];
+                $customResponse['price'] = round(($array_response['pay_in_info']['amount']/100)/($array_response['pay_out_info']['amount']/1e8),2)*100;
+                $customResponse['type'] = 'paynet_btc';
+                $customResponse['reference'] = 'concept to btc';
+                $customResponse['url'] = 'https://www.datalogic.com.mx/PaynetCE/GetBarcodeImage.pn?text='.$array_response['pay_in_info']['barcode'].'&bh=50&bw=1';
+                $customResponse['barcode'] = $array_response['pay_in_info']['barcode'];
+                $customResponse['expiration_date'] = $array_response['pay_in_info']['expires_in'];
+
+            }
 
             return $this->restPlain($response->getStatusCode(), $customResponse);
 
