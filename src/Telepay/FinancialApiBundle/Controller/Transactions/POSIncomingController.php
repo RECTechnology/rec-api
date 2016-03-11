@@ -226,6 +226,7 @@ class POSIncomingController extends RestApiController{
         $transaction->setType('POS-'.$posType);
 
         $transaction->setLastPriceAt(new \DateTime());
+        $transaction->setLastCheck(new \DateTime());
 
         $group = $user->getGroups()[0];
         //get fees from group
@@ -271,6 +272,7 @@ class POSIncomingController extends RestApiController{
 
             $paymentInfo = array(
                 'amount'    =>  $pos_amount,
+                'previous_amount'    =>  $pos_amount,
                 'received_amount'   =>  $dataIn['amount'],
                 'currency_in'   =>  strtoupper($dataIn['currency_in']),
                 'currency'  =>  'BTC',
@@ -327,6 +329,27 @@ class POSIncomingController extends RestApiController{
 
         }
         return $this->posTransaction(200,$transaction, "Got ok");
+
+    }
+
+    /**
+     * @Rest\View
+     */
+    public function checkTransaction2(Request $request, $id){
+
+        $kernel = $this->get('kernel');
+        $application = new Application($kernel);
+        $application->setAutoExit(false);
+
+        $input = new ArrayInput(array(
+            'command' => 'swiftmailer:spool:send',
+            '--transaction-id' => $id,
+        ));
+        $output = new BufferedOutput();
+        $application->run($input, $output);
+        $content = $output->fetch();
+
+        return $this->posTransaction(200, json_decode($content, true), "Got ok");
 
     }
 
