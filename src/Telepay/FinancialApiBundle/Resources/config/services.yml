@@ -16,6 +16,11 @@ services:
         arguments:
             - "@service_container"
 
+    command.check.posV2:
+        class: Telepay\FinancialApiBundle\Command\CheckCryptoPOSv2Command
+        calls:
+            - [setContainer, ["@service_container"] ]
+
     security.authentication.switchuser_listener:
         class: Telepay\FinancialApiBundle\Security\Firewall\SwitchUserListener
         public: false

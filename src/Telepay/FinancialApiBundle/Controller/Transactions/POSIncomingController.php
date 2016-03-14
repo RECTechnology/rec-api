@@ -332,6 +332,7 @@ class POSIncomingController extends RestApiController{
      */
     public function checkTransaction2(Request $request, $id){
 
+        /*
         $kernel = $this->get('kernel');
         $application = new Application($kernel);
         $application->setAutoExit(false);
@@ -344,10 +345,21 @@ class POSIncomingController extends RestApiController{
         $output = new BufferedOutput();
         $application->run($input, $output);
         $content = $output->fetch();
+        */
+
+        $command = $this->container->get('command.check.posV2');
+        $input = new ArgvInput(
+            array(
+                '--env=' . $this->container->getParameter('kernel.environment'),
+                '--transaction-id=' . $id
+            )
+        );
+        $output = new BufferedOutput();
+        $command->run($input, $output);
 
         $em = $this->get('doctrine_mongodb')->getManager();
         $transaction = $em->getRepository('TelepayFinancialApiBundle:Transaction')->find($id);
-        if($id==$content) {
+        if($id==$output) {
             return $this->posTransaction(201, $transaction, "Checked ok");
         }
         return $this->posTransaction(200, $transaction, "Got ok");
