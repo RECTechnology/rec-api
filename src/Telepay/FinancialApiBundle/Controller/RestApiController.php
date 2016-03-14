@@ -117,6 +117,8 @@ class RestApiController extends FosRestController{
             $transaction->getCreated(),
             $transaction->getUpdated(),
             $transaction->getType(),
+            $transaction->getLastCheck(),
+            $transaction->getLastPriceAt(),
             $transaction->getPayInInfo()
         );
     }
