@@ -46,7 +46,7 @@ class CheckCryptoPOSv2Command extends ContainerAwareCommand
                 ->getQuery();
         }
         else{
-            $mongoDateBefore1MinuteAgo = new \MongoDate(strtotime( date('Y-m-d H:i:s',\time() - 1 * 60) ) );
+            $mongoDateBefore1MinuteAgo = new \MongoDate(strtotime( date('Y-m-d H:i:s',\time() - 1 * 50) ) );
             $qb = $dm->createQueryBuilder('TelepayFinancialApiBundle:Transaction')
                 ->field('type')->equals($service_cname)
                 ->field('status')->in(array('created','received'))
