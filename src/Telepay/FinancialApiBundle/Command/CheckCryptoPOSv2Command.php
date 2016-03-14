@@ -50,7 +50,7 @@ class CheckCryptoPOSv2Command extends ContainerAwareCommand
             $qb = $dm->createQueryBuilder('TelepayFinancialApiBundle:Transaction')
                 ->field('type')->equals($service_cname)
                 ->field('status')->in(array('created','received'))
-                ->field('last_check')->gte($mongoDateBefore1MinuteAgo)
+                ->field('last_check')->lte($mongoDateBefore1MinuteAgo)
                 ->getQuery();
         }
 
