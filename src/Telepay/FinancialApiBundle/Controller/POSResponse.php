@@ -18,6 +18,8 @@ class POSResponse{
     private $created;
     private $updated;
     private $type;
+    private $last_check;
+    private $last_price_at;
     private $pay_in_info;
 
 
@@ -31,8 +33,8 @@ class POSResponse{
         $this->created = $created;
         $this->updated = $updated;
         $this->type = $type;
-        $this->lastCheck = $last_check;
-        $this->lastPriceAt = $last_price_at;
+        $this->last_check = $last_check;
+        $this->last_price_at = $last_price_at;
         $this->pay_in_info = $pay_in_info;
     }
 }
