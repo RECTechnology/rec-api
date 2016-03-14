@@ -79,6 +79,7 @@ class IncomingController2 extends RestApiController{
                 'url_notification'  =>  $url_notification
             );
             $payment_info = $method->getPayInInfo($amount);
+            $payment_info['concept'] = $concept;
             $transaction->setPayInInfo($payment_info);
 
         }else{
