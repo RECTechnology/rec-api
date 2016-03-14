@@ -12,6 +12,7 @@ use Symfony\Component\Config\Definition\Exception\Exception;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Console\Application;
 use Symfony\Component\HttpKernel\Exception\HttpException;
+use Symfony\Component\Console\Input\ArrayInput;
 use Telepay\FinancialApiBundle\Controller\RestApiController;
 use FOS\RestBundle\Controller\Annotations as Rest;
 use Telepay\FinancialApiBundle\Document\Transaction;
