@@ -44,6 +44,9 @@ class CheckCryptoPOSv2Command extends ContainerAwareCommand
                 ->field('id')->equals($trans_id)
                 ->field('status')->in(array('created','received'))
                 ->getQuery();
+            if(count($qb)==0){
+                $output->writeln($trans_id);
+            }
         }
         else{
             $mongoDateBefore1MinuteAgo = new \MongoDate(strtotime( date('Y-m-d H:i:s',\time() - 1 * 50) ) );
