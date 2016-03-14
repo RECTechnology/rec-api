@@ -344,7 +344,9 @@ class POSIncomingController extends RestApiController{
         $application->run($input, $output);
         $content = $output->fetch();
 
-        return $this->posTransaction(200, json_decode($content, true), "Got ok");
+        $em = $this->get('doctrine_mongodb')->getManager();
+        $transaction = $em->getRepository('TelepayFinancialApiBundle:Transaction')->find($content);
+        return $this->posTransaction(200,$transaction, "Got ok");
 
     }
 

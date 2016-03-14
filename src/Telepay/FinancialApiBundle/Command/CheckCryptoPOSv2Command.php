@@ -168,7 +168,7 @@ class CheckCryptoPOSv2Command extends ContainerAwareCommand
         }
 
         if(isset($trans_id)){
-            $output->writeln(json_encode($transaction));
+            $output->writeln($transaction->getId());
         }
         else{
             $output->writeln($service_cname.' transactions checked');
