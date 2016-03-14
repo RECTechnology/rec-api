@@ -284,9 +284,7 @@ class POSIncomingController extends RestApiController{
                 'min_confirmations' =>  0,
                 'confirmations' =>  1,
                 'url_ok'    =>  $dataIn['url_ok'],
-                'url_ko'    =>  $dataIn['url_ko'],
-                'last_price_at' =>  new \DateTime(),
-                'last_check' =>  new \DateTime()
+                'url_ko'    =>  $dataIn['url_ko']
             );
 
         }
