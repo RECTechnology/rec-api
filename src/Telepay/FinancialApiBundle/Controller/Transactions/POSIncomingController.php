@@ -339,6 +339,7 @@ class POSIncomingController extends RestApiController{
         $input = new ArrayInput(array(
             'command' => 'telepay:crypto_pos:check-V2',
             '--transaction-id' => $id,
+            '--env' => 'prod'
         ));
         $output = new BufferedOutput();
         $application->run($input, $output);
