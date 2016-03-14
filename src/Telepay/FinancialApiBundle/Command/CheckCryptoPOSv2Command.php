@@ -253,6 +253,7 @@ class CheckCryptoPOSv2Command extends ContainerAwareCommand
                 );
                 $paymentInfo['previous_amount'] = $paymentInfo['amount'];
                 $paymentInfo['amount'] = round($paymentInfo['received_amount']*$exchange->getPrice(),0);
+                $transaction->setPayInInfo($paymentInfo);
                 $transaction->setLastPriceAt(new \DateTime());
             }
         }
