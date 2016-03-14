@@ -49,8 +49,14 @@ user_POS_find_transactions:
         _method: GET
 
 user_POS_check:
-    pattern:  /pos/v{version_number}/check/{id}
+    pattern:  /pos/v1/check/{id}
     defaults: { _controller: Telepay\FinancialApiBundle\Controller\Transactions\POSIncomingController::checkTransaction }
+    requirements:
+        _method: GET
+
+user_POS_check_v2:
+    pattern:  /pos/v2/check/{id}
+    defaults: { _controller: Telepay\FinancialApiBundle\Controller\Transactions\POSIncomingController::checkTransaction2 }
     requirements:
         _method: GET
 
