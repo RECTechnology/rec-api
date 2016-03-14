@@ -95,7 +95,7 @@ class POSIncomingController extends RestApiController{
 
         $transaction->setCurrency($service_currency);
 
-       //CASH - IN
+        //CASH - IN
 
         try {
             $transaction = $service->create($transaction);
@@ -345,9 +345,11 @@ class POSIncomingController extends RestApiController{
         $content = $output->fetch();
 
         $em = $this->get('doctrine_mongodb')->getManager();
-        $transaction = $em->getRepository('TelepayFinancialApiBundle:Transaction')->find($content);
-        return $this->posTransaction(200,$transaction, "Got ok");
-
+        $transaction = $em->getRepository('TelepayFinancialApiBundle:Transaction')->find($id);
+        if($id==$content) {
+            return $this->posTransaction(201, $transaction, "Checked ok");
+        }
+        return $this->posTransaction(200, $transaction, "Got ok");
     }
 
     /**
@@ -480,7 +482,7 @@ class POSIncomingController extends RestApiController{
         if(!$transaction) throw new HttpException(400,'Transaction not found');
 
         if($transaction->getNotified() == true) throw new HttpException(409,'Duplicate notification');
-        
+
         $status = $request->request->get('status');
         $received_params = 'Params not received';
         if(!$request->request->has('params')){
