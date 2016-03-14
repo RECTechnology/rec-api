@@ -44,9 +44,6 @@ class CheckCryptoPOSv2Command extends ContainerAwareCommand
                 ->field('id')->equals($trans_id)
                 ->field('status')->in(array('created','received'))
                 ->getQuery();
-            if(count($qb)==0){
-                $output->writeln($trans_id);
-            }
         }
         else{
             $mongoDateBefore1MinuteAgo = new \MongoDate(strtotime( date('Y-m-d H:i:s',\time() - 1 * 50) ) );
@@ -171,7 +168,12 @@ class CheckCryptoPOSv2Command extends ContainerAwareCommand
         }
 
         if(isset($trans_id)){
-            $output->writeln($transaction->getId());
+            if(count($qb)==0){
+                $output->writeln($trans_id);
+            }
+            else {
+                $output->writeln($transaction->getId());
+            }
         }
         else{
             $output->writeln($service_cname.' transactions checked');
