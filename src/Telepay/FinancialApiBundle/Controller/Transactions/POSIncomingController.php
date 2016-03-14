@@ -337,7 +337,7 @@ class POSIncomingController extends RestApiController{
         $application->setAutoExit(false);
 
         $input = new ArrayInput(array(
-            'command' => 'swiftmailer:spool:send',
+            'command' => 'telepay:crypto_pos:check-V2',
             '--transaction-id' => $id,
         ));
         $output = new BufferedOutput();
