@@ -18,10 +18,12 @@ class POSResponse{
     private $created;
     private $updated;
     private $type;
+    private $last_check;
+    private $last_price_at;
     private $pay_in_info;
 
 
-    public function __construct($status, $message, $id, $amount, $scale, $currency, $created, $updated, $type, $pay_in_info){
+    public function __construct($status, $message, $id, $amount, $scale, $currency, $created, $updated, $type, $last_check, $last_price_at, $pay_in_info){
         $this->status = $status;
         $this->message = $message;
         $this->id = $id;
@@ -31,6 +33,8 @@ class POSResponse{
         $this->created = $created;
         $this->updated = $updated;
         $this->type = $type;
+        $this->last_check = $last_check;
+        $this->last_price_at = $last_price_at;
         $this->pay_in_info = $pay_in_info;
     }
 }

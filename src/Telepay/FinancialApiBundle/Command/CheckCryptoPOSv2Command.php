@@ -19,28 +19,44 @@ class CheckCryptoPOSv2Command extends ContainerAwareCommand
         $this
             ->setName('telepay:crypto_pos:check-V2')
             ->setDescription('Check crypto POS-btc transactions')
+            ->addOption(
+                'transaction-id',
+                null,
+                InputOption::VALUE_OPTIONAL,
+                'Define transaction id.',
+                null
+            )
         ;
     }
 
     protected function execute(InputInterface $input, OutputInterface $output)
     {
-
+        $trans_id=$input->getOption('transaction-id');
         $service_cname = 'POS-BTC';
 
         $dm = $this->getContainer()->get('doctrine_mongodb')->getManager();
         $em = $this->getContainer()->get('doctrine')->getManager();
         $userRepo = $em->getRepository('TelepayFinancialApiBundle:User');
 
-        $qb = $dm->createQueryBuilder('TelepayFinancialApiBundle:Transaction')
-            ->field('type')->equals($service_cname)
-            ->field('status')->in(array('created','received'))
-            ->getQuery();
+        if(isset($trans_id)){
+            $qb = $dm->createQueryBuilder('TelepayFinancialApiBundle:Transaction')
+                ->field('type')->equals($service_cname)
+                ->field('id')->equals($trans_id)
+                ->field('status')->in(array('created','received'))
+                ->getQuery();
+        }
+        else{
+            $mongoDateBefore1MinuteAgo = new \MongoDate(strtotime( date('Y-m-d H:i:s',\time() - 1 * 60) ) );
+            $qb = $dm->createQueryBuilder('TelepayFinancialApiBundle:Transaction')
+                ->field('type')->equals($service_cname)
+                ->field('status')->in(array('created','received'))
+                ->field('last_check')->lte($mongoDateBefore1MinuteAgo)
+                ->getQuery();
+        }
 
         $resArray = [];
 
         foreach($qb->toArray() as $transaction){
-
-            $paymentInfo = $transaction->getPayInInfo();
 
             $resArray [] = $transaction;
             $previous_status = $transaction->getStatus();
@@ -53,6 +69,7 @@ class CheckCryptoPOSv2Command extends ContainerAwareCommand
 
             }
 
+            $transaction->setLastCheck(new \DateTime());
             $dm->persist($transaction);
             $dm->flush();
 
@@ -150,7 +167,12 @@ class CheckCryptoPOSv2Command extends ContainerAwareCommand
 
         }
 
-        $output->writeln($service_cname.' transactions checked');
+        if(isset($trans_id)){
+            $output->writeln(json_encode($transaction));
+        }
+        else{
+            $output->writeln($service_cname.' transactions checked');
+        }
 
         $dm->flush();
 
@@ -165,7 +187,7 @@ class CheckCryptoPOSv2Command extends ContainerAwareCommand
         }
 
         $address = $paymentInfo['address'];
-        $amount = $paymentInfo['amount'];
+        $amount = min(intval($paymentInfo['amount']), intval($paymentInfo['previous_amount']));
 
         if($paymentInfo['currency'] === Currency::$BTC){
             $providerName = 'net.telepay.provider.btc';
@@ -211,6 +233,28 @@ class CheckCryptoPOSv2Command extends ContainerAwareCommand
         if($transaction->getStatus() === 'created' && $this->hasExpired($transaction)){
             $transaction->setStatus('expired');
             $transaction = $this->getContainer()->get('notificator')->notificate($transaction);
+        }
+        else{
+            $lastPriceAt = $transaction->getLastPriceAt();
+            $lastPriceAt = $lastPriceAt->getTimestamp();
+            $actual = new \MongoDate();
+            $actual = $actual->sec;
+            //300 seconds => 5 minutes
+            $need_new = $lastPriceAt + 300;
+
+            if(strtoupper($paymentInfo['currency_in']) != $paymentInfo['currency'] && $need_new < $actual ){
+                $em = $this->getContainer()->get('doctrine')->getManager();
+                $exchange = $em->getRepository('TelepayFinancialApiBundle:Exchange')->findOneBy(
+                    array(
+                        'src'   =>  $paymentInfo['currency_in'],
+                        'dst'   =>  $paymentInfo['currency']
+                    ),
+                    array('id'  =>  'DESC')
+                );
+                $paymentInfo['previous_amount'] = $paymentInfo['amount'];
+                $paymentInfo['amount'] = round($paymentInfo['received_amount']*$exchange->getPrice(),0);
+                $transaction->setLastPriceAt(new \DateTime());
+            }
         }
 
         return $transaction;
