@@ -154,7 +154,7 @@ class WalletController extends RestApiController{
         if($request->query->get('query') != ''){
             $query = $request->query->get('query');
             $search = $query['search'];
-            $services = $query['services'];
+            //$services = $query['services'];
             if(isset($query['clients'])){
                 $clients = json_decode($query['clients'], true);
             }
@@ -180,7 +180,6 @@ class WalletController extends RestApiController{
                 ->field('created')->lte($finish_time)
                 ->where("function() {
             if (typeof this.dataIn !== 'undefined') {
-                if (JSON.parse(String('$services')).indexOf(String(this.service)) == -1){ return false;}
                 if (typeof this.dataIn.phone_number !== 'undefined') {
                     if(String(this.dataIn.phone_number).indexOf('$search') > -1){
                         return true;
