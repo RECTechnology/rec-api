@@ -320,13 +320,12 @@ class SpecialActionsController extends RestApiController {
             throw $this->createAccessDeniedException();
         }
 
-        $service = 'sepa_out';
-
         $dm = $this->get('doctrine_mongodb')->getManager();
         $transactions = $dm->getRepository('TelepayFinancialApiBundle:Transaction')
             ->findBy(array(
-                'service'   =>  $service,
-                'status'    =>  'created'
+                'method'   =>  'sepa',
+                'type'  =>  'out',
+                'status'    =>  'sending'
             ));
 
 
