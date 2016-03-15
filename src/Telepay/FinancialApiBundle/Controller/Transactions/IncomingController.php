@@ -760,7 +760,7 @@ class IncomingController extends RestApiController{
 
             $transactions = $qb
                 ->field('user')->equals($userId)
-                ->field('service')->equals($service->getCname())
+                //->field('service')->equals($service->getCname())
                 ->sort($order,$dir)
                 ->getQuery()
                 ->execute();

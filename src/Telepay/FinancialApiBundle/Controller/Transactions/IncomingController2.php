@@ -746,8 +746,8 @@ class IncomingController2 extends RestApiController{
 
             $transactions = $qb
                 ->field('user')->equals($userId)
-                ->field('service')->equals($method->getCname())
-                ->field('type')->equals($method->getType())
+                //->field('service')->equals($method->getCname())
+                //->field('type')->equals($method->getType())
                 ->sort($order,$dir)
                 ->getQuery()
                 ->execute();
