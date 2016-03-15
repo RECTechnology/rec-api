@@ -111,8 +111,8 @@ class SwiftController extends RestApiController{
                 ->field('method_out')->equals($type_out)
                 ->field('status')->equals('created','success')
                 ->where("function(){
-                    if (typeof this.pay_out_info.phone !== 'undefined') {
-                        if(String(this.pay_out_info.phone).indexOf('$search') > -1){
+                    if (typeof this.pay_out_info.iban !== 'undefined') {
+                        if(String(this.pay_out_info.iban).indexOf('$search') > -1){
                             return true;
                         }
                 }
