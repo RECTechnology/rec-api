@@ -8,6 +8,7 @@
 
 namespace Telepay\FinancialApiBundle\Financial\Methods;
 
+use FOS\OAuthServerBundle\Util\Random;
 use Symfony\Component\HttpKernel\Exception\HttpException;
 use Telepay\FinancialApiBundle\DependencyInjection\Transactions\Core\BaseMethod;
 
@@ -28,6 +29,7 @@ class HalcashMethod extends BaseMethod{
         $amount = $paymentInfo['amount']/100;
         $reference = $paymentInfo['concept'];
 
+        $find_token = $paymentInfo['find_token'];
         if(isset($paymentInfo['pin'])){
             $pin = $paymentInfo['pin'];
         }else{
@@ -37,9 +39,9 @@ class HalcashMethod extends BaseMethod{
 
         try{
             if($this->getCurrency() == 'EUR'){
-                $hal = $this->driver->sendV3($phone,$prefix,$amount,$reference,$pin);
+                $hal = $this->driver->sendV3($phone,$prefix,$amount,'ChipChap '.$find_token,$pin);
             }else{
-                $hal = $this->driver->sendInternational($phone,$prefix,$amount,$reference,$pin, 'PL', 'POL');
+                $hal = $this->driver->sendInternational($phone,$prefix,$amount,'ChipChap '.$find_token,$pin, 'PL', 'POL');
             }
         }catch (HttpException $e){
             throw new HttpException($e->getStatusCode(),$e->getMessage());
@@ -85,6 +87,9 @@ class HalcashMethod extends BaseMethod{
             $pin = rand(1000,9999);
         }
 
+        $find_token = substr(Random::generateToken(), 0, 6);
+
+        $params['find_token'] = $find_token;
         $params['pin'] = $pin;
         $params['final'] = false;
         $params['status'] = false;
