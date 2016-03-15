@@ -1103,6 +1103,8 @@ class WalletController extends RestApiController{
         $cashOut->setFixedFee(0);
         $cashOut->setVariableFee(0);
         $cashOut->setTotal(-$params['amount']);
+        $cashOut->setType('out');
+        $cashOut->setMethod('exchange');
         $cashOut->setService($service);
         $cashOut->setUser($user->getId());
         $cashOut->setVersion(1);
@@ -1128,6 +1130,8 @@ class WalletController extends RestApiController{
         $cashIn->setVariableFee($variable_fee);
         $cashIn->setTotal($exchange);
         $cashIn->setService($service);
+        $cashIn->setType('in');
+        $cashIn->setMethod('exchange');
         $cashIn->setUser($user->getId());
         $cashIn->setVersion(1);
         $cashIn->setScale($receiverWallet->getScale());
@@ -1202,6 +1206,9 @@ class WalletController extends RestApiController{
         ));
 
         $feeTransaction->setTotal(-$total_fee);
+
+        $feeTransaction->setType('fee');
+        $feeTransaction->setMethod('exchange_fee');
 
         $mongo = $this->get('doctrine_mongodb')->getManager();
         $mongo->persist($feeTransaction);
