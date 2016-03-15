@@ -32,10 +32,16 @@ class BTCWalletController extends RestApiController{
         if(!$request->request->has('cypher_wallet')) throw new HttpException(400,'Missing parameter cypher_wallet');
 
         $cypher_wallet = $request->request->get('cypher_wallet');
+        if($request->request->has('hd_accounts')){
+            $hd_accounts = $request->request->get('hd_accounts');
+        }else{
+            $hd_accounts = 0;
+        }
 
         $wallet = new BTCWallet();
         $wallet->setUser($user);
         $wallet->setCypherData($cypher_wallet);
+        $wallet->setHdAccounts($hd_accounts);
 
         $em = $this->getDoctrine()->getManager();
         $em->persist($wallet);
@@ -54,6 +60,30 @@ class BTCWalletController extends RestApiController{
 
         //obtener los wallets
         $wallet = $user->getBtcWallet();
+
+        return $this->restV2(200, "ok", "Wallet info got successfully", $wallet);
+
+    }
+
+    /**
+     * update cypher wallet
+     */
+    public function updateBTCWallet(Request $request){
+        $user = $this->get('security.context')->getToken()->getUser();
+
+        //obtener los wallets
+        $wallet = $user->getBtcWallet();
+
+        if($request->request->has('cypher_wallet')){
+            $wallet->setCypherData($request->request->get('cypher_wallet'));
+        }
+        if($request->request->has('hd_accounts')){
+            $wallet->setHdAccounts($request->request->get('hd_accounts'));
+        }
+
+        $em = $this->getDoctrine()->getManager();
+        $em->persist($wallet);
+        $em->flush();
 
         return $this->restV2(200, "ok", "Wallet info got successfully", $wallet);
 

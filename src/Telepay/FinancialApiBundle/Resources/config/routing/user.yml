@@ -153,6 +153,12 @@ user_btc_wallet_create:
     requirements:
         _method: POST
 
+user_btc_wallet_update:
+    pattern:  /user/v1/btc_wallet
+    defaults: { _controller: Telepay\FinancialApiBundle\Controller\Management\User\BTCWalletController::updateBTCWallet }
+    requirements:
+        _method: PUT
+
 user_btc_adresses_read:
     pattern:  /user/v1/btc_addresses
     defaults: { _controller: Telepay\FinancialApiBundle\Controller\Management\User\BTCWalletController::indexAction }
