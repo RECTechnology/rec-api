@@ -247,6 +247,7 @@ class AdapterController extends RestApiController{
             $customResponse['address'] = $array_response['pay_in_info']['address'];
             $customResponse['confirmations'] = $array_response['pay_in_info']['confirmations'];
             $customResponse['received'] = $array_response['pay_in_info']['received'];
+            $customResponse['btc'] = $array_response['pay_in_info']['received'];
             $customResponse['phone'] = $array_response['pay_out_info']['phone'];
             $customResponse['prefix'] = $array_response['pay_out_info']['prefix'];
             $customResponse['pin'] = $array_response['pay_out_info']['pin'];
