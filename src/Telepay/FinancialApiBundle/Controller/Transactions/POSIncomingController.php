@@ -12,6 +12,8 @@ use Symfony\Component\Config\Definition\Exception\Exception;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Console\Application;
 use Symfony\Component\HttpKernel\Exception\HttpException;
+use Symfony\Component\Console\Input\ArgvInput;
+use Symfony\Component\Console\Output\BufferedOutput;
 use Telepay\FinancialApiBundle\Controller\RestApiController;
 use FOS\RestBundle\Controller\Annotations as Rest;
 use Telepay\FinancialApiBundle\Document\Transaction;
@@ -93,7 +95,7 @@ class POSIncomingController extends RestApiController{
 
         $transaction->setCurrency($service_currency);
 
-       //CASH - IN
+        //CASH - IN
 
         try {
             $transaction = $service->create($transaction);
@@ -133,7 +135,7 @@ class POSIncomingController extends RestApiController{
     /**
      * @Rest\View
      */
-    public function createTransactionTest(Request $request,  $id){
+    public function createTransactionV2(Request $request,  $id){
 
         $em = $this->getDoctrine()->getManager();
         $tpvRepo = $em->getRepository('TelepayFinancialApiBundle:POS')->findOneBy(array(
@@ -330,20 +332,22 @@ class POSIncomingController extends RestApiController{
      */
     public function checkTransaction2(Request $request, $id){
 
-        $kernel = $this->get('kernel');
-        $application = new Application($kernel);
-        $application->setAutoExit(false);
-
-        $input = new ArrayInput(array(
-            'command' => 'swiftmailer:spool:send',
-            '--transaction-id' => $id,
-        ));
+        $command = $this->container->get('command.check.posV2');
+        $input = new ArgvInput(
+            array(
+                '--env=' . $this->container->getParameter('kernel.environment'),
+                '--transaction-id=' . $id
+            )
+        );
         $output = new BufferedOutput();
-        $application->run($input, $output);
-        $content = $output->fetch();
+        $command->run($input, $output);
 
-        return $this->posTransaction(200, json_decode($content, true), "Got ok");
-
+        $em = $this->get('doctrine_mongodb')->getManager();
+        $transaction = $em->getRepository('TelepayFinancialApiBundle:Transaction')->find($id);
+        if($id==$output) {
+            return $this->posTransaction(201, $transaction, "Checked ok");
+        }
+        return $this->posTransaction(200, $transaction, "Got ok");
     }
 
     /**
@@ -476,7 +480,7 @@ class POSIncomingController extends RestApiController{
         if(!$transaction) throw new HttpException(400,'Transaction not found');
 
         if($transaction->getNotified() == true) throw new HttpException(409,'Duplicate notification');
-        
+
         $status = $request->request->get('status');
         $received_params = 'Params not received';
         if(!$request->request->has('params')){

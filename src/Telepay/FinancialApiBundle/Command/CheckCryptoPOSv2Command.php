@@ -168,7 +168,12 @@ class CheckCryptoPOSv2Command extends ContainerAwareCommand
         }
 
         if(isset($trans_id)){
-            $output->writeln(json_encode($transaction));
+            if(count($qb)==0){
+                $output->writeln($trans_id);
+            }
+            else {
+                $output->writeln($transaction->getId());
+            }
         }
         else{
             $output->writeln($service_cname.' transactions checked');
@@ -253,6 +258,7 @@ class CheckCryptoPOSv2Command extends ContainerAwareCommand
                 );
                 $paymentInfo['previous_amount'] = $paymentInfo['amount'];
                 $paymentInfo['amount'] = round($paymentInfo['received_amount']*$exchange->getPrice(),0);
+                $transaction->setPayInInfo($paymentInfo);
                 $transaction->setLastPriceAt(new \DateTime());
             }
         }
