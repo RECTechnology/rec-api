@@ -182,7 +182,7 @@ class AdapterController extends RestApiController{
             //status, ticcket_id, id, address,amount, pin
             $customResponse = array();
             $customResponse['status'] = 'ok';
-            $customResponse['ticket_id'] = $array_response['id'];
+            $customResponse['ticket_id'] = $array_response['pay_out_info']['find_token'];
             $customResponse['id'] = $array_response['id'];
             $customResponse['address'] = $array_response['pay_in_info']['address'];
             $customResponse['amount'] = $array_response['pay_in_info']['amount'];
@@ -234,7 +234,7 @@ class AdapterController extends RestApiController{
             }
 
             $customResponse['created'] = $array_response['created'];
-            $customResponse['ticket_id'] = $array_response['id'];
+            $customResponse['ticket_id'] = $array_response['pay_out_info']['find_token'];
             $customResponse['id'] = $array_response['id'];
             $customResponse['type'] = 'btc_halcash';
             $customResponse['orig_coin'] = 'btc';

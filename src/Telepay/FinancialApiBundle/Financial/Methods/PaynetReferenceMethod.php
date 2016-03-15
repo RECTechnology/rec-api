@@ -44,7 +44,8 @@ class PaynetReferenceMethod extends BaseMethod{
                 'barcode'   =>  $barcode['barcode'],
                 'paynet_id' =>  $barcode['id'],
                 'status'    =>  'created',
-                'final'     =>  false
+                'final'     =>  false,
+                'paynet_id' =>  $id
             );
 
         }else{
