@@ -728,7 +728,7 @@ class IncomingController2 extends RestApiController{
                     }
                 }
             }
-            if (count('$search')>0) {
+            if ('$search') {
                 if(typeof this.status !== 'undefined' && String(this.status).indexOf('$search') > -1){ return true;}
                 if(typeof this.service !== 'undefined' && String(this.service).indexOf('$search') > -1){ return true;}
                 if(String(this._id).indexOf('$search') > -1){ return true;}
