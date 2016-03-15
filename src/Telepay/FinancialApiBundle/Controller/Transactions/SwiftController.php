@@ -64,6 +64,8 @@ class SwiftController extends RestApiController{
 
         $amount = $request->request->get('amount');
 
+        $ip = $request->server->get('REMOTE_ADDR');
+
         //Create transaction
         $transaction = new Transaction();
         $transaction->createFromRequest($request);
@@ -78,6 +80,7 @@ class SwiftController extends RestApiController{
         $transaction->setMethodIn($type_in);
         $transaction->setMethodOut($type_out);
         $transaction->setClient($client->getId());
+        $transaction->setIp($ip);
 
         //GET METHODS
         $cashInMethod = $this->container->get('net.telepay.in.'.$type_in.'.v'.$version_number);
