@@ -1208,7 +1208,7 @@ class WalletController extends RestApiController{
         $feeTransaction->setTotal(-$total_fee);
 
         $feeTransaction->setType('fee');
-        $feeTransaction->setMethod('exchange_fee');
+        $feeTransaction->setMethod('exchange');
 
         $mongo = $this->get('doctrine_mongodb')->getManager();
         $mongo->persist($feeTransaction);
