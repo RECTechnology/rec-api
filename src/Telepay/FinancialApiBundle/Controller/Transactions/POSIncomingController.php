@@ -332,21 +332,6 @@ class POSIncomingController extends RestApiController{
      */
     public function checkTransaction2(Request $request, $id){
 
-        /*
-        $kernel = $this->get('kernel');
-        $application = new Application($kernel);
-        $application->setAutoExit(false);
-
-        $input = new ArrayInput(array(
-            'command' => 'telepay:crypto_pos:check-V2',
-            '--transaction-id' => $id,
-            '--env' => 'prod'
-        ));
-        $output = new BufferedOutput();
-        $application->run($input, $output);
-        $content = $output->fetch();
-        */
-
         $command = $this->container->get('command.check.posV2');
         $input = new ArgvInput(
             array(

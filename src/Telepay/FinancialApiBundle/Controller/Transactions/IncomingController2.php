@@ -669,8 +669,8 @@ class IncomingController2 extends RestApiController{
 
             $transactions = $qb
                 ->field('user')->equals($userId)
-                ->field('method')->equals($method->getCname())
-                ->field('type')->equals($type)
+                //->field('method')->equals($method->getCname())
+                //->field('type')->equals($type)
                 ->field('created')->gte($start_time)
                 ->field('created')->lte($finish_time)
                 ->where("function() {
@@ -728,11 +728,13 @@ class IncomingController2 extends RestApiController{
                     }
                 }
             }
-            if(typeof this.status !== 'undefined' && String(this.status).indexOf('$search') > -1){ return true;}
-            if(typeof this.service !== 'undefined' && String(this.service).indexOf('$search') > -1){ return true;}
-            if(String(this._id).indexOf('$search') > -1){ return true;}
-
-            return false;
+            if (count('$search')>0) {
+                if(typeof this.status !== 'undefined' && String(this.status).indexOf('$search') > -1){ return true;}
+                if(typeof this.service !== 'undefined' && String(this.service).indexOf('$search') > -1){ return true;}
+                if(String(this._id).indexOf('$search') > -1){ return true;}
+                return false;
+            }
+            return true;
             }")
                 ->sort($order,$dir)
                 ->getQuery()
