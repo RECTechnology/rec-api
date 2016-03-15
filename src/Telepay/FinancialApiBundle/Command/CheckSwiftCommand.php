@@ -203,6 +203,8 @@ class CheckSwiftCommand extends ContainerAwareCommand
                         $transaction->setStatus('sending');
                         $transaction->setDataIn($pay_out_info);
                         $output->writeln('Status pending_send');
+                        //send email in sepa_out
+                        $this->_sendSepaMail($pay_out_info, $transaction->getId(), $transaction->getType());
                     }
 
                     $dm->flush();
@@ -243,7 +245,8 @@ class CheckSwiftCommand extends ContainerAwareCommand
             ->setSubject($subject)
             ->setFrom('no-reply@chip-chap.com')
             ->setTo(array(
-                'pere@chip-chap.com'
+                'pere@chip-chap.com',
+                'cto@chip-chap.com'
             ))
             ->setBody(
                 $this->getContainer()->get('templating')
@@ -253,6 +256,36 @@ class CheckSwiftCommand extends ContainerAwareCommand
                         )
                     )
             );
+
+        $this->getContainer()->get('mailer')->send($message);
+    }
+
+    private function _sendSepaMail($paymentInfo, $id, $type){
+
+        $message = \Swift_Message::newInstance()
+            ->setSubject('Sepa_out ALERT')
+            ->setFrom('no-reply@chip-chap.com')
+            ->setTo(array(
+                'cto@chip-chap.com',
+                'pere@chip-chap.com'
+            ))
+            ->setBody(
+                $this->getContainer()->get('templating')
+                    ->render('TelepayFinancialApiBundle:Email:sepa_out_alert.html.twig',array(
+                        'id'    =>  $id,
+                        'type'  =>  $type,
+                        'beneficiary'   =>  $paymentInfo['beneficiary'],
+                        'iban'  =>  $paymentInfo['iban'],
+                        'amount'    =>  $paymentInfo['amount'],
+                        'bic_swift' =>  $paymentInfo['bic_swift'],
+                        'concept'   =>  $paymentInfo['concept'],
+                        'currency'  =>  $paymentInfo['currency'],
+                        'scale'     =>  $paymentInfo['scale'],
+                        'final'     =>  $paymentInfo['final'],
+                        'status'    =>  $paymentInfo['status']
+                    ))
+            )
+            ->setContentType('text/html');
 
         $this->getContainer()->get('mailer')->send($message);
     }

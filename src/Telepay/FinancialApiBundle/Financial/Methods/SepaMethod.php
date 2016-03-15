@@ -33,6 +33,9 @@ class SepaMethod extends BaseMethod {
     {
         $paymentInfo['status'] = 'sending';
 
+        //TODO send email with the payment information
+
+
         return $paymentInfo;
 
     }
@@ -85,4 +88,5 @@ class SepaMethod extends BaseMethod {
 
         return $params;
     }
+
 }
