@@ -220,6 +220,8 @@ class POSIncomingController extends RestApiController{
         //create transaction
         $transaction = Transaction::createFromRequest($request);
         $transaction->setService('POS-'.$posType);
+        $transaction->setMethod('POS-'.$posType);
+        $transaction->setType('pos');
         $transaction->setUser($user->getId());
         $transaction->setVersion(1);
         $transaction->setDataIn($dataIn);
