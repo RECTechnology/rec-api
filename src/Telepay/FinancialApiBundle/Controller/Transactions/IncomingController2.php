@@ -205,7 +205,7 @@ class IncomingController2 extends RestApiController{
             //pay fees and dealer always and set new balance
             if( $payment_info['status'] == 'sent' || $payment_info['status'] == 'sending'){
 
-                if($payment_info['final'] == true) $transaction->setStatus(Transaction::$STATUS_SUCCESS);
+                if($payment_info['status'] == 'sent') $transaction->setStatus(Transaction::$STATUS_SUCCESS);
                 else $transaction->setStatus('sending');
 
                 $dm->persist($transaction);
