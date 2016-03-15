@@ -263,8 +263,6 @@ class SpecialActionsController extends RestApiController {
         $transRepo = $dm->getRepository('TelepayFinancialApiBundle:Transaction');
         $transaction = $transRepo->find($id);
 
-        $em = $this->getDoctrine()->getManager();
-
         if($validate == true){
             $transaction->setStatus('success');
             $paymentInfo = $transaction->getPayOutInfo();
