@@ -113,15 +113,22 @@ class CheckSwiftCommand extends ContainerAwareCommand
                         $output->writeln('Status failed');
                     }
 
-                    if($pay_out_info['status'] == 'sent'){
+                    if($pay_out_info['status'] == 'sent' || $pay_out_info['status'] == 'sending'){
                         $transaction->setPayOutInfo($pay_out_info);
-                        $transaction->setStatus('success');
+                        if($pay_out_info['status'] == 'sent') $transaction->setStatus('success');
+                        else $transaction->setStatus('sending');
                         $transaction->setDataIn($pay_out_info);
-                        $output->writeln('Status success');
+                        $output->writeln('Status '.$transaction->getStatus());
+
                         $dm->persist($transaction);
                         $dm->flush();
                         //Generate fee transactions. One for the user and one for the root
                         $output->writeln('Generating userFee for: '.$transaction->getId());
+                        $output->writeln('Sending email');
+                        if($pay_out_info['status'] == 'sending'){
+                            //send email in sepa_out
+                            $this->_sendSepaMail($pay_out_info, $transaction->getId(), $transaction->getType());
+                        }
 
                         //client fees goes to the user
                         $userFee = new Transaction();
@@ -197,14 +204,6 @@ class CheckSwiftCommand extends ContainerAwareCommand
                         $em->persist($current_wallet);
                         $em->flush();
 
-                        //if status out == pending we have to send the transaction manually
-                    }elseif($pay_out_info['status'] == 'sending'){
-                        $transaction->setPayOutInfo($pay_out_info);
-                        $transaction->setStatus('sending');
-                        $transaction->setDataIn($pay_out_info);
-                        $output->writeln('Status pending_send');
-                        //send email in sepa_out
-                        $this->_sendSepaMail($pay_out_info, $transaction->getId(), $transaction->getType());
                     }
 
                     $dm->flush();
