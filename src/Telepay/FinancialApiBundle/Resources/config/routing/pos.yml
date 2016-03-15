@@ -32,7 +32,7 @@ user_POS_delete:
 
 user_POS_transaction_test:
     pattern:  /pos/v2/transaction/{id}
-    defaults: { _controller: Telepay\FinancialApiBundle\Controller\Transactions\POSIncomingController::createTransactionTest }
+    defaults: { _controller: Telepay\FinancialApiBundle\Controller\Transactions\POSIncomingController::createTransactionV2 }
     requirements:
         _method: POST
 

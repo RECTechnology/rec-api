@@ -135,7 +135,7 @@ class POSIncomingController extends RestApiController{
     /**
      * @Rest\View
      */
-    public function createTransactionTest(Request $request,  $id){
+    public function createTransactionV2(Request $request,  $id){
 
         $em = $this->getDoctrine()->getManager();
         $tpvRepo = $em->getRepository('TelepayFinancialApiBundle:POS')->findOneBy(array(
