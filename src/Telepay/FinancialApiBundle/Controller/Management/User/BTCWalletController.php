@@ -85,7 +85,7 @@ class BTCWalletController extends RestApiController{
         $em->persist($wallet);
         $em->flush();
 
-        return $this->restV2(200, "ok", "Wallet info got successfully", $wallet);
+        return $this->restV2(204, "ok", "Wallet info updated successfully", $wallet);
 
     }
 
