@@ -64,6 +64,74 @@ class SwiftController extends RestApiController{
 
         $amount = $request->request->get('amount');
 
+        $qb = $dm->createQueryBuilder('TelepayFinancialApiBundle:Transaction');
+        //TODO check limits for hal and sepa by phone date and iban
+        if($type_out == 'halcash_es' || $type_out == 'halcash_pl'){
+
+            $search = $request->request->get('phone');
+            $start_time = new \MongoDate(strtotime(date('Y-m-d 00:00:00'))-31*24*3600);
+            $finish_time = new \MongoDate();
+            $result = $qb
+                ->field('created')->gte($start_time)
+                ->field('created')->lte($finish_time)
+                ->field('method_out')->equals($type_out)
+                ->field('status')->equals('created','success')
+                ->where("function(){
+                    if (typeof this.pay_out_info.phone !== 'undefined') {
+                        if(String(this.pay_out_info.phone).indexOf('$search') > -1){
+                            return true;
+                        }
+                }
+                }")
+
+                ->getQuery()
+                ->execute();
+
+            $pending=0;
+
+            //die(print_r($result,true));
+            foreach($result->toArray() as $d){
+                $pending = $pending + $d->getAmount();
+            }
+
+            if($type_out == 'halcash_es'){
+                if($amount + $pending >= 300000) throw new HttpException(405, 'Limit exceeded');
+            }else{
+                if($amount + $pending >= 1200000) throw new HttpException(405, 'Limit exceeded');
+            }
+
+
+        }elseif($type_out == 'sepa'){
+            $search = $request->request->get('iban');
+            $start_time = new \MongoDate(strtotime(date('Y-m-d 00:00:00'))-31*24*3600);
+            $finish_time = new \MongoDate();
+            $result = $qb
+                ->field('created')->gte($start_time)
+                ->field('created')->lte($finish_time)
+                ->field('method_out')->equals($type_out)
+                ->field('status')->equals('created','success')
+                ->where("function(){
+                    if (typeof this.pay_out_info.phone !== 'undefined') {
+                        if(String(this.pay_out_info.phone).indexOf('$search') > -1){
+                            return true;
+                        }
+                }
+                }")
+
+                ->getQuery()
+                ->execute();
+
+            $pending=0;
+
+            //die(print_r($result,true));
+            foreach($result->toArray() as $d){
+                $pending = $pending + $d->getAmount();
+            }
+
+            if($amount + $pending >= 300000) throw new HttpException(405, 'Limit exceeded');
+
+        }
+
         $ip = $request->server->get('REMOTE_ADDR');
 
         //Create transaction
