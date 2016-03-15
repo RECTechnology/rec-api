@@ -645,6 +645,8 @@ class AdapterController extends RestApiController{
             $customResponse = array();
             if($array_response['status'] == 'created'){
                 $customResponse['status'] = 'pending';
+            }elseif($array_response['status'] == 'success'){
+                $customResponse['status'] = 'sent';
             }else{
                 $customResponse['status'] = $array_response['status'];
             }
