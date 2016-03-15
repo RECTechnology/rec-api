@@ -40,6 +40,11 @@ class BTCWallet implements OwnByUserInterface {
     private $user;
 
     /**
+     * @ORM\Column(type="integer")
+     */
+    private $hd_accounts;
+
+    /**
      * @param mixed $user
      */
     public function setUser($user)
@@ -76,6 +81,22 @@ class BTCWallet implements OwnByUserInterface {
     public function getUser()
     {
         // TODO: Implement getUser() method.
+    }
+
+    /**
+     * @return mixed
+     */
+    public function getHdAccounts()
+    {
+        return $this->hd_accounts;
+    }
+
+    /**
+     * @param mixed $hd_accounts
+     */
+    public function setHdAccounts($hd_accounts)
+    {
+        $this->hd_accounts = $hd_accounts;
     }
 
 }

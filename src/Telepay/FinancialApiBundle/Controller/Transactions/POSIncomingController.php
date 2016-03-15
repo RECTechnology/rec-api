@@ -8,12 +8,19 @@
 
 namespace Telepay\FinancialApiBundle\Controller\Transactions;
 
+use Symfony\Component\Config\Definition\Exception\Exception;
 use Symfony\Component\HttpFoundation\Request;
+use Symfony\Component\Console\Application;
 use Symfony\Component\HttpKernel\Exception\HttpException;
+use Symfony\Component\Console\Input\ArgvInput;
+use Symfony\Component\Console\Output\BufferedOutput;
 use Telepay\FinancialApiBundle\Controller\RestApiController;
 use FOS\RestBundle\Controller\Annotations as Rest;
 use Telepay\FinancialApiBundle\Document\Transaction;
+use Telepay\FinancialApiBundle\Entity\Group;
+use Telepay\FinancialApiBundle\Entity\ServiceFee;
 use Telepay\FinancialApiBundle\Entity\UserWallet;
+use Telepay\FinancialApiBundle\Financial\Currency;
 
 class POSIncomingController extends RestApiController{
 
@@ -88,7 +95,7 @@ class POSIncomingController extends RestApiController{
 
         $transaction->setCurrency($service_currency);
 
-       //CASH - IN
+        //CASH - IN
 
         try {
             $transaction = $service->create($transaction);
@@ -128,6 +135,183 @@ class POSIncomingController extends RestApiController{
     /**
      * @Rest\View
      */
+    public function createTransactionV2(Request $request,  $id){
+
+        $em = $this->getDoctrine()->getManager();
+        $tpvRepo = $em->getRepository('TelepayFinancialApiBundle:POS')->findOneBy(array(
+            'pos_id'    =>  $id
+        ));
+
+        $posType = $tpvRepo->getType();
+
+        $user = $tpvRepo->getUser();
+
+        if($tpvRepo->getActive() == 0) throw new HttpException(400, 'Service Temporally unavailable');
+
+        $pos_config = $this->container->get('net.telepay.config.pos_'.strtolower($posType))->getInfo();
+
+        $paramNames = array(
+            'amount',
+            'concept',
+            'currency_in',
+            'url_notification',
+            'url_ok',
+            'url_ko',
+            'order_id'
+        );
+
+        $dataIn = array();
+        foreach($paramNames as $paramName){
+            if(!$request->request->has($paramName))
+                throw new HttpException(400, "Parameter '".$paramName."' not found");
+            else $dataIn[$paramName] = $request->get($paramName);
+        }
+
+        if($request->request->has('currency_out')){
+            $dataIn['currency_out'] = $request->request->get('currency_out');
+        }else{
+            $dataIn['currency_out'] = $pos_config['default_currency'];
+        }
+
+        $dm = $this->get('doctrine_mongodb')->getManager();
+
+        //Check unique order_id by user and tpv
+        $qb = $dm->createQueryBuilder('TelepayFinancialApiBundle:Transaction')
+            ->field('posId')->equals($id)
+            ->field('user')->equals($user->getId())
+            ->field('dataIn.order_id')->equals($dataIn['order_id'])
+            ->getQuery();
+
+        if( count($qb) > 0 ) throw new HttpException(409,'Duplicated resource');
+
+        if(!in_array(strtoupper($dataIn['currency_in']), $pos_config['allowed_currencies_in'])){
+            throw new HttpException(404, 'Currency_in not allowed');
+        }
+        if(!in_array(strtoupper($dataIn['currency_out']), $pos_config['allowed_currencies_out'])){
+            throw new HttpException(404, 'Currency_in not allowed');
+        }
+
+        if(strtoupper($dataIn['currency_in']) != $pos_config['currency']){
+            $exchange = $em->getRepository('TelepayFinancialApiBundle:Exchange')->findOneBy(
+                array(
+                    'src'   =>  $dataIn['currency_in'],
+                    'dst'   =>  $pos_config['currency']
+                ),
+                array('id'  =>  'DESC')
+            );
+            $pos_amount = round($dataIn['amount']*$exchange->getPrice(),0);
+        }else{
+            $pos_amount = $dataIn['amount'];
+        }
+
+        if(strtoupper($dataIn['currency_out']) != $pos_config['currency']){
+            $exchange = $em->getRepository('TelepayFinancialApiBundle:Exchange')->findOneBy(
+                array(
+                    'src'   =>  $pos_config['currency'],
+                    'dst'   =>  $dataIn['currency_out']
+                ),
+                array('id'  =>  'DESC')
+            );
+            $amount = round($pos_amount * $exchange->getPrice(),0);
+        }else{
+            $amount = $pos_amount;
+        }
+
+        //create transaction
+        $transaction = Transaction::createFromRequest($request);
+        $transaction->setService('POS-'.$posType);
+        $transaction->setMethod('POS-'.$posType);
+        $transaction->setType('pos');
+        $transaction->setUser($user->getId());
+        $transaction->setVersion(1);
+        $transaction->setDataIn($dataIn);
+        $transaction->setPosId($id);
+        $dm->persist($transaction);
+        $transaction->setAmount($amount);
+        $transaction->setType('POS-'.$posType);
+
+        $transaction->setLastPriceAt(new \DateTime());
+        $transaction->setLastCheck(new \DateTime());
+
+        $group = $user->getGroups()[0];
+        //get fees from group
+        $group_commission = $this->_getFees($group, 'POS-'.$posType, strtoupper($dataIn['currency_out']));
+
+        //add commissions to check
+        $fixed_fee = $group_commission->getFixed();
+        $variable_fee = round(($group_commission->getVariable()/100) * $amount, 0);
+
+        //add fee to transaction
+        $transaction->setVariableFee($variable_fee);
+        $transaction->setFixedFee($fixed_fee);
+        $dm->persist($transaction);
+
+        $total = $amount - $variable_fee - $fixed_fee;
+        $transaction->setTotal($amount);
+
+        $current_wallet = null;
+
+        $transaction->setCurrency(strtoupper($dataIn['currency_out']));
+        $transaction->setScale(Currency::$SCALE[strtoupper($dataIn['currency_out'])]);
+
+        //CASH - IN
+        //distinguirn entre los distintos tipos de tpv
+        if($posType == 'PNP'){
+
+            $trans_pos_id = rand();
+            $paymentInfo = array(
+                'amount'    =>  $amount,
+                'currency'  =>  'EUR',
+                'scale'     =>  Currency::$SCALE['EUR'],
+                'transaction_pos_id'    =>  $trans_pos_id,
+                'url_ok'    =>  $dataIn['url_ok'],
+                'url_ko'    =>  $dataIn['url_ko']
+            );
+
+
+        }elseif($posType == 'BTC'){
+
+            $address = $this->generateAddress();
+
+            if(!$address) throw new HttpException(403, 'Service temporally unavailable');
+
+            $paymentInfo = array(
+                'amount'    =>  $pos_amount,
+                'previous_amount'    =>  $pos_amount,
+                'received_amount'   =>  $dataIn['amount'],
+                'currency_in'   =>  strtoupper($dataIn['currency_in']),
+                'currency'  =>  'BTC',
+                'scale'     =>  Currency::$SCALE['BTC'],
+                'scale_in'     =>  Currency::$SCALE[strtoupper($dataIn['currency_in'])],
+                'address'   =>  $address,
+                'expires_in'=>  $tpvRepo->getExpiresIn(),
+                'received'  =>  0,
+                'min_confirmations' =>  0,
+                'confirmations' =>  1,
+                'url_ok'    =>  $dataIn['url_ok'],
+                'url_ko'    =>  $dataIn['url_ko']
+            );
+
+        }
+
+        $transaction->setPayInInfo($paymentInfo);
+
+        $transaction = $this->get('notificator')->notificate($transaction);
+        $em->flush();
+
+        $transaction->setUpdated(new \DateTime());
+
+        $dm->persist($transaction);
+        $dm->flush();
+
+        if($transaction == false) throw new HttpException(500, "oOps, some error has occurred within the call");
+
+        return $this->posTransaction(201, $transaction, "Done");
+    }
+
+    /**
+     * @Rest\View
+     */
     public function generateAddress(){
 
         $address = $this->container->get('net.telepay.provider.btc')->getnewaddress();
@@ -140,12 +324,32 @@ class POSIncomingController extends RestApiController{
      * @Rest\View
      */
     public function checkTransaction(Request $request, $id){
+        $em = $this->get('doctrine_mongodb')->getManager();
+        $transaction = $em->getRepository('TelepayFinancialApiBundle:Transaction')->find($id);
+        return $this->posTransaction(200,$transaction, "Got ok");
+    }
+
+    /**
+     * @Rest\View
+     */
+    public function checkTransaction2(Request $request, $id){
+
+        $command = $this->container->get('command.check.posV2');
+        $input = new ArgvInput(
+            array(
+                '--env=' . $this->container->getParameter('kernel.environment'),
+                '--transaction-id=' . $id
+            )
+        );
+        $output = new BufferedOutput();
+        $command->run($input, $output);
 
         $em = $this->get('doctrine_mongodb')->getManager();
         $transaction = $em->getRepository('TelepayFinancialApiBundle:Transaction')->find($id);
-
-        return $this->restTransaction($transaction, "Got ok");
-
+        if($id==$output) {
+            return $this->posTransaction(201, $transaction, "Checked ok");
+        }
+        return $this->posTransaction(200, $transaction, "Got ok");
     }
 
     /**
@@ -278,7 +482,7 @@ class POSIncomingController extends RestApiController{
         if(!$transaction) throw new HttpException(400,'Transaction not found');
 
         if($transaction->getNotified() == true) throw new HttpException(409,'Duplicate notification');
-        
+
         $status = $request->request->get('status');
         $received_params = 'Params not received';
         if(!$request->request->has('params')){
@@ -303,7 +507,6 @@ class POSIncomingController extends RestApiController{
             foreach($wallets as $wallet ){
                 if($wallet->getCurrency() == $transaction->getCurrency()){
                     $current_wallet = $wallet;
-
                 }
             }
 
@@ -343,7 +546,6 @@ class POSIncomingController extends RestApiController{
         $transaction = $this->get('notificator')->notificate($transaction);
 
         return $this->restV2(200, "ok", "Notification successful");
-
 
     }
 
@@ -395,6 +597,30 @@ class POSIncomingController extends RestApiController{
         $dealer = $this->get('net.telepay.commons.fee_deal');
         $dealer->deal($creator, $amount, $service_cname, $currency, $total_fee, $transaction_id, $transaction->getVersion());
 
+    }
+
+    private function _getFees(Group $group, $method, $currency){
+
+        $em = $this->getDoctrine()->getManager();
+
+        $group_commissions = $group->getCommissions();
+        $group_commission = false;
+
+        foreach ( $group_commissions as $commission ){
+            if ( $commission->getServiceName() == $method && $commission->getCurrency() == $currency ){
+                $group_commission = $commission;
+            }
+        }
+
+        //if group commission not exists we create it
+        if(!$group_commission){
+            $group_commission = ServiceFee::createFromController($method, $group);
+            $group_commission->setCurrency($currency);
+            $em->persist($group_commission);
+            $em->flush();
+        }
+
+        return $group_commission;
     }
 
 

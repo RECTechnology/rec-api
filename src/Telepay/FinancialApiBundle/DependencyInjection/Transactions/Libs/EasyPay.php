@@ -34,4 +34,12 @@ class EasyPay{
         return substr(implode("", $array_chars),0,5);
     }
 
+    function getInfo(){
+        $response = array(
+            'account_number' =>  $this->account
+        );
+
+        return $response;
+    }
+
 }

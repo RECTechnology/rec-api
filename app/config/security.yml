@@ -40,6 +40,11 @@ security:
             stateless:  true
             security:   false
 
+        kyc:
+            pattern:    ^/kyc/new
+            stateless:  true
+            security:   false
+
         POS_notifications:
             pattern:    ^/pos/v[0-9]+/notification/*
             stateless:  true
@@ -52,6 +57,13 @@ security:
 
         services:
             pattern: ^/services
+            stateless: true
+            fos_oauth:  true
+            signature_auth: true
+            switch_user:  { role: ROLE_ADMIN, parameter: su }
+
+        services:
+            pattern: ^/methods
             stateless: true
             fos_oauth:  true
             signature_auth: true
@@ -93,6 +105,7 @@ security:
         - { path: ^/admin/v[0-9]+/*, role: ROLE_SUPER_ADMIN }
         - { path: ^/manager/v[0-9]+/*, role: ROLE_ADMIN }
         - { path: ^/services/v[0-9]+/*, role: ROLE_INTEGRATOR }
+        - { path: ^/methods/v[0-9]+/*, role: ROLE_INTEGRATOR }
 
         - { path: ^/pos/v[0-9]+/transaction/*, role: IS_AUTHENTICATED_ANONYMOUSLY, ip: ["127.0.0.1"] }
         - { path: ^/pos/v[0-9]+/check/*, role: IS_AUTHENTICATED_ANONYMOUSLY }

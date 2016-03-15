@@ -9,3 +9,5 @@ FOS\UserBundle\Model\User:
             expose: true
         email:
             expose: true
+        locked:
+            expose: true

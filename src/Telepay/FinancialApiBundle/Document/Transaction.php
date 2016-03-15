@@ -81,6 +81,31 @@ class Transaction implements TransactionTiming {
     public static $STATUS_UNKNOWN = "unknown";
 
     /**
+     * @Exclude
+     */
+    public static $TYPE_IN = "in";
+
+    /**
+     * @Exclude
+     */
+    public static $TYPE_OUT = "out";
+
+    /**
+     * @Exclude
+     */
+    public static $TYPE_SWIFT = "swift";
+
+    /**
+     * @Exclude
+     */
+    public static $TYPE_FEE = "fee";
+
+    /**
+     * @Exclude
+     */
+    public static $TYPE_EXCHANGE = "exchange";
+
+    /**
      * @var
      * @MongoDB\Date
      */
@@ -115,6 +140,8 @@ class Transaction implements TransactionTiming {
         $transaction->setIp($trans->getIp());
         $transaction->setVersion($trans->getVersion());
         $transaction->setService($trans->getService());
+        $transaction->setMethod($trans->getMethod());
+        $transaction->setType($trans->getType());
         $transaction->setVariableFee($trans->getVariableFee());
         $transaction->setFixedFee($trans->getFixedFee());
         $transaction->setUser($trans->getUser());
@@ -138,6 +165,12 @@ class Transaction implements TransactionTiming {
      * @MongoDB\String
      */
     private $service;
+
+    /**
+     * @var
+     * @MongoDB\String
+     */
+    private $method;
 
     /**
      * @var
@@ -283,6 +316,18 @@ class Transaction implements TransactionTiming {
      * @MongoDB\Int
      */
     private $client;
+
+    /**
+     * @var
+     * @MongoDB\Date
+     */
+    private $last_price_at;
+
+    /**
+     * @var
+     * @MongoDB\Date
+     */
+    private $last_check;
 
     /**
      */
@@ -772,5 +817,53 @@ class Transaction implements TransactionTiming {
     public function setClientData($client_data)
     {
         $this->client_data = $client_data;
+    }
+
+    /**
+     * @return mixed
+     */
+    public function getMethod()
+    {
+        return $this->method;
+    }
+
+    /**
+     * @param mixed $method
+     */
+    public function setMethod($method)
+    {
+        $this->method = $method;
+    }
+
+    /**
+     * @return mixed
+     */
+    public function getLastPriceAt()
+    {
+        return $this->last_price_at;
+    }
+
+    /**
+     * @param mixed $last_price_at
+     */
+    public function setLastPriceAt($last_price_at)
+    {
+        $this->last_price_at = $last_price_at;
+    }
+
+    /**
+     * @return mixed
+     */
+    public function getLastCheck()
+    {
+        return $this->last_check;
+    }
+
+    /**
+     * @param mixed $last_check
+     */
+    public function setLastCheck($last_check)
+    {
+        $this->last_check = $last_check;
     }
 }

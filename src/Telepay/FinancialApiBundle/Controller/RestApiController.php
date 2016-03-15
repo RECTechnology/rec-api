@@ -39,6 +39,20 @@ class RestApiController extends FosRestController{
         ));
     }
 
+    protected function restMethod($httpCode, $status, $message = "No info", $id, $amount, $scale, $currency,$created, $updated, $pay_in_info = array(), $pay_out_info = array() ){
+        return $this->handleView($this->view(
+            new MethodResponse($status, $message, $id, $amount, $scale, $currency ,$created, $updated, $pay_in_info, $pay_out_info),
+            $httpCode
+        ));
+    }
+
+    protected function posMethod($httpCode, $status, $message = "No info", $id, $amount, $scale, $currency,$created, $updated, $type, $last_check, $last_price_at, $pay_in_info = array()){
+        return $this->handleView($this->view(
+            new POSResponse($status, $message, $id, $amount, $scale, $currency ,$created, $updated, $type, $last_check, $last_price_at, $pay_in_info),
+            $httpCode
+        ));
+    }
+
     protected function restPlain($code, $data = array()){
         return $this->handleView($this->view($data, $code));
     }
@@ -72,6 +86,40 @@ class RestApiController extends FosRestController{
             $transaction->getUpdated(),
             $transaction->getPayInInfo(),
             $transaction->getPayOutInfo()
+        );
+    }
+
+    protected function methodTransaction($code, Transaction $transaction, $message = "No info"){
+        return $this->restMethod(
+            $code,
+            $transaction->getStatus(),
+            $message,
+            $transaction->getId(),
+            $transaction->getAmount(),
+            $transaction->getScale(),
+            $transaction->getCurrency(),
+            $transaction->getCreated(),
+            $transaction->getUpdated(),
+            $transaction->getPayInInfo(),
+            $transaction->getPayOutInfo()
+        );
+    }
+
+    protected function posTransaction($code, Transaction $transaction, $message = "No info"){
+        return $this->posMethod(
+            $code,
+            $transaction->getStatus(),
+            $message,
+            $transaction->getId(),
+            $transaction->getAmount(),
+            $transaction->getScale(),
+            $transaction->getCurrency(),
+            $transaction->getCreated(),
+            $transaction->getUpdated(),
+            $transaction->getType(),
+            $transaction->getLastCheck(),
+            $transaction->getLastPriceAt(),
+            $transaction->getPayInInfo()
         );
     }
 

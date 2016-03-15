@@ -113,15 +113,22 @@ class CheckSwiftCommand extends ContainerAwareCommand
                         $output->writeln('Status failed');
                     }
 
-                    if($pay_out_info['status'] == 'sent'){
+                    if($pay_out_info['status'] == 'sent' || $pay_out_info['status'] == 'sending'){
                         $transaction->setPayOutInfo($pay_out_info);
-                        $transaction->setStatus('success');
+                        if($pay_out_info['status'] == 'sent') $transaction->setStatus('success');
+                        else $transaction->setStatus('sending');
                         $transaction->setDataIn($pay_out_info);
-                        $output->writeln('Status success');
+                        $output->writeln('Status '.$transaction->getStatus());
+
                         $dm->persist($transaction);
                         $dm->flush();
                         //Generate fee transactions. One for the user and one for the root
                         $output->writeln('Generating userFee for: '.$transaction->getId());
+                        $output->writeln('Sending email');
+                        if($pay_out_info['status'] == 'sending'){
+                            //send email in sepa_out
+                            $this->_sendSepaMail($pay_out_info, $transaction->getId(), $transaction->getType());
+                        }
 
                         //client fees goes to the user
                         $userFee = new Transaction();
@@ -133,6 +140,7 @@ class CheckSwiftCommand extends ContainerAwareCommand
                         $userFee->setFixedFee($clientFees->getFixed());
                         $userFee->setVariableFee($amount * ($clientFees->getVariable()/100));
                         $userFee->setService($method_in.'-'.$method_out);
+                        $userFee->setMethod($method_in.'-'.$method_out);
                         $userFee->setStatus('success');
                         $userFee->setTotal($client_fee);
                         $userFee->setDataIn(array(
@@ -153,6 +161,7 @@ class CheckSwiftCommand extends ContainerAwareCommand
                         $rootFee->setFixedFee($methodFees->getFixed());
                         $rootFee->setVariableFee($amount * ($methodFees->getVariable()/100));
                         $rootFee->setService($method_in.'-'.$method_out);
+                        $rootFee->setMethod($method_in.'-'.$method_out);
                         $rootFee->setStatus('success');
                         $rootFee->setTotal($service_fee);
                         $rootFee->setDataIn(array(
@@ -165,7 +174,7 @@ class CheckSwiftCommand extends ContainerAwareCommand
                         $dm->persist($rootFee);
                         $dm->flush();
 
-                        //TODO get wallets and add fees to both, user and wallet
+                        //get wallets and add fees to both, user and wallet
                         $rootWallets = $root->getWallets();
                         $current_wallet = null;
 
@@ -197,12 +206,6 @@ class CheckSwiftCommand extends ContainerAwareCommand
                         $em->persist($current_wallet);
                         $em->flush();
 
-                        //if status out == pending we have to send the transaction manually
-                    }elseif($pay_out_info['status'] == 'pending'){
-                        $transaction->setPayOutInfo($pay_out_info);
-                        $transaction->setStatus('pending_send');
-                        $transaction->setDataIn($pay_out_info);
-                        $output->writeln('Status pending_send');
                     }
 
                     $dm->flush();
@@ -227,7 +230,13 @@ class CheckSwiftCommand extends ContainerAwareCommand
 
     private function hasExpired($transaction){
 
-        return $transaction->getCreated()->getTimestamp() + $transaction->getPayInInfo()['expires_in'] < time();
+        if($transaction->getMethodIn() == 'paynet_reference'){
+            $expires_in = strtotime($transaction->getPayInInfo()['expires_in']);
+            $response = $expires_in < time();
+        }else{
+            $response = $transaction->getCreated()->getTimestamp() + $transaction->getPayInInfo()['expires_in'] < time();
+        }
+        return $response;
 
     }
 
@@ -237,7 +246,8 @@ class CheckSwiftCommand extends ContainerAwareCommand
             ->setSubject($subject)
             ->setFrom('no-reply@chip-chap.com')
             ->setTo(array(
-                'pere@chip-chap.com'
+                'pere@chip-chap.com',
+                'cto@chip-chap.com'
             ))
             ->setBody(
                 $this->getContainer()->get('templating')
@@ -246,6 +256,35 @@ class CheckSwiftCommand extends ContainerAwareCommand
                             'message'        =>  $body
                         )
                     )
+            );
+
+        $this->getContainer()->get('mailer')->send($message);
+    }
+
+    private function _sendSepaMail($paymentInfo, $id, $type){
+
+        $message = \Swift_Message::newInstance()
+            ->setSubject('Sepa_out ALERT')
+            ->setFrom('no-reply@chip-chap.com')
+            ->setTo(array(
+                'cto@chip-chap.com',
+                'pere@chip-chap.com'
+            ))
+            ->setBody(
+                $this->getContainer()->get('templating')
+                    ->render('TelepayFinancialApiBundle:Email:sepa_out_alert.html.twig',array(
+                        'id'    =>  $id,
+                        'type'  =>  $type,
+                        'beneficiary'   =>  $paymentInfo['beneficiary'],
+                        'iban'  =>  $paymentInfo['iban'],
+                        'amount'    =>  $paymentInfo['amount'],
+                        'bic_swift' =>  $paymentInfo['bic_swift'],
+                        'concept'   =>  $paymentInfo['concept'],
+                        'currency'  =>  $paymentInfo['currency'],
+                        'scale'     =>  $paymentInfo['scale'],
+                        'final'     =>  $paymentInfo['final'],
+                        'status'    =>  $paymentInfo['status']
+                    ))
             );
 
         $this->getContainer()->get('mailer')->send($message);

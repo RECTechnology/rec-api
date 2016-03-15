@@ -34,7 +34,13 @@ class HalcashService extends BaseService{
         if($baseTransaction === null) $baseTransaction = new Transaction();
 
         $phone_number = $baseTransaction->getDataIn()['phone_number'];
+        if(strlen($phone_number)<1){
+            throw new HttpException(400,'phone_number is required');
+        }
         $phone_prefix = $baseTransaction->getDataIn()['phone_prefix'];
+        if(strlen($phone_prefix)<1){
+            throw new HttpException(400,'phone_prefix is required');
+        }
         if(isset($baseTransaction->getDataIn()['sms_language'])){
             $language = strtoupper($baseTransaction->getDataIn()['sms_language']);
         }else{
@@ -44,8 +50,12 @@ class HalcashService extends BaseService{
         $country = $baseTransaction->getDataIn()['country'];
         //pasamos a euros porque lo recibimos en centimos
         $amount = $baseTransaction->getDataIn()['amount']/100;
+        if($amount <= 0) throw new HttpException(400,'Amount must be bigger than 0');
         $reference = $baseTransaction->getDataIn()['reference'];
-        if(strlen($reference) > 20) throw new HttpException(400,'Reference Field must be less than 20 characters');
+        if(strlen($reference) > 20){
+            throw new HttpException(400,'Reference Field must be less than 20 characters');
+        }
+
         $pin = $baseTransaction->getDataIn()['pin'];
         if(strlen($pin) > 4) throw new HttpException(400,'Pin Field must be less than 5 characters');
         $transaction_id = $baseTransaction->getId();
@@ -60,7 +70,7 @@ class HalcashService extends BaseService{
         $logger = $this->getContainer()->get('logger');
         $logger->info('HALCASH->create');
         $logger->info('HALCASH: phone->'.$phone_number.', amount->'.$amount.', id->'.$transaction_id);
-        $logger->info('HALCASH: response->'.$hal);
+//        $logger->info('HALCASH: response code->'.$hal);
 
         if($hal === false)
             throw new HttpException(503, "Service temporarily unavailable, please try again in a few minutes");

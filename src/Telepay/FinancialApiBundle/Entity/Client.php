@@ -118,7 +118,6 @@ class Client extends BaseClient
     public function activeSwiftList($swift_list)
     {
         $actual_list = $this->getSwiftList();
-        $new_list = array();
 
         for($i = 0; $i<count($actual_list); $i++){
             $params = explode(':',$actual_list[$i]);
@@ -132,7 +131,6 @@ class Client extends BaseClient
                 }
             }
         }
-
 
         $this->swift_list = json_encode($actual_list);
     }

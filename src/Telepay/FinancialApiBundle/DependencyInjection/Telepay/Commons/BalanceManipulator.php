@@ -10,14 +10,13 @@ namespace Telepay\FinancialApiBundle\DependencyInjection\Telepay\Commons;
 
 use Telepay\FinancialApiBundle\Document\Transaction;
 use Telepay\FinancialApiBundle\Entity\Balance;
-use Telepay\FinancialApiBundle\Entity\ServiceFee;
 use Telepay\FinancialApiBundle\Entity\User;
 
 class BalanceManipulator{
     private $doctrine;
 
     public function __construct($doctrine){
-        $this->doctrine=$doctrine;
+        $this->doctrine = $doctrine;
     }
 
     /**
@@ -56,11 +55,19 @@ class BalanceManipulator{
             $prev_balance = $prev_balance->getBalance();
         }
 
+        if($transaction->getDataIn()['description']){
+            $concept = $transaction->getDataIn()['description'];
+        }else{
+            $concept = $transaction->getDataIn()['concept'];
+        }
+
+        if(!$concept) $concept = 'Default content';
+
         $balance = new Balance();
         $balance->setUser($user);
         $balance->setAmount($amount);
         $balance->setBalance($prev_balance + $amount);
-        $balance->setConcept($transaction->getDataIn()['description']);
+        $balance->setConcept($concept);
         $balance->setCurrency($transaction->getCurrency());
         $balance->setDate(new \DateTime());
         $balance->setTransactionId($transaction->getId());

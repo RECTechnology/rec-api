@@ -26,7 +26,7 @@ class HalcashMethod extends BaseMethod{
         $phone = $paymentInfo['phone'];
         $prefix = $paymentInfo['prefix'];
         $amount = $paymentInfo['amount']/100;
-        $reference = $paymentInfo['description'];
+        $reference = $paymentInfo['concept'];
 
         if(isset($paymentInfo['pin'])){
             $pin = $paymentInfo['pin'];
@@ -35,18 +35,23 @@ class HalcashMethod extends BaseMethod{
             $paymentInfo['pin'] = $pin;
         }
 
-        if($this->getCurrency() == 'EUR'){
-            $hal = $this->driver->sendV3($phone,$prefix,$amount,$reference,$pin);
-        }else{
-            $hal = $this->driver->sendInternational($phone,$prefix,$amount,$reference,$pin, 'PL', 'POL');
+        try{
+            if($this->getCurrency() == 'EUR'){
+                $hal = $this->driver->sendV3($phone,$prefix,$amount,$reference,$pin);
+            }else{
+                $hal = $this->driver->sendInternational($phone,$prefix,$amount,$reference,$pin, 'PL', 'POL');
+            }
+        }catch (HttpException $e){
+            throw new HttpException($e->getStatusCode(),$e->getMessage());
         }
-
 
         if($hal['errorcode'] == 0){
             $paymentInfo['status'] = 'sent';
+            $paymentInfo['final'] = false;
             $paymentInfo['halcashticket'] = $hal['halcashticket'];
         }elseif($hal['errorcode'] == 99){
             $paymentInfo['status'] = 'failed';
+            $paymentInfo['final'] = false;
         }
 
         return $paymentInfo;
@@ -63,7 +68,7 @@ class HalcashMethod extends BaseMethod{
             'amount',
             'phone',
             'prefix',
-            'description'
+            'concept'
         );
 
         $params = array();

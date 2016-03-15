@@ -30,6 +30,8 @@ class PaynetReferenceMethod extends BaseMethod{
         $id = round($id);
         $description = 'ChipChap Payment';
 
+        $amount = round($amount, -4);
+
         $barcode = $this->driver->request($id, $amount, $description);
 
         if($barcode['error_code'] == 0){
@@ -41,7 +43,8 @@ class PaynetReferenceMethod extends BaseMethod{
                 'received' => 0.0,
                 'barcode'   =>  $barcode['barcode'],
                 'paynet_id' =>  $barcode['id'],
-                'status'    =>  'created'
+                'status'    =>  'created',
+                'final'     =>  false
             );
 
         }else{
@@ -56,7 +59,15 @@ class PaynetReferenceMethod extends BaseMethod{
 
     public function getPayInStatus($paymentInfo)
     {
-        // TODO: Implement getPayInStatus() method.
+        $client_reference = $paymentInfo['paynet_id'];
+
+        $result = $this->driver->status($client_reference);
+
+        $paymentInfo['status'] = $result['status'];
+        $paymentInfo['paynet_status'] = $result['status_description'];
+        if($result['status'] == 'success') $paymentInfo['final'] = true;
+
+        return $paymentInfo;
     }
 
     public function cancel($paymentInfo){

@@ -30,7 +30,7 @@ class BtcMethod extends BaseMethod {
         $address = $this->driver->getnewaddress();
 //        $address = 'dfghjklñ';
 
-        if(!$address) throw new HttpException(404,'Service Temporally unavailable');
+        if(!$address) throw new HttpException(400,'Service Temporally unavailable');
 
         $response = array(
             'amount'    =>  $amount,
@@ -41,7 +41,8 @@ class BtcMethod extends BaseMethod {
             'received' => 0.0,
             'min_confirmations' => intval(1),
             'confirmations' => 0,
-            'status'    =>  'created'
+            'status'    =>  'created',
+            'final'     =>  false
         );
 
         return $response;
@@ -68,6 +69,8 @@ class BtcMethod extends BaseMethod {
                     $paymentInfo['confirmations'] = $cryptoData['confirmations'];
                     if($paymentInfo['confirmations'] >= $paymentInfo['min_confirmations']){
                         $status = 'success';
+                        $final = true;
+                        $paymentInfo['final'] = $final;
                     }else{
                         $status = 'received';
                     }
@@ -85,7 +88,6 @@ class BtcMethod extends BaseMethod {
 
     }
 
-
     //PAY OUT
     public function getPayOutInfo($request)
     {
@@ -97,13 +99,19 @@ class BtcMethod extends BaseMethod {
         $params = array();
 
         foreach($paramNames as $param){
-            if(!$request->request->has($param)) throw new HttpException(404, 'Parameter '.$param.' not found');
+            if(!$request->request->has($param)) throw new HttpException(400, 'Parameter '.$param.' not found');
             $params[$param] = $request->request->get($param);
 
         }
         $address_verification = $this->driver->validateaddress($params['address']);
 
         if(!$address_verification['isvalid']) throw new HttpException(400,'Invalid address.');
+
+        if($request->request->has('concept')){
+            $params['concept'] = $request->request->get('concept');
+        }else{
+            $params['concept'] = 'Btc out Transaction';
+        }
 
         $params['currency'] = $this->getCurrency();
         $params['scale'] = Currency::$SCALE[$this->getCurrency()];
@@ -126,7 +134,7 @@ class BtcMethod extends BaseMethod {
             $paymentInfo['final'] = false;
         }else{
             $paymentInfo['txid'] = $crypto->txid;
-            $paymentInfo['status'] = 'send';
+            $paymentInfo['status'] = 'sent';
             $paymentInfo['final'] = true;
         }
 
@@ -136,6 +144,10 @@ class BtcMethod extends BaseMethod {
     public function getPayOutStatus($id)
     {
         // TODO: Implement getPayOutStatus() method.
+    }
+
+    public function cancel($payment_info){
+        throw new HttpException('Method not implemented');
     }
 
 

@@ -31,7 +31,10 @@ class SepaMethod extends BaseMethod {
 
     public function send($paymentInfo)
     {
-        $paymentInfo['status'] = 'pending';
+        $paymentInfo['status'] = 'sending';
+
+        //TODO send email with the payment information
+
 
         return $paymentInfo;
 
@@ -70,12 +73,20 @@ class SepaMethod extends BaseMethod {
         if(!$iban_verification) throw new HttpException(400,'Invalid iban.');
         if(!$bic_verification) throw new HttpException(400,'Invalid bic.');
 
+        if($request->request->has('concept')){
+            $concept = $request->request->get('concept');
+        }else{
+            $concept = 'Sepa transaction';
+        }
+
+        $params['concept'] = $concept;
+
         $params['currency'] = $this->getCurrency();
         $params['scale'] = Currency::$SCALE[$this->getCurrency()];
         $params['final'] = false;
         $params['status'] = false;
 
-
         return $params;
     }
+
 }

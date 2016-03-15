@@ -1,0 +1,12 @@
+
+new_kyc:
+    pattern:  /kyc/new
+    defaults: { _controller: Telepay\FinancialApiBundle\Controller\KycController::newKyc }
+    requirements:
+        _method: POST
+
+done_kyc:
+    pattern:  /kyc/update/{id}
+    defaults: { _controller: Telepay\FinancialApiBundle\Controller\KycController::updateKyc }
+    requirements:
+        _method: PUT

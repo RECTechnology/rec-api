@@ -50,6 +50,12 @@ old_btc_halcash:
         _method: POST
 
 old_btc_halcash_check:
+    pattern:  /api/check/{id}/{phone}
+    defaults: { _controller: Telepay\FinancialApiBundle\Controller\Transactions\AdapterController::check ,_format: ~ ,type_in: 'btc' ,type_out: 'halcash', version_number: '1'}
+    requirements:
+        _method: GET
+
+old_btc_halcash_check_v2:
     pattern:  /api/send/{id}
     defaults: { _controller: Telepay\FinancialApiBundle\Controller\Transactions\AdapterController::check ,_format: ~ ,type_in: 'btc' ,type_out: 'halcash', version_number: '1'}
     requirements:
@@ -67,21 +73,21 @@ old_btc_halcash_check:
     requirements:
         _method: GET
 
-old_paynet_btc:
+old_paynet_btc_v2:
     pattern:  /api/v2/paynet/btc
-    defaults: { _controller: Telepay\FinancialApiBundle\Controller\Transactions\AdapterController::make ,_format: ~ ,type_in: 'paynet' ,type_out: 'btc'}
+    defaults: { _controller: Telepay\FinancialApiBundle\Controller\Transactions\AdapterController::make ,_format: ~ ,type_in: 'paynet' ,type_out: 'btc', version_number: '2'}
     requirements:
         _method: POST
 
-old_paynet_btc_check:
+old_paynet_btc_check_v2:
     pattern:  /api/v2/paynet/btc/{id}
-    defaults: { _controller: Telepay\FinancialApiBundle\Controller\Transactions\AdapterController::check ,_format: ~ ,type_in: 'paynet' ,type_out: 'btc', version_number: '1'}
+    defaults: { _controller: Telepay\FinancialApiBundle\Controller\Transactions\AdapterController::check ,_format: ~ ,type_in: 'paynet' ,type_out: 'btc', version_number: '2'}
     requirements:
         _method: GET
 
 old_paynet_btc:
     pattern:  /api/paynet/btc
-    defaults: { _controller: Telepay\FinancialApiBundle\Controller\Transactions\AdapterController::make ,_format: ~ ,type_in: 'paynet' ,type_out: 'btc'}
+    defaults: { _controller: Telepay\FinancialApiBundle\Controller\Transactions\AdapterController::make ,_format: ~ ,type_in: 'paynet' ,type_out: 'btc', version_number: '1'}
     requirements:
         _method: POST
 

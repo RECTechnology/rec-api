@@ -59,6 +59,21 @@ class CashInTokens implements OwnByUserInterface {
     private $user;
 
     /**
+     * @Expose
+     */
+    private $account_number;
+
+    /**
+     * @Expose
+     */
+    private $beneficiary;
+
+    /**
+     * @Expose
+     */
+    private $bic_swift;
+
+    /**
      * @param mixed $user
      */
     public function setUser($user)
@@ -111,5 +126,29 @@ class CashInTokens implements OwnByUserInterface {
     public function setService($service)
     {
         $this->service = $service;
+    }
+
+    /**
+     * @param mixed $account_number
+     */
+    public function setAccountNumber($account_number)
+    {
+        $this->account_number = $account_number;
+    }
+
+    /**
+     * @param mixed $beneficiary
+     */
+    public function setBeneficiary($beneficiary)
+    {
+        $this->beneficiary = $beneficiary;
+    }
+
+    /**
+     * @param mixed $bic_swift
+     */
+    public function setBicSwift($bic_swift)
+    {
+        $this->bic_swift = $bic_swift;
     }
 }

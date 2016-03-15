@@ -104,24 +104,24 @@ class ClientsController extends BaseApiController {
             foreach($services as $service){
                 $method = explode('-',$service,2);
 
-                $exist_method_in = $this->get('net.telepay.swift_provider')->isValidMethod($method[0].'-cash_in');
+                $exist_method_in = $this->get('net.telepay.swift_provider')->isValidMethod($method[0].'-in');
 
                 if($exist_method_in == false){
                     throw new HttpException(404, 'Cash in method '.$method[0].' not found');
                 }else{
-                    $method_in = $this->get('net.telepay.swift_provider')->findByCname($method[0].'-cash_in');
-                    if($method_in->getType() != 'cash_in') throw new HttpException(404, 'Cash in method '.$method[0].' not found');
+                    $method_in = $this->get('net.telepay.swift_provider')->findByCname($method[0].'-in');
+                    if($method_in->getType() != 'in') throw new HttpException(404, 'Cash in method '.$method[0].' not found');
                 }
 
                 if(!isset($method[1]) ) throw new HttpException(404, 'Cash out method not found');
 
-                $exist_method_out = $this->get('net.telepay.swift_provider')->isValidMethod($method[1].'-cash_out');
+                $exist_method_out = $this->get('net.telepay.swift_provider')->isValidMethod($method[1].'-out');
 
                 if($exist_method_out == false){
                     throw new HttpException(404, 'Cash out method '.$method[1].' not found');
                 }else{
-                    $method_out = $this->get('net.telepay.swift_provider')->findByCname($method[1].'-cash_out');
-                    if($method_out->getType() != 'cash_out') throw new HttpException(404, 'Cash out method '.$method[1].' not found');
+                    $method_out = $this->get('net.telepay.swift_provider')->findByCname($method[1].'-out');
+                    if($method_out->getType() != 'out') throw new HttpException(404, 'Cash out method '.$method[1].' not found');
                 }
 
             }

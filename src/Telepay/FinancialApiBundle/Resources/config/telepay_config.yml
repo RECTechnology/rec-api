@@ -29,7 +29,7 @@ services:
             - "0"
             - "10000"
             - "1000000000"
-            - "10000"
+            - "1"
             - "All over the world"
 
     net.telepay.config.fac:
@@ -39,7 +39,7 @@ services:
             - "0"
             - "100000000"
             - "1000000000000"
-            - "100000000"
+            - "1"
             - "All over the world"
 
     net.telepay.config.sepa:
@@ -61,3 +61,21 @@ services:
             - "25000"
             - "10"
             - "All over the world"
+
+    net.telepay.config.pos_pnp:
+        class: Telepay\FinancialApiBundle\Financial\Methods\POSConfiguration
+        arguments:
+            - "pos_pnp"
+            - "EUR"
+            - "EUR"
+            - "EUR"
+            - "EUR/MXN/USD/PLN/FAC/BTC"
+
+    net.telepay.config.pos_btc:
+        class: Telepay\FinancialApiBundle\Financial\Methods\POSConfiguration
+        arguments:
+            - "pos_btc"
+            - "BTC"
+            - "BTC"
+            - "EUR/MXN/USD/PLN/FAC/BTC"
+            - "EUR/MXN/USD/PLN/FAC/BTC"

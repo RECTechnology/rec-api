@@ -40,4 +40,14 @@ class SepaIn{
         return substr(implode("", $array_chars),0,5);
     }
 
+    function getInfo(){
+        $response = array(
+            'iban'      =>  $this->iban,
+            'bic_swift' =>  $this->bic_swift,
+            'beneficiary'   =>  $this->beneficiary
+        );
+
+        return $response;
+    }
+
 }

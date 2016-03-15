@@ -233,9 +233,7 @@ class IncomingController extends RestApiController{
 
                     $this->container->get('notificator')->notificate($transaction);
 
-                    if ($transaction->getStatus() == Transaction::$STATUS_ERROR){
-                        throw $e;
-                    }
+                    throw new HttpException($e->getStatusCode(), $e->getMessage());
 
                 }
 
@@ -455,7 +453,7 @@ class IncomingController extends RestApiController{
                         $transaction = $service->create($transaction);
                     }catch (HttpException $e){
 
-                        if($e->getStatusCode()>=500){
+                        if($e->getStatusCode() >= 500){
                             $transaction->setStatus(Transaction::$STATUS_FAILED);
                             $transaction = $this->get('notificator')->notificate($transaction);
                             $current_wallet->setAvailable($current_wallet->getAvailable() + $amount );
@@ -557,9 +555,9 @@ class IncomingController extends RestApiController{
         $user = $this->get('security.context')->getToken()->getUser();
 
         //TODO quitar cuando haya algo mejor montado
-        if($user->getId() == '50'){
+        if($user->getId() == $this->container->getParameter('read_only_user_id')){
             $em = $this->getDoctrine()->getManager();
-            $user = $em->getRepository('TelepayFinancialApiBundle:User')->find('16');
+            $user = $em->getRepository('TelepayFinancialApiBundle:User')->find($this->container->getParameter('chipchap_user_id'));
         }
 
         $service_list = $user->getServicesList();
@@ -655,9 +653,9 @@ class IncomingController extends RestApiController{
             ->getToken()->getUser();
 
         //TODO quitar cuando haya algo mejor montado
-        if($user->getId() == '50'){
+        if($user->getId() == $this->container->getParameter('read_only_user_id')){
             $em = $this->getDoctrine()->getManager();
-            $user = $em->getRepository('TelepayFinancialApiBundle:User')->find('16');
+            $user = $em->getRepository('TelepayFinancialApiBundle:User')->find('chipchap_user_id');
         }
 
         $service_list = $user->getServicesList();
@@ -686,7 +684,7 @@ class IncomingController extends RestApiController{
 
             $transactions = $qb
                 ->field('user')->equals($userId)
-                ->field('service')->equals($service->getCname())
+                //->field('service')->equals($service->getCname())
                 ->field('created')->gte($start_time)
                 ->field('created')->lte($finish_time)
                 ->where("function() {
@@ -744,11 +742,13 @@ class IncomingController extends RestApiController{
                     }
                 }
             }
-            if(typeof this.status !== 'undefined' && String(this.status).indexOf('$search') > -1){ return true;}
-            if(typeof this.service !== 'undefined' && String(this.service).indexOf('$search') > -1){ return true;}
-            if(String(this._id).indexOf('$search') > -1){ return true;}
-
-            return false;
+            if ('$search') {
+                if(typeof this.status !== 'undefined' && String(this.status).indexOf('$search') > -1){ return true;}
+                if(typeof this.service !== 'undefined' && String(this.service).indexOf('$search') > -1){ return true;}
+                if(String(this._id).indexOf('$search') > -1){ return true;}
+                return false;
+            }
+            return true;
             }")
                 ->sort($order,$dir)
                 ->getQuery()
@@ -760,7 +760,7 @@ class IncomingController extends RestApiController{
 
             $transactions = $qb
                 ->field('user')->equals($userId)
-                ->field('service')->equals($service->getCname())
+                //->field('service')->equals($service->getCname())
                 ->sort($order,$dir)
                 ->getQuery()
                 ->execute();

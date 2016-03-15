@@ -57,6 +57,12 @@ class POS {
      * @ORM\Column(type="string")
      * @Expose
      */
+    private $type;
+
+    /**
+     * @ORM\Column(type="string")
+     * @Expose
+     */
     private $pos_id;
 
     /**
@@ -203,6 +209,22 @@ class POS {
     public function setActive($active)
     {
         $this->active = $active;
+    }
+
+    /**
+     * @return mixed
+     */
+    public function getType()
+    {
+        return $this->type;
+    }
+
+    /**
+     * @param mixed $type
+     */
+    public function setType($type)
+    {
+        $this->type = $type;
     }
 
 }

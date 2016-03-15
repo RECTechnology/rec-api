@@ -250,6 +250,41 @@ class SpecialActionsController extends RestApiController {
      */
     public function sepaOutValidation(Request $request, $id){
 
+        //TODO hacer que no solo valga para swift, tiene que valer para los metodos tb con la misma llamada
+        //only superadmin allowed
+        if (!$this->get('security.authorization_checker')->isGranted('ROLE_SUPER_ADMIN')) {
+            throw $this->createAccessDeniedException();
+        }
+
+        if(!$request->request->has('validate')) throw new HttpException(404, 'Parameter "validate" not found');
+        else $validate = $request->request->get('validate');
+
+        $dm = $this->get('doctrine_mongodb')->getManager();
+        $transRepo = $dm->getRepository('TelepayFinancialApiBundle:Transaction');
+        $transaction = $transRepo->find($id);
+
+        if($validate == true){
+            $transaction->setStatus('success');
+            $paymentInfo = $transaction->getPayOutInfo();
+            $paymentInfo['status'] = 'sent';
+            $paymentInfo['final'] = true;
+            $transaction->setPayOutInfo($paymentInfo);
+
+            $transaction = $this->get('notificator')->notificate($transaction);
+
+            $dm->persist($transaction);
+            $dm->flush();
+        }
+
+        return $this->restTransaction($transaction, "Done");
+
+    }
+
+    /**
+     * @Rest\View
+     */
+    public function sepaOutValidation2(Request $request, $id){
+
         //only superadmin allowed
         if (!$this->get('security.authorization_checker')->isGranted('ROLE_SUPER_ADMIN')) {
             throw $this->createAccessDeniedException();
@@ -257,7 +292,7 @@ class SpecialActionsController extends RestApiController {
 
         $service = 'sepa_out';
 
-        if(!$request->request->has('validate')) throw new HttpException(404, 'Parameter "validate" not foound');
+        if(!$request->request->has('validate')) throw new HttpException(404, 'Parameter "validate" not found');
         else $validate = $request->request->get('validate');
 
         $dm = $this->get('doctrine_mongodb')->getManager();
@@ -315,18 +350,18 @@ class SpecialActionsController extends RestApiController {
      */
     public function sepaOutList(Request $request){
 
+        //TODO hacer que sea compatible con los methods, ahora solo vale para swift
         //only superadmin allowed
         if (!$this->get('security.authorization_checker')->isGranted('ROLE_SUPER_ADMIN')) {
             throw $this->createAccessDeniedException();
         }
 
-        $service = 'sepa_out';
-
         $dm = $this->get('doctrine_mongodb')->getManager();
         $transactions = $dm->getRepository('TelepayFinancialApiBundle:Transaction')
             ->findBy(array(
-                'service'   =>  $service,
-                'status'    =>  'created'
+                'method_out'  =>  'sepa',
+                'type'  =>  'swift',
+                'status'    =>  'sending'
             ));
 
 

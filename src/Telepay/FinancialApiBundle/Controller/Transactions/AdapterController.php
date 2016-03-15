@@ -15,7 +15,7 @@ use FOS\RestBundle\Controller\Annotations as Rest;
 
 class AdapterController extends RestApiController{
 
-    public function make(Request $request, $type_in, $type_out){
+    public function make(Request $request, $type_in, $type_out, $version_number = 1){
 
         if($type_in == 'btc'){
 
@@ -107,7 +107,7 @@ class AdapterController extends RestApiController{
         }elseif($type_in == 'paynet'){
             if($type_out == 'btc'){
 
-                return $this->_paynetBtcCheck($id);
+                return $this->_paynetBtcCheck($id, $version_number);
 
             }elseif($type_out == 'fac'){
 
@@ -160,7 +160,7 @@ class AdapterController extends RestApiController{
             'phone' =>  $params['phone_number'],
             'prefix'    =>  $params['phone_prefix'],
             'amount'    =>  $params['amount']*100,
-            'description'   =>  'description'
+            'concept'   =>  'adapter transaction'
         ));
 
         $method_in = 'btc';
@@ -280,7 +280,7 @@ class AdapterController extends RestApiController{
             'phone' =>  $params['phone_number'],
             'prefix'    =>  $params['phone_prefix'],
             'amount'    =>  $params['amount']*100,
-            'description'   =>  'description'
+            'concept'   =>  'adapter transaction'
         ));
 
         $method_in = 'fac';
@@ -391,10 +391,11 @@ class AdapterController extends RestApiController{
         $request->request->remove('btc_address');
         $request->request->remove('amount');
 
+        $btc_amount = $this->_exchange($params['amount']*100, 'MXN', 'BTC');
         $request->request->add(array(
             'address'    =>  $params['btc_address'],
-            'amount'    =>  $params['amount']*100,
-            'description'   =>  $params['description']
+            'amount'    =>  $btc_amount,
+            'concept'   =>  $params['description']
         ));
 
         $method_in = 'paynet_reference';
@@ -418,7 +419,7 @@ class AdapterController extends RestApiController{
             $customResponse['url'] = "https://www.datalogic.com.mx/PaynetCE/GetBarcodeImage.pn?text=".$array_response['pay_in_info']['barcode']."&bh=50&bw=1";
             $customResponse['amount'] = $array_response['pay_in_info']['amount'];
             $customResponse['expiration_date'] = $array_response['pay_in_info']['expires_in'];
-//            $customResponse['description'] = $array_response['pay_in_info']['description'];
+            $customResponse['description'] = $array_response['pay_out_info']['concept'];
 
             return $this->restPlain($response->getStatusCode(), $customResponse);
 
@@ -444,7 +445,7 @@ class AdapterController extends RestApiController{
         $request->request->add(array(
             'address'    =>  $params['fac_address'],
             'amount'    =>  $params['amount']*100,
-            'description'   =>  $params['description']
+            'concept'   =>  $params['description']
         ));
 
         $method_in = 'paynet_reference';
@@ -477,7 +478,7 @@ class AdapterController extends RestApiController{
         }
     }
 
-    private function _paynetBtcCheck($id){
+    private function _paynetBtcCheck($id, $version_number = 1){
 
         $response = $this->forward('Telepay\FinancialApiBundle\Controller\Transactions\SwiftController::check', array(
             'version_number'    =>  1,
@@ -490,17 +491,42 @@ class AdapterController extends RestApiController{
         if($response->getStatusCode() == 200){
             //status,created,ticket_id,id,type,orig_coin,orig_scale,orig_amount,dst_coin,dst_scale,
             //dst_amount,price,address,confirmations,received,phone,prefix,pin
-
             $customResponse = array();
+
             if($array_response['status'] == 'created'){
                 $customResponse['status'] = 'ok';
             }else{
                 $customResponse['status'] = $array_response['status'];
             }
 
-            $customResponse['ticket_id'] = $array_response['id'];
-            $customResponse['amount'] = $array_response['pay_in_info']['amount'];
-            $customResponse['expired'] = $array_response['pay_in_info']['expires_in'];
+            if($version_number == 1){
+
+                $customResponse['ticket_id'] = $array_response['id'];
+                $customResponse['amount'] = $array_response['pay_in_info']['amount'];
+                $customResponse['url'] = 'https://www.datalogic.com.mx/PaynetCE/GetBarcodeImage.pn?text='.$array_response['pay_in_info']['barcode'].'&bh=50&bw=1';
+                $customResponse['barcode'] = $array_response['pay_in_info']['barcode'];
+                $customResponse['type'] = 'paynet_btc';
+                $customResponse['expiration_date'] = $array_response['pay_in_info']['expires_in'];
+            }else{
+
+                $customResponse['created'] = $array_response['created'];
+                $customResponse['ticket_id'] = $array_response['id'];
+                $customResponse['orig_coin'] = 'MXN';
+                $customResponse['orig_scale'] = 100;
+                $customResponse['orig_amount'] = $array_response['pay_in_info']['amount'];
+                $customResponse['dst_coin'] = 'BTC';
+                $customResponse['dst_scale'] = 100000000;
+                $customResponse['dst_amount'] = $array_response['pay_out_info']['amount'];
+                $customResponse['received'] = $array_response['pay_out_info']['received'];
+                $customResponse['address'] = $array_response['pay_out_info']['address'];
+                $customResponse['price'] = round(($array_response['pay_in_info']['amount']/100)/($array_response['pay_out_info']['amount']/1e8),2)*100;
+                $customResponse['type'] = 'paynet_btc';
+                $customResponse['reference'] = 'concept to btc';
+                $customResponse['url'] = 'https://www.datalogic.com.mx/PaynetCE/GetBarcodeImage.pn?text='.$array_response['pay_in_info']['barcode'].'&bh=50&bw=1';
+                $customResponse['barcode'] = $array_response['pay_in_info']['barcode'];
+                $customResponse['expiration_date'] = $array_response['pay_in_info']['expires_in'];
+
+            }
 
             return $this->restPlain($response->getStatusCode(), $customResponse);
 
@@ -560,7 +586,7 @@ class AdapterController extends RestApiController{
 
         $request->request->add(array(
             'amount'    =>  $params['amount']*100,
-            'description'   =>  $params['concept']
+            'concept'   =>  $params['concept']
         ));
 
         $method_in = 'btc';
@@ -619,6 +645,8 @@ class AdapterController extends RestApiController{
             $customResponse = array();
             if($array_response['status'] == 'created'){
                 $customResponse['status'] = 'pending';
+            }elseif($array_response['status'] == 'success'){
+                $customResponse['status'] = 'sent';
             }else{
                 $customResponse['status'] = $array_response['status'];
             }
@@ -626,7 +654,7 @@ class AdapterController extends RestApiController{
             $customResponse['created'] = $array_response['created'];
             $customResponse['ticket_id'] = $array_response['id'];
             $customResponse['id'] = $array_response['id'];
-            $customResponse['type'] = 'btc_bank_transfer';
+            $customResponse['type'] = 'btc_transfer';
             $customResponse['orig_coin'] = 'btc';
             $customResponse['orig_scale'] = 100000000;
             $customResponse['orig_amount'] = $array_response['pay_in_info']['amount'];
@@ -638,6 +666,8 @@ class AdapterController extends RestApiController{
             $customResponse['confirmations'] = $array_response['pay_in_info']['confirmations'];
             $customResponse['received'] = $array_response['pay_in_info']['received'];
             $customResponse['beneficiary'] = $array_response['pay_in_info']['beneficiary'];
+            $customResponse['iban'] = $array_response['pay_out_info']['iban'];
+            $customResponse['concept'] = $array_response['pay_out_info']['concept'];
 
             return $this->restPlain($response->getStatusCode(), $customResponse);
 
@@ -662,7 +692,7 @@ class AdapterController extends RestApiController{
 
         $request->request->add(array(
             'amount'    =>  $params['amount']*100,
-            'description'   =>  $params['concept']
+            'concept'   =>  $params['concept']
         ));
 
         $method_in = 'fac';
@@ -835,7 +865,7 @@ class AdapterController extends RestApiController{
             $customResponse['address'] = $array_response['pay_in_info']['address'];
             $customResponse['confirmations'] = $array_response['pay_in_info']['confirmations'];
             $customResponse['received'] = $array_response['pay_in_info']['received'];
-            $customResponse['email'] = $array_response['pay_in_info']['email'];
+            $customResponse['email'] = $array_response['pay_out_info']['email'];
 
             return $this->restPlain($response->getStatusCode(), $customResponse);
 
@@ -1015,6 +1045,15 @@ class AdapterController extends RestApiController{
                 'destination'   =>  'transfer',
                 'text'      =>  'Sell bitcoins and receive a bank transfer.',
                 'countries' =>  'Eurozone'
+            ),
+            'bankcard_btc'    =>  array(
+                'status'    =>  $status_pos_btc,
+                'message'   =>  $this->_getStatusMessage($status_pos_btc)['message'],
+                'delay'   =>  $this->_getStatusMessage($status_pos_btc)['delay'],
+                'origin'    =>  'bankcard',
+                'destination'   =>  'bitcoin',
+                'text'      =>  'Buy bitcoins with your bank card.',
+                'countries' =>  'All over the world'
             )
         );
 
@@ -1036,20 +1075,20 @@ class AdapterController extends RestApiController{
         $btc_sell_price = round(($this->_exchange(100000000, 'btc', 'eur')/100)*0.95,2);
         $btc_buy_price = round($btc_sell_price *1.05,2);
         $pln_price = round(($this->_exchange(100000000, 'btc', 'pln')/100)*0.95,2);
-        $mxn_price = round(($this->_exchange(100, 'mxn', 'btc')/100)*1.05,2);
+        $mxn_price = round(($this->_exchange(100, 'mxn', 'btc')/100)*1.06,2);
         $variable_fee = 0;
         $fixed_fee = 0;
         $paynet_variable_fee = 0;
         $paynet_fixed_fee = 0;
         $timeout = 1200;
         $daily_sell_limit = 600;
-        $daily_buy_limit = 0;
+        $daily_buy_limit = 500;
         $monthly_sell_limit = 3000;
-        $monthly_buy_limit = 0;
+        $monthly_buy_limit = 5000;
         $daily_limit_pln = 2000;
-        $daily_buy_limit_pln = 0;
+        $daily_buy_limit_pln = 1000;
         $monthly_limit_pln = 20000;
-        $monthly_buy_limit_pln = 0;
+        $monthly_buy_limit_pln = 5000;
         $paynet_limit = 0;
         $paynet_buy_limit = 1000;
         $cryptocapital_limit = 250;

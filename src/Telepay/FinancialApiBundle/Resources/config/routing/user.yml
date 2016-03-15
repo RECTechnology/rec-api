@@ -33,6 +33,12 @@ user_wallet_transactions:
     requirements:
         _method: GET
 
+user_wallet_transactions_daily_group:
+    pattern:  /user/v1/wallet/dailytransactions
+    defaults: { _controller: Telepay\FinancialApiBundle\Controller\Management\User\WalletController::walletDailySumTransactions }
+    requirements:
+        _method: GET
+
 user_wallet_transactions_v2:
     pattern:  /user/v2/wallet/transactions
     defaults: { _controller: Telepay\FinancialApiBundle\Controller\Management\User\WalletController::walletTransactionsV2 }
@@ -71,6 +77,12 @@ user_analytics:
     defaults: { _controller: Telepay\FinancialApiBundle\Controller\Management\User\AccountController::analytics }
     requirements:
         _method: GET
+
+user_set_image:
+    pattern:  /user/v1/image
+    defaults: { _controller: Telepay\FinancialApiBundle\Controller\Management\User\AccountController::setImage }
+    requirements:
+        _method: PUT
 
 user_transactions_speed:
     pattern:  /user/v1/speed
@@ -140,6 +152,12 @@ user_btc_wallet_create:
     defaults: { _controller: Telepay\FinancialApiBundle\Controller\Management\User\BTCWalletController::createBTCWallet }
     requirements:
         _method: POST
+
+user_btc_wallet_update:
+    pattern:  /user/v1/btc_wallet
+    defaults: { _controller: Telepay\FinancialApiBundle\Controller\Management\User\BTCWalletController::updateBTCWallet }
+    requirements:
+        _method: PUT
 
 user_btc_adresses_read:
     pattern:  /user/v1/btc_addresses
@@ -243,3 +261,28 @@ user_swift_update_transaction:
     requirements:
         _method: PUT
 
+######################## USER FEES ########################
+
+scheduled_list:
+    pattern:  /user/v1/scheduled
+    defaults: { _controller: Telepay\FinancialApiBundle\Controller\Management\User\ScheduledController::indexAction }
+    requirements:
+        _method: GET
+
+scheduled_create:
+    pattern:  /user/v1/scheduled
+    defaults: { _controller: Telepay\FinancialApiBundle\Controller\Management\User\ScheduledController::createAction }
+    requirements:
+        _method: POST
+
+scheduled_update:
+    pattern:  /user/v1/scheduled/{id}
+    defaults: { _controller: Telepay\FinancialApiBundle\Controller\Management\User\ScheduledController::updateAction }
+    requirements:
+        _method: PUT
+
+scheduled_delete:
+    pattern:  /user/v1/scheduled/{id}
+    defaults: { _controller: Telepay\FinancialApiBundle\Controller\Management\User\ScheduledController::deleteAction }
+    requirements:
+        _method: DELETE

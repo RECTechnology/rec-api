@@ -31,7 +31,7 @@ class CryptocapitalMethod extends BaseMethod {
         $currency = $paymentInfo['currency'];
         $amount = $paymentInfo['amount'];
         $email = $paymentInfo['email'];
-        $description = $paymentInfo['description'];
+        $description = $paymentInfo['concept'];
         $id = $paymentInfo['id'];
 //        $id = '4356543';
 
@@ -111,6 +111,14 @@ class CryptocapitalMethod extends BaseMethod {
             $params[$param] = $request->request->get($param);
 
         }
+
+        if($request->request->has('concept')){
+            $concept = $request->request->get('concept');
+        }else{
+            $concept = 'Cryptocapital transaction';
+        }
+
+        $params['concept'] = $concept;
 
         $params['currency'] = $this->getCurrency();
         $params['scale'] = Currency::$SCALE[$this->getCurrency()];
