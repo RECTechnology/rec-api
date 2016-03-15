@@ -323,8 +323,8 @@ class SpecialActionsController extends RestApiController {
         $dm = $this->get('doctrine_mongodb')->getManager();
         $transactions = $dm->getRepository('TelepayFinancialApiBundle:Transaction')
             ->findBy(array(
-                'method'   =>  'sepa',
-                'type'  =>  'out',
+                'method_out'  =>  'sepa',
+                'type'  =>  'swift',
                 'status'    =>  'sending'
             ));
 
