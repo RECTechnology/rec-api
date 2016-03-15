@@ -1075,7 +1075,7 @@ class AdapterController extends RestApiController{
         $btc_sell_price = round(($this->_exchange(100000000, 'btc', 'eur')/100)*0.95,2);
         $btc_buy_price = round($btc_sell_price *1.05,2);
         $pln_price = round(($this->_exchange(100000000, 'btc', 'pln')/100)*0.95,2);
-        $mxn_price = round(($this->_exchange(100, 'mxn', 'btc')/100)*1.05,2);
+        $mxn_price = round(($this->_exchange(100, 'mxn', 'btc')/100)*1.06,2);
         $variable_fee = 0;
         $fixed_fee = 0;
         $paynet_variable_fee = 0;
