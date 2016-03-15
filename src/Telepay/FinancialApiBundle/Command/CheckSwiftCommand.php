@@ -284,8 +284,7 @@ class CheckSwiftCommand extends ContainerAwareCommand
                         'final'     =>  $paymentInfo['final'],
                         'status'    =>  $paymentInfo['status']
                     ))
-            )
-            ->setContentType('text/html');
+            );
 
         $this->getContainer()->get('mailer')->send($message);
     }
