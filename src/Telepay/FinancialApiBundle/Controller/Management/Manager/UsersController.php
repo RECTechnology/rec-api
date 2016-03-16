@@ -439,7 +439,7 @@ class UsersController extends BaseApiController
 
         $methods = null;
         if($request->request->has('methods')){
-            $services = $request->get('methods');
+            $methods = $request->get('methods');
             $request->request->remove('methods');
             $request->request->add(array('methods_list' =>$methods));
         }
