@@ -81,7 +81,8 @@ class SwiftController extends RestApiController{
                         if(String(this.pay_out_info.phone).indexOf('$search') > -1){
                             return true;
                         }
-                }
+                    }
+                    return false;
                 }")
 
                 ->getQuery()
@@ -115,7 +116,8 @@ class SwiftController extends RestApiController{
                         if(String(this.pay_out_info.iban).indexOf('$search') > -1){
                             return true;
                         }
-                }
+                    }
+                    return false;
                 }")
 
                 ->getQuery()
