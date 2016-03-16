@@ -2,6 +2,7 @@
 namespace Telepay\FinancialApiBundle\Command;
 
 use Symfony\Bundle\FrameworkBundle\Command\ContainerAwareCommand;
+use Symfony\Component\Config\Definition\Exception\Exception;
 use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Input\InputInterface;
@@ -101,18 +102,23 @@ class CheckSwiftCommand extends ContainerAwareCommand
                     $transaction->setPayInInfo($pay_in_info);
                     $transaction->setUpdated(new \DateTime());
                     $output->writeln('Status '.$pay_in_info['status']);
+                    $dm->persist($transaction);
+                    $dm->flush();
                 }elseif($pay_in_info['status'] == 'success'){
                     $transaction->setPayInInfo($pay_in_info);
                     $transaction->setDataOut($pay_in_info);
                     $transaction->setUpdated(new \DateTime());
+                    $dm->persist($transaction);
+                    $dm->flush();
                     try{
                         $pay_out_info = $cashOutMethod->send($pay_out_info);
-                    }catch (HttpException $e){
+                    }catch (Exception $e){
                         $transaction->setPayOutInfo($pay_out_info);
                         $transaction->setStatus('error');
-                        $output->writeln('Status failed');
+                        $output->writeln('Status failed'.$e->getMessage());
                     }
-
+                    $dm->persist($transaction);
+                    $dm->flush();
                     if($pay_out_info['status'] == 'sent' || $pay_out_info['status'] == 'sending'){
                         $transaction->setPayOutInfo($pay_out_info);
                         if($pay_out_info['status'] == 'sent') $transaction->setStatus('success');
@@ -124,8 +130,8 @@ class CheckSwiftCommand extends ContainerAwareCommand
                         $dm->flush();
                         //Generate fee transactions. One for the user and one for the root
                         $output->writeln('Generating userFee for: '.$transaction->getId());
-                        $output->writeln('Sending email');
                         if($pay_out_info['status'] == 'sending'){
+                            $output->writeln('Sending email');
                             //send email in sepa_out
                             $this->_sendSepaMail($pay_out_info, $transaction->getId(), $transaction->getType());
                         }

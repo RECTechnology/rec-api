@@ -25,7 +25,7 @@ class HalcashMethod extends BaseMethod{
     public function send($paymentInfo)
     {
         $phone = $paymentInfo['phone'];
-        $prefix = $paymentInfo['prefix'];
+        $prefix = str_replace("+", "", $paymentInfo['prefix']);
         $amount = $paymentInfo['amount']/100;
         $reference = $paymentInfo['concept'];
 
@@ -89,6 +89,7 @@ class HalcashMethod extends BaseMethod{
 
         $find_token = substr(Random::generateToken(), 0, 6);
 
+        $params['prefix'] = str_replace("+", "", $params['prefix']);
         $params['find_token'] = $find_token;
         $params['pin'] = $pin;
         $params['final'] = false;
