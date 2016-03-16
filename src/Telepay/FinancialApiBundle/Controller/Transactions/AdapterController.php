@@ -145,7 +145,6 @@ class AdapterController extends RestApiController{
         $paramNames = array(
             'amount',
             'phone_number',
-            'phone_prefix',
             'country'
         );
 
