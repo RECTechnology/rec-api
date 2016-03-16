@@ -158,7 +158,7 @@ class AdapterController extends RestApiController{
 
         $request->request->add(array(
             'phone' =>  $params['phone_number'],
-            'prefix'    =>  $params['phone_prefix'],
+            'prefix'    =>  str_replace("+", "", $params['phone_prefix']),
             'amount'    =>  $params['amount']*100,
             'concept'   =>  'adapter transaction'
         ));
