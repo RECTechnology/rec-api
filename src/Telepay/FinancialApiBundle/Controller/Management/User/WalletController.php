@@ -179,72 +179,72 @@ class WalletController extends RestApiController{
                 ->field('created')->gte($start_time)
                 ->field('created')->lte($finish_time)
                 ->where("function() {
-            if (typeof this.payInInfo !== 'undefined') {
-                if (typeof this.payInInfo.amount !== 'undefined') {
-                    if(String(this.payInInfo.amount).indexOf('$search') > -1){
+            if (typeof this.pay_in_info !== 'undefined') {
+                if (typeof this.pay_in_info.amount !== 'undefined') {
+                    if(String(this.pay_in_info.amount).indexOf('$search') > -1){
                         return true;
                     }
                 }
-                if (typeof this.payInInfo.address !== 'undefined') {
-                    if(String(this.payInInfo.address).indexOf('$search') > -1){
+                if (typeof this.pay_in_info.address !== 'undefined') {
+                    if(String(this.pay_in_info.address).indexOf('$search') > -1){
                         return true;
                     }
                 }
-                if (typeof this.payInInfo.status !== 'undefined') {
-                    if(String(this.payInInfo.status).indexOf('$search') > -1){
+                if (typeof this.pay_in_info.status !== 'undefined') {
+                    if(String(this.pay_in_info.status).indexOf('$search') > -1){
                         return true;
                     }
                 }
-                if (typeof this.payInInfo.concept !== 'undefined') {
-                    if(String(this.payInInfo.concept).indexOf('$search') > -1){
+                if (typeof this.pay_in_info.concept !== 'undefined') {
+                    if(String(this.pay_in_info.concept).indexOf('$search') > -1){
                         return true;
                     }
                 }
 
             }
-            if (typeof this.payOutInfo !== 'undefined') {
-                if (typeof this.payOutInfo.amount !== 'undefined') {
-                    if(String(this.payOutInfo.amount).indexOf('$search') > -1){
+            if (typeof this.pay_out_info !== 'undefined') {
+                if (typeof this.pay_out_info.amount !== 'undefined') {
+                    if(String(this.pay_out_info.amount).indexOf('$search') > -1){
                         return true;
                     }
                 }
-                if (typeof this.payOutInfo.halcashticket !== 'undefined') {
-                    if(String(this.payOutInfo.halcashticket).indexOf('$search') > -1){
+                if (typeof this.pay_out_info.halcashticket !== 'undefined') {
+                    if(String(this.pay_out_info.halcashticket).indexOf('$search') > -1){
                         return true;
                     }
                 }
-                if (typeof this.payOutInfo.txid !== 'undefined') {
-                    if(String(this.payOutInfo.txid).indexOf('$search') > -1){
+                if (typeof this.pay_out_info.txid !== 'undefined') {
+                    if(String(this.pay_out_info.txid).indexOf('$search') > -1){
                         return true;
                     }
                 }
-                if (typeof this.payOutInfo.address !== 'undefined') {
-                    if(String(this.payOutInfo.address).indexOf('$search') > -1){
+                if (typeof this.pay_out_info.address !== 'undefined') {
+                    if(String(this.pay_out_info.address).indexOf('$search') > -1){
                         return true;
                     }
                 }
-                if (typeof this.payOutInfo.concept !== 'undefined') {
-                    if(String(this.payOutInfo.concept).indexOf('$search') > -1){
+                if (typeof this.pay_out_info.concept !== 'undefined') {
+                    if(String(this.pay_out_info.concept).indexOf('$search') > -1){
                         return true;
                     }
                 }
-                if (typeof this.payOutInfo.email !== 'undefined') {
-                    if(String(this.payOutInfo.email).indexOf('$search') > -1){
+                if (typeof this.pay_out_info.email !== 'undefined') {
+                    if(String(this.pay_out_info.email).indexOf('$search') > -1){
                         return true;
                     }
                 }
-                if (typeof this.payOutInfo.find_token !== 'undefined') {
-                    if(String(this.payOutInfo.find_token).indexOf('$search') > -1){
+                if (typeof this.pay_out_info.find_token !== 'undefined') {
+                    if(String(this.pay_out_info.find_token).indexOf('$search') > -1){
                         return true;
                     }
                 }
-                if (typeof this.payOutInfo.phone !== 'undefined') {
-                    if(String(this.payOutInfo.phone).indexOf('$search') > -1){
+                if (typeof this.pay_out_info.phone !== 'undefined') {
+                    if(String(this.pay_out_info.phone).indexOf('$search') > -1){
                         return true;
                     }
                 }
-                if (typeof this.payOutInfo.pin !== 'undefined') {
-                    if(String(this.payOutInfo.pin).indexOf('$search') > -1){
+                if (typeof this.pay_out_info.pin !== 'undefined') {
+                    if(String(this.pay_out_info.pin).indexOf('$search') > -1){
                         return true;
                     }
                 }
