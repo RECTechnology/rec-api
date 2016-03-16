@@ -292,6 +292,28 @@ class SwiftController extends RestApiController{
             'method_out'    =>  $type_out
         ));
 
+        if(!$transaction){
+            $qb = $dm->createQueryBuilder('TelepayFinancialApiBundle:Transaction');
+            $result = $qb
+                ->field('type')->equals('swift')
+                ->field('method_in')->equals($type_in)
+                ->field('method_out')->equals($type_out)
+                ->where("function(){
+                    if (typeof this.pay_out_info.find_token !== 'undefined') {
+                        if(String(this.pay_out_info.find_token).indexOf('$id') > -1){
+                            return true;
+                        }
+                }
+                }")
+
+                ->getQuery()
+                ->execute();
+
+            foreach($result->toArray() as $d){
+                $transaction = $d;
+            }
+        }
+
         if(!$transaction) throw new HttpException(404, 'Transaction not found');
 
         return $this->swiftTransaction($transaction, "Done");
