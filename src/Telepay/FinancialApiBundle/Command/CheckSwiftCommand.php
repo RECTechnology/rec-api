@@ -2,6 +2,7 @@
 namespace Telepay\FinancialApiBundle\Command;
 
 use Symfony\Bundle\FrameworkBundle\Command\ContainerAwareCommand;
+use Symfony\Component\Config\Definition\Exception\Exception;
 use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Input\InputInterface;
@@ -105,12 +106,14 @@ class CheckSwiftCommand extends ContainerAwareCommand
                     $transaction->setPayInInfo($pay_in_info);
                     $transaction->setDataOut($pay_in_info);
                     $transaction->setUpdated(new \DateTime());
+                    $dm->persist($transaction);
+                    $dm->flush();
                     try{
                         $pay_out_info = $cashOutMethod->send($pay_out_info);
-                    }catch (HttpException $e){
+                    }catch (Exception $e){
                         $transaction->setPayOutInfo($pay_out_info);
                         $transaction->setStatus('error');
-                        $output->writeln('Status failed');
+                        $output->writeln('Status failed'.$e->getMessage());
                     }
 
                     if($pay_out_info['status'] == 'sent' || $pay_out_info['status'] == 'sending'){
