@@ -60,13 +60,20 @@ class PaynetReferenceMethod extends BaseMethod{
 
     public function getPayInStatus($paymentInfo)
     {
-        $client_reference = $paymentInfo['paynet_id'];
+        if($paymentInfo['paynet_id']){
+            $client_reference = $paymentInfo['paynet_id'];
 
-        $result = $this->driver->status($client_reference);
+            $result = $this->driver->status($client_reference);
 
-        $paymentInfo['status'] = $result['status'];
-        $paymentInfo['paynet_status'] = $result['status_description'];
-        if($result['status'] == 'success') $paymentInfo['final'] = true;
+            $paymentInfo['status'] = $result['status'];
+            $paymentInfo['paynet_status'] = $result['status_description'];
+            if($result['status'] == 'success') $paymentInfo['final'] = true;
+        }else{
+            $paymentInfo['status'] = 'error';
+            $paymentInfo['paynet_status'] = 'Not payned id found';
+            $paymentInfo['final'] = true;
+        }
+
 
         return $paymentInfo;
     }

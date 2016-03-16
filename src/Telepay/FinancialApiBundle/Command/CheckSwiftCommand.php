@@ -44,7 +44,8 @@ class CheckSwiftCommand extends ContainerAwareCommand
         foreach($qb->toArray() as $transaction){
             $output->writeln('nueva transaccion');
             if($transaction->getMethodIn() != ''){
-                $output->writeln('Checking swift transaction...');
+                $output->writeln('Checking swift transaction...id=> '.$transaction->getId());
+                $output->writeln($transaction->getMethodIn().' - '.$transaction->getMethodOut());
                 $method_in = $transaction->getMethodIn();
                 $method_out = $transaction->getMethodOut();
 
