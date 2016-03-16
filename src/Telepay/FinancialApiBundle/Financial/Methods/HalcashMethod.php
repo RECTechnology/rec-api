@@ -25,7 +25,7 @@ class HalcashMethod extends BaseMethod{
     public function send($paymentInfo)
     {
         $phone = $paymentInfo['phone'];
-        $prefix = $paymentInfo['prefix'];
+        $prefix = str_replace("+", "", $paymentInfo['prefix']);
         $amount = $paymentInfo['amount']/100;
         $reference = $paymentInfo['concept'];
 
