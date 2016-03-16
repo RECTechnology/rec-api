@@ -151,9 +151,15 @@ class AdapterController extends RestApiController{
 
         $params = $this->_receiver($request, $paramNames);
 
+        if($request->request->has('phone_prefix')){
+            $params['phone_prefix'] = $request->request->get('phone_prefix');
+            $request->request->remove('phone_prefix');
+        }else{
+            $params['phone_prefix'] = "34";
+        }
         $request->request->remove('phone_number');
         $request->request->remove('country');
-        $request->request->remove('phone_prefix');
+
         $request->request->remove('amount');
 
         $request->request->add(array(
