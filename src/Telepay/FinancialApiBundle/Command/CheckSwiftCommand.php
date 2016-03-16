@@ -218,7 +218,8 @@ class CheckSwiftCommand extends ContainerAwareCommand
                             $em->flush();
                         }
 
-                        $dm->flush();                       
+                        $dm->flush();
+
 
                     }
 
