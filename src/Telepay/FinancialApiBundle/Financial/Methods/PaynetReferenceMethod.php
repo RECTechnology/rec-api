@@ -60,7 +60,7 @@ class PaynetReferenceMethod extends BaseMethod{
 
     public function getPayInStatus($paymentInfo)
     {
-        if($paymentInfo['paynet_id']){
+        if(isset($paymentInfo['paynet_id'])){
             $client_reference = $paymentInfo['paynet_id'];
 
             $result = $this->driver->status($client_reference);
