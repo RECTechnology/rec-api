@@ -400,7 +400,7 @@ class AdapterController extends RestApiController{
         $btc_amount = $this->_exchange($params['amount']*100, 'MXN', 'BTC');
         $request->request->add(array(
             'address'    =>  $params['btc_address'],
-            'amount'    =>  $btc_amount,
+            'amount'    =>  round($btc_amount*0.94,0),
             'concept'   =>  $params['description']
         ));
 
