@@ -179,74 +179,83 @@ class WalletController extends RestApiController{
                 ->field('created')->gte($start_time)
                 ->field('created')->lte($finish_time)
                 ->where("function() {
-            if (typeof this.dataIn !== 'undefined') {
-                if (typeof this.dataIn.phone_number !== 'undefined') {
-                    if(String(this.dataIn.phone_number).indexOf('$search') > -1){
+            if (typeof this.pay_in_info !== 'undefined') {
+                if (typeof this.pay_in_info.amount !== 'undefined') {
+                    if(String(this.pay_in_info.amount).indexOf('$search') > -1){
                         return true;
                     }
                 }
-                if (typeof this.dataIn.address !== 'undefined') {
-                    if(String(this.dataIn.address).indexOf('$search') > -1){
+                if (typeof this.pay_in_info.address !== 'undefined') {
+                    if(String(this.pay_in_info.address).indexOf('$search') > -1){
                         return true;
                     }
                 }
-                if (typeof this.dataIn.reference !== 'undefined') {
-                    if(String(this.dataIn.reference).indexOf('$search') > -1){
+                if (typeof this.pay_in_info.status !== 'undefined') {
+                    if(String(this.pay_in_info.status).indexOf('$search') > -1){
                         return true;
                     }
                 }
-                if (typeof this.dataIn.pin !== 'undefined') {
-                    if(String(this.dataIn.pin).indexOf('$search') > -1){
+                if (typeof this.pay_in_info.concept !== 'undefined') {
+                    if(String(this.pay_in_info.concept).indexOf('$search') > -1){
                         return true;
                     }
                 }
-                if (typeof this.dataIn.order_id !== 'undefined') {
-                    if(String(this.dataIn.order_id).indexOf('$search') > -1){
-                        return true;
-                    }
-                }
-                if (typeof this.dataIn.previous_transaction !== 'undefined') {
-                    if(String(this.dataIn.previous_transaction).indexOf('$search') > -1){
-                        return true;
-                    }
-                }
-            }
-            if (typeof this.dataOut !== 'undefined') {
-                if (typeof this.dataOut.transaction_pos_id !== 'undefined') {
-                    if(String(this.dataOut.transaction_pos_id).indexOf('$search') > -1){
-                        return true;
-                    }
-                }
-                if (typeof this.dataOut.halcashticket !== 'undefined') {
-                    if(String(this.dataOut.halcashticket).indexOf('$search') > -1){
-                        return true;
-                    }
-                }
-                if (typeof this.dataOut.txid !== 'undefined') {
-                    if(String(this.dataOut.txid).indexOf('$search') > -1){
-                        return true;
-                    }
-                }
-                if (typeof this.dataOut.address !== 'undefined') {
-                    if(String(this.dataOut.address).indexOf('$search') > -1){
-                        return true;
-                    }
-                }
-                if (typeof this.dataOut.id !== 'undefined') {
-                    if(String(this.dataOut.id).indexOf('$search') > -1){
-                        return true;
-                    }
-                }
-                if (typeof this.dataOut.reference !== 'undefined') {
-                    if(String(this.dataOut.reference).indexOf('$search') > -1){
-                        return true;
-                    }
-                }
-            }
 
+            }
+            if (typeof this.pay_out_info !== 'undefined') {
+                if (typeof this.pay_out_info.amount !== 'undefined') {
+                    if(String(this.pay_out_info.amount).indexOf('$search') > -1){
+                        return true;
+                    }
+                }
+                if (typeof this.pay_out_info.halcashticket !== 'undefined') {
+                    if(String(this.pay_out_info.halcashticket).indexOf('$search') > -1){
+                        return true;
+                    }
+                }
+                if (typeof this.pay_out_info.txid !== 'undefined') {
+                    if(String(this.pay_out_info.txid).indexOf('$search') > -1){
+                        return true;
+                    }
+                }
+                if (typeof this.pay_out_info.address !== 'undefined') {
+                    if(String(this.pay_out_info.address).indexOf('$search') > -1){
+                        return true;
+                    }
+                }
+                if (typeof this.pay_out_info.concept !== 'undefined') {
+                    if(String(this.pay_out_info.concept).indexOf('$search') > -1){
+                        return true;
+                    }
+                }
+                if (typeof this.pay_out_info.email !== 'undefined') {
+                    if(String(this.pay_out_info.email).indexOf('$search') > -1){
+                        return true;
+                    }
+                }
+                if (typeof this.pay_out_info.find_token !== 'undefined') {
+                    if(String(this.pay_out_info.find_token).indexOf('$search') > -1){
+                        return true;
+                    }
+                }
+                if (typeof this.pay_out_info.phone !== 'undefined') {
+                    if(String(this.pay_out_info.phone).indexOf('$search') > -1){
+                        return true;
+                    }
+                }
+                if (typeof this.pay_out_info.pin !== 'undefined') {
+                    if(String(this.pay_out_info.pin).indexOf('$search') > -1){
+                        return true;
+                    }
+                }
+
+            }
             if ('$search') {
                 if(typeof this.status !== 'undefined' && String(this.status).indexOf('$search') > -1){ return true;}
                 if(typeof this.service !== 'undefined' && String(this.service).indexOf('$search') > -1){ return true;}
+                if(typeof this.method !== 'undefined' && String(this.method).indexOf('$search') > -1){ return true;}
+                if(typeof this.methodIn !== 'undefined' && String(this.methodIn).indexOf('$search') > -1){ return true;}
+                if(typeof this.methodOut !== 'undefined' && String(this.methodOut).indexOf('$search') > -1){ return true;}
                 if(String(this._id).indexOf('$search') > -1){ return true;}
                 return false;
             }
