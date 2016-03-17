@@ -716,25 +716,13 @@ class SwiftController extends RestApiController{
 
         }
 
-        $total = count($resArray);
-
         foreach($resArray as $fee){
 
-            $feeTransaction = new Transaction();
-            $feeTransaction->setUser($fee->getUser());
-            $feeTransaction->setType('fee');
-            $feeTransaction->setCurrency($fee->getCurrency());
-            $feeTransaction->setScale($fee->getScale());
-            $feeTransaction->setAmount(-$fee->getAmount());
-            $feeTransaction->setService($fee->getService());
-            $feeTransaction->setStatus('success');
-            $feeTransaction->setTotal(-$fee->getTotal());
-            $feeTransaction->setClient($fee->getClient());
-            $feeTransaction->setDataIn(array(
-                'previous_fee'  =>  $fee->getId()
-            ));
+            $fee->setAmount(0);
+            $fee->setStatus('refund');
+            $fee->setTotal(0);
 
-            $dm->persist($feeTransaction);
+            $dm->persist($fee);
             $dm->flush();
 
             //getWallet and discount fee
@@ -743,7 +731,7 @@ class SwiftController extends RestApiController{
             $current_wallet = null;
 
             foreach ( $userWallets as $wallet){
-                if ($wallet->getCurrency() == $feeTransaction->getCurrency()){
+                if ($wallet->getCurrency() == $fee->getCurrency()){
                     $current_wallet = $wallet;
                 }
             }
