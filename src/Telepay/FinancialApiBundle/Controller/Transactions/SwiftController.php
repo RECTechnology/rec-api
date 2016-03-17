@@ -717,6 +717,7 @@ class SwiftController extends RestApiController{
         }
 
         foreach($resArray as $fee){
+            $fee_amount = $fee->getAmount();
 
             $fee->setAmount(0);
             $fee->setStatus('refund');
@@ -736,8 +737,8 @@ class SwiftController extends RestApiController{
                 }
             }
 
-            $current_wallet->setAvailable($current_wallet->getAvailable() - $fee->getAmount());
-            $current_wallet->setBalance($current_wallet->getBalance() - $fee->getAmount());
+            $current_wallet->setAvailable($current_wallet->getAvailable() - $fee_amount);
+            $current_wallet->setBalance($current_wallet->getBalance() - $fee_amount);
 
             $em->persist($current_wallet);
             $em->flush();
