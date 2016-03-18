@@ -465,9 +465,7 @@ class IncomingController2 extends RestApiController{
 
                 //el cash-out solo se puede cancelar si esta en created review o success
                 //el cash-in de momento no se puede cancelar
-                if($transaction->getStatus()== Transaction::$STATUS_CREATED
-                    || $transaction->getStatus() == Transaction::$STATUS_REVIEW){
-
+                if($transaction->getStatus()== Transaction::$STATUS_CREATED || $transaction->getStatus() == Transaction::$STATUS_REVIEW || ( ($method_cname == "halcash_es" || $method_cname == "halcash_pl") && $transaction->getStatus() == Transaction::$STATUS_SUCCESS && $transaction->getPayOutInfo()['status'] == Transaction::$STATUS_SENT )){
                     if($transaction->getStatus() == Transaction::$STATUS_REVIEW){
                         throw new HttpException(403, 'Mothod not implemented');
                     }else{

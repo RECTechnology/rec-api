@@ -81,7 +81,8 @@ class SwiftController extends RestApiController{
                         if(String(this.pay_out_info.phone).indexOf('$search') > -1){
                             return true;
                         }
-                }
+                    }
+                    return false;
                 }")
 
                 ->getQuery()
@@ -115,7 +116,8 @@ class SwiftController extends RestApiController{
                         if(String(this.pay_out_info.iban).indexOf('$search') > -1){
                             return true;
                         }
-                }
+                    }
+                    return false;
                 }")
 
                 ->getQuery()
@@ -714,25 +716,14 @@ class SwiftController extends RestApiController{
 
         }
 
-        $total = count($resArray);
-
         foreach($resArray as $fee){
+            $fee_amount = $fee->getAmount();
 
-            $feeTransaction = new Transaction();
-            $feeTransaction->setUser($fee->getUser());
-            $feeTransaction->setType('fee');
-            $feeTransaction->setCurrency($fee->getCurrency());
-            $feeTransaction->setScale($fee->getScale());
-            $feeTransaction->setAmount(-$fee->getAmount());
-            $feeTransaction->setService($fee->getService());
-            $feeTransaction->setStatus('success');
-            $feeTransaction->setTotal(-$fee->getTotal());
-            $feeTransaction->setClient($fee->getClient());
-            $feeTransaction->setDataIn(array(
-                'previous_fee'  =>  $fee->getId()
-            ));
+            $fee->setAmount(0);
+            $fee->setStatus('refund');
+            $fee->setTotal(0);
 
-            $dm->persist($feeTransaction);
+            $dm->persist($fee);
             $dm->flush();
 
             //getWallet and discount fee
@@ -741,13 +732,13 @@ class SwiftController extends RestApiController{
             $current_wallet = null;
 
             foreach ( $userWallets as $wallet){
-                if ($wallet->getCurrency() == $feeTransaction->getCurrency()){
+                if ($wallet->getCurrency() == $fee->getCurrency()){
                     $current_wallet = $wallet;
                 }
             }
 
-            $current_wallet->setAvailable($current_wallet->getAvailable() - $fee->getAmount());
-            $current_wallet->setBalance($current_wallet->getBalance() - $fee->getAmount());
+            $current_wallet->setAvailable($current_wallet->getAvailable() - $fee_amount);
+            $current_wallet->setBalance($current_wallet->getBalance() - $fee_amount);
 
             $em->persist($current_wallet);
             $em->flush();

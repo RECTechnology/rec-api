@@ -112,13 +112,13 @@ class ScheduledController extends BaseApiController{
     /**
      * @Rest\View
      */
-    public function deleteAction(Request $request, $id){
+    public function updateAction(Request $request, $id){
     }
 
     /**
      * @Rest\View
      */
-    public function updateAction(Request $request, $id){
+    public function deleteAction(Request $request, $id){
     }
 
     private function checkIBAN($iban){
