@@ -79,3 +79,12 @@ services:
             - "BTC"
             - "EUR/MXN/USD/PLN/FAC/BTC"
             - "EUR/MXN/USD/PLN/FAC/BTC"
+
+    net.telepay.config.pos_safetypay:
+        class: Telepay\FinancialApiBundle\Financial\Methods\POSConfiguration
+        arguments:
+            - "pos_safetypay"
+            - "MXN"
+            - "MXN"
+            - "MXN"
+            - "EUR/MXN/USD/PLN/FAC/BTC"

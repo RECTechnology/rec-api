@@ -221,7 +221,6 @@ class POSIncomingController extends RestApiController{
         $transaction = Transaction::createFromRequest($request);
         $transaction->setService('POS-'.$posType);
         $transaction->setMethod('POS-'.$posType);
-        $transaction->setType('pos');
         $transaction->setUser($user->getId());
         $transaction->setVersion(1);
         $transaction->setDataIn($dataIn);
@@ -292,6 +291,17 @@ class POSIncomingController extends RestApiController{
                 'url_ko'    =>  $dataIn['url_ko']
             );
 
+        }elseif($posType == 'SAFETYPAY'){
+
+            $paymentInfo = array(
+                'amount'        =>  $dataIn['amount'],
+                'scale'         =>  Currency::$SCALE[$dataIn['currency_in']],
+                'currency'      =>  $dataIn['currency_in'],
+                'expires_in'    =>  $tpvRepo->getExpiresIn(),
+                'url_ok'        =>  $dataIn['url_ok'],
+                'url_ko'        =>  $dataIn['url_ko']
+
+            );
         }
 
         $transaction->setPayInInfo($paymentInfo);
