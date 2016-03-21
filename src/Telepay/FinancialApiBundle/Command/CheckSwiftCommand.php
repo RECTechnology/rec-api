@@ -112,7 +112,7 @@ class CheckSwiftCommand extends ContainerAwareCommand
                     $dm->persist($transaction);
                     $dm->flush();
 
-                    $current_trasaction = $dm->find($transaction);
+                    $current_trasaction = $dm->getRepository('TelepayFinancialApiBundle:Transaction')->find($transaction->getId());
 
                     if($current_trasaction->getStatus() != 'success' && $current_trasaction->getStatus() != 'send_locked'){
 
