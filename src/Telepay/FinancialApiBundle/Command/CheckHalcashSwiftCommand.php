@@ -42,6 +42,23 @@ class CheckHalcashSwiftCommand extends ContainerAwareCommand
 
             $transaction = $this->check($transaction);
 
+            switch ($transaction->getPayOutInfo()['status']){
+                case 'cancelled':
+                    $transaction->setStatus(Transaction::$STATUS_CANCELLED);
+                    break;
+                case 'expired':
+                    $transaction->setStatus(Transaction::$STATUS_EXPIRED);
+                    break;
+                case 'locked':
+                    $transaction->setStatus(Transaction::$STATUS_LOCKED);
+                    break;
+                case 'review':
+                    $transaction->setStatus(Transaction::$STATUS_REVIEW);
+                    break;
+                default:
+                    break;
+            }
+
             $dm->persist($transaction);
             $dm->flush();
 
