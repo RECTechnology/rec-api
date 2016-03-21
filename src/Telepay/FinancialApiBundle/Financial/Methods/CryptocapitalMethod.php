@@ -8,6 +8,7 @@
 
 namespace Telepay\FinancialApiBundle\Financial\Methods;
 
+use FOS\OAuthServerBundle\Util\Random;
 use MongoDBODMProxies\__CG__\Telepay\FinancialApiBundle\Document\Transaction;
 use Symfony\Component\HttpKernel\Exception\HttpException;
 use Symfony\Component\Validator\Constraints\DateTime;
@@ -120,6 +121,7 @@ class CryptocapitalMethod extends BaseMethod {
 
         $params['concept'] = $concept;
 
+        $params['id'] = $find_token = substr(Random::generateToken(), 0, 6);
         $params['currency'] = $this->getCurrency();
         $params['scale'] = Currency::$SCALE[$this->getCurrency()];
         $params['final'] = false;
