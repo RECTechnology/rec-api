@@ -55,8 +55,8 @@ class HalcashDailyBalanceCommand extends ContainerAwareCommand
 
             foreach($qb->toArray() as $transaction){
                 $output->writeln('nueva transaccion');
-
-                if($transaction->pay_out_info->status == 'sent' || $transaction->pay_out_info->status == 'withdrawn'){
+                $paymentInfo = $transaction->getPayOutInfo();
+                if($paymentInfo['status'] == 'sent' || $paymentInfo['status'] == 'withdrawn'){
                     if($service == 'halcash_es'){
                         $total_transactions_es = $total_transactions_es + $transaction->getAmount();
                     }else{

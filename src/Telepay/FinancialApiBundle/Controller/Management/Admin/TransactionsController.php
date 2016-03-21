@@ -18,7 +18,7 @@ class TransactionsController extends RestApiController {
     public function deleteAction($id){
 
         $dm = $this->get('doctrine_mongodb')->getManager();
-        $trans=$dm->getRepository('TelepayFinancialApiBundle:Transaction')->find($id);
+        $trans = $dm->getRepository('TelepayFinancialApiBundle:Transaction')->find($id);
 
         if(!$trans) throw new HttpException(404,'Not found');
 
