@@ -1069,15 +1069,6 @@ class AdapterController extends RestApiController{
 
     public function hello($version){
 
-//        $response = $this->forward('Telepay\FinancialApiBundle\Controller\Transactions\SwiftController::hello', array(
-//            'version_number'    =>  1,
-//            'currency'      =>  'btc'
-//        ));
-//
-//        $array_response = json_decode($response->getContent(), true);
-//
-//        $swift_methods = $array_response['swift_methods'];
-
         $btc_sell_price = round(($this->_exchange(100000000, 'btc', 'eur')/100)*0.95,2);
         $btc_buy_price = round(($this->_exchange(100000000, 'btc', 'eur')/100)*01.05,2);
         $pln_price = ($this->_exchange(100000000, 'btc', 'pln')/100);
