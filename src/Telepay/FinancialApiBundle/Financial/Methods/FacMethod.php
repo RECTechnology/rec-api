@@ -124,6 +124,7 @@ class FacMethod extends  BaseMethod {
 
         foreach($paramNames as $param){
             if(!$request->request->has($param)) throw new Exception('Parameter '.$param.' not found', 404);
+            if($request->request->get($param) == null) throw new Exception( 'Parameter '.$param.' can\'t be null', 404);
             $params[$param] = $request->request->get($param);
 
         }

@@ -114,8 +114,11 @@ class CheckSwiftCommand extends ContainerAwareCommand
                     try{
                         $pay_out_info = $cashOutMethod->send($pay_out_info);
                     }catch (Exception $e){
+                        $pay_out_info['status'] = Transaction::$STATUS_FAILED;
+                        $pay_out_info['final'] = false;
+                        $error = $e->getMessage();
                         $transaction->setPayOutInfo($pay_out_info);
-                        $transaction->setStatus('error');
+                        $transaction->setStatus('failed');
                         $output->writeln('Status failed'.$e->getMessage());
                     }
                     $dm->persist($transaction);
@@ -221,6 +224,20 @@ class CheckSwiftCommand extends ContainerAwareCommand
                         $dm->flush();
 
 
+                    }else{
+                        //TODO send mail informig the error
+                        $error = array(
+                            'transaction_id'    =>  $transaction->getId(),
+                            'type'    =>    $transaction->getType(),
+                            'method'    =>  $transaction->getMethodIn().' -> '.$transaction->getMethodOut(),
+                            'status'    =>  $transaction->getStatus(),
+                            'status_in' =>  $pay_in_info['status'],
+                            'status_out'    =>  $pay_out_info['status'],
+                            'amount'    =>  $transaction->getAmount(),
+                            'error' =>  $error
+                        );
+
+                        $this->_sendErrorEmail('Swift error mail', $error);
                     }
 
                     $dm->flush();
@@ -255,7 +272,7 @@ class CheckSwiftCommand extends ContainerAwareCommand
 
     }
 
-    private function sendEmail($subject, $body){
+    private function _sendErrorEmail($subject, $body){
 
         $message = \Swift_Message::newInstance()
             ->setSubject($subject)
@@ -266,7 +283,7 @@ class CheckSwiftCommand extends ContainerAwareCommand
             ))
             ->setBody(
                 $this->getContainer()->get('templating')
-                    ->render('TelepayFinancialApiBundle:Email:support.html.twig',
+                    ->render('TelepayFinancialApiBundle:Email:error.html.twig',
                         array(
                             'message'        =>  $body
                         )
