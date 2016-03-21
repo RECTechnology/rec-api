@@ -1079,8 +1079,8 @@ class AdapterController extends RestApiController{
 //        $swift_methods = $array_response['swift_methods'];
 
         $btc_sell_price = round(($this->_exchange(100000000, 'btc', 'eur')/100)*0.95,2);
-        $btc_buy_price = round($btc_sell_price *1.05,2);
-        $pln_price = ($this->_exchange(100000000, 'btc', 'pln')/100)*0.95;
+        $btc_buy_price = round(($this->_exchange(100000000, 'btc', 'eur')/100)*01.05,2);
+        $pln_price = ($this->_exchange(100000000, 'btc', 'pln')/100);
         $mxn_price = ($this->_exchange(100000000, 'btc', 'mxn')/100);
         $variable_fee = 0;
         $fixed_fee = 0;
