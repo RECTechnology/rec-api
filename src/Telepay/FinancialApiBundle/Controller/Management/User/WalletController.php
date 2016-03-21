@@ -250,6 +250,13 @@ class WalletController extends RestApiController{
                 }
 
             }
+            if (typeof this.data_in !== 'undefined') {
+                if (typeof this.data_in.previous_transaction !== 'undefined') {
+                    if(String(this.data_in.previous_transaction).indexOf('$search') > -1){
+                        return true;
+                    }
+                }
+            }
             if ('$search') {
                 if(typeof this.status !== 'undefined' && String(this.status).indexOf('$search') > -1){ return true;}
                 if(typeof this.service !== 'undefined' && String(this.service).indexOf('$search') > -1){ return true;}
