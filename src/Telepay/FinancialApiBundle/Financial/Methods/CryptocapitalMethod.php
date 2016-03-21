@@ -33,11 +33,11 @@ class CryptocapitalMethod extends BaseMethod {
         $amount = $paymentInfo['amount'];
         $email = $paymentInfo['email'];
         $description = $paymentInfo['concept'];
-        if(isset($params['id'])){
+        if(isset($paymentInfo['id'])){
             $id = $paymentInfo['id'];
         }else{
             $id = $find_token = substr(Random::generateToken(), 0, 6);
-            $params['id'] = $id;
+            $paymentInfo['id'] = $id;
         }
 
         if (!filter_var($email, FILTER_VALIDATE_EMAIL)) {
