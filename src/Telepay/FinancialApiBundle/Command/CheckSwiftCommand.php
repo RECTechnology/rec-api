@@ -117,6 +117,8 @@ class CheckSwiftCommand extends ContainerAwareCommand
                     if($current_trasaction->getStatus() != 'success' && $current_trasaction->getStatus() != 'send_locked'){
 
                         $transaction->setStatus('send_locked');
+                        $dm->persist($transaction);
+                        $dm->flush();
 
                         try{
                             $pay_out_info = $cashOutMethod->send($pay_out_info);
