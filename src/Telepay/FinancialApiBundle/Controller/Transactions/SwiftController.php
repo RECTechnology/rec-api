@@ -8,6 +8,7 @@
 
 namespace Telepay\FinancialApiBundle\Controller\Transactions;
 
+use Symfony\Component\Config\Definition\Exception\Exception;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpKernel\Exception\HttpException;
 use Telepay\FinancialApiBundle\Controller\RestApiController;
@@ -263,7 +264,7 @@ class SwiftController extends RestApiController{
         try{
             $pay_in_info = $cashInMethod->getPayInInfo($exchange);
 
-        }catch (HttpException $e){
+        }catch (Exception $e){
             $transaction->setStatus(Transaction::$STATUS_ERROR);
             $dm->persist($transaction);
             $dm->flush();
@@ -355,7 +356,7 @@ class SwiftController extends RestApiController{
                 //cancel transaction
                 try{
                     $payOutInfo = $method_out->cancel($payOutInfo);
-                }catch (HttpException $e){
+                }catch (Exception $e){
                     throw new HttpException(400, 'Cancel transaction error');
                 }
 
@@ -377,7 +378,7 @@ class SwiftController extends RestApiController{
                 //resend out method
                 try{
                     $payOutInfo = $method_out->send($payOutInfo);
-                }catch (HttpException $e){
+                }catch (Exception $e){
                     throw new HttpException(400, 'Resend transaction error');
                 }
 
@@ -414,7 +415,7 @@ class SwiftController extends RestApiController{
 
                 try{
                     $refund_info = $method_in->send($refund_info);
-                }catch (HttpException $e){
+                }catch (Exception $e){
                     throw new HttpException($e->getStatusCode(), $e->getMessage());
                 }
 

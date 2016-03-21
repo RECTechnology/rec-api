@@ -9,6 +9,7 @@
 namespace Telepay\FinancialApiBundle\Financial\Methods;
 
 use MongoDBODMProxies\__CG__\Telepay\FinancialApiBundle\Document\Transaction;
+use Symfony\Component\Config\Definition\Exception\Exception;
 use Symfony\Component\HttpKernel\Exception\HttpException;
 use Telepay\FinancialApiBundle\DependencyInjection\Transactions\Core\BaseMethod;
 use Telepay\FinancialApiBundle\DependencyInjection\Transactions\Core\CashInInterface;
@@ -30,7 +31,7 @@ class BtcMethod extends BaseMethod {
         $address = $this->driver->getnewaddress();
 //        $address = 'dfghjklñ';
 
-        if(!$address) throw new HttpException(400,'Service Temporally unavailable');
+        if(!$address) throw new Exception(400,'Service Temporally unavailable');
 
         $response = array(
             'amount'    =>  $amount,
@@ -105,7 +106,7 @@ class BtcMethod extends BaseMethod {
         }
         $address_verification = $this->driver->validateaddress($params['address']);
 
-        if(!$address_verification['isvalid']) throw new HttpException(400,'Invalid address.');
+        if(!$address_verification['isvalid']) throw new Exception(400,'Invalid address.');
 
         if($request->request->has('concept')){
             $params['concept'] = $request->request->get('concept');
@@ -147,7 +148,7 @@ class BtcMethod extends BaseMethod {
     }
 
     public function cancel($payment_info){
-        throw new HttpException('Method not implemented');
+        throw new Exception('Method not implemented');
     }
 
 

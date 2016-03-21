@@ -8,6 +8,7 @@
 
 namespace Telepay\FinancialApiBundle\Controller\Transactions;
 
+use Symfony\Component\Config\Definition\Exception\Exception;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpKernel\Exception\HttpException;
 use Telepay\FinancialApiBundle\Controller\RestApiController;
@@ -176,7 +177,7 @@ class IncomingController2 extends RestApiController{
 
             try {
                 $payment_info = $method->send($payment_info);
-            }catch (HttpException $e){
+            }catch (Exception $e){
                 $logger->error('Incomig transaction...ERROR '.$e->getMessage());
 
                 if($e->getStatusCode() >= 500){
@@ -348,7 +349,7 @@ class IncomingController2 extends RestApiController{
                     $em->flush();
                     try {
                         $payment_info = $method->send($payment_info);
-                    }catch (HttpException $e){
+                    }catch (Exception $e){
 
                         if($e->getStatusCode() >= 500){
                             $transaction->setStatus(Transaction::$STATUS_FAILED);
@@ -404,7 +405,7 @@ class IncomingController2 extends RestApiController{
                     //send transaction
                     try {
                         $payment_info = $method->send($payment_info);
-                    }catch (HttpException $e){
+                    }catch (Exception $e){
 
                         if($e->getStatusCode() >= 500){
                             $transaction->setStatus(Transaction::$STATUS_FAILED);
@@ -471,7 +472,7 @@ class IncomingController2 extends RestApiController{
                     }else{
                         try {
                             $payment_info = $method->cancel($payment_info);
-                        }catch (HttpException $e){
+                        }catch (Exception $e){
                             throw $e;
                         }
 

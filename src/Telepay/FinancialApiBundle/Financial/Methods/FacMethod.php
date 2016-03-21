@@ -8,6 +8,7 @@
 
 namespace Telepay\FinancialApiBundle\Financial\Methods;
 
+use Symfony\Component\Config\Definition\Exception\Exception;
 use Symfony\Component\HttpKernel\Exception\HttpException;
 use Telepay\FinancialApiBundle\DependencyInjection\Transactions\Core\BaseMethod;
 use Telepay\FinancialApiBundle\DependencyInjection\Transactions\Core\CashInInterface;
@@ -29,7 +30,7 @@ class FacMethod extends  BaseMethod {
         $address = $this->driver->getnewaddress();
 //        $address = 'dfghjklñ';
 
-        if(!$address) throw new HttpException(404,'Service Temporally unavailable');
+        if(!$address) throw new Exception(404,'Service Temporally unavailable');
 
         $response = array(
             'amount'    =>  $amount,
@@ -122,13 +123,13 @@ class FacMethod extends  BaseMethod {
         $params = array();
 
         foreach($paramNames as $param){
-            if(!$request->request->has($param)) throw new HttpException(404, 'Parameter '.$param.' not found');
+            if(!$request->request->has($param)) throw new Exception(404, 'Parameter '.$param.' not found');
             $params[$param] = $request->request->get($param);
 
         }
         $address_verification = $this->driver->validateaddress($params['address']);
 
-        if(!$address_verification['isvalid']) throw new HttpException(400,'Invalid address.');
+        if(!$address_verification['isvalid']) throw new Exception(400,'Invalid address.');
         $params['currency'] = $this->getCurrency();
         $params['scale'] = Currency::$SCALE[$this->getCurrency()];
         $params['final'] = false;

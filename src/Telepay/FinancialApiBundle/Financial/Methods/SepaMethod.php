@@ -9,6 +9,7 @@
 namespace Telepay\FinancialApiBundle\Financial\Methods;
 
 use MongoDBODMProxies\__CG__\Telepay\FinancialApiBundle\Document\Transaction;
+use Symfony\Component\Config\Definition\Exception\Exception;
 use Symfony\Component\HttpKernel\Exception\HttpException;
 use Telepay\FinancialApiBundle\DependencyInjection\Transactions\Core\BaseMethod;
 use Telepay\FinancialApiBundle\DependencyInjection\Transactions\Core\CashInInterface;
@@ -70,8 +71,8 @@ class SepaMethod extends BaseMethod {
         $iban_verification = $this->driver->validateiban($params['iban']);
         $bic_verification = $this->driver->validatebic($params['bic_swift']);
 
-        if(!$iban_verification) throw new HttpException(400,'Invalid iban.');
-        if(!$bic_verification) throw new HttpException(400,'Invalid bic.');
+        if(!$iban_verification) throw new Exception(400,'Invalid iban.');
+        if(!$bic_verification) throw new Exception(400,'Invalid bic.');
 
         if($request->request->has('concept')){
             $concept = $request->request->get('concept');

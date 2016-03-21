@@ -9,6 +9,7 @@
 namespace Telepay\FinancialApiBundle\Financial\Methods;
 
 use FOS\OAuthServerBundle\Util\Random;
+use Symfony\Component\Config\Definition\Exception\Exception;
 use Symfony\Component\HttpKernel\Exception\HttpException;
 use Telepay\FinancialApiBundle\DependencyInjection\Transactions\Core\BaseMethod;
 
@@ -44,7 +45,7 @@ class HalcashMethod extends BaseMethod{
                 $hal = $this->driver->sendInternational($phone,$prefix,$amount,'ChipChap '.$find_token,$pin, 'PL', 'POL');
             }
         }catch (HttpException $e){
-            throw new HttpException($e->getStatusCode(),$e->getMessage());
+            throw new Exception($e->getStatusCode(),$e->getMessage());
         }
 
         if($hal['errorcode'] == 0){
@@ -118,7 +119,7 @@ class HalcashMethod extends BaseMethod{
             $paymentInfo['status'] = 'cancelled';
             $paymentInfo['halcashticket'] = false;
         }else{
-            throw new HttpException(409, 'Transaction can\'t be cancelled');
+            throw new Exception(409, 'Transaction can\'t be cancelled');
         }
 
         return $paymentInfo;
