@@ -101,6 +101,7 @@ class BtcMethod extends BaseMethod {
 
         foreach($paramNames as $param){
             if(!$request->request->has($param)) throw new HttpException(400, 'Parameter '.$param.' not found');
+            if($request->request->get($param) == null) throw new Exception( 'Parameter '.$param.' can\'t be null', 404);
             $params[$param] = $request->request->get($param);
 
         }

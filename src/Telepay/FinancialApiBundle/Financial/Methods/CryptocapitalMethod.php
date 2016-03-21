@@ -34,19 +34,10 @@ class CryptocapitalMethod extends BaseMethod {
         $amount = $paymentInfo['amount'];
         $email = $paymentInfo['email'];
         $description = $paymentInfo['concept'];
-        if(isset($paymentInfo['id'])){
-            $id = $paymentInfo['id'];
-        }else{
-            $id = $find_token = substr(Random::generateToken(), 0, 6);
-            $paymentInfo['id'] = $id;
-        }
-
-        if (!filter_var($email, FILTER_VALIDATE_EMAIL)) {
-            throw new Exception( 'Invalid email', 400);
-        }
+        $find_token = $paymentInfo['find_token'];
 
         try{
-            $cryptocapital = $this->driver->request($currency, $amount, $email, $description, $id);
+            $cryptocapital = $this->driver->request($currency, $amount, $email, $description, $find_token);
         }catch (\RuntimeException $r){
             throw new Exception($r->getMessage(), 400);
         }
@@ -56,16 +47,16 @@ class CryptocapitalMethod extends BaseMethod {
 
         if($cryptocapital == 'fake'){
             $params = array(
-                'id'    =>  $id,
+                'id'    =>  $find_token,
                 'date'  =>  new DateTime(),
                 'sendCurrency'  =>  'EUR',
                 'receiveCurrency'   =>  'EUR',
                 'sendAmount'    =>  $amount,
                 'receiveAmount' =>  $amount,
-                'narrative' =>  $email.','.$description.'-'.$id
+                'narrative' =>  $email.','.$description.'-'.$find_token
             );
 
-            $this->_sendFakeEmail($currency, $amount, $email, $description, $id);
+            $this->_sendFakeEmail($currency, $amount, $email, $description, $find_token);
 
         }else{
             $params = $cryptocapital['params'];
@@ -124,9 +115,13 @@ class CryptocapitalMethod extends BaseMethod {
             $concept = 'Cryptocapital transaction';
         }
 
+        if (!filter_var($params['email'], FILTER_VALIDATE_EMAIL)) {
+            throw new Exception( 'Invalid email', 400);
+        }
+
         $params['concept'] = $concept;
 
-        $params['id'] = $find_token = substr(Random::generateToken(), 0, 6);
+        $params['find_token'] = $find_token = substr(Random::generateToken(), 0, 6);
         $params['currency'] = $this->getCurrency();
         $params['scale'] = Currency::$SCALE[$this->getCurrency()];
         $params['final'] = false;
