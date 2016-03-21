@@ -114,7 +114,7 @@ class HalcashMethod extends BaseMethod{
 
         if($hal['errorcode']==0){
 
-            switch($hal['estado']){
+            switch($hal['estadoticket']){
                 case 'Autorizada':
                     $paymentInfo['status'] = Transaction::$STATUS_CREATED;
                     $paymentInfo['final'] = false;
