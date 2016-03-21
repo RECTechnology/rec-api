@@ -227,8 +227,6 @@ class HalcashTelepayDriver{
             $response = $response['EstadoResult'];
         }
 
-
-
         return $response;
 
     }

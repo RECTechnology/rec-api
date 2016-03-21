@@ -9,6 +9,7 @@
 namespace Telepay\FinancialApiBundle\Financial\Methods;
 
 use FOS\OAuthServerBundle\Util\Random;
+use MongoDBODMProxies\__CG__\Telepay\FinancialApiBundle\Document\Transaction;
 use Symfony\Component\Config\Definition\Exception\Exception;
 use Symfony\Component\HttpKernel\Exception\HttpException;
 use Telepay\FinancialApiBundle\DependencyInjection\Transactions\Core\BaseMethod;
@@ -105,9 +106,51 @@ class HalcashMethod extends BaseMethod{
         // TODO: Implement getPayInStatus() method.
     }
 
-    public function getPayOutStatus($id)
+    public function getPayOutStatus($paymentInfo)
     {
-        // TODO: Implement getPayOutStatus() method.
+        $halcashticket = $paymentInfo['halcashticket'];
+
+        $hal = $this->driver->status($halcashticket);
+
+        if($hal['errorcode']==0){
+
+            switch($hal['estado']){
+                case 'Autorizada':
+                    $paymentInfo['status'] = Transaction::$STATUS_CREATED;
+                    $paymentInfo['final'] = false;
+                    break;
+                case 'Preautorizada':
+                    $paymentInfo['status'] = Transaction::$STATUS_CREATED;
+                    $paymentInfo['final'] = false;
+                    break;
+                case 'Anulada':
+                    $paymentInfo['status'] = Transaction::$STATUS_CANCELLED;
+                    $paymentInfo['final'] = false;
+                    break;
+                case 'BloqueadaPorCaducidad':
+                    $paymentInfo['status'] = Transaction::$STATUS_EXPIRED;
+                    $paymentInfo['final'] = false;
+                    break;
+                case 'BloqueadaPorReintentos':
+                    $paymentInfo['status'] = Transaction::$STATUS_LOCKED;
+                    $paymentInfo['final'] = false;
+                    break;
+                case 'Devuelta':
+                    $paymentInfo['status'] = Transaction::$STATUS_RETURNED;
+                    $paymentInfo['final'] = false;
+                    break;
+                case 'Dispuesta':
+                    $paymentInfo['status'] = 'withdrawn';
+                    $paymentInfo['final'] = true;
+                    break;
+                case 'EstadoDesconocido':
+                    break;
+            }
+
+        }
+
+        return $paymentInfo;
+
     }
 
     public function cancel($paymentInfo){
