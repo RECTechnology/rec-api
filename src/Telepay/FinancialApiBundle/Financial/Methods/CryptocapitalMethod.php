@@ -10,6 +10,7 @@ namespace Telepay\FinancialApiBundle\Financial\Methods;
 
 use FOS\OAuthServerBundle\Util\Random;
 use MongoDBODMProxies\__CG__\Telepay\FinancialApiBundle\Document\Transaction;
+use Symfony\Component\Config\Definition\Exception\Exception;
 use Symfony\Component\HttpKernel\Exception\HttpException;
 use Symfony\Component\Validator\Constraints\DateTime;
 use Telepay\FinancialApiBundle\DependencyInjection\Transactions\Core\BaseMethod;
@@ -41,17 +42,17 @@ class CryptocapitalMethod extends BaseMethod {
         }
 
         if (!filter_var($email, FILTER_VALIDATE_EMAIL)) {
-            throw new HttpException(400, 'Invalid email');
+            throw new Exception(400, 'Invalid email');
         }
 
         try{
             $cryptocapital = $this->driver->request($currency, $amount, $email, $description, $id);
         }catch (\RuntimeException $r){
-            throw new HttpException(400,$r->getMessage());
+            throw new Exception(400,$r->getMessage());
         }
 
         if($cryptocapital === false)
-            throw new HttpException(503, "Service temporarily unavailable, please try again in a few minutes");
+            throw new Exception(503, "Service temporarily unavailable, please try again in a few minutes");
 
         if($cryptocapital == 'fake'){
             $params = array(
@@ -86,11 +87,11 @@ class CryptocapitalMethod extends BaseMethod {
         }else{
             if($params['msg'] == 'Insufficient funds'){
 
-                throw new HttpException(403, 'Insuficient founds');
+                throw new Exception(403, 'Insuficient founds');
 
             }else{
 
-                throw new HttpException(403, 'Service temporally unavailable');
+                throw new Exception(403, 'Service temporally unavailable');
 
             }
         }
