@@ -71,7 +71,7 @@ class CheckHalcashSwiftCommand extends ContainerAwareCommand
 
         $logger = $this->getContainer()->get('logger');
 
-        $payOutInfo = $this->getContainer()->get('net.telepay.out.'.$transaction->getMethodOut().'.v1')->status($transaction->getPayOutInfo());
+        $payOutInfo = $this->getContainer()->get('net.telepay.out.'.$transaction->getMethodOut().'.v1')->getPayOutStatus($transaction->getPayOutInfo());
 
         $transaction->setPayOutInfo($payOutInfo);
         $logger->info('HALCASH->check by cron');
