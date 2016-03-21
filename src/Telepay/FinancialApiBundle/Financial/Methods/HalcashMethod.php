@@ -45,7 +45,7 @@ class HalcashMethod extends BaseMethod{
                 $hal = $this->driver->sendInternational($phone,$prefix,$amount,'ChipChap '.$find_token,$pin, 'PL', 'POL');
             }
         }catch (HttpException $e){
-            throw new Exception($e->getStatusCode(),$e->getMessage());
+            throw new Exception($e->getMessage(), $e->getStatusCode());
         }
 
         if($hal['errorcode'] == 0){
@@ -77,7 +77,7 @@ class HalcashMethod extends BaseMethod{
         $params = array();
 
         foreach($paramNames as $param){
-            if(!$request->request->has($param)) throw new HttpException(404, 'Parameter '.$param.' not found');
+            if(!$request->request->has($param)) throw new Exception( 'Parameter '.$param.' not found', 404);
             $params[$param] = $request->request->get($param);
 
         }
@@ -119,7 +119,7 @@ class HalcashMethod extends BaseMethod{
             $paymentInfo['status'] = 'cancelled';
             $paymentInfo['halcashticket'] = false;
         }else{
-            throw new Exception(409, 'Transaction can\'t be cancelled');
+            throw new Exception( 'Transaction can\'t be cancelled',409);
         }
 
         return $paymentInfo;

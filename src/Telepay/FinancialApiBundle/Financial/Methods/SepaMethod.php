@@ -71,8 +71,8 @@ class SepaMethod extends BaseMethod {
         $iban_verification = $this->driver->validateiban($params['iban']);
         $bic_verification = $this->driver->validatebic($params['bic_swift']);
 
-        if(!$iban_verification) throw new Exception(400,'Invalid iban.');
-        if(!$bic_verification) throw new Exception(400,'Invalid bic.');
+        if(!$iban_verification) throw new Exception('Invalid iban.',400);
+        if(!$bic_verification) throw new Exception('Invalid bic.',400);
 
         if($request->request->has('concept')){
             $concept = $request->request->get('concept');

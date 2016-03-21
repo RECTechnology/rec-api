@@ -42,17 +42,17 @@ class CryptocapitalMethod extends BaseMethod {
         }
 
         if (!filter_var($email, FILTER_VALIDATE_EMAIL)) {
-            throw new Exception(400, 'Invalid email');
+            throw new Exception( 'Invalid email', 400);
         }
 
         try{
             $cryptocapital = $this->driver->request($currency, $amount, $email, $description, $id);
         }catch (\RuntimeException $r){
-            throw new Exception(400,$r->getMessage());
+            throw new Exception($r->getMessage(), 400);
         }
 
         if($cryptocapital === false)
-            throw new Exception(503, "Service temporarily unavailable, please try again in a few minutes");
+            throw new Exception("Service temporarily unavailable, please try again in a few minutes", 503);
 
         if($cryptocapital == 'fake'){
             $params = array(
@@ -87,11 +87,11 @@ class CryptocapitalMethod extends BaseMethod {
         }else{
             if($params['msg'] == 'Insufficient funds'){
 
-                throw new Exception(403, 'Insuficient founds');
+                throw new Exception('Insuficient founds', 403);
 
             }else{
 
-                throw new Exception(403, 'Service temporally unavailable');
+                throw new Exception('Service temporally unavailable', 403);
 
             }
         }

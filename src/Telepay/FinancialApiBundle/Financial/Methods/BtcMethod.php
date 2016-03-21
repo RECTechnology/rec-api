@@ -31,7 +31,7 @@ class BtcMethod extends BaseMethod {
         $address = $this->driver->getnewaddress();
 //        $address = 'dfghjklñ';
 
-        if(!$address) throw new Exception(400,'Service Temporally unavailable');
+        if(!$address) throw new Exception('Service Temporally unavailable', 503);
 
         $response = array(
             'amount'    =>  $amount,
@@ -106,7 +106,7 @@ class BtcMethod extends BaseMethod {
         }
         $address_verification = $this->driver->validateaddress($params['address']);
 
-        if(!$address_verification['isvalid']) throw new Exception(400,'Invalid address.');
+        if(!$address_verification['isvalid']) throw new Exception('Invalid address.', 400);
 
         if($request->request->has('concept')){
             $params['concept'] = $request->request->get('concept');
@@ -148,7 +148,7 @@ class BtcMethod extends BaseMethod {
     }
 
     public function cancel($payment_info){
-        throw new Exception('Method not implemented');
+        throw new Exception('Method not implemented', 409);
     }
 
 
