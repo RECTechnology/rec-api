@@ -1080,8 +1080,8 @@ class AdapterController extends RestApiController{
 
         $btc_sell_price = round(($this->_exchange(100000000, 'btc', 'eur')/100)*0.95,2);
         $btc_buy_price = round($btc_sell_price *1.05,2);
-        $pln_price = round(($this->_exchange(100000000, 'btc', 'pln')/100)*0.95,2);
-        $mxn_price = round(($this->_exchange(100, 'mxn', 'btc')/100)*1.06,2);
+        $pln_price = ($this->_exchange(100000000, 'btc', 'pln')/100)*0.95;
+        $mxn_price = ($this->_exchange(100000000, 'btc', 'mxn')/100);
         $variable_fee = 0;
         $fixed_fee = 0;
         $paynet_variable_fee = 0;
@@ -1104,14 +1104,14 @@ class AdapterController extends RestApiController{
 
         $buy_price = array(
             'EUR'   =>  $btc_buy_price,
-            'PLN'   =>  $pln_price * $btc_buy_price,
-            'MXN'   =>  $mxn_price * $btc_buy_price
+            'PLN'   =>  round($pln_price * 1.05,2),
+            'MXN'   =>  round($mxn_price * 1.06,2)
         );
 
         $sell_price = array(
             'EUR'   =>  $btc_sell_price,
-            'PLN'   =>  $pln_price * $btc_sell_price,
-            'MXN'   =>  $mxn_price * $btc_sell_price
+            'PLN'   =>  round($pln_price * 0.95,2),
+            'MXN'   =>  round($mxn_price *0.94, 2)
         );
 
         $buy_limits = array(
