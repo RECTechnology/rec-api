@@ -22,7 +22,7 @@ class Login2faController extends RestApiController{
         $pin = $request->get('pin');
 
         $token = $this->call(
-            $request->getHttpHost() . $request->getBaseUrl() . '/oauth/v2/token',
+            "https://$_SERVER[HTTP_HOST]/oauth/v2/token",
             'POST',
             array(),
             array(
