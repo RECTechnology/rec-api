@@ -497,7 +497,7 @@ class IncomingController2 extends RestApiController{
                         if($total_fee != 0){
 
                             try{
-                                $this->_inverseDealer($transaction, $current_wallet);
+                                $this->_inverseDealerV2($transaction, $current_wallet);
                             }catch (HttpException $e){
                                 throw $e;
                             }
@@ -1026,6 +1026,55 @@ class IncomingController2 extends RestApiController{
 
         $balancer = $this->get('net.telepay.commons.balance_manipulator');
         $balancer->addBalance($user, $total_fee, $feeTransaction );
+
+        //empezamos el reparto
+        $group = $user->getGroups()[0];
+        $creator = $group->getCreator();
+
+        if(!$creator) throw new HttpException(404,'Creator not found');
+
+        $transaction_id = $transaction->getId();
+        $dealer = $this->get('net.telepay.commons.fee_deal');
+        $dealer->inversedDeal(
+            $creator,
+            $amount,
+            $method_cname,
+            $transaction->getType(),
+            $currency,
+            $total_fee,
+            $transaction_id,
+            $transaction->getVersion()
+        );
+
+    }
+
+    private function _inverseDealerV2(Transaction $transaction, UserWallet $current_wallet){
+
+        $amount = $transaction->getAmount();
+        $currency = $transaction->getCurrency();
+        $method_cname = $transaction->getMethod();
+
+        $em = $this->getDoctrine()->getManager();
+
+        $total_fee = $transaction->getFixedFee() + $transaction->getVariableFee();
+
+        $user = $em->getRepository('TelepayFinancialApiBundle:User')->find($transaction->getUser());
+
+        $transaction->setAmount(0);
+        $transaction->setTotal(0);
+        $transaction->setPayOutInfo(array(
+            'previous_transaction'  =>  $transaction->getId(),
+            'amount'                =>  -$total_fee,
+            'description'           =>  'refund'.$method_cname.'->fee'
+        ));
+        $transaction->setType('fee');
+        $transaction->setStatus(Transaction::$STATUS_CANCELLED);
+        $mongo = $this->get('doctrine_mongodb')->getManager();
+        $mongo->persist($transaction);
+        $mongo->flush();
+
+        $balancer = $this->get('net.telepay.commons.balance_manipulator');
+        $balancer->addBalance($user, -$total_fee, $transaction );
 
         //empezamos el reparto
         $group = $user->getGroups()[0];
