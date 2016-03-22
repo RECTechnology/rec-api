@@ -9,7 +9,7 @@ services:
             - "2"
             - "1000"
             - "60000"
-            - "1000"
+            - "2000"
             - "Spain"
 
     net.telepay.config.halcash_pl:
@@ -28,8 +28,8 @@ services:
             - "0"
             - "6"
             - "10000"
-            - "1000000000"
-            - "1"
+            - "100000000"
+            - "10000000"
             - "All over the world"
 
     net.telepay.config.fac:
@@ -39,7 +39,7 @@ services:
             - "0"
             - "100000000"
             - "1000000000000"
-            - "1"
+            - "100000000000"
             - "All over the world"
 
     net.telepay.config.sepa:
@@ -47,9 +47,9 @@ services:
         arguments:
             - "100"
             - "1"
-            - "1000"
+            - "5000"
             - "300000"
-            - "50"
+            - "5000"
             - "All over the world"
 
     net.telepay.config.cryptocapital:
@@ -59,7 +59,7 @@ services:
             - "1"
             - "1000"
             - "25000"
-            - "10"
+            - "1000"
             - "All over the world"
 
     net.telepay.config.pos_pnp:

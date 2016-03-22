@@ -448,6 +448,7 @@ class SwiftController extends RestApiController{
 
     public function hello(Request $request, $version_number, $currency){
 
+
         $dm = $this->get('doctrine_mongodb')->getManager();
         $em = $this->getDoctrine()->getManager();
 
@@ -489,75 +490,78 @@ class SwiftController extends RestApiController{
             $type_in = $types[0];
             $type_out = $types[1];
 
-            //get configuration(method)
-            $swift_config = $this->container->get('net.telepay.config.'.$type_out);
-            $methodFees = $swift_config->getFees();
-            $swiftInfo = $swift_config->getInfo();
+            if($type_in == $currency || $type_out == $currency){
+                //get configuration(method)
+                $swift_config = $this->container->get('net.telepay.config.'.$type_out);
 
-            //get client fees (fixed & variable)
-            $clientFees = $em->getRepository('TelepayFinancialApiBundle:SwiftFee')->findOneBy(array(
-                'client'    =>  $client->getId(),
-                'cname' =>  $type_in.'-'.$type_out
-            ));
+                $methodFees = $swift_config->getFees();
+                $swiftInfo = $swift_config->getInfo();
 
-            $clientLimits = $em->getRepository('TelepayFinancialApiBundle:SwiftLimit')->findOneBy(array(
-                'client'    =>  $client->getId(),
-                'cname' =>  $type_in.'-'.$type_out
-            ));
+                //get client fees (fixed & variable)
+                $clientFees = $em->getRepository('TelepayFinancialApiBundle:SwiftFee')->findOneBy(array(
+                    'client'    =>  $client->getId(),
+                    'cname' =>  $type_in.'-'.$type_out
+                ));
 
-            $fixed_fee = $methodFees->getFixed() + $clientFees->getFixed();
-            $variable_fee = $methodFees->getVariable() + $clientFees->getVariable();
+                $clientLimits = $em->getRepository('TelepayFinancialApiBundle:SwiftLimit')->findOneBy(array(
+                    'client'    =>  $client->getId(),
+                    'cname' =>  $type_in.'-'.$type_out
+                ));
 
-            $cashInMethod = $this->container->get('net.telepay.in.'.$type_in.'.v'.$version_number);
-            $cashOutMethod = $this->container->get('net.telepay.out.'.$type_out.'.v'.$version_number);
+                $fixed_fee = $methodFees->getFixed() + $clientFees->getFixed();
+                $variable_fee = $methodFees->getVariable() + $clientFees->getVariable();
 
-            $currency_in = $cashInMethod->getCurrency();
-            $currency_out = $cashOutMethod->getCurrency();
+                $cashInMethod = $this->container->get('net.telepay.in.'.$type_in.'.v'.$version_number);
+                $cashOutMethod = $this->container->get('net.telepay.out.'.$type_out.'.v'.$version_number);
 
-            $scale_in = Currency::$SCALE[$currency_in];
+                $currency_in = $cashInMethod->getCurrency();
+                $currency_out = $cashOutMethod->getCurrency();
 
-            $amount = pow(10,$scale_in);
+                $scale_in = Currency::$SCALE[$currency_in];
 
-            $exchange = $this->_exchange($amount , $currency_in, $currency_out);
+                $amount = pow(10,$scale_in);
 
-            $values = array();
+                $exchange = $this->_exchange($amount , $currency_in, $currency_out);
 
-            if($clientLimits->getSingle() > 0 && $clientLimits->getSingle() <= $swiftInfo['max_value']){
+                $values = array();
 
-                for($i = $swiftInfo['min_value'];$i <= $clientLimits->getSingle(); $i=+$swiftInfo['range']){
-                    array_push($values, $i);
+                if($clientLimits->getSingle() > 0 && $clientLimits->getSingle() <= $swiftInfo['max_value']){
+
+                    for($i = $swiftInfo['min_value'];$i <= $clientLimits->getSingle(); $i=+$swiftInfo['range']){
+                        array_push($values, $i);
+                    }
+                }else{
+
+                    for($i = $swiftInfo['min_value'];$i <= $swiftInfo['max_value']; $i+=$swiftInfo['range']){
+                        array_push($values, $i);
+                    }
                 }
-            }else{
 
-                for($i = $swiftInfo['min_value'];$i <= $swiftInfo['max_value']; $i+=$swiftInfo['range']){
-                    array_push($values, $i);
-                }
-            }
-
-            $response[$service] = array(
-                'orig'  =>  $cashInMethod->getName(),
-                'dst'   =>  $cashOutMethod->getName(),
-                'countries' =>  $swiftInfo['countries'],
+                $response[$service] = array(
+                    'orig'  =>  $cashInMethod->getName(),
+                    'dst'   =>  $cashOutMethod->getName(),
+                    'countries' =>  $swiftInfo['countries'],
 //                'text'  =>  '',
-                'status'    =>  ($status == 1) ? 'available' : 'unavailable',
+                    'status'    =>  ($status == 1) ? 'available' : 'unavailable',
 //                'message'   =>  '',
 //                'delay' =>  '',
-                'price' =>  $exchange,
-                'limits'    =>  array(
-                    'single'    =>  ($clientLimits->getSingle() >= 0) ? $clientLimits->getSingle(): 'unlimited',
-                    'daily'     =>  ($clientLimits->getDay() >= 0) ? $clientLimits->getDay() : 'unlimited',
-                    'weekly'    =>  ($clientLimits->getWeek() >= 0) ? $clientLimits->getWeek() : 'unlimited',
-                    'monthly'   =>  ($clientLimits->getMonth() >= 0) ? $clientLimits->getMonth() : 'unlimited',
-                    'yearly'    =>  ($clientLimits->getYear() >=0) ? $clientLimits->getYear() : 'unlimited',
-                    'total'     =>  ($clientLimits->getTotal() >= 0) ? $clientLimits->getTotal() : 'unlimited'
-                ),
-                'fees'  =>  array(
-                    'fixed' =>  $fixed_fee,
-                    'variable'  =>  $variable_fee
-                ),
-                'values'    =>  $values
+                    'price' =>  $exchange,
+                    'limits'    =>  array(
+                        'single'    =>  ($clientLimits->getSingle() >= 0) ? $clientLimits->getSingle(): 'unlimited',
+                        'daily'     =>  ($clientLimits->getDay() >= 0) ? $clientLimits->getDay() : 'unlimited',
+                        'weekly'    =>  ($clientLimits->getWeek() >= 0) ? $clientLimits->getWeek() : 'unlimited',
+                        'monthly'   =>  ($clientLimits->getMonth() >= 0) ? $clientLimits->getMonth() : 'unlimited',
+                        'yearly'    =>  ($clientLimits->getYear() >=0) ? $clientLimits->getYear() : 'unlimited',
+                        'total'     =>  ($clientLimits->getTotal() >= 0) ? $clientLimits->getTotal() : 'unlimited'
+                    ),
+                    'fees'  =>  array(
+                        'fixed' =>  $fixed_fee,
+                        'variable'  =>  $variable_fee
+                    ),
+                    'values'    =>  $values
 
-            );
+                );
+            }
 
         }
 
