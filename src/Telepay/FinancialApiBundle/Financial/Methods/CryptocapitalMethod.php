@@ -39,7 +39,7 @@ class CryptocapitalMethod extends BaseMethod {
         try{
             $cryptocapital = $this->driver->request($currency, $amount, $email, $description, $find_token);
         }catch (\RuntimeException $r){
-            throw new Exception('runtime exception', 400);
+            throw new Exception($r->getMessage(), 400);
         }
 
         if($cryptocapital === false)
