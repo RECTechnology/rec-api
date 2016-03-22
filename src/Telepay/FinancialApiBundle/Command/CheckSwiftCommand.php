@@ -119,10 +119,12 @@ class CheckSwiftCommand extends ContainerAwareCommand
                         $transaction->setStatus('send_locked');
                         $dm->persist($transaction);
                         $dm->flush();
-
+                        $output->writeln('Before send');
                         try{
                             $pay_out_info = $cashOutMethod->send($pay_out_info);
                         }catch (Exception $e){
+                            $output->writeln('catch');
+                            $output->writeln($e->getMessage());
                             $pay_out_info['status'] = Transaction::$STATUS_FAILED;
                             $pay_out_info['final'] = false;
                             $error = $e->getMessage();
@@ -132,6 +134,9 @@ class CheckSwiftCommand extends ContainerAwareCommand
                         }
                         $dm->persist($transaction);
                         $dm->flush();
+
+                        $output->writeln($pay_out_info['status']);
+
                         if($pay_out_info['status'] == 'sent' || $pay_out_info['status'] == 'sending'){
                             $transaction->setPayOutInfo($pay_out_info);
                             if($pay_out_info['status'] == 'sent') $transaction->setStatus('success');
