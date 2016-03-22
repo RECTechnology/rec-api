@@ -164,3 +164,7 @@ doctrine_mongodb:
     document_managers:
         default:
             auto_mapping: true
+
+services:
+    fos_user.doctrine_registry:
+        alias: doctrine
