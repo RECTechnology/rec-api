@@ -44,7 +44,7 @@ class CheckSwiftCommand extends ContainerAwareCommand
         foreach($qb->toArray() as $transaction){
             $output->writeln('nueva transaccion');
             if($transaction->getMethodIn() != ''){
-                $output->writeln('Checking swift transaction...id=> '.$transaction->getId());
+                $output->writeln('Checking swift transaction...id=> '. $transaction->getId() . ":" . $transaction->getStatus());
                 $output->writeln($transaction->getMethodIn().' - '.$transaction->getMethodOut());
                 $method_in = $transaction->getMethodIn();
                 $method_out = $transaction->getMethodOut();
@@ -112,7 +112,7 @@ class CheckSwiftCommand extends ContainerAwareCommand
                     $dm->persist($transaction);
                     $dm->flush();
 
-                    $current_trasaction = $dm->find($transaction->getId());
+                    $current_trasaction = $dm->getRepository('TelepayFinancialApiBundle:Transaction')->find($transaction->getId());
 
                     if($current_trasaction->getStatus() != 'success' && $current_trasaction->getStatus() != 'send_locked'){
 
