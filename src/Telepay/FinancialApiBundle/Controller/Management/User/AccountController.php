@@ -566,6 +566,17 @@ class AccountController extends BaseApiController{
 
     }
 
+    /**
+     * @Rest\View
+     */
+//    public function checkExistentUser(Request $request, $username){
+//
+//        $userRepo = $this->container->get($this->getRepositoryName());
+//        $qb = $userRepo->createQueryBuilder('q')
+//            ->field('username')->equal($username);
+//
+//    }
+
     private function _sendEmail($subject, $body, $to){
 
         $message = \Swift_Message::newInstance()

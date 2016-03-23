@@ -64,7 +64,7 @@ class FacMethod extends  BaseMethod {
             $paymentInfo['final'] = false;
         }else{
             $paymentInfo['txid'] = $crypto->txid;
-            $paymentInfo['status'] = 'send';
+            $paymentInfo['status'] = 'sent';
             $paymentInfo['final'] = true;
         }
 
