@@ -628,7 +628,7 @@ class WalletController extends RestApiController{
                 $country['flag'] = strtolower($data->geoplugin_countryCode);
                 $country['value'] = $res['total'];
 
-                //TODO search transaction and update countr and country_code
+                //TODO search transaction and update country and country_code
                 $dm = $this->get('doctrine_mongodb')->getManager();
                 $transaction = $dm->getRepository('TelepayFinancialApiBundle:Transaction')->find($res['id']);
 
