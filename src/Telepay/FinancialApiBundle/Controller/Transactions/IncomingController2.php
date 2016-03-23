@@ -1057,10 +1057,7 @@ class IncomingController2 extends RestApiController{
             'type'      =>  'fee'
         ));
 
-        $amount = $transaction->getAmount();
-        $currency = $transaction->getCurrency();
-        $method_cname = $transaction->getMethod();
-
+        $method_cname = $transaction_cancelled->getMethod();
 
         $total_fee = $transaction->getFixedFee() + $transaction->getVariableFee();
 
@@ -1079,7 +1076,7 @@ class IncomingController2 extends RestApiController{
         $mongo->flush();
 
         $balancer = $this->get('net.telepay.commons.balance_manipulator');
-        $balancer->addBalance($user, -$total_fee, $transaction );
+        $balancer->addBalance($user, $total_fee, $transaction );
 
         //empezamos el reparto
         $group = $user->getGroups()[0];
@@ -1087,17 +1084,20 @@ class IncomingController2 extends RestApiController{
 
         if(!$creator) throw new HttpException(404,'Creator not found');
 
-        $transaction_id = $transaction->getId();
+        $transaction_id = $transaction_cancelled->getId();
+        $amount = $transaction_cancelled->getAmount();
+        $currency = $transaction_cancelled->getCurrency();
+
         $dealer = $this->get('net.telepay.commons.fee_deal');
         $dealer->inversedDeal(
             $creator,
             $amount,
             $method_cname,
-            $transaction->getType(),
+            $transaction_cancelled->getType(),
             $currency,
             $total_fee,
             $transaction_id,
-            $transaction->getVersion()
+            $transaction_cancelled->getVersion()
         );
 
     }
