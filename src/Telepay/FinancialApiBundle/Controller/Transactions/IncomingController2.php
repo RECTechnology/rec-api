@@ -1050,13 +1050,28 @@ class IncomingController2 extends RestApiController{
 
     private function _inverseDealerV2(Transaction $transaction_cancelled, UserWallet $current_wallet){
         $em = $this->getDoctrine()->getManager();
+        $mongo = $this->get('doctrine_mongodb')->getManager();
 
-        $transaction = $em->getRepository('TelepayFinancialApiBundle:Transaction')->findOneBy(array(
-            'id'        =>  $transaction_cancelled->getData()['previous_transaction'],
-            'user'      =>  $transaction_cancelled->getUser(),
-            'type'      =>  'fee'
-        ));
+        $qb = $mongo->createQueryBuilder('TelepayFinancialApiBundle:Transaction');
+        $transaction_id = $transaction_cancelled->getId();
+        $transactions = $qb
+            ->field('type')->equals('fee')
+            ->field('user')->equals($transaction_cancelled->getUser()->getId())
+            ->where("function() {
+                                if (typeof this.dataIn !== 'undefined') {
+                                    if (typeof this.dataIn.previous_transaction !== 'undefined') {
+                                        if(String(this.dataIn.previous_transaction).indexOf('$transaction_id') > -1){
+                                            return true;
+                                        }
+                                    }
+                                }
 
+                                return false;
+                                }")
+            ->getQuery()
+            ->execute();
+
+        $transaction = $transactions->toArray()[0];
         $method_cname = $transaction_cancelled->getMethod();
 
         $total_fee = $transaction->getFixedFee() + $transaction->getVariableFee();
@@ -1071,7 +1086,7 @@ class IncomingController2 extends RestApiController{
             'description'           =>  'refund'.$method_cname.'->fee'
         ));
         $transaction->setStatus(Transaction::$STATUS_CANCELLED);
-        $mongo = $this->get('doctrine_mongodb')->getManager();
+
         $mongo->persist($transaction);
         $mongo->flush();
 
