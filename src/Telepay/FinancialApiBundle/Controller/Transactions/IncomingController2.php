@@ -1056,7 +1056,7 @@ class IncomingController2 extends RestApiController{
         $transaction_id = $transaction_cancelled->getId();
         $transactions = $qb
             ->field('type')->equals('fee')
-            ->field('user')->equals($transaction_cancelled->getUser()->getId())
+            ->field('user')->equals($transaction_cancelled->getUser())
             ->where("function() {
                                 if (typeof this.dataIn !== 'undefined') {
                                     if (typeof this.dataIn.previous_transaction !== 'undefined') {
@@ -1071,7 +1071,14 @@ class IncomingController2 extends RestApiController{
             ->getQuery()
             ->execute();
 
-        $transaction = $transactions->toArray()[0];
+        $exist = false;
+        foreach($transactions->toArray() as $res){
+            $exist = true;
+            $transaction = $res;
+        }
+        if(!$exist){
+            throw new HttpException(404,'Fee not found');
+        }
         $method_cname = $transaction_cancelled->getMethod();
 
         $total_fee = $transaction->getFixedFee() + $transaction->getVariableFee();
