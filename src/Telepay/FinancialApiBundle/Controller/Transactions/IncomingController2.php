@@ -1048,13 +1048,19 @@ class IncomingController2 extends RestApiController{
 
     }
 
-    private function _inverseDealerV2(Transaction $transaction, UserWallet $current_wallet){
+    private function _inverseDealerV2(Transaction $transaction_cancelled, UserWallet $current_wallet){
+        $em = $this->getDoctrine()->getManager();
+
+        $transaction = $em->getRepository('TelepayFinancialApiBundle:Transaction')->findOneBy(array(
+            'id'        =>  $transaction_cancelled->getData()['previous_transaction'],
+            'user'      =>  $transaction_cancelled->getUser(),
+            'type'      =>  'fee'
+        ));
 
         $amount = $transaction->getAmount();
         $currency = $transaction->getCurrency();
         $method_cname = $transaction->getMethod();
 
-        $em = $this->getDoctrine()->getManager();
 
         $total_fee = $transaction->getFixedFee() + $transaction->getVariableFee();
 
@@ -1067,7 +1073,6 @@ class IncomingController2 extends RestApiController{
             'amount'                =>  -$total_fee,
             'description'           =>  'refund'.$method_cname.'->fee'
         ));
-        $transaction->setType('fee');
         $transaction->setStatus(Transaction::$STATUS_CANCELLED);
         $mongo = $this->get('doctrine_mongodb')->getManager();
         $mongo->persist($transaction);
