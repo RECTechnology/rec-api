@@ -53,20 +53,22 @@ class IncomingController2 extends RestApiController{
         $transaction->setType($type);
         $dm->persist($transaction);
 
-        if($request->request->has('concept')){
+        if($request->request->has('concept') && $request->request->get('concept')!=''){
             $concept = $request->request->get('concept');
         }else{
-            $concept = '';
-            $request->request->add(array(
-                'concept'   =>  $concept
-            ));
+            $concept = "to_do";
+            //throw new HttpException(400, 'Param concept not found');
         }
 
         if($request->request->has('url_notification')) $url_notification = $request->request->get('url_notification');
         else $url_notification = '';
 
-        if($request->request->has('amount')) $amount = $request->request->get('amount');
-        else throw new HttpException(400, 'Param amount not found');
+        if($request->request->has('amount') && $request->request->get('amount')!=''){
+            $amount = $request->request->get('amount');
+        }
+        else{
+            throw new HttpException(400, 'Param amount not found');
+        }
 
         $logger->info('Incomig transaction...getPaymentInfo');
 

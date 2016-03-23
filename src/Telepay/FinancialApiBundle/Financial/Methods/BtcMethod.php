@@ -136,6 +136,7 @@ class BtcMethod extends BaseMethod {
             $paymentInfo['final'] = false;
         }else{
             $paymentInfo['txid'] = $crypto->txid;
+            $paymentInfo['txid_test'] = "ivan-test";
             $paymentInfo['status'] = 'sent';
             $paymentInfo['final'] = true;
         }
