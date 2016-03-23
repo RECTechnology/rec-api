@@ -88,8 +88,8 @@ class CryptocapitalMethod extends BaseMethod {
         }
 
         $paymentInfo['response'] = $response;
-        $params['final'] = true;
-        $params['status'] = 'sent';
+        $paymentInfo['final'] = true;
+        $paymentInfo['status'] = 'sent';
 
         return $paymentInfo;
     }
