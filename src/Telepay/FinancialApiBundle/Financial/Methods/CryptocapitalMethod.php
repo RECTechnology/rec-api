@@ -89,7 +89,7 @@ class CryptocapitalMethod extends BaseMethod {
 
         $paymentInfo['response'] = $response;
         $params['final'] = true;
-        $params['status'] = Transaction::$STATUS_SUCCESS;
+        $params['status'] = 'sent';
 
         return $paymentInfo;
     }
