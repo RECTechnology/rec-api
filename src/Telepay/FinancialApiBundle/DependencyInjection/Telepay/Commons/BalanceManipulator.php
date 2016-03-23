@@ -55,8 +55,10 @@ class BalanceManipulator{
             $prev_balance = $prev_balance->getBalance();
         }
 
-        if($transaction->getDataIn()['description']){
+        if(isset($transaction->getDataIn()['description'])){
             $concept = $transaction->getDataIn()['description'];
+        }else if(isset($transaction->getDataOut()['description'])){
+            $concept = $transaction->getDataOut()['description'];
         }else{
             $concept = $transaction->getDataIn()['concept'];
         }
