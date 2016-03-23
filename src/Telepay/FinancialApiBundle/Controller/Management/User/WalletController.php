@@ -622,31 +622,24 @@ class WalletController extends RestApiController{
             if(!$res['country']){
                 $json = file_get_contents('http://www.geoplugin.net/json.gp?ip='.$res['ip']);
                 $data = json_decode($json);
-                if($res['country'] == ''){
-                    $country['name'] = 'not located';
-                    $country['code'] = '';
-                    $country['flag'] = '';
-                    $country['value'] = $res['total'];
 
-                }else{
-                    $country['name'] = $data->geoplugin_countryName;
-                    $country['code'] = $data->geoplugin_countryCode;
-                    $country['flag'] = strtolower($data->geoplugin_countryCode);
-                    $country['value'] = $res['total'];
+                $country['name'] = $data->geoplugin_countryName;
+                $country['code'] = $data->geoplugin_countryCode;
+                $country['flag'] = strtolower($data->geoplugin_countryCode);
+                $country['value'] = $res['total'];
 
-                    //TODO search transaction and update countr and country_code
-                    $dm = $this->getDoctrine()->getManager();
-                    $transaction = $dm->getRepository('TelepayFinancialApiBundle:Transaction')->find($res['id']);
+                //TODO search transaction and update countr and country_code
+                $dm = $this->getDoctrine()->getManager();
+                $transaction = $dm->getRepository('TelepayFinancialApiBundle:Transaction')->find($res['id']);
 
-                    if($transaction){
-                        $transaction->setCountry($country['name']);
-                        $transaction->setCountryCode($country['code']);
+                if($transaction){
+                    $transaction->setCountry($country['name']);
+                    $transaction->setCountryCode($country['code']);
 
-                        $dm->persist($transaction);
-                        $dm->flush();
-                    }
-
+                    $dm->persist($transaction);
+                    $dm->flush();
                 }
+
             }else{
                 $country['name'] = $res['country'];
                 $country['code'] = $res['country_code'];
