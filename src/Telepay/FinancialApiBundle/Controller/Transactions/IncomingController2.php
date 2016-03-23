@@ -180,7 +180,7 @@ class IncomingController2 extends RestApiController{
             }catch (Exception $e){
                 $logger->error('Incomig transaction...ERROR '.$e->getMessage());
 
-                if($e->getStatusCode() >= 500){
+                if($e->getCode() >= 500){
                     $transaction->setStatus(Transaction::$STATUS_FAILED);
                 }else{
                     $transaction->setStatus( Transaction::$STATUS_ERROR );

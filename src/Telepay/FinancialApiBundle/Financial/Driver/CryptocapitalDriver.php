@@ -25,7 +25,7 @@ class CryptocapitalDriver{
         }else{
             $position = __DIR__;
             $amount = number_format((float)$amount/100, 2, '.', '');
-            $process = new Process('nodejs '.$position.'/nodejs/transfer.js -an "'.$this->account_number.'" -b "'.$this->beneficiary.'" -c '.$currency.' -a '.$amount.' -n "'.$narrative.','.$description.'-'.$id.'"');
+            $process = new Process('nodejs '.$position.'/nodejs/transfer.js --account_number "'.$this->account_number.'" -b "'.$this->beneficiary.'" -c '.$currency.' -a '.$amount.' -n "'.$narrative.','.$description.'-'.$id.'"');
 //        we can up the timeout for security
             $process->setTimeout(160);
 
