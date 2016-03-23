@@ -477,14 +477,13 @@ class AccountController extends BaseApiController{
                 $accessToken = $tokenManager->findTokenByToken(
                     $this->container->get('security.context')->getToken()->getToken()
                 );
-                $client = $accessToken->getClient();
-                $urls = $client->getRedirectUris();
+                $url = $this->container->getParameter('base_url');
 
                 $tokenGenerator = $this->container->get('fos_user.util.token_generator');
                 $user->setConfirmationToken($tokenGenerator->generateToken());
                 $em->persist($user);
                 $em->flush();
-                $url = $urls[0].'/user/validation/'.$user->getConfirmationToken();
+                $url = $url.'/user/validation/'.$user->getConfirmationToken();
                 $this->_sendEmail('Chip-Chap validation e-mail', $url, $user->getEmail());
             }
 
