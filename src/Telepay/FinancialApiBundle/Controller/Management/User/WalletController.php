@@ -598,7 +598,12 @@ class WalletController extends RestApiController{
             ->group(
                 new \MongoCode('
                     function(trans){
-                        return trans;
+                        return {
+                            ip : trans.ip,
+                            country : trans.country,
+                            country_code : trans.country_code,
+                            id : trans._id
+                        };
                     }
                 '),
                 array(
@@ -616,7 +621,8 @@ class WalletController extends RestApiController{
         $total=[];
 
         foreach($result->toArray() as $res){
-            if(!isset($res['country'])){
+
+            if($res['country']== ''){
 
                 $json = file_get_contents('http://www.geoplugin.net/json.gp?ip='.$res['ip']);
                 $data = json_decode($json);
@@ -625,10 +631,9 @@ class WalletController extends RestApiController{
                 $country['code'] = $data->geoplugin_countryCode;
                 $country['flag'] = strtolower($data->geoplugin_countryCode);
                 $country['value'] = $res['total'];
-
                 //TODO search transaction and update country and country_code
                 $dm = $this->get('doctrine_mongodb')->getManager();
-                $transaction = $dm->getRepository('TelepayFinancialApiBundle:Transaction')->find($res['_id']);
+                $transaction = $dm->getRepository('TelepayFinancialApiBundle:Transaction')->find($res['id']);
 
                 if($transaction){
                     $transaction->setCountry($country['name']);
