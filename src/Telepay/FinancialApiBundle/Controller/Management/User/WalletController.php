@@ -470,6 +470,9 @@ class WalletController extends RestApiController{
                 $created = $res->getCreated();
                 if($created!="" && $created!=null ){
                     $day = $created->format('Y') . "/" . $created->format('m') . "/" . $created->format('d');
+                    if(!array_key_exists($day, $data)){
+                        $data[$day] = array();
+                    }
                     if(!isset($clients)) {
                         array_key_exists($res->getCurrency(), $data[$day])? $data[$day][$res->getCurrency()] += $res->getAmount():$data[$day][$res->getCurrency()] = $res->getAmount();
                     }

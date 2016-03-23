@@ -1048,13 +1048,16 @@ class IncomingController2 extends RestApiController{
 
     }
 
-    private function _inverseDealerV2(Transaction $transaction, UserWallet $current_wallet){
-
-        $amount = $transaction->getAmount();
-        $currency = $transaction->getCurrency();
-        $method_cname = $transaction->getMethod();
-
+    private function _inverseDealerV2(Transaction $transaction_cancelled, UserWallet $current_wallet){
         $em = $this->getDoctrine()->getManager();
+
+        $transaction = $em->getRepository('TelepayFinancialApiBundle:Transaction')->findOneBy(array(
+            'id'        =>  $transaction_cancelled->getData()['previous_transaction'],
+            'user'      =>  $transaction_cancelled->getUser(),
+            'type'      =>  'fee'
+        ));
+
+        $method_cname = $transaction_cancelled->getMethod();
 
         $total_fee = $transaction->getFixedFee() + $transaction->getVariableFee();
 
@@ -1067,14 +1070,13 @@ class IncomingController2 extends RestApiController{
             'amount'                =>  -$total_fee,
             'description'           =>  'refund'.$method_cname.'->fee'
         ));
-        $transaction->setType('fee');
         $transaction->setStatus(Transaction::$STATUS_CANCELLED);
         $mongo = $this->get('doctrine_mongodb')->getManager();
         $mongo->persist($transaction);
         $mongo->flush();
 
         $balancer = $this->get('net.telepay.commons.balance_manipulator');
-        $balancer->addBalance($user, -$total_fee, $transaction );
+        $balancer->addBalance($user, $total_fee, $transaction );
 
         //empezamos el reparto
         $group = $user->getGroups()[0];
@@ -1082,17 +1084,20 @@ class IncomingController2 extends RestApiController{
 
         if(!$creator) throw new HttpException(404,'Creator not found');
 
-        $transaction_id = $transaction->getId();
+        $transaction_id = $transaction_cancelled->getId();
+        $amount = $transaction_cancelled->getAmount();
+        $currency = $transaction_cancelled->getCurrency();
+
         $dealer = $this->get('net.telepay.commons.fee_deal');
         $dealer->inversedDeal(
             $creator,
             $amount,
             $method_cname,
-            $transaction->getType(),
+            $transaction_cancelled->getType(),
             $currency,
             $total_fee,
             $transaction_id,
-            $transaction->getVersion()
+            $transaction_cancelled->getVersion()
         );
 
     }
