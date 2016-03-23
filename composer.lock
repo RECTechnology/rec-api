@@ -4,8 +4,8 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#composer-lock-the-lock-file",
         "This file is @generated automatically"
     ],
-    "hash": "67087fca146dfb1918d6e179f9e7b0a3",
-    "content-hash": "dcc5b5ca1ff09aeb782e2350063b6d79",
+    "hash": "086355fd76f0d6151edf49b361a956b0",
+    "content-hash": "b2c172aca9274aa21a464408376bd58b",
     "packages": [
         {
             "name": "blockchain/blockchain",
@@ -13,12 +13,12 @@
             "source": {
                 "type": "git",
                 "url": "https://github.com/blockchain/api-v1-client-php.git",
-                "reference": "5acd42739fcbd7713cb864fa7a93f11dd0fdc1c8"
+                "reference": "aa3d80b9d0effa0796bee220b51d99f8c351ca9f"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/blockchain/api-v1-client-php/zipball/5acd42739fcbd7713cb864fa7a93f11dd0fdc1c8",
-                "reference": "5acd42739fcbd7713cb864fa7a93f11dd0fdc1c8",
+                "url": "https://api.github.com/repos/blockchain/api-v1-client-php/zipball/aa3d80b9d0effa0796bee220b51d99f8c351ca9f",
+                "reference": "aa3d80b9d0effa0796bee220b51d99f8c351ca9f",
                 "shasum": ""
             },
             "require": {
@@ -41,7 +41,7 @@
                 "bitcoin",
                 "blockchain"
             ],
-            "time": "2016-03-15 17:59:17"
+            "time": "2016-03-21 14:29:49"
         },
         {
             "name": "doctrine/annotations",
@@ -2109,19 +2109,20 @@
         },
         {
             "name": "ramsey/uuid",
-            "version": "2.8.4",
+            "version": "2.9.0",
             "source": {
                 "type": "git",
                 "url": "https://github.com/ramsey/uuid.git",
-                "reference": "805d8e1894c52e5b1582e75ca8803a8d85650df9"
+                "reference": "b2ef4dd9584268d73f92f752a62bc24cd534dc9a"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/ramsey/uuid/zipball/805d8e1894c52e5b1582e75ca8803a8d85650df9",
-                "reference": "805d8e1894c52e5b1582e75ca8803a8d85650df9",
+                "url": "https://api.github.com/repos/ramsey/uuid/zipball/b2ef4dd9584268d73f92f752a62bc24cd534dc9a",
+                "reference": "b2ef4dd9584268d73f92f752a62bc24cd534dc9a",
                 "shasum": ""
             },
             "require": {
+                "paragonie/random_compat": "^1.0|^2.0",
                 "php": ">=5.3.3"
             },
             "replace": {
@@ -2171,7 +2172,7 @@
                 "identifier",
                 "uuid"
             ],
-            "time": "2015-12-17 16:54:24"
+            "time": "2016-03-22 18:20:19"
         },
         {
             "name": "rickmoreno/getfaircoin-api",

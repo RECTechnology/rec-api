@@ -193,6 +193,18 @@ class Transaction implements TransactionTiming {
      * @var
      * @MongoDB\String
      */
+    private $country;
+
+    /**
+     * @var
+     * @MongoDB\String
+     */
+    private $country_code;
+
+    /**
+     * @var
+     * @MongoDB\String
+     */
     private $status;
 
     /**
@@ -870,5 +882,37 @@ class Transaction implements TransactionTiming {
     public function setLastCheck($last_check)
     {
         $this->last_check = $last_check;
+    }
+
+    /**
+     * @return mixed
+     */
+    public function getCountry()
+    {
+        return $this->country;
+    }
+
+    /**
+     * @param mixed $country
+     */
+    public function setCountry($country)
+    {
+        $this->country = $country;
+    }
+
+    /**
+     * @return mixed
+     */
+    public function getCountryCode()
+    {
+        return $this->country_code;
+    }
+
+    /**
+     * @param mixed $country_code
+     */
+    public function setCountryCode($country_code)
+    {
+        $this->country_code = $country_code;
     }
 }
