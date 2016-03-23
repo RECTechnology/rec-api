@@ -1071,7 +1071,14 @@ class IncomingController2 extends RestApiController{
             ->getQuery()
             ->execute();
 
-        $transaction = $transactions->toArray()[0];
+        $exist = false;
+        foreach($transactions->toArray() as $res){
+            $exist = true;
+            $transaction = $res;
+        }
+        if(!$exist){
+            throw new HttpException(404,'Fee not found');
+        }
         $method_cname = $transaction_cancelled->getMethod();
 
         $total_fee = $transaction->getFixedFee() + $transaction->getVariableFee();
