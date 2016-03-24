@@ -616,36 +616,17 @@ class WalletController extends RestApiController{
             ->execute();
 
         $total=[];
-
         foreach($result->toArray() as $res){
 
-            if(!$res['country']){
-                $json = file_get_contents('http://www.geoplugin.net/json.gp?ip='.$res['ip']);
-                $data = json_decode($json);
+            $json = file_get_contents('http://www.geoplugin.net/json.gp?ip='.$res['ip']);
+            $data = json_decode($json);
 
-                $country['name'] = $data->geoplugin_countryName;
-                $country['code'] = $data->geoplugin_countryCode;
-                $country['flag'] = strtolower($data->geoplugin_countryCode);
-                $country['value'] = $res['total'];
+            $country['name'] = $data->geoplugin_countryName;
+            $country['code'] = $data->geoplugin_countryCode;
+            $country['flag'] = strtolower($data->geoplugin_countryCode);
+            $country['value'] = $res['total'];
 
-                //TODO search transaction and update country and country_code
-                $dm = $this->get('doctrine_mongodb')->getManager();
-                $transaction = $dm->getRepository('TelepayFinancialApiBundle:Transaction')->find($res['id']);
 
-                if($transaction){
-                    $transaction->setCountry($country['name']);
-                    $transaction->setCountryCode($country['code']);
-
-                    $dm->persist($transaction);
-                    $dm->flush();
-                }
-
-            }else{
-                $country['name'] = $res['country'];
-                $country['code'] = $res['country_code'];
-                $country['flag'] = strtolower($res['country_code']);
-                $country['value'] = $res['total'];
-            }
             $total[] = $country;
 
         }
