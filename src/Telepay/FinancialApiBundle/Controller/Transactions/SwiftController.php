@@ -408,7 +408,7 @@ class SwiftController extends RestApiController{
                 }
 
                 $request->request->add(array(
-                    'amount'    =>  $payInInfo['amount']
+                    'amount'    =>  $payInInfo['received']
                 ));
 
                 $refund_info = $method_in->getPayOutInfo($request);
