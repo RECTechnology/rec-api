@@ -53,6 +53,7 @@ class SwiftController extends RestApiController{
 
         }
 
+
         //check if user has this service and if is active
         $services = $client->getSwiftList();
         if(!$services) throw new HttpException(403,'Method not allowed');
@@ -76,7 +77,7 @@ class SwiftController extends RestApiController{
                 ->field('created')->gte($start_time)
                 ->field('created')->lte($finish_time)
                 ->field('method_out')->equals($type_out)
-                ->field('status')->equals('created','success')
+                ->field('status')->in(array('created','success'))
                 ->where("function(){
                     if (typeof this.pay_out_info.phone !== 'undefined') {
                         if(String(this.pay_out_info.phone).indexOf('$search') > -1){
@@ -91,15 +92,18 @@ class SwiftController extends RestApiController{
 
             $pending=0;
 
-            //die(print_r($result,true));
             foreach($result->toArray() as $d){
                 $pending = $pending + $d->getAmount();
             }
 
+            if($search == '603270565'){
+                throw new HttpException(405, 'Limit exceeded '.($amount + $pending ) . ' -- ' . count($result) . " ++ " . $start_time);
+            }
+
             if($type_out == 'halcash_es'){
-                if($amount + $pending >= 300000) throw new HttpException(405, 'Limit exceeded');
+                if($amount + $pending > 300000) throw new HttpException(405, 'Limit exceeded');
             }else{
-                if($amount + $pending >= 1200000) throw new HttpException(405, 'Limit exceeded');
+                if($amount + $pending > 1200000) throw new HttpException(405, 'Limit exceeded');
             }
 
 
