@@ -375,12 +375,12 @@ class SwiftController extends RestApiController{
 
                 //TODO implement a resend with changed params (phone and prefix done)
 
-                if($request->request->has('new_phone')){
+                if($request->request->has('new_phone') && $request->request->get('new_phone')!=''){
                     $new_phone = $request->request->get('new_phone');
                     $payOutInfo['phone']=$new_phone;
                 }
 
-                if($request->request->has('new_prefix')){
+                if($request->request->has('new_prefix') && $request->request->get('new_prefix')!=''){
                     $new_prefix = $request->request->get('new_prefix');
                     $payOutInfo['prefix']=$new_prefix;
                 }
