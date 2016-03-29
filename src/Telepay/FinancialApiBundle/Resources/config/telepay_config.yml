@@ -9,7 +9,7 @@ services:
             - "2"
             - "1000"
             - "60000"
-            - "2000"
+            - "1000"
             - "Spain"
 
     net.telepay.config.halcash_pl:
