@@ -165,19 +165,16 @@ class HalcashTelepayDriver{
             $url = $this->url.'/HalCashGatewayIssue.asmx?wsdl';
             $client = new nusoap_client($url,true);
             if ($sError = $client->getError()) {
-                throw new HttpException(400,"No se pudo completar la operacion [".$sError."]");
-                //$response='error2';
+                throw new HttpException(400,"(1)No se pudo completar la operacion [".$sError."]");
             }
             $response = $client->call("Cancelacion",$params);
             if ($client->fault) { // Si
-                throw new HttpException(400,"No se pudo completar la operacion [".$sError."]");
-                //$response='error3';
+                throw new HttpException(400,"(2)No se pudo completar la operacion [".$sError."]");
             } else { // No
                 $sError = $client->getError();
                 // Hay algun error ?
                 if ($sError) { // Si
-                    throw new HttpException(400,"No se pudo completar la operacion [".$sError."]");
-                    //$response=$sError;
+                    throw new HttpException(400,"(3)No se pudo completar la operacion [".$sError."]");
                 }
             }
             $response = $response['CancelacionResult'];
