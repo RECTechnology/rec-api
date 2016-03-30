@@ -45,51 +45,49 @@ class CheckHalcashSwiftCommand extends ContainerAwareCommand
 
         $output->writeln('CHECKING WITHDRAWN HALCASH TRANSACTIONS');
         foreach($qb->toArray() as $transaction){
-            if($contador <= 3){
 
-                $paymentInfo = $transaction->getPayOutInfo();
+            $paymentInfo = $transaction->getPayOutInfo();
 
-                $previous_status = $paymentInfo['status'];
-                $output->writeln('txid: '.$transaction->getId().' prev status: '.strtoupper($paymentInfo['status']));
+            $previous_status = $paymentInfo['status'];
+            $output->writeln('txid: '.$transaction->getId().' prev status: '.strtoupper($paymentInfo['status']));
 
-                $transaction = $this->check($transaction);
+            $transaction = $this->check($transaction);
 
-                switch ($transaction->getPayOutInfo()['status']){
-                    case 'cancelled':
-                        $transaction->setStatus(Transaction::$STATUS_CANCELLED);
-                        break;
-                    case 'expired':
-                        $transaction->setStatus(Transaction::$STATUS_EXPIRED);
-                        break;
-                    case 'locked':
-                        $transaction->setStatus(Transaction::$STATUS_LOCKED);
-                        break;
-                    case 'review':
-                        $transaction->setStatus(Transaction::$STATUS_REVIEW);
-                        break;
-                    default:
-                        break;
-                }
+            switch ($transaction->getPayOutInfo()['status']){
+                case 'cancelled':
+                    $transaction->setStatus(Transaction::$STATUS_CANCELLED);
+                    break;
+                case 'expired':
+                    $transaction->setStatus(Transaction::$STATUS_EXPIRED);
+                    break;
+                case 'locked':
+                    $transaction->setStatus(Transaction::$STATUS_LOCKED);
+                    break;
+                case 'review':
+                    $transaction->setStatus(Transaction::$STATUS_REVIEW);
+                    break;
+                default:
+                    break;
+            }
 
-                $output->writeln('NEW STATUS '.$transaction->getPayOutInfo()['status']);
+            $output->writeln('NEW STATUS '.$transaction->getPayOutInfo()['status']);
 
-                $dm->persist($transaction);
-                $dm->flush();
+            $dm->persist($transaction);
+            $dm->flush();
 
-                if($previous_status != $transaction->getPayOutInfo()['status']){
-                    $contador ++;
-                    $transaction = $this->getContainer()->get('notificator')->notificate($transaction);
-                    $transaction->setUpdated(new \MongoDate());
+            if($previous_status != $transaction->getPayOutInfo()['status']){
+                $contador ++;
+                $transaction = $this->getContainer()->get('notificator')->notificate($transaction);
+                $transaction->setUpdated(new \MongoDate());
 
-                }
+            }
 
-                $dm->persist($transaction);
-                $dm->flush();
+            $dm->persist($transaction);
+            $dm->flush();
 
-                if($transaction->getPayOutInfo()['status'] == Transaction::$STATUS_EXPIRED ||
-                    $transaction->getPayOutInfo()['status'] == Transaction::$STATUS_LOCKED){
-                    $this->sendEmail('Halcash transaction expired or locked by retries', $transaction->getId());
-                }
+            if($transaction->getPayOutInfo()['status'] == Transaction::$STATUS_EXPIRED ||
+                $transaction->getPayOutInfo()['status'] == Transaction::$STATUS_LOCKED){
+                $this->sendEmail('Halcash transaction expired or locked by retries', $transaction->getId());
             }
 
 
