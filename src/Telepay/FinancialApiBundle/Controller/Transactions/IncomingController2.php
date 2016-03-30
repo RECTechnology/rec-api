@@ -343,7 +343,7 @@ class IncomingController2 extends RestApiController{
             //    RETRY
             if( isset( $data['retry'] ) && $data['retry'] == true ){
 
-                if( $transaction->getStatus()== Transaction::$STATUS_FAILED || $transaction->getStatus()== Transaction::$STATUS_EXPIRED ){
+                if( $transaction->getStatus()== Transaction::$STATUS_FAILED ){
                     //discount available
                     $current_wallet->setAvailable($current_wallet->getAvailable() - $total_amount );
                     $em->persist($current_wallet);

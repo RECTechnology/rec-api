@@ -368,7 +368,7 @@ class SwiftController extends RestApiController{
                 throw new HttpException(403, 'Transaction can\'t be cancelled');
             }
         }elseif($option == 'resend'){
-            if($transaction->getStatus() == Transaction::$STATUS_FAILED || $transaction->getStatus() == Transaction::$STATUS_CANCELLED){
+            if($transaction->getStatus() == Transaction::$STATUS_FAILED || $transaction->getStatus() == Transaction::$STATUS_CANCELLED || $transaction->getStatus()== Transaction::$STATUS_EXPIRED){
 
                 $previous_status = $transaction->getStatus();
 
