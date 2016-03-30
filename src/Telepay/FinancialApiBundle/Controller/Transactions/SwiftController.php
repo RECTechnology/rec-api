@@ -412,7 +412,7 @@ class SwiftController extends RestApiController{
             }else{
                 throw new HttpException(403, 'Transaction can\'t be resent');
             }
-        }elseif($option = 'refund'){
+        }elseif($option == 'refund'){
 
             if($transaction->getStatus() == Transaction::$STATUS_FAILED || $transaction->getStatus() == Transaction::$STATUS_CANCELLED){
                 //for refund we need different values foreach services
