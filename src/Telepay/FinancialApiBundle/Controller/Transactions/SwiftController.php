@@ -630,11 +630,11 @@ class SwiftController extends RestApiController{
         $client = $transaction->getClient();
         $amount = $transaction->getAmount();
 
-        $root_id = $this->getContainer()->getParameter('admin_user_id');
+        $root_id = $this->container->getParameter('admin_user_id');
         $root = $em->getRepository('TelepayFinancialApiBundle:User')->find($root_id);
 
         //get configuration(method)
-        $swift_config = $this->getContainer()->get('net.telepay.config.'.$method_out);
+        $swift_config = $this->container->get('net.telepay.config.'.$method_out);
         $methodFees = $swift_config->getFees();
 
         //get client fees (fixed & variable)
