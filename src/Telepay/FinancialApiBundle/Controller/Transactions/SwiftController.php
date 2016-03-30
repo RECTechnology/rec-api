@@ -449,6 +449,20 @@ class SwiftController extends RestApiController{
                 throw new HttpException(403, 'Transaction can\'t be refund');
             }
 
+        }elseif($option == 'recheck'){
+            if($transaction->getStatus() == Transaction::$STATUS_EXPIRED && $payInInfo['status'] == 'expired'){
+                //cancel transaction
+                $transaction->setStatus(Transaction::$STATUS_CREATED);
+                $payInInfo['status'] = 'created';
+                $payInInfo['final'] = false;
+
+                $transaction->setPayOutInfo($payInInfo);
+                $transaction->setUpdated(new \DateTime());
+                $message = 'Transaction updated successfully';
+
+            }else{
+                throw new HttpException(403, 'Transaction can\'t be recheck');
+            }
         }else{
             throw new HttpException(400, 'Bad parameter \'option\'');
         }
