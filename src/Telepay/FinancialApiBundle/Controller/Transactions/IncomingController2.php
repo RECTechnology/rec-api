@@ -56,8 +56,7 @@ class IncomingController2 extends RestApiController{
         if($request->request->has('concept') && $request->request->get('concept')!=''){
             $concept = $request->request->get('concept');
         }else{
-            $concept = "falta concept";
-            //throw new HttpException(400, 'Param concept not found');
+            throw new HttpException(400, 'Param concept not found');
         }
 
         if($request->request->has('url_notification')) $url_notification = $request->request->get('url_notification');
