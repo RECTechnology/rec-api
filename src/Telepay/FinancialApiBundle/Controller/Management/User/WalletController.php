@@ -268,12 +268,12 @@ class WalletController extends RestApiController{
             }
             return true;
             }")
-                ->sort($order,$dir)
+                ->sort("updated","desc")
                 ->getQuery()
                 ->execute();
 
         }else{
-            $order = "id";
+            $order = "updated";
             $dir = "desc";
 
             $transactions = $qb
