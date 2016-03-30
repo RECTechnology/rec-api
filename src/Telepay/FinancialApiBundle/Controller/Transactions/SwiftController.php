@@ -451,7 +451,7 @@ class SwiftController extends RestApiController{
                 $payInInfo['status'] = 'created';
                 $payInInfo['final'] = false;
 
-                $transaction->setPayOutInfo($payInInfo);
+                $transaction->setPayInInfo($payInInfo);
                 $transaction->setUpdated(new \DateTime());
                 $message = 'Transaction updated successfully';
 
