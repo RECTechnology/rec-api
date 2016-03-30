@@ -116,11 +116,11 @@ class HalcashMethod extends BaseMethod{
 
             switch($hal['estadoticket']){
                 case 'Autorizada':
-                    $paymentInfo['status'] = Transaction::$STATUS_CREATED;
+                    $paymentInfo['status'] = 'sent';
                     $paymentInfo['final'] = false;
                     break;
                 case 'Preautorizada':
-                    $paymentInfo['status'] = Transaction::$STATUS_CREATED;
+                    $paymentInfo['status'] = 'sent';
                     $paymentInfo['final'] = false;
                     break;
                 case 'Anulada':
