@@ -32,56 +32,62 @@ class CheckHalcashSwiftCommand extends ContainerAwareCommand
 
         $contador = 0;
 
+        $output->writeln('CHECKING WITHDRAWN HALCASH TRANSACTIONS');
         foreach($qb->toArray() as $transaction){
-            $contador ++;
-            $paymentInfo = $transaction->getPayOutInfo();
+            if($contador <= 3){
 
-            $previous_status = $paymentInfo['status'];
-            $output->writeln('txid: '.$transaction->getId());
-            $output->writeln('status: '.$paymentInfo['status']);
+                $paymentInfo = $transaction->getPayOutInfo();
 
-            $transaction = $this->check($transaction);
+                $previous_status = $paymentInfo['status'];
+                $output->writeln('txid: '.$transaction->getId().' prev status: '.strtoupper($paymentInfo['status']));
 
-            switch ($transaction->getPayOutInfo()['status']){
-                case 'cancelled':
-                    $transaction->setStatus(Transaction::$STATUS_CANCELLED);
-                    break;
-                case 'expired':
-                    $transaction->setStatus(Transaction::$STATUS_EXPIRED);
-                    break;
-                case 'locked':
-                    $transaction->setStatus(Transaction::$STATUS_LOCKED);
-                    break;
-                case 'review':
-                    $transaction->setStatus(Transaction::$STATUS_REVIEW);
-                    break;
-                default:
-                    break;
+                $transaction = $this->check($transaction);
+
+                switch ($transaction->getPayOutInfo()['status']){
+                    case 'cancelled':
+                        $transaction->setStatus(Transaction::$STATUS_CANCELLED);
+                        break;
+                    case 'expired':
+                        $transaction->setStatus(Transaction::$STATUS_EXPIRED);
+                        break;
+                    case 'locked':
+                        $transaction->setStatus(Transaction::$STATUS_LOCKED);
+                        break;
+                    case 'review':
+                        $transaction->setStatus(Transaction::$STATUS_REVIEW);
+                        break;
+                    default:
+                        break;
+                }
+
+                $output->writeln('NEW STATUS '.$transaction->getPayOutInfo()['status']);
+
+                $dm->persist($transaction);
+                $dm->flush();
+
+                if($previous_status != $transaction->getPayOutInfo()['status']){
+                    $contador ++;
+                    $transaction = $this->getContainer()->get('notificator')->notificate($transaction);
+                    $transaction->setUpdated(new \MongoDate());
+
+                }
+
+                $dm->persist($transaction);
+                $dm->flush();
+
+                if($transaction->getPayOutInfo()['status'] == Transaction::$STATUS_EXPIRED ||
+                    $transaction->getPayOutInfo()['status'] == Transaction::$STATUS_LOCKED){
+                    $this->sendEmail('Halcash transaction expired or locked by retries', $transaction->getId());
+                }
             }
 
-            $dm->persist($transaction);
-            $dm->flush();
-
-            if($previous_status != $transaction->getPayOutInfo()['status']){
-                $transaction = $this->getContainer()->get('notificator')->notificate($transaction);
-                $transaction->setUpdated(new \MongoDate());
-
-            }
-
-            $dm->persist($transaction);
-            $dm->flush();
-
-            if($transaction->getPayOutInfo()['status'] == Transaction::$STATUS_EXPIRED ||
-                $transaction->getPayOutInfo()['status'] == Transaction::$STATUS_LOCKED){
-                $this->sendEmail('Halcash transaction expired or locked by retries', $transaction->getId());
-            }
 
         }
 
         $dm->flush();
 
         $output->writeln('Halcash send transactions checked');
-        $output->writeln('Total checked transactions: '.$contador);
+        $output->writeln('Total changed transactions: '.$contador);
     }
 
     public function check(Transaction $transaction){
