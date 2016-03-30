@@ -25,7 +25,7 @@ class CheckHalcashSwiftCommand extends ContainerAwareCommand
 
         //Only search sent transactions
         $search = 'sent';
-        
+
         $qb = $dm->createQueryBuilder('TelepayFinancialApiBundle:Transaction')
             ->field('type')->equals('swift')
             ->field('method_in')->equals('btc')
