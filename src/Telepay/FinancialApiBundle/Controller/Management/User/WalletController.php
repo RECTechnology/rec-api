@@ -268,7 +268,8 @@ class WalletController extends RestApiController{
             }
             return true;
             }")
-                ->sort("updated","desc")
+                ->sort('updated','desc')
+                ->sort('id','desc')
                 ->getQuery()
                 ->execute();
 
