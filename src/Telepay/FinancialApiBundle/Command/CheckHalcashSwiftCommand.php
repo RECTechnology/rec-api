@@ -23,11 +23,22 @@ class CheckHalcashSwiftCommand extends ContainerAwareCommand
 
         $dm = $this->getContainer()->get('doctrine_mongodb')->getManager();
 
+        //Only search sent transactions
+        $search = 'sent';
+        
         $qb = $dm->createQueryBuilder('TelepayFinancialApiBundle:Transaction')
             ->field('type')->equals('swift')
             ->field('method_in')->equals('btc')
             ->field('method_out')->in(array('halcash_es', 'halcash_pl'))
             ->field('status')->equals('success')
+            ->where("function(){
+                    if (typeof this.pay_out_info.status !== 'undefined') {
+                        if(String(this.pay_out_info.status).indexOf('$search') > -1){
+                            return true;
+                        }
+                    }
+                    return false;
+                }")
             ->getQuery();
 
         $contador = 0;
