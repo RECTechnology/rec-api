@@ -47,7 +47,13 @@ class UpdateHalcashCommand extends ContainerAwareCommand
     }
 
     protected function execute(InputInterface $input, OutputInterface $output){
-        $id = $input->getOption('id');
+        if($input->hasOption('id')) {
+            $id = $input->getOption('id');
+        }
+        else{
+            $output->writeln('Id is required');
+            return 0;
+        }
         $dm = $this->getContainer()->get('doctrine_mongodb')->getManager();
         $qb = $dm->createQueryBuilder('TelepayFinancialApiBundle:Transaction')
             ->field('id')->equals($id)
