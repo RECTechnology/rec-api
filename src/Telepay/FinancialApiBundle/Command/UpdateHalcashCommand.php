@@ -47,7 +47,7 @@ class UpdateHalcashCommand extends ContainerAwareCommand
     }
 
     protected function execute(InputInterface $input, OutputInterface $output){
-        if($input->hasOption('id')) {
+        if($input->getOption('id')){
             $id = $input->getOption('id');
         }
         else{
@@ -62,16 +62,16 @@ class UpdateHalcashCommand extends ContainerAwareCommand
         foreach($qb->toArray() as $transaction){
             $pay_out_info = $transaction->getPayOutInfo();
 
-            if($input->hasOption('status')){
+            if($input->getOption('status')){
                 $transaction->setStatus('created');
                 $pay_out_info['status'] = $input->getOption('status');
             }
 
-            if($input->hasOption('phone')){
+            if($input->getOption('phone')){
                 $pay_out_info['phone'] = $input->getOption('phone');
             }
 
-            if($input->hasOption('prefix')){
+            if($input->getOption('prefix')){
                 $pay_out_info['prefix'] = $input->getOption('prefix');
             }
             $transaction->setPayOutInfo($pay_out_info);
