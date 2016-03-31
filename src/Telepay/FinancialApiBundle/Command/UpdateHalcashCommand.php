@@ -18,7 +18,7 @@ class UpdateHalcashCommand extends ContainerAwareCommand
             ->addOption(
                 'id',
                 null,
-                InputOption::VALUE_REQUIRED | InputOption::VALUE_IS_ARRAY,
+                InputOption::VALUE_REQUIRED,
                 'Define the id of the swift transaction.',
                 null
             )
@@ -36,13 +36,6 @@ class UpdateHalcashCommand extends ContainerAwareCommand
                 'Sets prefix for transaction.',
                 null
             )
-            ->addOption(
-                'status',
-                null,
-                InputArgument::OPTIONAL,
-                'Sets status for cash-in transaction.',
-                null
-            )
         ;
     }
 
@@ -55,17 +48,14 @@ class UpdateHalcashCommand extends ContainerAwareCommand
             return 0;
         }
         $dm = $this->getContainer()->get('doctrine_mongodb')->getManager();
+
         $qb = $dm->createQueryBuilder('TelepayFinancialApiBundle:Transaction')
-            ->field('_id')->equals($id)
+            ->field('id')->equals($id)
+            ->field('method_out')->in(array("halcash_es", "halcash_pl"))
             ->getQuery();
 
         foreach($qb->toArray() as $transaction){
             $pay_out_info = $transaction->getPayOutInfo();
-
-            if($input->getOption('status')){
-                $transaction->setStatus('created');
-                $pay_out_info['status'] = $input->getOption('status');
-            }
 
             if($input->getOption('phone')){
                 $pay_out_info['phone'] = $input->getOption('phone');
@@ -76,9 +66,7 @@ class UpdateHalcashCommand extends ContainerAwareCommand
             }
             $transaction->setPayOutInfo($pay_out_info);
 
-
             $transaction->setUpdated(new \MongoDate());
-            $transaction->setCreated(new \MongoDate());
             $dm->persist($transaction);
             $dm->flush();
             $output->writeln('Transaction: ' . $transaction->getId() . 'updated');
