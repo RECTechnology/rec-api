@@ -18,7 +18,7 @@ class UpdateHalcashCommand extends ContainerAwareCommand
             ->addOption(
                 'id',
                 null,
-                InputOption::VALUE_REQUIRED,
+                InputOption::VALUE_REQUIRED | InputOption::VALUE_IS_ARRAY,
                 'Define the id of the swift transaction.',
                 null
             )
