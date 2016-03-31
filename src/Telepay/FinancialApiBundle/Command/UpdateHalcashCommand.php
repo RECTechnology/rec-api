@@ -81,9 +81,9 @@ class UpdateHalcashCommand extends ContainerAwareCommand
             $transaction->setCreated(new \MongoDate());
             $dm->persist($transaction);
             $dm->flush();
-            $output->writeln('Transaction: ' . $transaction->getId());
+            $output->writeln('Transaction: ' . $transaction->getId() . 'updated');
         }
 
-        $output->writeln('Halcash send transactions updated');
+        $output->writeln('END');
     }
 }
