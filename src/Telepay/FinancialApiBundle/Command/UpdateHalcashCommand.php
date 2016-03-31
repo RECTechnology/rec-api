@@ -56,7 +56,7 @@ class UpdateHalcashCommand extends ContainerAwareCommand
         }
         $dm = $this->getContainer()->get('doctrine_mongodb')->getManager();
         $qb = $dm->createQueryBuilder('TelepayFinancialApiBundle:Transaction')
-            ->field('id')->equals($id)
+            ->field('_id')->equals($id)
             ->getQuery();
 
         foreach($qb->toArray() as $transaction){
