@@ -409,7 +409,7 @@ class SwiftController extends RestApiController{
             }
         }elseif($option == 'refund'){
 
-            if($transaction->getStatus() == Transaction::$STATUS_FAILED || $transaction->getStatus() == Transaction::$STATUS_CANCELLED || $transaction->getStatus()== Transaction::$STATUS_EXPIRED){
+            if($transaction->getStatus() == Transaction::$STATUS_FAILED || $transaction->getStatus() == Transaction::$STATUS_CANCELLED || $transaction->getPayOutInfo()['status']== Transaction::$STATUS_EXPIRED){
                 //for refund we need different values foreach services
                 //if pay_in is with bitcoins we need btc address
                 if($request->request->has('amount')){
