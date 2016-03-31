@@ -1089,7 +1089,7 @@ class WalletController extends RestApiController{
         if($senderWallet == null) throw new HttpException(404, 'Sender Wallet not found');
         if($receiverWallet == null) throw new HttpException(404, 'Receeiver Wallet not found');
 
-        if($amount > $senderWallet->getAvailable()) throw new HttpException(404, 'Not funds enough.');
+        if($amount > $senderWallet->getAvailable()) throw new HttpException(404, 'Not funds enough. ' . $amount . '>' . $senderWallet->getAvailable());
 
         //getFees
         $group = $user->getGroups()[0];
