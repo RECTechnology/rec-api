@@ -82,12 +82,24 @@ class AccountController extends BaseApiController{
 
         if($request->request->has('password')){
             if($request->request->has('repassword')){
-                $userManager = $this->container->get('access_key.security.user_provider');
-                $user = $userManager->loadUserById($id);
-                $user->setPlainPassword($request->get('password'));
-                $userManager->updatePassword($user);
-                $request->request->remove('password');
-                $request->request->remove('repassword');
+                if($request->request->has('old_password')){
+                    $userManager = $this->container->get('access_key.security.user_provider');
+                    $user = $userManager->loadUserById($id);
+                    $encoder_service = $this->get('security.encoder_factory');
+                    $encoder = $encoder_service->getEncoder($user);
+                    $encoded_pass = $encoder->encodePassword($request->request->get('old_password'), $user->getSalt());
+
+                    if($encoded_pass != $user->getPassword()) throw new HttpException(404, 'Bad old_password');
+
+                    $user->setPlainPassword($request->get('password'));
+                    $userManager->updatePassword($user);
+                    $request->request->remove('password');
+                    $request->request->remove('repassword');
+                    $request->request->remove('old_password');
+                }else{
+                    throw new HttpException(404,'Parameter old_password not found');
+                }
+
             }else{
                 throw new HttpException(404,'Parameter repassword not found');
             }
