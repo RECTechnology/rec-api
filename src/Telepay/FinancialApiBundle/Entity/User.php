@@ -216,7 +216,7 @@ class User extends BaseUser
     /**
      * Random string sent to the user email address in order to recover the password
      *
-     * @ORM\Column(type="string")
+     * @ORM\Column(type="string", nullable=true)
      * @Exclude
      */
     private $recover_password_token;
