@@ -213,6 +213,14 @@ class User extends BaseUser
      */
     private $tier_validations;
 
+    /**
+     * Random string sent to the user email address in order to recover the password
+     *
+     * @ORM\Column(type="string")
+     * @Exclude
+     */
+    private $recover_password_token;
+
     public function getAccessKey(){
         return $this->access_key;
     }
@@ -639,6 +647,22 @@ class User extends BaseUser
     public function removeMethod($cname){
         $result = array_diff(json_decode($this->methods_list), array($cname));
         $this->methods_list = json_encode(array_values($result));
+    }
+
+    /**
+     * @return mixed
+     */
+    public function getRecoverPasswordToken()
+    {
+        return $this->recover_password_token;
+    }
+
+    /**
+     * @param mixed $recover_password_token
+     */
+    public function setRecoverPasswordToken($recover_password_token)
+    {
+        $this->recover_password_token = $recover_password_token;
     }
 
 }

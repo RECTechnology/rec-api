@@ -11,7 +11,6 @@ namespace Telepay\FinancialApiBundle\Controller\Management\User;
 
 use Symfony\Component\Security\Core\Util\SecureRandom;
 use Telepay\FinancialApiBundle\Entity\Device;
-use Telepay\FinancialApiBundle\Entity\TierValidation;
 use Telepay\FinancialApiBundle\Entity\TierValidations;
 use Telepay\FinancialApiBundle\Entity\User;
 use Rhumsaa\Uuid\Uuid;
@@ -496,7 +495,7 @@ class AccountController extends BaseApiController{
                 $em->persist($user);
                 $em->flush();
                 $url = $url.'/user/validation/'.$user->getConfirmationToken();
-                $this->_sendEmail('Chip-Chap validation e-mail', $url, $user->getEmail());
+                $this->_sendEmail('Chip-Chap validation e-mail', $url, $user->getEmail(), 'register');
             }
 
             $em->persist($user);
@@ -535,6 +534,90 @@ class AccountController extends BaseApiController{
         $em->flush();
 
         return $this->restV2(204,"ok", "Updated successfully");
+
+    }
+
+    /**
+     * @Rest\View
+     */
+    public function passwordRecoveryRequest($param){
+
+        $em = $this->getDoctrine()->getManager();
+        $user = $em->getRepository($this->getRepositoryName())->findOneBy(array(
+            'username'  =>  $param
+        ));
+
+        if(!$user){
+            $user = $em->getRepository($this->getRepositoryName())->findOneBy(array(
+                'email'  =>  $param
+            ));
+        }
+
+        if(!$user) throw new HttpException(404, 'User not found');
+        //TODO check if the user has validated his email if not OUT
+
+        //generate a token to add to the return url
+        $tokenGenerator = $this->container->get('fos_user.util.token_generator');
+        $user->setRecoverPasswordToken($tokenGenerator->generateToken());
+        $user->setPasswordRequestedAt(new \DateTime());
+        $em->persist($user);
+        $em->flush();
+
+        $url = $this->container->getParameter('base_panel_url').'/'.$user->getRecoverPasswordToken();
+
+        //send email with a link to recover the password
+        $this->_sendEmail('Chip-Chap recover your password', $url, $user->getEmail(), 'recover');
+
+        return $this->restV2(200,"ok", "Request successful");
+
+    }
+
+    /**
+     * @Rest\View
+     */
+    public function passwordRecovery(Request $request){
+
+        $paramNames = array(
+            'token',
+            'password',
+            'repassword'
+        );
+
+        $params = array();
+
+        foreach($paramNames as $paramName){
+            if($request->request->has($paramName)){
+                $params[$paramName] = $request->request->get($paramName);
+            }else{
+                throw new HttpException(404, 'Parameter '.$paramName.' not found');
+            }
+        }
+        $em = $this->getDoctrine()->getManager();
+
+        $user = $em->getRepository($this->getRepositoryName())->findOneBy(array(
+            'recover_password_token' => $params['token']
+        ));
+
+        if(!$user) throw new HttpException(404, 'User not found');
+
+        if($user->isPasswordRequestNonExpired(1200)){
+
+            if($params['password'] != $params['repassword']) throw new HttpException('Password and repassword are differents');
+
+            $userManager = $this->container->get('access_key.security.user_provider');
+            $user = $userManager->loadUserById($user->getId());
+
+            $user->setPlainPassword($request->get('password'));
+            $userManager->updatePassword($user);
+
+            $em->persist($user);
+            $em->flush();
+
+        }else{
+            throw new HttpException(404, 'Expired token');
+        }
+
+        return $this->restV2(204,"ok", "password recovered");
 
     }
 
@@ -588,8 +671,15 @@ class AccountController extends BaseApiController{
 //
 //    }
 
-    private function _sendEmail($subject, $body, $to){
+    private function _sendEmail($subject, $body, $to, $action){
 
+        if($action == 'register'){
+            $template = 'TelepayFinancialApiBundle:Email:registerconfirm.html.twig';
+        }elseif($action == 'recover'){
+            $template = 'TelepayFinancialApiBundle:Email:recoverpassword.html.twig';
+        }else{
+            $template = 'TelepayFinancialApiBundle:Email:registerconfirm.html.twig';
+        }
         $message = \Swift_Message::newInstance()
             ->setSubject($subject)
             ->setFrom('no-reply@chip-chap.com')
@@ -598,7 +688,7 @@ class AccountController extends BaseApiController{
             ))
             ->setBody(
                 $this->container->get('templating')
-                    ->render('TelepayFinancialApiBundle:Email:registerconfirm.html.twig',
+                    ->render($template,
                         array(
                             'message'        =>  $body
                         )

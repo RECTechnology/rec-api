@@ -101,6 +101,8 @@ security:
             anonymous: ~
 
     access_control:
+
+
         - { path: ^/admin/v[0-9]+/services, role: ROLE_ADMIN }
         - { path: ^/admin/v[0-9]+/*, role: ROLE_SUPER_ADMIN }
         - { path: ^/manager/v[0-9]+/*, role: ROLE_ADMIN }
@@ -113,5 +115,6 @@ security:
         - { path: ^/pos/v[0-9]+/*, role: ROLE_COMMERCE }
         - { path: ^/user/v[0-9]+/*, role: ROLE_USER }
         - { path: ^/register/v[0-9]+, roles: IS_AUTHENTICATED_ANONYMOUSLY }
+        - { path: ^/password_recovery/v[0-9]+, role: IS_AUTHENTICATED_ANONYMOUSLY }
 
 
