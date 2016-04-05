@@ -563,7 +563,7 @@ class AccountController extends BaseApiController{
         $em->persist($user);
         $em->flush();
 
-        $url = $this->container->getParameter('base_panel_url').'/'.$user->getRecoverPasswordToken();
+        $url = $this->container->getParameter('base_panel_url').'/user/password_recovery/'.$user->getRecoverPasswordToken();
 
         //send email with a link to recover the password
         $this->_sendEmail('Chip-Chap recover your password', $url, $user->getEmail(), 'recover');
