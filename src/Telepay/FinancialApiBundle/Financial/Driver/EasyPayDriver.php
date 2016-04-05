@@ -18,7 +18,8 @@ class EasyPayDriver{
 
         $response = array(
             'reference' =>  $reference,
-            'account'      =>  $this->account
+            'account'      =>  $this->account,
+            'expires_in'=>  3600*24
         );
 
         return $response;

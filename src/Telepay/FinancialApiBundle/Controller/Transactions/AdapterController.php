@@ -1006,7 +1006,7 @@ class AdapterController extends RestApiController{
         $request->request->remove('country');
 
 
-        $btc_amount = $this->_exchange($params['amount']*100, 'EUR', 'BTC');
+        $btc_amount = $this->_exchange($params['amount'], 'EUR', 'BTC');
         $request->request->add(array(
             'amount'    =>  $btc_amount,
             'address'   =>  $params['btc_address'],
@@ -1032,30 +1032,35 @@ class AdapterController extends RestApiController{
 
         $array_response = json_decode($response->getContent(), true);
 
-        $customResponse = array(
-            'status'    =>  'ok',
-            'created'   =>  $array_response['status'],
-            'ticket_id' =>  $array_response['id'],
-            'type'  =>  'bank_transfer->easypay',
-            'orig_coin' =>  'EUR',
-            'orig_scale'    =>  100,
-            'orig_amount'   =>  $params['amount'],
-            'dst_coin'  =>  'BTC',
-            'dst_scale' =>  100000000,
-            'dst_amount'    =>  $array_response['pay_out_info']['amount'],
-            'price' =>  round(($params['amount']/$array_response['pay_out_info']['amount'])*100000000,2),
-            'address'   =>  $array_response['pay_out_info']['address']
-        );
+        if($array_response['status'] == 'created'){
+            $customResponse = array(
+                'status'    =>  'ok',
+                'created'   =>  $array_response['status'],
+                'ticket_id' =>  $array_response['id'],
+                'type'  =>  'bank_transfer->easypay',
+                'orig_coin' =>  'EUR',
+                'orig_scale'    =>  100,
+                'orig_amount'   =>  $params['amount'],
+                'dst_coin'  =>  'BTC',
+                'dst_scale' =>  100000000,
+                'dst_amount'    =>  $array_response['pay_out_info']['amount'],
+                'price' =>  round(($params['amount']/$array_response['pay_out_info']['amount'])*1000000,2),
+                'address'   =>  $array_response['pay_out_info']['address']
+            );
 
-        if($method_in == 'easypay'){
+            if($method_in == 'easypay'){
 
-            $customResponse['account'] = $array_response['pay_in_info']['account'];
-            $customResponse['reference'] = $array_response['pay_in_info']['reference'];
+                $customResponse['account'] = $array_response['pay_in_info']['account'];
+                $customResponse['reference'] = $array_response['pay_in_info']['reference'];
 
+            }else{
+
+            }
+            $customResponse['message'] = 'After the payment you will receive the transfer during the next 24/48h.';
         }else{
-
+            $customResponse = $array_response;
         }
-        $customResponse['message'] = 'After the payment you will receive the transfer during the next 24/48h.';
+
 
         return $this->restPlain($response->getStatusCode(), $customResponse);
 
