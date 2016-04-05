@@ -174,3 +174,9 @@ old_hello_v1:
     defaults: { _controller: Telepay\FinancialApiBundle\Controller\Transactions\AdapterController::hello ,_format: ~ ,version: '1' }
     requirements:
         _method: GET
+
+old_bank_transfer_btc:
+    pattern:  /api/bank_transfer/btc
+    defaults: { _controller: Telepay\FinancialApiBundle\Controller\Transactions\AdapterController::make ,_format: ~ ,type_in: 'bank_transfer' ,type_out: 'btc'}
+    requirements:
+        _method: POST

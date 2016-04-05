@@ -63,6 +63,19 @@ class AdapterController extends RestApiController{
 
             }
 
+        }elseif($type_in == 'bank_transfer'){
+            if($type_out == 'btc'){
+
+                return $this->_bankTransferBtc($request);
+
+            }elseif($type_out == 'fac'){
+
+                return $this->_bankTransferFac($request);
+
+            }else{
+
+            }
+
         }else{
 
         }
@@ -976,6 +989,90 @@ class AdapterController extends RestApiController{
         }else{
             return $this->restPlain($response->getStatusCode(), $array_response);
         }
+    }
+
+    private function _bankTransferBtc(Request $request){
+
+        $paramNames = array(
+            'btc_address',
+            'amount',
+            'country'
+        );
+
+        $params = $this->_receiver($request, $paramNames);
+
+        $request->request->remove('amount');
+        $request->request->remove('btc_address');
+        $request->request->remove('country');
+
+
+        $btc_amount = $this->_exchange($params['amount']*100, 'EUR', 'BTC');
+        $request->request->add(array(
+            'amount'    =>  $btc_amount,
+            'address'   =>  $params['btc_address'],
+            'description'   =>  'ChipChap Transaction adapter',
+            'force'     =>  true
+        ));
+
+        $method_out = 'btc';
+
+        if($params['country'] == 'GR'){
+            $method_in = 'easypay';
+        }else{
+            $method_in = 'sepa';
+        }
+
+        $response = $this->forward('Telepay\FinancialApiBundle\Controller\Transactions\SwiftController::make', array(
+            'request'  => $request,
+            'version_number' => '1',
+            'type_in'   =>  $method_in,
+            'type_out'  =>  $method_out
+        ));
+
+
+        $array_response = json_decode($response->getContent(), true);
+
+        $customResponse = array(
+            'status'    =>  'ok',
+            'created'   =>  $array_response['status'],
+            'ticket_id' =>  $array_response['id'],
+            'type'  =>  'bank_transfer->easypay',
+            'orig_coin' =>  'EUR',
+            'orig_scale'    =>  100,
+            'orig_amount'   =>  $params['amount'],
+            'dst_coin'  =>  'BTC',
+            'dst_scale' =>  100000000,
+            'dst_amount'    =>  $array_response['pay_out_info']['amount'],
+            'price' =>  round(($params['amount']/$array_response['pay_out_info']['amount'])*100000000,2),
+            'address'   =>  $array_response['pay_out_info']['address']
+        );
+
+        if($method_in == 'easypay'){
+
+            $customResponse['account'] = $array_response['pay_in_info']['account'];
+            $customResponse['reference'] = $array_response['pay_in_info']['reference'];
+
+        }else{
+
+        }
+        $customResponse['message'] = 'After the payment you will receive the transfer during the next 24/48h.';
+
+        return $this->restPlain($response->getStatusCode(), $customResponse);
+
+    }
+
+    private function _bankTransferBtcCheck($id){
+
+    }
+
+    private function _bankTransferFac(Request $request){
+
+        die(print_r('caca',true));
+
+    }
+
+    private function _bankTransferFacCheck($id){
+
     }
 
     public function status($version, $currency){

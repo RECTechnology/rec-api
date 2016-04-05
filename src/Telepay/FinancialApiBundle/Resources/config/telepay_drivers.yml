@@ -67,3 +67,8 @@ services:
     net.telepay.driver.echo:
             class: Telepay\FinancialApiBundle\Financial\Driver\EchoDriver
             arguments:
+
+    net.telepay.driver.easypay:
+        class: Telepay\FinancialApiBundle\Financial\Driver\EasyPayDriver
+        arguments:
+            - "%easypay_account%"
