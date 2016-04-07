@@ -53,6 +53,11 @@ class EasyPayMethod extends BaseMethod {
 
     public function getPayInStatus($paymentInfo)
     {
+        if($paymentInfo['status'] == Transaction::$STATUS_RECEIVED){
+            $paymentInfo['status'] = Transaction::$STATUS_SUCCESS;
+            $paymentInfo['final'] = true;
+        }
+
         return $paymentInfo;
 
     }

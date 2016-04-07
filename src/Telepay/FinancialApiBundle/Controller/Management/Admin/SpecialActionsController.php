@@ -288,6 +288,42 @@ class SpecialActionsController extends RestApiController {
     /**
      * @Rest\View
      */
+    public function swiftValidation(Request $request, $id){
+
+        //TODO hacer que no solo valga para swift, tiene que valer para los metodos tb con la misma llamada
+        //only superadmin allowed
+        if (!$this->get('security.authorization_checker')->isGranted('ROLE_SUPER_ADMIN')) {
+            throw $this->createAccessDeniedException();
+        }
+
+        if(!$request->request->has('validate')) throw new HttpException(404, 'Parameter "validate" not found');
+        else $validate = $request->request->get('validate');
+
+        $dm = $this->get('doctrine_mongodb')->getManager();
+        $transRepo = $dm->getRepository('TelepayFinancialApiBundle:Transaction');
+        $transaction = $transRepo->find($id);
+
+        if($validate == true){
+            //TODO money received
+            $transaction->setStatus('received');
+            $paymentInfo = $transaction->getPayInInfo();
+            $paymentInfo['status'] = 'received';
+            $paymentInfo['final'] = false;
+            $transaction->setPayinInfo($paymentInfo);
+
+            $transaction = $this->get('notificator')->notificate($transaction);
+
+            $dm->persist($transaction);
+            $dm->flush();
+        }
+
+        return $this->restTransaction($transaction, "Done");
+
+    }
+
+    /**
+     * @Rest\View
+     */
     public function sepaOutValidation(Request $request, $id){
 
         //TODO hacer que no solo valga para swift, tiene que valer para los metodos tb con la misma llamada

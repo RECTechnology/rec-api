@@ -120,6 +120,18 @@ class CheckSwiftCommand extends ContainerAwareCommand
                         $dm->persist($transaction);
                         $dm->flush();
                         $output->writeln('Before send');
+
+                        //TODO if method_in es igual a paynet o sepa o easypay hay que volver a calcular el amount de btc
+                        if($method_in == 'paynet_reference' || $method_in == 'sepa' || $method_in == 'easypay'){
+                            //TODO Hay que volver a calcular el amount en btc que vamos a enviar y ponerlo en el pay_out_info
+                            $final_amount = $amount - $service_fee - $client_fee;
+                            $btc_amount = $this->_exchange($final_amount, 'EUR', 'BTC');
+                            $pay_out_info['amount'] = $btc_amount;
+                            $transaction->setPayOutInfo($pay_out_info);
+                            $dm->persist($transaction);
+                            $dm->flush();
+                        }
+                        
                         try{
                             $pay_out_info = $cashOutMethod->send($pay_out_info);
                         }catch (Exception $e){
@@ -336,5 +348,23 @@ class CheckSwiftCommand extends ContainerAwareCommand
             );
 
         $this->getContainer()->get('mailer')->send($message);
+    }
+
+    private function _exchange($amount,$curr_in,$curr_out){
+
+        $dm=$this->getDoctrine()->getManager();
+        $exchangeRepo=$dm->getRepository('TelepayFinancialApiBundle:Exchange');
+        $exchange = $exchangeRepo->findOneBy(
+            array('src'=>$curr_in,'dst'=>$curr_out),
+            array('id'=>'DESC')
+        );
+
+        if(!$exchange) throw new HttpException(404,'Exchange not found -> '.$curr_in.' TO '.$curr_out);
+
+        $price = $exchange->getPrice();
+        $total = round($amount * $price,0);
+
+        return $total;
+
     }
 }
