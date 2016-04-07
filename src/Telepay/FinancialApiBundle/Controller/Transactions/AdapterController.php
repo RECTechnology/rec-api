@@ -70,7 +70,7 @@ class AdapterController extends RestApiController{
 
             }elseif($type_out == 'fac'){
 
-                return $this->_bankTransferFac($request);
+                return false;
 
             }else{
 
@@ -1007,8 +1007,9 @@ class AdapterController extends RestApiController{
 
 
         $btc_amount = $this->_exchange($params['amount'], 'EUR', 'BTC');
+
         $request->request->add(array(
-            'amount'    =>  $btc_amount,
+            'amount'    =>  round($btc_amount*0.94,0),
             'address'   =>  $params['btc_address'],
             'description'   =>  'ChipChap Transaction adapter',
             'force'     =>  true

@@ -53,12 +53,10 @@ class NotificateTransactionCommand extends ContainerAwareCommand
                 $output->writeln('Notification FAILED');
             }
 
-
         }else{
             $output->writeln('Transaction not found');
         }
 
     }
-
 
 }
