@@ -131,7 +131,7 @@ class CheckSwiftCommand extends ContainerAwareCommand
                             $dm->persist($transaction);
                             $dm->flush();
                         }
-                        
+
                         try{
                             $pay_out_info = $cashOutMethod->send($pay_out_info);
                         }catch (Exception $e){

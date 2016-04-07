@@ -119,6 +119,12 @@ admin_swift_list:
     requirements:
         _method: GET
 
+admin_swift_list_validate:
+    pattern:  /admin/v1/special_actions/swift/{id}
+    defaults: { _controller: Telepay\FinancialApiBundle\Controller\Management\Admin\SpecialActionsController::swiftValidation }
+    requirements:
+        _method: PUT
+
 admin_sepa_out_validate:
     pattern:  /admin/v1/sepa_out/{id}
     defaults: { _controller: Telepay\FinancialApiBundle\Controller\Management\Admin\SpecialActionsController::sepaOutValidation }
