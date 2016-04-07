@@ -248,6 +248,46 @@ class SpecialActionsController extends RestApiController {
     /**
      * @Rest\View
      */
+    public function swiftList(Request $request){
+
+        //only superadmin allowed
+        if (!$this->get('security.authorization_checker')->isGranted('ROLE_SUPER_ADMIN')) {
+            throw $this->createAccessDeniedException();
+        }
+
+        $dm = $this->get('doctrine_mongodb')->getManager();
+
+        $transactions = $dm->createQueryBuilder('TelepayFinancialApiBundle:Transaction')
+            ->field('type')->equals('swift')
+            ->field('status')->in(array('created','received'))
+            ->field('method_in')->in(array('sepa', 'easypay'))
+            ->getQuery();
+
+        $all_transactions = array();
+        foreach($transactions as $transaction){
+            $all_transactions[] = $transaction;
+        }
+
+        $total = count($all_transactions);
+
+        return $this->restV2(
+            200,
+            "ok",
+            "Request successful",
+            array(
+                'total' => $total,
+                'start' => 0,
+                'end' => $total,
+                'elements' => $all_transactions,
+                'scale' =>  2
+            )
+        );
+
+    }
+
+    /**
+     * @Rest\View
+     */
     public function sepaOutValidation(Request $request, $id){
 
         //TODO hacer que no solo valga para swift, tiene que valer para los metodos tb con la misma llamada
