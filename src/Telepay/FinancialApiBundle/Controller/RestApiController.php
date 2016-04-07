@@ -79,6 +79,7 @@ class RestApiController extends FosRestController{
             $transaction->getStatus(),
             $message,
             $transaction->getId(),
+            $transaction->getMethod(),
             $transaction->getAmount(),
             $transaction->getScale(),
             $transaction->getCurrency(),
