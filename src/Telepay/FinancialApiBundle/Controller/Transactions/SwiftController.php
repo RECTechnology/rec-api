@@ -174,11 +174,15 @@ class SwiftController extends RestApiController{
         //check amount
         if($amount == '') throw new HttpException(400, 'Amount is empty');
 
-        if($amount < $methodInfo['min_value']) throw new HttpException(403, 'Amount must be greater than '.$methodInfo['min_value']);
+        //TODO remove when adapter is in the puta calle
+        if(!$request->request->has('force')){
+            if($amount < $methodInfo['min_value']) throw new HttpException(403, 'Amount must be greater than '.$methodInfo['min_value']);
 
-        if($amount % $methodInfo['range'] != 0) throw new HttpException(403, 'Amount must be multiple of '.$methodInfo['range']);
+            if($amount % $methodInfo['range'] != 0) throw new HttpException(403, 'Amount must be multiple of '.$methodInfo['range']);
 
-        if($amount > $methodInfo['max_value']) throw new HttpException(403, 'Max amount exceeded');
+            if($amount > $methodInfo['max_value']) throw new HttpException(403, 'Max amount exceeded');
+        }
+
 
         //get client fees (fixed & variable)
         $clientFees = $em->getRepository('TelepayFinancialApiBundle:SwiftFee')->findOneBy(array(
