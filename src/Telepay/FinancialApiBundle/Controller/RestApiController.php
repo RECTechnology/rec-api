@@ -32,9 +32,9 @@ class RestApiController extends FosRestController{
         ));
     }
 
-    protected function restSwift($httpCode, $status, $message = "No info", $id, $amount, $scale, $currency,$created, $updated, $pay_in_info = array(),$pay_out_info = array() ){
+    protected function restSwift($httpCode, $status, $message = "No info", $id, $method, $amount, $scale, $currency,$created, $updated, $pay_in_info = array(),$pay_out_info = array() ){
         return $this->handleView($this->view(
-            new SwiftResponse($status, $message, $id, $amount, $scale, $currency ,$created, $updated, $pay_in_info,$pay_out_info),
+            new SwiftResponse($status, $message, $id, $method, $amount, $scale, $currency ,$created, $updated, $pay_in_info,$pay_out_info),
             $httpCode
         ));
     }
