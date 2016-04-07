@@ -12,6 +12,7 @@ class SwiftResponse{
     private $status;
     private $message;
     private $id;
+    private $method;
     private $amount;
     private $scale;
     private $currency;
@@ -21,10 +22,11 @@ class SwiftResponse{
     private $pay_out_info;
 
 
-    public function __construct($status, $message, $id, $amount, $scale, $currency, $created, $updated, $pay_in_info, $pay_out_info){
+    public function __construct($status, $message, $id, $method, $amount, $scale, $currency, $created, $updated, $pay_in_info, $pay_out_info){
         $this->status = $status;
         $this->message = $message;
         $this->id = $id;
+        $this->method = $method;
         $this->amount = $amount;
         $this->scale = $scale;
         $this->currency = $currency;
