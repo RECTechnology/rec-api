@@ -26,11 +26,10 @@ class PaynetReferenceMethod extends BaseMethod{
 
     public function getPayInInfo($amount)
     {
+
         $id = microtime(true)*100;
         $id = round($id);
         $description = 'ChipChap Payment';
-
-        $amount = round($amount, -4);
 
         $barcode = $this->driver->request($id, $amount, $description);
 
@@ -51,8 +50,6 @@ class PaynetReferenceMethod extends BaseMethod{
             $response = $barcode;
 
         }
-
-
 
         return $response;
     }
