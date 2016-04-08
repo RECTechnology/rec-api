@@ -121,13 +121,19 @@ class CheckSwiftCommand extends ContainerAwareCommand
                         $dm->flush();
                         $output->writeln('Before send');
 
-                        //TODO if method_in es igual a paynet o sepa o easypay hay que volver a calcular el amount de btc
-                        if($method_in == 'paynet_reference' || $method_in == 'sepa' || $method_in == 'easypay'){
-                            //TODO Hay que volver a calcular el amount en btc que vamos a enviar y ponerlo en el pay_out_info
-                            $final_amount = $amount - $service_fee - $client_fee;
-                            $btc_amount = $this->_exchange($final_amount, 'EUR', 'BTC');
-                            $pay_out_info['amount'] = $btc_amount;
+                        //if method_out es igual a btc o fac hay que volver a calcular el amount de btc
+                        if($method_out == 'btc' || $method_out == 'fac'){
+                            //Hay que volver a calcular el amount en btc que vamos a enviar y ponerlo en el pay_out_info
+                            $crypto_amount = $this->_exchange($pay_in_info['amount'], $cashInMethod->getCurrency(), $cashOutMethod->getCurrency());
+
+                            $client_fee = ($crypto_amount * ($clientFees->getVariable()/100) + $clientFees->getFixed());
+                            $service_fee = ($crypto_amount * ($methodFees->getVariable()/100) + $methodFees->getFixed());
+
+                            $final_amount = $crypto_amount - $service_fee - $client_fee;
+                            $pay_out_info['amount'] = $final_amount;
                             $transaction->setPayOutInfo($pay_out_info);
+                            $transaction->setAmount($final_amount);
+                            $transaction->setTotal($final_amount);
                             $dm->persist($transaction);
                             $dm->flush();
                         }

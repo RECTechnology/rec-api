@@ -16,6 +16,7 @@ use FOS\RestBundle\Controller\Annotations as Rest;
 use Telepay\FinancialApiBundle\DependencyInjection\Telepay\Commons\LimitAdder;
 use Telepay\FinancialApiBundle\DependencyInjection\Telepay\Commons\LimitChecker;
 use Telepay\FinancialApiBundle\Document\Transaction;
+use Telepay\FinancialApiBundle\Entity\Client;
 use Telepay\FinancialApiBundle\Entity\SwiftFee;
 use Telepay\FinancialApiBundle\Entity\SwiftLimit;
 use Telepay\FinancialApiBundle\Entity\SwiftLimitCount;
@@ -53,7 +54,6 @@ class SwiftController extends RestApiController{
 
         }
 
-
         //check if user has this service and if is active
         $services = $client->getSwiftList();
         if(!$services) throw new HttpException(403,'Method not allowed');
@@ -66,81 +66,35 @@ class SwiftController extends RestApiController{
 
         $amount = $request->request->get('amount');
 
-        $qb = $dm->createQueryBuilder('TelepayFinancialApiBundle:Transaction');
-        //TODO check limits for hal and sepa by phone date and iban
-        if($type_out == 'halcash_es' || $type_out == 'halcash_pl'){
+        //check amount
+        if($amount == '') throw new HttpException(400, 'Amount is empty');
 
-            $search = $request->request->get('phone');
-            $start_time = new \MongoDate(strtotime(date('Y-m-d 00:00:00'))-31*24*3600);
-            $finish_time = new \MongoDate();
-            $result = $qb
-                ->field('created')->gte($start_time)
-                ->field('created')->lte($finish_time)
-                ->field('method_out')->equals($type_out)
-                ->field('status')->in(array('created','success'))
-                ->where("function(){
-                    if (typeof this.pay_out_info.phone !== 'undefined') {
-                        if(String(this.pay_out_info.phone).indexOf('$search') > -1){
-                            return true;
-                        }
-                    }
-                    return false;
-                }")
+        //GET METHODS
+        $cashInMethod = $this->container->get('net.telepay.in.'.$type_in.'.v'.$version_number);
+        $cashOutMethod = $this->container->get('net.telepay.out.'.$type_out.'.v'.$version_number);
 
-                ->getQuery()
-                ->execute();
+        //get configuration(method)
+        $swift_config = $this->container->get('net.telepay.config.'.$type_in.'.'.$type_out);
+        $methodFees = $swift_config->getFees();
+        $methodInfo = $swift_config->getInfo();
 
-            $pending=0;
+        if($cashOutMethod->getCurrency() != $methodInfo['currency']){
+            $amount_in = $amount;
+            $amount_out = $this->_exchange($amount_in, $cashInMethod->getCurrency(), $cashOutMethod->getCurrency());
 
-            foreach($result->toArray() as $d){
-                $pending = $pending + $d->getAmount();
-            }
-
-            if($type_out == 'halcash_es'){
-                if($amount + $pending > 300000) throw new HttpException(405, 'Limit exceeded');
-            }else{
-                if($amount + $pending > 1200000) throw new HttpException(405, 'Limit exceeded');
-            }
-
-        }elseif($type_out == 'sepa'){
-            $search = $request->request->get('iban');
-            $start_time = new \MongoDate(strtotime(date('Y-m-d 00:00:00'))-31*24*3600);
-            $finish_time = new \MongoDate();
-            $result = $qb
-                ->field('created')->gte($start_time)
-                ->field('created')->lte($finish_time)
-                ->field('method_out')->equals($type_out)
-                ->field('status')->in(array('created','success'))
-                ->where("function(){
-                    if (typeof this.pay_out_info.iban !== 'undefined') {
-                        if(String(this.pay_out_info.iban).indexOf('$search') > -1){
-                            return true;
-                        }
-                    }
-                    return false;
-                }")
-
-                ->getQuery()
-                ->execute();
-
-            $pending=0;
-
-            //die(print_r($result,true));
-            foreach($result->toArray() as $d){
-                $pending = $pending + $d->getAmount();
-            }
-
-            if($amount + $pending >= 300000) throw new HttpException(405, 'Limit exceeded');
-
+        }else{
+            $amount_in = 0;
+            $amount_out = $amount;
         }
+
+        $this->_checkLimits($amount_out, $type_out, $request);
+
 
         $ip = $request->server->get('REMOTE_ADDR');
 
         //Create transaction
         $transaction = new Transaction();
         $transaction->createFromRequest($request);
-        $transaction->setAmount($amount);
-        $transaction->setTotal($amount);
         $transaction->setFixedFee(0);
         $transaction->setVersion($version_number);
         $transaction->setVariableFee(0);
@@ -152,27 +106,6 @@ class SwiftController extends RestApiController{
         $transaction->setClient($client->getId());
         $transaction->setIp($ip);
 
-        //GET METHODS
-        $cashInMethod = $this->container->get('net.telepay.in.'.$type_in.'.v'.$version_number);
-        $cashOutMethod = $this->container->get('net.telepay.out.'.$type_out.'.v'.$version_number);
-
-        //GET PAYOUT INFO(parameters sent by user
-        $pay_out_info = $cashOutMethod->getPayOutInfo($request);
-        $transaction->setDataIn($pay_out_info);
-        $transaction->setPayOutInfo($pay_out_info);
-
-        //GET PAYOUT CURRENCY FOR THE TRANSATION
-        $transaction->setCurrency($cashOutMethod->getCurrency());
-        //TODO get scale in and out
-        $transaction->setScale(Currency::$SCALE[$cashOutMethod->getCurrency()]);
-
-        //get configuration(method)
-        $swift_config = $this->container->get('net.telepay.config.'.$type_out);
-        $methodFees = $swift_config->getFees();
-        $methodInfo = $swift_config->getInfo();
-
-        //check amount
-        if($amount == '') throw new HttpException(400, 'Amount is empty');
 
         //TODO remove when adapter is in the puta calle
         if(!$request->request->has('force')){
@@ -183,75 +116,40 @@ class SwiftController extends RestApiController{
             if($amount > $methodInfo['max_value']) throw new HttpException(403, 'Max amount exceeded');
         }
 
+        $clientConfig = $this->_getClientConfig($client, $transaction, $type_in, $type_out);
 
         //get client fees (fixed & variable)
-        $clientFees = $em->getRepository('TelepayFinancialApiBundle:SwiftFee')->findOneBy(array(
-            'client'    =>  $client->getId(),
-            'cname' =>  $type_in.'-'.$type_out
-        ));
+        $clientFees = $clientConfig['fees'];
 
-        $clientLimits = $em->getRepository('TelepayFinancialApiBundle:SwiftLimit')->findOneBy(array(
-            'client'    =>  $client->getId(),
-            'cname' =>  $type_in.'-'.$type_out
-        ));
+        $clientLimits = $clientConfig['limits'];
 
-        $clientLimitsCount = $em->getRepository('TelepayFinancialApiBundle:SwiftLimitCount')->findOneBy(array(
-            'client'    =>  $client->getId(),
-            'cname' =>  $type_in.'-'.$type_out
-        ));
-
-        if(!$clientFees){
-            $clientFees = new SwiftFee();
-            $clientFees->setFixed(0);
-            $clientFees->setVariable(0);
-            $clientFees->setCname($type_in.'-'.$type_out);
-            $clientFees->setClient($client);
-            $clientFees->setCurrency($transaction->getCurrency());
-            $em->persist($clientFees);
-            $em->flush();
-        }
-        if(!$clientLimits){
-            $clientLimits = new SwiftLimit();
-            $clientLimits->setCname($type_in.'-'.$type_out);
-            $clientLimits->setSingle(0);
-            $clientLimits->setDay(0);
-            $clientLimits->setWeek(0);
-            $clientLimits->setMonth(0);
-            $clientLimits->setYear(0);
-            $clientLimits->setTotal(0);
-            $clientLimits->setClient($client);
-            $clientLimits->setCurrency($transaction->getCurrency());
-            $em->persist($clientLimits);
-            $em->flush();
-        }
-        if(!$clientLimitsCount) {
-            $clientLimitsCount = new SwiftLimitCount();
-            $clientLimitsCount->setClient($client);
-            $clientLimitsCount->setCname($type_in.'-'.$type_out);
-            $clientLimitsCount->setSingle(0);
-            $clientLimitsCount->setDay(0);
-            $clientLimitsCount->setWeek(0);
-            $clientLimitsCount->setMonth(0);
-            $clientLimitsCount->setYear(0);
-            $clientLimitsCount->setTotal(0);
-            $em->persist($clientLimitsCount);
-            $em->flush();
-        }
+        $clientLimitsCount = $clientConfig['limits_count'];
 
         if($methodFees->getVariable() == 0){
             $service_fee = ($methodFees->getFixed());
         }else{
-            $service_fee = ($amount * ($methodFees->getVariable()/100) + $methodFees->getFixed());
+            $service_fee = ($amount_out * ($methodFees->getVariable()/100) + $methodFees->getFixed());
         }
 
         if($clientFees->getVariable() == 0){
             $client_fee = ($clientFees->getFixed());
         }else{
-            $client_fee = ($amount * ($clientFees->getVariable()/100) + $clientFees->getFixed());
+            $client_fee = ($amount_out * ($clientFees->getVariable()/100) + $clientFees->getFixed());
         }
 
         $total_fee = $client_fee + $service_fee;
-        $total = round($amount + $total_fee, 0);
+
+        if($cashOutMethod->getCurrency() != $methodInfo['currency']){
+            $total = round($amount_out - $total_fee, 0);
+            $amount_out = $total;
+            $request->request->remove('amount');
+            $request->request->add(array(
+                'amount'    =>  $amount_out
+            ));
+        }else{
+            $total = round($amount + $total_fee, 0);
+            $amount_in = $this->_exchange($total  , $cashOutMethod->getCurrency(), $cashInMethod->getCurrency());
+        }
 
         //ADD AND CHECK LIMITS
         $clientLimitsCount = (new LimitAdder())->add($clientLimitsCount, $total);
@@ -262,10 +160,21 @@ class SwiftController extends RestApiController{
         $em->persist($clientLimitsCount);
         $em->flush();
 
-        $exchange = $this->_exchange($total  , $cashOutMethod->getCurrency(), $cashInMethod->getCurrency());
+        //GET PAYOUT INFO(parameters sent by user
+        $pay_out_info = $cashOutMethod->getPayOutInfo($request);
+
+        $transaction->setDataIn($pay_out_info);
+        $transaction->setPayOutInfo($pay_out_info);
+
+        //GET PAYOUT CURRENCY FOR THE TRANSATION
+        $transaction->setCurrency($cashOutMethod->getCurrency());
+        //TODO get scale in and out
+        $transaction->setScale(Currency::$SCALE[$cashOutMethod->getCurrency()]);
+        $transaction->setAmount($amount_out);
+        $transaction->setTotal($amount_out);
 
         try{
-            $pay_in_info = $cashInMethod->getPayInInfo($exchange);
+            $pay_in_info = $cashInMethod->getPayInInfo($amount_in);
 
         }catch (Exception $e){
             $transaction->setStatus(Transaction::$STATUS_ERROR);
@@ -475,7 +384,6 @@ class SwiftController extends RestApiController{
 
     public function hello(Request $request, $version_number, $currency){
 
-
         $dm = $this->get('doctrine_mongodb')->getManager();
         $em = $this->getDoctrine()->getManager();
 
@@ -519,7 +427,7 @@ class SwiftController extends RestApiController{
 
             if($type_in == $currency || $type_out == $currency){
                 //get configuration(method)
-                $swift_config = $this->container->get('net.telepay.config.'.$type_out);
+                $swift_config = $this->container->get('net.telepay.config.'.$type_in.'.'.$type_out);
 
                 $methodFees = $swift_config->getFees();
                 $swiftInfo = $swift_config->getInfo();
@@ -585,6 +493,9 @@ class SwiftController extends RestApiController{
                         'fixed' =>  $fixed_fee,
                         'variable'  =>  $variable_fee
                     ),
+                    'expires_in'   =>  $swiftInfo['expires_in'],
+                    'currency_values'   =>  $swiftInfo['currency'],
+                    'scale_values'   =>  Currency::$SCALE[$swiftInfo['currency']],
                     'values'    =>  $values
 
                 );
@@ -776,6 +687,147 @@ class SwiftController extends RestApiController{
             $em->flush();
 
         }
+
+    }
+
+    private function _getClientConfig(Client $client, Transaction $transaction, $type_in, $type_out){
+
+        $em = $this->getDoctrine()->getManager();
+        //get client fees (fixed & variable)
+        $clientFees = $em->getRepository('TelepayFinancialApiBundle:SwiftFee')->findOneBy(array(
+            'client'    =>  $client->getId(),
+            'cname' =>  $type_in.'-'.$type_out
+        ));
+
+        $clientLimits = $em->getRepository('TelepayFinancialApiBundle:SwiftLimit')->findOneBy(array(
+            'client'    =>  $client->getId(),
+            'cname' =>  $type_in.'-'.$type_out
+        ));
+
+        $clientLimitsCount = $em->getRepository('TelepayFinancialApiBundle:SwiftLimitCount')->findOneBy(array(
+            'client'    =>  $client->getId(),
+            'cname' =>  $type_in.'-'.$type_out
+        ));
+
+        if(!$clientFees){
+            $clientFees = new SwiftFee();
+            $clientFees->setFixed(0);
+            $clientFees->setVariable(0);
+            $clientFees->setCname($type_in.'-'.$type_out);
+            $clientFees->setClient($client);
+            $clientFees->setCurrency($transaction->getCurrency());
+            $em->persist($clientFees);
+            $em->flush();
+        }
+        if(!$clientLimits){
+            $clientLimits = new SwiftLimit();
+            $clientLimits->setCname($type_in.'-'.$type_out);
+            $clientLimits->setSingle(0);
+            $clientLimits->setDay(0);
+            $clientLimits->setWeek(0);
+            $clientLimits->setMonth(0);
+            $clientLimits->setYear(0);
+            $clientLimits->setTotal(0);
+            $clientLimits->setClient($client);
+            $clientLimits->setCurrency($transaction->getCurrency());
+            $em->persist($clientLimits);
+            $em->flush();
+        }
+        if(!$clientLimitsCount) {
+            $clientLimitsCount = new SwiftLimitCount();
+            $clientLimitsCount->setClient($client);
+            $clientLimitsCount->setCname($type_in.'-'.$type_out);
+            $clientLimitsCount->setSingle(0);
+            $clientLimitsCount->setDay(0);
+            $clientLimitsCount->setWeek(0);
+            $clientLimitsCount->setMonth(0);
+            $clientLimitsCount->setYear(0);
+            $clientLimitsCount->setTotal(0);
+            $em->persist($clientLimitsCount);
+            $em->flush();
+        }
+
+        $clientConfig = array(
+            'fees'  =>  $clientFees,
+            'limits'    =>  $clientLimits,
+            'limits_count'    =>  $clientLimitsCount
+        );
+
+        return $clientConfig;
+
+    }
+
+    private function _checkLimits($amount, $type_out, Request $request){
+
+        $dm = $this->get('doctrine_mongodb')->getManager();
+        $qb = $dm->createQueryBuilder('TelepayFinancialApiBundle:Transaction');
+        //TODO check limits for hal and sepa by phone date and iban
+        if($type_out == 'halcash_es' || $type_out == 'halcash_pl'){
+            $search = $request->request->get('phone');
+            $start_time = new \MongoDate(strtotime(date('Y-m-d 00:00:00'))-31*24*3600);
+            $finish_time = new \MongoDate();
+            $result = $qb
+                ->field('created')->gte($start_time)
+                ->field('created')->lte($finish_time)
+                ->field('method_out')->equals($type_out)
+                ->field('status')->in(array('created','success'))
+                ->where("function(){
+                    if (typeof this.pay_out_info.phone !== 'undefined') {
+                        if(String(this.pay_out_info.phone).indexOf('$search') > -1){
+                            return true;
+                        }
+                    }
+                    return false;
+                }")
+
+                ->getQuery()
+                ->execute();
+
+            $pending=0;
+
+            foreach($result->toArray() as $d){
+                $pending = $pending + $d->getAmount();
+            }
+
+            if($type_out == 'halcash_es'){
+                if($amount + $pending > 300000) throw new HttpException(405, 'Limit exceeded');
+            }else{
+                if($amount + $pending > 1200000) throw new HttpException(405, 'Limit exceeded');
+            }
+
+        }elseif($type_out == 'sepa'){
+            $search = $request->request->get('iban');
+            $start_time = new \MongoDate(strtotime(date('Y-m-d 00:00:00'))-31*24*3600);
+            $finish_time = new \MongoDate();
+            $result = $qb
+                ->field('created')->gte($start_time)
+                ->field('created')->lte($finish_time)
+                ->field('method_out')->equals($type_out)
+                ->field('status')->in(array('created','success'))
+                ->where("function(){
+                    if (typeof this.pay_out_info.iban !== 'undefined') {
+                        if(String(this.pay_out_info.iban).indexOf('$search') > -1){
+                            return true;
+                        }
+                    }
+                    return false;
+                }")
+
+                ->getQuery()
+                ->execute();
+
+            $pending=0;
+
+            //die(print_r($result,true));
+            foreach($result->toArray() as $d){
+                $pending = $pending + $d->getAmount();
+            }
+
+            if($amount + $pending >= 300000) throw new HttpException(405, 'Limit exceeded');
+
+        }
+
+        return true;
 
     }
 

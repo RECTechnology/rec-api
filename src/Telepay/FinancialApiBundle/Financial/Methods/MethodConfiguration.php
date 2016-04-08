@@ -18,14 +18,18 @@ class MethodConfiguration {
     private $max_value;
     private $range;
     private $countries;
+    private $currency;
+    private $expires_in;
 
-    public function __construct($fixed, $variable, $min_value, $max_value, $range, $countries){
+    public function __construct($fixed, $variable, $min_value, $max_value, $range, $countries, $currency = null, $expires_in = null){
         $this->fixed = $fixed;
         $this->variable = $variable;
         $this->min_value = $min_value;
         $this->max_value = $max_value;
         $this->range = $range;
         $this->countries = $countries;
+        $this->currency = $currency;
+        $this->expires_in = $expires_in;
 
     }
 
@@ -34,7 +38,9 @@ class MethodConfiguration {
             'min_value' =>  $this->min_value,
             'max_value' =>  $this->max_value,
             'range'     =>  $this->range,
-            'countries' =>  $this->countries
+            'countries' =>  $this->countries,
+            'currency'  =>  $this->currency,
+            'expires_in'=>  $this->expires_in
         );
 
         return $response;
