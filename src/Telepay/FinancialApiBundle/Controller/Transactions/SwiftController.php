@@ -452,11 +452,20 @@ class SwiftController extends RestApiController{
                 $currency_in = $cashInMethod->getCurrency();
                 $currency_out = $cashOutMethod->getCurrency();
 
-                $scale_in = Currency::$SCALE[$currency_in];
+                if($cashOutMethod->getCurrency() == 'BTC'){
+                    $scale_in = Currency::$SCALE[$currency_out];
 
-                $amount = pow(10,$scale_in);
+                    $amount = pow(10,$scale_in);
 
-                $exchange = $this->_exchange($amount , $currency_in, $currency_out);
+                    $exchange = $this->_exchange($amount , $currency_out, $currency_in);
+                }else{
+                    $scale_in = Currency::$SCALE[$currency_in];
+
+                    $amount = pow(10,$scale_in);
+
+                    $exchange = $this->_exchange($amount , $currency_in, $currency_out);
+                }
+
 
                 $values = array();
 
