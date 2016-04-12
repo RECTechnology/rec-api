@@ -360,8 +360,8 @@ class CheckSwiftCommand extends ContainerAwareCommand
 
     private function _exchange($amount,$curr_in,$curr_out){
 
-        $dm=$this->getDoctrine()->getManager();
-        $exchangeRepo=$dm->getRepository('TelepayFinancialApiBundle:Exchange');
+        $dm = $this->getContainer()->get('doctrine')->getManager();
+        $exchangeRepo = $dm->getRepository('TelepayFinancialApiBundle:Exchange');
         $exchange = $exchangeRepo->findOneBy(
             array('src'=>$curr_in,'dst'=>$curr_out),
             array('id'=>'DESC')
