@@ -356,6 +356,7 @@ class POSIncomingController extends RestApiController{
 
         $em = $this->get('doctrine_mongodb')->getManager();
         $transaction = $em->getRepository('TelepayFinancialApiBundle:Transaction')->find($id);
+        if(!$transaction) throw new HttpException(400,'Transaction not found');
         if($id==$output) {
             return $this->posTransaction(201, $transaction, "Checked ok");
         }
