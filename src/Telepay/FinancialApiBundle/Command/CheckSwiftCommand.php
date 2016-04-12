@@ -123,6 +123,7 @@ class CheckSwiftCommand extends ContainerAwareCommand
 
                         //if method_out es igual a btc o fac hay que volver a calcular el amount de btc
                         if($method_out == 'btc' || $method_out == 'fac'){
+                            $output->writeln('Recalculate price');
                             //Hay que volver a calcular el amount en btc que vamos a enviar y ponerlo en el pay_out_info
                             $crypto_amount = $this->_exchange($pay_in_info['amount'], $cashInMethod->getCurrency(), $cashOutMethod->getCurrency());
 
@@ -137,10 +138,11 @@ class CheckSwiftCommand extends ContainerAwareCommand
                             $dm->persist($transaction);
                             $dm->flush();
                         }
-
+                        $output->writeln('SENDING ...');
                         try{
                             $pay_out_info = $cashOutMethod->send($pay_out_info);
                         }catch (Exception $e){
+                            $output->writeln('SENDING ERROR');
                             $output->writeln('catch');
                             $output->writeln($e->getMessage());
                             $pay_out_info['status'] = Transaction::$STATUS_FAILED;
