@@ -42,6 +42,7 @@ services:
                 - "@net.telepay.out.cryptocapital.v1"
                 - "@net.telepay.out.sepa.v1"
                 - "@net.telepay.in.paynet_reference.v1"
+                - "@net.telepay.in.easypay.v1"
 
     net.telepay.method_provider:
         class: Telepay\FinancialApiBundle\DependencyInjection\TelepayMethodProvider
