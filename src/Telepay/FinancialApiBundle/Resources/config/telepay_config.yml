@@ -176,7 +176,7 @@ services:
         class: Telepay\FinancialApiBundle\Financial\Methods\MethodConfiguration
         arguments:
             - "0"
-            - "2  "
+            - "2"
             - "1000"
             - "50000"
             - "1000"

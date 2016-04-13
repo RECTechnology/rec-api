@@ -69,7 +69,11 @@ class CheckSwiftCommand extends ContainerAwareCommand
                     'client'    =>  $client,
                     'cname' =>  $method_in.'-'.$method_out
                 ));
-
+                $output->writeln('SWIFT COMMAND CLIENT VARIABLE FEE -> '.$clientFees->getVariable());
+                $output->writeln('SWIFT COMMAND CLIENT FIXED FEE -> '.$clientFees->getVariable());
+                $output->writeln('SWIFT COMMAND METHOD VARIABLE FEE -> '.$methodFees->getVariable());
+                $output->writeln('SWIFT COMMAND METHOD FIXED FEE -> '.$methodFees->getVariable());
+                
                 $client_fee = ($amount * ($clientFees->getVariable()/100) + $clientFees->getFixed());
                 $service_fee = ($amount * ($methodFees->getVariable()/100) + $methodFees->getFixed());
 
