@@ -488,7 +488,7 @@ class SwiftController extends RestApiController{
 //                'text'  =>  '',
                     'status'    =>  ($status == 1) ? 'available' : 'unavailable',
 //                'message'   =>  '',
-//                'delay' =>  '',
+                    'delay' =>  $swiftInfo['delay'],
                     'price' =>  $exchange,
                     'limits'    =>  array(
                         'single'    =>  ($clientLimits->getSingle() >= 0) ? $clientLimits->getSingle(): 'unlimited',

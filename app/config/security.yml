@@ -102,7 +102,6 @@ security:
 
     access_control:
 
-
         - { path: ^/admin/v[0-9]+/services, role: ROLE_ADMIN }
         - { path: ^/admin/v[0-9]+/*, role: ROLE_SUPER_ADMIN }
         - { path: ^/manager/v[0-9]+/*, role: ROLE_ADMIN }

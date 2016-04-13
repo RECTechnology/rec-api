@@ -105,6 +105,7 @@ services:
             - "Spain"
             - "EUR"
             - "1200"
+            - "0"
 
     net.telepay.config.btc.halcash_pl:
         class: Telepay\FinancialApiBundle\Financial\Methods\MethodConfiguration
@@ -117,6 +118,7 @@ services:
             - "Poland"
             - "PLN"
             - "1200"
+            - "0"
 
     net.telepay.config.btc.cryptocapital:
         class: Telepay\FinancialApiBundle\Financial\Methods\MethodConfiguration
@@ -129,6 +131,7 @@ services:
             - "All over the world"
             - "EUR"
             - "1200"
+            - "0"
 
     net.telepay.config.btc.sepa:
         class: Telepay\FinancialApiBundle\Financial\Methods\MethodConfiguration
@@ -141,18 +144,20 @@ services:
             - "All over the world"
             - "EUR"
             - "86400"
+            - "0"
 
     net.telepay.config.btc.easypay:
         class: Telepay\FinancialApiBundle\Financial\Methods\MethodConfiguration
         arguments:
             - "100"
-            - "1"
+            - "2"
             - "5000"
             - "300000"
             - "5000"
             - "All over the world"
             - "EUR"
             - "86400"
+            - "0"
 
     net.telepay.config.sepa.btc:
         class: Telepay\FinancialApiBundle\Financial\Methods\MethodConfiguration
@@ -165,18 +170,20 @@ services:
             - "All over the world"
             - "EUR"
             - "86400"
+            - "24"
 
     net.telepay.config.easypay.btc:
         class: Telepay\FinancialApiBundle\Financial\Methods\MethodConfiguration
         arguments:
             - "0"
-            - "6"
-            - "5000"
+            - "2"
+            - "1000"
             - "50000"
-            - "5000"
+            - "1000"
             - "Greece"
             - "EUR"
             - "86400"
+            - "24"
 
     net.telepay.config.paynet_reference.btc:
         class: Telepay\FinancialApiBundle\Financial\Methods\MethodConfiguration
@@ -189,6 +196,7 @@ services:
             - "Mexico"
             - "MXN"
             - "1209600"
+            - "0"
 
     net.telepay.config.fac.halcash_es:
         class: Telepay\FinancialApiBundle\Financial\Methods\MethodConfiguration
@@ -201,6 +209,7 @@ services:
             - "Spain"
             - "EUR"
             - "1200"
+            - "0"
 
     net.telepay.config.fac.halcash_pl:
         class: Telepay\FinancialApiBundle\Financial\Methods\MethodConfiguration
@@ -213,18 +222,20 @@ services:
             - "Poland"
             - "PLN"
             - "1200"
+            - "0"
 
     net.telepay.config.easypay.fac:
         class: Telepay\FinancialApiBundle\Financial\Methods\MethodConfiguration
         arguments:
             - "0"
-            - "6"
-            - "5000"
+            - "2"
+            - "1000"
             - "50000"
-            - "5000"
+            - "1000"
             - "Greece"
             - "EUR"
             - "86400"
+            - "24"
 
 
 #POS CONFIGURATIONS

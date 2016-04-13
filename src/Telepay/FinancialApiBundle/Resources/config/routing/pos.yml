@@ -60,6 +60,12 @@ user_POS_check_v2:
     requirements:
         _method: GET
 
+user_POS_cancel_v2:
+    pattern:  /pos/v2/cancel/{id}
+    defaults: { _controller: Telepay\FinancialApiBundle\Controller\Transactions\POSIncomingController::cancelTransaction2 }
+    requirements:
+        _method: PUT
+
 new_btc_address:
     pattern:  /pos/v{version_number}/address
     defaults: { _controller: Telepay\FinancialApiBundle\Controller\Transactions\POSIncomingController::generateAddress }
