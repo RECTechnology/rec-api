@@ -493,7 +493,7 @@ class SpecialActionsController extends RestApiController {
                 $status_out = $request->request->get('status_out');
                 $pay_out_info = $trans->getPayOutInfo();
                 $pay_out_info['status'] = $status_out;
-                $trans->setPayOuInfo($pay_out_info);
+                $trans->setPayOutInfo($pay_out_info);
             }else{
                 throw new HttpException(404, 'Param status_out not found');
             }
