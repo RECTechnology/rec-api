@@ -27,16 +27,30 @@ class SepaMethod extends BaseMethod {
 
     public function getPayInInfo($amount)
     {
+        $paymentInfo = $this->driver->request();
+
+        $paymentInfo['amount'] = $amount;
+        $paymentInfo['currency'] = $this->getCurrency();
+        $paymentInfo['scale'] = Currency::$SCALE[$this->getCurrency()];
+        $paymentInfo['status'] = Transaction::$STATUS_CREATED;
+        $paymentInfo['final'] = false;
+
+        return $paymentInfo;
 
     }
 
     public function send($paymentInfo)
     {
-        $paymentInfo['status'] = 'sending';
+        if($paymentInfo['status'] == 'sending'){
+            $paymentInfo['status'] = Transaction::$STATUS_SENT;
+            $paymentInfo['final'] = true;
 
-        //TODO send email with the payment information
-        sendSepaMail($paymentInfo, $id, $type);
+        }else{
+            $paymentInfo['status'] = 'sending';
+            //TODO send email with the payment information
+            $this->sendSepaMail($paymentInfo);
 
+        }
 
         return $paymentInfo;
 
@@ -44,7 +58,12 @@ class SepaMethod extends BaseMethod {
 
     public function getPayInStatus($paymentInfo)
     {
+        if($paymentInfo['status'] == Transaction::$STATUS_RECEIVED){
+            $paymentInfo['status'] = Transaction::$STATUS_SUCCESS;
+            $paymentInfo['final'] = true;
+        }
 
+        return $paymentInfo;
 
     }
 
@@ -91,7 +110,7 @@ class SepaMethod extends BaseMethod {
         return $params;
     }
 
-    private function sendSepaMail($paymentInfo, $id, $type){
+    private function sendSepaMail($paymentInfo){
 
         $message = \Swift_Message::newInstance()
             ->setSubject('Sepa_out ALERT')
@@ -103,8 +122,6 @@ class SepaMethod extends BaseMethod {
             ->setBody(
                 $this->getContainer()->get('templating')
                     ->render('TelepayFinancialApiBundle:Email:sepa_out_alert.html.twig',array(
-                        'id'    =>  $id,
-                        'type'  =>  $type,
                         'beneficiary'   =>  $paymentInfo['beneficiary'],
                         'iban'  =>  $paymentInfo['iban'],
                         'amount'    =>  $paymentInfo['amount'],

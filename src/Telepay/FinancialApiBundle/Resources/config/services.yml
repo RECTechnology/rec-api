@@ -21,6 +21,11 @@ services:
         calls:
             - [setContainer, ["@service_container"] ]
 
+    command.validate.swiftSepa:
+            class: Telepay\FinancialApiBundle\Command\CheckSwiftCommand
+            calls:
+                - [setContainer, ["@service_container"] ]
+
     security.authentication.switchuser_listener:
         class: Telepay\FinancialApiBundle\Security\Firewall\SwitchUserListener
         public: false

@@ -6,9 +6,51 @@ use Symfony\Component\HttpKernel\Exception\HttpException;
 
 class SepaDriver{
 
-    function __construct()
-    {
+    private $iban;
+    private $swift;
+    private $beneficiary;
 
+    function __construct($iban, $swift, $beneficiary)
+    {
+        $this->iban = $iban;
+        $this->swift = $swift;
+        $this->beneficiary = $beneficiary;
+
+    }
+
+    public function request(){
+
+        $reference = 'BUY BITCOIN '.$this->getReference();
+
+        $response = array(
+            'reference' =>  $reference,
+            'iban'      =>  $this->iban,
+            'bic_swift' =>  $this->swift,
+            'beneficiary' =>  $this->beneficiary,
+            'expires_in'=>  3600*24
+        );
+
+        return $response;
+
+    }
+
+    private function getReference(){
+        $chars = "ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789";
+
+        $array_chars = str_split($chars);
+        shuffle($array_chars);
+
+        return substr(implode("", $array_chars),0,5);
+    }
+
+    function getInfo(){
+        $response = array(
+            'iban' =>  $this->iban,
+            'bic_swift' =>  $this->swift,
+            'beneficiary'   =>  $this->beneficiary
+        );
+
+        return $response;
     }
 
     public function send(){}

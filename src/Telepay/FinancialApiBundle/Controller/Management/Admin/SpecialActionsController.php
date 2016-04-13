@@ -2,6 +2,8 @@
 
 namespace Telepay\FinancialApiBundle\Controller\Management\Admin;
 
+use Symfony\Component\Console\Input\ArgvInput;
+use Symfony\Component\Console\Output\BufferedOutput;
 use Symfony\Component\HttpKernel\Exception\HttpException;
 use Telepay\FinancialApiBundle\Controller\RestApiController;
 use Telepay\FinancialApiBundle\Document\Transaction;
@@ -303,13 +305,42 @@ class SpecialActionsController extends RestApiController {
         $transRepo = $dm->getRepository('TelepayFinancialApiBundle:Transaction');
         $transaction = $transRepo->find($id);
 
+        //TODO if transaction we have to validate is the input this works fine
+        //TODO but if we have to validate the output we have to do it better
+
         if($validate == true){
-            //TODO money received
-            $transaction->setStatus('received');
-            $paymentInfo = $transaction->getPayInInfo();
-            $paymentInfo['status'] = 'received';
-            $paymentInfo['final'] = false;
-            $transaction->setPayinInfo($paymentInfo);
+            if($transaction->getMethodOut() == 'btc' || $transaction->getMethodOut() == 'fac'){
+                //money received and the cron will do the rest
+                $transaction->setStatus(Transaction::$STATUS_RECEIVED);
+                $paymentInfo = $transaction->getPayInInfo();
+                $paymentInfo['status'] = Transaction::$STATUS_RECEIVED;
+                $paymentInfo['final'] = false;
+                $transaction->setPayInInfo($paymentInfo);
+            }else{
+                $transaction->setStatus(Transaction::$STATUS_SUCCESS);
+                $paymentInfo = $transaction->getPayOutInfo();
+                $paymentInfo['status'] = Transaction::$STATUS_SENT;
+                $paymentInfo['final'] = true;
+                $transaction->setPayOutInfo($paymentInfo);
+
+                $dm->persist($transaction);
+                $dm->flush();
+
+                $command = $this->container->get('command.validate.swiftSepa');
+                $input = new ArgvInput(
+                    array(
+                        '--env=' . $this->container->getParameter('kernel.environment'),
+                        '--transaction-id=' . $id
+                    )
+                );
+                $output = new BufferedOutput();
+                $command->run($input, $output);
+
+                if($id == $output) {
+                    $transaction = $dm->getRepository('TelepayFinancialApiBundle:Transaction')->find($id);
+                }
+
+            }
 
             $transaction = $this->get('notificator')->notificate($transaction);
 
