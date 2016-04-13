@@ -633,6 +633,23 @@ class POSIncomingController extends RestApiController{
         return $group_commission;
     }
 
+    /**
+     * @Rest\View
+     */
+    public function cancelTransaction2(Request $request, $id){
+
+        $dm = $this->get('doctrine_mongodb')->getManager();
+        $transaction = $dm->getRepository('TelepayFinancialApiBundle:Transaction')->find($id);
+
+        if(!$transaction) throw new HttpException(404, 'Transaction not found');
+
+        $transaction->setStatus(Transaction::$STATUS_CANCELLED);
+        $dm->persist($transaction);
+        $dm->flush();
+
+        return $this->restV2(204, "ok", "Update successfully");
+
+    }
 
 }
 

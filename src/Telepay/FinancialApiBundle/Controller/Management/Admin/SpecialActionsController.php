@@ -479,6 +479,26 @@ class SpecialActionsController extends RestApiController {
             throw new HttpException(404, 'Param status not found');
         }
 
+        if($trans->getType() == 'swift'){
+            if($request->request->has('status_in')){
+                $status_in = $request->request->get('status_in');
+                $pay_in_info = $trans->getPayInInfo();
+                $pay_in_info['status'] = $status_in;
+                $trans->setPayInInfo($pay_in_info);
+            }else{
+                throw new HttpException(404, 'Param status_in not found');
+            }
+
+            if($request->request->has('status_out')){
+                $status_out = $request->request->get('status_out');
+                $pay_out_info = $trans->getPayOutInfo();
+                $pay_out_info['status'] = $status_out;
+                $trans->setPayOuInfo($pay_out_info);
+            }else{
+                throw new HttpException(404, 'Param status_out not found');
+            }
+        }
+
         $trans->setStatus($status);
         $dm->persist($trans);
         $dm->flush();
