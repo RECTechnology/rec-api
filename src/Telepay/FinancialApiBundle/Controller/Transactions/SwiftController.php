@@ -471,7 +471,7 @@ class SwiftController extends RestApiController{
 
                 if($clientLimits->getSingle() > 0 && $clientLimits->getSingle() <= $swiftInfo['max_value']){
 
-                    for($i = $swiftInfo['min_value'];$i <= $clientLimits->getSingle(); $i=+$swiftInfo['range']){
+                    for($i = $swiftInfo['min_value'];$i <= $clientLimits->getSingle(); $i+=$swiftInfo['range']){
                         array_push($values, $i);
                     }
                 }else{

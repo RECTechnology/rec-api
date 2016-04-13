@@ -198,6 +198,19 @@ services:
             - "1209600"
             - "0"
 
+    net.telepay.config.paynet_reference.fac:
+        class: Telepay\FinancialApiBundle\Financial\Methods\MethodConfiguration
+        arguments:
+            - "0"
+            - "6"
+            - "5000"
+            - "100000"
+            - "5000"
+            - "Mexico"
+            - "MXN"
+            - "1209600"
+            - "0"
+
     net.telepay.config.fac.halcash_es:
         class: Telepay\FinancialApiBundle\Financial\Methods\MethodConfiguration
         arguments:
