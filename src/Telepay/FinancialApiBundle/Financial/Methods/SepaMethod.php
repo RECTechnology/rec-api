@@ -35,6 +35,7 @@ class SepaMethod extends BaseMethod {
         $paymentInfo['status'] = 'sending';
 
         //TODO send email with the payment information
+        sendSepaMail($paymentInfo, $id, $type);
 
 
         return $paymentInfo;
@@ -88,6 +89,35 @@ class SepaMethod extends BaseMethod {
         $params['status'] = false;
 
         return $params;
+    }
+
+    private function sendSepaMail($paymentInfo, $id, $type){
+
+        $message = \Swift_Message::newInstance()
+            ->setSubject('Sepa_out ALERT')
+            ->setFrom('no-reply@chip-chap.com')
+            ->setTo(array(
+                'cto@chip-chap.com',
+                'pere@chip-chap.com'
+            ))
+            ->setBody(
+                $this->getContainer()->get('templating')
+                    ->render('TelepayFinancialApiBundle:Email:sepa_out_alert.html.twig',array(
+                        'id'    =>  $id,
+                        'type'  =>  $type,
+                        'beneficiary'   =>  $paymentInfo['beneficiary'],
+                        'iban'  =>  $paymentInfo['iban'],
+                        'amount'    =>  $paymentInfo['amount'],
+                        'bic_swift' =>  $paymentInfo['bic_swift'],
+                        'concept'   =>  $paymentInfo['concept'],
+                        'currency'  =>  $paymentInfo['currency'],
+                        'scale'     =>  $paymentInfo['scale'],
+                        'final'     =>  $paymentInfo['final'],
+                        'status'    =>  $paymentInfo['status']
+                    ))
+            );
+
+        $this->getContainer()->get('mailer')->send($message);
     }
 
 }
