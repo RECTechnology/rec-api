@@ -250,6 +250,19 @@ services:
             - "86400"
             - "24"
 
+    net.telepay.config.btc.sepa:
+        class: Telepay\FinancialApiBundle\Financial\Methods\MethodConfiguration
+        arguments:
+            - "100"
+            - "1"
+            - "5000"
+            - "300000"
+            - "5000"
+            - "All over the world"
+            - "EUR"
+            - "86400"
+            - "0"
+
 
 #POS CONFIGURATIONS
 

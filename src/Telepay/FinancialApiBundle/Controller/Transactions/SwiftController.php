@@ -199,7 +199,7 @@ class SwiftController extends RestApiController{
 
     public function check(Request $request, $version_number, $type_in, $type_out, $id){
         //Get transaction by id
-        $dm = $dm = $this->get('doctrine_mongodb')->getManager();
+        $dm = $this->get('doctrine_mongodb')->getManager();
         $transaction = $dm->getRepository('TelepayFinancialApiBundle:Transaction')->findOneBy(array(
             'id'    =>  $id,
             'type'  =>  'swift',
@@ -227,6 +227,34 @@ class SwiftController extends RestApiController{
             foreach($result->toArray() as $d){
                 $transaction = $d;
             }
+        }
+
+        if(!$transaction) throw new HttpException(404, 'Transaction not found');
+
+        return $this->swiftTransaction($transaction, "Done");
+
+    }
+
+    public function checkByAddress($address){
+
+        $dm = $this->get('doctrine_mongodb')->getManager();
+        $qb = $dm->createQueryBuilder('TelepayFinancialApiBundle:Transaction');
+        $result = $qb
+            ->field('type')->equals('swift')
+            ->where("function(){
+                    if (typeof this.pay_in_info !== 'undefined') {
+                        if(String(this.pay_in_info.address).indexOf('$address') > -1){
+                            return true;
+                        }
+                }
+                }")
+
+            ->getQuery()
+            ->execute();
+
+        $transaction = null;
+        foreach($result->toArray() as $d){
+            $transaction = $d;
         }
 
         if(!$transaction) throw new HttpException(404, 'Transaction not found');

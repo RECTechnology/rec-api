@@ -57,6 +57,9 @@ services:
     net.telepay.driver.sepa:
         class: Telepay\FinancialApiBundle\Financial\Driver\SepaDriver
         arguments:
+            - "%sepa_in_iban%"
+            - "%sepa_in_bic_swift%"
+            - "%sepa_in_beneficiary%"
 
     net.telepay.driver.cryptocapital:
         class: Telepay\FinancialApiBundle\Financial\Driver\CryptocapitalDriver
