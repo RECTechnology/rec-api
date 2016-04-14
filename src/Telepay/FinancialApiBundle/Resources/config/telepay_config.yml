@@ -263,6 +263,19 @@ services:
             - "86400"
             - "0"
 
+    net.telepay.config.btc.cryptocapital:
+        class: Telepay\FinancialApiBundle\Financial\Methods\MethodConfiguration
+        arguments:
+            - "100"
+            - "1"
+            - "1000"
+            - "25000"
+            - "1000"
+            - "All over the world"
+            - "EUR"
+            - "1200"
+            - "0"
+
 
 #POS CONFIGURATIONS
 
