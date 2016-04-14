@@ -263,7 +263,7 @@ services:
             - "86400"
             - "0"
 
-    net.telepay.config.btc.cryptocapital:
+    net.telepay.config.fac.cryptocapital:
         class: Telepay\FinancialApiBundle\Financial\Methods\MethodConfiguration
         arguments:
             - "100"
