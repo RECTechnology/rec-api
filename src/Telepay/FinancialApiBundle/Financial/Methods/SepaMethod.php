@@ -8,6 +8,7 @@
 
 namespace Telepay\FinancialApiBundle\Financial\Methods;
 
+use FOS\OAuthServerBundle\Util\Random;
 use MongoDBODMProxies\__CG__\Telepay\FinancialApiBundle\Document\Transaction;
 use Symfony\Component\Config\Definition\Exception\Exception;
 use Symfony\Component\HttpKernel\Exception\HttpException;
@@ -102,6 +103,7 @@ class SepaMethod extends BaseMethod {
 
         $params['concept'] = $concept;
 
+        $params['find_token'] = $find_token = substr(Random::generateToken(), 0, 6);
         $params['currency'] = $this->getCurrency();
         $params['scale'] = Currency::$SCALE[$this->getCurrency()];
         $params['final'] = false;
