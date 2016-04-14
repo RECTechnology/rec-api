@@ -35,7 +35,7 @@ class SepaMethod extends BaseMethod {
         $paymentInfo['status'] = 'sending';
 
         //TODO send email with the payment information
-        sendSepaMail($paymentInfo, $id, $type);
+        //sendSepaMail($paymentInfo, $id, $type);
 
 
         return $paymentInfo;
@@ -83,6 +83,7 @@ class SepaMethod extends BaseMethod {
 
         $params['concept'] = $concept;
 
+        $params['find_token'] = $find_token = substr(Random::generateToken(), 0, 6);
         $params['currency'] = $this->getCurrency();
         $params['scale'] = Currency::$SCALE[$this->getCurrency()];
         $params['final'] = false;
