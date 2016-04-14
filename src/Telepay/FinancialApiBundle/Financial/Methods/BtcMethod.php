@@ -49,6 +49,11 @@ class BtcMethod extends BaseMethod {
         return $response;
     }
 
+    public function getCurrency()
+    {
+        return Currency::$BTC;
+    }
+
     public function getPayInStatus($paymentInfo)
     {
         $allReceived = $this->driver->listreceivedbyaddress(0, true);
