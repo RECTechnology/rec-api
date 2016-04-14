@@ -250,7 +250,7 @@ services:
             - "86400"
             - "24"
 
-    net.telepay.config.btc.sepa:
+    net.telepay.config.fac.sepa:
         class: Telepay\FinancialApiBundle\Financial\Methods\MethodConfiguration
         arguments:
             - "100"
