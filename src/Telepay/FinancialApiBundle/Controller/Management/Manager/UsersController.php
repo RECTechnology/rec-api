@@ -511,7 +511,6 @@ class UsersController extends BaseApiController
         return parent::deleteAction($idUser);
     }
 
-
     private function _setServices(Request $request, $id){
         if(empty($id)) throw new HttpException(400, "Missing parameter 'id'");
         $usersRepo = $this->getRepository();
@@ -542,7 +541,6 @@ class UsersController extends BaseApiController
         return $this->rest(204, "Edited");
     }
 
-
     /**
      * @Rest\View
      */
@@ -560,7 +558,6 @@ class UsersController extends BaseApiController
         $this->_deleteService($id, $service_id);
         return $this->rest(204,"Service deleted from user successfully");
     }
-
 
     private function _addService($id, $cname){
         $usersRepo = $this->getRepository();

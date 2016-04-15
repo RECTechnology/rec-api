@@ -81,8 +81,8 @@ class CheckSwiftCommand extends ContainerAwareCommand
                     'cname' =>  $method_in.'-'.$method_out
                 ));
 
-                $client_fee = ($amount * ($clientFees->getVariable()/100) + $clientFees->getFixed());
-                $service_fee = ($amount * ($methodFees->getVariable()/100) + $methodFees->getFixed());
+                $client_fee = round(($amount * ($clientFees->getVariable()/100) + $clientFees->getFixed()),$transaction->getScale());
+                $service_fee = round(($amount * ($methodFees->getVariable()/100) + $methodFees->getFixed()),$transaction->getScale());
 
                 if($pay_in_info['status'] == 'created'){
                     //check if hasExpired
