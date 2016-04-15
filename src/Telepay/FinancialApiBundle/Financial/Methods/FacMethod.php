@@ -41,7 +41,8 @@ class FacMethod extends  BaseMethod {
             'received' => 0.0,
             'min_confirmations' => intval(1),
             'confirmations' => 0,
-            'status'    =>  'created'
+            'status'    =>  'created',
+            'final'     =>  false
         );
 
         return $response;
@@ -50,25 +51,6 @@ class FacMethod extends  BaseMethod {
     public function getCurrency()
     {
         return Currency::$FAC;
-    }
-
-    public function send($paymentInfo)
-    {
-        $address = $paymentInfo['address'];
-        $amount = $paymentInfo['amount'];
-
-        $crypto = $this->driver->sendtoaddress($address, $amount/1e8);
-
-        if($crypto === false){
-            $paymentInfo['status'] = Transaction::$STATUS_FAILED;
-            $paymentInfo['final'] = false;
-        }else{
-            $paymentInfo['txid'] = $crypto->txid;
-            $paymentInfo['status'] = 'sent';
-            $paymentInfo['final'] = true;
-        }
-
-        return $paymentInfo;
     }
 
     public function getPayInStatus($paymentInfo)
@@ -91,6 +73,8 @@ class FacMethod extends  BaseMethod {
                     $paymentInfo['confirmations'] = $cryptoData['confirmations'];
                     if($paymentInfo['confirmations'] >= $paymentInfo['min_confirmations']){
                         $status = 'success';
+                        $final = true;
+                        $paymentInfo['final'] = $final;
                     }else{
                         $status = 'received';
                     }
@@ -106,11 +90,6 @@ class FacMethod extends  BaseMethod {
 
         }
 
-    }
-
-    public function getPayOutStatus($id)
-    {
-        // TODO: Implement getPayOutStatus() method.
     }
 
     public function getPayOutInfo($request)
@@ -131,6 +110,12 @@ class FacMethod extends  BaseMethod {
         $address_verification = $this->driver->validateaddress($params['address']);
 
         if(!$address_verification['isvalid']) throw new Exception('Invalid address.', 400);
+
+        if($request->request->has('concept')){
+            $params['concept'] = $request->request->get('concept');
+        }else{
+            $params['concept'] = 'Btc out Transaction';
+        }
         $params['currency'] = $this->getCurrency();
         $params['scale'] = Currency::$SCALE[$this->getCurrency()];
         $params['final'] = false;
@@ -139,4 +124,30 @@ class FacMethod extends  BaseMethod {
 
         return $params;
     }
+
+    public function send($paymentInfo)
+    {
+        $address = $paymentInfo['address'];
+        $amount = $paymentInfo['amount'];
+
+        $crypto = $this->driver->sendtoaddress($address, $amount/1e8);
+
+        if($crypto === false){
+            $paymentInfo['status'] = Transaction::$STATUS_FAILED;
+            $paymentInfo['final'] = false;
+        }else{
+            $paymentInfo['txid'] = $crypto->txid;
+            $paymentInfo['status'] = 'sent';
+            $paymentInfo['final'] = true;
+        }
+
+        return $paymentInfo;
+    }
+
+    public function getPayOutStatus($id)
+    {
+        // TODO: Implement getPayOutStatus() method.
+    }
+
+
 }

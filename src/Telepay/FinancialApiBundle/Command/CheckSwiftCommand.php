@@ -21,31 +21,42 @@ class CheckSwiftCommand extends ContainerAwareCommand
         $this
             ->setName('telepay:swift:check')
             ->setDescription('Check swift transactions and send method out')
+            ->addOption(
+                'transaction-id',
+                null,
+                InputOption::VALUE_OPTIONAL,
+                'Define transaction id.',
+                null
+            )
         ;
     }
 
     protected function execute(InputInterface $input, OutputInterface $output)
     {
 
+        $trans_id = $input->getOption('transaction-id');
+
         $dm = $this->getContainer()->get('doctrine_mongodb')->getManager();
         $em = $this->getContainer()->get('doctrine')->getManager();
         $repo = $em->getRepository('TelepayFinancialApiBundle:User');
 
-        $qb = $dm->createQueryBuilder('TelepayFinancialApiBundle:Transaction')
-            ->field('type')->equals('swift')
-            ->field('status')->in(array('created','received'))
-            ->getQuery();
-
-        $output->writeln(count($qb->toArray()).'... transactions to check');
+        if(isset($trans_id)){
+            $qb = $dm->createQueryBuilder('TelepayFinancialApiBundle:Transaction')
+                ->field('type')->equals('swift')
+                ->field('id')->equals($trans_id)
+                ->getQuery();
+        }else{
+            $qb = $dm->createQueryBuilder('TelepayFinancialApiBundle:Transaction')
+                ->field('type')->equals('swift')
+                ->field('status')->in(array('created','received'))
+                ->getQuery();
+        }
 
         $root_id = $this->getContainer()->getParameter('admin_user_id');
         $root = $em->getRepository('TelepayFinancialApiBundle:User')->find($root_id);
 
         foreach($qb->toArray() as $transaction){
-            $output->writeln('nueva transaccion');
             if($transaction->getMethodIn() != ''){
-                $output->writeln('Checking swift transaction...id=> '. $transaction->getId() . ":" . $transaction->getStatus());
-                $output->writeln($transaction->getMethodIn().' - '.$transaction->getMethodOut());
                 $method_in = $transaction->getMethodIn();
                 $method_out = $transaction->getMethodOut();
 
@@ -82,7 +93,6 @@ class CheckSwiftCommand extends ContainerAwareCommand
                         $transaction->setUpdated(new \DateTime());
                         $dm->persist($transaction);
                         $dm->flush();
-                        $output->writeln('Status expired');
 
                         $clientLimitsCount = $em->getRepository('TelepayFinancialApiBundle:SwiftLimitCount')->findOneBy(array(
                             'client'    =>  $client,
@@ -93,7 +103,6 @@ class CheckSwiftCommand extends ContainerAwareCommand
 
                         $em->persist($clientLimitsCount);
                         $em->flush();
-                        $output->writeln('Fees returned');
                     }
                     $output->writeln('Status created: NOT CHANGED.');
 
@@ -102,7 +111,7 @@ class CheckSwiftCommand extends ContainerAwareCommand
                     $transaction->setDataOut($pay_in_info);
                     $transaction->setPayInInfo($pay_in_info);
                     $transaction->setUpdated(new \DateTime());
-                    $output->writeln('Status '.$pay_in_info['status']);
+
                     $dm->persist($transaction);
                     $dm->flush();
                 }elseif($pay_in_info['status'] == 'success'){
@@ -119,11 +128,9 @@ class CheckSwiftCommand extends ContainerAwareCommand
                         $transaction->setStatus('send_locked');
                         $dm->persist($transaction);
                         $dm->flush();
-                        $output->writeln('Before send');
 
                         //if method_out es igual a btc o fac hay que volver a calcular el amount de btc
                         if($method_out == 'btc' || $method_out == 'fac'){
-                            $output->writeln('Recalculate price');
                             //Hay que volver a calcular el amount en btc que vamos a enviar y ponerlo en el pay_out_info
                             $crypto_amount = round($this->_exchange($pay_in_info['amount'], $cashInMethod->getCurrency(), $cashOutMethod->getCurrency()),0);
 
@@ -138,38 +145,29 @@ class CheckSwiftCommand extends ContainerAwareCommand
                             $dm->persist($transaction);
                             $dm->flush();
                         }
-                        $output->writeln('SENDING ...');
                         try{
                             $pay_out_info = $cashOutMethod->send($pay_out_info);
                         }catch (Exception $e){
-                            $output->writeln('SENDING ERROR');
-                            $output->writeln('catch');
-                            $output->writeln($e->getMessage());
                             $pay_out_info['status'] = Transaction::$STATUS_FAILED;
                             $pay_out_info['final'] = false;
                             $error = $e->getMessage();
                             $transaction->setPayOutInfo($pay_out_info);
                             $transaction->setStatus('failed');
-                            $output->writeln('Status failed'.$e->getMessage());
                         }
                         $dm->persist($transaction);
                         $dm->flush();
 
-                        $output->writeln($pay_out_info['status']);
 
                         if($pay_out_info['status'] == 'sent' || $pay_out_info['status'] == 'sending'){
                             $transaction->setPayOutInfo($pay_out_info);
                             if($pay_out_info['status'] == 'sent') $transaction->setStatus('success');
                             else $transaction->setStatus('sending');
                             $transaction->setDataIn($pay_out_info);
-                            $output->writeln('Status '.$transaction->getStatus());
 
                             $dm->persist($transaction);
                             $dm->flush();
                             //Generate fee transactions. One for the user and one for the root
-                            $output->writeln('Generating userFee for: '.$transaction->getId());
                             if($pay_out_info['status'] == 'sending'){
-                                $output->writeln('Sending email');
                                 //send email in sepa_out
                                 $this->_sendSepaMail($pay_out_info, $transaction->getId(), $transaction->getType());
                             }
@@ -215,7 +213,6 @@ class CheckSwiftCommand extends ContainerAwareCommand
                             }
 
                             if($service_fee != 0){
-                                $output->writeln('Generating rootFee for: '.$transaction->getId());
                                 //service fees goes to root
 
                                 $rootFee = new Transaction();
@@ -288,12 +285,15 @@ class CheckSwiftCommand extends ContainerAwareCommand
                 $transaction->setUpdated(new \DateTime());
                 $dm->persist($transaction);
                 $dm->flush();
-                $output->writeln('Bad values in transaction '.$transaction->getId());
             }
 
         }
 
-        $output->writeln('Swift transactions checked');
+        if(isset($trans_id)){
+            $output->writeln($trans_id);
+        }else{
+            $output->writeln(count($qb).' Swift Transactions checked');
+        }
     }
 
     private function hasExpired($transaction){

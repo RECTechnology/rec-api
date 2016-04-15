@@ -1,5 +1,13 @@
 ######################## COMBO SERVICES ########################
 
+check_swift_by_address:
+    pattern:  /swift/v{version_number}/checkbyaddress/{address}
+    defaults: { _controller: Telepay\FinancialApiBundle\Controller\Transactions\SwiftController::checkByAddress ,_format: ~}
+    requirements:
+        _method: GET
+        type_in: "[a-z0-9_]+"
+        type_out: "[a-z0-9_]+"
+
 make_swift:
     pattern:  /swift/v{version_number}/{type_in}/{type_out}
     defaults: { _controller: Telepay\FinancialApiBundle\Controller\Transactions\SwiftController::make ,_format: ~}
