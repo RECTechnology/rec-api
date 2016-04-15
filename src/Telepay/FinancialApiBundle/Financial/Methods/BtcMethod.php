@@ -8,6 +8,7 @@
 
 namespace Telepay\FinancialApiBundle\Financial\Methods;
 
+use FOS\OAuthServerBundle\Util\Random;
 use MongoDBODMProxies\__CG__\Telepay\FinancialApiBundle\Document\Transaction;
 use Symfony\Component\Config\Definition\Exception\Exception;
 use Symfony\Component\HttpKernel\Exception\HttpException;
@@ -115,6 +116,7 @@ class BtcMethod extends BaseMethod {
             $params['concept'] = 'Btc out Transaction';
         }
 
+        $params['find_token'] = $find_token = substr(Random::generateToken(), 0, 7);
         $params['currency'] = $this->getCurrency();
         $params['scale'] = Currency::$SCALE[$this->getCurrency()];
         $params['final'] = false;
