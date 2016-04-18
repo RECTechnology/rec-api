@@ -15,6 +15,7 @@ use Symfony\Component\Validator\Constraints\Null;
 use Telepay\FinancialApiBundle\Controller\RestApiController;
 use Telepay\FinancialApiBundle\Document\Transaction;
 use Telepay\FinancialApiBundle\Entity\UserWallet;
+use Telepay\FinancialApiBundle\Financial\Currency;
 
 
 class Test {
@@ -527,7 +528,7 @@ class WalletController extends RestApiController{
                 'week'      =>  $week,
                 'month'     =>  $month,
                 'currency'  =>  $default_currency,
-                'scale'     =>  $this->_getScale($default_currency)
+                'scale'     =>  Currency::$SCALE[$default_currency]
             )
         );
     }
@@ -565,7 +566,7 @@ class WalletController extends RestApiController{
 
         $monthly['currency'] = $default_currency;
 
-        $monthly['scale'] = $this->_getScale($default_currency);
+        $monthly['scale'] = Currency::$SCALE[$default_currency];
 
         return $this->restV2(
             200,
@@ -1242,35 +1243,5 @@ class WalletController extends RestApiController{
 
     }
 
-    public  function _getScale($currency){
-
-        $scale=0;
-        switch($currency){
-            case "EUR":
-                $scale=2;
-                break;
-            case "MXN":
-                $scale=2;
-                break;
-            case "USD":
-                $scale=2;
-                break;
-            case "BTC":
-                $scale=8;
-                break;
-            case "FAC":
-                $scale=8;
-                break;
-            case "PLN":
-                $scale=8;
-                break;
-            case "":
-                $scale=0;
-                break;
-        }
-
-        return $scale;
-
-    }
 
 }
