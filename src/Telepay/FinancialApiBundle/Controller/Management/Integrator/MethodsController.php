@@ -18,7 +18,7 @@ class MethodsController extends RestApiController {
      */
     public function read($method) {
 
-        //TODO check if the user has the method
+        //check if the user has the method
 
         $user = $this->get('security.context')->getToken()->getUser();
 
