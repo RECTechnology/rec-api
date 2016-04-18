@@ -18,6 +18,18 @@ user_service_read:
     requirements:
         _method: GET
 
+user_method_read:
+    pattern:  /user/v1/methods/{method}
+    defaults: { _controller: Telepay\FinancialApiBundle\Controller\Management\Integrator\MethodsController::read }
+    requirements:
+        _method: GET
+
+user_method_index:
+    pattern:  /user/v1/methods
+    defaults: { _controller: Telepay\FinancialApiBundle\Controller\Management\Integrator\MethodsController::index }
+    requirements:
+        _method: GET
+
 
 ######################## USER WALLET ########################
 
