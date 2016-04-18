@@ -51,11 +51,12 @@ services:
                 - "@net.telepay.out.btc.v1"
                 - "@net.telepay.in.btc.v1"
                 - "@net.telepay.in.fac.v1"
+                - "@net.telepay.out.fac.v1"
                 - "@net.telepay.out.halcash_es.v1"
                 - "@net.telepay.out.halcash_pl.v1"
                 - "@net.telepay.in.paynet_reference.v1"
-                - "@net.telepay.out.fac.v1"
                 - "@net.telepay.out.sepa.v1"
+                - "@net.telepay.in.easypay.v1"
                 - "@net.telepay.out.cryptocapital.v1"
                 - "@net.telepay.in.echo.v1"
 

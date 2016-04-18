@@ -2,6 +2,7 @@
 
 namespace Telepay\FinancialApiBundle\Controller\Management\Integrator;
 
+use Symfony\Component\HttpKernel\Exception\HttpException;
 use Telepay\FinancialApiBundle\Controller\RestApiController;
 use FOS\RestBundle\Controller\Annotations as Rest;
 use Telepay\FinancialApiBundle\Financial\Currency;
@@ -16,6 +17,14 @@ class MethodsController extends RestApiController {
      * @Rest\View()
      */
     public function read($method) {
+
+        //TODO check if the user has the method
+
+        $user = $this->get('security.context')->getToken()->getUser();
+
+        $methods = $user->getMethodsList();
+
+        if(!in_array($method, $methods)) throw new HttpException(404, 'Method not allowed');
 
         $methods = $this->get('net.telepay.method_provider')->findByCname($method);
 
@@ -40,13 +49,31 @@ class MethodsController extends RestApiController {
      */
     public function index() {
 
-        $methods = $this->get('net.telepay.method_provider')->findAll();
+        $user = $this->get('security.context')->getToken()->getUser();
+
+        $methods = $user->getMethodsList();
+
+        $response = array();
+
+        foreach($methods as $method){
+            $methodsEntity = $this->get('net.telepay.method_provider')->findByCname($method);
+
+            $resp = array(
+                'cname' =>  $methodsEntity->getCname(),
+                'type' =>  $methodsEntity->getType(),
+                'currency'  =>  $methodsEntity->getCurrency(),
+                'scale' =>  Currency::$SCALE[$methodsEntity->getCurrency()],
+                'base64image'   =>  $methodsEntity->getBase64Image()
+            );
+
+            $response[] = $resp;
+        }
 
         return $this->restV2(
             200,
             "ok",
             "Methods got successfully",
-            $methods
+            $response
         );
     }
 
