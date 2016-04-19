@@ -67,10 +67,26 @@ class HalcashDailyBalanceCommand extends ContainerAwareCommand
             }
         }
 
+        $qb = $dm->createQueryBuilder('TelepayFinancialApiBundle:Transaction')
+            ->field('type')->equals('swift')
+            ->field('method_in')->equals('easypay')
+            ->field('status')->equals('success')
+            ->field('created')->gte($start_time)
+            ->field('created')->lte($finish_time)
+            ->getQuery();
+
+        $total_transactions_EP = 0;
+        foreach($qb->toArray() as $transaction){
+            $paymentInInfo = $transaction->getPayOutInfo();
+            $paymentOutInfo = $transaction->getPayOutInfo();
+            if($paymentInInfo['status'] == 'sent' || $paymentInInfo['status'] == 'withdrawn'){
+                $total_transactions_EP = $total_transactions_es + $paymentOutInfo['amount'];
+            }
+        }
 
         $this->sendEmail(
             'Informe de transacciones de hal',
-            'Total Transacciones halcash ultimas 24 horas: '.$total_transactions_es.' EUR y '.$total_transactions_pl.' PLN'
+            'Total Transacciones halcash y easypay últimas 24 horas: ' . $total_transactions_es . ' EUR ,' . $total_transactions_pl . ' PLN y ' . $total_transactions_EP . ' EUR'
         );
 
         $output->writeln('Informe enviado');
