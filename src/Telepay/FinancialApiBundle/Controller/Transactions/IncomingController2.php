@@ -226,7 +226,7 @@ class IncomingController2 extends RestApiController{
                 $em->flush();
 
                 if($payment_info['status'] == 'sending'){
-                    $this->_sendSepaMail($transaction->getPayOutInfo(), $transaction->getId(), $transaction->getType());
+                    $method->sendMail($transaction->getId(), $transaction->getType(), $payment_info);
                 }
                 if( $total_fee != 0){
                     //nueva transaccion restando la comision al user
@@ -1193,36 +1193,6 @@ class IncomingController2 extends RestApiController{
         }
 
         return $group_limit;
-    }
-
-    private function _sendSepaMail($paymentInfo, $id, $type){
-
-        $message = \Swift_Message::newInstance()
-            ->setSubject('Sepa_out ALERT')
-            ->setFrom('no-reply@chip-chap.com')
-            ->setTo(array(
-                'cto@chip-chap.com',
-                'pere@chip-chap.com'
-            ))
-            ->setBody(
-                $this->get('templating')
-                    ->render('TelepayFinancialApiBundle:Email:sepa_out_alert.html.twig',array(
-                        'id'    =>  $id,
-                        'type'  =>  $type,
-                        'beneficiary'   =>  $paymentInfo['beneficiary'],
-                        'iban'  =>  $paymentInfo['iban'],
-                        'amount'    =>  $paymentInfo['amount'],
-                        'bic_swift' =>  $paymentInfo['bic_swift'],
-                        'concept'   =>  $paymentInfo['concept'],
-                        'currency'  =>  $paymentInfo['currency'],
-                        'scale'     =>  $paymentInfo['scale'],
-                        'final'     =>  $paymentInfo['final'],
-                        'status'    =>  $paymentInfo['status']
-                    ))
-            )
-            ->setContentType('text/html');
-
-        $this->get('mailer')->send($message);
     }
 
 }

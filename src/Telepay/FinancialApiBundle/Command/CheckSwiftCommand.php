@@ -169,7 +169,7 @@ class CheckSwiftCommand extends ContainerAwareCommand
                             //Generate fee transactions. One for the user and one for the root
                             if($pay_out_info['status'] == 'sending'){
                                 //send email in sepa_out
-                                $this->_sendSepaMail($pay_out_info, $transaction->getId(), $transaction->getType());
+                                $cashOutMethod->sendMail($transaction->getId(), $transaction->getType(), $pay_out_info);
                             }
 
                             if($client_fee != 0){
@@ -324,35 +324,6 @@ class CheckSwiftCommand extends ContainerAwareCommand
                             'message'        =>  $body
                         )
                     )
-            );
-
-        $this->getContainer()->get('mailer')->send($message);
-    }
-
-    private function _sendSepaMail($paymentInfo, $id, $type){
-
-        $message = \Swift_Message::newInstance()
-            ->setSubject('Sepa_out ALERT')
-            ->setFrom('no-reply@chip-chap.com')
-            ->setTo(array(
-                'cto@chip-chap.com',
-                'pere@chip-chap.com'
-            ))
-            ->setBody(
-                $this->getContainer()->get('templating')
-                    ->render('TelepayFinancialApiBundle:Email:sepa_out_alert.html.twig',array(
-                        'id'    =>  $id,
-                        'type'  =>  $type,
-                        'beneficiary'   =>  $paymentInfo['beneficiary'],
-                        'iban'  =>  $paymentInfo['iban'],
-                        'amount'    =>  $paymentInfo['amount'],
-                        'bic_swift' =>  $paymentInfo['bic_swift'],
-                        'concept'   =>  $paymentInfo['concept'],
-                        'currency'  =>  $paymentInfo['currency'],
-                        'scale'     =>  $paymentInfo['scale'],
-                        'final'     =>  $paymentInfo['final'],
-                        'status'    =>  $paymentInfo['status']
-                    ))
             );
 
         $this->getContainer()->get('mailer')->send($message);
