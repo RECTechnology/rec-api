@@ -84,6 +84,16 @@ class HalcashMethod extends BaseMethod{
 
         }
 
+        //TODO check phone
+        $params['phone'] = str_replace($params['phone'], " ", "");
+        $params['phone'] = str_replace($params['phone'], "-", "");
+        $params['phone'] = str_replace($params['phone'], ".", "");
+        $params['phone'] = str_replace($params['phone'], "+", "");
+        $params['phone'] = str_replace($params['phone'], "(", "");
+        $params['phone'] = str_replace($params['phone'], ")", "");
+        //$phone_verification = $this->checkPhone($params['prefix'], $params['phone']);
+        //if(!$phone_verification) throw new Exception('Invalid phone.',400);
+
         if($request->request->has('pin')){
             $pin = $request->request->get('pin');
         }else{
@@ -168,5 +178,22 @@ class HalcashMethod extends BaseMethod{
 
         return $paymentInfo;
 
+    }
+
+    public function checkPhone($phone, $prefix){
+        switch($prefix){
+            //SPAIN
+            case('34'):
+                return preg_match("/^[0-9() -]+$/", $phone);
+            //GREECE
+            case('48'):
+                return preg_match("/^[0-9() -]+$/", $phone);
+            //USA
+            case('1'):
+                return preg_match("/^[0-9() -]+$/", $phone);
+            default:
+                return true;
+        }
+        return true;
     }
 }
