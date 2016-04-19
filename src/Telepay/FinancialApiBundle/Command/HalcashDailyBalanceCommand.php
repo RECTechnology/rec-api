@@ -86,7 +86,7 @@ class HalcashDailyBalanceCommand extends ContainerAwareCommand
 
         $this->sendEmail(
             'Informe de transacciones de hal',
-            'Total Transacciones halcash y easypay últimas 24 horas: ' . $total_transactions_es . ' EUR ,' . $total_transactions_pl . ' PLN y ' . $total_transactions_EP . ' EUR'
+            'Total Transacciones halcash últimas 24 horas: ' . $total_transactions_es . ' EUR ,' . $total_transactions_pl . ' PLN .\n Easypay: ' . $total_transactions_EP . ' EUR'
         );
 
         $output->writeln('Informe enviado');
