@@ -86,6 +86,8 @@ class ClientsController extends BaseApiController {
     public function updateAction(Request $request, $id){
 
         $em = $this->getDoctrine()->getManager();
+
+        //Change owner of this client
         if($request->request->has('user')){
             $user_id = $request->request->get('user');
             $request->request->remove('user');
@@ -102,6 +104,7 @@ class ClientsController extends BaseApiController {
             $services = $request->get('services');
 
             foreach($services as $service){
+
                 $method = explode('-',$service,2);
 
                 $exist_method_in = $this->get('net.telepay.swift_provider')->isValidMethod($method[0].'-in');
