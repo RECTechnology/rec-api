@@ -77,16 +77,16 @@ class HalcashDailyBalanceCommand extends ContainerAwareCommand
 
         $total_transactions_EP = 0;
         foreach($qb->toArray() as $transaction){
-            $paymentInInfo = $transaction->getPayOutInfo();
+            $paymentInInfo = $transaction->getPayInInfo();
             $paymentOutInfo = $transaction->getPayOutInfo();
-            if($paymentInInfo['status'] == 'sent' || $paymentInInfo['status'] == 'withdrawn'){
-                $total_transactions_EP = $total_transactions_es + $paymentOutInfo['amount'];
+            if($paymentOutInfo['status'] == 'sent' || $paymentOutInfo['status'] == 'withdrawn'){
+                $total_transactions_EP = $total_transactions_es + $paymentInInfo['amount'];
             }
         }
 
         $this->sendEmail(
             'Informe de transacciones de hal',
-            'Total Transacciones halcash últimas 24 horas: ' . $total_transactions_es . ' EUR ,' . $total_transactions_pl . ' PLN .\n Easypay: ' . $total_transactions_EP . ' EUR'
+            'Total Transacciones halcash últimas 24 horas: ' . $total_transactions_es/100 . ' EUR, ' . $total_transactions_pl/100 . ' PLN. Easypay: ' . $total_transactions_EP/100 . ' EUR'
         );
 
         $output->writeln('Informe enviado');
@@ -100,6 +100,8 @@ class HalcashDailyBalanceCommand extends ContainerAwareCommand
             ->setFrom('no-reply@chip-chap.com')
             ->setTo(array(
                 'pere@chip-chap.com',
+                'lluis@chip-chap.com',
+                'cio@chip-chap.com',
                 'cto@chip-chap.com'
             ))
             ->setBody(
