@@ -6,17 +6,17 @@ use Telepay\FinancialApiBundle\Controller\RestApiController;
 use FOS\RestBundle\Controller\Annotations as Rest;
 
 /**
- * Class ServicesController
+ * Class MethodsController
  * @package Telepay\FinancialApiBundle\Controller\Management\Admin
  */
-class ServicesController extends RestApiController
+class MethodsController extends RestApiController
 {
     /**
      * @Rest\View()
      */
     public function index() {
 
-        $services = $this->get('net.telepay.service_provider')->findAll();
+        $services = $this->get('net.telepay.method_provider')->findAll();
 
         if ($this->get('security.authorization_checker')->isGranted('ROLE_SUPER_ADMIN')) {
             $allowed_services = $services;
