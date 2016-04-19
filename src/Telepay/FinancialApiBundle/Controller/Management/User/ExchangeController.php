@@ -32,7 +32,7 @@ class ExchangeController extends RestApiController{
 
         $result = array();
         $result['default_currency'] = $default_currency;
-        $result['scale'] = $this->_getScale($default_currency);
+        $result['scale'] = Currency::$SCALE[$default_currency];
         foreach($currencies as $currency ){
             if($currency != $default_currency ){
                 try{
@@ -69,35 +69,5 @@ class ExchangeController extends RestApiController{
 
     }
 
-    public  function _getScale($currency){
-
-        $scale=0;
-        switch($currency){
-            case "EUR":
-                $scale=2;
-                break;
-            case "MXN":
-                $scale=2;
-                break;
-            case "USD":
-                $scale=2;
-                break;
-            case "BTC":
-                $scale=8;
-                break;
-            case "FAC":
-                $scale=8;
-                break;
-            case "PLN":
-                $scale=8;
-                break;
-            case "":
-                $scale=0;
-                break;
-        }
-
-        return $scale;
-
-    }
 
 }

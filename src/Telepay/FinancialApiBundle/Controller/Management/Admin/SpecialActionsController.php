@@ -534,7 +534,12 @@ class SpecialActionsController extends RestApiController {
         $dm->persist($trans);
         $dm->flush();
 
-        return $this->restTransaction($trans, "Done");
+        if($trans->getType() == 'swift'){
+            return $this->swiftTransaction($trans, "Done");
+        }else{
+            return $this->methodTransaction(200, $trans, "Done");
+        }
+
     }
 
     private function _dealer(Transaction $transaction, UserWallet $current_wallet){

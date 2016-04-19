@@ -91,21 +91,19 @@ class SwiftController extends BaseApiController{
             'user'  =>  $user
         ));
 
-        $services = null;
-        //To activate services we have to send all the services we want activate
-        if($request->request->has('services')){
+        $swiftMethods = null;
+        //To activate swift methods we have to send all the services we want activate
+        if($request->request->has('swift_methods')){
 
-            $services = $request->get('services');
-            $request->request->remove('services');
+            $swiftMethods = $request->get('swift_methods');
+            $request->request->remove('swift_methods');
         }
 
         $response = parent::updateAction($request, $id);
 
-        if($services != null){
+        if($swiftMethods != null){
             if($response->getStatusCode() == 204){
-//                $client = $em->getRepository('TelepayFinancialApiBundle:Client')->find($id);
-
-                $client->activeSwiftList($services);
+                $client->activeSwiftList($swiftMethods);
 
                 $em->persist($client);
                 $em->flush();
@@ -113,7 +111,6 @@ class SwiftController extends BaseApiController{
         }
 
         return $response;
-
 
     }
 
