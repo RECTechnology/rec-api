@@ -154,9 +154,9 @@ class GroupsController extends BaseApiController
             $admin = $group->getCreator();
             $methodsList = $admin->getMethodsList();
             foreach($methods as $method){
-                if(in_array($method->getCname(),$methodsList)){
+                if(in_array($method->getCname().'-'.$method->getType(), $methodsList)){
                     $limit_def = new LimitDefinition();
-                    $limit_def->setCname($method->getCname());
+                    $limit_def->setCname($method->getCname().'-'.$method->getType());
                     $limit_def->setSingle(0);
                     $limit_def->setDay(0);
                     $limit_def->setWeek(0);
@@ -169,7 +169,7 @@ class GroupsController extends BaseApiController
                     $commission->setGroup($group);
                     $commission->setFixed(0);
                     $commission->setVariable(0);
-                    $commission->setServiceName($method->getCname());
+                    $commission->setServiceName($method->getCname().'-'.$method->getType());
                     $commission->setCurrency($method->getCurrency());
                     $em->persist($commission);
                     $em->persist($limit_def);
