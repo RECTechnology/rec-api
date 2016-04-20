@@ -71,8 +71,8 @@ class HalcashDailyBalanceCommand extends ContainerAwareCommand
             ->field('type')->equals('swift')
             ->field('method_in')->equals('easypay')
             ->field('status')->equals('success')
-            ->field('created')->gte($start_time)
-            ->field('created')->lte($finish_time)
+            ->field('updated')->gte($start_time)
+            ->field('updated')->lte($finish_time)
             ->getQuery();
 
         $total_transactions_EP = 0;
