@@ -140,8 +140,7 @@ class ClientsController extends BaseApiController {
                 }
 
             }
-            $request->request->remove('services');
-            $request->request->add(array('swift_list' =>$services));
+            
         }
 
         $response = parent::updateAction($request, $id);
