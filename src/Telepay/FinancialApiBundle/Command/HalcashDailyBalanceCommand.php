@@ -80,7 +80,7 @@ class HalcashDailyBalanceCommand extends ContainerAwareCommand
             $paymentInInfo = $transaction->getPayInInfo();
             $paymentOutInfo = $transaction->getPayOutInfo();
             if($paymentOutInfo['status'] == 'sent' || $paymentOutInfo['status'] == 'withdrawn'){
-                $total_transactions_EP = $total_transactions_es + $paymentInInfo['amount'];
+                $total_transactions_EP = $total_transactions_EP + $paymentInInfo['amount'];
             }
         }
 
