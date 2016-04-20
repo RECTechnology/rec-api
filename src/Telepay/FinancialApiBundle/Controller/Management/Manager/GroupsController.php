@@ -148,7 +148,7 @@ class GroupsController extends BaseApiController
             $groupsRepo = $em->getRepository("TelepayFinancialApiBundle:Group");
             $group = $groupsRepo->findOneBy(array('name' => $group_name));
 
-            $servicesRepo = $this->get('net.telepay.service_provider');
+            $servicesRepo = $this->get('net.telepay.method_provider');
             $services = $servicesRepo->findAll();
 
             $admin = $group->getCreator();
