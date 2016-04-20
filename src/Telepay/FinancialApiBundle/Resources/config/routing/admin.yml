@@ -19,6 +19,12 @@ admin_clients_update:
     requirements:
         _method: PUT
 
+admin_clients_delete:
+    pattern:  /admin/v1/clients/{id}
+    defaults: { _controller: Telepay\FinancialApiBundle\Controller\Management\Admin\ClientsController::deleteAction }
+    requirements:
+        _method: DELETE
+
 admin_clients_update_limit:
     pattern:  /admin/v1/clients/limit/{id}
     defaults: { _controller: Telepay\FinancialApiBundle\Controller\Management\Admin\ClientsController::updateLimits }

@@ -456,8 +456,6 @@ class SpecialActionsController extends RestApiController {
      * @Rest\View
      */
     public function sepaOutList(Request $request){
-
-        //TODO hacer que sea compatible con los methods, ahora solo vale para swift
         //only superadmin allowed
         if (!$this->get('security.authorization_checker')->isGranted('ROLE_SUPER_ADMIN')) {
             throw $this->createAccessDeniedException();
@@ -471,6 +469,14 @@ class SpecialActionsController extends RestApiController {
                 'status'    =>  'sending'
             ));
 
+        $transactions_out = $dm->getRepository('TelepayFinancialApiBundle:Transaction')
+            ->findBy(array(
+                'method'  =>  'sepa',
+                'type'  =>  'out',
+                'status'    =>  'sending'
+            ));
+
+        $transactions = array_merge($transactions, $transactions_out);
 
         $total = count($transactions);
 
