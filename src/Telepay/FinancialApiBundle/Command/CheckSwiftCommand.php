@@ -134,8 +134,8 @@ class CheckSwiftCommand extends ContainerAwareCommand
                             //Hay que volver a calcular el amount en btc que vamos a enviar y ponerlo en el pay_out_info
                             $crypto_amount = round($this->_exchange($pay_in_info['amount'], $cashInMethod->getCurrency(), $cashOutMethod->getCurrency()),0);
 
-                            $client_fee = ($crypto_amount * ($clientFees->getVariable()/100) + $clientFees->getFixed());
-                            $service_fee = ($crypto_amount * ($methodFees->getVariable()/100) + $methodFees->getFixed());
+                            $client_fee = round(($crypto_amount * ($clientFees->getVariable()/100) + $clientFees->getFixed()),$transaction->getScale());
+                            $service_fee = round(($crypto_amount * ($methodFees->getVariable()/100) + $methodFees->getFixed()),$transaction->getScale());
 
                             $final_amount = $crypto_amount - $service_fee - $client_fee;
                             $pay_out_info['amount'] = $final_amount;
