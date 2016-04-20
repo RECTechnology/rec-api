@@ -26,36 +26,36 @@ class SafetyPayDriver{
         $this->tracking_code = $tracking_code;
         $this->response_format = $response_format;
         $this->url_safety = $url_safety;
-        $this->date_time = date('d-m-Y\Th:i:s');
+        $this->date_time = date('Y-m-d\Th:i:s');
         $this->url_success = 'http://playa-almarda.es';
         $this->url_error = 'http://pasproduccions.com';
-        $this->expiration = 5;
+        $this->expiration = 120;
     }
 
     function request($currency, $amount){
 
         $merchant_reference = $this->getReference();
         $this->currency = $currency;
-        $this->amount = $amount;
+        $this->amount = $amount/100;
 
         $ch = curl_init($this->url_safety);
         curl_setopt ($ch, CURLOPT_POST, 1);
 
         $data = $this->date_time.$this->currency.$this->amount.$merchant_reference.$this->lang.$this->tracking_code.$this->expiration.$this->url_success.$this->url_error.$this->signature_key;
-
+//        $data = '2016-03-29T11:21:01PEN15.00CM1943ES120https://www.safetypay.comhttps://www.safetypay.com'
         $signature = hash('sha256', $data,false);
 
         $params = array(
             'ApiKey'				=>	$this->api_key,
             'RequestDateTime'		=>	$this->date_time,
-            'CurrencyCode'			=>	$this->currency,
+            'CurrencyID'			=>	$this->currency,
             'Amount'				=>	$this->amount,
-            'MerchantReferenceNo'	=>	$merchant_reference,
+            'MerchantSalesID'	    =>	$merchant_reference,
             'Language'				=>	$this->lang,
             'TrackingCode'			=>	$this->tracking_code,
             'ExpirationTime'		=>	$this->expiration,
-            'TransactionOkUrl'		=>	$this->url_success,
-            'TransactionErrorUrl'	=>	$this->url_error,
+            'TransactionOkURL'		=>	$this->url_success,
+            'TransactionErrorURL'	=>	$this->url_error,
             'ResponseFormat'		=>	$this->response_format,
             'Signature'				=>	$signature
         );
@@ -111,6 +111,7 @@ class SafetyPayDriver{
                         break;
                     case 2:
                         $message = 'Bad Signature';
+                        break;
                 }
                 $response['error_description'] = $message;
                 throw new HttpException(400,'Transaction failed - '.$message);
@@ -119,7 +120,7 @@ class SafetyPayDriver{
             //TODO check Signature
             $paymentInfo = array();
             $paymentInfo['url'] = $response['url'];
-            
+
             return $paymentInfo;
         }
 
