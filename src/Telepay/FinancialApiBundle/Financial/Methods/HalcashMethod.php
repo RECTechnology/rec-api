@@ -84,15 +84,9 @@ class HalcashMethod extends BaseMethod{
 
         }
 
-        //TODO check phone
-        $params['phone'] = str_replace(" ", "", $params['phone']);
-        $params['phone'] = str_replace("-", "", $params['phone']);
-        $params['phone'] = str_replace(".", "", $params['phone']);
-        $params['phone'] = str_replace("+", "", $params['phone']);
-        $params['phone'] = str_replace("(", "", $params['phone']);
-        $params['phone'] = str_replace(")", "", $params['phone']);
-        //$phone_verification = $this->checkPhone($params['prefix'], $params['phone']);
-        //if(!$phone_verification) throw new Exception('Invalid phone.',400);
+        $params['phone'] = preg_replace("/[^0-9,.]/", "", $params['phone']);
+        $params['prefix'] = preg_replace("/[^0-9,.]/", "", $params['prefix']);
+        if(!$this->checkPhone($params['phone'], $params['prefix'])) throw new Exception('Invalid phone.',400);
 
         if($request->request->has('pin')){
             $pin = $request->request->get('pin');
@@ -181,19 +175,25 @@ class HalcashMethod extends BaseMethod{
     }
 
     public function checkPhone($phone, $prefix){
-        switch($prefix){
-            //SPAIN
-            case('34'):
-                return preg_match("/^[0-9() -]+$/", $phone);
-            //GREECE
-            case('48'):
-                return preg_match("/^[0-9() -]+$/", $phone);
-            //USA
-            case('1'):
-                return preg_match("/^[0-9() -]+$/", $phone);
-            default:
-                return true;
+        if(strlen($prefix)<1){
+            return false;
         }
-        return true;
+
+        //SP xxxxxxxxx
+        if($prefix == '34'){
+            return strlen($phone)==9;
+        }
+        //PL xxxxxxxxx
+        elseif($prefix == '48'){
+            return strlen($phone)==9;
+        }
+        //GB 07xxx xxxxxx
+        elseif($prefix == '44'){
+            return strlen($phone)==11;
+        }
+        elseif(strlen($phone)>7){
+            return true;
+        }
+        return false;
     }
 }
