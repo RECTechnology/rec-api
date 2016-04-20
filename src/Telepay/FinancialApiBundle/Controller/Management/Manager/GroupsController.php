@@ -189,7 +189,7 @@ class GroupsController extends BaseApiController
                     $limit->setYear(0);
                     $limit->setTotal(0);
                     $limit->setSingle(0);
-                    $limit->setCname($exchange->getCname());
+                    $limit->setCname('exchange_'.$exchange->getCname());
                     $limit->setCurrency($exchange->getCurrencyOut());
                     $limit->setGroup($group);
 
@@ -197,7 +197,7 @@ class GroupsController extends BaseApiController
                     $fee->setFixed(0);
                     $fee->setVariable(0);
                     $fee->setCurrency($exchange->getCurrencyOut());
-                    $fee->setServiceName($exchange->getCname());
+                    $fee->setServiceName('exchange_'.$exchange->getCname());
                     $fee->setGroup($group);
 
                     $em->persist($limit);
