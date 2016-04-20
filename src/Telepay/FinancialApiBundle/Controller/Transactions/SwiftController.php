@@ -56,6 +56,7 @@ class SwiftController extends RestApiController{
 
         //check if user has this service and if is active
         $services = $client->getSwiftList();
+
         if(!$services) throw new HttpException(403,'Method not allowed');
 
         if(!in_array($type_in.'-'.$type_out.':1', $services)) throw new HttpException(403, 'Method not allowed');

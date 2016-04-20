@@ -75,3 +75,13 @@ services:
         class: Telepay\FinancialApiBundle\Financial\Driver\EasyPayDriver
         arguments:
             - "%easypay_account%"
+
+    net.telepay.driver.safetypay:
+        class: Telepay\FinancialApiBundle\Financial\Driver\SafetyPayDriver
+        arguments:
+            - "%safetypay_api_key%"
+            - "%safetypay_signature_key%"
+            - "%safetypay_language%"
+            - "%safetypay_tracking_code%"
+            - "%safetypay_response_format%"
+            - "%safetypay_url%"
