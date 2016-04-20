@@ -140,7 +140,6 @@ class ClientsController extends BaseApiController {
                 }
 
             }
-            
         }
 
         $response = parent::updateAction($request, $id);

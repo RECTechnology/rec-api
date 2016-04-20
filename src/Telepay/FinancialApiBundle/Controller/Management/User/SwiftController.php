@@ -69,7 +69,8 @@ class SwiftController extends BaseApiController{
                 'name'  =>  $client->getName(),
                 'fees'  =>  $feesCollection,
                 'limits'    =>  $limitsCollection,
-                'swift_methods' =>  $client->getSwiftList()
+                'swift_methods' =>  $client->getSwiftList(),
+                'uris'  =>  $client->getRedirectUris()
             );
         }
 
