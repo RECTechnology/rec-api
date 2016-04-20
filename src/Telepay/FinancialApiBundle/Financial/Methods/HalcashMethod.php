@@ -85,12 +85,12 @@ class HalcashMethod extends BaseMethod{
         }
 
         //TODO check phone
-        $params['phone'] = str_replace($params['phone'], " ", "");
-        $params['phone'] = str_replace($params['phone'], "-", "");
-        $params['phone'] = str_replace($params['phone'], ".", "");
-        $params['phone'] = str_replace($params['phone'], "+", "");
-        $params['phone'] = str_replace($params['phone'], "(", "");
-        $params['phone'] = str_replace($params['phone'], ")", "");
+        $params['phone'] = str_replace(" ", "", $params['phone']);
+        $params['phone'] = str_replace("-", "", $params['phone']);
+        $params['phone'] = str_replace(".", "", $params['phone']);
+        $params['phone'] = str_replace("+", "", $params['phone']);
+        $params['phone'] = str_replace("(", "", $params['phone']);
+        $params['phone'] = str_replace(")", "", $params['phone']);
         //$phone_verification = $this->checkPhone($params['prefix'], $params['phone']);
         //if(!$phone_verification) throw new Exception('Invalid phone.',400);
 
