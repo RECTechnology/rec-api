@@ -45,14 +45,18 @@ class ClientsController extends BaseApiController {
             $user = $em->getRepository('TelepayFinancialApiBundle:User')->find($user_id);
 
         }else{
-            $user = $em->getRepository('TelepayFinancialApiBundle:User')->find(1);
+            $user = $this->get('security.context')->getToken()->getUser();
         }
 
         if(!$user) throw new HttpException(404, 'User not found');
 
+        $uris = $request->request->get('redirect_uris');
+        $request->request->remove('redirect_uris');
+
         $request->request->add(array(
             'allowed_grant_types' => array('client_credentials'),
-            'swift_list'    =>  array()
+            'swift_list'    =>  array(),
+            'redirect_uris' => array($uris)
         ));
 
         $response = parent::createAction($request);
