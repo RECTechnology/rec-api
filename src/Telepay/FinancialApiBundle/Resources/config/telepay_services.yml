@@ -29,21 +29,38 @@ services:
                 - "@net.telepay.services.sepa_out.v1"
 
 
+#    net.telepay.swift_provider:
+#        class: Telepay\FinancialApiBundle\DependencyInjection\TelepayMethodProvider
+#        arguments:
+#            services:
+#                - "@net.telepay.out.btc.v1"
+#                - "@net.telepay.in.btc.v1"
+#                - "@net.telepay.out.fac.v1"
+#                - "@net.telepay.in.fac.v1"
+#                - "@net.telepay.out.halcash_es.v1"
+#                - "@net.telepay.out.halcash_pl.v1"
+#                - "@net.telepay.in.paynet_reference.v1"
+#                - "@net.telepay.out.sepa.v1"
+#                - "@net.telepay.in.easypay.v1"
+#                - "@net.telepay.out.cryptocapital.v1"
+#                - "@net.telepay.in.safetypay.v1"
+
     net.telepay.swift_provider:
-        class: Telepay\FinancialApiBundle\DependencyInjection\TelepayMethodProvider
+        class: Telepay\FinancialApiBundle\DependencyInjection\TelepaySwiftProvider
         arguments:
             services:
-                - "@net.telepay.out.btc.v1"
-                - "@net.telepay.in.btc.v1"
-                - "@net.telepay.out.fac.v1"
-                - "@net.telepay.in.fac.v1"
-                - "@net.telepay.out.halcash_es.v1"
-                - "@net.telepay.out.halcash_pl.v1"
-                - "@net.telepay.in.paynet_reference.v1"
-                - "@net.telepay.out.sepa.v1"
-                - "@net.telepay.in.easypay.v1"
-                - "@net.telepay.out.cryptocapital.v1"
-                - "@net.telepay.in.safetypay.v1"
+                - "btc-halcash_es"
+                - "btc-halcash_pl"
+                - "btc-cryptocapital"
+                - "btc-sepa"
+                - "easypay-btc"
+                - "paynet_reference-btc"
+                - "fac-halcash_es"
+                - "fac-halcash_pl"
+                - "fac-cryptocapital"
+                - "fac-sepa"
+                - "easypay-fac"
+                - "paynet_reference-fac"
 
     net.telepay.method_provider:
         class: Telepay\FinancialApiBundle\DependencyInjection\TelepayMethodProvider
