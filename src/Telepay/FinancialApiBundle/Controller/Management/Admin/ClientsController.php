@@ -58,8 +58,8 @@ class ClientsController extends BaseApiController {
 
         $request->request->add(array(
             'allowed_grant_types' => array('client_credentials'),
-            'redirect_uris' => array($uris),
-            'swift_list'    =>  $swiftMethods
+            'swift_list'    =>  $swiftMethods,
+            'redirect_uris' => array($uris)
         ));
 
         $response = parent::createAction($request);
