@@ -51,7 +51,7 @@ class MethodsController extends RestApiController
     public function indexSwift() {
 
         //search all input methods and output methods and combine like btc_halcash_es
-        $services = $this->get('net.telepay.swift_provider2')->findAll();
+        $services = $this->get('net.telepay.swift_provider')->findAll();
 
         if ($this->get('security.authorization_checker')->isGranted('ROLE_SUPER_COMMERCE')) {
             //todo: add pos service
