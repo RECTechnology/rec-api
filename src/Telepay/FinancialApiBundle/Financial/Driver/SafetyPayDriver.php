@@ -26,26 +26,29 @@ class SafetyPayDriver{
         $this->tracking_code = $tracking_code;
         $this->response_format = $response_format;
         $this->url_safety = $url_safety;
-        $this->date_time = date('Y-m-d\Th:i:s');
+        $this->date_time = $this->_getDateIso8601(time());
         $this->url_success = 'http://playa-almarda.es';
         $this->url_error = 'http://pasproduccions.com';
         $this->expiration = 120;
     }
 
     function request($currency, $amount){
-
         $merchant_reference = $this->getReference();
         $this->currency = $currency;
-        $this->amount = $amount/100;
+        $this->amount = ($amount/100).'.00';
 
         $ch = curl_init($this->url_safety);
         curl_setopt ($ch, CURLOPT_POST, 1);
 
-        $data = $this->date_time.$this->currency.$this->amount.$merchant_reference.$this->lang.$this->tracking_code.$this->expiration.$this->url_success.$this->url_error.$this->signature_key;
-//        $data = '2016-03-29T11:21:01PEN15.00CM1943ES120https://www.safetypay.comhttps://www.safetypay.com'
+        $data = $this->date_time.$this->currency.$this->amount.$merchant_reference.$this->lang.$this->expiration.$this->url_success.$this->url_error.$this->signature_key;
+//        $data = '2016-04-21T18:03:33MXN1545.5ORDER_NO-12345ES120http://demostore.safetypay.comhttp://demostore.safetypay.com/contacts/4774d66c4d24b7091ce3a261b0e5a990';
+//        $data = '2016-04-20T06:38:33MXN15.36H7WDYESChipChap120http://playa-almarda.eshttp://pasproduccions.com4774d66c4d24b7091ce3a261b0e5a990';
         $signature = hash('sha256', $data,false);
-
+//        $signature = sha256($data);
+die(print_r($data,true));
+//        die(print_r($this->date_time,true));
         $params = array(
+            'Username'              =>  $this->api_key,
             'ApiKey'				=>	$this->api_key,
             'RequestDateTime'		=>	$this->date_time,
             'CurrencyID'			=>	$this->currency,
@@ -56,7 +59,7 @@ class SafetyPayDriver{
             'ExpirationTime'		=>	$this->expiration,
             'TransactionOkURL'		=>	$this->url_success,
             'TransactionErrorURL'	=>	$this->url_error,
-            'ResponseFormat'		=>	$this->response_format,
+            'TransactionExpirationTime'	=>	$this->url_error,
             'Signature'				=>	$signature
         );
 
@@ -158,6 +161,31 @@ class SafetyPayDriver{
         shuffle($array_chars);
 
         return substr(implode("", $array_chars),0,5);
+    }
+
+    private function _getDateIso8601( $int_date )
+    {
+        $date_mod = date('Y-m-d\TH:i:s', $int_date);
+        $pre_timezone = date('O', $int_date);
+        $time_zone = substr($pre_timezone, 0, 3) . ':'
+            . substr($pre_timezone, 3, 2);
+        $pos = strpos($time_zone, "-");
+        if (PHP_VERSION >= '4.0')
+            if ($pos === false) {
+                // nothing
+            }
+            else
+                if ($pos != 0)
+                    $date_mod = $time_zone;
+                else
+                    if (is_string($pos) && !$pos) {
+                        // nothing
+                    }
+                    else
+                        if ($pos != 0)
+                            $date_mod = $time_zone;
+
+        return $date_mod;
     }
 
 }
