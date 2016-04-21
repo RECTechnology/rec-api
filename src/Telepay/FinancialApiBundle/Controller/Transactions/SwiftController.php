@@ -74,6 +74,10 @@ class SwiftController extends RestApiController{
         $cashInMethod = $this->container->get('net.telepay.in.'.$type_in.'.v'.$version_number);
         $cashOutMethod = $this->container->get('net.telepay.out.'.$type_out.'.v'.$version_number);
 
+        //check email
+        $email = $request->request->get('email')?$request->request->get('email'):'';
+        if($amount == '' && ($cashInMethod->getEmialRequired() || $cashOutMethod->getEmialRequired())) throw new HttpException(400, 'Email is required');
+
         //get configuration(method)
         $swift_config = $this->container->get('net.telepay.config.'.$type_in.'.'.$type_out);
         $methodFees = $swift_config->getFees();
@@ -98,6 +102,7 @@ class SwiftController extends RestApiController{
         $transaction->createFromRequest($request);
         $transaction->setFixedFee(0);
         $transaction->setVersion($version_number);
+        $transaction->setEmailNotification($email);
         $transaction->setVariableFee(0);
         $transaction->setService($type_in.'-'.$type_out);
         $transaction->setUser($user->getId());
