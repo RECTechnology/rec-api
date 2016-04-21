@@ -83,7 +83,7 @@ class AbstractMethod implements MethodInterface, CashInInterface, CashOutInterfa
 
     public function getEmialRequired()
     {
-        return $this->emial_required;
+        return $this->emial_required == "true";
     }
 
     public function getPayInInfo($amount)
