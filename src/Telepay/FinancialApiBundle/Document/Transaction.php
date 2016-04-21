@@ -351,6 +351,12 @@ class Transaction implements TransactionTiming {
     private $client_data = array();
 
     /**
+     * @var
+     * @MongoDB\String
+     */
+    private $email_notification;
+
+    /**
      * Get id
      *
      * @return id $id
@@ -914,5 +920,21 @@ class Transaction implements TransactionTiming {
     public function setCountryCode($country_code)
     {
         $this->country_code = $country_code;
+    }
+
+    /**
+     * @return mixed
+     */
+    public function getEmailNotification()
+    {
+        return $this->email_notification;
+    }
+
+    /**
+     * @param mixed $email_notification
+     */
+    public function setEmailNotification($email_notification)
+    {
+        $this->email_notification = $email_notification;
     }
 }
