@@ -2,6 +2,7 @@
 
 namespace Telepay\FinancialApiBundle\Controller\Management\Admin;
 
+use Swift_Attachment;
 use Symfony\Component\Console\Input\ArgvInput;
 use Symfony\Component\Console\Output\BufferedOutput;
 use Symfony\Component\HttpKernel\Exception\HttpException;
@@ -292,7 +293,6 @@ class SpecialActionsController extends RestApiController {
      */
     public function swiftValidation(Request $request, $id){
 
-        //TODO hacer que no solo valga para swift, tiene que valer para los metodos tb con la misma llamada
         //only superadmin allowed
         if (!$this->get('security.authorization_checker')->isGranted('ROLE_SUPER_ADMIN')) {
             throw $this->createAccessDeniedException();
@@ -316,6 +316,22 @@ class SpecialActionsController extends RestApiController {
                 $paymentInfo['status'] = Transaction::$STATUS_RECEIVED;
                 $paymentInfo['final'] = false;
                 $transaction->setPayInInfo($paymentInfo);
+                if(isset($transaction->getPayOutInfo()['email'])){
+                    $email = $transaction->getPayOutInfo()['email'];
+                    $ticket = $transaction->getPayOutInfo()['reference'];
+                    $ticket = str_replace('BUY BITCOIN ', '', $ticket);
+                    $body = array(
+                        'reference' =>  $ticket,
+                        'created'   =>  $transaction->getCreated()->format('Y-m-d H:i:s'),
+                        'concept'   =>  'BUY BITCOINS '.$ticket,
+                        'amount'    =>  $transaction->getPayInInfo()['amount']/100,
+                        'crypto_amount' => $transaction->getPayOutInfo()['amount']/1e8,
+                        'tx_id'        =>  $transaction->getPayOutInfo()['txid'],
+                        'id'        =>  $ticket,
+                        'address'   =>  $transaction->getPayOutInfo()['address']
+                    );
+                    $this->_sendTicket($body, $email, $ticket);
+                }
             }else{
                 $transaction->setStatus(Transaction::$STATUS_SUCCESS);
                 $paymentInfo = $transaction->getPayOutInfo();
@@ -606,5 +622,28 @@ class SpecialActionsController extends RestApiController {
 
     }
 
+    private function _sendTicket($body, $email, $ref){
+        $html = $this->renderView('TelepayFinancialApiBundle:Email:ticket.html.twig', $body);
 
+        $dompdf = $this->get('slik_dompdf');
+        $dompdf->getpdf($html);
+        $pdfoutput = $dompdf->output();
+
+        $message = \Swift_Message::newInstance()
+            ->setSubject('Chip-Chap Ticket ref: '.$ref)
+            ->setFrom('no-reply@chip-chap.com')
+            ->setTo(array(
+                $email
+            ))
+            ->setBody(
+                $this->get('templating')
+                    ->render('TelepayFinancialApiBundle:Email:ticket.html.twig',
+                        $body
+                    )
+            )
+            ->setContentType('text/html')
+            ->attach(Swift_Attachment::newInstance($pdfoutput, $ref.'-'.$body["id"].'.pdf'));
+
+        $this->get('mailer')->send($message);
+    }
 }
