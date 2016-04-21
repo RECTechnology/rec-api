@@ -53,9 +53,12 @@ class ClientsController extends BaseApiController {
         $uris = $request->request->get('redirect_uris');
         $request->request->remove('redirect_uris');
 
+        //put all swift methods available but inactive for each new client
+        $swiftMethods = $this->get('net.telepay.swift_provider')->findAll();
+
         $request->request->add(array(
             'allowed_grant_types' => array('client_credentials'),
-            'swift_list'    =>  array(),
+            'swift_list'    =>  $swiftMethods,
             'redirect_uris' => array($uris)
         ));
 
@@ -70,7 +73,8 @@ class ClientsController extends BaseApiController {
             $em->persist($client);
             $em->flush();
 
-            //TODO create limits and fees foreach swift methods
+            //create limits and fees foreach swift methods
+            $this->_createLimitsFees($client, $swiftMethods);
 
         }
 
@@ -103,37 +107,39 @@ class ClientsController extends BaseApiController {
         }
 
         $services = null;
-        if($request->request->has('services')){
+        if($request->request->has('swift_list')){
 
-            $services = $request->get('services');
+            $services = $request->get('swift_list');
 
             foreach($services as $service){
 
                 $method = explode('-',$service,2);
 
-                $exist_method_in = $this->get('net.telepay.swift_provider')->isValidMethod($method[0].'-in');
+                $validSwiftMethods = $this->get('net.telepay.swift_provider')->findAll();
+
+                if(!in_array($method, $validSwiftMethods)) throw new HttpException(404, 'Method not allowed');
+
+                $exist_method_in = $this->get('net.telepay.method_provider')->isValidMethod($method[0].'-in');
 
                 if($exist_method_in == false){
                     throw new HttpException(404, 'Cash in method '.$method[0].' not found');
                 }else{
-                    $method_in = $this->get('net.telepay.swift_provider')->findByCname($method[0].'-in');
+                    $method_in = $this->get('net.telepay.method_provider')->findByCname($method[0].'-in');
                     if($method_in->getType() != 'in') throw new HttpException(404, 'Cash in method '.$method[0].' not found');
                 }
 
                 if(!isset($method[1]) ) throw new HttpException(404, 'Cash out method not found');
 
-                $exist_method_out = $this->get('net.telepay.swift_provider')->isValidMethod($method[1].'-out');
+                $exist_method_out = $this->get('net.telepay.method_provider')->isValidMethod($method[1].'-out');
 
                 if($exist_method_out == false){
                     throw new HttpException(404, 'Cash out method '.$method[1].' not found');
                 }else{
-                    $method_out = $this->get('net.telepay.swift_provider')->findByCname($method[1].'-out');
+                    $method_out = $this->get('net.telepay.method_provider')->findByCname($method[1].'-out');
                     if($method_out->getType() != 'out') throw new HttpException(404, 'Cash out method '.$method[1].' not found');
                 }
 
             }
-            $request->request->remove('services');
-            $request->request->add(array('swift_list' =>$services));
         }
 
         $response = parent::updateAction($request, $id);

@@ -31,7 +31,8 @@
         "ramsey/uuid": "~2.8",
         "blockchain/blockchain": "dev-master",
         "textalk/websocket": "1.0.*",
-        "fergusean/nusoap": "^0.9.5"
+        "fergusean/nusoap": "^0.9.5",
+        "slik/dompdf-bundle" : "dev-master"
     },
     "require-dev": {
         "sensio/generator-bundle": "~2.3"

@@ -23,6 +23,7 @@ class AppKernel extends Kernel
             new FOS\OAuthServerBundle\FOSOAuthServerBundle(),
             new Doctrine\Bundle\MongoDBBundle\DoctrineMongoDBBundle(),
             new Nelmio\CorsBundle\NelmioCorsBundle(),
+            new Slik\DompdfBundle\SlikDompdfBundle(),
         );
 
         if (in_array($this->getEnvironment(), array('dev', 'test'))) {
