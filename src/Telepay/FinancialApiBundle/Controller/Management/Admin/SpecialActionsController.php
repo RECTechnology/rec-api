@@ -316,7 +316,7 @@ class SpecialActionsController extends RestApiController {
                 $paymentInfo['status'] = Transaction::$STATUS_RECEIVED;
                 $paymentInfo['final'] = false;
                 $transaction->setPayInInfo($paymentInfo);
-                if(isset($transaction->getPayOutInfo()['email'])){
+                if(isset($transaction->getPayOutInfo()['email']) && $transaction->getPayOutInfo()['email'] != ""){
                     $email = $transaction->getPayOutInfo()['email'];
                     $ticket = $transaction->getPayOutInfo()['reference'];
                     $ticket = str_replace('BUY BITCOIN ', '', $ticket);
