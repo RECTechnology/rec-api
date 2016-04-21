@@ -59,7 +59,7 @@ class SwiftController extends RestApiController{
 
         if(!$services) throw new HttpException(403,'Method not allowed');
 
-        if(!in_array($type_in.'-'.$type_out.':1', $services)) throw new HttpException(403, 'Method not allowed');
+        if(!in_array($type_in.'-'.$type_out.':1', $services)) throw new HttpException(403, 'Service temporally unavailable');
 
         if(!$request->request->has('amount')) throw new HttpException(404, 'Param amount not found');
 
