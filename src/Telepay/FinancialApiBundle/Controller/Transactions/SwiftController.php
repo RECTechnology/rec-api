@@ -392,7 +392,7 @@ class SwiftController extends RestApiController{
             }
 
         }elseif($option == 'recheck'){
-            if($transaction->getStatus() == Transaction::$STATUS_EXPIRED && $payInInfo['status'] == 'expired'){
+            if(($transaction->getStatus() == Transaction::$STATUS_EXPIRED && $payInInfo['status'] == 'expired') || ($payInInfo['status'] == 'success' && $payOutInfo['status'] == 'failed' || $payOutInfo['status'] == false)){
                 //cancel transaction
                 $transaction->setStatus(Transaction::$STATUS_CREATED);
                 $payInInfo['status'] = 'created';
