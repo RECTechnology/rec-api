@@ -41,11 +41,8 @@ class SafetyPayDriver{
         curl_setopt ($ch, CURLOPT_POST, 1);
 
         $data = $this->date_time.$this->currency.$this->amount.$merchant_reference.$this->lang.$this->expiration.$this->url_success.$this->url_error.$this->signature_key;
-//        $data = '2016-04-21T18:03:33MXN1545.5ORDER_NO-12345ES120http://demostore.safetypay.comhttp://demostore.safetypay.com/contacts/4774d66c4d24b7091ce3a261b0e5a990';
-//        $data = '2016-04-20T06:38:33MXN15.36H7WDYESChipChap120http://playa-almarda.eshttp://pasproduccions.com4774d66c4d24b7091ce3a261b0e5a990';
         $signature = hash('sha256', $data,false);
-//        $signature = sha256($data);
-die(print_r($data,true));
+//die(print_r($data,true));
 //        die(print_r($this->date_time,true));
         $params = array(
             'Username'              =>  $this->api_key,

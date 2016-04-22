@@ -29,6 +29,7 @@ class TelepayMethodProvider{
                 $method->getCname(),
                 $method->getType(),
                 $method->getCurrency(),
+                $method->getEmailRequired(),
                 $method->getBase64Image()
             );
 
@@ -51,6 +52,7 @@ class TelepayMethodProvider{
                     $this->methodsByCName[$cname]->getCname(),
                     $this->methodsByCName[$cname]->getType(),
                     $this->methodsByCName[$cname]->getCurrency(),
+                    $this->methodsByCName[$cname]->getEmailRequired(),
                     $this->methodsByCName[$cname]->getBase64Image()
                 );
         }

@@ -318,7 +318,7 @@ class SpecialActionsController extends RestApiController {
                 $transaction->setPayInInfo($paymentInfo);
                 if( $transaction->getEmailNotification() != ""){
                     $email = $transaction->getEmailNotification();
-                    $ticket = $transaction->getPayOutInfo()['reference'];
+                    $ticket = $transaction->getPayInInfo()['reference'];
                     $ticket = str_replace('BUY BITCOIN ', '', $ticket);
                     $body = array(
                         'reference' =>  $ticket,
@@ -326,7 +326,7 @@ class SpecialActionsController extends RestApiController {
                         'concept'   =>  'BUY BITCOINS '.$ticket,
                         'amount'    =>  $transaction->getPayInInfo()['amount']/100,
                         'crypto_amount' => $transaction->getPayOutInfo()['amount']/1e8,
-                        'tx_id'        =>  $transaction->getPayOutInfo()['txid'],
+                        'tx_id'        =>  '',
                         'id'        =>  $ticket,
                         'address'   =>  $transaction->getPayOutInfo()['address']
                     );

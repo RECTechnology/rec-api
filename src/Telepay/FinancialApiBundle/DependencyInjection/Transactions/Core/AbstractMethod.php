@@ -42,15 +42,15 @@ class AbstractMethod implements MethodInterface, CashInInterface, CashOutInterfa
     /**
      * @var string emial_required
      */
-    private $emial_required;
+    private $email_required;
 
-    function __construct($name, $cname, $type, $currency, $emial_required, $base64_image)
+    function __construct($name, $cname, $type, $currency, $email_required, $base64_image)
     {
         $this->name = $name;
         $this->cname = $cname;
         $this->currency = $currency;
         $this->type = $type;
-        $this->emial_required = $emial_required;
+        $this->email_required = $email_required;
         $this->base64_image = $base64_image;
 
     }
@@ -81,9 +81,9 @@ class AbstractMethod implements MethodInterface, CashInInterface, CashOutInterfa
         return $this->base64_image;
     }
 
-    public function getEmialRequired()
+    public function getEmailRequired()
     {
-        return $this->emial_required == "true";
+        return $this->email_required == "true";
     }
 
     public function getPayInInfo($amount)
