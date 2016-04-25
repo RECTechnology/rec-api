@@ -378,6 +378,7 @@ class WalletController extends RestApiController{
                 ->field('user')->equals($userId)
                 ->field('created')->gte($start_time)
                 ->field('created')->lte($finish_time)
+                ->field('type')->notEqual('swift')
                 ->where("function() {
             if (typeof this.dataIn !== 'undefined') {
                 if (this.status != 'success') { return false;}
@@ -602,6 +603,7 @@ class WalletController extends RestApiController{
         $result = $dm->createQueryBuilder('TelepayFinancialApiBundle:Transaction')
             ->field('user')->equals($userId)
             ->field('status')->equals('success')
+            ->field('type')->notEqual('swift')
             ->group(
                 new \MongoCode('
                     function(trans){
