@@ -960,16 +960,19 @@ class WalletController extends RestApiController{
             ->getQuery()
             ->execute();
 
-        $total=0;
+        $total = 0;
         //die(print_r($result,true));
         foreach($result->toArray() as $d){
-            if($d['currency']!=''){
-                if($default_currency==$d['currency']){
-                    $total=$total+$d['total'];
-                }else{
-                    $change=$this->_exchange($d['total'],$d['currency'],$default_currency);
-                    $total=$total+$change;
+            if($d['currency'] != ''){
+                if($d['type'] != 'swift'){
+                    if($default_currency == $d['currency']){
+                        $total = $total + $d['total'];
+                    }else{
+                        $change = $this->_exchange($d['total'], $d['currency'], $default_currency);
+                        $total = $total + $change;
+                    }
                 }
+
 
             }
         }
