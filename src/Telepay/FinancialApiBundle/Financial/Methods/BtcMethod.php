@@ -142,9 +142,8 @@ class BtcMethod extends BaseMethod {
             $paymentInfo['status'] = Transaction::$STATUS_FAILED;
             $paymentInfo['final'] = false;
         }else{
-            $paymentInfo['txid'] = $crypto->txid;
+            $paymentInfo['txid'] = $crypto;
             $paymentInfo['status'] = 'sent';
-            $paymentInfo['info_easybtc'] = json_encode($crypto);
             $paymentInfo['final'] = true;
         }
 
