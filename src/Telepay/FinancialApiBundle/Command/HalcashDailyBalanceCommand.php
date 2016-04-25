@@ -71,22 +71,22 @@ class HalcashDailyBalanceCommand extends ContainerAwareCommand
             ->field('type')->equals('swift')
             ->field('method_in')->equals('easypay')
             ->field('status')->equals('success')
-            ->field('created')->gte($start_time)
-            ->field('created')->lte($finish_time)
+            ->field('updated')->gte($start_time)
+            ->field('updated')->lte($finish_time)
             ->getQuery();
 
         $total_transactions_EP = 0;
         foreach($qb->toArray() as $transaction){
-            $paymentInInfo = $transaction->getPayOutInfo();
+            $paymentInInfo = $transaction->getPayInInfo();
             $paymentOutInfo = $transaction->getPayOutInfo();
-            if($paymentInInfo['status'] == 'sent' || $paymentInInfo['status'] == 'withdrawn'){
-                $total_transactions_EP = $total_transactions_es + $paymentOutInfo['amount'];
+            if($paymentOutInfo['status'] == 'sent' || $paymentOutInfo['status'] == 'withdrawn'){
+                $total_transactions_EP = $total_transactions_EP + $paymentInInfo['amount'];
             }
         }
 
         $this->sendEmail(
             'Informe de transacciones de hal',
-            'Total Transacciones halcash y easypay últimas 24 horas: ' . $total_transactions_es . ' EUR ,' . $total_transactions_pl . ' PLN y ' . $total_transactions_EP . ' EUR'
+            'Total Transacciones halcash últimas 24 horas: ' . $total_transactions_es/100 . ' EUR, ' . $total_transactions_pl/100 . ' PLN. Easypay: ' . $total_transactions_EP/100 . ' EUR'
         );
 
         $output->writeln('Informe enviado');
@@ -100,6 +100,8 @@ class HalcashDailyBalanceCommand extends ContainerAwareCommand
             ->setFrom('no-reply@chip-chap.com')
             ->setTo(array(
                 'pere@chip-chap.com',
+                'lluis@chip-chap.com',
+                'cio@chip-chap.com',
                 'cto@chip-chap.com'
             ))
             ->setBody(

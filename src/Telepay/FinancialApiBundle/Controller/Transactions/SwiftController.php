@@ -56,9 +56,10 @@ class SwiftController extends RestApiController{
 
         //check if user has this service and if is active
         $services = $client->getSwiftList();
+
         if(!$services) throw new HttpException(403,'Method not allowed');
 
-        if(!in_array($type_in.'-'.$type_out.':1', $services)) throw new HttpException(403, 'Method not allowed');
+        if(!in_array($type_in.'-'.$type_out.':1', $services)) throw new HttpException(403, 'Service temporally unavailable');
 
         if(!$request->request->has('amount')) throw new HttpException(404, 'Param amount not found');
 
@@ -72,6 +73,10 @@ class SwiftController extends RestApiController{
         //GET METHODS
         $cashInMethod = $this->container->get('net.telepay.in.'.$type_in.'.v'.$version_number);
         $cashOutMethod = $this->container->get('net.telepay.out.'.$type_out.'.v'.$version_number);
+
+        //check email
+        $email = $request->request->get('email')?$request->request->get('email'):'';
+        if($email == '' && ($cashInMethod->getEmailRequired() || $cashOutMethod->getEmailRequired())) throw new HttpException(400, 'Email is required');
 
         //get configuration(method)
         $swift_config = $this->container->get('net.telepay.config.'.$type_in.'.'.$type_out);
@@ -97,6 +102,7 @@ class SwiftController extends RestApiController{
         $transaction->createFromRequest($request);
         $transaction->setFixedFee(0);
         $transaction->setVersion($version_number);
+        $transaction->setEmailNotification($email);
         $transaction->setVariableFee(0);
         $transaction->setService($type_in.'-'.$type_out);
         $transaction->setUser($user->getId());
@@ -386,7 +392,7 @@ class SwiftController extends RestApiController{
             }
 
         }elseif($option == 'recheck'){
-            if($transaction->getStatus() == Transaction::$STATUS_EXPIRED && $payInInfo['status'] == 'expired'){
+            if(($transaction->getStatus() == Transaction::$STATUS_EXPIRED && $payInInfo['status'] == 'expired') || ($payInInfo['status'] == 'success' && $payOutInfo['status'] == 'failed' || $payOutInfo['status'] == false)){
                 //cancel transaction
                 $transaction->setStatus(Transaction::$STATUS_CREATED);
                 $payInInfo['status'] = 'created';

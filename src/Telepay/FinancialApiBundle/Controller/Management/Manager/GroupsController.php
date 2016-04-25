@@ -148,15 +148,15 @@ class GroupsController extends BaseApiController
             $groupsRepo = $em->getRepository("TelepayFinancialApiBundle:Group");
             $group = $groupsRepo->findOneBy(array('name' => $group_name));
 
-            $servicesRepo = $this->get('net.telepay.service_provider');
-            $services = $servicesRepo->findAll();
+            $methodsRepo = $this->get('net.telepay.method_provider');
+            $methods = $methodsRepo->findAll();
 
             $admin = $group->getCreator();
-            $servicesList = $admin->getServicesList();
-            foreach($services as $service){
-                if(in_array($service->getCname(),$servicesList)){
+            $methodsList = $admin->getMethodsList();
+            foreach($methods as $method){
+                if(in_array($method->getCname().'-'.$method->getType(), $methodsList)){
                     $limit_def = new LimitDefinition();
-                    $limit_def->setCname($service->getCname());
+                    $limit_def->setCname($method->getCname().'-'.$method->getType());
                     $limit_def->setSingle(0);
                     $limit_def->setDay(0);
                     $limit_def->setWeek(0);
@@ -164,13 +164,13 @@ class GroupsController extends BaseApiController
                     $limit_def->setYear(0);
                     $limit_def->setTotal(0);
                     $limit_def->setGroup($group);
-                    $limit_def->setCurrency($service->getCurrency());
+                    $limit_def->setCurrency($method->getCurrency());
                     $commission = new ServiceFee();
                     $commission->setGroup($group);
                     $commission->setFixed(0);
                     $commission->setVariable(0);
-                    $commission->setServiceName($service->getCname());
-                    $commission->setCurrency($service->getCurrency());
+                    $commission->setServiceName($method->getCname().'-'.$method->getType());
+                    $commission->setCurrency($method->getCurrency());
                     $em->persist($commission);
                     $em->persist($limit_def);
                 }
@@ -189,7 +189,7 @@ class GroupsController extends BaseApiController
                     $limit->setYear(0);
                     $limit->setTotal(0);
                     $limit->setSingle(0);
-                    $limit->setCname($exchange->getCname());
+                    $limit->setCname('exchange_'.$exchange->getCname());
                     $limit->setCurrency($exchange->getCurrencyOut());
                     $limit->setGroup($group);
 
@@ -197,7 +197,7 @@ class GroupsController extends BaseApiController
                     $fee->setFixed(0);
                     $fee->setVariable(0);
                     $fee->setCurrency($exchange->getCurrencyOut());
-                    $fee->setServiceName($exchange->getCname());
+                    $fee->setServiceName('exchange_'.$exchange->getCname());
                     $fee->setGroup($group);
 
                     $em->persist($limit);

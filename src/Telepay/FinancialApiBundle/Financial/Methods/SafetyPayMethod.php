@@ -16,7 +16,7 @@ use Telepay\FinancialApiBundle\DependencyInjection\Transactions\Core\CashInInter
 use Telepay\FinancialApiBundle\DependencyInjection\Transactions\Core\CashOutInterface;
 use Telepay\FinancialApiBundle\Financial\Currency;
 
-class EasyPayMethod extends BaseMethod {
+class SafetyPayMethod extends BaseMethod {
 
     private $driver;
 
@@ -25,14 +25,17 @@ class EasyPayMethod extends BaseMethod {
         $this->driver = $driver;
     }
 
-    public function getPayInInfo($amount)
+    public function getPayInInfo($amount, $currency = null)
     {
 
-        $paymentInfo = $this->driver->request();
+        if($currency == null){
+            $currency = $this->getCurrency();
+        }
+        $paymentInfo = $this->driver->request($currency, $amount);
 
         $paymentInfo['amount'] = $amount;
-        $paymentInfo['currency'] = $this->getCurrency();
-        $paymentInfo['scale'] = Currency::$SCALE[$this->getCurrency()];
+        $paymentInfo['currency'] = $currency;
+        $paymentInfo['scale'] = Currency::$SCALE[$currency];
         $paymentInfo['status'] = Transaction::$STATUS_CREATED;
         $paymentInfo['final'] = false;
 

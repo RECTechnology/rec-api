@@ -185,6 +185,19 @@ services:
             - "86400"
             - "24"
 
+    net.telepay.config.safetypay.btc:
+        class: Telepay\FinancialApiBundle\Financial\Methods\MethodConfiguration
+        arguments:
+            - "0"
+            - "2"
+            - "1000"
+            - "50000"
+            - "1000"
+            - "All over the world"
+            - "MXN"
+            - "15"
+            - "0"
+
     net.telepay.config.paynet_reference.btc:
         class: Telepay\FinancialApiBundle\Financial\Methods\MethodConfiguration
         arguments:
@@ -278,7 +291,7 @@ services:
 
 
 #POS CONFIGURATIONS
-
+#$type, $currency, $default_currency, $allowed_currencies_in, $allowed_currencies_out
 
     net.telepay.config.pos_pnp:
         class: Telepay\FinancialApiBundle\Financial\Methods\POSConfiguration
@@ -304,5 +317,5 @@ services:
             - "pos_safetypay"
             - "MXN"
             - "MXN"
-            - "MXN"
+            - "MXN/EUR"
             - "EUR/MXN/USD/PLN/FAC/BTC"

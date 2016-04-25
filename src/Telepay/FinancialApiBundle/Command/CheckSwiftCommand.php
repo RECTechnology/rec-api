@@ -81,8 +81,8 @@ class CheckSwiftCommand extends ContainerAwareCommand
                     'cname' =>  $method_in.'-'.$method_out
                 ));
 
-                $client_fee = ($amount * ($clientFees->getVariable()/100) + $clientFees->getFixed());
-                $service_fee = ($amount * ($methodFees->getVariable()/100) + $methodFees->getFixed());
+                $client_fee = round(($amount * ($clientFees->getVariable()/100) + $clientFees->getFixed()),0);
+                $service_fee = round(($amount * ($methodFees->getVariable()/100) + $methodFees->getFixed()),0);
 
                 if($pay_in_info['status'] == 'created'){
                     //check if hasExpired
@@ -134,8 +134,8 @@ class CheckSwiftCommand extends ContainerAwareCommand
                             //Hay que volver a calcular el amount en btc que vamos a enviar y ponerlo en el pay_out_info
                             $crypto_amount = round($this->_exchange($pay_in_info['amount'], $cashInMethod->getCurrency(), $cashOutMethod->getCurrency()),0);
 
-                            $client_fee = ($crypto_amount * ($clientFees->getVariable()/100) + $clientFees->getFixed());
-                            $service_fee = ($crypto_amount * ($methodFees->getVariable()/100) + $methodFees->getFixed());
+                            $client_fee = round(($crypto_amount * ($clientFees->getVariable()/100) + $clientFees->getFixed()),0);
+                            $service_fee = round(($crypto_amount * ($methodFees->getVariable()/100) + $methodFees->getFixed()),0);
 
                             $final_amount = $crypto_amount - $service_fee - $client_fee;
                             $pay_out_info['amount'] = $final_amount;
@@ -154,6 +154,7 @@ class CheckSwiftCommand extends ContainerAwareCommand
                             $transaction->setPayOutInfo($pay_out_info);
                             $transaction->setStatus('failed');
                         }
+                        $transaction->setPayOutInfo($pay_out_info);
                         $dm->persist($transaction);
                         $dm->flush();
 
@@ -169,7 +170,7 @@ class CheckSwiftCommand extends ContainerAwareCommand
                             //Generate fee transactions. One for the user and one for the root
                             if($pay_out_info['status'] == 'sending'){
                                 //send email in sepa_out
-                                $this->_sendSepaMail($pay_out_info, $transaction->getId(), $transaction->getType());
+                                $cashOutMethod->sendMail($transaction->getId(), $transaction->getType(), $pay_out_info);
                             }
 
                             if($client_fee != 0){
@@ -256,7 +257,10 @@ class CheckSwiftCommand extends ContainerAwareCommand
 
 
                         }else{
-                            //TODO send mail informig the error
+                            $transaction->setStatus(Transaction::$STATUS_FAILED);
+                            $dm->persist($transaction);
+                            $dm->flush();
+                            //send mail informig the error
                             $error = array(
                                 'transaction_id'    =>  $transaction->getId(),
                                 'type'    =>    $transaction->getType(),
@@ -324,35 +328,6 @@ class CheckSwiftCommand extends ContainerAwareCommand
                             'message'        =>  $body
                         )
                     )
-            );
-
-        $this->getContainer()->get('mailer')->send($message);
-    }
-
-    private function _sendSepaMail($paymentInfo, $id, $type){
-
-        $message = \Swift_Message::newInstance()
-            ->setSubject('Sepa_out ALERT')
-            ->setFrom('no-reply@chip-chap.com')
-            ->setTo(array(
-                'cto@chip-chap.com',
-                'pere@chip-chap.com'
-            ))
-            ->setBody(
-                $this->getContainer()->get('templating')
-                    ->render('TelepayFinancialApiBundle:Email:sepa_out_alert.html.twig',array(
-                        'id'    =>  $id,
-                        'type'  =>  $type,
-                        'beneficiary'   =>  $paymentInfo['beneficiary'],
-                        'iban'  =>  $paymentInfo['iban'],
-                        'amount'    =>  $paymentInfo['amount'],
-                        'bic_swift' =>  $paymentInfo['bic_swift'],
-                        'concept'   =>  $paymentInfo['concept'],
-                        'currency'  =>  $paymentInfo['currency'],
-                        'scale'     =>  $paymentInfo['scale'],
-                        'final'     =>  $paymentInfo['final'],
-                        'status'    =>  $paymentInfo['status']
-                    ))
             );
 
         $this->getContainer()->get('mailer')->send($message);

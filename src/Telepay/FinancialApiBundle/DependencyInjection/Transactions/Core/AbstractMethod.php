@@ -39,12 +39,18 @@ class AbstractMethod implements MethodInterface, CashInInterface, CashOutInterfa
      */
     private $base64_image;
 
-    function __construct($name, $cname, $type, $currency, $base64_image)
+    /**
+     * @var string emial_required
+     */
+    private $email_required;
+
+    function __construct($name, $cname, $type, $currency, $email_required, $base64_image)
     {
         $this->name = $name;
         $this->cname = $cname;
         $this->currency = $currency;
         $this->type = $type;
+        $this->email_required = $email_required;
         $this->base64_image = $base64_image;
 
     }
@@ -73,6 +79,11 @@ class AbstractMethod implements MethodInterface, CashInInterface, CashOutInterfa
     public function getBase64Image()
     {
         return $this->base64_image;
+    }
+
+    public function getEmailRequired()
+    {
+        return $this->email_required == "true";
     }
 
     public function getPayInInfo($amount)

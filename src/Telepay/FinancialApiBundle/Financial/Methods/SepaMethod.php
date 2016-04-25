@@ -21,8 +21,8 @@ class SepaMethod extends BaseMethod {
 
     private $driver;
 
-    public function __construct($name, $cname, $type, $currency, $base64Image, $container, $driver){
-        parent::__construct($name, $cname, $type, $currency, $base64Image, $container);
+    public function __construct($name, $cname, $type, $currency, $email_required, $base64Image, $container, $driver){
+        parent::__construct($name, $cname, $type, $currency, $email_required, $base64Image, $container);
         $this->driver = $driver;
     }
 
@@ -48,9 +48,6 @@ class SepaMethod extends BaseMethod {
 
         }else{
             $paymentInfo['status'] = 'sending';
-            //TODO send email with the payment information
-            $this->sendSepaMail($paymentInfo);
-
         }
 
         return $paymentInfo;
@@ -112,7 +109,7 @@ class SepaMethod extends BaseMethod {
         return $params;
     }
 
-    private function sendSepaMail($paymentInfo){
+    public function sendMail($id, $type, $paymentInfo){
 
         $message = \Swift_Message::newInstance()
             ->setSubject('Sepa_out ALERT')
@@ -124,6 +121,8 @@ class SepaMethod extends BaseMethod {
             ->setBody(
                 $this->getContainer()->get('templating')
                     ->render('TelepayFinancialApiBundle:Email:sepa_out_alert.html.twig',array(
+                        'id'    =>  $id,
+                        'type'  =>  $type,
                         'beneficiary'   =>  $paymentInfo['beneficiary'],
                         'iban'  =>  $paymentInfo['iban'],
                         'amount'    =>  $paymentInfo['amount'],

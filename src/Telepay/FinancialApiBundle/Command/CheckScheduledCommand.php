@@ -27,10 +27,26 @@ class CheckScheduledCommand extends ContainerAwareCommand
     {
 
         $em = $this->getContainer()->get('doctrine')->getManager();
-        $repo = $em->getRepository('TelepayFinancialApiBundle:Scheduled');
+        $scheduledRepo = $em->getRepository("TelepayFinancialApiBundle:Scheduled");
+        $scheduleds = $scheduledRepo->findAll();
 
-        foreach($qb->toArray() as $transaction){
+        foreach($scheduleds as $scheduled){
+            $today = date("j");
+            if($scheduled->getPeriod() == 0 || $today == "1"){
+                $user = $em->getRepository('TelepayFinancialApiBundle:User')->find($scheduled->getUser());
+                $userWallets = $user->getWallets();
 
+                $current_wallet = null;
+                foreach ( $userWallets as $wallet){
+                    if ($wallet->getCurrency() == $scheduled->getWallet()){
+                        $current_wallet = $wallet;
+                    }
+                }
+                if($current_wallet->getAvailable() > ($scheduled->getMinimum() + $scheduled->getThreshold())){
+                    $amount = $current_wallet->getAvailable() - $scheduled->getThreshold();
+
+                }
+            }
         }
 
         $output->writeln('Scheduled transactions checked');
