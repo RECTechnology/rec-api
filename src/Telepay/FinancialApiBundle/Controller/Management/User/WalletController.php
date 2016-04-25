@@ -552,13 +552,13 @@ class WalletController extends RestApiController{
             $user = $em->getRepository('TelepayFinancialApiBundle:User')->find($this->container->getParameter('chipchap_user_id'));
         }
 
-        $default_currency=$user->getDefaultCurrency();
+        $default_currency = $user->getDefaultCurrency();
 
         $day1 = date('Y-m-1 00:00:00');
 
         $monthly = [];
 
-        for($i=0;$i<12;$i++){
+        for($i = 0; $i < 12; $i++){
             $actual_month = strtotime("-".$i." month",strtotime($day1));
             $next_month = $actual_month+31*24*3600;
             $start_time = strtotime(date('Y-m-d',$actual_month));
@@ -904,6 +904,7 @@ class WalletController extends RestApiController{
             ->field('created')->gt($start_time)
             ->field('created')->lt($end_time)
             ->field('status')->equals('success')
+            ->field('type')->notEqual('swift')
             ->group(
                 new \MongoCode('
                     function(trans){
@@ -960,16 +961,17 @@ class WalletController extends RestApiController{
             ->getQuery()
             ->execute();
 
-        $total=0;
+        $total = 0;
         //die(print_r($result,true));
         foreach($result->toArray() as $d){
-            if($d['currency']!=''){
-                if($default_currency==$d['currency']){
-                    $total=$total+$d['total'];
+            if($d['currency'] != ''){
+                if($default_currency == $d['currency']){
+                    $total = $total + $d['total'];
                 }else{
-                    $change=$this->_exchange($d['total'],$d['currency'],$default_currency);
-                    $total=$total+$change;
+                    $change = $this->_exchange($d['total'], $d['currency'], $default_currency);
+                    $total = $total + $change;
                 }
+
 
             }
         }
