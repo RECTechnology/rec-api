@@ -154,6 +154,7 @@ class CheckSwiftCommand extends ContainerAwareCommand
                             $transaction->setPayOutInfo($pay_out_info);
                             $transaction->setStatus('failed');
                         }
+                        $transaction->setPayOutInfo($pay_out_info);
                         $dm->persist($transaction);
                         $dm->flush();
 
@@ -256,7 +257,10 @@ class CheckSwiftCommand extends ContainerAwareCommand
 
 
                         }else{
-                            //TODO send mail informig the error
+                            $transaction->setStatus(Transaction::$STATUS_FAILED);
+                            $dm->persist($transaction);
+                            $dm->flush();
+                            //send mail informig the error
                             $error = array(
                                 'transaction_id'    =>  $transaction->getId(),
                                 'type'    =>    $transaction->getType(),
