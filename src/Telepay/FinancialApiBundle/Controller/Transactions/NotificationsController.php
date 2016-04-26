@@ -15,11 +15,27 @@ use Symfony\Component\HttpKernel\Exception\HttpException;
 
 class NotificationsController extends FOSRestController{
 
-    public function safetypayNotification(Request $request){
+    public function notificate(Request $request, $version_number, $service_cname, $id = null){
 
-        static $paramNames=array(
-            'tid',
-            'error'
+        if($service_cname == 'safetypay'){
+            $this->_safetypayNotification($request);
+        }
+
+    }
+
+    public function _safetypayNotification(Request $request){
+
+        static $paramNames = array(
+            'ApiKey',
+            'RequestDateTime',
+            'MerchantSalesID',
+            'ReferenceNo',
+            'CreationDateTime',
+            'Amount',
+            'CUrrencyID',
+            'PaymentReferenceNo',
+            'Status',
+            'Signature'
         );
 
         //Get the parameters sent by POST and put them in $params array
@@ -28,8 +44,14 @@ class NotificationsController extends FOSRestController{
             if(!$request->query ->has($paramName)){
                 throw new HttpException(400,"Missing parameter '$paramName'");
             }
-            $params[]=$request->query->get($paramName, 'null');
+            $params[$paramName] = $request->query->get($paramName, 'null');
         }
+
+        //TODO check if notification is legitim
+        $signatureKey = $this->container->getParameter('safetypay_signature_key');
+        $dataToSign = $params['RequestDateTime'].$params['MerchantSalesID'].$params['ReferenceNo'].$params['CreationDateTime'].$params['Amount'].$params['CurrencyID'].$params['PaymentReferenceNo'].$params['Status'].$signatureKey;
+
+
         //die(print_r($params,true));
         if($params[1]=='0'){
             $tid=$params[0];

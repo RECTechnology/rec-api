@@ -80,7 +80,7 @@ method_call_check:
 
 service_notificate:
     pattern:  /notifications/v{version_number}/{service_cname}/{id}
-    defaults: { _controller: Telepay\FinancialApiBundle\Controller\Transactions\IncomingController::notificate, _format: ~ }
+    defaults: { _controller: Telepay\FinancialApiBundle\Controller\Transactions\NotificationsController::notificate, _format: ~ }
     requirements:
         _method: POST
         service_cname: "[a-z0-9_]+"

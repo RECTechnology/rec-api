@@ -111,9 +111,9 @@ class BtcMethod extends BaseMethod {
             $params[$param] = $request->request->get($param);
 
         }
-        $address_verification = $this->driver->validateaddress($params['address']);
-
-        if(!$address_verification['isvalid']) throw new Exception('Invalid address.', 400);
+//        $address_verification = $this->driver->validateaddress($params['address']);
+//
+//        if(!$address_verification['isvalid']) throw new Exception('Invalid address.', 400);
 
         if($request->request->has('concept')){
             $params['concept'] = $request->request->get('concept');

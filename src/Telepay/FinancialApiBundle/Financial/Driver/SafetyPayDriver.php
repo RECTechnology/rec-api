@@ -42,7 +42,7 @@ class SafetyPayDriver{
 
         $data = $this->date_time.$this->currency.$this->amount.$merchant_reference.$this->lang.$this->tracking_code.$this->expiration.$this->url_success.$this->url_error.$this->signature_key;
         $signature = hash('sha256', $data,false);
-        
+
         $params = array(
             'ApiKey'				=>	$this->api_key,
             'RequestDateTime'		=>	$this->date_time,
@@ -82,8 +82,15 @@ class SafetyPayDriver{
 
             }else{
                 $response['error_number'] = $res[0];
+                $response['responseDateTime'] = $res[1];
                 $response['url'] = $res[2];
                 $response['signature'] = $res[3];
+
+                //TODO comprobar la signature para saber si la respuesta es legitima
+                $dataToSign = $response['responseDateTime'].$response['url'].$this->signature_key;
+                $signatureResponse = hash('sha256', $dataToSign,false);
+
+                if(strtoupper($signatureResponse) != $response['signature']) throw new HttpException(403, 'Bad response');
 
             }
 

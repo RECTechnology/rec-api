@@ -891,6 +891,10 @@ class SwiftController extends RestApiController{
 
     }
 
+    public function notification(Request $request, $version_number, $type_in, $type_out){
+
+    }
+
 }
 
 
