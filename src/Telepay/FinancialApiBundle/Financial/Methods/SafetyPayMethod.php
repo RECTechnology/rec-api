@@ -25,16 +25,13 @@ class SafetyPayMethod extends BaseMethod {
         $this->driver = $driver;
     }
 
-    public function getPayInInfo($amount, $currency = null)
+    public function getPayInInfo($amount)
     {
 
-        if($currency == null){
-            $currency = $this->getCurrency();
-        }
+        $currency = $this->getCurrency();
         $paymentInfo = $this->driver->request($currency, $amount);
 
-        $paymentInfo['amount'] = $amount;
-        $paymentInfo['currency'] = $currency;
+        $paymentInfo['mxn_amount'] = $amount;
         $paymentInfo['scale'] = Currency::$SCALE[$currency];
         $paymentInfo['status'] = Transaction::$STATUS_CREATED;
         $paymentInfo['final'] = false;

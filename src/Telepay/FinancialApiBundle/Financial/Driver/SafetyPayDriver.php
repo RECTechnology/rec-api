@@ -35,20 +35,19 @@ class SafetyPayDriver{
     function request($currency, $amount){
         $merchant_reference = $this->getReference();
         $this->currency = $currency;
-        $this->amount = ($amount/100).'.00';
+        $this->amount = ($amount/100);
 
         $ch = curl_init($this->url_safety);
         curl_setopt ($ch, CURLOPT_POST, 1);
 
-        $data = $this->date_time.$this->currency.$this->amount.$merchant_reference.$this->lang.$this->expiration.$this->url_success.$this->url_error.$this->signature_key;
+        $data = $this->date_time.$this->currency.$this->amount.$merchant_reference.$this->lang.$this->tracking_code.$this->expiration.$this->url_success.$this->url_error.$this->signature_key;
         $signature = hash('sha256', $data,false);
 //die(print_r($data,true));
 //        die(print_r($this->date_time,true));
         $params = array(
-            'Username'              =>  $this->api_key,
             'ApiKey'				=>	$this->api_key,
             'RequestDateTime'		=>	$this->date_time,
-            'CurrencyID'			=>	$this->currency,
+            'CurrencyCode'			=>	$this->currency,
             'Amount'				=>	$this->amount,
             'MerchantSalesID'	    =>	$merchant_reference,
             'Language'				=>	$this->lang,
@@ -56,7 +55,8 @@ class SafetyPayDriver{
             'ExpirationTime'		=>	$this->expiration,
             'TransactionOkURL'		=>	$this->url_success,
             'TransactionErrorURL'	=>	$this->url_error,
-            'TransactionExpirationTime'	=>	$this->url_error,
+            'ProductID'             =>  '1',
+            'ResponseFormat'        =>  $this->response_format,
             'Signature'				=>	$signature
         );
 

@@ -92,8 +92,20 @@ class SwiftController extends RestApiController{
             $amount_out = $amount;
         }
 
-        $this->_checkLimits($amount_out, $type_out, $request);
+        $safety_currency = 'MXN';
+        if($type_in == 'safetypay'){
+            if($request->request->has('currency')){
+                $safety_currency = strtoupper($request->request->get('currency'));
+                if($safety_currency != 'MXN'){
+                    $amount_in = $this->_exchange($amount, $safety_currency, 'MXN');
+                    $amount_out = $this->_exchange($amount_in, $cashInMethod->getCurrency(), $cashOutMethod->getCurrency());
+                }
+            }else{
+                throw new HttpException(404, 'Param currency not found');
+            }
+        }
 
+        $this->_checkLimits($amount_out, $type_out, $request);
 
         $ip = $request->server->get('REMOTE_ADDR');
 
@@ -187,6 +199,11 @@ class SwiftController extends RestApiController{
             $dm->persist($transaction);
             $dm->flush();
             throw new HttpException(400,'Service Temporally unavailable.');
+        }
+
+        if($type_in == 'safetypay'){
+            $pay_in_info['amount'] = $amount;
+            $pay_in_info['currency'] = $safety_currency;
         }
 
         $price = round($total/($pay_in_info['amount']/1e8),0);
