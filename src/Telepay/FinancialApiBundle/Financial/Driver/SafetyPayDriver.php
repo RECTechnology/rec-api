@@ -42,8 +42,7 @@ class SafetyPayDriver{
 
         $data = $this->date_time.$this->currency.$this->amount.$merchant_reference.$this->lang.$this->tracking_code.$this->expiration.$this->url_success.$this->url_error.$this->signature_key;
         $signature = hash('sha256', $data,false);
-//die(print_r($data,true));
-//        die(print_r($this->date_time,true));
+        
         $params = array(
             'ApiKey'				=>	$this->api_key,
             'RequestDateTime'		=>	$this->date_time,
