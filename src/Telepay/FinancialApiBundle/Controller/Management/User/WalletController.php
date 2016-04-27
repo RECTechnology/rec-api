@@ -624,19 +624,20 @@ class WalletController extends RestApiController{
             ->getQuery()
             ->execute();
 
-        $total=[];
+        $total = [];
         foreach($result->toArray() as $res){
 
             $json = file_get_contents('http://www.geoplugin.net/json.gp?ip='.$res['ip']);
             $data = json_decode($json);
 
-            $country['name'] = $data->geoplugin_countryName;
-            $country['code'] = $data->geoplugin_countryCode;
-            $country['flag'] = strtolower($data->geoplugin_countryCode);
-            $country['value'] = $res['total'];
-
-
-            $total[] = $country;
+            if(isset($total[$data->geoplugin_countryName])){
+                $total[$data->geoplugin_countryName]['value'] = $total[$data->geoplugin_countryName]['value'] +$res['total'];
+            }else{
+                $country['code'] = $data->geoplugin_countryCode;
+                $country['flag'] = strtolower($data->geoplugin_countryCode);
+                $country['value'] = $res['total'];
+                $total[$data->geoplugin_countryName] = $country;
+            }
 
         }
 
