@@ -198,6 +198,19 @@ services:
             - "15"
             - "0"
 
+    net.telepay.config.safetypay.fac:
+        class: Telepay\FinancialApiBundle\Financial\Methods\MethodConfiguration
+        arguments:
+            - "0"
+            - "2"
+            - "1000"
+            - "50000"
+            - "1000"
+            - "All over the world"
+            - "MXN"
+            - "15"
+            - "0"
+
     net.telepay.config.paynet_reference.btc:
         class: Telepay\FinancialApiBundle\Financial\Methods\MethodConfiguration
         arguments:
