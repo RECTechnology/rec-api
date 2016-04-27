@@ -23,10 +23,18 @@ class MethodsController extends RestApiController
         }else{
             $admin = $this->get('security.context')->getToken()->getUser();
             $admin_services = $admin->getMethodsList();
-            foreach($services as $service){
-                if(in_array($service->getCname(),$admin_services)){
-                    $allowed_services[] = $service;
-                }
+            foreach($services as $method){
+                $methodsEntity = $this->get('net.telepay.method_provider')->findByCname($method);
+
+                $resp = array(
+                    'cname' =>  $methodsEntity->getCname(),
+                    'type' =>  $methodsEntity->getType(),
+                    'currency'  =>  $methodsEntity->getCurrency(),
+                    'scale' =>  Currency::$SCALE[$methodsEntity->getCurrency()],
+                    'base64image'   =>  $methodsEntity->getBase64Image()
+                );
+
+                $allowed_services[] = $resp;
             }
 
         }
@@ -40,7 +48,7 @@ class MethodsController extends RestApiController
         return $this->restV2(
             200,
             "ok",
-            "Services got successfully",
+            "Methods got successfully",
             $allowed_services
         );
     }
