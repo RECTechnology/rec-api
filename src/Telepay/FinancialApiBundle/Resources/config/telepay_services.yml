@@ -61,6 +61,8 @@ services:
                 - "fac-sepa"
                 - "easypay-fac"
                 - "paynet_reference-fac"
+                - "safetypay-fac"
+                - "safetypay-btc"
 
     net.telepay.method_provider:
         class: Telepay\FinancialApiBundle\DependencyInjection\TelepayMethodProvider

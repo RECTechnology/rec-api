@@ -35,20 +35,18 @@ class SafetyPayDriver{
     function request($currency, $amount){
         $merchant_reference = $this->getReference();
         $this->currency = $currency;
-        $this->amount = ($amount/100).'.00';
+        $this->amount = ($amount/100);
 
         $ch = curl_init($this->url_safety);
         curl_setopt ($ch, CURLOPT_POST, 1);
 
-        $data = $this->date_time.$this->currency.$this->amount.$merchant_reference.$this->lang.$this->expiration.$this->url_success.$this->url_error.$this->signature_key;
+        $data = $this->date_time.$this->currency.$this->amount.$merchant_reference.$this->lang.$this->tracking_code.$this->expiration.$this->url_success.$this->url_error.$this->signature_key;
         $signature = hash('sha256', $data,false);
-//die(print_r($data,true));
-//        die(print_r($this->date_time,true));
+
         $params = array(
-            'Username'              =>  $this->api_key,
             'ApiKey'				=>	$this->api_key,
             'RequestDateTime'		=>	$this->date_time,
-            'CurrencyID'			=>	$this->currency,
+            'CurrencyCode'			=>	$this->currency,
             'Amount'				=>	$this->amount,
             'MerchantSalesID'	    =>	$merchant_reference,
             'Language'				=>	$this->lang,
@@ -56,7 +54,8 @@ class SafetyPayDriver{
             'ExpirationTime'		=>	$this->expiration,
             'TransactionOkURL'		=>	$this->url_success,
             'TransactionErrorURL'	=>	$this->url_error,
-            'TransactionExpirationTime'	=>	$this->url_error,
+            'ProductID'             =>  '1',
+            'ResponseFormat'        =>  $this->response_format,
             'Signature'				=>	$signature
         );
 
@@ -83,8 +82,15 @@ class SafetyPayDriver{
 
             }else{
                 $response['error_number'] = $res[0];
+                $response['responseDateTime'] = $res[1];
                 $response['url'] = $res[2];
                 $response['signature'] = $res[3];
+
+                //TODO comprobar la signature para saber si la respuesta es legitima
+                $dataToSign = $response['responseDateTime'].$response['url'].$this->signature_key;
+                $signatureResponse = hash('sha256', $dataToSign,false);
+
+                if(strtoupper($signatureResponse) != $response['signature']) throw new HttpException(403, 'Bad response');
 
             }
 
@@ -128,18 +134,22 @@ class SafetyPayDriver{
 
     function notification($params){
 
-        $received_api_key = $params['ApiKey'];
-        $date_time = $params['RequestDateTime'];
-        $merchant = $params['MerchantReferenceNo'];
-        $received_signature = $params['Signature'];
+        $dataToSign = $params['RequestDateTime'].$params['MerchantSalesID'].$params['ReferenceNo'].$params['CreationDateTime'].$params['Amount'].$params['CurrencyID'].$params['PaymentReferenceNo'].$params['Status'].$signatureKey;
+        $signature = hash('sha256', $dataToSign,false);
 
-        $calculated_signature = '';
+        if($signature == $params['signature']){
+            if($params['Status'] == 102){
+                $response = array(
+                    'status'    =>  1,
+                    'params'    =>  $params
+                );
+            }else{
+                $response = array(
+                    'status'    =>  0,
+                    'params'    =>  $params
+                );
+            }
 
-        if($received_api_key == $this->api_key && $received_api_key == $calculated_signature){
-            $response = array(
-                'status'    =>  1,
-                'params'    =>  $params
-            );
         }else{
             $response = array(
                 'status'    =>  0,

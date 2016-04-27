@@ -117,7 +117,7 @@ class ClientsController extends BaseApiController {
 
                 $validSwiftMethods = $this->get('net.telepay.swift_provider')->findAll();
 
-                if(!in_array($method, $validSwiftMethods)) throw new HttpException(404, 'Method not allowed');
+                if(!in_array($service, $validSwiftMethods)) throw new HttpException(404, 'Method not allowed');
 
                 $exist_method_in = $this->get('net.telepay.method_provider')->isValidMethod($method[0].'-in');
 

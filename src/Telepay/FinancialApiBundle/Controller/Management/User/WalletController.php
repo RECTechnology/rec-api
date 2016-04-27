@@ -378,6 +378,7 @@ class WalletController extends RestApiController{
                 ->field('user')->equals($userId)
                 ->field('created')->gte($start_time)
                 ->field('created')->lte($finish_time)
+                ->field('type')->notEqual('swift')
                 ->where("function() {
             if (typeof this.dataIn !== 'undefined') {
                 if (this.status != 'success') { return false;}
@@ -602,6 +603,7 @@ class WalletController extends RestApiController{
         $result = $dm->createQueryBuilder('TelepayFinancialApiBundle:Transaction')
             ->field('user')->equals($userId)
             ->field('status')->equals('success')
+            ->field('type')->notEqual('swift')
             ->group(
                 new \MongoCode('
                     function(trans){
@@ -622,19 +624,20 @@ class WalletController extends RestApiController{
             ->getQuery()
             ->execute();
 
-        $total=[];
+        $total = [];
         foreach($result->toArray() as $res){
 
             $json = file_get_contents('http://www.geoplugin.net/json.gp?ip='.$res['ip']);
             $data = json_decode($json);
 
-            $country['name'] = $data->geoplugin_countryName;
-            $country['code'] = $data->geoplugin_countryCode;
-            $country['flag'] = strtolower($data->geoplugin_countryCode);
-            $country['value'] = $res['total'];
-
-
-            $total[] = $country;
+            if(isset($total[$data->geoplugin_countryName])){
+                $total[$data->geoplugin_countryName]['value'] = $total[$data->geoplugin_countryName]['value'] +$res['total'];
+            }else{
+                $country['code'] = $data->geoplugin_countryCode;
+                $country['flag'] = strtolower($data->geoplugin_countryCode);
+                $country['value'] = $res['total'];
+                $total[$data->geoplugin_countryName] = $country;
+            }
 
         }
 

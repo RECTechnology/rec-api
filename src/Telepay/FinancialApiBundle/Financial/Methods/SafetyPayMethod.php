@@ -25,16 +25,13 @@ class SafetyPayMethod extends BaseMethod {
         $this->driver = $driver;
     }
 
-    public function getPayInInfo($amount, $currency = null)
+    public function getPayInInfo($amount)
     {
 
-        if($currency == null){
-            $currency = $this->getCurrency();
-        }
+        $currency = $this->getCurrency();
         $paymentInfo = $this->driver->request($currency, $amount);
 
-        $paymentInfo['amount'] = $amount;
-        $paymentInfo['currency'] = $currency;
+        $paymentInfo['mxn_amount'] = $amount;
         $paymentInfo['scale'] = Currency::$SCALE[$currency];
         $paymentInfo['status'] = Transaction::$STATUS_CREATED;
         $paymentInfo['final'] = false;
@@ -73,6 +70,39 @@ class SafetyPayMethod extends BaseMethod {
     public function getPayOutInfo($request)
     {
 
+    }
+
+    public function notification($request, $paymentInfo){
+
+        static $paramNames = array(
+            'ApiKey',
+            'RequestDateTime',
+            'MerchantSalesID',
+            'ReferenceNo',
+            'CreationDateTime',
+            'Amount',
+            'CUrrencyID',
+            'PaymentReferenceNo',
+            'Status',
+            'Signature'
+        );
+
+        //Get the parameters sent by POST and put them in $params array
+        $params = array();
+        foreach($paramNames as $paramName){
+            if(!$request->query ->has($paramName)){
+                throw new HttpException(400,"Missing parameter '$paramName'");
+            }
+            $params[$paramName] = $request->query->get($paramName, 'null');
+        }
+
+        $response = $this->driver->notification($params);
+
+        if($response['status'] == 1){
+            $paymentInfo['status'] = Transaction::$STATUS_RECEIVED;
+        }
+
+        return $paymentInfo;
     }
 
 }

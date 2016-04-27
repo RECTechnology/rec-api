@@ -80,7 +80,7 @@ class SwiftController extends BaseApiController{
     /**
      * @Rest\View
      */
-    public function updateAction(Request $request,$id=null){
+    public function updateAction(Request $request, $id = null){
 
         //todo active methods or inactive.
         //get client
