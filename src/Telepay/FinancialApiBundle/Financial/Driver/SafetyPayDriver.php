@@ -134,18 +134,22 @@ class SafetyPayDriver{
 
     function notification($params){
 
-        $received_api_key = $params['ApiKey'];
-        $date_time = $params['RequestDateTime'];
-        $merchant = $params['MerchantReferenceNo'];
-        $received_signature = $params['Signature'];
+        $dataToSign = $params['RequestDateTime'].$params['MerchantSalesID'].$params['ReferenceNo'].$params['CreationDateTime'].$params['Amount'].$params['CurrencyID'].$params['PaymentReferenceNo'].$params['Status'].$signatureKey;
+        $signature = hash('sha256', $dataToSign,false);
 
-        $calculated_signature = '';
+        if($signature == $params['signature']){
+            if($params['Status'] == 102){
+                $response = array(
+                    'status'    =>  1,
+                    'params'    =>  $params
+                );
+            }else{
+                $response = array(
+                    'status'    =>  0,
+                    'params'    =>  $params
+                );
+            }
 
-        if($received_api_key == $this->api_key && $received_api_key == $calculated_signature){
-            $response = array(
-                'status'    =>  1,
-                'params'    =>  $params
-            );
         }else{
             $response = array(
                 'status'    =>  0,

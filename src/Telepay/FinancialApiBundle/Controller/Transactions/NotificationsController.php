@@ -8,12 +8,13 @@
 
 namespace Telepay\FinancialApiBundle\Controller\Transactions;
 
+use MongoDBODMProxies\__CG__\Telepay\FinancialApiBundle\Document\Transaction;
 use Symfony\Component\HttpFoundation\Request;
-use FOS\RestBundle\Controller\FOSRestController;
 use FOS\RestBundle\Controller\Annotations as Rest;
 use Symfony\Component\HttpKernel\Exception\HttpException;
+use Telepay\FinancialApiBundle\Controller\RestApiController;
 
-class NotificationsController extends FOSRestController{
+class NotificationsController extends RestApiController{
 
     public function notificate(Request $request, $version_number, $service_cname, $id = null){
 
@@ -25,86 +26,28 @@ class NotificationsController extends FOSRestController{
 
     public function _safetypayNotification(Request $request){
 
-        static $paramNames = array(
-            'ApiKey',
-            'RequestDateTime',
-            'MerchantSalesID',
-            'ReferenceNo',
-            'CreationDateTime',
-            'Amount',
-            'CUrrencyID',
-            'PaymentReferenceNo',
-            'Status',
-            'Signature'
-        );
+        $cashInMethod = $this->container->get('net.telepay.in.safetypay.v1');
 
-        //Get the parameters sent by POST and put them in $params array
-        $params = array();
-        foreach($paramNames as $paramName){
-            if(!$request->query ->has($paramName)){
-                throw new HttpException(400,"Missing parameter '$paramName'");
-            }
-            $params[$paramName] = $request->query->get($paramName, 'null');
-        }
+        //Locate transaction
+        $tid = $request->request->get('MerchantSalesID');
+        $dm = $this->get('doctrine_mongodb')->getManager();
+        $transaction = $dm->getRepository('TelepayFinancialApiBundle:Transaction')
+            ->find($tid);
 
-        //TODO check if notification is legitim
-        $signatureKey = $this->container->getParameter('safetypay_signature_key');
-        $dataToSign = $params['RequestDateTime'].$params['MerchantSalesID'].$params['ReferenceNo'].$params['CreationDateTime'].$params['Amount'].$params['CurrencyID'].$params['PaymentReferenceNo'].$params['Status'].$signatureKey;
+        if(!$transaction) throw new HttpException(404, 'Transaction not found');
 
+        $paymentInfo = $transaction->getPayInInfo();
 
-        //die(print_r($params,true));
-        if($params[1]=='0'){
-            $tid=$params[0];
-            $dm = $this->get('doctrine_mongodb')->getManager();
-            //die(print_r($userId,true));
-            $transactions = $dm->getRepository('TelepayFinancialApiBundle:Transaction')
-                ->find($tid);
+        $paymentInfo = $cashInMethod->notification($request, $paymentInfo);
 
-            $transactions->setCompleted(true);
-            $dm->persist($transactions);
+        if($paymentInfo['status'] == Transaction::$STATUS_RECEIVED){
+           $transaction->setStatus(Transaction::$STATUS_RECEIVED);
+
+            $dm->persist($transaction);
             $dm->flush();
-            $query = $dm->createQueryBuilder('TelepayFinancialApiBundle:Transaction')
-                ->field('id')->equals($tid)
-                ->getQuery()->execute();
-            //die(print_r($transactions, true));
-            $transArray = [];
-            foreach($query->toArray() as $transaction){
-                $transArray []= $transaction;
-            }
-            //die(print_r($transArray,true));
-            $result=$transArray[0];
-
-            $result=$result->getSentData();
-            $result=json_decode($result);
-            $result=get_object_vars($result);
-
-            return $this->redirect($result['url_success']);
-
-
-            //header('Location: '.$result['url_success']);
-
-        }else{
-            $tid=$params[0];
-            $dm = $this->get('doctrine_mongodb')->getManager();
-            //die(print_r($userId,true));
-            $query = $dm->createQueryBuilder('TelepayFinancialApiBundle:Transaction')
-                ->field('id')->equals($tid)
-                ->getQuery()->execute();
-            //die(print_r($transactions, true));
-            $transArray = [];
-            foreach($query->toArray() as $transaction){
-                $transArray []= $transaction;
-            }
-
-            $result=$transArray[0];
-
-            $result=$result->getSentData();
-            $result=json_decode($result);
-            $result=get_object_vars($result);
-
-            return $this->redirect($result['url_fail']);
 
         }
+        return $this->rest(204, 'No content');
 
     }
 
