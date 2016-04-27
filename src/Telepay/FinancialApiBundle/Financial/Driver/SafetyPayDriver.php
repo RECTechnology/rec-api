@@ -135,7 +135,7 @@ class SafetyPayDriver{
 
     function notification($params){
 
-        $dataToSign = $params['RequestDateTime'].$params['MerchantSalesID'].$params['ReferenceNo'].$params['CreationDateTime'].$params['Amount'].$params['CurrencyID'].$params['PaymentReferenceNo'].$params['Status'].$signatureKey;
+        $dataToSign = $params['RequestDateTime'].$params['MerchantSalesID'].$params['ReferenceNo'].$params['CreationDateTime'].$params['Amount'].$params['CurrencyID'].$params['PaymentReferenceNo'].$params['Status'].$this->signature_key;
         $signature = hash('sha256', $dataToSign,false);
 
         if($signature == $params['signature']){
