@@ -29,7 +29,7 @@ class SafetyPayDriver{
         $this->date_time = $this->_getDateIso8601(time());
         $this->url_success = 'http://playa-almarda.es';
         $this->url_error = 'http://pasproduccions.com';
-        $this->expiration = 120;
+        $this->expiration = 15;
     }
 
     function request($currency, $amount){
@@ -126,6 +126,7 @@ class SafetyPayDriver{
             //TODO check Signature
             $paymentInfo = array();
             $paymentInfo['url'] = $response['url'];
+            $paymentInfo['expires_in'] = $this->expiration * 60;
 
             return $paymentInfo;
         }
