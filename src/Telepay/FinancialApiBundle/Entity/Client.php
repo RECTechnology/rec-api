@@ -29,7 +29,7 @@ class Client extends BaseClient
     private $user;
 
     /**
-     * @ORM\Column(type="string")
+     * @ORM\Column(type="string", length=1000)
      */
     private $swift_list;
 

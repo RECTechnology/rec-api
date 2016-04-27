@@ -152,13 +152,13 @@ class User extends BaseUser
     private $gcm_group_key;
 
     /**
-     * @ORM\Column(type="string")
+     * @ORM\Column(type="string", length=1000)
      * @Expose
      */
     private $services_list;
 
     /**
-     * @ORM\Column(type="string")
+     * @ORM\Column(type="string", length=1000)
      * @Expose
      */
     private $methods_list;
