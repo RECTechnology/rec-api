@@ -87,8 +87,8 @@ class CheckSwiftCommand extends ContainerAwareCommand
                 if($pay_in_info['status'] == 'created'){
                     //check if hasExpired
                     if($this->hasExpired($transaction)){
-                        $transaction->setStatus('expired');
-                        $pay_in_info['status'] = 'expired';
+                        $transaction->setStatus(Transaction::$STATUS_EXPIRED);
+                        $pay_in_info['status'] = Transaction::$STATUS_EXPIRED;
                         $transaction->setPayInInfo($pay_in_info);
                         $transaction->setUpdated(new \DateTime());
                         $dm->persist($transaction);
