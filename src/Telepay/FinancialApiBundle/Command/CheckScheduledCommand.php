@@ -44,11 +44,13 @@ class CheckScheduledCommand extends ContainerAwareCommand
                 }
                 if($current_wallet->getAvailable() > ($scheduled->getMinimum() + $scheduled->getThreshold())){
                     $amount = $current_wallet->getAvailable() - $scheduled->getThreshold();
+                    $output->writeln($amount.' euros de amount');
+                    $amount = 10;
 
                     $method = $this->get('net.telepay.out.' . $scheduled->getMethod() . '.v1');
 
-                    $dm = $this->get('doctrine_mongodb')->getManager();
-                    $em = $this->getDoctrine()->getManager();
+                    $dm = $this->getContainer()->get('doctrine_mongodb')->getManager();
+                    $em = $this->getContainer()->get('doctrine')->getManager();
 
                     $user = $scheduled->getUser();
                     $transaction = new Transaction();
@@ -98,6 +100,9 @@ class CheckScheduledCommand extends ContainerAwareCommand
                     $transaction->setVariableFee($variable_fee);
                     $transaction->setFixedFee($fixed_fee);
                     $dm->persist($transaction);
+
+                    print_r($transaction);
+                    return;
 
                     //le cambiamos el signo para guardarla i marcarla como salida en el wallet
                     $transaction->setTotal(-$amount);
