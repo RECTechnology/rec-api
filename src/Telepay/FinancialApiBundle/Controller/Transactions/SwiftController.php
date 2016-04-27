@@ -509,12 +509,16 @@ class SwiftController extends RestApiController{
                     $amount = pow(10,$scale_in);
 
                     $exchange = $this->_exchange($amount , $currency_out, $currency_in);
+
+                    $exchange = round($exchange + ($exchange * ($variable_fee/100)) + $fixed_fee, 0);
                 }else{
                     $scale_in = Currency::$SCALE[$currency_in];
 
                     $amount = pow(10,$scale_in);
 
                     $exchange = $this->_exchange($amount , $currency_in, $currency_out);
+
+                    $exchange = round($exchange - ($exchange * ($variable_fee/100)) - $fixed_fee, 0);
                 }
 
 
