@@ -74,11 +74,20 @@ class ScheduledController extends BaseApiController{
                 throw new HttpException(400,'Concept must be defined');
             }
             $request->request->remove('concept');
+
+            if(!$request->request->has('beneficiary')) throw new HttpException(400,'Missing parameter beneficiary');
+            $beneficiary = $request->request->get('beneficiary');
+            if(strlen($beneficiary)<1){
+                throw new HttpException(400,'Beneficiary must be defined');
+            }
+            $request->request->remove('beneficiary');
+
             $request->request->add(array(
                 'info'    =>  json_encode(array(
                         "iban" => $iban,
                         "swift" => $swift,
-                        "concept" => $concept
+                        "concept" => $concept,
+                        "beneficiary" => $beneficiary
                     )
                 ))
             );
