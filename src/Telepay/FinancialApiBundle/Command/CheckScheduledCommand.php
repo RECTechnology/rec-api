@@ -47,35 +47,206 @@ class CheckScheduledCommand extends ContainerAwareCommand
                     $output->writeln($amount . ' euros de amount');
                     $amount = 10;
 
-                    $request = array();
+                    $dm = $this->getContainer()->get('doctrine_mongodb')->getManager();
+                    $em = $this->getContainer()->get('doctrine')->getManager();
 
-                    $response = $this->forward('Telepay\FinancialApiBundle\Controller\Transactions\IncomingController2::make', array(
-                        'request'  => $request,
-                        'version_number' => '1',
-                        'type'   =>  'in',
-                        'method'  => $scheduled->getMethod()
-                    ));
+                    $root_id = $this->getContainer()->getParameter('admin_user_id');
+                    $root = $em->getRepository('TelepayFinancialApiBundle:User')->find($root_id);
 
-                    $array_response = json_decode($response->getContent(), true);
-                    if($response->getStatusCode() == 200){
-                        $output->writeln('Good');
-                        //status, ticcket_id, id, address,amount, pin
-                        /*
-                        $customResponse = array();
-                        $customResponse['status'] = 'ok';
-                        $customResponse['ticket_id'] = $array_response['pay_out_info']['find_token'];
-                        $customResponse['id'] = $array_response['id'];
-                        $customResponse['address'] = $array_response['pay_in_info']['address'];
-                        $customResponse['amount'] = $array_response['pay_in_info']['amount'];
-                        $customResponse['pin'] = $array_response['pay_out_info']['pin'];
-                        */
+                    $user = $scheduled->getUser();
+                    $transaction = new Transaction();
+                    $transaction->setIp('127.0.0.1');
+                    $transaction->setStatus(Transaction::$STATUS_CREATED);
+                    $transaction->setNotificationTries(0);
+                    $transaction->setMaxNotificationTries(3);
+                    $transaction->setNotified(false);
+                    $transaction->setService("sepa");
+                    $transaction->setMethod("sepa");
+                    $transaction->setUser($user->getId());
+                    $transaction->setVersion(1);
+                    $transaction->setType('out');
+                    $dm->persist($transaction);
 
-                    }else{
-                        $output->writeln('Fail');
-                        $output->writeln($array_response);
+                    $info = json_decode($scheduled->getInfo());
+                    $concept = $info['concept'] . date("d.m.y");
+                    $url_notification = '';
+                    $request = array(
+                        'beneficiary' => $info['beneficiary'],
+                        'iban' => $info['iban'],
+                        'amount' => $amount,
+                        'bic_swift' => $info['swift']
+                    );
+
+                    $method = $this->getContainer()->get('net.telepay.out.'.$scheduled->getMethod().'.v1');
+                    $payment_info = $method->getPayOutInfo($request);
+                    $transaction->setPayOutInfo($payment_info);
+                    $dataIn = array(
+                        'amount'    =>  $amount,
+                        'concept'   =>  $concept,
+                        'url_notification'  =>  $url_notification
+                    );
+
+                    $transaction->setDataIn($dataIn);
+                    $pay_out_info = $transaction->getPayOutInfo();
+
+
+                    //obtener group
+                    $group = $user->getGroups()[0];
+                    $group_fee = $this->_getFees($group, $method);
+                    $group_fees = round(($amount * ($group_fee->getVariable()/100) + $group_fee->getFixed()),0);
+
+                    try{
+                        $pay_out_info = $method->send($pay_out_info);
+                    }catch (Exception $e){
+                        $pay_out_info['status'] = Transaction::$STATUS_FAILED;
+                        $pay_out_info['final'] = false;
+                        $error = $e->getMessage();
+                        $transaction->setPayOutInfo($pay_out_info);
+                        $transaction->setStatus('failed');
                     }
+                    $transaction->setPayOutInfo($pay_out_info);
+                    $dm->persist($transaction);
+                    $dm->flush();
+                    $transaction->setDataIn($pay_out_info);
+
+                    $dm->persist($transaction);
+                    $dm->flush();
+
+                    if($group_fees != 0){
+                        //client fees goes to the user
+                        $userFee = new Transaction();
+                        $userFee->setUser($transaction->getUser());
+                        $userFee->setType('fee');
+                        $userFee->setCurrency($transaction->getCurrency());
+                        $userFee->setScale($transaction->getScale());
+                        $userFee->setAmount($group_fees);
+                        $userFee->setFixedFee($group_fees->getFixed());
+                        $userFee->setVariableFee($amount * ($group_fees->getVariable()/100));
+                        $userFee->setStatus('success');
+                        $userFee->setTotal($group_fees);
+                        $userFee->setDataIn(array(
+                            'previous_transaction'  =>  $transaction->getId(),
+                            'transaction_amount'    =>  $transaction->getAmount(),
+                            'total_fee' =>  $group_fees
+                        ));
+                        $dm->persist($userFee);
+
+                        $user = $em->getRepository('TelepayFinancialApiBundle:User')->find($transaction->getUser());
+                        $userWallets = $user->getWallets();
+                        $current_wallet = null;
+
+                        foreach ( $userWallets as $wallet){
+                            if ($wallet->getCurrency() == $userFee->getCurrency()){
+                                $current_wallet = $wallet;
+                            }
+                        }
+
+                        $current_wallet->setAvailable($current_wallet->getAvailable() - $group_fees);
+                        $current_wallet->setBalance($current_wallet->getBalance() - $group_fees);
+
+                        $em->persist($current_wallet);
+                        $em->flush();
+
+                    }
+
+                    $transaction->setTotal(-$amount);
+                    $total = $amount + $group_fees;
+
+                    //restar al usuario el amount + comisiones
+                    $current_wallet->setBalance($current_wallet->getBalance() - $total);
+
+                    //insert new line in the balance
+                    $balancer = $this->get('net.telepay.commons.balance_manipulator');
+                    $balancer->addBalance($user, -$amount, $transaction);
+
+                    $em->persist($current_wallet);
+                    $em->flush();
+
+
+                    if( $group_fees != 0){
+                        //nueva transaccion restando la comision al user
+                        try{
+                            $this->_dealer($transaction, $current_wallet);
+                        }catch (HttpException $e){
+                            throw $e;
+                        }
+                    }
+
+                    $dm->flush();
                 }
             }
         }
+        $output->writeln('All done');
+    }
+
+    private function _dealer(Transaction $transaction, UserWallet $current_wallet){
+
+        $amount = $transaction->getAmount();
+        $currency = $transaction->getCurrency();
+        $method_cname = $transaction->getMethod();
+
+        $em = $this->getDoctrine()->getManager();
+
+        $total_fee = $transaction->getFixedFee() + $transaction->getVariableFee();
+
+        $user = $em->getRepository('TelepayFinancialApiBundle:User')->find($transaction->getUser());
+
+        $group = $user->getGroups()[0];
+        $creator = $group->getCreator();
+
+        $feeTransaction = Transaction::createFromTransaction($transaction);
+        $feeTransaction->setAmount($total_fee);
+        $feeTransaction->setDataIn(array(
+            'previous_transaction'  =>  $transaction->getId(),
+            'amount'                =>  -$total_fee,
+            'description'           =>  $method_cname.'->fee',
+            'admin'                 =>  $creator->getUsername()
+        ));
+        $feeTransaction->setData(array(
+            'previous_transaction'  =>  $transaction->getId(),
+            'amount'                =>  -$total_fee,
+            'type'                  =>  'resta_fee'
+        ));
+        $feeTransaction->setDebugData(array(
+            'previous_balance'  =>  $current_wallet->getBalance(),
+            'previous_transaction'  =>  $transaction->getId()
+        ));
+
+        $feeTransaction->setPayOutInfo(array(
+            'previous_transaction'  =>  $transaction->getId(),
+            'amount'                =>  -$total_fee,
+            'description'           =>  $method_cname.'->fee',
+            'admin'                 =>  $creator->getUsername()
+        ));
+
+        $feeTransaction->setType('fee');
+
+        $feeTransaction->setTotal(-$total_fee);
+
+        $mongo = $this->get('doctrine_mongodb')->getManager();
+        $mongo->persist($feeTransaction);
+        $mongo->flush();
+
+        $balancer = $this->get('net.telepay.commons.balance_manipulator');
+        $balancer->addBalance($user, -$total_fee, $feeTransaction );
+
+        //empezamos el reparto
+
+
+        if(!$creator) throw new HttpException(404,'Creator not found');
+
+        $transaction_id = $transaction->getId();
+        $dealer = $this->get('net.telepay.commons.fee_deal');
+        $dealer->deal(
+            $creator,
+            $amount,
+            $method_cname,
+            $transaction->getType(),
+            $currency,
+            $total_fee,
+            $transaction_id,
+            $transaction->getVersion()
+        );
+
     }
 }
