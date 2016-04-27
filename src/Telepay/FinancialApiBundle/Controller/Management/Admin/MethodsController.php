@@ -22,7 +22,7 @@ class MethodsController extends RestApiController
             $allowed_services = $services;
         }else{
             $admin = $this->get('security.context')->getToken()->getUser();
-            $admin_services = $admin->getServicesList();
+            $admin_services = $admin->getMethodsList();
             foreach($services as $service){
                 if(in_array($service->getCname(),$admin_services)){
                     $allowed_services[] = $service;
