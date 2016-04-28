@@ -32,6 +32,7 @@ class MethodsController extends RestApiController
                     $methodsEntity = $this->get('net.telepay.method_provider')->findByCname($method->getCname().'-'.$method->getType());
 
                     $resp = array(
+                        'name' =>  ucfirst($methodsEntity->getCname()),
                         'cname' =>  $methodsEntity->getCname(),
                         'type' =>  $methodsEntity->getType(),
                         'currency'  =>  $methodsEntity->getCurrency(),
