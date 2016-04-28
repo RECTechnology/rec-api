@@ -11,7 +11,6 @@ use DateInterval;
 use DateTime;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpKernel\Exception\HttpException;
-use Symfony\Component\Validator\Constraints\Null;
 use Telepay\FinancialApiBundle\Controller\RestApiController;
 use Telepay\FinancialApiBundle\Document\Transaction;
 use Telepay\FinancialApiBundle\Entity\UserWallet;
@@ -817,12 +816,21 @@ class WalletController extends RestApiController{
         //getFees
         $fees = $group->getCommissions();
 
+        //return only active methods
+        $methods = $user->getMethodsList();
+        $activeFees = [];
+
         foreach ( $fees as $fee){
-            $currency = $fee->getCurrency();
-            $fee->setScale($currency);
+            //return only allowed methods
+            if(in_array($fee->getServiceName(), $methods)){
+                $currency = $fee->getCurrency();
+                $fee->setScale($currency);
+                $activeFees [] = $fee;
+            }
+
         }
 
-        return $this->restV2(200, "ok", "Fees info got successfully", $fees);
+        return $this->restV2(200, "ok", "Fees info got successfully", $activeFees);
 
     }
 
@@ -842,15 +850,23 @@ class WalletController extends RestApiController{
 
         //get group
         $group  = $user->getGroups()[0];
-        //getFees
+        //getLimits
         $limits = $group->getLimits();
 
+        //return only active methods
+        $methods = $user->getMethodsList();
+        $activeLimits = [];
+
         foreach ( $limits as $limit){
-            $currency = $limit->getCurrency();
-            $limit->setScale($currency);
+            if(in_array($limit->getCname(), $methods)){
+                $currency = $limit->getCurrency();
+                $limit->setScale($currency);
+                $activeLimits [] = $limit;
+            }
+
         }
 
-        return $this->restV2(200, "ok", "Fees info got successfully", $limits);
+        return $this->restV2(200, "ok", "Fees info got successfully", $activeLimits);
 
     }
 
