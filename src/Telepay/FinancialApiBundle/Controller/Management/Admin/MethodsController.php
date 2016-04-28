@@ -4,6 +4,7 @@ namespace Telepay\FinancialApiBundle\Controller\Management\Admin;
 
 use Telepay\FinancialApiBundle\Controller\RestApiController;
 use FOS\RestBundle\Controller\Annotations as Rest;
+use Telepay\FinancialApiBundle\Financial\Currency;
 
 /**
  * Class MethodsController
@@ -18,23 +19,29 @@ class MethodsController extends RestApiController
 
         $services = $this->get('net.telepay.method_provider')->findAll();
 
+        $allowed_services = [];
         if ($this->get('security.authorization_checker')->isGranted('ROLE_SUPER_ADMIN')) {
             $allowed_services = $services;
         }else{
             $admin = $this->get('security.context')->getToken()->getUser();
             $admin_services = $admin->getMethodsList();
+
             foreach($services as $method){
-                $methodsEntity = $this->get('net.telepay.method_provider')->findByCname($method);
+                if(in_array($method->getCname().'-'.$method->getType(), $admin_services)){
 
-                $resp = array(
-                    'cname' =>  $methodsEntity->getCname(),
-                    'type' =>  $methodsEntity->getType(),
-                    'currency'  =>  $methodsEntity->getCurrency(),
-                    'scale' =>  Currency::$SCALE[$methodsEntity->getCurrency()],
-                    'base64image'   =>  $methodsEntity->getBase64Image()
-                );
+                    $methodsEntity = $this->get('net.telepay.method_provider')->findByCname($method->getCname().'-'.$method->getType());
 
-                $allowed_services[] = $resp;
+                    $resp = array(
+                        'cname' =>  $methodsEntity->getCname(),
+                        'type' =>  $methodsEntity->getType(),
+                        'currency'  =>  $methodsEntity->getCurrency(),
+                        'scale' =>  Currency::$SCALE[$methodsEntity->getCurrency()],
+                        'base64image'   =>  $methodsEntity->getBase64Image()
+                    );
+
+                    $allowed_services[] = $resp;
+                }
+
             }
 
         }
