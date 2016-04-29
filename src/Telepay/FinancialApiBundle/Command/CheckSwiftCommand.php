@@ -281,8 +281,8 @@ class CheckSwiftCommand extends ContainerAwareCommand
 
                 }
 
-                $dm->persist($transaction);
-                $dm->flush();
+//                $dm->persist($transaction);
+//                $dm->flush();
 
             }else{
                 $transaction->setStatus('error');
