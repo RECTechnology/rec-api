@@ -57,233 +57,239 @@ class CheckSwiftCommand extends ContainerAwareCommand
 
         foreach($qb->toArray() as $transaction){
             if($transaction->getMethodIn() != ''){
-                $method_in = $transaction->getMethodIn();
-                $method_out = $transaction->getMethodOut();
 
-                //GET METHODS
-                $cashInMethod = $this->getContainer()->get('net.telepay.in.'.$method_in.'.v1');
-                $cashOutMethod = $this->getContainer()->get('net.telepay.out.'.$method_out.'.v1');
+                $current_trasaction = $dm->getRepository('TelepayFinancialApiBundle:Transaction')->find($transaction->getId());
 
-                $pay_in_info = $transaction->getPayInInfo();
-                $pay_out_info = $transaction->getPayOutInfo();
-                $amount = $transaction->getAmount();
-                $client = $transaction->getClient();
+                if($current_trasaction->getStatus() != 'success' && $current_trasaction->getStatus() != 'send_locked'){
+                    $method_in = $transaction->getMethodIn();
+                    $method_out = $transaction->getMethodOut();
 
-                $pay_in_info = $cashInMethod->getPayInStatus($pay_in_info);
+                    //GET METHODS
+                    $cashInMethod = $this->getContainer()->get('net.telepay.in.'.$method_in.'.v1');
+                    $cashOutMethod = $this->getContainer()->get('net.telepay.out.'.$method_out.'.v1');
 
-                //get configuration(method)
-                $swift_config = $this->getContainer()->get('net.telepay.config.'.$method_in.'.'.$method_out);
-                $methodFees = $swift_config->getFees();
+                    $pay_in_info = $transaction->getPayInInfo();
+                    $pay_out_info = $transaction->getPayOutInfo();
+                    $amount = $transaction->getAmount();
+                    $client = $transaction->getClient();
 
-                //get client fees (fixed & variable)
-                $clientFees = $em->getRepository('TelepayFinancialApiBundle:SwiftFee')->findOneBy(array(
-                    'client'    =>  $client,
-                    'cname' =>  $method_in.'-'.$method_out
-                ));
+                    //get configuration(method)
+                    $swift_config = $this->getContainer()->get('net.telepay.config.'.$method_in.'.'.$method_out);
+                    $methodFees = $swift_config->getFees();
 
-                $client_fee = round(($amount * ($clientFees->getVariable()/100) + $clientFees->getFixed()),0);
-                $service_fee = round(($amount * ($methodFees->getVariable()/100) + $methodFees->getFixed()),0);
+                    //get client fees (fixed & variable)
+                    $clientFees = $em->getRepository('TelepayFinancialApiBundle:SwiftFee')->findOneBy(array(
+                        'client'    =>  $client,
+                        'cname' =>  $method_in.'-'.$method_out
+                    ));
 
-                if($pay_in_info['status'] == 'created'){
-                    //check if hasExpired
-                    if($this->hasExpired($transaction)){
-                        $transaction->setStatus(Transaction::$STATUS_EXPIRED);
-                        $pay_in_info['status'] = Transaction::$STATUS_EXPIRED;
+                    $client_fee = round(($amount * ($clientFees->getVariable()/100) + $clientFees->getFixed()),0);
+                    $service_fee = round(($amount * ($methodFees->getVariable()/100) + $methodFees->getFixed()),0);
+
+                    $pay_in_info = $cashInMethod->getPayInStatus($pay_in_info);
+
+                    if($pay_in_info['status'] == 'created'){
+                        //check if hasExpired
+                        if($this->hasExpired($transaction)){
+                            $transaction->setStatus(Transaction::$STATUS_EXPIRED);
+                            $pay_in_info['status'] = Transaction::$STATUS_EXPIRED;
+                            $transaction->setPayInInfo($pay_in_info);
+                            $transaction->setUpdated(new \DateTime());
+                            $dm->persist($transaction);
+                            $dm->flush();
+
+                            $clientLimitsCount = $em->getRepository('TelepayFinancialApiBundle:SwiftLimitCount')->findOneBy(array(
+                                'client'    =>  $client,
+                                'cname' =>  $method_in.'-'.$method_out
+                            ));
+
+                            $clientLimitsCount = (new LimitAdder())->restore($clientLimitsCount, $amount + $client_fee + $service_fee);
+
+                            $em->persist($clientLimitsCount);
+                            $em->flush();
+                        }
+                        $output->writeln('Status created: NOT CHANGED.');
+
+                    }elseif($pay_in_info['status'] == 'received'){
+                        $transaction->setStatus('received');
+                        $transaction->setDataOut($pay_in_info);
                         $transaction->setPayInInfo($pay_in_info);
+                        $transaction->setUpdated(new \DateTime());
+
+                        $dm->persist($transaction);
+                        $dm->flush();
+                    }elseif($pay_in_info['status'] == 'success'){
+                        $transaction->setPayInInfo($pay_in_info);
+                        $transaction->setDataOut($pay_in_info);
                         $transaction->setUpdated(new \DateTime());
                         $dm->persist($transaction);
                         $dm->flush();
 
-                        $clientLimitsCount = $em->getRepository('TelepayFinancialApiBundle:SwiftLimitCount')->findOneBy(array(
-                            'client'    =>  $client,
-                            'cname' =>  $method_in.'-'.$method_out
-                        ));
+                        $current_trasaction = $dm->getRepository('TelepayFinancialApiBundle:Transaction')->find($transaction->getId());
 
-                        $clientLimitsCount = (new LimitAdder())->restore($clientLimitsCount, $amount + $client_fee + $service_fee);
+                        if($current_trasaction->getStatus() != 'success' && $current_trasaction->getStatus() != 'send_locked'){
 
-                        $em->persist($clientLimitsCount);
-                        $em->flush();
-                    }
-                    $output->writeln('Status created: NOT CHANGED.');
-
-                }elseif($pay_in_info['status'] == 'received'){
-                    $transaction->setStatus('received');
-                    $transaction->setDataOut($pay_in_info);
-                    $transaction->setPayInInfo($pay_in_info);
-                    $transaction->setUpdated(new \DateTime());
-
-                    $dm->persist($transaction);
-                    $dm->flush();
-                }elseif($pay_in_info['status'] == 'success'){
-                    $transaction->setPayInInfo($pay_in_info);
-                    $transaction->setDataOut($pay_in_info);
-                    $transaction->setUpdated(new \DateTime());
-                    $dm->persist($transaction);
-                    $dm->flush();
-
-                    $current_trasaction = $dm->getRepository('TelepayFinancialApiBundle:Transaction')->find($transaction->getId());
-
-                    if($current_trasaction->getStatus() != 'success' && $current_trasaction->getStatus() != 'send_locked'){
-
-                        $transaction->setStatus('send_locked');
-                        $dm->persist($transaction);
-                        $dm->flush();
-
-                        //if method_out es igual a btc o fac hay que volver a calcular el amount de btc
-                        if($method_out == 'btc' || $method_out == 'fac'){
-                            //Hay que volver a calcular el amount en btc que vamos a enviar y ponerlo en el pay_out_info
-                            $crypto_amount = round($this->_exchange($pay_in_info['amount'], $cashInMethod->getCurrency(), $cashOutMethod->getCurrency()),0);
-
-                            $client_fee = round(($crypto_amount * ($clientFees->getVariable()/100) + $clientFees->getFixed()),0);
-                            $service_fee = round(($crypto_amount * ($methodFees->getVariable()/100) + $methodFees->getFixed()),0);
-
-                            $final_amount = $crypto_amount - $service_fee - $client_fee;
-                            $pay_out_info['amount'] = $final_amount;
-                            $transaction->setPayOutInfo($pay_out_info);
-                            $transaction->setAmount($final_amount);
-                            $transaction->setTotal($final_amount);
+                            $transaction->setStatus('send_locked');
                             $dm->persist($transaction);
                             $dm->flush();
-                        }
-                        try{
-                            $pay_out_info = $cashOutMethod->send($pay_out_info);
-                        }catch (Exception $e){
-                            $pay_out_info['status'] = Transaction::$STATUS_FAILED;
-                            $pay_out_info['final'] = false;
-                            $error = $e->getMessage();
-                            $transaction->setPayOutInfo($pay_out_info);
-                            $transaction->setStatus('failed');
-                        }
-                        $transaction->setPayOutInfo($pay_out_info);
-                        $dm->persist($transaction);
-                        $dm->flush();
 
+                            //if method_out es igual a btc o fac hay que volver a calcular el amount de btc
+                            if($method_out == 'btc' || $method_out == 'fac'){
+                                //Hay que volver a calcular el amount en btc que vamos a enviar y ponerlo en el pay_out_info
+                                $crypto_amount = round($this->_exchange($pay_in_info['amount'], $cashInMethod->getCurrency(), $cashOutMethod->getCurrency()),0);
 
-                        if($pay_out_info['status'] == 'sent' || $pay_out_info['status'] == 'sending'){
-                            $transaction->setPayOutInfo($pay_out_info);
-                            if($pay_out_info['status'] == 'sent') $transaction->setStatus('success');
-                            else $transaction->setStatus('sending');
-                            $transaction->setDataIn($pay_out_info);
+                                $client_fee = round(($crypto_amount * ($clientFees->getVariable()/100) + $clientFees->getFixed()),0);
+                                $service_fee = round(($crypto_amount * ($methodFees->getVariable()/100) + $methodFees->getFixed()),0);
 
-                            $dm->persist($transaction);
-                            $dm->flush();
-                            //Generate fee transactions. One for the user and one for the root
-                            if($pay_out_info['status'] == 'sending'){
-                                //send email in sepa_out
-                                $cashOutMethod->sendMail($transaction->getId(), $transaction->getType(), $pay_out_info);
+                                $final_amount = $crypto_amount - $service_fee - $client_fee;
+                                $pay_out_info['amount'] = $final_amount;
+                                $transaction->setPayOutInfo($pay_out_info);
+                                $transaction->setAmount($final_amount);
+                                $transaction->setTotal($final_amount);
+                                $dm->persist($transaction);
+                                $dm->flush();
                             }
+                            try{
+                                $pay_out_info = $cashOutMethod->send($pay_out_info);
+                            }catch (Exception $e){
+                                $pay_out_info['status'] = Transaction::$STATUS_FAILED;
+                                $pay_out_info['final'] = false;
+                                $error = $e->getMessage();
+                                $transaction->setPayOutInfo($pay_out_info);
+                                $transaction->setStatus('failed');
+                            }
+                            $transaction->setPayOutInfo($pay_out_info);
+                            $dm->persist($transaction);
+                            $dm->flush();
 
-                            if($client_fee != 0){
-                                //client fees goes to the user
-                                $userFee = new Transaction();
-                                $userFee->setUser($transaction->getUser());
-                                $userFee->setType('fee');
-                                $userFee->setCurrency($transaction->getCurrency());
-                                $userFee->setScale($transaction->getScale());
-                                $userFee->setAmount($client_fee);
-                                $userFee->setFixedFee($clientFees->getFixed());
-                                $userFee->setVariableFee($amount * ($clientFees->getVariable()/100));
-                                $userFee->setService($method_in.'-'.$method_out);
-                                $userFee->setMethod($method_in.'-'.$method_out);
-                                $userFee->setStatus('success');
-                                $userFee->setTotal($client_fee);
-                                $userFee->setDataIn(array(
-                                    'previous_transaction'  =>  $transaction->getId(),
-                                    'transaction_amount'    =>  $transaction->getAmount(),
-                                    'total_fee' =>  $client_fee + $service_fee
-                                ));
-                                $userFee->setClient($client);
-                                $dm->persist($userFee);
 
-                                $user = $em->getRepository('TelepayFinancialApiBundle:User')->find($transaction->getUser());
-                                $userWallets = $user->getWallets();
-                                $current_wallet = null;
+                            if($pay_out_info['status'] == 'sent' || $pay_out_info['status'] == 'sending'){
+                                $transaction->setPayOutInfo($pay_out_info);
+                                if($pay_out_info['status'] == 'sent') $transaction->setStatus('success');
+                                else $transaction->setStatus('sending');
+                                $transaction->setDataIn($pay_out_info);
 
-                                foreach ( $userWallets as $wallet){
-                                    if ($wallet->getCurrency() == $userFee->getCurrency()){
-                                        $current_wallet = $wallet;
-                                    }
+                                $dm->persist($transaction);
+                                $dm->flush();
+                                //Generate fee transactions. One for the user and one for the root
+                                if($pay_out_info['status'] == 'sending'){
+                                    //send email in sepa_out
+                                    $cashOutMethod->sendMail($transaction->getId(), $transaction->getType(), $pay_out_info);
                                 }
 
-                                $current_wallet->setAvailable($current_wallet->getAvailable() + $client_fee);
-                                $current_wallet->setBalance($current_wallet->getBalance() + $client_fee);
+                                if($client_fee != 0){
+                                    //client fees goes to the user
+                                    $userFee = new Transaction();
+                                    $userFee->setUser($transaction->getUser());
+                                    $userFee->setType('fee');
+                                    $userFee->setCurrency($transaction->getCurrency());
+                                    $userFee->setScale($transaction->getScale());
+                                    $userFee->setAmount($client_fee);
+                                    $userFee->setFixedFee($clientFees->getFixed());
+                                    $userFee->setVariableFee($amount * ($clientFees->getVariable()/100));
+                                    $userFee->setService($method_in.'-'.$method_out);
+                                    $userFee->setMethod($method_in.'-'.$method_out);
+                                    $userFee->setStatus('success');
+                                    $userFee->setTotal($client_fee);
+                                    $userFee->setDataIn(array(
+                                        'previous_transaction'  =>  $transaction->getId(),
+                                        'transaction_amount'    =>  $transaction->getAmount(),
+                                        'total_fee' =>  $client_fee + $service_fee
+                                    ));
+                                    $userFee->setClient($client);
+                                    $dm->persist($userFee);
 
-                                $em->persist($current_wallet);
-                                $em->flush();
+                                    $user = $em->getRepository('TelepayFinancialApiBundle:User')->find($transaction->getUser());
+                                    $userWallets = $user->getWallets();
+                                    $current_wallet = null;
 
-                            }
-
-                            if($service_fee != 0){
-                                //service fees goes to root
-
-                                $rootFee = new Transaction();
-                                $rootFee->setUser($root->getId());
-                                $rootFee->setType('fee');
-                                $rootFee->setCurrency($transaction->getCurrency());
-                                $rootFee->setScale($transaction->getScale());
-                                $rootFee->setAmount($service_fee);
-                                $rootFee->setFixedFee($methodFees->getFixed());
-                                $rootFee->setVariableFee($amount * ($methodFees->getVariable()/100));
-                                $rootFee->setService($method_in.'-'.$method_out);
-                                $rootFee->setMethod($method_in.'-'.$method_out);
-                                $rootFee->setStatus('success');
-                                $rootFee->setTotal($service_fee);
-                                $rootFee->setDataIn(array(
-                                    'previous_transaction'  =>  $transaction->getId(),
-                                    'transaction_amount'    =>  $transaction->getAmount(),
-                                    'total_fee' =>  $client_fee + $service_fee
-                                ));
-                                $rootFee->setClient($client);
-
-                                $dm->persist($rootFee);
-                                //get wallets and add fees to both, user and wallet
-                                $rootWallets = $root->getWallets();
-                                $current_wallet = null;
-
-                                foreach ( $rootWallets as $wallet){
-                                    if ($wallet->getCurrency() == $rootFee->getCurrency()){
-                                        $current_wallet = $wallet;
+                                    foreach ( $userWallets as $wallet){
+                                        if ($wallet->getCurrency() == $userFee->getCurrency()){
+                                            $current_wallet = $wallet;
+                                        }
                                     }
+
+                                    $current_wallet->setAvailable($current_wallet->getAvailable() + $client_fee);
+                                    $current_wallet->setBalance($current_wallet->getBalance() + $client_fee);
+
+                                    $em->persist($current_wallet);
+                                    $em->flush();
+
                                 }
 
-                                $current_wallet->setAvailable($current_wallet->getAvailable() + $service_fee);
-                                $current_wallet->setBalance($current_wallet->getBalance() + $service_fee);
+                                if($service_fee != 0){
+                                    //service fees goes to root
 
-                                $em->persist($current_wallet);
-                                $em->flush();
+                                    $rootFee = new Transaction();
+                                    $rootFee->setUser($root->getId());
+                                    $rootFee->setType('fee');
+                                    $rootFee->setCurrency($transaction->getCurrency());
+                                    $rootFee->setScale($transaction->getScale());
+                                    $rootFee->setAmount($service_fee);
+                                    $rootFee->setFixedFee($methodFees->getFixed());
+                                    $rootFee->setVariableFee($amount * ($methodFees->getVariable()/100));
+                                    $rootFee->setService($method_in.'-'.$method_out);
+                                    $rootFee->setMethod($method_in.'-'.$method_out);
+                                    $rootFee->setStatus('success');
+                                    $rootFee->setTotal($service_fee);
+                                    $rootFee->setDataIn(array(
+                                        'previous_transaction'  =>  $transaction->getId(),
+                                        'transaction_amount'    =>  $transaction->getAmount(),
+                                        'total_fee' =>  $client_fee + $service_fee
+                                    ));
+                                    $rootFee->setClient($client);
+
+                                    $dm->persist($rootFee);
+                                    //get wallets and add fees to both, user and wallet
+                                    $rootWallets = $root->getWallets();
+                                    $current_wallet = null;
+
+                                    foreach ( $rootWallets as $wallet){
+                                        if ($wallet->getCurrency() == $rootFee->getCurrency()){
+                                            $current_wallet = $wallet;
+                                        }
+                                    }
+
+                                    $current_wallet->setAvailable($current_wallet->getAvailable() + $service_fee);
+                                    $current_wallet->setBalance($current_wallet->getBalance() + $service_fee);
+
+                                    $em->persist($current_wallet);
+                                    $em->flush();
+                                }
+
+                                $dm->flush();
+
+
+                            }else{
+                                $transaction->setStatus(Transaction::$STATUS_FAILED);
+                                $dm->persist($transaction);
+                                $dm->flush();
+                                //send mail informig the error
+                                $error = array(
+                                    'transaction_id'    =>  $transaction->getId(),
+                                    'type'    =>    $transaction->getType(),
+                                    'method'    =>  $transaction->getMethodIn().' -> '.$transaction->getMethodOut(),
+                                    'status'    =>  $transaction->getStatus(),
+                                    'status_in' =>  $pay_in_info['status'],
+                                    'status_out'    =>  $pay_out_info['status'],
+                                    'amount'    =>  $transaction->getAmount(),
+                                    'error' =>  $error
+                                );
+
+                                $this->_sendErrorEmail('Swift error mail', $error);
                             }
 
                             $dm->flush();
 
-
-                        }else{
-                            $transaction->setStatus(Transaction::$STATUS_FAILED);
-                            $dm->persist($transaction);
-                            $dm->flush();
-                            //send mail informig the error
-                            $error = array(
-                                'transaction_id'    =>  $transaction->getId(),
-                                'type'    =>    $transaction->getType(),
-                                'method'    =>  $transaction->getMethodIn().' -> '.$transaction->getMethodOut(),
-                                'status'    =>  $transaction->getStatus(),
-                                'status_in' =>  $pay_in_info['status'],
-                                'status_out'    =>  $pay_out_info['status'],
-                                'amount'    =>  $transaction->getAmount(),
-                                'error' =>  $error
-                            );
-
-                            $this->_sendErrorEmail('Swift error mail', $error);
                         }
-
-                        $dm->flush();
 
                     }
 
-                }
-
-                //se ha quitado esto para intentar eviar el double sent de halcash
+                    //se ha quitado esto para intentar eviar el double sent de halcash
 //                $dm->persist($transaction);
 //                $dm->flush();
+
+                }
 
             }else{
                 $transaction->setStatus('error');
