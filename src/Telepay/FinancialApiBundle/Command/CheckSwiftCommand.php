@@ -1,6 +1,7 @@
 <?php
 namespace Telepay\FinancialApiBundle\Command;
 
+use DateTime;
 use Symfony\Bundle\FrameworkBundle\Command\ContainerAwareCommand;
 use Symfony\Component\Config\Definition\Exception\Exception;
 use Symfony\Component\Console\Input\InputArgument;
@@ -33,7 +34,6 @@ class CheckSwiftCommand extends ContainerAwareCommand
 
     protected function execute(InputInterface $input, OutputInterface $output)
     {
-
         $trans_id = $input->getOption('transaction-id');
 
         $dm = $this->getContainer()->get('doctrine_mongodb')->getManager();
@@ -51,13 +51,16 @@ class CheckSwiftCommand extends ContainerAwareCommand
                 ->field('status')->in(array('created','received'))
                 ->getQuery();
         }
+        $now = new \DateTime();
+        $output->writeln('START QUERY: '.$now->format('d-m-Y:H:i:s'));
 
         $root_id = $this->getContainer()->getParameter('admin_user_id');
         $root = $em->getRepository('TelepayFinancialApiBundle:User')->find($root_id);
 
         foreach($qb->toArray() as $transaction){
             if($transaction->getMethodIn() != ''){
-
+                $now2 = new \DateTime();
+                $output->writeln('is_sent : '.$now2->format('d-m-Y:H:i:s'));
                 $current_trasaction = $dm->getRepository('TelepayFinancialApiBundle:Transaction')->find($transaction->getId());
 
                 if($current_trasaction->getStatus() != 'success' && $current_trasaction->getStatus() != 'send_locked'){
@@ -109,7 +112,7 @@ class CheckSwiftCommand extends ContainerAwareCommand
                             $em->persist($clientLimitsCount);
                             $em->flush();
                         }
-                        $output->writeln('Status created: NOT CHANGED.');
+//                        $output->writeln('Status created: NOT CHANGED.');
 
                     }elseif($pay_in_info['status'] == 'received'){
                         if($prevStatusIn != $pay_in_info['status']){
@@ -129,9 +132,9 @@ class CheckSwiftCommand extends ContainerAwareCommand
                         $dm->persist($transaction);
                         $dm->flush();
                         $output->writeln('Status success: CHANGED.');
-                        $current_trasaction = $dm->getRepository('TelepayFinancialApiBundle:Transaction')->find($transaction->getId());
+                        $current_transaction = $dm->getRepository('TelepayFinancialApiBundle:Transaction')->find($transaction->getId());
 
-                        if($current_trasaction->getStatus() != 'success' && $current_trasaction->getStatus() != 'send_locked'){
+                        if($current_transaction->getStatus() != 'success' && $current_transaction->getStatus() != 'send_locked'){
 
                             $transaction->setStatus('send_locked');
                             $output->writeln('Status send_locked: CHANGED.');
@@ -156,6 +159,8 @@ class CheckSwiftCommand extends ContainerAwareCommand
                             }
                             try{
                                 $pay_out_info = $cashOutMethod->send($pay_out_info);
+                                $now3 = new \DateTime();
+                                $output->writeln('sending : '.$now3->format('d-m-Y:H:i:s'));
                             }catch (Exception $e){
                                 $pay_out_info['status'] = Transaction::$STATUS_FAILED;
                                 $pay_out_info['final'] = false;
@@ -292,8 +297,8 @@ class CheckSwiftCommand extends ContainerAwareCommand
                     }
 
                     //se ha quitado esto para intentar eviar el double sent de halcash
-//                $dm->persist($transaction);
-//                $dm->flush();
+                $dm->persist($transaction);
+                $dm->flush();
 
                 }
 
