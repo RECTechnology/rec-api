@@ -115,7 +115,7 @@ class CheckSwiftCommand extends ContainerAwareCommand
                         $transaction->setDataOut($pay_in_info);
                         $transaction->setPayInInfo($pay_in_info);
                         $transaction->setUpdated(new \DateTime());
-
+                        $output->writeln('Status received: CHANGED.');
                         $dm->persist($transaction);
                         $dm->flush();
                     }elseif($pay_in_info['status'] == 'success'){
@@ -124,12 +124,13 @@ class CheckSwiftCommand extends ContainerAwareCommand
                         $transaction->setUpdated(new \DateTime());
                         $dm->persist($transaction);
                         $dm->flush();
-
+                        $output->writeln('Status success: CHANGED.');
                         $current_trasaction = $dm->getRepository('TelepayFinancialApiBundle:Transaction')->find($transaction->getId());
 
                         if($current_trasaction->getStatus() != 'success' && $current_trasaction->getStatus() != 'send_locked'){
 
                             $transaction->setStatus('send_locked');
+                            $output->writeln('Status send_locked: CHANGED.');
                             $dm->persist($transaction);
                             $dm->flush();
 
@@ -168,7 +169,7 @@ class CheckSwiftCommand extends ContainerAwareCommand
                                 if($pay_out_info['status'] == 'sent') $transaction->setStatus('success');
                                 else $transaction->setStatus('sending');
                                 $transaction->setDataIn($pay_out_info);
-
+                                $output->writeln('Status success: CHANGED.');
                                 $dm->persist($transaction);
                                 $dm->flush();
                                 //Generate fee transactions. One for the user and one for the root
@@ -262,6 +263,7 @@ class CheckSwiftCommand extends ContainerAwareCommand
 
                             }else{
                                 $transaction->setStatus(Transaction::$STATUS_FAILED);
+                                $output->writeln('Status failed: CHANGED.');
                                 $dm->persist($transaction);
                                 $dm->flush();
                                 //send mail informig the error
