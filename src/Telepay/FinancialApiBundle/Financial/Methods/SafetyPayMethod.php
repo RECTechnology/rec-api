@@ -10,6 +10,7 @@ namespace Telepay\FinancialApiBundle\Financial\Methods;
 
 use MongoDBODMProxies\__CG__\Telepay\FinancialApiBundle\Document\Transaction;
 use Symfony\Component\Config\Definition\Exception\Exception;
+use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpKernel\Exception\HttpException;
 use Telepay\FinancialApiBundle\DependencyInjection\Transactions\Core\BaseMethod;
 use Telepay\FinancialApiBundle\DependencyInjection\Transactions\Core\CashInInterface;
@@ -90,7 +91,7 @@ class SafetyPayMethod extends BaseMethod {
         //Get the parameters sent by POST and put them in $params array
         $params = array();
         foreach($paramNames as $paramName){
-            if(!$request->query ->has($paramName)){
+            if(!$request->request->has($paramName)){
                 throw new HttpException(400,"Missing parameter '$paramName'");
             }
             $params[$paramName] = $request->query->get($paramName, 'null');
