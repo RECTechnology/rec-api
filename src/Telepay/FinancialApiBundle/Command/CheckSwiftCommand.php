@@ -63,7 +63,7 @@ class CheckSwiftCommand extends ContainerAwareCommand
                 if($current_trasaction->getStatus() != 'success' && $current_trasaction->getStatus() != 'send_locked'){
                     $method_in = $transaction->getMethodIn();
                     $method_out = $transaction->getMethodOut();
-
+                    $output->writeln('INIT '.$method_in.'-'.$method_out);
                     //GET METHODS
                     $cashInMethod = $this->getContainer()->get('net.telepay.in.'.$method_in.'.v1');
                     $cashOutMethod = $this->getContainer()->get('net.telepay.out.'.$method_out.'.v1');
