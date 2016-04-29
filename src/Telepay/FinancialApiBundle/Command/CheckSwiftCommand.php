@@ -91,7 +91,7 @@ class CheckSwiftCommand extends ContainerAwareCommand
 
                     $prevStatusIn = $pay_in_info['status'];
                     $pay_in_info = $cashInMethod->getPayInStatus($pay_in_info);
-                    if($method_in == 'halcash_es'){
+                    if($method_out == 'halcash_es'){
                         $output->writeln('HALCASH STATUS => '.$pay_in_info['status']);
                     }
                     if($pay_in_info['status'] == 'created'){
