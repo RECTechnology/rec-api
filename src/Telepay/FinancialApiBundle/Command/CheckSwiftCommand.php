@@ -86,6 +86,7 @@ class CheckSwiftCommand extends ContainerAwareCommand
                     $client_fee = round(($amount * ($clientFees->getVariable()/100) + $clientFees->getFixed()),0);
                     $service_fee = round(($amount * ($methodFees->getVariable()/100) + $methodFees->getFixed()),0);
 
+                    $prevStatusIn = $pay_in_info['status'];
                     $pay_in_info = $cashInMethod->getPayInStatus($pay_in_info);
 
                     if($pay_in_info['status'] == 'created'){
@@ -111,13 +112,16 @@ class CheckSwiftCommand extends ContainerAwareCommand
                         $output->writeln('Status created: NOT CHANGED.');
 
                     }elseif($pay_in_info['status'] == 'received'){
-                        $transaction->setStatus('received');
-                        $transaction->setDataOut($pay_in_info);
-                        $transaction->setPayInInfo($pay_in_info);
-                        $transaction->setUpdated(new \DateTime());
-                        $output->writeln('Status received: CHANGED.');
-                        $dm->persist($transaction);
-                        $dm->flush();
+                        if($prevStatusIn != $pay_in_info['status']){
+                            $transaction->setStatus('received');
+                            $transaction->setDataOut($pay_in_info);
+                            $transaction->setPayInInfo($pay_in_info);
+                            $transaction->setUpdated(new \DateTime());
+                            $output->writeln('Status received: CHANGED.');
+                            $dm->persist($transaction);
+                            $dm->flush();
+                        }
+                        $output->writeln('Status received: NOT CHANGED.');
                     }elseif($pay_in_info['status'] == 'success'){
                         $transaction->setPayInInfo($pay_in_info);
                         $transaction->setDataOut($pay_in_info);
