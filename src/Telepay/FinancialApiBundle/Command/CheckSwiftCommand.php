@@ -281,6 +281,7 @@ class CheckSwiftCommand extends ContainerAwareCommand
 
                 }
 
+                //se ha quitado esto para intentar eviar el double sent de halcash
 //                $dm->persist($transaction);
 //                $dm->flush();
 
