@@ -127,6 +127,7 @@ class SafetyPayDriver{
             $paymentInfo = array();
             $paymentInfo['url'] = $response['url'];
             $paymentInfo['expires_in'] = $this->expiration * 60;
+            $paymentInfo['reference'] = $merchant_reference;
 
             return $paymentInfo;
         }

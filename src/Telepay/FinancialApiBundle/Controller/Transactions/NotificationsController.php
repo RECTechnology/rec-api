@@ -30,9 +30,11 @@ class NotificationsController extends RestApiController{
 
         //Locate transaction
         $tid = $request->request->get('MerchantSalesID');
+
         $dm = $this->get('doctrine_mongodb')->getManager();
-        $transaction = $dm->getRepository('TelepayFinancialApiBundle:Transaction')
-            ->find($tid);
+        $transaction = $dm->getRepository('TelepayFinancialApiBundle:Transaction')->findOneBy(array(
+            'pay_in_info.reference' =>  $tid
+        ));
 
         if(!$transaction) throw new HttpException(404, 'Transaction not found');
 
