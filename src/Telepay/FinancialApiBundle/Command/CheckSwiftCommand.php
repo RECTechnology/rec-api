@@ -92,7 +92,10 @@ class CheckSwiftCommand extends ContainerAwareCommand
                     $prevStatusIn = $pay_in_info['status'];
                     $pay_in_info = $cashInMethod->getPayInStatus($pay_in_info);
                     if($method_out == 'halcash_es'){
-                        $output->writeln('HALCASH STATUS => '.$pay_in_info['status']);
+                        $output->writeln('HALCASH STATUS => '.$transaction->getStatus());
+                        $output->writeln('HALCASH currentSTATUS => '.$current_trasaction->getStatus());
+                        $output->writeln('HALCASH pay_in_STATUS => '.$pay_in_info['status']);
+                        $output->writeln('HALCASH pay_out_STATUS => '.$pay_out_info['status']);
                     }
                     if($pay_in_info['status'] == 'created'){
                         //check if hasExpired
