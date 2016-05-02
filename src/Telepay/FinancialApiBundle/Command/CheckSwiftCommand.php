@@ -60,14 +60,16 @@ class CheckSwiftCommand extends ContainerAwareCommand
 
         foreach($qb->toArray() as $transaction){
             if($transaction->getMethodIn() != ''){
-                $now2 = new \DateTime();
-                $output->writeln('is_sent : '.$now2->format('d-m-Y:H:i:s'));
-                $current_trasaction = $dm->getRepository('TelepayFinancialApiBundle:Transaction')->find($transaction->getId());
 
-                if($current_trasaction->getStatus() != 'success' && $current_trasaction->getStatus() != 'send_locked'){
+                $current_transaction = $dm->getRepository('TelepayFinancialApiBundle:Transaction')->find($transaction->getId());
+                if($current_transaction->getStatus() != 'success' && $current_transaction->getStatus() != 'send_locked'){
                     $method_in = $transaction->getMethodIn();
                     $method_out = $transaction->getMethodOut();
-                    $output->writeln('INIT '.$method_in.'-'.$method_out);
+
+                    $now2 = new \DateTime();
+                    $output->writeln('is_sent : '.$now2->format('d-m-Y:H:i:s'));
+                    $output->writeln('INIT '.$method_in.'-'.$method_out.' -> '.$transaction->getId().' time: '.$now2->format('d-m-Y:H:i:s'));
+
                     //GET METHODS
                     $cashInMethod = $this->getContainer()->get('net.telepay.in.'.$method_in.'.v1');
                     $cashOutMethod = $this->getContainer()->get('net.telepay.out.'.$method_out.'.v1');
@@ -93,11 +95,9 @@ class CheckSwiftCommand extends ContainerAwareCommand
                     $prevStatusIn = $pay_in_info['status'];
                     $pay_in_info = $cashInMethod->getPayInStatus($pay_in_info);
                     if($method_out == 'halcash_es'){
-                        $output->writeln('HALCASH STATUS => '.$transaction->getStatus());
-                        $output->writeln('HALCASH currentSTATUS => '.$current_trasaction->getStatus());
-                        $output->writeln('HALCASH pay_in_STATUS => '.$pay_in_info['status']);
-                        $output->writeln('HALCASH pay_out_STATUS => '.$pay_out_info['status']);
+                        $output->writeln('HALCASH STATUS => '.$transaction->getStatus().' currentSTATUS => '.$current_transaction->getStatus().' pay_in_STATUS => '.$pay_in_info['status'].' pay_out_STATUS => '.$pay_out_info['status']);
                     }
+
                     if($pay_in_info['status'] == 'created'){
                         //check if hasExpired
                         if($this->hasExpired($transaction)){
@@ -118,7 +118,7 @@ class CheckSwiftCommand extends ContainerAwareCommand
                             $em->persist($clientLimitsCount);
                             $em->flush();
                         }
-//                        $output->writeln('Status created: NOT CHANGED.');
+                        $output->writeln('NEW STATUS => '.$transaction->getStatus());
 
                     }elseif($pay_in_info['status'] == 'received'){
                         if($prevStatusIn != $pay_in_info['status']){
@@ -130,20 +130,20 @@ class CheckSwiftCommand extends ContainerAwareCommand
                             $dm->persist($transaction);
                             $dm->flush();
                         }
-                        $output->writeln('Status received: NOT CHANGED.');
+                        $output->writeln('NEW STATUS => '.$transaction->getStatus());
                     }elseif($pay_in_info['status'] == 'success'){
                         $transaction->setPayInInfo($pay_in_info);
                         $transaction->setDataOut($pay_in_info);
                         $transaction->setUpdated(new \DateTime());
                         $dm->persist($transaction);
                         $dm->flush();
-                        $output->writeln('Status success: CHANGED.');
+
                         $current_transaction = $dm->getRepository('TelepayFinancialApiBundle:Transaction')->find($transaction->getId());
 
                         if($current_transaction->getStatus() != 'success' && $current_transaction->getStatus() != 'send_locked'){
 
                             $transaction->setStatus('send_locked');
-                            $output->writeln('Status send_locked: CHANGED.');
+                            $output->writeln('Status send_locked: CHANGED. => '.$transaction->getStatus());
                             $dm->persist($transaction);
                             $dm->flush();
 
@@ -187,6 +187,8 @@ class CheckSwiftCommand extends ContainerAwareCommand
                                 $output->writeln('Status success: CHANGED.');
                                 $dm->persist($transaction);
                                 $dm->flush();
+                                $current_transaction = $dm->getRepository('TelepayFinancialApiBundle:Transaction')->find($transaction->getId());
+                                $output->writeln('Status current transaction: '.$current_transaction->getStatus());
 
                                 //send ticket
                                 if($method_out == 'btc' || $method_out == 'fac'){
