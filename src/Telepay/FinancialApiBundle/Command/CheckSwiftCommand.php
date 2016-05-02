@@ -399,7 +399,7 @@ class CheckSwiftCommand extends ContainerAwareCommand
     }
 
     private function _sendTicket($body, $email, $ref){
-        $html = $this->getContainer()->get('templating')->renderView('TelepayFinancialApiBundle:Email:ticket.html.twig', $body);
+        $html = $this->getContainer()->get('templating')->render('TelepayFinancialApiBundle:Email:ticket.html.twig', $body);
 
         $dompdf = $this->getContainer()->get('slik_dompdf');
         $dompdf->getpdf($html);
