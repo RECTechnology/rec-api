@@ -13,6 +13,12 @@ admin_clients_create:
     requirements:
         _method: POST
 
+admin_clients_show_by_id:
+    pattern:  /admin/v1/clients/{id}
+    defaults: { _controller: Telepay\FinancialApiBundle\Controller\Management\Admin\ClientsController::showAction }
+    requirements:
+        _method: GET
+
 admin_clients_update:
     pattern:  /admin/v1/clients/{id}
     defaults: { _controller: Telepay\FinancialApiBundle\Controller\Management\Admin\ClientsController::updateAction }

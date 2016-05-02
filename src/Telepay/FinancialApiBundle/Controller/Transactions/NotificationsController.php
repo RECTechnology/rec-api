@@ -18,6 +18,9 @@ class NotificationsController extends RestApiController{
 
     public function notificate(Request $request, $version_number, $service_cname, $id = null){
 
+        $logger = $this->_logger();
+
+        $logger->info('notifications -> safetypay notification');
         if($service_cname == 'safetypay'){
             $this->_safetypayNotification($request);
         }
@@ -26,20 +29,36 @@ class NotificationsController extends RestApiController{
 
     public function _safetypayNotification(Request $request){
 
+        $logger = $this->_logger();
+
+        $logger->info('notifications -> _safetypay notification');
         $cashInMethod = $this->container->get('net.telepay.in.safetypay.v1');
 
         //Locate transaction
         $tid = $request->request->get('MerchantSalesID');
+        $logger->info('notifications -> tid => '.$tid);
+
         $dm = $this->get('doctrine_mongodb')->getManager();
-        $transaction = $dm->getRepository('TelepayFinancialApiBundle:Transaction')
-            ->find($tid);
+//        $transaction = $dm->getRepository('TelepayFinancialApiBundle:Transaction')->findBy(array(
+//            'pay_in_info.reference' => $tid
+//        ));
+        $transaction = $dm->createQueryBuilder('TelepayFinancialApiBundle:Transaction')
+            ->field('pay_in_info.reference')->equals($tid)
+            ->getQuery()
+            ->getSingleResult();
 
         if(!$transaction) throw new HttpException(404, 'Transaction not found');
+        $logger->info('notifications -> transaction found');
 
         $paymentInfo = $transaction->getPayInInfo();
 
-        $paymentInfo = $cashInMethod->notification($request, $paymentInfo);
+        $allParams = $request->request->all();
+        foreach($allParams as $key => $value){
+            $logger->info('notifications -> '.$key.' => '.$value);
+        }
 
+        $paymentInfo = $cashInMethod->notification($request, $paymentInfo);
+        $logger->info('notifications -> status => '.$paymentInfo['status']);
         if($paymentInfo['status'] == Transaction::$STATUS_RECEIVED){
            $transaction->setStatus(Transaction::$STATUS_RECEIVED);
 
@@ -423,5 +442,11 @@ class NotificationsController extends RestApiController{
     public function sabadellNotificationTest(Request $request,$id){
         $request->request->set('mode','T');
         return $this->sabadellNotification($request,$id);
+    }
+
+    private function _logger(){
+        $logger = $this->container->get('logger');
+
+        return $logger;
     }
 }

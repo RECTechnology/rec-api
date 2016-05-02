@@ -29,7 +29,7 @@ class SafetyPayDriver{
         $this->date_time = $this->_getDateIso8601(time());
         $this->url_success = 'http://playa-almarda.es';
         $this->url_error = 'http://pasproduccions.com';
-        $this->expiration = 120;
+        $this->expiration = 15;
     }
 
     function request($currency, $amount){
@@ -126,6 +126,8 @@ class SafetyPayDriver{
             //TODO check Signature
             $paymentInfo = array();
             $paymentInfo['url'] = $response['url'];
+            $paymentInfo['expires_in'] = $this->expiration * 60;
+            $paymentInfo['reference'] = $merchant_reference;
 
             return $paymentInfo;
         }
@@ -134,7 +136,7 @@ class SafetyPayDriver{
 
     function notification($params){
 
-        $dataToSign = $params['RequestDateTime'].$params['MerchantSalesID'].$params['ReferenceNo'].$params['CreationDateTime'].$params['Amount'].$params['CurrencyID'].$params['PaymentReferenceNo'].$params['Status'].$signatureKey;
+        $dataToSign = $params['RequestDateTime'].$params['MerchantSalesID'].$params['ReferenceNo'].$params['CreationDateTime'].$params['Amount'].$params['CurrencyID'].$params['PaymentReferenceNo'].$params['Status'].$this->signature_key;
         $signature = hash('sha256', $dataToSign,false);
 
         if($signature == $params['signature']){
