@@ -50,9 +50,6 @@ class CheckScheduledCommand extends ContainerAwareCommand
                     $dm = $this->getContainer()->get('doctrine_mongodb')->getManager();
                     $em = $this->getContainer()->get('doctrine')->getManager();
 
-                    $root_id = $this->getContainer()->getParameter('admin_user_id');
-                    $root = $em->getRepository('TelepayFinancialApiBundle:User')->find($root_id);
-
                     $user = $scheduled->getUser();
                     $transaction = new Transaction();
                     $transaction->setIp('127.0.0.1');
