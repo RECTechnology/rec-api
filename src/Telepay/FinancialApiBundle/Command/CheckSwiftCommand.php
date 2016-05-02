@@ -2,6 +2,7 @@
 namespace Telepay\FinancialApiBundle\Command;
 
 use DateTime;
+use Swift_Attachment;
 use Symfony\Bundle\FrameworkBundle\Command\ContainerAwareCommand;
 use Symfony\Component\Config\Definition\Exception\Exception;
 use Symfony\Component\Console\Input\InputArgument;
@@ -186,6 +187,27 @@ class CheckSwiftCommand extends ContainerAwareCommand
                                 $output->writeln('Status success: CHANGED.');
                                 $dm->persist($transaction);
                                 $dm->flush();
+
+                                //send ticket
+                                if($method_out == 'btc' || $method_out == 'fac'){
+                                    if( $transaction->getEmailNotification() != ""){
+                                        $email = $transaction->getEmailNotification();
+                                        $ticket = $transaction->getPayInInfo()['reference'];
+                                        $ticket = str_replace('BUY BITCOIN ', '', $ticket);
+                                        $body = array(
+                                            'reference' =>  $ticket,
+                                            'created'   =>  $transaction->getCreated()->format('Y-m-d H:i:s'),
+                                            'concept'   =>  'BUY BITCOINS '.$ticket,
+                                            'amount'    =>  $transaction->getPayInInfo()['amount']/100,
+                                            'crypto_amount' => $transaction->getPayOutInfo()['amount']/1e8,
+                                            'tx_id'        =>  $transaction->getPayOutInfo()['txid'],
+                                            'id'        =>  $ticket,
+                                            'address'   =>  $transaction->getPayOutInfo()['address']
+                                        );
+
+                                        $this->_sendTicket($body, $email, $ticket);
+                                    }
+                                }
                                 //Generate fee transactions. One for the user and one for the root
                                 if($pay_out_info['status'] == 'sending'){
                                     //send email in sepa_out
@@ -372,5 +394,30 @@ class CheckSwiftCommand extends ContainerAwareCommand
 
         return $total;
 
+    }
+
+    private function _sendTicket($body, $email, $ref){
+        $html = $this->getContainer()->get('templating')->renderView('TelepayFinancialApiBundle:Email:ticket.html.twig', $body);
+
+        $dompdf = $this->getContainer()->get('slik_dompdf');
+        $dompdf->getpdf($html);
+        $pdfoutput = $dompdf->output();
+
+        $message = \Swift_Message::newInstance()
+            ->setSubject('Chip-Chap Ticket ref: '.$ref)
+            ->setFrom('no-reply@chip-chap.com')
+            ->setTo(array(
+                $email
+            ))
+            ->setBody(
+                $this->getContainer()->get('templating')
+                    ->render('TelepayFinancialApiBundle:Email:ticket.html.twig',
+                        $body
+                    )
+            )
+            ->setContentType('text/html')
+            ->attach(Swift_Attachment::newInstance($pdfoutput, $ref.'-'.$body["id"].'.pdf'));
+
+        $this->getContainer()->get('mailer')->send($message);
     }
 }

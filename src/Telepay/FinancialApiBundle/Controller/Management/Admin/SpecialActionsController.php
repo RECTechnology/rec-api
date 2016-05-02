@@ -330,7 +330,9 @@ class SpecialActionsController extends RestApiController {
                         'id'        =>  $ticket,
                         'address'   =>  $transaction->getPayOutInfo()['address']
                     );
-                    $this->_sendTicket($body, $email, $ticket);
+
+                    //TODO no se pot enviar el ticket desde açi
+                    //$this->_sendTicket($body, $email, $ticket);
                 }
             }else{
                 $transaction->setStatus(Transaction::$STATUS_SUCCESS);
