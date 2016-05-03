@@ -48,14 +48,14 @@ class AccountController extends BaseApiController{
             $user = $em->getRepository('TelepayFinancialApiBundle:User')->find('chipchap_user_id');
         }
 
-        $listServices = $user->getServicesList();
+//        $listServices = $user->getServicesList();
         $listMethods = $user->getMethodsList();
 
         //TODO al final habra que quitar lo de services porque estara deprecated
-        $allowedServices = $this->get('net.telepay.service_provider')->findByCNames($listServices);
+//        $allowedServices = $this->get('net.telepay.service_provider')->findByCNames($listServices);
         $allowedMethods = $this->get('net.telepay.method_provider')->findByCNames($listMethods);
 
-        $user->setAllowedServices($allowedServices);
+//        $user->setAllowedServices($allowedServices);
         $user->setAllowedMethods($allowedMethods);
 
         $group = $user->getGroups()[0];
