@@ -40,9 +40,9 @@ class ResetLimitCommand extends ContainerAwareCommand
     protected function execute(InputInterface $input, OutputInterface $output)
     {
         $em = $this->getContainer()->get('doctrine')->getManager();
-
         $repo = $em->getRepository('TelepayFinancialApiBundle:LimitCount');
         $limits=$repo->findAll();
+
         $repo_swift = $em->getRepository('TelepayFinancialApiBundle:SwiftLimitCount');
         $limits_swift=$repo_swift->findAll();
 
@@ -73,7 +73,7 @@ class ResetLimitCommand extends ContainerAwareCommand
                         $contador++;
                     }
                     foreach($limits_swift as $limit){
-                        $limit->setDay(0);
+                        $limit->setSingle(0);
                         $em->persist($limit);
                         $em->flush();
                         $contador++;
@@ -87,7 +87,7 @@ class ResetLimitCommand extends ContainerAwareCommand
                         $contador++;
                     }
                     foreach($limits_swift as $limit){
-                        $limit->setWeek(0);
+                        $limit->setSingle(0);
                         $em->persist($limit);
                         $em->flush();
                         $contador++;
@@ -101,7 +101,7 @@ class ResetLimitCommand extends ContainerAwareCommand
                         $contador++;
                     }
                     foreach($limits_swift as $limit){
-                        $limit->setMonth(0);
+                        $limit->setSingle(0);
                         $em->persist($limit);
                         $em->flush();
                         $contador++;
@@ -115,7 +115,7 @@ class ResetLimitCommand extends ContainerAwareCommand
                         $contador++;
                     }
                     foreach($limits_swift as $limit){
-                        $limit->setYear(0);
+                        $limit->setSingle(0);
                         $em->persist($limit);
                         $em->flush();
                         $contador++;
@@ -129,7 +129,7 @@ class ResetLimitCommand extends ContainerAwareCommand
                         $contador++;
                     }
                     foreach($limits_swift as $limit){
-                        $limit->setTotal(0);
+                        $limit->setSingle(0);
                         $em->persist($limit);
                         $em->flush();
                         $contador++;
