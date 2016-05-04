@@ -164,7 +164,7 @@ class CheckScheduledCommand extends ContainerAwareCommand
                         //nueva transaccion restando la comision al user
                         try{
                             $this->_dealer($transaction, $current_wallet);
-                        }catch (HttpException $e){
+                        }catch (Exception $e){
                             throw $e;
                         }
                     }
@@ -230,7 +230,7 @@ class CheckScheduledCommand extends ContainerAwareCommand
         //empezamos el reparto
 
 
-        if(!$creator) throw new HttpException(404,'Creator not found');
+        if(!$creator) throw new Exception('Creator not found');
 
         $transaction_id = $transaction->getId();
         $dealer = $this->get('net.telepay.commons.fee_deal');
