@@ -107,3 +107,6 @@ parameters:
 
     chipchap_user_id : 16
     read_only_user_id : 16
+
+    url_swift_default_ok: ''
+    url_swift_default_ko: ''
