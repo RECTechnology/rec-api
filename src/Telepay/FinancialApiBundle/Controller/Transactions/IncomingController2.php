@@ -512,6 +512,15 @@ class IncomingController2 extends RestApiController{
                 }
 
             }
+        }elseif( isset( $data['recheck'] ) && $data['recheck'] == true ){
+            $transaction->setStatus(Transaction::$STATUS_CREATED);
+
+            $payment_info = $transaction->getPayInInfo();
+            $payment_info['status'] = 'created';
+            $payment_info['final'] = false;
+
+            $transaction->setPayInInfo($payment_info);
+            $transaction->setUpdated(new \DateTime());
         }else{
 //            $transaction = $service->update($transaction,$data);
         }
