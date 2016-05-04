@@ -27,8 +27,6 @@ class SafetyPayDriver{
         $this->response_format = $response_format;
         $this->url_safety = $url_safety;
         $this->date_time = $this->_getDateIso8601(time());
-        $this->url_success = 'http://playa-almarda.es';
-        $this->url_error = 'http://pasproduccions.com';
         $this->expiration = 15;
     }
 
@@ -36,6 +34,9 @@ class SafetyPayDriver{
         $merchant_reference = $this->getReference();
         $this->currency = $currency;
         $this->amount = ($amount/100);
+
+        $this->url_success = 'https://web.chip-chap.com/ok/'.$merchant_reference;
+        $this->url_error = 'https://web.chip-chap.com/ko/'.$merchant_reference;
 
         $ch = curl_init($this->url_safety);
         curl_setopt ($ch, CURLOPT_POST, 1);
