@@ -822,7 +822,7 @@ class WalletController extends RestApiController{
 
         foreach ( $fees as $fee){
             //return only allowed methods
-            if(in_array($fee->getServiceName(), $methods)){
+            if(in_array($fee->getServiceName(), $methods)  || strpos($fee->getServiceName(), 'exchange') == 0){
                 $currency = $fee->getCurrency();
                 $fee->setScale($currency);
                 $activeFees [] = $fee;
