@@ -1,11 +1,13 @@
 <?php
 namespace Telepay\FinancialApiBundle\Command;
 
+use Doctrine\DBAL\Types\ObjectType;
 use Symfony\Bundle\FrameworkBundle\Command\ContainerAwareCommand;
 use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
+use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpKernel\Exception\HttpException;
 use Telepay\FinancialApiBundle\DependencyInjection\Telepay\Commons\FeeDeal;
 use Telepay\FinancialApiBundle\DependencyInjection\Telepay\Commons\LimitAdder;
@@ -64,10 +66,11 @@ class CheckScheduledCommand extends ContainerAwareCommand
                     $transaction->setType('out');
                     $dm->persist($transaction);
 
-                    $info = json_decode($scheduled->getInfo());
+                    $info = json_decode($scheduled->getInfo(), true);
                     $concept = $info['concept'] . date("d.m.y");
                     $url_notification = '';
-                    $request = array(
+                    $request = new Request();
+                    $request->request = array(
                         'beneficiary' => $info['beneficiary'],
                         'iban' => $info['iban'],
                         'amount' => $amount,
