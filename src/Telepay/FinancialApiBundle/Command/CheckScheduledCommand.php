@@ -60,6 +60,8 @@ class CheckScheduledCommand extends ContainerAwareCommand
                     $transaction->setNotificationTries(0);
                     $transaction->setMaxNotificationTries(3);
                     $transaction->setNotified(false);
+                    $transaction->setAmount($amount);
+                    $transaction->setCurrency($scheduled->getWallet());
                     $transaction->setService("sepa");
                     $transaction->setMethod("sepa");
                     $transaction->setUser($user->getId());
