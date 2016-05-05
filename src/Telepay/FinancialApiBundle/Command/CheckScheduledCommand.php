@@ -251,7 +251,7 @@ class CheckScheduledCommand extends ContainerAwareCommand
     }
 
     private function _getFees(Group $group, $method){
-        $em = $this->getDoctrine()->getManager();
+        $em = $this->getContainer()->get('doctrine')->getManager();
 
         $group_commissions = $group->getCommissions();
         $group_commission = false;
