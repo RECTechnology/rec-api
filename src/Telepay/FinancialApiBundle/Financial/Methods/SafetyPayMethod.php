@@ -82,7 +82,7 @@ class SafetyPayMethod extends BaseMethod {
             'ReferenceNo',
             'CreationDateTime',
             'Amount',
-            'CUrrencyID',
+            'CurrencyID',
             'PaymentReferenceNo',
             'Status',
             'Signature'
