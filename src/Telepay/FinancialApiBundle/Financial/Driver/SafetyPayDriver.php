@@ -140,7 +140,7 @@ class SafetyPayDriver{
         $dataToSign = $params['RequestDateTime'].$params['MerchantSalesID'].$params['ReferenceNo'].$params['CreationDateTime'].$params['Amount'].$params['CurrencyID'].$params['PaymentReferenceNo'].$params['Status'].$this->signature_key;
         $signature = hash('sha256', $dataToSign,false);
 
-        if($signature == $params['signature']){
+        if(strtoupper($signature) == $params['signature']){
             if($params['Status'] == 102){
                 $response = array(
                     'status'    =>  1,
