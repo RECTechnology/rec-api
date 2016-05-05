@@ -40,7 +40,7 @@ class NotificationsController extends RestApiController{
         $all = $request->request->all();
         foreach($all as $key => $value){
             $logger->info($key.' => '.$value);
-            
+
         }
         $logger->info('notifications -> tid => '.$tid);
 
