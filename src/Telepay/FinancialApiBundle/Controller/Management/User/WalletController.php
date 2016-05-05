@@ -1121,7 +1121,7 @@ class WalletController extends RestApiController{
         }
 
         if($senderWallet == null) throw new HttpException(404, 'Sender Wallet not found');
-        if($receiverWallet == null) throw new HttpException(404, 'Receeiver Wallet not found');
+        if($receiverWallet == null) throw new HttpException(404, 'Receiver Wallet not found');
 
         if($amount > $senderWallet->getAvailable()) throw new HttpException(404, 'Not funds enough. ' . $amount . '>' . $senderWallet->getAvailable());
 
@@ -1132,6 +1132,7 @@ class WalletController extends RestApiController{
 
         $fixed_fee = null;
         $variable_fee = null;
+
         foreach($fees as $fee){
             if($fee->getServiceName() == $service){
                 $fixed_fee = $fee->getFixed();
@@ -1206,6 +1207,7 @@ class WalletController extends RestApiController{
 
         //dealer
         $total_fee = $fixed_fee + $variable_fee;
+
         if( $total_fee != 0){
             //nueva transaccion restando la comision al user
             try{
@@ -1272,7 +1274,7 @@ class WalletController extends RestApiController{
 
         $transaction_id = $transaction->getId();
         $dealer = $this->get('net.telepay.commons.fee_deal');
-        $dealer->deal($creator,$amount,$service_cname,$currency,$total_fee,$transaction_id,$transaction->getVersion());
+        $dealer->deal($creator, $amount, $service_cname, 'exchange', $currency, $total_fee, $transaction_id, $transaction->getVersion());
 
     }
 

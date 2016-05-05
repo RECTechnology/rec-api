@@ -40,9 +40,12 @@ class FeeDeal{
             $commissions = $group->getCommissions();
             $group_commission = false;
 
+            if($type != 'exchange'){
+                $service_cname = $service_cname.'-'.$type;
+            }
             //get fees for normal methods
             foreach ( $commissions as $commission ){
-                if ( $commission->getServiceName() == $service_cname.'-'.$type && $commission->getCurrency() == $currency){
+                if ( $commission->getServiceName() == $service_cname && $commission->getCurrency() == $currency){
                     $group_commission = $commission;
                 }
             }
