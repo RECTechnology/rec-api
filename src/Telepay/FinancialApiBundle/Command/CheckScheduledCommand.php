@@ -15,6 +15,7 @@ use Telepay\FinancialApiBundle\DependencyInjection\Telepay\Commons\LimitAdder;
 use Telepay\FinancialApiBundle\Document\Transaction;
 use Telepay\FinancialApiBundle\Entity\Exchange;
 use Telepay\FinancialApiBundle\Entity\Group;
+use Telepay\FinancialApiBundle\Entity\UserWallet;
 use Telepay\FinancialApiBundle\Financial\Currency;
 
 class CheckScheduledCommand extends ContainerAwareCommand
@@ -49,7 +50,7 @@ class CheckScheduledCommand extends ContainerAwareCommand
                 if ($current_wallet->getAvailable() > ($scheduled->getMinimum() + $scheduled->getThreshold())) {
                     $amount = $current_wallet->getAvailable() - $scheduled->getThreshold();
                     $output->writeln($amount . ' euros de amount');
-                    $amount = 10;
+                    $amount = 1000;
 
                     $dm = $this->getContainer()->get('doctrine_mongodb')->getManager();
                     $em = $this->getContainer()->get('doctrine')->getManager();
