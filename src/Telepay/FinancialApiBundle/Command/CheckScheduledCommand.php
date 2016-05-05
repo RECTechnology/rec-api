@@ -159,7 +159,7 @@ class CheckScheduledCommand extends ContainerAwareCommand
                     $current_wallet->setBalance($current_wallet->getBalance() - $total);
 
                     //insert new line in the balance
-                    $balancer = $this->get('net.telepay.commons.balance_manipulator');
+                    $balancer = $this->getContainer()->get('net.telepay.commons.balance_manipulator');
                     $balancer->addBalance($user, -$amount, $transaction);
 
                     $em->persist($current_wallet);
@@ -230,7 +230,7 @@ class CheckScheduledCommand extends ContainerAwareCommand
         $mongo->persist($feeTransaction);
         $mongo->flush();
 
-        $balancer = $this->get('net.telepay.commons.balance_manipulator');
+        $balancer = $this->getContainer()->get('net.telepay.commons.balance_manipulator');
         $balancer->addBalance($user, -$total_fee, $feeTransaction );
 
         //empezamos el reparto
@@ -239,7 +239,7 @@ class CheckScheduledCommand extends ContainerAwareCommand
         if(!$creator) throw new Exception('Creator not found');
 
         $transaction_id = $transaction->getId();
-        $dealer = $this->get('net.telepay.commons.fee_deal');
+        $dealer = $this->getContainer()->get('net.telepay.commons.fee_deal');
         $dealer->deal(
             $creator,
             $amount,
