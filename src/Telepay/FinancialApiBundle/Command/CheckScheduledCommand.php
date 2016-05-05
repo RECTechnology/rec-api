@@ -249,4 +249,28 @@ class CheckScheduledCommand extends ContainerAwareCommand
         );
 
     }
+
+    private function _getFees(Group $group, $method){
+        $em = $this->getDoctrine()->getManager();
+
+        $group_commissions = $group->getCommissions();
+        $group_commission = false;
+
+        foreach ( $group_commissions as $commission ){
+            if ( $commission->getServiceName() == $method->getCname().'-'.$method->getType() ){
+                $group_commission = $commission;
+            }
+        }
+
+        //if group commission not exists we create it
+        if(!$group_commission){
+            $group_commission = ServiceFee::createFromController($method->getCname().'-'.$method->getType(), $group);
+            $group_commission->setCurrency($method->getCurrency());
+            $em->persist($group_commission);
+            $em->flush();
+        }
+
+        return $group_commission;
+    }
+
 }
