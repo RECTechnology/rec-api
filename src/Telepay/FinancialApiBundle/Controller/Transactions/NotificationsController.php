@@ -21,7 +21,13 @@ class NotificationsController extends RestApiController{
         $logger = $this->_logger();
 
         if($service_cname == 'safetypay'){
-            $this->_safetypayNotification($request);
+            $notification = $this->_safetypayNotification($request);
+        }else{
+            $notification = false;
+        }
+
+        if($notification == 'notified'){
+            return $this->rest(204, 'No content');
         }
 
     }
@@ -66,7 +72,7 @@ class NotificationsController extends RestApiController{
             $dm->flush();
 
         }
-        return $this->rest(204, 'No content');
+        return 'notified';
 
     }
 
