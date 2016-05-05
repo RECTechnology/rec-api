@@ -1,11 +1,13 @@
 <?php
 namespace Telepay\FinancialApiBundle\Command;
 
+use Doctrine\DBAL\Types\ObjectType;
 use Symfony\Bundle\FrameworkBundle\Command\ContainerAwareCommand;
 use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
+use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpKernel\Exception\HttpException;
 use Telepay\FinancialApiBundle\DependencyInjection\Telepay\Commons\FeeDeal;
 use Telepay\FinancialApiBundle\DependencyInjection\Telepay\Commons\LimitAdder;
@@ -64,15 +66,16 @@ class CheckScheduledCommand extends ContainerAwareCommand
                     $transaction->setType('out');
                     $dm->persist($transaction);
 
-                    $info = json_decode($scheduled->getInfo());
+                    $info = json_decode($scheduled->getInfo(), true);
                     $concept = $info['concept'] . date("d.m.y");
                     $url_notification = '';
-                    $request = array(
+                    $request = new Request();
+                    $request->request->add(array(
                         'beneficiary' => $info['beneficiary'],
                         'iban' => $info['iban'],
                         'amount' => $amount,
                         'bic_swift' => $info['swift']
-                    );
+                    ));
 
                     $method = $this->getContainer()->get('net.telepay.out.'.$scheduled->getMethod().'.v1');
                     $payment_info = $method->getPayOutInfo($request);
@@ -246,4 +249,28 @@ class CheckScheduledCommand extends ContainerAwareCommand
         );
 
     }
+
+    private function _getFees(Group $group, $method){
+        $em = $this->getContainer()->get('doctrine')->getManager();
+
+        $group_commissions = $group->getCommissions();
+        $group_commission = false;
+
+        foreach ( $group_commissions as $commission ){
+            if ( $commission->getServiceName() == $method->getCname().'-'.$method->getType() ){
+                $group_commission = $commission;
+            }
+        }
+
+        //if group commission not exists we create it
+        if(!$group_commission){
+            $group_commission = ServiceFee::createFromController($method->getCname().'-'.$method->getType(), $group);
+            $group_commission->setCurrency($method->getCurrency());
+            $em->persist($group_commission);
+            $em->flush();
+        }
+
+        return $group_commission;
+    }
+
 }
