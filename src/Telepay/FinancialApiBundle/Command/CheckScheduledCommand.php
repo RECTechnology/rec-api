@@ -189,7 +189,7 @@ class CheckScheduledCommand extends ContainerAwareCommand
         $currency = $transaction->getCurrency();
         $method_cname = $transaction->getMethod();
 
-        $em = $this->getDoctrine()->getManager();
+        $em = $this->getContainer()->get('doctrine')->getManager();
 
         $total_fee = $transaction->getFixedFee() + $transaction->getVariableFee();
 
@@ -227,7 +227,7 @@ class CheckScheduledCommand extends ContainerAwareCommand
 
         $feeTransaction->setTotal(-$total_fee);
 
-        $mongo = $this->get('doctrine_mongodb')->getManager();
+        $mongo = $this->getContainer()->get('doctrine_mongodb')->getManager();
         $mongo->persist($feeTransaction);
         $mongo->flush();
 
