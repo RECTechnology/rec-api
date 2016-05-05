@@ -70,13 +70,10 @@ class CheckScheduledCommand extends ContainerAwareCommand
                     $concept = $info['concept'] . date("d.m.y");
                     $url_notification = '';
                     $request = new Request();
-                    $request->request = array(
-                        'beneficiary' => $info['beneficiary'],
-                        'iban' => $info['iban'],
-                        'amount' => $amount,
-                        'bic_swift' => $info['swift']
-                    );
-
+                    $request->request->add('beneficiary', $info['beneficiary']);
+                    $request->request->add('iban', $info['iban']);
+                    $request->request->add('amount', $amount);
+                    $request->request->add('bic_swift', $info['swift']);
                     $method = $this->getContainer()->get('net.telepay.out.'.$scheduled->getMethod().'.v1');
                     $payment_info = $method->getPayOutInfo($request);
                     $transaction->setPayOutInfo($payment_info);
