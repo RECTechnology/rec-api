@@ -45,9 +45,7 @@ class NotificationsController extends RestApiController{
         $logger->info('notifications -> tid => '.$tid);
 
         $dm = $this->get('doctrine_mongodb')->getManager();
-//        $transaction = $dm->getRepository('TelepayFinancialApiBundle:Transaction')->findBy(array(
-//            'pay_in_info.reference' => $tid
-//        ));
+
         $transaction = $dm->createQueryBuilder('TelepayFinancialApiBundle:Transaction')
             ->field('pay_in_info.reference')->equals($tid)
             ->getQuery()
@@ -65,9 +63,9 @@ class NotificationsController extends RestApiController{
 
         $paymentInfo = $cashInMethod->notification($request, $paymentInfo);
         $logger->info('notifications -> status => '.$paymentInfo['status']);
-        if($paymentInfo['status'] == Transaction::$STATUS_RECEIVED){
-           $transaction->setStatus(Transaction::$STATUS_RECEIVED);
-
+        if($paymentInfo['status'] == 'received'){
+            $transaction->setStatus('received');
+            $transaction->setPayInfo($paymentInfo);
             $dm->persist($transaction);
             $dm->flush();
 

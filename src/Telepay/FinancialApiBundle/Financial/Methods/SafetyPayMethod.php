@@ -100,7 +100,7 @@ class SafetyPayMethod extends BaseMethod {
         $response = $this->driver->notification($params);
 
         if($response['status'] == 1){
-            $paymentInfo['status'] = Transaction::$STATUS_RECEIVED;
+            $paymentInfo['status'] = 'received';
         }else{
             $paymentInfo['debug'] = $paymentInfo['params'];
         }
