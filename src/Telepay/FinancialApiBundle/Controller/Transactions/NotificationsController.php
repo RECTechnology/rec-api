@@ -36,6 +36,11 @@ class NotificationsController extends RestApiController{
 
         //Locate transaction
         $tid = $request->request->get('MerchantSalesID');
+
+        $all = $request->request->all();
+        foreach($all as $key => $value){
+            $logger->info($key.' => '.$value);
+        }
         $logger->info('notifications -> tid => '.$tid);
 
         $dm = $this->get('doctrine_mongodb')->getManager();
