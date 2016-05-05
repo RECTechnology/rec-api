@@ -68,7 +68,7 @@ class FeeDeal{
         $scale = 0;
         foreach($wallets as $wallet){
 
-            if($wallet->getCurrency() === $currency){
+            if($wallet->getCurrency() === $currency && $fee > 0){
 
                 //Añadimos la pasta al wallet
                 $wallet->setAvailable($wallet->getAvailable() + $fee - $total);
@@ -108,42 +108,46 @@ class FeeDeal{
 
                 $this->balance_manipulator->addBalance($creator, $fee, $transaction);
 
-                $id=$transaction->getId();
+                $id = $transaction->getId();
 
+            }else{
+                $id = 0;
             }
         }
 
         if(!$creator->hasRole('ROLE_SUPER_ADMIN')){
+            if($total > 0){
+                $feeTransaction = new Transaction();
+                $feeTransaction->setIp('127.0.0.1');
+                $feeTransaction->setUser($creator->getId());
+                $feeTransaction->setService($service_cname);
+                $feeTransaction->setMethod($service_cname);
+                $feeTransaction->setType('fee');
+                $feeTransaction->setVersion($version);
+                $feeTransaction->setAmount($total);
+                $feeTransaction->setDataIn(array(
+                    'parent_id' => $transaction->getId(),
+                    'amount'    =>  -$total,
+                    'description'   =>  $service_cname.'->fee'
+                ));
+                $feeTransaction->setData(array(
+                    'parent_id' => $transaction->getId(),
+                    'type'      =>  'resta_fee'
+                ));
+                //incloure les fees en la transacció
+                $feeTransaction->setStatus('success');
+                $feeTransaction->setCurrency($currency);
+                $feeTransaction->setVariableFee($variable);
+                $feeTransaction->setFixedFee($fixed);
+                $feeTransaction->setTotal(-$total);
+                $feeTransaction->setScale($scale);
 
-            $feeTransaction = new Transaction();
-            $feeTransaction->setIp('127.0.0.1');
-            $feeTransaction->setUser($creator->getId());
-            $feeTransaction->setService($service_cname);
-            $feeTransaction->setMethod($service_cname);
-            $feeTransaction->setType('fee');
-            $feeTransaction->setVersion($version);
-            $feeTransaction->setAmount($total);
-            $feeTransaction->setDataIn(array(
-                'parent_id' => $transaction->getId(),
-                'amount'    =>  -$total,
-                'description'   =>  $service_cname.'->fee'
-            ));
-            $feeTransaction->setData(array(
-                'parent_id' => $transaction->getId(),
-                'type'      =>  'resta_fee'
-            ));
-            //incloure les fees en la transacció
-            $feeTransaction->setStatus('success');
-            $feeTransaction->setCurrency($currency);
-            $feeTransaction->setVariableFee($variable);
-            $feeTransaction->setFixedFee($fixed);
-            $feeTransaction->setTotal(-$total);
-            $feeTransaction->setScale($scale);
+                $dm->persist($feeTransaction);
+                $dm->flush();
 
-            $dm->persist($feeTransaction);
-            $dm->flush();
+                $this->balance_manipulator->addBalance($creator, -$total, $feeTransaction);
+            }
 
-            $this->balance_manipulator->addBalance($creator, -$total, $feeTransaction);
 
             $new_creator = $group->getCreator();
             $this->deal($new_creator, $amount, $service_cname, $type, $currency, $total, $id, $version);

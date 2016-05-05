@@ -82,7 +82,7 @@ class SafetyPayMethod extends BaseMethod {
             'ReferenceNo',
             'CreationDateTime',
             'Amount',
-            'CUrrencyID',
+            'CurrencyID',
             'PaymentReferenceNo',
             'Status',
             'Signature'
@@ -101,6 +101,8 @@ class SafetyPayMethod extends BaseMethod {
 
         if($response['status'] == 1){
             $paymentInfo['status'] = Transaction::$STATUS_RECEIVED;
+        }else{
+            $paymentInfo['debug'] = $paymentInfo['params'];
         }
 
         return $paymentInfo;
