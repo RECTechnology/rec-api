@@ -149,14 +149,14 @@ class SafetyPayDriver{
             }else{
                 $response = array(
                     'status'    =>  0,
-                    'params'    =>  'bad code'
+                    'params'    =>  $signature
                 );
             }
 
         }else{
             $response = array(
                 'status'    =>  0,
-                'params'    =>  'no coincide la signature'
+                'params'    =>  $signature
             );
         }
 
