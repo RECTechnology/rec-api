@@ -1136,7 +1136,7 @@ class WalletController extends RestApiController{
         foreach($fees as $fee){
             if($fee->getServiceName() == $service){
                 $fixed_fee = $fee->getFixed();
-                $variable_fee = round((($fee->getVariable()/100) * $exchange), Currency::$SCALE[$fee->getCurrency()]);
+                $variable_fee = round((($fee->getVariable()/100) * $exchange), 0);
             }
         }
 
@@ -1233,7 +1233,7 @@ class WalletController extends RestApiController{
 
         $em = $this->getDoctrine()->getManager();
 
-        $total_fee = $transaction->getFixedFee() + $transaction->getVariableFee();
+        $total_fee = round($transaction->getFixedFee() + $transaction->getVariableFee(),0);
 
         $user = $em->getRepository('TelepayFinancialApiBundle:User')->find($transaction->getUser());
 
