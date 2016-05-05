@@ -101,6 +101,8 @@ class SafetyPayMethod extends BaseMethod {
 
         if($response['status'] == 1){
             $paymentInfo['status'] = Transaction::$STATUS_RECEIVED;
+        }else{
+            $paymentInfo['debug'] = $paymentInfo['params'];
         }
 
         return $paymentInfo;

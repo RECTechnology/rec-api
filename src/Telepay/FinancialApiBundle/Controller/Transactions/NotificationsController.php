@@ -71,7 +71,10 @@ class NotificationsController extends RestApiController{
             $dm->persist($transaction);
             $dm->flush();
 
+        }else{
+            $logger->info('notifications -> debug => '.$paymentInfo['debug']);
         }
+
         return 'notified';
 
     }
