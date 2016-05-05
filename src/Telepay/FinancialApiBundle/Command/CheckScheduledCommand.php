@@ -13,6 +13,7 @@ use Telepay\FinancialApiBundle\DependencyInjection\Telepay\Commons\FeeDeal;
 use Telepay\FinancialApiBundle\DependencyInjection\Telepay\Commons\LimitAdder;
 use Telepay\FinancialApiBundle\Document\Transaction;
 use Telepay\FinancialApiBundle\Entity\Exchange;
+use Telepay\FinancialApiBundle\Entity\Group;
 use Telepay\FinancialApiBundle\Financial\Currency;
 
 class CheckScheduledCommand extends ContainerAwareCommand
@@ -100,7 +101,6 @@ class CheckScheduledCommand extends ContainerAwareCommand
                     }catch (Exception $e){
                         $pay_out_info['status'] = Transaction::$STATUS_FAILED;
                         $pay_out_info['final'] = false;
-                        $error = $e->getMessage();
                         $transaction->setPayOutInfo($pay_out_info);
                         $transaction->setStatus('failed');
                     }
