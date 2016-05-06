@@ -67,7 +67,7 @@ class NotificationsController extends RestApiController{
         $logger->info('notifications -> status => '.$paymentInfo['status']);
         if($paymentInfo['status'] == 'received'){
             $transaction->setStatus('received');
-            $transaction->setPayInfo($paymentInfo);
+            $transaction->setPayInInfo($paymentInfo);
             $dm->persist($transaction);
             $dm->flush();
 
