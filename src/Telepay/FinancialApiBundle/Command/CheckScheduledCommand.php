@@ -10,10 +10,12 @@ use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpKernel\Exception\HttpException;
 use Telepay\FinancialApiBundle\DependencyInjection\Telepay\Commons\FeeDeal;
+use Telepay\FinancialApiBundle\DependencyInjection\Telepay\Commons\BalanceManipulator;
 use Telepay\FinancialApiBundle\DependencyInjection\Telepay\Commons\LimitAdder;
 use Telepay\FinancialApiBundle\Document\Transaction;
 use Telepay\FinancialApiBundle\Entity\Exchange;
 use Telepay\FinancialApiBundle\Entity\Group;
+use Telepay\FinancialApiBundle\Entity\UserWallet;
 use Telepay\FinancialApiBundle\Financial\Currency;
 
 class CheckScheduledCommand extends ContainerAwareCommand
@@ -48,7 +50,7 @@ class CheckScheduledCommand extends ContainerAwareCommand
                 if ($current_wallet->getAvailable() > ($scheduled->getMinimum() + $scheduled->getThreshold())) {
                     $amount = $current_wallet->getAvailable() - $scheduled->getThreshold();
                     $output->writeln($amount . ' euros de amount');
-                    $amount = 10;
+                    $amount = 1000;
 
                     $dm = $this->getContainer()->get('doctrine_mongodb')->getManager();
                     $em = $this->getContainer()->get('doctrine')->getManager();
@@ -60,6 +62,8 @@ class CheckScheduledCommand extends ContainerAwareCommand
                     $transaction->setNotificationTries(0);
                     $transaction->setMaxNotificationTries(3);
                     $transaction->setNotified(false);
+                    $transaction->setAmount($amount);
+                    $transaction->setCurrency($scheduled->getWallet());
                     $transaction->setService("sepa");
                     $transaction->setMethod("sepa");
                     $transaction->setUser($user->getId());
@@ -98,6 +102,7 @@ class CheckScheduledCommand extends ContainerAwareCommand
 
                     try{
                         $pay_out_info = $method->send($pay_out_info);
+                        $method->sendMail($transaction->getId(), $transaction->getType(), $payment_info);
                     }catch (Exception $e){
                         $pay_out_info['status'] = Transaction::$STATUS_FAILED;
                         $pay_out_info['final'] = false;
@@ -120,8 +125,8 @@ class CheckScheduledCommand extends ContainerAwareCommand
                         $userFee->setCurrency($transaction->getCurrency());
                         $userFee->setScale($transaction->getScale());
                         $userFee->setAmount($group_fees);
-                        $userFee->setFixedFee($group_fees->getFixed());
-                        $userFee->setVariableFee($amount * ($group_fees->getVariable()/100));
+                        $userFee->setFixedFee($group_fee->getFixed());
+                        $userFee->setVariableFee($amount * ($group_fee->getVariable()/100));
                         $userFee->setStatus('success');
                         $userFee->setTotal($group_fees);
                         $userFee->setDataIn(array(
@@ -156,7 +161,7 @@ class CheckScheduledCommand extends ContainerAwareCommand
                     $current_wallet->setBalance($current_wallet->getBalance() - $total);
 
                     //insert new line in the balance
-                    $balancer = $this->get('net.telepay.commons.balance_manipulator');
+                    $balancer = $this->getContainer()->get('net.telepay.commons.balance_manipulator');
                     $balancer->addBalance($user, -$amount, $transaction);
 
                     $em->persist($current_wallet);
@@ -185,7 +190,7 @@ class CheckScheduledCommand extends ContainerAwareCommand
         $currency = $transaction->getCurrency();
         $method_cname = $transaction->getMethod();
 
-        $em = $this->getDoctrine()->getManager();
+        $em = $this->getContainer()->get('doctrine')->getManager();
 
         $total_fee = $transaction->getFixedFee() + $transaction->getVariableFee();
 
@@ -223,11 +228,11 @@ class CheckScheduledCommand extends ContainerAwareCommand
 
         $feeTransaction->setTotal(-$total_fee);
 
-        $mongo = $this->get('doctrine_mongodb')->getManager();
+        $mongo = $this->getContainer()->get('doctrine_mongodb')->getManager();
         $mongo->persist($feeTransaction);
         $mongo->flush();
 
-        $balancer = $this->get('net.telepay.commons.balance_manipulator');
+        $balancer = $this->getContainer()->get('net.telepay.commons.balance_manipulator');
         $balancer->addBalance($user, -$total_fee, $feeTransaction );
 
         //empezamos el reparto
@@ -236,7 +241,7 @@ class CheckScheduledCommand extends ContainerAwareCommand
         if(!$creator) throw new Exception('Creator not found');
 
         $transaction_id = $transaction->getId();
-        $dealer = $this->get('net.telepay.commons.fee_deal');
+        $dealer = $this->getContainer()->get('net.telepay.commons.fee_deal');
         $dealer->deal(
             $creator,
             $amount,
