@@ -156,7 +156,7 @@ class SafetyPayDriver{
         }else{
             $response = array(
                 'status'    =>  0,
-                'params'    =>  'error signature'
+                'params'    =>  $signature
             );
         }
 
