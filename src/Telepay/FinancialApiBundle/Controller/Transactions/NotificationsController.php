@@ -63,7 +63,7 @@ class NotificationsController extends RestApiController{
         $allParams = $request->request->all();
         $params = array();
         foreach($allParams as $key => $value){
-            $logger->info('notifications -> '.$key.' => '.$value);
+//            $logger->info('notifications -> '.$key.' => '.$value);
             $params[$key] = $value;
         }
 
