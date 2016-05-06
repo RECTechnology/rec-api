@@ -140,11 +140,8 @@ class SafetyPayDriver{
         $dataToSign = $params['RequestDateTime'].$params['MerchantSalesID'].$params['ReferenceNo'].$params['CreationDateTime'].$params['Amount'].$params['CurrencyID'].$params['PaymentReferenceNo'].$params['Status'].$this->signature_key;
         $signature = hash('sha256', $dataToSign,false);
 
-        $logger = $this->get('container')->get('logger');
-        $logger->info('notifications -> driver calculated signature => '.$signature);
-        if(strtoupper($signature) == $params['signature']){
+        if(strtoupper($signature) == $params['Signature']){
             if($params['Status'] == 102){
-                $logger->info('notifications -> driver Status => '.$params['Status']);
                 $response = array(
                     'status'    =>  1,
                     'params'    =>  $params
@@ -152,17 +149,15 @@ class SafetyPayDriver{
             }else{
                 $response = array(
                     'status'    =>  0,
-                    'params'    =>  $signature
+                    'params'    =>  $params
                 );
-                $logger->info('notifications -> driver Status => bad code');
             }
 
         }else{
             $response = array(
                 'status'    =>  0,
-                'params'    =>  $signature
+                'params'    =>  $params
             );
-            $logger->info('notifications -> driver Status => bad signature');
         }
 
         return $response;

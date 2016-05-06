@@ -99,13 +99,8 @@ class SafetyPayMethod extends BaseMethod {
 
         $response = $this->driver->notification($params);
 
-        $logger = $this->getContainer()->get('logger');
         if($response['status'] == 1){
-            $paymentInfo['status'] = 'received';
-            $logger->info('notifications -> method => received');
-        }else{
-            $paymentInfo['debug'] = $paymentInfo['params'];
-            $logger->info('notifications -> method => debug '.$paymentInfo['debug']);
+            $paymentInfo['status'] = Transaction::$STATUS_RECEIVED;
         }
 
         return $paymentInfo;
