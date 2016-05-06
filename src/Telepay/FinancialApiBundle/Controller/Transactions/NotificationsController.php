@@ -57,21 +57,53 @@ class NotificationsController extends RestApiController{
         $paymentInfo = $transaction->getPayInInfo();
 
         $allParams = $request->request->all();
+        $params = array();
         foreach($allParams as $key => $value){
             $logger->info('notifications -> '.$key.' => '.$value);
+            $params[$key] = $value;
         }
 
-        $paymentInfo = $cashInMethod->notification($request, $paymentInfo);
-        $logger->info('notifications -> status => '.$paymentInfo['status']);
-        if($paymentInfo['status'] == 'received'){
-            $transaction->setStatus('received');
-            $transaction->setPayInfo($paymentInfo);
-            $dm->persist($transaction);
-            $dm->flush();
+        $signature_key = '4774d66c4d24b7091ce3a261b0e5a990';
+
+        $dataToSign = $params['RequestDateTime'].$params['MerchantSalesID'].$params['ReferenceNo'].$params['CreationDateTime'].$params['Amount'].$params['CurrencyID'].$params['PaymentReferenceNo'].$params['Status'].$signature_key;
+        $signature = hash('sha256', $dataToSign,false);
+
+        $logger->info('notifications -> calculated signature => '.strtoupper($signature));
+        $logger->info('notifications -> received   signature => '.$params['Signature']);
+        if(strtoupper($signature) == $params['Signature']){
+            if($params['Status'] == 102){
+                $logger->info('notifications -> Status => '.$params['Status']);
+                $response = array(
+                    'status'    =>  1,
+                    'params'    =>  $params
+                );
+            }else{
+                $response = array(
+                    'status'    =>  0,
+                    'params'    =>  $signature
+                );
+                $logger->info('notifications -> Status => bad code');
+            }
 
         }else{
-            $logger->info('notifications -> debug => '.$paymentInfo['debug']);
+            $response = array(
+                'status'    =>  0,
+                'params'    =>  $signature
+            );
+            $logger->info('notifications -> Status => bad signature');
         }
+
+//        $paymentInfo = $cashInMethod->notification($request, $paymentInfo);
+//        $logger->info('notifications -> status => '.$paymentInfo['status']);
+//        if($paymentInfo['status'] == 'received'){
+//            $transaction->setStatus('received');
+//            $transaction->setPayInfo($paymentInfo);
+//            $dm->persist($transaction);
+//            $dm->flush();
+//
+//        }else{
+//            $logger->info('notifications -> debug => '.$paymentInfo['debug']);
+//        }
 
         return 'notified';
 
