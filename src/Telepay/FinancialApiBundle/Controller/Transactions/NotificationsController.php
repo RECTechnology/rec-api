@@ -92,7 +92,7 @@ class NotificationsController extends RestApiController{
             $logger->info('notifications -> Status => bad signature');
         }
 
-        
+
 //        $paymentInfo = $cashInMethod->notification($request, $paymentInfo);
 //        $logger->info('notifications -> status => '.$paymentInfo['status']);
 //        if($paymentInfo['status'] == 'received'){
