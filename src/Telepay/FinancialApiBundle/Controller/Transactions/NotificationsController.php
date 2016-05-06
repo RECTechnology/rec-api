@@ -68,7 +68,7 @@ class NotificationsController extends RestApiController{
         $dataToSign = $params['RequestDateTime'].$params['MerchantSalesID'].$params['ReferenceNo'].$params['CreationDateTime'].$params['Amount'].$params['CurrencyID'].$params['PaymentReferenceNo'].$params['Status'].$signature_key;
         $signature = hash('sha256', $dataToSign,false);
 
-        $logger->info('notifications -> calculated signature => '.$signature);
+        $logger->info('notifications -> calculated signature => '.strtoupper($signature));
         if(strtoupper($signature) == $params['signature']){
             if($params['Status'] == 102){
                 $logger->info('notifications -> Status => '.$params['Status']);
