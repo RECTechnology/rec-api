@@ -69,7 +69,8 @@ class NotificationsController extends RestApiController{
         $signature = hash('sha256', $dataToSign,false);
 
         $logger->info('notifications -> calculated signature => '.strtoupper($signature));
-        if(strtoupper($signature) == $params['signature']){
+        $logger->info('notifications -> received   signature => '.$params['Signature']);
+        if(strtoupper($signature) == $params['Signature']){
             if($params['Status'] == 102){
                 $logger->info('notifications -> Status => '.$params['Status']);
                 $response = array(
