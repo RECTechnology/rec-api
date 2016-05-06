@@ -94,7 +94,7 @@ class SafetyPayMethod extends BaseMethod {
             if(!$request->request->has($paramName)){
                 throw new HttpException(400,"Missing parameter '$paramName'");
             }
-            $params[$paramName] = $request->query->get($paramName, 'null');
+            $params[$paramName] = $request->query->get($paramName);
         }
 
         $response = $this->driver->notification($params);
