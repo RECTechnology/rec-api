@@ -18,16 +18,12 @@ class NotificationsController extends RestApiController{
 
     public function notificate(Request $request, $version_number, $service_cname, $id = null){
 
-        $logger = $this->_logger();
-
         if($service_cname == 'safetypay'){
             $notification = $this->_safetypayNotification($request);
+
+            echo $notification;
         }else{
             $notification = false;
-        }
-
-        if($notification == 'notified'){
-            return $this->rest(204, 'No content');
         }
 
     }
@@ -40,6 +36,8 @@ class NotificationsController extends RestApiController{
         $cashInMethod = $this->container->get('net.telepay.in.safetypay.v1');
 
         //Locate transaction
+        if(!$request->request->has('MerchantSalesID') || $request->request->get('MerchantSalesID') == null) throw new HttpException(409, 'Notification not allowed');
+
         $tid = $request->request->get('MerchantSalesID');
 
         $logger->info('notifications -> tid => '.$tid);
@@ -52,11 +50,14 @@ class NotificationsController extends RestApiController{
             ->getSingleResult();
 
         if(!$transaction) throw new HttpException(404, 'Transaction not found');
+
         $logger->info('notifications -> transaction found');
 
         if($transaction->getStatus() != Transaction::$STATUS_CREATED) throw new HttpException(409, 'Transaction notificated yet');
 
         $paymentInfo = $transaction->getPayInInfo();
+
+        if($paymentInfo['reference'] != $tid) throw new HttpException(409, 'Notification not allowed');
 
         if($paymentInfo['status'] != Transaction::$STATUS_CREATED) throw new HttpException(409, 'Transaction notificated yet');
 
@@ -79,7 +80,7 @@ class NotificationsController extends RestApiController{
             $logger->info('notifications -> debug => '.$paymentInfo['debug']);
         }
 
-        return 'notified';
+        return $paymentInfo['response'];
 
     }
 

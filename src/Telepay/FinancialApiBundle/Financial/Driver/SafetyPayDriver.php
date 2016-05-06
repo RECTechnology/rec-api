@@ -142,21 +142,26 @@ class SafetyPayDriver{
 
         if(strtoupper($signature) == $params['Signature']){
             if($params['Status'] == 102){
+
+                $respToSign = $this->_getDateIso8601(time()).$params['MerchantSalesID'].$params['ReferenceNo'].$params['CreationDateTime'].$params['Amount'].$params['CurrencyID'].$params['PaymentReferenceNo'].$params['Status'].$params['MerchantSalesID'].$this->signature_key;
+                $respSignature = strtoupper(hash('sha256', $respToSign, false));
+
+                $res = '0,'.$this->_getDateIso8601(time()).','.$params['MerchantSalesID'].','.$params['ReferenceNo'].','.$params['CreationDateTime'].','.$params['Amount'].','.$params['CurrencyID'].','.$params['PaymentReferenceNo'].','.$params['Status'].','.$params['MerchantSalesID'].','.$respSignature;
                 $response = array(
                     'status'    =>  1,
-                    'params'    =>  $params
+                    'response'    =>  $res
                 );
             }else{
                 $response = array(
                     'status'    =>  0,
-                    'params'    =>  'error code'
+                    'response'    =>  'error code'
                 );
             }
 
         }else{
             $response = array(
                 'status'    =>  0,
-                'params'    =>  $dataToSign
+                'response'    =>  $dataToSign
             );
         }
 
