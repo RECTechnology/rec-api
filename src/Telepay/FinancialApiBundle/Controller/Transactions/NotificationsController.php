@@ -57,11 +57,13 @@ class NotificationsController extends RestApiController{
         $paymentInfo = $transaction->getPayInInfo();
 
         $allParams = $request->request->all();
+        $params = array();
         foreach($allParams as $key => $value){
             $logger->info('notifications -> '.$key.' => '.$value);
+            $params[$key] = $value;
         }
 
-        $paymentInfo = $cashInMethod->notification($request, $paymentInfo);
+        $paymentInfo = $cashInMethod->notification($params, $paymentInfo);
         $logger->info('notifications -> status => '.$paymentInfo['status']);
         if($paymentInfo['status'] == 'received'){
             $transaction->setStatus('received');

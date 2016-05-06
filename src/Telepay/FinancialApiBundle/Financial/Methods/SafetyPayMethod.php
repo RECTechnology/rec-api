@@ -73,29 +73,7 @@ class SafetyPayMethod extends BaseMethod {
 
     }
 
-    public function notification($request, $paymentInfo){
-
-        static $paramNames = array(
-            'ApiKey',
-            'RequestDateTime',
-            'MerchantSalesID',
-            'ReferenceNo',
-            'CreationDateTime',
-            'Amount',
-            'CurrencyID',
-            'PaymentReferenceNo',
-            'Status',
-            'Signature'
-        );
-
-        //Get the parameters sent by POST and put them in $params array
-        $params = array();
-        foreach($paramNames as $paramName){
-            if(!$request->request->has($paramName)){
-                throw new HttpException(400,"Missing parameter '$paramName'");
-            }
-            $params[$paramName] = $request->query->get($paramName);
-        }
+    public function notification($params, $paymentInfo){
 
         $response = $this->driver->notification($params);
 
