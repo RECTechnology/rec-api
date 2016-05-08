@@ -11,6 +11,7 @@ namespace Telepay\FinancialApiBundle\Controller\Management\User;
 
 use Symfony\Component\Security\Core\Util\SecureRandom;
 use Telepay\FinancialApiBundle\Entity\Device;
+use Telepay\FinancialApiBundle\Entity\KYC;
 use Telepay\FinancialApiBundle\Entity\TierValidations;
 use Telepay\FinancialApiBundle\Entity\User;
 use Rhumsaa\Uuid\Uuid;
@@ -353,137 +354,59 @@ class AccountController extends BaseApiController{
      */
     public function registerAction(Request $request){
 
-        //device_id is optional
-        $device_id = null;
-        $gcm_token = null;
-        if($request->request->has('device_id')){
-            if(!$request->request->has('gcm_token')) throw new HttpException(400, 'Missing parameter gcm_token');
-            $gcm_token = $request->request->get(('gcm_token'));
-            $device_id = $request->request->get('device_id');
-            $request->request->remove('device_id');
-            $request->request->remove('gcm_token');
-        }
-
-        //password is optional
-        if(!$request->request->has('password')){
-            //nos lo inventamos
-            $password = Uuid::uuid1()->toString();
-            $request->request->add(array('plain_password'=>$password));
-
-        }else{
+        if($request->request->has('kyc') && $request->request->get('kyc') == 'true'){
+            if(!$request->request->has('email')){
+                throw new HttpException(400, "Missing parameter 'email'");
+            }
+            else{
+                $email = $request->request->get('email');
+            }
+            if(!$request->request->has('password')){
+                throw new HttpException(400, "Missing parameter 'password'");
+            }
             if(!$request->request->has('repassword')){
                 throw new HttpException(400, "Missing parameter 'repassword'");
-            }else{
+            }
+            else{
                 $password = $request->get('password');
                 $repassword = $request->get('repassword');
                 if($password!=$repassword) throw new HttpException(400, "Password and repassword are differents.");
+                $request->request->add(array('plain_password'=>$password));
                 $request->request->remove('password');
                 $request->request->remove('repassword');
-                $request->request->add(array('plain_password'=>$password));
             }
-
-        }
-
-        $fake = Uuid::uuid1()->toString();
-        //username fake
-        if(!$request->request->has('username')){
-            //invent the username
-            $username = $fake;
-            $request->request->add(array('username'=>$fake));
-        }else{
-            $username = $request->get('username');
-        }
-
-        //name fake
-        if(!$request->request->has('name')){
-            //invent the name
-            $request->request->add(array('name'=>$fake));
-        }
-
-        if(!$request->request->has('phone')){
+            $request->request->add(array('username'=>$email));
+            $request->request->add(array('name'=>''));
             $request->request->add(array('phone'=>''));
             $request->request->add(array('prefix'=>''));
-        }else{
-            if(!$request->request->has('prefix')){
-                throw new HttpException(400, "Missing parameter 'prefix'");
-            }
-        }
-
-        $confirmation_mail = 0;
-        if($request->request->has('email') && $request->request->get('email') != ''){
-            $confirmation_mail = 1;
-        }else{
-            $email = $fake.'@default.com';
             $request->request->add(array('email'=>$email));
-        }
+            $request->request->add(array('enabled'=>1));
+            $request->request->add(array('base64_image'=>''));
+            $request->request->add(array('default_currency'=>'EUR'));
+            $request->request->add(array('gcm_group_key'=>''));
+            $request->request->add(array('services_list'=>array('sample')));
+            $request->request->add(array('methods_list'=>array('sample')));
+            $resp= parent::createAction($request);
 
-        $request->request->add(array('enabled'=>1));
-        $request->request->add(array('base64_image'=>''));
-        $request->request->add(array('default_currency'=>'EUR'));
-        $request->request->add(array('gcm_group_key'=>''));
-        $request->request->add(array('services_list'=>array('sample')));
-        $request->request->add(array('methods_list'=>array('sample')));
+            if($resp->getStatusCode() == 201) {
+                $em = $this->getDoctrine()->getManager();
 
-        if($request->request->has('captcha')){
-            $captcha = $request->request->get('captcha');
-            $request->request->remove('captcha');
+                $usersRepo = $em->getRepository("TelepayFinancialApiBundle:User");
+                $data = $resp->getContent();
+                $data = json_decode($data);
+                $data = $data->data;
+                $user_id = $data->id;
 
-            $g_url = 'https://www.google.com/recaptcha/api/siteverify?secret=6LeWBBUTAAAAAB_z2gTNI2yu4jerUql7WN_t29Aj&response='.$captcha;
-            $g_ch = curl_init();
-            curl_setopt($g_ch,CURLOPT_URL, $g_url);
-            curl_setopt($g_ch,CURLOPT_RETURNTRANSFER,true);
-            $g_result = curl_exec($g_ch);
-            curl_close($g_ch);
-            $g_result = json_decode($g_result,true);
+                $user = $usersRepo->findOneBy(array('id'=>$user_id));
 
-            if($g_result['success'] != 1){
-                throw new HttpException(403, 'You are a bot');
-            }
+                $user_kyc = new KYC();
+                $user_kyc->setEmail($email);
+                $user_kyc->setUser($user);
+                $em->persist($user_kyc);
+                $user->addRole('ROLE_KYC');
+                $em->persist($user);
+                $em->flush();
 
-        }
-
-        $resp= parent::createAction($request);
-
-        if($resp->getStatusCode() == 201){
-            $em = $this->getDoctrine()->getManager();
-
-            $groupsRepo = $em->getRepository("TelepayFinancialApiBundle:Group");
-            $group = $groupsRepo->find($this->container->getParameter('id_group_level_0'));
-            if(!$group) throw new HttpException(404,'Group Level 0 not found');
-
-            $usersRepo = $em->getRepository("TelepayFinancialApiBundle:User");
-            $data = $resp->getContent();
-            $data = json_decode($data);
-            $data = $data->data;
-            $user_id = $data->id;
-
-            $user = $usersRepo->findOneBy(array('id'=>$user_id));
-
-            $currencies=Currency::$LISTA;
-
-            foreach($currencies as $currency){
-                $user_wallet = new UserWallet();
-                $user_wallet->setBalance(0);
-                $user_wallet->setAvailable(0);
-                $user_wallet->setCurrency($currency);
-                $user_wallet->setUser($user);
-                $em->persist($user_wallet);
-            }
-
-            $user->addGroup($group);
-
-            $em->persist($user);
-            $em->flush();
-
-            if( $device_id != null){
-                $device = new Device();
-                $device->setUser($user);
-                $device->setGcmToken($gcm_token);
-
-                $em->persist($device);
-            }
-
-            if($confirmation_mail == 1){
                 $tokenManager = $this->container->get('fos_oauth_server.access_token_manager.default');
                 $accessToken = $tokenManager->findTokenByToken(
                     $this->container->get('security.context')->getToken()->getToken()
@@ -496,23 +419,183 @@ class AccountController extends BaseApiController{
                 $em->flush();
                 $url = $url.'/user/validation/'.$user->getConfirmationToken();
                 $this->_sendEmail('Chip-Chap validation e-mail', $url, $user->getEmail(), 'register');
+
+
+                $em->persist($user);
+                $em->flush();
+
+                $response = array(
+                    'id'        =>  $user_id,
+                    'username'  =>  $email,
+                    'password'   =>  $password
+                );
+
+                return $this->restV2(201,"ok", "Request successful", $response);
+            }else{
+                return $resp;
+            }
+        }
+        else{
+            //device_id is optional
+            $device_id = null;
+            $gcm_token = null;
+            if($request->request->has('device_id')){
+                if(!$request->request->has('gcm_token')) throw new HttpException(400, 'Missing parameter gcm_token');
+                $gcm_token = $request->request->get(('gcm_token'));
+                $device_id = $request->request->get('device_id');
+                $request->request->remove('device_id');
+                $request->request->remove('gcm_token');
             }
 
-            $em->persist($user);
-            $em->flush();
+            //password is optional
+            if(!$request->request->has('password')){
+                //nos lo inventamos
+                $password = Uuid::uuid1()->toString();
+                $request->request->add(array('plain_password'=>$password));
 
-            $response = array(
-                'id'        =>  $user_id,
-                'username'  =>  $username,
-                'password'   =>  $password
-            );
+            }else{
+                if(!$request->request->has('repassword')){
+                    throw new HttpException(400, "Missing parameter 'repassword'");
+                }else{
+                    $password = $request->get('password');
+                    $repassword = $request->get('repassword');
+                    if($password!=$repassword) throw new HttpException(400, "Password and repassword are differents.");
+                    $request->request->remove('password');
+                    $request->request->remove('repassword');
+                    $request->request->add(array('plain_password'=>$password));
+                }
 
-            return $this->restV2(201,"ok", "Request successful", $response);
-        }else{
+            }
 
-            return $resp;
+            $fake = Uuid::uuid1()->toString();
+            //username fake
+            if(!$request->request->has('username')){
+                //invent the username
+                $username = $fake;
+                $request->request->add(array('username'=>$fake));
+            }else{
+                $username = $request->get('username');
+            }
+
+            //name fake
+            if(!$request->request->has('name')){
+                //invent the name
+                $request->request->add(array('name'=>$fake));
+            }
+
+            if(!$request->request->has('phone')){
+                $request->request->add(array('phone'=>''));
+                $request->request->add(array('prefix'=>''));
+            }else{
+                if(!$request->request->has('prefix')){
+                    throw new HttpException(400, "Missing parameter 'prefix'");
+                }
+            }
+
+            $confirmation_mail = 0;
+            if($request->request->has('email') && $request->request->get('email') != ''){
+                $confirmation_mail = 1;
+            }else{
+                $email = $fake.'@default.com';
+                $request->request->add(array('email'=>$email));
+            }
+
+            $request->request->add(array('enabled'=>1));
+            $request->request->add(array('base64_image'=>''));
+            $request->request->add(array('default_currency'=>'EUR'));
+            $request->request->add(array('gcm_group_key'=>''));
+            $request->request->add(array('services_list'=>array('sample')));
+            $request->request->add(array('methods_list'=>array('sample')));
+
+            if($request->request->has('captcha')){
+                $captcha = $request->request->get('captcha');
+                $request->request->remove('captcha');
+
+                $g_url = 'https://www.google.com/recaptcha/api/siteverify?secret=6LeWBBUTAAAAAB_z2gTNI2yu4jerUql7WN_t29Aj&response='.$captcha;
+                $g_ch = curl_init();
+                curl_setopt($g_ch,CURLOPT_URL, $g_url);
+                curl_setopt($g_ch,CURLOPT_RETURNTRANSFER,true);
+                $g_result = curl_exec($g_ch);
+                curl_close($g_ch);
+                $g_result = json_decode($g_result,true);
+
+                if($g_result['success'] != 1){
+                    throw new HttpException(403, 'You are a bot');
+                }
+
+            }
+
+            $resp= parent::createAction($request);
+
+            if($resp->getStatusCode() == 201){
+                $em = $this->getDoctrine()->getManager();
+
+                $groupsRepo = $em->getRepository("TelepayFinancialApiBundle:Group");
+                $group = $groupsRepo->find($this->container->getParameter('id_group_level_0'));
+                if(!$group) throw new HttpException(404,'Group Level 0 not found');
+
+                $usersRepo = $em->getRepository("TelepayFinancialApiBundle:User");
+                $data = $resp->getContent();
+                $data = json_decode($data);
+                $data = $data->data;
+                $user_id = $data->id;
+
+                $user = $usersRepo->findOneBy(array('id'=>$user_id));
+
+                $currencies=Currency::$LISTA;
+
+                foreach($currencies as $currency){
+                    $user_wallet = new UserWallet();
+                    $user_wallet->setBalance(0);
+                    $user_wallet->setAvailable(0);
+                    $user_wallet->setCurrency($currency);
+                    $user_wallet->setUser($user);
+                    $em->persist($user_wallet);
+                }
+
+                $user->addGroup($group);
+
+                $em->persist($user);
+                $em->flush();
+
+                if( $device_id != null){
+                    $device = new Device();
+                    $device->setUser($user);
+                    $device->setGcmToken($gcm_token);
+
+                    $em->persist($device);
+                }
+
+                if($confirmation_mail == 1){
+                    $tokenManager = $this->container->get('fos_oauth_server.access_token_manager.default');
+                    $accessToken = $tokenManager->findTokenByToken(
+                        $this->container->get('security.context')->getToken()->getToken()
+                    );
+                    $url = $this->container->getParameter('base_panel_url');
+
+                    $tokenGenerator = $this->container->get('fos_user.util.token_generator');
+                    $user->setConfirmationToken($tokenGenerator->generateToken());
+                    $em->persist($user);
+                    $em->flush();
+                    $url = $url.'/user/validation/'.$user->getConfirmationToken();
+                    $this->_sendEmail('Chip-Chap validation e-mail', $url, $user->getEmail(), 'register');
+                }
+
+                $em->persist($user);
+                $em->flush();
+
+                $response = array(
+                    'id'        =>  $user_id,
+                    'username'  =>  $username,
+                    'password'   =>  $password
+                );
+
+                return $this->restV2(201,"ok", "Request successful", $response);
+            }else{
+
+                return $resp;
+            }
         }
-
     }
 
     /**
@@ -649,6 +732,16 @@ class AccountController extends BaseApiController{
             $em->flush();
         }else{
             throw new HttpException(409, 'Validation not allowed');
+        }
+
+        $kyc = $em->getRepository('TelepayFinancialApiBundle:KYC')->findOneBy(array(
+            'user' => $user
+        ));
+
+        if($kyc){
+            $kyc->setEmailValidated(true);
+            $em->persist($kyc);
+            $em->flush();
         }
 
         $response = array(
