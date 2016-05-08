@@ -73,39 +73,15 @@ class SafetyPayMethod extends BaseMethod {
 
     }
 
-    public function notification($request, $paymentInfo){
-
-        static $paramNames = array(
-            'ApiKey',
-            'RequestDateTime',
-            'MerchantSalesID',
-            'ReferenceNo',
-            'CreationDateTime',
-            'Amount',
-            'CurrencyID',
-            'PaymentReferenceNo',
-            'Status',
-            'Signature'
-        );
-
-        //Get the parameters sent by POST and put them in $params array
-        $params = array();
-        foreach($paramNames as $paramName){
-            if(!$request->request->has($paramName)){
-                throw new HttpException(400,"Missing parameter '$paramName'");
-            }
-            $params[$paramName] = $request->query->get($paramName, 'null');
-        }
+    public function notification($params, $paymentInfo){
 
         $response = $this->driver->notification($params);
 
-        $logger = $this->getContainer()->get('logger');
         if($response['status'] == 1){
-            $paymentInfo['status'] = 'received';
-            $logger->info('notifications -> method => received');
+            $paymentInfo['status'] = Transaction::$STATUS_RECEIVED;
+            $paymentInfo['response'] = $response['response'];
         }else{
-            $paymentInfo['debug'] = $paymentInfo['params'];
-            $logger->info('notifications -> method => debug '.$paymentInfo['debug']);
+            $paymentInfo['response'] = $response['response'];
         }
 
         return $paymentInfo;

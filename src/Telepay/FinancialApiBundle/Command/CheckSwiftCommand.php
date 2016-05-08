@@ -150,7 +150,12 @@ class CheckSwiftCommand extends ContainerAwareCommand
                             //if method_out es igual a btc o fac hay que volver a calcular el amount de btc
                             if($method_out == 'btc' || $method_out == 'fac'){
                                 //Hay que volver a calcular el amount en btc que vamos a enviar y ponerlo en el pay_out_info
-                                $crypto_amount = round($this->_exchange($pay_in_info['amount'], $cashInMethod->getCurrency(), $cashOutMethod->getCurrency()),0);
+                                if($method_in == 'safetypay'){
+                                    $crypto_amount = round($this->_exchange($pay_in_info['amount'], $pay_in_info['currency'], $cashOutMethod->getCurrency()),0);
+                                }else{
+                                    $crypto_amount = round($this->_exchange($pay_in_info['amount'], $cashInMethod->getCurrency(), $cashOutMethod->getCurrency()),0);
+                                }
+
 
                                 $client_fee = round(($crypto_amount * ($clientFees->getVariable()/100) + $clientFees->getFixed()),0);
                                 $service_fee = round(($crypto_amount * ($methodFees->getVariable()/100) + $methodFees->getFixed()),0);
