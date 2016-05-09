@@ -358,6 +358,9 @@ class AccountController extends BaseApiController{
         }
         else{
             $email = $request->request->get('email');
+            if (!filter_var($email, FILTER_VALIDATE_EMAIL)) {
+                throw new HttpException(400, "Invalid email");
+            }
         }
         if(!$request->request->has('password')){
             throw new HttpException(400, "Missing parameter 'password'");
