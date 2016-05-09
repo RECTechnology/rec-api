@@ -411,7 +411,7 @@ class AccountController extends BaseApiController{
             $em->persist($user);
             $em->flush();
             $url = $url.'/user/validation/'.$user->getConfirmationToken();
-            $this->_sendEmail('Chip-Chap validation e-mail', $url, $user->getEmail(), 'register');
+            $this->_sendEmail('Chip-Chap validation e-mail', $url, $user->getEmail(), 'register_kyc');
 
 
             $em->persist($user);
@@ -763,6 +763,8 @@ class AccountController extends BaseApiController{
             $template = 'TelepayFinancialApiBundle:Email:registerconfirm.html.twig';
         }elseif($action == 'recover'){
             $template = 'TelepayFinancialApiBundle:Email:recoverpassword.html.twig';
+        }elseif($action == 'register_kyc'){
+            $template = 'TelepayFinancialApiBundle:Email:registerconfirmkyc.html.twig';
         }else{
             $template = 'TelepayFinancialApiBundle:Email:registerconfirm.html.twig';
         }
