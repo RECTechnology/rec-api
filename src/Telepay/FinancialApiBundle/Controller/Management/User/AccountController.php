@@ -405,12 +405,7 @@ class AccountController extends BaseApiController{
             $em->persist($user);
             $em->flush();
 
-            $tokenManager = $this->container->get('fos_oauth_server.access_token_manager.default');
-            $accessToken = $tokenManager->findTokenByToken(
-                $this->container->get('security.context')->getToken()->getToken()
-            );
-            $url = $this->container->getParameter('base_panel_url');
-
+            $url = $this->container->getParameter('web_app_url');
             $tokenGenerator = $this->container->get('fos_user.util.token_generator');
             $user->setConfirmationToken($tokenGenerator->generateToken());
             $em->persist($user);
