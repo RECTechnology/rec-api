@@ -11,6 +11,7 @@ namespace Telepay\FinancialApiBundle\Controller\Transactions;
 use MongoDBODMProxies\__CG__\Telepay\FinancialApiBundle\Document\Transaction;
 use Symfony\Component\HttpFoundation\Request;
 use FOS\RestBundle\Controller\Annotations as Rest;
+use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpKernel\Exception\HttpException;
 use Telepay\FinancialApiBundle\Controller\RestApiController;
 
@@ -21,7 +22,7 @@ class NotificationsController extends RestApiController{
         if($service_cname == 'safetypay'){
             $notification = $this->_safetypayNotification($request);
 
-            echo $notification;
+            return new Response($notification);
         }else{
             $notification = false;
         }
