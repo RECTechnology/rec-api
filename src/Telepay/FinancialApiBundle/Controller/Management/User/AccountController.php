@@ -410,7 +410,7 @@ class AccountController extends BaseApiController{
             $user->setConfirmationToken($tokenGenerator->generateToken());
             $em->persist($user);
             $em->flush();
-            $url = $url.'/user/validation/'.$user->getConfirmationToken();
+            $url = $url.'?user_token='.$user->getConfirmationToken();
             $this->_sendEmail('Chip-Chap validation e-mail', $url, $user->getEmail(), 'register_kyc');
 
 
