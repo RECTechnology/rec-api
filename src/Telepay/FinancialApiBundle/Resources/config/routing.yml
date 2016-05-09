@@ -23,8 +23,12 @@ OldVersions:
 Swift_api:
     resource: routing/swift.yml
 
-KYC:
-    resource: routing/kyc.yml
+
+register_kyc:
+    pattern:  /kyc/register
+    defaults: { _controller: Telepay\FinancialApiBundle\Controller\Management\User\AccountController::registerKYCAction }
+    requirements:
+        _method: POST
 
 register:
     pattern:  /register/v1
