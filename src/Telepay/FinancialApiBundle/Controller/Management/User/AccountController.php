@@ -353,7 +353,7 @@ class AccountController extends BaseApiController{
      * @Rest\View
      */
     public function registerKYCAction(Request $request){
-        if(!$request->request->has('email')){
+        if(!$request->request->has('email') || $request->get('email')==""){
             throw new HttpException(400, "Missing parameter 'email'");
         }
         else{
@@ -362,7 +362,7 @@ class AccountController extends BaseApiController{
                 throw new HttpException(400, "Invalid email");
             }
         }
-        if(!$request->request->has('password')){
+        if(!$request->request->has('password') || $request->get('password')==""){
             throw new HttpException(400, "Missing parameter 'password'");
         }
         if(!$request->request->has('repassword')){
