@@ -38,7 +38,7 @@ class Login2faController extends RestApiController{
             $em = $this->getDoctrine()->getManager();
             $user = $em->getRepository('TelepayFinancialApiBundle:User')->findBy(array('username' => $username));
 
-            if($user->hasRole('ROLE_KYC')){
+            if($user[0]->hasRole('ROLE_KYC')){
                 $token = array(
                     "error" => "invalid_grant",
                     "error_description" => "User without permission to enter inside the panel"
