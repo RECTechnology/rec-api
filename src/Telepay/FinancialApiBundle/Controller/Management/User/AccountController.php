@@ -433,10 +433,11 @@ class AccountController extends BaseApiController{
     }
 
     public function kycInfo(Request $request){
-        $user = $this->get('security.context')->getToken()->getUser();
-        if(!$user){
+        $token = $this->get('security.context')->getToken();
+        if(!$token){
             throw new HttpException(400, 'User not authenticated');
         }
+        $user = $token->getUser();
         $em = $this->getDoctrine()->getManager();
         $kyc = $em->getRepository('TelepayFinancialApiBundle:KYC')->findOneBy(array(
             'user' => $user
