@@ -41,7 +41,7 @@ security:
             security:   false
 
         kyc:
-            pattern:    ^/kyc/new
+            pattern:    ^/kyc/register
             stateless:  true
             security:   false
 
