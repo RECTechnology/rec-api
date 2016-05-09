@@ -11,6 +11,7 @@ namespace Telepay\FinancialApiBundle\Controller\Management\User;
 
 use Symfony\Component\Security\Core\Util\SecureRandom;
 use Telepay\FinancialApiBundle\Entity\Device;
+use Telepay\FinancialApiBundle\Entity\KYC;
 use Telepay\FinancialApiBundle\Entity\TierValidations;
 use Telepay\FinancialApiBundle\Entity\User;
 use Rhumsaa\Uuid\Uuid;
@@ -351,8 +352,89 @@ class AccountController extends BaseApiController{
     /**
      * @Rest\View
      */
-    public function registerAction(Request $request){
+    public function registerKYCAction(Request $request){
+        if(!$request->request->has('email')){
+            throw new HttpException(400, "Missing parameter 'email'");
+        }
+        else{
+            $email = $request->request->get('email');
+        }
+        if(!$request->request->has('password')){
+            throw new HttpException(400, "Missing parameter 'password'");
+        }
+        if(!$request->request->has('repassword')){
+            throw new HttpException(400, "Missing parameter 'repassword'");
+        }
+        else{
+            $password = $request->get('password');
+            $repassword = $request->get('repassword');
+            if($password!=$repassword) throw new HttpException(400, "Password and repassword are differents.");
+            $request->request->add(array('plain_password'=>$password));
+            $request->request->remove('password');
+            $request->request->remove('repassword');
+        }
+        $request->request->add(array('username'=>$email));
+        $request->request->add(array('name'=>''));
+        $request->request->add(array('phone'=>''));
+        $request->request->add(array('prefix'=>''));
+        $request->request->add(array('email'=>$email));
+        $request->request->add(array('enabled'=>1));
+        $request->request->add(array('base64_image'=>''));
+        $request->request->add(array('default_currency'=>'EUR'));
+        $request->request->add(array('gcm_group_key'=>''));
+        $request->request->add(array('services_list'=>array('sample')));
+        $request->request->add(array('methods_list'=>array('sample')));
+        $resp= parent::createAction($request);
 
+        if($resp->getStatusCode() == 201) {
+            $em = $this->getDoctrine()->getManager();
+
+            $usersRepo = $em->getRepository("TelepayFinancialApiBundle:User");
+            $data = $resp->getContent();
+            $data = json_decode($data);
+            $data = $data->data;
+            $user_id = $data->id;
+
+            $user = $usersRepo->findOneBy(array('id'=>$user_id));
+
+            $user_kyc = new KYC();
+            $user_kyc->setEmail($email);
+            $user_kyc->setUser($user);
+            $em->persist($user_kyc);
+            $user->addRole('ROLE_KYC');
+            $em->persist($user);
+            $em->flush();
+
+            $tokenManager = $this->container->get('fos_oauth_server.access_token_manager.default');
+            $accessToken = $tokenManager->findTokenByToken(
+                $this->container->get('security.context')->getToken()->getToken()
+            );
+            $url = $this->container->getParameter('base_panel_url');
+
+            $tokenGenerator = $this->container->get('fos_user.util.token_generator');
+            $user->setConfirmationToken($tokenGenerator->generateToken());
+            $em->persist($user);
+            $em->flush();
+            $url = $url.'/user/validation/'.$user->getConfirmationToken();
+            $this->_sendEmail('Chip-Chap validation e-mail', $url, $user->getEmail(), 'register');
+
+
+            $em->persist($user);
+            $em->flush();
+
+            $response = array(
+                'id'        =>  $user_id,
+                'username'  =>  $email,
+                'password'   =>  $password
+            );
+
+            return $this->restV2(201,"ok", "Request successful", $response);
+        }else{
+            return $resp;
+        }
+    }
+
+    public function registerAction(Request $request){
         //device_id is optional
         $device_id = null;
         $gcm_token = null;
@@ -512,7 +594,6 @@ class AccountController extends BaseApiController{
 
             return $resp;
         }
-
     }
 
     /**
@@ -649,6 +730,16 @@ class AccountController extends BaseApiController{
             $em->flush();
         }else{
             throw new HttpException(409, 'Validation not allowed');
+        }
+
+        $kyc = $em->getRepository('TelepayFinancialApiBundle:KYC')->findOneBy(array(
+            'user' => $user
+        ));
+
+        if($kyc){
+            $kyc->setEmailValidated(true);
+            $em->persist($kyc);
+            $em->flush();
         }
 
         $response = array(

@@ -22,42 +22,82 @@ class KYC {
      */
     private $id;
 
+    /**
+     * @ORM\Column(type="string")
+     * @Expose
+     */
+    private $name = "";
 
     /**
      * @ORM\Column(type="string")
      * @Expose
      */
-    private $email;
+    private $email = "";
+
+    /**
+     * @ORM\Column(type="boolean")
+     * @Expose
+     */
+    private $email_validated = false;
 
     /**
      * @ORM\Column(type="string")
      * @Expose
      */
-    private $phone;
+    private $phone = "";
 
     /**
-     * @ORM\Column(type="string")
+     * @ORM\Column(type="boolean")
+     * @Expose
+     */
+    private $phone_validated = false;
+
+    /**
+     * @ORM\Column(type="string", nullable=true)
+     * @Expose
+     */
+    private $document;
+
+    /**
+     * @ORM\Column(type="boolean")
+     * @Expose
+     */
+    private $document_validated = false;
+
+    /**
+     * @ORM\Column(type="string", nullable=true)
      * @Expose
      */
     private $image_front;
 
     /**
-     * @ORM\Column(type="string")
+     * @ORM\Column(type="string", nullable=true)
      * @Expose
      */
     private $image_back;
 
     /**
-     * @ORM\Column(type="string")
+     * @ORM\Column(type="string", nullable=true)
      * @Expose
      */
     private $first_transaction;
 
     /**
-     * @ORM\Column(type="string")
+     * @ORM\Column(type="string", nullable=true)
      * @Expose
      */
     private $card_info;
+
+    /**
+     * @ORM\Column(type="string", nullable=true)
+     * @Expose
+     */
+    private $other_info;
+
+    /**
+     * @ORM\ManyToOne(targetEntity="Telepay\FinancialApiBundle\Entity\User")
+     */
+    private $user;
 
     /**
      * @return mixed
@@ -161,5 +201,117 @@ class KYC {
     public function setCardInfo($card_info)
     {
         $this->card_info = $card_info;
+    }
+
+    /**
+     * @return mixed
+     */
+    public function getUser()
+    {
+        return $this->user;
+    }
+
+    /**
+     * @param mixed $user
+     */
+    public function setUser($user)
+    {
+        $this->user = $user;
+    }
+
+    /**
+     * @return mixed
+     */
+    public function getOtherInfo()
+    {
+        return $this->other_info;
+    }
+
+    /**
+     * @param mixed $other_info
+     */
+    public function setOtherInfo($other_info)
+    {
+        $this->other_info = $other_info;
+    }
+
+    /**
+     * @return mixed
+     */
+    public function getPhoneValidated()
+    {
+        return $this->phone_validated;
+    }
+
+    /**
+     * @param mixed $phone_validated
+     */
+    public function setPhoneValidated($phone_validated)
+    {
+        $this->phone_validated = $phone_validated;
+    }
+
+    /**
+     * @return mixed
+     */
+    public function getEmailValidated()
+    {
+        return $this->email_validated;
+    }
+
+    /**
+     * @param mixed $email_validated
+     */
+    public function setEmailValidated($email_validated)
+    {
+        $this->email_validated = $email_validated;
+    }
+
+    /**
+     * @return mixed
+     */
+    public function getDocumentValidated()
+    {
+        return $this->document_validated;
+    }
+
+    /**
+     * @param mixed $document_validated
+     */
+    public function setDocumentValidated($document_validated)
+    {
+        $this->document_validated = $document_validated;
+    }
+
+    /**
+     * @return mixed
+     */
+    public function getDocument()
+    {
+        return $this->document;
+    }
+
+    /**
+     * @param mixed $document
+     */
+    public function setDocument($document)
+    {
+        $this->document = $document;
+    }
+
+    /**
+     * @return mixed
+     */
+    public function getName()
+    {
+        return $this->name;
+    }
+
+    /**
+     * @param mixed $name
+     */
+    public function setName($name)
+    {
+        $this->name = $name;
     }
 }

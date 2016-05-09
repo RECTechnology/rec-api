@@ -102,7 +102,7 @@ class CheckScheduledCommand extends ContainerAwareCommand
 
                     try{
                         $pay_out_info = $method->send($pay_out_info);
-                        $method->sendMail($transaction->getId(), $transaction->getType(), $payment_info);
+                        $method->sendMail($transaction->getId(), $transaction->getType(), $pay_out_info);
                     }catch (Exception $e){
                         $pay_out_info['status'] = Transaction::$STATUS_FAILED;
                         $pay_out_info['final'] = false;
