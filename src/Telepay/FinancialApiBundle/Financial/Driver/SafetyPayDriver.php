@@ -141,8 +141,8 @@ class SafetyPayDriver{
         $signature = hash('sha256', $dataToSign,false);
 
         if(strtoupper($signature) == $params['Signature']){
-            if($params['Status'] == 102){
 
+            if($params['Status'] == 102){
                 $respToSign = $this->_getDateIso8601(time()).$params['MerchantSalesID'].$params['ReferenceNo'].$params['CreationDateTime'].$params['Amount'].$params['CurrencyID'].$params['PaymentReferenceNo'].$params['Status'].$params['MerchantSalesID'].$this->signature_key;
                 $respSignature = strtoupper(hash('sha256', $respToSign, false));
 
