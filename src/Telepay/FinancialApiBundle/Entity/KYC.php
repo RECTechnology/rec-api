@@ -26,13 +26,13 @@ class KYC {
      * @ORM\Column(type="string")
      * @Expose
      */
-    private $name;
+    private $name = "";
 
     /**
      * @ORM\Column(type="string")
      * @Expose
      */
-    private $email;
+    private $email = "";
 
     /**
      * @ORM\Column(type="boolean")
@@ -44,7 +44,7 @@ class KYC {
      * @ORM\Column(type="string")
      * @Expose
      */
-    private $phone;
+    private $phone = "";
 
     /**
      * @ORM\Column(type="boolean")
