@@ -37,7 +37,14 @@ class Login2faController extends RestApiController{
         if(!isset($token->error)){
             $em = $this->getDoctrine()->getManager();
             $user = $em->getRepository('TelepayFinancialApiBundle:User')->findBy(array('username' => $username));
-            if($user[0]->getTwoFactorAuthentication() == 1) {
+
+            if($user->hasRole('ROLE_KYC')){
+                $token = array(
+                    "error" => "invalid_grant",
+                    "error_description" => "User without permission to enter inside the panel"
+                );
+            }
+            elseif($user[0]->getTwoFactorAuthentication() == 1) {
                 $Google2FA = new Google2FA();
                 $twoFactorCode = $user[0]->getTwoFactorCode();
                 if (!$Google2FA->verify_key($twoFactorCode, $pin)) {
