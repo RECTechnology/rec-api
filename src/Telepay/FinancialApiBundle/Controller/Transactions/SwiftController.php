@@ -231,12 +231,33 @@ class SwiftController extends RestApiController{
         ));
 
         if(!$transaction){
-            $qb = $dm->createQueryBuilder('TelepayFinancialApiBundle:Transaction');
-            $result = $qb
-                ->field('type')->equals('swift')
-                ->field('method_in')->equals($type_in)
-                ->field('method_out')->equals($type_out)
-                ->where("function(){
+            if($type_in == 'safetypay'){
+                $qb = $dm->createQueryBuilder('TelepayFinancialApiBundle:Transaction');
+                $result = $qb
+                    ->field('type')->equals('swift')
+                    ->field('method_in')->equals($type_in)
+                    ->field('method_out')->equals($type_out)
+                    ->where("function(){
+                    if (typeof this.pay_out_info.reference !== 'undefined') {
+                        if(String(this.pay_out_info.reference).indexOf('$id') > -1){
+                            return true;
+                        }
+                }
+                }")
+
+                    ->getQuery()
+                    ->execute();
+
+                foreach($result->toArray() as $d){
+                    $transaction = $d;
+                }
+            }else{
+                $qb = $dm->createQueryBuilder('TelepayFinancialApiBundle:Transaction');
+                $result = $qb
+                    ->field('type')->equals('swift')
+                    ->field('method_in')->equals($type_in)
+                    ->field('method_out')->equals($type_out)
+                    ->where("function(){
                     if (typeof this.pay_out_info.find_token !== 'undefined') {
                         if(String(this.pay_out_info.find_token).indexOf('$id') > -1){
                             return true;
@@ -244,12 +265,14 @@ class SwiftController extends RestApiController{
                 }
                 }")
 
-                ->getQuery()
-                ->execute();
+                    ->getQuery()
+                    ->execute();
 
-            foreach($result->toArray() as $d){
-                $transaction = $d;
+                foreach($result->toArray() as $d){
+                    $transaction = $d;
+                }
             }
+
         }
 
         if(!$transaction) throw new HttpException(404, 'Transaction not found');
