@@ -215,7 +215,7 @@ services:
         class: Telepay\FinancialApiBundle\Financial\Methods\MethodConfiguration
         arguments:
             - "0"
-            - "6"
+            - "4"
             - "5000"
             - "100000"
             - "5000"
@@ -228,7 +228,7 @@ services:
         class: Telepay\FinancialApiBundle\Financial\Methods\MethodConfiguration
         arguments:
             - "0"
-            - "6"
+            - "4"
             - "5000"
             - "100000"
             - "5000"
