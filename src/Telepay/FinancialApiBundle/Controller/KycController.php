@@ -32,6 +32,9 @@ class KycController extends RestApiController{
         }
         $prefix = $request->get('prefix');
 
+        $phone = preg_replace("/[^0-9,.]/", "", $phone);
+        $prefix = preg_replace("/[^0-9,.]/", "", $prefix);
+
         if(!$this->checkPhone($phone, $prefix)){
             throw new HttpException(400, "Incorrect phone or prefix number");
         }
@@ -51,6 +54,7 @@ class KycController extends RestApiController{
             $code = substr(Random::generateToken(), 0, 6);
             $kyc->setPhoneValidated(false);
             $kyc->setValidationPhoneCode(json_encode(array("code" => $code, "tries" => 0)));
+            $this->sendSMS($prefix, $phone, "Code " . $code);
             $kyc->setPhone(json_encode($phone_info));
             $em->persist($kyc);
             $em->flush();
@@ -98,17 +102,12 @@ class KycController extends RestApiController{
         return $this->restV2(201,"ok", "Request successful", $kyc);
     }
 
-    public function sendSMS(){
-        //$account_sid = $this->container->getParameter('twilio_account_sid');
-        //$auth_token = $this->container->getParameter('twilio_auth_token');
-        $account_sid = 'AC3f14d3cfd1c9e74e477f45509fa6c71c';
-        $auth_token = 'c562189e18b41730730f3289ec55cbd0';
-        $twilio = new Services_Twilio($account_sid, $auth_token);
-
+    public function sendSMS($prefix, $number, $text){
+        $twilio = $this->get('twilio.api');
         $message = $twilio->account->messages->sendMessage(
             '9991231234', // From a valid Twilio number
-            '+34615829814', // Text this number
-            "Hello monkey!"
+            '+' . $prefix . $number, // Text this number
+            $text
         );
 
         print $message->sid;
