@@ -187,6 +187,10 @@ class HalcashMethod extends BaseMethod{
         elseif($prefix == '48'){
             return strlen($phone)==9;
         }
+        //GR xxxxxxxxx
+        elseif($prefix == '30'){
+            return strlen($phone)==10;
+        }
         //GB 07xxx xxxxxx
         elseif($prefix == '44'){
             return strlen($phone)==11;
