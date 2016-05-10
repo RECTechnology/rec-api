@@ -1,0 +1,25 @@
+######################## KYC ########################
+
+register_kyc:
+    pattern:  /kyc/register
+    defaults: { _controller: Telepay\FinancialApiBundle\Controller\Management\User\AccountController::registerKYCAction }
+    requirements:
+        _method: POST
+
+validate_email_kyc:
+    pattern:  /kyc/validate_email
+    defaults: { _controller: Telepay\FinancialApiBundle\Controller\Management\User\AccountController::validateEmail }
+    requirements:
+        _method: POST
+
+info_kyc:
+    pattern:  /auth_kyc/info
+    defaults: { _controller: Telepay\FinancialApiBundle\Controller\Management\User\KycController::kycInfo }
+    requirements:
+        _method: GET
+
+validate_phone:
+    pattern:  /auth_kyc/validate_phone
+    defaults: { _controller: Telepay\FinancialApiBundle\Controller\Management\User\KycController::validatePhone }
+    requirements:
+        _method: POST

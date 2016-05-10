@@ -47,6 +47,11 @@ class KYC {
     private $phone = "";
 
     /**
+     * @ORM\Column(type="string")
+     */
+    private $validation_phone_code;
+
+    /**
      * @ORM\Column(type="boolean")
      * @Expose
      */
@@ -313,5 +318,21 @@ class KYC {
     public function setName($name)
     {
         $this->name = $name;
+    }
+
+    /**
+     * @return mixed
+     */
+    public function getValidationPhoneCode()
+    {
+        return $this->validation_phone_code;
+    }
+
+    /**
+     * @param mixed $validation_phone_code
+     */
+    public function setValidationPhoneCode($validation_phone_code)
+    {
+        $this->validation_phone_code = $validation_phone_code;
     }
 }

@@ -168,3 +168,11 @@ doctrine_mongodb:
 services:
     fos_user.doctrine_registry:
         alias: doctrine
+
+vresh_twilio:
+    #(Required) Your Account SID from www.twilio.com/user/account
+    sid: 'AC3f14d3cfd1c9e74e477f45509fa6c71c'
+    #(Required) Your Auth Token from www.twilio.com/user/account
+    authToken: 'c562189e18b41730730f3289ec55cbd0'
+    #(Optional, default: 1) Number of times to retry failed requests
+    retryAttempts: 3

@@ -432,18 +432,6 @@ class AccountController extends BaseApiController{
         }
     }
 
-    public function kycInfo(Request $request){
-        $user = $this->get('security.context')->getToken()->getUser();
-        $em = $this->getDoctrine()->getManager();
-        $kyc = $em->getRepository('TelepayFinancialApiBundle:KYC')->findOneBy(array(
-            'user' => $user
-        ));
-        if(!$kyc){
-            throw new HttpException(400, 'User without kyc information');
-        }
-        return $this->restV2(201,"ok", "Request successful", $kyc);
-    }
-
     public function registerAction(Request $request){
         //device_id is optional
         $device_id = null;
