@@ -13,7 +13,7 @@ validate_email_kyc:
         _method: POST
 
 validate_email_code_kyc:
-    pattern:  /kyc/validate_email_code
+    pattern:  /auth_kyc/validate_email_code
     defaults: { _controller: Telepay\FinancialApiBundle\Controller\KycController::validateEmailCode }
     requirements:
         _method: POST
