@@ -244,7 +244,7 @@ class KycController extends RestApiController{
         return $this->restV2(201,"ok", "Request successful", $kyc);
     }
 
-    public function sendSMS($prefix, $number, $text){
+    private function sendSMS($prefix, $number, $text){
         $twilio = $this->get('twilio.api');
         $twilio->account->messages->create(array(
             'To' => '+' . $prefix . $number,
@@ -253,7 +253,7 @@ class KycController extends RestApiController{
         ));
     }
 
-    public function checkPhone($phone, $prefix){
+    private function checkPhone($phone, $prefix){
         if(strlen($prefix)<1){
             return false;
         }
@@ -279,4 +279,35 @@ class KycController extends RestApiController{
         }
         return false;
     }
+
+    private function _sendEmail($subject, $body, $to, $action){
+
+        if($action == 'register'){
+            $template = 'TelepayFinancialApiBundle:Email:registerconfirm.html.twig';
+        }elseif($action == 'recover'){
+            $template = 'TelepayFinancialApiBundle:Email:recoverpassword.html.twig';
+        }elseif($action == 'register_kyc'){
+            $template = 'TelepayFinancialApiBundle:Email:registerconfirmkyc.html.twig';
+        }else{
+            $template = 'TelepayFinancialApiBundle:Email:registerconfirm.html.twig';
+        }
+        $message = \Swift_Message::newInstance()
+            ->setSubject($subject)
+            ->setFrom('no-reply@chip-chap.com')
+            ->setTo(array(
+                $to
+            ))
+            ->setBody(
+                $this->container->get('templating')
+                    ->render($template,
+                        array(
+                            'message'        =>  $body
+                        )
+                    )
+            )
+            ->setContentType('text/html');
+
+        $this->container->get('mailer')->send($message);
+    }
+
 }
