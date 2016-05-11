@@ -14,7 +14,7 @@ use Telepay\FinancialApiBundle\Entity\User;
 
 class KycController extends RestApiController{
 
-    public function registerKYCAction(Request $request){
+    public function registerAction(Request $request){
         if(!$request->request->has('email') || $request->get('email')==""){
             throw new HttpException(400, "Missing parameter 'email'");
         }
