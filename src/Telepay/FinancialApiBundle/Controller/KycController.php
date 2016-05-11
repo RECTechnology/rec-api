@@ -14,9 +14,6 @@ use Telepay\FinancialApiBundle\Entity\User;
 
 class KycController extends RestApiController{
 
-    /**
-     * @Rest\View
-     */
     public function registerKYCAction(Request $request){
         if(!$request->request->has('email') || $request->get('email')==""){
             throw new HttpException(400, "Missing parameter 'email'");
@@ -97,9 +94,6 @@ class KycController extends RestApiController{
         }
     }
 
-    /**
-     * @Rest\View
-     */
     public function kycInfo(Request $request){
         $user = $this->get('security.context')->getToken()->getUser();
         $em = $this->getDoctrine()->getManager();
@@ -112,9 +106,6 @@ class KycController extends RestApiController{
         return $this->restV2(201,"ok", "Request successful", $kyc);
     }
 
-    /**
-     * @Rest\View
-     */
     public function validateEmail(Request $request){
         $user = $this->get('security.context')->getToken()->getUser();
         $em = $this->getDoctrine()->getManager();
@@ -127,9 +118,6 @@ class KycController extends RestApiController{
         $this->_sendEmail('Chip-Chap validation e-mail', $url, $user->getEmail(), 'register_kyc');
     }
 
-    /**
-     * @Rest\View
-     */
     public function validateEmailCode(Request $request){
 
         $em = $this->getDoctrine()->getManager();
@@ -175,9 +163,6 @@ class KycController extends RestApiController{
         return $this->restV2(201,"ok", "Validation email succesfully", $response);
     }
 
-    /**
-     * @Rest\View
-     */
     public function validatePhone(Request $request){
         if(!$request->request->has('phone') || $request->get('phone')==""){
             throw new HttpException(400, "Missing parameter 'phone'");
@@ -222,9 +207,6 @@ class KycController extends RestApiController{
         return $this->restV2(201,"ok", "Request successful", $kyc);
     }
 
-    /**
-     * @Rest\View
-     */
     public function validatePhoneCode(Request $request){
         if(!$request->request->has('code') || $request->get('code')==""){
             throw new HttpException(400, "Missing parameter 'code'");
