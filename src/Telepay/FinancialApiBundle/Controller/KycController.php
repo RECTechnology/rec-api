@@ -7,12 +7,13 @@ use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpKernel\Exception\HttpException;
 use FOS\OAuthServerBundle\Util\Random;
+use Telepay\FinancialApiBundle\Controller\BaseApiController;
 
 use Telepay\FinancialApiBundle\Entity\KYC;
 use Telepay\FinancialApiBundle\Entity\TierValidations;
 use Telepay\FinancialApiBundle\Entity\User;
 
-class KycController extends RestApiController{
+class KycController extends BaseApiController{
 
     function getRepositoryName()
     {
