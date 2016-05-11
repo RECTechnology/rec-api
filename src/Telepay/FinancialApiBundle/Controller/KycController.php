@@ -116,6 +116,7 @@ class KycController extends RestApiController{
         $em->flush();
         $url = $url.'?user_token='.$user->getConfirmationToken();
         $this->_sendEmail('Chip-Chap validation e-mail', $url, $user->getEmail(), 'register_kyc');
+        return $this->restV2(201,"ok", "Request successful", $user->getEmail());
     }
 
     public function validateEmailCode(Request $request){
