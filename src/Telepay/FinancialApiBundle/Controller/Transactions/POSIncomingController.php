@@ -644,10 +644,11 @@ class POSIncomingController extends RestApiController{
 
         if(!$transaction) throw new HttpException(404, 'Transaction not found');
 
-        $transaction->setStatus(Transaction::$STATUS_CANCELLED);
-        $dm->persist($transaction);
-        $dm->flush();
-
+        if($transaction->getStatus() == Transaction::$STATUS_CREATED) {
+            $transaction->setStatus(Transaction::$STATUS_CANCELLED);
+            $dm->persist($transaction);
+            $dm->flush();
+        }
         return $this->restV2(204, "ok", "Update successfully");
 
     }

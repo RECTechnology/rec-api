@@ -55,6 +55,11 @@ security:
             stateless:  true
             security:   false
 
+        POS_cancel:
+            pattern:    ^/pos/v[0-9]+/cancel/*
+            stateless:  true
+            security:   false
+
         services:
             pattern: ^/services
             stateless: true
