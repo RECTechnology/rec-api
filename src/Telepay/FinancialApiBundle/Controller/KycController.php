@@ -259,9 +259,9 @@ class KycController extends BaseApiController{
     private function sendSMS($prefix, $number, $text){
         $twilio = $this->get('twilio.api');
         $twilio->account->messages->create(array(
-            'To' => '+' . $prefix . $number,
-            'From' => "+14158141829",
-            'Body' => "Hey Jenny! Good luck on the bar exam! " . $text
+            'To' => "+" . $prefix . $number,
+            'From' => "+34986080608",
+            'Body' => $text,
         ));
     }
 
