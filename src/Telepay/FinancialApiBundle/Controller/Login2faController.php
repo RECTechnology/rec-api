@@ -43,6 +43,7 @@ class Login2faController extends RestApiController{
                     "error" => "invalid_grant",
                     "error_description" => "User without permission to enter inside the panel"
                 );
+                return new Response(json_encode($token), 400, $headers);
             }
             elseif($user[0]->getTwoFactorAuthentication() == 1) {
                 $Google2FA = new Google2FA();
@@ -52,6 +53,7 @@ class Login2faController extends RestApiController{
                         "error" => "invalid_grant",
                         "error_description" => "Invalid Google authenticator code"
                     );
+                    return new Response(json_encode($token), 400, $headers);
                 }
             }
         }
