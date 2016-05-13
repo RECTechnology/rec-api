@@ -397,7 +397,6 @@ class POSIncomingController extends RestApiController{
 
             $transactions = $qb
                 ->field('user')->equals($userId)
-                ->field('service')->equals($service->getCname())
                 ->field('posId')->equals($pos_id)
                 ->field('created')->gte($start_time)
                 ->field('created')->lte($finish_time)
@@ -439,7 +438,6 @@ class POSIncomingController extends RestApiController{
 
             $transactions = $qb
                 ->field('user')->equals($userId)
-                ->field('service')->equals($service->getCname())
                 ->field('posId')->equals($pos_id)
                 ->sort($order,$dir)
                 ->getQuery()
