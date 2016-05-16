@@ -4,8 +4,8 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#composer-lock-the-lock-file",
         "This file is @generated automatically"
     ],
-    "hash": "85a0648ee239e953f8197a50315bc9a4",
-    "content-hash": "5c75170e265febe835451928abae6d82",
+    "hash": "0a7e95e76340d738fced576dd2ad8966",
+    "content-hash": "9ddce99f7ec4b54f044c18718598f5ee",
     "packages": [
         {
             "name": "blockchain/blockchain",
@@ -815,12 +815,12 @@
             "source": {
                 "type": "git",
                 "url": "https://github.com/doctrine/mongodb-odm.git",
-                "reference": "c1e9777d1e083d819a354553522903b3b83a6f39"
+                "reference": "a4d5226bd7594d09db4dc2741895c185c021dffd"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/doctrine/mongodb-odm/zipball/c1e9777d1e083d819a354553522903b3b83a6f39",
-                "reference": "c1e9777d1e083d819a354553522903b3b83a6f39",
+                "url": "https://api.github.com/repos/doctrine/mongodb-odm/zipball/a4d5226bd7594d09db4dc2741895c185c021dffd",
+                "reference": "a4d5226bd7594d09db4dc2741895c185c021dffd",
                 "shasum": ""
             },
             "require": {
@@ -890,7 +890,7 @@
                 "odm",
                 "persistence"
             ],
-            "time": "2016-03-28 17:52:33"
+            "time": "2016-05-13 08:41:06"
         },
         {
             "name": "doctrine/mongodb-odm-bundle",
@@ -1078,6 +1078,7 @@
         {
             "name": "friendsofsymfony/oauth-server-bundle",
             "version": "dev-master",
+            "target-dir": "FOS/OAuthServerBundle",
             "source": {
                 "type": "git",
                 "url": "https://github.com/FriendsOfSymfony/FOSOAuthServerBundle.git",
@@ -1098,33 +1099,27 @@
             },
             "require-dev": {
                 "doctrine/doctrine-bundle": "~1.0",
-                "doctrine/mongodb-odm": "~1.0",
-                "doctrine/orm": "~2.2",
-                "phing/phing": "~2.4",
-                "propel/propel1": "^1.6.5",
-                "symfony/class-loader": "~2.1|~3.0",
-                "symfony/console": "~2.1|~3.0",
-                "symfony/form": "~2.3|~3.0",
-                "symfony/yaml": "~2.1|~3.0",
-                "willdurand/propel-typehintable-behavior": "^1.0.4"
+                "doctrine/mongodb-odm": "1.0.*@dev",
+                "doctrine/orm": ">=2.2,<2.5-dev",
+                "symfony/class-loader": "~2.1",
+                "symfony/yaml": "~2.1",
+                "willdurand/propel-typehintable-behavior": "~1.0,>1.0.4"
             },
             "suggest": {
                 "doctrine/doctrine-bundle": "*",
                 "doctrine/mongodb-odm-bundle": "*",
                 "propel/propel-bundle": "If you want to use Propel with Symfony2, then you will have to install the PropelBundle",
-                "symfony/console": "Needed to be able to use commands",
-                "symfony/form": "Needed to be able to use the AuthorizeFormType",
                 "willdurand/propel-typehintable-behavior": "The Typehintable behavior is useful to add type hints on generated methods, to be compliant with interfaces"
             },
             "type": "symfony-bundle",
             "extra": {
                 "branch-alias": {
-                    "dev-master": "1.5-dev"
+                    "dev-master": "1.4-dev"
                 }
             },
             "autoload": {
-                "psr-4": {
-                    "FOS\\OAuthServerBundle\\": ""
+                "psr-0": {
+                    "FOS\\OAuthServerBundle": ""
                 }
             },
             "notification-url": "https://packagist.org/downloads/",
@@ -1288,12 +1283,12 @@
             "source": {
                 "type": "git",
                 "url": "https://github.com/FriendsOfSymfony/FOSUserBundle.git",
-                "reference": "c85b5d9e48c0f2918ac6161e268d6f981a24c875"
+                "reference": "abb35b94ed8ec78a504c9e1a2cd803d85d3ffad9"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/FriendsOfSymfony/FOSUserBundle/zipball/c85b5d9e48c0f2918ac6161e268d6f981a24c875",
-                "reference": "c85b5d9e48c0f2918ac6161e268d6f981a24c875",
+                "url": "https://api.github.com/repos/FriendsOfSymfony/FOSUserBundle/zipball/abb35b94ed8ec78a504c9e1a2cd803d85d3ffad9",
+                "reference": "abb35b94ed8ec78a504c9e1a2cd803d85d3ffad9",
                 "shasum": ""
             },
             "require": {
@@ -1349,7 +1344,7 @@
             "keywords": [
                 "User management"
             ],
-            "time": "2016-05-10 08:29:38"
+            "time": "2016-05-13 11:27:34"
         },
         {
             "name": "incenteev/composer-parameter-handler",
@@ -2972,16 +2967,16 @@
         },
         {
             "name": "twilio/sdk",
-            "version": "4.10.0",
+            "version": "dev-master",
             "source": {
                 "type": "git",
                 "url": "https://github.com/twilio/twilio-php.git",
-                "reference": "292fef46097bcc935007a117ddce9acc40a1a8c1"
+                "reference": "d7d9be918f12e809d64ff6dac7411801b1a98e58"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/twilio/twilio-php/zipball/292fef46097bcc935007a117ddce9acc40a1a8c1",
-                "reference": "292fef46097bcc935007a117ddce9acc40a1a8c1",
+                "url": "https://api.github.com/repos/twilio/twilio-php/zipball/d7d9be918f12e809d64ff6dac7411801b1a98e58",
+                "reference": "d7d9be918f12e809d64ff6dac7411801b1a98e58",
                 "shasum": ""
             },
             "require": {
@@ -3018,7 +3013,7 @@
                 "sms",
                 "twilio"
             ],
-            "time": "2016-01-29 00:19:22"
+            "time": "2016-02-26 17:29:07"
         },
         {
             "name": "willdurand/jsonp-callback-validator",
@@ -3173,6 +3168,7 @@
         "telepay/php-sdk": 20,
         "blockchain/blockchain": 20,
         "slik/dompdf-bundle": 20,
+        "twilio/sdk": 20
     },
     "prefer-stable": false,
     "prefer-lowest": false,
