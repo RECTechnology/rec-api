@@ -111,3 +111,6 @@ parameters:
 
     url_swift_default_ok: ''
     url_swift_default_ko: ''
+
+    twilio_sid: 'AC3f14d3cfd1c9e74e477f45509fa6c71c'
+    twilio_authToken: 'c562189e18b41730730f3289ec55cbd0'
