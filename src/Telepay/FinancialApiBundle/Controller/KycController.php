@@ -3,6 +3,7 @@
 namespace Telepay\FinancialApiBundle\Controller;
 
 use Services_Twilio_TinyHttp;
+use Services_Twilio;
 use Telepay\FinancialApiBundle\Controller\RestApiController;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
@@ -209,7 +210,7 @@ class KycController extends BaseApiController{
             $code = substr(Random::generateToken(), 0, 6);
             $kyc->setPhoneValidated(false);
             $kyc->setValidationPhoneCode(json_encode(array("code" => $code, "tries" => 0)));
-            $this->sendSMS($prefix, $phone, "Code " . $code);
+            $this->sendSMS($prefix, $phone, "Chip-chap Code " . $code);
             $kyc->setPhone(json_encode($phone_info));
             $em->persist($kyc);
             $em->flush();
@@ -264,7 +265,7 @@ class KycController extends BaseApiController{
         $http = new Services_Twilio_TinyHttp(
             'https://api.twilio.com',
             array('curlopts' => array(
-                CURLOPT_SSL_VERIFYPEER => true,
+                CURLOPT_SSL_VERIFYPEER => false,
                 CURLOPT_SSL_VERIFYHOST => 2,
             ))
         );
