@@ -2,6 +2,7 @@
 
 namespace Telepay\FinancialApiBundle\Controller;
 
+use Services_Twilio_TinyHttp;
 use Telepay\FinancialApiBundle\Controller\RestApiController;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
@@ -257,10 +258,21 @@ class KycController extends BaseApiController{
     }
 
     private function sendSMS($prefix, $number, $text){
-        $twilio = $this->get('twilio.api');
+        $sid = $this->container->getParameter('twilio_sid');
+        $token = $this->container->getParameter('twilio_authToken');
+        $from = $this->container->getParameter('twilio_from');
+        $http = new Services_Twilio_TinyHttp(
+            'https://api.twilio.com',
+            array('curlopts' => array(
+                CURLOPT_SSL_VERIFYPEER => true,
+                CURLOPT_SSL_VERIFYHOST => 2,
+            ))
+        );
+
+        $twilio = new Services_Twilio($sid, $token, "2010-04-01", $http);
         $twilio->account->messages->create(array(
             'To' => "+" . $prefix . $number,
-            'From' => "+34986080608",
+            'From' => $from,
             'Body' => $text,
         ));
     }
