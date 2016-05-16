@@ -621,9 +621,26 @@ class AccountController extends BaseApiController{
      * @Rest\View
      */
     public function kycSave(Request $request){
-        $data = json_encode($request->request);
         $user = $this->get('security.context')->getToken()->getUser();
         $user_id = $user->getId();
+
+        $paramNames = array(
+            "name",
+            "lastName",
+            "dateBirth",
+            "email",
+            "prefix",
+            "phone"
+        );
+        $params = array();
+        foreach($paramNames as $paramName){
+            if($request->request->has($paramName)){
+                $params[$paramName] = $request->request->get($paramName);
+            }else{
+                throw new HttpException(404, 'Parameter '.$paramName.' not found');
+            }
+        }
+        $data = json_encode($params);
 
         $message = \Swift_Message::newInstance()
             ->setSubject("kyc info")
