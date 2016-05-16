@@ -150,6 +150,13 @@ user_reset_client_credentials:
     requirements:
         _method: PUT
 
+user_save_kyc:
+    pattern:  /user/v1/save_kyc
+    defaults: { _controller: Telepay\FinancialApiBundle\Controller\Management\User\AccountController::kycSave }
+    requirements:
+        _method: POST
+
+
 
 ######################## USER BTCWALLET ########################
 

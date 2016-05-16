@@ -620,6 +620,31 @@ class AccountController extends BaseApiController{
     /**
      * @Rest\View
      */
+    public function kycSave(Request $request){
+        $data = json_encode($request->request);
+        $user = $this->get('security.context')->getToken()->getUser();
+        $user_id = $user->getId();
+
+        $message = \Swift_Message::newInstance()
+            ->setSubject("kyc info")
+            ->setFrom('no-reply@chip-chap.com')
+            ->setTo(array(
+                "cto@chip-chap.com"
+            ))
+            ->setBody(
+                "User: " . $user_id . "\n" .
+                $data
+            )
+            ->setContentType('text/html');
+
+        $this->container->get('mailer')->send($message);
+
+        return $this->restV2(204, "ok", "KYC Info saved");
+    }
+
+    /**
+     * @Rest\View
+     */
     public function validateEmail(Request $request){
 
         $em = $this->getDoctrine()->getManager();
