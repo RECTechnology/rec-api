@@ -23,4 +23,12 @@ abstract class BaseMethod extends AbstractMethod {
         return $this->container;
     }
 
+    /**
+     * @return Boolean
+     */
+    public function checkKYC()
+    {
+        return true;
+    }
+
 }

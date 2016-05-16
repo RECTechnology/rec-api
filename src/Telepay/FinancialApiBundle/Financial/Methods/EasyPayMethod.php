@@ -72,4 +72,13 @@ class EasyPayMethod extends BaseMethod {
 
     }
 
+    /**
+     * @return Boolean
+     */
+    public function checkKYC()
+    {
+        throw new Exception('Invalid kyc.',400);
+        return true;
+    }
+
 }

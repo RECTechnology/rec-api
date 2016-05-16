@@ -78,6 +78,9 @@ class SwiftController extends RestApiController{
         $email = $request->request->get('email')?$request->request->get('email'):'';
         if($email == '' && ($cashInMethod->getEmailRequired() || $cashOutMethod->getEmailRequired())) throw new HttpException(400, 'Email is required');
 
+        //$cashInMethod->checkKYC($request);
+        //$cashOutMethod->checkKYC($request);
+
         //get configuration(method)
         $swift_config = $this->container->get('net.telepay.config.'.$type_in.'.'.$type_out);
         $methodFees = $swift_config->getFees();
