@@ -190,9 +190,9 @@ services:
         arguments:
             - "0"
             - "6"
-            - "1000"
             - "50000"
-            - "1000"
+            - "1000000"
+            - "50000"
             - "All over the world"
             - "MXN"
             - "15"
@@ -203,9 +203,9 @@ services:
         arguments:
             - "0"
             - "6"
-            - "1000"
             - "50000"
-            - "1000"
+            - "1000000"
+            - "50000"
             - "All over the world"
             - "MXN"
             - "15"
