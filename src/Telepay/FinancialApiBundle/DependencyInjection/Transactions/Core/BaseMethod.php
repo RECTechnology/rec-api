@@ -5,6 +5,7 @@ namespace Telepay\FinancialApiBundle\DependencyInjection\Transactions\Core;
 use FOS\RestBundle\Controller\Annotations as Rest;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 use Telepay\FinancialApiBundle\Document\Transaction;
+use Symfony\Component\HttpFoundation\Request;
 
 abstract class BaseMethod extends AbstractMethod {
 
@@ -26,9 +27,7 @@ abstract class BaseMethod extends AbstractMethod {
     /**
      * @return Boolean
      */
-    public function checkKYC()
-    {
+    public function checkKYC(Request $request){
         return true;
     }
-
 }
