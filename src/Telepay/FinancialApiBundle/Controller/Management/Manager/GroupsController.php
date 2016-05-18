@@ -91,7 +91,7 @@ class GroupsController extends BaseApiController
 
         //TODO: Improve performance (two queries)
         $all = $this->getRepository()->findBy(array(
-            'creator_group'   =>  $adminGroup->getId()
+            'group_creator'   =>  $adminGroup->getId()
         ));
 
         $total = count($all);
