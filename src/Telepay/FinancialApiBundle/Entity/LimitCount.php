@@ -55,10 +55,15 @@ class LimitCount implements Limit {
      */
     private $total;
 
+//    /**
+//     * @ORM\ManyToOne(targetEntity="Telepay\FinancialApiBundle\Entity\User")
+//     */
+//    private $user;
+
     /**
-     * @ORM\ManyToOne(targetEntity="Telepay\FinancialApiBundle\Entity\User")
+     * @ORM\ManyToOne(targetEntity="Telepay\FinancialApiBundle\Entity\Group")
      */
-    private $user;
+    private $group;
 
     /**
      * @ORM\Column(type="string")
@@ -67,7 +72,7 @@ class LimitCount implements Limit {
 
     public static function createFromController($service_cname, User $user){
         $limit = new LimitCount();
-        $limit->setUser($user);
+//        $limit->setUser($user);
         $limit->setCname($service_cname);
         $limit->setSingle(0);
         $limit->setDay(0);
@@ -174,21 +179,21 @@ class LimitCount implements Limit {
         $this->total = $total;
     }
 
-    /**
-     * @return mixed
-     */
-    public function getUser()
-    {
-        return $this->user;
-    }
-
-    /**
-     * @param mixed $user
-     */
-    public function setUser($user)
-    {
-        $this->user = $user;
-    }
+//    /**
+//     * @return mixed
+//     */
+//    public function getUser()
+//    {
+//        return $this->user;
+//    }
+//
+//    /**
+//     * @param mixed $user
+//     */
+//    public function setUser($user)
+//    {
+//        $this->user = $user;
+//    }
 
     /**
      * @return mixed
@@ -212,6 +217,22 @@ class LimitCount implements Limit {
     public function setCname($cname)
     {
         $this->cname = $cname;
+    }
+
+    /**
+     * @return mixed
+     */
+    public function getGroup()
+    {
+        return $this->group;
+    }
+
+    /**
+     * @param mixed $group
+     */
+    public function setGroup($group)
+    {
+        $this->group = $group;
     }
 
 }

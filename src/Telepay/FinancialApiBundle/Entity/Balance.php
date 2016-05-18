@@ -32,10 +32,15 @@ class Balance
      */
     protected $id;
 
+//    /**
+//     * @ORM\ManyToOne(targetEntity="Telepay\FinancialApiBundle\Entity\User")
+//     */
+//    private $user;
+
     /**
-     * @ORM\ManyToOne(targetEntity="Telepay\FinancialApiBundle\Entity\User")
+     * @ORM\ManyToOne(targetEntity="Telepay\FinancialApiBundle\Entity\Group")
      */
-    private $user;
+    private $group;
 
     /**
      * @ORM\Column(type="date")
@@ -83,21 +88,21 @@ class Balance
         return $this->id;
     }
 
-    /**
-     * @return mixed
-     */
-    public function getUser()
-    {
-        return $this->user;
-    }
-
-    /**
-     * @param mixed $user
-     */
-    public function setUser($user)
-    {
-        $this->user = $user;
-    }
+//    /**
+//     * @return mixed
+//     */
+//    public function getUser()
+//    {
+//        return $this->user;
+//    }
+//
+//    /**
+//     * @param mixed $user
+//     */
+//    public function setUser($user)
+//    {
+//        $this->user = $user;
+//    }
 
     /**
      * @return mixed
@@ -195,5 +200,20 @@ class Balance
         $this->balance = $balance;
     }
 
+    /**
+     * @return mixed
+     */
+    public function getGroup()
+    {
+        return $this->group;
+    }
+
+    /**
+     * @param mixed $group
+     */
+    public function setGroup($group)
+    {
+        $this->group = $group;
+    }
 
 }

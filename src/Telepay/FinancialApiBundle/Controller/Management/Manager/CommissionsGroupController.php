@@ -30,6 +30,14 @@ class CommissionsGroupController extends BaseApiController
     public function updateAction(Request $request, $id){
 
         //TODO check if this user is the group crator or superadmin, if not access not allowed
+        //check if this user pertenece al group de la fee
+        $user = $this->get('security.context')->getToken()->getUser();
+        $group = $user->getGroups()[0];
+        $em = $this->getDoctrine()->getManager();
+        $fee = $em->getRepository($this->getRepositoryName())->find($id);
+        $feeGroup = $fee->getGroup();
+
+        if($group->getId() != $feeGroup->getId()) throw new HttpException(409, 'You don\'t have the necessary permissions');
 
         //negative values not allowed in variable and fixed field
         if($request->request->has('fixed')){

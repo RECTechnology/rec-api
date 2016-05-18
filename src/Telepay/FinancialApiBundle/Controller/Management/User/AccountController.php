@@ -9,6 +9,7 @@
 
 namespace Telepay\FinancialApiBundle\Controller\Management\User;
 
+use Doctrine\DBAL\DBALException;
 use Symfony\Component\Security\Core\Util\SecureRandom;
 use Telepay\FinancialApiBundle\Entity\Device;
 use Telepay\FinancialApiBundle\Entity\KYC;
@@ -49,15 +50,16 @@ class AccountController extends BaseApiController{
             $user = $em->getRepository('TelepayFinancialApiBundle:User')->find('chipchap_user_id');
         }
 
+//        $userGroup = $user->getGroups()[0];
 //        $listServices = $user->getServicesList();
-        $listMethods = $user->getMethodsList();
+//        $listMethods = $user->getMethodsList();
 
         //TODO al final habra que quitar lo de services porque estara deprecated
 //        $allowedServices = $this->get('net.telepay.service_provider')->findByCNames($listServices);
-        $allowedMethods = $this->get('net.telepay.method_provider')->findByCNames($listMethods);
+//        $allowedMethods = $this->get('net.telepay.method_provider')->findByCNames($listMethods);
 
 //        $user->setAllowedServices($allowedServices);
-        $user->setAllowedMethods($allowedMethods);
+//        $user->setAllowedMethods($allowedMethods);
 
         $group = $user->getGroups()[0];
 
@@ -75,7 +77,7 @@ class AccountController extends BaseApiController{
     /**
      * @Rest\View
      */
-    public function updateAction(Request $request,$id = null){
+    public function updateAction(Request $request, $id = null){
 
         $user = $this->get('security.context')->getToken()->getUser();
         $id = $user->getId();
@@ -286,27 +288,27 @@ class AccountController extends BaseApiController{
         );
     }
 
-    /**
-     * @Rest\View
-     */
-    public function updateCurrency(Request $request){
-
-        $user = $this->get('security.context')->getToken()->getUser();
-
-        if($request->request->has('currency'))
-            $currency = $request->request->get('currency');
-        else
-            throw new HttpException(404,'currency not found');
-
-        $em = $this->getDoctrine()->getManager();
-
-        $user->setDefaultCurrency(strtoupper($currency));
-
-        $em->persist($user);
-        $em->flush();
-
-        return $this->restV2(200,"ok", "Account info got successfully", $user);
-    }
+//    /**
+//     * @Rest\View
+//     */
+//    public function updateCurrency(Request $request){
+//
+//        $user = $this->get('security.context')->getToken()->getUser();
+//
+//        if($request->request->has('currency'))
+//            $currency = $request->request->get('currency');
+//        else
+//            throw new HttpException(404,'currency not found');
+//
+//        $em = $this->getDoctrine()->getManager();
+//
+//        $user->setDefaultCurrency(strtoupper($currency));
+//
+//        $em->persist($user);
+//        $em->flush();
+//
+//        return $this->restV2(200,"ok", "Account info got successfully", $user);
+//    }
 
     /**
      * @Rest\View
@@ -380,10 +382,10 @@ class AccountController extends BaseApiController{
         $request->request->add(array('email'=>$email));
         $request->request->add(array('enabled'=>1));
         $request->request->add(array('base64_image'=>''));
-        $request->request->add(array('default_currency'=>'EUR'));
+//        $request->request->add(array('default_currency'=>'EUR'));
         $request->request->add(array('gcm_group_key'=>''));
-        $request->request->add(array('services_list'=>array('sample')));
-        $request->request->add(array('methods_list'=>array('sample')));
+//        $request->request->add(array('services_list'=>array('sample')));
+//        $request->request->add(array('methods_list'=>array('sample')));
         $resp= parent::createAction($request);
 
         if($resp->getStatusCode() == 201) {
@@ -453,7 +455,7 @@ class AccountController extends BaseApiController{
             }else{
                 $password = $request->get('password');
                 $repassword = $request->get('repassword');
-                if($password!=$repassword) throw new HttpException(400, "Password and repassword are differents.");
+                if($password != $repassword) throw new HttpException(400, "Password and repassword are differents.");
                 $request->request->remove('password');
                 $request->request->remove('repassword');
                 $request->request->add(array('plain_password'=>$password));
@@ -496,10 +498,10 @@ class AccountController extends BaseApiController{
 
         $request->request->add(array('enabled'=>1));
         $request->request->add(array('base64_image'=>''));
-        $request->request->add(array('default_currency'=>'EUR'));
+//        $request->request->add(array('default_currency'=>'EUR'));
         $request->request->add(array('gcm_group_key'=>''));
-        $request->request->add(array('services_list'=>array('sample')));
-        $request->request->add(array('methods_list'=>array('sample')));
+//        $request->request->add(array('services_list'=>array('sample')));
+//        $request->request->add(array('methods_list'=>array('sample')));
 
         if($request->request->has('captcha')){
             $captcha = $request->request->get('captcha');
@@ -536,16 +538,16 @@ class AccountController extends BaseApiController{
 
             $user = $usersRepo->findOneBy(array('id'=>$user_id));
 
-            $currencies=Currency::$LISTA;
-
-            foreach($currencies as $currency){
-                $user_wallet = new UserWallet();
-                $user_wallet->setBalance(0);
-                $user_wallet->setAvailable(0);
-                $user_wallet->setCurrency($currency);
-                $user_wallet->setUser($user);
-                $em->persist($user_wallet);
-            }
+//            $currencies = Currency::$LISTA;
+//
+//            foreach($currencies as $currency){
+//                $user_wallet = new UserWallet();
+//                $user_wallet->setBalance(0);
+//                $user_wallet->setAvailable(0);
+//                $user_wallet->setCurrency($currency);
+//                $user_wallet->setUser($user);
+//                $em->persist($user_wallet);
+//            }
 
             $user->addGroup($group);
 
@@ -745,17 +747,6 @@ class AccountController extends BaseApiController{
         return $this->restV2(201,"ok", "Validation email succesfully", $response);
 
     }
-
-    /**
-     * @Rest\View
-     */
-//    public function checkExistentUser(Request $request, $username){
-//
-//        $userRepo = $this->container->get($this->getRepositoryName());
-//        $qb = $userRepo->createQueryBuilder('q')
-//            ->field('username')->equal($username);
-//
-//    }
 
     private function _sendEmail($subject, $body, $to, $action){
 

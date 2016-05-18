@@ -167,6 +167,12 @@ class Transaction implements TransactionTiming {
 
     /**
      * @var
+     * @MongoDB\Int
+     */
+    private $group;
+
+    /**
+     * @var
      * @MongoDB\String
      */
     private $service;
@@ -936,5 +942,21 @@ class Transaction implements TransactionTiming {
     public function setEmailNotification($email_notification)
     {
         $this->email_notification = $email_notification;
+    }
+
+    /**
+     * @return mixed
+     */
+    public function getGroup()
+    {
+        return $this->group;
+    }
+
+    /**
+     * @param mixed $group
+     */
+    public function setGroup($group)
+    {
+        $this->group = $group;
     }
 }
