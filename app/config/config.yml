@@ -94,7 +94,9 @@ swiftmailer:
     password:  "%mailer_password%"
     auth_mode: login
     encryption: tls
-    spool:     { type: memory }
+    spool:
+        type: file
+        path: '%kernel.root_dir%/spool'
 
 fos_user:
     db_driver: orm # other valid values are 'mongodb', 'couchdb' and 'propel'
