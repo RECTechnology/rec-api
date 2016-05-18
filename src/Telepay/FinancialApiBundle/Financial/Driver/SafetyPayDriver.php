@@ -35,8 +35,8 @@ class SafetyPayDriver{
         $this->currency = $currency;
         $this->amount = ($amount/100);
 
-        $this->url_success = 'https://web.chip-chap.com/ok/'.$merchant_reference;
-        $this->url_error = 'https://web.chip-chap.com/ko/'.$merchant_reference;
+        $this->url_success = 'https://web.chip-chap.com/?safety=' . $merchant_reference . '&status=ok';
+        $this->url_error = 'https://web.chip-chap.com/?safety=' . $merchant_reference . '&status=ko';
 
         $ch = curl_init($this->url_safety);
         curl_setopt ($ch, CURLOPT_POST, 1);
