@@ -240,11 +240,11 @@ class SwiftController extends RestApiController{
                     ->field('method_in')->equals($type_in)
                     ->field('method_out')->equals($type_out)
                     ->where("function(){
-                    if (typeof this.pay_out_info.reference !== 'undefined') {
-                        if(String(this.pay_out_info.reference).indexOf('$id') > -1){
+                    if (typeof this.pay_in_info.reference !== 'undefined') {
+                        if(String(this.pay_in_info.reference).indexOf('$id') > -1){
                             return true;
                         }
-                }
+                    }
                 }")
 
                     ->getQuery()
