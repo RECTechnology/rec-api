@@ -133,6 +133,8 @@ class SwiftController extends RestApiController{
             $check_amount = $amount_in == 0?$amount:$amount_in;
             if($type_in == 'safetypay'){
                 $methodInfo['range'] = 1;
+                $methodInfo['max_value']+=1000;
+                $methodInfo['min_value']-=1000;
             }
             if($check_amount < $methodInfo['min_value']) throw new HttpException(403, 'Amount must be greater than '.$methodInfo['min_value']);
             if($check_amount % $methodInfo['range'] != 0) throw new HttpException(403, 'Amount must be multiple of '.$methodInfo['range']);
