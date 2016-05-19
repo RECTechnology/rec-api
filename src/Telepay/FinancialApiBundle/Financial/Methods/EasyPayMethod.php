@@ -78,8 +78,8 @@ class EasyPayMethod extends BaseMethod {
      */
     public function checkKYC(Request $request){
         $em = $this->getContainer()->get('doctrine')->getManager();
-        if($request->request->has('access_token')) {
-            $access_token = $request->request->get('access_token');
+        if($request->request->has('token')) {
+            $access_token = $request->request->get('token');
             $now = time();
             $token_info = $em->getRepository('TelepayFinancialApiBundle:AccessToken')->findOneBy(array(
                 'token' => $access_token
@@ -87,7 +87,7 @@ class EasyPayMethod extends BaseMethod {
             if($token_info && $token_info->getExpiresAt() > $now) {
                 $user = $token_info->getUser();
                 $email = $user->getEmail();
-                $request->request->remove('access_token');
+                $request->request->remove('token');
                 $request->request->set('email', $email);
                 $bool = true;
             }
