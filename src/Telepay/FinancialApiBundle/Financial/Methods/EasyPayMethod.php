@@ -102,6 +102,9 @@ class EasyPayMethod extends BaseMethod {
             $user = $em->getRepository('TelepayFinancialApiBundle:User')->findOneBy(array(
                 'username' => $email
             ));
+            if(!$user){
+                throw new HttpException(400, "Email is not registred");
+            }
             $encoder = $factory->getEncoder($user);
             $bool = ($encoder->isPasswordValid($user->getPassword(), $pass, $user->getSalt())) ? true : false;
             $request->request->remove('password');
@@ -113,6 +116,10 @@ class EasyPayMethod extends BaseMethod {
             $kyc = $em->getRepository('TelepayFinancialApiBundle:KYC')->findOneBy(array(
                 'user' => $user
             ));
+
+            if(!$kyc){
+                throw new Exception('Email/User not valid.',400);
+            }
 
             if(!$kyc->getEmailValidated()){
                 throw new Exception('Email must be validated.',400);
