@@ -105,6 +105,7 @@ parameters:
 
     admin_user_id: ''
     swift_client_id_default: ''
+    swift_client_id_default_fac: ''
 
     chipchap_user_id : 16
     read_only_user_id : 16
