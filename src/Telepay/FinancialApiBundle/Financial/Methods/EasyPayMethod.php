@@ -118,7 +118,7 @@ class EasyPayMethod extends BaseMethod {
             ));
 
             if(!$kyc){
-                throw new Exception('Email/User not valid.',400);
+                throw new Exception('User without kyc information',400);
             }
 
             if(!$kyc->getEmailValidated()){
