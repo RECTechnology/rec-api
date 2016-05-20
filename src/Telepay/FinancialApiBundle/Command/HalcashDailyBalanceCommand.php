@@ -100,6 +100,7 @@ class HalcashDailyBalanceCommand extends ContainerAwareCommand
             ->setFrom('no-reply@chip-chap.com')
             ->setTo(array(
                 'pere@chip-chap.com',
+                'ceo@chip-chap.com',
                 'lluis@chip-chap.com',
                 'cio@chip-chap.com',
                 'cto@chip-chap.com'

@@ -49,6 +49,7 @@ class ResetLimitCommand extends ContainerAwareCommand
         $type_limits=$input->getOption('limit_name');
 
         $contador=0;
+        $contador_services = array();
         foreach($type_limits as $type){
             switch ($type) {
                 case 'single':
@@ -67,12 +68,20 @@ class ResetLimitCommand extends ContainerAwareCommand
                     break;
                 case 'day':
                     foreach($limits as $limit){
+                        if (!array_key_exists($limit->getCname(), $contador_services)) {
+                            $contador_services[$limit->getCname()] = 0;
+                        }
+                        $contador_services[$limit->getCname()]+=$limit->getDay();
                         $limit->setDay(0);
                         $em->persist($limit);
                         $em->flush();
                         $contador++;
                     }
                     foreach($limits_swift as $limit){
+                        if (!array_key_exists($limit->getCname(), $contador_services)) {
+                            $contador_services[$limit->getCname()] = 0;
+                        }
+                        $contador_services[$limit->getCname()]+=$limit->getDay();
                         $limit->setDay(0);
                         $em->persist($limit);
                         $em->flush();
