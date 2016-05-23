@@ -17,8 +17,9 @@ class SafetyPayDriver{
     private $url_error;
     private $url_safety;
     private $tracking_code;
+    private $url_webApp;
 
-    function __construct($api_key, $signature_key, $language, $tracking_code, $response_format, $url_safety)
+    function __construct($api_key, $signature_key, $language, $tracking_code, $response_format, $url_safety, $url_webApp)
     {
         $this->api_key = $api_key;
         $this->signature_key = $signature_key;
@@ -28,6 +29,7 @@ class SafetyPayDriver{
         $this->url_safety = $url_safety;
         $this->date_time = $this->_getDateIso8601(time());
         $this->expiration = 15;
+        $this->url_webApp = $url_webApp;
     }
 
     function request($currency, $amount){
