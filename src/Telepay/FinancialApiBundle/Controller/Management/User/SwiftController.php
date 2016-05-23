@@ -24,7 +24,8 @@ class SwiftController extends BaseApiController{
     public function read(Request $request){
 
         $user = $this->get('security.context')->getToken()->getUser();
-        $clients = $user->getClients();
+        $userGroup = $user->getGroups()[0];
+        $clients = $userGroup->getClients();
         $em = $this->getDoctrine()->getManager();
         $response = array();
 
@@ -85,11 +86,12 @@ class SwiftController extends BaseApiController{
         //todo active methods or inactive.
         //get client
         $user = $this->get('security.context')->getToken()->getUser();
+        $userGroup = $user->getGroups()[0];
 
         $em = $this->getDoctrine()->getManager();
         $client = $em->getRepository('TelepayFinancialApiBundle:Client')->findOneBy(array(
             'id'    =>  $id,
-            'user'  =>  $user
+            'group'  =>  $userGroup
         ));
 
         $swiftMethods = null;
@@ -131,6 +133,7 @@ class SwiftController extends BaseApiController{
     public function updateFees(Request $request, $id){
 
         $user = $this->get('security.context')->getToken()->getUser();
+        $userGroup = $user->getGroups()[0];
 
         $em = $this->getDoctrine()->getManager();
 
@@ -138,7 +141,7 @@ class SwiftController extends BaseApiController{
 
         if(!$fee) throw new HttpException(404, 'Fee not found');
 
-        if($user != $fee->getClient()->getUser()) throw new HttpException(403, 'You don\'t have the necessary permissions to change this fee');
+        if($userGroup != $fee->getClient()->getGroup()) throw new HttpException(403, 'You don\'t have the necessary permissions to change this fee');
 
         if($request->request->has('fixed')){
             $fee->setFixed($request->request->get('fixed'));
@@ -153,7 +156,6 @@ class SwiftController extends BaseApiController{
 
         return $this->restV2(204,"ok", "Updated successfully");
 
-
     }
 
     /**
@@ -162,6 +164,7 @@ class SwiftController extends BaseApiController{
     public function updateTransaction(Request $request, $id){
 
         $user = $this->get('security.context')->getToken()->getUser();
+        $userGroup = $user->getGroups()[0];
 
         $dm = $this->get('doctrine_mongodb')->getManager();
 
@@ -172,7 +175,7 @@ class SwiftController extends BaseApiController{
         $transaction = $dm->getRepository('TelepayFinancialApiBundle:Transaction')->findOneBy(array(
             'id'    =>  $id,
             'type'  =>  'swift',
-            'user'  =>  $user->getId()
+            'group'  =>  $userGroup->getId()
         ));
 
         if(!$transaction) throw new HttpException(404, 'Transaction not found');

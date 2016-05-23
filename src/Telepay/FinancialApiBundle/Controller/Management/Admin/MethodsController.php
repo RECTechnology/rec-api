@@ -24,10 +24,11 @@ class MethodsController extends RestApiController
             $allowed_services = $services;
         }else{
             $admin = $this->get('security.context')->getToken()->getUser();
-            $admin_services = $admin->getMethodsList();
+            $group = $admin->getGroups()[0];
+            $group_services = $group->getMethodsList();
 
             foreach($services as $method){
-                if(in_array($method->getCname().'-'.$method->getType(), $admin_services)){
+                if(in_array($method->getCname().'-'.$method->getType(), $group_services)){
 
                     $methodsEntity = $this->get('net.telepay.method_provider')->findByCname($method->getCname().'-'.$method->getType());
 

@@ -50,8 +50,8 @@ class MethodsController extends RestApiController {
     public function index() {
 
         $user = $this->get('security.context')->getToken()->getUser();
-
-        $methods = $user->getMethodsList();
+        $group = $user->getGroups()[0];
+        $methods = $group->getMethodsList();
 
         $response = array();
 

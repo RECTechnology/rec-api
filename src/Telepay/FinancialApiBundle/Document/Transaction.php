@@ -150,6 +150,7 @@ class Transaction implements TransactionTiming {
         $transaction->setVariableFee($trans->getVariableFee());
         $transaction->setFixedFee($trans->getFixedFee());
         $transaction->setUser($trans->getUser());
+        $transaction->setGroup($trans->getGroup());
         return $transaction;
     }
 
@@ -164,6 +165,12 @@ class Transaction implements TransactionTiming {
      * @MongoDB\Int
      */
     private $user;
+
+    /**
+     * @var
+     * @MongoDB\Int
+     */
+    private $group;
 
     /**
      * @var
@@ -936,5 +943,21 @@ class Transaction implements TransactionTiming {
     public function setEmailNotification($email_notification)
     {
         $this->email_notification = $email_notification;
+    }
+
+    /**
+     * @return mixed
+     */
+    public function getGroup()
+    {
+        return $this->group;
+    }
+
+    /**
+     * @param mixed $group
+     */
+    public function setGroup($group)
+    {
+        $this->group = $group;
     }
 }

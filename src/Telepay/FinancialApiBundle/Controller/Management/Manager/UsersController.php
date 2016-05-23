@@ -117,8 +117,9 @@ class UsersController extends BaseApiController
         $total = count($filtered);
 
         $entities = array_slice($filtered, $offset, $limit);
+
         array_map(function($elem){
-            $elem->setAllowedServices($this->get('net.telepay.service_provider')->findByCNames($elem->getServicesList()));
+//            $elem->setAllowedServices($this->get('net.telepay.service_provider')->findByCNames($elem->getServicesList()));
             $elem->setAllowedMethods($this->get('net.telepay.method_provider')->findByCNames($elem->getMethodsList()));
             $elem->setAccessToken(null);
             $elem->setRefreshToken(null);
@@ -149,6 +150,7 @@ class UsersController extends BaseApiController
     public function indexByGroup(Request $request, $id){
 
         $admin = $this->get('security.context')->getToken()->getUser();
+        $adminGroup = $admin->getGroups()[0];
 
         if($request->query->has('limit')) $limit = $request->query->get('limit');
         else $limit = 10;
@@ -159,7 +161,7 @@ class UsersController extends BaseApiController
         $current_group = $this->getDoctrine()->getRepository('TelepayFinancialApiBundle:Group')->find($id);
         if(!$current_group) throw new HttpException(404, 'Group not found');
 
-        if($current_group->getCreator()->getId() != $admin->getId()) throw new HttpException(403, 'You don\'t have the necessary permissions');
+        if($current_group->getGroupCreator()->getId() != $adminGroup->getId()) throw new HttpException(403, 'You don\'t have the necessary permissions');
 
         $all = $this->getRepository()->findAll();
 
@@ -184,14 +186,14 @@ class UsersController extends BaseApiController
 
         $entities = array_slice($filtered, $offset, $limit);
         array_map(function($elem){
-            if($elem->getServicesList() == null){
-                $elem->setAllowedServices($this->get('net.telepay.service_provider')->findByCNames(array('echo')));
-                $elem->setAllowedMethods($this->get('net.telepay.method_provider')->findByCNames(array('echo-in')));
-            }else{
-                $elem->setAllowedServices($this->get('net.telepay.service_provider')->findByCNames($elem->getServicesList()));
-                $elem->setAllowedMethods($this->get('net.telepay.method_provider')->findByCNames($elem->getMethodsList()));
-            }
-
+//            if($elem->getServicesList() == null){
+//                $elem->setAllowedServices($this->get('net.telepay.service_provider')->findByCNames(array('echo')));
+//                $elem->setAllowedMethods($this->get('net.telepay.method_provider')->findByCNames(array('echo-in')));
+//            }else{
+//                $elem->setAllowedServices($this->get('net.telepay.service_provider')->findByCNames($elem->getServicesList()));
+//                $elem->setAllowedMethods($this->get('net.telepay.method_provider')->findByCNames($elem->getMethodsList()));
+//            }
+//            $elem->setAllowedMethods($this->get('net.telepay.method_provider')->findByCNames($elem->getMethodsList()));
             $elem->setAccessToken(null);
             $elem->setRefreshToken(null);
             $elem->setAuthCode(null);
@@ -215,6 +217,7 @@ class UsersController extends BaseApiController
     public function createAction(Request $request){
 
         $admin = $this->get('security.context')->getToken()->getUser();
+        $adminGroup = $admin->getGroups()[0];
         $em = $this->getDoctrine()->getManager();
         $usersRepo = $em->getRepository("TelepayFinancialApiBundle:User");
         $groupsRepo = $em->getRepository("TelepayFinancialApiBundle:Group");
@@ -222,13 +225,15 @@ class UsersController extends BaseApiController
         if($request->request->has('group_id')){
             $groupId = $request->request->get('group_id');
             $request->request->remove('group_id');
-        }else{
-            $groupId = $this->container->getParameter('id_group_default');
-        }
+            $group = $groupsRepo->find($groupId);
 
-        $group = $groupsRepo->find($groupId);
-        if(!$group) throw new HttpException(404, 'Group not found');
-        if($group->getCreator()->getId() != $admin->getId()) throw new HttpException(403, 'You don\'t have the necessary permissions to add a user in this group');
+            if(!$group) throw new HttpException(404, 'Group not found');
+
+            if($group->getGroupCreator()->getId() != $adminGroup->getId()) throw new HttpException(403, 'You don\'t have the necessary permissions to add a user in this group');
+
+        }else{
+            $group = $adminGroup;
+        }
 
         if(!$request->request->has('password'))
             throw new HttpException(400, "Missing parameter 'password'");
@@ -236,7 +241,7 @@ class UsersController extends BaseApiController
             throw new HttpException(400, "Missing parameter 'repassword'");
         $password = $request->get('password');
         $repassword = $request->get('repassword');
-        if($password!=$repassword) throw new HttpException(400, "Password and repassword are differents.");
+        if($password != $repassword) throw new HttpException(400, "Password and repassword are differents.");
         $request->request->remove('password');
         $request->request->remove('repassword');
 
@@ -246,46 +251,15 @@ class UsersController extends BaseApiController
         $request->request->add(array('plain_password'=>$password));
         $request->request->add(array('enabled'=>1));
         $request->request->add(array('base64_image'=>''));
-        $request->request->add(array('default_currency'=>'EUR'));
+//        $request->request->add(array('default_currency'=>'EUR'));
         $request->request->add(array('gcm_group_key'=>''));
-        $request->request->add(array('services_list'=>array('sample')));
-        $request->request->add(array('methods_list'=>array('sample-in')));
+//        $request->request->add(array('services_list'=>array('sample')));
+//        $request->request->add(array('methods_list'=>array('sample-in')));
+        //TODO add_role user by default
 
         $resp= parent::createAction($request);
 
         if($resp->getStatusCode() == 201){
-
-            if(!$group){
-                $group = new Group();
-                $group->setName('Default');
-                $group->setRoles(array('ROLE_USER'));
-                $group->setCreator($this->getUser());
-                $em->persist($group);
-                $em->flush();
-                $servicesRepo = $this->get('net.telepay.service_provider');
-                $services = $servicesRepo->findAll();
-
-                foreach($services as $service){
-                    $limit_def = new LimitDefinition();
-                    $limit_def->setCname($service->getCname());
-                    $limit_def->setSingle(0);
-                    $limit_def->setDay(0);
-                    $limit_def->setWeek(0);
-                    $limit_def->setMonth(0);
-                    $limit_def->setYear(0);
-                    $limit_def->setTotal(0);
-                    $limit_def->setGroup($group);
-                    $commission = new ServiceFee();
-                    $commission->setGroup($group);
-                    $commission->setFixed(0);
-                    $commission->setVariable(0);
-                    $commission->setServiceName($service->getCname());
-                    $em->persist($commission);
-                    $em->persist($limit_def);
-
-                }
-                $em->flush();
-            }
 
             $user_id = $resp->getContent();
             $user_id = json_decode($user_id);
@@ -293,16 +267,17 @@ class UsersController extends BaseApiController
             $user_id = $user_id->id;
             $user = $usersRepo->findOneBy(array('id'=>$user_id));
 
-            $currencies=Currency::$LISTA;
-
-            foreach($currencies as $currency){
-                $user_wallet = new UserWallet();
-                $user_wallet->setBalance(0);
-                $user_wallet->setAvailable(0);
-                $user_wallet->setCurrency($currency);
-                $user_wallet->setUser($user);
-                $em->persist($user_wallet);
-            }
+//            $currencies = Currency::$LISTA;
+//
+//            foreach($currencies as $currency){
+//                $user_wallet = new UserWallet();
+//                $user_wallet->setBalance(0);
+//                $user_wallet->setAvailable(0);
+//                $user_wallet->setCurrency($currency);
+//                $user_wallet->setUser($user);
+//                $user_wallet->setGroup($group);
+//                $em->persist($user_wallet);
+//            }
 
             $user->addGroup($group);
 
@@ -312,13 +287,13 @@ class UsersController extends BaseApiController
 
         return $resp;
 
-
     }
 
     /**
      * @Rest\View
      */
     public function showAction($id){
+        //TODO check if the user is admin f this group or pertence to this group
         if(empty($id)) throw new HttpException(400, "Missing parameter 'id'");
 
         $repo = $this->getRepository();
@@ -327,8 +302,8 @@ class UsersController extends BaseApiController
 
         if(empty($entities)) throw new HttpException(404, "Not found");
 
-        $entities->setAllowedServices($this->get('net.telepay.service_provider')->findByCNames($entities->getServicesList()));
-        $entities->setAllowedMethods($this->get('net.telepay.method_provider')->findByCNames($entities->getMethodsList()));
+//        $entities->setAllowedServices($this->get('net.telepay.service_provider')->findByCNames($entities->getServicesList()));
+//        $entities->setAllowedMethods($this->get('net.telepay.method_provider')->findByCNames($entities->getMethodsList()));
         $entities->setAccessToken(null);
         $entities->setRefreshToken(null);
         $entities->setAuthCode(null);
@@ -370,6 +345,8 @@ class UsersController extends BaseApiController
 
 
         $image = base64_decode($base64Image);
+
+        //TODO creo que esto habra que descomentarlo
 
         /*
         try {
@@ -511,20 +488,20 @@ class UsersController extends BaseApiController
         return parent::deleteAction($idUser);
     }
 
-    private function _setServices(Request $request, $id){
-        if(empty($id)) throw new HttpException(400, "Missing parameter 'id'");
-        $usersRepo = $this->getRepository();
-        $user = $usersRepo->findOneBy(array('id'=>$id));
-        $listServices = $user->getServicesList();
-
-        $putServices = $request->get('services');
-        foreach($putServices as $service){
-            if(!in_array($service, $listServices)){
-                $this->_addService($id, $service);
-            }
-        }
-        return $this->rest(204, "Edited");
-    }
+//    private function _setServices(Request $request, $id){
+//        if(empty($id)) throw new HttpException(400, "Missing parameter 'id'");
+//        $usersRepo = $this->getRepository();
+//        $user = $usersRepo->findOneBy(array('id'=>$id));
+//        $listServices = $user->getServicesList();
+//
+//        $putServices = $request->get('services');
+//        foreach($putServices as $service){
+//            if(!in_array($service, $listServices)){
+//                $this->_addService($id, $service);
+//            }
+//        }
+//        return $this->rest(204, "Edited");
+//    }
 
     private function _setMethods(Request $request, $id){
         if(empty($id)) throw new HttpException(400, "Missing parameter 'id'");
@@ -541,58 +518,58 @@ class UsersController extends BaseApiController
         return $this->rest(204, "Edited");
     }
 
-    /**
-     * @Rest\View
-     */
-    public function addService(Request $request, $id){
-        $serviceId = $request->get('service_id');
-        if(empty($serviceId)) throw new HttpException(400, "Missing parameter 'service_id'");
-        $this->_addService($id, $serviceId);
-        return $this->rest(201, "Service added successfully", array());
-    }
+//    /**
+//     * @Rest\View
+//     */
+//    public function addService(Request $request, $id){
+//        $serviceId = $request->get('service_id');
+//        if(empty($serviceId)) throw new HttpException(400, "Missing parameter 'service_id'");
+//        $this->_addService($id, $serviceId);
+//        return $this->rest(201, "Service added successfully", array());
+//    }
 
-    /**
-     * @Rest\View
-     */
-    public function deleteService($id, $service_id){
-        $this->_deleteService($id, $service_id);
-        return $this->rest(204,"Service deleted from user successfully");
-    }
+//    /**
+//     * @Rest\View
+//     */
+//    public function deleteService($id, $service_id){
+//        $this->_deleteService($id, $service_id);
+//        return $this->rest(204,"Service deleted from user successfully");
+//    }
 
-    private function _addService($id, $cname){
-        $usersRepo = $this->getRepository();
-        $servicesRepo = $this->get('net.telepay.service_provider');
-        $user = $usersRepo->findOneBy(array('id'=>$id));
-        $service = $servicesRepo->findByCname($cname);
-        if(empty($user)) throw new HttpException(404, 'User not found');
-        if(empty($service)) throw new HttpException(404, 'Service not found');
-
-        $user->addService($cname);
-        $em = $this->getDoctrine()->getManager();
-        $limitRepo = $em->getRepository("TelepayFinancialApiBundle:LimitCount");
-        $limit = $limitRepo->findOneBy(array('cname' => $cname, 'user' => $user));
-        if(!$limit){
-            $limit = new LimitCount();
-            $limit->setUser($user);
-            $limit->setCname($cname);
-            $limit->setSingle(0);
-            $limit->setDay(0);
-            $limit->setWeek(0);
-            $limit->setMonth(0);
-            $limit->setYear(0);
-            $limit->setTotal(0);
-            $em->persist($limit);
-        }
-
-        try{
-            $em->flush();
-        } catch(DBALException $e){
-            if(preg_match('/SQLSTATE\[23000\]/',$e->getMessage()))
-                throw new HttpException(409, "Duplicated resource");
-            else
-                throw new HttpException(500, "Unknown error occurred when save");
-        }
-    }
+//    private function _addService($id, $cname){
+//        $usersRepo = $this->getRepository();
+//        $servicesRepo = $this->get('net.telepay.service_provider');
+//        $user = $usersRepo->findOneBy(array('id'=>$id));
+//        $service = $servicesRepo->findByCname($cname);
+//        if(empty($user)) throw new HttpException(404, 'User not found');
+//        if(empty($service)) throw new HttpException(404, 'Service not found');
+//
+//        $user->addService($cname);
+//        $em = $this->getDoctrine()->getManager();
+//        $limitRepo = $em->getRepository("TelepayFinancialApiBundle:LimitCount");
+//        $limit = $limitRepo->findOneBy(array('cname' => $cname, 'user' => $user));
+//        if(!$limit){
+//            $limit = new LimitCount();
+//            $limit->setUser($user);
+//            $limit->setCname($cname);
+//            $limit->setSingle(0);
+//            $limit->setDay(0);
+//            $limit->setWeek(0);
+//            $limit->setMonth(0);
+//            $limit->setYear(0);
+//            $limit->setTotal(0);
+//            $em->persist($limit);
+//        }
+//
+//        try{
+//            $em->flush();
+//        } catch(DBALException $e){
+//            if(preg_match('/SQLSTATE\[23000\]/',$e->getMessage()))
+//                throw new HttpException(409, "Duplicated resource");
+//            else
+//                throw new HttpException(500, "Unknown error occurred when save");
+//        }
+//    }
 
     private function _addMethod($id, $cname){
         $usersRepo = $this->getRepository();
@@ -629,18 +606,18 @@ class UsersController extends BaseApiController
         }
     }
 
-    private function _deleteService($id, $cname){
-        $usersRepo = $this->getRepository();
-        $service = $this->get('net.telepay.service_provider')->findByCname($cname);
-        $user = $usersRepo->findOneBy(array('id'=>$id));
-        if(empty($user)) throw new HttpException(404, "User not found");
-        if(empty($service)) throw new HttpException(404, 'Service not found');
-
-        $user->removeService($cname);
-        $em = $this->getDoctrine()->getManager();
-        $em->persist($user);
-        $em->flush();
-    }
+//    private function _deleteService($id, $cname){
+//        $usersRepo = $this->getRepository();
+//        $service = $this->get('net.telepay.service_provider')->findByCname($cname);
+//        $user = $usersRepo->findOneBy(array('id'=>$id));
+//        if(empty($user)) throw new HttpException(404, "User not found");
+//        if(empty($service)) throw new HttpException(404, 'Service not found');
+//
+//        $user->removeService($cname);
+//        $em = $this->getDoctrine()->getManager();
+//        $em->persist($user);
+//        $em->flush();
+//    }
 
 
     public function _setRole(Request $request, $id){
