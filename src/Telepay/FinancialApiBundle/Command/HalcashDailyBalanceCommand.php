@@ -122,11 +122,7 @@ class HalcashDailyBalanceCommand extends ContainerAwareCommand
             ->setSubject($subject)
             ->setFrom('no-reply@chip-chap.com')
             ->setTo(array(
-                'pere@chip-chap.com',
-                'ceo@chip-chap.com',
-                'lluis@chip-chap.com',
-                'cio@chip-chap.com',
-                'cto@chip-chap.com'
+                'volume@chip-chap.com'
             ))
             ->setBody(
                 $this->getContainer()->get('templating')
