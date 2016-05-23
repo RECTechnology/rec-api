@@ -9,6 +9,7 @@ use Telepay\FinancialApiBundle\Entity\LimitDefinition;
 use Telepay\FinancialApiBundle\Entity\ServiceFee;
 use FOS\RestBundle\Controller\Annotations as Rest;
 use Symfony\Component\HttpFoundation\Request;
+use Telepay\FinancialApiBundle\Financial\Currency;
 
 /**
  * Class GroupsController
@@ -137,8 +138,10 @@ class GroupsController extends BaseApiController
 
         $admin = $this->get('security.context')->getToken()->getUser();
 
-        $request->request->set('roles',array('ROLE_USER'));
+        $request->request->set('roles', array('ROLE_USER'));
+        $request->request->set('default_currency', Currency::$EUR);
         $request->request->set('group_creator',$admin->getGroups()[0]);
+        $request->request->set('methods_list', $admin->getGroups()[0]->getMethodsList());
 
         $group_name = $request->request->get('name');
 
@@ -152,9 +155,7 @@ class GroupsController extends BaseApiController
             $methodsRepo = $this->get('net.telepay.method_provider');
             $methods = $methodsRepo->findAll();
 
-            $admin = $group->getCreator();
             //ya no se usa, ahora depende de los grupos.
-            $methodsList = $admin->getMethodsList();
             $adminGroup = $group->getGroupCreator();
             $groupMethodsList = $adminGroup->getMethodsList();
             foreach($methods as $method){

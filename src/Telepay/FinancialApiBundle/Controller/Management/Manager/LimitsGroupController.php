@@ -31,12 +31,15 @@ class LimitsGroupController extends BaseApiController
 
         //check if this user pertenece al group de la fee
         $user = $this->get('security.context')->getToken()->getUser();
-        $group = $user->getGroups()[0];
-        $em = $this->getDoctrine()->getManager();
-        $limit = $em->getRepository($this->getRepositoryName())->find($id);
-        $limitGroup = $limit->getGroup();
+        if(!$user->hasRole('ROLE_SUPER_ADMIN')){
+            $group = $user->getGroups()[0];
+            $em = $this->getDoctrine()->getManager();
+            $limit = $em->getRepository($this->getRepositoryName())->find($id);
+            $limitGroup = $limit->getGroup();
 
-        if($group->getId() != $limitGroup->getId()) throw new HttpException(409, 'You don\'t have the necessary permissions');
+            if($group->getId() != $limitGroup->getId()) throw new HttpException(409, 'You don\'t have the necessary permissions');
+        }
+
 
         return parent::updateAction($request, $id);
     }

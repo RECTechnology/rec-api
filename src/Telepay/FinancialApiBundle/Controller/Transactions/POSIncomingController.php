@@ -36,6 +36,7 @@ class POSIncomingController extends RestApiController{
 
         $service_cname = $tpvRepo->getCname();
 
+        //TODO cambiar por group
         $user = $tpvRepo->getUser();
 
         if($tpvRepo->getActive() == 0) throw new HttpException(400, 'Service Temporally unavailable');
@@ -67,6 +68,7 @@ class POSIncomingController extends RestApiController{
         //create transaction
         $transaction = Transaction::createFromRequest($request);
         $transaction->setService($service_cname);
+        //TODO cambiar user por group
         $transaction->setUser($user->getId());
         $transaction->setVersion($version_number);
         $transaction->setDataIn($dataIn);
@@ -88,7 +90,7 @@ class POSIncomingController extends RestApiController{
         $total = $amount - $variable_fee - $fixed_fee;
         $transaction->setTotal($amount);
 
-        //obtain wallet and check founds for cash_out services
+        //TODO obtain wallet and check founds for cash_out services for this group
         $wallets = $user->getWallets();
 
         $current_wallet = null;

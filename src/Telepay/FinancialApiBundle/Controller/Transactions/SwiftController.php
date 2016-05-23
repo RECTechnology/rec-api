@@ -86,7 +86,6 @@ class SwiftController extends RestApiController{
         if($cashOutMethod->getCurrency() != $methodInfo['currency']){
             $amount_in = $amount;
             $amount_out = $this->_exchange($amount_in, $cashInMethod->getCurrency(), $cashOutMethod->getCurrency());
-
         }else{
             $amount_in = 0;
             $amount_out = $amount;
