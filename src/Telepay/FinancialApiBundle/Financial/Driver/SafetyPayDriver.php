@@ -37,7 +37,7 @@ class SafetyPayDriver{
         $this->currency = $currency;
         $this->amount = ($amount/100);
 
-        $web_app_url = $this->getContainer()->getParameter('web_app_url');
+        $web_app_url = $this->url_webApp;
         $this->url_success = $web_app_url . '?safety=' . $merchant_reference . '&status=ok';
         $this->url_error = $web_app_url. '?safety=' . $merchant_reference . '&status=ko';
 
