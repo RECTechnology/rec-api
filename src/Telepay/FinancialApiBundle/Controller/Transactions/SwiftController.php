@@ -100,7 +100,7 @@ class SwiftController extends RestApiController{
 
         $safety_currency = 'MXN';
         if($type_in == 'safetypay'){
-            if($request->request->has('currency')){
+            if($request->request->has('currency') && $request->request->get('currency')!=""){
                 $safety_currency = strtoupper($request->request->get('currency'));
                 if($safety_currency != 'MXN'){
                     $amount_in = $this->_exchange($amount, $safety_currency, 'MXN');
