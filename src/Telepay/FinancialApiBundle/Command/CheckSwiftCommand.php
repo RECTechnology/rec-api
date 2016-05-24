@@ -209,7 +209,7 @@ class CheckSwiftCommand extends ContainerAwareCommand
                                         $body = array(
                                             'reference' =>  $ticket,
                                             'created'   =>  $transaction->getCreated()->format('Y-m-d H:i:s'),
-                                            'concept'   =>  'BUY ' . $currency[$method_out] . $ticket,
+                                            'concept'   =>  'BUY ' . $currency[$method_out] . " " . $ticket,
                                             'amount'    =>  $transaction->getPayInInfo()['amount']/100,
                                             'crypto_amount' => $transaction->getPayOutInfo()['amount']/1e8,
                                             'tx_id'        =>  $transaction->getPayOutInfo()['txid'],
