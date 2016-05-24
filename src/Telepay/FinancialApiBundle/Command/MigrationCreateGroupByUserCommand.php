@@ -84,7 +84,7 @@ class MigrationCreateGroupByUserCommand extends ContainerAwareCommand
                     $newGroup->setCreator($creator);
 //                    $newGroup->setGroupCreator($groupCreator);
                     $newGroup->setName($user->getUsername().' Group');
-                    $newGroup->setRoles(array('ROLE_USER'));
+                    $newGroup->setRoles(array('ROLE_COMPANY'));
                     //set la misma access_key i secret que el user actual
                     //este es un punto critico donde puede petar porque en el constructor ya se generan estos dos parametros
                     //pero nosotros queremos plancharlos con los del user
@@ -98,6 +98,14 @@ class MigrationCreateGroupByUserCommand extends ContainerAwareCommand
                     $em->persist($newGroup);
                     $em->flush();
                     $counterGroups++;
+
+                    //Add role_admin to all users to control his company
+                    if(!$user->hasRole('ROLE_ADMIN')){
+                        $user->addRole('ROLE_ADMIN');
+                        $em->persist($user);
+                        $em->flush();
+                    }
+
                     //copiamos los fees y limites del grupo original al nuevo grupo
                     //para ello tenemos que conseguir todos los limites i fees asignados a este grupo i clonarlos con el nuevo grupo
 
