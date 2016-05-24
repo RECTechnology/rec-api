@@ -1,0 +1,80 @@
+<!DOCTYPE html>
+<html lang="en-US">
+<head>
+    <title>ChipChap Ticket</title>
+    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+
+    <style type="text/css">
+
+        .ticket-container{
+            max-width: 550px;
+            min-width: 360px;
+        }
+        .headp{
+            font-size: 12px;
+            color: #4D4D4D;
+            text-align: center;
+        }
+        section{
+            padding: 0 10px;
+            text-align: center;
+        }
+        img{
+
+        }
+        hr{
+            border-style: dashed;
+            border-color: #2192EF;
+        }
+        h5{
+            text-transform: uppercase;
+        }
+        h4{
+            text-align: center;
+            text-transform: uppercase;
+            font-weight: 300;
+        }
+        h4 .bold{
+            font-weight: bold;
+        }
+    </style>
+</head>
+
+<body class="ticket-container">
+<section>
+    <div>
+        <p class="headp"><img src="https://chip-chap.com/images/chip-chap-h-blue.png"></p>
+    </div>
+    <div>
+        <p class="headp">Entropy Factory S.L.</p>
+        <p class="headp">Mas de Pascualet s/n, Les Coves de Vinromà
+            <br>
+            12185, Castellón, Spain</p>
+    </div>
+
+</section>
+
+<hr>
+
+<section>
+    <h4><span class="bold">Transacction Amount: {{ amount }} eur</span>
+        <br>
+        ({{ crypto_amount }} FAC)
+    </h4>
+    <p><b>Faircoin Address: </b> <i>{{ address }}</i></p>
+    {#<p><b>tx_id: </b> <i style="font-size: 17px;">{{ tx_id }}</i></p>#}
+    <p><b>Date:</b><i> {{ created }}</i></p>
+    <p><b>Order_id:</b><i> {{ id }}</i></p>
+    <div class="clearfix"></div>
+    <h5 class="pull-left">Concept:</h5>
+    <p><i>{{ concept }}</i></p>
+</section>
+
+<hr>
+
+<section>
+    <h5 class="text-center">Thank You for using Chip-Chap</h5>
+    <p class="headp"><img src="https://chip-chap.com/images/logo_blue.png"></p>
+</section>
+</body>
+</html>
