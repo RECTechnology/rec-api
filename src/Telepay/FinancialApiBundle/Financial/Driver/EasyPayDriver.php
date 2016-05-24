@@ -14,10 +14,10 @@ class EasyPayDriver{
 
     public function request(){
 
-        $reference = 'BUY BITCOIN '.$this->getReference();
+        $reference = $this->getReference();
 
         $response = array(
-            'reference' =>  $reference,
+            'reference_code' =>  $reference,
             'account'      =>  $this->account,
             'expires_in'=>  3600*24
         );
