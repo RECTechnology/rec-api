@@ -65,7 +65,7 @@ class PublicController extends RestApiController{
                     $scale = $currency_scale - $default_currency_scale;
                     $number = pow(10,$scale);
                     $price = $this->_exchange($number, $currency, $default_currency);
-                    $result[$currency.'x'.$default_currency] = round($price, $default_currency_scale);
+                    $result[$currency.'x'.$default_currency] = round($price, $default_currency_scale + 1);
                 }catch (HttpException $e){
                     $result[$currency.'x'.$default_currency] = $e->getMessage();
                 }
