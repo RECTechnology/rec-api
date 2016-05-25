@@ -411,12 +411,16 @@ class CheckSwiftCommand extends ContainerAwareCommand
     private function _sendTicket($body, $email, $ref, $method_out){
         $html = $this->getContainer()->get('templating')->render('TelepayFinancialApiBundle:Email:ticket' . $method_out . '.html.twig', $body);
 
+        $marca = array(
+            "btc" => "Chip-Chap",
+            "fac" => "Fairtoearth"
+        );
         $dompdf = $this->getContainer()->get('slik_dompdf');
         $dompdf->getpdf($html);
         $pdfoutput = $dompdf->output();
 
         $message = \Swift_Message::newInstance()
-            ->setSubject('Chip-Chap Ticket ref: '.$ref)
+            ->setSubject($marca[$method_out] . 'Ticket ref: '.$ref)
             ->setFrom('no-reply@chip-chap.com')
             ->setTo(array(
                 $email
