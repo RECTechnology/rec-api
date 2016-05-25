@@ -107,7 +107,7 @@ class HalcashDailyBalanceCommand extends ContainerAwareCommand
              Cryptocapital: ' . $services_out['cryptocapital']/100 . ' EUR.
              Sepa: ' . $services_out['sepa']/100 . ' EUR.
              Paynet: ' . $services_in['paynet_reference']/100 . ' MXN.
-             Safetypay: ' . $services_in['safetypay']/100 . ' EUR.
+             Safetypay: ' . $services_in['safetypay']/100 . ' MXN.
              Easypay: ' . $services_in['easypay']/100 . ' EUR.
              '
         );
