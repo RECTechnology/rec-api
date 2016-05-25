@@ -602,7 +602,7 @@ class SwiftController extends RestApiController{
                             $max_cur = $this->_exchange($max, $currency_in, $cur);
                         }
                         for($i = $min; $i <= $max_cur; $i+=$range){
-                            array_push($cur_values, round($i, -2));
+                            array_push($cur_values, _roundUpToAny($i, 500));
                         }
                         $values[$cur] = $cur_values;
                     }
@@ -652,6 +652,10 @@ class SwiftController extends RestApiController{
 
         return $this->restPlain(200, $resp);
 
+    }
+
+    function _roundUpToAny($n,$x=5) {
+        return (ceil($n)%$x === 0) ? ceil($n) : round(($n+$x/2)/$x)*$x;
     }
 
     private function _exchange($amount,$curr_in,$curr_out){
