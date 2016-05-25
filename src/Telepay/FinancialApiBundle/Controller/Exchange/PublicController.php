@@ -99,7 +99,7 @@ class PublicController extends RestApiController{
     public function maps(Request $request, $service = null){
 
         if($service != null){
-            if($service != 'halcash_es' && $service != 'halcash_pl' && $service != 'teleingreso' )
+            if($service != 'halcash_es' && $service != 'halcash_pl' && $service != 'teleingreso' && $service != 'all' )
                 throw new HttpException(409, 'Service not allowed');
         }
 
@@ -141,11 +141,17 @@ class PublicController extends RestApiController{
 
         }
 
-        $requestedAtms=array(
+        $requestedAtms = array(
             'halcash_es'    =>  $halcash_es_data,
             'halcash_pl'    =>  $halcash_pl_data,
             'teleingreso'   =>  $abancaRequestedAtm
         );
+
+        if($service == 'all'){
+            $response = $requestedAtms;
+        }else{
+            $response = $requestedAtms[$service];
+        }
 //        foreach($halcash_pl_data as $atm){
 //
 //            if($atm['coordinates'][0] >= $request->get('lat_sw') and
@@ -190,7 +196,7 @@ class PublicController extends RestApiController{
 //
 //        }
 
-        return $this->rest(200,"Ok", $requestedAtms);
+        return $this->rest(200,"Ok", $response);
 
     }
 
