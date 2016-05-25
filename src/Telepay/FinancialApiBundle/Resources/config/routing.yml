@@ -39,7 +39,7 @@ validate_email:
         _method: POST
 
 recover_password_request:
-    pattern:  /password_recovery/v1/{param}
+    pattern:  /password_recovery/v{version_number}/{param}
     defaults: { _controller: Telepay\FinancialApiBundle\Controller\Management\User\AccountController::passwordRecoveryRequest }
     requirements:
         _method: GET
