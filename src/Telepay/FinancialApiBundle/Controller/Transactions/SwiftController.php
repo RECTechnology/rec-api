@@ -220,7 +220,7 @@ class SwiftController extends RestApiController{
             if($type_out == "btc"){
                 $pay_in_info['reference'] = "BUY BITCOIN " . $pay_in_info['reference_code'];
             }
-            if($type_out == "fac"){
+            else if($type_out == "fac"){
                 $pay_in_info['reference'] = "BUY FAIRCOIN " . $pay_in_info['reference_code'];
             }
             else{
@@ -654,7 +654,7 @@ class SwiftController extends RestApiController{
 
     }
 
-    function _roundUpToAny($n,$x=5) {
+    private function _roundUpToAny($n,$x=5) {
         return (ceil($n)%$x === 0) ? ceil($n) : round(($n+$x/2)/$x)*$x;
     }
 
