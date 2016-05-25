@@ -598,7 +598,7 @@ class SwiftController extends RestApiController{
                             $min = $this->_exchange($swiftInfo['min_value'], $currency_in, $cur);
                         }
                         for($i = $min; $i <= $max; $i+=$swiftInfo['range']){
-                            array_push($cur_values, $i);
+                            array_push($cur_values, round($i, -2));
                         }
                         $values[$cur] = $cur_values;
                     }
