@@ -557,7 +557,7 @@ class SwiftController extends RestApiController{
 
                     $amount = pow(10,$scale_in);
 
-                    if($currency_in == "ALL"){
+                    if($cashInMethod->getCname() == "safetypay"){
                         $exchange = array();
                         $list_currencies = array("MXN", "EUR", "USD", "PLN");
                         foreach($list_currencies as $cur){
@@ -580,17 +580,26 @@ class SwiftController extends RestApiController{
                     $exchange = round($exchange - ($exchange * ($variable_fee/100)) - $fixed_fee, 0);
                 }
 
+                if($clientLimits->getSingle() > 0 && $clientLimits->getSingle() <= $swiftInfo['max_value']){
+                    $max = $clientLimits->getSingle();
+                }else{
+                    $max = $swiftInfo['max_value'];
+                }
 
                 $values = array();
-
-                if($clientLimits->getSingle() > 0 && $clientLimits->getSingle() <= $swiftInfo['max_value']){
-
-                    for($i = $swiftInfo['min_value'];$i <= $clientLimits->getSingle(); $i+=$swiftInfo['range']){
-                        array_push($values, $i);
+                if($cashInMethod->getCname() == "safetypay"){
+                    $list_currencies = array("MXN", "EUR", "USD", "PLN");
+                    foreach($list_currencies as $cur){
+                        $cur_values = array();
+                        $min = $this->_exchange($swiftInfo['min_value'] , $currency_in, $cur);
+                        for($i = $min; $i <= $max; $i+=$swiftInfo['range']){
+                            array_push($cur_values, $i);
+                        }
+                        $values[$cur] = $cur_values;
                     }
-                }else{
-
-                    for($i = $swiftInfo['min_value'];$i <= $swiftInfo['max_value']; $i+=$swiftInfo['range']){
+                }
+                else{
+                    for($i = $swiftInfo['min_value'];$i <= $max; $i+=$swiftInfo['range']){
                         array_push($values, $i);
                     }
                 }
