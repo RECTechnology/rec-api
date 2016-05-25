@@ -81,8 +81,8 @@ class SwiftController extends RestApiController{
         $email = $request->request->get('email')?$request->request->get('email'):'';
         if($email == '' && ($cashInMethod->getEmailRequired() || $cashOutMethod->getEmailRequired())) throw new HttpException(400, 'Email is required');
 
-        $cashInMethod->checkKYC($request);
-        $cashOutMethod->checkKYC($request);
+        //$cashInMethod->checkKYC($request);
+        //$cashOutMethod->checkKYC($request);
 
         //get configuration(method)
         $swift_config = $this->container->get('net.telepay.config.'.$type_in.'.'.$type_out);
@@ -99,7 +99,7 @@ class SwiftController extends RestApiController{
 
         $safety_currency = 'MXN';
         if($type_in == 'safetypay'){
-            if($request->request->has('currency')){
+            if($request->request->has('currency') && $request->request->get('currency')!=""){
                 $safety_currency = strtoupper($request->request->get('currency'));
                 if($safety_currency != 'MXN'){
                     $amount_in = $this->_exchange($amount, $safety_currency, 'MXN');
@@ -138,7 +138,7 @@ class SwiftController extends RestApiController{
                 $methodInfo['max_value']+=50000;
                 $methodInfo['min_value']-=5000;
             }
-            if($check_amount < $methodInfo['min_value']) throw new HttpException(403, 'Amount must be greater than '.$methodInfo['min_value']);
+            if($check_amount < $methodInfo['min_value']) throw new HttpException(403, 'Amount must be greater.');
             if($check_amount % $methodInfo['range'] != 0) throw new HttpException(403, 'Amount must be multiple of '.$methodInfo['range']);
             if($check_amount > $methodInfo['max_value']) throw new HttpException(403, 'Max amount exceeded');
         }
@@ -213,6 +213,18 @@ class SwiftController extends RestApiController{
         if($type_in == 'safetypay'){
             $pay_in_info['amount'] = $amount;
             $pay_in_info['currency'] = $safety_currency;
+        }
+
+        if($type_in == 'easypay'){
+            if($type_out == "btc"){
+                $pay_in_info['reference'] = "BUY BITCOIN " . $pay_in_info['reference_code'];
+            }
+            else if($type_out == "fac"){
+                $pay_in_info['reference'] = "BUY FAIRCOIN " . $pay_in_info['reference_code'];
+            }
+            else{
+                $pay_in_info['reference'] = "CHIPCHAP CODE " . $pay_in_info['reference_code'];
+            }
         }
 
         $price = round($total/($pay_in_info['amount']/1e8),0);
@@ -539,14 +551,24 @@ class SwiftController extends RestApiController{
                 $currency_in = $cashInMethod->getCurrency();
                 $currency_out = $cashOutMethod->getCurrency();
 
-                if($cashOutMethod->getCurrency() == 'BTC' || $cashOutMethod->getCurrency() == 'FAC'){
+                if($currency_out == 'BTC' || $currency_out == 'FAC'){
                     $scale_in = Currency::$SCALE[$currency_out];
 
                     $amount = pow(10,$scale_in);
 
-                    $exchange = $this->_exchange($amount , $currency_out, $currency_in);
+                    if($cashInMethod->getCname() == "safetypay"){
+                        $exchange = array();
+                        $list_currencies = array("MXN", "EUR", "USD", "PLN");
+                        foreach($list_currencies as $cur){
+                            $exchange_value = $this->_exchange($amount , $currency_out, $cur);
+                            $exchange[$cur] = round($exchange_value + ($exchange_value * ($variable_fee/100)) + $fixed_fee, 0);
+                        }
+                    }
+                    else{
+                        $exchange = $this->_exchange($amount , $currency_out, $currency_in);
 
-                    $exchange = round($exchange + ($exchange * ($variable_fee/100)) + $fixed_fee, 0);
+                        $exchange = round($exchange + ($exchange * ($variable_fee/100)) + $fixed_fee, 0);
+                    }
                 }else{
                     $scale_in = Currency::$SCALE[$currency_in];
 
@@ -557,17 +579,35 @@ class SwiftController extends RestApiController{
                     $exchange = round($exchange - ($exchange * ($variable_fee/100)) - $fixed_fee, 0);
                 }
 
+                if($clientLimits->getSingle() > 0 && $clientLimits->getSingle() <= $swiftInfo['max_value']){
+                    $max = $clientLimits->getSingle();
+                }else{
+                    $max = $swiftInfo['max_value'];
+                }
 
                 $values = array();
-
-                if($clientLimits->getSingle() > 0 && $clientLimits->getSingle() <= $swiftInfo['max_value']){
-
-                    for($i = $swiftInfo['min_value'];$i <= $clientLimits->getSingle(); $i+=$swiftInfo['range']){
-                        array_push($values, $i);
+                if($cashInMethod->getCname() == "safetypay"){
+                    $list_currencies = array("MXN", "EUR", "USD", "PLN");
+                    foreach($list_currencies as $cur){
+                        $cur_values = array();
+                        if($cur == "MXN"){
+                            $min = $swiftInfo['min_value'];
+                            $range = $swiftInfo['range'];
+                            $max_cur = $max;
+                        }
+                        else {
+                            $min = $this->_exchange($swiftInfo['min_value'], $currency_in, $cur);
+                            $range = $this->_exchange($swiftInfo['range'], $currency_in, $cur);
+                            $max_cur = $this->_exchange($max, $currency_in, $cur);
+                        }
+                        for($i = $min; $i <= $max_cur; $i+=$range){
+                            array_push($cur_values, $this->_roundUpToAny($i, 500));
+                        }
+                        $values[$cur] = $cur_values;
                     }
-                }else{
-
-                    for($i = $swiftInfo['min_value'];$i <= $swiftInfo['max_value']; $i+=$swiftInfo['range']){
+                }
+                else{
+                    for($i = $swiftInfo['min_value'];$i <= $max; $i+=$swiftInfo['range']){
                         array_push($values, $i);
                     }
                 }
@@ -576,9 +616,7 @@ class SwiftController extends RestApiController{
                     'orig'  =>  $cashInMethod->getName(),
                     'dst'   =>  $cashOutMethod->getName(),
                     'countries' =>  $swiftInfo['countries'],
-//                'text'  =>  '',
                     'status'    =>  ($status == 1) ? 'available' : 'unavailable',
-//                'message'   =>  '',
                     'delay' =>  $swiftInfo['delay'],
                     'price' =>  $exchange,
                     'limits'    =>  array(
@@ -613,6 +651,10 @@ class SwiftController extends RestApiController{
 
         return $this->restPlain(200, $resp);
 
+    }
+
+    private function _roundUpToAny($n,$x=5) {
+        return (ceil($n)%$x === 0) ? ceil($n) : round(($n+$x/2)/$x)*$x;
     }
 
     private function _exchange($amount,$curr_in,$curr_out){

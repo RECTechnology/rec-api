@@ -198,13 +198,18 @@ class CheckSwiftCommand extends ContainerAwareCommand
                                 //send ticket
                                 if($method_out == 'btc' || $method_out == 'fac'){
                                     if( $transaction->getEmailNotification() != ""){
+                                        $currency = array(
+                                            'btc' => 'BITCOIN',
+                                            'fac' => 'FAIRCOIN'
+                                        );
                                         $email = $transaction->getEmailNotification();
                                         $ticket = $transaction->getPayInInfo()['reference'];
                                         $ticket = str_replace('BUY BITCOIN ', '', $ticket);
+                                        $ticket = str_replace('BUY FAIRCOIN ', '', $ticket);
                                         $body = array(
                                             'reference' =>  $ticket,
                                             'created'   =>  $transaction->getCreated()->format('Y-m-d H:i:s'),
-                                            'concept'   =>  'BUY BITCOINS '.$ticket,
+                                            'concept'   =>  'BUY ' . $currency[$method_out] . " " . $ticket,
                                             'amount'    =>  $transaction->getPayInInfo()['amount']/100,
                                             'crypto_amount' => $transaction->getPayOutInfo()['amount']/1e8,
                                             'tx_id'        =>  $transaction->getPayOutInfo()['txid'],
@@ -212,7 +217,7 @@ class CheckSwiftCommand extends ContainerAwareCommand
                                             'address'   =>  $transaction->getPayOutInfo()['address']
                                         );
 
-                                        $this->_sendTicket($body, $email, $ticket);
+                                        $this->_sendTicket($body, $email, $ticket, $method_out);
                                     }
                                 }
                                 //Generate fee transactions. One for the user and one for the root
@@ -403,8 +408,8 @@ class CheckSwiftCommand extends ContainerAwareCommand
 
     }
 
-    private function _sendTicket($body, $email, $ref){
-        $html = $this->getContainer()->get('templating')->render('TelepayFinancialApiBundle:Email:ticket.html.twig', $body);
+    private function _sendTicket($body, $email, $ref, $method_out){
+        $html = $this->getContainer()->get('templating')->render('TelepayFinancialApiBundle:Email:ticket' . $method_out . '.html.twig', $body);
 
         $dompdf = $this->getContainer()->get('slik_dompdf');
         $dompdf->getpdf($html);
@@ -418,7 +423,7 @@ class CheckSwiftCommand extends ContainerAwareCommand
             ))
             ->setBody(
                 $this->getContainer()->get('templating')
-                    ->render('TelepayFinancialApiBundle:Email:ticket.html.twig',
+                    ->render('TelepayFinancialApiBundle:Email:ticket' . $method_out . '.html.twig',
                         $body
                     )
             )

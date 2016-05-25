@@ -17,8 +17,9 @@ class SafetyPayDriver{
     private $url_error;
     private $url_safety;
     private $tracking_code;
+    private $url_webApp;
 
-    function __construct($api_key, $signature_key, $language, $tracking_code, $response_format, $url_safety)
+    function __construct($api_key, $signature_key, $language, $tracking_code, $response_format, $url_safety, $url_webApp)
     {
         $this->api_key = $api_key;
         $this->signature_key = $signature_key;
@@ -28,6 +29,7 @@ class SafetyPayDriver{
         $this->url_safety = $url_safety;
         $this->date_time = $this->_getDateIso8601(time());
         $this->expiration = 15;
+        $this->url_webApp = $url_webApp;
     }
 
     function request($currency, $amount){
@@ -35,8 +37,9 @@ class SafetyPayDriver{
         $this->currency = $currency;
         $this->amount = ($amount/100);
 
-        $this->url_success = 'https://web.chip-chap.com/?safety=' . $merchant_reference . '&status=ok';
-        $this->url_error = 'https://web.chip-chap.com/?safety=' . $merchant_reference . '&status=ko';
+        $web_app_url = $this->url_webApp;
+        $this->url_success = $web_app_url . '?safety=' . $merchant_reference . '&status=ok';
+        $this->url_error = $web_app_url. '?safety=' . $merchant_reference . '&status=ko';
 
         $ch = curl_init($this->url_safety);
         curl_setopt ($ch, CURLOPT_POST, 1);

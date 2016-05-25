@@ -334,7 +334,7 @@ class SpecialActionsController extends RestApiController {
                     );
 
                     //TODO no se pot enviar el ticket desde açi
-                    //$this->_sendTicket($body, $email, $ticket);
+                    //$this->_sendTicket($body, $email, $ticket, $currency);
                 }
             }else{
                 $transaction->setStatus(Transaction::$STATUS_SUCCESS);
@@ -626,8 +626,8 @@ class SpecialActionsController extends RestApiController {
 
     }
 
-    private function _sendTicket($body, $email, $ref){
-        $html = $this->renderView('TelepayFinancialApiBundle:Email:ticket.html.twig', $body);
+    private function _sendTicket($body, $email, $ref, $currency){
+        $html = $this->renderView('TelepayFinancialApiBundle:Email:ticket' . $currency . '.html.twig', $body);
 
         $dompdf = $this->get('slik_dompdf');
         $dompdf->getpdf($html);
@@ -641,7 +641,7 @@ class SpecialActionsController extends RestApiController {
             ))
             ->setBody(
                 $this->get('templating')
-                    ->render('TelepayFinancialApiBundle:Email:ticket.html.twig',
+                    ->render('TelepayFinancialApiBundle:Email:ticket' . $currency . '.html.twig',
                         $body
                     )
             )
