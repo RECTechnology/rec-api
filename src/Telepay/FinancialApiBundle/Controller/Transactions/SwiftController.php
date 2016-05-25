@@ -552,14 +552,24 @@ class SwiftController extends RestApiController{
                 $currency_in = $cashInMethod->getCurrency();
                 $currency_out = $cashOutMethod->getCurrency();
 
-                if($cashOutMethod->getCurrency() == 'BTC' || $cashOutMethod->getCurrency() == 'FAC'){
+                if($currency_out == 'BTC' || $currency_out == 'FAC'){
                     $scale_in = Currency::$SCALE[$currency_out];
 
                     $amount = pow(10,$scale_in);
 
-                    $exchange = $this->_exchange($amount , $currency_out, $currency_in);
+                    if($currency_in == "ALL"){
+                        $exchange = array();
+                        $list_currencies = array("MXN", "EUR", "USD", "PLN");
+                        foreach($list_currencies as $cur){
+                            $exchange_value = $this->_exchange($amount , $currency_out, $cur);
+                            $exchange[] = round($exchange_value + ($exchange_value * ($variable_fee/100)) + $fixed_fee, 0);
+                        }
+                    }
+                    else{
+                        $exchange = $this->_exchange($amount , $currency_out, $currency_in);
 
-                    $exchange = round($exchange + ($exchange * ($variable_fee/100)) + $fixed_fee, 0);
+                        $exchange = round($exchange + ($exchange * ($variable_fee/100)) + $fixed_fee, 0);
+                    }
                 }else{
                     $scale_in = Currency::$SCALE[$currency_in];
 
@@ -589,9 +599,7 @@ class SwiftController extends RestApiController{
                     'orig'  =>  $cashInMethod->getName(),
                     'dst'   =>  $cashOutMethod->getName(),
                     'countries' =>  $swiftInfo['countries'],
-//                'text'  =>  '',
                     'status'    =>  ($status == 1) ? 'available' : 'unavailable',
-//                'message'   =>  '',
                     'delay' =>  $swiftInfo['delay'],
                     'price' =>  $exchange,
                     'limits'    =>  array(
