@@ -45,6 +45,11 @@ security:
             stateless:  true
             security:   false
 
+        maps:
+            pattern:    ^/maps/*
+            stateless:  true
+            security:   false
+
         POS_notifications:
             pattern:    ^/pos/v[0-9]+/notification/*
             stateless:  true
