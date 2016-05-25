@@ -562,7 +562,7 @@ class SwiftController extends RestApiController{
                         $list_currencies = array("MXN", "EUR", "USD", "PLN");
                         foreach($list_currencies as $cur){
                             $exchange_value = $this->_exchange($amount , $currency_out, $cur);
-                            $exchange[] = round($exchange_value + ($exchange_value * ($variable_fee/100)) + $fixed_fee, 0);
+                            $exchange[$cur] = round($exchange_value + ($exchange_value * ($variable_fee/100)) + $fixed_fee, 0);
                         }
                     }
                     else{
