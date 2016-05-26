@@ -130,6 +130,38 @@ class WalletController extends RestApiController{
     }
 
     /**
+     * read single transaction
+     */
+    public function single(Request $request, $id){
+
+        $dm = $this->get('doctrine_mongodb')->getManager();
+
+        $userId = $this->get('security.context')
+            ->getToken()->getUser()->getId();
+
+        //TODO quitar cuando haya algo mejor montado
+        if($userId == $this->container->getParameter('read_only_user_id')){
+            $userId = $this->container->getParameter('chipchap_user_id');
+        }
+
+        $last10Trans = $dm->createQueryBuilder('TelepayFinancialApiBundle:Transaction')
+            ->field('user')->equals($userId)
+            ->field('id')->equals($id)
+            ->limit(1)
+            ->getQuery()
+            ->execute();
+
+        $resArray = [];
+        foreach($last10Trans->toArray() as $res){
+
+            $resArray [] = $res;
+
+        }
+
+        return $this->restV2(200, "ok", "Single transaction got successfully", $resArray);
+    }
+
+    /**
      * reads transactions by wallets
      */
     public function walletTransactions(Request $request){
