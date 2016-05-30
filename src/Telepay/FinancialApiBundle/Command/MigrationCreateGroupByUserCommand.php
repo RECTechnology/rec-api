@@ -81,8 +81,11 @@ class MigrationCreateGroupByUserCommand extends ContainerAwareCommand
                     $newGroup = new Group();
                     $creator = $group->getCreator();
                     $groupCreator = $creator->getGroups()[0];
+                    if($groupCreator == null){
+                        $groupCreator = $group_root;
+                    }
                     $newGroup->setCreator($creator);
-//                    $newGroup->setGroupCreator($groupCreator);
+                    $newGroup->setGroupCreator($groupCreator);
                     $newGroup->setName($user->getUsername().' Group');
                     $newGroup->setRoles(array('ROLE_COMPANY'));
                     //set la misma access_key i secret que el user actual
