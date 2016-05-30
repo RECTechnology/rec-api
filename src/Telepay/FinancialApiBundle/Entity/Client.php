@@ -27,10 +27,10 @@ class Client extends BaseClient
      */
     private $name;
 
-    /**
-     * @ORM\ManyToOne(targetEntity="Telepay\FinancialApiBundle\Entity\User")
-     */
-    private $user;
+//    /**
+//     * @ORM\ManyToOne(targetEntity="Telepay\FinancialApiBundle\Entity\User")
+//     */
+//    private $user;
 
     /**
      * @ORM\ManyToOne(targetEntity="Telepay\FinancialApiBundle\Entity\Group")
@@ -82,21 +82,21 @@ class Client extends BaseClient
         $this->name = $name;
     }
 
-    /**
-     * @return mixed
-     */
-    public function getUser()
-    {
-        return $this->user;
-    }
-
-    /**
-     * @param mixed $user
-     */
-    public function setUser($user)
-    {
-        $this->user = $user;
-    }
+//    /**
+//     * @return mixed
+//     */
+//    public function getUser()
+//    {
+//        return $this->user;
+//    }
+//
+//    /**
+//     * @param mixed $user
+//     */
+//    public function setUser($user)
+//    {
+//        $this->user = $user;
+//    }
 
     /**
      * @return mixed
