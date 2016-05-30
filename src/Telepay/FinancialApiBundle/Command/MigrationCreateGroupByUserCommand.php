@@ -276,11 +276,11 @@ class MigrationCreateGroupByUserCommand extends ContainerAwareCommand
         $output->writeln($counterBalances.' Balances changed');
         $output->writeln($counterClients.' Clients changed');
         $output->writeln($counterPOS.' POS changed');
-        $output->writeln($counterPOS.' -------------------------- ');
+        $output->writeln(' -------------------------- ');
 
 
         $groups = $groupsRepo->findAll();
-        
+
         $changedGroups = 0;
         foreach($groups as $group){
             $creator = $group->getCreator();
