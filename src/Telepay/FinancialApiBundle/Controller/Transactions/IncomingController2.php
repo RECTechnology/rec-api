@@ -32,7 +32,10 @@ class IncomingController2 extends RestApiController{
 
         $method = $this->get('net.telepay.'.$type.'.'.$method_cname.'.v'.$version_number);
 
-        $method_list = $this->get('security.context')->getToken()->getUser()->getMethodsList();
+        $user = $this->get('security.context')->getToken()->getUser();
+        $group = $user->getGroups()[0];
+
+        $method_list = $group->getMethodsList();
 
         if (!in_array($method_cname.'-'.$type, $method_list)) {
             throw $this->createAccessDeniedException();
@@ -44,11 +47,11 @@ class IncomingController2 extends RestApiController{
         $logger = $this->get('logger');
         $logger->info('Incomig transaction...Method-> '.$method_cname.' Direction -> '.$type);
 
-        $user = $this->container->get('security.context')->getToken()->getUser();
         $transaction = Transaction::createFromRequest($request);
         $transaction->setService($method_cname);
         $transaction->setMethod($method_cname);
         $transaction->setUser($user->getId());
+        $transaction->setGroup($group->getId());
         $transaction->setVersion($version_number);
         $transaction->setType($type);
         $dm->persist($transaction);
@@ -97,12 +100,6 @@ class IncomingController2 extends RestApiController{
 
         $transaction->setDataIn($dataIn);
 
-        //obtain user and check limits
-        $user = $this->getUser();
-
-        //obtener group
-        $group = $user->getGroups()[0];
-
         $logger->info('Incomig transaction...FEES');
 
         //TODO crear FeeManipulator
@@ -134,20 +131,22 @@ class IncomingController2 extends RestApiController{
 
         $logger->info('Incomig transaction...LIMITS');
 
-        //obtain user limits
-        $user_limit = $this->_getLimitCount($user, $method);
+        //obtain group limitsCount for this method
+//        $user_limit = $this->_getLimitCount($user, $method);
+        $groupLimitCount = $this->_getLimitCount($group, $method);
 
         //obtain group limit
         $group_limit = $this->_getLimits($group, $method);
 
-        $new_user_limit = (new LimitAdder())->add( $user_limit, $total);
+        //update group limit counters
+        $newGroupLimitCount = (new LimitAdder())->add( $groupLimitCount, $total);
 
         $checker = new LimitChecker();
 
-        if(!$checker->leq($new_user_limit, $group_limit)) throw new HttpException(509,'Limit exceeded');
+        if(!$checker->leq($newGroupLimitCount, $group_limit)) throw new HttpException(509,'Limit exceeded');
 
-        //obtain wallet and check founds for cash_out services
-        $wallets = $user->getWallets();
+        //obtain wallet and check founds for cash_out services for this group
+        $wallets = $group->getWallets();
 
         $current_wallet = null;
 
@@ -218,9 +217,9 @@ class IncomingController2 extends RestApiController{
                 //restar al usuario el amount + comisiones
                 $current_wallet->setBalance($current_wallet->getBalance() - $total);
 
-                //insert new line in the balance
+                //insert new line in the balance fro this group
                 $balancer = $this->get('net.telepay.commons.balance_manipulator');
-                $balancer->addBalance($user, -$amount, $transaction);
+                $balancer->addBalance($group, -$amount, $transaction);
 
                 $em->persist($current_wallet);
                 $em->flush();
@@ -231,6 +230,7 @@ class IncomingController2 extends RestApiController{
                 if( $total_fee != 0){
                     //nueva transaccion restando la comision al user
                     try{
+                        //TODO modificar dealer
                         $this->_dealer($transaction, $current_wallet);
                     }catch (HttpException $e){
                         throw $e;
@@ -932,8 +932,8 @@ class IncomingController2 extends RestApiController{
 
         $user = $em->getRepository('TelepayFinancialApiBundle:User')->find($transaction->getUser());
 
-        $group = $user->getGroups()[0];
-        $creator = $group->getCreator();
+        $group = $em->getRepository('TelepayFinancialApiBundle:Group')->find($transaction->getGroup());
+        $creator = $group->getGroupCreator();
 
         $feeTransaction = Transaction::createFromTransaction($transaction);
         $feeTransaction->setAmount($total_fee);
@@ -941,7 +941,7 @@ class IncomingController2 extends RestApiController{
             'previous_transaction'  =>  $transaction->getId(),
             'amount'                =>  -$total_fee,
             'description'           =>  $method_cname.'->fee',
-            'admin'                 =>  $creator->getUsername()
+            'admin'                 =>  $creator->getName()
         ));
         $feeTransaction->setData(array(
             'previous_transaction'  =>  $transaction->getId(),
@@ -957,7 +957,7 @@ class IncomingController2 extends RestApiController{
             'previous_transaction'  =>  $transaction->getId(),
             'amount'                =>  -$total_fee,
             'description'           =>  $method_cname.'->fee',
-            'admin'                 =>  $creator->getUsername()
+            'admin'                 =>  $creator->getName()
         ));
 
         $feeTransaction->setType('fee');
@@ -969,10 +969,9 @@ class IncomingController2 extends RestApiController{
         $mongo->flush();
 
         $balancer = $this->get('net.telepay.commons.balance_manipulator');
-        $balancer->addBalance($user, -$total_fee, $feeTransaction );
+        $balancer->addBalance($group, -$total_fee, $feeTransaction );
 
         //empezamos el reparto
-
 
         if(!$creator) throw new HttpException(404,'Creator not found');
 
@@ -1161,25 +1160,25 @@ class IncomingController2 extends RestApiController{
         return $group_commission;
     }
 
-    public function _getLimitCount(User $user, $method){
+    public function _getLimitCount(Group $group, $method){
         $em = $this->getDoctrine()->getManager();
 
-        $limits = $user->getLimitCount();
-        $user_limit = false;
+        $limits = $group->getLimitCounts();
+        $group_limit = false;
         foreach ( $limits as $limit ){
             if($limit->getCname() == $method->getCname().'-'.$method->getType()){
-                $user_limit = $limit;
+                $group_limit = $limit;
             }
         }
 
         //if user hasn't limit create it
-        if(!$user_limit){
-            $user_limit = LimitCount::createFromController($method->getCname().'-'.$method->getType(), $user);
-            $em->persist($user_limit);
+        if(!$group_limit){
+            $group_limit = LimitCount::createFromController($method->getCname().'-'.$method->getType(), $group);
+            $em->persist($group_limit);
             $em->flush();
         }
 
-        return $user_limit;
+        return $group_limit;
     }
 
     public function _getLimits(Group $group, $method){

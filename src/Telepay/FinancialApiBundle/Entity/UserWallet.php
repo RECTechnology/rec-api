@@ -43,6 +43,11 @@ class UserWallet {
      */
     private $user;
 
+    /**
+     * @ORM\ManyToOne(targetEntity="Telepay\FinancialApiBundle\Entity\Group")
+     */
+    private $group;
+
 
     public function getAvailable()
     {
@@ -143,5 +148,21 @@ class UserWallet {
                 break;
         }
         return $scale;
+    }
+
+    /**
+     * @return mixed
+     */
+    public function getGroup()
+    {
+        return $this->group;
+    }
+
+    /**
+     * @param mixed $group
+     */
+    public function setGroup($group)
+    {
+        $this->group = $group;
     }
 }

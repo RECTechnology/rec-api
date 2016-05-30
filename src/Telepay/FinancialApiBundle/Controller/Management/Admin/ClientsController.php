@@ -29,7 +29,62 @@ class ClientsController extends BaseApiController {
      * @Rest\View
      */
     public function indexAction(Request $request){
-        return parent::indexAction($request);
+
+        if($request->query->has('limit')) $limit = $request->query->get('limit');
+        else $limit = 10;
+
+        if($request->query->has('offset')) $offset = $request->query->get('offset');
+        else $offset = 0;
+
+
+        $groupRepo = $this->getDoctrine()->getRepository('TelepayFinancialApiBundle:Client');
+        $em = $this->getDoctrine()->getManager();
+        $qb = $em->createQueryBuilder('TelepayFinancialApiBundle:Client');
+
+        if($request->query->get('query') != ''){
+            $query = $request->query->get('query');
+            $search = $query['search'];
+            $order = $query['order'];
+            $dir = $query['dir'];
+        }else{
+            $search = '';
+            $order = 'id';
+            $dir = 'DESC';
+        }
+
+        $clientQuery = $groupRepo->createQueryBuilder('p')
+            ->orderBy('p.'.$order, $dir)
+            ->where($qb->expr()->orX(
+                $qb->expr()->like('p.id', $qb->expr()->literal('%'.$search.'%')),
+                $qb->expr()->like('p.swift_list', $qb->expr()->literal('%'.$search.'%')),
+                $qb->expr()->like('p.name', $qb->expr()->literal('%'.$search.'%'))
+            ))
+            ->getQuery();
+
+        $all = $clientQuery->getResult();
+
+        $total = count($all);
+
+        $entities = array_slice($all, $offset, $limit);
+        array_map(function($elem){
+            $group_data = array();
+            $group = $elem->getGroup();
+            $group_data['id'] = $group->getId();
+            $group_data['name'] = $group->getName();
+            $elem->setGroupData($group_data);
+        }, $entities);
+
+        return $this->rest(
+            200,
+            "Request successful",
+            array(
+                'total' => $total,
+                'start' => intval($offset),
+                'end' => count($entities)+$offset,
+                'elements' => $entities
+            )
+        );
+//        return parent::indexAction($request);
     }
 
     /**
@@ -39,16 +94,17 @@ class ClientsController extends BaseApiController {
 
         $em = $this->getDoctrine()->getManager();
 
-        if($request->request->has('user')){
-            $user_id = $request->request->get('user');
-            $request->request->remove('user');
-            $user = $em->getRepository('TelepayFinancialApiBundle:User')->find($user_id);
+        if($request->request->has('group')){
+            $group_id = $request->request->get('group');
+            $request->request->remove('group');
+            $group = $em->getRepository('TelepayFinancialApiBundle:Group')->find($group_id);
 
         }else{
             $user = $this->get('security.context')->getToken()->getUser();
+            $group = $user->getGroups()[0];
         }
 
-        if(!$user) throw new HttpException(404, 'User not found');
+        if(!$group) throw new HttpException(404, 'Group not found');
 
         $uris = $request->request->get('redirect_uris');
         $request->request->remove('redirect_uris');
@@ -59,7 +115,8 @@ class ClientsController extends BaseApiController {
         $request->request->add(array(
             'allowed_grant_types' => array('client_credentials'),
             'swift_list'    =>  $swiftMethods,
-            'redirect_uris' => array($uris)
+            'redirect_uris' => array($uris),
+            'group' =>  $group
         ));
 
         $response = parent::createAction($request);
@@ -68,10 +125,6 @@ class ClientsController extends BaseApiController {
             $content = json_decode($response->getContent());
             $client_id = $content->data->id;
             $client = $em->getRepository('TelepayFinancialApiBundle:Client')->find($client_id);
-            //add user and create limits and fees
-            $client->setUser($user);
-            $em->persist($client);
-            $em->flush();
 
             //create limits and fees foreach swift methods
             $this->_createLimitsFees($client, $swiftMethods);
@@ -96,13 +149,13 @@ class ClientsController extends BaseApiController {
         $em = $this->getDoctrine()->getManager();
 
         //Change owner of this client
-        if($request->request->has('user')){
-            $user_id = $request->request->get('user');
-            $request->request->remove('user');
+        if($request->request->has('group')){
+            $group_id = $request->request->get('group');
+            $request->request->remove('group');
 
-            $user = $em->getRepository('TelepayFinancialApiBundle:User')->find($user_id);
+            $group = $em->getRepository('TelepayFinancialApiBundle:Group')->find($group_id);
             $request->request->add(array(
-                'user'  =>  $user
+                'group'  =>  $group
             ));
         }
 
@@ -170,39 +223,32 @@ class ClientsController extends BaseApiController {
 
         if($request->request->has('single')){
             $limit->setSingle($request->request->get('single'));
-
         }
 
         if($request->request->has('day')){
             $limit->setDay($request->request->get('day'));
-
         }
 
         if($request->request->has('week')){
             $limit->setWeek($request->request->get('week'));
-
         }
 
         if($request->request->has('month')){
             $limit->setMonth($request->request->get('month'));
-
         }
 
         if($request->request->has('year')){
             $limit->setYear($request->request->get('year'));
-
         }
 
         if($request->request->has('total')){
             $limit->setTotal($request->request->get('total'));
-
         }
 
         $em->persist($limit);
         $em->flush();
 
         return $this->restV2(204,"ok", "Updated successfully");
-
 
     }
 

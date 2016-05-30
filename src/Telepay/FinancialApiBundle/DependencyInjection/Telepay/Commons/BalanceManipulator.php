@@ -10,6 +10,7 @@ namespace Telepay\FinancialApiBundle\DependencyInjection\Telepay\Commons;
 
 use Telepay\FinancialApiBundle\Document\Transaction;
 use Telepay\FinancialApiBundle\Entity\Balance;
+use Telepay\FinancialApiBundle\Entity\Group;
 use Telepay\FinancialApiBundle\Entity\User;
 
 class BalanceManipulator{
@@ -25,12 +26,12 @@ class BalanceManipulator{
      * Transaction
      */
 
-    public function addBalance(User $user, $amount, Transaction $transaction){
+    public function addBalance(Group $group, $amount, Transaction $transaction){
 
         $em = $this->doctrine->getManager();
         $prev_balance = $em->getRepository('TelepayFinancialApiBundle:Balance')
             ->findOneBy(array(
-                    'user'  =>  $transaction->getUser(),
+                    'group'  =>  $transaction->getGroup(),
                     'currency'  =>  $transaction->getCurrency()
                 ),
                 array(
@@ -40,7 +41,7 @@ class BalanceManipulator{
 
         if(!$prev_balance){
             $balance = new Balance();
-            $balance->setUser($user);
+            $balance->setGroup($group);
             $balance->setAmount(0);
             $balance->setBalance(0);
             $balance->setConcept('Start transaction');
@@ -55,10 +56,10 @@ class BalanceManipulator{
             $prev_balance = $prev_balance->getBalance();
         }
 
-        if(isset($transaction->getDataIn()['description'])){
-            $concept = $transaction->getDataIn()['description'];
-        }else if(isset($transaction->getDataOut()['description'])){
-            $concept = $transaction->getDataOut()['description'];
+        if(isset($transaction->getPayInInfo()['concept'])){
+            $concept = $transaction->getPayInInfo()['concept'];
+        }else if(isset($transaction->getPayOutInfo()['concept'])){
+            $concept = $transaction->getPayOutInfo()['concept'];
         }else{
             $concept = $transaction->getDataIn()['concept'];
         }
@@ -66,7 +67,7 @@ class BalanceManipulator{
         if(!$concept) $concept = 'Default content';
 
         $balance = new Balance();
-        $balance->setUser($user);
+        $balance->setGroup($group);
         $balance->setAmount($amount);
         $balance->setBalance($prev_balance + $amount);
         $balance->setConcept($concept);

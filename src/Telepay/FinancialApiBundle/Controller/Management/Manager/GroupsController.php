@@ -9,6 +9,7 @@ use Telepay\FinancialApiBundle\Entity\LimitDefinition;
 use Telepay\FinancialApiBundle\Entity\ServiceFee;
 use FOS\RestBundle\Controller\Annotations as Rest;
 use Symfony\Component\HttpFoundation\Request;
+use Telepay\FinancialApiBundle\Financial\Currency;
 
 /**
  * Class GroupsController
@@ -81,10 +82,7 @@ class GroupsController extends BaseApiController
     public function indexByUser(Request $request){
 
         $admin = $this->get('security.context')->getToken()->getUser();
-
-        if (!$admin) throw new HttpException(404, 'Not user found');
-
-        $roles = $admin->getRoles();
+        $adminGroup = $admin->getGroups()[0];
 
         if($request->query->has('limit')) $limit = $request->query->get('limit');
         else $limit = 10;
@@ -94,7 +92,7 @@ class GroupsController extends BaseApiController
 
         //TODO: Improve performance (two queries)
         $all = $this->getRepository()->findBy(array(
-            'creator'   =>  $admin->getId()
+            'group_creator'   =>  $adminGroup->getId()
         ));
 
         $total = count($all);
@@ -134,10 +132,16 @@ class GroupsController extends BaseApiController
      */
     public function createAction(Request $request){
 
+        //only the superadmin can access here
+        if(!$this->get('security.context')->isGranted('ROLE_ADMIN'))
+            throw new HttpException(403, 'You have not the necessary permissions');
+
         $admin = $this->get('security.context')->getToken()->getUser();
 
-        $request->request->set('roles',array('ROLE_USER'));
-        $request->request->set('creator',$admin);
+        $request->request->set('roles', array('ROLE_USER'));
+        $request->request->set('default_currency', Currency::$EUR);
+        $request->request->set('group_creator',$admin->getGroups()[0]);
+        $request->request->set('methods_list', $admin->getGroups()[0]->getMethodsList());
 
         $group_name = $request->request->get('name');
 
@@ -151,10 +155,11 @@ class GroupsController extends BaseApiController
             $methodsRepo = $this->get('net.telepay.method_provider');
             $methods = $methodsRepo->findAll();
 
-            $admin = $group->getCreator();
-            $methodsList = $admin->getMethodsList();
+            //ya no se usa, ahora depende de los grupos.
+            $adminGroup = $group->getGroupCreator();
+            $groupMethodsList = $adminGroup->getMethodsList();
             foreach($methods as $method){
-                if(in_array($method->getCname().'-'.$method->getType(), $methodsList)){
+                if(in_array($method->getCname().'-'.$method->getType(), $groupMethodsList)){
                     $limit_def = new LimitDefinition();
                     $limit_def->setCname($method->getCname().'-'.$method->getType());
                     $limit_def->setSingle(0);
@@ -165,12 +170,14 @@ class GroupsController extends BaseApiController
                     $limit_def->setTotal(0);
                     $limit_def->setGroup($group);
                     $limit_def->setCurrency($method->getCurrency());
+
                     $commission = new ServiceFee();
                     $commission->setGroup($group);
                     $commission->setFixed(0);
                     $commission->setVariable(0);
                     $commission->setServiceName($method->getCname().'-'.$method->getType());
                     $commission->setCurrency($method->getCurrency());
+
                     $em->persist($commission);
                     $em->persist($limit_def);
                 }
@@ -218,14 +225,13 @@ class GroupsController extends BaseApiController
     public function showAction($id){
 
         $admin = $this->get('security.context')->getToken()->getUser();
-
-        if (!$admin) throw new HttpException(404, 'Not user found');
+        $adminGroup = $admin->getGroups()[0];
 
         //TODO: Improve performance (two queries)
         $group = $this->getRepository()->findOneBy(
             array(
                 'id'        =>  $id,
-                'creator'   =>  $admin
+                'group_creator'   =>  $adminGroup
             )
         );
 
@@ -259,7 +265,20 @@ class GroupsController extends BaseApiController
      * @Rest\View
      */
     public function updateAction(Request $request, $id){
-        //TODO check that this user is the creator of this group or is the superadmin
+        //check that this user is the creator of this group or is the superadmin
+        //only the superadmin can access here
+        if(!$this->get('security.context')->isGranted('ROLE_ADMIN'))
+            throw new HttpException(403, 'You have not the necessary permissions');
+
+        $user = $this->get('security.context')->getToken()->getUser();
+        $userGroup = $user->getGroups()[0];
+
+        $group = $this->getRepository($this->getRepositoryName())->find($id);
+        $groupCreator = $group->getGroupCreator();
+
+        if($groupCreator->getid() != $userGroup->getId() && !$user->hasRole('ROLE_SUPERADMIN'))
+            throw new HttpException(409, 'You don\'t have the necessary permissions');
+
         return parent::updateAction($request, $id);
     }
 
@@ -268,20 +287,25 @@ class GroupsController extends BaseApiController
      */
     public function deleteAction($id){
 
-        $user = $this->get('security.context')->getToken()->getUser();
+        //only the superadmin can access here
+        if(!$this->get('security.context')->isGranted('ROLE_ADMIN'))
+            throw new HttpException(403, 'You have not the necessary permissions');
 
-        $groupsRepo = $this->getDoctrine()->getRepository("TelepayFinancialApiBundle:Group");
+        $user = $this->get('security.context')->getToken()->getUser();
+        $userGroup = $user->getGroups()[0];
+        $groupsRepo = $this->getDoctrine()->getRepository($this->getRepositoryName());
 
         $default_group = $this->container->getParameter('id_group_default');
         $level0_group = $this->container->getParameter('id_group_level_0');
+        $id_group_root = $this->container->getParameter('id_group_root');
 
-        if($id == $default_group || $id == $level0_group ) throw new HttpException(405, 'Not allowed');
+        if($id == $default_group || $id == $level0_group || $id == $id_group_root ) throw new HttpException(405, 'Not allowed');
 
         $group = $groupsRepo->find($id);
 
-        if($group->getCreator() != $user) throw new HttpException(403, 'You do not have the necessary permissions');
-
         if(!$group) throw new HttpException(404,'Group not found');
+
+        if($group->getGroupCreator() != $userGroup) throw new HttpException(403, 'You do not have the necessary permissions');
 
         if($group->getName() == 'Default') throw new HttpException(405,"This group can't be deleted.");
 

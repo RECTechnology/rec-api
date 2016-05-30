@@ -9,6 +9,7 @@
 
 namespace Telepay\FinancialApiBundle\Controller\Exchange;
 
+use Symfony\Component\Config\FileLocator;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpKernel\Exception\HttpException;
 use Telepay\FinancialApiBundle\Controller\RestApiController;
@@ -90,6 +91,113 @@ class PublicController extends RestApiController{
             Currency::$PLN,
             Currency::$USD
         ));
+    }
+
+    /**
+     * @Rest\View
+     */
+    public function maps(Request $request, $service = null){
+
+        if($service != null){
+            if($service != 'halcash_es' && $service != 'halcash_pl' && $service != 'teleingreso' && $service != 'all' )
+                throw new HttpException(409, 'Service not allowed');
+        }
+
+        $configDirectories = array(__DIR__.'/../../Resources/public/json');
+
+        $locator = new FileLocator($configDirectories);
+        $halcash_esFile = $locator->locate('halcash_points_sp.json', null, false);
+
+        $halcash_es_points = $halcash_esFile[0];
+        $str_datos = file_get_contents($halcash_es_points);
+        $halcash_es_data = json_decode($str_datos,true);
+
+        $locator_poland = new FileLocator($configDirectories);
+        $halcash_plFile = $locator_poland->locate('halcash_points_pln.json', null, false);
+
+        $halcash_pl_points = $halcash_plFile[0];
+        $str_datos_poland = file_get_contents($halcash_pl_points);
+        $halcash_pl_data = json_decode($str_datos_poland,true);
+
+        $locator = new FileLocator($configDirectories);
+        $abancaFile = $locator->locate('abanca_points.json', null, false);
+
+        $abanca_points = $abancaFile[0];
+        $str_datos_abanca = file_get_contents($abanca_points);
+        $abanca_data = json_decode($str_datos_abanca,true);
+
+        $abancaRequestedAtm = array();
+        foreach($abanca_data as $abanca){
+            $abanca_response = array(
+                'postal_code'   =>  $abanca['properties']['postcode'],
+                'coordinates'   =>  array(
+                    $abanca['geometry']['coordinates'][0], $abanca['geometry']['coordinates'][1]
+                ),
+                'bank'  =>  $abanca['properties']['name'],
+                'address'   =>  $abanca['properties']['address']
+            );
+
+            $abancaRequestedAtm[] = $abanca_response;
+
+        }
+
+        $requestedAtms = array(
+            'halcash_es'    =>  $halcash_es_data,
+            'halcash_pl'    =>  $halcash_pl_data,
+            'teleingreso'   =>  $abancaRequestedAtm
+        );
+
+        if($service == 'all'){
+            $response = $requestedAtms;
+        }else{
+            $response = $requestedAtms[$service];
+        }
+//        foreach($halcash_pl_data as $atm){
+//
+//            if($atm['coordinates'][0] >= $request->get('lat_sw') and
+//                $atm['coordinates'][0] <= $request->get('lat_ne') and
+//                $atm['coordinates'][1] >= $request->get('lon_sw') and
+//                $atm['coordinates'][1] <= $request->get('lon_ne')){
+//                //TODO get the city
+//                $url = 'https://maps.googleapis.com/maps/api/geocode/json?address='.$atm['postal_code'];
+//                $ch = curl_init($url);
+//                curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+//                $cities = curl_exec($ch);
+//                curl_close($ch);
+//
+//                $cities = json_decode($cities, true);
+//
+//                $cities = $cities['results'];
+//                foreach($cities as $city){
+//                    foreach($city['address_components'] as $component){
+//
+//                        if($component['types'][0] == 'country' && $component['short_name'] == 'ES'){
+//                            $atm['city'] = $city['address_components'][1]['long_name'];
+//                        }
+//                    }
+//
+//                }
+//
+//                $atm['country'] = 'ES';
+//                $requestedAtms[] = $atm;
+//            }
+//
+//        }
+
+//        die(print_r($requestedAtms,true));
+//        foreach($datos_poland as $atm_poland){
+//            if($atm_poland['coordinates'][0] >= $request->get('lat_sw') and
+//                $atm_poland['coordinates'][0] <= $request->get('lat_ne') and
+//                $atm_poland['coordinates'][1] >= $request->get('lon_sw') and
+//                $atm_poland['coordinates'][1] <= $request->get('lon_ne')){
+//                $atm_poland['country'] = 'PL';
+//                $requestedAtms[]=$atm_poland;
+//            }
+//
+//        }
+
+        return $this->rest(200,"Ok", $response);
+
     }
 
     public function _exchange($amount,$curr_in,$curr_out){

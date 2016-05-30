@@ -24,8 +24,10 @@ class POSController extends BaseApiController{
 
         $user = $this->get('security.context')->getToken()->getUser();
 
+        $group = $user->getGroups()[0];
+
         $all = $this->getRepository()->findBy(array(
-            'user'  =>  $user
+            'group'  =>  $group
         ));
 
         $total = count($all);
@@ -59,8 +61,11 @@ class POSController extends BaseApiController{
     public function createAction(Request $request){
 
         $user = $this->get('security.context')->getToken()->getUser();
+
+        $group = $user->getGroups()[0];
+
         $request->request->add(array(
-            'user'   =>  $user
+            'group'   =>  $group
         ));
 
         $currency = $request->request->get('currency');

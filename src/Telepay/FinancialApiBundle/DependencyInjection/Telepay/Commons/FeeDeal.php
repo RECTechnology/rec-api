@@ -9,6 +9,7 @@
 namespace Telepay\FinancialApiBundle\DependencyInjection\Telepay\Commons;
 
 use Telepay\FinancialApiBundle\Document\Transaction;
+use Telepay\FinancialApiBundle\Entity\Group;
 use Telepay\FinancialApiBundle\Entity\User;
 
 class FeeDeal{
@@ -30,9 +31,14 @@ class FeeDeal{
      * Creator fee
      */
 
-    public function deal(User $creator, $amount, $service_cname, $type, $currency, $fee, $transaction_id, $version){
+    public function deal(Group $creator, $amount, $service_cname, $type, $currency, $fee, $transaction_id, $version){
 
-        if(!$creator->hasRole('ROLE_SUPER_ADMIN')){
+        //TODO hay que cambiar esto porque ya no va al user superadmin si no al grupo root
+        $rootGroupId = $this->doctrine->getParameter('id_group_root');
+
+        //if creator is distinct to group root
+        if($creator->getId() != $rootGroupId){
+
             //obtenemos el grupo
             $group = $creator->getGroups()[0];
 
@@ -76,11 +82,11 @@ class FeeDeal{
                 $em->persist($wallet);
                 $em->flush();
 
-                $scale=$wallet->getScale();
+                $scale = $wallet->getScale();
 
                 $transaction = new Transaction();
                 $transaction->setIp('127.0.0.1');
-                $transaction->setUser($creator->getId());
+                $transaction->setGroup($creator->getId());
                 $transaction->setService($service_cname);
                 $transaction->setMethod($service_cname);
                 $transaction->setVersion($version);
@@ -115,11 +121,11 @@ class FeeDeal{
             }
         }
 
-        if(!$creator->hasRole('ROLE_SUPER_ADMIN')){
+        if($creator->getId() != $rootGroupId){
             if($total > 0){
                 $feeTransaction = new Transaction();
                 $feeTransaction->setIp('127.0.0.1');
-                $feeTransaction->setUser($creator->getId());
+                $feeTransaction->setGroup($creator->getId());
                 $feeTransaction->setService($service_cname);
                 $feeTransaction->setMethod($service_cname);
                 $feeTransaction->setType('fee');
@@ -148,8 +154,7 @@ class FeeDeal{
                 $this->balance_manipulator->addBalance($creator, -$total, $feeTransaction);
             }
 
-
-            $new_creator = $group->getCreator();
+            $new_creator = $creator->getGroupCreator();
             $this->deal($new_creator, $amount, $service_cname, $type, $currency, $total, $id, $version);
         }
 
@@ -157,11 +162,15 @@ class FeeDeal{
 
     }
 
-    public function inversedDeal(User $creator, $amount, $service_cname, $type, $currency, $fee, $transaction_id, $version){
+    public function inversedDeal(Group $creator, $amount, $service_cname, $type, $currency, $fee, $transaction_id, $version){
 
-        if(!$creator->hasRole('ROLE_SUPER_ADMIN')){
+        $rootGroupId = $this->doctrine->getParameter('id_group_root');
+
+        $group = $creator->getGroups()[0];
+
+        if($creator->getId() != $rootGroupId){
             //obtenemos el grupo
-            $group = $creator->getGroups()[0];
+
 
             //obtener comissiones del grupo
             $commissions = $group->getCommissions();
@@ -203,7 +212,7 @@ class FeeDeal{
 
                 $transaction = new Transaction();
                 $transaction->setIp('127.0.0.1');
-                $transaction->setUser($creator->getId());
+                $transaction->setGroup($creator->getId());
                 $transaction->setService($service_cname);
                 $transaction->setMethod($service_cname);
                 $transaction->setVersion($version);
@@ -242,11 +251,11 @@ class FeeDeal{
             }
         }
 
-        if(!$creator->hasRole('ROLE_SUPER_ADMIN')){
+        if($creator->getId() != $rootGroupId){
 
             $feeTransaction = new Transaction();
             $feeTransaction->setIp('127.0.0.1');
-            $feeTransaction->setUser($creator->getId());
+            $feeTransaction->setGroup($creator->getId());
             $feeTransaction->setService($service_cname);
             $feeTransaction->setMethod($service_cname);
             $feeTransaction->setType('fee');
@@ -274,7 +283,7 @@ class FeeDeal{
 
             $this->balance_manipulator->addBalance($creator, -$total, $feeTransaction);
 
-            $new_creator = $group->getCreator();
+            $new_creator = $group->getGroupCreator();
             $this->inversedDeal($new_creator, $amount, $service_cname, $type, $currency, $total, $id, $version);
         }
 
