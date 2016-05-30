@@ -618,7 +618,7 @@ class AccountController extends BaseApiController{
     /**
      * @Rest\View
      */
-    public function passwordRecoveryRequest($param){
+    public function passwordRecoveryRequest($param, $version_number){
 
         $em = $this->getDoctrine()->getManager();
         $user = $em->getRepository($this->getRepositoryName())->findOneBy(array(
@@ -641,7 +641,12 @@ class AccountController extends BaseApiController{
         $em->persist($user);
         $em->flush();
 
-        $url = $this->container->getParameter('base_panel_url').'/user/password_recovery/'.$user->getRecoverPasswordToken();
+        if($version_number == '2'){
+            $url = $this->container->getParameter('web_app_url').'login?password_recovery='.$user->getRecoverPasswordToken();
+        }
+        else {
+            $url = $this->container->getParameter('base_panel_url').'/user/password_recovery/'.$user->getRecoverPasswordToken();
+        }
 
         //send email with a link to recover the password
         $this->_sendEmail('Chip-Chap recover your password', $url, $user->getEmail(), 'recover');

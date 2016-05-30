@@ -233,6 +233,7 @@ class POSIncomingController extends RestApiController{
 
         $transaction->setLastPriceAt(new \DateTime());
         $transaction->setLastCheck(new \DateTime());
+        $transaction->setPosName($tpvRepo->getName());
 
         $group = $user->getGroups()[0];
         //get fees from group
