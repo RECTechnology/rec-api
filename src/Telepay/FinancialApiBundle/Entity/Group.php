@@ -47,16 +47,19 @@ class Group extends BaseGroup
 
     /**
      * @ORM\ManyToMany(targetEntity="Telepay\FinancialApiBundle\Entity\User", mappedBy="groups")
+     * @Exclude
      */
     protected $users;
 
     /**
      * @ORM\ManyToOne(targetEntity="Telepay\FinancialApiBundle\Entity\User")
+     * @Exclude
      */
     private $creator;
 
     /**
      * @ORM\ManyToOne(targetEntity="Telepay\FinancialApiBundle\Entity\Group")
+     * @Exclude
      */
     private $group_creator;
 
@@ -109,12 +112,13 @@ class Group extends BaseGroup
 
     /**
      * @ORM\OneToMany(targetEntity="Telepay\FinancialApiBundle\Entity\Balance", mappedBy="group", cascade={"remove"})
+     * @Exclude
      */
     private $balance;
 
     /**
      * @ORM\OneToMany(targetEntity="Telepay\FinancialApiBundle\Entity\Client", mappedBy="group", cascade={"remove"})
-     * @Expose
+     * @Exclude
      */
     private $clients;
 

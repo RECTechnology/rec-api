@@ -60,6 +60,7 @@ class GroupsController extends BaseApiController
             }
 
         }
+
         $entities = array_slice($all, $offset, $limit);
 
         return $this->restV2(
