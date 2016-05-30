@@ -347,6 +347,12 @@ class Transaction implements TransactionTiming {
     private $last_check;
 
     /**
+     * @var
+     * @MongoDB\String
+     */
+    private $pos_name;
+
+    /**
      */
     private $client_data = array();
 
@@ -936,5 +942,21 @@ class Transaction implements TransactionTiming {
     public function setEmailNotification($email_notification)
     {
         $this->email_notification = $email_notification;
+    }
+
+    /**
+     * @return mixed
+     */
+    public function getPosName()
+    {
+        return $this->pos_name;
+    }
+
+    /**
+     * @param mixed $pos_name
+     */
+    public function setPosName($pos_name)
+    {
+        $this->pos_name = $pos_name;
     }
 }
