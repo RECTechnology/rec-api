@@ -87,26 +87,27 @@ class CheckSwiftCommand extends ContainerAwareCommand
                         'client'    =>  $client,
                         'cname' =>  $method_in.'-'.$method_out
                     ));
-
-                    //Hay que volver a calcular el amount en btc que vamos a enviar y ponerlo en el pay_out_info
-                    if($method_in == 'safetypay'){
-                        $new_amount = round($this->_exchange($pay_in_info['amount'], $pay_in_info['currency'], $cashOutMethod->getCurrency()),0);
-                    }else{
-                        $new_amount = round($this->_exchange($pay_in_info['amount'], $cashInMethod->getCurrency(), $cashOutMethod->getCurrency()),0);
+                    if($method_out == 'btc' || $method_out == 'fac'){
+                        //Hay que volver a calcular el amount en btc que vamos a enviar y ponerlo en el pay_out_info
+                        if($method_in == 'safetypay'){
+                            $amount = round($this->_exchange($pay_in_info['amount'], $pay_in_info['currency'], $cashOutMethod->getCurrency()),0);
+                        }else{
+                            $amount = round($this->_exchange($pay_in_info['amount'], $cashInMethod->getCurrency(), $cashOutMethod->getCurrency()),0);
+                        }
+                        $client_fee = round(($amount * ($clientFees->getVariable()/100) + $clientFees->getFixed()),0);
+                        $service_fee = round(($amount * ($methodFees->getVariable()/100) + $methodFees->getFixed()),0);
+                        $final_amount = $amount - $service_fee - $client_fee;
+                        $pay_out_info['amount'] = $final_amount;
+                        $transaction->setPayOutInfo($pay_out_info);
+                        $transaction->setAmount($final_amount);
+                        $transaction->setTotal($final_amount);
+                        $dm->persist($transaction);
+                        $dm->flush();
                     }
 
-                    $client_fee = round(($new_amount * ($clientFees->getVariable()/100) + $clientFees->getFixed()),0);
-                    $service_fee = round(($new_amount * ($methodFees->getVariable()/100) + $methodFees->getFixed()),0);
-
-                    $final_amount = $new_amount - $service_fee - $client_fee;
-                    $pay_out_info['amount'] = $final_amount;
-                    $transaction->setPayOutInfo($pay_out_info);
-                    $transaction->setAmount($final_amount);
-                    $transaction->setTotal($final_amount);
-                    $dm->persist($transaction);
-                    $dm->flush();
-
-                    $amount = $new_amount;
+                    $amount = $transaction->getAmount();
+                    $client_fee = round(($amount * ($clientFees->getVariable()/100) + $clientFees->getFixed()),0);
+                    $service_fee = round(($amount * ($methodFees->getVariable()/100) + $methodFees->getFixed()),0);
 
                     $prevStatusIn = $pay_in_info['status'];
                     $pay_in_info = $cashInMethod->getPayInStatus($pay_in_info);
