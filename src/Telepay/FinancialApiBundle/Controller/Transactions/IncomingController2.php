@@ -294,6 +294,7 @@ class IncomingController2 extends RestApiController{
         }
 
         $user = $this->get('security.context')->getToken()->getUser();
+        $group = $user->getGroups()[0];
 
         $data = $request->request->all();
 
@@ -301,7 +302,7 @@ class IncomingController2 extends RestApiController{
         $transaction = $mongo->getRepository('TelepayFinancialApiBundle:Transaction')->findOneBy(array(
             'id'        =>  $id,
             'method'    =>  $method_cname,
-            'user'      =>  $user->getId(),
+            'group'      =>  $group->getId(),
             'type'      =>  $type
         ));
 
@@ -321,7 +322,7 @@ class IncomingController2 extends RestApiController{
             $currency = $transaction->getCurrency();
 
             //Search wallet
-            $wallets = $user->getWallets();
+            $wallets = $group->getWallets();
 
             $current_wallet = null;
             foreach($wallets as $wallet ){
@@ -333,7 +334,6 @@ class IncomingController2 extends RestApiController{
 
             if($current_wallet == null) throw new HttpException(404,'Wallet not found');
 
-            $transaction_amount = $transaction->getTotal();
             $amount = $transaction->getAmount();
             $total_fee = $transaction->getFixedFee() + $transaction->getVariableFee();
             $total_amount = $amount + $total_fee ;
@@ -382,7 +382,7 @@ class IncomingController2 extends RestApiController{
 
                     //restamos la pasta al wallet
                     $balancer = $this->get('net.telepay.commons.balance_manipulator');
-                    $balancer->addBalance($user, -$amount, $transaction);
+                    $balancer->addBalance($group, -$amount, $transaction);
 
                     $current_wallet->setBalance($current_wallet->getBalance() - $total_amount );
                     $em->persist($current_wallet);
@@ -487,7 +487,7 @@ class IncomingController2 extends RestApiController{
                         $current_wallet->setAvailable($current_wallet->getAvailable() + $total_amount );
                         $current_wallet->setBalance($current_wallet->getBalance() + $total_amount );
                         $balancer = $this->get('net.telepay.commons.balance_manipulator');
-                        $balancer->addBalance($user, $total_amount, $transaction);
+                        $balancer->addBalance($group, $total_amount, $transaction);
 
                         $em->persist($current_wallet);
                         $em->flush();
@@ -539,6 +539,7 @@ class IncomingController2 extends RestApiController{
         $method = $this->get('net.telepay.'.$type.'.'.$method_cname.'.v'.$version_number);
 
         $user = $this->get('security.context')->getToken()->getUser();
+        $group = $user->getGroups()[0];
 
         //TODO quitar cuando haya algo mejor montado
         if($user->getId() == $this->container->getParameter('read_only_user_id')){
@@ -557,7 +558,7 @@ class IncomingController2 extends RestApiController{
         $transaction = $mongo->getRepository('TelepayFinancialApiBundle:Transaction')->findOneBy(array(
             'id'        => $id,
             'method'   =>  $method_cname,
-            'user'      =>  $user->getId(),
+            'group'      =>  $group->getId(),
             'type'      =>  $type
         ));
 
@@ -592,10 +593,10 @@ class IncomingController2 extends RestApiController{
                 $mongo->flush();
 
                 $transaction = $this->get('notificator')->notificate($transaction);
-                $user_id = $transaction->getUser();
+
                 $em = $this->getDoctrine()->getManager();
-                $user = $em->getRepository('TelepayFinancialApiBundle:User')->find($user_id);
-                $wallets = $user->getWallets();
+
+                $wallets = $group->getWallets();
                 $current_wallet = null;
                 foreach( $wallets as $wallet){
                     if($wallet->getCurrency() == $transaction->getCurrency()){
@@ -626,7 +627,7 @@ class IncomingController2 extends RestApiController{
                         $current_wallet->setAvailable($current_wallet->getAvailable() + $transaction->getAmount());
                         $current_wallet->setBalance($current_wallet->getBalance() + $transaction->getAmount());
                         $balancer = $this->get('net.telepay.commons.balance_manipulator');
-                        $balancer->addBalance($user, $transaction->getAmount(), $transaction);
+                        $balancer->addBalance($group, $transaction->getAmount(), $transaction);
                         $em->persist($current_wallet);
                         $em->flush();
                     }
@@ -649,6 +650,7 @@ class IncomingController2 extends RestApiController{
         $dm = $this->get('doctrine_mongodb')->getManager();
         $user = $this->get('security.context')
             ->getToken()->getUser();
+        $group = $user->getGroups()[0];
 
         //TODO quitar cuando haya algo mejor montado
         if($user->getId() == $this->container->getParameter('read_only_user_id')){
@@ -668,8 +670,6 @@ class IncomingController2 extends RestApiController{
         if($request->query->has('offset')) $offset = $request->query->get('offset');
         else $offset = 0;
 
-        $userId = $user->getId();
-
         $qb = $dm->createQueryBuilder('TelepayFinancialApiBundle:Transaction');
 
         if($request->query->get('query') != ''){
@@ -681,7 +681,7 @@ class IncomingController2 extends RestApiController{
             $finish_time = new \MongoDate(strtotime(date($query['finish_date'].' 23:59:59')));
 
             $transactions = $qb
-                ->field('user')->equals($userId)
+                ->field('group')->equals($group->getId())
                 //->field('method')->equals($method->getCname())
                 //->field('type')->equals($type)
                 ->field('created')->gte($start_time)
@@ -778,7 +778,7 @@ class IncomingController2 extends RestApiController{
             $dir = "desc";
 
             $transactions = $qb
-                ->field('user')->equals($userId)
+                ->field('group')->equals($group->getId())
                 //->field('service')->equals($method->getCname())
                 //->field('type')->equals($method->getType())
                 ->sort($order,$dir)
@@ -801,7 +801,7 @@ class IncomingController2 extends RestApiController{
                 $total_amount = $total_amount + $array->getAmount();
             }
         }
-        $wallets = $user->getWallets();
+        $wallets = $group->getWallets();
         $service_currency = $method->getCurrency();
 
         foreach ( $wallets as $wallet){
@@ -930,7 +930,7 @@ class IncomingController2 extends RestApiController{
 
         $total_fee = $transaction->getFixedFee() + $transaction->getVariableFee();
 
-        $user = $em->getRepository('TelepayFinancialApiBundle:User')->find($transaction->getUser());
+//        $user = $em->getRepository('TelepayFinancialApiBundle:User')->find($transaction->getUser());
 
         $group = $em->getRepository('TelepayFinancialApiBundle:Group')->find($transaction->getGroup());
         $creator = $group->getGroupCreator();
@@ -1001,6 +1001,7 @@ class IncomingController2 extends RestApiController{
         $total_fee = $transaction->getFixedFee() + $transaction->getVariableFee();
 
         $user = $em->getRepository('TelepayFinancialApiBundle:User')->find($transaction->getUser());
+        $group = $em->getRepository('TelepayFinancialApiBundle:User')->find($transaction->getGroup());
 
         $feeTransaction = Transaction::createFromTransaction($transaction);
         $feeTransaction->setAmount($total_fee);
@@ -1034,10 +1035,9 @@ class IncomingController2 extends RestApiController{
         $mongo->flush();
 
         $balancer = $this->get('net.telepay.commons.balance_manipulator');
-        $balancer->addBalance($user, $total_fee, $feeTransaction );
+        $balancer->addBalance($group, $total_fee, $feeTransaction );
 
         //empezamos el reparto
-        $group = $user->getGroups()[0];
         $creator = $group->getCreator();
 
         if(!$creator) throw new HttpException(404,'Creator not found');

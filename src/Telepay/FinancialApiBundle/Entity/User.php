@@ -332,7 +332,7 @@ class User extends BaseUser
 //    {
 //        $this->limit_counts = $limit_count;
 //    }
-
+//
 //    /**
 //     * @return mixed
 //     */
@@ -348,7 +348,7 @@ class User extends BaseUser
 //    {
 //        $this->wallets = $wallets;
 //    }
-
+//
 //    /**
 //     * @return mixed
 //     */

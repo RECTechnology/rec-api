@@ -187,7 +187,7 @@ class WalletController extends RestApiController{
             }
 
             $transactions = $qb
-                ->field('user')->equals($userId)
+                ->field('group')->equals($userGroup->getId())
                 ->field('created')->gte($start_time)
                 ->field('created')->lte($finish_time)
                 ->where("function() {

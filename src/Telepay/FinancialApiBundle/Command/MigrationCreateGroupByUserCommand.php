@@ -80,7 +80,10 @@ class MigrationCreateGroupByUserCommand extends ContainerAwareCommand
                     //TODO los grupos aun cuelgan del user, tienen que colgar del grupo
                     $newGroup = new Group();
                     $creator = $group->getCreator();
-                    $groupCreator = $creator->getGroups()[0];
+//                    $groupCreator = $creator->getGroups()[0];
+//                    if($groupCreator == null){
+//                        $groupCreator = $group_root;
+//                    }
                     $newGroup->setCreator($creator);
 //                    $newGroup->setGroupCreator($groupCreator);
                     $newGroup->setName($user->getUsername().' Group');
@@ -265,6 +268,7 @@ class MigrationCreateGroupByUserCommand extends ContainerAwareCommand
         // ensure that the progress bar is at 100%
         $progress->finish();
 
+        $output->writeln('');
         $output->writeln($counterGroups.' Groups created');
         $output->writeln($counterLimits.' Limits created');
         $output->writeln($counterFees.' Fees created');
@@ -273,8 +277,7 @@ class MigrationCreateGroupByUserCommand extends ContainerAwareCommand
         $output->writeln($counterBalances.' Balances changed');
         $output->writeln($counterClients.' Clients changed');
         $output->writeln($counterPOS.' POS changed');
-        $output->writeln($counterPOS.' -------------------------- ');
-
+        $output->writeln(' -------------------------- ');
 
         $changedGroups = 0;
         foreach($groups as $group){
