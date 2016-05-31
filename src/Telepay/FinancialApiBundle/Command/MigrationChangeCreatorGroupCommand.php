@@ -42,6 +42,12 @@ class MigrationChangeCreatorGroupCommand extends ContainerAwareCommand
         $groupsRepo = $em->getRepository('TelepayFinancialApiBundle:Group');
         $groups = $groupsRepo->findAll();
 
+        $clientsRepo = $em->getRepository('TelepayFinancialApiBundle:Client');
+        $clients = $clientsRepo->findAll();
+
+        $id_group_root = $this->getContainer()->getParameter('id_group_root');
+        $group_root = $groupsRepo->find($id_group_root);
+
         $output->writeln('INIT ODISEA MAXIMA');
         $output->writeln('Migrating groups');
 
@@ -56,6 +62,21 @@ class MigrationChangeCreatorGroupCommand extends ContainerAwareCommand
         }
 
         $output->writeln($changedGroups.' Groups changed');
+
+        $changedClients = 0;
+        foreach($clients as $client){
+
+            $clientGroup = $client->getGroup();
+            if(!$clientGroup){
+                $client->setGroup($group_root);
+                $em->persist($client);
+                $em->flush();
+                $changedClients++;
+            }
+
+        }
+
+        $output->writeln($changedClients.' Clients changed');
 
         $output->writeln('All done');
     }
