@@ -43,7 +43,7 @@ class MigrationChangeCreatorGroupCommand extends ContainerAwareCommand
         $groups = $groupsRepo->findAll();
 
         $output->writeln('INIT ODISEA MAXIMA');
-        $output->writeln('Migrating users');
+        $output->writeln('Migrating groups');
 
         $changedGroups = 0;
         foreach($groups as $group){
