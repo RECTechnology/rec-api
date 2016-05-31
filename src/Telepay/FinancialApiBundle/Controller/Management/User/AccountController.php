@@ -66,6 +66,7 @@ class AccountController extends BaseApiController{
         $group_data = array();
         $group_data['id'] = $group->getId();
         $group_data['name'] = $group->getName();
+        $group_data['default_currency'] = $group->getDefaultCurrency();
         $group_data['admin'] = $group->getCreator()->getName();
         $group_data['email'] = $group->getCreator()->getEmail();
 
