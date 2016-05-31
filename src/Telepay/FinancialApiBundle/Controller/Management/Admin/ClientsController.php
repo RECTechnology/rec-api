@@ -68,7 +68,7 @@ class ClientsController extends BaseApiController {
         $entities = array_slice($all, $offset, $limit);
         array_map(function($elem){
             $group_data = array();
-            $group = $elem->getGroup();
+            $group = $elem->getGroups()[0];
             $group_data['id'] = $group->getId();
             $group_data['name'] = $group->getName();
             $elem->setGroupData($group_data);
