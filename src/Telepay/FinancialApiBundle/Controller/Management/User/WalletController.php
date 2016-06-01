@@ -352,17 +352,17 @@ class WalletController extends RestApiController{
      * return an array with the daily total amount of the filtered transactions
      */
     public function walletDailySumTransactions(Request $request){
-
         $dm = $this->get('doctrine_mongodb')->getManager();
         $user = $this->get('security.context')
             ->getToken()->getUser();
 
-        $userId = $user->getId();
-        $userGroup = $user->getGroups()[0];
+        $userGroup = $this->get('security.context')->getToken()->getUser()->getActiveGroup();
 
         //TODO quitar cuando haya algo mejor montado
-        if($userId == $this->container->getParameter('read_only_user_id')){
-            $userId = $this->container->getParameter('chipchap_user_id');
+        if($user->getId() == $this->container->getParameter('read_only_user_id')){
+            $em = $this->getDoctrine()->getManager();
+            $user = $em->getRepository('TelepayFinancialApiBundle:User')->find($this->container->getParameter('chipchap_user_id'));
+            $userGroup = $user->getActiveGroup();
         }
 
         $qb = $dm->createQueryBuilder('TelepayFinancialApiBundle:Transaction');
@@ -919,15 +919,14 @@ class WalletController extends RestApiController{
         $user = $this->get('security.context')
             ->getToken()->getUser();
 
+        $userGroup = $this->get('security.context')->getToken()->getUser()->getActiveGroup();
+
         //TODO quitar cuando haya algo mejor montado
         if($user->getId() == $this->container->getParameter('read_only_user_id')){
             $em = $this->getDoctrine()->getManager();
             $user = $em->getRepository('TelepayFinancialApiBundle:User')->find($this->container->getParameter('chipchap_user_id'));
+            $userGroup = $user->getActiveGroup();
         }
-
-        $userId = $user->getId();
-
-        $userGroup = $user->getGroups()[0];
 
         $default_currency = $userGroup->getDefaultCurrency();
 
