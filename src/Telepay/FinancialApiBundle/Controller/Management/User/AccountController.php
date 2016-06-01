@@ -11,6 +11,7 @@ namespace Telepay\FinancialApiBundle\Controller\Management\User;
 
 use Doctrine\DBAL\DBALException;
 use Symfony\Component\Security\Core\Util\SecureRandom;
+use Symfony\Component\Validator\Constraints\Null;
 use Telepay\FinancialApiBundle\Entity\Device;
 use Telepay\FinancialApiBundle\Entity\KYC;
 use Telepay\FinancialApiBundle\Entity\TierValidations;
@@ -289,27 +290,43 @@ class AccountController extends BaseApiController{
         );
     }
 
-//    /**
-//     * @Rest\View
-//     */
-//    public function updateCurrency(Request $request){
-//
-//        $user = $this->get('security.context')->getToken()->getUser();
-//
-//        if($request->request->has('currency'))
-//            $currency = $request->request->get('currency');
-//        else
-//            throw new HttpException(404,'currency not found');
-//
-//        $em = $this->getDoctrine()->getManager();
-//
-//        $user->setDefaultCurrency(strtoupper($currency));
-//
-//        $em->persist($user);
-//        $em->flush();
-//
-//        return $this->restV2(200,"ok", "Account info got successfully", $user);
-//    }
+    /**
+     * @Rest\View
+     */
+    public function updateCurrency(Request $request){
+
+        $user = $this->get('security.context')->getToken()->getUser();
+
+        if($request->request->has('currency'))
+            $currency = $request->request->get('currency');
+        else
+            throw new HttpException(404,'currency not found');
+
+        if($request->request->has('group_id'))
+            $group_id = $request->request->get('group_id');
+        else
+            throw new HttpException(404,'group_id not found');
+
+        $em = $this->getDoctrine()->getManager();
+
+        $userGroup = false;
+        foreach($user->getGroups() as $group){
+            if($group->getId() == $group_id){
+                $userGroup = $group;
+            }
+        }
+
+        if(!$userGroup){
+            throw new HttpException(404,'Group selected is not accessible for you');
+        }
+
+        $userGroup->setDefaultCurrency(strtoupper($currency));
+
+        $em->persist($group);
+        $em->flush();
+
+        return $this->restV2(200,"ok", "Account info got successfully", $group);
+    }
 
     /**
      * @Rest\View
