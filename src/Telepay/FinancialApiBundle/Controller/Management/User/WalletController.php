@@ -1104,8 +1104,9 @@ class WalletController extends RestApiController{
     public function currencyExchange(Request $request){
 
         $user = $this->get('security.context')->getToken()->getUser();
+        $userGroup = $user->getActiveGroup();
 
-        if(!$user) throw new HttpException(404, 'User not found');
+        if(!$userGroup) throw new HttpException(404, 'Group not found');
 
         //get params
         $paramNames = array(
@@ -1135,7 +1136,8 @@ class WalletController extends RestApiController{
         if($exchange == 0) throw new HttpException(403, 'Amount must be bigger');
 
         //checkWallet sender
-        $wallets = $user->getWallets();
+        $wallets = $userGroup->getWallets();
+
         $senderWallet = null;
         $receiverWallet = null;
         foreach($wallets as $wallet){
@@ -1152,9 +1154,7 @@ class WalletController extends RestApiController{
         if($amount > $senderWallet->getAvailable()) throw new HttpException(404, 'Not funds enough. ' . $amount . '>' . $senderWallet->getAvailable());
 
         //getFees
-        $group = $user->getGroups()[0];
-
-        $fees = $group->getCommissions();
+        $fees = $userGroup->getCommissions();
 
         $fixed_fee = null;
         $variable_fee = null;
@@ -1181,6 +1181,7 @@ class WalletController extends RestApiController{
         $cashOut->setMethod('exchange');
         $cashOut->setService($service);
         $cashOut->setUser($user->getId());
+        $cashOut->setGroup($userGroup->getId());
         $cashOut->setVersion(1);
         $cashOut->setScale($senderWallet->getScale());
         $cashOut->setStatus('success');
@@ -1207,6 +1208,7 @@ class WalletController extends RestApiController{
         $cashIn->setType('in');
         $cashIn->setMethod('exchange');
         $cashIn->setUser($user->getId());
+        $cashIn->setGroup($userGroup->getId());
         $cashIn->setVersion(1);
         $cashIn->setScale($receiverWallet->getScale());
         $cashIn->setStatus('success');
@@ -1262,6 +1264,7 @@ class WalletController extends RestApiController{
         $total_fee = round($transaction->getFixedFee() + $transaction->getVariableFee(),0);
 
         $user = $em->getRepository('TelepayFinancialApiBundle:User')->find($transaction->getUser());
+        $userGroup = $user->getActiveGroup();
 
         $feeTransaction = Transaction::createFromTransaction($transaction);
         $feeTransaction->setAmount($total_fee);
@@ -1290,11 +1293,10 @@ class WalletController extends RestApiController{
         $mongo->flush();
 
         $balancer = $this->get('net.telepay.commons.balance_manipulator');
-        $balancer->addBalance($user, -$total_fee, $feeTransaction );
+        $balancer->addBalance($userGroup, -$total_fee, $feeTransaction );
 
         //empezamos el reparto
-        $group = $user->getGroups()[0];
-        $creator = $group->getCreator();
+        $creator = $userGroup->getGroupCreator();
 
         if(!$creator) throw new HttpException(404,'Creator not found');
 
@@ -1303,6 +1305,5 @@ class WalletController extends RestApiController{
         $dealer->deal($creator, $amount, $service_cname, 'exchange', $currency, $total_fee, $transaction_id, $transaction->getVersion());
 
     }
-
 
 }
