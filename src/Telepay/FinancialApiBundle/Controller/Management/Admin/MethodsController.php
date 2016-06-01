@@ -23,9 +23,8 @@ class MethodsController extends RestApiController
         if ($this->get('security.authorization_checker')->isGranted('ROLE_SUPER_ADMIN')) {
             $allowed_services = $services;
         }else{
-            $admin = $this->get('security.context')->getToken()->getUser();
-            $group = $admin->getGroups()[0];
-            $group_services = $group->getMethodsList();
+            $userGroup = $this->get('security.context')->getToken()->getUser()->getActiveGroup();
+            $group_services = $userGroup->getMethodsList();
 
             foreach($services as $method){
                 if(in_array($method->getCname().'-'.$method->getType(), $group_services)){
