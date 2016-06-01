@@ -28,7 +28,7 @@ class WalletController extends RestApiController{
     public function read(){
 
         $user = $this->get('security.context')->getToken()->getUser();
-        $userGroup = $user->getGroups()[0];
+        $userGroup = $this->get('security.context')->getToken()->getUser()->getActiveGroup();
 
         //TODO quitar cuando haya algo mejor montado
         if($user->getId() == $this->container->getParameter('read_only_user_id')){
@@ -81,7 +81,7 @@ class WalletController extends RestApiController{
 
         $userId = $user->getId();
 
-        $userGroup = $user->getGroups()[0];
+        $userGroup = $this->get('security.context')->getToken()->getUser()->getActiveGroup();
 
         //TODO quitar cuando haya algo mejor montado
         if($userId == $this->container->getParameter('read_only_user_id')){
@@ -154,7 +154,7 @@ class WalletController extends RestApiController{
             ->getToken()->getUser();
 
         $userId = $user->getId();
-        $userGroup = $user->getGroups()[0];
+        $userGroup = $this->get('security.context')->getToken()->getUser()->getActiveGroup();
 
         //TODO quitar cuando haya algo mejor montado
         if($userId == $this->container->getParameter('read_only_user_id')){
@@ -528,7 +528,7 @@ class WalletController extends RestApiController{
         $user = $this->get('security.context')
             ->getToken()->getUser();
 
-        $userGroup = $user->getGroups()[0];
+        $userGroup = $this->get('security.context')->getToken()->getUser()->getActiveGroup();
 
         //TODO quitar cuando haya algo mejor montado
         if($user->getId() == $this->container->getParameter('read_only_user_id')){
@@ -564,7 +564,7 @@ class WalletController extends RestApiController{
         $user = $this->get('security.context')
             ->getToken()->getUser();
 
-        $userGroup = $user->getGroups()[0];
+        $userGroup = $this->get('security.context')->getToken()->getUser()->getActiveGroup();
 
         //TODO quitar cuando haya algo mejor montado
         if($user->getId() == $this->container->getParameter('read_only_user_id')){
@@ -609,7 +609,7 @@ class WalletController extends RestApiController{
         $user = $this->get('security.context')
             ->getToken()->getUser();
 
-        $userGroup = $user->getGroups()[0];
+        $userGroup = $this->get('security.context')->getToken()->getUser()->getActiveGroup();
 
         //TODO quitar cuando haya algo mejor montado
         if($user->getId() == $this->container->getParameter('read_only_user_id')){
@@ -686,7 +686,7 @@ class WalletController extends RestApiController{
         $user = $this->get('security.context')
             ->getToken()->getUser();
 
-        $userGroup = $user->getGroups()[0];
+        $userGroup = $this->get('security.context')->getToken()->getUser()->getActiveGroup();
 
         //this name is the name of the group
         $parameters = array(
@@ -837,7 +837,7 @@ class WalletController extends RestApiController{
         }
 
         //get group
-        $group  = $user->getGroups()[0];
+        $group = $this->get('security.context')->getToken()->getUser()->getActiveGroup();
         //getFees
         $fees = $group->getCommissions();
 
@@ -874,7 +874,7 @@ class WalletController extends RestApiController{
         }
 
         //get group
-        $group  = $user->getGroups()[0];
+        $group = $this->get('security.context')->getToken()->getUser()->getActiveGroup();
         //getLimits
         $limits = $group->getLimits();
 
