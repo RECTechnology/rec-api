@@ -20,9 +20,9 @@ class MethodsController extends RestApiController {
 
         //check if the user has the method
 
-        $user = $this->get('security.context')->getToken()->getUser();
+        $userGroup = $this->get('security.context')->getToken()->getUser()->getActiveGroup();
 
-        $methods = $user->getMethodsList();
+        $methods = $userGroup->getMethodsList();
 
         if(!in_array($method, $methods)) throw new HttpException(404, 'Method not allowed');
 
@@ -49,9 +49,9 @@ class MethodsController extends RestApiController {
      */
     public function index() {
 
-        $user = $this->get('security.context')->getToken()->getUser();
-        $group = $user->getGroups()[0];
-        $methods = $group->getMethodsList();
+        $userGroup = $this->get('security.context')->getToken()->getUser()->getActiveGroup();
+
+        $methods = $userGroup->getMethodsList();
 
         $response = array();
 
