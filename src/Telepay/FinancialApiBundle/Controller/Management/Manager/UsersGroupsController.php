@@ -21,36 +21,47 @@ class UsersGroupsController extends RestApiController{
      */
     public function createAction(Request $request, $id){
 
+        $admin = $this->get('security.context')->getToken()->getUser();
+
+        //search company
         $groupsRepository = $this->getDoctrine()->getRepository("TelepayFinancialApiBundle:Group");
-        $group = $groupsRepository->find($id);
-        if(!$group) throw new HttpException(404, "Group not found");
+        $company = $groupsRepository->find($id);
+
+        if(!$company) throw new HttpException(404, "Company not found");
+
+        //check if this user is admin of this group
+        if(!$admin->hasGroup($company)) throw new HttpException(409, 'You don\'t have the necesary permissions');
+
+        //check parameters
+        if(!$request->request->has('user_id')) throw new HttpException(404, 'Param user_id not found');
+        if(!$request->request->has('role')) throw new HttpException(404, 'Param role not found');
+
+        $user_id = $request->request->get('user_id');
+        $role = $request->request->get('role');
 
         $usersRepository = $this->getDoctrine()->getRepository("TelepayFinancialApiBundle:User");
-        $user = $usersRepository->find($request->get('user_id'));
+        $user = $usersRepository->find($user_id);
         if(!$user) throw new HttpException(404, "User not found");
 
-        if($user->hasGroup($group)) throw new HttpException(409, "User already in group");
+        if($user->hasGroup($company)) throw new HttpException(409, "User already in group");
 
-        foreach($user->getGroups() as $g){
-            $user->removeGroup($g);
-        }
-
-        $user->addGroup($group);
+        $user->addGroup($company);
 
         $em = $this->getDoctrine()->getManager();
 
-        $em->persist($group);
+        $em->persist($company);
         $em->persist($user);
         $em->flush();
 
         return $this->restV2(201, "ok", "User added successfully");
     }
 
-
     /**
      * @Rest\View
      */
     public function deleteAction(Request $request, $user_id, $group_id){
+
+        $admin = $this->get('security.context')->getToken()->getUser();
 
         $groupsRepository = $this->getDoctrine()->getRepository("TelepayFinancialApiBundle:Group");
         $group = $groupsRepository->find($group_id);
@@ -60,21 +71,13 @@ class UsersGroupsController extends RestApiController{
         $user = $usersRepository->find($user_id);
         if(!$user) throw new HttpException(404, "User not found");
 
+        if(!$admin->hasGroup($group)) throw new HttpException(400, 'You don\'t have the necessary permissions');
+
         $user->removeGroup($group);
-
-        $group_default = $groupsRepository->findOneBy(array('name'=>'Default'));
-        if(!$group_default) {
-            $group_default=new Group();
-            $group_default->setName('Default');
-            $request->request->set('roles',array('ROLE_USER'));
-        }
-
-        $user->addGroup($group_default);
 
         $em = $this->getDoctrine()->getManager();
 
         $em->persist($user);
-        $em->persist($group_default);
         $em->flush();
 
         return $this->rest(204, "User removed successfully");
