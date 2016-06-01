@@ -1138,7 +1138,7 @@ class WalletController extends RestApiController{
 
         //checkWallet sender
         $wallets = $userGroup->getWallets();
-//        die(print_r($userGroup->getId(),true));
+
         $senderWallet = null;
         $receiverWallet = null;
         foreach($wallets as $wallet){
