@@ -217,7 +217,7 @@ class UsersController extends BaseApiController
     public function createAction(Request $request){
 
         $admin = $this->get('security.context')->getToken()->getUser();
-        $adminGroup = $admin->getGroups()[0];
+
         $em = $this->getDoctrine()->getManager();
         $usersRepo = $em->getRepository("TelepayFinancialApiBundle:User");
         $groupsRepo = $em->getRepository("TelepayFinancialApiBundle:Group");
@@ -229,10 +229,13 @@ class UsersController extends BaseApiController
 
             if(!$group) throw new HttpException(404, 'Group not found');
 
-            if($group->getGroupCreator()->getId() != $adminGroup->getId()) throw new HttpException(403, 'You don\'t have the necessary permissions to add a user in this group');
+            if(!$admin->hasGroup($group->getName())) throw new HttpException(403, 'You don\'t have the necessary permissions to add a user in this group');
 
+            $request->request->add(array(
+                'active_group'  =>  $group
+            ));
         }else{
-            $group = $adminGroup;
+            throw new HttpException(404, 'Param group_id not found');
         }
 
         if(!$request->request->has('password'))
@@ -253,8 +256,6 @@ class UsersController extends BaseApiController
         $request->request->add(array('base64_image'=>''));
 //        $request->request->add(array('default_currency'=>'EUR'));
         $request->request->add(array('gcm_group_key'=>''));
-//        $request->request->add(array('services_list'=>array('sample')));
-//        $request->request->add(array('methods_list'=>array('sample-in')));
         //TODO add_role user by default
 
         $resp= parent::createAction($request);
@@ -266,18 +267,6 @@ class UsersController extends BaseApiController
             $user_id = $user_id->data;
             $user_id = $user_id->id;
             $user = $usersRepo->findOneBy(array('id'=>$user_id));
-
-//            $currencies = Currency::$LISTA;
-//
-//            foreach($currencies as $currency){
-//                $user_wallet = new UserWallet();
-//                $user_wallet->setBalance(0);
-//                $user_wallet->setAvailable(0);
-//                $user_wallet->setCurrency($currency);
-//                $user_wallet->setUser($user);
-//                $user_wallet->setGroup($group);
-//                $em->persist($user_wallet);
-//            }
 
             $user->addGroup($group);
 
