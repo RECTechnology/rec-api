@@ -64,6 +64,12 @@ class Group extends BaseGroup
     private $group_creator;
 
     /**
+     * @ORM\Column(type="text")
+     * @Expose
+     */
+    private $base64_image = "";
+
+    /**
      * @ORM\OneToMany(targetEntity="Telepay\FinancialApiBundle\Entity\LimitDefinition", mappedBy="group", cascade={"remove"})
      *
      */
@@ -370,6 +376,22 @@ class Group extends BaseGroup
     public function setGroupCreator($group_creator)
     {
         $this->group_creator = $group_creator;
+    }
+
+    /**
+     * @return mixed
+     */
+    public function getBase64Image()
+    {
+        return $this->base64_image;
+    }
+
+    /**
+     * @param mixed $base64_image
+     */
+    public function setBase64Image($base64_image)
+    {
+        $this->base64_image = $base64_image;
     }
 
 
