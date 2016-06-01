@@ -55,6 +55,8 @@ class MethodsController extends RestApiController {
 
         $response = array();
 
+        if(count($methods) == 0) throw new HttpException (404, 'No methods found for this company');
+
         foreach($methods as $method){
             $methodsEntity = $this->get('net.telepay.method_provider')->findByCname($method);
 
