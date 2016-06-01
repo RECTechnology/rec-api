@@ -295,19 +295,33 @@ class AccountController extends BaseApiController{
      */
     public function updateCurrency(Request $request){
 
-        $user = $this->get('security.context')->getToken()->getUser();
+        $userGroup = $this->get('security.context')->getToken()->getUser()->getActiveGroup();
 
         if($request->request->has('currency'))
             $currency = $request->request->get('currency');
         else
             throw new HttpException(404,'currency not found');
 
+        $em = $this->getDoctrine()->getManager();
+
+        $userGroup->setDefaultCurrency(strtoupper($currency));
+        $em->persist($userGroup);
+        $em->flush();
+
+        return $this->restV2(200,"ok", "Account info got successfully", $userGroup);
+    }
+
+    /**
+     * @Rest\View
+     */
+    public function changeGroup(Request $request){
+
+        $user = $this->get('security.context')->getToken()->getUser();
+
         if($request->request->has('group_id'))
             $group_id = $request->request->get('group_id');
         else
             throw new HttpException(404,'group_id not found');
-
-        $em = $this->getDoctrine()->getManager();
 
         $userGroup = false;
         foreach($user->getGroups() as $group){
@@ -320,12 +334,13 @@ class AccountController extends BaseApiController{
             throw new HttpException(404,'Group selected is not accessible for you');
         }
 
-        $userGroup->setDefaultCurrency(strtoupper($currency));
+        $em = $this->getDoctrine()->getManager();
 
-        $em->persist($group);
+        $user->setActiveGroup($group);
+        $em->persist($user);
         $em->flush();
 
-        return $this->restV2(200,"ok", "Account info got successfully", $group);
+        return $this->restV2(200,"ok", "Active group changed successfully", $user);
     }
 
     /**

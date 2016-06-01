@@ -58,6 +58,11 @@ class User extends BaseUser
     protected $groups;
 
     /**
+     * @ORM\ManyToOne(targetEntity="Telepay\FinancialApiBundle\Entity\Group")
+     */
+    private $active_group = 0;
+
+    /**
      * @ORM\OneToMany(targetEntity="Telepay\FinancialApiBundle\Entity\AccessToken", mappedBy="user", cascade={"remove"})
      *
      */
@@ -663,6 +668,25 @@ class User extends BaseUser
     public function setRecoverPasswordToken($recover_password_token)
     {
         $this->recover_password_token = $recover_password_token;
+    }
+
+    /**
+     * @return mixed
+     */
+    public function getActiveGroup()
+    {
+        if($this->active_group == 0){
+            return  $this->getGroups()[0];
+        }
+        return $this->active_group;
+    }
+
+    /**
+     * @param mixed $active_group
+     */
+    public function setActiveGroup($active_group)
+    {
+        $this->active_group = $active_group;
     }
 
 }
