@@ -60,15 +60,18 @@ class MethodsController extends RestApiController {
         foreach($methods as $method){
             $methodsEntity = $this->get('net.telepay.method_provider')->findByCname($method);
 
-            $resp = array(
-                'cname' =>  $methodsEntity->getCname(),
-                'type' =>  $methodsEntity->getType(),
-                'currency'  =>  $methodsEntity->getCurrency(),
-                'scale' =>  Currency::$SCALE[$methodsEntity->getCurrency()],
-                'base64image'   =>  $methodsEntity->getBase64Image()
-            );
+            if($methodsEntity){
+                $resp = array(
+                    'cname' =>  $methodsEntity->getCname(),
+                    'type' =>  $methodsEntity->getType(),
+                    'currency'  =>  $methodsEntity->getCurrency(),
+                    'scale' =>  Currency::$SCALE[$methodsEntity->getCurrency()],
+                    'base64image'   =>  $methodsEntity->getBase64Image()
+                );
 
-            $response[] = $resp;
+                $response[] = $resp;
+            }
+
         }
 
         return $this->restV2(
