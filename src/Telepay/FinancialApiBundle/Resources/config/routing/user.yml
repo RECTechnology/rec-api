@@ -114,6 +114,12 @@ user_transaction_single:
     requirements:
         _method: GET
 
+user_change_active_group:
+    pattern:  /user/v1/activegroup
+    defaults: { _controller: Telepay\FinancialApiBundle\Controller\Management\User\AccountController::changeGroup }
+    requirements:
+        _method: PUT
+
 user_set_default_currency:
     pattern:  /user/v1/currency
     defaults: { _controller: Telepay\FinancialApiBundle\Controller\Management\User\AccountController::updateCurrency }
