@@ -83,7 +83,7 @@ class GroupsController extends BaseApiController
     public function indexByUser(Request $request){
 
         $admin = $this->get('security.context')->getToken()->getUser();
-        $adminGroup = $admin->getGroups()[0];
+        $adminGroup = $admin->getActiveGroup();
 
         if($request->query->has('limit')) $limit = $request->query->get('limit');
         else $limit = 10;
@@ -226,7 +226,7 @@ class GroupsController extends BaseApiController
     public function showAction($id){
 
         $admin = $this->get('security.context')->getToken()->getUser();
-        $adminGroup = $admin->getGroups()[0];
+        $adminGroup = $admin->getActiveGroup();
 
         //TODO: Improve performance (two queries)
         $group = $this->getRepository()->findOneBy(
@@ -272,7 +272,7 @@ class GroupsController extends BaseApiController
             throw new HttpException(403, 'You have not the necessary permissions');
 
         $user = $this->get('security.context')->getToken()->getUser();
-        $userGroup = $user->getGroups()[0];
+        $userGroup = $user->getActiveGroup();
 
         $group = $this->getRepository($this->getRepositoryName())->find($id);
         $groupCreator = $group->getGroupCreator();
@@ -293,7 +293,7 @@ class GroupsController extends BaseApiController
             throw new HttpException(403, 'You have not the necessary permissions');
 
         $user = $this->get('security.context')->getToken()->getUser();
-        $userGroup = $user->getGroups()[0];
+        $userGroup = $user->getActiveGroup();
         $groupsRepo = $this->getDoctrine()->getRepository($this->getRepositoryName());
 
         $default_group = $this->container->getParameter('id_group_default');
