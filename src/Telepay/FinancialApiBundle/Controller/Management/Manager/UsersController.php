@@ -229,6 +229,7 @@ class UsersController extends BaseApiController
 
             if(!$group) throw new HttpException(404, 'Group not found');
 
+            //TODO check if the user is admin in this group or is superadmin
             if(!$admin->hasGroup($group->getName())) throw new HttpException(403, 'You don\'t have the necessary permissions to add a user in this group');
 
             $request->request->add(array(
