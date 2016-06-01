@@ -166,13 +166,12 @@ class FeeDeal{
 
     public function inversedDeal(Group $creator, $amount, $service_cname, $type, $currency, $fee, $transaction_id, $version){
 
-        $rootGroupId = $this->doctrine->getParameter('id_group_root');
+        $rootGroupId = $this->container->getParameter('id_group_root');
 
-        $group = $creator->getGroups()[0];
+        $group = $creator;
 
         if($creator->getId() != $rootGroupId){
             //obtenemos el grupo
-
 
             //obtener comissiones del grupo
             $commissions = $group->getCommissions();
