@@ -16,11 +16,13 @@ class FeeDeal{
     private $doctrine;
     private $mongo;
     private $balance_manipulator;
+    private $container;
 
-    public function __construct($doctrine, $mongo, $balance_manipulator){
+    public function __construct($doctrine, $mongo, $balance_manipulator, $container){
         $this->doctrine = $doctrine;
         $this->mongo = $mongo;
         $this->balance_manipulator = $balance_manipulator;
+        $this->container = $container;
     }
 
     /**
@@ -34,7 +36,7 @@ class FeeDeal{
     public function deal(Group $creator, $amount, $service_cname, $type, $currency, $fee, $transaction_id, $version){
 
         //TODO hay que cambiar esto porque ya no va al user superadmin si no al grupo root
-        $rootGroupId = $this->doctrine->getParameter('id_group_root');
+        $rootGroupId = $this->container->getParameter('id_group_root');
 
         //if creator is distinct to group root
         if($creator->getId() != $rootGroupId){

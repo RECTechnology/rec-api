@@ -9,6 +9,7 @@ services:
             - "@doctrine"
             - "@doctrine_mongodb"
             - "@net.telepay.commons.balance_manipulator"
+            - "@service_container"
 
     net.telepay.commons.balance_manipulator:
         class: Telepay\FinancialApiBundle\DependencyInjection\Telepay\Commons\BalanceManipulator
