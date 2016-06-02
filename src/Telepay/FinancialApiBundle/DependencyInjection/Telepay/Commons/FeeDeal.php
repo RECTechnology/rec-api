@@ -42,7 +42,7 @@ class FeeDeal{
         if($creator->getId() != $rootGroupId){
 
             //obtenemos el grupo
-            $group = $creator->getGroups()[0];
+            $group = $creator->getGroupCreator();
 
             //obtener comissiones del grupo
             $commissions = $group->getCommissions();
