@@ -101,6 +101,8 @@ class GroupsController extends BaseApiController
         $total = count($all);
         //return only the limits of active services
         foreach ($all as $group){
+            $group = $group->getAdminView();
+
             $fees = $group->getCommissions();
             foreach ( $fees as $fee ){
                 $currency = $fee->getCurrency();
@@ -141,10 +143,10 @@ class GroupsController extends BaseApiController
 
         $admin = $this->get('security.context')->getToken()->getUser();
 
-        $request->request->set('roles', array('ROLE_USER'));
+        $request->request->set('roles', array('ROLE_COMPANY'));
         $request->request->set('default_currency', Currency::$EUR);
-        $request->request->set('group_creator',$admin->getGroups()[0]);
-        $request->request->set('methods_list', $admin->getGroups()[0]->getMethodsList());
+        $request->request->set('group_creator',$admin->getActiveGroup());
+        $request->request->set('methods_list', $admin->getActiveGroup()->getMethodsList());
 
         $group_name = $request->request->get('name');
 

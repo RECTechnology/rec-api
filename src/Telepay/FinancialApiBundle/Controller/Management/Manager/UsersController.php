@@ -150,7 +150,7 @@ class UsersController extends BaseApiController
     public function indexByGroup(Request $request, $id){
 
         $admin = $this->get('security.context')->getToken()->getUser();
-        $adminGroup = $admin->getGroups()[0];
+        $adminGroup = $admin->getActiveGroup();
 
         if($request->query->has('limit')) $limit = $request->query->get('limit');
         else $limit = 10;
