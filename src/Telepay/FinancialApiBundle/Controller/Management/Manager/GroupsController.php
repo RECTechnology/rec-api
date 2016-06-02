@@ -82,8 +82,9 @@ class GroupsController extends BaseApiController
     /**
      * @Rest\View
      */
-    public function indexByUser(Request $request){
+    public function indexByCompany(Request $request){
 
+        //list all subcompanies
         $admin = $this->get('security.context')->getToken()->getUser();
         $adminGroup = $admin->getActiveGroup();
 
