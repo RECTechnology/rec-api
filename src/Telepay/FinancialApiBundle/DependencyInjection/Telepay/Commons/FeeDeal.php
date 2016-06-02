@@ -8,6 +8,7 @@
 
 namespace Telepay\FinancialApiBundle\DependencyInjection\Telepay\Commons;
 
+use Symfony\Component\Validator\Constraints\Currency;
 use Telepay\FinancialApiBundle\Document\Transaction;
 use Telepay\FinancialApiBundle\Entity\Group;
 use Telepay\FinancialApiBundle\Entity\User;
@@ -37,7 +38,6 @@ class FeeDeal{
 
         //TODO hay que cambiar esto porque ya no va al user superadmin si no al grupo root
         $rootGroupId = $this->container->getParameter('id_group_root');
-
         //if creator is distinct to group root
         if($creator->getId() != $rootGroupId){
 
@@ -60,7 +60,7 @@ class FeeDeal{
 
             $fixed = $group_commission->getFixed();
             $variable = $group_commission->getVariable();
-            $total = $fixed + ($variable/100) * $amount;
+            $total = round($fixed + ($variable/100) * $amount,0);
         }else{
             $total = 0;
             $variable = 0;
