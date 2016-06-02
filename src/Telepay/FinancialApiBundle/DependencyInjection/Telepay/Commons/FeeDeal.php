@@ -118,8 +118,6 @@ class FeeDeal{
 
                 $id = $transaction->getId();
 
-            }else{
-                $id = 0;
             }
         }
 
