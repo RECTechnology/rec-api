@@ -48,6 +48,8 @@ class GroupsController extends BaseApiController
         $total = count($all);
 
         foreach ($all as $group){
+            $group = $group->getAdminView();
+
             $fees = $group->getCommissions();
             foreach ( $fees as $fee ){
                 $currency = $fee->getCurrency();
