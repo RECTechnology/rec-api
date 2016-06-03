@@ -31,6 +31,8 @@ class SwiftController extends RestApiController{
 
         $admin_id = $this->container->getParameter('admin_user_id');
         $client_default_id = $this->container->getParameter('swift_client_id_default');
+        $rootGroupId = $this->container->getParameter('id_group_root');
+
         if($type_in == "fac" || $type_out == "fac"){
             $admin_id = $this->container->getParameter('admin_user_id_fac');
             $client_default_id = $this->container->getParameter('swift_client_id_default_fac');
@@ -123,6 +125,7 @@ class SwiftController extends RestApiController{
         $transaction->setVariableFee(0);
         $transaction->setService($type_in.'-'.$type_out);
         $transaction->setUser($user->getId());
+        $transaction->setGroup($rootGroupId);
         $transaction->setType('swift');
         $transaction->setMethodIn($type_in);
         $transaction->setMethodOut($type_out);
