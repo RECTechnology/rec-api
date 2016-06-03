@@ -62,7 +62,7 @@ class AccountController extends BaseApiController{
 //        $user->setAllowedServices($allowedServices);
 //        $user->setAllowedMethods($allowedMethods);
 
-        $group = $user->getGroups()[0];
+        $group = $this->get('security.context')->getToken()->getUser()->getActiveGroup();
 
         $group_data = array();
         $group_data['id'] = $group->getId();
