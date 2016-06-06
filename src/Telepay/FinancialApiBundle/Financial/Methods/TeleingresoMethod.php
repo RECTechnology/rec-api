@@ -73,6 +73,7 @@ class TeleingresoMethod extends BaseMethod{
     public function getPayOutStatus($paymentInfo)
     {
 
+
     }
 
     public function cancel($paymentInfo){

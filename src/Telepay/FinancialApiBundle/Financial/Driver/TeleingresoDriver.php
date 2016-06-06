@@ -53,9 +53,11 @@ class TeleingresoDriver{
 
         $response = simplexml_load_string($response);
 
-        $response = $response['TelepayIssue'];
+        $json_string = json_encode($response);
 
-        return $response;
+        $result_array = json_decode($json_string, TRUE);
+
+        return $result_array;
 
     }
 
