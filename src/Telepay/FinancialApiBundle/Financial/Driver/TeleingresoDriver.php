@@ -51,6 +51,8 @@ class TeleingresoDriver{
             }
         }
 
+        $response = simplexml_load_string($response);
+
         $response = $response['TelepayIssue'];
 
         return $response;
