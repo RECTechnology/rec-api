@@ -86,3 +86,12 @@ services:
             - "%safetypay_response_format%"
             - "%safetypay_url%"
             - "%web_app_url%"
+
+    net.telepay.driver.teleingreso.telepay:
+        class: Telepay\FinancialApiBundle\Financial\Driver\TeleingresoDriver
+        arguments:
+            - "%teleingreso_login%"
+            - "%teleingreso_pass%"
+            - "%teleingreso_certificateType%"
+            - "%teleingreso_currency%"
+            - "%teleingreso_url%"
