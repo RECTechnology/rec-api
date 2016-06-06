@@ -42,11 +42,11 @@ class TeleingresoMethod extends BaseMethod{
         if($teleingreso['TxtCode'] == 0){
             $paymentInfo['status'] = 'created';
             $paymentInfo['amount'] = $teleingreso['amount']*100;
-            $paymentInfo['TeleingresoStatus'] = $teleingreso['transactionId'];
-            $paymentInfo['TeleingresoId'] = $teleingreso['TxtDescription'];
+            $paymentInfo['TeleingresoStatus'] = $teleingreso['TxtDescription'];
+            $paymentInfo['TeleingresoId'] = $teleingreso['transactionId'];
             $paymentInfo['ChargeId'] = $teleingreso['chargeId'];
             $paymentInfo['track'] = $teleingreso['track'];
-            $paymentInfo['expireDateTime'] = $teleingreso['expireDateTime'];
+            $paymentInfo['expires_in'] = 7*24*60*60;
             $paymentInfo['productionDate'] = $teleingreso['productionDate'];
             $paymentInfo['currency'] = $teleingreso['currency'];
             $paymentInfo['final'] = false;
