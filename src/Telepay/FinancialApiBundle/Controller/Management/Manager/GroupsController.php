@@ -2,9 +2,11 @@
 
 namespace Telepay\FinancialApiBundle\Controller\Management\Manager;
 
+use Doctrine\DBAL\DBALException;
 use Symfony\Component\HttpKernel\Exception\HttpException;
 use Telepay\FinancialApiBundle\Controller\BaseApiController;
 use Telepay\FinancialApiBundle\Entity\Group;
+use Telepay\FinancialApiBundle\Entity\LimitCount;
 use Telepay\FinancialApiBundle\Entity\LimitDefinition;
 use Telepay\FinancialApiBundle\Entity\ServiceFee;
 use FOS\RestBundle\Controller\Annotations as Rest;
@@ -285,7 +287,19 @@ class GroupsController extends BaseApiController
         if($groupCreator->getid() != $userGroup->getId() && !$user->hasRole('ROLE_SUPERADMIN'))
             throw new HttpException(409, 'You don\'t have the necessary permissions');
 
-        return parent::updateAction($request, $id);
+        $methods = null;
+        if($request->request->has('methods_list')){
+            $methods = $request->get('methods_list');
+        }
+
+        $response = parent::updateAction($request, $id);
+
+        if($response->getStatusCode() == 204){
+            if($methods !== null){
+                $this->_setMethods($request, $id);
+            }
+        }
+
     }
 
     /**
@@ -321,5 +335,55 @@ class GroupsController extends BaseApiController
 
     }
 
+    private function _setMethods(Request $request, $id){
+        if(empty($id)) throw new HttpException(400, "Missing parameter 'id'");
+        $groupsRepo = $this->getRepository();
+        $group = $groupsRepo->findOneBy(array('id'=>$id));
+        $listMethods = $group->getMethodsList();
+
+        $putMethods = $request->get('methods_list');
+        foreach($putMethods as $method){
+            if(!in_array($method, $listMethods)){
+                $this->_addMethod($id, $method);
+            }
+        }
+        return $this->rest(204, "Edited");
+    }
+
+    private function _addMethod($id, $cname){
+        $groupsRepo = $this->getRepository();
+        $methodsRepo = $this->get('net.telepay.method_provider');
+        $group = $groupsRepo->findOneBy(array('id'=>$id));
+        $method = $methodsRepo->findByCname($cname);
+        if(empty($group)) throw new HttpException(404, 'User not found');
+        if(empty($method)) throw new HttpException(404, 'Method not found');
+
+        $group->addMethod($cname);
+        $em = $this->getDoctrine()->getManager();
+        $limitRepo = $em->getRepository("TelepayFinancialApiBundle:LimitCount");
+        $limit = $limitRepo->findOneBy(array('cname' => $cname, 'group' => $group));
+
+        if(!$limit){
+            $limit = new LimitCount();
+            $limit->setGroup($group);
+            $limit->setCname($cname);
+            $limit->setSingle(0);
+            $limit->setDay(0);
+            $limit->setWeek(0);
+            $limit->setMonth(0);
+            $limit->setYear(0);
+            $limit->setTotal(0);
+            $em->persist($limit);
+        }
+
+        try{
+            $em->flush();
+        } catch(DBALException $e){
+            if(preg_match('/SQLSTATE\[23000\]/',$e->getMessage()))
+                throw new HttpException(409, "Duplicated resource");
+            else
+                throw new HttpException(500, "Unknown error occurred when save");
+        }
+    }
 
 }
