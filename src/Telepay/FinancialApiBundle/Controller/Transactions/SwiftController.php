@@ -657,11 +657,11 @@ class SwiftController extends RestApiController{
             );
             $client = $accessToken->getClient();
             if(!$user){
-                $user = $client->getUser();
+//                $user = $client->getUser();
             }
 
         }else{
-            $user = $admin;
+//            $user = $admin;
             $client = $em->getRepository('TelepayFinancialApiBundle:Client')->findOneById($client_default_id);
 
         }
