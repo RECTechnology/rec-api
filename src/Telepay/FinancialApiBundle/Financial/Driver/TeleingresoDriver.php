@@ -12,14 +12,16 @@ class TeleingresoDriver{
     private $certificateType;
     private $url;
     private $currency;
+    private $hash;
 
-    function __construct($login, $password, $certificateType, $currency, $url)
+    function __construct($login, $password, $certificateType, $currency, $url, $hash)
     {
         $this->login = $login;
         $this->password = $password;
         $this->certificateType = $certificateType;
         $this->currency = $currency;
         $this->url = $url;
+        $this->hash = $hash;
     }
 
     public function createIssue($amount){
@@ -72,8 +74,8 @@ class TeleingresoDriver{
 
     function notification($params){
 
-
-        $calculated_md5 = md5($params['reference'] + $params['amount'] + $this->password);
+        //hash para calcular el md5  3D8Fc10xeA
+        $calculated_md5 = md5($params['reference'] . $params['amount'] . $this->hash);
 
         if($params['md5'] == $calculated_md5){
 

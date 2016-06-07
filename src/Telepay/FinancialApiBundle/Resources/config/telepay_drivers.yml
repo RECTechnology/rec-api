@@ -95,3 +95,4 @@ services:
             - "%teleingreso_certificateType%"
             - "%teleingreso_currency%"
             - "%teleingreso_url%"
+            - "%teleingreso_hash%"
