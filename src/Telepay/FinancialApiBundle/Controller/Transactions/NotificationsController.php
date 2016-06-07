@@ -25,6 +25,7 @@ class NotificationsController extends RestApiController{
             return new Response($notification);
         }elseif($service_cname == 'teleingreso'){
             $notification = $this->_teleingresoNotification($request);
+            return $notification;
         }else{
             $notification = false;
         }

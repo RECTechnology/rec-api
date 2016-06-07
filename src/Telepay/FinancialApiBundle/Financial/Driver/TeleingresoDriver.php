@@ -85,7 +85,10 @@ class TeleingresoDriver{
             );
 
         }else{
-            throw new HttpException(403, 'Invalid notification');
+            $response = array(
+                'status'    =>  1,
+                'response'  =>  'OKKY'
+            );
         }
 
         return $response;
