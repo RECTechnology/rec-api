@@ -13,6 +13,7 @@ use MongoDBODMProxies\__CG__\Telepay\FinancialApiBundle\Document\Transaction;
 use Symfony\Component\Config\Definition\Exception\Exception;
 use Symfony\Component\HttpKernel\Exception\HttpException;
 use Telepay\FinancialApiBundle\DependencyInjection\Transactions\Core\BaseMethod;
+use Telepay\FinancialApiBundle\Financial\Currency;
 
 
 class TeleingresoMethod extends BaseMethod{
@@ -42,13 +43,13 @@ class TeleingresoMethod extends BaseMethod{
         if($teleingreso['TxtCode'] == 0){
             $paymentInfo['status'] = 'created';
             $paymentInfo['amount'] = $teleingreso['amount']*100;
-            $paymentInfo['TeleingresoStatus'] = $teleingreso['TxtDescription'];
-            $paymentInfo['TeleingresoId'] = $teleingreso['transactionId'];
-            $paymentInfo['ChargeId'] = $teleingreso['chargeId'];
+            $paymentInfo['teleingreso_status'] = $teleingreso['TxtDescription'];
+            $paymentInfo['teleingreso_id'] = $teleingreso['transactionId'];
+            $paymentInfo['charge_id'] = $teleingreso['chargeId'];
             $paymentInfo['track'] = $teleingreso['track'];
             $paymentInfo['expires_in'] = 7*24*60*60;
-            $paymentInfo['productionDate'] = $teleingreso['productionDate'];
             $paymentInfo['currency'] = $teleingreso['currency'];
+            $paymentInfo['scale'] = Currency::$SCALE[$teleingreso['currency']];
             $paymentInfo['final'] = false;
         }else{
             $paymentInfo['status'] = 'failed';
