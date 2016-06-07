@@ -125,7 +125,7 @@ class SwiftController extends RestApiController{
         $transaction->setVariableFee(0);
         $transaction->setService($type_in.'-'.$type_out);
         if($user) $transaction->setUser($user->getId());
-        $transaction->setGroup($rootGroupId);
+        $transaction->setGroup($client->getGroup()->getId());
         $transaction->setType('swift');
         $transaction->setMethodIn($type_in);
         $transaction->setMethodOut($type_out);
@@ -341,6 +341,7 @@ class SwiftController extends RestApiController{
             throw new HttpException(403, 'You don\'t have the necessary permissions');
         }
 
+        $group = $user->getActiveGroup();
         $dm = $this->get('doctrine_mongodb')->getManager();
 
         if(!$request->request->has('option')) throw new HttpException(404, 'Missing parameter \'option\'');
@@ -350,7 +351,7 @@ class SwiftController extends RestApiController{
         $transaction = $dm->getRepository('TelepayFinancialApiBundle:Transaction')->findOneBy(array(
             'id'    =>  $id,
             'type'  =>  'swift',
-            'user'  =>  $user->getId()
+            'group'  =>  $group->getId()
         ));
 
         if(!$transaction) throw new HttpException(404, 'Transaction not found');
