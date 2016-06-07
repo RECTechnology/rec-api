@@ -62,22 +62,26 @@ class TeleingresoMethod extends BaseMethod{
 
     public function getPayOutInfo($request)
     {
-
+        throw new HttpException(405, 'Method not implemented');
     }
 
     public function getPayInStatus($paymentInfo)
     {
-        // TODO: Implement getPayInStatus() method.
+        if($paymentInfo['status'] == Transaction::$STATUS_RECEIVED){
+            $paymentInfo['status'] = Transaction::$STATUS_SUCCESS;
+        }
+
+        return $paymentInfo;
     }
 
     public function getPayOutStatus($paymentInfo)
     {
 
-
+        throw new HttpException(405, 'Method not implemented');
     }
 
     public function cancel($paymentInfo){
-
+        throw new HttpException(405, 'Method not implemented');
     }
 
     public function notification($params, $paymentInfo){
