@@ -50,7 +50,7 @@ class SwiftController extends RestApiController{
             );
             $client = $accessToken->getClient();
             if(!$user){
-                $user = $client->getUser();
+//                $user = $client->getUser();
             }
 
         }else{
@@ -124,7 +124,7 @@ class SwiftController extends RestApiController{
         $transaction->setEmailNotification($email);
         $transaction->setVariableFee(0);
         $transaction->setService($type_in.'-'.$type_out);
-        $transaction->setUser($user->getId());
+        if($user) $transaction->setUser($user->getId());
         $transaction->setGroup($rootGroupId);
         $transaction->setType('swift');
         $transaction->setMethodIn($type_in);

@@ -108,12 +108,12 @@ class NotificationsController extends RestApiController{
         $params['reference'] = $reference;
         $params['md5'] = $md5;
 
-        $logger->info('notifications -> tid => '.$reference);
+        $logger->info('notifications -> reference => '.$reference);
 
         $dm = $this->get('doctrine_mongodb')->getManager();
 
         $transaction = $dm->createQueryBuilder('TelepayFinancialApiBundle:Transaction')
-            ->field('pay_in_info.TeleingresoId')->equals($reference)
+            ->field('pay_in_info.track')->equals($reference)
             ->getQuery()
             ->getSingleResult();
 
@@ -125,7 +125,7 @@ class NotificationsController extends RestApiController{
 
         $paymentInfo = $transaction->getPayInInfo();
 
-        if($paymentInfo['TeleingresoId'] != $reference) throw new HttpException(409, 'Notification not allowed');
+        if($paymentInfo['track'] != $reference) throw new HttpException(409, 'Notification not allowed');
 
         if($paymentInfo['status'] != Transaction::$STATUS_CREATED) throw new HttpException(409, 'Transaction notificated yet');
 
