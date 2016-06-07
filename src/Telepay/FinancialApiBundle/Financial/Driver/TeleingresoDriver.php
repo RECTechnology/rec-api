@@ -70,4 +70,24 @@ class TeleingresoDriver{
         return substr(implode("", $array_chars),0,5);
     }
 
+    function notification($params){
+
+
+        $calculated_md5 = md5($params['reference'] + $params['amount'] + $this->password);
+
+        if($params['md5'] == $calculated_md5){
+
+            $response = array(
+                'status'    =>  1,
+                'response'  =>  'OKKY'
+            );
+
+        }else{
+            throw new HttpException(403, 'Invalid notification');
+        }
+
+        return $response;
+
+    }
+
 }

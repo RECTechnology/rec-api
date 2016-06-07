@@ -80,4 +80,18 @@ class TeleingresoMethod extends BaseMethod{
 
     }
 
+    public function notification($params, $paymentInfo){
+
+        $response = $this->driver->notification($params);
+
+        if($response['status'] == 1){
+            $paymentInfo['status'] = Transaction::$STATUS_RECEIVED;
+            $paymentInfo['response'] = $response['response'];
+        }else{
+            $paymentInfo['response'] = $response['response'];
+        }
+
+        return $paymentInfo;
+    }
+
 }
