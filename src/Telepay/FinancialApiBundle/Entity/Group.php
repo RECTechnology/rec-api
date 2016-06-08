@@ -46,7 +46,7 @@ class Group extends BaseGroup
     protected $id;
 
     /**
-     * @ORM\ManyToMany(targetEntity="Telepay\FinancialApiBundle\Entity\User", mappedBy="groups")
+     * @ORM\OneToMany(targetEntity="Telepay\FinancialApiBundle\Entity\UserGroup", mappedBy="groups", cascade={"remove"})
      * @Exclude
      */
     protected $users;
