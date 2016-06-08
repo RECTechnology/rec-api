@@ -45,8 +45,10 @@ class CheckTeleingresoCommand extends ContainerAwareCommand
 
             if($previous_status != $transaction->getStatus()){
                 $transaction = $this->getContainer()->get('notificator')->notificate($transaction);
+                $transaction->setUpdated(new \MongoDate());
             }
 
+            $dm->persist($transaction);
             $dm->flush();
 
             if($transaction->getStatus() == Transaction::$STATUS_SUCCESS){
