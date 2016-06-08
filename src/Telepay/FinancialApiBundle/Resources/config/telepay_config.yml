@@ -302,6 +302,32 @@ services:
             - "1200"
             - "0"
 
+    net.telepay.config.teleingreso.fac:
+        class: Telepay\FinancialApiBundle\Financial\Methods\MethodConfiguration
+        arguments:
+            - "0"
+            - "2"
+            - "1000"
+            - "60000"
+            - "1000"
+            - "Spain"
+            - "EUR"
+            - "1296000"
+            - "0"
+
+    net.telepay.config.teleingreso.btc:
+        class: Telepay\FinancialApiBundle\Financial\Methods\MethodConfiguration
+        arguments:
+            - "0"
+            - "2"
+            - "1000"
+            - "60000"
+            - "1000"
+            - "Spain"
+            - "EUR"
+            - "1296000"
+            - "0"
+
 
 #POS CONFIGURATIONS
 #$type, $currency, $default_currency, $allowed_currencies_in, $allowed_currencies_out

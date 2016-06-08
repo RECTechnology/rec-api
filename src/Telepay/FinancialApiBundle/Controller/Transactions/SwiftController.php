@@ -31,6 +31,8 @@ class SwiftController extends RestApiController{
 
         $admin_id = $this->container->getParameter('admin_user_id');
         $client_default_id = $this->container->getParameter('swift_client_id_default');
+        $rootGroupId = $this->container->getParameter('id_group_root');
+
         if($type_in == "fac" || $type_out == "fac"){
             $admin_id = $this->container->getParameter('admin_user_id_fac');
             $client_default_id = $this->container->getParameter('swift_client_id_default_fac');
@@ -48,7 +50,7 @@ class SwiftController extends RestApiController{
             );
             $client = $accessToken->getClient();
             if(!$user){
-                $user = $client->getUser();
+//                $user = $client->getUser();
             }
 
         }else{
@@ -122,7 +124,8 @@ class SwiftController extends RestApiController{
         $transaction->setEmailNotification($email);
         $transaction->setVariableFee(0);
         $transaction->setService($type_in.'-'.$type_out);
-        $transaction->setUser($user->getId());
+        if($user) $transaction->setUser($user->getId());
+        $transaction->setGroup($client->getGroup()->getId());
         $transaction->setType('swift');
         $transaction->setMethodIn($type_in);
         $transaction->setMethodOut($type_out);
@@ -338,6 +341,7 @@ class SwiftController extends RestApiController{
             throw new HttpException(403, 'You don\'t have the necessary permissions');
         }
 
+        $group = $user->getActiveGroup();
         $dm = $this->get('doctrine_mongodb')->getManager();
 
         if(!$request->request->has('option')) throw new HttpException(404, 'Missing parameter \'option\'');
@@ -347,7 +351,7 @@ class SwiftController extends RestApiController{
         $transaction = $dm->getRepository('TelepayFinancialApiBundle:Transaction')->findOneBy(array(
             'id'    =>  $id,
             'type'  =>  'swift',
-            'user'  =>  $user->getId()
+            'group'  =>  $group->getId()
         ));
 
         if(!$transaction) throw new HttpException(404, 'Transaction not found');
@@ -654,11 +658,11 @@ class SwiftController extends RestApiController{
             );
             $client = $accessToken->getClient();
             if(!$user){
-                $user = $client->getUser();
+//                $user = $client->getUser();
             }
 
         }else{
-            $user = $admin;
+//            $user = $admin;
             $client = $em->getRepository('TelepayFinancialApiBundle:Client')->findOneById($client_default_id);
 
         }

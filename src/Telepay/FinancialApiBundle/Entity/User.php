@@ -685,4 +685,15 @@ class User extends BaseUser
         $this->active_group = $active_group;
     }
 
+    public function getAdminView(){
+        unset($this->btc_addresses);
+        unset($this->access_secret);
+        unset($this->access_key);
+        unset($this->devices);
+        unset ( $this->gcm_group_key);
+        unset($this->twoFactorAuthentication);
+        unset ($this->cash_in_tokens);
+        unset($this->group_data);
+        return $this;
+    }
 }

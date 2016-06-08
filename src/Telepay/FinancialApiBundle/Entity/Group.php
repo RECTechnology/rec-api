@@ -394,5 +394,18 @@ class Group extends BaseGroup
         $this->base64_image = $base64_image;
     }
 
+    public function getAdminView(){
+        unset($this->base64_image);
+        unset($this->access_key);
+        unset($this->access_secret);
+        unset ($this->default_currency);
+        $users = $this->users;
+        foreach($users as $user){
+            $user = $user->getAdminView();
+        }
+        $this->users = $users;
+
+        return $this;
+    }
 
 }

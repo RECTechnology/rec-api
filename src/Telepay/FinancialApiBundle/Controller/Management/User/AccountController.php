@@ -870,4 +870,37 @@ class AccountController extends BaseApiController{
         $this->container->get('mailer')->send($message);
     }
 
+    /**
+     * @Rest\View
+     */
+    public function indexCompanies(Request $request){
+
+        $admin = $this->get('security.context')->getToken()->getUser();
+
+        if($request->query->has('limit')) $limit = $request->query->get('limit');
+        else $limit = 10;
+
+        if($request->query->has('offset')) $offset = $request->query->get('offset');
+        else $offset = 0;
+
+        $all = $admin->getGroups();
+
+        $total = count($all);
+//
+//        $entities = array_slice($all, $offset, $limit);
+
+        return $this->restV2(
+            200,
+            "ok",
+            "Request successful",
+            array(
+                'total' => $total,
+                'start' => intval($offset),
+                'end' => count($all)+$offset,
+                'elements' => $all
+            )
+        );
+
+    }
+
 }

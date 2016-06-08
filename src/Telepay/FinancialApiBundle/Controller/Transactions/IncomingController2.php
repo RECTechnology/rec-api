@@ -547,7 +547,7 @@ class IncomingController2 extends RestApiController{
             $user = $em->getRepository('TelepayFinancialApiBundle:User')->find($this->container->getParameter('chipchap_user_id'));
         }
 
-        $method_list = $user->getMethodsList();
+        $method_list = $group->getMethodsList();
 
         if (!in_array($method_cname.'-'.$type, $method_list)) {
             throw $this->createAccessDeniedException();

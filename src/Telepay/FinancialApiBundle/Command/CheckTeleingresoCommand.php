@@ -11,20 +11,20 @@ use Telepay\FinancialApiBundle\DependencyInjection\Telepay\Commons\FeeDeal;
 use Telepay\FinancialApiBundle\Document\Transaction;
 use Telepay\FinancialApiBundle\Entity\Exchange;
 
-class CheckPaynetReferenceCommand extends ContainerAwareCommand
+class CheckTeleingresoCommand extends ContainerAwareCommand
 {
     protected function configure()
     {
         $this
-            ->setName('telepay:paynet_ref:check')
-            ->setDescription('Check paynet reference transactions')
+            ->setName('telepay:teleingreso:check')
+            ->setDescription('Check teleingreso transactions')
         ;
     }
 
     protected function execute(InputInterface $input, OutputInterface $output)
     {
 
-        $method_cname = 'paynet_reference';
+        $method_cname = 'teleingreso';
         $type = 'in';
 
         $dm = $this->getContainer()->get('doctrine_mongodb')->getManager();
@@ -36,8 +36,8 @@ class CheckPaynetReferenceCommand extends ContainerAwareCommand
             ->field('status')->in(array(Transaction::$STATUS_CREATED,Transaction::$STATUS_RECEIVED))
             ->getQuery();
 
-        foreach($qb->toArray() as $transaction){
 
+        foreach($qb->toArray() as $transaction){
             $transaction_id = $transaction->getId();
 
             $previous_status = $transaction->getStatus();
@@ -51,9 +51,9 @@ class CheckPaynetReferenceCommand extends ContainerAwareCommand
             $dm->persist($transaction);
             $dm->flush();
 
-            if($transaction->getStatus()=='success'){
+            if($transaction->getStatus() == Transaction::$STATUS_SUCCESS){
                 //hacemos el reparto
-                //primero al user
+                //primero la company
                 $id = $transaction->getGroup();
 
                 $group = $repo->find($id);
@@ -102,7 +102,7 @@ class CheckPaynetReferenceCommand extends ContainerAwareCommand
                             'previous_balance'  =>  $current_wallet->getBalance(),
                             'previous_transaction'  =>  $transaction->getId()
                         ));
-                        $feeTransaction->setTotal($total_fee*-1);
+                        $feeTransaction->setTotal($total_fee * -1);
                         $feeTransaction->setCurrency($transaction->getCurrency());
                         $feeTransaction->setService($method_cname);
                         $feeTransaction->setMethod($method_cname);
@@ -140,18 +140,20 @@ class CheckPaynetReferenceCommand extends ContainerAwareCommand
 
         $dm->flush();
 
-        $output->writeln('Paynet Reference transactions checked');
+        $output->writeln('Teleingreso transactions checked');
     }
 
     public function check(Transaction $transaction){
 
         $payment_info = $transaction->getPayInInfo();
+
         if($transaction->getStatus() === Transaction::$STATUS_CREATED && $this->hasExpired($transaction)){
             $transaction->setStatus(Transaction::$STATUS_EXPIRED);
             $payment_info['status'] = Transaction::$STATUS_EXPIRED;
+            $transaction->setPayInInfo($payment_info);
         }
 
-        if($transaction->getStatus() === Transaction::$STATUS_SUCCESS || $transaction->getStatus() === Transaction::$STATUS_EXPIRED)
+        if($transaction->getStatus() === 'success' || $transaction->getStatus() === Transaction::$STATUS_EXPIRED)
             return $transaction;
 
         $payment_info = $this->getContainer()
@@ -166,7 +168,7 @@ class CheckPaynetReferenceCommand extends ContainerAwareCommand
 
     private function hasExpired($transaction){
         if(isset($transaction->getPayInInfo()['expires_in'])){
-            return strtotime($transaction->getPayInInfo()['expires_in']) < time();
+            return strtotime($transaction->getCreated()) + $transaction->getPayInInfo()['expires_in'] < time();
         }else{
             return true;
         }
