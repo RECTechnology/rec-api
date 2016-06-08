@@ -99,25 +99,36 @@ class PublicController extends RestApiController{
     public function maps(Request $request, $service = null){
 
         if($service != null){
-            if($service != 'halcash_es' && $service != 'halcash_pl' && $service != 'teleingreso' && $service != 'all' )
+            if($service != 'halcash_es' &&
+                $service != 'halcash_pl' &&
+                $service != 'teleingreso' &&
+                $service != 'all' &&
+                $service != 'easypay')
                 throw new HttpException(409, 'Service not allowed');
         }
 
         $configDirectories = array(__DIR__.'/../../Resources/public/json');
 
         $locator = new FileLocator($configDirectories);
-        $halcash_esFile = $locator->locate('halcash_points_sp.json', null, false);
+        $halcash_esFile = $locator->locate('halcash_es_points.json', null, false);
 
         $halcash_es_points = $halcash_esFile[0];
         $str_datos = file_get_contents($halcash_es_points);
         $halcash_es_data = json_decode($str_datos,true);
 
         $locator_poland = new FileLocator($configDirectories);
-        $halcash_plFile = $locator_poland->locate('halcash_points_pln.json', null, false);
+        $halcash_plFile = $locator_poland->locate('halcash_pl_points.json', null, false);
 
         $halcash_pl_points = $halcash_plFile[0];
         $str_datos_poland = file_get_contents($halcash_pl_points);
         $halcash_pl_data = json_decode($str_datos_poland,true);
+
+        $locator = new FileLocator($configDirectories);
+        $easypayFile = $locator->locate('easypay_points.json', null, false);
+
+        $easypay_points = $easypayFile[0];
+        $str_datos_easypay = file_get_contents($easypay_points);
+        $easypay_data = json_decode($str_datos_easypay,true);
 
         $locator = new FileLocator($configDirectories);
         $abancaFile = $locator->locate('abanca_points.json', null, false);
@@ -131,7 +142,8 @@ class PublicController extends RestApiController{
             $abanca_response = array(
                 'postal_code'   =>  $abanca['properties']['postcode'],
                 'coordinates'   =>  array(
-                    $abanca['geometry']['coordinates'][0], $abanca['geometry']['coordinates'][1]
+                    'lng'   =>  $abanca['geometry']['coordinates'][0],
+                    'lat'   =>  $abanca['geometry']['coordinates'][1]
                 ),
                 'bank'  =>  $abanca['properties']['name'],
                 'address'   =>  $abanca['properties']['address']
@@ -144,7 +156,8 @@ class PublicController extends RestApiController{
         $requestedAtms = array(
             'halcash_es'    =>  $halcash_es_data,
             'halcash_pl'    =>  $halcash_pl_data,
-            'teleingreso'   =>  $abancaRequestedAtm
+            'teleingreso'   =>  $abancaRequestedAtm,
+            'easypay'       =>  $easypay_data
         );
 
         if($service == 'all'){
@@ -152,49 +165,6 @@ class PublicController extends RestApiController{
         }else{
             $response = $requestedAtms[$service];
         }
-//        foreach($halcash_pl_data as $atm){
-//
-//            if($atm['coordinates'][0] >= $request->get('lat_sw') and
-//                $atm['coordinates'][0] <= $request->get('lat_ne') and
-//                $atm['coordinates'][1] >= $request->get('lon_sw') and
-//                $atm['coordinates'][1] <= $request->get('lon_ne')){
-//                //TODO get the city
-//                $url = 'https://maps.googleapis.com/maps/api/geocode/json?address='.$atm['postal_code'];
-//                $ch = curl_init($url);
-//                curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
-//                $cities = curl_exec($ch);
-//                curl_close($ch);
-//
-//                $cities = json_decode($cities, true);
-//
-//                $cities = $cities['results'];
-//                foreach($cities as $city){
-//                    foreach($city['address_components'] as $component){
-//
-//                        if($component['types'][0] == 'country' && $component['short_name'] == 'ES'){
-//                            $atm['city'] = $city['address_components'][1]['long_name'];
-//                        }
-//                    }
-//
-//                }
-//
-//                $atm['country'] = 'ES';
-//                $requestedAtms[] = $atm;
-//            }
-//
-//        }
-
-//        die(print_r($requestedAtms,true));
-//        foreach($datos_poland as $atm_poland){
-//            if($atm_poland['coordinates'][0] >= $request->get('lat_sw') and
-//                $atm_poland['coordinates'][0] <= $request->get('lat_ne') and
-//                $atm_poland['coordinates'][1] >= $request->get('lon_sw') and
-//                $atm_poland['coordinates'][1] <= $request->get('lon_ne')){
-//                $atm_poland['country'] = 'PL';
-//                $requestedAtms[]=$atm_poland;
-//            }
-//
-//        }
 
         return $this->rest(200,"Ok", $response);
 
