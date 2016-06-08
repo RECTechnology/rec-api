@@ -31,7 +31,7 @@ class HalcashMethod extends BaseMethod{
         $amount = $paymentInfo['amount']/100;
         $reference = $paymentInfo['concept'];
 
-        if($reference != 'FairToEarth' || $reference != 'HolyTx') $reference = 'ChipChap';
+        if($reference != 'FairToEarth' && $reference != 'HolyTx') $reference = 'ChipChap';
 
         $find_token = $paymentInfo['find_token'];
         if(isset($paymentInfo['pin'])){
