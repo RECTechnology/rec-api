@@ -162,7 +162,7 @@ class FeeDeal{
             }
 
             $new_creator = $creator->getGroupCreator();
-            $this->deal($new_creator, $amount, $service_cname, $type, $currency, $total, $id, $version);
+            $this->deal($new_creator, $amount, $service_cname, $type, $currency, $total, $transaction_id, $version);
         }
 
         return true;
