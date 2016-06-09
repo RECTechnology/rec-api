@@ -929,6 +929,8 @@ class IncomingController2 extends RestApiController{
 
     private function _dealer(Transaction $transaction, UserWallet $current_wallet){
 
+        $logger = $this->get('logger');
+        $logger->info('make transaction -> dealer');
         $amount = $transaction->getAmount();
         $currency = $transaction->getCurrency();
         $method_cname = $transaction->getMethod();
@@ -975,6 +977,9 @@ class IncomingController2 extends RestApiController{
         $mongo->persist($feeTransaction);
         $mongo->flush();
 
+        $logger->info('make transaction -> feeTransaction id => '.$feeTransaction->getId());
+
+        $logger->info('make transaction -> addBalance');
         $balancer = $this->get('net.telepay.commons.balance_manipulator');
         $balancer->addBalance($group, -$total_fee, $feeTransaction );
 
@@ -1104,6 +1109,7 @@ class IncomingController2 extends RestApiController{
         $group = $em->getRepository('TelepayFinancialApiBundle:Group')->find($transaction->getGroup());
 
         $logger->info('Update transaction -> cancel fees => '.$transaction->getId());
+        $logger->info('Update transaction -> cancel fees => '.$transaction->getAmount());
         $transaction->setAmount(0);
         $transaction->setTotal(0);
         $transaction->setPayOutInfo(array(

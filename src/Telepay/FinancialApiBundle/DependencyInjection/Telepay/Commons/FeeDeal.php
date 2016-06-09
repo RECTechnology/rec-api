@@ -37,10 +37,11 @@ class FeeDeal{
     public function deal(Group $creator, $amount, $service_cname, $type, $currency, $fee, $transaction_id, $version){
 
         //TODO hay que cambiar esto porque ya no va al user superadmin si no al grupo root
+        $logger = $this->container->get('logger');
         $rootGroupId = $this->container->getParameter('id_group_root');
         //if creator is distinct to group root
         if($creator->getId() != $rootGroupId){
-
+            $logger->info('make transaction -> deal not superadmin');
             //obtenemos el grupo
             $group = $creator->getGroupCreator();
 
@@ -62,6 +63,7 @@ class FeeDeal{
             $variable = $group_commission->getVariable();
             $total = round($fixed + ($variable/100) * $amount,0);
         }else{
+            $logger->info('make transaction -> deal superadmin');
             $total = 0;
             $variable = 0;
             $fixed = 0;
@@ -77,7 +79,7 @@ class FeeDeal{
         foreach($wallets as $wallet){
 
             if($wallet->getCurrency() === $currency && $fee > 0){
-
+                $logger->info('make transaction -> deal sumamos fee');
                 //Añadimos la pasta al wallet
                 $wallet->setAvailable($wallet->getAvailable() + $fee - $total);
                 $wallet->setBalance($wallet->getBalance() + $fee - $total);
@@ -114,6 +116,7 @@ class FeeDeal{
                 $dm->persist($transaction);
                 $dm->flush();
 
+                $logger->info('make transaction -> deal id fee => '.$transaction->getId());
                 $this->balance_manipulator->addBalance($creator, $fee, $transaction);
 
                 $id = $transaction->getId();
@@ -122,6 +125,7 @@ class FeeDeal{
         }
 
         if($creator->getId() != $rootGroupId){
+            $logger->info('make transaction -> deal not superadmin fee  ');
             if($total > 0){
                 $feeTransaction = new Transaction();
                 $feeTransaction->setIp('127.0.0.1');
@@ -150,7 +154,7 @@ class FeeDeal{
 
                 $dm->persist($feeTransaction);
                 $dm->flush();
-
+                $logger->info('make transaction -> deal not superadmin fee id => '.$feeTransaction->getId());
                 $this->balance_manipulator->addBalance($creator, -$total, $feeTransaction);
             }
 
@@ -164,11 +168,13 @@ class FeeDeal{
 
     public function inversedDeal(Group $creator, $amount, $service_cname, $type, $currency, $fee, $transaction_id, $version){
 
+        $logger = $this->container->get('logger');
         $rootGroupId = $this->container->getParameter('id_group_root');
 
         $group = $creator;
 
         if($creator->getId() != $rootGroupId){
+            $logger->info('make transaction -> inverseddeal not superadmin ');
             //obtenemos el grupo
 
             //obtener comissiones del grupo
@@ -185,6 +191,7 @@ class FeeDeal{
             $variable = $group_commission->getVariable();
             $total = $fixed + ($variable/100) * $amount;
         }else{
+            $logger->info('make transaction -> inverseddeal not superadmin ');
             $total = 0;
             $variable = 0;
             $fixed = 0;
@@ -200,7 +207,7 @@ class FeeDeal{
         foreach($wallets as $wallet){
 
             if($wallet->getCurrency() === $currency){
-
+                $logger->info('make transaction -> deal admin fee');
                 //Añadimos la pasta al wallet
                 $wallet->setAvailable($wallet->getAvailable() - $fee + $total);
                 $wallet->setBalance($wallet->getBalance() - $fee + $total);
@@ -242,7 +249,7 @@ class FeeDeal{
 
                 $dm->persist($transaction);
                 $dm->flush();
-
+                $logger->info('make transaction -> deal admin fee id => '.$transaction->getId());
                 $this->balance_manipulator->addBalance($creator, -$fee, $transaction);
 
                 $id = $transaction->getId();
@@ -279,7 +286,7 @@ class FeeDeal{
 
             $dm->persist($feeTransaction);
             $dm->flush();
-
+            $logger->info('make transaction -> deal not admin '.$feeTransaction->getId());
             $this->balance_manipulator->addBalance($creator, -$total, $feeTransaction);
 
             $new_creator = $group->getGroupCreator();
