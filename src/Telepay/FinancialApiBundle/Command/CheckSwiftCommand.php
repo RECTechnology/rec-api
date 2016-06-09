@@ -56,7 +56,9 @@ class CheckSwiftCommand extends ContainerAwareCommand
         $output->writeln('START QUERY: '.$now->format('d-m-Y:H:i:s'));
 
         $root_id = $this->getContainer()->getParameter('admin_user_id');
+        $root_group_id = $this->getContainer()->getParameter('id_group_root');
         $root = $em->getRepository('TelepayFinancialApiBundle:User')->find($root_id);
+        $rootGroup = $em->getRepository('TelepayFinancialApiBundle:Group')->find($root_group_id);
 
         foreach($qb->toArray() as $transaction){
             if($transaction->getMethodIn() != ''){
@@ -226,6 +228,7 @@ class CheckSwiftCommand extends ContainerAwareCommand
                                     //client fees goes to the user
                                     $userFee = new Transaction();
                                     $userFee->setUser($transaction->getUser());
+                                    $userFee->setGroup($transaction->getGroup());
                                     $userFee->setType('fee');
                                     $userFee->setCurrency($transaction->getCurrency());
                                     $userFee->setScale($transaction->getScale());
@@ -244,8 +247,8 @@ class CheckSwiftCommand extends ContainerAwareCommand
                                     $userFee->setClient($client);
                                     $dm->persist($userFee);
 
-                                    $user = $em->getRepository('TelepayFinancialApiBundle:User')->find($transaction->getUser());
-                                    $userWallets = $user->getWallets();
+                                    $group = $em->getRepository('TelepayFinancialApiBundle:User')->find($transaction->getGroup());
+                                    $userWallets = $group->getWallets();
                                     $current_wallet = null;
 
                                     foreach ( $userWallets as $wallet){
@@ -267,6 +270,7 @@ class CheckSwiftCommand extends ContainerAwareCommand
 
                                     $rootFee = new Transaction();
                                     $rootFee->setUser($root->getId());
+                                    $rootFee->setGroup($rootGroup->getId());
                                     $rootFee->setType('fee');
                                     $rootFee->setCurrency($transaction->getCurrency());
                                     $rootFee->setScale($transaction->getScale());
@@ -286,7 +290,7 @@ class CheckSwiftCommand extends ContainerAwareCommand
 
                                     $dm->persist($rootFee);
                                     //get wallets and add fees to both, user and wallet
-                                    $rootWallets = $root->getWallets();
+                                    $rootWallets = $rootGroup->getWallets();
                                     $current_wallet = null;
 
                                     foreach ( $rootWallets as $wallet){
