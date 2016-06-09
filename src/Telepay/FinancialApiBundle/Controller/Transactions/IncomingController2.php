@@ -1061,7 +1061,7 @@ class IncomingController2 extends RestApiController{
         $transaction_id = $transaction_cancelled->getId();
         $transactions = $qb
             ->field('type')->equals('fee')
-            ->field('user')->equals($transaction_cancelled->getUser())
+            ->field('group')->equals($transaction_cancelled->getGroup())
             ->where("function() {
                                 if (typeof this.dataIn !== 'undefined') {
                                     if (typeof this.dataIn.previous_transaction !== 'undefined') {
@@ -1088,7 +1088,7 @@ class IncomingController2 extends RestApiController{
 
         $total_fee = $transaction->getFixedFee() + $transaction->getVariableFee();
 
-        $user = $em->getRepository('TelepayFinancialApiBundle:User')->find($transaction->getUser());
+        $group = $em->getRepository('TelepayFinancialApiBundle:Group')->find($transaction->getGroup());
 
         $transaction->setAmount(0);
         $transaction->setTotal(0);
@@ -1103,11 +1103,10 @@ class IncomingController2 extends RestApiController{
         $mongo->flush();
 
         $balancer = $this->get('net.telepay.commons.balance_manipulator');
-        $balancer->addBalance($user, $total_fee, $transaction );
+        $balancer->addBalance($group, $total_fee, $transaction );
 
         //empezamos el reparto
-        $group = $user->getGroups()[0];
-        $creator = $group->getCreator();
+        $creator = $group->getGroupCreator();
 
         if(!$creator) throw new HttpException(404,'Creator not found');
 
