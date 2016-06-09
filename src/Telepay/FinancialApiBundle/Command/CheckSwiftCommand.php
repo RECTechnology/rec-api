@@ -227,7 +227,7 @@ class CheckSwiftCommand extends ContainerAwareCommand
                                 if($client_fee != 0){
                                     //client fees goes to the user
                                     $userFee = new Transaction();
-                                    $userFee->setUser($transaction->getUser());
+                                    if($transaction->getUser()) $transaction->setUser($transaction->getUser());
                                     $userFee->setGroup($transaction->getGroup());
                                     $userFee->setType('fee');
                                     $userFee->setCurrency($transaction->getCurrency());
