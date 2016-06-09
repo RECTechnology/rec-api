@@ -334,7 +334,7 @@ class IncomingController2 extends RestApiController{
 
             $amount = $transaction->getAmount();
             $total_fee = $transaction->getFixedFee() + $transaction->getVariableFee();
-            $total_amount = $amount + $total_fee ;
+            $total_amount = $amount;
 
             $payment_info = $transaction->getPayOutInfo();
 
@@ -1095,11 +1095,11 @@ class IncomingController2 extends RestApiController{
             ->execute();
 
 //        $exist = false;
-        $method_cname = $transaction_cancelled->getMethod();
+//        $method_cname = $transaction_cancelled->getMethod();
         foreach($transactions->toArray() as $transaction){
 //            $exist = true;
 
-            $total_fee = $transaction->getFixedFee() + $transaction->getVariableFee();
+            $total_fee = $transaction->getTotal();
 
             $group = $em->getRepository('TelepayFinancialApiBundle:Group')->find($transaction->getGroup());
 
@@ -1107,11 +1107,11 @@ class IncomingController2 extends RestApiController{
             $logger->info('Update transaction -> cancel fees => '.$transaction->getAmount());
             $transaction->setAmount(0);
             $transaction->setTotal(0);
-            $transaction->setPayOutInfo(array(
-                'previous_transaction'  =>  $transaction->getId(),
-                'amount'                =>  -$total_fee,
-                'description'           =>  'refund'.$method_cname.'->fee'
-            ));
+//            $transaction->setPayOutInfo(array(
+//                'previous_transaction'  =>  $transaction->getId(),
+//                'amount'                =>  -$total_fee,
+//                'description'           =>  'refund'.$method_cname.'->fee'
+//            ));
             $transaction->setStatus(Transaction::$STATUS_CANCELLED);
 
             $mongo->persist($transaction);
@@ -1120,6 +1120,17 @@ class IncomingController2 extends RestApiController{
             $logger->info('Update transaction -> addBalance inversedDealer');
             $balancer = $this->get('net.telepay.commons.balance_manipulator');
             $balancer->addBalance($group, $total_fee, $transaction );
+
+            $wallets = $group->getwallets();
+            foreach($wallets as $wallet){
+                if($transaction->getCurrency() == $wallet->getCurrency()){
+                    $wallet->setAvailable($wallet->getAvailable() + $total_fee);
+                    $wallet->setBalance($wallet->getBalance() + $total_fee);
+
+                    $em->persist($wallet);
+                    $em->flush();
+                }
+            }
 
 //            //empezamos el reparto
 //            $creator = $group->getGroupCreator();
