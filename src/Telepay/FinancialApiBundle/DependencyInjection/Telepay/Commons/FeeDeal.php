@@ -98,11 +98,13 @@ class FeeDeal{
                 $transaction->setType('fee');
                 $transaction->setDataIn(array(
                     'parent_id' => $transaction_id,
+                    'previous_transaction' => $transaction_id,
                     'amount'    =>  $fee,
                     'description'   =>$service_cname.'->fee'
                 ));
                 $transaction->setData(array(
                     'parent_id' =>  $transaction_id,
+                    'previous_transaction' =>  $transaction_id,
                     'type'      =>  'suma_amount'
                 ));
                 //incloure les fees en la transacció
@@ -137,6 +139,7 @@ class FeeDeal{
                 $feeTransaction->setAmount($total);
                 $feeTransaction->setDataIn(array(
                     'parent_id' => $transaction->getId(),
+                    'previous_transaction' => $transaction->getId(),
                     'amount'    =>  -$total,
                     'description'   =>  $service_cname.'->fee'
                 ));
@@ -174,7 +177,7 @@ class FeeDeal{
         $group = $creator;
 
         if($creator->getId() != $rootGroupId){
-            $logger->info('make transaction -> inverseddeal not superadmin ');
+            $logger->info('make transaction -> inverseddeal not admin ');
             //obtenemos el grupo
 
             //obtener comissiones del grupo
@@ -191,7 +194,7 @@ class FeeDeal{
             $variable = $group_commission->getVariable();
             $total = $fixed + ($variable/100) * $amount;
         }else{
-            $logger->info('make transaction -> inverseddeal not superadmin ');
+            $logger->info('make transaction -> inverseddeal admin ');
             $total = 0;
             $variable = 0;
             $fixed = 0;
@@ -226,6 +229,7 @@ class FeeDeal{
                 $transaction->setType('fee');
                 $transaction->setDataIn(array(
                     'parent_id' => $transaction_id,
+                    'previous_transaction' => $transaction_id,
                     'amount'    =>  $fee,
                     'description'   =>$service_cname.'->fee'
                 ));
@@ -235,6 +239,7 @@ class FeeDeal{
                 ));
                 $transaction->setPayOutInfo(array(
                     'parent_id' => $transaction_id,
+                    'previous_transaction' => $transaction_id,
                     'amount'    =>  -$fee,
                     'description'   => 'refund'.$service_cname.'->fee'
                 ));
@@ -269,6 +274,7 @@ class FeeDeal{
             $feeTransaction->setAmount($total);
             $feeTransaction->setDataIn(array(
                 'parent_id' => $transaction->getId(),
+                'previous_transaction' => $transaction->getId(),
                 'amount'    =>  -$total,
                 'description'   =>  $service_cname.'->fee'
             ));
