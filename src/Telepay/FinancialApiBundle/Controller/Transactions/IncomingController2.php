@@ -33,7 +33,7 @@ class IncomingController2 extends RestApiController{
         $method = $this->get('net.telepay.'.$type.'.'.$method_cname.'.v'.$version_number);
 
         $user = $this->get('security.context')->getToken()->getUser();
-        $group = $user->getGroups()[0];
+        $group = $user->getActiveGroup();
 
         $method_list = $group->getMethodsList();
 
@@ -214,7 +214,7 @@ class IncomingController2 extends RestApiController{
 
                 $this->container->get('notificator')->notificate($transaction);
 
-                //restar al usuario el amount + comisiones
+                //restar al grupo el amount + comisiones
                 $current_wallet->setBalance($current_wallet->getBalance() - $total);
 
                 //insert new line in the balance fro this group
