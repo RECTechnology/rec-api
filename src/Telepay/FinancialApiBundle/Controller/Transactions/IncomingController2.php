@@ -287,14 +287,14 @@ class IncomingController2 extends RestApiController{
 
         $method = $this->get('net.telepay.'.$type.'.'.$method_cname.'.v'.$version_number);
 
-        $method_list = $this->get('security.context')->getToken()->getUser()->getMethodsList();
+        $user = $this->get('security.context')->getToken()->getUser();
+        $group = $user->getActiveGroup();
+        $method_list = $group->getMethodsList();
 
         if (!in_array($method_cname.'-'.$type, $method_list)) {
             throw $this->createAccessDeniedException();
         }
 
-        $user = $this->get('security.context')->getToken()->getUser();
-        $group = $user->getGroups()[0];
 
         $data = $request->request->all();
 
@@ -313,12 +313,8 @@ class IncomingController2 extends RestApiController{
 
             if($transaction->getType() != 'out') throw new HttpException(403, 'Forbidden action for this transaction ');
 
-            //Search user
-            $user_id = $transaction->getUser();
-
             $em = $this->getDoctrine()->getManager();
 
-            $user = $em->getRepository('TelepayFinancialApiBundle:User')->find($user_id);
             $currency = $transaction->getCurrency();
 
             //Search wallet
