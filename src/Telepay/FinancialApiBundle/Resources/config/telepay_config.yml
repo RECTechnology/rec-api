@@ -144,7 +144,7 @@ services:
             - "All over the world"
             - "EUR"
             - "86400"
-            - "0"
+            - "24"
 
     net.telepay.config.btc.easypay:
         class: Telepay\FinancialApiBundle\Financial\Methods\MethodConfiguration
