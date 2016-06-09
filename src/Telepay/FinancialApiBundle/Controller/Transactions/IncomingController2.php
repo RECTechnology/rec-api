@@ -334,7 +334,7 @@ class IncomingController2 extends RestApiController{
 
             $amount = $transaction->getAmount();
             $total_fee = $transaction->getFixedFee() + $transaction->getVariableFee();
-            $total_amount = $amount;
+            $total_amount = $amount + $total_fee;
 
             $payment_info = $transaction->getPayOutInfo();
 
@@ -345,7 +345,7 @@ class IncomingController2 extends RestApiController{
                 if( $transaction->getStatus()== Transaction::$STATUS_FAILED ){
                     $logger->info('Update transaction -> status->failed');
                     //discount available
-                    $current_wallet->setAvailable($current_wallet->getAvailable() - $total_amount );
+                    $current_wallet->setAvailable($current_wallet->getAvailable() - $total_amount);
                     $em->persist($current_wallet);
                     $em->flush();
                     try {
@@ -489,8 +489,8 @@ class IncomingController2 extends RestApiController{
                         $mongo->flush();
 
                         //desbloquear pasta del wallet
-                        $current_wallet->setAvailable($current_wallet->getAvailable() + $total_amount );
-                        $current_wallet->setBalance($current_wallet->getBalance() + $total_amount );
+                        $current_wallet->setAvailable($current_wallet->getAvailable() + $amount );
+                        $current_wallet->setBalance($current_wallet->getBalance() + $amount );
                         $balancer = $this->get('net.telepay.commons.balance_manipulator');
                         $balancer->addBalance($group, $total_amount, $transaction);
                         $logger->info('Update transaction -> addBalance');
