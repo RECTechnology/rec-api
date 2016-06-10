@@ -413,7 +413,7 @@ class SwiftController extends RestApiController{
 
                 //if previous status == failed generate fees transactions
                 if($previous_status == Transaction::$STATUS_FAILED){
-                    $this->_generateFees($transaction, $method_in, $method_out);
+                    $this->_generateFees($transaction, $transaction->getMethodIn(), $transaction->getMethodOut());
                 }
 
             }else{
@@ -837,7 +837,6 @@ class SwiftController extends RestApiController{
         $dm = $this->get('doctrine_mongodb')->getManager();
         $client = $em->getRepository('TelepayFinancialApiBundle:Client')->find($transaction->getClient());
         $clientGroup = $client->getGroup();
-        $clientGroupId = $clientGroup->getId();
         $amount = $transaction->getAmount();
 
         $root_id = $this->container->getParameter('admin_user_id');
