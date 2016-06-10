@@ -247,7 +247,7 @@ class CheckSwiftCommand extends ContainerAwareCommand
                                     $userFee->setClient($client);
                                     $dm->persist($userFee);
 
-                                    $group = $em->getRepository('TelepayFinancialApiBundle:User')->find($transaction->getGroup());
+                                    $group = $em->getRepository('TelepayFinancialApiBundle:Group')->find($transaction->getGroup());
                                     $userWallets = $group->getWallets();
                                     $current_wallet = null;
 
@@ -307,7 +307,6 @@ class CheckSwiftCommand extends ContainerAwareCommand
                                 }
 
                                 $dm->flush();
-
 
                             }else{
                                 $transaction->setStatus(Transaction::$STATUS_FAILED);
