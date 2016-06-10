@@ -384,7 +384,7 @@ class SwiftController extends RestApiController{
 
                 $previous_status = $transaction->getStatus();
 
-                //TODO implement a resend with changed params (phone and prefix done)
+                //resend with changed params (phone and prefix done)
 
                 if($request->request->has('new_phone') && $request->request->get('new_phone')!=''){
                     $new_phone = $request->request->get('new_phone');
@@ -835,9 +835,9 @@ class SwiftController extends RestApiController{
 
         $em = $this->getDoctrine()->getManager();
         $dm = $this->get('doctrine_mongodb')->getManager();
-        $client = $transaction->getClient();
-        $clientGroupId = $client->getGroup();
-        $clientGroup = $em->getRepository('TelepayFinancialApiBundle:Group')->find($clientGroupId);
+        $client = $em->getRepository('TelepayFinancialApiBundle:Client')->find($transaction->getClient());
+        $clientGroup = $client->getGroup();
+        $clientGroupId = $clientGroup->getId();
         $amount = $transaction->getAmount();
 
         $root_id = $this->container->getParameter('admin_user_id');
@@ -859,8 +859,9 @@ class SwiftController extends RestApiController{
         $service_fee = ($amount * ($methodFees->getVariable()/100) + $methodFees->getFixed());
 
         //client fees goes to the user
+        
         $userFee = new Transaction();
-        $userFee->setUser($transaction->getUser());
+        if($transaction->getUser()) $userFee->setUser($transaction->getUser());
         $userFee->setGroup($transaction->getGroup());
         $userFee->setType('fee');
         $userFee->setCurrency($transaction->getCurrency());
