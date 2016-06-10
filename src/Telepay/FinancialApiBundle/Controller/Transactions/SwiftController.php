@@ -859,7 +859,6 @@ class SwiftController extends RestApiController{
         $service_fee = ($amount * ($methodFees->getVariable()/100) + $methodFees->getFixed());
 
         //client fees goes to the user
-        
         $userFee = new Transaction();
         if($transaction->getUser()) $userFee->setUser($transaction->getUser());
         $userFee->setGroup($transaction->getGroup());
