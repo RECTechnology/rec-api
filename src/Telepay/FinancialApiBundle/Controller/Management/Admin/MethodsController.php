@@ -2,16 +2,32 @@
 
 namespace Telepay\FinancialApiBundle\Controller\Management\Admin;
 
+use Symfony\Component\HttpFoundation\Request;
+use Symfony\Component\HttpKernel\Exception\HttpException;
+use Telepay\FinancialApiBundle\Controller\BaseApiController;
 use Telepay\FinancialApiBundle\Controller\RestApiController;
 use FOS\RestBundle\Controller\Annotations as Rest;
+use Telepay\FinancialApiBundle\Entity\StatusMethod;
 use Telepay\FinancialApiBundle\Financial\Currency;
 
 /**
  * Class MethodsController
  * @package Telepay\FinancialApiBundle\Controller\Management\Admin
  */
-class MethodsController extends RestApiController
+class MethodsController extends BaseApiController
 {
+
+    function getRepositoryName()
+    {
+        return "TelepayFinancialApiBundle:StatusMethod";
+    }
+
+    function getNewEntity()
+    {
+        return new StatusMethod();
+    }
+
+
     /**
      * @Rest\View()
      */
@@ -21,7 +37,34 @@ class MethodsController extends RestApiController
 
         $allowed_services = [];
         if ($this->get('security.authorization_checker')->isGranted('ROLE_SUPER_ADMIN')) {
-            $allowed_services = $services;
+
+            $em = $this->getDoctrine()->getManager();
+
+            foreach($services as $service){
+                $statusMethod = $em->getRepository($this->getRepositoryName())->findOneBy(array(
+                    'method'    =>  $service->getCname()
+                ));
+
+                $status = 'not found';
+                $balance = 'not found';
+                if($statusMethod){
+                    $status = $statusMethod->getStatus();
+                    $balance = $statusMethod->getBalance();
+                }
+
+                $resp = array(
+                    'name' =>  ucfirst($service->getCname()),
+                    'cname' =>  $service->getCname(),
+                    'type' =>  $service->getType(),
+                    'currency'  =>  $service->getCurrency(),
+                    'scale' =>  Currency::$SCALE[$service->getCurrency()],
+                    'base64image'   =>  $service->getBase64Image(),
+                    'status'    =>  $status,
+                    'balance'   =>  $balance
+                );
+
+                $allowed_services[] = $resp;
+            }
         }else{
             $userGroup = $this->get('security.context')->getToken()->getUser()->getActiveGroup();
             $group_services = $userGroup->getMethodsList();
@@ -100,4 +143,62 @@ class MethodsController extends RestApiController
         );
     }
 
+    /**
+     * @Rest\View()
+     */
+
+    public function createMethod(Request $request){
+        if (!$this->get('security.authorization_checker')->isGranted('ROLE_SUPER_ADMIN'))
+            throw new HttpException(403, 'You don\'t have de necessary permissions');
+
+        $paramsArray = array(
+            'method',
+            'currency',
+            'balance',
+            'status'
+        );
+
+        foreach($paramsArray as $param){
+            if(!$request->request->has($param)) throw new HttpException(404, 'Parameter '.$param.' not found');
+
+        }
+
+        return parent::createAction($request);
+
+    }
+
+    /**
+     * @Rest\View()
+     */
+    public function updateMethod(Request $request, $id){
+
+        if (!$this->get('security.authorization_checker')->isGranted('ROLE_SUPER_ADMIN'))
+            throw new HttpException(403, 'You don\'t have de necessary permissions');
+
+        $em = $this->getDoctrine()->getManager();
+
+        $method = $em->getRepository($this->getRepositoryName())->find($id);
+
+        if(!$method) throw new HttpException(404, 'Method not found');
+
+        if($request->request->has('amount')){
+            $balance = $method->getBalance() + $request->request->get('amount');
+            $request->request->remove('amount');
+            $request->request->add(array(
+                'amount'    =>  $balance
+            ));
+        }
+
+        return parent::updateAction($request, $id);
+    }
+
+    /**
+     * @Rest\View()
+     */
+    public function deleteMethod($id){
+        if (!$this->get('security.authorization_checker')->isGranted('ROLE_SUPER_ADMIN'))
+            throw new HttpException(403, 'You don\'t have de necessary permissions');
+        
+        return parent::deleteAction($id);
+    }
 }
