@@ -198,7 +198,7 @@ class MethodsController extends BaseApiController
     public function deleteMethod($id){
         if (!$this->get('security.authorization_checker')->isGranted('ROLE_SUPER_ADMIN'))
             throw new HttpException(403, 'You don\'t have de necessary permissions');
-        
+
         return parent::deleteAction($id);
     }
 }

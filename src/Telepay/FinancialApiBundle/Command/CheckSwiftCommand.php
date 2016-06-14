@@ -369,9 +369,11 @@ class CheckSwiftCommand extends ContainerAwareCommand
 
     private function _sendErrorEmail($subject, $body){
 
+        $no_replay = $this->getContainer()->getParameter('no_reply_email');
+
         $message = \Swift_Message::newInstance()
             ->setSubject($subject)
-            ->setFrom('no-reply@chip-chap.com')
+            ->setFrom($no_replay)
             ->setTo(array(
                 'pere@chip-chap.com',
                 'cto@chip-chap.com'
@@ -417,9 +419,11 @@ class CheckSwiftCommand extends ContainerAwareCommand
         $dompdf->getpdf($html);
         $pdfoutput = $dompdf->output();
 
+        $no_replay = $this->getContainer()->getParameter('no_reply_email');
+
         $message = \Swift_Message::newInstance()
             ->setSubject($marca[$method_out] . 'Ticket ref: '.$ref)
-            ->setFrom('no-reply@chip-chap.com')
+            ->setFrom($no_replay)
             ->setTo(array(
                 $email
             ))
