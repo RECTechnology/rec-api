@@ -52,6 +52,16 @@ class MethodsController extends BaseApiController
                     $balance = $statusMethod->getBalance();
                 }
 
+                if($service->getCname() == 'btc' || $service->getCname() == 'fac'){
+                    if($service->getCname() == 'fac'){
+                        $cryptoWallet = $this->container->get('net.telepay.wallet.fullnode.fair');
+                    }else{
+                        $cryptoWallet = $this->container->get('net.telepay.wallet.fullnode.'.$service->getCname());
+                    }
+
+                    $balance = $cryptoWallet->getBalance();
+                }
+
                 $resp = array(
                     'name' =>  ucfirst($service->getCname()),
                     'cname' =>  $service->getCname(),
