@@ -64,6 +64,7 @@ class MethodsController extends BaseApiController
                 }
 
                 $resp = array(
+                    'id'    =>  $statusMethod->getId(),
                     'name' =>  ucfirst($service->getCname()),
                     'cname' =>  $service->getCname(),
                     'type' =>  $service->getType(),
