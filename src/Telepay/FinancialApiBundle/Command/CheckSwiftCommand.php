@@ -233,7 +233,7 @@ class CheckSwiftCommand extends ContainerAwareCommand
                                         $this->_sendTicket($body, $email, $ticket, $method_out);
                                     }
                                 }else{
-                                    //TODO restar al balance correspondiente (halcash, sepa , cryptocapital)
+                                    //restar al balance correspondiente (halcash, sepa , cryptocapital)
                                     $statusMethod = $em->getRepository('TelepayFinancialApiBundle:StatusMethod')->findOneBy(array(
                                         'method'    =>  $method_in,
                                         'type'  =>  'out'
