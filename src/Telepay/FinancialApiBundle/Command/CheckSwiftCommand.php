@@ -151,6 +151,21 @@ class CheckSwiftCommand extends ContainerAwareCommand
                         }
                         $output->writeln('NEW STATUS => '.$transaction->getStatus());
                     }elseif($pay_in_info['status'] == 'success'){
+                        if($method_in != 'btc' && $method_in != 'fac' ){
+                            //sumar balance to statusMethod only when cash_in is distinct to btc or fac
+                            $statusMethod = $em->getRepository('TelepayFinancialApiBundle:StatusMethod')->findOneBy(array(
+                                'method'    =>  $method_in,
+                                'type'  =>  'in'
+                            ));
+
+                            if($statusMethod){
+                                $balance = $statusMethod->getBalance() + $pay_in_info['amount'];
+                                $statusMethod->setBalance($balance);
+                                $em->persist($statusMethod);
+                                $em->flush();
+                            }
+
+                        }
                         $transaction->setPayInInfo($pay_in_info);
                         $transaction->setDataOut($pay_in_info);
                         $transaction->setUpdated(new \DateTime());
@@ -217,6 +232,21 @@ class CheckSwiftCommand extends ContainerAwareCommand
 
                                         $this->_sendTicket($body, $email, $ticket, $method_out);
                                     }
+                                }else{
+                                    //TODO restar al balance correspondiente (halcash, sepa , cryptocapital)
+                                    $statusMethod = $em->getRepository('TelepayFinancialApiBundle:StatusMethod')->findOneBy(array(
+                                        'method'    =>  $method_in,
+                                        'type'  =>  'out'
+                                    ));
+
+                                    if($statusMethod){
+                                        $balance = $statusMethod->getBalance() - $pay_out_info['amount'] - $service_fee;
+                                        if($balance < 0) $balance = 0;
+                                        $statusMethod->setBalance($balance);
+                                        $em->persist($statusMethod);
+                                        $em->flush();
+                                    }
+
                                 }
                                 //Generate fee transactions. One for the user and one for the root
                                 if($pay_out_info['status'] == 'sending'){
