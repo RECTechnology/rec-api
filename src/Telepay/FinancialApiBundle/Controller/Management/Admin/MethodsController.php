@@ -68,9 +68,9 @@ class MethodsController extends BaseApiController
                     'type' =>  $service->getType(),
                     'currency'  =>  $service->getCurrency(),
                     'scale' =>  Currency::$SCALE[$service->getCurrency()],
-                    'base64image'   =>  $service->getBase64Image(),
                     'status'    =>  $status,
-                    'balance'   =>  $balance
+                    'balance'   =>  $balance,
+                    'base64image'   =>  $service->getBase64Image()
                 );
 
                 $allowed_services[] = $resp;
