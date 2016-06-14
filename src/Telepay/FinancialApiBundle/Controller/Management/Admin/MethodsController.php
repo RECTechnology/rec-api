@@ -163,6 +163,7 @@ class MethodsController extends BaseApiController
 
         $paramsArray = array(
             'method',
+            'type',
             'currency',
             'balance',
             'status'

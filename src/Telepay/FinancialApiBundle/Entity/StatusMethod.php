@@ -29,6 +29,11 @@ class StatusMethod {
     /**
      * @ORM\Column(type="string")
      */
+    private $type;
+
+    /**
+     * @ORM\Column(type="string")
+     */
     private $status;
 
     /**
@@ -129,6 +134,22 @@ class StatusMethod {
     public function getId()
     {
         return $this->id;
+    }
+
+    /**
+     * @return mixed
+     */
+    public function getType()
+    {
+        return $this->type;
+    }
+
+    /**
+     * @param mixed $type
+     */
+    public function setType($type)
+    {
+        $this->type = $type;
     }
 
 }
