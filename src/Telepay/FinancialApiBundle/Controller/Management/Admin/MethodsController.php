@@ -42,7 +42,8 @@ class MethodsController extends BaseApiController
 
             foreach($services as $service){
                 $statusMethod = $em->getRepository($this->getRepositoryName())->findOneBy(array(
-                    'method'    =>  $service->getCname()
+                    'method'    =>  $service->getCname(),
+                    'type'      =>  $service->getType()
                 ));
 
                 $status = 'not found';
