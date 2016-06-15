@@ -200,7 +200,7 @@ class MethodsController extends BaseApiController
             $balance = $method->getBalance() + $request->request->get('amount');
             $request->request->remove('amount');
             $request->request->add(array(
-                'amount'    =>  $balance
+                'balance'    =>  $balance
             ));
         }
 
