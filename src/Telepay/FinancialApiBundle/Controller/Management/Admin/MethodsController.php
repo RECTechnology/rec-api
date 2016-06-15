@@ -48,9 +48,11 @@ class MethodsController extends BaseApiController
 
                 $status = 'not found';
                 $balance = 'not found';
+                $id = 'not found';
                 if($statusMethod){
                     $status = $statusMethod->getStatus();
                     $balance = $statusMethod->getBalance();
+                    $id = $statusMethod->getId();
                 }
 
                 if($service->getCname() == 'btc' || $service->getCname() == 'fac'){
@@ -64,7 +66,7 @@ class MethodsController extends BaseApiController
                 }
 
                 $resp = array(
-                    'id'    =>  $statusMethod->getId(),
+                    'id'    =>  $id,
                     'name' =>  ucfirst($service->getCname()),
                     'cname' =>  $service->getCname(),
                     'type' =>  $service->getType(),
