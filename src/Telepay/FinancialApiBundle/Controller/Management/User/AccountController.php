@@ -896,7 +896,7 @@ class AccountController extends BaseApiController{
      */
     public function indexCompanies(Request $request){
 
-        $admin = $this->get('security.context')->getToken()->getUser();
+        $user = $this->get('security.context')->getToken()->getUser();
 
         if($request->query->has('limit')) $limit = $request->query->get('limit');
         else $limit = 10;
@@ -904,11 +904,13 @@ class AccountController extends BaseApiController{
         if($request->query->has('offset')) $offset = $request->query->get('offset');
         else $offset = 0;
 
-        $all = $admin->getGroups();
+        $all = $user->getGroups();
 
         $total = count($all);
-//
-//        $entities = array_slice($all, $offset, $limit);
+
+        foreach($all as $company){
+            $company->user_role = $user->getRolesCompany($company->getId());
+        }
 
         return $this->restV2(
             200,
