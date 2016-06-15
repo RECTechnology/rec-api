@@ -51,6 +51,8 @@ class AccountController extends BaseApiController{
             $user = $em->getRepository('TelepayFinancialApiBundle:User')->find('chipchap_user_id');
         }
 
+        $user->setRoles($user->getRoles());
+
 //        $userGroup = $user->getGroups()[0];
 //        $listServices = $user->getServicesList();
 //        $listMethods = $user->getMethodsList();
@@ -63,6 +65,8 @@ class AccountController extends BaseApiController{
 //        $user->setAllowedMethods($allowedMethods);
 
         $group = $this->get('security.context')->getToken()->getUser()->getActiveGroup();
+        //$groups = $this->get('security.context')->getToken()->getUser()->getGroups();
+        //return $this->restV2(200, "ok", "Account info got successfully", $groups);
 
         $group_data = array();
         $group_data['id'] = $group->getId();
@@ -318,6 +322,7 @@ class AccountController extends BaseApiController{
     public function changeGroup(Request $request){
 
         $user = $this->get('security.context')->getToken()->getUser();
+        $user->setRoles($user->getRoles());
 
         if($request->request->has('group_id'))
             $group_id = $request->request->get('group_id');
@@ -337,9 +342,20 @@ class AccountController extends BaseApiController{
 
         $em = $this->getDoctrine()->getManager();
 
-        $user->setActiveGroup($group);
+        $user->setActiveGroup($userGroup);
+        $user->setRoles($user->getRoles());
         $em->persist($user);
         $em->flush();
+
+        $group_data = array();
+        $group_data['id'] = $userGroup->getId();
+        $group_data['name'] = $userGroup->getName();
+        $group_data['default_currency'] = $userGroup->getDefaultCurrency();
+        $group_data['base64_image'] = $userGroup->getBase64Image();
+        $group_data['admin'] = $userGroup->getCreator()->getName();
+        $group_data['email'] = $userGroup->getCreator()->getEmail();
+
+        $user->setGroupData($group_data);
 
         return $this->restV2(200,"ok", "Active group changed successfully", $user);
     }
@@ -709,6 +725,11 @@ class AccountController extends BaseApiController{
                 throw new HttpException(404, 'Parameter '.$paramName.' not found');
             }
         }
+
+        if($params['password']==''){
+            throw new HttpException('Paramater password not found');
+        }
+
         $em = $this->getDoctrine()->getManager();
 
         $user = $em->getRepository($this->getRepositoryName())->findOneBy(array(

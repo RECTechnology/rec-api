@@ -8,7 +8,9 @@
 
 namespace Telepay\FinancialApiBundle\Entity;
 
+use Doctrine\Common\Collections\Collection;
 use Doctrine\Common\Collections\ArrayCollection;
+use FOS\UserBundle\Model\GroupInterface;
 use FOS\UserBundle\Model\User as BaseUser;
 use Doctrine\ORM\Mapping as ORM;
 use Symfony\Component\HttpKernel\Exception\HttpException;
@@ -56,7 +58,7 @@ class User extends BaseUser
     /**
      * @ORM\ManyToOne(targetEntity="Telepay\FinancialApiBundle\Entity\Group")
      */
-    private $active_group = 0;
+    private $active_group = null;
 
     /**
      * @ORM\OneToMany(targetEntity="Telepay\FinancialApiBundle\Entity\AccessToken", mappedBy="user", cascade={"remove"})
@@ -667,11 +669,34 @@ class User extends BaseUser
     }
 
     /**
+     * Returns the user roles
+     *
+     * @return array The roles
+     */
+    public function getRoles()
+    {
+        foreach($this->groups as $Usergroup){
+            if($this->getActiveGroup()->getId() == $Usergroup->getGroup()->getId()){
+                $roles = $Usergroup->getRoles();
+            }
+        }
+
+        foreach ($this->getGroups() as $group) {
+            $roles = array_merge($roles, $group->getRoles());
+        }
+
+        // we need to make sure to have at least one role
+        $roles[] = static::ROLE_DEFAULT;
+
+        return array_unique($roles);
+    }
+
+    /**
      * @return mixed
      */
     public function getActiveGroup()
     {
-        if($this->active_group == 0){
+        if($this->active_group == null || $this->active_group->getId() == 0){
             return  $this->getGroups()[0];
         }
         return $this->active_group;
@@ -683,6 +708,49 @@ class User extends BaseUser
     public function setActiveGroup($active_group)
     {
         $this->active_group = $active_group;
+    }
+
+    /**
+     * Gets the groups granted to the user.
+     *
+     * @return Collection
+     */
+    public function getGroups()
+    {
+        $groups = new ArrayCollection();
+        /*
+        $em = $this->getContainer()->get('doctrine')->getManager();
+        $groups = $em->findBy(array(
+            'user'  =>  $this
+        ));
+        foreach($groups as $group){
+            $this->groups->add($group->getGroup());
+        }
+        */
+        foreach($this->groups as $Usergroup){
+            $groups->add($Usergroup->getGroup());
+        }
+        return $groups;
+    }
+
+    public function getGroupNames()
+    {
+        $names = array();
+        foreach ($this->getGroups() as $group) {
+            $names[] = $group->getName();
+        }
+
+        return $names;
+    }
+
+    /**
+     * @param string $name
+     *
+     * @return boolean
+     */
+    public function hasGroup($name)
+    {
+        return in_array($name, $this->getGroupNames());
     }
 
     public function getAdminView(){

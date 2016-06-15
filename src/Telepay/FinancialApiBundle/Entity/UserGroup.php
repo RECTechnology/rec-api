@@ -36,22 +36,8 @@ class UserGroup{
 
     /**
      * @ORM\Column(type="text")
-     * @var array
      */
     protected $roles;
-
-    public function __construct()
-    {
-        $this->roles = array();
-    }
-
-    /**
-     * @return mixed
-     */
-    public function getId()
-    {
-        return $this->id;
-    }
 
     /**
      * @return mixed
@@ -87,15 +73,16 @@ class UserGroup{
 
     public function addRole($role)
     {
+        $roles = unserialize($this->roles);
         $role = strtoupper($role);
         if ($role === static::ROLE_DEFAULT) {
             return $this;
         }
 
-        if (!in_array($role, $this->roles, true)) {
-            $this->roles[] = $role;
+        if (!in_array($role, $roles, true)) {
+            $roles[] = $role;
         }
-
+        $this->roles = serialize($roles);
         return $this;
     }
 
@@ -128,11 +115,12 @@ class UserGroup{
 
     public function removeRole($role)
     {
-        if (false !== $key = array_search(strtoupper($role), $this->roles, true)) {
-            unset($this->roles[$key]);
-            $this->roles = array_values($this->roles);
+        $roles = unserialize($this->roles);
+        if (false !== $key = array_search(strtoupper($role), $roles, true)) {
+            unset($roles[$key]);
+            $roles = array_values($roles);
         }
-
+        $this->roles = serialize($roles);
         return $this;
     }
 
@@ -149,12 +137,20 @@ class UserGroup{
 
     public function setRoles(array $roles)
     {
-        $this->roles = array();
+        $this->roles = serialize(array());
 
         foreach ($roles as $role) {
             $this->addRole($role);
         }
 
         return $this;
+    }
+
+    /**
+     * @return mixed
+     */
+    public function getName()
+    {
+        return $this->getGroup()->getName();
     }
 }
