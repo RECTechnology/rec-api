@@ -31,6 +31,8 @@ class HalcashMethod extends BaseMethod{
         $amount = $paymentInfo['amount']/100;
         $reference = $paymentInfo['concept'];
 
+        if($reference != 'FairToEarth' && $reference != 'HolyTx') $reference = 'ChipChap';
+
         $find_token = $paymentInfo['find_token'];
         if(isset($paymentInfo['pin'])){
             $pin = $paymentInfo['pin'];
@@ -41,9 +43,9 @@ class HalcashMethod extends BaseMethod{
 
         try{
             if($this->getCurrency() == 'EUR'){
-                $hal = $this->driver->sendV3($phone,$prefix,$amount,'ChipChap '.$find_token,$pin);
+                $hal = $this->driver->sendV3($phone, $prefix, $amount, $reference.' '.$find_token, $pin);
             }else{
-                $hal = $this->driver->sendInternational($phone,$prefix,$amount,'ChipChap '.$find_token,$pin, 'PL', 'POL');
+                $hal = $this->driver->sendInternational($phone, $prefix, $amount, $reference.' '.$find_token, $pin, 'PL', 'POL');
             }
         }catch (HttpException $e){
             throw new Exception($e->getMessage(), $e->getStatusCode());

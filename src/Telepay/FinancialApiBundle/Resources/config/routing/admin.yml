@@ -45,6 +45,24 @@ admin_services_index:
     requirements:
         _method: GET
 
+admin_services_create:
+    pattern:  /admin/v1/methods
+    defaults: { _controller: Telepay\FinancialApiBundle\Controller\Management\Admin\MethodsController::createMethod }
+    requirements:
+        _method: POST
+
+admin_services_update:
+    pattern:  /admin/v1/methods/{id}
+    defaults: { _controller: Telepay\FinancialApiBundle\Controller\Management\Admin\MethodsController::updateMethod }
+    requirements:
+        _method: PUT
+
+admin_services_delete:
+    pattern:  /admin/v1/methods/{id}
+    defaults: { _controller: Telepay\FinancialApiBundle\Controller\Management\Admin\MethodsController::deleteMethod }
+    requirements:
+        _method: DELETE
+
 admin_swift_index:
     pattern:  /admin/v1/swift
     defaults: { _controller: Telepay\FinancialApiBundle\Controller\Management\Admin\MethodsController::indexSwift }

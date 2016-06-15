@@ -33,7 +33,7 @@ class IncomingController2 extends RestApiController{
         $method = $this->get('net.telepay.'.$type.'.'.$method_cname.'.v'.$version_number);
 
         $user = $this->get('security.context')->getToken()->getUser();
-        $group = $user->getGroups()[0];
+        $group = $user->getActiveGroup();
 
         $method_list = $group->getMethodsList();
 
@@ -214,7 +214,7 @@ class IncomingController2 extends RestApiController{
 
                 $this->container->get('notificator')->notificate($transaction);
 
-                //restar al usuario el amount + comisiones
+                //restar al grupo el amount + comisiones
                 $current_wallet->setBalance($current_wallet->getBalance() - $total);
 
                 //insert new line in the balance fro this group
@@ -287,14 +287,16 @@ class IncomingController2 extends RestApiController{
 
         $method = $this->get('net.telepay.'.$type.'.'.$method_cname.'.v'.$version_number);
 
-        $method_list = $this->get('security.context')->getToken()->getUser()->getMethodsList();
+        $logger = $this->get('logger');
+        $logger->info('Update transaction');
+
+        $user = $this->get('security.context')->getToken()->getUser();
+        $group = $user->getActiveGroup();
+        $method_list = $group->getMethodsList();
 
         if (!in_array($method_cname.'-'.$type, $method_list)) {
             throw $this->createAccessDeniedException();
         }
-
-        $user = $this->get('security.context')->getToken()->getUser();
-        $group = $user->getGroups()[0];
 
         $data = $request->request->all();
 
@@ -313,12 +315,8 @@ class IncomingController2 extends RestApiController{
 
             if($transaction->getType() != 'out') throw new HttpException(403, 'Forbidden action for this transaction ');
 
-            //Search user
-            $user_id = $transaction->getUser();
-
             $em = $this->getDoctrine()->getManager();
 
-            $user = $em->getRepository('TelepayFinancialApiBundle:User')->find($user_id);
             $currency = $transaction->getCurrency();
 
             //Search wallet
@@ -336,16 +334,18 @@ class IncomingController2 extends RestApiController{
 
             $amount = $transaction->getAmount();
             $total_fee = $transaction->getFixedFee() + $transaction->getVariableFee();
-            $total_amount = $amount + $total_fee ;
+            $total_amount = $amount + $total_fee;
 
             $payment_info = $transaction->getPayOutInfo();
 
             //    RETRY
             if( isset( $data['retry'] ) && $data['retry'] == true ){
 
+                $logger->info('Update transaction -> retry');
                 if( $transaction->getStatus()== Transaction::$STATUS_FAILED ){
+                    $logger->info('Update transaction -> status->failed');
                     //discount available
-                    $current_wallet->setAvailable($current_wallet->getAvailable() - $total_amount );
+                    $current_wallet->setAvailable($current_wallet->getAvailable() - $total_amount);
                     $em->persist($current_wallet);
                     $em->flush();
                     try {
@@ -380,6 +380,7 @@ class IncomingController2 extends RestApiController{
                     $mongo->persist($transaction);
                     $mongo->flush();
 
+                    $logger->info('Update transaction -> addBalance');
                     //restamos la pasta al wallet
                     $balancer = $this->get('net.telepay.commons.balance_manipulator');
                     $balancer->addBalance($group, -$amount, $transaction);
@@ -389,7 +390,7 @@ class IncomingController2 extends RestApiController{
                     $em->flush();
 
                     if($total_fee != 0){
-
+                        $logger->info('Update transaction -> dealer');
                         try{
                             $this->_dealer($transaction,$current_wallet);
                         }catch (HttpException $e){
@@ -399,6 +400,7 @@ class IncomingController2 extends RestApiController{
                     }
 
                 }elseif( $transaction->getStatus()== Transaction::$STATUS_CANCELLED ){
+                    $logger->info('Update transaction -> status->cancelled');
 
                     $current_wallet->setAvailable($current_wallet->getAvailable() - $amount );
                     $em->persist($current_wallet);
@@ -435,6 +437,8 @@ class IncomingController2 extends RestApiController{
 
                     }
 
+                    $logger->info('Update transaction -> addBalance');
+
                     $transaction->setUpdated(new \DateTime());
                     $transaction->setPayOutInfo($payment_info);
                     $transaction->setStatus(Transaction::$STATUS_CREATED);
@@ -447,7 +451,7 @@ class IncomingController2 extends RestApiController{
                     $mongo->flush();
 
                     if($total_fee != 0){
-
+                        $logger->info('Update transaction -> dealer');
                         try{
                             $this->_dealer($transaction,$current_wallet);
                         }catch (HttpException $e){
@@ -464,13 +468,14 @@ class IncomingController2 extends RestApiController{
             }
 
             if( isset( $data['cancel'] ) && $data['cancel'] == true ){
-
+                $logger->info('Update transaction -> cancel');
                 //el cash-out solo se puede cancelar si esta en created review o success
                 //el cash-in de momento no se puede cancelar
                 if($transaction->getStatus()== Transaction::$STATUS_CREATED || $transaction->getStatus() == Transaction::$STATUS_REVIEW || ( ($method_cname == "halcash_es" || $method_cname == "halcash_pl") && $transaction->getStatus() == Transaction::$STATUS_SUCCESS && $transaction->getPayOutInfo()['status'] == Transaction::$STATUS_SENT )){
                     if($transaction->getStatus() == Transaction::$STATUS_REVIEW){
                         throw new HttpException(403, 'Mothod not implemented');
                     }else{
+                        $logger->info('Update transaction -> canceling');
                         try {
                             $payment_info = $method->cancel($payment_info);
                         }catch (Exception $e){
@@ -484,10 +489,11 @@ class IncomingController2 extends RestApiController{
                         $mongo->flush();
 
                         //desbloquear pasta del wallet
-                        $current_wallet->setAvailable($current_wallet->getAvailable() + $total_amount );
-                        $current_wallet->setBalance($current_wallet->getBalance() + $total_amount );
+                        $current_wallet->setAvailable($current_wallet->getAvailable() + $amount );
+                        $current_wallet->setBalance($current_wallet->getBalance() + $amount );
                         $balancer = $this->get('net.telepay.commons.balance_manipulator');
                         $balancer->addBalance($group, $total_amount, $transaction);
+                        $logger->info('Update transaction -> addBalance');
 
                         $em->persist($current_wallet);
                         $em->flush();
@@ -496,7 +502,7 @@ class IncomingController2 extends RestApiController{
 
                         //return fees
                         if($total_fee != 0){
-
+                            $logger->info('Update transaction -> inverseDealer2');
                             try{
                                 $this->_inverseDealerV2($transaction, $current_wallet);
                             }catch (HttpException $e){
@@ -513,6 +519,7 @@ class IncomingController2 extends RestApiController{
 
             }
         }elseif( isset( $data['recheck'] ) && $data['recheck'] == true ){
+            $logger->info('Update transaction -> recheck');
             $transaction->setStatus(Transaction::$STATUS_CREATED);
 
             $payment_info = $transaction->getPayInInfo();
@@ -539,7 +546,7 @@ class IncomingController2 extends RestApiController{
         $method = $this->get('net.telepay.'.$type.'.'.$method_cname.'.v'.$version_number);
 
         $user = $this->get('security.context')->getToken()->getUser();
-        $group = $user->getGroups()[0];
+        $group = $user->getActiveGroup();
 
         //TODO quitar cuando haya algo mejor montado
         if($user->getId() == $this->container->getParameter('read_only_user_id')){
@@ -922,6 +929,8 @@ class IncomingController2 extends RestApiController{
 
     private function _dealer(Transaction $transaction, UserWallet $current_wallet){
 
+        $logger = $this->get('logger');
+        $logger->info('make transaction -> dealer');
         $amount = $transaction->getAmount();
         $currency = $transaction->getCurrency();
         $method_cname = $transaction->getMethod();
@@ -968,6 +977,9 @@ class IncomingController2 extends RestApiController{
         $mongo->persist($feeTransaction);
         $mongo->flush();
 
+        $logger->info('make transaction -> feeTransaction id => '.$feeTransaction->getId());
+
+        $logger->info('make transaction -> addBalance');
         $balancer = $this->get('net.telepay.commons.balance_manipulator');
         $balancer->addBalance($group, -$total_fee, $feeTransaction );
 
@@ -1058,6 +1070,8 @@ class IncomingController2 extends RestApiController{
     }
 
     private function _inverseDealerV2(Transaction $transaction_cancelled, UserWallet $current_wallet){
+        $logger = $this->get('logger');
+        $logger->info('Update transaction -> inversedDealer2');
         $em = $this->getDoctrine()->getManager();
         $mongo = $this->get('doctrine_mongodb')->getManager();
 
@@ -1065,7 +1079,7 @@ class IncomingController2 extends RestApiController{
         $transaction_id = $transaction_cancelled->getId();
         $transactions = $qb
             ->field('type')->equals('fee')
-            ->field('user')->equals($transaction_cancelled->getUser())
+            ->field('group')->equals($transaction_cancelled->getGroup())
             ->where("function() {
                                 if (typeof this.dataIn !== 'undefined') {
                                     if (typeof this.dataIn.previous_transaction !== 'undefined') {
@@ -1080,56 +1094,70 @@ class IncomingController2 extends RestApiController{
             ->getQuery()
             ->execute();
 
-        $exist = false;
-        foreach($transactions->toArray() as $res){
-            $exist = true;
-            $transaction = $res;
+//        $exist = false;
+//        $method_cname = $transaction_cancelled->getMethod();
+        foreach($transactions->toArray() as $transaction){
+//            $exist = true;
+
+            $total_fee = $transaction->getTotal();
+
+            $group = $em->getRepository('TelepayFinancialApiBundle:Group')->find($transaction->getGroup());
+
+            $logger->info('Update transaction -> cancel fees => '.$transaction->getId());
+            $logger->info('Update transaction -> cancel fees => '.$transaction->getAmount());
+            $transaction->setAmount(0);
+            $transaction->setTotal(0);
+//            $transaction->setPayOutInfo(array(
+//                'previous_transaction'  =>  $transaction->getId(),
+//                'amount'                =>  -$total_fee,
+//                'description'           =>  'refund'.$method_cname.'->fee'
+//            ));
+            $transaction->setStatus(Transaction::$STATUS_CANCELLED);
+
+            $mongo->persist($transaction);
+            $mongo->flush();
+
+            $logger->info('Update transaction -> addBalance inversedDealer');
+            $balancer = $this->get('net.telepay.commons.balance_manipulator');
+            $balancer->addBalance($group, $total_fee, $transaction );
+
+            $wallets = $group->getwallets();
+            foreach($wallets as $wallet){
+                if($transaction->getCurrency() == $wallet->getCurrency()){
+                    $wallet->setAvailable($wallet->getAvailable() + $total_fee);
+                    $wallet->setBalance($wallet->getBalance() + $total_fee);
+
+                    $em->persist($wallet);
+                    $em->flush();
+                }
+            }
+
+//            //empezamos el reparto
+//            $creator = $group->getGroupCreator();
+//
+//            if(!$creator) throw new HttpException(404,'Creator not found');
+//
+//            $transaction_id = $transaction_cancelled->getId();
+//            $amount = $transaction_cancelled->getAmount();
+//            $currency = $transaction_cancelled->getCurrency();
+//
+//            $logger->info('Update transaction => inversedDeal');
+//            $dealer = $this->get('net.telepay.commons.fee_deal');
+//            $dealer->inversedDeal(
+//                $creator,
+//                $amount,
+//                $method_cname,
+//                $transaction_cancelled->getType(),
+//                $currency,
+//                $total_fee,
+//                $transaction_id,
+//                $transaction_cancelled->getVersion()
+//            );
         }
-        if(!$exist){
-            throw new HttpException(404,'Fee not found');
-        }
-        $method_cname = $transaction_cancelled->getMethod();
+//        if(!$exist){
+//            throw new HttpException(404,'Fee not found');
+//        }
 
-        $total_fee = $transaction->getFixedFee() + $transaction->getVariableFee();
-
-        $user = $em->getRepository('TelepayFinancialApiBundle:User')->find($transaction->getUser());
-
-        $transaction->setAmount(0);
-        $transaction->setTotal(0);
-        $transaction->setPayOutInfo(array(
-            'previous_transaction'  =>  $transaction->getId(),
-            'amount'                =>  -$total_fee,
-            'description'           =>  'refund'.$method_cname.'->fee'
-        ));
-        $transaction->setStatus(Transaction::$STATUS_CANCELLED);
-
-        $mongo->persist($transaction);
-        $mongo->flush();
-
-        $balancer = $this->get('net.telepay.commons.balance_manipulator');
-        $balancer->addBalance($user, $total_fee, $transaction );
-
-        //empezamos el reparto
-        $group = $user->getGroups()[0];
-        $creator = $group->getCreator();
-
-        if(!$creator) throw new HttpException(404,'Creator not found');
-
-        $transaction_id = $transaction_cancelled->getId();
-        $amount = $transaction_cancelled->getAmount();
-        $currency = $transaction_cancelled->getCurrency();
-
-        $dealer = $this->get('net.telepay.commons.fee_deal');
-        $dealer->inversedDeal(
-            $creator,
-            $amount,
-            $method_cname,
-            $transaction_cancelled->getType(),
-            $currency,
-            $total_fee,
-            $transaction_id,
-            $transaction_cancelled->getVersion()
-        );
 
     }
 

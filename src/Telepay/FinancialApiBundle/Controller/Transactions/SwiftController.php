@@ -384,7 +384,7 @@ class SwiftController extends RestApiController{
 
                 $previous_status = $transaction->getStatus();
 
-                //TODO implement a resend with changed params (phone and prefix done)
+                //resend with changed params (phone and prefix done)
 
                 if($request->request->has('new_phone') && $request->request->get('new_phone')!=''){
                     $new_phone = $request->request->get('new_phone');
@@ -413,7 +413,7 @@ class SwiftController extends RestApiController{
 
                 //if previous status == failed generate fees transactions
                 if($previous_status == Transaction::$STATUS_FAILED){
-                    $this->_generateFees($transaction, $method_in, $method_out);
+                    $this->_generateFees($transaction, $transaction->getMethodIn(), $transaction->getMethodOut());
                 }
 
             }else{
@@ -835,11 +835,14 @@ class SwiftController extends RestApiController{
 
         $em = $this->getDoctrine()->getManager();
         $dm = $this->get('doctrine_mongodb')->getManager();
-        $client = $transaction->getClient();
+        $client = $em->getRepository('TelepayFinancialApiBundle:Client')->find($transaction->getClient());
+        $clientGroup = $client->getGroup();
         $amount = $transaction->getAmount();
 
         $root_id = $this->container->getParameter('admin_user_id');
+        $rootGroupId = $this->container->getParameter('id_group_root');
         $root = $em->getRepository('TelepayFinancialApiBundle:User')->find($root_id);
+        $rootGroup = $em->getRepository('TelepayFinancialApiBundle:Group')->find($rootGroupId);
 
         //get configuration(method)
         $swift_config = $this->container->get('net.telepay.config.'.$method_out);
@@ -856,7 +859,8 @@ class SwiftController extends RestApiController{
 
         //client fees goes to the user
         $userFee = new Transaction();
-        $userFee->setUser($transaction->getUser());
+        if($transaction->getUser()) $userFee->setUser($transaction->getUser());
+        $userFee->setGroup($transaction->getGroup());
         $userFee->setType('fee');
         $userFee->setCurrency($transaction->getCurrency());
         $userFee->setScale($transaction->getScale());
@@ -876,6 +880,7 @@ class SwiftController extends RestApiController{
         //service fees goes to root
         $rootFee = new Transaction();
         $rootFee->setUser($root->getId());
+        $rootFee->setGroup($rootGroupId);
         $rootFee->setType('fee');
         $rootFee->setCurrency($transaction->getCurrency());
         $rootFee->setScale($transaction->getScale());
@@ -896,7 +901,7 @@ class SwiftController extends RestApiController{
         $dm->flush();
 
         //TODO get wallets and add fees to both, user and wallet
-        $rootWallets = $root->getWallets();
+        $rootWallets = $rootGroup->getWallets();
         $current_wallet = null;
 
         foreach ( $rootWallets as $wallet){
@@ -911,11 +916,10 @@ class SwiftController extends RestApiController{
         $em->persist($current_wallet);
         $em->flush();
 
-        $user = $em->getRepository('TelepayFinancialApiBundle:User')->find($transaction->getUser());
-        $userWallets = $user->getWallets();
+        $clientWallets = $clientGroup->getWallets();
         $current_wallet = null;
 
-        foreach ( $userWallets as $wallet){
+        foreach ( $clientWallets as $wallet){
             if ($wallet->getCurrency() == $userFee->getCurrency()){
                 $current_wallet = $wallet;
             }
@@ -968,8 +972,8 @@ class SwiftController extends RestApiController{
             $dm->flush();
 
             //getWallet and discount fee
-            $user = $em->getRepository('TelepayFinancialApiBundle:User')->find($transaction->getUser());
-            $userWallets = $user->getWallets();
+            $clientGroup = $em->getRepository('TelepayFinancialApiBundle:Group')->find($transaction->getGroup());
+            $userWallets = $clientGroup->getWallets();
             $current_wallet = null;
 
             foreach ( $userWallets as $wallet){
@@ -985,6 +989,8 @@ class SwiftController extends RestApiController{
             $em->flush();
 
         }
+
+        //TODO crec que faltara descontarli la fee al admin tab
 
     }
 

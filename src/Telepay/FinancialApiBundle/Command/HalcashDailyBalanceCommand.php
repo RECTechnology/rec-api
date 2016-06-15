@@ -118,9 +118,11 @@ class HalcashDailyBalanceCommand extends ContainerAwareCommand
 
     private function sendEmail($subject, $body){
 
+        $no_replay = $this->getContainer()->getParameter('no_reply_email');
+
         $message = \Swift_Message::newInstance()
             ->setSubject($subject)
-            ->setFrom('no-reply@chip-chap.com')
+            ->setFrom($no_replay)
             ->setTo(array(
                 'volume@chip-chap.com'
             ))

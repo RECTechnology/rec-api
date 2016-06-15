@@ -101,7 +101,7 @@ class ClientsController extends BaseApiController {
 
         }else{
             $user = $this->get('security.context')->getToken()->getUser();
-            $group = $user->getGroups()[0];
+            $group = $user->getActiveGroup();
         }
 
         if(!$group) throw new HttpException(404, 'Group not found');
