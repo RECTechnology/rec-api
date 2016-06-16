@@ -181,7 +181,6 @@ class MethodsController extends BaseApiController
         }
 
 
-
         //TODO: add exchange service
 
         return $this->restV2(
