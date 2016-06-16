@@ -100,6 +100,24 @@ class UserGroup{
         // we need to make sure to have at least one role
         $roles[] = static::ROLE_DEFAULT;
 
+        usort($roles, function ($a, $b)
+        {
+            $roles_values = array(
+                "ROLE_SUPER_ADMIN" => 0,
+                "ROLE_ADMIN" => 1,
+                "ROLE_USER" => 2,
+                "ROLE_READONLY" => 3,
+                "ROLE_KYC" => 4
+            );
+            $value_a =isset($roles_values[$a])?$roles_values[$a]:10;
+            $value_b =isset($roles_values[$b])?$roles_values[$b]:10;
+
+            if ($value_a == $value_b) {
+                return 0;
+            }
+            return ($value_a < $value_b) ? -1 : 1;
+        });
+
         return array_unique($roles);
     }
 

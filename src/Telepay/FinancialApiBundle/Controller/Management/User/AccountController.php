@@ -896,19 +896,20 @@ class AccountController extends BaseApiController{
      */
     public function indexCompanies(Request $request){
 
-        $admin = $this->get('security.context')->getToken()->getUser();
+        $user = $this->get('security.context')->getToken()->getUser();
+        $repo = $this->getDoctrine()->getRepository("TelepayFinancialApiBundle:UserGroup");
+        $data = $repo->findBy(array('user'=>$user));
 
-        if($request->query->has('limit')) $limit = $request->query->get('limit');
-        else $limit = 10;
-
-        if($request->query->has('offset')) $offset = $request->query->get('offset');
-        else $offset = 0;
-
-        $all = $admin->getGroups();
+        $all = array();
+        foreach($data as $userCompany){
+            $data_company = array(
+                'company' => $userCompany->getGroup(),
+                'roles' => $userCompany->getRoles()
+            );
+            $all[] = $data_company;
+        }
 
         $total = count($all);
-//
-//        $entities = array_slice($all, $offset, $limit);
 
         return $this->restV2(
             200,
@@ -916,8 +917,6 @@ class AccountController extends BaseApiController{
             "Request successful",
             array(
                 'total' => $total,
-                'start' => intval($offset),
-                'end' => count($all)+$offset,
                 'elements' => $all
             )
         );
