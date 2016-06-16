@@ -94,7 +94,12 @@ class HalcashDailyBalanceCommand extends ContainerAwareCommand
             foreach($qb->toArray() as $transaction){
                 $paymentInInfo = $transaction->getPayInInfo();
                 if($paymentInfo['status'] == 'sent' || $paymentInfo['status'] == 'withdrawn'){
-                    $services_in[$service] += $paymentInInfo['amount'];
+                    if($service == 'safetypay'){
+                        $services_in[$service] += $paymentInInfo['mxn_amount'];
+                    }else{
+                        $services_in[$service] += $paymentInInfo['amount'];
+                    }
+
                 }
             }
         }
