@@ -132,20 +132,55 @@ class MethodsController extends BaseApiController
 
         $swift_methods = array();
 
-        foreach($services as $service){
-            $methods = explode('-',$service);
+        if ($this->get('security.authorization_checker')->isGranted('ROLE_SUPER_ADMIN')) {
 
-            $method_in = $this->get('net.telepay.in.'.$methods[0].'.v1');
-            $method_out = $this->get('net.telepay.out.'.$methods[1].'.v1');
+            $em = $this->getDoctrine()->getManager();
 
-            $swift = array();
-            $swift['name'] = $method_in->getName().' to '.$method_out->getName();
-            $swift['cname'] = $method_in->getCname().'-'.$method_out->getCname();
-            $swift['orig_coin'] = $method_in->getCurrency();
-            $swift['dst_coin']  = $method_out->getCurrency();
-            $swift_methods[] = $swift;
+            foreach($services as $service){
+                $statusMethod = $em->getRepository($this->getRepositoryName())->findOneBy(array(
+                    'method'    =>  $service,
+                    'type'      =>  'swift'
+                ));
 
+                $status = 'not found';
+                $id = 'not found';
+                if($statusMethod){
+                    $status = $statusMethod->getStatus();
+                    $id = $statusMethod->getId();
+                }
+
+                $methods = explode('-',$service);
+
+                $method_in = $this->get('net.telepay.in.'.$methods[0].'.v1');
+                $method_out = $this->get('net.telepay.out.'.$methods[1].'.v1');
+
+                $swift = array();
+                $swift['id'] = $id;
+                $swift['status'] = $status;
+                $swift['name'] = $method_in->getName().' to '.$method_out->getName();
+                $swift['cname'] = $method_in->getCname().'-'.$method_out->getCname();
+                $swift['orig_coin'] = $method_in->getCurrency();
+                $swift['dst_coin']  = $method_out->getCurrency();
+                $swift_methods[] = $swift;
+            }
+        }else{
+            foreach($services as $service){
+                $methods = explode('-',$service);
+
+                $method_in = $this->get('net.telepay.in.'.$methods[0].'.v1');
+                $method_out = $this->get('net.telepay.out.'.$methods[1].'.v1');
+
+                $swift = array();
+                $swift['name'] = $method_in->getName().' to '.$method_out->getName();
+                $swift['cname'] = $method_in->getCname().'-'.$method_out->getCname();
+                $swift['orig_coin'] = $method_in->getCurrency();
+                $swift['dst_coin']  = $method_out->getCurrency();
+                $swift_methods[] = $swift;
+
+            }
         }
+
+
 
         //TODO: add exchange service
 
