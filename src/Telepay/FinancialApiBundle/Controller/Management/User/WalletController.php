@@ -98,10 +98,206 @@ class WalletController extends RestApiController{
         return $this->restV2(200, "ok", "Single transaction got successfully", $resArray);
     }
 
+    public function walletTransactions(Request $request){
+
+        if($request->query->has('limit')) $limit = $request->query->get('limit');
+        else $limit = 10;
+
+        if($request->query->has('offset')) $offset = $request->query->get('offset');
+        else $offset = 0;
+
+        $dm = $this->get('doctrine_mongodb')->getManager();
+        $userGroup = $this->get('security.context')->getToken()->getUser()->getActiveGroup();
+        $qb = $dm->createQueryBuilder('TelepayFinancialApiBundle:Transaction');
+
+        if($request->query->get('query') != ''){
+            $query = $request->query->get('query');
+
+            $qb->field('group')->equals($userGroup->getId());
+
+            if(isset($query['start_date'])){
+                $start_time = new \MongoDate(strtotime(date($query['start_date'].' 00:00:00')));
+            }else{
+                $fecha = new DateTime();
+                $fecha->sub(new DateInterval('P3M'));
+                $start_time = new \MongoDate($fecha->getTimestamp());
+            }
+            $qb->field('created')->gte($start_time);
+
+            if(isset($query['finish_date'])){
+                $finish_time = new \MongoDate(strtotime(date($query['finish_date'].' 23:59:59')));
+            }else{
+                $finish_time = new \MongoDate();
+            }
+            $qb->field('created')->lte($finish_time);
+
+            if(isset($query['status'])){
+                if(!($query['status'] == 'all' || $query['status'] == "[]")){
+                    $qb->field('created')->in(json_decode($query['status'], true));
+                }
+            }
+
+            if(isset($query['methods'])){
+                if(!($query['methods'] == 'all' || $query['methods'] == "[]")){
+                    $qb->field('created')->in(json_decode($query['methods'], true));
+                }
+            }
+
+            if(isset($query['pos'])){
+                if(!($query['pos'] == 'all' || $query['pos'] == "[]")){
+                    $qb->field('posId')->in(json_decode($query['pos'], true));
+                }
+            }
+
+            if(isset($query['clients'])){
+                if(!($query['clients'] == 'all' || $query['clients'] == "[]")){
+                    $qb->field('client')->in(json_decode($query['clients'], true));
+                }
+            }
+
+            if(isset($query['search'])) {
+                if ($query['search'] != '') {
+                    $search = $query['search'];
+                    $qb->where("function() {
+                    if (typeof this.pay_in_info !== 'undefined') {
+                        if (typeof this.pay_in_info.address !== 'undefined') {
+                            if(String(this.pay_in_info.address).indexOf('$search') > -1){
+                                return true;
+                            }
+                        }
+                        if (typeof this.pay_in_info.concept !== 'undefined') {
+                            if(String(this.pay_in_info.concept).indexOf('$search') > -1){
+                                return true;
+                            }
+                        }
+                        if (typeof this.pay_in_info.reference !== 'undefined') {
+                            if(String(this.pay_in_info.reference).indexOf('$search') > -1){
+                                return true;
+                            }
+                        }
+                        if (typeof this.pay_in_info.txid !== 'undefined') {
+                            if(String(this.pay_in_info.txid).indexOf('$search') > -1){
+                                return true;
+                            }
+                        }
+                    }
+                    if (typeof this.pay_out_info !== 'undefined') {
+                        if (typeof this.pay_out_info.halcashticket !== 'undefined') {
+                            if(String(this.pay_out_info.halcashticket).indexOf('$search') > -1){
+                                return true;
+                            }
+                        }
+                        if (typeof this.pay_out_info.txid !== 'undefined') {
+                            if(String(this.pay_out_info.txid).indexOf('$search') > -1){
+                                return true;
+                            }
+                        }
+                        if (typeof this.pay_out_info.address !== 'undefined') {
+                            if(String(this.pay_out_info.address).indexOf('$search') > -1){
+                                return true;
+                            }
+                        }
+                        if (typeof this.pay_out_info.concept !== 'undefined') {
+                            if(String(this.pay_out_info.concept).indexOf('$search') > -1){
+                                return true;
+                            }
+                        }
+                        if (typeof this.pay_out_info.email !== 'undefined') {
+                            if(String(this.pay_out_info.email).indexOf('$search') > -1){
+                                return true;
+                            }
+                        }
+                        if (typeof this.pay_out_info.find_token !== 'undefined') {
+                            if(String(this.pay_out_info.find_token).indexOf('$search') > -1){
+                                return true;
+                            }
+                        }
+                        if (typeof this.pay_out_info.phone !== 'undefined') {
+                            if(String(this.pay_out_info.phone).indexOf('$search') > -1){
+                                return true;
+                            }
+                        }
+                    }
+                    if (typeof this.dataIn !== 'undefined') {
+                        if (typeof this.dataIn.previous_transaction !== 'undefined') {
+                            if(String(this.dataIn.previous_transaction).indexOf('$search') > -1){
+                                return true;
+                            }
+                        }
+                    }
+                    if ('$search') {
+                        if(String(this._id).indexOf('$search') > -1){ return true;}
+                        return false;
+                    }
+                    return true;
+                    }"
+                    );
+                }
+            }
+
+            $transactions = $qb
+                ->sort('updated','desc')
+                ->sort('id','desc')
+                ->getQuery()
+                ->execute();
+
+        }else{
+            $order = "updated";
+            $dir = "desc";
+            $transactions = $qb
+                ->field('group')->equals($userGroup->getId())
+                ->sort($order,$dir)
+                ->getQuery()
+                ->execute();
+        }
+
+        //Put client name
+        $em = $this->getDoctrine()->getManager();
+        $clientsInfo = $em->getRepository('TelepayFinancialApiBundle:Client')->findby(array('group' => $userGroup->getId()));
+        $listClients = array();
+        foreach($clientsInfo as $c){
+            $listClients[$c->getId()]=$c->getName();
+        }
+
+        $entities = array_slice($transactions, $offset, $limit);
+        $resArray = [];
+        foreach($entities->toArray() as $res){
+            if($res->getClient()){
+                $res->setClientData(
+                    array(
+                        "id" => $res->getClient(),
+                        "name" => $listClients[$res->getClient()]
+                    )
+                );
+            }
+            if(!isset($clients)) {
+                $resArray [] = $res;
+            }
+            else{
+                if(in_array("0", $clients) || in_array($res->getClient(), $clients)){
+                    $resArray []= $res;
+                }
+            }
+        }
+
+        $total = count($resArray);
+        return $this->restV2(
+            200,
+            "ok",
+            "Request successful",
+            array(
+                'total' => $total,
+                'start' => intval($offset),
+                'end' => count($entities)+$offset,
+                'elements' => $entities
+            )
+        );
+    }
+
     /**
      * reads transactions by wallets
      */
-    public function walletTransactions(Request $request){
+    public function wallet2Transactions(Request $request){
 
         if($request->query->has('limit')) $limit = $request->query->get('limit');
         else $limit = 10;
@@ -262,9 +458,9 @@ class WalletController extends RestApiController{
             $listClients[$c->getId()]=$c->getName();
         }
 
-        $transactions = array_slice($transactions, $offset, $limit);
+        $entities = array_slice($transactions, $offset, $limit);
         $resArray = [];
-        foreach($transactions->toArray() as $res){
+        foreach($entities->toArray() as $res){
             if($res->getClient()){
                 $res->setClientData(
                     array(
@@ -282,7 +478,6 @@ class WalletController extends RestApiController{
                 }
             }
         }
-
         $total = count($resArray);
         return $this->restV2(
             200,
@@ -291,8 +486,8 @@ class WalletController extends RestApiController{
             array(
                 'total' => $total,
                 'start' => intval($offset),
-                'end' => count($resArray)+$offset,
-                'elements' => $resArray
+                'end' => count($entities)+$offset,
+                'elements' => $entities
             )
         );
     }
