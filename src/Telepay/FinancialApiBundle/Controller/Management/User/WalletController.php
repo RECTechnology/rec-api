@@ -136,13 +136,13 @@ class WalletController extends RestApiController{
 
             if(isset($query['status'])){
                 if(!($query['status'] == 'all' || $query['status'] == "[]")){
-                    $qb->field('created')->in(json_decode($query['status'], true));
+                    $qb->field('status')->in(json_decode($query['status'], true));
                 }
             }
 
             if(isset($query['methods'])){
                 if(!($query['methods'] == 'all' || $query['methods'] == "[]")){
-                    $qb->field('created')->in(json_decode($query['methods'], true));
+                    $qb->field('method')->in(json_decode($query['methods'], true));
                 }
             }
 
