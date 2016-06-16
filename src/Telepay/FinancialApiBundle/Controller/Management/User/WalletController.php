@@ -262,9 +262,9 @@ class WalletController extends RestApiController{
             $listClients[$c->getId()]=$c->getName();
         }
 
-        $entities = array_slice($transactions->toArray(), $offset, $limit);
+        $transactions = array_slice($transactions, $offset, $limit);
         $resArray = [];
-        foreach($entities as $res){
+        foreach($transactions->toArray() as $res){
             if($res->getClient()){
                 $res->setClientData(
                     array(
