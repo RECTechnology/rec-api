@@ -291,8 +291,8 @@ class WalletController extends RestApiController{
             array(
                 'total' => $total,
                 'start' => intval($offset),
-                'end' => count($entities)+$offset,
-                'elements' => $entities
+                'end' => count($resArray)+$offset,
+                'elements' => $resArray
             )
         );
     }
