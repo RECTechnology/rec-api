@@ -113,7 +113,7 @@ class WalletController extends RestApiController{
         $userGroup = $this->get('security.context')->getToken()->getUser()->getActiveGroup();
         $qb = $dm->createQueryBuilder('TelepayFinancialApiBundle:Transaction');
 
-        if($request->query->get('query') != ''){
+        if($request->query->get('queryy') != ''){
             $query = $request->query->get('query');
 
             $qb->field('group')->equals($userGroup->getId());
