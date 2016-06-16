@@ -308,7 +308,7 @@ class POSIncomingController extends RestApiController{
 
         $transaction->setPayInInfo($paymentInfo);
 
-        $transaction = $this->get('notificator')->notificate($transaction);
+//        $transaction = $this->get('notificator')->notificate($transaction);
         $em->flush();
 
         $transaction->setUpdated(new \DateTime());
