@@ -400,9 +400,9 @@ class Group extends BaseGroup
         unset($this->access_secret);
         unset ($this->default_currency);
         $users = $this->users;
-        foreach($users as $user){
-            $user = $user->getAdminView();
-        }
+//        foreach($users as $user){
+//            $user = $user->getAdminView();
+//        }
         $this->users = $users;
 
         return $this;

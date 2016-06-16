@@ -146,7 +146,7 @@ class POSIncomingController extends RestApiController{
 
         $posType = $tpvRepo->getType();
 
-        $user = $tpvRepo->getUser();
+        $group = $tpvRepo->getGroup();
 
         if($tpvRepo->getActive() == 0) throw new HttpException(400, 'Service Temporally unavailable');
 
@@ -180,7 +180,7 @@ class POSIncomingController extends RestApiController{
         //Check unique order_id by user and tpv
         $qb = $dm->createQueryBuilder('TelepayFinancialApiBundle:Transaction')
             ->field('posId')->equals($id)
-            ->field('user')->equals($user->getId())
+            ->field('group')->equals($group->getId())
             ->field('dataIn.order_id')->equals($dataIn['order_id'])
             ->getQuery();
 
@@ -223,7 +223,7 @@ class POSIncomingController extends RestApiController{
         $transaction = Transaction::createFromRequest($request);
         $transaction->setService('POS-'.$posType);
         $transaction->setMethod('POS-'.$posType);
-        $transaction->setUser($user->getId());
+        $transaction->setGroup($group->getId());
         $transaction->setVersion(1);
         $transaction->setDataIn($dataIn);
         $transaction->setPosId($id);
@@ -235,7 +235,6 @@ class POSIncomingController extends RestApiController{
         $transaction->setLastCheck(new \DateTime());
         $transaction->setPosName($tpvRepo->getName());
 
-        $group = $user->getGroups()[0];
         //get fees from group
         $group_commission = $this->_getFees($group, 'POS-'.$posType, strtoupper($dataIn['currency_out']));
 
@@ -309,7 +308,7 @@ class POSIncomingController extends RestApiController{
 
         $transaction->setPayInInfo($paymentInfo);
 
-        $transaction = $this->get('notificator')->notificate($transaction);
+//        $transaction = $this->get('notificator')->notificate($transaction);
         $em->flush();
 
         $transaction->setUpdated(new \DateTime());

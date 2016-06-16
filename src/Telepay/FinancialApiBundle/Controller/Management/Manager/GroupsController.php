@@ -48,7 +48,6 @@ class GroupsController extends BaseApiController
         $all = $this->getRepository()->findAll();
 
         $total = count($all);
-
         foreach ($all as $group){
             $group = $group->getAdminView();
 

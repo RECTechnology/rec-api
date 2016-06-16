@@ -25,7 +25,7 @@ class SwiftController extends BaseApiController{
     public function read(Request $request){
 
         $user = $this->get('security.context')->getToken()->getUser();
-        $userGroup = $user->getGroups()[0];
+        $userGroup = $user->getActiveGroup();
         $clients = $userGroup->getClients();
         $em = $this->getDoctrine()->getManager();
         $response = array();
