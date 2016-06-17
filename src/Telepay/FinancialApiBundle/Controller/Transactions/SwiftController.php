@@ -8,6 +8,8 @@
 
 namespace Telepay\FinancialApiBundle\Controller\Transactions;
 
+use DateInterval;
+use DateTime;
 use Symfony\Component\Config\Definition\Exception\Exception;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpKernel\Exception\HttpException;
@@ -67,6 +69,11 @@ class SwiftController extends RestApiController{
         if(!in_array($type_in.'-'.$type_out.':1', $services)) throw new HttpException(403, 'Service temporally unavailable');
 
         if(!$request->request->has('amount')) throw new HttpException(404, 'Param amount not found');
+
+        //check concept last 30 minutes in the same company
+        $company = $client->getGroup();
+
+        $this->checkConceptLast30Min($request, $dm, $company);
 
         //TODO optional url_notification param
 
@@ -1137,6 +1144,35 @@ class SwiftController extends RestApiController{
 
     public function notification(Request $request, $version_number, $type_in, $type_out){
 
+    }
+
+    private function checkConceptLast30Min(Request $request, $dm, $company){
+        if(!$request->request->has('concept')) throw new HttpException(404, 'Param concept not found');
+        $concept = $request->request->get('concept');
+        $qb = $dm->createQueryBuilder('TelepayFinancialApiBundle:Transaction');
+        $fecha = new DateTime();
+        $fecha->sub(new DateInterval('PT30M'));
+        $start_time = new \MongoDate($fecha->getTimestamp());
+        $finish_time = new \MongoDate();
+        $result = $qb
+            ->field('type')->equals('swift')
+            ->field('group')->equals($company->getId())
+            ->field('created')->gte($start_time)
+            ->field('created')->lte($finish_time)
+            ->where("function(){
+                    if (typeof this.pay_out_info.concept !== 'undefined') {
+                        if(String(this.pay_out_info.concept).indexOf('$concept') > -1){
+                            return true;
+                        }
+                    }
+                }")
+
+            ->getQuery()
+            ->execute();
+
+        $total = count($result);
+
+        if($total >=1) throw new HttpException(409, 'concept duplicated before 30 minutes');
     }
 
 }
