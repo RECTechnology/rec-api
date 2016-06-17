@@ -68,7 +68,7 @@ class ExpirePosCommand extends ContainerAwareCommand
                 $transaction->setStatus(Transaction::$STATUS_EXPIRED);
                 $paymentInfo = $transaction->getPayInInfo();
                 $paymentInfo['status'] = Transaction::$STATUS_EXPIRED;
-                $transaction = $this->getContainer()->get('notificator')->notificate($transaction);
+//                $transaction = $this->getContainer()->get('notificator')->notificate($transaction);
                 $transaction->setUpdated(new \MongoDate());
                 $contador ++;
             }
