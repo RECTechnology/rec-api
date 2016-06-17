@@ -363,7 +363,7 @@ class WalletController extends RestApiController{
         $userGroup = $this->get('security.context')->getToken()->getUser()->getActiveGroup();
         $qb = $dm->createQueryBuilder('TelepayFinancialApiBundle:Transaction');
 
-        if($request->query->get('query') != ''){
+        if($request->query->get('query')){
             $query = $request->query->get('query');
 
             $qb->field('group')->equals($userGroup->getId());
@@ -504,37 +504,9 @@ class WalletController extends RestApiController{
                 ->execute();
         }
 
-        //Put client name
-        $em = $this->getDoctrine()->getManager();
-        $clientsInfo = $em->getRepository('TelepayFinancialApiBundle:Client')->findby(array('group' => $userGroup->getId()));
-        $listClients = array();
-        foreach($clientsInfo as $c){
-            $listClients[$c->getId()]=$c->getName();
-        }
-
+        $total = count($transactions);
         $entities = array_slice($transactions, $offset, $limit);
-        $resArray = [];
-        $cli_n = 0;
-        foreach($entities->toArray() as $res){
-            if($res->getClient()){
-                $res->setClientData(
-                    array(
-                        "id" => $res->getClient(),
-                        "name" => $listClients[$res->getClient()]
-                    )
-                );
-                $cli_n++;
-            }
-            if(!isset($clients)) {
-                $resArray [] = $res;
-            }
-            else{
-                if(in_array("0", $clients) || in_array($res->getClient(), $clients)){
-                    $resArray []= $res;
-                }
-            }
-        }
-        $total = count($resArray);
+
         return $this->restV2(
             200,
             "ok",
@@ -544,7 +516,7 @@ class WalletController extends RestApiController{
                 'start' => intval($offset),
                 'end' => count($entities)+$offset,
                 'elements' => $entities,
-                'clients' => $cli_n
+                'test' => 'test'
             )
         );
     }
