@@ -351,7 +351,7 @@ class WalletController extends RestApiController{
     /**
      * reads transactions by wallets
      */
-    public function wallet2Transactions(Request $request){
+    public function wallet2TransactionsV2(Request $request){
 
         if($request->query->has('limit')) $limit = $request->query->get('limit');
         else $limit = 10;
@@ -363,7 +363,7 @@ class WalletController extends RestApiController{
         $userGroup = $this->get('security.context')->getToken()->getUser()->getActiveGroup();
         $qb = $dm->createQueryBuilder('TelepayFinancialApiBundle:Transaction');
 
-        if($request->query->get('queryy') != ''){
+        if($request->query->get('query') != ''){
             $query = $request->query->get('query');
 
             $qb->field('group')->equals($userGroup->getId());
@@ -514,6 +514,7 @@ class WalletController extends RestApiController{
 
         $entities = array_slice($transactions, $offset, $limit);
         $resArray = [];
+        $cli_n = 0;
         foreach($entities->toArray() as $res){
             if($res->getClient()){
                 $res->setClientData(
@@ -522,6 +523,7 @@ class WalletController extends RestApiController{
                         "name" => $listClients[$res->getClient()]
                     )
                 );
+                $cli_n++;
             }
             if(!isset($clients)) {
                 $resArray [] = $res;
@@ -541,7 +543,8 @@ class WalletController extends RestApiController{
                 'total' => $total,
                 'start' => intval($offset),
                 'end' => count($entities)+$offset,
-                'elements' => $entities
+                'elements' => $entities,
+                'clients' => $cli_n
             )
         );
     }
