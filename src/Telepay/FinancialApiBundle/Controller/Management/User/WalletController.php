@@ -351,7 +351,7 @@ class WalletController extends RestApiController{
     /**
      * reads transactions by wallets
      */
-    public function wallet2TransactionsV2(Request $request){
+    public function walletTransactionsV2(Request $request){
 
         if($request->query->has('limit')) $limit = $request->query->get('limit');
         else $limit = 10;
