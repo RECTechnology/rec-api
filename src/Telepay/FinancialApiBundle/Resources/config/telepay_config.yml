@@ -6,7 +6,7 @@ services:
     net.telepay.config.halcash_es:
         class: Telepay\FinancialApiBundle\Financial\Methods\MethodConfiguration
         arguments:
-            - "100"
+            - "150"
             - "2"
             - "2000"
             - "60000"
@@ -16,7 +16,7 @@ services:
     net.telepay.config.halcash_pl:
         class: Telepay\FinancialApiBundle\Financial\Methods\MethodConfiguration
         arguments:
-            - "200"
+            - "2000"
             - "2"
             - "5000"
             - "300000"
@@ -97,7 +97,7 @@ services:
     net.telepay.config.btc.halcash_es:
         class: Telepay\FinancialApiBundle\Financial\Methods\MethodConfiguration
         arguments:
-            - "100"
+            - "150"
             - "1"
             - "2000"
             - "60000"
@@ -110,7 +110,7 @@ services:
     net.telepay.config.btc.halcash_pl:
         class: Telepay\FinancialApiBundle\Financial\Methods\MethodConfiguration
         arguments:
-            - "200"
+            - "2000"
             - "1"
             - "5000"
             - "300000"
@@ -240,7 +240,7 @@ services:
     net.telepay.config.fac.halcash_es:
         class: Telepay\FinancialApiBundle\Financial\Methods\MethodConfiguration
         arguments:
-            - "100"
+            - "150"
             - "2"
             - "2000"
             - "60000"
@@ -253,7 +253,7 @@ services:
     net.telepay.config.fac.halcash_pl:
         class: Telepay\FinancialApiBundle\Financial\Methods\MethodConfiguration
         arguments:
-            - "200"
+            - "2000"
             - "2"
             - "5000"
             - "300000"
