@@ -26,13 +26,13 @@ class ExpirePosCommand extends ContainerAwareCommand
     protected function execute(InputInterface $input, OutputInterface $output)
     {
 
-        $service_cname = 'pos';
+        $service_cname = array('POS-PNP', 'POS-SAFETYPAY');
 
         $dm = $this->getContainer()->get('doctrine_mongodb')->getManager();
         $em = $this->getContainer()->get('doctrine')->getManager();
 
         $qb = $dm->createQueryBuilder('TelepayFinancialApiBundle:Transaction')
-            ->field('service')->equals($service_cname)
+            ->field('method')->in($service_cname)
             ->field('status')->equals('created')
             ->field('currency')->equals('EUR')
             ->getQuery();
@@ -65,7 +65,9 @@ class ExpirePosCommand extends ContainerAwareCommand
             }
 
             if($expired == true){
-                $transaction->setStatus('expired');
+                $transaction->setStatus(Transaction::$STATUS_EXPIRED);
+                $paymentInfo = $transaction->getPayInInfo();
+                $paymentInfo['status'] = Transaction::$STATUS_EXPIRED;
                 $transaction = $this->getContainer()->get('notificator')->notificate($transaction);
                 $transaction->setUpdated(new \MongoDate());
                 $contador ++;
