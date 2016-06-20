@@ -59,21 +59,40 @@ class HalcashDailyBalanceCommand extends ContainerAwareCommand
         );
 
         foreach($services_out as $service => $count){
-            $qb = $dm->createQueryBuilder('TelepayFinancialApiBundle:Transaction')
-                ->field('type')->equals('swift')
-                ->field('method_out')->equals($service)
-                ->field('status')->equals('success')
-                ->field('updated')->gte($start_time)
-                ->field('updated')->lte($finish_time)
-                ->getQuery();
+            if($service == 'cryptocapital'){
+                $qb = $dm->createQueryBuilder('TelepayFinancialApiBundle:Transaction')
+                    ->field('type')->equals('swift')
+                    ->field('method_out')->equals($service)
+                    ->field('status')->equals('success')
+                    ->field('updated')->gte($start_time)
+                    ->field('updated')->lte($finish_time)
+                    ->getQuery();
 
-            foreach($qb->toArray() as $transaction){
-                $output->writeln('nueva transaccion');
-                $paymentInfo = $transaction->getPayOutInfo();
-                if($paymentInfo['status'] == 'sent' || $paymentInfo['status'] == 'withdrawn'){
-                    $services_out[$service] += $transaction->getAmount();
+                foreach($qb->toArray() as $transaction){
+                    $output->writeln('nueva transaccion');
+                    $paymentInfo = $transaction->getPayOutInfo();
+                    if($paymentInfo['status'] == 'sent' || $paymentInfo['status'] == 'withdrawn'){
+                        $services_out[$service] += $transaction->getAmount();
+                    }
+                }
+            }else{
+                $qb = $dm->createQueryBuilder('TelepayFinancialApiBundle:Transaction')
+                    ->field('type')->equals('swift')
+                    ->field('method_out')->equals($service)
+                    ->field('status')->equals('sending')
+                    ->field('created')->gte($start_time)
+                    ->field('created')->lte($finish_time)
+                    ->getQuery();
+
+                foreach($qb->toArray() as $transaction){
+                    $output->writeln('nueva transaccion');
+                    $paymentInfo = $transaction->getPayOutInfo();
+                    if($paymentInfo['status'] == 'sending'){
+                        $services_out[$service] += $transaction->getAmount();
+                    }
                 }
             }
+
         }
 
         $services_in = array(
