@@ -212,8 +212,8 @@ class MethodsController extends BaseApiController
                 $exch = array();
                 $exch['id'] = $exchange->getId();
                 $exch['status'] = $exchange->getStatus();
-                $exch['name'] = $exchange->getName();
-                $exch['cname'] = $exchange->getName();
+                $exch['name'] = $exchange->getMethod();
+                $exch['cname'] = $exchange->getMethod();
                 $exch['orig_coin'] = $currencies[0];
                 $exch['dst_coin']  = $currencies[1];
                 $exchange_methods[] = $exch;
