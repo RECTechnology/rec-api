@@ -208,7 +208,7 @@ class MethodsController extends BaseApiController
 
             foreach($exchanges as $exchange){
 
-                $currencies = explode('to',$exchange->getName());
+                $currencies = explode('to',$exchange->getMethod());
                 $exch = array();
                 $exch['id'] = $exchange->getId();
                 $exch['status'] = $exchange->getStatus();
