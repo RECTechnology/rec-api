@@ -186,7 +186,7 @@ class MethodsController extends BaseApiController
         return $this->restV2(
             200,
             "ok",
-            "Services got successfully",
+            "Swift methods got successfully",
             $swift_methods
         );
     }
