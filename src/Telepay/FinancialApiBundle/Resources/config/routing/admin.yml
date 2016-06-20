@@ -69,6 +69,12 @@ admin_swift_index:
     requirements:
         _method: GET
 
+admin_exchanges_index:
+    pattern:  /admin/v1/exchanges
+    defaults: { _controller: Telepay\FinancialApiBundle\Controller\Management\Admin\MethodsController::indexExchanges }
+    requirements:
+        _method: GET
+
 ############################## TRANSACTIONS MNGMNT ##########################################
 
 super_admin_transaction_delete:
