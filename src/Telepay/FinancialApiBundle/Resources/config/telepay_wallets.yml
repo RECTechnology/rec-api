@@ -9,6 +9,7 @@ services:
                 - "@net.telepay.wallet.kraken.btc"
                 - "@net.telepay.wallet.kraken.eur"
                 - "@net.telepay.wallet.fullnode.btc"
+                - "@net.telepay.wallet.fullnode.fair"
 
     net.telepay.wallet.bittrex.fair:
         class: Telepay\FinancialApiBundle\Financial\Wallet\BittrexWallet
@@ -38,14 +39,14 @@ services:
     net.telepay.wallet.fullnode.btc:
         class: Telepay\FinancialApiBundle\Financial\Wallet\FullNodeWallet
         arguments:
-            - "@net.telepay.provider.btc"
+            - "@net.telepay.driver.easybitcoin.btc"
             - "BTC"
             - "5"
 
     net.telepay.wallet.fullnode.fair:
         class: Telepay\FinancialApiBundle\Financial\Wallet\FullNodeWallet
         arguments:
-            - "@net.telepay.provider.fac"
+            - "@net.telepay.driver.easybitcoin.fac"
             - "FAIR"
             - "5000"
 

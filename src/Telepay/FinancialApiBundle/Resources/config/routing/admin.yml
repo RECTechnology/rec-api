@@ -123,6 +123,31 @@ system_api_financial:
     requirements:
         _method: GET
 
+system_db_wallets_index:
+    pattern:  /system/v1/db_wallets
+    defaults: { _controller: Telepay\FinancialApiBundle\Controller\Management\System\DbWalletController::indexAction }
+    requirements:
+        _method: GET
+
+system_db_wallets_create:
+    pattern:  /system/v1/db_wallets
+    defaults: { _controller: Telepay\FinancialApiBundle\Controller\Management\System\DbWalletController::createAction }
+    requirements:
+        _method: POST
+
+system_db_wallets_update:
+    pattern:  /system/v1/db_wallets/{id}
+    defaults: { _controller: Telepay\FinancialApiBundle\Controller\Management\System\DbWalletController::updateAction }
+    requirements:
+        _method: PUT
+
+system_db_wallets_index:
+    pattern:  /system/v1/db_wallets/{id}
+    defaults: { _controller: Telepay\FinancialApiBundle\Controller\Management\System\DbWalletController::deleteAction }
+    requirements:
+        _method: DELETE
+
+
 ##################### SPECIAL ACTIONS ############################
 
 admin_recharge_validate:

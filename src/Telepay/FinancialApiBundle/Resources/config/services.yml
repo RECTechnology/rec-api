@@ -43,3 +43,23 @@ services:
            - ROLE_ALLOWED_TO_SWITCH
            - @event_dispatcher
 
+    auth.logger:
+        class:     Symfony\Bridge\Monolog\Logger
+        arguments: [auth]
+        calls:
+            - [pushHandler, [@auth.logger_handler]]
+
+    auth.logger_handler:
+        class:     Monolog\Handler\StreamHandler
+        arguments: [%kernel.logs_dir%/%kernel.environment%.auth.log, 200]
+
+    transaction.logger:
+        class:     Symfony\Bridge\Monolog\Logger
+        arguments: [transaction]
+        calls:
+            - [pushHandler, [@transaction.logger_handler]]
+
+    transaction.logger_handler:
+        class:     Monolog\Handler\StreamHandler
+        arguments: [%kernel.logs_dir%/%kernel.environment%.transaction.log, 200]
+
