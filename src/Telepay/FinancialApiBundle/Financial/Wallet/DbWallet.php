@@ -15,6 +15,8 @@ use Telepay\FinancialApiBundle\Financial\WalletInterface;
 
 class DbWallet implements WalletInterface, MiniumBalanceInterface {
 
+
+
     public function getAddress()
     {
         // TODO: Implement getAddress() method.
