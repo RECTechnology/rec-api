@@ -150,17 +150,7 @@ class WalletController extends RestApiController{
         else $offset = 0;
 
         $dm = $this->get('doctrine_mongodb')->getManager();
-        $user = $this->get('security.context')
-            ->getToken()->getUser();
-
-        $userId = $user->getId();
         $userGroup = $this->get('security.context')->getToken()->getUser()->getActiveGroup();
-
-        //TODO quitar cuando haya algo mejor montado
-        if($userId == $this->container->getParameter('read_only_user_id')){
-            $userId = $this->container->getParameter('chipchap_user_id');
-        }
-
         $qb = $dm->createQueryBuilder('TelepayFinancialApiBundle:Transaction');
 
         if($request->query->get('query') != ''){
@@ -170,8 +160,6 @@ class WalletController extends RestApiController{
             if(isset($query['clients'])){
                 $clients = json_decode($query['clients'], true);
             }
-            $order = $query['order'];
-            $dir = $query['dir'];
             if(isset($query['start_date'])){
                 $start_time = new \MongoDate(strtotime(date($query['start_date'].' 00:00:00')));//date('Y-m-d 00:00:00')
             }else{
@@ -375,23 +363,40 @@ class WalletController extends RestApiController{
                 $fecha->sub(new DateInterval('P3M'));
                 $start_time = new \MongoDate($fecha->getTimestamp());
             }
-            $qb->field('created')->gte($start_time);
+            $qb->field('updated')->gte($start_time);
 
             if(isset($query['finish_date'])){
                 $finish_time = new \MongoDate(strtotime(date($query['finish_date'].' 23:59:59')));
             }else{
                 $finish_time = new \MongoDate();
             }
-            $qb->field('created')->lte($finish_time);
+            $qb->field('updated')->lte($finish_time);
 
             if(isset($query['status'])){
-                if(!($query['status'] == 'all' || $query['status'] == "[]")){
-                    $qb->field('status')->in(json_decode($query['status'], true));
+                if(!($query['status'] == 'all')){
+                    if(count($query['status']) == 0){
+                        $qb->field('status')->in(array(), true);
+                    }
+                    else{
+                        $qb->field('status')->in($query['status']);
+                    }
                 }
             }
 
-            if(isset($query['methods'])){
-                if(!($query['methods'] == 'all' || $query['methods'] == "[]")){
+            if(isset($query['clients'])){
+                if(!($query['clients'] == 'all')){
+                    if(count($query['clients']) == 0){
+                        $qb->field('client')->in(array(), true);
+                    }
+                    else{
+                        $qb->field('client')->in($query['clients']);
+                    }
+                }
+            }
+
+
+            if(isset($query['methods_in'])){
+                if(!($query['methods'] == 'all')){
                     $qb->field('method')->in(json_decode($query['methods'], true));
                 }
             }
@@ -399,12 +404,6 @@ class WalletController extends RestApiController{
             if(isset($query['pos'])){
                 if(!($query['pos'] == 'all' || $query['pos'] == "[]")){
                     $qb->field('posId')->in(json_decode($query['pos'], true));
-                }
-            }
-
-            if(isset($query['clients'])){
-                if(!($query['clients'] == 'all' || $query['clients'] == "[]")){
-                    $qb->field('client')->in(json_decode($query['clients'], true));
                 }
             }
 
@@ -505,7 +504,7 @@ class WalletController extends RestApiController{
         }
 
         $total = count($transactions);
-        $entities = array_slice($transactions, $offset, $limit);
+        $entities = array_slice($transactions->toArray(), $offset, $limit);
 
         return $this->restV2(
             200,
@@ -516,7 +515,6 @@ class WalletController extends RestApiController{
                 'start' => intval($offset),
                 'end' => count($entities)+$offset,
                 'elements' => $entities,
-                'test' => 'test'
             )
         );
     }
