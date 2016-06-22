@@ -405,6 +405,13 @@ class AccountController extends BaseApiController{
      * @Rest\View
      */
     public function registerKYCAction(Request $request){
+        if(!$request->request->has('company') || $request->get('company')==""){
+            $company = "chipchap";
+        }
+        else{
+            $company = $request->get('company');
+        }
+
         if(!$request->request->has('email')){
             throw new HttpException(400, "Missing parameter 'email'");
         }
@@ -462,10 +469,16 @@ class AccountController extends BaseApiController{
             $user->setConfirmationToken($tokenGenerator->generateToken());
             $em->persist($user);
             $em->flush();
-            $url = $url.'/user/validation/'.$user->getConfirmationToken();
-            $this->_sendEmail('Chip-Chap validation e-mail', $url, $user->getEmail(), 'register');
-
-
+            if($company == "holytransaction"){
+                $url = "https://holytransaction.trade/";
+                $url = $url.'?user_token='.$user->getConfirmationToken();
+                $this->_sendEmail('Holy Transaction validation e-mail', $url, $user->getEmail(), 'register_kyc_holy');
+            }
+            else{
+                $url = $this->container->getParameter('web_app_url');
+                $url = $url.'?user_token='.$user->getConfirmationToken();
+                $this->_sendEmail('Chip-Chap validation e-mail', $url, $user->getEmail(), 'register_kyc');
+            }
             $em->persist($user);
             $em->flush();
 
@@ -669,7 +682,6 @@ class AccountController extends BaseApiController{
      * @Rest\View
      */
     public function passwordRecoveryRequest($param, $version_number){
-
         $em = $this->getDoctrine()->getManager();
         $user = $em->getRepository($this->getRepositoryName())->findOneBy(array(
             'username'  =>  $param
@@ -693,13 +705,19 @@ class AccountController extends BaseApiController{
 
         if($version_number == '2'){
             $url = $this->container->getParameter('web_app_url').'login?password_recovery='.$user->getRecoverPasswordToken();
+            //send email with a link to recover the password
+            $this->_sendEmail('Chip-Chap recover your password', $url, $user->getEmail(), 'recover');
+        }
+        elseif($version_number == '3'){
+            $url = 'https://holytransaction.trade/login?password_recovery='.$user->getRecoverPasswordToken();
+            //send email with a link to recover the password
+            $this->_sendEmail('Holy Transaction recover your password', $url, $user->getEmail(), 'recover_holy');
         }
         else {
             $url = $this->container->getParameter('base_panel_url').'/user/password_recovery/'.$user->getRecoverPasswordToken();
+            //send email with a link to recover the password
+            $this->_sendEmail('Chip-Chap recover your password', $url, $user->getEmail(), 'recover');
         }
-
-        //send email with a link to recover the password
-        $this->_sendEmail('Chip-Chap recover your password', $url, $user->getEmail(), 'recover');
 
         return $this->restV2(200,"ok", "Request successful");
 
@@ -867,8 +885,12 @@ class AccountController extends BaseApiController{
             $template = 'TelepayFinancialApiBundle:Email:registerconfirm.html.twig';
         }elseif($action == 'recover'){
             $template = 'TelepayFinancialApiBundle:Email:recoverpassword.html.twig';
+        }elseif($action == 'recover_holy'){
+            $template = 'TelepayFinancialApiBundle:Email:recoverpasswordholy.html.twig';
         }elseif($action == 'register_kyc'){
             $template = 'TelepayFinancialApiBundle:Email:registerconfirmkyc.html.twig';
+        }elseif($action == 'register_kyc_holy'){
+            $template = 'TelepayFinancialApiBundle:Email:registerconfirmkycholy.html.twig';
         }else{
             $template = 'TelepayFinancialApiBundle:Email:registerconfirm.html.twig';
         }
