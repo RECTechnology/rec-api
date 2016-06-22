@@ -449,14 +449,6 @@ class WalletController extends RestApiController{
             ->getQuery()
             ->execute();
 
-        /*
-        if(isset($query['methods_in'])){
-            if(!($query['methods'] == 'all')){
-                $qb->field('method')->in(json_decode($query['methods'], true));
-            }
-        }
-        */
-
         $all_pos = false;
         if(isset($query['pos'])){
             if(($query['pos'] == 'all')){
@@ -532,7 +524,9 @@ class WalletController extends RestApiController{
         }
 
         $resArray = [];
+        $count= 0;
         foreach($transactions->toArray() as $res){
+            $count+=1;
             if($res->getClient()){
                 $res->setClientData(
                     array(
@@ -541,8 +535,10 @@ class WalletController extends RestApiController{
                     )
                 );
             }
+
             $filtered = false;
             if($res->getPosId()){
+                $count+=10000;
                 if($all_pos || in_array($res->getPosId(), $query['pos'])){
                     $filtered = true;
                 }
