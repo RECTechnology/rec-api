@@ -542,22 +542,33 @@ class WalletController extends RestApiController{
                 }
             }
             elseif($res->getType() == 'in'){
-                if($all_in || in_array($res->getMethod(), $query['methods_in'])){
-                    $filtered = true;
+                $method = $res->getMethod();
+                if(strpos($method,'exchange')){
+                    if($all_exchange || in_array($res->getMethod(), $query['exchanges'])){
+                        $filtered = true;
+                    }
+                }
+                else{
+                    if($all_in || in_array($res->getMethod(), $query['methods_in'])){
+                        $filtered = true;
+                    }
                 }
             }
             elseif($res->getType() == 'out'){
-                if($all_out || in_array($res->getMethod(), $query['methods_out'])){
-                    $filtered = true;
+                $method = $res->getMethod();
+                if(strpos($method,'exchange')){
+                    if($all_exchange || in_array($res->getMethod(), $query['exchanges'])){
+                        $filtered = true;
+                    }
+                }
+                else{
+                    if($all_out || in_array($res->getMethod(), $query['methods_out'])){
+                        $filtered = true;
+                    }
                 }
             }
             elseif($res->getType() == 'swift'){
                 if($all_swift_in || $all_swift_out || in_array($res->getMethodIn(), $query['swift_in']) || in_array($res->getMethodOut(), $query['swift_out'])){
-                    $filtered = true;
-                }
-            }
-            elseif($res->getType() == 'exchange'){
-                if($all_exchange || in_array($res->getMethod(), $query['exchanges'])){
                     $filtered = true;
                 }
             }
