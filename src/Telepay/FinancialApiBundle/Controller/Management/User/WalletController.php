@@ -543,26 +543,26 @@ class WalletController extends RestApiController{
             }
             elseif($res->getType() == 'in'){
                 $method = $res->getMethod();
-                if(strpos($method,'exchange')==0){
-                    if($all_exchange || in_array($res->getMethod(), $query['exchanges'])){
+                if(strpos($method,'exchange')===false){
+                    if($all_in || in_array($method, $query['methods_in'])){
                         $filtered = true;
                     }
                 }
                 else{
-                    if($all_in || in_array($res->getMethod(), $query['methods_in'])){
+                    if($all_exchange || in_array($method, $query['exchanges'])){
                         $filtered = true;
                     }
                 }
             }
             elseif($res->getType() == 'out'){
                 $method = $res->getMethod();
-                if(strpos($method,'exchange')==0){
-                    if($all_exchange || in_array($res->getMethod(), $query['exchanges'])){
+                if(strpos($method,'exchange')===false){
+                    if($all_out || in_array($method, $query['methods_out'])){
                         $filtered = true;
                     }
                 }
                 else{
-                    if($all_out || in_array($res->getMethod(), $query['methods_out'])){
+                    if($all_exchange || in_array($method, $query['exchanges'])){
                         $filtered = true;
                     }
                 }
