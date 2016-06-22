@@ -14,6 +14,7 @@ use Telepay\FinancialApiBundle\Entity\ServiceFee;
 use Telepay\FinancialApiBundle\Entity\User;
 use FOS\RestBundle\Controller\Annotations as Rest;
 use Symfony\Component\HttpFoundation\Request;
+use Telepay\FinancialApiBundle\Entity\UserGroup;
 use Telepay\FinancialApiBundle\Entity\UserWallet;
 use Telepay\FinancialApiBundle\Financial\Currency;
 
@@ -222,7 +223,10 @@ class UsersController extends BaseApiController
         $usersRepo = $em->getRepository("TelepayFinancialApiBundle:User");
         $groupsRepo = $em->getRepository("TelepayFinancialApiBundle:Group");
 
+        $role_array = array();
         if($request->request->has('group_id')){
+            if($request->request->has('role')) throw new HttpException(404, 'Parameter Role not found');
+            $role_array[] = $request->request->get('role');
             $groupId = $request->request->get('group_id');
             $request->request->remove('group_id');
             $group = $groupsRepo->find($groupId);
@@ -271,9 +275,14 @@ class UsersController extends BaseApiController
             $user_id = $user_id->id;
             $user = $usersRepo->findOneBy(array('id'=>$user_id));
 
-            $user->addGroup($group);
+            $userGroup = new UserGroup();
+            $userGroup->setUser($user);
+            $userGroup->setGroup($group);
+            $userGroup->setRoles($role_array);
 
-            $em->persist($user);
+            $em = $this->getDoctrine()->getManager();
+
+            $em->persist($userGroup);
             $em->flush();
         }
 
