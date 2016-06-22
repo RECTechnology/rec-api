@@ -493,18 +493,7 @@ class WalletController extends RestApiController{
      */
     public function walletDailySumTransactions(Request $request){
         $dm = $this->get('doctrine_mongodb')->getManager();
-        $user = $this->get('security.context')
-            ->getToken()->getUser();
-
         $userGroup = $this->get('security.context')->getToken()->getUser()->getActiveGroup();
-
-        //TODO quitar cuando haya algo mejor montado
-        if($user->getId() == $this->container->getParameter('read_only_user_id')){
-            $em = $this->getDoctrine()->getManager();
-            $user = $em->getRepository('TelepayFinancialApiBundle:User')->find($this->container->getParameter('chipchap_user_id'));
-            $userGroup = $user->getActiveGroup();
-        }
-
         $qb = $dm->createQueryBuilder('TelepayFinancialApiBundle:Transaction');
 
         if($request->query->get('query') != ''){
@@ -664,20 +653,8 @@ class WalletController extends RestApiController{
      * return transaction sum by day. week and month
      */
     public function benefits(Request $request){
-
-        $user = $this->get('security.context')
-            ->getToken()->getUser();
-
         $userGroup = $this->get('security.context')->getToken()->getUser()->getActiveGroup();
-
-        //TODO quitar cuando haya algo mejor montado
-        if($user->getId() == $this->container->getParameter('read_only_user_id')){
-            $em = $this->getDoctrine()->getManager();
-            $user = $em->getRepository('TelepayFinancialApiBundle:User')->find($this->container->getParameter('chipchap_user_id'));
-        }
-
         $default_currency = $userGroup->getDefaultCurrency();
-
         $day = $this->_getBenefits('day');
         $week = $this->_getBenefits('week');
         $month = $this->_getBenefits('month');
@@ -700,22 +677,9 @@ class WalletController extends RestApiController{
      * return transaction sum by month (last 12 months)
      */
     public function monthBenefits(Request $request){
-
-        $user = $this->get('security.context')
-            ->getToken()->getUser();
-
         $userGroup = $this->get('security.context')->getToken()->getUser()->getActiveGroup();
-
-        //TODO quitar cuando haya algo mejor montado
-        if($user->getId() == $this->container->getParameter('read_only_user_id')){
-            $em = $this->getDoctrine()->getManager();
-            $user = $em->getRepository('TelepayFinancialApiBundle:User')->find($this->container->getParameter('chipchap_user_id'));
-        }
-
         $default_currency = $userGroup->getDefaultCurrency();
-
         $day1 = date('Y-m-1 00:00:00');
-
         $monthly = [];
 
         for($i = 0; $i < 12; $i++){
@@ -745,21 +709,7 @@ class WalletController extends RestApiController{
      * return country benefits group by IP
      */
     public function countryBenefits(Request $request){
-
-        $user = $this->get('security.context')
-            ->getToken()->getUser();
-
         $userGroup = $this->get('security.context')->getToken()->getUser()->getActiveGroup();
-
-        //TODO quitar cuando haya algo mejor montado
-        if($user->getId() == $this->container->getParameter('read_only_user_id')){
-            $em = $this->getDoctrine()->getManager();
-            $user = $em->getRepository('TelepayFinancialApiBundle:User')->find($this->container->getParameter('chipchap_user_id'));
-        }
-
-        $userId = $user->getId();
-        $default_currency = $userGroup->getDefaultCurrency();
-
         $dm = $this->get('doctrine_mongodb')->getManager();
         $result = $dm->createQueryBuilder('TelepayFinancialApiBundle:Transaction')
             ->field('group')->equals($userGroup->getId())
@@ -966,16 +916,6 @@ class WalletController extends RestApiController{
      * check user fees
      */
     public function userFees(Request $request){
-
-        //get user
-        $user = $this->get('security.context')->getToken()->getUser();
-
-        //TODO quitar cuando haya algo mejor montado
-        if($user->getId() == $this->container->getParameter('read_only_user_id')){
-            $em = $this->getDoctrine()->getManager();
-            $user = $em->getRepository('TelepayFinancialApiBundle:User')->find($this->container->getParameter('chipchap_user_id'));
-        }
-
         //get group
         $group = $this->get('security.context')->getToken()->getUser()->getActiveGroup();
         //getFees
@@ -1003,16 +943,6 @@ class WalletController extends RestApiController{
      * check user limits
      */
     public function userLimits(Request $request){
-
-        //get user
-        $user = $this->get('security.context')->getToken()->getUser();
-
-        //TODO quitar cuando haya algo mejor montado
-        if($user->getId() == $this->container->getParameter('read_only_user_id')){
-            $em = $this->getDoctrine()->getManager();
-            $user = $em->getRepository('TelepayFinancialApiBundle:User')->find($this->container->getParameter('chipchap_user_id'));
-        }
-
         //get group
         $group = $this->get('security.context')->getToken()->getUser()->getActiveGroup();
         //getLimits
@@ -1334,7 +1264,7 @@ class WalletController extends RestApiController{
         $cashIn->setTotal($exchange);
         $cashIn->setService($service);
         $cashIn->setType('in');
-        $cashIn->setMethod('exchange');
+        $cashIn->setMethod('exchange'.'_'.$currency_in.'to'.$currency_out);
         $cashIn->setUser($user->getId());
         $cashIn->setGroup($userGroup->getId());
         $cashIn->setVersion(1);
