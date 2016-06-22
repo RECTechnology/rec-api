@@ -396,6 +396,7 @@ class SpecialActionsController extends RestApiController {
             $paymentInfo['status'] = 'sent';
             $paymentInfo['final'] = true;
             $transaction->setPayOutInfo($paymentInfo);
+            $transaction->setUpdated(new \MongoDate());
 
             $transaction = $this->get('notificator')->notificate($transaction);
 
@@ -462,11 +463,11 @@ class SpecialActionsController extends RestApiController {
             }
 
             $transaction = $this->get('notificator')->notificate($transaction);
+            $transaction->setUpdated(new \MongoDate());
 
             $dm->persist($transaction);
             $dm->flush();
         }
-
 
         return $this->restTransaction($transaction, "Done");
 

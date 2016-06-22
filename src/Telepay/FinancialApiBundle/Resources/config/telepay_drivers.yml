@@ -1,5 +1,15 @@
 services:
 
+    net.telepay.driver.provider:
+        class: Telepay\FinancialApiBundle\Financial\ObjectRegister
+        arguments:
+            drivers:
+                - "@net.telepay.driver.bitso"
+                - "@net.telepay.driver.kraken"
+                - "@net.telepay.driver.bittrex"
+                - "@net.telepay.driver.easybitcoin.btc"
+                - "@net.telepay.driver.easybitcoin.fac"
+
     net.telepay.driver.bitso:
         class: Telepay\FinancialApiBundle\Financial\Driver\BitsoDriver
 

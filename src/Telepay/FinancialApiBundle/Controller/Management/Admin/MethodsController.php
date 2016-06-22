@@ -186,8 +186,45 @@ class MethodsController extends BaseApiController
         return $this->restV2(
             200,
             "ok",
-            "Services got successfully",
+            "Swift methods got successfully",
             $swift_methods
+        );
+    }
+
+    /**
+     * @Rest\View()
+     */
+    public function indexExchanges() {
+
+        $exchange_methods = array();
+
+        if ($this->get('security.authorization_checker')->isGranted('ROLE_SUPER_ADMIN')) {
+
+            $em = $this->getDoctrine()->getManager();
+
+            $exchanges = $em->getRepository('TelepayFinancialApiBundle:StatusMethod')->findBy(array(
+                'type'  => 'exchange'
+            ));
+
+            foreach($exchanges as $exchange){
+
+                $currencies = explode('to',$exchange->getMethod());
+                $exch = array();
+                $exch['id'] = $exchange->getId();
+                $exch['status'] = $exchange->getStatus();
+                $exch['name'] = $exchange->getMethod();
+                $exch['cname'] = $exchange->getMethod();
+                $exch['orig_coin'] = $currencies[0];
+                $exch['dst_coin']  = $currencies[1];
+                $exchange_methods[] = $exch;
+            }
+        }
+
+        return $this->restV2(
+            200,
+            "ok",
+            "Exchanges Status got successfully",
+            $exchange_methods
         );
     }
 
