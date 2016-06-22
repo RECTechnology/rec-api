@@ -455,13 +455,74 @@ class WalletController extends RestApiController{
                 $qb->field('method')->in(json_decode($query['methods'], true));
             }
         }
+        */
 
+        $all_pos = false;
         if(isset($query['pos'])){
-            if(!($query['pos'] == 'all' || $query['pos'] == "[]")){
-                $qb->field('posId')->in(json_decode($query['pos'], true));
+            if(($query['pos'] == 'all')){
+                $all_pos = true;
             }
         }
-        */
+        else{
+            $query['pos'] = array();
+        }
+
+        $all_in = false;
+        if(isset($query['methods_in'])){
+            if(($query['methods_in'] == 'all')){
+                $all_in = true;
+            }
+        }
+        else{
+            $query['methods_in'] = array();
+        }
+
+        $all_out = false;
+        if(isset($query['methods_out'])){
+            if(($query['methods_out'] == 'all')){
+                $all_out = true;
+            }
+        }
+        else{
+            $query['methods_out'] = array();
+        }
+
+        $all_swift_in = false;
+        if(isset($query['swift_in'])){
+            if(($query['swift_in'] == 'all')){
+                $all_swift_in = true;
+            }
+        }
+        else{
+            $query['swift_in'] = array();
+        }
+
+        $all_swift_out = false;
+        if(isset($query['swift_out'])){
+            if(($query['swift_out'] == 'all')){
+                $all_swift_out = true;
+            }
+        }
+        else{
+            $query['swift_out'] = array();
+        }
+
+        $all_exchange = false;
+        if(isset($query['exchanges'])){
+            if(($query['exchanges'] == 'all')){
+                $all_exchange = true;
+            }
+        }
+        else{
+            $query['exchanges'] = array();
+        }
+
+        $fees = false;
+        if(isset($query['fees'])){
+            if(($query['fees'] == '1')){
+                $fees = true;
+            }
+        }
 
         $em = $this->getDoctrine()->getManager();
         $clientsInfo = $em->getRepository('TelepayFinancialApiBundle:Client')->findby(array('group' => $userGroup->getId()));
@@ -480,16 +541,17 @@ class WalletController extends RestApiController{
                     )
                 );
             }
-
-            if(!isset($clients)) {
-                $resArray [] = $res;
-            }
-            else{
-                if(in_array("0", $clients) || in_array($res->getClient(), $clients)){
-                    $resArray []= $res;
+            $filtered = false;
+            if($res->getPosId()){
+                if($all_pos || in_array($res->getPosId(), $query['pos'])){
+                    $filtered = true;
                 }
             }
+            if($filtered) {
+                $resArray [] = $res;
+            }
         }
+
         $total = count($resArray);
         $entities = array_slice($resArray, $offset, $limit);
 
