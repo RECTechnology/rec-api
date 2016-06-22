@@ -260,9 +260,7 @@ class WalletController extends RestApiController{
 
         $em = $this->getDoctrine()->getManager();
         $clientsInfo = $em->getRepository('TelepayFinancialApiBundle:Client')->findby(array('group' => $userGroup->getId()));
-
         $listClients = array();
-
         foreach($clientsInfo as $c){
             $listClients[$c->getId()]=$c->getName();
         }
@@ -287,9 +285,7 @@ class WalletController extends RestApiController{
                 }
             }
         }
-
         $total = count($resArray);
-
         $entities = array_slice($resArray, $offset, $limit);
 
         return $this->restV2(
@@ -360,19 +356,6 @@ class WalletController extends RestApiController{
                     else{
                         $qb->field('client')->in($query['clients']);
                     }
-                }
-            }
-
-
-            if(isset($query['methods_in'])){
-                if(!($query['methods'] == 'all')){
-                    $qb->field('method')->in(json_decode($query['methods'], true));
-                }
-            }
-
-            if(isset($query['pos'])){
-                if(!($query['pos'] == 'all' || $query['pos'] == "[]")){
-                    $qb->field('posId')->in(json_decode($query['pos'], true));
                 }
             }
 
@@ -455,25 +438,60 @@ class WalletController extends RestApiController{
                     );
                 }
             }
-
-            $transactions = $qb
-                ->sort('updated','desc')
-                ->sort('id','desc')
-                ->getQuery()
-                ->execute();
-
-        }else{
-            $order = "updated";
-            $dir = "desc";
-            $transactions = $qb
-                ->field('group')->equals($userGroup->getId())
-                ->sort($order,$dir)
-                ->getQuery()
-                ->execute();
+        }
+        else{
+            $qb->field('group')->equals($userGroup->getId());
         }
 
-        $total = count($transactions);
-        $entities = array_slice($transactions->toArray(), $offset, $limit);
+        $transactions = $qb
+            ->sort('updated','desc')
+            ->sort('id','desc')
+            ->getQuery()
+            ->execute();
+
+        /*
+        if(isset($query['methods_in'])){
+            if(!($query['methods'] == 'all')){
+                $qb->field('method')->in(json_decode($query['methods'], true));
+            }
+        }
+
+        if(isset($query['pos'])){
+            if(!($query['pos'] == 'all' || $query['pos'] == "[]")){
+                $qb->field('posId')->in(json_decode($query['pos'], true));
+            }
+        }
+        */
+
+        $em = $this->getDoctrine()->getManager();
+        $clientsInfo = $em->getRepository('TelepayFinancialApiBundle:Client')->findby(array('group' => $userGroup->getId()));
+        $listClients = array();
+        foreach($clientsInfo as $c){
+            $listClients[$c->getId()]=$c->getName();
+        }
+
+        $resArray = [];
+        foreach($transactions->toArray() as $res){
+            if($res->getClient()){
+                $res->setClientData(
+                    array(
+                        "id" => $res->getClient(),
+                        "name" => $listClients[$res->getClient()]
+                    )
+                );
+            }
+
+            if(!isset($clients)) {
+                $resArray [] = $res;
+            }
+            else{
+                if(in_array("0", $clients) || in_array($res->getClient(), $clients)){
+                    $resArray []= $res;
+                }
+            }
+        }
+        $total = count($resArray);
+        $entities = array_slice($resArray, $offset, $limit);
 
         return $this->restV2(
             200,
