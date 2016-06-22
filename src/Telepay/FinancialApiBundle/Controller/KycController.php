@@ -28,6 +28,13 @@ class KycController extends BaseApiController{
     }
 
     public function registerAction(Request $request){
+        if(!$request->request->has('company') || $request->get('company')==""){
+            $company = "chipchap";
+        }
+        else{
+            $company = $request->get('company');
+        }
+
         if(!$request->request->has('email') || $request->get('email')==""){
             throw new HttpException(400, "Missing parameter 'email'");
         }
@@ -83,13 +90,20 @@ class KycController extends BaseApiController{
             $em->persist($user);
             $em->flush();
 
-            $url = $this->container->getParameter('web_app_url');
             $tokenGenerator = $this->container->get('fos_user.util.token_generator');
             $user->setConfirmationToken($tokenGenerator->generateToken());
             $em->persist($user);
             $em->flush();
-            $url = $url.'?user_token='.$user->getConfirmationToken();
-            $this->_sendEmail('Chip-Chap validation e-mail', $url, $user->getEmail(), 'register_kyc');
+            if($company == "holytransaction"){
+                $url = "https://holytransaction.trade/";
+                $url = $url.'?user_token='.$user->getConfirmationToken();
+                $this->_sendEmail('Holy Transaction validation e-mail', $url, $user->getEmail(), 'register_kyc_holy');
+            }
+            else{
+                $url = $this->container->getParameter('web_app_url');
+                $url = $url.'?user_token='.$user->getConfirmationToken();
+                $this->_sendEmail('Chip-Chap validation e-mail', $url, $user->getEmail(), 'register_kyc');
+            }
 
 
             $em->persist($user);
@@ -313,6 +327,8 @@ class KycController extends BaseApiController{
             $template = 'TelepayFinancialApiBundle:Email:recoverpassword.html.twig';
         }elseif($action == 'register_kyc'){
             $template = 'TelepayFinancialApiBundle:Email:registerconfirmkyc.html.twig';
+        }elseif($action == 'register_kyc_holy'){
+            $template = 'TelepayFinancialApiBundle:Email:registerconfirmkycholy.html.twig';
         }else{
             $template = 'TelepayFinancialApiBundle:Email:registerconfirm.html.twig';
         }
