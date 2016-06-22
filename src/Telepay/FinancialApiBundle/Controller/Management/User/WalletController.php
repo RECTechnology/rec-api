@@ -543,7 +543,7 @@ class WalletController extends RestApiController{
             }
             elseif($res->getType() == 'in'){
                 $method = $res->getMethod();
-                if(strpos($method,'exchange')){
+                if(strpos($method,'exchange')==0){
                     if($all_exchange || in_array($res->getMethod(), $query['exchanges'])){
                         $filtered = true;
                     }
@@ -556,7 +556,7 @@ class WalletController extends RestApiController{
             }
             elseif($res->getType() == 'out'){
                 $method = $res->getMethod();
-                if(strpos($method,'exchange')){
+                if(strpos($method,'exchange')==0){
                     if($all_exchange || in_array($res->getMethod(), $query['exchanges'])){
                         $filtered = true;
                     }
