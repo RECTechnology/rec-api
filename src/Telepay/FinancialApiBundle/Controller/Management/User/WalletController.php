@@ -318,6 +318,7 @@ class WalletController extends RestApiController{
 
         if($request->query->get('query')){
             $query = $request->query->get('query');
+            $query = json_decode($request->query->get('query'), true);
 
             $qb->field('group')->equals($userGroup->getId());
 
@@ -524,9 +525,7 @@ class WalletController extends RestApiController{
         }
 
         $resArray = [];
-        $count= 0;
         foreach($transactions->toArray() as $res){
-            $count+=1;
             if($res->getClient()){
                 $res->setClientData(
                     array(
@@ -538,8 +537,27 @@ class WalletController extends RestApiController{
 
             $filtered = false;
             if($res->getPosId()){
-                $count+=10000;
                 if($all_pos || in_array($res->getPosId(), $query['pos'])){
+                    $filtered = true;
+                }
+            }
+            elseif($res->getType() == 'in'){
+                if($all_in || in_array($res->getMethod(), $query['methods_in'])){
+                    $filtered = true;
+                }
+            }
+            elseif($res->getType() == 'out'){
+                if($all_out || in_array($res->getMethod(), $query['methods_out'])){
+                    $filtered = true;
+                }
+            }
+            elseif($res->getType() == 'swift'){
+                if($all_swift_in || $all_swift_out || in_array($res->getMethodIn(), $query['swift_in']) || in_array($res->getMethodOut(), $query['swift_out'])){
+                    $filtered = true;
+                }
+            }
+            elseif($res->getType() == 'exchange'){
+                if($all_exchange || in_array($res->getMethod(), $query['exchanges'])){
                     $filtered = true;
                 }
             }
