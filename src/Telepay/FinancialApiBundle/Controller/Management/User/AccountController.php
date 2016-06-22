@@ -74,7 +74,7 @@ class AccountController extends BaseApiController{
         $group_data['default_currency'] = $group->getDefaultCurrency();
         $group_data['base64_image'] = $group->getBase64Image();
         $group_data['admin'] = $group->getGroupCreator()->getName();
-        $group_data['email'] = $group->getGroupCreator()->getEmail();
+//        $group_data['email'] = $group->getGroupCreator()->getEmail();
 
         $user->setGroupData($group_data);
 
