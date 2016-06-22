@@ -48,7 +48,7 @@ class IncomingController2 extends RestApiController{
         $dm = $this->get('doctrine_mongodb')->getManager();
         $em = $this->getDoctrine()->getManager();
 
-        $logger = $this->get('logger');
+        $logger = $this->get('transaction.logger');
         $logger->info('Incomig transaction...Method-> '.$method_cname.' Direction -> '.$type);
 
         $transaction = Transaction::createFromRequest($request);
