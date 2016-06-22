@@ -681,7 +681,15 @@ class AccountController extends BaseApiController{
     /**
      * @Rest\View
      */
-    public function passwordRecoveryRequest($param, $version_number){
+    public function passwordRecoveryRequest(Request $request, $param, $version_number){
+        $company = "chipchap";
+        if(!$request->query->has('company') || $request->query->get('company')==""){
+            $company = "chipchap";
+        }
+        else{
+            $company = $request->query->get('company');
+        }
+
         $em = $this->getDoctrine()->getManager();
         $user = $em->getRepository($this->getRepositoryName())->findOneBy(array(
             'username'  =>  $param
@@ -704,14 +712,16 @@ class AccountController extends BaseApiController{
         $em->flush();
 
         if($version_number == '2'){
-            $url = $this->container->getParameter('web_app_url').'login?password_recovery='.$user->getRecoverPasswordToken();
-            //send email with a link to recover the password
-            $this->_sendEmail('Chip-Chap recover your password', $url, $user->getEmail(), 'recover');
-        }
-        elseif($version_number == '3'){
-            $url = 'https://holytransaction.trade/login?password_recovery='.$user->getRecoverPasswordToken();
-            //send email with a link to recover the password
-            $this->_sendEmail('Holy Transaction recover your password', $url, $user->getEmail(), 'recover_holy');
+            if($company = "holytransaction"){
+                $url = 'https://holytransaction.trade/login?password_recovery='.$user->getRecoverPasswordToken();
+                //send email with a link to recover the password
+                $this->_sendEmail('Holy Transaction recover your password', $url, $user->getEmail(), 'recover_holy');
+            }
+            else{
+                $url = $this->container->getParameter('web_app_url').'login?password_recovery='.$user->getRecoverPasswordToken();
+                //send email with a link to recover the password
+                $this->_sendEmail('Chip-Chap recover your password', $url, $user->getEmail(), 'recover');
+            }
         }
         else {
             $url = $this->container->getParameter('base_panel_url').'/user/password_recovery/'.$user->getRecoverPasswordToken();
