@@ -9,6 +9,7 @@
 namespace Telepay\FinancialApiBundle\Controller\Transactions;
 
 use Symfony\Component\Config\Definition\Exception\Exception;
+use Symfony\Component\DependencyInjection\ContainerBuilder;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpKernel\Exception\HttpException;
 use Telepay\FinancialApiBundle\Controller\RestApiController;
@@ -16,6 +17,7 @@ use FOS\RestBundle\Controller\Annotations as Rest;
 use Telepay\FinancialApiBundle\DependencyInjection\Telepay\Commons\LimitAdder;
 use Telepay\FinancialApiBundle\DependencyInjection\Telepay\Commons\LimitChecker;
 use Telepay\FinancialApiBundle\Document\Transaction;
+use Telepay\FinancialApiBundle\Entity\DbWallet;
 use Telepay\FinancialApiBundle\Entity\Group;
 use Telepay\FinancialApiBundle\Entity\LimitCount;
 use Telepay\FinancialApiBundle\Entity\LimitDefinition;
@@ -29,6 +31,8 @@ class IncomingController2 extends RestApiController{
      * @Rest\View
      */
     public function make(Request $request, $version_number, $type, $method_cname, $id = null){
+
+        //TODO inyectar driver con las credenciales correspondientes al DbWallet
 
         $method = $this->get('net.telepay.'.$type.'.'.$method_cname.'.v'.$version_number);
 

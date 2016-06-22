@@ -45,6 +45,9 @@ services:
             - "%bitcoind_host%"
             - "%bitcoind_port%"
 
+    net.telepay.driver.easybitcoin2.btc:
+        class: Telepay\FinancialApiBundle\Financial\Driver\EasyBitcoinDriver2
+
     net.telepay.driver.easybitcoin.fac:
         class: Telepay\FinancialApiBundle\Financial\Driver\EasyBitcoinDriver
         arguments:
