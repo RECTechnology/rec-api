@@ -43,7 +43,9 @@ class MigrateTransactionsByGroupCommand extends ContainerAwareCommand
         $counterTransactionsWithOutUserId = 0;
         $counterTransactionsWithOutUser = 0;
         $counterTransactionsWithOutGroup = 0;
+        $counterTransactionsExchange = 0;
         foreach($transactions as $transaction){
+            /*
             $user_id = $transaction->getUser();
             if($user_id){
                 $user = $userRepo->find($user_id);
@@ -64,6 +66,14 @@ class MigrateTransactionsByGroupCommand extends ContainerAwareCommand
             }else{
                 $counterTransactionsWithOutUserId ++;
             }
+            */
+
+            if($transaction->getMethod() == 'exchange') {
+                $counterTransactionsExchange++;
+                $transaction->setMethod($transaction->getService());
+                $dm->persist($transaction);
+                $dm->flush($transaction);
+            }
 
             $progress->advance();
             $counterTransactions ++;
@@ -76,6 +86,7 @@ class MigrateTransactionsByGroupCommand extends ContainerAwareCommand
         $output->writeln($counterTransactionsWithOutUserId.' transactionsWithOutUserId');
         $output->writeln($counterTransactionsWithOutUser.' transactionsWithOutUser');
         $output->writeln($counterTransactionsWithOutGroup.' transactionsWithOutGroup');
+        $output->writeln($counterTransactionsExchange.' transactionsExchange');
 
         $output->writeln('All done');
     }
