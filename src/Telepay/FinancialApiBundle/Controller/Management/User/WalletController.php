@@ -576,9 +576,27 @@ class WalletController extends RestApiController{
                 elseif($res->getType() == 'fee' || $res->getType() == 'resta_fee'){
                     if($fees){
                         $method = $res->getMethod();
-                        //No exchange
                         if(strpos($method,'exchange')===false){
-                            $filtered = true;
+                            if(strpos($method,'-in')>0){
+                                $method = substr($method, 0, -3);
+                                if($all_in || in_array($method, $query['methods_in'])){
+                                    $filtered = true;
+                                }
+                            }
+                            elseif(strpos($method,'-out')>0){
+                                $method = substr($method, 0, -4);
+                                if($all_out || in_array($method, $query['methods_out'])){
+                                    $filtered = true;
+                                }
+                            }
+                            else{
+                                $list_methods = explode("-", $method);
+                                $method_in = $list_methods[0];
+                                $method_out = $list_methods[1];
+                                if($all_swift_in || $all_swift_out || in_array($method_in, $query['swift_in']) || in_array($method_out, $query['swift_out'])){
+                                    $filtered = true;
+                                }
+                            }
                         }
                         else{
                             if($all_exchange || in_array($method, $query['exchanges'])){
