@@ -411,6 +411,7 @@ class AccountController extends BaseApiController{
         else{
             $company = $request->get('company');
         }
+        $request->request->remove('company');
 
         if(!$request->request->has('email')){
             throw new HttpException(400, "Missing parameter 'email'");
