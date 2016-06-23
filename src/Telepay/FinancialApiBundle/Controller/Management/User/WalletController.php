@@ -573,14 +573,16 @@ class WalletController extends RestApiController{
                 }
             }
             elseif($res->getType() == 'fee' || $res->getType() == 'resta_fee'){
-                $method = $res->getMethod();
-                //No exchange
-                if(strpos($method,'exchange')===false){
-                    $filtered = true;
-                }
-                else{
-                    if($all_exchange || in_array($method, $query['exchanges'])){
+                if($fees){
+                    $method = $res->getMethod();
+                    //No exchange
+                    if(strpos($method,'exchange')===false){
                         $filtered = true;
+                    }
+                    else{
+                        if($all_exchange || in_array($method, $query['exchanges'])){
+                            $filtered = true;
+                        }
                     }
                 }
             }
