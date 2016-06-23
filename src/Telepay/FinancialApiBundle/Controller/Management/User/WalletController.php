@@ -450,6 +450,8 @@ class WalletController extends RestApiController{
             ->getQuery()
             ->execute();
 
+        $data = array();
+        $scales = array();
         if($request->query->get('query')){
             $all_pos = false;
             if(isset($query['pos'])){
@@ -608,6 +610,27 @@ class WalletController extends RestApiController{
 
                 if($filtered) {
                     $resArray [] = $res;
+                    if($res->getStatus() == "success"){
+                        if(!array_key_exists($res->getCurrency(), $scales)){
+                            $scales[$res->getCurrency()] = $res->getScale();
+                        }
+
+                        $created = $res->getCreated();
+                        if($created != "" && $created != null ){
+                            $day = $created->format('Y') . "/" . $created->format('m') . "/" . $created->format('d');
+                            if(!array_key_exists($day, $data)){
+                                $data[$day] = array();
+                            }
+                            if(!isset($clients)) {
+                                array_key_exists($res->getCurrency(), $data[$day])? $data[$day][$res->getCurrency()] += $res->getAmount():$data[$day][$res->getCurrency()] = $res->getAmount();
+                            }
+                            else{
+                                if(in_array("0", $clients) || in_array($res->getClient(), $clients)){
+                                    array_key_exists($res->getCurrency(), $data[$day])? $data[$day][$res->getCurrency()] += $res->getAmount():$data[$day][$res->getCurrency()] = $res->getAmount();
+                                }
+                            }
+                        }
+                    }
                 }
             }
         }
@@ -626,7 +649,9 @@ class WalletController extends RestApiController{
                 'total' => $total,
                 'start' => intval($offset),
                 'end' => count($entities)+$offset,
-                'elements' => $entities,
+                'daily' => $data,
+                'scales' => $scales,
+                'elements' => $entities
             )
         );
     }
