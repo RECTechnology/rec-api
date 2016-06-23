@@ -68,11 +68,14 @@ class MigrateTransactionsByGroupCommand extends ContainerAwareCommand
             }
             */
 
-            if($transaction->getMethod() == 'exchange') {
+            if($transaction->getMethod() == 'exchange' && $transaction->getType() == 'fee') {
                 $counterTransactionsExchange++;
-                $transaction->setMethod($transaction->getService());
-                $dm->persist($transaction);
-                $dm->flush($transaction);
+                $method = $transaction->getService();
+                if($method) {
+                    $transaction->setMethod($method);
+                    $dm->persist($transaction);
+                    $dm->flush($transaction);
+                }
             }
 
             $progress->advance();
