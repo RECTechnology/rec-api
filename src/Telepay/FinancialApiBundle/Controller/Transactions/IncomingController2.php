@@ -937,14 +937,11 @@ class IncomingController2 extends RestApiController{
         $logger->info('make transaction -> dealer');
         $amount = $transaction->getAmount();
         $currency = $transaction->getCurrency();
-        $method_cname = $transaction->getMethod();
+        $method_cname = $transaction->getMethod() . "-" . $transaction->getType();
 
         $em = $this->getDoctrine()->getManager();
 
         $total_fee = $transaction->getFixedFee() + $transaction->getVariableFee();
-
-//        $user = $em->getRepository('TelepayFinancialApiBundle:User')->find($transaction->getUser());
-
         $group = $em->getRepository('TelepayFinancialApiBundle:Group')->find($transaction->getGroup());
         $creator = $group->getGroupCreator();
 
@@ -1010,13 +1007,11 @@ class IncomingController2 extends RestApiController{
 
         $amount = $transaction->getAmount();
         $currency = $transaction->getCurrency();
-        $method_cname = $transaction->getMethod();
+        $method_cname = $transaction->getMethod() . "-" . $transaction->getType();
 
         $em = $this->getDoctrine()->getManager();
 
         $total_fee = $transaction->getFixedFee() + $transaction->getVariableFee();
-
-        $user = $em->getRepository('TelepayFinancialApiBundle:User')->find($transaction->getUser());
         $group = $em->getRepository('TelepayFinancialApiBundle:User')->find($transaction->getGroup());
 
         $feeTransaction = Transaction::createFromTransaction($transaction);
