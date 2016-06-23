@@ -45,7 +45,6 @@ class MigrateTransactionsByGroupCommand extends ContainerAwareCommand
         $counterTransactionsWithOutGroup = 0;
         $counterTransactionsExchange = 0;
         foreach($transactions as $transaction){
-            /*
             $user_id = $transaction->getUser();
             if($user_id){
                 $user = $userRepo->find($user_id);
@@ -66,7 +65,6 @@ class MigrateTransactionsByGroupCommand extends ContainerAwareCommand
             }else{
                 $counterTransactionsWithOutUserId ++;
             }
-            */
 
             if($transaction->getMethod() == 'exchange' && $transaction->getType() == 'fee') {
                 $counterTransactionsExchange++;
