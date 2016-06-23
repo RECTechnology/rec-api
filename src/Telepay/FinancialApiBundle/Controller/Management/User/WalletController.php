@@ -450,134 +450,104 @@ class WalletController extends RestApiController{
             ->getQuery()
             ->execute();
 
-        $all_pos = false;
-        if(isset($query['pos'])){
-            if(($query['pos'] == 'all')){
-                $all_pos = true;
-            }
-        }
-        else{
-            $query['pos'] = array();
-        }
-
-        $all_in = false;
-        if(isset($query['methods_in'])){
-            if(($query['methods_in'] == 'all')){
-                $all_in = true;
-            }
-        }
-        else{
-            $query['methods_in'] = array();
-        }
-
-        $all_out = false;
-        if(isset($query['methods_out'])){
-            if(($query['methods_out'] == 'all')){
-                $all_out = true;
-            }
-        }
-        else{
-            $query['methods_out'] = array();
-        }
-
-        $all_swift_in = false;
-        if(isset($query['swift_in'])){
-            if(($query['swift_in'] == 'all')){
-                $all_swift_in = true;
-            }
-        }
-        else{
-            $query['swift_in'] = array();
-        }
-
-        $all_swift_out = false;
-        if(isset($query['swift_out'])){
-            if(($query['swift_out'] == 'all')){
-                $all_swift_out = true;
-            }
-        }
-        else{
-            $query['swift_out'] = array();
-        }
-
-        $all_exchange = false;
-        if(isset($query['exchanges'])){
-            if(($query['exchanges'] == 'all')){
-                $all_exchange = true;
-            }
-        }
-        else{
-            $query['exchanges'] = array();
-        }
-
-        $fees = false;
-        if(isset($query['fees'])){
-            if(($query['fees'] == '1')){
-                $fees = true;
-            }
-        }
-
-        $em = $this->getDoctrine()->getManager();
-        $clientsInfo = $em->getRepository('TelepayFinancialApiBundle:Client')->findby(array('group' => $userGroup->getId()));
-        $listClients = array();
-        foreach($clientsInfo as $c){
-            $listClients[$c->getId()]=$c->getName();
-        }
-
-        $resArray = [];
-        foreach($transactions->toArray() as $res){
-            if($res->getClient()){
-                $res->setClientData(
-                    array(
-                        "id" => $res->getClient(),
-                        "name" => $listClients[$res->getClient()]
-                    )
-                );
-            }
-
-            $filtered = false;
-            if($res->getPosId()){
-                if($all_pos || in_array($res->getPosId(), $query['pos'])){
-                    $filtered = true;
+        if($request->query->get('query')){
+            $all_pos = false;
+            if(isset($query['pos'])){
+                if(($query['pos'] == 'all')){
+                    $all_pos = true;
                 }
             }
-            elseif($res->getType() == 'in'){
-                $method = $res->getMethod();
-                if(strpos($method,'exchange')===false){
-                    if($all_in || in_array($method, $query['methods_in'])){
+            else{
+                $query['pos'] = array();
+            }
+
+            $all_in = false;
+            if(isset($query['methods_in'])){
+                if(($query['methods_in'] == 'all')){
+                    $all_in = true;
+                }
+            }
+            else{
+                $query['methods_in'] = array();
+            }
+
+            $all_out = false;
+            if(isset($query['methods_out'])){
+                if(($query['methods_out'] == 'all')){
+                    $all_out = true;
+                }
+            }
+            else{
+                $query['methods_out'] = array();
+            }
+
+            $all_swift_in = false;
+            if(isset($query['swift_in'])){
+                if(($query['swift_in'] == 'all')){
+                    $all_swift_in = true;
+                }
+            }
+            else{
+                $query['swift_in'] = array();
+            }
+
+            $all_swift_out = false;
+            if(isset($query['swift_out'])){
+                if(($query['swift_out'] == 'all')){
+                    $all_swift_out = true;
+                }
+            }
+            else{
+                $query['swift_out'] = array();
+            }
+
+            $all_exchange = false;
+            if(isset($query['exchanges'])){
+                if(($query['exchanges'] == 'all')){
+                    $all_exchange = true;
+                }
+            }
+            else{
+                $query['exchanges'] = array();
+            }
+
+            $fees = false;
+            if(isset($query['fees'])){
+                if(($query['fees'] == '1')){
+                    $fees = true;
+                }
+            }
+
+            $em = $this->getDoctrine()->getManager();
+            $clientsInfo = $em->getRepository('TelepayFinancialApiBundle:Client')->findby(array('group' => $userGroup->getId()));
+            $listClients = array();
+            foreach($clientsInfo as $c){
+                $listClients[$c->getId()]=$c->getName();
+            }
+
+            $resArray = [];
+            foreach($transactions->toArray() as $res){
+                if($res->getClient()){
+                    $res->setClientData(
+                        array(
+                            "id" => $res->getClient(),
+                            "name" => $listClients[$res->getClient()]
+                        )
+                    );
+                }
+
+                $filtered = false;
+                if($res->getPosId()){
+                    if($all_pos || in_array($res->getPosId(), $query['pos'])){
                         $filtered = true;
                     }
                 }
-                else{
-                    if($all_exchange || in_array($method, $query['exchanges'])){
-                        $filtered = true;
-                    }
-                }
-            }
-            elseif($res->getType() == 'out'){
-                $method = $res->getMethod();
-                if(strpos($method,'exchange')===false){
-                    if($all_out || in_array($method, $query['methods_out'])){
-                        $filtered = true;
-                    }
-                }
-                else{
-                    if($all_exchange || in_array($method, $query['exchanges'])){
-                        $filtered = true;
-                    }
-                }
-            }
-            elseif($res->getType() == 'swift'){
-                if($all_swift_in || $all_swift_out || in_array($res->getMethodIn(), $query['swift_in']) || in_array($res->getMethodOut(), $query['swift_out'])){
-                    $filtered = true;
-                }
-            }
-            elseif($res->getType() == 'fee' || $res->getType() == 'resta_fee'){
-                if($fees){
+                elseif($res->getType() == 'in'){
                     $method = $res->getMethod();
-                    //No exchange
                     if(strpos($method,'exchange')===false){
-                        $filtered = true;
+                        if($all_in || in_array($method, $query['methods_in'])){
+                            $filtered = true;
+                        }
                     }
                     else{
                         if($all_exchange || in_array($method, $query['exchanges'])){
@@ -585,11 +555,46 @@ class WalletController extends RestApiController{
                         }
                     }
                 }
-            }
+                elseif($res->getType() == 'out'){
+                    $method = $res->getMethod();
+                    if(strpos($method,'exchange')===false){
+                        if($all_out || in_array($method, $query['methods_out'])){
+                            $filtered = true;
+                        }
+                    }
+                    else{
+                        if($all_exchange || in_array($method, $query['exchanges'])){
+                            $filtered = true;
+                        }
+                    }
+                }
+                elseif($res->getType() == 'swift'){
+                    if($all_swift_in || $all_swift_out || in_array($res->getMethodIn(), $query['swift_in']) || in_array($res->getMethodOut(), $query['swift_out'])){
+                        $filtered = true;
+                    }
+                }
+                elseif($res->getType() == 'fee' || $res->getType() == 'resta_fee'){
+                    if($fees){
+                        $method = $res->getMethod();
+                        //No exchange
+                        if(strpos($method,'exchange')===false){
+                            $filtered = true;
+                        }
+                        else{
+                            if($all_exchange || in_array($method, $query['exchanges'])){
+                                $filtered = true;
+                            }
+                        }
+                    }
+                }
 
-            if($filtered) {
-                $resArray [] = $res;
+                if($filtered) {
+                    $resArray [] = $res;
+                }
             }
+        }
+        else{
+            $resArray = $transactions->toArray();
         }
 
         $total = count($resArray);
