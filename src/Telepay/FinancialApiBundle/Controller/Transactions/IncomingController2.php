@@ -946,6 +946,7 @@ class IncomingController2 extends RestApiController{
         $creator = $group->getGroupCreator();
 
         $feeTransaction = Transaction::createFromTransaction($transaction);
+        $feeTransaction->setMethod($method_cname);
         $feeTransaction->setAmount($total_fee);
         $feeTransaction->setDataIn(array(
             'previous_transaction'  =>  $transaction->getId(),
