@@ -712,7 +712,7 @@ class AccountController extends BaseApiController{
         $em->flush();
 
         if($version_number == '2'){
-            if($company = "holytransaction"){
+            if($company == "holytransaction"){
                 $url = 'https://holytransaction.trade/login?password_recovery='.$user->getRecoverPasswordToken();
                 //send email with a link to recover the password
                 $this->_sendEmail('Holy Transaction recover your password', $url, $user->getEmail(), 'recover_holy');
