@@ -235,12 +235,17 @@ class GroupsController extends BaseApiController
         $adminGroup = $admin->getActiveGroup();
 
         //TODO: Improve performance (two queries)
-        $group = $this->getRepository()->findOneBy(
-            array(
-                'id'        =>  $id,
-                'group_creator'   =>  $adminGroup
-            )
-        );
+        if($this->get('security.context')->isGranted('ROLE_SUPERADMIN')){
+            $group = $this->getRepository()->find($id);
+        }else{
+            $group = $this->getRepository()->findOneBy(
+                array(
+                    'id'        =>  $id,
+                    'group_creator'   =>  $adminGroup
+                )
+            );
+        }
+
 
         if(!$group) throw new HttpException(404,'Group not found');
 
@@ -307,7 +312,7 @@ class GroupsController extends BaseApiController
     public function deleteAction($id){
 
         //only the superadmin can access here
-        if(!$this->get('security.context')->isGranted('ROLE_ADMIN'))
+        if(!$this->get('security.context')->isGranted('ROLE_SUPERADMIN'))
             throw new HttpException(403, 'You have not the necessary permissions');
 
         $user = $this->get('security.context')->getToken()->getUser();

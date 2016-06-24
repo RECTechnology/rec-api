@@ -401,7 +401,7 @@ class UsersController extends BaseApiController
 
         //TODO check if this admin is admin of this user
         if($this->get('security.context')->isGranted('ROLE_SUPERADMIN')) throw new HttpException(403, 'You don\'t have the necessary permissions');
-        
+
         $role_commerce = null;
         if($request->request->has('roles')){
             $roles = $request->request->get('roles');
@@ -473,6 +473,7 @@ class UsersController extends BaseApiController
      * @Rest\View
      */
     public function deleteAction($id){
+        if($this->get('security.context')->isGranted('ROLE_SUPERADMIN')) throw new HttpException(403, 'You don\'t have the necessary permissions');
         return parent::deleteAction($id);
     }
 
@@ -480,6 +481,7 @@ class UsersController extends BaseApiController
      * @Rest\View
      */
     public function deleteByNameAction($username){
+        if($this->get('security.context')->isGranted('ROLE_SUPERADMIN')) throw new HttpException(403, 'You don\'t have the necessary permissions');
         $repo = $this->getRepository();
         $user = $repo->findOneBy(array('username'=>$username));
         if(empty($user)) throw new HttpException(404, 'User not found');
