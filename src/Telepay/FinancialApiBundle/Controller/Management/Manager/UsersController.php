@@ -70,17 +70,20 @@ class UsersController extends BaseApiController
      */
     public function indexAction(Request $request){
 
+        $securityContext = $this->get('security.context');
+
         if($request->query->has('limit')) $limit = $request->query->get('limit');
         else $limit = 10;
 
         if($request->query->has('offset')) $offset = $request->query->get('offset');
         else $offset = 0;
 
-        $securityContext = $this->get('security.context');
-
         $userRepo = $this->getDoctrine()->getRepository('TelepayFinancialApiBundle:User');
         $em = $this->getDoctrine()->getManager();
         $qb = $em->createQueryBuilder('TelepayFinancialApiBundle:User');
+
+        $userRequester = $securityContext->getToken()->getUser();
+        $activGroup = $userRequester->getActiveGroup();
 
         if($request->query->get('query') != ''){
             $query = $request->query->get('query');
@@ -108,11 +111,15 @@ class UsersController extends BaseApiController
         if(!$securityContext->isGranted('ROLE_SUPER_ADMIN')){
             $filtered = [];
             foreach($all as $user){
-                if(!$user->hasRole('ROLE_SUPER_ADMIN'))
-                    $filtered []= $user;
+                if(!$user->hasRole('ROLE_SUPER_ADMIN')){
+                    if($user->hasGroup($activGroup->getName())){
+                        $filtered []= $user;
+                    }
+
+                }
+
             }
-        }
-        else{
+        }else{
             $filtered = $all;
         }
         $total = count($filtered);
@@ -120,8 +127,6 @@ class UsersController extends BaseApiController
         $entities = array_slice($filtered, $offset, $limit);
 
         array_map(function($elem){
-//            $elem->setAllowedServices($this->get('net.telepay.service_provider')->findByCNames($elem->getServicesList()));
-//            $elem->setAllowedMethods($this->get('net.telepay.method_provider')->findByCNames($elem->getMethodsList()));
             $elem->setAccessToken(null);
             $elem->setRefreshToken(null);
             $elem->setAuthCode(null);
@@ -294,7 +299,11 @@ class UsersController extends BaseApiController
      * @Rest\View
      */
     public function showAction($id){
-        //TODO check if the user is admin f this group or pertence to this group
+        //check if the user is admin f this group or pertence to this group
+        $user = $this->get('security.context')->getToken()->getUser();
+
+        $activeGroup = $user->getActiveGroup();
+
         if(empty($id)) throw new HttpException(400, "Missing parameter 'id'");
 
         $repo = $this->getRepository();
@@ -303,19 +312,19 @@ class UsersController extends BaseApiController
 
         if(empty($entities)) throw new HttpException(404, "Not found");
 
-//        $entities->setAllowedServices($this->get('net.telepay.service_provider')->findByCNames($entities->getServicesList()));
-//        $entities->setAllowedMethods($this->get('net.telepay.method_provider')->findByCNames($entities->getMethodsList()));
+        if(!$this->get('security.authorization_checker')->isGranted('ROLE_SUPER_ADMIN')){
+            if(!$entities->hasGroup($activeGroup->getName())) throw new HttpException(403, 'You don\'t have the necessary permissions');
+        }
+
         $entities->setAccessToken(null);
         $entities->setRefreshToken(null);
         $entities->setAuthCode(null);
 
-        $group = $entities->getGroups()[0];
-
         $group_data = array();
-        $group_data['id'] = $group->getId();
-        $group_data['name'] = $group->getName();
-        $group_data['admin'] = $group->getCreator()->getName();
-        $group_data['email'] = $group->getCreator()->getEmail();
+        $group_data['id'] = $activeGroup->getId();
+        $group_data['name'] = $activeGroup->getName();
+        $group_data['admin'] = $activeGroup->getCreator()->getName();
+        $group_data['email'] = $activeGroup->getCreator()->getEmail();
 
         $entities->setGroupData($group_data);
 
@@ -347,15 +356,11 @@ class UsersController extends BaseApiController
 
         $image = base64_decode($base64Image);
 
-        //TODO creo que esto habra que descomentarlo
-
-        /*
         try {
             imagecreatefromstring($image);
         }catch (Exception $e){
             throw new HttpException(400, "Invalid parameter 'base64_image'");
         }
-        */
 
         $repo = $this->getRepository();
 
@@ -389,8 +394,6 @@ class UsersController extends BaseApiController
      */
     public function updateAction(Request $request, $id){
 
-        if(empty($id) && $id !=0) throw new HttpException(400, "Missing parameter 'id'");
-
         //TODO check if this admin is admin of this user
         $role_commerce = null;
         if($request->request->has('roles')){
@@ -398,30 +401,16 @@ class UsersController extends BaseApiController
             if(in_array('ROLE_COMMERCE', $roles)){
                 $role_commerce = true;
             }
-            //die(print_r($request->request->get('roles'),true));
-        }
-        if($id == 0){
-            $username = $request->get('username');
-            $repo = $this->getRepository();
-            $user = $repo->findOneBy(array('username'=>$username));
-            if(empty($user)) throw new HttpException(404, 'User not found');
-            $id = $user->getId();
-            $request->request->remove('username');
         }
 
         $services = null;
-        if($request->request->has('services')){
-            $services = $request->get('services');
-            $request->request->remove('services');
-            $request->request->add(array('services_list' =>$services));
-        }
 
-        $methods = null;
-        if($request->request->has('methods')){
-            $methods = $request->get('methods');
-            $request->request->remove('methods');
-            $request->request->add(array('methods_list' =>$methods));
-        }
+//        $methods = null;
+//        if($request->request->has('methods')){
+//            $methods = $request->get('methods');
+//            $request->request->remove('methods');
+//            $request->request->add(array('methods_list' =>$methods));
+//        }
 
         if($request->request->has('password')){
             if($request->request->has('repassword')){
@@ -439,27 +428,29 @@ class UsersController extends BaseApiController
             }
 
         }
-        $balance=null;
-        if($request->request->has('addBalance')){
-            $balance = $request->get('addBalance');
-            $request->request->remove('addBalance');
-            $currency = 'default';
-            if($request->request->has('currency')){
-                $currency = $request->request->get('currency');
-                $request->request->remove('currency');
-            }
-            $adder = $this->_addBalance( $id, $currency, $balance );
-        }
+
+//        $balance=null;
+//        if($request->request->has('addBalance')){
+//            $balance = $request->get('addBalance');
+//            $request->request->remove('addBalance');
+//            $currency = 'default';
+//            if($request->request->has('currency')){
+//                $currency = $request->request->get('currency');
+//                $request->request->remove('currency');
+//            }
+//            $adder = $this->_addBalance( $id, $currency, $balance );
+//        }
+
         $resp = parent::updateAction($request, $id);
         if($resp->getStatusCode() == 204){
-            if($services !== null){
-                $request->request->add(array('services'=>$services));
-                $this->_setServices($request, $id);
-            }
-            if($methods !== null){
-                $request->request->add(array('methods'=>$methods));
-                $this->_setMethods($request, $id);
-            }
+//            if($services !== null){
+//                $request->request->add(array('services'=>$services));
+//                $this->_setServices($request, $id);
+//            }
+//            if($methods !== null){
+//                $request->request->add(array('methods'=>$methods));
+//                $this->_setMethods($request, $id);
+//            }
 
             if($role_commerce !== null){
                 //TODO check if the admins have POS FEES for all the admins
