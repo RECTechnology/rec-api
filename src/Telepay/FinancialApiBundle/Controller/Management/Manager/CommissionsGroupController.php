@@ -33,12 +33,14 @@ class CommissionsGroupController extends BaseApiController
 
         if(!$user->hasRole('ROLE_SUPER_ADMIN')){
             //check if this user is the group crator or superadmin, if not access not allowed
-            $group = $user->getGroups()[0];
+            $group = $user->getActiveGroup();
             $em = $this->getDoctrine()->getManager();
             $fee = $em->getRepository($this->getRepositoryName())->find($id);
             $feeGroup = $fee->getGroup();
 
-            if($group->getId() != $feeGroup->getId()) throw new HttpException(409, 'You don\'t have the necessary permissions');
+            if($group->getId() != $feeGroup->getGroupCreator()->getId()) throw new HttpException(409, 'You don\'t have the necessary permissions to modify this group');
+
+            if(!$user->hasRole('ROLE_ADMIN')) throw new HttpException(403, 'You don\'t have the necessary permissions');
         }
 
 
