@@ -40,7 +40,7 @@ class LimitsGroupController extends BaseApiController
             if($group->getId() != $limitGroup->getGroupCreator()->getId()) throw new HttpException(409, 'You don\'t have the necessary permissions');
 
             if(!$user->hasRole('ROLE_ADMIN')) throw new HttpException(403, 'You don\'t have the necessary permissions');
-            
+
         }
 
 
