@@ -335,6 +335,9 @@ class UsersController extends BaseApiController
      * @Rest\View
      */
     public function setImage(Request $request, $id){
+        $admin = $this->get('security.context')->getToken()->getUser();
+        $activeGroup = $admin->getActiveGroup();
+
         if($id == "") throw new HttpException(400, "Missing parameter 'id'");
 
         if($id == 0){
@@ -367,6 +370,8 @@ class UsersController extends BaseApiController
         $user = $repo->findOneBy(array('id'=>$id));
 
         if(empty($user)) throw new HttpException(404, "User Not found");
+
+        if(!$user->hasGroup($activeGroup->getName())) throw new HttpException(403, 'You don\'t have the necessary permissions');
 
         $user->setBase64Image($base64Image);
 
