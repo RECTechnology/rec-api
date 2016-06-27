@@ -129,6 +129,46 @@ class Group extends BaseGroup
     private $clients;
 
     /**
+     * @ORM\Column(type="string", nullable=true)
+     */
+    private $cif;
+
+    /**
+     * @ORM\Column(type="string", nullable=true)
+     */
+    private $phone;
+
+    /**
+     * @ORM\Column(type="text", nullable = true)
+     */
+    private $postal_code;
+
+    /**
+     * @ORM\Column(type="string", nullable=true)
+     */
+    private $email;
+
+    /**
+     * @ORM\Column(type="string", nullable = true)
+     */
+    private $city;
+
+    /**
+     * @ORM\Column(type="string", nullable = true)
+     */
+    private $country;
+
+    /**
+     * @ORM\Column(type="string", nullable = true)
+     */
+    private $web;
+
+    /**
+     * @ORM\Column(type="text", nullable = true)
+     */
+    private $comment;
+
+    /**
      * @return mixed
      */
     public function getUsers()
@@ -406,6 +446,148 @@ class Group extends BaseGroup
         $this->users = $users;
 
         return $this;
+    }
+
+    public function getUserView(){
+        unset($this->access_key);
+        unset($this->access_secret);
+        unset($this->limits);
+        unset($this->commissions);
+        unset($this->wallets);
+        unset($this->limit_counts);
+        unset($this->methods_list);
+        unset($this->allowed_methods);
+        unset($this->comment);
+
+        return $this;
+    }
+
+    /**
+     * @return mixed
+     */
+    public function getCif()
+    {
+        return $this->cif;
+    }
+
+    /**
+     * @param mixed $cif
+     */
+    public function setCif($cif)
+    {
+        $this->cif = $cif;
+    }
+
+    /**
+     * @return mixed
+     */
+    public function getPhone()
+    {
+        return $this->phone;
+    }
+
+    /**
+     * @param mixed $phone
+     */
+    public function setPhone($phone)
+    {
+        $this->phone = $phone;
+    }
+
+    /**
+     * @return mixed
+     */
+    public function getEmail()
+    {
+        return $this->email;
+    }
+
+    /**
+     * @param mixed $email
+     */
+    public function setEmail($email)
+    {
+        $this->email = $email;
+    }
+
+    /**
+     * @return mixed
+     */
+    public function getPostalCode()
+    {
+        return $this->postal_code;
+    }
+
+    /**
+     * @param mixed $postal_code
+     */
+    public function setPostalCode($postal_code)
+    {
+        $this->postal_code = $postal_code;
+    }
+
+    /**
+     * @return mixed
+     */
+    public function getCity()
+    {
+        return $this->city;
+    }
+
+    /**
+     * @param mixed $city
+     */
+    public function setCity($city)
+    {
+        $this->city = $city;
+    }
+
+    /**
+     * @return mixed
+     */
+    public function getCountry()
+    {
+        return $this->country;
+    }
+
+    /**
+     * @param mixed $country
+     */
+    public function setCountry($country)
+    {
+        $this->country = $country;
+    }
+
+    /**
+     * @return mixed
+     */
+    public function getWeb()
+    {
+        return $this->web;
+    }
+
+    /**
+     * @param mixed $web
+     */
+    public function setWeb($web)
+    {
+        $this->web = $web;
+    }
+
+    /**
+     * @return mixed
+     */
+    public function getComment()
+    {
+        return $this->comment;
+    }
+
+    /**
+     * @param mixed $comment
+     */
+    public function setComment($comment)
+    {
+        $this->comment = $comment;
     }
 
 }
