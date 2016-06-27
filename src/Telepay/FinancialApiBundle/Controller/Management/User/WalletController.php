@@ -528,8 +528,8 @@ class WalletController extends RestApiController{
             }
 
             $resArray = [];
-            $balance = 0;
-            $volume = 0;
+            $balance = array();
+            $volume = array();
             foreach($transactions->toArray() as $res){
                 if($res->getClient()){
                     $res->setClientData(
@@ -613,14 +613,17 @@ class WalletController extends RestApiController{
                 if($filtered) {
                     $resArray [] = $res;
                     if($res->getStatus() == "success"){
-                        $volume+=$res->getAmount();
-                        $trans_type = $res->getType();
-                        if($trans_type == 'in' || $trans_type == 'out' || $trans_type == 'fee' || $trans_type == 'resta_fee') {
-                            $balance += $res->getTotal();
+                        if(!array_key_exists($res->getCurrency(), $scales)){
+                            $currency = $res->getCurrency();
+                            $scales[$currency] = $res->getScale();
+                            $volume[$currency] = 0;
+                            $balance[$currency] = 0;
                         }
 
-                        if(!array_key_exists($res->getCurrency(), $scales)){
-                            $scales[$res->getCurrency()] = $res->getScale();
+                        $volume[$currency]+=$res->getAmount();
+                        $trans_type = $res->getType();
+                        if($trans_type == 'in' || $trans_type == 'out' || $trans_type == 'fee' || $trans_type == 'resta_fee') {
+                            $balance[$currency] += $res->getTotal();
                         }
 
                         $updated = $res->getUpdated();
