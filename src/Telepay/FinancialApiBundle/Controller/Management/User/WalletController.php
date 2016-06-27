@@ -528,6 +528,8 @@ class WalletController extends RestApiController{
             }
 
             $resArray = [];
+            $balance = 0;
+            $volume = 0;
             foreach($transactions->toArray() as $res){
                 if($res->getClient()){
                     $res->setClientData(
@@ -608,8 +610,6 @@ class WalletController extends RestApiController{
                     }
                 }
 
-                $balance = 0;
-                $volume = 0;
                 if($filtered) {
                     $resArray [] = $res;
                     if($res->getStatus() == "success"){
