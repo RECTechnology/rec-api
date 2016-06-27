@@ -615,9 +615,9 @@ class WalletController extends RestApiController{
                             $scales[$res->getCurrency()] = $res->getScale();
                         }
 
-                        $created = $res->getCreated();
-                        if($created != "" && $created != null ){
-                            $day = $created->format('Y') . "/" . $created->format('m') . "/" . $created->format('d');
+                        $updated = $res->getUpdated();
+                        if($updated != "" && $updated != null ){
+                            $day = $updated->format('Y') . "/" . $updated->format('m') . "/" . $updated->format('d');
                             if(!array_key_exists($day, $data)){
                                 $data[$day] = array();
                             }
