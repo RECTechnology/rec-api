@@ -121,6 +121,12 @@ admin_groups_update:
         id: "[0-9]+"
         name: "string"
 
+admin_groups_set_image:
+    pattern:  /manager/v1/groups/{id}/image
+    defaults: { _controller: Telepay\FinancialApiBundle\Controller\Management\Manager\GroupsController::setImage, _format: ~ }
+    requirements:
+        _method: PUT
+
 admin_groups_update_limit:
     pattern:  /manager/v1/groups/limit/{id}
     defaults: { _controller: Telepay\FinancialApiBundle\Controller\Management\Manager\LimitsGroupController::updateAction, _format: ~ }

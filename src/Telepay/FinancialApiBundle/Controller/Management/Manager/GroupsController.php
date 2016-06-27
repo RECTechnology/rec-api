@@ -235,12 +235,17 @@ class GroupsController extends BaseApiController
         $adminGroup = $admin->getActiveGroup();
 
         //TODO: Improve performance (two queries)
-        $group = $this->getRepository()->findOneBy(
-            array(
-                'id'        =>  $id,
-                'group_creator'   =>  $adminGroup
-            )
-        );
+        if($this->get('security.context')->isGranted('ROLE_SUPER_ADMIN')){
+            $group = $this->getRepository()->find($id);
+        }else{
+            $group = $this->getRepository()->findOneBy(
+                array(
+                    'id'        =>  $id,
+                    'group_creator'   =>  $adminGroup
+                )
+            );
+        }
+
 
         if(!$group) throw new HttpException(404,'Group not found');
 
@@ -283,7 +288,7 @@ class GroupsController extends BaseApiController
         $group = $this->getRepository($this->getRepositoryName())->find($id);
         $groupCreator = $group->getGroupCreator();
 
-        if($groupCreator->getid() != $userGroup->getId() && !$user->hasRole('ROLE_SUPERADMIN'))
+        if($groupCreator->getid() != $userGroup->getId() && !$user->hasRole('ROLE_SUPER_ADMIN'))
             throw new HttpException(409, 'You don\'t have the necessary permissions');
 
         $methods = null;
@@ -307,7 +312,7 @@ class GroupsController extends BaseApiController
     public function deleteAction($id){
 
         //only the superadmin can access here
-        if(!$this->get('security.context')->isGranted('ROLE_ADMIN'))
+        if(!$this->get('security.context')->isGranted('ROLE_SUPER_ADMIN'))
             throw new HttpException(403, 'You have not the necessary permissions');
 
         $user = $this->get('security.context')->getToken()->getUser();
