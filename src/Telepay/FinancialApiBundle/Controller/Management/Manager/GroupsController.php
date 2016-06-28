@@ -252,7 +252,6 @@ class GroupsController extends BaseApiController
             );
         }
 
-
         if(!$group) throw new HttpException(404,'Group not found');
 
         $fees = $group->getCommissions();

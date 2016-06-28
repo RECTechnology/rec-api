@@ -33,19 +33,31 @@ class UsersGroupsController extends RestApiController{
         //check if this user is admin of this group
         if(!$admin->hasGroup($company) && !$admin->hasRole('ROLE_SUPER_ADMIN')) throw new HttpException(409, 'You don\'t have the necesary permissions');
 
+        $usersRepository = $this->getDoctrine()->getRepository("TelepayFinancialApiBundle:User");
+
         //check parameters
-        if(!$request->request->has('user_id')) throw new HttpException(404, 'Param user_id not found');
+        if(!$request->request->has('user_id')){
+            if(!$request->request->has('email')){
+                throw new HttpException(404, 'Param user_id not found');
+            }else{
+                $user = $usersRepository->findOneBy(array(
+                    'email' =>  $request->request->get('email')
+                ));
+                if(!$user) throw new HttpException(404, "User not found");
+            }
+        }else{
+            $user_id = $request->request->get('user_id');
+            $user = $usersRepository->find($user_id);
+            if(!$user) throw new HttpException(404, "User not found");
+        }
+
         if(!$request->request->has('role')) throw new HttpException(404, 'Param role not found');
 
-        $user_id = $request->request->get('user_id');
         $role = $request->request->get('role');
         $role_array = array();
         if($role != ''){
             $role_array[] = $role;
         }
-        $usersRepository = $this->getDoctrine()->getRepository("TelepayFinancialApiBundle:User");
-        $user = $usersRepository->find($user_id);
-        if(!$user) throw new HttpException(404, "User not found");
 
         if($user->hasGroup($company->getName())) throw new HttpException(409, "User already in group");
 
@@ -68,6 +80,8 @@ class UsersGroupsController extends RestApiController{
     public function deleteAction(Request $request, $user_id, $group_id){
 
         $admin = $this->get('security.context')->getToken()->getUser();
+
+        if(!$admin->hasRole('ROLE_ADMIN')) throw new HttpException(403, 'You don\'t have the necessary permissions');
 
         $groupsRepository = $this->getDoctrine()->getRepository("TelepayFinancialApiBundle:Group");
         $group = $groupsRepository->find($group_id);
