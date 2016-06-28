@@ -249,7 +249,9 @@ class UsersController extends BaseApiController
                 'active_group'  =>  $group
             ));
         }else{
-            throw new HttpException(404, 'Param group_id not found');
+            $request->request->add(array(
+                'active_group'  =>  $admin->getActiveGroup()
+            ));
         }
 
         if(!$request->request->has('password'))

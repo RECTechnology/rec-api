@@ -145,6 +145,12 @@ class GroupsController extends BaseApiController
 
         $admin = $this->get('security.context')->getToken()->getUser();
 
+        $activeGroup = $admin->getActiveGroup();
+
+        if(!$this->get('security.context')->isGranted('ROLE_SUPER_ADMIN')){
+            if($activeGroup->hasRole('ROLE_RESELLER')) throw new HttpException(403, 'Your company don\'t have the necessary permissions');
+        }
+
         $request->request->set('roles', array('ROLE_COMPANY'));
         $request->request->set('default_currency', Currency::$EUR);
         $request->request->set('group_creator',$admin->getActiveGroup());
@@ -245,7 +251,6 @@ class GroupsController extends BaseApiController
                 )
             );
         }
-
 
         if(!$group) throw new HttpException(404,'Group not found');
 
