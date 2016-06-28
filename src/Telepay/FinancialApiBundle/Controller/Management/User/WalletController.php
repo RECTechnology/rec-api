@@ -318,8 +318,6 @@ class WalletController extends RestApiController{
 
         if($request->query->get('query')){
             $query = $request->query->get('query');
-            $query = json_decode($request->query->get('query'), true);
-
             $qb->field('group')->equals($userGroup->getId());
 
             if(isset($query['start_date'])){
@@ -528,6 +526,8 @@ class WalletController extends RestApiController{
             }
 
             $resArray = [];
+            $balance = array();
+            $volume = array();
             foreach($transactions->toArray() as $res){
                 if($res->getClient()){
                     $res->setClientData(
@@ -612,7 +612,16 @@ class WalletController extends RestApiController{
                     $resArray [] = $res;
                     if($res->getStatus() == "success"){
                         if(!array_key_exists($res->getCurrency(), $scales)){
-                            $scales[$res->getCurrency()] = $res->getScale();
+                            $currency = $res->getCurrency();
+                            $scales[$currency] = $res->getScale();
+                            $volume[$currency] = 0;
+                            $balance[$currency] = 0;
+                        }
+
+                        $volume[$currency]+=$res->getAmount();
+                        $trans_type = $res->getType();
+                        if($trans_type == 'in' || $trans_type == 'out' || $trans_type == 'fee' || $trans_type == 'resta_fee') {
+                            $balance[$currency] += $res->getTotal();
                         }
 
                         $updated = $res->getUpdated();
@@ -621,14 +630,7 @@ class WalletController extends RestApiController{
                             if(!array_key_exists($day, $data)){
                                 $data[$day] = array();
                             }
-                            if(!isset($clients)) {
-                                array_key_exists($res->getCurrency(), $data[$day])? $data[$day][$res->getCurrency()] += $res->getAmount():$data[$day][$res->getCurrency()] = $res->getAmount();
-                            }
-                            else{
-                                if(in_array("0", $clients) || in_array($res->getClient(), $clients)){
-                                    array_key_exists($res->getCurrency(), $data[$day])? $data[$day][$res->getCurrency()] += $res->getAmount():$data[$day][$res->getCurrency()] = $res->getAmount();
-                                }
-                            }
+                            array_key_exists($res->getCurrency(), $data[$day])? $data[$day][$res->getCurrency()] += $res->getAmount():$data[$day][$res->getCurrency()] = $res->getAmount();
                         }
                     }
                 }
@@ -651,168 +653,9 @@ class WalletController extends RestApiController{
                 'end' => count($entities)+$offset,
                 'daily' => $data,
                 'scales' => $scales,
+                'balance' => $balance,
+                'volume' => $volume,
                 'elements' => $entities
-            )
-        );
-    }
-
-    /**
-     * return an array with the daily total amount of the filtered transactions
-     */
-    public function walletDailySumTransactions(Request $request){
-        $dm = $this->get('doctrine_mongodb')->getManager();
-        $userGroup = $this->get('security.context')->getToken()->getUser()->getActiveGroup();
-        $qb = $dm->createQueryBuilder('TelepayFinancialApiBundle:Transaction');
-
-        if($request->query->get('query') != ''){
-            $query = $request->query->get('query');
-            $search = $query['search'];
-            $services = $query['services'];
-            if(isset($query['clients'])){
-                $clients = json_decode($query['clients'], true);
-            }
-            $order = $query['order'];
-            $dir = $query['dir'];
-            if(isset($query['start_date'])){
-                $start_time = new \MongoDate(strtotime(date($query['start_date'].' 00:00:00')));//date('Y-m-d 00:00:00')
-            }else{
-                $fecha = new DateTime();
-                $fecha->sub(new DateInterval('P3M'));
-                $start_time = new \MongoDate($fecha->getTimestamp());
-            }
-
-            if(isset($query['finish_date'])){
-                $finish_time = new \MongoDate(strtotime(date($query['finish_date'].' 23:59:59')));
-            }else{
-                $finish_time = new \MongoDate();
-            }
-
-            $transactions = $qb
-                ->field('group')->equals($userGroup->getId())
-                ->field('created')->gte($start_time)
-                ->field('created')->lte($finish_time)
-                ->field('type')->notEqual('swift')
-                ->where("function() {
-            if (typeof this.dataIn !== 'undefined') {
-                if (this.status != 'success') { return false;}
-                if (typeof this.dataIn.phone_number !== 'undefined') {
-                    if(String(this.dataIn.phone_number).indexOf('$search') > -1){
-                        return true;
-                    }
-                }
-                if (typeof this.dataIn.address !== 'undefined') {
-                    if(String(this.dataIn.address).indexOf('$search') > -1){
-                        return true;
-                    }
-                }
-                if (typeof this.dataIn.reference !== 'undefined') {
-                    if(String(this.dataIn.reference).indexOf('$search') > -1){
-                        return true;
-                    }
-                }
-                if (typeof this.dataIn.pin !== 'undefined') {
-                    if(String(this.dataIn.pin).indexOf('$search') > -1){
-                        return true;
-                    }
-                }
-                if (typeof this.dataIn.order_id !== 'undefined') {
-                    if(String(this.dataIn.order_id).indexOf('$search') > -1){
-                        return true;
-                    }
-                }
-                if (typeof this.dataIn.previous_transaction !== 'undefined') {
-                    if(String(this.dataIn.previous_transaction).indexOf('$search') > -1){
-                        return true;
-                    }
-                }
-            }
-            if (typeof this.dataOut !== 'undefined') {
-                if (typeof this.dataOut.transaction_pos_id !== 'undefined') {
-                    if(String(this.dataOut.transaction_pos_id).indexOf('$search') > -1){
-                        return true;
-                    }
-                }
-                if (typeof this.dataOut.halcashticket !== 'undefined') {
-                    if(String(this.dataOut.halcashticket).indexOf('$search') > -1){
-                        return true;
-                    }
-                }
-                if (typeof this.dataOut.txid !== 'undefined') {
-                    if(String(this.dataOut.txid).indexOf('$search') > -1){
-                        return true;
-                    }
-                }
-                if (typeof this.dataOut.address !== 'undefined') {
-                    if(String(this.dataOut.address).indexOf('$search') > -1){
-                        return true;
-                    }
-                }
-                if (typeof this.dataOut.id !== 'undefined') {
-                    if(String(this.dataOut.id).indexOf('$search') > -1){
-                        return true;
-                    }
-                }
-                if (typeof this.dataOut.reference !== 'undefined') {
-                    if(String(this.dataOut.reference).indexOf('$search') > -1){
-                        return true;
-                    }
-                }
-            }
-            if(JSON.parse(String('$services')).indexOf(String(this.service)) > -1) { return true;}
-            if(typeof this.status !== 'undefined' && String(this.status).indexOf('$search') > -1){ return true;}
-            if(typeof this.service !== 'undefined' && String(this.service).indexOf('$search') > -1){ return true;}
-            if(String(this._id).indexOf('$search') > -1){ return true;}
-
-            return false;
-            }")
-                ->sort($order,$dir)
-                ->getQuery()
-                ->execute();
-
-        }else{
-            $order = "id";
-            $dir = "asc";
-
-            $transactions = $qb
-                ->field('group')->equals($userGroup->getId())
-                ->sort($order,$dir)
-                ->getQuery()
-                ->execute();
-        }
-
-        $data = array();
-        $scales = array();
-        foreach($transactions->toArray() as $res){
-            if($res->getStatus() == "success"){
-                if(!array_key_exists($res->getCurrency(), $scales)){
-                    $scales[$res->getCurrency()] = $res->getScale();
-                }
-
-                $created = $res->getCreated();
-                if($created != "" && $created != null ){
-                    $day = $created->format('Y') . "/" . $created->format('m') . "/" . $created->format('d');
-                    if(!array_key_exists($day, $data)){
-                        $data[$day] = array();
-                    }
-                    if(!isset($clients)) {
-                        array_key_exists($res->getCurrency(), $data[$day])? $data[$day][$res->getCurrency()] += $res->getAmount():$data[$day][$res->getCurrency()] = $res->getAmount();
-                    }
-                    else{
-                        if(in_array("0", $clients) || in_array($res->getClient(), $clients)){
-                            array_key_exists($res->getCurrency(), $data[$day])? $data[$day][$res->getCurrency()] += $res->getAmount():$data[$day][$res->getCurrency()] = $res->getAmount();
-                        }
-                    }
-                }
-            }
-        }
-
-        return $this->restV2(
-            200,
-            "ok",
-            "Request successful",
-            array(
-                'daily' => $data,
-                'scales' => $scales
             )
         );
     }
