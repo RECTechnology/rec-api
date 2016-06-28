@@ -154,9 +154,11 @@ class UsersController extends BaseApiController
      * @Rest\View
      */
     public function indexByGroup(Request $request, $id){
-
+        //Only the superadmin can access here
         $admin = $this->get('security.context')->getToken()->getUser();
         $adminGroup = $admin->getActiveGroup();
+
+        if(!$this->get('security.context')->isGranted('ROLE_SUPERADMIN')) throw new HttpException('You don\'t have the necessary permissions');
 
         if($request->query->has('limit')) $limit = $request->query->get('limit');
         else $limit = 10;
@@ -167,7 +169,7 @@ class UsersController extends BaseApiController
         $current_group = $this->getDoctrine()->getRepository('TelepayFinancialApiBundle:Group')->find($id);
         if(!$current_group) throw new HttpException(404, 'Group not found');
 
-        if($current_group->getGroupCreator()->getId() != $adminGroup->getId()) throw new HttpException(403, 'You don\'t have the necessary permissions');
+//        if($current_group->getGroupCreator()->getId() != $adminGroup->getId()) throw new HttpException(403, 'You don\'t have the necessary permissions');
 
         $all = $this->getRepository()->findAll();
 
