@@ -318,8 +318,6 @@ class WalletController extends RestApiController{
 
         if($request->query->get('query')){
             $query = $request->query->get('query');
-            $query = json_decode($request->query->get('query'), true);
-
             $qb->field('group')->equals($userGroup->getId());
 
             if(isset($query['start_date'])){
