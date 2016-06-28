@@ -304,6 +304,8 @@ class GroupsController extends BaseApiController
             }
         }
 
+        return $response;
+
     }
 
     /**
