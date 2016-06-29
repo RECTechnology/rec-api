@@ -67,10 +67,14 @@ class UsersController extends BaseApiController
 
     /**
      * @Rest\View
+     * Permissions: ROLE_SUPER_ADMIN
      */
     public function indexAction(Request $request){
 
+        //TODO only superadmin can access here
         $securityContext = $this->get('security.context');
+
+        if(!$securityContext->isGranted('ROLE_SUPER_ADMIN')) throw new HttpException(403, 'You don\'t have the necessary permissions');
 
         if($request->query->has('limit')) $limit = $request->query->get('limit');
         else $limit = 10;
@@ -108,6 +112,7 @@ class UsersController extends BaseApiController
 
         $all = $userQuery->getResult();
 
+        //TODO review this...its necessary????
         if(!$securityContext->isGranted('ROLE_SUPER_ADMIN')){
             $filtered = [];
             foreach($all as $user){
@@ -152,8 +157,10 @@ class UsersController extends BaseApiController
 
     /**
      * @Rest\View
+     * Permissions: ROLE_ADMIN(active_group), ROLE_SUPER_ADMIN(all)
      */
     public function indexByGroup(Request $request, $id){
+
         //Only the superadmin can access here
         $admin = $this->get('security.context')->getToken()->getUser();
         $adminGroup = $admin->getActiveGroup();
@@ -169,7 +176,7 @@ class UsersController extends BaseApiController
         $current_group = $this->getDoctrine()->getRepository('TelepayFinancialApiBundle:Group')->find($id);
         if(!$current_group) throw new HttpException(404, 'Group not found');
 
-//        if($current_group->getGroupCreator()->getId() != $adminGroup->getId()) throw new HttpException(403, 'You don\'t have the necessary permissions');
+        if($current_group->getGroupCreator()->getId() != $adminGroup->getId()) throw new HttpException(403, 'You don\'t have the necessary permissions');
 
         $all = $this->getRepository()->findAll();
 
@@ -179,10 +186,7 @@ class UsersController extends BaseApiController
                 $groups = $user->getGroups();
                 foreach($groups as $group){
                     if($group->getId() == $id){
-                        if(!$user->hasRole('ROLE_SUPER_ADMIN')){
-                            $filtered []= $user;
-                        }
-
+                        $filtered []= $user;
                     }
                 }
 
