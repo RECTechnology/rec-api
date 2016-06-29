@@ -73,7 +73,7 @@ class SwiftController extends RestApiController{
         //check concept last 30 minutes in the same company
         $company = $client->getGroup();
 
-        $this->checkConceptLast30Min($request, $dm, $company);
+//        $this->checkConceptLast30Min($request, $dm, $company);
 
         //TODO optional url_notification param
 
