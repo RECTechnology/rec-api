@@ -158,7 +158,7 @@ class UsersController extends BaseApiController
         $admin = $this->get('security.context')->getToken()->getUser();
         $adminGroup = $admin->getActiveGroup();
 
-        if(!$this->get('security.context')->isGranted('ROLE_SUPERADMIN')) throw new HttpException('You don\'t have the necessary permissions');
+        if(!$this->get('security.context')->isGranted('ROLE_SUPER_ADMIN')) throw new HttpException(403,'You don\'t have the necessary permissions');
 
         if($request->query->has('limit')) $limit = $request->query->get('limit');
         else $limit = 10;
