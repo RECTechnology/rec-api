@@ -408,7 +408,9 @@ class UsersController extends BaseApiController
     public function updateAction(Request $request, $id){
 
         //TODO check if this admin is admin of this user
-        if($this->get('security.context')->isGranted('ROLE_SUPER_ADMIN')) throw new HttpException(403, 'You don\'t have the necessary permissions');
+        $user = $this->get('security.context')->getToken()->getUser();
+
+        if(!$user->hasRole('ROLE_ADMIN')) throw new HttpException(403, 'You don\'t have the necessary permissions');
 
         $role_commerce = null;
         if($request->request->has('roles')){
