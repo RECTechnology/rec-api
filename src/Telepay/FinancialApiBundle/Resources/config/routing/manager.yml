@@ -81,6 +81,8 @@ manager_su:
     requirements:
         _method: GET
 
+##########################    MANAGER COMPANIES     ###########################
+
 admin_groups_index:
     pattern:  /manager/v1/groups
     defaults: { _controller: Telepay\FinancialApiBundle\Controller\Management\Manager\GroupsController::indexAction, _format: ~ }
