@@ -18,10 +18,12 @@ use Telepay\FinancialApiBundle\DependencyInjection\Transactions\Core\BaseMethod;
 class HalcashMethod extends BaseMethod{
 
     private $driver;
+    private $container;
 
     public function __construct($name, $cname, $type, $currency, $email_required, $base64Image, $container, $driver){
         parent::__construct($name, $cname, $type, $currency, $email_required, $base64Image, $container);
         $this->driver = $driver;
+        $this->container = $container;
     }
 
     public function send($paymentInfo)
@@ -48,6 +50,7 @@ class HalcashMethod extends BaseMethod{
                 $hal = $this->driver->sendInternational($phone, $prefix, $amount, $reference.' '.$find_token, $pin, 'PL', 'POL');
             }
         }catch (HttpException $e){
+            $this->sendMail($e->getMessage(), $e->getStatusCode());
             throw new Exception($e->getMessage(), $e->getStatusCode());
         }
 
@@ -202,4 +205,27 @@ class HalcashMethod extends BaseMethod{
         }
         return false;
     }
+
+    public function sendMail($error, $message){
+
+        $no_reply = $this->container->getParameter('no_reply_email');
+
+        $message = \Swift_Message::newInstance()
+            ->setSubject('Halcash error ALERT')
+            ->setFrom($no_reply)
+            ->setTo(array(
+                'cto@chip-chap.com',
+                'pere@chip-chap.com'
+            ))
+            ->setBody(
+                $this->getContainer()->get('templating')
+                    ->render('TelepayFinancialApiBundle:Email:sepa_out_alert.html.twig',array(
+                        'code error'  =>  $error,
+                        'message'    =>  $message
+                    ))
+            );
+
+        $this->getContainer()->get('mailer')->send($message);
+    }
+
 }
