@@ -31,6 +31,8 @@ class GroupsController extends BaseApiController
 
     /**
      * @Rest\View
+     * description: returns all groups
+     * permissions: ROLE_SUPER_ADMIN ( all)
      */
     public function indexAction(Request $request){
 
@@ -88,9 +90,12 @@ class GroupsController extends BaseApiController
 
     /**
      * @Rest\View
+     * description: return sub companies
+     * permissions: ROLE_RESELLER
      */
     public function indexByCompany(Request $request){
 
+        //todo implements reseller filter
         //list all subcompanies
         $admin = $this->get('security.context')->getToken()->getUser();
         $adminGroup = $admin->getActiveGroup();
@@ -147,6 +152,8 @@ class GroupsController extends BaseApiController
 
     /**
      * @Rest\View
+     * description: create a company
+     * permissions: ROLE_RESELLER(add company behind this company)
      */
     public function createAction(Request $request){
 

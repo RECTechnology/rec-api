@@ -78,6 +78,7 @@ class UsersGroupsController extends RestApiController{
     /**
      * @Rest\View
      * description: remove user from company
+     * permissions: ROLE_ADMIN (active company), ROLE_SUPER_ADMIN(all)
      */
     public function deleteAction(Request $request, $user_id, $group_id){
 
@@ -108,6 +109,8 @@ class UsersGroupsController extends RestApiController{
 
     /**
      * @Rest\View
+     * description: add roles to company with array
+     * permissions: ROLE_ADMIN (active company), ROLE_SUPER_ADMIN(all)
      */
     public function addRoleAction(Request $request, $user_id, $group_id){
 
