@@ -271,6 +271,13 @@ class GroupsController extends BaseApiController
             $lim->setScale($currency);
         }
 
+        $groupCreator = $group->getGroupCreator();
+        $groupData = array(
+            'id'    => $groupCreator->getId(),
+            'name'  =>  $groupCreator->getName()
+        );
+        $group->setGroupCreatorData($groupData);
+
         return $this->restV2(
             200,
             "ok",
