@@ -117,6 +117,11 @@ class Group extends BaseGroup
     private $allowed_methods = array();
 
     /**
+     * @Expose
+     */
+    private $group_creator_data = array();
+
+    /**
      * @ORM\OneToMany(targetEntity="Telepay\FinancialApiBundle\Entity\Balance", mappedBy="group", cascade={"remove"})
      * @Exclude
      */
@@ -678,6 +683,14 @@ class Group extends BaseGroup
     public function setTown($town)
     {
         $this->town = $town;
+    }
+
+    /**
+     * @param mixed $group_creator_data
+     */
+    public function setGroupCreatorData($group_creator_data)
+    {
+        $this->group_creator_data = $group_creator_data;
     }
 
 }

@@ -49,7 +49,13 @@ class GroupsController extends BaseApiController
 
         $total = count($all);
         foreach ($all as $group){
+            $groupCreator = $group->getGroupCreator();
+            $groupData = array(
+                'id'    => $groupCreator->getId(),
+                'name'  =>  $groupCreator->getName()
+            );
             $group = $group->getAdminView();
+            $group->setGroupCreatorData($groupData);
 
             $fees = $group->getCommissions();
             foreach ( $fees as $fee ){
@@ -153,8 +159,8 @@ class GroupsController extends BaseApiController
 
         $request->request->set('roles', array('ROLE_COMPANY'));
         $request->request->set('default_currency', Currency::$EUR);
-        $request->request->set('group_creator',$admin->getActiveGroup());
-        $request->request->set('methods_list', $admin->getActiveGroup()->getMethodsList());
+        $request->request->set('group_creator',$activeGroup);
+        $request->request->set('methods_list', $activeGroup->getMethodsList());
 
         $group_name = $request->request->get('name');
 
