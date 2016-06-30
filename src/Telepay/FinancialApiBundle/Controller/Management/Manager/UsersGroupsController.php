@@ -19,6 +19,7 @@ class UsersGroupsController extends RestApiController{
 
     /**
      * @Rest\View
+     * description: add user to company with user_id or email
      */
     public function createAction(Request $request, $id){
 
@@ -76,6 +77,7 @@ class UsersGroupsController extends RestApiController{
 
     /**
      * @Rest\View
+     * description: remove user from company
      */
     public function deleteAction(Request $request, $user_id, $group_id){
 
