@@ -29,7 +29,15 @@ class ActivityController extends RestApiController
             ->execute();
 
         $resArray = [];
+
+        $em = $this->getDoctrine()->getManager();
+        $groupRepo = $em->getRepository('TelepayFinancialApiBundle:Group');
         foreach($last50Trans->toArray() as $res){
+            if($res->getGroup()){
+                $group = $groupRepo->find($res->getGroup());
+                $res->setGroupData($group->getName());
+            }
+
 
             $resArray [] = $res;
 
