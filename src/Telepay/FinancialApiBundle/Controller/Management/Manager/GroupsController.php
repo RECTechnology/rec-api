@@ -110,6 +110,11 @@ class GroupsController extends BaseApiController
         //return only the limits of active services
         foreach ($all as $group){
             $group = $group->getAdminView();
+            $groupData = array(
+                'id'    =>  $group->getId(),
+                'name'  =>  $group->getName()
+            );
+            $group->setGroupCreatorData($groupData);
 
             $fees = $group->getCommissions();
             foreach ( $fees as $fee ){
