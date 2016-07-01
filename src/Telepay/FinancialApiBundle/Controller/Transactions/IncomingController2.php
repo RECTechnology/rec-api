@@ -76,9 +76,12 @@ class IncomingController2 extends RestApiController{
             throw new HttpException(400, 'Param amount not found');
         }
 
+        $exchange_done = false;
         if($request->request->has('currency') && $request->request->get('currency')!=''){
+            $request_amount = $amount;
             $cur_in = $request->request->get('currency');
             if(strtoupper($cur_in) != $method->getCurrency()){
+                $exchange_done = true;
                 $exchange = $em->getRepository('TelepayFinancialApiBundle:Exchange')->findOneBy(
                     array(
                         'src'   =>  strtoupper($cur_in),
@@ -102,6 +105,10 @@ class IncomingController2 extends RestApiController{
                 'concept'   =>  $concept,
                 'url_notification'  =>  $url_notification
             );
+            if($exchange_done){
+                $dataIn['request_amount'] = $request_amount;
+                $dataIn['request_currency'] = $cur_in;
+            }
             $payment_info = $method->getPayInInfo($amount);
             $payment_info['concept'] = $concept;
             $transaction->setPayInInfo($payment_info);
@@ -115,6 +122,10 @@ class IncomingController2 extends RestApiController{
                 'concept'   =>  $concept,
                 'url_notification'  =>  $url_notification
             );
+            if($exchange_done){
+                $dataIn['request_amount'] = $request_amount;
+                $dataIn['request_currency'] = $cur_in;
+            }
         }
 
         $transaction->setDataIn($dataIn);
