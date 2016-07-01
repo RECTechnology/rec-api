@@ -305,6 +305,7 @@ class UsersController extends BaseApiController
 
     /**
      * @Rest\View
+     * permissions: ROLE_SUPER_ADMIN(all), ROLE_READ_ONLY(must be member of this group)
      */
     public function showAction($id){
         //check if the user is admin f this group or pertence to this group
@@ -341,9 +342,12 @@ class UsersController extends BaseApiController
 
     /**
      * @Rest\View
+     * permissions: ROLE_SUPER_ADMIN
      */
     public function setImage(Request $request, $id){
         $admin = $this->get('security.context')->getToken()->getUser();
+
+        if(!$this->get('security.context')->isGranted('ROLE_SUPER_ADMIN')) throw new HttpException(403, 'You don\'t have the necessary permissions');
         $activeGroup = $admin->getActiveGroup();
 
         if($id == "") throw new HttpException(400, "Missing parameter 'id'");
@@ -404,13 +408,14 @@ class UsersController extends BaseApiController
 
     /**
      * @Rest\View
+     * permissions: ROLE_SUPER_ADMIN
      */
     public function updateAction(Request $request, $id){
 
         //TODO check if this admin is admin of this user
         $user = $this->get('security.context')->getToken()->getUser();
 
-        if(!$user->hasRole('ROLE_ADMIN')) throw new HttpException(403, 'You don\'t have the necessary permissions');
+        if(!$user->hasRole('ROLE_SUPER_ADMIN')) throw new HttpException(403, 'You don\'t have the necessary permissions');
 
         $role_commerce = null;
         if($request->request->has('roles')){
@@ -419,15 +424,6 @@ class UsersController extends BaseApiController
                 $role_commerce = true;
             }
         }
-
-        $services = null;
-
-//        $methods = null;
-//        if($request->request->has('methods')){
-//            $methods = $request->get('methods');
-//            $request->request->remove('methods');
-//            $request->request->add(array('methods_list' =>$methods));
-//        }
 
         if($request->request->has('password')){
             if($request->request->has('repassword')){
@@ -446,33 +442,11 @@ class UsersController extends BaseApiController
 
         }
 
-//        $balance=null;
-//        if($request->request->has('addBalance')){
-//            $balance = $request->get('addBalance');
-//            $request->request->remove('addBalance');
-//            $currency = 'default';
-//            if($request->request->has('currency')){
-//                $currency = $request->request->get('currency');
-//                $request->request->remove('currency');
-//            }
-//            $adder = $this->_addBalance( $id, $currency, $balance );
-//        }
-
         $resp = parent::updateAction($request, $id);
         if($resp->getStatusCode() == 204){
-//            if($services !== null){
-//                $request->request->add(array('services'=>$services));
-//                $this->_setServices($request, $id);
-//            }
-//            if($methods !== null){
-//                $request->request->add(array('methods'=>$methods));
-//                $this->_setMethods($request, $id);
-//            }
 
             if($role_commerce !== null){
                 //TODO check if the admins have POS FEES for all the admins
-
-
             }
 
         }
@@ -499,21 +473,6 @@ class UsersController extends BaseApiController
         return parent::deleteAction($idUser);
     }
 
-//    private function _setServices(Request $request, $id){
-//        if(empty($id)) throw new HttpException(400, "Missing parameter 'id'");
-//        $usersRepo = $this->getRepository();
-//        $user = $usersRepo->findOneBy(array('id'=>$id));
-//        $listServices = $user->getServicesList();
-//
-//        $putServices = $request->get('services');
-//        foreach($putServices as $service){
-//            if(!in_array($service, $listServices)){
-//                $this->_addService($id, $service);
-//            }
-//        }
-//        return $this->rest(204, "Edited");
-//    }
-
     private function _setMethods(Request $request, $id){
         if(empty($id)) throw new HttpException(400, "Missing parameter 'id'");
         $usersRepo = $this->getRepository();
@@ -528,59 +487,6 @@ class UsersController extends BaseApiController
         }
         return $this->rest(204, "Edited");
     }
-
-//    /**
-//     * @Rest\View
-//     */
-//    public function addService(Request $request, $id){
-//        $serviceId = $request->get('service_id');
-//        if(empty($serviceId)) throw new HttpException(400, "Missing parameter 'service_id'");
-//        $this->_addService($id, $serviceId);
-//        return $this->rest(201, "Service added successfully", array());
-//    }
-
-//    /**
-//     * @Rest\View
-//     */
-//    public function deleteService($id, $service_id){
-//        $this->_deleteService($id, $service_id);
-//        return $this->rest(204,"Service deleted from user successfully");
-//    }
-
-//    private function _addService($id, $cname){
-//        $usersRepo = $this->getRepository();
-//        $servicesRepo = $this->get('net.telepay.service_provider');
-//        $user = $usersRepo->findOneBy(array('id'=>$id));
-//        $service = $servicesRepo->findByCname($cname);
-//        if(empty($user)) throw new HttpException(404, 'User not found');
-//        if(empty($service)) throw new HttpException(404, 'Service not found');
-//
-//        $user->addService($cname);
-//        $em = $this->getDoctrine()->getManager();
-//        $limitRepo = $em->getRepository("TelepayFinancialApiBundle:LimitCount");
-//        $limit = $limitRepo->findOneBy(array('cname' => $cname, 'user' => $user));
-//        if(!$limit){
-//            $limit = new LimitCount();
-//            $limit->setUser($user);
-//            $limit->setCname($cname);
-//            $limit->setSingle(0);
-//            $limit->setDay(0);
-//            $limit->setWeek(0);
-//            $limit->setMonth(0);
-//            $limit->setYear(0);
-//            $limit->setTotal(0);
-//            $em->persist($limit);
-//        }
-//
-//        try{
-//            $em->flush();
-//        } catch(DBALException $e){
-//            if(preg_match('/SQLSTATE\[23000\]/',$e->getMessage()))
-//                throw new HttpException(409, "Duplicated resource");
-//            else
-//                throw new HttpException(500, "Unknown error occurred when save");
-//        }
-//    }
 
     private function _addMethod($id, $cname){
         $usersRepo = $this->getRepository();
