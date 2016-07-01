@@ -76,6 +76,21 @@ class IncomingController2 extends RestApiController{
             throw new HttpException(400, 'Param amount not found');
         }
 
+        if($request->request->has('currency') && $request->request->get('currency')!=''){
+            $cur_in = $request->request->get('currency');
+            if(strtoupper($cur_in) != $method->getCurrency()){
+                $exchange = $em->getRepository('TelepayFinancialApiBundle:Exchange')->findOneBy(
+                    array(
+                        'src'   =>  strtoupper($cur_in),
+                        'dst'   =>  $method->getCurrency()
+                    ),
+                    array('id'  =>  'DESC')
+                );
+                $amount = round($amount*$exchange->getPrice(),0);
+            }
+        }
+        $request->request->remove('currency');
+
         $logger->info('Incomig transaction...getPaymentInfo');
 
         //Aqui hay que distinguir entre in i out
