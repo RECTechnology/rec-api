@@ -147,6 +147,17 @@ system_db_wallets_index:
     requirements:
         _method: DELETE
 
+system_last50transactions_index:
+    pattern:  /system/v1/last50
+    defaults: { _controller: Telepay\FinancialApiBundle\Controller\Management\System\ActivityController::last50Transactions }
+    requirements:
+        _method: GET
+
+system_totalWallets_index:
+    pattern:  /system/v1/total_wallets
+    defaults: { _controller: Telepay\FinancialApiBundle\Controller\Management\System\ActivityController::totalWallets }
+    requirements:
+        _method: GET
 
 ##################### SPECIAL ACTIONS ############################
 

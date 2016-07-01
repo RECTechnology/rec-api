@@ -364,6 +364,10 @@ class Transaction implements TransactionTiming {
     private $client_data = array();
 
     /**
+     */
+    private $group_data = '';
+
+    /**
      * @var
      * @MongoDB\String
      */
@@ -981,5 +985,13 @@ class Transaction implements TransactionTiming {
     public function setPosName($pos_name)
     {
         $this->pos_name = $pos_name;
+    }
+
+    /**
+     * @param mixed $group_data
+     */
+    public function setGroupData($group_data)
+    {
+        $this->group_data = $group_data;
     }
 }

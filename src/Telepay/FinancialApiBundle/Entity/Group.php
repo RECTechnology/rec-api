@@ -117,6 +117,11 @@ class Group extends BaseGroup
     private $allowed_methods = array();
 
     /**
+     * @Expose
+     */
+    private $group_creator_data = array();
+
+    /**
      * @ORM\OneToMany(targetEntity="Telepay\FinancialApiBundle\Entity\Balance", mappedBy="group", cascade={"remove"})
      * @Exclude
      */
@@ -129,44 +134,70 @@ class Group extends BaseGroup
     private $clients;
 
     /**
-     * @ORM\Column(type="string", nullable=true)
+     * @ORM\Column(type="string")
+     * @Expose
      */
-    private $cif;
+    private $cif = '';
 
     /**
-     * @ORM\Column(type="string", nullable=true)
+     * @ORM\Column(type="string")
+     * @Expose
      */
-    private $phone;
+    private $prefix = '';
 
     /**
-     * @ORM\Column(type="text", nullable = true)
+     * @ORM\Column(type="string")
+     * @Expose
      */
-    private $postal_code;
+    private $phone = '';
 
     /**
-     * @ORM\Column(type="string", nullable=true)
+     * @ORM\Column(type="string")
      */
-    private $email;
+    private $zip = '';
 
     /**
-     * @ORM\Column(type="string", nullable = true)
+     * @ORM\Column(type="string")
      */
-    private $city;
+    private $email = '';
 
     /**
-     * @ORM\Column(type="string", nullable = true)
+     * @ORM\Column(type="string")
      */
-    private $country;
+    private $city = '';
 
     /**
-     * @ORM\Column(type="string", nullable = true)
+     * @ORM\Column(type="string")
      */
-    private $web;
+    private $country = '';
 
     /**
-     * @ORM\Column(type="text", nullable = true)
+     * @ORM\Column(type="string")
      */
-    private $comment;
+    private $web = '';
+
+    /**
+     * @ORM\Column(type="string")
+     * @Expose
+     */
+    private $address_number = '';
+
+    /**
+     * @ORM\Column(type="string")
+     * @Expose
+     */
+    private $street = '';
+
+    /**
+     * @ORM\Column(type="string")
+     * @Expose
+     */
+    private $town = '';
+
+    /**
+     * @ORM\Column(type="text")
+     */
+    private $comment = '';
 
     /**
      * @return mixed
@@ -513,22 +544,6 @@ class Group extends BaseGroup
     /**
      * @return mixed
      */
-    public function getPostalCode()
-    {
-        return $this->postal_code;
-    }
-
-    /**
-     * @param mixed $postal_code
-     */
-    public function setPostalCode($postal_code)
-    {
-        $this->postal_code = $postal_code;
-    }
-
-    /**
-     * @return mixed
-     */
     public function getCity()
     {
         return $this->city;
@@ -588,6 +603,94 @@ class Group extends BaseGroup
     public function setComment($comment)
     {
         $this->comment = $comment;
+    }
+
+    /**
+     * @return mixed
+     */
+    public function getPrefix()
+    {
+        return $this->prefix;
+    }
+
+    /**
+     * @param mixed $prefix
+     */
+    public function setPrefix($prefix)
+    {
+        $this->prefix = $prefix;
+    }
+
+    /**
+     * @return mixed
+     */
+    public function getAddressNumber()
+    {
+        return $this->address_number;
+    }
+
+    /**
+     * @param mixed $addres_number
+     */
+    public function setAddressNumber($address_number)
+    {
+        $this->address_number = $address_number;
+    }
+
+    /**
+     * @return mixed
+     */
+    public function getZip()
+    {
+        return $this->zip;
+    }
+
+    /**
+     * @param mixed $zip
+     */
+    public function setZip($zip)
+    {
+        $this->zip = $zip;
+    }
+
+    /**
+     * @return mixed
+     */
+    public function getStreet()
+    {
+        return $this->street;
+    }
+
+    /**
+     * @param mixed $street
+     */
+    public function setStreet($street)
+    {
+        $this->street = $street;
+    }
+
+    /**
+     * @return mixed
+     */
+    public function getTown()
+    {
+        return $this->town;
+    }
+
+    /**
+     * @param mixed $town
+     */
+    public function setTown($town)
+    {
+        $this->town = $town;
+    }
+
+    /**
+     * @param mixed $group_creator_data
+     */
+    public function setGroupCreatorData($group_creator_data)
+    {
+        $this->group_creator_data = $group_creator_data;
     }
 
 }
