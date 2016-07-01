@@ -157,7 +157,7 @@ class UsersController extends BaseApiController
 
     /**
      * @Rest\View
-     * Permissions: ROLE_ADMIN(active_group), ROLE_SUPER_ADMIN(all)
+     * Permissions: ROLE_READ_ONLY(active_group), ROLE_SUPER_ADMIN(all)
      */
     public function indexByGroup(Request $request, $id){
 
@@ -165,7 +165,7 @@ class UsersController extends BaseApiController
         $admin = $this->get('security.context')->getToken()->getUser();
         $adminGroup = $admin->getActiveGroup();
 
-        if(!$this->get('security.context')->isGranted('ROLE_SUPER_ADMIN')) throw new HttpException(403,'You don\'t have the necessary permissions');
+        if(!$this->get('security.context')->isGranted('ROLE_SUPER_ADMIN') && $adminGroup->getId() != $id) throw new HttpException(403,'You don\'t have the necessary permissions');
 
         if($request->query->has('limit')) $limit = $request->query->get('limit');
         else $limit = 10;
@@ -321,9 +321,8 @@ class UsersController extends BaseApiController
 
         if(empty($entities)) throw new HttpException(404, "Not found");
 
-        if(!$this->get('security.authorization_checker')->isGranted('ROLE_SUPER_ADMIN')){
-            if(!$entities->hasGroup($activeGroup->getName())) throw new HttpException(403, 'You don\'t have the necessary permissions');
-        }
+        if(!$this->get('security.authorization_checker')->isGranted('ROLE_SUPER_ADMIN') && $activeGroup->getId() != $id) throw new HttpException(403, 'You don\'t have the necessary permissions');
+
 
         $entities->setAccessToken(null);
         $entities->setRefreshToken(null);
