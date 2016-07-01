@@ -34,7 +34,6 @@ class Notificator {
 
         $dm = $this->container->get('doctrine_mongodb')->getManager();
 
-        //notificar con curl la transaccion
         //necesitamos el id el status el amount y el secret
         $id = $transaction->getId();
         $status = $transaction->getStatus();
@@ -52,7 +51,6 @@ class Notificator {
         }else{
             $data = $transaction->getDataOut();
         }
-
 
         $key = $group->getAccessSecret();
 
