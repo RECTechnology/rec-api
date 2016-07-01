@@ -473,55 +473,55 @@ class UsersController extends BaseApiController
         return parent::deleteAction($idUser);
     }
 
-    private function _setMethods(Request $request, $id){
-        if(empty($id)) throw new HttpException(400, "Missing parameter 'id'");
-        $usersRepo = $this->getRepository();
-        $user = $usersRepo->findOneBy(array('id'=>$id));
-        $listMethods = $user->getMethodsList();
+//    private function _setMethods(Request $request, $id){
+//        if(empty($id)) throw new HttpException(400, "Missing parameter 'id'");
+//        $usersRepo = $this->getRepository();
+//        $user = $usersRepo->findOneBy(array('id'=>$id));
+//        $listMethods = $user->getMethodsList();
+//
+//        $putMethods = $request->get('methods');
+//        foreach($putMethods as $method){
+//            if(!in_array($method, $listMethods)){
+//                $this->_addMethod($id, $method);
+//            }
+//        }
+//        return $this->rest(204, "Edited");
+//    }
 
-        $putMethods = $request->get('methods');
-        foreach($putMethods as $method){
-            if(!in_array($method, $listMethods)){
-                $this->_addMethod($id, $method);
-            }
-        }
-        return $this->rest(204, "Edited");
-    }
-
-    private function _addMethod($id, $cname){
-        $usersRepo = $this->getRepository();
-        $methodsRepo = $this->get('net.telepay.method_provider');
-        $user = $usersRepo->findOneBy(array('id'=>$id));
-        $method = $methodsRepo->findByCname($cname);
-        if(empty($user)) throw new HttpException(404, 'User not found');
-        if(empty($method)) throw new HttpException(404, 'Method not found');
-
-        $user->addMethod($cname);
-        $em = $this->getDoctrine()->getManager();
-        $limitRepo = $em->getRepository("TelepayFinancialApiBundle:LimitCount");
-        $limit = $limitRepo->findOneBy(array('cname' => $cname, 'user' => $user));
-        if(!$limit){
-            $limit = new LimitCount();
-            $limit->setUser($user);
-            $limit->setCname($cname);
-            $limit->setSingle(0);
-            $limit->setDay(0);
-            $limit->setWeek(0);
-            $limit->setMonth(0);
-            $limit->setYear(0);
-            $limit->setTotal(0);
-            $em->persist($limit);
-        }
-
-        try{
-            $em->flush();
-        } catch(DBALException $e){
-            if(preg_match('/SQLSTATE\[23000\]/',$e->getMessage()))
-                throw new HttpException(409, "Duplicated resource");
-            else
-                throw new HttpException(500, "Unknown error occurred when save");
-        }
-    }
+//    private function _addMethod($id, $cname){
+//        $usersRepo = $this->getRepository();
+//        $methodsRepo = $this->get('net.telepay.method_provider');
+//        $user = $usersRepo->findOneBy(array('id'=>$id));
+//        $method = $methodsRepo->findByCname($cname);
+//        if(empty($user)) throw new HttpException(404, 'User not found');
+//        if(empty($method)) throw new HttpException(404, 'Method not found');
+//
+//        $user->addMethod($cname);
+//        $em = $this->getDoctrine()->getManager();
+//        $limitRepo = $em->getRepository("TelepayFinancialApiBundle:LimitCount");
+//        $limit = $limitRepo->findOneBy(array('cname' => $cname, 'user' => $user));
+//        if(!$limit){
+//            $limit = new LimitCount();
+//            $limit->setUser($user);
+//            $limit->setCname($cname);
+//            $limit->setSingle(0);
+//            $limit->setDay(0);
+//            $limit->setWeek(0);
+//            $limit->setMonth(0);
+//            $limit->setYear(0);
+//            $limit->setTotal(0);
+//            $em->persist($limit);
+//        }
+//
+//        try{
+//            $em->flush();
+//        } catch(DBALException $e){
+//            if(preg_match('/SQLSTATE\[23000\]/',$e->getMessage()))
+//                throw new HttpException(409, "Duplicated resource");
+//            else
+//                throw new HttpException(500, "Unknown error occurred when save");
+//        }
+//    }
 
 //    private function _deleteService($id, $cname){
 //        $usersRepo = $this->getRepository();
