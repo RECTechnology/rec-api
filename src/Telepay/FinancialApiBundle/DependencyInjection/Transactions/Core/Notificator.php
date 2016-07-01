@@ -29,8 +29,8 @@ class Notificator {
 
         if($url_notification == null) return $transaction;
 
-        $user = $this->container->get('doctrine')->getRepository('TelepayFinancialApiBundle:User')
-            ->find($transaction->getUser());
+        $group = $this->container->get('doctrine')->getRepository('TelepayFinancialApiBundle:Group')
+            ->find($transaction->getGroup());
 
         $dm = $this->container->get('doctrine_mongodb')->getManager();
 
@@ -42,7 +42,7 @@ class Notificator {
 
         $data = $transaction->getDataOut();
 
-        $key = $user->getAccessSecret();
+        $key = $group->getAccessSecret();
 
         $data_to_sign = $id.$status.$amount;
 
