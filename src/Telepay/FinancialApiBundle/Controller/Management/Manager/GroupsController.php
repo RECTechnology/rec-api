@@ -241,7 +241,7 @@ class GroupsController extends BaseApiController
         $adminGroup = $admin->getActiveGroup();
 
         //TODO: Improve performance (two queries)
-        if($this->get('security.context')->isGranted('ROLE_SUPER_ADMIN')){
+        if($this->get('security.context')->isGranted('ROLE_SUPER_ADMIN') || $adminGroup == $id){
             $group = $this->getRepository()->find($id);
         }else{
             $group = $this->getRepository()->findOneBy(
