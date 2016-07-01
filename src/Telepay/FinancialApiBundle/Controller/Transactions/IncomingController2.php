@@ -76,6 +76,29 @@ class IncomingController2 extends RestApiController{
             throw new HttpException(400, 'Param amount not found');
         }
 
+        $exchange_done = false;
+        if($request->request->has('currency') && $request->request->get('currency')!=''){
+            $logger->info('With currency');
+            $request_amount = $amount;
+            $cur_in = $request->request->get('currency');
+            $logger->info('With currency ' . $cur_in);
+            $logger->info('With currency method' . $method->getCurrency());
+            if(strtoupper($cur_in) != $method->getCurrency()){
+                $logger->info('exchange');
+                $exchange_done = true;
+                $exchange = $em->getRepository('TelepayFinancialApiBundle:Exchange')->findOneBy(
+                    array(
+                        'src'   =>  strtoupper($cur_in),
+                        'dst'   =>  $method->getCurrency()
+                    ),
+                    array('id'  =>  'DESC')
+                );
+                $logger->info('exchange done');
+                $amount = round($amount*$exchange->getPrice(),0);
+            }
+        }
+        $request->request->remove('currency');
+
         $logger->info('Incomig transaction...getPaymentInfo');
 
         //Aqui hay que distinguir entre in i out
@@ -87,6 +110,10 @@ class IncomingController2 extends RestApiController{
                 'concept'   =>  $concept,
                 'url_notification'  =>  $url_notification
             );
+            if($exchange_done){
+                $dataIn['request_amount'] = $request_amount;
+                $dataIn['request_currency'] = $cur_in;
+            }
             $payment_info = $method->getPayInInfo($amount);
             $payment_info['concept'] = $concept;
             $transaction->setPayInInfo($payment_info);
@@ -100,6 +127,10 @@ class IncomingController2 extends RestApiController{
                 'concept'   =>  $concept,
                 'url_notification'  =>  $url_notification
             );
+            if($exchange_done){
+                $dataIn['request_amount'] = $request_amount;
+                $dataIn['request_currency'] = $cur_in;
+            }
         }
 
         $transaction->setDataIn($dataIn);
