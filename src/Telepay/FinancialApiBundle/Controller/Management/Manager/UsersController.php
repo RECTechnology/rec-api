@@ -177,8 +177,6 @@ class UsersController extends BaseApiController
         $current_group = $this->getDoctrine()->getRepository('TelepayFinancialApiBundle:Group')->find($id);
         if(!$current_group) throw new HttpException(404, 'Group not found');
 
-        if($current_group->getGroupCreator()->getId() != $adminGroup->getId()) throw new HttpException(403, 'You don\'t have the necessary permissions');
-
         $all = $this->getRepository()->findAll();
 
         $filtered = [];
