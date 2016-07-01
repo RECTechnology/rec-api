@@ -165,7 +165,8 @@ class UsersController extends BaseApiController
         $admin = $this->get('security.context')->getToken()->getUser();
         $adminGroup = $admin->getActiveGroup();
 
-        if(!$this->get('security.context')->isGranted('ROLE_SUPER_ADMIN') && $adminGroup->getId() != $id) throw new HttpException(403,'You don\'t have the necessary permissions');
+        if(!$this->get('security.context')->isGranted('ROLE_SUPER_ADMIN') && $adminGroup->getId() != $id)
+            throw new HttpException(403,'You don\'t have the necessary permissions');
 
         if($request->query->has('limit')) $limit = $request->query->get('limit');
         else $limit = 10;
@@ -198,14 +199,6 @@ class UsersController extends BaseApiController
 
         $entities = array_slice($filtered, $offset, $limit);
         array_map(function($elem){
-//            if($elem->getServicesList() == null){
-//                $elem->setAllowedServices($this->get('net.telepay.service_provider')->findByCNames(array('echo')));
-//                $elem->setAllowedMethods($this->get('net.telepay.method_provider')->findByCNames(array('echo-in')));
-//            }else{
-//                $elem->setAllowedServices($this->get('net.telepay.service_provider')->findByCNames($elem->getServicesList()));
-//                $elem->setAllowedMethods($this->get('net.telepay.method_provider')->findByCNames($elem->getMethodsList()));
-//            }
-//            $elem->setAllowedMethods($this->get('net.telepay.method_provider')->findByCNames($elem->getMethodsList()));
             $elem->setAccessToken(null);
             $elem->setRefreshToken(null);
             $elem->setAuthCode(null);
@@ -322,7 +315,6 @@ class UsersController extends BaseApiController
         if(empty($entities)) throw new HttpException(404, "Not found");
 
         if(!$this->get('security.authorization_checker')->isGranted('ROLE_SUPER_ADMIN') && $activeGroup->getId() != $id) throw new HttpException(403, 'You don\'t have the necessary permissions');
-
 
         $entities->setAccessToken(null);
         $entities->setRefreshToken(null);
