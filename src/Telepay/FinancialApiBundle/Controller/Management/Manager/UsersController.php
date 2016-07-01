@@ -321,9 +321,8 @@ class UsersController extends BaseApiController
 
         if(empty($entities)) throw new HttpException(404, "Not found");
 
-        if(!$this->get('security.authorization_checker')->isGranted('ROLE_SUPER_ADMIN')){
-            if(!$entities->hasGroup($activeGroup->getName())) throw new HttpException(403, 'You don\'t have the necessary permissions');
-        }
+        if(!$this->get('security.authorization_checker')->isGranted('ROLE_SUPER_ADMIN') && $activeGroup->getId() != $id) throw new HttpException(403, 'You don\'t have the necessary permissions');
+
 
         $entities->setAccessToken(null);
         $entities->setRefreshToken(null);
