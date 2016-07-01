@@ -40,7 +40,19 @@ class Notificator {
         $status = $transaction->getStatus();
         $amount = $transaction->getAmount();
 
-        $data = $transaction->getDataOut();
+        if($transaction->getType() == 'in'){
+            $data = $transaction->getPayInInfo();
+        }elseif($transaction->getType() == 'out'){
+            $data = $transaction->getPayOutInfo();
+        }elseif($transaction->getType() == 'swift'){
+            $data = array(
+                'pay_in_info'   =>  $transaction->getPayInInfo(),
+                'pay_out_info'  =>   $transaction->getPayOutInfo()
+            );
+        }else{
+            $data = $transaction->getDataOut();
+        }
+
 
         $key = $group->getAccessSecret();
 
