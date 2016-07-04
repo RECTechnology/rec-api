@@ -86,9 +86,6 @@ class UsersController extends BaseApiController
         $em = $this->getDoctrine()->getManager();
         $qb = $em->createQueryBuilder('TelepayFinancialApiBundle:User');
 
-        $userRequester = $securityContext->getToken()->getUser();
-        $activGroup = $userRequester->getActiveGroup();
-
         if($request->query->get('query') != ''){
             $query = $request->query->get('query');
             $search = $query['search'];
@@ -112,21 +109,8 @@ class UsersController extends BaseApiController
 
         $all = $userQuery->getResult();
 
-        //TODO review this...its necessary????
-        if(!$securityContext->isGranted('ROLE_SUPER_ADMIN')){
-            $filtered = [];
-            foreach($all as $user){
-                if(!$user->hasRole('ROLE_SUPER_ADMIN')){
-                    if($user->hasGroup($activGroup->getName())){
-                        $filtered []= $user;
-                    }
+        $filtered = $all;
 
-                }
-
-            }
-        }else{
-            $filtered = $all;
-        }
         $total = count($filtered);
 
         $entities = array_slice($filtered, $offset, $limit);
@@ -157,7 +141,7 @@ class UsersController extends BaseApiController
 
     /**
      * @Rest\View
-     * Permissions: ROLE_READ_ONLY(active_group), ROLE_SUPER_ADMIN(all)
+     * Permissions: ROLE_READONLY(active_group), ROLE_SUPER_ADMIN(all)
      */
     public function indexByGroup(Request $request, $id){
 
@@ -165,7 +149,8 @@ class UsersController extends BaseApiController
         $admin = $this->get('security.context')->getToken()->getUser();
         $adminGroup = $admin->getActiveGroup();
 
-        if(!$this->get('security.context')->isGranted('ROLE_SUPER_ADMIN') && $adminGroup->getId() != $id) throw new HttpException(403,'You don\'t have the necessary permissions');
+        if(!$this->get('security.context')->isGranted('ROLE_SUPER_ADMIN') && $adminGroup->getId() != $id)
+            throw new HttpException(403,'You don\'t have the necessary permissions');
 
         if($request->query->has('limit')) $limit = $request->query->get('limit');
         else $limit = 10;
@@ -176,8 +161,6 @@ class UsersController extends BaseApiController
         $current_group = $this->getDoctrine()->getRepository('TelepayFinancialApiBundle:Group')->find($id);
         if(!$current_group) throw new HttpException(404, 'Group not found');
 
-        if($current_group->getGroupCreator()->getId() != $adminGroup->getId()) throw new HttpException(403, 'You don\'t have the necessary permissions');
-
         $all = $this->getRepository()->findAll();
 
         $filtered = [];
@@ -186,6 +169,7 @@ class UsersController extends BaseApiController
                 $groups = $user->getGroups();
                 foreach($groups as $group){
                     if($group->getId() == $id){
+                        $user->setRoles($user->getRolesCompany($group->getId()));
                         $filtered []= $user;
                     }
                 }
@@ -198,14 +182,6 @@ class UsersController extends BaseApiController
 
         $entities = array_slice($filtered, $offset, $limit);
         array_map(function($elem){
-//            if($elem->getServicesList() == null){
-//                $elem->setAllowedServices($this->get('net.telepay.service_provider')->findByCNames(array('echo')));
-//                $elem->setAllowedMethods($this->get('net.telepay.method_provider')->findByCNames(array('echo-in')));
-//            }else{
-//                $elem->setAllowedServices($this->get('net.telepay.service_provider')->findByCNames($elem->getServicesList()));
-//                $elem->setAllowedMethods($this->get('net.telepay.method_provider')->findByCNames($elem->getMethodsList()));
-//            }
-//            $elem->setAllowedMethods($this->get('net.telepay.method_provider')->findByCNames($elem->getMethodsList()));
             $elem->setAccessToken(null);
             $elem->setRefreshToken(null);
             $elem->setAuthCode(null);
@@ -322,7 +298,6 @@ class UsersController extends BaseApiController
         if(empty($entities)) throw new HttpException(404, "Not found");
 
         if(!$this->get('security.authorization_checker')->isGranted('ROLE_SUPER_ADMIN') && $activeGroup->getId() != $id) throw new HttpException(403, 'You don\'t have the necessary permissions');
-
 
         $entities->setAccessToken(null);
         $entities->setRefreshToken(null);

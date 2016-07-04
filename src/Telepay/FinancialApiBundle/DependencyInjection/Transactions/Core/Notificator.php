@@ -29,20 +29,30 @@ class Notificator {
 
         if($url_notification == null) return $transaction;
 
-        $user = $this->container->get('doctrine')->getRepository('TelepayFinancialApiBundle:User')
-            ->find($transaction->getUser());
+        $group = $this->container->get('doctrine')->getRepository('TelepayFinancialApiBundle:Group')
+            ->find($transaction->getGroup());
 
         $dm = $this->container->get('doctrine_mongodb')->getManager();
 
-        //notificar con curl la transaccion
         //necesitamos el id el status el amount y el secret
         $id = $transaction->getId();
         $status = $transaction->getStatus();
         $amount = $transaction->getAmount();
 
-        $data = $transaction->getDataOut();
+        if($transaction->getType() == 'in'){
+            $data = $transaction->getPayInInfo();
+        }elseif($transaction->getType() == 'out'){
+            $data = $transaction->getPayOutInfo();
+        }elseif($transaction->getType() == 'swift'){
+            $data = array(
+                'pay_in_info'   =>  $transaction->getPayInInfo(),
+                'pay_out_info'  =>   $transaction->getPayOutInfo()
+            );
+        }else{
+            $data = $transaction->getDataOut();
+        }
 
-        $key = $user->getAccessSecret();
+        $key = $group->getAccessSecret();
 
         $data_to_sign = $id.$status.$amount;
 

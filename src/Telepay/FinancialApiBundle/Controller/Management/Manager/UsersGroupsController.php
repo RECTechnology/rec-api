@@ -55,9 +55,12 @@ class UsersGroupsController extends RestApiController{
         if(!$request->request->has('role')) throw new HttpException(404, 'Param role not found');
 
         $role = $request->request->get('role');
-        $role_array = array();
         if($role != ''){
-            $role_array[] = $role;
+            $role_array = $role;
+        }else{
+            $role_array = array(
+                'ROLE_READONLY'
+            );
         }
 
         if($user->hasGroup($company->getName())) throw new HttpException(409, "User already in group");
@@ -124,15 +127,21 @@ class UsersGroupsController extends RestApiController{
         $user = $usersRepository->find($user_id);
         if(!$user) throw new HttpException(404, "User not found");
 
+        $usersRolesRepository = $this->getDoctrine()->getRepository("TelepayFinancialApiBundle:UserGroup");
+        $adminRoles = $usersRolesRepository->findOneBy(array(
+            'user'   =>  $admin->getId(),
+            'group'  =>  $group_id
+        ));
+        if(!$adminRoles) throw new HttpException(404, "User Roles not found");
+
         if(!$request->request->has('roles')) throw new HttpException(404, 'Param role not found');
         $role = $request->request->get('roles');
 
-        if(!$admin->hasRole('ROLE_SUPER_ADMIN')){
-            if(!$admin->hasGroup($group) || $admin->hasRole('ROLE_ADMIN')) throw new HttpException(409, 'You don\'t have the necesary permissions');
+        if(!$adminRoles->hasRole('ROLE_SUPER_ADMIN')){
+            if(!$admin->hasGroup($group) || !$adminRoles->hasRole('ROLE_ADMIN')) throw new HttpException(409, 'You don\'t have the necesary permissions');
         }
 
-        $repo = $this->getDoctrine()->getRepository("TelepayFinancialApiBundle:UserGroup");
-        $entity = $repo->findOneBy(array('user'=>$user_id, 'group'=>$group_id));
+        $entity = $usersRolesRepository->findOneBy(array('user'=>$user_id, 'group'=>$group_id));
         if(empty($entity)) throw new HttpException(404, "Not found");
         $entity->setRoles($role);
         $em = $this->getDoctrine()->getManager();

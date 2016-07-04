@@ -53,17 +53,6 @@ class AccountController extends BaseApiController{
 
         $user->setRoles($user->getRoles());
 
-//        $userGroup = $user->getGroups()[0];
-//        $listServices = $user->getServicesList();
-//        $listMethods = $user->getMethodsList();
-
-        //TODO al final habra que quitar lo de services porque estara deprecated
-//        $allowedServices = $this->get('net.telepay.service_provider')->findByCNames($listServices);
-//        $allowedMethods = $this->get('net.telepay.method_provider')->findByCNames($listMethods);
-
-//        $user->setAllowedServices($allowedServices);
-//        $user->setAllowedMethods($allowedMethods);
-
         $group = $this->get('security.context')->getToken()->getUser()->getActiveGroup();
 
         $group_data = $group->getUserView();
