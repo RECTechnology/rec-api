@@ -78,13 +78,9 @@ class IncomingController2 extends RestApiController{
 
         $exchange_done = false;
         if($request->request->has('currency') && $request->request->get('currency')!=''){
-            $logger->info('With currency');
             $request_amount = $amount;
             $cur_in = $request->request->get('currency');
-            $logger->info('With currency ' . $cur_in);
-            $logger->info('With currency method' . $method->getCurrency());
             if(strtoupper($cur_in) != $method->getCurrency()){
-                $logger->info('exchange');
                 $exchange_done = true;
                 $exchange = $em->getRepository('TelepayFinancialApiBundle:Exchange')->findOneBy(
                     array(
@@ -93,7 +89,6 @@ class IncomingController2 extends RestApiController{
                     ),
                     array('id'  =>  'DESC')
                 );
-                $logger->info('exchange done');
                 $amount = round($amount*$exchange->getPrice(),0);
             }
         }
