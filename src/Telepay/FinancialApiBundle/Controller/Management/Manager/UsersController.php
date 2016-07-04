@@ -86,9 +86,6 @@ class UsersController extends BaseApiController
         $em = $this->getDoctrine()->getManager();
         $qb = $em->createQueryBuilder('TelepayFinancialApiBundle:User');
 
-        $userRequester = $securityContext->getToken()->getUser();
-        $activGroup = $userRequester->getActiveGroup();
-
         if($request->query->get('query') != ''){
             $query = $request->query->get('query');
             $search = $query['search'];
@@ -112,21 +109,8 @@ class UsersController extends BaseApiController
 
         $all = $userQuery->getResult();
 
-        //TODO review this...its necessary????
-        if(!$securityContext->isGranted('ROLE_SUPER_ADMIN')){
-            $filtered = [];
-            foreach($all as $user){
-                if(!$user->hasRole('ROLE_SUPER_ADMIN')){
-                    if($user->hasGroup($activGroup->getName())){
-                        $filtered []= $user;
-                    }
+        $filtered = $all;
 
-                }
-
-            }
-        }else{
-            $filtered = $all;
-        }
         $total = count($filtered);
 
         $entities = array_slice($filtered, $offset, $limit);
