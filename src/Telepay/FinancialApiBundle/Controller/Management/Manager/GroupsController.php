@@ -165,8 +165,8 @@ class GroupsController extends BaseApiController
 
         $activeGroup = $admin->getActiveGroup();
 
-        if(!$this->get('security.context')->isGranted('ROLE_SUPER_ADMIN')){
-            if($activeGroup->hasRole('ROLE_RESELLER')) throw new HttpException(403, 'Your company don\'t have the necessary permissions');
+        if(!$activeGroup->hasRole('ROLE_SUPER_ADMIN')){
+            if(!$activeGroup->hasRole('ROLE_RESELLER')) throw new HttpException(403, 'Your company don\'t have the necessary permissions');
         }
 
         $request->request->set('roles', array('ROLE_COMPANY'));
