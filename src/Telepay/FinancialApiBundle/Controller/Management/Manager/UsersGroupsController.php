@@ -127,15 +127,21 @@ class UsersGroupsController extends RestApiController{
         $user = $usersRepository->find($user_id);
         if(!$user) throw new HttpException(404, "User not found");
 
+        $usersRolesRepository = $this->getDoctrine()->getRepository("TelepayFinancialApiBundle:UserGroup");
+        $adminRoles = $usersRolesRepository->findOneBy(array(
+            'user_id'   =>  $admin->getId(),
+            'group_id'  =>  $group_id
+        ));
+        if(!$adminRoles) throw new HttpException(404, "User Roles not found");
+
         if(!$request->request->has('roles')) throw new HttpException(404, 'Param role not found');
         $role = $request->request->get('roles');
 
         if(!$admin->hasRole('ROLE_SUPER_ADMIN')){
-            if(!$admin->hasGroup($group) || !$admin->hasRole('ROLE_ADMIN')) throw new HttpException(409, 'You don\'t have the necesary permissions');
+            if(!$admin->hasGroup($group) || !$adminRoles->hasRole('ROLE_ADMIN')) throw new HttpException(409, 'You don\'t have the necesary permissions');
         }
 
-        $repo = $this->getDoctrine()->getRepository("TelepayFinancialApiBundle:UserGroup");
-        $entity = $repo->findOneBy(array('user'=>$user_id, 'group'=>$group_id));
+        $entity = $usersRolesRepository->findOneBy(array('user'=>$user_id, 'group'=>$group_id));
         if(empty($entity)) throw new HttpException(404, "Not found");
         $entity->setRoles($role);
         $em = $this->getDoctrine()->getManager();

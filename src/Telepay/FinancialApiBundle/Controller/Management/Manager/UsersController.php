@@ -141,7 +141,7 @@ class UsersController extends BaseApiController
 
     /**
      * @Rest\View
-     * Permissions: ROLE_READ_ONLY(active_group), ROLE_SUPER_ADMIN(all)
+     * Permissions: ROLE_READONLY(active_group), ROLE_SUPER_ADMIN(all)
      */
     public function indexByGroup(Request $request, $id){
 
