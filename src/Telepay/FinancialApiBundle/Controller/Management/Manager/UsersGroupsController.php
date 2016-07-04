@@ -137,7 +137,7 @@ class UsersGroupsController extends RestApiController{
         if(!$request->request->has('roles')) throw new HttpException(404, 'Param role not found');
         $role = $request->request->get('roles');
 
-        if(!$admin->hasRole('ROLE_SUPER_ADMIN')){
+        if(!$adminRoles->hasRole('ROLE_SUPER_ADMIN')){
             if(!$admin->hasGroup($group) || !$adminRoles->hasRole('ROLE_ADMIN')) throw new HttpException(409, 'You don\'t have the necesary permissions');
         }
 
