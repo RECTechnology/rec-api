@@ -55,9 +55,12 @@ class UsersGroupsController extends RestApiController{
         if(!$request->request->has('role')) throw new HttpException(404, 'Param role not found');
 
         $role = $request->request->get('role');
-        $role_array = array();
         if($role != ''){
-            $role_array[] = $role;
+            $role_array = $role;
+        }else{
+            $role_array = array(
+                'ROLE_READONLY'
+            );
         }
 
         if($user->hasGroup($company->getName())) throw new HttpException(409, "User already in group");
