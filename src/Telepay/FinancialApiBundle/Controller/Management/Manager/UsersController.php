@@ -185,7 +185,7 @@ class UsersController extends BaseApiController
                 $groups = $user->getGroups();
                 foreach($groups as $group){
                     if($group->getId() == $id){
-                        $user->setRolesCompany($group->getId());
+                        $user->setRoles($user->getRolesCompany($group->getId()));
                         $filtered []= $user;
                     }
                 }
