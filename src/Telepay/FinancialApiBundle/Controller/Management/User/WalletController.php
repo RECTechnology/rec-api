@@ -342,7 +342,8 @@ class WalletController extends RestApiController{
                         $qb->field('status')->in(array(), true);
                     }
                     else{
-                        $qb->field('status')->in($query['status']);
+                        $status_list = json_decode($query['status'], true);
+                        $qb->field('status')->in($status_list);
                     }
                 }
             }
@@ -353,7 +354,8 @@ class WalletController extends RestApiController{
                         $qb->field('client')->in(array(), true);
                     }
                     else{
-                        $qb->field('client')->in($query['clients']);
+                        $clients_list = json_decode($query['clients'], true);
+                        $qb->field('client')->in($clients_list);
                     }
                 }
             }
@@ -456,6 +458,9 @@ class WalletController extends RestApiController{
                 if(($query['pos'] == 'all')){
                     $all_pos = true;
                 }
+                else{
+                    $query['pos'] = json_decode($query['pos'], true);
+                }
             }
             else{
                 $query['pos'] = array();
@@ -465,6 +470,9 @@ class WalletController extends RestApiController{
             if(isset($query['methods_in'])){
                 if(($query['methods_in'] == 'all')){
                     $all_in = true;
+                }
+                else{
+                    $query['methods_in'] = json_decode($query['methods_in'], true);
                 }
             }
             else{
@@ -476,6 +484,9 @@ class WalletController extends RestApiController{
                 if(($query['methods_out'] == 'all')){
                     $all_out = true;
                 }
+                else{
+                    $query['methods_out'] = json_decode($query['methods_out'], true);
+                }
             }
             else{
                 $query['methods_out'] = array();
@@ -485,6 +496,9 @@ class WalletController extends RestApiController{
             if(isset($query['swift_in'])){
                 if(($query['swift_in'] == 'all')){
                     $all_swift_in = true;
+                }
+                else{
+                    $query['swift_in'] = json_decode($query['swift_in'], true);
                 }
             }
             else{
@@ -496,6 +510,9 @@ class WalletController extends RestApiController{
                 if(($query['swift_out'] == 'all')){
                     $all_swift_out = true;
                 }
+                else{
+                    $query['swift_out'] = json_decode($query['swift_out'], true);
+                }
             }
             else{
                 $query['swift_out'] = array();
@@ -505,6 +522,9 @@ class WalletController extends RestApiController{
             if(isset($query['exchanges'])){
                 if(($query['exchanges'] == 'all')){
                     $all_exchange = true;
+                }
+                else{
+                    $query['exchanges'] = json_decode($query['exchanges'], true);
                 }
             }
             else{
