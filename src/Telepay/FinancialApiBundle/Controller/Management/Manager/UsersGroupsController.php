@@ -129,8 +129,8 @@ class UsersGroupsController extends RestApiController{
 
         $usersRolesRepository = $this->getDoctrine()->getRepository("TelepayFinancialApiBundle:UserGroup");
         $adminRoles = $usersRolesRepository->findOneBy(array(
-            'user_id'   =>  $admin->getId(),
-            'group_id'  =>  $group_id
+            'user'   =>  $admin->getId(),
+            'group'  =>  $group_id
         ));
         if(!$adminRoles) throw new HttpException(404, "User Roles not found");
 
