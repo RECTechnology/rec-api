@@ -79,6 +79,7 @@ class CheckSwiftCommand extends ContainerAwareCommand
                     $pay_in_info = $transaction->getPayInInfo();
                     $pay_out_info = $transaction->getPayOutInfo();
                     $client = $transaction->getClient();
+                    $clientGroup = $this->getContainer()->get('TelepayFinancialApiBundle:Group')->find($client);
 
                     //get configuration(method)
                     $swift_config = $this->getContainer()->get('net.telepay.config.'.$method_in.'.'.$method_out);
@@ -314,7 +315,9 @@ class CheckSwiftCommand extends ContainerAwareCommand
                                     $rootFee->setDataIn(array(
                                         'previous_transaction'  =>  $transaction->getId(),
                                         'transaction_amount'    =>  $transaction->getAmount(),
-                                        'total_fee' =>  $client_fee + $service_fee
+                                        'total_fee' =>  $client_fee + $service_fee,
+                                        'previous_group_id'   =>  $clientGroup->getId(),
+                                        'previous_group_name'   =>  $clientGroup->getName()
                                     ));
                                     $rootFee->setClient($client);
 
