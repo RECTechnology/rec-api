@@ -305,20 +305,25 @@ class GroupsController extends BaseApiController
 
     /**
      * @Rest\View
+     * Permissions: ROLE_SUPER_ADMIN (all) , ROLE_RESELLER(sub-companies)
      */
     public function updateAction(Request $request, $id){
         //check that this user is the creator of this group or is the superadmin
-        //only the superadmin can access here
-        if(!$this->get('security.context')->isGranted('ROLE_ADMIN'))
-            throw new HttpException(403, 'You have not the necessary permissions');
+//        if(!$this->get('security.context')->isGranted('ROLE_ADMIN'))
+//            throw new HttpException(403, 'You have not the necessary permissions');
 
-        $user = $this->get('security.context')->getToken()->getUser();
-        $userGroup = $user->getActiveGroup();
+        $admin = $this->get('security.context')->getToken()->getUser();
+        $adminGroup = $admin->getActiveGroup();
+
+        $adminRoles = $this->getRepository('TelepayFinancialApiBundle:UserGroup')->findOneBy(array(
+            'user'  =>  $admin->getId(),
+            'group' =>  $adminGroup->getId()
+        ));
 
         $group = $this->getRepository($this->getRepositoryName())->find($id);
         $groupCreator = $group->getGroupCreator();
 
-        if($groupCreator->getid() != $userGroup->getId() && !$user->hasRole('ROLE_SUPER_ADMIN'))
+        if($groupCreator->getid() != $adminGroup->getId() && !$adminRoles->hasRole('ROLE_SUPER_ADMIN'))
             throw new HttpException(409, 'You don\'t have the necessary permissions');
 
         $methods = null;
