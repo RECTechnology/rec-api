@@ -872,23 +872,25 @@ class AccountController extends BaseApiController{
 //    }
 
     private function _sendEmail($subject, $body, $to, $action){
-
+        $from = 'no-reply@chip-chap.com';
         if($action == 'register'){
             $template = 'TelepayFinancialApiBundle:Email:registerconfirm.html.twig';
         }elseif($action == 'recover'){
             $template = 'TelepayFinancialApiBundle:Email:recoverpassword.html.twig';
         }elseif($action == 'recover_holy'){
             $template = 'TelepayFinancialApiBundle:Email:recoverpasswordholy.html.twig';
+            $from = 'no-reply@holytransaction.trade';
         }elseif($action == 'register_kyc'){
             $template = 'TelepayFinancialApiBundle:Email:registerconfirmkyc.html.twig';
         }elseif($action == 'register_kyc_holy'){
             $template = 'TelepayFinancialApiBundle:Email:registerconfirmkycholy.html.twig';
+            $from = 'no-reply@holytransaction.trade';
         }else{
             $template = 'TelepayFinancialApiBundle:Email:registerconfirm.html.twig';
         }
         $message = \Swift_Message::newInstance()
             ->setSubject($subject)
-            ->setFrom('no-reply@chip-chap.com')
+            ->setFrom($from)
             ->setTo(array(
                 $to
             ))
