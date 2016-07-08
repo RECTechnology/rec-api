@@ -10,11 +10,8 @@ use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Component\HttpKernel\Exception\HttpException;
-use Telepay\FinancialApiBundle\DependencyInjection\Telepay\Commons\FeeDeal;
 use Telepay\FinancialApiBundle\DependencyInjection\Telepay\Commons\LimitAdder;
 use Telepay\FinancialApiBundle\Document\Transaction;
-use Telepay\FinancialApiBundle\Entity\Exchange;
-use Telepay\FinancialApiBundle\Financial\Currency;
 
 class CheckSwiftCommand extends ContainerAwareCommand
 {
@@ -79,6 +76,7 @@ class CheckSwiftCommand extends ContainerAwareCommand
                     $pay_in_info = $transaction->getPayInInfo();
                     $pay_out_info = $transaction->getPayOutInfo();
                     $client = $transaction->getClient();
+                    $clientGroup = $this->getContainer()->get('TelepayFinancialApiBundle:Group')->find($client);
 
                     //get configuration(method)
                     $swift_config = $this->getContainer()->get('net.telepay.config.'.$method_in.'.'.$method_out);
@@ -314,7 +312,9 @@ class CheckSwiftCommand extends ContainerAwareCommand
                                     $rootFee->setDataIn(array(
                                         'previous_transaction'  =>  $transaction->getId(),
                                         'transaction_amount'    =>  $transaction->getAmount(),
-                                        'total_fee' =>  $client_fee + $service_fee
+                                        'total_fee' =>  $client_fee + $service_fee,
+                                        'previous_group_id'   =>  $clientGroup->getId(),
+                                        'previous_group_name'   =>  $clientGroup->getName()
                                     ));
                                     $rootFee->setClient($client);
 
