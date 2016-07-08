@@ -35,7 +35,13 @@ class HalcashDailyBalanceCommand extends ContainerAwareCommand
             'halcash_pl' => 0
         );
 
+        $services_hal_refund = array(
+            'halcash_es' => 0,
+            'halcash_pl' => 0
+        );
+
         foreach($services_hal as $service => $count){
+            //success transactions
             $qb = $dm->createQueryBuilder('TelepayFinancialApiBundle:Transaction')
                 ->field('type')->equals('swift')
                 ->field('method_out')->equals($service)
@@ -51,6 +57,24 @@ class HalcashDailyBalanceCommand extends ContainerAwareCommand
                     $services_hal[$service] += $transaction->getAmount();
                 }
             }
+
+            //refund transactions
+            $qbRefund = $dm->createQueryBuilder('TelepayFinancialApiBundle:Transaction')
+                ->field('type')->equals('swift')
+                ->field('method_out')->equals($service)
+                ->field('status')->equals('refund')
+                ->field('updated')->gte($start_time)
+                ->field('updated')->lte($finish_time)
+                ->getQuery();
+
+            foreach($qbRefund->toArray() as $transaction){
+                $output->writeln('nueva transaccion en refund');
+                $paymentInfo = $transaction->getPayInInfo();
+                if($paymentInfo['status'] == 'refund'){
+                    $services_hal_refund[$service] += $transaction->getAmount();
+                }
+            }
+
         }
 
         $services_out = array(
@@ -128,6 +152,8 @@ class HalcashDailyBalanceCommand extends ContainerAwareCommand
             'Total Transacciones:
              halcash últimas 24 horas: ' . $services_hal['halcash_es']/100 . ' EUR.
              ' . $services_hal['halcash_pl']/100 . ' PLN.
+             halcash refund: ' . $services_hal_refund['halcash_es']/100 . ' EUR.
+             ' . $services_hal_refund['halcash_pl']/100 . ' PLN.
              Cryptocapital: ' . $services_out['cryptocapital']/100 . ' EUR.
              Sepa: ' . $services_out['sepa']/100 . ' EUR.
              Paynet: ' . $services_in['paynet_reference']/100 . ' MXN.
