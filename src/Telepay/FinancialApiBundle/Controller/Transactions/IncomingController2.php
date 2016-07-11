@@ -46,7 +46,7 @@ class IncomingController2 extends RestApiController{
         $group = $client->getGroup();
 
         //TODO check if this user has this company
-        if(!$user->hasGroup($group->getName())) throw new HttpException('You don\'t have the necessary permissions in this comapny');
+        if(!$user->hasGroup($group->getName())) throw new HttpException('You don\'t have the necessary permissions in this company');
 
         $method_list = $group->getMethodsList();
 
