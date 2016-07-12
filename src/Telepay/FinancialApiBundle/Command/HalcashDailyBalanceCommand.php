@@ -227,12 +227,12 @@ class HalcashDailyBalanceCommand extends ContainerAwareCommand
                 ->getQuery();
 
             foreach($qb->toArray() as $transaction){
-                $paymentInInfo = $transaction->getPayInInfo();
+                $paymentInfo = $transaction->getPayInInfo();
                 if($paymentInfo['status'] == 'sent' || $paymentInfo['status'] == 'withdrawn'){
                     if($service == 'safetypay'){
-                        $services_in[$service] += $paymentInInfo['mxn_amount'];
+                        $services_in[$service] += $paymentInfo['mxn_amount'];
                     }else{
-                        $services_in[$service] += $paymentInInfo['amount'];
+                        $services_in[$service] += $paymentInfo['amount'];
                     }
 
                 }
@@ -248,13 +248,59 @@ class HalcashDailyBalanceCommand extends ContainerAwareCommand
                 ->getQuery();
 
             foreach($qbMethod->toArray() as $transaction){
-                $paymentInInfo = $transaction->getPayInInfo();
+                $paymentInfo = $transaction->getPayInInfo();
                 if($paymentInfo['status'] == 'sent' || $paymentInfo['status'] == 'withdrawn'){
                     if($service == 'safetypay'){
-                        $methods_in[$service] += $paymentInInfo['mxn_amount'];
+                        $methods_in[$service] += $paymentInfo['mxn_amount'];
                     }else{
-                        $methods_in[$service] += $paymentInInfo['amount'];
+                        $methods_in[$service] += $paymentInfo['amount'];
                     }
+
+                }
+            }
+        }
+
+        $cryptos_in = array(
+            'btc' => 0,
+            'fac' => 0
+        );
+
+        $cryptos_out = array(
+            'btc' => 0,
+            'fac' => 0
+        );
+
+        foreach($cryptos_in as $crypto => $count){
+            //methods in transactions cryptos
+            $qbIn = $dm->createQueryBuilder('TelepayFinancialApiBundle:Transaction')
+                ->field('type')->equals('in')
+                ->field('method')->equals($crypto)
+                ->field('status')->equals('success')
+                ->field('updated')->gte($start_time)
+                ->field('updated')->lte($finish_time)
+                ->getQuery();
+
+            foreach($qbIn->toArray() as $transaction){
+                $paymentInfo = $transaction->getPayInInfo();
+                if($paymentInfo['status'] == 'success'){
+                    $cryptos_in[$crypto] += $paymentInfo['amount'];
+
+                }
+            }
+
+            //methods out transactions cryptos
+            $qbOut = $dm->createQueryBuilder('TelepayFinancialApiBundle:Transaction')
+                ->field('type')->equals('out')
+                ->field('method')->equals($crypto)
+                ->field('status')->equals('success')
+                ->field('updated')->gte($start_time)
+                ->field('updated')->lte($finish_time)
+                ->getQuery();
+
+            foreach($qbOut->toArray() as $transaction){
+                $paymentInfo = $transaction->getPayOutInfo();
+                if($paymentInfo['status'] == 'success'){
+                    $cryptos_out[$crypto] += $paymentInfo['amount'];
 
                 }
             }
@@ -282,6 +328,10 @@ class HalcashDailyBalanceCommand extends ContainerAwareCommand
              Paynet: ' . $methods_in['paynet_reference']/100 . ' MXN.
              Safetypay: ' . $methods_in['safetypay']/100 . ' MXN.
              Easypay: ' . $methods_in['easypay']/100 . ' EUR.
+             Bitcoin-in: ' . $cryptos_in['btc']/100 . ' BTC.
+             Faircoin-in: ' . $cryptos_in['fac']/100 . ' FAC.
+             Bitcoin-out: ' . $cryptos_out['btc']/100 . ' BTC.
+             Faircoin-out: ' . $cryptos_out['fac']/100 . ' FAC.
              '
         );
 
