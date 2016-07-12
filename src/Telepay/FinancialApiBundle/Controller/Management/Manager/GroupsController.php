@@ -315,7 +315,7 @@ class GroupsController extends BaseApiController
         $admin = $this->get('security.context')->getToken()->getUser();
         $adminGroup = $admin->getActiveGroup();
 
-        $adminRoles = $this->getRepository('TelepayFinancialApiBundle:UserGroup')->findOneBy(array(
+        $adminRoles = $this->getDoctrine()->getRepository('TelepayFinancialApiBundle:UserGroup')->findOneBy(array(
             'user'  =>  $admin->getId(),
             'group' =>  $adminGroup->getId()
         ));
