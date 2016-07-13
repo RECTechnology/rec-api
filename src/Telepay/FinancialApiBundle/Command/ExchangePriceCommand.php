@@ -49,8 +49,10 @@ class ExchangePriceCommand extends ContainerAwareCommand
                         }
                         else {
                             //send email
-                            $this->sendEmail('Exchange error', "ERROR: Bad exchange, unexpected input or output currencies:".$inputCurrency.'<->'.$outputCurrency);
-                            throw new \LogicException("ERROR: Bad exchange, unexpected input or output currencies");
+                            $error = 1;
+                            $errorBody[] = "ERROR: Bad exchange, unexpected input or output currencies:".$inputCurrency.'<->'.$outputCurrency;
+//                            $this->sendEmail('Exchange error', "ERROR: Bad exchange, unexpected input or output currencies:".$inputCurrency.'<->'.$outputCurrency);
+//                            throw new \LogicException("ERROR: Bad exchange, unexpected input or output currencies");
                         }
                     }catch (Exception $e) {
                         //send email
