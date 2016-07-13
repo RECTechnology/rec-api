@@ -329,11 +329,12 @@ class GroupsController extends BaseApiController
         $group = $this->getRepository($this->getRepositoryName())->find($id);
         $groupCreator = $group->getGroupCreator();
 
-        if($groupCreator->getid() != $adminGroup->getId() && !$adminRoles->hasRole('ROLE_SUPER_ADMIN'))
-            throw new HttpException(409, 'You don\'t have the necessary permissions');
+        if(!$adminRoles->hasRole('ROLE_ADMIN')) throw new HttpException(403, 'You don\'t have the necessary permissions');
 
         $methods = null;
         if($request->request->has('methods_list')){
+            if($groupCreator->getid() != $adminGroup->getId() && !$adminRoles->hasRole('ROLE_SUPER_ADMIN'))
+                throw new HttpException(403, 'You don\'t have the necessary permissions');
             $methods = $request->get('methods_list');
             $request->request->remove('methods_list');
         }
