@@ -61,7 +61,12 @@ class GroupsController extends BaseApiController
             $group = $group->getAdminView();
 
             $group->setGroupCreatorData($groupData);
-            $group->setAllowedMethods($group->getMethodsList());
+            if($group->getMethodsList()){
+                $group->setAllowedMethods($group->getMethodsList());
+            }else{
+                $group->setAllowedMethods(array());
+            }
+
 
             $fees = $group->getCommissions();
             foreach ( $fees as $fee ){
