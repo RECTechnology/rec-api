@@ -306,33 +306,35 @@ class HalcashDailyBalanceCommand extends ContainerAwareCommand
             }
         }
 
+        $body = array(
+            'Total Transacciones SWIFT:',
+            'halcash últimas 24 horas: ' . $services_hal['halcash_es']/100 . ' EUR.',
+            $services_hal['halcash_pl']/100 . ' PLN.',
+            'halcash refund: ' . $services_hal_refund['halcash_es']/100 . ' EUR.',
+            $services_hal_refund['halcash_pl']/100 . ' PLN.',
+            'Cryptocapital: ' . $services_out['cryptocapital']/100 . ' EUR.',
+            'Sepa: ' . $services_out['sepa']/100 . ' EUR.',
+            'Paynet: ' . $services_in['paynet_reference']/100 . ' MXN.',
+            'Safetypay: ' . $services_in['safetypay']/100 . ' MXN.',
+            'Easypay: ' . $services_in['easypay']/100 . ' EUR.',
+            'Total transacciones METHODS:',
+            'halcash_es: ' . $methods_hal['halcash_es']/100 . ' EUR.',
+            'halcash_pl: ' . $methods_hal['halcash_pl']/100 . ' PLN.',
+            'Cryptocapital-out: ' . $methods_out['cryptocapital']/100 . ' EUR.',
+            'Sepa-out: ' . $methods_out['sepa']/100 . ' EUR.',
+            'Paynet: ' . $methods_in['paynet_reference']/100 . ' MXN.',
+            'Safetypay: ' . $methods_in['safetypay']/100 . ' MXN.',
+            'Easypay: ' . $methods_in['easypay']/100 . ' EUR.',
+            'Bitcoin-in: ' . $cryptos_in['btc']/100 . ' BTC.',
+            'Faircoin-in: ' . $cryptos_in['fac']/100 . ' FAC.',
+            'Bitcoin-out: ' . $cryptos_out['btc']/100 . ' BTC.',
+            'Faircoin-out: ' . $cryptos_out['fac']/100 . ' FAC.'
+        );
 
 
         $this->sendEmail(
             'Informe de transacciones de hal',
-            'Total Transacciones SWIFT:
-             halcash últimas 24 horas: ' . $services_hal['halcash_es']/100 . ' EUR.
-             ' . $services_hal['halcash_pl']/100 . ' PLN.
-             halcash refund: ' . $services_hal_refund['halcash_es']/100 . ' EUR.
-             ' . $services_hal_refund['halcash_pl']/100 . ' PLN.
-             Cryptocapital: ' . $services_out['cryptocapital']/100 . ' EUR.
-             Sepa: ' . $services_out['sepa']/100 . ' EUR.
-             Paynet: ' . $services_in['paynet_reference']/100 . ' MXN.
-             Safetypay: ' . $services_in['safetypay']/100 . ' MXN.
-             Easypay: ' . $services_in['easypay']/100 . ' EUR.
-             Total transacciones METHODS:
-             halcash_es: ' . $methods_hal['halcash_es']/100 . ' EUR.
-             halcash_pl: ' . $methods_hal['halcash_pl']/100 . ' PLN.
-             Cryptocapital-out: ' . $methods_out['cryptocapital']/100 . ' EUR.
-             Sepa-out: ' . $methods_out['sepa']/100 . ' EUR.
-             Paynet: ' . $methods_in['paynet_reference']/100 . ' MXN.
-             Safetypay: ' . $methods_in['safetypay']/100 . ' MXN.
-             Easypay: ' . $methods_in['easypay']/100 . ' EUR.
-             Bitcoin-in: ' . $cryptos_in['btc']/100 . ' BTC.
-             Faircoin-in: ' . $cryptos_in['fac']/100 . ' FAC.
-             Bitcoin-out: ' . $cryptos_out['btc']/100 . ' BTC.
-             Faircoin-out: ' . $cryptos_out['fac']/100 . ' FAC.
-             '
+            $body
         );
 
         $output->writeln('Informe enviado');
