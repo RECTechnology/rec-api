@@ -33,11 +33,20 @@ class IncomingController2 extends RestApiController{
     public function make(Request $request, $version_number, $type, $method_cname, $id = null){
 
         //TODO inyectar driver con las credenciales correspondientes al DbWallet
-
         $method = $this->get('net.telepay.'.$type.'.'.$method_cname.'.v'.$version_number);
 
         $user = $this->get('security.context')->getToken()->getUser();
-        $group = $user->getActiveGroup();
+
+        $tokenManager = $this->container->get('fos_oauth_server.access_token_manager.default');
+        $accessToken = $tokenManager->findTokenByToken(
+            $this->container->get('security.context')->getToken()->getToken()
+        );
+        $client = $accessToken->getClient();
+//        $group = $user->getActiveGroup();
+        $group = $client->getGroup();
+
+        //TODO check if this user has this company
+        if(!$user->hasGroup($group->getName())) throw new HttpException('You don\'t have the necessary permissions in this company');
 
         $method_list = $group->getMethodsList();
 

@@ -113,7 +113,7 @@ class UsersGroupsController extends RestApiController{
     /**
      * @Rest\View
      * description: add roles to company with array
-     * permissions: ROLE_ADMIN (active company), ROLE_SUPER_ADMIN(all)
+     * permissions: ROLE_ADMIN (active company)
      */
     public function addRoleAction(Request $request, $user_id, $group_id){
 
@@ -137,9 +137,7 @@ class UsersGroupsController extends RestApiController{
         if(!$request->request->has('roles')) throw new HttpException(404, 'Param role not found');
         $role = $request->request->get('roles');
 
-        if(!$adminRoles->hasRole('ROLE_SUPER_ADMIN')){
-            if(!$admin->hasGroup($group) || !$adminRoles->hasRole('ROLE_ADMIN')) throw new HttpException(409, 'You don\'t have the necesary permissions');
-        }
+        if(!$adminRoles->hasRole('ROLE_ADMIN')) throw new HttpException(409, 'You don\'t have the necesary permissions');
 
         $entity = $usersRolesRepository->findOneBy(array('user'=>$user_id, 'group'=>$group_id));
         if(empty($entity)) throw new HttpException(404, "Not found");

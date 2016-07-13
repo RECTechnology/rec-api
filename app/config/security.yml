@@ -72,7 +72,7 @@ security:
             signature_auth: true
             switch_user:  { role: ROLE_ADMIN, parameter: su }
 
-        services:
+        methods:
             pattern: ^/methods
             stateless: true
             fos_oauth:  true

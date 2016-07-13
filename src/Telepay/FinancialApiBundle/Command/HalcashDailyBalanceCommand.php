@@ -35,13 +35,23 @@ class HalcashDailyBalanceCommand extends ContainerAwareCommand
             'halcash_pl' => 0
         );
 
+        $methods_hal = array(
+            'halcash_es' => 0,
+            'halcash_pl' => 0
+        );
+
         $services_hal_refund = array(
             'halcash_es' => 0,
             'halcash_pl' => 0
         );
 
+        $methods_hal_refund = array(
+            'halcash_es' => 0,
+            'halcash_pl' => 0
+        );
+
         foreach($services_hal as $service => $count){
-            //success transactions
+            //swift success transactions halcash
             $qb = $dm->createQueryBuilder('TelepayFinancialApiBundle:Transaction')
                 ->field('type')->equals('swift')
                 ->field('method_out')->equals($service)
@@ -58,7 +68,7 @@ class HalcashDailyBalanceCommand extends ContainerAwareCommand
                 }
             }
 
-            //refund transactions
+            //swift refund transactions halcash
             $qbRefund = $dm->createQueryBuilder('TelepayFinancialApiBundle:Transaction')
                 ->field('type')->equals('swift')
                 ->field('method_out')->equals($service)
@@ -75,6 +85,40 @@ class HalcashDailyBalanceCommand extends ContainerAwareCommand
                 }
             }
 
+            //methods success halcash
+            $qbMethod = $dm->createQueryBuilder('TelepayFinancialApiBundle:Transaction')
+                ->field('type')->equals('out')
+                ->field('method')->equals($service)
+                ->field('status')->equals('success')
+                ->field('created')->gte($start_time)
+                ->field('created')->lte($finish_time)
+                ->getQuery();
+
+            foreach($qbMethod->toArray() as $transaction){
+                $output->writeln('nueva transaccion method');
+                $paymentInfo = $transaction->getPayOutInfo();
+                if($paymentInfo['status'] == 'sent' || $paymentInfo['status'] == 'withdrawn'){
+                    $methods_hal[$service] += $transaction->getAmount();
+                }
+            }
+
+            //methods canceled halcash
+            $qbMethodRefund = $dm->createQueryBuilder('TelepayFinancialApiBundle:Transaction')
+                ->field('type')->equals('out')
+                ->field('method')->equals($service)
+                ->field('status')->equals('cancelled')
+                ->field('updated')->gte($start_time)
+                ->field('updated')->lte($finish_time)
+                ->getQuery();
+
+            foreach($qbMethodRefund->toArray() as $transaction){
+                $output->writeln('nueva transaccion en refund');
+                $paymentInfo = $transaction->getPayOutInfo();
+                if($paymentInfo['status'] == 'cancelled'){
+                    $methods_hal_refund[$service] += $transaction->getAmount();
+                }
+            }
+
         }
 
         $services_out = array(
@@ -82,7 +126,13 @@ class HalcashDailyBalanceCommand extends ContainerAwareCommand
             'sepa' => 0
         );
 
+        $methods_out = array(
+            'cryptocapital' => 0,
+            'sepa' => 0
+        );
+
         foreach($services_out as $service => $count){
+            //swift success transactions cryptocapital
             if($service == 'cryptocapital'){
                 $qb = $dm->createQueryBuilder('TelepayFinancialApiBundle:Transaction')
                     ->field('type')->equals('swift')
@@ -99,7 +149,25 @@ class HalcashDailyBalanceCommand extends ContainerAwareCommand
                         $services_out[$service] += $transaction->getAmount();
                     }
                 }
+
+                //method success transaction cryptocapital
+                $qbMethod = $dm->createQueryBuilder('TelepayFinancialApiBundle:Transaction')
+                    ->field('type')->equals('out')
+                    ->field('method')->equals($service)
+                    ->field('status')->equals('success')
+                    ->field('updated')->gte($start_time)
+                    ->field('updated')->lte($finish_time)
+                    ->getQuery();
+
+                foreach($qbMethod->toArray() as $transaction){
+                    $output->writeln('nueva transaccion');
+                    $paymentInfo = $transaction->getPayOutInfo();
+                    if($paymentInfo['status'] == 'sent' || $paymentInfo['status'] == 'withdrawn'){
+                        $methods_out[$service] += $transaction->getAmount();
+                    }
+                }
             }else{
+                //swift success transactions sepa_out
                 $qb = $dm->createQueryBuilder('TelepayFinancialApiBundle:Transaction')
                     ->field('type')->equals('swift')
                     ->field('method_out')->equals($service)
@@ -115,6 +183,23 @@ class HalcashDailyBalanceCommand extends ContainerAwareCommand
                         $services_out[$service] += $transaction->getAmount();
                     }
                 }
+
+                //method success transaction sepa_out
+                $qbMethod = $dm->createQueryBuilder('TelepayFinancialApiBundle:Transaction')
+                    ->field('type')->equals('out')
+                    ->field('method')->equals($service)
+                    ->field('status')->equals('success')
+                    ->field('updated')->gte($start_time)
+                    ->field('updated')->lte($finish_time)
+                    ->getQuery();
+
+                foreach($qbMethod->toArray() as $transaction){
+                    $output->writeln('nueva transaccion');
+                    $paymentInfo = $transaction->getPayOutInfo();
+                    if($paymentInfo['status'] == 'sent' || $paymentInfo['status'] == 'withdrawn'){
+                        $methods_out[$service] += $transaction->getAmount();
+                    }
+                }
             }
 
         }
@@ -125,7 +210,14 @@ class HalcashDailyBalanceCommand extends ContainerAwareCommand
             'safetypay' => 0
         );
 
+        $methods_in = array(
+            'easypay' => 0,
+            'paynet_reference' => 0,
+            'safetypay' => 0
+        );
+
         foreach($services_in as $service => $count){
+            //swift in transactions
             $qb = $dm->createQueryBuilder('TelepayFinancialApiBundle:Transaction')
                 ->field('type')->equals('swift')
                 ->field('method_in')->equals($service)
@@ -135,21 +227,90 @@ class HalcashDailyBalanceCommand extends ContainerAwareCommand
                 ->getQuery();
 
             foreach($qb->toArray() as $transaction){
-                $paymentInInfo = $transaction->getPayInInfo();
+                $paymentInfo = $transaction->getPayInInfo();
                 if($paymentInfo['status'] == 'sent' || $paymentInfo['status'] == 'withdrawn'){
                     if($service == 'safetypay'){
-                        $services_in[$service] += $paymentInInfo['mxn_amount'];
+                        $services_in[$service] += $paymentInfo['mxn_amount'];
                     }else{
-                        $services_in[$service] += $paymentInInfo['amount'];
+                        $services_in[$service] += $paymentInfo['amount'];
+                    }
+
+                }
+            }
+
+            //methods in transactions
+            $qbMethod = $dm->createQueryBuilder('TelepayFinancialApiBundle:Transaction')
+                ->field('type')->equals('in')
+                ->field('method')->equals($service)
+                ->field('status')->equals('success')
+                ->field('updated')->gte($start_time)
+                ->field('updated')->lte($finish_time)
+                ->getQuery();
+
+            foreach($qbMethod->toArray() as $transaction){
+                $paymentInfo = $transaction->getPayInInfo();
+                if($paymentInfo['status'] == 'sent' || $paymentInfo['status'] == 'withdrawn'){
+                    if($service == 'safetypay'){
+                        $methods_in[$service] += $paymentInfo['mxn_amount'];
+                    }else{
+                        $methods_in[$service] += $paymentInfo['amount'];
                     }
 
                 }
             }
         }
 
+        $cryptos_in = array(
+            'btc' => 0,
+            'fac' => 0
+        );
+
+        $cryptos_out = array(
+            'btc' => 0,
+            'fac' => 0
+        );
+
+        foreach($cryptos_in as $crypto => $count){
+            //methods in transactions cryptos
+            $qbIn = $dm->createQueryBuilder('TelepayFinancialApiBundle:Transaction')
+                ->field('type')->equals('in')
+                ->field('method')->equals($crypto)
+                ->field('status')->equals('success')
+                ->field('updated')->gte($start_time)
+                ->field('updated')->lte($finish_time)
+                ->getQuery();
+
+            foreach($qbIn->toArray() as $transaction){
+                $paymentInfo = $transaction->getPayInInfo();
+                if($paymentInfo['status'] == 'success'){
+                    $cryptos_in[$crypto] += $paymentInfo['amount'];
+
+                }
+            }
+
+            //methods out transactions cryptos
+            $qbOut = $dm->createQueryBuilder('TelepayFinancialApiBundle:Transaction')
+                ->field('type')->equals('out')
+                ->field('method')->equals($crypto)
+                ->field('status')->equals('success')
+                ->field('updated')->gte($start_time)
+                ->field('updated')->lte($finish_time)
+                ->getQuery();
+
+            foreach($qbOut->toArray() as $transaction){
+                $paymentInfo = $transaction->getPayOutInfo();
+                if($paymentInfo['status'] == 'success'){
+                    $cryptos_out[$crypto] += $paymentInfo['amount'];
+
+                }
+            }
+        }
+
+
+
         $this->sendEmail(
             'Informe de transacciones de hal',
-            'Total Transacciones:
+            'Total Transacciones SWIFT:
              halcash últimas 24 horas: ' . $services_hal['halcash_es']/100 . ' EUR.
              ' . $services_hal['halcash_pl']/100 . ' PLN.
              halcash refund: ' . $services_hal_refund['halcash_es']/100 . ' EUR.
@@ -159,6 +320,18 @@ class HalcashDailyBalanceCommand extends ContainerAwareCommand
              Paynet: ' . $services_in['paynet_reference']/100 . ' MXN.
              Safetypay: ' . $services_in['safetypay']/100 . ' MXN.
              Easypay: ' . $services_in['easypay']/100 . ' EUR.
+             Total transacciones METHODS:
+             halcash_es: ' . $methods_hal['halcash_es']/100 . ' EUR.
+             halcash_pl: ' . $methods_hal['halcash_pl']/100 . ' PLN.
+             Cryptocapital-out: ' . $methods_out['cryptocapital']/100 . ' EUR.
+             Sepa-out: ' . $methods_out['sepa']/100 . ' EUR.
+             Paynet: ' . $methods_in['paynet_reference']/100 . ' MXN.
+             Safetypay: ' . $methods_in['safetypay']/100 . ' MXN.
+             Easypay: ' . $methods_in['easypay']/100 . ' EUR.
+             Bitcoin-in: ' . $cryptos_in['btc']/100 . ' BTC.
+             Faircoin-in: ' . $cryptos_in['fac']/100 . ' FAC.
+             Bitcoin-out: ' . $cryptos_out['btc']/100 . ' BTC.
+             Faircoin-out: ' . $cryptos_out['fac']/100 . ' FAC.
              '
         );
 
