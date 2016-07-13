@@ -76,7 +76,7 @@ class CheckSwiftCommand extends ContainerAwareCommand
                     $pay_in_info = $transaction->getPayInInfo();
                     $pay_out_info = $transaction->getPayOutInfo();
                     $client = $transaction->getClient();
-                    $clientGroup = $this->getRepository('TelepayFinancialApiBundle:Group')->find($client);
+                    $clientGroup = $em->getRepository('TelepayFinancialApiBundle:Group')->find($client);
 
                     //get configuration(method)
                     $swift_config = $this->getContainer()->get('net.telepay.config.'.$method_in.'.'.$method_out);
