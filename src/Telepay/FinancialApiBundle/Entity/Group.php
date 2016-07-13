@@ -108,6 +108,7 @@ class Group extends BaseGroup
 
     /**
      * @ORM\Column(type="string", length=1000)
+     * @Exclude
      */
     private $methods_list;
 
@@ -470,11 +471,7 @@ class Group extends BaseGroup
         unset($this->access_key);
         unset($this->access_secret);
         unset ($this->default_currency);
-        $users = $this->users;
-//        foreach($users as $user){
-//            $user = $user->getAdminView();
-//        }
-        $this->users = $users;
+
 
         return $this;
     }

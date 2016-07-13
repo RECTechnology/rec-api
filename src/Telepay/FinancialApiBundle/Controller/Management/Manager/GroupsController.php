@@ -52,12 +52,16 @@ class GroupsController extends BaseApiController
         $total = count($all);
         foreach ($all as $group){
             $groupCreator = $group->getGroupCreator();
+
             $groupData = array(
                 'id'    => $groupCreator->getId(),
-                'name'  =>  $groupCreator->getName()
+                'name'  =>  $groupCreator->getName(),
+                'allowed_methods'   =>  $groupCreator->getMethodsList()
             );
             $group = $group->getAdminView();
+
             $group->setGroupCreatorData($groupData);
+            $group->setAllowedMethods($group->getMethodsList());
 
             $fees = $group->getCommissions();
             foreach ( $fees as $fee ){
@@ -272,6 +276,8 @@ class GroupsController extends BaseApiController
 
         if(!$group) throw new HttpException(404,'Group not found');
 
+        $group->setAllowedMethods($group->getMethodsList());
+
         $fees = $group->getCommissions();
         foreach ( $fees as $fee ){
             $currency = $fee->getCurrency();
@@ -329,6 +335,7 @@ class GroupsController extends BaseApiController
         $methods = null;
         if($request->request->has('methods_list')){
             $methods = $request->get('methods_list');
+            $request->request->remove('methods_list');
         }
 
         $response = parent::updateAction($request, $id);
