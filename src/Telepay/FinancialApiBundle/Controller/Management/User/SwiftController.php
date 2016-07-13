@@ -90,13 +90,22 @@ class SwiftController extends BaseApiController{
         //todo active methods or inactive.
         //get client
         $user = $this->get('security.context')->getToken()->getUser();
-        $userGroup = $user->getGroups()[0];
+        $userGroup = $user->getActiveGroup();
 
         $em = $this->getDoctrine()->getManager();
         $client = $em->getRepository('TelepayFinancialApiBundle:Client')->findOneBy(array(
             'id'    =>  $id,
             'group'  =>  $userGroup
         ));
+
+        if(!$client) throw new HttpException(404, 'Client not found');
+
+        $adminRoles = $this->getDoctrine()->getRepository('TelepayFinancialApiBundle:UserGroup')->findOneBy(array(
+            'user'  =>  $user->getId(),
+            'group' =>  $userGroup->getId()
+        ));
+
+        if(!$adminRoles->hasRole('ROLE_USER')) throw new HttpException(403, 'You don\'t have the necessary permissions');
 
         $swiftMethods = null;
         //To activate swift methods we have to send all the services we want activate
