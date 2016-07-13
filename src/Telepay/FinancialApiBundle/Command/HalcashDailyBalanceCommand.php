@@ -358,7 +358,8 @@ class HalcashDailyBalanceCommand extends ContainerAwareCommand
                             'message'        =>  $body
                         )
                     )
-            );
+            )
+            ->setContentType('text/html');
 
         $this->getContainer()->get('mailer')->send($message);
     }
