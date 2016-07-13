@@ -873,6 +873,7 @@ class AccountController extends BaseApiController{
 
     private function _sendEmail($subject, $body, $to, $action){
         $from = 'no-reply@chip-chap.com';
+        $mailer = 'mailer';
         if($action == 'register'){
             $template = 'TelepayFinancialApiBundle:Email:registerconfirm.html.twig';
         }elseif($action == 'recover'){
@@ -880,11 +881,13 @@ class AccountController extends BaseApiController{
         }elseif($action == 'recover_holy'){
             $template = 'TelepayFinancialApiBundle:Email:recoverpasswordholy.html.twig';
             $from = 'no-reply@holytransaction.trade';
+            $mailer = 'swiftmailer.mailer.holy_mailer';
         }elseif($action == 'register_kyc'){
             $template = 'TelepayFinancialApiBundle:Email:registerconfirmkyc.html.twig';
         }elseif($action == 'register_kyc_holy'){
             $template = 'TelepayFinancialApiBundle:Email:registerconfirmkycholy.html.twig';
             $from = 'no-reply@holytransaction.trade';
+            $mailer = 'swiftmailer.mailer.holy_mailer';
         }else{
             $template = 'TelepayFinancialApiBundle:Email:registerconfirm.html.twig';
         }
@@ -904,7 +907,7 @@ class AccountController extends BaseApiController{
             )
             ->setContentType('text/html');
 
-        $this->container->get('mailer')->send($message);
+        $this->container->get($mailer)->send($message);
     }
 
     /**
