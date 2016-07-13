@@ -24,6 +24,9 @@ class ExchangePriceCommand extends ContainerAwareCommand
     protected function execute(InputInterface $input, OutputInterface $output) {
 
         $em = $this->getContainer()->get('doctrine')->getManager();
+
+        $error = 0;
+        $errorBody = array();
         foreach(Currency::$ALL as $inputCurrency){
             foreach(Currency::$ALL as $outputCurrency){
                 if($inputCurrency !== $outputCurrency){
@@ -51,13 +54,20 @@ class ExchangePriceCommand extends ContainerAwareCommand
                         }
                     }catch (Exception $e) {
                         //send email
-                        $this->sendEmail('Fatal Exchange error', $inputCurrency.'<->'.$outputCurrency.' Error Message: '.$e->getMessage());
+                        $error = 1;
+                        $errorBody[] =  $inputCurrency.'<->'.$outputCurrency.' Error Message: '.$e->getMessage();
+//                        $this->sendEmail('Fatal Exchange error', $inputCurrency.'<->'.$outputCurrency.' Error Message: '.$e->getMessage());
                         $output->writeln("ERROR: " . $e->getMessage());
                     }
                 }
 
             }
         }
+
+        if($error == 1){
+            $this->sendEmail('Fatal Exchange error', $errorBody);
+        }
+
 
         $output->writeln("FINISHED");
     }
