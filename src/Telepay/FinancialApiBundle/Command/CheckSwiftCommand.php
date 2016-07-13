@@ -13,7 +13,7 @@ use Symfony\Component\HttpKernel\Exception\HttpException;
 use Telepay\FinancialApiBundle\DependencyInjection\Telepay\Commons\LimitAdder;
 use Telepay\FinancialApiBundle\Document\Transaction;
 
-class CheckSwiftCommand extends ContainerAwareCommand
+class CheckSwiftCommand extends SyncronizedContainerAwareCommand
 {
     protected function configure()
     {
@@ -30,7 +30,7 @@ class CheckSwiftCommand extends ContainerAwareCommand
         ;
     }
 
-    protected function execute(InputInterface $input, OutputInterface $output)
+    protected function executeSyncronized(InputInterface $input, OutputInterface $output)
     {
         $trans_id = $input->getOption('transaction-id');
 
@@ -76,7 +76,8 @@ class CheckSwiftCommand extends ContainerAwareCommand
                     $pay_in_info = $transaction->getPayInInfo();
                     $pay_out_info = $transaction->getPayOutInfo();
                     $client = $transaction->getClient();
-                    $clientGroup = $em->getRepository('TelepayFinancialApiBundle:Group')->find($client);
+                    $actualClient = $em->getRepository('TelepayFinancialApiBundle:Client')->find($client);
+                    $clientGroup = $actualClient->getGroup();
 
                     //get configuration(method)
                     $swift_config = $this->getContainer()->get('net.telepay.config.'.$method_in.'.'.$method_out);
