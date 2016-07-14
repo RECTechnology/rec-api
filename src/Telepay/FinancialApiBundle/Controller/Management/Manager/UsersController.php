@@ -212,7 +212,7 @@ class UsersController extends BaseApiController
 
         $role_array = array();
         if($request->request->has('group_id')){
-            if($request->request->has('role')) throw new HttpException(404, 'Parameter Role not found');
+            if(!$request->request->has('role')) throw new HttpException(404, 'Parameter Role not found');
             $role_array[] = $request->request->get('role');
             $groupId = $request->request->get('group_id');
             $request->request->remove('group_id');
