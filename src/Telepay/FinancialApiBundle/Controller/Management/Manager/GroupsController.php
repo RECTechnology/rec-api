@@ -340,17 +340,17 @@ class GroupsController extends BaseApiController
         if($request->request->has('methods_list')){
             if($groupCreator->getid() != $adminGroup->getId() && !$adminRoles->hasRole('ROLE_SUPER_ADMIN'))
                 throw new HttpException(403, 'You don\'t have the necessary permissions');
-            $methods = $request->get('methods_list');
-            $request->request->remove('methods_list');
+//            $methods = $request->get('methods_list');
+//            $request->request->remove('methods_list');
         }
 
         $response = parent::updateAction($request, $id);
 
-        if($response->getStatusCode() == 204){
-            if($methods !== null){
-                $this->_setMethods($request, $id);
-            }
-        }
+//        if($response->getStatusCode() == 204){
+//            if($methods !== null){
+//                $this->_setMethods($methods, $id);
+//            }
+//        }
 
         return $response;
 
@@ -392,14 +392,14 @@ class GroupsController extends BaseApiController
 
     }
 
-    private function _setMethods(Request $request, $id){
+    private function _setMethods($methods, $id){
         if(empty($id)) throw new HttpException(400, "Missing parameter 'id'");
         $groupsRepo = $this->getRepository();
         $group = $groupsRepo->findOneBy(array('id'=>$id));
         $listMethods = $group->getMethodsList();
 
-        $putMethods = $request->get('methods_list');
-        foreach($putMethods as $method){
+        foreach($methods as $method){
+
             if(!in_array($method, $listMethods)){
                 $this->_addMethod($id, $method);
             }
