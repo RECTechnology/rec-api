@@ -407,12 +407,20 @@ class GroupsController extends BaseApiController
             'group'  =>  $group->getId()
         ));
 
+        $exchangeFees = array();
         foreach($fees as $fee){
             $cnameExplode = explode('_', $fee->getServiceName());
             if($cnameExplode[0] != 'exchange'){
                 if(!in_array($fee->getServiceName(),$methods)){
                     $em->remove($fee);
                 }
+            }else{
+                if(in_array($fee->getServiceName(), $exchangeFees)){
+                    $em->remove($fee);
+                }else{
+                    $exchangeFees[] = $fee->getServiceName();
+                }
+
             }
 
         }
@@ -423,15 +431,25 @@ class GroupsController extends BaseApiController
             'group'  =>  $group->getId()
         ));
 
+        $exchangeLimits = array();
         foreach($limits as $limit){
             $cnameExplode = explode('_', $limit->getCname());
             if($cnameExplode[0] != 'exchange'){
                 if(!in_array($limit->getCname(),$methods)){
                     $em->remove($limit);
                 }
-            }
+            }else{
+                if(in_array($limit->getCname(), $exchangeLimits)){
+                    $em->remove($limit);
+                }else{
+                    $exchangeLimits[] = $limit->getCname();
+                }
 
+            }
         }
+
+
+
 
         //get all limitCount and delete/create depending of methods
         $em = $this->getDoctrine()->getManager();
@@ -439,16 +457,22 @@ class GroupsController extends BaseApiController
             'group'  =>  $group->getId()
         ));
 
+        $exchangeLimitCounts = array();
         foreach($limitCounts as $limitCount){
             $cnameExplode = explode('_', $limitCount->getCname());
             if($cnameExplode[0] != 'exchange'){
                 if(!in_array($limitCount->getCname(),$methods)){
                     $em->remove($limitCount);
                 }
+            }else{
+                if(in_array($limitCount->getCname(), $exchangeLimitCounts)){
+                    $em->remove($limitCount);
+                }else{
+                    $exchangeLimitCounts[] = $limitCount->getCname();
+                }
+
             }
         }
-
-        //TODO check exchanges
 
         //add new fees limits limitCounts for this methods
         foreach($methods as $method){
