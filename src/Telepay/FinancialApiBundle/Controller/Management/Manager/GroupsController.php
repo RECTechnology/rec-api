@@ -340,17 +340,17 @@ class GroupsController extends BaseApiController
         if($request->request->has('methods_list')){
             if($groupCreator->getid() != $adminGroup->getId() && !$adminRoles->hasRole('ROLE_SUPER_ADMIN'))
                 throw new HttpException(403, 'You don\'t have the necessary permissions');
-//            $methods = $request->get('methods_list');
-//            $request->request->remove('methods_list');
+            $methods = $request->get('methods_list');
+            $request->request->remove('methods_list');
         }
 
         $response = parent::updateAction($request, $id);
 
-//        if($response->getStatusCode() == 204){
-//            if($methods !== null){
-//                $this->_setMethods($methods, $id);
-//            }
-//        }
+        if($response->getStatusCode() == 204){
+            if($methods !== null){
+                $this->_setMethods($methods, $group);
+            }
+        }
 
         return $response;
 
@@ -392,18 +392,132 @@ class GroupsController extends BaseApiController
 
     }
 
-    private function _setMethods($methods, $id){
-        if(empty($id)) throw new HttpException(400, "Missing parameter 'id'");
-        $groupsRepo = $this->getRepository();
-        $group = $groupsRepo->findOneBy(array('id'=>$id));
+    private function _setMethods($methods, Group $group){
+
+        $em = $this->getDoctrine()->getManager();
+
         $listMethods = $group->getMethodsList();
 
-        foreach($methods as $method){
+        $group->setMethodsList($methods);
+        $em->persist($group);
 
-            if(!in_array($method, $listMethods)){
-                $this->_addMethod($id, $method);
+        //get all fees and delete/create depending of methods
+
+        $fees = $em->getRepository('TelepayFinancialApiBundle:ServiceFee')->findBy(array(
+            'group'  =>  $group->getId()
+        ));
+
+        foreach($fees as $fee){
+            $cnameExplode = explode('_', $fee->getServiceName());
+            if($cnameExplode[0] != 'exchange'){
+                if(!in_array($fee->getServiceName(),$methods)){
+                    $em->remove($fee);
+                }
+            }
+
+        }
+
+        //get all limits and delete/create depending of methods
+        $em = $this->getDoctrine()->getManager();
+        $limits = $em->getRepository('TelepayFinancialApiBundle:LimitDefinition')->findBy(array(
+            'group'  =>  $group->getId()
+        ));
+
+        foreach($limits as $limit){
+            $cnameExplode = explode('_', $limit->getCname());
+            if($cnameExplode[0] != 'exchange'){
+                if(!in_array($limit->getCname(),$methods)){
+                    $em->remove($limit);
+                }
+            }
+
+        }
+
+        //get all limitCount and delete/create depending of methods
+        $em = $this->getDoctrine()->getManager();
+        $limitCounts = $em->getRepository('TelepayFinancialApiBundle:LimitCount')->findBy(array(
+            'group'  =>  $group->getId()
+        ));
+
+        foreach($limitCounts as $limitCount){
+            $cnameExplode = explode('_', $limitCount->getCname());
+            if($cnameExplode[0] != 'exchange'){
+                if(!in_array($limitCount->getCname(),$methods)){
+                    $em->remove($limitCount);
+                }
             }
         }
+
+        //TODO check exchanges
+
+        //add new fees limits limitCounts for this methods
+        foreach($methods as $method){
+
+            $methodExplode = explode('-',$method);
+            //get method config
+            $methodConfig = $this->get('net.telepay.'.$methodExplode[1].'.'.$methodExplode[0].'.v1');
+            $fee = $em->getRepository('TelepayFinancialApiBundle:ServiceFee')->findOneBy(array(
+                'group'  =>  $group->getId(),
+                'service_name'  =>  $method
+            ));
+
+            if(!$fee){
+                //create new ServiceFee
+                $newFee = new ServiceFee();
+                $newFee->setGroup($group);
+                $newFee->setFixed(0);
+                $newFee->setVariable(0);
+                $newFee->setServiceName($method);
+                $newFee->setCurrency($methodConfig->getCurrency());
+
+                $em->persist($newFee);
+            }
+
+            $limit = $em->getRepository('TelepayFinancialApiBundle:LimitDefinition')->findOneBy(array(
+                'group'  =>  $group->getId(),
+                'cname'  =>  $method
+            ));
+
+            if(!$limit){
+                //create new LimitDefinition
+                $newLimit = new LimitDefinition();
+                $newLimit->setGroup($group);
+                $newLimit->setCurrency($methodConfig->getCurrency());
+                $newLimit->setCname($method);
+                $newLimit->setDay(0);
+                $newLimit->setWeek(0);
+                $newLimit->setMonth(0);
+                $newLimit->setYear(0);
+                $newLimit->setSingle(0);
+                $newLimit->setTotal(0);
+
+                $em->persist($newLimit);
+            }
+
+            $limitCount = $em->getRepository('TelepayFinancialApiBundle:LimitCount')->findOneBy(array(
+                'group'  =>  $group->getId(),
+                'cname'  =>  $method
+            ));
+
+            if(!$limitCount){
+                //create new LimitCount
+                $newCount = new LimitCount();
+                $newCount->setDay(0);
+                $newCount->setWeek(0);
+                $newCount->setMonth(0);
+                $newCount->setYear(0);
+                $newCount->setSingle(0);
+                $newCount->setTotal(0);
+                $newCount->setCname($method);
+                $newCount->setGroup($group);
+
+                $em->persist($newCount);
+            }
+        }
+
+
+        $em->flush();
+
         return $this->rest(204, "Edited");
     }
 
@@ -442,5 +556,6 @@ class GroupsController extends BaseApiController
                 throw new HttpException(500, "Unknown error occurred when save");
         }
     }
+
 
 }
