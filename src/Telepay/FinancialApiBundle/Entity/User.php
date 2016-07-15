@@ -673,21 +673,15 @@ class User extends BaseUser
      *
      * @return array The roles
      */
-    public function getRoles()
-    {
+    public function getRoles(){
         foreach($this->groups as $Usergroup){
             if($this->getActiveGroup()->getId() == $Usergroup->getGroup()->getId()){
                 $roles = $Usergroup->getRoles();
+                $roles = array_merge($roles, $Usergroup->getGroup()->getRoles());
             }
         }
-
-        foreach ($this->getGroups() as $group) {
-            $roles = array_merge($roles, $group->getRoles());
-        }
-
         // we need to make sure to have at least one role
         $roles[] = static::ROLE_DEFAULT;
-
         return array_unique($roles);
     }
 
