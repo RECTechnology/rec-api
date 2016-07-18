@@ -20,6 +20,7 @@ class UsersGroupsController extends RestApiController{
     /**
      * @Rest\View
      * description: add user to company with user_id or email
+     * permissions: ROLE_ADMIN(company)
      */
     public function createAction(Request $request, $id){
 
@@ -31,8 +32,14 @@ class UsersGroupsController extends RestApiController{
 
         if(!$company) throw new HttpException(404, "Company not found");
 
+        $adminRoles = $this->getDoctrine()->getRepository("TelepayFinancialApiBundle:UserGroup")->findOneBy(array(
+                'user'  =>  $admin->getId(),
+                'group' =>  $id)
+            );
+
         //check if this user is admin of this group
-        if(!$admin->hasGroup($company) && !$admin->hasRole('ROLE_SUPER_ADMIN')) throw new HttpException(409, 'You don\'t have the necesary permissions');
+        if(!$admin->hasGroup($company) || !$adminRoles->hasRole('ROLE_ADMIN'))
+            throw new HttpException(409, 'You don\'t have the necesary permissions');
 
         $usersRepository = $this->getDoctrine()->getRepository("TelepayFinancialApiBundle:User");
 
