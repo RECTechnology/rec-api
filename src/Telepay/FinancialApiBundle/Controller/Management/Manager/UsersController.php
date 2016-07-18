@@ -207,7 +207,7 @@ class UsersController extends BaseApiController
      * ROLE_READONLY: can't create users
      */
     public function createAction(Request $request){
-        $user = $this->get('security.context')->getToken()->getUser();
+        $admin = $this->get('security.context')->getToken()->getUser();
         $em = $this->getDoctrine()->getManager();
         $usersRepo = $em->getRepository("TelepayFinancialApiBundle:User");
         $groupsRepo = $em->getRepository("TelepayFinancialApiBundle:Group");
@@ -225,15 +225,15 @@ class UsersController extends BaseApiController
             }
             else{
                 $request->request->add(array(
-                    'active_group'  =>  $user->getActiveGroup(),
-                    'group_id'  =>  $user->getActiveGroup()->getId()
+                    'active_group'  =>  $admin->getActiveGroup(),
+                    'group_id'  =>  $admin->getActiveGroup()->getId()
                 ));
             }
         }
         elseif($this->get('security.authorization_checker')->isGranted('ROLE_ADMIN')){
             $request->request->add(array(
-                'active_group'  =>  $user->getActiveGroup(),
-                'group_id'  =>  $user->getActiveGroup()->getId()
+                'active_group'  =>  $admin->getActiveGroup(),
+                'group_id'  =>  $admin->getActiveGroup()->getId()
             ));
         }
         else{
@@ -278,6 +278,9 @@ class UsersController extends BaseApiController
             $em = $this->getDoctrine()->getManager();
             $em->persist($userGroup);
             $em->flush();
+            $url = $this->container->getParameter('base_panel_url');
+            $url = $url.'/user/validation/'.$user->getConfirmationToken();
+            $this->_sendEmail('Chip-Chap validation e-mail', $url, $user->getEmail(), 'register');
         }
         return $resp;
     }
@@ -606,6 +609,33 @@ class UsersController extends BaseApiController
 
         return true;
 
+    }
+
+    private function _sendEmail($subject, $body, $to, $action){
+        $from = 'no-reply@chip-chap.com';
+        $mailer = 'mailer';
+        if($action == 'register'){
+            $template = 'TelepayFinancialApiBundle:Email:registerconfirm.html.twig';
+        }else{
+            $template = 'TelepayFinancialApiBundle:Email:registerconfirm.html.twig';
+        }
+        $message = \Swift_Message::newInstance()
+            ->setSubject($subject)
+            ->setFrom($from)
+            ->setTo(array(
+                $to
+            ))
+            ->setBody(
+                $this->container->get('templating')
+                    ->render($template,
+                        array(
+                            'message'        =>  $body
+                        )
+                    )
+            )
+            ->setContentType('text/html');
+
+        $this->container->get($mailer)->send($message);
     }
 
 }
