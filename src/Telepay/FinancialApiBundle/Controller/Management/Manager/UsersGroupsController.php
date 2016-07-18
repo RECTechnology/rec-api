@@ -82,6 +82,11 @@ class UsersGroupsController extends RestApiController{
         $em->persist($userGroup);
         $em->flush();
 
+        //send email
+        $url = '';
+        $this->_sendEmail('Company add information', $user->getEmail(), $url, $company->getName());
+
+
         return $this->restV2(201, "ok", "User added successfully");
     }
 
@@ -187,6 +192,29 @@ class UsersGroupsController extends RestApiController{
 
         return $this->rest(204, "User updated successfully");
 
+    }
+
+    private function _sendEmail($subject, $to, $url, $company){
+        $from = 'no-reply@chip-chap.com';
+        $template = 'TelepayFinancialApiBundle:Email:changedgroup.html.twig';
+        $message = \Swift_Message::newInstance()
+            ->setSubject($subject)
+            ->setFrom($from)
+            ->setTo(array(
+                $to
+            ))
+            ->setBody(
+                $this->container->get('templating')
+                    ->render($template,
+                        array(
+                            'company'   =>  $company,
+                            'url'       =>  $url
+                        )
+                    )
+            )
+            ->setContentType('text/html');
+
+        $this->container->get('mailer')->send($message);
     }
 
 }
