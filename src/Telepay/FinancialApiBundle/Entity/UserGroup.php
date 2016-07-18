@@ -19,7 +19,7 @@ use JMS\Serializer\Annotation\Expose;
  * @ExclusionPolicy("all")
  */
 class UserGroup{
-    const ROLE_DEFAULT = 'ROLE_USER';
+    const ROLE_DEFAULT = 'ROLE_READONLY';
     const ROLE_SUPER_ADMIN = 'ROLE_SUPER_ADMIN';
 
     /**

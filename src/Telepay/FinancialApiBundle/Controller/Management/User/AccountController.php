@@ -42,23 +42,13 @@ class AccountController extends BaseApiController{
      * @Rest\View
      */
     public function read(Request $request){
-
         $user = $this->get('security.context')->getToken()->getUser();
-
-        //TODO quitar cuando haya algo mejor montado
-        if($user->getId() == $this->container->getParameter('read_only_user_id')){
-            $em = $this->getDoctrine()->getManager();
-            $user = $em->getRepository('TelepayFinancialApiBundle:User')->find('chipchap_user_id');
-        }
-
         $user->setRoles($user->getRoles());
-
         $group = $this->get('security.context')->getToken()->getUser()->getActiveGroup();
-
         $group_data = $group->getUserView();
-
         $user->setGroupData($group_data);
-
+        $em = $this->getDoctrine()->getManager();
+        $em->persist($user);
         return $this->restV2(200, "ok", "Account info got successfully", $user);
     }
 
