@@ -251,6 +251,8 @@ class UsersController extends BaseApiController
         $request->request->remove('role');
 
         if(!$request->request->has('username') || $request->request->get('username') == '') throw new HttpException(400, "Missing parameter 'username'");
+        if(!$request->request->has('email') || $request->request->get('email') == '') throw new HttpException(400, "Missing parameter 'email'");
+        if(!$request->request->has('name') || $request->request->get('name') == '') throw new HttpException(400, "Missing parameter 'name'");
         if(!$request->request->has('password')) throw new HttpException(400, "Missing parameter 'password'");
         if(!$request->request->has('repassword')) throw new HttpException(400, "Missing parameter 'repassword'");
         $password = $request->get('password');
@@ -276,6 +278,12 @@ class UsersController extends BaseApiController
             $user_id = $user_id->data;
             $user_id = $user_id->id;
             $user = $usersRepo->findOneBy(array('id'=>$user_id));
+
+            $tokenGenerator = $this->container->get('fos_user.util.token_generator');
+            $user->setConfirmationToken($tokenGenerator->generateToken());
+            $em->persist($user);
+            $em->flush();
+
             $userGroup = new UserGroup();
             $userGroup->setUser($user);
             $userGroup->setGroup($group);
