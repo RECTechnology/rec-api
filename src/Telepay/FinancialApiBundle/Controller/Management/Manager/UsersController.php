@@ -250,6 +250,7 @@ class UsersController extends BaseApiController
         $role_array[] = $request->request->get('role');
         $request->request->remove('role');
 
+        if(!$request->request->has('username') || $request->request->get('username') == '') throw new HttpException(400, "Missing parameter 'username'");
         if(!$request->request->has('password')) throw new HttpException(400, "Missing parameter 'password'");
         if(!$request->request->has('repassword')) throw new HttpException(400, "Missing parameter 'repassword'");
         $password = $request->get('password');
