@@ -213,7 +213,7 @@ class UsersController extends BaseApiController
         $groupsRepo = $em->getRepository("TelepayFinancialApiBundle:Group");
 
         $role_array = array();
-        if ($this->get('security.authorization_checker')->isGranted('ROLE_SUPERADMIN')) {
+        if ($this->get('security.authorization_checker')->isGranted('ROLE_SUPER_ADMIN')) {
             if($request->request->has('group_id')) {
                 $groupId = $request->request->get('group_id');
                 $request->request->remove('group_id');
@@ -235,7 +235,6 @@ class UsersController extends BaseApiController
         $request->request->add(array(
             'active_group' => $group
         ));
-
 
         if (!$request->request->has('role')) throw new HttpException(404, 'Parameter Role not found');
         if($request->request->get('role') == 'ROLE_SUPERADMIN'){
