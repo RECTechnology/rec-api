@@ -201,43 +201,54 @@ class UsersController extends BaseApiController
 
     /**
      * @Rest\View
+     * ROLE_SUPER_ADMIN: can create user in all groups (with all roles)
+     * ROLE_ADMIN: can create the user in all groups where is ROLE_ADMIN (with roles <= itself)
+     * ROLE_USER: can't create users
+     * ROLE_READONLY: can't create users
      */
     public function createAction(Request $request){
-
-        $admin = $this->get('security.context')->getToken()->getUser();
-
+        $user = $this->get('security.context')->getToken()->getUser();
         $em = $this->getDoctrine()->getManager();
         $usersRepo = $em->getRepository("TelepayFinancialApiBundle:User");
         $groupsRepo = $em->getRepository("TelepayFinancialApiBundle:Group");
 
         $role_array = array();
-        if($request->request->has('group_id')){
-            if(!$request->request->has('role')) throw new HttpException(404, 'Parameter Role not found');
-            $role_array[] = $request->request->get('role');
-            $groupId = $request->request->get('group_id');
-            $request->request->remove('group_id');
-            $group = $groupsRepo->find($groupId);
-
-            if(!$group) throw new HttpException(404, 'Group not found');
-
-            //TODO check if the user is admin in this group or is superadmin
-            if (!$this->get('security.authorization_checker')->isGranted('ROLE_SUPER_ADMIN')) {
-                if(!$admin->hasGroup($group->getName())) throw new HttpException(403, 'You don\'t have the necessary permissions to add a user in this group');
+        if ($this->get('security.authorization_checker')->isGranted('ROLE_SUPERADMIN')) {
+            if($request->request->has('group_id')) {
+                $groupId = $request->request->get('group_id');
+                $request->request->remove('group_id');
+                $group = $groupsRepo->find($groupId);
+                if (!$group) throw new HttpException(404, 'Group not found');
+                $request->request->add(array(
+                    'active_group' => $group
+                ));
             }
-
+            else{
+                $request->request->add(array(
+                    'active_group'  =>  $user->getActiveGroup(),
+                    'group_id'  =>  $user->getActiveGroup()->getId()
+                ));
+            }
+        }
+        elseif($this->get('security.authorization_checker')->isGranted('ROLE_ADMIN')){
             $request->request->add(array(
-                'active_group'  =>  $group
-            ));
-        }else{
-            $request->request->add(array(
-                'active_group'  =>  $admin->getActiveGroup()
+                'active_group'  =>  $user->getActiveGroup(),
+                'group_id'  =>  $user->getActiveGroup()->getId()
             ));
         }
+        else{
+            throw new HttpException(403, 'You don\'t have the necessary permissions to add a user in this group');
+        }
 
-        if(!$request->request->has('password'))
-            throw new HttpException(400, "Missing parameter 'password'");
-        if(!$request->request->has('repassword'))
-            throw new HttpException(400, "Missing parameter 'repassword'");
+        if (!$request->request->has('role')) throw new HttpException(404, 'Parameter Role not found');
+        if($request->request->get('role') == 'ROLE_SUPERADMIN'){
+            throw new HttpException(404, 'Parameter role not valid');
+        }
+        $role_array[] = $request->request->get('role');
+        $request->request->remove('role');
+
+        if(!$request->request->has('password')) throw new HttpException(400, "Missing parameter 'password'");
+        if(!$request->request->has('repassword')) throw new HttpException(400, "Missing parameter 'repassword'");
         $password = $request->get('password');
         $repassword = $request->get('repassword');
         if($password != $repassword) throw new HttpException(400, "Password and repassword are differents.");
@@ -250,33 +261,25 @@ class UsersController extends BaseApiController
         $request->request->add(array('plain_password'=>$password));
         $request->request->add(array('enabled'=>1));
         $request->request->add(array('base64_image'=>''));
-//        $request->request->add(array('default_currency'=>'EUR'));
         $request->request->add(array('gcm_group_key'=>''));
-        //TODO add_role user by default
 
         $resp= parent::createAction($request);
 
         if($resp->getStatusCode() == 201){
-
             $user_id = $resp->getContent();
             $user_id = json_decode($user_id);
             $user_id = $user_id->data;
             $user_id = $user_id->id;
             $user = $usersRepo->findOneBy(array('id'=>$user_id));
-
             $userGroup = new UserGroup();
             $userGroup->setUser($user);
             $userGroup->setGroup($group);
             $userGroup->setRoles($role_array);
-
             $em = $this->getDoctrine()->getManager();
-
             $em->persist($userGroup);
             $em->flush();
         }
-
         return $resp;
-
     }
 
     /**
