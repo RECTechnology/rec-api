@@ -41,9 +41,15 @@ class IncomingController2 extends RestApiController{
         $accessToken = $tokenManager->findTokenByToken(
             $this->container->get('security.context')->getToken()->getToken()
         );
+
+        $commerce_client = $this->container->getParameter('commerce_client_id');
+
         $client = $accessToken->getClient();
-//        $group = $user->getActiveGroup();
-        $group = $client->getGroup();
+        if($commerce_client == $client->getId()){
+            $group = $user->getActiveGroup();
+        }else{
+            $group = $client->getGroup();
+        }
 
         //TODO check if this user has this company
         if(!$user->hasGroup($group->getName())) throw new HttpException('You don\'t have the necessary permissions in this company');
