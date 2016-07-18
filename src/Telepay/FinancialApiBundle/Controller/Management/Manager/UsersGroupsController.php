@@ -84,7 +84,7 @@ class UsersGroupsController extends RestApiController{
 
         //send email
         $url = '';
-        $this->_sendEmail('Company add information', $user->getEmail(), $url, $company->getName());
+        $this->_sendEmail('You has beed added to this company', $user->getEmail(), $url, $company->getName());
 
 
         return $this->restV2(201, "ok", "User added successfully");
@@ -117,6 +117,10 @@ class UsersGroupsController extends RestApiController{
         $em = $this->getDoctrine()->getManager();
         $em->remove($entity);
         $em->flush();
+
+        //send email
+        $url = '';
+        $this->_sendEmail('You has beed removed from this company', $user->getEmail(), $url, $group->getName());
 
         return $this->rest(204, "User removed successfully");
 
@@ -208,7 +212,8 @@ class UsersGroupsController extends RestApiController{
                     ->render($template,
                         array(
                             'company'   =>  $company,
-                            'url'       =>  $url
+                            'url'       =>  $url,
+                            'subject'   =>  $subject
                         )
                     )
             )
