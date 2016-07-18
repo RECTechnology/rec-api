@@ -105,15 +105,18 @@ class ClientsController extends BaseApiController {
 
         //check if this user is admin of this group
         if($request->request->has('group')){
-            if(!$adminRoles->hasRole('ROLE_SUPER_ADMIN'))
-                throw new HttpException(409, 'You don\'t have the necesary permissions');
+            if(!$adminRoles->hasRole('ROLE_ADMIN') || !$user->hasGroup($userGroup->getName())){
+                if(!$adminRoles->hasRole('ROLE_SUPER_ADMIN'))
+                    throw new HttpException(409, 'You don\'t have the necesary permissions');
+            }
+
             $group_id = $request->request->get('group');
             $request->request->remove('group');
             $userGroup = $em->getRepository('TelepayFinancialApiBundle:Group')->find($group_id);
 
         }else{
             if(!$adminRoles->hasRole('ROLE_ADMIN') || !$user->hasGroup($userGroup->getName()))
-                throw new HttpException(409, 'You don\'t have the necesary permissions');
+                throw new HttpException(409, 'You don\'t have the necesary permissions2');
         }
 
         if(!$userGroup) throw new HttpException(404, 'Group not found');
