@@ -20,6 +20,7 @@ class UsersGroupsController extends RestApiController{
     /**
      * @Rest\View
      * description: add user to company with user_id or email
+     * permissions: ROLE_ADMIN(company)
      */
     public function createAction(Request $request, $id){
 
@@ -31,8 +32,14 @@ class UsersGroupsController extends RestApiController{
 
         if(!$company) throw new HttpException(404, "Company not found");
 
+        $adminRoles = $this->getDoctrine()->getRepository("TelepayFinancialApiBundle:UserGroup")->findOneBy(array(
+                'user'  =>  $admin->getId(),
+                'group' =>  $id)
+            );
+
         //check if this user is admin of this group
-        if(!$admin->hasGroup($company) && !$admin->hasRole('ROLE_SUPER_ADMIN')) throw new HttpException(409, 'You don\'t have the necesary permissions');
+        if(!$admin->hasGroup($company->getName()) || !$adminRoles->hasRole('ROLE_ADMIN'))
+            throw new HttpException(409, 'You don\'t have the necesary permissions');
 
         $usersRepository = $this->getDoctrine()->getRepository("TelepayFinancialApiBundle:User");
 
@@ -74,6 +81,11 @@ class UsersGroupsController extends RestApiController{
 
         $em->persist($userGroup);
         $em->flush();
+
+        //send email
+        $url = '';
+        $this->_sendEmail('Company add information', $user->getEmail(), $url, $company->getName());
+
 
         return $this->restV2(201, "ok", "User added successfully");
     }
@@ -180,6 +192,29 @@ class UsersGroupsController extends RestApiController{
 
         return $this->rest(204, "User updated successfully");
 
+    }
+
+    private function _sendEmail($subject, $to, $url, $company){
+        $from = 'no-reply@chip-chap.com';
+        $template = 'TelepayFinancialApiBundle:Email:changedgroup.html.twig';
+        $message = \Swift_Message::newInstance()
+            ->setSubject($subject)
+            ->setFrom($from)
+            ->setTo(array(
+                $to
+            ))
+            ->setBody(
+                $this->container->get('templating')
+                    ->render($template,
+                        array(
+                            'company'   =>  $company,
+                            'url'       =>  $url
+                        )
+                    )
+            )
+            ->setContentType('text/html');
+
+        $this->container->get('mailer')->send($message);
     }
 
 }
