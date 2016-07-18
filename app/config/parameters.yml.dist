@@ -106,6 +106,7 @@ parameters:
     admin_user_id: ''
     admin_user_id_fac: ''
     swift_client_id_default: ''
+    commerce_client_id: ''
     swift_client_id_default_fac: ''
 
     chipchap_user_id : 16
