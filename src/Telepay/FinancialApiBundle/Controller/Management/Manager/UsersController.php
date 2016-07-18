@@ -217,28 +217,31 @@ class UsersController extends BaseApiController
             if($request->request->has('group_id')) {
                 $groupId = $request->request->get('group_id');
                 $request->request->remove('group_id');
-                $group = $groupsRepo->find($groupId);
-                if (!$group) throw new HttpException(404, 'Group not found');
-                $request->request->add(array(
-                    'active_group' => $group
-                ));
             }
             else{
                 $request->request->add(array(
-                    'active_group'  =>  $admin->getActiveGroup(),
-                    'group_id'  =>  $admin->getActiveGroup()->getId()
+                    'active_group'  =>  $admin->getActiveGroup()
                 ));
+                $groupId = $admin->getActiveGroup()->getId();
             }
         }
         elseif($this->get('security.authorization_checker')->isGranted('ROLE_ADMIN')){
             $request->request->add(array(
-                'active_group'  =>  $admin->getActiveGroup(),
-                'group_id'  =>  $admin->getActiveGroup()->getId()
+                'active_group'  =>  $admin->getActiveGroup()
             ));
+            $request->request->remove('group_id');
+            $groupId = $admin->getActiveGroup()->getId();
         }
         else{
             throw new HttpException(403, 'You don\'t have the necessary permissions to add a user in this group');
         }
+
+        $group = $groupsRepo->find($groupId);
+        if (!$group) throw new HttpException(404, 'Group not found');
+        $request->request->add(array(
+            'active_group' => $group
+        ));
+
 
         if (!$request->request->has('role')) throw new HttpException(404, 'Parameter Role not found');
         if($request->request->get('role') == 'ROLE_SUPERADMIN'){
@@ -251,6 +254,7 @@ class UsersController extends BaseApiController
         if(!$request->request->has('repassword')) throw new HttpException(400, "Missing parameter 'repassword'");
         $password = $request->get('password');
         $repassword = $request->get('repassword');
+        if($password == '') throw new HttpException(400, "Password parameter is empty.");
         if($password != $repassword) throw new HttpException(400, "Password and repassword are differents.");
         $request->request->remove('password');
         $request->request->remove('repassword');
