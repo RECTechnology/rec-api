@@ -425,6 +425,26 @@ class GroupsController extends BaseApiController
 
         }
 
+        if(count($exchangeFees) == 0){
+            //create exchange fees if not exists
+            $exchanges = $this->container->get('net.telepay.exchange_provider')->findAll();
+
+            foreach($exchanges as $exchange){
+                //create fee for this group
+
+                $fee = new ServiceFee();
+                $fee->setFixed(0);
+                $fee->setVariable(0);
+                $fee->setCurrency($exchange->getCurrencyOut());
+                $fee->setServiceName('exchange_'.$exchange->getCname());
+                $fee->setGroup($group);
+
+                $em->persist($fee);
+                $em->flush();
+
+            }
+        }
+
         //get all limits and delete/create depending of methods
         $em = $this->getDoctrine()->getManager();
         $limits = $em->getRepository('TelepayFinancialApiBundle:LimitDefinition')->findBy(array(
@@ -448,8 +468,28 @@ class GroupsController extends BaseApiController
             }
         }
 
+        if(count($exchangeLimits) == 0){
+            //create exchange limits if not exists
+            $exchanges = $this->container->get('net.telepay.exchange_provider')->findAll();
 
+            foreach($exchanges as $exchange){
+                //create limit for this group
+                $limit = new LimitDefinition();
+                $limit->setDay(0);
+                $limit->setWeek(0);
+                $limit->setMonth(0);
+                $limit->setYear(0);
+                $limit->setTotal(0);
+                $limit->setSingle(0);
+                $limit->setCname('exchange_'.$exchange->getCname());
+                $limit->setCurrency($exchange->getCurrencyOut());
+                $limit->setGroup($group);
 
+                $em->persist($limit);
+                $em->flush();
+
+            }
+        }
 
         //get all limitCount and delete/create depending of methods
         $em = $this->getDoctrine()->getManager();
