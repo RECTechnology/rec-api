@@ -58,7 +58,16 @@ class POSController extends BaseApiController{
      */
     public function createAction(Request $request){
 
-        $userGroup = $this->get('security.context')->getToken()->getUser()->getActiveGroup();
+        $user = $this->get('security.context')->getToken()->getUser();
+        $userGroup = $user->getActiveGroup();
+
+        //check permissions
+        $userRoles = $this->getDoctrine()->getRepository('TelepayFinancialApiBundle:UserGroup')->findBy(array(
+            'user'  =>  $user->getId(),
+            'group' =>  $userGroup->getId()
+        ));
+
+        if(!$userRoles->hasRole('ROLE_ADMIN')) throw new HttpException(403, 'You don\' have the necessary permissions');
 
         $request->request->add(array(
             'group'   =>  $userGroup
@@ -93,6 +102,16 @@ class POSController extends BaseApiController{
      * @Rest\View
      */
     public function updateAction(Request $request, $id=null){
+
+        $user = $this->get('security.context')->getToken()->getUser();
+        $userGroup = $user->getActiveGroup();
+
+        $userRoles = $this->getDoctrine()->getRepository('TelepayFinancialApiBundle:UserGroup')->findBy(array(
+            'user'  =>  $user->getId(),
+            'group' =>  $userGroup->getId()
+        ));
+
+        if(!$userRoles->hasRole('ROLE_ADMIN')) throw new HttpException(403, 'You don\' have the necessary permissions');
 
         if($request->request->has('cname')) throw new HttpException(400, "Parameter cname can't be changed");
 
