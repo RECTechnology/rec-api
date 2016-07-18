@@ -94,17 +94,29 @@ class ClientsController extends BaseApiController {
 
         $em = $this->getDoctrine()->getManager();
 
+        $user = $this->get('security.context')->getToken()->getUser();
+        $userGroup = $user->getActiveGroup();
+
+        $adminRoles = $this->getDoctrine()->getRepository("TelepayFinancialApiBundle:UserGroup")->findOneBy(array(
+            'user'  =>  $user->getId(),
+            'group' =>  $userGroup->getId()
+            )
+        );
+
+        //check if this user is admin of this group
         if($request->request->has('group')){
+            if(!$adminRoles->hasRole('ROLE_SUPER_ADMIN'))
+                throw new HttpException(409, 'You don\'t have the necesary permissions');
             $group_id = $request->request->get('group');
             $request->request->remove('group');
-            $group = $em->getRepository('TelepayFinancialApiBundle:Group')->find($group_id);
+            $userGroup = $em->getRepository('TelepayFinancialApiBundle:Group')->find($group_id);
 
         }else{
-            $user = $this->get('security.context')->getToken()->getUser();
-            $group = $user->getActiveGroup();
+            if(!$adminRoles->hasRole('ROLE_ADMIN') || !$user->hasGroup($userGroup->getName()))
+                throw new HttpException(409, 'You don\'t have the necesary permissions');
         }
 
-        if(!$group) throw new HttpException(404, 'Group not found');
+        if(!$userGroup) throw new HttpException(404, 'Group not found');
 
         $uris = $request->request->get('redirect_uris');
         $request->request->remove('redirect_uris');
@@ -116,7 +128,7 @@ class ClientsController extends BaseApiController {
             'allowed_grant_types' => array('client_credentials'),
             'swift_list'    =>  $swiftMethods,
             'redirect_uris' => array($uris),
-            'group' =>  $group
+            'group' =>  $userGroup
         ));
 
         $response = parent::createAction($request);
