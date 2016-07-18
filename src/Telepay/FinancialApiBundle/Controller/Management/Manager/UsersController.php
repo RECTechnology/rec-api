@@ -219,16 +219,10 @@ class UsersController extends BaseApiController
                 $request->request->remove('group_id');
             }
             else{
-                $request->request->add(array(
-                    'active_group'  =>  $admin->getActiveGroup()
-                ));
                 $groupId = $admin->getActiveGroup()->getId();
             }
         }
         elseif($this->get('security.authorization_checker')->isGranted('ROLE_ADMIN')){
-            $request->request->add(array(
-                'active_group'  =>  $admin->getActiveGroup()
-            ));
             $request->request->remove('group_id');
             $groupId = $admin->getActiveGroup()->getId();
         }
