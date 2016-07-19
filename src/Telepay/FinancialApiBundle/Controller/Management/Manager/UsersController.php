@@ -173,9 +173,7 @@ class UsersController extends BaseApiController
                         $filtered []= $user;
                     }
                 }
-
             }
-
         }
 
         $total = count($filtered);
