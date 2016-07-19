@@ -213,22 +213,16 @@ class UsersController extends BaseApiController
         $groupsRepo = $em->getRepository("TelepayFinancialApiBundle:Group");
 
         $role_array = array();
-        if ($this->get('security.authorization_checker')->isGranted('ROLE_SUPERADMIN')) {
+        if ($this->get('security.authorization_checker')->isGranted('ROLE_SUPER_ADMIN')) {
             if($request->request->has('group_id')) {
                 $groupId = $request->request->get('group_id');
                 $request->request->remove('group_id');
             }
             else{
-                $request->request->add(array(
-                    'active_group'  =>  $admin->getActiveGroup()
-                ));
                 $groupId = $admin->getActiveGroup()->getId();
             }
         }
         elseif($this->get('security.authorization_checker')->isGranted('ROLE_ADMIN')){
-            $request->request->add(array(
-                'active_group'  =>  $admin->getActiveGroup()
-            ));
             $request->request->remove('group_id');
             $groupId = $admin->getActiveGroup()->getId();
         }
@@ -242,7 +236,6 @@ class UsersController extends BaseApiController
             'active_group' => $group
         ));
 
-
         if (!$request->request->has('role')) throw new HttpException(404, 'Parameter Role not found');
         if($request->request->get('role') == 'ROLE_SUPERADMIN'){
             throw new HttpException(404, 'Parameter role not valid');
@@ -250,6 +243,9 @@ class UsersController extends BaseApiController
         $role_array[] = $request->request->get('role');
         $request->request->remove('role');
 
+        if(!$request->request->has('username') || $request->request->get('username') == '') throw new HttpException(400, "Missing parameter 'username'");
+        if(!$request->request->has('email') || $request->request->get('email') == '') throw new HttpException(400, "Missing parameter 'email'");
+        if(!$request->request->has('name') || $request->request->get('name') == '') throw new HttpException(400, "Missing parameter 'name'");
         if(!$request->request->has('password')) throw new HttpException(400, "Missing parameter 'password'");
         if(!$request->request->has('repassword')) throw new HttpException(400, "Missing parameter 'repassword'");
         $password = $request->get('password');
@@ -275,6 +271,12 @@ class UsersController extends BaseApiController
             $user_id = $user_id->data;
             $user_id = $user_id->id;
             $user = $usersRepo->findOneBy(array('id'=>$user_id));
+
+            $tokenGenerator = $this->container->get('fos_user.util.token_generator');
+            $user->setConfirmationToken($tokenGenerator->generateToken());
+            $em->persist($user);
+            $em->flush();
+
             $userGroup = new UserGroup();
             $userGroup->setUser($user);
             $userGroup->setGroup($group);
