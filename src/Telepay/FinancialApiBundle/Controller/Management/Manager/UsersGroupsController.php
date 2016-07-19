@@ -63,7 +63,7 @@ class UsersGroupsController extends RestApiController{
 
         $role = $request->request->get('role');
         if($role != ''){
-            $role_array = $role;
+            $role_array = array($role);
         }else{
             $role_array = array(
                 'ROLE_READONLY'

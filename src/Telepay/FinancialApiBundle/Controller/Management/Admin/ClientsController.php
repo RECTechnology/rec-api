@@ -111,10 +111,10 @@ class ClientsController extends BaseApiController {
 
             if($company->getId() == $userGroup->getId()){
                 if(!$adminRoles->hasRole('ROLE_ADMIN') || !$user->hasGroup($userGroup->getName()))
-                    throw new HttpException(409, 'You don\'t have the necesary permissions1');
+                    throw new HttpException(409, 'You don\'t have the necesary permissions');
             }else{
                 if(!$adminRoles->hasRole('ROLE_SUPER_ADMIN'))
-                    throw new HttpException(409, 'You don\'t have the necesary permissions SUPER');
+                    throw new HttpException(409, 'You don\'t have the necesary permissions');
             }
 
         }
