@@ -201,7 +201,7 @@ class UsersController extends BaseApiController
      * @Rest\View
      * ROLE_SUPER_ADMIN: can create user in all groups (with all roles)
      * ROLE_ADMIN: can create the user in all groups where is ROLE_ADMIN (with roles <= itself)
-     * ROLE_USER: can't create users
+     * ROLE_WORKER: can't create users
      * ROLE_READONLY: can't create users
      */
     public function createAction(Request $request){
@@ -526,7 +526,7 @@ class UsersController extends BaseApiController
 
         if(empty($roleName))
             throw new HttpException(400, "Missing parameter 'role'");
-        if($roleName != 'ROLE_SUPER_ADMIN' and $roleName != 'ROLE_ADMIN' and $roleName != 'ROLE_USER'){
+        if($roleName != 'ROLE_SUPER_ADMIN' and $roleName != 'ROLE_ADMIN' and $roleName != 'ROLE_USER' and $roleName != 'ROLE_WORKER' and $roleName != 'ROLE_READONLY'){
             throw new HttpException(404, 'Role not found');
         }
 

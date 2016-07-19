@@ -105,7 +105,7 @@ class UserGroup{
             $roles_values = array(
                 "ROLE_SUPER_ADMIN" => 0,
                 "ROLE_ADMIN" => 1,
-                "ROLE_USER" => 2,
+                "ROLE_WORKER" => 2,
                 "ROLE_READONLY" => 3,
                 "ROLE_KYC" => 4
             );
