@@ -102,7 +102,7 @@ admin_groups_index_by_user:
         _method: GET
 
 admin_groups_read:
-    pattern:  /manager/v1/groups/{id}
+    pattern:  /groups/v1/show/{id}
     defaults: { _controller: Telepay\FinancialApiBundle\Controller\Management\Manager\GroupsController::showAction, _format: ~ }
     requirements:
         _method: GET

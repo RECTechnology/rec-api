@@ -263,18 +263,16 @@ class GroupsController extends BaseApiController
      * @Rest\View
      */
     public function showAction($id){
+        $user = $this->get('security.context')->getToken()->getUser();
+        $userGroup = $user->getActiveGroup();
 
-        $admin = $this->get('security.context')->getToken()->getUser();
-        $adminGroup = $admin->getActiveGroup();
-
-        //TODO: Improve performance (two queries)
-        if($adminGroup->hasRole('ROLE_SUPER_ADMIN') || $adminGroup->getId() == $id){
+        if($userGroup->hasRole('ROLE_SUPER_ADMIN') || $userGroup->getId() == $id){
             $group = $this->getRepository()->find($id);
         }else{
             $group = $this->getRepository()->findOneBy(
                 array(
                     'id'        =>  $id,
-                    'group_creator'   =>  $adminGroup
+                    'group_creator'   =>  $userGroup
                 )
             );
         }
