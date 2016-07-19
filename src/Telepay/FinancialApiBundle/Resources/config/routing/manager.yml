@@ -8,7 +8,7 @@ admin_users_index:
         _method: GET
 
 admin_users_index_by_group:
-    pattern:  /manager/v1/usersbygroup/{id}
+    pattern:  /user/v1/usersbygroup/{id}
     defaults: { _controller: Telepay\FinancialApiBundle\Controller\Management\Manager\UsersController::indexByGroup, _format: ~ }
     requirements:
         _method: GET
