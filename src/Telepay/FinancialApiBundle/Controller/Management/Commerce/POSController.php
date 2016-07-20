@@ -102,21 +102,16 @@ class POSController extends BaseApiController{
      * @Rest\View
      */
     public function updateAction(Request $request, $id=null){
-
         $user = $this->get('security.context')->getToken()->getUser();
         $userGroup = $user->getActiveGroup();
-
-        $userRoles = $this->getDoctrine()->getRepository('TelepayFinancialApiBundle:UserGroup')->findBy(array(
-            'user'  =>  $user->getId(),
-            'group' =>  $userGroup->getId()
+        if(!$this->get('security.context')->isGranted('ROLE_ADMIN')) throw new HttpException(403, 'You don\' have the necessary permissions');
+        $pos = $this->getRepository()->findOneBy(array(
+            'id'  =>  $id,
+            'group'  =>  $userGroup
         ));
-
-        if(!$userRoles->hasRole('ROLE_ADMIN')) throw new HttpException(403, 'You don\' have the necessary permissions');
-
+        if(empty($pos)) throw new HttpException(404, "Not found");
         if($request->request->has('cname')) throw new HttpException(400, "Parameter cname can't be changed");
-
         return parent::updateAction($request, $id);
-
     }
 
     /**
