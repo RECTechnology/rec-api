@@ -31,6 +31,7 @@ class CheckCryptoCommand extends ContainerAwareCommand
         $dm = $this->getContainer()->get('doctrine_mongodb')->getManager();
         $em = $this->getContainer()->get('doctrine')->getManager();
         $repo = $em->getRepository('TelepayFinancialApiBundle:User');
+        $repoGroup = $em->getRepository('TelepayFinancialApiBundle:Group');
 
         foreach($method_cname as $method){
             $qb = $dm->createQueryBuilder('TelepayFinancialApiBundle:Transaction')
@@ -63,12 +64,14 @@ class CheckCryptoCommand extends ContainerAwareCommand
                         //hacemos el reparto
                         //primero al user
                         $id = $transaction->getUser();
+                        $groupId = $transaction->getGroup();
 
                         $transaction_id = $transaction->getId();
 
                         $user = $repo->find($id);
+                        $group = $repoGroup->find($groupId);
 
-                        $wallets = $user->getWallets();
+                        $wallets = $group->getWallets();
                         $service_currency = $transaction->getCurrency();
                         $current_wallet = null;
 
@@ -80,8 +83,8 @@ class CheckCryptoCommand extends ContainerAwareCommand
 
                         $amount = $data['amount'];
 
-                        if(!$user->hasRole('ROLE_SUPER_ADMIN')){
-                            $group = $user->getGroups()[0];
+                        //TODO if group has
+                        if(!$group->hasRole('ROLE_SUPER_ADMIN')){
 
                             $fixed_fee = $transaction->getFixedFee();
                             $variable_fee = $transaction->getVariableFee();
@@ -101,6 +104,7 @@ class CheckCryptoCommand extends ContainerAwareCommand
                                 $feeTransaction->setScale($transaction->getScale());
                                 $feeTransaction->setAmount($total_fee);
                                 $feeTransaction->setUser($user->getId());
+                                $feeTransaction->setUser($group->getId());
                                 $feeTransaction->setCreated(new \MongoDate());
                                 $feeTransaction->setUpdated(new \MongoDate());
                                 $feeTransaction->setIp($transaction->getIp());
@@ -128,7 +132,7 @@ class CheckCryptoCommand extends ContainerAwareCommand
                                 $em->persist($current_wallet);
                                 $em->flush();
 
-                                $creator = $group->getCreator();
+                                $creator = $group->getGroupCreator();
 
                                 //luego a la ruleta de admins
                                 $dealer = $this->getContainer()->get('net.telepay.commons.fee_deal');
