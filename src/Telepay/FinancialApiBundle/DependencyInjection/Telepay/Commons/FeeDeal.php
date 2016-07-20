@@ -8,6 +8,7 @@
 
 namespace Telepay\FinancialApiBundle\DependencyInjection\Telepay\Commons;
 
+use Symfony\Component\HttpKernel\Exception\HttpException;
 use Symfony\Component\Validator\Constraints\Currency;
 use Telepay\FinancialApiBundle\Document\Transaction;
 use Telepay\FinancialApiBundle\Entity\Group;
@@ -59,11 +60,13 @@ class FeeDeal{
                 }
             }
 
-            if($group_commission == false){
-                //TODO create fee
+            if($service_cname == false){
+                throw new HttpException(404, $service_cname.' '.$group->getId());
             }
+
             $fixed = $group_commission->getFixed();
             $variable = $group_commission->getVariable();
+
             $total = round($fixed + ($variable/100) * $amount,0);
         }else{
             $logger->info('make transaction -> deal superadmin');
