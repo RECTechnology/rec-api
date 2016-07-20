@@ -57,17 +57,10 @@ class POSController extends BaseApiController{
      * @Rest\View
      */
     public function createAction(Request $request){
-
         $user = $this->get('security.context')->getToken()->getUser();
         $userGroup = $user->getActiveGroup();
 
-        //check permissions
-        $userRoles = $this->getDoctrine()->getRepository('TelepayFinancialApiBundle:UserGroup')->findBy(array(
-            'user'  =>  $user->getId(),
-            'group' =>  $userGroup->getId()
-        ));
-
-        if(!$userRoles->hasRole('ROLE_ADMIN')) throw new HttpException(403, 'You don\' have the necessary permissions');
+        if(!$this->get('security.context')->isGranted('ROLE_ADMIN')) throw new HttpException(403, 'You don\' have the necessary permissions');
 
         $request->request->add(array(
             'group'   =>  $userGroup
