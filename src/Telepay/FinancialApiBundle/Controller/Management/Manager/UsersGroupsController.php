@@ -132,9 +132,7 @@ class UsersGroupsController extends RestApiController{
      * permissions: ROLE_ADMIN (active company)
      */
     public function addRoleAction(Request $request, $user_id, $group_id){
-
         $admin = $this->get('security.context')->getToken()->getUser();
-
         $groupsRepository = $this->getDoctrine()->getRepository("TelepayFinancialApiBundle:Group");
         $group = $groupsRepository->find($group_id);
         if(!$group) throw new HttpException(404, "Group not found");
@@ -151,9 +149,11 @@ class UsersGroupsController extends RestApiController{
         if(!$adminRoles) throw new HttpException(404, "User Roles not found");
 
         if(!$request->request->has('roles')) throw new HttpException(404, 'Param role not found');
-        $role = $request->request->get('roles');
+        $role[] = $request->request->get('roles');
 
-        if(!$adminRoles->hasRole('ROLE_ADMIN')) throw new HttpException(409, 'You don\'t have the necesary permissions');
+        $userGroup = $user->getActiveGroup();
+        if(!$this->get('security.context')->isGranted('ROLE_ADMIN')) throw new HttpException(403, 'You don\' have the necessary permissions');
+        if(!$this->get('security.context')->isGranted('ROLE_SUPER_ADMIN') && $group_id != $userGroup->getId()) throw new HttpException(403, 'Change the active group');
 
         $entity = $usersRolesRepository->findOneBy(array('user'=>$user_id, 'group'=>$group_id));
         if(empty($entity)) throw new HttpException(404, "Not found");
@@ -161,9 +161,7 @@ class UsersGroupsController extends RestApiController{
         $em = $this->getDoctrine()->getManager();
         $em->persist($entity);
         $em->flush();
-
         return $this->rest(204, "User updated successfully");
-
     }
 
     /**
