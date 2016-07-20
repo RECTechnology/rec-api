@@ -1037,7 +1037,7 @@ class IncomingController2 extends RestApiController{
         $dealer->deal(
             $creator,
             $amount,
-            $method_cname,
+            $transaction->getMethod(),
             $transaction->getType(),
             $currency,
             $total_fee,

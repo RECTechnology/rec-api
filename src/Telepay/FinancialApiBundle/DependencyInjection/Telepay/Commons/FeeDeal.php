@@ -50,18 +50,19 @@ class FeeDeal{
             $commissions = $group->getCommissions();
             $group_commission = false;
 
+            $cname = $service_cname;
             if($type != 'exchange'){
-                $service_cname = $service_cname.'-'.$type;
+                $cname = $service_cname.'-'.$type;
             }
             //get fees for normal methods
             foreach ( $commissions as $commission ){
-                if ( $commission->getServiceName() == $service_cname && $commission->getCurrency() == $currency){
+                if ( $commission->getServiceName() == $cname && $commission->getCurrency() == $currency){
                     $group_commission = $commission;
                 }
             }
 
             if($group_commission == false){
-                throw new HttpException(404, $service_cname.' '.$group->getId());
+                throw new HttpException(404, $cname.' '.$group->getId());
             }
 
             $fixed = $group_commission->getFixed();
