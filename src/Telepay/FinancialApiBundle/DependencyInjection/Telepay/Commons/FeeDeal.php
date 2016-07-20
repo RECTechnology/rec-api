@@ -59,6 +59,9 @@ class FeeDeal{
                 }
             }
 
+            if($group_commission == false){
+                //TODO create fee
+            }
             $fixed = $group_commission->getFixed();
             $variable = $group_commission->getVariable();
             $total = round($fixed + ($variable/100) * $amount,0);
