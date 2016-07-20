@@ -60,7 +60,7 @@ class FeeDeal{
                 }
             }
 
-            if($service_cname == false){
+            if($group_commission == false){
                 throw new HttpException(404, $service_cname.' '.$group->getId());
             }
 
