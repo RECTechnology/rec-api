@@ -378,7 +378,7 @@ class POSIncomingController extends RestApiController{
         $userGroup = $this->get('security.context')->getToken()->getUser()->getActiveGroup();
         $em = $this->getDoctrine()->getManager();
         $pos = $em->getRepository('TelepayFinancialApiBundle:POS')->findOneBy(array(
-            'id'  =>  $pos_id,
+            'pos_id'  =>  $pos_id,
             'group'  =>  $userGroup
         ));
         if(empty($pos)) throw new HttpException(404, "Not found");
