@@ -100,7 +100,7 @@ class FeeDeal{
                     'parent_id' => $transaction_id,
                     'previous_transaction' => $transaction_id,
                     'amount'    =>  $fee,
-                    'description'   =>$service_cname.'->fee'
+                    'concept'   =>$service_cname.'->fee'
                 ));
                 $transaction->setData(array(
                     'parent_id' =>  $transaction_id,
@@ -141,7 +141,7 @@ class FeeDeal{
                     'parent_id' => $transaction->getId(),
                     'previous_transaction' => $transaction->getId(),
                     'amount'    =>  -$total,
-                    'description'   =>  $service_cname.'->fee'
+                    'concept'   =>  $service_cname.'->fee'
                 ));
                 $feeTransaction->setData(array(
                     'parent_id' => $transaction->getId(),
@@ -231,7 +231,7 @@ class FeeDeal{
                     'parent_id' => $transaction_id,
                     'previous_transaction' => $transaction_id,
                     'amount'    =>  $fee,
-                    'description'   =>$service_cname.'->fee'
+                    'concept'   =>$service_cname.'->fee'
                 ));
                 $transaction->setData(array(
                     'parent_id' =>  $transaction_id,
@@ -241,7 +241,7 @@ class FeeDeal{
                     'parent_id' => $transaction_id,
                     'previous_transaction' => $transaction_id,
                     'amount'    =>  -$fee,
-                    'description'   => 'refund'.$service_cname.'->fee'
+                    'concept'   => 'refund'.$service_cname.'->fee'
                 ));
 
                 //incloure les fees en la transacció
@@ -276,7 +276,7 @@ class FeeDeal{
                 'parent_id' => $transaction->getId(),
                 'previous_transaction' => $transaction->getId(),
                 'amount'    =>  -$total,
-                'description'   =>  $service_cname.'->fee'
+                'concept'   =>  $service_cname.'->fee'
             ));
             $feeTransaction->setData(array(
                 'parent_id' => $transaction->getId(),

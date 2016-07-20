@@ -272,6 +272,7 @@ class IncomingController2 extends RestApiController{
                 if($payment_info['status'] == 'sending'){
                     $method->sendMail($transaction->getId(), $transaction->getType(), $payment_info);
                 }
+
                 if( $total_fee != 0){
                     //nueva transaccion restando la comision al user
                     try{
@@ -281,6 +282,7 @@ class IncomingController2 extends RestApiController{
                         throw $e;
                     }
                 }
+
             }else{
 
                 $transaction->setStatus($payment_info['status']);
@@ -992,7 +994,7 @@ class IncomingController2 extends RestApiController{
         $feeTransaction->setDataIn(array(
             'previous_transaction'  =>  $transaction->getId(),
             'amount'                =>  -$total_fee,
-            'description'           =>  $method_cname.'->fee',
+            'concept'           =>  $method_cname.'->fee',
             'admin'                 =>  $creator->getName()
         ));
         $feeTransaction->setData(array(
@@ -1008,7 +1010,7 @@ class IncomingController2 extends RestApiController{
         $feeTransaction->setPayOutInfo(array(
             'previous_transaction'  =>  $transaction->getId(),
             'amount'                =>  -$total_fee,
-            'description'           =>  $method_cname.'->fee',
+            'concept'           =>  $method_cname.'->fee',
             'admin'                 =>  $creator->getName()
         ));
 
@@ -1024,8 +1026,8 @@ class IncomingController2 extends RestApiController{
 
         $logger->info('make transaction -> addBalance');
         $balancer = $this->get('net.telepay.commons.balance_manipulator');
-        $balancer->addBalance($group, -$total_fee, $feeTransaction );
 
+        $balancer->addBalance($group, -$total_fee, $feeTransaction );
         //empezamos el reparto
 
         if(!$creator) throw new HttpException(404,'Creator not found');
