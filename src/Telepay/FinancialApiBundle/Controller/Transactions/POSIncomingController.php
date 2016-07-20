@@ -369,24 +369,21 @@ class POSIncomingController extends RestApiController{
      * @Rest\View
      */
     public function find(Request $request, $version_number, $pos_id){
-
-        $service = $this->get('net.telepay.services.pos.v'.$version_number);
-
-        //POS is not a service, omly needs a role commerce
-        if (!$this->get('security.authorization_checker')->isGranted('ROLE_COMMERCE')) {
-            throw $this->createAccessDeniedException();
-        }
-
         if($request->query->has('limit')) $limit = $request->query->get('limit');
         else $limit = 10;
 
         if($request->query->has('offset')) $offset = $request->query->get('offset');
         else $offset = 0;
 
-        $dm = $this->get('doctrine_mongodb')->getManager();
-        $userId = $this->get('security.context')
-            ->getToken()->getUser()->getId();
+        $userGroup = $this->get('security.context')->getToken()->getUser()->getActiveGroup();
+        $em = $this->getDoctrine()->getManager();
+        $pos = $em->getRepository('TelepayFinancialApiBundle:POS')->findOneBy(array(
+            'pos_id'  =>  $pos_id,
+            'group'  =>  $userGroup
+        ));
+        if(empty($pos)) throw new HttpException(404, "Not found");
 
+        $dm = $this->get('doctrine_mongodb')->getManager();
         $qb = $dm->createQueryBuilder('TelepayFinancialApiBundle:Transaction');
 
         if($request->query->get('query') != ''){
@@ -398,7 +395,6 @@ class POSIncomingController extends RestApiController{
             $finish_time = new \MongoDate(strtotime(date($query['finish_date'].' 23:59:59')));
 
             $transactions = $qb
-                ->field('user')->equals($userId)
                 ->field('posId')->equals($pos_id)
                 ->field('created')->gte($start_time)
                 ->field('created')->lte($finish_time)
@@ -439,7 +435,6 @@ class POSIncomingController extends RestApiController{
             $dir = "desc";
 
             $transactions = $qb
-                ->field('user')->equals($userId)
                 ->field('posId')->equals($pos_id)
                 ->sort($order,$dir)
                 ->getQuery()
