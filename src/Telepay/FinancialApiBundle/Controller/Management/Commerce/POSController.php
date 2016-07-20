@@ -111,6 +111,14 @@ class POSController extends BaseApiController{
      * @Rest\View
      */
     public function deleteAction($id){
+        $user = $this->get('security.context')->getToken()->getUser();
+        $userGroup = $user->getActiveGroup();
+        if(!$this->get('security.context')->isGranted('ROLE_ADMIN')) throw new HttpException(403, 'You don\' have the necessary permissions');
+        $pos = $this->getRepository()->findOneBy(array(
+            'id'  =>  $id,
+            'group'  =>  $userGroup
+        ));
+        if(empty($pos)) throw new HttpException(404, "Not found");
         return parent::deleteAction($id);
 
     }
