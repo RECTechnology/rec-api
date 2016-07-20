@@ -8,6 +8,7 @@
 
 namespace Telepay\FinancialApiBundle\DependencyInjection\Telepay\Commons;
 
+use Symfony\Component\HttpKernel\Exception\HttpException;
 use Symfony\Component\Validator\Constraints\Currency;
 use Telepay\FinancialApiBundle\Document\Transaction;
 use Telepay\FinancialApiBundle\Entity\Group;
@@ -59,8 +60,13 @@ class FeeDeal{
                 }
             }
 
+            if($service_cname == false){
+                throw new HttpException(404, $service_cname.' '.$group->getId());
+            }
+
             $fixed = $group_commission->getFixed();
             $variable = $group_commission->getVariable();
+
             $total = round($fixed + ($variable/100) * $amount,0);
         }else{
             $logger->info('make transaction -> deal superadmin');
@@ -100,7 +106,7 @@ class FeeDeal{
                     'parent_id' => $transaction_id,
                     'previous_transaction' => $transaction_id,
                     'amount'    =>  $fee,
-                    'description'   =>$service_cname.'->fee'
+                    'concept'   =>$service_cname.'->fee'
                 ));
                 $transaction->setData(array(
                     'parent_id' =>  $transaction_id,
@@ -141,7 +147,7 @@ class FeeDeal{
                     'parent_id' => $transaction->getId(),
                     'previous_transaction' => $transaction->getId(),
                     'amount'    =>  -$total,
-                    'description'   =>  $service_cname.'->fee'
+                    'concept'   =>  $service_cname.'->fee'
                 ));
                 $feeTransaction->setData(array(
                     'parent_id' => $transaction->getId(),
@@ -231,7 +237,7 @@ class FeeDeal{
                     'parent_id' => $transaction_id,
                     'previous_transaction' => $transaction_id,
                     'amount'    =>  $fee,
-                    'description'   =>$service_cname.'->fee'
+                    'concept'   =>$service_cname.'->fee'
                 ));
                 $transaction->setData(array(
                     'parent_id' =>  $transaction_id,
@@ -241,7 +247,7 @@ class FeeDeal{
                     'parent_id' => $transaction_id,
                     'previous_transaction' => $transaction_id,
                     'amount'    =>  -$fee,
-                    'description'   => 'refund'.$service_cname.'->fee'
+                    'concept'   => 'refund'.$service_cname.'->fee'
                 ));
 
                 //incloure les fees en la transacció
@@ -276,7 +282,7 @@ class FeeDeal{
                 'parent_id' => $transaction->getId(),
                 'previous_transaction' => $transaction->getId(),
                 'amount'    =>  -$total,
-                'description'   =>  $service_cname.'->fee'
+                'concept'   =>  $service_cname.'->fee'
             ));
             $feeTransaction->setData(array(
                 'parent_id' => $transaction->getId(),
