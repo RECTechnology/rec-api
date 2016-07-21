@@ -1,6 +1,6 @@
 <?php
 
-namespace Telepay\FinancialApiBundle\Controller\Management\Manager;
+namespace Telepay\FinancialApiBundle\Controller\Management\Admin;
 
 use Doctrine\DBAL\DBALException;
 use Symfony\Component\HttpKernel\Exception\HttpException;
