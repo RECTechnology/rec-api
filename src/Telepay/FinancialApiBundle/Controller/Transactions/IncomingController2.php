@@ -51,7 +51,7 @@ class IncomingController2 extends RestApiController{
             $group = $client->getGroup();
         }
 
-        //TODO check if this user has this company
+        //check if this user has this company
         if(!$user->hasGroup($group->getName())) throw new HttpException('You don\'t have the necessary permissions in this company');
 
         $method_list = $group->getMethodsList();
@@ -65,6 +65,14 @@ class IncomingController2 extends RestApiController{
 
         $logger = $this->get('transaction.logger');
         $logger->info('Incomig transaction...Method-> '.$method_cname.' Direction -> '.$type);
+
+        //check if method is available
+        $statusMethod = $em->getRepository('TelepayFinancialApiBundle:StatusMethod')->findOneBy(array(
+            'method'    =>  $method_cname,
+            'type'      =>  $type
+        ));
+
+        if($statusMethod->getStatus() != 'available') throw new HttpException(403, 'Method temporally unavailable');
 
         $transaction = Transaction::createFromRequest($request);
         $transaction->setService($method_cname);

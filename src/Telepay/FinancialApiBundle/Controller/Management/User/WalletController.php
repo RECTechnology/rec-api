@@ -1137,7 +1137,7 @@ class WalletController extends RestApiController{
     }
 
     /**
-     * makes an exchange between currencies in the wallet
+     * makes an exchange between currencies in the wallet. Called by currencyExchange
      */
     public function exchange(UserWallet $wallet, $currency){
 
@@ -1172,6 +1172,8 @@ class WalletController extends RestApiController{
      */
     public function currencyExchange(Request $request){
 
+        $em = $this->getDoctrine()->getManager();
+
         $user = $this->get('security.context')->getToken()->getUser();
         $userGroup = $user->getActiveGroup();
 
@@ -1198,6 +1200,14 @@ class WalletController extends RestApiController{
         $currency_in = strtoupper($params['currency_in']);
         $currency_out = strtoupper($params['currency_out']);
         $service = 'exchange'.'_'.$currency_in.'to'.$currency_out;
+
+        //check if method is available
+        $statusMethod = $em->getRepository('TelepayFinancialApiBundle:StatusMethod')->findOneBy(array(
+            'method'    =>  $currency_in.'to'.$currency_out,
+            'type'      =>  'exchange'
+        ));
+
+        if($statusMethod->getStatus() != 'available') throw new HttpException(403, 'Exchange temporally unavailable');
 
         //getExchange
         $exchange = $this->_exchange($amount, $currency_in, $currency_out);
@@ -1235,7 +1245,7 @@ class WalletController extends RestApiController{
             }
         }
 
-        $em = $this->getDoctrine()->getManager();
+
 
         $dm = $this->get('doctrine_mongodb')->getManager();
         //cashOut transaction
