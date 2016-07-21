@@ -61,10 +61,6 @@ class FeeDeal{
                 }
             }
 
-            if($group_commission == false){
-                throw new HttpException(404, $cname.' '.$group->getId());
-            }
-
             $fixed = $group_commission->getFixed();
             $variable = $group_commission->getVariable();
 

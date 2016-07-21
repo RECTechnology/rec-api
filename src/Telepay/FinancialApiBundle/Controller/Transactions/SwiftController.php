@@ -123,6 +123,14 @@ class SwiftController extends RestApiController{
 
         $ip = $request->server->get('REMOTE_ADDR');
 
+        //check if method is available
+        $statusMethod = $em->getRepository('TelepayFinancialApiBundle:StatusMethod')->findOneBy(array(
+            'method'    =>  $type_in.'-'.$type_out,
+            'type'      =>  'swift'
+        ));
+
+        if($statusMethod->getStatus() != 'available') throw new HttpException(403, 'Swift method temporally unavailable');
+
         //Create transaction
         $transaction = new Transaction();
         $transaction->createFromRequest($request);
