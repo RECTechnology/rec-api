@@ -100,12 +100,7 @@ class SwiftController extends BaseApiController{
 
         if(!$client) throw new HttpException(404, 'Client not found');
 
-        $adminRoles = $this->getDoctrine()->getRepository('TelepayFinancialApiBundle:UserGroup')->findOneBy(array(
-            'user'  =>  $user->getId(),
-            'group' =>  $userGroup->getId()
-        ));
-
-        if(!$adminRoles->hasRole('ROLE_USER')) throw new HttpException(403, 'You don\'t have the necessary permissions');
+        if(!$this->get('security.context')->isGranted('ROLE_WORKER')) throw new HttpException(403, 'You don\' have the necessary permissions');
 
         $swiftMethods = null;
         //To activate swift methods we have to send all the services we want activate
@@ -147,6 +142,7 @@ class SwiftController extends BaseApiController{
 
         $user = $this->get('security.context')->getToken()->getUser();
         $userGroup = $user->getGroups()[0];
+        if(!$this->get('security.context')->isGranted('ROLE_WORKER')) throw new HttpException(403, 'You don\' have the necessary permissions');
 
         $em = $this->getDoctrine()->getManager();
 
@@ -180,6 +176,7 @@ class SwiftController extends BaseApiController{
         $userGroup = $user->getGroups()[0];
 
         $dm = $this->get('doctrine_mongodb')->getManager();
+        if(!$this->get('security.context')->isGranted('ROLE_WORKER')) throw new HttpException(403, 'You don\' have the necessary permissions');
 
         if(!$request->request->has('option')) throw new HttpException(404, 'Missing parameter \'option\'');
 
