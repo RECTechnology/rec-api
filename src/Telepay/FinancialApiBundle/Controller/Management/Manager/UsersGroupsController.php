@@ -99,7 +99,7 @@ class UsersGroupsController extends RestApiController{
 
         $admin = $this->get('security.context')->getToken()->getUser();
 
-        $adminRoles = $this->getDoctrine()->getRepository('TelepayFinancialApiBundle:UserGroup')->findBy(array(
+        $adminRoles = $this->getDoctrine()->getRepository('TelepayFinancialApiBundle:UserGroup')->findOneBy(array(
             'user'  =>  $admin->getId(),
             'group' =>  $admin->getActiveGroup()->getId()
         ));
