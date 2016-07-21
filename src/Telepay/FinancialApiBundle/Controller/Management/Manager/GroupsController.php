@@ -317,9 +317,6 @@ class GroupsController extends BaseApiController
      * Permissions: ROLE_SUPER_ADMIN (all) , ROLE_RESELLER(sub-companies)
      */
     public function updateAction(Request $request, $id){
-        //check that this user is the creator of this group or is the superadmin
-//        if(!$this->get('security.context')->isGranted('ROLE_ADMIN'))
-//            throw new HttpException(403, 'You have not the necessary permissions');
 
         $admin = $this->get('security.context')->getToken()->getUser();
         $adminGroup = $admin->getActiveGroup();

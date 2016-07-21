@@ -201,6 +201,11 @@ class Group extends BaseGroup
     private $comment = '';
 
     /**
+     * @ORM\Column(type="boolean")
+     */
+    private $active;
+
+    /**
      * @return mixed
      */
     public function getUsers()
@@ -688,6 +693,22 @@ class Group extends BaseGroup
     public function setGroupCreatorData($group_creator_data)
     {
         $this->group_creator_data = $group_creator_data;
+    }
+
+    /**
+     * @return mixed
+     */
+    public function getActive()
+    {
+        return $this->active;
+    }
+
+    /**
+     * @param mixed $active
+     */
+    public function setActive($active)
+    {
+        $this->active = $active;
     }
 
 }
