@@ -99,7 +99,12 @@ class UsersGroupsController extends RestApiController{
 
         $admin = $this->get('security.context')->getToken()->getUser();
 
-        if(!$admin->hasRole('ROLE_ADMIN')) throw new HttpException(403, 'You don\'t have the necessary permissions');
+        $adminRoles = $this->getDoctrine()->getRepository('TelepayFinancialApiBundle:UserGroup')->findOneBy(array(
+            'user'  =>  $admin->getId(),
+            'group' =>  $admin->getActiveGroup()->getId()
+        ));
+
+        if(!$adminRoles->hasRole('ROLE_ADMIN')) throw new HttpException(403, 'You don\'t have the necessary permissions');
 
         $groupsRepository = $this->getDoctrine()->getRepository("TelepayFinancialApiBundle:Group");
         $group = $groupsRepository->find($group_id);
@@ -109,7 +114,7 @@ class UsersGroupsController extends RestApiController{
         $user = $usersRepository->find($user_id);
         if(!$user) throw new HttpException(404, "User not found");
 
-        if(!$admin->hasGroup($group) && !$admin->hasRole('ROLE_SUPER_ADMIN')) throw new HttpException(409, 'You don\'t have the necesary permissions');
+        if(!$admin->hasGroup($group->getName()) && !$admin->hasRole('ROLE_SUPER_ADMIN')) throw new HttpException(409, 'You don\'t have the necesary permissions');
 
         $repo = $this->getDoctrine()->getRepository("TelepayFinancialApiBundle:UserGroup");
         $entity = $repo->findOneBy(array('user'=>$user_id, 'group'=>$group_id));
