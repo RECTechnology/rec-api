@@ -59,7 +59,7 @@ class Login2faController extends RestApiController{
                     return new Response(json_encode($token), 400, $headers);
                 }
             }
-            $groups = $em->getRepository('TelepayFinancialApiBundle:UserGroup')->findBy(array('user_id' => $user[0]->getId()));
+            $groups = $em->getRepository('TelepayFinancialApiBundle:UserGroup')->findBy(array('user' => $user[0]->getId()));
             if(count($groups)<1){
                 $token = array(
                     "error" => "no_company",
