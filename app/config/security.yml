@@ -7,7 +7,7 @@ security:
         ROLE_WORKER:          ROLE_READONLY
         ROLE_COMMERCE:        ROLE_USER
         ROLE_INTEGRATOR:      ROLE_COMMERCE
-        ROLE_ADMIN:           ROLE_INTEGRATOR, ROLE_WORKER
+        ROLE_ADMIN:           ROLE_WORKER
         ROLE_SUPER_ADMIN:     ROLE_ADMIN
 
     providers:
