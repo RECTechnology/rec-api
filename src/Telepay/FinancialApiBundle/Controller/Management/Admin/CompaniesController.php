@@ -47,11 +47,27 @@ class CompaniesController extends BaseApiController
             $request->request->remove('methods_list');
         }
 
+        $creator_company = null;
+        if($request->request->has('creator_company')){
+            $creator_company = $request->request->get('creator_company');
+            $request->request->remove('creator_company');
+        }
+
         $response = parent::updateAction($request, $id);
 
         if($response->getStatusCode() == 204){
             if($methods !== null){
                 $this->_setMethods($methods, $company);
+            }
+
+            if($creator_company != null){
+                //change creaotor company
+                $new_creator = $em->getRepository($this->getRepositoryName())->find($creator_company);
+
+                $company->setGroupCreator($new_creator);
+
+                $em->persist($company);
+                $em->flush();
             }
         }
 
