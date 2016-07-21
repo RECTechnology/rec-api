@@ -3,9 +3,11 @@ security:
         FOS\UserBundle\Model\UserInterface: sha512
 
     role_hierarchy:
+        ROLE_READONLY:        ROLE_USER
+        ROLE_WORKER:          ROLE_READONLY
         ROLE_COMMERCE:        ROLE_USER
         ROLE_INTEGRATOR:      ROLE_COMMERCE
-        ROLE_ADMIN:           ROLE_INTEGRATOR
+        ROLE_ADMIN:           ROLE_INTEGRATOR, ROLE_WORKER
         ROLE_SUPER_ADMIN:     ROLE_ADMIN
 
     providers:
@@ -77,7 +79,7 @@ security:
             stateless: true
             fos_oauth:  true
             signature_auth: true
-            switch_user:  { role: ROLE_ADMIN, parameter: su }
+            switch_user:  { role: ROLE_WORKER, parameter: su }
 
         user:
             pattern: ^/user
@@ -117,8 +119,8 @@ security:
         - { path: ^/admin/v[0-9]+/clients, role: ROLE_ADMIN }
         - { path: ^/admin/v[0-9]+/*, role: ROLE_SUPER_ADMIN }
         - { path: ^/manager/v[0-9]+/*, role: ROLE_ADMIN }
-        - { path: ^/services/v[0-9]+/*, role: ROLE_INTEGRATOR }
-        - { path: ^/methods/v[0-9]+/*, role: ROLE_INTEGRATOR }
+        - { path: ^/services/v[0-9]+/*, role: ROLE_WORKER }
+        - { path: ^/methods/v[0-9]+/*, role: ROLE_WORKER }
 
         - { path: ^/pos/v[0-9]+/transaction/*, role: IS_AUTHENTICATED_ANONYMOUSLY, ip: ["127.0.0.1"] }
         - { path: ^/pos/v[0-9]+/check/*, role: IS_AUTHENTICATED_ANONYMOUSLY }
