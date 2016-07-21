@@ -1245,8 +1245,6 @@ class WalletController extends RestApiController{
             }
         }
 
-
-
         $dm = $this->get('doctrine_mongodb')->getManager();
         //cashOut transaction
         $cashOut = Transaction::createFromRequest($request);
