@@ -208,3 +208,18 @@ admin_update_status_transaction:
     defaults: { _controller: Telepay\FinancialApiBundle\Controller\Management\Admin\SpecialActionsController::updateTransactionStatus }
     requirements:
         _method: PUT
+
+
+##################### COMPANIES ############################
+
+admin_companies_super_update:
+    pattern:  /admin/v1/companies/{id}
+    defaults: { _controller: Telepay\FinancialApiBundle\Controller\Management\Admin\CompaniesController::updateAction }
+    requirements:
+        _method: PUT
+
+admin_companies_super_delete:
+    pattern:  /admin/v1/companies/{id}
+    defaults: { _controller: Telepay\FinancialApiBundle\Controller\Management\Admin\CompaniesController::deleteAction }
+    requirements:
+        _method: DELETE
