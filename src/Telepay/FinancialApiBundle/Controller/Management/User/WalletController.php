@@ -1171,8 +1171,8 @@ class WalletController extends RestApiController{
      * makes an exchange between wallets
      */
     public function currencyExchange(Request $request){
-
         $em = $this->getDoctrine()->getManager();
+        if(!$this->get('security.context')->isGranted('ROLE_WORKER')) throw new HttpException(403, 'You don\' have the necessary permissions');
 
         $user = $this->get('security.context')->getToken()->getUser();
         $userGroup = $user->getActiveGroup();

@@ -31,11 +31,12 @@ class IncomingController2 extends RestApiController{
      * @Rest\View
      */
     public function make(Request $request, $version_number, $type, $method_cname, $id = null){
-
         //TODO inyectar driver con las credenciales correspondientes al DbWallet
         $method = $this->get('net.telepay.'.$type.'.'.$method_cname.'.v'.$version_number);
 
         $user = $this->get('security.context')->getToken()->getUser();
+
+        if(!$this->get('security.context')->isGranted('ROLE_WORKER')) throw new HttpException(403, 'You don\' have the necessary permissions');
 
         $tokenManager = $this->container->get('fos_oauth_server.access_token_manager.default');
         $accessToken = $tokenManager->findTokenByToken(
@@ -342,6 +343,8 @@ class IncomingController2 extends RestApiController{
 
         $method = $this->get('net.telepay.'.$type.'.'.$method_cname.'.v'.$version_number);
 
+        if(!$this->get('security.context')->isGranted('ROLE_WORKER')) throw new HttpException(403, 'You don\' have the necessary permissions');
+
         $logger = $this->get('logger');
         $logger->info('Update transaction');
 
@@ -597,17 +600,10 @@ class IncomingController2 extends RestApiController{
      * @Rest\View
      */
     public function check(Request $request, $version_number, $type, $method_cname, $id){
-
         $method = $this->get('net.telepay.'.$type.'.'.$method_cname.'.v'.$version_number);
 
         $user = $this->get('security.context')->getToken()->getUser();
         $group = $user->getActiveGroup();
-
-        //TODO quitar cuando haya algo mejor montado
-        if($user->getId() == $this->container->getParameter('read_only_user_id')){
-            $em = $this->getDoctrine()->getManager();
-            $user = $em->getRepository('TelepayFinancialApiBundle:User')->find($this->container->getParameter('chipchap_user_id'));
-        }
 
         $method_list = $group->getMethodsList();
 
