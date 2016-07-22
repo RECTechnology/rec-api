@@ -1150,7 +1150,7 @@ class IncomingController2 extends RestApiController{
         foreach($transactions->toArray() as $transaction){
 //            $exist = true;
 
-            $total_fee = $transaction->getTotal();
+            $total_fee = $transaction->getAmount();
 
             $group = $em->getRepository('TelepayFinancialApiBundle:Group')->find($transaction->getGroup());
 
