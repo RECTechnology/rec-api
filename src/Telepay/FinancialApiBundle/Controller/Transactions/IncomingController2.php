@@ -56,9 +56,16 @@ class IncomingController2 extends RestApiController{
             $group = $user->getActiveGroup();
         }
 
-
         //check if this user has this company
-        if(!$user->hasGroup($group->getName())) throw new HttpException('You do not have the necessary permissions in this company');
+        if(!$user->hasGroup($group->getName())) throw new HttpException(403, 'You do not have the necessary permissions in this company');
+
+        //Check permissiona for this user in this company
+        $userRoles = $this->getDoctrine()->getRepository('TelepayFinancialApiBundle:UserGroup')->findBy(array(
+            'user'  =>  $user->getId(),
+            'group' =>  $group->getId()
+        ));
+
+        if(!$userRoles->has('ROLE_WORKER')) throw new HttpException(403, 'You don\'t have the necessary permissions in this company');
 
         $method_list = $group->getMethodsList();
 
