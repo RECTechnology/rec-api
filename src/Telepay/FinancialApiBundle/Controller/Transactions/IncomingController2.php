@@ -365,7 +365,9 @@ class IncomingController2 extends RestApiController{
         $logger->info('Update transaction');
 
         $user = $this->get('security.context')->getToken()->getUser();
-        $group = $user->getActiveGroup();
+        $group = $this->_getCurrentComapny($user);
+        $this->_checkPermissions($user, $group);
+
         $method_list = $group->getMethodsList();
 
         if (!in_array($method_cname.'-'.$type, $method_list)) {
@@ -619,7 +621,8 @@ class IncomingController2 extends RestApiController{
         $method = $this->get('net.telepay.'.$type.'.'.$method_cname.'.v'.$version_number);
 
         $user = $this->get('security.context')->getToken()->getUser();
-        $group = $user->getActiveGroup();
+        $group = $this->_getCurrentComapny($user);
+        $this->_checkPermissions($user, $group);
 
         $method_list = $group->getMethodsList();
 
