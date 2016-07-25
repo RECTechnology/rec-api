@@ -130,24 +130,6 @@ class User extends BaseUser
      */
     private $base64_image;
 
-//    /**
-//     * @ORM\Column(type="string")
-//     * @Expose
-//     */
-//    private $default_currency;
-
-    /**
-     * @ORM\Column(type="integer")
-     * @Expose
-     */
-    private $prefix;
-
-    /**
-     * @ORM\Column(type="string")
-     * @Expose
-     */
-    private $phone;
-
     /**
      * @ORM\Column(type="string")
      * @Expose
@@ -209,6 +191,11 @@ class User extends BaseUser
      * @Expose
      */
     private $group_data = array();
+
+    /**
+     * @Expose
+     */
+    private $kyc_data = array();
 
     /**
      * @ORM\OneToOne(targetEntity="Telepay\FinancialApiBundle\Entity\TierValidations", mappedBy="user", cascade={"remove"})
@@ -376,38 +363,6 @@ class User extends BaseUser
     /**
      * @return mixed
      */
-    public function getPrefix()
-    {
-        return $this->prefix;
-    }
-
-    /**
-     * @param mixed $prefix
-     */
-    public function setPrefix($prefix)
-    {
-        $this->prefix = $prefix;
-    }
-
-    /**
-     * @return mixed
-     */
-    public function getPhone()
-    {
-        return $this->phone;
-    }
-
-    /**
-     * @param mixed $phone
-     */
-    public function setPhone($phone)
-    {
-        $this->phone = $phone;
-    }
-
-    /**
-     * @return mixed
-     */
     public function getDevices()
     {
         return $this->devices;
@@ -549,6 +504,14 @@ class User extends BaseUser
     public function setGroupData($group_data)
     {
         $this->group_data = $group_data;
+    }
+
+    /**
+     * @param array $kyc_data
+     */
+    public function setKycData($kyc_data)
+    {
+        $this->kyc_data = $kyc_data;
     }
 
 //    /**
@@ -779,6 +742,23 @@ class User extends BaseUser
         unset($this->twoFactorAuthentication);
         unset ($this->cash_in_tokens);
         unset($this->group_data);
+        unset($this->kyc_data);
         return $this;
+    }
+
+    /**
+     * @return mixed
+     */
+    public function getLastName()
+    {
+        return $this->lastName;
+    }
+
+    /**
+     * @param mixed $lastName
+     */
+    public function setLastName($lastName)
+    {
+        $this->lastName = $lastName;
     }
 }

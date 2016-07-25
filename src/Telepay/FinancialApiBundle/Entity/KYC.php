@@ -26,7 +26,7 @@ class KYC {
      * @ORM\Column(type="string")
      * @Expose
      */
-    private $name = "";
+    private $lastName = "";
 
     /**
      * @ORM\Column(type="string")
@@ -45,6 +45,12 @@ class KYC {
      * @Expose
      */
     private $phone = "";
+
+    /**
+     * @ORM\Column(type="string")
+     * @Expose
+     */
+    private $dateBirth = "";
 
     /**
      * @ORM\Column(type="string", nullable=true)
@@ -307,22 +313,6 @@ class KYC {
     /**
      * @return mixed
      */
-    public function getName()
-    {
-        return $this->name;
-    }
-
-    /**
-     * @param mixed $name
-     */
-    public function setName($name)
-    {
-        $this->name = $name;
-    }
-
-    /**
-     * @return mixed
-     */
     public function getValidationPhoneCode()
     {
         return $this->validation_phone_code;
@@ -334,5 +324,37 @@ class KYC {
     public function setValidationPhoneCode($validation_phone_code)
     {
         $this->validation_phone_code = $validation_phone_code;
+    }
+
+    /**
+     * @return mixed
+     */
+    public function getLastName()
+    {
+        return $this->lastName;
+    }
+
+    /**
+     * @param mixed $lastName
+     */
+    public function setLastName($lastName)
+    {
+        $this->lastName = $lastName;
+    }
+
+    /**
+     * @return mixed
+     */
+    public function getDateBirth()
+    {
+        return $this->dateBirth;
+    }
+
+    /**
+     * @param mixed $dateBirth
+     */
+    public function setDateBirth($dateBirth)
+    {
+        $this->dateBirth = $dateBirth;
     }
 }
