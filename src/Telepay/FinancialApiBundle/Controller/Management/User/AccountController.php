@@ -787,13 +787,13 @@ class AccountController extends BaseApiController{
             $em->persist($kyc);
         }
 
-        if($request->request->has('lastName') && $request->request->get('lastName')!=''){
-            $kyc->setLastName($request->request->get('lastName'));
+        if($request->request->has('last_name') && $request->request->get('last_name')!=''){
+            $kyc->setLastName($request->request->get('last_name'));
             $em->persist($kyc);
         }
 
-        if($request->request->has('dateBirth') && $request->request->get('dateBirth')!=''){
-            $kyc->setDateBirth($request->request->get('dateBirth'));
+        if($request->request->has('date_birth') && $request->request->get('date_birth')!=''){
+            $kyc->setDateBirth($request->request->get('date_birth'));
             $em->persist($kyc);
         }
 
