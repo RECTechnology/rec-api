@@ -119,6 +119,12 @@ class ClientsController extends BaseApiController {
 
         }
 
+        if($request->request->has('allowed_grant_types')){
+            $grant_types = $request->request->get('allowed_grant_types');
+        }else{
+            $grant_types = array('client_credentials');
+        }
+
         $uris = $request->request->get('redirect_uris');
         $request->request->remove('redirect_uris');
 
@@ -126,7 +132,7 @@ class ClientsController extends BaseApiController {
         $swiftMethods = $this->get('net.telepay.swift_provider')->findAll();
 
         $request->request->add(array(
-            'allowed_grant_types' => array('client_credentials'),
+            'allowed_grant_types' => $grant_types,
             'swift_list'    =>  $swiftMethods,
             'redirect_uris' => array($uris),
             'group' =>  $userGroup
