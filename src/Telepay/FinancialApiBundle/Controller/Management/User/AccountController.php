@@ -799,7 +799,7 @@ class AccountController extends BaseApiController{
 
         if($request->request->get('phone') != '' || $request->request->get('prefix') != ''){
             $prefix = $request->request->get('prefix');
-            $phone = $request->request->get('prefix');
+            $phone = $request->request->get('phone');
             $old_phone = $kyc->getPhone();
             if($old_phone == ''){
                 $old_phone = array(
