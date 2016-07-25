@@ -26,12 +26,6 @@ class KYC {
      * @ORM\Column(type="string")
      * @Expose
      */
-    private $name = "";
-
-    /**
-     * @ORM\Column(type="string")
-     * @Expose
-     */
     private $lastName = "";
 
     /**
@@ -314,22 +308,6 @@ class KYC {
     public function setDocument($document)
     {
         $this->document = $document;
-    }
-
-    /**
-     * @return mixed
-     */
-    public function getName()
-    {
-        return $this->name;
-    }
-
-    /**
-     * @param mixed $name
-     */
-    public function setName($name)
-    {
-        $this->name = $name;
     }
 
     /**
