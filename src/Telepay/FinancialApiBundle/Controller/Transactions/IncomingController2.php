@@ -1303,7 +1303,7 @@ class IncomingController2 extends RestApiController{
             'group' =>  $group->getId()
         ));
 
-        if(!$userRoles->hasRole('ROLE_WORKER')) throw new HttpException(403, 'You don\'t have the necessary permissions in this company. Only ROLE_WORKER allowed');
+        if(!$userRoles->hasRole('ROLE_WORKER') || !$userRoles->hasRole('ROLE_ADMIN')) throw new HttpException(403, 'You don\'t have the necessary permissions in this company. Only ROLE_WORKER allowed');
 
 
     }
