@@ -111,12 +111,18 @@ class ClientsController extends BaseApiController {
 
             if($company->getId() == $userGroup->getId()){
                 if(!$adminRoles->hasRole('ROLE_ADMIN') || !$user->hasGroup($userGroup->getName()))
-                    throw new HttpException(409, 'You don\'t have the necesary permissions');
+                    throw new HttpException(409, 'You don\'t have the necesary permissions in this company');
             }else{
                 if(!$adminRoles->hasRole('ROLE_SUPER_ADMIN'))
                     throw new HttpException(409, 'You don\'t have the necesary permissions');
             }
 
+        }
+
+        if($request->request->has('allowed_grant_types')){
+            $grant_types = $request->request->get('allowed_grant_types');
+        }else{
+            $grant_types = array('client_credentials');
         }
 
         $uris = $request->request->get('redirect_uris');
@@ -126,7 +132,7 @@ class ClientsController extends BaseApiController {
         $swiftMethods = $this->get('net.telepay.swift_provider')->findAll();
 
         $request->request->add(array(
-            'allowed_grant_types' => array('client_credentials'),
+            'allowed_grant_types' => $grant_types,
             'swift_list'    =>  $swiftMethods,
             'redirect_uris' => array($uris),
             'group' =>  $userGroup

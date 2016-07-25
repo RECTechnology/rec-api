@@ -310,6 +310,7 @@ class SpecialActionsController extends RestApiController {
 
         if($validate == true){
             if($transaction->getMethodOut() == 'btc' || $transaction->getMethodOut() == 'fac'){
+                if($transaction->getStatus() != Transaction::$STATUS_CREATED) throw new HttpException(403, 'This transaction can not be validated');
                 //money received and the cron will do the rest
                 $transaction->setStatus(Transaction::$STATUS_RECEIVED);
                 $paymentInfo = $transaction->getPayInInfo();
