@@ -130,24 +130,6 @@ class User extends BaseUser
      */
     private $base64_image;
 
-//    /**
-//     * @ORM\Column(type="string")
-//     * @Expose
-//     */
-//    private $default_currency;
-
-    /**
-     * @ORM\Column(type="integer")
-     * @Expose
-     */
-    private $prefix;
-
-    /**
-     * @ORM\Column(type="string")
-     * @Expose
-     */
-    private $phone;
-
     /**
      * @ORM\Column(type="string")
      * @Expose
@@ -367,38 +349,6 @@ class User extends BaseUser
 //    {
 //        $this->default_currency = $default_currency;
 //    }
-
-    /**
-     * @return mixed
-     */
-    public function getPrefix()
-    {
-        return $this->prefix;
-    }
-
-    /**
-     * @param mixed $prefix
-     */
-    public function setPrefix($prefix)
-    {
-        $this->prefix = $prefix;
-    }
-
-    /**
-     * @return mixed
-     */
-    public function getPhone()
-    {
-        return $this->phone;
-    }
-
-    /**
-     * @param mixed $phone
-     */
-    public function setPhone($phone)
-    {
-        $this->phone = $phone;
-    }
 
     /**
      * @return mixed
@@ -775,5 +725,21 @@ class User extends BaseUser
         unset ($this->cash_in_tokens);
         unset($this->group_data);
         return $this;
+    }
+
+    /**
+     * @return mixed
+     */
+    public function getLastName()
+    {
+        return $this->lastName;
+    }
+
+    /**
+     * @param mixed $lastName
+     */
+    public function setLastName($lastName)
+    {
+        $this->lastName = $lastName;
     }
 }

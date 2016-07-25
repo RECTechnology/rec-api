@@ -32,6 +32,12 @@ class KYC {
      * @ORM\Column(type="string")
      * @Expose
      */
+    private $lastName = "";
+
+    /**
+     * @ORM\Column(type="string")
+     * @Expose
+     */
     private $email = "";
 
     /**
@@ -45,6 +51,12 @@ class KYC {
      * @Expose
      */
     private $phone = "";
+
+    /**
+     * @ORM\Column(type="string")
+     * @Expose
+     */
+    private $dateBirth = "";
 
     /**
      * @ORM\Column(type="string", nullable=true)
@@ -334,5 +346,37 @@ class KYC {
     public function setValidationPhoneCode($validation_phone_code)
     {
         $this->validation_phone_code = $validation_phone_code;
+    }
+
+    /**
+     * @return mixed
+     */
+    public function getLastName()
+    {
+        return $this->lastName;
+    }
+
+    /**
+     * @param mixed $lastName
+     */
+    public function setLastName($lastName)
+    {
+        $this->lastName = $lastName;
+    }
+
+    /**
+     * @return mixed
+     */
+    public function getDateBirth()
+    {
+        return $this->dateBirth;
+    }
+
+    /**
+     * @param mixed $dateBirth
+     */
+    public function setDateBirth($dateBirth)
+    {
+        $this->dateBirth = $dateBirth;
     }
 }

@@ -252,10 +252,6 @@ class UsersController extends BaseApiController
         if($password != $repassword) throw new HttpException(400, "Password and repassword are differents.");
         $request->request->remove('password');
         $request->request->remove('repassword');
-
-        if(!$request->request->has('phone')) $request->request->add(array('phone'=>''));
-        if(!$request->request->has('prefix')) $request->request->add(array('prefix'=>''));
-
         $request->request->add(array('plain_password'=>$password));
         $request->request->add(array('enabled'=>1));
         $request->request->add(array('base64_image'=>''));
@@ -282,6 +278,13 @@ class UsersController extends BaseApiController
             $em = $this->getDoctrine()->getManager();
             $em->persist($userGroup);
             $em->flush();
+
+            $user_kyc = new KYC();
+            $user_kyc->setEmail($user->getEmail());
+            $user_kyc->setUser($user);
+            $em->persist($user_kyc);
+            $em->flush();
+
             $url = $this->container->getParameter('base_panel_url');
             $url = $url.'/user/validation/'.$user->getConfirmationToken();
             $this->_sendEmail('Chip-Chap validation e-mail', $url, $user->getEmail(), 'register');

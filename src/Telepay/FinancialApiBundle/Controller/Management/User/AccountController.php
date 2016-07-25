@@ -406,8 +406,6 @@ class AccountController extends BaseApiController{
         }
         $request->request->add(array('username'=>$email));
         $request->request->add(array('name'=>''));
-        $request->request->add(array('phone'=>''));
-        $request->request->add(array('prefix'=>''));
         $request->request->add(array('email'=>$email));
         $request->request->add(array('enabled'=>1));
         $request->request->add(array('base64_image'=>''));
@@ -514,10 +512,7 @@ class AccountController extends BaseApiController{
             $request->request->add(array('name'=>$fake));
         }
 
-        if(!$request->request->has('phone')){
-            $request->request->add(array('phone'=>''));
-            $request->request->add(array('prefix'=>''));
-        }else{
+        if($request->request->has('phone')){
             if(!$request->request->has('prefix')){
                 throw new HttpException(400, "Missing parameter 'prefix'");
             }
@@ -572,21 +567,21 @@ class AccountController extends BaseApiController{
             $user_id = $data->id;
 
             $user = $usersRepo->findOneBy(array('id'=>$user_id));
-
-//            $currencies = Currency::$LISTA;
-//
-//            foreach($currencies as $currency){
-//                $user_wallet = new UserWallet();
-//                $user_wallet->setBalance(0);
-//                $user_wallet->setAvailable(0);
-//                $user_wallet->setCurrency($currency);
-//                $user_wallet->setUser($user);
-//                $em->persist($user_wallet);
-//            }
-
             $user->addGroup($group);
-
             $em->persist($user);
+            $em->flush();
+
+            $user_kyc = new KYC();
+            $user_kyc->setEmail($user->getEmail());
+            $user_kyc->setUser($user);
+            if($request->request->has('phone')){
+                $phone_info = array(
+                    "prefix" => $request->request->get('prefix'),
+                    "number" => $request->request->get('phone')
+                );
+                $user_kyc->setPhone(json_encode($phone_info));
+            }
+            $em->persist($user_kyc);
             $em->flush();
 
             if( $device_id != null){
@@ -763,41 +758,64 @@ class AccountController extends BaseApiController{
      * @Rest\View
      */
     public function kycSave(Request $request){
+        $em = $this->getDoctrine()->getManager();
         $user = $this->get('security.context')->getToken()->getUser();
-        $user_id = $user->getId();
 
-        $paramNames = array(
-            "name",
-            "lastName",
-            "dateBirth",
-            "email",
-            "prefix",
-            "phone"
-        );
-        $params = array();
-        foreach($paramNames as $paramName){
-            if($request->request->has($paramName)){
-                $params[$paramName] = $request->request->get($paramName);
-            }else{
-                throw new HttpException(404, 'Parameter '.$paramName.' not found');
-            }
+        if($request->request->has('name') && $request->request->get('name')!=''){
+            $user->setName($request->request->get('name'));
+            $em->persist($user);
         }
-        $data = json_encode($params);
 
-        $message = \Swift_Message::newInstance()
-            ->setSubject("kyc info")
-            ->setFrom('no-reply@chip-chap.com')
-            ->setTo(array(
-                "cto@chip-chap.com"
-            ))
-            ->setBody(
-                "User: " . $user_id . "\n" .
-                $data
-            )
-            ->setContentType('text/html');
+        $kyc = $em->getRepository('TelepayFinancialApiBundle:KYC')->findOneBy(array(
+            'user' => $user
+        ));
+        if(!$kyc){
+            $kyc = new KYC();
+            $kyc->setEmail($user->getEmail());
+            $kyc->setUser($user);
+        }
 
-        $this->container->get('mailer')->send($message);
+        if($request->request->has('email') && $request->request->get('email')!=''){
+            $user->setEmail($request->request->get('email'));
+            $em->persist($user);
+            $kyc->setEmail($request->request->get('email'));
+            $kyc->setEmailValidated(false);
+            $em->persist($kyc);
+        }
 
+        if($request->request->has('lastName') && $request->request->get('lastName')!=''){
+            $kyc->setEmail($request->request->get('lastName'));
+            $em->persist($kyc);
+        }
+
+        if($request->request->has('dateBirth') && $request->request->get('dateBirth')!=''){
+            $kyc->setEmail($request->request->get('dateBirth'));
+            $em->persist($kyc);
+        }
+
+        if($request->request->get('phone') != '' || $request->request->get('prefix') != ''){
+            $prefix = $request->request->get('prefix');
+            $phone = $request->request->get('prefix');
+            $old_phone = $kyc->getPhone();
+            if($old_phone == ''){
+                $old_phone = array(
+                    "prefix" => '',
+                    "number" => ''
+                );
+            }
+            else{
+                $old_phone = json_decode($old_phone);
+            }
+            $phone_info = array(
+                "prefix" => $prefix != ''?$prefix:$old_phone['prefix'],
+                "number" => $phone != ''?$phone:$old_phone['number']
+            );
+            $kyc->setPhone(json_encode($phone_info));
+            $kyc->setPhoneValidated(false);
+            $em->persist($kyc);
+        }
+
+        $em->flush();
         return $this->restV2(204, "ok", "KYC Info saved");
     }
 
