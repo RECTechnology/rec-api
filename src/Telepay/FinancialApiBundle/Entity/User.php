@@ -193,6 +193,11 @@ class User extends BaseUser
     private $group_data = array();
 
     /**
+     * @Expose
+     */
+    private $kyc_data = array();
+
+    /**
      * @ORM\OneToOne(targetEntity="Telepay\FinancialApiBundle\Entity\TierValidations", mappedBy="user", cascade={"remove"})
      * @Expose
      */
@@ -496,6 +501,14 @@ class User extends BaseUser
         $this->group_data = $group_data;
     }
 
+    /**
+     * @param array $kyc_data
+     */
+    public function setKycData($kyc_data)
+    {
+        $this->kyc_data = $kyc_data;
+    }
+
 //    /**
 //     * @return mixed
 //     */
@@ -724,6 +737,7 @@ class User extends BaseUser
         unset($this->twoFactorAuthentication);
         unset ($this->cash_in_tokens);
         unset($this->group_data);
+        unset($this->kyc_data);
         return $this;
     }
 
