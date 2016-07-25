@@ -793,7 +793,7 @@ class AccountController extends BaseApiController{
         }
 
         if($request->request->has('dateBirth') && $request->request->get('dateBirth')!=''){
-            $kyc->setEmail($request->request->get('dateBirth'));
+            $kyc->setDateBirth($request->request->get('dateBirth'));
             $em->persist($kyc);
         }
 
