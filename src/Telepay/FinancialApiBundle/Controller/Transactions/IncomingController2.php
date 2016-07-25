@@ -37,35 +37,39 @@ class IncomingController2 extends RestApiController{
         $user = $this->get('security.context')->getToken()->getUser();
 
         if(!$this->get('security.context')->isGranted('ROLE_WORKER')) throw new HttpException(403, 'You don\' have the necessary permissions');
-        $tokenManager = $this->container->get('fos_oauth_server.access_token_manager.default');
 
-        try{
-            $accessToken = $tokenManager->findTokenByToken(
-                $this->get('security.context')->getToken()->getToken()
-            );
+//        $tokenManager = $this->container->get('fos_oauth_server.access_token_manager.default');
+//
+//        try{
+//            $accessToken = $tokenManager->findTokenByToken(
+//                $this->get('security.context')->getToken()->getToken()
+//            );
+//
+//            $commerce_client = $this->container->getParameter('commerce_client_id');
+//
+//            $client = $accessToken->getClient();
+//            if($commerce_client == $client->getId()){
+//                $group = $user->getActiveGroup();
+//            }else{
+//                $group = $client->getGroup();
+//            }
+//        }catch (Exception $e){
+//            $group = $user->getActiveGroup();
+//        }
 
-            $commerce_client = $this->container->getParameter('commerce_client_id');
-
-            $client = $accessToken->getClient();
-            if($commerce_client == $client->getId()){
-                $group = $user->getActiveGroup();
-            }else{
-                $group = $client->getGroup();
-            }
-        }catch (Exception $e){
-            $group = $user->getActiveGroup();
-        }
+        $group = $this->_getCurrentComapny($user);
 
         //check if this user has this company
-        if(!$user->hasGroup($group->getName())) throw new HttpException(403, 'You do not have the necessary permissions in this company');
-
-        //Check permissiona for this user in this company
-        $userRoles = $this->getDoctrine()->getRepository('TelepayFinancialApiBundle:UserGroup')->findOneBy(array(
-            'user'  =>  $user->getId(),
-            'group' =>  $group->getId()
-        ));
-
-        if(!$userRoles->hasRole('ROLE_WORKER')) throw new HttpException(403, 'You don\'t have the necessary permissions in this company');
+        $this->_checkPermissions($user, $group);
+//        if(!$user->hasGroup($group->getName())) throw new HttpException(403, 'You do not have the necessary permissions in this company');
+//
+//        //Check permissiona for this user in this company
+//        $userRoles = $this->getDoctrine()->getRepository('TelepayFinancialApiBundle:UserGroup')->findOneBy(array(
+//            'user'  =>  $user->getId(),
+//            'group' =>  $group->getId()
+//        ));
+//
+//        if(!$userRoles->hasRole('ROLE_WORKER')) throw new HttpException(403, 'You don\'t have the necessary permissions in this company. Only ROLE_WORKER allowed');
 
         $method_list = $group->getMethodsList();
 
@@ -1289,6 +1293,45 @@ class IncomingController2 extends RestApiController{
 
         return $group_limit;
     }
+
+    private function _checkPermissions(User $user, Group $group){
+        if(!$user->hasGroup($group->getName())) throw new HttpException(403, 'You do not have the necessary permissions in this company');
+
+        //Check permissiona for this user in this company
+        $userRoles = $this->getDoctrine()->getRepository('TelepayFinancialApiBundle:UserGroup')->findOneBy(array(
+            'user'  =>  $user->getId(),
+            'group' =>  $group->getId()
+        ));
+
+        if(!$userRoles->hasRole('ROLE_WORKER')) throw new HttpException(403, 'You don\'t have the necessary permissions in this company. Only ROLE_WORKER allowed');
+
+
+    }
+
+    private function _getCurrentComapny(User $user){
+        $tokenManager = $this->container->get('fos_oauth_server.access_token_manager.default');
+
+        try{
+            $accessToken = $tokenManager->findTokenByToken(
+                $this->get('security.context')->getToken()->getToken()
+            );
+
+            $commerce_client = $this->container->getParameter('commerce_client_id');
+
+            $client = $accessToken->getClient();
+            if($commerce_client == $client->getId()){
+                $group = $user->getActiveGroup();
+            }else{
+                $group = $client->getGroup();
+            }
+        }catch (Exception $e){
+            $group = $user->getActiveGroup();
+        }
+
+        return $group;
+    }
+
+
 
 }
 
