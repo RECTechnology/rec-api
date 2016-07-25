@@ -37,20 +37,25 @@ class IncomingController2 extends RestApiController{
         $user = $this->get('security.context')->getToken()->getUser();
 
         if(!$this->get('security.context')->isGranted('ROLE_WORKER')) throw new HttpException(403, 'You don\' have the necessary permissions');
-
         $tokenManager = $this->container->get('fos_oauth_server.access_token_manager.default');
-        $accessToken = $tokenManager->findTokenByToken(
-            $this->container->get('security.context')->getToken()->getToken()
-        );
 
-        $commerce_client = $this->container->getParameter('commerce_client_id');
+        try{
+            $accessToken = $tokenManager->findTokenByToken(
+                $this->get('security.context')->getToken()->getToken()
+            );
 
-        $client = $accessToken->getClient();
-        if($commerce_client == $client->getId()){
+            $commerce_client = $this->container->getParameter('commerce_client_id');
+
+            $client = $accessToken->getClient();
+            if($commerce_client == $client->getId()){
+                $group = $user->getActiveGroup();
+            }else{
+                $group = $client->getGroup();
+            }
+        }catch (Exception $e){
             $group = $user->getActiveGroup();
-        }else{
-            $group = $client->getGroup();
         }
+
 
         //check if this user has this company
         if(!$user->hasGroup($group->getName())) throw new HttpException('You do not have the necessary permissions in this company');
