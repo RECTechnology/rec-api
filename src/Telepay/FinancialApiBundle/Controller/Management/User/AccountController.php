@@ -788,7 +788,7 @@ class AccountController extends BaseApiController{
         }
 
         if($request->request->has('lastName') && $request->request->get('lastName')!=''){
-            $kyc->setEmail($request->request->get('lastName'));
+            $kyc->setLastName($request->request->get('lastName'));
             $em->persist($kyc);
         }
 
