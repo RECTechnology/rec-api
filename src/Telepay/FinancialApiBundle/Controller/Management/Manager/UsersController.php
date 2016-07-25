@@ -5,6 +5,7 @@ namespace Telepay\FinancialApiBundle\Controller\Management\Manager;
 use Doctrine\DBAL\DBALException;
 use Exception;
 use Symfony\Component\HttpKernel\Exception\HttpException;
+use Symfony\Component\Validator\Constraints\DateTime;
 use Telepay\FinancialApiBundle\Controller\BaseApiController;
 use Telepay\FinancialApiBundle\Document\Transaction;
 use Telepay\FinancialApiBundle\Entity\Group;
@@ -125,6 +126,21 @@ class UsersController extends BaseApiController
                 $groups[] = $group->getName();
             }
             $elem->setGroupData($groups);
+
+            $last_login = $this->getDoctrine()->getRepository('TelepayFinancialApiBundle:AccessToken')->findOneBy(
+                array(
+                    'user'  =>  $elem->getId()
+                ),
+                array(
+                    'expiresAt'    =>  'DESC'
+                )
+            );
+            if($last_login){
+                $last = new \DateTime();
+                $last->setTimestamp($last_login->getExpiresAt() - 3600);
+                $elem->setLastLogin($last);
+            }
+
         }, $entities);
 
         return $this->rest(

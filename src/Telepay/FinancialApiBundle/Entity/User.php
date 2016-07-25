@@ -224,6 +224,11 @@ class User extends BaseUser
      */
     private $recover_password_token;
 
+    /**
+     * @Expose
+     */
+    protected $lastLogin;
+
     public function getAccessKey(){
         return $this->access_key;
     }
