@@ -181,14 +181,14 @@ class MigrationCreateGroupByUserCommand extends ContainerAwareCommand
                         $counterLimitCounts++;
                     }
                     $output->writeln('New balanec');
-                    //cambiamos los balances
-                    $balances = $user->getBalance();
-                    foreach($balances as $balance){
-                        $balance->setGroup($newGroup);
-                        $em->persist($balance);
-                        $em->flush();
-                        $counterBalances++;
-                    }
+//                    //cambiamos los balances
+//                    $balances = $user->getBalance();
+//                    foreach($balances as $balance){
+//                        $balance->setGroup($newGroup);
+//                        $em->persist($balance);
+//                        $em->flush();
+//                        $counterBalances++;
+//                    }
 
                     $output->writeln('New client');
                     //cambiamos los clients
@@ -243,14 +243,14 @@ class MigrationCreateGroupByUserCommand extends ContainerAwareCommand
                         $counterLimitCounts++;
                     }
                     $output->writeln('New balance');
-                    //cambiamos los balances
-                    $balances = $user->getBalance();
-                    foreach($balances as $balance){
-                        $balance->setGroup($group_root);
-                        $em->persist($balance);
-                        $em->flush();
-                        $counterBalances++;
-                    }
+//                    //cambiamos los balances
+//                    $balances = $user->getBalance();
+//                    foreach($balances as $balance){
+//                        $balance->setGroup($group_root);
+//                        $em->persist($balance);
+//                        $em->flush();
+//                        $counterBalances++;
+//                    }
                     $output->writeln('New clients');
                     //cambiamos los clients
                     $clients = $user->getClients();
