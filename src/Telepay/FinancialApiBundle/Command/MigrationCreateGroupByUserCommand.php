@@ -224,7 +224,7 @@ class MigrationCreateGroupByUserCommand extends ContainerAwareCommand
 
                     $em->persist($group_root);
                     $em->flush();
-
+                    $output->writeln('New wallets');
                     //ponemos todos los wallets en el grupo
                     $wallets = $user->getWallets();
                     foreach($wallets as $wallet){
@@ -233,7 +233,7 @@ class MigrationCreateGroupByUserCommand extends ContainerAwareCommand
                         $em->flush();
                         $counterWallets++;
                     }
-
+                    $output->writeln('New count');
                     //añadimos el grupo a cada limitCounts
                     $limitCounts = $user->getLimitCount();
                     foreach($limitCounts as $limitCount){
@@ -242,7 +242,7 @@ class MigrationCreateGroupByUserCommand extends ContainerAwareCommand
                         $em->flush();
                         $counterLimitCounts++;
                     }
-
+                    $output->writeln('New balance');
                     //cambiamos los balances
                     $balances = $user->getBalance();
                     foreach($balances as $balance){
@@ -251,7 +251,7 @@ class MigrationCreateGroupByUserCommand extends ContainerAwareCommand
                         $em->flush();
                         $counterBalances++;
                     }
-
+                    $output->writeln('New clients');
                     //cambiamos los clients
                     $clients = $user->getClients();
                     foreach($clients as $client){
@@ -260,7 +260,7 @@ class MigrationCreateGroupByUserCommand extends ContainerAwareCommand
                         $em->flush();
                         $counterClients++;
                     }
-
+                    $output->writeln('New pos');
                     //cambiamos las tpv
                     $all = $em->getRepository('TelepayFinancialApiBundle:POS')->findBy(array(
                         'user'  =>  $user
