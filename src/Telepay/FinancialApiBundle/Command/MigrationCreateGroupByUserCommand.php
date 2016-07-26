@@ -77,7 +77,7 @@ class MigrationCreateGroupByUserCommand extends ContainerAwareCommand
 
             if($group){
                 if($user->getId() != $admin_user_id){
-
+                    $output->writeln('New Group');
                     //creamos un grupo por usuario
                     //TODO los grupos aun cuelgan del user, tienen que colgar del grupo
                     $newGroup = new Group();
@@ -104,7 +104,7 @@ class MigrationCreateGroupByUserCommand extends ContainerAwareCommand
                     $em->persist($newGroup);
                     $em->flush();
                     $counterGroups++;
-
+                    $output->writeln('UserRoles');
                     //Add role_admin to all users to control his company
                     if(!$user->hasRole('ROLE_ADMIN')){
                         $user->addRole('ROLE_ADMIN');
@@ -117,7 +117,7 @@ class MigrationCreateGroupByUserCommand extends ContainerAwareCommand
 
                     $fees = $group->getCommissions();
                     $limits = $group->getLimits();
-
+                    $output->writeln('New Fees');
                     foreach($fees as $fee){
                         $newFees = new ServiceFee();
                         $newFees->setCurrency($fee->getCurrency());
@@ -131,6 +131,7 @@ class MigrationCreateGroupByUserCommand extends ContainerAwareCommand
                         $counterFees++;
                     }
 
+                    $output->writeln('New limit');
                     foreach($limits as $limit){
                         $newLimit = new LimitDefinition();
                         $newLimit->setCurrency($limit->getCurrency());
@@ -152,12 +153,15 @@ class MigrationCreateGroupByUserCommand extends ContainerAwareCommand
                     //cambiaos al user de grupo
 //                    $user->removeGroup($group);
 //                    $user->addGroup($newGroup);
+                    $output->writeln('User to group');
                     $userGroup = new UserGroup();
                     $userGroup->setUser($user);
                     $userGroup->setGroup($newGroup);
                     $userGroup->setRoles(array('ROLE_ADMIN'));
 
-
+                    $em->persist($userGroup);
+                    $em->flush();
+                    $output->writeln('Wallets');
                     //ponemos todos los wallets en el grupo
                     $wallets = $user->getWallets();
                     foreach($wallets as $wallet){
@@ -167,6 +171,7 @@ class MigrationCreateGroupByUserCommand extends ContainerAwareCommand
                         $counterWallets++;
                     }
 
+                    $output->writeln('New counts');
                     //añadimos el grupo a cada limitCounts
                     $limitCounts = $user->getLimitCount();
                     foreach($limitCounts as $limitCount){
@@ -175,7 +180,7 @@ class MigrationCreateGroupByUserCommand extends ContainerAwareCommand
                         $em->flush();
                         $counterLimitCounts++;
                     }
-
+                    $output->writeln('New balanec');
                     //cambiamos los balances
                     $balances = $user->getBalance();
                     foreach($balances as $balance){
@@ -185,6 +190,7 @@ class MigrationCreateGroupByUserCommand extends ContainerAwareCommand
                         $counterBalances++;
                     }
 
+                    $output->writeln('New client');
                     //cambiamos los clients
                     $clients = $user->getClients();
                     foreach($clients as $client){
@@ -198,7 +204,7 @@ class MigrationCreateGroupByUserCommand extends ContainerAwareCommand
                     $all = $em->getRepository('TelepayFinancialApiBundle:POS')->findBy(array(
                         'user'  =>  $user
                     ));
-
+                    $output->writeln('New tpv');
                     foreach($all as $tpv){
                         $tpv->setGroup($newGroup);
                         $em->persist($tpv);
@@ -207,7 +213,7 @@ class MigrationCreateGroupByUserCommand extends ContainerAwareCommand
                     }
 
                 }else{
-
+                    $output->writeln('New root');
                     $group_root->setAccessKey($user->getAccessKey());
                     $group_root->setAccessSecret($user->getAccessSecret());
                     //copiamos la default currency del user
