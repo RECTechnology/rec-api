@@ -97,6 +97,7 @@ class MigrationCreateGroupByUserCommand extends ContainerAwareCommand
                     $newGroup->setDefaultCurrency($user->getDefaultCurrency());
                     //añadimos los mismos methods list que el usuario-> dejamos fuera el services_list
                     $newGroup->setMethodsList($user->getMethodsList());
+                    $newGroup->setActive(true);
 
                     $em->persist($newGroup);
                     $em->flush();
