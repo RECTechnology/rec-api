@@ -106,11 +106,11 @@ class MigrationCreateGroupByUserCommand extends ContainerAwareCommand
                     $counterGroups++;
                     $output->writeln('UserRoles');
                     //Add role_admin to all users to control his company
-                    if(!$user->hasRole('ROLE_ADMIN')){
-                        $user->addRole('ROLE_ADMIN');
-                        $em->persist($user);
-                        $em->flush();
-                    }
+//                    if(!$user->hasRole('ROLE_ADMIN')){
+//                        $user->addRole('ROLE_ADMIN');
+//                        $em->persist($user);
+//                        $em->flush();
+//                    }
 
                     //copiamos los fees y limites del grupo original al nuevo grupo
                     //para ello tenemos que conseguir todos los limites i fees asignados a este grupo i clonarlos con el nuevo grupo
