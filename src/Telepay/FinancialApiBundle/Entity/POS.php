@@ -36,10 +36,15 @@ class POS {
     private $name;
 
 
+//    /**
+//     * @ORM\ManyToOne(targetEntity="Telepay\FinancialApiBundle\Entity\User")
+//     */
+//    private $user;
+
     /**
-     * @ORM\ManyToOne(targetEntity="Telepay\FinancialApiBundle\Entity\User")
+     * @ORM\ManyToOne(targetEntity="Telepay\FinancialApiBundle\Entity\Group")
      */
-    private $user;
+    private $group;
 
     /**
      * @ORM\Column(type="string")
@@ -90,21 +95,21 @@ class POS {
         return $this->id;
     }
 
-    /**
-     * @return mixed
-     */
-    public function getUser()
-    {
-        return $this->user;
-    }
-
-    /**
-     * @param mixed $user
-     */
-    public function setUser($user)
-    {
-        $this->user = $user;
-    }
+//    /**
+//     * @return mixed
+//     */
+//    public function getUser()
+//    {
+//        return $this->user;
+//    }
+//
+//    /**
+//     * @param mixed $user
+//     */
+//    public function setUser($user)
+//    {
+//        $this->user = $user;
+//    }
 
     /**
      * @return mixed
@@ -225,6 +230,22 @@ class POS {
     public function setType($type)
     {
         $this->type = $type;
+    }
+
+    /**
+     * @return mixed
+     */
+    public function getGroup()
+    {
+        return $this->group;
+    }
+
+    /**
+     * @param mixed $group
+     */
+    public function setGroup($group)
+    {
+        $this->group = $group;
     }
 
 }

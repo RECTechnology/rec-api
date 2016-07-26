@@ -10,3 +10,9 @@ exchange_currencies:
     defaults: { _controller: Telepay\FinancialApiBundle\Controller\Exchange\PublicController::currencies }
     requirements:
         _method: GET
+
+get_maps:
+    pattern:  /maps/v1/{service}
+    defaults: { _controller: Telepay\FinancialApiBundle\Controller\Exchange\PublicController::maps }
+    requirements:
+        _method: GET

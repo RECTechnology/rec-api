@@ -29,7 +29,20 @@ class CommissionsGroupController extends BaseApiController
      */
     public function updateAction(Request $request, $id){
 
-        //TODO check if this user is the group crator or superadmin, if not access not allowed
+        $user = $this->get('security.context')->getToken()->getUser();
+
+        if(!$user->hasRole('ROLE_SUPER_ADMIN')){
+            //check if this user is the group crator or superadmin, if not access not allowed
+            $group = $user->getActiveGroup();
+            $em = $this->getDoctrine()->getManager();
+            $fee = $em->getRepository($this->getRepositoryName())->find($id);
+            $feeGroup = $fee->getGroup();
+
+            if($group->getId() != $feeGroup->getGroupCreator()->getId()) throw new HttpException(409, 'You don\'t have the necessary permissions to modify this group');
+
+            if(!$user->hasRole('ROLE_ADMIN')) throw new HttpException(403, 'You don\'t have the necessary permissions');
+        }
+
 
         //negative values not allowed in variable and fixed field
         if($request->request->has('fixed')){

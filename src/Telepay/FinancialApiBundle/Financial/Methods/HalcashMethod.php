@@ -18,10 +18,12 @@ use Telepay\FinancialApiBundle\DependencyInjection\Transactions\Core\BaseMethod;
 class HalcashMethod extends BaseMethod{
 
     private $driver;
+    private $container;
 
     public function __construct($name, $cname, $type, $currency, $email_required, $base64Image, $container, $driver){
         parent::__construct($name, $cname, $type, $currency, $email_required, $base64Image, $container);
         $this->driver = $driver;
+        $this->container = $container;
     }
 
     public function send($paymentInfo)
@@ -30,6 +32,8 @@ class HalcashMethod extends BaseMethod{
         $prefix = str_replace("+", "", $paymentInfo['prefix']);
         $amount = $paymentInfo['amount']/100;
         $reference = $paymentInfo['concept'];
+
+        if($reference != 'FairToEarth' && $reference != 'HolyTx') $reference = 'ChipChap';
 
         $find_token = $paymentInfo['find_token'];
         if(isset($paymentInfo['pin'])){
@@ -41,11 +45,12 @@ class HalcashMethod extends BaseMethod{
 
         try{
             if($this->getCurrency() == 'EUR'){
-                $hal = $this->driver->sendV3($phone,$prefix,$amount,'ChipChap '.$find_token,$pin);
+                $hal = $this->driver->sendV3($phone, $prefix, $amount, $reference.' '.$find_token, $pin);
             }else{
-                $hal = $this->driver->sendInternational($phone,$prefix,$amount,'ChipChap '.$find_token,$pin, 'PL', 'POL');
+                $hal = $this->driver->sendInternational($phone, $prefix, $amount, $reference.' '.$find_token, $pin, 'PL', 'POL');
             }
         }catch (HttpException $e){
+            $this->sendMail($e->getMessage(), $e->getStatusCode());
             throw new Exception($e->getMessage(), $e->getStatusCode());
         }
 
@@ -200,4 +205,27 @@ class HalcashMethod extends BaseMethod{
         }
         return false;
     }
+
+    public function sendMail($error, $message){
+
+        $no_reply = $this->container->getParameter('no_reply_email');
+
+        $message = \Swift_Message::newInstance()
+            ->setSubject('Halcash error ALERT')
+            ->setFrom($no_reply)
+            ->setTo(array(
+                'cto@chip-chap.com',
+                'pere@chip-chap.com'
+            ))
+            ->setBody(
+                $this->getContainer()->get('templating')
+                    ->render('TelepayFinancialApiBundle:Email:sepa_out_alert.html.twig',array(
+                        'code error'  =>  $error,
+                        'message'    =>  $message
+                    ))
+            );
+
+        $this->getContainer()->get('mailer')->send($message);
+    }
+
 }

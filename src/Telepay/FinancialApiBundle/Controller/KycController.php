@@ -34,6 +34,7 @@ class KycController extends BaseApiController{
         else{
             $company = $request->get('company');
         }
+        $request->request->remove('company');
 
         if(!$request->request->has('email') || $request->get('email')==""){
             throw new HttpException(400, "Missing parameter 'email'");
@@ -65,10 +66,10 @@ class KycController extends BaseApiController{
         $request->request->add(array('email'=>$email));
         $request->request->add(array('enabled'=>1));
         $request->request->add(array('base64_image'=>''));
-        $request->request->add(array('default_currency'=>'EUR'));
+//        $request->request->add(array('default_currency'=>'EUR'));
         $request->request->add(array('gcm_group_key'=>''));
-        $request->request->add(array('services_list'=>array('sample')));
-        $request->request->add(array('methods_list'=>array('sample')));
+//        $request->request->add(array('services_list'=>array('sample')));
+//        $request->request->add(array('methods_list'=>array('sample')));
         $resp= parent::createAction($request);
 
         if($resp->getStatusCode() == 201) {
@@ -321,6 +322,8 @@ class KycController extends BaseApiController{
 
     private function _sendEmail($subject, $body, $to, $action){
 
+        $from = 'no-reply@chip-chap.com';
+        $mailer = 'mailer';
         if($action == 'register'){
             $template = 'TelepayFinancialApiBundle:Email:registerconfirm.html.twig';
         }elseif($action == 'recover'){
@@ -329,12 +332,14 @@ class KycController extends BaseApiController{
             $template = 'TelepayFinancialApiBundle:Email:registerconfirmkyc.html.twig';
         }elseif($action == 'register_kyc_holy'){
             $template = 'TelepayFinancialApiBundle:Email:registerconfirmkycholy.html.twig';
+            $from = 'no-reply@holytransaction.trade';
+            $mailer = 'swiftmailer.mailer.holy_mailer';
         }else{
             $template = 'TelepayFinancialApiBundle:Email:registerconfirm.html.twig';
         }
         $message = \Swift_Message::newInstance()
             ->setSubject($subject)
-            ->setFrom('no-reply@chip-chap.com')
+            ->setFrom($from)
             ->setTo(array(
                 $to
             ))
@@ -348,7 +353,7 @@ class KycController extends BaseApiController{
             )
             ->setContentType('text/html');
 
-        $this->container->get('mailer')->send($message);
+        $this->container->get($mailer)->send($message);
     }
 
 }

@@ -45,9 +45,33 @@ admin_services_index:
     requirements:
         _method: GET
 
+admin_services_create:
+    pattern:  /admin/v1/methods
+    defaults: { _controller: Telepay\FinancialApiBundle\Controller\Management\Admin\MethodsController::createMethod }
+    requirements:
+        _method: POST
+
+admin_services_update:
+    pattern:  /admin/v1/methods/{id}
+    defaults: { _controller: Telepay\FinancialApiBundle\Controller\Management\Admin\MethodsController::updateMethod }
+    requirements:
+        _method: PUT
+
+admin_services_delete:
+    pattern:  /admin/v1/methods/{id}
+    defaults: { _controller: Telepay\FinancialApiBundle\Controller\Management\Admin\MethodsController::deleteMethod }
+    requirements:
+        _method: DELETE
+
 admin_swift_index:
     pattern:  /admin/v1/swift
     defaults: { _controller: Telepay\FinancialApiBundle\Controller\Management\Admin\MethodsController::indexSwift }
+    requirements:
+        _method: GET
+
+admin_exchanges_index:
+    pattern:  /admin/v1/exchanges
+    defaults: { _controller: Telepay\FinancialApiBundle\Controller\Management\Admin\MethodsController::indexExchanges }
     requirements:
         _method: GET
 
@@ -96,6 +120,42 @@ system_api_version:
 system_api_financial:
     pattern:  /system/v1/financial
     defaults: { _controller: Telepay\FinancialApiBundle\Controller\Management\System\SystemController::financial }
+    requirements:
+        _method: GET
+
+system_db_wallets_index:
+    pattern:  /system/v1/db_wallets
+    defaults: { _controller: Telepay\FinancialApiBundle\Controller\Management\System\DbWalletController::indexAction }
+    requirements:
+        _method: GET
+
+system_db_wallets_create:
+    pattern:  /system/v1/db_wallets
+    defaults: { _controller: Telepay\FinancialApiBundle\Controller\Management\System\DbWalletController::createAction }
+    requirements:
+        _method: POST
+
+system_db_wallets_update:
+    pattern:  /system/v1/db_wallets/{id}
+    defaults: { _controller: Telepay\FinancialApiBundle\Controller\Management\System\DbWalletController::updateAction }
+    requirements:
+        _method: PUT
+
+system_db_wallets_index:
+    pattern:  /system/v1/db_wallets/{id}
+    defaults: { _controller: Telepay\FinancialApiBundle\Controller\Management\System\DbWalletController::deleteAction }
+    requirements:
+        _method: DELETE
+
+system_last50transactions_index:
+    pattern:  /system/v1/last50
+    defaults: { _controller: Telepay\FinancialApiBundle\Controller\Management\System\ActivityController::last50Transactions }
+    requirements:
+        _method: GET
+
+system_totalWallets_index:
+    pattern:  /system/v1/total_wallets
+    defaults: { _controller: Telepay\FinancialApiBundle\Controller\Management\System\ActivityController::totalWallets }
     requirements:
         _method: GET
 
@@ -148,3 +208,18 @@ admin_update_status_transaction:
     defaults: { _controller: Telepay\FinancialApiBundle\Controller\Management\Admin\SpecialActionsController::updateTransactionStatus }
     requirements:
         _method: PUT
+
+
+##################### COMPANIES ############################
+
+admin_companies_super_update:
+    pattern:  /admin/v1/companies/{id}
+    defaults: { _controller: Telepay\FinancialApiBundle\Controller\Management\Admin\CompaniesController::updateAction }
+    requirements:
+        _method: PUT
+
+admin_companies_super_delete:
+    pattern:  /admin/v1/companies/{id}
+    defaults: { _controller: Telepay\FinancialApiBundle\Controller\Management\Admin\CompaniesController::deleteAction }
+    requirements:
+        _method: DELETE

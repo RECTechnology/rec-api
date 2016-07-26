@@ -10,13 +10,10 @@ use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Component\HttpKernel\Exception\HttpException;
-use Telepay\FinancialApiBundle\DependencyInjection\Telepay\Commons\FeeDeal;
 use Telepay\FinancialApiBundle\DependencyInjection\Telepay\Commons\LimitAdder;
 use Telepay\FinancialApiBundle\Document\Transaction;
-use Telepay\FinancialApiBundle\Entity\Exchange;
-use Telepay\FinancialApiBundle\Financial\Currency;
 
-class CheckSwiftCommand extends ContainerAwareCommand
+class CheckSwiftCommand extends SyncronizedContainerAwareCommand
 {
     protected function configure()
     {
@@ -33,7 +30,7 @@ class CheckSwiftCommand extends ContainerAwareCommand
         ;
     }
 
-    protected function execute(InputInterface $input, OutputInterface $output)
+    protected function executeSyncronized(InputInterface $input, OutputInterface $output)
     {
         $trans_id = $input->getOption('transaction-id');
 
@@ -56,7 +53,9 @@ class CheckSwiftCommand extends ContainerAwareCommand
         $output->writeln('START QUERY: '.$now->format('d-m-Y:H:i:s'));
 
         $root_id = $this->getContainer()->getParameter('admin_user_id');
+        $root_group_id = $this->getContainer()->getParameter('id_group_root');
         $root = $em->getRepository('TelepayFinancialApiBundle:User')->find($root_id);
+        $rootGroup = $em->getRepository('TelepayFinancialApiBundle:Group')->find($root_group_id);
 
         foreach($qb->toArray() as $transaction){
             if($transaction->getMethodIn() != ''){
@@ -76,8 +75,9 @@ class CheckSwiftCommand extends ContainerAwareCommand
 
                     $pay_in_info = $transaction->getPayInInfo();
                     $pay_out_info = $transaction->getPayOutInfo();
-                    $amount = $transaction->getAmount();
                     $client = $transaction->getClient();
+                    $actualClient = $em->getRepository('TelepayFinancialApiBundle:Client')->find($client);
+                    $clientGroup = $actualClient->getGroup();
 
                     //get configuration(method)
                     $swift_config = $this->getContainer()->get('net.telepay.config.'.$method_in.'.'.$method_out);
@@ -88,7 +88,25 @@ class CheckSwiftCommand extends ContainerAwareCommand
                         'client'    =>  $client,
                         'cname' =>  $method_in.'-'.$method_out
                     ));
+                    if($method_out == 'btc' || $method_out == 'fac'){
+                        //Hay que volver a calcular el amount en btc que vamos a enviar y ponerlo en el pay_out_info
+                        if($method_in == 'safetypay'){
+                            $amount = round($this->_exchange($pay_in_info['amount'], $pay_in_info['currency'], $cashOutMethod->getCurrency()),0);
+                        }else{
+                            $amount = round($this->_exchange($pay_in_info['amount'], $cashInMethod->getCurrency(), $cashOutMethod->getCurrency()),0);
+                        }
+                        $client_fee = round(($amount * ($clientFees->getVariable()/100) + $clientFees->getFixed()),0);
+                        $service_fee = round(($amount * ($methodFees->getVariable()/100) + $methodFees->getFixed()),0);
+                        $final_amount = $amount - $service_fee - $client_fee;
+                        $pay_out_info['amount'] = $final_amount;
+                        $transaction->setPayOutInfo($pay_out_info);
+                        $transaction->setAmount($final_amount);
+                        $transaction->setTotal($final_amount);
+                        $dm->persist($transaction);
+                        $dm->flush();
+                    }
 
+                    $amount = $transaction->getAmount();
                     $client_fee = round(($amount * ($clientFees->getVariable()/100) + $clientFees->getFixed()),0);
                     $service_fee = round(($amount * ($methodFees->getVariable()/100) + $methodFees->getFixed()),0);
 
@@ -132,6 +150,21 @@ class CheckSwiftCommand extends ContainerAwareCommand
                         }
                         $output->writeln('NEW STATUS => '.$transaction->getStatus());
                     }elseif($pay_in_info['status'] == 'success'){
+                        if($method_in != 'btc' && $method_in != 'fac' ){
+                            //sumar balance to statusMethod only when cash_in is distinct to btc or fac
+                            $statusMethod = $em->getRepository('TelepayFinancialApiBundle:StatusMethod')->findOneBy(array(
+                                'method'    =>  $method_in,
+                                'type'  =>  'in'
+                            ));
+
+                            if($statusMethod){
+                                $balance = $statusMethod->getBalance() + $pay_in_info['amount'];
+                                $statusMethod->setBalance($balance);
+                                $em->persist($statusMethod);
+                                $em->flush();
+                            }
+
+                        }
                         $transaction->setPayInInfo($pay_in_info);
                         $transaction->setDataOut($pay_in_info);
                         $transaction->setUpdated(new \DateTime());
@@ -147,27 +180,6 @@ class CheckSwiftCommand extends ContainerAwareCommand
                             $dm->persist($transaction);
                             $dm->flush();
 
-                            //if method_out es igual a btc o fac hay que volver a calcular el amount de btc
-                            if($method_out == 'btc' || $method_out == 'fac'){
-                                //Hay que volver a calcular el amount en btc que vamos a enviar y ponerlo en el pay_out_info
-                                if($method_in == 'safetypay'){
-                                    $crypto_amount = round($this->_exchange($pay_in_info['amount'], $pay_in_info['currency'], $cashOutMethod->getCurrency()),0);
-                                }else{
-                                    $crypto_amount = round($this->_exchange($pay_in_info['amount'], $cashInMethod->getCurrency(), $cashOutMethod->getCurrency()),0);
-                                }
-
-
-                                $client_fee = round(($crypto_amount * ($clientFees->getVariable()/100) + $clientFees->getFixed()),0);
-                                $service_fee = round(($crypto_amount * ($methodFees->getVariable()/100) + $methodFees->getFixed()),0);
-
-                                $final_amount = $crypto_amount - $service_fee - $client_fee;
-                                $pay_out_info['amount'] = $final_amount;
-                                $transaction->setPayOutInfo($pay_out_info);
-                                $transaction->setAmount($final_amount);
-                                $transaction->setTotal($final_amount);
-                                $dm->persist($transaction);
-                                $dm->flush();
-                            }
                             try{
                                 $pay_out_info = $cashOutMethod->send($pay_out_info);
                                 $now3 = new \DateTime();
@@ -219,6 +231,21 @@ class CheckSwiftCommand extends ContainerAwareCommand
 
                                         $this->_sendTicket($body, $email, $ticket, $method_out);
                                     }
+                                }else{
+                                    //restar al balance correspondiente (halcash, sepa , cryptocapital)
+                                    $statusMethod = $em->getRepository('TelepayFinancialApiBundle:StatusMethod')->findOneBy(array(
+                                        'method'    =>  $method_in,
+                                        'type'  =>  'out'
+                                    ));
+
+                                    if($statusMethod){
+                                        $balance = $statusMethod->getBalance() - $pay_out_info['amount'] - $service_fee;
+                                        if($balance < 0) $balance = 0;
+                                        $statusMethod->setBalance($balance);
+                                        $em->persist($statusMethod);
+                                        $em->flush();
+                                    }
+
                                 }
                                 //Generate fee transactions. One for the user and one for the root
                                 if($pay_out_info['status'] == 'sending'){
@@ -229,7 +256,8 @@ class CheckSwiftCommand extends ContainerAwareCommand
                                 if($client_fee != 0){
                                     //client fees goes to the user
                                     $userFee = new Transaction();
-                                    $userFee->setUser($transaction->getUser());
+                                    if($transaction->getUser()) $transaction->setUser($transaction->getUser());
+                                    $userFee->setGroup($transaction->getGroup());
                                     $userFee->setType('fee');
                                     $userFee->setCurrency($transaction->getCurrency());
                                     $userFee->setScale($transaction->getScale());
@@ -248,8 +276,8 @@ class CheckSwiftCommand extends ContainerAwareCommand
                                     $userFee->setClient($client);
                                     $dm->persist($userFee);
 
-                                    $user = $em->getRepository('TelepayFinancialApiBundle:User')->find($transaction->getUser());
-                                    $userWallets = $user->getWallets();
+                                    $group = $em->getRepository('TelepayFinancialApiBundle:Group')->find($transaction->getGroup());
+                                    $userWallets = $group->getWallets();
                                     $current_wallet = null;
 
                                     foreach ( $userWallets as $wallet){
@@ -271,6 +299,7 @@ class CheckSwiftCommand extends ContainerAwareCommand
 
                                     $rootFee = new Transaction();
                                     $rootFee->setUser($root->getId());
+                                    $rootFee->setGroup($rootGroup->getId());
                                     $rootFee->setType('fee');
                                     $rootFee->setCurrency($transaction->getCurrency());
                                     $rootFee->setScale($transaction->getScale());
@@ -284,13 +313,15 @@ class CheckSwiftCommand extends ContainerAwareCommand
                                     $rootFee->setDataIn(array(
                                         'previous_transaction'  =>  $transaction->getId(),
                                         'transaction_amount'    =>  $transaction->getAmount(),
-                                        'total_fee' =>  $client_fee + $service_fee
+                                        'total_fee' =>  $client_fee + $service_fee,
+                                        'previous_group_id'   =>  $clientGroup->getId(),
+                                        'previous_group_name'   =>  $clientGroup->getName()
                                     ));
                                     $rootFee->setClient($client);
 
                                     $dm->persist($rootFee);
                                     //get wallets and add fees to both, user and wallet
-                                    $rootWallets = $root->getWallets();
+                                    $rootWallets = $rootGroup->getWallets();
                                     $current_wallet = null;
 
                                     foreach ( $rootWallets as $wallet){
@@ -307,7 +338,6 @@ class CheckSwiftCommand extends ContainerAwareCommand
                                 }
 
                                 $dm->flush();
-
 
                             }else{
                                 $transaction->setStatus(Transaction::$STATUS_FAILED);
@@ -332,12 +362,11 @@ class CheckSwiftCommand extends ContainerAwareCommand
                             $dm->flush();
 
                         }
-
                     }
 
                     //se ha quitado esto para intentar eviar el double sent de halcash
-                $dm->persist($transaction);
-                $dm->flush();
+                    $dm->persist($transaction);
+                    $dm->flush();
 
                 }
 
@@ -371,9 +400,11 @@ class CheckSwiftCommand extends ContainerAwareCommand
 
     private function _sendErrorEmail($subject, $body){
 
+        $no_replay = $this->getContainer()->getParameter('no_reply_email');
+
         $message = \Swift_Message::newInstance()
             ->setSubject($subject)
-            ->setFrom('no-reply@chip-chap.com')
+            ->setFrom($no_replay)
             ->setTo(array(
                 'pere@chip-chap.com',
                 'cto@chip-chap.com'
@@ -419,9 +450,11 @@ class CheckSwiftCommand extends ContainerAwareCommand
         $dompdf->getpdf($html);
         $pdfoutput = $dompdf->output();
 
+        $no_replay = $this->getContainer()->getParameter('no_reply_email');
+
         $message = \Swift_Message::newInstance()
             ->setSubject($marca[$method_out] . 'Ticket ref: '.$ref)
-            ->setFrom('no-reply@chip-chap.com')
+            ->setFrom($no_replay)
             ->setTo(array(
                 $email
             ))

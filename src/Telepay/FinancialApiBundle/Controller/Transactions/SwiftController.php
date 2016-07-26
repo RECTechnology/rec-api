@@ -8,6 +8,8 @@
 
 namespace Telepay\FinancialApiBundle\Controller\Transactions;
 
+use DateInterval;
+use DateTime;
 use Symfony\Component\Config\Definition\Exception\Exception;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpKernel\Exception\HttpException;
@@ -31,6 +33,8 @@ class SwiftController extends RestApiController{
 
         $admin_id = $this->container->getParameter('admin_user_id');
         $client_default_id = $this->container->getParameter('swift_client_id_default');
+        $rootGroupId = $this->container->getParameter('id_group_root');
+
         if($type_in == "fac" || $type_out == "fac"){
             $admin_id = $this->container->getParameter('admin_user_id_fac');
             $client_default_id = $this->container->getParameter('swift_client_id_default_fac');
@@ -48,7 +52,7 @@ class SwiftController extends RestApiController{
             );
             $client = $accessToken->getClient();
             if(!$user){
-                $user = $client->getUser();
+//                $user = $client->getUser();
             }
 
         }else{
@@ -66,6 +70,11 @@ class SwiftController extends RestApiController{
 
         if(!$request->request->has('amount')) throw new HttpException(404, 'Param amount not found');
 
+        //check concept last 30 minutes in the same company
+        $company = $client->getGroup();
+
+//        $this->checkConceptLast30Min($request, $dm, $company);
+
         //TODO optional url_notification param
 
         $amount = $request->request->get('amount');
@@ -81,8 +90,8 @@ class SwiftController extends RestApiController{
         $email = $request->request->get('email')?$request->request->get('email'):'';
         if($email == '' && ($cashInMethod->getEmailRequired() || $cashOutMethod->getEmailRequired())) throw new HttpException(400, 'Email is required');
 
-        //$cashInMethod->checkKYC($request);
-        //$cashOutMethod->checkKYC($request);
+        $cashInMethod->checkKYC($request);
+        $cashOutMethod->checkKYC($request);
 
         //get configuration(method)
         $swift_config = $this->container->get('net.telepay.config.'.$type_in.'.'.$type_out);
@@ -92,7 +101,6 @@ class SwiftController extends RestApiController{
         if($cashOutMethod->getCurrency() != $methodInfo['currency']){
             $amount_in = $amount;
             $amount_out = $this->_exchange($amount_in, $cashInMethod->getCurrency(), $cashOutMethod->getCurrency());
-
         }else{
             $amount_in = 0;
             $amount_out = $amount;
@@ -115,6 +123,14 @@ class SwiftController extends RestApiController{
 
         $ip = $request->server->get('REMOTE_ADDR');
 
+        //check if method is available
+        $statusMethod = $em->getRepository('TelepayFinancialApiBundle:StatusMethod')->findOneBy(array(
+            'method'    =>  $type_in.'-'.$type_out,
+            'type'      =>  'swift'
+        ));
+
+        if($statusMethod->getStatus() != 'available') throw new HttpException(403, 'Swift method temporally unavailable');
+
         //Create transaction
         $transaction = new Transaction();
         $transaction->createFromRequest($request);
@@ -123,7 +139,8 @@ class SwiftController extends RestApiController{
         $transaction->setEmailNotification($email);
         $transaction->setVariableFee(0);
         $transaction->setService($type_in.'-'.$type_out);
-        $transaction->setUser($user->getId());
+        if($user) $transaction->setUser($user->getId());
+        $transaction->setGroup($client->getGroup()->getId());
         $transaction->setType('swift');
         $transaction->setMethodIn($type_in);
         $transaction->setMethodOut($type_out);
@@ -339,6 +356,7 @@ class SwiftController extends RestApiController{
             throw new HttpException(403, 'You don\'t have the necessary permissions');
         }
 
+        $group = $user->getActiveGroup();
         $dm = $this->get('doctrine_mongodb')->getManager();
 
         if(!$request->request->has('option')) throw new HttpException(404, 'Missing parameter \'option\'');
@@ -348,7 +366,7 @@ class SwiftController extends RestApiController{
         $transaction = $dm->getRepository('TelepayFinancialApiBundle:Transaction')->findOneBy(array(
             'id'    =>  $id,
             'type'  =>  'swift',
-            'user'  =>  $user->getId()
+            'group'  =>  $group->getId()
         ));
 
         if(!$transaction) throw new HttpException(404, 'Transaction not found');
@@ -381,7 +399,7 @@ class SwiftController extends RestApiController{
 
                 $previous_status = $transaction->getStatus();
 
-                //TODO implement a resend with changed params (phone and prefix done)
+                //resend with changed params (phone and prefix done)
 
                 if($request->request->has('new_phone') && $request->request->get('new_phone')!=''){
                     $new_phone = $request->request->get('new_phone');
@@ -410,7 +428,7 @@ class SwiftController extends RestApiController{
 
                 //if previous status == failed generate fees transactions
                 if($previous_status == Transaction::$STATUS_FAILED){
-                    $this->_generateFees($transaction, $method_in, $method_out);
+                    $this->_generateFees($transaction, $transaction->getMethodIn(), $transaction->getMethodOut());
                 }
 
             }else{
@@ -655,11 +673,11 @@ class SwiftController extends RestApiController{
             );
             $client = $accessToken->getClient();
             if(!$user){
-                $user = $client->getUser();
+//                $user = $client->getUser();
             }
 
         }else{
-            $user = $admin;
+//            $user = $admin;
             $client = $em->getRepository('TelepayFinancialApiBundle:Client')->findOneById($client_default_id);
 
         }
@@ -832,11 +850,14 @@ class SwiftController extends RestApiController{
 
         $em = $this->getDoctrine()->getManager();
         $dm = $this->get('doctrine_mongodb')->getManager();
-        $client = $transaction->getClient();
+        $client = $em->getRepository('TelepayFinancialApiBundle:Client')->find($transaction->getClient());
+        $clientGroup = $client->getGroup();
         $amount = $transaction->getAmount();
 
         $root_id = $this->container->getParameter('admin_user_id');
+        $rootGroupId = $this->container->getParameter('id_group_root');
         $root = $em->getRepository('TelepayFinancialApiBundle:User')->find($root_id);
+        $rootGroup = $em->getRepository('TelepayFinancialApiBundle:Group')->find($rootGroupId);
 
         //get configuration(method)
         $swift_config = $this->container->get('net.telepay.config.'.$method_out);
@@ -853,7 +874,8 @@ class SwiftController extends RestApiController{
 
         //client fees goes to the user
         $userFee = new Transaction();
-        $userFee->setUser($transaction->getUser());
+        if($transaction->getUser()) $userFee->setUser($transaction->getUser());
+        $userFee->setGroup($transaction->getGroup());
         $userFee->setType('fee');
         $userFee->setCurrency($transaction->getCurrency());
         $userFee->setScale($transaction->getScale());
@@ -873,6 +895,7 @@ class SwiftController extends RestApiController{
         //service fees goes to root
         $rootFee = new Transaction();
         $rootFee->setUser($root->getId());
+        $rootFee->setGroup($rootGroupId);
         $rootFee->setType('fee');
         $rootFee->setCurrency($transaction->getCurrency());
         $rootFee->setScale($transaction->getScale());
@@ -893,7 +916,7 @@ class SwiftController extends RestApiController{
         $dm->flush();
 
         //TODO get wallets and add fees to both, user and wallet
-        $rootWallets = $root->getWallets();
+        $rootWallets = $rootGroup->getWallets();
         $current_wallet = null;
 
         foreach ( $rootWallets as $wallet){
@@ -908,11 +931,10 @@ class SwiftController extends RestApiController{
         $em->persist($current_wallet);
         $em->flush();
 
-        $user = $em->getRepository('TelepayFinancialApiBundle:User')->find($transaction->getUser());
-        $userWallets = $user->getWallets();
+        $clientWallets = $clientGroup->getWallets();
         $current_wallet = null;
 
-        foreach ( $userWallets as $wallet){
+        foreach ( $clientWallets as $wallet){
             if ($wallet->getCurrency() == $userFee->getCurrency()){
                 $current_wallet = $wallet;
             }
@@ -965,8 +987,8 @@ class SwiftController extends RestApiController{
             $dm->flush();
 
             //getWallet and discount fee
-            $user = $em->getRepository('TelepayFinancialApiBundle:User')->find($transaction->getUser());
-            $userWallets = $user->getWallets();
+            $clientGroup = $em->getRepository('TelepayFinancialApiBundle:Group')->find($transaction->getGroup());
+            $userWallets = $clientGroup->getWallets();
             $current_wallet = null;
 
             foreach ( $userWallets as $wallet){
@@ -982,6 +1004,8 @@ class SwiftController extends RestApiController{
             $em->flush();
 
         }
+
+        //TODO crec que faltara descontarli la fee al admin tab
 
     }
 
@@ -1128,6 +1152,35 @@ class SwiftController extends RestApiController{
 
     public function notification(Request $request, $version_number, $type_in, $type_out){
 
+    }
+
+    private function checkConceptLast30Min(Request $request, $dm, $company){
+        if(!$request->request->has('concept')) throw new HttpException(404, 'Param concept not found');
+        $concept = $request->request->get('concept');
+        $qb = $dm->createQueryBuilder('TelepayFinancialApiBundle:Transaction');
+        $fecha = new DateTime();
+        $fecha->sub(new DateInterval('PT30M'));
+        $start_time = new \MongoDate($fecha->getTimestamp());
+        $finish_time = new \MongoDate();
+        $result = $qb
+            ->field('type')->equals('swift')
+            ->field('group')->equals($company->getId())
+            ->field('created')->gte($start_time)
+            ->field('created')->lte($finish_time)
+            ->where("function(){
+                    if (typeof this.pay_out_info.concept !== 'undefined') {
+                        if(String(this.pay_out_info.concept).indexOf('$concept') > -1){
+                            return true;
+                        }
+                    }
+                }")
+
+            ->getQuery()
+            ->execute();
+
+        $total = count($result);
+
+        if($total >=1) throw new HttpException(409, 'concept duplicated before 30 minutes');
     }
 
 }

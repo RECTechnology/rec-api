@@ -22,10 +22,10 @@ class POSController extends BaseApiController{
      */
     public function indexAction(Request $request){
 
-        $user = $this->get('security.context')->getToken()->getUser();
+        $userGroup = $this->get('security.context')->getToken()->getUser()->getActiveGroup();
 
         $all = $this->getRepository()->findBy(array(
-            'user'  =>  $user
+            'group'  =>  $userGroup
         ));
 
         $total = count($all);
@@ -50,6 +50,12 @@ class POSController extends BaseApiController{
      * @Rest\View
      */
     public function showAction($id){
+        $userGroup = $this->get('security.context')->getToken()->getUser()->getActiveGroup();
+        $pos = $this->getRepository()->findOneBy(array(
+            'id'  =>  $id,
+            'group'  =>  $userGroup
+        ));
+        if(empty($pos)) throw new HttpException(404, "Not found");
         return parent::showAction($id);
     }
 
@@ -57,10 +63,13 @@ class POSController extends BaseApiController{
      * @Rest\View
      */
     public function createAction(Request $request){
-
         $user = $this->get('security.context')->getToken()->getUser();
+        $userGroup = $user->getActiveGroup();
+
+        if(!$this->get('security.context')->isGranted('ROLE_ADMIN')) throw new HttpException(403, 'You don\' have the necessary permissions');
+
         $request->request->add(array(
-            'user'   =>  $user
+            'group'   =>  $userGroup
         ));
 
         $currency = $request->request->get('currency');
@@ -92,17 +101,30 @@ class POSController extends BaseApiController{
      * @Rest\View
      */
     public function updateAction(Request $request, $id=null){
-
+        $user = $this->get('security.context')->getToken()->getUser();
+        $userGroup = $user->getActiveGroup();
+        if(!$this->get('security.context')->isGranted('ROLE_ADMIN')) throw new HttpException(403, 'You don\' have the necessary permissions');
+        $pos = $this->getRepository()->findOneBy(array(
+            'id'  =>  $id,
+            'group'  =>  $userGroup
+        ));
+        if(empty($pos)) throw new HttpException(404, "Not found");
         if($request->request->has('cname')) throw new HttpException(400, "Parameter cname can't be changed");
-
         return parent::updateAction($request, $id);
-
     }
 
     /**
      * @Rest\View
      */
     public function deleteAction($id){
+        $user = $this->get('security.context')->getToken()->getUser();
+        $userGroup = $user->getActiveGroup();
+        if(!$this->get('security.context')->isGranted('ROLE_ADMIN')) throw new HttpException(403, 'You don\' have the necessary permissions');
+        $pos = $this->getRepository()->findOneBy(array(
+            'id'  =>  $id,
+            'group'  =>  $userGroup
+        ));
+        if(empty($pos)) throw new HttpException(404, "Not found");
         return parent::deleteAction($id);
 
     }

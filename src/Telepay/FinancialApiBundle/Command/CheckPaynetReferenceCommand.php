@@ -29,37 +29,36 @@ class CheckPaynetReferenceCommand extends ContainerAwareCommand
 
         $dm = $this->getContainer()->get('doctrine_mongodb')->getManager();
         $em = $this->getContainer()->get('doctrine')->getManager();
-        $repo = $em->getRepository('TelepayFinancialApiBundle:User');
+        $repo = $em->getRepository('TelepayFinancialApiBundle:Group');
 
         $qb = $dm->createQueryBuilder('TelepayFinancialApiBundle:Transaction')
             ->field('method')->equals($method_cname)
-            ->field('status')->in(array('created','received'))
+            ->field('status')->in(array(Transaction::$STATUS_CREATED,Transaction::$STATUS_RECEIVED))
             ->getQuery();
 
-        $resArray = [];
-
         foreach($qb->toArray() as $transaction){
-            $data = $transaction->getDataIn();
+
             $transaction_id = $transaction->getId();
-            $resArray [] = $transaction;
 
             $previous_status = $transaction->getStatus();
             $transaction = $this->check($transaction);
 
             if($previous_status != $transaction->getStatus()){
                 $transaction = $this->getContainer()->get('notificator')->notificate($transaction);
+                $transaction->setUpdated(new \MongoDate());
             }
 
+            $dm->persist($transaction);
             $dm->flush();
 
             if($transaction->getStatus()=='success'){
                 //hacemos el reparto
                 //primero al user
-                $id = $transaction->getUser();
+                $id = $transaction->getGroup();
 
-                $user = $repo->find($id);
+                $group = $repo->find($id);
 
-                $wallets = $user->getWallets();
+                $wallets = $group->getWallets();
                 $service_currency = $transaction->getCurrency();
                 $current_wallet = null;
                 foreach ( $wallets as $wallet){
@@ -67,11 +66,10 @@ class CheckPaynetReferenceCommand extends ContainerAwareCommand
                         $current_wallet = $wallet;
                     }
                 }
-                $group = $user->getGroups()[0];
 
-                $amount = $data['amount'];
+                $amount = $transaction->getAmount();
 
-                if(!$user->hasRole('ROLE_SUPER_ADMIN')){
+                if(!$group->hasRole('ROLE_SUPER_ADMIN')){
 
                     $fixed_fee = $transaction->getFixedFee();
                     $variable_fee = $transaction->getVariableFee();
@@ -90,7 +88,7 @@ class CheckPaynetReferenceCommand extends ContainerAwareCommand
                         $feeTransaction->setStatus('success');
                         $feeTransaction->setScale($transaction->getScale());
                         $feeTransaction->setAmount($total_fee);
-                        $feeTransaction->setUser($id);
+                        $feeTransaction->setGroup($id);
                         $feeTransaction->setCreated(new \MongoDate());
                         $feeTransaction->setUpdated(new \MongoDate());
                         $feeTransaction->setIp($transaction->getIp());
@@ -113,7 +111,7 @@ class CheckPaynetReferenceCommand extends ContainerAwareCommand
                         $dm->persist($feeTransaction);
                         $dm->flush();
 
-                        $creator = $group->getCreator();
+                        $creator = $group->getGroupCreator();
 
                         //luego a la ruleta de admins
                         $dealer = $this->getContainer()->get('net.telepay.commons.fee_deal');
@@ -147,14 +145,14 @@ class CheckPaynetReferenceCommand extends ContainerAwareCommand
 
     public function check(Transaction $transaction){
 
-        if($transaction->getStatus() === 'created' && $this->hasExpired($transaction)){
-            $transaction->setStatus('expired');
+        $payment_info = $transaction->getPayInInfo();
+        if($transaction->getStatus() === Transaction::$STATUS_CREATED && $this->hasExpired($transaction)){
+            $transaction->setStatus(Transaction::$STATUS_EXPIRED);
+            $payment_info['status'] = Transaction::$STATUS_EXPIRED;
         }
 
-        if($transaction->getStatus() === 'success' || $transaction->getStatus() === 'expired')
+        if($transaction->getStatus() === Transaction::$STATUS_SUCCESS || $transaction->getStatus() === Transaction::$STATUS_EXPIRED)
             return $transaction;
-
-        $payment_info = $transaction->getPayInInfo();
 
         $payment_info = $this->getContainer()
             ->get('net.telepay.'.$transaction->getType().'.'.$transaction->getMethod().'.v1')

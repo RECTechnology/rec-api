@@ -12,6 +12,7 @@ namespace Telepay\FinancialApiBundle\Controller\Management\User;
 use FOS\OAuthServerBundle\Model\Client;
 use MongoDBODMProxies\__CG__\Telepay\FinancialApiBundle\Document\Transaction;
 use Symfony\Component\HttpKernel\Exception\HttpException;
+use Symfony\Component\Validator\Constraints\Currency;
 use Telepay\FinancialApiBundle\Controller\BaseApiController;
 use FOS\RestBundle\Controller\Annotations as Rest;
 use Symfony\Component\HttpFoundation\Request;
@@ -24,7 +25,8 @@ class SwiftController extends BaseApiController{
     public function read(Request $request){
 
         $user = $this->get('security.context')->getToken()->getUser();
-        $clients = $user->getClients();
+        $userGroup = $user->getActiveGroup();
+        $clients = $userGroup->getClients();
         $em = $this->getDoctrine()->getManager();
         $response = array();
 
@@ -44,7 +46,8 @@ class SwiftController extends BaseApiController{
                     'cname' =>  $fee->getCname(),
                     'currency'  =>  $fee->getCurrency(),
                     'fixed' =>  $fee->getFixed(),
-                    'variable'  =>  $fee->getVariable()
+                    'variable'  =>  $fee->getVariable(),
+                    'scale'     =>  \Telepay\FinancialApiBundle\Financial\Currency::$SCALE[$fee->getCurrency()]
                 );
             }
 
@@ -53,6 +56,8 @@ class SwiftController extends BaseApiController{
                 $limitsCollection[] = array(
                     'id'    =>  $limit->getId(),
                     'cname' =>  $limit->getCname(),
+                    'currency'  =>  $limit->getCurrency(),
+                    'scale' =>  \Telepay\FinancialApiBundle\Financial\Currency::$SCALE[$limit->getCurrency()],
                     'single' =>  $limit->getSingle(),
                     'day'  =>  $limit->getDay(),
                     'week'  =>  $limit->getWeek(),
@@ -70,7 +75,8 @@ class SwiftController extends BaseApiController{
                 'fees'  =>  $feesCollection,
                 'limits'    =>  $limitsCollection,
                 'swift_methods' =>  $client->getSwiftList(),
-                'uris'  =>  $client->getRedirectUris()
+                'uris'  =>  $client->getRedirectUris(),
+                'allowed_grant_types'   =>  $client->getAllowedGrantTypes()
             );
         }
 
@@ -85,12 +91,17 @@ class SwiftController extends BaseApiController{
         //todo active methods or inactive.
         //get client
         $user = $this->get('security.context')->getToken()->getUser();
+        $userGroup = $user->getActiveGroup();
 
         $em = $this->getDoctrine()->getManager();
         $client = $em->getRepository('TelepayFinancialApiBundle:Client')->findOneBy(array(
             'id'    =>  $id,
-            'user'  =>  $user
+            'group'  =>  $userGroup
         ));
+
+        if(!$client) throw new HttpException(404, 'Client not found');
+
+        if(!$this->get('security.context')->isGranted('ROLE_WORKER')) throw new HttpException(403, 'You don\' have the necessary permissions');
 
         $swiftMethods = null;
         //To activate swift methods we have to send all the services we want activate
@@ -131,6 +142,8 @@ class SwiftController extends BaseApiController{
     public function updateFees(Request $request, $id){
 
         $user = $this->get('security.context')->getToken()->getUser();
+        $userGroup = $user->getGroups()[0];
+        if(!$this->get('security.context')->isGranted('ROLE_WORKER')) throw new HttpException(403, 'You don\' have the necessary permissions');
 
         $em = $this->getDoctrine()->getManager();
 
@@ -138,7 +151,7 @@ class SwiftController extends BaseApiController{
 
         if(!$fee) throw new HttpException(404, 'Fee not found');
 
-        if($user != $fee->getClient()->getUser()) throw new HttpException(403, 'You don\'t have the necessary permissions to change this fee');
+        if($userGroup != $fee->getClient()->getGroup()) throw new HttpException(403, 'You don\'t have the necessary permissions to change this fee');
 
         if($request->request->has('fixed')){
             $fee->setFixed($request->request->get('fixed'));
@@ -153,7 +166,6 @@ class SwiftController extends BaseApiController{
 
         return $this->restV2(204,"ok", "Updated successfully");
 
-
     }
 
     /**
@@ -162,8 +174,10 @@ class SwiftController extends BaseApiController{
     public function updateTransaction(Request $request, $id){
 
         $user = $this->get('security.context')->getToken()->getUser();
+        $userGroup = $user->getGroups()[0];
 
         $dm = $this->get('doctrine_mongodb')->getManager();
+        if(!$this->get('security.context')->isGranted('ROLE_WORKER')) throw new HttpException(403, 'You don\' have the necessary permissions');
 
         if(!$request->request->has('option')) throw new HttpException(404, 'Missing parameter \'option\'');
 
@@ -172,7 +186,7 @@ class SwiftController extends BaseApiController{
         $transaction = $dm->getRepository('TelepayFinancialApiBundle:Transaction')->findOneBy(array(
             'id'    =>  $id,
             'type'  =>  'swift',
-            'user'  =>  $user->getId()
+            'group'  =>  $userGroup->getId()
         ));
 
         if(!$transaction) throw new HttpException(404, 'Transaction not found');

@@ -1,5 +1,15 @@
 services:
 
+    net.telepay.driver.provider:
+        class: Telepay\FinancialApiBundle\Financial\ObjectRegister
+        arguments:
+            drivers:
+                - "@net.telepay.driver.bitso"
+                - "@net.telepay.driver.kraken"
+                - "@net.telepay.driver.bittrex"
+                - "@net.telepay.driver.easybitcoin.btc"
+                - "@net.telepay.driver.easybitcoin.fac"
+
     net.telepay.driver.bitso:
         class: Telepay\FinancialApiBundle\Financial\Driver\BitsoDriver
 
@@ -34,6 +44,9 @@ services:
             - "%bitcoind_pass%"
             - "%bitcoind_host%"
             - "%bitcoind_port%"
+
+    net.telepay.driver.easybitcoin2.btc:
+        class: Telepay\FinancialApiBundle\Financial\Driver\EasyBitcoinDriver2
 
     net.telepay.driver.easybitcoin.fac:
         class: Telepay\FinancialApiBundle\Financial\Driver\EasyBitcoinDriver
@@ -86,3 +99,13 @@ services:
             - "%safetypay_response_format%"
             - "%safetypay_url%"
             - "%web_app_url%"
+
+    net.telepay.driver.teleingreso.telepay:
+        class: Telepay\FinancialApiBundle\Financial\Driver\TeleingresoDriver
+        arguments:
+            - "%teleingreso_login%"
+            - "%teleingreso_pass%"
+            - "%teleingreso_certificateType%"
+            - "%teleingreso_currency%"
+            - "%teleingreso_url%"
+            - "%teleingreso_hash%"

@@ -1,0 +1,27 @@
+<?php
+namespace Telepay\FinancialApiBundle\Command;
+
+use Symfony\Component\Console\Input\InputArgument;
+use Symfony\Component\Console\Input\InputOption;
+use Symfony\Component\Console\Input\InputInterface;
+use Symfony\Component\Console\Output\OutputInterface;
+use Symfony\Component\HttpKernel\Exception\HttpException;
+
+class SleepCommand extends SyncronizedContainerAwareCommand
+{
+    protected function configure()
+    {
+        $this
+            ->setName('telepay:sleep')
+
+        ;
+    }
+
+    protected function executeSyncronized(InputInterface $input, OutputInterface $output)
+    {
+        $output->writeln('Init command');
+        sleep(20);
+        $output->writeln('Finish command');
+
+    }
+}

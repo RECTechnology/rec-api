@@ -46,9 +46,9 @@ class RestApiController extends FosRestController{
         ));
     }
 
-    protected function posMethod($httpCode, $status, $message = "No info", $id, $amount, $scale, $currency,$created, $updated, $type, $last_check, $last_price_at, $pay_in_info = array()){
+    protected function posMethod($httpCode, $status, $message = "No info", $id, $amount, $scale, $currency,$created, $updated, $type, $last_check, $last_price_at, $pos_name, $pay_in_info = array()){
         return $this->handleView($this->view(
-            new POSResponse($status, $message, $id, $amount, $scale, $currency ,$created, $updated, $type, $last_check, $last_price_at, $pay_in_info),
+            new POSResponse($status, $message, $id, $amount, $scale, $currency ,$created, $updated, $type, $last_check, $last_price_at, $pos_name, $pay_in_info),
             $httpCode
         ));
     }
@@ -120,6 +120,7 @@ class RestApiController extends FosRestController{
             $transaction->getType(),
             $transaction->getLastCheck(),
             $transaction->getLastPriceAt(),
+            $transaction->getPosName(),
             $transaction->getPayInInfo()
         );
     }

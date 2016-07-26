@@ -24,6 +24,9 @@ class ExchangePriceCommand extends ContainerAwareCommand
     protected function execute(InputInterface $input, OutputInterface $output) {
 
         $em = $this->getContainer()->get('doctrine')->getManager();
+
+        $error = 0;
+        $errorBody = array();
         foreach(Currency::$ALL as $inputCurrency){
             foreach(Currency::$ALL as $outputCurrency){
                 if($inputCurrency !== $outputCurrency){
@@ -46,12 +49,16 @@ class ExchangePriceCommand extends ContainerAwareCommand
                         }
                         else {
                             //send email
-                            $this->sendEmail('Exchange error', "ERROR: Bad exchange, unexpected input or output currencies:".$inputCurrency.'<->'.$outputCurrency);
-                            throw new \LogicException("ERROR: Bad exchange, unexpected input or output currencies");
+                            $error = 1;
+                            $errorBody[] = "ERROR: Bad exchange, unexpected input or output currencies:".$inputCurrency.'<->'.$outputCurrency;
+//                            $this->sendEmail('Exchange error', "ERROR: Bad exchange, unexpected input or output currencies:".$inputCurrency.'<->'.$outputCurrency);
+//                            throw new \LogicException("ERROR: Bad exchange, unexpected input or output currencies");
                         }
                     }catch (Exception $e) {
                         //send email
-                        $this->sendEmail('Fatal Exchange error', $inputCurrency.'<->'.$outputCurrency.' Error Message: '.$e->getMessage());
+                        $error = 1;
+                        $errorBody[] =  $inputCurrency.'<->'.$outputCurrency.' Error Message: '.$e->getMessage();
+//                        $this->sendEmail('Fatal Exchange error', $inputCurrency.'<->'.$outputCurrency.' Error Message: '.$e->getMessage());
                         $output->writeln("ERROR: " . $e->getMessage());
                     }
                 }
@@ -59,14 +66,21 @@ class ExchangePriceCommand extends ContainerAwareCommand
             }
         }
 
+        if($error == 1){
+            $this->sendEmail('Fatal Exchange error', $errorBody);
+        }
+
+
         $output->writeln("FINISHED");
     }
 
     private function sendEmail($subject, $body){
 
+        $no_replay = $this->getContainer()->getParameter('no_reply_email');
+
         $message = \Swift_Message::newInstance()
             ->setSubject($subject)
-            ->setFrom('no-reply@chip-chap.com')
+            ->setFrom($no_replay)
             ->setTo(array(
                 'pere@chip-chap.com',
                 'cto@chip-chap.com'

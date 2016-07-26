@@ -20,9 +20,9 @@ class MethodsController extends RestApiController {
 
         //check if the user has the method
 
-        $user = $this->get('security.context')->getToken()->getUser();
+        $userGroup = $this->get('security.context')->getToken()->getUser()->getActiveGroup();
 
-        $methods = $user->getMethodsList();
+        $methods = $userGroup->getMethodsList();
 
         if(!in_array($method, $methods)) throw new HttpException(404, 'Method not allowed');
 
@@ -49,24 +49,29 @@ class MethodsController extends RestApiController {
      */
     public function index() {
 
-        $user = $this->get('security.context')->getToken()->getUser();
+        $userGroup = $this->get('security.context')->getToken()->getUser()->getActiveGroup();
 
-        $methods = $user->getMethodsList();
+        $methods = $userGroup->getMethodsList();
 
         $response = array();
+
+        if(count($methods) == 0) throw new HttpException (404, 'No methods found for this company');
 
         foreach($methods as $method){
             $methodsEntity = $this->get('net.telepay.method_provider')->findByCname($method);
 
-            $resp = array(
-                'cname' =>  $methodsEntity->getCname(),
-                'type' =>  $methodsEntity->getType(),
-                'currency'  =>  $methodsEntity->getCurrency(),
-                'scale' =>  Currency::$SCALE[$methodsEntity->getCurrency()],
-                'base64image'   =>  $methodsEntity->getBase64Image()
-            );
+            if($methodsEntity){
+                $resp = array(
+                    'cname' =>  $methodsEntity->getCname(),
+                    'type' =>  $methodsEntity->getType(),
+                    'currency'  =>  $methodsEntity->getCurrency(),
+                    'scale' =>  Currency::$SCALE[$methodsEntity->getCurrency()],
+                    'base64image'   =>  $methodsEntity->getBase64Image()
+                );
 
-            $response[] = $resp;
+                $response[] = $resp;
+            }
+
         }
 
         return $this->restV2(

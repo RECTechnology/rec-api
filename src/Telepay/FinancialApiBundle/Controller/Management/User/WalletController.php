@@ -16,26 +16,6 @@ use Telepay\FinancialApiBundle\Document\Transaction;
 use Telepay\FinancialApiBundle\Entity\UserWallet;
 use Telepay\FinancialApiBundle\Financial\Currency;
 
-
-class Test {
-    public $name;
-    public $address;
-    public $address2;
-    public $address3;
-    public $address4;
-    public $address5;
-
-    function __construct($address, $address2, $address3, $address4, $address5, $name)
-    {
-        $this->address = $address;
-        $this->address2 = $address2;
-        $this->address3 = $address3;
-        $this->address4 = $address4;
-        $this->address5 = $address5;
-        $this->name = $name;
-    }
-}
-
 /**
  * Class WalletController
  * @package Telepay\FinancialApiBundle\Controller\Management\User
@@ -46,20 +26,13 @@ class WalletController extends RestApiController{
      * reads information about all wallets
      */
     public function read(){
-
-        $user = $this->get('security.context')->getToken()->getUser();
-
-        //TODO quitar cuando haya algo mejor montado
-        if($user->getId() == $this->container->getParameter('read_only_user_id')){
-            $em = $this->getDoctrine()->getManager();
-            $user = $em->getRepository('TelepayFinancialApiBundle:User')->find($this->container->getParameter('chipchap_user_id'));
-        }
+        $userGroup = $this->get('security.context')->getToken()->getUser()->getActiveGroup();
 
         //obtener los wallets
-        $wallets = $user->getWallets();
+        $wallets = $userGroup->getWallets();
 
         //obtenemos la default currency
-        $currency = $user->getDefaultCurrency();
+        $currency = $userGroup->getDefaultCurrency();
 
         $filtered = [];
         $available = 0;
@@ -74,14 +47,6 @@ class WalletController extends RestApiController{
             if($new_wallet['scale'] != null) $scale = $new_wallet['scale'];
         }
 
-        //quitamos el user con to do lo que conlleva detras
-        /*array_map(
-            function($elem){
-                $elem->setUser(null);
-            },
-            $filtered
-        );*/
-
         //montamos el wallet
         $multidivisa = [];
         $multidivisa['id'] = 'multidivisa';
@@ -93,26 +58,16 @@ class WalletController extends RestApiController{
 
         //return $this->rest(201, "Account info got successfully", $filtered);
         return $this->restV2(200, "ok", "Wallet info got successfully", $filtered);
-
     }
 
     /**
      * read last 10 transactions
      */
     public function last(Request $request){
-
         $dm = $this->get('doctrine_mongodb')->getManager();
-
-        $userId = $this->get('security.context')
-            ->getToken()->getUser()->getId();
-
-        //TODO quitar cuando haya algo mejor montado
-        if($userId == $this->container->getParameter('read_only_user_id')){
-            $userId = $this->container->getParameter('chipchap_user_id');
-        }
-
+        $userGroup = $this->get('security.context')->getToken()->getUser()->getActiveGroup();
         $last10Trans = $dm->createQueryBuilder('TelepayFinancialApiBundle:Transaction')
-            ->field('user')->equals($userId)
+            ->field('group')->equals($userGroup->getId())
             ->limit(10)
             ->sort('updated','desc')
             ->sort('id','desc')
@@ -133,19 +88,10 @@ class WalletController extends RestApiController{
      * read single transaction
      */
     public function single(Request $request, $id){
-
         $dm = $this->get('doctrine_mongodb')->getManager();
-
-        $userId = $this->get('security.context')
-            ->getToken()->getUser()->getId();
-
-        //TODO quitar cuando haya algo mejor montado
-        if($userId == $this->container->getParameter('read_only_user_id')){
-            $userId = $this->container->getParameter('chipchap_user_id');
-        }
-
+        $userGroup = $this->get('security.context')->getToken()->getUser()->getActiveGroup();
         $last10Trans = $dm->createQueryBuilder('TelepayFinancialApiBundle:Transaction')
-            ->field('user')->equals($userId)
+            ->field('group')->equals($userGroup->getId())
             ->field('id')->equals($id)
             ->limit(1)
             ->getQuery()
@@ -173,25 +119,16 @@ class WalletController extends RestApiController{
         else $offset = 0;
 
         $dm = $this->get('doctrine_mongodb')->getManager();
-        $userId = $this->get('security.context')
-            ->getToken()->getUser()->getId();
-
-        //TODO quitar cuando haya algo mejor montado
-        if($userId == $this->container->getParameter('read_only_user_id')){
-            $userId = $this->container->getParameter('chipchap_user_id');
-        }
-
+        $userGroup = $this->get('security.context')->getToken()->getUser()->getActiveGroup();
         $qb = $dm->createQueryBuilder('TelepayFinancialApiBundle:Transaction');
 
         if($request->query->get('query') != ''){
+
             $query = $request->query->get('query');
             $search = $query['search'];
-            //$services = $query['services'];
             if(isset($query['clients'])){
                 $clients = json_decode($query['clients'], true);
             }
-            $order = $query['order'];
-            $dir = $query['dir'];
             if(isset($query['start_date'])){
                 $start_time = new \MongoDate(strtotime(date($query['start_date'].' 00:00:00')));//date('Y-m-d 00:00:00')
             }else{
@@ -207,7 +144,7 @@ class WalletController extends RestApiController{
             }
 
             $transactions = $qb
-                ->field('user')->equals($userId)
+                ->field('group')->equals($userGroup->getId())
                 ->field('created')->gte($start_time)
                 ->field('created')->lte($finish_time)
                 ->where("function() {
@@ -313,16 +250,16 @@ class WalletController extends RestApiController{
         }else{
             $order = "updated";
             $dir = "desc";
-
             $transactions = $qb
-                ->field('user')->equals($userId)
+                ->field('group')->equals($userGroup->getId())
                 ->sort($order,$dir)
                 ->getQuery()
                 ->execute();
         }
 
+
         $em = $this->getDoctrine()->getManager();
-        $clientsInfo = $em->getRepository('TelepayFinancialApiBundle:Client')->findby(array('user' => $userId));
+        $clientsInfo = $em->getRepository('TelepayFinancialApiBundle:Client')->findby(array('group' => $userGroup->getId()));
         $listClients = array();
         foreach($clientsInfo as $c){
             $listClients[$c->getId()]=$c->getName();
@@ -348,9 +285,7 @@ class WalletController extends RestApiController{
                 }
             }
         }
-
         $total = count($resArray);
-
         $entities = array_slice($resArray, $offset, $limit);
 
         return $this->restV2(
@@ -367,170 +302,360 @@ class WalletController extends RestApiController{
     }
 
     /**
-     * return an array with the daily total amount of the filtered transactions
+     * reads transactions by wallets
      */
-    public function walletDailySumTransactions(Request $request){
+    public function walletTransactionsV2(Request $request){
+
+        if($request->query->has('limit')) $limit = $request->query->get('limit');
+        else $limit = 10;
+
+        if($request->query->has('offset')) $offset = $request->query->get('offset');
+        else $offset = 0;
 
         $dm = $this->get('doctrine_mongodb')->getManager();
-        $userId = $this->get('security.context')
-            ->getToken()->getUser()->getId();
-
-        //TODO quitar cuando haya algo mejor montado
-        if($userId == $this->container->getParameter('read_only_user_id')){
-            $userId = $this->container->getParameter('chipchap_user_id');
-        }
-
+        $userGroup = $this->get('security.context')->getToken()->getUser()->getActiveGroup();
         $qb = $dm->createQueryBuilder('TelepayFinancialApiBundle:Transaction');
 
-        if($request->query->get('query') != ''){
+        if($request->query->get('query')){
             $query = $request->query->get('query');
-            $search = $query['search'];
-            $services = $query['services'];
-            if(isset($query['clients'])){
-                $clients = json_decode($query['clients'], true);
-            }
-            $order = $query['order'];
-            $dir = $query['dir'];
+            $qb->field('group')->equals($userGroup->getId());
+
             if(isset($query['start_date'])){
-                $start_time = new \MongoDate(strtotime(date($query['start_date'].' 00:00:00')));//date('Y-m-d 00:00:00')
+                $start_time = new \MongoDate(strtotime(date($query['start_date'].' 00:00:00')));
             }else{
                 $fecha = new DateTime();
                 $fecha->sub(new DateInterval('P3M'));
                 $start_time = new \MongoDate($fecha->getTimestamp());
             }
+            $qb->field('updated')->gte($start_time);
 
             if(isset($query['finish_date'])){
                 $finish_time = new \MongoDate(strtotime(date($query['finish_date'].' 23:59:59')));
             }else{
                 $finish_time = new \MongoDate();
             }
+            $qb->field('updated')->lte($finish_time);
 
-            $transactions = $qb
-                ->field('user')->equals($userId)
-                ->field('created')->gte($start_time)
-                ->field('created')->lte($finish_time)
-                ->field('type')->notEqual('swift')
-                ->where("function() {
-            if (typeof this.dataIn !== 'undefined') {
-                if (this.status != 'success') { return false;}
-                if (typeof this.dataIn.phone_number !== 'undefined') {
-                    if(String(this.dataIn.phone_number).indexOf('$search') > -1){
-                        return true;
+            if(isset($query['status'])){
+                if(!($query['status'] == 'all')){
+                    if(count($query['status']) == 0){
+                        $qb->field('status')->in(array(), true);
                     }
-                }
-                if (typeof this.dataIn.address !== 'undefined') {
-                    if(String(this.dataIn.address).indexOf('$search') > -1){
-                        return true;
-                    }
-                }
-                if (typeof this.dataIn.reference !== 'undefined') {
-                    if(String(this.dataIn.reference).indexOf('$search') > -1){
-                        return true;
-                    }
-                }
-                if (typeof this.dataIn.pin !== 'undefined') {
-                    if(String(this.dataIn.pin).indexOf('$search') > -1){
-                        return true;
-                    }
-                }
-                if (typeof this.dataIn.order_id !== 'undefined') {
-                    if(String(this.dataIn.order_id).indexOf('$search') > -1){
-                        return true;
-                    }
-                }
-                if (typeof this.dataIn.previous_transaction !== 'undefined') {
-                    if(String(this.dataIn.previous_transaction).indexOf('$search') > -1){
-                        return true;
+                    else{
+                        $qb->field('status')->in($query['status']);
                     }
                 }
             }
-            if (typeof this.dataOut !== 'undefined') {
-                if (typeof this.dataOut.transaction_pos_id !== 'undefined') {
-                    if(String(this.dataOut.transaction_pos_id).indexOf('$search') > -1){
-                        return true;
+
+            if(isset($query['clients'])){
+                if(!($query['clients'] == 'all')){
+                    if(count($query['clients']) == 0){
+                        $qb->field('client')->in(array(), true);
                     }
-                }
-                if (typeof this.dataOut.halcashticket !== 'undefined') {
-                    if(String(this.dataOut.halcashticket).indexOf('$search') > -1){
-                        return true;
-                    }
-                }
-                if (typeof this.dataOut.txid !== 'undefined') {
-                    if(String(this.dataOut.txid).indexOf('$search') > -1){
-                        return true;
-                    }
-                }
-                if (typeof this.dataOut.address !== 'undefined') {
-                    if(String(this.dataOut.address).indexOf('$search') > -1){
-                        return true;
-                    }
-                }
-                if (typeof this.dataOut.id !== 'undefined') {
-                    if(String(this.dataOut.id).indexOf('$search') > -1){
-                        return true;
-                    }
-                }
-                if (typeof this.dataOut.reference !== 'undefined') {
-                    if(String(this.dataOut.reference).indexOf('$search') > -1){
-                        return true;
+                    else{
+                        $qb->field('client')->in($query['clients']);
                     }
                 }
             }
-            if(JSON.parse(String('$services')).indexOf(String(this.service)) > -1) { return true;}
-            if(typeof this.status !== 'undefined' && String(this.status).indexOf('$search') > -1){ return true;}
-            if(typeof this.service !== 'undefined' && String(this.service).indexOf('$search') > -1){ return true;}
-            if(String(this._id).indexOf('$search') > -1){ return true;}
 
-            return false;
-            }")
-                ->sort($order,$dir)
-                ->getQuery()
-                ->execute();
-
-        }else{
-            $order = "id";
-            $dir = "asc";
-
-            $transactions = $qb
-                ->field('user')->equals($userId)
-                ->sort($order,$dir)
-                ->getQuery()
-                ->execute();
+            if(isset($query['search'])) {
+                if ($query['search'] != '') {
+                    $search = $query['search'];
+                    $qb->where("function() {
+                    if (typeof this.pay_in_info !== 'undefined') {
+                        if (typeof this.pay_in_info.address !== 'undefined') {
+                            if(String(this.pay_in_info.address).indexOf('$search') > -1){
+                                return true;
+                            }
+                        }
+                        if (typeof this.pay_in_info.concept !== 'undefined') {
+                            if(String(this.pay_in_info.concept).indexOf('$search') > -1){
+                                return true;
+                            }
+                        }
+                        if (typeof this.pay_in_info.reference !== 'undefined') {
+                            if(String(this.pay_in_info.reference).indexOf('$search') > -1){
+                                return true;
+                            }
+                        }
+                        if (typeof this.pay_in_info.txid !== 'undefined') {
+                            if(String(this.pay_in_info.txid).indexOf('$search') > -1){
+                                return true;
+                            }
+                        }
+                    }
+                    if (typeof this.pay_out_info !== 'undefined') {
+                        if (typeof this.pay_out_info.halcashticket !== 'undefined') {
+                            if(String(this.pay_out_info.halcashticket).indexOf('$search') > -1){
+                                return true;
+                            }
+                        }
+                        if (typeof this.pay_out_info.txid !== 'undefined') {
+                            if(String(this.pay_out_info.txid).indexOf('$search') > -1){
+                                return true;
+                            }
+                        }
+                        if (typeof this.pay_out_info.address !== 'undefined') {
+                            if(String(this.pay_out_info.address).indexOf('$search') > -1){
+                                return true;
+                            }
+                        }
+                        if (typeof this.pay_out_info.concept !== 'undefined') {
+                            if(String(this.pay_out_info.concept).indexOf('$search') > -1){
+                                return true;
+                            }
+                        }
+                        if (typeof this.pay_out_info.email !== 'undefined') {
+                            if(String(this.pay_out_info.email).indexOf('$search') > -1){
+                                return true;
+                            }
+                        }
+                        if (typeof this.pay_out_info.find_token !== 'undefined') {
+                            if(String(this.pay_out_info.find_token).indexOf('$search') > -1){
+                                return true;
+                            }
+                        }
+                        if (typeof this.pay_out_info.phone !== 'undefined') {
+                            if(String(this.pay_out_info.phone).indexOf('$search') > -1){
+                                return true;
+                            }
+                        }
+                    }
+                    if (typeof this.dataIn !== 'undefined') {
+                        if (typeof this.dataIn.previous_transaction !== 'undefined') {
+                            if(String(this.dataIn.previous_transaction).indexOf('$search') > -1){
+                                return true;
+                            }
+                        }
+                    }
+                    if ('$search') {
+                        if(String(this._id).indexOf('$search') > -1){ return true;}
+                        return false;
+                    }
+                    return true;
+                    }"
+                    );
+                }
+            }
         }
+        else{
+            $qb->field('group')->equals($userGroup->getId());
+        }
+
+        $transactions = $qb
+            ->sort('updated','desc')
+            ->sort('id','desc')
+            ->getQuery()
+            ->execute();
 
         $data = array();
         $scales = array();
-        foreach($transactions->toArray() as $res){
-            if($res->getStatus() == "success"){
-                if(!array_key_exists($res->getCurrency(), $scales)){
-                    $scales[$res->getCurrency()]=$res->getScale();
+        if($request->query->get('query')){
+            $all_pos = false;
+            if(isset($query['pos'])){
+                if(($query['pos'] == 'all')){
+                    $all_pos = true;
+                }
+            }
+            else{
+                $query['pos'] = array();
+            }
+
+            $all_in = false;
+            if(isset($query['methods_in'])){
+                if(($query['methods_in'] == 'all')){
+                    $all_in = true;
+                }
+            }
+            else{
+                $query['methods_in'] = array();
+            }
+
+            $all_out = false;
+            if(isset($query['methods_out'])){
+                if(($query['methods_out'] == 'all')){
+                    $all_out = true;
+                }
+            }
+            else{
+                $query['methods_out'] = array();
+            }
+
+            $all_swift_in = false;
+            if(isset($query['swift_in'])){
+                if(($query['swift_in'] == 'all')){
+                    $all_swift_in = true;
+                }
+            }
+            else{
+                $query['swift_in'] = array();
+            }
+
+            $all_swift_out = false;
+            if(isset($query['swift_out'])){
+                if(($query['swift_out'] == 'all')){
+                    $all_swift_out = true;
+                }
+            }
+            else{
+                $query['swift_out'] = array();
+            }
+
+            $all_exchange = false;
+            if(isset($query['exchanges'])){
+                if(($query['exchanges'] == 'all')){
+                    $all_exchange = true;
+                }
+            }
+            else{
+                $query['exchanges'] = array();
+            }
+
+            $fees = false;
+            if(isset($query['fees'])){
+                if(($query['fees'] == '1')){
+                    $fees = true;
+                }
+            }
+
+            $em = $this->getDoctrine()->getManager();
+            $clientsInfo = $em->getRepository('TelepayFinancialApiBundle:Client')->findby(array('group' => $userGroup->getId()));
+            $listClients = array();
+            foreach($clientsInfo as $c){
+                $listClients[$c->getId()]=$c->getName();
+            }
+
+            $resArray = [];
+            $balance = array();
+            $volume = array();
+            foreach($transactions->toArray() as $res){
+                if($res->getClient()){
+                    $res->setClientData(
+                        array(
+                            "id" => $res->getClient(),
+                            "name" => $listClients[$res->getClient()]
+                        )
+                    );
                 }
 
-                $created = $res->getCreated();
-                if($created!="" && $created!=null ){
-                    $day = $created->format('Y') . "/" . $created->format('m') . "/" . $created->format('d');
-                    if(!array_key_exists($day, $data)){
-                        $data[$day] = array();
+                $filtered = false;
+                if($res->getPosId()){
+                    if($all_pos || in_array($res->getPosId(), $query['pos'])){
+                        $filtered = true;
                     }
-                    if(!isset($clients)) {
-                        array_key_exists($res->getCurrency(), $data[$day])? $data[$day][$res->getCurrency()] += $res->getAmount():$data[$day][$res->getCurrency()] = $res->getAmount();
+                }
+                elseif($res->getType() == 'in'){
+                    $method = $res->getMethod();
+                    if(strpos($method,'exchange')===false){
+                        if($all_in || in_array($method, $query['methods_in'])){
+                            $filtered = true;
+                        }
                     }
                     else{
-                        if(in_array("0", $clients) || in_array($res->getClient(), $clients)){
+                        if($all_exchange || in_array($method, $query['exchanges'])){
+                            $filtered = true;
+                        }
+                    }
+                }
+                elseif($res->getType() == 'out'){
+                    $method = $res->getMethod();
+                    if(strpos($method,'exchange')===false){
+                        if($all_out || in_array($method, $query['methods_out'])){
+                            $filtered = true;
+                        }
+                    }
+                    else{
+                        if($all_exchange || in_array($method, $query['exchanges'])){
+                            $filtered = true;
+                        }
+                    }
+                }
+                elseif($res->getType() == 'swift'){
+                    if($all_swift_in || $all_swift_out || in_array($res->getMethodIn(), $query['swift_in']) || in_array($res->getMethodOut(), $query['swift_out'])){
+                        $filtered = true;
+                    }
+                }
+                elseif($res->getType() == 'fee' || $res->getType() == 'resta_fee'){
+                    if($fees){
+                        $method = $res->getMethod();
+                        if(strpos($method,'exchange')===false){
+                            if(strpos($method,'-in')>0){
+                                $method = substr($method, 0, -3);
+                                if($all_in || in_array($method, $query['methods_in'])){
+                                    $filtered = true;
+                                }
+                            }
+                            elseif(strpos($method,'-out')>0){
+                                $method = substr($method, 0, -4);
+                                if($all_out || in_array($method, $query['methods_out'])){
+                                    $filtered = true;
+                                }
+                            }
+                            else{
+                                $list_methods = explode("-", $method);
+                                $method_in = $list_methods[0];
+                                $method_out = $list_methods[1];
+                                if($all_swift_in || $all_swift_out || in_array($method_in, $query['swift_in']) || in_array($method_out, $query['swift_out'])){
+                                    $filtered = true;
+                                }
+                            }
+                        }
+                        else{
+                            if($all_exchange || in_array($method, $query['exchanges'])){
+                                $filtered = true;
+                            }
+                        }
+                    }
+                }
+
+                if($filtered) {
+                    $resArray [] = $res;
+                    if($res->getStatus() == "success"){
+                        if(!array_key_exists($res->getCurrency(), $scales)){
+                            $currency = $res->getCurrency();
+                            $scales[$currency] = $res->getScale();
+                            $volume[$currency] = 0;
+                            $balance[$currency] = 0;
+                        }
+
+                        $volume[$currency]+=$res->getAmount();
+                        $trans_type = $res->getType();
+                        if($trans_type == 'in' || $trans_type == 'out' || $trans_type == 'fee' || $trans_type == 'resta_fee') {
+                            $balance[$currency] += $res->getTotal();
+                        }
+
+                        $updated = $res->getUpdated();
+                        if($updated != "" && $updated != null ){
+                            $day = $updated->format('Y') . "/" . $updated->format('m') . "/" . $updated->format('d');
+                            if(!array_key_exists($day, $data)){
+                                $data[$day] = array();
+                            }
                             array_key_exists($res->getCurrency(), $data[$day])? $data[$day][$res->getCurrency()] += $res->getAmount():$data[$day][$res->getCurrency()] = $res->getAmount();
                         }
                     }
                 }
             }
         }
+        else{
+            $resArray = $transactions->toArray();
+        }
+
+        $total = count($resArray);
+        $entities = array_slice($resArray, $offset, $limit);
 
         return $this->restV2(
             200,
             "ok",
             "Request successful",
             array(
+                'total' => $total,
+                'start' => intval($offset),
+                'end' => count($entities)+$offset,
                 'daily' => $data,
-                'scales' => $scales
+                'scales' => $scales,
+                'balance' => $balance,
+                'volume' => $volume,
+                'elements' => $entities
             )
         );
     }
@@ -539,22 +664,11 @@ class WalletController extends RestApiController{
      * return transaction sum by day. week and month
      */
     public function benefits(Request $request){
-
-        $user = $this->get('security.context')
-            ->getToken()->getUser();
-
-        //TODO quitar cuando haya algo mejor montado
-        if($user->getId() == $this->container->getParameter('read_only_user_id')){
-            $em = $this->getDoctrine()->getManager();
-            $user = $em->getRepository('TelepayFinancialApiBundle:User')->find($this->container->getParameter('chipchap_user_id'));
-        }
-
-        $default_currency=$user->getDefaultCurrency();
-
+        $userGroup = $this->get('security.context')->getToken()->getUser()->getActiveGroup();
+        $default_currency = $userGroup->getDefaultCurrency();
         $day = $this->_getBenefits('day');
         $week = $this->_getBenefits('week');
         $month = $this->_getBenefits('month');
-
 
         return $this->restV2(
             200,
@@ -574,29 +688,18 @@ class WalletController extends RestApiController{
      * return transaction sum by month (last 12 months)
      */
     public function monthBenefits(Request $request){
-
-        $user = $this->get('security.context')
-            ->getToken()->getUser();
-
-        //TODO quitar cuando haya algo mejor montado
-        if($user->getId() == $this->container->getParameter('read_only_user_id')){
-            $em = $this->getDoctrine()->getManager();
-            $user = $em->getRepository('TelepayFinancialApiBundle:User')->find($this->container->getParameter('chipchap_user_id'));
-        }
-
-        $default_currency = $user->getDefaultCurrency();
-
+        $userGroup = $this->get('security.context')->getToken()->getUser()->getActiveGroup();
+        $default_currency = $userGroup->getDefaultCurrency();
         $day1 = date('Y-m-1 00:00:00');
-
         $monthly = [];
 
         for($i = 0; $i < 12; $i++){
-            $actual_month = strtotime("-".$i." month",strtotime($day1));
-            $next_month = $actual_month+31*24*3600;
-            $start_time = strtotime(date('Y-m-d',$actual_month));
-            $end_time = strtotime(date('Y-m-d',$next_month));
-            $month = $this->_getBenefits('month',$start_time,$end_time);
-            $strmonth = date('Y-m',$actual_month);
+            $actual_month = strtotime("-".$i." month", strtotime($day1));
+            $next_month = $actual_month + 31 * 24 * 3600;
+            $start_time = strtotime(date('Y-m-d', $actual_month));
+            $end_time = strtotime(date('Y-m-d', $next_month));
+            $month = $this->_getBenefits('month', $start_time,$end_time);
+            $strmonth = date('Y-m', $actual_month);
             $monthly[$strmonth] = $month;
 
         }
@@ -617,22 +720,10 @@ class WalletController extends RestApiController{
      * return country benefits group by IP
      */
     public function countryBenefits(Request $request){
-
-        $user = $this->get('security.context')
-            ->getToken()->getUser();
-
-        //TODO quitar cuando haya algo mejor montado
-        if($user->getId() == $this->container->getParameter('read_only_user_id')){
-            $em = $this->getDoctrine()->getManager();
-            $user = $em->getRepository('TelepayFinancialApiBundle:User')->find($this->container->getParameter('chipchap_user_id'));
-        }
-
-        $userId = $user->getId();
-        $default_currency = $user->getDefaultCurrency();
-
+        $userGroup = $this->get('security.context')->getToken()->getUser()->getActiveGroup();
         $dm = $this->get('doctrine_mongodb')->getManager();
         $result = $dm->createQueryBuilder('TelepayFinancialApiBundle:Transaction')
-            ->field('user')->equals($userId)
+            ->field('group')->equals($userGroup->getId())
             ->field('status')->equals('success')
             ->field('type')->notEqual('swift')
             ->group(
@@ -696,8 +787,11 @@ class WalletController extends RestApiController{
         $user = $this->get('security.context')
             ->getToken()->getUser();
 
+        $userGroup = $this->get('security.context')->getToken()->getUser()->getActiveGroup();
+
+        //this name is the name of the group
         $parameters = array(
-            'username',
+            'name',
             'amount',
             'concept'
         );
@@ -715,13 +809,13 @@ class WalletController extends RestApiController{
 
         //Search receiver user
         $em = $this->getDoctrine()->getManager();
-        $receiver = $em->getRepository('TelepayFinancialApiBundle:User')
-            ->findOneBy(array('username'=>$params['username']));
+        $receiver = $em->getRepository('TelepayFinancialApiBundle:Group')
+            ->findOneBy(array('name' => $params['name']));
 
         if (!$receiver) throw new HttpException(404,'Receiver not found');
 
         //Check founds in sender wallet
-        $sender_wallets = $user->getWallets();
+        $sender_wallets = $userGroup->getWallets();
         $sender_wallet = null;
         foreach( $sender_wallets as $wallet){
             if( $wallet->getCurrency() == strtoupper($currency)){
@@ -768,6 +862,7 @@ class WalletController extends RestApiController{
         ));
         $sender_transaction->setTotal(-$params['amount']);
         $sender_transaction->setUser($user->getId());
+        $sender_transaction->setGroup($userGroup->getId());
 
 
         $dm = $this->get('doctrine_mongodb')->getManager();
@@ -805,7 +900,7 @@ class WalletController extends RestApiController{
             'concept'   =>  $params['concept']
         ));
         $receiver_transaction->setTotal($params['amount']);
-        $receiver_transaction->setUser($receiver->getId());
+        $receiver_transaction->setGroup($receiver->getId());
 
         $dm->persist($receiver_transaction);
         $dm->flush();
@@ -814,11 +909,11 @@ class WalletController extends RestApiController{
         $balancer->addBalance($receiver, $params['amount'], $receiver_transaction);
 
         //todo update wallets
-        $sender_wallet->setAvailable($sender_wallet->getAvailable()-$params['amount']);
-        $sender_wallet->setBalance($sender_wallet->getBalance()-$params['amount']);
+        $sender_wallet->setAvailable($sender_wallet->getAvailable() - $params['amount']);
+        $sender_wallet->setBalance($sender_wallet->getBalance() - $params['amount']);
 
-        $receiver_wallet->setAvailable($receiver_wallet->getAvailable()+$params['amount']);
-        $receiver_wallet->setBalance($receiver_wallet->getBalance()+$params['amount']);
+        $receiver_wallet->setAvailable($receiver_wallet->getAvailable() + $params['amount']);
+        $receiver_wallet->setBalance($receiver_wallet->getBalance() + $params['amount']);
 
         $em->persist($sender_wallet);
         $em->persist($receiver_wallet);
@@ -826,30 +921,19 @@ class WalletController extends RestApiController{
 
         return $this->restV2(200, "ok", "Transaction got successfully");
 
-
     }
 
     /**
      * check user fees
      */
     public function userFees(Request $request){
-
-        //get user
-        $user = $this->get('security.context')->getToken()->getUser();
-
-        //TODO quitar cuando haya algo mejor montado
-        if($user->getId() == $this->container->getParameter('read_only_user_id')){
-            $em = $this->getDoctrine()->getManager();
-            $user = $em->getRepository('TelepayFinancialApiBundle:User')->find($this->container->getParameter('chipchap_user_id'));
-        }
-
         //get group
-        $group  = $user->getGroups()[0];
+        $group = $this->get('security.context')->getToken()->getUser()->getActiveGroup();
         //getFees
         $fees = $group->getCommissions();
 
         //return only active methods
-        $methods = $user->getMethodsList();
+        $methods = $group->getMethodsList();
         $activeFees = [];
 
         foreach ( $fees as $fee){
@@ -870,23 +954,13 @@ class WalletController extends RestApiController{
      * check user limits
      */
     public function userLimits(Request $request){
-
-        //get user
-        $user = $this->get('security.context')->getToken()->getUser();
-
-        //TODO quitar cuando haya algo mejor montado
-        if($user->getId() == $this->container->getParameter('read_only_user_id')){
-            $em = $this->getDoctrine()->getManager();
-            $user = $em->getRepository('TelepayFinancialApiBundle:User')->find($this->container->getParameter('chipchap_user_id'));
-        }
-
         //get group
-        $group  = $user->getGroups()[0];
+        $group = $this->get('security.context')->getToken()->getUser()->getActiveGroup();
         //getLimits
         $limits = $group->getLimits();
 
         //return only active methods
-        $methods = $user->getMethodsList();
+        $methods = $group->getMethodsList();
         $activeLimits = [];
 
         foreach ( $limits as $limit){
@@ -904,8 +978,8 @@ class WalletController extends RestApiController{
 
     public function _exchange($amount, $curr_in, $curr_out){
 
-        $dm=$this->getDoctrine()->getManager();
-        $exchangeRepo=$dm->getRepository('TelepayFinancialApiBundle:Exchange');
+        $dm = $this->getDoctrine()->getManager();
+        $exchangeRepo = $dm->getRepository('TelepayFinancialApiBundle:Exchange');
         $exchange = $exchangeRepo->findOneBy(
             array('src'=>$curr_in,'dst'=>$curr_out),
             array('id'=>'DESC')
@@ -921,20 +995,9 @@ class WalletController extends RestApiController{
 
     }
 
-    public function _getBenefits($interval,$start = null, $end =null){
-
-        $user = $this->get('security.context')
-            ->getToken()->getUser();
-
-        //TODO quitar cuando haya algo mejor montado
-        if($user->getId() == $this->container->getParameter('read_only_user_id')){
-            $em = $this->getDoctrine()->getManager();
-            $user = $em->getRepository('TelepayFinancialApiBundle:User')->find($this->container->getParameter('chipchap_user_id'));
-        }
-
-        $userId=$user->getId();
-
-        $default_currency=$user->getDefaultCurrency();
+    public function _getBenefits($interval, $start = null, $end =null){
+        $userGroup = $this->get('security.context')->getToken()->getUser()->getActiveGroup();
+        $default_currency = $userGroup->getDefaultCurrency();
 
         switch($interval){
             case 'day':
@@ -958,7 +1021,7 @@ class WalletController extends RestApiController{
 
         $dm = $this->get('doctrine_mongodb')->getManager();
         $result = $dm->createQueryBuilder('TelepayFinancialApiBundle:Transaction')
-            ->field('user')->equals($userId)
+            ->field('group')->equals($userGroup->getId())
             ->field('created')->gt($start_time)
             ->field('created')->lt($end_time)
             ->field('status')->equals('success')
@@ -1074,7 +1137,7 @@ class WalletController extends RestApiController{
     }
 
     /**
-     * makes an exchange between currencies in the wallet
+     * makes an exchange between currencies in the wallet. Called by currencyExchange
      */
     public function exchange(UserWallet $wallet, $currency){
 
@@ -1108,10 +1171,13 @@ class WalletController extends RestApiController{
      * makes an exchange between wallets
      */
     public function currencyExchange(Request $request){
+        $em = $this->getDoctrine()->getManager();
+        if(!$this->get('security.context')->isGranted('ROLE_WORKER')) throw new HttpException(403, 'You don\' have the necessary permissions');
 
         $user = $this->get('security.context')->getToken()->getUser();
+        $userGroup = $user->getActiveGroup();
 
-        if(!$user) throw new HttpException(404, 'User not found');
+        if(!$userGroup) throw new HttpException(404, 'Group not found');
 
         //get params
         $paramNames = array(
@@ -1135,13 +1201,22 @@ class WalletController extends RestApiController{
         $currency_out = strtoupper($params['currency_out']);
         $service = 'exchange'.'_'.$currency_in.'to'.$currency_out;
 
+        //check if method is available
+        $statusMethod = $em->getRepository('TelepayFinancialApiBundle:StatusMethod')->findOneBy(array(
+            'method'    =>  $currency_in.'to'.$currency_out,
+            'type'      =>  'exchange'
+        ));
+
+        if($statusMethod->getStatus() != 'available') throw new HttpException(403, 'Exchange temporally unavailable');
+
         //getExchange
         $exchange = $this->_exchange($amount, $currency_in, $currency_out);
 
         if($exchange == 0) throw new HttpException(403, 'Amount must be bigger');
 
         //checkWallet sender
-        $wallets = $user->getWallets();
+        $wallets = $userGroup->getWallets();
+
         $senderWallet = null;
         $receiverWallet = null;
         foreach($wallets as $wallet){
@@ -1158,9 +1233,7 @@ class WalletController extends RestApiController{
         if($amount > $senderWallet->getAvailable()) throw new HttpException(404, 'Not funds enough. ' . $amount . '>' . $senderWallet->getAvailable());
 
         //getFees
-        $group = $user->getGroups()[0];
-
-        $fees = $group->getCommissions();
+        $fees = $userGroup->getCommissions();
 
         $fixed_fee = null;
         $variable_fee = null;
@@ -1172,8 +1245,6 @@ class WalletController extends RestApiController{
             }
         }
 
-        $em = $this->getDoctrine()->getManager();
-
         $dm = $this->get('doctrine_mongodb')->getManager();
         //cashOut transaction
         $cashOut = Transaction::createFromRequest($request);
@@ -1184,9 +1255,10 @@ class WalletController extends RestApiController{
         $cashOut->setVariableFee(0);
         $cashOut->setTotal(-$params['amount']);
         $cashOut->setType('out');
-        $cashOut->setMethod('exchange');
+        $cashOut->setMethod('exchange'.'_'.$currency_in.'to'.$currency_out);
         $cashOut->setService($service);
         $cashOut->setUser($user->getId());
+        $cashOut->setGroup($userGroup->getId());
         $cashOut->setVersion(1);
         $cashOut->setScale($senderWallet->getScale());
         $cashOut->setStatus('success');
@@ -1211,8 +1283,9 @@ class WalletController extends RestApiController{
         $cashIn->setTotal($exchange);
         $cashIn->setService($service);
         $cashIn->setType('in');
-        $cashIn->setMethod('exchange');
+        $cashIn->setMethod('exchange'.'_'.$currency_in.'to'.$currency_out);
         $cashIn->setUser($user->getId());
+        $cashIn->setGroup($userGroup->getId());
         $cashIn->setVersion(1);
         $cashIn->setScale($receiverWallet->getScale());
         $cashIn->setStatus('success');
@@ -1268,6 +1341,7 @@ class WalletController extends RestApiController{
         $total_fee = round($transaction->getFixedFee() + $transaction->getVariableFee(),0);
 
         $user = $em->getRepository('TelepayFinancialApiBundle:User')->find($transaction->getUser());
+        $userGroup = $user->getActiveGroup();
 
         $feeTransaction = Transaction::createFromTransaction($transaction);
         $feeTransaction->setAmount($total_fee);
@@ -1289,18 +1363,17 @@ class WalletController extends RestApiController{
         $feeTransaction->setTotal(-$total_fee);
 
         $feeTransaction->setType('fee');
-        $feeTransaction->setMethod('exchange');
+        $feeTransaction->setMethod($service_cname);
 
         $mongo = $this->get('doctrine_mongodb')->getManager();
         $mongo->persist($feeTransaction);
         $mongo->flush();
 
         $balancer = $this->get('net.telepay.commons.balance_manipulator');
-        $balancer->addBalance($user, -$total_fee, $feeTransaction );
+        $balancer->addBalance($userGroup, -$total_fee, $feeTransaction );
 
         //empezamos el reparto
-        $group = $user->getGroups()[0];
-        $creator = $group->getCreator();
+        $creator = $userGroup->getGroupCreator();
 
         if(!$creator) throw new HttpException(404,'Creator not found');
 
@@ -1309,6 +1382,5 @@ class WalletController extends RestApiController{
         $dealer->deal($creator, $amount, $service_cname, 'exchange', $currency, $total_fee, $transaction_id, $transaction->getVersion());
 
     }
-
 
 }

@@ -150,6 +150,7 @@ class Transaction implements TransactionTiming {
         $transaction->setVariableFee($trans->getVariableFee());
         $transaction->setFixedFee($trans->getFixedFee());
         $transaction->setUser($trans->getUser());
+        $transaction->setGroup($trans->getGroup());
         return $transaction;
     }
 
@@ -164,6 +165,12 @@ class Transaction implements TransactionTiming {
      * @MongoDB\Int
      */
     private $user;
+
+    /**
+     * @var
+     * @MongoDB\Int
+     */
+    private $group;
 
     /**
      * @var
@@ -355,6 +362,10 @@ class Transaction implements TransactionTiming {
     /**
      */
     private $client_data = array();
+
+    /**
+     */
+    private $group_data = '';
 
     /**
      * @var
@@ -947,6 +958,22 @@ class Transaction implements TransactionTiming {
     /**
      * @return mixed
      */
+    public function getGroup()
+    {
+        return $this->group;
+    }
+
+    /**
+     * @param mixed $group
+     */
+    public function setGroup($group)
+    {
+        $this->group = $group;
+    }
+
+    /**
+     * @return mixed
+     */
     public function getPosName()
     {
         return $this->pos_name;
@@ -958,5 +985,13 @@ class Transaction implements TransactionTiming {
     public function setPosName($pos_name)
     {
         $this->pos_name = $pos_name;
+    }
+
+    /**
+     * @param mixed $group_data
+     */
+    public function setGroupData($group_data)
+    {
+        $this->group_data = $group_data;
     }
 }

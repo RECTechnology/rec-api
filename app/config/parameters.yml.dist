@@ -106,6 +106,7 @@ parameters:
     admin_user_id: ''
     admin_user_id_fac: ''
     swift_client_id_default: ''
+    commerce_client_id: ''
     swift_client_id_default_fac: ''
 
     chipchap_user_id : 16
@@ -117,3 +118,10 @@ parameters:
     twilio_from: '+34986080608'
     twilio_sid: 'AC3f14d3cfd1c9e74e477f45509fa6c71c'
     twilio_authToken: 'c562189e18b41730730f3289ec55cbd0'
+
+    teleingreso_login: ''
+    teleingreso_pass: ''
+    teleingreso_certificateType: ''
+    teleingreso_currency: ''
+    teleingreso_url: ''
+    teleingreso_hash: ''

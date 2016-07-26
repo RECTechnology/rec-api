@@ -25,8 +25,9 @@ class ExchangeController extends RestApiController{
     public function read(){
 
         $user = $this->get('security.context')->getToken()->getUser();
+        $userGroup = $user->getActiveGroup();
 
-        $default_currency = $user->getDefaultCurrency();
+        $default_currency = $userGroup->getDefaultCurrency();
 
         $currencies = Currency::$LISTA;
 
@@ -52,8 +53,8 @@ class ExchangeController extends RestApiController{
 
     public function _exchange($amount,$curr_in,$curr_out){
 
-        $dm=$this->getDoctrine()->getManager();
-        $exchangeRepo=$dm->getRepository('TelepayFinancialApiBundle:Exchange');
+        $dm = $this->getDoctrine()->getManager();
+        $exchangeRepo = $dm->getRepository('TelepayFinancialApiBundle:Exchange');
         $exchange = $exchangeRepo->findOneBy(
             array('src'=>$curr_in,'dst'=>$curr_out),
             array('id'=>'DESC')

@@ -6,9 +6,9 @@ services:
     net.telepay.config.halcash_es:
         class: Telepay\FinancialApiBundle\Financial\Methods\MethodConfiguration
         arguments:
-            - "100"
+            - "150"
             - "2"
-            - "1000"
+            - "2000"
             - "60000"
             - "1000"
             - "Spain"
@@ -16,7 +16,7 @@ services:
     net.telepay.config.halcash_pl:
         class: Telepay\FinancialApiBundle\Financial\Methods\MethodConfiguration
         arguments:
-            - "200"
+            - "2000"
             - "2"
             - "5000"
             - "300000"
@@ -46,7 +46,7 @@ services:
     net.telepay.config.sepa:
         class: Telepay\FinancialApiBundle\Financial\Methods\MethodConfiguration
         arguments:
-            - "100"
+            - "0"
             - "1"
             - "5000"
             - "300000"
@@ -56,7 +56,7 @@ services:
     net.telepay.config.cryptocapital:
         class: Telepay\FinancialApiBundle\Financial\Methods\MethodConfiguration
         arguments:
-            - "100"
+            - "0"
             - "1"
             - "1000"
             - "25000"
@@ -97,9 +97,9 @@ services:
     net.telepay.config.btc.halcash_es:
         class: Telepay\FinancialApiBundle\Financial\Methods\MethodConfiguration
         arguments:
-            - "100"
-            - "2"
-            - "1000"
+            - "150"
+            - "1"
+            - "2000"
             - "60000"
             - "1000"
             - "Spain"
@@ -110,8 +110,8 @@ services:
     net.telepay.config.btc.halcash_pl:
         class: Telepay\FinancialApiBundle\Financial\Methods\MethodConfiguration
         arguments:
-            - "200"
-            - "2"
+            - "2000"
+            - "1"
             - "5000"
             - "300000"
             - "5000"
@@ -123,7 +123,7 @@ services:
     net.telepay.config.btc.cryptocapital:
         class: Telepay\FinancialApiBundle\Financial\Methods\MethodConfiguration
         arguments:
-            - "100"
+            - "0"
             - "1"
             - "1000"
             - "25000"
@@ -136,7 +136,7 @@ services:
     net.telepay.config.btc.sepa:
         class: Telepay\FinancialApiBundle\Financial\Methods\MethodConfiguration
         arguments:
-            - "100"
+            - "0"
             - "1"
             - "5000"
             - "300000"
@@ -144,7 +144,7 @@ services:
             - "All over the world"
             - "EUR"
             - "86400"
-            - "0"
+            - "24"
 
     net.telepay.config.btc.easypay:
         class: Telepay\FinancialApiBundle\Financial\Methods\MethodConfiguration
@@ -162,7 +162,7 @@ services:
     net.telepay.config.sepa.btc:
         class: Telepay\FinancialApiBundle\Financial\Methods\MethodConfiguration
         arguments:
-            - "100"
+            - "0"
             - "1"
             - "5000"
             - "300000"
@@ -176,7 +176,7 @@ services:
         class: Telepay\FinancialApiBundle\Financial\Methods\MethodConfiguration
         arguments:
             - "0"
-            - "2"
+            - "4"
             - "1000"
             - "50000"
             - "1000"
@@ -240,9 +240,9 @@ services:
     net.telepay.config.fac.halcash_es:
         class: Telepay\FinancialApiBundle\Financial\Methods\MethodConfiguration
         arguments:
-            - "100"
+            - "150"
             - "2"
-            - "1000"
+            - "2000"
             - "60000"
             - "1000"
             - "Spain"
@@ -253,7 +253,7 @@ services:
     net.telepay.config.fac.halcash_pl:
         class: Telepay\FinancialApiBundle\Financial\Methods\MethodConfiguration
         arguments:
-            - "200"
+            - "2000"
             - "2"
             - "5000"
             - "300000"
@@ -267,7 +267,7 @@ services:
         class: Telepay\FinancialApiBundle\Financial\Methods\MethodConfiguration
         arguments:
             - "0"
-            - "2"
+            - "4"
             - "1000"
             - "50000"
             - "1000"
@@ -279,7 +279,7 @@ services:
     net.telepay.config.fac.sepa:
         class: Telepay\FinancialApiBundle\Financial\Methods\MethodConfiguration
         arguments:
-            - "100"
+            - "0"
             - "1"
             - "5000"
             - "300000"
@@ -292,7 +292,7 @@ services:
     net.telepay.config.fac.cryptocapital:
         class: Telepay\FinancialApiBundle\Financial\Methods\MethodConfiguration
         arguments:
-            - "100"
+            - "0"
             - "1"
             - "1000"
             - "25000"
@@ -300,6 +300,32 @@ services:
             - "All over the world"
             - "EUR"
             - "1200"
+            - "0"
+
+    net.telepay.config.teleingreso.fac:
+        class: Telepay\FinancialApiBundle\Financial\Methods\MethodConfiguration
+        arguments:
+            - "0"
+            - "2"
+            - "1000"
+            - "60000"
+            - "1000"
+            - "Spain"
+            - "EUR"
+            - "1296000"
+            - "0"
+
+    net.telepay.config.teleingreso.btc:
+        class: Telepay\FinancialApiBundle\Financial\Methods\MethodConfiguration
+        arguments:
+            - "0"
+            - "2"
+            - "1000"
+            - "60000"
+            - "1000"
+            - "Spain"
+            - "EUR"
+            - "1296000"
             - "0"
 
 

@@ -310,6 +310,7 @@ class SpecialActionsController extends RestApiController {
 
         if($validate == true){
             if($transaction->getMethodOut() == 'btc' || $transaction->getMethodOut() == 'fac'){
+                if($transaction->getStatus() != Transaction::$STATUS_CREATED) throw new HttpException(403, 'This transaction can not be validated');
                 //money received and the cron will do the rest
                 $transaction->setStatus(Transaction::$STATUS_RECEIVED);
                 $paymentInfo = $transaction->getPayInInfo();
@@ -320,10 +321,12 @@ class SpecialActionsController extends RestApiController {
                     $email = $transaction->getEmailNotification();
                     $ticket = $transaction->getPayInInfo()['reference'];
                     $ticket = str_replace('BUY BITCOIN ', '', $ticket);
+                    if($transaction->getMethodOut() == 'btc') $currency = 'BITCOIN' ;
+                    else $currency = 'FAIRCOIN';
                     $body = array(
                         'reference' =>  $ticket,
                         'created'   =>  $transaction->getCreated()->format('Y-m-d H:i:s'),
-                        'concept'   =>  'BUY BITCOINS '.$ticket,
+                        'concept'   =>  'BUY '.$currency.' '.$ticket,
                         'amount'    =>  $transaction->getPayInInfo()['amount']/100,
                         'crypto_amount' => $transaction->getPayOutInfo()['amount']/1e8,
                         'tx_id'        =>  '',
@@ -394,6 +397,7 @@ class SpecialActionsController extends RestApiController {
             $paymentInfo['status'] = 'sent';
             $paymentInfo['final'] = true;
             $transaction->setPayOutInfo($paymentInfo);
+            $transaction->setUpdated(new \MongoDate());
 
             $transaction = $this->get('notificator')->notificate($transaction);
 
@@ -460,11 +464,11 @@ class SpecialActionsController extends RestApiController {
             }
 
             $transaction = $this->get('notificator')->notificate($transaction);
+            $transaction->setUpdated(new \MongoDate());
 
             $dm->persist($transaction);
             $dm->flush();
         }
-
 
         return $this->restTransaction($transaction, "Done");
 

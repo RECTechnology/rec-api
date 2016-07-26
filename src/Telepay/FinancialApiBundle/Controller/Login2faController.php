@@ -21,6 +21,9 @@ class Login2faController extends RestApiController{
         $password = $request->get('password');
         $pin = $request->get('pin');
 
+        $em = $this->getDoctrine()->getManager();
+        $user = $em->getRepository('TelepayFinancialApiBundle:User')->findOneBy(array('email' => $username));
+        $username=($user)?$user->getUsername():$username;
         $token = $this->call(
             "https://$_SERVER[HTTP_HOST]/oauth/v2/token",
             'POST',
@@ -55,6 +58,14 @@ class Login2faController extends RestApiController{
                     );
                     return new Response(json_encode($token), 400, $headers);
                 }
+            }
+            $groups = $em->getRepository('TelepayFinancialApiBundle:UserGroup')->findBy(array('user' => $user[0]->getId()));
+            if(count($groups)<1){
+                $token = array(
+                    "error" => "no_company",
+                    "error_description" => "You are not assigned to any company. Please contact your company administrator or write us to https://support.chip-chap.com/"
+                );
+                return new Response(json_encode($token), 400, $headers);
             }
         }
         return new Response(json_encode($token), 200, $headers);

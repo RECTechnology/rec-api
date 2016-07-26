@@ -20,10 +20,12 @@ use Telepay\FinancialApiBundle\Financial\Currency;
 class SepaMethod extends BaseMethod {
 
     private $driver;
+    private $container;
 
     public function __construct($name, $cname, $type, $currency, $email_required, $base64Image, $container, $driver){
         parent::__construct($name, $cname, $type, $currency, $email_required, $base64Image, $container);
         $this->driver = $driver;
+        $this->container = $container;
     }
 
     public function getPayInInfo($amount)
@@ -111,9 +113,11 @@ class SepaMethod extends BaseMethod {
 
     public function sendMail($id, $type, $paymentInfo){
 
+        $no_reply = $this->container->getParameter('no_reply_email');
+
         $message = \Swift_Message::newInstance()
             ->setSubject('Sepa_out ALERT')
-            ->setFrom('no-reply@chip-chap.com')
+            ->setFrom($no_reply)
             ->setTo(array(
                 'cto@chip-chap.com',
                 'pere@chip-chap.com'

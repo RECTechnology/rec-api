@@ -25,10 +25,8 @@ class SignatureListener implements ListenerInterface {
     protected $authenticationManager;
 
     public function __construct(SecurityContextInterface $securityContext, AuthenticationManagerInterface $authenticationManager){
-
         $this->securityContext = $securityContext;
         $this->authenticationManager = $authenticationManager;
-
     }
 
     /**

@@ -36,6 +36,7 @@ class POSIncomingController extends RestApiController{
 
         $service_cname = $tpvRepo->getCname();
 
+        //TODO cambiar por group
         $user = $tpvRepo->getUser();
 
         if($tpvRepo->getActive() == 0) throw new HttpException(400, 'Service Temporally unavailable');
@@ -67,6 +68,7 @@ class POSIncomingController extends RestApiController{
         //create transaction
         $transaction = Transaction::createFromRequest($request);
         $transaction->setService($service_cname);
+        //TODO cambiar user por group
         $transaction->setUser($user->getId());
         $transaction->setVersion($version_number);
         $transaction->setDataIn($dataIn);
@@ -88,7 +90,7 @@ class POSIncomingController extends RestApiController{
         $total = $amount - $variable_fee - $fixed_fee;
         $transaction->setTotal($amount);
 
-        //obtain wallet and check founds for cash_out services
+        //TODO obtain wallet and check founds for cash_out services for this group
         $wallets = $user->getWallets();
 
         $current_wallet = null;
@@ -144,7 +146,7 @@ class POSIncomingController extends RestApiController{
 
         $posType = $tpvRepo->getType();
 
-        $user = $tpvRepo->getUser();
+        $group = $tpvRepo->getGroup();
 
         if($tpvRepo->getActive() == 0) throw new HttpException(400, 'Service Temporally unavailable');
 
@@ -178,7 +180,7 @@ class POSIncomingController extends RestApiController{
         //Check unique order_id by user and tpv
         $qb = $dm->createQueryBuilder('TelepayFinancialApiBundle:Transaction')
             ->field('posId')->equals($id)
-            ->field('user')->equals($user->getId())
+            ->field('group')->equals($group->getId())
             ->field('dataIn.order_id')->equals($dataIn['order_id'])
             ->getQuery();
 
@@ -221,7 +223,7 @@ class POSIncomingController extends RestApiController{
         $transaction = Transaction::createFromRequest($request);
         $transaction->setService('POS-'.$posType);
         $transaction->setMethod('POS-'.$posType);
-        $transaction->setUser($user->getId());
+        $transaction->setGroup($group->getId());
         $transaction->setVersion(1);
         $transaction->setDataIn($dataIn);
         $transaction->setPosId($id);
@@ -233,7 +235,6 @@ class POSIncomingController extends RestApiController{
         $transaction->setLastCheck(new \DateTime());
         $transaction->setPosName($tpvRepo->getName());
 
-        $group = $user->getGroups()[0];
         //get fees from group
         $group_commission = $this->_getFees($group, 'POS-'.$posType, strtoupper($dataIn['currency_out']));
 
@@ -307,7 +308,7 @@ class POSIncomingController extends RestApiController{
 
         $transaction->setPayInInfo($paymentInfo);
 
-        $transaction = $this->get('notificator')->notificate($transaction);
+//        $transaction = $this->get('notificator')->notificate($transaction);
         $em->flush();
 
         $transaction->setUpdated(new \DateTime());
@@ -368,24 +369,21 @@ class POSIncomingController extends RestApiController{
      * @Rest\View
      */
     public function find(Request $request, $version_number, $pos_id){
-
-        $service = $this->get('net.telepay.services.pos.v'.$version_number);
-
-        //POS is not a service, omly needs a role commerce
-        if (!$this->get('security.authorization_checker')->isGranted('ROLE_COMMERCE')) {
-            throw $this->createAccessDeniedException();
-        }
-
         if($request->query->has('limit')) $limit = $request->query->get('limit');
         else $limit = 10;
 
         if($request->query->has('offset')) $offset = $request->query->get('offset');
         else $offset = 0;
 
-        $dm = $this->get('doctrine_mongodb')->getManager();
-        $userId = $this->get('security.context')
-            ->getToken()->getUser()->getId();
+        $userGroup = $this->get('security.context')->getToken()->getUser()->getActiveGroup();
+        $em = $this->getDoctrine()->getManager();
+        $pos = $em->getRepository('TelepayFinancialApiBundle:POS')->findOneBy(array(
+            'pos_id'  =>  $pos_id,
+            'group'  =>  $userGroup
+        ));
+        if(empty($pos)) throw new HttpException(404, "Not found");
 
+        $dm = $this->get('doctrine_mongodb')->getManager();
         $qb = $dm->createQueryBuilder('TelepayFinancialApiBundle:Transaction');
 
         if($request->query->get('query') != ''){
@@ -397,7 +395,6 @@ class POSIncomingController extends RestApiController{
             $finish_time = new \MongoDate(strtotime(date($query['finish_date'].' 23:59:59')));
 
             $transactions = $qb
-                ->field('user')->equals($userId)
                 ->field('posId')->equals($pos_id)
                 ->field('created')->gte($start_time)
                 ->field('created')->lte($finish_time)
@@ -438,7 +435,6 @@ class POSIncomingController extends RestApiController{
             $dir = "desc";
 
             $transactions = $qb
-                ->field('user')->equals($userId)
                 ->field('posId')->equals($pos_id)
                 ->sort($order,$dir)
                 ->getQuery()

@@ -36,7 +36,6 @@ class ApiUserManager{
                 }
             }
         }
-        //if($this->role == 'ROLE_USER') die(print_r($debug, true));
         return $validUsers;
     }
 

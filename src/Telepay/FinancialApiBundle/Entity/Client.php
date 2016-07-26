@@ -6,6 +6,10 @@ namespace Telepay\FinancialApiBundle\Entity;
 use FOS\OAuthServerBundle\Entity\Client as BaseClient;
 use Doctrine\ORM\Mapping as ORM;
 
+use JMS\Serializer\Annotation\ExclusionPolicy;
+use JMS\Serializer\Annotation\Expose;
+use JMS\Serializer\Annotation\Exclude;
+
 /**
  * @ORM\Entity
  */
@@ -23,15 +27,38 @@ class Client extends BaseClient
      */
     private $name;
 
+//    /**
+//     * @ORM\ManyToOne(targetEntity="Telepay\FinancialApiBundle\Entity\User")
+//     */
+//    private $user;
+
     /**
-     * @ORM\ManyToOne(targetEntity="Telepay\FinancialApiBundle\Entity\User")
+     * @ORM\ManyToOne(targetEntity="Telepay\FinancialApiBundle\Entity\Group")
+     * @Exclude
      */
-    private $user;
+    private $group;
 
     /**
      * @ORM\Column(type="string", length=1000)
      */
     private $swift_list;
+
+    /**
+     * @Expose
+     */
+    private $group_data = array();
+
+    /**
+     * @ORM\OneToMany(targetEntity="Telepay\FinancialApiBundle\Entity\SwiftLimit", mappedBy="client", cascade={"remove"})
+     *
+     */
+    private $swif_limits;
+
+    /**
+     * @ORM\OneToMany(targetEntity="Telepay\FinancialApiBundle\Entity\SwiftFee", mappedBy="client", cascade={"remove"})
+     *
+     */
+    private $swift_fees;
 
     public function __construct()
     {
@@ -55,21 +82,21 @@ class Client extends BaseClient
         $this->name = $name;
     }
 
-    /**
-     * @return mixed
-     */
-    public function getUser()
-    {
-        return $this->user;
-    }
-
-    /**
-     * @param mixed $user
-     */
-    public function setUser($user)
-    {
-        $this->user = $user;
-    }
+//    /**
+//     * @return mixed
+//     */
+//    public function getUser()
+//    {
+//        return $this->user;
+//    }
+//
+//    /**
+//     * @param mixed $user
+//     */
+//    public function setUser($user)
+//    {
+//        $this->user = $user;
+//    }
 
     /**
      * @return mixed
@@ -159,6 +186,62 @@ class Client extends BaseClient
     public function getId()
     {
         return $this->id;
+    }
+
+    /**
+     * @return mixed
+     */
+    public function getGroup()
+    {
+        return $this->group;
+    }
+
+    /**
+     * @param mixed $group
+     */
+    public function setGroup($group)
+    {
+        $this->group = $group;
+    }
+
+    /**
+     * @param mixed $group_data
+     */
+    public function setGroupData($group_data)
+    {
+        $this->group_data = $group_data;
+    }
+
+    /**
+     * @return mixed
+     */
+    public function getSwifLimits()
+    {
+        return $this->swif_limits;
+    }
+
+    /**
+     * @param mixed $swif_limits
+     */
+    public function setSwifLimits($swif_limits)
+    {
+        $this->swif_limits = $swif_limits;
+    }
+
+    /**
+     * @return mixed
+     */
+    public function getSwiftFees()
+    {
+        return $this->swift_fees;
+    }
+
+    /**
+     * @param mixed $swift_fees
+     */
+    public function setSwiftFees($swift_fees)
+    {
+        $this->swift_fees = $swift_fees;
     }
 
 }

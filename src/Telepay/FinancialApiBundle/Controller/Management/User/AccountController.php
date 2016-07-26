@@ -9,7 +9,9 @@
 
 namespace Telepay\FinancialApiBundle\Controller\Management\User;
 
+use Doctrine\DBAL\DBALException;
 use Symfony\Component\Security\Core\Util\SecureRandom;
+use Symfony\Component\Validator\Constraints\Null;
 use Telepay\FinancialApiBundle\Entity\Device;
 use Telepay\FinancialApiBundle\Entity\KYC;
 use Telepay\FinancialApiBundle\Entity\TierValidations;
@@ -40,35 +42,17 @@ class AccountController extends BaseApiController{
      * @Rest\View
      */
     public function read(Request $request){
-
+        $em = $this->getDoctrine()->getManager();
         $user = $this->get('security.context')->getToken()->getUser();
-
-        //TODO quitar cuando haya algo mejor montado
-        if($user->getId() == $this->container->getParameter('read_only_user_id')){
-            $em = $this->getDoctrine()->getManager();
-            $user = $em->getRepository('TelepayFinancialApiBundle:User')->find('chipchap_user_id');
-        }
-
-//        $listServices = $user->getServicesList();
-        $listMethods = $user->getMethodsList();
-
-        //TODO al final habra que quitar lo de services porque estara deprecated
-//        $allowedServices = $this->get('net.telepay.service_provider')->findByCNames($listServices);
-        $allowedMethods = $this->get('net.telepay.method_provider')->findByCNames($listMethods);
-
-//        $user->setAllowedServices($allowedServices);
-        $user->setAllowedMethods($allowedMethods);
-
-        $group = $user->getGroups()[0];
-
-        $group_data = array();
-        $group_data['id'] = $group->getId();
-        $group_data['name'] = $group->getName();
-        $group_data['admin'] = $group->getCreator()->getName();
-        $group_data['email'] = $group->getCreator()->getEmail();
-
+        $user->setRoles($user->getRoles());
+        $group = $this->get('security.context')->getToken()->getUser()->getActiveGroup();
+        $group_data = $group->getUserView();
         $user->setGroupData($group_data);
-
+        $kyc = $em->getRepository('TelepayFinancialApiBundle:KYC')->findOneBy(array(
+            'user' => $user
+        ));
+        $user->setKycData($kyc);
+        $em->persist($user);
         return $this->restV2(200, "ok", "Account info got successfully", $user);
     }
 
@@ -291,7 +275,7 @@ class AccountController extends BaseApiController{
      */
     public function updateCurrency(Request $request){
 
-        $user = $this->get('security.context')->getToken()->getUser();
+        $userGroup = $this->get('security.context')->getToken()->getUser()->getActiveGroup();
 
         if($request->request->has('currency'))
             $currency = $request->request->get('currency');
@@ -300,12 +284,55 @@ class AccountController extends BaseApiController{
 
         $em = $this->getDoctrine()->getManager();
 
-        $user->setDefaultCurrency(strtoupper($currency));
+        $userGroup->setDefaultCurrency(strtoupper($currency));
+        $em->persist($userGroup);
+        $em->flush();
 
+        return $this->restV2(200,"ok", "Account info got successfully", $userGroup);
+    }
+
+    /**
+     * @Rest\View
+     */
+    public function changeGroup(Request $request){
+
+        $user = $this->get('security.context')->getToken()->getUser();
+        $user->setRoles($user->getRoles());
+
+        if($request->request->has('group_id'))
+            $group_id = $request->request->get('group_id');
+        else
+            throw new HttpException(404,'group_id not found');
+
+        $userGroup = false;
+        foreach($user->getGroups() as $group){
+            if($group->getId() == $group_id){
+                $userGroup = $group;
+            }
+        }
+
+        if(!$userGroup){
+            throw new HttpException(404,'Group selected is not accessible for you');
+        }
+
+        $em = $this->getDoctrine()->getManager();
+
+        $user->setActiveGroup($userGroup);
+        $user->setRoles($user->getRoles());
         $em->persist($user);
         $em->flush();
 
-        return $this->restV2(200,"ok", "Account info got successfully", $user);
+        $group_data = array();
+        $group_data['id'] = $userGroup->getId();
+        $group_data['name'] = $userGroup->getName();
+        $group_data['default_currency'] = $userGroup->getDefaultCurrency();
+        $group_data['base64_image'] = $userGroup->getBase64Image();
+        $group_data['admin'] = $userGroup->getGroupCreator()->getName();
+        $group_data['email'] = $userGroup->getGroupCreator()->getEmail();
+
+        $user->setGroupData($group_data);
+
+        return $this->restV2(200,"ok", "Active group changed successfully", $user);
     }
 
     /**
@@ -347,6 +374,98 @@ class AccountController extends BaseApiController{
         $em->persist($user);
         $em->flush();
         return $this->restV2(200,"ok", "Account info got successfully", $user);
+    }
+
+    /**
+     * @Rest\View
+     */
+    public function registerKYCAction(Request $request){
+        if(!$request->request->has('company') || $request->get('company')==""){
+            $company = "chipchap";
+        }
+        else{
+            $company = $request->get('company');
+        }
+        $request->request->remove('company');
+
+        if(!$request->request->has('email')){
+            throw new HttpException(400, "Missing parameter 'email'");
+        }
+        else{
+            $email = $request->request->get('email');
+        }
+        if(!$request->request->has('password')){
+            throw new HttpException(400, "Missing parameter 'password'");
+        }
+        if(!$request->request->has('repassword')){
+            throw new HttpException(400, "Missing parameter 'repassword'");
+        }
+        else{
+            $password = $request->get('password');
+            $repassword = $request->get('repassword');
+            if($password!=$repassword) throw new HttpException(400, "Password and repassword are differents.");
+            $request->request->add(array('plain_password'=>$password));
+            $request->request->remove('password');
+            $request->request->remove('repassword');
+        }
+        $request->request->add(array('username'=>$email));
+        $request->request->add(array('name'=>''));
+        $request->request->add(array('email'=>$email));
+        $request->request->add(array('enabled'=>1));
+        $request->request->add(array('base64_image'=>''));
+        $request->request->add(array('default_currency'=>'EUR'));
+        $request->request->add(array('gcm_group_key'=>''));
+        $request->request->add(array('services_list'=>array('sample')));
+        $request->request->add(array('methods_list'=>array('sample')));
+        $resp= parent::createAction($request);
+
+        if($resp->getStatusCode() == 201) {
+            $em = $this->getDoctrine()->getManager();
+
+            $usersRepo = $em->getRepository("TelepayFinancialApiBundle:User");
+            $data = $resp->getContent();
+            $data = json_decode($data);
+            $data = $data->data;
+            $user_id = $data->id;
+
+            $user = $usersRepo->findOneBy(array('id'=>$user_id));
+
+            $user_kyc = new KYC();
+            $user_kyc->setEmail($email);
+            $user_kyc->setUser($user);
+            $em->persist($user_kyc);
+            $user->addRole('ROLE_KYC');
+            $em->persist($user);
+            $em->flush();
+
+            $url = $this->container->getParameter('web_app_url');
+            $tokenGenerator = $this->container->get('fos_user.util.token_generator');
+            $user->setConfirmationToken($tokenGenerator->generateToken());
+            $em->persist($user);
+            $em->flush();
+            if($company == "holytransaction"){
+                $url = "https://holytransaction.trade/";
+                $url = $url.'?user_token='.$user->getConfirmationToken();
+                $this->_sendEmail('Holy Transaction validation e-mail', $url, $user->getEmail(), 'register_kyc_holy');
+            }
+            else{
+                $url = $this->container->getParameter('web_app_url');
+                $url = $url.'?user_token='.$user->getConfirmationToken();
+                $this->_sendEmail('Chip-Chap validation e-mail', $url, $user->getEmail(), 'register_kyc');
+            }
+            $em->persist($user);
+            $em->flush();
+
+            $response = array(
+                'id'        =>  $user_id,
+                'username'  =>  $email,
+                'password'   =>  $password
+            );
+
+            return $this->restV2(201,"ok", "Request successful", $response);
+        }else{
+            return $resp;
+        }
     }
 
     public function registerAction(Request $request){
@@ -397,10 +516,7 @@ class AccountController extends BaseApiController{
             $request->request->add(array('name'=>$fake));
         }
 
-        if(!$request->request->has('phone')){
-            $request->request->add(array('phone'=>''));
-            $request->request->add(array('prefix'=>''));
-        }else{
+        if($request->request->has('phone')){
             if(!$request->request->has('prefix')){
                 throw new HttpException(400, "Missing parameter 'prefix'");
             }
@@ -416,10 +532,10 @@ class AccountController extends BaseApiController{
 
         $request->request->add(array('enabled'=>1));
         $request->request->add(array('base64_image'=>''));
-        $request->request->add(array('default_currency'=>'EUR'));
+//        $request->request->add(array('default_currency'=>'EUR'));
         $request->request->add(array('gcm_group_key'=>''));
-        $request->request->add(array('services_list'=>array('sample')));
-        $request->request->add(array('methods_list'=>array('sample')));
+//        $request->request->add(array('services_list'=>array('sample')));
+//        $request->request->add(array('methods_list'=>array('sample')));
 
         if($request->request->has('captcha')){
             $captcha = $request->request->get('captcha');
@@ -455,21 +571,21 @@ class AccountController extends BaseApiController{
             $user_id = $data->id;
 
             $user = $usersRepo->findOneBy(array('id'=>$user_id));
-
-            $currencies=Currency::$LISTA;
-
-            foreach($currencies as $currency){
-                $user_wallet = new UserWallet();
-                $user_wallet->setBalance(0);
-                $user_wallet->setAvailable(0);
-                $user_wallet->setCurrency($currency);
-                $user_wallet->setUser($user);
-                $em->persist($user_wallet);
-            }
-
             $user->addGroup($group);
-
             $em->persist($user);
+            $em->flush();
+
+            $user_kyc = new KYC();
+            $user_kyc->setEmail($user->getEmail());
+            $user_kyc->setUser($user);
+            if($request->request->has('phone')){
+                $phone_info = array(
+                    "prefix" => $request->request->get('prefix'),
+                    "number" => $request->request->get('phone')
+                );
+                $user_kyc->setPhone(json_encode($phone_info));
+            }
+            $em->persist($user_kyc);
             $em->flush();
 
             if( $device_id != null){
@@ -536,7 +652,14 @@ class AccountController extends BaseApiController{
     /**
      * @Rest\View
      */
-    public function passwordRecoveryRequest($param, $version_number){
+    public function passwordRecoveryRequest(Request $request, $param, $version_number){
+        $company = "chipchap";
+        if(!$request->query->has('company') || $request->query->get('company')==""){
+            $company = "chipchap";
+        }
+        else{
+            $company = $request->query->get('company');
+        }
 
         $em = $this->getDoctrine()->getManager();
         $user = $em->getRepository($this->getRepositoryName())->findOneBy(array(
@@ -560,14 +683,22 @@ class AccountController extends BaseApiController{
         $em->flush();
 
         if($version_number == '2'){
-            $url = $this->container->getParameter('web_app_url').'login?password_recovery='.$user->getRecoverPasswordToken();
+            if($company == "holytransaction"){
+                $url = 'https://holytransaction.trade/login?password_recovery='.$user->getRecoverPasswordToken();
+                //send email with a link to recover the password
+                $this->_sendEmail('Holy Transaction recover your password', $url, $user->getEmail(), 'recover_holy');
+            }
+            else{
+                $url = $this->container->getParameter('web_app_url').'login?password_recovery='.$user->getRecoverPasswordToken();
+                //send email with a link to recover the password
+                $this->_sendEmail('Chip-Chap recover your password', $url, $user->getEmail(), 'recover');
+            }
         }
         else {
             $url = $this->container->getParameter('base_panel_url').'/user/password_recovery/'.$user->getRecoverPasswordToken();
+            //send email with a link to recover the password
+            $this->_sendEmail('Chip-Chap recover your password', $url, $user->getEmail(), 'recover');
         }
-
-        //send email with a link to recover the password
-        $this->_sendEmail('Chip-Chap recover your password', $url, $user->getEmail(), 'recover');
 
         return $this->restV2(200,"ok", "Request successful");
 
@@ -593,6 +724,11 @@ class AccountController extends BaseApiController{
                 throw new HttpException(404, 'Parameter '.$paramName.' not found');
             }
         }
+
+        if($params['password']==''){
+            throw new HttpException('Paramater password not found');
+        }
+
         $em = $this->getDoctrine()->getManager();
 
         $user = $em->getRepository($this->getRepositoryName())->findOneBy(array(
@@ -626,41 +762,64 @@ class AccountController extends BaseApiController{
      * @Rest\View
      */
     public function kycSave(Request $request){
+        $em = $this->getDoctrine()->getManager();
         $user = $this->get('security.context')->getToken()->getUser();
-        $user_id = $user->getId();
 
-        $paramNames = array(
-            "name",
-            "lastName",
-            "dateBirth",
-            "email",
-            "prefix",
-            "phone"
-        );
-        $params = array();
-        foreach($paramNames as $paramName){
-            if($request->request->has($paramName)){
-                $params[$paramName] = $request->request->get($paramName);
-            }else{
-                throw new HttpException(404, 'Parameter '.$paramName.' not found');
-            }
+        if($request->request->has('name') && $request->request->get('name')!=''){
+            $user->setName($request->request->get('name'));
+            $em->persist($user);
         }
-        $data = json_encode($params);
 
-        $message = \Swift_Message::newInstance()
-            ->setSubject("kyc info")
-            ->setFrom('no-reply@chip-chap.com')
-            ->setTo(array(
-                "cto@chip-chap.com"
-            ))
-            ->setBody(
-                "User: " . $user_id . "\n" .
-                $data
-            )
-            ->setContentType('text/html');
+        $kyc = $em->getRepository('TelepayFinancialApiBundle:KYC')->findOneBy(array(
+            'user' => $user
+        ));
+        if(!$kyc){
+            $kyc = new KYC();
+            $kyc->setEmail($user->getEmail());
+            $kyc->setUser($user);
+        }
 
-        $this->container->get('mailer')->send($message);
+        if($request->request->has('email') && $request->request->get('email')!=''){
+            $user->setEmail($request->request->get('email'));
+            $em->persist($user);
+            $kyc->setEmail($request->request->get('email'));
+            $kyc->setEmailValidated(false);
+            $em->persist($kyc);
+        }
 
+        if($request->request->has('last_name') && $request->request->get('last_name')!=''){
+            $kyc->setLastName($request->request->get('last_name'));
+            $em->persist($kyc);
+        }
+
+        if($request->request->has('date_birth') && $request->request->get('date_birth')!=''){
+            $kyc->setDateBirth($request->request->get('date_birth'));
+            $em->persist($kyc);
+        }
+
+        if($request->request->get('phone') != '' || $request->request->get('prefix') != ''){
+            $prefix = $request->request->get('prefix');
+            $phone = $request->request->get('phone');
+            $old_phone = $kyc->getPhone();
+            if($old_phone == ''){
+                $old_phone = array(
+                    "prefix" => '',
+                    "number" => ''
+                );
+            }
+            else{
+                $old_phone = json_decode($old_phone);
+            }
+            $phone_info = array(
+                "prefix" => $prefix != ''?$prefix:$old_phone['prefix'],
+                "number" => $phone != ''?$phone:$old_phone['number']
+            );
+            $kyc->setPhone(json_encode($phone_info));
+            $kyc->setPhoneValidated(false);
+            $em->persist($kyc);
+        }
+
+        $em->flush();
         return $this->restV2(204, "ok", "KYC Info saved");
     }
 
@@ -725,19 +884,28 @@ class AccountController extends BaseApiController{
 //    }
 
     private function _sendEmail($subject, $body, $to, $action){
-
+        $from = 'no-reply@chip-chap.com';
+        $mailer = 'mailer';
         if($action == 'register'){
             $template = 'TelepayFinancialApiBundle:Email:registerconfirm.html.twig';
         }elseif($action == 'recover'){
             $template = 'TelepayFinancialApiBundle:Email:recoverpassword.html.twig';
+        }elseif($action == 'recover_holy'){
+            $template = 'TelepayFinancialApiBundle:Email:recoverpasswordholy.html.twig';
+            $from = 'no-reply@holytransaction.trade';
+            $mailer = 'swiftmailer.mailer.holy_mailer';
         }elseif($action == 'register_kyc'){
             $template = 'TelepayFinancialApiBundle:Email:registerconfirmkyc.html.twig';
+        }elseif($action == 'register_kyc_holy'){
+            $template = 'TelepayFinancialApiBundle:Email:registerconfirmkycholy.html.twig';
+            $from = 'no-reply@holytransaction.trade';
+            $mailer = 'swiftmailer.mailer.holy_mailer';
         }else{
             $template = 'TelepayFinancialApiBundle:Email:registerconfirm.html.twig';
         }
         $message = \Swift_Message::newInstance()
             ->setSubject($subject)
-            ->setFrom('no-reply@chip-chap.com')
+            ->setFrom($from)
             ->setTo(array(
                 $to
             ))
@@ -751,7 +919,39 @@ class AccountController extends BaseApiController{
             )
             ->setContentType('text/html');
 
-        $this->container->get('mailer')->send($message);
+        $this->container->get($mailer)->send($message);
+    }
+
+    /**
+     * @Rest\View
+     */
+    public function indexCompanies(Request $request){
+
+        $user = $this->get('security.context')->getToken()->getUser();
+        $repo = $this->getDoctrine()->getRepository("TelepayFinancialApiBundle:UserGroup");
+        $data = $repo->findBy(array('user'=>$user));
+
+        $all = array();
+        foreach($data as $userCompany){
+            $data_company = array(
+                'company' => $userCompany->getGroup(),
+                'roles' => $userCompany->getRoles()
+            );
+            $all[] = $data_company;
+        }
+
+        $total = count($all);
+
+        return $this->restV2(
+            200,
+            "ok",
+            "Request successful",
+            array(
+                'total' => $total,
+                'elements' => $all
+            )
+        );
+
     }
 
 }
