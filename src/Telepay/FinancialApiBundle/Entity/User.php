@@ -212,6 +212,11 @@ class User extends BaseUser
     private $recover_password_token;
 
     /**
+     * @ORM\Column(type="string")
+     */
+    private $default_currency;
+
+    /**
      * @Expose
      */
     protected $lastLogin;
