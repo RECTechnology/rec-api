@@ -22,6 +22,7 @@ use Telepay\FinancialApiBundle\Entity\Group;
 use Telepay\FinancialApiBundle\Entity\LimitDefinition;
 use Telepay\FinancialApiBundle\Entity\ServiceFee;
 use Telepay\FinancialApiBundle\Entity\User;
+use Telepay\FinancialApiBundle\Entity\UserGroup;
 use Telepay\FinancialApiBundle\Entity\UserWallet;
 use Telepay\FinancialApiBundle\Financial\Currency;
 
@@ -71,6 +72,7 @@ class MigrationCreateGroupByUserCommand extends ContainerAwareCommand
 
         foreach ($users as $user) {
 
+            $output->writeln('New User');
             $group = $user->getGroups()[0];
 
             if($group){
@@ -148,8 +150,13 @@ class MigrationCreateGroupByUserCommand extends ContainerAwareCommand
                     }
 
                     //cambiaos al user de grupo
-                    $user->removeGroup($group);
-                    $user->addGroup($newGroup);
+//                    $user->removeGroup($group);
+//                    $user->addGroup($newGroup);
+                    $userGroup = new UserGroup();
+                    $userGroup->setUser($user);
+                    $userGroup->setGroup($newGroup);
+                    $userGroup->setRoles(array('ROLE_ADMIN'));
+
 
                     //ponemos todos los wallets en el grupo
                     $wallets = $user->getWallets();
