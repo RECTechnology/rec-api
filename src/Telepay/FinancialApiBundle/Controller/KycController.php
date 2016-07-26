@@ -61,15 +61,10 @@ class KycController extends BaseApiController{
         }
         $request->request->add(array('username'=>$email));
         $request->request->add(array('name'=>''));
-        $request->request->add(array('phone'=>''));
-        $request->request->add(array('prefix'=>''));
         $request->request->add(array('email'=>$email));
         $request->request->add(array('enabled'=>1));
         $request->request->add(array('base64_image'=>''));
-//        $request->request->add(array('default_currency'=>'EUR'));
         $request->request->add(array('gcm_group_key'=>''));
-//        $request->request->add(array('services_list'=>array('sample')));
-//        $request->request->add(array('methods_list'=>array('sample')));
         $resp= parent::createAction($request);
 
         if($resp->getStatusCode() == 201) {
