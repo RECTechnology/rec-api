@@ -120,22 +120,15 @@ class SepaMethod extends BaseMethod {
             ->setFrom($no_reply)
             ->setTo(array(
                 'cto@chip-chap.com',
-                'pere@chip-chap.com'
+                'pere@chip-chap.com',
+                'ceo@chip-chap.com'
             ))
             ->setBody(
                 $this->getContainer()->get('templating')
                     ->render('TelepayFinancialApiBundle:Email:sepa_out_alert.html.twig',array(
                         'id'    =>  $id,
                         'type'  =>  $type,
-                        'beneficiary'   =>  $paymentInfo['beneficiary'],
-                        'iban'  =>  $paymentInfo['iban'],
-                        'amount'    =>  $paymentInfo['amount'],
-                        'bic_swift' =>  $paymentInfo['bic_swift'],
-                        'concept'   =>  $paymentInfo['concept'],
-                        'currency'  =>  $paymentInfo['currency'],
-                        'scale'     =>  $paymentInfo['scale'],
-                        'final'     =>  $paymentInfo['final'],
-                        'status'    =>  $paymentInfo['status']
+                        'payment_infos'   =>  $paymentInfo
                     ))
             );
 
