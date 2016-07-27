@@ -224,7 +224,8 @@ class HalcashMethod extends BaseMethod{
                         'message'    =>  $message,
                         'payment_info'  =>  $paymentInfo
                     ))
-            );
+            )
+            ->setContentType('text/html');
 
         $this->getContainer()->get('mailer')->send($message);
     }
