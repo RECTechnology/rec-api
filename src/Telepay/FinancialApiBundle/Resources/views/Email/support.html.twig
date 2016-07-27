@@ -83,37 +83,49 @@
 <article>
 
     <div>
-        <div style="width: 150px;">
+        <div>
             <h3>Swift Resume</h3>
             <table>
-                {% for key,swift in swifts %}
-                    <tr>
-                        <td>key</td>
-                        <td>swift</td>
-                    </tr>
-                {% endfor %}
+                <tr>
+                    {% for key,swift in swifts %}
+                        <th>{{ key }}</th>
+                    {% endfor %}
+                </tr>
+                <tr>
+                    {% for key,swift in swifts %}
+                        <td>{{ swift }}</td>
+                    {% endfor %}
+                </tr>
             </table>
         </div>
-        <div style="width: 150px;">
+        <div>
             <h3>CashIn Resume</h3>
             <table>
-                {% for key,cash_in in cash_ins %}
-                    <tr>
-                        <td>key</td>
-                        <td>cash_in</td>
-                    </tr>
-                {% endfor %}
+                <tr>
+                    {% for key,cash_in in cash_ins %}
+                        <th>{{ key }}</th>
+                    {% endfor %}
+                </tr>
+                <tr>
+                    {% for key,cash_in in cash_ins %}
+                        <td>{{ cash_in }}</td>
+                    {% endfor %}
+                </tr>
             </table>
         </div>
-        <div style="width: 150px;">
+        <div>
             <h3>CashOut Resume</h3>
             <table>
-                {% for key,cash_out in cash_outs %}
-                    <tr>
-                        <td>key</td>
-                        <td>cash_out</td>
-                    </tr>
-                {% endfor %}
+                <tr>
+                    {% for key,cash_out in cash_outs %}
+                        <th>{{ key }}</th>
+                    {% endfor %}
+                </tr>
+                <tr>
+                    {% for key,cash_out in cash_outs %}
+                        <td>{{ cash_out }}</td>
+                    {% endfor %}
+                </tr>
             </table>
         </div>
 
