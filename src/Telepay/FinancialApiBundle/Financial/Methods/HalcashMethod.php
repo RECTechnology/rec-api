@@ -50,7 +50,7 @@ class HalcashMethod extends BaseMethod{
                 $hal = $this->driver->sendInternational($phone, $prefix, $amount, $reference.' '.$find_token, $pin, 'PL', 'POL');
             }
         }catch (HttpException $e){
-            $this->sendMail($e->getMessage(), $e->getStatusCode());
+            $this->sendMail($e->getMessage(), $e->getStatusCode(), $paymentInfo);
             throw new Exception($e->getMessage(), $e->getStatusCode());
         }
 
@@ -206,7 +206,7 @@ class HalcashMethod extends BaseMethod{
         return false;
     }
 
-    public function sendMail($error, $message){
+    public function sendMail($error, $message, $paymentInfo){
 
         $no_reply = $this->container->getParameter('no_reply_email');
 
@@ -219,9 +219,10 @@ class HalcashMethod extends BaseMethod{
             ))
             ->setBody(
                 $this->getContainer()->get('templating')
-                    ->render('TelepayFinancialApiBundle:Email:sepa_out_alert.html.twig',array(
-                        'code error'  =>  $error,
-                        'message'    =>  $message
+                    ->render('TelepayFinancialApiBundle:Email:halcash_alert.html.twig',array(
+                        'code_error'  =>  $error,
+                        'message'    =>  $message,
+                        'payment_info'  =>  $paymentInfo
                     ))
             );
 
