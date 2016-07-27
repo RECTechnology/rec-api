@@ -1266,6 +1266,10 @@ class WalletController extends RestApiController{
             $currency_in =>  $amount,
             $currency_out=>     $exchange
         ));
+        $cashOut->setPayOutInfo(array(
+            $currency_in =>  $amount,
+            $currency_out=>     $exchange
+        ));
 
         $dm->persist($cashOut);
         $dm->flush();
@@ -1289,6 +1293,7 @@ class WalletController extends RestApiController{
         $cashIn->setScale($receiverWallet->getScale());
         $cashIn->setStatus('success');
         $cashIn->setDataIn($paramsOut);
+        $cashIn->setPayInInfo($paramsOut);
         $cashIn->setDataOut(array(
             'previous_transaction'  =>  $cashOut->getId(),
             $currency_in    =>  $amount,
