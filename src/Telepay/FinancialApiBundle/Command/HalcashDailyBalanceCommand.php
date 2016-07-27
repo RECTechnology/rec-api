@@ -228,7 +228,7 @@ class HalcashDailyBalanceCommand extends ContainerAwareCommand
 
             foreach($qb->toArray() as $transaction){
                 $paymentInfo = $transaction->getPayInInfo();
-                if($paymentInfo['status'] == 'sent' || $paymentInfo['status'] == 'withdrawn'){
+                if($paymentInfo['status'] == 'success'){
                     if($service == 'safetypay'){
                         $services_in[$service] += $paymentInfo['mxn_amount'];
                     }else{
@@ -249,7 +249,7 @@ class HalcashDailyBalanceCommand extends ContainerAwareCommand
 
             foreach($qbMethod->toArray() as $transaction){
                 $paymentInfo = $transaction->getPayInInfo();
-                if($paymentInfo['status'] == 'sent' || $paymentInfo['status'] == 'withdrawn'){
+                if($paymentInfo['status'] == 'success'){
                     if($service == 'safetypay'){
                         $methods_in[$service] += $paymentInfo['mxn_amount'];
                     }else{
@@ -349,7 +349,7 @@ class HalcashDailyBalanceCommand extends ContainerAwareCommand
             ->setSubject($subject)
             ->setFrom($no_replay)
             ->setTo(array(
-                'volume@chip-chap.com'
+                $this->getContainer()->getParameter('volume_email')
             ))
             ->setBody(
                 $this->getContainer()->get('templating')
