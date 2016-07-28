@@ -142,7 +142,7 @@ class SwiftController extends BaseApiController{
     public function updateFees(Request $request, $id){
 
         $user = $this->get('security.context')->getToken()->getUser();
-        $userGroup = $user->getGroups()[0];
+        $userGroup = $user->getActiveGroup();
         if(!$this->get('security.context')->isGranted('ROLE_WORKER')) throw new HttpException(403, 'You don\' have the necessary permissions');
 
         $em = $this->getDoctrine()->getManager();
