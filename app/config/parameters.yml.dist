@@ -11,6 +11,9 @@ parameters:
     mailer_user:       ~
     mailer_password:   ~
 
+    no_reply_email: "dev_no-reply@chip-chap.com"
+    volume_email: "dev-volume@chip-chap.com"
+
     locale:            en
     secret:            ThisTokenIsNotSoSecretChangeIt
 

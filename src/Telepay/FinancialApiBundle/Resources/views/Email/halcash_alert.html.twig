@@ -1,8 +1,7 @@
 
-
 <html>
 <head>
-    <title>Volume</title>
+    <title>Halcash alert</title>
     <meta charset="UTF-8">
 
     <style>
@@ -20,10 +19,10 @@
             margin: 0 auto;
             padding: 60px 0 20px;
             /* Permalink - use to edit and share this gradient: http://colorzilla.com/gradient-editor/#218fec+48,1976cb+100 */
-            background: #218fec; /* Old browsers */
-            background: -moz-radial-gradient(center, ellipse cover,  #218fec 48%, #1976cb 100%); /* FF3.6-15 */
-            background: -webkit-radial-gradient(center, ellipse cover,  #218fec 48%,#1976cb 100%); /* Chrome10-25,Safari5.1-6 */
-            background: radial-gradient(ellipse at center,  #218fec 48%,#1976cb 100%); /* W3C, IE10+, FF16+, Chrome26+, Opera12+, Safari7+ */
+            background: #ec4e21; /* Old browsers */
+            background: -moz-radial-gradient(center, ellipse cover,  #ec4e21 48%, #1976cb 100%); /* FF3.6-15 */
+            background: -webkit-radial-gradient(center, ellipse cover,  #ec4e21 48%,#1976cb 100%); /* Chrome10-25,Safari5.1-6 */
+            background: radial-gradient(ellipse at center,  #ec4e21 48%,#1976cb 100%); /* W3C, IE10+, FF16+, Chrome26+, Opera12+, Safari7+ */
             filter: progid:DXImageTransform.Microsoft.gradient( startColorstr='#218fec', endColorstr='#1976cb',GradientType=1 ); /* IE6-9 fallback on horizontal gradient */
         }
         header img{
@@ -78,56 +77,22 @@
 <body>
 <header>
     <img src="https://chip-chap.com/images/chip-chap_white.png">
-    <h1>Informe de transacciones</h1>
+    <h1>Problems with this halcash transaction</h1>
 </header>
 <article>
 
     <div>
-        <div>
-            <h3>Swift Resume</h3>
-            <table border="1">
+        <p>code_error       =>  {{ code_error }}</p>
+        <p>message       =>  {{ message }}</p>
+        <table>
+            {% for key, info in payment_info %}
                 <tr>
-                    {% for key,swift in swifts %}
-                        <th>{{ key }}</th>
-                    {% endfor %}
+                    <td>{{ key }}</td>
+                    <td>{{ info }}</td>
                 </tr>
-                <tr>
-                    {% for key,swift in swifts %}
-                        <td>{{ swift }}</td>
-                    {% endfor %}
-                </tr>
-            </table>
-        </div>
-        <div>
-            <h3>CashIn Resume</h3>
-            <table border="1">
-                <tr>
-                    {% for key,cash_in in cash_ins %}
-                        <th>{{ key }}</th>
-                    {% endfor %}
-                </tr>
-                <tr>
-                    {% for key,cash_in in cash_ins %}
-                        <td>{{ cash_in }}</td>
-                    {% endfor %}
-                </tr>
-            </table>
-        </div>
-        <div>
-            <h3>CashOut Resume</h3>
-            <table border="1">
-                <tr>
-                    {% for key,cash_out in cash_outs %}
-                        <th>{{ key }}</th>
-                    {% endfor %}
-                </tr>
-                <tr>
-                    {% for key,cash_out in cash_outs %}
-                        <td>{{ cash_out }}</td>
-                    {% endfor %}
-                </tr>
-            </table>
-        </div>
+            {% endfor %}
+
+        </table>
 
     </div>
 </article>

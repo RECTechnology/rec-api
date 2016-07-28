@@ -228,7 +228,7 @@ class HalcashDailyBalanceCommand extends ContainerAwareCommand
 
             foreach($qb->toArray() as $transaction){
                 $paymentInfo = $transaction->getPayInInfo();
-                if($paymentInfo['status'] == 'sent' || $paymentInfo['status'] == 'withdrawn'){
+                if($paymentInfo['status'] == 'success'){
                     if($service == 'safetypay'){
                         $services_in[$service] += $paymentInfo['mxn_amount'];
                     }else{
@@ -249,7 +249,7 @@ class HalcashDailyBalanceCommand extends ContainerAwareCommand
 
             foreach($qbMethod->toArray() as $transaction){
                 $paymentInfo = $transaction->getPayInInfo();
-                if($paymentInfo['status'] == 'sent' || $paymentInfo['status'] == 'withdrawn'){
+                if($paymentInfo['status'] == 'success'){
                     if($service == 'safetypay'){
                         $methods_in[$service] += $paymentInfo['mxn_amount'];
                     }else{
@@ -306,42 +306,73 @@ class HalcashDailyBalanceCommand extends ContainerAwareCommand
             }
         }
 
-        $body = array(
-            'Total Transacciones SWIFT:',
-            'halcash últimas 24 horas: ' . $services_hal['halcash_es']/100 . ' EUR.',
-            $services_hal['halcash_pl']/100 . ' PLN.',
-            'halcash refund: ' . $services_hal_refund['halcash_es']/100 . ' EUR.',
-            $services_hal_refund['halcash_pl']/100 . ' PLN.',
-            'Cryptocapital: ' . $services_out['cryptocapital']/100 . ' EUR.',
-            'Sepa: ' . $services_out['sepa']/100 . ' EUR.',
-            'Paynet: ' . $services_in['paynet_reference']/100 . ' MXN.',
-            'Safetypay: ' . $services_in['safetypay']/100 . ' MXN.',
-            'Easypay: ' . $services_in['easypay']/100 . ' EUR.',
-            'Total transacciones METHODS:',
-            'halcash_es: ' . $methods_hal['halcash_es']/100 . ' EUR.',
-            'halcash_pl: ' . $methods_hal['halcash_pl']/100 . ' PLN.',
-            'Cryptocapital-out: ' . $methods_out['cryptocapital']/100 . ' EUR.',
-            'Sepa-out: ' . $methods_out['sepa']/100 . ' EUR.',
-            'Paynet: ' . $methods_in['paynet_reference']/100 . ' MXN.',
-            'Safetypay: ' . $methods_in['safetypay']/100 . ' MXN.',
-            'Easypay: ' . $methods_in['easypay']/100 . ' EUR.',
-            'Bitcoin-in: ' . $cryptos_in['btc']/100 . ' BTC.',
-            'Faircoin-in: ' . $cryptos_in['fac']/100 . ' FAC.',
-            'Bitcoin-out: ' . $cryptos_out['btc']/100 . ' BTC.',
-            'Faircoin-out: ' . $cryptos_out['fac']/100 . ' FAC.'
+        $swiftArray = array(
+            'Halcash_es'    =>  $services_hal['halcash_es']/100 . ' EUR.',
+            'Halcash_pl'    =>  $services_hal['halcash_pl']/100 . ' PLN.',
+            'Halcash_es_refund' =>  $services_hal_refund['halcash_es']/100 .' EUR',
+            'Halcash_pl_refund' =>  $services_hal_refund['halcash_pl']/100 .'PLN',
+            'Cryptocapital' =>  $services_out['cryptocapital']/100 . ' EUR.',
+            'Sepa'  =>  $services_out['sepa']/100 . ' EUR.',
+            'Paynet'    =>  $services_in['paynet_reference']/100 . ' MXN.',
+            'Safetypay' =>  $services_in['safetypay']/100 . ' MXN.',
+            'Easypay'   =>  $services_in['easypay']/100 . ' EUR.'
         );
+
+        $cashOutArray = array(
+            'Halcash_es'    =>  $methods_hal['halcash_es']/100 . ' EUR.',
+            'Halcash_pl'    =>  $methods_hal['halcash_pl']/100 . ' PLN.',
+            'Cryptocapital' =>  $methods_out['cryptocapital']/100 . ' EUR.',
+            'Sepa'          =>  $methods_out['sepa']/100 . ' EUR.',
+            'Bitcoin'       =>  $cryptos_out['btc']/100000000 . ' BTC.',
+            'Faircoin'      =>  $cryptos_out['fac']/100000000 . ' FAC.'
+        );
+
+        $cashInArray = array(
+            'Paynet'    =>  $methods_in['paynet_reference']/100 . ' MXN.',
+            'SafetyPay' =>  $methods_in['safetypay']/100 . ' MXN.',
+            'Easypay'   =>  $methods_in['easypay']/100 . ' EUR.',
+            'Bitcoin'   =>  $cryptos_in['btc']/100000000 . ' BTC.',
+            'Faircoin'   =>  $cryptos_in['fac']/100000000 . ' BTC.',
+        );
+
+//        $body = array(
+//            'Total Transacciones SWIFT:',
+//            'halcash últimas 24 horas: ' . $services_hal['halcash_es']/100 . ' EUR.',
+//            $services_hal['halcash_pl']/100 . ' PLN.',
+//            'halcash refund: ' . $services_hal_refund['halcash_es']/100 . ' EUR.',
+//            $services_hal_refund['halcash_pl']/100 . ' PLN.',
+//            'Cryptocapital: ' . $services_out['cryptocapital']/100 . ' EUR.',
+//            'Sepa: ' . $services_out['sepa']/100 . ' EUR.',
+//            'Paynet: ' . $services_in['paynet_reference']/100 . ' MXN.',
+//            'Safetypay: ' . $services_in['safetypay']/100 . ' MXN.',
+//            'Easypay: ' . $services_in['easypay']/100 . ' EUR.',
+//            'Total transacciones METHODS:',
+//            'halcash_es: ' . $methods_hal['halcash_es']/100 . ' EUR.',
+//            'halcash_pl: ' . $methods_hal['halcash_pl']/100 . ' PLN.',
+//            'Cryptocapital-out: ' . $methods_out['cryptocapital']/100 . ' EUR.',
+//            'Sepa-out: ' . $methods_out['sepa']/100 . ' EUR.',
+//            'Paynet: ' . $methods_in['paynet_reference']/100 . ' MXN.',
+//            'Safetypay: ' . $methods_in['safetypay']/100 . ' MXN.',
+//            'Easypay: ' . $methods_in['easypay']/100 . ' EUR.',
+//            'Bitcoin-in: ' . $cryptos_in['btc']/100 . ' BTC.',
+//            'Faircoin-in: ' . $cryptos_in['fac']/100 . ' FAC.',
+//            'Bitcoin-out: ' . $cryptos_out['btc']/100 . ' BTC.',
+//            'Faircoin-out: ' . $cryptos_out['fac']/100 . ' FAC.'
+//        );
 
 
         $this->sendEmail(
             'Informe de transacciones de hal',
-            $body
+            $swiftArray,
+            $cashInArray,
+            $cashOutArray
         );
 
         $output->writeln('Informe enviado');
     }
 
 
-    private function sendEmail($subject, $body){
+    private function sendEmail($subject, $swift, $cashIn, $cashOut){
 
         $no_replay = $this->getContainer()->getParameter('no_reply_email');
 
@@ -349,13 +380,15 @@ class HalcashDailyBalanceCommand extends ContainerAwareCommand
             ->setSubject($subject)
             ->setFrom($no_replay)
             ->setTo(array(
-                'volume@chip-chap.com'
+                $this->getContainer()->getParameter('volume_email')
             ))
             ->setBody(
                 $this->getContainer()->get('templating')
                     ->render('TelepayFinancialApiBundle:Email:support.html.twig',
                         array(
-                            'message'        =>  $body
+                            'swifts'        =>  $swift,
+                            'cash_ins'   =>  $cashIn,
+                            'cash_outs'  =>  $cashOut
                         )
                     )
             )
