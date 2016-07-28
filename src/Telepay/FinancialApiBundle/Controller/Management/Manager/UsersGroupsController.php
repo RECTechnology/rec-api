@@ -175,6 +175,7 @@ class UsersGroupsController extends RestApiController{
      */
     public function deleteRoleAction(Request $request, $user_id, $group_id){
 
+        //TODO this function is used now??? check and delete
         $admin = $this->get('security.context')->getToken()->getUser();
 
         $groupsRepository = $this->getDoctrine()->getRepository("TelepayFinancialApiBundle:Group");
