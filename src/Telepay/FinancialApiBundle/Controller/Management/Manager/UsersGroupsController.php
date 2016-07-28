@@ -160,6 +160,9 @@ class UsersGroupsController extends RestApiController{
         if(!$this->get('security.context')->isGranted('ROLE_ADMIN')) throw new HttpException(403, 'You don\' have the necessary permissions');
         if(!$this->get('security.context')->isGranted('ROLE_SUPER_ADMIN') && $group_id != $userGroup->getId()) throw new HttpException(403, 'Change the active group');
 
+        //TODO check if is superadmin but readonly
+        if(!$entity->hasRole('ROLE_ADMIN')) throw new HttpException(403, 'You are READ ONLY. you don\'t have the necessary permissions');
+
         $entity->setRoles($role);
         $em = $this->getDoctrine()->getManager();
         $em->persist($entity);
