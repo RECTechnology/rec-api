@@ -182,10 +182,10 @@ class ClientsController extends BaseApiController {
         }
         foreach($list_fees as $fee){
             $cname = $fee->GetCname();
-            $methods[$cname]['fee']['id']=$limit->GetId();
-            $methods[$cname]['fee']['fixed']=$limit->GetFixed();
-            $methods[$cname]['fee']['variable']=$limit->GetVariable();
-            $methods[$cname]['fee']['currency']=$limit->GetCurrency();
+            $methods[$cname]['fee']['id']=$fee->GetId();
+            $methods[$cname]['fee']['fixed']=$fee->GetFixed();
+            $methods[$cname]['fee']['variable']=$fee->GetVariable();
+            $methods[$cname]['fee']['currency']=$fee->GetCurrency();
         }
         $resp = array(
             'entities' =>  $entities,
