@@ -1270,6 +1270,7 @@ class IncomingController2 extends RestApiController{
     }
 
     private function _checkPermissions(User $user, Group $group){
+        
         if(!$user->hasGroup($group->getName())) throw new HttpException(403, 'You do not have the necessary permissions in this company');
 
         //Check permissiona for this user in this company
