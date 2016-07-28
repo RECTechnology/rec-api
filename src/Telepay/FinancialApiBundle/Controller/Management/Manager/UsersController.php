@@ -448,11 +448,15 @@ class UsersController extends BaseApiController
 
         $resp = parent::updateAction($request, $id);
         if($resp->getStatusCode() == 204){
-
-            if($role_commerce !== null){
-                //TODO check if the admins have POS FEES for all the admins
+            if($request->request->has('email') && $request->request->get('email')!=''){
+                $em = $this->getDoctrine()->getManager();
+                $kyc = $em->getRepository('TelepayFinancialApiBundle:KYC')->findOneBy(array(
+                    'user' => $user
+                ));
+                $kyc->setEmail($request->request->get('email'));
+                $kyc->setEmailValidated(false);
+                $em->persist($kyc);
             }
-
         }
         return $resp;
     }
