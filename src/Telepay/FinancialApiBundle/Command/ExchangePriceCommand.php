@@ -89,7 +89,7 @@ class ExchangePriceCommand extends ContainerAwareCommand
                 $this->getContainer()->get('templating')
                     ->render('TelepayFinancialApiBundle:Email:support.html.twig',
                         array(
-                            'message'        =>  $body
+                            'messages'        =>  $body
                         )
                     )
             )
