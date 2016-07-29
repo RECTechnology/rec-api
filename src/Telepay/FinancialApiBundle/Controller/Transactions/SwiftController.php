@@ -434,7 +434,9 @@ class SwiftController extends RestApiController{
 
                 //if previous status == failed generate fees transactions
                 if($previous_status == Transaction::$STATUS_FAILED){
-                    $this->_generateFees($transaction, $transaction->getMethodIn(), $transaction->getMethodOut());
+                    //TODO check if exists previous fees
+                    if(!$this->_existPreviousFee($transaction))
+                        $this->_generateFees($transaction, $transaction->getMethodIn(), $transaction->getMethodOut());
                 }
 
             }else{
@@ -1215,6 +1217,35 @@ class SwiftController extends RestApiController{
         $total = count($result);
 
         if($total >=1) throw new HttpException(409, 'concept duplicated before 30 minutes');
+    }
+
+    private function _existPreviousFee(Transaction $transaction){
+
+        $dm = $dm = $this->get('doctrine_mongodb')->getManager();
+        $qb = $dm->createQueryBuilder('TelepayFinancialApiBundle:Transaction');
+        $transaction_id = $transaction->getId();
+        $transactions = $qb
+            ->field('type')->equals(Transaction::$TYPE_FEE)
+            ->where("function() {
+                                if (typeof this.fee_info !== 'undefined') {
+                                    if (typeof this.fee_info.previous_transaction !== 'undefined') {
+                                        if(String(this.fee_info.previous_transaction).indexOf('$transaction_id') > -1){
+                                            return true;
+                                        }
+                                    }
+                                }
+
+                                return false;
+                                }")
+            ->getQuery()
+            ->execute();
+
+        if(count($transactions) >=1){
+            return true;
+        }else{
+            return false;
+        }
+
     }
 
 }
