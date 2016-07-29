@@ -434,7 +434,7 @@ class SwiftController extends RestApiController{
 
                 //if previous status == failed generate fees transactions
                 if($previous_status == Transaction::$STATUS_FAILED){
-                    //TODO check if exists previous fees
+                    //check if exists previous fees
                     if(!$this->_existPreviousFee($transaction))
                         $this->_generateFees($transaction, $transaction->getMethodIn(), $transaction->getMethodOut());
                 }
