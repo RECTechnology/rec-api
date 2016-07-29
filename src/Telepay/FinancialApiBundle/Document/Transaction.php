@@ -313,6 +313,12 @@ class Transaction implements TransactionTiming {
 
     /**
      * @var
+     * @MongoDB\Hash
+     */
+    private $fee_info;
+
+    /**
+     * @var
      * @MongoDB\String
      */
     private $method_in;
@@ -993,5 +999,21 @@ class Transaction implements TransactionTiming {
     public function setGroupData($group_data)
     {
         $this->group_data = $group_data;
+    }
+
+    /**
+     * @return mixed
+     */
+    public function getFeeInfo()
+    {
+        return $this->fee_info;
+    }
+
+    /**
+     * @param mixed $fee_info
+     */
+    public function setFeeInfo($fee_info)
+    {
+        $this->fee_info = $fee_info;
     }
 }

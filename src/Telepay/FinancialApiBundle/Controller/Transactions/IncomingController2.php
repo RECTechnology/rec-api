@@ -1008,8 +1008,15 @@ class IncomingController2 extends RestApiController{
             'concept'           =>  $method_cname.'->fee',
             'admin'                 =>  $creator->getName()
         ));
+        $feeTransaction->setFeeInfo(array(
+            'previous_transaction'  =>  $transaction->getId(),
+            'amount'                =>  -$total_fee,
+            'concept'           =>  $method_cname.'->fee',
+            'admin'                 =>  $creator->getName(),
+            'status'    =>  Transaction::$STATUS_SUCCESS
+        ));
 
-        $feeTransaction->setType('fee');
+        $feeTransaction->setType(Transaction::$TYPE_FEE);
 
         $feeTransaction->setTotal(-$total_fee);
 
@@ -1119,10 +1126,18 @@ class IncomingController2 extends RestApiController{
             ->field('type')->equals('fee')
             ->field('group')->equals($transaction_cancelled->getGroup())
             ->where("function() {
-                                if (typeof this.dataIn !== 'undefined') {
-                                    if (typeof this.dataIn.previous_transaction !== 'undefined') {
-                                        if(String(this.dataIn.previous_transaction).indexOf('$transaction_id') > -1){
+                                if (typeof this.fee_info !== 'undefined') {
+                                    if (typeof this.fee_info.previous_transaction !== 'undefined') {
+                                        if(String(this.fee_info.previous_transaction).indexOf('$transaction_id') > -1){
                                             return true;
+                                        }
+                                    }
+                                }else{
+                                    if (typeof this.dataIn !== 'undefined') {
+                                        if (typeof this.dataIn.previous_transaction !== 'undefined') {
+                                            if(String(this.dataIn.previous_transaction).indexOf('$transaction_id') > -1){
+                                                return true;
+                                            }
                                         }
                                     }
                                 }
@@ -1145,6 +1160,9 @@ class IncomingController2 extends RestApiController{
             $logger->info('Update transaction -> cancel fees => '.$transaction->getAmount());
             $transaction->setAmount(0);
             $transaction->setTotal(0);
+            $feeInfo = $transaction->getFeeInfo();
+            $feeInfo['status'] = Transaction::$STATUS_CANCELLED;
+            $transaction->setFeeInfo($feeInfo);
 //            $transaction->setPayOutInfo(array(
 //                'previous_transaction'  =>  $transaction->getId(),
 //                'amount'                =>  -$total_fee,
@@ -1170,32 +1188,7 @@ class IncomingController2 extends RestApiController{
                 }
             }
 
-//            //empezamos el reparto
-//            $creator = $group->getGroupCreator();
-//
-//            if(!$creator) throw new HttpException(404,'Creator not found');
-//
-//            $transaction_id = $transaction_cancelled->getId();
-//            $amount = $transaction_cancelled->getAmount();
-//            $currency = $transaction_cancelled->getCurrency();
-//
-//            $logger->info('Update transaction => inversedDeal');
-//            $dealer = $this->get('net.telepay.commons.fee_deal');
-//            $dealer->inversedDeal(
-//                $creator,
-//                $amount,
-//                $method_cname,
-//                $transaction_cancelled->getType(),
-//                $currency,
-//                $total_fee,
-//                $transaction_id,
-//                $transaction_cancelled->getVersion()
-//            );
         }
-//        if(!$exist){
-//            throw new HttpException(404,'Fee not found');
-//        }
-
 
     }
 
@@ -1270,7 +1263,7 @@ class IncomingController2 extends RestApiController{
     }
 
     private function _checkPermissions(User $user, Group $group){
-        
+
         if(!$user->hasGroup($group->getName())) throw new HttpException(403, 'You do not have the necessary permissions in this company');
 
         //Check permissiona for this user in this company

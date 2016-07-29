@@ -116,7 +116,7 @@ class CheckSwiftCommand extends SyncronizedContainerAwareCommand
                         $output->writeln('HALCASH STATUS => '.$transaction->getStatus().' currentSTATUS => '.$current_transaction->getStatus().' pay_in_STATUS => '.$pay_in_info['status'].' pay_out_STATUS => '.$pay_out_info['status']);
                     }
 
-                    if($pay_in_info['status'] == 'created'){
+                    if($pay_in_info['status'] == Transaction::$STATUS_CREATED){
                         //check if hasExpired
                         if($this->hasExpired($transaction)){
                             $transaction->setStatus(Transaction::$STATUS_EXPIRED);
@@ -138,9 +138,9 @@ class CheckSwiftCommand extends SyncronizedContainerAwareCommand
                         }
                         $output->writeln('NEW STATUS => '.$transaction->getStatus());
 
-                    }elseif($pay_in_info['status'] == 'received'){
+                    }elseif($pay_in_info['status'] == Transaction::$STATUS_RECEIVED){
                         if($prevStatusIn != $pay_in_info['status']){
-                            $transaction->setStatus('received');
+                            $transaction->setStatus(Transaction::$STATUS_RECEIVED);
                             $transaction->setDataOut($pay_in_info);
                             $transaction->setPayInInfo($pay_in_info);
                             $transaction->setUpdated(new \DateTime());
@@ -149,7 +149,7 @@ class CheckSwiftCommand extends SyncronizedContainerAwareCommand
                             $dm->flush();
                         }
                         $output->writeln('NEW STATUS => '.$transaction->getStatus());
-                    }elseif($pay_in_info['status'] == 'success'){
+                    }elseif($pay_in_info['status'] == Transaction::$STATUS_SUCCESS){
                         if($method_in != 'btc' && $method_in != 'fac' ){
                             //sumar balance to statusMethod only when cash_in is distinct to btc or fac
                             $statusMethod = $em->getRepository('TelepayFinancialApiBundle:StatusMethod')->findOneBy(array(
@@ -196,9 +196,9 @@ class CheckSwiftCommand extends SyncronizedContainerAwareCommand
                             $dm->flush();
 
 
-                            if($pay_out_info['status'] == 'sent' || $pay_out_info['status'] == 'sending'){
+                            if($pay_out_info['status'] == Transaction::$STATUS_SENT || $pay_out_info['status'] == 'sending'){
                                 $transaction->setPayOutInfo($pay_out_info);
-                                if($pay_out_info['status'] == 'sent') $transaction->setStatus('success');
+                                if($pay_out_info['status'] == Transaction::$STATUS_SENT) $transaction->setStatus(Transaction::$STATUS_SUCCESS);
                                 else $transaction->setStatus('sending');
                                 $transaction->setDataIn($pay_out_info);
                                 $output->writeln('Status success: CHANGED.');
@@ -258,7 +258,7 @@ class CheckSwiftCommand extends SyncronizedContainerAwareCommand
                                     $userFee = new Transaction();
                                     if($transaction->getUser()) $transaction->setUser($transaction->getUser());
                                     $userFee->setGroup($transaction->getGroup());
-                                    $userFee->setType('fee');
+                                    $userFee->setType(Transaction::$TYPE_FEE);
                                     $userFee->setCurrency($transaction->getCurrency());
                                     $userFee->setScale($transaction->getScale());
                                     $userFee->setAmount($client_fee);
@@ -266,12 +266,18 @@ class CheckSwiftCommand extends SyncronizedContainerAwareCommand
                                     $userFee->setVariableFee($amount * ($clientFees->getVariable()/100));
                                     $userFee->setService($method_in.'-'.$method_out);
                                     $userFee->setMethod($method_in.'-'.$method_out);
-                                    $userFee->setStatus('success');
+                                    $userFee->setStatus(Transaction::$STATUS_SUCCESS);
                                     $userFee->setTotal($client_fee);
                                     $userFee->setDataIn(array(
                                         'previous_transaction'  =>  $transaction->getId(),
                                         'transaction_amount'    =>  $transaction->getAmount(),
                                         'total_fee' =>  $client_fee + $service_fee
+                                    ));
+                                    $userFee->setFeeInfo(array(
+                                        'previous_transaction'  =>  $transaction->getId(),
+                                        'transaction_amount'    =>  $transaction->getAmount(),
+                                        'total_fee' =>  $client_fee + $service_fee,
+                                        'status'    =>  Transaction::$STATUS_SUCCESS
                                     ));
                                     $userFee->setClient($client);
                                     $dm->persist($userFee);
@@ -300,7 +306,7 @@ class CheckSwiftCommand extends SyncronizedContainerAwareCommand
                                     $rootFee = new Transaction();
                                     $rootFee->setUser($root->getId());
                                     $rootFee->setGroup($rootGroup->getId());
-                                    $rootFee->setType('fee');
+                                    $rootFee->setType(Transaction::$TYPE_FEE);
                                     $rootFee->setCurrency($transaction->getCurrency());
                                     $rootFee->setScale($transaction->getScale());
                                     $rootFee->setAmount($service_fee);
@@ -308,7 +314,7 @@ class CheckSwiftCommand extends SyncronizedContainerAwareCommand
                                     $rootFee->setVariableFee($amount * ($methodFees->getVariable()/100));
                                     $rootFee->setService($method_in.'-'.$method_out);
                                     $rootFee->setMethod($method_in.'-'.$method_out);
-                                    $rootFee->setStatus('success');
+                                    $rootFee->setStatus(Transaction::$STATUS_SUCCESS);
                                     $rootFee->setTotal($service_fee);
                                     $rootFee->setDataIn(array(
                                         'previous_transaction'  =>  $transaction->getId(),
@@ -316,6 +322,15 @@ class CheckSwiftCommand extends SyncronizedContainerAwareCommand
                                         'total_fee' =>  $client_fee + $service_fee,
                                         'previous_group_id'   =>  $clientGroup->getId(),
                                         'previous_group_name'   =>  $clientGroup->getName()
+                                    ));
+
+                                    $rootFee->setFeeInfo(array(
+                                        'previous_transaction'  =>  $transaction->getId(),
+                                        'transaction_amount'    =>  $transaction->getAmount(),
+                                        'total_fee' =>  $client_fee + $service_fee,
+                                        'previous_group_id'   =>  $clientGroup->getId(),
+                                        'previous_group_name'   =>  $clientGroup->getName(),
+                                        'status'    =>  Transaction::$STATUS_SUCCESS
                                     ));
                                     $rootFee->setClient($client);
 

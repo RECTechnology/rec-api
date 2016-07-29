@@ -419,9 +419,15 @@ class SwiftController extends RestApiController{
                 }
 
                 $transaction->setPayOutInfo($payOutInfo);
-                $transaction->setStatus(Transaction::$STATUS_SUCCESS);
+                if($payOutInfo['status'] == Transaction::$STATUS_SENT){
+                    $transaction->setStatus(Transaction::$STATUS_SUCCESS);
+                    $message = 'Transaction resend successfully';
+                }else{
+                    $transaction->setStatus(Transaction::$STATUS_FAILED);
+                    $message = 'Transaction has failed';
+                }
+
                 $transaction->setUpdated(new \DateTime());
-                $message = 'Transaction resend successfully';
 
                 $dm->persist($transaction);
                 $dm->flush();
@@ -850,7 +856,9 @@ class SwiftController extends RestApiController{
 
         $em = $this->getDoctrine()->getManager();
         $dm = $this->get('doctrine_mongodb')->getManager();
+
         $client = $em->getRepository('TelepayFinancialApiBundle:Client')->find($transaction->getClient());
+
         $clientGroup = $client->getGroup();
         $amount = $transaction->getAmount();
 
@@ -876,13 +884,14 @@ class SwiftController extends RestApiController{
         $userFee = new Transaction();
         if($transaction->getUser()) $userFee->setUser($transaction->getUser());
         $userFee->setGroup($transaction->getGroup());
-        $userFee->setType('fee');
+        $userFee->setType(Transaction::$TYPE_FEE);
         $userFee->setCurrency($transaction->getCurrency());
         $userFee->setScale($transaction->getScale());
         $userFee->setAmount($client_fee);
         $userFee->setFixedFee($clientFees->getFixed());
         $userFee->setVariableFee($amount * ($clientFees->getVariable()/100));
         $userFee->setService($method_in.'-'.$method_out);
+        $userFee->setMethod($method_in.'-'.$method_out);
         $userFee->setStatus('success');
         $userFee->setTotal($client_fee);
         $userFee->setDataIn(array(
@@ -890,22 +899,34 @@ class SwiftController extends RestApiController{
             'transaction_amount'    =>  $transaction->getAmount(),
             'total_fee' =>  $client_fee + $service_fee
         ));
+        $userFee->setFeeInfo(array(
+            'previous_transaction'  =>  $transaction->getId(),
+            'transaction_amount'    =>  $transaction->getAmount(),
+            'total_fee' =>  $client_fee + $service_fee
+        ));
+
         $userFee->setClient($client);
 
         //service fees goes to root
         $rootFee = new Transaction();
         $rootFee->setUser($root->getId());
         $rootFee->setGroup($rootGroupId);
-        $rootFee->setType('fee');
+        $rootFee->setType(Transaction::$TYPE_FEE);
         $rootFee->setCurrency($transaction->getCurrency());
         $rootFee->setScale($transaction->getScale());
         $rootFee->setAmount($service_fee);
         $rootFee->setFixedFee($methodFees->getFixed());
         $rootFee->setVariableFee($amount * ($methodFees->getVariable()/100));
         $rootFee->setService($method_in.'-'.$method_out);
+        $rootFee->setMethod($method_in.'-'.$method_out);
         $rootFee->setStatus('success');
         $rootFee->setTotal($service_fee);
         $rootFee->setDataIn(array(
+            'previous_transaction'  =>  $transaction->getId(),
+            'transaction_amount'    =>  $transaction->getAmount(),
+            'total_fee' =>  $client_fee + $service_fee
+        ));
+        $rootFee->setFeeInfo(array(
             'previous_transaction'  =>  $transaction->getId(),
             'transaction_amount'    =>  $transaction->getAmount(),
             'total_fee' =>  $client_fee + $service_fee
@@ -957,13 +978,22 @@ class SwiftController extends RestApiController{
         $transactions = $qb
             ->field('type')->equals('fee')
             ->where("function() {
-                                if (typeof this.dataIn !== 'undefined') {
-                                    if (typeof this.dataIn.previous_transaction !== 'undefined') {
-                                        if(String(this.dataIn.previous_transaction).indexOf('$transaction_id') > -1){
+                                if (typeof this.fee_info !== 'undefined') {
+                                    if (typeof this.fee_info.previous_transaction !== 'undefined') {
+                                        if(String(this.fee_info.previous_transaction).indexOf('$transaction_id') > -1){
                                             return true;
                                         }
                                     }
+                                }else{
+                                    if (typeof this.dataIn !== 'undefined') {
+                                        if (typeof this.dataIn.previous_transaction !== 'undefined') {
+                                            if(String(this.dataIn.previous_transaction).indexOf('$transaction_id') > -1){
+                                                return true;
+                                            }
+                                        }
+                                    }
                                 }
+
 
                                 return false;
                                 }")
@@ -982,6 +1012,10 @@ class SwiftController extends RestApiController{
             $fee->setAmount(0);
             $fee->setStatus('refund');
             $fee->setTotal(0);
+
+            $feeInfo = $fee->getFeeInfo();
+            $feeInfo['status'] = Transaction::$STATUS_CANCELLED;
+            $feeInfo->setFeeInfo($feeInfo);
 
             $dm->persist($fee);
             $dm->flush();

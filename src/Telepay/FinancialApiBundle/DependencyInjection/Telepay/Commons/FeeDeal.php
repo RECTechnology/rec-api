@@ -98,7 +98,7 @@ class FeeDeal{
                 $transaction->setMethod($service_cname);
                 $transaction->setVersion($version);
                 $transaction->setAmount($fee);
-                $transaction->setType('fee');
+                $transaction->setType(Transaction::$TYPE_FEE);
                 $transaction->setDataIn(array(
                     'parent_id' => $transaction_id,
                     'previous_transaction' => $transaction_id,
@@ -110,8 +110,15 @@ class FeeDeal{
                     'previous_transaction' =>  $transaction_id,
                     'type'      =>  'suma_amount'
                 ));
+                $transaction->setFeeInfo(array(
+                    'parent_id' => $transaction_id,
+                    'previous_transaction' => $transaction_id,
+                    'amount'    =>  $fee,
+                    'concept'   =>$service_cname.'->fee',
+                    'status'    =>  Transaction::$STATUS_SUCCESS
+                ));
                 //incloure les fees en la transacció
-                $transaction->setStatus('success');
+                $transaction->setStatus(Transaction::$STATUS_SUCCESS);
                 $transaction->setCurrency($currency);
                 $transaction->setVariableFee($variable);
                 $transaction->setFixedFee($fixed);
@@ -150,8 +157,15 @@ class FeeDeal{
                     'parent_id' => $transaction->getId(),
                     'type'      =>  'resta_fee'
                 ));
+                $feeTransaction->setFeeInfo(array(
+                    'parent_id' => $transaction->getId(),
+                    'previous_transaction' => $transaction->getId(),
+                    'amount'    =>  -$total,
+                    'concept'   =>  $service_cname.'->fee',
+                    'status'    =>  Transaction::$STATUS_SUCCESS
+                ));
                 //incloure les fees en la transacció
-                $feeTransaction->setStatus('success');
+                $feeTransaction->setStatus(Transaction::$STATUS_SUCCESS);
                 $feeTransaction->setCurrency($currency);
                 $feeTransaction->setVariableFee($variable);
                 $feeTransaction->setFixedFee($fixed);
