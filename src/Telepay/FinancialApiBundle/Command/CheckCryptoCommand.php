@@ -170,7 +170,7 @@ class CheckCryptoCommand extends SyncronizedContainerAwareCommand
 
             $dm->flush();
 
-            $output->writeln('(' + $n + ')Crypto transactions checked');
+            $output->writeln('(' . $n . ')Crypto transactions checked');
             $n++;
         }
         $output->writeln('Crypto transactions finished');
