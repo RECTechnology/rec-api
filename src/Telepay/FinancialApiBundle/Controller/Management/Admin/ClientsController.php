@@ -157,7 +157,41 @@ class ClientsController extends BaseApiController {
      * @Rest\View
      */
     public function showAction($id){
-        return parent::showAction($id);
+        if(empty($id)) throw new HttpException(400, "Missing parameter 'id'");
+        $repo = $this->getRepository();
+        $entities = $repo->findOneBy(array('id'=>$id));
+        if(empty($entities)) throw new HttpException(404, "Not found");
+        $list_methods = $entities->getSwiftList();
+        $list_fees = $entities->getSwiftFees();
+        $list_limits = $entities->getSwifLimits();
+        $methods = array();
+        foreach($list_methods as $method){
+            $method =  explode(":", $method)[0];
+            $methods[$method]['status'] = 'active';
+        }
+        foreach($list_limits as $limit){
+            $cname = $limit->GetCname();
+            $methods[$cname]['limit']['id']=$limit->GetId();
+            $methods[$cname]['limit']['single']=$limit->GetSingle();
+            $methods[$cname]['limit']['day']=$limit->GetDay();
+            $methods[$cname]['limit']['week']=$limit->GetWeek();
+            $methods[$cname]['limit']['month']=$limit->GetMonth();
+            $methods[$cname]['limit']['year']=$limit->GetYear();
+            $methods[$cname]['limit']['total']=$limit->GetTotal();
+            $methods[$cname]['limit']['currency']=$limit->GetCurrency();
+        }
+        foreach($list_fees as $fee){
+            $cname = $fee->GetCname();
+            $methods[$cname]['fee']['id']=$fee->GetId();
+            $methods[$cname]['fee']['fixed']=$fee->GetFixed();
+            $methods[$cname]['fee']['variable']=$fee->GetVariable();
+            $methods[$cname]['fee']['currency']=$fee->GetCurrency();
+        }
+        $resp = array(
+            'entities' =>  $entities,
+            'methods' =>  $methods,
+        );
+        return $this->restPlain(200, $resp);
     }
 
     /**
