@@ -180,3 +180,9 @@ services:
     fos_user.doctrine_registry:
         alias: doctrine
 
+    oauth_event_listener:
+        class:  Telepay\FinancialApiBundle\EventListener\OAuthEventListener
+        tags:
+            - { name: kernel.event_listener, event: fos_oauth_server.pre_authorization_process, method: onPreAuthorizationProcess }
+            - { name: kernel.event_listener, event: fos_oauth_server.post_authorization_process, method: onPostAuthorizationProcess }
+
