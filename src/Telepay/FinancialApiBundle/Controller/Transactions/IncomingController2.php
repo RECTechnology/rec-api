@@ -38,7 +38,7 @@ class IncomingController2 extends RestApiController{
 
         if(!$this->get('security.context')->isGranted('ROLE_WORKER')) throw new HttpException(403, 'You don\' have the necessary permissions');
 
-        $group = $this->_getCurrentComapny($user);
+        $group = $this->_getCurrentCompany($user);
 
         //check if this user has this company
         $this->_checkPermissions($user, $group);
@@ -337,7 +337,7 @@ class IncomingController2 extends RestApiController{
         $logger->info('Update transaction');
 
         $user = $this->get('security.context')->getToken()->getUser();
-        $group = $this->_getCurrentComapny($user);
+        $group = $this->_getCurrentCompany($user);
         $this->_checkPermissions($user, $group);
 
         $method_list = $group->getMethodsList();
@@ -593,7 +593,7 @@ class IncomingController2 extends RestApiController{
         $method = $this->get('net.telepay.'.$type.'.'.$method_cname.'.v'.$version_number);
 
         $user = $this->get('security.context')->getToken()->getUser();
-        $group = $this->_getCurrentComapny($user);
+        $group = $this->_getCurrentCompany($user);
         $this->_checkPermissions($user, $group);
 
         $method_list = $group->getMethodsList();
@@ -1277,7 +1277,7 @@ class IncomingController2 extends RestApiController{
 
     }
 
-    private function _getCurrentComapny(User $user){
+    private function _getCurrentCompany(User $user){
         $tokenManager = $this->container->get('fos_oauth_server.access_token_manager.default');
 
         try{
