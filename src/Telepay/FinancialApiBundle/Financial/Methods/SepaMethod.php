@@ -130,7 +130,8 @@ class SepaMethod extends BaseMethod {
                         'type'  =>  $type,
                         'payment_infos'   =>  $paymentInfo
                     ))
-            );
+            )
+            ->setContentType('text/html');
 
         $this->getContainer()->get('mailer')->send($message);
     }
