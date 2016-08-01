@@ -36,7 +36,10 @@ class MigrateFeeInfoCommand extends ContainerAwareCommand
         $output->writeln('Migrating '.count($transactions).' transactions...');
         $counterTransactions = 0;
         foreach($transactions as $transaction){
-            $transaction->setFeeInfo($transaction->getDataIn());
+            $dataIn = $transaction->getDataIn();
+            $dataIn['status'] = $transaction->getStatus();
+            $dataIn['scale'] = $transaction->getScale();
+            $transaction->setFeeInfo($dataIn);
             $dm->persist($transaction);
             $dm->flush($transaction);
             $counterTransactions ++;
