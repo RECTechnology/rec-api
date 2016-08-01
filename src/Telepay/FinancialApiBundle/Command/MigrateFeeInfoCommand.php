@@ -39,6 +39,7 @@ class MigrateFeeInfoCommand extends ContainerAwareCommand
             $dataIn = $transaction->getDataIn();
             $dataIn['status'] = $transaction->getStatus();
             $dataIn['scale'] = $transaction->getScale();
+            $dataIn['currency'] = $transaction->getCurrency();
             $transaction->setFeeInfo($dataIn);
             $dm->persist($transaction);
             $dm->flush($transaction);
