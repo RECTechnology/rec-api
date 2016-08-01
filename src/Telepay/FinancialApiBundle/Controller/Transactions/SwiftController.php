@@ -904,7 +904,8 @@ class SwiftController extends RestApiController{
         $userFee->setFeeInfo(array(
             'previous_transaction'  =>  $transaction->getId(),
             'transaction_amount'    =>  $transaction->getAmount(),
-            'total_fee' =>  $client_fee + $service_fee
+            'total_fee' =>  $client_fee + $service_fee,
+            'status'    =>  Transaction::$STATUS_SUCCESS
         ));
 
         $userFee->setClient($client);
@@ -931,7 +932,8 @@ class SwiftController extends RestApiController{
         $rootFee->setFeeInfo(array(
             'previous_transaction'  =>  $transaction->getId(),
             'transaction_amount'    =>  $transaction->getAmount(),
-            'total_fee' =>  $client_fee + $service_fee
+            'total_fee' =>  $client_fee + $service_fee,
+            'status'    =>  Transaction::$STATUS_SUCCESS
         ));
         $rootFee->setClient($client);
         $dm->persist($userFee);
@@ -1016,7 +1018,7 @@ class SwiftController extends RestApiController{
             $fee->setTotal(0);
 
             $feeInfo = $fee->getFeeInfo();
-            $feeInfo['status'] = Transaction::$STATUS_CANCELLED;
+            $feeInfo['status'] = 'refund';
             $feeInfo->setFeeInfo($feeInfo);
 
             $dm->persist($fee);
