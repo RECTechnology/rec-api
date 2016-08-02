@@ -83,6 +83,13 @@ class POSController extends BaseApiController{
         }
         $request->request->remove('currency');
         $request->request->remove('type');
+
+        if(!$request->request->has('active')){
+            $request->request->add(array(
+                'active'     =>  true
+            ));
+        }
+
         $request->request->add(array(
             'currency'  => strtoupper($currency),
             'type'      =>  strtoupper($type)
