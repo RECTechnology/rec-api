@@ -75,7 +75,7 @@ class POSController extends BaseApiController{
         $currency = $request->request->get('currency');
         $type = $request->request->get('type');
         if(!$type) {
-            if(strtoupper($currency) == 'BTC'){
+            if(strtoupper($currency) == 'BTC' || strtoupper($currency) == 'FAC') {
                 $type = strtoupper($currency);
             }else{
                 $type = 'PNP';
