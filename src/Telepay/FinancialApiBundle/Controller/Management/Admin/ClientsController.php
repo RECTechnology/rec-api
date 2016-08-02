@@ -161,10 +161,20 @@ class ClientsController extends BaseApiController {
         $repo = $this->getRepository();
         $entities = $repo->findOneBy(array('id'=>$id));
         if(empty($entities)) throw new HttpException(404, "Not found");
+
+        $methods = array();
+        $services = $this->get('net.telepay.swift_provider')->findAll();
+        foreach($services as $service){
+            $methods = explode('-',$service);
+            $method_in = $this->get('net.telepay.in.'.$methods[0].'.v1');
+            $method_out = $this->get('net.telepay.out.'.$methods[1].'.v1');
+            $method = $method_in->getCname().'-'.$method_out->getCname();
+            $methods[$method]['status'] = 'inactive';
+        }
+
         $list_methods = $entities->getSwiftList();
         $list_fees = $entities->getSwiftFees();
         $list_limits = $entities->getSwifLimits();
-        $methods = array();
         foreach($list_methods as $method){
             $method =  explode(":", $method)[0];
             $methods[$method]['status'] = 'active';
