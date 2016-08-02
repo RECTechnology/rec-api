@@ -165,11 +165,11 @@ class ClientsController extends BaseApiController {
         $methods = array();
         $services = $this->get('net.telepay.swift_provider')->findAll();
         foreach($services as $service){
-            $methods = explode('-',$service);
-            $method_in = $this->get('net.telepay.in.'.$methods[0].'.v1');
-            $method_out = $this->get('net.telepay.out.'.$methods[1].'.v1');
-            $method = $method_in->getCname().'-'.$method_out->getCname();
-            $methods[$method]['status'] = 'inactive';
+            $method = explode('-',$service);
+            $method_in = $this->get('net.telepay.in.'.$method[0].'.v1');
+            $method_out = $this->get('net.telepay.out.'.$method[1].'.v1');
+            $method_name = $method_in->getCname().'-'.$method_out->getCname();
+            $methods[$method_name]['status'] = 'inactive';
         }
 
         $list_methods = $entities->getSwiftList();
