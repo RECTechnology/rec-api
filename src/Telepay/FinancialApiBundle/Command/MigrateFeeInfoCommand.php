@@ -44,9 +44,11 @@ class MigrateFeeInfoCommand extends ContainerAwareCommand
                 $previousTrans = $dataIn['parent_id'];
             }
 
+            $prevTrans = $dm->getRepository("TelepayFinancialApiBundle:Transaction")->find($previousTrans);
+
             $feeInfo = array(
                 'previous_transaction'  =>  $previousTrans,
-                'previous_amount'    =>  $dataIn['amount'],
+                'previous_amount'    =>  $prevTrans->getAmount(),
                 'scale'     =>  $transaction->getScale(),
                 'concept'           =>  $transaction->getService().'->fee',
                 'amount' =>  $transaction->getAmount(),
