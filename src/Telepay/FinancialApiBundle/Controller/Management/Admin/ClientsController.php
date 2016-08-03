@@ -9,6 +9,7 @@ use FOS\RestBundle\Controller\Annotations as Rest;
 use Symfony\Component\HttpFoundation\Request;
 use Telepay\FinancialApiBundle\Entity\SwiftFee;
 use Telepay\FinancialApiBundle\Entity\SwiftLimit;
+use Telepay\FinancialApiBundle\Financial\Currency;
 use WebSocket\Exception;
 
 /**
@@ -189,6 +190,7 @@ class ClientsController extends BaseApiController {
             $methods[$cname]['limit']['year']=$limit->GetYear();
             $methods[$cname]['limit']['total']=$limit->GetTotal();
             $methods[$cname]['limit']['currency']=$limit->GetCurrency();
+            $methods[$cname]['limit']['scale'] = Currency::$SCALE[$limit->GetCurrency()];
         }
         foreach($list_fees as $fee){
             $cname = $fee->GetCname();
@@ -196,6 +198,7 @@ class ClientsController extends BaseApiController {
             $methods[$cname]['fee']['fixed']=$fee->GetFixed();
             $methods[$cname]['fee']['variable']=$fee->GetVariable();
             $methods[$cname]['fee']['currency']=$fee->GetCurrency();
+            $methods[$cname]['fee']['scale'] = Currency::$SCALE[$fee->GetCurrency()];
         }
         $resp = array(
             'entities' =>  $entities,
