@@ -40,8 +40,10 @@ class MigrateFeeInfoCommand extends ContainerAwareCommand
 
             if(isset($dataIn['previous_transaction'])) {
                 $previousTrans = $dataIn['previous_transaction'];
-            }else{
+            }elseif(isset($dataIn['parent_id'])){
                 $previousTrans = $dataIn['parent_id'];
+            }else{
+                $previousTrans = 0;
             }
 
             $prevTrans = $dm->getRepository("TelepayFinancialApiBundle:Transaction")->find($previousTrans);
