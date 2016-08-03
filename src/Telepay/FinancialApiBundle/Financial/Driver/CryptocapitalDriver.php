@@ -35,7 +35,6 @@ class CryptocapitalDriver{
             if (!$process->isSuccessful()) {
                 throw new \RuntimeException($process->getErrorOutput());
             }
-
             $response = $process->getOutput();
             $response = json_decode($response,true);
         }

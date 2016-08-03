@@ -1010,9 +1010,10 @@ class IncomingController2 extends RestApiController{
         ));
         $feeTransaction->setFeeInfo(array(
             'previous_transaction'  =>  $transaction->getId(),
+            'previous_amount'   =>  $transaction->getAmount(),
             'amount'                =>  -$total_fee,
+            'scale'     =>  $transaction->getScale(),
             'concept'           =>  $method_cname.'->fee',
-            'admin'                 =>  $creator->getName(),
             'status'    =>  Transaction::$STATUS_SUCCESS
         ));
 
