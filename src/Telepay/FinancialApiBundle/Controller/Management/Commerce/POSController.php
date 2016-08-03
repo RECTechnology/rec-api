@@ -75,7 +75,7 @@ class POSController extends BaseApiController{
         $currency = $request->request->get('currency');
         $type = $request->request->get('type');
         if(!$type) {
-            if(strtoupper($currency) == 'BTC'){
+            if(strtoupper($currency) == 'BTC' || strtoupper($currency) == 'FAC') {
                 $type = strtoupper($currency);
             }else{
                 $type = 'PNP';
@@ -83,6 +83,13 @@ class POSController extends BaseApiController{
         }
         $request->request->remove('currency');
         $request->request->remove('type');
+
+        if(!$request->request->has('active')){
+            $request->request->add(array(
+                'active'     =>  true
+            ));
+        }
+
         $request->request->add(array(
             'currency'  => strtoupper($currency),
             'type'      =>  strtoupper($type)

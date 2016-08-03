@@ -81,6 +81,15 @@ services:
             - "EUR/MXN/USD/PLN/FAC/BTC"
             - "EUR/MXN/USD/PLN/FAC/BTC"
 
+    net.telepay.config.pos_fac:
+        class: Telepay\FinancialApiBundle\Financial\Methods\POSConfiguration
+        arguments:
+            - "pos_fac"
+            - "FAC"
+            - "FAC"
+            - "EUR/MXN/USD/PLN/FAC/BTC"
+            - "EUR/MXN/USD/PLN/FAC/BTC"
+
     net.telepay.config.pos_safetypay:
         class: Telepay\FinancialApiBundle\Financial\Methods\POSConfiguration
         arguments:
@@ -347,6 +356,15 @@ services:
             - "pos_btc"
             - "BTC"
             - "BTC"
+            - "EUR/MXN/USD/PLN/FAC/BTC"
+            - "EUR/MXN/USD/PLN/FAC/BTC"
+
+    net.telepay.config.pos_fac:
+        class: Telepay\FinancialApiBundle\Financial\Methods\POSConfiguration
+        arguments:
+            - "pos_fac"
+            - "FAC"
+            - "FAC"
             - "EUR/MXN/USD/PLN/FAC/BTC"
             - "EUR/MXN/USD/PLN/FAC/BTC"
 

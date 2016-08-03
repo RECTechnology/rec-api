@@ -32,15 +32,13 @@ class CheckCryptoPOSv2Command extends ContainerAwareCommand
     protected function execute(InputInterface $input, OutputInterface $output)
     {
         $trans_id=$input->getOption('transaction-id');
-        $service_cname = 'POS-BTC';
-
         $dm = $this->getContainer()->get('doctrine_mongodb')->getManager();
         $em = $this->getContainer()->get('doctrine')->getManager();
-        $userRepo = $em->getRepository('TelepayFinancialApiBundle:User');
+        $groupRepo = $em->getRepository('TelepayFinancialApiBundle:Group');
 
         if(isset($trans_id)){
             $qb = $dm->createQueryBuilder('TelepayFinancialApiBundle:Transaction')
-                ->field('type')->equals($service_cname)
+                ->field('type')->in(array('POS-BTC', 'POS-FAC'))
                 ->field('id')->equals($trans_id)
                 ->field('status')->in(array('created','received'))
                 ->getQuery();
@@ -48,7 +46,7 @@ class CheckCryptoPOSv2Command extends ContainerAwareCommand
         else{
             $mongoDateBefore1MinuteAgo = new \MongoDate(strtotime( date('Y-m-d H:i:s',\time() - 1 * 50) ) );
             $qb = $dm->createQueryBuilder('TelepayFinancialApiBundle:Transaction')
-                ->field('type')->equals($service_cname)
+                ->field('type')->in(array('POS-BTC', 'POS-FAC'))
                 ->field('status')->in(array('created','received'))
                 ->field('last_check')->lte($mongoDateBefore1MinuteAgo)
                 ->getQuery();
@@ -60,6 +58,7 @@ class CheckCryptoPOSv2Command extends ContainerAwareCommand
 
             $resArray [] = $transaction;
             $previous_status = $transaction->getStatus();
+            $service_cname = $transaction->getType();
 
             $transaction = $this->check($transaction);
 
@@ -74,15 +73,12 @@ class CheckCryptoPOSv2Command extends ContainerAwareCommand
             $dm->flush();
 
             if($transaction->getStatus()=='success'){
-                //hacemos el reparto
-                //primero al user
-                $id = $transaction->getUser();
-
+                //hacemos el reparto, primero al user
+                $id = $transaction->getGroup();
                 $transaction_id = $transaction->getId();
+                $group = $groupRepo->find($id);
 
-                $user = $userRepo->find($id);
-
-                $wallets = $user->getWallets();
+                $wallets = $group->getWallets();
                 $currency_out = $transaction->getCurrency();
                 $current_wallet = null;
 
@@ -94,9 +90,7 @@ class CheckCryptoPOSv2Command extends ContainerAwareCommand
 
                 $amount = $transaction->getAmount();
 
-                if(!$user->hasRole('ROLE_SUPER_ADMIN')){
-                    $group = $user->getGroups()[0];
-
+                if(!$group->hasRole('ROLE_SUPER_ADMIN')){
                     $fixed_fee = $transaction->getFixedFee();
                     $variable_fee = $transaction->getVariableFee();
                     $total_fee = $fixed_fee + $variable_fee;
@@ -114,7 +108,7 @@ class CheckCryptoPOSv2Command extends ContainerAwareCommand
                         $feeTransaction->setStatus('success');
                         $feeTransaction->setScale($transaction->getScale());
                         $feeTransaction->setAmount($total_fee);
-                        $feeTransaction->setUser($user->getId());
+                        $feeTransaction->setGroup($group->getId());
                         $feeTransaction->setCreated(new \MongoDate());
                         $feeTransaction->setUpdated(new \MongoDate());
                         $feeTransaction->setIp($transaction->getIp());
@@ -144,15 +138,28 @@ class CheckCryptoPOSv2Command extends ContainerAwareCommand
 
                         //luego a la ruleta de admins
                         $dealer = $this->getContainer()->get('net.telepay.commons.fee_deal');
-                        $dealer->deal(
-                            $creator,
-                            $amount,
-                            'POS',
-                            'BTC',
-                            $currency_out ,
-                            $total_fee,
-                            $transaction_id,
-                            $transaction->getVersion());
+                        if($service_cname == 'POS-BTC') {
+                            $dealer->deal(
+                                $creator,
+                                $amount,
+                                'POS',
+                                'BTC',
+                                $currency_out,
+                                $total_fee,
+                                $transaction_id,
+                                $transaction->getVersion());
+                        }
+                        elseif($service_cname == 'POS-FAC'){
+                            $dealer->deal(
+                                $creator,
+                                $amount,
+                                'POS',
+                                'FAC',
+                                $currency_out,
+                                $total_fee,
+                                $transaction_id,
+                                $transaction->getVersion());
+                        }
                     }
 
                 }else{
@@ -215,7 +222,7 @@ class CheckCryptoPOSv2Command extends ContainerAwareCommand
         $allowed_amount = $amount - $margin;
         foreach($allReceived as $cryptoData){
             if($cryptoData['address'] === $address){
-                $paymentInfo['received'] = doubleval($cryptoData['amount'])*1e8; //doubleval($cryptoData['amount'])*1e8;
+                $paymentInfo['received'] = doubleval($cryptoData['amount'])*1e8;
                 if(doubleval($cryptoData['amount'])*1e8 >= $allowed_amount){
                     $paymentInfo['confirmations'] = $cryptoData['confirmations'];
                     if($paymentInfo['confirmations'] >= $paymentInfo['min_confirmations']){

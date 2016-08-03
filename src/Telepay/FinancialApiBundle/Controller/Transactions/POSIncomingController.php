@@ -28,38 +28,30 @@ class POSIncomingController extends RestApiController{
      * @Rest\View
      */
     public function createTransaction(Request $request, $version_number,  $id){
-
         $em = $this->getDoctrine()->getManager();
         $tpvRepo = $em->getRepository('TelepayFinancialApiBundle:POS')->findOneBy(array(
             'pos_id'    =>  $id
         ));
 
         $service_cname = $tpvRepo->getCname();
-
-        //TODO cambiar por group
-        $user = $tpvRepo->getUser();
-
+        $group = $tpvRepo->getGroup();
         if($tpvRepo->getActive() == 0) throw new HttpException(400, 'Service Temporally unavailable');
 
         $service_currency = strtoupper($tpvRepo->getCurrency());
-
         $service = $this->get('net.telepay.services.'.$service_cname.'.v'.$version_number);
-
         $dataIn = array();
         foreach($service->getFields() as $field){
             if(!$request->request->has($field))
                 throw new HttpException(400, "Parameter '".$field."' not found");
             else $dataIn[$field] = $request->get($field);
         }
-
         if($dataIn['currency'] != $service_currency) throw new HttpException(403, 'Currency not allowed');
-
         $dm = $this->get('doctrine_mongodb')->getManager();
 
-        //Check unique order_id by user and tpv
+        //Check unique order_id by group and tpv
         $qb = $dm->createQueryBuilder('TelepayFinancialApiBundle:Transaction')
             ->field('posId')->equals($id)
-            ->field('user')->equals($user->getId())
+            ->field('group')->equals($group->getId())
             ->field('dataIn.order_id')->equals($dataIn['order_id'])
             ->getQuery();
 
@@ -68,8 +60,7 @@ class POSIncomingController extends RestApiController{
         //create transaction
         $transaction = Transaction::createFromRequest($request);
         $transaction->setService($service_cname);
-        //TODO cambiar user por group
-        $transaction->setUser($user->getId());
+        $transaction->setGroup($group->getId());
         $transaction->setVersion($version_number);
         $transaction->setDataIn($dataIn);
         $transaction->setPosId($id);
@@ -91,7 +82,7 @@ class POSIncomingController extends RestApiController{
         $transaction->setTotal($amount);
 
         //TODO obtain wallet and check founds for cash_out services for this group
-        $wallets = $user->getWallets();
+        $wallets = $group->getWallets();
 
         $current_wallet = null;
 
@@ -177,7 +168,7 @@ class POSIncomingController extends RestApiController{
 
         $dm = $this->get('doctrine_mongodb')->getManager();
 
-        //Check unique order_id by user and tpv
+        //Check unique order_id by group and tpv
         $qb = $dm->createQueryBuilder('TelepayFinancialApiBundle:Transaction')
             ->field('posId')->equals($id)
             ->field('group')->equals($group->getId())
@@ -272,7 +263,7 @@ class POSIncomingController extends RestApiController{
 
         }elseif($posType == 'BTC'){
 
-            $address = $this->generateAddress();
+            $address = $this->generateAddress($posType);
 
             if(!$address) throw new HttpException(403, 'Service temporally unavailable');
 
@@ -283,6 +274,29 @@ class POSIncomingController extends RestApiController{
                 'currency_in'   =>  strtoupper($dataIn['currency_in']),
                 'currency'  =>  'BTC',
                 'scale'     =>  Currency::$SCALE['BTC'],
+                'scale_in'     =>  Currency::$SCALE[strtoupper($dataIn['currency_in'])],
+                'address'   =>  $address,
+                'expires_in'=>  $tpvRepo->getExpiresIn(),
+                'received'  =>  0,
+                'min_confirmations' =>  0,
+                'confirmations' =>  1,
+                'url_ok'    =>  $dataIn['url_ok'],
+                'url_ko'    =>  $dataIn['url_ko']
+            );
+
+        }elseif($posType == 'FAC'){
+
+            $address = $this->generateAddress($posType);
+
+            if(!$address) throw new HttpException(403, 'Service temporally unavailable');
+
+            $paymentInfo = array(
+                'amount'    =>  $pos_amount,
+                'previous_amount'    =>  $pos_amount,
+                'received_amount'   =>  $dataIn['amount'],
+                'currency_in'   =>  strtoupper($dataIn['currency_in']),
+                'currency'  =>  'FAC',
+                'scale'     =>  Currency::$SCALE['FAC'],
                 'scale_in'     =>  Currency::$SCALE[strtoupper($dataIn['currency_in'])],
                 'address'   =>  $address,
                 'expires_in'=>  $tpvRepo->getExpiresIn(),
@@ -324,12 +338,13 @@ class POSIncomingController extends RestApiController{
     /**
      * @Rest\View
      */
-    public function generateAddress(){
-
-        $address = $this->container->get('net.telepay.provider.btc')->getnewaddress();
-
-        return $address;
-
+    public function generateAddress($type){
+        if($type == 'BTC'){
+            return $this->container->get('net.telepay.provider.btc')->getnewaddress();
+        }
+        elseif ($type == 'FAC'){
+            return $this->container->get('net.telepay.provider.fac')->getnewaddress();
+        }
     }
 
     /**

@@ -161,10 +161,20 @@ class ClientsController extends BaseApiController {
         $repo = $this->getRepository();
         $entities = $repo->findOneBy(array('id'=>$id));
         if(empty($entities)) throw new HttpException(404, "Not found");
+
+        $methods = array();
+        $services = $this->get('net.telepay.swift_provider')->findAll();
+        foreach($services as $service){
+            $method = explode('-',$service);
+            $method_in = $this->get('net.telepay.in.'.$method[0].'.v1');
+            $method_out = $this->get('net.telepay.out.'.$method[1].'.v1');
+            $method_name = $method_in->getCname().'-'.$method_out->getCname();
+            $methods[$method_name]['status'] = 'inactive';
+        }
+
         $list_methods = $entities->getSwiftList();
         $list_fees = $entities->getSwiftFees();
         $list_limits = $entities->getSwifLimits();
-        $methods = array();
         foreach($list_methods as $method){
             $method =  explode(":", $method)[0];
             $methods[$method]['status'] = 'active';
@@ -198,14 +208,11 @@ class ClientsController extends BaseApiController {
      * @Rest\View
      */
     public function updateAction(Request $request, $id){
-
         $em = $this->getDoctrine()->getManager();
-
         //Change owner of this client
         if($request->request->has('group')){
             $group_id = $request->request->get('group');
             $request->request->remove('group');
-
             $group = $em->getRepository('TelepayFinancialApiBundle:Group')->find($group_id);
             $request->request->add(array(
                 'group'  =>  $group
@@ -214,19 +221,12 @@ class ClientsController extends BaseApiController {
 
         $services = null;
         if($request->request->has('swift_list')){
-
             $services = $request->get('swift_list');
-
             foreach($services as $service){
-
                 $method = explode('-',$service,2);
-
                 $validSwiftMethods = $this->get('net.telepay.swift_provider')->findAll();
-
                 if(!in_array($service, $validSwiftMethods)) throw new HttpException(404, 'Method not allowed');
-
                 $exist_method_in = $this->get('net.telepay.method_provider')->isValidMethod($method[0].'-in');
-
                 if($exist_method_in == false){
                     throw new HttpException(404, 'Cash in method '.$method[0].' not found');
                 }else{
@@ -235,26 +235,20 @@ class ClientsController extends BaseApiController {
                 }
 
                 if(!isset($method[1]) ) throw new HttpException(404, 'Cash out method not found');
-
                 $exist_method_out = $this->get('net.telepay.method_provider')->isValidMethod($method[1].'-out');
-
                 if($exist_method_out == false){
                     throw new HttpException(404, 'Cash out method '.$method[1].' not found');
                 }else{
                     $method_out = $this->get('net.telepay.method_provider')->findByCname($method[1].'-out');
                     if($method_out->getType() != 'out') throw new HttpException(404, 'Cash out method '.$method[1].' not found');
                 }
-
             }
         }
-
         $response = parent::updateAction($request, $id);
-
         if($response->getStatusCode() == 204){
             $client = $em->getRepository('TelepayFinancialApiBundle:Client')->find($id);
             $this->_createLimitsFees($client, $services);
         }
-
         return $response;
     }
 
