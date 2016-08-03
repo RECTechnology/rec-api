@@ -37,11 +37,18 @@ class MigrateFeeInfoCommand extends ContainerAwareCommand
         $counterTransactions = 0;
         foreach($transactions as $transaction){
             $dataIn = $transaction->getDataIn();
+
+            if(isset($dataIn['previous_transaction'])) {
+                $previousTrans = $dataIn['previous_transaction'];
+            }else{
+                $previousTrans = $dataIn['parent_id'];
+            }
+
             $feeInfo = array(
-                'previous_transaction'  =>  $dataIn['previous_transaction'],
+                'previous_transaction'  =>  $previousTrans,
                 'previous_amount'    =>  $dataIn['amount'],
                 'scale'     =>  $transaction->getScale(),
-                'concept'           =>  $transaction->getMethodIn().'-'.$transaction->getMethodOut().'->fee',
+                'concept'           =>  $transaction->getService().'->fee',
                 'amount' =>  $transaction->getAmount(),
                 'status'    =>  'success',
                 'currency'  =>  $transaction->getCurrency()
