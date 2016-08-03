@@ -172,6 +172,14 @@ class GroupsController extends BaseApiController
 
         $admin = $this->get('security.context')->getToken()->getUser();
 
+        if(!$request->request->has('name')){
+            throw new HttpException(400, "Parameter 'name' not found");
+        }
+
+        if(!$request->request->has('active')){
+            $request->request->set('active', true);
+        }
+
         $activeGroup = $admin->getActiveGroup();
 
         if(!$activeGroup->hasRole('ROLE_SUPER_ADMIN')){
