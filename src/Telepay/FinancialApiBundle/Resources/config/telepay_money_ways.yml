@@ -23,7 +23,7 @@ services:
         arguments:
             - "@net.telepay.wallet.kraken.btc"
             - "@net.telepay.wallet.kraken.eur"
-            - "0.01"
+            - "10"
 
     net.telepay.link.fullnode_btc_kraken:
         class: Telepay\FinancialApiBundle\Financial\Linker\BasicLinker
@@ -52,4 +52,4 @@ services:
         arguments:
             - "@net.telepay.wallet.kraken.eur"
             - "@net.telepay.wallet.caixacoves.eur"
-            - "500"
+            - "50000"

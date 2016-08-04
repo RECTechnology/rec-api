@@ -995,6 +995,21 @@ class WalletController extends RestApiController{
 
     }
 
+    public function _getExchangePrice($amount, $curr_in, $curr_out){
+        $dm = $this->getDoctrine()->getManager();
+        $exchangeRepo = $dm->getRepository('TelepayFinancialApiBundle:Exchange');
+        $exchange = $exchangeRepo->findOneBy(
+            array('src'=>$curr_in,'dst'=>$curr_out),
+            array('id'=>'DESC')
+        );
+
+        if(!$exchange) throw new HttpException(404,'Exchange not found');
+
+        $price = $exchange->getPrice();
+
+        return $price;
+    }
+
     public function _getBenefits($interval, $start = null, $end =null){
         $userGroup = $this->get('security.context')->getToken()->getUser()->getActiveGroup();
         $default_currency = $userGroup->getDefaultCurrency();
@@ -1175,173 +1190,7 @@ class WalletController extends RestApiController{
         if(!$this->get('security.context')->isGranted('ROLE_WORKER')) throw new HttpException(403, 'You don\' have the necessary permissions');
 
         $user = $this->get('security.context')->getToken()->getUser();
-        $userGroup = $user->getActiveGroup();
-
-        if(!$userGroup) throw new HttpException(404, 'Group not found');
-
-        //get params
-        $paramNames = array(
-            'amount',
-            'currency_in',
-            'currency_out'
-        );
-
-        $params = array();
-        foreach($paramNames as $paramName){
-            if($request->request->has($paramName)){
-                $params[$paramName] = $request->request->get($paramName);
-            }else{
-                throw new HttpException(404, 'Parameter "'.$paramName.'" not found');
-            }
-        }
-
-        $amount = floor($params['amount']);
-
-        $currency_in = strtoupper($params['currency_in']);
-        $currency_out = strtoupper($params['currency_out']);
-        $service = 'exchange'.'_'.$currency_in.'to'.$currency_out;
-
-        //check if method is available
-        $statusMethod = $em->getRepository('TelepayFinancialApiBundle:StatusMethod')->findOneBy(array(
-            'method'    =>  $currency_in.'to'.$currency_out,
-            'type'      =>  'exchange'
-        ));
-
-        if($statusMethod->getStatus() != 'available') throw new HttpException(403, 'Exchange temporally unavailable');
-
-        //getExchange
-        $exchange = $this->_exchange($amount, $currency_in, $currency_out);
-
-        if($exchange == 0) throw new HttpException(403, 'Amount must be bigger');
-
-        //checkWallet sender
-        $wallets = $userGroup->getWallets();
-
-        $senderWallet = null;
-        $receiverWallet = null;
-        foreach($wallets as $wallet){
-            if($params['currency_in'] == $wallet->getCurrency()){
-                $senderWallet = $wallet;
-            }elseif($params['currency_out'] == $wallet->getCurrency()){
-                $receiverWallet = $wallet;
-            }
-        }
-
-        if($senderWallet == null) throw new HttpException(404, 'Sender Wallet not found');
-        if($receiverWallet == null) throw new HttpException(404, 'Receiver Wallet not found');
-
-        if($amount > $senderWallet->getAvailable()) throw new HttpException(404, 'Not funds enough. ' . $amount . '>' . $senderWallet->getAvailable());
-
-        //getFees
-        $fees = $userGroup->getCommissions();
-
-        $fixed_fee = null;
-        $variable_fee = null;
-
-        foreach($fees as $fee){
-            if($fee->getServiceName() == $service){
-                $fixed_fee = $fee->getFixed();
-                $variable_fee = round((($fee->getVariable()/100) * $exchange), 0);
-            }
-        }
-
-        $dm = $this->get('doctrine_mongodb')->getManager();
-        //cashOut transaction
-        $cashOut = Transaction::createFromRequest($request);
-        $cashOut->setAmount($amount);
-        $cashOut->setCurrency($currency_in);
-        $cashOut->setDataIn($params);
-        $cashOut->setFixedFee(0);
-        $cashOut->setVariableFee(0);
-        $cashOut->setTotal(-$params['amount']);
-        $cashOut->setType('out');
-        $cashOut->setMethod('exchange'.'_'.$currency_in.'to'.$currency_out);
-        $cashOut->setService($service);
-        $cashOut->setUser($user->getId());
-        $cashOut->setGroup($userGroup->getId());
-        $cashOut->setVersion(1);
-        $cashOut->setScale($senderWallet->getScale());
-        $cashOut->setStatus('success');
-        $cashOut->setDataOut(array(
-            $currency_in =>  $amount,
-            $currency_out=>     $exchange
-        ));
-        $cashOut->setPayOutInfo(array(
-            $currency_in =>  $amount,
-            $currency_out=>     $exchange
-        ));
-
-        $dm->persist($cashOut);
-        $dm->flush();
-
-        $paramsOut = $params;
-        $paramsOut['amount'] = $exchange;
-        //cashIn transaction
-        $cashIn = Transaction::createFromRequest($request);
-        $cashIn->setAmount($exchange);
-        $cashIn->setCurrency($currency_out);
-        $cashIn->setDataIn($params);
-        $cashIn->setFixedFee($fixed_fee);
-        $cashIn->setVariableFee($variable_fee);
-        $cashIn->setTotal($exchange);
-        $cashIn->setService($service);
-        $cashIn->setType('in');
-        $cashIn->setMethod('exchange'.'_'.$currency_in.'to'.$currency_out);
-        $cashIn->setUser($user->getId());
-        $cashIn->setGroup($userGroup->getId());
-        $cashIn->setVersion(1);
-        $cashIn->setScale($receiverWallet->getScale());
-        $cashIn->setStatus('success');
-        $cashIn->setDataIn($paramsOut);
-        $cashIn->setPayInInfo($paramsOut);
-        $cashIn->setDataOut(array(
-            'previous_transaction'  =>  $cashOut->getId(),
-            $currency_in    =>  $amount,
-            $currency_out   =>  $exchange
-        ));
-
-        $dm->persist($cashIn);
-        $dm->flush();
-
-        //update wallets
-        $senderWallet->setAvailable($senderWallet->getAvailable() - $amount);
-        $senderWallet->setBalance($senderWallet->getBalance() - $amount);
-
-        $receiverWallet->setAvailable($receiverWallet->getAvailable() + $exchange - $fixed_fee - $variable_fee);
-        $receiverWallet->setBalance($receiverWallet->getBalance() + $exchange - $fixed_fee - $variable_fee);
-
-        $em->persist($senderWallet);
-        $em->persist($receiverWallet);
-        $em->flush();
-
-        //dealer
-        $total_fee = $fixed_fee + $variable_fee;
-
-        if( $total_fee != 0){
-            //nueva transaccion restando la comision al user
-            try{
-                $this->_dealer($cashIn, $receiverWallet);
-            }catch (HttpException $e){
-                throw $e;
-            }
-        }
-
-        //notification
-        $this->container->get('notificator')->notificate($cashIn);
-
-        //return
-        return $this->restV2(200, "ok", "Exchange got successfully");
-
-    }
-
-    /**
-     * makes an exchange between wallets
-     */
-    public function currencyExchangeV2(Request $request){
-        $em = $this->getDoctrine()->getManager();
-        if(!$this->get('security.context')->isGranted('ROLE_WORKER')) throw new HttpException(403, 'You don\' have the necessary permissions');
-
-        $user = $this->get('security.context')->getToken()->getUser();
+        //TODO check client to find the group for control from api
         $userGroup = $user->getActiveGroup();
 
         if(!$userGroup) throw new HttpException(404, 'Group not found');
@@ -1364,20 +1213,20 @@ class WalletController extends RestApiController{
 
         $amount = floor($params['amount']);
 
-        $currency_in = strtoupper($params['currency_in']);
-        $currency_out = strtoupper($params['currency_out']);
-        $service = 'exchange'.'_'.$currency_in.'to'.$currency_out;
+        $from = strtoupper($params['from']);
+        $to = strtoupper($params['to']);
+        $service = 'exchange'.'_'.$from.'to'.$to;
 
         //check if method is available
         $statusMethod = $em->getRepository('TelepayFinancialApiBundle:StatusMethod')->findOneBy(array(
-            'method'    =>  $currency_in.'to'.$currency_out,
+            'method'    =>  $from.'to'.$to,
             'type'      =>  'exchange'
         ));
 
         if($statusMethod->getStatus() != 'available') throw new HttpException(403, 'Exchange temporally unavailable');
 
         //getExchange
-        $exchange = $this->_exchange($amount, $currency_in, $currency_out);
+        $exchange = $this->_exchange($amount, $from, $to);
 
         if($exchange == 0) throw new HttpException(403, 'Amount must be bigger');
 
@@ -1387,9 +1236,9 @@ class WalletController extends RestApiController{
         $senderWallet = null;
         $receiverWallet = null;
         foreach($wallets as $wallet){
-            if($params['currency_in'] == $wallet->getCurrency()){
+            if($from == $wallet->getCurrency()){
                 $senderWallet = $wallet;
-            }elseif($params['currency_out'] == $wallet->getCurrency()){
+            }elseif($to == $wallet->getCurrency()){
                 $receiverWallet = $wallet;
             }
         }
@@ -1412,30 +1261,31 @@ class WalletController extends RestApiController{
             }
         }
 
+        $price = $this->_getExchangePrice($amount, $from, $to);
+
         $dm = $this->get('doctrine_mongodb')->getManager();
         //cashOut transaction
         $cashOut = Transaction::createFromRequest($request);
         $cashOut->setAmount($amount);
-        $cashOut->setCurrency($currency_in);
+        $cashOut->setCurrency($from);
         $cashOut->setDataIn($params);
         $cashOut->setFixedFee(0);
         $cashOut->setVariableFee(0);
-        $cashOut->setTotal(-$params['amount']);
+        $cashOut->setTotal(-$amount);
         $cashOut->setType('out');
-        $cashOut->setMethod('exchange'.'_'.$currency_in.'to'.$currency_out);
+        $cashOut->setMethod($service);
         $cashOut->setService($service);
         $cashOut->setUser($user->getId());
         $cashOut->setGroup($userGroup->getId());
         $cashOut->setVersion(1);
         $cashOut->setScale($senderWallet->getScale());
-        $cashOut->setStatus('success');
-        $cashOut->setDataOut(array(
-            $currency_in =>  $amount,
-            $currency_out=>     $exchange
-        ));
+        $cashOut->setStatus(Transaction::$STATUS_SUCCESS);
         $cashOut->setPayOutInfo(array(
-            $currency_in =>  $amount,
-            $currency_out=>     $exchange
+            'amount'    =>  $amount,
+            'currency'  =>  $from,
+            'scale'     =>  $senderWallet->getScale(),
+            'concept'   =>  'Exchange '.$from.' to '.$to,
+            'price'     =>  $price,
         ));
 
         $dm->persist($cashOut);
@@ -1446,25 +1296,26 @@ class WalletController extends RestApiController{
         //cashIn transaction
         $cashIn = Transaction::createFromRequest($request);
         $cashIn->setAmount($exchange);
-        $cashIn->setCurrency($currency_out);
+        $cashIn->setCurrency($to);
         $cashIn->setDataIn($params);
         $cashIn->setFixedFee($fixed_fee);
         $cashIn->setVariableFee($variable_fee);
         $cashIn->setTotal($exchange);
         $cashIn->setService($service);
         $cashIn->setType('in');
-        $cashIn->setMethod('exchange'.'_'.$currency_in.'to'.$currency_out);
+        $cashIn->setMethod($service);
         $cashIn->setUser($user->getId());
         $cashIn->setGroup($userGroup->getId());
         $cashIn->setVersion(1);
         $cashIn->setScale($receiverWallet->getScale());
-        $cashIn->setStatus('success');
+        $cashIn->setStatus(Transaction::$STATUS_SUCCESS);
         $cashIn->setDataIn($paramsOut);
-        $cashIn->setPayInInfo($paramsOut);
-        $cashIn->setDataOut(array(
-            'previous_transaction'  =>  $cashOut->getId(),
-            $currency_in    =>  $amount,
-            $currency_out   =>  $exchange
+        $cashIn->setPayInInfo(array(
+            'amount'    =>  $exchange,
+            'currency'  =>  $to,
+            'scale'     =>  $receiverWallet->getScale(),
+            'concept'   =>  'Exchange '.$from.' to '.$to,
+            'price'     =>  $price,
         ));
 
         $dm->persist($cashIn);
