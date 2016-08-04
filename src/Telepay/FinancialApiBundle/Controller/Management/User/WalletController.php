@@ -1262,7 +1262,7 @@ class WalletController extends RestApiController{
         }
 
         $price = $this->_getExchangePrice($amount, $from, $to);
-        
+
 
         $dm = $this->get('doctrine_mongodb')->getManager();
         //cashOut transaction
@@ -1392,7 +1392,7 @@ class WalletController extends RestApiController{
             'previous_amount'    =>  $transaction->getAmount(),
             'scale'     =>  $transaction->getScale(),
             'concept'           =>  $service_cname.'->fee',
-            'amount' =>  $total_fee,
+            'amount' =>  -$total_fee,
             'status'    =>  'success',
             'currency'  =>  $transaction->getCurrency()
         );
