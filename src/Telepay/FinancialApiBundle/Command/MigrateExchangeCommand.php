@@ -38,8 +38,6 @@ class MigrateExchangeCommand extends ContainerAwareCommand
             $service = $transaction->getService();
             $method = $transaction->getMethod();
 
-            $output->writeln($method);
-
             $patron = '/^exchange_/';
             if(preg_match($patron, $service) || preg_match($patron, $method)){
                 $output->writeln($service);
