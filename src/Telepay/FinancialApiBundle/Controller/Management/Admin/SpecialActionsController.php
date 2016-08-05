@@ -656,6 +656,12 @@ class SpecialActionsController extends RestApiController {
 
     public function getNewAddress(Request $request, $currency){
 
+        if($currency != 'btc' && $currency != 'fac' && $currency != 'fair') throw new HttpException(404, 'Bad request, currency not allowed');
+
+        if($currency == 'fac'){
+            $currency = 'fair';
+        }
+
         $driver = $this->container->get('net.telepay.wallet.fullnode.'.$currency);
 
         try{
