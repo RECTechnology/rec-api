@@ -659,7 +659,7 @@ class SpecialActionsController extends RestApiController {
         $driver = $this->container->get('net.telepay.wallet.fullnode.'.$currency);
 
         try{
-            $newAddress = $driver->getnewaddress();
+            $newAddress = $driver->getAddress();
         }catch (Exception $e){
             throw new HttpException(404, 'Something went wrong');
         }

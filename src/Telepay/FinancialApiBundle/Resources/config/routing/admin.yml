@@ -192,7 +192,7 @@ admin_swift_list:
         _method: GET
 
 admin_generate_crypt_address:
-    pattern:  /admin/v1/special_actions/{currency}/adddres
+    pattern:  /admin/v1/special_actions/{currency}/address
     defaults: { _controller: Telepay\FinancialApiBundle\Controller\Management\Admin\SpecialActionsController::getNewAddress }
     requirements:
         _method: GET
