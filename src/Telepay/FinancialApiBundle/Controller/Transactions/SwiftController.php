@@ -912,6 +912,8 @@ class SwiftController extends RestApiController{
         ));
 
 
+
+
         $userFee->setClient($client);
 
         //service fees goes to root

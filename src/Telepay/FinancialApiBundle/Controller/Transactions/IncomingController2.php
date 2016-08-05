@@ -1012,6 +1012,7 @@ class IncomingController2 extends RestApiController{
             'previous_transaction'  =>  $transaction->getId(),
             'previous_amount'   =>  $transaction->getAmount(),
             'amount'                =>  -$total_fee,
+            'currency'      =>  $currency,
             'scale'     =>  $transaction->getScale(),
             'concept'           =>  $method_cname.'->fee',
             'status'    =>  Transaction::$STATUS_SUCCESS

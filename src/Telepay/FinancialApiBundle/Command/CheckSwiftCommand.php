@@ -273,12 +273,16 @@ class CheckSwiftCommand extends SyncronizedContainerAwareCommand
                                         'transaction_amount'    =>  $transaction->getAmount(),
                                         'total_fee' =>  $client_fee + $service_fee
                                     ));
-                                    $userFee->setFeeInfo(array(
+                                    $userFeeInfo = array(
                                         'previous_transaction'  =>  $transaction->getId(),
-                                        'transaction_amount'    =>  $transaction->getAmount(),
-                                        'total_fee' =>  $client_fee + $service_fee,
+                                        'previous_amount'   =>  $transaction->getAmount(),
+                                        'amount'                =>  $client_fee,
+                                        'currency'      =>  $transaction->getCurrency(),
+                                        'scale'     =>  $transaction->getScale(),
+                                        'concept'           =>  $method_in.'-'.$method_out.'->fee',
                                         'status'    =>  Transaction::$STATUS_SUCCESS
-                                    ));
+                                    );
+                                    $userFee->setFeeInfo($userFeeInfo);
                                     $userFee->setClient($client);
                                     $dm->persist($userFee);
 
@@ -324,14 +328,18 @@ class CheckSwiftCommand extends SyncronizedContainerAwareCommand
                                         'previous_group_name'   =>  $clientGroup->getName()
                                     ));
 
-                                    $rootFee->setFeeInfo(array(
+                                    $serviceFeeInfo = array(
                                         'previous_transaction'  =>  $transaction->getId(),
-                                        'transaction_amount'    =>  $transaction->getAmount(),
-                                        'total_fee' =>  $client_fee + $service_fee,
+                                        'previous_amount'   =>  $transaction->getAmount(),
+                                        'amount'                =>  $client_fee + $service_fee,
+                                        'currency'      =>  $currency,
+                                        'scale'     =>  $transaction->getScale(),
+                                        'concept'           =>  $method_in.'-'.$method_out.'->fee',
+                                        'status'    =>  Transaction::$STATUS_SUCCESS,
                                         'previous_group_id'   =>  $clientGroup->getId(),
                                         'previous_group_name'   =>  $clientGroup->getName(),
-                                        'status'    =>  Transaction::$STATUS_SUCCESS
-                                    ));
+                                    );
+                                    $rootFee->setFeeInfo($serviceFeeInfo);
                                     $rootFee->setClient($client);
 
                                     $dm->persist($rootFee);
