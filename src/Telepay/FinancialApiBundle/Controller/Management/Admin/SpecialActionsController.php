@@ -12,6 +12,7 @@ use FOS\RestBundle\Controller\Annotations as Rest;
 use Symfony\Component\HttpFoundation\Request;
 use Telepay\FinancialApiBundle\Entity\ServiceFee;
 use Telepay\FinancialApiBundle\Entity\UserWallet;
+use WebSocket\Exception;
 
 /**
  * Class SpecialActionsController
@@ -651,5 +652,28 @@ class SpecialActionsController extends RestApiController {
             ->attach(Swift_Attachment::newInstance($pdfoutput, $ref.'-'.$body["id"].'.pdf'));
 
         $this->get('mailer')->send($message);
+    }
+
+    public function getNewAddress(Request $request, $currency){
+
+        $driver = $this->container->get('net.telepay.wallet.fullnode.'.$currency);
+
+        try{
+            $newAddress = $driver->getnewaddress();
+        }catch (Exception $e){
+            throw new HttpException(404, 'Something went wrong');
+        }
+
+        return $this->restV2(
+            200,
+            "ok",
+            "Request successful",
+            array(
+                'currency' => $currency,
+                'address' => $newAddress
+            )
+        );
+
+
     }
 }
