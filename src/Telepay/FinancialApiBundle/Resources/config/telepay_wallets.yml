@@ -41,7 +41,7 @@ services:
         arguments:
             - "@net.telepay.driver.easybitcoin.btc"
             - "BTC"
-            - "8"
+            - "10"
 
     net.telepay.wallet.fullnode.fair:
         class: Telepay\FinancialApiBundle\Financial\Wallet\FullNodeWallet
