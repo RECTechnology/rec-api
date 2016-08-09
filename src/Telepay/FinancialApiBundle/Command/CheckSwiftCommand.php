@@ -332,7 +332,7 @@ class CheckSwiftCommand extends SyncronizedContainerAwareCommand
                                         'previous_transaction'  =>  $transaction->getId(),
                                         'previous_amount'   =>  $transaction->getAmount(),
                                         'amount'                =>  $client_fee + $service_fee,
-                                        'currency'      =>  $currency,
+                                        'currency'      =>  $transaction->getCurrency(),
                                         'scale'     =>  $transaction->getScale(),
                                         'concept'           =>  $method_in.'-'.$method_out.'->fee',
                                         'status'    =>  Transaction::$STATUS_SUCCESS,
