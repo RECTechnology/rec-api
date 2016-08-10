@@ -912,8 +912,8 @@ class WalletController extends RestApiController{
             'concept'   =>  $params['concept']
         ));
         $receiver_transaction->setPayInInfo(array(
-            'from'   =>  $receiver->getName(),
-            'from_id'     =>  $receiver->getId(),
+            'sender'   =>  $receiver->getName(),
+            'sender_id'     =>  $receiver->getId(),
             'amount'    =>  -$params['amount'],
             'currency'  =>  strtoupper($currency),
             'scale'  =>  Currency::$SCALE[strtoupper($currency)],
