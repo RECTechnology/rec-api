@@ -847,6 +847,7 @@ class WalletController extends RestApiController{
         $sender_transaction->setIp('');
         $sender_transaction->setVersion('');
         $sender_transaction->setService('transfer');
+        $sender_transaction->setMethod('transfer');
         $sender_transaction->setVariableFee(0);
         $sender_transaction->setFixedFee(0);
         $sender_transaction->setAmount($params['amount']);
@@ -888,6 +889,7 @@ class WalletController extends RestApiController{
         $receiver_transaction->setIp('');
         $receiver_transaction->setVersion('');
         $receiver_transaction->setService('transfer');
+        $receiver_transaction->setMethod('transfer');
         $receiver_transaction->setVariableFee(0);
         $receiver_transaction->setFixedFee(0);
         $receiver_transaction->setAmount($params['amount']);
