@@ -855,10 +855,17 @@ class WalletController extends RestApiController{
             'concept'       =>  $params['concept']
         ));
         $sender_transaction->setDataOut(array(
-            'sent_to'   =>  $receiver->getUsername(),
+            'sent_to'   =>  $receiver->getName(),
             'id_to'     =>  $receiver->getId(),
             'amount'    =>  -$params['amount'],
             'currency'  =>  strtoupper($currency)
+        ));
+        $sender_transaction->setPayOutInfo(array(
+            'sent_to'   =>  $receiver->getName(),
+            'id_to'     =>  $receiver->getId(),
+            'amount'    =>  -$params['amount'],
+            'currency'  =>  strtoupper($currency),
+            'concept'       =>  $params['concept']
         ));
         $sender_transaction->setTotal(-$params['amount']);
         $sender_transaction->setUser($user->getId());
@@ -885,18 +892,25 @@ class WalletController extends RestApiController{
         $receiver_transaction->setFixedFee(0);
         $receiver_transaction->setAmount($params['amount']);
         $receiver_transaction->setDataOut(array(
-            'received_from' =>  $user->getUsername(),
+            'received_from' =>  $userGroup->getName(),
             'id_from'       =>  $user->getId(),
             'amount'        =>  $params['amount'],
             'currency'      =>  $receiver_wallet->getCurrency(),
             'previous_transaction'  =>  $sender_transaction->getId()
         ));
         $receiver_transaction->setDataIn(array(
-            'sent_to'   =>  $receiver->getUsername(),
+            'sent_to'   =>  $receiver->getName(),
             'id_to'     =>  $receiver->getId(),
             'amount'    =>  -$params['amount'],
             'currency'  =>  strtoupper($currency),
             'description'   =>  'transfer->'.$currency,
+            'concept'   =>  $params['concept']
+        ));
+        $receiver_transaction->setPayInInfo(array(
+            'sent_to'   =>  $receiver->getName(),
+            'id_to'     =>  $receiver->getId(),
+            'amount'    =>  -$params['amount'],
+            'currency'  =>  strtoupper($currency),
             'concept'   =>  $params['concept']
         ));
         $receiver_transaction->setTotal($params['amount']);
