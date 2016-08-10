@@ -847,7 +847,8 @@ class WalletController extends RestApiController{
         $sender_transaction->setIp('');
         $sender_transaction->setVersion('');
         $sender_transaction->setService('transfer');
-        $sender_transaction->setMethod('transfer');
+        $sender_transaction->setMethod('wallet_to_wallet');
+        $sender_transaction->setType('out');
         $sender_transaction->setVariableFee(0);
         $sender_transaction->setFixedFee(0);
         $sender_transaction->setAmount($params['amount']);
@@ -862,10 +863,11 @@ class WalletController extends RestApiController{
             'currency'  =>  strtoupper($currency)
         ));
         $sender_transaction->setPayOutInfo(array(
-            'sent_to'   =>  $receiver->getName(),
-            'id_to'     =>  $receiver->getId(),
+            'beneficiary'   =>  $receiver->getName(),
+            'beneficiary_id'     =>  $receiver->getId(),
             'amount'    =>  -$params['amount'],
             'currency'  =>  strtoupper($currency),
+            'scale'     =>  Currency::$SCALE[strtoupper($currency)],
             'concept'       =>  $params['concept']
         ));
         $sender_transaction->setTotal(-$params['amount']);
@@ -889,7 +891,8 @@ class WalletController extends RestApiController{
         $receiver_transaction->setIp('');
         $receiver_transaction->setVersion('');
         $receiver_transaction->setService('transfer');
-        $receiver_transaction->setMethod('transfer');
+        $receiver_transaction->setMethod('wallet_to_wallet');
+        $receiver_transaction->setType('in');
         $receiver_transaction->setVariableFee(0);
         $receiver_transaction->setFixedFee(0);
         $receiver_transaction->setAmount($params['amount']);
@@ -909,10 +912,11 @@ class WalletController extends RestApiController{
             'concept'   =>  $params['concept']
         ));
         $receiver_transaction->setPayInInfo(array(
-            'sent_to'   =>  $receiver->getName(),
-            'id_to'     =>  $receiver->getId(),
+            'from'   =>  $receiver->getName(),
+            'from_id'     =>  $receiver->getId(),
             'amount'    =>  -$params['amount'],
             'currency'  =>  strtoupper($currency),
+            'scale'  =>  Currency::$SCALE[strtoupper($currency)],
             'concept'   =>  $params['concept']
         ));
         $receiver_transaction->setTotal($params['amount']);

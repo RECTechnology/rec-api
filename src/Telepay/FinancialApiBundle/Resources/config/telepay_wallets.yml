@@ -29,6 +29,7 @@ services:
         arguments:
             - "@net.telepay.driver.kraken"
             - "BTC"
+            - "50"
 
     net.telepay.wallet.kraken.eur:
         class: Telepay\FinancialApiBundle\Financial\Wallet\KrakenWallet
