@@ -1029,7 +1029,7 @@ class SwiftController extends RestApiController{
 
             $feeInfo = $fee->getFeeInfo();
             $feeInfo['status'] = 'refund';
-            $feeInfo->setFeeInfo($feeInfo);
+            $fee->setFeeInfo($feeInfo);
 
             $dm->persist($fee);
             $dm->flush();
