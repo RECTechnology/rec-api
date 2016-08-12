@@ -81,7 +81,7 @@ class SpecialActionsController extends RestApiController {
         $dm = $this->get('doctrine_mongodb')->getManager();
         $fee_manipulator = $this->get('net.telepay.commons.fee_manipulator');
 
-        $company_fees = $fee_manipulator->getMethodFees($token->getCompany(), $methodDriver->getCname());
+        $company_fees = $fee_manipulator->getMethodFees($token->getCompany(), $methodDriver);
 
         $fixed = $company_fees->getFixed();
         $variable = $params['amount'] * $company_fees->getVariable()/100;
