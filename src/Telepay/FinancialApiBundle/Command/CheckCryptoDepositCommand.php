@@ -14,7 +14,7 @@ use Telepay\FinancialApiBundle\Entity\CashInTokens;
 use Telepay\FinancialApiBundle\Entity\Exchange;
 use Telepay\FinancialApiBundle\Financial\Currency;
 
-class CheckCryptoCommand extends SyncronizedContainerAwareCommand
+class CheckCryptoDepositCommand extends SyncronizedContainerAwareCommand
 {
     protected function configure()
     {
