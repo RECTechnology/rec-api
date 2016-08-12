@@ -26,7 +26,7 @@ class CheckCryptoDepositCommand extends SyncronizedContainerAwareCommand
 
     protected function executeSyncronized(InputInterface $input, OutputInterface $output){
         $n = 0;
-        $exec_n_times = 1000;
+        $exec_n_times = 1;
         while($n<$exec_n_times) {
             $methods = array('fac', 'btc');
             $type = 'in';
