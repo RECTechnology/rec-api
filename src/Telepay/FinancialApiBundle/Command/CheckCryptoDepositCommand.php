@@ -51,9 +51,8 @@ class CheckCryptoDepositCommand extends SyncronizedContainerAwareCommand
                     $output->writeln($token->getId() . ' TOKEN');
                     $receivedTransactions = $methodDriver->getReceivedByAddress($token->getToken());
                     $output->writeln('btc transactions');
-                    die(print_r($receivedTransactions,true));
-
                     foreach($receivedTransactions as $received){
+                        $output->writeln($received['tx'].' HASH');
                         //TODO habria que ver como se devuelve el hash para compararlo con los guardados
                         $deposit = $em->getRepository('TelepayFinancialApiBundle:CashInDeposit')->findOneBy(
                             array(
