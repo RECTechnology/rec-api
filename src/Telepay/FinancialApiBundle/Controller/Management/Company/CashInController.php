@@ -108,7 +108,7 @@ class CashInController extends BaseApiController{
         }else{
             $token = $paymentInfo['address'];
         }
-        
+
         $request->request->add(array(
             'token' =>  $token,
             'currency'  =>  $paymentInfo['currency'],
