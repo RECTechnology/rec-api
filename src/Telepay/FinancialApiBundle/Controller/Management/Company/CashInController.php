@@ -97,7 +97,7 @@ class CashInController extends BaseApiController{
         //check if company has method available
         $company_methods = $company->getMethodsList();
 
-        if(!in_array($method, $company_methods)) throw new HttpException(405, 'Method not allowed in this company.');
+        if(!in_array($method.'-'.$type, $company_methods)) throw new HttpException(405, 'Method not allowed in this company.');
 
         $paymentInfo = $methodDriver->getPayInInfo(0);
 
