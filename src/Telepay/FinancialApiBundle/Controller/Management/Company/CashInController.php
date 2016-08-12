@@ -85,13 +85,13 @@ class CashInController extends BaseApiController{
         $methods = $request->request->get('method');
         $label = $request->request->get('label');
 
-        $methods = explode('_', $methods);
+        $methods = explode('-', $methods);
 
         $method = $methods[0];
         $type = $methods[1];
 
         //check if the service is allowed
-        if(!in_array($method, $this->allowed_methods)) throw new HttpException(405, 'Method not allowed');
+        if(!in_array($method.'-'.$type, $this->allowed_methods)) throw new HttpException(405, 'Method not allowed');
         $methodDriver = $this->get('net.telepay.in.'.$method.'.v1');
 
         //check if company has method available
