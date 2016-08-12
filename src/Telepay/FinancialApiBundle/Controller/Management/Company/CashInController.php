@@ -106,7 +106,8 @@ class CashInController extends BaseApiController{
         if($method == 'easypay'){
             $token = 'IN-'.$paymentInfo['reference_code'];
         }elseif($method == 'sepa'){
-            $token = 'IN-'.$paymentInfo['reference'];
+            $ref = str_replace('BUY BITCOIN ', '', $paymentInfo['reference']);
+            $token = 'IN-'.$ref;
         }else{
             $token = $paymentInfo['address'];
         }
