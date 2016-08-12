@@ -18,10 +18,10 @@ use Telepay\FinancialApiBundle\Entity\CashInTokens;
 class CashInController extends BaseApiController{
 
     private $allowed_methods = array(
-        'easypay_in',
-        'sepa_in',
-        'fac_in',
-        'btc_in'
+        'easypay-in',
+        'sepa-in',
+        'fac-in',
+        'btc-in'
     );
     /**
      * @Rest\View
