@@ -37,8 +37,9 @@ class CheckCryptoDepositCommand extends SyncronizedContainerAwareCommand
             $repoGroup = $em->getRepository('TelepayFinancialApiBundle:Group');
 
             $feeManipulator = $this->getContainer()->get('net.telepay.commons.fee_manipulator');
-
+            $output->writeln('Init checker...');
             foreach ($methods as $method) {
+                $output->writeln($method . ' INIT');
                 $tokens = $em->getRepository('TelepayFinancialApiBundle:CashInTokens')->findBy(array(
                     'method'    =>  $method.'-'.$type,
                     'status'    =>  CashInTokens::$STATUS_ACTIVE
@@ -47,9 +48,9 @@ class CheckCryptoDepositCommand extends SyncronizedContainerAwareCommand
                 $methodDriver = $this->getContainer()->get('net.telepay.in.'.$method.'.v1');
 
                 foreach($tokens as $token){
-
+                    $output->writeln($token->getId() . ' TOKEN');
                     $receivedTransactions = $methodDriver->getReceivedByAddress($token->getToken());
-
+                    $output->writeln('btc transactions');
                     die(print_r($receivedTransactions,true));
 
                     foreach($receivedTransactions as $received){
