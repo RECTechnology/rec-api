@@ -57,7 +57,7 @@ class SpecialActionsController extends RestApiController {
 
         if(!$token) throw new HttpException(404, 'Token not found');
 
-        $tokenmethod = explode('_', $token->getMethod());
+        $tokenmethod = explode('-', $token->getMethod());
         $method = $tokenmethod[0];
         $type = $tokenmethod[1];
 
