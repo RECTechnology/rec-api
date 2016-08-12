@@ -138,7 +138,7 @@ class SpecialActionsController extends RestApiController {
         $dm->persist($transaction);
         $dm->flush();
 
-        return $this->restTransaction($transaction, "Done");
+        return $this->methodTransaction(201, $transaction, "Done");
     }
 
     /**
