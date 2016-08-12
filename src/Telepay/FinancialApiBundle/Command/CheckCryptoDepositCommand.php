@@ -40,7 +40,7 @@ class CheckCryptoDepositCommand extends SyncronizedContainerAwareCommand
 
             foreach ($methods as $method) {
                 $tokens = $em->getRepository('TelepayFinancialApiBundle:CashInTokens')->findBy(array(
-                    'method'    =>  $method.'_'.$type,
+                    'method'    =>  $method.'-'.$type,
                     'status'    =>  CashInTokens::$STATUS_ACTIVE
                 ));
 
