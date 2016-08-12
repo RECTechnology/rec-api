@@ -62,7 +62,7 @@ class SpecialActionsController extends RestApiController {
         $type = $tokenmethod[1];
 
 
-        $methodDriver = $this->get('net.telepay.in.'.$token->getMethod().'.v1');
+        $methodDriver = $this->get('net.telepay.in.'.$method.'.v1');
         $paymentInfo = $methodDriver->getPayInInfo($params['amount']);
         $paymentInfo['status'] = Transaction::$STATUS_SUCCESS;
         $paymentInfo['final'] = true;
