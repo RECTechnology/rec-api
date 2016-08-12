@@ -39,7 +39,9 @@ class CashInController extends BaseApiController{
 
         foreach($all as $one){
             $method = $one->getMethod();
-            $methodDriver = $this->get('net.telepay.in.'.$method.'.v1');
+            $meth = explode('-', $method);
+
+            $methodDriver = $this->get('net.telepay.in.'.$meth[0].'.v1');
 
             if($method == 'easypay'){
                 $info = $methodDriver->getInfo();
