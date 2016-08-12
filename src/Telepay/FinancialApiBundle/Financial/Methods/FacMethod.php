@@ -149,5 +149,12 @@ class FacMethod extends  BaseMethod {
         // TODO: Implement getPayOutStatus() method.
     }
 
+    public function getReceivedByAddress($address){
+        $allReceived = $this->driver->listreceivedbyaddress($address, true);
+
+        return $allReceived;
+    }
+
+
 
 }

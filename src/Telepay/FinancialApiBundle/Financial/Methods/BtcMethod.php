@@ -160,5 +160,11 @@ class BtcMethod extends BaseMethod {
         throw new Exception('Method not implemented', 409);
     }
 
+    public function getReceivedByAddress($address){
+        $allReceived = $this->driver->listreceivedbyaddress($address, true);
+
+        return $allReceived;
+    }
+
 
 }

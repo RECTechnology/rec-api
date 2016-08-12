@@ -131,4 +131,8 @@ class EasyPayMethod extends BaseMethod {
             return $bool;
         }
     }
+
+    public function getInfo(){
+        return $this->driver->getInfo();
+    }
 }

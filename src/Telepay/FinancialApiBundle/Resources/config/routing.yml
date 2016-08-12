@@ -5,6 +5,9 @@ Admin:
 Manager:
     resource: routing/manager.yml
 
+Company:
+    resource: routing/company.yml
+
 User:
     resource: routing/user.yml
 

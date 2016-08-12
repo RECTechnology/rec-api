@@ -206,6 +206,11 @@ class Group extends BaseGroup
     private $active;
 
     /**
+     * @ORM\OneToMany(targetEntity="Telepay\FinancialApiBundle\Entity\CashInTokens", mappedBy="company", cascade={"remove"})
+     */
+    private $cash_in_tokens;
+
+    /**
      * @return mixed
      */
     public function getUsers()
@@ -626,22 +631,6 @@ class Group extends BaseGroup
     /**
      * @return mixed
      */
-    public function getAddressNumber()
-    {
-        return $this->address_number;
-    }
-
-    /**
-     * @param mixed $addres_number
-     */
-    public function setAddressNumber($address_number)
-    {
-        $this->address_number = $address_number;
-    }
-
-    /**
-     * @return mixed
-     */
     public function getZip()
     {
         return $this->zip;
@@ -709,6 +698,38 @@ class Group extends BaseGroup
     public function setActive($active)
     {
         $this->active = $active;
+    }
+
+    /**
+     * @return mixed
+     */
+    public function getAdresses()
+    {
+        return $this->adresses;
+    }
+
+    /**
+     * @param mixed $adresses
+     */
+    public function setAdresses($adresses)
+    {
+        $this->adresses = $adresses;
+    }
+
+    /**
+     * @return mixed
+     */
+    public function getCashInTokens()
+    {
+        return $this->cash_in_tokens;
+    }
+
+    /**
+     * @param mixed $cash_in_tokens
+     */
+    public function setCashInTokens($cash_in_tokens)
+    {
+        $this->cash_in_tokens = $cash_in_tokens;
     }
 
 }

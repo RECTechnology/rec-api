@@ -89,5 +89,4 @@ class EchoMethod extends BaseMethod {
         throw new HttpException('Method not implemented');
     }
 
-
 }

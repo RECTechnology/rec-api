@@ -10,8 +10,10 @@ use Telepay\FinancialApiBundle\Controller\RestApiController;
 use Telepay\FinancialApiBundle\Document\Transaction;
 use FOS\RestBundle\Controller\Annotations as Rest;
 use Symfony\Component\HttpFoundation\Request;
+use Telepay\FinancialApiBundle\Entity\CashInDeposit;
 use Telepay\FinancialApiBundle\Entity\ServiceFee;
 use Telepay\FinancialApiBundle\Entity\UserWallet;
+use Telepay\FinancialApiBundle\Financial\Currency;
 use WebSocket\Exception;
 
 /**
@@ -33,7 +35,8 @@ class SpecialActionsController extends RestApiController {
         //we need amount in cents and reference
         $paramNames = array(
             'amount',
-            'reference'
+            'reference',
+            'hash'
         );
 
         $params = array();
@@ -48,70 +51,55 @@ class SpecialActionsController extends RestApiController {
 
         //search reference to get the user
         $em = $this->getDoctrine()->getManager();
-        $token = $em->getRepository('TelepayFinancialApiBundle:CashInTokens')->findBy(array(
+        $token = $em->getRepository('TelepayFinancialApiBundle:CashInTokens')->findOneBy(array(
             'token' =>  $params['reference']
         ));
 
         if(!$token) throw new HttpException(404, 'Token not found');
 
-        $token = $token[0];
-        $user = $token->getUser();
-        $service = $token->getService();
+        $tokenmethod = explode('_', $token->getMethod());
+        $method = $tokenmethod[0];
+        $type = $tokenmethod[1];
 
-        //group needed to get and deal fees
-        $group = $user->getGroups()[0];
 
-        $group_commissions = $group->getCommissions();
+        $methodDriver = $this->get('net.telepay.in.'.$token->getMethod().'.v1');
+        $paymentInfo = $methodDriver->getPayInInfo($params['amount']);
+        $paymentInfo['status'] = Transaction::$STATUS_SUCCESS;
+        $paymentInfo['final'] = true;
 
-        $group_commission = false;
-        foreach ( $group_commissions as $commission ){
-            if ( $commission->getServiceName() == $service ){
-                $group_commission = $commission;
-            }
-        }
-
-        //TODO obtain service provaider to get the currency
-
-        $service_provider = $this->get('net.telepay.services.'.$service.'.v1');
-
-        //if group commission not exists we create it
-        if(!$group_commission){
-            $group_commission = ServiceFee::createFromController($service, $group);
-            $group_commission->setCurrency($service_provider->getCurrency());
-            $em->persist($group_commission);
-            $em->flush();
-        }
+        //generate deposit hystory
+        $deposit = new CashInDeposit();
+        $deposit->setAmount($params['amount']);
+        $deposit->setConfirmations(1);
+        $deposit->setHash($params['hash']);
+        $deposit->setStatus(CashInDeposit::$STATUS_DEPOSITED);
+        $deposit->setToken($token);
+        $em->persist($deposit);
+        $em->flush();
 
         //Create cash in transaction
         $dm = $this->get('doctrine_mongodb')->getManager();
 
         $transaction = Transaction::createFromRequest($request);
-        $transaction->setService($service);
-        $transaction->setUser($user->getId());
+        $transaction->setMethod($method);
+        $transaction->setGroup($token->getCompany()->getId());
         $transaction->setVersion('1');
-        $params['description'] = 'cash_in ->'.$service;
-        $transaction->setDataIn($params);
-
         $transaction->setAmount($params['amount']);
-
-        //add commissions to check
-        $fixed_fee = $group_commission->getFixed();
-        $variable_fee = ($group_commission->getVariable()/100)*$params['amount'];
+        //TODO en type yo pondria deposit
+        $transaction->setType($type);
 
         //add fee to transaction
-        $transaction->setVariableFee($variable_fee);
-        $transaction->setFixedFee($fixed_fee);
+        $transaction->setVariableFee(0);
+        $transaction->setFixedFee(0);
         $transaction->setTotal($params['amount']);
-        $total = $variable_fee + $fixed_fee + $params['amount'];
-        $total_fee = $fixed_fee + $variable_fee;
-
-        $transaction->setCurrency($service_provider->getCurrency());
-        $transaction->setScale(2);
+        $transaction->setCurrency($token->getCurrency());
+        $transaction->setScale(Currency::$SCALE[$token->getCurrency()]);
         $transaction->setStatus(Transaction::$STATUS_SUCCESS);
+        $transaction->setPayInInfo($paymentInfo);
         $dm->persist($transaction);
         $dm->flush();
         //obtain wallet and check founds for cash_out services
-        $wallets = $user->getWallets();
+        $wallets = $token->getCompany()->getWallets();
 
         $current_wallet = null;
         foreach ( $wallets as $wallet){
@@ -120,23 +108,14 @@ class SpecialActionsController extends RestApiController {
             }
         }
 
-        $current_wallet->setAvailable($current_wallet->getAvailable()+$total);
-        $current_wallet->setBalance($current_wallet->getBalance()+$total);
+        $current_wallet->setAvailable($current_wallet->getAvailable() + $params['amount']);
+        $current_wallet->setBalance($current_wallet->getBalance() + $params['amount']);
 
         $balancer = $this->get('net.telepay.commons.balance_manipulator');
-        $balancer->addBalance($user, $params['amount'], $transaction);
+        $balancer->addBalance($token->getCompany(), $params['amount'], $transaction);
 
         $em->persist($current_wallet);
         $em->flush();
-
-        if($total_fee != 0){
-            // nueva transaccion restando la comision al user
-            try{
-                $this->_dealer($transaction,$current_wallet);
-            }catch (HttpException $e){
-                throw $e;
-            }
-        }
 
         $transaction = $this->get('notificator')->notificate($transaction);
 

@@ -136,4 +136,8 @@ class SepaMethod extends BaseMethod {
         $this->getContainer()->get('mailer')->send($message);
     }
 
+    public function getInfo(){
+        return $this->driver->getInfo();
+    }
+
 }

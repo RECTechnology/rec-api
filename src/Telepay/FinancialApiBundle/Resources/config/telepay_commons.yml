@@ -15,3 +15,8 @@ services:
         class: Telepay\FinancialApiBundle\DependencyInjection\Telepay\Commons\BalanceManipulator
         arguments:
             - "@doctrine"
+
+    net.telepay.commons.fee_manipulator:
+        class: Telepay\FinancialApiBundle\DependencyInjection\Telepay\Commons\FeeManipulator
+        arguments:
+            - "@doctrine"

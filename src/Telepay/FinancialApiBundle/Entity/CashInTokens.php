@@ -12,6 +12,7 @@ use Telepay\FinancialApiBundle\Financial\Currency;
 
 use JMS\Serializer\Annotation\ExclusionPolicy;
 use JMS\Serializer\Annotation\Expose;
+use JMS\Serializer\Annotation\Exclude;
 
 use Doctrine\ORM\Mapping as ORM;
 
@@ -20,17 +21,36 @@ use Doctrine\ORM\Mapping as ORM;
  * @ORM\Entity
  * @ExclusionPolicy("all")
  */
-class CashInTokens implements OwnByUserInterface {
+class CashInTokens{
 
+    /**
+     * @Exclude
+     */
+    public static $STATUS_ACTIVE = "active";
 
-    public function getCurrency()
-    {
-        return Currency::$EUR;
+    /**
+     * @Exclude
+     */
+    public static $STATUS_EXPIRED = "expired";
+
+    /**
+     * @Exclude
+     */
+    public static $STATUS_CLOSED = "closed";
+
+    public function __construct(){
+        $this->created = new \DateTime();
+        $this->updated = new \DateTime();
     }
 
-    public function getDriverName()
+    public function getDriverNameByType($type)
     {
-        return 'net.telepay.provider.eur';
+        if($type == 'easypay' || $type == 'sepa'){
+            return 'net.telepay.provider.eur';
+        }else{
+            return 'net.telepay.provider.'.$type;
+        }
+
     }
 
     /**
@@ -42,6 +62,18 @@ class CashInTokens implements OwnByUserInterface {
     protected $id;
 
     /**
+     * @ORM\Column(type="datetime")
+     * @Expose
+     */
+    private $created;
+
+    /**
+     * @ORM\Column(type="datetime")
+     * @Expose
+     */
+    private $updated;
+
+    /**
      * @ORM\Column(type="string", unique=true)
      * @Expose
      */
@@ -51,12 +83,42 @@ class CashInTokens implements OwnByUserInterface {
      * @ORM\Column(type="string")
      * @Expose
      */
-    private $service;
+    private $method;
 
     /**
-     * @ORM\ManyToOne(targetEntity="Telepay\FinancialApiBundle\Entity\User")
+     * @ORM\Column(type="string")
+     * @Expose
      */
-    private $user;
+    private $currency;
+
+    /**
+     * @ORM\ManyToOne(targetEntity="Telepay\FinancialApiBundle\Entity\Group")
+     */
+    private $company;
+
+    /**
+     * @ORM\Column(type="integer")
+     * @Expose
+     */
+    private $expires_in;
+
+    /**
+     * @ORM\Column(type="string")
+     * @Expose
+     */
+    private $label;
+
+    /**
+     * @ORM\Column(type="string")
+     * @Expose
+     */
+    private $status;
+
+    /**
+     * @ORM\OneToMany(targetEntity="Telepay\FinancialApiBundle\Entity\CashInDeposit", mappedBy="token", cascade={"remove"})
+     * @Expose
+     */
+    private $deposits;
 
     /**
      * @Expose
@@ -74,14 +136,6 @@ class CashInTokens implements OwnByUserInterface {
     private $bic_swift;
 
     /**
-     * @param mixed $user
-     */
-    public function setUser($user)
-    {
-        $this->user = $user;
-    }
-
-    /**
      * Returns the user unique id.
      *
      * @return mixed
@@ -89,11 +143,6 @@ class CashInTokens implements OwnByUserInterface {
     public function getId()
     {
         return $this->id;
-    }
-
-    public function getUser()
-    {
-        return $this->user;
     }
 
     /**
@@ -110,22 +159,6 @@ class CashInTokens implements OwnByUserInterface {
     public function setToken($token)
     {
         $this->token = $token;
-    }
-
-    /**
-     * @return mixed
-     */
-    public function getService()
-    {
-        return $this->service;
-    }
-
-    /**
-     * @param mixed $service
-     */
-    public function setService($service)
-    {
-        $this->service = $service;
     }
 
     /**
@@ -150,5 +183,117 @@ class CashInTokens implements OwnByUserInterface {
     public function setBicSwift($bic_swift)
     {
         $this->bic_swift = $bic_swift;
+    }
+
+    /**
+     * @return mixed
+     */
+    public function getCurrency()
+    {
+        return $this->currency;
+    }
+
+    /**
+     * @param mixed $currency
+     */
+    public function setCurrency($currency)
+    {
+        $this->currency = $currency;
+    }
+
+    /**
+     * @return mixed
+     */
+    public function getCompany()
+    {
+        return $this->company;
+    }
+
+    /**
+     * @param mixed $company
+     */
+    public function setCompany($company)
+    {
+        $this->company = $company;
+    }
+
+    /**
+     * @return mixed
+     */
+    public function getExpiresIn()
+    {
+        return $this->expires_in;
+    }
+
+    /**
+     * @param mixed $expires_in
+     */
+    public function setExpiresIn($expires_in)
+    {
+        $this->expires_in = $expires_in;
+    }
+
+    /**
+     * @return mixed
+     */
+    public function getLabel()
+    {
+        return $this->label;
+    }
+
+    /**
+     * @param mixed $label
+     */
+    public function setLabel($label)
+    {
+        $this->label = $label;
+    }
+
+    /**
+     * @return mixed
+     */
+    public function getStatus()
+    {
+        return $this->status;
+    }
+
+    /**
+     * @param mixed $status
+     */
+    public function setStatus($status)
+    {
+        $this->status = $status;
+    }
+
+    /**
+     * @return mixed
+     */
+    public function getDeposits()
+    {
+        return $this->deposits;
+    }
+
+    /**
+     * @param mixed $deposits
+     */
+    public function setDeposits($deposits)
+    {
+        $this->deposits = $deposits;
+    }
+
+    /**
+     * @return mixed
+     */
+    public function getMethod()
+    {
+        return $this->method;
+    }
+
+    /**
+     * @param mixed $method
+     */
+    public function setMethod($method)
+    {
+        $this->method = $method;
     }
 }

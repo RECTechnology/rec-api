@@ -165,11 +165,11 @@ class User extends BaseUser
 //     */
 //    private $balance;
 
-    /**
-     * @ORM\OneToMany(targetEntity="Telepay\FinancialApiBundle\Entity\CashInTokens", mappedBy="user", cascade={"remove"})
-     * @Expose
-     */
-    private $cash_in_tokens;
+//    /**
+//     * @ORM\OneToMany(targetEntity="Telepay\FinancialApiBundle\Entity\CashInTokens", mappedBy="user", cascade={"remove"})
+//     * @Expose
+//     */
+//    private $cash_in_tokens;
 
 //    /**
 //     * @ORM\OneToMany(targetEntity="Telepay\FinancialApiBundle\Entity\Client", mappedBy="user", cascade={"remove"})
@@ -482,21 +482,21 @@ class User extends BaseUser
 //        $this->services_list = json_encode(array_values($result));
 //    }
 
-    /**
-     * @return mixed
-     */
-    public function getCashInTokens()
-    {
-        return $this->cash_in_tokens;
-    }
-
-    /**
-     * @param mixed $cash_in_tokens
-     */
-    public function setCashInTokens($cash_in_tokens)
-    {
-        $this->cash_in_tokens = $cash_in_tokens;
-    }
+//    /**
+//     * @return mixed
+//     */
+//    public function getCashInTokens()
+//    {
+//        return $this->cash_in_tokens;
+//    }
+//
+//    /**
+//     * @param mixed $cash_in_tokens
+//     */
+//    public function setCashInTokens($cash_in_tokens)
+//    {
+//        $this->cash_in_tokens = $cash_in_tokens;
+//    }
 
     /**
      * @param array $group_data
