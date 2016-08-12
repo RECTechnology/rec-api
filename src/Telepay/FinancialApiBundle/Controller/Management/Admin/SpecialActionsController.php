@@ -80,7 +80,9 @@ class SpecialActionsController extends RestApiController {
         //Create cash in transaction
         $dm = $this->get('doctrine_mongodb')->getManager();
         $fee_manipulator = $this->get('net.telepay.commons.fee_manipulator');
-        $company_fees = $fee_manipulator->getMethodFees($token->getCompany(), $token->getMethod());
+
+        $company_fees = $fee_manipulator->getMethodFees($token->getCompany(), $methodDriver->getCname());
+
         $fixed = $company_fees->getFixed();
         $variable = $params['amount'] * $company_fees->getVariable()/100;
         $total_fee = $fixed + $variable;
