@@ -39,7 +39,7 @@ class MigrateErrorTransactionCommand extends ContainerAwareCommand
         foreach($transactions as $transaction){
             $dataIn = $transaction->getDataIn();
 
-            if(!$dataIn['status']){
+            if(!$dataIn['status'] || $dataIn['status']=='error'){
                 $pay_in_info = array(
                     'status' => 'error'
                 );
