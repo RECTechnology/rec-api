@@ -41,14 +41,13 @@ class MigrateErrorTransactionCommand extends ContainerAwareCommand
 
             if(!$dataIn['status']){
                 $pay_in_info = array(
-                  'status' => 'error'
+                    'status' => 'error'
                 );
+                $transaction->setPayInInfo($pay_in_info);
+                $dm->persist($transaction);
+                $dm->flush($transaction);
+                $counterTransactions ++;
             }
-
-            $transaction->setPayInInfo($pay_in_info);
-            $dm->persist($transaction);
-            $dm->flush($transaction);
-            $counterTransactions ++;
         }
 
         $output->writeln($counterTransactions.' transactions updated');
