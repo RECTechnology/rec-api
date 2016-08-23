@@ -160,10 +160,10 @@ class SpecialActionsController extends RestApiController {
 
         //search reference to get the user
         $em = $this->getDoctrine()->getManager();
-        $user = $em->getRepository('TelepayFinancialApiBundle:User')->find($transaction->getUser());
+        $group = $em->getRepository('TelepayFinancialApiBundle:Group')->find($transaction->getGroup());
 
         //obtain wallet
-        $wallets = $user->getWallets();
+        $wallets = $group->getWallets();
 
         $current_wallet = null;
         foreach ( $wallets as $wallet){
@@ -181,7 +181,7 @@ class SpecialActionsController extends RestApiController {
             $current_wallet->setBalance($current_wallet->getBalance()+$total);
 
             $balancer = $this->get('net.telepay.commons.balance_manipulator');
-            $balancer->addBalance($user, $transaction->getAmount(), $transaction);
+            $balancer->addBalance($group, $transaction->getAmount(), $transaction);
 
             $em->persist($current_wallet);
             $em->flush();
