@@ -78,7 +78,7 @@ class POSController extends BaseApiController{
             if(strtoupper($currency) == 'BTC' || strtoupper($currency) == 'FAC') {
                 $type = strtoupper($currency);
             }else{
-                $type = 'PNP';
+                throw new HttpException(400, "Bad request, parameter 'type' not found");
             }
         }
         $request->request->remove('currency');
