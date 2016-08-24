@@ -72,7 +72,7 @@ class POSController extends BaseApiController{
             'group'   =>  $userGroup
         ));
 
-        $currency = $request->request->get('currency');
+        $currency = ($request->request->has('currency') && $request->request->get('currency')!='')?$request->request->get('currency'):'EUR';
         $type = $request->request->get('type');
         if(!$type) {
             if(strtoupper($currency) == 'BTC' || strtoupper($currency) == 'FAC') {
