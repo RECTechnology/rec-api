@@ -181,7 +181,7 @@ class POSIncomingController extends RestApiController{
             throw new HttpException(404, 'Currency_in not allowed');
         }
         if(!in_array(strtoupper($dataIn['currency_out']), $pos_config['allowed_currencies_out'])){
-            throw new HttpException(404, 'Currency_in not allowed');
+            throw new HttpException(404, 'Currency_out not allowed');
         }
 
         if(strtoupper($dataIn['currency_in']) != $pos_config['currency']){
@@ -236,10 +236,9 @@ class POSIncomingController extends RestApiController{
         //add fee to transaction
         $transaction->setVariableFee($variable_fee);
         $transaction->setFixedFee($fixed_fee);
+        $total = $amount + $variable_fee + $fixed_fee;
+        $transaction->setTotal($total);
         $dm->persist($transaction);
-
-        $total = $amount - $variable_fee - $fixed_fee;
-        $transaction->setTotal($amount);
 
         $current_wallet = null;
 
@@ -249,7 +248,6 @@ class POSIncomingController extends RestApiController{
         //CASH - IN
         //distinguirn entre los distintos tipos de tpv
         if($posType == 'PNP'){
-
             $trans_pos_id = rand();
             $paymentInfo = array(
                 'amount'    =>  $amount,
@@ -259,14 +257,9 @@ class POSIncomingController extends RestApiController{
                 'url_ok'    =>  $dataIn['url_ok'],
                 'url_ko'    =>  $dataIn['url_ko']
             );
-
-
         }elseif($posType == 'BTC'){
-
             $address = $this->generateAddress($posType);
-
             if(!$address) throw new HttpException(403, 'Service temporally unavailable');
-
             $paymentInfo = array(
                 'amount'    =>  $pos_amount,
                 'previous_amount'    =>  $pos_amount,
@@ -283,13 +276,9 @@ class POSIncomingController extends RestApiController{
                 'url_ok'    =>  $dataIn['url_ok'],
                 'url_ko'    =>  $dataIn['url_ko']
             );
-
         }elseif($posType == 'FAC'){
-
             $address = $this->generateAddress($posType);
-
             if(!$address) throw new HttpException(403, 'Service temporally unavailable');
-
             $paymentInfo = array(
                 'amount'    =>  $pos_amount,
                 'previous_amount'    =>  $pos_amount,
@@ -306,9 +295,7 @@ class POSIncomingController extends RestApiController{
                 'url_ok'    =>  $dataIn['url_ok'],
                 'url_ko'    =>  $dataIn['url_ko']
             );
-
         }elseif($posType == 'SAFETYPAY'){
-
             $paymentInfo = array(
                 'amount'        =>  $dataIn['amount'],
                 'scale'         =>  Currency::$SCALE[$dataIn['currency_in']],
@@ -316,22 +303,28 @@ class POSIncomingController extends RestApiController{
                 'expires_in'    =>  $tpvRepo->getExpiresIn(),
                 'url_ok'        =>  $dataIn['url_ok'],
                 'url_ko'        =>  $dataIn['url_ko']
-
+            );
+        }elseif($posType == 'SABADELL') {
+            $trans_pos_id = rand();
+            $parameters = "";
+            $signature = "";
+            $paymentInfo = array(
+                'amount' => $amount,
+                'currency' => 'EUR',
+                'scale' => Currency::$SCALE['EUR'],
+                'transaction_pos_id' => $trans_pos_id,
+                'parameters' => $parameters,
+                'signature' => $signature,
+                'url_ok' => $dataIn['url_ok'],
+                'url_ko' => $dataIn['url_ko']
             );
         }
-
         $transaction->setPayInInfo($paymentInfo);
-
-//        $transaction = $this->get('notificator')->notificate($transaction);
         $em->flush();
-
         $transaction->setUpdated(new \DateTime());
-
         $dm->persist($transaction);
         $dm->flush();
-
         if($transaction == false) throw new HttpException(500, "oOps, some error has occurred within the call");
-
         return $this->posTransaction(201, $transaction, "Done");
     }
 

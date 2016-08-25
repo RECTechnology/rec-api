@@ -99,6 +99,15 @@ services:
             - "MXN"
             - "EUR/MXN/USD/PLN/FAC/BTC"
 
+    net.telepay.config.pos_sabadell:
+        class: Telepay\FinancialApiBundle\Financial\Methods\POSConfiguration
+        arguments:
+            - "pos_sabadell"
+            - "EUR"
+            - "EUR"
+            - "EUR"
+            - "EUR/MXN/USD/PLN/FAC/BTC"
+
 
 #NEW SWIFT CONFIGURATION
 #fixed, variable, min_value, max_value, range, countries, currency, expires_in
@@ -375,4 +384,13 @@ services:
             - "MXN"
             - "MXN"
             - "MXN/EUR"
+            - "EUR/MXN/USD/PLN/FAC/BTC"
+
+    net.telepay.config.pos_sabadell:
+        class: Telepay\FinancialApiBundle\Financial\Methods\POSConfiguration
+        arguments:
+            - "pos_sabadell"
+            - "EUR"
+            - "EUR"
+            - "EUR"
             - "EUR/MXN/USD/PLN/FAC/BTC"
