@@ -42,8 +42,20 @@ class KrakenWallet implements WalletInterface, TraderInterface, MiniumBalanceInt
     }
 
 
-    public function getAddress()
-    {
+    public function getAddress(){
+        $oneWeekLess6Hours = time() + (6.5 * 24 * 60 * 60);
+        $old = $this->krakenDriver->QueryPrivate(
+            'DepositAddresses',
+            array(
+                'asset' => 'XXBT',
+                'method' => 'Bitcoin'
+            )
+        );
+        $lastAddress = count($old['result'])-1;
+        if($old['result'][$lastAddress]['expiretm'] > $oneWeekLess6Hours){
+            return $old['result'][$lastAddress]['address'];
+        }
+
         return $this->krakenDriver->QueryPrivate(
             'DepositAddresses',
             array(
