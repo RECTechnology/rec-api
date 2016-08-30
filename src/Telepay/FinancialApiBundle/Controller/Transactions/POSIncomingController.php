@@ -510,12 +510,12 @@ class POSIncomingController extends RestApiController{
             $transaction->setStatus('success');
             //TODO update wallet and deal fees
 
-            $user_id = $transaction->getUser();
-            //search user to get wallet
+            $group_id = $transaction->getGroup();
+            //search group to get wallet
             $em = $this->getDoctrine()->getManager();
-            $user = $em->getRepository('TelepayFinancialApiBundle:User')->find($user_id);
+            $group = $em->getRepository('TelepayFinancialApiBundle:Group')->find($group_id);
             //Search wallet
-            $wallets = $user->getWallets();
+            $wallets = $group->getWallets();
 
             $current_wallet = null;
             foreach($wallets as $wallet ){
@@ -528,18 +528,18 @@ class POSIncomingController extends RestApiController{
             $total_fee = $transaction->getVariableFee() + $transaction->getFixedFee();
             $total = $amount - $total_fee;
 
-            //sumar al usuario el amount completo
+            //sumar al group el amount completo
             $current_wallet->setAvailable($current_wallet->getAvailable() + $total);
             $current_wallet->setBalance($current_wallet->getBalance() + $total);
 
             $balancer = $this->get('net.telepay.commons.balance_manipulator');
-            $balancer->addBalance($user, $amount, $transaction);
+            $balancer->addBalance($group, $amount, $transaction);
 
             $em->persist($current_wallet);
             $em->flush();
 
             if($total_fee != 0){
-                // nueva transaccion restando la comision al user
+                // nueva transaccion restando la comision al group
                 try{
                     $this->_dealer($transaction, $current_wallet);
                 }catch (HttpException $e){
@@ -573,7 +573,7 @@ class POSIncomingController extends RestApiController{
 
         $total_fee = $transaction->getFixedFee() + $transaction->getVariableFee();
 
-        $user = $em->getRepository('TelepayFinancialApiBundle:User')->find($transaction->getUser());
+        $group = $em->getRepository('TelepayFinancialApiBundle:Group')->find($transaction->getGroup());
 
         $feeTransaction = Transaction::createFromTransaction($transaction);
         $feeTransaction->setAmount($total_fee);
@@ -599,10 +599,9 @@ class POSIncomingController extends RestApiController{
         $mongo->flush();
 
         $balancer = $this->get('net.telepay.commons.balance_manipulator');
-        $balancer->addBalance($user, -$total_fee, $feeTransaction );
+        $balancer->addBalance($group, -$total_fee, $feeTransaction );
 
         //empezamos el reparto
-        $group = $user->getGroups()[0];
         $creator = $group->getCreator();
 
         if(!$creator) throw new HttpException(404,'Creator not found');
