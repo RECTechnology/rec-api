@@ -87,7 +87,7 @@
  * @apiExample {python} Signed requests authentication schema
  * # Authenticaton scheme explained in pseudo-code
  *
- * # The authentication credentials provided in {{ commerce_panel_url }}/user/account
+ * # The authentication credentials provided in {{ commerce_panel_url }}
  * access_key = "edbeb673024f2d0e23752e2814ca1ac4c589f761"
  * access_secret = "wlqDEET8uIr5RN00AMuuceI9LLKMTNLpzlETlX3djVg="
  *
