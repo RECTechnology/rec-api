@@ -322,6 +322,7 @@ class POSIncomingController extends RestApiController{
         $transaction->setPayInInfo($paymentInfo);
         $em->flush();
         $transaction->setUpdated(new \DateTime());
+        $transaction = $this->get('notificator')->notificate($transaction);
         $dm->persist($transaction);
         $dm->flush();
         if($transaction == false) throw new HttpException(500, "oOps, some error has occurred within the call");
@@ -648,6 +649,7 @@ class POSIncomingController extends RestApiController{
 
         if($transaction->getStatus() == Transaction::$STATUS_CREATED) {
             $transaction->setStatus(Transaction::$STATUS_CANCELLED);
+            $transaction = $this->get('notificator')->notificate($transaction);
             $dm->persist($transaction);
             $dm->flush();
         }
