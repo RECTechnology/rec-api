@@ -63,6 +63,7 @@ class POSIncomingController extends RestApiController{
         $transaction->setGroup($group->getId());
         $transaction->setVersion($version_number);
         $transaction->setDataIn($dataIn);
+        $transaction->setPayInInfo($dataIn);
         $transaction->setPosId($id);
         $dm->persist($transaction);
         $amount = $dataIn['amount'];
@@ -217,6 +218,7 @@ class POSIncomingController extends RestApiController{
         $transaction->setGroup($group->getId());
         $transaction->setVersion(1);
         $transaction->setDataIn($dataIn);
+        $transaction->setPayInInfo($dataIn);
         $transaction->setPosId($id);
         $dm->persist($transaction);
         $transaction->setAmount($amount);
