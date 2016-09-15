@@ -18,19 +18,15 @@ use Telepay\FinancialApiBundle\Entity\Group;
 use Telepay\FinancialApiBundle\Entity\UserWallet;
 use Telepay\FinancialApiBundle\Financial\Currency;
 
-class CheckScheduledCommand extends ContainerAwareCommand
-{
-    protected function configure()
-    {
+class CheckScheduledCommand extends ContainerAwareCommand{
+    protected function configure(){
         $this
             ->setName('telepay:scheduled:check')
             ->setDescription('Check scheduled transactions and create method out')
         ;
     }
 
-    protected function execute(InputInterface $input, OutputInterface $output)
-    {
-
+    protected function execute(InputInterface $input, OutputInterface $output){
         $em = $this->getContainer()->get('doctrine')->getManager();
         $scheduledRepo = $em->getRepository("TelepayFinancialApiBundle:Scheduled");
         $scheduleds = $scheduledRepo->findAll();
@@ -38,11 +34,11 @@ class CheckScheduledCommand extends ContainerAwareCommand
         foreach ($scheduleds as $scheduled) {
             $today = date("j");
             if ($scheduled->getPeriod() == 0 || $today == "1") {
-                $user = $em->getRepository('TelepayFinancialApiBundle:User')->find($scheduled->getUser());
-                $userWallets = $user->getWallets();
+                $group = $em->getRepository('TelepayFinancialApiBundle:User')->find($scheduled->getGroup());
+                $groupWallets = $group->getWallets();
 
                 $current_wallet = null;
-                foreach ($userWallets as $wallet) {
+                foreach ($groupWallets as $wallet) {
                     if ($wallet->getCurrency() == $scheduled->getWallet()) {
                         $current_wallet = $wallet;
                     }

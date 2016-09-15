@@ -170,16 +170,16 @@ class Scheduled {
     /**
      * @return mixed
      */
-    public function getUser()
+    public function getGroup()
     {
-        return $this->user;
+        return $this->group;
     }
 
     /**
-     * @param mixed $user
+     * @param mixed $group
      */
-    public function setUser($user)
+    public function setGroup($group)
     {
-        $this->user = $user;
+        $this->group = $group;
     }
 }
