@@ -59,9 +59,9 @@ class Scheduled {
     private $info;
 
     /**
-     * @ORM\ManyToOne(targetEntity="Telepay\FinancialApiBundle\Entity\User")
+     * @ORM\ManyToOne(targetEntity="Telepay\FinancialApiBundle\Entity\Group")
      */
-    private $user;
+    private $group;
 
     /**
      * @return mixed

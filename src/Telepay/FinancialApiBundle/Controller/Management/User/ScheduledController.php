@@ -25,8 +25,12 @@ class ScheduledController extends BaseApiController{
      */
     public function createAction(Request $request){
         $user = $this->get('security.context')->getToken()->getUser();
+        $userGroup = $user->getActiveGroup();
+
+        if(!$this->get('security.context')->isGranted('ROLE_ADMIN')) throw new HttpException(403, 'You don\' have the necessary permissions');
+
         $request->request->add(array(
-            'user'   =>  $user
+            'group'   =>  $userGroup
         ));
 
         if(!$request->request->has('wallet')) throw new HttpException(400,'Missing parameter wallet');
