@@ -128,6 +128,15 @@ class CheckScheduledCommand extends ContainerAwareCommand{
                             'transaction_amount'    =>  $transaction->getAmount(),
                             'total_fee' =>  $group_fees
                         ));
+                        $groupFee->setFeeInfo(array(
+                            'previous_transaction'  =>  $transaction->getId(),
+                            'previous_amount'   =>  $transaction->getAmount(),
+                            'amount'                =>  $group_fees,
+                            'currency'      =>  $transaction->getCurrency(),
+                            'scale'     =>  $transaction->getScale(),
+                            'concept'           =>  $transaction->getMethod() .'->fee',
+                            'status'    =>  Transaction::$STATUS_SUCCESS
+                        ));
                         $dm->persist($groupFee);
 
                         $group = $em->getRepository('TelepayFinancialApiBundle:Group')->find($transaction->getGroup());
@@ -214,6 +223,15 @@ class CheckScheduledCommand extends ContainerAwareCommand{
             'amount'                =>  -$total_fee,
             'description'           =>  $method_cname.'->fee',
             'admin'                 =>  $creator->getName()
+        ));
+        $feeTransaction->setFeeInfo(array(
+            'previous_transaction'  =>  $transaction->getId(),
+            'previous_amount'   =>  $transaction->getAmount(),
+            'amount'                =>  -$total_fee,
+            'currency'      =>  $currency,
+            'scale'     =>  $transaction->getScale(),
+            'concept'           =>  $method_cname.'->fee',
+            'status'    =>  Transaction::$STATUS_SUCCESS
         ));
 
         $feeTransaction->setType('fee');
