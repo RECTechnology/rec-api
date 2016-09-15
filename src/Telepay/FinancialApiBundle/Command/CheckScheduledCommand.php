@@ -122,6 +122,8 @@ class CheckScheduledCommand extends ContainerAwareCommand{
                         $groupFee->setAmount($group_fees);
                         $groupFee->setFixedFee($group_fee->getFixed());
                         $groupFee->setVariableFee($amount * ($group_fee->getVariable()/100));
+                        $transaction->setFixedFee($group_fee->getFixed());
+                        $transaction->setVariableFee($amount * ($group_fee->getVariable()/100));
                         $groupFee->setStatus('success');
                         $groupFee->setTotal($group_fees);
                         $groupFee->setDataIn(array(
