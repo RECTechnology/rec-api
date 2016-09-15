@@ -34,7 +34,7 @@ class CheckScheduledCommand extends ContainerAwareCommand{
         foreach ($scheduleds as $scheduled) {
             $today = date("j");
             if ($scheduled->getPeriod() == 0 || $today == "1") {
-                $group = $em->getRepository('TelepayFinancialApiBundle:User')->find($scheduled->getGroup());
+                $group = $em->getRepository('TelepayFinancialApiBundle:Group')->find($scheduled->getGroup());
                 $groupWallets = $group->getWallets();
 
                 $current_wallet = null;
@@ -51,7 +51,6 @@ class CheckScheduledCommand extends ContainerAwareCommand{
                     $dm = $this->getContainer()->get('doctrine_mongodb')->getManager();
                     $em = $this->getContainer()->get('doctrine')->getManager();
 
-                    $user = $scheduled->getUser();
                     $transaction = new Transaction();
                     $transaction->setIp('127.0.0.1');
                     $transaction->setStatus(Transaction::$STATUS_CREATED);
@@ -62,7 +61,7 @@ class CheckScheduledCommand extends ContainerAwareCommand{
                     $transaction->setCurrency($scheduled->getWallet());
                     $transaction->setService("sepa");
                     $transaction->setMethod("sepa");
-                    $transaction->setUser($user->getId());
+                    $transaction->setGroup($group->getId());
                     $transaction->setVersion(1);
                     $transaction->setType('out');
                     $dm->persist($transaction);
@@ -92,7 +91,6 @@ class CheckScheduledCommand extends ContainerAwareCommand{
 
 
                     //obtener group
-                    $group = $user->getGroups()[0];
                     $group_fee = $this->_getFees($group, $method);
                     $group_fees = round(($amount * ($group_fee->getVariable()/100) + $group_fee->getFixed()),0);
 
@@ -114,30 +112,30 @@ class CheckScheduledCommand extends ContainerAwareCommand{
                     $dm->flush();
 
                     if($group_fees != 0){
-                        //client fees goes to the user
-                        $userFee = new Transaction();
-                        $userFee->setUser($transaction->getUser());
-                        $userFee->setType('fee');
-                        $userFee->setCurrency($transaction->getCurrency());
-                        $userFee->setScale($transaction->getScale());
-                        $userFee->setAmount($group_fees);
-                        $userFee->setFixedFee($group_fee->getFixed());
-                        $userFee->setVariableFee($amount * ($group_fee->getVariable()/100));
-                        $userFee->setStatus('success');
-                        $userFee->setTotal($group_fees);
-                        $userFee->setDataIn(array(
+                        //client fees goes to the group
+                        $groupFee = new Transaction();
+                        $groupFee->setGroup($transaction->getGroup());
+                        $groupFee->setType('fee');
+                        $groupFee->setCurrency($transaction->getCurrency());
+                        $groupFee->setScale($transaction->getScale());
+                        $groupFee->setAmount($group_fees);
+                        $groupFee->setFixedFee($group_fee->getFixed());
+                        $groupFee->setVariableFee($amount * ($group_fee->getVariable()/100));
+                        $groupFee->setStatus('success');
+                        $groupFee->setTotal($group_fees);
+                        $groupFee->setDataIn(array(
                             'previous_transaction'  =>  $transaction->getId(),
                             'transaction_amount'    =>  $transaction->getAmount(),
                             'total_fee' =>  $group_fees
                         ));
-                        $dm->persist($userFee);
+                        $dm->persist($groupFee);
 
-                        $user = $em->getRepository('TelepayFinancialApiBundle:User')->find($transaction->getUser());
-                        $userWallets = $user->getWallets();
+                        $group = $em->getRepository('TelepayFinancialApiBundle:Group')->find($transaction->getGroup());
+                        $groupWallets = $group->getWallets();
                         $current_wallet = null;
 
-                        foreach ( $userWallets as $wallet){
-                            if ($wallet->getCurrency() == $userFee->getCurrency()){
+                        foreach ( $groupWallets as $wallet){
+                            if ($wallet->getCurrency() == $groupFee->getCurrency()){
                                 $current_wallet = $wallet;
                             }
                         }
@@ -158,14 +156,14 @@ class CheckScheduledCommand extends ContainerAwareCommand{
 
                     //insert new line in the balance
                     $balancer = $this->getContainer()->get('net.telepay.commons.balance_manipulator');
-                    $balancer->addBalance($user, -$amount, $transaction);
+                    $balancer->addBalance($group, -$amount, $transaction);
 
                     $em->persist($current_wallet);
                     $em->flush();
 
 
                     if( $group_fees != 0){
-                        //nueva transaccion restando la comision al user
+                        //nueva transaccion restando la comision al group
                         try{
                             $this->_dealer($transaction, $current_wallet);
                         }catch (Exception $e){
@@ -190,9 +188,7 @@ class CheckScheduledCommand extends ContainerAwareCommand{
 
         $total_fee = $transaction->getFixedFee() + $transaction->getVariableFee();
 
-        $user = $em->getRepository('TelepayFinancialApiBundle:User')->find($transaction->getUser());
-
-        $group = $user->getGroups()[0];
+        $group = $em->getRepository('TelepayFinancialApiBundle:User')->find($transaction->getGroup());
         $creator = $group->getCreator();
 
         $feeTransaction = Transaction::createFromTransaction($transaction);
@@ -229,7 +225,7 @@ class CheckScheduledCommand extends ContainerAwareCommand{
         $mongo->flush();
 
         $balancer = $this->getContainer()->get('net.telepay.commons.balance_manipulator');
-        $balancer->addBalance($user, -$total_fee, $feeTransaction );
+        $balancer->addBalance($group, -$total_fee, $feeTransaction );
 
         //empezamos el reparto
 
