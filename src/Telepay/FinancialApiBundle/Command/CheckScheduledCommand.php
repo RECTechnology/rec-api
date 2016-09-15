@@ -188,8 +188,8 @@ class CheckScheduledCommand extends ContainerAwareCommand{
 
         $total_fee = $transaction->getFixedFee() + $transaction->getVariableFee();
 
-        $group = $em->getRepository('TelepayFinancialApiBundle:User')->find($transaction->getGroup());
-        $creator = $group->getCreator();
+        $group = $em->getRepository('TelepayFinancialApiBundle:Group')->find($transaction->getGroup());
+        $creator = $group->getGroupCreator();
 
         $feeTransaction = Transaction::createFromTransaction($transaction);
         $feeTransaction->setAmount($total_fee);
@@ -197,7 +197,7 @@ class CheckScheduledCommand extends ContainerAwareCommand{
             'previous_transaction'  =>  $transaction->getId(),
             'amount'                =>  -$total_fee,
             'description'           =>  $method_cname.'->fee',
-            'admin'                 =>  $creator->getUsername()
+            'admin'                 =>  $creator->getName()
         ));
         $feeTransaction->setData(array(
             'previous_transaction'  =>  $transaction->getId(),
@@ -213,7 +213,7 @@ class CheckScheduledCommand extends ContainerAwareCommand{
             'previous_transaction'  =>  $transaction->getId(),
             'amount'                =>  -$total_fee,
             'description'           =>  $method_cname.'->fee',
-            'admin'                 =>  $creator->getUsername()
+            'admin'                 =>  $creator->getName()
         ));
 
         $feeTransaction->setType('fee');
