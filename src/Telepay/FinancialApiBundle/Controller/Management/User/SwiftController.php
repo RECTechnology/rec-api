@@ -94,9 +94,9 @@ class SwiftController extends BaseApiController{
         foreach ($clients as $client){
             foreach($client->getSwiftList() as $swift){
                 $swift_name = explode(":", $swift)[0];
-            }
-            if (!in_array($swift_name, $response)) {
-                $response[] = $swift_name;
+                if (!in_array($swift_name, $response)) {
+                    $response[] = $swift_name;
+                }
             }
         }
         return $this->restV2(200, "ok", "Swift info got successfully", $response);
