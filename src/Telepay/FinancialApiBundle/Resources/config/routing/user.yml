@@ -280,6 +280,12 @@ user_swift_clients:
     requirements:
         _method: GET
 
+user_swift_list:
+    pattern:  /user/v1/swift_list
+    defaults: { _controller: Telepay\FinancialApiBundle\Controller\Management\User\SwiftController::listNames }
+    requirements:
+        _method: GET
+
 user_swift_edit_client:
     pattern:  /user/v1/swift/{id}
     defaults: { _controller: Telepay\FinancialApiBundle\Controller\Management\User\SwiftController::updateAction }

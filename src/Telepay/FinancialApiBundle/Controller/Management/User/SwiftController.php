@@ -86,6 +86,25 @@ class SwiftController extends BaseApiController{
     /**
      * @Rest\View
      */
+    public function listNames(Request $request){
+        $user = $this->get('security.context')->getToken()->getUser();
+        $userGroup = $user->getActiveGroup();
+        $clients = $userGroup->getClients();
+        $response = array();
+        foreach ($clients as $client){
+            foreach($client->getSwiftList() as $swift){
+                $swift_name = explode(":", $swift)[0];
+            }
+            if (!in_array($swift_name, $response)) {
+                $response[] = $swift_name;
+            }
+        }
+        return $this->restV2(200, "ok", "Swift info got successfully", $response);
+    }
+
+    /**
+     * @Rest\View
+     */
     public function updateAction(Request $request, $id = null){
 
         //todo active methods or inactive.
@@ -159,7 +178,7 @@ class SwiftController extends BaseApiController{
 
         if($request->request->has('variable')){
             $fee->setVariable($request->request->get('variable'));
-         }
+        }
 
         $em->persist($fee);
         $em->flush();
