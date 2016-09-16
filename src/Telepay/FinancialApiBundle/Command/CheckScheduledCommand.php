@@ -45,7 +45,10 @@ class CheckScheduledCommand extends ContainerAwareCommand{
                 }
                 if ($current_wallet->getAvailable() > ($scheduled->getMinimum() + $scheduled->getThreshold())) {
                     $amount = $current_wallet->getAvailable() - $scheduled->getThreshold();
-                    $output->writeln($amount . ' euros de amount');
+                    $output->writeln($amount . ' euros de amount deben enviarse');
+                    $method = $this->getContainer()->get('net.telepay.out.'.$scheduled->getMethod().'.v1');
+                    $group_fee = $this->_getFees($group, $method);
+                    $amount = round(($amount * ((100 - $group_fee->getVariable())/100) - $group_fee->getFixed()),0);
                     $amount = 1000;
 
                     $dm = $this->getContainer()->get('doctrine_mongodb')->getManager();
@@ -94,6 +97,8 @@ class CheckScheduledCommand extends ContainerAwareCommand{
                     //obtener group
                     $group_fee = $this->_getFees($group, $method);
                     $group_fees = round(($amount * ($group_fee->getVariable()/100) + $group_fee->getFixed()),0);
+                    $transaction->setFixedFee($group_fee->getFixed());
+                    $transaction->setVariableFee($amount * ($group_fee->getVariable()/100));
 
                     try{
                         $pay_out_info = $method->send($pay_out_info);
@@ -122,8 +127,6 @@ class CheckScheduledCommand extends ContainerAwareCommand{
                         $groupFee->setAmount($group_fees);
                         $groupFee->setFixedFee($group_fee->getFixed());
                         $groupFee->setVariableFee($amount * ($group_fee->getVariable()/100));
-                        $transaction->setFixedFee($group_fee->getFixed());
-                        $transaction->setVariableFee($amount * ($group_fee->getVariable()/100));
                         $groupFee->setStatus('success');
                         $groupFee->setTotal($group_fees);
                         $groupFee->setDataIn(array(
