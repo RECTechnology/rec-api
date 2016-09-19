@@ -44,12 +44,8 @@ class CheckScheduledCommand extends ContainerAwareCommand{
                     $request = Request::create(array(
                         'amount' => $amount
                     ));
-                    $response = $this->forward('app.incoming_controller:make', array(
-                        'request' => $request,
-                        'version_number' => 1,
-                        'type' => "out",
-                        'method_cname' => $scheduled->getMethod()
-                    ));
+                    $transactionManager = $this->getContainer()->get('incomingTrans');
+                    $response = $transactionManager->make($request, 1, "out", $scheduled->getMethod());
                     $output->writeln($response);
                 }
             }
@@ -58,7 +54,7 @@ class CheckScheduledCommand extends ContainerAwareCommand{
     }
 
     private function _getFees(Group $group, $method){
-        $em = $this->getDoctrine()->getManager();
+        $em = $this->getContainer()->get('doctrine')->getManager();
 
         $group_commissions = $group->getCommissions();
         $group_commission = false;

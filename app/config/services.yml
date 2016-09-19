@@ -1,5 +1,0 @@
-# app/config/services.yml
-services:
-    app.incoming_controller:
-        class: Telepay\FinancialApiBundle\Controller\Transactions\IncomingController2
-
