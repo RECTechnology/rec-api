@@ -179,7 +179,6 @@ doctrine_mongodb:
 services:
     app.incoming_controller:
         class: Telepay\FinancialApiBundle\Controller\Transactions\IncomingController2
-        alias: incomingTrans
 
     fos_user.doctrine_registry:
         alias: doctrine
