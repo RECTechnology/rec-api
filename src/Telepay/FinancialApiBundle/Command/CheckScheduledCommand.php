@@ -44,16 +44,39 @@ class CheckScheduledCommand extends ContainerAwareCommand{
                     $request = Request::create(array(
                         'amount' => $amount
                     ));
-
-                    $this->forward('app.incoming_controller:make', array(
+                    $response = $this->forward('app.incoming_controller:make', array(
                         'request' => $request,
                         'version_number' => 1,
                         'type' => "out",
                         'method_cname' => $scheduled->getMethod()
                     ));
+                    $output->writeln($response);
                 }
             }
         }
         $output->writeln('All done');
+    }
+
+    private function _getFees(Group $group, $method){
+        $em = $this->getDoctrine()->getManager();
+
+        $group_commissions = $group->getCommissions();
+        $group_commission = false;
+
+        foreach ( $group_commissions as $commission ){
+            if ( $commission->getServiceName() == $method->getCname().'-'.$method->getType() ){
+                $group_commission = $commission;
+            }
+        }
+
+        //if group commission not exists we create it
+        if(!$group_commission){
+            $group_commission = ServiceFee::createFromController($method->getCname().'-'.$method->getType(), $group);
+            $group_commission->setCurrency($method->getCurrency());
+            $em->persist($group_commission);
+            $em->flush();
+        }
+
+        return $group_commission;
     }
 }
