@@ -177,9 +177,6 @@ doctrine_mongodb:
             auto_mapping: true
 
 services:
-    app.incoming_controller:
-        class: Telepay\FinancialApiBundle\Controller\Transactions\IncomingController2
-
     fos_user.doctrine_registry:
         alias: doctrine
 

@@ -27,7 +27,7 @@ use Telepay\FinancialApiBundle\Entity\UserWallet;
 
 class IncomingController2 extends RestApiController{
 
-    public function test($id){
+    public function createTransaction($id){
         throw new HttpException(403, 'Test ID=' . $id);
     }
 
