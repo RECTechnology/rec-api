@@ -44,9 +44,8 @@ class CheckScheduledCommand extends ContainerAwareCommand{
                     $request = Request::create(
                         '/',
                         'POST',
-                        array()
+                        array('concept' => 'Scheduled transaction')
                     );
-                    $request->request->set('concept', 'Scheduled transaction');
                     if($scheduled->getMethod() == 'sepa'){
                         $data = json_decode($scheduled->getInfo(), true);
                         $request->request->set('concept', $data['concept']);
@@ -56,7 +55,7 @@ class CheckScheduledCommand extends ContainerAwareCommand{
                         $request->request->set('bic_swift', $data['swift']);
                     }
                     $transactionManager = $this->getContainer()->get('app.incoming_controller');
-                    $response = $transactionManager->createTransaction($request, 1, 'out', $scheduled->getMethod(), -1, $group);
+                    $response = $transactionManager->createTransaction($request, 1, 'out', $scheduled->getMethod(), -1, $group, '127.0.0.1');
                     $output->writeln($response);
                 }
             }

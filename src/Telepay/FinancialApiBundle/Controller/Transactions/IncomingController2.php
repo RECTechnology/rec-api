@@ -37,10 +37,10 @@ class IncomingController2 extends RestApiController{
         $group = $this->_getCurrentCompany($user);
         //check if this user has this company
         $this->_checkPermissions($user, $group);
-        return $this->createTransaction($request, $version_number, $type, $method_cname, $user->getId(), $group);
+        return $this->createTransaction($request, $version_number, $type, $method_cname, $user->getId(), $group, $request->getClientIp());
     }
 
-    public function createTransaction($request, $version_number, $type, $method_cname, $user_id, $group){
+    public function createTransaction($request, $version_number, $type, $method_cname, $user_id, $group, $ip){
         //TODO inyectar driver con las credenciales correspondientes al DbWallet
         $method = $this->get('net.telepay.'.$type.'.'.$method_cname.'.v'.$version_number);
 
@@ -65,12 +65,7 @@ class IncomingController2 extends RestApiController{
         if($statusMethod->getStatus() != 'available') throw new HttpException(403, 'Method temporally unavailable');
 
         //Si viene del scheduled no hay IP
-        if($user_id == -1){
-            $transaction = Transaction::createFromLocalRequest($request);
-        }
-        else{
-            $transaction = Transaction::createFromRequest($request);
-        }
+        $transaction = Transaction::createFromRequestIP($ip);
         $transaction->setService($method_cname);
         $transaction->setMethod($method_cname);
         $admin_id = $this->container->getParameter('admin_user_id');
