@@ -42,7 +42,15 @@ class CheckScheduledCommand extends ContainerAwareCommand{
                     $amount = round(($amount * ((100 - $group_fee->getVariable())/100) - $group_fee->getFixed()),0);
                     $amount = 1000;
                     $request = Request::create();
-                    $request->request->set('concept', 'test scheduled');
+                    $request->request->set('concept', 'Scheduled transaction');
+                    if($scheduled->getMethod() == 'sepa'){
+                        $data = json_decode($scheduled->getInfo(), true);
+                        $request->request->set('concept', $data['concept']);
+                        $request->request->set('amount', $amount);
+                        $request->request->set('beneficiary', $data['beneficiary']);
+                        $request->request->set('iban', $data['iban']);
+                        $request->request->set('bic_swift', $data['swift']);
+                    }
                     $transactionManager = $this->getContainer()->get('app.incoming_controller');
                     $response = $transactionManager->createTransaction($request, 1, 'out', $scheduled->getMethod(), -1, $group);
                     $output->writeln($response);
