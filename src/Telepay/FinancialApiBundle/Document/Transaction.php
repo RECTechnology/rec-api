@@ -127,6 +127,16 @@ class Transaction implements TransactionTiming {
         $this->updated = new \DateTime();
     }
 
+    public static function createFromLocalRequest(Request $request){
+        $transaction = new Transaction();
+        $transaction->setIp('127.0.0.1');
+        $transaction->setStatus(Transaction::$STATUS_CREATED);
+        $transaction->setNotificationTries(0);
+        $transaction->setMaxNotificationTries(3);
+        $transaction->setNotified(false);
+        return $transaction;
+    }
+
     public static function createFromRequest(Request $request){
         $transaction = new Transaction();
         $transaction->setIp($request->getClientIp());
