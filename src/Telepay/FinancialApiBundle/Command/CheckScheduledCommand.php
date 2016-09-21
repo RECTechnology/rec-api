@@ -45,7 +45,7 @@ class CheckScheduledCommand extends ContainerAwareCommand{
                         'amount' => $amount
                     ));
                     $transactionManager = $this->getContainer()->get('app.incoming_controller');
-                    $response = $transactionManager->make($request, 1, "out", $scheduled->getMethod());
+                    $response = $transactionManager->test($request, 1, "out", $scheduled->getMethod());
                     $output->writeln($response);
                 }
             }

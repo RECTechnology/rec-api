@@ -27,6 +27,10 @@ use Telepay\FinancialApiBundle\Entity\UserWallet;
 
 class IncomingController2 extends RestApiController{
 
+    public function test($id){
+        throw new HttpException(403, 'Test ID=' . $id);
+    }
+
     /**
      * @Rest\View
      */
