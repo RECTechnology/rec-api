@@ -27,25 +27,25 @@ use Telepay\FinancialApiBundle\Entity\UserWallet;
 
 class IncomingController2 extends RestApiController{
 
-    public function createTransaction($id){
-        throw new HttpException(403, 'Test ID=' . $id);
-    }
-
     /**
      * @Rest\View
      */
-    public function make(Request $request, $version_number, $type, $method_cname, $id = null){
-        //TODO inyectar driver con las credenciales correspondientes al DbWallet
-        $method = $this->get('net.telepay.'.$type.'.'.$method_cname.'.v'.$version_number);
-
+    public function make(Request $request, $version_number, $type, $method_cname)
+    {
         $user = $this->get('security.context')->getToken()->getUser();
-
-        if(!$this->get('security.context')->isGranted('ROLE_WORKER')) throw new HttpException(403, 'You don\' have the necessary permissions');
-
+        if (!$this->get('security.context')->isGranted('ROLE_WORKER')) throw new HttpException(403, 'You don\' have the necessary permissions');
         $group = $this->_getCurrentCompany($user);
-
         //check if this user has this company
         $this->_checkPermissions($user, $group);
+        return $this->createTransaction($request, $version_number, $type, $method_cname, $user->getId(), $group);
+    }
+
+    public function createTransaction($request, $version_number, $type, $method_cname, $user_id, $group){
+
+        throw new HttpException(403, 'Test: ' . $request->request->get('concept'));
+
+        //TODO inyectar driver con las credenciales correspondientes al DbWallet
+        $method = $this->get('net.telepay.'.$type.'.'.$method_cname.'.v'.$version_number);
 
         $method_list = $group->getMethodsList();
 
@@ -70,7 +70,8 @@ class IncomingController2 extends RestApiController{
         $transaction = Transaction::createFromRequest($request);
         $transaction->setService($method_cname);
         $transaction->setMethod($method_cname);
-        $transaction->setUser($user->getId());
+        $admin_id = $this->container->getParameter('admin_user_id');
+        $transaction->setUser($user_id==-1?$admin_id:$user_id);
         $transaction->setGroup($group->getId());
         $transaction->setVersion($version_number);
         $transaction->setType($type);
@@ -178,7 +179,6 @@ class IncomingController2 extends RestApiController{
         $logger->info('Incomig transaction...LIMITS');
 
         //obtain group limitsCount for this method
-//        $user_limit = $this->_getLimitCount($user, $method);
         $groupLimitCount = $this->_getLimitCount($group, $method);
 
         //obtain group limit

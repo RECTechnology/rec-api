@@ -41,11 +41,10 @@ class CheckScheduledCommand extends ContainerAwareCommand{
                     $group_fee = $this->_getFees($group, $method);
                     $amount = round(($amount * ((100 - $group_fee->getVariable())/100) - $group_fee->getFixed()),0);
                     $amount = 1000;
-                    $request = Request::create(array(
-                        'amount' => $amount
-                    ));
+                    $request = Request::create();
+                    $request->request->set('concept', 'test scheduled');
                     $transactionManager = $this->getContainer()->get('app.incoming_controller');
-                    $response = $transactionManager->createTransaction(1);
+                    $response = $transactionManager->createTransaction($request, 1, 'out', $scheduled->getMethod(), -1, $group);
                     $output->writeln($response);
                 }
             }
