@@ -37,10 +37,11 @@ class IncomingController2 extends RestApiController{
         $group = $this->_getCurrentCompany($user);
         //check if this user has this company
         $this->_checkPermissions($user, $group);
-        return $this->createTransaction($request, $version_number, $type, $method_cname, $user->getId(), $group, $request->getClientIp());
+        $data =  (array) $request->request;
+        return $this->createTransaction($data, $version_number, $type, $method_cname, $user->getId(), $group, $request->getClientIp());
     }
 
-    public function createTransaction($request, $version_number, $type, $method_cname, $user_id, $group, $ip){
+    public function createTransaction($data, $version_number, $type, $method_cname, $user_id, $group, $ip){
         //TODO inyectar driver con las credenciales correspondientes al DbWallet
         $method = $this->get('net.telepay.'.$type.'.'.$method_cname.'.v'.$version_number);
 
@@ -75,26 +76,26 @@ class IncomingController2 extends RestApiController{
         $transaction->setType($type);
         $dm->persist($transaction);
 
-        if($request->request->has('concept') && $request->request->get('concept')!=''){
-            $concept = $request->request->get('concept');
+        if(array_key_exists('concept', $data) && $data['concept']!=''){
+            $concept = $data['concept'];
         }else{
             throw new HttpException(400, 'Param concept not found');
         }
 
-        if($request->request->has('url_notification')) $url_notification = $request->request->get('url_notification');
+        if(array_key_exists('url_notification', $data)) $url_notification = $data['url_notification'];
         else $url_notification = '';
 
-        if($request->request->has('amount') && $request->request->get('amount')!=''){
-            $amount = $request->request->get('amount');
+        if(array_key_exists('amount', $data) && $data['amount']!=''){
+            $amount = $data['amount'];
         }
         else{
             throw new HttpException(400, 'Param amount not found');
         }
 
         $exchange_done = false;
-        if($request->request->has('currency') && $request->request->get('currency')!=''){
+        if(array_key_exists('currency', $data) && $data['currency']!=''){
             $request_amount = $amount;
-            $cur_in = $request->request->get('currency');
+            $cur_in = $data['currency'];
             if(strtoupper($cur_in) != $method->getCurrency()){
                 $exchange_done = true;
                 $exchange = $em->getRepository('TelepayFinancialApiBundle:Exchange')->findOneBy(
@@ -107,7 +108,7 @@ class IncomingController2 extends RestApiController{
                 $amount = round($amount*$exchange->getPrice(),0);
             }
         }
-        $request->request->remove('currency');
+        unset($data['currency']);
 
         $logger->info('Incomig transaction...getPaymentInfo');
 
@@ -129,8 +130,7 @@ class IncomingController2 extends RestApiController{
             $transaction->setPayInInfo($payment_info);
 
         }else{
-
-            $payment_info = $method->getPayOutInfo($request);
+            $payment_info = $method->getPayOutInfoData($data);
             $transaction->setPayOutInfo($payment_info);
             $dataIn = array(
                 'amount'    =>  $amount,

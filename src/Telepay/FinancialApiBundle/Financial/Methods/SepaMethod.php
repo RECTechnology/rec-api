@@ -72,8 +72,7 @@ class SepaMethod extends BaseMethod {
         // TODO: Implement getPayOutStatus() method.
     }
 
-    public function getPayOutInfo($request)
-    {
+    public function getPayOutInfo($request){
         $paramNames = array(
             'beneficiary',
             'iban',
@@ -96,6 +95,44 @@ class SepaMethod extends BaseMethod {
 
         if($request->request->has('concept')){
             $concept = $request->request->get('concept');
+        }else{
+            $concept = 'Sepa transaction';
+        }
+
+        $params['concept'] = $concept;
+
+        $params['find_token'] = $find_token = substr(Random::generateToken(), 0, 6);
+        $params['currency'] = $this->getCurrency();
+        $params['scale'] = Currency::$SCALE[$this->getCurrency()];
+        $params['final'] = false;
+        $params['status'] = false;
+
+        return $params;
+    }
+
+    public function getPayOutInfoData($data){
+        $paramNames = array(
+            'beneficiary',
+            'iban',
+            'amount',
+            'bic_swift'
+        );
+
+        $params = array();
+
+        foreach($paramNames as $param){
+            if(!array_key_exists($param, $data)) throw new HttpException(404, 'Parameter '.$param.' not found');
+            $params[$param] = $data[$param];
+
+        }
+        $iban_verification = $this->driver->validateiban($params['iban']);
+        $bic_verification = $this->driver->validatebic($params['bic_swift']);
+
+        if(!$iban_verification) throw new Exception('Invalid iban.',400);
+        if(!$bic_verification) throw new Exception('Invalid bic.',400);
+
+        if(array_key_exists('concept', $data)){
+            $concept = $data['concept'];
         }else{
             $concept = 'Sepa transaction';
         }
