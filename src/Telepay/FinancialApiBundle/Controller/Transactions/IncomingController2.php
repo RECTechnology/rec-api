@@ -37,8 +37,8 @@ class IncomingController2 extends RestApiController{
         $group = $this->_getCurrentCompany($user);
         //check if this user has this company
         $this->_checkPermissions($user, $group);
-        $data =  (array) $request->request;
-        return $this->createTransaction($data, $version_number, $type, $method_cname, $user->getId(), $group, $request->getClientIp());
+        $data = json_decode(json_encode($request),TRUE);
+        return $this->createTransaction($data['request'], $version_number, $type, $method_cname, $user->getId(), $group, $request->getClientIp());
     }
 
     public function createTransaction($data, $version_number, $type, $method_cname, $user_id, $group, $ip){
