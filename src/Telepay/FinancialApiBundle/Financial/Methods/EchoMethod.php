@@ -75,6 +75,27 @@ class EchoMethod extends BaseMethod {
         return $params;
     }
 
+    //PAY OUT
+    public function getPayOutInfoData($data){
+        $paramNames = array(
+            'amount'
+        );
+
+        $params = array();
+
+        foreach($paramNames as $param){
+            if(!array_key_exists($param, $data)) throw new HttpException(404, 'Parameter '.$param.' not found');
+            $params[$param] = $data[$param];
+        }
+
+        $params['currency'] = $this->getCurrency();
+        $params['scale'] = Currency::$SCALE[$this->getCurrency()];
+        $params['final'] = false;
+        $params['status'] = false;
+
+        return $params;
+    }
+
     public function send($paymentInfo)
     {
         throw new HttpException('Method not implemented');

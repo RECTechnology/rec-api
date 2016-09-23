@@ -61,8 +61,11 @@ class TeleingresoMethod extends BaseMethod{
         return $paymentInfo;
     }
 
-    public function getPayOutInfo($request)
-    {
+    public function getPayOutInfo($request){
+        throw new HttpException(405, 'Method not implemented');
+    }
+
+    public function getPayOutInfoData($data){
         throw new HttpException(405, 'Method not implemented');
     }
 

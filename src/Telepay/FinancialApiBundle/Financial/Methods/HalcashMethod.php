@@ -110,6 +110,41 @@ class HalcashMethod extends BaseMethod{
         return $params;
     }
 
+    public function getPayOutInfoData($data){
+        $paramNames = array(
+            'amount',
+            'phone',
+            'prefix',
+            'concept'
+        );
+
+        $params = array();
+
+        foreach($paramNames as $param){
+            if(!array_key_exists($param, $data)) throw new HttpException(404, 'Parameter '.$param.' not found');
+            if($data[$param] == null) throw new Exception( 'Parameter '.$param.' can\'t be null', 404);
+            $params[$param] = $data[$param];
+        }
+
+        $params['phone'] = preg_replace("/[^0-9,.]/", "", $params['phone']);
+        $params['prefix'] = preg_replace("/[^0-9,.]/", "", $params['prefix']);
+        if(!$this->checkPhone($params['phone'], $params['prefix'])) throw new Exception('Invalid phone.',400);
+
+        if(array_key_exists('pin', $data)){
+            $pin = $params['pin'];
+        }else{
+            $pin = rand(1000,9999);
+        }
+
+        $find_token = substr(Random::generateToken(), 0, 6);
+        $params['prefix'] = str_replace("+", "", $params['prefix']);
+        $params['find_token'] = $find_token;
+        $params['pin'] = $pin;
+        $params['final'] = false;
+        $params['status'] = false;
+        return $params;
+    }
+
     public function getPayInStatus($paymentInfo)
     {
         // TODO: Implement getPayInStatus() method.

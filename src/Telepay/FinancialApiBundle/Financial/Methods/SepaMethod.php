@@ -123,7 +123,6 @@ class SepaMethod extends BaseMethod {
         foreach($paramNames as $param){
             if(!array_key_exists($param, $data)) throw new HttpException(404, 'Parameter '.$param.' not found');
             $params[$param] = $data[$param];
-
         }
         $iban_verification = $this->driver->validateiban($params['iban']);
         $bic_verification = $this->driver->validatebic($params['bic_swift']);

@@ -68,8 +68,11 @@ class SafetyPayMethod extends BaseMethod {
         // TODO: Implement getPayOutStatus() method.
     }
 
-    public function getPayOutInfo($request)
-    {
+    public function getPayOutInfo($request){
+
+    }
+
+    public function getPayOutInfoData($data){
 
     }
 

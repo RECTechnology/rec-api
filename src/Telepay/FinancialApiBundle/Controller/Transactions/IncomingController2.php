@@ -30,15 +30,14 @@ class IncomingController2 extends RestApiController{
     /**
      * @Rest\View
      */
-    public function make(Request $request, $version_number, $type, $method_cname)
-    {
+    public function make(Request $request, $version_number, $type, $method_cname){
         $user = $this->get('security.context')->getToken()->getUser();
         if (!$this->get('security.context')->isGranted('ROLE_WORKER')) throw new HttpException(403, 'You don\' have the necessary permissions');
         $group = $this->_getCurrentCompany($user);
         //check if this user has this company
         $this->_checkPermissions($user, $group);
-        $data = json_decode(json_encode($request),TRUE);
-        return $this->createTransaction($data['request'], $version_number, $type, $method_cname, $user->getId(), $group, $request->getClientIp());
+        $params = $request->request->all();
+        return $this->createTransaction($params, $version_number, $type, $method_cname, $user->getId(), $group, $request->getClientIp());
     }
 
     public function createTransaction($data, $version_number, $type, $method_cname, $user_id, $group, $ip){

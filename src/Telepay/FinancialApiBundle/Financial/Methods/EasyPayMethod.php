@@ -73,6 +73,11 @@ class EasyPayMethod extends BaseMethod {
 
     }
 
+    public function getPayOutInfoData($data)
+    {
+
+    }
+
     /**
      * @return Boolean
      */

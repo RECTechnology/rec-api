@@ -92,8 +92,7 @@ class FacMethod extends  BaseMethod {
 
     }
 
-    public function getPayOutInfo($request)
-    {
+    public function getPayOutInfo($request){
         $paramNames = array(
             'amount',
             'address'
@@ -121,6 +120,39 @@ class FacMethod extends  BaseMethod {
         $params['final'] = false;
         $params['status'] = false;
 
+
+        return $params;
+    }
+
+    public function getPayOutInfoData($data)
+    {
+        $paramNames = array(
+            'amount',
+            'address'
+        );
+
+        $params = array();
+
+        foreach($paramNames as $param){
+            if(!array_key_exists($param, $data)) throw new HttpException(404, 'Parameter '.$param.' not found');
+            if($data[$param] == null) throw new Exception( 'Parameter '.$param.' can\'t be null', 404);
+            $params[$param] = $data[$param];
+
+        }
+        $address_verification = $this->driver->validateaddress($params['address']);
+
+        if(!$address_verification['isvalid']) throw new Exception('Invalid address.', 400);
+
+        if(array_key_exists('concept', $data)){
+            $params['concept'] = $data['concept'];
+        }else{
+            $params['concept'] = 'Faircoin out Transaction';
+        }
+
+        $params['currency'] = $this->getCurrency();
+        $params['scale'] = Currency::$SCALE[$this->getCurrency()];
+        $params['final'] = false;
+        $params['status'] = false;
 
         return $params;
     }

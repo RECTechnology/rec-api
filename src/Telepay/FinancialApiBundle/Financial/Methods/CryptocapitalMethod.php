@@ -94,8 +94,41 @@ class CryptocapitalMethod extends BaseMethod {
         return $paymentInfo;
     }
 
-    public function getPayOutInfo($request)
-    {
+    public function getPayOutInfoData($data){
+        $paramNames = array(
+            'amount',
+            'email'
+        );
+
+        $params = array();
+
+        foreach($paramNames as $param){
+            if(!array_key_exists($param, $data)) throw new HttpException(404, 'Parameter '.$param.' not found');
+            $params[$param] = $data[$param];
+        }
+
+        if(array_key_exists('concept', $data)){
+            $concept = $data['concept'];
+        }else{
+            $concept = 'Cryptocapital transaction';
+        }
+
+        if (!filter_var($params['email'], FILTER_VALIDATE_EMAIL)) {
+            throw new Exception( 'Invalid email', 400);
+        }
+
+        $params['concept'] = $concept;
+
+        $params['find_token'] = $find_token = substr(Random::generateToken(), 0, 6);
+        $params['currency'] = $this->getCurrency();
+        $params['scale'] = Currency::$SCALE[$this->getCurrency()];
+        $params['final'] = false;
+        $params['status'] = false;
+
+        return $params;
+    }
+
+    public function getPayOutInfo($request){
         $paramNames = array(
             'amount',
             'email'

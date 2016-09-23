@@ -54,6 +54,14 @@ class PaynetReferenceMethod extends BaseMethod{
         return $response;
     }
 
+    public function getPayOutInfo($request){
+        throw new HttpException(405, 'Method not implemented');
+    }
+
+    public function getPayOutInfoData($data){
+        throw new HttpException(405, 'Method not implemented');
+    }
+
     public function getPayInStatus($paymentInfo)
     {
         if(isset($paymentInfo['paynet_id'])){
