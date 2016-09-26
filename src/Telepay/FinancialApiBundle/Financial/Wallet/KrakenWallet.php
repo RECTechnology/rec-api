@@ -56,6 +56,10 @@ class KrakenWallet implements WalletInterface, TraderInterface, MiniumBalanceInt
             return $old['result'][$lastAddress]['address'];
         }
 
+        if(isset($old['result'][5])){
+            return $old['result'][5]['address'];
+        }
+
         return $this->krakenDriver->QueryPrivate(
             'DepositAddresses',
             array(
