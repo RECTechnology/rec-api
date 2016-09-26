@@ -914,9 +914,6 @@ class SwiftController extends RestApiController{
             'status'    =>  Transaction::$STATUS_SUCCESS
         ));
 
-
-
-
         $userFee->setClient($client);
 
         //service fees goes to root
@@ -943,7 +940,7 @@ class SwiftController extends RestApiController{
             'previous_amount'    =>  $transaction->getAmount(),
             'scale'     =>  $transaction->getScale(),
             'concept'           =>  $method_in.'-'.$method_out.'->fee',
-            'amount' =>  $client_fee + $service_fee,
+            'amount' =>  $service_fee,
             'status'    =>  Transaction::$STATUS_SUCCESS,
             'currency'  =>  $transaction->getCurrency()
         ));
