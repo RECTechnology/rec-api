@@ -83,6 +83,9 @@ class CheckSwiftCommand extends SyncronizedContainerAwareCommand
                     $swift_config = $this->getContainer()->get('net.telepay.config.'.$method_in.'.'.$method_out);
                     $methodFees = $swift_config->getFees();
 
+                    $output->writeln('FIXED FEE => '.$methodFees->getFixed());
+                    $output->writeln('VARIABLE FEE => '.$methodFees->getVariable());
+
                     //get client fees (fixed & variable)
                     $clientFees = $em->getRepository('TelepayFinancialApiBundle:SwiftFee')->findOneBy(array(
                         'client'    =>  $client,
