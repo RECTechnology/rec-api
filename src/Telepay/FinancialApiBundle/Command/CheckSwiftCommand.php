@@ -256,8 +256,8 @@ class CheckSwiftCommand extends SyncronizedContainerAwareCommand
                                     $cashOutMethod->sendMail($transaction->getId(), $transaction->getType(), $pay_out_info);
                                 }
 
-                                $output->writeln('FEE fixed => '.$client_fee);
-                                $output->writeln('FEE variable => '.$service_fee);
+                                $output->writeln('FEE client => '.$client_fee);
+                                $output->writeln('FEE service => '.$service_fee);
                                 if($client_fee != 0){
                                     //client fees goes to the user
                                     $userFee = new Transaction();
@@ -336,7 +336,7 @@ class CheckSwiftCommand extends SyncronizedContainerAwareCommand
                                     $serviceFeeInfo = array(
                                         'previous_transaction'  =>  $transaction->getId(),
                                         'previous_amount'   =>  $transaction->getAmount(),
-                                        'amount'                =>  $client_fee + $service_fee,
+                                        'amount'                =>  $service_fee,
                                         'currency'      =>  $transaction->getCurrency(),
                                         'scale'     =>  $transaction->getScale(),
                                         'concept'           =>  $method_in.'-'.$method_out.'->fee',
