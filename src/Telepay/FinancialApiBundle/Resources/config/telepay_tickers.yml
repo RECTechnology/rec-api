@@ -4,33 +4,41 @@ services:
         class: Telepay\FinancialApiBundle\Financial\Ticker\BittrexTicker
         arguments:
             - "@net.telepay.driver.bittrex"
+            - "fac_btc"
 
     net.telepay.ticker.BTCxFAC:
-        class: Telepay\FinancialApiBundle\Financial\Ticker\InversedTicker
+        class: Telepay\FinancialApiBundle\Financial\Ticker\BittrexTicker
         arguments:
-            - "@net.telepay.ticker.FACxBTC"
+            - "@net.telepay.driver.bittrex"
+            - "btc_fac"
 
     net.telepay.ticker.BTCxEUR:
         class: Telepay\FinancialApiBundle\Financial\Ticker\KrakenTicker
         arguments:
             - "@net.telepay.driver.kraken"
             - "EUR"
+            - "bid"
 
     net.telepay.ticker.EURxBTC:
-        class: Telepay\FinancialApiBundle\Financial\Ticker\InversedTicker
+        class: Telepay\FinancialApiBundle\Financial\Ticker\KrakenTicker
         arguments:
-            - "@net.telepay.ticker.BTCxEUR"
+            - "@net.telepay.driver.kraken"
+            - "EUR"
+            - "ask"
 
     net.telepay.ticker.BTCxUSD:
         class: Telepay\FinancialApiBundle\Financial\Ticker\KrakenTicker
         arguments:
             - "@net.telepay.driver.kraken"
             - "USD"
+            - "bid"
 
     net.telepay.ticker.USDxBTC:
-        class: Telepay\FinancialApiBundle\Financial\Ticker\InversedTicker
+        class: Telepay\FinancialApiBundle\Financial\Ticker\KrakenTicker
         arguments:
-            - "@net.telepay.ticker.BTCxUSD"
+            - "@net.telepay.driver.kraken"
+            - "USD"
+            - "ask"
 
     net.telepay.ticker.USDxEUR:
         class: Telepay\FinancialApiBundle\Financial\Ticker\ChainedTicker
@@ -134,9 +142,10 @@ services:
             - "btc_mxn"
 
     net.telepay.ticker.MXNxBTC:
-        class: Telepay\FinancialApiBundle\Financial\Ticker\InversedTicker
+        class: Telepay\FinancialApiBundle\Financial\Ticker\BitsoTicker
         arguments:
-            - "@net.telepay.ticker.BTCxMXN"
+            - "@net.telepay.driver.bitso"
+            - "mxn_btc"
 
     net.telepay.ticker.BTCxPLN:
         class: Telepay\FinancialApiBundle\Financial\Ticker\ChainedTicker

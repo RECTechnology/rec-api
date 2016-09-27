@@ -23,28 +23,45 @@ class KrakenTicker implements TickerInterface {
     private $krakenDriver;
     private $outCurrency;
     private $krakenMarket;
+    private $type;
 
-    public function __construct(KrakenDriver $krakenDriver, $outCurrency){
+    public function __construct(KrakenDriver $krakenDriver, $outCurrency, $type){
         $this->krakenDriver = $krakenDriver;
         $this->outCurrency = $outCurrency;
         $this->krakenMarket = static::$krakenMarketsMap[$outCurrency];
+        $this->type = $type;
     }
 
-    public function getPrice()
-    {
-        $price = $this->krakenDriver->QueryPublic(
-            'Ticker', array('pair' => $this->krakenMarket)
-        )['result'][$this->krakenMarket]['b'][0];
-        return $price;
+    public function getPrice(){
+        if($this->type == 'bid') {
+            $price = $this->krakenDriver->QueryPublic(
+                'Ticker', array('pair' => $this->krakenMarket)
+            )['result'][$this->krakenMarket]['b'][0];
+            return $price;
+        }
+        elseif($this->type == 'ask'){
+            $price = $this->krakenDriver->QueryPublic(
+                'Ticker', array('pair' => $this->krakenMarket)
+            )['result'][$this->krakenMarket]['b'][0];
+            return 1.0/$price;
+        }
     }
 
-    public function getInCurrency()
-    {
-        return Currency::$BTC;
+    public function getInCurrency(){
+        if($this->type == 'bid') {
+            return Currency::$BTC;
+        }
+        elseif($this->type == 'ask'){
+            return $this->outCurrency;
+        }
     }
 
-    public function getOutCurrency()
-    {
-        return $this->outCurrency;
+    public function getOutCurrency(){
+        if($this->type == 'bid') {
+            return $this->outCurrency;
+        }
+        elseif($this->type == 'ask'){
+            return Currency::$BTC;
+        }
     }
 }
