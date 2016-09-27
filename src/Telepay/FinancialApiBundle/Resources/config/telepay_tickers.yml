@@ -87,8 +87,7 @@ services:
         arguments:
             exchange_chain:
                 - "@net.telepay.ticker.FACxBTC"
-                - "@net.telepay.ticker.BTCxEUR"
-                - "@net.telepay.ticker.EURxPLN"
+                - "@net.telepay.ticker.BTCxPLN"
 
     net.telepay.ticker.FACxMXN:
         class: Telepay\FinancialApiBundle\Financial\Ticker\ChainedTicker
@@ -108,15 +107,15 @@ services:
         class: Telepay\FinancialApiBundle\Financial\Ticker\ChainedTicker
         arguments:
             exchange_chain:
-                - "@net.telepay.ticker.USDxEUR"
-                - "@net.telepay.ticker.EURxMXN"
+                - "@net.telepay.ticker.USDxBTC"
+                - "@net.telepay.ticker.BTCxMXN"
 
     net.telepay.ticker.MXNxUSD:
         class: Telepay\FinancialApiBundle\Financial\Ticker\ChainedTicker
         arguments:
             exchange_chain:
-                - "@net.telepay.ticker.MXNxEUR"
-                - "@net.telepay.ticker.EURxUSD"
+                - "@net.telepay.ticker.MXNxBTC"
+                - "@net.telepay.ticker.BTCxUSD"
 
     net.telepay.ticker.EURxMXN:
         class: Telepay\FinancialApiBundle\Financial\Ticker\ChainedTicker
@@ -180,8 +179,8 @@ services:
         class: Telepay\FinancialApiBundle\Financial\Ticker\ChainedTicker
         arguments:
             exchange_chain:
-                - "@net.telepay.ticker.USDxFAC"
-                - "@net.telepay.ticker.FACxPLN"
+                - "@net.telepay.ticker.USDxEUR"
+                - "@net.telepay.ticker.EURxPLN"
 
     net.telepay.ticker.PLNxUSD :
         class: Telepay\FinancialApiBundle\Financial\Ticker\ChainedTicker
@@ -194,7 +193,8 @@ services:
         class: Telepay\FinancialApiBundle\Financial\Ticker\ChainedTicker
         arguments:
             exchange_chain:
-                - "@net.telepay.ticker.MXNxEUR"
+                - "@net.telepay.ticker.MXNxBTC"
+                - "@net.telepay.ticker.BTCxEUR"
                 - "@net.telepay.ticker.EURxPLN"
 
     net.telepay.ticker.PLNxMXN:
@@ -202,5 +202,6 @@ services:
         arguments:
             exchange_chain:
                 - "@net.telepay.ticker.PLNxEUR"
-                - "@net.telepay.ticker.EURxMXN"
+                - "@net.telepay.ticker.EURxBTC"
+                - "@net.telepay.ticker.BTCxMXN"
 
