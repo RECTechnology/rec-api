@@ -22,42 +22,9 @@ class PublicController extends RestApiController{
      * @Rest\View
      */
     public function ticker(Request $request, $currency){
-        /*$lowCurrency = strtolower($currency);
-
-        $providers = array();
-        foreach(Currency::$LISTA as $curr){
-            if(strtolower($curr) != $lowCurrency){
-                $providers[$curr.'x'.strtoupper($currency)] = $this->get('net.telepay.exchange.'.strtolower($curr).'x'.$lowCurrency)->getPrice();
-            }
-
-        }
-
-        die(print_r($providers,true));
-
-        $btc2eur = $this->get('net.telepay.exchange.btcx'.$lowCurrency);
-        //die(print_r($btc2eur->getPrice()['result']['XXBTZEUR']['a'],true));
-        //$btc2eurPrice = $btc2eur->getPrice()->result->XXBTZEUR->b[0];
-        $btc2eurPrice = $btc2eur->getPrice()['result']['XXBTZEUR']['a'];
-
-
-
-        $combos_eur = array(
-            Currency::$BTC.'x'.Currency::$EUR => $this->get('net.telepay.exchange.btcx'.$lowCurrency)->getPrice(),
-            Currency::$FAC.'x'.Currency::$EUR => $this->get('net.telepay.exchange.facx'.$lowCurrency)->getPrice(),
-            Currency::$MXN.'x'.Currency::$EUR => $this->get('net.telepay.exchange.mxnx'.$lowCurrency)->getPrice(),
-            Currency::$PLN.'x'.Currency::$EUR => $this->get('net.telepay.exchange.plnx'.$lowCurrency)->getPrice(),
-            Currency::$USD.'x'.Currency::$EUR => $this->get('net.telepay.exchange.usdx'.$lowCurrency)->getPrice()
-        );
-
-        $response = 'response';
-
-        return $this->restV2(200, "ok", "Exchange information", $response);*/
-
         $default_currency = strtoupper($currency);
         $default_currency_scale = Currency::$SCALE[$default_currency];
-
         $currencies = Currency::$LISTA;
-
         $result = array();
         foreach($currencies as $currency ){
             if($currency != $default_currency ){
@@ -70,14 +37,44 @@ class PublicController extends RestApiController{
                 }catch (HttpException $e){
                     $result[$currency.'x'.$default_currency] = $e->getMessage();
                 }
-
             }
         }
-
         return $this->restV2(200, "ok", "Exchange info got successfully", $result);
-
     }
 
+    /**
+     * @Rest\View
+     */
+    public function tickerV2(Request $request, $currency){
+        $default_currency = strtoupper($currency);
+        $default_currency_scale = Currency::$SCALE[$default_currency];
+        $currencies = Currency::$LISTA;
+        $result = array();
+        $ask = array();
+        $bid = array();
+        foreach($currencies as $currency ){
+            if($currency != $default_currency ){
+                try{
+                    $currency_scale = Currency::$SCALE[$currency];
+                    $scale = $currency_scale - $default_currency_scale;
+                    $number = pow(10,$scale);
+                    $price_ask = $this->_exchange($number, $currency, $default_currency);
+                    $ask[$currency.'x'.$default_currency] = round($price_ask, $default_currency_scale + 1);
+                    $price_bid = $this->_exchangeInverse($number, $currency, $default_currency);
+                    $bid[$currency.'x'.$default_currency] = round($price_bid, $default_currency_scale + 1);
+                    $result[$currency.'x'.$default_currency] = round(($price_ask + $price_bid)/2, $default_currency_scale + 1);
+                }catch (HttpException $e){
+                    $result[$currency.'x'.$default_currency] = $e->getMessage();
+                }
+            }
+        }
+        return $this->restV2(200, "ok", "Exchange info got successfully", array(
+                'av' => $result,
+                'ask' => $ask,
+                'bid' => $bid
+            )
+        );
+    }
 
     /**
      * @Rest\View
@@ -171,22 +168,28 @@ class PublicController extends RestApiController{
     }
 
     public function _exchange($amount,$curr_in,$curr_out){
-
         $dm=$this->getDoctrine()->getManager();
         $exchangeRepo=$dm->getRepository('TelepayFinancialApiBundle:Exchange');
         $exchange = $exchangeRepo->findOneBy(
             array('src'=>$curr_in,'dst'=>$curr_out),
             array('id'=>'DESC')
         );
-
         if(!$exchange) throw new HttpException(404,'Exchange not found -> '.$curr_in.' TO '.$curr_out);
-
         $price = $exchange->getPrice();
-
         $total = $amount * $price;
-
         return $total;
-
     }
 
+    public function _exchangeInverse($amount,$curr_in,$curr_out){
+        $dm=$this->getDoctrine()->getManager();
+        $exchangeRepo=$dm->getRepository('TelepayFinancialApiBundle:Exchange');
+        $exchange = $exchangeRepo->findOneBy(
+            array('src'=>$curr_out,'dst'=>$curr_in),
+            array('id'=>'DESC')
+        );
+        if(!$exchange) throw new HttpException(404,'Exchange not found -> '.$curr_in.' TO '.$curr_out);
+        $price = 1.0/($exchange->getPrice());
+        $total = $amount * $price;
+        return $total;
+    }
 }
