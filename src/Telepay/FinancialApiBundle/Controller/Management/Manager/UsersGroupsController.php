@@ -37,9 +37,12 @@ class UsersGroupsController extends RestApiController{
                 'group' =>  $id)
             );
 
-        //check if this user is admin of this group
-        if(!$admin->hasGroup($company->getName()) || !$adminRoles->hasRole('ROLE_ADMIN'))
-            throw new HttpException(409, 'You don\'t have the necesary permissions');
+        //check if is superadmin
+        if(!$admin->hasRole('ROLE_SUPER_ADMIN')){
+            //check if this user is admin of this group
+            if(!$admin->hasGroup($company->getName()) || !$adminRoles->hasRole('ROLE_ADMIN'))
+                throw new HttpException(409, 'You don\'t have the necesary permissions');
+        }
 
         $usersRepository = $this->getDoctrine()->getRepository("TelepayFinancialApiBundle:User");
 
