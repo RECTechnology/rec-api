@@ -83,6 +83,9 @@ class CheckSwiftCommand extends SyncronizedContainerAwareCommand
                     $swift_config = $this->getContainer()->get('net.telepay.config.'.$method_in.'.'.$method_out);
                     $methodFees = $swift_config->getFees();
 
+                    $output->writeln('FIXED FEE => '.$methodFees->getFixed());
+                    $output->writeln('VARIABLE FEE => '.$methodFees->getVariable());
+
                     //get client fees (fixed & variable)
                     $clientFees = $em->getRepository('TelepayFinancialApiBundle:SwiftFee')->findOneBy(array(
                         'client'    =>  $client,
@@ -253,6 +256,8 @@ class CheckSwiftCommand extends SyncronizedContainerAwareCommand
                                     $cashOutMethod->sendMail($transaction->getId(), $transaction->getType(), $pay_out_info);
                                 }
 
+                                $output->writeln('FEE client => '.$client_fee);
+                                $output->writeln('FEE service => '.$service_fee);
                                 if($client_fee != 0){
                                     //client fees goes to the user
                                     $userFee = new Transaction();
@@ -331,7 +336,7 @@ class CheckSwiftCommand extends SyncronizedContainerAwareCommand
                                     $serviceFeeInfo = array(
                                         'previous_transaction'  =>  $transaction->getId(),
                                         'previous_amount'   =>  $transaction->getAmount(),
-                                        'amount'                =>  $client_fee + $service_fee,
+                                        'amount'                =>  $service_fee,
                                         'currency'      =>  $transaction->getCurrency(),
                                         'scale'     =>  $transaction->getScale(),
                                         'concept'           =>  $method_in.'-'.$method_out.'->fee',
