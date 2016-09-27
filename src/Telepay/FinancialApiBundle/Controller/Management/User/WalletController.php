@@ -1266,8 +1266,6 @@ class WalletController extends RestApiController{
         if($senderWallet == null) throw new HttpException(404, 'Sender Wallet not found');
         if($receiverWallet == null) throw new HttpException(404, 'Receiver Wallet not found');
 
-        if($amount > $senderWallet->getAvailable()) throw new HttpException(404, 'Not funds enough. ' . $amount . '>' . $senderWallet->getAvailable());
-
         //getFees
         $fees = $userGroup->getCommissions();
 
@@ -1283,6 +1281,12 @@ class WalletController extends RestApiController{
 
         $price = $this->_getExchangePrice($amount, $from, $to);
 
+        //check available in the senderWallet
+        if($amount > $senderWallet->getAvailable()) throw new HttpException(404, 'Not funds enough. ' . $amount . '>' . $senderWallet->getAvailable());
+
+        //check available in the receiver wallet
+        $total_fee = $fixed_fee + $variable_fee;
+        if($total_fee > $receiverWallet->getAvailable()) throw new HttpException(403, 'No funds enough in the receiver wallet');
 
         $dm = $this->get('doctrine_mongodb')->getManager();
         //cashOut transaction
@@ -1354,7 +1358,6 @@ class WalletController extends RestApiController{
         $em->flush();
 
         //dealer
-        $total_fee = $fixed_fee + $variable_fee;
 
         if( $total_fee != 0){
             //nueva transaccion restando la comision al user
