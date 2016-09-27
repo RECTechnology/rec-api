@@ -9,7 +9,7 @@ services:
     net.telepay.ticker.BTCxFAC:
         class: Telepay\FinancialApiBundle\Financial\Ticker\BittrexTicker
         arguments:
-            - "@net.telepay.ticker.bittrex"
+            - "@net.telepay.driver.bittrex"
             - "btc_fac"
 
     net.telepay.ticker.BTCxEUR:
