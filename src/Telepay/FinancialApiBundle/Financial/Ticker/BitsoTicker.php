@@ -22,27 +22,26 @@ class BitsoTicker implements TickerInterface {
         $this->direction = $direction;
     }
 
-    public function getPrice()
-    {
+    public function getPrice(){
         $resp = $this->bitsoDriver->ticker('btc_mxn');
         if(!$resp->bid) throw new \LogicException("Failed getting BTC <-> MXN price");
         if($this->direction == 'btc_mxn')
             return $resp->bid;
         if($this->direction == 'mxn_btc')
-            return $resp->ask;
+            return 1.0/$resp->ask;
     }
 
-    public function getInCurrency()
-    {
-
-        return Currency::$BTC;
-
+    public function getInCurrency(){
+        if($this->direction == 'btc_mxn')
+            return Currency::$BTC;
+        if($this->direction == 'mxn_btc')
+            return Currency::$MXN;
     }
 
-    public function getOutCurrency()
-    {
-
-        return Currency::$MXN;
-
+    public function getOutCurrency(){
+        if($this->direction == 'btc_mxn')
+            return Currency::$MXN;
+        if($this->direction == 'mxn_btc')
+            return Currency::$BTC;
     }
 }
