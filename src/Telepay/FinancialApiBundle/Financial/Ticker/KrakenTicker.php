@@ -42,7 +42,7 @@ class KrakenTicker implements TickerInterface {
         elseif($this->type == 'ask'){
             $price = $this->krakenDriver->QueryPublic(
                 'Ticker', array('pair' => $this->krakenMarket)
-            )['result'][$this->krakenMarket]['b'][0];
+            )['result'][$this->krakenMarket]['a'][0];
             return 1.0/$price;
         }
     }
