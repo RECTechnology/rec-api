@@ -60,7 +60,7 @@ class PublicController extends RestApiController{
                     $number = pow(10,$scale);
                     $price_ask = $this->_exchange($number, $currency, $default_currency);
                     $ask[$currency.'x'.$default_currency] = round($price_ask, $default_currency_scale + 1);
-                    $price_bid = 1.0/$this->_exchange($number, $default_currency, $currency);
+                    $price_bid = $this->_exchangeInverse($number, $currency, $default_currency);
                     $bid[$currency.'x'.$default_currency] = round($price_bid, $default_currency_scale + 1);
                     $result[$currency.'x'.$default_currency] = round(($price_ask + $price_bid)/2, $default_currency_scale + 1);
                 }catch (HttpException $e){
@@ -174,15 +174,22 @@ class PublicController extends RestApiController{
             array('src'=>$curr_in,'dst'=>$curr_out),
             array('id'=>'DESC')
         );
-
         if(!$exchange) throw new HttpException(404,'Exchange not found -> '.$curr_in.' TO '.$curr_out);
-
         $price = $exchange->getPrice();
-
         $total = $amount * $price;
-
         return $total;
-
     }
 
+    public function _exchangeInverse($amount,$curr_in,$curr_out){
+        $dm=$this->getDoctrine()->getManager();
+        $exchangeRepo=$dm->getRepository('TelepayFinancialApiBundle:Exchange');
+        $exchange = $exchangeRepo->findOneBy(
+            array('src'=>$curr_out,'dst'=>$curr_in),
+            array('id'=>'DESC')
+        );
+        if(!$exchange) throw new HttpException(404,'Exchange not found -> '.$curr_in.' TO '.$curr_out);
+        $price = 1.0/($exchange->getPrice());
+        $total = $amount * $price;
+        return $total;
+    }
 }
