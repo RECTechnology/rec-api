@@ -166,7 +166,7 @@ class POSIncomingController extends RestApiController{
         $signature_test = hash_hmac('sha256', $data_to_sign, $group->getAccessSecret());
 
         if($dataIn['signature'] != $signature_test) {
-            throw new HttpException(404, 'Bad signature');
+            //throw new HttpException(404, 'Bad signature');
         }
 
         if($request->request->has('currency_out')){
