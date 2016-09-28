@@ -196,8 +196,8 @@ class POSIncomingController extends RestApiController{
         if(strtoupper($dataIn['currency_in']) != $pos_config['currency']){
             $exchange = $em->getRepository('TelepayFinancialApiBundle:Exchange')->findOneBy(
                 array(
-                    'src'   =>  $dataIn['currency_in'],
-                    'dst'   =>  $pos_config['currency']
+                    'dst'   =>  $dataIn['currency_in'],
+                    'src'   =>  $pos_config['currency']
                 ),
                 array('id'  =>  'DESC')
             );
