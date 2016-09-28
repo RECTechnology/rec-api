@@ -201,20 +201,25 @@ class POSIncomingController extends RestApiController{
                 ),
                 array('id'  =>  'DESC')
             );
-            $pos_amount = round($dataIn['amount']*$exchange->getPrice(),0);
+            $pos_amount = round($dataIn['amount']*(1.0 / $exchange->getPrice()),0);
         }else{
             $pos_amount = $dataIn['amount'];
         }
 
         if(strtoupper($dataIn['currency_out']) != $pos_config['currency']){
-            $exchange = $em->getRepository('TelepayFinancialApiBundle:Exchange')->findOneBy(
-                array(
-                    'src'   =>  $pos_config['currency'],
-                    'dst'   =>  $dataIn['currency_out']
-                ),
-                array('id'  =>  'DESC')
-            );
-            $amount = round($pos_amount * $exchange->getPrice(),0);
+            if($dataIn['currency_out'] == $dataIn['currency_in']){
+                $amount = $dataIn['amount'];
+            }
+            else {
+                $exchange = $em->getRepository('TelepayFinancialApiBundle:Exchange')->findOneBy(
+                    array(
+                        'src' => $pos_config['currency'],
+                        'dst' => $dataIn['currency_out']
+                    ),
+                    array('id' => 'DESC')
+                );
+                $amount = round($pos_amount * $exchange->getPrice(), 0);
+            }
         }else{
             $amount = $pos_amount;
         }
