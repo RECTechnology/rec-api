@@ -392,5 +392,5 @@ services:
             - "pos_sabadell"
             - "EUR"
             - "EUR"
-            - "EUR"
+            - "EUR/MXN/USD/PLN/FAC/BTC"
             - "EUR/MXN/USD/PLN/FAC/BTC"
