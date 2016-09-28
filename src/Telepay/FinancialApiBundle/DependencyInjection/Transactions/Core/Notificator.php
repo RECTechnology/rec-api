@@ -49,7 +49,14 @@ class Notificator {
                 'pay_out_info'  =>   $transaction->getPayOutInfo()
             );
         }else{
-            $data = $transaction->getDataOut();
+            $type = $transaction->getType();
+            $type = explode('-', $type);
+            if($type[0] == 'POS'){
+                $data = $transaction->getPayInInfo();
+                $amount = $transaction->getPayInInfo()['amount'];
+            }else{
+                $data = $transaction->getDataOut();
+            }
         }
 
         $key = $group->getAccessSecret();
@@ -66,7 +73,7 @@ class Notificator {
             'data'      =>  json_encode($data)
         );
 
-        if(isset($transaction->getDataIn()['order_id'])) $params['order_id'] = $transaction->getDataIn()['order_id'];
+        if(isset($transaction->getPayInInfo()['order_id'])) $params['order_id'] = $transaction->getPayInInfo()['order_id'];
 
         // create curl resource
         $ch = curl_init();
