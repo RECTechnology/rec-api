@@ -319,7 +319,8 @@ class POSIncomingController extends RestApiController{
             $parameters = "";
             $signature = "";
             $paymentInfo = array(
-                'amount' => $amount,
+                'amount'    =>  $pos_amount,
+                'previous_amount'    =>  $pos_amount,
                 'currency' => 'EUR',
                 'scale' => Currency::$SCALE['EUR'],
                 'transaction_pos_id' => $trans_pos_id,
