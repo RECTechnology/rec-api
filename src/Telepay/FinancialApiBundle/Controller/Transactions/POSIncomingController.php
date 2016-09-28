@@ -151,8 +151,7 @@ class POSIncomingController extends RestApiController{
             'url_notification',
             'url_ok',
             'url_ko',
-            'order_id',
-            'signature'
+            'order_id'
         );
 
         $dataIn = array();
@@ -162,11 +161,13 @@ class POSIncomingController extends RestApiController{
             else $dataIn[$paramName] = $request->get($paramName);
         }
 
-        $data_to_sign = $dataIn['order_id'] . $id . $dataIn['amount'];
-        $signature_test = hash_hmac('sha256', $data_to_sign, $group->getAccessSecret());
-
-        if($dataIn['signature'] != $signature_test) {
-            //throw new HttpException(404, 'Bad signature');
+        if($request->request->has('signature') && $request->request->get('signature')!='x'){
+            $dataIn['signature'] = $request->request->get('signature');
+            $data_to_sign = $dataIn['order_id'] . $id . $dataIn['amount'];
+            $signature_test = hash_hmac('sha256', $data_to_sign, $group->getAccessSecret());
+            if($dataIn['signature'] != $signature_test) {
+                throw new HttpException(404, 'Bad signature');
+            }
         }
 
         if($request->request->has('currency_out')){
