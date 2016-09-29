@@ -193,7 +193,7 @@ class SwiftController extends RestApiController{
             ));
         }else{
             $total = round($amount + $total_fee, 0);
-            $amount_in = 1.0/$this->_exchange($total, $cashInMethod->getCurrency(), $cashOutMethod->getCurrency());
+            $amount_in = $this->_exchangeInversed($total, $cashInMethod->getCurrency(), $cashOutMethod->getCurrency());
         }
 
         //ADD AND CHECK LIMITS
@@ -855,6 +855,19 @@ class SwiftController extends RestApiController{
 
         return $total;
 
+    }
+
+    private function _exchangeInversed($amount,$curr_in,$curr_out){
+        $dm=$this->getDoctrine()->getManager();
+        $exchangeRepo=$dm->getRepository('TelepayFinancialApiBundle:Exchange');
+        $exchange = $exchangeRepo->findOneBy(
+            array('src'=>$curr_in,'dst'=>$curr_out),
+            array('id'=>'DESC')
+        );
+        if(!$exchange) throw new HttpException(404,'Exchange not found -> '.$curr_in.' TO '.$curr_out);
+        $price = 1.0/$exchange->getPrice();
+        $total = round($amount * $price,0);
+        return $total;
     }
 
     private function _generateFees(Transaction $transaction, $method_in, $method_out){
