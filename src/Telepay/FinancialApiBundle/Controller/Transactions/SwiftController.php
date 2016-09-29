@@ -193,7 +193,7 @@ class SwiftController extends RestApiController{
             ));
         }else{
             $total = round($amount + $total_fee, 0);
-            $amount_in = $this->_exchange($total, $cashInMethod->getCurrency(), $cashOutMethod->getCurrency());
+            $amount_in = 1.0/$this->_exchange($total, $cashInMethod->getCurrency(), $cashOutMethod->getCurrency());
         }
 
         //ADD AND CHECK LIMITS

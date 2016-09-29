@@ -508,6 +508,116 @@ class POSIncomingController extends RestApiController{
         );
     }
 
+    public function notificate(Request $request, $id){
+        $dm = $this->get('doctrine_mongodb')->getManager();
+        $transaction = $dm->getRepository('TelepayFinancialApiBundle:Transaction')->find($id);
+
+        if(!$transaction) throw new HttpException(400,'Transaction not found');
+        if($transaction->getNotified() == true) throw new HttpException(409,'Duplicate notification');
+        $status = $request->request->get('status');
+        $received_params = $request->request->has('params')?$request->request->get('params'):'Params not received';
+        $transaction->setDebugData($received_params);
+        if ($status == 1){
+            //set transaction cancelled
+            $transaction->setStatus('success');
+            //TODO update wallet and deal fees
+
+            $group_id = $transaction->getGroup();
+            //search group to get wallet
+            $em = $this->getDoctrine()->getManager();
+            $group = $em->getRepository('TelepayFinancialApiBundle:Group')->find($group_id);
+            //Search wallet
+            $wallets = $group->getWallets();
+
+            $current_wallet = null;
+            foreach($wallets as $wallet ){
+                if($wallet->getCurrency() == $transaction->getCurrency()){
+                    $current_wallet = $wallet;
+                }
+            }
+
+            $amount = $transaction->getAmount();
+            $total_fee = $transaction->getVariableFee() + $transaction->getFixedFee();
+            $total = $amount - $total_fee;
+
+            //sumar al group el amount completo
+            $current_wallet->setAvailable($current_wallet->getAvailable() + $total);
+            $current_wallet->setBalance($current_wallet->getBalance() + $total);
+
+            $balancer = $this->get('net.telepay.commons.balance_manipulator');
+            $balancer->addBalance($group, $amount, $transaction);
+
+            $em->persist($current_wallet);
+            $em->flush();
+
+            if($total_fee != 0){
+                // nueva transaccion restando la comision al group
+                try{
+                    $this->_dealer($transaction, $current_wallet);
+                }catch (HttpException $e){
+                    throw $e;
+                }
+            }
+        }else{
+            //set transaction success
+            $transaction->setStatus('cancelled');
+        }
+        $transaction->setUpdated(new \MongoDate());
+        $dm->persist($transaction);
+        $dm->flush();
+        $transaction = $this->get('notificator')->notificate($transaction);
+        return $this->restV2(200, "ok", "Notification successful");
+    }
+
+    private function _dealer(Transaction $transaction, UserWallet $current_wallet){
+
+        $amount = $transaction->getAmount();
+        $currency = $transaction->getCurrency();
+        $service_cname = $transaction->getService();
+
+        $em = $this->getDoctrine()->getManager();
+
+        $total_fee = $transaction->getFixedFee() + $transaction->getVariableFee();
+
+        $group = $em->getRepository('TelepayFinancialApiBundle:Group')->find($transaction->getGroup());
+
+        $feeTransaction = Transaction::createFromTransaction($transaction);
+        $feeTransaction->setAmount($total_fee);
+        $feeTransaction->setDataIn(array(
+            'previous_transaction'  =>  $transaction->getId(),
+            'amount'                =>  -$total_fee,
+            'description'           =>  $service_cname.'->fee'
+        ));
+        $feeTransaction->setData(array(
+            'previous_transaction'  =>  $transaction->getId(),
+            'amount'                =>  -$total_fee,
+            'type'                  =>  'resta_fee'
+        ));
+        $feeTransaction->setDebugData(array(
+            'previous_balance'  =>  $current_wallet->getBalance(),
+            'previous_transaction'  =>  $transaction->getId()
+        ));
+
+        $feeTransaction->setTotal(-$total_fee);
+
+        $mongo = $this->get('doctrine_mongodb')->getManager();
+        $mongo->persist($feeTransaction);
+        $mongo->flush();
+
+        $balancer = $this->get('net.telepay.commons.balance_manipulator');
+        $balancer->addBalance($group, -$total_fee, $feeTransaction );
+
+        //empezamos el reparto
+        $creator = $group->getCreator();
+
+        if(!$creator) throw new HttpException(404,'Creator not found');
+
+        $transaction_id = $transaction->getId();
+        $dealer = $this->get('net.telepay.commons.fee_deal');
+        $dealer->deal($creator, $amount, $service_cname, $currency, $total_fee, $transaction_id, $transaction->getVersion());
+
+    }
+
     private function _getFees(Group $group, $method, $currency){
 
         $em = $this->getDoctrine()->getManager();
