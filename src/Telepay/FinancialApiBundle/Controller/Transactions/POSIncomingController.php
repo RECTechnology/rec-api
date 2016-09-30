@@ -516,7 +516,7 @@ class POSIncomingController extends RestApiController{
         if($transaction->getNotified() == true) throw new HttpException(409,'Duplicate notification');
         $status = $request->request->get('status');
         $received_params = $request->request->has('params')?$request->request->get('params'):'Params not received';
-        $transaction->setDebugData($received_params);
+        $transaction->setDebugData(array($received_params));
         if ($status == 1){
             //set transaction cancelled
             $transaction->setStatus('success');
