@@ -522,46 +522,49 @@ class POSIncomingController extends RestApiController{
             $transaction->setStatus('success');
             //TODO update wallet and deal fees
 
-            $group_id = $transaction->getGroup();
-            //search group to get wallet
-            $em = $this->getDoctrine()->getManager();
-            $group = $em->getRepository('TelepayFinancialApiBundle:Group')->find($group_id);
-            //Search wallet
-            $wallets = $group->getWallets();
+            if(strtoupper($transaction->getService()) != 'POS-SABADELL'){
+                $group_id = $transaction->getGroup();
+                //search group to get wallet
+                $em = $this->getDoctrine()->getManager();
+                $group = $em->getRepository('TelepayFinancialApiBundle:Group')->find($group_id);
+                //Search wallet
+                $wallets = $group->getWallets();
 
-            $current_wallet = null;
-            foreach($wallets as $wallet ){
-                if($wallet->getCurrency() == $transaction->getCurrency()){
-                    $current_wallet = $wallet;
+
+                $current_wallet = null;
+                foreach($wallets as $wallet ){
+                    if($wallet->getCurrency() == $transaction->getCurrency()){
+                        $current_wallet = $wallet;
+                    }
                 }
-            }
 
-            $amount = $transaction->getAmount();
-            $total_fee = $transaction->getVariableFee() + $transaction->getFixedFee();
-            $total = $amount - $total_fee;
+                $amount = $transaction->getAmount();
+                $total_fee = $transaction->getVariableFee() + $transaction->getFixedFee();
+                $total = $amount - $total_fee;
 
-            //sumar al group el amount completo
-            $current_wallet->setAvailable($current_wallet->getAvailable() + $total);
-            $current_wallet->setBalance($current_wallet->getBalance() + $total);
+                //sumar al group el amount completo
+                $current_wallet->setAvailable($current_wallet->getAvailable() + $total);
+                $current_wallet->setBalance($current_wallet->getBalance() + $total);
 
-            $balancer = $this->get('net.telepay.commons.balance_manipulator');
-            $balancer->addBalance($group, $amount, $transaction);
+                $balancer = $this->get('net.telepay.commons.balance_manipulator');
+                $balancer->addBalance($group, $amount, $transaction);
 
-            $em->persist($current_wallet);
-            $em->flush();
+                $em->persist($current_wallet);
+                $em->flush();
 
-            if($total_fee != 0){
-                // nueva transaccion restando la comision al group
-                try{
-                    $this->_dealer($transaction, $current_wallet);
-                }catch (HttpException $e){
-                    throw $e;
+                if($total_fee != 0){
+                    // nueva transaccion restando la comision al group
+                    try{
+                        $this->_dealer($transaction, $current_wallet);
+                    }catch (HttpException $e){
+                        throw $e;
+                    }
                 }
             }
         }else{
-            //set transaction success
             $transaction->setStatus('cancelled');
         }
+
         $transaction->setUpdated(new \MongoDate());
         $dm->persist($transaction);
         $dm->flush();
