@@ -64,6 +64,8 @@ class FeeDeal{
             $fixed = $group_commission->getFixed();
             $variable = $group_commission->getVariable();
 
+            $logger->info('Group(' . $group->getId() . ') Comission: ' . $fixed . " fixed, " . $variable . " variable");
+
             $total = round($fixed + ($variable/100) * $amount,0);
         }else{
             $logger->info('make transaction -> deal superadmin');
@@ -132,10 +134,9 @@ class FeeDeal{
                 $dm->flush();
 
                 $logger->info('make transaction -> deal id fee => '.$transaction->getId());
+                $logger->info('Add Balance->' . $creator->getId() . " amount = " . $fee . " Trans group: " . $transaction->getGroup());
                 $this->balance_manipulator->addBalance($creator, $fee, $transaction);
-
                 $id = $transaction->getId();
-
             }
         }
 
