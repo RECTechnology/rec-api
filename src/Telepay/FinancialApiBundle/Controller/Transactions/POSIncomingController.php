@@ -290,7 +290,8 @@ class POSIncomingController extends RestApiController{
                 'min_confirmations' =>  0,
                 'confirmations' =>  1,
                 'url_ok'    =>  $dataIn['url_ok'],
-                'url_ko'    =>  $dataIn['url_ko']
+                'url_ko'    =>  $dataIn['url_ko'],
+                'order_id'  =>  $dataIn['order_id']
             );
         }elseif($posType == 'FAC'){
             $address = $this->generateAddress($posType);

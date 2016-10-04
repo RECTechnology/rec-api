@@ -53,7 +53,7 @@ class Notificator {
             $type = explode('-', $type);
             if($type[0] == 'POS'){
                 $data = $transaction->getPayInInfo();
-                $amount = $transaction->getPayInInfo()['amount'];
+                $amount = $transaction->getPayInInfo()['received_amount'];
             }else{
                 $data = $transaction->getDataOut();
             }
