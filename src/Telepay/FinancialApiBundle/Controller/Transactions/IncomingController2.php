@@ -275,6 +275,7 @@ class IncomingController2 extends RestApiController{
                     //nueva transaccion restando la comision al user
                     try{
                         //TODO modificar dealer
+                        $logger->info('Init Dealer: ' . $transaction->getAmount() . " : " . $current_wallet->getBalance() . " : " . $total);
                         $this->_dealer($transaction, $current_wallet);
                     }catch (HttpException $e){
                         throw $e;
@@ -983,7 +984,9 @@ class IncomingController2 extends RestApiController{
         $total_fee = $transaction->getFixedFee() + $transaction->getVariableFee();
         $group = $em->getRepository('TelepayFinancialApiBundle:Group')->find($transaction->getGroup());
         $creator = $group->getGroupCreator();
+        $logger->info('Group: ' . $group->getId() . " created by " . $creator->getId() . " : -" . $total_fee);
 
+        //Fee negativa para el usuario que ha hecho la transaction
         $feeTransaction = Transaction::createFromTransaction($transaction);
         $feeTransaction->setMethod($method_cname);
         $feeTransaction->setAmount($total_fee);
