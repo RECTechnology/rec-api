@@ -335,7 +335,7 @@ class IncomingController2 extends RestApiController{
 
         if(!$this->get('security.context')->isGranted('ROLE_WORKER')) throw new HttpException(403, 'You don\' have the necessary permissions');
 
-        $logger = $this->get('logger');
+        $logger = $this->get('transaction.logger');
         $logger->info('Update transaction');
 
         $user = $this->get('security.context')->getToken()->getUser();
