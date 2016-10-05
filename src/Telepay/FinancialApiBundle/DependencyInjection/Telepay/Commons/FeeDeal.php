@@ -43,11 +43,9 @@ class FeeDeal{
         //if creator is distinct to group root
         if($creator->getId() != $rootGroupId){
             $logger->info('make transaction -> deal not superadmin');
-            //obtenemos el grupo
-            $group = $creator->getGroupCreator();
 
             //obtener comissiones del grupo
-            $commissions = $group->getCommissions();
+            $commissions = $creator->getCommissions();
             $group_commission = false;
 
             $cname = $service_cname;
@@ -64,7 +62,7 @@ class FeeDeal{
             $fixed = $group_commission->getFixed();
             $variable = $group_commission->getVariable();
 
-            $logger->info('Group(' . $group->getId() . ') Comission: ' . $fixed . " fixed, " . $variable . " variable");
+            $logger->info('Group(' . $creator->getId() . ') Comission: ' . $fixed . " fixed, " . $variable . " variable");
 
             $total = round($fixed + ($variable/100) * $amount,0);
         }else{
