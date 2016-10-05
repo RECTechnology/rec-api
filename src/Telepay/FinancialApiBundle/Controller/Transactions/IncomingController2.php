@@ -973,7 +973,7 @@ class IncomingController2 extends RestApiController{
 
     private function _dealer(Transaction $transaction, UserWallet $current_wallet){
 
-        $logger = $this->get('logger');
+        $logger = $this->get('transaction.logger');
         $logger->info('make transaction -> dealer');
         $amount = $transaction->getAmount();
         $currency = $transaction->getCurrency();

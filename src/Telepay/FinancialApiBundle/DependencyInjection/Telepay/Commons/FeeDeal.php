@@ -38,7 +38,7 @@ class FeeDeal{
     public function deal(Group $creator, $amount, $service_cname, $type, $currency, $fee, $transaction_id, $version){
 
         //TODO hay que cambiar esto porque ya no va al user superadmin si no al grupo root
-        $logger = $this->container->get('logger');
+        $logger = $this->container->get('transaction.logger');
         $rootGroupId = $this->container->getParameter('id_group_root');
         //if creator is distinct to group root
         if($creator->getId() != $rootGroupId){
