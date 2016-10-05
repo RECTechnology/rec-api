@@ -171,6 +171,7 @@ class POSIncomingController extends RestApiController{
             $data_to_sign = $dataIn['order_id'] . $id . $dataIn['amount'];
             $signature_test = hash_hmac('sha256', $data_to_sign, $group->getAccessSecret());
             $logger->info('POS data_to_sign => '.$data_to_sign. ' calculated signature => '.$signature_test.' received signature => '.$dataIn['signature']);
+            $logger->info('POS SECRET => '.$group->getAccessSecret());
             if($dataIn['signature'] != $signature_test) {
                 throw new HttpException(404, 'Bad signature');
             }
