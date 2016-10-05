@@ -131,6 +131,8 @@ class POSIncomingController extends RestApiController{
      */
     public function createTransactionV2(Request $request,  $id){
 
+        $logger = $this->get('transaction.logger');
+        $logger->info('POS transaction V2');
         $em = $this->getDoctrine()->getManager();
         $tpvRepo = $em->getRepository('TelepayFinancialApiBundle:POS')->findOneBy(array(
             'pos_id'    =>  $id
@@ -139,6 +141,8 @@ class POSIncomingController extends RestApiController{
         $posType = $tpvRepo->getType();
 
         $group = $tpvRepo->getGroup();
+
+        $logger->info('POS ID => '.$id.' COMPANY => '.$group->getName().'( '.$group->getId().' ) TYPE => '.$posType);
 
         if($tpvRepo->getActive() == 0) throw new HttpException(400, 'Service Temporally unavailable');
 
@@ -154,6 +158,7 @@ class POSIncomingController extends RestApiController{
             'order_id'
         );
 
+        $logger->info('POS GETTING PARAMS');
         $dataIn = array();
         foreach($paramNames as $paramName){
             if(!$request->request->has($paramName))
@@ -165,6 +170,7 @@ class POSIncomingController extends RestApiController{
             $dataIn['signature'] = $request->request->get('signature');
             $data_to_sign = $dataIn['order_id'] . $id . $dataIn['amount'];
             $signature_test = hash_hmac('sha256', $data_to_sign, $group->getAccessSecret());
+            $logger->info('POS data_to_sign => '.$data_to_sign. ' calculated signature => '.$signature_test.' received signature => '.$dataIn['signature']);
             if($dataIn['signature'] != $signature_test) {
                 throw new HttpException(404, 'Bad signature');
             }
@@ -175,6 +181,8 @@ class POSIncomingController extends RestApiController{
         }else{
             $dataIn['currency_out'] = $pos_config['default_currency'];
         }
+
+        $logger->info('POS currency_in => '.$dataIn['currency_in'].' currency_out => '.$dataIn['currency_out']);
 
         $dm = $this->get('doctrine_mongodb')->getManager();
 
@@ -346,6 +354,7 @@ class POSIncomingController extends RestApiController{
         $dm->persist($transaction);
         $dm->flush();
         if($transaction == false) throw new HttpException(500, "oOps, some error has occurred within the call");
+        $logger->info('POS finish');
         return $this->posTransaction(201, $transaction, "Done");
     }
 
