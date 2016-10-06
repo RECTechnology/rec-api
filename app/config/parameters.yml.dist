@@ -111,6 +111,8 @@ parameters:
     swift_client_id_default: ''
     commerce_client_id: ''
     swift_client_id_default_fac: ''
+    swift_client_id_default_easypay: ''
+    admin_user_id_easypay: ''
 
     chipchap_user_id : 16
     read_only_user_id : 16

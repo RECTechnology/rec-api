@@ -39,6 +39,11 @@ class SwiftController extends RestApiController{
             $admin_id = $this->container->getParameter('admin_user_id_fac');
             $client_default_id = $this->container->getParameter('swift_client_id_default_fac');
         }
+
+        if($type_in == "easypay"){
+            $admin_id = $this->container->getParameter('admin_user_id_easypay');
+            $client_default_id = $this->container->getParameter('swift_client_id_default_easypay');
+        }
         $admin = $em->getRepository('TelepayFinancialApiBundle:User')->findOneById($admin_id);
 
         if ($this->get('security.authorization_checker')->isGranted('IS_AUTHENTICATED_FULLY')) {
