@@ -43,7 +43,7 @@ class KrakenWallet implements WalletInterface, TraderInterface, MiniumBalanceInt
 
 
     public function getAddress(){
-        $oneWeekLess6Hours = time() + (3 * 24 * 60 * 60);
+        $oneWeekLess6Hours = time() + (6.5 * 24 * 60 * 60);
         $old = $this->krakenDriver->QueryPrivate(
             'DepositAddresses',
             array(

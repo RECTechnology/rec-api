@@ -45,8 +45,13 @@ services:
             - "%bitcoind_host%"
             - "%bitcoind_port%"
 
-    net.telepay.driver.easybitcoin2.btc:
-        class: Telepay\FinancialApiBundle\Financial\Driver\EasyBitcoinDriver2
+    net.telepay.driver.easybitcoinGreek.btc:
+        class: Telepay\FinancialApiBundle\Financial\Driver\EasyBitcoinDriver
+        arguments:
+            - "%bitcoind_user_greek%"
+            - "%bitcoind_pass_greek%"
+            - "%bitcoind_host_greek%"
+            - "%bitcoind_port_greek%"
 
     net.telepay.driver.easybitcoin.fac:
         class: Telepay\FinancialApiBundle\Financial\Driver\EasyBitcoinDriver

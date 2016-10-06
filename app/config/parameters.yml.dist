@@ -35,6 +35,11 @@ parameters:
     bitcoind_host: localhost
     bitcoind_port: 8333
 
+    bitcoind_user_greek: btcuser
+    bitcoind_pass_greek: btcpass
+    bitcoind_host_greek: localhost
+    bitcoind_port_greek: 8333
+
     faircoind_user: facuser
     faircoind_pass: facpass
     faircoind_host: localhost
