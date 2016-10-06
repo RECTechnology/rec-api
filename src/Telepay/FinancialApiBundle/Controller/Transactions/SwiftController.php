@@ -53,7 +53,7 @@ class SwiftController extends RestApiController{
 
             //transaction authenticated with user/pass or credentials
             $user = $this->container->get('security.context')->getToken()->getUser();
-            $logger->info('SWIFT IS_AUTHENTICATED_FULLY => '.$user->getEmail());
+            $logger->info('SWIFT IS_AUTHENTICATED_FULLY => ');
             $tokenManager = $this->container->get('fos_oauth_server.access_token_manager.default');
             $accessToken = $tokenManager->findTokenByToken(
                 $this->container->get('security.context')->getToken()->getToken()
