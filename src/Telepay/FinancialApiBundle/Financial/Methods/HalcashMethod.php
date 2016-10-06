@@ -131,7 +131,7 @@ class HalcashMethod extends BaseMethod{
         if(!$this->checkPhone($params['phone'], $params['prefix'])) throw new Exception('Invalid phone.',400);
 
         if(array_key_exists('pin', $data)){
-            $pin = $params['pin'];
+            $pin = $data['pin'];
         }else{
             $pin = rand(1000,9999);
         }
