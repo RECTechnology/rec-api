@@ -28,6 +28,9 @@ class SwiftController extends RestApiController{
 
     public function make(Request $request, $version_number, $type_in, $type_out){
 
+        $logger = $this->get('transaction.logger');
+        $logger->info('SWIFT transaction');
+
         $dm = $this->get('doctrine_mongodb')->getManager();
         $em = $this->getDoctrine()->getManager();
 
@@ -39,27 +42,41 @@ class SwiftController extends RestApiController{
             $admin_id = $this->container->getParameter('admin_user_id_fac');
             $client_default_id = $this->container->getParameter('swift_client_id_default_fac');
         }
+
+        if($type_in == "easypay"){
+            $admin_id = $this->container->getParameter('admin_user_id_easypay');
+            $client_default_id = $this->container->getParameter('swift_client_id_default_easypay');
+        }
         $admin = $em->getRepository('TelepayFinancialApiBundle:User')->findOneById($admin_id);
 
         if ($this->get('security.authorization_checker')->isGranted('IS_AUTHENTICATED_FULLY')) {
 
             //transaction authenticated with user/pass or credentials
             $user = $this->container->get('security.context')->getToken()->getUser();
-
+            $logger->info('SWIFT IS_AUTHENTICATED_FULLY => ');
             $tokenManager = $this->container->get('fos_oauth_server.access_token_manager.default');
             $accessToken = $tokenManager->findTokenByToken(
                 $this->container->get('security.context')->getToken()->getToken()
             );
-            $client = $accessToken->getClient();
+
+            if($type_in == "easypay"){
+                $client = $em->getRepository('TelepayFinancialApiBundle:Client')->findOneById($client_default_id);
+            }else{
+                $client = $accessToken->getClient();
+            }
+
             if(!$user){
 //                $user = $client->getUser();
             }
 
         }else{
+            $logger->info('SWIFT IS_NOT_AUTHENTICATED');
             $user = $admin;
             $client = $em->getRepository('TelepayFinancialApiBundle:Client')->findOneById($client_default_id);
 
         }
+
+        $logger->info('SWIFT type_in=> '.$type_in.' type_out=> '.$type_out.' admin_id=> '.$admin_id.' client_id=> '.$client_default_id);
 
         //check if user has this service and if is active
         $services = $client->getSwiftList();
@@ -90,6 +107,7 @@ class SwiftController extends RestApiController{
         $email = $request->request->get('email')?$request->request->get('email'):'';
         if($email == '' && ($cashInMethod->getEmailRequired() || $cashOutMethod->getEmailRequired())) throw new HttpException(400, 'Email is required');
 
+        $logger->info('SWIFT checkinG KYC');
         $cashInMethod->checkKYC($request);
         $cashOutMethod->checkKYC($request);
 
@@ -131,6 +149,7 @@ class SwiftController extends RestApiController{
 
         if($statusMethod->getStatus() != 'available') throw new HttpException(403, 'Swift method temporally unavailable');
 
+        $logger->info('SWIFT GENERATING TRANSACTION');
         //Create transaction
         $transaction = new Transaction();
         $transaction->createFromRequest($request);
@@ -184,6 +203,8 @@ class SwiftController extends RestApiController{
 
         $total_fee = $client_fee + $service_fee;
 
+        $logger->info('SWIFT amount=>'.$amount.' client_fee=>'.$client_fee.' root_fee=>'.$service_fee);
+
         if($cashOutMethod->getCurrency() != $methodInfo['currency']){
             $total = round($amount_out - $total_fee, 0);
             $amount_out = $total;
@@ -197,6 +218,7 @@ class SwiftController extends RestApiController{
         }
 
         //ADD AND CHECK LIMITS
+        $logger->info('SWIFT checking-adding limits');
         $clientLimitsCount = (new LimitAdder())->add($clientLimitsCount, $total);
         $checker = new LimitChecker();
         if(!$checker->leq($clientLimitsCount , $clientLimits))
@@ -248,6 +270,8 @@ class SwiftController extends RestApiController{
         $price = round($total/($pay_in_info['amount']/1e8),0);
 
         $transaction->setPrice($price);
+
+        $logger->info('SWIFT transaction price=>'.$price);
 
         $transaction->setPayInInfo($pay_in_info);
         $transaction->setDataOut($pay_in_info);
