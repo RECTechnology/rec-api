@@ -118,7 +118,8 @@ security:
         - { path: ^/admin/v[0-9]+/clients, role: ROLE_ADMIN }
         - { path: ^/admin/v[0-9]+/*, role: ROLE_SUPER_ADMIN }
         - { path: ^/manager/v[0-9]+/*, role: ROLE_ADMIN }
-        - { path: ^/services/v[0-9]+/*, role: ROLE_WORKER }
+        - { path: ^/company/v[0-9]+/*, role: ROLE_ADMIN }
+        - { path: ^/services/v[0-9]+/*, role: ROLE_ADMIN }
         - { path: ^/methods/v[0-9]+/*, role: ROLE_WORKER }
 
         - { path: ^/pos/v[0-9]+/transaction/*, role: IS_AUTHENTICATED_ANONYMOUSLY, ip: ["127.0.0.1"] }
