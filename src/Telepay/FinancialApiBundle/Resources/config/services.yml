@@ -66,3 +66,13 @@ services:
         class:     Monolog\Handler\StreamHandler
         arguments: [%kernel.logs_dir%/%kernel.environment%.transaction.log, 200]
 
+    manager.logger:
+        class:     Symfony\Bridge\Monolog\Logger
+        arguments: [manager]
+        calls:
+            - [pushHandler, [@manager.logger_handler]]
+
+    manager.logger_handler:
+        class:     Monolog\Handler\StreamHandler
+        arguments: [%kernel.logs_dir%/%kernel.environment%.manager.log, 200]
+
