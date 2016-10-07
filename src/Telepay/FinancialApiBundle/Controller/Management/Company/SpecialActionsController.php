@@ -149,7 +149,7 @@ class SpecialActionsController extends RestApiController {
 
                     //Generate fee transactions. One for the user and one for the root
                     if($client_fee != 0){
-                        $logger->info('EASYPAY CLIENT FEE=>'.$client_fee);
+                        $logger->info('EASYPAY CLIENT FEE=>'.$client_fee.' fixed=>'.$clientFees->getFixed().' variable=>'.$amount * ($clientFees->getVariable()/100).' ( '.($clientFees->getVariable()/100).'% )');
                         //client fees goes to the user
                         $userFee = new Transaction();
                         if($transaction->getUser()) $transaction->setUser($transaction->getUser());
@@ -202,7 +202,7 @@ class SpecialActionsController extends RestApiController {
 
                     if($service_fee != 0){
                         //service fees goes to root
-                        $logger->info('EASYPAY ROOT FEE=>'.$service_fee);
+                        $logger->info('EASYPAY ROOT FEE=>'.$service_fee.' fixed=>'.$methodFees->getFixed().' variable=>'.$amount * ($methodFees->getVariable()/100).' ( '.($methodFees->getVariable()/100).'% )');
                         $rootFee = new Transaction();
                         $rootFee->setUser($root->getId());
                         $rootFee->setGroup($rootGroup->getId());
