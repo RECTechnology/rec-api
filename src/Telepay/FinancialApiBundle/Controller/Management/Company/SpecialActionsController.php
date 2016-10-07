@@ -47,7 +47,7 @@ class SpecialActionsController extends RestApiController {
         if(!$client) throw new HttpException(404, 'Client default not found');
 
         $user = $this->get('security.context')->getToken()->getUser();
-        $activeCompany = $user->getActiveCompany();
+        $activeCompany = $user->getActiveGroup();
 
         $company = $client->getGroup();
 
