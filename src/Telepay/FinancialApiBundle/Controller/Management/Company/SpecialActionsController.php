@@ -376,7 +376,7 @@ class SpecialActionsController extends RestApiController {
 
     private function _exchange($amount,$curr_in,$curr_out){
 
-        $dm = $this->getContainer()->get('doctrine')->getManager();
+        $dm = $this->get('doctrine')->getManager();
         $exchangeRepo = $dm->getRepository('TelepayFinancialApiBundle:Exchange');
         $exchange = $exchangeRepo->findOneBy(
             array('src'=>$curr_in,'dst'=>$curr_out),
