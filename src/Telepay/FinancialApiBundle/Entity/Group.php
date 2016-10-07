@@ -481,14 +481,10 @@ class Group extends BaseGroup
         unset($this->access_key);
         unset($this->access_secret);
         unset ($this->default_currency);
-
-
         return $this;
     }
 
     public function getUserView(){
-        unset($this->access_key);
-        unset($this->access_secret);
         unset($this->limits);
         unset($this->commissions);
         unset($this->wallets);
@@ -496,7 +492,6 @@ class Group extends BaseGroup
         unset($this->methods_list);
         unset($this->allowed_methods);
         unset($this->comment);
-
         return $this;
     }
 
