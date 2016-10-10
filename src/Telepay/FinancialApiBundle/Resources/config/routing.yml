@@ -41,6 +41,12 @@ validate_email:
     requirements:
         _method: POST
 
+register_from_shop:
+    pattern:  /register/v1/commerce
+    defaults: { _controller: Telepay\FinancialApiBundle\Controller\Management\User\AccountController::registerCommerceAction }
+    requirements:
+        _method: POST
+
 recover_password_request:
     pattern:  /password_recovery/v{version_number}/{param}
     defaults: { _controller: Telepay\FinancialApiBundle\Controller\Management\User\AccountController::passwordRecoveryRequest }

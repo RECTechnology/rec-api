@@ -13,7 +13,11 @@ use Doctrine\DBAL\DBALException;
 use Symfony\Component\Security\Core\Util\SecureRandom;
 use Symfony\Component\Validator\Constraints\Null;
 use Telepay\FinancialApiBundle\Entity\Device;
+use Telepay\FinancialApiBundle\Entity\Group;
 use Telepay\FinancialApiBundle\Entity\KYC;
+use Telepay\FinancialApiBundle\Entity\LimitDefinition;
+use Telepay\FinancialApiBundle\Entity\POS;
+use Telepay\FinancialApiBundle\Entity\ServiceFee;
 use Telepay\FinancialApiBundle\Entity\TierValidations;
 use Telepay\FinancialApiBundle\Entity\User;
 use Rhumsaa\Uuid\Uuid;
@@ -625,6 +629,131 @@ class AccountController extends BaseApiController{
 
             return $resp;
         }
+    }
+
+    /**
+     * @Rest\View
+     */
+    public function registerCommerceAction(Request $request){
+
+        $paramNames = array(
+            'username',
+            'email',
+            'company_name',
+            'password'
+        );
+
+        $params = array();
+
+        foreach($paramNames as $param){
+            if($request->request->has($param)){
+                $params[$param] = $request->request->get($param);
+            }else{
+                throw new HttpException(404, 'Param '.$param.'not found');
+            }
+        }
+
+        $user_creator_id = $this->container->getParameter('default_user_creator_commerce');
+        $company_creator_id = $this->container->getParameter('default_company_creator_commerce');
+
+        $em = $this->getDoctrine()->getManager();
+        $userCreator = $em->getRepository('TelepayFinancialApiBundle:User')->find($user_creator_id);
+        $companyCreator = $em->getRepository('TelepayFinancialApiBundle:Group')->find($company_creator_id);
+
+        //TODO create company
+        $company = new Group();
+        $company->setName($params['company_name']);
+        $company->setActive(true);
+        $company->setCreator($userCreator);
+        $company->setGroupCreator($companyCreator);
+        $company->setRoles(array('ROLE_COMPANY'));
+        $company->setDefaultCurrency('EUR');
+        $company->setEmail($params['email']);
+
+        $em->persist($company);
+
+        //create wallets for this company
+        $currencies = Currency::$ALL;
+        foreach($currencies as $currency){
+            $userWallet = new UserWallet();
+            $userWallet->setBalance(0);
+            $userWallet->setAvailable(0);
+            $userWallet->setCurrency(strtoupper($currency));
+            $userWallet->setGroup($company);
+
+            $em->persist($userWallet);
+        }
+
+        $exchanges = $this->container->get('net.telepay.exchange_provider')->findAll();
+
+        foreach($exchanges as $exchange){
+            //create limit for this group
+            //create fee for this group
+            $limit = new LimitDefinition();
+            $limit->setDay(0);
+            $limit->setWeek(0);
+            $limit->setMonth(0);
+            $limit->setYear(0);
+            $limit->setTotal(0);
+            $limit->setSingle(0);
+            $limit->setCname('exchange_'.$exchange->getCname());
+            $limit->setCurrency($exchange->getCurrencyOut());
+            $limit->setGroup($company);
+
+            $fee = new ServiceFee();
+            $fee->setFixed(0);
+            $fee->setVariable(0);
+            $fee->setCurrency($exchange->getCurrencyOut());
+            $fee->setServiceName('exchange_'.$exchange->getCname());
+            $fee->setGroup($company);
+
+            $em->persist($limit);
+            $em->persist($fee);
+
+        }
+
+        //TODO create user
+        $user = new User();
+        $user->setPassword($params['password']);
+        $user->setEmail($params['email']);
+        $user->setRoles(array('ROLE_ADMIN'));
+        $user->setName($params['username']);
+        $user->setUsername($params['username']);
+        $user->addGroup($company);
+        $user->setActiveGroup($company);
+
+        $url = $this->container->getParameter('base_panel_url');
+
+        $tokenGenerator = $this->container->get('fos_user.util.token_generator');
+        $user->setConfirmationToken($tokenGenerator->generateToken());
+        $em->persist($user);
+        $em->flush();
+        $url = $url.'/user/validation/'.$user->getConfirmationToken();
+        $this->_sendEmail('Chip-Chap validation e-mail', $url, $user->getEmail(), 'register');
+
+
+        //TODO create POS-Btc in eur
+        $pos = new POS();
+        $pos->setName($params['company_name']);
+        $pos->setActive(true);
+        $pos->setCurrency('BTC');
+        $pos->setExpiresIn(1200);
+        $pos->setGroup($company);
+        $pos->setType('BTC');
+        $pos->setPosId(uniqid());
+        $pos->setCname('POS-BTC');
+
+        $em->persist($pos);
+        $em->flush();
+
+        $response = array(
+            'user'  =>  $user,
+            'company'   =>  $company,
+            'pos'   =>  $pos
+        );
+
+        return $this->restV2(201,"ok", "Request successful", $response);
+
     }
 
     /**

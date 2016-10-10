@@ -172,13 +172,13 @@ class Transaction implements TransactionTiming {
 
     /**
      * @var
-     * @MongoDB\Int
+     * @MongoDB\Field(type="int")
      */
     private $user;
 
     /**
      * @var
-     * @MongoDB\Int
+     * @MongoDB\Field(type="int")
      */
     private $group;
 
