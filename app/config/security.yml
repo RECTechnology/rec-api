@@ -128,6 +128,7 @@ security:
 
         - { path: ^/user/v[0-9]+/*, role: ROLE_USER }
         - { path: ^/register/v[0-9]+, roles: IS_AUTHENTICATED_ANONYMOUSLY }
+        - { path: ^/register/v[0-9]+/commerce, roles: IS_AUTHENTICATED_ANONYMOUSLY }
         - { path: ^/password_recovery/v[0-9]+, role: IS_AUTHENTICATED_ANONYMOUSLY }
 
 
