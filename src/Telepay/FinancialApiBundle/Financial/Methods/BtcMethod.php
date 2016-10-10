@@ -27,13 +27,9 @@ class BtcMethod extends BaseMethod {
     }
 
     //PAY IN
-    public function getPayInInfo($amount)
-    {
+    public function getPayInInfo($amount){
         $address = $this->driver->getnewaddress();
-//        $address = 'dfghjklñ';
-
         if(!$address) throw new Exception('Service Temporally unavailable', 503);
-
         $response = array(
             'amount'    =>  $amount,
             'currency'  =>  $this->getCurrency(),
@@ -46,7 +42,6 @@ class BtcMethod extends BaseMethod {
             'status'    =>  'created',
             'final'     =>  false
         );
-
         return $response;
     }
 
