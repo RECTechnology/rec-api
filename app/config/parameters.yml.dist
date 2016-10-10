@@ -122,6 +122,9 @@ parameters:
     chipchap_user_id : 16
     read_only_user_id : 16
 
+    default_user_creator_commerce: 812
+    default_company_creator_commerce: 121
+
     url_swift_default_ok: ''
     url_swift_default_ko: ''
 
