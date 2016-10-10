@@ -102,6 +102,13 @@ security:
             signature_auth: true
             anonymous: true
 
+        commerce_register:
+            pattern:  ^/register/v1/commerce
+            stateless: true
+            fos_oauth:  true
+            signature_auth: true
+            anonymous: true
+
         oauth:
             pattern:    ^/
             fos_oauth:  true
@@ -128,7 +135,6 @@ security:
 
         - { path: ^/user/v[0-9]+/*, role: ROLE_USER }
         - { path: ^/register/v[0-9]+, roles: IS_AUTHENTICATED_ANONYMOUSLY }
-        - { path: ^/register/v[0-9]+/commerce, roles: IS_AUTHENTICATED_ANONYMOUSLY }
         - { path: ^/password_recovery/v[0-9]+, role: IS_AUTHENTICATED_ANONYMOUSLY }
 
 
