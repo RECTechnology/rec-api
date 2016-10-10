@@ -722,6 +722,7 @@ class AccountController extends BaseApiController{
         $user->setUsername($params['username']);
         $user->addGroup($company);
         $user->setActiveGroup($company);
+        $user->setBase64Image('');
 
         $url = $this->container->getParameter('base_panel_url');
 
