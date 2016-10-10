@@ -105,9 +105,7 @@ security:
         commerce_register:
             pattern:  ^/register/v1/commerce
             stateless: true
-            fos_oauth:  true
-            signature_auth: true
-            anonymous: true
+            security: false
 
         oauth:
             pattern:    ^/

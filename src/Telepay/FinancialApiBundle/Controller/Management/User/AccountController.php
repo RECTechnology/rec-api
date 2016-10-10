@@ -669,6 +669,7 @@ class AccountController extends BaseApiController{
         $company->setRoles(array('ROLE_COMPANY'));
         $company->setDefaultCurrency('EUR');
         $company->setEmail($params['email']);
+        $company->setMethodsList('');
 
         $em->persist($company);
 
