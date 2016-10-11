@@ -25,6 +25,7 @@ use Symfony\Component\HttpKernel\Exception\HttpException;
 use Telepay\FinancialApiBundle\Controller\BaseApiController;
 use FOS\RestBundle\Controller\Annotations as Rest;
 use Symfony\Component\HttpFoundation\Request;
+use Telepay\FinancialApiBundle\Entity\UserGroup;
 use Telepay\FinancialApiBundle\Entity\UserWallet;
 use Telepay\FinancialApiBundle\Financial\Currency;
 use Telepay\FinancialApiBundle\Controller\Google2FA;
@@ -660,7 +661,7 @@ class AccountController extends BaseApiController{
         $userCreator = $em->getRepository('TelepayFinancialApiBundle:User')->find($user_creator_id);
         $companyCreator = $em->getRepository('TelepayFinancialApiBundle:Group')->find($company_creator_id);
 
-        //TODO create company
+        //create company
         $company = new Group();
         $company->setName($params['company_name']);
         $company->setActive(true);
@@ -685,11 +686,11 @@ class AccountController extends BaseApiController{
             $em->persist($userWallet);
         }
 
+        //CRETAE EXCHANGES limits and fees
         $exchanges = $this->container->get('net.telepay.exchange_provider')->findAll();
 
         foreach($exchanges as $exchange){
             //create limit for this group
-            //create fee for this group
             $limit = new LimitDefinition();
             $limit->setDay(0);
             $limit->setWeek(0);
@@ -700,7 +701,7 @@ class AccountController extends BaseApiController{
             $limit->setCname('exchange_'.$exchange->getCname());
             $limit->setCurrency($exchange->getCurrencyOut());
             $limit->setGroup($company);
-
+            //create fee for this group
             $fee = new ServiceFee();
             $fee->setFixed(0);
             $fee->setVariable(0);
@@ -713,14 +714,13 @@ class AccountController extends BaseApiController{
 
         }
 
-        //TODO create user
+        //create user
         $user = new User();
         $user->setPassword($params['password']);
         $user->setEmail($params['email']);
-        $user->setRoles(array('ROLE_ADMIN'));
+        $user->setRoles(array('ROLE_USER'));
         $user->setName($params['username']);
         $user->setUsername($params['username']);
-        $user->addGroup($company);
         $user->setActiveGroup($company);
         $user->setBase64Image('');
 
@@ -733,8 +733,16 @@ class AccountController extends BaseApiController{
         $url = $url.'/user/validation/'.$user->getConfirmationToken();
         $this->_sendEmail('Chip-Chap validation e-mail', $url, $user->getEmail(), 'register');
 
+        //Add user to group with admin role
+        $userGroup = new UserGroup();
+        $userGroup->setUser($user);
+        $userGroup->setGroup($company);
+        $userGroup->setRoles(array('ROLE_ADMIN'));
 
-        //TODO create POS-Btc in eur
+        $em->persist($userGroup);
+        $em->flush();
+
+        //create POS-Btc
         $pos = new POS();
         $pos->setName($params['company_name']);
         $pos->setActive(true);
