@@ -102,6 +102,11 @@ security:
             signature_auth: true
             anonymous: true
 
+        commerce_register:
+            pattern:  ^/register/v1/commerce
+            stateless: true
+            security: false
+
         oauth:
             pattern:    ^/
             fos_oauth:  true

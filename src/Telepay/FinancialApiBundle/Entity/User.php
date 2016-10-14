@@ -131,7 +131,7 @@ class User extends BaseUser
     private $base64_image;
 
     /**
-     * @ORM\Column(type="string")
+     * @ORM\Column(type="string", nullable=true)
      * @Expose
      */
     private $gcm_group_key;

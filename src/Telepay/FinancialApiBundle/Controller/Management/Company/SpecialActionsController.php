@@ -76,7 +76,9 @@ class SpecialActionsController extends RestApiController {
                 $method_out = $transaction->getMethodOut();
                 //GET METHODS
                 $cashInMethod = $this->get('net.telepay.in.'.$method_in.'.v1');
-                $cashOutMethod = $this->get('net.telepay.out.'.$method_out.'.v1');
+                $cashOutMethod = $this->get('net.telepay.out.'.$method_out.'.vG');
+
+                $btcRootMethod = $this->get('net.telepay.out.btc.v1');
 
                 $pay_in_info = $transaction->getPayInInfo();
                 $pay_out_info = $transaction->getPayOutInfo();
@@ -97,10 +99,17 @@ class SpecialActionsController extends RestApiController {
                 $service_fee = round(($amount * ($methodFees->getVariable()/100) + $methodFees->getFixed()),0);
                 $final_amount = $amount - $service_fee - $client_fee;
                 $pay_out_info['amount'] = $final_amount;
+
+                $logger->info('EASYPAY  eur=>'.$pay_in_info['amount'].' exchange=>'.$amount.' totalFees=>'.($service_fee + $client_fee).' finalAmount=>'.$final_amount);
+
                 $transaction->setPayOutInfo($pay_out_info);
                 $transaction->setAmount($final_amount);
                 $transaction->setTotal($final_amount);
                 $transaction->setUpdated(new \DateTime());
+
+                //TODO get root btc address for send fee
+                $logger->info('EASYPAY GETTING ROOT ADDRESS');
+                $pay_in_infoRoot = $btcRootMethod->getPayInInfo($service_fee);
 
                 $logger->info('EASYPAY SENDING BTC TO ENDUSER');
                 //Send btc to user
@@ -182,27 +191,26 @@ class SpecialActionsController extends RestApiController {
                         $userFee->setClient($client);
                         $dm->persist($userFee);
 
-//                        $group = $em->getRepository('TelepayFinancialApiBundle:Group')->find($transaction->getGroup());
-//                        $userWallets = $group->getWallets();
-//                        $current_wallet = null;
-//
-//                        foreach ( $userWallets as $wallet){
-//                            if ($wallet->getCurrency() == $userFee->getCurrency()){
-//                                $current_wallet = $wallet;
-//                            }
-//                        }
-//
-//                        $current_wallet->setAvailable($current_wallet->getAvailable() + $client_fee);
-//                        $current_wallet->setBalance($current_wallet->getBalance() + $client_fee);
-//
-//                        $em->persist($current_wallet);
-//                        $em->flush();
-
                     }
 
                     if($service_fee != 0){
+
                         //service fees goes to root
                         $logger->info('EASYPAY ROOT FEE=>'.$service_fee.' fixed=>'.$methodFees->getFixed().' variable=>'.$amount * ($methodFees->getVariable()/100).' ( '.($methodFees->getVariable()/100).'% )');
+
+                        $logger->info('EASYPAY SENDING ROOT BTC=>'.$service_fee.' satoshis');
+                        $rootFeeStatus = Transaction::$STATUS_SUCCESS;
+                        try{
+                            $pay_out_infoRoot = array(
+                                $pay_in_infoRoot['amount'],
+                                $pay_in_infoRoot['address']
+                            );
+                            $pay_out_infoRoot = $cashOutMethod->send($pay_out_infoRoot);
+                        }catch (Exception $e){
+                            $logger->info('EASYPAY SENDING ROOT BTC FAILED');
+                            $rootFeeStatus = Transaction::$STATUS_FAILED;
+                        }
+
                         $rootFee = new Transaction();
                         $rootFee->setUser($root->getId());
                         $rootFee->setGroup($rootGroup->getId());
@@ -214,7 +222,7 @@ class SpecialActionsController extends RestApiController {
                         $rootFee->setVariableFee($amount * ($methodFees->getVariable()/100));
                         $rootFee->setService($method_in.'-'.$method_out);
                         $rootFee->setMethod($method_in.'-'.$method_out);
-                        $rootFee->setStatus(Transaction::$STATUS_SUCCESS);
+                        $rootFee->setStatus($rootFeeStatus);
                         $rootFee->setTotal($service_fee);
                         $rootFee->setDataIn(array(
                             'previous_transaction'  =>  $transaction->getId(),
@@ -234,6 +242,7 @@ class SpecialActionsController extends RestApiController {
                             'status'    =>  Transaction::$STATUS_SUCCESS,
                             'previous_group_id'   =>  $company->getId(),
                             'previous_group_name'   =>  $company->getName(),
+                            'pay_in_info'   =>  $pay_in_infoRoot
                         );
                         $rootFee->setFeeInfo($serviceFeeInfo);
                         $rootFee->setClient($client);
