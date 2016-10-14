@@ -656,6 +656,8 @@ class AccountController extends BaseApiController{
             }
         }
         if($params['password'] != $params['repassword']) throw new HttpException(404, 'Password and repassword are differents');
+        $params['plain_password'] = $params['password'];
+        unset($params['password']);
         unset($params['repassword']);
 
         $user_creator_id = $this->container->getParameter('default_user_creator_commerce_' . $type);
