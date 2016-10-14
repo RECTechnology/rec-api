@@ -722,7 +722,7 @@ class AccountController extends BaseApiController{
 
         //create user
         $user = new User();
-        $user->setPassword($params['password']);
+        $user->setPlainPassword($params['plain_password']);
         $user->setEmail($params['email']);
         $user->setRoles(array('ROLE_USER'));
         $user->setName($params['username']);
