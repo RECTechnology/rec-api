@@ -122,8 +122,10 @@ parameters:
     chipchap_user_id : 16
     read_only_user_id : 16
 
-    default_user_creator_commerce: 812
-    default_company_creator_commerce: 121
+    default_user_creator_commerce_prestashop: 812
+    default_company_creator_commerce_prestashop: 121
+    default_user_creator_commerce_android: 825
+    default_company_creator_commerce_android: 133
 
     url_swift_default_ok: ''
     url_swift_default_ko: ''

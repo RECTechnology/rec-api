@@ -635,27 +635,31 @@ class AccountController extends BaseApiController{
     /**
      * @Rest\View
      */
-    public function registerCommerceAction(Request $request){
-
+    public function registerCommerceAction(Request $request, $type){
         $paramNames = array(
             'username',
             'email',
             'company_name',
-            'password'
+            'password',
+            'repassword'
         );
 
-        $params = array();
+        $valid_types = array('prestashop', 'android');
+        if(!in_array($type, $valid_types)) throw new HttpException('Commerce type not valid');
 
+        $params = array();
         foreach($paramNames as $param){
-            if($request->request->has($param)){
+            if($request->request->has($param) || $request->request->get($param)==''){
                 $params[$param] = $request->request->get($param);
             }else{
                 throw new HttpException(404, 'Param '.$param.'not found');
             }
         }
+        if($params['password'] != $params['repassword']) throw new HttpException('Password and repassword are differents');
+        unset($params['repassword']);
 
-        $user_creator_id = $this->container->getParameter('default_user_creator_commerce');
-        $company_creator_id = $this->container->getParameter('default_company_creator_commerce');
+        $user_creator_id = $this->container->getParameter('default_user_creator_commerce_' . $type);
+        $company_creator_id = $this->container->getParameter('default_company_creator_commerce_' . $type);
 
         $em = $this->getDoctrine()->getManager();
         $userCreator = $em->getRepository('TelepayFinancialApiBundle:User')->find($user_creator_id);
@@ -742,25 +746,33 @@ class AccountController extends BaseApiController{
         $em->persist($userGroup);
         $em->flush();
 
-        //create POS-Btc
-        $pos = new POS();
-        $pos->setName($params['company_name']);
-        $pos->setActive(true);
-        $pos->setCurrency('BTC');
-        $pos->setExpiresIn(1200);
-        $pos->setGroup($company);
-        $pos->setType('BTC');
-        $pos->setPosId(uniqid());
-        $pos->setCname('POS-BTC');
+        if($type == 'prestashop') {
+            //create POS-Btc
+            $pos = new POS();
+            $pos->setName($params['company_name']);
+            $pos->setActive(true);
+            $pos->setCurrency('BTC');
+            $pos->setExpiresIn(1200);
+            $pos->setGroup($company);
+            $pos->setType('BTC');
+            $pos->setPosId(uniqid());
+            $pos->setCname('POS-BTC');
 
-        $em->persist($pos);
-        $em->flush();
+            $em->persist($pos);
+            $em->flush();
 
-        $response = array(
-            'user'  =>  $user,
-            'company'   =>  $company,
-            'pos'   =>  $pos
-        );
+            $response = array(
+                'user' => $user,
+                'company' => $company,
+                'pos' => $pos
+            );
+        }
+        elseif($type == 'android'){
+            $response = array(
+                'user' => $user,
+                'company' => $company
+            );
+        }
 
         return $this->restV2(201,"ok", "Request successful", $response);
 

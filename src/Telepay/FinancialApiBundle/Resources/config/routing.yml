@@ -42,7 +42,7 @@ validate_email:
         _method: POST
 
 register_from_shop:
-    pattern:  /register/v1/commerce
+    pattern:  /register/v1/commerce/{type}
     defaults: { _controller: Telepay\FinancialApiBundle\Controller\Management\User\AccountController::registerCommerceAction }
     requirements:
         _method: POST
