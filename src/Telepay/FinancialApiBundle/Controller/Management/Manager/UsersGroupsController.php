@@ -87,7 +87,7 @@ class UsersGroupsController extends RestApiController{
 
         //send email
         $url = '';
-        $this->_sendEmail('You has beed added to this company', $user->getEmail(), $url, $company->getName());
+        $this->_sendEmail('You have been added to this company', $user->getEmail(), $url, $company->getName());
 
 
         return $this->restV2(201, "ok", "User added successfully");
@@ -128,7 +128,7 @@ class UsersGroupsController extends RestApiController{
 
         //send email
         $url = '';
-        $this->_sendEmail('You has beed removed from this company', $user->getEmail(), $url, $group->getName());
+        $this->_sendEmail('You have been removed from this company', $user->getEmail(), $url, $group->getName());
 
         return $this->rest(204, "User removed successfully");
 

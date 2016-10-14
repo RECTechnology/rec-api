@@ -649,13 +649,13 @@ class AccountController extends BaseApiController{
 
         $params = array();
         foreach($paramNames as $param){
-            if($request->request->has($param) || $request->request->get($param)==''){
+            if($request->request->has($param) && $request->request->get($param)!=''){
                 $params[$param] = $request->request->get($param);
             }else{
-                throw new HttpException(404, 'Param '.$param.'not found');
+                throw new HttpException(404, 'Param ' . $param . ' not found');
             }
         }
-        if($params['password'] != $params['repassword']) throw new HttpException('Password and repassword are differents');
+        if($params['password'] != $params['repassword']) throw new HttpException(404, 'Password and repassword are differents');
         unset($params['repassword']);
 
         $user_creator_id = $this->container->getParameter('default_user_creator_commerce_' . $type);
