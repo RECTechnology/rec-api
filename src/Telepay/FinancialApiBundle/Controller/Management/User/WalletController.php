@@ -1286,7 +1286,7 @@ class WalletController extends RestApiController{
 
         //check available in the receiver wallet
         $total_fee = $fixed_fee + $variable_fee;
-        if($total_fee > $receiverWallet->getAvailable()) throw new HttpException(403, 'No funds enough in the receiver wallet');
+        if(($total_fee > $receiverWallet->getAvailable()) && ($exchange < $total_fee)) throw new HttpException(403, 'No funds enough in the receiver wallet');
 
         $dm = $this->get('doctrine_mongodb')->getManager();
         //cashOut transaction
