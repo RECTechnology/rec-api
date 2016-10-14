@@ -645,7 +645,7 @@ class AccountController extends BaseApiController{
         );
 
         $valid_types = array('prestashop', 'android');
-        if(!in_array($type, $valid_types)) throw new HttpException('Commerce type not valid');
+        if(!in_array($type, $valid_types)) throw new HttpException(404, 'Type not valid');
 
         $params = array();
         foreach($paramNames as $param){
