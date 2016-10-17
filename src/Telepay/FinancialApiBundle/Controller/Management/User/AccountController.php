@@ -489,6 +489,12 @@ class AccountController extends BaseApiController{
         $user = $em->getRepository($this->getRepositoryName())->findOneBy(array(
             'email'  =>  $email
         ));
+        if(!$user){
+            $response = array(
+                'email'  =>  $email,
+            );
+            return $this->restV2(201,"ok", "Request successful.", $response);
+        }
         $user->setConfirmationToken($tokenGenerator->generateToken());
         $url = $url.'/user/validation/'.$user->getConfirmationToken();
         $this->_sendEmail('Chip-Chap validation e-mail', $url, $user->getEmail(), 'register');
