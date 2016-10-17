@@ -804,6 +804,21 @@ class AccountController extends BaseApiController{
             );
         }
         elseif($type == 'android'){
+            $company->setMethodsList(array('btc-in'));
+            $em->persist($company);
+
+            $newLimit = new LimitDefinition();
+            $newLimit->setGroup($company);
+            $newLimit->setCurrency('BTC');
+            $newLimit->setCname('btc-in');
+            $newLimit->setDay(-1);
+            $newLimit->setWeek(-1);
+            $newLimit->setMonth(-1);
+            $newLimit->setYear(-1);
+            $newLimit->setSingle(-1);
+            $newLimit->setTotal(-1);
+            $em->persist($newLimit);
+
             $response = array(
                 'user' => $user,
                 'company' => $company
