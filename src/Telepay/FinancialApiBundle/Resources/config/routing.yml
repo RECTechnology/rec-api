@@ -41,6 +41,12 @@ validate_email:
     requirements:
         _method: POST
 
+user_sent_validation_email:
+    pattern:  /register/v1/sent_validation_email
+    defaults: { _controller: Telepay\FinancialApiBundle\Controller\Management\User\AccountController::sentValidationEmailAction }
+    requirements:
+        _method: POST
+
 register_from_shop:
     pattern:  /register/v1/commerce/{type}
     defaults: { _controller: Telepay\FinancialApiBundle\Controller\Management\User\AccountController::registerCommerceAction }
