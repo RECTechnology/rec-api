@@ -1000,14 +1000,14 @@ class AccountController extends BaseApiController{
             $tier = new TierValidations();
             $tier->setUser($user);
             $tier->setEmail(true);
-
-
-
             $em->persist($tier);
             $em->flush();
         }else{
             throw new HttpException(409, 'Validation not allowed');
         }
+
+        $user->setEnabled(true);
+        $em->persist($user);
 
         $kyc = $em->getRepository('TelepayFinancialApiBundle:KYC')->findOneBy(array(
             'user' => $user
