@@ -473,6 +473,33 @@ class AccountController extends BaseApiController{
         }
     }
 
+    /**
+     * @Rest\View
+     */
+    public function sentValidationEmailAction(Request $request){
+        if(!$request->request->has('email')){
+            throw new HttpException(400, "Missing parameter 'email'");
+        }
+        else{
+            $email = $request->request->get('email');
+        }
+        $url = $this->container->getParameter('base_panel_url');
+        $tokenGenerator = $this->container->get('fos_user.util.token_generator');
+        $em = $this->getDoctrine()->getManager();
+        $user = $em->getRepository($this->getRepositoryName())->findOneBy(array(
+            'email'  =>  $email
+        ));
+        $user->setConfirmationToken($tokenGenerator->generateToken());
+        $url = $url.'/user/validation/'.$user->getConfirmationToken();
+        $this->_sendEmail('Chip-Chap validation e-mail', $url, $user->getEmail(), 'register');
+        $em->persist($user);
+        $em->flush();
+        $response = array(
+            'email'  =>  $email,
+        );
+        return $this->restV2(201,"ok", "Request successful", $response);
+    }
+
     public function registerAction(Request $request){
         //device_id is optional
         $device_id = null;
