@@ -107,6 +107,11 @@ security:
             stateless: true
             security: false
 
+        resent_email_validation:
+            pattern:  ^/register/v1/sent_validation_email
+            stateless: true
+            security: false
+
         oauth:
             pattern:    ^/
             fos_oauth:  true
