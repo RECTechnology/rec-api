@@ -804,7 +804,7 @@ class AccountController extends BaseApiController{
             );
         }
         elseif($type == 'android'){
-            $company->setMethodsList(array('btc-in'));
+            $company->addMethod('btc-in');
             $em->persist($company);
 
             $newLimit = new LimitDefinition();
