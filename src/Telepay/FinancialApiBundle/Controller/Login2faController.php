@@ -48,6 +48,23 @@ class Login2faController extends RestApiController{
                 );
                 return new Response(json_encode($token), 400, $headers);
             }
+
+            if((count($user[0]->getTierValidations())==0) || (!$user[0]->getTierValidations()->getEmail())){
+                $token = array(
+                    "error" => "not_validated_email",
+                    "error_description" => "User without email validated"
+                );
+                return new Response(json_encode($token), 400, $headers);
+            }
+
+            if($user[0]->getEnabled()==false){
+                $token = array(
+                    "error" => "not_enabled",
+                    "error_description" => "User not enabled to log in"
+                );
+                return new Response(json_encode($token), 400, $headers);
+            }
+
             elseif($user[0]->getTwoFactorAuthentication() == 1) {
                 $Google2FA = new Google2FA();
                 $twoFactorCode = $user[0]->getTwoFactorCode();
