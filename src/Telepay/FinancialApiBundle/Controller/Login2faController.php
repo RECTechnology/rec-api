@@ -57,7 +57,7 @@ class Login2faController extends RestApiController{
                 return new Response(json_encode($token), 400, $headers);
             }
 
-            if($user[0]->getEnabled()==false){
+            if($user[0]->isEnabled()==false){
                 $token = array(
                     "error" => "not_enabled",
                     "error_description" => "User not enabled to log in"
