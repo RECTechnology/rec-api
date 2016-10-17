@@ -813,7 +813,7 @@ class AccountController extends BaseApiController{
             $newFee->setGroup($company);
             $newFee->setFixed(0);
             $newFee->setVariable(0);
-            $newFee->setServiceName($company);
+            $newFee->setServiceName('btc-in');
             $newFee->setCurrency('BTC');
             $em->persist($newFee);
 
@@ -847,6 +847,8 @@ class AccountController extends BaseApiController{
                 'company' => $company
             );
         }
+        $em->flush();
+        
         return $this->restV2(201,"ok", "Request successful", $response);
     }
 
