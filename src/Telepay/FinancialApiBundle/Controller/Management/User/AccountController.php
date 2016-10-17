@@ -804,9 +804,19 @@ class AccountController extends BaseApiController{
             );
         }
         elseif($type == 'android'){
-            $company->addMethod('btc-in');
+            $company->setMethodsList(array('btc-in'));
             $em->persist($company);
 
+            //create new ServiceFee
+            $newFee = new ServiceFee();
+            $newFee->setGroup($company);
+            $newFee->setFixed(0);
+            $newFee->setVariable(0);
+            $newFee->setServiceName($company);
+            $newFee->setCurrency('BTC');
+            $em->persist($newFee);
+
+            //create new LimitDefinition
             $newLimit = new LimitDefinition();
             $newLimit->setGroup($company);
             $newLimit->setCurrency('BTC');
@@ -819,14 +829,24 @@ class AccountController extends BaseApiController{
             $newLimit->setTotal(-1);
             $em->persist($newLimit);
 
+            //create new LimitCount
+            $newCount = new LimitCount();
+            $newCount->setDay(0);
+            $newCount->setWeek(0);
+            $newCount->setMonth(0);
+            $newCount->setYear(0);
+            $newCount->setSingle(0);
+            $newCount->setTotal(0);
+            $newCount->setCname('btc-in');
+            $newCount->setGroup($company);
+            $em->persist($newCount);
+
             $response = array(
                 'user' => $user,
                 'company' => $company
             );
         }
-
         return $this->restV2(201,"ok", "Request successful", $response);
-
     }
 
     /**
