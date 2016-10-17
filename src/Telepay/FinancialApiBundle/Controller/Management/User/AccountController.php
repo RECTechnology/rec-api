@@ -729,7 +729,7 @@ class AccountController extends BaseApiController{
         $user->setUsername($params['username']);
         $user->setActiveGroup($company);
         $user->setBase64Image('');
-        $user->setEnabled(true);
+        $user->setEnabled(false);
 
         $url = $this->container->getParameter('base_panel_url');
 
@@ -1000,6 +1000,8 @@ class AccountController extends BaseApiController{
             $tier = new TierValidations();
             $tier->setUser($user);
             $tier->setEmail(true);
+
+
 
             $em->persist($tier);
             $em->flush();
