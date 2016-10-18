@@ -744,7 +744,7 @@ class AccountController extends BaseApiController{
             //create fee for this group
             $fee = new ServiceFee();
             $fee->setFixed(0);
-            $fee->setVariable(0);
+            $fee->setVariable(1);
             $fee->setCurrency($exchange->getCurrencyOut());
             $fee->setServiceName('exchange_'.$exchange->getCname());
             $fee->setGroup($company);
