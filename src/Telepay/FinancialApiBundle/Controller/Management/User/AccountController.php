@@ -1077,6 +1077,7 @@ class AccountController extends BaseApiController{
 
         $user->setEnabled(true);
         $em->persist($user);
+        $em->flush();
 
         $kyc = $em->getRepository('TelepayFinancialApiBundle:KYC')->findOneBy(array(
             'user' => $user
