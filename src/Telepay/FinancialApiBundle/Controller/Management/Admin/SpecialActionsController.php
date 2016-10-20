@@ -373,6 +373,7 @@ class SpecialActionsController extends RestApiController {
      * @Rest\View
      */
     public function sepaOutValidation(Request $request, $id){
+
         //only superadmin allowed
         if (!$this->get('security.authorization_checker')->isGranted('ROLE_SUPER_ADMIN')) {
             throw $this->createAccessDeniedException();
@@ -385,8 +386,6 @@ class SpecialActionsController extends RestApiController {
         $transRepo = $dm->getRepository('TelepayFinancialApiBundle:Transaction');
         $transaction = $transRepo->find($id);
 
-        //check if is sepa-out or transfer-out
-        if ($transaction->getMethod() != 'sepa-out' && $transaction->getMethod() != 'transfer-out') throw new HttpException(403, 'Transaction can\'t be validated with this method');
         if($validate == true){
             $transaction->setStatus('success');
             $paymentInfo = $transaction->getPayOutInfo();
@@ -482,8 +481,8 @@ class SpecialActionsController extends RestApiController {
         $dm = $this->get('doctrine_mongodb')->getManager();
         $transactions = $dm->getRepository('TelepayFinancialApiBundle:Transaction')
             ->findBy(array(
-                'method'  =>  'transfer',
-                'type'  =>  'out',
+                'method_out'  =>  'sepa',
+                'type'  =>  'swift',
                 'status'    =>  'sending'
             ));
 
@@ -494,7 +493,15 @@ class SpecialActionsController extends RestApiController {
                 'status'    =>  'sending'
             ));
 
+        $transactions_out_transfer = $dm->getRepository('TelepayFinancialApiBundle:Transaction')
+            ->findBy(array(
+                'method'  =>  'transfer',
+                'type'  =>  'out',
+                'status'    =>  'sending'
+            ));
+
         $transactions = array_merge($transactions, $transactions_out);
+        $transactions = array_merge($transactions, $transactions_out_transfer);
 
         $total = count($transactions);
 
