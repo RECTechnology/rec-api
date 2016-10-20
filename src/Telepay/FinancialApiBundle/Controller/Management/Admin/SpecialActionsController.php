@@ -373,8 +373,6 @@ class SpecialActionsController extends RestApiController {
      * @Rest\View
      */
     public function sepaOutValidation(Request $request, $id){
-
-        //TODO hacer que no solo valga para swift, tiene que valer para los metodos tb con la misma llamada
         //only superadmin allowed
         if (!$this->get('security.authorization_checker')->isGranted('ROLE_SUPER_ADMIN')) {
             throw $this->createAccessDeniedException();
@@ -387,6 +385,8 @@ class SpecialActionsController extends RestApiController {
         $transRepo = $dm->getRepository('TelepayFinancialApiBundle:Transaction');
         $transaction = $transRepo->find($id);
 
+        //check if is sepa-out or transfer-out
+        if ($transaction->getMethod() != 'sepa-out' && $transaction->getMethod() != 'transfer-out') throw new HttpException(403, 'Transaction can\'t be validated with this method');
         if($validate == true){
             $transaction->setStatus('success');
             $paymentInfo = $transaction->getPayOutInfo();
@@ -405,70 +405,70 @@ class SpecialActionsController extends RestApiController {
 
     }
 
-    /**
-     * @Rest\View
-     */
-    public function sepaOutValidation2(Request $request, $id){
-
-        //only superadmin allowed
-        if (!$this->get('security.authorization_checker')->isGranted('ROLE_SUPER_ADMIN')) {
-            throw $this->createAccessDeniedException();
-        }
-
-        $service = 'sepa_out';
-
-        if(!$request->request->has('validate')) throw new HttpException(404, 'Parameter "validate" not found');
-        else $validate = $request->request->get('validate');
-
-        $dm = $this->get('doctrine_mongodb')->getManager();
-        $transRepo = $dm->getRepository('TelepayFinancialApiBundle:Transaction');
-        $transaction = $transRepo->find($id);
-
-        $em = $this->getDoctrine()->getManager();
-        $user = $em->getRepository('TelepayFinancialApiBundle:User')->find($transaction->getUser());
-
-        $wallets = $user->getWallets();
-
-        $current_wallet = null;
-        foreach ( $wallets as $wallet){
-            if ($wallet->getCurrency() === $transaction->getCurrency()){
-                $current_wallet = $wallet;
-            }
-        }
-
-        if($validate == true){
-            $transaction->setStatus('success');
-            $total_fee = $transaction->getFixedFee() + $transaction->getVariableFee();
-            $total = $transaction->getAmount() + $total_fee ;
-
-            $current_wallet->setAvailable($current_wallet->getAvailable() - $total);
-            $current_wallet->setBalance($current_wallet->getBalance() - $total);
-
-            $balancer = $this->get('net.telepay.commons.balance_manipulator');
-            $balancer->addBalance($user, $transaction->getAmount(), $transaction);
-
-            $em->persist($current_wallet);
-            $em->flush();
-
-            if($total_fee != 0){
-                // nueva transaccion restando la comision al user
-                try{
-                    $this->_dealer($transaction,$current_wallet);
-                }catch (HttpException $e){
-                    throw $e;
-                }
-            }
-
-            $transaction = $this->get('notificator')->notificate($transaction);
-            $transaction->setUpdated(new \MongoDate());
-
-            $dm->persist($transaction);
-            $dm->flush();
-        }
-
-        return $this->restTransaction($transaction, "Done");
-
-    }
+//    /**
+//     * @Rest\View
+//     */
+//    public function sepaOutValidation2(Request $request, $id){
+//
+//        //only superadmin allowed
+//        if (!$this->get('security.authorization_checker')->isGranted('ROLE_SUPER_ADMIN')) {
+//            throw $this->createAccessDeniedException();
+//        }
+//
+//        $service = 'sepa_out';
+//
+//        if(!$request->request->has('validate')) throw new HttpException(404, 'Parameter "validate" not found');
+//        else $validate = $request->request->get('validate');
+//
+//        $dm = $this->get('doctrine_mongodb')->getManager();
+//        $transRepo = $dm->getRepository('TelepayFinancialApiBundle:Transaction');
+//        $transaction = $transRepo->find($id);
+//
+//        $em = $this->getDoctrine()->getManager();
+//        $user = $em->getRepository('TelepayFinancialApiBundle:User')->find($transaction->getUser());
+//
+//        $wallets = $user->getWallets();
+//
+//        $current_wallet = null;
+//        foreach ( $wallets as $wallet){
+//            if ($wallet->getCurrency() === $transaction->getCurrency()){
+//                $current_wallet = $wallet;
+//            }
+//        }
+//
+//        if($validate == true){
+//            $transaction->setStatus('success');
+//            $total_fee = $transaction->getFixedFee() + $transaction->getVariableFee();
+//            $total = $transaction->getAmount() + $total_fee ;
+//
+//            $current_wallet->setAvailable($current_wallet->getAvailable() - $total);
+//            $current_wallet->setBalance($current_wallet->getBalance() - $total);
+//
+//            $balancer = $this->get('net.telepay.commons.balance_manipulator');
+//            $balancer->addBalance($user, $transaction->getAmount(), $transaction);
+//
+//            $em->persist($current_wallet);
+//            $em->flush();
+//
+//            if($total_fee != 0){
+//                // nueva transaccion restando la comision al user
+//                try{
+//                    $this->_dealer($transaction,$current_wallet);
+//                }catch (HttpException $e){
+//                    throw $e;
+//                }
+//            }
+//
+//            $transaction = $this->get('notificator')->notificate($transaction);
+//            $transaction->setUpdated(new \MongoDate());
+//
+//            $dm->persist($transaction);
+//            $dm->flush();
+//        }
+//
+//        return $this->restTransaction($transaction, "Done");
+//
+//    }
 
     /**
      * @Rest\View
