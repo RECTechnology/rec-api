@@ -190,7 +190,7 @@ class BtcMethod extends BaseMethod {
     }
 
     public function getReceivedByAddress($address){
-        $allReceived = $this->driver->getreceivedbyaddress($address, true);
+        $allReceived = $this->driver->getreceivedbyaddress($address, 0);
 
 //        $receivedByAddress = array();
 //        foreach($allReceived as $received){
