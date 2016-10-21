@@ -48,9 +48,11 @@ class CheckCryptoDepositCommand extends SyncronizedContainerAwareCommand
                 $methodDriver = $this->getContainer()->get('net.telepay.in.'.$method.'.v1');
 
                 foreach($tokens as $token){
-                    $output->writeln($token->getId() . ' TOKEN');
+                    $output->writeln($token->getId() . ' TOKEN_id');
+                    $output->writeln($token->getToken() . ' TOKEN');
                     $receivedTransactions = $methodDriver->getReceivedByAddress($token->getToken());
-                    $output->writeln('btc transactions');
+                    $output->writeln(count($receivedTransactions. ' received transactions'));
+                    $output->writeln($method.' transactions');
                     foreach($receivedTransactions as $received){
                         $output->writeln($received['tx'].' HASH');
                         //TODO habria que ver como se devuelve el hash para compararlo con los guardados
