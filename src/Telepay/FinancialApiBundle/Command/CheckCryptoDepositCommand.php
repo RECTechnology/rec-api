@@ -150,7 +150,7 @@ class CheckCryptoDepositCommand extends SyncronizedContainerAwareCommand
                             $feeTransaction->setStatus('success');
                             $feeTransaction->setScale($depositTransaction->getScale());
                             $feeTransaction->setAmount($total_fee);
-                            $feeTransaction->setGroup($depositTransaction->getCompany()->getId());
+                            $feeTransaction->setGroup($depositTransaction->getGroup()->getId());
                             $feeTransaction->setCreated(new \MongoDate());
                             $feeTransaction->setUpdated(new \MongoDate());
                             $feeTransaction->setIp($depositTransaction->getIp());
