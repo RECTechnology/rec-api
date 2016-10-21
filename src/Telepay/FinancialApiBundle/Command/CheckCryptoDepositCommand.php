@@ -134,7 +134,7 @@ class CheckCryptoDepositCommand extends SyncronizedContainerAwareCommand
                             }
                         }
 
-                        $total_fee = $fixed_fee + $variable_fee;
+                        $total_fee = $fixed_fee +($depositAmount * ($variable_fee / 100));
                         $total = $deposit->getAmount() - $total_fee;
 
                         $current_wallet->setAvailable($current_wallet->getAvailable() + $total);
@@ -170,6 +170,16 @@ class CheckCryptoDepositCommand extends SyncronizedContainerAwareCommand
                             $feeTransaction->setService($method);
                             $feeTransaction->setMethod($method);
                             $feeTransaction->setType('fee');
+                            $feeInfo = array(
+                                'previous_transaction'  =>  $depositTransaction->getId(),
+                                'previous_amount'   =>  $depositTransaction->getAmount(),
+                                'amount'                =>  $total_fee,
+                                'currency'      =>  $depositTransaction->getCurrency(),
+                                'scale'     =>  $depositTransaction->getScale(),
+                                'concept'           =>  'Deposit-'.$method.'->fee',
+                                'status'    =>  Transaction::$STATUS_SUCCESS
+                            );
+                            $feeTransaction->setFeeInfo($feeInfo);
 
                             $dm->persist($feeTransaction);
                             $dm->flush();
