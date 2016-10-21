@@ -83,7 +83,7 @@ class CheckCryptoDepositCommand extends SyncronizedContainerAwareCommand
                         $em->flush();
 
                         //get fees
-                        $companyFees = $feeManipulator->getMethodFees($token->getCompany(), $method);
+                        $companyFees = $feeManipulator->getMethodFees($token->getCompany(), $methodDriver);
                         $fixed_fee = $companyFees->getFixed();
                         $variable_fee = $companyFees->getVariable();
 
