@@ -13,8 +13,8 @@ services:
 
     app.incoming_controller:
         class: Telepay\FinancialApiBundle\Controller\Transactions\IncomingController2
-        arguments:
-            - "@service_container"
+        calls:
+            - [setContainer, ["@service_container"] ]
 
     notificator:
         class: Telepay\FinancialApiBundle\DependencyInjection\Transactions\Core\Notificator
