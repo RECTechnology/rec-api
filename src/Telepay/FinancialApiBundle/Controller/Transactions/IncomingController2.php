@@ -325,7 +325,12 @@ class IncomingController2 extends RestApiController{
 
         if($transaction == false) throw new HttpException(500, "oOps, some error has occurred within the call");
 
-        return $this->methodTransaction(201, $transaction, "Done");
+        if($user_id == -1){
+            return 'Transaction generate successfully';
+        }else{
+            return $this->methodTransaction(201, $transaction, "Done");
+        }
+
     }
 
     /**

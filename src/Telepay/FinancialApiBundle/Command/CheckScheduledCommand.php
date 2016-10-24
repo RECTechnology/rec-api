@@ -55,6 +55,7 @@ class CheckScheduledCommand extends ContainerAwareCommand{
                     $transactionManager = $this->getContainer()->get('app.incoming_controller');
                     $output->writeln('createTransaction');
                     $response = $transactionManager->createTransaction($request, 1, 'out', $scheduled->getMethod(), -1, $group, '127.0.0.1');
+                    $output->writeln('post createTransaction');
                     $output->writeln($response);
                 }
             }
