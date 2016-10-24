@@ -11,7 +11,7 @@ services:
         class: Telepay\FinancialApiBundle\Security\AccessKeyUserProvider
         arguments: ["@fos_user.user_manager"]
 
-    app.incoming_controller:
+    incoming_controller:
         class: Telepay\FinancialApiBundle\Controller\Transactions\IncomingController2
 
     notificator:

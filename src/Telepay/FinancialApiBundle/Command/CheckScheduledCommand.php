@@ -52,7 +52,7 @@ class CheckScheduledCommand extends ContainerAwareCommand{
                         $request['bic_swift'] = $data['swift'];
                     }
                     $output->writeln('get app');
-                    $transactionManager = $this->getContainer()->get('app.incoming_controller');
+                    $transactionManager = $this->getContainer()->get('incoming_controller');
                     $output->writeln('createTransaction');
                     $response = $transactionManager->createTransaction($request, 1, 'out', $scheduled->getMethod(), -1, $group, '127.0.0.1');
                     $output->writeln($response);
