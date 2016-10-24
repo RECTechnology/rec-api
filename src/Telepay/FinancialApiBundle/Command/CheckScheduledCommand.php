@@ -38,18 +38,21 @@ class CheckScheduledCommand extends ContainerAwareCommand{
                     $amount = $current_wallet->getAvailable() - $scheduled->getThreshold();
                     $output->writeln($amount . ' euros de amount deben enviarse');
                     $method = $this->getContainer()->get('net.telepay.out.'.$scheduled->getMethod().'.v1');
+                    $output->writeln('get fees');
                     $group_fee = $this->_getFees($group, $method);
                     $amount = round(($amount * ((100 - $group_fee->getVariable())/100) - $group_fee->getFixed()),0);
                     $amount = 1000;
                     if($scheduled->getMethod() == 'sepa'){
                         $data = json_decode($scheduled->getInfo(), true);
-                        $request['concept']=$data['concept'];
-                        $request['amount']=$amount;
-                        $request['beneficiary']=$data['beneficiary'];
-                        $request['iban']=$data['iban'];
-                        $request['bic_swift']=$data['swift'];
+                        $request['concept'] = $data['concept'];
+                        $request['amount'] = $amount;
+                        $request['beneficiary'] = $data['beneficiary'];
+                        $request['iban'] = $data['iban'];
+                        $request['bic_swift'] = $data['swift'];
                     }
+                    $output->writeln('get app');
                     $transactionManager = $this->getContainer()->get('app.incoming_controller');
+                    $output->writeln('createTransaction');
                     $response = $transactionManager->createTransaction($request, 1, 'out', $scheduled->getMethod(), -1, $group, '127.0.0.1');
                     $output->writeln($response);
                 }
