@@ -132,6 +132,17 @@ class ScheduledController extends BaseApiController{
      * @Rest\View
      */
     public function deleteAction(Request $request, $id){
+        $user = $this->get('security.context')->getToken()->getUser();
+
+        $scheduled = $this->getRepository()->findOneBy(array(
+            'id'    =>  $id,
+            'group' =>  $user->getActiveGroup()
+        ));
+
+        if(!$scheduled) throw new HttpException(404, 'Scheduled not found');
+
+        return parent::deleteAction($id);
+
     }
 
     private function checkIBAN($iban){
