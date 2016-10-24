@@ -8,7 +8,7 @@ class OAuthEventListener
 {
     public function onPreAuthorizationProcess(OAuthEvent $event)
     {
-        die(print_r('caca',true));
+//        die(print_r('caca',true));
         if ($user = $this->getUser($event)) {
             $event->setAuthorizedClient(
                 $user->isAuthorizedClient($event->getClient())

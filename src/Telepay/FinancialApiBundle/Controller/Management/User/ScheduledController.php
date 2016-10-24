@@ -106,7 +106,7 @@ class ScheduledController extends BaseApiController{
         $user = $this->get('security.context')->getToken()->getUser();
 
         $all = $this->getRepository()->findBy(array(
-            'user'  =>  $user
+            'group'  =>  $user->getActiveGroup()
         ));
 
         $total = count($all);
