@@ -8,6 +8,7 @@ use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpKernel\Exception\HttpException;
 use Telepay\FinancialApiBundle\Entity\Group;
+use Telepay\FinancialApiBundle\Entity\ServiceFee;
 
 class CheckScheduledCommand extends ContainerAwareCommand{
     protected function configure(){
