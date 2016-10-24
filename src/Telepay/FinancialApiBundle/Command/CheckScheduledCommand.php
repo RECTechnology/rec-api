@@ -42,7 +42,6 @@ class CheckScheduledCommand extends ContainerAwareCommand{
                     $output->writeln('get fees');
                     $group_fee = $this->_getFees($group, $method);
                     $amount = round(($amount * ((100 - $group_fee->getVariable())/100) - $group_fee->getFixed()),0);
-                    $amount = 1000;
                     if($scheduled->getMethod() == 'sepa'){
                         $data = json_decode($scheduled->getInfo(), true);
                         $request['concept'] = $data['concept'];
