@@ -42,6 +42,9 @@ class IncomingController2 extends RestApiController{
 
     public function createTransaction($data, $version_number, $type, $method_cname, $user_id, $group, $ip){
         //TODO inyectar driver con las credenciales correspondientes al DbWallet
+        $logger = $this->get('transaction.logger');
+        $logger->info('Incomig transaction...Method-> '.$method_cname.' Direction -> '.$type);
+
         $method = $this->get('net.telepay.'.$type.'.'.$method_cname.'.v'.$version_number);
 
         $method_list = $group->getMethodsList();
@@ -50,11 +53,10 @@ class IncomingController2 extends RestApiController{
             throw $this->createAccessDeniedException();
         }
 
+        $logger->info('Get mongo service');
+
         $dm = $this->get('doctrine_mongodb')->getManager();
         $em = $this->getDoctrine()->getManager();
-
-        $logger = $this->get('transaction.logger');
-        $logger->info('Incomig transaction...Method-> '.$method_cname.' Direction -> '.$type);
 
         //check if method is available
         $statusMethod = $em->getRepository('TelepayFinancialApiBundle:StatusMethod')->findOneBy(array(
