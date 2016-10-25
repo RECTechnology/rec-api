@@ -11,6 +11,11 @@ parameters:
     mailer_user:       ~
     mailer_password:   ~
 
+    mailer_transport_holy: ''
+    mailer_host_holy: ''
+    mailer_user_holy: ''
+    mailer_password_holy:   ~
+
     no_reply_email: "dev_no-reply@chip-chap.com"
     volume_email: "dev-volume@chip-chap.com"
 
