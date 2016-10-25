@@ -188,7 +188,7 @@ class IncomingController2 extends RestApiController{
 
         $checker = new LimitChecker();
 
-        if(!$checker->leq($newGroupLimitCount, $group_limit)) throw new HttpException(403,'Limit exceeded');
+        if(!$checker->leq($newGroupLimitCount, $group_limit)) throw new HttpException(405,'Limit exceeded');
 
         //obtain wallet and check founds for cash_out services for this group
         $wallets = $group->getWallets();
@@ -202,7 +202,7 @@ class IncomingController2 extends RestApiController{
             $logger->info('Incomig transaction...OUT');
             foreach ( $wallets as $wallet){
                 if ($wallet->getCurrency() == $method->getCurrency()){
-                    if($wallet->getAvailable() <= $total) throw new HttpException(403,'Not founds enough');
+                    if($wallet->getAvailable() <= $total) throw new HttpException(405,'Not founds enough');
                     //Bloqueamos la pasta en el wallet
                     $actual_available = $wallet->getAvailable();
                     $new_available = $actual_available - $total;
@@ -530,7 +530,7 @@ class IncomingController2 extends RestApiController{
                 //el cash-in de momento no se puede cancelar
                 if($transaction->getStatus()== Transaction::$STATUS_CREATED || $transaction->getStatus() == Transaction::$STATUS_REVIEW || ( ($method_cname == "halcash_es" || $method_cname == "halcash_pl") && $transaction->getStatus() == Transaction::$STATUS_SUCCESS && $transaction->getPayOutInfo()['status'] == Transaction::$STATUS_SENT )){
                     if($transaction->getStatus() == Transaction::$STATUS_REVIEW){
-                        throw new HttpException(403, 'Mothod not implemented');
+                        throw new HttpException(405, 'Mothod not implemented');
                     }else{
                         $logger->info('Update transaction -> canceling');
                         try {
