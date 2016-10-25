@@ -222,7 +222,7 @@ class SwiftController extends RestApiController{
         $clientLimitsCount = (new LimitAdder())->add($clientLimitsCount, $total);
         $checker = new LimitChecker();
         if(!$checker->leq($clientLimitsCount , $clientLimits))
-            throw new HttpException(509,'Limit exceeded');
+            throw new HttpException(403,'Limit exceeded');
 
         $em->persist($clientLimitsCount);
         $em->flush();
