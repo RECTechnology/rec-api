@@ -4,8 +4,8 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#composer-lock-the-lock-file",
         "This file is @generated automatically"
     ],
-    "hash": "0a7e95e76340d738fced576dd2ad8966",
-    "content-hash": "9ddce99f7ec4b54f044c18718598f5ee",
+    "hash": "8a5b135b49272e03ec88b0bc5ea598ae",
+    "content-hash": "1bfcf61dff727261e87320a43eb80fa9",
     "packages": [
         {
             "name": "blockchain/blockchain",
@@ -813,16 +813,17 @@
         },
         {
             "name": "doctrine/mongodb-odm",
-            "version": "1.0.x-dev",
+
+            "version": "1.1.2",
             "source": {
                 "type": "git",
                 "url": "https://github.com/doctrine/mongodb-odm.git",
-                "reference": "052971cd400fe0c6ea48dd3319fa98d145b0a843"
+                "reference": "e839648ef7649757aae3b9818236a6fa47c016cd"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/doctrine/mongodb-odm/zipball/052971cd400fe0c6ea48dd3319fa98d145b0a843",
-                "reference": "052971cd400fe0c6ea48dd3319fa98d145b0a843",
+                "url": "https://api.github.com/repos/doctrine/mongodb-odm/zipball/e839648ef7649757aae3b9818236a6fa47c016cd",
+                "reference": "e839648ef7649757aae3b9818236a6fa47c016cd",
                 "shasum": ""
             },
             "require": {
@@ -832,8 +833,8 @@
                 "doctrine/common": "~2.4",
                 "doctrine/inflector": "~1.0",
                 "doctrine/instantiator": "~1.0.1",
-                "doctrine/mongodb": "~1.2",
-                "php": ">=5.3.2",
+                "doctrine/mongodb": "~1.3",
+                "php": "^5.6 || ^7.0",
                 "symfony/console": "~2.3|~3.0"
             },
             "require-dev": {
@@ -841,12 +842,13 @@
                 "symfony/yaml": "~2.3|~3.0"
             },
             "suggest": {
+                "alcaeus/mongo-php-adapter": "Allows usage of PHP 7",
                 "symfony/yaml": "Enables the YAML metadata mapping driver"
             },
             "type": "library",
             "extra": {
                 "branch-alias": {
-                    "dev-master": "1.0.x-dev"
+                    "dev-master": "1.1.x-dev"
                 }
             },
             "autoload": {
@@ -892,20 +894,21 @@
                 "odm",
                 "persistence"
             ],
-            "time": "2016-10-07 09:17:14"
+
+            "time": "2016-10-07 09:18:05"
         },
         {
             "name": "doctrine/mongodb-odm-bundle",
-            "version": "3.0.x-dev",
+            "version": "3.0.2",
             "source": {
                 "type": "git",
                 "url": "https://github.com/doctrine/DoctrineMongoDBBundle.git",
-                "reference": "beeed22cd07f9e5fe5ac2524a8be37d4656dd514"
+                "reference": "ce759711b418617191f599f2b7e02048191146b7"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/doctrine/DoctrineMongoDBBundle/zipball/beeed22cd07f9e5fe5ac2524a8be37d4656dd514",
-                "reference": "beeed22cd07f9e5fe5ac2524a8be37d4656dd514",
+                "url": "https://api.github.com/repos/doctrine/DoctrineMongoDBBundle/zipball/ce759711b418617191f599f2b7e02048191146b7",
+                "reference": "ce759711b418617191f599f2b7e02048191146b7",
                 "shasum": ""
             },
             "require": {
@@ -962,7 +965,7 @@
                 "persistence",
                 "symfony"
             ],
-            "time": "2016-02-08 21:00:31"
+            "time": "2015-12-26 16:04:48"
         },
         {
             "name": "doctrine/orm",
@@ -3170,8 +3173,6 @@
         "friendsofsymfony/user-bundle": 20,
         "jms/serializer-bundle": 20,
         "friendsofsymfony/oauth-server-bundle": 20,
-        "doctrine/mongodb-odm": 20,
-        "doctrine/mongodb-odm-bundle": 20,
         "payward/kraken-api-client": 20,
         "rickmoreno/getfaircoin-api": 20,
         "telepay/php-sdk": 20,
