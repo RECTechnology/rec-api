@@ -42,6 +42,9 @@ class IncomingController2 extends RestApiController{
 
     public function createTransaction($data, $version_number, $type, $method_cname, $user_id, $group, $ip){
         //TODO inyectar driver con las credenciales correspondientes al DbWallet
+        $logger = $this->get('transaction.logger');
+        $logger->info('Incomig transaction...Method-> '.$method_cname.' Direction -> '.$type);
+
         $method = $this->get('net.telepay.'.$type.'.'.$method_cname.'.v'.$version_number);
 
         $method_list = $group->getMethodsList();
@@ -50,11 +53,10 @@ class IncomingController2 extends RestApiController{
             throw $this->createAccessDeniedException();
         }
 
+        $logger->info('Get mongo service');
+
         $dm = $this->get('doctrine_mongodb')->getManager();
         $em = $this->getDoctrine()->getManager();
-
-        $logger = $this->get('transaction.logger');
-        $logger->info('Incomig transaction...Method-> '.$method_cname.' Direction -> '.$type);
 
         //check if method is available
         $statusMethod = $em->getRepository('TelepayFinancialApiBundle:StatusMethod')->findOneBy(array(
@@ -186,7 +188,7 @@ class IncomingController2 extends RestApiController{
 
         $checker = new LimitChecker();
 
-        if(!$checker->leq($newGroupLimitCount, $group_limit)) throw new HttpException(509,'Limit exceeded');
+        if(!$checker->leq($newGroupLimitCount, $group_limit)) throw new HttpException(405,'Limit exceeded');
 
         //obtain wallet and check founds for cash_out services for this group
         $wallets = $group->getWallets();
@@ -201,7 +203,7 @@ class IncomingController2 extends RestApiController{
             foreach ( $wallets as $wallet){
                 if ($wallet->getCurrency() == $method->getCurrency()){
                     $logger->info('Available = ' . $wallet->getAvailable() .  " TOTAL: " . $total);
-                    if($wallet->getAvailable() <= $total) throw new HttpException(509,'Not founds enough');
+                    if($wallet->getAvailable() <= $total) throw new HttpException(405,'Not founds enough');
                     //Bloqueamos la pasta en el wallet
                     $actual_available = $wallet->getAvailable();
                     $new_available = $actual_available - $total;
@@ -324,7 +326,12 @@ class IncomingController2 extends RestApiController{
 
         if($transaction == false) throw new HttpException(500, "oOps, some error has occurred within the call");
 
-        return $this->methodTransaction(201, $transaction, "Done");
+        if($user_id == -1){
+            return 'Transaction generate successfully';
+        }else{
+            return $this->methodTransaction(201, $transaction, "Done");
+        }
+
     }
 
     /**
@@ -524,7 +531,7 @@ class IncomingController2 extends RestApiController{
                 //el cash-in de momento no se puede cancelar
                 if($transaction->getStatus()== Transaction::$STATUS_CREATED || $transaction->getStatus() == Transaction::$STATUS_REVIEW || ( ($method_cname == "halcash_es" || $method_cname == "halcash_pl") && $transaction->getStatus() == Transaction::$STATUS_SUCCESS && $transaction->getPayOutInfo()['status'] == Transaction::$STATUS_SENT )){
                     if($transaction->getStatus() == Transaction::$STATUS_REVIEW){
-                        throw new HttpException(403, 'Mothod not implemented');
+                        throw new HttpException(405, 'Mothod not implemented');
                     }else{
                         $logger->info('Update transaction -> canceling');
                         try {

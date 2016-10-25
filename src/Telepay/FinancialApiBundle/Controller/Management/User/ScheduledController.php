@@ -68,7 +68,7 @@ class ScheduledController extends BaseApiController{
             if(!$request->request->has('swift')) throw new HttpException(400,'Missing parameter swift');
             $swift = $request->request->get('swift');
             if(strlen($swift)<8 && strlen($swift)>11){
-                throw new HttpException(400,'Swift lenght incorrect');
+                throw new HttpException(400,'Swift length incorrect');
             }
             $request->request->remove('swift');
 
@@ -106,7 +106,7 @@ class ScheduledController extends BaseApiController{
         $user = $this->get('security.context')->getToken()->getUser();
 
         $all = $this->getRepository()->findBy(array(
-            'user'  =>  $user
+            'group'  =>  $user->getActiveGroup()
         ));
 
         $total = count($all);
@@ -126,12 +126,100 @@ class ScheduledController extends BaseApiController{
      * @Rest\View
      */
     public function updateAction(Request $request, $id){
+
+        $user = $this->get('security.context')->getToken()->getUser();
+
+        $scheduled = $this->getRepository()->findOneBy(array(
+            'group'  =>  $user->getActiveGroup(),
+            'id'    =>  $id
+        ));
+
+        if(!$scheduled) throw new HttpException(404, 'Scheduled not found');
+
+        if($request->request->has('method')) throw new HttpException(403, 'This field can\'t be changed');
+        if($request->request->has('wallet')) throw new HttpException(403, 'This field can\'t be changed');
+
+        if(!$request->request->has('period')) {
+            $period = $request->request->get('period');
+            // 0 => monthly
+            // 1 => daily
+            $periods_availables = array("0", "1");
+            if(!in_array($period, $periods_availables)){
+                throw new HttpException(400,'Unavailable value for parameter period');
+            }
+        }
+
+        if($request->request->has('iban')
+            || $request->request->has('swift')
+            || $request->request->has('concept')
+            || $request->request->has('beneficiary')
+        ){
+
+            $currentInfo = json_decode($scheduled->getInfo());
+
+            if($request->request->has('iban')){
+                $iban = $request->request->get('iban');
+                if(!$this->checkIBAN($iban)){
+                    throw new HttpException(400,'Iban incorrect');
+                }
+                $request->request->remove('iban');
+            }else{
+                $iban = $currentInfo['iban'];
+            }
+
+            if($request->request->has('swift')){
+                $swift = $request->request->get('swift');
+                if(strlen($swift)<8 && strlen($swift)>11){
+                    throw new HttpException(400,'Swift length incorrect');
+                }
+                $request->request->remove('swift');
+            }else{
+                $swift = $currentInfo['swift'];
+            }
+
+            if($request->request->has('concept')){
+                $concept = $request->request->get('concept');
+                $request->request->remove('concept');
+            }else{
+                $concept = $currentInfo['concept'];
+            }
+
+            if($request->request->has('beneficiary')){
+                $beneficiary = $request->request->get('beneficiary');
+                $request->request->remove('beneficiary');
+            }else{
+                $beneficiary = $currentInfo['beneficiary'];
+            }
+
+            $request->request->add(array(
+                'info'    =>  json_encode(array(
+                    "iban" => $iban,
+                    "swift" => $swift,
+                    "concept" => $concept,
+                    "beneficiary" => $beneficiary
+                    )
+                ))
+            );
+        }
+
+        return parent::updateAction($request, $id);
     }
 
     /**
      * @Rest\View
      */
     public function deleteAction(Request $request, $id){
+        $user = $this->get('security.context')->getToken()->getUser();
+
+        $scheduled = $this->getRepository()->findOneBy(array(
+            'id'    =>  $id,
+            'group' =>  $user->getActiveGroup()
+        ));
+
+        if(!$scheduled) throw new HttpException(404, 'Scheduled not found');
+
+        return parent::deleteAction($id);
+
     }
 
     private function checkIBAN($iban){

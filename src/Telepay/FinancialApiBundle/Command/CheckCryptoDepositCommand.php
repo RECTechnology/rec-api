@@ -48,150 +48,158 @@ class CheckCryptoDepositCommand extends SyncronizedContainerAwareCommand
                 $methodDriver = $this->getContainer()->get('net.telepay.in.'.$method.'.v1');
 
                 foreach($tokens as $token){
-                    $output->writeln($token->getId() . ' TOKEN');
+                    $output->writeln($token->getId() . ' TOKEN_id');
+                    $output->writeln($token->getToken() . ' TOKEN');
                     $receivedTransactions = $methodDriver->getReceivedByAddress($token->getToken());
-                    $output->writeln('btc transactions');
-                    foreach($receivedTransactions as $received){
-                        $output->writeln($received['tx'].' HASH');
-                        //TODO habria que ver como se devuelve el hash para compararlo con los guardados
-                        $deposit = $em->getRepository('TelepayFinancialApiBundle:CashInDeposit')->findOneBy(
-                            array(
-                                'token' =>  $token,
-                                'hash'  =>  $received['hash']
-                            )
-                        );
+                    $receivedTransactions = $receivedTransactions * 1e8;
+                    $output->writeln($receivedTransactions. ' total amount');
+                    $output->writeln($method.' transactions');
 
-                        if($deposit){
-                            if($deposit->getStatus() == CashInDeposit::$STATUS_RECEIVED){
-                                if($received['confirmations'] >= 1){
+                    $totalDepositedTransactions = $em->getRepository('TelepayFinancialApiBundle:CashInDeposit')->findBy(array(
+                        'token'    =>  $token
+                    ));
 
-                                    //TODO get fees
-                                    $companyFees = $feeManipulator->getMethodFees($token->getCompany(), $method);
-                                    $fixed_fee = $companyFees->getFixed();
-                                    $variable_fee = $companyFees->getVariable();
+                    $totalDeposited = 0;
+                    if($totalDepositedTransactions){
+                        $output->writeln('Total depositedTransaction exists');
+                        foreach($totalDepositedTransactions as $deposited){
+                            $totalDeposited += $deposited->getAmount();
+                        }
+                    }
+                    $output->writeln('Total deposited: '.$totalDeposited);
+                    if($totalDeposited < $receivedTransactions){
+                        $output->writeln('New transaction detected');
+                        $depositAmount = $receivedTransactions - $totalDeposited;
 
-                                    //todo Generate new transaction
-                                    $depositTransaction = new Transaction();
-                                    $depositTransaction->setStatus(Transaction::$STATUS_SUCCESS);
-                                    $depositTransaction->setScale(Currency::$SCALE[$token->getCurrency()]);
-                                    $depositTransaction->setAmount($deposit->getAmount());
-                                    $depositTransaction->setGroup($token->getCompany()->getId());
-                                    $depositTransaction->setCreated(new \MongoDate());
-                                    $depositTransaction->setUpdated(new \MongoDate());
-                                    $depositTransaction->setIp('');
-                                    $depositTransaction->setFixedFee($fixed_fee);
-                                    $depositTransaction->setVariableFee($variable_fee);
-                                    $depositTransaction->setVersion(1);
+                        //new deposit
+                        $output->writeln('Creating new deposit');
+                        $deposit = new CashInDeposit();
+                        $deposit->setToken($token);
+                        $deposit->setStatus(CashInDeposit::$STATUS_DEPOSITED);
+                        $deposit->setAmount($depositAmount);
+                        $deposit->setConfirmations(1);
+                        $deposit->setHash(uniqid('hash-'));
 
-                                    $depositTransaction->setDebugData(array(
-                                        'deposit_id' => $deposit->getId(),
-                                        'token_id' => $token->getId()
-                                    ));
-                                    $depositTransaction->setTotal($deposit->getAmount());
-                                    $depositTransaction->setCurrency($token->getCurrency());
-                                    $depositTransaction->setService($method);
-                                    $depositTransaction->setMethod($method);
-                                    $depositTransaction->setType('in');
-                                    $depositTransaction->setPayInInfo(array(
-                                        'amount'    =>  $deposit->getAmount(),
-                                        'currency'  =>  $token->getCurrency(),
-                                        'scale' =>  Currency::$SCALE[$token->getCurrency()],
-                                        'address' => $token->getToken(),
-                                        'expires_in' => intval(1200),
-                                        'received' => $received['received'],
-                                        'min_confirmations' => 1,
-                                        'confirmations' => $received['confirmations'],
-                                        'status'    =>  Transaction::$STATUS_SUCCESS,
-                                        'final'     =>  true
-                                    ));
+                        $em->persist($deposit);
+                        $em->flush();
 
-                                    $dm->persist($depositTransaction);
-                                    $dm->flush();
+                        //get fees
+                        $companyFees = $feeManipulator->getMethodFees($token->getCompany(), $methodDriver);
+                        $fixed_fee = $companyFees->getFixed();
+                        $variable_fee = $companyFees->getVariable();
 
+                        //Generate new transaction
+                        $output->writeln('Generate new transaction');
+                        $depositTransaction = new Transaction();
+                        $depositTransaction->setStatus(Transaction::$STATUS_SUCCESS);
+                        $depositTransaction->setScale(Currency::$SCALE[$token->getCurrency()]);
+                        $depositTransaction->setAmount($depositAmount);
+                        $depositTransaction->setGroup($token->getCompany()->getId());
+                        $depositTransaction->setCreated(new \MongoDate());
+                        $depositTransaction->setUpdated(new \MongoDate());
+                        $depositTransaction->setIp('');
+                        $depositTransaction->setFixedFee($fixed_fee);
+                        $depositTransaction->setVariableFee($variable_fee);
+                        $depositTransaction->setVersion(1);
 
-                                    //change status
-                                    $deposit->setStatus(CashInDeposit::$STATUS_DEPOSITED);
-                                    $em->persist($deposit);
-                                    $em->flush();
+                        $depositTransaction->setDebugData(array(
+                            'deposit_id' => $deposit->getId(),
+                            'token_id' => $token->getId()
+                        ));
+                        $depositTransaction->setTotal($deposit->getAmount());
+                        $depositTransaction->setCurrency($token->getCurrency());
+                        $depositTransaction->setService($method);
+                        $depositTransaction->setMethod($method);
+                        $depositTransaction->setType('in');
+                        $depositTransaction->setPayInInfo(array(
+                            'amount'    =>  $deposit->getAmount(),
+                            'currency'  =>  $token->getCurrency(),
+                            'scale' =>  Currency::$SCALE[$token->getCurrency()],
+                            'address' => $token->getToken(),
+                            'expires_in' => intval(1200),
+                            'received' => $depositAmount,
+                            'min_confirmations' => 1,
+                            'confirmations' => 1,
+                            'status'    =>  Transaction::$STATUS_SUCCESS,
+                            'final'     =>  true
+                        ));
 
-                                    $wallets = $token->getCompany()->getWallets();
-                                    foreach ($wallets as $wallet) {
-                                        if ($wallet->getCurrency() == $token->getCurrency()) {
-                                            $current_wallet = $wallet;
-                                        }
-                                    }
+                        $dm->persist($depositTransaction);
+                        $dm->flush();
 
-                                    $total_fee = $fixed_fee + $variable_fee;
-                                    $total = $deposit->getAmount() - $total_fee;
-
-                                    $current_wallet->setAvailable($current_wallet->getAvailable() + $total);
-                                    $current_wallet->setBalance($current_wallet->getBalance() + $total);
-
-                                    $em->persist($current_wallet);
-                                    $em->flush();
-
-                                    if ($total_fee != 0) {
-                                        // restar las comisiones
-                                        $feeTransaction = new Transaction();
-                                        $feeTransaction->setStatus('success');
-                                        $feeTransaction->setScale($depositTransaction->getScale());
-                                        $feeTransaction->setAmount($total_fee);
-                                        $feeTransaction->setGroup($depositTransaction->getCompany()->getId());
-                                        $feeTransaction->setCreated(new \MongoDate());
-                                        $feeTransaction->setUpdated(new \MongoDate());
-                                        $feeTransaction->setIp($depositTransaction->getIp());
-                                        $feeTransaction->setFixedFee($fixed_fee);
-                                        $feeTransaction->setVariableFee($variable_fee);
-                                        $feeTransaction->setVersion($depositTransaction->getVersion());
-                                        $feeTransaction->setDataIn(array(
-                                            'previous_transaction' => $depositTransaction->getId(),
-                                            'amount' => -$total_fee
-                                        ));
-                                        $feeTransaction->setDebugData(array(
-                                            'previous_balance' => $current_wallet->getBalance(),
-                                            'previous_transaction' => $depositTransaction->getId()
-                                        ));
-                                        $feeTransaction->setTotal(-$total_fee);
-                                        $feeTransaction->setCurrency($depositTransaction->getCurrency());
-                                        $feeTransaction->setService($method);
-                                        $feeTransaction->setMethod($method);
-                                        $feeTransaction->setType('fee');
-
-                                        $dm->persist($feeTransaction);
-                                        $dm->flush();
-
-                                        $creator = $token->getCompany()->getGroupCreator();
-
-                                        //luego a la ruleta de admins
-                                        $dealer = $this->getContainer()->get('net.telepay.commons.fee_deal');
-                                        $dealer->deal(
-                                            $creator,
-                                            $deposit->getAmount(),
-                                            $method,
-                                            $type,
-                                            $token->getCurrency(),
-                                            $total_fee,
-                                            $depositTransaction->getId(),
-                                            $depositTransaction->getVersion());
-                                    }
-
-                                }
+                        $wallets = $token->getCompany()->getWallets();
+                        foreach ($wallets as $wallet) {
+                            if ($wallet->getCurrency() == $token->getCurrency()) {
+                                $current_wallet = $wallet;
                             }
-
-                        }else{
-                            //TODO new deposit
-                            $deposit = new CashInDeposit();
-                            $deposit->setToken($token);
-                            $deposit->setStatus(CashInDeposit::$STATUS_RECEIVED);
-                            $deposit->setAmount($received['received']);
-                            $deposit->setConfirmations($received['confirmations']);
-                            $deposit->setHash($received['hash']);
-
-                            $em->persist($deposit);
-                            $em->flush();
                         }
 
+                        $total_fee = $fixed_fee +($depositAmount * ($variable_fee / 100));
+                        $total = $deposit->getAmount() - $total_fee;
+
+                        $current_wallet->setAvailable($current_wallet->getAvailable() + $total);
+                        $current_wallet->setBalance($current_wallet->getBalance() + $total);
+
+                        $em->persist($current_wallet);
+                        $em->flush();
+
+                        if ($total_fee != 0) {
+                            // restar las comisiones
+                            $output->writeln('Creating fee transaction');
+                            $feeTransaction = new Transaction();
+                            $feeTransaction->setStatus('success');
+                            $feeTransaction->setScale($depositTransaction->getScale());
+                            $feeTransaction->setAmount($total_fee);
+                            $feeTransaction->setGroup($depositTransaction->getGroup());
+                            $feeTransaction->setCreated(new \MongoDate());
+                            $feeTransaction->setUpdated(new \MongoDate());
+                            $feeTransaction->setIp($depositTransaction->getIp());
+                            $feeTransaction->setFixedFee($fixed_fee);
+                            $feeTransaction->setVariableFee($variable_fee);
+                            $feeTransaction->setVersion($depositTransaction->getVersion());
+                            $feeTransaction->setDataIn(array(
+                                'previous_transaction' => $depositTransaction->getId(),
+                                'amount' => -$total_fee
+                            ));
+                            $feeTransaction->setDebugData(array(
+                                'previous_balance' => $current_wallet->getBalance(),
+                                'previous_transaction' => $depositTransaction->getId()
+                            ));
+                            $feeTransaction->setTotal(-$total_fee);
+                            $feeTransaction->setCurrency($depositTransaction->getCurrency());
+                            $feeTransaction->setService($method);
+                            $feeTransaction->setMethod($method);
+                            $feeTransaction->setType('fee');
+                            $feeInfo = array(
+                                'previous_transaction'  =>  $depositTransaction->getId(),
+                                'previous_amount'   =>  $depositTransaction->getAmount(),
+                                'amount'                =>  $total_fee,
+                                'currency'      =>  $depositTransaction->getCurrency(),
+                                'scale'     =>  $depositTransaction->getScale(),
+                                'concept'           =>  'Deposit-'.$method.'->fee',
+                                'status'    =>  Transaction::$STATUS_SUCCESS
+                            );
+                            $feeTransaction->setFeeInfo($feeInfo);
+
+                            $dm->persist($feeTransaction);
+                            $dm->flush();
+
+                            $creator = $token->getCompany()->getGroupCreator();
+
+                            //luego a la ruleta de admins
+                            $dealer = $this->getContainer()->get('net.telepay.commons.fee_deal');
+                            $dealer->deal(
+                                $creator,
+                                $deposit->getAmount(),
+                                $method,
+                                $type,
+                                $token->getCurrency(),
+                                $total_fee,
+                                $depositTransaction->getId(),
+                                $depositTransaction->getVersion());
+                        }
                     }
+
                 }
                 $output->writeln($method . ' transactions checked');
             }

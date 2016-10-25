@@ -13,6 +13,8 @@ services:
 
     app.incoming_controller:
         class: Telepay\FinancialApiBundle\Controller\Transactions\IncomingController2
+        calls:
+            - [setContainer, ["@service_container"] ]
 
     notificator:
         class: Telepay\FinancialApiBundle\DependencyInjection\Transactions\Core\Notificator
@@ -25,9 +27,9 @@ services:
             - [setContainer, ["@service_container"] ]
 
     command.validate.swiftSepa:
-            class: Telepay\FinancialApiBundle\Command\CheckSwiftCommand
-            calls:
-                - [setContainer, ["@service_container"] ]
+        class: Telepay\FinancialApiBundle\Command\CheckSwiftCommand
+        calls:
+            - [setContainer, ["@service_container"] ]
 
     security.authentication.switchuser_listener:
         class: Telepay\FinancialApiBundle\Security\Firewall\SwitchUserListener

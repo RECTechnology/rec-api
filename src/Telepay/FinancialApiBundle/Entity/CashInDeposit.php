@@ -192,4 +192,12 @@ class CashInDeposit {
     {
         $this->token = $token;
     }
+
+    /**
+     * @return mixed
+     */
+    public function getId()
+    {
+        return $this->id;
+    }
 }
