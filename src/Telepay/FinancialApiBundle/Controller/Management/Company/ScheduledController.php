@@ -1,6 +1,6 @@
 <?php
 
-namespace Telepay\FinancialApiBundle\Controller\Management\User;
+namespace Telepay\FinancialApiBundle\Controller\Management\Company;
 
 use Symfony\Component\HttpKernel\Exception\HttpException;
 use Telepay\FinancialApiBundle\Controller\BaseApiController;

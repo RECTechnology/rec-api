@@ -17,3 +17,30 @@ company_swift_easypay_validate:
     defaults: { _controller: Telepay\FinancialApiBundle\Controller\Management\Company\SpecialActionsController::easypayValidation }
     requirements:
         _method: PUT
+
+
+######################## COMPANY SCHEDULED ########################
+
+scheduled_list:
+    pattern:  /company/v1/scheduled
+    defaults: { _controller: Telepay\FinancialApiBundle\Controller\Management\Company\ScheduledController::indexAction }
+    requirements:
+        _method: GET
+
+scheduled_create:
+    pattern:  /company/v1/scheduled
+    defaults: { _controller: Telepay\FinancialApiBundle\Controller\Management\Company\ScheduledController::createAction }
+    requirements:
+        _method: POST
+
+scheduled_update:
+    pattern:  /company/v1/scheduled/{id}
+    defaults: { _controller: Telepay\FinancialApiBundle\Controller\Management\Company\ScheduledController::updateAction }
+    requirements:
+        _method: PUT
+
+scheduled_delete:
+    pattern:  /company/v1/scheduled/{id}
+    defaults: { _controller: Telepay\FinancialApiBundle\Controller\Management\Company\ScheduledController::deleteAction }
+    requirements:
+        _method: DELETE

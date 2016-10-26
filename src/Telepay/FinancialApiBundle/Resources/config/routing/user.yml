@@ -303,28 +303,3 @@ user_swift_update_transaction:
     requirements:
         _method: PUT
 
-######################## USER FEES ########################
-
-scheduled_list:
-    pattern:  /user/v1/scheduled
-    defaults: { _controller: Telepay\FinancialApiBundle\Controller\Management\User\ScheduledController::indexAction }
-    requirements:
-        _method: GET
-
-scheduled_create:
-    pattern:  /user/v1/scheduled
-    defaults: { _controller: Telepay\FinancialApiBundle\Controller\Management\User\ScheduledController::createAction }
-    requirements:
-        _method: POST
-
-scheduled_update:
-    pattern:  /user/v1/scheduled/{id}
-    defaults: { _controller: Telepay\FinancialApiBundle\Controller\Management\User\ScheduledController::updateAction }
-    requirements:
-        _method: PUT
-
-scheduled_delete:
-    pattern:  /user/v1/scheduled/{id}
-    defaults: { _controller: Telepay\FinancialApiBundle\Controller\Management\User\ScheduledController::deleteAction }
-    requirements:
-        _method: DELETE
