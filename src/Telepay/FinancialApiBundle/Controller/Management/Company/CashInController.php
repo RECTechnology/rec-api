@@ -26,27 +26,35 @@ class CashInController extends BaseApiController{
     /**
      * @Rest\View
      */
-    public function indexAction(Request $request){
+    public function indexAction(Request $request, $method = null){
 
         $user = $this->get('security.context')->getToken()->getUser();
         $company = $user->getActiveGroup();
 
-        $all = $this->getRepository()->findBy(array(
-            'company'  =>  $company
-        ));
+        if($method){
+            $all = $this->getRepository()->findBy(array(
+                'company'  =>  $company,
+                'method'    =>  $method
+            ));
+        }else{
+            $all = $this->getRepository()->findBy(array(
+                'company'  =>  $company
+            ));
+        }
+
 
         $total = count($all);
 
         foreach($all as $one){
-            $method = $one->getMethod();
-            $meth = explode('-', $method);
+            $methode = $one->getMethod();
+            $meth = explode('-', $methode);
 
             $methodDriver = $this->get('net.telepay.in.'.$meth[0].'.v1');
 
-            if($method == 'easypay'){
+            if($methode == 'easypay'){
                 $info = $methodDriver->getInfo();
                 $one->setAccountNumber($info['account_number']);
-            }elseif($method == 'sepa'){
+            }elseif($methode == 'sepa'){
                 $info = $methodDriver->getInfo();
                 $one->setAccountNumber($info['iban']);
                 $one->setBeneficiary($info['beneficiary']);

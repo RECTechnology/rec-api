@@ -7,7 +7,7 @@ company_generate_new_token:
         _method: POST
 
 company_index_tokens:
-    pattern:  /company/v1/wallet/cash_in_token
+    pattern:  /company/v1/wallet/cash_in_token/{method}
     defaults: { _controller: Telepay\FinancialApiBundle\Controller\Management\Company\CashInController::indexAction }
     requirements:
         _method: GET
