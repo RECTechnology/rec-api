@@ -34,11 +34,13 @@ class CashInController extends BaseApiController{
         if($method){
             $all = $this->getRepository()->findBy(array(
                 'company'  =>  $company,
-                'method'    =>  $method
+                'method'    =>  $method,
+                'status'    =>  CashInTokens::$STATUS_ACTIVE
             ));
         }else{
             $all = $this->getRepository()->findBy(array(
-                'company'  =>  $company
+                'company'  =>  $company,
+                'status'    =>  CashInTokens::$STATUS_ACTIVE
             ));
         }
 
@@ -109,6 +111,14 @@ class CashInController extends BaseApiController{
 
         if(!in_array($method.'-'.$type, $company_methods)) throw new HttpException(405, 'Method not allowed in this company.');
 
+        $tokens = $this->getRepository()->findBy(array(
+            'company'  =>  $company,
+            'method'    =>  $method,
+            'status'    =>  CashInTokens::$STATUS_ACTIVE
+        ));
+
+        if(count($tokens) >= 5) throw new HttpException(409, 'You has exceeded the max addresses allowed');
+
         $paymentInfo = $methodDriver->getPayInInfo(0);
 
         if($method == 'easypay'){
@@ -138,6 +148,7 @@ class CashInController extends BaseApiController{
      */
     public function updateAction(Request $request, $id){
 
+        //TODO active and disable token
         throw new HttpException(403, 'Method not implemented');
 
     }
