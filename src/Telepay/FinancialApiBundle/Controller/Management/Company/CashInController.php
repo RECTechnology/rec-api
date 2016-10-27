@@ -188,7 +188,7 @@ class CashInController extends BaseApiController{
         $company = $user->getActiveGroup();
 
         if($request->request->has('token')){
-            $token = $request->request->getToken();
+            $token = $request->request->get('token');
         } else{
             throw new HttpException(404, 'Param token not found');
         }
