@@ -148,8 +148,74 @@ class CashInController extends BaseApiController{
      */
     public function updateAction(Request $request, $id){
 
-        //TODO active and disable token
-        throw new HttpException(403, 'Method not implemented');
+        $user = $this->get('security.context')->getToken()->getUser();
+
+        $company = $user->getActiveGroup();
+
+        $cashIn = $this->getRepository()->findOneBy(array(
+            'id'    =>  $id,
+            'company' =>  $company
+        ));
+
+        if(!$cashIn) throw new HttpException(404, 'Cash In Token not found');
+
+        if($request->request->has('disable')){
+            $disable = $request->request->get('disable');
+
+            if($disable){
+                $request->request->add(array(
+                    'status'    =>  CashInTokens::$STATUS_CLOSED
+                ));
+            }
+
+            $request->request->remove('disable');
+        }
+
+        if($request->request->has('method') || $request->request->has('currency') || $request->request->has('status') || $request->request->has('token'))
+            throw new HttpException(403, 'The request has not allowed params');
+
+        return parent::updateAction($request, $id);
+
+    }
+
+    /**
+     * @Rest\View
+     */
+    public function reactiveToken(Request $request){
+
+        $user = $this->get('security.context')->getToken()->getUser();
+
+        $company = $user->getActiveGroup();
+
+        if($request->request->has('token')){
+            $token = $request->request->getToken();
+        } else{
+            throw new HttpException(404, 'Param token not found');
+        }
+
+        $cashIn = $this->getRepository()->findOneBy(array(
+            'token'    =>  $token,
+            'company' =>  $company
+        ));
+
+        if(!$cashIn) throw new HttpException(404, 'Cash In Token not found');
+
+        $all = $this->getRepository()->findBy(array(
+            'company'   =>  $company,
+            'method'    =>  $cashIn->getMethod(),
+            'status'    =>  CashInTokens::$STATUS_ACTIVE
+        ));
+
+        if(count($all) >= 5) throw new HttpException(409, 'You has exceeded the number of tokens actives for this method');
+
+        $em = $this->getDoctrine()->getManager();
+        $cashIn->setStatus(CashInTokens::$STATUS_ACTIVE);
+        $cashIn->setUpdated(new \DateTime());
+
+        $em->persist($cashIn);
+        $em->flush();
+
+        return $this->rest(204, 'Token activated successfully');
 
     }
 

@@ -12,11 +12,23 @@ company_index_tokens:
     requirements:
         _method: GET
 
+company_reactive_token:
+    pattern:  /company/v1/wallet/cash_in_token/reactive
+    defaults: { _controller: Telepay\FinancialApiBundle\Controller\Management\Company\CashInController::reactiveToken }
+    requirements:
+        _method: PUT
+
 company_index_tokens_by_method:
     pattern:  /company/v1/wallet/cash_in_token/{method}
     defaults: { _controller: Telepay\FinancialApiBundle\Controller\Management\Company\CashInController::indexAction }
     requirements:
         _method: GET
+
+company_update_tokens:
+    pattern:  /company/v1/wallet/cash_in_token/{id}
+    defaults: { _controller: Telepay\FinancialApiBundle\Controller\Management\Company\CashInController::updateAction }
+    requirements:
+        _method: PUT
 
 company_swift_easypay_validate:
     pattern:  /company/v1/swift/easypay/{id}
