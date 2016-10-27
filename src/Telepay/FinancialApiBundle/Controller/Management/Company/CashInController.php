@@ -159,6 +159,9 @@ class CashInController extends BaseApiController{
 
         if(!$cashIn) throw new HttpException(404, 'Cash In Token not found');
 
+        if($request->request->has('method') || $request->request->has('currency') || $request->request->has('status') || $request->request->has('token'))
+            throw new HttpException(403, 'The request has not allowed params');
+
         if($request->request->has('disable')){
             $disable = $request->request->get('disable');
 
@@ -170,9 +173,6 @@ class CashInController extends BaseApiController{
 
             $request->request->remove('disable');
         }
-
-        if($request->request->has('method') || $request->request->has('currency') || $request->request->has('status') || $request->request->has('token'))
-            throw new HttpException(403, 'The request has not allowed params');
 
         return parent::updateAction($request, $id);
 
