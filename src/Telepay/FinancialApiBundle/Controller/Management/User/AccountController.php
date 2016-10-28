@@ -806,42 +806,60 @@ class AccountController extends BaseApiController{
             );
         }
         elseif($type == 'android'){
-            $company->setMethodsList(array('btc-in'));
+            $methodsList = array('btc-in', 'fac-in', 'btc-out', 'fac-out');
+            $company->setMethodsList($methodsList);
             $em->persist($company);
 
-            //create new ServiceFee
-            $newFee = new ServiceFee();
-            $newFee->setGroup($company);
-            $newFee->setFixed(0);
-            $newFee->setVariable(0);
-            $newFee->setServiceName('btc-in');
-            $newFee->setCurrency('BTC');
-            $em->persist($newFee);
+            foreach($methodsList as $method){
+                $method_ex = explode('-', $method);
+                $meth = $method_ex[0];
+                $type = $method_ex[1];
 
-            //create new LimitDefinition
-            $newLimit = new LimitDefinition();
-            $newLimit->setGroup($company);
-            $newLimit->setCurrency('BTC');
-            $newLimit->setCname('btc-in');
-            $newLimit->setDay(-1);
-            $newLimit->setWeek(-1);
-            $newLimit->setMonth(-1);
-            $newLimit->setYear(-1);
-            $newLimit->setSingle(-1);
-            $newLimit->setTotal(-1);
-            $em->persist($newLimit);
+                $variable = 0;
+                $daily = -1;
+                if($type == 'out'){
+                    $variable = 10;
+                    if($meth == 'btc'){
+                        $daily = 100000000;
+                    }else{
+                        $daily = 1000000000000;
+                    }
 
-            //create new LimitCount
-            $newCount = new LimitCount();
-            $newCount->setDay(0);
-            $newCount->setWeek(0);
-            $newCount->setMonth(0);
-            $newCount->setYear(0);
-            $newCount->setSingle(0);
-            $newCount->setTotal(0);
-            $newCount->setCname('btc-in');
-            $newCount->setGroup($company);
-            $em->persist($newCount);
+                }
+                //create new ServiceFee
+                $newFee = new ServiceFee();
+                $newFee->setGroup($company);
+                $newFee->setFixed(0);
+                $newFee->setVariable($variable);
+                $newFee->setServiceName($method);
+                $newFee->setCurrency(strtoupper($meth));
+                $em->persist($newFee);
+
+                //create new LimitDefinition
+                $newLimit = new LimitDefinition();
+                $newLimit->setGroup($company);
+                $newLimit->setCurrency(strtoupper($meth));
+                $newLimit->setCname($method);
+                $newLimit->setDay($daily);
+                $newLimit->setWeek(-1);
+                $newLimit->setMonth(-1);
+                $newLimit->setYear(-1);
+                $newLimit->setSingle(-1);
+                $newLimit->setTotal(-1);
+                $em->persist($newLimit);
+
+                //create new LimitCount
+                $newCount = new LimitCount();
+                $newCount->setDay(0);
+                $newCount->setWeek(0);
+                $newCount->setMonth(0);
+                $newCount->setYear(0);
+                $newCount->setSingle(0);
+                $newCount->setTotal(0);
+                $newCount->setCname($method);
+                $newCount->setGroup($company);
+                $em->persist($newCount);
+            }
 
             //create new fixed address for bitcoin and return
             $btcAddress = new CashInTokens();
