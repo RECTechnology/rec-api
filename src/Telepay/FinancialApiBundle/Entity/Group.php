@@ -727,4 +727,20 @@ class Group extends BaseGroup
         $this->cash_in_tokens = $cash_in_tokens;
     }
 
+    /**
+     * @return mixed
+     */
+    public function getAddressNumber()
+    {
+        return $this->address_number;
+    }
+
+    /**
+     * @param mixed $address_number
+     */
+    public function setAddressNumber($address_number)
+    {
+        $this->address_number = $address_number;
+    }
+
 }

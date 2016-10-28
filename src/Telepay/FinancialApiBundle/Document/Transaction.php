@@ -184,49 +184,49 @@ class Transaction implements TransactionTiming {
 
     /**
      * @var
-     * @MongoDB\String
+     * @MongoDB\Field(type="string")
      */
     private $service;
 
     /**
      * @var
-     * @MongoDB\String
+     * @MongoDB\Field(type="string")
      */
     private $method;
 
     /**
      * @var
-     * @MongoDB\String
+     * @MongoDB\Field(type="string")
      */
     private $posId;
 
     /**
      * @var
-     * @MongoDB\String
+     * @MongoDB\Field(type="string")
      */
     private $ip;
 
     /**
      * @var
-     * @MongoDB\String
+     * @MongoDB\Field(type="string")
      */
     private $country;
 
     /**
      * @var
-     * @MongoDB\String
+     * @MongoDB\Field(type="string")
      */
     private $country_code;
 
     /**
      * @var
-     * @MongoDB\String
+     * @MongoDB\Field(type="string")
      */
     private $status;
 
     /**
      * @var
-     * @MongoDB\Int
+     * @MongoDB\Field(type="int")
      */
     private $version;
 
@@ -257,49 +257,49 @@ class Transaction implements TransactionTiming {
 
     /**
      * @var
-     * @MongoDB\String
+     * @MongoDB\Field(type="string")
      */
     private $currency;
 
     /**
      * @var
-     * @MongoDB\Float
+     * @MongoDB\Field(type="float")
      */
     private $amount;
 
     /**
      * @var
-     * @MongoDB\Float
+     * @MongoDB\Field(type="float")
      */
     private $variableFee;
 
     /**
      * @var
-     * @MongoDB\Int
+     * @MongoDB\Field(type="int")
      */
     private $fixedFee;
 
     /**
      * @var
-     * @MongoDB\float
+     * @MongoDB\Field(type="float")
      */
     private $total;
 
     /**
      * @var
-     * @MongoDB\Int
+     * @MongoDB\Field(type="int")
      */
     private $scale;
 
     /**
      * @var
-     * @MongoDB\Int
+     * @MongoDB\Field(type="int")
      */
     private $max_notification_tries;
 
     /**
      * @var
-     * @MongoDB\Int
+     * @MongoDB\Field(type="int")
      */
     private $notification_tries;
 
@@ -329,31 +329,31 @@ class Transaction implements TransactionTiming {
 
     /**
      * @var
-     * @MongoDB\String
+     * @MongoDB\Field(type="string")
      */
     private $method_in;
 
     /**
      * @var
-     * @MongoDB\String
+     * @MongoDB\Field(type="string")
      */
     private $method_out;
 
     /**
      * @var
-     * @MongoDB\String
+     * @MongoDB\Field(type="string")
      */
     private $type;
 
     /**
      * @var
-     * @MongoDB\Int
+     * @MongoDB\Field(type="int")
      */
     private $price;
 
     /**
      * @var
-     * @MongoDB\Int
+     * @MongoDB\Field(type="int")
      */
     private $client;
 
@@ -371,7 +371,7 @@ class Transaction implements TransactionTiming {
 
     /**
      * @var
-     * @MongoDB\String
+     * @MongoDB\Field(type="string")
      */
     private $pos_name;
 
@@ -385,7 +385,7 @@ class Transaction implements TransactionTiming {
 
     /**
      * @var
-     * @MongoDB\String
+     * @MongoDB\Field(type="string")
      */
     private $email_notification;
 

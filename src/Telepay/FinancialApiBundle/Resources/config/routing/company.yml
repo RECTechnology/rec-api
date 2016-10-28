@@ -12,8 +12,53 @@ company_index_tokens:
     requirements:
         _method: GET
 
+company_reactive_token:
+    pattern:  /company/v1/wallet/cash_in_token/reactive
+    defaults: { _controller: Telepay\FinancialApiBundle\Controller\Management\Company\CashInController::reactiveToken }
+    requirements:
+        _method: PUT
+
+company_index_tokens_by_method:
+    pattern:  /company/v1/wallet/cash_in_token/{method}
+    defaults: { _controller: Telepay\FinancialApiBundle\Controller\Management\Company\CashInController::indexAction }
+    requirements:
+        _method: GET
+
+company_update_tokens:
+    pattern:  /company/v1/wallet/cash_in_token/{id}
+    defaults: { _controller: Telepay\FinancialApiBundle\Controller\Management\Company\CashInController::updateAction }
+    requirements:
+        _method: PUT
+
 company_swift_easypay_validate:
     pattern:  /company/v1/swift/easypay/{id}
     defaults: { _controller: Telepay\FinancialApiBundle\Controller\Management\Company\SpecialActionsController::easypayValidation }
     requirements:
         _method: PUT
+
+
+######################## COMPANY SCHEDULED ########################
+
+scheduled_list:
+    pattern:  /company/v1/scheduled
+    defaults: { _controller: Telepay\FinancialApiBundle\Controller\Management\Company\ScheduledController::indexAction }
+    requirements:
+        _method: GET
+
+scheduled_create:
+    pattern:  /company/v1/scheduled
+    defaults: { _controller: Telepay\FinancialApiBundle\Controller\Management\Company\ScheduledController::createAction }
+    requirements:
+        _method: POST
+
+scheduled_update:
+    pattern:  /company/v1/scheduled/{id}
+    defaults: { _controller: Telepay\FinancialApiBundle\Controller\Management\Company\ScheduledController::updateAction }
+    requirements:
+        _method: PUT
+
+scheduled_delete:
+    pattern:  /company/v1/scheduled/{id}
+    defaults: { _controller: Telepay\FinancialApiBundle\Controller\Management\Company\ScheduledController::deleteAction }
+    requirements:
+        _method: DELETE

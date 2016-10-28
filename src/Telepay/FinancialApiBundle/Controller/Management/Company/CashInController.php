@@ -26,27 +26,37 @@ class CashInController extends BaseApiController{
     /**
      * @Rest\View
      */
-    public function indexAction(Request $request){
+    public function indexAction(Request $request, $method = null){
 
         $user = $this->get('security.context')->getToken()->getUser();
         $company = $user->getActiveGroup();
 
-        $all = $this->getRepository()->findBy(array(
-            'company'  =>  $company
-        ));
+        if($method){
+            $all = $this->getRepository()->findBy(array(
+                'company'  =>  $company,
+                'method'    =>  $method,
+                'status'    =>  CashInTokens::$STATUS_ACTIVE
+            ));
+        }else{
+            $all = $this->getRepository()->findBy(array(
+                'company'  =>  $company,
+                'status'    =>  CashInTokens::$STATUS_ACTIVE
+            ));
+        }
+
 
         $total = count($all);
 
         foreach($all as $one){
-            $method = $one->getMethod();
-            $meth = explode('-', $method);
+            $methode = $one->getMethod();
+            $meth = explode('-', $methode);
 
             $methodDriver = $this->get('net.telepay.in.'.$meth[0].'.v1');
 
-            if($method == 'easypay'){
+            if($methode == 'easypay'){
                 $info = $methodDriver->getInfo();
                 $one->setAccountNumber($info['account_number']);
-            }elseif($method == 'sepa'){
+            }elseif($methode == 'sepa'){
                 $info = $methodDriver->getInfo();
                 $one->setAccountNumber($info['iban']);
                 $one->setBeneficiary($info['beneficiary']);
@@ -101,6 +111,14 @@ class CashInController extends BaseApiController{
 
         if(!in_array($method.'-'.$type, $company_methods)) throw new HttpException(405, 'Method not allowed in this company.');
 
+        $tokens = $this->getRepository()->findBy(array(
+            'company'  =>  $company,
+            'method'    =>  $method,
+            'status'    =>  CashInTokens::$STATUS_ACTIVE
+        ));
+
+        if(count($tokens) >= 5) throw new HttpException(409, 'You has exceeded the max addresses allowed');
+
         $paymentInfo = $methodDriver->getPayInInfo(0);
 
         if($method == 'easypay'){
@@ -130,7 +148,74 @@ class CashInController extends BaseApiController{
      */
     public function updateAction(Request $request, $id){
 
-        throw new HttpException(403, 'Method not implemented');
+        $user = $this->get('security.context')->getToken()->getUser();
+
+        $company = $user->getActiveGroup();
+
+        $cashIn = $this->getRepository()->findOneBy(array(
+            'id'    =>  $id,
+            'company' =>  $company
+        ));
+
+        if(!$cashIn) throw new HttpException(404, 'Cash In Token not found');
+
+        if($request->request->has('method') || $request->request->has('currency') || $request->request->has('status') || $request->request->has('token'))
+            throw new HttpException(403, 'The request has not allowed params');
+
+        if($request->request->has('disable')){
+            $disable = $request->request->get('disable');
+
+            if($disable){
+                $request->request->add(array(
+                    'status'    =>  CashInTokens::$STATUS_CLOSED
+                ));
+            }
+
+            $request->request->remove('disable');
+        }
+
+        return parent::updateAction($request, $id);
+
+    }
+
+    /**
+     * @Rest\View
+     */
+    public function reactiveToken(Request $request){
+
+        $user = $this->get('security.context')->getToken()->getUser();
+
+        $company = $user->getActiveGroup();
+
+        if($request->request->has('token')){
+            $token = $request->request->get('token');
+        } else{
+            throw new HttpException(404, 'Param token not found');
+        }
+
+        $cashIn = $this->getRepository()->findOneBy(array(
+            'token'    =>  $token,
+            'company' =>  $company
+        ));
+
+        if(!$cashIn) throw new HttpException(404, 'Cash In Token not found');
+
+        $all = $this->getRepository()->findBy(array(
+            'company'   =>  $company,
+            'method'    =>  $cashIn->getMethod(),
+            'status'    =>  CashInTokens::$STATUS_ACTIVE
+        ));
+
+        if(count($all) >= 5) throw new HttpException(409, 'You has exceeded the number of tokens actives for this method');
+
+        $em = $this->getDoctrine()->getManager();
+        $cashIn->setStatus(CashInTokens::$STATUS_ACTIVE);
+        $cashIn->setUpdated(new \DateTime());
+
+        $em->persist($cashIn);
+        $em->flush();
+
+        return $this->rest(204, 'Token activated successfully');
 
     }
 

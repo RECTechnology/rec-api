@@ -11,10 +11,10 @@ parameters:
     mailer_user:       ~
     mailer_password:   ~
 
-    mailer_transport_holy: smtp
-    mailer_host_holy: smpt.sendgrid.net
-    mailer_user_holy: holytxtrade
-    mailer_password_holy: hp3YSHW0ttEs5k7s
+    mailer_transport_holy: ''
+    mailer_host_holy: ''
+    mailer_user_holy: ''
+    mailer_password_holy:   ~
 
     no_reply_email: "dev_no-reply@chip-chap.com"
     volume_email: "dev-volume@chip-chap.com"
