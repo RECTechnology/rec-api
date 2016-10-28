@@ -815,10 +815,8 @@ class AccountController extends BaseApiController{
                 $meth = $method_ex[0];
                 $type = $method_ex[1];
 
-                $variable = 0;
                 $daily = -1;
                 if($type == 'out'){
-                    $variable = 10;
                     if($meth == 'btc'){
                         $daily = 100000000;
                     }else{
@@ -830,7 +828,7 @@ class AccountController extends BaseApiController{
                 $newFee = new ServiceFee();
                 $newFee->setGroup($company);
                 $newFee->setFixed(0);
-                $newFee->setVariable($variable);
+                $newFee->setVariable(0);
                 $newFee->setServiceName($method);
                 $newFee->setCurrency(strtoupper($meth));
                 $em->persist($newFee);
