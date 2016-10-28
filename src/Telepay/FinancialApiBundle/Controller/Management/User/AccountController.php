@@ -12,6 +12,7 @@ namespace Telepay\FinancialApiBundle\Controller\Management\User;
 use Doctrine\DBAL\DBALException;
 use Symfony\Component\Security\Core\Util\SecureRandom;
 use Symfony\Component\Validator\Constraints\Null;
+use Telepay\FinancialApiBundle\Entity\CashInTokens;
 use Telepay\FinancialApiBundle\Entity\Device;
 use Telepay\FinancialApiBundle\Entity\Group;
 use Telepay\FinancialApiBundle\Entity\KYC;
@@ -842,9 +843,37 @@ class AccountController extends BaseApiController{
             $newCount->setGroup($company);
             $em->persist($newCount);
 
+            //create new fixed address for bitcoin and return
+            $btcAddress = new CashInTokens();
+            $btcAddress->setCurrency(Currency::$BTC);
+            $btcAddress->setCompany($company);
+            $btcAddress->setLabel('BTC account');
+            $btcAddress->setMethod('btc-in');
+            $btcAddress->setStatus(CashInTokens::$STATUS_ACTIVE);
+            $methodDriver = $this->get('net.telepay.in.btc.v1');
+            $paymentInfo = $methodDriver->getPayInInfo(0);
+            $token = $paymentInfo['address'];
+            $btcAddress->setToken($token);
+            $em->persist($btcAddress);
+
+            //create new fixed address for faircoin and return
+            $facAddress = new CashInTokens();
+            $facAddress->setCurrency(Currency::$FAC);
+            $facAddress->setCompany($company);
+            $facAddress->setLabel('FAC account');
+            $facAddress->setMethod('fac-in');
+            $facAddress->setStatus(CashInTokens::$STATUS_ACTIVE);
+            $methodDriver = $this->get('net.telepay.in.fac.v1');
+            $paymentInfo = $methodDriver->getPayInInfo(0);
+            $token = $paymentInfo['address'];
+            $facAddress->setToken($token);
+            $em->persist($facAddress);
+
             $response = array(
                 'user' => $user,
-                'company' => $company
+                'company' => $company,
+                'btc_address'   =>  $btcAddress,
+                'fac_address'   =>  $facAddress
             );
         }
         $em->flush();
