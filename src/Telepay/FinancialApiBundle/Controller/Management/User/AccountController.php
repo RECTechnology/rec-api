@@ -849,6 +849,7 @@ class AccountController extends BaseApiController{
             $btcAddress->setCompany($company);
             $btcAddress->setLabel('BTC account');
             $btcAddress->setMethod('btc-in');
+            $btcAddress->setExpiresIn(-1);
             $btcAddress->setStatus(CashInTokens::$STATUS_ACTIVE);
             $methodDriver = $this->get('net.telepay.in.btc.v1');
             $paymentInfo = $methodDriver->getPayInInfo(0);
@@ -862,6 +863,7 @@ class AccountController extends BaseApiController{
             $facAddress->setCompany($company);
             $facAddress->setLabel('FAC account');
             $facAddress->setMethod('fac-in');
+            $facAddress->setExpiresIn(-1);
             $facAddress->setStatus(CashInTokens::$STATUS_ACTIVE);
             $methodDriver = $this->get('net.telepay.in.fac.v1');
             $paymentInfo = $methodDriver->getPayInInfo(0);
