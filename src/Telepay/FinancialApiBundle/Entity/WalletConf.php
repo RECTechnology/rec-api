@@ -12,7 +12,7 @@ use Doctrine\ORM\Mapping as ORM;
 
 /**
  * @ORM\Entity
- * @ORM\Table(name="exchange")
+ * @ORM\Table(name="walletConf")
  */
 class WalletConf {
 
@@ -24,19 +24,19 @@ class WalletConf {
     private $id;
 
     /**
-     * @ORM\Column(type="string")
+     * @ORM\Column(type="integer")
      */
-    private $driver;
+    private $priority;
 
     /**
      * @ORM\Column(type="string")
      */
-    private $currency_in;
+    private $type;
 
     /**
      * @ORM\Column(type="string")
      */
-    private $currency_out;
+    private $currency;
 
     /**
      * @ORM\Column(type="float")
@@ -47,11 +47,6 @@ class WalletConf {
      * @ORM\Column(type="float")
      */
     private $maxBalance;
-
-    /**
-     * @ORM\Column(type="float")
-     */
-    private $minAmountSent;
 
     /**
      * @return mixed
@@ -161,5 +156,21 @@ class WalletConf {
     public function setMinAmountSent($minAmountSent)
     {
         $this->minAmountSent = $minAmountSent;
+    }
+
+    /**
+     * @return mixed
+     */
+    public function getPriority()
+    {
+        return $this->priority;
+    }
+
+    /**
+     * @param mixed $priority
+     */
+    public function setPriority($priority)
+    {
+        $this->priority = $priority;
     }
 }
