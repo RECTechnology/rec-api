@@ -158,7 +158,7 @@ class NFCController extends RestApiController{
             $card = new NFCCard();
             $card->setCompany($company);
             $card->setUser($user);
-            $card->getAlias($params['alias']);
+            $card->setAlias($params['alias']);
             $card->setEnabled(false);
             $card->setIdCard($params['id_card']);
             $card->setPin($pin);
@@ -189,7 +189,7 @@ class NFCController extends RestApiController{
             $pin = rand(0,9999);
             $card = new NFCCard();
             $card->setUser($user);
-            $card->getAlias($params['alias']);
+            $card->setAlias($params['alias']);
             $card->setEnabled(false);
             $card->setIdCard($params['id_card']);
             $card->setPin($pin);
