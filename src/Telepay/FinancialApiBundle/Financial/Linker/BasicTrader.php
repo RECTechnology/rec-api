@@ -7,12 +7,14 @@ use Telepay\FinancialApiBundle\Financial\WayInterface;
 
 class BasicTrader implements WayInterface {
 
-    public $startNode, $endNode, $minAmount;
+    public $startNode, $endNode, $minAmount, $timecCost, $moneyCost;
 
-    public function __construct(TraderInterface $startNode, TraderInterface $endNode, $minAmount){
+    public function __construct(TraderInterface $startNode, TraderInterface $endNode, $minAmount, $timecCost, $moneyCost){
         $this->startNode = $startNode;
         $this->endNode = $endNode;
         $this->minAmount = $minAmount;
+        $this->timeCost = $timecCost;
+        $this->moneyCost = $moneyCost;
     }
 
     public function send($amount)
@@ -36,5 +38,15 @@ class BasicTrader implements WayInterface {
     public function getMinAmount()
     {
         return $this->minAmount;
+    }
+
+    public function getTimeCost()
+    {
+        return $this->timeCost;
+    }
+
+    public function getMoneyCost()
+    {
+        return $this->moneyCost;
     }
 }
