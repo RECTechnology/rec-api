@@ -226,7 +226,7 @@ class NFCController extends RestApiController{
 
         $em = $this->getDoctrine()->getManager();
         $user = $em->getRepository('TelepayFinancialApiBundle:User')->findOneBy(array(
-            'confirmation_token'    =>  $token
+            'confirmationToken'    =>  $token
         ));
 
         if(!$user) throw new HttpException(404, 'User not found');
