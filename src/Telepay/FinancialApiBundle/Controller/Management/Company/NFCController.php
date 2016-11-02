@@ -200,7 +200,7 @@ class NFCController extends RestApiController{
 
             $body = 'Please validate this card for one of this companies';
             $subject = 'Chip-Chap validate NFC card';
-            $base_url = $url.'/card/validation/';
+            $base_url = $url.'/user/validation_nfc/';
             //send mail with card information and validation
             $this->_sendValidateCardEmail($subject, $body, $user->getEmail(), $pin, $companies, $base_url, $confirmationToken );
 
