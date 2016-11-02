@@ -206,6 +206,13 @@ class NFCController extends RestApiController{
 
         }
 
+        $response = array(
+            'status'  =>  'created',
+            'id_card'   =>  $card->getId()
+        );
+
+        return $this->restV2(201,"ok", "Card registered successfully", $response);
+
     }
 
     /**
