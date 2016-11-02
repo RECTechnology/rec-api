@@ -70,6 +70,18 @@ class NFCCard{
     private $id_card;
 
     /**
+     * @ORM\Column(type="integer")
+     * @Expose
+     */
+    private $pin;
+
+    /**
+     * @ORM\Column(type="string")
+     * @Expose
+     */
+    private $confirmation_token;
+
+    /**
      * Returns the user unique id.
      *
      * @return mixed
@@ -157,6 +169,38 @@ class NFCCard{
     public function setIdCard($id_card)
     {
         $this->id_card = $id_card;
+    }
+
+    /**
+     * @return mixed
+     */
+    public function getPin()
+    {
+        return $this->pin;
+    }
+
+    /**
+     * @param mixed $pin
+     */
+    public function setPin($pin)
+    {
+        $this->pin = $pin;
+    }
+
+    /**
+     * @return mixed
+     */
+    public function getConfirmationToken()
+    {
+        return $this->confirmation_token;
+    }
+
+    /**
+     * @param mixed $confirmation_token
+     */
+    public function setConfirmationToken($confirmation_token)
+    {
+        $this->confirmation_token = $confirmation_token;
     }
 
 }

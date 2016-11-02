@@ -62,3 +62,17 @@ scheduled_delete:
     defaults: { _controller: Telepay\FinancialApiBundle\Controller\Management\Company\ScheduledController::deleteAction }
     requirements:
         _method: DELETE
+
+######################## COMPANY NFC ########################
+
+create_nfc_card:
+    pattern:  /company/v1/nfc_card
+    defaults: { _controller: Telepay\FinancialApiBundle\Controller\Management\Company\NFCController::registerCard }
+    requirements:
+        _method: POST
+
+create_nfc_card:
+    pattern:  /company/v1/nfc_card/{company_id}/recharge
+    defaults: { _controller: Telepay\FinancialApiBundle\Controller\Management\Company\NFCController::rechargeCard }
+    requirements:
+        _method: POST
