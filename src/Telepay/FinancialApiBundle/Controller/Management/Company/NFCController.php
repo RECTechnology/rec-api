@@ -31,21 +31,6 @@ class NFCController extends RestApiController{
     /**
      * @Rest\View
      */
-    public function registerUserCard(Request $request){
-
-        //TODO check client => only android client is allowed
-        //TODO check company => anly certain companies can do this
-        //TODO create company
-        //TODO create user
-        //TODO create wallets
-        //TODO create exchanges limits and fees
-        //TODO create userGroup
-
-    }
-
-    /**
-     * @Rest\View
-     */
     public function registerCard(Request $request){
 
         $paramNames = array(
@@ -494,6 +479,42 @@ class NFCController extends RestApiController{
     /**
      * @Rest\View
      */
+    public function readBalanceNFCCard(Request $request){
+        $paramNames = array(
+            'id_card'
+        );
+
+        $params = array();
+        foreach($paramNames as $paramName){
+            if($request->request->has($paramName)){
+                $params[$paramName] = $request->request->get($paramName);
+            }else{
+                throw new HttpException(404, 'Param '.$paramName.' not found');
+            }
+        }
+
+        $em = $this->getDoctrine()->getManager();
+        $card = $em->getRepository('TelepayFinancialApiBundle:NFCCard')->findOneBy(array(
+            'id_card'   =>  $params['id_card']
+        ));
+
+        if(!$card) throw new HttpException(404, 'Card not found');
+
+        $company = $card->getCompany();
+
+        $wallet = $company->getWallet(Currency::$FAC);
+
+        $balance = round($wallet->getAvailable()/1e8,6);
+
+        //send balance email
+        $this->_sendNFCBalanceEmail($card, $balance);
+
+        return $this->restV2(204, "ok", "Send balance successfully");
+    }
+
+    /**
+     * @Rest\View
+     */
     public function NFCPayment(Request $request){
 
     }
@@ -629,6 +650,31 @@ class NFCController extends RestApiController{
         $dm->persist($rootFee);
         $dm->flush();
 
+    }
+
+    private function _sendNFCBalanceEmail(NFCCard $card, $balance){
+        $from = 'no-reply@chip-chap.com';
+        $mailer = 'mailer';
+        $template = 'TelepayFinancialApiBundle:Email:NFCBalance.html.twig';
+
+        $message = \Swift_Message::newInstance()
+            ->setSubject('This is your balance')
+            ->setFrom($from)
+            ->setTo(array(
+                $card->getUser()->getEmail()
+            ))
+            ->setBody(
+                $this->container->get('templating')
+                    ->render($template,
+                        array(
+                            'card'  =>  $card,
+                            'balance' =>  $balance
+                        )
+                    )
+            )
+            ->setContentType('text/html');
+
+        $this->container->get($mailer)->send($message);
     }
 
 }

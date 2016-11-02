@@ -298,6 +298,16 @@ class Group extends BaseGroup
         return $this->wallets;
     }
 
+    public function getWallet($currency)
+    {
+        $wallets = $this->getWallets();
+        foreach($wallets as $wallet){
+            if($wallet->getCurrency() == strtoupper($currency)){
+                return $wallet;
+            }
+        }
+    }
+
     /**
      * @param mixed $wallets
      */
