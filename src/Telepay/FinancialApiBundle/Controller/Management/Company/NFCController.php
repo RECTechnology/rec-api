@@ -185,6 +185,8 @@ class NFCController extends RestApiController{
                 }
             }
 
+            if(count($companies) < 1) throw new HttpException(403, 'You don\' have the necessary permissions for this company');
+
             //create card
             $pin = rand(0,9999);
             $card = new NFCCard();
