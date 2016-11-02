@@ -231,7 +231,7 @@ class NFCController extends RestApiController{
 
         if(!$user) throw new HttpException(404, 'User not found');
 
-        if($user->getEnabled() == true) throw new HttpException(403, 'This user is validated yet');
+        if($user->isEnabled() == true) throw new HttpException(403, 'This user is validated yet');
 
         $card = $em->getRepository('TelepayFinancialApiBundle:NFCCard')->findOneBy(array(
             'confirmation_token'    =>  $token
