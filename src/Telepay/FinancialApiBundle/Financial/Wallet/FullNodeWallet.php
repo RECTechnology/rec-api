@@ -16,17 +16,18 @@ use Telepay\FinancialApiBundle\Financial\MiniumBalanceInterface;
 use Telepay\FinancialApiBundle\Financial\MoneyBundleInterface;
 use Telepay\FinancialApiBundle\Financial\WalletInterface;
 
-class FullNodeWallet implements WalletInterface, MiniumBalanceInterface {
+class FullNodeWallet implements WalletInterface {
 
     private $nodeLink;
     private $currency;
-    private $minBalance;
+    private $waysOut;
+    private $waysIn;
 
-    function __construct($nodeLink, $currency, $minBalance = 0)
-    {
+    function __construct($nodeLink, $currency, $waysOut, $waysIn){
         $this->nodeLink = $nodeLink;
         $this->currency = $currency;
-        $this->minBalance = $minBalance;
+        $this->waysOut = json_decode($waysOut);
+        $this->waysIn = json_decode($waysIn);
     }
 
     public function send(CashInInterface $dst, $amount)
@@ -49,8 +50,13 @@ class FullNodeWallet implements WalletInterface, MiniumBalanceInterface {
         return $this->nodeLink->getnewaddress();
     }
 
-    public function getMiniumBalance()
+    public function getWaysOut()
     {
-        return $this->minBalance;
+        return $this->waysOut;
+    }
+
+    public function getWaysIn()
+    {
+        return $this->waysIn;
     }
 }
