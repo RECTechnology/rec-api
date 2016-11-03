@@ -71,8 +71,22 @@ create_nfc_card:
     requirements:
         _method: POST
 
+read_balance_nfc_card:
+    pattern:  /company/v1/nfc_card/balance/{id_card}
+    defaults: { _controller: Telepay\FinancialApiBundle\Controller\Management\Company\NFCController::readBalanceNFCCard }
+    requirements:
+        _method: GET
+
 create_nfc_card:
     pattern:  /company/v1/nfc_card/{company_id}/recharge
     defaults: { _controller: Telepay\FinancialApiBundle\Controller\Management\Company\NFCController::rechargeCard }
     requirements:
         _method: POST
+
+update_nfc_card:
+    pattern:  /company/v1/nfc_card/{id_card}
+    defaults: { _controller: Telepay\FinancialApiBundle\Controller\Management\Company\NFCController::updateCard }
+    requirements:
+        _method: PUT
+
+

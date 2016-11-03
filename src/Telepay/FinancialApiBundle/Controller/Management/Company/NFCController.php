@@ -481,7 +481,43 @@ class NFCController extends RestApiController{
     /**
      * @Rest\View
      */
-    public function refreshPINCard(Request $request){
+    public function updateCard(Request $request, $id_card){
+
+        //get card
+        $em = $this->getDoctrine()->getManager();
+        $card = $em->getRepository('TelepayFinancialApiBundle:NFCCard')->find($id_card);
+
+        if(!$card) throw new HttpException(404, 'NFCCard not found');
+
+        if($request->request->has('action')){
+            $action = $request->request->get('action');
+            if($action == 'refresh_pin'){
+                //generate new pin
+                $pin = rand(0,9999);
+                $card->setPin($pin);
+                $em->persist($card);
+                $em->flush();
+
+                //send email
+                $this->_sendUpdateCardEmail($card, 'refresh_pin');
+
+                return $this->restV2(204, 'Pin successfully changed');
+            }elseif($action == 'deactivate_card'){
+
+                $card->setEnabled(false);
+                $em->persist($card);
+                $em->flush();
+
+                $this->_sendUpdateCardEmail($card, 'deactivate');
+
+                return $this->restV2(204, 'Pin successfully changed');
+
+            }else{
+                throw new HttpException(404, 'Action not allowed');
+            }
+        }else{
+            throw new HttpException(403, 'Method not implemented');
+        }
 
     }
 
@@ -525,6 +561,8 @@ class NFCController extends RestApiController{
      * @Rest\View
      */
     public function NFCPayment(Request $request){
+
+        //TODO walletToWallet transaction from user to commerce
 
     }
 
@@ -678,6 +716,36 @@ class NFCController extends RestApiController{
                         array(
                             'card'  =>  $card,
                             'balance' =>  $balance
+                        )
+                    )
+            )
+            ->setContentType('text/html');
+
+        $this->container->get($mailer)->send($message);
+    }
+
+    private function _sendUpdateCardEmail(NFCCard $card, $action){
+        $from = 'no-reply@chip-chap.com';
+        $mailer = 'mailer';
+        $template = 'TelepayFinancialApiBundle:Email:NFCUpdate.html.twig';
+
+        if($action == 'refresh_pin'){
+            $subject = 'Your pin has been changed';
+        }else{
+            $subject = 'Deactivate card';
+        }
+        $message = \Swift_Message::newInstance()
+            ->setSubject($subject)
+            ->setFrom($from)
+            ->setTo(array(
+                $card->getUser()->getEmail()
+            ))
+            ->setBody(
+                $this->container->get('templating')
+                    ->render($template,
+                        array(
+                            'card'  =>  $card,
+                            'action'    =>  $action
                         )
                     )
             )
