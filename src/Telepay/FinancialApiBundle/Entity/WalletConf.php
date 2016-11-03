@@ -65,54 +65,6 @@ class WalletConf {
     /**
      * @return mixed
      */
-    public function getDriver()
-    {
-        return $this->driver;
-    }
-
-    /**
-     * @param mixed $driver
-     */
-    public function setDriver($driver)
-    {
-        $this->driver = $driver;
-    }
-
-    /**
-     * @return mixed
-     */
-    public function getCurrencyIn()
-    {
-        return $this->currency_in;
-    }
-
-    /**
-     * @param mixed $currency_in
-     */
-    public function setCurrencyIn($currency_in)
-    {
-        $this->currency_in = $currency_in;
-    }
-
-    /**
-     * @return mixed
-     */
-    public function getCurrencyOut()
-    {
-        return $this->currency_out;
-    }
-
-    /**
-     * @param mixed $currency_out
-     */
-    public function setCurrencyOut($currency_out)
-    {
-        $this->currency_out = $currency_out;
-    }
-
-    /**
-     * @return mixed
-     */
     public function getMinBalance()
     {
         return $this->minBalance;
@@ -145,22 +97,6 @@ class WalletConf {
     /**
      * @return mixed
      */
-    public function getMinAmountSent()
-    {
-        return $this->minAmountSent;
-    }
-
-    /**
-     * @param mixed $minAmountSent
-     */
-    public function setMinAmountSent($minAmountSent)
-    {
-        $this->minAmountSent = $minAmountSent;
-    }
-
-    /**
-     * @return mixed
-     */
     public function getPriority()
     {
         return $this->priority;
@@ -172,5 +108,37 @@ class WalletConf {
     public function setPriority($priority)
     {
         $this->priority = $priority;
+    }
+
+    /**
+     * @return mixed
+     */
+    public function getType()
+    {
+        return $this->type;
+    }
+
+    /**
+     * @param mixed $type
+     */
+    public function setType($type)
+    {
+        $this->type = $type;
+    }
+
+    /**
+     * @return mixed
+     */
+    public function getCurrency()
+    {
+        return $this->currency;
+    }
+
+    /**
+     * @param mixed $currency
+     */
+    public function setCurrency($currency)
+    {
+        $this->currency = $currency;
     }
 }
