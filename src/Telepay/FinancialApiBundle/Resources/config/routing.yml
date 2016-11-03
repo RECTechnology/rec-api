@@ -41,6 +41,18 @@ validate_email:
     requirements:
         _method: POST
 
+validate_nfc_card_email:
+    pattern:  /register/v1/nfc_card
+    defaults: { _controller: Telepay\FinancialApiBundle\Controller\Management\Company\NFCController::validateEmailCard }
+    requirements:
+        _method: POST
+
+validate_nfc_card:
+    pattern:  /register/v1/nfc_card/{ company_id }
+    defaults: { _controller: Telepay\FinancialApiBundle\Controller\Management\Company\NFCController::validateCard }
+    requirements:
+        _method: POST
+
 user_sent_validation_email:
     pattern:  /register/v1/sent_validation_email
     defaults: { _controller: Telepay\FinancialApiBundle\Controller\Management\User\AccountController::sentValidationEmailAction }

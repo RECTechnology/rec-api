@@ -12,6 +12,7 @@ namespace Telepay\FinancialApiBundle\Controller\Management\User;
 use Doctrine\DBAL\DBALException;
 use Symfony\Component\Security\Core\Util\SecureRandom;
 use Symfony\Component\Validator\Constraints\Null;
+use Telepay\FinancialApiBundle\Entity\CashInTokens;
 use Telepay\FinancialApiBundle\Entity\Device;
 use Telepay\FinancialApiBundle\Entity\Group;
 use Telepay\FinancialApiBundle\Entity\KYC;
@@ -805,46 +806,92 @@ class AccountController extends BaseApiController{
             );
         }
         elseif($type == 'android'){
-            $company->setMethodsList(array('btc-in'));
+            $methodsList = array('btc-in', 'fac-in', 'btc-out', 'fac-out');
+            $company->setMethodsList($methodsList);
             $em->persist($company);
 
-            //create new ServiceFee
-            $newFee = new ServiceFee();
-            $newFee->setGroup($company);
-            $newFee->setFixed(0);
-            $newFee->setVariable(0);
-            $newFee->setServiceName('btc-in');
-            $newFee->setCurrency('BTC');
-            $em->persist($newFee);
+            foreach($methodsList as $method){
+                $method_ex = explode('-', $method);
+                $meth = $method_ex[0];
+                $type = $method_ex[1];
 
-            //create new LimitDefinition
-            $newLimit = new LimitDefinition();
-            $newLimit->setGroup($company);
-            $newLimit->setCurrency('BTC');
-            $newLimit->setCname('btc-in');
-            $newLimit->setDay(-1);
-            $newLimit->setWeek(-1);
-            $newLimit->setMonth(-1);
-            $newLimit->setYear(-1);
-            $newLimit->setSingle(-1);
-            $newLimit->setTotal(-1);
-            $em->persist($newLimit);
+                $daily = -1;
+                if($type == 'out'){
+                    if($meth == 'btc'){
+                        $daily = 100000000;
+                    }else{
+                        $daily = 1000000000000;
+                    }
 
-            //create new LimitCount
-            $newCount = new LimitCount();
-            $newCount->setDay(0);
-            $newCount->setWeek(0);
-            $newCount->setMonth(0);
-            $newCount->setYear(0);
-            $newCount->setSingle(0);
-            $newCount->setTotal(0);
-            $newCount->setCname('btc-in');
-            $newCount->setGroup($company);
-            $em->persist($newCount);
+                }
+                //create new ServiceFee
+                $newFee = new ServiceFee();
+                $newFee->setGroup($company);
+                $newFee->setFixed(0);
+                $newFee->setVariable(0);
+                $newFee->setServiceName($method);
+                $newFee->setCurrency(strtoupper($meth));
+                $em->persist($newFee);
+
+                //create new LimitDefinition
+                $newLimit = new LimitDefinition();
+                $newLimit->setGroup($company);
+                $newLimit->setCurrency(strtoupper($meth));
+                $newLimit->setCname($method);
+                $newLimit->setDay($daily);
+                $newLimit->setWeek(-1);
+                $newLimit->setMonth(-1);
+                $newLimit->setYear(-1);
+                $newLimit->setSingle(-1);
+                $newLimit->setTotal(-1);
+                $em->persist($newLimit);
+
+                //create new LimitCount
+                $newCount = new LimitCount();
+                $newCount->setDay(0);
+                $newCount->setWeek(0);
+                $newCount->setMonth(0);
+                $newCount->setYear(0);
+                $newCount->setSingle(0);
+                $newCount->setTotal(0);
+                $newCount->setCname($method);
+                $newCount->setGroup($company);
+                $em->persist($newCount);
+            }
+
+            //create new fixed address for bitcoin and return
+            $btcAddress = new CashInTokens();
+            $btcAddress->setCurrency(Currency::$BTC);
+            $btcAddress->setCompany($company);
+            $btcAddress->setLabel('BTC account');
+            $btcAddress->setMethod('btc-in');
+            $btcAddress->setExpiresIn(-1);
+            $btcAddress->setStatus(CashInTokens::$STATUS_ACTIVE);
+            $methodDriver = $this->get('net.telepay.in.btc.v1');
+            $paymentInfo = $methodDriver->getPayInInfo(0);
+            $token = $paymentInfo['address'];
+            $btcAddress->setToken($token);
+            $em->persist($btcAddress);
+
+            //create new fixed address for faircoin and return
+            $facAddress = new CashInTokens();
+            $facAddress->setCurrency(Currency::$FAC);
+            $facAddress->setCompany($company);
+            $facAddress->setLabel('FAC account');
+            $facAddress->setMethod('fac-in');
+            $facAddress->setExpiresIn(-1);
+            $facAddress->setStatus(CashInTokens::$STATUS_ACTIVE);
+            $methodDriver = $this->get('net.telepay.in.fac.v1');
+            $paymentInfo = $methodDriver->getPayInInfo(0);
+            $token = $paymentInfo['address'];
+            $facAddress->setToken($token);
+            $em->persist($facAddress);
 
             $response = array(
                 'user' => $user,
-                'company' => $company
+                'company' => $company,
+                'btc_address'   =>  $btcAddress,
+                'fac_address'   =>  $facAddress
             );
         }
         $em->flush();
