@@ -1468,10 +1468,15 @@ class WalletController extends RestApiController{
         $user = $em->getRepository('TelepayFinancialApiBundle:User')->find($transaction->getUser());
         $company = $em->getRepository('TelepayFinancialApiBundle:Group')->find($transaction->getGroup());
 
+        $paymentInfo = $transaction->getPayOutInfo();
         $body = array(
             'transaction'   =>  $transaction,
             'user'  =>  $user,
-            'company'   =>  $company
+            'company'   =>  $company,
+            'iban'  =>  $paymentInfo['iban'],
+            'swift' =>  $paymentInfo['bic_swift'],
+            'beneficiary'   =>  $paymentInfo['beneficiary'],
+            'concept'   =>  $paymentInfo['concept']
         );
 
         $html = $this->container->get('templating')->render('TelepayFinancialApiBundle:Email:receipt.html.twig', $body);
