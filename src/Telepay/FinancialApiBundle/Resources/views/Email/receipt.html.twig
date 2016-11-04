@@ -46,7 +46,7 @@
     }
     .left{
         float: left;
-        width: 190px;
+        width: 100%;
     }
     .right{
         float: left;
@@ -70,30 +70,34 @@
     <p><b>Datos de la orden</b></p>
     <div class="wrapper-in">
         <div class="left">
-                <li><b>Fecha de ejecución</b></li>
-                <li><b>Tipo de operación</b></li>
-                <li><b>Ordenante</b></li>
-                <li><b>Cuenta Cargo</b></li>
-                <li><b>Importe nominal</b></li>
-                <li><b>Gastos</b></li>
-                <li><b>IBAN</b></li>
-                <li><b>Código BIC</b></li>
-                <li><b>Banco beneficiario</b></li>
-                <li><b>Beneficiario</b></li>
-                <li><b>Concepto</b></li>
+            <ul>
+                <li><b>Fecha de ejecucion:</b> {{ transaction.startDate | date('d/m/Y') }}</li>
+                <li><b>Tipo de operacion: </b> {{ transaction.method }}</li>
+                <li><b>Ordenante:</b> {{ user.name }} {{ user.surname }}</li>
+                <li><b>Cuenta Cargo: </b> {{ company.name }}</li>
+                <li><b>Importe nominal: </b> {{ transaction.amount / 100 }} {{ transaction.currency }}</li>
+                <li><b>Gastos: </b> {{ transaction.variableFee/100 + transaction.fixedFee/100 }} {{ transaction.currency }} (fee)</li>
+                <li><b>IBAN: </b> {{ iban }}</li>
+                <li><b>Código BIC:</b> {{ swift }}</li>
+                <li><b>Banco beneficiario:</b> --</li>
+                <li><b>Beneficiario:</b> {{ beneficiary }}</li>
+                <li><b>Concepto:</b> {{ concept }}</li>
+            </ul>
         </div>
-        <div class="right">
-                <li>{{ transaction.startDate | date('d/m/Y') }}</li>
-                <li>{{ transaction.method }}</li>
-                <li>{{ user.name }} {{ user.surname }}</li>
-                <li>{{ company.name }}</li>
-                <li>{{ transaction.amount / 100 }} {{ transaction.currency }}</li>
-                <li>{{ transaction.variableFee/100 + transaction.fixedFee/100 }} {{ transaction.currency }} (fee)</li>
-                <li>{{ transaction.payOutInfo['iban'] }}</li>
-                <li>{{ transaction.payOutInfo.swift }}</li>
-                <li>--</li>
-                <li>{{ transaction.payOutInfo.beneficiary }}</li>
-                <li>{{ transaction.payOutInfo.concept }}</li>
+        {#<div class="right">#}
+            {#<ul>#}
+                {#<li></li>#}
+                {#<li></li>#}
+                {#<li></li>#}
+                {#<li></li>#}
+                {#<li></li>#}
+                {#<li></li>#}
+                {#<li>{{ transaction.payOutInfo.iban }}</li>#}
+                {#<li>{{ transaction.payOutInfo.swift }}</li>#}
+                {#<li>--</li>#}
+                {#<li>{{ transaction.payOutInfo.beneficiary }}</li>#}
+                {#<li>{{ transaction.payOutInfo.concept }}</li>#}
+            {#</ul>#}
         </div>
         <div class="clear"></div>
     </div>
