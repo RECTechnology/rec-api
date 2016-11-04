@@ -1458,10 +1458,20 @@ class WalletController extends RestApiController{
 
         }
 
+        $transaction = $dm->getRepository('TelepayFinancialApiBundleTransaction')->find($id);
 
+        if(!$transaction) throw new HttpException(404, 'Transaction not found');
+
+        if($transaction->getGroup() != $userGroup->getId()) throw new HttpException('You don\'t have the necessary permissions');
+
+        $em = $this->getDoctrine()->getManager();
+        $user = $em->getRepository('TelepayFinancialApiBundle:User')->find($transaction->getUser());
+        $company = $em->getRepository('TelepayFinancialApiBundle:Group')->find($transaction->getGroup());
 
         $body = array(
-            'message'   =>  'hola'
+            'transaction'   =>  $transaction,
+            'user'  =>  $user,
+            'company'   =>  $company
         );
 
         $html = $this->container->get('templating')->render('TelepayFinancialApiBundle:Email:receipt.html.twig', $body);
