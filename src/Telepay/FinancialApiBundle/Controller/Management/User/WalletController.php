@@ -1444,21 +1444,21 @@ class WalletController extends RestApiController{
 
         $dm = $this->get('doctrine_mongodb')->getManager();
         $userGroup = $this->get('security.context')->getToken()->getUser()->getActiveGroup();
-        $last10Trans = $dm->createQueryBuilder('TelepayFinancialApiBundle:Transaction')
-            ->field('group')->equals($userGroup->getId())
-            ->field('id')->equals($id)
-            ->limit(1)
-            ->getQuery()
-            ->execute();
+//        $last10Trans = $dm->createQueryBuilder('TelepayFinancialApiBundle:Transaction')
+//            ->field('group')->equals($userGroup->getId())
+//            ->field('id')->equals($id)
+//            ->limit(1)
+//            ->getQuery()
+//            ->execute();
+//
+//        $resArray = [];
+//        foreach($last10Trans->toArray() as $res){
+//
+//            $resArray [] = $res;
+//
+//        }
 
-        $resArray = [];
-        foreach($last10Trans->toArray() as $res){
-
-            $resArray [] = $res;
-
-        }
-
-        $transaction = $dm->getRepository('TelepayFinancialApiBundleTransaction')->find($id);
+        $transaction = $dm->getRepository('TelepayFinancialApiBundle:Transaction')->find($id);
 
         if(!$transaction) throw new HttpException(404, 'Transaction not found');
 
