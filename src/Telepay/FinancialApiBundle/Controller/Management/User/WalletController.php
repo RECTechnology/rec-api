@@ -1486,7 +1486,7 @@ class WalletController extends RestApiController{
         $dompdf->getpdf($html);
         $pdfoutput = $dompdf->output();
 
-        $filename = 'polla.pdf';
+        $filename = $transaction->getMethod().'_'.$transaction->getId().'.pdf';
 
         $response = new Response();
 
