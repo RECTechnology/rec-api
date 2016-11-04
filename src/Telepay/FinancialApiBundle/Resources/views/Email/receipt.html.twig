@@ -29,7 +29,10 @@
         background: -moz-linear-gradient(90deg, #1976cb, #21abf3);
         background: linear-gradient(90deg, #1976cb, #21abf3);
         padding: 180px 60px 30px;
-        margin-top: -80px;
+        margin: 0 auto;
+    }
+    header h1{
+        color: white;
     }
     .wrapper{
         padding: 60px 40px 60px 60px;
@@ -64,6 +67,7 @@
 </style>
 <header>
     <h1>Chip-Chap</h1>
+    <img src="https://chip-chap.com/images/chip-chap_white.png">
 </header>
 <div class="wrapper">
     <p class="fright"><b>{{ transaction.startDate | date('d/m/Y') }} Hora: {{ transaction.startDate | date('H:i:s') }}</b></p>
