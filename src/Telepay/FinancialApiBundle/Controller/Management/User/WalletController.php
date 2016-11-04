@@ -1444,25 +1444,14 @@ class WalletController extends RestApiController{
 
         $dm = $this->get('doctrine_mongodb')->getManager();
         $userGroup = $this->get('security.context')->getToken()->getUser()->getActiveGroup();
-//        $last10Trans = $dm->createQueryBuilder('TelepayFinancialApiBundle:Transaction')
-//            ->field('group')->equals($userGroup->getId())
-//            ->field('id')->equals($id)
-//            ->limit(1)
-//            ->getQuery()
-//            ->execute();
-//
-//        $resArray = [];
-//        foreach($last10Trans->toArray() as $res){
-//
-//            $resArray [] = $res;
-//
-//        }
 
         $transaction = $dm->getRepository('TelepayFinancialApiBundle:Transaction')->find($id);
 
         if(!$transaction) throw new HttpException(404, 'Transaction not found');
 
         if($transaction->getGroup() != $userGroup->getId()) throw new HttpException('You don\'t have the necessary permissions');
+
+        if($transaction->getMethod() != 'sepa' && $transaction->getMethod() != 'transfer') throw new HttpException('Bad method');
 
         $em = $this->getDoctrine()->getManager();
         $user = $em->getRepository('TelepayFinancialApiBundle:User')->find($transaction->getUser());
