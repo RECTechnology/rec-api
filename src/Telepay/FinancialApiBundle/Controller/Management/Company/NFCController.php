@@ -60,7 +60,7 @@ class NFCController extends RestApiController{
         $userCreator = $em->getRepository('TelepayFinancialApiBundle:User')->find($user_creator_id);
         $companyCreator = $em->getRepository('TelepayFinancialApiBundle:Group')->find($company_creator_id);
 
-        //TODO check if email has account
+        //check if email has account
         $em = $this->getDoctrine()->getManager();
         $user = $em->getRepository('TelepayFinancialApiBundle:User')->findOneBy(array(
             'email' =>  $params['email']
