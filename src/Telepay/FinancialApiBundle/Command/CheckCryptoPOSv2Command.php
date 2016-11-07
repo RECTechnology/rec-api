@@ -183,7 +183,7 @@ class CheckCryptoPOSv2Command extends ContainerAwareCommand
             }
         }
         else{
-            $output->writeln($service_cname.' transactions checked');
+            $output->writeln('Crypto POS v2 transactions checked');
         }
 
         $dm->flush();
