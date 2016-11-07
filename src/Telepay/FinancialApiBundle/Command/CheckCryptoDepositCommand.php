@@ -86,7 +86,7 @@ class CheckCryptoDepositCommand extends SyncronizedContainerAwareCommand
                         //get fees
                         $companyFees = $feeManipulator->getMethodFees($token->getCompany(), $methodDriver);
                         $fixed_fee = $companyFees->getFixed();
-                        $variable_fee = $companyFees->getVariable();
+                        $variable_fee = round(($companyFees->getVariable()/100) * $depositAmount, 0);
 
                         //Generate new transaction
                         $output->writeln('Generate new transaction');
