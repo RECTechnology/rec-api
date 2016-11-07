@@ -121,18 +121,14 @@ class CheckCryptoDepositCommand extends SyncronizedContainerAwareCommand
                             'min_confirmations' => 1,
                             'confirmations' => 1,
                             'status'    =>  Transaction::$STATUS_SUCCESS,
-                            'final'     =>  true
+                            'final'     =>  true,
+                            'concept'   =>  'Concept by Default'
                         ));
 
                         $dm->persist($depositTransaction);
                         $dm->flush();
 
-                        $wallets = $token->getCompany()->getWallets();
-                        foreach ($wallets as $wallet) {
-                            if ($wallet->getCurrency() == $token->getCurrency()) {
-                                $current_wallet = $wallet;
-                            }
-                        }
+                        $current_wallet = $token->getCompany()->getWallet($token->getCurrency());
 
                         $total_fee = $fixed_fee +($depositAmount * ($variable_fee / 100));
                         $total = $deposit->getAmount() - $total_fee;
@@ -147,7 +143,7 @@ class CheckCryptoDepositCommand extends SyncronizedContainerAwareCommand
                             // restar las comisiones
                             $output->writeln('Creating fee transaction');
                             $feeTransaction = new Transaction();
-                            $feeTransaction->setStatus('success');
+                            $feeTransaction->setStatus(Transaction::$STATUS_SUCCESS);
                             $feeTransaction->setScale($depositTransaction->getScale());
                             $feeTransaction->setAmount($total_fee);
                             $feeTransaction->setGroup($depositTransaction->getGroup());
