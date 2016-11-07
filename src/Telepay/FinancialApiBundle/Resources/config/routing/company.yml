@@ -1,3 +1,11 @@
+##################### COMPANY ACCOUNT ############################
+
+company_reactive_token:
+    pattern:  /company/v1/account/kyc/admin/{id}
+    defaults: { _controller: Telepay\FinancialApiBundle\Controller\Management\Company\AccountController::setAdmin }
+    requirements:
+        _method: PUT
+
 ##################### COMPANY ############################
 
 company_generate_new_token:
