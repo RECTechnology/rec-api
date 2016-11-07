@@ -51,10 +51,20 @@ class ActivityController extends RestApiController
      */
 
     public function totalWallets(){
-        $filtered = [];
+        $dm = $this->getDoctrine()->getManager();
+        $groupRepo = $dm->getRepository('TelepayFinancialApiBundle:Group');
+        $groups = $groupRepo->findBy(
+            array('own'=>true)
+        );
+        $chipchap_groups = array();
+        foreach($groups as $group){
+            $chipchap_groups[] = $group->getId();
+        }
 
         $qb = $this->getDoctrine()->getRepository('TelepayFinancialApiBundle:UserWallet')->createQueryBuilder('w');
         $qb->Select('SUM(w.available) as available, SUM(w.balance) as balance, w.currency')
+            ->where('w.group NOT IN (:groups)')
+            ->setParameter('groups', $chipchap_groups)
             ->groupBy('w.currency');
 
         $query = $qb->getQuery()->getResult();
@@ -67,6 +77,7 @@ class ActivityController extends RestApiController
         $multidivisa['balance'] = 0;
         $multidivisa['scale'] = 2;
 
+        $filtered = [];
 
         foreach($query as $wallet){
             $wallet['id'] = $wallet['currency'];
