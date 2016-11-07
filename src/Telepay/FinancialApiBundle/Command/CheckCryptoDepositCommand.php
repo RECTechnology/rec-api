@@ -119,9 +119,9 @@ class CheckCryptoDepositCommand extends SyncronizedContainerAwareCommand
                             'expires_in' => intval(1200),
                             'received' => $depositAmount,
                             'min_confirmations' => 1,
-                            'confirmations' => 1,
-                            'status'    =>  Transaction::$STATUS_SUCCESS,
-                            'final'     =>  true,
+                            'confirmations' => 0,
+                            'status'    =>  Transaction::$STATUS_RECEIVED,
+                            'final'     =>  false,
                             'concept'   =>  'Concept by Default'
                         ));
 
