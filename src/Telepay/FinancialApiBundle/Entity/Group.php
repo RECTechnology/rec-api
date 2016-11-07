@@ -59,7 +59,6 @@ class Group extends BaseGroup
 
     /**
      * @ORM\ManyToOne(targetEntity="Telepay\FinancialApiBundle\Entity\User")
-     * @Exclude
      */
     private $kyc_manager;
 
