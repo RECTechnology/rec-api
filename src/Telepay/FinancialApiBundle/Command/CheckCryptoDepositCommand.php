@@ -67,7 +67,7 @@ class CheckCryptoDepositCommand extends SyncronizedContainerAwareCommand
                         }
                     }
                     $output->writeln('Total deposited: '.$totalDeposited);
-                    if($totalDeposited < $receivedTransactions + 100){
+                    if($totalDeposited + 100 < $receivedTransactions ){
                         $output->writeln('New transaction detected '.$receivedTransactions.' - '.$totalDeposited);
                         $depositAmount = $receivedTransactions - $totalDeposited;
                         $output->writeln('New transaction amount '. $depositAmount);
