@@ -26,7 +26,7 @@ class CheckCryptoDepositCommand extends SyncronizedContainerAwareCommand
 
     protected function executeSyncronized(InputInterface $input, OutputInterface $output){
         $n = 0;
-        $exec_n_times = 1;
+        $exec_n_times = 1000;
         while($n<$exec_n_times) {
             $methods = array('fac', 'btc');
             $type = 'in';
@@ -67,7 +67,7 @@ class CheckCryptoDepositCommand extends SyncronizedContainerAwareCommand
                         }
                     }
                     $output->writeln('Total deposited: '.$totalDeposited);
-                    if($totalDeposited < $receivedTransactions){
+                    if($totalDeposited < $receivedTransactions + 100){
                         $output->writeln('New transaction detected '.$receivedTransactions.' - '.$totalDeposited);
                         $depositAmount = $receivedTransactions - $totalDeposited;
                         $output->writeln('New transaction amount '. $depositAmount);
