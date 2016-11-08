@@ -56,7 +56,7 @@ class CheckCryptoCommand extends SyncronizedContainerAwareCommand
                         $output->writeln('CHECK CRYPTO status: '.$transaction->getStatus());
                         if ($previous_status != $transaction->getStatus()) {
                             $transaction = $this->getContainer()->get('notificator')->notificate($transaction);
-                            $transaction->setUpdated(new \MongoDate());
+                            $transaction->setUpdated(new \DateTime);
 
                         }
 
@@ -162,9 +162,9 @@ class CheckCryptoCommand extends SyncronizedContainerAwareCommand
 
                         } elseif ($transaction->getStatus() == Transaction::$STATUS_EXPIRED) {
                             //SEND AN EMAIL
-                            $this->sendEmail(
-                                $method . ' Expired --> ' . $transaction->getStatus(),
-                                'Transaction created at: ' . $transaction->getCreated() . ' - Updated at: ' . $transaction->getUpdated() . ' Time server: ' . date("Y-m-d H:i:s"));
+//                            $this->sendEmail(
+//                                $method . ' Expired --> ' . $transaction->getStatus(),
+//                                'Transaction created at: ' . $transaction->getCreated() . ' - Updated at: ' . $transaction->getUpdated() . ' Time server: ' . date("Y-m-d H:i:s"));
                         }
                     }
 
