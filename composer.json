@@ -33,7 +33,9 @@
         "textalk/websocket": "1.0.*",
         "fergusean/nusoap": "^0.9.5",
         "slik/dompdf-bundle" : "dev-master",
-        "twilio/sdk": "dev-master"
+        "twilio/sdk": "dev-master",
+        "clue/graph": "~0.9.0",
+        "graphp/algorithms": "~0.8.0"
     },
     "require-dev": {
         "sensio/generator-bundle": "~2.3"

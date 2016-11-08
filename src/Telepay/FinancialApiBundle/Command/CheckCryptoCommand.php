@@ -33,8 +33,10 @@ class CheckCryptoCommand extends SyncronizedContainerAwareCommand
             $em = $this->getContainer()->get('doctrine')->getManager();
             $repo = $em->getRepository('TelepayFinancialApiBundle:User');
             $repoGroup = $em->getRepository('TelepayFinancialApiBundle:Group');
-
+            $output->writeln('CHECK CRYPTO');
             foreach ($method_cname as $method) {
+                $output->writeln($method . ' INIT');
+
                 $qb = $dm->createQueryBuilder('TelepayFinancialApiBundle:Transaction')
                     ->field('method')->equals($method)
                     ->field('status')->in(array('created', 'received'))
@@ -42,19 +44,19 @@ class CheckCryptoCommand extends SyncronizedContainerAwareCommand
 
                 $resArray = [];
                 foreach ($qb->toArray() as $transaction) {
-
+                    $output->writeln('CHECK CRYPTO ID: '.$transaction->getId());
                     $data = $transaction->getPayInInfo();
-
+                    $output->writeln('CHECK CRYPTO concept: '.$data['concept']);
                     if (isset($data['expires_in'])) {
 
                         $resArray [] = $transaction;
                         $previous_status = $transaction->getStatus();
 
                         $transaction = $this->check($transaction);
-
+                        $output->writeln('CHECK CRYPTO status: '.$transaction->getStatus());
                         if ($previous_status != $transaction->getStatus()) {
                             $transaction = $this->getContainer()->get('notificator')->notificate($transaction);
-                            $transaction->setUpdated(new \MongoDate());
+                            $transaction->setUpdated(new \DateTime);
 
                         }
 
@@ -64,12 +66,13 @@ class CheckCryptoCommand extends SyncronizedContainerAwareCommand
                         if ($transaction->getStatus() == Transaction::$STATUS_SUCCESS) {
                             //hacemos el reparto
                             //primero al user
+                            $output->writeln('CHECK CRYPTO success');
                             $id = $transaction->getUser();
                             $groupId = $transaction->getGroup();
 
                             $transaction_id = $transaction->getId();
 
-                            $user = $repo->find($id);
+//                            $user = $repo->find($id);
                             $group = $repoGroup->find($groupId);
 
                             $wallets = $group->getWallets();
@@ -84,14 +87,14 @@ class CheckCryptoCommand extends SyncronizedContainerAwareCommand
 
                             $amount = $data['amount'];
 
-                            //TODO if group has
+                            //if group has
                             if (!$group->hasRole('ROLE_SUPER_ADMIN')) {
-
+                                $output->writeln('CHECK CRYPTO no superadmin');
                                 $fixed_fee = $transaction->getFixedFee();
                                 $variable_fee = $transaction->getVariableFee();
                                 $total_fee = $fixed_fee + $variable_fee;
                                 $total = $amount - $total_fee;
-
+                                $output->writeln('CHECK CRYPTO add to wallet');
                                 $current_wallet->setAvailable($current_wallet->getAvailable() + $total);
                                 $current_wallet->setBalance($current_wallet->getBalance() + $total);
 
@@ -99,12 +102,13 @@ class CheckCryptoCommand extends SyncronizedContainerAwareCommand
                                 $em->flush();
 
                                 if ($total_fee != 0) {
+                                    $output->writeln('CHECK CRYPTO fees');
                                     // restar las comisiones
                                     $feeTransaction = new Transaction();
                                     $feeTransaction->setStatus('success');
                                     $feeTransaction->setScale($transaction->getScale());
                                     $feeTransaction->setAmount($total_fee);
-                                    $feeTransaction->setUser($user->getId());
+                                    $feeTransaction->setUser($id);
                                     $feeTransaction->setGroup($group->getId());
                                     $feeTransaction->setCreated(new \MongoDate());
                                     $feeTransaction->setUpdated(new \MongoDate());
@@ -158,9 +162,9 @@ class CheckCryptoCommand extends SyncronizedContainerAwareCommand
 
                         } elseif ($transaction->getStatus() == Transaction::$STATUS_EXPIRED) {
                             //SEND AN EMAIL
-                            $this->sendEmail(
-                                $method . ' Expired --> ' . $transaction->getStatus(),
-                                'Transaction created at: ' . $transaction->getCreated() . ' - Updated at: ' . $transaction->getUpdated() . ' Time server: ' . date("Y-m-d H:i:s"));
+//                            $this->sendEmail(
+//                                $method . ' Expired --> ' . $transaction->getStatus(),
+//                                'Transaction created at: ' . $transaction->getCreated() . ' - Updated at: ' . $transaction->getUpdated() . ' Time server: ' . date("Y-m-d H:i:s"));
                         }
                     }
 

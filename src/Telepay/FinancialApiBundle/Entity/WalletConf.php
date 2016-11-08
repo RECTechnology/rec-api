@@ -49,6 +49,16 @@ class WalletConf {
     private $maxBalance;
 
     /**
+     * @ORM\Column(type="float")
+     */
+    private $perfectBalance;
+
+    /**
+     * @ORM\Column(type="float")
+     */
+    private $fixedAmount;
+
+    /**
      * @return mixed
      */
     public function getId(){
@@ -140,5 +150,37 @@ class WalletConf {
     public function setCurrency($currency)
     {
         $this->currency = $currency;
+    }
+
+    /**
+     * @return mixed
+     */
+    public function getFixedAmount()
+    {
+        return $this->fixedAmount;
+    }
+
+    /**
+     * @param mixed $fixedAmount
+     */
+    public function setFixedAmount($fixedAmount)
+    {
+        $this->fixedAmount = $fixedAmount;
+    }
+
+    /**
+     * @return mixed
+     */
+    public function getPerfectBalance()
+    {
+        return $this->perfectBalance;
+    }
+
+    /**
+     * @param mixed $perfectBalance
+     */
+    public function setPerfectBalance($perfectBalance)
+    {
+        $this->perfectBalance = $perfectBalance;
     }
 }

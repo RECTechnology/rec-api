@@ -10,6 +10,7 @@ namespace Telepay\FinancialApiBundle\Controller\Management\User;
 use DateInterval;
 use DateTime;
 use Symfony\Component\HttpFoundation\Request;
+use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpKernel\Exception\HttpException;
 use Telepay\FinancialApiBundle\Controller\RestApiController;
 use Telepay\FinancialApiBundle\Document\Transaction;
@@ -928,7 +929,7 @@ class WalletController extends RestApiController{
         $balancer = $this->get('net.telepay.commons.balance_manipulator');
         $balancer->addBalance($receiver, $params['amount'], $receiver_transaction);
 
-        //todo update wallets
+        //update wallets
         $sender_wallet->setAvailable($sender_wallet->getAvailable() - $params['amount']);
         $sender_wallet->setBalance($sender_wallet->getBalance() - $params['amount']);
 
@@ -1436,6 +1437,55 @@ class WalletController extends RestApiController{
         $transaction_id = $transaction->getId();
         $dealer = $this->get('net.telepay.commons.fee_deal');
         $dealer->deal($creator, $amount, $service_cname, 'exchange', $currency, $total_fee, $transaction_id, $transaction->getVersion());
+
+    }
+
+    public function getPdfReceipt(Request $request, $id){
+
+        $dm = $this->get('doctrine_mongodb')->getManager();
+        $userGroup = $this->get('security.context')->getToken()->getUser()->getActiveGroup();
+
+        $transaction = $dm->getRepository('TelepayFinancialApiBundle:Transaction')->find($id);
+
+        if(!$transaction) throw new HttpException(404, 'Transaction not found');
+
+        if($transaction->getGroup() != $userGroup->getId()) throw new HttpException('You don\'t have the necessary permissions');
+
+        if($transaction->getMethod() != 'sepa' && $transaction->getMethod() != 'transfer') throw new HttpException('Bad method');
+
+        $em = $this->getDoctrine()->getManager();
+        $user = $em->getRepository('TelepayFinancialApiBundle:User')->find($transaction->getUser());
+        $company = $em->getRepository('TelepayFinancialApiBundle:Group')->find($transaction->getGroup());
+
+        $paymentInfo = $transaction->getPayOutInfo();
+        $body = array(
+            'transaction'   =>  $transaction,
+            'user'  =>  $user,
+            'company'   =>  $company,
+            'iban'  =>  $paymentInfo['iban'],
+            'swift' =>  $paymentInfo['bic_swift'],
+            'beneficiary'   =>  $paymentInfo['beneficiary'],
+            'concept'   =>  $paymentInfo['concept']
+        );
+
+        $html = $this->container->get('templating')->render('TelepayFinancialApiBundle:Email:receipt.html.twig', $body);
+
+
+        $dompdf = $this->container->get('slik_dompdf');
+        $dompdf->getpdf($html);
+        $pdfoutput = $dompdf->output();
+
+        $filename = $transaction->getMethod().'_'.$transaction->getId().'.pdf';
+
+        $response = new Response();
+
+        //set headers
+        $response->headers->set('Content-Type', 'mime/type');
+        $response->headers->set('Content-Disposition', 'attachment;filename="'.$filename);
+
+        $response->setContent($pdfoutput);
+        return $response;
+
 
     }
 

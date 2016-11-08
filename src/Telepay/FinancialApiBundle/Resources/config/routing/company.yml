@@ -1,3 +1,11 @@
+##################### COMPANY ACCOUNT ############################
+
+company_reactive_token:
+    pattern:  /company/v1/account/kyc/admin/{id}
+    defaults: { _controller: Telepay\FinancialApiBundle\Controller\Management\Company\AccountController::setAdmin }
+    requirements:
+        _method: PUT
+
 ##################### COMPANY ############################
 
 company_generate_new_token:
@@ -9,6 +17,12 @@ company_generate_new_token:
 company_index_tokens:
     pattern:  /company/v1/wallet/cash_in_token
     defaults: { _controller: Telepay\FinancialApiBundle\Controller\Management\Company\CashInController::indexAction }
+    requirements:
+        _method: GET
+
+company_get_ticket:
+    pattern:  /company/v1/wallet/ticket/{id}
+    defaults: { _controller: Telepay\FinancialApiBundle\Controller\Management\User\WalletController::getPdfReceipt }
     requirements:
         _method: GET
 

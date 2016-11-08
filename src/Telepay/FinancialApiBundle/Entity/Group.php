@@ -58,6 +58,11 @@ class Group extends BaseGroup
     private $creator;
 
     /**
+     * @ORM\ManyToOne(targetEntity="Telepay\FinancialApiBundle\Entity\User")
+     */
+    private $kyc_manager;
+
+    /**
      * @ORM\ManyToOne(targetEntity="Telepay\FinancialApiBundle\Entity\Group")
      * @Exclude
      */
@@ -772,6 +777,22 @@ class Group extends BaseGroup
     public function setOwn($own)
     {
         $this->own = $own;
+    }
+
+    /**
+     * @return mixed
+     */
+    public function getKycManager()
+    {
+        return $this->kyc_manager;
+    }
+
+    /**
+     * @param mixed $kyc_manager
+     */
+    public function setKycManager($kyc_manager)
+    {
+        $this->kyc_manager = $kyc_manager;
     }
 
 }

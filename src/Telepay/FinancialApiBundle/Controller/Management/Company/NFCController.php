@@ -60,7 +60,7 @@ class NFCController extends RestApiController{
         $userCreator = $em->getRepository('TelepayFinancialApiBundle:User')->find($user_creator_id);
         $companyCreator = $em->getRepository('TelepayFinancialApiBundle:Group')->find($company_creator_id);
 
-        //TODO check if email has account
+        //check if email has account
         $em = $this->getDoctrine()->getManager();
         $user = $em->getRepository('TelepayFinancialApiBundle:User')->findOneBy(array(
             'email' =>  $params['email']
@@ -352,6 +352,8 @@ class NFCController extends RestApiController{
 
         if(!$card) throw new HttpException(404, 'NFC Card not found');
 
+        if(!$card->getEnabled()) throw new HttpException(403, 'Disabled card');
+
         $receiverCompany = $card->getCompany();
 
         //currency FAC
@@ -489,6 +491,8 @@ class NFCController extends RestApiController{
 
         if(!$card) throw new HttpException(404, 'NFCCard not found');
 
+        if(!$card->getEnabled()) throw new HttpException(403, 'Disabled card');
+
         if($request->request->has('action')){
             $action = $request->request->get('action');
             if($action == 'refresh_pin'){
@@ -560,9 +564,148 @@ class NFCController extends RestApiController{
     /**
      * @Rest\View
      */
-    public function NFCPayment(Request $request){
+    public function NFCPayment(Request $request, $id_company){
+
+        $em = $this->getDoctrine()->getManager();
+        $receiverCompany = $em->getRepository('TelepayFinancialApiBundle:Group')->find($id_company);
+
+        if(!$receiverCompany) throw new HttpException(404, 'Company not found');
+
+        $paramNames = array(
+            'id_card',
+            'amount'
+        );
+        $params = array();
+        foreach($paramNames as $paramName){
+            if($request->request->get($paramName)){
+                $params[$paramName] = $request->request->get($paramName);
+            }else{
+                throw new HttpException(404, 'Param '.$paramName.' not found');
+            }
+        }
+
+        $card = $em->getRepository('TelepayFinancialApiBundle:Group')->find($params['id_card']);
+
+        if(!$card) throw new HttpException(404, 'Card not found');
+
+        if(!$card->getEnabled()) throw new HttpException(403, 'Disabled card');
 
         //TODO walletToWallet transaction from user to commerce
+        $senderCompany = $card->getCompany();
+
+        $senderWallet = $senderCompany->getWallet(Currency::$FAC);
+        $receiverWallet = $receiverCompany->getWallet(Currency::$FAC);
+
+        //Check funds sender wallet
+        if($senderWallet->getAvailable() < $params['amount']) throw new HttpException(403, 'Insuficient funds');
+
+        //SENDER TRANSACTION
+        $sender_transaction = new Transaction();
+        $sender_transaction->setStatus(Transaction::$STATUS_SUCCESS);
+        $sender_transaction->setScale($senderWallet->getScale());
+        $sender_transaction->setCurrency($senderWallet->getCurrency());
+        $sender_transaction->setIp('');
+        $sender_transaction->setVersion('');
+        $sender_transaction->setService('transfer');
+        $sender_transaction->setMethod('wallet_to_wallet');
+        $sender_transaction->setType('out');
+        $sender_transaction->setVariableFee(0);
+        $sender_transaction->setFixedFee(0);
+        $sender_transaction->setAmount($params['amount']);
+        $sender_transaction->setDataIn(array(
+            'description'   =>  'transfer->FAC',
+            'concept'       =>  'walletToWallet from ANDROID APP'
+        ));
+        $sender_transaction->setDataOut(array(
+            'sent_to'   =>  $receiverCompany->getName(),
+            'id_to'     =>  $receiverCompany->getId(),
+            'amount'    =>  -$params['amount'],
+            'currency'  =>  Currency::$FAC
+        ));
+        $sender_transaction->setPayOutInfo(array(
+            'beneficiary'   =>  $receiverCompany->getName(),
+            'beneficiary_id'     =>  $receiverCompany->getId(),
+            'amount'    =>  -$params['amount'],
+            'currency'  =>  Currency::$FAC,
+            'scale'     =>  Currency::$SCALE[Currency::$FAC],
+            'concept'       =>  'walletToWallet from ANDROID APP'
+        ));
+        $sender_transaction->setTotal(-$params['amount']);
+        $sender_transaction->setUser($card->getUser()->getId());
+        $sender_transaction->setGroup($card->getCompany()->getId());
+
+
+        $dm = $this->get('doctrine_mongodb')->getManager();
+
+        $dm->persist($sender_transaction);
+
+        $balancer = $this->get('net.telepay.commons.balance_manipulator');
+        $balancer->addBalance($senderCompany, -$params['amount'], $sender_transaction);
+
+        //FEE=1% al user
+        $variable_fee = round($params['amount']*0.01,0);
+        $amount = $params['amount'] - $variable_fee;
+
+        //RECEIVER TRANSACTION
+        $receiver_transaction = new Transaction();
+        $receiver_transaction->setStatus(Transaction::$STATUS_SUCCESS);
+        $receiver_transaction->setScale($senderWallet->getScale());
+        $receiver_transaction->setCurrency($senderWallet->getCurrency());
+        $receiver_transaction->setIp('');
+        $receiver_transaction->setVersion('');
+        $receiver_transaction->setService('transfer');
+        $receiver_transaction->setMethod('wallet_to_wallet');
+        $receiver_transaction->setType('in');
+        $receiver_transaction->setVariableFee($variable_fee);
+        $receiver_transaction->setFixedFee(0);
+        $receiver_transaction->setAmount($params['amount']);
+        $receiver_transaction->setDataOut(array(
+            'received_from' =>  $senderCompany->getName(),
+            'id_from'       =>  $senderCompany->getId(),
+            'amount'        =>  $params['amount'],
+            'currency'      =>  $receiverWallet->getCurrency(),
+            'previous_transaction'  =>  $sender_transaction->getId()
+        ));
+        $receiver_transaction->setDataIn(array(
+            'sent_to'   =>  $receiverCompany->getName(),
+            'id_to'     =>  $receiverCompany->getId(),
+            'amount'    =>  -$params['amount'],
+            'currency'  =>  Currency::$FAC,
+            'description'   =>  'transfer->FAC',
+            'concept'   =>  'walletToWallet from ANDROID APP'
+        ));
+        $receiver_transaction->setPayInInfo(array(
+            'sender'   =>  $senderCompany->getName(),
+            'sender_id'     =>  $senderCompany->getId(),
+            'amount'    =>  $params['amount'],
+            'currency'  =>  Currency::$FAC,
+            'scale'  =>  Currency::$SCALE[Currency::$FAC],
+            'concept'   =>  'walletToWallet from ANDROID APP'
+        ));
+        $receiver_transaction->setTotal($params['amount']);
+        $receiver_transaction->setGroup($receiverCompany->getId());
+
+        $dm->persist($receiver_transaction);
+        $dm->flush();
+
+        $balancer = $this->get('net.telepay.commons.balance_manipulator');
+        $balancer->addBalance($receiverCompany, $amount, $receiver_transaction);
+
+        //update wallets
+        $senderWallet->setAvailable($senderWallet->getAvailable() - $params['amount']);
+        $senderWallet->setBalance($senderWallet->getBalance() - $params['amount']);
+
+        $receiverWallet->setAvailable($receiverWallet->getAvailable() + $amount);
+        $receiverWallet->setBalance($receiverWallet->getBalance() + $amount);
+
+        $em->persist($senderWallet);
+        $em->persist($receiverWallet);
+        $em->flush();
+
+        //create feeTransactions
+        $this->_dealer(0, $variable_fee, $receiver_transaction);
+
+        return $this->restV2(200, "ok", "Transaction got successfully");
 
     }
 

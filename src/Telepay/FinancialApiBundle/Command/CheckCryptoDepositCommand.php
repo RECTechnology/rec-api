@@ -67,9 +67,10 @@ class CheckCryptoDepositCommand extends SyncronizedContainerAwareCommand
                         }
                     }
                     $output->writeln('Total deposited: '.$totalDeposited);
-                    if($totalDeposited < $receivedTransactions){
-                        $output->writeln('New transaction detected');
+                    if($totalDeposited + 100 < $receivedTransactions ){
+                        $output->writeln('New transaction detected '.$receivedTransactions.' - '.$totalDeposited);
                         $depositAmount = $receivedTransactions - $totalDeposited;
+                        $output->writeln('New transaction amount '. $depositAmount);
 
                         //new deposit
                         $output->writeln('Creating new deposit');
@@ -86,15 +87,16 @@ class CheckCryptoDepositCommand extends SyncronizedContainerAwareCommand
                         //get fees
                         $companyFees = $feeManipulator->getMethodFees($token->getCompany(), $methodDriver);
                         $fixed_fee = $companyFees->getFixed();
-                        $variable_fee = $companyFees->getVariable();
+                        $variable_fee = round(($companyFees->getVariable()/100) * $depositAmount, 0);
 
                         //Generate new transaction
                         $output->writeln('Generate new transaction');
                         $depositTransaction = new Transaction();
-                        $depositTransaction->setStatus(Transaction::$STATUS_SUCCESS);
+                        $depositTransaction->setStatus(Transaction::$STATUS_RECEIVED);
                         $depositTransaction->setScale(Currency::$SCALE[$token->getCurrency()]);
                         $depositTransaction->setAmount($depositAmount);
                         $depositTransaction->setGroup($token->getCompany()->getId());
+                        $depositTransaction->setUser(-1);
                         $depositTransaction->setCreated(new \MongoDate());
                         $depositTransaction->setUpdated(new \MongoDate());
                         $depositTransaction->setIp('');
@@ -119,85 +121,81 @@ class CheckCryptoDepositCommand extends SyncronizedContainerAwareCommand
                             'expires_in' => intval(1200),
                             'received' => $depositAmount,
                             'min_confirmations' => 1,
-                            'confirmations' => 1,
-                            'status'    =>  Transaction::$STATUS_SUCCESS,
-                            'final'     =>  true
+                            'confirmations' => 0,
+                            'status'    =>  Transaction::$STATUS_RECEIVED,
+                            'final'     =>  false,
+                            'concept'   =>  'Concept by Default'
                         ));
 
                         $dm->persist($depositTransaction);
                         $dm->flush();
 
-                        $wallets = $token->getCompany()->getWallets();
-                        foreach ($wallets as $wallet) {
-                            if ($wallet->getCurrency() == $token->getCurrency()) {
-                                $current_wallet = $wallet;
-                            }
-                        }
-
-                        $total_fee = $fixed_fee +($depositAmount * ($variable_fee / 100));
-                        $total = $deposit->getAmount() - $total_fee;
-
-                        $current_wallet->setAvailable($current_wallet->getAvailable() + $total);
-                        $current_wallet->setBalance($current_wallet->getBalance() + $total);
-
-                        $em->persist($current_wallet);
-                        $em->flush();
-
-                        if ($total_fee != 0) {
-                            // restar las comisiones
-                            $output->writeln('Creating fee transaction');
-                            $feeTransaction = new Transaction();
-                            $feeTransaction->setStatus('success');
-                            $feeTransaction->setScale($depositTransaction->getScale());
-                            $feeTransaction->setAmount($total_fee);
-                            $feeTransaction->setGroup($depositTransaction->getGroup());
-                            $feeTransaction->setCreated(new \MongoDate());
-                            $feeTransaction->setUpdated(new \MongoDate());
-                            $feeTransaction->setIp($depositTransaction->getIp());
-                            $feeTransaction->setFixedFee($fixed_fee);
-                            $feeTransaction->setVariableFee($variable_fee);
-                            $feeTransaction->setVersion($depositTransaction->getVersion());
-                            $feeTransaction->setDataIn(array(
-                                'previous_transaction' => $depositTransaction->getId(),
-                                'amount' => -$total_fee
-                            ));
-                            $feeTransaction->setDebugData(array(
-                                'previous_balance' => $current_wallet->getBalance(),
-                                'previous_transaction' => $depositTransaction->getId()
-                            ));
-                            $feeTransaction->setTotal(-$total_fee);
-                            $feeTransaction->setCurrency($depositTransaction->getCurrency());
-                            $feeTransaction->setService($method);
-                            $feeTransaction->setMethod($method);
-                            $feeTransaction->setType('fee');
-                            $feeInfo = array(
-                                'previous_transaction'  =>  $depositTransaction->getId(),
-                                'previous_amount'   =>  $depositTransaction->getAmount(),
-                                'amount'                =>  $total_fee,
-                                'currency'      =>  $depositTransaction->getCurrency(),
-                                'scale'     =>  $depositTransaction->getScale(),
-                                'concept'           =>  'Deposit-'.$method.'->fee',
-                                'status'    =>  Transaction::$STATUS_SUCCESS
-                            );
-                            $feeTransaction->setFeeInfo($feeInfo);
-
-                            $dm->persist($feeTransaction);
-                            $dm->flush();
-
-                            $creator = $token->getCompany()->getGroupCreator();
-
-                            //luego a la ruleta de admins
-                            $dealer = $this->getContainer()->get('net.telepay.commons.fee_deal');
-                            $dealer->deal(
-                                $creator,
-                                $deposit->getAmount(),
-                                $method,
-                                $type,
-                                $token->getCurrency(),
-                                $total_fee,
-                                $depositTransaction->getId(),
-                                $depositTransaction->getVersion());
-                        }
+//                        $current_wallet = $token->getCompany()->getWallet($token->getCurrency());
+//
+//                        $total_fee = $fixed_fee +($depositAmount * ($variable_fee / 100));
+//                        $total = $deposit->getAmount() - $total_fee;
+//
+//                        $current_wallet->setAvailable($current_wallet->getAvailable() + $total);
+//                        $current_wallet->setBalance($current_wallet->getBalance() + $total);
+//
+//                        $em->persist($current_wallet);
+//                        $em->flush();
+//
+//                        if ($total_fee != 0) {
+//                            // restar las comisiones
+//                            $output->writeln('Creating fee transaction');
+//                            $feeTransaction = new Transaction();
+//                            $feeTransaction->setStatus(Transaction::$STATUS_SUCCESS);
+//                            $feeTransaction->setScale($depositTransaction->getScale());
+//                            $feeTransaction->setAmount($total_fee);
+//                            $feeTransaction->setGroup($depositTransaction->getGroup());
+//                            $feeTransaction->setCreated(new \MongoDate());
+//                            $feeTransaction->setUpdated(new \MongoDate());
+//                            $feeTransaction->setIp($depositTransaction->getIp());
+//                            $feeTransaction->setFixedFee($fixed_fee);
+//                            $feeTransaction->setVariableFee($variable_fee);
+//                            $feeTransaction->setVersion($depositTransaction->getVersion());
+//                            $feeTransaction->setDataIn(array(
+//                                'previous_transaction' => $depositTransaction->getId(),
+//                                'amount' => -$total_fee
+//                            ));
+//                            $feeTransaction->setDebugData(array(
+//                                'previous_balance' => $current_wallet->getBalance(),
+//                                'previous_transaction' => $depositTransaction->getId()
+//                            ));
+//                            $feeTransaction->setTotal(-$total_fee);
+//                            $feeTransaction->setCurrency($depositTransaction->getCurrency());
+//                            $feeTransaction->setService($method);
+//                            $feeTransaction->setMethod($method);
+//                            $feeTransaction->setType('fee');
+//                            $feeInfo = array(
+//                                'previous_transaction'  =>  $depositTransaction->getId(),
+//                                'previous_amount'   =>  $depositTransaction->getAmount(),
+//                                'amount'                =>  $total_fee,
+//                                'currency'      =>  $depositTransaction->getCurrency(),
+//                                'scale'     =>  $depositTransaction->getScale(),
+//                                'concept'           =>  'Deposit-'.$method.'->fee',
+//                                'status'    =>  Transaction::$STATUS_SUCCESS
+//                            );
+//                            $feeTransaction->setFeeInfo($feeInfo);
+//
+//                            $dm->persist($feeTransaction);
+//                            $dm->flush();
+//
+//                            $creator = $token->getCompany()->getGroupCreator();
+//
+//                            //luego a la ruleta de admins
+//                            $dealer = $this->getContainer()->get('net.telepay.commons.fee_deal');
+//                            $dealer->deal(
+//                                $creator,
+//                                $deposit->getAmount(),
+//                                $method,
+//                                $type,
+//                                $token->getCurrency(),
+//                                $total_fee,
+//                                $depositTransaction->getId(),
+//                                $depositTransaction->getVersion());
+//                        }
                     }
 
                 }
