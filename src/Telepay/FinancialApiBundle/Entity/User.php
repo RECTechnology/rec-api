@@ -198,12 +198,6 @@ class User extends BaseUser
     private $kyc_data = array();
 
     /**
-     * @ORM\OneToOne(targetEntity="Telepay\FinancialApiBundle\Entity\TierValidations", mappedBy="user", cascade={"remove"})
-     * @Expose
-     */
-    private $tier_validations;
-
-    /**
      * Random string sent to the user email address in order to recover the password
      *
      * @ORM\Column(type="string", nullable=true)

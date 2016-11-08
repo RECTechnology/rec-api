@@ -1,10 +1,16 @@
 ##################### COMPANY ACCOUNT ############################
 
-company_reactive_token:
+company_set_user_manager:
     pattern:  /company/v1/account/kyc/admin/{id}
     defaults: { _controller: Telepay\FinancialApiBundle\Controller\Management\Company\AccountController::setAdmin }
     requirements:
         _method: PUT
+
+company_kyc_upload_file:
+    pattern:  /company/v1/account/kyc/upload
+    defaults: { _controller: Telepay\FinancialApiBundle\Controller\Management\Company\KYCController::uploadFile }
+    requirements:
+        _method: POST
 
 ##################### COMPANY ############################
 
@@ -102,5 +108,4 @@ update_nfc_card:
     defaults: { _controller: Telepay\FinancialApiBundle\Controller\Management\Company\NFCController::updateCard }
     requirements:
         _method: PUT
-
 

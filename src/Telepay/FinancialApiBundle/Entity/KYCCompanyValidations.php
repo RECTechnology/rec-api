@@ -15,10 +15,10 @@ use JMS\Serializer\Annotation\Exclude;
 
 /**
  * @ORM\Entity
- * @ORM\Table(name="TierValidations")
+ * @ORM\Table(name="kyc_company_validations")
  * @ExclusionPolicy("none")
  */
-class TierValidations
+class KYCCompanyValidations
 {
     /**
      * @ORM\Id
@@ -29,9 +29,9 @@ class TierValidations
     protected $id;
 
     /**
-     * @ORM\OneToOne(targetEntity="Telepay\FinancialApiBundle\Entity\User")
+     * @ORM\OneToOne(targetEntity="Telepay\FinancialApiBundle\Entity\Group")
      */
-    private $user;
+    private $company;
 
     /**
      * @ORM\Column(type="boolean" ,nullable=true)

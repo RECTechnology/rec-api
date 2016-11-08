@@ -145,3 +145,6 @@ parameters:
     teleingreso_currency: ''
     teleingreso_url: ''
     teleingreso_hash: ''
+
+    uploads_dir: ''
+    files_path: ''

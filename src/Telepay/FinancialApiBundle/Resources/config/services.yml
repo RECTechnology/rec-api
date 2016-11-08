@@ -78,3 +78,7 @@ services:
         class:     Monolog\Handler\StreamHandler
         arguments: [%kernel.logs_dir%/%kernel.environment%.manager.log, 200]
 
+    file_manager:
+        class: Telepay\FinancialApiBundle\DependencyInjection\Telepay\Commons\UploadManager
+        arguments: ['@service_container']
+
