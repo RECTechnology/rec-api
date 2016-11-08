@@ -72,7 +72,7 @@ class CheckCryptoCommand extends SyncronizedContainerAwareCommand
 
                             $transaction_id = $transaction->getId();
 
-                            $user = $repo->find($id);
+//                            $user = $repo->find($id);
                             $group = $repoGroup->find($groupId);
 
                             $wallets = $group->getWallets();
@@ -87,7 +87,7 @@ class CheckCryptoCommand extends SyncronizedContainerAwareCommand
 
                             $amount = $data['amount'];
 
-                            //TODO if group has
+                            //if group has
                             if (!$group->hasRole('ROLE_SUPER_ADMIN')) {
                                 $output->writeln('CHECK CRYPTO no superadmin');
                                 $fixed_fee = $transaction->getFixedFee();
@@ -108,7 +108,7 @@ class CheckCryptoCommand extends SyncronizedContainerAwareCommand
                                     $feeTransaction->setStatus('success');
                                     $feeTransaction->setScale($transaction->getScale());
                                     $feeTransaction->setAmount($total_fee);
-                                    $feeTransaction->setUser($user->getId());
+                                    $feeTransaction->setUser($id);
                                     $feeTransaction->setGroup($group->getId());
                                     $feeTransaction->setCreated(new \MongoDate());
                                     $feeTransaction->setUpdated(new \MongoDate());
