@@ -24,7 +24,7 @@ class CheckCryptoCommand extends SyncronizedContainerAwareCommand
 
     protected function executeSyncronized(InputInterface $input, OutputInterface $output){
         $n = 0;
-        $exec_n_times = 1;
+        $exec_n_times = 1000;
         while($n<$exec_n_times) {
             $method_cname = array('fac', 'btc');
             $type = 'in';
