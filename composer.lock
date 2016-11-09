@@ -4,8 +4,8 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#composer-lock-the-lock-file",
         "This file is @generated automatically"
     ],
-    "hash": "8a5b135b49272e03ec88b0bc5ea598ae",
-    "content-hash": "1bfcf61dff727261e87320a43eb80fa9",
+    "hash": "c5453f8993cbad55a4bb4d4bafd49dba",
+    "content-hash": "db25b8c6eb16d6a0a3d8b31662945fdb",
     "packages": [
         {
             "name": "blockchain/blockchain",
@@ -113,16 +113,16 @@
         },
         {
             "name": "doctrine/cache",
-            "version": "v1.6.0",
+            "version": "v1.6.1",
             "source": {
                 "type": "git",
                 "url": "https://github.com/doctrine/cache.git",
-                "reference": "f8af318d14bdb0eff0336795b428b547bd39ccb6"
+                "reference": "b6f544a20f4807e81f7044d31e679ccbb1866dc3"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/doctrine/cache/zipball/f8af318d14bdb0eff0336795b428b547bd39ccb6",
-                "reference": "f8af318d14bdb0eff0336795b428b547bd39ccb6",
+                "url": "https://api.github.com/repos/doctrine/cache/zipball/b6f544a20f4807e81f7044d31e679ccbb1866dc3",
+                "reference": "b6f544a20f4807e81f7044d31e679ccbb1866dc3",
                 "shasum": ""
             },
             "require": {
@@ -179,7 +179,7 @@
                 "cache",
                 "caching"
             ],
-            "time": "2015-12-31 16:37:02"
+            "time": "2016-10-29 11:16:17"
         },
         {
             "name": "doctrine/collections",
@@ -1542,16 +1542,16 @@
         },
         {
             "name": "jms/serializer",
-            "version": "1.3.1",
+            "version": "1.4.1",
             "source": {
                 "type": "git",
                 "url": "https://github.com/schmittjoh/serializer.git",
-                "reference": "705d0b4633b9c44e6253aa18306b3972282cd3a3"
+                "reference": "c0c1af0d9f1a710c7fbae1732dadc4d913980299"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/schmittjoh/serializer/zipball/705d0b4633b9c44e6253aa18306b3972282cd3a3",
-                "reference": "705d0b4633b9c44e6253aa18306b3972282cd3a3",
+                "url": "https://api.github.com/repos/schmittjoh/serializer/zipball/c0c1af0d9f1a710c7fbae1732dadc4d913980299",
+                "reference": "c0c1af0d9f1a710c7fbae1732dadc4d913980299",
                 "shasum": ""
             },
             "require": {
@@ -1569,6 +1569,7 @@
             "require-dev": {
                 "doctrine/orm": "~2.1",
                 "doctrine/phpcr-odm": "^1.3|^2.0",
+                "ext-pdo_sqlite": "*",
                 "jackalope/jackalope-doctrine-dbal": "^1.1.5",
                 "phpunit/phpunit": "^4.8|^5.0",
                 "propel/propel1": "~1.7",
@@ -1585,7 +1586,7 @@
             "type": "library",
             "extra": {
                 "branch-alias": {
-                    "dev-master": "1.3-dev"
+                    "dev-master": "1.4-dev"
                 }
             },
             "autoload": {
@@ -1612,7 +1613,7 @@
                 "serialization",
                 "xml"
             ],
-            "time": "2016-08-23 17:20:24"
+            "time": "2016-11-02 16:15:37"
         },
         {
             "name": "jms/serializer-bundle",
@@ -2562,16 +2563,16 @@
         },
         {
             "name": "symfony/monolog-bundle",
-            "version": "2.11.1",
+            "version": "2.12.0",
             "source": {
                 "type": "git",
                 "url": "https://github.com/symfony/monolog-bundle.git",
-                "reference": "e7caf4936c7be82bc6d68df87f1d23a0d5bf6e00"
+                "reference": "6acef3bd201c4f35e42e52dedf1fe088f30e07e8"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/symfony/monolog-bundle/zipball/e7caf4936c7be82bc6d68df87f1d23a0d5bf6e00",
-                "reference": "e7caf4936c7be82bc6d68df87f1d23a0d5bf6e00",
+                "url": "https://api.github.com/repos/symfony/monolog-bundle/zipball/6acef3bd201c4f35e42e52dedf1fe088f30e07e8",
+                "reference": "6acef3bd201c4f35e42e52dedf1fe088f30e07e8",
                 "shasum": ""
             },
             "require": {
@@ -2618,7 +2619,7 @@
                 "log",
                 "logging"
             ],
-            "time": "2016-04-13 16:21:01"
+            "time": "2016-11-06 18:54:50"
         },
         {
             "name": "symfony/swiftmailer-bundle",
@@ -2981,30 +2982,30 @@
         },
         {
             "name": "twilio/sdk",
-            "version": "dev-master",
+            "version": "4.11.0",
             "source": {
                 "type": "git",
                 "url": "https://github.com/twilio/twilio-php.git",
-                "reference": "354b5859cc7386642b8842a8b9e3dee01e957235"
+                "reference": "c538caccdb916bbed59b88f069f5a10d2544a2ff"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/twilio/twilio-php/zipball/354b5859cc7386642b8842a8b9e3dee01e957235",
-                "reference": "354b5859cc7386642b8842a8b9e3dee01e957235",
+                "url": "https://api.github.com/repos/twilio/twilio-php/zipball/c538caccdb916bbed59b88f069f5a10d2544a2ff",
+                "reference": "c538caccdb916bbed59b88f069f5a10d2544a2ff",
                 "shasum": ""
             },
             "require": {
-                "php": ">=5.3.0"
+                "php": ">=5.2.1"
             },
             "require-dev": {
-                "apigen/apigen": "^4.1",
+                "mockery/mockery": ">=0.7.2",
                 "phpunit/phpunit": "4.5.*"
             },
             "type": "library",
             "autoload": {
-                "psr-4": {
-                    "Twilio\\": "Twilio/"
-                }
+                "files": [
+                    "Services/Twilio.php"
+                ]
             },
             "notification-url": "https://packagist.org/downloads/",
             "license": [
@@ -3012,8 +3013,12 @@
             ],
             "authors": [
                 {
-                    "name": "Twilio API Team",
-                    "email": "api@twilio.com"
+                    "name": "Kevin Burke",
+                    "email": "kevin@twilio.com"
+                },
+                {
+                    "name": "Kyle Conroy",
+                    "email": "kyle+pear@twilio.com"
                 }
             ],
             "description": "A PHP wrapper for Twilio's API",
@@ -3023,7 +3028,7 @@
                 "sms",
                 "twilio"
             ],
-            "time": "2016-10-12 17:28:31"
+            "time": "2016-08-09 20:42:01"
         },
         {
             "name": "willdurand/jsonp-callback-validator",
@@ -3175,8 +3180,7 @@
         "rickmoreno/getfaircoin-api": 20,
         "telepay/php-sdk": 20,
         "blockchain/blockchain": 20,
-        "slik/dompdf-bundle": 20,
-        "twilio/sdk": 20
+        "slik/dompdf-bundle": 20
     },
     "prefer-stable": false,
     "prefer-lowest": false,
