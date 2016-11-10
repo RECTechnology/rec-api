@@ -222,18 +222,6 @@ class Group extends BaseGroup
     private $tier = 0;
 
     /**
-     * @ORM\Column(type="integer")
-     * @Expose
-     */
-    private $tier = 0;
-
-    /**
-     * @ORM\Column(type="integer")
-     * @Expose
-     */
-    private $tier = 0;
-
-    /**
      * @return mixed
      */
     public function getUsers()
@@ -792,24 +780,6 @@ class Group extends BaseGroup
         $this->kyc_manager = $kyc_manager;
     }
 
-<<<<<<< HEAD
-=======
-    /**
-     * @return mixed
-     */
-    public function getOwn()
-    {
-        return $this->own;
-    }
-
-    /**
-     * @param mixed $own
-     */
-    public function setOwn($own)
-    {
-        $this->own = $own;
-    }
-
     /**
      * @return mixed
      */
@@ -825,12 +795,4 @@ class Group extends BaseGroup
     {
         $this->tier = $tier;
     }
-
-<<<<<<< HEAD
-<<<<<<< HEAD
->>>>>>> 601bf00... KYC integration
-=======
->>>>>>> 601bf00... KYC integration
-=======
->>>>>>> 601bf00... KYC integration
 }
