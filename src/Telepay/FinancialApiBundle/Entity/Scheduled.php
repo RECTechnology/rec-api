@@ -50,6 +50,12 @@ class Scheduled {
      * @ORM\Column(type="integer")
      * @Expose
      */
+    private $maximum=0;
+
+    /**
+     * @ORM\Column(type="integer")
+     * @Expose
+     */
     private $threshold;
 
     /**
@@ -181,5 +187,21 @@ class Scheduled {
     public function setGroup($group)
     {
         $this->group = $group;
+    }
+
+    /**
+     * @return mixed
+     */
+    public function getMaximum()
+    {
+        return $this->maximum;
+    }
+
+    /**
+     * @param mixed $maximum
+     */
+    public function setMaximum($maximum)
+    {
+        $this->maximum = $maximum;
     }
 }
