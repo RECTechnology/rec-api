@@ -222,6 +222,12 @@ class Group extends BaseGroup
     private $tier = 0;
 
     /**
+     * @ORM\Column(type="integer")
+     * @Expose
+     */
+    private $tier = 0;
+
+    /**
      * @return mixed
      */
     public function getUsers()
@@ -814,5 +820,8 @@ class Group extends BaseGroup
         $this->tier = $tier;
     }
 
+<<<<<<< HEAD
+>>>>>>> 601bf00... KYC integration
+=======
 >>>>>>> 601bf00... KYC integration
 }
