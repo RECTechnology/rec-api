@@ -62,15 +62,15 @@ class KycListener
         if ($user->getEmail() || $user->getName()) {
             $this->logger->info('PRE-UPDATE - changing susceptible fields');
             //TODO send change email
-            $body = array(
-                'message'   =>  'El Usuario '.$user->getUsername().' ha cambiado algunos parametros susceptibles del kyc del usuario'
-            );
-            $to = array(
-                'pere@chip-chap.com',
-                'cto@chip-chap.com'
-            );
-            $action = 'user_kyc';
-            $this->_sendEmail('KYC Alert change', $body, $to, $action);
+//            $body = array(
+//                'message'   =>  'El Usuario '.$user->getUsername().' ha cambiado algunos parametros susceptibles del kyc del usuario'
+//            );
+//            $to = array(
+//                'pere@chip-chap.com',
+//                'cto@chip-chap.com'
+//            );
+//            $action = 'user_kyc';
+//            $this->_sendEmail('KYC Alert change', $body, $to, $action);
         }
         if ($user->getEmail()) {
             $this->logger->info('PRE-UPDATE - changing email');
@@ -83,7 +83,7 @@ class KycListener
     private function checkCompanyKYC(User $company)
     {
         if ($company->getEmail()) {
-            $this->logger->info('PRE-UPDATE - changing susceptible fields');
+            $this->logger->info('PRE-UPDATE - changing susceptible fields in company');
             //TODO send email
             return;
         }
