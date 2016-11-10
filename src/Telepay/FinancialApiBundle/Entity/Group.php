@@ -216,6 +216,12 @@ class Group extends BaseGroup
     private $cash_in_tokens;
 
     /**
+     * @ORM\Column(type="integer")
+     * @Expose
+     */
+    private $tier = 0;
+
+    /**
      * @return mixed
      */
     public function getUsers()
@@ -774,4 +780,39 @@ class Group extends BaseGroup
         $this->kyc_manager = $kyc_manager;
     }
 
+<<<<<<< HEAD
+=======
+    /**
+     * @return mixed
+     */
+    public function getOwn()
+    {
+        return $this->own;
+    }
+
+    /**
+     * @param mixed $own
+     */
+    public function setOwn($own)
+    {
+        $this->own = $own;
+    }
+
+    /**
+     * @return mixed
+     */
+    public function getTier()
+    {
+        return $this->tier;
+    }
+
+    /**
+     * @param mixed $tier
+     */
+    public function setTier($tier)
+    {
+        $this->tier = $tier;
+    }
+
+>>>>>>> 601bf00... KYC integration
 }

@@ -11,7 +11,6 @@ namespace Telepay\FinancialApiBundle\Controller\Management\User;
 
 use Doctrine\DBAL\DBALException;
 use Symfony\Component\Security\Core\Util\SecureRandom;
-use Symfony\Component\Validator\Constraints\Null;
 use Telepay\FinancialApiBundle\Entity\CashInTokens;
 use Telepay\FinancialApiBundle\Entity\Device;
 use Telepay\FinancialApiBundle\Entity\Group;
@@ -29,6 +28,7 @@ use FOS\RestBundle\Controller\Annotations as Rest;
 use Symfony\Component\HttpFoundation\Request;
 use Telepay\FinancialApiBundle\Entity\UserGroup;
 use Telepay\FinancialApiBundle\Entity\UserWallet;
+use Telepay\FinancialApiBundle\EventListener\KycListener;
 use Telepay\FinancialApiBundle\Financial\Currency;
 use Telepay\FinancialApiBundle\Controller\Google2FA;
 use WebSocket\Exception;
