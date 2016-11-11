@@ -9,14 +9,14 @@
 
 namespace Telepay\FinancialApiBundle\Controller\Management\Company;
 
-use Rhumsaa\Uuid\Uuid;
 use Symfony\Component\HttpFoundation\File\File;
 use Symfony\Component\HttpKernel\Exception\HttpException;
 use FOS\RestBundle\Controller\Annotations as Rest;
 use Symfony\Component\HttpFoundation\Request;
 use Telepay\FinancialApiBundle\Controller\BaseApiController;
 use Telepay\FinancialApiBundle\DependencyInjection\Telepay\Commons\UploadManager;
-use Telepay\FinancialApiBundle\Entity\KYCUserValidations;
+use Telepay\FinancialApiBundle\Entity\KYC;
+use Telepay\FinancialApiBundle\Entity\TierValidations;
 
 class KYCController extends BaseApiController{
 
@@ -64,23 +64,46 @@ class KYCController extends BaseApiController{
             throw new HttpException(400, "Bad file type");
 
         $em = $this->getDoctrine()->getManager();
+        $tier = $em->getRepository('TelepayFinancialApiBundle:TierValidations')->findOneBy(array(
+            'user'  =>  $user->getId()
+        ));
+
+        $kyc = $em->getRepository('TelepayFinancialApiBundle:KYC')->findOneBy(array(
+            'user'  =>  $user->getId()
+        ));
+
+        if(!$tier){
+            $tier = new TierValidations();
+            $tier->setUser($user);
+        }
+
+        if(!$kyc){
+            $kyc = new KYC();
+            $kyc->setUser($user);
+        }
+
         //TODO get tier
         if($params['tier'] == 1){
             //user document
-            $tier = $em->getRepository('TelepayFinancialApiBundle:KYCUserValidations')->findOneBy(array(
-                'user'  =>  $user->getId()
-            ));
-
-            if(!$tier){
-                $tier = new KYCUserValidations();
-                $tier->setUser($user);
+            if($params['description'] == 'front'){
+                $kyc->setImageFront($fileManager->getFilesPath().'/'.$filename);
+            }else{
+                $kyc->setImageBack($fileManager->getFilesPath().'/'.$filename);
             }
 
-            $tier->setTier1File($fileManager->getFilesPath().'/'.$filename);
+            $kyc->setTier1Status('pending');
+
 
             $em->persist($tier);
+            $em->persist($kyc);
             $em->flush();
         }elseif($params['tier'] == 2){
+            $kyc->setTier2File($fileManager->getFilesPath().'/'.$filename);
+            $kyc->setTier2FileDescription($params['description']);
+            $kyc->setTier2Status('pending');
+
+            $em->persist($kyc);
+            $em->flush();
 
         }else{
             throw new HttpException(404, 'Bad value for tier');

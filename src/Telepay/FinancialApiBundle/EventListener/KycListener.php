@@ -12,6 +12,7 @@ use Doctrine\ORM\Event\LifecycleEventArgs;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 use Telepay\FinancialApiBundle\Entity\AccessToken;
 use Telepay\FinancialApiBundle\Entity\Group;
+use Telepay\FinancialApiBundle\Entity\KYC;
 use Telepay\FinancialApiBundle\Entity\User;
 
 class KycListener
@@ -31,14 +32,22 @@ class KycListener
         $this->logger->error('POST-UPDATE');
 
         $entityManager = $args->getEntityManager();
+        $uow = $entityManager->getUnitOfWork();
 
-        // only act on some "Product" entity
+        // only act on some "User" entity
         if ($entity instanceof User) {
-            $this->checkUserKYC($entity);
+            $changeset = $uow->getEntityChangeSet($entity);
+            $this->checkUserKYC($changeset, $entity);
+        }
+
+        if ($entity instanceof KYC) {
+            $changeset = $uow->getEntityChangeSet($entity);
+            $this->checkKYC($changeset, $entity);
         }
 
         if ($entity instanceof Group) {
-            $this->checkCompanyKYC($entity);
+            $changeset = $uow->getEntityChangeSet($entity);
+            $this->checkCompanyKYC($changeset, $entity);
         }
 
         // only act on some "Product" entity
@@ -57,33 +66,63 @@ class KycListener
 
     }
 
-    private function checkUserKYC(User $user)
+    public function postPersist(LifecycleEventArgs $args)
     {
-        if ($user->getEmail() || $user->getName()) {
-            $this->logger->info('PRE-UPDATE - changing susceptible fields');
-            //TODO send change email
-//            $body = array(
-//                'message'   =>  'El Usuario '.$user->getUsername().' ha cambiado algunos parametros susceptibles del kyc del usuario'
-//            );
-//            $to = array(
-//                'pere@chip-chap.com',
-//                'cto@chip-chap.com'
-//            );
-//            $action = 'user_kyc';
-//            $this->_sendEmail('KYC Alert change', $body, $to, $action);
+        $entity = $args->getEntity();
+        $this->logger->error('POST-INSERT');
+
+        $entityManager = $args->getEntityManager();
+
+        if ($entity instanceof Group) {
+            $entity->setTier(0);
+            return;
         }
-        if ($user->getEmail()) {
-            $this->logger->info('PRE-UPDATE - changing email');
+
+
+    }
+
+    private function checkKYC($changeset, KYC $kyc)
+    {
+        if (isset($changeset['phone']) || isset($changeset['lastname']) || isset($changeset['dateBirth'])) {
+            $this->logger->info('POST-UPDATE - changing susceptible fields in kyc');
             //TODO send change email
+            $body = array(
+                'message'   =>  'El Usuario '.$kyc->getUser()->getUsername().' ha cambiado algunos parametros susceptibles del kyc del usuario en la tabla kyc'
+            );
+            $to = array(
+                'pere@chip-chap.com',
+                'cto@chip-chap.com'
+            );
+            $action = 'user_kyc';
+            $this->_sendEmail('KYC Alert change', $body, $to, $action);
         }
 
         return;
     }
 
-    private function checkCompanyKYC(User $company)
+    private function checkUserKYC($changeset, User $user)
+    {
+        if (isset($changeset['email']) || isset($changeset['name'])) {
+            $this->logger->info('POST-UPDATE - changing susceptible fields in user');
+            //TODO send change email
+            $body = array(
+                'message'   =>  'El Usuario '.$user->getUsername().' ha cambiado algunos parametros susceptibles del kyc del usuario'
+            );
+            $to = array(
+                'pere@chip-chap.com',
+                'cto@chip-chap.com'
+            );
+            $action = 'user_kyc';
+            $this->_sendEmail('KYC Alert change', $body, $to, $action);
+        }
+
+        return;
+    }
+
+    private function checkCompanyKYC($changeset, Group $company)
     {
         if ($company->getEmail()) {
-            $this->logger->info('PRE-UPDATE - changing susceptible fields in company');
+            $this->logger->info('POST-UPDATE - changing susceptible fields in company');
             //TODO send email
             return;
         }
@@ -96,21 +135,19 @@ class KycListener
         $mailer = 'mailer';
 
         if($action == 'user_kyc'){
-            $template = 'TelepayFinancialApiBundle:Email:registerconfirm.html.twig';
+            $template = 'TelepayFinancialApiBundle:Email:KYCUpdate.html.twig';
+        }elseif($action == 'company_kyc'){}else{
+            $template = 'TelepayFinancialApiBundle:Email:KYCUpdate.html.twig';
         }
 
         $message = \Swift_Message::newInstance()
             ->setSubject($subject)
             ->setFrom($from)
-            ->setTo(array(
-                $to
-            ))
+            ->setTo($to)
             ->setBody(
                 $this->container->get('templating')
                     ->render($template,
-                        array(
-                            'message'        =>  $body
-                        )
+                        $body
                     )
             )
             ->setContentType('text/html');

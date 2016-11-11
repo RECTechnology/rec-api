@@ -1057,6 +1057,28 @@ class AccountController extends BaseApiController{
             $kyc->setEmail($request->request->get('email'));
             $kyc->setEmailValidated(false);
             $em->persist($kyc);
+            //TODO send validation email
+            $url = $this->container->getParameter('web_app_url');
+            $tokenGenerator = $this->container->get('fos_user.util.token_generator');
+            $user->setConfirmationToken($tokenGenerator->generateToken());
+            $em->persist($user);
+            $em->flush();
+            if(!$request->request->has('company') || $request->get('company')==""){
+                $company = "chipchap";
+            }
+            else{
+                $company = $request->get('company');
+            }
+            if($company == "holytransaction"){
+                $url = "https://holytransaction.trade/";
+                $url = $url.'?user_token='.$user->getConfirmationToken();
+                $this->_sendEmail('Holy Transaction validation e-mail', $url, $user->getEmail(), 'register_kyc_holy');
+            }
+            else{
+                $url = $this->container->getParameter('web_app_url');
+                $url = $url.'?user_token='.$user->getConfirmationToken();
+                $this->_sendEmail('Chip-Chap validation e-mail', $url, $user->getEmail(), 'register_kyc');
+            }
         }
 
         if($request->request->has('last_name') && $request->request->get('last_name')!=''){
