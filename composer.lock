@@ -4,8 +4,8 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#composer-lock-the-lock-file",
         "This file is @generated automatically"
     ],
-    "hash": "677603570109aeff2a8ef7fc6a960cf1",
-    "content-hash": "df56b96eca11c41be49ecbd83b816fa0",
+    "hash": "c5453f8993cbad55a4bb4d4bafd49dba",
+    "content-hash": "db25b8c6eb16d6a0a3d8b31662945fdb",
     "packages": [
         {
             "name": "blockchain/blockchain",
@@ -42,51 +42,6 @@
                 "blockchain"
             ],
             "time": "2016-08-19 17:01:49"
-        },
-        {
-            "name": "clue/graph",
-            "version": "v0.9.0",
-            "source": {
-                "type": "git",
-                "url": "https://github.com/clue/graph.git",
-                "reference": "0336a4d5229fa61a20ccceaeab25e52ac9542700"
-            },
-            "dist": {
-                "type": "zip",
-                "url": "https://api.github.com/repos/clue/graph/zipball/0336a4d5229fa61a20ccceaeab25e52ac9542700",
-                "reference": "0336a4d5229fa61a20ccceaeab25e52ac9542700",
-                "shasum": ""
-            },
-            "require": {
-                "php": ">=5.3.0"
-            },
-            "require-dev": {
-                "phpunit/phpunit": "~4.0"
-            },
-            "suggest": {
-                "graphp/algorithms": "Common graph algorithms, such as Dijkstra and Moore-Bellman-Ford (shortest path), minimum spanning tree (MST), Kruskal, Prim and many more..",
-                "graphp/graphviz": "GraphViz graph drawing / DOT output"
-            },
-            "type": "library",
-            "autoload": {
-                "psr-4": {
-                    "Fhaculty\\Graph\\": "src/"
-                }
-            },
-            "notification-url": "https://packagist.org/downloads/",
-            "license": [
-                "MIT"
-            ],
-            "description": "A mathematical graph/network library written in PHP",
-            "homepage": "https://github.com/clue/graph",
-            "keywords": [
-                "edge",
-                "graph",
-                "mathematical",
-                "network",
-                "vertex"
-            ],
-            "time": "2015-03-07 18:11:31"
         },
         {
             "name": "doctrine/annotations",
@@ -1126,7 +1081,6 @@
         {
             "name": "friendsofsymfony/oauth-server-bundle",
             "version": "dev-master",
-            "target-dir": "FOS/OAuthServerBundle",
             "source": {
                 "type": "git",
                 "url": "https://github.com/FriendsOfSymfony/FOSOAuthServerBundle.git",
@@ -1147,27 +1101,33 @@
             },
             "require-dev": {
                 "doctrine/doctrine-bundle": "~1.0",
-                "doctrine/mongodb-odm": "1.0.*@dev",
-                "doctrine/orm": ">=2.2,<2.5-dev",
-                "symfony/class-loader": "~2.1",
-                "symfony/yaml": "~2.1",
-                "willdurand/propel-typehintable-behavior": "~1.0,>1.0.4"
+                "doctrine/mongodb-odm": "~1.0",
+                "doctrine/orm": "~2.2",
+                "phing/phing": "~2.4",
+                "propel/propel1": "^1.6.5",
+                "symfony/class-loader": "~2.1|~3.0",
+                "symfony/console": "~2.1|~3.0",
+                "symfony/form": "~2.3|~3.0",
+                "symfony/yaml": "~2.1|~3.0",
+                "willdurand/propel-typehintable-behavior": "^1.0.4"
             },
             "suggest": {
                 "doctrine/doctrine-bundle": "*",
                 "doctrine/mongodb-odm-bundle": "*",
                 "propel/propel-bundle": "If you want to use Propel with Symfony2, then you will have to install the PropelBundle",
+                "symfony/console": "Needed to be able to use commands",
+                "symfony/form": "Needed to be able to use the AuthorizeFormType",
                 "willdurand/propel-typehintable-behavior": "The Typehintable behavior is useful to add type hints on generated methods, to be compliant with interfaces"
             },
             "type": "symfony-bundle",
             "extra": {
                 "branch-alias": {
-                    "dev-master": "1.4-dev"
+                    "dev-master": "1.5-dev"
                 }
             },
             "autoload": {
-                "psr-0": {
-                    "FOS\\OAuthServerBundle": ""
+                "psr-4": {
+                    "FOS\\OAuthServerBundle\\": ""
                 }
             },
             "notification-url": "https://packagist.org/downloads/",
@@ -1391,56 +1351,6 @@
                 "User management"
             ],
             "time": "2015-09-15 13:15:07"
-        },
-        {
-            "name": "graphp/algorithms",
-            "version": "v0.8.1",
-            "source": {
-                "type": "git",
-                "url": "https://github.com/graphp/algorithms.git",
-                "reference": "81db4049c35730767ec8f97fb5c4844234b86cef"
-            },
-            "dist": {
-                "type": "zip",
-                "url": "https://api.github.com/repos/graphp/algorithms/zipball/81db4049c35730767ec8f97fb5c4844234b86cef",
-                "reference": "81db4049c35730767ec8f97fb5c4844234b86cef",
-                "shasum": ""
-            },
-            "require": {
-                "clue/graph": "~0.9.0|~0.8.0",
-                "php": ">=5.3"
-            },
-            "require-dev": {
-                "phpunit/phpunit": "~4.0"
-            },
-            "type": "library",
-            "autoload": {
-                "psr-4": {
-                    "Graphp\\Algorithms\\": "src/"
-                }
-            },
-            "notification-url": "https://packagist.org/downloads/",
-            "license": [
-                "MIT"
-            ],
-            "authors": [
-                {
-                    "name": "Christian Lück",
-                    "email": "christian@lueck.tv"
-                }
-            ],
-            "description": "Common mathematical graph algorithms",
-            "homepage": "https://github.com/graphp/algorithms",
-            "keywords": [
-                "Graph algorithms",
-                "dijkstra",
-                "kruskal",
-                "minimum spanning tree",
-                "moore-bellman-ford",
-                "prim",
-                "shortest path"
-            ],
-            "time": "2015-03-08 10:12:01"
         },
         {
             "name": "incenteev/composer-parameter-handler",
@@ -3072,30 +2982,30 @@
         },
         {
             "name": "twilio/sdk",
-            "version": "dev-master",
+            "version": "4.11.0",
             "source": {
                 "type": "git",
                 "url": "https://github.com/twilio/twilio-php.git",
-                "reference": "354b5859cc7386642b8842a8b9e3dee01e957235"
+                "reference": "c538caccdb916bbed59b88f069f5a10d2544a2ff"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/twilio/twilio-php/zipball/354b5859cc7386642b8842a8b9e3dee01e957235",
-                "reference": "354b5859cc7386642b8842a8b9e3dee01e957235",
+                "url": "https://api.github.com/repos/twilio/twilio-php/zipball/c538caccdb916bbed59b88f069f5a10d2544a2ff",
+                "reference": "c538caccdb916bbed59b88f069f5a10d2544a2ff",
                 "shasum": ""
             },
             "require": {
-                "php": ">=5.3.0"
+                "php": ">=5.2.1"
             },
             "require-dev": {
-                "apigen/apigen": "^4.1",
+                "mockery/mockery": ">=0.7.2",
                 "phpunit/phpunit": "4.5.*"
             },
             "type": "library",
             "autoload": {
-                "psr-4": {
-                    "Twilio\\": "Twilio/"
-                }
+                "files": [
+                    "Services/Twilio.php"
+                ]
             },
             "notification-url": "https://packagist.org/downloads/",
             "license": [
@@ -3103,8 +3013,12 @@
             ],
             "authors": [
                 {
-                    "name": "Twilio API Team",
-                    "email": "api@twilio.com"
+                    "name": "Kevin Burke",
+                    "email": "kevin@twilio.com"
+                },
+                {
+                    "name": "Kyle Conroy",
+                    "email": "kyle+pear@twilio.com"
                 }
             ],
             "description": "A PHP wrapper for Twilio's API",
@@ -3114,7 +3028,7 @@
                 "sms",
                 "twilio"
             ],
-            "time": "2016-10-12 17:28:31"
+            "time": "2016-08-09 20:42:01"
         },
         {
             "name": "willdurand/jsonp-callback-validator",
@@ -3266,8 +3180,7 @@
         "rickmoreno/getfaircoin-api": 20,
         "telepay/php-sdk": 20,
         "blockchain/blockchain": 20,
-        "slik/dompdf-bundle": 20,
-        "twilio/sdk": 20
+        "slik/dompdf-bundle": 20
     },
     "prefer-stable": false,
     "prefer-lowest": false,

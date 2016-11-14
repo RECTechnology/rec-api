@@ -39,9 +39,9 @@ class SpecialActionsController extends RestApiController {
         $client_id = $this->container->getParameter('swift_client_id_default_easypay');
         $root_id = $this->container->getParameter('admin_user_id');
         $root_group_id = $this->container->getParameter('id_group_root');
+
         $root = $em->getRepository('TelepayFinancialApiBundle:User')->find($root_id);
         $rootGroup = $em->getRepository('TelepayFinancialApiBundle:Group')->find($root_group_id);
-
         $client = $em->getRepository('TelepayFinancialApiBundle:Client')->find($client_id);
 
         if(!$client) throw new HttpException(404, 'Client default not found');
@@ -191,6 +191,13 @@ class SpecialActionsController extends RestApiController {
                         $userFee->setClient($client);
                         $dm->persist($userFee);
 
+                        $userWallet = $company->getWallet($transaction->getCurrency());
+
+                        $userWallet->setAvailable($userWallet->getAvailable() + $client_fee);
+                        $userWallet->setBalance($userWallet->getBalance() + $client_fee);
+
+                        $em->persist($userWallet);
+                        $em->flush();
                     }
 
                     if($service_fee != 0){
@@ -201,9 +208,10 @@ class SpecialActionsController extends RestApiController {
                         $logger->info('EASYPAY SENDING ROOT BTC=>'.$service_fee.' satoshis');
                         $rootFeeStatus = Transaction::$STATUS_SUCCESS;
                         try{
+                            //TODO revisar esto
                             $pay_out_infoRoot = array(
-                                $pay_in_infoRoot['amount'],
-                                $pay_in_infoRoot['address']
+                                'amount'    =>  $pay_in_infoRoot['amount'],
+                                'address'   =>  $pay_in_infoRoot['address']
                             );
                             $pay_out_infoRoot = $cashOutMethod->send($pay_out_infoRoot);
                         }catch (Exception $e){

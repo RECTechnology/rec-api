@@ -303,3 +303,8 @@ user_swift_update_transaction:
     requirements:
         _method: PUT
 
+user_upload_file:
+    pattern:  /user/v1/upload_file
+    defaults: { _controller: Telepay\FinancialApiBundle\Controller\Management\User\UploadController::uploadFile }
+    requirements:
+        _method: POST
