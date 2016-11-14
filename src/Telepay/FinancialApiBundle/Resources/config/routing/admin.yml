@@ -229,3 +229,17 @@ admin_companies_super_delete:
     defaults: { _controller: Telepay\FinancialApiBundle\Controller\Management\Admin\CompaniesController::deleteAction }
     requirements:
         _method: DELETE
+
+##################### KYC ############################
+
+admin_KYC_list:
+    pattern:  /admin/v1/kyc
+    defaults: { _controller: Telepay\FinancialApiBundle\Controller\Management\Admin\KYCController::listPendingIssues }
+    requirements:
+        _method: GET
+
+admin_KYC_list:
+    pattern:  /admin/v1/kyc/{id}
+    defaults: { _controller: Telepay\FinancialApiBundle\Controller\Management\Admin\KYCController::updateAction }
+    requirements:
+        _method: PUT

@@ -95,6 +95,10 @@ class KycListener
             );
             $action = 'user_kyc';
             $this->_sendEmail('KYC Alert change', $body, $to, $action);
+        }elseif(isset($changeset['tier1_status'])){
+
+        }elseif(isset($changeset['tier2_status'])){
+
         }
 
         return;

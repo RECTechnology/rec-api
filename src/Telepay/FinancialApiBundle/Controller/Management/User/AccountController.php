@@ -498,10 +498,11 @@ class AccountController extends BaseApiController{
             return $this->restV2(201,"ok", "Request successful.", $response);
         }
         $user->setConfirmationToken($tokenGenerator->generateToken());
-        $url = $url.'/user/validation/'.$user->getConfirmationToken();
-        $this->_sendEmail('Chip-Chap validation e-mail', $url, $user->getEmail(), 'register');
         $em->persist($user);
         $em->flush();
+        $url = $url.'/user/validation/'.$user->getConfirmationToken();
+        $this->_sendEmail('Chip-Chap validation e-mail', $url, $user->getEmail(), 'register');
+
         $response = array(
             'email'  =>  $email,
         );
