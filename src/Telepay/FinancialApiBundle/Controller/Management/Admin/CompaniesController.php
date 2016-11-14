@@ -92,8 +92,6 @@ class CompaniesController extends BaseApiController
 
         if(!$group) throw new HttpException(404,'Group not found');
 
-        if(count($group->getUsers()) > 0) throw new HttpException(405,"This group can't be deleted because has users.");
-
         return parent::deleteAction($id);
 
     }

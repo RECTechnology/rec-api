@@ -39,14 +39,29 @@ class WalletConf {
     private $currency;
 
     /**
-     * @ORM\Column(type="float")
+     * @ORM\Column(type="integer")
      */
     private $minBalance;
 
     /**
-     * @ORM\Column(type="float")
+     * @ORM\Column(type="integer")
      */
     private $maxBalance;
+
+    /**
+     * @ORM\Column(type="integer")
+     */
+    private $perfectBalance;
+
+    /**
+     * @ORM\Column(type="integer")
+     */
+    private $fixedAmount;
+
+    /**
+     * @ORM\Column(type="integer")
+     */
+    private $maxTime;
 
     /**
      * @return mixed
@@ -60,54 +75,6 @@ class WalletConf {
      */
     public function setId($id){
         $this->id = $id;
-    }
-
-    /**
-     * @return mixed
-     */
-    public function getDriver()
-    {
-        return $this->driver;
-    }
-
-    /**
-     * @param mixed $driver
-     */
-    public function setDriver($driver)
-    {
-        $this->driver = $driver;
-    }
-
-    /**
-     * @return mixed
-     */
-    public function getCurrencyIn()
-    {
-        return $this->currency_in;
-    }
-
-    /**
-     * @param mixed $currency_in
-     */
-    public function setCurrencyIn($currency_in)
-    {
-        $this->currency_in = $currency_in;
-    }
-
-    /**
-     * @return mixed
-     */
-    public function getCurrencyOut()
-    {
-        return $this->currency_out;
-    }
-
-    /**
-     * @param mixed $currency_out
-     */
-    public function setCurrencyOut($currency_out)
-    {
-        $this->currency_out = $currency_out;
     }
 
     /**
@@ -145,22 +112,6 @@ class WalletConf {
     /**
      * @return mixed
      */
-    public function getMinAmountSent()
-    {
-        return $this->minAmountSent;
-    }
-
-    /**
-     * @param mixed $minAmountSent
-     */
-    public function setMinAmountSent($minAmountSent)
-    {
-        $this->minAmountSent = $minAmountSent;
-    }
-
-    /**
-     * @return mixed
-     */
     public function getPriority()
     {
         return $this->priority;
@@ -172,5 +123,85 @@ class WalletConf {
     public function setPriority($priority)
     {
         $this->priority = $priority;
+    }
+
+    /**
+     * @return mixed
+     */
+    public function getType()
+    {
+        return $this->type;
+    }
+
+    /**
+     * @param mixed $type
+     */
+    public function setType($type)
+    {
+        $this->type = $type;
+    }
+
+    /**
+     * @return mixed
+     */
+    public function getCurrency()
+    {
+        return $this->currency;
+    }
+
+    /**
+     * @param mixed $currency
+     */
+    public function setCurrency($currency)
+    {
+        $this->currency = $currency;
+    }
+
+    /**
+     * @return mixed
+     */
+    public function getFixedAmount()
+    {
+        return $this->fixedAmount;
+    }
+
+    /**
+     * @param mixed $fixedAmount
+     */
+    public function setFixedAmount($fixedAmount)
+    {
+        $this->fixedAmount = $fixedAmount;
+    }
+
+    /**
+     * @return mixed
+     */
+    public function getPerfectBalance()
+    {
+        return $this->perfectBalance;
+    }
+
+    /**
+     * @param mixed $perfectBalance
+     */
+    public function setPerfectBalance($perfectBalance)
+    {
+        $this->perfectBalance = $perfectBalance;
+    }
+
+    /**
+     * @return mixed
+     */
+    public function getMaxTime()
+    {
+        return $this->maxTime;
+    }
+
+    /**
+     * @param mixed $maxTime
+     */
+    public function setMaxTime($maxTime)
+    {
+        $this->maxTime = $maxTime;
     }
 }

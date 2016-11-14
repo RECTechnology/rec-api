@@ -16,17 +16,16 @@ use Telepay\FinancialApiBundle\Financial\MiniumBalanceInterface;
 use Telepay\FinancialApiBundle\Financial\TraderInterface;
 use Telepay\FinancialApiBundle\Financial\WalletInterface;
 
-class KrakenWallet implements WalletInterface, TraderInterface, MiniumBalanceInterface {
+class KrakenWallet implements WalletInterface, TraderInterface {
 
     private $krakenDriver;
     private $currency;
+    private $waysOut;
+    private $waysIn;
     private $krakenCurrencyNames = array(
         'BTC' => 'XXBT',
         'EUR' => 'ZEUR',
     );
-
-    private $minBalance;
-
 
     private static $krakenMarketsMap = array(
         'EUR' => 'XXBTZEUR',
@@ -34,11 +33,11 @@ class KrakenWallet implements WalletInterface, TraderInterface, MiniumBalanceInt
     );
 
 
-    function __construct($krakenDriver, $currency, $minBalance = 0)
-    {
+    function __construct($krakenDriver, $currency, $waysOut, $waysIn){
         $this->krakenDriver = $krakenDriver;
         $this->currency = $currency;
-        $this->minBalance = $minBalance;
+        $this->waysOut = json_decode($waysOut);
+        $this->waysIn = json_decode($waysIn);
     }
 
 
@@ -145,8 +144,13 @@ class KrakenWallet implements WalletInterface, TraderInterface, MiniumBalanceInt
         return Currency::$EUR;
     }
 
-    public function getMiniumBalance()
+    public function getWaysOut()
     {
-        return $this->minBalance;
+        return $this->waysOut;
+    }
+
+    public function getWaysIn()
+    {
+        return $this->waysIn;
     }
 }

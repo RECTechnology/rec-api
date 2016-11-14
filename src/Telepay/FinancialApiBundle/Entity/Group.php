@@ -211,6 +211,11 @@ class Group extends BaseGroup
     private $active;
 
     /**
+     * @ORM\Column(type="boolean")
+     */
+    private $own = false;
+
+    /**
      * @ORM\OneToMany(targetEntity="Telepay\FinancialApiBundle\Entity\CashInTokens", mappedBy="company", cascade={"remove"})
      */
     private $cash_in_tokens;
@@ -762,6 +767,22 @@ class Group extends BaseGroup
     public function setAddressNumber($address_number)
     {
         $this->address_number = $address_number;
+    }
+
+    /**
+     * @return mixed
+     */
+    public function getOwn()
+    {
+        return $this->own;
+    }
+
+    /**
+     * @param mixed $own
+     */
+    public function setOwn($own)
+    {
+        $this->own = $own;
     }
 
     /**

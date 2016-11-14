@@ -17,10 +17,15 @@ use Telepay\FinancialApiBundle\Financial\WalletInterface;
 class CaixaCovesWallet implements WalletInterface, KrakenCashOutInterface {
 
     private $ruralviaDriver;
+    private $currency;
+    private $waysOut;
+    private $waysIn;
 
-    function __construct($ruralviaDriver)
-    {
+    function __construct($ruralviaDriver, $currency, $waysOut, $waysIn){
         $this->ruralviaDriver = $ruralviaDriver;
+        $this->currency = $currency;
+        $this->waysOut = json_decode($waysOut);
+        $this->waysIn = json_decode($waysIn);
     }
 
 
@@ -43,11 +48,21 @@ class CaixaCovesWallet implements WalletInterface, KrakenCashOutInterface {
 
     public function getCurrency()
     {
-        return Currency::$EUR;
+        return $this->currency;
     }
 
     public function getKrakenLabel()
     {
         return 'CAIXA COVES';
+    }
+
+    public function getWaysOut()
+    {
+        return $this->waysOut;
+    }
+
+    public function getWaysIn()
+    {
+        return $this->waysIn;
     }
 }

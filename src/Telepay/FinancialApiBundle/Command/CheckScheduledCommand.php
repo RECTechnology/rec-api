@@ -24,7 +24,20 @@ class CheckScheduledCommand extends ContainerAwareCommand{
         $scheduleds = $scheduledRepo->findAll();
 
         foreach ($scheduleds as $scheduled) {
-            $today = date("j");
+
+            //period 2 -> monthly
+            if($scheduled->getPeriod() == 2){
+                $today = date("N");
+            }
+            //period 1 -> weekly
+            elseif($scheduled->getPeriod() == 1){
+                $today = date("j");
+            }
+            //period 0 -> daily
+            else{
+                $today = "0";
+            }
+
             if ($scheduled->getPeriod() == 0 || $today == "1") {
                 $group = $em->getRepository('TelepayFinancialApiBundle:Group')->find($scheduled->getGroup());
                 $groupWallets = $group->getWallets();
@@ -37,6 +50,9 @@ class CheckScheduledCommand extends ContainerAwareCommand{
                 }
                 if ($current_wallet->getAvailable() > ($scheduled->getMinimum() + $scheduled->getThreshold())) {
                     $amount = $current_wallet->getAvailable() - $scheduled->getThreshold();
+                    if($scheduled->getMaximum() > 0 && $amount > $scheduled->getMaximum()){
+                        $amount = $scheduled->getMaximum();
+                    }
                     $output->writeln($amount . ' euros de amount deben enviarse');
                     $method = $this->getContainer()->get('net.telepay.out.'.$scheduled->getMethod().'.v1');
                     $output->writeln('get fees');

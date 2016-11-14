@@ -16,17 +16,18 @@ use Telepay\FinancialApiBundle\Financial\MoneyBundleInterface;
 use Telepay\FinancialApiBundle\Financial\TraderInterface;
 use Telepay\FinancialApiBundle\Financial\WalletInterface;
 
-class BittrexWallet implements WalletInterface, TraderInterface, MiniumBalanceInterface {
+class BittrexWallet implements WalletInterface, TraderInterface {
 
     private $bittrexDriver;
     private $currency;
-    private $minBalance;
+    private $waysOut;
+    private $waysIn;
 
-    function __construct(BittrexDriver $bittrexDriver, $currency, $minBalance = 0)
-    {
+    function __construct(BittrexDriver $bittrexDriver, $currency, $waysOut, $waysIn){
         $this->bittrexDriver = $bittrexDriver;
         $this->currency = $currency;
-        $this->minBalance = $minBalance;
+        $this->waysOut = json_decode($waysOut);
+        $this->waysIn = json_decode($waysIn);
     }
 
 
@@ -68,7 +69,6 @@ class BittrexWallet implements WalletInterface, TraderInterface, MiniumBalanceIn
             if($sum >= $amount){
                 $resp = $this->bittrexDriver->sell('BTC-FAIR', $amount, $order->Rate);
                 if(!$resp->success) throw new \LogicException("Sell action not worked");
-                //echo "buy " . $amount . " by " . $order->Rate;
                 return;
             }
         }
@@ -92,8 +92,13 @@ class BittrexWallet implements WalletInterface, TraderInterface, MiniumBalanceIn
         if($this->currency == Currency::$FAC) return Currency::$BTC;
     }
 
-    public function getMiniumBalance()
+    public function getWaysOut()
     {
-        return $this->minBalance;
+        return $this->waysOut;
+    }
+
+    public function getWaysIn()
+    {
+        return $this->waysIn;
     }
 }
