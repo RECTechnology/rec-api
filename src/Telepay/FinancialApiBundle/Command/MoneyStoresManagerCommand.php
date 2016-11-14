@@ -9,8 +9,6 @@ use Symfony\Component\Console\Output\OutputInterface;
 use Telepay\FinancialApiBundle\Financial\MiniumBalanceInterface;
 use WebSocket\Client;
 use WebSocket\Exception;
-use Fhaculty\Graph\Graph;
-use Graphp\Algorithms;
 
 class MoneyStoresManagerCommand extends ContainerAwareCommand{
     protected function configure(){
@@ -56,18 +54,9 @@ class MoneyStoresManagerCommand extends ContainerAwareCommand{
             $balances[$balance['currency']] = $balance;
         }
 
-        $graph = new Graph();
-        // create some cities
-        $rome = $graph->createVertex('Rome');
-        $madrid = $graph->createVertex('Madrid');
-        $cologne = $graph->createVertex('Cologne');
-        // build some roads
-        $cologne->createEdgeTo($madrid)->setWeight(10);
-        $madrid->createEdgeTo($rome)->setWeight(-1);
-
-
-        $alg = $this->createAlg($v1);
-        $alg->getEdges();
+        $system_data = array();
+        $system_data['wallets'] = array();
+        $system_data['ways'] = array();
 
         $em = $this->getContainer()->get('doctrine')->getManager();
         $walletRepo = $em->getRepository("TelepayFinancialApiBundle:WalletConf");
@@ -75,6 +64,8 @@ class MoneyStoresManagerCommand extends ContainerAwareCommand{
         foreach ($wallets as $wallet) {
             $type = $wallet->getType();
             $currency = $wallet->getCurrency();
+            $system_data['wallets'][$type]['priority']=$wallet->getPriority();
+            $system_data['wallets'][$type]['currency']=$currency;
             $wallet_conf = $this->getContainer()->get('net.telepay.wallet.' . $type . '.' . $currency);
             $currency = strtoupper($currency);
             $balance = $balances[$currency]['balance'];
@@ -82,19 +73,23 @@ class MoneyStoresManagerCommand extends ContainerAwareCommand{
             $max = round($wallet->getMaxBalance() * $balance / 100 + $wallet->getFixedAmount(),0);
             $perfect = round($wallet->getPerfectBalance() * $balance / 100 + $wallet->getFixedAmount(),0);
             $now = round($wallet_conf->getBalance() * (pow(10, $SCALE[$currency])), 0); // + receiving
-            $output->writeln("Now: " . $now);
+            $output->writeln("Now: " . $now/(pow(10, $SCALE[$currency]) . $currency));
             if($now < $min){
                 $need = $perfect - $now;
-                $output->writeln("Need: " . $need);
+                $output->writeln("Need: " . $need/(pow(10, $SCALE[$currency]) . $currency));
+                $system_data['wallets'][$type]['need']=$need;
             }
             elseif($now > $max){
-                $sobre = $now - $perfect;
-                $output->writeln("Sobre: " . $sobre);
+                $excess = $now - $perfect;
+                $output->writeln("Sobre: " . $excess/(pow(10, $SCALE[$currency]) . $currency));
+                $system_data['wallets'][$type]['excess']=$excess;
+                /*
                 $outs = $wallet_conf->getWaysOut();
                 foreach($outs as $out){
                     $way_conf = $this->getContainer()->get($out);
                     $output->writeln("Way min: " . $way_conf->getMinAmount());
                 }
+                */
             }
         }
     }
