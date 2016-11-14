@@ -39,24 +39,29 @@ class WalletConf {
     private $currency;
 
     /**
-     * @ORM\Column(type="float")
+     * @ORM\Column(type="integer")
      */
     private $minBalance;
 
     /**
-     * @ORM\Column(type="float")
+     * @ORM\Column(type="integer")
      */
     private $maxBalance;
 
     /**
-     * @ORM\Column(type="float")
+     * @ORM\Column(type="integer")
      */
     private $perfectBalance;
 
     /**
-     * @ORM\Column(type="float")
+     * @ORM\Column(type="integer")
      */
     private $fixedAmount;
+
+    /**
+     * @ORM\Column(type="integer")
+     */
+    private $maxTime;
 
     /**
      * @return mixed
@@ -182,5 +187,21 @@ class WalletConf {
     public function setPerfectBalance($perfectBalance)
     {
         $this->perfectBalance = $perfectBalance;
+    }
+
+    /**
+     * @return mixed
+     */
+    public function getMaxTime()
+    {
+        return $this->maxTime;
+    }
+
+    /**
+     * @param mixed $maxTime
+     */
+    public function setMaxTime($maxTime)
+    {
+        $this->maxTime = $maxTime;
     }
 }
