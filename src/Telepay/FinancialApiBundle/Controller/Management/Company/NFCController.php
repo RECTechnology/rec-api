@@ -153,13 +153,20 @@ class NFCController extends RestApiController{
 
             $em->persist($userGroup);
 
+            $enabled = false;
+
             //create card
             $pin = rand(0,9999);
+
+            if($request->request->has('pin') && $request->request->get('pin') != ''){
+                $pin = $request->request->get('pin');
+                $enabled = true;
+            }
             $card = new NFCCard();
             $card->setCompany($company);
             $card->setUser($user);
             $card->setAlias($params['alias']);
-            $card->setEnabled(false);
+            $card->setEnabled($enabled);
             $card->setIdCard($params['id_card']);
             $card->setPin($pin);
             $card->setConfirmationToken($user->getConfirmationToken());
