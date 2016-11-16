@@ -573,6 +573,46 @@ class SpecialActionsController extends RestApiController {
 
     }
 
+    /**
+     * @Rest\View
+     */
+    public function changeTransactionAmount(Request $request, $id){
+
+        if (!$this->get('security.authorization_checker')->isGranted('ROLE_SUPER_ADMIN')) {
+            throw $this->createAccessDeniedException();
+        }
+
+        //Get transaction and change amount
+        $dm = $this->get('doctrine_mongodb')->getManager();
+        $trans = $dm->getRepository('TelepayFinancialApiBundle:Transaction')->find($id);
+
+        if(!$trans) throw new HttpException(404,'Not found');
+
+        if($request->request->has('amount')){
+            $amount = $request->request->get('amount');
+        }else{
+            throw new HttpException(404, 'Param amount not found');
+        }
+
+        if($trans->getMethod() != 'btc' || $trans->getType() != 'in' || $trans->getStatus() != Transaction::$STATUS_EXPIRED) throw new HttpException(403, 'Transaction can\'t be updated');
+
+        $payInInfo = $trans->getPayInInfo();
+        $payInInfo['amount'] = $amount;
+        $payInInfo['total'] = $amount;
+        $trans->setAmount($amount);
+        $dataIn = $trans->getDataIn();
+        $dataIn['amount'] = $amount;
+
+        $trans->setDataIn($dataIn);
+        $trans->setPayInInfo($payInInfo);
+
+        $dm->persist($trans);
+        $dm->flush();
+
+        return $this->restV2(204, 'success', 'Amount changed successfully');
+
+    }
+
     private function _dealer(Transaction $transaction, UserWallet $current_wallet){
 
         $amount = $transaction->getAmount();
