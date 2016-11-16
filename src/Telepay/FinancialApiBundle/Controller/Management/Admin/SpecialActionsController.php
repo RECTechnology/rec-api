@@ -598,8 +598,8 @@ class SpecialActionsController extends RestApiController {
 
         $payInInfo = $trans->getPayInInfo();
         $payInInfo['amount'] = $amount;
-        $payInInfo['total'] = $amount;
         $trans->setAmount($amount);
+        $trans->setTotal($amount);
         $dataIn = $trans->getDataIn();
         $dataIn['amount'] = $amount;
 
