@@ -28,6 +28,15 @@ class WalletTransfer {
      */
     private $type;
 
+    /**
+     * @ORM\Column(type="string")
+     */
+    private $in;
+
+    /**
+     * @ORM\Column(type="string")
+     */
+    private $out;
 
     /**
      * @ORM\Column(type="string")
@@ -37,7 +46,12 @@ class WalletTransfer {
     /**
      * @ORM\Column(type="integer")
      */
-    private $amount;
+    private $amount_in;
+
+    /**
+     * @ORM\Column(type="integer")
+     */
+    private $amount_out;
 
     /**
      * @ORM\Column(type="string")
@@ -104,22 +118,6 @@ class WalletTransfer {
     /**
      * @return mixed
      */
-    public function getAmount()
-    {
-        return $this->amount;
-    }
-
-    /**
-     * @param mixed $amount
-     */
-    public function setAmount($amount)
-    {
-        $this->amount = $amount;
-    }
-
-    /**
-     * @return mixed
-     */
     public function getStatus()
     {
         return $this->status;
@@ -163,5 +161,69 @@ class WalletTransfer {
     public function setEstimatedDeliveryTimeStamp($estimatedDeliveryTimeStamp)
     {
         $this->estimatedDeliveryTimeStamp = $estimatedDeliveryTimeStamp;
+    }
+
+    /**
+     * @return mixed
+     */
+    public function getIn()
+    {
+        return $this->in;
+    }
+
+    /**
+     * @param mixed $in
+     */
+    public function setIn($in)
+    {
+        $this->in = $in;
+    }
+
+    /**
+     * @return mixed
+     */
+    public function getOut()
+    {
+        return $this->out;
+    }
+
+    /**
+     * @param mixed $out
+     */
+    public function setOut($out)
+    {
+        $this->out = $out;
+    }
+
+    /**
+     * @return mixed
+     */
+    public function getAmountIn()
+    {
+        return $this->amount_in;
+    }
+
+    /**
+     * @param mixed $amount_in
+     */
+    public function setAmountIn($amount_in)
+    {
+        $this->amount_in = $amount_in;
+    }
+
+    /**
+     * @return mixed
+     */
+    public function getAmountOut()
+    {
+        return $this->amount_out;
+    }
+
+    /**
+     * @param mixed $amount_out
+     */
+    public function setAmountOut($amount_out)
+    {
+        $this->amount_out = $amount_out;
     }
 }
