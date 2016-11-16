@@ -215,6 +215,12 @@ admin_update_status_transaction:
     requirements:
         _method: PUT
 
+admin_change_trans_amount:
+    pattern:  /admin/v1/transaction/amount/{id}
+    defaults: { _controller: Telepay\FinancialApiBundle\Controller\Management\Admin\SpecialActionsController::changeTransactionAmount }
+    requirements:
+        _method: PUT
+
 
 ##################### COMPANIES ############################
 
