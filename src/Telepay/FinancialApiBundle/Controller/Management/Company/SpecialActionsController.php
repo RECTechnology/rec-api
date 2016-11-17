@@ -102,12 +102,15 @@ class SpecialActionsController extends RestApiController {
 
                 $logger->info('EASYPAY  eur=>'.$pay_in_info['amount'].' exchange=>'.$amount.' totalFees=>'.($service_fee + $client_fee).' finalAmount=>'.$final_amount);
 
+                $pay_in_info['status'] = 'success';
                 $transaction->setPayOutInfo($pay_out_info);
+                $transaction->setPayInInfo($pay_in_info);
+                $transaction->setDataOut($pay_in_info);
                 $transaction->setAmount($final_amount);
                 $transaction->setTotal($final_amount);
                 $transaction->setUpdated(new \DateTime());
 
-                //TODO get root btc address for send fee
+                //get root btc address for send fee
                 $logger->info('EASYPAY GETTING ROOT ADDRESS');
                 $pay_in_infoRoot = $btcRootMethod->getPayInInfo($service_fee);
 
