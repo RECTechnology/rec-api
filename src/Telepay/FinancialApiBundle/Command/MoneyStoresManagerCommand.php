@@ -26,12 +26,14 @@ class MoneyStoresManagerCommand extends ContainerAwareCommand{
         ;
     }
 
+    public $default_currency;
+
     protected function execute(InputInterface $input, OutputInterface $output){
         if($input->getOption('currency')){
-            $default_currency = strtoupper($input->getOption('currency'));
+            $this->default_currency = strtoupper($input->getOption('currency'));
         }
         else{
-            $default_currency = 'EUR';
+            $this->default_currency = 'EUR';
         }
 
         $em = $this->getContainer()->get('doctrine')->getManager();
@@ -62,7 +64,7 @@ class MoneyStoresManagerCommand extends ContainerAwareCommand{
 
         $system_data = array();
         $system_data['wallets'] = array();
-        $system_data['ways'] = array();
+        $system_data['transfers'] = array();
 
         $em = $this->getContainer()->get('doctrine')->getManager();
         $walletRepo = $em->getRepository("TelepayFinancialApiBundle:WalletConf");
@@ -81,7 +83,9 @@ class MoneyStoresManagerCommand extends ContainerAwareCommand{
             $max = round($wallet->getMaxBalance() * $balance / 100 + $wallet->getFixedAmount(),0);
             $perfect = round($wallet->getPerfectBalance() * $balance / 100 + $wallet->getFixedAmount(),0);
             $now = round($wallet_conf->getFakeBalance() * (pow(10, Currency::$SCALE[$currency])), 0);
-            $receiving = $this->receiving($name);
+            $receiving_data = $this->receiving($name);
+            $receiving = $receiving_data['amount'];
+            $system_data['transfers'] = array_merge($system_data['transfers'], $receiving_data['list']);
             $system_data['wallets'][$name]['now']=$now;
             $system_data['wallets'][$name]['receiving']=$receiving;
 
@@ -89,18 +93,18 @@ class MoneyStoresManagerCommand extends ContainerAwareCommand{
             if($now + $receiving < $min){
                 $need = $perfect - $now - $receiving;
                 $output->writeln("Need: " . $need/(pow(10, Currency::$SCALE[$currency])) . " " . $currency);
-                $output->writeln("Need: " . $this->_exchange($need, $currency, $default_currency)/(pow(10, Currency::$SCALE[$default_currency])) . " " . $default_currency);
-                $output->writeln("Need: " . round($this->_exchange($need, $currency, $default_currency),0) . " " . $default_currency . " cents");
+                $output->writeln("Need: " . $this->_exchange($need, $currency, $this->default_currency)/(pow(10, Currency::$SCALE[$this->default_currency])) . " " . $this->default_currency);
+                $output->writeln("Need: " . round($this->_exchange($need, $currency, $this->default_currency),0) . " " . $this->default_currency . " cents");
                 $system_data['wallets'][$name]['need']=$need;
-                $system_data['wallets'][$name]['need_default']=round($this->_exchange($need, $currency, $default_currency),0);
+                $system_data['wallets'][$name]['need_default']=round($this->_exchange($need, $currency, $this->default_currency),0);
             }
             elseif($now + $receiving > $max){
                 $excess = $now + $receiving - $perfect;
                 $output->writeln("Sobre: " . $excess/(pow(10, Currency::$SCALE[$currency])) . " " . $currency);
-                $output->writeln("Sobre: " . $this->_exchange($excess, $currency, $default_currency)/(pow(10, Currency::$SCALE[$default_currency])) . " " . $default_currency);
-                $output->writeln("Sobre: " . round($this->_exchange($excess, $currency, $default_currency),0) . " " . $default_currency . " cents");
+                $output->writeln("Sobre: " . $this->_exchange($excess, $currency, $this->default_currency)/(pow(10, Currency::$SCALE[$this->default_currency])) . " " . $this->default_currency);
+                $output->writeln("Sobre: " . round($this->_exchange($excess, $currency, $this->default_currency),0) . " " . $this->default_currency . " cents");
                 $system_data['wallets'][$name]['excess']=$excess;
-                $system_data['wallets'][$name]['excess_default']=round($this->_exchange($excess, $currency, $default_currency),0);
+                $system_data['wallets'][$name]['excess_default']=round($this->_exchange($excess, $currency, $this->default_currency),0);
                 /*
                 $outs = $wallet_conf->getWaysOut();
                 foreach($outs as $out){
@@ -123,22 +127,36 @@ class MoneyStoresManagerCommand extends ContainerAwareCommand{
             elseif(isset($wallet['excess'])){
                 $heuristic += $wallet['excess_default'];
             }
-            $heuristic += 0;
+        }
+        foreach($system_data['transfers'] as $transfer){
+            $heuristic += $transfer['moneyCost'];
+            $heuristic += round($transfer['timeCost']/60,0);
         }
         return $heuristic;
     }
 
     public function receiving($out){
         $em = $this->getContainer()->get('doctrine')->getManager();
-        $exchangeRepo = $em->getRepository('TelepayFinancialApiBundle:WalletTransfer');
-        $list = $exchangeRepo->findBy(
+        $transferRepo = $em->getRepository('TelepayFinancialApiBundle:WalletTransfer');
+        $list_transfer = array();
+        $list = $transferRepo->findBy(
             array('out'=>$out,'status'=>'sending')
         );
         $sum = 0;
         foreach($list as $transfer){
             $sum += $transfer->getAmountOut();
+            $timeToEstimated = $transfer->getEstimatedDeliveryTimeStamp() - time();
+            $list_transfer[] = array(
+                'in' => $transfer->getIn(),
+                'out' => $transfer->getOut(),
+                'moneyCost' => round($this->_exchange($transfer->getEstimatedCost(), $transfer->getCurrencyOut(), $this->default_currency), 0),
+                'timeCost' => $timeToEstimated>0?$timeToEstimated:0
+            );
         }
-        return $sum;
+        return array(
+            'amount' =>$sum,
+            'list' =>$list_transfer
+        );
     }
 
     public function _exchange($amount,$curr_in,$curr_out){

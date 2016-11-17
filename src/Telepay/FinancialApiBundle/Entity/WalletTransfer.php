@@ -41,7 +41,12 @@ class WalletTransfer {
     /**
      * @ORM\Column(type="string")
      */
-    private $currency;
+    private $currency_in;
+
+    /**
+     * @ORM\Column(type="string")
+     */
+    private $currency_out;
 
     /**
      * @ORM\Column(type="integer")
@@ -52,6 +57,11 @@ class WalletTransfer {
      * @ORM\Column(type="integer")
      */
     private $amount_out;
+
+    /**
+     * @ORM\Column(type="integer")
+     */
+    private $estimatedCost;
 
     /**
      * @ORM\Column(type="string")
@@ -89,22 +99,6 @@ class WalletTransfer {
     public function getType()
     {
         return $this->type;
-    }
-
-    /**
-     * @param mixed $type
-     */
-    public function setType($type)
-    {
-        $this->type = $type;
-    }
-
-    /**
-     * @return mixed
-     */
-    public function getCurrency()
-    {
-        return $this->currency;
     }
 
     /**
@@ -225,5 +219,53 @@ class WalletTransfer {
     public function setAmountOut($amount_out)
     {
         $this->amount_out = $amount_out;
+    }
+
+    /**
+     * @return mixed
+     */
+    public function getCurrencyIn()
+    {
+        return $this->currency_in;
+    }
+
+    /**
+     * @param mixed $currency_in
+     */
+    public function setCurrencyIn($currency_in)
+    {
+        $this->currency_in = $currency_in;
+    }
+
+    /**
+     * @return mixed
+     */
+    public function getCurrencyOut()
+    {
+        return $this->currency_out;
+    }
+
+    /**
+     * @param mixed $currency_out
+     */
+    public function setCurrencyOut($currency_out)
+    {
+        $this->currency_out = $currency_out;
+    }
+
+    /**
+     * @return mixed
+     */
+    public function getEstimatedCost()
+    {
+        return $this->estimatedCost;
+    }
+
+    /**
+     * @param mixed $estimatedCost
+     */
+    public function setEstimatedCost($estimatedCost)
+    {
+        $this->estimatedCost = $estimatedCost;
     }
 }
