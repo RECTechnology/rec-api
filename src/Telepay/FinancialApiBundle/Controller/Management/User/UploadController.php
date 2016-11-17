@@ -76,7 +76,7 @@ class UploadController extends RestApiController{
             201,
             "Temporal file uploaded",
             [
-                'src' => '' . '/' . $name.$ext,
+                'src' => $this->container->getParameter('files_path') . '/' . $name.$ext,
                 'type' => $ext,
                 'expires_in' => 600
             ]
