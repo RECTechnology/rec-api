@@ -9,6 +9,7 @@
 namespace Telepay\FinancialApiBundle\Controller\Management\User;
 use DateInterval;
 use DateTime;
+use Symfony\Component\Filesystem\Filesystem;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpKernel\Exception\HttpException;
@@ -46,6 +47,37 @@ class UploadController extends RestApiController{
             [
                 'src' => $fileManager->getFilesPath() . '/' . $fileName,
                 'type' => $mimeType,
+                'expires_in' => 600
+            ]
+        );
+    }
+
+    public function uploadFile2(Request $request){
+        $base64_image = $request->request->get('base64_image');
+
+        //search for extension
+        if(strpos($base64_image, 'data:image/jpeg;base64') !== false){
+            //is jpg file
+            $base64 = str_replace('data:image/jpeg;base64,', '', $base64_image);
+            $ext = '.jpg';
+        }elseif(strpos($base64_image, 'data:image/png;base64') !== false){
+            //is png file
+            $base64 = str_replace('data:image/png;base64,', '', $base64_image);
+            $ext = '.png';
+        }else{
+            throw new HttpException(404, 'Bad request, extension not allowed');
+        }
+
+        $name = uniqid('kyc_');
+        $fs = new Filesystem();
+        $fs->dumpFile($this->container->getParameter('uploads_dir').'/' . $name .'.tmp.'. $ext, base64_decode($base64));
+
+        return $this->rest(
+            201,
+            "Temporal file uploaded",
+            [
+                'src' => $this->container->getParameter('files_path') . '/' . $name.'.tmp.'.$ext,
+                'type' => $ext,
                 'expires_in' => 600
             ]
         );
