@@ -106,6 +106,7 @@ class SepaMethod extends BaseMethod {
         $params['scale'] = Currency::$SCALE[$this->getCurrency()];
         $params['final'] = false;
         $params['status'] = false;
+        $params['gestioned'] = false;
 
         return $params;
     }
@@ -143,6 +144,7 @@ class SepaMethod extends BaseMethod {
         $params['scale'] = Currency::$SCALE[$this->getCurrency()];
         $params['final'] = false;
         $params['status'] = false;
+        $params['gestioned'] = false;
 
         return $params;
     }
