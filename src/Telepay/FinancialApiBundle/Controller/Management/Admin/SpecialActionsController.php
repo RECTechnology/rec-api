@@ -446,7 +446,7 @@ class SpecialActionsController extends RestApiController {
                         }
                     }
                 }
-                return true;
+                return false;
             }")
             ->getQuery()
             ->execute();
