@@ -417,12 +417,37 @@ class SpecialActionsController extends RestApiController {
         }
 
         $dm = $this->get('doctrine_mongodb')->getManager();
-        $transactions = $dm->getRepository('TelepayFinancialApiBundle:Transaction')
-            ->findBy(array(
-                'method_out'  =>  'sepa',
-                'type'  =>  'swift',
-                'status'    =>  'sending'
-            ));
+        $transactions_out_qb = $dm->createQueryBuilder('TelepayFinancialApiBundle:Transaction');
+
+//        $transactions = $dm->getRepository('TelepayFinancialApiBundle:Transaction')
+//            ->findBy(array(
+//                'method_out'  =>  'sepa',
+//                'type'  =>  'swift',
+//                'status'    =>  'sending'
+//            ));
+
+        $transactions = $transactions_out_qb
+            ->field('method_out')->equals('sepa')
+            ->field('type')->equals('swift')
+            ->field('status')->equals('sending')
+            ->where("function() {
+                if (typeof this.pay_out_info !== 'undefined') {
+                    if (typeof this.pay_out_info.gestioned !== 'undefined') {
+                        if(this.pay_out_info.gestioned == false){
+                            return true;
+                        }
+                    }
+                }
+                return false;
+            }")
+            ->getQuery()
+            ->execute();
+
+        $resArray = [];
+        foreach($transactions->toArray() as $res){
+            $resArray []= $res;
+
+        }
 
 //        $transactions_out = $dm->getRepository('TelepayFinancialApiBundle:Transaction')
 //            ->findBy(array(
@@ -432,7 +457,7 @@ class SpecialActionsController extends RestApiController {
 //                'pay_out_info.gestioned'  =>  true
 //            ));
 
-        $transactions_out_qb = $dm->createQueryBuilder('TelepayFinancialApiBundle:Transaction');
+
 
         $transactions_out = $transactions_out_qb
             ->field('method')->equals('sepa')
@@ -457,15 +482,38 @@ class SpecialActionsController extends RestApiController {
 
         }
 
-        $transactions_out_transfer = $dm->getRepository('TelepayFinancialApiBundle:Transaction')
-            ->findBy(array(
-                'method'  =>  'transfer',
-                'type'  =>  'out',
-                'status'    =>  'sending'
-            ));
+//        $transactions_out_transfer = $dm->getRepository('TelepayFinancialApiBundle:Transaction')
+//            ->findBy(array(
+//                'method'  =>  'transfer',
+//                'type'  =>  'out',
+//                'status'    =>  'sending'
+//            ));
+
+        $transactions_out_transfer = $transactions_out_qb
+            ->field('method')->equals('transfer')
+            ->field('type')->equals('out')
+            ->field('status')->equals('sending')
+            ->where("function() {
+                if (typeof this.pay_out_info !== 'undefined') {
+                    if (typeof this.pay_out_info.gestioned !== 'undefined') {
+                        if(this.pay_out_info.gestioned == false){
+                            return true;
+                        }
+                    }
+                }
+                return false;
+            }")
+            ->getQuery()
+            ->execute();
+
+        $resArray_out_transfer = [];
+        foreach($transactions_out_transfer->toArray() as $res){
+            $resArray_out_transfer []= $res;
+
+        }
 
         $transactions = array_merge($transactions, $resArray_out);
-        $transactions = array_merge($transactions, $transactions_out_transfer);
+        $transactions = array_merge($transactions, $resArray_out_transfer);
 
         $total = count($transactions);
 
