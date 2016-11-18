@@ -70,13 +70,13 @@ class UploadController extends RestApiController{
 
         $name = uniqid('kyc_');
         $fs = new Filesystem();
-        $fs->dumpFile($this->container->getParameter('uploads_dir').'/' . $name .'.tmp.'. $ext, base64_decode($base64));
+        $fs->dumpFile($this->container->getParameter('uploads_dir').'/' . $name .'.tmp'. $ext, base64_decode($base64));
 
         return $this->rest(
             201,
             "Temporal file uploaded",
             [
-                'src' => $this->container->getParameter('files_path') . '/' . $name.'.tmp.'.$ext,
+                'src' => $this->container->getParameter('files_path') . '/' . $name.'.tmp'.$ext,
                 'type' => $ext,
                 'expires_in' => 600
             ]

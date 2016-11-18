@@ -386,13 +386,16 @@ class SpecialActionsController extends RestApiController {
         $transRepo = $dm->getRepository('TelepayFinancialApiBundle:Transaction');
         $transaction = $transRepo->find($id);
 
+        if($transaction->getMethod() != 'sepa') throw new HttpException(403, 'This transaction can\'t be validated with this method');
+
         if($validate == true){
-            $transaction->setStatus('success');
+//            $transaction->setStatus('success');
             $paymentInfo = $transaction->getPayOutInfo();
-            $paymentInfo['status'] = 'sent';
-            $paymentInfo['final'] = true;
+//            $paymentInfo['status'] = 'sent';
+//            $paymentInfo['final'] = true;
+            $paymentInfo['gestioned'] = true;
             $transaction->setPayOutInfo($paymentInfo);
-            $transaction->setUpdated(new \MongoDate());
+            $transaction->setUpdated(new \DateTime());
 
             $transaction = $this->get('notificator')->notificate($transaction);
 
@@ -404,71 +407,6 @@ class SpecialActionsController extends RestApiController {
 
     }
 
-//    /**
-//     * @Rest\View
-//     */
-//    public function sepaOutValidation2(Request $request, $id){
-//
-//        //only superadmin allowed
-//        if (!$this->get('security.authorization_checker')->isGranted('ROLE_SUPER_ADMIN')) {
-//            throw $this->createAccessDeniedException();
-//        }
-//
-//        $service = 'sepa_out';
-//
-//        if(!$request->request->has('validate')) throw new HttpException(404, 'Parameter "validate" not found');
-//        else $validate = $request->request->get('validate');
-//
-//        $dm = $this->get('doctrine_mongodb')->getManager();
-//        $transRepo = $dm->getRepository('TelepayFinancialApiBundle:Transaction');
-//        $transaction = $transRepo->find($id);
-//
-//        $em = $this->getDoctrine()->getManager();
-//        $user = $em->getRepository('TelepayFinancialApiBundle:User')->find($transaction->getUser());
-//
-//        $wallets = $user->getWallets();
-//
-//        $current_wallet = null;
-//        foreach ( $wallets as $wallet){
-//            if ($wallet->getCurrency() === $transaction->getCurrency()){
-//                $current_wallet = $wallet;
-//            }
-//        }
-//
-//        if($validate == true){
-//            $transaction->setStatus('success');
-//            $total_fee = $transaction->getFixedFee() + $transaction->getVariableFee();
-//            $total = $transaction->getAmount() + $total_fee ;
-//
-//            $current_wallet->setAvailable($current_wallet->getAvailable() - $total);
-//            $current_wallet->setBalance($current_wallet->getBalance() - $total);
-//
-//            $balancer = $this->get('net.telepay.commons.balance_manipulator');
-//            $balancer->addBalance($user, $transaction->getAmount(), $transaction);
-//
-//            $em->persist($current_wallet);
-//            $em->flush();
-//
-//            if($total_fee != 0){
-//                // nueva transaccion restando la comision al user
-//                try{
-//                    $this->_dealer($transaction,$current_wallet);
-//                }catch (HttpException $e){
-//                    throw $e;
-//                }
-//            }
-//
-//            $transaction = $this->get('notificator')->notificate($transaction);
-//            $transaction->setUpdated(new \MongoDate());
-//
-//            $dm->persist($transaction);
-//            $dm->flush();
-//        }
-//
-//        return $this->restTransaction($transaction, "Done");
-//
-//    }
-
     /**
      * @Rest\View
      */
@@ -479,29 +417,78 @@ class SpecialActionsController extends RestApiController {
         }
 
         $dm = $this->get('doctrine_mongodb')->getManager();
-        $transactions = $dm->getRepository('TelepayFinancialApiBundle:Transaction')
-            ->findBy(array(
-                'method_out'  =>  'sepa',
-                'type'  =>  'swift',
-                'status'    =>  'sending'
-            ));
+        $transactions_out_qb = $dm->createQueryBuilder('TelepayFinancialApiBundle:Transaction');
 
-        $transactions_out = $dm->getRepository('TelepayFinancialApiBundle:Transaction')
-            ->findBy(array(
-                'method'  =>  'sepa',
-                'type'  =>  'out',
-                'status'    =>  'sending'
-            ));
+//        $transactions = $dm->getRepository('TelepayFinancialApiBundle:Transaction')
+//            ->findBy(array(
+//                'method_out'  =>  'sepa',
+//                'type'  =>  'swift',
+//                'status'    =>  'sending'
+//            ));
 
-        $transactions_out_transfer = $dm->getRepository('TelepayFinancialApiBundle:Transaction')
-            ->findBy(array(
-                'method'  =>  'transfer',
-                'type'  =>  'out',
-                'status'    =>  'sending'
-            ));
+        $transactions = $transactions_out_qb
+            ->field('method_out')->equals('sepa')
+            ->field('type')->equals('swift')
+            ->field('status')->equals('sending')
+            ->field('pay_out_info.gestioned')->equals(false)
+            ->getQuery()
+            ->execute();
 
-        $transactions = array_merge($transactions, $transactions_out);
-        $transactions = array_merge($transactions, $transactions_out_transfer);
+        $resArray = [];
+        foreach($transactions->toArray() as $res){
+            $resArray []= $res;
+
+        }
+
+//        $transactions_out = $dm->getRepository('TelepayFinancialApiBundle:Transaction')
+//            ->findBy(array(
+//                'method'  =>  'sepa',
+//                'type'  =>  'out',
+//                'status'    =>  'sending',
+//                'pay_out_info.gestioned'  =>  true
+//            ));
+
+
+        $transactions_out_qb_sepa = $dm->createQueryBuilder('TelepayFinancialApiBundle:Transaction');
+
+        $transactions_out = $transactions_out_qb_sepa
+            ->field('method')->equals('sepa')
+            ->field('type')->equals('out')
+            ->field('status')->equals('sending')
+            ->field('pay_out_info.gestioned')->equals(false)
+            ->getQuery()
+            ->execute();
+
+        $resArray_out = [];
+        foreach($transactions_out->toArray() as $res){
+            $resArray_out []= $res;
+
+        }
+
+//        $transactions_out_transfer = $dm->getRepository('TelepayFinancialApiBundle:Transaction')
+//            ->findBy(array(
+//                'method'  =>  'transfer',
+//                'type'  =>  'out',
+//                'status'    =>  'sending'
+//            ));
+
+        $transactions_out_qb_transfer = $dm->createQueryBuilder('TelepayFinancialApiBundle:Transaction');
+        $transactions_out_transfer = $transactions_out_qb_transfer
+            ->field('method')->equals('transfer')
+            ->field('type')->equals('out')
+            ->field('status')->equals('sending')
+            ->field('pay_out_info.gestioned')->equals(false)
+            ->getQuery()
+            ->execute();
+
+        $resArray_out_transfer = [];
+        foreach($transactions_out_transfer->toArray() as $res){
+            $resArray_out_transfer []= $res;
+
+        }
+
+        $transactions = array_merge($resArray, $resArray_out);
+        $transactions = array_merge($transactions, $resArray_out_transfer);
 
         $total = count($transactions);
 
