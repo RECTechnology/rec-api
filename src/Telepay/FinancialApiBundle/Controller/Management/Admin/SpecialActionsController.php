@@ -424,13 +424,38 @@ class SpecialActionsController extends RestApiController {
                 'status'    =>  'sending'
             ));
 
-        $transactions_out = $dm->getRepository('TelepayFinancialApiBundle:Transaction')
-            ->findBy(array(
-                'method'  =>  'sepa',
-                'type'  =>  'out',
-                'status'    =>  'sending',
-                'pay_out_info.gestioned'  =>  true
-            ));
+//        $transactions_out = $dm->getRepository('TelepayFinancialApiBundle:Transaction')
+//            ->findBy(array(
+//                'method'  =>  'sepa',
+//                'type'  =>  'out',
+//                'status'    =>  'sending',
+//                'pay_out_info.gestioned'  =>  true
+//            ));
+
+        $transactions_out_qb = $dm->createQueryBuilder('TelepayFinancialApiBundle:Transaction');
+
+        $transactions_out = $transactions_out_qb
+            ->field('method')->equals('sepa')
+            ->field('type')->equals('out')
+            ->field('status')->equals('sending')
+            ->where("function() {
+                if (typeof this.payOutInfo !== 'undefined') {
+                    if (typeof this.payOutInfo.gestioned !== 'undefined') {
+                        if(String(this.payOutInfo.gestioned).indexOf('false') > -1){
+                            return true;
+                        }
+                    }
+                }
+                return true;
+            }")
+            ->getQuery()
+            ->execute();
+
+        $resArray_out = [];
+        foreach($transactions_out->toArray() as $res){
+            $resArray_out []= $res;
+
+        }
 
         $transactions_out_transfer = $dm->getRepository('TelepayFinancialApiBundle:Transaction')
             ->findBy(array(
@@ -439,7 +464,7 @@ class SpecialActionsController extends RestApiController {
                 'status'    =>  'sending'
             ));
 
-        $transactions = array_merge($transactions, $transactions_out);
+        $transactions = array_merge($transactions, $resArray_out);
         $transactions = array_merge($transactions, $transactions_out_transfer);
 
         $total = count($transactions);
