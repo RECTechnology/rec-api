@@ -429,7 +429,7 @@ class SpecialActionsController extends RestApiController {
                 'method'  =>  'sepa',
                 'type'  =>  'out',
                 'status'    =>  'sending',
-                'payOutInfo.gestioned'  =>  true
+                'pay_out_info.gestioned'  =>  true
             ));
 
         $transactions_out_transfer = $dm->getRepository('TelepayFinancialApiBundle:Transaction')
