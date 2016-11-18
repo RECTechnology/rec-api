@@ -24,7 +24,7 @@ class SepaValidationCommand extends ContainerAwareCommand
         $dm = $this->getContainer()->get('doctrine_mongodb')->getManager();
 
         $qb = $dm->createQueryBuilder('TelepayFinancialApiBundle:Transaction')
-            ->field('method')->equals(array('sepa', 'transfer'))
+            ->field('method')->in(array('sepa', 'transfer'))
             ->field('type')->equals('out')
             ->field('status')->equals('sending')
             ->field('pay_out_info.gestioned')->equals(true)
