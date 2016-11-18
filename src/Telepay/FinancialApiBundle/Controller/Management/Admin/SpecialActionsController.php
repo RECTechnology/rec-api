@@ -441,9 +441,8 @@ class SpecialActionsController extends RestApiController {
             ->where("function() {
                 if (typeof this.payOutInfo !== 'undefined') {
                     if (typeof this.payOutInfo.gestioned !== 'undefined') {
-                        if(this.payOutInfo.gestioned == false){
+
                             return true;
-                        }
                     }
                 }
                 return false;
