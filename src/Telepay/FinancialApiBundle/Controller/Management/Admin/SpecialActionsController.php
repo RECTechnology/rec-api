@@ -430,16 +430,7 @@ class SpecialActionsController extends RestApiController {
             ->field('method_out')->equals('sepa')
             ->field('type')->equals('swift')
             ->field('status')->equals('sending')
-            ->where("function() {
-                if (typeof this.pay_out_info !== 'undefined') {
-                    if (typeof this.pay_out_info.gestioned !== 'undefined') {
-                        if(this.pay_out_info.gestioned == false){
-                            return true;
-                        }
-                    }
-                }
-                return false;
-            }")
+            ->field('pay_out_info.gestioned')->equals(false)
             ->getQuery()
             ->execute();
 
@@ -458,22 +449,13 @@ class SpecialActionsController extends RestApiController {
 //            ));
 
 
-//        $transactions_out_qb_sepa = $dm->createQueryBuilder('TelepayFinancialApiBundle:Transaction');
+        $transactions_out_qb_sepa = $dm->createQueryBuilder('TelepayFinancialApiBundle:Transaction');
 
-        $transactions_out = $transactions_out_qb
+        $transactions_out = $transactions_out_qb_sepa
             ->field('method')->equals('sepa')
             ->field('type')->equals('out')
             ->field('status')->equals('sending')
-            ->where("function() {
-                if (typeof this.pay_out_info !== 'undefined') {
-                    if (typeof this.pay_out_info.gestioned !== 'undefined') {
-                        if(this.pay_out_info.gestioned == false){
-                            return true;
-                        }
-                    }
-                }
-                return false;
-            }")
+            ->field('pay_out_info.gestioned')->equals(false)
             ->getQuery()
             ->execute();
 
@@ -495,16 +477,7 @@ class SpecialActionsController extends RestApiController {
             ->field('method')->equals('transfer')
             ->field('type')->equals('out')
             ->field('status')->equals('sending')
-            ->where("function() {
-                if (typeof this.pay_out_info !== 'undefined') {
-                    if (typeof this.pay_out_info.gestioned !== 'undefined') {
-                        if(this.pay_out_info.gestioned == false){
-                            return true;
-                        }
-                    }
-                }
-                return false;
-            }")
+            ->field('pay_out_info.gestioned')->equals(false)
             ->getQuery()
             ->execute();
 
