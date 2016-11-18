@@ -64,6 +64,11 @@ class WalletConf {
     private $maxTime;
 
     /**
+     * @ORM\Column(type="boolean")
+     */
+    private $storehouse;
+
+    /**
      * @return mixed
      */
     public function getId(){
@@ -203,5 +208,29 @@ class WalletConf {
     public function setMaxTime($maxTime)
     {
         $this->maxTime = $maxTime;
+    }
+
+    /**
+     * @return mixed
+     */
+    public function isStorehouse()
+    {
+        return $this->storehouse;
+    }
+
+    /**
+     * @return mixed
+     */
+    public function getStorehouse()
+    {
+        return $this->storehouse;
+    }
+
+    /**
+     * @param mixed $storehouse
+     */
+    public function setStorehouse($storehouse)
+    {
+        $this->storehouse = $storehouse;
     }
 }
