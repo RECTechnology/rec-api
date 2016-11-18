@@ -449,9 +449,9 @@ class SpecialActionsController extends RestApiController {
 //            ));
 
 
-        $transactions_out_qb_sepa = $dm->createQueryBuilder('TelepayFinancialApiBundle:Transaction');
+//        $transactions_out_qb_sepa = $dm->createQueryBuilder('TelepayFinancialApiBundle:Transaction');
 
-        $transactions_out = $transactions_out_qb_sepa
+        $transactions_out = $transactions_out_qb
             ->field('method')->equals('sepa')
             ->field('type')->equals('out')
             ->field('status')->equals('sending')
