@@ -41,13 +41,16 @@ class SepaValidationCommand extends ContainerAwareCommand
             $output->writeln('status: '.$paymentInfo['status']);
 
             $paymentInfo['status'] = Transaction::$STATUS_SUCCESS;
+            $paymentInfo['final'] = true;
             $transaction->setStatus(Transaction::$STATUS_SUCCESS);
+            $transaction->setPayOutInfo($paymentInfo);
 
             $dm->persist($transaction);
             $dm->flush();
 
-        }
+            $contador_success ++;
 
+        }
 
         $qb_swift = $dm->createQueryBuilder('TelepayFinancialApiBundle:Transaction')
             ->field('method_out')->equals('sepa')
@@ -65,13 +68,15 @@ class SepaValidationCommand extends ContainerAwareCommand
             $output->writeln('status: '.$paymentInfo['status']);
 
             $paymentInfo['status'] = Transaction::$STATUS_SUCCESS;
+            $paymentInfo['final'] = true;
             $transaction->setStatus(Transaction::$STATUS_SUCCESS);
+            $transaction->setPayOutInfo($paymentInfo);
 
             $dm->persist($transaction);
             $dm->flush();
+            $contador_success ++;
 
         }
-
 
         $output->writeln('Sepa transactions validated');
         $output->writeln('Total checked transactions: '.$contador);
