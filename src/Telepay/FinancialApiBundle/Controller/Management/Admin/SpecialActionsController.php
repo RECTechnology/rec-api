@@ -440,10 +440,7 @@ class SpecialActionsController extends RestApiController {
             ->field('status')->equals('sending')
             ->where("function() {
                 if (typeof this.payOutInfo !== 'undefined') {
-                    if (typeof this.payOutInfo.gestioned !== 'undefined') {
-
-                            return true;
-                    }
+                    return true;
                 }
                 return false;
             }")
