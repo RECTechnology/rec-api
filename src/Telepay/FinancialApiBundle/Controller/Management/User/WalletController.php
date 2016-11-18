@@ -1246,6 +1246,13 @@ class WalletController extends RestApiController{
 
         if($statusMethod->getStatus() != 'available') throw new HttpException(403, 'Exchange temporally unavailable');
 
+        //check group exchange limits
+        $limit = $em->getRepository('TelepayFinancialApiBundle:LimitDefinition')->findOneBy(array(
+            'cname'     =>  $service,
+            'group'     => $userGroup->getId()
+        ));
+        if($limit->getDay()==0)throw new HttpException(403, 'Exchange temporally unavailable');
+
         //getExchange
         $exchange = $this->_exchange($amount, $from, $to);
 
