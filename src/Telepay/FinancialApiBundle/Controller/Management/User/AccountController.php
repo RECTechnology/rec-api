@@ -729,7 +729,6 @@ class AccountController extends BaseApiController{
         $user_creator_id = $this->container->getParameter('default_user_creator_commerce_' . $type);
         $company_creator_id = $this->container->getParameter('default_company_creator_commerce_' . $type);
 
-        $em = $this->getDoctrine()->getManager();
         $userCreator = $em->getRepository('TelepayFinancialApiBundle:User')->find($user_creator_id);
         $companyCreator = $em->getRepository('TelepayFinancialApiBundle:Group')->find($company_creator_id);
 
