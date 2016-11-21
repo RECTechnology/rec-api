@@ -2,14 +2,10 @@
 namespace Telepay\FinancialApiBundle\Command;
 
 use Symfony\Bundle\FrameworkBundle\Command\ContainerAwareCommand;
-use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
-use Telepay\FinancialApiBundle\Financial\MiniumBalanceInterface;
 use Telepay\FinancialApiBundle\Financial\Currency;
-use WebSocket\Client;
-use WebSocket\Exception;
 
 class MoneyStoresManagerCommand extends ContainerAwareCommand{
     protected function configure(){
@@ -73,9 +69,7 @@ class MoneyStoresManagerCommand extends ContainerAwareCommand{
             $type = $wallet->getType();
             $currency = $wallet->getCurrency();
             $name = $type . '_' . $currency;
-            $system_data['wallets'][$name]['type']=$type;
-            $system_data['wallets'][$name]['currency']=$currency;
-            $system_data['wallets'][$name]['priority']=$wallet->getPriority();
+            $system_data['wallets'][$name]['conf']=$wallet;
             $wallet_conf = $this->getContainer()->get('net.telepay.wallet.' . $type . '.' . $currency);
             $currency = strtoupper($currency);
             $balance = $balances[$currency]['balance'];
@@ -83,7 +77,7 @@ class MoneyStoresManagerCommand extends ContainerAwareCommand{
             $max = round($wallet->getMaxBalance() * $balance / 100 + $wallet->getFixedAmount(),0);
             $perfect = round($wallet->getPerfectBalance() * $balance / 100 + $wallet->getFixedAmount(),0);
             $now = round($wallet_conf->getFakeBalance() * (pow(10, Currency::$SCALE[$currency])), 0);
-            $receiving_data = $this->receiving($name);
+            $receiving_data = $this->receiving($wallet);
             $receiving = $receiving_data['amount'];
             $system_data['transfers'] = array_merge($system_data['transfers'], $receiving_data['list']);
             $system_data['wallets'][$name]['now']=$now;
@@ -105,13 +99,6 @@ class MoneyStoresManagerCommand extends ContainerAwareCommand{
                 $output->writeln("Sobre: " . round($this->_exchange($excess, $currency, $this->default_currency),0) . " " . $this->default_currency . " cents");
                 $system_data['wallets'][$name]['excess']=$excess;
                 $system_data['wallets'][$name]['excess_default']=round($this->_exchange($excess, $currency, $this->default_currency),0);
-                /*
-                $outs = $wallet_conf->getWaysOut();
-                foreach($outs as $out){
-                    $way_conf = $this->getContainer()->get($out);
-                    $output->writeln("Way min: " . $way_conf->getMinAmount());
-                }
-                */
             }
         }
         $output->writeln("Info: " . json_encode($system_data));
@@ -122,10 +109,10 @@ class MoneyStoresManagerCommand extends ContainerAwareCommand{
         $heuristic = 0;
         foreach($system_data['wallets'] as $wallet){
             if(isset($wallet['need'])){
-                $heuristic += ($wallet['need_default'] * $wallet['priority']);
+                $heuristic += ($wallet['need_default'] * $wallet['conf']->getPriority());
             }
-            elseif(isset($wallet['excess'])){
-                $heuristic += $wallet['excess_default'];
+            elseif(isset($wallet['excess']) && !$wallet['conf']->isStorehouse()){
+                $heuristic += round($wallet['excess_default']/10,0);
             }
         }
         foreach($system_data['transfers'] as $transfer){
@@ -135,7 +122,16 @@ class MoneyStoresManagerCommand extends ContainerAwareCommand{
         return $heuristic;
     }
 
-    public function receiving($out){
+    public function send($wallet_conf, $amount){
+        $outs = $wallet_conf->getWaysOut();
+        foreach($outs as $out){
+            $way_conf = $this->getContainer()->get($out);
+            if($amount > $way_conf->getMinAmount());
+        }
+    }
+
+    public function receiving($wallet){
+        $out = $wallet->getType() . '_' . $wallet->getCurrency();
         $em = $this->getContainer()->get('doctrine')->getManager();
         $transferRepo = $em->getRepository('TelepayFinancialApiBundle:WalletTransfer');
         $list_transfer = array();
@@ -145,12 +141,14 @@ class MoneyStoresManagerCommand extends ContainerAwareCommand{
         $sum = 0;
         foreach($list as $transfer){
             $sum += $transfer->getAmountOut();
-            $timeToEstimated = $transfer->getEstimatedDeliveryTimeStamp() - time();
+            $timeEstimated = $transfer->getEstimatedDeliveryTimeStamp() - time();
+            if($timeEstimated < 0)$timeEstimated=0;
+            if($timeEstimated > $wallet->getMaxTime())$timeEstimated=60000000;
             $list_transfer[] = array(
                 'in' => $transfer->getIn(),
                 'out' => $transfer->getOut(),
                 'moneyCost' => round($this->_exchange($transfer->getEstimatedCost(), $transfer->getCurrencyOut(), $this->default_currency), 0),
-                'timeCost' => $timeToEstimated>0?$timeToEstimated:0
+                'timeCost' => $timeEstimated
             );
         }
         return array(
