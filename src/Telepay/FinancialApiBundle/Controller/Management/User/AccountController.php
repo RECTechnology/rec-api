@@ -551,6 +551,20 @@ class AccountController extends BaseApiController{
             $username = $request->get('username');
         }
 
+        $em = $this->getDoctrine()->getManager();
+        $user = $em->getRepository($this->getRepositoryName())->findOneBy(array(
+            'username'  =>  $username
+        ));
+        if($user){
+            throw new HttpException(400, "Username already registered");
+        }
+        $user = $em->getRepository($this->getRepositoryName())->findOneBy(array(
+            'email'  =>  $request->get('email')
+        ));
+        if($user){
+            throw new HttpException(400, "Email already registered");
+        }
+
         //name fake
         if(!$request->request->has('name')){
             //invent the name
@@ -697,6 +711,20 @@ class AccountController extends BaseApiController{
         $params['plain_password'] = $params['password'];
         unset($params['password']);
         unset($params['repassword']);
+
+        $em = $this->getDoctrine()->getManager();
+        $user = $em->getRepository($this->getRepositoryName())->findOneBy(array(
+            'username'  =>  $params['username']
+        ));
+        if($user){
+            throw new HttpException(400, "Username already registered");
+        }
+        $user = $em->getRepository($this->getRepositoryName())->findOneBy(array(
+            'email'  =>  $params['email']
+        ));
+        if($user){
+            throw new HttpException(400, "Email already registered");
+        }
 
         $user_creator_id = $this->container->getParameter('default_user_creator_commerce_' . $type);
         $company_creator_id = $this->container->getParameter('default_company_creator_commerce_' . $type);
