@@ -337,7 +337,7 @@ class FeeDeal{
         $total_fee = round($transaction->getFixedFee() + $transaction->getVariableFee(),0);
 
         $user = $em->getRepository('TelepayFinancialApiBundle:User')->find($transaction->getUser());
-        $userGroup = $em->getRepository('TelepayFinancialApiBundle:User')->find($transaction->getGroup());
+        $userGroup = $em->getRepository('TelepayFinancialApiBundle:Group')->find($transaction->getGroup());
 
         $feeTransaction = Transaction::createFromTransaction($transaction);
         $feeTransaction->setAmount($total_fee);
