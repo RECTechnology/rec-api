@@ -144,120 +144,16 @@ class CheckCryptoCommand extends SyncronizedContainerAwareCommand
                                 //TODO exchange if needed
                                 $dataIn = $transaction->getDataIn();
                                 if(isset($dataIn['currency_out']) && $dataIn['currency_out'] != strtoupper($service_currency)){
+
                                     $cur_in = strtoupper($transaction->getCurrency());
                                     $cur_out = strtoupper($dataIn['currency_out']);
+                                    //THIS is the service for get the limits
+                                    $service = 'exchange'.'_'.$cur_in.'to'.$cur_out;
+                                    $user = $em->getRepository('TelepayFinancialApiBundle:User')->find($id);
+
                                     $exchanger = $this->getContainer()->get('net.telepay.commons.exchange_manipulator');
                                     $exchangeAmount = $exchanger->exchange($total, $transaction->getCurrency(), $dataIn['currency_out']);
-
-                                    //TODO exchange in transaction
-                                    //TODO discount fees
-                                    //check group exchange limits
-                                    $service = 'exchange'.'_'.$cur_in.'to'.$cur_out;
-                                    $limit = $em->getRepository('TelepayFinancialApiBundle:LimitDefinition')->findOneBy(array(
-                                        'cname'     =>  $service,
-                                        'group'     => $groupId
-                                    ));
-
-                                    //checkWallet sender
-                                    $senderWallet = $group->getWallet($cur_in);
-                                    $receiverWallet = $group->getWallet($cur_out);
-
-                                    //getFees
-                                    $fees = $group->getCommissions();
-
-                                    $exchange_fixed_fee = null;
-                                    $exchange_variable_fee = null;
-
-                                    foreach($fees as $fee){
-                                        if($fee->getServiceName() == $service){
-                                            $exchange_fixed_fee = $fee->getFixed();
-                                            $exchange_variable_fee = round((($fee->getVariable()/100) * $exchangeAmount), 0);
-                                        }
-                                    }
-
-                                    $price = $exchanger->getPrice($cur_in, $cur_out);
-
-                                    $totalExchangeFee = $exchange_fixed_fee + $exchange_variable_fee;
-
-                                    $params = array(
-                                        'amount'    => 0,
-                                        'from'  =>  $cur_in,
-                                        'to'    => $cur_out
-                                    );
-                                    //cashOut transaction
-                                    $cashOut = new Transaction();
-                                    $cashOut->setIp('');
-                                    $cashOut->setStatus(Transaction::$STATUS_CREATED);
-                                    $cashOut->setNotificationTries(0);
-                                    $cashOut->setMaxNotificationTries(3);
-                                    $cashOut->setNotified(false);
-                                    $cashOut->setAmount($exchangeAmount);
-                                    $cashOut->setCurrency($cur_out);
-                                    $cashOut->setDataIn($params);
-                                    $cashOut->setFixedFee(0);
-                                    $cashOut->setVariableFee(0);
-                                    $cashOut->setTotal(-$amount);
-                                    $cashOut->setType('out');
-                                    $cashOut->setMethod($service);
-                                    $cashOut->setService($service);
-                                    $cashOut->setUser($user->getId());
-                                    $cashOut->setGroup($userGroup->getId());
-                                    $cashOut->setVersion(1);
-                                    $cashOut->setScale($senderWallet->getScale());
-                                    $cashOut->setStatus(Transaction::$STATUS_SUCCESS);
-                                    $cashOut->setPayOutInfo(array(
-                                        'amount'    =>  $amount,
-                                        'currency'  =>  $from,
-                                        'scale'     =>  $senderWallet->getScale(),
-                                        'concept'   =>  'Exchange '.$from.' to '.$to,
-                                        'price'     =>  $price,
-                                    ));
-
-                                    $dm->persist($cashOut);
-                                    $dm->flush();
-
-                                    $paramsOut = $params;
-                                    $paramsOut['amount'] = $exchange;
-                                    //cashIn transaction
-                                    $cashIn = Transaction::createFromRequest($request);
-                                    $cashIn->setAmount($exchange);
-                                    $cashIn->setCurrency($to);
-                                    $cashIn->setDataIn($params);
-                                    $cashIn->setFixedFee($fixed_fee);
-                                    $cashIn->setVariableFee($variable_fee);
-                                    $cashIn->setTotal($exchange);
-                                    $cashIn->setService($service);
-                                    $cashIn->setType('in');
-                                    $cashIn->setMethod($service);
-                                    $cashIn->setUser($user->getId());
-                                    $cashIn->setGroup($userGroup->getId());
-                                    $cashIn->setVersion(1);
-                                    $cashIn->setScale($receiverWallet->getScale());
-                                    $cashIn->setStatus(Transaction::$STATUS_SUCCESS);
-                                    $cashIn->setDataIn($paramsOut);
-                                    $cashIn->setPayInInfo(array(
-                                        'amount'    =>  $exchange,
-                                        'currency'  =>  $to,
-                                        'scale'     =>  $receiverWallet->getScale(),
-                                        'concept'   =>  'Exchange '.$from.' to '.$to,
-                                        'price'     =>  $price,
-                                    ));
-
-                                    $dm->persist($cashIn);
-                                    $dm->flush();
-
-                                    //update wallets
-                                    $senderWallet->setAvailable($senderWallet->getAvailable() - $amount);
-                                    $senderWallet->setBalance($senderWallet->getBalance() - $amount);
-
-                                    $receiverWallet->setAvailable($receiverWallet->getAvailable() + $exchange - $fixed_fee - $variable_fee);
-                                    $receiverWallet->setBalance($receiverWallet->getBalance() + $exchange - $fixed_fee - $variable_fee);
-
-                                    $em->persist($senderWallet);
-                                    $em->persist($receiverWallet);
-                                    $em->flush();
-
-
+                                    $exchanger->doExchange($exchangeAmount, $cur_in, $cur_out, $group, $user);
 
                                 }
 
@@ -268,8 +164,6 @@ class CheckCryptoCommand extends SyncronizedContainerAwareCommand
                                 $em->persist($wallet);
                                 $em->flush();
                             }
-
-
 
                         } elseif ($transaction->getStatus() == Transaction::$STATUS_EXPIRED) {
                             //SEND AN EMAIL

@@ -8,6 +8,7 @@
 
 namespace Telepay\FinancialApiBundle\DependencyInjection\Telepay\Commons;
 
+use Symfony\Component\HttpKernel\Exception\HttpException;
 use Telepay\FinancialApiBundle\Document\Transaction;
 use Telepay\FinancialApiBundle\Entity\Group;
 use Telepay\FinancialApiBundle\Entity\User;
@@ -170,6 +171,20 @@ class ExchangeManipulator{
         $em->flush();
 
         //TODO dealer
+        if( $totalExchangeFee != 0){
+            //nueva transaccion restando la comision al user
+            $dealer = $this->get('net.telepay.commons.fee_deal');
+            try{
+                $dealer->createFees($cashIn, $receiverWallet);
+            }catch (HttpException $e){
+                throw $e;
+            }
+        }
+
+        //notification
+        $this->container->get('notificator')->notificate($cashIn);
+
+        return true;
 
     }
 
