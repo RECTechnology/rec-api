@@ -1259,17 +1259,8 @@ class WalletController extends RestApiController{
         if($exchange == 0) throw new HttpException(403, 'Amount must be bigger');
 
         //checkWallet sender
-        $wallets = $userGroup->getWallets();
-
-        $senderWallet = null;
-        $receiverWallet = null;
-        foreach($wallets as $wallet){
-            if($from == $wallet->getCurrency()){
-                $senderWallet = $wallet;
-            }elseif($to == $wallet->getCurrency()){
-                $receiverWallet = $wallet;
-            }
-        }
+        $senderWallet = $userGroup->getWallet($from);
+        $receiverWallet = $userGroup->getWallet($to);
 
         if($senderWallet == null) throw new HttpException(404, 'Sender Wallet not found');
         if($receiverWallet == null) throw new HttpException(404, 'Receiver Wallet not found');

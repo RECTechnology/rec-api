@@ -95,7 +95,9 @@ class IncomingController2 extends RestApiController{
 
         //TODO get currency_in and currency_out
         $exchange_done = false;
-        if(array_key_exists('currency_in', $data) && $data['currency_in'] != '' || array_key_exists('currency_out', $data) && $data['currency_out'] != ''){
+        if((array_key_exists('currency_in', $data) && $data['currency_in'] != '' || array_key_exists('currency_out', $data) && $data['currency_out'] != '')
+            && ($method_cname == 'btc' || $method_cname == 'fac') && $type = 'in'){
+
             $request_amount = $amount;
             $cur_in = $method->getCurrency();
             $cur_out = $method->getCurrency();

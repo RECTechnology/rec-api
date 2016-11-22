@@ -25,3 +25,4 @@ services:
         class: Telepay\FinancialApiBundle\DependencyInjection\Telepay\Commons\ExchangeManipulator
         arguments:
             - "@doctrine"
+            - "@service_container"
