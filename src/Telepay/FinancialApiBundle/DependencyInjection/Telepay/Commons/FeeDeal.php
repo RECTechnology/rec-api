@@ -332,12 +332,12 @@ class FeeDeal{
         $currency = $transaction->getCurrency();
         $service_cname = $transaction->getService();
 
-        $em = $this->getDoctrine()->getManager();
+        $em = $this->doctrine->getManager();
 
         $total_fee = round($transaction->getFixedFee() + $transaction->getVariableFee(),0);
 
         $user = $em->getRepository('TelepayFinancialApiBundle:User')->find($transaction->getUser());
-        $userGroup = $user->getActiveGroup();
+        $userGroup = $em->getRepository('TelepayFinancialApiBundle:User')->find($transaction->getGroup());
 
         $feeTransaction = Transaction::createFromTransaction($transaction);
         $feeTransaction->setAmount($total_fee);
@@ -371,11 +371,11 @@ class FeeDeal{
         );
         $feeTransaction->setFeeInfo($feeInfo);
 
-        $mongo = $this->get('doctrine_mongodb')->getManager();
+        $mongo = $this->container->get('doctrine_mongodb')->getManager();
         $mongo->persist($feeTransaction);
         $mongo->flush();
 
-        $balancer = $this->get('net.telepay.commons.balance_manipulator');
+        $balancer = $this->container->get('net.telepay.commons.balance_manipulator');
         $balancer->addBalance($userGroup, -$total_fee, $feeTransaction );
 
         //empezamos el reparto
