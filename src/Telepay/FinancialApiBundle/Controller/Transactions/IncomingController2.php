@@ -107,7 +107,7 @@ class IncomingController2 extends RestApiController{
             if(strtoupper($cur_in) != $method->getCurrency() ){
 
                 $exchange_done = true;
-                $amount = $this->get('net.telepay.commons.exchange_manipulator')->exchange($amount, $cur_in, $cur_out);
+                $amount = $this->get('net.telepay.commons.exchange_manipulator')->exchange($amount, $cur_in, $transaction->getCurrency());
 
             }
         }
