@@ -154,7 +154,7 @@ class CheckCryptoCommand extends SyncronizedContainerAwareCommand
                                     $exchanger = $this->getContainer()->get('net.telepay.commons.exchange_manipulator');
                                     $exchangeAmount = $exchanger->exchange($total, $transaction->getCurrency(), $cur_out);
                                     $output->writeln('CHECK CRYPTO exchange->'.$total.' '.$transaction->getCurrency().' = '.$exchangeAmount.' '.$cur_out);
-                                    $exchanger->doExchange($exchangeAmount, $cur_in, $cur_out, $group, $user);
+                                    $exchanger->doExchange($total, $cur_in, $cur_out, $group, $user);
 
                                 }
 
