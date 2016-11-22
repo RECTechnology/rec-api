@@ -101,8 +101,8 @@ class IncomingController2 extends RestApiController{
             $request_amount = $amount;
             $cur_in = $method->getCurrency();
             $cur_out = $method->getCurrency();
-            if($data['currency_in']) $cur_in = $data['currency_in'];
-            if($data['currency_out']) $cur_out = $data['currency_out'];
+            if($data['currency_in']) $cur_in = strtoupper($data['currency_in']);
+            if($data['currency_out']) $cur_out = strtoupper($data['currency_out']);
 
             if(strtoupper($cur_in) != $method->getCurrency() ){
 

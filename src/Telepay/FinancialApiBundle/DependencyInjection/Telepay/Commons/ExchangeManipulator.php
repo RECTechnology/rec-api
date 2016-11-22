@@ -63,7 +63,7 @@ class ExchangeManipulator{
     public function doExchange($amount, $from, $to, Group $company, User $user){
 
         $dm = $this->container->get('doctrine_mongodb')->getManager();
-        $em = $this->container->getDoctrine()->getManager();
+        $em = $this->doctrine->getManager();
 
         $exchangeAmount = $this->exchange($amount, $from, $to);
         $params = array(
@@ -173,7 +173,7 @@ class ExchangeManipulator{
         //TODO dealer
         if( $totalExchangeFee != 0){
             //nueva transaccion restando la comision al user
-            $dealer = $this->get('net.telepay.commons.fee_deal');
+            $dealer = $this->container->get('net.telepay.commons.fee_deal');
             try{
                 $dealer->createFees($cashIn, $receiverWallet);
             }catch (HttpException $e){

@@ -143,10 +143,10 @@ class CheckCryptoCommand extends SyncronizedContainerAwareCommand
 
                                 //TODO exchange if needed
                                 $dataIn = $transaction->getDataIn();
-                                if(isset($dataIn['currency_out']) && $dataIn['currency_out'] != strtoupper($service_currency)){
+                                if(isset($dataIn['request_currency_out']) && $dataIn['request_currency_out'] != strtoupper($service_currency)){
 
                                     $cur_in = strtoupper($transaction->getCurrency());
-                                    $cur_out = strtoupper($dataIn['currency_out']);
+                                    $cur_out = strtoupper($dataIn['request_currency_out']);
                                     //THIS is the service for get the limits
                                     $service = 'exchange'.'_'.$cur_in.'to'.$cur_out;
                                     $user = $em->getRepository('TelepayFinancialApiBundle:User')->find($id);
