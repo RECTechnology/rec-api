@@ -120,6 +120,7 @@ parameters:
     admin_user_id_fac: ''
     swift_client_id_default: ''
     commerce_client_id: ''
+    android_pos_client_id: ''
     swift_client_id_default_fac: ''
     swift_client_id_default_easypay: ''
     admin_user_id_easypay: ''

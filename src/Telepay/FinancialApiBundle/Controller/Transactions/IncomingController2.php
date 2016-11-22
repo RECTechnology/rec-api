@@ -1262,7 +1262,7 @@ class IncomingController2 extends RestApiController{
 
     private function _checkPermissions(User $user, Group $group){
 
-        if(!$user->hasGroup($group->getName())) throw new HttpException(403, 'You do not have the necessary permissions in this company');
+        if(!$user->hasGroup($group->getName())) throw new HttpException(403, 'You(' . $user->getId() . ') do not have the necessary permissions in this company(' . $group->getId() . ')');
 
         //Check permissions for this user in this company
         $userRoles = $this->getDoctrine()->getRepository('TelepayFinancialApiBundle:UserGroup')->findOneBy(array(
@@ -1284,9 +1284,10 @@ class IncomingController2 extends RestApiController{
             );
 
             $commerce_client = $this->container->getParameter('commerce_client_id');
+            $android_pos_client = $this->container->getParameter('android_pos_client_id');
 
             $client = $accessToken->getClient();
-            if($commerce_client == $client->getId()){
+            if($commerce_client == $client->getId() || $android_pos_client == $client->getId()){
                 $group = $user->getActiveGroup();
             }else{
                 $group = $client->getGroup();
