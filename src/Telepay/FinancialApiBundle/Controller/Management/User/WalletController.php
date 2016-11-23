@@ -594,14 +594,6 @@ class WalletController extends RestApiController{
                             }
                             else{
                                 $list_methods = explode("-", $method);
-
-                                //TODO: quitar cuando el method de las fees esté corregido
-                                if(count($list_methods)<2){
-                                    //$logger = $this->get('transaction.logger');
-                                    //$logger->info('Filter fee error...Method-> '.$method);
-                                    $list_methods[] = $list_methods[0];
-                                }
-
                                 $method_in = $list_methods[0];
                                 $method_out = $list_methods[1];
                                 if($all_swift_in || $all_swift_out || in_array($method_in, $query['swift_in']) || in_array($method_out, $query['swift_out'])){
