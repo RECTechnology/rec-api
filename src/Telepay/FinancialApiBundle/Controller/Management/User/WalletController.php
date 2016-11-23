@@ -530,7 +530,7 @@ class WalletController extends RestApiController{
             $balance = array();
             $volume = array();
             foreach($transactions->toArray() as $res){
-                if($res->getClient()){
+                if($res->getClient() && isset($listClients[$res->getClient()])){
                     $res->setClientData(
                         array(
                             "id" => $res->getClient(),
