@@ -12,6 +12,8 @@ use Symfony\Component\HttpKernel\Exception\HttpException;
 use Telepay\FinancialApiBundle\Document\Transaction;
 use Telepay\FinancialApiBundle\Entity\Group;
 use Telepay\FinancialApiBundle\Entity\User;
+use Telepay\FinancialApiBundle\Entity\UserWallet;
+use Telepay\FinancialApiBundle\Financial\Currency;
 
 class ExchangeManipulator{
     private $doctrine;
@@ -185,6 +187,26 @@ class ExchangeManipulator{
         $this->container->get('notificator')->notificate($cashIn);
 
         return true;
+
+    }
+
+    public function exchangeWallet(UserWallet $wallet, $currency){
+
+        $currency_actual = $wallet->getCurrency();
+        if($currency_actual == $currency){
+            $response['available'] = $wallet->getAvailable();
+            $response['balance'] = $wallet->getBalance();
+            $response['scale'] = $wallet->getScale();
+            return $response;
+        }
+
+        $price = $this->getPrice($wallet->getCurrency(), $currency);
+
+        $response['available'] = round($wallet->getAvailable() * $price, 0);
+        $response['balance'] = round($wallet->getBalance() * $price,0);
+        $response['scale'] = Currency::$SCALE[$currency];
+
+        return $response;
 
     }
 
