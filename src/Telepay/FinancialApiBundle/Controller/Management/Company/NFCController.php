@@ -9,6 +9,7 @@
 
 namespace Telepay\FinancialApiBundle\Controller\Management\Company;
 
+use Exception;
 use Rhumsaa\Uuid\Uuid;
 use Symfony\Component\HttpKernel\Exception\HttpException;
 use FOS\RestBundle\Controller\Annotations as Rest;
@@ -69,156 +70,161 @@ class NFCController extends RestApiController{
         $tokenGenerator = $this->container->get('fos_user.util.token_generator');
         $url = $this->container->getParameter('base_panel_url');
 
-        if(!$user){
-            if($request->request->has('pin') && $request->request->get('pin') != ''){
-                $pin = $request->request->get('pin');
-                $enabled = true;
-            }else{
-                throw new HttpException(403, 'Pin not found');
-            }
-            //user NOT exists
-            //create company
-            $company = new Group();
-            $company->setName($params['alias'].' Group');
-            $company->setActive(true);
-            $company->setCreator($userCreator);
-            $company->setGroupCreator($companyCreator);
-            $company->setRoles(array('ROLE_COMPANY'));
-            $company->setDefaultCurrency('EUR');
-            $company->setEmail($params['email']);
-            $company->setMethodsList('');
+        $em->getConnection()->beginTransaction();
 
-            $em->persist($company);
+        try{
+            if(!$user){
 
-            //create wallets for this company
-            $currencies = Currency::$ALL;
-            foreach($currencies as $currency){
-                $userWallet = new UserWallet();
-                $userWallet->setBalance(0);
-                $userWallet->setAvailable(0);
-                $userWallet->setCurrency(strtoupper($currency));
-                $userWallet->setGroup($company);
+                if($request->request->has('pin') && $request->request->get('pin') != ''){
+                    $pin = $request->request->get('pin');
+                    $enabled = true;
+                }else{
+                    throw new HttpException(403, 'Pin not found');
+                }
+                //user NOT exists
+                //create company
+                $company = new Group();
+                $company->setName($params['alias'].' Group');
+                $company->setActive(true);
+                $company->setCreator($userCreator);
+                $company->setGroupCreator($companyCreator);
+                $company->setRoles(array('ROLE_COMPANY'));
+                $company->setDefaultCurrency('EUR');
+                $company->setEmail($params['email']);
+                $company->setMethodsList('');
 
-                $em->persist($userWallet);
-            }
+                $em->persist($company);
 
-            //CRETAE EXCHANGES limits and fees
-            $exchanges = $this->container->get('net.telepay.exchange_provider')->findAll();
+                //create wallets for this company
+                $currencies = Currency::$ALL;
+                foreach($currencies as $currency){
+                    $userWallet = new UserWallet();
+                    $userWallet->setBalance(0);
+                    $userWallet->setAvailable(0);
+                    $userWallet->setCurrency(strtoupper($currency));
+                    $userWallet->setGroup($company);
 
-            foreach($exchanges as $exchange){
-                //create limit for this group
-                $limit = new LimitDefinition();
-                $limit->setDay(0);
-                $limit->setWeek(0);
-                $limit->setMonth(0);
-                $limit->setYear(0);
-                $limit->setTotal(0);
-                $limit->setSingle(0);
-                $limit->setCname('exchange_'.$exchange->getCname());
-                $limit->setCurrency($exchange->getCurrencyOut());
-                $limit->setGroup($company);
-                //create fee for this group
-                $fee = new ServiceFee();
-                $fee->setFixed(0);
-                $fee->setVariable(1);
-                $fee->setCurrency($exchange->getCurrencyOut());
-                $fee->setServiceName('exchange_'.$exchange->getCname());
-                $fee->setGroup($company);
+                    $em->persist($userWallet);
+                }
 
-                $em->persist($limit);
-                $em->persist($fee);
+                //CRETAE EXCHANGES limits and fees
+                $exchanges = $this->container->get('net.telepay.exchange_provider')->findAll();
 
-            }
+                foreach($exchanges as $exchange){
+                    //create limit for this group
+                    $limit = new LimitDefinition();
+                    $limit->setDay(0);
+                    $limit->setWeek(0);
+                    $limit->setMonth(0);
+                    $limit->setYear(0);
+                    $limit->setTotal(0);
+                    $limit->setSingle(0);
+                    $limit->setCname('exchange_'.$exchange->getCname());
+                    $limit->setCurrency($exchange->getCurrencyOut());
+                    $limit->setGroup($company);
+                    //create fee for this group
+                    $fee = new ServiceFee();
+                    $fee->setFixed(0);
+                    $fee->setVariable(1);
+                    $fee->setCurrency($exchange->getCurrencyOut());
+                    $fee->setServiceName('exchange_'.$exchange->getCname());
+                    $fee->setGroup($company);
 
-            //generate data for generated user
-            $explode_email = explode('@',$params['email']);
-            $username = $explode_email[0];
-            //cambiar por password random
-            $password = Uuid::uuid1()->toString();
-
-            //create user
-            $user = new User();
-            $user->setPlainPassword($password);
-            $user->setEmail($params['email']);
-            $user->setRoles(array('ROLE_USER'));
-            $user->setName($username);
-            $user->setUsername($username);
-            $user->setActiveGroup($company);
-            $user->setBase64Image('');
-            $user->setEnabled(false);
-
-            $user->setConfirmationToken($tokenGenerator->generateToken());
-            $em->persist($user);
-            $em->flush();
-            $url = $url.'/user/validation_nfc/'.$user->getConfirmationToken();
-
-            //Add user to group with admin role
-            $userGroup = new UserGroup();
-            $userGroup->setUser($user);
-            $userGroup->setGroup($company);
-            $userGroup->setRoles(array('ROLE_ADMIN'));
-
-            $em->persist($userGroup);
-
-//            $enabled = false;
-
-            //create card
-//            $pin = rand(0,9999);
-
-            $card = new NFCCard();
-            $card->setCompany($company);
-            $card->setUser($user);
-            $card->setAlias($params['alias']);
-            $card->setEnabled($enabled);
-            $card->setIdCard($params['id_card']);
-            $card->setPin($pin);
-            $card->setConfirmationToken($user->getConfirmationToken());
-
-            $em->persist($card);
-            $em->flush();
-
-            $this->_sendRegisterAndroidEmail('Chip-Chap validation e-mail and Active card', $url, $user->getEmail(), $password, $pin, $user);
-        }else{
-
-            if($request->request->has('pin')) throw new HttpException(403, 'This user already has an account');
-
-            //user exists
-            //get companies
-            $userGroups = $em->getRepository('TelepayFinancialApiBundle:UserGroup')->findBy(array(
-                'user'  =>  $user
-            ));
-
-            $companies = array();
-
-            $confirmationToken = $tokenGenerator->generateToken();
-            foreach($userGroups as $userGroup){
-                if($userGroup->hasRole('ROLE_ADMIN')){
-                    $companies[] = $userGroup->getGroup();
+                    $em->persist($limit);
+                    $em->persist($fee);
 
                 }
+
+                //generate data for generated user
+                $explode_email = explode('@',$params['email']);
+                $username = $explode_email[0];
+                //cambiar por password random
+                $password = Uuid::uuid1()->toString();
+
+                //create user
+                $user = new User();
+                $user->setPlainPassword($password);
+                $user->setEmail($params['email']);
+                $user->setRoles(array('ROLE_USER'));
+                $user->setName($username);
+                $user->setUsername($username);
+                $user->setActiveGroup($company);
+                $user->setBase64Image('');
+                $user->setEnabled(false);
+
+                $user->setConfirmationToken($tokenGenerator->generateToken());
+                $em->persist($user);
+                $em->flush();
+                $url = $url.'/user/validation_nfc/'.$user->getConfirmationToken();
+
+                //Add user to group with admin role
+                $userGroup = new UserGroup();
+                $userGroup->setUser($user);
+                $userGroup->setGroup($company);
+                $userGroup->setRoles(array('ROLE_ADMIN'));
+
+                $em->persist($userGroup);
+
+                //create card
+                $card = new NFCCard();
+                $card->setCompany($company);
+                $card->setUser($user);
+                $card->setAlias($params['alias']);
+                $card->setEnabled($enabled);
+                $card->setIdCard($params['id_card']);
+                $card->setPin($pin);
+                $card->setConfirmationToken($user->getConfirmationToken());
+
+                $em->persist($card);
+                $em->flush();
+
+                $this->_sendRegisterAndroidEmail('Chip-Chap validation e-mail and Active card', $url, $user->getEmail(), $password, $pin, $user);
+            }else{
+
+                if($request->request->has('pin')) throw new HttpException(403, 'This user already has an account');
+
+                //user exists
+                //get companies
+                $userGroups = $em->getRepository('TelepayFinancialApiBundle:UserGroup')->findBy(array(
+                    'user'  =>  $user
+                ));
+
+                $companies = array();
+
+                $confirmationToken = $tokenGenerator->generateToken();
+                foreach($userGroups as $userGroup){
+                    if($userGroup->hasRole('ROLE_ADMIN')){
+                        $companies[] = $userGroup->getGroup();
+
+                    }
+                }
+
+                if(count($companies) < 1) throw new HttpException(403, 'You don\' have the necessary permissions for this company');
+
+                //create card
+                $pin = rand(0,9999);
+                $card = new NFCCard();
+                $card->setUser($user);
+                $card->setAlias($params['alias']);
+                $card->setEnabled(false);
+                $card->setIdCard($params['id_card']);
+                $card->setPin($pin);
+                $card->setConfirmationToken($confirmationToken);
+
+                $em->persist($card);
+                $em->flush();
+
+                $body = 'Please validate this card for one of this companies';
+                $subject = 'Chip-Chap validate NFC card';
+                $base_url = $url.'/user/validation_nfc/';
+                //send mail with card information and validation
+                $this->_sendValidateCardEmail($subject, $body, $user->getEmail(), $pin, $companies, $base_url, $confirmationToken );
+
             }
-
-            if(count($companies) < 1) throw new HttpException(403, 'You don\' have the necessary permissions for this company');
-
-            //create card
-            $pin = rand(0,9999);
-            $card = new NFCCard();
-            $card->setUser($user);
-            $card->setAlias($params['alias']);
-            $card->setEnabled(false);
-            $card->setIdCard($params['id_card']);
-            $card->setPin($pin);
-            $card->setConfirmationToken($confirmationToken);
-
-            $em->persist($card);
-            $em->flush();
-
-            $body = 'Please validate this card for one of this companies';
-            $subject = 'Chip-Chap validate NFC card';
-            $base_url = $url.'/user/validation_nfc/';
-            //send mail with card information and validation
-            $this->_sendValidateCardEmail($subject, $body, $user->getEmail(), $pin, $companies, $base_url, $confirmationToken );
-
+            $em->getConnection()->commit();
+        }catch (Exception $e){
+            $em->getConnection()->rollBack();
+            throw $e;
         }
 
         $response = array(

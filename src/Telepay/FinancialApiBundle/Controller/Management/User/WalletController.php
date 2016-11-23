@@ -1253,6 +1253,64 @@ class WalletController extends RestApiController{
         ));
         if($limit->getDay()==0)throw new HttpException(403, 'Exchange temporally unavailable');
 
+        $exchanger = $this->container->get('net.telepay.commons.exchange_manipulator');
+        $exchanger->doExchange($amount, $from, $to, $userGroup, $user);
+
+        //return
+        return $this->restV2(200, "ok", "Exchange got successfully");
+
+    }
+
+    /**
+     * makes an exchange between wallets
+     */
+    public function currencyExchange2(Request $request){
+        $em = $this->getDoctrine()->getManager();
+        if(!$this->get('security.context')->isGranted('ROLE_WORKER')) throw new HttpException(403, 'You don\' have the necessary permissions');
+
+        $user = $this->get('security.context')->getToken()->getUser();
+        //TODO check client to find the group for control from api
+        $userGroup = $user->getActiveGroup();
+
+        if(!$userGroup) throw new HttpException(404, 'Group not found');
+
+        //get params
+        $paramNames = array(
+            'amount',
+            'from',
+            'to'
+        );
+
+        $params = array();
+        foreach($paramNames as $paramName){
+            if($request->request->has($paramName)){
+                $params[$paramName] = $request->request->get($paramName);
+            }else{
+                throw new HttpException(404, 'Parameter "'.$paramName.'" not found');
+            }
+        }
+
+        $amount = floor($params['amount']);
+
+        $from = strtoupper($params['from']);
+        $to = strtoupper($params['to']);
+        $service = 'exchange'.'_'.$from.'to'.$to;
+
+        //check if method is available
+        $statusMethod = $em->getRepository('TelepayFinancialApiBundle:StatusMethod')->findOneBy(array(
+            'method'    =>  $from.'to'.$to,
+            'type'      =>  'exchange'
+        ));
+
+        if($statusMethod->getStatus() != 'available') throw new HttpException(403, 'Exchange temporally unavailable');
+
+        //check group exchange limits
+        $limit = $em->getRepository('TelepayFinancialApiBundle:LimitDefinition')->findOneBy(array(
+            'cname'     =>  $service,
+            'group'     => $userGroup->getId()
+        ));
+        if($limit->getDay()==0)throw new HttpException(403, 'Exchange temporally unavailable');
+
         //getExchange
         $exchange = $this->_exchange($amount, $from, $to);
 
