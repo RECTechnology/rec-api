@@ -127,6 +127,7 @@ class NFCController extends RestApiController{
             //generate data for generated user
             $explode_email = explode('@',$params['email']);
             $username = $explode_email[0];
+            //cambiar por password random
             $password = Uuid::uuid1()->toString();
 
             //create user
