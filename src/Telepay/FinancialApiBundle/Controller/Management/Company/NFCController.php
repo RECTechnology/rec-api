@@ -17,7 +17,6 @@ use FOS\RestBundle\Controller\Annotations as Rest;
 use Symfony\Component\HttpFoundation\Request;
 use Telepay\FinancialApiBundle\Controller\RestApiController;
 use Telepay\FinancialApiBundle\Document\Transaction;
-use Telepay\FinancialApiBundle\Entity\CashInTokens;
 use Telepay\FinancialApiBundle\Entity\Group;
 use Telepay\FinancialApiBundle\Entity\LimitDefinition;
 use Telepay\FinancialApiBundle\Entity\NFCCard;
