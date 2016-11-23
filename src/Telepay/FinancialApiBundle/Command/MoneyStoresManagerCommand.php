@@ -109,7 +109,7 @@ class MoneyStoresManagerCommand extends ContainerAwareCommand{
         $heuristic = 0;
         foreach($system_data['wallets'] as $wallet){
             if(isset($wallet['need'])){
-                $heuristic += ($wallet['need_default'] * $wallet['conf']->getPriority());
+                $heuristic += round($wallet['need_default'] * (1/$wallet['conf']->getPriority()),0);
             }
             elseif(isset($wallet['excess']) && !$wallet['conf']->isStorehouse()){
                 $heuristic += round($wallet['excess_default']/10,0);
@@ -143,7 +143,8 @@ class MoneyStoresManagerCommand extends ContainerAwareCommand{
             $sum += $transfer->getAmountOut();
             $timeEstimated = $transfer->getEstimatedDeliveryTimeStamp() - time();
             if($timeEstimated < 0)$timeEstimated=0;
-            if($timeEstimated > $wallet->getMaxTime())$timeEstimated=60000000;
+            $deadline = $wallet->getMaxTime();
+            if( $deadline > 0 && $timeEstimated > $deadline)$timeEstimated=60000000;
             $list_transfer[] = array(
                 'in' => $transfer->getIn(),
                 'out' => $transfer->getOut(),
