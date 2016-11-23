@@ -177,6 +177,9 @@ class NFCController extends RestApiController{
 
             $this->_sendRegisterAndroidEmail('Chip-Chap validation e-mail and Active card', $url, $user->getEmail(), $password, $pin, $user);
         }else{
+
+            if($request->request->has('pin')) throw new HttpException(403, 'This user already has an account');
+
             //user exists
             //get companies
             $userGroups = $em->getRepository('TelepayFinancialApiBundle:UserGroup')->findBy(array(
