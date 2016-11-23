@@ -70,6 +70,12 @@ class NFCController extends RestApiController{
         $url = $this->container->getParameter('base_panel_url');
 
         if(!$user){
+            if($request->request->has('pin') && $request->request->get('pin') != ''){
+                $pin = $request->request->get('pin');
+                $enabled = true;
+            }else{
+                throw new HttpException(403, 'Pin not found');
+            }
             //user NOT exists
             //create company
             $company = new Group();
@@ -154,15 +160,11 @@ class NFCController extends RestApiController{
 
             $em->persist($userGroup);
 
-            $enabled = false;
+//            $enabled = false;
 
             //create card
-            $pin = rand(0,9999);
+//            $pin = rand(0,9999);
 
-            if($request->request->has('pin') && $request->request->get('pin') != ''){
-                $pin = $request->request->get('pin');
-                $enabled = true;
-            }
             $card = new NFCCard();
             $card->setCompany($company);
             $card->setUser($user);
