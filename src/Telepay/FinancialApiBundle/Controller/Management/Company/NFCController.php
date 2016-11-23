@@ -9,6 +9,7 @@
 
 namespace Telepay\FinancialApiBundle\Controller\Management\Company;
 
+use Doctrine\DBAL\DBALException;
 use Exception;
 use Rhumsaa\Uuid\Uuid;
 use Symfony\Component\HttpKernel\Exception\HttpException;
@@ -82,9 +83,17 @@ class NFCController extends RestApiController{
                     throw new HttpException(403, 'Pin not found');
                 }
                 //user NOT exists
+                //TODO check if company name exists and generate new one
+                $group = $em->getRepository('TelepayFinancialApiBundle:Group')->findOneBy(array(
+                    'name'  =>  $params['alias']. 'Company'
+                ));
+                $name = $params['alias']. 'Company';
+                if($group){
+                    $name = rand(0,1000).'_'.$params['alias'].'Company';
+                }
                 //create company
                 $company = new Group();
-                $company->setName($params['alias'].' Group');
+                $company->setName($name);
                 $company->setActive(true);
                 $company->setCreator($userCreator);
                 $company->setGroupCreator($companyCreator);
@@ -222,9 +231,19 @@ class NFCController extends RestApiController{
 
             }
             $em->getConnection()->commit();
-        }catch (Exception $e){
+        }catch(DBALException $e){
+            $em->getConnection()->rollBack();
+            if(preg_match('/1062 Duplicate entry/i',$e->getMessage()))
+                throw new HttpException(409, "Duplicated resource");
+            else if(preg_match('/1048 Column/i',$e->getMessage()))
+                throw new HttpException(400, "Bad parameters");
+            throw new HttpException(500, "Unknown error occurred when save");
+        }catch(HttpException $e){
             $em->getConnection()->rollBack();
             throw $e;
+        }catch (Exception $e){
+            $em->getConnection()->rollBack();
+            throw new HttpException(500, "Unknown error occurred when save");
         }
 
         $response = array(
