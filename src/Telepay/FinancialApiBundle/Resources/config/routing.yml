@@ -48,7 +48,7 @@ validate_nfc_card_email:
         _method: POST
 
 validate_nfc_card:
-    pattern:  /register/v1/nfc_card/{ company_id }
+    pattern:  /register/v1/nfc_card/{company_id}
     defaults: { _controller: Telepay\FinancialApiBundle\Controller\Management\Company\NFCController::validateCard }
     requirements:
         _method: POST

@@ -196,8 +196,8 @@ class SpecialActionsController extends RestApiController {
 
                         $userWallet = $company->getWallet($transaction->getCurrency());
 
-                        $userWallet->setAvailable($userWallet->getAvailable() + $client_fee);
-                        $userWallet->setBalance($userWallet->getBalance() + $client_fee);
+//                        $userWallet->setAvailable($userWallet->getAvailable() + $client_fee);
+//                        $userWallet->setBalance($userWallet->getBalance() + $client_fee);
 
                         $em->persist($userWallet);
                         $em->flush();

@@ -13,6 +13,7 @@ use Symfony\Component\Validator\Constraints\Currency;
 use Telepay\FinancialApiBundle\Document\Transaction;
 use Telepay\FinancialApiBundle\Entity\Group;
 use Telepay\FinancialApiBundle\Entity\User;
+use Telepay\FinancialApiBundle\Entity\UserWallet;
 
 class FeeDeal{
     private $doctrine;
@@ -325,4 +326,66 @@ class FeeDeal{
 
     }
 
+    public function createFees(Transaction $transaction, UserWallet $current_wallet){
+
+        $amount = $transaction->getAmount();
+        $currency = $transaction->getCurrency();
+        $service_cname = $transaction->getService();
+
+        $em = $this->doctrine->getManager();
+
+        $total_fee = round($transaction->getFixedFee() + $transaction->getVariableFee(),0);
+
+        $user = $em->getRepository('TelepayFinancialApiBundle:User')->find($transaction->getUser());
+        $userGroup = $em->getRepository('TelepayFinancialApiBundle:Group')->find($transaction->getGroup());
+
+        $feeTransaction = Transaction::createFromTransaction($transaction);
+        $feeTransaction->setAmount($total_fee);
+        $feeTransaction->setDataIn(array(
+            'previous_transaction'  =>  $transaction->getId(),
+            'amount'                =>  -$total_fee,
+            'description'           =>  $service_cname.'->fee'
+        ));
+        $feeTransaction->setData(array(
+            'previous_transaction'  =>  $transaction->getId(),
+            'amount'                =>  -$total_fee,
+            'type'                  =>  'resta_fee'
+        ));
+        $feeTransaction->setDebugData(array(
+            'previous_balance'  =>  $current_wallet->getBalance(),
+            'previous_transaction'  =>  $transaction->getId()
+        ));
+
+        $feeTransaction->setTotal(-$total_fee);
+
+        $feeTransaction->setType('fee');
+        $feeTransaction->setMethod($service_cname);
+        $feeInfo = array(
+            'previous_transaction'  =>  $transaction->getId(),
+            'previous_amount'    =>  $transaction->getAmount(),
+            'scale'     =>  $transaction->getScale(),
+            'concept'           =>  $service_cname.'->fee',
+            'amount' =>  -$total_fee,
+            'status'    =>  'success',
+            'currency'  =>  $transaction->getCurrency()
+        );
+        $feeTransaction->setFeeInfo($feeInfo);
+
+        $mongo = $this->container->get('doctrine_mongodb')->getManager();
+        $mongo->persist($feeTransaction);
+        $mongo->flush();
+
+        $balancer = $this->container->get('net.telepay.commons.balance_manipulator');
+        $balancer->addBalance($userGroup, -$total_fee, $feeTransaction );
+
+        //empezamos el reparto
+        $creator = $userGroup->getGroupCreator();
+
+        if(!$creator) throw new HttpException(404,'Creator not found');
+
+        $transaction_id = $transaction->getId();
+
+        $this->deal($creator, $amount, $service_cname, 'exchange', $currency, $total_fee, $transaction_id, $transaction->getVersion());
+
+    }
 }

@@ -93,20 +93,23 @@ class IncomingController2 extends RestApiController{
             throw new HttpException(400, 'Param amount not found');
         }
 
+        //TODO get currency_in and currency_out
         $exchange_done = false;
-        if(array_key_exists('currency', $data) && $data['currency']!=''){
+        if((array_key_exists('currency_in', $data) && $data['currency_in'] != '' || array_key_exists('currency_out', $data) && $data['currency_out'] != '')
+            && ($method_cname == 'btc' || $method_cname == 'fac') && $type = 'in'){
+
             $request_amount = $amount;
-            $cur_in = $data['currency'];
-            if(strtoupper($cur_in) != $method->getCurrency()){
+            $cur_in = $method->getCurrency();
+            $cur_out = $method->getCurrency();
+            if($data['currency_in']) $cur_in = strtoupper($data['currency_in']);
+            if($data['currency_out']) $cur_out = strtoupper($data['currency_out']);
+
+            $logger->info('Currency IN-> '.$cur_in.' Currency OUT-> '.$cur_out.' Method cur => '.$method->getCurrency());
+            if(strtoupper($cur_in) != $method->getCurrency() ){
+
                 $exchange_done = true;
-                $exchange = $em->getRepository('TelepayFinancialApiBundle:Exchange')->findOneBy(
-                    array(
-                        'src'   =>  strtoupper($cur_in),
-                        'dst'   =>  $method->getCurrency()
-                    ),
-                    array('id'  =>  'DESC')
-                );
-                $amount = round($amount*$exchange->getPrice(),0);
+                $amount = $this->get('net.telepay.commons.exchange_manipulator')->exchange($amount, $cur_in, $method->getCurrency());
+
             }
         }
         unset($data['currency']);
@@ -124,7 +127,8 @@ class IncomingController2 extends RestApiController{
             );
             if($exchange_done){
                 $dataIn['request_amount'] = $request_amount;
-                $dataIn['request_currency'] = $cur_in;
+                $dataIn['request_currency_in'] = $cur_in;
+                $dataIn['request_currency_out'] = $cur_out;
             }
             $payment_info = $method->getPayInInfo($amount);
             $payment_info['concept'] = $concept;
@@ -140,7 +144,8 @@ class IncomingController2 extends RestApiController{
             );
             if($exchange_done){
                 $dataIn['request_amount'] = $request_amount;
-                $dataIn['request_currency'] = $cur_in;
+                $dataIn['request_currency_in'] = $cur_in;
+                $dataIn['request_currency_out'] = $cur_out;
             }
         }
 
@@ -180,6 +185,7 @@ class IncomingController2 extends RestApiController{
         //obtain group limitsCount for this method
         $groupLimitCount = $this->_getLimitCount($group, $method);
 
+        //TODO change this for tiers
         //obtain group limit
         $group_limit = $this->_getLimits($group, $method);
 
@@ -191,33 +197,20 @@ class IncomingController2 extends RestApiController{
         if(!$checker->leq($newGroupLimitCount, $group_limit)) throw new HttpException(405,'Limit exceeded');
 
         //obtain wallet and check founds for cash_out services for this group
-        $wallets = $group->getWallets();
-
-        $current_wallet = null;
+        $wallet = $group->getWallet($method->getCurrency());
 
         $transaction->setCurrency($method->getCurrency());
+        $transaction->setScale($wallet->getScale());
 
         //******    CHECK IF THE TRANSACTION IS CASH-OUT     ********
         if($type == 'out'){
             $logger->info('Incomig transaction...OUT');
-            foreach ( $wallets as $wallet){
-                if ($wallet->getCurrency() == $method->getCurrency()){
-                    $logger->info('Available = ' . $wallet->getAvailable() .  " TOTAL: " . $total);
-                    if($wallet->getAvailable() <= $total) throw new HttpException(405,'Not founds enough');
+            $logger->info('Available = ' . $wallet->getAvailable() .  " TOTAL: " . $total);
+            if($wallet->getAvailable() <= $total) throw new HttpException(405,'Not founds enough');
                     //Bloqueamos la pasta en el wallet
-                    $actual_available = $wallet->getAvailable();
-                    $new_available = $actual_available - $total;
-                    $wallet->setAvailable($new_available);
-                    $em->persist($wallet);
-                    $em->flush();
-                    $current_wallet = $wallet;
-                }
-            }
-
-            $scale = $current_wallet->getScale();
-            $transaction->setScale($scale);
-            $dm->persist($transaction);
-            $dm->flush();
+            $wallet->setAvailable($wallet->getAvailable() - $total);
+            $em->persist($wallet);
+            $em->flush();
 
             $logger->info('Incomig transaction...SEND');
 
@@ -232,8 +225,8 @@ class IncomingController2 extends RestApiController{
                     $transaction->setStatus( Transaction::$STATUS_ERROR );
                 }
                 //desbloqueamos la pasta del wallet
-                $current_wallet->setAvailable($current_wallet->getAvailable() + $total);
-                $em->persist($current_wallet);
+                $wallet->setAvailable($wallet->getAvailable() + $total);
+                $em->persist($wallet);
                 $em->flush();
                 $dm->persist($transaction);
                 $dm->flush();
@@ -261,13 +254,12 @@ class IncomingController2 extends RestApiController{
                 $this->container->get('notificator')->notificate($transaction);
 
                 //restar al grupo el amount + comisiones
-                $current_wallet->setBalance($current_wallet->getBalance() - $total);
+                $wallet->setBalance($wallet->getBalance() - $total);
 
                 //insert new line in the balance fro this group
-                $balancer = $this->get('net.telepay.commons.balance_manipulator');
-                $balancer->addBalance($group, -$amount, $transaction);
+                $this->get('net.telepay.commons.balance_manipulator')->addBalance($group, -$amount, $transaction);
 
-                $em->persist($current_wallet);
+                $em->persist($wallet);
                 $em->flush();
 
                 if($payment_info['status'] == 'sending'){
@@ -278,19 +270,18 @@ class IncomingController2 extends RestApiController{
                     //nueva transaccion restando la comision al user
                     try{
                         //TODO modificar dealer
-                        $logger->info('Init Dealer: ' . $transaction->getAmount() . " : " . $current_wallet->getBalance() . " : " . $total);
-                        $this->_dealer($transaction, $current_wallet);
+                        $logger->info('Init Dealer: ' . $transaction->getAmount() . " : " . $wallet->getBalance() . " : " . $total);
+                        $this->_dealer($transaction, $wallet);
                     }catch (HttpException $e){
                         throw $e;
                     }
                 }
 
             }else{
-
                 $transaction->setStatus($payment_info['status']);
                 //desbloqueamos la pasta del wallet
-                $current_wallet->setAvailable($current_wallet->getAvailable() + $total);
-                $em->persist($current_wallet);
+                $wallet->setAvailable($wallet->getAvailable() + $total);
+                $em->persist($wallet);
                 $em->flush();
                 $dm->persist($transaction);
                 $dm->flush();
@@ -301,14 +292,7 @@ class IncomingController2 extends RestApiController{
 
         }else{     //CASH - IN
             $logger->info('Incomig transaction...IN');
-            foreach ( $wallets as $wallet){
-                if ($wallet->getCurrency() === $transaction->getCurrency()){
-                    $current_wallet = $wallet;
-                }
-            }
 
-            $scale = $current_wallet->getScale();
-            $transaction->setScale($scale);
             $dm->persist($transaction);
             $dm->flush();
 
@@ -709,6 +693,7 @@ class IncomingController2 extends RestApiController{
         $dm = $this->get('doctrine_mongodb')->getManager();
         $user = $this->get('security.context')
             ->getToken()->getUser();
+        //TODO change this for active group
         $group = $user->getGroups()[0];
 
         //TODO quitar cuando haya algo mejor montado

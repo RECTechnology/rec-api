@@ -24,14 +24,13 @@ class CheckCryptoCommand extends SyncronizedContainerAwareCommand
 
     protected function executeSyncronized(InputInterface $input, OutputInterface $output){
         $n = 0;
-        $exec_n_times = 1000;
+        $exec_n_times = 1000    ;
         while($n<$exec_n_times) {
             $method_cname = array('fac', 'btc');
             $type = 'in';
 
             $dm = $this->getContainer()->get('doctrine_mongodb')->getManager();
             $em = $this->getContainer()->get('doctrine')->getManager();
-            $repo = $em->getRepository('TelepayFinancialApiBundle:User');
             $repoGroup = $em->getRepository('TelepayFinancialApiBundle:Group');
             $output->writeln('CHECK CRYPTO');
             foreach ($method_cname as $method) {
@@ -57,7 +56,6 @@ class CheckCryptoCommand extends SyncronizedContainerAwareCommand
                         if ($previous_status != $transaction->getStatus()) {
                             $transaction = $this->getContainer()->get('notificator')->notificate($transaction);
                             $transaction->setUpdated(new \DateTime);
-
                         }
 
                         $dm->persist($transaction);
@@ -71,19 +69,11 @@ class CheckCryptoCommand extends SyncronizedContainerAwareCommand
                             $groupId = $transaction->getGroup();
 
                             $transaction_id = $transaction->getId();
-
-//                            $user = $repo->find($id);
+                            //$user = $repo->find($id);
                             $group = $repoGroup->find($groupId);
 
-                            $wallets = $group->getWallets();
                             $service_currency = $transaction->getCurrency();
-                            $current_wallet = null;
-
-                            foreach ($wallets as $wallet) {
-                                if ($wallet->getCurrency() == $service_currency) {
-                                    $current_wallet = $wallet;
-                                }
-                            }
+                            $wallet = $group->getWallet($service_currency);
 
                             $amount = $data['amount'];
 
@@ -95,10 +85,10 @@ class CheckCryptoCommand extends SyncronizedContainerAwareCommand
                                 $total_fee = $fixed_fee + $variable_fee;
                                 $total = $amount - $total_fee;
                                 $output->writeln('CHECK CRYPTO add to wallet');
-                                $current_wallet->setAvailable($current_wallet->getAvailable() + $total);
-                                $current_wallet->setBalance($current_wallet->getBalance() + $total);
+                                $wallet->setAvailable($wallet->getAvailable() + $total);
+                                $wallet->setBalance($wallet->getBalance() + $total);
 
-                                $em->persist($current_wallet);
+                                $em->persist($wallet);
                                 $em->flush();
 
                                 if ($total_fee != 0) {
@@ -121,7 +111,7 @@ class CheckCryptoCommand extends SyncronizedContainerAwareCommand
                                         'amount' => -$total_fee
                                     ));
                                     $feeTransaction->setDebugData(array(
-                                        'previous_balance' => $current_wallet->getBalance(),
+                                        'previous_balance' => $wallet->getBalance(),
                                         'previous_transaction' => $transaction->getId()
                                     ));
                                     $feeTransaction->setTotal(-$total_fee);
@@ -130,11 +120,10 @@ class CheckCryptoCommand extends SyncronizedContainerAwareCommand
                                     $feeTransaction->setMethod($method);
                                     $feeTransaction->setType('fee');
 
-
                                     $dm->persist($feeTransaction);
                                     $dm->flush();
 
-                                    $em->persist($current_wallet);
+                                    $em->persist($wallet);
                                     $em->flush();
 
                                     $creator = $group->getGroupCreator();
@@ -152,11 +141,28 @@ class CheckCryptoCommand extends SyncronizedContainerAwareCommand
                                         $transaction->getVersion());
                                 }
 
-                            } else {
-                                $current_wallet->setAvailable($current_wallet->getAvailable() + $amount);
-                                $current_wallet->setBalance($current_wallet->getBalance() + $amount);
+                                //TODO exchange if needed
+                                $dataIn = $transaction->getDataIn();
+                                if(isset($dataIn['request_currency_out']) && $dataIn['request_currency_out'] != strtoupper($service_currency)){
 
-                                $em->persist($current_wallet);
+                                    $cur_in = strtoupper($transaction->getCurrency());
+                                    $cur_out = strtoupper($dataIn['request_currency_out']);
+                                    //THIS is the service for get the limits
+                                    $service = 'exchange'.'_'.$cur_in.'to'.$cur_out;
+                                    $user = $em->getRepository('TelepayFinancialApiBundle:User')->find($id);
+                                    $output->writeln('CHECK CRYPTO exchanger');
+                                    $exchanger = $this->getContainer()->get('net.telepay.commons.exchange_manipulator');
+                                    $exchangeAmount = $exchanger->exchange($total, $transaction->getCurrency(), $cur_out);
+                                    $output->writeln('CHECK CRYPTO exchange->'.$total.' '.$transaction->getCurrency().' = '.$exchangeAmount.' '.$cur_out);
+                                    $exchanger->doExchange($total, $cur_in, $cur_out, $group, $user);
+
+                                }
+
+                            } else {
+                                $wallet->setAvailable($wallet->getAvailable() + $amount);
+                                $wallet->setBalance($wallet->getBalance() + $amount);
+
+                                $em->persist($wallet);
                                 $em->flush();
                             }
 

@@ -64,7 +64,7 @@ class NFCCard{
     private $enabled;
 
     /**
-     * @ORM\Column(type="string")
+     * @ORM\Column(type="string", unique=true)
      * @Expose
      */
     private $id_card;

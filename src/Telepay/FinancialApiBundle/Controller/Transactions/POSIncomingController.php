@@ -83,10 +83,6 @@ class POSIncomingController extends RestApiController{
         $transaction->setTotal($amount);
 
         //TODO obtain wallet and check founds for cash_out services for this group
-        $wallets = $group->getWallets();
-
-        $current_wallet = null;
-
         $transaction->setCurrency($service_currency);
 
         //CASH - IN
@@ -105,15 +101,11 @@ class POSIncomingController extends RestApiController{
         $transaction = $this->get('notificator')->notificate($transaction);
         $em->flush();
 
-        foreach ( $wallets as $wallet){
-            if ($wallet->getCurrency() === $transaction->getCurrency()){
-                $current_wallet = $wallet;
-            }
-        }
+        $wallet = $group->getWallet($transaction->getCurrency());
 
         //TODO update wallet amount (only balance not the available amount)
 
-        $scale = $current_wallet->getScale();
+        $scale = $wallet->getScale();
         $transaction->setScale($scale);
 
         $transaction->setUpdated(new \DateTime());
@@ -201,15 +193,10 @@ class POSIncomingController extends RestApiController{
             throw new HttpException(404, 'Currency_out not allowed');
         }
 
+        $exchanger = $this->container->get('net.telepay.commons.exchange_manipulator');
+
         if(strtoupper($dataIn['currency_in']) != $pos_config['currency']){
-            $exchange = $em->getRepository('TelepayFinancialApiBundle:Exchange')->findOneBy(
-                array(
-                    'dst'   =>  $dataIn['currency_in'],
-                    'src'   =>  $pos_config['currency']
-                ),
-                array('id'  =>  'DESC')
-            );
-            $pos_amount = round($dataIn['amount']*(1.0 / $exchange->getPrice()),0);
+            $pos_amount = $exchanger->exchange($dataIn['amount'], $dataIn['currency_in'], $pos_config['currency']);
         }else{
             $pos_amount = $dataIn['amount'];
         }
@@ -219,14 +206,7 @@ class POSIncomingController extends RestApiController{
                 $amount = $dataIn['amount'];
             }
             else {
-                $exchange = $em->getRepository('TelepayFinancialApiBundle:Exchange')->findOneBy(
-                    array(
-                        'src' => $pos_config['currency'],
-                        'dst' => $dataIn['currency_out']
-                    ),
-                    array('id' => 'DESC')
-                );
-                $amount = round($pos_amount * $exchange->getPrice(), 0);
+                $amount = $exchanger->exchange($dataIn['amount'], $pos_config['currency'], $dataIn['currency_in']);
             }
         }else{
             $amount = $pos_amount;
