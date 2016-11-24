@@ -599,7 +599,7 @@ class NFCController extends RestApiController{
         //send balance email
         $this->_sendNFCBalanceEmail($card, $balance);
 
-        return $this->restV2(204, "ok", "Send balance successfully");
+        return $this->restV2(201, "ok", "Send balance successfully");
     }
 
     /**
