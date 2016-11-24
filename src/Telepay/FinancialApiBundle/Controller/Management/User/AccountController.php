@@ -724,7 +724,7 @@ class AccountController extends BaseApiController{
 
         $user_kyc = false;
         if($user){
-            if($user->hasRole('ROLE_KYC')){
+            if(count($user->getGroups())==0){
                 $user_kyc = true;
             }
             else{
