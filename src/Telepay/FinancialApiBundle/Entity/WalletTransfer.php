@@ -31,12 +31,12 @@ class WalletTransfer {
     /**
      * @ORM\Column(type="string")
      */
-    private $in;
+    private $wallet_in;
 
     /**
      * @ORM\Column(type="string")
      */
-    private $out;
+    private $wallet_out;
 
     /**
      * @ORM\Column(type="string")
@@ -160,38 +160,6 @@ class WalletTransfer {
     /**
      * @return mixed
      */
-    public function getIn()
-    {
-        return $this->in;
-    }
-
-    /**
-     * @param mixed $in
-     */
-    public function setIn($in)
-    {
-        $this->in = $in;
-    }
-
-    /**
-     * @return mixed
-     */
-    public function getOut()
-    {
-        return $this->out;
-    }
-
-    /**
-     * @param mixed $out
-     */
-    public function setOut($out)
-    {
-        $this->out = $out;
-    }
-
-    /**
-     * @return mixed
-     */
     public function getAmountIn()
     {
         return $this->amount_in;
@@ -267,5 +235,37 @@ class WalletTransfer {
     public function setEstimatedCost($estimatedCost)
     {
         $this->estimatedCost = $estimatedCost;
+    }
+
+    /**
+     * @return mixed
+     */
+    public function getWalletIn()
+    {
+        return $this->wallet_in;
+    }
+
+    /**
+     * @param mixed $wallet_in
+     */
+    public function setWalletIn($wallet_in)
+    {
+        $this->wallet_in = $wallet_in;
+    }
+
+    /**
+     * @return mixed
+     */
+    public function getWalletOut()
+    {
+        return $this->wallet_out;
+    }
+
+    /**
+     * @param mixed $wallet_out
+     */
+    public function setWalletOut($wallet_out)
+    {
+        $this->wallet_out = $wallet_out;
     }
 }
