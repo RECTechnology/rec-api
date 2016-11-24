@@ -145,8 +145,13 @@ class NFCController extends RestApiController{
                 //generate data for generated user
                 $explode_email = explode('@',$params['email']);
                 $username = $explode_email[0];
+                $user = $em->getRepository('TelepayFinancialApiBundle:User')->findOneBy(array(
+                    'username'  =>  $username
+                ));
+
+                if($user) $username = rand(0, 1000).'-'.$username;
                 //cambiar por password random
-                $password = Uuid::uuid1()->toString();
+                $password = $this->_randomPassword();
 
                 //create user
                 $user = new User();
@@ -933,4 +938,14 @@ class NFCController extends RestApiController{
         $this->container->get($mailer)->send($message);
     }
 
+    private function _randomPassword() {
+        $alphabet = 'abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ1234567890';
+        $pass = array();
+        $alphaLength = strlen($alphabet) - 1;
+        for ($i = 0; $i < 8; $i++) {
+            $n = rand(0, $alphaLength);
+            $pass[] = $alphabet[$n];
+        }
+        return implode($pass); //turn the array into a string
+    }
 }
