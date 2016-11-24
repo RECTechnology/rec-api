@@ -817,40 +817,28 @@ class WalletController extends RestApiController{
         if (!$receiver) throw new HttpException(404,'Receiver not found');
 
         //Check founds in sender wallet
-        $sender_wallets = $userGroup->getWallets();
-        $sender_wallet = null;
-        foreach( $sender_wallets as $wallet){
-            if( $wallet->getCurrency() == strtoupper($currency)){
-                $sender_wallet = $wallet;
-            }
-        }
+        $sender_wallet = $userGroup->getWallet(strtoupper($currency));
 
         if(!$sender_wallet) throw new HttpException(400,'Sender wallet not found');
 
         if($sender_wallet->getAvailable() < $params['amount']) throw new HttpException(401, 'Not founds enought');
 
         //obtaining receiver wallet
-        $receiver_wallets = $receiver->getWallets();
-        $receiver_wallet = null;
-        foreach( $receiver_wallets as $wallet){
-            if( $wallet->getCurrency() == strtoupper($currency)){
-                $receiver_wallet = $wallet;
-            }
-        }
+        $receiver_wallet = $receiver->getWallets(strtoupper($currency));
 
         if(!$receiver_wallet) throw new HttpException(400,'Receiver wallet not found');
 
         //Generate transactions and update wallets - without fees
         //SENDER TRANSACTION
         $sender_transaction = new Transaction();
-        $sender_transaction->setStatus('success');
+        $sender_transaction->setStatus(Transaction::$STATUS_SUCCESS);
         $sender_transaction->setScale($sender_wallet->getScale());
         $sender_transaction->setCurrency($sender_wallet->getCurrency());
         $sender_transaction->setIp('');
         $sender_transaction->setVersion('');
         $sender_transaction->setService('transfer');
         $sender_transaction->setMethod('wallet_to_wallet');
-        $sender_transaction->setType('out');
+        $sender_transaction->setType(Transaction::$TYPE_OUT);
         $sender_transaction->setVariableFee(0);
         $sender_transaction->setFixedFee(0);
         $sender_transaction->setAmount($params['amount']);
@@ -887,14 +875,14 @@ class WalletController extends RestApiController{
 
         //RECEIVER TRANSACTION
         $receiver_transaction = new Transaction();
-        $receiver_transaction->setStatus('success');
+        $receiver_transaction->setStatus(Transaction::$STATUS_SUCCESS);
         $receiver_transaction->setScale($sender_wallet->getScale());
         $receiver_transaction->setCurrency($sender_wallet->getCurrency());
         $receiver_transaction->setIp('');
         $receiver_transaction->setVersion('');
         $receiver_transaction->setService('transfer');
         $receiver_transaction->setMethod('wallet_to_wallet');
-        $receiver_transaction->setType('in');
+        $receiver_transaction->setType(Transaction::$TYPE_IN);
         $receiver_transaction->setVariableFee(0);
         $receiver_transaction->setFixedFee(0);
         $receiver_transaction->setAmount($params['amount']);
