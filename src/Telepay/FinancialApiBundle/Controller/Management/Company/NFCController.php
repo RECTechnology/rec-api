@@ -528,7 +528,7 @@ class NFCController extends RestApiController{
 
         if(!$card) throw new HttpException(404, 'NFCCard not found');
 
-        if(!$card->getEnabled()) throw new HttpException(403, 'Disabled card');
+        if($card->getEnabled() == 0) throw new HttpException(403, 'Disabled card');
 
         if($request->request->has('action')){
             $action = $request->request->get('action');
