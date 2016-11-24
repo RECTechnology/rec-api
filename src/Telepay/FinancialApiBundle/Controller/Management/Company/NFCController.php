@@ -17,7 +17,6 @@ use FOS\RestBundle\Controller\Annotations as Rest;
 use Symfony\Component\HttpFoundation\Request;
 use Telepay\FinancialApiBundle\Controller\RestApiController;
 use Telepay\FinancialApiBundle\Document\Transaction;
-use Telepay\FinancialApiBundle\Entity\CashInTokens;
 use Telepay\FinancialApiBundle\Entity\Group;
 use Telepay\FinancialApiBundle\Entity\LimitDefinition;
 use Telepay\FinancialApiBundle\Entity\NFCCard;
@@ -75,7 +74,6 @@ class NFCController extends RestApiController{
 
         try{
             if(!$user){
-
                 if($request->request->has('pin') && $request->request->get('pin') != ''){
                     $pin = $request->request->get('pin');
                     $enabled = true;
@@ -529,7 +527,7 @@ class NFCController extends RestApiController{
 
         if(!$card) throw new HttpException(404, 'NFCCard not found');
 
-        if(!$card->getEnabled()) throw new HttpException(403, 'Disabled card');
+        if($card->getEnabled() == 0) throw new HttpException(403, 'Disabled card');
 
         if($request->request->has('action')){
             $action = $request->request->get('action');

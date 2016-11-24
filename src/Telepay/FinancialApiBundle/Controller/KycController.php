@@ -4,13 +4,9 @@ namespace Telepay\FinancialApiBundle\Controller;
 
 use Services_Twilio_TinyHttp;
 use Services_Twilio;
-use Telepay\FinancialApiBundle\Controller\RestApiController;
 use Symfony\Component\HttpFoundation\Request;
-use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpKernel\Exception\HttpException;
 use FOS\OAuthServerBundle\Util\Random;
-use Telepay\FinancialApiBundle\Controller\BaseApiController;
-
 use Telepay\FinancialApiBundle\Entity\KYC;
 use Telepay\FinancialApiBundle\Entity\TierValidations;
 use Telepay\FinancialApiBundle\Entity\User;

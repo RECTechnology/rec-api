@@ -28,10 +28,8 @@ use FOS\RestBundle\Controller\Annotations as Rest;
 use Symfony\Component\HttpFoundation\Request;
 use Telepay\FinancialApiBundle\Entity\UserGroup;
 use Telepay\FinancialApiBundle\Entity\UserWallet;
-use Telepay\FinancialApiBundle\EventListener\KycListener;
 use Telepay\FinancialApiBundle\Financial\Currency;
 use Telepay\FinancialApiBundle\Controller\Google2FA;
-use WebSocket\Exception;
 
 class AccountController extends BaseApiController{
 

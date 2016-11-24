@@ -2,7 +2,6 @@
 
 namespace Telepay\FinancialApiBundle\Controller\Management\Admin;
 
-use Doctrine\DBAL\DBALException;
 use Symfony\Component\HttpKernel\Exception\HttpException;
 use Telepay\FinancialApiBundle\Controller\BaseApiController;
 use Telepay\FinancialApiBundle\Entity\Group;
@@ -11,7 +10,6 @@ use Telepay\FinancialApiBundle\Entity\LimitDefinition;
 use Telepay\FinancialApiBundle\Entity\ServiceFee;
 use FOS\RestBundle\Controller\Annotations as Rest;
 use Symfony\Component\HttpFoundation\Request;
-use Telepay\FinancialApiBundle\Financial\Currency;
 
 /**
  * Class CompaniesController

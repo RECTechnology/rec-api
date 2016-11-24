@@ -10,10 +10,6 @@ use Telepay\FinancialApiBundle\Controller\RestApiController;
 use Telepay\FinancialApiBundle\Document\Transaction;
 use FOS\RestBundle\Controller\Annotations as Rest;
 use Symfony\Component\HttpFoundation\Request;
-use Telepay\FinancialApiBundle\Entity\CashInDeposit;
-use Telepay\FinancialApiBundle\Entity\ServiceFee;
-use Telepay\FinancialApiBundle\Entity\UserWallet;
-use Telepay\FinancialApiBundle\Financial\Currency;
 use WebSocket\Exception;
 
 /**

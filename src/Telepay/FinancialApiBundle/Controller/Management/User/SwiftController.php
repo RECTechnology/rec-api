@@ -12,7 +12,6 @@ namespace Telepay\FinancialApiBundle\Controller\Management\User;
 use FOS\OAuthServerBundle\Model\Client;
 use MongoDBODMProxies\__CG__\Telepay\FinancialApiBundle\Document\Transaction;
 use Symfony\Component\HttpKernel\Exception\HttpException;
-use Symfony\Component\Validator\Constraints\Currency;
 use Telepay\FinancialApiBundle\Controller\BaseApiController;
 use FOS\RestBundle\Controller\Annotations as Rest;
 use Symfony\Component\HttpFoundation\Request;

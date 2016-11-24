@@ -72,21 +72,14 @@ class CheckCryptoPOSv2Command extends ContainerAwareCommand
             $dm->persist($transaction);
             $dm->flush();
 
-            if($transaction->getStatus()=='success'){
+            if($transaction->getStatus()== Transaction::$STATUS_SUCCESS){
                 //hacemos el reparto, primero al user
                 $id = $transaction->getGroup();
                 $transaction_id = $transaction->getId();
                 $group = $groupRepo->find($id);
 
-                $wallets = $group->getWallets();
+                $wallet = $group->getWallet($transaction->getCurrency());
                 $currency_out = $transaction->getCurrency();
-                $current_wallet = null;
-
-                foreach ( $wallets as $wallet){
-                    if ($wallet->getCurrency() == $currency_out){
-                        $current_wallet = $wallet;
-                    }
-                }
 
                 $amount = $transaction->getAmount();
 
@@ -96,15 +89,15 @@ class CheckCryptoPOSv2Command extends ContainerAwareCommand
                     $total_fee = $fixed_fee + $variable_fee;
                     $total = $amount - $total_fee;
 
-                    $current_wallet->setAvailable($current_wallet->getAvailable() + $total);
-                    $current_wallet->setBalance($current_wallet->getBalance() + $total);
+                    $wallet->setAvailable($wallet->getAvailable() + $total);
+                    $wallet->setBalance($wallet->getBalance() + $total);
 
-                    $em->persist($current_wallet);
+                    $em->persist($wallet);
                     $em->flush();
 
                     if($total_fee != 0){
                         // restar las comisiones
-                        $feeTransaction=new Transaction();
+                        $feeTransaction = new Transaction();
                         $feeTransaction->setStatus('success');
                         $feeTransaction->setScale($transaction->getScale());
                         $feeTransaction->setAmount($total_fee);
@@ -120,7 +113,7 @@ class CheckCryptoPOSv2Command extends ContainerAwareCommand
                             'amount'    =>  -$total_fee
                         ));
                         $feeTransaction->setDebugData(array(
-                            'previous_balance'  =>  $current_wallet->getBalance(),
+                            'previous_balance'  =>  $wallet->getBalance(),
                             'previous_transaction'  =>  $transaction->getId()
                         ));
                         $feeTransaction->setTotal(-$total_fee);
@@ -131,7 +124,7 @@ class CheckCryptoPOSv2Command extends ContainerAwareCommand
                         $dm->persist($feeTransaction);
                         $dm->flush();
 
-                        $em->persist($current_wallet);
+                        $em->persist($wallet);
                         $em->flush();
 
                         $creator = $group->getCreator();
@@ -163,10 +156,10 @@ class CheckCryptoPOSv2Command extends ContainerAwareCommand
                     }
 
                 }else{
-                    $current_wallet->setAvailable($current_wallet->getAvailable() + $amount);
-                    $current_wallet->setBalance($current_wallet->getBalance() + $amount);
+                    $wallet->setAvailable($wallet->getAvailable() + $amount);
+                    $wallet->setBalance($wallet->getBalance() + $amount);
 
-                    $em->persist($current_wallet);
+                    $em->persist($wallet);
                     $em->flush();
                 }
 

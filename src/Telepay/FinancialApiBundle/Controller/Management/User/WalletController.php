@@ -7,6 +7,7 @@
  */
 
 namespace Telepay\FinancialApiBundle\Controller\Management\User;
+
 use DateInterval;
 use DateTime;
 use Symfony\Component\HttpFoundation\Request;
@@ -14,7 +15,6 @@ use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpKernel\Exception\HttpException;
 use Telepay\FinancialApiBundle\Controller\RestApiController;
 use Telepay\FinancialApiBundle\Document\Transaction;
-use Telepay\FinancialApiBundle\Entity\UserWallet;
 use Telepay\FinancialApiBundle\Financial\Currency;
 
 /**

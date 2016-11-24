@@ -2,7 +2,6 @@
 
 namespace Telepay\FinancialApiBundle\Controller;
 
-use Telepay\FinancialApiBundle\Controller\RestApiController;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 
