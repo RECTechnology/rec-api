@@ -42,6 +42,11 @@ class FeeDeal{
         $logger = $this->container->get('transaction.logger');
         $rootGroupId = $this->container->getParameter('id_group_root');
         //if creator is distinct to group root
+        $cname = $service_cname;
+        if($type != 'exchange'){
+            $cname = $service_cname.'-'.$type;
+        }
+
         if($creator->getId() != $rootGroupId){
             $logger->info('make transaction -> deal not superadmin');
 
@@ -49,10 +54,7 @@ class FeeDeal{
             $commissions = $creator->getCommissions();
             $group_commission = false;
 
-            $cname = $service_cname;
-            if($type != 'exchange'){
-                $cname = $service_cname.'-'.$type;
-            }
+
             //get fees for normal methods
             foreach ( $commissions as $commission ){
                 if ( $commission->getServiceName() == $cname && $commission->getCurrency() == $currency){
@@ -95,8 +97,8 @@ class FeeDeal{
                 $transaction = new Transaction();
                 $transaction->setIp('127.0.0.1');
                 $transaction->setGroup($creator->getId());
-                $transaction->setService($service_cname);
-                $transaction->setMethod($service_cname);
+                $transaction->setService($cname);
+                $transaction->setMethod($cname);
                 $transaction->setVersion($version);
                 $transaction->setAmount($fee);
                 $transaction->setType(Transaction::$TYPE_FEE);
@@ -104,7 +106,7 @@ class FeeDeal{
                     'parent_id' => $transaction_id,
                     'previous_transaction' => $transaction_id,
                     'amount'    =>  $fee,
-                    'concept'   =>$service_cname.'->fee'
+                    'concept'   =>$cname.'->fee'
                 ));
                 $transaction->setData(array(
                     'parent_id' =>  $transaction_id,
@@ -115,7 +117,7 @@ class FeeDeal{
                     'previous_transaction'  =>  $transaction_id,
                     'previous_amount'    =>  $amount,
                     'scale'     =>  $scale,
-                    'concept'           =>  $service_cname.'->fee',
+                    'concept'           =>  $cname.'->fee',
                     'amount' =>  $fee,
                     'status'    =>  Transaction::$STATUS_SUCCESS,
                     'currency'  =>  $currency
@@ -145,16 +147,16 @@ class FeeDeal{
                 $feeTransaction = new Transaction();
                 $feeTransaction->setIp('127.0.0.1');
                 $feeTransaction->setGroup($creator->getId());
-                $feeTransaction->setService($service_cname);
-                $feeTransaction->setMethod($service_cname);
-                $feeTransaction->setType('fee');
+                $feeTransaction->setService($cname);
+                $feeTransaction->setMethod($cname);
+                $feeTransaction->setType(Transaction::$TYPE_FEE);
                 $feeTransaction->setVersion($version);
                 $feeTransaction->setAmount($total);
                 $feeTransaction->setDataIn(array(
                     'parent_id' => $transaction->getId(),
                     'previous_transaction' => $transaction->getId(),
                     'amount'    =>  -$total,
-                    'concept'   =>  $service_cname.'->fee'
+                    'concept'   =>  $cname.'->fee'
                 ));
                 $feeTransaction->setData(array(
                     'parent_id' => $transaction->getId(),
@@ -164,7 +166,7 @@ class FeeDeal{
                     'previous_transaction'  =>  $transaction_id,
                     'previous_amount'    =>  $amount,
                     'scale'     =>  $scale,
-                    'concept'           =>  $service_cname.'->fee',
+                    'concept'           =>  $cname.'->fee',
                     'amount' =>  -$total,
                     'status'    =>  Transaction::$STATUS_SUCCESS,
                     'currency'  =>  $currency
@@ -331,6 +333,8 @@ class FeeDeal{
         $amount = $transaction->getAmount();
         $currency = $transaction->getCurrency();
         $service_cname = $transaction->getService();
+        $method_cname = $transaction->getMethod();
+        $method = $method_cname.'-'.$transaction->getType();
 
         $em = $this->doctrine->getManager();
 
@@ -344,7 +348,7 @@ class FeeDeal{
         $feeTransaction->setDataIn(array(
             'previous_transaction'  =>  $transaction->getId(),
             'amount'                =>  -$total_fee,
-            'description'           =>  $service_cname.'->fee'
+            'description'           =>  $method.'->fee'
         ));
         $feeTransaction->setData(array(
             'previous_transaction'  =>  $transaction->getId(),
@@ -359,14 +363,14 @@ class FeeDeal{
         $feeTransaction->setTotal(-$total_fee);
 
         $feeTransaction->setType('fee');
-        $feeTransaction->setMethod($service_cname);
+        $feeTransaction->setMethod($method);
         $feeInfo = array(
             'previous_transaction'  =>  $transaction->getId(),
             'previous_amount'    =>  $transaction->getAmount(),
             'scale'     =>  $transaction->getScale(),
-            'concept'           =>  $service_cname.'->fee',
+            'concept'           =>  $method.'->fee',
             'amount' =>  -$total_fee,
-            'status'    =>  'success',
+            'status'    =>  Transaction::$STATUS_SUCCESS,
             'currency'  =>  $transaction->getCurrency()
         );
         $feeTransaction->setFeeInfo($feeInfo);
