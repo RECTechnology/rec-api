@@ -565,23 +565,11 @@ class NFCController extends RestApiController{
     /**
      * @Rest\View
      */
-    public function readBalanceNFCCard(Request $request){
-        $paramNames = array(
-            'id_card'
-        );
-
-        $params = array();
-        foreach($paramNames as $paramName){
-            if($request->request->has($paramName)){
-                $params[$paramName] = $request->request->get($paramName);
-            }else{
-                throw new HttpException(404, 'Param '.$paramName.' not found');
-            }
-        }
+    public function readBalanceNFCCard(Request $request, $id_card){
 
         $em = $this->getDoctrine()->getManager();
         $card = $em->getRepository('TelepayFinancialApiBundle:NFCCard')->findOneBy(array(
-            'id_card'   =>  $params['id_card']
+            'id_card'   =>  $id_card
         ));
 
         if(!$card) throw new HttpException(404, 'Card not found');
