@@ -696,7 +696,7 @@ class AccountController extends BaseApiController{
 
         if(!$request->request->has('company_name'))$request->request->set('company_name',  $request->request->get('username') . " Company");
 
-        $valid_types = array('prestashop', 'android');
+        $valid_types = array('prestashop', 'android', 'commerce');
         if(!in_array($type, $valid_types)) throw new HttpException(404, 'Type not valid');
 
         $params = array();
@@ -722,12 +722,25 @@ class AccountController extends BaseApiController{
         $user = $em->getRepository($this->getRepositoryName())->findOneBy(array(
             'email'  =>  $params['email']
         ));
+
+        $user_kyc = false;
         if($user){
-            throw new HttpException(400, "Email already registered");
+            if($user->hasRole('ROLE_KYC')){
+                $user_kyc = true;
+            }
+            else{
+                throw new HttpException(400, "Email already registered");
+            }
         }
 
-        $user_creator_id = $this->container->getParameter('default_user_creator_commerce_' . $type);
-        $company_creator_id = $this->container->getParameter('default_company_creator_commerce_' . $type);
+        if($type == 'commerce'){
+            $user_creator_id = $this->container->getParameter('admin_user_id');
+            $company_creator_id = $this->container->getParameter('id_group_root');
+        }
+        else{
+            $user_creator_id = $this->container->getParameter('default_user_creator_commerce_' . $type);
+            $company_creator_id = $this->container->getParameter('default_company_creator_commerce_' . $type);
+        }
 
         $userCreator = $em->getRepository('TelepayFinancialApiBundle:User')->find($user_creator_id);
         $companyCreator = $em->getRepository('TelepayFinancialApiBundle:Group')->find($company_creator_id);
@@ -786,15 +799,25 @@ class AccountController extends BaseApiController{
         }
 
         //create user
-        $user = new User();
-        $user->setPlainPassword($params['plain_password']);
-        $user->setEmail($params['email']);
-        $user->setRoles(array('ROLE_USER'));
-        $user->setName($params['username']);
-        $user->setUsername($params['username']);
-        $user->setActiveGroup($company);
-        $user->setBase64Image('');
-        $user->setEnabled(false);
+        if($user_kyc){
+            $user->setPlainPassword($params['plain_password']);
+            $user->setRoles(array('ROLE_USER'));
+            $user->setName($params['username']);
+            $user->setUsername($params['username']);
+            $user->setActiveGroup($company);
+            $user->setEnabled(false);
+        }
+        else{
+            $user = new User();
+            $user->setPlainPassword($params['plain_password']);
+            $user->setEmail($params['email']);
+            $user->setRoles(array('ROLE_USER'));
+            $user->setName($params['username']);
+            $user->setUsername($params['username']);
+            $user->setActiveGroup($company);
+            $user->setBase64Image('');
+            $user->setEnabled(false);
+        }
 
         $url = $this->container->getParameter('base_panel_url');
 
@@ -835,7 +858,7 @@ class AccountController extends BaseApiController{
                 'pos' => $pos
             );
         }
-        elseif($type == 'android'){
+        elseif($type == 'android' || $type == 'commerce'){
             $methodsList = array('btc-in', 'fac-in', 'btc-out', 'fac-out');
             $company->setMethodsList($methodsList);
             $em->persist($company);
