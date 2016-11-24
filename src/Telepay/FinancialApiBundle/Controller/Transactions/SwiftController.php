@@ -910,7 +910,7 @@ class SwiftController extends RestApiController{
         $rootGroup = $em->getRepository('TelepayFinancialApiBundle:Group')->find($rootGroupId);
 
         //get configuration(method)
-        $swift_config = $this->container->get('net.telepay.config.'.$method_out);
+        $swift_config = $this->container->get('net.telepay.config.'.$method_in.'.'.$method_out);
         $methodFees = $swift_config->getFees();
 
         //get client fees (fixed & variable)
@@ -919,8 +919,8 @@ class SwiftController extends RestApiController{
             'cname' =>  $method_in.'-'.$method_out
         ));
 
-        $client_fee = ($amount * ($clientFees->getVariable()/100) + $clientFees->getFixed());
-        $service_fee = ($amount * ($methodFees->getVariable()/100) + $methodFees->getFixed());
+        $client_fee = ($amount * ($clientFees->getVariable()/100)) + $clientFees->getFixed();
+        $service_fee = ($amount * ($methodFees->getVariable()/100)) + $methodFees->getFixed();
 
         //client fees goes to the user
         $userFee = new Transaction();
@@ -934,7 +934,7 @@ class SwiftController extends RestApiController{
         $userFee->setVariableFee($amount * ($clientFees->getVariable()/100));
         $userFee->setService($method_in.'-'.$method_out);
         $userFee->setMethod($method_in.'-'.$method_out);
-        $userFee->setStatus('success');
+        $userFee->setStatus(Transaction::$STATUS_SUCCESS);
         $userFee->setTotal($client_fee);
         $userFee->setDataIn(array(
             'previous_transaction'  =>  $transaction->getId(),
