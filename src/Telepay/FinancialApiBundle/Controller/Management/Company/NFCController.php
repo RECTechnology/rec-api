@@ -74,7 +74,6 @@ class NFCController extends RestApiController{
 
         try{
             if(!$user){
-
                 if($request->request->has('pin') && $request->request->get('pin') != ''){
                     $pin = $request->request->get('pin');
                     $enabled = true;
