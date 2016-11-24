@@ -1188,15 +1188,14 @@ class AccountController extends BaseApiController{
             'user' => $user
         ));
 
-        if(!$tierValidation){
-            $tier = new TierValidations();
-            $tier->setUser($user);
-            $tier->setEmail(true);
-            $em->persist($tier);
-            $em->flush();
-        }else{
-            throw new HttpException(409, 'Validation not allowed');
+        if(!$tierValidation) {
+            $tierValidation = new TierValidations();
+            $tierValidation->setUser($user);
         }
+
+        $tierValidation->setEmail(true);
+        $em->persist($tierValidation);
+        $em->flush();
 
         $user->setEnabled(true);
         $em->persist($user);
