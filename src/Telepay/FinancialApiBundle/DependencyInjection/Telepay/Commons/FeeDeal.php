@@ -349,8 +349,9 @@ class FeeDeal{
 
         $user = $em->getRepository('TelepayFinancialApiBundle:User')->find($transaction->getUser());
         $userGroup = $em->getRepository('TelepayFinancialApiBundle:Group')->find($transaction->getGroup());
-
+        $this->fee_logger->info('FEE_DEAL (createFees) => BEFORE TRANSACTION ');
         $feeTransaction = Transaction::createFromTransaction($transaction);
+        $this->fee_logger->info('FEE_DEAL (createFees) => AFTER TRANSACTION ');
         $feeTransaction->setAmount($total_fee);
         $feeTransaction->setDataIn(array(
             'previous_transaction'  =>  $transaction->getId(),
@@ -368,7 +369,7 @@ class FeeDeal{
         ));
 
         $feeTransaction->setTotal(-$total_fee);
-
+        $this->fee_logger->info('FEE_DEAL (createFees) => TYPE ');
         $feeTransaction->setType(Transaction::$TYPE_FEE);
         $feeTransaction->setMethod($method);
         $feeInfo = array(
@@ -385,7 +386,7 @@ class FeeDeal{
         $mongo = $this->container->get('doctrine_mongodb')->getManager();
         $mongo->persist($feeTransaction);
         $mongo->flush();
-
+        $this->fee_logger->info('FEE_DEAL (createFees) => BALANCE ');
         $balancer = $this->container->get('net.telepay.commons.balance_manipulator');
         $balancer->addBalance($userGroup, -$total_fee, $feeTransaction );
 

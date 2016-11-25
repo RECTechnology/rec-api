@@ -165,7 +165,7 @@ class CheckCryptoPOSv2Command extends ContainerAwareCommand
 
                     if($paymentInfo['currency_out'] != $pos_config['default_currency']){
                         //TODO create exchange fee and dealer
-                        $service = 'exchange'.'_'.strtoupper($pos_config['default_currency']).' to '.strtoupper($transaction->getCurrency());
+                        $service = 'exchange'.'_'.strtoupper($pos_config['default_currency']).'to'.strtoupper($transaction->getCurrency());
                         $fees = $group->getCommissions();
 
                         $exchange_fixed_fee = 0;
