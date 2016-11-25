@@ -178,7 +178,7 @@ class CheckCryptoPOSv2Command extends ContainerAwareCommand
                             }
                         }
                         $exchanger = $this->getContainer()->get('net.telepay.commons.exchange_manipulator');
-                        $price = $exchanger->getPrice();
+                        $price = $exchanger->getPrice($pos_config['default_currency'], $transaction->getCurrency());
 
                         //create fake transaction to generate exchange fees correctly
                         $fakeTrans = new Transaction();
