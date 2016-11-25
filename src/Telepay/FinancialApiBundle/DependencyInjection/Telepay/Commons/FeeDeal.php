@@ -43,7 +43,7 @@ class FeeDeal{
         //TODO hay que cambiar esto porque ya no va al user superadmin si no al grupo root
         $rootGroupId = $this->container->getParameter('id_group_root');
         //if creator is distinct to group root
-        $cname = explode($service_cname, '_');
+        $cname = explode('-', $service_cname);
         if(isset($cname[0]) && $cname[0] != 'exchange'){
             $cname = $service_cname.'-'.$type;
         }else{
