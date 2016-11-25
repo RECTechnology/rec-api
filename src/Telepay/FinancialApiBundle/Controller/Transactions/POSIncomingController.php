@@ -267,6 +267,7 @@ class POSIncomingController extends RestApiController{
                 'previous_amount'    =>  $pos_amount,
                 'received_amount'   =>  $dataIn['amount'],
                 'currency_in'   =>  strtoupper($dataIn['currency_in']),
+                'currency_out'   =>  strtoupper($dataIn['currency_out']),
                 'currency'  =>  'BTC',
                 'scale'     =>  Currency::$SCALE['BTC'],
                 'scale_in'     =>  Currency::$SCALE[strtoupper($dataIn['currency_in'])],
