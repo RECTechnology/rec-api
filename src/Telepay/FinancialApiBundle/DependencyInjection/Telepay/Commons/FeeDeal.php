@@ -42,8 +42,8 @@ class FeeDeal{
         $logger = $this->container->get('transaction.logger');
         $rootGroupId = $this->container->getParameter('id_group_root');
         //if creator is distinct to group root
-        $cname = $service_cname;
-        if($type != 'exchange'){
+        $cname = explode($service_cname, '_');
+        if(isset($cname[0]) && $cname[0] != 'exchange'){
             $cname = $service_cname.'-'.$type;
         }
 
@@ -362,7 +362,7 @@ class FeeDeal{
 
         $feeTransaction->setTotal(-$total_fee);
 
-        $feeTransaction->setType('fee');
+        $feeTransaction->setType(Transaction::$TYPE_FEE);
         $feeTransaction->setMethod($method);
         $feeInfo = array(
             'previous_transaction'  =>  $transaction->getId(),
@@ -389,7 +389,7 @@ class FeeDeal{
 
         $transaction_id = $transaction->getId();
 
-        $this->deal($creator, $amount, $service_cname, 'exchange', $currency, $total_fee, $transaction_id, $transaction->getVersion());
+        $this->deal($creator, $amount, $service_cname, $transaction->getType(), $currency, $total_fee, $transaction_id, $transaction->getVersion());
 
     }
 }
