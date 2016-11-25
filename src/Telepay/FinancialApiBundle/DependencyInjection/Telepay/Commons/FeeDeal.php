@@ -48,7 +48,7 @@ class FeeDeal{
         }
 
         if($creator->getId() != $rootGroupId){
-            $logger->info('make transaction -> deal not superadmin');
+            $logger->info('make transaction -> deal not superadmin CNAME=>'.$cname.' SERVICE NAME=>'.$service_cname.' TYPE=>'.$type);
 
             //obtener comissiones del grupo
             $commissions = $creator->getCommissions();
