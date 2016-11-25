@@ -165,7 +165,7 @@ class CheckCryptoPOSv2Command extends ContainerAwareCommand
 
                     if($paymentInfo['currency_out'] != $pos_config['default_currency']){
                         //TODO create exchange fee and dealer
-                        $service = 'exchange'.'_'.$pos_config['default_currency'].' to '.$transaction->getCurrency();
+                        $service = 'exchange'.'_'.strtoupper($pos_config['default_currency']).' to '.strtoupper($transaction->getCurrency());
                         $fees = $group->getCommissions();
 
                         $exchange_fixed_fee = 0;
@@ -182,13 +182,16 @@ class CheckCryptoPOSv2Command extends ContainerAwareCommand
 
                         //create fake transaction to generate exchange fees correctly
                         $fakeTrans = new Transaction();
+                        $fakeTrans->setStatus(Transaction::$STATUS_SUCCESS);
+                        $fakeTrans->setIp('127.0.0.1');
+                        $fakeTrans->setVersion(1);
                         $fakeTrans->setAmount($transaction->getAmount());
                         $fakeTrans->setCurrency($transaction->getCurrency());
                         $fakeTrans->setFixedFee($exchange_fixed_fee);
                         $fakeTrans->setVariableFee($exchange_variable_fee);
                         $fakeTrans->setTotal($transaction->getAmount());
                         $fakeTrans->setService($service);
-                        $fakeTrans->setType('in');
+                        $fakeTrans->setType(Transaction::$TYPE_IN);
                         $fakeTrans->setMethod($service);
                         $fakeTrans->setUser($transaction->getUser());
                         $fakeTrans->setGroup($transaction->getGroup());

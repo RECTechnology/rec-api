@@ -338,12 +338,11 @@ class FeeDeal{
         $method_cname = $transaction->getMethod();
         $explodeMethod = explode('_', $method_cname);
         if(isset($explodeMethod[0]) && $explodeMethod[0] != 'exchange'){
-            $method = $method_cname.'_'.$transaction->getType();
+            $method = $method_cname.'-'.$transaction->getType();
         }else{
             $method = $method_cname;
         }
-
-
+        $this->fee_logger->info('FEE_DEAL (createFees) => method '.$method);
         $em = $this->doctrine->getManager();
 
         $total_fee = round($transaction->getFixedFee() + $transaction->getVariableFee(),0);
@@ -396,7 +395,7 @@ class FeeDeal{
         if(!$creator) throw new HttpException(404,'Creator not found');
 
         $transaction_id = $transaction->getId();
-
+        $this->fee_logger->info('FEE_DEAL (createFees) => GO TO DEAL '.$method_cname);
         $this->deal($creator, $amount, $method_cname, $transaction->getType(), $currency, $total_fee, $transaction_id, $transaction->getVersion());
 
     }
