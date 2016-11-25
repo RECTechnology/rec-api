@@ -113,7 +113,7 @@ class ExchangeManipulator{
         $cashOut->setFixedFee(0);
         $cashOut->setVariableFee(0);
         $cashOut->setTotal(-$amount);
-        $cashOut->setType('out');
+        $cashOut->setType(Transaction::$TYPE_OUT);
         $cashOut->setMethod($service);
         $cashOut->setService($service);
         $cashOut->setUser($user->getId());
@@ -146,7 +146,7 @@ class ExchangeManipulator{
         $cashIn->setVariableFee($exchange_variable_fee);
         $cashIn->setTotal($exchangeAmount);
         $cashIn->setService($service);
-        $cashIn->setType('in');
+        $cashIn->setType(Transaction::$TYPE_IN);
         $cashIn->setMethod($service);
         $cashIn->setUser($user->getId());
         $cashIn->setGroup($company->getId());
