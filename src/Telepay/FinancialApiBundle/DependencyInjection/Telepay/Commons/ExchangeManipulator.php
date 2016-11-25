@@ -18,10 +18,12 @@ use Telepay\FinancialApiBundle\Financial\Currency;
 class ExchangeManipulator{
     private $doctrine;
     private $container;
+    private $logger;
 
     public function __construct($doctrine, $container){
         $this->doctrine = $doctrine;
         $this->container = $container;
+        $this->logger = $this->container->get('transaction.logger');
     }
 
     /**
@@ -32,6 +34,7 @@ class ExchangeManipulator{
 
     public function exchange($amount, $currency_in, $currency_out){
 
+        $this->logger('EXCHANGE_MANIPULATOR (exchange)=> amount='.$amount.' cur_in='.$currency_in.' cur_out'.$currency_out);
         $em = $this->doctrine->getManager();
 
         $exchange = $em->getRepository('TelepayFinancialApiBundle:Exchange')->findOneBy(
@@ -49,6 +52,7 @@ class ExchangeManipulator{
     }
 
     public function getPrice($currency_in, $currency_out){
+        $this->logger('EXCHANGE_MANIPULATOR (getPrice)=> cur_in='.$currency_in.' cur_out'.$currency_out);
         $em = $this->doctrine->getManager();
 
         $exchange = $em->getRepository('TelepayFinancialApiBundle:Exchange')->findOneBy(
@@ -63,7 +67,7 @@ class ExchangeManipulator{
     }
 
     public function doExchange($amount, $from, $to, Group $company, User $user){
-
+        $this->logger('EXCHANGE_MANIPULATOR (doExchange)=> amount='.$amount.' from'.$from.' to='.$to);
         $dm = $this->container->get('doctrine_mongodb')->getManager();
         $em = $this->doctrine->getManager();
 
@@ -191,7 +195,7 @@ class ExchangeManipulator{
     }
 
     public function exchangeWallet(UserWallet $wallet, $currency){
-
+        $this->logger('EXCHANGE_MANIPULATOR (exchangeWallet)=> currency='.$currency);
         $currency_actual = $wallet->getCurrency();
         if($currency_actual == $currency){
             $response['available'] = $wallet->getAvailable();
