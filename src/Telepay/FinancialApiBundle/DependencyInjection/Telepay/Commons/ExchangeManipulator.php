@@ -84,6 +84,8 @@ class ExchangeManipulator{
         $senderWallet = $company->getWallet($from);
         $receiverWallet = $company->getWallet($to);
 
+        if($senderWallet->getAvailable() < $amount) throw new HttpException(403, 'Insuficient funds');
+
         //getFees
         $fees = $company->getCommissions();
 
@@ -100,6 +102,8 @@ class ExchangeManipulator{
         $price = $this->getPrice($from, $to);
 
         $totalExchangeFee = $exchange_fixed_fee + $exchange_variable_fee;
+
+
 
         //cashOut transaction BTC
         $cashOut = new Transaction();

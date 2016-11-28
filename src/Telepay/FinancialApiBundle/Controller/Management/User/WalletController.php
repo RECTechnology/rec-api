@@ -1244,6 +1244,7 @@ class WalletController extends RestApiController{
         if($limit->getDay()==0)throw new HttpException(403, 'Exchange temporally unavailable');
 
         $exchanger = $this->container->get('net.telepay.commons.exchange_manipulator');
+
         $exchanger->doExchange($amount, $from, $to, $userGroup, $user);
 
         //return
