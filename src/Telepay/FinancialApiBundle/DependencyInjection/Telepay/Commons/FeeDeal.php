@@ -344,10 +344,10 @@ class FeeDeal{
         }
         $this->fee_logger->info('FEE_DEAL (createFees) => method '.$method);
         $em = $this->doctrine->getManager();
-
+        $this->fee_logger->info('FEE_DEAL (createFees) => getManager ');
         $total_fee = round($transaction->getFixedFee() + $transaction->getVariableFee(),0);
-
-        $user = $em->getRepository('TelepayFinancialApiBundle:User')->find($transaction->getUser());
+        $this->fee_logger->info('FEE_DEAL (createFees) => fixed '.$transaction->getFixedFee().' variable '.$transaction->getVariableFee());
+//        $user = $em->getRepository('TelepayFinancialApiBundle:User')->find($transaction->getUser());
         $userGroup = $em->getRepository('TelepayFinancialApiBundle:Group')->find($transaction->getGroup());
         $this->fee_logger->info('FEE_DEAL (createFees) => BEFORE TRANSACTION ');
         $feeTransaction = Transaction::createFromTransaction($transaction);
