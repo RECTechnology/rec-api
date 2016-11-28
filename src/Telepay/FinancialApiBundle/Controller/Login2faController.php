@@ -19,6 +19,8 @@ class Login2faController extends RestApiController{
         $username = $request->get('username');
         $password = $request->get('password');
         $pin = $request->get('pin');
+        $kyc = 0;
+        if($request->request->has('kyc')) $kyc = $request->get('kyc');
 
         $em = $this->getDoctrine()->getManager();
         $user = $em->getRepository('TelepayFinancialApiBundle:User')->findOneBy(array('email' => $username));
@@ -68,7 +70,7 @@ class Login2faController extends RestApiController{
                 }
             }
             $groups = $em->getRepository('TelepayFinancialApiBundle:UserGroup')->findBy(array('user' => $user[0]->getId()));
-            if(count($groups)<1){
+            if($kyc == 0 && count($groups)<1){
                 $token = array(
                     "error" => "no_company",
                     "error_description" => "You are not assigned to any company. Please contact your company administrator or write us to https://support.chip-chap.com/"
