@@ -71,6 +71,11 @@ class LimitDefinition implements Limit {
      */
     private $cname;
 
+    /**
+     * @ORM\Column(type="boolean")
+     */
+    private $enabled = true;
+
     private $scale;
 
     /**
@@ -88,6 +93,7 @@ class LimitDefinition implements Limit {
         $limit->setYear(0);
         $limit->setTotal(0);
         $limit->setGroup($group);
+        $limit->setEnabled(true);
         return $limit;
     }
 
@@ -272,6 +278,22 @@ class LimitDefinition implements Limit {
     public function getCurrency()
     {
         return $this->currency;
+    }
+
+    /**
+     * @return mixed
+     */
+    public function getEnabled()
+    {
+        return $this->enabled;
+    }
+
+    /**
+     * @param mixed $enabled
+     */
+    public function setEnabled($enabled)
+    {
+        $this->enabled = $enabled;
     }
 
 }
