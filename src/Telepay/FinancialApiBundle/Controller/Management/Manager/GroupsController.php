@@ -117,18 +117,10 @@ class GroupsController extends BaseApiController
         else $offset = 0;
 
         //TODO: Improve performance (two queries)
-        if (!$this->get('security.authorization_checker')->isGranted('ROLE_SUPER_ADMIN')) {
-            $all = $this->getRepository()->findBy(
-                array('group_creator' => $adminGroup->getId()),
-                array('name' => 'ASC')
-            );
-        }
-        else{
-            $all = $this->getRepository()->findBy(
-                array(),
-                array('name' => 'ASC')
-            );
-        }
+        $all = $this->getRepository()->findBy(
+            array('group_creator' => $adminGroup->getId()),
+            array('name' => 'ASC')
+        );
 
         $total = count($all);
         //return only the limits of active services
