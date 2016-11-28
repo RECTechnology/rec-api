@@ -103,8 +103,6 @@ class ExchangeManipulator{
 
         $totalExchangeFee = $exchange_fixed_fee + $exchange_variable_fee;
 
-
-
         //cashOut transaction BTC
         $cashOut = new Transaction();
         $cashOut->setIp('');

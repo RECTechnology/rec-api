@@ -48,7 +48,12 @@ class GroupsController extends BaseApiController
             throw new HttpException(403, 'You have not the necessary permissions');
 
         //TODO: Improve performance (two queries)
-        $all = $this->getRepository()->findAll();
+        $all = $this->getRepository()->findBy(
+            array(),
+            array('id' => 'DESC'),
+            $limit,
+            $offset
+        );
 
         $total = count($all);
         foreach ($all as $group){
