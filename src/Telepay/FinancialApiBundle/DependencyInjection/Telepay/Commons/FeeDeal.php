@@ -390,6 +390,13 @@ class FeeDeal{
         $balancer = $this->container->get('net.telepay.commons.balance_manipulator');
         $balancer->addBalance($userGroup, -$total_fee, $feeTransaction );
 
+        //restar al wallet
+        $current_wallet->setAvailable($current_wallet->getAvailable() - $total_fee);
+        $current_wallet->setBalance($current_wallet->getBalance() - $total_fee);
+
+        $em->persist($current_wallet);
+        $em->flush();
+
         //empezamos el reparto
         $creator = $userGroup->getGroupCreator();
 

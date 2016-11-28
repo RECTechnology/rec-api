@@ -169,8 +169,8 @@ class ExchangeManipulator{
         $senderWallet->setAvailable($senderWallet->getAvailable() - $amount);
         $senderWallet->setBalance($senderWallet->getBalance() - $amount);
 
-        $receiverWallet->setAvailable($receiverWallet->getAvailable() + $exchangeAmount - $exchange_fixed_fee - $exchange_variable_fee);
-        $receiverWallet->setBalance($receiverWallet->getBalance() + $exchangeAmount - $exchange_fixed_fee - $exchange_variable_fee);
+        $receiverWallet->setAvailable($receiverWallet->getAvailable() + $exchangeAmount);
+        $receiverWallet->setBalance($receiverWallet->getBalance() + $exchangeAmount);
 
         $em->persist($senderWallet);
         $em->persist($receiverWallet);
