@@ -73,6 +73,7 @@ class CheckCryptoPOSv2Command extends ContainerAwareCommand
             $dm->flush();
 
             if($transaction->getStatus()== Transaction::$STATUS_SUCCESS){
+                $output->writeln('CRYPTO_POS_V2 status success');
                 //hacemos el reparto, primero al user
                 $id = $transaction->getGroup();
                 $transaction_id = $transaction->getId();
@@ -97,6 +98,7 @@ class CheckCryptoPOSv2Command extends ContainerAwareCommand
 
                     if($total_fee != 0){
                         // restar las comisiones
+                        $output->writeln('CRYPTO_POS_V2 generating fees');
                         $feeTransaction = new Transaction();
                         $feeTransaction->setStatus('success');
                         $feeTransaction->setScale($transaction->getScale());
@@ -132,6 +134,7 @@ class CheckCryptoPOSv2Command extends ContainerAwareCommand
                         //luego a la ruleta de admins
                         $dealer = $this->getContainer()->get('net.telepay.commons.fee_deal');
                         if($service_cname == 'POS-BTC') {
+                            $output->writeln('CRYPTO_POS_V2 POS BTC');
                             $dealer->deal(
                                 $creator,
                                 $amount,
@@ -143,6 +146,7 @@ class CheckCryptoPOSv2Command extends ContainerAwareCommand
                                 $transaction->getVersion());
                         }
                         elseif($service_cname == 'POS-FAC'){
+                            $output->writeln('CRYPTO_POS_V2 CRYPTO POS FAC');
                             $dealer->deal(
                                 $creator,
                                 $amount,
@@ -153,6 +157,69 @@ class CheckCryptoPOSv2Command extends ContainerAwareCommand
                                 $transaction_id,
                                 $transaction->getVersion());
                         }
+                    }
+
+                    //TODO check for exchange
+                    $paymentInfo = $transaction->getPayInInfo();
+                    $tpvRepo = $em->getRepository('TelepayFinancialApiBundle:POS')->findOneBy(array(
+                        'pos_id'    =>  $transaction->getPosId()
+                    ));
+                    $posType = $tpvRepo->getType();
+                    $pos_config = $this->getContainer()->get('net.telepay.config.pos_'.strtolower($posType))->getInfo();
+
+                    if($paymentInfo['currency_out'] != $pos_config['default_currency']){
+                        //TODO create exchange fee and dealer
+                        $output->writeln('CRYPTO_POS_V2 doing exchange');
+                        $service = 'exchange'.'_'.strtoupper($pos_config['default_currency']).'to'.strtoupper($transaction->getCurrency());
+                        $fees = $group->getCommissions();
+
+                        $exchange_fixed_fee = 0;
+                        $exchange_variable_fee = 0;
+
+                        foreach($fees as $fee){
+                            if($fee->getServiceName() == $service){
+                                $exchange_fixed_fee = $fee->getFixed();
+                                $exchange_variable_fee = round((($fee->getVariable()/100) * $transaction->getAmount()), 0);
+                            }
+                        }
+                        $output->writeln('CRYPTO_POS_V2 GETTING EXCHANGER');
+                        $exchanger = $this->getContainer()->get('net.telepay.commons.exchange_manipulator');
+                        $price = $exchanger->getPrice($pos_config['default_currency'], $transaction->getCurrency());
+
+                        //create fake transaction to generate exchange fees correctly
+                        $fakeTrans = new Transaction();
+                        $fakeTrans->setStatus(Transaction::$STATUS_SUCCESS);
+                        $fakeTrans->setIp('127.0.0.1');
+                        $fakeTrans->setVersion(1);
+                        $fakeTrans->setAmount($transaction->getAmount());
+                        $fakeTrans->setCurrency($transaction->getCurrency());
+                        $fakeTrans->setFixedFee($exchange_fixed_fee);
+                        $fakeTrans->setVariableFee($exchange_variable_fee);
+                        $fakeTrans->setTotal($transaction->getAmount());
+                        $fakeTrans->setService($service);
+                        $fakeTrans->setType(Transaction::$TYPE_IN);
+                        $fakeTrans->setMethod($service);
+                        $fakeTrans->setUser($transaction->getUser());
+                        $fakeTrans->setGroup($transaction->getGroup());
+                        $fakeTrans->setScale($transaction->getScale());
+                        $fakeTrans->setPayInInfo(array(
+                            'amount'    =>  $transaction->getAmount(),
+                            'currency'  =>  $transaction->getCurrency(),
+                            'scale'     =>  $transaction->getScale(),
+                            'concept'   =>  'Exchange '.$pos_config['default_currency'].' to '.$transaction->getCurrency(),
+                            'price'     =>  $price,
+                        ));
+
+                        $exchangeWallet = $group->getWallet($fakeTrans->getCurrency());
+
+                        $dealer = $this->getContainer()->get('net.telepay.commons.fee_deal');
+                        $output->writeln('CRYPTO_POS_V2 creating fees');
+                        try{
+                            $dealer->createFees($fakeTrans, $exchangeWallet);
+                        }catch (HttpException $e){
+                            $output->writeln('CRYPTO_POS_V2 cerate fees failed '.$e->getMessage());
+                        }
+
                     }
 
                 }else{

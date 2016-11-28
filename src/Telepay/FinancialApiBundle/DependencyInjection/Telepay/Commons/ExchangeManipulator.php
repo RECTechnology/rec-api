@@ -18,10 +18,12 @@ use Telepay\FinancialApiBundle\Financial\Currency;
 class ExchangeManipulator{
     private $doctrine;
     private $container;
+    private $trans_logger;
 
     public function __construct($doctrine, $container){
         $this->doctrine = $doctrine;
         $this->container = $container;
+        $this->trans_logger = $this->container->get('transaction.logger');
     }
 
     /**
@@ -32,6 +34,7 @@ class ExchangeManipulator{
 
     public function exchange($amount, $currency_in, $currency_out){
 
+        $this->trans_logger->info('EXCHANGE_MANIPULATOR (exchange)=> amount='.$amount.' cur_in='.$currency_in.' cur_out'.$currency_out);
         $em = $this->doctrine->getManager();
 
         $exchange = $em->getRepository('TelepayFinancialApiBundle:Exchange')->findOneBy(
@@ -49,6 +52,7 @@ class ExchangeManipulator{
     }
 
     public function getPrice($currency_in, $currency_out){
+        $this->trans_logger->info('EXCHANGE_MANIPULATOR (getPrice)=> cur_in='.$currency_in.' cur_out'.$currency_out);
         $em = $this->doctrine->getManager();
 
         $exchange = $em->getRepository('TelepayFinancialApiBundle:Exchange')->findOneBy(
@@ -63,7 +67,7 @@ class ExchangeManipulator{
     }
 
     public function doExchange($amount, $from, $to, Group $company, User $user){
-
+        $this->trans_logger->info('EXCHANGE_MANIPULATOR (doExchange)=> amount='.$amount.' from'.$from.' to='.$to);
         $dm = $this->container->get('doctrine_mongodb')->getManager();
         $em = $this->doctrine->getManager();
 
@@ -79,6 +83,8 @@ class ExchangeManipulator{
         //checkWallet sender
         $senderWallet = $company->getWallet($from);
         $receiverWallet = $company->getWallet($to);
+
+        if($senderWallet->getAvailable() < $amount) throw new HttpException(403, 'Insuficient funds');
 
         //getFees
         $fees = $company->getCommissions();
@@ -109,7 +115,7 @@ class ExchangeManipulator{
         $cashOut->setFixedFee(0);
         $cashOut->setVariableFee(0);
         $cashOut->setTotal(-$amount);
-        $cashOut->setType('out');
+        $cashOut->setType(Transaction::$TYPE_OUT);
         $cashOut->setMethod($service);
         $cashOut->setService($service);
         $cashOut->setUser($user->getId());
@@ -142,7 +148,7 @@ class ExchangeManipulator{
         $cashIn->setVariableFee($exchange_variable_fee);
         $cashIn->setTotal($exchangeAmount);
         $cashIn->setService($service);
-        $cashIn->setType('in');
+        $cashIn->setType(Transaction::$TYPE_IN);
         $cashIn->setMethod($service);
         $cashIn->setUser($user->getId());
         $cashIn->setGroup($company->getId());
@@ -165,8 +171,8 @@ class ExchangeManipulator{
         $senderWallet->setAvailable($senderWallet->getAvailable() - $amount);
         $senderWallet->setBalance($senderWallet->getBalance() - $amount);
 
-        $receiverWallet->setAvailable($receiverWallet->getAvailable() + $exchangeAmount - $exchange_fixed_fee - $exchange_variable_fee);
-        $receiverWallet->setBalance($receiverWallet->getBalance() + $exchangeAmount - $exchange_fixed_fee - $exchange_variable_fee);
+        $receiverWallet->setAvailable($receiverWallet->getAvailable() + $exchangeAmount);
+        $receiverWallet->setBalance($receiverWallet->getBalance() + $exchangeAmount);
 
         $em->persist($senderWallet);
         $em->persist($receiverWallet);
@@ -191,7 +197,7 @@ class ExchangeManipulator{
     }
 
     public function exchangeWallet(UserWallet $wallet, $currency){
-
+        $this->trans_logger->info('EXCHANGE_MANIPULATOR (exchangeWallet)=> currency='.$currency);
         $currency_actual = $wallet->getCurrency();
         if($currency_actual == $currency){
             $response['available'] = $wallet->getAvailable();

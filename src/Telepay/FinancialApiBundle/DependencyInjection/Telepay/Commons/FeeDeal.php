@@ -20,12 +20,14 @@ class FeeDeal{
     private $mongo;
     private $balance_manipulator;
     private $container;
+    private $fee_logger;
 
     public function __construct($doctrine, $mongo, $balance_manipulator, $container){
         $this->doctrine = $doctrine;
         $this->mongo = $mongo;
         $this->balance_manipulator = $balance_manipulator;
         $this->container = $container;
+        $this->fee_logger = $this->container->get('transaction.logger');
     }
 
     /**
@@ -37,23 +39,23 @@ class FeeDeal{
      */
 
     public function deal(Group $creator, $amount, $service_cname, $type, $currency, $fee, $transaction_id, $version){
-
+        $this->fee_logger->info('FEE_DEAL (deal)=> amount='.$amount.' service='.$service_cname.' type='.$type.' currency='.$currency.' fee='.$fee.' trans_id='.$transaction_id);
         //TODO hay que cambiar esto porque ya no va al user superadmin si no al grupo root
-        $logger = $this->container->get('transaction.logger');
         $rootGroupId = $this->container->getParameter('id_group_root');
         //if creator is distinct to group root
-        $cname = $service_cname;
-        if($type != 'exchange'){
+        $cname = explode('_', $service_cname);
+        if(isset($cname[0]) && $cname[0] != 'exchange'){
             $cname = $service_cname.'-'.$type;
+        }else{
+            $cname = $service_cname;
         }
 
         if($creator->getId() != $rootGroupId){
-            $logger->info('make transaction -> deal not superadmin');
+            $this->fee_logger->info('make transaction -> deal not superadmin CNAME=>'.$cname.' SERVICE NAME=>'.$service_cname.' TYPE=>'.$type);
 
             //obtener comissiones del grupo
             $commissions = $creator->getCommissions();
             $group_commission = false;
-
 
             //get fees for normal methods
             foreach ( $commissions as $commission ){
@@ -65,11 +67,11 @@ class FeeDeal{
             $fixed = $group_commission->getFixed();
             $variable = $group_commission->getVariable();
 
-            $logger->info('Group(' . $creator->getId() . ') Comission: ' . $fixed . " fixed, " . $variable . " variable");
+            $this->fee_logger->info('Group(' . $creator->getId() . ') Comission: ' . $fixed . " fixed, " . $variable . " variable");
 
             $total = round($fixed + ($variable/100) * $amount,0);
         }else{
-            $logger->info('make transaction -> deal superadmin');
+            $this->fee_logger->info('make transaction -> deal superadmin');
             $total = 0;
             $variable = 0;
             $fixed = 0;
@@ -85,7 +87,7 @@ class FeeDeal{
         foreach($wallets as $wallet){
 
             if($wallet->getCurrency() === $currency && $fee > 0){
-                $logger->info('make transaction -> deal sumamos fee');
+                $this->fee_logger->info('make transaction -> deal sumamos fee');
                 //Añadimos la pasta al wallet
                 $wallet->setAvailable($wallet->getAvailable() + $fee - $total);
                 $wallet->setBalance($wallet->getBalance() + $fee - $total);
@@ -134,15 +136,15 @@ class FeeDeal{
                 $dm->persist($transaction);
                 $dm->flush();
 
-                $logger->info('make transaction -> deal id fee => '.$transaction->getId());
-                $logger->info('Add Balance->' . $creator->getId() . " amount = " . $fee . " Trans group: " . $transaction->getGroup());
+                $this->fee_logger->info('make transaction -> deal id fee => '.$transaction->getId());
+                $this->fee_logger->info('Add Balance->' . $creator->getId() . " amount = " . $fee . " Trans group: " . $transaction->getGroup());
                 $this->balance_manipulator->addBalance($creator, $fee, $transaction);
                 $id = $transaction->getId();
             }
         }
 
         if($creator->getId() != $rootGroupId){
-            $logger->info('make transaction -> deal not superadmin fee  ');
+            $this->fee_logger->info('make transaction -> deal not superadmin fee  ');
             if($total > 0){
                 $feeTransaction = new Transaction();
                 $feeTransaction->setIp('127.0.0.1');
@@ -182,7 +184,7 @@ class FeeDeal{
 
                 $dm->persist($feeTransaction);
                 $dm->flush();
-                $logger->info('make transaction -> deal not superadmin fee id => '.$feeTransaction->getId());
+                $this->fee_logger->info('make transaction -> deal not superadmin fee id => '.$feeTransaction->getId());
                 $this->balance_manipulator->addBalance($creator, -$total, $feeTransaction);
             }
 
@@ -329,21 +331,27 @@ class FeeDeal{
     }
 
     public function createFees(Transaction $transaction, UserWallet $current_wallet){
-
+        $this->fee_logger->info('FEE_DEAL (createFees)');
         $amount = $transaction->getAmount();
         $currency = $transaction->getCurrency();
         $service_cname = $transaction->getService();
         $method_cname = $transaction->getMethod();
-        $method = $method_cname.'-'.$transaction->getType();
-
+        $explodeMethod = explode('_', $method_cname);
+        if(isset($explodeMethod[0]) && $explodeMethod[0] != 'exchange'){
+            $method = $method_cname.'-'.$transaction->getType();
+        }else{
+            $method = $method_cname;
+        }
+        $this->fee_logger->info('FEE_DEAL (createFees) => method '.$method);
         $em = $this->doctrine->getManager();
-
+        $this->fee_logger->info('FEE_DEAL (createFees) => getManager ');
         $total_fee = round($transaction->getFixedFee() + $transaction->getVariableFee(),0);
-
-        $user = $em->getRepository('TelepayFinancialApiBundle:User')->find($transaction->getUser());
+        $this->fee_logger->info('FEE_DEAL (createFees) => fixed '.$transaction->getFixedFee().' variable '.$transaction->getVariableFee());
+//        $user = $em->getRepository('TelepayFinancialApiBundle:User')->find($transaction->getUser());
         $userGroup = $em->getRepository('TelepayFinancialApiBundle:Group')->find($transaction->getGroup());
-
+        $this->fee_logger->info('FEE_DEAL (createFees) => BEFORE TRANSACTION ');
         $feeTransaction = Transaction::createFromTransaction($transaction);
+        $this->fee_logger->info('FEE_DEAL (createFees) => AFTER TRANSACTION ');
         $feeTransaction->setAmount($total_fee);
         $feeTransaction->setDataIn(array(
             'previous_transaction'  =>  $transaction->getId(),
@@ -361,8 +369,8 @@ class FeeDeal{
         ));
 
         $feeTransaction->setTotal(-$total_fee);
-
-        $feeTransaction->setType('fee');
+        $this->fee_logger->info('FEE_DEAL (createFees) => TYPE ');
+        $feeTransaction->setType(Transaction::$TYPE_FEE);
         $feeTransaction->setMethod($method);
         $feeInfo = array(
             'previous_transaction'  =>  $transaction->getId(),
@@ -378,9 +386,16 @@ class FeeDeal{
         $mongo = $this->container->get('doctrine_mongodb')->getManager();
         $mongo->persist($feeTransaction);
         $mongo->flush();
-
+        $this->fee_logger->info('FEE_DEAL (createFees) => BALANCE ');
         $balancer = $this->container->get('net.telepay.commons.balance_manipulator');
         $balancer->addBalance($userGroup, -$total_fee, $feeTransaction );
+
+        //restar al wallet
+        $current_wallet->setAvailable($current_wallet->getAvailable() - $total_fee);
+        $current_wallet->setBalance($current_wallet->getBalance() - $total_fee);
+
+        $em->persist($current_wallet);
+        $em->flush();
 
         //empezamos el reparto
         $creator = $userGroup->getGroupCreator();
@@ -388,8 +403,8 @@ class FeeDeal{
         if(!$creator) throw new HttpException(404,'Creator not found');
 
         $transaction_id = $transaction->getId();
-
-        $this->deal($creator, $amount, $service_cname, 'exchange', $currency, $total_fee, $transaction_id, $transaction->getVersion());
+        $this->fee_logger->info('FEE_DEAL (createFees) => GO TO DEAL '.$method_cname);
+        $this->deal($creator, $amount, $method_cname, $transaction->getType(), $currency, $total_fee, $transaction_id, $transaction->getVersion());
 
     }
 }
