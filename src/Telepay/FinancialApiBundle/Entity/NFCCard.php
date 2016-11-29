@@ -52,7 +52,7 @@ class NFCCard{
     private $user;
 
     /**
-     * @ORM\Column(type="string")
+     * @ORM\Column(type="string", unique=true)
      * @Expose
      */
     private $alias;
