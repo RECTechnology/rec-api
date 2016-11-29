@@ -382,7 +382,7 @@ class NFCController extends RestApiController{
 
         $user = $this->get('security.context')->getToken()->getUser();
 
-        $userGroup = $em->getRepository('TelepayFinancialApiBundle')->findBy(array(
+        $userGroup = $em->getRepository('TelepayFinancialApiBundle:UserGroup')->findBy(array(
             'user'  =>  $user,
             'company'   =>  $company
         ));
@@ -530,7 +530,7 @@ class NFCController extends RestApiController{
         $em = $this->getDoctrine()->getManager();
         $card = $em->getRepository('TelepayFinancialApiBundle:NFCCard')->find($id_card);
 
-        if(!$card) throw new HttpException(404, 'NFCCard not found');
+        if(!$card) throw new HttpException(404, 'NFC Card not found');
 
         if($card->getEnabled() == 0) throw new HttpException(403, 'Disabled card');
 
@@ -589,6 +589,8 @@ class NFCController extends RestApiController{
         ));
 
         if(!$card) throw new HttpException(404, 'Card not found');
+
+        if($card->getEnabled() == 0) throw new HttpException(403, 'Disabled card');
 
         $company = $card->getCompany();
 
