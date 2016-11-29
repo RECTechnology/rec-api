@@ -37,35 +37,31 @@ class KrakenTicker implements TickerInterface {
         $sum_fiat = 0.0;
 
         if($this->type == 'bid') {
-            $bids = $this->krakenDriver->QueryPublic(
+            $list = $this->krakenDriver->QueryPublic(
                 'Depth', array('pair' => $this->krakenMarket)
             )['result'][$this->krakenMarket]['bids'];
-
-            foreach($bids as $bid){
-                $sum_fiat += $bid[0] * $bid[1];
-                $sum_btc += $bid[0];
-                // 100 bitcoins
-                if($sum_btc>100){
-                    return $sum_fiat/$sum_btc;
-                }
-            }
-            return $sum_fiat/$sum_btc;
         }
-        elseif($this->type == 'ask'){
-            $asks = $this->krakenDriver->QueryPublic(
+        elseif($this->type == 'ask') {
+            $list = $this->krakenDriver->QueryPublic(
                 'Depth', array('pair' => $this->krakenMarket)
             )['result'][$this->krakenMarket]['asks'];
-
-            foreach($asks as $ask){
-                $sum_fiat += $ask[0] * $ask[1];
-                $sum_btc += $ask[0];
-                // 100 bitcoins
-                if($sum_btc>100){
-                    return 1.0/($sum_fiat/$sum_btc);
-                }
-            }
-            return 1.0/($sum_fiat/$sum_btc);
         }
+
+        foreach($list as $trans){
+            $sum_fiat += $trans[1] * $trans[0];
+            $sum_btc += $trans[1];
+            // 100 bitcoins
+            if($sum_btc>100){
+                if($this->type == 'bid') {
+                    return $sum_fiat/$sum_btc;
+                }
+                return 1.0/($sum_fiat/$sum_btc);
+            }
+        }
+        if($this->type == 'bid') {
+            return $sum_fiat/$sum_btc;
+        }
+        return 1.0/($sum_fiat/$sum_btc);
     }
 
     public function getInCurrency(){
