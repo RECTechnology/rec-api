@@ -70,6 +70,31 @@ class KYCLimits {
     private $monthly_withdraw_crypto;
 
     /**
+     * @ORM\Column(type="string", unique=true)
+     */
+    private $name;
+
+    /**
+     * @ORM\Column(type="integer")
+     */
+    private $daily_exchange;
+
+    /**
+     * @ORM\Column(type="integer")
+     */
+    private $monthly_exchange;
+
+    /**
+     * @ORM\Column(type="array")
+     */
+    private $requirements;
+
+    /**
+     * @ORM\Column(type="text")
+     */
+    private $description;
+
+    /**
      * @return mixed
      */
     public function getId()
@@ -203,6 +228,86 @@ class KYCLimits {
     public function setMonthlyWithdrawCrypto($monthly_withdraw_crypto)
     {
         $this->monthly_withdraw_crypto = $monthly_withdraw_crypto;
+    }
+
+    /**
+     * @return mixed
+     */
+    public function getName()
+    {
+        return $this->name;
+    }
+
+    /**
+     * @param mixed $name
+     */
+    public function setName($name)
+    {
+        $this->name = $name;
+    }
+
+    /**
+     * @return mixed
+     */
+    public function getDailyExchange()
+    {
+        return $this->daily_exchange;
+    }
+
+    /**
+     * @param mixed $daily_exchange
+     */
+    public function setDailyExchange($daily_exchange)
+    {
+        $this->daily_exchange = $daily_exchange;
+    }
+
+    /**
+     * @return mixed
+     */
+    public function getMonthlyExchange()
+    {
+        return $this->monthly_exchange;
+    }
+
+    /**
+     * @param mixed $monthly_exchange
+     */
+    public function setMonthlyExchange($monthly_exchange)
+    {
+        $this->monthly_exchange = $monthly_exchange;
+    }
+
+    /**
+     * @return mixed
+     */
+    public function getRequirements()
+    {
+        return $this->requirements;
+    }
+
+    /**
+     * @param mixed $requirements
+     */
+    public function setRequirements($requirements)
+    {
+        $this->requirements = $requirements;
+    }
+
+    /**
+     * @return mixed
+     */
+    public function getDescription()
+    {
+        return $this->description;
+    }
+
+    /**
+     * @param mixed $description
+     */
+    public function setDescription($description)
+    {
+        $this->description = $description;
     }
 
 
