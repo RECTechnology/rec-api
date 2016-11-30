@@ -583,7 +583,7 @@ class NFCController extends RestApiController{
                 $this->_sendUpdateCardEmail($card, 'refresh_pin');
 
                 return $this->restV2(204, 'Pin successfully changed');
-            }elseif($action == 'deactivate_card'){
+            }elseif($action == 'disable_card'){
                 if(!$request->request->has('email')) throw new HttpException(404, 'Param email not found');
                 $user = $em->getRepository('TelepayFinancialApiBundle:User')->findOneBy(array(
                     'email' =>  $request->request->get('email')
