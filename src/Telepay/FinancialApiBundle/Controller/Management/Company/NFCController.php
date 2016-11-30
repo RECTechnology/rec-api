@@ -119,16 +119,16 @@ class NFCController extends RestApiController{
 
                 foreach($exchanges as $exchange){
                     //create limit for this group
-                    $limit = new LimitDefinition();
-                    $limit->setDay(0);
-                    $limit->setWeek(0);
-                    $limit->setMonth(0);
-                    $limit->setYear(0);
-                    $limit->setTotal(0);
-                    $limit->setSingle(0);
-                    $limit->setCname('exchange_'.$exchange->getCname());
-                    $limit->setCurrency($exchange->getCurrencyOut());
-                    $limit->setGroup($company);
+//                    $limit = new LimitDefinition();
+//                    $limit->setDay(0);
+//                    $limit->setWeek(0);
+//                    $limit->setMonth(0);
+//                    $limit->setYear(0);
+//                    $limit->setTotal(0);
+//                    $limit->setSingle(0);
+//                    $limit->setCname('exchange_'.$exchange->getCname());
+//                    $limit->setCurrency($exchange->getCurrencyOut());
+//                    $limit->setGroup($company);
                     //create fee for this group
                     $fee = new ServiceFee();
                     $fee->setFixed(0);
@@ -137,7 +137,7 @@ class NFCController extends RestApiController{
                     $fee->setServiceName('exchange_'.$exchange->getCname());
                     $fee->setGroup($company);
 
-                    $em->persist($limit);
+//                    $em->persist($limit);
                     $em->persist($fee);
 
                 }
