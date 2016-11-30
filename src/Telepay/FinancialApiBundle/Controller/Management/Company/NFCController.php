@@ -412,7 +412,7 @@ class NFCController extends RestApiController{
 
         $user = $this->get('security.context')->getToken()->getUser();
 
-        $userGroup = $em->getRepository('TelepayFinancialApiBundle:UserGroup')->findBy(array(
+        $userGroup = $em->getRepository('TelepayFinancialApiBundle:UserGroup')->findOneBy(array(
             'user'  =>  $user->getId(),
             'group'   =>  $company->getId()
         ));
