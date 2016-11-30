@@ -595,7 +595,7 @@ class NFCController extends RestApiController{
                 $url = $url.'/user/deactivate_nfc/'.$user->getConfirmationToken();
 
 
-                $this->_sendDeactivateCardEmail($request->request->get('email'), $cards, 'deactivate', $url);
+                $this->_sendDeactivateCardEmail($request->request->get('email'), $cards, 'disable', $url);
 
                 return $this->restV2(204, 'Pin successfully changed');
 
@@ -998,7 +998,7 @@ class NFCController extends RestApiController{
         $mailer = 'mailer';
         $template = 'TelepayFinancialApiBundle:Email:NFCUpdate.html.twig';
 
-        $subject = 'Deactivate card';
+        $subject = 'Disable card';
         $message = \Swift_Message::newInstance()
             ->setSubject($subject)
             ->setFrom($from)
