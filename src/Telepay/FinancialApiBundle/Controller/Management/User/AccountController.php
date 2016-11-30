@@ -774,16 +774,16 @@ class AccountController extends BaseApiController{
 
         foreach($exchanges as $exchange){
             //create limit for this group
-            $limit = new LimitDefinition();
-            $limit->setDay(0);
-            $limit->setWeek(0);
-            $limit->setMonth(0);
-            $limit->setYear(0);
-            $limit->setTotal(0);
-            $limit->setSingle(0);
-            $limit->setCname('exchange_'.$exchange->getCname());
-            $limit->setCurrency($exchange->getCurrencyOut());
-            $limit->setGroup($company);
+//            $limit = new LimitDefinition();
+//            $limit->setDay(0);
+//            $limit->setWeek(0);
+//            $limit->setMonth(0);
+//            $limit->setYear(0);
+//            $limit->setTotal(0);
+//            $limit->setSingle(0);
+//            $limit->setCname('exchange_'.$exchange->getCname());
+//            $limit->setCurrency($exchange->getCurrencyOut());
+//            $limit->setGroup($company);
             //create fee for this group
             $fee = new ServiceFee();
             $fee->setFixed(0);
@@ -792,7 +792,7 @@ class AccountController extends BaseApiController{
             $fee->setServiceName('exchange_'.$exchange->getCname());
             $fee->setGroup($company);
 
-            $em->persist($limit);
+//            $em->persist($limit);
             $em->persist($fee);
 
         }
@@ -885,18 +885,18 @@ class AccountController extends BaseApiController{
                 $newFee->setCurrency(strtoupper($meth));
                 $em->persist($newFee);
 
-                //create new LimitDefinition
-                $newLimit = new LimitDefinition();
-                $newLimit->setGroup($company);
-                $newLimit->setCurrency(strtoupper($meth));
-                $newLimit->setCname($method);
-                $newLimit->setDay($daily);
-                $newLimit->setWeek(-1);
-                $newLimit->setMonth(-1);
-                $newLimit->setYear(-1);
-                $newLimit->setSingle(-1);
-                $newLimit->setTotal(-1);
-                $em->persist($newLimit);
+//                //create new LimitDefinition
+//                $newLimit = new LimitDefinition();
+//                $newLimit->setGroup($company);
+//                $newLimit->setCurrency(strtoupper($meth));
+//                $newLimit->setCname($method);
+//                $newLimit->setDay($daily);
+//                $newLimit->setWeek(-1);
+//                $newLimit->setMonth(-1);
+//                $newLimit->setYear(-1);
+//                $newLimit->setSingle(-1);
+//                $newLimit->setTotal(-1);
+//                $em->persist($newLimit);
 
                 //create new LimitCount
                 $newCount = new LimitCount();
@@ -1188,14 +1188,14 @@ class AccountController extends BaseApiController{
             'user' => $user
         ));
 
-        if(!$tierValidation) {
-            $tierValidation = new TierValidations();
-            $tierValidation->setUser($user);
-        }
+//        if(!$tierValidation) {
+//            $tierValidation = new TierValidations();
+//            $tierValidation->setUser($user);
+//        }
 
-        $tierValidation->setEmail(true);
-        $em->persist($tierValidation);
-        $em->flush();
+//        $tierValidation->setEmail(true);
+//        $em->persist($tierValidation);
+//        $em->flush();
 
         $user->setEnabled(true);
         $em->persist($user);
@@ -1205,11 +1205,11 @@ class AccountController extends BaseApiController{
             'user' => $user
         ));
 
-        if($kyc){
+//        if($kyc){
             $kyc->setEmailValidated(true);
             $em->persist($kyc);
             $em->flush();
-        }
+//        }
 
         $response = array(
             'username'  =>  $user->getUsername(),
@@ -1219,17 +1219,6 @@ class AccountController extends BaseApiController{
         return $this->restV2(201,"ok", "Validation email succesfully", $response);
 
     }
-
-    /**
-     * @Rest\View
-     */
-//    public function checkExistentUser(Request $request, $username){
-//
-//        $userRepo = $this->container->get($this->getRepositoryName());
-//        $qb = $userRepo->createQueryBuilder('q')
-//            ->field('username')->equal($username);
-//
-//    }
 
     private function _sendEmail($subject, $body, $to, $action){
         $from = 'no-reply@chip-chap.com';

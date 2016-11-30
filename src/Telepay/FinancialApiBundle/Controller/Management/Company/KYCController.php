@@ -113,4 +113,49 @@ class KYCController extends BaseApiController{
 
     }
 
+    /**
+     * @Rest\View
+     */
+    public function getKyc(){
+
+        //TODO get company
+        $user = $this->get('security.context')->getToken()->getUser();
+        $company = $user->getActiveGroup();
+        $current_tier = $company->getTier();
+        //TODO return all kyc data
+        $em = $this->getDoctrine()->getManager();
+        $user_kyc = $em->getRepository('TelepayFinancialApiBundle:KYC')->findOneBy(array(
+            'user'  =>  $user->getId()
+        ));
+
+        $response = array(
+            'current_tier'  =>  $current_tier,
+            'tier0' =>  array(
+                'account'   =>  true,
+                'email'    =>  $user_kyc->getEmailValidated(),
+                'sign_up'   =>  true,
+                'verified'  =>  $user_kyc->getEmailValidated()
+            ),
+            'tier1' =>  array(
+                'full_name' =>  $user_kyc->getFullNameValidated(),
+                'birth' =>  $user_kyc->getDateBirthValidated(),
+                'country'   =>  $user_kyc->getCountryValidated(),
+                'phone' =>  $user_kyc->getPhoneValidated(),
+                'verified'  =>  $user_kyc->getTier1Status()
+            ),
+            'tier2' =>  array(
+                'address'   =>  $user_kyc->getAddressValidated(),
+                'proof_of_residence'    =>  $user_kyc->getProofOfResidence(),
+                'verified'  =>  $user_kyc->getTier2Status()
+            ),
+            'tier3' =>  array(
+                'contact'   =>  false,
+                'verified'  =>  false
+            )
+
+        );
+
+        return $this->restV2(200, 'ok', 'Obtained data successfully', $response);
+    }
+
 }
