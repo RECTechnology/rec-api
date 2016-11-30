@@ -413,8 +413,8 @@ class NFCController extends RestApiController{
         $user = $this->get('security.context')->getToken()->getUser();
 
         $userGroup = $em->getRepository('TelepayFinancialApiBundle:UserGroup')->findBy(array(
-            'user'  =>  $user,
-            'company'   =>  $company
+            'user'  =>  $user->getId(),
+            'group'   =>  $company->getId()
         ));
 
         if(!$userGroup->hasRole('ROLE_ADMIN')) throw new HttpException(403, 'You don\'t have the necessary permissions');
