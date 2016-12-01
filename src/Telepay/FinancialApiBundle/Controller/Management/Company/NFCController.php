@@ -475,7 +475,7 @@ class NFCController extends RestApiController{
         ));
         $sender_transaction->setTotal(-$params['amount']);
         $sender_transaction->setUser($user->getId());
-        $sender_transaction->setGroup($userGroup->getId());
+        $sender_transaction->setGroup($company->getId());
 
 
         $dm = $this->get('doctrine_mongodb')->getManager();
