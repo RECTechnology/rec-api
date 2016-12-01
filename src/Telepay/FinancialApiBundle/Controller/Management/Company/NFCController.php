@@ -119,16 +119,16 @@ class NFCController extends RestApiController{
 
                 foreach($exchanges as $exchange){
                     //create limit for this group
-                    $limit = new LimitDefinition();
-                    $limit->setDay(0);
-                    $limit->setWeek(0);
-                    $limit->setMonth(0);
-                    $limit->setYear(0);
-                    $limit->setTotal(0);
-                    $limit->setSingle(0);
-                    $limit->setCname('exchange_'.$exchange->getCname());
-                    $limit->setCurrency($exchange->getCurrencyOut());
-                    $limit->setGroup($company);
+//                    $limit = new LimitDefinition();
+//                    $limit->setDay(0);
+//                    $limit->setWeek(0);
+//                    $limit->setMonth(0);
+//                    $limit->setYear(0);
+//                    $limit->setTotal(0);
+//                    $limit->setSingle(0);
+//                    $limit->setCname('exchange_'.$exchange->getCname());
+//                    $limit->setCurrency($exchange->getCurrencyOut());
+//                    $limit->setGroup($company);
                     //create fee for this group
                     $fee = new ServiceFee();
                     $fee->setFixed(0);
@@ -137,7 +137,7 @@ class NFCController extends RestApiController{
                     $fee->setServiceName('exchange_'.$exchange->getCname());
                     $fee->setGroup($company);
 
-                    $em->persist($limit);
+//                    $em->persist($limit);
                     $em->persist($fee);
 
                 }
@@ -358,6 +358,36 @@ class NFCController extends RestApiController{
     /**
      * @Rest\View
      */
+    public function deactivateCard(Request $request){
+
+        if(!$request->request->has('confirmation_token')) throw new HttpException(404, 'Param confirmation_token not found');
+
+        $token = $request->request->get('confirmation_token');
+
+        $em = $this->getDoctrine()->getManager();
+
+        $card = $em->getRepository('TelepayFinancialApiBundle:NFCCard')->findOneBy(array(
+            'confirmation_token'    =>  $token
+        ));
+
+        if(!$card) throw new HttpException(404, 'NFCCard not found');
+
+        $card->setEnabled(false);
+
+        $em->persist($card);
+        $em->flush();
+
+        $response = array(
+            'card'     =>  $card->getAlias()
+        );
+
+        return $this->restV2(201,"ok", "Deactivate NFC Card succesfully", $response);
+
+    }
+
+    /**
+     * @Rest\View
+     */
     public function rechargeCard(Request $request, $company_id){
 
         $paramNames = array(
@@ -382,14 +412,15 @@ class NFCController extends RestApiController{
 
         $user = $this->get('security.context')->getToken()->getUser();
 
-        $userGroup = $em->getRepository('TelepayFinancialApiBundle:UserGroup')->findBy(array(
-            'user'  =>  $user,
-            'company'   =>  $company
+        $userGroup = $em->getRepository('TelepayFinancialApiBundle:UserGroup')->findOneBy(array(
+            'user'  =>  $user->getId(),
+            'group'   =>  $company->getId()
         ));
 
         if(!$userGroup->hasRole('ROLE_ADMIN')) throw new HttpException(403, 'You don\'t have the necessary permissions');
 
-        $card = $em->getRepository('TelepayFinancialApiBundle:NFCCard')->find($params['id_card']);
+        $card = $em->getRepository('TelepayFinancialApiBundle:NFCCard')->findOneBy(array(
+            'id_card'   =>  $params['id_card']));
 
         if(!$card) throw new HttpException(404, 'NFC Card not found');
 
@@ -444,7 +475,7 @@ class NFCController extends RestApiController{
         ));
         $sender_transaction->setTotal(-$params['amount']);
         $sender_transaction->setUser($user->getId());
-        $sender_transaction->setGroup($userGroup->getId());
+        $sender_transaction->setGroup($company->getId());
 
 
         $dm = $this->get('doctrine_mongodb')->getManager();
@@ -524,19 +555,25 @@ class NFCController extends RestApiController{
     /**
      * @Rest\View
      */
-    public function updateCard(Request $request, $id_card){
+    public function updateCard(Request $request){
 
+        //TODO deactivate card by email
         //get card
         $em = $this->getDoctrine()->getManager();
-        $card = $em->getRepository('TelepayFinancialApiBundle:NFCCard')->find($id_card);
-
-        if(!$card) throw new HttpException(404, 'NFC Card not found');
-
-        if($card->getEnabled() == 0) throw new HttpException(403, 'Disabled card');
 
         if($request->request->has('action')){
             $action = $request->request->get('action');
             if($action == 'refresh_pin'){
+                if(!$request->request->has('id_card')) throw new HttpException(404, 'id_card not found');
+                $id_card = $request->request->get('id_card');
+
+                $card = $em->getRepository('TelepayFinancialApiBundle:NFCCard')->findOneBy(array(
+                    'id_card'   =>  $id_card
+                ));
+
+                if(!$card) throw new HttpException(404, 'NFC Card not found');
+
+                if($card->getEnabled() == 0) throw new HttpException(403, 'Disabled card');
                 //generate new pin
                 $pin = rand(0,9999);
                 $card->setPin($pin);
@@ -547,13 +584,19 @@ class NFCController extends RestApiController{
                 $this->_sendUpdateCardEmail($card, 'refresh_pin');
 
                 return $this->restV2(204, 'Pin successfully changed');
-            }elseif($action == 'deactivate_card'){
+            }elseif($action == 'disable_card'){
+                if(!$request->request->has('email')) throw new HttpException(404, 'Param email not found');
+                $user = $em->getRepository('TelepayFinancialApiBundle:User')->findOneBy(array(
+                    'email' =>  $request->request->get('email')
+                ));
+                $cards = $em->getRepository('TelepayFinancialApiBundle:NFCCard')->findBy(array(
+                    'user'   =>  $user->getId()
+                ));
+                $url = $this->container->getParameter('base_panel_url');
+                $url = $url.'/user/deactivate_nfc/';
 
-                $card->setEnabled(false);
-                $em->persist($card);
-                $em->flush();
 
-                $this->_sendUpdateCardEmail($card, 'deactivate');
+                $this->_sendDeactivateCardEmail($request->request->get('email'), $cards, 'disable', $url);
 
                 return $this->restV2(204, 'Pin successfully changed');
 
@@ -949,5 +992,32 @@ class NFCController extends RestApiController{
             $pass[] = $alphabet[$n];
         }
         return implode($pass); //turn the array into a string
+    }
+
+    private function _sendDeactivateCardEmail($email, $cards, $action, $url){
+        $from = 'no-reply@chip-chap.com';
+        $mailer = 'mailer';
+        $template = 'TelepayFinancialApiBundle:Email:NFCUpdate.html.twig';
+
+        $subject = 'Disable card';
+        $message = \Swift_Message::newInstance()
+            ->setSubject($subject)
+            ->setFrom($from)
+            ->setTo(array(
+                $email
+            ))
+            ->setBody(
+                $this->container->get('templating')
+                    ->render($template,
+                        array(
+                            'cards'  =>  $cards,
+                            'action'    =>  $action,
+                            'url'   =>  $url
+                        )
+                    )
+            )
+            ->setContentType('text/html');
+
+        $this->container->get($mailer)->send($message);
     }
 }

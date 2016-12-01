@@ -83,7 +83,9 @@ class KycListener
 
     private function checkKYC($changeset, KYC $kyc)
     {
-        if (isset($changeset['phone']) || isset($changeset['lastname']) || isset($changeset['dateBirth'])) {
+        if (isset($changeset['phone']) ||
+            isset($changeset['lastname']) ||
+            isset($changeset['dateBirth'])) {
             $this->logger->info('POST-UPDATE - changing susceptible fields in kyc');
             //TODO send change email
             $body = array(

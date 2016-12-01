@@ -250,26 +250,28 @@ admin_KYC_update:
     requirements:
         _method: PUT
 
-##################### KYC LIMITS ############################
+##################### TIER LIMITS ############################
 
 admin_KYC_limit_index:
-    pattern: /admin/v1/kyc/limit
-    defaults: { _controller: Telepay\FinancialApiBundle\Controller\Management\Admin\KYCLimitController::indexAction }
+    pattern: /admin/v1/tier/limit
+    defaults: { _controller: Telepay\FinancialApiBundle\Controller\Management\Admin\TierLimitController::indexAction }
     requirements:
         _method: GET
 
 admin_KYC_limit_create:
-    pattern: /admin/v1/kyc/limit
-    defaults: { _controller: Telepay\FinancialApiBundle\Controller\Management\Admin\KYCLimitController::createAction }
+    pattern: /admin/v1/tier/limit
+    defaults: { _controller: Telepay\FinancialApiBundle\Controller\Management\Admin\TierLimitController::createAction }
     requirements:
         _method: POST
 
 admin_kyc_limit_update:
-    pattern: /admin/v1/kyc/limit/{id}
-    defaults: { _controller: Telepay\FinancialApiBundle\Controller\Management\Admin\KYCLimitController::updateAction }
+    pattern: /admin/v1/tier/limit/{id}
+    defaults: { _controller: Telepay\FinancialApiBundle\Controller\Management\Admin\TierLimitController::updateAction }
     requirements:
         _method: PUT
 
 admin_kyc_limit_delete:
-    pattern: /admin/v1/kyc/limit/{id}
-    defaults: { _controller: Teepay\FinancialApiBundle\Controller\Management\Admin\KYCLimitController::deleteAction }
+    pattern: /admin/v1/tier/limit/{id}
+    defaults: { _controller: Telepay\FinancialApiBundle\Controller\Management\Admin\TierLimitController::deleteAction }
+    requirements:
+        _moethod: DELETE

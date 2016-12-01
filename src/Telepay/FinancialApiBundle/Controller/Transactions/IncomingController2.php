@@ -184,8 +184,11 @@ class IncomingController2 extends RestApiController{
         $groupLimitCount = $this->_getLimitCount($group, $method);
 
         //TODO change this for tiers
+        //TODO get limit manipulator
+        $limitManipulator = $this->get('net.telepay.commons.limit_manipulator');
+
         //obtain group limit
-        $group_limit = $this->_getLimits($group, $method);
+        $group_limit = $limitManipulator->getMethodLimits($group, $method);
 
         //update group limit counters
         $newGroupLimitCount = (new LimitAdder())->add( $groupLimitCount, $total);
@@ -1250,12 +1253,13 @@ class IncomingController2 extends RestApiController{
             }
         }
 
-        //if limit doesn't exist create it
+        //if limit doesn't exist search in tierLimit
         if(!$group_limit){
-            $group_limit = LimitDefinition::createFromController($method->getCname().'-'.$method->getType(), $group);
-            $group_limit->setCurrency($method->getCurrency());
-            $em->persist($group_limit);
-            $em->flush();
+            $tier = $group->getTier();
+            $group_limit = $em->getRepository('TelepayFinancialApiBundle:TierLimit')->findOneBy(array(
+                'tier'  =>  $tier,
+                'method'    =>  $method->getCname().'-'.$method->getType()
+            ));
         }
 
         return $group_limit;
