@@ -88,7 +88,7 @@
         <p>Desactiva una de estas cards:</p>
         <ul>
             {% for card in cards %}
-                <li><a href="{{ url }}/{{ card.confirmation_token }}">{{ card.alias }}</li>
+                <li><a href="{{ url }}{{ card.confirmation_token }}">{{ card.alias }}</li>
             {% endfor %}
         </ul>
     {% endif %}
