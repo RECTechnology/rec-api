@@ -25,8 +25,10 @@ class CheckCryptoCommand extends SyncronizedContainerAwareCommand
 
     protected function executeSyncronized(InputInterface $input, OutputInterface $output){
         $n = 0;
-        $exec_n_times = 1000    ;
-        while($n<$exec_n_times) {
+        $exec_n_times = 1000;
+        $init = time();
+        $now = time();
+        while($n<$exec_n_times && ($now - $init) < 58) {
             $method_cname = array('fac', 'btc');
             $type = 'in';
 
@@ -186,8 +188,9 @@ class CheckCryptoCommand extends SyncronizedContainerAwareCommand
 
             $dm->flush();
 
-            $output->writeln('(' . $n . ')Crypto transactions checked');
+            $output->writeln('(' . $n . ')Crypto transactions checked in ' . $now - $init . ' seconds');
             $n++;
+            $now = time();
         }
         $output->writeln('Crypto transactions finished');
     }
