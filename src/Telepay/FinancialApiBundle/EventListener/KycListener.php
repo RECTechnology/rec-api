@@ -87,7 +87,7 @@ class KycListener
             isset($changeset['lastname']) ||
             isset($changeset['dateBirth'])) {
             $this->logger->info('POST-UPDATE - changing susceptible fields in kyc');
-            //TODO send change email
+            //send change email
             $body = array(
                 'message'   =>  'El Usuario '.$kyc->getUser()->getUsername().' ha cambiado algunos parametros susceptibles del kyc del usuario en la tabla kyc'
             );
@@ -101,6 +101,16 @@ class KycListener
 
         }elseif(isset($changeset['tier2_status'])){
 
+        }
+
+        if(isset($changeset['full_name_validated']) ||
+            isset($changeset['dateBirth_validated'])||
+            isset($changeset['country_validated'])||
+            isset($changeset['address_validated'])||
+            isset($changeset['proof_of_residence'])||
+            isset($changeset['document_validated'])
+        ){
+            $this->_checkTier($kyc);
         }
 
         return;
@@ -159,6 +169,39 @@ class KycListener
             ->setContentType('text/html');
 
         $this->container->get($mailer)->send($message);
+    }
+
+    private function _checkTier(KYC $kyc){
+
+        $user = $kyc->getUser();
+        //search all companies that this is the responsible
+        $em = $this->container->get('doctrine')->getManager();
+
+        $companies = $em->getRepository('TelepayFinancialApiBundle:Group')->findBy(array(
+            'kyc_manager'   =>  $user->getId()
+        ));
+        $tier = 0;
+        if($kyc->getEmailValidated() == true){
+            $tier = 0;
+        }
+
+        if($kyc->getFullNameValidated() == true &&
+            $kyc->getDateBirth() == true &&
+            $kyc->getPhoneValidated() == true &&
+            $kyc->getCountryValidated() == true){
+
+            $tier = 1;
+        }
+
+        if($kyc->getAddressValidated() == true && $kyc->getProofOfResidence() == true){
+            $tier = 2;
+        }
+
+        foreach($companies as $company){
+            $company->setTier($tier);
+            $em->flush();
+        }
+
     }
 
 

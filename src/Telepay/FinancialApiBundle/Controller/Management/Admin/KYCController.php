@@ -9,6 +9,7 @@
 
 namespace Telepay\FinancialApiBundle\Controller\Management\Admin;
 
+use FOS\OAuthServerBundle\Propel\RefreshTokenQuery;
 use Symfony\Component\HttpFoundation\File\File;
 use Symfony\Component\HttpKernel\Exception\HttpException;
 use FOS\RestBundle\Controller\Annotations as Rest;
@@ -51,6 +52,15 @@ class KYCController extends BaseApiController{
      * @Rest\View
      */
     public function updateAction(Request $request, $id){
+
+        return parent::updateAction($request, $id);
+
+    }
+
+    /**
+     * @Rest\View
+     */
+    public function updateActionOld(Request $request, $id){
 
         $paramNames = array(
             'tier',
