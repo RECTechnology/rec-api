@@ -98,9 +98,26 @@ class KycListener
             $action = 'user_kyc';
             $this->_sendEmail('KYC Alert change', $body, $to, $action);
         }elseif(isset($changeset['tier1_status'])){
-
+            // send email to know qhich user is up
+            $body = array(
+                'message'   =>  'El Usuario '.$kyc->getUser()->getUsername().' ahora es TIER 1 VALIDADO'
+            );
+            $to = array(
+                'pere@chip-chap.com',
+                'cto@chip-chap.com'
+            );
+            $action = 'user_kyc';
+            $this->_sendEmail('KYC Alert promote TIER', $body, $to, $action);
         }elseif(isset($changeset['tier2_status'])){
-
+            $body = array(
+                'message'   =>  'El Usuario '.$kyc->getUser()->getUsername().' ahora es TIER 2 VALIDADO'
+            );
+            $to = array(
+                'pere@chip-chap.com',
+                'cto@chip-chap.com'
+            );
+            $action = 'user_kyc';
+            $this->_sendEmail('KYC Alert promote TIER', $body, $to, $action);
         }
 
         if(isset($changeset['full_name_validated']) ||
@@ -190,12 +207,18 @@ class KycListener
             $kyc->getPhoneValidated() == true &&
             $kyc->getCountryValidated() == true){
 
+            if($kyc->getTier1Status() != 'success'){
+                $kyc->setTier1Status('success');
+            }
             $tier = 1;
         }
 
         if($kyc->getAddressValidated() == true && $kyc->getProofOfResidence() == true){
             $tier = 2;
+            $kyc->setTier2Status('success');
         }
+
+        $em->flush();
 
         foreach($companies as $company){
             $company->setTier($tier);
