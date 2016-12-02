@@ -183,8 +183,7 @@ class IncomingController2 extends RestApiController{
         //obtain group limitsCount for this method
         $groupLimitCount = $this->_getLimitCount($group, $method);
 
-        //TODO change this for tiers
-        //TODO get limit manipulator
+        //get limit manipulator
         $limitManipulator = $this->get('net.telepay.commons.limit_manipulator');
 
         //obtain group limit
@@ -227,6 +226,8 @@ class IncomingController2 extends RestApiController{
                 }
                 //desbloqueamos la pasta del wallet
                 $wallet->setAvailable($wallet->getAvailable() + $total);
+                //descontamos del counter
+                $newGroupLimitCount = (new LimitAdder())->restore( $groupLimitCount, $total);
                 $em->persist($wallet);
                 $em->flush();
                 $dm->persist($transaction);

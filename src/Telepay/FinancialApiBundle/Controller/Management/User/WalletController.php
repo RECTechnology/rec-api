@@ -14,6 +14,7 @@ use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpKernel\Exception\HttpException;
 use Telepay\FinancialApiBundle\Controller\RestApiController;
+use Telepay\FinancialApiBundle\DependencyInjection\Telepay\Commons\LimitAdder;
 use Telepay\FinancialApiBundle\Document\Transaction;
 use Telepay\FinancialApiBundle\Financial\Currency;
 
@@ -986,40 +987,6 @@ class WalletController extends RestApiController{
 
     }
 
-//    public function _exchange($amount, $curr_in, $curr_out){
-//
-//        $dm = $this->getDoctrine()->getManager();
-//        $exchangeRepo = $dm->getRepository('TelepayFinancialApiBundle:Exchange');
-//        $exchange = $exchangeRepo->findOneBy(
-//            array('src'=>$curr_in,'dst'=>$curr_out),
-//            array('id'=>'DESC')
-//        );
-//
-//        if(!$exchange) throw new HttpException(404,'Exchange not found');
-//
-//        $price = $exchange->getPrice();
-//
-//        $total = round($amount * $price,0);
-//
-//        return $total;
-//
-//    }
-
-//    public function _getExchangePrice($amount, $curr_in, $curr_out){
-//        $dm = $this->getDoctrine()->getManager();
-//        $exchangeRepo = $dm->getRepository('TelepayFinancialApiBundle:Exchange');
-//        $exchange = $exchangeRepo->findOneBy(
-//            array('src'=>$curr_in,'dst'=>$curr_out),
-//            array('id'=>'DESC')
-//        );
-//
-//        if(!$exchange) throw new HttpException(404,'Exchange not found');
-//
-//        $price = $exchange->getPrice();
-//
-//        return $price;
-//    }
-
     public function _getBenefits($interval, $start = null, $end =null){
         $userGroup = $this->get('security.context')->getToken()->getUser()->getActiveGroup();
         $default_currency = $userGroup->getDefaultCurrency();
@@ -1163,37 +1130,6 @@ class WalletController extends RestApiController{
     }
 
     /**
-     * makes an exchange between currencies in the wallet. Called by currencyExchange
-     */
-//    public function exchange(UserWallet $wallet, $currency){
-//
-//        $currency_actual = $wallet->getCurrency();
-//        if($currency_actual == $currency){
-//            $response['available'] = $wallet->getAvailable();
-//            $response['balance'] = $wallet->getBalance();
-//            $response['scale'] = $wallet->getScale();
-//            return $response;
-//        }
-//        $dm = $this->getDoctrine()->getManager();
-//        $exchangeRepo = $dm->getRepository('TelepayFinancialApiBundle:Exchange');
-//        $exchange = $exchangeRepo->findOneBy(
-//            array('src'=>$currency_actual,'dst'=>$currency),
-//            array('id'=>'DESC')
-//        );
-//
-//        if(!$exchange) throw new HttpException(404,'Exchange not found');
-//
-//        $price = $exchange->getPrice();
-//
-//        $response['available'] = round($wallet->getAvailable() * $price, 0);
-//        $response['balance'] = round($wallet->getBalance() * $price,0);
-//        $response['scale'] = null;
-//
-//        return $response;
-//
-//    }
-
-    /**
      * makes an exchange between wallets
      */
     public function currencyExchange(Request $request){
@@ -1226,7 +1162,7 @@ class WalletController extends RestApiController{
 
         $from = strtoupper($params['from']);
         $to = strtoupper($params['to']);
-        $service = 'exchange'.'_'.$from.'to'.$to;
+        $method = 'exchange'.'_'.$from.'to'.$to;
 
         //check if method is available
         $statusMethod = $em->getRepository('TelepayFinancialApiBundle:StatusMethod')->findOneBy(array(
@@ -1235,13 +1171,6 @@ class WalletController extends RestApiController{
         ));
 
         if($statusMethod->getStatus() != 'available') throw new HttpException(403, 'Exchange temporally unavailable');
-
-        //check group exchange limits
-        $limit = $em->getRepository('TelepayFinancialApiBundle:LimitDefinition')->findOneBy(array(
-            'cname'     =>  $service,
-            'group'     => $userGroup->getId()
-        ));
-        if($limit->getEnabled()==0)throw new HttpException(403, 'Exchange temporally unavailable');
 
         $exchanger = $this->container->get('net.telepay.commons.exchange_manipulator');
 

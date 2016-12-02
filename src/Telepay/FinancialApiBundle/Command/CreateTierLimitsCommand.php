@@ -7,6 +7,7 @@ use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
 use Telepay\FinancialApiBundle\Entity\TierLimit;
+use Telepay\FinancialApiBundle\Financial\Currency;
 
 class CreateTierLimitsCommand extends ContainerAwareCommand
 {
@@ -48,21 +49,20 @@ class CreateTierLimitsCommand extends ContainerAwareCommand
 
         }
 
-        $exchanges = $this->getContainer()->get('net.telepay.exchange_provider')->findAll();
-
-        foreach($exchanges as $exchange){
+        $currencies = Currency::$ALL;
+        foreach($currencies as $currency){
 
             $tier0 = new TierLimit();
-            $tier0->createDefault(0, 'exchange_'.$exchange->getCname(), $exchange->getCurrencyOut());
+            $tier0->createDefault(0, 'exchange_'.$currency, $currency);
 
             $tier1 = new TierLimit();
-            $tier1->createDefault(1, 'exchange_'.$exchange->getCname(), $exchange->getCurrencyOut());
+            $tier1->createDefault(1, 'exchange_'.$currency, $currency);
 
             $tier2 = new TierLimit();
-            $tier2->createDefault(2, 'exchange_'.$exchange->getCname(), $exchange->getCurrencyOut());
+            $tier2->createDefault(2, 'exchange_'.$currency, $currency);
 
             $tier3 = new TierLimit();
-            $tier3->createDefault(3, 'exchange_'.$exchange->getCname(), $exchange->getCurrencyOut());
+            $tier3->createDefault(3, 'exchange_'.$currency, $currency);
 
             $em->persist($tier0);
             $em->persist($tier1);
@@ -72,6 +72,31 @@ class CreateTierLimitsCommand extends ContainerAwareCommand
             $em->flush();
 
         }
+
+//        $exchanges = $this->getContainer()->get('net.telepay.exchange_provider')->findAll();
+//
+//        foreach($exchanges as $exchange){
+//
+//            $tier0 = new TierLimit();
+//            $tier0->createDefault(0, 'exchange_'.$exchange->getCname(), $exchange->getCurrencyOut());
+//
+//            $tier1 = new TierLimit();
+//            $tier1->createDefault(1, 'exchange_'.$exchange->getCname(), $exchange->getCurrencyOut());
+//
+//            $tier2 = new TierLimit();
+//            $tier2->createDefault(2, 'exchange_'.$exchange->getCname(), $exchange->getCurrencyOut());
+//
+//            $tier3 = new TierLimit();
+//            $tier3->createDefault(3, 'exchange_'.$exchange->getCname(), $exchange->getCurrencyOut());
+//
+//            $em->persist($tier0);
+//            $em->persist($tier1);
+//            $em->persist($tier2);
+//            $em->persist($tier3);
+//
+//            $em->flush();
+//
+//        }
 
     }
 

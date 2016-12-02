@@ -8,6 +8,7 @@ use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Component\HttpKernel\Exception\HttpException;
 use Telepay\FinancialApiBundle\DependencyInjection\Telepay\Commons\FeeDeal;
+use Telepay\FinancialApiBundle\DependencyInjection\Telepay\Commons\LimitAdder;
 use Telepay\FinancialApiBundle\Document\Transaction;
 use Telepay\FinancialApiBundle\Entity\Exchange;
 use Telepay\FinancialApiBundle\Financial\Currency;
@@ -61,29 +62,31 @@ class CheckCryptoCommand extends SyncronizedContainerAwareCommand
                         $dm->persist($transaction);
                         $dm->flush();
 
+                        $groupId = $transaction->getGroup();
+                        $group = $repoGroup->find($groupId);
+
+                        $fixed_fee = $transaction->getFixedFee();
+                        $variable_fee = $transaction->getVariableFee();
+                        $total_fee = $fixed_fee + $variable_fee;
+                        $amount = $data['amount'];
+                        $total = $amount - $total_fee;
+
                         if ($transaction->getStatus() == Transaction::$STATUS_SUCCESS) {
                             //hacemos el reparto
                             //primero al user
                             $output->writeln('CHECK CRYPTO success');
                             $id = $transaction->getUser();
-                            $groupId = $transaction->getGroup();
-
                             $transaction_id = $transaction->getId();
-                            //$user = $repo->find($id);
-                            $group = $repoGroup->find($groupId);
 
                             $service_currency = $transaction->getCurrency();
                             $wallet = $group->getWallet($service_currency);
 
-                            $amount = $data['amount'];
+
 
                             //if group has
                             if (!$group->hasRole('ROLE_SUPER_ADMIN')) {
                                 $output->writeln('CHECK CRYPTO no superadmin');
-                                $fixed_fee = $transaction->getFixedFee();
-                                $variable_fee = $transaction->getVariableFee();
-                                $total_fee = $fixed_fee + $variable_fee;
-                                $total = $amount - $total_fee;
+
                                 $output->writeln('CHECK CRYPTO add to wallet');
                                 $wallet->setAvailable($wallet->getAvailable() + $total);
                                 $wallet->setBalance($wallet->getBalance() + $total);
@@ -167,10 +170,12 @@ class CheckCryptoCommand extends SyncronizedContainerAwareCommand
                             }
 
                         } elseif ($transaction->getStatus() == Transaction::$STATUS_EXPIRED) {
-                            //SEND AN EMAIL
-//                            $this->sendEmail(
-//                                $method . ' Expired --> ' . $transaction->getStatus(),
-//                                'Transaction created at: ' . $transaction->getCreated() . ' - Updated at: ' . $transaction->getUpdated() . ' Time server: ' . date("Y-m-d H:i:s"));
+                            $groupLimitCount = $em->getRepository('TelepayFinancialApiBundle:LimitCount')->findOneBy(array(
+                                'group' =>  $group->getId(),
+                                'cname' =>  $method.'-'.$type
+                            ));
+                            $newGroupLimitCount = (new LimitAdder())->restore( $groupLimitCount, $total);
+                            $em->flush();
                         }
                     }
 
