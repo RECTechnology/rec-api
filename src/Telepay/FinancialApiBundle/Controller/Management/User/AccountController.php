@@ -835,9 +835,10 @@ class AccountController extends BaseApiController{
 
         $kyc = new KYC();
         $kyc->setUser($user);
+        $kyc->setEmail($user->getEmail());
 
         $em->persist($userGroup);
-        $em->persist($user);
+        $em->persist($kyc);
         $em->flush();
 
         if($type == 'prestashop') {
@@ -888,19 +889,6 @@ class AccountController extends BaseApiController{
                 $newFee->setServiceName($method);
                 $newFee->setCurrency(strtoupper($meth));
                 $em->persist($newFee);
-
-//                //create new LimitDefinition
-//                $newLimit = new LimitDefinition();
-//                $newLimit->setGroup($company);
-//                $newLimit->setCurrency(strtoupper($meth));
-//                $newLimit->setCname($method);
-//                $newLimit->setDay($daily);
-//                $newLimit->setWeek(-1);
-//                $newLimit->setMonth(-1);
-//                $newLimit->setYear(-1);
-//                $newLimit->setSingle(-1);
-//                $newLimit->setTotal(-1);
-//                $em->persist($newLimit);
 
                 //create new LimitCount
                 $newCount = new LimitCount();
