@@ -76,7 +76,7 @@ class CompanyLimitController extends BaseApiController{
         if($limit) throw new HttpException(403, 'This limmit already exists, please update it');
         $request->request->remove('company_id');
         $request->request->add(array(
-            'group' =>  $company
+            'group' =>  $company->getId()
         ));
 
         return parent::createAction($request);
