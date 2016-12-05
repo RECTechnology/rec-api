@@ -685,6 +685,11 @@ class NFCController extends RestApiController{
         //Check funds sender wallet
         if($senderWallet->getAvailable() < $params['amount']) throw new HttpException(403, 'Insuficient funds');
 
+        $concept = 'walletToWallet from ANDROID APP';
+        $url_notification = '';
+        if($request->request->has('url_notification')) $url_notification = $request->request->get('url_notification');
+        if($request->request->has('concept')) $concept = $request->request->get('concept');
+
         //SENDER TRANSACTION
         $sender_transaction = new Transaction();
         $sender_transaction->setStatus(Transaction::$STATUS_SUCCESS);
@@ -714,7 +719,8 @@ class NFCController extends RestApiController{
             'amount'    =>  -$params['amount'],
             'currency'  =>  Currency::$FAC,
             'scale'     =>  Currency::$SCALE[Currency::$FAC],
-            'concept'       =>  'walletToWallet from ANDROID APP'
+            'concept'       =>  $concept,
+            'url_notification'  =>  $url_notification
         ));
         $sender_transaction->setTotal(-$params['amount']);
         $sender_transaction->setUser($card->getUser()->getId());
