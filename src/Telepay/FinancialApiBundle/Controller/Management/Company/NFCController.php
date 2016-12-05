@@ -659,7 +659,8 @@ class NFCController extends RestApiController{
 
         $paramNames = array(
             'id_card',
-            'amount'
+            'amount',
+            'signature'
         );
         $params = array();
         foreach($paramNames as $paramName){
@@ -669,6 +670,11 @@ class NFCController extends RestApiController{
                 throw new HttpException(404, 'Param '.$paramName.' not found');
             }
         }
+
+        $data_to_sign = $params['amount'] . $params['id_card'] . $id_company;
+        $signature = hash_hmac('sha256', $data_to_sign, $receiverCompany->getAccessSecret());
+
+        if($params['signature'] != $signature) throw new HttpException(403, 'Bad signature');
 
         $card = $em->getRepository('TelepayFinancialApiBundle:Group')->find($params['id_card']);
 
