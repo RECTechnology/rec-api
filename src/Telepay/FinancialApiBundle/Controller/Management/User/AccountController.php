@@ -833,7 +833,11 @@ class AccountController extends BaseApiController{
         $userGroup->setGroup($company);
         $userGroup->setRoles(array('ROLE_ADMIN'));
 
+        $kyc = new KYC();
+        $kyc->setUser($user);
+
         $em->persist($userGroup);
+        $em->persist($user);
         $em->flush();
 
         if($type == 'prestashop') {
