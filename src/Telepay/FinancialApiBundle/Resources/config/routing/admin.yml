@@ -275,3 +275,29 @@ admin_kyc_limit_delete:
     defaults: { _controller: Telepay\FinancialApiBundle\Controller\Management\Admin\TierLimitController::deleteAction }
     requirements:
         _moethod: DELETE
+
+##################### LIMITS ############################
+
+admin_specific_limit_index:
+    pattern: /admin/v1/limit
+    defaults: { _controller: Telepay\FinancialApiBundle\Controller\Management\Admin\CompanyLimitController::indexAction }
+    requirements:
+        _method: GET
+
+admin_specific_limit_create:
+    pattern: /admin/v1/limit
+    defaults: { _controller: Telepay\FinancialApiBundle\Controller\Management\Admin\CompanyLimitController::createAction }
+    requirements:
+        _method: POST
+
+admin_specific_limit_update:
+    pattern: /admin/v1/limit/{id}
+    defaults: { _controller: Telepay\FinancialApiBundle\Controller\Management\Admin\CompanyLimitController::updateAction }
+    requirements:
+        _method: PUT
+
+admin_specific_limit_delete:
+    pattern: /admin/v1/limit/{id}
+    defaults: { _controller: Telepay\FinancialApiBundle\Controller\Management\Admin\CompanyLimitController::deleteAction }
+    requirements:
+        _moethod: DELETE

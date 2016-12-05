@@ -154,13 +154,7 @@ class KycListener
 
     private function checkCompanyKYC($changeset, Group $company)
     {
-        if ($company->getEmail()) {
-            $this->logger->info('POST-UPDATE - changing susceptible fields in company');
-            //TODO send email
-            return;
-        }
 
-        // ...
     }
 
     private function _sendEmail($subject, $body, $to, $action){
