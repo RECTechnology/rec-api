@@ -31,11 +31,8 @@ class User extends BaseUser
     {
         parent::__construct();
         $this->groups = new ArrayCollection();
-//        $this->limit_counts = new ArrayCollection();
-//        $this->wallets = new ArrayCollection();
         $this->btc_addresses = new ArrayCollection();
         $this->devices = new ArrayCollection();
-//        $this->clients = new ArrayCollection();
 
         if($this->access_key == null){
             $generator = new SecureRandom();
@@ -75,18 +72,6 @@ class User extends BaseUser
      * @ORM\OneToMany(targetEntity="Telepay\FinancialApiBundle\Entity\AuthCode", mappedBy="user", cascade={"remove"})
      */
     private $auth_code;
-
-//    /**
-//     * @ORM\OneToMany(targetEntity="Telepay\FinancialApiBundle\Entity\LimitCount", mappedBy="user", cascade={"remove"})
-//     * @Expose
-//     */
-//    private $limit_counts;
-
-//    /**
-//     * @ORM\OneToMany(targetEntity="Telepay\FinancialApiBundle\Entity\UserWallet", mappedBy="user", cascade={"remove"})
-//     * @Expose
-//     */
-//    private $wallets;
 
     /**
      * @ORM\OneToOne(targetEntity="Telepay\FinancialApiBundle\Entity\BTCWallet", mappedBy="user", cascade={"remove"})
@@ -136,18 +121,6 @@ class User extends BaseUser
      */
     private $gcm_group_key;
 
-//    /**
-//     * @ORM\Column(type="string", length=1000)
-//     * @Expose
-//     */
-//    private $services_list;
-//
-//    /**
-//     * @ORM\Column(type="string", length=1000)
-//     * @Expose
-//     */
-//    private $methods_list;
-
     /**
      * @ORM\Column(type="boolean")
      * @Expose
@@ -159,33 +132,6 @@ class User extends BaseUser
      * @Expose
      */
     private $twoFactorCode;
-
-//    /**
-//     * @ORM\OneToMany(targetEntity="Telepay\FinancialApiBundle\Entity\Balance", mappedBy="user", cascade={"remove"})
-//     */
-//    private $balance;
-
-//    /**
-//     * @ORM\OneToMany(targetEntity="Telepay\FinancialApiBundle\Entity\CashInTokens", mappedBy="user", cascade={"remove"})
-//     * @Expose
-//     */
-//    private $cash_in_tokens;
-
-//    /**
-//     * @ORM\OneToMany(targetEntity="Telepay\FinancialApiBundle\Entity\Client", mappedBy="user", cascade={"remove"})
-//     * @Expose
-//     */
-//    private $clients;
-
-//    /**
-//     * @Expose
-//     */
-//    private $allowed_services = array();
-//
-//    /**
-//     * @Expose
-//     */
-//    private $allowed_methods = array();
 
     /**
      * @Expose
@@ -239,14 +185,6 @@ class User extends BaseUser
     {
         $this->name = $name;
     }
-
-//    /**
-//     * @param array $allowed_services
-//     */
-//    public function setAllowedServices($allowed_services)
-//    {
-//        $this->allowed_services = $allowed_services;
-//    }
 
     /**
      * @return mixed
@@ -311,54 +249,6 @@ class User extends BaseUser
     {
         $this->base64_image = $base64_image;
     }
-
-//    /**
-//     * @return mixed
-//     */
-//    public function getLimitCount()
-//    {
-//        return $this->limit_counts;
-//    }
-//
-//    /**
-//     * @param mixed $limit_count
-//     */
-//    public function setLimitCount($limit_count)
-//    {
-//        $this->limit_counts = $limit_count;
-//    }
-//
-//    /**
-//     * @return mixed
-//     */
-//    public function getWallets()
-//    {
-//        return $this->wallets;
-//    }
-//
-//    /**
-//     * @param mixed $wallets
-//     */
-//    public function setWallets($wallets)
-//    {
-//        $this->wallets = $wallets;
-//    }
-//
-//    /**
-//     * @return mixed
-//     */
-//    public function getDefaultCurrency()
-//    {
-//        return $this->default_currency;
-//    }
-//
-//    /**
-//     * @param mixed $default_currency
-//     */
-//    public function setDefaultCurrency($default_currency)
-//    {
-//        $this->default_currency = $default_currency;
-//    }
 
     /**
      * @return mixed
@@ -432,72 +322,6 @@ class User extends BaseUser
         $this->gcm_group_key = $gcm_group_key;
     }
 
-//    /**
-//     * @return mixed
-//     */
-//    public function getBalance()
-//    {
-//        return $this->balance;
-//    }
-//
-//    /**
-//     * @param mixed $balance
-//     */
-//    public function setBalance($balance)
-//    {
-//        $this->balance = $balance;
-//    }
-
-//    /**
-//     * @return mixed
-//     */
-//    public function getServicesList()
-//    {
-//        return json_decode($this->services_list);
-//    }
-//
-//    /**
-//     * @param mixed $services_list
-//     */
-//    public function setServicesList($services_list)
-//    {
-//        $this->services_list = json_encode($services_list);
-//    }
-//
-//    /**
-//     * @param mixed $cname
-//     */
-//    public function addService($cname){
-//        $new = array($cname);
-//        $merge = array_merge($this->services_list, $new);
-//        $result = array_unique($merge, SORT_REGULAR);
-//        $this->services_list = json_encode($result);
-//    }
-//
-//    /**
-//     * @param mixed $cname
-//     */
-//    public function removeService($cname){
-//        $result = array_diff(json_decode($this->services_list), array($cname));
-//        $this->services_list = json_encode(array_values($result));
-//    }
-
-//    /**
-//     * @return mixed
-//     */
-//    public function getCashInTokens()
-//    {
-//        return $this->cash_in_tokens;
-//    }
-//
-//    /**
-//     * @param mixed $cash_in_tokens
-//     */
-//    public function setCashInTokens($cash_in_tokens)
-//    {
-//        $this->cash_in_tokens = $cash_in_tokens;
-//    }
-
     /**
      * @param array $group_data
      */
@@ -513,22 +337,6 @@ class User extends BaseUser
     {
         $this->kyc_data = $kyc_data;
     }
-
-//    /**
-//     * @return mixed
-//     */
-//    public function getClients()
-//    {
-//        return $this->clients;
-//    }
-//
-//    /**
-//     * @param mixed $clients
-//     */
-//    public function setClients($clients)
-//    {
-//        $this->clients = $clients;
-//    }
 
     /**
      * @return mixed
@@ -578,48 +386,6 @@ class User extends BaseUser
         $this->twoFactorCode = $twoFactorCode;
     }
 
-//    /**
-//     * @param mixed $allowed_methods
-//     */
-//    public function setAllowedMethods($allowed_methods)
-//    {
-//        $this->allowed_methods = $allowed_methods;
-//    }
-//
-//    /**
-//     * @return mixed
-//     */
-//    public function getMethodsList()
-//    {
-//        return json_decode($this->methods_list);
-//    }
-//
-//    /**
-//     * @param mixed $methods_list
-//     */
-//    public function setMethodsList($methods_list)
-//    {
-//        $this->methods_list = json_encode($methods_list);
-//    }
-//
-//    /**
-//     * @param mixed $cname
-//     */
-//    public function addMethod($cname){
-//        $new = array($cname);
-//        $merge = array_merge($this->methods_list, $new);
-//        $result = array_unique($merge, SORT_REGULAR);
-//        $this->methods_list = json_encode($result);
-//    }
-//
-//    /**
-//     * @param mixed $cname
-//     */
-//    public function removeMethod($cname){
-//        $result = array_diff(json_decode($this->methods_list), array($cname));
-//        $this->methods_list = json_encode(array_values($result));
-//    }
-
     /**
      * @return mixed
      */
@@ -655,7 +421,6 @@ class User extends BaseUser
 
     /**
      * Returns the user roles
-     *
      * @return array The roles
      */
     public function getRolesCompany($company_id)
@@ -698,15 +463,7 @@ class User extends BaseUser
     public function getGroups()
     {
         $groups = new ArrayCollection();
-        /*
-        $em = $this->getContainer()->get('doctrine')->getManager();
-        $groups = $em->findBy(array(
-            'user'  =>  $this
-        ));
-        foreach($groups as $group){
-            $this->groups->add($group->getGroup());
-        }
-        */
+
         foreach($this->groups as $Usergroup){
             $groups->add($Usergroup->getGroup());
         }

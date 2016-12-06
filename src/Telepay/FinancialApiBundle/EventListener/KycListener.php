@@ -192,14 +192,14 @@ class KycListener
             'kyc_manager'   =>  $user->getId()
         ));
         $tier = 0;
-        if($kyc->getEmailValidated() == true){
+        if($kyc->getEmailValidated() == 1){
             $tier = 0;
         }
 
-        if($kyc->getFullNameValidated() == true &&
-            $kyc->getDateBirth() == true &&
-            $kyc->getPhoneValidated() == true &&
-            $kyc->getCountryValidated() == true){
+        if($kyc->getFullNameValidated() == 1 &&
+            $kyc->getDateBirth() == 1 &&
+            $kyc->getPhoneValidated() == 1 &&
+            $kyc->getCountryValidated() == 1){
 
             if($kyc->getTier1Status() != 'success'){
                 $kyc->setTier1Status('success');
@@ -207,7 +207,7 @@ class KycListener
             $tier = 1;
         }
 
-        if($kyc->getAddressValidated() == true && $kyc->getProofOfResidence() == true){
+        if($kyc->getAddressValidated() == 1 && $kyc->getProofOfResidence() == 1){
             $tier = 2;
             $kyc->setTier2Status('success');
         }
