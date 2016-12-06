@@ -35,7 +35,9 @@ class ActivityController extends RestApiController
         foreach($last50Trans->toArray() as $res){
             if($res->getGroup()){
                 $group = $groupRepo->find($res->getGroup());
-                $res->setGroupData($group->getName());
+                if($group){
+                    $res->setGroupData($group->getName());
+                }
             }
 
 
