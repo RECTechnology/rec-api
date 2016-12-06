@@ -53,6 +53,23 @@ class KYCController extends BaseApiController{
      */
     public function updateAction(Request $request, $id){
 
+        //TODO check values that can be changed from here
+        $validParams = array(
+            'email_validated',
+            'phone_validated',
+            'full_name_validated',
+            'date_birth_validated',
+            'country_validated',
+            'address_validated',
+            'proof_of_residence',
+            'document_validated'
+        );
+
+        $params = $request->request->all();
+        foreach($params as $param){
+            if(!in_array($param, $validParams)) throw new HttpException(404, 'Invalid params');
+        }
+
         return parent::updateAction($request, $id);
 
     }
