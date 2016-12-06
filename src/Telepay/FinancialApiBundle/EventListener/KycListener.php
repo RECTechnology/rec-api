@@ -184,6 +184,7 @@ class KycListener
 
     private function _checkTier(KYC $kyc){
 
+        $this->logger->info('KYC Checking Tier');
         $user = $kyc->getUser();
         //search all companies that this is the responsible
         $em = $this->container->get('doctrine')->getManager();
@@ -191,6 +192,8 @@ class KycListener
         $companies = $em->getRepository('TelepayFinancialApiBundle:Group')->findBy(array(
             'kyc_manager'   =>  $user->getId()
         ));
+        $this->logger->info('KYC updating '.count($companies).' companies');
+
         $tier = 0;
         if($kyc->getEmailValidated() == true){
             $tier = 0;
@@ -215,6 +218,7 @@ class KycListener
         $em->flush();
 
         foreach($companies as $company){
+            $this->logger->info('KYC updating '.$company->getName().' with TIER '.$tier.' previous TIER =>'.$company->getTier());
             $company->setTier($tier);
             $em->flush();
         }
