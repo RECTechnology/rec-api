@@ -20,7 +20,7 @@ class OAuthEventListener
     {
 //        die(print_r('caca',true));
         $logger = $this->container->get('logger');
-        $logger->error('PreAuthorization');
+        $logger->info('PreAuthorization');
         if ($user = $this->getUser($event)) {
             $event->setAuthorizedClient(
                 $user->isAuthorizedClient($event->getClient())
@@ -31,7 +31,7 @@ class OAuthEventListener
     public function onPostAuthorizationProcess(OAuthEvent $event)
     {
         $logger = $this->container->get('logger');
-        $logger->error('PostAuthorization');
+        $logger->info('PostAuthorization');
         if ($event->isAuthorizedClient()) {
             if (null !== $client = $event->getClient()) {
                 $user = $this->getUser($event);

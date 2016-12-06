@@ -29,7 +29,7 @@ class KycListener
     public function postUpdate(LifecycleEventArgs $args)
     {
         $entity = $args->getEntity();
-        $this->logger->error('POST-UPDATE Kyc_Listener');
+        $this->logger->info('POST-UPDATE Kyc_Listener');
 
         $entityManager = $args->getEntityManager();
         $uow = $entityManager->getUnitOfWork();
@@ -69,7 +69,7 @@ class KycListener
     public function postPersist(LifecycleEventArgs $args)
     {
         $entity = $args->getEntity();
-        $this->logger->error('POST-INSERT');
+        $this->logger->info('POST-INSERT');
 
         $entityManager = $args->getEntityManager();
 
