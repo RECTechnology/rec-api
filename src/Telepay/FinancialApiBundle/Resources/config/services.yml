@@ -5,7 +5,7 @@ services:
 
     signature.security.authentication.listener:
         class: Telepay\FinancialApiBundle\Security\Firewall\SignatureListener
-        arguments: ["@security.context", "@security.authentication.manager"]
+        arguments: ["@security.context", "@security.authentication.manager","@service_container"]
 
     access_key.security.user_provider:
         class: Telepay\FinancialApiBundle\Security\AccessKeyUserProvider

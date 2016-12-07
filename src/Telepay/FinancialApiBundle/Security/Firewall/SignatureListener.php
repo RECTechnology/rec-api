@@ -10,6 +10,7 @@
 namespace Telepay\FinancialApiBundle\Security\Firewall;
 
 
+use Symfony\Component\DependencyInjection\ContainerInterface;
 use Telepay\FinancialApiBundle\Security\Authentication\Token\SignatureToken;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpKernel\Event\GetResponseEvent;
@@ -23,10 +24,12 @@ class SignatureListener implements ListenerInterface {
 
     protected $securityContext;
     protected $authenticationManager;
+    protected $container;
 
-    public function __construct(SecurityContextInterface $securityContext, AuthenticationManagerInterface $authenticationManager){
+    public function __construct(SecurityContextInterface $securityContext, AuthenticationManagerInterface $authenticationManager, ContainerInterface $container){
         $this->securityContext = $securityContext;
         $this->authenticationManager = $authenticationManager;
+        $this->container = $container;
     }
 
     /**
@@ -36,8 +39,10 @@ class SignatureListener implements ListenerInterface {
     public function handle(GetResponseEvent $event)
     {
 
-        $request = $event->getRequest();
+        $logger = $this->container->get('logger');
 
+        $request = $event->getRequest();
+        $logger->info($request);
         $authRequestRegex = '/Signature '
             .'access-key="([^"]+)", '
             .'nonce="([^"]+)", '
@@ -50,18 +55,23 @@ class SignatureListener implements ListenerInterface {
         if(! $request->headers->has($authHeaderName)) return;
         $signature = $request->headers->get($authHeaderName);
         if(1 != preg_match($authRequestRegex, $signature, $matches)) return;
-
         $token = new SignatureToken();
         $token->setUser($matches[1]);
-
         $token->nonce = $matches[2];
         $token->timestamp = $matches[3];
         $token->version = $matches[4];
         $token->signature = $matches[5];
 
+        $logger->info('FUCK5'.$matches[1]);
+        $logger->info('FUCK5'.$matches[2]);
+        $logger->info('FUCK5'.$matches[3]);
+        $logger->info('FUCK5'.$matches[4]);
+        $logger->info('FUCK5'.$matches[5]);
+
         try{
             $authToken = $this->authenticationManager->authenticate($token);
             $this->securityContext->setToken($authToken);
+            $logger->info('FUCK7');
             return;
         } catch(AuthenticationException $failed){
             //TODO: log something here

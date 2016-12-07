@@ -53,7 +53,7 @@ class KYCController extends BaseApiController{
      */
     public function updateAction(Request $request, $id){
 
-        //TODO check values that can be changed from here
+        //check values that can be changed from here
         $validParams = array(
             'email_validated',
             'phone_validated',
