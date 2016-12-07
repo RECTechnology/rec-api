@@ -358,7 +358,7 @@ class NFCController extends RestApiController{
     /**
      * @Rest\View
      */
-    public function deactivateCard(Request $request){
+    public function disableCard(Request $request){
 
         if(!$request->request->has('confirmation_token')) throw new HttpException(404, 'Param confirmation_token not found');
 
@@ -639,7 +639,7 @@ class NFCController extends RestApiController{
 
         $wallet = $company->getWallet(Currency::$FAC);
 
-        $balance = round($wallet->getAvailable()/1e8,6);
+        $balance = number_format(round($wallet->getAvailable()/1e8,6),6);
 
         //send balance email
         $this->_sendNFCBalanceEmail($card, $balance);
