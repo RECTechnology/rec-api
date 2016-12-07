@@ -67,7 +67,7 @@ class KYCController extends BaseApiController{
 
         $params = $request->request->all();
         foreach($params as $param){
-            if(!in_array($param, $validParams)) throw new HttpException(404, 'Invalid params');
+            if(!in_array($param, $validParams)) throw new HttpException(404, 'Invalid param '.$param);
         }
 
         return parent::updateAction($request, $id);
