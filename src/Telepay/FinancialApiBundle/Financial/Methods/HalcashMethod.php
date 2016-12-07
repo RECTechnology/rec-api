@@ -81,6 +81,7 @@ class HalcashMethod extends BaseMethod{
 
     public function getPayOutInfo($request)
     {
+        $this->logger->info('HALCASH METHOD-> PAY_OUT_INFO');
         $paramNames = array(
             'amount',
             'phone',
@@ -119,6 +120,7 @@ class HalcashMethod extends BaseMethod{
     }
 
     public function getPayOutInfoData($data){
+        $this->logger->info('HALCASH METHOD-> PAY_OUT_INFO_DATA');
         $paramNames = array(
             'amount',
             'phone',
@@ -160,6 +162,7 @@ class HalcashMethod extends BaseMethod{
 
     public function getPayOutStatus($paymentInfo)
     {
+        $this->logger->info('HALCASH METHOD-> PAY_OUT_STATUS');
         $halcashticket = $paymentInfo['halcashticket'];
 
         $hal = $this->driver->status($halcashticket);
@@ -207,6 +210,7 @@ class HalcashMethod extends BaseMethod{
 
     public function cancel($paymentInfo){
 
+        $this->logger->info('HALCASH METHOD-> CANCEL');
         $halcashticket = $paymentInfo['halcashticket'];
 
         $response = $this->driver->cancelation($halcashticket, 'ChipChap cancelation');
