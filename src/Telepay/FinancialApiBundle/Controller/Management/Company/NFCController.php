@@ -759,11 +759,11 @@ class NFCController extends RestApiController{
             $currency_in = $request->request->get('currency_in');
             if($currency_in != Currency::$FAC){
                 //do exchange
-                $amount = $this->get('net.telepay.commons.exchange_manipulator')->exchange($params['amount'], $currency_in, Currency::$FAC);
+                $amount = $this->get('net.telepay.commons.exchange_manipulator')->exchangeInverse($params['amount'], $currency_in, Currency::$FAC);
             }
         }
 
-        //TODO walletToWallet transaction from user to commerce
+        //walletToWallet transaction from user to commerce
         $senderCompany = $card->getCompany();
 
         $senderWallet = $senderCompany->getWallet(Currency::$FAC);
