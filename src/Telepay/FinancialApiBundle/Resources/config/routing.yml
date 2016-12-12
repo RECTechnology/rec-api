@@ -48,7 +48,7 @@ validate_nfc_card_email:
         _method: POST
 
 disable_nfc_card:
-    pattern:  /register/v1/nfc_card/deactivate_card
+    pattern:  /register/v1/nfc_card/disable_card
     defaults: { _controller: Telepay\FinancialApiBundle\Controller\Management\Company\NFCController::disableCard }
     requirements:
         _method: POST

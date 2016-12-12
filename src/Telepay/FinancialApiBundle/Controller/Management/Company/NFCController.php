@@ -646,7 +646,7 @@ class NFCController extends RestApiController{
                     'user'   =>  $user->getId()
                 ));
                 $url = $this->container->getParameter('base_panel_url');
-                $url = $url.'/user/deactivate_nfc/';
+                $url = $url.'/user/disable_nfc/';
 
                 foreach($cards as $card){
                     $card->setLastDisableRequested(new \DateTime());
