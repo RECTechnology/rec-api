@@ -53,6 +53,28 @@ class ExchangeManipulator{
 
     }
 
+    public function exchangeInverse($amount, $currency_in, $currency_out){
+
+        $this->trans_logger->info('EXCHANGE_MANIPULATOR (exchange)=> amount='.$amount.' cur_in='.$currency_in.' cur_out'.$currency_out);
+        $em = $this->doctrine->getManager();
+
+        $exchange = $em->getRepository('TelepayFinancialApiBundle:Exchange')->findOneBy(
+            array(
+                'src'   =>  strtoupper($currency_out),
+                'dst'   =>  strtoupper($currency_in)
+            ),
+            array('id'  =>  'DESC')
+        );
+
+        $price = 1.0/($exchange->getPrice());
+        $total = $amount * $price;
+
+        $this->trans_logger->info('EXCHANGE_MANIPULATOR (exchange)=>  exchange_amount='.$total. ' '.$currency_out.' price='.$price);
+
+        return $total;
+
+    }
+
     public function getPrice($currency_in, $currency_out){
         $this->trans_logger->info('EXCHANGE_MANIPULATOR (getPrice)=> cur_in='.$currency_in.' cur_out'.$currency_out);
         $em = $this->doctrine->getManager();
