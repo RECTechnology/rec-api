@@ -47,7 +47,7 @@ class ExchangeManipulator{
 
         $amount = round($amount * $exchange->getPrice(),0);
 
-        $this->trans_logger->info('EXCHANGE_MANIPULATOR (exchange)=>  exchange_amount='.$amount. ' '.$currency_out);
+        $this->trans_logger->info('EXCHANGE_MANIPULATOR (exchange)=>  exchange_amount='.$amount. ' '.$currency_out.' price='.$exchange->getPrice());
 
         return $amount;
 
