@@ -67,7 +67,7 @@ class ExchangeManipulator{
         );
 
         $price = 1.0/($exchange->getPrice());
-        $total = $amount * $price;
+        $total = round($amount * $price, 0);
 
         $this->trans_logger->info('EXCHANGE_MANIPULATOR (exchange)=>  exchange_amount='.$total. ' '.$currency_out.' price='.$price);
 
