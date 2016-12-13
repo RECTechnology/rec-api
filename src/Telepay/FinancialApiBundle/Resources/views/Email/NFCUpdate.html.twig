@@ -84,13 +84,13 @@
         <p>Hemos recibido una solicitud para cambiar el pin de la NFC Card <b>{{ card.alias }}</b></p>
         <p>Tu nuevo pin es {{ card.pin }}</p>
         <p>Para confirmar el cambio por favor sigue este link</p>
-        <a href="{{ url }}{{ card.refreshPinToken }}">{{ card.alias }}
+        <a href="{{ url }}{{ card.refreshPinToken }}">{{ card.alias }}</a>
         <p>Si tu no has solicitado este cambio de pin para esta NFC Card ignora este mensaje</p>
     {% elseif action == 'disable' %}
         <p>Desactiva una de estas cards:</p>
         <ul>
             {% for card in cards %}
-                <li><a href="{{ url }}{{ card.confirmationToken }}">{{ card.alias }}</li>
+                <li><a href="{{ url }}{{ card.confirmationToken }}">{{ card.alias }}</a></li>
             {% endfor %}
         </ul>
     {% endif %}
