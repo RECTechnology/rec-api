@@ -79,6 +79,40 @@ class PublicController extends RestApiController{
     /**
      * @Rest\View
      */
+    public function tickerVFair(Request $request, $currency){
+        $default_currency = strtoupper($currency);
+        $default_currency_scale = Currency::$SCALE[$default_currency];
+        $currencies = Currency::$TICKER_LIST;
+        $result = array();
+        $ask = array();
+        $bid = array();
+        foreach($currencies as $currency ){
+            if($currency != $default_currency ){
+                try{
+                    $currency_scale = Currency::$SCALE[$currency];
+                    $scale = $currency_scale - $default_currency_scale;
+                    $number = pow(10,$scale);
+                    $price_ask = $this->_exchange($number, $currency, $default_currency);
+                    $ask[$currency.'x'.$default_currency] = round($price_ask, $default_currency_scale + 1);
+                    $price_bid = $this->_exchangeInverse($number, $currency, $default_currency);
+                    $bid[$currency.'x'.$default_currency] = round($price_bid, $default_currency_scale + 1);
+                    $result[$currency.'x'.$default_currency] = round(($price_ask + $price_bid)/2, $default_currency_scale + 1);
+                }catch (HttpException $e){
+                    $result[$currency.'x'.$default_currency] = $e->getMessage();
+                }
+            }
+        }
+        return $this->restV2(200, "ok", "Exchange info got successfully", array(
+                'av' => $result,
+                'ask' => $ask,
+                'bid' => $bid
+            )
+        );
+    }
+
+    /**
+     * @Rest\View
+     */
     public function currencies(Request $request){
         return $this->restV2(200, "ok", "Currency information", array(
             Currency::$EUR,
