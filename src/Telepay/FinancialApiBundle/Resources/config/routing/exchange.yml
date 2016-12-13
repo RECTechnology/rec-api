@@ -12,7 +12,7 @@ exchange_ticker_v2:
         _method: GET
 
 exchange_ticker_vFair:
-    pattern:  /exchange/vFair/ticker/{currency}
+    pattern:  /exchange/v0/ticker/{currency}
     defaults: { _controller: Telepay\FinancialApiBundle\Controller\Exchange\PublicController::tickerVFair }
     requirements:
         _method: GET
