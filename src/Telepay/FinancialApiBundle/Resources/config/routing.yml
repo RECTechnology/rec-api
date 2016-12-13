@@ -47,15 +47,21 @@ validate_nfc_card_email:
     requirements:
         _method: POST
 
-validate_nfc_card:
-    pattern:  /register/v1/nfc_card/{company_id}
-    defaults: { _controller: Telepay\FinancialApiBundle\Controller\Management\Company\NFCController::validateCard }
+disable_nfc_card:
+    pattern:  /register/v1/nfc_card/disable_card
+    defaults: { _controller: Telepay\FinancialApiBundle\Controller\Management\Company\NFCController::disableCard }
     requirements:
         _method: POST
 
-deactivate_nfc_card:
-    pattern:  /register/v1/nfc_card/deactivate_card
-    defaults: { _controller: Telepay\FinancialApiBundle\Controller\Management\Company\NFCController::deactivateCard }
+refresh_pin_nfc_card:
+    pattern:  /register/v1/nfc_card/refresh_pin
+    defaults: { _controller: Telepay\FinancialApiBundle\Controller\Management\Company\NFCController::refreshPin }
+    requirements:
+        _method: PUT
+
+validate_nfc_card:
+    pattern:  /register/v1/nfc_card/{company_id}
+    defaults: { _controller: Telepay\FinancialApiBundle\Controller\Management\Company\NFCController::validateCard }
     requirements:
         _method: POST
 

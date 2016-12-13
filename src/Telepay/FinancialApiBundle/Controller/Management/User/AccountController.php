@@ -903,6 +903,19 @@ class AccountController extends BaseApiController{
                 $em->persist($newCount);
             }
 
+            $fac_limit = new LimitDefinition();
+            $fac_limit->setDay(-1);
+            $fac_limit->setCname('fac-in');
+            $fac_limit->setWeek(-1);
+            $fac_limit->setMonth(-1);
+            $fac_limit->setYear(-1);
+            $fac_limit->setSingle(-1);
+            $fac_limit->setTotal(-1);
+            $fac_limit->setCurrency(Currency::$FAC);
+            $fac_limit->setGroup($company);
+            $em->persist($fac_limit);
+            $em->flush();
+
             //create new fixed address for bitcoin and return
             $btcAddress = new CashInTokens();
             $btcAddress->setCurrency(Currency::$BTC);
