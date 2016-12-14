@@ -69,9 +69,7 @@ class LimitManipulator{
 
         }
 
-        if($limit->getEnabled()==0)throw new HttpException(403, 'Exchange temporally unavailable');
-
-
+//        if($limit->getEnabled()==0)throw new HttpException(403, 'Exchange temporally unavailable');
 
         $checker = new LimitChecker();
 
