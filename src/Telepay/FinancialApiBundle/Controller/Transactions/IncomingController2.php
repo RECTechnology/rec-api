@@ -93,6 +93,7 @@ class IncomingController2 extends RestApiController{
 
         //TODO get currency_in and currency_out
         $exchange_done = false;
+        $exchange_out = false;
         if((array_key_exists('currency_in', $data) && $data['currency_in'] != '' || array_key_exists('currency_out', $data) && $data['currency_out'] != '')
             && ($method_cname == 'btc' || $method_cname == 'fac') && $type = 'in'){
 
@@ -103,11 +104,16 @@ class IncomingController2 extends RestApiController{
             if($data['currency_out']) $cur_out = strtoupper($data['currency_out']);
 
             $logger->info('Currency IN-> '.$cur_in.' Currency OUT-> '.$cur_out.' Method cur => '.$method->getCurrency());
-            if(strtoupper($cur_in) != $method->getCurrency() ){
-
+            if(strtoupper($cur_in) != $method->getCurrency()){
                 $exchange_done = true;
-                $amount = $this->get('net.telepay.commons.exchange_manipulator')->exchangeInverse($amount, $cur_in, $method->getCurrency());
-
+                $method_currency = $method->getCurrency();
+                if($method_currency == 'FAC' && in_array($group->getId(), array('211', '113'))){
+                    $method_currency = 'FAIRP';
+                }
+                $amount = $this->get('net.telepay.commons.exchange_manipulator')->exchangeInverse($amount, $cur_in, $method_currency);
+            }
+            if(strtoupper($cur_out) != $method->getCurrency() ){
+                $exchange_out = true;
             }
         }
         unset($data['currency']);
@@ -126,6 +132,8 @@ class IncomingController2 extends RestApiController{
             if($exchange_done){
                 $dataIn['request_amount'] = $request_amount;
                 $dataIn['request_currency_in'] = $cur_in;
+            }
+            if($exchange_out){
                 $dataIn['request_currency_out'] = $cur_out;
             }
             $payment_info = $method->getPayInInfo($amount);
@@ -143,6 +151,8 @@ class IncomingController2 extends RestApiController{
             if($exchange_done){
                 $dataIn['request_amount'] = $request_amount;
                 $dataIn['request_currency_in'] = $cur_in;
+            }
+            if($exchange_out){
                 $dataIn['request_currency_out'] = $cur_out;
             }
         }

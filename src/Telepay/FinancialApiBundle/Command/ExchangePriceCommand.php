@@ -27,8 +27,9 @@ class ExchangePriceCommand extends ContainerAwareCommand
 
         $error = 0;
         $errorBody = array();
-        foreach(Currency::$ALL as $inputCurrency){
-            foreach(Currency::$ALL as $outputCurrency){
+        $currency_list = Currency::$TICKER_LIST;
+        foreach($currency_list as $inputCurrency){
+            foreach($currency_list as $outputCurrency){
                 if($inputCurrency !== $outputCurrency){
                     $providerName = 'net.telepay.ticker.' . $inputCurrency . 'x' . $outputCurrency;
                     try {
