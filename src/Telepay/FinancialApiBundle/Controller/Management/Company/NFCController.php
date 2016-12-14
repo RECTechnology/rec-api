@@ -741,7 +741,7 @@ class NFCController extends RestApiController{
             }
         }
 
-        $card = $em->getRepository('TelepayFinancialApiBundle:Group')->findOneBy(array(
+        $card = $em->getRepository('TelepayFinancialApiBundle:NFCCard')->findOneBy(array(
             'id_card' => $params['id_card']
         ));
 
