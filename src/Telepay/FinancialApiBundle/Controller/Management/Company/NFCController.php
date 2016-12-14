@@ -755,6 +755,7 @@ class NFCController extends RestApiController{
 
         $signature = hash_hmac('sha256', $data_to_sign, $receiverCompany->getAccessSecret().$card->getPin());
 
+        $logger->error('NFCPymanet signature => '. $signature. ' received signature '.$params['signature']);
         if($params['signature'] != $signature) throw new HttpException(403, 'Bad signature');
 
         if(!$card->getEnabled()) throw new HttpException(403, 'Disabled card');
