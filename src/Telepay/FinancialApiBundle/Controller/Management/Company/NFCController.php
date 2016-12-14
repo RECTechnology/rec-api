@@ -741,14 +741,16 @@ class NFCController extends RestApiController{
             }
         }
 
-        $card = $em->getRepository('TelepayFinancialApiBundle:Group')->find($params['id_card']);
+        $card = $em->getRepository('TelepayFinancialApiBundle:Group')->findOneBy(array(
+            'id_card' => $params['id_card']
+        ));
+
+        if(!$card) throw new HttpException(404, 'Card not found');
 
         $data_to_sign = $params['amount'] . $params['id_card'] . $id_company;
         $signature = hash_hmac('sha256', $data_to_sign, $receiverCompany->getAccessSecret().$card->getPin());
 
         if($params['signature'] != $signature) throw new HttpException(403, 'Bad signature');
-
-        if(!$card) throw new HttpException(404, 'Card not found');
 
         if(!$card->getEnabled()) throw new HttpException(403, 'Disabled card');
 
