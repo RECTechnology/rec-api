@@ -25,7 +25,7 @@ class CheckCryptoCommand extends SyncronizedContainerAwareCommand
 
     protected function executeSyncronized(InputInterface $input, OutputInterface $output){
         $n = 0;
-        $exec_n_times = 1000;
+        $exec_n_times = 1;
         $init = time();
         $now = time();
         while($n<$exec_n_times && ($now - $init) < 58) {
@@ -82,8 +82,6 @@ class CheckCryptoCommand extends SyncronizedContainerAwareCommand
 
                             $service_currency = $transaction->getCurrency();
                             $wallet = $group->getWallet($service_currency);
-
-
 
                             //if group has
                             if (!$group->hasRole('ROLE_SUPER_ADMIN')) {
