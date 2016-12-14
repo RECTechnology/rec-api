@@ -724,7 +724,8 @@ class NFCController extends RestApiController{
 
         $em = $this->getDoctrine()->getManager();
         $receiverCompany = $em->getRepository('TelepayFinancialApiBundle:Group')->find($id_company);
-
+        $logger = $this->get('transaction.logger');
+        $logger->error('NFCPymanet INIT');
         if(!$receiverCompany) throw new HttpException(404, 'Company not found');
 
         $paramNames = array(
@@ -741,6 +742,7 @@ class NFCController extends RestApiController{
             }
         }
 
+        $logger->error('NFCPymanet GETTING CARD');
         $card = $em->getRepository('TelepayFinancialApiBundle:NFCCard')->findOneBy(array(
             'id_card' => $params['id_card']
         ));
@@ -748,6 +750,9 @@ class NFCController extends RestApiController{
         if(!$card) throw new HttpException(404, 'Card not found');
 
         $data_to_sign = $params['amount'] . $params['id_card'] . $id_company;
+        $logger->error('NFCPymanet DATA TO SIGN => '. $data_to_sign);
+        $logger->error('NFCPymanet secret => '. $receiverCompany->getAccessSecret().' pin => '.$card->getPin());
+
         $signature = hash_hmac('sha256', $data_to_sign, $receiverCompany->getAccessSecret().$card->getPin());
 
         if($params['signature'] != $signature) throw new HttpException(403, 'Bad signature');
