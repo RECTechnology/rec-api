@@ -107,7 +107,7 @@ class IncomingController2 extends RestApiController{
             if(strtoupper($cur_in) != $method->getCurrency()){
                 $exchange_done = true;
                 $method_currency = $method->getCurrency();
-                if($method_currency == 'FAC' && in_array($group->getId(), array('211', '113'))){
+                if($method_currency == 'FAC' && $group->getPremium()){
                     $method_currency = 'FAIRP';
                 }
                 $amount = $this->get('net.telepay.commons.exchange_manipulator')->exchangeInverse($amount, $cur_in, $method_currency);

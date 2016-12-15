@@ -216,6 +216,11 @@ class Group extends BaseGroup
     private $own = false;
 
     /**
+     * @ORM\Column(type="boolean")
+     */
+    private $premium = false;
+
+    /**
      * @ORM\OneToMany(targetEntity="Telepay\FinancialApiBundle\Entity\CashInTokens", mappedBy="company", cascade={"remove"})
      */
     private $cash_in_tokens;
@@ -815,5 +820,21 @@ class Group extends BaseGroup
     public function setTier($tier)
     {
         $this->tier = $tier;
+    }
+
+    /**
+     * @return mixed
+     */
+    public function getPremium()
+    {
+        return $this->premium;
+    }
+
+    /**
+     * @param mixed $premium
+     */
+    public function setPremium($premium)
+    {
+        $this->premium = $premium;
     }
 }
