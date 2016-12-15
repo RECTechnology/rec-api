@@ -83,8 +83,6 @@ class CheckCryptoCommand extends SyncronizedContainerAwareCommand
                             $service_currency = $transaction->getCurrency();
                             $wallet = $group->getWallet($service_currency);
 
-
-
                             //if group has
                             if (!$group->hasRole('ROLE_SUPER_ADMIN')) {
                                 $output->writeln('CHECK CRYPTO no superadmin');
