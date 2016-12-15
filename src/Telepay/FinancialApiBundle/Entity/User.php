@@ -150,6 +150,12 @@ class User extends BaseUser
     private $tier_validations;
 
     /**
+     * @ORM\OneToOne(targetEntity="Telepay\FinancialApiBundle\Entity\KYC", mappedBy="user", cascade={"remove"})
+     * @Expose
+     */
+    private $kyc_validations;
+
+    /**
      * Random string sent to the user email address in order to recover the password
      *
      * @ORM\Column(type="string", nullable=true)
@@ -517,5 +523,21 @@ class User extends BaseUser
     public function setLastName($lastName)
     {
         $this->lastName = $lastName;
+    }
+
+    /**
+     * @return mixed
+     */
+    public function getKycValidations()
+    {
+        return $this->kyc_validations;
+    }
+
+    /**
+     * @param mixed $kyc_validations
+     */
+    public function setKycValidations($kyc_validations)
+    {
+        $this->kyc_validations = $kyc_validations;
     }
 }

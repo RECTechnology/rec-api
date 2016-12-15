@@ -42,7 +42,7 @@ class Login2faController extends RestApiController{
             $em = $this->getDoctrine()->getManager();
             $user = $em->getRepository('TelepayFinancialApiBundle:User')->findBy(array('username' => $username));
 
-            if((count($user[0]->getTierValidations())==0) || (!$user[0]->getTierValidations()->getEmail())){
+            if((count($user[0]->getKycValidations())==0) || (!$user[0]->getKycValidations()->getEmailValidated())){
                 $token = array(
                     "error" => "not_validated_email",
                     "error_description" => "User without email validated"
