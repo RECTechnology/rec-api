@@ -82,7 +82,7 @@ class PublicController extends RestApiController{
     public function tickerVFair(Request $request, $currency){
         $default_currency = strtoupper($currency);
         $default_currency_scale = Currency::$SCALE[$default_currency];
-        $currencies = Currency::$TICKER_LIST;
+        $currencies = Currency::$TICKER_FAIRCOOP;
         $result = array();
         $ask = array();
         $bid = array();
