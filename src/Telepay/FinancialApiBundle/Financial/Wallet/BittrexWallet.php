@@ -20,6 +20,7 @@ class BittrexWallet implements WalletInterface, TraderInterface {
 
     private $bittrexDriver;
     private $currency;
+    private $type = 'bittrex';
     private $waysOut;
     private $waysIn;
 
@@ -60,6 +61,12 @@ class BittrexWallet implements WalletInterface, TraderInterface {
     {
         return $this->currency;
     }
+
+    public function getType()
+    {
+        return $this->type;
+    }
+
 
     public function sell($amount) {
         $buyOrders = $this->bittrexDriver->getOrderBook('BTC-FAIR', 'buy')->result;

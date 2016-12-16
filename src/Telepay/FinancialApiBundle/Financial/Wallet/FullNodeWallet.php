@@ -20,6 +20,7 @@ class FullNodeWallet implements WalletInterface {
 
     private $nodeLink;
     private $currency;
+    private $type = 'fullnode';
     private $waysOut;
     private $waysIn;
 
@@ -40,9 +41,18 @@ class FullNodeWallet implements WalletInterface {
         return $this->nodeLink->getbalance();
     }
 
+    public function getFakeBalance()
+    {
+        return 1;
+    }
     public function getCurrency()
     {
         return  $this->currency;
+    }
+
+    public function getType()
+    {
+        return $this->type;
     }
 
     public function getAddress()
