@@ -694,7 +694,7 @@ class AccountController extends BaseApiController{
 
         if(!$request->request->has('company_name'))$request->request->set('company_name',  $request->request->get('username') . " Company");
 
-        $valid_types = array('prestashop', 'android', 'commerce');
+        $valid_types = array('prestashop', 'android', 'commerce', 'android_fair');
         if(!in_array($type, $valid_types)) throw new HttpException(404, 'Type not valid');
 
         $params = array();
@@ -732,11 +732,11 @@ class AccountController extends BaseApiController{
             }
         }
 
+        $premium = false;
         if($type == 'commerce'){
             $user_creator_id = $this->container->getParameter('admin_user_id');
             $company_creator_id = $this->container->getParameter('id_group_root');
-        }
-        else{
+        }else{
             $user_creator_id = $this->container->getParameter('default_user_creator_commerce_' . $type);
             $company_creator_id = $this->container->getParameter('default_company_creator_commerce_' . $type);
         }
@@ -754,6 +754,7 @@ class AccountController extends BaseApiController{
         $company->setDefaultCurrency('EUR');
         $company->setEmail($params['email']);
         $company->setMethodsList('');
+        $company->setPremium($premium);
 
         $em->persist($company);
 
@@ -862,8 +863,12 @@ class AccountController extends BaseApiController{
                 'pos' => $pos
             );
         }
-        elseif($type == 'android' || $type == 'commerce'){
-            $methodsList = array('btc-in', 'fac-in', 'btc-out', 'fac-out');
+        elseif($type == 'android' || $type == 'commerce' || $type = 'android_fair'){
+            if($type == 'android_fair'){
+                $methodsList = array('fac-out', 'fac-in');
+            }else{
+                $methodsList = array('btc-in', 'fac-in', 'btc-out', 'fac-out');
+            }
             $company->setMethodsList($methodsList);
             $em->persist($company);
 
@@ -916,19 +921,37 @@ class AccountController extends BaseApiController{
             $em->persist($fac_limit);
             $em->flush();
 
-            //create new fixed address for bitcoin and return
-            $btcAddress = new CashInTokens();
-            $btcAddress->setCurrency(Currency::$BTC);
-            $btcAddress->setCompany($company);
-            $btcAddress->setLabel('BTC account');
-            $btcAddress->setMethod('btc-in');
-            $btcAddress->setExpiresIn(-1);
-            $btcAddress->setStatus(CashInTokens::$STATUS_ACTIVE);
-            $methodDriver = $this->get('net.telepay.in.btc.v1');
-            $paymentInfo = $methodDriver->getPayInInfo(0);
-            $token = $paymentInfo['address'];
-            $btcAddress->setToken($token);
-            $em->persist($btcAddress);
+            $fac_limit = new LimitDefinition();
+            $fac_limit->setDay(-1);
+            $fac_limit->setCname('fac-out');
+            $fac_limit->setWeek(-1);
+            $fac_limit->setMonth(-1);
+            $fac_limit->setYear(-1);
+            $fac_limit->setSingle(-1);
+            $fac_limit->setTotal(-1);
+            $fac_limit->setCurrency(Currency::$FAC);
+            $fac_limit->setGroup($company);
+            $em->persist($fac_limit);
+            $em->flush();
+
+            if($type != 'android_fair'){
+                //create new fixed address for bitcoin and return
+                $btcAddress = new CashInTokens();
+                $btcAddress->setCurrency(Currency::$BTC);
+                $btcAddress->setCompany($company);
+                $btcAddress->setLabel('BTC account');
+                $btcAddress->setMethod('btc-in');
+                $btcAddress->setExpiresIn(-1);
+                $btcAddress->setStatus(CashInTokens::$STATUS_ACTIVE);
+                $methodDriver = $this->get('net.telepay.in.btc.v1');
+                $paymentInfo = $methodDriver->getPayInInfo(0);
+                $token = $paymentInfo['address'];
+                $btcAddress->setToken($token);
+                $em->persist($btcAddress);
+
+                $response['btc_address'] = $btcAddress;
+            }
+
 
             //create new fixed address for faircoin and return
             $facAddress = new CashInTokens();
@@ -944,12 +967,10 @@ class AccountController extends BaseApiController{
             $facAddress->setToken($token);
             $em->persist($facAddress);
 
-            $response = array(
-                'user' => $user,
-                'company' => $company,
-                'btc_address'   =>  $btcAddress,
-                'fac_address'   =>  $facAddress
-            );
+            $response['user'] = $user;
+            $response['company'] = $company;
+            $response['fac_address'] = $facAddress;
+
         }
         $em->flush();
 
