@@ -91,7 +91,7 @@ class IncomingController2 extends RestApiController{
             throw new HttpException(400, 'Param amount not found');
         }
 
-        //TODO get currency_in and currency_out
+        //get currency_in and currency_out
         $exchange_done = false;
         $exchange_out = false;
         if((array_key_exists('currency_in', $data) && $data['currency_in'] != '' || array_key_exists('currency_out', $data) && $data['currency_out'] != '')
