@@ -767,7 +767,7 @@ class NFCController extends RestApiController{
             $currency_in = $request->request->get('currency_in');
             if($currency_in != Currency::$FAC){
                 //do exchange
-                $amount = $this->get('net.telepay.commons.exchange_manipulator')->exchangeInverse($params['amount'], $currency_in, Currency::$FAC);
+                $amount = $this->get('net.telepay.commons.exchange_manipulator')->exchangeInverse($params['amount'], $currency_in, 'FAIRP');
             }
         }
 
@@ -780,7 +780,7 @@ class NFCController extends RestApiController{
         //Check funds sender wallet
         if($senderWallet->getAvailable() < $amount) throw new HttpException(403, 'Insuficient funds');
 
-        $concept = 'walletToWallet from ANDROID APP';
+        $concept = 'walletToWallet from ANDROID FAIR APP';
         $url_notification = '';
         if($request->request->has('url_notification')) $url_notification = $request->request->get('url_notification');
         if($request->request->has('concept')) $concept = $request->request->get('concept');
