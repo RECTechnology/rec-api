@@ -1231,14 +1231,15 @@ class AccountController extends BaseApiController{
             'user' => $user
         ));
 
-        if($kyc){
-            $kyc->setEmailValidated(true);
-        }else{
+        if(!$kyc){
             $kyc = new KYC();
             $kyc->setEmail($user->getEmail());
             $kyc->setUser($user);
             $em->persist($kyc);
+
         }
+
+        $kyc->setEmailValidated(true);
         $em->flush();
 
         $response = array(
