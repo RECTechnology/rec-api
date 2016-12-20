@@ -44,6 +44,13 @@ class WalletController extends RestApiController{
 
         foreach($wallets as $wallet){
             $filtered[] = $wallet->getWalletView();
+            if($userGroup->getPremium()){
+                if($wallet->getCurrency() == Currency::$FAC){
+                    $wallet->setCurrency('FAIRP');
+                }elseif($currency == Currency::$FAC){
+                    $currency = 'FAIRP';
+                }
+            }
             $new_wallet = $exchanger->exchangeWallet($wallet, $currency);
             $available = round($available + $new_wallet['available'],0);
             $balance = round($balance + $new_wallet['balance'],0);
