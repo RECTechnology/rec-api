@@ -1151,6 +1151,10 @@ class AccountController extends BaseApiController{
                 $url = "https://holytransaction.trade/";
                 $url = $url.'?user_token='.$user->getConfirmationToken();
                 $this->_sendEmail('Holy Transaction validation e-mail', $url, $user->getEmail(), 'register_kyc_holy');
+            }elseif($company =="panel"){
+                $url = $this->container->getParameter('base_panel_url');
+                $url = $url.'/user/validation/'.$user->getConfirmationToken();
+                $this->_sendEmail('Chip-Chap validation e-mail', $url, $user->getEmail(), 'register');
             }
             else{
                 $url = $this->container->getParameter('web_app_url');

@@ -136,21 +136,17 @@ class KycListener
     private function checkUserKYC($changeset, User $user)
     {
         if (isset($changeset['email']) || isset($changeset['name'])) {
-            if((isset($changeset['email']) && $changeset['email'] != $user->getEmail()) ||
-                (isset($changeset['name']) && $changeset['name'] != $user->getName())){
-                $this->logger->info('POST-UPDATE - changing susceptible fields in user');
-                //send change email
-                $body = array(
-                    'message'   =>  'El Usuario '.$user->getUsername().' ha cambiado algunos parametros susceptibles del kyc del usuario'
-                );
-                $to = array(
-                    'pere@chip-chap.com',
-                    'cto@chip-chap.com'
-                );
-                $action = 'user_kyc';
-                $this->_sendEmail('KYC Alert change', $body, $to, $action);
-            }
-
+            $this->logger->info('POST-UPDATE - changing susceptible fields in user');
+            //TODO send change email
+            $body = array(
+                'message'   =>  'El Usuario '.$user->getUsername().' ha cambiado algunos parametros susceptibles del kyc del usuario'
+            );
+            $to = array(
+                'pere@chip-chap.com',
+                'cto@chip-chap.com'
+            );
+            $action = 'user_kyc';
+            $this->_sendEmail('KYC Alert change', $body, $to, $action);
         }
 
         return;

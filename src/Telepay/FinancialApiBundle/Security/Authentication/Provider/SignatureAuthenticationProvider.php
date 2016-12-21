@@ -81,7 +81,7 @@ class SignatureAuthenticationProvider implements AuthenticationProviderInterface
         file_put_contents($this->cacheDir.'/'.$nonce, time());
 
         // Validate Secret
-        $expected = hash_hmac($algorithm, $accessKey.$nonce.$timestamp, base64_decode($secret));
+        $expected = hash_hmac($algorithm, $accessKey.$nonce.$timestamp, hex2bin($secret));
         return $signature === $expected;
     }
 

@@ -38,7 +38,7 @@ class User extends BaseUser
         if($this->access_key == null){
             $generator = new SecureRandom();
             $this->access_key=sha1($generator->nextBytes(32));
-            $this->access_secret=base64_encode($generator->nextBytes(32));
+            $this->access_secret=bin2hex($generator->nextBytes(32));
         }
         $this->created = new DateTime();
     }
