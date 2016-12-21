@@ -111,6 +111,11 @@ class KrakenWallet implements WalletInterface, TraderInterface {
         return $this->type;
     }
 
+    public function getName()
+    {
+        return $this->type . '_' . $this->currency;
+    }
+
     public function sell($amount)
     {
         $buyOrders = $this->krakenDriver->QueryPublic(

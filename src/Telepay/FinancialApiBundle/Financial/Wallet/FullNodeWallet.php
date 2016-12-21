@@ -55,6 +55,11 @@ class FullNodeWallet implements WalletInterface {
         return $this->type;
     }
 
+    public function getName()
+    {
+        return $this->type . '_' . $this->currency;
+    }
+
     public function getAddress()
     {
         return $this->nodeLink->getnewaddress();

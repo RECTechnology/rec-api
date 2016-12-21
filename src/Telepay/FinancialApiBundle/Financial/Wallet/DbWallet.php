@@ -44,6 +44,11 @@ class DbWallet implements WalletInterface, MiniumBalanceInterface {
         // TODO: Implement getType() method.
     }
 
+    public function getName()
+    {
+        // TODO: Implement getName() method.
+    }
+
     public function getWaysOut()
     {
         // TODO: Implement getWaysOut() method.

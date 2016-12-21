@@ -62,6 +62,11 @@ class CaixaCovesWallet implements WalletInterface, KrakenCashOutInterface {
         return $this->type;
     }
 
+    public function getName()
+    {
+        return $this->type . '_' . $this->currency;
+    }
+
     public function getKrakenLabel()
     {
         return 'CAIXA COVES';
