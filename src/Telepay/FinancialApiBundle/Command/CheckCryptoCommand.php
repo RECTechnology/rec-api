@@ -25,7 +25,7 @@ class CheckCryptoCommand extends SyncronizedContainerAwareCommand
 
     protected function executeSyncronized(InputInterface $input, OutputInterface $output){
         $n = 0;
-        $exec_n_times = 1000;
+        $exec_n_times = 1;
         $init = time();
         $now = time();
         while($n<$exec_n_times && ($now - $init) < 58) {
@@ -170,6 +170,7 @@ class CheckCryptoCommand extends SyncronizedContainerAwareCommand
                             }
 
                         } elseif ($transaction->getStatus() == Transaction::$STATUS_EXPIRED) {
+                            $output->writeln('TRANSACTION EXPIRED');
                             $groupLimitCount = $em->getRepository('TelepayFinancialApiBundle:LimitCount')->findOneBy(array(
                                 'group' =>  $group->getId(),
                                 'cname' =>  $method.'-'.$type
@@ -179,6 +180,7 @@ class CheckCryptoCommand extends SyncronizedContainerAwareCommand
 
                             //if delete_on_expire==true delete transaction
                             if (isset($data['delete_on_expire']) && $data['delete_on_expire'] == true) {
+                                $output->writeln('DELETE ON EXPIRE');
                                 $dm->remove($transaction);
                                 $dm->flush();
                             }
