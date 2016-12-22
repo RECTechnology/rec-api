@@ -237,26 +237,6 @@ user_devices_delete:
     requirements:
         _method: DELETE
 
-######################## USER CASH IN TOKEN ########################
-
-#user_cash_in_create:
-#    pattern:  /user/v1/cash_in_token
-#    defaults: { _controller: Telepay\FinancialApiBundle\Controller\Management\User\CashInController::createAction }
-#    requirements:
-#        _method: POST
-#
-#user_cash_in_update:
-#    pattern:  /user/v1/cash_in_token/{id}
-#    defaults: { _controller: Telepay\FinancialApiBundle\Controller\Management\User\CashInController::updateAction }
-#    requirements:
-#        _method: PUT
-#
-#user_cash_in_show:
-#    pattern:  /user/v1/cash_in_token
-#    defaults: { _controller: Telepay\FinancialApiBundle\Controller\Management\User\CashInController::indexAction }
-#    requirements:
-#        _method: GET
-
 ######################## USER FEES ########################
 
 user_fees:
