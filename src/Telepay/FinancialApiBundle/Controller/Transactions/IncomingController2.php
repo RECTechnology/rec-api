@@ -142,6 +142,9 @@ class IncomingController2 extends RestApiController{
             }
             $payment_info = $method->getPayInInfo($amount);
             $payment_info['concept'] = $concept;
+            if(isset($data['expires_in']) && $data['expires_in'] > 99){
+                $payment_info['expires_in'] = $data['expires_in'];
+            }
             $transaction->setPayInInfo($payment_info);
 
         }else{
