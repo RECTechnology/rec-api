@@ -176,6 +176,13 @@ class CheckCryptoCommand extends SyncronizedContainerAwareCommand
                             ));
                             $newGroupLimitCount = (new LimitAdder())->restore( $groupLimitCount, $total);
                             $em->flush();
+
+                            //if delete_on_expire==true delete transaction
+                            if (isset($data['delete_on_expire']) && $data['delete_on_expire'] == true) {
+                                $dm->remove($transaction);
+                                $dm->flush();
+                            }
+
                         }
                     }
 
