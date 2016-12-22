@@ -396,6 +396,7 @@ class Transaction implements TransactionTiming {
     /**
      * @var
      * @MongoDB\Field(type="boolean")
+     * @Exclude
      */
     private $delete_on_expire;
 
