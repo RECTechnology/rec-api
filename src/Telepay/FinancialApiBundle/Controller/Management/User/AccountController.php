@@ -1243,6 +1243,10 @@ class AccountController extends BaseApiController{
 
         }
 
+        if($kyc->getEmailValidated() == true){
+            throw new HttpException(403, 'This email is validated yet');
+        }
+
         $kyc->setEmailValidated(true);
         $em->flush();
 
