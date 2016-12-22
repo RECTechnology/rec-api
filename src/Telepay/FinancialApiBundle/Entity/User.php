@@ -40,7 +40,7 @@ class User extends BaseUser
             $this->access_key=sha1($generator->nextBytes(32));
             $this->access_secret=base64_encode($generator->nextBytes(32));
         }
-        $this->created = new DateTime();
+        $this->created = new \DateTime();
     }
     /**
      * @ORM\Id
