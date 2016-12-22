@@ -893,7 +893,7 @@ class NFCController extends RestApiController{
         //create feeTransactions
         $this->_dealer(0, $variable_fee, $receiver_transaction);
 
-        return $this->restTransaction($receiver_transaction, 'Transaction created successfully');
+        return $this->methodTransaction(201, $receiver_transaction, "Done");
 
     }
 
