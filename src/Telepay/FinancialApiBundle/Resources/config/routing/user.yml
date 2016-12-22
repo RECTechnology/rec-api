@@ -12,11 +12,11 @@ user_account_edit:
     requirements:
         _method: PUT
 
-user_service_read:
-    pattern:  /user/v1/services/{service}
-    defaults: { _controller: Telepay\FinancialApiBundle\Controller\Management\Integrator\ServicesController::read }
-    requirements:
-        _method: GET
+#user_service_read:
+#    pattern:  /user/v1/services/{service}
+#    defaults: { _controller: Telepay\FinancialApiBundle\Controller\Management\Integrator\ServicesController::read }
+#    requirements:
+#        _method: GET
 
 user_method_read:
     pattern:  /user/v1/methods/{method}
