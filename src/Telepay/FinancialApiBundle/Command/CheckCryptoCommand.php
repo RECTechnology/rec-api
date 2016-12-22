@@ -179,7 +179,7 @@ class CheckCryptoCommand extends SyncronizedContainerAwareCommand
                             $em->flush();
 
                             //if delete_on_expire==true delete transaction
-                            if (isset($data['delete_on_expire']) && $data['delete_on_expire'] == true) {
+                            if ($transaction->getDeleteOnExpire() == true) {
                                 $output->writeln('DELETE ON EXPIRE');
                                 $dm->remove($transaction);
                                 $dm->flush();
