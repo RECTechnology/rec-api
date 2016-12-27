@@ -1010,7 +1010,7 @@ class NFCController extends RestApiController{
 
         //commerce fee
         $rootFee = new Transaction();
-        $rootFee->setGroup($rootGroup);
+        $rootFee->setGroup($rootGroupId);
         $rootFee->setType(Transaction::$TYPE_FEE);
         $rootFee->setCurrency($user_transaction->getCurrency());
         $rootFee->setScale($user_transaction->getScale());
