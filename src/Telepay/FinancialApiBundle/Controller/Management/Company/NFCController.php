@@ -751,7 +751,7 @@ class NFCController extends RestApiController{
 
         $data_to_sign = $params['amount'] . $params['id_card'] . $id_company;
         $logger->error('NFCPymanet DATA TO SIGN => '. $data_to_sign);
-        $logger->error('NFCPymanet secret => '. $receiverCompany->getAccessSecret().' pin => '.$card->getPin());
+        $logger->error('NFCPymanet secret => '. $receiverCompany->getAccessSecret());
 
         $signature = hash_hmac('sha256', $data_to_sign, $receiverCompany->getAccessSecret().$card->getPin());
 
@@ -761,6 +761,7 @@ class NFCController extends RestApiController{
         if(!$card->getEnabled()) throw new HttpException(403, 'Disabled card');
 
         $amount = $params['amount'];
+        $logger->error('NFCPymanet RECEIVED AMOUNT => '.$amount);
         $currency_in = Currency::$FAC;
         //get currency in
         if($request->request->has('currency_in')){
@@ -768,6 +769,7 @@ class NFCController extends RestApiController{
             if($currency_in != Currency::$FAC){
                 //do exchange
                 $amount = $this->get('net.telepay.commons.exchange_manipulator')->exchangeInverse($params['amount'], $currency_in, 'FAIRP');
+                $logger->error('NFCPymanet AMOUNT AFTER EXCHANGE => '.$amount);
             }
         }
 
