@@ -555,7 +555,7 @@ class NFCController extends RestApiController{
         $balancer->addBalance($company, -$params['amount'], $sender_transaction);
 
         //FEE=1% al user
-        $variable_fee = round($amount*0.01,0);
+        $variable_fee = round($amount*0,0);
         $rec_amount = $amount - $variable_fee;
 
         //RECEIVER TRANSACTION
@@ -1001,7 +1001,6 @@ class NFCController extends RestApiController{
         $userFee->setClient($user_transaction->getClient());
 
         $dm = $this->get('doctrine_mongodb')->getManager();
-        $dm->persist($userFee);
 
         $em = $this->getDoctrine()->getManager();
 
@@ -1020,7 +1019,7 @@ class NFCController extends RestApiController{
         $rootFee->setService($user_transaction->getMethod().' ->fee');
         $rootFee->setMethod($user_transaction->getMethod().' ->fee');
         $rootFee->setStatus(Transaction::$STATUS_SUCCESS);
-        $rootFee->setTotal(-$total_fee);
+        $rootFee->setTotal($total_fee);
         $rootFee->setDataIn(array(
             'previous_transaction'  =>  $user_transaction->getId(),
             'transaction_amount'    =>  $user_transaction->getAmount(),
@@ -1038,7 +1037,6 @@ class NFCController extends RestApiController{
         $rootFee->setFeeInfo($rootFeeInfo);
         $rootFee->setClient($user_transaction->getClient());
 
-        $dm->persist($rootFee);
         $dm->flush();
 
     }

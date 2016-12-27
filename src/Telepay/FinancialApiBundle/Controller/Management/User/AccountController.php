@@ -1173,6 +1173,14 @@ class AccountController extends BaseApiController{
             $em->persist($kyc);
         }
 
+        if($request->request->has('country') && $request->request->get('country')!=''){
+            $kyc->setCountry($request->request->get('country'));
+        }
+
+        if($request->request->has('address') && $request->request->get('address')!=''){
+            $kyc->setAddress($request->request->get('address'));
+        }
+
         if($request->request->get('phone') != '' || $request->request->get('prefix') != ''){
             $prefix = $request->request->get('prefix');
             $phone = $request->request->get('phone');
@@ -1196,6 +1204,7 @@ class AccountController extends BaseApiController{
         }
 
         $em->flush();
+
         return $this->restV2(204, "ok", "KYC Info saved");
     }
 
