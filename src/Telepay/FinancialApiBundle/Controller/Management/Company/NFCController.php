@@ -765,7 +765,8 @@ class NFCController extends RestApiController{
         $currency_in = Currency::$FAC;
         //get currency in
         if($request->request->has('currency_in')){
-            $currency_in = $request->request->get('currency_in');
+            $currency_in = strtoupper($request->request->get('currency_in'));
+            $logger->error('NFCPymanet CURRENCY IN => '.$currency_in);
             if($currency_in != Currency::$FAC){
                 //do exchange
                 $amount = $this->get('net.telepay.commons.exchange_manipulator')->exchangeInverse($params['amount'], $currency_in, 'FAIRP');
