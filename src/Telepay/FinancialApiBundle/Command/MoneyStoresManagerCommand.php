@@ -133,6 +133,8 @@ class MoneyStoresManagerCommand extends ContainerAwareCommand{
         $initNode = new BagNode();
         $initNode->defineValues($system_data, $heuristic, 0);
         $bestNode = $initNode;
+        $output->writeln("Best: " . json_encode($bestNode->getInfo()));
+
         array_push($listNodes, $initNode);
         while(count($listNodes)>0){
             $node = array_shift($listNodes);
@@ -147,12 +149,15 @@ class MoneyStoresManagerCommand extends ContainerAwareCommand{
                 }
             }
         }
-        $output->writeln("");
-        $output->writeln("Best: " . json_encode($bestNode->getInfo()));
-        $output->writeln("Best h: " . json_encode($bestNode->getHeuristic()));
-        $output->writeln("Prev: " . json_encode($bestNode->getPrev()->getInfo()));
-        $output->writeln("Prev h: " . json_encode($bestNode->getPrev()->getHeuristic()));
-        $output->writeln("Prev t: " . json_encode($this->possibleTransfers($bestNode->getPrev()->getInfo())));
+        //$output->writeln("");
+        //$output->writeln("Best: " . json_encode($bestNode->getInfo()));
+        //$output->writeln("Best h: " . json_encode($bestNode->getHeuristic()));
+        //$output->writeln("Prev: " . json_encode($bestNode->getPrev()->getInfo()));
+        //$output->writeln("Prev h: " . json_encode($bestNode->getPrev()->getHeuristic()));
+        //$output->writeln("Prev t: " . json_encode($this->possibleTransfers($bestNode->getPrev()->getInfo())));
+
+        $listTransfersToDo = $this->mergeTransfers($bestNode->getInfo()['transfers_to_do']);
+        $output->writeln("To do: " . json_encode($listTransfersToDo));
     }
 
     protected function heuristic($system_data){
@@ -232,7 +237,8 @@ class MoneyStoresManagerCommand extends ContainerAwareCommand{
                             $available = $info['wallets'][$origin_name]['now_default'] + $info['wallets'][$origin_name]['receiving_default'] - $info['wallets'][$origin_name]['perfect_default'];
                             $available = min($available, $info['wallets'][$origin_name]['now_default']);
                             //origen in perfect status
-                            if($available >= $way_conf->getMinAmount()) {
+                            $minAmount = round($this->_exchange($way_conf->getMinAmount(), $way_conf->getStartNode()->getCurrency(), $this->default_currency),0);
+                            if($available >= $minAmount) {
                                 $listPossibleTransfersNeed[] = array(
                                     'origin' => $origin_name,
                                     'destination' => $destination_name,
@@ -243,7 +249,7 @@ class MoneyStoresManagerCommand extends ContainerAwareCommand{
                                 //origen in min status
                                 $max_available = $info['wallets'][$origin_name]['now_default'] + $info['wallets'][$origin_name]['receiving_default'] - $info['wallets'][$origin_name]['min_default'];
                                 $max_available = min($max_available, $need, $info['wallets'][$origin_name]['now_default']);
-                                if($max_available >= $way_conf->getMinAmount()){
+                                if($max_available >= $minAmount){
                                     $listPossibleTransfersNeed[] = array(
                                         'origin' => $origin_name,
                                         'destination' => $destination_name,
@@ -268,35 +274,32 @@ class MoneyStoresManagerCommand extends ContainerAwareCommand{
                     if(isset($info['wallets'][$destination_name])){
                         $can_receive = $info['wallets'][$destination_name]['max_default'] - $info['wallets'][$destination_name]['now_default'] - $info['wallets'][$destination_name]['receiving_default'];
                         if($info['wallets'][$destination_name]['conf']->isStorehouse()) $can_receive = $excess;
-                        $min_amount = $way_conf->getMinAmount();
-                        $max_amount = $info['wallets'][$origin_name]['now_default'];
-                        if($can_receive >= $excess && $excess >= $min_amount && $excess <= $max_amount){
+                        $minAmount = round($this->_exchange($way_conf->getMinAmount(), $way_conf->getStartNode()->getCurrency(), $this->default_currency),0);
+                        $maxAmount = $info['wallets'][$origin_name]['now_default'];
+                        if($can_receive >= $excess && $excess >= $minAmount && $excess <= $maxAmount){
                             $listPossibleTransfersExcess[] = array(
                                 'origin' => $origin_name,
                                 'destination' => $destination_name,
-                                'amount' => $excess,
-                                'polla' => 'a'
+                                'amount' => $excess
                             );
                         }
                         else{
                             //Destination wallet to max status
-                            if($can_receive >= $min_amount && $can_receive <= $max_amount){
+                            if($can_receive >= $minAmount && $can_receive <= $maxAmount){
                                 $listPossibleTransfersExcess[] = array(
                                     'origin' => $origin_name,
                                     'destination' => $destination_name,
-                                    'amount' => $can_receive,
-                                    'polla' => 'b'
+                                    'amount' => $can_receive
                                 );
                             }
                             //Destination wallet to exceed status
                             $max_receive = $can_receive + $info['wallets'][$destination_name]['min_default'];
                             $max_receive = min($excess, $max_receive);
-                            if($max_receive >= $min_amount && $excess <= $max_amount){
+                            if($max_receive >= $minAmount && $excess <= $maxAmount){
                                 $listPossibleTransfersExcess[] = array(
                                     'origin' => $origin_name,
                                     'destination' => $destination_name,
-                                    'amount' => $max_receive,
-                                    'polla' => 'c'
+                                    'amount' => $max_receive
                                 );
                             }
                         }
@@ -308,6 +311,19 @@ class MoneyStoresManagerCommand extends ContainerAwareCommand{
             return $listPossibleTransfersExcess;
         }
         return $listPossibleTransfersNeed;
+    }
+
+    public function mergeTransfers($listTransfers){
+        $result = array();
+        foreach($listTransfers as $transfer){
+            if(isset($result[$transfer['in'] . '-' . $transfer['out']])){
+                $result[$transfer['in'] . '-' . $transfer['out']]['amount'] += $transfer['amount'];
+            }
+            else{
+                $result[$transfer['in'] . '-' . $transfer['out']] = $transfer;
+            }
+        }
+        return $result;
     }
 
     public function generateNewNode($node, $transfer){

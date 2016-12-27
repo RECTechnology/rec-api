@@ -96,7 +96,7 @@ class KrakenWallet implements WalletInterface, TraderInterface {
 
     public function getFakeBalance()
     {
-        if($this->getCurrency() == 'BTC') return 1;
+        if($this->getCurrency() == 'BTC') return 2;
         if($this->getCurrency() == 'EUR') return 400;
         return 0;
     }
