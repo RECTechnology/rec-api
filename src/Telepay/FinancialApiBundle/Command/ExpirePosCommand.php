@@ -26,7 +26,7 @@ class ExpirePosCommand extends ContainerAwareCommand
     protected function execute(InputInterface $input, OutputInterface $output)
     {
 
-        $service_cname = array('POS-PNP', 'POS-SAFETYPAY');
+        $service_cname = array('POS-PNP', 'POS-SAFETYPAY', 'POS-SABADELL');
 
         $dm = $this->getContainer()->get('doctrine_mongodb')->getManager();
         $em = $this->getContainer()->get('doctrine')->getManager();
