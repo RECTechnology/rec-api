@@ -915,18 +915,21 @@ class NFCController extends RestApiController{
      */
     public function checkNFCPayment(Request $request, $id_company, $id){
 
+        $logger = $this->get('transaction.logger');
+        $logger->error('CHECKNFCPymanet INIT company => '.$id_company.' transaction => '.$id);
         $dm = $this->get('doctrine_mongodb')->getManager();
 
-        $transaction = $dm->getRepository('TelepayFinancialApiBundle:Transaction')->findBy(array(
+        $transaction = $dm->getRepository('TelepayFinancialApiBundle:Transaction')->findOneBy(array(
             'id'    =>  $id,
             'group' =>  $id_company,
             'method'    =>  'wallet_to_wallet'
         ));
 
         if(!$transaction){
+            $logger->error('CHECKNFCPymanet transaction not found');
             throw new HttpException(404, 'Transaction not found');
         }
-
+        $logger->error('CHECKNFCPymanet successfully');
         return $this->methodTransaction(200, $transaction, "Done");
 
     }
