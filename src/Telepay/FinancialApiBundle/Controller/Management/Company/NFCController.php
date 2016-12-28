@@ -845,7 +845,7 @@ class NFCController extends RestApiController{
         $balancer->addBalance($senderCompany, -$amount, $sender_transaction);
 
         //FEE=1% al user
-        $variable_fee = round($amount*0.01,0);
+        $variable_fee = round($amount*0,0);
         $receiver_amount = $amount - $variable_fee;
 
         //RECEIVER TRANSACTION
@@ -918,6 +918,10 @@ class NFCController extends RestApiController{
         $logger = $this->get('transaction.logger');
         $logger->error('CHECKNFCPymanet INIT company => '.$id_company.' transaction => '.$id);
         $dm = $this->get('doctrine_mongodb')->getManager();
+
+        $user = $this->getUser();
+        //TODO check if this user has this company
+
 
         $transaction = $dm->getRepository('TelepayFinancialApiBundle:Transaction')->findOneBy(array(
             'id'    =>  $id,
