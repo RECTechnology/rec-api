@@ -83,3 +83,9 @@ pos_nfc_fac:
     defaults: { _controller: Telepay\FinancialApiBundle\Controller\Management\Company\NFCController::NFCPayment }
     requirements:
         _method: POST
+
+pos_nfc_fac_check:
+    pattern:  /pos/v1/{id_company}/nfc/fac/{id}
+    defaults: { _controller: Telepay\FinancialApiBundle\Controller\Management\Company\NFCController::checkNFCPayment }
+    requirements:
+        _method: GET
