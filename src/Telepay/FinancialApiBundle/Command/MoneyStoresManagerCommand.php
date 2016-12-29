@@ -28,7 +28,7 @@ class MoneyStoresManagerCommand extends ContainerAwareCommand{
                 null
             )
             ->addOption(
-                'test',
+                'send',
                 null,
                 InputOption::VALUE_REQUIRED,
                 'Test mode active.',
@@ -56,11 +56,11 @@ class MoneyStoresManagerCommand extends ContainerAwareCommand{
             $this->maxSteps = 10;
         }
 
-        if($input->getOption('test')){
-            $this->test = true;
+        if($input->getOption('send')){
+            $this->test = false;
         }
         else{
-            $this->test = false;
+            $this->test = true;
         }
 
         $em = $this->getContainer()->get('doctrine')->getManager();
@@ -149,15 +149,15 @@ class MoneyStoresManagerCommand extends ContainerAwareCommand{
                 }
             }
         }
-        //$output->writeln("");
-        //$output->writeln("Best: " . json_encode($bestNode->getInfo()));
-        //$output->writeln("Best h: " . json_encode($bestNode->getHeuristic()));
-        //$output->writeln("Prev: " . json_encode($bestNode->getPrev()->getInfo()));
-        //$output->writeln("Prev h: " . json_encode($bestNode->getPrev()->getHeuristic()));
-        //$output->writeln("Prev t: " . json_encode($this->possibleTransfers($bestNode->getPrev()->getInfo())));
 
         $listTransfersToDo = $this->mergeTransfers($bestNode->getInfo()['transfers_to_do']);
-        $output->writeln("To do: " . json_encode($listTransfersToDo));
+        if($this->test){
+            $output->writeln("Best: " . json_encode($bestNode->getInfo()));
+            $output->writeln("To do: " . json_encode($listTransfersToDo));
+        }
+        else{
+            $this->sendList($listTransfersToDo, $output);
+        }
     }
 
     protected function heuristic($system_data){
@@ -181,11 +181,17 @@ class MoneyStoresManagerCommand extends ContainerAwareCommand{
         return $heuristic;
     }
 
-    public function send($wallet_conf, $amount){
-        $outs = $wallet_conf->getWaysOut();
-        foreach($outs as $out){
-            $way_conf = $this->getContainer()->get($out);
-            if($amount > $way_conf->getMinAmount());
+    public function sendList($list, $output){
+        $em = $this->getContainer()->get('doctrine')->getManager();
+        $transferRepo = $em->getRepository('TelepayFinancialApiBundle:WalletTransfer');
+        foreach($list as $transfer){
+            $way_conf = $this->getContainer()->get('net.telepay.link.' . strtolower($transfer['in']) . '.' . strtolower($transfer['out']));
+            $amount = $transfer['amount'];
+            if($way_conf->getStartNode()->getCurrency() != $this->default_currency){
+                $amount = round($this->_exchange($amount, $this->default_currency, $way_conf->getStartNode()->getCurrency()), 0);
+            }
+            $way_conf->send($amount);
+
         }
     }
 

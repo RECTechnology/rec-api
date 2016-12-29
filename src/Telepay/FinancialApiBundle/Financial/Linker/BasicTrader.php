@@ -21,6 +21,7 @@ class BasicTrader implements WayInterface {
     {
         if($this->startNode->getOutCurrency() == $this->endNode->getInCurrency())
             throw new \LogicException("Trader nodes currencies cant be the same");
+        return 'sent (' . $this->startNode->getName() . ' -> ' . $this->endNode->getName() . '):' . $amount . ' ' . $this->startNode->getCurrency();
 
         return $this->startNode->sell($amount);
     }

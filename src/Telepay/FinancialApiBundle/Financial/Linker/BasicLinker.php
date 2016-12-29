@@ -24,6 +24,8 @@ class BasicLinker implements WayInterface {
         if($this->startNode->getCurrency() != $this->endNode->getCurrency())
             throw new \LogicException("Linked nodes must have the same currency");
 
+        return 'sent (' . $this->startNode->getName() . ' -> ' . $this->endNode->getName() . '):' . $amount . ' ' . $this->startNode->getCurrency();
+
         return $this->startNode->send($this->endNode, $amount);
     }
 
