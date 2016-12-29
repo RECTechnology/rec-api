@@ -19,6 +19,7 @@ use Symfony\Component\Security\Core\Util\SecureRandom;
 use JMS\Serializer\Annotation\ExclusionPolicy;
 use JMS\Serializer\Annotation\Expose;
 use JMS\Serializer\Annotation\Exclude;
+use Symfony\Component\Validator\Constraints\DateTime;
 
 /**
  * @ORM\Entity
@@ -39,6 +40,7 @@ class User extends BaseUser
             $this->access_key=sha1($generator->nextBytes(32));
             $this->access_secret=base64_encode($generator->nextBytes(32));
         }
+        $this->created = new \DateTime();
     }
     /**
      * @ORM\Id
@@ -162,6 +164,12 @@ class User extends BaseUser
      * @Exclude
      */
     private $recover_password_token;
+
+    /**
+     * @ORM\Column(type="datetime")
+     * @Expose
+     */
+    private $created;
 
     /**
      * @Expose
@@ -539,5 +547,21 @@ class User extends BaseUser
     public function setKycValidations($kyc_validations)
     {
         $this->kyc_validations = $kyc_validations;
+    }
+
+    /**
+     * @return mixed
+     */
+    public function getCreated()
+    {
+        return $this->created;
+    }
+
+    /**
+     * @param mixed $created
+     */
+    public function setCreated($created)
+    {
+        $this->created = $created;
     }
 }

@@ -170,12 +170,24 @@ class CheckCryptoCommand extends SyncronizedContainerAwareCommand
                             }
 
                         } elseif ($transaction->getStatus() == Transaction::$STATUS_EXPIRED) {
+                            $output->writeln('TRANSACTION EXPIRED');
                             $groupLimitCount = $em->getRepository('TelepayFinancialApiBundle:LimitCount')->findOneBy(array(
                                 'group' =>  $group->getId(),
                                 'cname' =>  $method.'-'.$type
                             ));
                             $newGroupLimitCount = (new LimitAdder())->restore( $groupLimitCount, $total);
                             $em->flush();
+
+                            //if delete_on_expire==true delete transaction
+                            if ($transaction->getDeleteOnExpire() == true) {
+                                $transaction->setStatus('deleted');
+                                $output->writeln('NOTIFYING DELETE ON EXPIRE');
+                                $transaction = $this->getContainer()->get('notificator')->notificate($transaction);
+                                $output->writeln('DELETE ON EXPIRE');
+                                $dm->remove($transaction);
+                                $dm->flush();
+                            }
+
                         }
                     }
 

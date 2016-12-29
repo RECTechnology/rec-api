@@ -127,7 +127,17 @@ class ExchangeManipulator{
             }
         }
 
-        $price = $this->getPrice($from, $to);
+        if(($from == Currency::$FAC || $to == Currency::$FAC) && $company->getPremium() == true ){
+            //TODO change fac for fairp
+            if($from == Currency::$FAC){
+                $price = $this->getPrice('FAIRP', $to);
+            }else{
+                $price = $this->getPrice($from, 'FAIRP');
+            }
+        }else{
+            $price = $this->getPrice($from, $to);
+        }
+
 
         $totalExchangeFee = $exchange_fixed_fee + $exchange_variable_fee;
 

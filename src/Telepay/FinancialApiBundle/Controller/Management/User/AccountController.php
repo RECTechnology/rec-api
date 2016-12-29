@@ -694,7 +694,7 @@ class AccountController extends BaseApiController{
 
         if(!$request->request->has('company_name'))$request->request->set('company_name',  $request->request->get('username') . " Company");
 
-        $valid_types = array('prestashop', 'android', 'commerce');
+        $valid_types = array('prestashop', 'android', 'commerce', 'android_fair');
         if(!in_array($type, $valid_types)) throw new HttpException(404, 'Type not valid');
 
         $params = array();
@@ -732,11 +732,11 @@ class AccountController extends BaseApiController{
             }
         }
 
+        $premium = false;
         if($type == 'commerce'){
             $user_creator_id = $this->container->getParameter('admin_user_id');
             $company_creator_id = $this->container->getParameter('id_group_root');
-        }
-        else{
+        }else{
             $user_creator_id = $this->container->getParameter('default_user_creator_commerce_' . $type);
             $company_creator_id = $this->container->getParameter('default_company_creator_commerce_' . $type);
         }
@@ -754,6 +754,7 @@ class AccountController extends BaseApiController{
         $company->setDefaultCurrency('EUR');
         $company->setEmail($params['email']);
         $company->setMethodsList('');
+        $company->setPremium($premium);
 
         $em->persist($company);
 
@@ -862,8 +863,12 @@ class AccountController extends BaseApiController{
                 'pos' => $pos
             );
         }
-        elseif($type == 'android' || $type == 'commerce'){
-            $methodsList = array('btc-in', 'fac-in', 'btc-out', 'fac-out');
+        elseif($type == 'android' || $type == 'commerce' || $type = 'android_fair'){
+            if($type == 'android_fair'){
+                $methodsList = array('fac-out', 'fac-in');
+            }else{
+                $methodsList = array('btc-in', 'fac-in', 'btc-out', 'fac-out');
+            }
             $company->setMethodsList($methodsList);
             $em->persist($company);
 
@@ -916,19 +921,37 @@ class AccountController extends BaseApiController{
             $em->persist($fac_limit);
             $em->flush();
 
-            //create new fixed address for bitcoin and return
-            $btcAddress = new CashInTokens();
-            $btcAddress->setCurrency(Currency::$BTC);
-            $btcAddress->setCompany($company);
-            $btcAddress->setLabel('BTC account');
-            $btcAddress->setMethod('btc-in');
-            $btcAddress->setExpiresIn(-1);
-            $btcAddress->setStatus(CashInTokens::$STATUS_ACTIVE);
-            $methodDriver = $this->get('net.telepay.in.btc.v1');
-            $paymentInfo = $methodDriver->getPayInInfo(0);
-            $token = $paymentInfo['address'];
-            $btcAddress->setToken($token);
-            $em->persist($btcAddress);
+            $fac_limit = new LimitDefinition();
+            $fac_limit->setDay(-1);
+            $fac_limit->setCname('fac-out');
+            $fac_limit->setWeek(-1);
+            $fac_limit->setMonth(-1);
+            $fac_limit->setYear(-1);
+            $fac_limit->setSingle(-1);
+            $fac_limit->setTotal(-1);
+            $fac_limit->setCurrency(Currency::$FAC);
+            $fac_limit->setGroup($company);
+            $em->persist($fac_limit);
+            $em->flush();
+
+            if($type != 'android_fair'){
+                //create new fixed address for bitcoin and return
+                $btcAddress = new CashInTokens();
+                $btcAddress->setCurrency(Currency::$BTC);
+                $btcAddress->setCompany($company);
+                $btcAddress->setLabel('BTC account');
+                $btcAddress->setMethod('btc-in');
+                $btcAddress->setExpiresIn(-1);
+                $btcAddress->setStatus(CashInTokens::$STATUS_ACTIVE);
+                $methodDriver = $this->get('net.telepay.in.btc.v1');
+                $paymentInfo = $methodDriver->getPayInInfo(0);
+                $token = $paymentInfo['address'];
+                $btcAddress->setToken($token);
+                $em->persist($btcAddress);
+
+                $response['btc_address'] = $btcAddress;
+            }
+
 
             //create new fixed address for faircoin and return
             $facAddress = new CashInTokens();
@@ -944,12 +967,10 @@ class AccountController extends BaseApiController{
             $facAddress->setToken($token);
             $em->persist($facAddress);
 
-            $response = array(
-                'user' => $user,
-                'company' => $company,
-                'btc_address'   =>  $btcAddress,
-                'fac_address'   =>  $facAddress
-            );
+            $response['user'] = $user;
+            $response['company'] = $company;
+            $response['fac_address'] = $facAddress;
+
         }
         $em->flush();
 
@@ -1130,6 +1151,10 @@ class AccountController extends BaseApiController{
                 $url = "https://holytransaction.trade/";
                 $url = $url.'?user_token='.$user->getConfirmationToken();
                 $this->_sendEmail('Holy Transaction validation e-mail', $url, $user->getEmail(), 'register_kyc_holy');
+            }elseif($company =="panel"){
+                $url = $this->container->getParameter('base_panel_url');
+                $url = $url.'/user/validation/'.$user->getConfirmationToken();
+                $this->_sendEmail('Chip-Chap validation e-mail', $url, $user->getEmail(), 'register');
             }
             else{
                 $url = $this->container->getParameter('web_app_url');
@@ -1146,6 +1171,14 @@ class AccountController extends BaseApiController{
         if($request->request->has('date_birth') && $request->request->get('date_birth')!=''){
             $kyc->setDateBirth($request->request->get('date_birth'));
             $em->persist($kyc);
+        }
+
+        if($request->request->has('country') && $request->request->get('country')!=''){
+            $kyc->setCountry($request->request->get('country'));
+        }
+
+        if($request->request->has('address') && $request->request->get('address')!=''){
+            $kyc->setAddress($request->request->get('address'));
         }
 
         if($request->request->get('phone') != '' || $request->request->get('prefix') != ''){
@@ -1171,6 +1204,7 @@ class AccountController extends BaseApiController{
         }
 
         $em->flush();
+
         return $this->restV2(204, "ok", "KYC Info saved");
     }
 
@@ -1210,11 +1244,20 @@ class AccountController extends BaseApiController{
             'user' => $user
         ));
 
-//        if($kyc){
-            $kyc->setEmailValidated(true);
+        if(!$kyc){
+            $kyc = new KYC();
+            $kyc->setEmail($user->getEmail());
+            $kyc->setUser($user);
             $em->persist($kyc);
-            $em->flush();
-//        }
+
+        }
+
+        if($kyc->getEmailValidated() == true){
+            throw new HttpException(403, 'This email is validated yet');
+        }
+
+        $kyc->setEmailValidated(true);
+        $em->flush();
 
         $response = array(
             'username'  =>  $user->getUsername(),

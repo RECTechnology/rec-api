@@ -498,7 +498,17 @@ class NFCController extends RestApiController{
             'currency'  =>  Currency::$FAC
         ));
 
-        if($params['amount'] > $sender_wallet->getAvailable()) throw new HttpException(403, 'Not funds enough');
+        $amount = $params['amount'];
+        $currency_in = Currency::$FAC;
+        //get currency in
+        if($request->request->has('currency_in')){
+            $currency_in = strtoupper($request->request->get('currency_in'));
+            if($currency_in != Currency::$FAC){
+                //do exchange
+                $amount = $this->get('net.telepay.commons.exchange_manipulator')->exchangeInverse($params['amount'], $currency_in, 'FAIRP');
+            }
+        }
+        if($amount > $sender_wallet->getAvailable()) throw new HttpException(403, 'Not funds enough');
 
         //Generate transactions and update wallets - without fees
         //SENDER TRANSACTION
@@ -513,7 +523,7 @@ class NFCController extends RestApiController{
         $sender_transaction->setType('out');
         $sender_transaction->setVariableFee(0);
         $sender_transaction->setFixedFee(0);
-        $sender_transaction->setAmount($params['amount']);
+        $sender_transaction->setAmount($amount);
         $sender_transaction->setDataIn(array(
             'description'   =>  'transfer->FAC',
             'concept'       =>  'walletToWallet from ANDROID APP'
@@ -521,18 +531,18 @@ class NFCController extends RestApiController{
         $sender_transaction->setDataOut(array(
             'sent_to'   =>  $receiverCompany->getName(),
             'id_to'     =>  $receiverCompany->getId(),
-            'amount'    =>  -$params['amount'],
+            'amount'    =>  -$amount,
             'currency'  =>  Currency::$FAC
         ));
         $sender_transaction->setPayOutInfo(array(
             'beneficiary'   =>  $receiverCompany->getName(),
             'beneficiary_id'     =>  $receiverCompany->getId(),
-            'amount'    =>  -$params['amount'],
+            'amount'    =>  -$amount,
             'currency'  =>  Currency::$FAC,
             'scale'     =>  Currency::$SCALE[Currency::$FAC],
             'concept'       =>  'walletToWallet from ANDROID APP'
         ));
-        $sender_transaction->setTotal(-$params['amount']);
+        $sender_transaction->setTotal(-$amount);
         $sender_transaction->setUser($user->getId());
         $sender_transaction->setGroup($company->getId());
 
@@ -545,8 +555,8 @@ class NFCController extends RestApiController{
         $balancer->addBalance($company, -$params['amount'], $sender_transaction);
 
         //FEE=1% al user
-        $variable_fee = round($params['amount']*0.01,0);
-        $amount = $params['amount'] - $variable_fee;
+        $variable_fee = round($amount*0,0);
+        $rec_amount = $amount - $variable_fee;
 
         //RECEIVER TRANSACTION
         $receiver_transaction = new Transaction();
@@ -560,18 +570,18 @@ class NFCController extends RestApiController{
         $receiver_transaction->setType('in');
         $receiver_transaction->setVariableFee(0);
         $receiver_transaction->setFixedFee(0);
-        $receiver_transaction->setAmount($params['amount']);
+        $receiver_transaction->setAmount($amount);
         $receiver_transaction->setDataOut(array(
             'received_from' =>  $company->getName(),
             'id_from'       =>  $company->getId(),
-            'amount'        =>  $params['amount'],
+            'amount'        =>  $amount,
             'currency'      =>  $receiver_wallet->getCurrency(),
             'previous_transaction'  =>  $sender_transaction->getId()
         ));
         $receiver_transaction->setDataIn(array(
             'sent_to'   =>  $receiverCompany->getName(),
             'id_to'     =>  $receiverCompany->getId(),
-            'amount'    =>  -$params['amount'],
+            'amount'    =>  -$amount,
             'currency'  =>  Currency::$FAC,
             'description'   =>  'transfer->FAC',
             'concept'   =>  'walletToWallet from ANDROID APP'
@@ -579,26 +589,26 @@ class NFCController extends RestApiController{
         $receiver_transaction->setPayInInfo(array(
             'sender'   =>  $company->getName(),
             'sender_id'     =>  $company->getId(),
-            'amount'    =>  $params['amount'],
+            'amount'    =>  $amount,
             'currency'  =>  Currency::$FAC,
             'scale'  =>  Currency::$SCALE[Currency::$FAC],
             'concept'   =>  'walletToWallet from ANDROID APP'
         ));
-        $receiver_transaction->setTotal($params['amount']);
+        $receiver_transaction->setTotal($amount);
         $receiver_transaction->setGroup($receiverCompany->getId());
 
         $dm->persist($receiver_transaction);
         $dm->flush();
 
         $balancer = $this->get('net.telepay.commons.balance_manipulator');
-        $balancer->addBalance($receiverCompany, $amount, $receiver_transaction);
+        $balancer->addBalance($receiverCompany, $rec_amount, $receiver_transaction);
 
         //update wallets
-        $sender_wallet->setAvailable($sender_wallet->getAvailable() - $params['amount']);
-        $sender_wallet->setBalance($sender_wallet->getBalance() - $params['amount']);
+        $sender_wallet->setAvailable($sender_wallet->getAvailable() - $amount);
+        $sender_wallet->setBalance($sender_wallet->getBalance() - $amount);
 
-        $receiver_wallet->setAvailable($receiver_wallet->getAvailable() + $amount);
-        $receiver_wallet->setBalance($receiver_wallet->getBalance() + $amount);
+        $receiver_wallet->setAvailable($receiver_wallet->getAvailable() + $rec_amount);
+        $receiver_wallet->setBalance($receiver_wallet->getBalance() + $rec_amount);
 
         $em->persist($sender_wallet);
         $em->persist($receiver_wallet);
@@ -751,7 +761,7 @@ class NFCController extends RestApiController{
 
         $data_to_sign = $params['amount'] . $params['id_card'] . $id_company;
         $logger->error('NFCPymanet DATA TO SIGN => '. $data_to_sign);
-        $logger->error('NFCPymanet secret => '. $receiverCompany->getAccessSecret().' pin => '.$card->getPin());
+        $logger->error('NFCPymanet secret => '. $receiverCompany->getAccessSecret());
 
         $signature = hash_hmac('sha256', $data_to_sign, $receiverCompany->getAccessSecret().$card->getPin());
 
@@ -761,13 +771,16 @@ class NFCController extends RestApiController{
         if(!$card->getEnabled()) throw new HttpException(403, 'Disabled card');
 
         $amount = $params['amount'];
+        $logger->error('NFCPymanet RECEIVED AMOUNT => '.$amount);
         $currency_in = Currency::$FAC;
         //get currency in
         if($request->request->has('currency_in')){
-            $currency_in = $request->request->get('currency_in');
+            $currency_in = strtoupper($request->request->get('currency_in'));
+            $logger->error('NFCPymanet CURRENCY IN => '.$currency_in);
             if($currency_in != Currency::$FAC){
                 //do exchange
-                $amount = $this->get('net.telepay.commons.exchange_manipulator')->exchangeInverse($params['amount'], $currency_in, Currency::$FAC);
+                $amount = $this->get('net.telepay.commons.exchange_manipulator')->exchangeInverse($params['amount'], $currency_in, 'FAIRP');
+                $logger->error('NFCPymanet AMOUNT AFTER EXCHANGE => '.$amount);
             }
         }
 
@@ -780,7 +793,7 @@ class NFCController extends RestApiController{
         //Check funds sender wallet
         if($senderWallet->getAvailable() < $amount) throw new HttpException(403, 'Insuficient funds');
 
-        $concept = 'walletToWallet from ANDROID APP';
+        $concept = 'walletToWallet from ANDROID FAIR APP';
         $url_notification = '';
         if($request->request->has('url_notification')) $url_notification = $request->request->get('url_notification');
         if($request->request->has('concept')) $concept = $request->request->get('concept');
@@ -832,7 +845,7 @@ class NFCController extends RestApiController{
         $balancer->addBalance($senderCompany, -$amount, $sender_transaction);
 
         //FEE=1% al user
-        $variable_fee = round($amount*0.01,0);
+        $variable_fee = round($amount*0,0);
         $receiver_amount = $amount - $variable_fee;
 
         //RECEIVER TRANSACTION
@@ -893,7 +906,35 @@ class NFCController extends RestApiController{
         //create feeTransactions
         $this->_dealer(0, $variable_fee, $receiver_transaction);
 
-        return $this->restV2(200, "ok", "Transaction got successfully");
+        return $this->methodTransaction(201, $receiver_transaction, "Done");
+
+    }
+
+    /**
+     * @Rest\View
+     */
+    public function checkNFCPayment(Request $request, $id_company, $id){
+
+        $logger = $this->get('transaction.logger');
+        $logger->error('CHECKNFCPymanet INIT company => '.$id_company.' transaction => '.$id);
+        $dm = $this->get('doctrine_mongodb')->getManager();
+
+        $user = $this->getUser();
+        //TODO check if this user has this company
+
+
+        $transaction = $dm->getRepository('TelepayFinancialApiBundle:Transaction')->findOneBy(array(
+            'id'    =>  $id,
+            'group' =>  $id_company,
+            'method'    =>  'wallet_to_wallet'
+        ));
+
+        if(!$transaction){
+            $logger->error('CHECKNFCPymanet transaction not found');
+            throw new HttpException(404, 'Transaction not found');
+        }
+        $logger->error('CHECKNFCPymanet successfully');
+        return $this->methodTransaction(200, $transaction, "Done");
 
     }
 
@@ -988,7 +1029,6 @@ class NFCController extends RestApiController{
         $userFee->setClient($user_transaction->getClient());
 
         $dm = $this->get('doctrine_mongodb')->getManager();
-        $dm->persist($userFee);
 
         $em = $this->getDoctrine()->getManager();
 
@@ -997,7 +1037,7 @@ class NFCController extends RestApiController{
 
         //commerce fee
         $rootFee = new Transaction();
-        $rootFee->setGroup($rootGroup);
+        $rootFee->setGroup($rootGroupId);
         $rootFee->setType(Transaction::$TYPE_FEE);
         $rootFee->setCurrency($user_transaction->getCurrency());
         $rootFee->setScale($user_transaction->getScale());
@@ -1007,7 +1047,7 @@ class NFCController extends RestApiController{
         $rootFee->setService($user_transaction->getMethod().' ->fee');
         $rootFee->setMethod($user_transaction->getMethod().' ->fee');
         $rootFee->setStatus(Transaction::$STATUS_SUCCESS);
-        $rootFee->setTotal(-$total_fee);
+        $rootFee->setTotal($total_fee);
         $rootFee->setDataIn(array(
             'previous_transaction'  =>  $user_transaction->getId(),
             'transaction_amount'    =>  $user_transaction->getAmount(),
@@ -1025,7 +1065,6 @@ class NFCController extends RestApiController{
         $rootFee->setFeeInfo($rootFeeInfo);
         $rootFee->setClient($user_transaction->getClient());
 
-        $dm->persist($rootFee);
         $dm->flush();
 
     }

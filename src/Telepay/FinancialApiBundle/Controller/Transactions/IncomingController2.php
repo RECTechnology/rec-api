@@ -91,7 +91,12 @@ class IncomingController2 extends RestApiController{
             throw new HttpException(400, 'Param amount not found');
         }
 
-        //TODO get currency_in and currency_out
+        if(array_key_exists('delete_on_expire', $data) && $data['delete_on_expire']== 1 && ($method_cname == 'btc' || $method_cname == 'fac')){
+            $transaction->setDeleteOnExpire(true);
+            $logger->info('Incomig transaction DELETE ON EXPIRE TRUE');
+        }
+
+        //get currency_in and currency_out
         $exchange_done = false;
         $exchange_out = false;
         if((array_key_exists('currency_in', $data) && $data['currency_in'] != '' || array_key_exists('currency_out', $data) && $data['currency_out'] != '')
@@ -138,6 +143,9 @@ class IncomingController2 extends RestApiController{
             }
             $payment_info = $method->getPayInInfo($amount);
             $payment_info['concept'] = $concept;
+            if(isset($data['expires_in']) && $data['expires_in'] > 99){
+                $payment_info['expires_in'] = $data['expires_in'];
+            }
             $transaction->setPayInInfo($payment_info);
 
         }else{
