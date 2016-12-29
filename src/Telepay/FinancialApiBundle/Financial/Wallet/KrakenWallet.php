@@ -20,6 +20,7 @@ class KrakenWallet implements WalletInterface, TraderInterface {
 
     private $krakenDriver;
     private $currency;
+    private $type = 'kraken';
     private $waysOut;
     private $waysIn;
     private $krakenCurrencyNames = array(
@@ -93,11 +94,27 @@ class KrakenWallet implements WalletInterface, TraderInterface {
         )['result'][$this->krakenCurrencyNames[$this->getCurrency()]];
     }
 
+    public function getFakeBalance()
+    {
+        if($this->getCurrency() == 'BTC') return 2;
+        if($this->getCurrency() == 'EUR') return 400;
+        return 0;
+    }
+
     public function getCurrency()
     {
         return $this->currency;
     }
 
+    public function getType()
+    {
+        return $this->type;
+    }
+
+    public function getName()
+    {
+        return $this->type . '_' . $this->currency;
+    }
 
     public function sell($amount)
     {

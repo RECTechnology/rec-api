@@ -44,6 +44,14 @@ services:
             - '["net.telepay.link.kraken_eur.kraken_btc","net.telepay.link.kraken_eur.caixacoves_eur"]'
             - '["net.telepay.link.kraken_btc.kraken_eur","net.telepay.link.caixacoves_eur.kraken_eur"]'
 
+    net.telepay.wallet.kraken.usd:
+        class: Telepay\FinancialApiBundle\Financial\Wallet\KrakenWallet
+        arguments:
+            - "@net.telepay.driver.kraken"
+            - "USD"
+            - '["net.telepay.link.kraken_usd.kraken_btc"]'
+            - '["net.telepay.link.kraken_btc.kraken_usd"]'
+
     net.telepay.wallet.fullnode.btc:
         class: Telepay\FinancialApiBundle\Financial\Wallet\FullNodeWallet
         arguments:

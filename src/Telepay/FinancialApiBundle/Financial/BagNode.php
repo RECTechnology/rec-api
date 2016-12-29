@@ -19,6 +19,14 @@ class BagNode {
         return $this->info;
     }
 
+    public function getHeuristic(){
+        return $this->heuristic;
+    }
+
+    public function getSteps(){
+        return $this->steps;
+    }
+
     public function getTransfer(){
         return $this->transfer;
     }

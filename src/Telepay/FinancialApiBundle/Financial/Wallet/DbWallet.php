@@ -14,9 +14,6 @@ use Telepay\FinancialApiBundle\Financial\MiniumBalanceInterface;
 use Telepay\FinancialApiBundle\Financial\WalletInterface;
 
 class DbWallet implements WalletInterface, MiniumBalanceInterface {
-
-
-
     public function getAddress()
     {
         // TODO: Implement getAddress() method.
@@ -40,5 +37,25 @@ class DbWallet implements WalletInterface, MiniumBalanceInterface {
     public function getCurrency()
     {
         // TODO: Implement getCurrency() method.
+    }
+
+    public function getType()
+    {
+        // TODO: Implement getType() method.
+    }
+
+    public function getName()
+    {
+        // TODO: Implement getName() method.
+    }
+
+    public function getWaysOut()
+    {
+        // TODO: Implement getWaysOut() method.
+    }
+
+    public function getWaysIn()
+    {
+        // TODO: Implement getWaysIn() method.
     }
 }

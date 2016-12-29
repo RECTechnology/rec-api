@@ -18,6 +18,7 @@ class CaixaCovesWallet implements WalletInterface, KrakenCashOutInterface {
 
     private $ruralviaDriver;
     private $currency;
+    private $type = 'caixacoves';
     private $waysOut;
     private $waysIn;
 
@@ -46,9 +47,24 @@ class CaixaCovesWallet implements WalletInterface, KrakenCashOutInterface {
         return 0;
     }
 
+    public function getFakeBalance()
+    {
+        return 10000;
+    }
+
     public function getCurrency()
     {
         return $this->currency;
+    }
+
+    public function getType()
+    {
+        return $this->type;
+    }
+
+    public function getName()
+    {
+        return $this->type . '_' . $this->currency;
     }
 
     public function getKrakenLabel()
