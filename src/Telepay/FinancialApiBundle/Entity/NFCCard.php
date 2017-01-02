@@ -84,25 +84,25 @@ class NFCCard{
     private $confirmation_token;
 
     /**
-     * @ORM\Column(type="string")
+     * @ORM\Column(type="string", nullable=true)
      * @Expose
      */
     private $refresh_pin_token;
 
     /**
-     * @ORM\Column(type="string")
+     * @ORM\Column(type="string", nullable=true)
      * @Expose
      */
     private $new_pin;
 
     /**
-     * @ORM\Column(type="datetime")
+     * @ORM\Column(type="datetime", nullable=true)
      * @Expose
      */
     private $last_pin_requested;
 
     /**
-     * @ORM\Column(type="datetime")
+     * @ORM\Column(type="datetime", nullable=true)
      * @Expose
      */
     private $last_disable_requested;
