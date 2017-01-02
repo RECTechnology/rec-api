@@ -57,6 +57,24 @@ services:
             - "1"
             - "0.25"
 
+    net.telepay.link.kraken_btc.kraken_usd:
+        class: Telepay\FinancialApiBundle\Financial\Linker\BasicTrader
+        arguments:
+            - "@net.telepay.wallet.kraken.btc"
+            - "@net.telepay.wallet.kraken.usd"
+            - "10000000"
+            - "1"
+            - "0.25"
+
+    net.telepay.link.kraken_usd.kraken_btc:
+        class: Telepay\FinancialApiBundle\Financial\Linker\BasicTrader
+        arguments:
+            - "@net.telepay.wallet.kraken.usd"
+            - "@net.telepay.wallet.kraken.btc"
+            - "10000"
+            - "1"
+            - "0.25"
+
     net.telepay.link.fullnode_btc.kraken_btc:
         class: Telepay\FinancialApiBundle\Financial\Linker\BasicLinker
         arguments:
