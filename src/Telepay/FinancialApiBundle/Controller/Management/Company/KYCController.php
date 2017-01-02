@@ -73,8 +73,6 @@ class KYCController extends BaseApiController{
             'user'  =>  $user->getId()
         ));
 
-
-
         $company = $user->getActiveGroup();
 
         $company_kyc = $em->getRepository('TelepayFinancialApiBundle:KYCCompanyValidations')->findOneBy(array(
