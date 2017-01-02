@@ -73,11 +73,13 @@ class KYCController extends BaseApiController{
             'user'  =>  $user->getId()
         ));
 
-        $company_kyc = $em->getRepository('TelepayFinancialApiBundle:KYCCompanyValidations')->findOneBy(array(
-            'company'  =>  $user->getId()
-        ));
+
 
         $company = $user->getActiveGroup();
+
+        $company_kyc = $em->getRepository('TelepayFinancialApiBundle:KYCCompanyValidations')->findOneBy(array(
+            'company'  =>  $company
+        ));
 
         if(!$tier){
             $tier = new TierValidations();
