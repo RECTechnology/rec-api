@@ -65,7 +65,9 @@ class KYCController extends BaseApiController{
 
         if(!$request->request->has('tier')) throw new HttpException(404, 'Param tier not found');
 
-        if($request->request->get('tier') == 1){
+        $tier = $request->request->get('tier');
+        $request->request->remove('tier');
+        if($tier == 1){
             $validParams = array(
                 'email_validated',
                 'phone_validated',
@@ -94,7 +96,7 @@ class KYCController extends BaseApiController{
             if(!in_array($key, $validParams)) throw new HttpException(404, 'Invalid param '.$key);
         }
 
-        if($request->request->get('tier') == 1){
+        if($tier == 1){
             return parent::updateAction($request, $id);
         }else{
             //get Tier company validations
