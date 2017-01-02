@@ -87,7 +87,8 @@ class KYCController extends BaseApiController{
                 'city',
                 'country',
                 'address',
-                'town'
+                'town',
+                'document'
             );
         }
 

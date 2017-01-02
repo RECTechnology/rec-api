@@ -82,6 +82,12 @@ class KYCCompanyValidations
     private $town;
 
     /**
+     * @ORM\Column(type="boolean" ,nullable=true)
+     * @Expose
+     */
+    private $document;
+
+    /**
      * @ORM\Column(type="string", nullable = true)
      * @Expose
      */
@@ -289,6 +295,22 @@ class KYCCompanyValidations
     public function setTier2Status($tier2_status)
     {
         $this->tier2_status = $tier2_status;
+    }
+
+    /**
+     * @return mixed
+     */
+    public function getDocument()
+    {
+        return $this->document;
+    }
+
+    /**
+     * @param mixed $document
+     */
+    public function setDocument($document)
+    {
+        $this->document = $document;
     }
 
 
