@@ -100,7 +100,6 @@ class KYCController extends BaseApiController{
 
             $kyc->setTier1Status('pending');
 
-
             $em->persist($tier);
             $em->persist($kyc);
             $em->flush();
