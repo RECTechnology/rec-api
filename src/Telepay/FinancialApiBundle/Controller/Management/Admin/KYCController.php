@@ -63,7 +63,7 @@ class KYCController extends BaseApiController{
 
         //check values that can be changed from here
 
-        if($request->request->has('tier')) throw new HttpException(404, 'Param tier not found');
+        if(!$request->request->has('tier')) throw new HttpException(404, 'Param tier not found');
 
         if($request->request->get('tier') == 1){
             $validParams = array(
