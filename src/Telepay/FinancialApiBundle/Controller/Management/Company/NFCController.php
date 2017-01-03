@@ -924,7 +924,8 @@ class NFCController extends RestApiController{
 
 
         $transaction = $dm->getRepository('TelepayFinancialApiBundle:Transaction')->findOneBy(array(
-            'id'    =>  $id
+            'id'    =>  $id,
+            'group' =>  $id_company
         ));
 
         if(!$transaction){
