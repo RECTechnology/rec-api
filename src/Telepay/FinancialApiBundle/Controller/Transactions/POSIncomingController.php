@@ -132,12 +132,9 @@ class POSIncomingController extends RestApiController{
         $posType = $tpvRepo->getType();
 
         $group = $tpvRepo->getGroup();
+        $group_id = $group->getId();
 
         $logger->info('POS ID => '.$id.' COMPANY => '.$group->getName().'( '.$group->getId().' ) TYPE => '.$posType);
-
-        if($tpvRepo->getActive() == 0) throw new HttpException(400, 'Service Temporally unavailable');
-
-        $pos_config = $this->container->get('net.telepay.config.pos_'.strtolower($posType))->getInfo();
 
         $paramNames = array(
             'amount',
@@ -150,19 +147,38 @@ class POSIncomingController extends RestApiController{
             'order_id'
         );
 
+        if($request->request->has('url_notification')) {
+            $url_notification = $request->get('url_notification');
+        }
+        else{
+            $url_notification = '';
+        }
+
         $logger->info('POS GETTING PARAMS');
         $dataIn = array();
         foreach($paramNames as $paramName){
-            if(!$request->request->has($paramName))
-                throw new HttpException(400, "Parameter '".$paramName."' not found");
+            if(!$request->request->has($paramName)) {
+                $this->get('notificator')->notificate_error($url_notification, $group_id, 0, $dataIn);
+                throw new HttpException(400, "Parameter '" . $paramName . "' not found");
+            }
             else $dataIn[$paramName] = $request->get($paramName);
         }
+        $amount = $dataIn['amount'];
+
+        if($tpvRepo->getActive() == 0) {
+            $this->get('notificator')->notificate_error($url_notification, $group_id, $amount, $dataIn);
+            throw new HttpException(400, 'Service Temporally unavailable');
+        }
+
+        $pos_config = $this->container->get('net.telepay.config.pos_'.strtolower($posType))->getInfo();
+
 
         $data_to_sign = $dataIn['order_id'] . $id . $dataIn['amount'];
         $signature_test = hash_hmac('sha256', $data_to_sign, $group->getAccessSecret());
         $logger->info('POS data_to_sign => '.$data_to_sign. ' calculated signature => '.$signature_test.' received signature => '.$dataIn['signature']);
         $logger->info('POS SECRET => '.$group->getAccessSecret());
         if($dataIn['signature'] != $signature_test) {
+            $this->get('notificator')->notificate_error($url_notification, $group_id, $amount, $dataIn);
             throw new HttpException(404, 'Bad signature');
         }
 
@@ -183,12 +199,17 @@ class POSIncomingController extends RestApiController{
             ->field('dataIn.order_id')->equals($dataIn['order_id'])
             ->getQuery();
 
-        if( count($qb) > 0 ) throw new HttpException(409,'Duplicated resource');
+        if( count($qb) > 0 ) {
+            $this->get('notificator')->notificate_error($url_notification, $group_id, $amount, $dataIn);
+            throw new HttpException(409, 'Duplicated resource');
+        }
 
         if(!in_array(strtoupper($dataIn['currency_in']), $pos_config['allowed_currencies_in'])){
+            $this->get('notificator')->notificate_error($url_notification, $group_id, $amount, $dataIn);
             throw new HttpException(404, 'Currency_in not allowed');
         }
         if(!in_array(strtoupper($dataIn['currency_out']), $pos_config['allowed_currencies_out'])){
+            $this->get('notificator')->notificate_error($url_notification, $group_id, $amount, $dataIn);
             throw new HttpException(404, 'Currency_out not allowed');
         }
 
@@ -261,7 +282,10 @@ class POSIncomingController extends RestApiController{
             );
         }elseif($posType == 'BTC'){
             $address = $this->generateAddress($posType);
-            if(!$address) throw new HttpException(403, 'Service temporally unavailable');
+            if(!$address) {
+                $this->get('notificator')->notificate_error($url_notification, $group_id, $amount, $dataIn);
+                throw new HttpException(403, 'Service temporally unavailable');
+            }
             $paymentInfo = array(
                 'amount'    =>  $pos_amount,
                 'previous_amount'    =>  $pos_amount,
@@ -282,7 +306,10 @@ class POSIncomingController extends RestApiController{
             );
         }elseif($posType == 'FAC'){
             $address = $this->generateAddress($posType);
-            if(!$address) throw new HttpException(403, 'Service temporally unavailable');
+            if(!$address){
+                $this->get('notificator')->notificate_error($url_notification, $group_id, $amount, $dataIn);
+                throw new HttpException(403, 'Service temporally unavailable');
+            }
             $paymentInfo = array(
                 'amount'    =>  $pos_amount,
                 'previous_amount'    =>  $pos_amount,
@@ -332,7 +359,10 @@ class POSIncomingController extends RestApiController{
         $transaction = $this->get('notificator')->notificate($transaction);
         $dm->persist($transaction);
         $dm->flush();
-        if($transaction == false) throw new HttpException(500, "oOps, some error has occurred within the call");
+        if($transaction == false) {
+            $this->get('notificator')->notificate_error($url_notification, $group_id, $amount, $dataIn);
+            throw new HttpException(500, "oOps, some error has occurred within the call");
+        }
         $logger->info('POS finish');
         return $this->posTransaction(201, $transaction, "Done");
     }
