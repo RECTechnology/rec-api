@@ -18,6 +18,7 @@ use Telepay\FinancialApiBundle\DependencyInjection\Telepay\Commons\UploadManager
 use Telepay\FinancialApiBundle\Entity\KYC;
 use Telepay\FinancialApiBundle\Entity\KYCCompanyValidations;
 use Telepay\FinancialApiBundle\Entity\TierValidations;
+use Telepay\FinancialApiBundle\Entity\UserFiles;
 
 class KYCController extends BaseApiController{
 
@@ -32,6 +33,101 @@ class KYCController extends BaseApiController{
      * @Rest\View
      */
     public function uploadFile(Request $request){
+
+        $paramNames = array(
+            'url',
+            'description',
+            'tier'
+        );
+
+        $params = array();
+        foreach($paramNames as $paramName){
+            if($request->request->has($paramName)){
+                $params[$paramName] = $request->request->get($paramName);
+            }else{
+                throw new HttpException(404, 'Param '.$paramName.' not found');
+            }
+        }
+
+        $user = $this->getUser();
+        $fileManager = $this->get('file_manager');
+
+        $fileSrc = $params['url'];
+        $fileContents = $fileManager->readFileUrl($fileSrc);
+        $hash = $fileManager->getHash();
+        $explodedFileSrc = explode('.', $fileSrc);
+        $ext = $explodedFileSrc[count($explodedFileSrc) - 1];
+        $filename = $hash . '.' . $ext;
+
+        file_put_contents($fileManager->getUploadsDir() . '/' . $filename, $fileContents);
+
+        $tmpFile = new File($fileManager->getUploadsDir() . '/' . $filename);
+        if (!in_array($tmpFile->getMimeType(), UploadManager::$ALLOWED_MIMETYPES))
+            throw new HttpException(400, "Bad file type");
+
+        $em = $this->getDoctrine()->getManager();
+        $tier = $em->getRepository('TelepayFinancialApiBundle:TierValidations')->findOneBy(array(
+            'user'  =>  $user->getId()
+        ));
+
+        $kyc = $em->getRepository('TelepayFinancialApiBundle:KYC')->findOneBy(array(
+            'user'  =>  $user->getId()
+        ));
+
+        $company = $user->getActiveGroup();
+
+        $company_kyc = $em->getRepository('TelepayFinancialApiBundle:KYCCompanyValidations')->findOneBy(array(
+            'company'  =>  $company
+        ));
+
+        if(!$tier){
+            $tier = new TierValidations();
+            $tier->setUser($user);
+        }
+
+        if(!$kyc){
+            $kyc = new KYC();
+            $kyc->setUser($user);
+        }
+
+        //get tier
+        if($params['tier'] == 1){
+            //user document
+            if($params['description'] == 'front'){
+                $kyc->setImageFront($fileManager->getFilesPath().'/'.$filename);
+            }else{
+                $kyc->setImageBack($fileManager->getFilesPath().'/'.$filename);
+            }
+
+            $kyc->setTier1Status('pending');
+
+            $em->persist($tier);
+            $em->persist($kyc);
+            $em->flush();
+        }elseif($params['tier'] == 2){
+
+            $file = new UserFiles();
+            $file->setUrl($fileManager->getFilesPath().'/'.$filename);
+            $file->setStatus('pending');
+            $file->setUser($company->getKycManager());
+            $file->setDescription($params['description']);
+            $file->setExtension($ext);
+
+            $em->persist($file);
+            $em->flush();
+
+        }else{
+            throw new HttpException(404, 'Bad value for tier');
+        }
+
+        return $this->rest(204, 'Tier updated successfully');
+
+    }
+
+    /**
+     * @Rest\View
+     */
+    public function uploadFileOld(Request $request){
 
         $paramNames = array(
             'url',
