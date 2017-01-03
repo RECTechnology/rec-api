@@ -16,6 +16,7 @@ use Symfony\Component\HttpFoundation\Request;
 use Telepay\FinancialApiBundle\Controller\BaseApiController;
 use Telepay\FinancialApiBundle\DependencyInjection\Telepay\Commons\UploadManager;
 use Telepay\FinancialApiBundle\Entity\KYC;
+use Telepay\FinancialApiBundle\Entity\KYCCompanyValidations;
 use Telepay\FinancialApiBundle\Entity\TierValidations;
 
 class KYCController extends BaseApiController{
@@ -72,6 +73,12 @@ class KYCController extends BaseApiController{
             'user'  =>  $user->getId()
         ));
 
+        $company = $user->getActiveGroup();
+
+        $company_kyc = $em->getRepository('TelepayFinancialApiBundle:KYCCompanyValidations')->findOneBy(array(
+            'company'  =>  $company
+        ));
+
         if(!$tier){
             $tier = new TierValidations();
             $tier->setUser($user);
@@ -82,7 +89,7 @@ class KYCController extends BaseApiController{
             $kyc->setUser($user);
         }
 
-        //TODO get tier
+        //get tier
         if($params['tier'] == 1){
             //user document
             if($params['description'] == 'front'){
@@ -93,16 +100,19 @@ class KYCController extends BaseApiController{
 
             $kyc->setTier1Status('pending');
 
-
             $em->persist($tier);
             $em->persist($kyc);
             $em->flush();
         }elseif($params['tier'] == 2){
-            $kyc->setTier2File($fileManager->getFilesPath().'/'.$filename);
-            $kyc->setTier2FileDescription($params['description']);
-            $kyc->setTier2Status('pending');
+            if(!$company_kyc){
+                $company_kyc = new KYCCompanyValidations();
+                $company_kyc->setCompany($company);
+            }
+            $company_kyc->setTier2File($fileManager->getFilesPath().'/'.$filename);
+            $company_kyc->setTier2FileDescription($params['description']);
+            $company_kyc->setTier2Status('pending');
 
-            $em->persist($kyc);
+            $em->persist($company_kyc);
             $em->flush();
 
         }else{

@@ -34,8 +34,11 @@ class KYCController extends BaseApiController{
     public function listPendingIssues(Request $request){
 
         //only superadmin can access here
+        $em = $this->getDoctrine()->getManager();
         $repository = $this->getDoctrine()->getRepository($this->getRepositoryName());
-
+        $companyValidations = $em->getRepository('TelepayFinancialApiBundle:KYCCompanyValidations')->findBy(array(
+            'tier2_status'  =>  'pending'
+        ));
 
         $query = $repository->createQueryBuilder('k')
             ->where('k.tier1_status = :status')
@@ -45,7 +48,12 @@ class KYCController extends BaseApiController{
 
         $list = $query->getResult();
 
-        return $this->restV2(201, 'success', 'List of pending Kyc successfully', $list);
+        $response = array(
+            'user_kyc'  =>  $list,
+            'company_kyc'   =>  $companyValidations
+        );
+
+        return $this->restV2(201, 'success', 'List of pending Kyc successfully', $response);
     }
 
     /**
@@ -54,23 +62,64 @@ class KYCController extends BaseApiController{
     public function updateAction(Request $request, $id){
 
         //check values that can be changed from here
-        $validParams = array(
-            'email_validated',
-            'phone_validated',
-            'full_name_validated',
-            'date_birth_validated',
-            'country_validated',
-            'address_validated',
-            'proof_of_residence',
-            'document_validated'
-        );
+
+        if(!$request->request->has('tier')) throw new HttpException(404, 'Param tier not found');
+
+        $tier = $request->request->get('tier');
+        $request->request->remove('tier');
+        if($tier == 1){
+            $validParams = array(
+                'email_validated',
+                'phone_validated',
+                'full_name_validated',
+                'date_birth_validated',
+                'country_validated',
+                'address_validated',
+                'proof_of_residence',
+                'document_validated'
+            );
+        }else{
+            $validParams = array(
+                'email',
+                'phone',
+                'cif',
+                'zip',
+                'city',
+                'country',
+                'address',
+                'town',
+                'document'
+            );
+        }
 
         $params = $request->request->all();
         foreach($params as $key => $value){
             if(!in_array($key, $validParams)) throw new HttpException(404, 'Invalid param '.$key);
         }
 
-        return parent::updateAction($request, $id);
+        if($tier == 1){
+            return parent::updateAction($request, $id);
+        }else{
+            //get Tier company validations
+            $em = $this->getDoctrine()->getManager();
+            $companyKyc = $em->getRepository('TelepayFinancialApiBundle:KYCCompanyValidations')->find($id);
+            //actualizar el kyc validations del group
+            if(!$companyKyc) throw new HttpException(404, 'Company KYC not found');
+
+            if($params['email'] && $params['email'] == 1) $companyKyc->setEmail(true);
+            if($params['phone'] && $params['phone'] == 1) $companyKyc->setPhone(true);
+            if($params['cif'] && $params['cif'] == 1) $companyKyc->setCif(true);
+            if($params['zip'] && $params['zip'] == 1) $companyKyc->setZip(true);
+            if($params['city'] && $params['city'] == 1) $companyKyc->setCity(true);
+            if($params['country'] && $params['country'] == 1) $companyKyc->setCountry(true);
+            if($params['address'] && $params['address'] == 1) $companyKyc->setAddress(true);
+            if($params['town'] && $params['town'] == 1) $companyKyc->setTown(true);
+
+            $em->flush();
+
+            return $this->restV2(204, 'Done', 'Validations updated successfully');
+
+        }
 
     }
 
@@ -138,7 +187,6 @@ class KYCController extends BaseApiController{
             $kyc->setTier2Status($params['status']);
             //TODO update company tier
         }
-
 
         $em->persist($kyc);
         $em->flush();

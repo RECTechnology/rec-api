@@ -110,17 +110,20 @@ class SpecialActionsController extends RestApiController {
                 $logger->info('EASYPAY GETTING ROOT ADDRESS');
                 $pay_in_infoRoot = $btcRootMethod->getPayInInfo($service_fee);
 
-                $logger->info('EASYPAY SENDING BTC TO ENDUSER');
+
                 //Send btc to user
                 try{
                     $pay_out_info = $cashOutMethod->send($pay_out_info);
+                    $logger->info('EASYPAY SENDING BTC TO ENDUSER');
                 }catch (Exception $e){
+                    $logger->info('EASYPAY SENDING BTC FAILED');
                     $pay_out_info['status'] = Transaction::$STATUS_FAILED;
                     $pay_out_info['final'] = false;
                     $error = $e->getMessage();
                     $transaction->setPayOutInfo($pay_out_info);
                     $transaction->setStatus('failed');
                 }
+                $logger->info('EASYPAY SENDING BTC STATUS => '.$pay_out_info['status']);
                 $transaction->setPayOutInfo($pay_out_info);
 
                 $dm->persist($transaction);

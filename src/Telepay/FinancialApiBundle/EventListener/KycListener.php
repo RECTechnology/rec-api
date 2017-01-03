@@ -13,6 +13,7 @@ use Symfony\Component\DependencyInjection\ContainerInterface;
 use Telepay\FinancialApiBundle\Entity\AccessToken;
 use Telepay\FinancialApiBundle\Entity\Group;
 use Telepay\FinancialApiBundle\Entity\KYC;
+use Telepay\FinancialApiBundle\Entity\KYCCompanyValidations;
 use Telepay\FinancialApiBundle\Entity\User;
 
 class KycListener
@@ -45,10 +46,15 @@ class KycListener
             $this->checkKYC($changeset, $entity);
         }
 
-        if ($entity instanceof Group) {
+        if ($entity instanceof KYCCompanyValidations) {
             $changeset = $uow->getEntityChangeSet($entity);
             $this->checkCompanyKYC($changeset, $entity);
         }
+
+//        if ($entity instanceof Group) {
+//            $changeset = $uow->getEntityChangeSet($entity);
+//            $this->checkCompanyKYC($changeset, $entity);
+//        }
 
         // only act on some "Product" entity
         if ($entity instanceof Accesstoken) {
@@ -158,8 +164,35 @@ class KycListener
         return;
     }
 
-    private function checkCompanyKYC($changeset, Group $company)
+    private function checkCompanyKYC($changeset, KYCCompanyValidations $kyc)
     {
+        $this->logger->info('KYC Checking Tier Company');
+        $company = $kyc->getCompany();
+        //search all companies that this is the responsible
+        $em = $this->container->get('doctrine')->getManager();
+
+        if($kyc->getEmail() == true &&
+            $kyc->getPhone() == true &&
+            $kyc->getCif() == true &&
+            $kyc->getAddress() == true &&
+            $kyc->getCity() == true &&
+            $kyc->getCountry() == true &&
+            $kyc->getTier2Status() != 'success' &&
+            $kyc->getZip() == true){
+
+
+            $kyc->setTier2Status('success');
+            $tier = 2;
+            $this->logger->info('KYC updating '.$company->getName().' with TIER '.$tier.' previous TIER =>'.$company->getTier());
+
+            //check if is tier 1
+            if($company->getTier() == 1){
+                $company->setTier($tier);
+                $em->flush();
+            }
+
+
+        }
 
     }
 
@@ -216,10 +249,10 @@ class KycListener
             $tier = 1;
         }
 
-        if($kyc->getAddressValidated() == true && $kyc->getProofOfResidence() == true){
-            $tier = 2;
-            $kyc->setTier2Status('success');
-        }
+//        if($kyc->getAddressValidated() == true && $kyc->getProofOfResidence() == true){
+//            $tier = 2;
+//            $kyc->setTier2Status('success');
+//        }
 
         $em->flush();
 
