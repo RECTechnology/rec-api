@@ -86,14 +86,6 @@ class WalletTransfer {
     }
 
     /**
-     * @param mixed $id
-     */
-    public function setId($id){
-        $this->id = $id;
-    }
-
-
-    /**
      * @return mixed
      */
     public function getType()
@@ -102,11 +94,11 @@ class WalletTransfer {
     }
 
     /**
-     * @param mixed $currency
+     * @param mixed $type
      */
-    public function setCurrency($currency)
+    public function setType($type)
     {
-        $this->currency = $currency;
+        $this->type = $type;
     }
 
     /**

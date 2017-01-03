@@ -7,6 +7,7 @@ use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
 use Telepay\FinancialApiBundle\Financial\Currency;
 use Telepay\FinancialApiBundle\Financial\BagNode;
+use Telepay\FinancialApiBundle\Entity\WalletTransfer;
 
 class MoneyStoresManagerCommand extends ContainerAwareCommand{
     protected function configure(){
@@ -133,7 +134,6 @@ class MoneyStoresManagerCommand extends ContainerAwareCommand{
         $initNode = new BagNode();
         $initNode->defineValues($system_data, $heuristic, 0);
         $bestNode = $initNode;
-        $output->writeln("Best: " . json_encode($bestNode->getInfo()));
 
         array_push($listNodes, $initNode);
         while(count($listNodes)>0){
@@ -183,16 +183,33 @@ class MoneyStoresManagerCommand extends ContainerAwareCommand{
 
     public function sendList($list, $output){
         $em = $this->getContainer()->get('doctrine')->getManager();
-        $transferRepo = $em->getRepository('TelepayFinancialApiBundle:WalletTransfer');
-        foreach($list as $transfer){
+        foreach($list as $type=>$transfer){
             $way_conf = $this->getContainer()->get('net.telepay.link.' . strtolower($transfer['in']) . '.' . strtolower($transfer['out']));
             $amount = $transfer['amount'];
+            $amount_in = $amount;
+            $amount_out = $amount;
             if($way_conf->getStartNode()->getCurrency() != $this->default_currency){
-                $amount = round($this->_exchange($amount, $this->default_currency, $way_conf->getStartNode()->getCurrency()), 0);
+                $amount_in = round($this->_exchange($amount, $this->default_currency, $way_conf->getStartNode()->getCurrency()), 0);
             }
+            if($way_conf->getEndNode()->getCurrency() != $this->default_currency){
+                $amount_out = round($this->_exchange($amount, $this->default_currency, $way_conf->getEndNode()->getCurrency()), 0);
+            }
+            $transfer_data = new WalletTransfer();
+            $transfer_data->setType($type);
+            $transfer_data->setStatus('sending');
+            $transfer_data->setCurrencyIn(strtoupper($way_conf->getStartNode()->getCurrency()));
+            $transfer_data->setAmountIn($amount_in);
+            $transfer_data->setCurrencyOut(strtoupper($way_conf->getEndNode()->getCurrency()));
+            $transfer_data->setAmountOut($amount_out);
+            $transfer_data->setSentTimeStamp(time());
+            $transfer_data->setEstimatedDeliveryTimeStamp($way_conf->getEstimatedDeliveryTime());
+            $transfer_data->setEstimatedCost($way_conf->getEstimatedCost($amount_in));
+            $transfer_data->setWalletIn(strtolower($transfer['in']));
+            $transfer_data->setWalletOut(strtolower($transfer['out']));
+            $em->persist($transfer_data);
             $way_conf->send($amount);
-
         }
+        $em->flush();
     }
 
     public function receiving($wallet){
