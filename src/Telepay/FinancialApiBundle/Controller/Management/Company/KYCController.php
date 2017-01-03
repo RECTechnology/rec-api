@@ -234,6 +234,10 @@ class KYCController extends BaseApiController{
             'user'  =>  $user->getId()
         ));
 
+        $user_files = $em->getRepository('TelepayFinancialApiBundle:UserFiles')->findBy(array(
+            'user'  =>  $user->getId()
+        ));
+
         $response = array(
             'current_tier'  =>  $current_tier,
             'tier0' =>  array(
@@ -257,11 +261,38 @@ class KYCController extends BaseApiController{
             'tier3' =>  array(
                 'contact'   =>  false,
                 'verified'  =>  false
-            )
+            ),
+            'user_files'    =>  $user_files
 
         );
 
         return $this->restV2(200, 'ok', 'Obtained data successfully', $response);
     }
 
+    /**
+     * @Rest\View
+     */
+    public function getUploadedFiles(){
+
+        $user = $this->getUser();
+        $company = $user->getActiveGroup();
+
+        //TODO get all files
+        $em = $this->getDoctrine()->getManager();
+
+        $user_files = $em->getRepository('TelepayFinancialApiBundle:UserFiles')->findBy(array(
+            'user'  =>  $user
+        ));
+
+        return $this->rest(
+            200,
+            "Request successful",
+            array(
+                'total' => count($user_files),
+                'start' => 0,
+                'end' => count($user_files),
+                'elements' => $user_files
+            )
+        );
+    }
 }
