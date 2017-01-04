@@ -180,7 +180,7 @@ class KYC {
      * @ORM\Column(type="datetime", nullable=true)
      * @Expose
      */
-    private $last_tier1_status_request;
+    private $polla;
 
 
     /**
@@ -605,22 +605,6 @@ class KYC {
     public function setTier2Status($tier2_status)
     {
         $this->tier2_status = $tier2_status;
-    }
-
-    /**
-     * @return mixed
-     */
-    public function getLastTier1StatusRequest()
-    {
-        return $this->last_tier1_status_request;
-    }
-
-    /**
-     * @param mixed $last_tier1_status_request
-     */
-    public function setLastTier1StatusRequest($last_tier1_status_request)
-    {
-        $this->last_tier1_status_request = $last_tier1_status_request;
     }
 
 
