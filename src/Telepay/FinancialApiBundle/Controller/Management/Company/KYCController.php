@@ -281,7 +281,7 @@ class KYCController extends BaseApiController{
         $em = $this->getDoctrine()->getManager();
 
         $user_files = $em->getRepository('TelepayFinancialApiBundle:UserFiles')->findBy(array(
-            'user'  =>  $user
+            'user'  =>  $company->getKycManager()
         ));
 
         return $this->rest(
