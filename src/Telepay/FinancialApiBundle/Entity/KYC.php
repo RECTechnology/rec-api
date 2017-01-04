@@ -188,6 +188,7 @@ class KYC {
      */
     private $tier2_status_request;
 
+
     /**
      * @return mixed
      */
