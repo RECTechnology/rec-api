@@ -23,11 +23,11 @@ use Telepay\FinancialApiBundle\Entity\UserFiles;
 class KYCController extends BaseApiController{
 
     public function getRepositoryName(){
-        return '';
+        return 'TelepayFinancialApiBundle:KYC';
     }
 
     public function getNewEntity(){
-
+        new KYC();
     }
     /**
      * @Rest\View
@@ -295,4 +295,39 @@ class KYCController extends BaseApiController{
             )
         );
     }
+
+
+    /**
+     * @Rest\View
+     */
+    public function requestValidation(Request $request){
+
+        if(!$request->request->has('tier')) throw new HttpException(404, 'Param tier not found');
+        $user = $this->getUser();
+        $company = $user->getActiveGroup();
+        $kycManager = $company->getKycManager();
+
+        $em = $this->getDoctrine()->getManager();
+        $kyc = $em->getRepository($this->getRepositoryName())->findOneBy(array(
+            'user'  =>  $kycManager
+        ));
+
+        if(!$kyc) throw new HttpException(404, 'KYC not found');
+
+        $tier = $request->request->get('tier');
+
+        if($tier == 1){
+            $kyc->setTier1Status('pending');
+            $kyc->setTier1StatusRequest(new \DateTime());
+        }elseif($tier == 2){
+            $kyc->setTier2Status('pending');
+            $kyc->setTier2StatusRequest(new \DateTime());
+        }
+
+        $em->flush();
+
+        return $this->rest(204, 'Request successfully');
+
+    }
+
 }
