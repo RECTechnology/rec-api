@@ -180,8 +180,7 @@ class KYC {
      * @ORM\Column(type="datetime", nullable=true)
      * @Expose
      */
-    private $polla;
-
+    private $tier2_status_request;
 
     /**
      * @return mixed
