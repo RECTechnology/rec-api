@@ -176,17 +176,7 @@ class KYC {
      */
     private $tier2_status;
 
-    /**
-     * @ORM\Column(type="datetime", nullable=true)
-     * @Expose
-     */
-    private $tier1_status_request;
 
-    /**
-     * @ORM\Column(type="datetime", nullable=true)
-     * @Expose
-     */
-    private $tier2_status_request;
 
 
     /**
@@ -629,21 +619,7 @@ class KYC {
         $this->tier1_status_request = $tier1_status_request;
     }
 
-    /**
-     * @return mixed
-     */
-    public function getTier2StatusRequest()
-    {
-        return $this->tier2_status_request;
-    }
 
-    /**
-     * @param mixed $tier2_status_request
-     */
-    public function setTier2StatusRequest($tier2_status_request)
-    {
-        $this->tier2_status_request = $tier2_status_request;
-    }
 
 
 }
