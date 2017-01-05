@@ -119,6 +119,7 @@ class KYC {
 
     /**
      * @ORM\ManyToOne(targetEntity="Telepay\FinancialApiBundle\Entity\User")
+     * @Expose
      */
     private $user;
 
