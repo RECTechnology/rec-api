@@ -92,17 +92,14 @@ class KYCController extends BaseApiController{
 
         //get tier
         if($params['tier'] == 1){
-            //user document
-            if($params['description'] == 'front'){
-                $kyc->setImageFront($fileManager->getFilesPath().'/'.$filename);
-            }else{
-                $kyc->setImageBack($fileManager->getFilesPath().'/'.$filename);
-            }
+            $file = new UserFiles();
+            $file->setUrl($fileManager->getFilesPath().'/'.$filename);
+            $file->setStatus('pending');
+            $file->setUser($company->getKycManager());
+            $file->setDescription($params['description']);
+            $file->setExtension($ext);
 
-            $kyc->setTier1Status('pending');
-
-            $em->persist($tier);
-            $em->persist($kyc);
+            $em->persist($file);
             $em->flush();
         }elseif($params['tier'] == 2){
 
@@ -316,10 +313,16 @@ class KYCController extends BaseApiController{
 
         $tier = $request->request->get('tier');
 
+        if($kyc->getTier1Status() == 'pending' || $kyc->getTier2Status() == 'pending'){
+            throw new HttpException(403,' You has a pending validation request. Please enhance your calm');
+        }
         if($tier == 1){
+            if($kyc->getTier1Status() == 'approved') throw new HttpException(403, 'Tier validated yet');
             $kyc->setTier1Status('pending');
             $kyc->setTier1StatusRequest(new \DateTime());
         }elseif($tier == 2){
+            if($kyc->getTier2Status() == 'approved') throw new HttpException(403, 'Tier validated yet');
+            if($company->getTier() != 1) throw new HttpException(403, 'You have to be Tier 1 to request Tier 2 validation');
             $kyc->setTier2Status('pending');
             $kyc->setTier2StatusRequest(new \DateTime());
         }
