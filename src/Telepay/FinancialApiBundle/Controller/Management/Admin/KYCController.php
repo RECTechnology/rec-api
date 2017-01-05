@@ -36,9 +36,6 @@ class KYCController extends BaseApiController{
         //only superadmin can access here
         $em = $this->getDoctrine()->getManager();
         $repository = $this->getDoctrine()->getRepository($this->getRepositoryName());
-        $companyValidations = $em->getRepository('TelepayFinancialApiBundle:KYCCompanyValidations')->findBy(array(
-            'tier2_status'  =>  'pending'
-        ));
 
         $query = $repository->createQueryBuilder('k')
             ->where('k.tier1_status = :status')
@@ -50,7 +47,7 @@ class KYCController extends BaseApiController{
 
         $response = array(
             'user_kyc'  =>  $list,
-            'company_kyc'   =>  $companyValidations
+            'company_kyc'   =>  ''
         );
 
         return $this->restV2(201, 'success', 'List of pending Kyc successfully', $response);
