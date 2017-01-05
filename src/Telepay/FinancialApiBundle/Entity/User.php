@@ -147,7 +147,6 @@ class User extends BaseUser
 
     /**
      * @ORM\OneToOne(targetEntity="Telepay\FinancialApiBundle\Entity\TierValidations", mappedBy="user", cascade={"remove"})
-     * @Expose
      */
     private $tier_validations;
 

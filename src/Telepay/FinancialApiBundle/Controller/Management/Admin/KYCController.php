@@ -191,4 +191,30 @@ class KYCController extends BaseApiController{
         return $this->rest(204, 'Updated successfully');
     }
 
+    /**
+     * @Rest\View
+     */
+    public function getUploadedFiles($id){
+
+        //TODO get all files for this user
+        $em = $this->getDoctrine()->getManager();
+
+        $user = $em->getRepository('TelepayFinancialApiBundle:User')->find($id);
+
+        $user_files = $em->getRepository('TelepayFinancialApiBundle:UserFiles')->findBy(array(
+            'user'  =>  $user
+        ));
+
+        return $this->rest(
+            200,
+            "Request successful",
+            array(
+                'total' => count($user_files),
+                'start' => 0,
+                'end' => count($user_files),
+                'elements' => $user_files
+            )
+        );
+    }
+
 }
