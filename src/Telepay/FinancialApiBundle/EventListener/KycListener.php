@@ -77,7 +77,7 @@ class KycListener
                 case 'approved':
                     //DO something
                     //subir de tier a todas las companies
-                    $this->_uploadTierCompanies($kyc, 1, $changeset->getEntityManager());
+                    $this->_uploadTierCompanies($kyc, 1);
                     $this->logger->info('TIER 1 : uploadTierCompanies');
                     break;
                 case 'denied':
@@ -98,7 +98,7 @@ class KycListener
                 case 'approved':
                     //DO something
                     //subir de tier a todas las companies
-                    $this->_uploadTierCompanies($kyc, 2, $changeset->getEntityManager());
+                    $this->_uploadTierCompanies($kyc, 2);
                     break;
                 case 'denied':
                     $this->_sendEmail('Update KYC denied', $kyc->getUser()->getEmail(), '', $kyc, 1, 'denied' );
@@ -111,9 +111,10 @@ class KycListener
 
     }
 
-    private function _uploadTierCompanies(KYC $kyc, $tier, $em){
+    private function _uploadTierCompanies(KYC $kyc, $tier){
 
         //search all comanies with this kyc_manager
+        $em = $this->container->get('doctrine')->getManager();
         $companies = $em->getRepository('TelepayFinancialApiBundle:Group')->findBy(array(
             'kyc_manager'   =>  $kyc
         ));
