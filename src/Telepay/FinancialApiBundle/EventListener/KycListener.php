@@ -43,17 +43,15 @@ class KycListener
             return;
         }
 
-        if ($entity instanceof KYC) {
-            $changeset = $uow->getEntityChangeSet($entity);
-            $this->_notifyKYCChanges($args, $entity);
-            return;
-        }
-
-
     }
 
     public function preUpdate(LifecycleEventArgs $args){
+        $entity = $args->getEntity();
 
+        if ($entity instanceof KYC) {
+            $this->_notifyKYCChanges($args, $entity);
+            return;
+        }
     }
 
     public function postPersist(LifecycleEventArgs $args)
