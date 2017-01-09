@@ -80,7 +80,20 @@
     <h1>KYC Alert</h1>
 </header>
 <article>
-    {{ message }}
+    {% if action == 'accepted' %}
+        <p>This companies has been updated to <b>Tier {{ tier }}</b></p>
+        <ul>
+            {% for company in companies %}
+                <li>{{ company.name }}</li>
+            {% endfor %}
+        </ul>
+        <p>The kyc Manager of this company is {{ kyc.user.username }} ({{ kyc.user.email }})</p>
+    {% elseif action == 'pending' %}
+        <p>This user has requested a KYC validation for <b>tier {{ tier }}</b></p>
+        <p>User => {{ kyc.user.username }} - {{ kyc.user.email }}</p>
+    {% else %}
+        <p>Hi, your Tier request has been denied, please check your account.</p>
+    {% endif %}
 
 </article>
 <footer>
