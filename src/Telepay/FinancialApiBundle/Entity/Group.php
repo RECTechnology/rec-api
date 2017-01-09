@@ -232,12 +232,6 @@ class Group extends BaseGroup
     private $tier = 0;
 
     /**
-     * @ORM\OneToOne(targetEntity="Telepay\FinancialApiBundle\Entity\KYCCompanyValidations", mappedBy="company", cascade={"remove"})
-     * @Expose
-     */
-    private $kyc_validations;
-
-    /**
      * @return mixed
      */
     public function getUsers()
@@ -844,19 +838,4 @@ class Group extends BaseGroup
         $this->premium = $premium;
     }
 
-    /**
-     * @return mixed
-     */
-    public function getKycValidations()
-    {
-        return $this->kyc_validations;
-    }
-
-    /**
-     * @param mixed $kyc_validations
-     */
-    public function setKycValidations($kyc_validations)
-    {
-        $this->kyc_validations = $kyc_validations;
-    }
 }

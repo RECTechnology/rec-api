@@ -36,9 +36,6 @@ class KYCController extends BaseApiController{
         //only superadmin can access here
         $em = $this->getDoctrine()->getManager();
         $repository = $this->getDoctrine()->getRepository($this->getRepositoryName());
-        $companyValidations = $em->getRepository('TelepayFinancialApiBundle:KYCCompanyValidations')->findBy(array(
-            'tier2_status'  =>  'pending'
-        ));
 
         $query = $repository->createQueryBuilder('k')
             ->where('k.tier1_status = :status')
@@ -50,7 +47,7 @@ class KYCController extends BaseApiController{
 
         $response = array(
             'user_kyc'  =>  $list,
-            'company_kyc'   =>  $companyValidations
+            'company_kyc'   =>  ''
         );
 
         return $this->restV2(201, 'success', 'List of pending Kyc successfully', $response);
@@ -126,10 +123,12 @@ class KYCController extends BaseApiController{
     /**
      * @Rest\View
      */
-    public function denyKYCRequest(Request $request, $id){
+    public function updateKYCRequest(Request $request, $id, $action){
 
         $em = $this->getDoctrine()->getManager();
         $kyc = $em->getRepository($this->getRepositoryName())->find($id);
+
+        if($action != 'denied' || $action != 'approved') throw new HttpException(403,'Invalid action');
 
         $tier = $request->request->get('tier');
 
@@ -138,9 +137,9 @@ class KYCController extends BaseApiController{
         if(!$tier) throw new HttpException(404, 'Param tier not found');
 
         if($tier == 1){
-            $kyc->setTier1Status('denied');
+            $kyc->setTier1Status($action);
         }elseif($tier == 2){
-            $kyc->setTier2Status('denied');
+            $kyc->setTier2Status($action);
         }else{
             throw new HttpException(403, 'Invalid field tier');
         }
@@ -192,6 +191,32 @@ class KYCController extends BaseApiController{
         $em->flush();
 
         return $this->rest(204, 'Updated successfully');
+    }
+
+    /**
+     * @Rest\View
+     */
+    public function getUploadedFiles($id){
+
+        //TODO get all files for this user
+        $em = $this->getDoctrine()->getManager();
+
+        $user = $em->getRepository('TelepayFinancialApiBundle:User')->find($id);
+
+        $user_files = $em->getRepository('TelepayFinancialApiBundle:UserFiles')->findBy(array(
+            'user'  =>  $user
+        ));
+
+        return $this->rest(
+            200,
+            "Request successful",
+            array(
+                'total' => count($user_files),
+                'start' => 0,
+                'end' => count($user_files),
+                'elements' => $user_files
+            )
+        );
     }
 
 }

@@ -922,10 +922,9 @@ class NFCController extends RestApiController{
         $user = $this->getUser();
         //TODO check if this user has this company
 
-
         $transaction = $dm->getRepository('TelepayFinancialApiBundle:Transaction')->findOneBy(array(
             'id'    =>  $id,
-            'group' =>  $id_company,
+            'group' =>  intval($id_company),
             'method'    =>  'wallet_to_wallet'
         ));
 

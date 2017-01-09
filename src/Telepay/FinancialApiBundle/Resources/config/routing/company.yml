@@ -12,6 +12,18 @@ company_kyc_upload_file:
     requirements:
         _method: POST
 
+company_kyc_get_uploaded_file:
+    pattern:  /company/v1/account/kyc/upload
+    defaults: { _controller: Telepay\FinancialApiBundle\Controller\Management\Company\KYCController::getUploadedFiles }
+    requirements:
+        _method: GET
+
+company_kyc_request_validation:
+    pattern:  /company/v1/account/kyc/validation
+    defaults: { _controller: Telepay\FinancialApiBundle\Controller\Management\Company\KYCController::requestValidation }
+    requirements:
+        _method: PUT
+
 ##################### COMPANY ############################
 
 company_generate_new_token:
