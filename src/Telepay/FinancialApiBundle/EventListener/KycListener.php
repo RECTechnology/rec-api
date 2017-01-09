@@ -43,15 +43,16 @@ class KycListener
             return;
         }
 
+        if ($entity instanceof KYC) {
+            $changeset = $uow->getEntityChangeSet($entity);
+            $this->_notifyKYCChanges($changeset, $entity);
+            return;
+        }
+
     }
 
     public function preUpdate(LifecycleEventArgs $args){
-        $entity = $args->getEntity();
 
-        if ($entity instanceof KYC) {
-            $this->_notifyKYCChanges($args, $entity);
-            return;
-        }
     }
 
     public function postPersist(LifecycleEventArgs $args)
@@ -71,9 +72,9 @@ class KycListener
 
     private function _notifyKYCChanges($changeset, KYC $kyc){
 
-        if($changeset->hasChangedField('tier1_status')){
-            $this->logger->info('TIER 1 STATUS :'.$changeset->getNewValue('tier1_status'));
-            switch ($changeset->getNewValue('tier1_status')){
+        if(isset($changeset['tier1_status'])){
+            $this->logger->info('TIER 1 STATUS :'.$changeset['tier1_status']);
+            switch ($kyc->getTier1Status()){
                 case 'approved':
                     //DO something
                     //subir de tier a todas las companies
@@ -92,9 +93,9 @@ class KycListener
             }
         }
 
-        if($changeset->hasChangedField('tier2_status')){
-            $this->logger->info('TIER 2 STATUS :'.$changeset->hasChangedField('tier1_status'));
-            switch ($changeset->getNewValue('tier2_status')){
+        if(isset($changeset['tier2_status'])){
+            $this->logger->info('TIER 2 STATUS :'.$changeset['tier2_status']);
+            switch ($kyc->getTier2Status()){
                 case 'approved':
                     //DO something
                     //subir de tier a todas las companies
