@@ -50,4 +50,14 @@ class BasicTrader implements WayInterface {
     {
         return $this->moneyCost;
     }
+
+    public function getEstimatedCost($amount)
+    {
+        return $amount * $this->moneyCost;
+    }
+
+    public function getEstimatedDeliveryTime()
+    {
+        return time() + $this->timeCost;
+    }
 }

@@ -7,6 +7,7 @@ use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
 use Telepay\FinancialApiBundle\Financial\Currency;
 use Telepay\FinancialApiBundle\Financial\BagNode;
+use Telepay\FinancialApiBundle\Entity\WalletTransfer;
 
 class MoneyStoresManagerCommand extends ContainerAwareCommand{
     protected function configure(){
@@ -28,6 +29,13 @@ class MoneyStoresManagerCommand extends ContainerAwareCommand{
                 null
             )
             ->addOption(
+                'max-range',
+                null,
+                InputOption::VALUE_REQUIRED,
+                'Define the max range of heuristic value for nodes.',
+                null
+            )
+            ->addOption(
                 'send',
                 null,
                 InputOption::VALUE_REQUIRED,
@@ -40,6 +48,7 @@ class MoneyStoresManagerCommand extends ContainerAwareCommand{
     public $default_currency;
     public $test;
     public $maxSteps;
+    public $maxHeuristicRange;
 
     protected function execute(InputInterface $input, OutputInterface $output){
         if($input->getOption('currency')){
@@ -54,6 +63,13 @@ class MoneyStoresManagerCommand extends ContainerAwareCommand{
         }
         else{
             $this->maxSteps = 10;
+        }
+
+        if($input->getOption('max-range')){
+            $this->maxHeuristicRange = strtoupper($input->getOption('max-range'));
+        }
+        else{
+            $this->maxHeuristicRange = 3;
         }
 
         if($input->getOption('send')){
@@ -74,7 +90,7 @@ class MoneyStoresManagerCommand extends ContainerAwareCommand{
         }
 
         $qb = $this->getContainer()->get('doctrine')->getRepository('TelepayFinancialApiBundle:UserWallet')->createQueryBuilder('w');
-        $qb->Select('SUM(w.available) as available, SUM(w.balance) as balance, w.currency')
+        $qb->Select('SUM(w.balance) as balance, w.currency')
             ->where('w.group NOT IN (:groups)')
             ->setParameter('groups', $chipchap_groups)
             ->groupBy('w.currency');
@@ -83,8 +99,7 @@ class MoneyStoresManagerCommand extends ContainerAwareCommand{
 
         $balances = [];
         foreach($query as $balance){
-            $balance['available'] = round($balance['available'],0);
-            $balance['balance'] = round($balance['balance'],0);
+            $balance['balance'] = round($balance['balance'] * 10,0);
             $balance['scale'] = Currency::$SCALE[$balance['currency']];
             $balances[$balance['currency']] = $balance;
         }
@@ -133,15 +148,18 @@ class MoneyStoresManagerCommand extends ContainerAwareCommand{
         $initNode = new BagNode();
         $initNode->defineValues($system_data, $heuristic, 0);
         $bestNode = $initNode;
-        $output->writeln("Best: " . json_encode($bestNode->getInfo()));
+        //$output->writeln("Init: " . json_encode($bestNode->getInfo()));
+        //$output->writeln("Posible: " . json_encode($this->possibleTransfers($bestNode->getInfo())));
 
         array_push($listNodes, $initNode);
         while(count($listNodes)>0){
             $node = array_shift($listNodes);
+            $output->writeln("H: " . $node->getHeuristic() . " total=" . count($listNodes)  . " steps=" . $node->getSteps());
+            //$output->writeln("Posible: " . json_encode($this->possibleTransfers($node->getInfo())));
             if($node->getHeuristic() < $bestNode->getHeuristic()){
                 $bestNode = $node;
             }
-            if($node->getSteps() < $this->maxSteps){
+            if($node->getSteps()<$this->maxSteps && $node->getHeuristic()<$bestNode->getHeuristic()*$this->maxHeuristicRange){
                 $listPossibleTransfers = $this->possibleTransfers($node->getInfo());
                 foreach($listPossibleTransfers as $possibleTransfer){
                     $new = $this->generateNewNode($node, $possibleTransfer);
@@ -153,7 +171,8 @@ class MoneyStoresManagerCommand extends ContainerAwareCommand{
         $listTransfersToDo = $this->mergeTransfers($bestNode->getInfo()['transfers_to_do']);
         if($this->test){
             $output->writeln("Best: " . json_encode($bestNode->getInfo()));
-            $output->writeln("To do: " . json_encode($listTransfersToDo));
+            $output->writeln("Transfers to do: " . json_encode($listTransfersToDo));
+            $output->writeln("H: " . $bestNode->getHeuristic());
         }
         else{
             $this->sendList($listTransfersToDo, $output);
@@ -181,40 +200,60 @@ class MoneyStoresManagerCommand extends ContainerAwareCommand{
         return $heuristic;
     }
 
-    public function sendList($list, $output){
+    public function sendList($list){
         $em = $this->getContainer()->get('doctrine')->getManager();
-        $transferRepo = $em->getRepository('TelepayFinancialApiBundle:WalletTransfer');
-        foreach($list as $transfer){
-            $way_conf = $this->getContainer()->get('net.telepay.link.' . strtolower($transfer['in']) . '.' . strtolower($transfer['out']));
+        foreach($list as $type=>$transfer){
+            $way_conf = $this->getContainer()->get('net.telepay.link.' . strtolower($transfer['origin']) . '.' . strtolower($transfer['destination']));
             $amount = $transfer['amount'];
+            $amount_origin = $amount;
+            $amount_destination = $amount;
             if($way_conf->getStartNode()->getCurrency() != $this->default_currency){
-                $amount = round($this->_exchange($amount, $this->default_currency, $way_conf->getStartNode()->getCurrency()), 0);
+                $amount_origin = round($this->_exchange($amount, $this->default_currency, $way_conf->getStartNode()->getCurrency()), 0);
             }
-            $way_conf->send($amount);
-
+            if($way_conf->getEndNode()->getCurrency() != $this->default_currency){
+                $amount_destination = round($this->_exchange($amount, $this->default_currency, $way_conf->getEndNode()->getCurrency()), 0);
+            }
+            $transfer_data = new WalletTransfer();
+            $transfer_data->setType($type);
+            $transfer_data->setStatus('sending');
+            $transfer_data->setCurrencyOrigin(strtoupper($way_conf->getStartNode()->getCurrency()));
+            $transfer_data->setAmountOrigin($amount_origin);
+            $transfer_data->setCurrencyDestination(strtoupper($way_conf->getEndNode()->getCurrency()));
+            $transfer_data->setAmountDestination($amount_destination);
+            $transfer_data->setSentTimeStamp(time());
+            $transfer_data->setEstimatedDeliveryTimeStamp($way_conf->getEstimatedDeliveryTime());
+            $transfer_data->setEstimatedCost($way_conf->getEstimatedCost($amount_origin));
+            $transfer_data->setWalletOrigin(strtolower($transfer['origin']));
+            $transfer_data->setWalletDestination(strtolower($transfer['destination']));
+            $data_of_transfer = $way_conf->send($amount);
+            if($data_of_transfer['sent']){
+                $transfer_data->setInformation($data_of_transfer['info']);
+                $em->persist($transfer_data);
+            }
         }
+        $em->flush();
     }
 
     public function receiving($wallet){
-        $out = $wallet->getType() . '_' . $wallet->getCurrency();
+        $destination = $wallet->getType() . '_' . $wallet->getCurrency();
         $em = $this->getContainer()->get('doctrine')->getManager();
         $transferRepo = $em->getRepository('TelepayFinancialApiBundle:WalletTransfer');
         $list_transfer = array();
         $list = $transferRepo->findBy(
-            array('wallet_out'=>$out,'status'=>'sending')
+            array('walletDestination'=>$destination,'status'=>'sending')
         );
         $sum = 0;
         foreach($list as $transfer){
-            $sum += $transfer->getAmountOut();
+            $sum += $transfer->getAmountDestination();
             $timeEstimated = $transfer->getEstimatedDeliveryTimeStamp() - time();
             if($timeEstimated < 0)$timeEstimated=0;
             $deadline = $wallet->getMaxTime();
             if( $deadline > 0 && $timeEstimated > $deadline)$timeEstimated=60000000;
             $list_transfer[] = array(
-                'in' => $transfer->getWalletIn(),
-                'out' => $transfer->getWalletOut(),
-                'amount' => round($this->_exchange($transfer->getAmountOut(), $transfer->getCurrencyOut(), $this->default_currency), 0),
-                'moneyCost' => round($this->_exchange($transfer->getEstimatedCost(), $transfer->getCurrencyOut(), $this->default_currency), 0),
+                'origin' => $transfer->getWalletOrigin(),
+                'destination' => $transfer->getWalletDestination(),
+                'amount' => round($this->_exchange($transfer->getAmountDestination(), $transfer->getCurrencyDestination(), $this->default_currency), 0),
+                'moneyCost' => round($this->_exchange($transfer->getEstimatedCost(), $transfer->getCurrencyDestination(), $this->default_currency), 0),
                 'timeCost' => $timeEstimated
             );
         }
@@ -231,9 +270,9 @@ class MoneyStoresManagerCommand extends ContainerAwareCommand{
             if(isset($wallet['need_default'])){
                 $need = $wallet['need_default'];
                 $destination_name = $wallet['wallet_conf']->getType() . '_' . $wallet['wallet_conf']->getCurrency();
-                $ins = $wallet['wallet_conf']->getWaysIn();
-                foreach($ins as $in){
-                    $way_conf = $this->getContainer()->get($in);
+                $origins = $wallet['wallet_conf']->getWaysIn();
+                foreach($origins as $origin_data){
+                    $way_conf = $this->getContainer()->get($origin_data);
                     $origin = $way_conf->getStartNode();
                     $type = $origin->getType();
                     $currency = $origin->getCurrency();
@@ -242,26 +281,44 @@ class MoneyStoresManagerCommand extends ContainerAwareCommand{
                         if($info['wallets'][$origin_name]['now_default'] + $info['wallets'][$origin_name]['receiving_default'] > $info['wallets'][$origin_name]['perfect_default']){
                             $available = $info['wallets'][$origin_name]['now_default'] + $info['wallets'][$origin_name]['receiving_default'] - $info['wallets'][$origin_name]['perfect_default'];
                             $available = min($available, $info['wallets'][$origin_name]['now_default']);
-                            //origen in perfect status
+                            $max_available = $info['wallets'][$origin_name]['now_default'] + $info['wallets'][$origin_name]['receiving_default'] - $info['wallets'][$origin_name]['min_default'];
+                            $max_available = min($max_available, $info['wallets'][$origin_name]['now_default']);
                             $minAmount = round($this->_exchange($way_conf->getMinAmount(), $way_conf->getStartNode()->getCurrency(), $this->default_currency),0);
+                            //origen in perfect status
                             if($available >= $minAmount) {
                                 $listPossibleTransfersNeed[] = array(
                                     'origin' => $origin_name,
                                     'destination' => $destination_name,
-                                    'amount' => $available
+                                    'amount' => $available,
+                                    'info' => '1'
                                 );
                             }
-                            if($need > $available && $available < $info['wallets'][$origin_name]['now_default']){
-                                //origen in min status
-                                $max_available = $info['wallets'][$origin_name]['now_default'] + $info['wallets'][$origin_name]['receiving_default'] - $info['wallets'][$origin_name]['min_default'];
-                                $max_available = min($max_available, $need, $info['wallets'][$origin_name]['now_default']);
-                                if($max_available >= $minAmount){
-                                    $listPossibleTransfersNeed[] = array(
-                                        'origin' => $origin_name,
-                                        'destination' => $destination_name,
-                                        'amount' => $max_available
-                                    );
-                                }
+                            //what destination need
+                            if($need > $minAmount && $need < $max_available){
+                                $listPossibleTransfersNeed[] = array(
+                                    'origin' => $origin_name,
+                                    'destination' => $destination_name,
+                                    'amount' => $need,
+                                    'info' => '2'
+                                );
+                            }
+                            //destination with more than perfect amount
+                            if(($need + $minAmount) < $max_available){
+                                $listPossibleTransfersNeed[] = array(
+                                    'origin' => $origin_name,
+                                    'destination' => $destination_name,
+                                    'amount' => $need + $minAmount,
+                                    'info' => '3'
+                                );
+                            }
+                            //origin in min status
+                            if($max_available > $minAmount){
+                                $listPossibleTransfersNeed[] = array(
+                                    'origin' => $origin_name,
+                                    'destination' => $destination_name,
+                                    'amount' => $max_available,
+                                    'info' => '4'
+                                );
                             }
                         }
                     }
@@ -270,26 +327,28 @@ class MoneyStoresManagerCommand extends ContainerAwareCommand{
             elseif(isset($wallet['excess_default'])){
                 $excess = $wallet['excess_default'];
                 $origin_name = $wallet['wallet_conf']->getType() . '_' . $wallet['wallet_conf']->getCurrency();
-                $outs = $wallet['wallet_conf']->getWaysOut();
-                foreach($outs as $out){
-                    $way_conf = $this->getContainer()->get($out);
+                $destinations = $wallet['wallet_conf']->getWaysOut();
+                foreach($destinations as $destination_data){
+                    $way_conf = $this->getContainer()->get($destination_data);
                     $destination = $way_conf->getEndNode();
                     $type = $destination->getType();
                     $currency = $destination->getCurrency();
                     $destination_name = $type . '_' . $currency;
                     if(isset($info['wallets'][$destination_name])){
                         $can_receive = $info['wallets'][$destination_name]['max_default'] - $info['wallets'][$destination_name]['now_default'] - $info['wallets'][$destination_name]['receiving_default'];
-                        if($info['wallets'][$destination_name]['conf']->isStorehouse()) $can_receive = $excess;
                         $minAmount = round($this->_exchange($way_conf->getMinAmount(), $way_conf->getStartNode()->getCurrency(), $this->default_currency),0);
                         $maxAmount = $info['wallets'][$origin_name]['now_default'];
-                        if($can_receive >= $excess && $excess >= $minAmount && $excess <= $maxAmount){
+
+                        //Send all the excess
+                        if($excess >= $minAmount){
                             $listPossibleTransfersExcess[] = array(
                                 'origin' => $origin_name,
                                 'destination' => $destination_name,
                                 'amount' => $excess
                             );
                         }
-                        else{
+
+                        if(!$info['wallets'][$destination_name]['conf']->isStorehouse()){
                             //Destination wallet to max status
                             if($can_receive >= $minAmount && $can_receive <= $maxAmount){
                                 $listPossibleTransfersExcess[] = array(
@@ -298,10 +357,11 @@ class MoneyStoresManagerCommand extends ContainerAwareCommand{
                                     'amount' => $can_receive
                                 );
                             }
+
                             //Destination wallet to exceed status
-                            $max_receive = $can_receive + $info['wallets'][$destination_name]['min_default'];
+                            $max_receive = $can_receive + $minAmount - 100;
                             $max_receive = min($excess, $max_receive);
-                            if($max_receive >= $minAmount && $excess <= $maxAmount){
+                            if($max_receive >= $minAmount && $max_receive <= $maxAmount){
                                 $listPossibleTransfersExcess[] = array(
                                     'origin' => $origin_name,
                                     'destination' => $destination_name,
@@ -322,11 +382,18 @@ class MoneyStoresManagerCommand extends ContainerAwareCommand{
     public function mergeTransfers($listTransfers){
         $result = array();
         foreach($listTransfers as $transfer){
-            if(isset($result[$transfer['in'] . '-' . $transfer['out']])){
-                $result[$transfer['in'] . '-' . $transfer['out']]['amount'] += $transfer['amount'];
+            if(isset($result[$transfer['origin'] . '-' . $transfer['destination']])){
+                $result[$transfer['origin'] . '-' . $transfer['destination']]['amount'] += $transfer['amount'];
+            }
+            elseif(isset($result[$transfer['destination'] . '-' . $transfer['origin']])){
+                $result[$transfer['destination'] . '-' . $transfer['origin']]['amount'] -= $transfer['amount'];
+                if($result[$transfer['destination'] . '-' . $transfer['origin']]['amount'] < 0){
+                    $result[$transfer['origin'] . '-' . $transfer['destination']] = abs($result[$transfer['destination'] . '-' . $transfer['origin']]);
+                    unset($result[$transfer['destination'] . '-' . $transfer['origin']]);
+                }
             }
             else{
-                $result[$transfer['in'] . '-' . $transfer['out']] = $transfer;
+                $result[$transfer['origin'] . '-' . $transfer['destination']] = $transfer;
             }
         }
         return $result;
@@ -360,11 +427,12 @@ class MoneyStoresManagerCommand extends ContainerAwareCommand{
             $info['wallets'][$destination_name]['excess_default'] = $destination_data['now_default'] + $destination_data['receiving_default'] - $destination_data['perfect_default'];
         }
 
+        $way_conf = $this->getContainer()->get('net.telepay.link.' . strtolower($transfer['origin']) . '.' . strtolower($transfer['destination']));
         $info['transfers_to_do'][] = array(
-            'in' => $transfer['origin'],
-            'out' => $transfer['destination'],
+            'origin' => $transfer['origin'],
+            'destination' => $transfer['destination'],
             'amount' => $transfer['amount'],
-            'moneyCost' => round($transfer['amount'] / 100, 0),
+            'moneyCost' => round($transfer['amount'] * $way_conf->getMoneyCost() / 100, 0),
             'timeCost' => 3600
         );
 
@@ -376,12 +444,12 @@ class MoneyStoresManagerCommand extends ContainerAwareCommand{
         return $newNode;
     }
 
-    public function _exchange($amount,$curr_in,$curr_out){
-        if($curr_in == $curr_out) return $amount;
+    public function _exchange($amount,$curr_origin,$curr_destination){
+        if($curr_origin == $curr_destination) return $amount;
         $em = $this->getContainer()->get('doctrine')->getManager();
         $exchangeRepo = $em->getRepository('TelepayFinancialApiBundle:Exchange');
         $exchange = $exchangeRepo->findOneBy(
-            array('src'=>$curr_in,'dst'=>$curr_out),
+            array('src'=>$curr_origin,'dst'=>$curr_destination),
             array('id'=>'DESC')
         );
         if(!$exchange) return 0;
@@ -390,12 +458,12 @@ class MoneyStoresManagerCommand extends ContainerAwareCommand{
         return $total;
     }
 
-    public function _exchangeInverse($amount,$curr_in,$curr_out){
-        if($curr_in == $curr_out) return $amount;
+    public function _exchangeInverse($amount,$curr_origin,$curr_destination){
+        if($curr_origin == $curr_destination) return $amount;
         $em = $this->getContainer()->get('doctrine')->getManager();
         $exchangeRepo = $em->getRepository('TelepayFinancialApiBundle:Exchange');
         $exchange = $exchangeRepo->findOneBy(
-            array('src'=>$curr_out,'dst'=>$curr_in),
+            array('src'=>$curr_destination,'dst'=>$curr_origin),
             array('id'=>'DESC')
         );
         if(!$exchange) return 0;
