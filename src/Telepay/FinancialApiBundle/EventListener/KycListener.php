@@ -45,7 +45,7 @@ class KycListener
 
         if ($entity instanceof KYC) {
             $changeset = $uow->getEntityChangeSet($entity);
-            $this->_notifyKYCChanges($changeset, $entity);
+            $this->_notifyKYCChanges($args, $entity);
             return;
         }
 
@@ -73,9 +73,9 @@ class KycListener
 
     private function _notifyKYCChanges($changeset, KYC $kyc){
 
-        if($changeset['tier1_status']){
-            $this->logger->info('TIER 1 STATUS :'.$changeset['tier1_status']);
-            switch ($changeset['tier1_status']){
+        if($changeset->hasChangeField('tier1_status')){
+            $this->logger->info('TIER 1 STATUS :'.$changeset->getNewValue('tier1_status'));
+            switch ($changeset->getNewValue('tier1_status')){
                 case 'approved':
                     //DO something
                     //subir de tier a todas las companies
