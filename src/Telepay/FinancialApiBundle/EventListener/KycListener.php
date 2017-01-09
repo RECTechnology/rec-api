@@ -118,6 +118,7 @@ class KycListener
             'kyc_manager'   =>  $kyc
         ));
 
+        $this->logger->info('TIER 1 : update '.count($companies).' companies');
         foreach($companies as $company){
             $company->setTier($tier);
             $em->flush();
