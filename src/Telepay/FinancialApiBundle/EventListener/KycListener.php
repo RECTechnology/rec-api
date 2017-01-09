@@ -73,7 +73,7 @@ class KycListener
 
     private function _notifyKYCChanges($changeset, KYC $kyc){
 
-        if($changeset->hasChangeField('tier1_status')){
+        if($changeset->hasChangedField('tier1_status')){
             $this->logger->info('TIER 1 STATUS :'.$changeset->getNewValue('tier1_status'));
             switch ($changeset->getNewValue('tier1_status')){
                 case 'approved':
