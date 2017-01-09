@@ -49,6 +49,29 @@ class KycListener
             return;
         }
 
+        if ($entity instanceof Group) {
+            $changeset = $uow->getEntityChangeSet($entity);
+            if(isset($changeset['kyc_manager'])){
+                //TODO update all groups with this tier
+                if($entity->getKycManager()->getTier1Status() == 'approved' && $entity->getTier() < 1){
+                    $entity->setTier(1);
+                    //TODO notify update tier
+                    $this->_sendEmail('Update KYC ', $entity->getKycManager()->getEmail(), $entity, $entity->getKycManager(), 1, 'approved_single' );
+                }
+
+                if($entity->getKycManager()->getTier2Status() == 'approved' && $entity->getTier() < 2){
+                    $entity->setTier(2);
+                    //TODO notify update tier
+                    $this->_sendEmail('Update KYC ', $entity->getKycManager()->getEmail(), $entity, $entity->getKycManager(), 2, 'approved_single' );
+                }
+
+                $em = $args->getEntityManager();
+                $em->flush();
+
+            }
+            return;
+        }
+
     }
 
     public function preUpdate(LifecycleEventArgs $args){

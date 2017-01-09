@@ -91,6 +91,10 @@
     {% elseif action == 'pending' %}
         <p>This user has requested a KYC validation for <b>tier {{ tier }}</b></p>
         <p>User => {{ kyc.user.username }} - {{ kyc.user.email }}</p>
+    {% elseif action == 'approved_single' %}
+        <h2>{{ companies.name }}</h2>
+        <p>This company has been upload to <b>tier {{ tier }}</b></p>
+        <p>User => {{ kyc.username }} - {{ kyc.email }}</p>
     {% else %}
         <p>Hi, your Tier request has been denied, please check your account.</p>
     {% endif %}
