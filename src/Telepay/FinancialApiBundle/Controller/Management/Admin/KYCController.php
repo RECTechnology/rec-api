@@ -128,7 +128,7 @@ class KYCController extends BaseApiController{
         $em = $this->getDoctrine()->getManager();
         $kyc = $em->getRepository($this->getRepositoryName())->find($id);
 
-        if($action != 'denied' || $action != 'approved') throw new HttpException(403,'Invalid action');
+        if($action != 'denied' && $action != 'approved') throw new HttpException(403,'Invalid action');
 
         $tier = $request->request->get('tier');
 
