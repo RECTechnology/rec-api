@@ -74,23 +74,28 @@ class KycListener
     private function _notifyKYCChanges($changeset, KYC $kyc){
 
         if($changeset['tier1_status']){
+            $this->logger->info('TIER 1 STATUS :'.$changeset['tier1_status']);
             switch ($changeset['tier1_status']){
                 case 'approved':
                     //DO something
                     //subir de tier a todas las companies
                     $this->_uploadTierCompanies($kyc, 1);
+                    $this->logger->info('TIER 1 : uploadTierCompanies');
                     break;
                 case 'denied':
                     $this->_sendEmail('Update KYC denied', $kyc->getUser()->getEmail(), '', $kyc, 0, 'denied' );
+                    $this->logger->info('TIER 1 : send email to user');
                     break;
                 case 'pending':
-                    //TODO notify admins
+                    //notify admins
+                    $this->logger->info('TIER 1 : notify pending request');
                     $this->_sendEmail('Update KYC required', 'kyc@robotunion.org', '', $kyc, 1 , 'pending');
 
             }
         }
 
         if($changeset['tier2_status']){
+            $this->logger->info('TIER 2 STATUS :'.$changeset['tier1_status']);
             switch ($changeset['tier2_status']){
                 case 'approved':
                     //DO something
