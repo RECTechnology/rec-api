@@ -116,7 +116,7 @@ class KycListener
         //search all comanies with this kyc_manager
         $em = $this->container->get('doctrine')->getManager();
         $companies = $em->getRepository('TelepayFinancialApiBundle:Group')->findBy(array(
-            'kyc_manager'   =>  $kyc
+            'kyc_manager'   =>  $kyc->getUser()
         ));
 
         $this->logger->info('TIER 1 : update '.count($companies).' companies');
