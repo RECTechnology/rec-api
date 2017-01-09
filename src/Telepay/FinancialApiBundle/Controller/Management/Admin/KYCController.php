@@ -123,10 +123,12 @@ class KYCController extends BaseApiController{
     /**
      * @Rest\View
      */
-    public function denyKYCRequest(Request $request, $id){
+    public function updateKYCRequest(Request $request, $id, $action){
 
         $em = $this->getDoctrine()->getManager();
         $kyc = $em->getRepository($this->getRepositoryName())->find($id);
+
+        if($action != 'denied' || $action != 'approved') throw new HttpException(403,'Invalid action');
 
         $tier = $request->request->get('tier');
 
@@ -135,9 +137,9 @@ class KYCController extends BaseApiController{
         if(!$tier) throw new HttpException(404, 'Param tier not found');
 
         if($tier == 1){
-            $kyc->setTier1Status('denied');
+            $kyc->setTier1Status($action);
         }elseif($tier == 2){
-            $kyc->setTier2Status('denied');
+            $kyc->setTier2Status($action);
         }else{
             throw new HttpException(403, 'Invalid field tier');
         }

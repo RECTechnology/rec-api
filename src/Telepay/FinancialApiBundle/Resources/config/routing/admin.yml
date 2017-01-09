@@ -250,9 +250,9 @@ admin_KYC_update:
     requirements:
         _method: PUT
 
-admin_KYC_deny_request:
-    pattern:  /admin/v1/kyc/{id}/deny
-    defaults: { _controller: Telepay\FinancialApiBundle\Controller\Management\Admin\KYCController::denyKYCRequest }
+admin_KYC_update_request:
+    pattern:  /admin/v1/kyc/{id}/{action}
+    defaults: { _controller: Telepay\FinancialApiBundle\Controller\Management\Admin\KYCController::updateKYCRequest }
     requirements:
         _method: PUT
 
