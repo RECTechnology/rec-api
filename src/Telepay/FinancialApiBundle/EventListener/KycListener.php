@@ -92,9 +92,9 @@ class KycListener
             }
         }
 
-        if($changeset['tier2_status']){
-            $this->logger->info('TIER 2 STATUS :'.$changeset['tier1_status']);
-            switch ($changeset['tier2_status']){
+        if($changeset->hasChangedField('tier2_status')){
+            $this->logger->info('TIER 2 STATUS :'.$changeset->hasChangedField('tier1_status'));
+            switch ($changeset->getNewValue('tier2_status')){
                 case 'approved':
                     //DO something
                     //subir de tier a todas las companies
