@@ -31,32 +31,32 @@ class WalletTransfer {
     /**
      * @ORM\Column(type="string")
      */
-    private $wallet_in;
+    private $walletOrigin;
 
     /**
      * @ORM\Column(type="string")
      */
-    private $wallet_out;
+    private $walletDestination;
 
     /**
      * @ORM\Column(type="string")
      */
-    private $currency_in;
+    private $currencyOrigin;
 
     /**
      * @ORM\Column(type="string")
      */
-    private $currency_out;
+    private $currencyDestination;
 
     /**
      * @ORM\Column(type="integer")
      */
-    private $amount_in;
+    private $amountOrigin;
 
     /**
      * @ORM\Column(type="integer")
      */
-    private $amount_out;
+    private $amountDestination;
 
     /**
      * @ORM\Column(type="integer")
@@ -77,6 +77,11 @@ class WalletTransfer {
      * @ORM\Column(type="integer")
      */
     private $estimatedDeliveryTimeStamp;
+
+    /**
+     * @ORM\Column(type="string")
+     */
+    private $information;
 
     /**
      * @return mixed
@@ -152,65 +157,65 @@ class WalletTransfer {
     /**
      * @return mixed
      */
-    public function getAmountIn()
+    public function getAmountOrigin()
     {
-        return $this->amount_in;
+        return $this->amountOrigin;
     }
 
     /**
-     * @param mixed $amount_in
+     * @param mixed $amountOrigin
      */
-    public function setAmountIn($amount_in)
+    public function setAmountOrigin($amountOrigin)
     {
-        $this->amount_in = $amount_in;
-    }
-
-    /**
-     * @return mixed
-     */
-    public function getAmountOut()
-    {
-        return $this->amount_out;
-    }
-
-    /**
-     * @param mixed $amount_out
-     */
-    public function setAmountOut($amount_out)
-    {
-        $this->amount_out = $amount_out;
+        $this->amountOrigin = $amountOrigin;
     }
 
     /**
      * @return mixed
      */
-    public function getCurrencyIn()
+    public function getAmountDestination()
     {
-        return $this->currency_in;
+        return $this->amountDestination;
     }
 
     /**
-     * @param mixed $currency_in
+     * @param mixed $amountDestination
      */
-    public function setCurrencyIn($currency_in)
+    public function setAmountDestination($amountDestination)
     {
-        $this->currency_in = $currency_in;
+        $this->amountDestination = $amountDestination;
     }
 
     /**
      * @return mixed
      */
-    public function getCurrencyOut()
+    public function getCurrencyOrigin()
     {
-        return $this->currency_out;
+        return $this->currencyOrigin;
     }
 
     /**
-     * @param mixed $currency_out
+     * @param mixed $currencyOrigin
      */
-    public function setCurrencyOut($currency_out)
+    public function setCurrencyOrigin($currencyOrigin)
     {
-        $this->currency_out = $currency_out;
+        $this->currencyOrigin = $currencyOrigin;
+    }
+
+    /**
+     * @return mixed
+     */
+    public function getCurrencyDestination()
+    {
+        return $this->currencyDestination;
+    }
+
+    /**
+     * @param mixed $currencyDestination
+     */
+    public function setCurrencyDestination($currencyDestination)
+    {
+        $this->currencyDestination = $currencyDestination;
     }
 
     /**
@@ -232,32 +237,48 @@ class WalletTransfer {
     /**
      * @return mixed
      */
-    public function getWalletIn()
+    public function getWalletOrigin()
     {
-        return $this->wallet_in;
+        return $this->walletOrigin;
     }
 
     /**
-     * @param mixed $wallet_in
+     * @param mixed $walletOrigin
      */
-    public function setWalletIn($wallet_in)
+    public function setWalletOrigin($walletOrigin)
     {
-        $this->wallet_in = $wallet_in;
+        $this->walletOrigin = $walletOrigin;
     }
 
     /**
      * @return mixed
      */
-    public function getWalletOut()
+    public function getWalletDestination()
     {
-        return $this->wallet_out;
+        return $this->walletDestination;
     }
 
     /**
-     * @param mixed $wallet_out
+     * @param mixed $walletDestination
      */
-    public function setWalletOut($wallet_out)
+    public function setWalletDestination($walletDestination)
     {
-        $this->wallet_out = $wallet_out;
+        $this->walletDestination = $walletDestination;
+    }
+
+    /**
+     * @return mixed
+     */
+    public function getInformation()
+    {
+        return $this->information;
+    }
+
+    /**
+     * @param mixed $information
+     */
+    public function setInformation($information)
+    {
+        $this->information = $information;
     }
 }
