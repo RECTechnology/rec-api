@@ -65,12 +65,11 @@ abstract class BaseApiController extends RestApiController implements Repository
 
     protected function createAction(Request $request){
         $entity = $this->getNewEntity();
-
         $params = $request->request->all();
-
         foreach ($params as $name => $value) {
             if ($name != 'id') {
                 $setter = $this->attributeToSetter($name);
+
                 if (method_exists($entity, $setter)) {
                     call_user_func_array(array($entity, $setter), array($value));
                 }
@@ -79,7 +78,6 @@ abstract class BaseApiController extends RestApiController implements Repository
                 }
             }
         }
-
         $em = $this->getDoctrine()->getManager();
         $em->persist($entity);
         try{

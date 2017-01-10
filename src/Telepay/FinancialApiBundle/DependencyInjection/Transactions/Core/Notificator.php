@@ -115,6 +115,51 @@ class Notificator {
 
     }
 
+    public function notificate_error($url_notification, $group_id, $amount, $post_params){
+
+        $group = $this->container->get('doctrine')->getRepository('TelepayFinancialApiBundle:Group')
+            ->find($group_id);
+
+        $dm = $this->container->get('doctrine_mongodb')->getManager();
+
+        //necesitamos el id el status el amount y el secret
+        $id = 0;
+        $status = 'error';
+
+        $key = $group->getAccessSecret();
+
+        $data_to_sign = $id.$status.$amount;
+
+        $signature = hash_hmac('sha256', $data_to_sign, $key);
+
+        $params = array(
+            'id'        =>  $id,
+            'status'    =>  $status,
+            'amount'    =>  $amount,
+            'signature' =>  $signature,
+            'data'      =>  json_encode($post_params)
+        );
+
+        if(isset($post_params['order_id'])) $params['order_id'] = $post_params['order_id'];
+
+        // create curl resource
+        $ch = curl_init();
+        // set url
+        curl_setopt($ch, CURLOPT_URL, $url_notification);
+        //return the transfer as a string
+        curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
+        curl_setopt($ch,CURLOPT_POST,true);
+        curl_setopt($ch,CURLOPT_POSTFIELDS,$params);
+        //fix bug 417 Expectation Failed
+        curl_setopt($ch,CURLOPT_HTTPHEADER,array("Expect:  "));
+        // $output contains the output string
+        $output = curl_exec($ch);
+
+        // close curl resource to free up system resources
+        curl_close($ch);
+        return curl_errno($ch);
+    }
+
     public function gcm_notificate($user_id, $message){
 
     }

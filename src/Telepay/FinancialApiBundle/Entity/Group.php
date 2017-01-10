@@ -216,9 +216,20 @@ class Group extends BaseGroup
     private $own = false;
 
     /**
+     * @ORM\Column(type="boolean")
+     */
+    private $premium = false;
+
+    /**
      * @ORM\OneToMany(targetEntity="Telepay\FinancialApiBundle\Entity\CashInTokens", mappedBy="company", cascade={"remove"})
      */
     private $cash_in_tokens;
+
+    /**
+     * @ORM\Column(type="integer")
+     * @Expose
+     */
+    private $tier = 0;
 
     /**
      * @return mixed
@@ -766,6 +777,22 @@ class Group extends BaseGroup
     /**
      * @return mixed
      */
+    public function getOwn()
+    {
+        return $this->own;
+    }
+
+    /**
+     * @param mixed $own
+     */
+    public function setOwn($own)
+    {
+        $this->own = $own;
+    }
+
+    /**
+     * @return mixed
+     */
     public function getKycManager()
     {
         return $this->kyc_manager;
@@ -782,17 +809,33 @@ class Group extends BaseGroup
     /**
      * @return mixed
      */
-    public function getOwn()
+    public function getTier()
     {
-        return $this->own;
+        return $this->tier;
     }
 
     /**
-     * @param mixed $own
+     * @param mixed $tier
      */
-    public function setOwn($own)
+    public function setTier($tier)
     {
-        $this->own = $own;
+        $this->tier = $tier;
+    }
+
+    /**
+     * @return mixed
+     */
+    public function getPremium()
+    {
+        return $this->premium;
+    }
+
+    /**
+     * @param mixed $premium
+     */
+    public function setPremium($premium)
+    {
+        $this->premium = $premium;
     }
 
 }

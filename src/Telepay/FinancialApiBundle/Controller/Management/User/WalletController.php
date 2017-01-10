@@ -7,14 +7,15 @@
  */
 
 namespace Telepay\FinancialApiBundle\Controller\Management\User;
+
 use DateInterval;
 use DateTime;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpKernel\Exception\HttpException;
 use Telepay\FinancialApiBundle\Controller\RestApiController;
+use Telepay\FinancialApiBundle\DependencyInjection\Telepay\Commons\LimitAdder;
 use Telepay\FinancialApiBundle\Document\Transaction;
-use Telepay\FinancialApiBundle\Entity\UserWallet;
 use Telepay\FinancialApiBundle\Financial\Currency;
 
 /**
@@ -39,10 +40,18 @@ class WalletController extends RestApiController{
         $available = 0;
         $balance = 0;
         $scale = 0;
+        $exchanger = $this->container->get('net.telepay.commons.exchange_manipulator');
 
         foreach($wallets as $wallet){
             $filtered[] = $wallet->getWalletView();
-            $new_wallet = $this->exchange($wallet, $currency);
+            if($userGroup->getPremium()){
+                if($wallet->getCurrency() == Currency::$FAC){
+                    $wallet->setCurrency('FAIRP');
+                }elseif($currency == Currency::$FAC){
+                    $currency = 'FAIRP';
+                }
+            }
+            $new_wallet = $exchanger->exchangeWallet($wallet, $currency);
             $available = round($available + $new_wallet['available'],0);
             $balance = round($balance + $new_wallet['balance'],0);
             if($new_wallet['scale'] != null) $scale = $new_wallet['scale'];
@@ -530,7 +539,7 @@ class WalletController extends RestApiController{
             $balance = array();
             $volume = array();
             foreach($transactions->toArray() as $res){
-                if($res->getClient()){
+                if($res->getClient() && isset($listClients[$res->getClient()])){
                     $res->setClientData(
                         array(
                             "id" => $res->getClient(),
@@ -816,40 +825,28 @@ class WalletController extends RestApiController{
         if (!$receiver) throw new HttpException(404,'Receiver not found');
 
         //Check founds in sender wallet
-        $sender_wallets = $userGroup->getWallets();
-        $sender_wallet = null;
-        foreach( $sender_wallets as $wallet){
-            if( $wallet->getCurrency() == strtoupper($currency)){
-                $sender_wallet = $wallet;
-            }
-        }
+        $sender_wallet = $userGroup->getWallet(strtoupper($currency));
 
         if(!$sender_wallet) throw new HttpException(400,'Sender wallet not found');
 
         if($sender_wallet->getAvailable() < $params['amount']) throw new HttpException(401, 'Not founds enought');
 
         //obtaining receiver wallet
-        $receiver_wallets = $receiver->getWallets();
-        $receiver_wallet = null;
-        foreach( $receiver_wallets as $wallet){
-            if( $wallet->getCurrency() == strtoupper($currency)){
-                $receiver_wallet = $wallet;
-            }
-        }
+        $receiver_wallet = $receiver->getWallets(strtoupper($currency));
 
         if(!$receiver_wallet) throw new HttpException(400,'Receiver wallet not found');
 
         //Generate transactions and update wallets - without fees
         //SENDER TRANSACTION
         $sender_transaction = new Transaction();
-        $sender_transaction->setStatus('success');
+        $sender_transaction->setStatus(Transaction::$STATUS_SUCCESS);
         $sender_transaction->setScale($sender_wallet->getScale());
         $sender_transaction->setCurrency($sender_wallet->getCurrency());
         $sender_transaction->setIp('');
         $sender_transaction->setVersion('');
         $sender_transaction->setService('transfer');
         $sender_transaction->setMethod('wallet_to_wallet');
-        $sender_transaction->setType('out');
+        $sender_transaction->setType(Transaction::$TYPE_OUT);
         $sender_transaction->setVariableFee(0);
         $sender_transaction->setFixedFee(0);
         $sender_transaction->setAmount($params['amount']);
@@ -886,14 +883,14 @@ class WalletController extends RestApiController{
 
         //RECEIVER TRANSACTION
         $receiver_transaction = new Transaction();
-        $receiver_transaction->setStatus('success');
+        $receiver_transaction->setStatus(Transaction::$STATUS_SUCCESS);
         $receiver_transaction->setScale($sender_wallet->getScale());
         $receiver_transaction->setCurrency($sender_wallet->getCurrency());
         $receiver_transaction->setIp('');
         $receiver_transaction->setVersion('');
         $receiver_transaction->setService('transfer');
         $receiver_transaction->setMethod('wallet_to_wallet');
-        $receiver_transaction->setType('in');
+        $receiver_transaction->setType(Transaction::$TYPE_IN);
         $receiver_transaction->setVariableFee(0);
         $receiver_transaction->setFixedFee(0);
         $receiver_transaction->setAmount($params['amount']);
@@ -997,40 +994,6 @@ class WalletController extends RestApiController{
 
     }
 
-    public function _exchange($amount, $curr_in, $curr_out){
-
-        $dm = $this->getDoctrine()->getManager();
-        $exchangeRepo = $dm->getRepository('TelepayFinancialApiBundle:Exchange');
-        $exchange = $exchangeRepo->findOneBy(
-            array('src'=>$curr_in,'dst'=>$curr_out),
-            array('id'=>'DESC')
-        );
-
-        if(!$exchange) throw new HttpException(404,'Exchange not found');
-
-        $price = $exchange->getPrice();
-
-        $total = round($amount * $price,0);
-
-        return $total;
-
-    }
-
-    public function _getExchangePrice($amount, $curr_in, $curr_out){
-        $dm = $this->getDoctrine()->getManager();
-        $exchangeRepo = $dm->getRepository('TelepayFinancialApiBundle:Exchange');
-        $exchange = $exchangeRepo->findOneBy(
-            array('src'=>$curr_in,'dst'=>$curr_out),
-            array('id'=>'DESC')
-        );
-
-        if(!$exchange) throw new HttpException(404,'Exchange not found');
-
-        $price = $exchange->getPrice();
-
-        return $price;
-    }
-
     public function _getBenefits($interval, $start = null, $end =null){
         $userGroup = $this->get('security.context')->getToken()->getUser()->getActiveGroup();
         $default_currency = $userGroup->getDefaultCurrency();
@@ -1120,15 +1083,20 @@ class WalletController extends RestApiController{
 
         $total = 0;
         //die(print_r($result,true));
+        $exchanger = $this->container->get('net.telepay.commons.exchange_manipulator');
         foreach($result->toArray() as $d){
             if($d['currency'] != ''){
                 if($default_currency == $d['currency']){
                     $total = $total + $d['total'];
                 }else{
-                    $change = $this->_exchange($d['total'], $d['currency'], $default_currency);
+                    if($d['currency'] == Currency::$FAC && $userGroup->getPremium() == true){
+                        $currency = 'FAIRP';
+                    }else{
+                        $currency = $d['currency'];
+                    }
+                    $change = $exchanger->exchange($d['total'], $currency, $default_currency);
                     $total = $total + $change;
                 }
-
 
             }
         }
@@ -1173,37 +1141,6 @@ class WalletController extends RestApiController{
     }
 
     /**
-     * makes an exchange between currencies in the wallet. Called by currencyExchange
-     */
-    public function exchange(UserWallet $wallet, $currency){
-
-        $currency_actual = $wallet->getCurrency();
-        if($currency_actual == $currency){
-            $response['available'] = $wallet->getAvailable();
-            $response['balance'] = $wallet->getBalance();
-            $response['scale'] = $wallet->getScale();
-            return $response;
-        }
-        $dm = $this->getDoctrine()->getManager();
-        $exchangeRepo = $dm->getRepository('TelepayFinancialApiBundle:Exchange');
-        $exchange = $exchangeRepo->findOneBy(
-            array('src'=>$currency_actual,'dst'=>$currency),
-            array('id'=>'DESC')
-        );
-
-        if(!$exchange) throw new HttpException(404,'Exchange not found');
-
-        $price = $exchange->getPrice();
-
-        $response['available'] = round($wallet->getAvailable() * $price, 0);
-        $response['balance'] = round($wallet->getBalance() * $price,0);
-        $response['scale'] = null;
-
-        return $response;
-
-    }
-
-    /**
      * makes an exchange between wallets
      */
     public function currencyExchange(Request $request){
@@ -1236,7 +1173,7 @@ class WalletController extends RestApiController{
 
         $from = strtoupper($params['from']);
         $to = strtoupper($params['to']);
-        $service = 'exchange'.'_'.$from.'to'.$to;
+        $method = 'exchange'.'_'.$from.'to'.$to;
 
         //check if method is available
         $statusMethod = $em->getRepository('TelepayFinancialApiBundle:StatusMethod')->findOneBy(array(
@@ -1246,197 +1183,12 @@ class WalletController extends RestApiController{
 
         if($statusMethod->getStatus() != 'available') throw new HttpException(403, 'Exchange temporally unavailable');
 
-        //getExchange
-        $exchange = $this->_exchange($amount, $from, $to);
+        $exchanger = $this->container->get('net.telepay.commons.exchange_manipulator');
 
-        if($exchange == 0) throw new HttpException(403, 'Amount must be bigger');
-
-        //checkWallet sender
-        $wallets = $userGroup->getWallets();
-
-        $senderWallet = null;
-        $receiverWallet = null;
-        foreach($wallets as $wallet){
-            if($from == $wallet->getCurrency()){
-                $senderWallet = $wallet;
-            }elseif($to == $wallet->getCurrency()){
-                $receiverWallet = $wallet;
-            }
-        }
-
-        if($senderWallet == null) throw new HttpException(404, 'Sender Wallet not found');
-        if($receiverWallet == null) throw new HttpException(404, 'Receiver Wallet not found');
-
-        //getFees
-        $fees = $userGroup->getCommissions();
-
-        $fixed_fee = null;
-        $variable_fee = null;
-
-        foreach($fees as $fee){
-            if($fee->getServiceName() == $service){
-                $fixed_fee = $fee->getFixed();
-                $variable_fee = round((($fee->getVariable()/100) * $exchange), 0);
-            }
-        }
-
-        $price = $this->_getExchangePrice($amount, $from, $to);
-
-        //check available in the senderWallet
-        if($amount > $senderWallet->getAvailable()) throw new HttpException(404, 'Not funds enough. ' . $amount . '>' . $senderWallet->getAvailable());
-
-        //check available in the receiver wallet
-        $total_fee = $fixed_fee + $variable_fee;
-        if(($total_fee > $receiverWallet->getAvailable()) && ($exchange < $total_fee)) throw new HttpException(403, 'Not enough funds in the receiver wallet');
-
-        $dm = $this->get('doctrine_mongodb')->getManager();
-        //cashOut transaction
-        $cashOut = Transaction::createFromRequest($request);
-        $cashOut->setAmount($amount);
-        $cashOut->setCurrency($from);
-        $cashOut->setDataIn($params);
-        $cashOut->setFixedFee(0);
-        $cashOut->setVariableFee(0);
-        $cashOut->setTotal(-$amount);
-        $cashOut->setType('out');
-        $cashOut->setMethod($service);
-        $cashOut->setService($service);
-        $cashOut->setUser($user->getId());
-        $cashOut->setGroup($userGroup->getId());
-        $cashOut->setVersion(1);
-        $cashOut->setScale($senderWallet->getScale());
-        $cashOut->setStatus(Transaction::$STATUS_SUCCESS);
-        $cashOut->setPayOutInfo(array(
-            'amount'    =>  $amount,
-            'currency'  =>  $from,
-            'scale'     =>  $senderWallet->getScale(),
-            'concept'   =>  'Exchange '.$from.' to '.$to,
-            'price'     =>  $price,
-        ));
-
-        $dm->persist($cashOut);
-        $dm->flush();
-
-        $paramsOut = $params;
-        $paramsOut['amount'] = $exchange;
-        //cashIn transaction
-        $cashIn = Transaction::createFromRequest($request);
-        $cashIn->setAmount($exchange);
-        $cashIn->setCurrency($to);
-        $cashIn->setDataIn($params);
-        $cashIn->setFixedFee($fixed_fee);
-        $cashIn->setVariableFee($variable_fee);
-        $cashIn->setTotal($exchange);
-        $cashIn->setService($service);
-        $cashIn->setType('in');
-        $cashIn->setMethod($service);
-        $cashIn->setUser($user->getId());
-        $cashIn->setGroup($userGroup->getId());
-        $cashIn->setVersion(1);
-        $cashIn->setScale($receiverWallet->getScale());
-        $cashIn->setStatus(Transaction::$STATUS_SUCCESS);
-        $cashIn->setDataIn($paramsOut);
-        $cashIn->setPayInInfo(array(
-            'amount'    =>  $exchange,
-            'currency'  =>  $to,
-            'scale'     =>  $receiverWallet->getScale(),
-            'concept'   =>  'Exchange '.$from.' to '.$to,
-            'price'     =>  $price,
-        ));
-
-        $dm->persist($cashIn);
-        $dm->flush();
-
-        //update wallets
-        $senderWallet->setAvailable($senderWallet->getAvailable() - $amount);
-        $senderWallet->setBalance($senderWallet->getBalance() - $amount);
-
-        $receiverWallet->setAvailable($receiverWallet->getAvailable() + $exchange - $fixed_fee - $variable_fee);
-        $receiverWallet->setBalance($receiverWallet->getBalance() + $exchange - $fixed_fee - $variable_fee);
-
-        $em->persist($senderWallet);
-        $em->persist($receiverWallet);
-        $em->flush();
-
-        //dealer
-
-        if( $total_fee != 0){
-            //nueva transaccion restando la comision al user
-            try{
-                $this->_dealer($cashIn, $receiverWallet);
-            }catch (HttpException $e){
-                throw $e;
-            }
-        }
-
-        //notification
-        $this->container->get('notificator')->notificate($cashIn);
+        $exchanger->doExchange($amount, $from, $to, $userGroup, $user);
 
         //return
         return $this->restV2(200, "ok", "Exchange got successfully");
-
-    }
-
-    private function _dealer(Transaction $transaction, UserWallet $current_wallet){
-
-        $amount = $transaction->getAmount();
-        $currency = $transaction->getCurrency();
-        $service_cname = $transaction->getService();
-
-        $em = $this->getDoctrine()->getManager();
-
-        $total_fee = round($transaction->getFixedFee() + $transaction->getVariableFee(),0);
-
-        $user = $em->getRepository('TelepayFinancialApiBundle:User')->find($transaction->getUser());
-        $userGroup = $user->getActiveGroup();
-
-        $feeTransaction = Transaction::createFromTransaction($transaction);
-        $feeTransaction->setAmount($total_fee);
-        $feeTransaction->setDataIn(array(
-            'previous_transaction'  =>  $transaction->getId(),
-            'amount'                =>  -$total_fee,
-            'description'           =>  $service_cname.'->fee'
-        ));
-        $feeTransaction->setData(array(
-            'previous_transaction'  =>  $transaction->getId(),
-            'amount'                =>  -$total_fee,
-            'type'                  =>  'resta_fee'
-        ));
-        $feeTransaction->setDebugData(array(
-            'previous_balance'  =>  $current_wallet->getBalance(),
-            'previous_transaction'  =>  $transaction->getId()
-        ));
-
-        $feeTransaction->setTotal(-$total_fee);
-
-        $feeTransaction->setType('fee');
-        $feeTransaction->setMethod($service_cname);
-        $feeInfo = array(
-            'previous_transaction'  =>  $transaction->getId(),
-            'previous_amount'    =>  $transaction->getAmount(),
-            'scale'     =>  $transaction->getScale(),
-            'concept'           =>  $service_cname.'->fee',
-            'amount' =>  -$total_fee,
-            'status'    =>  'success',
-            'currency'  =>  $transaction->getCurrency()
-        );
-        $feeTransaction->setFeeInfo($feeInfo);
-
-        $mongo = $this->get('doctrine_mongodb')->getManager();
-        $mongo->persist($feeTransaction);
-        $mongo->flush();
-
-        $balancer = $this->get('net.telepay.commons.balance_manipulator');
-        $balancer->addBalance($userGroup, -$total_fee, $feeTransaction );
-
-        //empezamos el reparto
-        $creator = $userGroup->getGroupCreator();
-
-        if(!$creator) throw new HttpException(404,'Creator not found');
-
-        $transaction_id = $transaction->getId();
-        $dealer = $this->get('net.telepay.commons.fee_deal');
-        $dealer->deal($creator, $amount, $service_cname, 'exchange', $currency, $total_fee, $transaction_id, $transaction->getVersion());
 
     }
 

@@ -77,3 +77,15 @@ pos_notifications:
     defaults: { _controller: Telepay\FinancialApiBundle\Controller\Transactions\POSIncomingController::notificate }
     requirements:
         _method: POST
+
+pos_nfc_fac:
+    pattern:  /pos/v1/{id_company}/nfc/fac
+    defaults: { _controller: Telepay\FinancialApiBundle\Controller\Management\Company\NFCController::NFCPayment }
+    requirements:
+        _method: POST
+
+pos_nfc_fac_check:
+    pattern:  /pos/v1/{id_company}/nfc/fac/{id}
+    defaults: { _controller: Telepay\FinancialApiBundle\Controller\Management\Company\NFCController::checkNFCPayment }
+    requirements:
+        _method: GET

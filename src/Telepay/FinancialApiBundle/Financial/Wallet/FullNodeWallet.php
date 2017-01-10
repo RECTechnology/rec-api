@@ -16,17 +16,19 @@ use Telepay\FinancialApiBundle\Financial\MiniumBalanceInterface;
 use Telepay\FinancialApiBundle\Financial\MoneyBundleInterface;
 use Telepay\FinancialApiBundle\Financial\WalletInterface;
 
-class FullNodeWallet implements WalletInterface, MiniumBalanceInterface {
+class FullNodeWallet implements WalletInterface {
 
     private $nodeLink;
     private $currency;
-    private $minBalance;
+    private $type = 'fullnode';
+    private $waysOut;
+    private $waysIn;
 
-    function __construct($nodeLink, $currency, $minBalance = 0)
-    {
+    function __construct($nodeLink, $currency, $waysOut, $waysIn){
         $this->nodeLink = $nodeLink;
         $this->currency = $currency;
-        $this->minBalance = $minBalance;
+        $this->waysOut = json_decode($waysOut);
+        $this->waysIn = json_decode($waysIn);
     }
 
     public function send(CashInInterface $dst, $amount)
@@ -34,14 +36,42 @@ class FullNodeWallet implements WalletInterface, MiniumBalanceInterface {
         return $this->nodeLink->sendtoaddress($dst->getAddress(), $amount);
     }
 
+    public function transfer(CashInInterface $dst, $amount){
+        $resp =  $this->nodeLink->sendtoaddress($dst->getAddress(), $amount);
+        if(!$resp){
+            return array(
+                'sent' => false,
+                'info' => 0
+            );
+        }
+        return array(
+            'sent' => true,
+            'info' => json_encode($resp)
+        );
+    }
+
     public function getBalance()
     {
         return $this->nodeLink->getbalance();
     }
 
+    public function getFakeBalance()
+    {
+        return 1;
+    }
     public function getCurrency()
     {
         return  $this->currency;
+    }
+
+    public function getType()
+    {
+        return $this->type;
+    }
+
+    public function getName()
+    {
+        return $this->type . '_' . $this->currency;
     }
 
     public function getAddress()
@@ -49,8 +79,13 @@ class FullNodeWallet implements WalletInterface, MiniumBalanceInterface {
         return $this->nodeLink->getnewaddress();
     }
 
-    public function getMiniumBalance()
+    public function getWaysOut()
     {
-        return $this->minBalance;
+        return $this->waysOut;
+    }
+
+    public function getWaysIn()
+    {
+        return $this->waysIn;
     }
 }

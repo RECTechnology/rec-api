@@ -12,11 +12,11 @@ user_account_edit:
     requirements:
         _method: PUT
 
-user_service_read:
-    pattern:  /user/v1/services/{service}
-    defaults: { _controller: Telepay\FinancialApiBundle\Controller\Management\Integrator\ServicesController::read }
-    requirements:
-        _method: GET
+#user_service_read:
+#    pattern:  /user/v1/services/{service}
+#    defaults: { _controller: Telepay\FinancialApiBundle\Controller\Management\Integrator\ServicesController::read }
+#    requirements:
+#        _method: GET
 
 user_method_read:
     pattern:  /user/v1/methods/{method}
@@ -237,26 +237,6 @@ user_devices_delete:
     requirements:
         _method: DELETE
 
-######################## USER CASH IN TOKEN ########################
-
-user_cash_in_create:
-    pattern:  /user/v1/cash_in_token
-    defaults: { _controller: Telepay\FinancialApiBundle\Controller\Management\User\CashInController::createAction }
-    requirements:
-        _method: POST
-
-user_cash_in_update:
-    pattern:  /user/v1/cash_in_token/{id}
-    defaults: { _controller: Telepay\FinancialApiBundle\Controller\Management\User\CashInController::updateAction }
-    requirements:
-        _method: PUT
-
-user_cash_in_show:
-    pattern:  /user/v1/cash_in_token
-    defaults: { _controller: Telepay\FinancialApiBundle\Controller\Management\User\CashInController::indexAction }
-    requirements:
-        _method: GET
-
 ######################## USER FEES ########################
 
 user_fees:
@@ -305,6 +285,6 @@ user_swift_update_transaction:
 
 user_upload_file:
     pattern:  /user/v1/upload_file
-    defaults: { _controller: Telepay\FinancialApiBundle\Controller\Management\User\UploadController::uploadFile }
+    defaults: { _controller: Telepay\FinancialApiBundle\Controller\Management\User\UploadController::uploadFile2 }
     requirements:
         _method: POST

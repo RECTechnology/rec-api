@@ -125,6 +125,7 @@ class Transaction implements TransactionTiming {
     public function __construct(){
         $this->created = new \DateTime();
         $this->updated = new \DateTime();
+        $this->delete_on_expire = false;
     }
 
     public static function createFromRequestIP($ip){
@@ -134,6 +135,7 @@ class Transaction implements TransactionTiming {
         $transaction->setNotificationTries(0);
         $transaction->setMaxNotificationTries(3);
         $transaction->setNotified(false);
+        $transaction->setDeleteOnExpire(false);
         return $transaction;
     }
 
@@ -144,6 +146,7 @@ class Transaction implements TransactionTiming {
         $transaction->setNotificationTries(0);
         $transaction->setMaxNotificationTries(3);
         $transaction->setNotified(false);
+        $transaction->setDeleteOnExpire(false);
         return $transaction;
     }
 
@@ -161,6 +164,7 @@ class Transaction implements TransactionTiming {
         $transaction->setFixedFee($trans->getFixedFee());
         $transaction->setUser($trans->getUser());
         $transaction->setGroup($trans->getGroup());
+        $transaction->setDeleteOnExpire(false);
         return $transaction;
     }
 
@@ -388,6 +392,13 @@ class Transaction implements TransactionTiming {
      * @MongoDB\Field(type="string")
      */
     private $email_notification;
+
+    /**
+     * @var
+     * @MongoDB\Field(type="boolean")
+     * @Exclude
+     */
+    private $delete_on_expire;
 
     /**
      * Get id
@@ -1025,5 +1036,21 @@ class Transaction implements TransactionTiming {
     public function setFeeInfo($fee_info)
     {
         $this->fee_info = $fee_info;
+    }
+
+    /**
+     * @return mixed
+     */
+    public function getDeleteOnExpire()
+    {
+        return $this->delete_on_expire;
+    }
+
+    /**
+     * @param mixed $delete_on_expire
+     */
+    public function setDeleteOnExpire($delete_on_expire)
+    {
+        $this->delete_on_expire = $delete_on_expire;
     }
 }

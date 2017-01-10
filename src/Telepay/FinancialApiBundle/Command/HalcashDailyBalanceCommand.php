@@ -128,7 +128,8 @@ class HalcashDailyBalanceCommand extends ContainerAwareCommand
 
         $methods_out = array(
             'cryptocapital' => 0,
-            'sepa' => 0
+            'sepa' => 0,
+            'transfer_usd'  => 0
         );
 
         foreach($services_out as $service => $count){
@@ -184,6 +185,7 @@ class HalcashDailyBalanceCommand extends ContainerAwareCommand
                     }
                 }
 
+                //TODO calculate usd to
                 //method success transaction sepa_out
                 $qbMethod = $dm->createQueryBuilder('TelepayFinancialApiBundle:Transaction')
                     ->field('type')->equals('out')
@@ -191,6 +193,7 @@ class HalcashDailyBalanceCommand extends ContainerAwareCommand
                     ->field('status')->equals('success')
                     ->field('updated')->gte($start_time)
                     ->field('updated')->lte($finish_time)
+                    ->field('currency')->equals(Currency::$EUR)
                     ->getQuery();
 
                 foreach($qbMethod->toArray() as $transaction){
@@ -198,6 +201,24 @@ class HalcashDailyBalanceCommand extends ContainerAwareCommand
                     $paymentInfo = $transaction->getPayOutInfo();
                     if($paymentInfo['status'] == 'sent' || $paymentInfo['status'] == 'withdrawn'){
                         $methods_out[$service] += $transaction->getAmount();
+                    }
+                }
+
+                //method success transaction sepa_out
+                $qbMethodUsd = $dm->createQueryBuilder('TelepayFinancialApiBundle:Transaction')
+                    ->field('type')->equals('out')
+                    ->field('method')->equals($service)
+                    ->field('status')->equals('success')
+                    ->field('updated')->gte($start_time)
+                    ->field('updated')->lte($finish_time)
+                    ->field('currency')->equals(Currency::$USD)
+                    ->getQuery();
+
+                foreach($qbMethodUsd->toArray() as $transaction){
+                    $output->writeln('nueva transaccion usd');
+                    $paymentInfo = $transaction->getPayOutInfo();
+                    if($paymentInfo['status'] == 'sent' || $paymentInfo['status'] == 'withdrawn'){
+                        $methods_out['transfer_usd'] += $transaction->getAmount();
                     }
                 }
             }
@@ -323,6 +344,7 @@ class HalcashDailyBalanceCommand extends ContainerAwareCommand
             'Halcash_pl'    =>  $methods_hal['halcash_pl']/100 . ' PLN.',
             'Cryptocapital' =>  $methods_out['cryptocapital']/100 . ' EUR.',
             'Sepa'          =>  $methods_out['sepa']/100 . ' EUR.',
+            'Transfer_usd'  =>  $methods_out['transfer_usd']/100 . ' USD.',
             'Bitcoin'       =>  $cryptos_out['btc']/100000000 . ' BTC.',
             'Faircoin'      =>  $cryptos_out['fac']/100000000 . ' FAC.'
         );

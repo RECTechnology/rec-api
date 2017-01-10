@@ -11,7 +11,6 @@ namespace Telepay\FinancialApiBundle\Controller\Management\User;
 
 use Doctrine\DBAL\DBALException;
 use Symfony\Component\Security\Core\Util\SecureRandom;
-use Symfony\Component\Validator\Constraints\Null;
 use Telepay\FinancialApiBundle\Entity\CashInTokens;
 use Telepay\FinancialApiBundle\Entity\Device;
 use Telepay\FinancialApiBundle\Entity\Group;
@@ -31,7 +30,6 @@ use Telepay\FinancialApiBundle\Entity\UserGroup;
 use Telepay\FinancialApiBundle\Entity\UserWallet;
 use Telepay\FinancialApiBundle\Financial\Currency;
 use Telepay\FinancialApiBundle\Controller\Google2FA;
-use WebSocket\Exception;
 
 class AccountController extends BaseApiController{
 
@@ -498,10 +496,11 @@ class AccountController extends BaseApiController{
             return $this->restV2(201,"ok", "Request successful.", $response);
         }
         $user->setConfirmationToken($tokenGenerator->generateToken());
-        $url = $url.'/user/validation/'.$user->getConfirmationToken();
-        $this->_sendEmail('Chip-Chap validation e-mail', $url, $user->getEmail(), 'register');
         $em->persist($user);
         $em->flush();
+        $url = $url.'/user/validation/'.$user->getConfirmationToken();
+        $this->_sendEmail('Chip-Chap validation e-mail', $url, $user->getEmail(), 'register');
+
         $response = array(
             'email'  =>  $email,
         );
@@ -548,6 +547,20 @@ class AccountController extends BaseApiController{
             $request->request->add(array('username'=>$fake));
         }else{
             $username = $request->get('username');
+        }
+
+        $em = $this->getDoctrine()->getManager();
+        $user = $em->getRepository($this->getRepositoryName())->findOneBy(array(
+            'username'  =>  $username
+        ));
+        if($user){
+            throw new HttpException(400, "Username already registered");
+        }
+        $user = $em->getRepository($this->getRepositoryName())->findOneBy(array(
+            'email'  =>  $request->get('email')
+        ));
+        if($user){
+            throw new HttpException(400, "Email already registered");
         }
 
         //name fake
@@ -679,7 +692,9 @@ class AccountController extends BaseApiController{
             'repassword'
         );
 
-        $valid_types = array('prestashop', 'android');
+        if(!$request->request->has('company_name'))$request->request->set('company_name',  $request->request->get('username') . " Company");
+
+        $valid_types = array('prestashop', 'android', 'commerce', 'android_fair');
         if(!in_array($type, $valid_types)) throw new HttpException(404, 'Type not valid');
 
         $params = array();
@@ -690,15 +705,42 @@ class AccountController extends BaseApiController{
                 throw new HttpException(404, 'Param ' . $param . ' not found');
             }
         }
+        if(strlen($params['password'])<6) throw new HttpException(404, 'Password must be longer than 6 caracters');
         if($params['password'] != $params['repassword']) throw new HttpException(404, 'Password and repassword are differents');
         $params['plain_password'] = $params['password'];
         unset($params['password']);
         unset($params['repassword']);
 
-        $user_creator_id = $this->container->getParameter('default_user_creator_commerce_' . $type);
-        $company_creator_id = $this->container->getParameter('default_company_creator_commerce_' . $type);
-
         $em = $this->getDoctrine()->getManager();
+        $user = $em->getRepository($this->getRepositoryName())->findOneBy(array(
+            'username'  =>  $params['username']
+        ));
+        if($user){
+            throw new HttpException(400, "Username already registered");
+        }
+        $user = $em->getRepository($this->getRepositoryName())->findOneBy(array(
+            'email'  =>  $params['email']
+        ));
+
+        $user_kyc = false;
+        if($user){
+            if(count($user->getGroups())==0){
+                $user_kyc = true;
+            }
+            else{
+                throw new HttpException(400, "Email already registered");
+            }
+        }
+
+        $premium = false;
+        if($type == 'commerce'){
+            $user_creator_id = $this->container->getParameter('admin_user_id');
+            $company_creator_id = $this->container->getParameter('id_group_root');
+        }else{
+            $user_creator_id = $this->container->getParameter('default_user_creator_commerce_' . $type);
+            $company_creator_id = $this->container->getParameter('default_company_creator_commerce_' . $type);
+        }
+
         $userCreator = $em->getRepository('TelepayFinancialApiBundle:User')->find($user_creator_id);
         $companyCreator = $em->getRepository('TelepayFinancialApiBundle:Group')->find($company_creator_id);
 
@@ -712,6 +754,7 @@ class AccountController extends BaseApiController{
         $company->setDefaultCurrency('EUR');
         $company->setEmail($params['email']);
         $company->setMethodsList('');
+        $company->setPremium($premium);
 
         $em->persist($company);
 
@@ -732,16 +775,16 @@ class AccountController extends BaseApiController{
 
         foreach($exchanges as $exchange){
             //create limit for this group
-            $limit = new LimitDefinition();
-            $limit->setDay(0);
-            $limit->setWeek(0);
-            $limit->setMonth(0);
-            $limit->setYear(0);
-            $limit->setTotal(0);
-            $limit->setSingle(0);
-            $limit->setCname('exchange_'.$exchange->getCname());
-            $limit->setCurrency($exchange->getCurrencyOut());
-            $limit->setGroup($company);
+//            $limit = new LimitDefinition();
+//            $limit->setDay(0);
+//            $limit->setWeek(0);
+//            $limit->setMonth(0);
+//            $limit->setYear(0);
+//            $limit->setTotal(0);
+//            $limit->setSingle(0);
+//            $limit->setCname('exchange_'.$exchange->getCname());
+//            $limit->setCurrency($exchange->getCurrencyOut());
+//            $limit->setGroup($company);
             //create fee for this group
             $fee = new ServiceFee();
             $fee->setFixed(0);
@@ -750,21 +793,31 @@ class AccountController extends BaseApiController{
             $fee->setServiceName('exchange_'.$exchange->getCname());
             $fee->setGroup($company);
 
-            $em->persist($limit);
+//            $em->persist($limit);
             $em->persist($fee);
 
         }
 
         //create user
-        $user = new User();
-        $user->setPlainPassword($params['plain_password']);
-        $user->setEmail($params['email']);
-        $user->setRoles(array('ROLE_USER'));
-        $user->setName($params['username']);
-        $user->setUsername($params['username']);
-        $user->setActiveGroup($company);
-        $user->setBase64Image('');
-        $user->setEnabled(false);
+        if($user_kyc){
+            $user->setPlainPassword($params['plain_password']);
+            $user->setRoles(array('ROLE_USER'));
+            $user->setName($params['username']);
+            $user->setUsername($params['username']);
+            $user->setActiveGroup($company);
+            $user->setEnabled(false);
+        }
+        else{
+            $user = new User();
+            $user->setPlainPassword($params['plain_password']);
+            $user->setEmail($params['email']);
+            $user->setRoles(array('ROLE_USER'));
+            $user->setName($params['username']);
+            $user->setUsername($params['username']);
+            $user->setActiveGroup($company);
+            $user->setBase64Image('');
+            $user->setEnabled(false);
+        }
 
         $url = $this->container->getParameter('base_panel_url');
 
@@ -781,7 +834,12 @@ class AccountController extends BaseApiController{
         $userGroup->setGroup($company);
         $userGroup->setRoles(array('ROLE_ADMIN'));
 
+        $kyc = new KYC();
+        $kyc->setUser($user);
+        $kyc->setEmail($user->getEmail());
+
         $em->persist($userGroup);
+        $em->persist($kyc);
         $em->flush();
 
         if($type == 'prestashop') {
@@ -805,8 +863,12 @@ class AccountController extends BaseApiController{
                 'pos' => $pos
             );
         }
-        elseif($type == 'android'){
-            $methodsList = array('btc-in', 'fac-in', 'btc-out', 'fac-out');
+        elseif($type == 'android' || $type == 'commerce' || $type = 'android_fair'){
+            if($type == 'android_fair'){
+                $methodsList = array('fac-out', 'fac-in');
+            }else{
+                $methodsList = array('btc-in', 'fac-in', 'btc-out', 'fac-out');
+            }
             $company->setMethodsList($methodsList);
             $em->persist($company);
 
@@ -833,19 +895,6 @@ class AccountController extends BaseApiController{
                 $newFee->setCurrency(strtoupper($meth));
                 $em->persist($newFee);
 
-                //create new LimitDefinition
-                $newLimit = new LimitDefinition();
-                $newLimit->setGroup($company);
-                $newLimit->setCurrency(strtoupper($meth));
-                $newLimit->setCname($method);
-                $newLimit->setDay($daily);
-                $newLimit->setWeek(-1);
-                $newLimit->setMonth(-1);
-                $newLimit->setYear(-1);
-                $newLimit->setSingle(-1);
-                $newLimit->setTotal(-1);
-                $em->persist($newLimit);
-
                 //create new LimitCount
                 $newCount = new LimitCount();
                 $newCount->setDay(0);
@@ -859,19 +908,50 @@ class AccountController extends BaseApiController{
                 $em->persist($newCount);
             }
 
-            //create new fixed address for bitcoin and return
-            $btcAddress = new CashInTokens();
-            $btcAddress->setCurrency(Currency::$BTC);
-            $btcAddress->setCompany($company);
-            $btcAddress->setLabel('BTC account');
-            $btcAddress->setMethod('btc-in');
-            $btcAddress->setExpiresIn(-1);
-            $btcAddress->setStatus(CashInTokens::$STATUS_ACTIVE);
-            $methodDriver = $this->get('net.telepay.in.btc.v1');
-            $paymentInfo = $methodDriver->getPayInInfo(0);
-            $token = $paymentInfo['address'];
-            $btcAddress->setToken($token);
-            $em->persist($btcAddress);
+            $fac_limit = new LimitDefinition();
+            $fac_limit->setDay(-1);
+            $fac_limit->setCname('fac-in');
+            $fac_limit->setWeek(-1);
+            $fac_limit->setMonth(-1);
+            $fac_limit->setYear(-1);
+            $fac_limit->setSingle(-1);
+            $fac_limit->setTotal(-1);
+            $fac_limit->setCurrency(Currency::$FAC);
+            $fac_limit->setGroup($company);
+            $em->persist($fac_limit);
+            $em->flush();
+
+            $fac_limit = new LimitDefinition();
+            $fac_limit->setDay(-1);
+            $fac_limit->setCname('fac-out');
+            $fac_limit->setWeek(-1);
+            $fac_limit->setMonth(-1);
+            $fac_limit->setYear(-1);
+            $fac_limit->setSingle(-1);
+            $fac_limit->setTotal(-1);
+            $fac_limit->setCurrency(Currency::$FAC);
+            $fac_limit->setGroup($company);
+            $em->persist($fac_limit);
+            $em->flush();
+
+            if($type != 'android_fair'){
+                //create new fixed address for bitcoin and return
+                $btcAddress = new CashInTokens();
+                $btcAddress->setCurrency(Currency::$BTC);
+                $btcAddress->setCompany($company);
+                $btcAddress->setLabel('BTC account');
+                $btcAddress->setMethod('btc-in');
+                $btcAddress->setExpiresIn(-1);
+                $btcAddress->setStatus(CashInTokens::$STATUS_ACTIVE);
+                $methodDriver = $this->get('net.telepay.in.btc.v1');
+                $paymentInfo = $methodDriver->getPayInInfo(0);
+                $token = $paymentInfo['address'];
+                $btcAddress->setToken($token);
+                $em->persist($btcAddress);
+
+                $response['btc_address'] = $btcAddress;
+            }
+
 
             //create new fixed address for faircoin and return
             $facAddress = new CashInTokens();
@@ -887,12 +967,10 @@ class AccountController extends BaseApiController{
             $facAddress->setToken($token);
             $em->persist($facAddress);
 
-            $response = array(
-                'user' => $user,
-                'company' => $company,
-                'btc_address'   =>  $btcAddress,
-                'fac_address'   =>  $facAddress
-            );
+            $response['user'] = $user;
+            $response['company'] = $company;
+            $response['fac_address'] = $facAddress;
+
         }
         $em->flush();
 
@@ -1057,6 +1135,32 @@ class AccountController extends BaseApiController{
             $kyc->setEmail($request->request->get('email'));
             $kyc->setEmailValidated(false);
             $em->persist($kyc);
+            //TODO send validation email
+            $url = $this->container->getParameter('web_app_url');
+            $tokenGenerator = $this->container->get('fos_user.util.token_generator');
+            $user->setConfirmationToken($tokenGenerator->generateToken());
+            $em->persist($user);
+            $em->flush();
+            if(!$request->request->has('company') || $request->get('company')==""){
+                $company = "chipchap";
+            }
+            else{
+                $company = $request->get('company');
+            }
+            if($company == "holytransaction"){
+                $url = "https://holytransaction.trade/";
+                $url = $url.'?user_token='.$user->getConfirmationToken();
+                $this->_sendEmail('Holy Transaction validation e-mail', $url, $user->getEmail(), 'register_kyc_holy');
+            }elseif($company =="panel"){
+                $url = $this->container->getParameter('base_panel_url');
+                $url = $url.'/user/validation/'.$user->getConfirmationToken();
+                $this->_sendEmail('Chip-Chap validation e-mail', $url, $user->getEmail(), 'register');
+            }
+            else{
+                $url = $this->container->getParameter('web_app_url');
+                $url = $url.'?user_token='.$user->getConfirmationToken();
+                $this->_sendEmail('Chip-Chap validation e-mail', $url, $user->getEmail(), 'register_kyc');
+            }
         }
 
         if($request->request->has('last_name') && $request->request->get('last_name')!=''){
@@ -1067,6 +1171,14 @@ class AccountController extends BaseApiController{
         if($request->request->has('date_birth') && $request->request->get('date_birth')!=''){
             $kyc->setDateBirth($request->request->get('date_birth'));
             $em->persist($kyc);
+        }
+
+        if($request->request->has('country') && $request->request->get('country')!=''){
+            $kyc->setCountry($request->request->get('country'));
+        }
+
+        if($request->request->has('address') && $request->request->get('address')!=''){
+            $kyc->setAddress($request->request->get('address'));
         }
 
         if($request->request->get('phone') != '' || $request->request->get('prefix') != ''){
@@ -1092,6 +1204,7 @@ class AccountController extends BaseApiController{
         }
 
         $em->flush();
+
         return $this->restV2(204, "ok", "KYC Info saved");
     }
 
@@ -1114,15 +1227,14 @@ class AccountController extends BaseApiController{
             'user' => $user
         ));
 
-        if(!$tierValidation){
-            $tier = new TierValidations();
-            $tier->setUser($user);
-            $tier->setEmail(true);
-            $em->persist($tier);
-            $em->flush();
-        }else{
-            throw new HttpException(409, 'Validation not allowed');
-        }
+//        if(!$tierValidation) {
+//            $tierValidation = new TierValidations();
+//            $tierValidation->setUser($user);
+//        }
+
+//        $tierValidation->setEmail(true);
+//        $em->persist($tierValidation);
+//        $em->flush();
 
         $user->setEnabled(true);
         $em->persist($user);
@@ -1132,11 +1244,20 @@ class AccountController extends BaseApiController{
             'user' => $user
         ));
 
-        if($kyc){
-            $kyc->setEmailValidated(true);
+        if(!$kyc){
+            $kyc = new KYC();
+            $kyc->setEmail($user->getEmail());
+            $kyc->setUser($user);
             $em->persist($kyc);
-            $em->flush();
+
         }
+
+        if($kyc->getEmailValidated() == true){
+            throw new HttpException(403, 'This email is validated yet');
+        }
+
+        $kyc->setEmailValidated(true);
+        $em->flush();
 
         $response = array(
             'username'  =>  $user->getUsername(),
@@ -1146,17 +1267,6 @@ class AccountController extends BaseApiController{
         return $this->restV2(201,"ok", "Validation email succesfully", $response);
 
     }
-
-    /**
-     * @Rest\View
-     */
-//    public function checkExistentUser(Request $request, $username){
-//
-//        $userRepo = $this->container->get($this->getRepositoryName());
-//        $qb = $userRepo->createQueryBuilder('q')
-//            ->field('username')->equal($username);
-//
-//    }
 
     private function _sendEmail($subject, $body, $to, $action){
         $from = 'no-reply@chip-chap.com';

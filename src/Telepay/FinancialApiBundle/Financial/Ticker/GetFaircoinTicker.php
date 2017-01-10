@@ -1,10 +1,5 @@
 <?php
-/**
- * Created by PhpStorm.
- * User: lluis
- * Date: 4/7/15
- * Time: 1:52 AM
- */
+
 namespace Telepay\FinancialApiBundle\Financial\Ticker;
 
 use GetFaircoin\Ticker as GetFaircoinDriver;
@@ -31,7 +26,7 @@ class GetFaircoinTicker implements TickerInterface {
 
     public function getInCurrency()
     {
-        return Currency::$FAC;
+        return Currency::$FAIRP;
     }
 
     public function getOutCurrency()

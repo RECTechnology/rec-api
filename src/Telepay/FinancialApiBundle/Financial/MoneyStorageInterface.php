@@ -11,4 +11,6 @@ namespace Telepay\FinancialApiBundle\Financial;
 interface MoneyStorageInterface {
     public function getBalance();
     public function getCurrency();
+    public function getWaysOut();
+    public function getWaysIn();
 }

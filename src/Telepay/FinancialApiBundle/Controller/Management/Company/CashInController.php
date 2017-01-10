@@ -117,7 +117,11 @@ class CashInController extends BaseApiController{
             'status'    =>  CashInTokens::$STATUS_ACTIVE
         ));
 
-        if(count($tokens) >= 5) throw new HttpException(409, 'You has exceeded the max addresses allowed');
+        if($method == 'sepa'){
+            if(count($tokens) >= 5) throw new HttpException(409, 'You has exceeded the max addresses allowed');
+        }else{
+            if(count($tokens) > 1) throw new HttpException(409, 'You has exceeded the max addresses allowed');
+        }
 
         $paymentInfo = $methodDriver->getPayInInfo(0);
 

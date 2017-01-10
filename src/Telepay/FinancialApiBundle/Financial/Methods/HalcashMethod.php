@@ -19,15 +19,18 @@ class HalcashMethod extends BaseMethod{
 
     private $driver;
     private $container;
+    private $logger;
 
     public function __construct($name, $cname, $type, $currency, $email_required, $base64Image, $container, $driver){
         parent::__construct($name, $cname, $type, $currency, $email_required, $base64Image, $container);
         $this->driver = $driver;
         $this->container = $container;
+        $this->logger = $this->container->get('transaction.logger');
     }
 
     public function send($paymentInfo)
     {
+        $this->logger->info('HALCASH METHOD-> SEND');
         $phone = $paymentInfo['phone'];
         $prefix = str_replace("+", "", $paymentInfo['prefix']);
         $amount = $paymentInfo['amount']/100;
@@ -35,6 +38,7 @@ class HalcashMethod extends BaseMethod{
 
         if($reference != 'FairToEarth' && $reference != 'HolyTx') $reference = 'ChipChap';
 
+        $this->logger->info('HALCASH METHOD-> reference=> '.$reference);
         $find_token = $paymentInfo['find_token'];
         if(isset($paymentInfo['pin'])){
             $pin = $paymentInfo['pin'];
@@ -43,6 +47,7 @@ class HalcashMethod extends BaseMethod{
             $paymentInfo['pin'] = $pin;
         }
 
+        $this->logger->info('HALCASH METHOD-> currency=> '.$this->getCurrency());
         try{
             if($this->getCurrency() == 'EUR'){
                 $hal = $this->driver->sendV3($phone, $prefix, $amount, $reference.' '.$find_token, $pin);
@@ -50,9 +55,12 @@ class HalcashMethod extends BaseMethod{
                 $hal = $this->driver->sendInternational($phone, $prefix, $amount, $reference.' '.$find_token, $pin, 'PL', 'POL');
             }
         }catch (HttpException $e){
+            $this->logger->error('HALCASH METHOD-> ERROR=> '.$e->getMessage());
             $this->sendMail($e->getMessage(), $e->getStatusCode(), $paymentInfo);
             throw new Exception($e->getMessage(), $e->getStatusCode());
         }
+
+        $this->logger->info('HALCASH METHOD-> errorcode=> '.$hal['errorcode']);
 
         if($hal['errorcode'] == 0){
             $paymentInfo['status'] = 'sent';
@@ -73,6 +81,7 @@ class HalcashMethod extends BaseMethod{
 
     public function getPayOutInfo($request)
     {
+        $this->logger->info('HALCASH METHOD-> PAY_OUT_INFO');
         $paramNames = array(
             'amount',
             'phone',
@@ -111,6 +120,7 @@ class HalcashMethod extends BaseMethod{
     }
 
     public function getPayOutInfoData($data){
+        $this->logger->info('HALCASH METHOD-> PAY_OUT_INFO_DATA');
         $paramNames = array(
             'amount',
             'phone',
@@ -152,6 +162,7 @@ class HalcashMethod extends BaseMethod{
 
     public function getPayOutStatus($paymentInfo)
     {
+        $this->logger->info('HALCASH METHOD-> PAY_OUT_STATUS');
         $halcashticket = $paymentInfo['halcashticket'];
 
         $hal = $this->driver->status($halcashticket);
@@ -199,6 +210,7 @@ class HalcashMethod extends BaseMethod{
 
     public function cancel($paymentInfo){
 
+        $this->logger->info('HALCASH METHOD-> CANCEL');
         $halcashticket = $paymentInfo['halcashticket'];
 
         $response = $this->driver->cancelation($halcashticket, 'ChipChap cancelation');

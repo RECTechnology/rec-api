@@ -10,10 +10,6 @@ use Telepay\FinancialApiBundle\Controller\RestApiController;
 use Telepay\FinancialApiBundle\Document\Transaction;
 use FOS\RestBundle\Controller\Annotations as Rest;
 use Symfony\Component\HttpFoundation\Request;
-use Telepay\FinancialApiBundle\Entity\CashInDeposit;
-use Telepay\FinancialApiBundle\Entity\ServiceFee;
-use Telepay\FinancialApiBundle\Entity\UserWallet;
-use Telepay\FinancialApiBundle\Financial\Currency;
 use WebSocket\Exception;
 
 /**
@@ -39,9 +35,9 @@ class SpecialActionsController extends RestApiController {
         $client_id = $this->container->getParameter('swift_client_id_default_easypay');
         $root_id = $this->container->getParameter('admin_user_id');
         $root_group_id = $this->container->getParameter('id_group_root');
+
         $root = $em->getRepository('TelepayFinancialApiBundle:User')->find($root_id);
         $rootGroup = $em->getRepository('TelepayFinancialApiBundle:Group')->find($root_group_id);
-
         $client = $em->getRepository('TelepayFinancialApiBundle:Client')->find($client_id);
 
         if(!$client) throw new HttpException(404, 'Client default not found');
@@ -102,26 +98,32 @@ class SpecialActionsController extends RestApiController {
 
                 $logger->info('EASYPAY  eur=>'.$pay_in_info['amount'].' exchange=>'.$amount.' totalFees=>'.($service_fee + $client_fee).' finalAmount=>'.$final_amount);
 
+                $pay_in_info['status'] = 'success';
                 $transaction->setPayOutInfo($pay_out_info);
+                $transaction->setPayInInfo($pay_in_info);
+                $transaction->setDataOut($pay_in_info);
                 $transaction->setAmount($final_amount);
                 $transaction->setTotal($final_amount);
                 $transaction->setUpdated(new \DateTime());
 
-                //TODO get root btc address for send fee
+                //get root btc address for send fee
                 $logger->info('EASYPAY GETTING ROOT ADDRESS');
                 $pay_in_infoRoot = $btcRootMethod->getPayInInfo($service_fee);
 
-                $logger->info('EASYPAY SENDING BTC TO ENDUSER');
+
                 //Send btc to user
                 try{
                     $pay_out_info = $cashOutMethod->send($pay_out_info);
+                    $logger->info('EASYPAY SENDING BTC TO ENDUSER');
                 }catch (Exception $e){
+                    $logger->info('EASYPAY SENDING BTC FAILED');
                     $pay_out_info['status'] = Transaction::$STATUS_FAILED;
                     $pay_out_info['final'] = false;
                     $error = $e->getMessage();
                     $transaction->setPayOutInfo($pay_out_info);
                     $transaction->setStatus('failed');
                 }
+                $logger->info('EASYPAY SENDING BTC STATUS => '.$pay_out_info['status']);
                 $transaction->setPayOutInfo($pay_out_info);
 
                 $dm->persist($transaction);
@@ -191,6 +193,13 @@ class SpecialActionsController extends RestApiController {
                         $userFee->setClient($client);
                         $dm->persist($userFee);
 
+                        $userWallet = $company->getWallet($transaction->getCurrency());
+
+//                        $userWallet->setAvailable($userWallet->getAvailable() + $client_fee);
+//                        $userWallet->setBalance($userWallet->getBalance() + $client_fee);
+
+                        $em->persist($userWallet);
+                        $em->flush();
                     }
 
                     if($service_fee != 0){
@@ -201,9 +210,10 @@ class SpecialActionsController extends RestApiController {
                         $logger->info('EASYPAY SENDING ROOT BTC=>'.$service_fee.' satoshis');
                         $rootFeeStatus = Transaction::$STATUS_SUCCESS;
                         try{
+                            //TODO revisar esto
                             $pay_out_infoRoot = array(
-                                $pay_in_infoRoot['amount'],
-                                $pay_in_infoRoot['address']
+                                'amount'    =>  $pay_in_infoRoot['amount'],
+                                'address'   =>  $pay_in_infoRoot['address']
                             );
                             $pay_out_infoRoot = $cashOutMethod->send($pay_out_infoRoot);
                         }catch (Exception $e){

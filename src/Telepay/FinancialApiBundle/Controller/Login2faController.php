@@ -2,7 +2,6 @@
 
 namespace Telepay\FinancialApiBundle\Controller;
 
-use Telepay\FinancialApiBundle\Controller\RestApiController;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 
@@ -20,6 +19,8 @@ class Login2faController extends RestApiController{
         $username = $request->get('username');
         $password = $request->get('password');
         $pin = $request->get('pin');
+        $kyc = 0;
+        if($request->request->has('kyc')) $kyc = $request->get('kyc');
 
         $em = $this->getDoctrine()->getManager();
         $user = $em->getRepository('TelepayFinancialApiBundle:User')->findOneBy(array('email' => $username));
@@ -41,15 +42,7 @@ class Login2faController extends RestApiController{
             $em = $this->getDoctrine()->getManager();
             $user = $em->getRepository('TelepayFinancialApiBundle:User')->findBy(array('username' => $username));
 
-            if($user[0]->hasRole('ROLE_KYC')){
-                $token = array(
-                    "error" => "invalid_grant",
-                    "error_description" => "User without permission to enter inside the panel"
-                );
-                return new Response(json_encode($token), 400, $headers);
-            }
-
-            if((count($user[0]->getTierValidations())==0) || (!$user[0]->getTierValidations()->getEmail())){
+            if((count($user[0]->getKycValidations())==0) || (!$user[0]->getKycValidations()->getEmailValidated())){
                 $token = array(
                     "error" => "not_validated_email",
                     "error_description" => "User without email validated"
@@ -77,7 +70,7 @@ class Login2faController extends RestApiController{
                 }
             }
             $groups = $em->getRepository('TelepayFinancialApiBundle:UserGroup')->findBy(array('user' => $user[0]->getId()));
-            if(count($groups)<1){
+            if($kyc == 0 && count($groups)<1){
                 $token = array(
                     "error" => "no_company",
                     "error_description" => "You are not assigned to any company. Please contact your company administrator or write us to https://support.chip-chap.com/"

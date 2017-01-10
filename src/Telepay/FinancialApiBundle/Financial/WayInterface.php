@@ -12,4 +12,6 @@ interface WayInterface {
     public function getStartNode();
     public function getEndNode();
     public function getMinAmount();
+    public function getTimeCost();
+    public function getMoneyCost();
 }

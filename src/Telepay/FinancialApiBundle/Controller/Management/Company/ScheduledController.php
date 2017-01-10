@@ -136,14 +136,15 @@ class ScheduledController extends BaseApiController{
 
         if(!$scheduled) throw new HttpException(404, 'Scheduled not found');
 
-        if($request->request->has('method')) throw new HttpException(403, 'This field can\'t be changed');
-        if($request->request->has('wallet')) throw new HttpException(403, 'This field can\'t be changed');
+        if($request->request->has('method')) throw new HttpException(403, 'Method field can\'t be changed');
+        if($request->request->has('wallet')) throw new HttpException(403, 'Wallet field can\'t be changed');
 
-        if(!$request->request->has('period')) {
+        if($request->request->has('period')) {
             $period = $request->request->get('period');
-            // 0 => monthly
-            // 1 => daily
-            $periods_availables = array("0", "1");
+            // 2 => monthly
+            // 1 => weekly
+            // 0 => daily
+            $periods_availables = array("0", "1", "2");
             if(!in_array($period, $periods_availables)){
                 throw new HttpException(400,'Unavailable value for parameter period');
             }

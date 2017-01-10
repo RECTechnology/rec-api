@@ -247,6 +247,12 @@ class ClientsController extends BaseApiController {
                 }
             }
         }
+
+        if($request->request->has('redirect_uris')) {
+            $uris = $request->request->get('redirect_uris');
+            $request->request->set('redirect_uris', array($uris));
+        }
+
         $response = parent::updateAction($request, $id);
         if($response->getStatusCode() == 204){
             $client = $em->getRepository('TelepayFinancialApiBundle:Client')->find($id);

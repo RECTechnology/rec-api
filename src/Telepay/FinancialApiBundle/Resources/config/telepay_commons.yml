@@ -20,3 +20,14 @@ services:
         class: Telepay\FinancialApiBundle\DependencyInjection\Telepay\Commons\FeeManipulator
         arguments:
             - "@doctrine"
+
+    net.telepay.commons.limit_manipulator:
+        class: Telepay\FinancialApiBundle\DependencyInjection\Telepay\Commons\LimitManipulator
+        arguments:
+            - "@doctrine"
+
+    net.telepay.commons.exchange_manipulator:
+        class: Telepay\FinancialApiBundle\DependencyInjection\Telepay\Commons\ExchangeManipulator
+        arguments:
+            - "@doctrine"
+            - "@service_container"

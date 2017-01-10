@@ -1073,7 +1073,7 @@ class AdapterController extends RestApiController{
 
     private function _bankTransferFac(Request $request){
 
-        die(print_r('caca',true));
+//        die(print_r('caca',true));
 
     }
 

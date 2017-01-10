@@ -48,7 +48,12 @@ class GroupsController extends BaseApiController
             throw new HttpException(403, 'You have not the necessary permissions');
 
         //TODO: Improve performance (two queries)
-        $all = $this->getRepository()->findAll();
+        $all = $this->getRepository()->findBy(
+            array(),
+            array('id' => 'DESC'),
+            $limit,
+            $offset
+        );
 
         $total = count($all);
         foreach ($all as $group){
@@ -117,18 +122,12 @@ class GroupsController extends BaseApiController
         else $offset = 0;
 
         //TODO: Improve performance (two queries)
-        if (!$this->get('security.authorization_checker')->isGranted('ROLE_SUPER_ADMIN')) {
-            $all = $this->getRepository()->findBy(
-                array('group_creator' => $adminGroup->getId()),
-                array('name' => 'ASC')
-            );
-        }
-        else{
-            $all = $this->getRepository()->findBy(
-                array(),
-                array('name' => 'ASC')
-            );
-        }
+        $all = $this->getRepository()->findBy(
+            array('group_creator' => $adminGroup->getId()),
+            array('name' => 'ASC'),
+            $limit,
+            $offset
+        );
 
         $total = count($all);
         //return only the limits of active services

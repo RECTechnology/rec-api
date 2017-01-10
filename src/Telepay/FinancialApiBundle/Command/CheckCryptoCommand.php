@@ -8,6 +8,7 @@ use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Component\HttpKernel\Exception\HttpException;
 use Telepay\FinancialApiBundle\DependencyInjection\Telepay\Commons\FeeDeal;
+use Telepay\FinancialApiBundle\DependencyInjection\Telepay\Commons\LimitAdder;
 use Telepay\FinancialApiBundle\Document\Transaction;
 use Telepay\FinancialApiBundle\Entity\Exchange;
 use Telepay\FinancialApiBundle\Financial\Currency;
@@ -25,13 +26,14 @@ class CheckCryptoCommand extends SyncronizedContainerAwareCommand
     protected function executeSyncronized(InputInterface $input, OutputInterface $output){
         $n = 0;
         $exec_n_times = 1000;
-        while($n<$exec_n_times) {
+        $init = time();
+        $now = time();
+        while($n<$exec_n_times && ($now - $init) < 58) {
             $method_cname = array('fac', 'btc');
             $type = 'in';
 
             $dm = $this->getContainer()->get('doctrine_mongodb')->getManager();
             $em = $this->getContainer()->get('doctrine')->getManager();
-            $repo = $em->getRepository('TelepayFinancialApiBundle:User');
             $repoGroup = $em->getRepository('TelepayFinancialApiBundle:Group');
             $output->writeln('CHECK CRYPTO');
             foreach ($method_cname as $method) {
@@ -57,48 +59,39 @@ class CheckCryptoCommand extends SyncronizedContainerAwareCommand
                         if ($previous_status != $transaction->getStatus()) {
                             $transaction = $this->getContainer()->get('notificator')->notificate($transaction);
                             $transaction->setUpdated(new \DateTime);
-
                         }
 
                         $dm->persist($transaction);
                         $dm->flush();
+
+                        $groupId = $transaction->getGroup();
+                        $group = $repoGroup->find($groupId);
+
+                        $fixed_fee = $transaction->getFixedFee();
+                        $variable_fee = $transaction->getVariableFee();
+                        $total_fee = $fixed_fee + $variable_fee;
+                        $amount = $data['amount'];
+                        $total = $amount - $total_fee;
 
                         if ($transaction->getStatus() == Transaction::$STATUS_SUCCESS) {
                             //hacemos el reparto
                             //primero al user
                             $output->writeln('CHECK CRYPTO success');
                             $id = $transaction->getUser();
-                            $groupId = $transaction->getGroup();
-
                             $transaction_id = $transaction->getId();
 
-//                            $user = $repo->find($id);
-                            $group = $repoGroup->find($groupId);
-
-                            $wallets = $group->getWallets();
                             $service_currency = $transaction->getCurrency();
-                            $current_wallet = null;
-
-                            foreach ($wallets as $wallet) {
-                                if ($wallet->getCurrency() == $service_currency) {
-                                    $current_wallet = $wallet;
-                                }
-                            }
-
-                            $amount = $data['amount'];
+                            $wallet = $group->getWallet($service_currency);
 
                             //if group has
                             if (!$group->hasRole('ROLE_SUPER_ADMIN')) {
                                 $output->writeln('CHECK CRYPTO no superadmin');
-                                $fixed_fee = $transaction->getFixedFee();
-                                $variable_fee = $transaction->getVariableFee();
-                                $total_fee = $fixed_fee + $variable_fee;
-                                $total = $amount - $total_fee;
-                                $output->writeln('CHECK CRYPTO add to wallet');
-                                $current_wallet->setAvailable($current_wallet->getAvailable() + $total);
-                                $current_wallet->setBalance($current_wallet->getBalance() + $total);
 
-                                $em->persist($current_wallet);
+                                $output->writeln('CHECK CRYPTO add to wallet');
+                                $wallet->setAvailable($wallet->getAvailable() + $total);
+                                $wallet->setBalance($wallet->getBalance() + $total);
+
+                                $em->persist($wallet);
                                 $em->flush();
 
                                 if ($total_fee != 0) {
@@ -121,7 +114,7 @@ class CheckCryptoCommand extends SyncronizedContainerAwareCommand
                                         'amount' => -$total_fee
                                     ));
                                     $feeTransaction->setDebugData(array(
-                                        'previous_balance' => $current_wallet->getBalance(),
+                                        'previous_balance' => $wallet->getBalance(),
                                         'previous_transaction' => $transaction->getId()
                                     ));
                                     $feeTransaction->setTotal(-$total_fee);
@@ -130,11 +123,10 @@ class CheckCryptoCommand extends SyncronizedContainerAwareCommand
                                     $feeTransaction->setMethod($method);
                                     $feeTransaction->setType('fee');
 
-
                                     $dm->persist($feeTransaction);
                                     $dm->flush();
 
-                                    $em->persist($current_wallet);
+                                    $em->persist($wallet);
                                     $em->flush();
 
                                     $creator = $group->getGroupCreator();
@@ -152,19 +144,53 @@ class CheckCryptoCommand extends SyncronizedContainerAwareCommand
                                         $transaction->getVersion());
                                 }
 
-                            } else {
-                                $current_wallet->setAvailable($current_wallet->getAvailable() + $amount);
-                                $current_wallet->setBalance($current_wallet->getBalance() + $amount);
+                                //TODO exchange if needed
+                                $dataIn = $transaction->getDataIn();
+                                if(isset($dataIn['request_currency_out']) && $dataIn['request_currency_out'] != strtoupper($service_currency)){
 
-                                $em->persist($current_wallet);
+                                    $cur_in = strtoupper($transaction->getCurrency());
+                                    $cur_out = strtoupper($dataIn['request_currency_out']);
+                                    //THIS is the service for get the limits
+                                    $service = 'exchange'.'_'.$cur_in.'to'.$cur_out;
+                                    $user = $em->getRepository('TelepayFinancialApiBundle:User')->find($id);
+                                    $output->writeln('CHECK CRYPTO exchanger');
+                                    $exchanger = $this->getContainer()->get('net.telepay.commons.exchange_manipulator');
+                                    $exchangeAmount = $exchanger->exchange($total, $transaction->getCurrency(), $cur_out);
+                                    $output->writeln('CHECK CRYPTO exchange->'.$total.' '.$transaction->getCurrency().' = '.$exchangeAmount.' '.$cur_out);
+                                    $exchanger->doExchange($total, $cur_in, $cur_out, $group, $user);
+
+                                }
+
+                            } else {
+                                $wallet->setAvailable($wallet->getAvailable() + $amount);
+                                $wallet->setBalance($wallet->getBalance() + $amount);
+
+                                $em->persist($wallet);
                                 $em->flush();
                             }
 
                         } elseif ($transaction->getStatus() == Transaction::$STATUS_EXPIRED) {
-                            //SEND AN EMAIL
-//                            $this->sendEmail(
-//                                $method . ' Expired --> ' . $transaction->getStatus(),
-//                                'Transaction created at: ' . $transaction->getCreated() . ' - Updated at: ' . $transaction->getUpdated() . ' Time server: ' . date("Y-m-d H:i:s"));
+                            $output->writeln('TRANSACTION EXPIRED');
+                            $groupLimitCount = $em->getRepository('TelepayFinancialApiBundle:LimitCount')->findOneBy(array(
+                                'group' =>  $group->getId(),
+                                'cname' =>  $method.'-'.$type
+                            ));
+                            $newGroupLimitCount = (new LimitAdder())->restore( $groupLimitCount, $total);
+                            $em->flush();
+
+                            $output->writeln('NOTIFYING EXPIRED');
+                            $transaction = $this->getContainer()->get('notificator')->notificate($transaction);
+                            //if delete_on_expire==true delete transaction
+                            if ($transaction->getDeleteOnExpire() == true) {
+                                $transaction->setStatus('deleted');
+                                $em->flush();
+                                $output->writeln('NOTIFYING DELETE ON EXPIRE');
+                                $transaction = $this->getContainer()->get('notificator')->notificate($transaction);
+                                $output->writeln('DELETE ON EXPIRE');
+                                $dm->remove($transaction);
+                                $dm->flush();
+                            }
+
                         }
                     }
 
@@ -175,8 +201,9 @@ class CheckCryptoCommand extends SyncronizedContainerAwareCommand
 
             $dm->flush();
 
-            $output->writeln('(' . $n . ')Crypto transactions checked');
+            $output->writeln('(' . $n . ')Crypto transactions checked in ' . $now - $init . ' seconds');
             $n++;
+            $now = time();
         }
         $output->writeln('Crypto transactions finished');
     }

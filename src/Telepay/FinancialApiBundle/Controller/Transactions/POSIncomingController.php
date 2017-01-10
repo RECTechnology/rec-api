@@ -8,7 +8,6 @@
 
 namespace Telepay\FinancialApiBundle\Controller\Transactions;
 
-use Symfony\Component\Config\Definition\Exception\Exception;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Console\Application;
 use Symfony\Component\HttpKernel\Exception\HttpException;
@@ -83,10 +82,6 @@ class POSIncomingController extends RestApiController{
         $transaction->setTotal($amount);
 
         //TODO obtain wallet and check founds for cash_out services for this group
-        $wallets = $group->getWallets();
-
-        $current_wallet = null;
-
         $transaction->setCurrency($service_currency);
 
         //CASH - IN
@@ -105,15 +100,11 @@ class POSIncomingController extends RestApiController{
         $transaction = $this->get('notificator')->notificate($transaction);
         $em->flush();
 
-        foreach ( $wallets as $wallet){
-            if ($wallet->getCurrency() === $transaction->getCurrency()){
-                $current_wallet = $wallet;
-            }
-        }
+        $wallet = $group->getWallet($transaction->getCurrency());
 
         //TODO update wallet amount (only balance not the available amount)
 
-        $scale = $current_wallet->getScale();
+        $scale = $wallet->getScale();
         $transaction->setScale($scale);
 
         $transaction->setUpdated(new \DateTime());
@@ -141,12 +132,9 @@ class POSIncomingController extends RestApiController{
         $posType = $tpvRepo->getType();
 
         $group = $tpvRepo->getGroup();
+        $group_id = $group->getId();
 
         $logger->info('POS ID => '.$id.' COMPANY => '.$group->getName().'( '.$group->getId().' ) TYPE => '.$posType);
-
-        if($tpvRepo->getActive() == 0) throw new HttpException(400, 'Service Temporally unavailable');
-
-        $pos_config = $this->container->get('net.telepay.config.pos_'.strtolower($posType))->getInfo();
 
         $paramNames = array(
             'amount',
@@ -155,26 +143,43 @@ class POSIncomingController extends RestApiController{
             'url_notification',
             'url_ok',
             'url_ko',
+            'signature',
             'order_id'
         );
+
+        if($request->request->has('url_notification')) {
+            $url_notification = $request->get('url_notification');
+        }
+        else{
+            $url_notification = '';
+        }
 
         $logger->info('POS GETTING PARAMS');
         $dataIn = array();
         foreach($paramNames as $paramName){
-            if(!$request->request->has($paramName))
-                throw new HttpException(400, "Parameter '".$paramName."' not found");
+            if(!$request->request->has($paramName)) {
+                $this->get('notificator')->notificate_error($url_notification, $group_id, 0, $dataIn);
+                throw new HttpException(400, "Parameter '" . $paramName . "' not found");
+            }
             else $dataIn[$paramName] = $request->get($paramName);
         }
+        $amount = $dataIn['amount'];
 
-        if($request->request->has('signature') && $request->request->get('signature')!='x'){
-            $dataIn['signature'] = $request->request->get('signature');
-            $data_to_sign = $dataIn['order_id'] . $id . $dataIn['amount'];
-            $signature_test = hash_hmac('sha256', $data_to_sign, $group->getAccessSecret());
-            $logger->info('POS data_to_sign => '.$data_to_sign. ' calculated signature => '.$signature_test.' received signature => '.$dataIn['signature']);
-            $logger->info('POS SECRET => '.$group->getAccessSecret());
-            if($dataIn['signature'] != $signature_test) {
-                throw new HttpException(404, 'Bad signature');
-            }
+        if($tpvRepo->getActive() == 0) {
+            $this->get('notificator')->notificate_error($url_notification, $group_id, $amount, $dataIn);
+            throw new HttpException(400, 'Service Temporally unavailable');
+        }
+
+        $pos_config = $this->container->get('net.telepay.config.pos_'.strtolower($posType))->getInfo();
+
+
+        $data_to_sign = $dataIn['order_id'] . $id . $dataIn['amount'];
+        $signature_test = hash_hmac('sha256', $data_to_sign, $group->getAccessSecret());
+        $logger->info('POS data_to_sign => '.$data_to_sign. ' calculated signature => '.$signature_test.' received signature => '.$dataIn['signature']);
+        $logger->info('POS SECRET => '.$group->getAccessSecret());
+        if($dataIn['signature'] != $signature_test) {
+            $this->get('notificator')->notificate_error($url_notification, $group_id, $amount, $dataIn);
+            throw new HttpException(404, 'Bad signature');
         }
 
         if($request->request->has('currency_out')){
@@ -194,24 +199,24 @@ class POSIncomingController extends RestApiController{
             ->field('dataIn.order_id')->equals($dataIn['order_id'])
             ->getQuery();
 
-        if( count($qb) > 0 ) throw new HttpException(409,'Duplicated resource');
+        if( count($qb) > 0 ) {
+            $this->get('notificator')->notificate_error($url_notification, $group_id, $amount, $dataIn);
+            throw new HttpException(409, 'Duplicated resource');
+        }
 
         if(!in_array(strtoupper($dataIn['currency_in']), $pos_config['allowed_currencies_in'])){
+            $this->get('notificator')->notificate_error($url_notification, $group_id, $amount, $dataIn);
             throw new HttpException(404, 'Currency_in not allowed');
         }
         if(!in_array(strtoupper($dataIn['currency_out']), $pos_config['allowed_currencies_out'])){
+            $this->get('notificator')->notificate_error($url_notification, $group_id, $amount, $dataIn);
             throw new HttpException(404, 'Currency_out not allowed');
         }
 
+        $exchanger = $this->container->get('net.telepay.commons.exchange_manipulator');
+
         if(strtoupper($dataIn['currency_in']) != $pos_config['currency']){
-            $exchange = $em->getRepository('TelepayFinancialApiBundle:Exchange')->findOneBy(
-                array(
-                    'dst'   =>  $dataIn['currency_in'],
-                    'src'   =>  $pos_config['currency']
-                ),
-                array('id'  =>  'DESC')
-            );
-            $pos_amount = round($dataIn['amount']*(1.0 / $exchange->getPrice()),0);
+            $pos_amount = $exchanger->exchange($dataIn['amount'], $dataIn['currency_in'], $pos_config['currency']);
         }else{
             $pos_amount = $dataIn['amount'];
         }
@@ -221,14 +226,7 @@ class POSIncomingController extends RestApiController{
                 $amount = $dataIn['amount'];
             }
             else {
-                $exchange = $em->getRepository('TelepayFinancialApiBundle:Exchange')->findOneBy(
-                    array(
-                        'src' => $pos_config['currency'],
-                        'dst' => $dataIn['currency_out']
-                    ),
-                    array('id' => 'DESC')
-                );
-                $amount = round($pos_amount * $exchange->getPrice(), 0);
+                $amount = $exchanger->exchange($dataIn['amount'], $pos_config['currency'], $dataIn['currency_in']);
             }
         }else{
             $amount = $pos_amount;
@@ -284,12 +282,16 @@ class POSIncomingController extends RestApiController{
             );
         }elseif($posType == 'BTC'){
             $address = $this->generateAddress($posType);
-            if(!$address) throw new HttpException(403, 'Service temporally unavailable');
+            if(!$address) {
+                $this->get('notificator')->notificate_error($url_notification, $group_id, $amount, $dataIn);
+                throw new HttpException(403, 'Service temporally unavailable');
+            }
             $paymentInfo = array(
                 'amount'    =>  $pos_amount,
                 'previous_amount'    =>  $pos_amount,
                 'received_amount'   =>  $dataIn['amount'],
                 'currency_in'   =>  strtoupper($dataIn['currency_in']),
+                'currency_out'   =>  strtoupper($dataIn['currency_out']),
                 'currency'  =>  'BTC',
                 'scale'     =>  Currency::$SCALE['BTC'],
                 'scale_in'     =>  Currency::$SCALE[strtoupper($dataIn['currency_in'])],
@@ -304,7 +306,10 @@ class POSIncomingController extends RestApiController{
             );
         }elseif($posType == 'FAC'){
             $address = $this->generateAddress($posType);
-            if(!$address) throw new HttpException(403, 'Service temporally unavailable');
+            if(!$address){
+                $this->get('notificator')->notificate_error($url_notification, $group_id, $amount, $dataIn);
+                throw new HttpException(403, 'Service temporally unavailable');
+            }
             $paymentInfo = array(
                 'amount'    =>  $pos_amount,
                 'previous_amount'    =>  $pos_amount,
@@ -354,7 +359,10 @@ class POSIncomingController extends RestApiController{
         $transaction = $this->get('notificator')->notificate($transaction);
         $dm->persist($transaction);
         $dm->flush();
-        if($transaction == false) throw new HttpException(500, "oOps, some error has occurred within the call");
+        if($transaction == false) {
+            $this->get('notificator')->notificate_error($url_notification, $group_id, $amount, $dataIn);
+            throw new HttpException(500, "oOps, some error has occurred within the call");
+        }
         $logger->info('POS finish');
         return $this->posTransaction(201, $transaction, "Done");
     }

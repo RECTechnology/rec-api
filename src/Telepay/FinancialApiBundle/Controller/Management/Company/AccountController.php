@@ -9,29 +9,11 @@
 
 namespace Telepay\FinancialApiBundle\Controller\Management\Company;
 
-use Doctrine\DBAL\DBALException;
-use Symfony\Component\Security\Core\Util\SecureRandom;
-use Symfony\Component\Validator\Constraints\Null;
-use Telepay\FinancialApiBundle\Entity\CashInTokens;
-use Telepay\FinancialApiBundle\Entity\Device;
 use Telepay\FinancialApiBundle\Entity\Group;
-use Telepay\FinancialApiBundle\Entity\KYC;
-use Telepay\FinancialApiBundle\Entity\LimitDefinition;
-use Telepay\FinancialApiBundle\Entity\LimitCount;
-use Telepay\FinancialApiBundle\Entity\POS;
-use Telepay\FinancialApiBundle\Entity\ServiceFee;
-use Telepay\FinancialApiBundle\Entity\TierValidations;
-use Telepay\FinancialApiBundle\Entity\User;
-use Rhumsaa\Uuid\Uuid;
 use Symfony\Component\HttpKernel\Exception\HttpException;
 use Telepay\FinancialApiBundle\Controller\BaseApiController;
 use FOS\RestBundle\Controller\Annotations as Rest;
 use Symfony\Component\HttpFoundation\Request;
-use Telepay\FinancialApiBundle\Entity\UserGroup;
-use Telepay\FinancialApiBundle\Entity\UserWallet;
-use Telepay\FinancialApiBundle\Financial\Currency;
-use Telepay\FinancialApiBundle\Controller\Google2FA;
-use WebSocket\Exception;
 
 class AccountController extends BaseApiController{
 
@@ -68,7 +50,6 @@ class AccountController extends BaseApiController{
         if(!$userGroup->hasRole('ROLE_ADMIN')) throw new HttpException('You don\'t have the necessary permissions');
 
         $company->setKycManager($user);
-        $em->persist($company);
         $em->flush();
 
         return $this->rest(204, 'Manager changed successfully');

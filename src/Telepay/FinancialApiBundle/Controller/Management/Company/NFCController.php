@@ -9,13 +9,14 @@
 
 namespace Telepay\FinancialApiBundle\Controller\Management\Company;
 
+use Doctrine\DBAL\DBALException;
+use Exception;
 use Rhumsaa\Uuid\Uuid;
 use Symfony\Component\HttpKernel\Exception\HttpException;
 use FOS\RestBundle\Controller\Annotations as Rest;
 use Symfony\Component\HttpFoundation\Request;
 use Telepay\FinancialApiBundle\Controller\RestApiController;
 use Telepay\FinancialApiBundle\Document\Transaction;
-use Telepay\FinancialApiBundle\Entity\CashInTokens;
 use Telepay\FinancialApiBundle\Entity\Group;
 use Telepay\FinancialApiBundle\Entity\LimitDefinition;
 use Telepay\FinancialApiBundle\Entity\NFCCard;
@@ -69,143 +70,196 @@ class NFCController extends RestApiController{
         $tokenGenerator = $this->container->get('fos_user.util.token_generator');
         $url = $this->container->getParameter('base_panel_url');
 
-        if(!$user){
-            //user NOT exists
-            //create company
-            $company = new Group();
-            $company->setName($params['alias'].' Group');
-            $company->setActive(true);
-            $company->setCreator($userCreator);
-            $company->setGroupCreator($companyCreator);
-            $company->setRoles(array('ROLE_COMPANY'));
-            $company->setDefaultCurrency('EUR');
-            $company->setEmail($params['email']);
-            $company->setMethodsList('');
+        $em->getConnection()->beginTransaction();
 
-            $em->persist($company);
+        try{
+            if(!$user){
+                if($request->request->has('pin') && $request->request->get('pin') != ''){
+                    $pin = $request->request->get('pin');
+                    $enabled = true;
+                }else{
+                    throw new HttpException(403, 'Pin not found');
+                }
+                //user NOT exists
+                //TODO check if company name exists and generate new one
+                $group = $em->getRepository('TelepayFinancialApiBundle:Group')->findOneBy(array(
+                    'name'  =>  $params['alias']. 'Company'
+                ));
+                $name = $params['alias']. 'Company';
+                if($group){
+                    $name = rand(0,1000).'_'.$params['alias'].'Company';
+                }
+                //create company
+                $company = new Group();
+                $company->setName($name);
+                $company->setActive(true);
+                $company->setCreator($userCreator);
+                $company->setGroupCreator($companyCreator);
+                $company->setRoles(array('ROLE_COMPANY'));
+                $company->setDefaultCurrency('EUR');
+                $company->setEmail($params['email']);
+                $company->setMethodsList('');
 
-            //create wallets for this company
-            $currencies = Currency::$ALL;
-            foreach($currencies as $currency){
-                $userWallet = new UserWallet();
-                $userWallet->setBalance(0);
-                $userWallet->setAvailable(0);
-                $userWallet->setCurrency(strtoupper($currency));
-                $userWallet->setGroup($company);
+                $em->persist($company);
 
-                $em->persist($userWallet);
-            }
+                //create wallets for this company
+                $currencies = Currency::$ALL;
+                foreach($currencies as $currency){
+                    $userWallet = new UserWallet();
+                    $userWallet->setBalance(0);
+                    $userWallet->setAvailable(0);
+                    $userWallet->setCurrency(strtoupper($currency));
+                    $userWallet->setGroup($company);
 
-            //CRETAE EXCHANGES limits and fees
-            $exchanges = $this->container->get('net.telepay.exchange_provider')->findAll();
+                    $em->persist($userWallet);
+                }
 
-            foreach($exchanges as $exchange){
-                //create limit for this group
-                $limit = new LimitDefinition();
-                $limit->setDay(0);
-                $limit->setWeek(0);
-                $limit->setMonth(0);
-                $limit->setYear(0);
-                $limit->setTotal(0);
-                $limit->setSingle(0);
-                $limit->setCname('exchange_'.$exchange->getCname());
-                $limit->setCurrency($exchange->getCurrencyOut());
-                $limit->setGroup($company);
-                //create fee for this group
-                $fee = new ServiceFee();
-                $fee->setFixed(0);
-                $fee->setVariable(1);
-                $fee->setCurrency($exchange->getCurrencyOut());
-                $fee->setServiceName('exchange_'.$exchange->getCname());
-                $fee->setGroup($company);
+                //CRETAE EXCHANGES limits and fees
+                $exchanges = $this->container->get('net.telepay.exchange_provider')->findAll();
 
-                $em->persist($limit);
-                $em->persist($fee);
+                foreach($exchanges as $exchange){
+                    //create limit for this group
+//                    $limit = new LimitDefinition();
+//                    $limit->setDay(0);
+//                    $limit->setWeek(0);
+//                    $limit->setMonth(0);
+//                    $limit->setYear(0);
+//                    $limit->setTotal(0);
+//                    $limit->setSingle(0);
+//                    $limit->setCname('exchange_'.$exchange->getCname());
+//                    $limit->setCurrency($exchange->getCurrencyOut());
+//                    $limit->setGroup($company);
+                    //create fee for this group
+                    $fee = new ServiceFee();
+                    $fee->setFixed(0);
+                    $fee->setVariable(1);
+                    $fee->setCurrency($exchange->getCurrencyOut());
+                    $fee->setServiceName('exchange_'.$exchange->getCname());
+                    $fee->setGroup($company);
 
-            }
-
-            //generate data for generated user
-            $explode_email = explode('@',$params['email']);
-            $username = $explode_email[0];
-            $password = Uuid::uuid1()->toString();
-
-            //create user
-            $user = new User();
-            $user->setPlainPassword($password);
-            $user->setEmail($params['email']);
-            $user->setRoles(array('ROLE_USER'));
-            $user->setName($username);
-            $user->setUsername($username);
-            $user->setActiveGroup($company);
-            $user->setBase64Image('');
-            $user->setEnabled(false);
-
-            $user->setConfirmationToken($tokenGenerator->generateToken());
-            $em->persist($user);
-            $em->flush();
-            $url = $url.'/user/validation_nfc/'.$user->getConfirmationToken();
-
-            //Add user to group with admin role
-            $userGroup = new UserGroup();
-            $userGroup->setUser($user);
-            $userGroup->setGroup($company);
-            $userGroup->setRoles(array('ROLE_ADMIN'));
-
-            $em->persist($userGroup);
-
-            //create card
-            $pin = rand(0,9999);
-            $card = new NFCCard();
-            $card->setCompany($company);
-            $card->setUser($user);
-            $card->setAlias($params['alias']);
-            $card->setEnabled(false);
-            $card->setIdCard($params['id_card']);
-            $card->setPin($pin);
-            $card->setConfirmationToken($user->getConfirmationToken());
-
-            $em->persist($card);
-            $em->flush();
-
-            $this->_sendRegisterAndroidEmail('Chip-Chap validation e-mail and Active card', $url, $user->getEmail(), $password, $pin, $user);
-        }else{
-            //user exists
-            //get companies
-            $userGroups = $em->getRepository('TelepayFinancialApiBundle:UserGroup')->findBy(array(
-                'user'  =>  $user
-            ));
-
-            $companies = array();
-
-            $confirmationToken = $tokenGenerator->generateToken();
-            foreach($userGroups as $userGroup){
-                if($userGroup->hasRole('ROLE_ADMIN')){
-                    $companies[] = $userGroup->getGroup();
+//                    $em->persist($limit);
+                    $em->persist($fee);
 
                 }
+
+//                $fac_limit = new LimitDefinition();
+//                $fac_limit->setDay(-1);
+//                $fac_limit->setCname('fac-in');
+//                $fac_limit->setWeek(-1);
+//                $fac_limit->setMonth(-1);
+//                $fac_limit->setYear(-1);
+//                $fac_limit->setSingle(-1);
+//                $fac_limit->setTotal(-1);
+//                $fac_limit->setCurrency(Currency::$FAC);
+//                $fac_limit->setGroup($company);
+//                $em->persist($fac_limit);
+//                $em->flush();
+
+                //generate data for generated user
+                $explode_email = explode('@',$params['email']);
+                $username = $explode_email[0];
+                $user = $em->getRepository('TelepayFinancialApiBundle:User')->findOneBy(array(
+                    'username'  =>  $username
+                ));
+
+                if($user) $username = rand(0, 1000).'-'.$username;
+                //cambiar por password random
+                $password = $this->_randomPassword();
+
+                //create user
+                $user = new User();
+                $user->setPlainPassword($password);
+                $user->setEmail($params['email']);
+                $user->setRoles(array('ROLE_USER'));
+                $user->setName($username);
+                $user->setUsername($username);
+                $user->setActiveGroup($company);
+                $user->setBase64Image('');
+                $user->setEnabled(false);
+
+                $user->setConfirmationToken($tokenGenerator->generateToken());
+                $em->persist($user);
+                $em->flush();
+                $url = $url.'/user/validation_nfc/'.$user->getConfirmationToken();
+
+                //Add user to group with admin role
+                $userGroup = new UserGroup();
+                $userGroup->setUser($user);
+                $userGroup->setGroup($company);
+                $userGroup->setRoles(array('ROLE_ADMIN'));
+
+                $em->persist($userGroup);
+
+                //create card
+                $card = new NFCCard();
+                $card->setCompany($company);
+                $card->setUser($user);
+                $card->setAlias($params['alias']);
+                $card->setEnabled($enabled);
+                $card->setIdCard($params['id_card']);
+                $card->setPin($pin);
+                $card->setConfirmationToken($user->getConfirmationToken());
+
+                $em->persist($card);
+                $em->flush();
+
+                $this->_sendRegisterAndroidEmail('Chip-Chap validation e-mail and Active card', $url, $user->getEmail(), $password, $pin, $user);
+            }else{
+
+                if($request->request->has('pin')) throw new HttpException(403, 'This user already has an account');
+
+                //user exists
+                //get companies
+                $userGroups = $em->getRepository('TelepayFinancialApiBundle:UserGroup')->findBy(array(
+                    'user'  =>  $user
+                ));
+
+                $companies = array();
+
+                $confirmationToken = $tokenGenerator->generateToken();
+                foreach($userGroups as $userGroup){
+                    if($userGroup->hasRole('ROLE_ADMIN')){
+                        $companies[] = $userGroup->getGroup();
+
+                    }
+                }
+
+                if(count($companies) < 1) throw new HttpException(403, 'You don\' have the necessary permissions for this company');
+
+                //create card
+                $pin = rand(0,9999);
+                $card = new NFCCard();
+                $card->setUser($user);
+                $card->setAlias($params['alias']);
+                $card->setEnabled(false);
+                $card->setIdCard($params['id_card']);
+                $card->setPin($pin);
+                $card->setConfirmationToken($confirmationToken);
+
+                $em->persist($card);
+                $em->flush();
+
+                $body = 'Please validate this card for one of this companies';
+                $subject = 'Chip-Chap validate NFC card';
+                $base_url = $url.'/user/validation_nfc/';
+                //send mail with card information and validation
+                $this->_sendValidateCardEmail($subject, $body, $user->getEmail(), $pin, $companies, $base_url, $confirmationToken );
+
             }
-
-            if(count($companies) < 1) throw new HttpException(403, 'You don\' have the necessary permissions for this company');
-
-            //create card
-            $pin = rand(0,9999);
-            $card = new NFCCard();
-            $card->setUser($user);
-            $card->setAlias($params['alias']);
-            $card->setEnabled(false);
-            $card->setIdCard($params['id_card']);
-            $card->setPin($pin);
-            $card->setConfirmationToken($confirmationToken);
-
-            $em->persist($card);
-            $em->flush();
-
-            $body = 'Please validate this card for one of this companies';
-            $subject = 'Chip-Chap validate NFC card';
-            $base_url = $url.'/user/validation_nfc/';
-            //send mail with card information and validation
-            $this->_sendValidateCardEmail($subject, $body, $user->getEmail(), $pin, $companies, $base_url, $confirmationToken );
-
+            $em->getConnection()->commit();
+        }catch(DBALException $e){
+            $em->getConnection()->rollBack();
+            if(preg_match('/1062 Duplicate entry/i',$e->getMessage()))
+                throw new HttpException(409, "Duplicated resource");
+            else if(preg_match('/1048 Column/i',$e->getMessage()))
+                throw new HttpException(400, "Bad parameters");
+            throw new HttpException(500, "Unknown error occurred when save");
+        }catch(HttpException $e){
+            $em->getConnection()->rollBack();
+            throw $e;
+        }catch (Exception $e){
+            $em->getConnection()->rollBack();
+            throw new HttpException(500, "Unknown error occurred when save");
         }
 
         $response = array(
@@ -241,19 +295,19 @@ class NFCController extends RestApiController{
 
         if(!$card) throw new HttpException(404, 'NFCCard not found');
 
-        $tierValidation = $em->getRepository('TelepayFinancialApiBundle:TierValidations')->findOneBy(array(
-            'user' => $user
-        ));
-
-        if(!$tierValidation){
-            $tier = new TierValidations();
-            $tier->setUser($user);
-            $tier->setEmail(true);
-            $em->persist($tier);
-            $em->flush();
-        }else{
-            throw new HttpException(409, 'Validation not allowed');
-        }
+//        $tierValidation = $em->getRepository('TelepayFinancialApiBundle:TierValidations')->findOneBy(array(
+//            'user' => $user
+//        ));
+//
+//        if(!$tierValidation){
+//            $tier = new TierValidations();
+//            $tier->setUser($user);
+//            $tier->setEmail(true);
+//            $em->persist($tier);
+//            $em->flush();
+//        }else{
+//            throw new HttpException(409, 'Validation not allowed');
+//        }
 
         $kyc = $em->getRepository('TelepayFinancialApiBundle:KYC')->findOneBy(array(
             'user' => $user
@@ -265,6 +319,10 @@ class NFCController extends RestApiController{
             $em->flush();
         }
 
+        //change confirmation_token
+        $tokenGenerator = $this->container->get('fos_user.util.token_generator');
+        $confirmationToken = $tokenGenerator->generateToken();
+        $card->setConfirmationToken($confirmationToken);
         $user->setEnabled(true);
         $card->setEnabled(true);
 
@@ -299,9 +357,15 @@ class NFCController extends RestApiController{
         if(!$card) throw new HttpException(404, 'NFCCard not found');
         $company = $em->getRepository('TelepayFinancialApiBundle:Group')->find($company_id);
 
+        if($card->getEnabled() == true) throw new HttpException(403, 'Card validated yet');
+
         $card->setEnabled(true);
         $card->setCompany($company);
 
+        //change confirmation_token
+        $tokenGenerator = $this->container->get('fos_user.util.token_generator');
+        $confirmationToken = $tokenGenerator->generateToken();
+        $card->setConfirmationToken($confirmationToken);
         $em->persist($card);
         $em->flush();
 
@@ -311,6 +375,72 @@ class NFCController extends RestApiController{
         );
 
         return $this->restV2(201,"ok", "Validation NFC Card succesfully", $response);
+
+    }
+
+    /**
+     * @Rest\View
+     */
+    public function disableCard(Request $request){
+
+        if(!$request->request->has('confirmation_token')) throw new HttpException(404, 'Param confirmation_token not found');
+
+        $token = $request->request->get('confirmation_token');
+
+        $em = $this->getDoctrine()->getManager();
+
+        $card = $em->getRepository('TelepayFinancialApiBundle:NFCCard')->findOneBy(array(
+            'confirmation_token'    =>  $token
+        ));
+
+        if(!$card) throw new HttpException(404, 'NFCCard not found');
+
+        //TODO check lastDisableRequested
+
+        $card->setEnabled(false);
+
+        $em->persist($card);
+        $em->flush();
+
+        $response = array(
+            'card'     =>  $card->getAlias()
+        );
+
+        return $this->restV2(201,"ok", "Deactivate NFC Card succesfully", $response);
+
+    }
+
+    /**
+     * @Rest\View
+     */
+    public function refreshPin(Request $request){
+
+        if(!$request->request->has('refresh_pin_token')) throw new HttpException(404, 'Param refresh_pin_token not found');
+
+        $token = $request->request->get('refresh_pin_token');
+
+        $em = $this->getDoctrine()->getManager();
+
+        $card = $em->getRepository('TelepayFinancialApiBundle:NFCCard')->findOneBy(array(
+            'refresh_pin_token'    =>  $token
+        ));
+
+        if(!$card) throw new HttpException(404, 'NFCCard not found');
+
+        if($card->getNewPin() == '') throw new HttpException('This pin has been changed yet');
+        //TODO check lastDisableRequested
+
+        $card->setPin($card->getNewPin());
+        $card->setNewPin('');
+
+        $em->persist($card);
+        $em->flush();
+
+        $response = array(
+            'card'     =>  $card->getAlias()
+        );
+
+        return $this->restV2(201,"ok", "Deactivate NFC Card succesfully", $response);
 
     }
 
@@ -341,14 +471,15 @@ class NFCController extends RestApiController{
 
         $user = $this->get('security.context')->getToken()->getUser();
 
-        $userGroup = $em->getRepository('TelepayFinancialApiBundle')->findBy(array(
-            'user'  =>  $user,
-            'company'   =>  $company
+        $userGroup = $em->getRepository('TelepayFinancialApiBundle:UserGroup')->findOneBy(array(
+            'user'  =>  $user->getId(),
+            'group'   =>  $company->getId()
         ));
 
         if(!$userGroup->hasRole('ROLE_ADMIN')) throw new HttpException(403, 'You don\'t have the necessary permissions');
 
-        $card = $em->getRepository('TelepayFinancialApiBundle:NFCCard')->find($params['id_card']);
+        $card = $em->getRepository('TelepayFinancialApiBundle:NFCCard')->findOneBy(array(
+            'id_card'   =>  $params['id_card']));
 
         if(!$card) throw new HttpException(404, 'NFC Card not found');
 
@@ -367,7 +498,17 @@ class NFCController extends RestApiController{
             'currency'  =>  Currency::$FAC
         ));
 
-        if($params['amount'] > $sender_wallet->getAvailable()) throw new HttpException(403, 'Not funds enough');
+        $amount = $params['amount'];
+        $currency_in = Currency::$FAC;
+        //get currency in
+        if($request->request->has('currency_in')){
+            $currency_in = strtoupper($request->request->get('currency_in'));
+            if($currency_in != Currency::$FAC){
+                //do exchange
+                $amount = $this->get('net.telepay.commons.exchange_manipulator')->exchangeInverse($params['amount'], $currency_in, 'FAIRP');
+            }
+        }
+        if($amount > $sender_wallet->getAvailable()) throw new HttpException(403, 'Not funds enough');
 
         //Generate transactions and update wallets - without fees
         //SENDER TRANSACTION
@@ -382,7 +523,7 @@ class NFCController extends RestApiController{
         $sender_transaction->setType('out');
         $sender_transaction->setVariableFee(0);
         $sender_transaction->setFixedFee(0);
-        $sender_transaction->setAmount($params['amount']);
+        $sender_transaction->setAmount($amount);
         $sender_transaction->setDataIn(array(
             'description'   =>  'transfer->FAC',
             'concept'       =>  'walletToWallet from ANDROID APP'
@@ -390,20 +531,20 @@ class NFCController extends RestApiController{
         $sender_transaction->setDataOut(array(
             'sent_to'   =>  $receiverCompany->getName(),
             'id_to'     =>  $receiverCompany->getId(),
-            'amount'    =>  -$params['amount'],
+            'amount'    =>  -$amount,
             'currency'  =>  Currency::$FAC
         ));
         $sender_transaction->setPayOutInfo(array(
             'beneficiary'   =>  $receiverCompany->getName(),
             'beneficiary_id'     =>  $receiverCompany->getId(),
-            'amount'    =>  -$params['amount'],
+            'amount'    =>  -$amount,
             'currency'  =>  Currency::$FAC,
             'scale'     =>  Currency::$SCALE[Currency::$FAC],
             'concept'       =>  'walletToWallet from ANDROID APP'
         ));
-        $sender_transaction->setTotal(-$params['amount']);
+        $sender_transaction->setTotal(-$amount);
         $sender_transaction->setUser($user->getId());
-        $sender_transaction->setGroup($userGroup->getId());
+        $sender_transaction->setGroup($company->getId());
 
 
         $dm = $this->get('doctrine_mongodb')->getManager();
@@ -411,11 +552,11 @@ class NFCController extends RestApiController{
         $dm->persist($sender_transaction);
 
         $balancer = $this->get('net.telepay.commons.balance_manipulator');
-        $balancer->addBalance($userGroup, -$params['amount'], $sender_transaction);
+        $balancer->addBalance($company, -$params['amount'], $sender_transaction);
 
         //FEE=1% al user
-        $variable_fee = round($params['amount']*0.01,0);
-        $amount = $params['amount'] - $variable_fee;
+        $variable_fee = round($amount*0,0);
+        $rec_amount = $amount - $variable_fee;
 
         //RECEIVER TRANSACTION
         $receiver_transaction = new Transaction();
@@ -429,18 +570,18 @@ class NFCController extends RestApiController{
         $receiver_transaction->setType('in');
         $receiver_transaction->setVariableFee(0);
         $receiver_transaction->setFixedFee(0);
-        $receiver_transaction->setAmount($params['amount']);
+        $receiver_transaction->setAmount($amount);
         $receiver_transaction->setDataOut(array(
             'received_from' =>  $company->getName(),
             'id_from'       =>  $company->getId(),
-            'amount'        =>  $params['amount'],
+            'amount'        =>  $amount,
             'currency'      =>  $receiver_wallet->getCurrency(),
             'previous_transaction'  =>  $sender_transaction->getId()
         ));
         $receiver_transaction->setDataIn(array(
             'sent_to'   =>  $receiverCompany->getName(),
             'id_to'     =>  $receiverCompany->getId(),
-            'amount'    =>  -$params['amount'],
+            'amount'    =>  -$amount,
             'currency'  =>  Currency::$FAC,
             'description'   =>  'transfer->FAC',
             'concept'   =>  'walletToWallet from ANDROID APP'
@@ -448,26 +589,26 @@ class NFCController extends RestApiController{
         $receiver_transaction->setPayInInfo(array(
             'sender'   =>  $company->getName(),
             'sender_id'     =>  $company->getId(),
-            'amount'    =>  $params['amount'],
+            'amount'    =>  $amount,
             'currency'  =>  Currency::$FAC,
             'scale'  =>  Currency::$SCALE[Currency::$FAC],
             'concept'   =>  'walletToWallet from ANDROID APP'
         ));
-        $receiver_transaction->setTotal($params['amount']);
+        $receiver_transaction->setTotal($amount);
         $receiver_transaction->setGroup($receiverCompany->getId());
 
         $dm->persist($receiver_transaction);
         $dm->flush();
 
         $balancer = $this->get('net.telepay.commons.balance_manipulator');
-        $balancer->addBalance($receiverCompany, $amount, $receiver_transaction);
+        $balancer->addBalance($receiverCompany, $rec_amount, $receiver_transaction);
 
         //update wallets
-        $sender_wallet->setAvailable($sender_wallet->getAvailable() - $params['amount']);
-        $sender_wallet->setBalance($sender_wallet->getBalance() - $params['amount']);
+        $sender_wallet->setAvailable($sender_wallet->getAvailable() - $amount);
+        $sender_wallet->setBalance($sender_wallet->getBalance() - $amount);
 
-        $receiver_wallet->setAvailable($receiver_wallet->getAvailable() + $amount);
-        $receiver_wallet->setBalance($receiver_wallet->getBalance() + $amount);
+        $receiver_wallet->setAvailable($receiver_wallet->getAvailable() + $rec_amount);
+        $receiver_wallet->setBalance($receiver_wallet->getBalance() + $rec_amount);
 
         $em->persist($sender_wallet);
         $em->persist($receiver_wallet);
@@ -483,36 +624,59 @@ class NFCController extends RestApiController{
     /**
      * @Rest\View
      */
-    public function updateCard(Request $request, $id_card){
+    public function updateCard(Request $request){
 
+        //TODO deactivate card by email
         //get card
         $em = $this->getDoctrine()->getManager();
-        $card = $em->getRepository('TelepayFinancialApiBundle:NFCCard')->find($id_card);
-
-        if(!$card) throw new HttpException(404, 'NFCCard not found');
-
-        if(!$card->getEnabled()) throw new HttpException(403, 'Disabled card');
 
         if($request->request->has('action')){
             $action = $request->request->get('action');
             if($action == 'refresh_pin'){
+                if(!$request->request->has('id_card')) throw new HttpException(404, 'id_card not found');
+                $id_card = $request->request->get('id_card');
+
+                $card = $em->getRepository('TelepayFinancialApiBundle:NFCCard')->findOneBy(array(
+                    'id_card'   =>  $id_card
+                ));
+
+                if(!$card) throw new HttpException(404, 'NFC Card not found');
+
+                if($card->getEnabled() == 0) throw new HttpException(403, 'Disabled card');
                 //generate new pin
+                $tokenGenerator = $this->container->get('fos_user.util.token_generator');
+                $confirmationToken = $tokenGenerator->generateToken();
+
                 $pin = rand(0,9999);
-                $card->setPin($pin);
-                $em->persist($card);
+                $card->setNewPin($pin);
+                $card->setLastPinRequested(new \DateTime());
+                $card->setRefreshPinToken($confirmationToken);
                 $em->flush();
+
+                $url = $this->container->getParameter('base_panel_url');
+                $url = $url.'/user/refresh_pin/';
 
                 //send email
-                $this->_sendUpdateCardEmail($card, 'refresh_pin');
+                $this->_sendUpdateCardEmail($card, 'refresh_pin', $url);
 
                 return $this->restV2(204, 'Pin successfully changed');
-            }elseif($action == 'deactivate_card'){
+            }elseif($action == 'disable_card'){
+                if(!$request->request->has('email')) throw new HttpException(404, 'Param email not found');
+                $user = $em->getRepository('TelepayFinancialApiBundle:User')->findOneBy(array(
+                    'email' =>  $request->request->get('email')
+                ));
+                $cards = $em->getRepository('TelepayFinancialApiBundle:NFCCard')->findBy(array(
+                    'user'   =>  $user->getId()
+                ));
+                $url = $this->container->getParameter('base_panel_url');
+                $url = $url.'/user/disable_nfc/';
 
-                $card->setEnabled(false);
-                $em->persist($card);
-                $em->flush();
+                foreach($cards as $card){
+                    $card->setLastDisableRequested(new \DateTime());
+                    $em->flush();
+                }
 
-                $this->_sendUpdateCardEmail($card, 'deactivate');
+                $this->_sendDeactivateCardEmail($request->request->get('email'), $cards, 'disable', $url);
 
                 return $this->restV2(204, 'Pin successfully changed');
 
@@ -549,16 +713,18 @@ class NFCController extends RestApiController{
 
         if(!$card) throw new HttpException(404, 'Card not found');
 
+        if($card->getEnabled() == 0) throw new HttpException(403, 'Disabled card');
+
         $company = $card->getCompany();
 
         $wallet = $company->getWallet(Currency::$FAC);
 
-        $balance = round($wallet->getAvailable()/1e8,6);
+        $balance = number_format(round($wallet->getAvailable()/1e8,6),6);
 
         //send balance email
         $this->_sendNFCBalanceEmail($card, $balance);
 
-        return $this->restV2(204, "ok", "Send balance successfully");
+        return $this->restV2(201, "ok", "Send balance successfully");
     }
 
     /**
@@ -568,12 +734,14 @@ class NFCController extends RestApiController{
 
         $em = $this->getDoctrine()->getManager();
         $receiverCompany = $em->getRepository('TelepayFinancialApiBundle:Group')->find($id_company);
-
+        $logger = $this->get('transaction.logger');
+        $logger->error('NFCPymanet INIT');
         if(!$receiverCompany) throw new HttpException(404, 'Company not found');
 
         $paramNames = array(
             'id_card',
-            'amount'
+            'amount',
+            'signature'
         );
         $params = array();
         foreach($paramNames as $paramName){
@@ -584,20 +752,51 @@ class NFCController extends RestApiController{
             }
         }
 
-        $card = $em->getRepository('TelepayFinancialApiBundle:Group')->find($params['id_card']);
+        $logger->error('NFCPymanet GETTING CARD');
+        $card = $em->getRepository('TelepayFinancialApiBundle:NFCCard')->findOneBy(array(
+            'id_card' => $params['id_card']
+        ));
 
         if(!$card) throw new HttpException(404, 'Card not found');
 
+        $data_to_sign = $params['amount'] . $params['id_card'] . $id_company;
+        $logger->error('NFCPymanet DATA TO SIGN => '. $data_to_sign);
+        $logger->error('NFCPymanet secret => '. $receiverCompany->getAccessSecret());
+
+        $signature = hash_hmac('sha256', $data_to_sign, $receiverCompany->getAccessSecret().$card->getPin());
+
+        $logger->error('NFCPymanet signature => '. $signature. ' received signature '.$params['signature']);
+        if($params['signature'] != $signature) throw new HttpException(403, 'Bad signature');
+
         if(!$card->getEnabled()) throw new HttpException(403, 'Disabled card');
 
-        //TODO walletToWallet transaction from user to commerce
+        $amount = $params['amount'];
+        $logger->error('NFCPymanet RECEIVED AMOUNT => '.$amount);
+        $currency_in = Currency::$FAC;
+        //get currency in
+        if($request->request->has('currency_in')){
+            $currency_in = strtoupper($request->request->get('currency_in'));
+            $logger->error('NFCPymanet CURRENCY IN => '.$currency_in);
+            if($currency_in != Currency::$FAC){
+                //do exchange
+                $amount = $this->get('net.telepay.commons.exchange_manipulator')->exchangeInverse($params['amount'], $currency_in, 'FAIRP');
+                $logger->error('NFCPymanet AMOUNT AFTER EXCHANGE => '.$amount);
+            }
+        }
+
+        //walletToWallet transaction from user to commerce
         $senderCompany = $card->getCompany();
 
         $senderWallet = $senderCompany->getWallet(Currency::$FAC);
         $receiverWallet = $receiverCompany->getWallet(Currency::$FAC);
 
         //Check funds sender wallet
-        if($senderWallet->getAvailable() < $params['amount']) throw new HttpException(403, 'Insuficient funds');
+        if($senderWallet->getAvailable() < $amount) throw new HttpException(403, 'Insuficient funds');
+
+        $concept = 'walletToWallet from ANDROID FAIR APP';
+        $url_notification = '';
+        if($request->request->has('url_notification')) $url_notification = $request->request->get('url_notification');
+        if($request->request->has('concept')) $concept = $request->request->get('concept');
 
         //SENDER TRANSACTION
         $sender_transaction = new Transaction();
@@ -611,7 +810,7 @@ class NFCController extends RestApiController{
         $sender_transaction->setType('out');
         $sender_transaction->setVariableFee(0);
         $sender_transaction->setFixedFee(0);
-        $sender_transaction->setAmount($params['amount']);
+        $sender_transaction->setAmount($amount);
         $sender_transaction->setDataIn(array(
             'description'   =>  'transfer->FAC',
             'concept'       =>  'walletToWallet from ANDROID APP'
@@ -625,12 +824,15 @@ class NFCController extends RestApiController{
         $sender_transaction->setPayOutInfo(array(
             'beneficiary'   =>  $receiverCompany->getName(),
             'beneficiary_id'     =>  $receiverCompany->getId(),
-            'amount'    =>  -$params['amount'],
+            'amount'    =>  -$amount,
             'currency'  =>  Currency::$FAC,
             'scale'     =>  Currency::$SCALE[Currency::$FAC],
-            'concept'       =>  'walletToWallet from ANDROID APP'
+            'concept'       =>  $concept,
+            'url_notification'  =>  $url_notification,
+            'received_amount'   =>  $params['amount'],
+            'currency_in'   =>  $currency_in
         ));
-        $sender_transaction->setTotal(-$params['amount']);
+        $sender_transaction->setTotal(-$amount);
         $sender_transaction->setUser($card->getUser()->getId());
         $sender_transaction->setGroup($card->getCompany()->getId());
 
@@ -640,11 +842,11 @@ class NFCController extends RestApiController{
         $dm->persist($sender_transaction);
 
         $balancer = $this->get('net.telepay.commons.balance_manipulator');
-        $balancer->addBalance($senderCompany, -$params['amount'], $sender_transaction);
+        $balancer->addBalance($senderCompany, -$amount, $sender_transaction);
 
         //FEE=1% al user
-        $variable_fee = round($params['amount']*0.01,0);
-        $amount = $params['amount'] - $variable_fee;
+        $variable_fee = round($amount*0,0);
+        $receiver_amount = $amount - $variable_fee;
 
         //RECEIVER TRANSACTION
         $receiver_transaction = new Transaction();
@@ -658,18 +860,18 @@ class NFCController extends RestApiController{
         $receiver_transaction->setType('in');
         $receiver_transaction->setVariableFee($variable_fee);
         $receiver_transaction->setFixedFee(0);
-        $receiver_transaction->setAmount($params['amount']);
+        $receiver_transaction->setAmount($receiver_amount);
         $receiver_transaction->setDataOut(array(
             'received_from' =>  $senderCompany->getName(),
             'id_from'       =>  $senderCompany->getId(),
-            'amount'        =>  $params['amount'],
+            'amount'        =>  $receiver_amount,
             'currency'      =>  $receiverWallet->getCurrency(),
             'previous_transaction'  =>  $sender_transaction->getId()
         ));
         $receiver_transaction->setDataIn(array(
             'sent_to'   =>  $receiverCompany->getName(),
             'id_to'     =>  $receiverCompany->getId(),
-            'amount'    =>  -$params['amount'],
+            'amount'    =>  -$receiver_amount,
             'currency'  =>  Currency::$FAC,
             'description'   =>  'transfer->FAC',
             'concept'   =>  'walletToWallet from ANDROID APP'
@@ -677,26 +879,25 @@ class NFCController extends RestApiController{
         $receiver_transaction->setPayInInfo(array(
             'sender'   =>  $senderCompany->getName(),
             'sender_id'     =>  $senderCompany->getId(),
-            'amount'    =>  $params['amount'],
+            'amount'    =>  $receiver_amount,
             'currency'  =>  Currency::$FAC,
             'scale'  =>  Currency::$SCALE[Currency::$FAC],
             'concept'   =>  'walletToWallet from ANDROID APP'
         ));
-        $receiver_transaction->setTotal($params['amount']);
+        $receiver_transaction->setTotal($receiver_amount);
         $receiver_transaction->setGroup($receiverCompany->getId());
 
         $dm->persist($receiver_transaction);
         $dm->flush();
 
-        $balancer = $this->get('net.telepay.commons.balance_manipulator');
         $balancer->addBalance($receiverCompany, $amount, $receiver_transaction);
 
         //update wallets
-        $senderWallet->setAvailable($senderWallet->getAvailable() - $params['amount']);
-        $senderWallet->setBalance($senderWallet->getBalance() - $params['amount']);
+        $senderWallet->setAvailable($senderWallet->getAvailable() - $amount);
+        $senderWallet->setBalance($senderWallet->getBalance() - $amount);
 
-        $receiverWallet->setAvailable($receiverWallet->getAvailable() + $amount);
-        $receiverWallet->setBalance($receiverWallet->getBalance() + $amount);
+        $receiverWallet->setAvailable($receiverWallet->getAvailable() + $receiver_amount);
+        $receiverWallet->setBalance($receiverWallet->getBalance() + $receiver_amount);
 
         $em->persist($senderWallet);
         $em->persist($receiverWallet);
@@ -705,7 +906,34 @@ class NFCController extends RestApiController{
         //create feeTransactions
         $this->_dealer(0, $variable_fee, $receiver_transaction);
 
-        return $this->restV2(200, "ok", "Transaction got successfully");
+        return $this->methodTransaction(201, $receiver_transaction, "Done");
+
+    }
+
+    /**
+     * @Rest\View
+     */
+    public function checkNFCPayment(Request $request, $id_company, $id){
+
+        $logger = $this->get('transaction.logger');
+        $logger->error('CHECKNFCPymanet INIT company => '.$id_company.' transaction => '.$id);
+        $dm = $this->get('doctrine_mongodb')->getManager();
+
+        $user = $this->getUser();
+        //TODO check if this user has this company
+
+        $transaction = $dm->getRepository('TelepayFinancialApiBundle:Transaction')->findOneBy(array(
+            'id'    =>  $id,
+            'group' =>  intval($id_company),
+            'method'    =>  'wallet_to_wallet'
+        ));
+
+        if(!$transaction){
+            $logger->error('CHECKNFCPymanet transaction not found');
+            throw new HttpException(404, 'Transaction not found');
+        }
+        $logger->error('CHECKNFCPymanet successfully');
+        return $this->methodTransaction(200, $transaction, "Done");
 
     }
 
@@ -800,7 +1028,6 @@ class NFCController extends RestApiController{
         $userFee->setClient($user_transaction->getClient());
 
         $dm = $this->get('doctrine_mongodb')->getManager();
-        $dm->persist($userFee);
 
         $em = $this->getDoctrine()->getManager();
 
@@ -809,7 +1036,7 @@ class NFCController extends RestApiController{
 
         //commerce fee
         $rootFee = new Transaction();
-        $rootFee->setGroup($rootGroup);
+        $rootFee->setGroup($rootGroupId);
         $rootFee->setType(Transaction::$TYPE_FEE);
         $rootFee->setCurrency($user_transaction->getCurrency());
         $rootFee->setScale($user_transaction->getScale());
@@ -819,7 +1046,7 @@ class NFCController extends RestApiController{
         $rootFee->setService($user_transaction->getMethod().' ->fee');
         $rootFee->setMethod($user_transaction->getMethod().' ->fee');
         $rootFee->setStatus(Transaction::$STATUS_SUCCESS);
-        $rootFee->setTotal(-$total_fee);
+        $rootFee->setTotal($total_fee);
         $rootFee->setDataIn(array(
             'previous_transaction'  =>  $user_transaction->getId(),
             'transaction_amount'    =>  $user_transaction->getAmount(),
@@ -837,7 +1064,6 @@ class NFCController extends RestApiController{
         $rootFee->setFeeInfo($rootFeeInfo);
         $rootFee->setClient($user_transaction->getClient());
 
-        $dm->persist($rootFee);
         $dm->flush();
 
     }
@@ -867,7 +1093,7 @@ class NFCController extends RestApiController{
         $this->container->get($mailer)->send($message);
     }
 
-    private function _sendUpdateCardEmail(NFCCard $card, $action){
+    private function _sendUpdateCardEmail(NFCCard $card, $action, $url){
         $from = 'no-reply@chip-chap.com';
         $mailer = 'mailer';
         $template = 'TelepayFinancialApiBundle:Email:NFCUpdate.html.twig';
@@ -888,7 +1114,8 @@ class NFCController extends RestApiController{
                     ->render($template,
                         array(
                             'card'  =>  $card,
-                            'action'    =>  $action
+                            'action'    =>  $action,
+                            'url'   =>  $url
                         )
                     )
             )
@@ -897,4 +1124,41 @@ class NFCController extends RestApiController{
         $this->container->get($mailer)->send($message);
     }
 
+    private function _randomPassword() {
+        $alphabet = 'abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ1234567890';
+        $pass = array();
+        $alphaLength = strlen($alphabet) - 1;
+        for ($i = 0; $i < 8; $i++) {
+            $n = rand(0, $alphaLength);
+            $pass[] = $alphabet[$n];
+        }
+        return implode($pass); //turn the array into a string
+    }
+
+    private function _sendDeactivateCardEmail($email, $cards, $action, $url){
+        $from = 'no-reply@chip-chap.com';
+        $mailer = 'mailer';
+        $template = 'TelepayFinancialApiBundle:Email:NFCUpdate.html.twig';
+
+        $subject = 'Disable card';
+        $message = \Swift_Message::newInstance()
+            ->setSubject($subject)
+            ->setFrom($from)
+            ->setTo(array(
+                $email
+            ))
+            ->setBody(
+                $this->container->get('templating')
+                    ->render($template,
+                        array(
+                            'cards'  =>  $cards,
+                            'action'    =>  $action,
+                            'url'   =>  $url
+                        )
+                    )
+            )
+            ->setContentType('text/html');
+
+        $this->container->get($mailer)->send($message);
+    }
 }

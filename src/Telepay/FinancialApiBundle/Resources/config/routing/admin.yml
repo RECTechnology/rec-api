@@ -215,6 +215,12 @@ admin_update_status_transaction:
     requirements:
         _method: PUT
 
+admin_change_trans_amount:
+    pattern:  /admin/v1/transaction/amount/{id}
+    defaults: { _controller: Telepay\FinancialApiBundle\Controller\Management\Admin\SpecialActionsController::changeTransactionAmount }
+    requirements:
+        _method: PUT
+
 
 ##################### COMPANIES ############################
 
@@ -229,3 +235,81 @@ admin_companies_super_delete:
     defaults: { _controller: Telepay\FinancialApiBundle\Controller\Management\Admin\CompaniesController::deleteAction }
     requirements:
         _method: DELETE
+
+##################### KYC ############################
+
+admin_KYC_list:
+    pattern:  /admin/v1/kyc
+    defaults: { _controller: Telepay\FinancialApiBundle\Controller\Management\Admin\KYCController::listPendingIssues }
+    requirements:
+        _method: GET
+
+admin_KYC_update:
+    pattern:  /admin/v1/kyc/{id}
+    defaults: { _controller: Telepay\FinancialApiBundle\Controller\Management\Admin\KYCController::updateAction }
+    requirements:
+        _method: PUT
+
+admin_KYC_update_request:
+    pattern:  /admin/v1/kyc/{id}/{action}
+    defaults: { _controller: Telepay\FinancialApiBundle\Controller\Management\Admin\KYCController::updateKYCRequest }
+    requirements:
+        _method: PUT
+
+admin_kyc_get_uploaded_files_by_user:
+    pattern:  /admin/v1/kyc/uploads/{id}
+    defaults: { _controller: Telepay\FinancialApiBundle\Controller\Management\Admin\KYCController::getUploadedFiles }
+    requirements:
+        _method: GET
+
+##################### TIER LIMITS ############################
+
+admin_KYC_limit_index:
+    pattern: /admin/v1/tier/limit
+    defaults: { _controller: Telepay\FinancialApiBundle\Controller\Management\Admin\TierLimitController::indexAction }
+    requirements:
+        _method: GET
+
+admin_KYC_limit_create:
+    pattern: /admin/v1/tier/limit
+    defaults: { _controller: Telepay\FinancialApiBundle\Controller\Management\Admin\TierLimitController::createAction }
+    requirements:
+        _method: POST
+
+admin_kyc_limit_update:
+    pattern: /admin/v1/tier/limit/{id}
+    defaults: { _controller: Telepay\FinancialApiBundle\Controller\Management\Admin\TierLimitController::updateAction }
+    requirements:
+        _method: PUT
+
+admin_kyc_limit_delete:
+    pattern: /admin/v1/tier/limit/{id}
+    defaults: { _controller: Telepay\FinancialApiBundle\Controller\Management\Admin\TierLimitController::deleteAction }
+    requirements:
+        _moethod: DELETE
+
+##################### LIMITS ############################
+
+admin_specific_limit_index:
+    pattern: /admin/v1/limit
+    defaults: { _controller: Telepay\FinancialApiBundle\Controller\Management\Admin\CompanyLimitController::indexAction }
+    requirements:
+        _method: GET
+
+admin_specific_limit_create:
+    pattern: /admin/v1/limit
+    defaults: { _controller: Telepay\FinancialApiBundle\Controller\Management\Admin\CompanyLimitController::createAction }
+    requirements:
+        _method: POST
+
+admin_specific_limit_update:
+    pattern: /admin/v1/limit/{id}
+    defaults: { _controller: Telepay\FinancialApiBundle\Controller\Management\Admin\CompanyLimitController::updateAction }
+    requirements:
+        _method: PUT
+
+admin_specific_limit_delete:
+    pattern: /admin/v1/limit/{id}
+    defaults: { _controller: Telepay\FinancialApiBundle\Controller\Management\Admin\CompanyLimitController::deleteAction }
+    requirements:
+        _moethod: DELETE
