@@ -12,10 +12,12 @@ namespace Telepay\FinancialApiBundle\Entity;
 use Doctrine\ORM\Mapping as ORM;
 
 use Telepay\FinancialApiBundle\Financial\Currency;
+use Symfony\Bridge\Doctrine\Validator\Constraints\UniqueEntity;
 
 /**
  * @ORM\Entity
- * @ORM\Table(name="tier_limits")
+ * @ORM\Table(name="tier_limits", uniqueConstraints={@ORM\UniqueConstraint(columns={"tier", "currency", "method"})})
+ * @UniqueEntity(fields = {"tier", "currency", "method"})
  */
 class TierLimit implements Limit {
 
