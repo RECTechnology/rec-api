@@ -69,6 +69,8 @@ class TierLimit implements Limit {
      */
     private $tier;
 
+    private $scale;
+
     public function createDefault($tier, $method, $currency){
         $this->day = 0;
         $this->single = 0;
