@@ -62,7 +62,7 @@ class MoneyStoresManagerCommand extends ContainerAwareCommand{
             $this->maxSteps = strtoupper($input->getOption('max-steps'));
         }
         else{
-            $this->maxSteps = 10;
+            $this->maxSteps = 2;
         }
 
         if($input->getOption('max-range')){
@@ -124,7 +124,7 @@ class MoneyStoresManagerCommand extends ContainerAwareCommand{
             $min = round($wallet->getMinBalance() * $balance / 100 + $wallet->getFixedAmount(),0);
             $max = round($wallet->getMaxBalance() * $balance / 100 + $wallet->getFixedAmount(),0);
             $perfect = round($wallet->getPerfectBalance() * $balance / 100 + $wallet->getFixedAmount(),0);
-            $now = round($wallet_conf->getFakeBalance() * (pow(10, Currency::$SCALE[$currency])), 0);
+            $now = round($wallet_conf->getBalance() * (pow(10, Currency::$SCALE[$currency])), 0);
             $receiving_data = $this->receiving($wallet);
             $receiving = $receiving_data['amount'];
             $system_data['transfers'] = array_merge($system_data['transfers'], $receiving_data['list']);
@@ -154,8 +154,11 @@ class MoneyStoresManagerCommand extends ContainerAwareCommand{
         array_push($listNodes, $initNode);
         while(count($listNodes)>0){
             $node = array_shift($listNodes);
-            $output->writeln("H: " . $node->getHeuristic() . " total=" . count($listNodes)  . " steps=" . $node->getSteps());
-            //$output->writeln("Posible: " . json_encode($this->possibleTransfers($node->getInfo())));
+            if($node->getSteps()>0) {
+                //$output->writeln("--------");
+                //$output->writeln("Doing: " . json_encode($node->getTransfer()));
+                //$output->writeln("H: " . $node->getHeuristic() . " total=" . count($listNodes) . " steps=" . $node->getSteps() . " prev:" . $node->getPrev()->getHeuristic());
+            }
             if($node->getHeuristic() < $bestNode->getHeuristic()){
                 $bestNode = $node;
             }
@@ -175,7 +178,7 @@ class MoneyStoresManagerCommand extends ContainerAwareCommand{
             $output->writeln("H: " . $bestNode->getHeuristic());
         }
         else{
-            $this->sendList($listTransfersToDo, $output);
+            $this->sendList($listTransfersToDo);
         }
     }
 

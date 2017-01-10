@@ -49,6 +49,26 @@ class BittrexWallet implements WalletInterface, TraderInterface {
         );
     }
 
+    public function transfer(CashInInterface $dst, $amount){
+        $resp = $this->bittrexDriver->withdraw(
+            $this->currency,
+            $amount,
+            $dst->getAddress()
+        );
+
+        if(!$resp->success){
+            return array(
+                'sent' => false,
+                'info' => 0
+            );
+        }
+        return array(
+            'sent' => true,
+            //'info' => $resp->result->uuid
+            'info' => json_encode($resp)
+        );
+    }
+
     public function getBalance()
     {
         $resp = $this->bittrexDriver->getBalance(
