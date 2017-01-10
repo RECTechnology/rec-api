@@ -98,6 +98,7 @@ class UsersController extends BaseApiController
                 $qb->expr()->like('p.username', $qb->expr()->literal('%'.$search.'%')),
                 $qb->expr()->like('p.id', $qb->expr()->literal('%'.$search.'%')),
                 $qb->expr()->like('p.email', $qb->expr()->literal('%'.$search.'%')),
+                $qb->expr()->like('p.active_group.name', $qb->expr()->literal('%'.$search.'%')),
                 $qb->expr()->like('p.name', $qb->expr()->literal('%'.$search.'%'))
             ))
             ->getQuery();
