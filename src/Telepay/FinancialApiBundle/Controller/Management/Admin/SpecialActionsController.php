@@ -222,7 +222,7 @@ class SpecialActionsController extends RestApiController {
         $dm = $this->get('doctrine_mongodb')->getManager();
         $transactions = $dm->getRepository('TelepayFinancialApiBundle:Transaction')
                     ->findBy(array(
-                'service'   =>  $service,
+                'method'   =>  $service,
                 'status'    =>  'created'
             ));
 
