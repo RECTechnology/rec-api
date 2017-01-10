@@ -248,4 +248,12 @@ class TierLimit implements Limit {
         return Currency::$SCALE[$this->currency];
     }
 
+    /**
+     * @param mixed $scale
+     */
+    public function setScale($currency)
+    {
+        $this->scale = Currency::$SCALE[$currency];
+    }
+
 }

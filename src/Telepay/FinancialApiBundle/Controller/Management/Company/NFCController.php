@@ -78,10 +78,10 @@ class NFCController extends RestApiController{
                     $pin = $request->request->get('pin');
                     $enabled = true;
                 }else{
-                    throw new HttpException(403, 'Pin not found');
+                    throw new HttpException(403, 'User not found');
                 }
                 //user NOT exists
-                //TODO check if company name exists and generate new one
+                //check if company name exists and generate new one
                 $group = $em->getRepository('TelepayFinancialApiBundle:Group')->findOneBy(array(
                     'name'  =>  $params['alias']. 'Company'
                 ));
