@@ -485,6 +485,11 @@ class NFCController extends RestApiController{
 
         if(!$card->getEnabled()) throw new HttpException(403, 'Disabled card');
 
+        //check validation email
+        $kyc = $card->getUser()->getKyc();
+
+        if($kyc->getEmailValidated() == false) throw new HttpException(403, 'Email not validated');
+
         $receiverCompany = $card->getCompany();
 
         //currency FAC
@@ -643,6 +648,12 @@ class NFCController extends RestApiController{
                 if(!$card) throw new HttpException(404, 'NFC Card not found');
 
                 if($card->getEnabled() == 0) throw new HttpException(403, 'Disabled card');
+
+                //check validation email
+                $kyc = $card->getUser()->getKyc();
+
+                if($kyc->getEmailValidated() == false) throw new HttpException(403, 'Email not validated');
+
                 //generate new pin
                 $tokenGenerator = $this->container->get('fos_user.util.token_generator');
                 $confirmationToken = $tokenGenerator->generateToken();
@@ -665,6 +676,12 @@ class NFCController extends RestApiController{
                 $user = $em->getRepository('TelepayFinancialApiBundle:User')->findOneBy(array(
                     'email' =>  $request->request->get('email')
                 ));
+
+                //check validation email
+                $kyc = $user->getKyc();
+
+                if($kyc->getEmailValidated() == false) throw new HttpException(403, 'Email not validated');
+
                 $cards = $em->getRepository('TelepayFinancialApiBundle:NFCCard')->findBy(array(
                     'user'   =>  $user->getId()
                 ));
@@ -714,6 +731,11 @@ class NFCController extends RestApiController{
         if(!$card) throw new HttpException(404, 'Card not found');
 
         if($card->getEnabled() == 0) throw new HttpException(403, 'Disabled card');
+
+        //check validation email
+        $kyc = $card->getUser()->getKyc();
+
+        if($kyc->getEmailValidated() == false) throw new HttpException(403, 'Email not validated');
 
         $company = $card->getCompany();
 
@@ -769,6 +791,11 @@ class NFCController extends RestApiController{
         if($params['signature'] != $signature) throw new HttpException(403, 'Bad signature');
 
         if(!$card->getEnabled()) throw new HttpException(403, 'Disabled card');
+
+        //check validation email
+        $kyc = $card->getUser()->getKyc();
+
+        if($kyc->getEmailValidated() == false) throw new HttpException(403, 'Email not validated');
 
         $amount = $params['amount'];
         $logger->error('NFCPymanet RECEIVED AMOUNT => '.$amount);
