@@ -178,9 +178,12 @@ class CheckCryptoCommand extends SyncronizedContainerAwareCommand
                             $newGroupLimitCount = (new LimitAdder())->restore( $groupLimitCount, $total);
                             $em->flush();
 
+                            $output->writeln('NOTIFYING EXPIRED');
+                            $transaction = $this->getContainer()->get('notificator')->notificate($transaction);
                             //if delete_on_expire==true delete transaction
                             if ($transaction->getDeleteOnExpire() == true) {
                                 $transaction->setStatus('deleted');
+                                $em->flush();
                                 $output->writeln('NOTIFYING DELETE ON EXPIRE');
                                 $transaction = $this->getContainer()->get('notificator')->notificate($transaction);
                                 $output->writeln('DELETE ON EXPIRE');

@@ -50,7 +50,6 @@ class AccountController extends BaseApiController{
         if(!$userGroup->hasRole('ROLE_ADMIN')) throw new HttpException('You don\'t have the necessary permissions');
 
         $company->setKycManager($user);
-        $em->persist($company);
         $em->flush();
 
         return $this->rest(204, 'Manager changed successfully');

@@ -128,7 +128,7 @@ class KYCController extends BaseApiController{
         $em = $this->getDoctrine()->getManager();
         $kyc = $em->getRepository($this->getRepositoryName())->find($id);
 
-        if($action != 'denied' || $action != 'approved') throw new HttpException(403,'Invalid action');
+        if($action != 'denied' && $action != 'approved') throw new HttpException(403,'Invalid action');
 
         $tier = $request->request->get('tier');
 
@@ -148,49 +148,6 @@ class KYCController extends BaseApiController{
 
         return $this->restV2(204,"ok", "Updated successfully");
 
-    }
-
-    /**
-     * @Rest\View
-     */
-    public function updateActionOld(Request $request, $id){
-
-        $paramNames = array(
-            'tier',
-            'status'
-        );
-
-        $params = array();
-        foreach($paramNames as $paramName){
-            if(!$request->request->has($paramName)) throw new HttpException(404, 'Param '.$paramName.' not found');
-            $params[$paramName] = $request->request->get($paramName);
-        }
-
-        $em = $this->getDoctrine()->getManager();
-        $kyc = $em->getRepository($this->getRepositoryName())->find($id);
-
-        if(!$kyc) throw new HttpException(404, 'KYC not found');
-
-        $acceptedStatus = array(
-            'denied',
-            'success'
-        );
-
-        if(!in_array($params['status'], $acceptedStatus)) throw new HttpException(403, 'Value for status not valid');
-
-        if($params['tier'] == 1){
-            $kyc->setTier1Status($params['status']);
-            //TODO update company tier
-        }elseif($params['tier'] == 2){
-            if($kyc->getTier1Status() != 'success') throw new HttpException(403, 'You needs to validate tier 1 first');
-            $kyc->setTier2Status($params['status']);
-            //TODO update company tier
-        }
-
-        $em->persist($kyc);
-        $em->flush();
-
-        return $this->rest(204, 'Updated successfully');
     }
 
     /**
