@@ -26,6 +26,7 @@ class KrakenWallet implements WalletInterface, TraderInterface {
     private $krakenCurrencyNames = array(
         'BTC' => 'XXBT',
         'EUR' => 'ZEUR',
+        'USD' => 'ZUSD'
     );
 
     private static $krakenMarketsMap = array(
@@ -89,15 +90,21 @@ class KrakenWallet implements WalletInterface, TraderInterface {
 
     public function getBalance()
     {
-        return $this->krakenDriver->QueryPrivate(
+        $balances =$this->krakenDriver->QueryPrivate(
             'Balance'
-        )['result'][$this->krakenCurrencyNames[$this->getCurrency()]];
+        )['result'];
+
+        if(isset($balances[$this->krakenCurrencyNames[$this->getCurrency()]])){
+            return $balances[$this->krakenCurrencyNames[$this->getCurrency()]];
+        }
+        return 0;
     }
 
     public function getFakeBalance()
     {
         if($this->getCurrency() == 'BTC') return 2;
-        if($this->getCurrency() == 'EUR') return 400;
+        if($this->getCurrency() == 'EUR') return 40000;
+        if($this->getCurrency() == 'USD') return 0;
         return 0;
     }
 

@@ -36,6 +36,20 @@ class FullNodeWallet implements WalletInterface {
         return $this->nodeLink->sendtoaddress($dst->getAddress(), $amount);
     }
 
+    public function transfer(CashInInterface $dst, $amount){
+        $resp =  $this->nodeLink->sendtoaddress($dst->getAddress(), $amount);
+        if(!$resp){
+            return array(
+                'sent' => false,
+                'info' => 0
+            );
+        }
+        return array(
+            'sent' => true,
+            'info' => json_encode($resp)
+        );
+    }
+
     public function getBalance()
     {
         return $this->nodeLink->getbalance();
