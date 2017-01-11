@@ -22,7 +22,7 @@ use Symfony\Bridge\Doctrine\Validator\Constraints\UniqueEntity;
 /**
  * @ORM\Entity
  * @ORM\Table(name="NFCCard", uniqueConstraints={@ORM\UniqueConstraint(columns={"user_id", "alias"})})
- * @UniqueEntity(fields = {"user_id", "alias"},message="Duplicated Alias")
+ * @UniqueEntity(fields = {"user", "alias"},message="Duplicated Alias")
  * @ExclusionPolicy("all")
  */
 class NFCCard{
