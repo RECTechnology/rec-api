@@ -229,7 +229,7 @@ class NFCController extends RestApiController{
                 //search card by id and by alias
                 $card = $em->getRepository('TelepayFinancialApiBundle:NFCCard')->findOneBy(array(
                     'alias' =>  $params['alias'],
-                    'user'  =>  $user
+                    'user'  =>  $user->getId()
                 ));
 
                 if($card) throw new HttpException(409, 'Duplicated alias');
