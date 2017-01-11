@@ -3,6 +3,7 @@
 namespace Telepay\FinancialApiBundle\Controller\Management\Manager;
 
 use Doctrine\DBAL\DBALException;
+use Doctrine\ORM\Query\Expr\Join;
 use Exception;
 use Symfony\Component\HttpKernel\Exception\HttpException;
 use Telepay\FinancialApiBundle\Controller\BaseApiController;
@@ -98,7 +99,8 @@ class UsersController extends BaseApiController
                 $qb->expr()->like('p.username', $qb->expr()->literal('%'.$search.'%')),
                 $qb->expr()->like('p.id', $qb->expr()->literal('%'.$search.'%')),
                 $qb->expr()->like('p.email', $qb->expr()->literal('%'.$search.'%')),
-                $qb->expr()->like('p.name', $qb->expr()->literal('%'.$search.'%'))
+                $qb->expr()->like('p.name', $qb->expr()->literal('%'.$search.'%')),
+                $qb->innerJoin('p.active_group', 'c', Join::WITH, $qb->expr()->literal('%'.$search.'%') )
             ))
             ->getQuery();
 

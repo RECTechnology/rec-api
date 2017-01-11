@@ -705,7 +705,7 @@ class AccountController extends BaseApiController{
                 throw new HttpException(404, 'Param ' . $param . ' not found');
             }
         }
-        if(strlen($params['password'])<6) throw new HttpException(404, 'Password must be longer than 6 caracters');
+        if(strlen($params['password'])<6) throw new HttpException(404, 'Password must be longer than 6 characters');
         if($params['password'] != $params['repassword']) throw new HttpException(404, 'Password and repassword are differents');
         $params['plain_password'] = $params['password'];
         unset($params['password']);
