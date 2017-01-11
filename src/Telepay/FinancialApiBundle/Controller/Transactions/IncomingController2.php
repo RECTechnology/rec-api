@@ -226,7 +226,7 @@ class IncomingController2 extends RestApiController{
             $logger->info('Available = ' . $wallet->getAvailable() .  " TOTAL: " . $total);
             if($wallet->getAvailable() <= $total) throw new HttpException(405,'Not founds enough');
                     //Bloqueamos la pasta en el wallet
-            $wallet->setAvailable($wallet->getAvailable() - $total);
+            $wallet->setAvailable($wallet->getAvailable() - $amount);
             $em->persist($wallet);
             $em->flush();
 
@@ -243,7 +243,7 @@ class IncomingController2 extends RestApiController{
                     $transaction->setStatus( Transaction::$STATUS_ERROR );
                 }
                 //desbloqueamos la pasta del wallet
-                $wallet->setAvailable($wallet->getAvailable() + $total);
+                $wallet->setAvailable($wallet->getAvailable() + $amount);
                 //descontamos del counter
                 $newGroupLimitCount = (new LimitAdder())->restore( $groupLimitCount, $total);
                 $em->persist($wallet);
@@ -274,7 +274,7 @@ class IncomingController2 extends RestApiController{
                 $this->container->get('notificator')->notificate($transaction);
 
                 //restar al grupo el amount + comisiones
-                $wallet->setBalance($wallet->getBalance() - $total);
+                $wallet->setBalance($wallet->getBalance() - $amount);
 
                 //insert new line in the balance fro this group
                 $this->get('net.telepay.commons.balance_manipulator')->addBalance($group, -$amount, $transaction);
@@ -308,7 +308,7 @@ class IncomingController2 extends RestApiController{
             }else{
                 $transaction->setStatus($payment_info['status']);
                 //desbloqueamos la pasta del wallet
-                $wallet->setAvailable($wallet->getAvailable() + $total);
+                $wallet->setAvailable($wallet->getAvailable() + $amount);
                 $em->persist($wallet);
                 $em->flush();
                 $dm->persist($transaction);
@@ -407,7 +407,7 @@ class IncomingController2 extends RestApiController{
                 if( $transaction->getStatus()== Transaction::$STATUS_FAILED ){
                     $logger->info('Update transaction -> status->failed');
                     //discount available
-                    $current_wallet->setAvailable($current_wallet->getAvailable() - $total_amount);
+                    $current_wallet->setAvailable($current_wallet->getAvailable() - $amount);
                     $em->persist($current_wallet);
                     $em->flush();
                     try {
@@ -423,7 +423,7 @@ class IncomingController2 extends RestApiController{
                         $mongo->persist($transaction);
                         $mongo->flush();
                         //devolver la pasta de la transaccion al wallet si es cash out (al available)
-                        $current_wallet->setAvailable($current_wallet->getAvailable() + $total_amount );
+                        $current_wallet->setAvailable($current_wallet->getAvailable() + $amount );
 
                         $transaction = $this->get('notificator')->notificate($transaction);
 
@@ -447,7 +447,7 @@ class IncomingController2 extends RestApiController{
                     $balancer = $this->get('net.telepay.commons.balance_manipulator');
                     $balancer->addBalance($group, -$amount, $transaction);
 
-                    $current_wallet->setBalance($current_wallet->getBalance() - $total_amount );
+                    $current_wallet->setBalance($current_wallet->getBalance() - $amount );
                     $em->persist($current_wallet);
                     $em->flush();
 
@@ -537,7 +537,7 @@ class IncomingController2 extends RestApiController{
                 //el cash-in de momento no se puede cancelar
                 if($transaction->getStatus()== Transaction::$STATUS_CREATED || $transaction->getStatus() == Transaction::$STATUS_REVIEW || ( ($method_cname == "halcash_es" || $method_cname == "halcash_pl") && $transaction->getStatus() == Transaction::$STATUS_SUCCESS && $transaction->getPayOutInfo()['status'] == Transaction::$STATUS_SENT )){
                     if($transaction->getStatus() == Transaction::$STATUS_REVIEW){
-                        throw new HttpException(405, 'Mothod not implemented');
+                        throw new HttpException(405, 'Method not implemented');
                     }else{
                         $logger->info('Update transaction -> canceling');
                         try {
