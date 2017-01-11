@@ -691,6 +691,7 @@ class NFCController extends RestApiController{
                     'email' =>  $request->request->get('email')
                 ));
 
+                if(!$user) throw new HttpException(404, 'User not found');
                 //check validation email
                 $kyc = $user->getKyc();
 
@@ -699,6 +700,9 @@ class NFCController extends RestApiController{
                 $cards = $em->getRepository('TelepayFinancialApiBundle:NFCCard')->findBy(array(
                     'user'   =>  $user->getId()
                 ));
+
+                if(!$cards) throw new HttpException(404, 'No cards found');
+
                 $url = $this->container->getParameter('base_panel_url');
                 $url = $url.'/user/disable_nfc/';
 
