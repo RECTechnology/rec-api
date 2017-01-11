@@ -10,6 +10,7 @@
 namespace Telepay\FinancialApiBundle\Controller\Management\Company;
 
 use Doctrine\DBAL\DBALException;
+use Doctrine\DBAL\Exception\ConstraintViolationException;
 use Exception;
 use Rhumsaa\Uuid\Uuid;
 use Symfony\Component\HttpKernel\Exception\HttpException;
@@ -226,11 +227,18 @@ class NFCController extends RestApiController{
 
                 if(count($companies) < 1) throw new HttpException(403, 'You don\' have the necessary permissions for this company');
 
-//                $card = $em->getRepository('TelepayFinancialApiBundle:NFCCard')->findOneBy(array(
-//                    'id_card' =>  $params['id_card']
-//                ));
-//
-//                if($card) throw new HttpException(409, 'Duplicated id');
+                $card = $em->getRepository('TelepayFinancialApiBundle:NFCCard')->findOneBy(array(
+                    'id_card' =>  $params['id_card']
+                ));
+
+                if($card) throw new HttpException(409, 'Duplicated id');
+
+                $card = $em->getRepository('TelepayFinancialApiBundle:NFCCard')->findOneBy(array(
+                    'user' =>  $user,
+                    'alias' =>  $params['alias']
+                ));
+
+                if($card) throw new HttpException(409, 'Duplicated alias');
 
                 //create card
                 $pin = rand(0,9999);
@@ -253,7 +261,7 @@ class NFCController extends RestApiController{
 
             }
             $em->getConnection()->commit();
-        }catch(DBALException $e){
+        }catch(ConstraintViolationException $e){
             $em->getConnection()->rollBack();
             if(preg_match('/1062 Duplicate entry/i',$e->getMessage()))
                 throw new HttpException(409, "Duplicated resource");
