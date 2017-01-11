@@ -1136,7 +1136,7 @@ class IncomingController2 extends RestApiController{
 //    }
 
     private function _inverseDealerV2(Transaction $transaction_cancelled, UserWallet $current_wallet){
-        $logger = $this->get('logger');
+        $logger = $this->get('transaction.logger');
         $logger->info('Update transaction -> inversedDealer2');
         $em = $this->getDoctrine()->getManager();
         $mongo = $this->get('doctrine_mongodb')->getManager();
