@@ -1168,10 +1168,8 @@ class IncomingController2 extends RestApiController{
             ->getQuery()
             ->execute();
 
-//        $exist = false;
-//        $method_cname = $transaction_cancelled->getMethod();
+        $logger->info('Update transaction -> inversedDealer2 total transactions '.count($transactions));
         foreach($transactions->toArray() as $transaction){
-//            $exist = true;
 
             $total_fee = $transaction->getAmount();
 
@@ -1184,11 +1182,7 @@ class IncomingController2 extends RestApiController{
             $feeInfo = $transaction->getFeeInfo();
             $feeInfo['status'] = Transaction::$STATUS_CANCELLED;
             $transaction->setFeeInfo($feeInfo);
-//            $transaction->setPayOutInfo(array(
-//                'previous_transaction'  =>  $transaction->getId(),
-//                'amount'                =>  -$total_fee,
-//                'description'           =>  'refund'.$method_cname.'->fee'
-//            ));
+
             $transaction->setStatus(Transaction::$STATUS_CANCELLED);
 
             $mongo->persist($transaction);
