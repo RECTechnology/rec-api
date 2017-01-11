@@ -1171,12 +1171,12 @@ class IncomingController2 extends RestApiController{
         $logger->info('Update transaction -> inversedDealer2 total transactions '.count($transactions));
         foreach($transactions->toArray() as $transaction){
 
-            $total_fee = $transaction->getAmount();
+            $total_fee = $transaction->getTotal();
 
             $group = $em->getRepository('TelepayFinancialApiBundle:Group')->find($transaction->getGroup());
 
             $logger->info('Update transaction -> cancel fees => '.$transaction->getId());
-            $logger->info('Update transaction -> cancel fees => '.$transaction->getAmount());
+            $logger->info('Update transaction -> cancel fees => '.$transaction->getTotal());
             $transaction->setAmount(0);
             $transaction->setTotal(0);
             $feeInfo = $transaction->getFeeInfo();
@@ -1195,8 +1195,8 @@ class IncomingController2 extends RestApiController{
             $wallets = $group->getwallets();
             foreach($wallets as $wallet){
                 if($transaction->getCurrency() == $wallet->getCurrency()){
-                    $wallet->setAvailable($wallet->getAvailable() + $total_fee);
-                    $wallet->setBalance($wallet->getBalance() + $total_fee);
+                    $wallet->setAvailable($wallet->getAvailable() - $total_fee);
+                    $wallet->setBalance($wallet->getBalance() - $total_fee);
 
                     $em->persist($wallet);
                     $em->flush();
