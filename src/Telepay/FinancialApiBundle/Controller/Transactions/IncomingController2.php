@@ -1145,7 +1145,7 @@ class IncomingController2 extends RestApiController{
         $transaction_id = $transaction_cancelled->getId();
         $transactions = $qb
             ->field('type')->equals('fee')
-            ->field('group')->equals($transaction_cancelled->getGroup())
+//            ->field('group')->equals($transaction_cancelled->getGroup())
             ->where("function() {
                                 if (typeof this.fee_info !== 'undefined') {
                                     if (typeof this.fee_info.previous_transaction !== 'undefined') {
