@@ -19,6 +19,9 @@ use Doctrine\ORM\Mapping as ORM;
 
 /**
  * @ORM\Entity
+ * @ORM\Table(name="NFCCard", uniqueConstraints={@ORM\UniqueConstraint(columns={"user", "alias", "id_card"})})
+ * @UniqueEntity(fields = {"user", "alias"},message="Duplicated Alias")
+ * @UniqueEntity(fields = {"id_card"},message="Duplicated Id")
  * @ExclusionPolicy("all")
  */
 class NFCCard{
@@ -54,7 +57,7 @@ class NFCCard{
     private $user;
 
     /**
-     * @ORM\Column(type="string", unique=true)
+     * @ORM\Column(type="string")
      * @Expose
      */
     private $alias;

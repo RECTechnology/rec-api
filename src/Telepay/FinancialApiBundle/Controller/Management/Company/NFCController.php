@@ -226,19 +226,11 @@ class NFCController extends RestApiController{
 
                 if(count($companies) < 1) throw new HttpException(403, 'You don\' have the necessary permissions for this company');
 
-                //search card by id and by alias
-                $card = $em->getRepository('TelepayFinancialApiBundle:NFCCard')->findOneBy(array(
-                    'alias' =>  $params['alias'],
-                    'user'  =>  $user->getId()
-                ));
-
-                if($card) throw new HttpException(409, 'Duplicated alias');
-
-                $card = $em->getRepository('TelepayFinancialApiBundle:NFCCard')->findOneBy(array(
-                    'id_card' =>  $params['id_card']
-                ));
-
-                if($card) throw new HttpException(409, 'Duplicated id');
+//                $card = $em->getRepository('TelepayFinancialApiBundle:NFCCard')->findOneBy(array(
+//                    'id_card' =>  $params['id_card']
+//                ));
+//
+//                if($card) throw new HttpException(409, 'Duplicated id');
 
                 //create card
                 $pin = rand(0,9999);
