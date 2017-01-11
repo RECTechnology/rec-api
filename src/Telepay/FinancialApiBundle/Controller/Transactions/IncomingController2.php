@@ -406,7 +406,7 @@ class IncomingController2 extends RestApiController{
                 $logger->info('Update transaction -> retry');
                 if( $transaction->getStatus()== Transaction::$STATUS_FAILED ){
                     $logger->info('Update transaction -> status->failed');
-                    //discount available
+                    //discount available, only amount because the fees are created in createFees
                     $current_wallet->setAvailable($current_wallet->getAvailable() - $amount);
                     $em->persist($current_wallet);
                     $em->flush();
@@ -1171,6 +1171,8 @@ class IncomingController2 extends RestApiController{
         $logger->info('Update transaction -> inversedDealer2 total transactions '.count($transactions));
         foreach($transactions->toArray() as $transaction){
 
+            //cogemos el total porque esta en negativo o positivo dependiendo de si es una fee in o out
+            //asi nos vale para sumar o restar en cada caso
             $total_fee = $transaction->getTotal();
 
             $group = $em->getRepository('TelepayFinancialApiBundle:Group')->find($transaction->getGroup());
@@ -1195,6 +1197,7 @@ class IncomingController2 extends RestApiController{
             $wallets = $group->getwallets();
             foreach($wallets as $wallet){
                 if($transaction->getCurrency() == $wallet->getCurrency()){
+                    //restamos porque si es negativa la fee se sumara y si es positiva se restara
                     $wallet->setAvailable($wallet->getAvailable() - $total_fee);
                     $wallet->setBalance($wallet->getBalance() - $total_fee);
 
