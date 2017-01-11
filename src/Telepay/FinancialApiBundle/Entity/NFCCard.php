@@ -16,10 +16,12 @@ use JMS\Serializer\Annotation\Exclude;
 
 use Doctrine\ORM\Mapping as ORM;
 
+use Symfony\Bridge\Doctrine\Validator\Constraints\UniqueEntity;
+
 
 /**
  * @ORM\Entity
- * @ORM\Table(name="NFCCard", uniqueConstraints={@ORM\UniqueConstraint(columns={"user", "alias", "id_card"})})
+ * @ORM\Table(name="NFCCard", uniqueConstraints={@ORM\UniqueConstraint(columns={"user_id", "alias", "id_card"})})
  * @UniqueEntity(fields = {"user", "alias"},message="Duplicated Alias")
  * @UniqueEntity(fields = {"id_card"},message="Duplicated Id")
  * @ExclusionPolicy("all")
