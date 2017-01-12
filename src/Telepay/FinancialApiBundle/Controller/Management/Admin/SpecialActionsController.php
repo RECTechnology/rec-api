@@ -260,6 +260,54 @@ class SpecialActionsController extends RestApiController {
     /**
      * @Rest\View
      */
+    public function cashOutList(Request $request, $method){
+
+        //only superadmin allowed
+        if (!$this->get('security.authorization_checker')->isGranted('ROLE_SUPER_ADMIN')) {
+            throw $this->createAccessDeniedException();
+        }
+
+        $dm = $this->get('doctrine_mongodb')->getManager();
+        $em = $this->getDoctrine()->getManager();
+        $transactions = $dm->getRepository('TelepayFinancialApiBundle:Transaction')
+            ->findBy(array(
+                'method'   =>  $method,
+                'status'    =>  'created',
+                'type'  =>  'out'
+            ));
+
+
+        $total = count($transactions);
+        $response = array();
+        foreach($transactions as $transaction){
+            $company_id = $transaction->getGroup();
+            $group = $em->getRepository('TelepayFinancialApiBundle:Group')->find($company_id);
+            $group_data = array(
+                'name'  =>  $group->getName()
+            );
+            $transaction->setGroupData($group_data);
+            $response[] = $transaction;
+
+        }
+
+        return $this->restV2(
+            200,
+            "ok",
+            "Request successful",
+            array(
+                'total' => $total,
+                'start' => 0,
+                'end' => $total,
+                'elements' => $response,
+                'scale' =>  2
+            )
+        );
+
+    }
+
+    /**
+     * @Rest\View
+     */
     public function swiftList(Request $request){
 
         //only superadmin allowed
