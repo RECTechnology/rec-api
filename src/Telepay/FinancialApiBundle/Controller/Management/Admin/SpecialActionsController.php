@@ -272,7 +272,7 @@ class SpecialActionsController extends RestApiController {
         $transactions = $dm->getRepository('TelepayFinancialApiBundle:Transaction')
             ->findBy(array(
                 'method'   =>  $method,
-                'status'    =>  'pending',
+                'status'    =>  'sending',
                 'type'  =>  'out'
             ));
 
