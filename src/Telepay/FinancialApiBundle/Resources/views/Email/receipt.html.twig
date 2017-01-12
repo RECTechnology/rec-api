@@ -34,6 +34,9 @@
     header h1{
         color: white;
     }
+    header img{
+        width: 220px;
+    }
     .wrapper{
         padding: 60px 40px 60px 60px;
     }
@@ -66,8 +69,7 @@
     .clear{clear: both;}
 </style>
 <header>
-    <h1>Chip-Chap</h1>
-    <img src="https://chip-chap.com/images/chip-chap_white.png">
+    <img src="https://chip-chap.com/images/logo-h-w.png">
 </header>
 <div class="wrapper">
     <p class="fright"><b>{{ transaction.startDate | date('d/m/Y') }} Hora: {{ transaction.startDate | date('H:i:s') }}</b></p>
@@ -80,10 +82,9 @@
                 <li><b>Ordenante:</b> {{ user.name }} {{ user.surname }}</li>
                 <li><b>Cuenta Cargo: </b> {{ company.name }}</li>
                 <li><b>Importe nominal: </b> {{ transaction.amount / 100 }} {{ transaction.currency }}</li>
-                <li><b>Gastos: </b> {{ transaction.variableFee/100 + transaction.fixedFee/100 }} {{ transaction.currency }} (fee)</li>
                 <li><b>IBAN: </b> {{ iban }}</li>
                 <li><b>Código BIC:</b> {{ swift }}</li>
-                <li><b>Banco beneficiario:</b> --</li>
+                <li><b>Banco beneficiario:</b></li>
                 <li><b>Beneficiario:</b> {{ beneficiary }}</li>
                 <li><b>Concepto:</b> {{ concept }}</li>
             </ul>
