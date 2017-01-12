@@ -220,6 +220,7 @@ class SpecialActionsController extends RestApiController {
         }
 
         $dm = $this->get('doctrine_mongodb')->getManager();
+        $em = $this->getDoctrine()->getManager();
         $transactions = $dm->getRepository('TelepayFinancialApiBundle:Transaction')
                     ->findBy(array(
                 'method'   =>  $service,
@@ -229,6 +230,17 @@ class SpecialActionsController extends RestApiController {
 
 
         $total = count($transactions);
+        $response = array();
+        foreach($transactions as $transaction){
+            $company_id = $transaction->getGroup();
+            $group = $em->getRepository('TelepayFinancialApiBundle:Group')->find($company_id);
+            $group_data = array(
+                'name'  =>  $group->getName()
+            );
+            $transaction->setGroupData($group_data);
+            $response[] = $transaction;
+
+        }
 
         return $this->restV2(
             200,
@@ -238,7 +250,7 @@ class SpecialActionsController extends RestApiController {
                 'total' => $total,
                 'start' => 0,
                 'end' => $total,
-                'elements' => $transactions,
+                'elements' => $response,
                 'scale' =>  2
             )
         );
