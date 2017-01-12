@@ -220,14 +220,27 @@ class SpecialActionsController extends RestApiController {
         }
 
         $dm = $this->get('doctrine_mongodb')->getManager();
+        $em = $this->getDoctrine()->getManager();
         $transactions = $dm->getRepository('TelepayFinancialApiBundle:Transaction')
                     ->findBy(array(
                 'method'   =>  $service,
-                'status'    =>  'created'
+                'status'    =>  'created',
+                'type'  =>  'in'
             ));
 
 
         $total = count($transactions);
+        $response = array();
+        foreach($transactions as $transaction){
+            $company_id = $transaction->getGroup();
+            $group = $em->getRepository('TelepayFinancialApiBundle:Group')->find($company_id);
+            $group_data = array(
+                'name'  =>  $group->getName()
+            );
+            $transaction->setGroupData($group_data);
+            $response[] = $transaction;
+
+        }
 
         return $this->restV2(
             200,
@@ -237,7 +250,66 @@ class SpecialActionsController extends RestApiController {
                 'total' => $total,
                 'start' => 0,
                 'end' => $total,
-                'elements' => $transactions,
+                'elements' => $response,
+                'scale' =>  2
+            )
+        );
+
+    }
+
+    /**
+     * @Rest\View
+     */
+    public function cashOutList(Request $request, $method){
+
+        //only superadmin allowed
+        if (!$this->get('security.authorization_checker')->isGranted('ROLE_SUPER_ADMIN')) {
+            throw $this->createAccessDeniedException();
+        }
+
+        $dm = $this->get('doctrine_mongodb')->getManager();
+        $em = $this->getDoctrine()->getManager();
+        if($method == 'sepa'){
+            $transactions = $dm->getRepository('TelepayFinancialApiBundle:Transaction')
+                ->findBy(array(
+                    'method'   =>  $method,
+                    'status'    =>  'sending',
+                    'type'  =>  'out',
+                    'pay_out_info.gestioned'    =>  false
+                ));
+        }else{
+            $transactions = $dm->getRepository('TelepayFinancialApiBundle:Transaction')
+                ->findBy(array(
+                    'method'   =>  $method,
+                    'status'    =>  'sending',
+                    'type'  =>  'out'
+                ));
+        }
+
+
+
+        $total = count($transactions);
+        $response = array();
+        foreach($transactions as $transaction){
+            $company_id = $transaction->getGroup();
+            $group = $em->getRepository('TelepayFinancialApiBundle:Group')->find($company_id);
+            $group_data = array(
+                'name'  =>  $group->getName()
+            );
+            $transaction->setGroupData($group_data);
+            $response[] = $transaction;
+
+        }
+
+        return $this->restV2(
+            200,
+            "ok",
+            "Request successful",
+            array(
+                'total' => $total,
+                'start' => 0,
+                'end' => $total,
+                'elements' => $response,
                 'scale' =>  2
             )
         );
@@ -389,10 +461,8 @@ class SpecialActionsController extends RestApiController {
         if($transaction->getMethod() != 'sepa') throw new HttpException(403, 'This transaction can\'t be validated with this method');
 
         if($validate == true){
-//            $transaction->setStatus('success');
             $paymentInfo = $transaction->getPayOutInfo();
-//            $paymentInfo['status'] = 'sent';
-//            $paymentInfo['final'] = true;
+            if($paymentInfo['gestioned'] == true) throw new HttpException(403, 'This transactions is gestioned yet');
             $paymentInfo['gestioned'] = true;
             $transaction->setPayOutInfo($paymentInfo);
             $transaction->setUpdated(new \DateTime());
