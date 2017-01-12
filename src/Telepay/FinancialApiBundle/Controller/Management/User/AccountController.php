@@ -732,13 +732,17 @@ class AccountController extends BaseApiController{
             }
         }
 
-        $premium = false;
         if($type == 'commerce'){
             $user_creator_id = $this->container->getParameter('admin_user_id');
             $company_creator_id = $this->container->getParameter('id_group_root');
         }else{
             $user_creator_id = $this->container->getParameter('default_user_creator_commerce_' . $type);
             $company_creator_id = $this->container->getParameter('default_company_creator_commerce_' . $type);
+        }
+
+        $premium = false;
+        if($type == 'android_fair'){
+            $premium = true;
         }
 
         $userCreator = $em->getRepository('TelepayFinancialApiBundle:User')->find($user_creator_id);
@@ -877,15 +881,6 @@ class AccountController extends BaseApiController{
                 $meth = $method_ex[0];
                 $type = $method_ex[1];
 
-                $daily = -1;
-                if($type == 'out'){
-                    if($meth == 'btc'){
-                        $daily = 100000000;
-                    }else{
-                        $daily = 1000000000000;
-                    }
-
-                }
                 //create new ServiceFee
                 $newFee = new ServiceFee();
                 $newFee->setGroup($company);
@@ -908,6 +903,43 @@ class AccountController extends BaseApiController{
                 $em->persist($newCount);
             }
 
+            $daily = -1;
+            if($type == 'out'){
+                if($meth == 'btc'){
+                    $daily = 500000000;
+                }else{
+                    $daily = 2000000000000;
+                }
+            }
+
+            if($type != 'android_fair') {
+                $btc_limit = new LimitDefinition();
+                $btc_limit->setDay(-1);
+                $btc_limit->setCname('btc-in');
+                $btc_limit->setWeek(-1);
+                $btc_limit->setMonth(-1);
+                $btc_limit->setYear(-1);
+                $btc_limit->setSingle(-1);
+                $btc_limit->setTotal(-1);
+                $btc_limit->setCurrency(Currency::$BTC);
+                $btc_limit->setGroup($company);
+                $em->persist($btc_limit);
+                $em->flush();
+
+                $btc_limit = new LimitDefinition();
+                $btc_limit->setDay($daily);
+                $btc_limit->setCname('btc-out');
+                $btc_limit->setWeek(-1);
+                $btc_limit->setMonth(-1);
+                $btc_limit->setYear(-1);
+                $btc_limit->setSingle(-1);
+                $btc_limit->setTotal(-1);
+                $btc_limit->setCurrency(Currency::$BTC);
+                $btc_limit->setGroup($company);
+                $em->persist($btc_limit);
+                $em->flush();
+            }
+
             $fac_limit = new LimitDefinition();
             $fac_limit->setDay(-1);
             $fac_limit->setCname('fac-in');
@@ -922,7 +954,7 @@ class AccountController extends BaseApiController{
             $em->flush();
 
             $fac_limit = new LimitDefinition();
-            $fac_limit->setDay(-1);
+            $fac_limit->setDay($daily);
             $fac_limit->setCname('fac-out');
             $fac_limit->setWeek(-1);
             $fac_limit->setMonth(-1);
