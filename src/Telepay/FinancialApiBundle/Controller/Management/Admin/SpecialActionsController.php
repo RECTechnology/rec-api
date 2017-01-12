@@ -461,10 +461,8 @@ class SpecialActionsController extends RestApiController {
         if($transaction->getMethod() != 'sepa') throw new HttpException(403, 'This transaction can\'t be validated with this method');
 
         if($validate == true){
-//            $transaction->setStatus('success');
             $paymentInfo = $transaction->getPayOutInfo();
-//            $paymentInfo['status'] = 'sent';
-//            $paymentInfo['final'] = true;
+            if($paymentInfo['gestioned'] == true) throw new HttpException(403, 'This transactions is gestioned yet');
             $paymentInfo['gestioned'] = true;
             $transaction->setPayOutInfo($paymentInfo);
             $transaction->setUpdated(new \DateTime());
