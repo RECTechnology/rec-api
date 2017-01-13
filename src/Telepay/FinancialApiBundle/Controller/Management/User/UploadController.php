@@ -62,6 +62,10 @@ class UploadController extends RestApiController{
             //is png file
             $base64 = str_replace('data:image/png;base64,', '', $base64_image);
             $ext = '.png';
+        }elseif(strpos($base64_image, 'data:application/pdf;base64') !== false){
+            //is pdff file
+            $base64 = str_replace('data:application/pdf;base64,', '', $base64_image);
+            $ext = '.pdf';
         }else{
             throw new HttpException(404, 'Bad request, extension not allowed');
         }
