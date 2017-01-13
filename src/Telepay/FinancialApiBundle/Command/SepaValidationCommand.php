@@ -21,66 +21,75 @@ class SepaValidationCommand extends ContainerAwareCommand
     protected function execute(InputInterface $input, OutputInterface $output)
     {
 
-        $dm = $this->getContainer()->get('doctrine_mongodb')->getManager();
+        //TODO not works in weekend
+        $today = new \DateTime();
+        $dw = date( "w", $today->getTimestamp());
 
-        $qb = $dm->createQueryBuilder('TelepayFinancialApiBundle:Transaction')
-            ->field('method')->in(array('sepa', 'transfer'))
-            ->field('type')->equals('out')
-            ->field('status')->equals('sending')
-            ->field('pay_out_info.gestioned')->equals(true)
-            ->getQuery()
-            ->execute();
+        if($dw != 0 && $dw != 6){
+            $dm = $this->getContainer()->get('doctrine_mongodb')->getManager();
 
-        $contador = 0;
-        $contador_success = 0;
-        foreach($qb->toArray() as $transaction){
-            $contador ++;
-            $paymentInfo = $transaction->getPayOutInfo();
+            $qb = $dm->createQueryBuilder('TelepayFinancialApiBundle:Transaction')
+                ->field('method')->in(array('sepa', 'transfer'))
+                ->field('type')->equals('out')
+                ->field('status')->equals('sending')
+                ->field('pay_out_info.gestioned')->equals(true)
+                ->getQuery()
+                ->execute();
 
-            $output->writeln('txid: '.$transaction->getId());
-            $output->writeln('status: '.$paymentInfo['status']);
+            $contador = 0;
+            $contador_success = 0;
+            foreach($qb->toArray() as $transaction){
+                $contador ++;
+                $paymentInfo = $transaction->getPayOutInfo();
 
-            $paymentInfo['status'] = Transaction::$STATUS_SUCCESS;
-            $paymentInfo['final'] = true;
-            $transaction->setStatus(Transaction::$STATUS_SUCCESS);
-            $transaction->setPayOutInfo($paymentInfo);
+                $output->writeln('txid: '.$transaction->getId());
+                $output->writeln('status: '.$paymentInfo['status']);
 
-            $dm->persist($transaction);
-            $dm->flush();
+                $paymentInfo['status'] = Transaction::$STATUS_SUCCESS;
+                $paymentInfo['final'] = true;
+                $transaction->setStatus(Transaction::$STATUS_SUCCESS);
+                $transaction->setPayOutInfo($paymentInfo);
 
-            $contador_success ++;
+                $dm->persist($transaction);
+                $dm->flush();
 
+                $contador_success ++;
+
+            }
+
+            $qb_swift = $dm->createQueryBuilder('TelepayFinancialApiBundle:Transaction')
+                ->field('method_out')->equals('sepa')
+                ->field('type')->equals('swift')
+                ->field('status')->equals('sending')
+                ->field('pay_out_info.gestioned')->equals(true)
+                ->getQuery()
+                ->execute();
+
+            foreach($qb_swift->toArray() as $transaction){
+                $contador ++;
+                $paymentInfo = $transaction->getPayOutInfo();
+
+                $output->writeln('txid: '.$transaction->getId());
+                $output->writeln('status: '.$paymentInfo['status']);
+
+                $paymentInfo['status'] = Transaction::$STATUS_SUCCESS;
+                $paymentInfo['final'] = true;
+                $transaction->setStatus(Transaction::$STATUS_SUCCESS);
+                $transaction->setPayOutInfo($paymentInfo);
+
+                $dm->persist($transaction);
+                $dm->flush();
+                $contador_success ++;
+
+            }
+
+            $output->writeln('Sepa transactions validated');
+            $output->writeln('Total checked transactions: '.$contador);
+            $output->writeln('Success transactions: '.$contador_success);
+        }else{
+            $output->writeln('Today is weekend!!!!Aborting validate transfers!');
         }
 
-        $qb_swift = $dm->createQueryBuilder('TelepayFinancialApiBundle:Transaction')
-            ->field('method_out')->equals('sepa')
-            ->field('type')->equals('swift')
-            ->field('status')->equals('sending')
-            ->field('pay_out_info.gestioned')->equals(true)
-            ->getQuery()
-            ->execute();
-
-        foreach($qb_swift->toArray() as $transaction){
-            $contador ++;
-            $paymentInfo = $transaction->getPayOutInfo();
-
-            $output->writeln('txid: '.$transaction->getId());
-            $output->writeln('status: '.$paymentInfo['status']);
-
-            $paymentInfo['status'] = Transaction::$STATUS_SUCCESS;
-            $paymentInfo['final'] = true;
-            $transaction->setStatus(Transaction::$STATUS_SUCCESS);
-            $transaction->setPayOutInfo($paymentInfo);
-
-            $dm->persist($transaction);
-            $dm->flush();
-            $contador_success ++;
-
-        }
-
-        $output->writeln('Sepa transactions validated');
-        $output->writeln('Total checked transactions: '.$contador);
-        $output->writeln('Success transactions: '.$contador_success);
     }
 
 }
