@@ -489,7 +489,7 @@ class SpecialActionsController extends RestApiController {
         $transRepo = $dm->getRepository('TelepayFinancialApiBundle:Transaction');
         $transaction = $transRepo->find($id);
 
-        if($transaction->getMethod() != 'sepa') throw new HttpException(403, 'This transaction can\'t be validated with this method');
+        if($transaction->getMethod() != 'sepa' && $transaction->getMethodOut() != 'sepa') throw new HttpException(403, 'This transaction can\'t be validated with this method');
 
         if($validate == true){
             $paymentInfo = $transaction->getPayOutInfo();
