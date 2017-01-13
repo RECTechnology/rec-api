@@ -125,6 +125,9 @@ class MoneyStoresManagerCommand extends ContainerAwareCommand{
             $max = round($wallet->getMaxBalance() * $balance / 100 + $wallet->getFixedAmount(),0);
             $perfect = round($wallet->getPerfectBalance() * $balance / 100 + $wallet->getFixedAmount(),0);
             $now = round($wallet_conf->getBalance() * (pow(10, Currency::$SCALE[$currency])), 0);
+            if($this->test){
+                $output->writeln("Balance " . $name . ": " . $now . " " . $currency);
+            }
             $receiving_data = $this->receiving($wallet);
             $receiving = $receiving_data['amount'];
             $system_data['transfers'] = array_merge($system_data['transfers'], $receiving_data['list']);
