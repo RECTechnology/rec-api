@@ -21,6 +21,8 @@ class Login2faController extends RestApiController{
         $pin = $request->get('pin');
         $kyc = 0;
         if($request->request->has('kyc')) $kyc = $request->get('kyc');
+        $fair = 0;
+        if($request->request->has('fair')) $fair = $request->get('fair');
 
         $em = $this->getDoctrine()->getManager();
         $user = $em->getRepository('TelepayFinancialApiBundle:User')->findOneBy(array('email' => $username));
@@ -76,6 +78,15 @@ class Login2faController extends RestApiController{
                     "error_description" => "You are not assigned to any company. Please contact your company administrator or write us to https://support.chip-chap.com/"
                 );
                 return new Response(json_encode($token), 400, $headers);
+            }
+            if($fair == 1){
+                if(!$user->getActiveGroup()->getPremium()){
+                    $token = array(
+                        "error" => "no_fairpay_user",
+                        "error_description" => "Fairpay access denied"
+                    );
+                    return new Response(json_encode($token), 400, $headers);
+                }
             }
         }
         return new Response(json_encode($token), 200, $headers);
