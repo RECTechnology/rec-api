@@ -80,7 +80,7 @@ class Login2faController extends RestApiController{
                 return new Response(json_encode($token), 400, $headers);
             }
             if($fair == 1){
-                if(!$user->getActiveGroup()->getPremium()){
+                if(!$user[0]->getActiveGroup()->getPremium()){
                     $token = array(
                         "error" => "no_fairpay_user",
                         "error_description" => "Fairpay access denied"
