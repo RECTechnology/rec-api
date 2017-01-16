@@ -60,7 +60,7 @@ class Login2faController extends RestApiController{
                 return new Response(json_encode($token), 400, $headers);
             }
 
-            elseif($user[0]->getTwoFactorAuthentication() == 1) {
+            if($user[0]->getTwoFactorAuthentication() == 1) {
                 $Google2FA = new Google2FA();
                 $twoFactorCode = $user[0]->getTwoFactorCode();
                 if (!$Google2FA->verify_key($twoFactorCode, $pin)) {
@@ -71,6 +71,7 @@ class Login2faController extends RestApiController{
                     return new Response(json_encode($token), 400, $headers);
                 }
             }
+
             $groups = $em->getRepository('TelepayFinancialApiBundle:UserGroup')->findBy(array('user' => $user[0]->getId()));
             if($kyc == 0 && count($groups)<1){
                 $token = array(
@@ -79,15 +80,16 @@ class Login2faController extends RestApiController{
                 );
                 return new Response(json_encode($token), 400, $headers);
             }
-            if($fair == 1){
-                if(!$user[0]->getActiveGroup()->getPremium()){
-                    $token = array(
-                        "error" => "no_fairpay_user",
-                        "error_description" => "Fairpay access denied"
-                    );
-                    return new Response(json_encode($token), 400, $headers);
-                }
+            if($fair == 1 && !$user[0]->getActiveGroup()->getPremium()){
+                $token = array(
+                    "error" => "no_fairpay_user",
+                    "error_description" => "Fairpay access denied"
+                );
+                return new Response(json_encode($token), 400, $headers);
             }
+        }
+        else{
+            return new Response(json_encode($token), 400, $headers);
         }
         return new Response(json_encode($token), 200, $headers);
     }
