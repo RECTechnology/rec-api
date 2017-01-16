@@ -514,7 +514,7 @@ class NFCController extends RestApiController{
         if(!$card->getEnabled()) throw new HttpException(403, 'Disabled card');
 
         //check validation email
-        $kyc = $card->getUser()->getKyc();
+        $kyc = $card->getUser()->getKycValidations();
 
         if($kyc->getEmailValidated() == false) throw new HttpException(403, 'Email not validated');
 
@@ -678,7 +678,7 @@ class NFCController extends RestApiController{
                 if($card->getEnabled() == 0) throw new HttpException(403, 'Disabled card');
 
                 //check validation email
-                $kyc = $card->getUser()->getKyc();
+                $kyc = $card->getUser()->getKycValidations();
 
                 if($kyc->getEmailValidated() == false) throw new HttpException(403, 'Email not validated');
 
@@ -707,7 +707,7 @@ class NFCController extends RestApiController{
 
                 if(!$user) throw new HttpException(404, 'User not found');
                 //check validation email
-                $kyc = $user->getKyc();
+                $kyc = $user->getKycValidations();
 
                 if($kyc->getEmailValidated() == false) throw new HttpException(403, 'Email not validated');
 
@@ -765,7 +765,7 @@ class NFCController extends RestApiController{
         if($card->getEnabled() == 0) throw new HttpException(403, 'Disabled card');
 
         //check validation email
-        $kyc = $card->getUser()->getKyc();
+        $kyc = $card->getUser()->getKycValidations();
 
         if($kyc->getEmailValidated() == false) throw new HttpException(403, 'Email not validated');
 
@@ -825,7 +825,7 @@ class NFCController extends RestApiController{
         if(!$card->getEnabled()) throw new HttpException(403, 'Disabled card');
 
         //check validation email
-        $kyc = $card->getUser()->getKyc();
+        $kyc = $card->getUser()->getKycValidations();
 
         if($kyc->getEmailValidated() == false) throw new HttpException(403, 'Email not validated');
 
