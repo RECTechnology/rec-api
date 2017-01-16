@@ -801,7 +801,7 @@ class WalletController extends RestApiController{
 
         //this name is the name of the group
         $parameters = array(
-            'name',
+            'token',
             'amount',
             'concept'
         );
