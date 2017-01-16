@@ -820,7 +820,7 @@ class WalletController extends RestApiController{
         //Search receiver user
         $em = $this->getDoctrine()->getManager();
         $receiver = $em->getRepository('TelepayFinancialApiBundle:Group')
-            ->findOneBy(array('name' => $params['name']));
+            ->findOneBy(array('company_token' => $params['token']));
 
         if (!$receiver) throw new HttpException(404,'Receiver not found');
 
