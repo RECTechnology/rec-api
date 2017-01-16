@@ -19,6 +19,7 @@ use Symfony\Component\HttpFoundation\Request;
 use Telepay\FinancialApiBundle\Controller\RestApiController;
 use Telepay\FinancialApiBundle\Document\Transaction;
 use Telepay\FinancialApiBundle\Entity\Group;
+use Telepay\FinancialApiBundle\Entity\KYC;
 use Telepay\FinancialApiBundle\Entity\LimitDefinition;
 use Telepay\FinancialApiBundle\Entity\NFCCard;
 use Telepay\FinancialApiBundle\Entity\ServiceFee;
@@ -201,7 +202,12 @@ class NFCController extends RestApiController{
                 $card->setPin($pin);
                 $card->setConfirmationToken($user->getConfirmationToken());
 
+                $kyc = new KYC();
+                $kyc->setUser($user);
+                $kyc->setEmail($user->getEmail());
+
                 $em->persist($card);
+                $em->persist($kyc);
                 $em->flush();
 
                 $this->_sendRegisterAndroidEmail('Chip-Chap validation e-mail and Active card', $url, $user->getEmail(), $password, $pin, $user);
@@ -329,6 +335,14 @@ class NFCController extends RestApiController{
 
         if($kyc){
             $kyc->setEmailValidated(true);
+            $em->persist($kyc);
+            $em->flush();
+        }else{
+            $kyc = new KYC();
+            $kyc->setUser($user);
+            $kyc->setEmail($user->getEmail());
+            $kyc->setEmailValidated(true);
+
             $em->persist($kyc);
             $em->flush();
         }
