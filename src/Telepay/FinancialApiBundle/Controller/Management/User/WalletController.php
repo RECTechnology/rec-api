@@ -832,7 +832,7 @@ class WalletController extends RestApiController{
         if($sender_wallet->getAvailable() < $params['amount']) throw new HttpException(401, 'Not founds enought');
 
         //obtaining receiver wallet
-        $receiver_wallet = $receiver->getWallets(strtoupper($currency));
+        $receiver_wallet = $receiver->getWallet(strtoupper($currency));
 
         if(!$receiver_wallet) throw new HttpException(400,'Receiver wallet not found');
 
