@@ -62,14 +62,14 @@ class MoneyStoresManagerCommand extends ContainerAwareCommand{
             $this->maxSteps = strtoupper($input->getOption('max-steps'));
         }
         else{
-            $this->maxSteps = 10;
+            $this->maxSteps = 5;
         }
 
         if($input->getOption('max-range')){
             $this->maxHeuristicRange = strtoupper($input->getOption('max-range'));
         }
         else{
-            $this->maxHeuristicRange = 3;
+            $this->maxHeuristicRange = 10;
         }
 
         if($input->getOption('send')){
@@ -126,7 +126,7 @@ class MoneyStoresManagerCommand extends ContainerAwareCommand{
             $perfect = round($wallet->getPerfectBalance() * $balance / 100 + $wallet->getFixedAmount(),0);
             $now = round($wallet_conf->getBalance() * (pow(10, Currency::$SCALE[$currency])), 0);
             if($this->test){
-                $output->writeln("Balance " . $name . ": " . $now . " " . $currency);
+                $output->writeln("Balance " . $name . ": " . $now/pow(10, Currency::$SCALE[$currency]) . " " . $currency);
             }
             $receiving_data = $this->receiving($wallet);
             $receiving = $receiving_data['amount'];
