@@ -997,7 +997,7 @@ class NFCController extends RestApiController{
     }
 
     private function _sendRegisterAndroidEmail($subject, $url, $to, $password, $pin, $user){
-        $from = 'no-reply@chip-chap.com';
+        $from = $this->container->getParameter('no_reply_email');
         $mailer = 'mailer';
         $template = 'TelepayFinancialApiBundle:Email:registerconfirm_android.html.twig';
 
@@ -1024,7 +1024,7 @@ class NFCController extends RestApiController{
     }
 
     private function _sendValidateCardEmail($subject, $body, $to, $pin, $companies, $base_url, $confirmation_token){
-        $from = 'no-reply@chip-chap.com';
+        $from = $this->container->getParameter('no_reply_email');
         $mailer = 'mailer';
         $template = 'TelepayFinancialApiBundle:Email:NFCconfirm_android.html.twig';
 
@@ -1128,7 +1128,7 @@ class NFCController extends RestApiController{
     }
 
     private function _sendNFCBalanceEmail(NFCCard $card, $balance){
-        $from = 'no-reply@chip-chap.com';
+        $from = $this->container->getParameter('no_reply_email');
         $mailer = 'mailer';
         $template = 'TelepayFinancialApiBundle:Email:NFCBalance.html.twig';
 
@@ -1153,7 +1153,7 @@ class NFCController extends RestApiController{
     }
 
     private function _sendUpdateCardEmail(NFCCard $card, $action, $url){
-        $from = 'no-reply@chip-chap.com';
+        $from = $this->container->getParameter('no_reply_email');
         $mailer = 'mailer';
         $template = 'TelepayFinancialApiBundle:Email:NFCUpdate.html.twig';
 
@@ -1195,7 +1195,7 @@ class NFCController extends RestApiController{
     }
 
     private function _sendDeactivateCardEmail($email, $cards, $action, $url){
-        $from = 'no-reply@chip-chap.com';
+        $from = $this->container->getParameter('no_reply_email');
         $mailer = 'mailer';
         $template = 'TelepayFinancialApiBundle:Email:NFCUpdate.html.twig';
 
