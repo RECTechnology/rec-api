@@ -1255,9 +1255,9 @@ class AccountController extends BaseApiController{
 
         if(!$user) throw new HttpException(400, 'User not found');
 
-        $tierValidation = $em->getRepository('TelepayFinancialApiBundle:TierValidations')->findOneBy(array(
-            'user' => $user
-        ));
+//        $tierValidation = $em->getRepository('TelepayFinancialApiBundle:TierValidations')->findOneBy(array(
+//            'user' => $user
+//        ));
 
 //        if(!$tierValidation) {
 //            $tierValidation = new TierValidations();
