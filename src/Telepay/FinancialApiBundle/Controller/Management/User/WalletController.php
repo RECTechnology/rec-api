@@ -801,7 +801,7 @@ class WalletController extends RestApiController{
 
         //this name is the name of the group
         $parameters = array(
-            'name',
+            'token',
             'amount',
             'concept'
         );
@@ -820,7 +820,7 @@ class WalletController extends RestApiController{
         //Search receiver user
         $em = $this->getDoctrine()->getManager();
         $receiver = $em->getRepository('TelepayFinancialApiBundle:Group')
-            ->findOneBy(array('name' => $params['name']));
+            ->findOneBy(array('company_token' => $params['token']));
 
         if (!$receiver) throw new HttpException(404,'Receiver not found');
 
@@ -832,7 +832,7 @@ class WalletController extends RestApiController{
         if($sender_wallet->getAvailable() < $params['amount']) throw new HttpException(401, 'Not founds enought');
 
         //obtaining receiver wallet
-        $receiver_wallet = $receiver->getWallets(strtoupper($currency));
+        $receiver_wallet = $receiver->getWallet(strtoupper($currency));
 
         if(!$receiver_wallet) throw new HttpException(400,'Receiver wallet not found');
 

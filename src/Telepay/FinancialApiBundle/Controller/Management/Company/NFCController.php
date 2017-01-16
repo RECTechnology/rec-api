@@ -19,6 +19,7 @@ use Symfony\Component\HttpFoundation\Request;
 use Telepay\FinancialApiBundle\Controller\RestApiController;
 use Telepay\FinancialApiBundle\Document\Transaction;
 use Telepay\FinancialApiBundle\Entity\Group;
+use Telepay\FinancialApiBundle\Entity\KYC;
 use Telepay\FinancialApiBundle\Entity\LimitDefinition;
 use Telepay\FinancialApiBundle\Entity\NFCCard;
 use Telepay\FinancialApiBundle\Entity\ServiceFee;
@@ -201,7 +202,12 @@ class NFCController extends RestApiController{
                 $card->setPin($pin);
                 $card->setConfirmationToken($user->getConfirmationToken());
 
+                $kyc = new KYC();
+                $kyc->setUser($user);
+                $kyc->setEmail($user->getEmail());
+
                 $em->persist($card);
+                $em->persist($kyc);
                 $em->flush();
 
                 $this->_sendRegisterAndroidEmail('Chip-Chap validation e-mail and Active card', $url, $user->getEmail(), $password, $pin, $user);
@@ -329,6 +335,14 @@ class NFCController extends RestApiController{
 
         if($kyc){
             $kyc->setEmailValidated(true);
+            $em->persist($kyc);
+            $em->flush();
+        }else{
+            $kyc = new KYC();
+            $kyc->setUser($user);
+            $kyc->setEmail($user->getEmail());
+            $kyc->setEmailValidated(true);
+
             $em->persist($kyc);
             $em->flush();
         }
@@ -500,7 +514,7 @@ class NFCController extends RestApiController{
         if(!$card->getEnabled()) throw new HttpException(403, 'Disabled card');
 
         //check validation email
-        $kyc = $card->getUser()->getKyc();
+        $kyc = $card->getUser()->getKycValidations();
 
         if($kyc->getEmailValidated() == false) throw new HttpException(403, 'Email not validated');
 
@@ -664,7 +678,7 @@ class NFCController extends RestApiController{
                 if($card->getEnabled() == 0) throw new HttpException(403, 'Disabled card');
 
                 //check validation email
-                $kyc = $card->getUser()->getKyc();
+                $kyc = $card->getUser()->getKycValidations();
 
                 if($kyc->getEmailValidated() == false) throw new HttpException(403, 'Email not validated');
 
@@ -684,7 +698,7 @@ class NFCController extends RestApiController{
                 //send email
                 $this->_sendUpdateCardEmail($card, 'refresh_pin', $url);
 
-                return $this->restV2(204, 'Pin successfully changed');
+                return $this->restV2(204, 'Pin request successfully.');
             }elseif($action == 'disable_card'){
                 if(!$request->request->has('email')) throw new HttpException(404, 'Param email not found');
                 $user = $em->getRepository('TelepayFinancialApiBundle:User')->findOneBy(array(
@@ -693,7 +707,7 @@ class NFCController extends RestApiController{
 
                 if(!$user) throw new HttpException(404, 'User not found');
                 //check validation email
-                $kyc = $user->getKyc();
+                $kyc = $user->getKycValidations();
 
                 if($kyc->getEmailValidated() == false) throw new HttpException(403, 'Email not validated');
 
@@ -751,7 +765,7 @@ class NFCController extends RestApiController{
         if($card->getEnabled() == 0) throw new HttpException(403, 'Disabled card');
 
         //check validation email
-        $kyc = $card->getUser()->getKyc();
+        $kyc = $card->getUser()->getKycValidations();
 
         if($kyc->getEmailValidated() == false) throw new HttpException(403, 'Email not validated');
 
@@ -811,7 +825,7 @@ class NFCController extends RestApiController{
         if(!$card->getEnabled()) throw new HttpException(403, 'Disabled card');
 
         //check validation email
-        $kyc = $card->getUser()->getKyc();
+        $kyc = $card->getUser()->getKycValidations();
 
         if($kyc->getEmailValidated() == false) throw new HttpException(403, 'Email not validated');
 
@@ -983,7 +997,7 @@ class NFCController extends RestApiController{
     }
 
     private function _sendRegisterAndroidEmail($subject, $url, $to, $password, $pin, $user){
-        $from = 'no-reply@chip-chap.com';
+        $from = $this->container->getParameter('no_reply_email');
         $mailer = 'mailer';
         $template = 'TelepayFinancialApiBundle:Email:registerconfirm_android.html.twig';
 
@@ -1010,7 +1024,7 @@ class NFCController extends RestApiController{
     }
 
     private function _sendValidateCardEmail($subject, $body, $to, $pin, $companies, $base_url, $confirmation_token){
-        $from = 'no-reply@chip-chap.com';
+        $from = $this->container->getParameter('no_reply_email');
         $mailer = 'mailer';
         $template = 'TelepayFinancialApiBundle:Email:NFCconfirm_android.html.twig';
 
@@ -1114,7 +1128,7 @@ class NFCController extends RestApiController{
     }
 
     private function _sendNFCBalanceEmail(NFCCard $card, $balance){
-        $from = 'no-reply@chip-chap.com';
+        $from = $this->container->getParameter('no_reply_email');
         $mailer = 'mailer';
         $template = 'TelepayFinancialApiBundle:Email:NFCBalance.html.twig';
 
@@ -1139,7 +1153,7 @@ class NFCController extends RestApiController{
     }
 
     private function _sendUpdateCardEmail(NFCCard $card, $action, $url){
-        $from = 'no-reply@chip-chap.com';
+        $from = $this->container->getParameter('no_reply_email');
         $mailer = 'mailer';
         $template = 'TelepayFinancialApiBundle:Email:NFCUpdate.html.twig';
 
@@ -1181,7 +1195,7 @@ class NFCController extends RestApiController{
     }
 
     private function _sendDeactivateCardEmail($email, $cards, $action, $url){
-        $from = 'no-reply@chip-chap.com';
+        $from = $this->container->getParameter('no_reply_email');
         $mailer = 'mailer';
         $template = 'TelepayFinancialApiBundle:Email:NFCUpdate.html.twig';
 

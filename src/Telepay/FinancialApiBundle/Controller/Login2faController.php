@@ -76,7 +76,7 @@ class Login2faController extends RestApiController{
             if($kyc == 0 && count($groups)<1){
                 $token = array(
                     "error" => "no_company",
-                    "error_description" => "You are not assigned to any company. Please contact your company administrator or write us to https://support.chip-chap.com/"
+                    "error_description" => 'You are not assigned to any company. Please contact your company administrator or write us to <a href="https://support.chip-chap.com/">https://support.chip-chap.com/</a>'
                 );
                 return new Response(json_encode($token), 400, $headers);
             }

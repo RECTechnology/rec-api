@@ -30,6 +30,7 @@ class Group extends BaseGroup
         $this->limit_counts = new ArrayCollection();
         $this->wallets = new ArrayCollection();
         $this->clients = new ArrayCollection();
+        $this->company_token = uniqid();
 
         if($this->access_key == null){
             $generator = new SecureRandom();
@@ -230,6 +231,12 @@ class Group extends BaseGroup
      * @Expose
      */
     private $tier = 0;
+
+    /**
+     * @ORM\Column(type="string")
+     * @Expose
+     */
+    private $company_token;
 
     /**
      * @return mixed
@@ -836,6 +843,22 @@ class Group extends BaseGroup
     public function setPremium($premium)
     {
         $this->premium = $premium;
+    }
+
+    /**
+     * @return mixed
+     */
+    public function getCompanyToken()
+    {
+        return $this->company_token;
+    }
+
+    /**
+     * @param mixed $company_token
+     */
+    public function setCompanyToken($company_token)
+    {
+        $this->company_token = $company_token;
     }
 
 }
