@@ -130,28 +130,28 @@ class ClientsController extends BaseApiController {
         $request->request->remove('redirect_uris');
 
         //put all swift methods available but inactive for each new client
-        $swiftMethods = $this->get('net.telepay.swift_provider')->findAll();
+//        $swiftMethods = $this->get('net.telepay.swift_provider')->findAll();
 
         $request->request->add(array(
             'allowed_grant_types' => $grant_types,
-            'swift_list'    =>  $swiftMethods,
+            'swift_list'    =>  '',
             'redirect_uris' => array($uris),
             'group' =>  $userGroup
         ));
 
-        $response = parent::createAction($request);
+        return parent::createAction($request);
 
-        if($response->getStatusCode() == 201){
-            $content = json_decode($response->getContent());
-            $client_id = $content->data->id;
-            $client = $em->getRepository('TelepayFinancialApiBundle:Client')->find($client_id);
+//        if($response->getStatusCode() == 201){
+//            $content = json_decode($response->getContent());
+//            $client_id = $content->data->id;
+//            $client = $em->getRepository('TelepayFinancialApiBundle:Client')->find($client_id);
+//
+//            //create limits and fees foreach swift methods
+//            $this->_createLimitsFees($client, $swiftMethods);
+//
+//        }
 
-            //create limits and fees foreach swift methods
-            $this->_createLimitsFees($client, $swiftMethods);
-
-        }
-
-        return $response;
+//        return $response;
     }
 
     /**
