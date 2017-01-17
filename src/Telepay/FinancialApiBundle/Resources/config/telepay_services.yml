@@ -65,6 +65,8 @@ services:
                 - "safetypay-btc"
                 - "teleingreso-btc"
                 - "teleingreso-fac"
+                - "sepa-btc"
+                - "sepa-fac"
 
     net.telepay.method_provider:
         class: Telepay\FinancialApiBundle\DependencyInjection\TelepayMethodProvider
