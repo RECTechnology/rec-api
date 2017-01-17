@@ -77,10 +77,11 @@
     <div class="wrapper-in">
         <div class="left">
             <ul>
+                <li><b>Id transaccion:</b> {{ transaction.id }}</li>
                 <li><b>Fecha de ejecucion:</b> {{ transaction.startDate | date('d/m/Y') }}</li>
-                <li><b>Tipo de operacion: </b> {{ transaction.method }}</li>
-                <li><b>Ordenante:</b> {{ user.name }} {{ user.surname }}</li>
-                <li><b>Cuenta Cargo: </b> {{ company.name }}</li>
+                <li><b>Tipo de operacion: </b> {% if transaction.type == 'in' %}Deposit {% else %}Withdrawal {% endif %}{{ transaction.method }}</li>
+                <li><b>Usuario:</b> {{ user.name }} {{ user.surname }}</li>
+                <li><b>Ordenante: </b> {{ company.name }}</li>
                 <li><b>Importe nominal: </b> {{ transaction.amount / 100 }} {{ transaction.currency }}</li>
                 <li><b>IBAN: </b> {{ iban }}</li>
                 <li><b>Código BIC:</b> {{ swift }}</li>
