@@ -1235,6 +1235,10 @@ class AccountController extends BaseApiController{
             $em->persist($kyc);
         }
 
+        if($request->request->has('document') && $request->request->get('document')!=''){
+            $kyc->setDocument($request->request->get('document'));
+        }
+
         $em->flush();
 
         return $this->restV2(204, "ok", "KYC Info saved");
