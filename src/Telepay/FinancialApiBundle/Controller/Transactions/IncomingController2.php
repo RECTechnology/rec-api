@@ -450,7 +450,6 @@ class IncomingController2 extends RestApiController{
                         throw $e;
                     }
 
-
                 }elseif( $transaction->getStatus()== Transaction::$STATUS_CANCELLED ){
                     $logger->info('Update transaction -> status->cancelled');
 
