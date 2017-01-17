@@ -41,7 +41,7 @@ class LimitsGroupController extends BaseApiController
 
             if(!$user->hasRole('ROLE_ADMIN')) throw new HttpException(403, 'You don\'t have the necessary permissions');
 
-            //TODO check limits from parent and if superior throw exception
+            //check limits from parent and if superior throw exception
             $creatorGroup = $group->getCreatorGroup();
             $creatorLimits = $creatorGroup->getLimits();
             if($request->request->has('day')){
