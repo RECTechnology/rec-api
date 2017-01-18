@@ -232,7 +232,7 @@ class SepaMethod extends BaseMethod {
             }
 
 //            if(empty($kyc->getDocument())){
-//                throw new Exception('You have to add a document like passport or dni.',400);
+//                throw new Exception('ID card must be validated',400);
 //            }
 
             return $bool;
