@@ -157,7 +157,7 @@ class SepaMethod extends BaseMethod {
             ->setSubject('Sepa_out ALERT')
             ->setFrom($no_reply)
             ->setTo(array(
-                'cto@chip-chap.com',
+                'administration@chip-chap.com',
                 'pere@chip-chap.com',
                 'ceo@chip-chap.com'
             ))
