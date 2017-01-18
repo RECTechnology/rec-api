@@ -105,7 +105,7 @@ class EasyPayMethod extends BaseMethod {
             $pass = $request->request->get('password');
             $factory = $this->getContainer()->get('security.encoder_factory');
             $user = $em->getRepository('TelepayFinancialApiBundle:User')->findOneBy(array(
-                'username' => $email
+                'email' => $email
             ));
             if(!$user){
                 throw new HttpException(400, "Email is not registred");
