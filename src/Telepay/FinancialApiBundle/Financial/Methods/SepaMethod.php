@@ -11,6 +11,7 @@ namespace Telepay\FinancialApiBundle\Financial\Methods;
 use FOS\OAuthServerBundle\Util\Random;
 use MongoDBODMProxies\__CG__\Telepay\FinancialApiBundle\Document\Transaction;
 use Symfony\Component\Config\Definition\Exception\Exception;
+use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpKernel\Exception\HttpException;
 use Telepay\FinancialApiBundle\DependencyInjection\Transactions\Core\BaseMethod;
 use Telepay\FinancialApiBundle\DependencyInjection\Transactions\Core\CashInInterface;
@@ -176,6 +177,66 @@ class SepaMethod extends BaseMethod {
 
     public function getInfo(){
         return $this->driver->getInfo();
+    }
+
+    /**
+     * @return Boolean
+     */
+    public function checkKYC(Request $request){
+        $em = $this->getContainer()->get('doctrine')->getManager();
+        if($request->request->has('token')) {
+            $access_token = $request->request->get('token');
+            $now = time();
+            $token_info = $em->getRepository('TelepayFinancialApiBundle:AccessToken')->findOneBy(array(
+                'token' => $access_token
+            ));
+            if($token_info && $token_info->getExpiresAt() > $now) {
+                $user = $token_info->getUser();
+                $email = $user->getEmail();
+                $request->request->remove('token');
+                $request->request->set('email', $email);
+                $bool = true;
+            }
+            else{
+                throw new HttpException(400, "Access token expired");
+            }
+        }
+        else{
+            $email = $request->request->get('email');
+            $pass = $request->request->get('password');
+            $factory = $this->getContainer()->get('security.encoder_factory');
+            $user = $em->getRepository('TelepayFinancialApiBundle:User')->findOneBy(array(
+                'username' => $email
+            ));
+            if(!$user){
+                throw new HttpException(400, "Email is not registred");
+            }
+            $encoder = $factory->getEncoder($user);
+            $bool = ($encoder->isPasswordValid($user->getPassword(), $pass, $user->getSalt())) ? true : false;
+            $request->request->remove('password');
+        }
+
+        if(!$bool){
+            throw new HttpException(400, "Email or Password not correct");
+        }else {
+            $kyc = $em->getRepository('TelepayFinancialApiBundle:KYC')->findOneBy(array(
+                'user' => $user
+            ));
+
+            if(!$kyc){
+                throw new Exception('User without kyc information',400);
+            }
+
+            if(!$kyc->getEmailValidated()){
+                throw new Exception('Email must be validated.',400);
+            }
+
+//            if(empty($kyc->getDocument())){
+//                throw new Exception('You have to add a document like passport or dni.',400);
+//            }
+
+            return $bool;
+        }
     }
 
 }

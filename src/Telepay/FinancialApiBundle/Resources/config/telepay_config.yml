@@ -190,6 +190,19 @@ services:
             - "86400"
             - "24"
 
+    net.telepay.config.sepa.fac:
+        class: Telepay\FinancialApiBundle\Financial\Methods\MethodConfiguration
+        arguments:
+            - "0"
+            - "1"
+            - "5000"
+            - "300000"
+            - "5000"
+            - "All over the world"
+            - "EUR"
+            - "86400"
+            - "24"
+
     net.telepay.config.easypay.btc:
         class: Telepay\FinancialApiBundle\Financial\Methods\MethodConfiguration
         arguments:
