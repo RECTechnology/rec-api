@@ -51,7 +51,7 @@ disable_nfc_card:
     pattern:  /register/v1/nfc_card/disable_card
     defaults: { _controller: Telepay\FinancialApiBundle\Controller\Management\Company\NFCController::disableCard }
     requirements:
-        _method: POST
+        _method: PUT
 
 refresh_pin_nfc_card:
     pattern:  /register/v1/nfc_card/refresh_pin

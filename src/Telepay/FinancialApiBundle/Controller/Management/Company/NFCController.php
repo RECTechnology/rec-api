@@ -247,7 +247,7 @@ class NFCController extends RestApiController{
                 if($card) throw new HttpException(409, 'Duplicated alias');
 
                 //create card
-                $pin = rand(0,9999);
+                $pin = rand(1000,9999);
                 $card = new NFCCard();
                 $card->setUser($user);
                 $card->setAlias($params['alias']);
