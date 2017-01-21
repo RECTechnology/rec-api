@@ -158,7 +158,7 @@ class SepaMethod extends BaseMethod {
             ->setSubject('Sepa_out ALERT')
             ->setFrom($no_reply)
             ->setTo(array(
-                'cto@chip-chap.com',
+                'administration@chip-chap.com',
                 'pere@chip-chap.com',
                 'ceo@chip-chap.com'
             ))
@@ -206,7 +206,7 @@ class SepaMethod extends BaseMethod {
             $pass = $request->request->get('password');
             $factory = $this->getContainer()->get('security.encoder_factory');
             $user = $em->getRepository('TelepayFinancialApiBundle:User')->findOneBy(array(
-                'username' => $email
+                'email' => $email
             ));
             if(!$user){
                 throw new HttpException(400, "Email is not registred");
@@ -232,7 +232,7 @@ class SepaMethod extends BaseMethod {
             }
 
 //            if(empty($kyc->getDocument())){
-//                throw new Exception('You have to add a document like passport or dni.',400);
+//                throw new Exception('ID card must be validated',400);
 //            }
 
             return $bool;
