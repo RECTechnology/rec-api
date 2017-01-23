@@ -727,7 +727,7 @@ class IncomingController2 extends RestApiController{
             $start_time = new \MongoDate(strtotime(date($query['start_date'].' 00:00:00')));//date('Y-m-d 00:00:00')
             $finish_time = new \MongoDate(strtotime(date($query['finish_date'].' 23:59:59')));
 
-            $transactions = $dm->getRepository('TelepayFinancialApiBundle:Transaction')->findTransactions($group, $start_time, $finish_time, $search);
+            $transactions = $dm->getRepository('TelepayFinancialApiBundle:Transaction')->findTransactions($group, $start_time, $finish_time, $search, $order, $dir);
 //            $transactions = $qb
 //                ->field('group')->equals($group->getId())
 //                //->field('method')->equals($method->getCname())
