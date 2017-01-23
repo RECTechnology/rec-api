@@ -144,109 +144,6 @@ class WalletController extends RestApiController{
             }
 
             $transactions = $dm->getRepository('TelepayFinancialApiBundle:Transaction')->findTransactions($userGroup, $start_time, $finish_time, $search, 'id', 'desc');
-//            $transactions = $qb
-//                ->field('group')->equals($userGroup->getId())
-//                ->field('created')->gte($start_time)
-//                ->field('created')->lte($finish_time)
-//                ->where("function() {
-//            if (typeof this.pay_in_info !== 'undefined') {
-//                if (typeof this.pay_in_info.amount !== 'undefined') {
-//                    if(String(this.pay_in_info.amount).indexOf('$search') > -1){
-//                        return true;
-//                    }
-//                }
-//                if (typeof this.pay_in_info.address !== 'undefined') {
-//                    if(String(this.pay_in_info.address).indexOf('$search') > -1){
-//                        return true;
-//                    }
-//                }
-//                if (typeof this.pay_in_info.status !== 'undefined') {
-//                    if(String(this.pay_in_info.status).indexOf('$search') > -1){
-//                        return true;
-//                    }
-//                }
-//                if (typeof this.pay_in_info.concept !== 'undefined') {
-//                    if(String(this.pay_in_info.concept).indexOf('$search') > -1){
-//                        return true;
-//                    }
-//                }
-//                if (typeof this.pay_in_info.reference !== 'undefined') {
-//                    if(String(this.pay_in_info.reference).indexOf('$search') > -1){
-//                        return true;
-//                    }
-//                }
-//
-//            }
-//            if (typeof this.pay_out_info !== 'undefined') {
-//                if (typeof this.pay_out_info.amount !== 'undefined') {
-//                    if(String(this.pay_out_info.amount).indexOf('$search') > -1){
-//                        return true;
-//                    }
-//                }
-//                if (typeof this.pay_out_info.halcashticket !== 'undefined') {
-//                    if(String(this.pay_out_info.halcashticket).indexOf('$search') > -1){
-//                        return true;
-//                    }
-//                }
-//                if (typeof this.pay_out_info.txid !== 'undefined') {
-//                    if(String(this.pay_out_info.txid).indexOf('$search') > -1){
-//                        return true;
-//                    }
-//                }
-//                if (typeof this.pay_out_info.address !== 'undefined') {
-//                    if(String(this.pay_out_info.address).indexOf('$search') > -1){
-//                        return true;
-//                    }
-//                }
-//                if (typeof this.pay_out_info.concept !== 'undefined') {
-//                    if(String(this.pay_out_info.concept).indexOf('$search') > -1){
-//                        return true;
-//                    }
-//                }
-//                if (typeof this.pay_out_info.email !== 'undefined') {
-//                    if(String(this.pay_out_info.email).indexOf('$search') > -1){
-//                        return true;
-//                    }
-//                }
-//                if (typeof this.pay_out_info.find_token !== 'undefined') {
-//                    if(String(this.pay_out_info.find_token).indexOf('$search') > -1){
-//                        return true;
-//                    }
-//                }
-//                if (typeof this.pay_out_info.phone !== 'undefined') {
-//                    if(String(this.pay_out_info.phone).indexOf('$search') > -1){
-//                        return true;
-//                    }
-//                }
-//                if (typeof this.pay_out_info.pin !== 'undefined') {
-//                    if(String(this.pay_out_info.pin).indexOf('$search') > -1){
-//                        return true;
-//                    }
-//                }
-//
-//            }
-//            if (typeof this.dataIn !== 'undefined') {
-//                if (typeof this.dataIn.previous_transaction !== 'undefined') {
-//                    if(String(this.dataIn.previous_transaction).indexOf('$search') > -1){
-//                        return true;
-//                    }
-//                }
-//            }
-//            if ('$search') {
-//                if(typeof this.status !== 'undefined' && String(this.status).indexOf('$search') > -1){ return true;}
-//                if(typeof this.service !== 'undefined' && String(this.service).indexOf('$search') > -1){ return true;}
-//                if(typeof this.method !== 'undefined' && String(this.method).indexOf('$search') > -1){ return true;}
-//                if(typeof this.methodIn !== 'undefined' && String(this.methodIn).indexOf('$search') > -1){ return true;}
-//                if(typeof this.methodOut !== 'undefined' && String(this.methodOut).indexOf('$search') > -1){ return true;}
-//                if(String(this._id).indexOf('$search') > -1){ return true;}
-//                return false;
-//            }
-//            return true;
-//            }")
-//                ->sort('updated','desc')
-//                ->sort('id','desc')
-//                ->getQuery()
-//                ->execute();
 
         }else{
             $order = "updated";
@@ -724,29 +621,6 @@ class WalletController extends RestApiController{
         $userGroup = $this->get('security.context')->getToken()->getUser()->getActiveGroup();
         $dm = $this->get('doctrine_mongodb')->getManager();
         $result = $dm->getRepository('TelepayFinancialApiBundle:Transaction')->getCountryBenefits($userGroup);
-//        $result = $dm->createQueryBuilder('TelepayFinancialApiBundle:Transaction')
-//            ->field('group')->equals($userGroup->getId())
-//            ->field('status')->equals('success')
-//            ->field('type')->notEqual('swift')
-//            ->group(
-//                new \MongoCode('
-//                    function(trans){
-//                        return {
-//                            ip : trans.ip
-//                        };
-//                    }
-//                '),
-//                array(
-//                    'total'=>0
-//                )
-//            )
-//            ->reduce('
-//                function(curr, result){
-//                    result.total+=1;
-//                }
-//            ')
-//            ->getQuery()
-//            ->execute();
 
         $total = [];
         foreach($result->toArray() as $res){
@@ -1015,67 +889,6 @@ class WalletController extends RestApiController{
 
         $dm = $this->get('doctrine_mongodb')->getManager();
         $result = $dm->getRepository('TelepayFinancialApiBundle:Transaction')->getBenefits($userGroup, $start_time, $end_time);
-//        $result = $dm->createQueryBuilder('TelepayFinancialApiBundle:Transaction')
-//            ->field('group')->equals($userGroup->getId())
-//            ->field('created')->gt($start_time)
-//            ->field('created')->lt($end_time)
-//            ->field('status')->equals('success')
-//            ->field('type')->notEqual('swift')
-//            ->group(
-//                new \MongoCode('
-//                    function(trans){
-//                        return {
-//                            currency : trans.currency
-//                        };
-//                    }
-//                '),
-//                array(
-//                    'total'=>0
-//                )
-//            )
-//            ->reduce('
-//                function(curr, result){
-//                    switch(curr.currency){
-//                        case "EUR":
-//                            if(curr.total){
-//                                result.total+=curr.total;
-//                            }
-//                            break;
-//                        case "MXN":
-//                            if(curr.total){
-//                                result.total+=curr.total;
-//                            }
-//                            break;
-//                        case "USD":
-//                            if(curr.total){
-//                                result.total+=curr.total;
-//                            }
-//                            break;
-//                        case "BTC":
-//                            if(curr.total){
-//                                result.total+=curr.total;
-//                            }
-//                            break;
-//                        case "FAC":
-//                            if(curr.total){
-//                                result.total+=curr.total;
-//                            }
-//                            break;
-//                        case "PLN":
-//                            if(curr.total){
-//                                result.total+=curr.total;
-//                            }
-//                            break;
-//                        case "":
-//                            if(curr.total){
-//                                result.total+=curr.total;
-//                            }
-//                            break;
-//                    }
-//                }
-//            ')
-//            ->getQuery()
-//            ->execute();
 
         $total = 0;
         //die(print_r($result,true));
