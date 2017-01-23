@@ -76,7 +76,7 @@ class WalletController extends RestApiController{
     public function last(Request $request){
         $dm = $this->get('doctrine_mongodb')->getManager();
         $userGroup = $this->get('security.context')->getToken()->getUser()->getActiveGroup();
-        $last10Trans = $dm->getRepository('TelapayFinancialApiBundle:Transaction')->last10Transactions($userGroup);
+        $last10Trans = $dm->getRepository('TelepayFinancialApiBundle:Transaction')->last10Transactions($userGroup);
 //        $last10Trans = $dm->createQueryBuilder('TelepayFinancialApiBundle:Transaction')
 //            ->field('group')->equals($userGroup->getId())
 //            ->limit(10)
