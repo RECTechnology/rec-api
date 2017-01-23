@@ -112,4 +112,15 @@ class TransactionRepository extends DocumentRepository {
             ->execute();
     }
 
+    public function last10Transactions(Group $group){
+
+        return $this->createQueryBuilder('t')
+            ->field('group')->equals($group->getId())
+            ->limit(10)
+            ->sort('updated','desc')
+            ->sort('id','desc')
+            ->getQuery()
+            ->execute();
+    }
+
 }
