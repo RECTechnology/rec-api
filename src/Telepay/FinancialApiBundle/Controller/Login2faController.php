@@ -28,7 +28,7 @@ class Login2faController extends RestApiController{
         $user = $em->getRepository('TelepayFinancialApiBundle:User')->findOneBy(array('email' => $username));
         $username=($user)?$user->getUsername():$username;
         $token = $this->call(
-            "https://$_SERVER[HTTP_HOST]/oauth/v2/token",
+            "https://$_SERVER[HTTP_HOST]/oauth/v3/token",
             'POST',
             array(),
             array(
