@@ -94,11 +94,12 @@ class CheckCryptoCommand extends SyncronizedContainerAwareCommand
                                 $em->persist($wallet);
                                 $em->flush();
 
+                                //TODO recorrer el arbol aunque la fee sea 0
                                 if ($total_fee != 0) {
                                     $output->writeln('CHECK CRYPTO fees');
                                     // restar las comisiones
                                     $feeTransaction = new Transaction();
-                                    $feeTransaction->setStatus('success');
+                                    $feeTransaction->setStatus(Transaction::$STATUS_SUCCESS);
                                     $feeTransaction->setScale($transaction->getScale());
                                     $feeTransaction->setAmount($total_fee);
                                     $feeTransaction->setUser($id);
@@ -125,24 +126,25 @@ class CheckCryptoCommand extends SyncronizedContainerAwareCommand
 
                                     $dm->persist($feeTransaction);
                                     $dm->flush();
-
-                                    $em->persist($wallet);
-                                    $em->flush();
-
-                                    $creator = $group->getGroupCreator();
-
-                                    //luego a la ruleta de admins
-                                    $dealer = $this->getContainer()->get('net.telepay.commons.fee_deal');
-                                    $dealer->deal(
-                                        $creator,
-                                        $amount,
-                                        $method,
-                                        $type,
-                                        $service_currency,
-                                        $total_fee,
-                                        $transaction_id,
-                                        $transaction->getVersion());
                                 }
+
+                                $em->persist($wallet);
+                                $em->flush();
+
+                                $creator = $group->getGroupCreator();
+
+                                //luego a la ruleta de admins
+                                $dealer = $this->getContainer()->get('net.telepay.commons.fee_deal');
+                                $dealer->deal(
+                                    $creator,
+                                    $amount,
+                                    $method,
+                                    $type,
+                                    $service_currency,
+                                    $total_fee,
+                                    $transaction_id,
+                                    $transaction->getVersion());
+
 
                                 //TODO exchange if needed
                                 $dataIn = $transaction->getDataIn();
