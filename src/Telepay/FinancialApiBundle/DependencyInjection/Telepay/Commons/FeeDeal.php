@@ -147,6 +147,10 @@ class FeeDeal{
         if($creator->getId() != $rootGroupId){
             $this->fee_logger->info('make transaction -> deal not superadmin fee  ');
             if($total > 0){
+                $parent_id = 'not generated because 0';
+                if($transaction){
+                    $parent_id = $transaction->getId();
+                }
                 $feeTransaction = new Transaction();
                 $feeTransaction->setIp('127.0.0.1');
                 $feeTransaction->setGroup($creator->getId());
@@ -156,13 +160,13 @@ class FeeDeal{
                 $feeTransaction->setVersion($version);
                 $feeTransaction->setAmount($total);
                 $feeTransaction->setDataIn(array(
-                    'parent_id' => $transaction->getId(),
-                    'previous_transaction' => $transaction->getId(),
+                    'parent_id' => $parent_id,
+                    'previous_transaction' => $parent_id,
                     'amount'    =>  -$total,
                     'concept'   =>  $cname.'->fee'
                 ));
                 $feeTransaction->setData(array(
-                    'parent_id' => $transaction->getId(),
+                    'parent_id' => $parent_id,
                     'type'      =>  'resta_fee'
                 ));
                 $feeInfo = array(
