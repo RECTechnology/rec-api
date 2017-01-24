@@ -82,66 +82,65 @@ class FeeDeal{
         $dm = $this->mongo->getManager();
 
         //Ahora lo añadimos al wallet correspondiente
-        $wallets = $creator->getWallets();
+        $wallet = $creator->getWallet($currency);
 
-        $scale = 0;
-        foreach($wallets as $wallet){
+        $scale = \Telepay\FinancialApiBundle\Financial\Currency::$SCALE[$currency];
+        //Añadimos la pasta al wallet
+        $wallet->setAvailable($wallet->getAvailable() + $fee - $total);
+        $wallet->setBalance($wallet->getBalance() + $fee - $total);
+        $em->persist($wallet);
+        $em->flush();
 
-            if($wallet->getCurrency() === $currency && $fee > 0){
-                $this->fee_logger->info('make transaction -> deal sumamos fee');
-                //Añadimos la pasta al wallet
-                $wallet->setAvailable($wallet->getAvailable() + $fee - $total);
-                $wallet->setBalance($wallet->getBalance() + $fee - $total);
-                $em->persist($wallet);
-                $em->flush();
 
-                $scale = $wallet->getScale();
+        if($fee > 0){
+            $this->fee_logger->info('make transaction -> deal sumamos fee');
 
-                $transaction = new Transaction();
-                $transaction->setIp('127.0.0.1');
-                $transaction->setGroup($creator->getId());
-                $transaction->setService($cname);
-                $transaction->setMethod($cname);
-                $transaction->setVersion($version);
-                $transaction->setAmount($fee);
-                $transaction->setType(Transaction::$TYPE_FEE);
-                $transaction->setDataIn(array(
-                    'parent_id' => $transaction_id,
-                    'previous_transaction' => $transaction_id,
-                    'amount'    =>  $fee,
-                    'concept'   =>$cname.'->fee'
-                ));
-                $transaction->setData(array(
-                    'parent_id' =>  $transaction_id,
-                    'previous_transaction' =>  $transaction_id,
-                    'type'      =>  'suma_amount'
-                ));
-                $feeInfo = array(
-                    'previous_transaction'  =>  $transaction_id,
-                    'previous_amount'    =>  $amount,
-                    'scale'     =>  $scale,
-                    'concept'           =>  $cname.'->fee',
-                    'amount' =>  $fee,
-                    'status'    =>  Transaction::$STATUS_SUCCESS,
-                    'currency'  =>  $currency
-                );
-                $transaction->setFeeInfo($feeInfo);
-                //incloure les fees en la transacció
-                $transaction->setStatus(Transaction::$STATUS_SUCCESS);
-                $transaction->setCurrency($currency);
-                $transaction->setVariableFee($variable);
-                $transaction->setFixedFee($fixed);
-                $transaction->setTotal($fee);
-                $transaction->setScale($scale);
+            $scale = $wallet->getScale();
 
-                $dm->persist($transaction);
-                $dm->flush();
+            $transaction = new Transaction();
+            $transaction->setIp('127.0.0.1');
+            $transaction->setGroup($creator->getId());
+            $transaction->setService($cname);
+            $transaction->setMethod($cname);
+            $transaction->setVersion($version);
+            $transaction->setAmount($fee);
+            $transaction->setType(Transaction::$TYPE_FEE);
+            $transaction->setDataIn(array(
+                'parent_id' => $transaction_id,
+                'previous_transaction' => $transaction_id,
+                'amount'    =>  $fee,
+                'concept'   =>$cname.'->fee'
+            ));
+            $transaction->setData(array(
+                'parent_id' =>  $transaction_id,
+                'previous_transaction' =>  $transaction_id,
+                'type'      =>  'suma_amount'
+            ));
+            $feeInfo = array(
+                'previous_transaction'  =>  $transaction_id,
+                'previous_amount'    =>  $amount,
+                'scale'     =>  $scale,
+                'concept'           =>  $cname.'->fee',
+                'amount' =>  $fee,
+                'status'    =>  Transaction::$STATUS_SUCCESS,
+                'currency'  =>  $currency
+            );
+            $transaction->setFeeInfo($feeInfo);
+            //incloure les fees en la transacció
+            $transaction->setStatus(Transaction::$STATUS_SUCCESS);
+            $transaction->setCurrency($currency);
+            $transaction->setVariableFee($variable);
+            $transaction->setFixedFee($fixed);
+            $transaction->setTotal($fee);
+            $transaction->setScale($scale);
 
-                $this->fee_logger->info('make transaction -> deal id fee => '.$transaction->getId());
-                $this->fee_logger->info('Add Balance->' . $creator->getId() . " amount = " . $fee . " Trans group: " . $transaction->getGroup());
-                $this->balance_manipulator->addBalance($creator, $fee, $transaction);
-                $id = $transaction->getId();
-            }
+            $dm->persist($transaction);
+            $dm->flush();
+
+            $this->fee_logger->info('make transaction -> deal id fee => '.$transaction->getId());
+            $this->fee_logger->info('Add Balance->' . $creator->getId() . " amount = " . $fee . " Trans group: " . $transaction->getGroup());
+            $this->balance_manipulator->addBalance($creator, $fee, $transaction);
+            $id = $transaction->getId();
         }
 
         if($creator->getId() != $rootGroupId){
