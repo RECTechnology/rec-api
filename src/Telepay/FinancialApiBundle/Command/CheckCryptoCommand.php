@@ -128,8 +128,6 @@ class CheckCryptoCommand extends SyncronizedContainerAwareCommand
                                     $dm->flush();
                                 }
 
-                                $em->persist($wallet);
-                                $em->flush();
 
                                 $creator = $group->getGroupCreator();
 

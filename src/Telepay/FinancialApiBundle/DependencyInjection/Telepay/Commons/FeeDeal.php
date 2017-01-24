@@ -84,18 +84,16 @@ class FeeDeal{
         //Ahora lo añadimos al wallet correspondiente
         $wallet = $creator->getWallet($currency);
 
-        $scale = \Telepay\FinancialApiBundle\Financial\Currency::$SCALE[$currency];
         //Añadimos la pasta al wallet
         $wallet->setAvailable($wallet->getAvailable() + $fee - $total);
         $wallet->setBalance($wallet->getBalance() + $fee - $total);
         $em->persist($wallet);
         $em->flush();
 
+        $scale = $wallet->getScale();
 
         if($fee > 0){
             $this->fee_logger->info('make transaction -> deal sumamos fee');
-
-            $scale = $wallet->getScale();
 
             $transaction = new Transaction();
             $transaction->setIp('127.0.0.1');
@@ -357,7 +355,7 @@ class FeeDeal{
 
         $mongo = $this->container->get('doctrine_mongodb')->getManager();
 
-        if($total_fee == 0){
+        if($total_fee != 0){
             $feeTransaction = Transaction::createFromTransaction($transaction);
             $this->fee_logger->info('FEE_DEAL (createFees) => AFTER TRANSACTION ');
             $feeTransaction->setAmount($total_fee);
