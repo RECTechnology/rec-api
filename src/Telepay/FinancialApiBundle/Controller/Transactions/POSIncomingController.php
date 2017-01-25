@@ -163,7 +163,7 @@ class POSIncomingController extends RestApiController{
             }
             else $dataIn[$paramName] = $request->get($paramName);
         }
-        $amount = $dataIn['amount'];
+        $amount = round($dataIn['amount'],0);
 
         if($tpvRepo->getActive() == 0) {
             $this->get('notificator')->notificate_error($url_notification, $group_id, $amount, $dataIn);
@@ -242,7 +242,7 @@ class POSIncomingController extends RestApiController{
         $transaction->setPayInInfo($dataIn);
         $transaction->setPosId($id);
         $dm->persist($transaction);
-        $transaction->setAmount($amount);
+        $transaction->setAmount(round($amount,0));
         $transaction->setType('POS-'.$posType);
 
         $transaction->setLastPriceAt(new \DateTime());
@@ -260,7 +260,7 @@ class POSIncomingController extends RestApiController{
         $transaction->setVariableFee($variable_fee);
         $transaction->setFixedFee($fixed_fee);
         $total = $amount + $variable_fee + $fixed_fee;
-        $transaction->setTotal($total);
+        $transaction->setTotal(round($total,0));
         $dm->persist($transaction);
 
         $current_wallet = null;
