@@ -74,7 +74,7 @@ class PaynetReferenceMethod extends BaseMethod{
             if($result['status'] == 'success') $paymentInfo['final'] = true;
         }else{
             $paymentInfo['status'] = 'error';
-            $paymentInfo['paynet_status'] = 'Not payned id found';
+            $paymentInfo['paynet_status'] = 'Not paynet id found';
             $paymentInfo['final'] = true;
         }
 
