@@ -183,6 +183,9 @@ class SepaMethod extends BaseMethod {
      * @return Boolean
      */
     public function checkKYC(Request $request){
+
+        return true;
+
         $em = $this->getContainer()->get('doctrine')->getManager();
         if($request->request->has('token')) {
             $access_token = $request->request->get('token');
