@@ -398,6 +398,9 @@ class AccountController extends BaseApiController{
         }
         else{
             $email = $request->request->get('email');
+            if (!filter_var($email, FILTER_VALIDATE_EMAIL)) {
+                throw new HttpException(400, 'Email is invalid');
+            }
         }
         if(!$request->request->has('password')){
             throw new HttpException(400, "Missing parameter 'password'");
@@ -578,6 +581,9 @@ class AccountController extends BaseApiController{
         $confirmation_mail = 0;
         if($request->request->has('email') && $request->request->get('email') != ''){
             $confirmation_mail = 1;
+            if (!filter_var($request->request->get('email'), FILTER_VALIDATE_EMAIL)) {
+                throw new HttpException(400, 'Email is invalid');
+            }
         }else{
             $email = $fake.'@default.com';
             $request->request->add(array('email'=>$email));
@@ -710,6 +716,10 @@ class AccountController extends BaseApiController{
         $params['plain_password'] = $params['password'];
         unset($params['password']);
         unset($params['repassword']);
+
+        if (!filter_var($params['email'], FILTER_VALIDATE_EMAIL)) {
+            throw new HttpException(400, 'Email is invalid');
+        }
 
         $em = $this->getDoctrine()->getManager();
         $user = $em->getRepository($this->getRepositoryName())->findOneBy(array(
