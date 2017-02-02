@@ -109,7 +109,19 @@ class KycListener
             $user = $entity->getUser();
             $activeCompany = $user->getActiveGroup();
             $this->logger->info('pre-insert check locked company');
-            if(!$activeCompany->getActive()) throw new HttpException(403, 'This company is disabled, please contact support.');
+            if(!$activeCompany->getActive()){
+                $companies = $user->getGroups();
+                $changed = 0;
+                foreach ($companies as $company){
+                    if($company->getId() != $activeCompany->getId() && $company->getActive()){
+                        $user->setActiveGroup($company);
+                        $entityManager->flush();
+                        $changed = 1;
+                        break;
+                    }
+                }
+                if($changed == 0) throw new HttpException(403, 'This company is disabled, please contact support.');
+            }
             return;
         }
 
