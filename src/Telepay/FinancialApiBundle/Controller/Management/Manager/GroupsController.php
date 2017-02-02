@@ -47,15 +47,48 @@ class GroupsController extends BaseApiController
         if(!$this->get('security.context')->isGranted('ROLE_SUPER_ADMIN'))
             throw new HttpException(403, 'You have not the necessary permissions');
 
-        //TODO: Improve performance (two queries)
-        $all = $this->getRepository()->findBy(
-            array(),
-            array('id' => 'DESC'),
-            $limit,
-            $offset
-        );
+        if($request->query->get('query') != ''){
+            $query = $request->query->get('query');
+            $search = $query['search'];
+            $order = $query['order'];
+            $dir = $query['dir'];
+        }else{
+            $search = '';
+            $order = 'id';
+            $dir = 'DESC';
+        }
 
-        $total = count($all);
+        $em = $this->getDoctrine()->getManager();
+        $qb = $em->createQueryBuilder('TelepayFinancialApiBundle:Group');
+        $companyQuery = $this->getRepository()->createQueryBuilder('p')
+            ->orderBy('p.'.$order, $dir)
+            ->where($qb->expr()->orX(
+                $qb->expr()->like('p.cif', $qb->expr()->literal('%'.$search.'%')),
+                $qb->expr()->like('p.prefix', $qb->expr()->literal('%'.$search.'%')),
+                $qb->expr()->like('p.phone', $qb->expr()->literal('%'.$search.'%')),
+                $qb->expr()->like('p.zip', $qb->expr()->literal('%'.$search.'%')),
+                $qb->expr()->like('p.email', $qb->expr()->literal('%'.$search.'%')),
+                $qb->expr()->like('p.city', $qb->expr()->literal('%'.$search.'%')),
+                $qb->expr()->like('p.town', $qb->expr()->literal('%'.$search.'%')),
+                $qb->expr()->like('p.name', $qb->expr()->literal('%'.$search.'%'))
+            ))
+            ->getQuery();
+
+        $all = $companyQuery->getResult();
+
+
+        //TODO: Improve performance (two queries)
+//        $all = $this->getRepository()->findBy(
+//            array(),
+//            array('id' => 'DESC'),
+//            $limit,
+//            $offset
+//        );
+
+        $filtered = $all;
+
+        $total = count($filtered);
+
         foreach ($all as $group){
             $groupCreator = $group->getGroupCreator();
 

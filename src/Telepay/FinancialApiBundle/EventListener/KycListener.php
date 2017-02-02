@@ -8,8 +8,10 @@
 // src/AppBundle/EventListener/SearchIndexer.php
 namespace Telepay\FinancialApiBundle\EventListener;
 
+use Blockchain\Exception\HttpError;
 use Doctrine\ORM\Event\LifecycleEventArgs;
 use Symfony\Component\DependencyInjection\ContainerInterface;
+use Symfony\Component\HttpKernel\Exception\HttpException;
 use Telepay\FinancialApiBundle\Entity\AccessToken;
 use Telepay\FinancialApiBundle\Entity\Group;
 use Telepay\FinancialApiBundle\Entity\KYC;
@@ -37,6 +39,7 @@ class KycListener
 
         if ($entity instanceof Accesstoken) {
             $user = $entity->getUser();
+            $this->logger->info('POST-UPDATE Kyc_Listener access_token');
             $user->setLastLogin(new \DateTime);
             $entityManager->persist($user);
             $entityManager->flush();
@@ -89,6 +92,24 @@ class KycListener
 
         if ($entity instanceof Group) {
             $entity->setTier(0);
+            return;
+        }
+
+
+    }
+
+    public function prePersist(LifecycleEventArgs $args)
+    {
+        $entity = $args->getEntity();
+        $this->logger->info('PRE-INSERT');
+
+        $entityManager = $args->getEntityManager();
+
+        if ($entity instanceof AccessToken) {
+            $user = $entity->getUser();
+            $activeCompany = $user->getActiveGroup();
+            $this->logger->info('pre-insert check locked company');
+            if(!$activeCompany->getActive()) throw new HttpException(403, 'This company is disabled, please contact support.');
             return;
         }
 

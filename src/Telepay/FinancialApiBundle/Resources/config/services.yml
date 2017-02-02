@@ -89,6 +89,7 @@ services:
             - { name: doctrine.event_listener, event: preUpdate }
             - { name: doctrine.event_listener, event: postUpdate }
             - { name: doctrine.event_listener, event: postPersist }
+            - { name: doctrine.event_listener, event: prePersist }
 
     oauth_event_listener:
           class:  Telepay\FinancialApiBundle\EventListener\OAuthEventListener
