@@ -106,10 +106,16 @@ class KycListener
         $entityManager = $args->getEntityManager();
 
         if ($entity instanceof AccessToken) {
+
+            //checkear que la company del client esta activa si no fuera
+            if($entity->getClient()->getGroup()->getActive() == false){
+                throw new HttpException(403, 'This company is disabled, please contact support.');
+            }
+            //si la company esta activa y grant_type = password -> si la company del user no esta activa fuera si esta activa pa dentro
             $user = $entity->getUser();
-            $web_app_client = $this->container->getParameter('swift_client_id_default');
-            //check if the client is webApp or androipApp or holyWebApp because they have no companies
-            if($entity->getClient()->getId() != $web_app_client){
+
+            if($user){
+                //if user is authenticated with password
                 $activeCompany = $user->getActiveGroup();
                 $this->logger->info('pre-insert check locked company');
                 if(!$activeCompany->getActive()){
@@ -125,6 +131,7 @@ class KycListener
                     }
                     if($changed == 0) throw new HttpException(403, 'This company is disabled, please contact support.');
                 }
+
             }
 
             return;
