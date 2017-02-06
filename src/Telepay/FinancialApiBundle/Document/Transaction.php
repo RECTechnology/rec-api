@@ -401,6 +401,12 @@ class Transaction implements TransactionTiming {
     private $delete_on_expire;
 
     /**
+     * @var
+     * @MongoDB\Hash
+     */
+    private $comment;
+
+    /**
      * Get id
      *
      * @return id $id
@@ -1052,5 +1058,21 @@ class Transaction implements TransactionTiming {
     public function setDeleteOnExpire($delete_on_expire)
     {
         $this->delete_on_expire = $delete_on_expire;
+    }
+
+    /**
+     * @return mixed
+     */
+    public function getComment()
+    {
+        return $this->comment;
+    }
+
+    /**
+     * @param mixed $comment
+     */
+    public function setComment($comment)
+    {
+        $this->comment = $comment;
     }
 }
