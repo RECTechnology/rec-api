@@ -433,6 +433,15 @@ class User extends BaseUser
     }
 
     /**
+     * Returns a boolean depending on KYC type user
+     * @return bool
+     */
+    public function isKYC(){
+        $self_roles = unserialize($this->roles);
+        return in_array('ROLE_KYC', $self_roles);
+    }
+
+    /**
      * Returns the user roles
      * @return array The roles
      */
