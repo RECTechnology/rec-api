@@ -116,6 +116,7 @@ class KycListener
 
             if($user && !$user->isKYC()){
                 $this->logger->info('user id : '.$user->getId().' '.$user->getRoles()[0]);
+                $this->logger->info('user roles : ' . $user->showKYC());
                 //if user is authenticated with password
                 $activeCompany = $user->getActiveGroup();
                 $this->logger->info('pre-insert check locked company');
