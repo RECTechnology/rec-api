@@ -438,7 +438,7 @@ class User extends BaseUser
      */
     public function isKYC(){
         $self_roles = unserialize($this->roles);
-        return in_array('ROLE_KYC', $self_roles);
+        return in_array(strtoupper('ROLE_KYC'), $self_roles, true);
     }
 
     /**
