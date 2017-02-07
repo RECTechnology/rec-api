@@ -114,7 +114,7 @@ class KycListener
             //si la company esta activa y grant_type = password -> si la company del user no esta activa fuera si esta activa pa dentro
             $user = $entity->getUser();
 
-            if($user && !$user->hasRole('ROLE_KYC')){
+            if($user && !$user->isKYC()){
                 $this->logger->info('user id : '.$user->getId().' '.$user->getRoles()[0]);
                 //if user is authenticated with password
                 $activeCompany = $user->getActiveGroup();
