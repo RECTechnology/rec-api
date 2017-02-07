@@ -114,24 +114,23 @@ class KycListener
             //si la company esta activa y grant_type = password -> si la company del user no esta activa fuera si esta activa pa dentro
             $user = $entity->getUser();
 
-            if($user){
+            if($user && !$user->hasRole('ROLE_KYC')){
+                $this->logger->info('user id : '.$user->getId());
                 //if user is authenticated with password
-                if(!$user->hasRole('ROLE_KYC')){
-                    $activeCompany = $user->getActiveGroup();
-                    $this->logger->info('pre-insert check locked company');
-                    if(!$activeCompany->getActive()){
-                        $companies = $user->getGroups();
-                        $changed = 0;
-                        foreach ($companies as $company){
-                            if($company->getId() != $activeCompany->getId() && $company->getActive()){
-                                $user->setActiveGroup($company);
-                                $entityManager->flush();
-                                $changed = 1;
-                                break;
-                            }
+                $activeCompany = $user->getActiveGroup();
+                $this->logger->info('pre-insert check locked company');
+                if(!$activeCompany->getActive()){
+                    $companies = $user->getGroups();
+                    $changed = 0;
+                    foreach ($companies as $company){
+                        if($company->getId() != $activeCompany->getId() && $company->getActive()){
+                            $user->setActiveGroup($company);
+                            $entityManager->flush();
+                            $changed = 1;
+                            break;
                         }
-                        if($changed == 0) throw new HttpException(403, 'This company is disabled, please contact support.');
                     }
+                    if($changed == 0) throw new HttpException(403, 'This company is disabled, please contact support.');
                 }
 
             }
