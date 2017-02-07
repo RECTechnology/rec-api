@@ -540,6 +540,11 @@ class WalletController extends RestApiController{
 
         $total = count($resArray);
         $entities = array_slice($resArray, $offset, $limit);
+        $response = array();
+        foreach ($entities as $entity){
+            $entity->setComment($entity->getComment());
+            $response[] = $entity;
+        }
 
         return $this->restV2(
             200,
@@ -553,7 +558,7 @@ class WalletController extends RestApiController{
                 'scales' => $scales,
                 'balance' => $balance,
                 'volume' => $volume,
-                'elements' => $entities
+                'elements' => $response
             )
         );
     }

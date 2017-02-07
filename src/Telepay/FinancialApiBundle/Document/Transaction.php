@@ -403,6 +403,7 @@ class Transaction implements TransactionTiming {
     /**
      * @var
      * @MongoDB\Hash
+     * @Exclude
      */
     private $comment;
 
