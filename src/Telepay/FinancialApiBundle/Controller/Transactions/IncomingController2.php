@@ -286,7 +286,7 @@ class IncomingController2 extends RestApiController{
                     $method->sendMail($transaction->getId(), $transaction->getType(), $payment_info);
                 }
 
-                //TODO recorrer el arbol aunque la fee sea 0
+                //recorrer el arbol aunque la fee sea 0
                 //nueva transaccion restando la comision al user
                 $dealer = $this->container->get('net.telepay.commons.fee_deal');
                 try{

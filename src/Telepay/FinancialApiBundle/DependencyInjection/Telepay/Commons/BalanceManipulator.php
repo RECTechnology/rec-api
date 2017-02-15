@@ -60,11 +60,11 @@ class BalanceManipulator{
             $concept = $transaction->getPayInInfo()['concept'];
         }else if(isset($transaction->getPayOutInfo()['concept'])){
             $concept = $transaction->getPayOutInfo()['concept'];
-        }else{
+        }else if(isset($transaction->getDataIn()['concept'])){
             $concept = $transaction->getDataIn()['concept'];
+        }else{
+            $concept = 'Default content';
         }
-
-        if(!$concept) $concept = 'Default content';
 
         $balance = new Balance();
         $balance->setGroup($group);

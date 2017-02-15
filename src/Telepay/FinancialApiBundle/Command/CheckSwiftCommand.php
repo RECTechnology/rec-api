@@ -12,6 +12,7 @@ use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Component\HttpKernel\Exception\HttpException;
 use Telepay\FinancialApiBundle\DependencyInjection\Telepay\Commons\LimitAdder;
 use Telepay\FinancialApiBundle\Document\Transaction;
+use Telepay\FinancialApiBundle\Financial\Currency;
 
 class CheckSwiftCommand extends SyncronizedContainerAwareCommand
 {
@@ -258,7 +259,12 @@ class CheckSwiftCommand extends SyncronizedContainerAwareCommand
 
                                 $output->writeln('FEE client => '.$client_fee);
                                 $output->writeln('FEE service => '.$service_fee);
+                                $price = 100;
+                                if($transaction->getCurrency() != Currency::$EUR){
+                                    $price = $this->_getPrice($transaction->getCurrency());
+                                }
                                 if($client_fee != 0){
+
                                     //client fees goes to the user
                                     $userFee = new Transaction();
                                     if($transaction->getUser()) $transaction->setUser($transaction->getUser());
@@ -289,6 +295,7 @@ class CheckSwiftCommand extends SyncronizedContainerAwareCommand
                                     );
                                     $userFee->setFeeInfo($userFeeInfo);
                                     $userFee->setClient($client);
+                                    $userFee->setPrice($price);
                                     $dm->persist($userFee);
 
                                     $group = $em->getRepository('TelepayFinancialApiBundle:Group')->find($transaction->getGroup());
@@ -346,6 +353,7 @@ class CheckSwiftCommand extends SyncronizedContainerAwareCommand
                                     );
                                     $rootFee->setFeeInfo($serviceFeeInfo);
                                     $rootFee->setClient($client);
+                                    $rootFee->setPrice($price);
 
                                     $dm->persist($rootFee);
                                     //get wallets and add fees to both, user and wallet
@@ -496,5 +504,16 @@ class CheckSwiftCommand extends SyncronizedContainerAwareCommand
             ->attach(Swift_Attachment::newInstance($pdfoutput, $ref.'-'.$body["id"].'.pdf'));
 
         $this->getContainer()->get('mailer')->send($message);
+    }
+
+    private function _getPrice($currency){
+        //get price for this currency
+        $exchanger = $this->getContainer()->get('net.telepay.exchange_manipulator');
+        $price = 1;
+        if($currency != Currency::$EUR){
+            $price = $exchanger->exchange(pow(10, Currency::$SCALE[$currency]), $currency, 'EUR');
+        }
+
+        return $price;
     }
 }

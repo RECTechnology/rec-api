@@ -15,9 +15,13 @@ use Telepay\FinancialApiBundle\Financial\Currency;
 
 class LimitManipulator{
     private $doctrine;
+    private $container;
+    private $trans_logger;
 
-    public function __construct($doctrine){
+    public function __construct($doctrine, $container){
         $this->doctrine = $doctrine;
+        $this->container = $container;
+        $this->trans_logger = $this->container->get('transaction.logger');
     }
 
 
@@ -48,6 +52,8 @@ class LimitManipulator{
 
     public function checkExchangeLimits(Group $group, $amount, $from, $to){
 
+        $this->trans_logger->info('LIMIT_MANIPULATOR (checkExchangeLimits)=> amount='.$amount.' from'.$from.' to='.$to);
+
         //check if has specific limit
         $em = $this->doctrine->getManager();
 
@@ -58,8 +64,11 @@ class LimitManipulator{
 
         if(!$limit){
             $limit = $em->getRepository('TelepayFinancialApiBundle:TierLimit')->findOneBy(array(
-                'method'    =>  'exchange_'.$from
+                'method'    =>  'exchange_'.$from,
+                'tier'  =>  $group->getTier()
             ));
+            $this->trans_logger->info('LIMIT_MANIPULATOR day exchange_'.$from);
+            $this->trans_logger->info('LIMIT_MANIPULATOR day'.$limit->getDay());
             //Se añade al contador del tier porque el especifico no existe
             $limitCount = (new LimitAdder())->add( $this->_getLimitCount($group, 'exchange_'.$from), $amount);
 

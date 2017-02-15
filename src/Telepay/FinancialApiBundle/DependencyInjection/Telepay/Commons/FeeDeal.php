@@ -9,11 +9,11 @@
 namespace Telepay\FinancialApiBundle\DependencyInjection\Telepay\Commons;
 
 use Symfony\Component\HttpKernel\Exception\HttpException;
-use Symfony\Component\Validator\Constraints\Currency;
 use Telepay\FinancialApiBundle\Document\Transaction;
 use Telepay\FinancialApiBundle\Entity\Group;
 use Telepay\FinancialApiBundle\Entity\User;
 use Telepay\FinancialApiBundle\Entity\UserWallet;
+use Telepay\FinancialApiBundle\Financial\Currency;
 
 class FeeDeal{
     private $doctrine;
@@ -92,6 +92,8 @@ class FeeDeal{
 
         $scale = $wallet->getScale();
 
+        $price = $this->_getPrice($currency);
+
         if($fee > 0){
             $this->fee_logger->info('make transaction -> deal sumamos fee');
 
@@ -131,6 +133,7 @@ class FeeDeal{
             $transaction->setFixedFee($fixed);
             $transaction->setTotal($fee);
             $transaction->setScale($scale);
+            $transaction->setPrice($price);
 
             $dm->persist($transaction);
             $dm->flush();
@@ -183,6 +186,7 @@ class FeeDeal{
                 $feeTransaction->setFixedFee($fixed);
                 $feeTransaction->setTotal(-$total);
                 $feeTransaction->setScale($scale);
+                $feeTransaction->setPrice($price);
 
                 $dm->persist($feeTransaction);
                 $dm->flush();
@@ -235,6 +239,7 @@ class FeeDeal{
         //Ahora lo añadimos al wallet correspondiente
         $wallets = $creator->getWallets();
 
+        $price = $this->_getPrice($currency);
         $scale = 0;
         foreach($wallets as $wallet){
 
@@ -280,6 +285,7 @@ class FeeDeal{
                 $transaction->setFixedFee($fixed);
                 $transaction->setTotal(-$fee);
                 $transaction->setScale($scale);
+                $transaction->setPrice($price);
 
                 $dm->persist($transaction);
                 $dm->flush();
@@ -318,6 +324,7 @@ class FeeDeal{
             $feeTransaction->setFixedFee($fixed);
             $feeTransaction->setTotal($total);
             $feeTransaction->setScale($scale);
+            $feeTransaction->setPrice($price);
 
             $dm->persist($feeTransaction);
             $dm->flush();
@@ -354,7 +361,7 @@ class FeeDeal{
         $this->fee_logger->info('FEE_DEAL (createFees) => BEFORE TRANSACTION ');
 
         $mongo = $this->container->get('doctrine_mongodb')->getManager();
-
+        $price = $this->_getPrice($currency);
         if($total_fee != 0){
             $feeTransaction = Transaction::createFromTransaction($transaction);
             $this->fee_logger->info('FEE_DEAL (createFees) => AFTER TRANSACTION ');
@@ -388,6 +395,7 @@ class FeeDeal{
                 'currency'  =>  $transaction->getCurrency()
             );
             $feeTransaction->setFeeInfo($feeInfo);
+            $feeTransaction->setPrice($price);
             $mongo->persist($feeTransaction);
 
             $mongo->flush();
@@ -413,5 +421,16 @@ class FeeDeal{
         $this->fee_logger->info('FEE_DEAL (createFees) => GO TO DEAL '.$method_cname);
         $this->deal($creator, $amount, $method_cname, $transaction->getType(), $currency, $total_fee, $transaction_id, $transaction->getVersion());
 
+    }
+
+    private function _getPrice($currency){
+        //get price for this currency
+        $exchanger = $this->container->get('net.telepay.commons.exchange_manipulator');
+        $price = 1;
+        if($currency != Currency::$EUR){
+            $price = $exchanger->exchange(pow(10, Currency::$SCALE[$currency]), $currency, 'EUR');
+        }
+
+        return $price;
     }
 }

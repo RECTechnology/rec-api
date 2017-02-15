@@ -209,7 +209,7 @@ class ScheduledController extends BaseApiController{
     /**
      * @Rest\View
      */
-    public function deleteAction(Request $request, $id){
+    public function deleteAction($id){
         $user = $this->get('security.context')->getToken()->getUser();
 
         $scheduled = $this->getRepository()->findOneBy(array(
