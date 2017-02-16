@@ -21,7 +21,6 @@ use Telepay\FinancialApiBundle\DependencyInjection\Telepay\Commons\UploadManager
 class UploadController extends RestApiController{
 
     public function uploadFile(Request $request){
-
         $fileManager = $this->get('file_manager');
 
         if(!$request->files->has('file'))
@@ -50,7 +49,7 @@ class UploadController extends RestApiController{
         );
     }
 
-    public function uploadFile2(Request $request){
+    public function uploadFileBase64(Request $request){
         $base64_image = $request->request->get('base64_image');
 
         //search for extension
