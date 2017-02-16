@@ -98,3 +98,6 @@ services:
               - { name: kernel.event_listener, event: fos_oauth_server.pre_authorization_process, method: onPreAuthorizationProcess }
               - { name: kernel.event_listener, event: fos_oauth_server.post_authorization_process, method: onPostAuthorizationProcess }
 
+    slik_dompdf:
+          class: Slik\DompdfBundle\Wrapper\DompdfWrapper
+          arguments: [%kernel.root_dir%]

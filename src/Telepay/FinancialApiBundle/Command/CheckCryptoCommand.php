@@ -144,7 +144,7 @@ class CheckCryptoCommand extends SyncronizedContainerAwareCommand
                                     $transaction->getVersion());
 
 
-                                //TODO exchange if needed
+                                //exchange if needed
                                 $dataIn = $transaction->getDataIn();
                                 if(isset($dataIn['request_currency_out']) && $dataIn['request_currency_out'] != strtoupper($service_currency)){
 

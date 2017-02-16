@@ -286,7 +286,7 @@ class IncomingController2 extends RestApiController{
                     $method->sendMail($transaction->getId(), $transaction->getType(), $payment_info);
                 }
 
-                //TODO recorrer el arbol aunque la fee sea 0
+                //recorrer el arbol aunque la fee sea 0
                 //nueva transaccion restando la comision al user
                 $dealer = $this->container->get('net.telepay.commons.fee_deal');
                 try{
@@ -352,6 +352,8 @@ class IncomingController2 extends RestApiController{
         $user = $this->get('security.context')->getToken()->getUser();
         $group = $this->_getCurrentCompany($user);
         $this->_checkPermissions($user, $group);
+
+        $dealer = $this->container->get('net.telepay.commons.fee_deal');
 
         $method_list = $group->getMethodsList();
 
@@ -501,7 +503,7 @@ class IncomingController2 extends RestApiController{
                     $mongo->persist($transaction);
                     $mongo->flush();
 
-                    $dealer = $this->container->get('net.telepay.commons.fee_deal');
+
                     $logger->info('Update transaction -> dealer');
                     try{
                         $dealer->createFees($transaction, $current_wallet);
@@ -549,9 +551,9 @@ class IncomingController2 extends RestApiController{
                         $transaction = $this->get('notificator')->notificate($transaction);
 
                         //return fees
-                        $logger->info('Update transaction -> inverseDealer2');
+                        $logger->info('Update transaction -> returnFees');
                         try{
-                            $this->_inverseDealerV2($transaction, $current_wallet);
+                            $dealer->returnFees($transaction, $current_wallet);
                         }catch (HttpException $e){
                             throw $e;
                         }

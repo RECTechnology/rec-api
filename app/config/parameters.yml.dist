@@ -106,6 +106,7 @@ parameters:
 
     id_group_default:
     id_group_level_0:
+    id_group_root: 1
 
     easypay_account: ''
 
