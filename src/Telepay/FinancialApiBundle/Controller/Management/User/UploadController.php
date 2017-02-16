@@ -68,7 +68,7 @@ class UploadController extends RestApiController{
             $ext = '.pdf';
         }else{
             $logger = $this->get('transaction.logger');
-            $logger->info('Image-> '. substr($base64_image, 100));
+            $logger->info('Image-> '. substr($base64_image, 0, 100));
             throw new HttpException(404, 'Bad request, extension not allowed');
         }
 
