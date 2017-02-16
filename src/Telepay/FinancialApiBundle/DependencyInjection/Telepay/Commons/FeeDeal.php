@@ -338,7 +338,7 @@ class FeeDeal{
                 'status'    =>  Transaction::$STATUS_SUCCESS,
                 'currency'  =>  $currency
             );
-            $transaction->setFeeInfo($feeInfo);
+            $feeTransaction->setFeeInfo($feeInfo);
 
             $dm->persist($feeTransaction);
             $dm->flush();
