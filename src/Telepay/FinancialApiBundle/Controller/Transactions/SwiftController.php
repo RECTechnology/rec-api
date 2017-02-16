@@ -500,7 +500,7 @@ class SwiftController extends RestApiController{
                 $dm->flush();
 
                 //get fee transactions to refund.
-                $this->_returnFees($transaction);
+                $this->_returnFeesV2($transaction, $method_in, $method_out);
 
             }else{
                 throw new HttpException(403, 'Transaction can\'t be refund');
@@ -987,15 +987,8 @@ class SwiftController extends RestApiController{
         $dm->persist($rootFee);
         $dm->flush();
 
-        //TODO get wallets and add fees to both, user and wallet
-        $rootWallets = $rootGroup->getWallets();
-        $current_wallet = null;
-
-        foreach ( $rootWallets as $wallet){
-            if ($wallet->getCurrency() == $rootFee->getCurrency()){
-                $current_wallet = $wallet;
-            }
-        }
+        //get wallets and add fees to both, user and wallet
+        $current_wallet = $rootGroup->getWallet($rootFee->getCurrency());
 
         $current_wallet->setAvailable($current_wallet->getAvailable() + $service_fee);
         $current_wallet->setBalance($current_wallet->getBalance() + $service_fee);
@@ -1003,19 +996,124 @@ class SwiftController extends RestApiController{
         $em->persist($current_wallet);
         $em->flush();
 
-        $clientWallets = $clientGroup->getWallets();
-        $current_wallet = null;
+        $current_wallet_client = $clientGroup->getWallet($userFee->getCurrency());
 
-        foreach ( $clientWallets as $wallet){
-            if ($wallet->getCurrency() == $userFee->getCurrency()){
-                $current_wallet = $wallet;
-            }
-        }
+        $current_wallet_client->setAvailable($current_wallet->getAvailable() + $client_fee);
+        $current_wallet_client->setBalance($current_wallet->getBalance() + $client_fee);
 
-        $current_wallet->setAvailable($current_wallet->getAvailable() + $client_fee);
-        $current_wallet->setBalance($current_wallet->getBalance() + $client_fee);
+        $em->persist($current_wallet_client);
+        $em->flush();
+
+    }
+
+    private function _returnFeesV2(Transaction $transaction, $method_in, $method_out){
+
+        $em = $this->getDoctrine()->getManager();
+        $dm = $this->get('doctrine_mongodb')->getManager();
+
+        $client = $em->getRepository('TelepayFinancialApiBundle:Client')->find($transaction->getClient());
+
+        $clientGroup = $client->getGroup();
+        $amount = $transaction->getAmount();
+
+        $root_id = $this->container->getParameter('admin_user_id');
+        $rootGroupId = $this->container->getParameter('id_group_root');
+        $root = $em->getRepository('TelepayFinancialApiBundle:User')->find($root_id);
+        $rootGroup = $em->getRepository('TelepayFinancialApiBundle:Group')->find($rootGroupId);
+
+        //get configuration(method)
+        $swift_config = $this->container->get('net.telepay.config.'.$method_in.'.'.$method_out);
+        $methodFees = $swift_config->getFees();
+
+        //get client fees (fixed & variable)
+        $clientFees = $em->getRepository('TelepayFinancialApiBundle:SwiftFee')->findOneBy(array(
+            'client'    =>  $client,
+            'cname' =>  $method_in.'-'.$method_out
+        ));
+
+        $client_fee = ($amount * ($clientFees->getVariable()/100)) + $clientFees->getFixed();
+        $service_fee = ($amount * ($methodFees->getVariable()/100)) + $methodFees->getFixed();
+
+        //client fees goes to the user
+        $userFee = new Transaction();
+        if($transaction->getUser()) $userFee->setUser($transaction->getUser());
+        $userFee->setGroup($transaction->getGroup());
+        $userFee->setType(Transaction::$TYPE_FEE);
+        $userFee->setCurrency($transaction->getCurrency());
+        $userFee->setScale($transaction->getScale());
+        $userFee->setAmount($client_fee);
+        $userFee->setFixedFee($clientFees->getFixed());
+        $userFee->setVariableFee($amount * ($clientFees->getVariable()/100));
+        $userFee->setService($method_in.'-'.$method_out);
+        $userFee->setMethod($method_in.'-'.$method_out);
+        $userFee->setStatus(Transaction::$STATUS_SUCCESS);
+        $userFee->setTotal(-$client_fee);
+        $userFee->setDataIn(array(
+            'previous_transaction'  =>  $transaction->getId(),
+            'transaction_amount'    =>  $transaction->getAmount(),
+            'total_fee' =>  $client_fee + $service_fee
+        ));
+        $userFee->setFeeInfo(array(
+            'previous_transaction'  =>  $transaction->getId(),
+            'previous_amount'    =>  $transaction->getAmount(),
+            'amount'    =>  -$client_fee,
+            'currency'  =>  $transaction->getCurrency(),
+            'scale'     =>  $transaction->getScale(),
+            'concept'           =>  'refund '.$method_in.'-'.$method_out.'->fee',
+            'status'    =>  Transaction::$STATUS_SUCCESS
+        ));
+
+        $userFee->setClient($client);
+
+        //service fees goes to root
+        $rootFee = new Transaction();
+        $rootFee->setUser($root->getId());
+        $rootFee->setGroup($rootGroupId);
+        $rootFee->setType(Transaction::$TYPE_FEE);
+        $rootFee->setCurrency($transaction->getCurrency());
+        $rootFee->setScale($transaction->getScale());
+        $rootFee->setAmount($service_fee);
+        $rootFee->setFixedFee($methodFees->getFixed());
+        $rootFee->setVariableFee($amount * ($methodFees->getVariable()/100));
+        $rootFee->setService($method_in.'-'.$method_out);
+        $rootFee->setMethod($method_in.'-'.$method_out);
+        $rootFee->setStatus(Transaction::$STATUS_SUCCESS);
+        $rootFee->setTotal(-$service_fee);
+        $rootFee->setDataIn(array(
+            'previous_transaction'  =>  $transaction->getId(),
+            'transaction_amount'    =>  $transaction->getAmount(),
+            'total_fee' =>  $client_fee + $service_fee
+        ));
+        $rootFee->setFeeInfo(array(
+            'previous_transaction'  =>  $transaction->getId(),
+            'previous_amount'    =>  $transaction->getAmount(),
+            'scale'     =>  $transaction->getScale(),
+            'concept'           =>  'refund ' .$method_in.'-'.$method_out.'->fee',
+            'amount' =>  -$service_fee,
+            'status'    =>  Transaction::$STATUS_SUCCESS,
+            'currency'  =>  $transaction->getCurrency()
+        ));
+
+        $rootFee->setClient($client);
+        $dm->persist($userFee);
+        $dm->persist($rootFee);
+        $dm->flush();
+
+        //get wallets and add fees to both, user and wallet
+        $current_wallet = $rootGroup->getWallet($rootFee->getCurrency());
+
+        $current_wallet->setAvailable($current_wallet->getAvailable() - $service_fee);
+        $current_wallet->setBalance($current_wallet->getBalance() - $service_fee);
 
         $em->persist($current_wallet);
+        $em->flush();
+
+        $current_wallet_client = $clientGroup->getWallet($userFee->getCurrency());
+
+        $current_wallet_client->setAvailable($current_wallet->getAvailable() - $client_fee);
+        $current_wallet_client->setBalance($current_wallet->getBalance() - $client_fee);
+
+        $em->persist($current_wallet_client);
         $em->flush();
 
     }
