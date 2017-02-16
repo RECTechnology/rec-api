@@ -276,7 +276,7 @@ class FeeDeal{
                     'previous_transaction'  =>  $transaction_id,
                     'previous_amount'    =>  $amount,
                     'scale'     =>  $scale,
-                    'concept'           =>  'refund'.$service_cname.'->fee',
+                    'concept'           =>  'refund '.$service_cname.'->fee',
                     'amount' =>  -$fee,
                     'status'    =>  Transaction::$STATUS_SUCCESS,
                     'currency'  =>  $currency
@@ -333,7 +333,7 @@ class FeeDeal{
                 'previous_transaction'  =>  $transaction_id,
                 'previous_amount'    =>  $amount,
                 'scale'     =>  $scale,
-                'concept'           =>  'refund'.$service_cname.'->fee',
+                'concept'           =>  'refund '.$service_cname.'->fee',
                 'amount' =>  $fee,
                 'status'    =>  Transaction::$STATUS_SUCCESS,
                 'currency'  =>  $currency
@@ -487,7 +487,7 @@ class FeeDeal{
                 'previous_transaction'  =>  $transaction->getId(),
                 'previous_amount'    =>  $transaction->getAmount(),
                 'scale'     =>  $transaction->getScale(),
-                'concept'           =>  $method.'->fee',
+                'concept'           =>  'refund '.$method.'->fee',
                 'amount' =>  $total_fee,
                 'status'    =>  Transaction::$STATUS_SUCCESS,
                 'currency'  =>  $transaction->getCurrency()
