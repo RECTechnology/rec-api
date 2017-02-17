@@ -276,7 +276,7 @@ class SwiftController extends RestApiController{
             ));
             $dataIn['swift_user'] = $user->getId();
             $dataIn['name'] = $user->getName();
-            $dataIn['document'] = $user->getKyc()->getDocument();
+            $dataIn['document'] = $user->getKycValidations()->getDocument();
             $transaction->setDataIn($dataIn);
         }
 
