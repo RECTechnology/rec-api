@@ -268,11 +268,16 @@ class SwiftController extends RestApiController{
         }
 
         if($type_in == 'sepa'){
-            $pay_in_info['email'] = $email;
+            $dataIn = $transaction->getDataIn();
+            $dataIn['email'] = $email;
+
             $user = $em->getRepository('TelepayFinancialApiBundle:User')->findOneBy(array(
                 'email' =>  $email
             ));
-            $pay_in_info['swift_user'] = $user->getId();
+            $dataIn['swift_user'] = $user->getId();
+            $dataIn['name'] = $user->getName();
+            $dataIn['document'] = $user->getKyc()->getDocument();
+            $transaction->setDataIn($dataIn);
         }
 
         $price = round($total/($pay_in_info['amount']/1e8),0);
