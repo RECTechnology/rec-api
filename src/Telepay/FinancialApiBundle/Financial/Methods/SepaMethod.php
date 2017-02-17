@@ -182,9 +182,11 @@ class SepaMethod extends BaseMethod {
     /**
      * @return Boolean
      */
-    public function checkKYC(Request $request){
+    public function checkKYC(Request $request, $type){
 
-        return true;
+        if($type == 'out'){
+            return true;
+        }
 
         $em = $this->getContainer()->get('doctrine')->getManager();
         if($request->request->has('token')) {
@@ -234,10 +236,9 @@ class SepaMethod extends BaseMethod {
                 throw new Exception('Email must be validated.',400);
             }
 
-//            if(empty($kyc->getDocument())){
-//                throw new Exception('ID card must be validated',400);
-//            }
-
+            if(empty($kyc->getDocument())){
+                throw new Exception('ID card must be updated',400);
+            }
             return $bool;
         }
     }

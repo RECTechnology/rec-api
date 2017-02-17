@@ -81,7 +81,7 @@ class EasyPayMethod extends BaseMethod {
     /**
      * @return Boolean
      */
-    public function checkKYC(Request $request){
+    public function checkKYC(Request $request, $type){
         $em = $this->getContainer()->get('doctrine')->getManager();
         if($request->request->has('token')) {
             $access_token = $request->request->get('token');
