@@ -285,6 +285,12 @@ user_swift_update_transaction:
 
 user_upload_file:
     pattern:  /user/v1/upload_file
-    defaults: { _controller: Telepay\FinancialApiBundle\Controller\Management\User\UploadController::uploadFile2 }
+    defaults: { _controller: Telepay\FinancialApiBundle\Controller\Management\User\UploadController::uploadFile }
+    requirements:
+        _method: POST
+
+user_upload_base64:
+    pattern:  /user/v1/upload_bas64
+    defaults: { _controller: Telepay\FinancialApiBundle\Controller\Management\User\UploadController::uploadFileBase64 }
     requirements:
         _method: POST

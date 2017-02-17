@@ -10,7 +10,9 @@
 namespace Telepay\FinancialApiBundle\Controller\Management\User;
 
 use Doctrine\DBAL\DBALException;
+use Symfony\Component\HttpFoundation\File\File;
 use Symfony\Component\Security\Core\Util\SecureRandom;
+use Telepay\FinancialApiBundle\DependencyInjection\Telepay\Commons\UploadManager;
 use Telepay\FinancialApiBundle\Entity\CashInTokens;
 use Telepay\FinancialApiBundle\Entity\Device;
 use Telepay\FinancialApiBundle\Entity\Group;
@@ -1246,7 +1248,24 @@ class AccountController extends BaseApiController{
         }
 
         if($request->request->has('document') && $request->request->get('document')!=''){
-            $kyc->setDocument($request->request->get('document'));
+
+            $fileManager = $this->get('file_manager');
+
+            $fileSrc = $request->request->get('document');
+            $fileContents = $fileManager->readFileUrl($fileSrc);
+            $hash = $fileManager->getHash();
+            $explodedFileSrc = explode('.', $fileSrc);
+            $ext = $explodedFileSrc[count($explodedFileSrc) - 1];
+            $filename = $hash . '.' . $ext;
+
+            file_put_contents($fileManager->getUploadsDir() . '/' . $filename, $fileContents);
+
+            $tmpFile = new File($fileManager->getUploadsDir() . '/' . $filename);
+            if (!in_array($tmpFile->getMimeType(), UploadManager::$ALLOWED_MIMETYPES))
+                throw new HttpException(400, "Bad file type");
+
+
+            $kyc->setDocument($fileManager->getFilesPath().'/'.$filename);
         }
 
         $em->flush();
