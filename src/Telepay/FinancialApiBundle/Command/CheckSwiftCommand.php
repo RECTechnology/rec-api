@@ -508,7 +508,7 @@ class CheckSwiftCommand extends SyncronizedContainerAwareCommand
 
     private function _getPrice($currency){
         //get price for this currency
-        $exchanger = $this->getContainer()->get('net.telepay.exchange_manipulator');
+        $exchanger = $this->getContainer()->get('net.telepay.commons.exchange_manipulator');
         $price = 1;
         if($currency != Currency::$EUR){
             $price = $exchanger->exchange(pow(10, Currency::$SCALE[$currency]), $currency, 'EUR');

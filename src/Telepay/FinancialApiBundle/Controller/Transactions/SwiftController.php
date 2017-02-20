@@ -196,9 +196,9 @@ class SwiftController extends RestApiController{
         }
 
         if($clientFees->getVariable() == 0){
-            $client_fee = ($clientFees->getFixed());
+            $client_fee = round($clientFees->getFixed(),0);
         }else{
-            $client_fee = ($amount_out * ($clientFees->getVariable()/100) + $clientFees->getFixed());
+            $client_fee = round($amount_out * ($clientFees->getVariable()/100) + $clientFees->getFixed(),0);
         }
 
         $total_fee = $client_fee + $service_fee;
@@ -265,6 +265,19 @@ class SwiftController extends RestApiController{
             else{
                 $pay_in_info['reference'] = "CHIPCHAP CODE " . $pay_in_info['reference_code'];
             }
+        }
+
+        if($type_in == 'sepa'){
+            $dataIn = $transaction->getDataIn();
+            $dataIn['email'] = $email;
+
+            $user = $em->getRepository('TelepayFinancialApiBundle:User')->findOneBy(array(
+                'email' =>  $email
+            ));
+            $dataIn['swift_user'] = $user->getId();
+            $dataIn['name'] = $user->getName();
+            $dataIn['document'] = $user->getKycValidations()->getDocument();
+            $transaction->setDataIn($dataIn);
         }
 
         $price = round($total/($pay_in_info['amount']/1e8),0);
