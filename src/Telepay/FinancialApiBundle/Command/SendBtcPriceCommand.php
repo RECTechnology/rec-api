@@ -14,18 +14,44 @@ class SendBtcPriceCommand extends ContainerAwareCommand
         $this
             ->setName('telepay:exchange:price:send')
             ->setDescription('Send all exchange prices')
+            ->addOption(
+                'currency',
+                null,
+                InputOption::VALUE_REQUIRED,
+                'Define the currency to do all the prices (BTC by default).',
+                null
+            )
+            ->addOption(
+                'mode',
+                null,
+                InputOption::VALUE_REQUIRED,
+                'Daily or monthly (daily by default).',
+                null
+            )
         ;
     }
 
+    public $currency;
+
     protected function execute(InputInterface $input, OutputInterface $output) {
+        if($input->getOption('currency')){
+            $this->currency = strtoupper($input->getOption('currency'));
+        }
+        else{
+            $this->currency = 'BTC';
+        }
+
         $em = $this->getContainer()->get('doctrine')->getManager();
         $exchangeRepo = $em->getRepository("TelepayFinancialApiBundle:Exchange");
         $exchanges = $exchangeRepo->findBy(
             array(
-                'src'=>'BTC',
+                'src'=>$this->currency,
                 'dst'=>'EUR')
         );
         $output->writeln("Date,Price");
+        $today = date('d');
+        $this_month = date('m');
+        $this_year = date('Y');
         foreach ($exchanges as $exchange) {
             $date = $exchange->getDate();
             $day = $date->format('d');
