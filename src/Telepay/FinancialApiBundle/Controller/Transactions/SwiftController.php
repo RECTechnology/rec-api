@@ -196,9 +196,9 @@ class SwiftController extends RestApiController{
         }
 
         if($clientFees->getVariable() == 0){
-            $client_fee = ($clientFees->getFixed());
+            $client_fee = round($clientFees->getFixed(),0);
         }else{
-            $client_fee = ($amount_out * ($clientFees->getVariable()/100) + $clientFees->getFixed());
+            $client_fee = round($amount_out * ($clientFees->getVariable()/100) + $clientFees->getFixed(),0);
         }
 
         $total_fee = $client_fee + $service_fee;
