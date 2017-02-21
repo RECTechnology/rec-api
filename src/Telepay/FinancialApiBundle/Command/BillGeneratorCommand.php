@@ -137,10 +137,10 @@ class BillGeneratorCommand extends ContainerAwareCommand
 
         $dir = $this->getContainer()->getParameter('uploads_dir');
 
-        $file = $this->getContainer()->get('knp_snappy.pdf')->generateFromHtml(
-            $html,
-            $dir.'/bills/'.rand().'_file.pdf'
-        );
+//        $file = $this->getContainer()->get('knp_snappy.pdf')->generateFromHtml(
+//            $html,
+//            $dir.'/bills/'.rand().'_file.pdf'
+//        );
 
         $no_replay = $this->getContainer()->getParameter('no_reply_email');
 
@@ -156,8 +156,8 @@ class BillGeneratorCommand extends ContainerAwareCommand
                         $body
                     )
             )
-            ->setContentType('text/html')
-            ->attach(Swift_Attachment::newInstance($file, rand().'_polla.pdf'));
+            ->setContentType('text/html');
+//            ->attach(Swift_Attachment::newInstance($file, rand().'_polla.pdf'));
 
         $this->getContainer()->get('mailer')->send($message);
     }
