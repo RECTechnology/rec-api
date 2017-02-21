@@ -700,7 +700,7 @@ class AccountController extends BaseApiController{
             'repassword'
         );
 
-        if(!$request->request->has('company_name'))$request->request->set('company_name',  $request->request->get('username') . " Company");
+        if(!$request->request->has('company_name'))$request->request->set('company_name',  $request->request->get('username'));
 
         $valid_types = array('prestashop', 'android', 'commerce', 'android_fair');
         if(!in_array($type, $valid_types)) throw new HttpException(404, 'Type not valid');
