@@ -140,28 +140,5 @@ class CheckCryptoDepositCommand extends SyncronizedContainerAwareCommand
         if($count_deposits > 0){
             exec('curl -X POST -d "chat_id=-145386290&text=#deposit ' . $count_deposits . 'new deposits" "https://api.telegram.org/bot348257911:AAG9z3cJnDi31-7MBsznurN-KZx6Ho_X4ao/sendMessage"');
         }
-        else{
-            exec('curl -X POST -d "chat_id=-145386290&text=#deposit none" "https://api.telegram.org/bot348257911:AAG9z3cJnDi31-7MBsznurN-KZx6Ho_X4ao/sendMessage"');
-        }
-    }
-
-    private function sendEmail($subject, $body){
-
-        $message = \Swift_Message::newInstance()
-            ->setSubject($subject)
-            ->setFrom('no-reply@chip-chap.com')
-            ->setTo(array(
-                'pere@chip-chap.com'
-            ))
-            ->setBody(
-                $this->getContainer()->get('templating')
-                    ->render('TelepayFinancialApiBundle:Email:support.html.twig',
-                        array(
-                            'message'        =>  $body
-                        )
-                    )
-            );
-
-        $this->getContainer()->get('mailer')->send($message);
     }
 }
