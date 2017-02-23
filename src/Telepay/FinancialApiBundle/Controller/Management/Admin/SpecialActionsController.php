@@ -233,10 +233,17 @@ class SpecialActionsController extends RestApiController {
         $response = array();
         foreach($transactions as $transaction){
             $company_id = $transaction->getGroup();
-            $group = $em->getRepository('TelepayFinancialApiBundle:Group')->find($company_id);
-            $group_data = array(
-                'name'  =>  $group->getName()
-            );
+            if($company_id){
+                $group = $em->getRepository('TelepayFinancialApiBundle:Group')->find($company_id);
+                $group_data = array(
+                    'name'  =>  $group->getName()
+                );
+            }else{
+                $group_data = array(
+                    'name'  =>  'not found'
+                );
+            }
+
             $transaction->setGroupData($group_data);
             $response[] = $transaction;
 

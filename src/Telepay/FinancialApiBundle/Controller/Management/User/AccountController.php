@@ -702,7 +702,7 @@ class AccountController extends BaseApiController{
 
         if(!$request->request->has('company_name'))$request->request->set('company_name',  $request->request->get('username'));
 
-        $valid_types = array('prestashop', 'android', 'commerce', 'android_fair');
+        $valid_types = array('prestashop', 'android', 'commerce', 'android_fair', 'physical_pos');
         if(!in_array($type, $valid_types)) throw new HttpException(404, 'Type not valid');
 
         $params = array();
@@ -832,7 +832,11 @@ class AccountController extends BaseApiController{
             $user->setUsername($params['username']);
             $user->setActiveGroup($company);
             $user->setBase64Image('');
-            $user->setEnabled(false);
+            if($type == 'physical_pos'){
+                $user->setEnabled(false);
+            }else{
+                $user->setEnabled(false);
+            }
         }
 
         $url = $this->container->getParameter('base_panel_url');
