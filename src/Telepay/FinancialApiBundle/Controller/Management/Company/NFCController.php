@@ -56,8 +56,9 @@ class NFCController extends RestApiController{
         //TODO check client => only android client is allowed
 
         //get default creators for this king of register
-        $user_creator_id = $this->container->getParameter('default_user_creator_commerce_android');
-        $company_creator_id = $this->container->getParameter('default_company_creator_commerce_android');
+        $user_creator_id = $this->container->getParameter('default_user_creator_commerce_android_fair');
+        $company_creator_id = $this->container->getParameter('default_company_creator_commerce_android_fair');
+
 
         $em = $this->getDoctrine()->getManager();
         $userCreator = $em->getRepository('TelepayFinancialApiBundle:User')->find($user_creator_id);
