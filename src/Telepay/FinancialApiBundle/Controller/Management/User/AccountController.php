@@ -833,7 +833,7 @@ class AccountController extends BaseApiController{
             $user->setActiveGroup($company);
             $user->setBase64Image('');
             if($type == 'physical_pos'){
-                $user->setEnabled(false);
+                $user->setEnabled(true);
             }else{
                 $user->setEnabled(false);
             }

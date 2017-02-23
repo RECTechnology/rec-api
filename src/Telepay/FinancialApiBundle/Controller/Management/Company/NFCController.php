@@ -101,6 +101,7 @@ class NFCController extends RestApiController{
                 $company->setDefaultCurrency('EUR');
                 $company->setEmail($params['email']);
                 $company->setMethodsList('');
+                $company->setPremium(true);
 
                 $em->persist($company);
 
