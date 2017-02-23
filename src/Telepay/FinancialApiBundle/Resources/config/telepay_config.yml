@@ -184,10 +184,10 @@ services:
             - "1"
             - "5000"
             - "50000"
-            - "5000"
-            - "All over the world"
+            - "1000"
+            - "Europe"
             - "EUR"
-            - "86400"
+            - "172800"
             - "24"
 
     net.telepay.config.sepa.fac:
@@ -197,10 +197,10 @@ services:
             - "1"
             - "5000"
             - "50000"
-            - "5000"
-            - "All over the world"
+            - "1000"
+            - "Europe"
             - "EUR"
-            - "86400"
+            - "172800"
             - "24"
 
     net.telepay.config.easypay.btc:

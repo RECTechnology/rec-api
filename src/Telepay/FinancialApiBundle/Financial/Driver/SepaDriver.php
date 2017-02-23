@@ -27,7 +27,7 @@ class SepaDriver{
             'iban'      =>  $this->iban,
             'bic_swift' =>  $this->swift,
             'beneficiary' =>  $this->beneficiary,
-            'expires_in'=>  3600*24
+            'expires_in'=>  3600*24*2
         );
 
         return $response;
