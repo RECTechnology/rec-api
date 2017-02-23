@@ -744,7 +744,7 @@ class AccountController extends BaseApiController{
             }
         }
 
-        if($type == 'commerce'){
+        if($type == 'commerce' || $type == 'physical_pos'){
             $user_creator_id = $this->container->getParameter('admin_user_id');
             $company_creator_id = $this->container->getParameter('id_group_root');
         }else{
