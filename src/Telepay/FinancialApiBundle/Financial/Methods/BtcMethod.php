@@ -202,5 +202,12 @@ class BtcMethod extends BaseMethod {
         return $allReceived;
     }
 
+    public function getInfo($address){
+        $info = $this->driver->getinfo();
+
+
+        return $info;
+    }
+
 
 }

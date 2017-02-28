@@ -50,6 +50,9 @@ class CheckCryptoDepositCommand extends SyncronizedContainerAwareCommand
                 $output->writeln($token->getToken() . ' TOKEN');
                 $receivedTransactions = $methodDriver->getReceivedByAddress($token->getToken());
                 $output->writeln($receivedTransactions. ' all received');
+                $info = $methodDriver->getInfo($token->getToken());
+                $info = json_encode($info);
+                $output->writeln('info wallet '. $info);
                 $receivedTransactions = $receivedTransactions * 1e8;
                 $output->writeln($receivedTransactions. ' total amount');
                 $output->writeln($method.' transactions');
