@@ -77,7 +77,7 @@ class CashInDeposit {
     private $amount;
 
     /**
-     * @ORM\Column(type="string")
+     * @ORM\Column(type="string", unique=true, nullable=false)
      */
     private $hash;
 
