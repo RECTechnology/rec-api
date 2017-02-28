@@ -182,11 +182,17 @@ class FacMethod extends  BaseMethod {
     }
 
     public function getReceivedByAddress($address){
-        $allReceived = $this->driver->listreceivedbyaddress($address, true);
+        $allReceived = $this->driver->getreceivedbyaddress($address, 0);
 
         return $allReceived;
     }
 
+    public function getInfo($address){
+        $info = $this->driver->getinfo();
+
+
+        return $info;
+    }
 
 
 }
