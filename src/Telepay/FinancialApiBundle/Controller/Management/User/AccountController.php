@@ -862,7 +862,7 @@ class AccountController extends BaseApiController{
         $em->persist($kyc);
         $em->flush();
 
-        if($type == 'prestashop') {
+        if($type == 'prestashop' || $type == "physical_pos") {
             //create POS-Btc
             $pos = new POS();
             $pos->setName($params['company_name']);
