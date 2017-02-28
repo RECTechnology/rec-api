@@ -513,7 +513,7 @@ class SwiftController extends RestApiController{
                 $dm->flush();
 
                 //get fee transactions to refund.
-                $this->_returnFeesV2($transaction, $method_in, $method_out);
+                $this->_returnFeesV2($transaction, $transaction->getMethodIn(), $transaction->getMethodOut());
 
             }else{
                 throw new HttpException(403, 'Transaction can\'t be refund');

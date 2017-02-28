@@ -518,7 +518,7 @@ class NFCController extends RestApiController{
         //check validation email
         $kyc = $card->getUser()->getKycValidations();
 
-        if($kyc->getEmailValidated() == false) throw new HttpException(403, 'Email not validated');
+//        if($kyc->getEmailValidated() == false) throw new HttpException(403, 'Email not validated');
 
         $receiverCompany = $card->getCompany();
 
