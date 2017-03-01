@@ -192,6 +192,12 @@ class NFCController extends RestApiController{
                 $userGroup->setGroup($company);
                 $userGroup->setRoles(array('ROLE_ADMIN'));
 
+                //Add admin to group with readonly role
+                $userRO = new UserGroup();
+                $userRO->setUser($userCreator);
+                $userRO->setGroup($company);
+                $userRO->setRoles(array('ROLE_READONLY'));
+
                 $em->persist($userGroup);
 
                 //create card
@@ -513,7 +519,7 @@ class NFCController extends RestApiController{
 
         if(!$card) throw new HttpException(404, 'NFC Card not found');
 
-        if(!$card->getEnabled()) throw new HttpException(403, 'Disabled card');
+        //if(!$card->getEnabled()) throw new HttpException(403, 'Disabled card');
 
         //check validation email
         $kyc = $card->getUser()->getKycValidations();
