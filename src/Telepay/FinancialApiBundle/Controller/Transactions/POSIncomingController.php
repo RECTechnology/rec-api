@@ -241,8 +241,8 @@ class POSIncomingController extends RestApiController{
 
         //create transaction
         $transaction = Transaction::createFromRequest($request);
-        $transaction->setService('POS-'.$posType);
-        $transaction->setMethod('POS-'.$posType);
+        $transaction->setService('POS-'.$posType.'-'.$mode);
+        $transaction->setMethod('POS-'.$posType.'-'.$mode);
         $transaction->setGroup($group->getId());
         $transaction->setVersion(1);
         $transaction->setDataIn($dataIn);
@@ -250,8 +250,7 @@ class POSIncomingController extends RestApiController{
         $transaction->setPosId($id);
         $dm->persist($transaction);
         $transaction->setAmount(round($amount,0));
-        $transaction->setType('POS-'.$posType.'-'.$mode);
-
+        $transaction->setType('POS-'.$posType);
         $transaction->setLastPriceAt(new \DateTime());
         $transaction->setLastCheck(new \DateTime());
         $transaction->setPosName($tpvRepo->getName());
