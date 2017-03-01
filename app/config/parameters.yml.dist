@@ -30,6 +30,7 @@ parameters:
     mongodb_db: symfony
     version: 1.0
     build_id: "#1"
+    environment: 'local'
 
     base_url: 'http://dev-api.telepay.net/test'
     base_panel_url: 'http://dev-cp.telepay.net/app_dev.php'
