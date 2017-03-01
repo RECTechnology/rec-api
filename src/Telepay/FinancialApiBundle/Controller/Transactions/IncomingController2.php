@@ -224,7 +224,7 @@ class IncomingController2 extends RestApiController{
         if($type == 'out'){
             $logger->info('Incomig transaction...OUT');
             $logger->info('Available = ' . $wallet->getAvailable() .  " TOTAL: " . $total);
-            if($wallet->getAvailable() <= $total) throw new HttpException(405,'Not founds enough');
+            if($wallet->getAvailable() < $total) throw new HttpException(405,'Not founds enough');
                     //Bloqueamos la pasta en el wallet
             $wallet->setAvailable($wallet->getAvailable() - $amount);
             $em->persist($wallet);
