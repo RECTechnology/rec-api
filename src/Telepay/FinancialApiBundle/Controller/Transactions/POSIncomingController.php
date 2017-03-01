@@ -154,6 +154,13 @@ class POSIncomingController extends RestApiController{
             $url_notification = '';
         }
 
+        if($request->request->has('mode')) {
+            $mode = $request->get('mode');
+        }
+        else{
+            $mode = 'virtual';
+        }
+
         $logger->info('POS GETTING PARAMS');
         $dataIn = array();
         foreach($paramNames as $paramName){
@@ -243,7 +250,7 @@ class POSIncomingController extends RestApiController{
         $transaction->setPosId($id);
         $dm->persist($transaction);
         $transaction->setAmount(round($amount,0));
-        $transaction->setType('POS-'.$posType);
+        $transaction->setType('POS-'.$posType.'-'.$mode);
 
         $transaction->setLastPriceAt(new \DateTime());
         $transaction->setLastCheck(new \DateTime());
