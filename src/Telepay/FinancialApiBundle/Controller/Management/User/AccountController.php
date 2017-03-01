@@ -854,6 +854,14 @@ class AccountController extends BaseApiController{
         $userGroup->setGroup($company);
         $userGroup->setRoles(array('ROLE_ADMIN'));
 
+        if($type = 'android_fair'){
+            //Add admin to group with readonly role
+            $userRO = new UserGroup();
+            $userRO->setUser($userCreator);
+            $userRO->setGroup($company);
+            $userRO->setRoles(array('ROLE_READONLY'));
+        }
+
         $kyc = new KYC();
         $kyc->setUser($user);
         $kyc->setEmail($user->getEmail());
