@@ -10,6 +10,8 @@ namespace Telepay\FinancialApiBundle\Financial\Methods;
 
 use FOS\OAuthServerBundle\Util\Random;
 use MongoDBODMProxies\__CG__\Telepay\FinancialApiBundle\Document\Transaction;
+use Services_Twilio;
+use Services_Twilio_TinyHttp;
 use Symfony\Component\Config\Definition\Exception\Exception;
 use Symfony\Component\HttpKernel\Exception\HttpException;
 use Telepay\FinancialApiBundle\DependencyInjection\Transactions\Core\BaseMethod;
@@ -20,12 +22,14 @@ class HalcashMethod extends BaseMethod{
     private $driver;
     private $container;
     private $logger;
+    private $env;
 
     public function __construct($name, $cname, $type, $currency, $email_required, $base64Image, $container, $driver){
         parent::__construct($name, $cname, $type, $currency, $email_required, $base64Image, $container);
         $this->driver = $driver;
         $this->container = $container;
         $this->logger = $this->container->get('transaction.logger');
+        $this->env = $this->container->get('environment');
     }
 
     public function send($paymentInfo)
@@ -49,11 +53,25 @@ class HalcashMethod extends BaseMethod{
 
         $this->logger->info('HALCASH METHOD-> currency=> '.$this->getCurrency());
         try{
-            if($this->getCurrency() == 'EUR'){
-                $hal = $this->driver->sendV3($phone, $prefix, $amount, $reference.' '.$find_token, $pin);
+            if($this->env == 'prod' || $this->env == 'pre'){
+                if($this->getCurrency() == 'EUR'){
+                    $hal = $this->driver->sendV3($phone, $prefix, $amount, $reference.' '.$find_token, $pin);
+                }else{
+                    $hal = $this->driver->sendInternational($phone, $prefix, $amount, $reference.' '.$find_token, $pin, 'PL', 'POL');
+                }
             }else{
-                $hal = $this->driver->sendInternational($phone, $prefix, $amount, $reference.' '.$find_token, $pin, 'PL', 'POL');
+                //generate code
+                $halcash_ticket = rand(10000000,99999999);
+                $hal = array(
+                    'errorcode' =>  0,
+                    'halcashticket' =>   $halcash_ticket
+                );
+
+                //send fake email
+                $this->sendFakeHal($phone, $prefix, $amount, $reference.' '.$find_token, $reference);
+
             }
+
         }catch (HttpException $e){
             $this->logger->error('HALCASH METHOD-> ERROR=> '.$e->getMessage());
             $this->sendMail($e->getMessage(), $e->getStatusCode(), $paymentInfo);
@@ -165,43 +183,44 @@ class HalcashMethod extends BaseMethod{
         $this->logger->info('HALCASH METHOD-> PAY_OUT_STATUS');
         $halcashticket = $paymentInfo['halcashticket'];
 
-        $hal = $this->driver->status($halcashticket);
+        if($this->env == 'prod' || $this->env == 'pre'){
+            $hal = $this->driver->status($halcashticket);
+            if($hal['errorcode']==0){
 
-        if($hal['errorcode']==0){
+                switch($hal['estadoticket']){
+                    case 'Autorizada':
+                        $paymentInfo['status'] = 'sent';
+                        $paymentInfo['final'] = false;
+                        break;
+                    case 'Preautorizada':
+                        $paymentInfo['status'] = 'sent';
+                        $paymentInfo['final'] = false;
+                        break;
+                    case 'Anulada':
+                        $paymentInfo['status'] = Transaction::$STATUS_CANCELLED;
+                        $paymentInfo['final'] = false;
+                        break;
+                    case 'BloqueadaPorCaducidad':
+                        $paymentInfo['status'] = Transaction::$STATUS_EXPIRED;
+                        $paymentInfo['final'] = false;
+                        break;
+                    case 'BloqueadaPorReintentos':
+                        $paymentInfo['status'] = Transaction::$STATUS_LOCKED;
+                        $paymentInfo['final'] = false;
+                        break;
+                    case 'Devuelta':
+                        $paymentInfo['status'] = Transaction::$STATUS_RETURNED;
+                        $paymentInfo['final'] = false;
+                        break;
+                    case 'Dispuesta':
+                        $paymentInfo['status'] = 'withdrawn';
+                        $paymentInfo['final'] = true;
+                        break;
+                    case 'EstadoDesconocido':
+                        break;
+                }
 
-            switch($hal['estadoticket']){
-                case 'Autorizada':
-                    $paymentInfo['status'] = 'sent';
-                    $paymentInfo['final'] = false;
-                    break;
-                case 'Preautorizada':
-                    $paymentInfo['status'] = 'sent';
-                    $paymentInfo['final'] = false;
-                    break;
-                case 'Anulada':
-                    $paymentInfo['status'] = Transaction::$STATUS_CANCELLED;
-                    $paymentInfo['final'] = false;
-                    break;
-                case 'BloqueadaPorCaducidad':
-                    $paymentInfo['status'] = Transaction::$STATUS_EXPIRED;
-                    $paymentInfo['final'] = false;
-                    break;
-                case 'BloqueadaPorReintentos':
-                    $paymentInfo['status'] = Transaction::$STATUS_LOCKED;
-                    $paymentInfo['final'] = false;
-                    break;
-                case 'Devuelta':
-                    $paymentInfo['status'] = Transaction::$STATUS_RETURNED;
-                    $paymentInfo['final'] = false;
-                    break;
-                case 'Dispuesta':
-                    $paymentInfo['status'] = 'withdrawn';
-                    $paymentInfo['final'] = true;
-                    break;
-                case 'EstadoDesconocido':
-                    break;
             }
-
         }
 
         return $paymentInfo;
@@ -213,7 +232,14 @@ class HalcashMethod extends BaseMethod{
         $this->logger->info('HALCASH METHOD-> CANCEL');
         $halcashticket = $paymentInfo['halcashticket'];
 
-        $response = $this->driver->cancelation($halcashticket, 'ChipChap cancelation');
+        if($this->env == 'prod' || $this->env == 'pre'){
+
+            $response = $this->driver->cancelation($halcashticket, 'ChipChap cancelation');
+        }else{
+            $response = array(
+                'errorcode' =>  0
+            );
+        }
 
         if($response['errorcode'] == 0){
             $paymentInfo['status'] = 'cancelled';
@@ -275,6 +301,28 @@ class HalcashMethod extends BaseMethod{
             ->setContentType('text/html');
 
         $this->getContainer()->get('mailer')->send($message);
+    }
+
+    public function sendFakeHal($phone, $prefix, $amount, $find_token, $reference){
+
+        $text = 'ChipChap le envia '.$amount.' Euros por ChipChap '.$find_token.' a retirar antes de 15 dias en cajeros Halcash. Referencia '.$reference;
+        $sid = $this->container->getParameter('twilio_sid');
+        $token = $this->container->getParameter('twilio_authToken');
+        $from = $this->container->getParameter('twilio_from');
+        $http = new Services_Twilio_TinyHttp(
+            'https://api.twilio.com',
+            array('curlopts' => array(
+                CURLOPT_SSL_VERIFYPEER => false,
+                CURLOPT_SSL_VERIFYHOST => 2,
+            ))
+        );
+
+        $twilio = new Services_Twilio($sid, $token, "2010-04-01", $http);
+        $twilio->account->messages->create(array(
+            'To' => "+" . $prefix . $phone,
+            'From' => $from,
+            'Body' => $text,
+        ));
     }
 
 }
