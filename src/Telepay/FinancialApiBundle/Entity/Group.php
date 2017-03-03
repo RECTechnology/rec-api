@@ -222,6 +222,11 @@ class Group extends BaseGroup
     private $premium = false;
 
     /**
+     * @ORM\Column(type="boolean")
+     */
+    private $fairpay_vendor = false;
+
+    /**
      * @ORM\OneToMany(targetEntity="Telepay\FinancialApiBundle\Entity\CashInTokens", mappedBy="company", cascade={"remove"})
      */
     private $cash_in_tokens;
@@ -859,6 +864,22 @@ class Group extends BaseGroup
     public function setCompanyToken($company_token)
     {
         $this->company_token = $company_token;
+    }
+
+    /**
+     * @return mixed
+     */
+    public function getFairpayVendor()
+    {
+        return $this->fairpay_vendor;
+    }
+
+    /**
+     * @param mixed $fairpay_vendor
+     */
+    public function setFairpayVendor($fairpay_vendor)
+    {
+        $this->fairpay_vendor = $fairpay_vendor;
     }
 
 }

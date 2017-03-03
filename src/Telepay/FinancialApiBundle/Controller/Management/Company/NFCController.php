@@ -51,6 +51,9 @@ class NFCController extends RestApiController{
             }
         }
 
+        $group = $this->get('security.context')->getToken()->getUser()->getActiveGroup();
+        if(!$group->getFairpayVendor()) throw new HttpException(403, 'You are not a fairpay vendor');
+
         //TODO optional values amount and currency...if exists recharge card
 
         //TODO check client => only android client is allowed
@@ -525,6 +528,8 @@ class NFCController extends RestApiController{
         $kyc = $card->getUser()->getKycValidations();
 
 //        if($kyc->getEmailValidated() == false) throw new HttpException(403, 'Email not validated');
+
+        if(!$company->getFairpayVendor()) throw new HttpException(403, 'You are not a fairpay vendor');
 
         $receiverCompany = $card->getCompany();
 
