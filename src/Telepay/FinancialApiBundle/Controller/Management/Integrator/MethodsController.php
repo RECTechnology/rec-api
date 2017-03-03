@@ -52,7 +52,6 @@ class MethodsController extends RestApiController {
         $userGroup = $this->get('security.context')->getToken()->getUser()->getActiveGroup();
 
         $methods = $userGroup->getMethodsList();
-
         $response = array();
 
         if(count($methods) == 0) throw new HttpException (404, 'No methods found for this company');

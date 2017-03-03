@@ -29,7 +29,7 @@ class HalcashMethod extends BaseMethod{
         $this->driver = $driver;
         $this->container = $container;
         $this->logger = $this->container->get('transaction.logger');
-        $this->env = $this->container->get('environment');
+        $this->env = $this->container->getParameter('environment');
     }
 
     public function send($paymentInfo)
