@@ -140,7 +140,7 @@ class CheckCryptoDepositCommand extends SyncronizedContainerAwareCommand
         $dm->flush();
 
         $output->writeln('Crypto transactions finished');
-        $env = $this->getContainer()->getParameter('env');
+        $env = $this->getContainer()->getParameter('environment');
         if($count_deposits > 0){
             exec('curl -X POST -d "chat_id=-145386290&text=#deposit_'.$env.' ' . $count_deposits . ' new deposits" "https://api.telegram.org/bot348257911:AAG9z3cJnDi31-7MBsznurN-KZx6Ho_X4ao/sendMessage"');
         }
