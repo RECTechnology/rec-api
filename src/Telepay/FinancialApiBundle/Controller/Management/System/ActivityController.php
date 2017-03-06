@@ -145,4 +145,52 @@ class ActivityController extends RestApiController
         return $this->restV2(200,"ok", "Request successful", $balances);
 
     }
+
+    /**
+     * @Rest\View
+     */
+    public function walletByCompany(Request $request, $id){
+
+        $em = $this->getDoctrine()->getManager();
+        $company = $em->getRepository('TelepayFinancialApiBundle:Group')->find($id);
+
+        //obtener los wallets
+        $wallets = $company->getWallets();
+
+        //obtenemos la default currency
+        $currency = $company->getDefaultCurrency();
+
+        $filtered = [];
+        $available = 0;
+        $balance = 0;
+        $scale = 0;
+        $exchanger = $this->container->get('net.telepay.commons.exchange_manipulator');
+
+        foreach($wallets as $wallet){
+            $filtered[] = $wallet->getWalletView();
+            if($company->getPremium()){
+                if($wallet->getCurrency() == Currency::$FAC){
+                    $wallet->setCurrency('FAIRP');
+                }elseif($currency == Currency::$FAC){
+                    $currency = 'FAIRP';
+                }
+            }
+            $new_wallet = $exchanger->exchangeWallet($wallet, $currency);
+            $available = round($available + $new_wallet['available'],0);
+            $balance = round($balance + $new_wallet['balance'],0);
+            if($new_wallet['scale'] != null) $scale = $new_wallet['scale'];
+        }
+
+        //montamos el wallet
+        $multidivisa = [];
+        $multidivisa['id'] = 'multidivisa';
+        $multidivisa['currency'] = $currency;
+        $multidivisa['available'] = $available;
+        $multidivisa['balance'] = $balance;
+        $multidivisa['scale'] = $scale;
+        $filtered[] = $multidivisa;
+
+        //return $this->rest(201, "Account info got successfully", $filtered);
+        return $this->restV2(200, "ok", "Wallet info got successfully", $filtered);
+    }
 }
