@@ -72,7 +72,7 @@ class CashInDeposit {
     private $confirmations;
 
     /**
-     * @ORM\Column(type="integer")
+     * @ORM\Column(type="bigint")
      */
     private $amount;
 
