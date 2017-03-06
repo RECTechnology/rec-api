@@ -26,7 +26,7 @@ class CheckCryptoDepositCommand extends SyncronizedContainerAwareCommand
 
     protected function executeSyncronized(InputInterface $input, OutputInterface $output){
         $count_deposits = 0;
-        $methods = array('fac', 'btc');
+        $methods = array('btc');
         $type = 'in';
 
         $dm = $this->getContainer()->get('doctrine_mongodb')->getManager();
@@ -50,9 +50,6 @@ class CheckCryptoDepositCommand extends SyncronizedContainerAwareCommand
                 $output->writeln($token->getToken() . ' TOKEN');
                 $receivedTransactions = $methodDriver->getReceivedByAddress($token->getToken());
                 $output->writeln($receivedTransactions. ' all received');
-                $info = $methodDriver->getInfo($token->getToken());
-                $info = json_encode($info);
-                $output->writeln('info wallet  '. $info);
                 $receivedTransactions = $receivedTransactions * 1e8;
                 $output->writeln($receivedTransactions. ' total amount');
                 $output->writeln($method.' transactions');
@@ -141,7 +138,7 @@ class CheckCryptoDepositCommand extends SyncronizedContainerAwareCommand
         $dm->flush();
 
         $output->writeln('Crypto transactions finished');
-        $env = $this->getContainer()->get('environment');
+        $env = $this->getContainer()->getParameter('environment');
         if($count_deposits > 0){
             exec('curl -X POST -d "chat_id=-145386290&text=#deposit_'.$env.' ' . $count_deposits . ' new deposits" "https://api.telegram.org/bot348257911:AAG9z3cJnDi31-7MBsznurN-KZx6Ho_X4ao/sendMessage"');
         }
