@@ -165,6 +165,12 @@ system_balances_by_company_index:
     requirements:
         _method: GET
 
+system_wallets_by_company:
+    pattern:  /system/v1/wallets/{id}
+    defaults: { _controller: Telepay\FinancialApiBundle\Controller\Management\System\ActivityController::walletByCompany }
+    requirements:
+        _method: GET
+
 ##################### SPECIAL ACTIONS ############################
 
 admin_recharge_validate:
@@ -325,3 +331,10 @@ admin_specific_limit_delete:
     defaults: { _controller: Telepay\FinancialApiBundle\Controller\Management\Admin\CompanyLimitController::deleteAction }
     requirements:
         _moethod: DELETE
+
+####################  NFC CARDS  ##########################
+admin_index_nfc_cards:
+    pattern: /admin/v1/nfc_cards
+    defaults: { _controller: Telepay\FinancialApiBundle\Controller\Management\Admin\NFCController::index }
+    requirements:
+        _method: GET
