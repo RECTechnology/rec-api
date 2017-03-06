@@ -443,6 +443,15 @@ class GroupsController extends BaseApiController
 
         if(!$group) throw new HttpException(404,'Group not found');
 
+        if(count($group->getusers()) > 0) throw new HttpException(403, 'Not allowed. Comapny with users');
+
+        $dm = $this->get('doctrine_mongodb')->getManager();
+        $transactions = $dm->getRepository('TelepayFinancialApiBundle:Transaction')->findBy(array(
+            'group_id'  =>  $group->getId()
+        ));
+
+        if(count($transactions) > 0) throw new HttpException(403, 'Not allowed. Company with transactions');
+
         return parent::deleteAction($id);
 
     }

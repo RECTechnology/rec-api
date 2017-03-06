@@ -159,6 +159,12 @@ system_totalWallets_index:
     requirements:
         _method: GET
 
+system_balances_by_company_index:
+    pattern:  /system/v1/balances/{id}
+    defaults: { _controller: Telepay\FinancialApiBundle\Controller\Management\System\ActivityController::searchBalanceByCompany }
+    requirements:
+        _method: GET
+
 ##################### SPECIAL ACTIONS ############################
 
 admin_recharge_validate:

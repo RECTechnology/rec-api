@@ -126,4 +126,23 @@ class ActivityController extends RestApiController
         return round($response,0);
 
     }
+
+    /**
+     * @Rest\View
+     */
+    public function searchBalanceByCompany(Request $request, $id){
+
+        $em = $this->getDoctrine()->getManager();
+        $company = $em->getRepository('TelepayFinancialApiBundle:Group')->find($id);
+        $balances = $em->getRepository('TelepayFinancialApiBundle:Balance')->findBy(array(
+            'group'   =>  $company
+        ));
+
+        foreach ($balances as $balance){
+            $balance->setScale(Currency::$SCALE[$balance->getCurrency()]);
+        }
+
+        return $this->restV2(200,"ok", "Request successful", $balances);
+
+    }
 }

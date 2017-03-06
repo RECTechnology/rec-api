@@ -43,7 +43,7 @@ class Balance
     private $group;
 
     /**
-     * @ORM\Column(type="date")
+     * @ORM\Column(type="datetime")
      * @Expose
      */
     private $date;
@@ -77,6 +77,11 @@ class Balance
      * @Expose
      */
     private $balance;
+
+    /**
+     * @Expose
+     */
+    private $scale;
 
     /**
      * Returns the user unique id.
@@ -214,6 +219,14 @@ class Balance
     public function setGroup($group)
     {
         $this->group = $group;
+    }
+
+    /**
+     * @param mixed $scale
+     */
+    public function setScale($scale)
+    {
+        $this->scale = $scale;
     }
 
 }
