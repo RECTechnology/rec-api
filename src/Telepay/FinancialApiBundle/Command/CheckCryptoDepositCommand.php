@@ -26,7 +26,7 @@ class CheckCryptoDepositCommand extends SyncronizedContainerAwareCommand
 
     protected function executeSyncronized(InputInterface $input, OutputInterface $output){
         $count_deposits = 0;
-        $methods = array('btc');
+        $methods = array('btc','fac');
         $type = 'in';
 
         $dm = $this->getContainer()->get('doctrine_mongodb')->getManager();
