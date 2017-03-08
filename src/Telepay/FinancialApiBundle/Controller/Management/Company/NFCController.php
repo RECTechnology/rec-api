@@ -1233,4 +1233,51 @@ class NFCController extends RestApiController{
 
         $this->container->get($mailer)->send($message);
     }
+
+    /**
+     * @Rest\View
+     */
+    public function indexCards(Request $request){
+
+        $user = $this->getUser();
+        $company = $user->getActiveGroup();
+
+        if(!$company->getPremium()) throw new HttpException(403, 'You don\'t hve the necessary permissions');
+
+        $em = $this->getDoctrine()->getManager();
+        $cards = $em->getRepository('TelepayFinancialApiBundle:NFCCard')->findBy(array(
+            'company'   =>  $company
+        ));
+
+        return $this->restV2(200, 'ok', 'Request successfull', $cards);
+
+    }
+
+    /**
+     * @Rest\View
+     */
+    public function updateCardFromCompany(Request $request, $id){
+
+        $em = $this->getDoctrine()->getManager();
+        $card = $em->getRepository('TelepayFinancialApiBundle:NFCCard')->find($id);
+
+        if(!$card) throw new HttpException(404, 'Card not found');
+
+        if($request->request->has('enabled')){
+            $card->setEnabled($request->request->get('enabled'));
+        }
+
+        if($request->request->has('pin')){
+            $card->setPin($request->request->get('pin'));
+        }
+
+        if($request->request->has('alias')){
+            $card->setAlias($request->request->get('alias'));
+        }
+
+        $em->flush();
+
+        return $this->restV2(204, 'ok', 'Card updated successfully');
+
+    }
 }
