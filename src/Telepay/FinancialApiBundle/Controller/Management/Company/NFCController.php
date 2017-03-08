@@ -1261,6 +1261,9 @@ class NFCController extends RestApiController{
         $em = $this->getDoctrine()->getManager();
         $card = $em->getRepository('TelepayFinancialApiBundle:NFCCard')->find($id);
 
+        if($card->getCompany()->getId() != $this->getUser()->getActiveGroup()->getId() )
+            throw new HttpException(403, 'You don\'t have the necessary permissions');
+
         if(!$card) throw new HttpException(404, 'Card not found');
 
         if($request->request->has('enabled')){
