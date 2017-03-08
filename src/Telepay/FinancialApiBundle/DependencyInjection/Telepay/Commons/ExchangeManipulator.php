@@ -212,6 +212,13 @@ class ExchangeManipulator{
         $receiverWallet->setAvailable($receiverWallet->getAvailable() + $exchangeAmount);
         $receiverWallet->setBalance($receiverWallet->getBalance() + $exchangeAmount);
 
+        //inject balancer
+        $balancer = $this->container->get('net.telepay.commons.balance_manipulator');
+        //rest balance
+        $balancer->addBalance($company,-$amount, $cashOut);
+        //add balance
+        $balancer->addBalance($company, $amount, $cashIn);
+
         $em->persist($senderWallet);
         $em->persist($receiverWallet);
         $em->flush();
