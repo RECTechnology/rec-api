@@ -858,6 +858,7 @@ class NFCController extends RestApiController{
 
         //walletToWallet transaction from user to commerce
         $senderCompany = $card->getCompany();
+        if($senderCompany->getId() == $receiverCompany->getId()) throw new HttpException(403, 'Sender and receiver are the same profile');
 
         $senderWallet = $senderCompany->getWallet(Currency::$FAC);
         $receiverWallet = $receiverCompany->getWallet(Currency::$FAC);
