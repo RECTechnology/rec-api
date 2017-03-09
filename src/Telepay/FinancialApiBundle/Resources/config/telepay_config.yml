@@ -143,9 +143,9 @@ services:
         arguments:
             - "0"
             - "1"
-            - "500"
-            - "25000"
             - "1000"
+            - "25000"
+            - "500"
             - "All over the world"
             - "EUR"
             - "1200"
@@ -325,9 +325,9 @@ services:
         arguments:
             - "0"
             - "1"
-            - "500"
-            - "25000"
             - "1000"
+            - "25000"
+            - "500"
             - "All over the world"
             - "EUR"
             - "1200"
