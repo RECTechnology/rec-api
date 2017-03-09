@@ -66,7 +66,7 @@ class SpecialActionsController extends RestApiController {
         $paymentInfo['status'] = Transaction::$STATUS_SUCCESS;
         $paymentInfo['final'] = true;
         $paymentInfo['reference'] = $params['reference'];
-        $paymentInfo['concept'] = 'Deposit '.$params['reference'].' '.$params['hash'];
+        $paymentInfo['concept'] = $method.' deposit '.$params['reference'].' -> '.$params['hash'];
 
         //generate deposit hystory
         $deposit = new CashInDeposit();
