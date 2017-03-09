@@ -1129,6 +1129,11 @@ class SwiftController extends RestApiController{
         $em->persist($current_wallet_client);
         $em->flush();
 
+        $userGroup = $em->getRepository('TelepayFinancialApiBundle:Group')->find($transaction->getGroup());
+        $balancer = $this->get('net.telepay.commons.balance_manipulator');
+        $balancer->addBalance($userGroup, -$client_fee, $transaction);
+        $balancer->addBalance($rootGroup, -$service_fee, $transaction);
+
     }
 
     private function _returnFees(Transaction $transaction){
