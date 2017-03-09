@@ -2,6 +2,7 @@
 namespace Telepay\FinancialApiBundle\Command;
 
 use Symfony\Bundle\FrameworkBundle\Command\ContainerAwareCommand;
+use Symfony\Component\Console\Helper\ProgressBar;
 use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Input\InputInterface;
@@ -25,9 +26,13 @@ class StartBalanceCommand extends ContainerAwareCommand
     {
         $em= $this->getContainer()->get('doctrine')->getManager();
 
+
         //buscamos el user
         $companies =$em->getRepository('TelepayFinancialApiBundle:Group')->findAll();
 
+        $progress = new ProgressBar($output, count($companies));
+
+        $progress->start();
         foreach ($companies as $company){
             $wallets = $company->getWallets();
             foreach ($wallets as $wallet){
@@ -43,6 +48,8 @@ class StartBalanceCommand extends ContainerAwareCommand
                 $em->persist($balance);
                 $em->flush();
             }
+            $progress->advance();
         }
+        $progress->finish();
     }
 }
