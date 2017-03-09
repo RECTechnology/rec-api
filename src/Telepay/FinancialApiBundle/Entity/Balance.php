@@ -55,7 +55,7 @@ class Balance
     private $concept;
 
     /**
-     * @ORM\Column(type="integer")
+     * @ORM\Column(type="bigint")
      * @Expose
      */
     private $amount;
