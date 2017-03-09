@@ -542,7 +542,7 @@ class IncomingController2 extends RestApiController{
                         $current_wallet->setAvailable($current_wallet->getAvailable() + $amount );
                         $current_wallet->setBalance($current_wallet->getBalance() + $amount );
                         $balancer = $this->get('net.telepay.commons.balance_manipulator');
-                        $balancer->addBalance($group, $total_amount, $transaction);
+                        $balancer->addBalance($group, $amount, $transaction);
                         $logger->info('Update transaction -> addBalance');
 
                         $em->persist($current_wallet);
