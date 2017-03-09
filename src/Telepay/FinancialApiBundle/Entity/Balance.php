@@ -73,7 +73,7 @@ class Balance
     private $transaction_id;
 
     /**
-     * @ORM\Column(type="integer")
+     * @ORM\Column(type="bigint")
      * @Expose
      */
     private $balance;
