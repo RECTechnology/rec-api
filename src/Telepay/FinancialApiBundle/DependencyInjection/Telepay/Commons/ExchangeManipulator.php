@@ -217,7 +217,7 @@ class ExchangeManipulator{
         //rest balance
         $balancer->addBalance($company,-$amount, $cashOut);
         //add balance
-        $balancer->addBalance($company, $amount, $cashIn);
+        $balancer->addBalance($company, $exchangeAmount, $cashIn);
 
         $em->persist($senderWallet);
         $em->persist($receiverWallet);
