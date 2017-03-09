@@ -62,7 +62,7 @@ class CheckSwiftCommand extends SyncronizedContainerAwareCommand
             if($transaction->getMethodIn() != ''){
 
                 $current_transaction = $dm->getRepository('TelepayFinancialApiBundle:Transaction')->find($transaction->getId());
-                if($current_transaction->getStatus() != 'success' && $current_transaction->getStatus() != 'send_locked'){
+                if($current_transaction->getStatus() != Transaction::$STATUS_SUCCESS && $current_transaction->getStatus() != 'send_locked'){
                     $method_in = $transaction->getMethodIn();
                     $method_out = $transaction->getMethodOut();
 
@@ -263,8 +263,8 @@ class CheckSwiftCommand extends SyncronizedContainerAwareCommand
                                 if($transaction->getCurrency() != Currency::$EUR){
                                     $price = $this->_getPrice($transaction->getCurrency());
                                 }
+                                $balancer = $this->getContainer()->get('net.telepay.commons.balance_manipulator');
                                 if($client_fee != 0){
-
                                     //client fees goes to the user
                                     $userFee = new Transaction();
                                     if($transaction->getUser()) $transaction->setUser($transaction->getUser());
@@ -314,6 +314,8 @@ class CheckSwiftCommand extends SyncronizedContainerAwareCommand
                                     $em->persist($current_wallet);
                                     $em->flush();
 
+                                    $userCompany = $em->getRepository('TelepayFinancialApiBundle:Group')->find($transaction->getGroup());
+                                    $balancer->addBalance($userCompany, $client_fee, $transaction);
                                 }
 
                                 if($service_fee != 0){
@@ -371,6 +373,8 @@ class CheckSwiftCommand extends SyncronizedContainerAwareCommand
 
                                     $em->persist($current_wallet);
                                     $em->flush();
+
+                                    $balancer->addBalance($rootGroup, $service_fee, $transaction);
                                 }
 
                                 $dm->flush();
