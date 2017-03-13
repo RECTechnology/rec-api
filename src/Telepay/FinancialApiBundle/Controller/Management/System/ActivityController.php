@@ -199,6 +199,9 @@ class ActivityController extends RestApiController
      */
     public function setBalance(Request $request, $service){
 
+        $logger = $this->get('manager.logger');
+        if(!$request->request->has('available')) throw new HttpException('Available param not found');
+        $logger->info($request->request->get('available'));
         return $this->restV2(200,'Success',$service.' Request successfull', array());
     }
 }
