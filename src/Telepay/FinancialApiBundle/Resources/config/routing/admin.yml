@@ -171,6 +171,12 @@ system_wallets_by_company:
     requirements:
         _method: GET
 
+system_set_balance_coves:
+    pattern:  /system/v1/balance/{service}
+    defaults: { _controller: Telepay\FinancialApiBundle\Controller\Management\System\ActivityController::setBalance }
+    requirements:
+        _method: POST
+
 ##################### SPECIAL ACTIONS ############################
 
 admin_recharge_validate:

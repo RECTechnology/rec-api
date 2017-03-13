@@ -193,4 +193,12 @@ class ActivityController extends RestApiController
         //return $this->rest(201, "Account info got successfully", $filtered);
         return $this->restV2(200, "ok", "Wallet info got successfully", $filtered);
     }
+
+    /**
+     * @Rest\View
+     */
+    public function setBalance(Request $request, $service){
+
+        return $this->restV2(200,'Success',$service.' Request successfull', array());
+    }
 }
