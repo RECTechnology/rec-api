@@ -117,6 +117,7 @@ security:
             fos_oauth:  true
             stateless:  true
             anonymous:  false
+            signature_auth: true
             switch_user:  { role: ROLE_ADMIN, parameter: su }
 
         default:
