@@ -194,14 +194,14 @@ class NFCController extends RestApiController{
                 $userGroup->setUser($user);
                 $userGroup->setGroup($company);
                 $userGroup->setRoles(array('ROLE_ADMIN'));
+                $em->persist($userGroup);
 
                 //Add admin to group with readonly role
                 $userRO = new UserGroup();
                 $userRO->setUser($userCreator);
                 $userRO->setGroup($company);
                 $userRO->setRoles(array('ROLE_READONLY'));
-
-                $em->persist($userGroup);
+                $em->persist($userRO);
 
                 //create card
                 $card = new NFCCard();
