@@ -860,6 +860,7 @@ class AccountController extends BaseApiController{
             $userRO->setUser($userCreator);
             $userRO->setGroup($company);
             $userRO->setRoles(array('ROLE_READONLY'));
+            $em->persist($userRO);
         }
 
         $kyc = new KYC();
