@@ -267,6 +267,10 @@ class NFCController extends RestApiController{
                 $card->setPin($pin);
                 $card->setConfirmationToken($confirmationToken);
 
+                if(count($companies) == 1){
+                    $card->setCompany($companies[0]);
+                }
+
                 $em->persist($card);
                 $em->flush();
 
