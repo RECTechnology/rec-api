@@ -187,7 +187,7 @@ class CheckCryptoCommand extends SyncronizedContainerAwareCommand
                                 $output->writeln('NOTIFYING DELETE ON EXPIRE');
                                 $transaction = $this->getContainer()->get('notificator')->notificate($transaction);
                                 $output->writeln('DELETE ON EXPIRE');
-                                $dm->remove($transaction);
+//                                $dm->remove($transaction);
                                 $dm->flush();
                             }
 
