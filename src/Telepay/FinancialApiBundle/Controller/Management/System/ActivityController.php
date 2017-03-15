@@ -202,6 +202,9 @@ class ActivityController extends RestApiController
         $logger = $this->get('manager.logger');
         if(!$request->request->has('available')) throw new HttpException('Available param not found');
         $logger->info($request->request->get('available'));
+        $available = $request->request->get('available')/100;
+        exec('curl -X POST -d "chat_id=-145386290&text=#balance_coves '.$available.' €" "https://api.telegram.org/bot348257911:AAG9z3cJnDi31-7MBsznurN-KZx6Ho_X4ao/sendMessage"');
+
         return $this->restV2(200,'Success',$service.' Request successfull', array());
     }
 }
