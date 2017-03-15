@@ -341,6 +341,7 @@ class WalletController extends RestApiController{
         }
 
         $transactions = $qb
+            ->field('status')->notIn(array('deleted'))
             ->sort('updated','desc')
             ->sort('id','desc')
             ->getQuery()
