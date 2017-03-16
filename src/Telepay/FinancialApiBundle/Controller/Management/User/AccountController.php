@@ -928,16 +928,9 @@ class AccountController extends BaseApiController{
                 $em->persist($newCount);
             }
 
-            $daily = -1;
-            if($meth_type == 'out'){
-                if($meth == 'btc'){
-                    $daily = 500000000;
-                }else{
-                    $daily = 2000000000000;
-                }
-            }
-
             if($type != 'android_fair') {
+                $daily = 500000000;
+
                 $btc_limit = new LimitDefinition();
                 $btc_limit->setDay(-1);
                 $btc_limit->setCname('btc-in');
@@ -965,6 +958,7 @@ class AccountController extends BaseApiController{
                 $em->flush();
             }
 
+            $daily = 2000000000000;
             $fac_limit = new LimitDefinition();
             $fac_limit->setDay(-1);
             $fac_limit->setCname('fac-in');
