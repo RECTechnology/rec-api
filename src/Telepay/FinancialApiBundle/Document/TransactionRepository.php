@@ -126,6 +126,7 @@ class TransactionRepository extends DocumentRepository {
 
         return $this->createQueryBuilder('t')
             ->field('group')->equals($group->getId())
+            ->field('status')->notEqual('deleted')
             ->limit(10)
             ->sort('updated','desc')
             ->sort('id','desc')
