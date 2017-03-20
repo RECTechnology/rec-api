@@ -854,7 +854,7 @@ class AccountController extends BaseApiController{
         $userGroup->setGroup($company);
         $userGroup->setRoles(array('ROLE_ADMIN'));
 
-        if($type = 'android_fair'){
+        if($type == 'android_fair'){
             //Add admin to group with readonly role
             $userRO = new UserGroup();
             $userRO->setUser($userCreator);
@@ -892,7 +892,7 @@ class AccountController extends BaseApiController{
                 'pos' => $pos
             );
         }
-        elseif($type == 'android' || $type == 'commerce' || $type = 'android_fair'){
+        elseif($type == 'android' || $type == 'commerce' || $type == 'android_fair'){
             if($type == 'android_fair'){
                 $methodsList = array('fac-out', 'fac-in');
             }else{
@@ -904,7 +904,7 @@ class AccountController extends BaseApiController{
             foreach($methodsList as $method){
                 $method_ex = explode('-', $method);
                 $meth = $method_ex[0];
-                $type = $method_ex[1];
+                $meth_type = $method_ex[1];
 
                 //create new ServiceFee
                 $newFee = new ServiceFee();
@@ -929,7 +929,7 @@ class AccountController extends BaseApiController{
             }
 
             $daily = -1;
-            if($type == 'out'){
+            if($meth_type == 'out'){
                 if($meth == 'btc'){
                     $daily = 500000000;
                 }else{
