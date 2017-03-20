@@ -354,7 +354,7 @@ class HalcashDailyBalanceCommand extends ContainerAwareCommand
             'SafetyPay' =>  $methods_in['safetypay']/100 . ' MXN.',
             'Easypay'   =>  $methods_in['easypay']/100 . ' EUR.',
             'Bitcoin'   =>  $cryptos_in['btc']/100000000 . ' BTC.',
-            'Faircoin'   =>  $cryptos_in['fac']/100000000 . ' BTC.',
+            'Faircoin'   =>  $cryptos_in['fac']/100000000 . ' FAC.',
         );
 
 //        $body = array(
@@ -384,7 +384,7 @@ class HalcashDailyBalanceCommand extends ContainerAwareCommand
 
 
         $this->sendEmail(
-            'Informe de transacciones de hal',
+            'Informe de transacciones de ChipChap',
             $swiftArray,
             $cashInArray,
             $cashOutArray
