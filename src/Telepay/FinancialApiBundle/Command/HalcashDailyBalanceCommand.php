@@ -384,7 +384,7 @@ class HalcashDailyBalanceCommand extends ContainerAwareCommand
 
 
         $this->sendEmail(
-            'Informe de transacciones de ChipChap',
+            'Informe de valumen de Chip-Chap',
             $swiftArray,
             $cashInArray,
             $cashOutArray
