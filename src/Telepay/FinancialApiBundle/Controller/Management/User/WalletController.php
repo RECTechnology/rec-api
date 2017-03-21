@@ -286,6 +286,11 @@ class WalletController extends RestApiController{
                                 return true;
                             }
                         }
+                        if (typeof this.pay_in_info.charge_id !== 'undefined') {
+                            if(String(this.pay_in_info.charge_id).indexOf('$search') > -1){
+                                return true;
+                            }
+                        }
                     }
                     if (typeof this.pay_out_info !== 'undefined') {
                         if (typeof this.pay_out_info.halcashticket !== 'undefined') {
