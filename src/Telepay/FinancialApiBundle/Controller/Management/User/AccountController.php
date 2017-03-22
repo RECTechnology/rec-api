@@ -958,7 +958,6 @@ class AccountController extends BaseApiController{
                 $em->flush();
             }
 
-            $daily = 2000000000000;
             $fac_limit = new LimitDefinition();
             $fac_limit->setDay(-1);
             $fac_limit->setCname('fac-in');
@@ -973,7 +972,7 @@ class AccountController extends BaseApiController{
             $em->flush();
 
             $fac_limit = new LimitDefinition();
-            $fac_limit->setDay($daily);
+            $fac_limit->setDay(-1);
             $fac_limit->setCname('fac-out');
             $fac_limit->setWeek(-1);
             $fac_limit->setMonth(-1);

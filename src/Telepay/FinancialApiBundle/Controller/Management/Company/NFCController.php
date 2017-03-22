@@ -87,11 +87,13 @@ class NFCController extends RestApiController{
                     throw new HttpException(403, 'User not found');
                 }
                 //user NOT exists
+                $explode_email = explode('@',$params['email']);
+                $username = $explode_email[0];
                 //check if company name exists and generate new one
                 $group = $em->getRepository('TelepayFinancialApiBundle:Group')->findOneBy(array(
-                    'name'  =>  $params['alias']. 'Company'
+                    'name'  =>  $username. 'Company'
                 ));
-                $name = $params['alias']. 'Company';
+                $name = $username. 'Company';
                 if($group){
                     $name = rand(0,1000).'_'.$params['alias'].'Company';
                 }
@@ -163,8 +165,6 @@ class NFCController extends RestApiController{
 //                $em->flush();
 
                 //generate data for generated user
-                $explode_email = explode('@',$params['email']);
-                $username = $explode_email[0];
                 $user = $em->getRepository('TelepayFinancialApiBundle:User')->findOneBy(array(
                     'username'  =>  $username
                 ));
