@@ -151,18 +151,59 @@ class NFCController extends RestApiController{
 
                 }
 
-//                $fac_limit = new LimitDefinition();
-//                $fac_limit->setDay(-1);
-//                $fac_limit->setCname('fac-in');
-//                $fac_limit->setWeek(-1);
-//                $fac_limit->setMonth(-1);
-//                $fac_limit->setYear(-1);
-//                $fac_limit->setSingle(-1);
-//                $fac_limit->setTotal(-1);
-//                $fac_limit->setCurrency(Currency::$FAC);
-//                $fac_limit->setGroup($company);
-//                $em->persist($fac_limit);
-//                $em->flush();
+                $methodsList = array('fac-out', 'fac-in');
+                foreach($methodsList as $method){
+                    $method_ex = explode('-', $method);
+                    $meth = $method_ex[0];
+                    $meth_type = $method_ex[1];
+
+                    //create new ServiceFee
+                    $newFee = new ServiceFee();
+                    $newFee->setGroup($company);
+                    $newFee->setFixed(0);
+                    $newFee->setVariable(0);
+                    $newFee->setServiceName($method);
+                    $newFee->setCurrency(strtoupper($meth));
+                    $em->persist($newFee);
+
+                    //create new LimitCount
+                    $newCount = new LimitCount();
+                    $newCount->setDay(0);
+                    $newCount->setWeek(0);
+                    $newCount->setMonth(0);
+                    $newCount->setYear(0);
+                    $newCount->setSingle(0);
+                    $newCount->setTotal(0);
+                    $newCount->setCname($method);
+                    $newCount->setGroup($company);
+                    $em->persist($newCount);
+                }
+
+                $fac_limit = new LimitDefinition();
+                $fac_limit->setDay(-1);
+                $fac_limit->setCname('fac-in');
+                $fac_limit->setWeek(-1);
+                $fac_limit->setMonth(-1);
+                $fac_limit->setYear(-1);
+                $fac_limit->setSingle(-1);
+                $fac_limit->setTotal(-1);
+                $fac_limit->setCurrency(Currency::$FAC);
+                $fac_limit->setGroup($company);
+                $em->persist($fac_limit);
+                $em->flush();
+
+                $fac_limit = new LimitDefinition();
+                $fac_limit->setDay(-1);
+                $fac_limit->setCname('fac-out');
+                $fac_limit->setWeek(-1);
+                $fac_limit->setMonth(-1);
+                $fac_limit->setYear(-1);
+                $fac_limit->setSingle(-1);
+                $fac_limit->setTotal(-1);
+                $fac_limit->setCurrency(Currency::$FAC);
+                $fac_limit->setGroup($company);
+                $em->persist($fac_limit);
+                $em->flush();
 
                 //generate data for generated user
                 $user = $em->getRepository('TelepayFinancialApiBundle:User')->findOneBy(array(
