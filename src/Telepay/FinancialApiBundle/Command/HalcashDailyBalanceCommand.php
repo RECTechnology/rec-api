@@ -309,6 +309,7 @@ class HalcashDailyBalanceCommand extends ContainerAwareCommand
                 }
             }
 
+            $output->writeln('Searching transactions from '.$crypto.' ');
             //methods out transactions cryptos
             $qbOut = $dm->createQueryBuilder('TelepayFinancialApiBundle:Transaction')
                 ->field('type')->equals('out')
@@ -318,6 +319,7 @@ class HalcashDailyBalanceCommand extends ContainerAwareCommand
                 ->field('updated')->lte($finish_time)
                 ->getQuery();
 
+            $output->writeln('total transactions '.count($qbOut));
             foreach($qbOut->toArray() as $transaction){
                 $paymentInfo = $transaction->getPayOutInfo();
                 if($paymentInfo['status'] == 'success'){
