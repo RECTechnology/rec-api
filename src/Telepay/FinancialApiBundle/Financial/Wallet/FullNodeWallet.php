@@ -52,6 +52,10 @@ class FullNodeWallet implements WalletInterface {
 
     public function getBalance()
     {
+        $data = $this->nodeLink->getinfo();
+        if(isset($data['stake'])){
+            return $data['stake'] + $data['balance'];
+        }
         return $this->nodeLink->getbalance();
     }
 
