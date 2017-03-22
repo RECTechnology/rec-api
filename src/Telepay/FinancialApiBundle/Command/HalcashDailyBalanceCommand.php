@@ -309,6 +309,7 @@ class HalcashDailyBalanceCommand extends ContainerAwareCommand
                 }
             }
 
+            $output->writeln('Searching transactions from '.$crypto.' ');
             //methods out transactions cryptos
             $qbOut = $dm->createQueryBuilder('TelepayFinancialApiBundle:Transaction')
                 ->field('type')->equals('out')
@@ -318,9 +319,10 @@ class HalcashDailyBalanceCommand extends ContainerAwareCommand
                 ->field('updated')->lte($finish_time)
                 ->getQuery();
 
+            $output->writeln('total transactions '.count($qbOut));
             foreach($qbOut->toArray() as $transaction){
                 $paymentInfo = $transaction->getPayOutInfo();
-                if($paymentInfo['status'] == 'success'){
+                if($paymentInfo['status'] == 'sent'){
                     $cryptos_out[$crypto] += $paymentInfo['amount'];
 
                 }
@@ -354,37 +356,11 @@ class HalcashDailyBalanceCommand extends ContainerAwareCommand
             'SafetyPay' =>  $methods_in['safetypay']/100 . ' MXN.',
             'Easypay'   =>  $methods_in['easypay']/100 . ' EUR.',
             'Bitcoin'   =>  $cryptos_in['btc']/100000000 . ' BTC.',
-            'Faircoin'   =>  $cryptos_in['fac']/100000000 . ' BTC.',
+            'Faircoin'   =>  $cryptos_in['fac']/100000000 . ' FAC.',
         );
 
-//        $body = array(
-//            'Total Transacciones SWIFT:',
-//            'halcash últimas 24 horas: ' . $services_hal['halcash_es']/100 . ' EUR.',
-//            $services_hal['halcash_pl']/100 . ' PLN.',
-//            'halcash refund: ' . $services_hal_refund['halcash_es']/100 . ' EUR.',
-//            $services_hal_refund['halcash_pl']/100 . ' PLN.',
-//            'Cryptocapital: ' . $services_out['cryptocapital']/100 . ' EUR.',
-//            'Sepa: ' . $services_out['sepa']/100 . ' EUR.',
-//            'Paynet: ' . $services_in['paynet_reference']/100 . ' MXN.',
-//            'Safetypay: ' . $services_in['safetypay']/100 . ' MXN.',
-//            'Easypay: ' . $services_in['easypay']/100 . ' EUR.',
-//            'Total transacciones METHODS:',
-//            'halcash_es: ' . $methods_hal['halcash_es']/100 . ' EUR.',
-//            'halcash_pl: ' . $methods_hal['halcash_pl']/100 . ' PLN.',
-//            'Cryptocapital-out: ' . $methods_out['cryptocapital']/100 . ' EUR.',
-//            'Sepa-out: ' . $methods_out['sepa']/100 . ' EUR.',
-//            'Paynet: ' . $methods_in['paynet_reference']/100 . ' MXN.',
-//            'Safetypay: ' . $methods_in['safetypay']/100 . ' MXN.',
-//            'Easypay: ' . $methods_in['easypay']/100 . ' EUR.',
-//            'Bitcoin-in: ' . $cryptos_in['btc']/100 . ' BTC.',
-//            'Faircoin-in: ' . $cryptos_in['fac']/100 . ' FAC.',
-//            'Bitcoin-out: ' . $cryptos_out['btc']/100 . ' BTC.',
-//            'Faircoin-out: ' . $cryptos_out['fac']/100 . ' FAC.'
-//        );
-
-
         $this->sendEmail(
-            'Informe de transacciones de hal',
+            'Informe de volumen de Chip-Chap',
             $swiftArray,
             $cashInArray,
             $cashOutArray

@@ -208,4 +208,25 @@ class ActivityController extends RestApiController
 
         return $this->restV2(200,'Success',$service.' Request successfull', array());
     }
+
+    /**
+     * @Rest\View
+     */
+    public function validateEasypay(Request $request, $service){
+
+        $logger = $this->get('manager.logger');
+
+        $logger->info('Bot validation easypay');
+
+        if(!$request->request->has('reference')) throw new HttpException(404, 'Param reference not found');
+        if(!$request->request->has('amount')) throw new HttpException(404, 'Param amount not found');
+        if(!$request->request->has('external_id')) throw new HttpException(404, 'Param external_id not found');
+
+        $reference = $request->request->get('reference');
+        $amount = $request->request->get('amount');
+
+        exec('curl -X POST -d "chat_id=-145386290&text=#easypay_bot '.$reference.' amount = '.$amount.' €" "https://api.telegram.org/bot348257911:AAG9z3cJnDi31-7MBsznurN-KZx6Ho_X4ao/sendMessage"');
+
+        return $this->restV2(200,'Success',' Request successfull', array());
+    }
 }

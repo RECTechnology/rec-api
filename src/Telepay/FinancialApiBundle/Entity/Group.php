@@ -227,6 +227,11 @@ class Group extends BaseGroup
     private $fairpay_vendor = false;
 
     /**
+     * @ORM\Column(type="boolean")
+     */
+    private $fairtoearth_admin = false;
+
+    /**
      * @ORM\OneToMany(targetEntity="Telepay\FinancialApiBundle\Entity\CashInTokens", mappedBy="company", cascade={"remove"})
      */
     private $cash_in_tokens;
@@ -880,6 +885,22 @@ class Group extends BaseGroup
     public function setFairpayVendor($fairpay_vendor)
     {
         $this->fairpay_vendor = $fairpay_vendor;
+    }
+
+    /**
+     * @return mixed
+     */
+    public function getFairtoearthAdmin()
+    {
+        return $this->fairtoearth_admin;
+    }
+
+    /**
+     * @param mixed $fairtoearth_admin
+     */
+    public function setFairtoearthAdmin($fairtoearth_admin)
+    {
+        $this->fairtoearth_admin = $fairtoearth_admin;
     }
 
 }
