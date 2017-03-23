@@ -295,6 +295,7 @@ class ActivityController extends RestApiController
 
         if($transaction->getStatus() == Transaction::$STATUS_CREATED){
             $paymentInfo = $transaction->getPayInInfo();
+            $transaction->setStatus(Transaction::$STATUS_RECEIVED);
             $paymentInfo['status'] = Transaction::$STATUS_RECEIVED;
             $transaction->setPayInInfo($paymentInfo);
 
