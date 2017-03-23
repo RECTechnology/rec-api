@@ -283,7 +283,7 @@ class ActivityController extends RestApiController
 
         //TODO search transaction by reference and amount
         $dm = $this->get('doctrine_mongodb')->getManager();
-        $transaction = $dm->getRepository('TelepayFinancialApiBundle:Transaction')->findBy(array(
+        $transaction = $dm->getRepository('TelepayFinancialApiBundle:Transaction')->findOneBy(array(
            'pay_in_info.reference_code' =>  $reference
         ));
 
