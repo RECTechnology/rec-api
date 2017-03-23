@@ -304,6 +304,8 @@ class ActivityController extends RestApiController
                 $logger->info('Bot validation easypay status=received');
                 exec('curl -X POST -d "chat_id=-145386290&text=#easypay_bot '.$reference.' amount = '.$amount.' €" "https://api.telegram.org/bot348257911:AAG9z3cJnDi31-7MBsznurN-KZx6Ho_X4ao/sendMessage"');
             }else{
+                $transaction->setStatus(Transaction::$STATUS_REVIEW);
+                $dm->flush();
                 exec('curl -X POST -d "chat_id=-145386290&text=#easypay_bot ALERT amount no coincide'.$reference.' amount = '.$amount.' €" "https://api.telegram.org/bot348257911:AAG9z3cJnDi31-7MBsznurN-KZx6Ho_X4ao/sendMessage"');
 
             }
