@@ -6,6 +6,7 @@ use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpKernel\Exception\HttpException;
 use Telepay\FinancialApiBundle\Controller\RestApiController;
 use FOS\RestBundle\Controller\Annotations as Rest;
+use Telepay\FinancialApiBundle\Document\Transaction;
 use Telepay\FinancialApiBundle\Entity\InternalBalance;
 use Telepay\FinancialApiBundle\Financial\Currency;
 
@@ -209,7 +210,7 @@ class ActivityController extends RestApiController
         $currency = strtoupper($request->request->get('currency'));
         $scale = $request->request->get('scale');
 
-        $logger->info('Service '.$service.' Available '.$available);
+        $logger->info('InternalBalance => Service '.$service.' Available '.$available);
 
         //search last balance, if not the same create and send telegram
         $em = $this->getDoctrine()->getManager();
@@ -224,6 +225,7 @@ class ActivityController extends RestApiController
         );
 
         if(!$internalBalance){
+            $logger->info('InternalBalance => Creating first balance');
             $internalBalance = new InternalBalance();
             $internalBalance->setBalance(0);
             $internalBalance->setCurrency($currency);
@@ -237,7 +239,7 @@ class ActivityController extends RestApiController
         $balance = $internalBalance->getBalance();
 
         if($balance != $available){
-
+            $logger->info('InternalBalance => New Balance detected');
             $newBalance = new InternalBalance();
             $newBalance->setScale($scale);
             $newBalance->setNode(strtoupper($service));
@@ -252,6 +254,7 @@ class ActivityController extends RestApiController
             }else{
                 $availableAmount = $available/100000000;
             }
+            $logger->info('InternalBalance => Send telegram');
 
             exec('curl -X POST -d "chat_id=-145386290&text=#balance_'.$service.' '.$availableAmount.' '.$currency.'" "https://api.telegram.org/bot348257911:AAG9z3cJnDi31-7MBsznurN-KZx6Ho_X4ao/sendMessage"');
 
@@ -273,10 +276,34 @@ class ActivityController extends RestApiController
         if(!$request->request->has('amount')) throw new HttpException(404, 'Param amount not found');
         if(!$request->request->has('external_id')) throw new HttpException(404, 'Param external_id not found');
 
+        //search transactions by reference
+
         $reference = $request->request->get('reference');
         $amount = $request->request->get('amount');
 
-        exec('curl -X POST -d "chat_id=-145386290&text=#easypay_bot '.$reference.' amount = '.$amount.' €" "https://api.telegram.org/bot348257911:AAG9z3cJnDi31-7MBsznurN-KZx6Ho_X4ao/sendMessage"');
+        //TODO search transaction by reference and amount
+        $dm = $this->get('doctrine_mongodb')->getManager();
+        $transaction = $dm->getRepository('TelepayFinancialApiBundle:Transaction')->findBy(array(
+           'pay_in_info.reference_code' =>  $reference
+        ));
+
+        if(!$transaction){
+            $logger->info('Bot validation no transaction found');
+            throw new HttpException(404,'Transaction not found');
+        }
+
+
+        if($transaction->getStatus() == Transaction::$STATUS_CREATED){
+            $paymentInfo = $transaction->getPayInInfo();
+            $paymentInfo['status'] = Transaction::$STATUS_RECEIVED;
+            $transaction->setPayInInfo($paymentInfo);
+
+            $dm->flush();
+
+            $logger->info('Bot validation easypay status=received');
+            exec('curl -X POST -d "chat_id=-145386290&text=#easypay_bot '.$reference.' amount = '.$amount.' €" "https://api.telegram.org/bot348257911:AAG9z3cJnDi31-7MBsznurN-KZx6Ho_X4ao/sendMessage"');
+
+        }
 
         return $this->restV2(200,'Success',' Request successfull', array());
     }
