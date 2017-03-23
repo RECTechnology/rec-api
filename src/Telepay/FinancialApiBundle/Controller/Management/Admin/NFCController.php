@@ -363,7 +363,7 @@ class NFCController extends RestApiController{
                 $tokenGenerator = $this->container->get('fos_user.util.token_generator');
                 $confirmationToken = $tokenGenerator->generateToken();
 
-                $pin = rand(0,9999);
+                $pin = rand(1000,9999);
                 $card->setNewPin($pin);
                 $card->setLastPinRequested(new \DateTime());
                 $card->setRefreshPinToken($confirmationToken);
