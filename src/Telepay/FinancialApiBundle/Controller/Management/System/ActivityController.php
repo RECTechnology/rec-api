@@ -6,6 +6,7 @@ use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpKernel\Exception\HttpException;
 use Telepay\FinancialApiBundle\Controller\RestApiController;
 use FOS\RestBundle\Controller\Annotations as Rest;
+use Telepay\FinancialApiBundle\Entity\InternalBalance;
 use Telepay\FinancialApiBundle\Financial\Currency;
 
 /**
@@ -201,10 +202,60 @@ class ActivityController extends RestApiController
 
         $logger = $this->get('manager.logger');
         if(!$request->request->has('available')) throw new HttpException('Available param not found');
-        $logger->info($request->request->get('available'));
-        $logger->info('Service '.$service);
-        $available = $request->request->get('available')/100;
-        exec('curl -X POST -d "chat_id=-145386290&text=#balance_'.$service.' '.$available.' €" "https://api.telegram.org/bot348257911:AAG9z3cJnDi31-7MBsznurN-KZx6Ho_X4ao/sendMessage"');
+        if(!$request->request->has('currency')) throw new HttpException('currency param not found');
+        if(!$request->request->has('scale')) throw new HttpException('scale param not found');
+
+        $available = $request->request->get('available');
+        $currency = strtoupper($request->request->get('currency'));
+        $scale = $request->request->get('scale');
+
+        $logger->info('Service '.$service.' Available '.$available);
+
+        //search last balance, if not the same create and send telegram
+        $em = $this->getDoctrine()->getManager();
+        $internalBalance = $em->getRepository('TelepayFinancialApiBundle:InternalBalance')->findOneBy(
+            array(
+                'node'  =>  strtoupper($service),
+                'currency'  =>  strtoupper($currency)
+            ),
+            array(
+                'date'  =>  'DESC'
+            )
+        );
+
+        if(!$internalBalance){
+            $internalBalance = new InternalBalance();
+            $internalBalance->setBalance(0);
+            $internalBalance->setCurrency($currency);
+            $internalBalance->setNode(strtoupper($service));
+            $internalBalance->setScale($scale);
+            $em->persist($internalBalance);
+            $em->flush();
+
+        }
+
+        $balance = $internalBalance->getBalance();
+
+        if($balance != $available){
+
+            $newBalance = new InternalBalance();
+            $newBalance->setScale($scale);
+            $newBalance->setNode(strtoupper($service));
+            $newBalance->setCurrency($currency);
+            $newBalance->setBalance($available);
+
+            $em->persist($newBalance);
+            $em->flush();
+
+            if($scale == 2){
+                $availableAmount = $available/100;
+            }else{
+                $availableAmount = $available/100000000;
+            }
+
+            exec('curl -X POST -d "chat_id=-145386290&text=#balance_'.$service.' '.$availableAmount.' '.$currency.'" "https://api.telegram.org/bot348257911:AAG9z3cJnDi31-7MBsznurN-KZx6Ho_X4ao/sendMessage"');
+
+        }
 
         return $this->restV2(200,'Success',$service.' Request successfull', array());
     }
