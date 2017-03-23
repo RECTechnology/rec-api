@@ -75,7 +75,7 @@ class NFCCard{
     private $id_card;
 
     /**
-     * @ORM\Column(type="integer")
+     * @ORM\Column(type="string")
      * @Expose
      */
     private $pin;

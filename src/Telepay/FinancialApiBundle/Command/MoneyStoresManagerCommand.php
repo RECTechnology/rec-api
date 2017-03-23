@@ -151,7 +151,7 @@ class MoneyStoresManagerCommand extends ContainerAwareCommand{
         $initNode = new BagNode();
         $initNode->defineValues($system_data, $heuristic, 0);
         $bestNode = $initNode;
-        //$output->writeln("Init: " . json_encode($bestNode->getInfo()));
+        $output->writeln("Init: " . json_encode($bestNode->getInfo()));
         //$output->writeln("Posible: " . json_encode($this->possibleTransfers($bestNode->getInfo(), false, $output)));
 
         array_push($listNodes, $initNode);
