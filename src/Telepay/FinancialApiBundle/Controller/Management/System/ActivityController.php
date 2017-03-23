@@ -289,20 +289,24 @@ class ActivityController extends RestApiController
 
         if(!$transaction){
             $logger->info('Bot validation no transaction found');
-            throw new HttpException(404,'Transaction not found');
+            exec('curl -X POST -d "chat_id=-145386290&text=#easypay_bot ALERT esta referencia no se ha encontrado'.$reference.' amount = '.$amount.' €" "https://api.telegram.org/bot348257911:AAG9z3cJnDi31-7MBsznurN-KZx6Ho_X4ao/sendMessage"');
         }
 
 
-        if($transaction->getStatus() == Transaction::$STATUS_CREATED){
+        if($transaction->getStatus() == Transaction::$STATUS_CREATED && $service == 'easypay'){
             $paymentInfo = $transaction->getPayInInfo();
-            $transaction->setStatus(Transaction::$STATUS_RECEIVED);
-            $paymentInfo['status'] = Transaction::$STATUS_RECEIVED;
-            $transaction->setPayInInfo($paymentInfo);
+            if($paymentInfo['amount'] == $amount){
 
-            $dm->flush();
+                $transaction->setStatus(Transaction::$STATUS_RECEIVED);
+                $paymentInfo['status'] = Transaction::$STATUS_RECEIVED;
+                $transaction->setPayInInfo($paymentInfo);
+                $dm->flush();
+                $logger->info('Bot validation easypay status=received');
+                exec('curl -X POST -d "chat_id=-145386290&text=#easypay_bot '.$reference.' amount = '.$amount.' €" "https://api.telegram.org/bot348257911:AAG9z3cJnDi31-7MBsznurN-KZx6Ho_X4ao/sendMessage"');
+            }else{
+                exec('curl -X POST -d "chat_id=-145386290&text=#easypay_bot ALERT amount no coincide'.$reference.' amount = '.$amount.' €" "https://api.telegram.org/bot348257911:AAG9z3cJnDi31-7MBsznurN-KZx6Ho_X4ao/sendMessage"');
 
-            $logger->info('Bot validation easypay status=received');
-            exec('curl -X POST -d "chat_id=-145386290&text=#easypay_bot '.$reference.' amount = '.$amount.' €" "https://api.telegram.org/bot348257911:AAG9z3cJnDi31-7MBsznurN-KZx6Ho_X4ao/sendMessage"');
+            }
 
         }
 
