@@ -1319,9 +1319,13 @@ class NFCController extends RestApiController{
 
         if($request->request->has('pin')){
             $pin = $request->request->get('pin');
-            if(strlen($pin)==4) throw new HttpException(404, 'PIN must have 4 numbers');
-            if((string)(int)$pin == $pin) throw new HttpException(404, 'PIN must have only numbers');
-            $card->setPin($pin);
+            if(strlen($pin)!=4) throw new HttpException(404, 'PIN must have 4 numbers');
+            if((string)(int)$pin == $pin) {
+                $card->setPin($pin);
+            }
+            else{
+                throw new HttpException(404, 'PIN must have only numbers');
+            }
         }
 
         if($request->request->has('alias')){
