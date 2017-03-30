@@ -41,6 +41,8 @@ class CompaniesController extends BaseApiController
 
         $methods = null;
         if($request->request->has('methods_list')){
+            //TODO check if sepa_in, sepa_out or transfer_out, easypay_in are in the request and company has tier 2
+            $tier = $company->getTier();
             $methods = $request->get('methods_list');
             $request->request->remove('methods_list');
         }

@@ -228,7 +228,7 @@ class ActivityController extends RestApiController
             $logger->info('InternalBalance => Creating first balance');
             $internalBalance = new InternalBalance();
             $internalBalance->setBalance(0);
-            $internalBalance->setCurrency($currency);
+            $internalBalance->setCurrency(strtoupper($currency));
             $internalBalance->setNode(strtoupper($service));
             $internalBalance->setScale($scale);
             $em->persist($internalBalance);
@@ -243,7 +243,7 @@ class ActivityController extends RestApiController
             $newBalance = new InternalBalance();
             $newBalance->setScale($scale);
             $newBalance->setNode(strtoupper($service));
-            $newBalance->setCurrency($currency);
+            $newBalance->setCurrency(strtoupper($currency));
             $newBalance->setBalance($available);
 
             $em->persist($newBalance);
@@ -290,6 +290,7 @@ class ActivityController extends RestApiController
         if(!$transaction){
             $logger->info('Bot validation no transaction found');
             exec('curl -X POST -d "chat_id=-145386290&text=#easypay_bot ALERT esta referencia no se ha encontrado'.$reference.' amount = '.$amount.' €" "https://api.telegram.org/bot348257911:AAG9z3cJnDi31-7MBsznurN-KZx6Ho_X4ao/sendMessage"');
+            throw new HttpException(404, 'No transaction found with reference '.$reference);
         }
 
 

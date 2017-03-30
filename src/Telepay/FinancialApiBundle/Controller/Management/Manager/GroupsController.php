@@ -397,8 +397,22 @@ class GroupsController extends BaseApiController
         if($request->request->has('methods_list')){
             if($groupCreator->getid() != $adminGroup->getId() && !$adminRoles->hasRole('ROLE_SUPER_ADMIN'))
                 throw new HttpException(403, 'You don\'t have the necessary permissions');
+
+
             $methods = $request->get('methods_list');
             $request->request->remove('methods_list');
+
+            $tier = $group->getTier();
+            $tier_methods = array(
+                'sepa_in',
+                'easypay_in',
+                'sepa_out',
+                'transfer_out'
+            );
+
+            foreach ($methods as $method){
+                if(in_array($method, $tier_methods) && $tier < 2) throw new HttpException(403, 'You can\'t enable '.$method.' because the tier');
+            }
         }
 
         $response = parent::updateAction($request, $id);
@@ -601,26 +615,28 @@ class GroupsController extends BaseApiController
                 $em->persist($newFee);
             }
 
-            $limit = $em->getRepository('TelepayFinancialApiBundle:LimitDefinition')->findOneBy(array(
-                'group'  =>  $group->getId(),
-                'cname'  =>  $method
-            ));
+            //don\'t create limits because we are using tier for control limits
 
-            if(!$limit){
-                //create new LimitDefinition
-                $newLimit = new LimitDefinition();
-                $newLimit->setGroup($group);
-                $newLimit->setCurrency($methodConfig->getCurrency());
-                $newLimit->setCname($method);
-                $newLimit->setDay(0);
-                $newLimit->setWeek(0);
-                $newLimit->setMonth(0);
-                $newLimit->setYear(0);
-                $newLimit->setSingle(0);
-                $newLimit->setTotal(0);
-
-                $em->persist($newLimit);
-            }
+//            $limit = $em->getRepository('TelepayFinancialApiBundle:LimitDefinition')->findOneBy(array(
+//                'group'  =>  $group->getId(),
+//                'cname'  =>  $method
+//            ));
+//
+//            if(!$limit){
+//                //create new LimitDefinition
+//                $newLimit = new LimitDefinition();
+//                $newLimit->setGroup($group);
+//                $newLimit->setCurrency($methodConfig->getCurrency());
+//                $newLimit->setCname($method);
+//                $newLimit->setDay(0);
+//                $newLimit->setWeek(0);
+//                $newLimit->setMonth(0);
+//                $newLimit->setYear(0);
+//                $newLimit->setSingle(0);
+//                $newLimit->setTotal(0);
+//
+//                $em->persist($newLimit);
+//            }
 
             $limitCount = $em->getRepository('TelepayFinancialApiBundle:LimitCount')->findOneBy(array(
                 'group'  =>  $group->getId(),
@@ -648,42 +664,5 @@ class GroupsController extends BaseApiController
 
         return $this->rest(204, "Edited");
     }
-
-    private function _addMethod($id, $cname){
-        $groupsRepo = $this->getRepository();
-        $methodsRepo = $this->get('net.telepay.method_provider');
-        $group = $groupsRepo->findOneBy(array('id'=>$id));
-        $method = $methodsRepo->findByCname($cname);
-        if(empty($group)) throw new HttpException(404, 'User not found');
-        if(empty($method)) throw new HttpException(404, 'Method not found');
-
-        $group->addMethod($cname);
-        $em = $this->getDoctrine()->getManager();
-        $limitRepo = $em->getRepository("TelepayFinancialApiBundle:LimitCount");
-        $limit = $limitRepo->findOneBy(array('cname' => $cname, 'group' => $group));
-
-        if(!$limit){
-            $limit = new LimitCount();
-            $limit->setGroup($group);
-            $limit->setCname($cname);
-            $limit->setSingle(0);
-            $limit->setDay(0);
-            $limit->setWeek(0);
-            $limit->setMonth(0);
-            $limit->setYear(0);
-            $limit->setTotal(0);
-            $em->persist($limit);
-        }
-
-        try{
-            $em->flush();
-        } catch(DBALException $e){
-            if(preg_match('/SQLSTATE\[23000\]/',$e->getMessage()))
-                throw new HttpException(409, "Duplicated resource");
-            else
-                throw new HttpException(500, "Unknown error occurred when save");
-        }
-    }
-
 
 }
