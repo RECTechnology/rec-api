@@ -250,16 +250,18 @@ class GroupsController extends BaseApiController
             $groupMethodsList = $adminGroup->getMethodsList();
             foreach($methods as $method){
                 if(in_array($method->getCname().'-'.$method->getType(), $groupMethodsList)){
-                    $limit_def = new LimitDefinition();
-                    $limit_def->setCname($method->getCname().'-'.$method->getType());
-                    $limit_def->setSingle(0);
-                    $limit_def->setDay(0);
-                    $limit_def->setWeek(0);
-                    $limit_def->setMonth(0);
-                    $limit_def->setYear(0);
-                    $limit_def->setTotal(0);
-                    $limit_def->setGroup($group);
-                    $limit_def->setCurrency($method->getCurrency());
+                    //don'\t create limits because we are using tier limits
+
+//                    $limit_def = new LimitDefinition();
+//                    $limit_def->setCname($method->getCname().'-'.$method->getType());
+//                    $limit_def->setSingle(0);
+//                    $limit_def->setDay(0);
+//                    $limit_def->setWeek(0);
+//                    $limit_def->setMonth(0);
+//                    $limit_def->setYear(0);
+//                    $limit_def->setTotal(0);
+//                    $limit_def->setGroup($group);
+//                    $limit_def->setCurrency($method->getCurrency());
 
                     $commission = new ServiceFee();
                     $commission->setGroup($group);
@@ -269,7 +271,7 @@ class GroupsController extends BaseApiController
                     $commission->setCurrency($method->getCurrency());
 
                     $em->persist($commission);
-                    $em->persist($limit_def);
+//                    $em->persist($limit_def);
                 }
 
             }
