@@ -181,7 +181,7 @@ services:
         class: Telepay\FinancialApiBundle\Financial\Methods\MethodConfiguration
         arguments:
             - "0"
-            - "1"
+            - "2"
             - "5000"
             - "50000"
             - "1000"
@@ -194,7 +194,7 @@ services:
         class: Telepay\FinancialApiBundle\Financial\Methods\MethodConfiguration
         arguments:
             - "0"
-            - "1"
+            - "2"
             - "5000"
             - "50000"
             - "1000"
