@@ -42,25 +42,24 @@ class SendBtcPriceCommand extends ContainerAwareCommand
             $this->currency = 'BTC';
         }
 
-        $em = $this->getContainer()->get('doctrine')->getManager();
-        $exchangeRepo = $em->getRepository("TelepayFinancialApiBundle:Exchange");
-        $exchanges = $exchangeRepo->findBy(
-            array(
-                'src'=>$this->currency,
-                'dst'=>'EUR')
-        );
-        $output->writeln("Date,Price");
         $today = date('d');
         $this_month = date('m');
         $this_year = date('Y');
-        foreach ($exchanges as $exchange) {
-            $date = $exchange->getDate();
+
+        $qb = $this->getContainer()->get('doctrine')->getRepository('TelepayFinancialApiBundle:Exchang    e')->createQueryBuilder('w');
+        $qb->Select("w.date as date, w.price as price")
+            ->where("w.src = '" . $this->currency . "' and w.dst = 'EUR' and w.id > 6000001");
+        $query = $qb->getQuery()->getResult();
+
+        $output->writeln("Date,Price");
+        foreach($query as $exchange){
+            $date = $exchange['date'];
             $day = $date->format('d');
             $month = $date->format('m');
             $year = $date->format('Y');
             $ex_date = $date->format('Y-m-d H:i:s');
-            if($month == '1' && $year == '2017') {
-                $output->writeln($ex_date . "," . ($exchange->getPrice() * 100000000));
+            if($month == $this_month-1 && $year == $this_year) {
+                $output->writeln($ex_date . "," . ($exchange['price'] * 100000000));
             }
         }
     }

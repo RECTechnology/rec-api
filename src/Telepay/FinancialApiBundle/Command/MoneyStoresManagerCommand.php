@@ -99,10 +99,11 @@ class MoneyStoresManagerCommand extends ContainerAwareCommand{
 
         $balances = [];
         foreach($query as $balance){
-            $balance['balance'] = round($balance['balance'] * 10,0);
+            $balance['balance'] = round($balance['balance'],0);
             $balance['scale'] = Currency::$SCALE[$balance['currency']];
             $balances[$balance['currency']] = $balance;
         }
+        $output->writeln("Balances users: " . json_encode($balances));
 
         $system_data = array();
         $system_data['wallets'] = array();
@@ -152,7 +153,6 @@ class MoneyStoresManagerCommand extends ContainerAwareCommand{
         $initNode->defineValues($system_data, $heuristic, 0);
         $bestNode = $initNode;
         $output->writeln("Init: " . json_encode($bestNode->getInfo()));
-        //$output->writeln("Posible: " . json_encode($this->possibleTransfers($bestNode->getInfo(), false, $output)));
 
         array_push($listNodes, $initNode);
         while(count($listNodes)>0){
