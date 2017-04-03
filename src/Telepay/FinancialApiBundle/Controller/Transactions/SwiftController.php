@@ -106,6 +106,7 @@ class SwiftController extends RestApiController{
         //check email
         $email = $request->request->get('email')?$request->request->get('email'):'';
         if($email == '' && ($cashInMethod->getEmailRequired() || $cashOutMethod->getEmailRequired())) throw new HttpException(400, 'Email is required');
+        $request->request->set('email', $email);
 
         $logger->info('SWIFT checkinG KYC');
         $cashInMethod->checkKYC($request, "in");
@@ -137,7 +138,7 @@ class SwiftController extends RestApiController{
             }
         }
 
-        $this->_checkLimits($amount_out, $type_out, $request);
+        $this->_checkLimits($amount_out, $type_in, $type_out, $request);
 
         $ip = $request->server->get('REMOTE_ADDR');
 
@@ -1277,11 +1278,11 @@ class SwiftController extends RestApiController{
 
     }
 
-    private function _checkLimits($amount, $type_out, Request $request){
+    private function _checkLimits($amount, $type_in, $type_out, Request $request){
 
         $dm = $this->get('doctrine_mongodb')->getManager();
         $qb = $dm->createQueryBuilder('TelepayFinancialApiBundle:Transaction');
-        //TODO check limits for hal and sepa by phone date and iban
+
         if($type_out == 'halcash_es' || $type_out == 'halcash_pl'){
             $search = $request->request->get('phone');
             $start_time = new \MongoDate(strtotime(date('Y-m-d 00:00:00'))-31*24*3600);
@@ -1345,10 +1346,36 @@ class SwiftController extends RestApiController{
 
             if($amount + $pending >= 300000) throw new HttpException(405, 'Limit exceeded');
 
+        }elseif($type_in == 'easypay'){
+            $search = $request->request->get('email');
+            $start_time = new \MongoDate(strtotime(date('Y-m-d 00:00:00'))-31*24*3600);
+            $finish_time = new \MongoDate();
+            $result = $qb
+                ->field('created')->gte($start_time)
+                ->field('created')->lte($finish_time)
+                ->field('method_out')->equals($type_out)
+                ->field('status')->in(array('created','success'))
+                ->where("function(){
+                    if (typeof this.email_notification !== 'undefined') {
+                        if(String(this.email_notification).indexOf('$search') > -1){
+                            return true;
+                        }
+                    }
+                    return false;
+                }")
+
+                ->getQuery()
+                ->execute();
+
+            $pending=0;
+
+            foreach($result->toArray() as $d){
+                $pending = $pending + $d->getAmount();
+            }
+            if($amount + $pending >= 300000) throw new HttpException(405, 'Limit exceeded');
         }
 
         return true;
-
     }
 
     public function notification(Request $request, $version_number, $type_in, $type_out){
