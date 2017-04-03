@@ -138,7 +138,7 @@ class SwiftController extends RestApiController{
             }
         }
 
-        $this->_checkLimits($amount_out, $type_in, $type_out, $request);
+        $this->_checkLimits($amount_in, $amount_out, $type_in, $type_out, $request);
 
         $ip = $request->server->get('REMOTE_ADDR');
 
@@ -1278,7 +1278,7 @@ class SwiftController extends RestApiController{
 
     }
 
-    private function _checkLimits($amount, $type_in, $type_out, Request $request){
+    private function _checkLimits($amount_in, $amount_out, $type_in, $type_out, Request $request){
 
         $dm = $this->get('doctrine_mongodb')->getManager();
         $qb = $dm->createQueryBuilder('TelepayFinancialApiBundle:Transaction');
@@ -1311,9 +1311,9 @@ class SwiftController extends RestApiController{
             }
 
             if($type_out == 'halcash_es'){
-                if($amount + $pending > 300000) throw new HttpException(405, 'Limit exceeded');
+                if($amount_out + $pending > 300000) throw new HttpException(405, 'Limit exceeded');
             }else{
-                if($amount + $pending > 1200000) throw new HttpException(405, 'Limit exceeded');
+                if($amount_out + $pending > 1200000) throw new HttpException(405, 'Limit exceeded');
             }
 
         }elseif($type_out == 'sepa'){
@@ -1344,7 +1344,7 @@ class SwiftController extends RestApiController{
                 $pending = $pending + $d->getAmount();
             }
 
-            if($amount + $pending >= 300000) throw new HttpException(405, 'Limit exceeded');
+            if($amount_out + $pending >= 300000) throw new HttpException(405, 'Limit exceeded');
 
         }elseif($type_in == 'easypay'){
             $search = $request->request->get('email');
@@ -1372,7 +1372,7 @@ class SwiftController extends RestApiController{
             foreach($result->toArray() as $d){
                 $pending = $pending + $d->getAmount();
             }
-            if($amount + $pending >= 300000) throw new HttpException(405, 'Limit exceeded(' . $amount . ')');
+            if($amount_in + $pending >= 300000) throw new HttpException(405, 'Limit exceeded');
         }
 
         return true;
