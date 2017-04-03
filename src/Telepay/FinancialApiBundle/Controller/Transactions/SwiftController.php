@@ -1370,7 +1370,8 @@ class SwiftController extends RestApiController{
             $pending=0;
 
             foreach($result->toArray() as $d){
-                $pending = $pending + $d->getAmount();
+                $payInInfo = $d->getPayInInfo();
+                $pending = $pending + $payInInfo['amount'];
             }
             if($amount_in + $pending >= 300000) throw new HttpException(405, 'Limit exceeded');
         }
