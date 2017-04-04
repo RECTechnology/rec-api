@@ -118,6 +118,12 @@ class User extends BaseUser
     private $base64_image;
 
     /**
+     * @ORM\Column(type="text")
+     * @Expose
+     */
+    private $profile_image;
+
+    /**
      * @ORM\Column(type="string", nullable=true)
      * @Expose
      */
@@ -570,5 +576,21 @@ class User extends BaseUser
     public function setCreated($created)
     {
         $this->created = $created;
+    }
+
+    /**
+     * @return mixed
+     */
+    public function getProfileImage()
+    {
+        return $this->profile_image;
+    }
+
+    /**
+     * @param mixed $profile_image
+     */
+    public function setProfileImage($profile_image)
+    {
+        $this->profile_image = $profile_image;
     }
 }

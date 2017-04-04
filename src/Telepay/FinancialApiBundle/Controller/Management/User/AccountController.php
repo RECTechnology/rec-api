@@ -106,6 +106,47 @@ class AccountController extends BaseApiController{
      */
     public function setImage(Request $request){
 
+        $paramNames = array(
+            'profile_image'
+        );
+
+        $params = array();
+        foreach($paramNames as $paramName){
+            if($request->request->has($paramName)){
+                $params[$paramName] = $request->request->get($paramName);
+            }else{
+                throw new HttpException(404, 'Param '.$paramName.' not found');
+            }
+        }
+
+        $user = $this->getUser();
+        $fileManager = $this->get('file_manager');
+
+        $fileSrc = $params['profile_image'];
+        $fileContents = $fileManager->readFileUrl($fileSrc);
+        $hash = $fileManager->getHash();
+        $explodedFileSrc = explode('.', $fileSrc);
+        $ext = $explodedFileSrc[count($explodedFileSrc) - 1];
+        $filename = $hash . '.' . $ext;
+
+        file_put_contents($fileManager->getUploadsDir() . '/' . $filename, $fileContents);
+
+        $tmpFile = new File($fileManager->getUploadsDir() . '/' . $filename);
+        if (!in_array($tmpFile->getMimeType(), UploadManager::$ALLOWED_MIMETYPES))
+            throw new HttpException(400, "Bad file type");
+
+        $em = $this->getDoctrine()->getManager();
+        $user->setProfileImage($fileManager->getFilesPath().'/'.$filename);
+        $em->flush();
+
+        return $this->rest(204, 'Profile image updated successfully');
+
+    }
+    /**
+     * @Rest\View
+     */
+    public function setImageB64(Request $request){
+
         $id = $this->get('security.context')->getToken()->getUser()->getId();
 
         if($request->request->has('base64_image')) $base64Image = $request->request->get('base64_image');

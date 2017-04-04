@@ -76,6 +76,12 @@ class Group extends BaseGroup
     private $base64_image = "";
 
     /**
+     * @ORM\Column(type="text")
+     * @Expose
+     */
+    private $company_image = "";
+
+    /**
      * @ORM\OneToMany(targetEntity="Telepay\FinancialApiBundle\Entity\LimitDefinition", mappedBy="group", cascade={"remove"})
      *
      */
@@ -901,6 +907,22 @@ class Group extends BaseGroup
     public function setFairtoearthAdmin($fairtoearth_admin)
     {
         $this->fairtoearth_admin = $fairtoearth_admin;
+    }
+
+    /**
+     * @return mixed
+     */
+    public function getCompanyImage()
+    {
+        return $this->company_image;
+    }
+
+    /**
+     * @param mixed $company_image
+     */
+    public function setCompanyImage($company_image)
+    {
+        $this->company_image = $company_image;
     }
 
 }

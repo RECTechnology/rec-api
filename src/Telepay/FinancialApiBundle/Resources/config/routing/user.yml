@@ -98,6 +98,12 @@ user_analytics:
 
 user_set_image:
     pattern:  /user/v1/image
+    defaults: { _controller: Telepay\FinancialApiBundle\Controller\Management\User\AccountController::setImageB64 }
+    requirements:
+        _method: PUT
+
+user_set_profile_image:
+    pattern:  /user/v1/profile_image
     defaults: { _controller: Telepay\FinancialApiBundle\Controller\Management\User\AccountController::setImage }
     requirements:
         _method: PUT
