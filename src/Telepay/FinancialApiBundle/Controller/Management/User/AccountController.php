@@ -130,10 +130,10 @@ class AccountController extends BaseApiController{
             $ext = $explodedFileSrc[count($explodedFileSrc) - 1];
             $filename = $hash . '.' . $ext;
         }else{
-            $filename = str_replace($fileManager->getUploadsDir() . '/', '', $user->getProfileImage());
+            $filename = str_replace($this->container->getParameter('uploads_dir') . '/', '', $user->getProfileImage());
         }
 
-        file_put_contents($fileManager->getUploadsDir() . '/' . $filename, $fileContents);
+        file_put_contents($fileManager->getFilesPath() . '/' . $filename, $fileContents);
 
         $tmpFile = new File($fileManager->getUploadsDir() . '/' . $filename);
         if (!in_array($tmpFile->getMimeType(), UploadManager::$ALLOWED_MIMETYPES))
