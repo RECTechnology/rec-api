@@ -9,6 +9,8 @@
 
 namespace Telepay\FinancialApiBundle\Controller\Management\Company;
 
+use Symfony\Component\HttpFoundation\File\File;
+use Telepay\FinancialApiBundle\DependencyInjection\Telepay\Commons\UploadManager;
 use Telepay\FinancialApiBundle\Entity\Group;
 use Symfony\Component\HttpKernel\Exception\HttpException;
 use Telepay\FinancialApiBundle\Controller\BaseApiController;
@@ -55,5 +57,59 @@ class AccountController extends BaseApiController{
         return $this->rest(204, 'Manager changed successfully');
 
     }
+
+    /**
+     * @Rest\View
+     */
+    public function setImage(Request $request, $group){
+
+        $paramNames = array(
+            'company_image'
+        );
+
+        $params = array();
+        foreach($paramNames as $paramName){
+            if($request->request->has($paramName)){
+                $params[$paramName] = $request->request->get($paramName);
+            }else{
+                throw new HttpException(404, 'Param '.$paramName.' not found');
+            }
+        }
+
+        $em = $this->getDoctrine()->getManager();
+        $user = $this->getUser();
+        $company = $em->getRepository($this->getRepositoryName())->find($group);
+
+        if(!$company) throw new HttpException('Company not found');
+        //TODO check if user has permissions in this company
+
+        $fileManager = $this->get('file_manager');
+
+        $fileSrc = $params['company_image'];
+        $fileContents = $fileManager->readFileUrl($fileSrc);
+
+        //if has image overwrite...if not create filename
+        if($company->getCompanyImage() == ''){
+            $hash = $fileManager->getHash();
+            $explodedFileSrc = explode('.', $fileSrc);
+            $ext = $explodedFileSrc[count($explodedFileSrc) - 1];
+            $filename = $hash . '.' . $ext;
+        }else{
+            $filename = str_replace($this->container->getParameter('files_path') . '/', '', $company->getCompanyImage());
+        }
+
+        file_put_contents($fileManager->getFilesPath() . '/' . $filename, $fileContents);
+
+        $tmpFile = new File($fileManager->getUploadsDir() . '/' . $filename);
+        if (!in_array($tmpFile->getMimeType(), UploadManager::$ALLOWED_MIMETYPES))
+            throw new HttpException(400, "Bad file type");
+
+        $company->setCompanyImage($fileManager->getFilesPath().'/'.$filename);
+        $em->flush();
+
+        return $this->rest(204, 'Company image updated successfully');
+
+    }
+
 
 }

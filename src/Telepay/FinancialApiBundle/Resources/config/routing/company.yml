@@ -1,5 +1,11 @@
 ##################### COMPANY ACCOUNT ############################
 
+company_set_comapny_image:
+    pattern:  /company/v1/account/{group}/image
+    defaults: { _controller: Telepay\FinancialApiBundle\Controller\Management\Company\AccountController::setImage }
+    requirements:
+        _method: PUT
+
 company_set_user_manager:
     pattern:  /company/v1/account/kyc/admin/{id}
     defaults: { _controller: Telepay\FinancialApiBundle\Controller\Management\Company\AccountController::setAdmin }
