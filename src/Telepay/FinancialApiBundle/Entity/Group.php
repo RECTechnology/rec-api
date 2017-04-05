@@ -547,7 +547,6 @@ class Group extends BaseGroup
         unset($this->allowed_methods);
         unset($this->comment);
         unset($this->cash_in_tokens);
-        unset($this->kyc_manager);
         unset($this->fairtoearth_admin);
         unset($this->fairpay_vendor);
         unset($this->own);

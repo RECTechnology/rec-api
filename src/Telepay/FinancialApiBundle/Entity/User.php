@@ -156,6 +156,7 @@ class User extends BaseUser
 
     /**
      * @ORM\OneToOne(targetEntity="Telepay\FinancialApiBundle\Entity\KYC", mappedBy="user", cascade={"remove"})
+     * @Expose
      */
     private $kyc_validations;
 
