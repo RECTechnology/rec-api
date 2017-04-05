@@ -29,7 +29,6 @@ class AddLinkingCodePOSCommand extends ContainerAwareCommand
         foreach ($pos_list as $pos){
             $code = $pos->generateCode(6);
             $pos->setLinkingCode($code);
-            $output->writeln($code);
             $em->flush();
         }
 

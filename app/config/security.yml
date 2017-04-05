@@ -140,6 +140,7 @@ security:
         - { path: ^/pos/v[0-9]+/check/*, role: IS_AUTHENTICATED_ANONYMOUSLY }
         - { path: ^/pos/v[0-9]+/cancel/*, role: IS_AUTHENTICATED_ANONYMOUSLY, ip: ["127.0.0.1"]  }
 
+        - { path: ^/user/v[0-9]+/pos/link/*, role: IS_AUTHENTICATED_ANONYMOUSLY }
         - { path: ^/user/v[0-9]+/*, role: ROLE_USER }
         - { path: ^/register/v[0-9]+, roles: IS_AUTHENTICATED_ANONYMOUSLY }
         - { path: ^/password_recovery/v[0-9]+, role: IS_AUTHENTICATED_ANONYMOUSLY }

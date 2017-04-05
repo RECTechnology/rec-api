@@ -12,6 +12,12 @@ user_POS_show:
     requirements:
         _method: GET
 
+user_POS_link:
+    pattern:  /user/v1/pos/link/{id}
+    defaults: { _controller: Telepay\FinancialApiBundle\Controller\Management\Commerce\POSController::linkPOS }
+    requirements:
+        _method: GET
+
 user_POS_create:
     pattern:  /user/v1/pos
     defaults: { _controller: Telepay\FinancialApiBundle\Controller\Management\Commerce\POSController::createAction }

@@ -62,6 +62,30 @@ class POSController extends BaseApiController{
     /**
      * @Rest\View
      */
+    public function linkPOS($id){
+        $pos = $this->getRepository()->findOneBy(array(
+            'linking_code'  =>  $id
+        ));
+        if(empty($pos)) throw new HttpException(404, "Not found");
+
+        $pos->setLinked(true);
+        $em = $this->getDoctrine()->getManager();
+        $em->flush();
+
+        $company = $pos->getGroup();
+
+        $response = array(
+            'pos'   =>  $pos,
+            'company'   =>  $company
+        );
+
+        return $this->restV2(200, 'Success','POS linked successfully', $response);
+
+    }
+
+    /**
+     * @Rest\View
+     */
     public function createAction(Request $request){
         $user = $this->get('security.context')->getToken()->getUser();
         $userGroup = $user->getActiveGroup();

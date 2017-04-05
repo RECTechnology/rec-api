@@ -93,6 +93,12 @@ class POS {
     private $linking_code;
 
     /**
+     * @ORM\Column (type="boolean")
+     * @Expose
+     */
+    private $linked = false;
+
+    /**
      * @return mixed
      */
     public function getId()
@@ -259,6 +265,22 @@ class POS {
     public function setLinkingCode($linking_code)
     {
         $this->linking_code = $linking_code;
+    }
+
+    /**
+     * @return mixed
+     */
+    public function getLinked()
+    {
+        return $this->linked;
+    }
+
+    /**
+     * @param mixed $linked
+     */
+    public function setLinked($linked)
+    {
+        $this->linked = $linked;
     }
 
 }
