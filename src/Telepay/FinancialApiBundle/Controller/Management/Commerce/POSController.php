@@ -146,5 +146,4 @@ class POSController extends BaseApiController{
         return new POS();
     }
 
-
 }

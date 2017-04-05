@@ -124,6 +124,8 @@ class AccountController extends BaseApiController{
 
         $fileSrc = $params['profile_image'];
         $fileContents = $fileManager->readFileUrl($fileSrc);
+
+        //if has image overwrite...if not create filename
         if($user->getProfileImage() == ''){
             $hash = $fileManager->getHash();
             $explodedFileSrc = explode('.', $fileSrc);

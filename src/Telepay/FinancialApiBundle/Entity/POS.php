@@ -20,6 +20,11 @@ use JMS\Serializer\Annotation\Expose;
  */
 class POS {
 
+    public function __construct()
+    {
+        $this->linking_code = $this->generateCode(6);
+    }
+
     /**
      * @ORM\Id
      * @ORM\Column(type="integer")
@@ -34,12 +39,6 @@ class POS {
      * @Expose
      */
     private $name;
-
-
-//    /**
-//     * @ORM\ManyToOne(targetEntity="Telepay\FinancialApiBundle\Entity\User")
-//     */
-//    private $user;
 
     /**
      * @ORM\ManyToOne(targetEntity="Telepay\FinancialApiBundle\Entity\Group")
@@ -88,28 +87,18 @@ class POS {
     private $url;
 
     /**
+     * @ORM\Column (type="string")
+     * @Expose
+     */
+    private $linking_code;
+
+    /**
      * @return mixed
      */
     public function getId()
     {
         return $this->id;
     }
-
-//    /**
-//     * @return mixed
-//     */
-//    public function getUser()
-//    {
-//        return $this->user;
-//    }
-//
-//    /**
-//     * @param mixed $user
-//     */
-//    public function setUser($user)
-//    {
-//        $this->user = $user;
-//    }
 
     /**
      * @return mixed
@@ -246,6 +235,30 @@ class POS {
     public function setGroup($group)
     {
         $this->group = $group;
+    }
+
+    /**
+     * @return mixed
+     */
+    public function getLinkingCode()
+    {
+        return $this->linking_code;
+    }
+
+    public function generateCode($longitud) {
+        $key = '';
+        $pattern = '1234567890';
+        $max = strlen($pattern)-1;
+        for($i=0;$i < $longitud;$i++) $key .= $pattern{mt_rand(0,$max)};
+        return $key;
+    }
+
+    /**
+     * @param mixed $linking_code
+     */
+    public function setLinkingCode($linking_code)
+    {
+        $this->linking_code = $linking_code;
     }
 
 }
