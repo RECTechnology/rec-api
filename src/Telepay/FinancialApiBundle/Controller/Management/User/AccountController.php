@@ -124,10 +124,14 @@ class AccountController extends BaseApiController{
 
         $fileSrc = $params['profile_image'];
         $fileContents = $fileManager->readFileUrl($fileSrc);
-        $hash = $fileManager->getHash();
-        $explodedFileSrc = explode('.', $fileSrc);
-        $ext = $explodedFileSrc[count($explodedFileSrc) - 1];
-        $filename = $hash . '.' . $ext;
+        if($user->getProfileImage() == ''){
+            $hash = $fileManager->getHash();
+            $explodedFileSrc = explode('.', $fileSrc);
+            $ext = $explodedFileSrc[count($explodedFileSrc) - 1];
+            $filename = $hash . '.' . $ext;
+        }else{
+            $filename = str_replace($fileManager->getUploadsDir() . '/', '', $user->getProfileImage());
+        }
 
         file_put_contents($fileManager->getUploadsDir() . '/' . $filename, $fileContents);
 
