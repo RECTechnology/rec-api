@@ -58,7 +58,7 @@ class AccountController extends BaseApiController{
         $kyc = $em->getRepository('TelepayFinancialApiBundle:KYC')->findOneBy(array(
             'user' => $user
         ));
-        $user->setKycData($kyc);
+//        $user->setKycData($kyc);
         $em->persist($user);
         return $this->restV2(200, "ok", "Account info got successfully", $user);
     }

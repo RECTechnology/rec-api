@@ -77,13 +77,11 @@ class User extends BaseUser
 
     /**
      * @ORM\OneToOne(targetEntity="Telepay\FinancialApiBundle\Entity\BTCWallet", mappedBy="user", cascade={"remove"})
-     * @Expose
      */
     private $btc_wallet;
 
     /**
      * @ORM\OneToMany(targetEntity="Telepay\FinancialApiBundle\Entity\BTCAddresses", mappedBy="user", cascade={"remove"})
-     * @Expose
      */
     private $btc_addresses;
 
@@ -158,7 +156,6 @@ class User extends BaseUser
 
     /**
      * @ORM\OneToOne(targetEntity="Telepay\FinancialApiBundle\Entity\KYC", mappedBy="user", cascade={"remove"})
-     * @Expose
      */
     private $kyc_validations;
 
