@@ -130,7 +130,7 @@ class AccountController extends BaseApiController{
             $ext = $explodedFileSrc[count($explodedFileSrc) - 1];
             $filename = $hash . '.' . $ext;
         }else{
-            $filename = str_replace($this->container->getParameter('uploads_dir') . '/', '', $user->getProfileImage());
+            $filename = str_replace($this->container->getParameter('files_path') . '/', '', $user->getProfileImage());
         }
 
         file_put_contents($fileManager->getFilesPath() . '/' . $filename, $fileContents);
