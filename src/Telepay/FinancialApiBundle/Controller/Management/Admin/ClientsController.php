@@ -92,7 +92,6 @@ class ClientsController extends BaseApiController {
      * @Rest\View
      */
     public function createAction(Request $request){
-
         $em = $this->getDoctrine()->getManager();
 
         $user = $this->get('security.context')->getToken()->getUser();
@@ -134,24 +133,12 @@ class ClientsController extends BaseApiController {
 
         $request->request->add(array(
             'allowed_grant_types' => $grant_types,
-            'swift_list'    =>  '',
+            'swift_list'    =>  array(),
             'redirect_uris' => array($uris),
             'group' =>  $userGroup
         ));
 
         return parent::createAction($request);
-
-//        if($response->getStatusCode() == 201){
-//            $content = json_decode($response->getContent());
-//            $client_id = $content->data->id;
-//            $client = $em->getRepository('TelepayFinancialApiBundle:Client')->find($client_id);
-//
-//            //create limits and fees foreach swift methods
-//            $this->_createLimitsFees($client, $swiftMethods);
-//
-//        }
-
-//        return $response;
     }
 
     /**
@@ -254,7 +241,8 @@ class ClientsController extends BaseApiController {
         }
 
         $response = parent::updateAction($request, $id);
-        if($response->getStatusCode() == 204){
+        //TODO utilizar un listener
+        if($response->getStatusCode() == 204 && $services != null){
             $client = $em->getRepository('TelepayFinancialApiBundle:Client')->find($id);
             $this->_createLimitsFees($client, $services);
         }
