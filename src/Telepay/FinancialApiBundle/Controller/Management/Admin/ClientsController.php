@@ -163,6 +163,9 @@ class ClientsController extends BaseApiController {
         $list_methods = $entities->getSwiftList();
         $list_fees = $entities->getSwiftFees();
         $list_limits = $entities->getSwifLimits();
+        if(count($list_methods) == 0){
+            $list_methods = array();
+        }
         foreach($list_methods as $method){
             $method =  explode(":", $method)[0];
             $methods[$method]['status'] = 'active';
