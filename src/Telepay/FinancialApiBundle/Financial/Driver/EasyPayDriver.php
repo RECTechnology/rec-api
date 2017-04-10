@@ -27,7 +27,7 @@ class EasyPayDriver{
     }
 
     private function getReference(){
-        $chars = "ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789";
+        $chars = "ABCDEFGHJKMNPQRSTUVWXYZ23456789";
 
         $array_chars = str_split($chars);
         shuffle($array_chars);
