@@ -46,7 +46,7 @@ class SendBtcPriceCommand extends ContainerAwareCommand
         $this_month = date('m');
         $this_year = date('Y');
 
-        $qb = $this->getContainer()->get('doctrine')->getRepository('TelepayFinancialApiBundle:Exchang    e')->createQueryBuilder('w');
+        $qb = $this->getContainer()->get('doctrine')->getRepository('TelepayFinancialApiBundle:Exchange')->createQueryBuilder('w');
         $qb->Select("w.date as date, w.price as price")
             ->where("w.src = '" . $this->currency . "' and w.dst = 'EUR' and w.id > 6000001");
         $query = $qb->getQuery()->getResult();
