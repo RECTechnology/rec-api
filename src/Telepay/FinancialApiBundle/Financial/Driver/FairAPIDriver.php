@@ -2,6 +2,9 @@
 
 namespace Telepay\FinancialApiBundle\Financial\Driver;
 
+use ChipChapLL\BaseRequester;
+use ChipChapLL\Core\ApiKey;
+use ChipChapLL\Core\Credentials;
 use TelepayApi\Core\ApiRequest;
 use TelepayApi\Core\JsonRequester;
 
@@ -63,5 +66,46 @@ class FairAPIRequest extends ApiRequest {
         return array_merge(parent::getHeaders(), array(
             'apisign' => $signature
         ));
+    }
+}
+
+class Signer extends BaseRequester{
+
+
+    private $keys;
+
+    /**
+     * Signer constructor.
+     * @param ApiKey $keys
+     */
+    public function __construct(ApiKey $keys)
+    {
+        $this->keys = $keys;
+    }
+
+    /**
+     * @return string
+     */
+    public function getUrl()
+    {
+        return '';
+    }
+
+    /**
+     * @return Credentials
+     */
+    public function getCredentials()
+    {
+        return $this->keys;
+    }
+
+    public function transaction($url, array $content){
+        return $this->call(
+            $url,
+            [],
+            'POST',
+            $content,
+            []
+        );
     }
 }
