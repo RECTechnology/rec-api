@@ -116,10 +116,10 @@ class User extends BaseUser
     private $base64_image;
 
     /**
-     * @ORM\Column(type="text")
+     * @ORM\Column(type="text", nullable=true)
      * @Expose
      */
-    private $profile_image;
+    private $profile_image = '';
 
     /**
      * @ORM\Column(type="string", nullable=true)
