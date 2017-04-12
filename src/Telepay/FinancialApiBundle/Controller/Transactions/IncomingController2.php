@@ -273,7 +273,7 @@ class IncomingController2 extends RestApiController{
 
                 $this->container->get('notificator')->notificate($transaction);
 
-                //restar al grupo el amount + comisiones
+                //restar al grupo el amount
                 $wallet->setBalance($wallet->getBalance() - $amount);
 
                 //insert new line in the balance fro this group

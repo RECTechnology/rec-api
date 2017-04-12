@@ -531,4 +531,85 @@ class FeeDeal{
 
         return $price;
     }
+
+    public function createFees2(Transaction $transaction, UserWallet $current_wallet){
+        $this->fee_logger->info('FEE_DEAL (createFees)');
+        $amount = $transaction->getAmount();
+        $currency = $transaction->getCurrency();
+        $service_cname = $transaction->getService();
+        $method_cname = $transaction->getMethod();
+        $explodeMethod = explode('_', $method_cname);
+        if(isset($explodeMethod[0]) && $explodeMethod[0] != 'exchange'){
+            $method = $method_cname.'-'.$transaction->getType();
+        }else{
+            $method = $method_cname;
+        }
+        $this->fee_logger->info('FEE_DEAL (createFees) => method '.$method);
+        $em = $this->doctrine->getManager();
+        $this->fee_logger->info('FEE_DEAL (createFees) => getManager ');
+        $total_fee = round($transaction->getFixedFee() + $transaction->getVariableFee(),0);
+        $this->fee_logger->info('FEE_DEAL (createFees) => fixed '.$transaction->getFixedFee().' variable '.$transaction->getVariableFee());
+//        $user = $em->getRepository('TelepayFinancialApiBundle:User')->find($transaction->getUser());
+        $userGroup = $em->getRepository('TelepayFinancialApiBundle:Group')->find($transaction->getGroup());
+        $this->fee_logger->info('FEE_DEAL (createFees) => BEFORE TRANSACTION ');
+
+        $mongo = $this->container->get('doctrine_mongodb')->getManager();
+        $price = $this->_getPrice($currency);
+        if($total_fee != 0){
+            $feeTransaction = Transaction::createFromTransaction($transaction);
+            $this->fee_logger->info('FEE_DEAL (createFees) => AFTER TRANSACTION ');
+            $feeTransaction->setAmount($total_fee);
+            $feeTransaction->setDataIn(array(
+                'previous_transaction'  =>  $transaction->getId(),
+                'amount'                =>  -$total_fee,
+                'description'           =>  $method.'->fee'
+            ));
+            $feeTransaction->setData(array(
+                'previous_transaction'  =>  $transaction->getId(),
+                'amount'                =>  -$total_fee,
+                'type'                  =>  'resta_fee'
+            ));
+            $feeTransaction->setDebugData(array(
+                'previous_balance'  =>  $current_wallet->getBalance(),
+                'previous_transaction'  =>  $transaction->getId()
+            ));
+
+            $feeTransaction->setTotal(-$total_fee);
+            $this->fee_logger->info('FEE_DEAL (createFees) => TYPE ');
+            $feeTransaction->setType(Transaction::$TYPE_FEE);
+            $feeTransaction->setMethod($method);
+            $feeInfo = array(
+                'previous_transaction'  =>  $transaction->getId(),
+                'previous_amount'    =>  $transaction->getAmount(),
+                'scale'     =>  $transaction->getScale(),
+                'concept'           =>  $method.'->fee',
+                'amount' =>  -$total_fee,
+                'status'    =>  Transaction::$STATUS_SUCCESS,
+                'currency'  =>  $transaction->getCurrency()
+            );
+            $feeTransaction->setFeeInfo($feeInfo);
+            $feeTransaction->setPrice($price);
+            $mongo->persist($feeTransaction);
+
+            $mongo->flush();
+            $this->fee_logger->info('FEE_DEAL (createFees) => BALANCE ');
+            $balancer = $this->container->get('net.telepay.commons.balance_manipulator');
+            $balancer->addBalance($userGroup, -$total_fee, $feeTransaction );
+
+        }
+
+        //restar al wallet
+        $current_wallet->setAvailable($current_wallet->getAvailable() - $total_fee);
+        $current_wallet->setBalance($current_wallet->getBalance() - $total_fee);
+
+        $em->persist($current_wallet);
+        $em->flush();
+
+        //empezamos el reparto
+        //TODO toda la fee a root
+
+        //TODO get all resellerDealer and create transactions
+
+
+    }
 }

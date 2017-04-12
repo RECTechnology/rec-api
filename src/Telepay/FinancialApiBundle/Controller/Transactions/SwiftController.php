@@ -1128,8 +1128,8 @@ class SwiftController extends RestApiController{
 
         $current_wallet_client = $clientGroup->getWallet($userFee->getCurrency());
 
-        $current_wallet_client->setAvailable($current_wallet->getAvailable() - $client_fee);
-        $current_wallet_client->setBalance($current_wallet->getBalance() - $client_fee);
+        $current_wallet_client->setAvailable($current_wallet_client->getAvailable() - $client_fee);
+        $current_wallet_client->setBalance($current_wallet_client->getBalance() - $client_fee);
 
         $em->persist($current_wallet_client);
         $em->flush();
