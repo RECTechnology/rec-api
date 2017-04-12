@@ -15,6 +15,7 @@ use Services_Twilio_TinyHttp;
 use Symfony\Component\Config\Definition\Exception\Exception;
 use Symfony\Component\HttpKernel\Exception\HttpException;
 use Telepay\FinancialApiBundle\DependencyInjection\Transactions\Core\BaseMethod;
+use Symfony\Component\HttpFoundation\Request;
 
 
 class HalcashMethod extends BaseMethod{
