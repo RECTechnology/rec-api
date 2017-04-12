@@ -20,6 +20,7 @@ use Telepay\FinancialApiBundle\DependencyInjection\Transactions\Core\BaseMethod;
 class HalcashMethod extends BaseMethod{
 
     private $driver;
+    private $fairApiDriver;
     private $container;
     private $logger;
     private $env;
@@ -27,6 +28,7 @@ class HalcashMethod extends BaseMethod{
     public function __construct($name, $cname, $type, $currency, $email_required, $base64Image, $container, $driver){
         parent::__construct($name, $cname, $type, $currency, $email_required, $base64Image, $container);
         $this->driver = $driver;
+        $this->fairApiDriver = "@net.telepay.driver.fairtoearth";
         $this->container = $container;
         $this->logger = $this->container->get('transaction.logger');
         $this->env = $this->container->getParameter('environment');
@@ -277,6 +279,42 @@ class HalcashMethod extends BaseMethod{
             return true;
         }
         return false;
+    }
+
+    /**
+     * @return Boolean
+     */
+    public function checkKYC(Request $request, $type){
+
+        if(!$request->request->has('premium')) {
+            return $request;
+        }
+
+        if($type == 'in'){
+            throw new HttpException(400, "Halcash cashin do not exists");
+        }
+
+        $em = $this->getContainer()->get('doctrine')->getManager();
+        if($request->request->has('token')) {
+            $access_token = $request->request->get('token');
+            $now = time();
+            $token_info = $em->getRepository('TelepayFinancialApiBundle:AccessToken')->findOneBy(array(
+                'token' => $access_token
+            ));
+            if($token_info && $token_info->getExpiresAt() > $now) {
+                $user = $token_info->getUser();
+                $email = $user->getEmail();
+                $request->request->remove('token');
+                $request->request->set('email', $email);
+            }
+            else{
+                throw new HttpException(400, "Access token expired");
+            }
+
+            $checkbalance = $this->fairApiDriver->checkBalance($email, "halcash", $request->request->get('amount'));
+            throw new HttpException(400, json_encode($checkbalance));
+        }
+        return $request;
     }
 
     public function sendMail($error, $message, $paymentInfo){
