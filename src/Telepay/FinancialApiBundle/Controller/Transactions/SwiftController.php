@@ -108,6 +108,10 @@ class SwiftController extends RestApiController{
         if($email == '' && ($cashInMethod->getEmailRequired() || $cashOutMethod->getEmailRequired())) throw new HttpException(400, 'Email is required');
         $request->request->set('email', $email);
 
+        if($request->request->get('premium') != '1') {
+            $request->request->remove('premium');
+        }
+
         $logger->info('SWIFT checkinG KYC');
         $cashInMethod->checkKYC($request, "in");
         $cashOutMethod->checkKYC($request, "out");
