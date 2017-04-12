@@ -26,13 +26,13 @@ class HalcashMethod extends BaseMethod{
     private $logger;
     private $env;
 
-    public function __construct($name, $cname, $type, $currency, $email_required, $base64Image, $container, $driver){
+    public function __construct($name, $cname, $type, $currency, $email_required, $base64Image, $container, $driver, $fairAPIDriver){
         parent::__construct($name, $cname, $type, $currency, $email_required, $base64Image, $container);
         $this->driver = $driver;
-        $this->fairApiDriver = "@net.telepay.driver.fairtoearth";
         $this->container = $container;
         $this->logger = $this->container->get('transaction.logger');
         $this->env = $this->container->getParameter('environment');
+        $this->fairApiDriver = $fairAPIDriver;
     }
 
     public function send($paymentInfo)
