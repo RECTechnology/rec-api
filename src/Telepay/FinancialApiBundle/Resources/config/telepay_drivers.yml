@@ -114,3 +114,11 @@ services:
             - "%teleingreso_currency%"
             - "%teleingreso_url%"
             - "%teleingreso_hash%"
+
+    net.telepay.driver.fairtoearth:
+        class: Telepay\FinancialApiBundle\Financial\Driver\FairAPIDriver
+        arguments:
+            - "%fairtoearth_url%"
+            - "%fairtoearth_key%"
+            - "%fairtoearth_secret%"
+
