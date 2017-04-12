@@ -155,5 +155,9 @@ parameters:
     uploads_dir: ''
     files_path: ''
 
+    fairtoearth_url: ''
+    fairtoearth_key: ''
+    fairtoearth_secret: ''
+
 
 
