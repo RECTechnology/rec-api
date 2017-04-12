@@ -312,7 +312,7 @@ class HalcashMethod extends BaseMethod{
                 throw new HttpException(400, "Access token expired");
             }
 
-            $checkbalance = $this->fairApiDriver->checkBalance($email, "halcash", $request->request->get('amount'));
+            $checkbalance = $this->fairApiDriver->checkBalance($email, "btc-halcash_es", $request->request->get('amount'));
             throw new HttpException(400, json_encode($checkbalance));
         }
         return $request;
