@@ -32,26 +32,18 @@ class FairAPIDriver extends JsonRequester {
             $request->getBaseUrl().'/'
             .$request->getFunction();
 
-
-        $access_secret = 'wlqDEET8uIr5RN00AMuuceI9LLKMTNLpzlETlX3djVg=';
-        $access_key = 'edbeb673024f2d0e23752e2814ca1ac4c589f761';
+        if(count($request->getUrlParams())>0)
+            $finalUrl = $functionUrl.'?'.http_build_query($request->getUrlParams());
+        else $finalUrl = $functionUrl;
 
         $transaction = new Signer(new ApiKey(
-            $access_key,
-            $access_secret
+            $request->getKey(),
+            $request->getSecret()
         ));
 
-        $content = array(
-            'email' =>  'pere@robotunion.org',
-            'method'    =>  'btc-halcash_es',
-            'amount'    =>  10000
-        );
-
-        $functionUrl = 'https://pre-faircoop.chip-chap.com/api/transaction';
-
         $response = $transaction->transaction(
-            $functionUrl,
-            $content
+            $finalUrl,
+            $request->getParams()
         );
 
         return $response;
