@@ -258,7 +258,7 @@ class IncomingController2 extends RestApiController{
             }
             $logger->info('Incomig transaction...PAYMENT STATUS: '.$payment_info['status']);
 
-            $env = $this->getContainer()->getParameter('environment');
+            $env = $this->container->getParameter('environment');
             exec('curl -X POST -d "chat_id=-145386290&text=#cashOut_'.$env.'(' . $method_cname . ')[' . $group->getName() . '] Sent ' . $amount . ' ' . $method->getCurrency() . ' status:' . $payment_info['status'] . '" "https://api.telegram.org/bot348257911:AAG9z3cJnDi31-7MBsznurN-KZx6Ho_X4ao/sendMessage"');
 
             $transaction->setPayOutInfo($payment_info);
