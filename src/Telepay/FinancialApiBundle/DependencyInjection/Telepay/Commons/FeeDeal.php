@@ -536,7 +536,6 @@ class FeeDeal{
         $this->fee_logger->info('FEE_DEAL (createFees)');
         $amount = $transaction->getAmount();
         $currency = $transaction->getCurrency();
-        $service_cname = $transaction->getService();
         $method_cname = $transaction->getMethod();
         $explodeMethod = explode('_', $method_cname);
         if(isset($explodeMethod[0]) && $explodeMethod[0] != 'exchange'){
@@ -552,6 +551,9 @@ class FeeDeal{
 //        $user = $em->getRepository('TelepayFinancialApiBundle:User')->find($transaction->getUser());
         $userGroup = $em->getRepository('TelepayFinancialApiBundle:Group')->find($transaction->getGroup());
         $this->fee_logger->info('FEE_DEAL (createFees) => BEFORE TRANSACTION ');
+
+        //TODO get root group
+        $rootGroupId = $this->container->getParameter('id_group_root');
 
         $mongo = $this->container->get('doctrine_mongodb')->getManager();
         $price = $this->_getPrice($currency);
@@ -591,24 +593,78 @@ class FeeDeal{
             $feeTransaction->setPrice($price);
             $mongo->persist($feeTransaction);
 
-            $mongo->flush();
             $this->fee_logger->info('FEE_DEAL (createFees) => BALANCE ');
             $balancer = $this->container->get('net.telepay.commons.balance_manipulator');
             $balancer->addBalance($userGroup, -$total_fee, $feeTransaction );
 
+            //restar al wallet
+            $current_wallet->setAvailable($current_wallet->getAvailable() - $total_fee);
+            $current_wallet->setBalance($current_wallet->getBalance() - $total_fee);
+
+            $em->persist($current_wallet);
+
+
+            //empezamos el reparto
+            //toda la fee a root
+            $rootTransaction = new Transaction();
+            $rootTransaction->setIp('127.0.0.1');
+            $rootTransaction->setGroup($rootGroupId);
+            $rootTransaction->setService($feeTransaction->getService());
+            $rootTransaction->setMethod($feeTransaction->getMethod());
+            $rootTransaction->setVersion($feeTransaction->getVersion());
+            $rootTransaction->setAmount($total_fee);
+            $rootTransaction->setType(Transaction::$TYPE_FEE);
+            $rootTransaction->setDataIn(array(
+                'parent_id' => $feeTransaction->getId(),
+                'previous_transaction' => $feeTransaction->getId(),
+                'amount'    =>  $total_fee,
+                'concept'   =>$feeTransaction->getMethod().'->fee'
+            ));
+            $rootTransaction->setData(array(
+                'parent_id' =>  $feeTransaction->getId(),
+                'previous_transaction' =>  $feeTransaction->getId(),
+                'type'      =>  'suma_amount'
+            ));
+            $rootFeeInfo = array(
+                'previous_transaction'  =>  $feeTransaction->getId(),
+                'previous_amount'    =>  $amount,
+                'scale'     =>  $feeTransaction->getScale(),
+                'concept'           =>  $feeTransaction->getMethod().'->fee',
+                'amount' =>  $total_fee,
+                'status'    =>  Transaction::$STATUS_SUCCESS,
+                'currency'  =>  $currency
+            );
+            $rootTransaction->setFeeInfo($rootFeeInfo);
+            //incloure les fees en la transacció
+            $rootTransaction->setStatus(Transaction::$STATUS_SUCCESS);
+            $rootTransaction->setCurrency($currency);
+            $rootTransaction->setVariableFee($feeTransaction->getVariableFee());
+            $rootTransaction->setFixedFee($feeTransaction->getFixedFee());
+            $rootTransaction->setTotal($total_fee);
+            $rootTransaction->setScale($feeTransaction->getScale());
+            $rootTransaction->setPrice($price);
+
+            $this->fee_logger->info('FEE_DEAL (createRootFees) => BALANCE ');
+            $rootGroup = $em->getRepository('TelepayFinancialApiBundle:Group')->find($rootGroupId);
+            $balancer->addBalance($rootGroup, $total_fee, $rootTransaction );
+
+            //restar al wallet
+            $rootWallet = $rootGroup->getWallet($rootTransaction->getCurrency());
+            $rootWallet->setAvailable($current_wallet->getAvailable() + $total_fee);
+            $rootWallet->setBalance($current_wallet->getBalance() + $total_fee);
+
+            $mongo->persist($rootTransaction);
+
+            $em->flush();
+            $mongo->flush();
+
+            //TODO get all resellerDealer and create transactions
+
         }
 
-        //restar al wallet
-        $current_wallet->setAvailable($current_wallet->getAvailable() - $total_fee);
-        $current_wallet->setBalance($current_wallet->getBalance() - $total_fee);
 
-        $em->persist($current_wallet);
-        $em->flush();
 
-        //empezamos el reparto
-        //TODO toda la fee a root
 
-        //TODO get all resellerDealer and create transactions
 
 
     }

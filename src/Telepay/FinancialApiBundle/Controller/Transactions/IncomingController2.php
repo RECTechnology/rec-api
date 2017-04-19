@@ -294,7 +294,7 @@ class IncomingController2 extends RestApiController{
                 $dealer = $this->container->get('net.telepay.commons.fee_deal');
                 try{
                     $logger->info('Init Dealer: ' . $transaction->getAmount() . " : " . $wallet->getBalance() . " : " . $total);
-                    $dealer->createFees($transaction, $wallet);
+                    $dealer->createFees2($transaction, $wallet);
                 }catch (HttpException $e){
                     throw $e;
                 }
@@ -450,7 +450,7 @@ class IncomingController2 extends RestApiController{
                     $logger->info('Update transaction -> dealer');
                     $dealer = $this->container->get('net.telepay.commons.fee_deal');
                     try{
-                        $dealer->createFees($transaction, $current_wallet);
+                        $dealer->createFees2($transaction, $current_wallet);
                     }catch (HttpException $e){
                         throw $e;
                     }
@@ -509,7 +509,7 @@ class IncomingController2 extends RestApiController{
 
                     $logger->info('Update transaction -> dealer');
                     try{
-                        $dealer->createFees($transaction, $current_wallet);
+                        $dealer->createFees2($transaction, $current_wallet);
                     }catch (HttpException $e){
                         throw $e;
                     }
