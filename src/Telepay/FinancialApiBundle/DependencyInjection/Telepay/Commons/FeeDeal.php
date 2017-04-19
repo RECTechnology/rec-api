@@ -594,8 +594,6 @@ class FeeDeal{
             $mongo->persist($feeTransaction);
 
             $this->fee_logger->info('FEE_DEAL (createFees) => BALANCE ');
-            $balancer = $this->container->get('net.telepay.commons.balance_manipulator');
-            $balancer->addBalance($userGroup, -$total_fee, $feeTransaction );
 
             //restar al wallet
             $current_wallet->setAvailable($current_wallet->getAvailable() - $total_fee);
@@ -646,7 +644,7 @@ class FeeDeal{
 
             $this->fee_logger->info('FEE_DEAL (createRootFees) => BALANCE ');
             $rootGroup = $em->getRepository('TelepayFinancialApiBundle:Group')->find($rootGroupId);
-            $balancer->addBalance($rootGroup, $total_fee, $rootTransaction );
+
 
             //restar al wallet
             $rootWallet = $rootGroup->getWallet($rootTransaction->getCurrency());
@@ -657,6 +655,10 @@ class FeeDeal{
 
             $em->flush();
             $mongo->flush();
+
+            $balancer = $this->container->get('net.telepay.commons.balance_manipulator');
+            $balancer->addBalance($userGroup, -$total_fee, $feeTransaction );
+            $balancer->addBalance($rootGroup, $total_fee, $rootTransaction );
 
             //TODO get all resellerDealer and create transactions
 
