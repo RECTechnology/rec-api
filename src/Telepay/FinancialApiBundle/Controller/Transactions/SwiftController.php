@@ -113,6 +113,7 @@ class SwiftController extends RestApiController{
         }
 
         $logger->info('SWIFT checkinG KYC');
+
         $cashInMethod->checkKYC($request, "in");
         $cashOutMethod->checkKYC($request, "out");
 

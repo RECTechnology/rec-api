@@ -313,7 +313,9 @@ class HalcashMethod extends BaseMethod{
             }
 
             $checkbalance = $this->fairApiDriver->checkBalance($email, "btc-halcash_es", $request->request->get('amount'));
-            throw new HttpException(400, json_encode($checkbalance));
+            if($checkbalance->status == 'error'){
+                throw new HttpException(400, $checkbalance->message);
+            }
         }
         return $request;
     }
