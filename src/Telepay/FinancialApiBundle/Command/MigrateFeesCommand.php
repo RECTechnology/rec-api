@@ -41,7 +41,6 @@ class MigrateFeesCommand extends ContainerAwareCommand
         $em = $this->getContainer()->get('doctrine')->getManager();
 
         $creator = $company->getGroupCreator();
-        $output->writeln('CREATOR '.$creator->getName());
 
         //get fees for this creator if is diferent to root
         if($creator->getId() != $this->getContainer()->getParameter('id_group_root')){
@@ -51,14 +50,14 @@ class MigrateFeesCommand extends ContainerAwareCommand
 
             //generate reseller dealer line
             foreach ($fees as $fee){
-                $output->writeln('METHOD '.$fee->getServiceName());
+
                 $resellerDealer = new ResellerDealer();
                 $resellerDealer->setMethod($fee->getServiceName());
                 $resellerDealer->setCompanyOrigin($company_orig);
                 $resellerDealer->setCompanyReseller($creator);
 
                 //para saber el porcentaje necesito saber el total
-                $output->writeln('GETTING ORIGINAL VARIABLE');
+
                 $origFee = $em->getRepository('TelepayFinancialApiBundle:ServiceFee')->findOneBy(array(
                     'group' =>  $company_orig,
                     'service_name'  =>  $fee->getServiceName()
@@ -70,12 +69,12 @@ class MigrateFeesCommand extends ContainerAwareCommand
                     $origVariable = $origFee->getVariable();
                 }
 
-                $output->writeln('GETTING ACTUAL VARIABLE');
                 $actualVariable = $fee->getVariable();
                 //esto es lo que se queda esta company
                 //la fee del anterior menos la suya
                 if($company->getid() != $company_orig->getId()){
-                    $output->writeln('COMPANY AND ORIG COMPANY ARE DIFERENTS');
+
+
                     $previousFee = $em->getRepository('TelepayFinancialApiBundle:ServiceFee')->findOneBy(array(
                         'group' =>  $company,
                         'service_name'  =>  $fee->getServiceName()
@@ -87,26 +86,30 @@ class MigrateFeesCommand extends ContainerAwareCommand
                         $anteriorFee = $previousFee->getVariable();
                     }
                 }else{
-                    $output->writeln('COMPANY AND ORIG COMPANY ARE THE SAME');
                     $anteriorFee = $origVariable;
                 }
 
                 $absoluteVariable = $anteriorFee - $actualVariable;
 
 
-                $output->writeln('ORIGINAL '.$origVariable.' - ANTERIOR '.$anteriorFee.' -  ACTUAL '.$actualVariable.' - ABSOLUTE '.$absoluteVariable );
                 if($origVariable == 0){
                     $newFee = 0;
                 }else{
+                    $output->writeln('METHOD '.$fee->getServiceName());
+                    $output->writeln('CREATOR '.$creator->getName());
+                    $output->writeln('COMPANY AND ORIG COMPANY ARE DIFERENTS');
+                    $output->writeln('ORIGINAL '.$origVariable.' - ANTERIOR '.$anteriorFee.' -  ACTUAL '.$actualVariable.' - ABSOLUTE '.$absoluteVariable );
                     $newFee = ($absoluteVariable * 100) / $origVariable;
+                    $output->writeln('NEW FEE '.$newFee);
                 }
                 $resellerDealer->setFee($newFee);
-                $output->writeln('NEW FEE '.$newFee);
+                $em->persist($resellerDealer);
+                $em->flush();
+
 
             }
             $this->createResellerDealer($creator, $company_orig, $output);
         }
     }
-
-
+    
 }
