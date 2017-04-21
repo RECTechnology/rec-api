@@ -21,7 +21,7 @@ class Notificator {
     }
 
     public function notificate(Transaction $transaction){
-
+        $transaction->setNotified(false);
         if(isset($transaction->getDataIn()['url_notification']))
             $url_notification = $transaction->getDataIn()['url_notification'];
         else

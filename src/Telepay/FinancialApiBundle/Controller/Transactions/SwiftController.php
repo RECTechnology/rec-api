@@ -114,8 +114,8 @@ class SwiftController extends RestApiController{
 
         $logger->info('SWIFT checkinG KYC');
 
-        $cashInMethod->checkKYC($request, "in");
-        $cashOutMethod->checkKYC($request, "out");
+        $request = $cashInMethod->checkKYC($request, "in");
+        $request = $cashOutMethod->checkKYC($request, "out");
 
         //get configuration(method)
         $swift_config = $this->container->get('net.telepay.config.'.$type_in.'.'.$type_out);
@@ -220,7 +220,12 @@ class SwiftController extends RestApiController{
             ));
         }else{
             $total = round($amount + $total_fee, 0);
-            $amount_in = $this->_exchangeInversed($total, $cashInMethod->getCurrency(), $cashOutMethod->getCurrency());
+            if($request->request->has('faircoop_admin_id') && $request->request->get('faircoop_admin_id')>0){
+                $amount_in = $this->_exchangeInversed($total, 'FAIRP', $cashOutMethod->getCurrency());
+            }
+            else{
+                $amount_in = $this->_exchangeInversed($total, $cashInMethod->getCurrency(), $cashOutMethod->getCurrency());
+            }
         }
 
         //ADD AND CHECK LIMITS
