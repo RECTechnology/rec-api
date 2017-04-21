@@ -297,12 +297,12 @@ class CompaniesController extends BaseApiController
      */
     public function showResellerFees(Request $request, $id){
 
-        //TODO search company
+        //search company
         $em = $this->getDoctrine()->getManager();
         $company = $em->getRepository($this->getRepositoryName())->find($id);
 
 
-        //TODO get all Resellers
+        //get all Resellers
         $resellers = $em->getRepository('TelepayFinancialApiBundle:ResellerDealer')->findBy(array(
             'company_origin'    =>  $company
         ));

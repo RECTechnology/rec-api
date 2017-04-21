@@ -272,6 +272,12 @@ admin_companies_super_delete:
     requirements:
         _method: DELETE
 
+admin_companies_read_resellers:
+    pattern:  /admin/v1/company/{id}/resellers
+    defaults: { _controller: Telepay\FinancialApiBundle\Controller\Management\Admin\CompaniesController::showResellerFees }
+    requirements:
+        _method: GET
+
 ##################### KYC ############################
 
 admin_KYC_list:
