@@ -28,6 +28,6 @@ abstract class BaseMethod extends AbstractMethod {
      * @return Boolean
      */
     public function checkKYC(Request $request, $type){
-        return true;
+        return $request;
     }
 }

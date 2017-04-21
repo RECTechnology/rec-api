@@ -35,8 +35,7 @@ class HalcashMethod extends BaseMethod{
         $this->fairApiDriver = $fairAPIDriver;
     }
 
-    public function send($paymentInfo)
-    {
+    public function send($paymentInfo){
         $this->logger->info('HALCASH METHOD-> SEND');
         $phone = $paymentInfo['phone'];
         $prefix = str_replace("+", "", $paymentInfo['prefix']);
@@ -95,13 +94,11 @@ class HalcashMethod extends BaseMethod{
         return $paymentInfo;
     }
 
-    public function getPayInInfo($amount)
-    {
+    public function getPayInInfo($amount){
         // TODO: Implement getPayInInfo() method.
     }
 
-    public function getPayOutInfo($request)
-    {
+    public function getPayOutInfo($request){
         $this->logger->info('HALCASH METHOD-> PAY_OUT_INFO');
         $paramNames = array(
             'amount',
@@ -117,6 +114,14 @@ class HalcashMethod extends BaseMethod{
             if($request->request->get($param) == null) throw new Exception( 'Parameter '.$param.' can\'t be null', 404);
             $params[$param] = $request->request->get($param);
 
+        }
+
+        if($request->request->has("url_notification") && $request->request->get("url_notification") != '') {
+            $params["url_notification"] = $request->request->get("url_notification");
+        }
+
+        if($request->request->has("faircoop_admin_id") && $request->request->get("faircoop_admin_id") != '') {
+            $params["faircoop_admin_id"] = $request->request->get("faircoop_admin_id");
         }
 
         $params['phone'] = preg_replace("/[^0-9,.]/", "", $params['phone']);
@@ -176,13 +181,11 @@ class HalcashMethod extends BaseMethod{
         return $params;
     }
 
-    public function getPayInStatus($paymentInfo)
-    {
+    public function getPayInStatus($paymentInfo){
         // TODO: Implement getPayInStatus() method.
     }
 
-    public function getPayOutStatus($paymentInfo)
-    {
+    public function getPayOutStatus($paymentInfo){
         $this->logger->info('HALCASH METHOD-> PAY_OUT_STATUS');
         $halcashticket = $paymentInfo['halcashticket'];
 
@@ -227,11 +230,9 @@ class HalcashMethod extends BaseMethod{
         }
 
         return $paymentInfo;
-
     }
 
     public function cancel($paymentInfo){
-
         $this->logger->info('HALCASH METHOD-> CANCEL');
         $halcashticket = $paymentInfo['halcashticket'];
 
@@ -252,7 +253,6 @@ class HalcashMethod extends BaseMethod{
         }
 
         return $paymentInfo;
-
     }
 
     public function checkPhone($phone, $prefix){
@@ -312,9 +312,18 @@ class HalcashMethod extends BaseMethod{
                 throw new HttpException(400, "Access token expired");
             }
 
-            $checkbalance = $this->fairApiDriver->checkBalance($email, "btc-halcash_es", $request->request->get('amount'));
+            if($this->getCurrency() == 'EUR'){
+                $checkbalance = $this->fairApiDriver->checkBalance($email, "btc-halcash_es", $request->request->get('amount'));
+            }
+            else{
+                $checkbalance = $this->fairApiDriver->checkBalance($email, "btc-halcash_pl", $request->request->get('amount'));
+            }
             if($checkbalance->status == 'error'){
                 throw new HttpException(400, $checkbalance->message);
+            }
+            else{
+                $request->request->set('url_notification', $checkbalance->data->url_notification);
+                $request->request->set('faircoop_admin_id', $checkbalance->data->company_id);
             }
         }
         return $request;

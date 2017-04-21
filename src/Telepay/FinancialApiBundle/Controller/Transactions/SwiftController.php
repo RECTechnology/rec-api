@@ -114,8 +114,8 @@ class SwiftController extends RestApiController{
 
         $logger->info('SWIFT checkinG KYC');
 
-        $cashInMethod->checkKYC($request, "in");
-        $cashOutMethod->checkKYC($request, "out");
+        $request = $cashInMethod->checkKYC($request, "in");
+        $request = $cashOutMethod->checkKYC($request, "out");
 
         //get configuration(method)
         $swift_config = $this->container->get('net.telepay.config.'.$type_in.'.'.$type_out);

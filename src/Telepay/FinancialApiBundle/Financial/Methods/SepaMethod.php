@@ -185,7 +185,7 @@ class SepaMethod extends BaseMethod {
     public function checkKYC(Request $request, $type){
 
         if($type == 'out'){
-            return true;
+            return $request;
         }
 
         $em = $this->getContainer()->get('doctrine')->getManager();
@@ -223,24 +223,25 @@ class SepaMethod extends BaseMethod {
 
         if(!$bool){
             throw new HttpException(400, "Email or Password not correct");
-        }else {
-            $kyc = $em->getRepository('TelepayFinancialApiBundle:KYC')->findOneBy(array(
-                'user' => $user
-            ));
-
-            if(!$kyc){
-                throw new Exception('User without kyc information',400);
-            }
-
-            if(!$kyc->getEmailValidated()){
-                throw new Exception('Email must be validated.',400);
-            }
-
-            if(empty($kyc->getDocument())){
-                throw new Exception('ID card must be updated',400);
-            }
-            return $bool;
         }
+
+        $kyc = $em->getRepository('TelepayFinancialApiBundle:KYC')->findOneBy(array(
+            'user' => $user
+        ));
+
+        if(!$kyc){
+            throw new Exception('User without kyc information',400);
+        }
+
+        if(!$kyc->getEmailValidated()){
+            throw new Exception('Email must be validated.',400);
+        }
+
+        if(empty($kyc->getDocument())){
+            throw new Exception('ID card must be updated',400);
+        }
+
+        return $request;
     }
 
 }

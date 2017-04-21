@@ -117,24 +117,25 @@ class EasyPayMethod extends BaseMethod {
 
         if(!$bool){
             throw new HttpException(400, "Email or Password not correct");
-        }else {
-            $kyc = $em->getRepository('TelepayFinancialApiBundle:KYC')->findOneBy(array(
-                'user' => $user
-            ));
-
-            if(!$kyc){
-                throw new Exception('User without kyc information',400);
-            }
-
-            if(!$kyc->getEmailValidated()){
-                throw new Exception('Email must be validated.',400);
-            }
-
-            if(!$kyc->getPhoneValidated()){
-                throw new Exception('Number phone must be validated.',400);
-            }
-            return $bool;
         }
+
+        $kyc = $em->getRepository('TelepayFinancialApiBundle:KYC')->findOneBy(array(
+            'user' => $user
+        ));
+
+        if(!$kyc){
+            throw new Exception('User without kyc information',400);
+        }
+
+        if(!$kyc->getEmailValidated()){
+            throw new Exception('Email must be validated.',400);
+        }
+
+        if(!$kyc->getPhoneValidated()){
+            throw new Exception('Number phone must be validated.',400);
+        }
+
+        return $request;
     }
 
     public function getInfo(){
