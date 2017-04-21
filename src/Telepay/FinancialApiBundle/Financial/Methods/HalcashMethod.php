@@ -322,8 +322,13 @@ class HalcashMethod extends BaseMethod{
                 throw new HttpException(400, $checkbalance->message);
             }
             else{
-                $request->request->set('url_notification', $checkbalance->data->url_notification);
-                $request->request->set('faircoop_admin_id', $checkbalance->data->company_id);
+                if(isset($checkbalance->data->url_notification) && isset($checkbalance->data->company_id) && $checkbalance->data->company_id>0){
+                    $request->request->set('url_notification', $checkbalance->data->url_notification);
+                    $request->request->set('faircoop_admin_id', $checkbalance->data->company_id);
+                }
+                else{
+                    throw new HttpException(400, "Partner not found");
+                }
             }
         }
         return $request;

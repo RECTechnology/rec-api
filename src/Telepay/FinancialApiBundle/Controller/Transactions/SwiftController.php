@@ -117,6 +117,18 @@ class SwiftController extends RestApiController{
         $request = $cashInMethod->checkKYC($request, "in");
         $request = $cashOutMethod->checkKYC($request, "out");
 
+        if($request->request->has('faircoop_admin_id')){
+            $admin_id = $request->request->get('faircoop_admin_id');
+            $admin_wallet = $em->getRepository('TelepayFinancialApiBundle:UserWallet')->findOneBy(array(
+                'group_id' => $admin_id,
+                'currency' => $cashOutMethod->getCurrency()
+            ));
+            $balance = $admin_wallet->getBalance();
+            if($request->request->get('amount') > $balance){
+                throw new HttpException(400, "Admin without enough balance");
+            }
+        }
+
         //get configuration(method)
         $swift_config = $this->container->get('net.telepay.config.'.$type_in.'.'.$type_out);
         $methodFees = $swift_config->getFees();
