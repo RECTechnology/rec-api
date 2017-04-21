@@ -91,6 +91,33 @@ class ClientsController extends BaseApiController {
     /**
      * @Rest\View
      */
+    public function indexByCompany(Request $request, $id){
+
+        $em = $this->getDoctrine()->getManager();
+
+        $company = $em->getRepository('TelepayFinancialApiBundle:Group')->find($id);
+
+        if(!$company) throw new HttpException(404, 'Company not found');
+
+        $entities = $em->getRepository('TelepayFinancialApiBundle:Client')->findBy(array(
+            'group' =>  $company
+        ));
+
+        return $this->rest(
+            200,
+            "Request successful",
+            array(
+                'total' => 1,
+                'start' => 0,
+                'end' => 1,
+                'elements' => $entities
+            )
+        );
+    }
+
+    /**
+     * @Rest\View
+     */
     public function createAction(Request $request){
         $em = $this->getDoctrine()->getManager();
 

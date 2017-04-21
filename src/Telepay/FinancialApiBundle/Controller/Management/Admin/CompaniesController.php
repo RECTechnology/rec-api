@@ -291,5 +291,24 @@ class CompaniesController extends BaseApiController
         return $this->rest(204, "Edited");
     }
 
+    /**
+     * @Rest\View
+     * Permissions: ROLE_SUPER_ADMIN (all)
+     */
+    public function showResellerFees(Request $request, $id){
+
+        //TODO search company
+        $em = $this->getDoctrine()->getManager();
+        $company = $em->getRepository($this->getRepositoryName())->find($id);
+
+
+        //TODO get all Resellers
+        $resellers = $em->getRepository('TelepayFinancialApiBundle:ResellerDealer')->findBy(array(
+            'company_origin'    =>  $company
+        ));
+
+        return $this->restV2(200, 'success', 'reseller info got sucessfully', $resellers);
+
+    }
 
 }

@@ -536,7 +536,6 @@ class FeeDeal{
         $this->fee_logger->info('FEE_DEAL (createFees)');
         $amount = $transaction->getAmount();
         $currency = $transaction->getCurrency();
-        $service_cname = $transaction->getService();
         $method_cname = $transaction->getMethod();
         $explodeMethod = explode('_', $method_cname);
         if(isset($explodeMethod[0]) && $explodeMethod[0] != 'exchange'){
@@ -552,6 +551,9 @@ class FeeDeal{
 //        $user = $em->getRepository('TelepayFinancialApiBundle:User')->find($transaction->getUser());
         $userGroup = $em->getRepository('TelepayFinancialApiBundle:Group')->find($transaction->getGroup());
         $this->fee_logger->info('FEE_DEAL (createFees) => BEFORE TRANSACTION ');
+
+        //TODO get root group
+        $rootGroupId = $this->container->getParameter('id_group_root');
 
         $mongo = $this->container->get('doctrine_mongodb')->getManager();
         $price = $this->_getPrice($currency);
@@ -591,24 +593,186 @@ class FeeDeal{
             $feeTransaction->setPrice($price);
             $mongo->persist($feeTransaction);
 
-            $mongo->flush();
             $this->fee_logger->info('FEE_DEAL (createFees) => BALANCE ');
+
+            //restar al wallet
+            $current_wallet->setAvailable($current_wallet->getAvailable() - $total_fee);
+            $current_wallet->setBalance($current_wallet->getBalance() - $total_fee);
+
+            $em->persist($current_wallet);
+
+
+            //empezamos el reparto
+            //toda la fee a root
+            $rootTransaction = new Transaction();
+            $rootTransaction->setIp('127.0.0.1');
+            $rootTransaction->setGroup($rootGroupId);
+            $rootTransaction->setService($feeTransaction->getService());
+            $rootTransaction->setMethod($feeTransaction->getMethod());
+            $rootTransaction->setVersion($feeTransaction->getVersion());
+            $rootTransaction->setAmount($total_fee);
+            $rootTransaction->setType(Transaction::$TYPE_FEE);
+            $rootTransaction->setDataIn(array(
+                'parent_id' => $feeTransaction->getId(),
+                'previous_transaction' => $feeTransaction->getId(),
+                'amount'    =>  $total_fee,
+                'concept'   =>$feeTransaction->getMethod().'->fee'
+            ));
+            $rootTransaction->setData(array(
+                'parent_id' =>  $feeTransaction->getId(),
+                'previous_transaction' =>  $feeTransaction->getId(),
+                'type'      =>  'suma_amount'
+            ));
+            $rootFeeInfo = array(
+                'previous_transaction'  =>  $feeTransaction->getId(),
+                'previous_amount'    =>  $amount,
+                'scale'     =>  $feeTransaction->getScale(),
+                'concept'           =>  $feeTransaction->getMethod().'->fee',
+                'amount' =>  $total_fee,
+                'status'    =>  Transaction::$STATUS_SUCCESS,
+                'currency'  =>  $currency
+            );
+            $rootTransaction->setFeeInfo($rootFeeInfo);
+            //incloure les fees en la transacció
+            $rootTransaction->setStatus(Transaction::$STATUS_SUCCESS);
+            $rootTransaction->setCurrency($currency);
+            $rootTransaction->setVariableFee($feeTransaction->getVariableFee());
+            $rootTransaction->setFixedFee($feeTransaction->getFixedFee());
+            $rootTransaction->setTotal($total_fee);
+            $rootTransaction->setScale($feeTransaction->getScale());
+            $rootTransaction->setPrice($price);
+
+            $this->fee_logger->info('FEE_DEAL (createRootFees) => BALANCE ');
+            $rootGroup = $em->getRepository('TelepayFinancialApiBundle:Group')->find($rootGroupId);
+
+            //restar al wallet
+            $rootWallet = $rootGroup->getWallet($rootTransaction->getCurrency());
+            $rootWallet->setAvailable($rootWallet->getAvailable() + $total_fee);
+            $rootWallet->setBalance($rootWallet->getBalance() + $total_fee);
+
+            $mongo->persist($rootTransaction);
+
+            $em->flush();
+            $mongo->flush();
+
             $balancer = $this->container->get('net.telepay.commons.balance_manipulator');
             $balancer->addBalance($userGroup, -$total_fee, $feeTransaction );
+            $balancer->addBalance($rootGroup, $total_fee, $rootTransaction );
+
+            //get all resellerDealer and create transactions
+            $resellers = $em->getRepository('TelepayFinancialApiBundle:ResellerDealer')->findBy(array(
+                'company_origin'    =>  $userGroup
+            ));
+
+            foreach ($resellers as $reseller){
+                //generate a reseller transaction
+                $resellerFee = $total_fee * ($reseller->getFee()/100);
+                $this->fee_logger->info('FEE_DEAL (createResellerFees) for '.$reseller->getCompanyReseller().' -> '.$resellerFee);
+
+                $resellerTransaction = new Transaction();
+                $resellerTransaction->setIp('127.0.0.1');
+                $resellerTransaction->setGroup($reseller->getCompanyReseller()->getId());
+                $resellerTransaction->setService($feeTransaction->getService());
+                $resellerTransaction->setMethod($feeTransaction->getMethod());
+                $resellerTransaction->setVersion($feeTransaction->getVersion());
+                //el amount es un porcentaje del total_fee
+                $resellerTransaction->setAmount($resellerFee);
+                $resellerTransaction->setType(Transaction::$TYPE_FEE);
+                $resellerTransaction->setDataIn(array(
+                    'parent_id' => $feeTransaction->getId(),
+                    'previous_transaction' => $feeTransaction->getId(),
+                    'amount'    =>  $total_fee,
+                    'concept'   =>$feeTransaction->getMethod().'->fee'
+                ));
+                $resellerTransaction->setData(array(
+                    'parent_id' =>  $feeTransaction->getId(),
+                    'previous_transaction' =>  $feeTransaction->getId(),
+                    'type'      =>  'suma_amount'
+                ));
+                $resellerFeeInfo = array(
+                    'previous_transaction'  =>  $feeTransaction->getId(),
+                    'previous_amount'    =>  $amount,
+                    'scale'     =>  $feeTransaction->getScale(),
+                    'concept'           =>  $feeTransaction->getMethod().'->fee',
+                    'amount' =>  $resellerFee,
+                    'status'    =>  Transaction::$STATUS_SUCCESS,
+                    'currency'  =>  $currency
+                );
+                $resellerTransaction->setFeeInfo($resellerFeeInfo);
+                //incloure les fees en la transacció
+                $resellerTransaction->setStatus(Transaction::$STATUS_SUCCESS);
+                $resellerTransaction->setCurrency($currency);
+                $resellerTransaction->setVariableFee($reseller->getFee());
+                $resellerTransaction->setFixedFee(0);
+                $resellerTransaction->setTotal($resellerFee);
+                $resellerTransaction->setScale($feeTransaction->getScale());
+                $resellerTransaction->setPrice($price);
+
+                $mongo->persist($resellerTransaction);
+
+                //create a root negative transaction with the same amount
+                $rootResellerTransaction = new Transaction();
+                $rootResellerTransaction->setIp('127.0.0.1');
+                $rootResellerTransaction->setGroup($rootGroupId);
+                $rootResellerTransaction->setService($feeTransaction->getService());
+                $rootResellerTransaction->setMethod($feeTransaction->getMethod());
+                $rootResellerTransaction->setVersion($feeTransaction->getVersion());
+                $rootResellerTransaction->setAmount($resellerFee);
+                $rootResellerTransaction->setType(Transaction::$TYPE_FEE);
+                $rootResellerTransaction->setDataIn(array(
+                    'parent_id' => $feeTransaction->getId(),
+                    'previous_transaction' => $feeTransaction->getId(),
+                    'amount'    =>  $total_fee,
+                    'concept'   =>$feeTransaction->getMethod().'->fee'
+                ));
+                $rootResellerTransaction->setData(array(
+                    'parent_id' =>  $feeTransaction->getId(),
+                    'previous_transaction' =>  $feeTransaction->getId(),
+                    'type'      =>  'resta_amount'
+                ));
+                $rootResellerFeeInfo = array(
+                    'previous_transaction'  =>  $feeTransaction->getId(),
+                    'previous_amount'    =>  $amount,
+                    'scale'     =>  $feeTransaction->getScale(),
+                    'concept'           =>  $feeTransaction->getMethod().'->fee',
+                    'amount' =>  $resellerFee,
+                    'status'    =>  Transaction::$STATUS_SUCCESS,
+                    'currency'  =>  $currency
+                );
+                $rootResellerTransaction->setFeeInfo($rootResellerFeeInfo);
+                //incloure les fees en la transacció
+                $rootResellerTransaction->setStatus(Transaction::$STATUS_SUCCESS);
+                $rootResellerTransaction->setCurrency($currency);
+                $rootResellerTransaction->setVariableFee($reseller->getFee());
+                $rootResellerTransaction->setFixedFee(0);
+                $rootResellerTransaction->setTotal(-$resellerFee);
+                $rootResellerTransaction->setScale($feeTransaction->getScale());
+                $rootResellerTransaction->setPrice($price);
+
+                $mongo->persist($rootResellerTransaction);
+                $mongo->flush();
+
+                $this->fee_logger->info('FEE_DEAL (createRootFees) => negative ');
+
+                //restar al wallet
+                $rootWallet->setAvailable($current_wallet->getAvailable() - $resellerFee);
+                $rootWallet->setBalance($current_wallet->getBalance() - $resellerFee);
+
+                $resellerWallet = $reseller->getCompanyReseller()->getWallet($currency);
+                $resellerWallet->setAvailable($resellerWallet->getAvailable() + $resellerFee);
+                $resellerWallet->setBalance($resellerWallet->getBalance() + $resellerFee);
+
+                $mongo->persist($rootTransaction);
+
+                $em->flush();
+                $mongo->flush();
+
+                $balancer->addBalance($reseller->getCompanyReseller(), $resellerFee, $resellerTransaction );
+                $balancer->addBalance($rootGroup, -$resellerFee, $rootResellerTransaction );
+
+            }
 
         }
-
-        //restar al wallet
-        $current_wallet->setAvailable($current_wallet->getAvailable() - $total_fee);
-        $current_wallet->setBalance($current_wallet->getBalance() - $total_fee);
-
-        $em->persist($current_wallet);
-        $em->flush();
-
-        //empezamos el reparto
-        //TODO toda la fee a root
-
-        //TODO get all resellerDealer and create transactions
 
 
     }
