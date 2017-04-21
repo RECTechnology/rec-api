@@ -120,7 +120,7 @@ class SwiftController extends RestApiController{
         if($request->request->has('faircoop_admin_id')){
             $admin_id = $request->request->get('faircoop_admin_id');
             $admin_wallet = $em->getRepository('TelepayFinancialApiBundle:UserWallet')->findOneBy(array(
-                'group_id' => $admin_id,
+                'group' => $admin_id,
                 'currency' => $cashOutMethod->getCurrency()
             ));
             $balance = $admin_wallet->getBalance();
