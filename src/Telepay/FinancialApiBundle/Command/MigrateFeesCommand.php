@@ -30,8 +30,11 @@ class MigrateFeesCommand extends ContainerAwareCommand
 
         //TODO recorrer todas las companies
         foreach ($companies as $company){
-            $output->writeln('COMPANY '.$company->getname());
-            $this->createResellerDealer($company, $company, $output);
+//            if($company->getId() == 79){
+                $output->writeln('COMPANY '.$company->getname());
+                $this->createResellerDealer($company, $company, $output);
+//            }
+
         }
 
     }
@@ -51,63 +54,71 @@ class MigrateFeesCommand extends ContainerAwareCommand
             //generate reseller dealer line
             foreach ($fees as $fee){
 
-                $resellerDealer = new ResellerDealer();
-                $resellerDealer->setMethod($fee->getServiceName());
-                $resellerDealer->setCompanyOrigin($company_orig);
-                $resellerDealer->setCompanyReseller($creator);
-
-                //para saber el porcentaje necesito saber el total
-
-                $origFee = $em->getRepository('TelepayFinancialApiBundle:ServiceFee')->findOneBy(array(
-                    'group' =>  $company_orig,
-                    'service_name'  =>  $fee->getServiceName()
+                //check if reseller exists
+                $resellerDealer = $em->getRepository('TelepayFinancialApiBundle:ResellerDealer')->findOneBy(array(
+                    'method'    =>  $fee->getServiceName(),
+                    'company_origin'    =>  $company_orig,
+                    'company_reseller'  =>  $creator
                 ));
 
-                if(!$origFee){
-                    $origVariable = 0;
-                }else{
-                    $origVariable = $origFee->getVariable();
-                }
+                if(!$resellerDealer){
+                    $resellerDealer = new ResellerDealer();
+                    $resellerDealer->setMethod($fee->getServiceName());
+                    $resellerDealer->setCompanyOrigin($company_orig);
+                    $resellerDealer->setCompanyReseller($creator);
 
-                $actualVariable = $fee->getVariable();
-                //esto es lo que se queda esta company
-                //la fee del anterior menos la suya
-                if($company->getid() != $company_orig->getId()){
+                    //para saber el porcentaje necesito saber el total
 
-
-                    $previousFee = $em->getRepository('TelepayFinancialApiBundle:ServiceFee')->findOneBy(array(
-                        'group' =>  $company,
+                    $origFee = $em->getRepository('TelepayFinancialApiBundle:ServiceFee')->findOneBy(array(
+                        'group' =>  $company_orig,
                         'service_name'  =>  $fee->getServiceName()
                     ));
-                    if(!$previousFee){
-                        $anteriorFee = 0;
+
+                    if(!$origFee){
+                        $origVariable = 0;
                     }else{
-
-                        $anteriorFee = $previousFee->getVariable();
+                        $origVariable = $origFee->getVariable();
                     }
-                }else{
-                    $anteriorFee = $origVariable;
+
+                    $actualVariable = $fee->getVariable();
+                    //esto es lo que se queda esta company
+                    //la fee del anterior menos la suya
+                    if($company->getid() != $company_orig->getId()){
+                        $previousFee = $em->getRepository('TelepayFinancialApiBundle:ServiceFee')->findOneBy(array(
+                            'group' =>  $company,
+                            'service_name'  =>  $fee->getServiceName()
+                        ));
+                        if(!$previousFee){
+                            $anteriorFee = 0;
+                        }else{
+                            $anteriorFee = $previousFee->getVariable();
+                        }
+                    }else{
+                        $anteriorFee = $origVariable;
+                    }
+
+                    $absoluteVariable = $anteriorFee - $actualVariable;
+
+
+                    if($origVariable == 0){
+                        $newFee = 0;
+                    }else{
+                        $output->writeln('METHOD '.$fee->getServiceName());
+                        $output->writeln('CREATOR '.$creator->getName());
+                        $output->writeln('COMPANY AND ORIG COMPANY ARE DIFERENTS');
+                        $output->writeln('ORIGINAL '.$origVariable.' - ANTERIOR '.$anteriorFee.' -  ACTUAL '.$actualVariable.' - ABSOLUTE '.$absoluteVariable );
+                        $newFee = ($absoluteVariable * 100) / $origVariable;
+                        $output->writeln('NEW FEE '.$newFee);
+                    }
+                    $resellerDealer->setFee($newFee);
+                    $em->persist($resellerDealer);
+                    $em->flush();
+
                 }
-
-                $absoluteVariable = $anteriorFee - $actualVariable;
-
-
-                if($origVariable == 0){
-                    $newFee = 0;
-                }else{
-                    $output->writeln('METHOD '.$fee->getServiceName());
-                    $output->writeln('CREATOR '.$creator->getName());
-                    $output->writeln('COMPANY AND ORIG COMPANY ARE DIFERENTS');
-                    $output->writeln('ORIGINAL '.$origVariable.' - ANTERIOR '.$anteriorFee.' -  ACTUAL '.$actualVariable.' - ABSOLUTE '.$absoluteVariable );
-                    $newFee = ($absoluteVariable * 100) / $origVariable;
-                    $output->writeln('NEW FEE '.$newFee);
-                }
-                $resellerDealer->setFee($newFee);
-                $em->persist($resellerDealer);
-                $em->flush();
 
 
             }
+
             $this->createResellerDealer($creator, $company_orig, $output);
         }
     }
