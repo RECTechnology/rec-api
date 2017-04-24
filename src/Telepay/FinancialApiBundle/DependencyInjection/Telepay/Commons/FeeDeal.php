@@ -733,10 +733,10 @@ class FeeDeal{
                 ));
                 $rootResellerFeeInfo = array(
                     'previous_transaction'  =>  $feeTransaction->getId(),
-                    'previous_amount'    =>  -$amount,
+                    'previous_amount'    =>  $amount,
                     'scale'     =>  $feeTransaction->getScale(),
                     'concept'           =>  $feeTransaction->getMethod().'->fee',
-                    'amount' =>  $resellerFee,
+                    'amount' =>  -$resellerFee,
                     'status'    =>  Transaction::$STATUS_SUCCESS,
                     'currency'  =>  $currency
                 );
