@@ -661,13 +661,14 @@ class FeeDeal{
 
             //get all resellerDealer and create transactions
             $resellers = $em->getRepository('TelepayFinancialApiBundle:ResellerDealer')->findBy(array(
-                'company_origin'    =>  $userGroup
+                'company_origin'    =>  $userGroup,
+                'method'    =>  $method
             ));
 
             foreach ($resellers as $reseller){
                 //generate a reseller transaction
                 $resellerFee = $total_fee * ($reseller->getFee()/100);
-                $this->fee_logger->info('FEE_DEAL (createResellerFees) for '.$reseller->getCompanyReseller().' -> '.$resellerFee);
+                $this->fee_logger->info('FEE_DEAL (createResellerFees) for '.$reseller->getCompanyReseller()->getName().' -> '.$resellerFee);
 
                 $resellerTransaction = new Transaction();
                 $resellerTransaction->setIp('127.0.0.1');
@@ -735,7 +736,7 @@ class FeeDeal{
                     'previous_amount'    =>  $amount,
                     'scale'     =>  $feeTransaction->getScale(),
                     'concept'           =>  $feeTransaction->getMethod().'->fee',
-                    'amount' =>  $resellerFee,
+                    'amount' =>  -$resellerFee,
                     'status'    =>  Transaction::$STATUS_SUCCESS,
                     'currency'  =>  $currency
                 );

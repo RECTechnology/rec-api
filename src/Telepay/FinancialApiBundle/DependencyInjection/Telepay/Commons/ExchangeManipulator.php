@@ -228,7 +228,7 @@ class ExchangeManipulator{
             //nueva transaccion restando la comision al user
             $dealer = $this->container->get('net.telepay.commons.fee_deal');
             try{
-                $dealer->createFees($cashIn, $receiverWallet);
+                $dealer->createFees2($cashIn, $receiverWallet);
             }catch (HttpException $e){
                 throw $e;
             }
