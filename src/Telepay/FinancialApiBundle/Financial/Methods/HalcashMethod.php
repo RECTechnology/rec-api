@@ -21,18 +21,16 @@ use Symfony\Component\HttpFoundation\Request;
 class HalcashMethod extends BaseMethod{
 
     private $driver;
-    private $fairApiDriver;
     private $container;
     private $logger;
     private $env;
 
-    public function __construct($name, $cname, $type, $currency, $email_required, $base64Image, $container, $driver, $fairAPIDriver){
+    public function __construct($name, $cname, $type, $currency, $email_required, $base64Image, $container, $driver){
         parent::__construct($name, $cname, $type, $currency, $email_required, $base64Image, $container);
         $this->driver = $driver;
         $this->container = $container;
         $this->logger = $this->container->get('transaction.logger');
         $this->env = $this->container->getParameter('environment');
-        $this->fairApiDriver = $fairAPIDriver;
     }
 
     public function send($paymentInfo){
@@ -310,25 +308,6 @@ class HalcashMethod extends BaseMethod{
             }
             else{
                 throw new HttpException(400, "Access token expired");
-            }
-
-            if($this->getCurrency() == 'EUR'){
-                $checkbalance = $this->fairApiDriver->checkBalance($email, "btc-halcash_es", $request->request->get('amount'));
-            }
-            else{
-                $checkbalance = $this->fairApiDriver->checkBalance($email, "btc-halcash_pl", $request->request->get('amount'));
-            }
-            if($checkbalance->status == 'error'){
-                throw new HttpException(400, $checkbalance->message);
-            }
-            else{
-                if(isset($checkbalance->data->url_notification) && isset($checkbalance->data->company_id) && $checkbalance->data->company_id>0){
-                    $request->request->set('url_notification', $checkbalance->data->url_notification);
-                    $request->request->set('faircoop_admin_id', $checkbalance->data->company_id);
-                }
-                else{
-                    throw new HttpException(400, "Partner not found");
-                }
             }
         }
         return $request;

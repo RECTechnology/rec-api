@@ -118,15 +118,7 @@ class SwiftController extends RestApiController{
         $request = $cashOutMethod->checkKYC($request, "out");
 
         if($request->request->has('faircoop_admin_id')){
-            $admin_id = $request->request->get('faircoop_admin_id');
-            $admin_wallet = $em->getRepository('TelepayFinancialApiBundle:UserWallet')->findOneBy(array(
-                'group' => $admin_id,
-                'currency' => $cashOutMethod->getCurrency()
-            ));
-            $balance = $admin_wallet->getBalance();
-            if($request->request->get('amount') > $balance){
-                throw new HttpException(400, "Admin without enough balance");
-            }
+            $this->_checkFaircoop($request, $type_in.'-'.$type_out, $cashOutMethod->getCurrency());
         }
 
         //get configuration(method)
@@ -1399,6 +1391,38 @@ class SwiftController extends RestApiController{
         }
 
         return true;
+    }
+
+    public function _checkFaircoop($request, $method, $curr_out){
+        $fairApiDriver = $this->get('net.telepay.driver.fairtoearth');
+        $email = $request->request->get('email');
+        $amount = $request->request->get('amount');
+        $checkbalance = $fairApiDriver->checkBalance($email, $method, $amount);
+        if($checkbalance->status == 'error'){
+            throw new HttpException(400, $checkbalance->message);
+        }
+        else{
+            if(isset($checkbalance->data->url_notification) && isset($checkbalance->data->company_id) && $checkbalance->data->company_id>0){
+                $request->request->set('url_notification', $checkbalance->data->url_notification);
+                $admin_id = $checkbalance->data->company_id;
+                $request->request->set('faircoop_admin_id', $admin_id);
+            }
+            else{
+                throw new HttpException(400, "Partner not found");
+            }
+        }
+
+
+        $em = $this->getDoctrine()->getManager();
+        $admin_wallet = $em->getRepository('TelepayFinancialApiBundle:UserWallet')->findOneBy(array(
+            'group' => $admin_id,
+            'currency' => $curr_out
+        ));
+        $balance = $admin_wallet->getBalance();
+        if($amount > $balance){
+            throw new HttpException(400, "Admin without enough balance");
+        }
+        return $request;
     }
 
     public function notification(Request $request, $version_number, $type_in, $type_out){
