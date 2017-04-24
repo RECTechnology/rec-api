@@ -108,14 +108,17 @@ class SwiftController extends RestApiController{
         if($email == '' && ($cashInMethod->getEmailRequired() || $cashOutMethod->getEmailRequired())) throw new HttpException(400, 'Email is required');
         $request->request->set('email', $email);
 
-        if($request->request->get('premium') != '1') {
-            $request->request->remove('premium');
-        }
-
         $logger->info('SWIFT checkinG KYC');
 
         $request = $cashInMethod->checkKYC($request, "in");
         $request = $cashOutMethod->checkKYC($request, "out");
+
+        if($request->request->get('premium') != '1') {
+            $request->request->remove('premium');
+        }
+        else{
+            $request = $this->_checkFaircoop($request, $type_in.'-'.$type_out, $cashOutMethod->getCurrency());
+        }
 
         //get configuration(method)
         $swift_config = $this->container->get('net.telepay.config.'.$type_in.'.'.$type_out);
@@ -1289,7 +1292,6 @@ class SwiftController extends RestApiController{
     }
 
     private function _checkLimits($amount_in, $amount_out, $type_in, $type_out, Request $request){
-
         $dm = $this->get('doctrine_mongodb')->getManager();
         $qb = $dm->createQueryBuilder('TelepayFinancialApiBundle:Transaction');
 
@@ -1387,6 +1389,54 @@ class SwiftController extends RestApiController{
         }
 
         return true;
+    }
+
+    public function _checkFaircoop($request, $method, $curr_out){
+        $fairApiDriver = $this->get('net.telepay.driver.fairtoearth');
+        $email = $request->request->get('email');
+        $amount = $request->request->get('amount');
+        $checkbalance = $fairApiDriver->checkBalance($email, $method, $amount);
+        if($checkbalance->status == 'error'){
+            throw new HttpException(400, $checkbalance->message);
+        }
+        else{
+            if(isset($checkbalance->data->url_notification) && isset($checkbalance->data->company_id) && $checkbalance->data->company_id>0){
+                $request->request->set('url_notification', $checkbalance->data->url_notification);
+                $admin_id = $checkbalance->data->company_id;
+                $request->request->set('faircoop_admin_id', $admin_id);
+            }
+            else{
+                throw new HttpException(400, "Partner not found");
+            }
+        }
+
+        $em = $this->getDoctrine()->getManager();
+        $admin_wallet = $em->getRepository('TelepayFinancialApiBundle:UserWallet')->findOneBy(array(
+            'group' => $admin_id,
+            'currency' => $curr_out
+        ));
+        $balance = $admin_wallet->getBalance();
+        if($amount > $balance){
+            throw new HttpException(400, "Admin without enough balance");
+        }
+
+        $dm = $this->get('doctrine_mongodb')->getManager();
+        $qb = $dm->createQueryBuilder('TelepayFinancialApiBundle:Transaction');
+        $result = $qb
+            ->field('currency')->equals($curr_out)
+            ->field('status')->in(array('created','received'))
+            ->getQuery()
+            ->execute();
+
+        $pending=0;
+
+        foreach($result->toArray() as $d){
+            $pending = $pending + $d->getAmount();
+        }
+        if($amount + $pending > $balance ) {
+            throw new HttpException(403, "Admin without enough balance");
+        }
+        return $request;
     }
 
     public function notification(Request $request, $version_number, $type_in, $type_out){
