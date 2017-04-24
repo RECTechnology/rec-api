@@ -667,7 +667,7 @@ class FeeDeal{
             foreach ($resellers as $reseller){
                 //generate a reseller transaction
                 $resellerFee = $total_fee * ($reseller->getFee()/100);
-                $this->fee_logger->info('FEE_DEAL (createResellerFees) for '.$reseller->getCompanyReseller().' -> '.$resellerFee);
+                $this->fee_logger->info('FEE_DEAL (createResellerFees) for '.$reseller->getCompanyReseller()->getName().' -> '.$resellerFee);
 
                 $resellerTransaction = new Transaction();
                 $resellerTransaction->setIp('127.0.0.1');
