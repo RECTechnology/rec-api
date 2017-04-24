@@ -108,16 +108,15 @@ class SwiftController extends RestApiController{
         if($email == '' && ($cashInMethod->getEmailRequired() || $cashOutMethod->getEmailRequired())) throw new HttpException(400, 'Email is required');
         $request->request->set('email', $email);
 
-        if($request->request->get('premium') != '1') {
-            $request->request->remove('premium');
-        }
-
         $logger->info('SWIFT checkinG KYC');
 
         $request = $cashInMethod->checkKYC($request, "in");
         $request = $cashOutMethod->checkKYC($request, "out");
 
-        if($request->request->has('faircoop_admin_id')){
+        if($request->request->get('premium') != '1') {
+            $request->request->remove('premium');
+        }
+        else{
             $request = $this->_checkFaircoop($request, $type_in.'-'.$type_out, $cashOutMethod->getCurrency());
         }
 
