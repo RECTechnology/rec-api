@@ -661,7 +661,8 @@ class FeeDeal{
 
             //get all resellerDealer and create transactions
             $resellers = $em->getRepository('TelepayFinancialApiBundle:ResellerDealer')->findBy(array(
-                'company_origin'    =>  $userGroup
+                'company_origin'    =>  $userGroup,
+                'method'    =>  $method
             ));
 
             foreach ($resellers as $reseller){
