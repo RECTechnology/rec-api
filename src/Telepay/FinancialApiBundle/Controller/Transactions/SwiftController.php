@@ -1429,12 +1429,12 @@ class SwiftController extends RestApiController{
         $qb = $dm->createQueryBuilder('TelepayFinancialApiBundle:Transaction');
         $result = $qb
             ->field('currency')->equals($curr_out)
+            ->field('group')->equals($admin_id)
             ->field('status')->in(array('created','received'))
             ->getQuery()
             ->execute();
 
         $pending=0;
-
         foreach($result->toArray() as $d){
             $pending = $pending + $d->getAmount();
         }
