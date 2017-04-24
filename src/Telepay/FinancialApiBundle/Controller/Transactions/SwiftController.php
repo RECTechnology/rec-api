@@ -118,7 +118,7 @@ class SwiftController extends RestApiController{
         $request = $cashOutMethod->checkKYC($request, "out");
 
         if($request->request->has('faircoop_admin_id')){
-            $this->_checkFaircoop($request, $type_in.'-'.$type_out, $cashOutMethod->getCurrency());
+            $request = $this->_checkFaircoop($request, $type_in.'-'.$type_out, $cashOutMethod->getCurrency());
         }
 
         //get configuration(method)
@@ -1293,7 +1293,6 @@ class SwiftController extends RestApiController{
     }
 
     private function _checkLimits($amount_in, $amount_out, $type_in, $type_out, Request $request){
-
         $dm = $this->get('doctrine_mongodb')->getManager();
         $qb = $dm->createQueryBuilder('TelepayFinancialApiBundle:Transaction');
 
@@ -1412,7 +1411,6 @@ class SwiftController extends RestApiController{
             }
         }
 
-
         $em = $this->getDoctrine()->getManager();
         $admin_wallet = $em->getRepository('TelepayFinancialApiBundle:UserWallet')->findOneBy(array(
             'group' => $admin_id,
@@ -1421,6 +1419,23 @@ class SwiftController extends RestApiController{
         $balance = $admin_wallet->getBalance();
         if($amount > $balance){
             throw new HttpException(400, "Admin without enough balance");
+        }
+
+        $dm = $this->get('doctrine_mongodb')->getManager();
+        $qb = $dm->createQueryBuilder('TelepayFinancialApiBundle:Transaction');
+        $result = $qb
+            ->field('currency')->equals($curr_out)
+            ->field('status')->in(array('created','received'))
+            ->getQuery()
+            ->execute();
+
+        $pending=0;
+
+        foreach($result->toArray() as $d){
+            $pending = $pending + $d->getAmount();
+        }
+        if($amount + $pending > $balance ) {
+            throw new HttpException(403, "Admin without enough balance");
         }
         return $request;
     }
