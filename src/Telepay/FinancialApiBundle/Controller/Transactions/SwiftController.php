@@ -1432,8 +1432,8 @@ class SwiftController extends RestApiController{
         $qb = $dm->createQueryBuilder('TelepayFinancialApiBundle:Transaction');
         $result = $qb
             ->field('currency')->equals($curr_out)
-            ->field('faircoopNode')->equals($admin_id)
             ->field('status')->in(array('created','received'))
+            ->field('faircoopNode')->equals(intval($admin_id))
             ->getQuery()
             ->execute();
 
