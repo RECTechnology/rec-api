@@ -169,11 +169,9 @@ class SwiftController extends RestApiController{
         $transaction->setService($type_in.'-'.$type_out);
         if($user) $transaction->setUser($user->getId());
         if($request->request->has('premium') && $request->request->has('faircoop_admin_id')){
-            $transaction->setGroup($request->request->get('faircoop_admin_id'));
+            $transaction->setFaircoopNode($request->request->get('faircoop_admin_id'));
         }
-        else{
-            $transaction->setGroup($client->getGroup()->getId());
-        }
+        $transaction->setGroup($client->getGroup()->getId());
         $transaction->setType('swift');
         $transaction->setMethodIn($type_in);
         $transaction->setMethodOut($type_out);
@@ -310,6 +308,10 @@ class SwiftController extends RestApiController{
         $transaction->setStatus(Transaction::$STATUS_CREATED);
         $dm->persist($transaction);
         $dm->flush();
+
+        if($request->request->has('faircoop_transaction_id')){
+            $this->_activeFaircoop($request->request->get('faircoop_transaction_id'));
+        }
 
         return $this->swiftTransaction($transaction, "Done");
 
@@ -1409,6 +1411,7 @@ class SwiftController extends RestApiController{
                 $request->request->set('url_notification', $checkbalance->data->url_notification);
                 $admin_id = $checkbalance->data->company_id;
                 $request->request->set('faircoop_admin_id', $admin_id);
+                $request->request->set('faircoop_transaction_id', $checkbalance->data->id);
             }
             else{
                 throw new HttpException(400, "Partner not found");
@@ -1429,7 +1432,7 @@ class SwiftController extends RestApiController{
         $qb = $dm->createQueryBuilder('TelepayFinancialApiBundle:Transaction');
         $result = $qb
             ->field('currency')->equals($curr_out)
-            ->field('group')->equals($admin_id)
+            ->field('faircoopNode')->equals($admin_id)
             ->field('status')->in(array('created','received'))
             ->getQuery()
             ->execute();
@@ -1439,9 +1442,15 @@ class SwiftController extends RestApiController{
             $pending = $pending + $d->getAmount();
         }
         if($amount + $pending > $balance ) {
+            $fairApiDriver->delete($checkbalance->data->id);
             throw new HttpException(403, "Admin without enough balance");
         }
         return $request;
+    }
+
+    public function _activeFaircoop($id){
+        $fairApiDriver = $this->get('net.telepay.driver.fairtoearth');
+        $fairApiDriver->active($id);
     }
 
     public function notification(Request $request, $version_number, $type_in, $type_out){

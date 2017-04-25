@@ -31,7 +31,44 @@ class FairAPIDriver extends JsonRequester {
 
         $response = $transaction->transaction(
             $functionUrl,
-            $concept
+            $concept,
+            'POST'
+        );
+        return $response;
+    }
+
+    public function delete($id){
+        $functionUrl = $this->fairAPI_url.'/api/transaction/' . $id;
+
+        $transaction = new Signer(new ApiKey(
+            $this->fairAPI_key,
+            $this->fairAPI_secret
+        ));
+
+        $response = $transaction->transaction(
+            $functionUrl,
+            array(),
+            'DELETE'
+        );
+        return $response;
+    }
+
+    public function active($id){
+        $functionUrl = $this->fairAPI_url.'/api/transaction/' . $id;
+
+        $transaction = new Signer(new ApiKey(
+            $this->fairAPI_key,
+            $this->fairAPI_secret
+        ));
+
+        $concept =  array(
+            'active' => 1
+        );
+
+        $response = $transaction->transaction(
+            $functionUrl,
+            $concept,
+            'PUT'
         );
         return $response;
     }
@@ -67,11 +104,11 @@ class Signer extends BaseRequester{
         return $this->keys;
     }
 
-    public function transaction($url, array $content){
+    public function transaction($url, array $content, $type){
         return $this->call(
             $url,
             [],
-            'POST',
+            $type,
             $content,
             []
         );
