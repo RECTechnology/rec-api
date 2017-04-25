@@ -1442,7 +1442,6 @@ class SwiftController extends RestApiController{
             $pending = $pending + $d->getAmount();
         }
         if($amount + $pending > $balance ) {
-            $fairApiDriver->delete($checkbalance->data->id);
             throw new HttpException(403, "Admin without enough balance");
         }
         return $request;

@@ -57,7 +57,9 @@ class CheckCryptoCommand extends SyncronizedContainerAwareCommand
                         $transaction = $this->check($transaction);
                         $output->writeln('CHECK CRYPTO status: '.$transaction->getStatus());
                         if ($previous_status != $transaction->getStatus()) {
+                            $output->writeln('Notificate init:');
                             $transaction = $this->getContainer()->get('notificator')->notificate($transaction);
+                            $output->writeln('Notificate end');
                             $transaction->setUpdated(new \DateTime);
                         }
 
@@ -180,6 +182,7 @@ class CheckCryptoCommand extends SyncronizedContainerAwareCommand
 
                             $output->writeln('NOTIFYING EXPIRED');
                             $transaction = $this->getContainer()->get('notificator')->notificate($transaction);
+                            $output->writeln('Notificate end');
                             //if delete_on_expire==true delete transaction
                             $paymentInfo = $transaction->getPayInInfo();
                             if ($transaction->getDeleteOnExpire() == true && $paymentInfo['received'] == 0) {
@@ -187,6 +190,7 @@ class CheckCryptoCommand extends SyncronizedContainerAwareCommand
                                 $em->flush();
                                 $output->writeln('NOTIFYING DELETE ON EXPIRE');
                                 $transaction = $this->getContainer()->get('notificator')->notificate($transaction);
+                                $output->writeln('Notificate end');
                                 $output->writeln('DELETE ON EXPIRE');
 //                                $dm->remove($transaction);
                                 $dm->flush();
