@@ -168,7 +168,12 @@ class SwiftController extends RestApiController{
         $transaction->setVariableFee(0);
         $transaction->setService($type_in.'-'.$type_out);
         if($user) $transaction->setUser($user->getId());
-        $transaction->setGroup($client->getGroup()->getId());
+        if($request->request->has('premium') && $request->request->has('faircoop_admin_id')){
+            $transaction->setGroup($request->request->get('faircoop_admin_id'));
+        }
+        else{
+            $transaction->setGroup($client->getGroup()->getId());
+        }
         $transaction->setType('swift');
         $transaction->setMethodIn($type_in);
         $transaction->setMethodOut($type_out);
@@ -1424,12 +1429,12 @@ class SwiftController extends RestApiController{
         $qb = $dm->createQueryBuilder('TelepayFinancialApiBundle:Transaction');
         $result = $qb
             ->field('currency')->equals($curr_out)
+            ->field('group')->equals($admin_id)
             ->field('status')->in(array('created','received'))
             ->getQuery()
             ->execute();
 
         $pending=0;
-
         foreach($result->toArray() as $d){
             $pending = $pending + $d->getAmount();
         }
