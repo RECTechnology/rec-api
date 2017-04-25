@@ -130,6 +130,10 @@ class CheckSwiftCommand extends SyncronizedContainerAwareCommand
                             $dm->persist($transaction);
                             $dm->flush();
 
+                            $output->writeln('Notificate init:' . $pay_in_info['status']);
+                            $transaction = $this->getContainer()->get('notificator')->notificate($transaction);
+                            $output->writeln('Notificate end');
+
                             $clientLimitsCount = $em->getRepository('TelepayFinancialApiBundle:SwiftLimitCount')->findOneBy(array(
                                 'client'    =>  $client,
                                 'cname' =>  $method_in.'-'.$method_out
@@ -151,6 +155,10 @@ class CheckSwiftCommand extends SyncronizedContainerAwareCommand
                             $output->writeln('Status received: CHANGED.');
                             $dm->persist($transaction);
                             $dm->flush();
+
+                            $output->writeln('Notificate init:' . $pay_in_info['status']);
+                            $transaction = $this->getContainer()->get('notificator')->notificate($transaction);
+                            $output->writeln('Notificate end');
                         }
                         $output->writeln('NEW STATUS => '.$transaction->getStatus());
                     }elseif($pay_in_info['status'] == Transaction::$STATUS_SUCCESS){
@@ -184,6 +192,10 @@ class CheckSwiftCommand extends SyncronizedContainerAwareCommand
                             $dm->persist($transaction);
                             $dm->flush();
 
+                            $output->writeln('Notificate init:' .  $transaction->getStatus());
+                            $transaction = $this->getContainer()->get('notificator')->notificate($transaction);
+                            $output->writeln('Notificate end');
+
                             try{
                                 $pay_out_info = $cashOutMethod->send($pay_out_info);
                                 $now3 = new \DateTime();
@@ -194,6 +206,10 @@ class CheckSwiftCommand extends SyncronizedContainerAwareCommand
                                 $error = $e->getMessage();
                                 $transaction->setPayOutInfo($pay_out_info);
                                 $transaction->setStatus('failed');
+
+                                $output->writeln('Notificate init:' .  $transaction->getStatus());
+                                $transaction = $this->getContainer()->get('notificator')->notificate($transaction);
+                                $output->writeln('Notificate end');
                             }
                             $transaction->setPayOutInfo($pay_out_info);
                             $dm->persist($transaction);
@@ -208,6 +224,11 @@ class CheckSwiftCommand extends SyncronizedContainerAwareCommand
                                 $output->writeln('Status success: CHANGED.');
                                 $dm->persist($transaction);
                                 $dm->flush();
+
+                                $output->writeln('Notificate init:' .  $transaction->getStatus());
+                                $transaction = $this->getContainer()->get('notificator')->notificate($transaction);
+                                $output->writeln('Notificate end');
+
                                 $current_transaction = $dm->getRepository('TelepayFinancialApiBundle:Transaction')->find($transaction->getId());
                                 $output->writeln('Status current transaction: '.$current_transaction->getStatus());
 
@@ -397,6 +418,11 @@ class CheckSwiftCommand extends SyncronizedContainerAwareCommand
                                 $output->writeln('Status failed: CHANGED.');
                                 $dm->persist($transaction);
                                 $dm->flush();
+
+                                $output->writeln('Notificate init:' .  $transaction->getStatus());
+                                $transaction = $this->getContainer()->get('notificator')->notificate($transaction);
+                                $output->writeln('Notificate end');
+
                                 //send mail informig the error
                                 $error = array(
                                     'transaction_id'    =>  $transaction->getId(),
@@ -428,6 +454,10 @@ class CheckSwiftCommand extends SyncronizedContainerAwareCommand
                 $transaction->setUpdated(new \DateTime());
                 $dm->persist($transaction);
                 $dm->flush();
+
+                $output->writeln('Notificate init:' .  $transaction->getStatus());
+                $transaction = $this->getContainer()->get('notificator')->notificate($transaction);
+                $output->writeln('Notificate end');
             }
 
         }
