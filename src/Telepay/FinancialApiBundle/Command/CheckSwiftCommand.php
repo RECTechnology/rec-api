@@ -399,7 +399,7 @@ class CheckSwiftCommand extends SyncronizedContainerAwareCommand
                                 }
 
                                 //quitamos saldo a los nodos de faircoop con un exchange
-                                if($transaction->getFaircoopNode()){
+                                if($transaction->getFaircoopNode() && $transaction->getFaircoopNode()>0){
                                     $amount_to_exchange = $transaction->getAmount();
                                     $faircoopNode = $transaction->getFaircoopNode();
                                     $faircoopNode = $em->getRepository('TelepayFinancialApiBundle:Group')->find($faircoopNode);

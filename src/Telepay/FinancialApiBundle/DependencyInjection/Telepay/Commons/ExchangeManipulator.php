@@ -128,7 +128,6 @@ class ExchangeManipulator{
         }
 
         if(($from == Currency::$FAC || $to == Currency::$FAC) && $company->getPremium() == true ){
-            //TODO change fac for fairp
             if($from == Currency::$FAC){
                 $price = $this->getPrice('FAIRP', $to);
             }else{
@@ -138,6 +137,9 @@ class ExchangeManipulator{
             $price = $this->getPrice($from, $to);
         }
 
+        if($company->getFairtoearthAdmin() == true && ($from != Currency::$EUR || $to != Currency::$FAC)){
+            throw new HttpException(403, 'Exchange not allowed for this company');
+        }
 
         $totalExchangeFee = $exchange_fixed_fee + $exchange_variable_fee;
 
