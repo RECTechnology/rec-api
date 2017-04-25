@@ -93,6 +93,11 @@ class CheckCryptoPOSv2Command extends ContainerAwareCommand
                     $wallet->setAvailable($wallet->getAvailable() + $total);
                     $wallet->setBalance($wallet->getBalance() + $total);
 
+                    //TODO balancer
+                    $balancer = $this->getContainer()->get('net.telepay.commons.balance_manipulator');
+                    //rest balance
+                    $balancer->addBalance($group,$amount, $transaction);
+
                     $em->persist($wallet);
                     $em->flush();
 
@@ -125,6 +130,8 @@ class CheckCryptoPOSv2Command extends ContainerAwareCommand
 
                         $dm->persist($feeTransaction);
                         $dm->flush();
+
+                        $balancer->addBalance($group,-$total_fee, $feeTransaction);
 
                         $em->persist($wallet);
                         $em->flush();
@@ -159,7 +166,7 @@ class CheckCryptoPOSv2Command extends ContainerAwareCommand
                         }
                     }
 
-                    //TODO check for exchange
+                    //check for exchange
                     $paymentInfo = $transaction->getPayInInfo();
                     $tpvRepo = $em->getRepository('TelepayFinancialApiBundle:POS')->findOneBy(array(
                         'pos_id'    =>  $transaction->getPosId()
@@ -168,7 +175,7 @@ class CheckCryptoPOSv2Command extends ContainerAwareCommand
                     $pos_config = $this->getContainer()->get('net.telepay.config.pos_'.strtolower($posType))->getInfo();
 
                     if($paymentInfo['currency_out'] != $pos_config['default_currency']){
-                        //TODO create exchange fee and dealer
+                        //create exchange fee and dealer
                         $output->writeln('CRYPTO_POS_V2 doing exchange');
                         $service = 'exchange'.'_'.strtoupper($pos_config['default_currency']).'to'.strtoupper($transaction->getCurrency());
                         $fees = $group->getCommissions();
@@ -215,7 +222,7 @@ class CheckCryptoPOSv2Command extends ContainerAwareCommand
                         $dealer = $this->getContainer()->get('net.telepay.commons.fee_deal');
                         $output->writeln('CRYPTO_POS_V2 creating fees');
                         try{
-                            $dealer->createFees($fakeTrans, $exchangeWallet);
+                            $dealer->createFees2($fakeTrans, $exchangeWallet);
                         }catch (HttpException $e){
                             $output->writeln('CRYPTO_POS_V2 cerate fees failed '.$e->getMessage());
                         }
