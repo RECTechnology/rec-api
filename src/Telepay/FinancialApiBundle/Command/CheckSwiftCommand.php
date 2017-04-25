@@ -377,6 +377,19 @@ class CheckSwiftCommand extends SyncronizedContainerAwareCommand
                                     $balancer->addBalance($rootGroup, $service_fee, $transaction);
                                 }
 
+                                //quitamos saldo a los nodos de faircoop con un exchange
+                                if($transaction->getFaircoopNode()){
+                                    $amount_to_exchange = $transaction->getAmount();
+                                    $faircoopNode = $transaction->getFaircoopNode();
+                                    $faircoopNode = $em->getRepository('TelepayFinancialApiBundle:Group')->find($faircoopNode);
+                                    $from_ex = $cashOutMethod->getCurrency();
+                                    $to_ex = $cashInMethod->getCurrency();
+                                    $user_fair_id = $this->getContainer()->getParameter('admin_user_id_fac');
+                                    $user_fair = $em->getRepository('TelepayFinancialApiBundle:User')->find($user_fair_id);
+                                    $exchangeManipulator = $this->getContainer()->get('net.telepay.commons.exchange_manipulator');
+                                    $exchangeManipulator->doExchange($amount_to_exchange, $from_ex, $to_ex, $faircoopNode, $user_fair);
+                                }
+
                                 $dm->flush();
 
                             }else{
