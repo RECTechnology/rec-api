@@ -99,7 +99,21 @@ class ExchangeManipulator{
         $dm = $this->container->get('doctrine_mongodb')->getManager();
         $em = $this->doctrine->getManager();
 
-        $exchangeAmount = $this->exchange($amount, $from, $to);
+        if(($from == Currency::$FAC || $to == Currency::$FAC) && $company->getPremium() == true ){
+            if($from == Currency::$FAC){
+                $price = $this->getPrice('FAIRP', $to);
+                $exchangeAmount = $this->exchange($amount, 'FAIRP', $to);
+            }
+            else{
+                $price = $this->getPrice($from, 'FAIRP');
+                $exchangeAmount = $this->exchange($amount, $from, 'FAIRP');
+            }
+        }
+        else{
+            $price = $this->getPrice($from, $to);
+            $exchangeAmount = $this->exchange($amount, $from, $to);
+        }
+
         $params = array(
             'amount'    => 0,
             'from'  =>  $from,
@@ -125,16 +139,6 @@ class ExchangeManipulator{
                 $exchange_fixed_fee = $fee->getFixed();
                 $exchange_variable_fee = round((($fee->getVariable()/100) * $exchangeAmount), 0);
             }
-        }
-
-        if(($from == Currency::$FAC || $to == Currency::$FAC) && $company->getPremium() == true ){
-            if($from == Currency::$FAC){
-                $price = $this->getPrice('FAIRP', $to);
-            }else{
-                $price = $this->getPrice($from, 'FAIRP');
-            }
-        }else{
-            $price = $this->getPrice($from, $to);
         }
 
         if($company->getFairtoearthAdmin() == true && ($from != Currency::$EUR || $to != Currency::$FAC)){
