@@ -100,7 +100,7 @@ class PublicController extends RestApiController{
                     $ask[$currency.'x'.$default_currency_name] = round($price_ask, $default_currency_scale + 1);
                     $price_bid = $this->_exchangeInverse($number, $currency, $default_currency);
                     $bid[$currency.'x'.$default_currency_name] = round($price_bid, $default_currency_scale + 1);
-                    $result[$currency.'x'.$default_currency] = round(($price_ask + $price_bid)/2, $default_currency_scale + 1);
+                    $result[$currency.'x'.$default_currency_name] = round(($price_ask + $price_bid)/2, $default_currency_scale + 1);
                 }catch (HttpException $e){
                     $result[$currency.'x'.$default_currency_name] = $e->getMessage();
                 }
