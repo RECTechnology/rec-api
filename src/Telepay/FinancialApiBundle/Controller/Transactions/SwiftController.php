@@ -416,6 +416,7 @@ class SwiftController extends RestApiController{
 
         $group = $user->getActiveGroup();
         $dm = $this->get('doctrine_mongodb')->getManager();
+        $em = $this->getDoctrine()->getManager();
 
         if(!$request->request->has('option')) throw new HttpException(404, 'Missing parameter \'option\'');
 
@@ -534,7 +535,7 @@ class SwiftController extends RestApiController{
                     $exchanger = $this->container->get('net.telepay.commons.exchange_manipulator');
                     $amount = $transaction->getAmount();
                     $faircoopNode = $transaction->getFaircoopNode();
-                    $userGroup = $dm->getRepository('TelepayFinancialApiBundle:Group')->find($faircoopNode);
+                    $userGroup = $em->getRepository('TelepayFinancialApiBundle:Group')->find($faircoopNode);
                     $from = $method_in->getCurrency();
                     $to = $method_out->getCurrency();
                     $amount_ex = $exchanger->exchange($amount, $to==Currency::$FAC?Currency::$FAIRP:$to, $from==Currency::$FAC?Currency::$FAIRP:$from);
