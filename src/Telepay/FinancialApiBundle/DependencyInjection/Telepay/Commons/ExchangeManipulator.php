@@ -90,7 +90,7 @@ class ExchangeManipulator{
         return $exchange->getPrice();
     }
 
-    public function doExchange($amount, $from, $to, Group $company, User $user){
+    public function doExchange($amount, $from, $to, Group $company, User $user, $internal = false){
         $this->trans_logger->info('EXCHANGE_MANIPULATOR (doExchange)=> amount='.$amount.' from'.$from.' to='.$to);
 
         //check exchange limits
@@ -139,7 +139,7 @@ class ExchangeManipulator{
             }
         }
 
-        if($company->getFairtoearthAdmin() == true && ($from != Currency::$EUR || $to != Currency::$FAC)){
+        if(!$internal && $company->getFairtoearthAdmin() == true && ($from != Currency::$EUR || $to != Currency::$FAC)){
             throw new HttpException(403, 'Exchange not allowed for this company');
         }
 

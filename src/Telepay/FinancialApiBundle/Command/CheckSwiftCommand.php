@@ -408,7 +408,7 @@ class CheckSwiftCommand extends SyncronizedContainerAwareCommand
                                     $user_fair_id = $this->getContainer()->getParameter('admin_user_id_fac');
                                     $user_fair = $em->getRepository('TelepayFinancialApiBundle:User')->find($user_fair_id);
                                     $exchangeManipulator = $this->getContainer()->get('net.telepay.commons.exchange_manipulator');
-                                    $exchangeManipulator->doExchange($amount_to_exchange, $from_ex, $to_ex, $faircoopNode, $user_fair);
+                                    $exchangeManipulator->doExchange($amount_to_exchange, $from_ex, $to_ex, $faircoopNode, $user_fair, true);
                                 }
 
                                 $dm->flush();

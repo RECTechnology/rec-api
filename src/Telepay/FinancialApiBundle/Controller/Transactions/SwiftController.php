@@ -530,6 +530,17 @@ class SwiftController extends RestApiController{
                 $transaction->setUpdated(new \DateTime());
                 $transaction->setPayInInfo($payInInfo);
 
+                if($transaction->getFaircoopNode() && $transaction->getFaircoopNode()>0) {
+                    $exchanger = $this->container->get('net.telepay.commons.exchange_manipulator');
+                    $amount = $transaction->getAmount();
+                    $faircoopNode = $transaction->getFaircoopNode();
+                    $userGroup = $dm->getRepository('TelepayFinancialApiBundle:Group')->find($faircoopNode);
+                    $from = $method_in->getCurrency();
+                    $to = $method_out->getCurrency();
+                    $amount_ex = $exchanger->exchange($amount, $to==Currency::$FAC?Currency::$FAIRP:$to, $from==Currency::$FAC?Currency::$FAIRP:$from);
+                    $exchanger->doExchange($amount_ex, $from, $to, $userGroup, $user, true);
+                }
+
                 $dm->persist($transaction);
                 $dm->flush();
 
@@ -558,6 +569,7 @@ class SwiftController extends RestApiController{
             throw new HttpException(400, 'Bad parameter \'option\'');
         }
 
+        $transaction = $this->get('notificator')->notificate($transaction);
         $dm->persist($transaction);
         $dm->flush();
 
