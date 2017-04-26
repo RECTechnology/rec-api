@@ -99,15 +99,13 @@ class ExchangeManipulator{
         $dm = $this->container->get('doctrine_mongodb')->getManager();
         $em = $this->doctrine->getManager();
 
-        if(($from == Currency::$FAC || $to == Currency::$FAC) && $company->getPremium() == true ){
-            if($from == Currency::$FAC){
-                $price = $this->getPrice('FAIRP', $to);
-                $exchangeAmount = $this->exchange($amount, 'FAIRP', $to);
-            }
-            else{
-                $price = $this->getPrice($from, 'FAIRP');
-                $exchangeAmount = $this->exchange($amount, $from, 'FAIRP');
-            }
+        if($from == Currency::$FAC && $company->getPremium() == true){
+            $price = $this->getPrice('FAIRP', $to);
+            $exchangeAmount = $this->exchange($amount, 'FAIRP', $to);
+        }
+        else if($to == Currency::$FAC && $company->getPremium() == true){
+            $price = $this->getPrice($from, 'FAIRP');
+            $exchangeAmount = $this->exchange($amount, $from, 'FAIRP');
         }
         else{
             $price = $this->getPrice($from, $to);

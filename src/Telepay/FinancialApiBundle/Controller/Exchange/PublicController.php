@@ -81,6 +81,10 @@ class PublicController extends RestApiController{
      */
     public function tickerVFair(Request $request, $currency){
         $default_currency = strtoupper($currency);
+        $default_currency_name = $default_currency;
+        if($default_currency == 'FAC'){
+            $default_currency = 'FAIRP';
+        }
         $default_currency_scale = Currency::$SCALE[$default_currency];
         $currencies = Currency::$TICKER_FAIRCOOP;
         $result = array();
@@ -93,12 +97,12 @@ class PublicController extends RestApiController{
                     $scale = $currency_scale - $default_currency_scale;
                     $number = pow(10,$scale);
                     $price_ask = $this->_exchange($number, $currency, $default_currency);
-                    $ask[$currency.'x'.$default_currency] = round($price_ask, $default_currency_scale + 1);
+                    $ask[$currency.'x'.$default_currency_name] = round($price_ask, $default_currency_scale + 1);
                     $price_bid = $this->_exchangeInverse($number, $currency, $default_currency);
-                    $bid[$currency.'x'.$default_currency] = round($price_bid, $default_currency_scale + 1);
+                    $bid[$currency.'x'.$default_currency_name] = round($price_bid, $default_currency_scale + 1);
                     $result[$currency.'x'.$default_currency] = round(($price_ask + $price_bid)/2, $default_currency_scale + 1);
                 }catch (HttpException $e){
-                    $result[$currency.'x'.$default_currency] = $e->getMessage();
+                    $result[$currency.'x'.$default_currency_name] = $e->getMessage();
                 }
             }
         }
