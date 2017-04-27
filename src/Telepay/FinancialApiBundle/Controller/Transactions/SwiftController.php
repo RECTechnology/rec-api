@@ -1068,92 +1068,92 @@ class SwiftController extends RestApiController{
         $client_fee = ($amount * ($clientFees->getVariable()/100)) + $clientFees->getFixed();
         $service_fee = ($amount * ($methodFees->getVariable()/100)) + $methodFees->getFixed();
 
-        //client fees goes to the user
-        $userFee = new Transaction();
-        if($transaction->getUser()) $userFee->setUser($transaction->getUser());
-        $userFee->setGroup($transaction->getGroup());
-        $userFee->setType(Transaction::$TYPE_FEE);
-        $userFee->setCurrency($transaction->getCurrency());
-        $userFee->setScale($transaction->getScale());
-        $userFee->setAmount($client_fee);
-        $userFee->setFixedFee($clientFees->getFixed());
-        $userFee->setVariableFee($amount * ($clientFees->getVariable()/100));
-        $userFee->setService($method_in.'-'.$method_out);
-        $userFee->setMethod($method_in.'-'.$method_out);
-        $userFee->setStatus(Transaction::$STATUS_SUCCESS);
-        $userFee->setTotal(-$client_fee);
-        $userFee->setDataIn(array(
-            'previous_transaction'  =>  $transaction->getId(),
-            'transaction_amount'    =>  $transaction->getAmount(),
-            'total_fee' =>  $client_fee + $service_fee
-        ));
-        $userFee->setFeeInfo(array(
-            'previous_transaction'  =>  $transaction->getId(),
-            'previous_amount'    =>  $transaction->getAmount(),
-            'amount'    =>  -$client_fee,
-            'currency'  =>  $transaction->getCurrency(),
-            'scale'     =>  $transaction->getScale(),
-            'concept'           =>  'refund '.$method_in.'-'.$method_out.'->fee',
-            'status'    =>  Transaction::$STATUS_SUCCESS
-        ));
-
-        $userFee->setClient($client);
-
-        //service fees goes to root
-        $rootFee = new Transaction();
-        $rootFee->setUser($root->getId());
-        $rootFee->setGroup($rootGroupId);
-        $rootFee->setType(Transaction::$TYPE_FEE);
-        $rootFee->setCurrency($transaction->getCurrency());
-        $rootFee->setScale($transaction->getScale());
-        $rootFee->setAmount($service_fee);
-        $rootFee->setFixedFee($methodFees->getFixed());
-        $rootFee->setVariableFee($amount * ($methodFees->getVariable()/100));
-        $rootFee->setService($method_in.'-'.$method_out);
-        $rootFee->setMethod($method_in.'-'.$method_out);
-        $rootFee->setStatus(Transaction::$STATUS_SUCCESS);
-        $rootFee->setTotal(-$service_fee);
-        $rootFee->setDataIn(array(
-            'previous_transaction'  =>  $transaction->getId(),
-            'transaction_amount'    =>  $transaction->getAmount(),
-            'total_fee' =>  $client_fee + $service_fee
-        ));
-        $rootFee->setFeeInfo(array(
-            'previous_transaction'  =>  $transaction->getId(),
-            'previous_amount'    =>  $transaction->getAmount(),
-            'scale'     =>  $transaction->getScale(),
-            'concept'           =>  'refund ' .$method_in.'-'.$method_out.'->fee',
-            'amount' =>  -$service_fee,
-            'status'    =>  Transaction::$STATUS_SUCCESS,
-            'currency'  =>  $transaction->getCurrency()
-        ));
-
-        $rootFee->setClient($client);
-        $dm->persist($userFee);
-        $dm->persist($rootFee);
-        $dm->flush();
-
-        //get wallets and add fees to both, user and wallet
-        $current_wallet = $rootGroup->getWallet($rootFee->getCurrency());
-
-        $current_wallet->setAvailable($current_wallet->getAvailable() - $service_fee);
-        $current_wallet->setBalance($current_wallet->getBalance() - $service_fee);
-
-        $em->persist($current_wallet);
-        $em->flush();
-
-        $current_wallet_client = $clientGroup->getWallet($userFee->getCurrency());
-
-        $current_wallet_client->setAvailable($current_wallet_client->getAvailable() - $client_fee);
-        $current_wallet_client->setBalance($current_wallet_client->getBalance() - $client_fee);
-
-        $em->persist($current_wallet_client);
-        $em->flush();
-
         $userGroup = $em->getRepository('TelepayFinancialApiBundle:Group')->find($transaction->getGroup());
         $balancer = $this->get('net.telepay.commons.balance_manipulator');
-        $balancer->addBalance($userGroup, -$client_fee, $transaction);
-        $balancer->addBalance($rootGroup, -$service_fee, $transaction);
+
+        if($client_fee > 0){
+            //client fees goes to the user
+            $userFee = new Transaction();
+            if($transaction->getUser()) $userFee->setUser($transaction->getUser());
+            $userFee->setGroup($transaction->getGroup());
+            $userFee->setType(Transaction::$TYPE_FEE);
+            $userFee->setCurrency($transaction->getCurrency());
+            $userFee->setScale($transaction->getScale());
+            $userFee->setAmount($client_fee);
+            $userFee->setFixedFee($clientFees->getFixed());
+            $userFee->setVariableFee($amount * ($clientFees->getVariable()/100));
+            $userFee->setService($method_in.'-'.$method_out);
+            $userFee->setMethod($method_in.'-'.$method_out);
+            $userFee->setStatus(Transaction::$STATUS_SUCCESS);
+            $userFee->setTotal(-$client_fee);
+            $userFee->setDataIn(array(
+                'previous_transaction'  =>  $transaction->getId(),
+                'transaction_amount'    =>  $transaction->getAmount(),
+                'total_fee' =>  $client_fee + $service_fee
+            ));
+            $userFee->setFeeInfo(array(
+                'previous_transaction'  =>  $transaction->getId(),
+                'previous_amount'    =>  $transaction->getAmount(),
+                'amount'    =>  -$client_fee,
+                'currency'  =>  $transaction->getCurrency(),
+                'scale'     =>  $transaction->getScale(),
+                'concept'           =>  'refund '.$method_in.'-'.$method_out.'->fee',
+                'status'    =>  Transaction::$STATUS_SUCCESS
+            ));
+
+            $userFee->setClient($client);
+            $dm->persist($userFee);
+            $current_wallet_client = $clientGroup->getWallet($userFee->getCurrency());
+
+            $current_wallet_client->setAvailable($current_wallet_client->getAvailable() - $client_fee);
+            $current_wallet_client->setBalance($current_wallet_client->getBalance() - $client_fee);
+
+            $balancer->addBalance($userGroup, -$client_fee, $transaction);
+        }
+
+
+        if($service_fee > 0){
+            //service fees goes to root
+            $rootFee = new Transaction();
+            $rootFee->setUser($root->getId());
+            $rootFee->setGroup($rootGroupId);
+            $rootFee->setType(Transaction::$TYPE_FEE);
+            $rootFee->setCurrency($transaction->getCurrency());
+            $rootFee->setScale($transaction->getScale());
+            $rootFee->setAmount($service_fee);
+            $rootFee->setFixedFee($methodFees->getFixed());
+            $rootFee->setVariableFee($amount * ($methodFees->getVariable()/100));
+            $rootFee->setService($method_in.'-'.$method_out);
+            $rootFee->setMethod($method_in.'-'.$method_out);
+            $rootFee->setStatus(Transaction::$STATUS_SUCCESS);
+            $rootFee->setTotal(-$service_fee);
+            $rootFee->setDataIn(array(
+                'previous_transaction'  =>  $transaction->getId(),
+                'transaction_amount'    =>  $transaction->getAmount(),
+                'total_fee' =>  $client_fee + $service_fee
+            ));
+            $rootFee->setFeeInfo(array(
+                'previous_transaction'  =>  $transaction->getId(),
+                'previous_amount'    =>  $transaction->getAmount(),
+                'scale'     =>  $transaction->getScale(),
+                'concept'           =>  'refund ' .$method_in.'-'.$method_out.'->fee',
+                'amount' =>  -$service_fee,
+                'status'    =>  Transaction::$STATUS_SUCCESS,
+                'currency'  =>  $transaction->getCurrency()
+            ));
+
+            $rootFee->setClient($client);
+            $dm->persist($rootFee);
+            //get wallets and add fees to both, user and admin
+            $current_wallet = $rootGroup->getWallet($rootFee->getCurrency());
+            $current_wallet->setAvailable($current_wallet->getAvailable() - $service_fee);
+            $current_wallet->setBalance($current_wallet->getBalance() - $service_fee);
+
+            $balancer->addBalance($rootGroup, -$service_fee, $transaction);
+        }
+
+        $dm->flush();
+        $em->flush();
 
     }
 
