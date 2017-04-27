@@ -81,6 +81,9 @@ class PublicController extends RestApiController{
      */
     public function tickerVFair(Request $request, $currency){
         $default_currency = strtoupper($currency);
+        if($default_currency == Currency::$FAC){
+            $default_currency = Currency::$FAIRP;
+        }
         $default_currency_scale = Currency::$SCALE[$default_currency];
         $currencies = Currency::$TICKER_FAIRCOOP;
         $result = array();

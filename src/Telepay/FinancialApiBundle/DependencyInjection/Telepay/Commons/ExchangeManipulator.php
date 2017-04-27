@@ -90,7 +90,7 @@ class ExchangeManipulator{
         return $exchange->getPrice();
     }
 
-    public function doExchange($amount, $from, $to, Group $company, User $user){
+    public function doExchange($amount, $from, $to, Group $company, User $user, $internal = false){
         $this->trans_logger->info('EXCHANGE_MANIPULATOR (doExchange)=> amount='.$amount.' from'.$from.' to='.$to);
 
         //check exchange limits
@@ -99,7 +99,19 @@ class ExchangeManipulator{
         $dm = $this->container->get('doctrine_mongodb')->getManager();
         $em = $this->doctrine->getManager();
 
-        $exchangeAmount = $this->exchange($amount, $from, $to);
+        if($from == Currency::$FAC && $company->getPremium() == true){
+            $price = $this->getPrice('FAIRP', $to);
+            $exchangeAmount = $this->exchange($amount, 'FAIRP', $to);
+        }
+        else if($to == Currency::$FAC && $company->getPremium() == true){
+            $price = $this->getPrice($from, 'FAIRP');
+            $exchangeAmount = $this->exchange($amount, $from, 'FAIRP');
+        }
+        else{
+            $price = $this->getPrice($from, $to);
+            $exchangeAmount = $this->exchange($amount, $from, $to);
+        }
+
         $params = array(
             'amount'    => 0,
             'from'  =>  $from,
@@ -127,17 +139,9 @@ class ExchangeManipulator{
             }
         }
 
-        if(($from == Currency::$FAC || $to == Currency::$FAC) && $company->getPremium() == true ){
-            //TODO change fac for fairp
-            if($from == Currency::$FAC){
-                $price = $this->getPrice('FAIRP', $to);
-            }else{
-                $price = $this->getPrice($from, 'FAIRP');
-            }
-        }else{
-            $price = $this->getPrice($from, $to);
+        if(!$internal && $company->getFairtoearthAdmin() == true && ($from != Currency::$EUR || $to != Currency::$FAC)){
+            throw new HttpException(403, 'Exchange not allowed for this company');
         }
-
 
         $totalExchangeFee = $exchange_fixed_fee + $exchange_variable_fee;
 

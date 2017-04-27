@@ -550,7 +550,6 @@ class Group extends BaseGroup
         unset($this->fairtoearth_admin);
         unset($this->fairpay_vendor);
         unset($this->own);
-        unset($this->premium);
         unset($this->base64_image);
         unset($this->cif);
         unset($this->prefix);

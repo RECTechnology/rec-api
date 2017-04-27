@@ -416,6 +416,7 @@ class SwiftController extends RestApiController{
 
         $group = $user->getActiveGroup();
         $dm = $this->get('doctrine_mongodb')->getManager();
+        $em = $this->getDoctrine()->getManager();
 
         if(!$request->request->has('option')) throw new HttpException(404, 'Missing parameter \'option\'');
 
@@ -530,6 +531,17 @@ class SwiftController extends RestApiController{
                 $transaction->setUpdated(new \DateTime());
                 $transaction->setPayInInfo($payInInfo);
 
+                if($transaction->getFaircoopNode() && $transaction->getFaircoopNode()>0) {
+                    $exchanger = $this->container->get('net.telepay.commons.exchange_manipulator');
+                    $amount = $transaction->getAmount();
+                    $faircoopNode = $transaction->getFaircoopNode();
+                    $userGroup = $em->getRepository('TelepayFinancialApiBundle:Group')->find($faircoopNode);
+                    $from = $method_in->getCurrency();
+                    $to = $method_out->getCurrency();
+                    $amount_ex = $exchanger->exchange($amount, $to==Currency::$FAC?Currency::$FAIRP:$to, $from==Currency::$FAC?Currency::$FAIRP:$from);
+                    $exchanger->doExchange($amount_ex, $from, $to, $userGroup, $user, true);
+                }
+
                 $dm->persist($transaction);
                 $dm->flush();
 
@@ -558,6 +570,7 @@ class SwiftController extends RestApiController{
             throw new HttpException(400, 'Bad parameter \'option\'');
         }
 
+        $transaction = $this->get('notificator')->notificate($transaction);
         $dm->persist($transaction);
         $dm->flush();
 
@@ -1442,7 +1455,6 @@ class SwiftController extends RestApiController{
             $pending = $pending + $d->getAmount();
         }
         if($amount + $pending > $balance ) {
-            $fairApiDriver->delete($checkbalance->data->id);
             throw new HttpException(403, "Admin without enough balance");
         }
         return $request;
