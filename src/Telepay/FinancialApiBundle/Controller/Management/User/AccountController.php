@@ -141,7 +141,7 @@ class AccountController extends BaseApiController{
             $logger->info('CHANGINC IMAGE user with image = '.$filename);
         }
 
-        file_put_contents($fileManager->getUploadsDir() . '/' . $filename, $fileContents);
+        file_put_contents($fileManager->getFilesPath() . '/' . $filename, $fileContents);
         $logger->info('CHANGING IMAGE put contents '.$fileManager->getFilesPath() . '/' . $filename);
 
         $tmpFile = new File($fileManager->getUploadsDir() . '/' . $filename);
