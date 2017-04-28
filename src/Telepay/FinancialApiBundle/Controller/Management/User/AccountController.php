@@ -106,6 +106,7 @@ class AccountController extends BaseApiController{
      */
     public function setImage(Request $request){
 
+        $logger = $this->get('manager.logger');
         $paramNames = array(
             'profile_image'
         );
@@ -123,16 +124,21 @@ class AccountController extends BaseApiController{
         $fileManager = $this->get('file_manager');
 
         $fileSrc = $params['profile_image'];
+        $logger->info('CHANGINC IMAGE '.$user->getUsername());
+        $logger->info('CHANGINC IMAGE fileSrc = '.$fileSrc);
         $fileContents = $fileManager->readFileUrl($fileSrc);
 
         //if has image overwrite...if not create filename
         if($user->getProfileImage() == ''){
+
             $hash = $fileManager->getHash();
             $explodedFileSrc = explode('.', $fileSrc);
             $ext = $explodedFileSrc[count($explodedFileSrc) - 1];
             $filename = $hash . '.' . $ext;
+            $logger->info('CHANGINC IMAGE user withOUT image = '.$filename);
         }else{
             $filename = str_replace($this->container->getParameter('files_path') . '/', '', $user->getProfileImage());
+            $logger->info('CHANGINC IMAGE user with image = '.$filename);
         }
 
         file_put_contents($fileManager->getFilesPath() . '/' . $filename, $fileContents);
@@ -143,6 +149,7 @@ class AccountController extends BaseApiController{
 
         $em = $this->getDoctrine()->getManager();
         $user->setProfileImage($fileManager->getFilesPath().'/'.$filename);
+        $logger->info('CHANGINC IMAGE saved url = '.$fileManager->getFilesPath().'/'.$filename);
         $em->flush();
 
         return $this->rest(204, 'Profile image updated successfully');
