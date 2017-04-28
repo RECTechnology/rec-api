@@ -531,6 +531,9 @@ class SwiftController extends RestApiController{
                 $transaction->setUpdated(new \DateTime());
                 $transaction->setPayInInfo($payInInfo);
 
+                $dm->persist($transaction);
+                $dm->flush();
+
                 if($transaction->getFaircoopNode() && $transaction->getFaircoopNode()>0) {
                     $exchanger = $this->container->get('net.telepay.commons.exchange_manipulator');
                     $amount = $transaction->getAmount();
@@ -541,9 +544,6 @@ class SwiftController extends RestApiController{
                     $amount_ex = $exchanger->exchange($amount, $to==Currency::$FAC?Currency::$FAIRP:$to, $from==Currency::$FAC?Currency::$FAIRP:$from);
                     $exchanger->doExchange($amount_ex, $from, $to, $userGroup, $user, true);
                 }
-
-                $dm->persist($transaction);
-                $dm->flush();
 
                 //get fee transactions to refund.
                 $this->_returnFeesV2($transaction, $transaction->getMethodIn(), $transaction->getMethodOut());
