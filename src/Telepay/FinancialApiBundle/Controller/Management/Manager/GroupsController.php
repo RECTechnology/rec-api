@@ -281,16 +281,16 @@ class GroupsController extends BaseApiController
             foreach($exchanges as $exchange){
                 //create limit for this group
                 //create fee for this group
-                    $limit = new LimitDefinition();
-                    $limit->setDay(0);
-                    $limit->setWeek(0);
-                    $limit->setMonth(0);
-                    $limit->setYear(0);
-                    $limit->setTotal(0);
-                    $limit->setSingle(0);
-                    $limit->setCname('exchange_'.$exchange->getCname());
-                    $limit->setCurrency($exchange->getCurrencyOut());
-                    $limit->setGroup($group);
+//                    $limit = new LimitDefinition();
+//                    $limit->setDay(0);
+//                    $limit->setWeek(0);
+//                    $limit->setMonth(0);
+//                    $limit->setYear(0);
+//                    $limit->setTotal(0);
+//                    $limit->setSingle(0);
+//                    $limit->setCname('exchange_'.$exchange->getCname());
+//                    $limit->setCurrency($exchange->getCurrencyOut());
+//                    $limit->setGroup($group);
 
                     $fee = new ServiceFee();
                     $fee->setFixed(0);
@@ -299,7 +299,7 @@ class GroupsController extends BaseApiController
                     $fee->setServiceName('exchange_'.$exchange->getCname());
                     $fee->setGroup($group);
 
-                    $em->persist($limit);
+//                    $em->persist($limit);
                     $em->persist($fee);
 
             }
