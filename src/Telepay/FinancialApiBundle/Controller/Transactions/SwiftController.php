@@ -1378,14 +1378,14 @@ class SwiftController extends RestApiController{
 
             if($amount_out + $pending >= 300000) throw new HttpException(405, 'Limit exceeded');
 
-        }elseif($type_in == 'easypay'){
+        }elseif($type_in == 'easypay' || $type_in == 'teleingreso'){
             $search = $request->request->get('email');
             $start_time = new \MongoDate(strtotime(date('Y-m-d 00:00:00'))-31*24*3600);
             $finish_time = new \MongoDate();
             $result = $qb
                 ->field('created')->gte($start_time)
                 ->field('created')->lte($finish_time)
-                ->field('method_out')->equals($type_out)
+                ->field('method_in')->equals($type_in)
                 ->field('status')->in(array('created','success'))
                 ->where("function(){
                     if (typeof this.email_notification !== 'undefined') {
