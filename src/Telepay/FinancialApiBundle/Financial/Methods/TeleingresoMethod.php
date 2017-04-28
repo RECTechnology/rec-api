@@ -102,4 +102,63 @@ class TeleingresoMethod extends BaseMethod{
         return $paymentInfo;
     }
 
+    /**
+     * @return Boolean
+     */
+    public function checkKYC(Request $request, $type){
+        $em = $this->getContainer()->get('doctrine')->getManager();
+        if($request->request->has('token')) {
+            $access_token = $request->request->get('token');
+            $now = time();
+            $token_info = $em->getRepository('TelepayFinancialApiBundle:AccessToken')->findOneBy(array(
+                'token' => $access_token
+            ));
+            if($token_info && $token_info->getExpiresAt() > $now) {
+                $user = $token_info->getUser();
+                $email = $user->getEmail();
+                $request->request->remove('token');
+                $request->request->set('email', $email);
+                $bool = true;
+            }
+            else{
+                throw new HttpException(400, "Access token expired");
+            }
+        }
+        else{
+            $email = $request->request->get('email');
+            $pass = $request->request->get('password');
+            $factory = $this->getContainer()->get('security.encoder_factory');
+            $user = $em->getRepository('TelepayFinancialApiBundle:User')->findOneBy(array(
+                'email' => $email
+            ));
+            if(!$user){
+                throw new HttpException(400, "Email is not registred");
+            }
+            $encoder = $factory->getEncoder($user);
+            $bool = ($encoder->isPasswordValid($user->getPassword(), $pass, $user->getSalt())) ? true : false;
+            $request->request->remove('password');
+        }
+
+        if(!$bool){
+            throw new HttpException(400, "Email or Password not correct");
+        }
+
+        $kyc = $em->getRepository('TelepayFinancialApiBundle:KYC')->findOneBy(array(
+            'user' => $user
+        ));
+
+        if(!$kyc){
+            throw new Exception('User without kyc information',400);
+        }
+
+        if(!$kyc->getEmailValidated()){
+            throw new Exception('Email must be validated.',400);
+        }
+
+        if(!$kyc->getPhoneValidated()){
+            throw new Exception('Number phone must be validated.',400);
+        }
+
+        return $request;
+    }
 }
