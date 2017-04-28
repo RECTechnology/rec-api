@@ -1278,6 +1278,10 @@ class AccountController extends BaseApiController{
             $kyc->setAddress($request->request->get('address'));
         }
 
+        if($request->request->has('card_info') && $request->request->get('card_info')!=''){
+            $kyc->setCardInfo($request->request->get('card_info'));
+        }
+
         if($request->request->get('phone') != '' || $request->request->get('prefix') != ''){
             $prefix = $request->request->get('prefix');
             $phone = $request->request->get('phone');
