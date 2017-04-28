@@ -142,6 +142,7 @@ class AccountController extends BaseApiController{
         }
 
         file_put_contents($fileManager->getFilesPath() . '/' . $filename, $fileContents);
+        $logger->info('CHANGING IMAGE put contents '.$fileManager->getFilesPath() . '/' . $filename, $fileContents);
 
         $tmpFile = new File($fileManager->getUploadsDir() . '/' . $filename);
         if (!in_array($tmpFile->getMimeType(), UploadManager::$ALLOWED_MIMETYPES))
