@@ -36,17 +36,19 @@ class ExchangePriceCommand extends ContainerAwareCommand
                         $provider = $this->getContainer()->get($providerName);
                         if($provider->getInCurrency() === $inputCurrency && $provider->getOutCurrency() === $outputCurrency) {
                             $price = $provider->getPrice() * pow(10, (Currency::$SCALE[$outputCurrency] - Currency::$SCALE[$inputCurrency]));
-                            $exchange = new Exchange();
-                            $exchange->setSrc($inputCurrency);
-                            $exchange->setDst($outputCurrency);
-                            $exchange->setPrice($price);
-                            $date = new \DateTime();
-                            $exchange->setDate($date);
-                            $em->persist($exchange);
-                            $em->flush();
-                            $output->writeln(
-                                "SUCCESS: price (" . $inputCurrency . " -> " . $outputCurrency . "): " . $price
-                            );
+                            if($price>0) {
+                                $exchange = new Exchange();
+                                $exchange->setSrc($inputCurrency);
+                                $exchange->setDst($outputCurrency);
+                                $exchange->setPrice($price);
+                                $date = new \DateTime();
+                                $exchange->setDate($date);
+                                $em->persist($exchange);
+                                $em->flush();
+                                $output->writeln(
+                                    "SUCCESS: price (" . $inputCurrency . " -> " . $outputCurrency . "): " . $price
+                                );
+                            }
                         }
                         else {
                             //send email
