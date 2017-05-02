@@ -141,7 +141,8 @@ class AccountController extends BaseApiController{
             $logger->info('CHANGINC IMAGE user with image = '.$filename);
         }
 
-//        file_put_contents($fileManager->getFilesPath() . '/' . $filename, $fileContents);
+        $put = file_put_contents($fileManager->getFilesPath() . '/' . $filename, $fileContents);
+        if($put == false) throw new HttpException(404,'algo ha salido mal');
         $logger->info('CHANGING IMAGE put contents '.$fileManager->getFilesPath() . '/' . $filename);
 
         $tmpFile = new File($fileManager->getUploadsDir() . '/' . $filename);
