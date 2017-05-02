@@ -137,7 +137,7 @@ class AccountController extends BaseApiController{
             $filename = $hash . '.' . $ext;
             $logger->info('CHANGINC IMAGE user withOUT image = '.$filename);
         }else{
-            $filename = str_replace($this->container->getParameter('files_path') . '/', '', $user->getProfileImage());
+            $filename = str_replace($fileManager->getFilesPath() . '/', '', $user->getProfileImage());
             $logger->info('CHANGINC IMAGE user with image = '.$filename);
         }
 
