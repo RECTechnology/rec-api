@@ -142,7 +142,7 @@ class AccountController extends BaseApiController{
         }
 
         $put = file_put_contents($fileManager->getFilesPath() . '/' . $filename, $fileContents);
-        if($put == false) throw new HttpException(404,'algo ha salido mal');
+        if($put === false) throw new HttpException(404,$put);
         $logger->info('CHANGING IMAGE put contents '.$fileManager->getFilesPath() . '/' . $filename);
 
         $tmpFile = new File($fileManager->getUploadsDir() . '/' . $filename);
