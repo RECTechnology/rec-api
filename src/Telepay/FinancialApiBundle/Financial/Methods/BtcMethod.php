@@ -117,7 +117,7 @@ class BtcMethod extends BaseMethod {
             $params['concept'] = 'Btc out Transaction';
         }
 
-        $params['find_token'] = $find_token = substr(Random::generateToken(), 0, 7);
+        $params['find_token'] = $find_token = substr(Random::generateToken(), 0, 6);
         $params['currency'] = $this->getCurrency();
         $params['scale'] = Currency::$SCALE[$this->getCurrency()];
         $params['final'] = false;
@@ -152,7 +152,7 @@ class BtcMethod extends BaseMethod {
             $params['concept'] = 'Btc out Transaction';
         }
 
-        $params['find_token'] = $find_token = substr(Random::generateToken(), 0, 7);
+        $params['find_token'] = $find_token = substr(Random::generateToken(), 0, 6);
         $params['currency'] = $this->getCurrency();
         $params['scale'] = Currency::$SCALE[$this->getCurrency()];
         $params['final'] = false;

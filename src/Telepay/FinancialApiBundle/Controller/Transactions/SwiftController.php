@@ -250,9 +250,8 @@ class SwiftController extends RestApiController{
         $transaction->setDataIn($pay_out_info);
         $transaction->setPayOutInfo($pay_out_info);
 
-        //GET PAYOUT CURRENCY FOR THE TRANSATION
+        //GET PAYOUT CURRENCY FOR THE TRANSACTION
         $transaction->setCurrency($cashOutMethod->getCurrency());
-        //TODO get scale in and out
         $transaction->setScale(Currency::$SCALE[$cashOutMethod->getCurrency()]);
         $transaction->setAmount($amount_out);
         $transaction->setTotal($amount_out);
@@ -273,6 +272,7 @@ class SwiftController extends RestApiController{
         }
 
         if($type_in == 'easypay'){
+            $pay_out_info['find_token'] = $pay_in_info['reference_code'];
             if($type_out == "btc"){
                 $pay_in_info['reference'] = "BUY BITCOIN " . $pay_in_info['reference_code'];
             }
@@ -282,6 +282,8 @@ class SwiftController extends RestApiController{
             else{
                 $pay_in_info['reference'] = "CHIPCHAP CODE " . $pay_in_info['reference_code'];
             }
+            $transaction->setDataIn($pay_out_info);
+            $transaction->setPayOutInfo($pay_out_info);
         }
 
         if($type_in == 'sepa'){

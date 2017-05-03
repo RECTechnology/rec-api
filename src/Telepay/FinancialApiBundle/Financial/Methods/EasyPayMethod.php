@@ -26,9 +26,7 @@ class EasyPayMethod extends BaseMethod {
         $this->driver = $driver;
     }
 
-    public function getPayInInfo($amount)
-    {
-
+    public function getPayInInfo($amount){
         $paymentInfo = $this->driver->request();
 
         $paymentInfo['amount'] = $amount;
@@ -38,29 +36,22 @@ class EasyPayMethod extends BaseMethod {
         $paymentInfo['final'] = false;
 
         return $paymentInfo;
-
     }
 
-    public function send($paymentInfo)
-    {
+    public function send($paymentInfo){
         $paymentInfo['status'] = 'sending';
 
         //TODO send email with the payment information
 
-
         return $paymentInfo;
-
     }
 
-    public function getPayInStatus($paymentInfo)
-    {
+    public function getPayInStatus($paymentInfo){
         if($paymentInfo['status'] == Transaction::$STATUS_RECEIVED){
             $paymentInfo['status'] = Transaction::$STATUS_SUCCESS;
             $paymentInfo['final'] = true;
         }
-
         return $paymentInfo;
-
     }
 
     public function getPayOutStatus($id)
