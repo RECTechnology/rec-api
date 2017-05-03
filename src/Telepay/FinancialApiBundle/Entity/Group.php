@@ -548,18 +548,11 @@ class Group extends BaseGroup
         unset($this->comment);
         unset($this->cash_in_tokens);
         unset($this->fairtoearth_admin);
-        unset($this->fairpay_vendor);
         unset($this->own);
         unset($this->base64_image);
         unset($this->cif);
         unset($this->prefix);
-        unset($this->phone);
-        unset($this->zip);
-        unset($this->city);
-        unset($this->country);
         unset($this->address_number);
-        unset($this->street);
-        unset($this->town);
         return $this;
     }
 
