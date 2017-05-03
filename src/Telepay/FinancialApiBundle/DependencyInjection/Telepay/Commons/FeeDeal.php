@@ -670,106 +670,108 @@ class FeeDeal{
                 $resellerFee = $total_fee * ($reseller->getFee()/100);
                 $this->fee_logger->info('FEE_DEAL (createResellerFees) for '.$reseller->getCompanyReseller()->getName().' -> '.$resellerFee);
 
-                $resellerTransaction = new Transaction();
-                $resellerTransaction->setIp('127.0.0.1');
-                $resellerTransaction->setGroup($reseller->getCompanyReseller()->getId());
-                $resellerTransaction->setService($feeTransaction->getService());
-                $resellerTransaction->setMethod($feeTransaction->getMethod());
-                $resellerTransaction->setVersion($feeTransaction->getVersion());
-                //el amount es un porcentaje del total_fee
-                $resellerTransaction->setAmount($resellerFee);
-                $resellerTransaction->setType(Transaction::$TYPE_FEE);
-                $resellerTransaction->setDataIn(array(
-                    'parent_id' => $feeTransaction->getId(),
-                    'previous_transaction' => $feeTransaction->getId(),
-                    'amount'    =>  $total_fee,
-                    'concept'   =>$feeTransaction->getMethod().'->fee'
-                ));
-                $resellerTransaction->setData(array(
-                    'parent_id' =>  $feeTransaction->getId(),
-                    'previous_transaction' =>  $feeTransaction->getId(),
-                    'type'      =>  'suma_amount'
-                ));
-                $resellerFeeInfo = array(
-                    'previous_transaction'  =>  $feeTransaction->getId(),
-                    'previous_amount'    =>  $amount,
-                    'scale'     =>  $feeTransaction->getScale(),
-                    'concept'           =>  $feeTransaction->getMethod().'->fee',
-                    'amount' =>  $resellerFee,
-                    'status'    =>  Transaction::$STATUS_SUCCESS,
-                    'currency'  =>  $currency
-                );
-                $resellerTransaction->setFeeInfo($resellerFeeInfo);
-                //incloure les fees en la transacció
-                $resellerTransaction->setStatus(Transaction::$STATUS_SUCCESS);
-                $resellerTransaction->setCurrency($currency);
-                $resellerTransaction->setVariableFee($reseller->getFee());
-                $resellerTransaction->setFixedFee(0);
-                $resellerTransaction->setTotal($resellerFee);
-                $resellerTransaction->setScale($feeTransaction->getScale());
-                $resellerTransaction->setPrice($price);
+                if($resellerFee > 0){
+                    $resellerTransaction = new Transaction();
+                    $resellerTransaction->setIp('127.0.0.1');
+                    $resellerTransaction->setGroup($reseller->getCompanyReseller()->getId());
+                    $resellerTransaction->setService($feeTransaction->getService());
+                    $resellerTransaction->setMethod($feeTransaction->getMethod());
+                    $resellerTransaction->setVersion($feeTransaction->getVersion());
+                    //el amount es un porcentaje del total_fee
+                    $resellerTransaction->setAmount($resellerFee);
+                    $resellerTransaction->setType(Transaction::$TYPE_FEE);
+                    $resellerTransaction->setDataIn(array(
+                        'parent_id' => $feeTransaction->getId(),
+                        'previous_transaction' => $feeTransaction->getId(),
+                        'amount'    =>  $total_fee,
+                        'concept'   =>$feeTransaction->getMethod().'->fee'
+                    ));
+                    $resellerTransaction->setData(array(
+                        'parent_id' =>  $feeTransaction->getId(),
+                        'previous_transaction' =>  $feeTransaction->getId(),
+                        'type'      =>  'suma_amount'
+                    ));
+                    $resellerFeeInfo = array(
+                        'previous_transaction'  =>  $feeTransaction->getId(),
+                        'previous_amount'    =>  $amount,
+                        'scale'     =>  $feeTransaction->getScale(),
+                        'concept'           =>  $feeTransaction->getMethod().'->fee',
+                        'amount' =>  $resellerFee,
+                        'status'    =>  Transaction::$STATUS_SUCCESS,
+                        'currency'  =>  $currency
+                    );
+                    $resellerTransaction->setFeeInfo($resellerFeeInfo);
+                    //incloure les fees en la transacció
+                    $resellerTransaction->setStatus(Transaction::$STATUS_SUCCESS);
+                    $resellerTransaction->setCurrency($currency);
+                    $resellerTransaction->setVariableFee($reseller->getFee());
+                    $resellerTransaction->setFixedFee(0);
+                    $resellerTransaction->setTotal($resellerFee);
+                    $resellerTransaction->setScale($feeTransaction->getScale());
+                    $resellerTransaction->setPrice($price);
 
-                $mongo->persist($resellerTransaction);
+                    $mongo->persist($resellerTransaction);
 
-                //create a root negative transaction with the same amount
-                $rootResellerTransaction = new Transaction();
-                $rootResellerTransaction->setIp('127.0.0.1');
-                $rootResellerTransaction->setGroup($rootGroupId);
-                $rootResellerTransaction->setService($feeTransaction->getService());
-                $rootResellerTransaction->setMethod($feeTransaction->getMethod());
-                $rootResellerTransaction->setVersion($feeTransaction->getVersion());
-                $rootResellerTransaction->setAmount($resellerFee);
-                $rootResellerTransaction->setType(Transaction::$TYPE_FEE);
-                $rootResellerTransaction->setDataIn(array(
-                    'parent_id' => $feeTransaction->getId(),
-                    'previous_transaction' => $feeTransaction->getId(),
-                    'amount'    =>  $total_fee,
-                    'concept'   =>$feeTransaction->getMethod().'->fee'
-                ));
-                $rootResellerTransaction->setData(array(
-                    'parent_id' =>  $feeTransaction->getId(),
-                    'previous_transaction' =>  $feeTransaction->getId(),
-                    'type'      =>  'resta_amount'
-                ));
-                $rootResellerFeeInfo = array(
-                    'previous_transaction'  =>  $feeTransaction->getId(),
-                    'previous_amount'    =>  $amount,
-                    'scale'     =>  $feeTransaction->getScale(),
-                    'concept'           =>  $feeTransaction->getMethod().'->fee',
-                    'amount' =>  -$resellerFee,
-                    'status'    =>  Transaction::$STATUS_SUCCESS,
-                    'currency'  =>  $currency
-                );
-                $rootResellerTransaction->setFeeInfo($rootResellerFeeInfo);
-                //incloure les fees en la transacció
-                $rootResellerTransaction->setStatus(Transaction::$STATUS_SUCCESS);
-                $rootResellerTransaction->setCurrency($currency);
-                $rootResellerTransaction->setVariableFee($reseller->getFee());
-                $rootResellerTransaction->setFixedFee(0);
-                $rootResellerTransaction->setTotal(-$resellerFee);
-                $rootResellerTransaction->setScale($feeTransaction->getScale());
-                $rootResellerTransaction->setPrice($price);
+                    //create a root negative transaction with the same amount
+                    $rootResellerTransaction = new Transaction();
+                    $rootResellerTransaction->setIp('127.0.0.1');
+                    $rootResellerTransaction->setGroup($rootGroupId);
+                    $rootResellerTransaction->setService($feeTransaction->getService());
+                    $rootResellerTransaction->setMethod($feeTransaction->getMethod());
+                    $rootResellerTransaction->setVersion($feeTransaction->getVersion());
+                    $rootResellerTransaction->setAmount($resellerFee);
+                    $rootResellerTransaction->setType(Transaction::$TYPE_FEE);
+                    $rootResellerTransaction->setDataIn(array(
+                        'parent_id' => $feeTransaction->getId(),
+                        'previous_transaction' => $feeTransaction->getId(),
+                        'amount'    =>  $total_fee,
+                        'concept'   =>$feeTransaction->getMethod().'->fee'
+                    ));
+                    $rootResellerTransaction->setData(array(
+                        'parent_id' =>  $feeTransaction->getId(),
+                        'previous_transaction' =>  $feeTransaction->getId(),
+                        'type'      =>  'resta_amount'
+                    ));
+                    $rootResellerFeeInfo = array(
+                        'previous_transaction'  =>  $feeTransaction->getId(),
+                        'previous_amount'    =>  $amount,
+                        'scale'     =>  $feeTransaction->getScale(),
+                        'concept'           =>  $feeTransaction->getMethod().'->fee',
+                        'amount' =>  -$resellerFee,
+                        'status'    =>  Transaction::$STATUS_SUCCESS,
+                        'currency'  =>  $currency
+                    );
+                    $rootResellerTransaction->setFeeInfo($rootResellerFeeInfo);
+                    //incloure les fees en la transacció
+                    $rootResellerTransaction->setStatus(Transaction::$STATUS_SUCCESS);
+                    $rootResellerTransaction->setCurrency($currency);
+                    $rootResellerTransaction->setVariableFee($reseller->getFee());
+                    $rootResellerTransaction->setFixedFee(0);
+                    $rootResellerTransaction->setTotal(-$resellerFee);
+                    $rootResellerTransaction->setScale($feeTransaction->getScale());
+                    $rootResellerTransaction->setPrice($price);
 
-                $mongo->persist($rootResellerTransaction);
-                $mongo->flush();
+                    $mongo->persist($rootResellerTransaction);
+                    $mongo->flush();
 
-                $this->fee_logger->info('FEE_DEAL (createRootFees) => negative ');
+                    $this->fee_logger->info('FEE_DEAL (createRootFees) => negative ');
 
-                //restar al wallet
-                $rootWallet->setAvailable($current_wallet->getAvailable() - $resellerFee);
-                $rootWallet->setBalance($current_wallet->getBalance() - $resellerFee);
+                    //restar al wallet
+                    $rootWallet->setAvailable($current_wallet->getAvailable() - $resellerFee);
+                    $rootWallet->setBalance($current_wallet->getBalance() - $resellerFee);
 
-                $resellerWallet = $reseller->getCompanyReseller()->getWallet($currency);
-                $resellerWallet->setAvailable($resellerWallet->getAvailable() + $resellerFee);
-                $resellerWallet->setBalance($resellerWallet->getBalance() + $resellerFee);
+                    $resellerWallet = $reseller->getCompanyReseller()->getWallet($currency);
+                    $resellerWallet->setAvailable($resellerWallet->getAvailable() + $resellerFee);
+                    $resellerWallet->setBalance($resellerWallet->getBalance() + $resellerFee);
 
-                $mongo->persist($rootTransaction);
+                    $em->flush();
+                    $mongo->flush();
 
-                $em->flush();
-                $mongo->flush();
+                    $balancer->addBalance($reseller->getCompanyReseller(), $resellerFee, $resellerTransaction );
+                    $balancer->addBalance($rootGroup, -$resellerFee, $rootResellerTransaction );
 
-                $balancer->addBalance($reseller->getCompanyReseller(), $resellerFee, $resellerTransaction );
-                $balancer->addBalance($rootGroup, -$resellerFee, $rootResellerTransaction );
+                }
+
 
             }
 

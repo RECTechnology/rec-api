@@ -137,11 +137,12 @@ class AccountController extends BaseApiController{
             $filename = $hash . '.' . $ext;
             $logger->info('CHANGINC IMAGE user withOUT image = '.$filename);
         }else{
-            $filename = str_replace($this->container->getParameter('files_path') . '/', '', $user->getProfileImage());
+            $filename = str_replace($fileManager->getFilesPath() . '/', '', $user->getProfileImage());
             $logger->info('CHANGINC IMAGE user with image = '.$filename);
         }
 
-        file_put_contents($fileManager->getFilesPath() . '/' . $filename, $fileContents);
+        file_put_contents($fileManager->getUploadsDir() . '/' . $filename, $fileContents);
+
         $logger->info('CHANGING IMAGE put contents '.$fileManager->getFilesPath() . '/' . $filename);
 
         $tmpFile = new File($fileManager->getUploadsDir() . '/' . $filename);
