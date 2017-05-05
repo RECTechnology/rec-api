@@ -1408,6 +1408,34 @@ class SwiftController extends RestApiController{
                 $pending = $pending + $payInInfo['amount'];
             }
             if($amount_in + $pending > 300000) throw new HttpException(405, 'Limit exceeded');
+
+            if($type_in == 'teleingreso'){
+                $search = $request->request->get('email');
+                $start_time = new \MongoDate(strtotime(date('Y-m-d 00:00:00')));
+                $result = $qb
+                    ->field('created')->gte($start_time)
+                    ->field('method_in')->equals($type_in)
+                    ->field('status')->in(array('created','success'))
+                    ->where("function(){
+                    if (typeof this.email_notification !== 'undefined') {
+                        if(String(this.email_notification).indexOf('$search') > -1){
+                            return true;
+                        }
+                    }
+                    return false;
+                }")
+
+                    ->getQuery()
+                    ->execute();
+
+                $pending=0;
+
+                foreach($result->toArray() as $d){
+                    $payInInfo = $d->getPayInInfo();
+                    $pending = $pending + $payInInfo['amount'];
+                }
+                if($amount_in + $pending > 20000) throw new HttpException(405, 'Day Limit exceeded');
+            }
         }
 
         return true;
