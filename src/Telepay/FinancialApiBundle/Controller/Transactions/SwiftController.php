@@ -1405,7 +1405,7 @@ class SwiftController extends RestApiController{
             $count_success = 0;
             foreach($result->toArray() as $d){
                 $payInInfo = $d->getPayInInfo();
-                if($d->getStatus() == 'created'){
+                if($d->getStatus() == 'success'){
                     $count_success++;
                 }
                 $pending = $pending + $payInInfo['amount'];
