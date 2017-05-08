@@ -1445,7 +1445,7 @@ class SwiftController extends RestApiController{
                 $count_success=($count_success>4)?4:$count_success;
                 $day_limit = 20000 * ($count_success +1);
 
-                if($amount_in + $pending > $day_limit) throw new HttpException(405, 'Day Limit exceeded(' . $day_limit/100 . ')');
+                if($amount_in + $pending > $day_limit) throw new HttpException(405, 'Day Limit exceeded(' . $day_limit/100 . ' euros)');
             }
         }
 
