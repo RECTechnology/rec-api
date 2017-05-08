@@ -1434,11 +1434,16 @@ class SwiftController extends RestApiController{
                 $pending=0;
 
                 foreach($result->toArray() as $d){
+                    if($d->getStatus() == 'success'){
+                        $count_success--;
+                    }
                     $payInInfo = $d->getPayInInfo();
                     $pending = $pending + $payInInfo['amount'];
                 }
+
+                $count_success=($count_success<0)?0:$count_success;
+                $count_success=($count_success>4)?4:$count_success;
                 $day_limit = 20000 * ($count_success +1);
-                if($day_limit>100000){$day_limit=100000;}
 
                 if($amount_in + $pending > $day_limit) throw new HttpException(405, 'Day Limit exceeded(' . $day_limit . ')');
             }
