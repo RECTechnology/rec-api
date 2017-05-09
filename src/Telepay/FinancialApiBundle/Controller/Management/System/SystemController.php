@@ -109,9 +109,9 @@ class SystemController extends RestApiController
             $nodeArray['name'] = $node->getType().' '.$node->getCurrency();
             $nodeArray['type'] = $node->getType();
             $nodeArray['currency'] = $node->getCurrency();
-//            $nodeArray['available'] = $node->getBalance();
-
-            $nodesArray[] = $nodes;
+            $nodeArray['available'] = $node->getBalance();
+//die(print_r('caca',true));
+            $nodesArray[] = $nodeArray;
 
         }
 
@@ -119,11 +119,13 @@ class SystemController extends RestApiController
             'nodes' =>  $nodesArray
         );
 
+//        die(print_r($response,true));
         return $this->rest(
             200,
             "Financial status",
             $response
         );
+
     }
 
 }
