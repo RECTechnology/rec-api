@@ -286,4 +286,5 @@ class MethodsController extends BaseApiController
 
         return parent::deleteAction($id);
     }
+
 }
