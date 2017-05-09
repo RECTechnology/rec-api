@@ -106,10 +106,11 @@ class SystemController extends RestApiController
         $nodes = $this->get('net.telepay.wallets')->findAll();
         $nodesArray = array();
         foreach ($nodes as $node){
+            $balance = $node->getBalance();
             $nodeArray['name'] = $node->getType().' '.$node->getCurrency();
             $nodeArray['type'] = $node->getType();
             $nodeArray['currency'] = $node->getCurrency();
-            $nodeArray['available'] = $node->getBalance();
+            $nodeArray['available'] = $balance;
 //die(print_r('caca',true));
             $nodesArray[] = $nodeArray;
 
