@@ -178,7 +178,6 @@ class SwiftController extends RestApiController{
         $transaction->setClient($client->getId());
         $transaction->setIp($ip);
 
-
         //TODO remove when adapter is in the puta calle
         if(!$request->request->has('force')){
             $check_amount = $amount_in == 0?$amount:$amount_in;

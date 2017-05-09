@@ -359,6 +359,19 @@ services:
             - "1296000"
             - "0"
 
+    net.telepay.config.teleingreso_usa.btc:
+        class: Telepay\FinancialApiBundle\Financial\Methods\MethodConfiguration
+        arguments:
+            - "0"
+            - "6"
+            - "1000"
+            - "60000"
+            - "1000"
+            - "USA"
+            - "USD"
+            - "1296000"
+            - "0"
+
 
 #POS CONFIGURATIONS
 #$type, $currency, $default_currency, $allowed_currencies_in, $allowed_currencies_out
