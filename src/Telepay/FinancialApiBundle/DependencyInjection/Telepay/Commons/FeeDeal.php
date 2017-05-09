@@ -645,7 +645,7 @@ class FeeDeal{
             $this->fee_logger->info('FEE_DEAL (createRootFees) => BALANCE ');
             $rootGroup = $em->getRepository('TelepayFinancialApiBundle:Group')->find($rootGroupId);
 
-            //restar al wallet
+            //restar al wallet DE ROOT
             $rootWallet = $rootGroup->getWallet($rootTransaction->getCurrency());
             $rootWallet->setAvailable($rootWallet->getAvailable() + $total_fee);
             $rootWallet->setBalance($rootWallet->getBalance() + $total_fee);
@@ -757,8 +757,8 @@ class FeeDeal{
                     $this->fee_logger->info('FEE_DEAL (createRootFees) => negative ');
 
                     //restar al wallet
-                    $rootWallet->setAvailable($current_wallet->getAvailable() - $resellerFee);
-                    $rootWallet->setBalance($current_wallet->getBalance() - $resellerFee);
+                    $rootWallet->setAvailable($rootWallet->getAvailable() - $resellerFee);
+                    $rootWallet->setBalance($rootWallet->getBalance() - $resellerFee);
 
                     $resellerWallet = $reseller->getCompanyReseller()->getWallet($currency);
                     $resellerWallet->setAvailable($resellerWallet->getAvailable() + $resellerFee);
@@ -772,11 +772,10 @@ class FeeDeal{
 
                 }
 
-
             }
 
         }
 
-
     }
+
 }

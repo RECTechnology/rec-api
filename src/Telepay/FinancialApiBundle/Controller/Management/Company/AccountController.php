@@ -98,7 +98,7 @@ class AccountController extends BaseApiController{
             $filename = str_replace($this->container->getParameter('files_path') . '/', '', $company->getCompanyImage());
         }
 
-        file_put_contents($fileManager->getFilesPath() . '/' . $filename, $fileContents);
+        file_put_contents($fileManager->getUploadsDir() . '/' . $filename, $fileContents);
 
         $tmpFile = new File($fileManager->getUploadsDir() . '/' . $filename);
         if (!in_array($tmpFile->getMimeType(), UploadManager::$ALLOWED_MIMETYPES))
