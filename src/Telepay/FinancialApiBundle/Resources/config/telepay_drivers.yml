@@ -115,6 +115,16 @@ services:
             - "%teleingreso_url%"
             - "%teleingreso_hash%"
 
+    net.telepay.driver.teleingreso_usa.telepay:
+        class: Telepay\FinancialApiBundle\Financial\Driver\TeleingresoUSADriver
+        arguments:
+            - "%teleingreso_login%"
+            - "%teleingreso_pass%"
+            - "%teleingreso_certificateType%"
+            - "%teleingreso_currency%"
+            - "%teleingreso_url%"
+            - "%teleingreso_hash%"
+
     net.telepay.driver.fairtoearth:
         class: Telepay\FinancialApiBundle\Financial\Driver\FairAPIDriver
         arguments:

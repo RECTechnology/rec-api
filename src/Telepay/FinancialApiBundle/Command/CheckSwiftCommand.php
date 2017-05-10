@@ -320,19 +320,12 @@ class CheckSwiftCommand extends SyncronizedContainerAwareCommand
                                     $dm->persist($userFee);
 
                                     $group = $em->getRepository('TelepayFinancialApiBundle:Group')->find($transaction->getGroup());
-                                    $userWallets = $group->getWallets();
-                                    $current_wallet = null;
+                                    $userWallet = $group->getWallet($userFee->getCurrency());
 
-                                    foreach ( $userWallets as $wallet){
-                                        if ($wallet->getCurrency() == $userFee->getCurrency()){
-                                            $current_wallet = $wallet;
-                                        }
-                                    }
+                                    $userWallet->setAvailable($userWallet->getAvailable() + $client_fee);
+                                    $userWallet->setBalance($userWallet->getBalance() + $client_fee);
 
-                                    $current_wallet->setAvailable($current_wallet->getAvailable() + $client_fee);
-                                    $current_wallet->setBalance($current_wallet->getBalance() + $client_fee);
-
-                                    $em->persist($current_wallet);
+                                    $em->persist($userWallet);
                                     $em->flush();
 
                                     $userCompany = $em->getRepository('TelepayFinancialApiBundle:Group')->find($transaction->getGroup());
@@ -380,19 +373,12 @@ class CheckSwiftCommand extends SyncronizedContainerAwareCommand
 
                                     $dm->persist($rootFee);
                                     //get wallets and add fees to both, user and wallet
-                                    $rootWallets = $rootGroup->getWallets();
-                                    $current_wallet = null;
+                                    $rootWallet = $rootGroup->getWallet($rootFee->getCurrency());
 
-                                    foreach ( $rootWallets as $wallet){
-                                        if ($wallet->getCurrency() == $rootFee->getCurrency()){
-                                            $current_wallet = $wallet;
-                                        }
-                                    }
+                                    $rootWallet->setAvailable($rootWallet->getAvailable() + $service_fee);
+                                    $rootWallet->setBalance($rootWallet->getBalance() + $service_fee);
 
-                                    $current_wallet->setAvailable($current_wallet->getAvailable() + $service_fee);
-                                    $current_wallet->setBalance($current_wallet->getBalance() + $service_fee);
-
-                                    $em->persist($current_wallet);
+                                    $em->persist($rootWallet);
                                     $em->flush();
 
                                     $balancer->addBalance($rootGroup, $service_fee, $transaction);
