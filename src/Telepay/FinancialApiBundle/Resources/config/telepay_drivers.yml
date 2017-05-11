@@ -121,7 +121,7 @@ services:
             - "%teleingreso_usa_currency%"
             - "%teleingreso_usa_url%"
             - "%teleingreso_usa_hash%"
-            - "%teleingreso_usa_mechant%"
+            - "%teleingreso_usa_merchant%"
 
     net.telepay.driver.fairtoearth:
         class: Telepay\FinancialApiBundle\Financial\Driver\FairAPIDriver
