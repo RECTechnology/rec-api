@@ -51,7 +51,8 @@ class TeleingresoUSADriver{
             'transaction_id'    =>  $reference,
             'chargeId'  =>  '',
             'track' =>  $reference,
-            'merchant'  =>  $this->merchant
+            'merchant'  =>  $this->merchant,
+            'amount'    =>  $amount
         );
 
         return $response;
