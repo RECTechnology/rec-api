@@ -26,6 +26,7 @@ class TeleingresoUSADriver{
 
     public function createIssue($amount){
 
+        //TODO curl para pillar los datos
         return $this->getReference();
 
     }

@@ -1,44 +1,11 @@
 #################################################### REAL SERVICE CALLS ##############################################
 
-service_call_create:
-    pattern:  /services/v{version_number}/{service_cname}
-    defaults: { _controller: Telepay\FinancialApiBundle\Controller\Transactions\IncomingController::make, _format: ~ }
-    requirements:
-        _method: POST
-        service_cname: "[a-z0-9_]+"
-
 method_call_create:
     pattern:  /methods/v{version_number}/{type}/{method_cname}
     defaults: { _controller: Telepay\FinancialApiBundle\Controller\Transactions\IncomingController2::make, _format: ~ }
     requirements:
         _method: POST
         service_cname: "[a-z0-9_]+"
-
-services_halcash_send_v2:
-    pattern:  /services/v2/halcash/send
-    defaults: { _controller: Telepay\FinancialApiBundle\Controller\Services\ServicesHalcashController::sendV2, _format: ~ }
-    requirements:
-        _method: POST
-
-services_halcash_cancel:
-    pattern:  /services/v1/halcash/cancel
-    defaults: { _controller: Telepay\FinancialApiBundle\Controller\Services\ServicesHalcashController::cancel, _format: ~ }
-    requirements:
-        _method: PUT
-
-services_sabadell_generate:
-    pattern:  /services/v1/sabadell/generate
-    defaults: { _controller: Telepay\FinancialApiBundle\Controller\Services\ServicesSabadellTPVController::generate, _format: ~ }
-    requirements:
-        _method: POST
-
-service_call_update:
-    pattern:  /services/v{version_number}/{service_cname}/{id}
-    defaults: { _controller: Telepay\FinancialApiBundle\Controller\Transactions\IncomingController::update, _format: ~ }
-    requirements:
-        _method: PUT
-        service_cname: "[a-z0-9_]+"
-        id: "[a-z0-9]+"
 
 method_call_update:
     pattern:  /methods/v{version_number}/{type}/{method_cname}/{id}
@@ -48,27 +15,12 @@ method_call_update:
         service_cname: "[a-z0-9_]+"
         id: "[a-z0-9]+"
 
-service_call_find:
-    pattern:  /services/v{version_number}/{service_cname}
-    defaults: { _controller: Telepay\FinancialApiBundle\Controller\Transactions\IncomingController::find, _format: ~ }
-    requirements:
-        _method: GET
-        service_cname: "[a-z0-9_]+"
-
 method_call_find:
     pattern:  /methods/v{version_number}/{type}/{method_cname}
     defaults: { _controller: Telepay\FinancialApiBundle\Controller\Transactions\IncomingController2::find, _format: ~ }
     requirements:
         _method: GET
         service_cname: "[a-z0-9_]+"
-
-service_call_check:
-    pattern:  /services/v{version_number}/{service_cname}/{id}
-    defaults: { _controller: Telepay\FinancialApiBundle\Controller\Transactions\IncomingController::check, _format: ~ }
-    requirements:
-        _method: GET
-        service_cname: "[a-z0-9_]+"
-        id: "[a-z0-9]+"
 
 method_call_check:
     pattern:  /methods/v{version_number}/{type}/{method_cname}/{id}
