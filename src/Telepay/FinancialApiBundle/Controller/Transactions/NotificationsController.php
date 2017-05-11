@@ -26,6 +26,9 @@ class NotificationsController extends RestApiController{
         }elseif($service_cname == 'teleingreso'){
             $notification = $this->_teleingresoNotification($request);
             return $notification;
+        }elseif($service_cname == 'teleingreso_usa'){
+            $notification = $this->_teleingresoUSANotification($request);
+            return $notification;
         }else{
             $notification = false;
         }
@@ -94,6 +97,63 @@ class NotificationsController extends RestApiController{
 
         $logger->info('notifications -> _teleingreso notification');
         $cashInMethod = $this->container->get('net.telepay.in.teleingreso.v1');
+
+        //Locate transaction
+        if(!$request->query->has('amount') || $request->query->get('amount') == null) throw new HttpException(409, 'Notification not allowed');
+        if(!$request->query->has('reference') || $request->query->get('reference') == null) throw new HttpException(409, 'Notification not allowed');
+        if(!$request->query->has('md5') || $request->query->get('md5') == null) throw new HttpException(409, 'Notification not allowed');
+
+        $amount = $request->query->get('amount');
+        $reference = $request->query->get('reference');
+        $md5 = $request->query->get('md5');
+
+        $params = array();
+        $params['amount'] = $amount;
+        $params['reference'] = $reference;
+        $params['md5'] = $md5;
+
+        $logger->info('notifications -> reference => '.$reference);
+
+        $dm = $this->get('doctrine_mongodb')->getManager();
+
+        $transaction = $dm->createQueryBuilder('TelepayFinancialApiBundle:Transaction')
+            ->field('pay_in_info.track')->equals($reference)
+            ->getQuery()
+            ->getSingleResult();
+
+        if(!$transaction) throw new HttpException(404, 'Transaction not found');
+
+        $logger->info('notifications -> transaction found');
+
+        if($transaction->getStatus() != Transaction::$STATUS_CREATED) throw new HttpException(409, 'Transaction notificated yet');
+
+        $paymentInfo = $transaction->getPayInInfo();
+
+        if($paymentInfo['track'] != $reference) throw new HttpException(409, 'Notification not allowed');
+
+        if($paymentInfo['status'] != Transaction::$STATUS_CREATED) throw new HttpException(409, 'Transaction notificated yet');
+
+        $paymentInfo = $cashInMethod->notification($params, $paymentInfo);
+        $logger->info('notifications -> status => '.$paymentInfo['status']);
+        if($paymentInfo['status'] == 'received'){
+            $transaction->setStatus(Transaction::$STATUS_RECEIVED);
+            $transaction->setPayInInfo($paymentInfo);
+            $dm->persist($transaction);
+            $dm->flush();
+
+        }else{
+            $logger->info('notifications -> debug => '.$paymentInfo['debug']);
+        }
+
+        return $this->render('TelepayFinancialApiBundle:Teleingreso:notification_response.html.twig', array('response' => $paymentInfo['response']));
+    }
+
+    public function _teleingresoUSANotification(Request $request){
+
+        $logger = $this->_logger();
+
+        $logger->info('notifications -> _teleingreso_usa notification');
+        $cashInMethod = $this->container->get('net.telepay.in.teleingreso_usa.v1');
 
         //Locate transaction
         if(!$request->query->has('amount') || $request->query->get('amount') == null) throw new HttpException(409, 'Notification not allowed');
