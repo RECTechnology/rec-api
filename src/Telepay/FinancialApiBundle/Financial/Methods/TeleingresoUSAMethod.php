@@ -43,6 +43,7 @@ class TeleingresoUSAMethod extends BaseMethod{
             $paymentInfo['teleingreso_id'] = $teleingreso['transactionId'];
             $paymentInfo['charge_id'] = $teleingreso['chargeId'];
             $paymentInfo['track'] = $teleingreso['track'];
+            $paymentInfo['merchant'] = $teleingreso['merchant'];
             $paymentInfo['expires_in'] = 7*24*60*60;
             $paymentInfo['currency'] = 'USD';
             $paymentInfo['scale'] = Currency::$SCALE['USD'];
