@@ -22,6 +22,7 @@ use Telepay\FinancialApiBundle\Entity\LimitDefinition;
 use Telepay\FinancialApiBundle\Entity\ServiceFee;
 use Telepay\FinancialApiBundle\Entity\User;
 use Telepay\FinancialApiBundle\Entity\UserWallet;
+use Telepay\FinancialApiBundle\Security\Authentication\Token\SignatureToken;
 
 class IncomingController2 extends RestApiController{
 
@@ -1138,9 +1139,9 @@ class IncomingController2 extends RestApiController{
         $tokenManager = $this->container->get('fos_oauth_server.access_token_manager.default');
 
         try{
-            $accessToken = $tokenManager->findTokenByToken(
-                $this->get('security.context')->getToken()->getToken()
-            );
+            $token = $this->get('security.context')->getToken();
+            if($token instanceof SignatureToken) return $user->getActiveGroup();
+            $accessToken = $tokenManager->findTokenByToken($token->getToken());
 
             $commerce_client = $this->container->getParameter('commerce_client_id');
             $android_pos_client = $this->container->getParameter('android_pos_client_id');
