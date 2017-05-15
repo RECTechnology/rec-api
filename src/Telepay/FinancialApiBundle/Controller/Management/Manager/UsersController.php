@@ -253,7 +253,11 @@ class UsersController extends BaseApiController
         $request->request->remove('role');
 
         if(!$request->request->has('username') || $request->request->get('username') == '') throw new HttpException(400, "Missing parameter 'username'");
-        if(!$request->request->has('email') || $request->request->get('email') == '') throw new HttpException(400, "Missing parameter 'email'");
+        if(!$request->request->has('email') || $request->request->get('email') == ''){
+            throw new HttpException(400, "Missing parameter 'email'");
+        }else{
+            if(!filter_var($request->request->get('email'), FILTER_VALIDATE_EMAIL)) throw new HttpException(404, 'Email provided is not valid');
+        }
         if(!$request->request->has('name') || $request->request->get('name') == '') throw new HttpException(400, "Missing parameter 'name'");
         if(!$request->request->has('password')) throw new HttpException(400, "Missing parameter 'password'");
         if(!$request->request->has('repassword')) throw new HttpException(400, "Missing parameter 'repassword'");
@@ -269,7 +273,6 @@ class UsersController extends BaseApiController
         $request->request->add(array('gcm_group_key'=>''));
 
         $resp= parent::createAction($request);
-
         if($resp->getStatusCode() == 201){
             $user_id = $resp->getContent();
             $user_id = json_decode($user_id);
@@ -459,7 +462,10 @@ class UsersController extends BaseApiController
      * @Rest\View
      */
     public function deleteAction($id){
-        if($this->get('security.context')->isGranted('ROLE_SUPER_ADMIN')) throw new HttpException(403, 'You don\'t have the necessary permissions');
+        if(!$this->get('security.context')->isGranted('ROLE_SUPER_ADMIN')) throw new HttpException(403, 'You don\'t have the necessary permissions');
+        //TODO conditions to delete user
+        //no transactions, not kyc manager in any company, if unique in company without transactions,
+        //TODO a listener to control this shit
         return parent::deleteAction($id);
     }
 
@@ -467,77 +473,13 @@ class UsersController extends BaseApiController
      * @Rest\View
      */
     public function deleteByNameAction($username){
-        if($this->get('security.context')->isGranted('ROLE_SUPER_ADMIN')) throw new HttpException(403, 'You don\'t have the necessary permissions');
+        if(!$this->get('security.context')->isGranted('ROLE_SUPER_ADMIN')) throw new HttpException(403, 'You don\'t have the necessary permissions');
         $repo = $this->getRepository();
         $user = $repo->findOneBy(array('username'=>$username));
         if(empty($user)) throw new HttpException(404, 'User not found');
         $idUser = $user->getId();
         return parent::deleteAction($idUser);
     }
-
-//    private function _setMethods(Request $request, $id){
-//        if(empty($id)) throw new HttpException(400, "Missing parameter 'id'");
-//        $usersRepo = $this->getRepository();
-//        $user = $usersRepo->findOneBy(array('id'=>$id));
-//        $listMethods = $user->getMethodsList();
-//
-//        $putMethods = $request->get('methods');
-//        foreach($putMethods as $method){
-//            if(!in_array($method, $listMethods)){
-//                $this->_addMethod($id, $method);
-//            }
-//        }
-//        return $this->rest(204, "Edited");
-//    }
-
-//    private function _addMethod($id, $cname){
-//        $usersRepo = $this->getRepository();
-//        $methodsRepo = $this->get('net.telepay.method_provider');
-//        $user = $usersRepo->findOneBy(array('id'=>$id));
-//        $method = $methodsRepo->findByCname($cname);
-//        if(empty($user)) throw new HttpException(404, 'User not found');
-//        if(empty($method)) throw new HttpException(404, 'Method not found');
-//
-//        $user->addMethod($cname);
-//        $em = $this->getDoctrine()->getManager();
-//        $limitRepo = $em->getRepository("TelepayFinancialApiBundle:LimitCount");
-//        $limit = $limitRepo->findOneBy(array('cname' => $cname, 'user' => $user));
-//        if(!$limit){
-//            $limit = new LimitCount();
-//            $limit->setUser($user);
-//            $limit->setCname($cname);
-//            $limit->setSingle(0);
-//            $limit->setDay(0);
-//            $limit->setWeek(0);
-//            $limit->setMonth(0);
-//            $limit->setYear(0);
-//            $limit->setTotal(0);
-//            $em->persist($limit);
-//        }
-//
-//        try{
-//            $em->flush();
-//        } catch(DBALException $e){
-//            if(preg_match('/SQLSTATE\[23000\]/',$e->getMessage()))
-//                throw new HttpException(409, "Duplicated resource");
-//            else
-//                throw new HttpException(500, "Unknown error occurred when save");
-//        }
-//    }
-
-//    private function _deleteService($id, $cname){
-//        $usersRepo = $this->getRepository();
-//        $service = $this->get('net.telepay.service_provider')->findByCname($cname);
-//        $user = $usersRepo->findOneBy(array('id'=>$id));
-//        if(empty($user)) throw new HttpException(404, "User not found");
-//        if(empty($service)) throw new HttpException(404, 'Service not found');
-//
-//        $user->removeService($cname);
-//        $em = $this->getDoctrine()->getManager();
-//        $em->persist($user);
-//        $em->flush();
-//    }
-
 
     public function _setRole(Request $request, $id){
         $roleName = $request->get('role');
