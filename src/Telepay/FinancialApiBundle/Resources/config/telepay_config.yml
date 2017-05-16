@@ -363,13 +363,13 @@ services:
         class: Telepay\FinancialApiBundle\Financial\Methods\MethodConfiguration
         arguments:
             - "0"
-            - "6"
-            - "1000"
+            - "4"
+            - "10000"
             - "60000"
             - "1000"
             - "USA"
             - "USD"
-            - "1296000"
+            - "172800"
             - "0"
 
 
