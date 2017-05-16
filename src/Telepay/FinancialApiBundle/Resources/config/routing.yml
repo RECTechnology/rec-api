@@ -23,9 +23,6 @@ KYC:
 POS:
     resource: routing/pos.yml
 
-OldVersions:
-    resource: routing/old_services.yml
-
 Swift_api:
     resource: routing/swift.yml
 

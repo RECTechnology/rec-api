@@ -152,6 +152,11 @@ parameters:
     teleingreso_url: ''
     teleingreso_hash: ''
 
+    teleingreso_usa_currency: ''
+    teleingreso_usa_url: ''
+    teleingreso_usa_hash: ''
+    teleingreso_usa_merchant: ''
+
     uploads_dir: ''
     files_path: ''
 

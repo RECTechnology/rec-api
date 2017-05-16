@@ -36,13 +36,24 @@ class TeleingresoUSAMethod extends BaseMethod{
 
         $teleingreso = $this->driver->createIssue($amount/100);
 
-        $paymentInfo['status'] = Transaction::$STATUS_CREATED;
-        $paymentInfo['amount'] = $teleingreso['amount']*100;
-        $paymentInfo['reference'] = $teleingreso;
-        $paymentInfo['expires_in'] = 7*24*60*60;
-        $paymentInfo['currency'] = 'USD';
-        $paymentInfo['scale'] = Currency::$SCALE['USD'];
-        $paymentInfo['final'] = false;
+        if($teleingreso['TxtDescription'] == 'Accepted'){
+            $paymentInfo['status'] = Transaction::$STATUS_CREATED;
+            $paymentInfo['amount'] = $teleingreso['amount']*100;
+            $paymentInfo['teleingreso_status'] = $teleingreso['TxtDescription'];
+            $paymentInfo['teleingreso_id'] = $teleingreso['transactionId'];
+            $paymentInfo['charge_id'] = $teleingreso['chargeId'];
+            $paymentInfo['track'] = $teleingreso['track'];
+            $paymentInfo['merchant'] = $teleingreso['merchant'];
+            $paymentInfo['expires_in'] = 7*24*60*60;
+            $paymentInfo['currency'] = 'USD';
+            $paymentInfo['scale'] = Currency::$SCALE['USD'];
+            $paymentInfo['final'] = false;
+        }else{
+            $paymentInfo['status'] = Transaction::$STATUS_FAILED;
+            $paymentInfo['final'] = false;
+            $paymentInfo['errorCode'] = 500;
+            $paymentInfo['errorDescription'] = 'Service temporally unavailable';
+        }
 
         return $paymentInfo;
     }
