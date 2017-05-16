@@ -47,6 +47,7 @@ class IncomingController2 extends RestApiController{
         $method = $this->get('net.telepay.'.$type.'.'.$method_cname.'.v'.$version_number);
 
         $method_list = $group->getMethodsList();
+        $method_list[] = 'echo-in';
 
         if (!in_array($method_cname.'-'.$type, $method_list)) {
             throw $this->createAccessDeniedException();
