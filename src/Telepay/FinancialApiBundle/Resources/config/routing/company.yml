@@ -144,3 +144,22 @@ update_nfc_card:
     defaults: { _controller: Telepay\FinancialApiBundle\Controller\Management\Company\NFCController::updateCardFromCompany }
     requirements:
         _method: PUT
+
+###################   COMPANY WALLET #################
+company_wallet:
+    pattern:  /company/{company_id}/v1/wallets
+    defaults: { _controller: Telepay\FinancialApiBundle\Controller\Management\Company\WalletController::read }
+    requirements:
+        _method: GET
+
+company_wallet_do_exchange:
+    pattern:  /company/{company_id}/v1/wallet/exchange
+    defaults: { _controller: Telepay\FinancialApiBundle\Controller\Management\Company\WalletController::currencyExchange, _format: ~ }
+    requirements:
+        _method: POST
+
+company_wallet_transactions:
+    pattern:  /company/{company_id}/v1/wallet/transactions
+    defaults: { _controller: Telepay\FinancialApiBundle\Controller\Management\Company\WalletController::walletTransactions }
+    requirements:
+        _method: GET

@@ -241,7 +241,16 @@ class ExchangeManipulator{
         //notification
         $this->container->get('notificator')->notificate($cashIn);
 
-        return true;
+        $paymentInfo = array(
+            'from'  =>  $from,
+            'to'    =>  $to,
+            'sent'    =>  $amount,
+            'received'  =>  $exchangeAmount,
+            'price' =>  round($price,$receiverWallet->getScale())
+
+        );
+
+        return $paymentInfo;
 
     }
 

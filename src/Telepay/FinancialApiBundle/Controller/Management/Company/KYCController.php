@@ -226,7 +226,6 @@ class KYCController extends BaseApiController{
             $kyc->setTier2Status('pending');
             $kyc->setTier2StatusRequest(new \DateTime());
         }
-
         $em->flush();
 
         return $this->rest(204, 'Request successfully');

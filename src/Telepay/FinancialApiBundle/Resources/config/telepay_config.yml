@@ -372,6 +372,19 @@ services:
             - "172800"
             - "0"
 
+    net.telepay.config.teleingreso_pt.btc:
+        class: Telepay\FinancialApiBundle\Financial\Methods\MethodConfiguration
+        arguments:
+            - "0"
+            - "4"
+            - "10000"
+            - "60000"
+            - "1000"
+            - "Portugal"
+            - "EUR"
+            - "172800"
+            - "0"
+
 
 #POS CONFIGURATIONS
 #$type, $currency, $default_currency, $allowed_currencies_in, $allowed_currencies_out

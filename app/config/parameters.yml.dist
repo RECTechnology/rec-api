@@ -157,6 +157,9 @@ parameters:
     teleingreso_usa_hash: ''
     teleingreso_usa_merchant: ''
 
+    teleingreso_pt_url: ''
+    teleingreso_pt_merchant: ''
+
     uploads_dir: ''
     files_path: ''
 
