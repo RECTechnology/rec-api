@@ -143,7 +143,7 @@ class KycListener
     private function _notifyKYCChanges($changeset, KYC $kyc){
 
         if(isset($changeset['tier1_status'])){
-            $this->logger->info('TIER 1 STATUS :'.$changeset['tier1_status']);
+            $this->logger->info('TIER 1 from :'.$changeset['tier1_status'][0].' to '.$changeset['tier1_status'][1]);
             switch ($kyc->getTier1Status()){
                 case 'approved':
                     //DO something
@@ -164,7 +164,7 @@ class KycListener
         }
 
         if(isset($changeset['tier2_status'])){
-            $this->logger->info('TIER 2 STATUS :'.$changeset['tier2_status']);
+            $this->logger->info('TIER 2 FROM :'.$changeset['tier2_status'][0].' TO '.$changeset['tier2_status'][0]);
             switch ($kyc->getTier2Status()){
                 case 'approved':
                     //DO something

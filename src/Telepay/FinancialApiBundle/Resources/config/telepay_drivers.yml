@@ -116,12 +116,20 @@ services:
             - "%teleingreso_hash%"
 
     net.telepay.driver.teleingreso_usa.telepay:
-        class: Telepay\FinancialApiBundle\Financial\Driver\TeleingresoUSADriver
+        class: Telepay\FinancialApiBundle\Financial\Driver\TeleingresoIframeDriver
         arguments:
             - "%teleingreso_usa_currency%"
             - "%teleingreso_usa_url%"
             - "%teleingreso_usa_hash%"
             - "%teleingreso_usa_merchant%"
+
+    net.telepay.driver.teleingreso_pt.telepay:
+        class: Telepay\FinancialApiBundle\Financial\Driver\TeleingresoIframeDriver
+        arguments:
+            - "%teleingreso_currency%"
+            - "%teleingreso_pt_url%"
+            - "%teleingreso_hash%"
+            - "%teleingreso_pt_merchant%"
 
     net.telepay.driver.fairtoearth:
         class: Telepay\FinancialApiBundle\Financial\Driver\FairAPIDriver
