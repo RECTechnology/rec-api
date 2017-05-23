@@ -276,6 +276,8 @@ class ActivityController extends RestApiController
         if(!$request->request->has('amount')) throw new HttpException(404, 'Param amount not found');
         if(!$request->request->has('external_id')) throw new HttpException(404, 'Param external_id not found');
 
+        //TODO validate deposits type(swift,deposit,spend,unknown) via(cash, transfer) hash.
+        //hash('sha256', $this->index . $this->date . $this->amount . $this->branch . $this->description . $this->comments);
         //search transactions by reference
 
         $reference = $request->request->get('reference');
