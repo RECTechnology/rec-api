@@ -363,7 +363,7 @@ services:
         class: Telepay\FinancialApiBundle\Financial\Methods\MethodConfiguration
         arguments:
             - "0"
-            - "4"
+            - "3"
             - "10000"
             - "60000"
             - "1000"
