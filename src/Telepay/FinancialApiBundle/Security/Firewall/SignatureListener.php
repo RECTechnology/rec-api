@@ -69,7 +69,9 @@ class SignatureListener implements ListenerInterface {
         $logger->info('FUCK5 5->'.$matches[5]);
 
         try{
+            $logger->info('FUCK5 try');
             $authToken = $this->authenticationManager->authenticate($token);
+            $logger->info('FUCK5 token ' . $authToken);
             $this->securityContext->setToken($authToken);
             $logger->info('FUCK5 OK');
             return;
