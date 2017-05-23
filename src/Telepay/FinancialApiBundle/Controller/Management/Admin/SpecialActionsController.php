@@ -164,14 +164,9 @@ class SpecialActionsController extends RestApiController {
         $group = $em->getRepository('TelepayFinancialApiBundle:Group')->find($transaction->getGroup());
 
         //obtain wallet
-        $wallets = $group->getWallets();
+        $current_wallet = $group->getWallet($transaction->getCurrency());
 
-        $current_wallet = null;
-        foreach ( $wallets as $wallet){
-            if ($wallet->getCurrency() === $transaction->getCurrency()){
-                $current_wallet = $wallet;
-            }
-        }
+
 
         if($validate == true){
             $transaction->setStatus('success');

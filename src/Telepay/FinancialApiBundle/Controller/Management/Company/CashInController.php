@@ -111,16 +111,16 @@ class CashInController extends BaseApiController{
 
         if(!in_array($method.'-'.$type, $company_methods)) throw new HttpException(405, 'Method not allowed in this company.');
 
-        $tokens = $this->getRepository()->findBy(array(
-            'company'  =>  $company,
-            'method'    =>  $method,
+        $tokens = $this->getRepository('TelepayFinancialApiBundle:CashInTokens')->findBy(array(
+            'company'  =>  $company->getId(),
+            'method'    =>  $request->request->get('method'),
             'status'    =>  CashInTokens::$STATUS_ACTIVE
         ));
 
-        if($method == 'sepa'){
-            if(count($tokens) >= 5) throw new HttpException(409, 'You has exceeded the max addresses allowed');
+        if($method != 'sepa'){
+            if(count($tokens) >= 5) throw new HttpException(403, 'You has exceeded the max addresses allowed');
         }else{
-            if(count($tokens) > 1) throw new HttpException(409, 'You has exceeded the max addresses allowed');
+            if(count($tokens) > 1) throw new HttpException(403, 'You has exceeded the max addresses allowed');
         }
 
         $paymentInfo = $methodDriver->getPayInInfo(0);
