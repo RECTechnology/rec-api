@@ -62,24 +62,28 @@ class SignatureListener implements ListenerInterface {
         $token->version = $matches[4];
         $token->signature = $matches[5];
 
-        $logger->info('FUCK5'.$matches[1]);
-        $logger->info('FUCK5'.$matches[2]);
-        $logger->info('FUCK5'.$matches[3]);
-        $logger->info('FUCK5'.$matches[4]);
-        $logger->info('FUCK5'.$matches[5]);
+        $logger->info('FUCK5 1->'.$matches[1]);
+        $logger->info('FUCK5 2->'.$matches[2]);
+        $logger->info('FUCK5 3->'.$matches[3]);
+        $logger->info('FUCK5 4->'.$matches[4]);
+        $logger->info('FUCK5 5->'.$matches[5]);
 
         try{
             $authToken = $this->authenticationManager->authenticate($token);
             $this->securityContext->setToken($authToken);
-            $logger->info('FUCK7');
+            $logger->info('FUCK5 OK');
             return;
         } catch(AuthenticationException $failed){
+            $logger->info('FUCK5 AUTH EXC');
             //TODO: log something here
             //return;
         }
 
         $response = new Response();
+        $logger->info('FUCK5 RESP');
         $response->setStatusCode(Response::HTTP_FORBIDDEN);
+        $logger->info('FUCK5 RESP CODE');
         $event->setResponse($response);
+        $logger->info('FUCK5 END');
     }
 }
