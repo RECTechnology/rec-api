@@ -59,10 +59,22 @@ class SignatureListener implements ListenerInterface {
             $logger->info('SIGNATURE_LISTENER IS GET');
             $em = $this->container->get('doctrine')->getManager();
             $usersRepo = $em->getRepository("TelepayFinancialApiBundle:User");
-            $id = substr($matches[1], 0, 2);
+            $key_data = explode("A", $matches[1]);
+            $id = $key_data[0];
             $logger->info('SIGNATURE_LISTENER id->' . $id);
             $user = $usersRepo->findOneBy(array('id'=>$id));
             $matches[1] = (string)$user->getAccessKey();
+
+            try{
+                $logger->info('SIGNATURE_LISTENER AUTH ID');
+                $authToken = $this->authenticationManager->authenticateGET($user);
+                $logger->info('SIGNATURE_LISTENER token ' . $authToken);
+                $this->securityContext->setToken($authToken);
+                $logger->info('SIGNATURE_LISTENER OK');
+                return;
+            } catch(AuthenticationException $failed){
+                $logger->info('SIGNATURE_LISTENER AUTH ID EXC');
+            }
         }
 
         $token = new SignatureToken();
