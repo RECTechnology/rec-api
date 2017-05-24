@@ -15,10 +15,11 @@ use Telepay\FinancialApiBundle\Security\Authentication\Token\SignatureToken;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpKernel\Event\GetResponseEvent;
 use Symfony\Component\Security\Core\Authentication\AuthenticationManagerInterface;
-use Symfony\Component\Security\Core\Exception\AuthenticationCredentialsNotFoundException;
 use Symfony\Component\Security\Core\Exception\AuthenticationException;
 use Symfony\Component\Security\Core\SecurityContextInterface;
 use Symfony\Component\Security\Http\Firewall\ListenerInterface;
+use Telepay\FinancialApiBundle\Entity\User;
+
 
 class SignatureListener implements ListenerInterface {
 
@@ -36,13 +37,11 @@ class SignatureListener implements ListenerInterface {
      * @param GetResponseEvent $event
      * @throws \Symfony\Component\Security\Core\Exception\AuthenticationCredentialsNotFoundException
      */
-    public function handle(GetResponseEvent $event)
-    {
+    public function handle(GetResponseEvent $event){
 
         $logger = $this->container->get('logger');
-
         $request = $event->getRequest();
-        $logger->info($request);
+        $logger->info('SIGNATURE_LISTENER r->' . $request);
         $authRequestRegex = '/Signature '
             .'access-key="([^"]+)", '
             .'nonce="([^"]+)", '
@@ -55,6 +54,17 @@ class SignatureListener implements ListenerInterface {
         if(! $request->headers->has($authHeaderName)) return;
         $signature = $request->headers->get($authHeaderName);
         if(1 != preg_match($authRequestRegex, $signature, $matches)) return;
+
+        if($request->getMethod() == 'GET' && strlen($matches[1])==10){
+            $logger->info('SIGNATURE_LISTENER IS GET');
+            $em = $this->container->get('doctrine')->getManager();
+            $usersRepo = $em->getRepository("TelepayFinancialApiBundle:User");
+            $id = substr($matches[1], 0, 2);
+            $logger->info('SIGNATURE_LISTENER id->' . $id);
+            $user = $usersRepo->findOneBy(array('id'=>$id));
+            $matches[1] = $user->getAccessKey();
+        }
+
         $token = new SignatureToken();
         $token->setUser($matches[1]);
         $token->nonce = $matches[2];
@@ -62,30 +72,30 @@ class SignatureListener implements ListenerInterface {
         $token->version = $matches[4];
         $token->signature = $matches[5];
 
-        $logger->info('FUCK5 1->'.$matches[1]);
-        $logger->info('FUCK5 2->'.$matches[2]);
-        $logger->info('FUCK5 3->'.$matches[3]);
-        $logger->info('FUCK5 4->'.$matches[4]);
-        $logger->info('FUCK5 5->'.$matches[5]);
+        $logger->info('SIGNATURE_LISTENER 1->'.$matches[1]);
+        $logger->info('SIGNATURE_LISTENER 2->'.$matches[2]);
+        $logger->info('SIGNATURE_LISTENER 3->'.$matches[3]);
+        $logger->info('SIGNATURE_LISTENER 4->'.$matches[4]);
+        $logger->info('SIGNATURE_LISTENER 5->'.$matches[5]);
 
         try{
-            $logger->info('FUCK5 try');
+            $logger->info('SIGNATURE_LISTENER try');
             $authToken = $this->authenticationManager->authenticate($token);
-            $logger->info('FUCK5 token ' . $authToken);
+            $logger->info('SIGNATURE_LISTENER token ' . $authToken);
             $this->securityContext->setToken($authToken);
-            $logger->info('FUCK5 OK');
+            $logger->info('SIGNATURE_LISTENER OK');
             return;
         } catch(AuthenticationException $failed){
-            $logger->info('FUCK5 AUTH EXC');
+            $logger->info('SIGNATURE_LISTENER AUTH EXC');
             //TODO: log something here
             //return;
         }
 
         $response = new Response();
-        $logger->info('FUCK5 RESP');
+        $logger->info('SIGNATURE_LISTENER RESP');
         $response->setStatusCode(Response::HTTP_FORBIDDEN);
-        $logger->info('FUCK5 RESP CODE');
+        $logger->info('SIGNATURE_LISTENER RESP CODE');
         $event->setResponse($response);
-        $logger->info('FUCK5 END');
+        $logger->info('SIGNATURE_LISTENER END');
     }
 }
