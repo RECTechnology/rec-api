@@ -53,17 +53,6 @@ class SignatureAuthenticationProvider implements AuthenticationProviderInterface
         throw new AuthenticationException('Signature authentication failed.');
     }
 
-    public function authenticateGET(User $user){
-        if($user->getId()){
-            $authenticatedToken = new SignatureToken($user->getRoles());
-            $authenticatedToken->setUser($user);
-            if($user->isLocked()) throw new AuthenticationException('User is locked');
-            if(!$user->isEnabled()) throw new AuthenticationException('User is disabled');
-            return $authenticatedToken;
-        }
-        throw new AuthenticationException('Signature authentication failed.');
-    }
-
     protected function validateSignature($accessKey, $nonce, $timestamp, $version, $signature, $secret){
         // Check created time is not in the future
 
