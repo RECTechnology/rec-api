@@ -105,7 +105,8 @@ security:
         commerce_register:
             pattern:  ^/register/v1/commerce
             stateless: true
-            security: false
+            fos_oauth:  true
+            anonymous: true
 
         resent_email_validation:
             pattern:  ^/register/v1/sent_validation_email

@@ -14,17 +14,32 @@
             margin: 0;
             padding: 0;
         }
-        header{
-            width: 700px;
-            margin: 0 auto;
-            padding: 60px 0 20px;
-            /* Permalink - use to edit and share this gradient: http://colorzilla.com/gradient-editor/#218fec+48,1976cb+100 */
-            background: #218fec; /* Old browsers */
-            background: -moz-radial-gradient(center, ellipse cover,  #218fec 48%, #1976cb 100%); /* FF3.6-15 */
-            background: -webkit-radial-gradient(center, ellipse cover,  #218fec 48%,#1976cb 100%); /* Chrome10-25,Safari5.1-6 */
-            background: radial-gradient(ellipse at center,  #218fec 48%,#1976cb 100%); /* W3C, IE10+, FF16+, Chrome26+, Opera12+, Safari7+ */
-            filter: progid:DXImageTransform.Microsoft.gradient( startColorstr='#218fec', endColorstr='#1976cb',GradientType=1 ); /* IE6-9 fallback on horizontal gradient */
-        }
+        {% if client_name == 'Wannapay' %}
+            header{
+                width: 700px;
+                margin: 0 auto;
+                padding: 60px 0 20px;
+                /* Permalink - use to edit and share this gradient: http://colorzilla.com/gradient-editor/#218fec+48,1976cb+100 */
+                background: #218fec; /* Old browsers */
+                background: -moz-radial-gradient(center, ellipse cover,  rgba(201,98,32,1) 48%, rgba(255,119,44,1) 100%); /* FF3.6-15 */
+                background: -webkit-radial-gradient(center, ellipse cover,  rgba(201,98,32,1) 48%,rgba(255,119,44,1) 100%); /* Chrome10-25,Safari5.1-6 */
+                background: radial-gradient(ellipse at center,  rgba(201,98,32,1) 48%,rgba(255,119,44,1) 100%); /* W3C, IE10+, FF16+, Chrome26+, Opera12+, Safari7+ */
+                filter: progid:DXImageTransform.Microsoft.gradient( startColorstr='#218fec', endColorstr='#1976cb',GradientType=1 ); /* IE6-9 fallback on horizontal gradient */
+            }
+        {% else %}
+            header{
+                width: 700px;
+                margin: 0 auto;
+                padding: 60px 0 20px;
+                /* Permalink - use to edit and share this gradient: http://colorzilla.com/gradient-editor/#218fec+48,1976cb+100 */
+                background: #218fec; /* Old browsers */
+                background: -moz-radial-gradient(center, ellipse cover,  #218fec 48%, #1976cb 100%); /* FF3.6-15 */
+                background: -webkit-radial-gradient(center, ellipse cover,  #218fec 48%,#1976cb 100%); /* Chrome10-25,Safari5.1-6 */
+                background: radial-gradient(ellipse at center,  #218fec 48%,#1976cb 100%); /* W3C, IE10+, FF16+, Chrome26+, Opera12+, Safari7+ */
+                filter: progid:DXImageTransform.Microsoft.gradient( startColorstr='#218fec', endColorstr='#1976cb',GradientType=1 ); /* IE6-9 fallback on horizontal gradient */
+            }
+        {% endif %}
+
         header img{
             width: 50px;
             display: block;
@@ -76,11 +91,11 @@
 </head>
 <body>
 <header>
-    <img src="https://chip-chap.com/images/chip-chap_white.png">
-    <h1>Welcome to Chip-Chap</h1>
+    <img src="{{ company.companyImage }}">
+    <h1>Welcome to {{ client_name }}</h1>
 </header>
 <article>
-    <p>Bienvenido al sistema de pagos de Chip-Chap. Desde nuestro panel de control puedes controlar todas tus transacciónes, utilizar nuestros métodos financieros para explotar sistemas de pago y cobro.
+    <p>Bienvenido al sistema de pagos de {{ client_name }}. Desde nuestro panel de control puedes controlar todas tus transacciónes, utilizar nuestros métodos financieros para explotar sistemas de pago y cobro.
         <br>
         <br>
         Ponemos a tu disposición herramientas para la nueva economía basada en las cryptodivisas, una economía sostenible y descentralizada.</p>
@@ -91,7 +106,7 @@
     </div>
 </article>
 <footer>
-    <a href="https://chip-chap.com/">www.chip-chap.com</a>
+    <a href="{{ url }}">{{ client_name }}</a>
 </footer>
 </body>
 </html>

@@ -800,9 +800,26 @@ class AccountController extends BaseApiController{
             }
         }
 
+        $url = $this->container->getParameter('base_panel_url');
+        $client_name = 'Chip-Chap';
         if($type == 'commerce' || $type == 'physical_pos'){
-            $user_creator_id = $this->container->getParameter('admin_user_id');
-            $company_creator_id = $this->container->getParameter('id_group_root');
+            //get client if is authenticated
+            if ($this->get('security.authorization_checker')->isGranted('IS_AUTHENTICATED_FULLY')) {
+                $tokenManager = $this->container->get('fos_oauth_server.access_token_manager.default');
+                $accessToken = $tokenManager->findTokenByToken(
+                    $this->container->get('security.context')->getToken()->getToken()
+                );
+                $client = $accessToken->getClient();
+                $user_creator_id = $client->getGroup()->getKycManager()->getId();
+                $company_creator_id = $client->getGroup()->getId();
+                $url = $client->getRedirectUris()[0];
+                $client_name = $client->getCname();
+
+            }else{
+                $user_creator_id = $this->container->getParameter('admin_user_id');
+                $company_creator_id = $this->container->getParameter('id_group_root');
+            }
+
         }else{
             $user_creator_id = $this->container->getParameter('default_user_creator_commerce_' . $type);
             $company_creator_id = $this->container->getParameter('default_company_creator_commerce_' . $type);
@@ -846,17 +863,6 @@ class AccountController extends BaseApiController{
         $exchanges = $this->container->get('net.telepay.exchange_provider')->findAll();
 
         foreach($exchanges as $exchange){
-            //create limit for this group
-//            $limit = new LimitDefinition();
-//            $limit->setDay(0);
-//            $limit->setWeek(0);
-//            $limit->setMonth(0);
-//            $limit->setYear(0);
-//            $limit->setTotal(0);
-//            $limit->setSingle(0);
-//            $limit->setCname('exchange_'.$exchange->getCname());
-//            $limit->setCurrency($exchange->getCurrencyOut());
-//            $limit->setGroup($company);
             //create fee for this group
             $fee = new ServiceFee();
             $fee->setFixed(0);
@@ -865,7 +871,6 @@ class AccountController extends BaseApiController{
             $fee->setServiceName('exchange_'.$exchange->getCname());
             $fee->setGroup($company);
 
-//            $em->persist($limit);
             $em->persist($fee);
 
         }
@@ -895,14 +900,12 @@ class AccountController extends BaseApiController{
             }
         }
 
-        $url = $this->container->getParameter('base_panel_url');
-
         $tokenGenerator = $this->container->get('fos_user.util.token_generator');
         $user->setConfirmationToken($tokenGenerator->generateToken());
         $em->persist($user);
         $em->flush();
-        $url = $url.'/user/validation/'.$user->getConfirmationToken();
-        $this->_sendEmail('Chip-Chap validation e-mail', $url, $user->getEmail(), 'register');
+        $url_validation = $url.'/user/validation/'.$user->getConfirmationToken();
+        $this->_sendEmail($client_name.' validation e-mail', $url_validation, $user->getEmail(), 'register', $client_name, $url, $companyCreator);
 
         //Add user to group with admin role
         $userGroup = new UserGroup();
@@ -1399,7 +1402,7 @@ class AccountController extends BaseApiController{
 
     }
 
-    private function _sendEmail($subject, $body, $to, $action){
+    private function _sendEmail($subject, $body, $to, $action, $client_name = 'Chip-Chap', $url = null, $companyCreator = null){
         $from = 'no-reply@chip-chap.com';
         $mailer = 'mailer';
         if($action == 'register'){
@@ -1429,7 +1432,10 @@ class AccountController extends BaseApiController{
                 $this->container->get('templating')
                     ->render($template,
                         array(
-                            'message'        =>  $body
+                            'message'        =>  $body,
+                            'client_name'   =>  $client_name,
+                            'url'   =>  $url,
+                            'company'   =>  $companyCreator
                         )
                     )
             )

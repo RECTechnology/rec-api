@@ -27,11 +27,6 @@ class Client extends BaseClient
      */
     private $name;
 
-//    /**
-//     * @ORM\ManyToOne(targetEntity="Telepay\FinancialApiBundle\Entity\User")
-//     */
-//    private $user;
-
     /**
      * @ORM\ManyToOne(targetEntity="Telepay\FinancialApiBundle\Entity\Group")
      * @Exclude
@@ -59,6 +54,11 @@ class Client extends BaseClient
      *
      */
     private $swift_fees;
+
+    /**
+     * @ORM\Column(type="string", nullable=true)
+     */
+    private $cname;
 
     public function __construct()
     {
@@ -242,6 +242,22 @@ class Client extends BaseClient
     public function setSwiftFees($swift_fees)
     {
         $this->swift_fees = $swift_fees;
+    }
+
+    /**
+     * @return mixed
+     */
+    public function getCname()
+    {
+        return $this->cname;
+    }
+
+    /**
+     * @param mixed $cname
+     */
+    public function setCname($cname)
+    {
+        $this->cname = $cname;
     }
 
 }
