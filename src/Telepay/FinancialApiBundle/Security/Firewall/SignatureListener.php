@@ -62,7 +62,7 @@ class SignatureListener implements ListenerInterface {
             $id = substr($matches[1], 0, 2);
             $logger->info('SIGNATURE_LISTENER id->' . $id);
             $user = $usersRepo->findOneBy(array('id'=>$id));
-            $matches[1] = $user->getAccessKey();
+            $matches[1] = (string)$user->getAccessKey();
         }
 
         $token = new SignatureToken();
