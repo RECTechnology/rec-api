@@ -67,7 +67,10 @@ class SignatureListener implements ListenerInterface {
 
             try{
                 $logger->info('SIGNATURE_LISTENER AUTH ID');
-                $authToken = $this->authenticationManager->authenticateGET($user);
+                $authToken = new SignatureToken($user->getRoles());
+                $authToken->setUser($user);
+                if($user->isLocked()) throw new AuthenticationException('User is locked');
+                if(!$user->isEnabled()) throw new AuthenticationException('User is disabled');
                 $logger->info('SIGNATURE_LISTENER token ' . $authToken);
                 $this->securityContext->setToken($authToken);
                 $logger->info('SIGNATURE_LISTENER OK');
