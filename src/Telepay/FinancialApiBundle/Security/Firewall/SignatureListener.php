@@ -63,6 +63,7 @@ class SignatureListener implements ListenerInterface {
             $id = $key_data[0];
             $logger->info('SIGNATURE_LISTENER id->' . $id);
             $user = $usersRepo->findOneBy(array('id'=>$id));
+            if(!$this->validateSignature($matches[1], $matches[2], $matches[3], $matches[4], $matches[5], $user->getAccessSecret()))throw new AuthenticationException('Bad signature');
             $matches[1] = (string)$user->getAccessKey();
 
             try{
@@ -112,5 +113,25 @@ class SignatureListener implements ListenerInterface {
         $logger->info('SIGNATURE_LISTENER RESP CODE');
         $event->setResponse($response);
         $logger->info('SIGNATURE_LISTENER END');
+    }
+
+    protected function validateSignature($accessKey, $nonce, $timestamp, $version, $signature, $secret){
+        // Check created time is not in the future
+        $algorithm = 'SHA256';
+        if($version!='2')
+            return false;
+
+        if ($timestamp - 30 > time()) {
+            return false;
+        }
+
+        // Expire timestamp after 5 minutes
+        if (time() - $timestamp > 300) {
+            return false;
+        }
+
+        // Validate Secret
+        $expected = hash_hmac($algorithm, $accessKey.$nonce.$timestamp, base64_decode($secret));
+        return $signature === $expected;
     }
 }
