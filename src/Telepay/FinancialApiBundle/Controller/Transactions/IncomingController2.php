@@ -93,11 +93,11 @@ class IncomingController2 extends RestApiController{
         if(array_key_exists('url_notification', $data)) $url_notification = $data['url_notification'];
         else $url_notification = '';
 
-        if(array_key_exists('amount', $data) && $data['amount']!=''){
+        if(array_key_exists('amount', $data) && $data['amount']!='' && intval($data['amount'])>0){
             $amount = $data['amount'];
         }
         else{
-            throw new HttpException(400, 'Param amount not found');
+            throw new HttpException(400, 'Param amount not found or incorrect');
         }
 
         if(array_key_exists('delete_on_expire', $data) && $data['delete_on_expire']== 1 && ($method_cname == 'btc' || $method_cname == 'fac')){

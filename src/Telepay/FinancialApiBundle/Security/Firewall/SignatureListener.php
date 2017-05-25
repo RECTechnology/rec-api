@@ -56,6 +56,7 @@ class SignatureListener implements ListenerInterface {
             return;
         }
         $signature = $request->headers->get($authHeaderName);
+        $logger->info('SIGNATURE_LISTENER signature->' . $signature);
         if(1!=preg_match($authRequestRegex, $signature, $matches)){
             $logger->info('SIGNATURE_LISTENER error1-> NO REGEX FORMAT');
             return;
