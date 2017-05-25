@@ -158,7 +158,7 @@ class Login2faController extends RestApiController{
         $data = array(
             'username' => $username,
             'access_secret' => substr($user[0]->getAccessSecret(), 0, 10),
-            'access_key' => substr($user[0]->getId() .  "A" . rand(0,1000) . "C"  . rand(0,1000) . "E" . rand(0,1000), 0, 10)
+            'access_key' => substr($user[0]->getId() .  "A" . rand(10,1000) . "C"  . rand(10,1000) . "E" . rand(10,1000), 0, 10)
         );
         return new Response(json_encode($data), 200, $headers);
     }
