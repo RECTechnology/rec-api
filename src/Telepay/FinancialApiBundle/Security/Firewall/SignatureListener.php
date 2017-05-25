@@ -51,9 +51,15 @@ class SignatureListener implements ListenerInterface {
 
         $authHeaderName = 'x-signature';
 
-        if(! $request->headers->has($authHeaderName)) return;
+        if(!$request->headers->has($authHeaderName)){
+            $logger->info('SIGNATURE_LISTENER error1-> NO ' . $authHeaderName . " HEADER");
+            return;
+        }
         $signature = $request->headers->get($authHeaderName);
-        if(1 != preg_match($authRequestRegex, $signature, $matches)) return;
+        if(1!=preg_match($authRequestRegex, $signature, $matches)){
+            $logger->info('SIGNATURE_LISTENER error1-> NO REGEX FORMAT');
+            return;
+        }
 
         if($request->getMethod() == 'GET' && strlen($matches[1])==10){
             $logger->info('SIGNATURE_LISTENER IS GET');
@@ -80,6 +86,8 @@ class SignatureListener implements ListenerInterface {
                 $logger->info('SIGNATURE_LISTENER AUTH ID EXC');
             }
         }
+
+        $logger->info('SIGNATURE_LISTENER NOT GET VERSION2');
 
         $token = new SignatureToken();
         $token->setUser($matches[1]);
