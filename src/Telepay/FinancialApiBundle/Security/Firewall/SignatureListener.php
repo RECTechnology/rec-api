@@ -70,7 +70,7 @@ class SignatureListener implements ListenerInterface {
             $id = $key_data[0];
             $logger->info('SIGNATURE_LISTENER id->' . $id);
             $user = $usersRepo->findOneBy(array('id'=>$id));
-            if(!$this->validateSignature($matches[1], $matches[2], $matches[3], $matches[4], $matches[5], $user->getAccessSecret()))throw new AuthenticationException('Bad signature');
+            if(!$this->validateSignature($matches[1], $matches[2], $matches[3], $matches[4], $matches[5], substr($user->getAccessSecret(), 0, 10)))throw new AuthenticationException('Bad signature');
             $matches[1] = (string)$user->getAccessKey();
 
             try{
