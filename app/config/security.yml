@@ -20,6 +20,10 @@ security:
             pattern:        ^/oauth/v[0-9]+/token
             security:       false
 
+        oauth_public:
+            pattern:        ^/oauth/v[0-9]+/public
+            security:       false
+
         oauth_authorize:
             pattern:        ^/oauth/v2/auth
             form_login:

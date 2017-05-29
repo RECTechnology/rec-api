@@ -104,6 +104,65 @@ class Login2faController extends RestApiController{
         return new Response(json_encode($token), 200, $headers);
     }
 
+    public function publicAction(Request $request){
+        $headers = array(
+            'Content-Type' => 'application/json',
+            'Cache-Control' => 'no-store',
+            'Pragma' => 'no-cache',
+        );
+
+        $clientId = $request->get('client_id');
+        $clientSecret = $request->get('client_secret');
+        $username = $request->get('username');
+        $password = $request->get('password');
+
+        $em = $this->getDoctrine()->getManager();
+        $user = $em->getRepository('TelepayFinancialApiBundle:User')->findOneBy(array('email' => $username));
+        $username=($user)?$user->getUsername():$username;
+        $token = $this->call(
+            "https://$_SERVER[HTTP_HOST]/oauth/v2/token",
+            'POST',
+            array(),
+            array(
+                'client_id'=> $clientId,
+                'client_secret'=> $clientSecret,
+                'username'=> $username,
+                'password'=> $password,
+                'grant_type'=> 'password'
+            ),
+            array('Accept'=>'application/json')
+        );
+        if(!isset($token->error)){
+            $em = $this->getDoctrine()->getManager();
+            $user = $em->getRepository('TelepayFinancialApiBundle:User')->findBy(array('username' => $username));
+
+            if((count($user[0]->getKycValidations())==0) || (!$user[0]->getKycValidations()->getEmailValidated())){
+                $token = array(
+                    "error" => "not_validated_email",
+                    "error_description" => "User without email validated"
+                );
+                return new Response(json_encode($token), 400, $headers);
+            }
+
+            if($user[0]->isEnabled()==false){
+                $token = array(
+                    "error" => "not_enabled",
+                    "error_description" => "User not enabled to log in"
+                );
+                return new Response(json_encode($token), 400, $headers);
+            }
+        }
+        else{
+            return new Response(json_encode($token), 400, $headers);
+        }
+        $data = array(
+            'username' => $username,
+            'access_secret' => substr($user[0]->getAccessSecret(), 0, 10),
+            'access_key' => substr($user[0]->getId() .  "A" . rand(10,1000) . "C"  . rand(10,1000) . "E" . rand(10,1000), 0, 10)
+        );
+        return new Response(json_encode($data), 200, $headers);
+    }
+
     public function call($func, $method, $urlParams = array(), $params = array(), $headers = array()){
         $ch = curl_init($func.'?'.http_build_query($urlParams));
 

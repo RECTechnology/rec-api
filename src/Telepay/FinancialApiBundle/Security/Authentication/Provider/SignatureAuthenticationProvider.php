@@ -8,6 +8,7 @@
 
 namespace Telepay\FinancialApiBundle\Security\Authentication\Provider;
 
+use FOS\OAuthServerBundle\Tests\Functional\TestBundle\Entity\User;
 use Symfony\Component\HttpKernel\Exception\HttpException;
 use Telepay\FinancialApiBundle\Security\Authentication\Token\SignatureToken;
 use Symfony\Component\Security\Core\Authentication\Provider\AuthenticationProviderInterface;
@@ -51,6 +52,7 @@ class SignatureAuthenticationProvider implements AuthenticationProviderInterface
 
         throw new AuthenticationException('Signature authentication failed.');
     }
+
     protected function validateSignature($accessKey, $nonce, $timestamp, $version, $signature, $secret){
         // Check created time is not in the future
 

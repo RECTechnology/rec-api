@@ -51,19 +51,44 @@ class SignatureListener implements ListenerInterface {
 
         $authHeaderName = 'x-signature';
 
-        if(! $request->headers->has($authHeaderName)) return;
+        if(!$request->headers->has($authHeaderName)){
+            $logger->info('SIGNATURE_LISTENER error1-> NO ' . $authHeaderName . " HEADER");
+            return;
+        }
         $signature = $request->headers->get($authHeaderName);
-        if(1 != preg_match($authRequestRegex, $signature, $matches)) return;
+        $logger->info('SIGNATURE_LISTENER signature->' . $signature);
+        if(1!=preg_match($authRequestRegex, $signature, $matches)){
+            $logger->info('SIGNATURE_LISTENER error1-> NO REGEX FORMAT');
+            return;
+        }
 
         if($request->getMethod() == 'GET' && strlen($matches[1])==10){
             $logger->info('SIGNATURE_LISTENER IS GET');
             $em = $this->container->get('doctrine')->getManager();
             $usersRepo = $em->getRepository("TelepayFinancialApiBundle:User");
-            $id = substr($matches[1], 0, 2);
+            $key_data = explode("A", $matches[1]);
+            $id = $key_data[0];
             $logger->info('SIGNATURE_LISTENER id->' . $id);
             $user = $usersRepo->findOneBy(array('id'=>$id));
-            $matches[1] = $user->getAccessKey();
+            if(!$this->validateSignature($matches[1], $matches[2], $matches[3], $matches[4], $matches[5], substr($user->getAccessSecret(), 0, 10)))throw new AuthenticationException('Bad signature');
+            $matches[1] = (string)$user->getAccessKey();
+
+            try{
+                $logger->info('SIGNATURE_LISTENER AUTH ID');
+                $authToken = new SignatureToken($user->getRoles());
+                $authToken->setUser($user);
+                if($user->isLocked()) throw new AuthenticationException('User is locked');
+                if(!$user->isEnabled()) throw new AuthenticationException('User is disabled');
+                $logger->info('SIGNATURE_LISTENER token ' . $authToken);
+                $this->securityContext->setToken($authToken);
+                $logger->info('SIGNATURE_LISTENER OK');
+                return;
+            } catch(AuthenticationException $failed){
+                $logger->info('SIGNATURE_LISTENER AUTH ID EXC');
+            }
         }
+
+        $logger->info('SIGNATURE_LISTENER NOT GET VERSION2');
 
         $token = new SignatureToken();
         $token->setUser($matches[1]);
@@ -97,5 +122,25 @@ class SignatureListener implements ListenerInterface {
         $logger->info('SIGNATURE_LISTENER RESP CODE');
         $event->setResponse($response);
         $logger->info('SIGNATURE_LISTENER END');
+    }
+
+    protected function validateSignature($accessKey, $nonce, $timestamp, $version, $signature, $secret){
+        // Check created time is not in the future
+        $algorithm = 'SHA256';
+        if($version!='2')
+            return false;
+
+        if ($timestamp - 30 > time()) {
+            return false;
+        }
+
+        // Expire timestamp after 5 minutes
+        if (time() - $timestamp > 300) {
+            return false;
+        }
+
+        // Validate Secret
+        $expected = hash_hmac($algorithm, $accessKey.$nonce.$timestamp, base64_decode($secret));
+        return $signature === $expected;
     }
 }
