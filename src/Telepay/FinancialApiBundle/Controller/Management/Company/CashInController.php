@@ -53,11 +53,10 @@ class CashInController extends BaseApiController{
 
             $methodDriver = $this->get('net.telepay.in.'.$meth[0].'.v1');
 
-            if($methode == 'easypay'){
-                $info = $methodDriver->getInfo();
+            $info = $methodDriver->getInfo();
+            if($methode == 'easypay-in'){
                 $one->setAccountNumber($info['account_number']);
-            }elseif($methode == 'sepa'){
-                $info = $methodDriver->getInfo();
+            }elseif($methode == 'sepa-in'){
                 $one->setAccountNumber($info['iban']);
                 $one->setBeneficiary($info['beneficiary']);
                 $one->setBicSwift($info['bic_swift']);
@@ -65,13 +64,16 @@ class CashInController extends BaseApiController{
 
         }
 
+        $bank_info = array();
+
         return $this->restV2(
             200,
             "ok",
             "Request successful",
             array(
                 'total' => $total,
-                'elements' => $all
+                'elements' => $all,
+                'bank_info' =>  $bank_info
             )
         );
     }
