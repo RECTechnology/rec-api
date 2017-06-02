@@ -129,6 +129,8 @@ class POSIncomingController extends RestApiController{
             'pos_id'    =>  $id
         ));
 
+        if(empty($tpvRepo)) throw new HttpException(400, "POS with id= " . $id . " not found");
+
         $posType = $tpvRepo->getType();
 
         $group = $tpvRepo->getGroup();

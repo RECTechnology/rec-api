@@ -1348,8 +1348,8 @@ class SwiftController extends RestApiController{
             }else{
                 if($amount_out + $pending > 1200000) throw new HttpException(405, 'Limit exceeded');
             }
-
-        }elseif($type_out == 'sepa'){
+        }
+        elseif($type_out == 'sepa'){
             $search = $request->request->get('iban');
             $start_time = new \MongoDate(strtotime(date('Y-m-d 00:00:00'))-31*24*3600);
             $finish_time = new \MongoDate();
@@ -1379,7 +1379,8 @@ class SwiftController extends RestApiController{
 
             if($amount_out + $pending >= 300000) throw new HttpException(405, 'Limit exceeded');
 
-        }elseif($type_in == 'easypay' || $type_in == 'teleingreso'){
+        }
+        elseif($type_in == 'easypay' || $type_in == 'teleingreso'){
             $search = $request->request->get('email');
             $start_time = new \MongoDate(strtotime(date('Y-m-d 00:00:00'))-31*24*3600);
             $finish_time = new \MongoDate();
