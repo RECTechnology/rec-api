@@ -132,7 +132,7 @@ class IncomingController2 extends RestApiController{
         }
         unset($data['currency']);
 
-        $logger->info('Incomig transaction...getPaymentInfo');
+        $logger->info('Incomig transaction...getPaymentInfo for company '.$group->getId());
 
         //Aqui hay que distinguir entre in i out
         //para in es getPayInInfo y para out es getPayOutInfo
@@ -231,8 +231,7 @@ class IncomingController2 extends RestApiController{
 
         //******    CHECK IF THE TRANSACTION IS CASH-OUT     ********
         if($type == 'out'){
-            $logger->info('Incomig transaction...OUT');
-            $logger->info('Available = ' . $wallet->getAvailable() .  " TOTAL: " . $total);
+            $logger->info('Incomig transaction...OUT Available = ' . $wallet->getAvailable() .  " TOTAL: " . $total);
             if($wallet->getAvailable() < $total) throw new HttpException(405,'Not founds enough');
                     //Bloqueamos la pasta en el wallet
             $wallet->setAvailable($wallet->getAvailable() - $amount);

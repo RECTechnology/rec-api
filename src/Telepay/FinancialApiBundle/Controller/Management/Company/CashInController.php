@@ -28,7 +28,7 @@ class CashInController extends BaseApiController{
      */
     public function indexAction(Request $request, $method = null){
 
-        $user = $this->get('security.context')->getToken()->getUser();
+        $user = $this->getUser();
         $company = $user->getActiveGroup();
 
         if($method){
@@ -47,20 +47,31 @@ class CashInController extends BaseApiController{
 
         $total = count($all);
 
+        $bank_info = array();
+
         foreach($all as $one){
             $methode = $one->getMethod();
             $meth = explode('-', $methode);
 
             $methodDriver = $this->get('net.telepay.in.'.$meth[0].'.v1');
 
-            if($methode == 'easypay'){
-                $info = $methodDriver->getInfo();
+            $info = $methodDriver->getInfo();
+            if($methode == 'easypay-in'){
                 $one->setAccountNumber($info['account_number']);
-            }elseif($methode == 'sepa'){
-                $info = $methodDriver->getInfo();
+                $bank_info = array($info);
+            }elseif($methode == 'sepa-in'){
+                if($user->getActiveGroup()->getPremium()){
+                    $info = array(
+                        'iban'  =>  'ES15 1491 0001 2320 1444 7722',
+                        'beneficiary'   =>  ' XARXA INTEGRAL DE PROFESSIONALS I USUARIES',
+                        'bic_swift' =>  'TRIOESMMXXX'
+                    );
+                }
                 $one->setAccountNumber($info['iban']);
                 $one->setBeneficiary($info['beneficiary']);
                 $one->setBicSwift($info['bic_swift']);
+
+                $bank_info = array($info);
             }
 
         }
@@ -71,7 +82,8 @@ class CashInController extends BaseApiController{
             "Request successful",
             array(
                 'total' => $total,
-                'elements' => $all
+                'elements' => $all,
+                'bank_info' =>  $bank_info
             )
         );
     }

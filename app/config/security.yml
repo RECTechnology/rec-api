@@ -140,6 +140,7 @@ security:
         - { path: ^/methods/v[0-9]+/*, role: ROLE_WORKER }
 
         - { path: ^/system/v[0-9]+/balance/*, role: ROLE_SUPER_ADMIN }
+        - { path: ^/system/v[0-9]+/version, role: ROLE_USER }
         - { path: ^/system/v[0-9]+/*, role: ROLE_SUPER_ADMIN }
 
         - { path: ^/pos/v[0-9]+/transaction/*, role: IS_AUTHENTICATED_ANONYMOUSLY, ip: ["127.0.0.1"] }

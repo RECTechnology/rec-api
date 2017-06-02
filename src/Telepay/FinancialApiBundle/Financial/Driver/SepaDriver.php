@@ -35,7 +35,7 @@ class SepaDriver{
     }
 
     private function getReference(){
-        $chars = "ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789";
+        $chars = "ABCDEFGHIJKLMNPQRSTUVWXYZ123456789";
 
         $array_chars = str_split($chars);
         shuffle($array_chars);

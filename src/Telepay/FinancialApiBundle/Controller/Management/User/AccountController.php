@@ -1113,8 +1113,28 @@ class AccountController extends BaseApiController{
      */
     public function passwordRecoveryRequest(Request $request, $param, $version_number){
         $company = "chipchap";
+        $client_name = 'Chip-Chap';
+        $company_creator = "";
+        $base_url = $this->container->getParameter('web_app_url');
+        $em = $this->getDoctrine()->getManager();
         if(!$request->query->has('company') || $request->query->get('company')==""){
-            $company = "chipchap";
+            if ($this->get('security.authorization_checker')->isGranted('IS_AUTHENTICATED_FULLY')) {
+                $tokenManager = $this->container->get('fos_oauth_server.access_token_manager.default');
+                $accessToken = $tokenManager->findTokenByToken(
+                    $this->container->get('security.context')->getToken()->getToken()
+                );
+                $client = $accessToken->getClient();
+                $company = $client->getCname();
+                $base_url = $client->getRedirectUris()[0];
+                $client_name = $client->getCname();
+                $companyCreator = $em->getRepository('TelepayFinancialApiBundle:Group')->find($client->getGroup());
+
+            }else{
+                $company = "chipchap";
+                $client_name = "Chip-Chap";
+                $base_url = $this->container->getParameter('base_panel_url');
+                $companyCreator = $em->getRepository('TelepayFinancialApiBundle:Group')->find($this->container->getParameter('commerce_client_id'));
+            }
         }
         else{
             $company = $request->query->get('company');
@@ -1148,15 +1168,15 @@ class AccountController extends BaseApiController{
                 $this->_sendEmail('Holy Transaction recover your password', $url, $user->getEmail(), 'recover_holy');
             }
             else{
-                $url = $this->container->getParameter('web_app_url').'login?password_recovery='.$user->getRecoverPasswordToken();
+                $url = $base_url.'login?password_recovery='.$user->getRecoverPasswordToken();
                 //send email with a link to recover the password
-                $this->_sendEmail('Chip-Chap recover your password', $url, $user->getEmail(), 'recover');
+                $this->_sendEmail($client_name.' recover your password', $url, $user->getEmail(), 'recover', $client_name, $base_url, $companyCreator);
             }
         }
         else {
-            $url = $this->container->getParameter('base_panel_url').'/user/password_recovery/'.$user->getRecoverPasswordToken();
+            $url = $base_url.'/user/password_recovery/'.$user->getRecoverPasswordToken();
             //send email with a link to recover the password
-            $this->_sendEmail('Chip-Chap recover your password', $url, $user->getEmail(), 'recover');
+            $this->_sendEmail($client_name.' recover your password', $url, $user->getEmail(), 'recover', $client_name, $base_url, $companyCreator);
         }
 
         return $this->restV2(200,"ok", "Request successful");

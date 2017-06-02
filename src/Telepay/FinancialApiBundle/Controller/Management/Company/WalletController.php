@@ -55,6 +55,7 @@ class WalletController extends RestApiController {
         $user = $this->getUser();
         $company = $this->getDoctrine()->getManager()->getRepository('TelepayFinancialApiBundle:Group')->find($company_id);
 
+        if(!$company) throw new HttpException(404,'Account with id '. $company_id.' not found');
         //check permissions
         if(!$user->hasGroup($company->getName()))
             throw new HttpException('You don\'t have the necessary permissions');

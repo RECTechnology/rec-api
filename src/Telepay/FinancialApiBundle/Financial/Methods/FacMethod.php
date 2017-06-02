@@ -187,10 +187,8 @@ class FacMethod extends  BaseMethod {
         return $allReceived;
     }
 
-    public function getInfo($address){
+    public function getInfo(){
         $info = $this->driver->getinfo();
-
-
         return $info;
     }
 
