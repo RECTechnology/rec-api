@@ -77,7 +77,7 @@ class LimitManipulator{
 
         //ya tengo el grup limit
         //TODO get sum last 30 days transactions
-        if($group_limit->getSingle() < $amount && $group_limit->getSingle() != -1) throw new HttpException(403, 'Single Limit Exceeded');
+        if($group_limit->getSingle() < $amount && $group_limit->getSingle() != -1) throw new HttpException(403, 'Single Limit Exceeded '.$amount.' - '.$group_limit->getSingle());
         $total_last_day = $dm->getRepository('TelepayFinancialApiBundle:Transaction')->sumLastDaysByMethod($group, $method, 1);
         if($group_limit->getDay() < ($total_last_day[0]['total'] + $amount) && $group_limit->getDay() != -1) throw new HttpException(403, 'Day Limit Exceeded. '.($total_last_day[0]['total'] + $amount).'-'.$group_limit->getDay());
         $total_last_week = $dm->getRepository('TelepayFinancialApiBundle:Transaction')->sumLastDaysByMethod($group, $method, 7);

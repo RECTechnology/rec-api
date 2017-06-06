@@ -75,8 +75,7 @@ class SpecialActionsController extends RestApiController {
 
             $limitManipulator->checkLimits($token->getCompany(), $methodDriver, $params['amount']);
         }catch (HttpException $e){
-            throw new HttpException(403, $e->getMessage().'. This company ( '.$token->getCompany()->getName().' ) has reached his maximun limit. 
-            This company is Tier '.$token->getCompany()->getTier().'. Please update to the next Tier.');
+            throw new HttpException(403, $e->getMessage().'. This company ( '.$token->getCompany()->getName().' ) has reached his maximun limit. This company is Tier '.$token->getCompany()->getTier().'. Please update to the next Tier.');
         }
 
         $paymentInfo = $methodDriver->getPayInInfo($params['amount']);
