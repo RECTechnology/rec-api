@@ -165,4 +165,14 @@ class UserWallet {
     {
         $this->group = $group;
     }
+
+    /**
+     * @param mixed $amount
+     */
+    public function addBalance($amount){
+
+        $this->available = $this->available + $amount;
+        $this->balance = $this->balance + $amount;
+
+    }
 }

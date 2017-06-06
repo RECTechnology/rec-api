@@ -50,6 +50,12 @@ class SpecialActionsController extends RestApiController {
 
         //search reference to get the user
         $em = $this->getDoctrine()->getManager();
+        $hash = $em->getRepository('TelepayFinancialApiBundle:CashInDeposit')->findOneBy(array(
+            'hash' =>  $params['hash']
+        ));
+
+        if($hash) throw new HttpException(403, 'This hash has been used in other transaction. Please check it and ensure that this is the correct hash');
+
         $token = $em->getRepository('TelepayFinancialApiBundle:CashInTokens')->findOneBy(array(
             'token' =>  $params['reference']
         ));
@@ -60,8 +66,19 @@ class SpecialActionsController extends RestApiController {
         $method = $tokenmethod[0];
         $type = $tokenmethod[1];
 
-
         $methodDriver = $this->get('net.telepay.in.'.$method.'.v1');
+
+        //chek tier limits
+        $limitManipulator = $this->get('net.telepay.commons.limit_manipulator');
+
+        try{
+
+            $limitManipulator->checkLimits($token->getCompany(), $methodDriver, $params['amount']);
+        }catch (HttpException $e){
+            throw new HttpException(403, $e->getMessage().'. This company ( '.$token->getCompany()->getName().' ) has reached his maximun limit. 
+            This company is Tier '.$token->getCompany()->getTier().'. Please update to the next Tier.');
+        }
+
         $paymentInfo = $methodDriver->getPayInInfo($params['amount']);
         $paymentInfo['status'] = Transaction::$STATUS_SUCCESS;
         $paymentInfo['final'] = true;
@@ -106,29 +123,22 @@ class SpecialActionsController extends RestApiController {
         $transaction->setPayInInfo($paymentInfo);
         $dm->persist($transaction);
         $dm->flush();
+
         //obtain wallet and check founds for cash_out services
-        $wallets = $token->getCompany()->getWallets();
+        $current_wallet = $token->getCompany()->getWallet($transaction->getCurrency());
 
-        $current_wallet = null;
-        foreach ( $wallets as $wallet){
-            if ($wallet->getCurrency() === $transaction->getCurrency()){
-                $current_wallet = $wallet;
-            }
-        }
-
-        $current_wallet->setAvailable($current_wallet->getAvailable() + $params['amount'] -$total_fee);
-        $current_wallet->setBalance($current_wallet->getBalance() + $params['amount'] - $total_fee);
+        $current_wallet->addBalance($params['amount']);
 
         $balancer = $this->get('net.telepay.commons.balance_manipulator');
         $balancer->addBalance($token->getCompany(), $params['amount'], $transaction);
 
-        $em->persist($current_wallet);
         $em->flush();
 
         if($total_fee != 0){
             // nueva transaccion restando la comision al user
+            $dealer = $this->container->get('net.telepay.commons.fee_deal');
             try{
-                $this->_dealer2($transaction,$current_wallet);
+                $dealer->createFees2($transaction, $current_wallet);
             }catch (HttpException $e){
                 throw $e;
             }
@@ -139,7 +149,7 @@ class SpecialActionsController extends RestApiController {
         $dm->persist($transaction);
         $dm->flush();
 
-        return $this->methodTransaction(201, $transaction, "Done");
+        return $this->methodTransaction(201, $transaction, "Done. ".$params['amount'].' '.$transaction->getCurrency().' added to company '.$token->getCompany()->getName());
     }
 
     /**
