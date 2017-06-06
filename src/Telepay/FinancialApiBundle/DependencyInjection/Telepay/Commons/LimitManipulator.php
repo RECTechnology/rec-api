@@ -77,15 +77,15 @@ class LimitManipulator{
 
         //ya tengo el grup limit
         //TODO get sum last 30 days transactions
-        if($group_limit->getSingle() < $amount && $group_limit->getSingle() != -1) throw new HttpException(403, 'Single Limit Exceeded '.$amount.' - '.$group_limit->getSingle());
+        if($group_limit->getSingle() < $amount && $group_limit->getSingle() > 0) throw new HttpException(403, 'Single Limit Exceeded '.$amount.' - '.$group_limit->getSingle());
         $total_last_day = $dm->getRepository('TelepayFinancialApiBundle:Transaction')->sumLastDaysByMethod($group, $method, 1);
-        if($group_limit->getDay() < ($total_last_day[0]['total'] + $amount) && $group_limit->getDay() != -1) throw new HttpException(403, 'Day Limit Exceeded. '.($total_last_day[0]['total'] + $amount).'-'.$group_limit->getDay());
+        if($group_limit->getDay() < ($total_last_day[0]['total'] + $amount) && $group_limit->getDay() > 0) throw new HttpException(403, 'Day Limit Exceeded. '.($total_last_day[0]['total'] + $amount).'-'.$group_limit->getDay());
         $total_last_week = $dm->getRepository('TelepayFinancialApiBundle:Transaction')->sumLastDaysByMethod($group, $method, 7);
-        if($group_limit->getWeek() < ($total_last_week[0]['total'] + $amount) && $group_limit->getWeek() != -1) throw new HttpException(403, 'Week Limit Exceeded'.($total_last_week[0]['total'] + $amount).'-'.$group_limit->getWeek());
+        if($group_limit->getWeek() < ($total_last_week[0]['total'] + $amount) && $group_limit->getWeek() > 0) throw new HttpException(403, 'Week Limit Exceeded'.($total_last_week[0]['total'] + $amount).'-'.$group_limit->getWeek());
         $total_last_month = $dm->getRepository('TelepayFinancialApiBundle:Transaction')->sumLastDaysByMethod($group, $method, 30);
-        if($group_limit->getMonth() < ($total_last_month[0]['total'] + $amount) && $group_limit->getMonth() != -1) throw new HttpException(403, 'Month Limit Exceeded '.($total_last_month[0]['total'] + $amount).'-'.$group_limit->getMonth());
+        if($group_limit->getMonth() < ($total_last_month[0]['total'] + $amount) && $group_limit->getMonth() > 0) throw new HttpException(403, 'Month Limit Exceeded '.($total_last_month[0]['total'] + $amount).'-'.$group_limit->getMonth());
         $total_last_year = $dm->getRepository('TelepayFinancialApiBundle:Transaction')->sumLastDaysByMethod($group, $method, 360);
-        if($group_limit->getYear() < ($total_last_year[0]['total'] + $amount) && $group_limit->getYear() != -1) throw new HttpException(403, 'Year Limit Exceeded'.($total_last_year[0]['total'] + $amount).'-'.$group_limit->getYear());
+        if($group_limit->getYear() < ($total_last_year[0]['total'] + $amount) && $group_limit->getYear() > 0) throw new HttpException(403, 'Year Limit Exceeded'.($total_last_year[0]['total'] + $amount).'-'.$group_limit->getYear());
 
     }
 
