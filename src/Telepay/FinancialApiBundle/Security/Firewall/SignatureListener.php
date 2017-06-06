@@ -125,22 +125,29 @@ class SignatureListener implements ListenerInterface {
     }
 
     protected function validateSignature($accessKey, $nonce, $timestamp, $version, $signature, $secret){
+        $logger = $this->container->get('logger');
         // Check created time is not in the future
         $algorithm = 'SHA256';
-        if($version!='2')
+        if($version!='2') {
+            $logger->info('SIGNATURE_LISTENER_V Version');
             return false;
+        }
 
         if ($timestamp - 30 > time()) {
+            $logger->info('SIGNATURE_LISTENER_V Timestamp');
             return false;
         }
 
         // Expire timestamp after 5 minutes
         if (time() - $timestamp > 300) {
+            $logger->info('SIGNATURE_LISTENER_V Expired');
             return false;
         }
 
         // Validate Secret
         $expected = hash_hmac($algorithm, $accessKey.$nonce.$timestamp, base64_decode($secret));
+        $logger->info('SIGNATURE_LISTENER_V Expected ' . $expected);
+        $logger->info('SIGNATURE_LISTENER_V Siganture ' . $signature);
         return $signature === $expected;
     }
 }
