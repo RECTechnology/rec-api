@@ -554,6 +554,12 @@ class WalletController extends RestApiController{
                                     $dataCustom[$day][$res->getCurrency()]['in'] += $res->getAmount();
                                 }elseif ($res->getType() == 'out'){
                                     $dataCustom[$day][$res->getCurrency()]['out'] += $res->getAmount();
+                                }elseif($res->getType() == 'fee'){
+                                    if($res->getTotal() > 0){
+                                        $dataCustom[$day][$res->getCurrency()]['in'] += $res->getAmount();
+                                    }else{
+                                        $dataCustom[$day][$res->getCurrency()]['out'] += $res->getAmount();
+                                    }
                                 }else{
 
                                 }
@@ -567,6 +573,12 @@ class WalletController extends RestApiController{
                                     $in = $res->getAmount();
                                 }elseif($res->getType() == 'out'){
                                     $out = $res->getAmount();
+                                }elseif($res->getType() == 'fee'){
+                                    if($res->getTotal() > 0){
+                                        $in += $res->getAmount();
+                                    }else{
+                                        $out += $res->getAmount();
+                                    }
                                 }
                                 $temp = array(
                                     'in'    =>  $in,
