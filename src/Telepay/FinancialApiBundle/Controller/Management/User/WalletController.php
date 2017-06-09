@@ -363,6 +363,7 @@ class WalletController extends RestApiController{
             ->execute();
 
         $data = array();
+        $dataCustom = array();
         $scales = array();
         if($request->query->get('query')){
             $all_pos = false;
@@ -543,8 +544,50 @@ class WalletController extends RestApiController{
                             $day = $updated->format('Y') . "/" . $updated->format('m') . "/" . $updated->format('d');
                             if(!array_key_exists($day, $data)){
                                 $data[$day] = array();
+                                $dataCustom[$day] = array();
                             }
-                            array_key_exists($res->getCurrency(), $data[$day])? $data[$day][$res->getCurrency()] += $res->getAmount():$data[$day][$res->getCurrency()] = $res->getAmount();
+
+                            if(array_key_exists($res->getCurrency(), $data[$day])){
+
+                                $data[$day][$res->getCurrency()] += $res->getAmount();
+                                if($res->getType() == 'in'){
+                                    $dataCustom[$day][$res->getCurrency()]['in'] += $res->getAmount();
+                                }elseif ($res->getType() == 'out'){
+                                    $dataCustom[$day][$res->getCurrency()]['out'] += $res->getAmount();
+                                }elseif($res->getType() == 'fee'){
+                                    if($res->getTotal() > 0){
+                                        $dataCustom[$day][$res->getCurrency()]['in'] += $res->getAmount();
+                                    }else{
+                                        $dataCustom[$day][$res->getCurrency()]['out'] += $res->getAmount();
+                                    }
+                                }else{
+
+                                }
+                                $dataCustom[$day][$res->getCurrency()]['volume'] += $res->getAmount();
+
+                            }else{
+                                $data[$day][$res->getCurrency()] = $res->getAmount();
+                                $in = 0;
+                                $out = 0;
+                                if($res->getType() == 'in'){
+                                    $in = $res->getAmount();
+                                }elseif($res->getType() == 'out'){
+                                    $out = $res->getAmount();
+                                }elseif($res->getType() == 'fee'){
+                                    if($res->getTotal() > 0){
+                                        $in += $res->getAmount();
+                                    }else{
+                                        $out += $res->getAmount();
+                                    }
+                                }
+                                $temp = array(
+                                    'in'    =>  $in,
+                                    'out'   =>  $out,
+                                    'volume'    =>  $res->getAmount()
+                                );
+                                $dataCustom[$day][$res->getCurrency()] = $temp;
+                            }
+//                            array_key_exists($res->getCurrency(), $data[$day])? $data[$day][$res->getCurrency()] += $res->getAmount():$data[$day][$res->getCurrency()] = $res->getAmount();
                         }
                     }
                 }
@@ -571,6 +614,7 @@ class WalletController extends RestApiController{
                 'start' => intval($offset),
                 'end' => count($entities)+$offset,
                 'daily' => $data,
+                'daily_custom'  =>  $dataCustom,
                 'scales' => $scales,
                 'balance' => $balance,
                 'volume' => $volume,

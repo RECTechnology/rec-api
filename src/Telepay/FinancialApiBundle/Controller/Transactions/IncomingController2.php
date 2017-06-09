@@ -207,21 +207,29 @@ class IncomingController2 extends RestApiController{
 
         $logger->info('Incomig transaction...LIMITS');
 
-        //obtain group limitsCount for this method
-        $groupLimitCount = $this->_getLimitCount($group, $method);
-
+        //check limits with 30 days success/received/created transactions
         //get limit manipulator
         $limitManipulator = $this->get('net.telepay.commons.limit_manipulator');
 
-        //obtain group limit
-        $group_limit = $limitManipulator->getMethodLimits($group, $method);
+        $limitManipulator->checkLimits($group, $method, $amount);
 
-        //update group limit counters
-        $newGroupLimitCount = (new LimitAdder())->add( $groupLimitCount, $total);
-
-        $checker = new LimitChecker();
-
-        if(!$checker->leq($newGroupLimitCount, $group_limit)) throw new HttpException(405,'Limit exceeded');
+//
+//
+//
+//        //obtain group limitsCount for this method
+//        $groupLimitCount = $this->_getLimitCount($group, $method);
+//
+//
+//
+//        //obtain group limit
+//        $group_limit = $limitManipulator->getMethodLimits($group, $method);
+//
+//        //update group limit counters
+//        $newGroupLimitCount = (new LimitAdder())->add( $groupLimitCount, $total);
+//
+//        $checker = new LimitChecker();
+//
+//        if(!$checker->leq($newGroupLimitCount, $group_limit)) throw new HttpException(405,'Limit exceeded');
 
         //obtain wallet and check founds for cash_out services for this group
         $wallet = $group->getWallet($method->getCurrency());
@@ -253,7 +261,7 @@ class IncomingController2 extends RestApiController{
                 //desbloqueamos la pasta del wallet
                 $wallet->setAvailable($wallet->getAvailable() + $amount);
                 //descontamos del counter
-                $newGroupLimitCount = (new LimitAdder())->restore( $groupLimitCount, $total);
+//                $newGroupLimitCount = (new LimitAdder())->restore( $groupLimitCount, $total);
                 $em->persist($wallet);
                 $em->flush();
                 $dm->persist($transaction);

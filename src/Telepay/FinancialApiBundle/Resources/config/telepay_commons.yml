@@ -26,6 +26,7 @@ services:
         arguments:
             - "@doctrine"
             - "@service_container"
+            - "@doctrine_mongodb"
 
     net.telepay.commons.exchange_manipulator:
         class: Telepay\FinancialApiBundle\DependencyInjection\Telepay\Commons\ExchangeManipulator

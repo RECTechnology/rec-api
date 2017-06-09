@@ -810,6 +810,7 @@ class AccountController extends BaseApiController{
                     $this->container->get('security.context')->getToken()->getToken()
                 );
                 $client = $accessToken->getClient();
+                if(!$client->getGroup()->getKycManager()) throw new HttpException(403, 'Something went wrong. Panel not enabled');
                 $user_creator_id = $client->getGroup()->getKycManager()->getId();
                 $company_creator_id = $client->getGroup()->getId();
                 $url = $client->getRedirectUris()[0];
