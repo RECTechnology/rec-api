@@ -953,7 +953,7 @@ class AccountController extends BaseApiController{
         elseif($type == 'android' || $type == 'commerce' || $type == 'android_fair' || $type == 'botc'){
             if($type == 'android_fair'){
                 $methodsList = array('fac-out', 'fac-in');
-            }elseif($type == 'android_fair'){
+            }elseif($type == 'botc'){
                 $methodsList = array('btc-in', 'fac-in', 'btc-out', 'fac-out', "sepa-in", 'sepa-out', "halcash_es-out", "halcash_pl-out", "cryptocapital-out", "easypay-in", "teleingreso-in", "transfer-out");
             }else{
                 $methodsList = array('btc-in', 'fac-in', 'btc-out', 'fac-out');
