@@ -137,6 +137,8 @@ parameters:
     default_company_creator_commerce_android: 133
     default_user_creator_commerce_android_fair: ''
     default_company_creator_commerce_android_fair: ''
+    default_user_creator_commerce_botc: ''
+    default_company_creator_commerce_botc: ''
 
     url_swift_default_ok: ''
     url_swift_default_ko: ''
