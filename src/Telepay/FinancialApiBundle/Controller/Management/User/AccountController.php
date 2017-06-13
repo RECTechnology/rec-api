@@ -758,7 +758,7 @@ class AccountController extends BaseApiController{
 
         if(!$request->request->has('company_name'))$request->request->set('company_name',  $request->request->get('username'));
 
-        $valid_types = array('prestashop', 'android', 'commerce', 'android_fair', 'physical_pos');
+        $valid_types = array('prestashop', 'android', 'commerce', 'android_fair', 'physical_pos', 'botc');
         if(!in_array($type, $valid_types)) throw new HttpException(404, 'Type not valid');
 
         $params = array();
@@ -827,7 +827,7 @@ class AccountController extends BaseApiController{
         }
 
         $premium = false;
-        if($type == 'android_fair'){
+        if($type == 'android_fair' || $type == 'botc'){
             $premium = true;
         }
 
@@ -860,7 +860,6 @@ class AccountController extends BaseApiController{
             $em->persist($userWallet);
         }
 
-        //CRETAE EXCHANGES fees
         $exchanges = $this->container->get('net.telepay.exchange_provider')->findAll();
 
         foreach($exchanges as $exchange){
@@ -871,9 +870,7 @@ class AccountController extends BaseApiController{
             $fee->setCurrency($exchange->getCurrencyOut());
             $fee->setServiceName('exchange_'.$exchange->getCname());
             $fee->setGroup($company);
-
             $em->persist($fee);
-
         }
 
         //create user
@@ -952,9 +949,11 @@ class AccountController extends BaseApiController{
                 'pos' => $pos
             );
         }
-        elseif($type == 'android' || $type == 'commerce' || $type == 'android_fair'){
+        elseif($type == 'android' || $type == 'commerce' || $type == 'android_fair' || $type == 'botc'){
             if($type == 'android_fair'){
                 $methodsList = array('fac-out', 'fac-in');
+            }elseif($type == 'botc'){
+                $methodsList = array('btc-in', 'fac-in', 'btc-out', 'fac-out', "sepa-in", 'sepa-out', "halcash_es-out", "halcash_pl-out", "cryptocapital-out", "easypay-in", "teleingreso-in", "transfer-out");
             }else{
                 $methodsList = array('btc-in', 'fac-in', 'btc-out', 'fac-out');
             }
@@ -987,62 +986,6 @@ class AccountController extends BaseApiController{
 //                $newCount->setGroup($company);
 //                $em->persist($newCount);
             }
-
-            if($type != 'android_fair') {
-                $daily = 500000000;
-
-                $btc_limit = new LimitDefinition();
-                $btc_limit->setDay(-1);
-                $btc_limit->setCname('btc-in');
-                $btc_limit->setWeek(-1);
-                $btc_limit->setMonth(-1);
-                $btc_limit->setYear(-1);
-                $btc_limit->setSingle(-1);
-                $btc_limit->setTotal(-1);
-                $btc_limit->setCurrency(Currency::$BTC);
-                $btc_limit->setGroup($company);
-                $em->persist($btc_limit);
-                $em->flush();
-
-                $btc_limit = new LimitDefinition();
-                $btc_limit->setDay($daily);
-                $btc_limit->setCname('btc-out');
-                $btc_limit->setWeek(-1);
-                $btc_limit->setMonth(-1);
-                $btc_limit->setYear(-1);
-                $btc_limit->setSingle(-1);
-                $btc_limit->setTotal(-1);
-                $btc_limit->setCurrency(Currency::$BTC);
-                $btc_limit->setGroup($company);
-                $em->persist($btc_limit);
-                $em->flush();
-            }
-
-            $fac_limit = new LimitDefinition();
-            $fac_limit->setDay(-1);
-            $fac_limit->setCname('fac-in');
-            $fac_limit->setWeek(-1);
-            $fac_limit->setMonth(-1);
-            $fac_limit->setYear(-1);
-            $fac_limit->setSingle(-1);
-            $fac_limit->setTotal(-1);
-            $fac_limit->setCurrency(Currency::$FAC);
-            $fac_limit->setGroup($company);
-            $em->persist($fac_limit);
-            $em->flush();
-
-            $fac_limit = new LimitDefinition();
-            $fac_limit->setDay(-1);
-            $fac_limit->setCname('fac-out');
-            $fac_limit->setWeek(-1);
-            $fac_limit->setMonth(-1);
-            $fac_limit->setYear(-1);
-            $fac_limit->setSingle(-1);
-            $fac_limit->setTotal(-1);
-            $fac_limit->setCurrency(Currency::$FAC);
-            $fac_limit->setGroup($company);
-            $em->persist($fac_limit);
-            $em->flush();
 
             if($type != 'android_fair'){
                 //create new fixed address for bitcoin and return
