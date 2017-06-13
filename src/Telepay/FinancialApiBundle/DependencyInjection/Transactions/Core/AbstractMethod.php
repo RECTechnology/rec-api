@@ -44,7 +44,12 @@ class AbstractMethod implements MethodInterface, CashInInterface, CashOutInterfa
      */
     private $email_required;
 
-    function __construct($name, $cname, $type, $currency, $email_required, $base64_image)
+    /**
+     * @var string min_tier
+     */
+    private $min_tier;
+
+    function __construct($name, $cname, $type, $currency, $email_required, $base64_image, $min_tier)
     {
         $this->name = $name;
         $this->cname = $cname;
@@ -52,6 +57,7 @@ class AbstractMethod implements MethodInterface, CashInInterface, CashOutInterfa
         $this->type = $type;
         $this->email_required = $email_required;
         $this->base64_image = $base64_image;
+        $this->min_tier = $min_tier;
 
     }
 
@@ -109,5 +115,21 @@ class AbstractMethod implements MethodInterface, CashInInterface, CashOutInterfa
     public function getPayOutInfo($request)
     {
         // TODO: Implement getPayOutInfo() method.
+    }
+
+    /**
+     * @return string
+     */
+    public function getMinTier()
+    {
+        return $this->min_tier;
+    }
+
+    /**
+     * @param string $min_tier
+     */
+    public function setMinTier($min_tier)
+    {
+        $this->min_tier = $min_tier;
     }
 }

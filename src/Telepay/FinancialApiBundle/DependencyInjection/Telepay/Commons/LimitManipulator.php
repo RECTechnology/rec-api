@@ -76,7 +76,7 @@ class LimitManipulator{
         }
 
         //ya tengo el grup limit
-        //TODO get sum last 30 days transactions
+        //get sum last days transactions
         if($group_limit->getSingle() < $amount && $group_limit->getSingle() > 0) throw new HttpException(403, 'Single Limit Exceeded '.$amount.' - '.$group_limit->getSingle());
         $total_last_day = $dm->getRepository('TelepayFinancialApiBundle:Transaction')->sumLastDaysByMethod($group, $method, 1);
         if($group_limit->getDay() < ($total_last_day[0]['total'] + $amount) && $group_limit->getDay() > 0) throw new HttpException(403, 'Day Limit Exceeded. '.($total_last_day[0]['total'] + $amount).'-'.$group_limit->getDay());
@@ -95,39 +95,53 @@ class LimitManipulator{
 
         //check if has specific limit
         $em = $this->doctrine->getManager();
+        $dm = $this->doctrine_mongo->getManager();
 
-        $limit = $em->getRepository('TelepayFinancialApiBundle:LimitDefinition')->findOneBy(array(
+        $group_limit = $em->getRepository('TelepayFinancialApiBundle:LimitDefinition')->findOneBy(array(
             'cname'     =>  'exchange_'.$from.'to'.$to,
             'group'     => $group->getId()
         ));
 
-        if(!$limit){
-            $limit = $em->getRepository('TelepayFinancialApiBundle:TierLimit')->findOneBy(array(
+        //TODO change limit adder by checklimits functions
+        if(!$group_limit){
+            $group_limit = $em->getRepository('TelepayFinancialApiBundle:TierLimit')->findOneBy(array(
                 'method'    =>  'exchange_'.$from,
                 'tier'  =>  $group->getTier()
             ));
             $this->trans_logger->info('LIMIT_MANIPULATOR day exchange_'.$from);
-            $this->trans_logger->info('LIMIT_MANIPULATOR day'.$limit->getDay());
+            $this->trans_logger->info('LIMIT_MANIPULATOR day'.$group_limit->getDay());
             //Se añade al contador del tier porque el especifico no existe
-            $limitCount = (new LimitAdder())->add( $this->_getLimitCount($group, 'exchange_'.$from), $amount);
+//            $limitCount = (new LimitAdder())->add( $this->_getLimitCount($group, 'exchange_'.$from), $amount);
 
         }else{
             //este añade el amount al contador especifico
-            $limitCount = (new LimitAdder())->add( $this->_getLimitCount($group, 'exchange_'.$from.'to'.$to), $amount);
+//            $limitCount = (new LimitAdder())->add( $this->_getLimitCount($group, 'exchange_'.$from.'to'.$to), $amount);
 
         }
 
 //        if($limit->getEnabled()==0)throw new HttpException(403, 'Exchange temporally unavailable');
 
-        $checker = new LimitChecker();
+//        $checker = new LimitChecker();
 
-        if(!$checker->leq($limitCount, $limit)) throw new HttpException(405,'Limit exceeded');
+//        if(!$checker->leq($limitCount, $limit)) throw new HttpException(405,'Limit exceeded');
 
-        $em->flush();
+//        $em->flush();
+
+        //get sum last days transactions
+        if($group_limit->getSingle() < $amount && $group_limit->getSingle() > 0) throw new HttpException(403, 'Single Limit Exceeded '.$amount.' - '.$group_limit->getSingle());
+        $total_last_day = $dm->getRepository('TelepayFinancialApiBundle:Transaction')->sumLastDaysByExchange($group, $to, 1);
+        if($group_limit->getDay() < ($total_last_day[0]['total'] + $amount) && $group_limit->getDay() > 0) throw new HttpException(403, 'Day Limit Exceeded. '.($total_last_day[0]['total'] + $amount).'-'.$group_limit->getDay());
+        $total_last_week = $dm->getRepository('TelepayFinancialApiBundle:Transaction')->sumLastDaysByExchange($group, $to, 7);
+        if($group_limit->getWeek() < ($total_last_week[0]['total'] + $amount) && $group_limit->getWeek() > 0) throw new HttpException(403, 'Week Limit Exceeded'.($total_last_week[0]['total'] + $amount).'-'.$group_limit->getWeek());
+        $total_last_month = $dm->getRepository('TelepayFinancialApiBundle:Transaction')->sumLastDaysByExchange($group, $to, 30);
+        if($group_limit->getMonth() < ($total_last_month[0]['total'] + $amount) && $group_limit->getMonth() > 0) throw new HttpException(403, 'Month Limit Exceeded '.($total_last_month[0]['total'] + $amount).'-'.$group_limit->getMonth());
+        $total_last_year = $dm->getRepository('TelepayFinancialApiBundle:Transaction')->sumLastDaysByExchange($group, $to, 360);
+        if($group_limit->getYear() < ($total_last_year[0]['total'] + $amount) && $group_limit->getYear() > 0) throw new HttpException(403, 'Year Limit Exceeded'.($total_last_year[0]['total'] + $amount).'-'.$group_limit->getYear());
+
 
     }
 
-    //deprecated -> not used more
+    //deprecated -> not used any more
     public function _getLimitCount(Group $group, $cname){
         $em = $this->doctrine->getManager();
 

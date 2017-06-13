@@ -21,8 +21,8 @@ class TeleingresoUSAMethod extends BaseMethod{
 
     private $driver;
 
-    public function __construct($name, $cname, $type, $currency, $email_required, $base64Image, $container, $driver){
-        parent::__construct($name, $cname, $type, $currency, $email_required, $base64Image, $container);
+    public function __construct($name, $cname, $type, $currency, $email_required, $base64Image, $container, $driver, $min_tier){
+        parent::__construct($name, $cname, $type, $currency, $email_required, $base64Image, $container, $min_tier);
         $this->driver = $driver;
     }
 

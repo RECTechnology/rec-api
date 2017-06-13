@@ -860,7 +860,7 @@ class AccountController extends BaseApiController{
             $em->persist($userWallet);
         }
 
-        //CRETAE EXCHANGES limits and fees
+        //CRETAE EXCHANGES fees
         $exchanges = $this->container->get('net.telepay.exchange_provider')->findAll();
 
         foreach($exchanges as $exchange){
@@ -975,17 +975,17 @@ class AccountController extends BaseApiController{
                 $newFee->setCurrency(strtoupper($meth));
                 $em->persist($newFee);
 
-                //create new LimitCount
-                $newCount = new LimitCount();
-                $newCount->setDay(0);
-                $newCount->setWeek(0);
-                $newCount->setMonth(0);
-                $newCount->setYear(0);
-                $newCount->setSingle(0);
-                $newCount->setTotal(0);
-                $newCount->setCname($method);
-                $newCount->setGroup($company);
-                $em->persist($newCount);
+//                //create new LimitCount
+//                $newCount = new LimitCount();
+//                $newCount->setDay(0);
+//                $newCount->setWeek(0);
+//                $newCount->setMonth(0);
+//                $newCount->setYear(0);
+//                $newCount->setSingle(0);
+//                $newCount->setTotal(0);
+//                $newCount->setCname($method);
+//                $newCount->setGroup($company);
+//                $em->persist($newCount);
             }
 
             if($type != 'android_fair') {

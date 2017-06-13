@@ -326,6 +326,15 @@ class Group extends BaseGroup
         return $this->commissions;
     }
 
+    public function getCommission($service){
+        $commissions = $this->getCommissions();
+        foreach($commissions as $fee){
+            if($fee->getServiceName() == $service){
+                return $fee;
+            }
+        }
+    }
+
     /**
      * @param mixed $commissions
      */

@@ -127,17 +127,10 @@ class ExchangeManipulator{
         if($senderWallet->getAvailable() < $amount) throw new HttpException(403, 'Insuficient funds');
 
         //getFees
-        $fees = $company->getCommissions();
 
-        $exchange_fixed_fee = null;
-        $exchange_variable_fee = null;
-
-        foreach($fees as $fee){
-            if($fee->getServiceName() == $service){
-                $exchange_fixed_fee = $fee->getFixed();
-                $exchange_variable_fee = round((($fee->getVariable()/100) * $exchangeAmount), 0);
-            }
-        }
+        $fee = $company->getCommission($service);
+        $exchange_fixed_fee = $fee->getFixed();
+        $exchange_variable_fee = round((($fee->getVariable()/100) * $exchangeAmount), 0);
 
         if(!$internal && $company->getFairtoearthAdmin() == true && ($from != Currency::$EUR || $to != Currency::$FAC)){
             throw new HttpException(403, 'Exchange not allowed for this company');
@@ -157,7 +150,7 @@ class ExchangeManipulator{
         $cashOut->setFixedFee(0);
         $cashOut->setVariableFee(0);
         $cashOut->setTotal(-$amount);
-        $cashOut->setType(Transaction::$TYPE_OUT);
+        $cashOut->setType(Transaction::$TYPE_EXCHANGE);
         $cashOut->setMethod($service);
         $cashOut->setService($service);
         $cashOut->setUser($user->getId());
@@ -190,7 +183,7 @@ class ExchangeManipulator{
         $cashIn->setVariableFee($exchange_variable_fee);
         $cashIn->setTotal($exchangeAmount);
         $cashIn->setService($service);
-        $cashIn->setType(Transaction::$TYPE_IN);
+        $cashIn->setType(Transaction::$TYPE_EXCHANGE);
         $cashIn->setMethod($service);
         $cashIn->setUser($user->getId());
         $cashIn->setGroup($company->getId());
