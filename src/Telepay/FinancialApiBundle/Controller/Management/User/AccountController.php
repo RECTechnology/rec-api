@@ -1370,7 +1370,7 @@ class AccountController extends BaseApiController{
     private function _sendEmail($subject, $body, $to, $action, $client_name = 'Chip-Chap', $url = null, $companyCreator = null){
         $from = 'no-reply@chip-chap.com';
         $mailer = 'mailer';
-        if($client_name == "Wannapay"){
+        if(strtolower($client_name) == "wannapay"){
             $mailer = 'swiftmailer.mailer.wannapay_mailer';
         }
         if($action == 'register'){
