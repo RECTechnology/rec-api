@@ -19,9 +19,12 @@ class GetFaircoinTicker implements TickerInterface {
 
 
     public function getPrice() {
-        $prices = json_decode(file_get_contents("https://chain.fair-coin.org/download/ticker"));
+        /*
+        $prices = json_decode(file_get_contents("https://getfaircoin.net/api/ticker"));
         $ovars = get_object_vars($prices);
         return $ovars[$this->outCurrency]->last;
+        */
+        return 0.1;
     }
 
     public function getInCurrency()
