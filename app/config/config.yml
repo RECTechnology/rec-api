@@ -111,8 +111,8 @@ swiftmailer:
             encryption: ssl
             auth_mode:  login
             host:       smtp.gmail.com
-            username:   "no-replay@wannapay.com"
-            password:   "2017MarcaBlancaChip-Chap"
+            username:   "%mailer_user_wannapay%"
+            password:   "%mailer_password_wannapay%"
             spool:     { type: memory }
 
 fos_user:
