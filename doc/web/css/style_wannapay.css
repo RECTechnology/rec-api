@@ -1,0 +1,105 @@
+@import url(https://fonts.googleapis.com/css?family=Open+Sans:400,700,300);
+body, p, h1, h2, h3, h4, h5, h6, a{
+	font-family: 'Open Sans', sans-serif;
+}
+
+body{
+	margin: 0;
+}
+
+/* Body
+==============================*/
+#header{
+	background: #c96220;
+}
+#header img{
+	float: left;
+	width: 40px;
+	margin: 14px 16px 0 65px;
+}
+#header h3{
+	line-height: 70px;
+	color: #fff;
+	width: 90%;
+	margin: 0 auto;
+}
+
+/* Content
+==============================*/
+
+.image_sup{
+	background: url("../img/sup2.jpg");
+	background-size: cover;
+	padding: 40px 0;
+}
+.image_sup h1{
+	text-align: center;
+	color: #fff;
+}
+.image_sup hr{
+	width: 70%;
+	box-shadow: none;
+	background: #fff;
+	height: 2px;
+	border: none;
+	margin: 22px auto;
+}
+.image_sup p{
+	background: rgba(255, 255, 255, 0.6);
+	margin: 0 auto;
+	width: 60%;
+	padding: 50px;
+	text-align: center;
+	color: #c96220;
+	line-height: 32px;
+}
+
+.wrapper{
+	width: 60%;
+	margin: 0 auto;
+}
+.clear{
+	clear: both;
+}
+.box{
+	width: 340px;
+	float: left;
+	margin: 0 auto;
+	margin-top: 30px;
+}
+.box:last-child{
+	float: right;
+	padding-bottom: 35px;
+}
+.box_content{
+	background: orange;
+	padding: 20px;
+}
+.box h3{
+	background: #c96220;
+	line-height: 60px;
+	color: #fff;
+	padding-left: 20px;
+	margin: 0;
+}
+.box p, .box li, .box a{
+	color: #fff;
+	font-weight: bold;
+	margin-bottom: 8px;
+}
+.box a{
+	text-decoration: none;
+	border-bottom: 2px solid #fff;
+}
+
+/* Footer
+==============================*/
+#footer p{
+	text-align: center;
+	line-height: 100px;
+	color: #fff;
+	background: #c96220;
+	background-size: cover;
+	margin: 30px 0 0 0;
+	font-weight: bold;
+}
