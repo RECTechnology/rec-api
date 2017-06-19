@@ -343,6 +343,8 @@ class GroupsController extends BaseApiController
 
         if(!$group) throw new HttpException(404,'Group not found');
 
+        //TODO change this for tier metthods list
+
         $group->setAllowedMethods($group->getMethodsList());
 
         $fees = $group->getCommissions();

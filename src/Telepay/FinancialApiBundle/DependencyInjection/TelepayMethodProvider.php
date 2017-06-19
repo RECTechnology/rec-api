@@ -30,7 +30,9 @@ class TelepayMethodProvider{
                 $method->getType(),
                 $method->getCurrency(),
                 $method->getEmailRequired(),
-                $method->getBase64Image()
+                $method->getBase64Image(),
+                $method->getImage(),
+                $method->getMinTier()
             );
 
         }
@@ -53,7 +55,9 @@ class TelepayMethodProvider{
                     $this->methodsByCName[$cname]->getType(),
                     $this->methodsByCName[$cname]->getCurrency(),
                     $this->methodsByCName[$cname]->getEmailRequired(),
-                    $this->methodsByCName[$cname]->getBase64Image()
+                    $this->methodsByCName[$cname]->getBase64Image(),
+                    $this->methodsByCName[$cname]->getImage(),
+                    $this->methodsByCName[$cname]->getMinTier()
                 );
         }
         return $methods;
@@ -66,6 +70,25 @@ class TelepayMethodProvider{
         }else{
             return false;
         }
+    }
+
+    public function findByTier($tier){
+        $methods = array();
+        foreach($this->methodsByCName as $method){
+            if($method->getMinTier() <= $tier)
+            $methods []= new AbstractMethod(
+                $method->getName(),
+                $method->getCname(),
+                $method->getType(),
+                $method->getCurrency(),
+                $method->getEmailRequired(),
+                $method->getBase64Image(),
+                $method->getImage(),
+                $method->getMinTier()
+            );
+
+        }
+        return $methods;
     }
 
 }

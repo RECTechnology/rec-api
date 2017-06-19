@@ -407,7 +407,7 @@ class TransactionRepository extends DocumentRepository {
             )
             ->reduce('
                 function(trans, result){
-                    result.total+=trans.total;
+                    result.total+=trans.amount;
                 }
             ')
             ->getQuery()

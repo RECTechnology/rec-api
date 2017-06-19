@@ -16,8 +16,8 @@ class TransferMethod extends BaseMethod {
     private $driver;
     private $container;
 
-    public function __construct($name, $cname, $type, $currency, $email_required, $base64Image, $container, $driver, $min_tier){
-        parent::__construct($name, $cname, $type, $currency, $email_required, $base64Image, $container, $min_tier);
+    public function __construct($name, $cname, $type, $currency, $email_required, $base64Image, $image, $container, $driver, $min_tier){
+        parent::__construct($name, $cname, $type, $currency, $email_required, $base64Image, $image, $container, $min_tier);
         $this->driver = $driver;
         $this->container = $container;
     }

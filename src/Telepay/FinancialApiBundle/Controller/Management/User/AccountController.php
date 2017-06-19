@@ -20,6 +20,7 @@ use Telepay\FinancialApiBundle\Entity\KYC;
 use Telepay\FinancialApiBundle\Entity\LimitDefinition;
 use Telepay\FinancialApiBundle\Entity\LimitCount;
 use Telepay\FinancialApiBundle\Entity\POS;
+use Telepay\FinancialApiBundle\Entity\ResellerDealer;
 use Telepay\FinancialApiBundle\Entity\ServiceFee;
 use Telepay\FinancialApiBundle\Entity\TierValidations;
 use Telepay\FinancialApiBundle\Entity\User;
@@ -911,6 +912,7 @@ class AccountController extends BaseApiController{
         $userGroup->setGroup($company);
         $userGroup->setRoles(array('ROLE_ADMIN'));
 
+
         if($type == 'android_fair'){
             //Add admin to group with readonly role
             $userRO = new UserGroup();
@@ -974,17 +976,6 @@ class AccountController extends BaseApiController{
                 $newFee->setCurrency(strtoupper($meth));
                 $em->persist($newFee);
 
-//                //create new LimitCount
-//                $newCount = new LimitCount();
-//                $newCount->setDay(0);
-//                $newCount->setWeek(0);
-//                $newCount->setMonth(0);
-//                $newCount->setYear(0);
-//                $newCount->setSingle(0);
-//                $newCount->setTotal(0);
-//                $newCount->setCname($method);
-//                $newCount->setGroup($company);
-//                $em->persist($newCount);
             }
 
             if($type != 'android_fair'){

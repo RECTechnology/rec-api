@@ -4,6 +4,7 @@ namespace Telepay\FinancialApiBundle\Controller\Management\Admin;
 
 use Symfony\Component\HttpKernel\Exception\HttpException;
 use Telepay\FinancialApiBundle\Controller\BaseApiController;
+use Telepay\FinancialApiBundle\DependencyInjection\Transactions\Core\AbstractMethod;
 use Telepay\FinancialApiBundle\Entity\Group;
 use Telepay\FinancialApiBundle\Entity\LimitCount;
 use Telepay\FinancialApiBundle\Entity\LimitDefinition;
@@ -309,6 +310,120 @@ class CompaniesController extends BaseApiController
 
         return $this->restV2(200, 'success', 'reseller info got sucessfully', $resellers);
 
+    }
+
+    /**
+     * @Rest\View
+     */
+    public function showAction($id){
+        $user = $this->get('security.context')->getToken()->getUser();
+
+        $group = $this->getRepository()->find($id);
+
+        if(!$group) throw new HttpException(404,'Group not found');
+
+        //TODO change this for tier metthods list
+        $group = $group->getAdminView();
+        $tier = $group->getTier();
+
+        $methods = $this->get('net.telepay.method_provider')->findByTier($tier);
+
+        $group->setAllowedMethods($methods);
+
+        $limit_configuration = array();
+        $em = $this->getDoctrine()->getManager();
+        $dm = $this->get('doctrine_mongodb')->getManager();
+        foreach ($methods as $method){
+
+            $tier_limit = $em->getRepository('TelepayFinancialApiBundle:TierLimit')->findOneBy(array(
+                'method'    =>  $method->getCname().'-'.$method->getType(),
+                'tier'  =>  $tier
+            ));
+
+            if(!$tier_limit) throw new HttpException('403', $method->getCname().'-'.$method->getType());
+            $total_last_day = $dm->getRepository('TelepayFinancialApiBundle:Transaction')->sumLastDaysByMethod($group, $method, 1);
+            $total_last_month = $dm->getRepository('TelepayFinancialApiBundle:Transaction')->sumLastDaysByMethod($group, $method, 30);
+
+            $lim = array(
+                'method'    =>  $method,
+                'month_limit'     =>  $tier_limit->getMonth(),
+                'month_spent'   =>  $total_last_month[0]['total'] ? $total_last_month[0]['total']:0,
+                'day_limit' =>  $tier_limit->getDay(),
+                'day_spent' =>  $total_last_day[0]['total'] ? $total_last_day[0]['total']:0
+            );
+
+            $limit_configuration[] = $lim;
+        }
+
+        //TODO search exchange methods by tier
+        $exchange_limits = $em->getRepository('TelepayFinancialApiBundle:TierLimit')->createQueryBuilder('e')
+            ->where('e.tier = :tier')
+            ->andWhere('e.method LIKE :method')
+            ->setParameter('tier', $tier)
+            ->setParameter('method', 'exchange%')
+            ->getQuery()
+            ->getResult();
+
+        foreach ($exchange_limits as $exchange_limit){
+
+            $exchange_currency = explode('_', $exchange_limit->getMethod());
+            $exchange_method = new AbstractMethod(
+                $exchange_limit->getMethod(),
+                strtolower($exchange_limit->getMethod()),
+                'exchange',
+                $exchange_currency[1],
+                false,
+                '',
+                '',
+                $tier
+            );
+
+            $total_last_day = $dm->getRepository('TelepayFinancialApiBundle:Transaction')->sumLastDaysByExchange($group, $exchange_currency[1], 1);
+            $total_last_month = $dm->getRepository('TelepayFinancialApiBundle:Transaction')->sumLastDaysByExchange($group, $exchange_currency[1], 30);
+
+            $lim = array(
+                'method'    =>  $exchange_method,
+                'month_limit'     =>  $exchange_limit->getMonth(),
+                'month_spent'   =>  $total_last_month[0]['total'] ? $total_last_month[0]['total']:0,
+                'day_limit' =>  $exchange_limit->getDay(),
+                'day_spent' =>  $total_last_day[0]['total'] ? $total_last_day[0]['total']:0
+            );
+
+            $limit_configuration[] = $lim;
+
+        }
+
+        $group->setLimitConfiguration($limit_configuration);
+
+        $fees = $group->getCommissions();
+        foreach ( $fees as $fee ){
+            $currency = $fee->getCurrency();
+            $fee->setScale($currency);
+        }
+        $limits = $group->getLimits();
+        foreach ( $limits as $lim ){
+            $currency = $lim->getCurrency();
+            $lim->setScale($currency);
+        }
+
+        $groupCreator = $group->getGroupCreator();
+        $groupData = array(
+            'id'    => $groupCreator->getId(),
+            'name'  =>  $groupCreator->getName()
+        );
+        $group->setGroupCreatorData($groupData);
+
+        return $this->restV2(
+            200,
+            "ok",
+            "Request successful",
+            array(
+                'total' => 1,
+                'start' => 0,
+                'end' => 1,
+                'elements' => $group
+            )
+        );
     }
 
 }

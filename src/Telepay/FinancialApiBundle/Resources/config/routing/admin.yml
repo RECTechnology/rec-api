@@ -278,6 +278,12 @@ admin_companies_read_resellers:
     requirements:
         _method: GET
 
+admin_company_read:
+    pattern:  /admin/v1/company/{id}/read
+    defaults: { _controller: Telepay\FinancialApiBundle\Controller\Management\Admin\CompaniesController::showAction }
+    requirements:
+        _method: GET
+
 ##################### KYC ############################
 
 admin_KYC_list:
