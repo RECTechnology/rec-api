@@ -8,6 +8,7 @@ use Telepay\FinancialApiBundle\DependencyInjection\Transactions\Core\AbstractMet
 use Telepay\FinancialApiBundle\Entity\Group;
 use Telepay\FinancialApiBundle\Entity\LimitCount;
 use Telepay\FinancialApiBundle\Entity\LimitDefinition;
+use Telepay\FinancialApiBundle\Entity\ResellerDealer;
 use Telepay\FinancialApiBundle\Entity\ServiceFee;
 use FOS\RestBundle\Controller\Annotations as Rest;
 use Symfony\Component\HttpFoundation\Request;
@@ -424,6 +425,74 @@ class CompaniesController extends BaseApiController
                 'elements' => $group
             )
         );
+    }
+
+    /**
+     * @Rest\View
+     */
+    public function addReseller(Request $request, $id){
+
+        $em = $this->getDoctrine()->getManager();
+        $company = $em->getRepository('TelepayFinancialApiBundle:Group')->find($id);
+
+        if(!$company) throw new HttpException(404, 'Company not found');
+
+        $paramNames = array(
+            'company_reseller',
+            'fee',
+            'method'
+        );
+
+        $params = array();
+        foreach ($paramNames as $paramName){
+            if(!$request->request->has($paramName)) throw new HttpException(404, 'Param '.$paramName.' not found');
+            $params[$paramName] = $request->request->get($paramName);
+        }
+
+        $company_reseller = $em->getRepository($this->getRepositoryName())->find($params['company_reseller']);
+        if(!$company_reseller) throw new HttpException(404, 'Company reseller not found');
+
+        //TODO check if reseller exists
+        $resellerExist = $em->getRepository('TelepayFinancialApiBundle:ResellerDealer')->findOneBy(array(
+            'method'    =>  $params['method'],
+            'company_origin'    =>  $company,
+            'company_reseller'  =>  $company_reseller
+        ));
+
+        if($resellerExist) throw new HttpException(409, 'Duplicate resource');
+
+        //TODO check valid method
+        //TODO create reseller
+        $reseller = new ResellerDealer();
+        $reseller->setMethod($params['method']);
+        $reseller->setFee($params['fee']);
+        $reseller->setCompanyReseller($company_reseller);
+        $reseller->setCompanyOrigin($company);
+
+        $em->persist($reseller);
+        $em->flush();
+
+        return $this->restV2(201, 'success', 'Reseller created successfully', $reseller);
+    }
+
+    /**
+     * @Rest\View
+     */
+    public function editReseller(Request $request, $id, $reseller_dealer){
+
+        $em = $this->getDoctrine()->getManager();
+        $reseller = $em->getRepository('TelepayFinancialApiBundle:ResellerDealer')->find($reseller_dealer);
+
+        if(!$reseller) throw new HttpException(404, 'Reseller dealer not found');
+        if(!$request->request->has('fee')){
+            throw new HttpException(404, 'Param fee not found');
+        }else{
+            $reseller->setFee($request->request->get('fee'));
+            $em->flush();
+        }
+
+        return $this->restV2(204, 'success', 'Reseller fee updated successfully', $reseller);
+
     }
 
 }
