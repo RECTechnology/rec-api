@@ -66,7 +66,8 @@ class CashInController extends BaseApiController{
                         'beneficiary'   =>  ' XARXA INTEGRAL DE PROFESSIONALS I USUARIES',
                         'bic_swift' =>  'TRIOESMMXXX'
                     );
-                }else if($user->getActiveGroup()->getGroupCreator()->getId() == $this->container->getParameter('default_company_creator_commerce_botc')){
+                }
+                if($user->getActiveGroup()->getGroupCreator()->getId() == $this->container->getParameter('default_company_creator_commerce_botc')){
                     $info = array(
                         'iban'  =>  'ES43 1491 0001 2420 8685 5729',
                         'beneficiary'   =>  ' Xarxa Autogestió Social SCCL',
