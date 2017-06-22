@@ -15,38 +15,40 @@ use Telepay\FinancialApiBundle\Financial\TickerInterface;
 class BittrexTicker implements TickerInterface {
     private $bittrex;
     private $direction;
+    private $currency;
 
-    public function __construct(BittrexDriver $bittrex, $direction){
+    public function __construct(BittrexDriver $bittrex, $direction, $currency){
         $this->bittrex = $bittrex;
         $this->direction = $direction;
+        $this->currency = $currency;
     }
 
     public function getPrice(){
-        $resp = $this->bittrex->getOrderBook('BTC-FAIR');
+        $resp = $this->bittrex->getOrderBook('BTC-' . $this->currency);
         if($resp->success != 1) throw new \LogicException("Failed getting FAC -> BTC price");
         $sum_btc = 0;
-        $sum_fac = 0;
+        $sum_other = 0;
         if($this->direction == 'fac_btc'){
             foreach($resp->result->buy as $bid){
                 $sum_btc += $bid->Quantity * $bid->Rate;
-                $sum_fac += $bid->Quantity;
+                $sum_other += $bid->Quantity;
                 // 3 bitcoins
-                if($sum_btc>3){
-                    return $sum_btc/$sum_fac;
+                if($sum_btc>5){
+                    return $sum_btc/$sum_other;
                 }
             }
-            return $sum_btc/$sum_fac;
+            return $sum_btc/$sum_other;
         }
         if($this->direction == 'btc_fac'){
             foreach($resp->result->sell as $ask){
                 $sum_btc += $ask->Quantity * $ask->Rate;
-                $sum_fac += $ask->Quantity;
+                $sum_other += $ask->Quantity;
                 // 3 bitcoins
-                if($sum_btc>3){
-                    return 1.0/($sum_btc/$sum_fac);
+                if($sum_btc>5){
+                    return 1.0/($sum_btc/$sum_other);
                 }
             }
-            return 1.0/($sum_btc/$sum_fac);
+            return 1.0/($sum_btc/$sum_other);
         }
     }
 

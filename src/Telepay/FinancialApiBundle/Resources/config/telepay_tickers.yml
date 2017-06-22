@@ -5,12 +5,14 @@ services:
         arguments:
             - "@net.telepay.driver.bittrex"
             - "fac_btc"
+            - "FAC"
 
     net.telepay.ticker.BTCxFAC:
         class: Telepay\FinancialApiBundle\Financial\Ticker\BittrexTicker
         arguments:
             - "@net.telepay.driver.bittrex"
             - "btc_fac"
+            - "FAC"
 
     net.telepay.ticker.BTCxEUR:
         class: Telepay\FinancialApiBundle\Financial\Ticker\KrakenTicker
@@ -275,4 +277,61 @@ services:
         class: Telepay\FinancialApiBundle\Financial\Ticker\InversedTicker
         arguments:
             - "@net.telepay.ticker.FAIRPxFAC"
+
+    net.telepay.ticker.ETHxBTC:
+        class: Telepay\FinancialApiBundle\Financial\Ticker\BittrexTicker
+        arguments:
+            - "@net.telepay.driver.bittrex"
+            - "eth_btc"
+            - "ETH"
+
+    net.telepay.ticker.BTCxETH:
+        class: Telepay\FinancialApiBundle\Financial\Ticker\BittrexTicker
+        arguments:
+            - "@net.telepay.driver.bittrex"
+            - "btc_eth"
+            - "ETH"
+
+    net.telepay.ticker.ETHxEUR:
+        class: Telepay\FinancialApiBundle\Financial\Ticker\ChainedTicker
+        arguments:
+            exchange_chain:
+                - "@net.telepay.ticker.ETHxBTC"
+                - "@net.telepay.ticker.BTCxEUR"
+
+    net.telepay.ticker.EURxETH:
+        class: Telepay\FinancialApiBundle\Financial\Ticker\ChainedTicker
+        arguments:
+            exchange_chain:
+                - "@net.telepay.ticker.EURxBTC"
+                - "@net.telepay.ticker.BTCxETH"
+
+
+    net.telepay.ticker.CREAxBTC:
+        class: Telepay\FinancialApiBundle\Financial\Ticker\BittrexTicker
+        arguments:
+            - "@net.telepay.driver.bittrex"
+            - "crea_btc"
+            - "CREA"
+
+    net.telepay.ticker.BTCxCREA:
+        class: Telepay\FinancialApiBundle\Financial\Ticker\BittrexTicker
+        arguments:
+            - "@net.telepay.driver.bittrex"
+            - "btc_crea"
+            - "CREA"
+
+    net.telepay.ticker.CREAxEUR:
+        class: Telepay\FinancialApiBundle\Financial\Ticker\ChainedTicker
+        arguments:
+            exchange_chain:
+                - "@net.telepay.ticker.CREAxBTC"
+                - "@net.telepay.ticker.BTCxEUR"
+
+    net.telepay.ticker.EURxCREA:
+        class: Telepay\FinancialApiBundle\Financial\Ticker\ChainedTicker
+        arguments:
+            exchange_chain:
+                - "@net.telepay.ticker.EURxBTC"
+                - "@net.telepay.ticker.BTCxCREA"
 
