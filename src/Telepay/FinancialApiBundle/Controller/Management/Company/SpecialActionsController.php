@@ -423,10 +423,10 @@ class SpecialActionsController extends RestApiController {
         if($activeCompany->getId() != $botc_id) throw new HttpException(403, 'You don\'t have the necessary permissions');
         $em = $this->getDoctrine()->getManager();
         $group = $em->getRepository('TelepayFinancialApiBundle:Group')->findOneBy(array(
-            'id'  =>  $company_id,
-            'group_creator_id' =>  $botc_id
+            'id'  =>  $company_id
         ));
         if(!$group) throw new HttpException(404, 'Group not allowed');
+        if($group->getGroupCreator()->getId() != $botc_id) throw new HttpException(404, 'Group not allowed');
         $group->setTier($tier);
         $em->flush();
         return $this->rest(204, 'Company tier updated successfully');
