@@ -342,10 +342,35 @@ class GroupsController extends BaseApiController
         }
 
         if(!$group) throw new HttpException(404,'Group not found');
-
+        $methods = $this->get('net.telepay.method_provider')->findByTier($group->getTier());
         //TODO change this for tier metthods list
+        $limit_configuration = array();
+        $em = $this->getDoctrine()->getManager();
+        $dm = $this->get('doctrine_mongodb')->getManager();
+        foreach ($methods as $method){
 
-        $group->setAllowedMethods($group->getMethodsList());
+            $tier_limit = $em->getRepository('TelepayFinancialApiBundle:TierLimit')->findOneBy(array(
+                'method'    =>  $method->getCname().'-'.$method->getType(),
+                'tier'  =>  $group->getTier()
+            ));
+
+            if(!$tier_limit) throw new HttpException('403', $method->getCname().'-'.$method->getType());
+            $total_last_day = $dm->getRepository('TelepayFinancialApiBundle:Transaction')->sumLastDaysByMethod($group, $method, 1);
+            $total_last_month = $dm->getRepository('TelepayFinancialApiBundle:Transaction')->sumLastDaysByMethod($group, $method, 30);
+
+            $lim = array(
+                'method'    =>  $method,
+                'month_limit'     =>  $tier_limit->getMonth(),
+                'month_spent'   =>  $total_last_month[0]['total'] ? $total_last_month[0]['total']:0,
+                'day_limit' =>  $tier_limit->getDay(),
+                'day_spent' =>  $total_last_day[0]['total'] ? $total_last_day[0]['total']:0
+            );
+
+            $limit_configuration[] = $lim;
+        }
+
+        $group->setLimitConfiguration($limit_configuration);
+        $group->setAllowedMethods($methods);
 
         $fees = $group->getCommissions();
         foreach ( $fees as $fee ){
