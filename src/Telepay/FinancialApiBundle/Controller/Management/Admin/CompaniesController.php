@@ -4,9 +4,11 @@ namespace Telepay\FinancialApiBundle\Controller\Management\Admin;
 
 use Symfony\Component\HttpKernel\Exception\HttpException;
 use Telepay\FinancialApiBundle\Controller\BaseApiController;
+use Telepay\FinancialApiBundle\DependencyInjection\Transactions\Core\AbstractMethod;
 use Telepay\FinancialApiBundle\Entity\Group;
 use Telepay\FinancialApiBundle\Entity\LimitCount;
 use Telepay\FinancialApiBundle\Entity\LimitDefinition;
+use Telepay\FinancialApiBundle\Entity\ResellerDealer;
 use Telepay\FinancialApiBundle\Entity\ServiceFee;
 use FOS\RestBundle\Controller\Annotations as Rest;
 use Symfony\Component\HttpFoundation\Request;
@@ -308,6 +310,188 @@ class CompaniesController extends BaseApiController
         ));
 
         return $this->restV2(200, 'success', 'reseller info got sucessfully', $resellers);
+
+    }
+
+    /**
+     * @Rest\View
+     */
+    public function showAction($id){
+        $user = $this->get('security.context')->getToken()->getUser();
+
+        $group = $this->getRepository()->find($id);
+
+        if(!$group) throw new HttpException(404,'Group not found');
+
+        //TODO change this for tier metthods list
+        $group = $group->getAdminView();
+        $tier = $group->getTier();
+
+        $methods = $this->get('net.telepay.method_provider')->findByTier($tier);
+
+        $group->setAllowedMethods($methods);
+
+        $limit_configuration = array();
+        $em = $this->getDoctrine()->getManager();
+        $dm = $this->get('doctrine_mongodb')->getManager();
+        foreach ($methods as $method){
+
+            $tier_limit = $em->getRepository('TelepayFinancialApiBundle:TierLimit')->findOneBy(array(
+                'method'    =>  $method->getCname().'-'.$method->getType(),
+                'tier'  =>  $tier
+            ));
+
+            if(!$tier_limit) throw new HttpException('403', $method->getCname().'-'.$method->getType());
+            $total_last_day = $dm->getRepository('TelepayFinancialApiBundle:Transaction')->sumLastDaysByMethod($group, $method, 1);
+            $total_last_month = $dm->getRepository('TelepayFinancialApiBundle:Transaction')->sumLastDaysByMethod($group, $method, 30);
+
+            $lim = array(
+                'method'    =>  $method,
+                'month_limit'     =>  $tier_limit->getMonth(),
+                'month_spent'   =>  $total_last_month[0]['total'] ? $total_last_month[0]['total']:0,
+                'day_limit' =>  $tier_limit->getDay(),
+                'day_spent' =>  $total_last_day[0]['total'] ? $total_last_day[0]['total']:0
+            );
+
+            $limit_configuration[] = $lim;
+        }
+
+        //TODO search exchange methods by tier
+        $exchange_limits = $em->getRepository('TelepayFinancialApiBundle:TierLimit')->createQueryBuilder('e')
+            ->where('e.tier = :tier')
+            ->andWhere('e.method LIKE :method')
+            ->setParameter('tier', $tier)
+            ->setParameter('method', 'exchange%')
+            ->getQuery()
+            ->getResult();
+
+        foreach ($exchange_limits as $exchange_limit){
+
+            $exchange_currency = explode('_', $exchange_limit->getMethod());
+            $exchange_method = new AbstractMethod(
+                $exchange_limit->getMethod(),
+                strtolower($exchange_limit->getMethod()),
+                'exchange',
+                $exchange_currency[1],
+                false,
+                '',
+                '',
+                $tier
+            );
+
+            $total_last_day = $dm->getRepository('TelepayFinancialApiBundle:Transaction')->sumLastDaysByExchange($group, $exchange_currency[1], 1);
+            $total_last_month = $dm->getRepository('TelepayFinancialApiBundle:Transaction')->sumLastDaysByExchange($group, $exchange_currency[1], 30);
+
+            $lim = array(
+                'method'    =>  $exchange_method,
+                'month_limit'     =>  $exchange_limit->getMonth(),
+                'month_spent'   =>  $total_last_month[0]['total'] ? $total_last_month[0]['total']:0,
+                'day_limit' =>  $exchange_limit->getDay(),
+                'day_spent' =>  $total_last_day[0]['total'] ? $total_last_day[0]['total']:0
+            );
+
+            $limit_configuration[] = $lim;
+
+        }
+
+        $group->setLimitConfiguration($limit_configuration);
+
+        $fees = $group->getCommissions();
+        foreach ( $fees as $fee ){
+            $currency = $fee->getCurrency();
+            $fee->setScale($currency);
+        }
+        $limits = $group->getLimits();
+        foreach ( $limits as $lim ){
+            $currency = $lim->getCurrency();
+            $lim->setScale($currency);
+        }
+
+        $groupCreator = $group->getGroupCreator();
+        $groupData = array(
+            'id'    => $groupCreator->getId(),
+            'name'  =>  $groupCreator->getName()
+        );
+        $group->setGroupCreatorData($groupData);
+
+        return $this->restV2(
+            200,
+            "ok",
+            "Request successful",
+            array(
+                'total' => 1,
+                'start' => 0,
+                'end' => 1,
+                'elements' => $group
+            )
+        );
+    }
+
+    /**
+     * @Rest\View
+     */
+    public function addReseller(Request $request, $id){
+
+        $em = $this->getDoctrine()->getManager();
+        $company = $em->getRepository('TelepayFinancialApiBundle:Group')->find($id);
+
+        if(!$company) throw new HttpException(404, 'Company not found');
+
+        $paramNames = array(
+            'company_reseller',
+            'fee',
+            'method'
+        );
+
+        $params = array();
+        foreach ($paramNames as $paramName){
+            if(!$request->request->has($paramName)) throw new HttpException(404, 'Param '.$paramName.' not found');
+            $params[$paramName] = $request->request->get($paramName);
+        }
+
+        $company_reseller = $em->getRepository($this->getRepositoryName())->find($params['company_reseller']);
+        if(!$company_reseller) throw new HttpException(404, 'Company reseller not found');
+
+        //TODO check if reseller exists
+        $resellerExist = $em->getRepository('TelepayFinancialApiBundle:ResellerDealer')->findOneBy(array(
+            'method'    =>  $params['method'],
+            'company_origin'    =>  $company,
+            'company_reseller'  =>  $company_reseller
+        ));
+
+        if($resellerExist) throw new HttpException(409, 'Duplicate resource');
+
+        //TODO check valid method
+        //TODO create reseller
+        $reseller = new ResellerDealer();
+        $reseller->setMethod($params['method']);
+        $reseller->setFee($params['fee']);
+        $reseller->setCompanyReseller($company_reseller);
+        $reseller->setCompanyOrigin($company);
+
+        $em->persist($reseller);
+        $em->flush();
+
+        return $this->restV2(201, 'success', 'Reseller created successfully', $reseller);
+    }
+
+    /**
+     * @Rest\View
+     */
+    public function editReseller(Request $request, $id, $reseller_dealer){
+
+        $em = $this->getDoctrine()->getManager();
+        $reseller = $em->getRepository('TelepayFinancialApiBundle:ResellerDealer')->find($reseller_dealer);
+
+        if(!$reseller) throw new HttpException(404, 'Reseller dealer not found');
+        if(!$request->request->has('fee')){
+            throw new HttpException(404, 'Param fee not found');
+        }else{
+            $reseller->setFee($request->request->get('fee'));
+            $em->flush();
+        }
+
+        return $this->restV2(204, 'success', 'Reseller fee updated successfully', $reseller);
 
     }
 

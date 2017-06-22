@@ -41,6 +41,7 @@ class CheckCryptoCommand extends SyncronizedContainerAwareCommand
 
                 $qb = $dm->createQueryBuilder('TelepayFinancialApiBundle:Transaction')
                     ->field('method')->equals($method)
+                    ->field('type')->equals($type)
                     ->field('status')->in(array('created', 'received'))
                     ->getQuery();
 
@@ -134,16 +135,17 @@ class CheckCryptoCommand extends SyncronizedContainerAwareCommand
                                 $creator = $group->getGroupCreator();
 
                                 //luego a la ruleta de admins
-                                $dealer = $this->getContainer()->get('net.telepay.commons.fee_deal');
-                                $dealer->deal(
-                                    $creator,
-                                    $amount,
-                                    $method,
-                                    $type,
-                                    $service_currency,
-                                    $total_fee,
-                                    $transaction_id,
-                                    $transaction->getVersion());
+                                //TODO esto no tiene sentido, los in no suelen tener fees pero si las tuvieran seria con el createFees2
+//                                $dealer = $this->getContainer()->get('net.telepay.commons.fee_deal');
+//                                $dealer->deal(
+//                                    $creator,
+//                                    $amount,
+//                                    $method,
+//                                    $type,
+//                                    $service_currency,
+//                                    $total_fee,
+//                                    $transaction_id,
+//                                    $transaction->getVersion());
 
 
                                 //exchange if needed
@@ -159,7 +161,11 @@ class CheckCryptoCommand extends SyncronizedContainerAwareCommand
                                     $exchanger = $this->getContainer()->get('net.telepay.commons.exchange_manipulator');
                                     $exchangeAmount = $exchanger->exchange($total, $transaction->getCurrency(), $cur_out);
                                     $output->writeln('CHECK CRYPTO exchange->'.$total.' '.$transaction->getCurrency().' = '.$exchangeAmount.' '.$cur_out);
-                                    $exchanger->doExchange($total, $cur_in, $cur_out, $group, $user);
+                                    try{
+                                        $exchanger->doExchange($total, $cur_in, $cur_out, $group, $user);
+                                    }catch (HttpException $e){
+                                        //TODO send message alerting that this exchange has failed for some reason
+                                    }
 
                                 }
 

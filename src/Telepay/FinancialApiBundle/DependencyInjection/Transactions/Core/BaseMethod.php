@@ -11,8 +11,8 @@ abstract class BaseMethod extends AbstractMethod {
 
     private $container;
 
-    public function __construct($name, $cname, $type, $currency, $emial_required, $base64Image, ContainerInterface $container){
-        parent::__construct($name, $cname, $type, $currency, $emial_required, $base64Image);
+    public function __construct($name, $cname, $type, $currency, $emial_required, $base64Image, $image, ContainerInterface $container, $min_tier){
+        parent::__construct($name, $cname, $type, $currency, $emial_required, $base64Image, $image, $min_tier);
         $this->container = $container;
     }
 

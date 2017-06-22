@@ -72,7 +72,6 @@ class SpecialActionsController extends RestApiController {
         $limitManipulator = $this->get('net.telepay.commons.limit_manipulator');
 
         try{
-
             $limitManipulator->checkLimits($token->getCompany(), $methodDriver, $params['amount']);
         }catch (HttpException $e){
             throw new HttpException(403, $e->getMessage().'. This company ( '.$token->getCompany()->getName().' ) has reached his maximun limit. This company is Tier '.$token->getCompany()->getTier().'. Please update to the next Tier.');

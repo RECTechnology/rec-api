@@ -169,3 +169,4 @@ company_wallet_transactions:
     defaults: { _controller: Telepay\FinancialApiBundle\Controller\Management\Company\WalletController::walletTransactions }
     requirements:
         _method: GET
+

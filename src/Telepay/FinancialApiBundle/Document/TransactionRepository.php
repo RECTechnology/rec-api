@@ -385,13 +385,46 @@ class TransactionRepository extends DocumentRepository {
 
         $start_date = new \DateTime();
         $start_date->modify("-".$days." days");
-//        die(print_r($start_date,true));
-        $id = $group->getId();
+
         return $this->createQueryBuilder('t')
             ->select('SUM(t.amount) as last')
             ->field('group')->equals($group->getId())
             ->field('type')->equals($method->getType())
             ->field('method')->equals($method->getCname())
+            ->field('status')->in(array('created', 'received', 'success'))
+            ->field('created')->gte($start_date)
+            ->group(
+                new \MongoCode('
+                    function(trans){
+                        return {
+                            group : trans.group
+                        };
+                    }
+                '),
+                array(
+                    'total'=>0
+                )
+            )
+            ->reduce('
+                function(trans, result){
+                    result.total+=trans.amount;
+                }
+            ')
+            ->getQuery()
+            ->execute();
+
+    }
+
+    public function sumLastDaysByExchange(Group $group, $to, $days){
+
+        $start_date = new \DateTime();
+        $start_date->modify("-".$days." days");
+
+        return $this->createQueryBuilder('t')
+            ->select('SUM(t.amount) as last')
+            ->field('group')->equals($group->getId())
+            ->field('type')->equals('exchange')
+            ->field('currency')->equals($to)
             ->field('status')->in(array('created', 'received', 'success'))
             ->field('created')->gte($start_date)
             ->group(

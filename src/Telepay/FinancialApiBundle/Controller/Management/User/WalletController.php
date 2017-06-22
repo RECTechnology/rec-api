@@ -485,6 +485,12 @@ class WalletController extends RestApiController{
                         }
                     }
                 }
+                elseif($res->getType() == 'exchange'){
+                    if($all_exchange || in_array($res->getMethod(), $query['exchanges'])){
+                        $filtered = true;
+                    }
+
+                }
                 elseif($res->getType() == 'swift'){
                     if($all_swift_in || $all_swift_out || in_array($res->getMethodIn(), $query['swift_in']) || in_array($res->getMethodOut(), $query['swift_out'])){
                         $filtered = true;
@@ -535,7 +541,7 @@ class WalletController extends RestApiController{
 
                         $volume[$currency]+=$res->getAmount();
                         $trans_type = $res->getType();
-                        if($trans_type == 'in' || $trans_type == 'out' || $trans_type == 'fee' || $trans_type == 'resta_fee') {
+                        if($trans_type == 'in' || $trans_type == 'out' || $trans_type == 'fee' || $trans_type == 'resta_fee' || $trans_type == 'exchange') {
                             $balance[$currency] += $res->getTotal();
                         }
 
@@ -554,7 +560,7 @@ class WalletController extends RestApiController{
                                     $dataCustom[$day][$res->getCurrency()]['in'] += $res->getAmount();
                                 }elseif ($res->getType() == 'out'){
                                     $dataCustom[$day][$res->getCurrency()]['out'] += $res->getAmount();
-                                }elseif($res->getType() == 'fee'){
+                                }elseif($res->getType() == 'fee' || $res->getType() == 'exchange'){
                                     if($res->getTotal() > 0){
                                         $dataCustom[$day][$res->getCurrency()]['in'] += $res->getAmount();
                                     }else{
@@ -573,13 +579,14 @@ class WalletController extends RestApiController{
                                     $in = $res->getAmount();
                                 }elseif($res->getType() == 'out'){
                                     $out = $res->getAmount();
-                                }elseif($res->getType() == 'fee'){
+                                }elseif($res->getType() == 'fee' || $res->getType() == 'exchange'){
                                     if($res->getTotal() > 0){
                                         $in += $res->getAmount();
                                     }else{
                                         $out += $res->getAmount();
                                     }
                                 }
+
                                 $temp = array(
                                     'in'    =>  $in,
                                     'out'   =>  $out,

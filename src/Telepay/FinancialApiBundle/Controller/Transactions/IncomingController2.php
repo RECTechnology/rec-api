@@ -53,25 +53,25 @@ class IncomingController2 extends RestApiController{
 
         $method = $this->get('net.telepay.'.$type.'.'.$method_cname.'.v'.$version_number);
 
-        $method_list = $group->getMethodsList();
-        $method_list[] = 'echo-in';
-
-        if (!in_array($method_cname.'-'.$type, $method_list)) {
-            throw $this->createAccessDeniedException();
-        }
+//        $method_list = $group->getMethodsList();
+//        $method_list[] = 'echo-in';
+//
+//        if (!in_array($method_cname.'-'.$type, $method_list)) {
+//            throw $this->createAccessDeniedException();
+//        }
 
         $logger->info('Get mongo service');
 
         $dm = $this->get('doctrine_mongodb')->getManager();
         $em = $this->getDoctrine()->getManager();
 
-        //check if method is available
-        $statusMethod = $em->getRepository('TelepayFinancialApiBundle:StatusMethod')->findOneBy(array(
-            'method'    =>  $method_cname,
-            'type'      =>  $type
-        ));
-
-        if($statusMethod->getStatus() != 'available') throw new HttpException(403, 'Method temporally unavailable');
+//        //check if method is available
+//        $statusMethod = $em->getRepository('TelepayFinancialApiBundle:StatusMethod')->findOneBy(array(
+//            'method'    =>  $method_cname,
+//            'type'      =>  $type
+//        ));
+//
+//        if($statusMethod->getStatus() != 'available') throw new HttpException(403, 'Method temporally unavailable');
 
         //Si viene del scheduled no hay IP
         $transaction = Transaction::createFromRequestIP($ip);
@@ -193,7 +193,6 @@ class IncomingController2 extends RestApiController{
         //add fee to transaction
         $transaction->setVariableFee($variable_fee);
         $transaction->setFixedFee($fixed_fee);
-        $dm->persist($transaction);
 
         //check if is cash-out
         if($type == 'out'){
@@ -243,7 +242,6 @@ class IncomingController2 extends RestApiController{
             if($wallet->getAvailable() < $total) throw new HttpException(405,'Not founds enough');
                     //Bloqueamos la pasta en el wallet
             $wallet->setAvailable($wallet->getAvailable() - $amount);
-            $em->persist($wallet);
             $em->flush();
 
             $logger->info('Incomig transaction...SEND');
@@ -262,9 +260,7 @@ class IncomingController2 extends RestApiController{
                 $wallet->setAvailable($wallet->getAvailable() + $amount);
                 //descontamos del counter
 //                $newGroupLimitCount = (new LimitAdder())->restore( $groupLimitCount, $total);
-                $em->persist($wallet);
                 $em->flush();
-                $dm->persist($transaction);
                 $dm->flush();
 
                 $this->container->get('notificator')->notificate($transaction);
@@ -278,7 +274,6 @@ class IncomingController2 extends RestApiController{
             exec('curl -X POST -d "chat_id=-145386290&text=#cashOut_'.$env.' [' . $group->getName() . '](' . $method_cname . ') Sent: ' . $amount . ' ' . $method->getCurrency() . ' status:' . $payment_info['status'] . '" "https://api.telegram.org/bot348257911:AAG9z3cJnDi31-7MBsznurN-KZx6Ho_X4ao/sendMessage"');
 
             $transaction->setPayOutInfo($payment_info);
-            $dm->persist($transaction);
             $dm->flush();
 
             //pay fees and dealer always and set new balance
@@ -287,7 +282,6 @@ class IncomingController2 extends RestApiController{
                 if($payment_info['status'] == 'sent') $transaction->setStatus(Transaction::$STATUS_SUCCESS);
                 else $transaction->setStatus('sending');
 
-                $dm->persist($transaction);
                 $dm->flush();
 
                 $this->container->get('notificator')->notificate($transaction);
@@ -298,7 +292,6 @@ class IncomingController2 extends RestApiController{
                 //insert new line in the balance fro this group
                 $this->get('net.telepay.commons.balance_manipulator')->addBalance($group, -$amount, $transaction);
 
-                $em->persist($wallet);
                 $em->flush();
 
                 if($payment_info['status'] == 'sending'){
@@ -319,9 +312,7 @@ class IncomingController2 extends RestApiController{
                 $transaction->setStatus($payment_info['status']);
                 //desbloqueamos la pasta del wallet
                 $wallet->setAvailable($wallet->getAvailable() + $amount);
-                $em->persist($wallet);
                 $em->flush();
-                $dm->persist($transaction);
                 $dm->flush();
 
                 $this->container->get('notificator')->notificate($transaction);
@@ -331,7 +322,6 @@ class IncomingController2 extends RestApiController{
         }else{     //CASH - IN
             $logger->info('Incomig transaction...IN');
 
-            $dm->persist($transaction);
             $dm->flush();
 
             $transaction = $this->get('notificator')->notificate($transaction);
@@ -339,7 +329,6 @@ class IncomingController2 extends RestApiController{
 
             $transaction->setUpdated(new \DateTime());
 
-            $dm->persist($transaction);
             $dm->flush();
 
         }
@@ -989,6 +978,7 @@ class IncomingController2 extends RestApiController{
 
     }
 
+    //TODO delete this function NOT USED DEPRECATED
     private function _inverseDealerV2(Transaction $transaction_cancelled, UserWallet $current_wallet){
         $logger = $this->get('transaction.logger');
         $logger->info('Update transaction -> inversedDealer2');
@@ -1064,10 +1054,6 @@ class IncomingController2 extends RestApiController{
 
     }
 
-    private function _getCurrentWallet(){
-
-    }
-
     private function _getFees(Group $group, $method){
         $em = $this->getDoctrine()->getManager();
 
@@ -1091,6 +1077,7 @@ class IncomingController2 extends RestApiController{
         return $group_commission;
     }
 
+    //TODO remove this function NOT USED DEPRECATED
     public function _getLimitCount(Group $group, $method){
         $em = $this->getDoctrine()->getManager();
 
@@ -1112,6 +1099,7 @@ class IncomingController2 extends RestApiController{
         return $group_limit;
     }
 
+    //TODO remove this function NOT USED DEPRECATED
     public function _getLimits(Group $group, $method){
         $em = $this->getDoctrine()->getManager();
 

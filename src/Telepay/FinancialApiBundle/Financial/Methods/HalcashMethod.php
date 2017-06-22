@@ -25,8 +25,8 @@ class HalcashMethod extends BaseMethod{
     private $logger;
     private $env;
 
-    public function __construct($name, $cname, $type, $currency, $email_required, $base64Image, $container, $driver){
-        parent::__construct($name, $cname, $type, $currency, $email_required, $base64Image, $container);
+    public function __construct($name, $cname, $type, $currency, $email_required, $base64Image, $image, $container, $driver, $min_tier){
+        parent::__construct($name, $cname, $type, $currency, $email_required, $base64Image, $image, $container, $min_tier);
         $this->driver = $driver;
         $this->container = $container;
         $this->logger = $this->container->get('transaction.logger');

@@ -33,7 +33,8 @@ class MethodsController extends RestApiController {
             'type' =>  $methods->getType(),
             'currency'  =>  $methods->getCurrency(),
             'scale' =>  Currency::$SCALE[$methods->getCurrency()],
-            'base64image'   =>  $methods->getBase64Image()
+            'base64image'   =>  $methods->getBase64Image(),
+            'image'   =>  $methods->getImage()
         );
 
         return $this->restV2(
@@ -65,7 +66,8 @@ class MethodsController extends RestApiController {
                     'type' =>  $methodsEntity->getType(),
                     'currency'  =>  $methodsEntity->getCurrency(),
                     'scale' =>  Currency::$SCALE[$methodsEntity->getCurrency()],
-                    'base64image'   =>  $methodsEntity->getBase64Image()
+                    'base64image'   =>  $methodsEntity->getBase64Image(),
+                    'image'   =>  $methodsEntity->getImage()
                 );
 
                 $response[] = $resp;

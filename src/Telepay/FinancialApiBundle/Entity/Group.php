@@ -132,6 +132,11 @@ class Group extends BaseGroup
     /**
      * @Expose
      */
+    private $limit_configuration = array();
+
+    /**
+     * @Expose
+     */
     private $group_creator_data = array();
 
     /**
@@ -324,6 +329,15 @@ class Group extends BaseGroup
     public function getCommissions()
     {
         return $this->commissions;
+    }
+
+    public function getCommission($service){
+        $commissions = $this->getCommissions();
+        foreach($commissions as $fee){
+            if($fee->getServiceName() == $service){
+                return $fee;
+            }
+        }
     }
 
     /**
@@ -535,6 +549,9 @@ class Group extends BaseGroup
         unset($this->access_key);
         unset($this->access_secret);
         unset ($this->default_currency);
+        unset ($this->kyc_manager);
+        unset ($this->limit_counts);
+        unset ($this->cash_in_tokens);
         return $this;
     }
 
@@ -930,6 +947,14 @@ class Group extends BaseGroup
     public function setCompanyImage($company_image)
     {
         $this->company_image = $company_image;
+    }
+
+    /**
+     * @param mixed $limit_configuration
+     */
+    public function setLimitConfiguration($limit_configuration)
+    {
+        $this->limit_configuration = $limit_configuration;
     }
 
 }

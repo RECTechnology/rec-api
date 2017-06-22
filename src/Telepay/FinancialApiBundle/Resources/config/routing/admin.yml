@@ -278,6 +278,24 @@ admin_companies_read_resellers:
     requirements:
         _method: GET
 
+admin_companies_add_reseller:
+    pattern:  /admin/v1/company/{id}/resellers
+    defaults: { _controller: Telepay\FinancialApiBundle\Controller\Management\Admin\CompaniesController::addReseller }
+    requirements:
+        _method: POST
+
+admin_companies_edit_reseller_dealer:
+    pattern:  /admin/v1/company/{id}/reseller/{reseller_dealer}
+    defaults: { _controller: Telepay\FinancialApiBundle\Controller\Management\Admin\CompaniesController::editReseller }
+    requirements:
+        _method: PUT
+
+admin_company_read:
+    pattern:  /admin/v1/company/{id}/read
+    defaults: { _controller: Telepay\FinancialApiBundle\Controller\Management\Admin\CompaniesController::showAction }
+    requirements:
+        _method: GET
+
 ##################### KYC ############################
 
 admin_KYC_list:
@@ -355,6 +373,14 @@ admin_specific_limit_delete:
     defaults: { _controller: Telepay\FinancialApiBundle\Controller\Management\Admin\CompanyLimitController::deleteAction }
     requirements:
         _moethod: DELETE
+
+##################### FEES ############################
+
+admin_fee_update:
+    pattern: /admin/v1/fee/{id}
+    defaults: { _controller: Telepay\FinancialApiBundle\Controller\Management\Admin\CompanyFeesController::updateAction }
+    requirements:
+        _method: PUT
 
 ####################  NFC CARDS  ##########################
 admin_index_nfc_cards:

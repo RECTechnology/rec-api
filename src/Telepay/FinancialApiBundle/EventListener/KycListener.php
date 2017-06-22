@@ -63,16 +63,22 @@ class KycListener
                 if($kyc->getTier1Status() == 'approved' && $entity->getTier() < 1){
                     $entity->setTier(1);
                     //notify update tier
-                    $this->_sendEmail('Update KYC ', $entity->getKycManager()->getEmail(), $entity, $entity->getKycManager(), 1, 'approved_single' );
+//                    $this->_sendEmail('Update KYC ', $entity->getKycManager()->getEmail(), $entity, $entity->getKycManager(), 1, 'approved_single' );
                 }
 
                 if($kyc->getTier2Status() == 'approved' && $entity->getTier() < 2){
                     $entity->setTier(2);
                     //notify update tier
-                    $this->_sendEmail('Update KYC ', $entity->getKycManager()->getEmail(), $entity, $entity->getKycManager(), 2, 'approved_single' );
+//                    $this->_sendEmail('Update KYC ', $entity->getKycManager()->getEmail(), $entity, $entity->getKycManager(), 2, 'approved_single' );
                 }
 
                 $em->flush();
+            }
+
+            if(isset($changeset['tier'])){
+                if($entity->getTier() > 0){
+                    $this->_sendEmail('Update KYC ', $entity->getKycManager()->getEmail(), $entity, $entity->getKycManager(), $entity->getTier(), 'approved_single' );
+                }
             }
             return;
         }
