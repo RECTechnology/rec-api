@@ -19,6 +19,12 @@ manager_users_index_by_group:
     requirements:
         _method: GET
 
+manager_users_index_by_company:
+    pattern:  /manager/v1/company/{id}/users
+    defaults: { _controller: Telepay\FinancialApiBundle\Controller\Management\Manager\UsersController::indexByCompany, _format: ~ }
+    requirements:
+        _method: GET
+
 
 admin_users_set_image:
     pattern:  /manager/v1/users/{id}/image
