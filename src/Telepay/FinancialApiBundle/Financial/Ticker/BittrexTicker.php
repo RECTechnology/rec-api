@@ -32,7 +32,7 @@ class BittrexTicker implements TickerInterface {
             foreach($resp->result->buy as $bid){
                 $sum_btc += $bid->Quantity * $bid->Rate;
                 $sum_other += $bid->Quantity;
-                // 3 bitcoins
+                // 5 bitcoins
                 if($sum_btc>5){
                     return $sum_btc/$sum_other;
                 }
@@ -43,7 +43,7 @@ class BittrexTicker implements TickerInterface {
             foreach($resp->result->sell as $ask){
                 $sum_btc += $ask->Quantity * $ask->Rate;
                 $sum_other += $ask->Quantity;
-                // 3 bitcoins
+                // 5 bitcoins
                 if($sum_btc>5){
                     return 1.0/($sum_btc/$sum_other);
                 }

@@ -5,14 +5,14 @@ services:
         arguments:
             - "@net.telepay.driver.bittrex"
             - "fac_btc"
-            - "FAC"
+            - "FAIR"
 
     net.telepay.ticker.BTCxFAC:
         class: Telepay\FinancialApiBundle\Financial\Ticker\BittrexTicker
         arguments:
             - "@net.telepay.driver.bittrex"
             - "btc_fac"
-            - "FAC"
+            - "FAIR"
 
     net.telepay.ticker.BTCxEUR:
         class: Telepay\FinancialApiBundle\Financial\Ticker\KrakenTicker
