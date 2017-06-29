@@ -52,34 +52,14 @@ class MethodsController extends RestApiController {
 
         $userGroup = $this->get('security.context')->getToken()->getUser()->getActiveGroup();
 
-        $methods = $userGroup->getMethodsList();
-        $response = array();
-
-        if(count($methods) == 0) throw new HttpException (404, 'No methods found for this company');
-
-        foreach($methods as $method){
-            $methodsEntity = $this->get('net.telepay.method_provider')->findByCname($method);
-
-            if($methodsEntity){
-                $resp = array(
-                    'cname' =>  $methodsEntity->getCname(),
-                    'type' =>  $methodsEntity->getType(),
-                    'currency'  =>  $methodsEntity->getCurrency(),
-                    'scale' =>  Currency::$SCALE[$methodsEntity->getCurrency()],
-                    'base64image'   =>  $methodsEntity->getBase64Image(),
-                    'image'   =>  $methodsEntity->getImage()
-                );
-
-                $response[] = $resp;
-            }
-
-        }
+        $tier = $userGroup->getTier();
+        $methodsByTier = $this->get('net.telepay.method_provider')->findByTier($tier);
 
         return $this->restV2(
             200,
             "ok",
             "Methods got successfully",
-            $response
+            $methodsByTier
         );
     }
 
