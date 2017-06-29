@@ -133,7 +133,8 @@ class ExchangeManipulator{
         $exchange_fixed_fee = $fee->getFixed();
         $exchange_variable_fee = round((($fee->getVariable()/100) * $exchangeAmount), 0);
 
-        if(!$internal && $company->getFairtoearthAdmin() == true && ($from != Currency::$EUR || $to != Currency::$FAC)){
+        $botc_exchange = $this->container->getParameter('default_company_exchange_botc');
+        if(!$internal && ($company->getFairtoearthAdmin() || $company->getId() == $botc_exchange) && ($from == Currency::$FAC || $to == Currency::$FAC)){
             throw new HttpException(403, 'Exchange not allowed for this company');
         }
 
