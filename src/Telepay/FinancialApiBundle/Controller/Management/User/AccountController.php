@@ -828,7 +828,7 @@ class AccountController extends BaseApiController{
         }
 
         $premium = false;
-        if($type == 'android_fair' || $type == 'botc'){
+        if($type == 'android_fair'){
             $premium = true;
         }
 
