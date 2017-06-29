@@ -49,6 +49,21 @@ class CompaniesController extends BaseApiController
             $request->request->remove('methods_list');
         }
 
+        $group = $this->get('security.context')->getToken()->getUser()->getActiveGroup();
+        $botc_admin = $this->container->getParameter('default_company_creator_commerce_botc');
+        if($request->request->has('botc') && $group==$botc_admin){
+            if($request->request->get('botc')==true){
+                $request->request->set('premium', true);
+                $request->request->set('tier', 10);
+                $request->request->remove('botc');
+            }
+            elseif($request->request->get('botc')==false){
+                $request->request->set('premium', false);
+                $request->request->set('tier', 1);
+                $request->request->remove('botc');
+            }
+        }
+
         $creator_company = null;
         if($request->request->has('creator_company')){
             $creator_company = $request->request->get('creator_company');
