@@ -1068,9 +1068,9 @@ class WalletController extends RestApiController{
 
         $botc_admin = $this->container->getParameter('default_company_creator_commerce_botc');
         if(($botc_admin == $userGroup->getGroupCreator()->getId() || $botc_admin == $userGroup->getId()) && $userGroup->getPremium()==true) {
-            $to=$to==Currency::$FAC?Currency::$FAIRP:$to;
-            $from=$from==Currency::$FAC?Currency::$FAIRP:$from;
-            if($to != Currency::$FAIRP && $from != Currency::$FAIRP){
+            $to_data=$to==Currency::$FAC?Currency::$FAIRP:$to;
+            $from_data=$from==Currency::$FAC?Currency::$FAIRP:$from;
+            if($to_data != Currency::$FAIRP && $from_data != Currency::$FAIRP){
                 $exchanger->doExchange($amount, $from, $to, $userGroup, $user);
             }
             else{
