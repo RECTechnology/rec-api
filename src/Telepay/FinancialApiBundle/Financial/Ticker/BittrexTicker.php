@@ -25,7 +25,7 @@ class BittrexTicker implements TickerInterface {
 
     public function getPrice(){
         $resp = $this->bittrex->getOrderBook('BTC-' . $this->currency);
-        if($resp->success != 1) throw new \LogicException("Failed getting FAC -> BTC price");
+        if($resp->success != 1) throw new \LogicException("Failed getting " . $this->currency . " -> BTC price");
         $sum_btc = 0;
         $sum_other = 0;
         if($this->direction == 'fac_btc'){
