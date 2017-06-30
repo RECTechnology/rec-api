@@ -92,7 +92,7 @@ class ExchangeManipulator{
 
     public function doExchange($amount, $from, $to, Group $company, User $user, $internal = false){
         $this->trans_logger->info('EXCHANGE_MANIPULATOR (doExchange)=> amount='.$amount.' from'.$from.' to='.$to);
-        exec('curl -X POST -d "chat_id=-145386290&text=#EXCHANGE (doExchange)=> amount=' . $amount .' from ' . $from . ' to=' . $to . '" "https://api.telegram.org/bot348257911:AAG9z3cJnDi31-7MBsznurN-KZx6Ho_X4ao/sendMessage"');
+        exec('curl -X POST -d "chat_id=-145386290&text=#EXCHANGE (doExchange  ' . $company->getName() .')=> amount=' . $amount .' from ' . $from . ' to=' . $to . '" "https://api.telegram.org/bot348257911:AAG9z3cJnDi31-7MBsznurN-KZx6Ho_X4ao/sendMessage"');
 
         //check exchange limits
         $this->container->get('net.telepay.commons.limit_manipulator')->checkExchangeLimits($company, $amount, $from, $to);
