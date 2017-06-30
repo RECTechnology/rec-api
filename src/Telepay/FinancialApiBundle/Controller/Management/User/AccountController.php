@@ -899,6 +899,9 @@ class AccountController extends BaseApiController{
             }
         }
 
+        $company->setKycManager($user);
+        $em->persist($company);
+
         $tokenGenerator = $this->container->get('fos_user.util.token_generator');
         $user->setConfirmationToken($tokenGenerator->generateToken());
         $em->persist($user);
