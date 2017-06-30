@@ -387,14 +387,21 @@ class WalletController extends RestApiController {
         $exchanger = $this->container->get('net.telepay.commons.exchange_manipulator');
 
         $botc_admin = $this->container->getParameter('default_company_creator_commerce_botc');
-        if($botc_admin == $userGroup->getGroupCreator()->getId() && $userGroup->getPremium()==true) {
-            $botc_exchange = $this->container->getParameter('default_company_exchange_botc');
-            $exchange_company = $em->getRepository('TelepayFinancialApiBundle:Group')->find($botc_exchange);
-            $receiverWallet = $exchange_company->getWallet($to);
-            if ($receiverWallet->getAvailable() < $amount) throw new HttpException(403, 'Insuficient founds in your admin node');
-            $exchange = $exchanger->doExchange($amount, $from==Currency::$FAC?Currency::$FAIRP:$from, $to==Currency::$FAC?Currency::$FAIRP:$to, $userGroup, $user);
-            $amount_ex = $exchanger->exchange($amount, $to==Currency::$FAC?Currency::$FAIRP:$to, $from==Currency::$FAC?Currency::$FAIRP:$from);
-            $exchanger->doExchange($amount_ex, $to, $from, $exchange_company, $user, true);
+        if(($botc_admin == $userGroup->getGroupCreator()->getId() || $botc_admin == $userGroup->getId()) && $userGroup->getPremium()==true) {
+            $to=$to==Currency::$FAC?Currency::$FAIRP:$to;
+            $from=$from==Currency::$FAC?Currency::$FAIRP:$from;
+            if($to != Currency::$FAIRP && $from != Currency::$FAIRP){
+                $exchange = $exchanger->doExchange($amount, $from, $to, $userGroup, $user);
+            }
+            else{
+                $botc_exchange = $this->container->getParameter('default_company_exchange_botc');
+                $exchange_company = $em->getRepository('TelepayFinancialApiBundle:Group')->find($botc_exchange);
+                $receiverWallet = $exchange_company->getWallet($to);
+                if ($receiverWallet->getAvailable() < $amount) throw new HttpException(403, 'Insuficient founds in your exchange admin node');
+                $exchange = $exchanger->doExchange($amount, $from==Currency::$FAC?Currency::$FAIRP:$from, $to==Currency::$FAC?Currency::$FAIRP:$to, $userGroup, $user);
+                $amount_ex = $exchanger->exchange($amount, $to==Currency::$FAC?Currency::$FAIRP:$to, $from==Currency::$FAC?Currency::$FAIRP:$from);
+                $exchanger->doExchange($amount_ex, $to, $from, $exchange_company, $user, true);
+            }
         }
         else{
             $exchange = $exchanger->doExchange($amount, $from, $to, $userGroup, $user);
