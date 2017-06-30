@@ -1079,8 +1079,13 @@ class WalletController extends RestApiController{
                 $receiverWallet = $exchange_company->getWallet($to);
                 if ($receiverWallet->getAvailable() < $amount) throw new HttpException(403, 'Insuficient founds in your exchange admin node');
                 $exchanger->doExchange($amount, $from, $to, $userGroup, $user);
-                $amount_ex = $exchanger->exchange($amount, $to==Currency::$FAC?Currency::$FAIRP:$to, $from==Currency::$FAC?Currency::$FAIRP:$from);
-                $exchanger->doExchange($amount_ex, $to, $from, $exchange_company, $user, true);
+                if($from == Currency::$FAC){
+                    $exchangeAmount = $this->exchange($amount, 'FAIRP', $to);
+                }
+                elseif($to == Currency::$FAC){
+                    $exchangeAmount = $this->exchange($amount, $from, 'FAIRP');
+                }
+                $exchanger->doExchange($exchangeAmount, $to, $from, $exchange_company, $user, true);
             }
         }
         else{
