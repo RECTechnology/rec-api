@@ -431,4 +431,33 @@ class SpecialActionsController extends RestApiController {
         $em->flush();
         return $this->rest(204, 'Company tier updated successfully');
     }
+
+    public function updateBotc(Request $request, $company_id){
+        if (!$this->get('security.authorization_checker')->isGranted('ROLE_WORKER')) {
+            throw $this->createAccessDeniedException();
+        }
+        //Function only available for botc
+        $botc_id = $this->container->getParameter('default_company_creator_commerce_botc');
+        $user = $this->get('security.context')->getToken()->getUser();
+        $activeCompany = $user->getActiveGroup();
+        if($activeCompany->getId() != $botc_id) throw new HttpException(403, 'You don\'t have the necessary permissions');
+        $em = $this->getDoctrine()->getManager();
+        $group = $em->getRepository('TelepayFinancialApiBundle:Group')->findOneBy(array(
+            'id'  =>  $company_id
+        ));
+        if(!$group) throw new HttpException(404, 'Group not allowed');
+        if($group->getGroupCreator()->getId() != $botc_id) throw new HttpException(404, 'Group not allowed');
+        if($request->request->has('botc')){
+            if($request->request->get('botc')==true){
+                $group->setPremium(true);
+                $group->setTier(10);
+            }
+            elseif($request->request->get('botc')==false){
+                $group->setPremium(false);
+                $group->setTier(1);
+            }
+        }
+        $em->flush();
+        return $this->rest(204, 'Company tier updated successfully');
+    }
 }
