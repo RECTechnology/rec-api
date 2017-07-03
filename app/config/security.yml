@@ -117,6 +117,13 @@ security:
             stateless: true
             security: false
 
+        wallet_notify:
+            pattern:  ^/admin/v1/wallet/notify
+            stateless: true
+            fos_oauth:  false
+            anonymous: true
+            security: false
+
         oauth:
             pattern:    ^/
             fos_oauth:  true
@@ -144,6 +151,7 @@ security:
         - { path: ^/system/v[0-9]+/*, role: ROLE_SUPER_ADMIN }
 
         - { path: ^/pos/v[0-9]+/transaction/*, role: IS_AUTHENTICATED_ANONYMOUSLY, ip: ["127.0.0.1"] }
+
         - { path: ^/pos/v[0-9]+/check/*, role: IS_AUTHENTICATED_ANONYMOUSLY }
         - { path: ^/pos/v[0-9]+/cancel/*, role: IS_AUTHENTICATED_ANONYMOUSLY, ip: ["127.0.0.1"]  }
 

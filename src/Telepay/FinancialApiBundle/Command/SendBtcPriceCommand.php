@@ -29,6 +29,13 @@ class SendBtcPriceCommand extends ContainerAwareCommand
                 'Daily or monthly (daily by default).',
                 null
             )
+            ->addOption(
+                'type',
+                null,
+                InputOption::VALUE_REQUIRED,
+                'Buy or Sell (daily by default).',
+                null
+            )
         ;
     }
 
@@ -46,9 +53,22 @@ class SendBtcPriceCommand extends ContainerAwareCommand
         $this_month = date('m');
         $this_year = date('Y');
 
+        $type = 'sell';
+        if($input->getOption('type')){
+            if($input->getOption('type') == 'buy') $type = 'buy';
+        }
+
         $qb = $this->getContainer()->get('doctrine')->getRepository('TelepayFinancialApiBundle:Exchange')->createQueryBuilder('w');
-        $qb->Select("w.date as date, w.price as price")
-            ->where("w.src = '" . $this->currency . "' and w.dst = 'EUR' and w.id > 6000001");
+
+        if($type == 'sell'){
+            $qb->Select("w.date as date, w.price as price")
+                ->where("w.src = '" . $this->currency . "' and w.dst = 'EUR' and w.id > 3000001");
+        }else{
+            $qb->Select("w.date as date, w.price as price")
+                ->where("w.src = 'EUR' and w.dst = '" . $this->currency . "' and w.id > 3000001");
+        }
+
+
         $query = $qb->getQuery()->getResult();
 
         $output->writeln("Date,Price");
@@ -59,7 +79,11 @@ class SendBtcPriceCommand extends ContainerAwareCommand
             $year = $date->format('Y');
             $ex_date = $date->format('Y-m-d H:i:s');
             if($month == $this_month-1 && $year == $this_year) {
-                $output->writeln($ex_date . "," . ($exchange['price'] * 100000000));
+                if($type == 'buy'){
+                    $output->writeln($ex_date . "," . 100000000/($exchange['price']));
+                }else{
+                    $output->writeln($ex_date . "," . ($exchange['price'] * 100000000));
+                }
             }
         }
     }

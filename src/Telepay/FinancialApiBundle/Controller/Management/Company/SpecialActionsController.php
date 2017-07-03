@@ -424,7 +424,7 @@ class SpecialActionsController extends RestApiController {
         $em = $this->getDoctrine()->getManager();
         $group = $em->getRepository('TelepayFinancialApiBundle:Group')->findOneBy(array(
             'id'  =>  $company_id,
-            'group_creator_id' =>  $botc_id
+            'group_creator' =>  $botc_id
         ));
         if(!$group) throw new HttpException(404, 'Group not allowed');
         $group->setTier($tier);

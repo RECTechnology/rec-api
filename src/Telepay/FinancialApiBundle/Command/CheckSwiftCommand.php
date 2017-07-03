@@ -106,7 +106,8 @@ class CheckSwiftCommand extends SyncronizedContainerAwareCommand
                         $transaction->setPayOutInfo($pay_out_info);
                         $transaction->setAmount($final_amount);
                         $transaction->setTotal($final_amount);
-                        $dm->persist($transaction);
+                        $price = round($final_amount/($pay_in_info['amount']/1e8),0);
+                        $transaction->setPrice($price);
                         $dm->flush();
                     }
 
