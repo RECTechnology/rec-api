@@ -830,7 +830,7 @@ class AccountController extends BaseApiController{
         }
 
         $premium = false;
-        if($type == 'android_fair' || $type == 'botc'){
+        if($type == 'android_fair'){
             $premium = true;
         }
 
@@ -902,6 +902,7 @@ class AccountController extends BaseApiController{
         }
 
         $company->setKycManager($user);
+        $em->persist($company);
 
         $tokenGenerator = $this->container->get('fos_user.util.token_generator');
         $user->setConfirmationToken($tokenGenerator->generateToken());
