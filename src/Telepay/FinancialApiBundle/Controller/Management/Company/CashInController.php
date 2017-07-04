@@ -46,18 +46,26 @@ class CashInController extends BaseApiController{
 
 
         $total = count($all);
-
+        if($total == 0){
+            $all[] = "default";
+        }
         $bank_info = array();
-
         foreach($all as $one){
-            $methode = $one->getMethod();
+            if($one == "default"){
+                $methode = $method;
+            }
+            else {
+                $methode = $one->getMethod();
+            }
             $meth = explode('-', $methode);
 
             $methodDriver = $this->get('net.telepay.in.'.$meth[0].'.v1');
 
             $info = $methodDriver->getInfo();
             if($methode == 'easypay-in'){
-                $one->setAccountNumber($info['account_number']);
+                if($one != "default") {
+                    $one->setAccountNumber($info['account_number']);
+                }
                 $bank_info = array($info);
             }elseif($methode == 'sepa-in'){
                 if($user->getActiveGroup()->getPremium()){
@@ -76,15 +84,17 @@ class CashInController extends BaseApiController{
                         'message' => 'Send sepa transfer to this account'
                     );
                 }
-                $one->setAccountNumber($info['iban']);
-                $one->setBeneficiary($info['beneficiary']);
-                $one->setBicSwift($info['bic_swift']);
-
+                if($one != "default") {
+                    $one->setAccountNumber($info['iban']);
+                    $one->setBeneficiary($info['beneficiary']);
+                    $one->setBicSwift($info['bic_swift']);
+                }
                 $bank_info = array($info);
             }
 
         }
 
+        if($all[0]=="default") $all = array();
         return $this->restV2(
             200,
             "ok",
