@@ -403,3 +403,29 @@ admin_wallet_notifiy:
     defaults: { _controller: Telepay\FinancialApiBundle\Controller\Management\Admin\WalletNotifyController::notifyAction }
     requirements:
         _method: POST
+
+#####################     BALANCES     ############################
+admin_balances_index:
+    pattern: /admin/v1/company/{company_id}/balance
+    defaults: { _controller: Telepay\FinancialApiBundle\Controller\Management\Admin\BalancesController::indexAction }
+    requirements:
+        _method: GET
+
+admin_balances_update_hard_reset:
+    pattern: /admin/v1/company/{company_id}/balance/reset
+    defaults: { _controller: Telepay\FinancialApiBundle\Controller\Management\Admin\BalancesController::resetBalances }
+    requirements:
+        _method: PUT
+
+admin_balances_update:
+    pattern: /admin/v1/company/{company_id}/balance/{id}
+    defaults: { _controller: Telepay\FinancialApiBundle\Controller\Management\Admin\BalancesController::updateAction }
+    requirements:
+        _method: PUT
+
+admin_balances_delete:
+    pattern: /admin/v1/company/{company_id}/balance/{id}
+    defaults: { _controller: Telepay\FinancialApiBundle\Controller\Management\Admin\BalancesController::deleteAction }
+    requirements:
+        _moethod: DELETE
+
