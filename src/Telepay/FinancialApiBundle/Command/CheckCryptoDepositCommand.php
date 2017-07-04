@@ -103,6 +103,9 @@ class CheckCryptoDepositCommand extends SyncronizedContainerAwareCommand
                     $depositTransaction->setFixedFee($fixed_fee);
                     $depositTransaction->setVariableFee($variable_fee);
                     $depositTransaction->setVersion(1);
+                    $depositTransaction->setMaxNotificationTries(3);
+                    $depositTransaction->setNotificationTries(0);
+                    $depositTransaction->setNotified(false);
 
                     $depositTransaction->setDebugData(array(
                         'deposit_id' => $deposit->getId(),
@@ -124,7 +127,7 @@ class CheckCryptoDepositCommand extends SyncronizedContainerAwareCommand
                         'confirmations' => 0,
                         'status'    =>  Transaction::$STATUS_RECEIVED,
                         'final'     =>  false,
-                        'concept'   =>  'Concept by Default'
+                        'concept'   =>  'New Deposit => '.$deposit->getId()
                     ));
 
                     $dm->persist($depositTransaction);

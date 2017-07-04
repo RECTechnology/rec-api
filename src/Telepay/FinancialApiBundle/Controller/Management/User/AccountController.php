@@ -50,6 +50,7 @@ class AccountController extends BaseApiController{
      * @Rest\View
      */
     public function read(Request $request){
+
         $em = $this->getDoctrine()->getManager();
         $user = $this->get('security.context')->getToken()->getUser();
         $user->setRoles($user->getRoles());
@@ -61,6 +62,7 @@ class AccountController extends BaseApiController{
         ));
         $user->setKycData($kyc);
         $em->persist($user);
+
         return $this->restV2(200, "ok", "Account info got successfully", $user);
     }
 

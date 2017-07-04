@@ -70,7 +70,7 @@ class Group extends BaseGroup
     private $group_creator;
 
     /**
-     * @ORM\Column(type="text")
+     * @ORM\Column(type="text", nullable=true)
      * @Expose
      */
     private $base64_image = "";
@@ -545,31 +545,31 @@ class Group extends BaseGroup
     }
 
     public function getAdminView(){
-        unset($this->base64_image);
-        unset($this->access_key);
-        unset($this->access_secret);
-        unset ($this->default_currency);
-        unset ($this->kyc_manager);
-        unset ($this->limit_counts);
-        unset ($this->cash_in_tokens);
+//        unset($this->base64_image);
+//        unset($this->access_key);
+//        unset($this->access_secret);
+//        unset ($this->default_currency);
+//        unset ($this->kyc_manager);
+//        unset ($this->limit_counts);
+//        unset ($this->cash_in_tokens);
         return $this;
     }
 
     public function getUserView(){
-        unset($this->limits);
-        unset($this->commissions);
-        unset($this->wallets);
-        unset($this->limit_counts);
-        unset($this->methods_list);
-        unset($this->allowed_methods);
-        unset($this->comment);
-        unset($this->cash_in_tokens);
-        unset($this->fairtoearth_admin);
-        unset($this->own);
-        unset($this->base64_image);
-        unset($this->cif);
-        unset($this->prefix);
-        unset($this->address_number);
+//        unset($this->limits);
+//        unset($this->commissions);
+//        unset($this->wallets);
+//        unset($this->limit_counts);
+//        unset($this->methods_list);
+//        unset($this->allowed_methods);
+//        unset($this->comment);
+//        unset($this->cash_in_tokens);
+//        unset($this->fairtoearth_admin);
+//        unset($this->own);
+//        unset($this->base64_image);
+//        unset($this->cif);
+//        unset($this->prefix);
+//        unset($this->address_number);
         return $this;
     }
 

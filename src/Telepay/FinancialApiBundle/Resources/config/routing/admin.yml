@@ -89,6 +89,25 @@ super_admin_transaction_delete:
     requirements:
         _method: DELETE
 
+super_admin_transaction_search:
+    pattern:  /admin/v1/transaction/{id}
+    defaults: { _controller: Telepay\FinancialApiBundle\Controller\Management\Admin\TransactionsController::findAction }
+    requirements:
+        _method: GET
+
+admin_update_status_transaction:
+    pattern:  /admin/v1/transaction/status/{id}
+    defaults: { _controller: Telepay\FinancialApiBundle\Controller\Management\Admin\SpecialActionsController::updateTransactionStatus }
+    requirements:
+        _method: PUT
+
+admin_change_trans_amount:
+    pattern:  /admin/v1/transaction/amount/{id}
+    defaults: { _controller: Telepay\FinancialApiBundle\Controller\Management\Admin\SpecialActionsController::changeTransactionAmount }
+    requirements:
+        _method: PUT
+
+
 ############################## SYSTEM MNGMNT ##########################################
 
 system_load:
@@ -245,17 +264,6 @@ admin_sepa_out_validate:
     requirements:
         _method: POST
 
-admin_update_status_transaction:
-    pattern:  /admin/v1/transaction/status/{id}
-    defaults: { _controller: Telepay\FinancialApiBundle\Controller\Management\Admin\SpecialActionsController::updateTransactionStatus }
-    requirements:
-        _method: PUT
-
-admin_change_trans_amount:
-    pattern:  /admin/v1/transaction/amount/{id}
-    defaults: { _controller: Telepay\FinancialApiBundle\Controller\Management\Admin\SpecialActionsController::changeTransactionAmount }
-    requirements:
-        _method: PUT
 
 
 ##################### COMPANIES ############################
@@ -388,3 +396,36 @@ admin_index_nfc_cards:
     defaults: { _controller: Telepay\FinancialApiBundle\Controller\Management\Admin\NFCController::index }
     requirements:
         _method: GET
+
+####################   WALLET NOTIFIES     #####################
+admin_wallet_notifiy:
+    pattern:  /admin/v1/wallet/notify
+    defaults: { _controller: Telepay\FinancialApiBundle\Controller\Management\Admin\WalletNotifyController::notifyAction }
+    requirements:
+        _method: POST
+
+#####################     BALANCES     ############################
+admin_balances_index:
+    pattern: /admin/v1/company/{company_id}/balance
+    defaults: { _controller: Telepay\FinancialApiBundle\Controller\Management\Admin\BalancesController::indexAction }
+    requirements:
+        _method: GET
+
+admin_balances_update_hard_reset:
+    pattern: /admin/v1/company/{company_id}/balance/reset
+    defaults: { _controller: Telepay\FinancialApiBundle\Controller\Management\Admin\BalancesController::resetBalances }
+    requirements:
+        _method: PUT
+
+admin_balances_update:
+    pattern: /admin/v1/company/{company_id}/balance/{id}
+    defaults: { _controller: Telepay\FinancialApiBundle\Controller\Management\Admin\BalancesController::updateAction }
+    requirements:
+        _method: PUT
+
+admin_balances_delete:
+    pattern: /admin/v1/company/{company_id}/balance/{id}
+    defaults: { _controller: Telepay\FinancialApiBundle\Controller\Management\Admin\BalancesController::deleteAction }
+    requirements:
+        _moethod: DELETE
+

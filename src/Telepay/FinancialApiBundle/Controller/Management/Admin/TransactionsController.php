@@ -28,5 +28,29 @@ class TransactionsController extends RestApiController {
         return $this->restV2(204,"ok", "Deleted");
     }
 
+    /**
+     * @Rest\View
+     */
+    public function findAction($id){
+        $dm = $this->get('doctrine_mongodb')->getManager();
+        $trans = $dm->getRepository('TelepayFinancialApiBundle:Transaction')->find($id);
+
+        if(!$trans) throw new HttpException(404,'Not found');
+
+        $em = $this->getDoctrine()->getManager();
+        $company = $em->getRepository('TelepayFinancialApiBundle:Group')->find($trans->getGroup());
+
+        //TODO get Method
+        $methods = $this->get('net.telepay.method_provider')->findByCNames(array($trans->getMethod().'-'.$trans->getType()));
+
+        $response = array(
+            'transaction'   =>  $trans,
+            'company'   =>  $company,
+            'method'    =>  $methods[0]
+        );
+
+        return $this->restV2(200,"ok", "Transaction ffound successfully", $response);
+    }
+
 
 }
