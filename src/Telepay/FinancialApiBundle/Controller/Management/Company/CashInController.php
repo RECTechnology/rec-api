@@ -68,10 +68,10 @@ class CashInController extends BaseApiController{
                     );
                 }
                 $botc_id = $this->container->getParameter('default_company_creator_commerce_botc');
-                if($user->getActiveGroup()->getGroupCreator()->getId() == $botc_id || $user->getActiveGroup()->getId() == $botc_id){
+                if(($company->getGroupCreator()->getId() == $botc_id) || ($company->getId() == $botc_id)){
                     $info = array(
                         'iban'  =>  'ES43 1491 0001 2420 8685 5729',
-                        'beneficiary'   =>  ' Xarxa Autogestió Social SCCL',
+                        'beneficiary'   =>  'Xarxa Autogestió Social SCCL',
                         'bic_swift' =>  'TRIOESMMXXX',
                         'message' => 'Send sepa transfer to this account'
                     );
