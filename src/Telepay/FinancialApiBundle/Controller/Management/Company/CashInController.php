@@ -138,9 +138,13 @@ class CashInController extends BaseApiController{
         $methodDriver = $this->get('net.telepay.in.'.$method.'.v1');
 
         //check if company has method available
-        $company_methods = $company->getMethodsList();
+//        $company_methods = $company->getMethodsList();
 
-        if(!in_array($method.'-'.$type, $company_methods)) throw new HttpException(405, 'Method not allowed in this company.');
+//        if(!in_array($method.'-'.$type, $company_methods)) throw new HttpException(405, 'Method not allowed in this company.');
+
+        if($methodDriver->getMinTier() > $company->getTier()) {
+            throw new HttpException(403, 'You don\'t have the necessary permissions. You must to be Tier ' . $method->getMinTier() . ' and your current Tier is ' . $company->getTier());
+        }
 
         $tokens = $this->getRepository('TelepayFinancialApiBundle:CashInTokens')->findBy(array(
             'company'  =>  $company->getId(),

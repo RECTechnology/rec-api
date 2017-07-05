@@ -76,7 +76,7 @@ class TransactionListener
         $company = $em->getRepository('telepayFinancialApiBundle:Group')->find($transaction->getGroup());
         $tier = $company->getTier();
 
-        $method = $method = $this->get('net.telepay.'.$transaction->getType().'.'.$transaction->getMethod().'.v'.$transaction->getVersion());
+        $method = $this->get('net.telepay.'.$transaction->getType().'.'.$transaction->getMethod().'.v'.$transaction->getVersion());
 
         if($method->getMinTier() > $tier){
             throw new HttpException(403, 'You don\'t have the necessary permissions. You must to be Tier '.$method->getMinTier().' and your current Tier is '.$tier);
