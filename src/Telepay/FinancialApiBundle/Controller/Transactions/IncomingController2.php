@@ -53,25 +53,10 @@ class IncomingController2 extends RestApiController{
 
         $method = $this->get('net.telepay.'.$type.'.'.$method_cname.'.v'.$version_number);
 
-//        $method_list = $group->getMethodsList();
-//        $method_list[] = 'echo-in';
-//
-//        if (!in_array($method_cname.'-'.$type, $method_list)) {
-//            throw $this->createAccessDeniedException();
-//        }
-
         $logger->info('Get mongo service');
 
         $dm = $this->get('doctrine_mongodb')->getManager();
         $em = $this->getDoctrine()->getManager();
-
-//        //check if method is available
-//        $statusMethod = $em->getRepository('TelepayFinancialApiBundle:StatusMethod')->findOneBy(array(
-//            'method'    =>  $method_cname,
-//            'type'      =>  $type
-//        ));
-//
-//        if($statusMethod->getStatus() != 'available') throw new HttpException(403, 'Method temporally unavailable');
 
         //Si viene del scheduled no hay IP
         $transaction = Transaction::createFromRequestIP($ip);
