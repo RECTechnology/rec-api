@@ -74,19 +74,24 @@ class TelepayMethodProvider{
 
     public function findByTier($tier){
         $methods = array();
-        foreach($this->methodsByCName as $method){
+        if($tier == 'fairpay'){
+            $arrayMethods = array('fac-in','fac-out');
+            $arrayMethods = $this->findByCNames($arrayMethods);
+        }else{
+            $arrayMethods = $this->methodsByCName;
+        }
+        foreach($arrayMethods as $method){
             if($method->getMinTier() <= $tier)
-            $methods []= new AbstractMethod(
-                $method->getName(),
-                $method->getCname(),
-                $method->getType(),
-                $method->getCurrency(),
-                $method->getEmailRequired(),
-                $method->getBase64Image(),
-                $method->getImage(),
-                $method->getMinTier()
-            );
-
+                $methods []= new AbstractMethod(
+                    $method->getName(),
+                    $method->getCname(),
+                    $method->getType(),
+                    $method->getCurrency(),
+                    $method->getEmailRequired(),
+                    $method->getBase64Image(),
+                    $method->getImage(),
+                    $method->getMinTier()
+                );
         }
         return $methods;
     }

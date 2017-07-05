@@ -53,7 +53,13 @@ class MethodsController extends RestApiController {
         $userGroup = $this->get('security.context')->getToken()->getUser()->getActiveGroup();
 
         $tier = $userGroup->getTier();
+        if($userGroup->getGroupCreator()->getId() == $this->container->getParameter('default_company_creator_commerce_android_fair')){
+            $tier = 'fairpay';
+        }
         $methodsByTier = $this->get('net.telepay.method_provider')->findByTier($tier);
+
+        //TODO check if is fairpay user
+
 
         return $this->restV2(
             200,
