@@ -366,14 +366,14 @@ services:
         arguments:
             - "@net.telepay.driver.bittrex"
             - "crea_btc"
-            - "CREA"
+            - "FAIR"
 
     net.telepay.ticker.BTCxCREA:
         class: Telepay\FinancialApiBundle\Financial\Ticker\BittrexTicker
         arguments:
             - "@net.telepay.driver.bittrex"
             - "btc_crea"
-            - "CREA"
+            - "FAIR"
 
     net.telepay.ticker.CREAxEUR:
         class: Telepay\FinancialApiBundle\Financial\Ticker\ChainedTicker
