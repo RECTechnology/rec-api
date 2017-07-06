@@ -53,7 +53,25 @@ class MethodsController extends RestApiController {
         $userGroup = $this->get('security.context')->getToken()->getUser()->getActiveGroup();
 
         $tier = $userGroup->getTier();
+        if($userGroup->getGroupCreator()->getId() == $this->container->getParameter('default_company_creator_commerce_android_fair')){
+            $tier = 'fairpay';
+        }
         $methodsByTier = $this->get('net.telepay.method_provider')->findByTier($tier);
+
+        //TODO check status
+        //check if method is available
+
+        $em = $this->getDoctrine()->getManager();
+
+        foreach ($methodsByTier as $method){
+
+            $statusMethod = $em->getRepository('TelepayFinancialApiBundle:StatusMethod')->findOneBy(array(
+                'method'    =>  $method->getCname(),
+                'type'      =>  $method->getType()
+            ));
+
+            $method->setStatus($statusMethod->getStatus());
+        }
 
         return $this->restV2(
             200,

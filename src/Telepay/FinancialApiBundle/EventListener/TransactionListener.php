@@ -9,15 +9,11 @@
 namespace Telepay\FinancialApiBundle\EventListener;
 
 use Blockchain\Exception\HttpError;
+use Doctrine\ODM\MongoDB\Event\LifecycleEventArgs;
 use Doctrine\ORM\EntityManager;
-use Doctrine\ORM\Event\LifecycleEventArgs;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 use Symfony\Component\HttpKernel\Exception\HttpException;
 use Telepay\FinancialApiBundle\Document\Transaction;
-use Telepay\FinancialApiBundle\Entity\AccessToken;
-use Telepay\FinancialApiBundle\Entity\Group;
-use Telepay\FinancialApiBundle\Entity\KYC;
-use Telepay\FinancialApiBundle\Entity\User;
 
 class TransactionListener
 {
@@ -27,15 +23,16 @@ class TransactionListener
     public function __construct(ContainerInterface $container)
     {
         $this->container = $container;
-        $this->logger = $this->container->get('logger');
+        $this->logger = $this->container->get('transaction.logger');
+
     }
 
     public function postUpdate(LifecycleEventArgs $args)
     {
-        $entity = $args->getEntity();
+        $entity = $args->getDocument();
         $this->logger->info('POST-UPDATE Transaction_Listener');
 
-        $entityManager = $args->getEntityManager();
+        $entityManager = $args->getDocumentManager();
         $uow = $entityManager->getUnitOfWork();
 
     }
@@ -46,37 +43,45 @@ class TransactionListener
 
     public function postPersist(LifecycleEventArgs $args)
     {
-        $entity = $args->getEntity();
+        $entity = $args->getDocument();
         $this->logger->info('POST-INSERT transaction');
 
-        $entityManager = $args->getEntityManager();
+        $entityManager = $args->getDocumentManager();
 
     }
 
     public function prePersist(LifecycleEventArgs $args)
     {
-        $entity = $args->getEntity();
+        $entity = $args->getDocument();
         $this->logger->info('PRE-INSERT transaction');
 
-        $entityManager = $args->getEntityManager();
+        $documentManager = $args->getDocumentManager();
 
         if ($entity instanceof Transaction) {
 
             //check tier to get permissions to method only for in and out transactions
             if($entity->getType() == 'in' || $entity->getType() == 'out'){
-                $this->_checkMethodPermissions($entity, $entityManager);
+                $this->_checkMethodPermissions($entity, $documentManager);
             }
             return;
         }
 
     }
 
-    private function _checkMethodPermissions(Transaction $transaction, EntityManager $em){
+    private function _checkMethodPermissions(Transaction $transaction, $dm){
 
-        $company = $em->getRepository('telepayFinancialApiBundle:Group')->find($transaction->getGroup());
+        $em = $this->container->get('doctrine')->getManager();
+        $company = $em->getRepository('TelepayFinancialApiBundle:Group')->find($transaction->getGroup());
         $tier = $company->getTier();
-
-        $method = $this->get('net.telepay.'.$transaction->getType().'.'.$transaction->getMethod().'.v'.$transaction->getVersion());
+        $this->logger->info('_checkMethodPermissions');
+        $method = $this->container->get('net.telepay.'.$transaction->getType().'.'.$transaction->getMethod().'.v'.$transaction->getVersion());
+        if($company->getGroupCreator()->getid() == $this->container->getParameter('default_company_creator_commerce_android_fair')){
+            //is fairpay user
+            $allowedMethods = array('fac-in', 'fac-out');
+            if(!in_array($method->getCname(), $allowedMethods)){
+                throw new HttpException(403, 'You don\'t have the necessary permissions. You are fairpay user');
+            }
+        }
 
         if($method->getMinTier() > $tier){
             throw new HttpException(403, 'You don\'t have the necessary permissions. You must to be Tier '.$method->getMinTier().' and your current Tier is '.$tier);
