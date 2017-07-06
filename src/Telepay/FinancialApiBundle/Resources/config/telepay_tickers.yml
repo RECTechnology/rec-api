@@ -306,6 +306,20 @@ services:
                 - "@net.telepay.ticker.EURxBTC"
                 - "@net.telepay.ticker.BTCxETH"
 
+    net.telepay.ticker.ETHxFAC:
+        class: Telepay\FinancialApiBundle\Financial\Ticker\ChainedTicker
+        arguments:
+            exchange_chain:
+                - "@net.telepay.ticker.ETHxBTC"
+                - "@net.telepay.ticker.BTCxFAC"
+
+    net.telepay.ticker.FACxETH:
+        class: Telepay\FinancialApiBundle\Financial\Ticker\ChainedTicker
+        arguments:
+            exchange_chain:
+                - "@net.telepay.ticker.FACxBTC"
+                - "@net.telepay.ticker.BTCxETH"
+
     net.telepay.ticker.ETHxUSD:
         class: Telepay\FinancialApiBundle\Financial\Ticker\ChainedTicker
         arguments:
@@ -431,6 +445,34 @@ services:
                 - "@net.telepay.ticker.PLNxEUR"
                 - "@net.telepay.ticker.EURxBTC"
                 - "@net.telepay.ticker.BTCxCREA"
+
+    net.telepay.ticker.CREAxFAC:
+        class: Telepay\FinancialApiBundle\Financial\Ticker\ChainedTicker
+        arguments:
+            exchange_chain:
+                - "@net.telepay.ticker.CREAxBTC"
+                - "@net.telepay.ticker.BTCxFAC"
+
+    net.telepay.ticker.FACxCREA:
+        class: Telepay\FinancialApiBundle\Financial\Ticker\ChainedTicker
+        arguments:
+            exchange_chain:
+                - "@net.telepay.ticker.FACxBTC"
+                - "@net.telepay.ticker.BTCxCREA"
+
+    net.telepay.ticker.ETHxCREA:
+        class: Telepay\FinancialApiBundle\Financial\Ticker\ChainedTicker
+        arguments:
+            exchange_chain:
+                - "@net.telepay.ticker.ETHxBTC"
+                - "@net.telepay.ticker.BTCxCREA"
+
+    net.telepay.ticker.CREAxETH:
+        class: Telepay\FinancialApiBundle\Financial\Ticker\ChainedTicker
+        arguments:
+            exchange_chain:
+                - "@net.telepay.ticker.CREAxBTC"
+                - "@net.telepay.ticker.BTCxETH"
 
     net.telepay.ticker.FAIRPxCREA:
         class: Telepay\FinancialApiBundle\Financial\Ticker\ChainedTicker
