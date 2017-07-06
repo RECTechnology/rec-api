@@ -18,8 +18,8 @@ class Currency {
     public static $PLN = "PLN";
     public static $LISTA = array("BTC","EUR","USD","FAC","MXN","PLN");
     public static $ALL = array("BTC","EUR","USD","FAC","MXN","PLN");
-    //public static $TICKER_LIST = array("BTC","EUR","USD","FAC","MXN","PLN","FAIRP","ETH","CREA");
-    public static $TICKER_LIST = array("BTC","EUR","USD","FAC","MXN","PLN","FAIRP");
+    public static $TICKER_LIST = array("BTC","EUR","USD","FAC","MXN","PLN","FAIRP","ETH","CREA");
+    //public static $TICKER_LIST = array("BTC","EUR","USD","FAC","MXN","PLN","FAIRP");
     public static $TICKER_FAIRCOOP = array("BTC","EUR","USD","FAIRP","MXN","PLN");
     public static $SCALE = array(
         "BTC" => 8,
