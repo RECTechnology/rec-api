@@ -58,8 +58,20 @@ class MethodsController extends RestApiController {
         }
         $methodsByTier = $this->get('net.telepay.method_provider')->findByTier($tier);
 
-        //TODO check if is fairpay user
+        //TODO check status
+        //check if method is available
 
+        $em = $this->getDoctrine()->getManager();
+
+        foreach ($methodsByTier as $method){
+
+            $statusMethod = $em->getRepository('TelepayFinancialApiBundle:StatusMethod')->findOneBy(array(
+                'method'    =>  $method->getCname(),
+                'type'      =>  $method->getType()
+            ));
+
+            $method->setStatus($statusMethod->getStatus());
+        }
 
         return $this->restV2(
             200,
