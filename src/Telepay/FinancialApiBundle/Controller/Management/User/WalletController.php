@@ -1077,14 +1077,14 @@ class WalletController extends RestApiController{
                 $botc_exchange = $this->container->getParameter('default_company_exchange_botc');
                 $exchange_company = $em->getRepository('TelepayFinancialApiBundle:Group')->find($botc_exchange);
                 $receiverWallet = $exchange_company->getWallet($to);
-                if ($receiverWallet->getAvailable() < $amount) throw new HttpException(403, 'Insuficient founds in your exchange admin node');
-                $exchanger->doExchange($amount, $from, $to, $userGroup, $user);
                 if($from == Currency::$FAC){
                     $exchangeAmount = $exchanger->exchange($amount, 'FAIRP', $to);
                 }
                 elseif($to == Currency::$FAC){
                     $exchangeAmount = $exchanger->exchange($amount, $from, 'FAIRP');
                 }
+                if ($receiverWallet->getAvailable() < $exchangeAmount) throw new HttpException(403, 'Insuficient founds in your exchange admin node.');
+                $exchanger->doExchange($amount, $from, $to, $userGroup, $user);
                 $exchanger->doExchange($exchangeAmount, $to, $from, $exchange_company, $user, true);
             }
         }
