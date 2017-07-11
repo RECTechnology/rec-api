@@ -29,11 +29,15 @@ class ExchangePriceCommand extends ContainerAwareCommand
         $errorBody = array();
         $currency_list = Currency::$TICKER_LIST;
         foreach($currency_list as $inputCurrency){
+            $output->writeln("IN: " . $inputCurrency);
             foreach($currency_list as $outputCurrency){
+                $output->writeln("OUT: " . $outputCurrency);
                 if($inputCurrency !== $outputCurrency){
+                    $output->writeln("in != out");
                     $providerName = 'net.telepay.ticker.' . $inputCurrency . 'x' . $outputCurrency;
                     try {
                         $provider = $this->getContainer()->get($providerName);
+                        $output->writeln($provider->getInCurrency() . " " . $inputCurrency . " " . $provider->getOutCurrency() . " " . $outputCurrency);
                         if($provider->getInCurrency() === $inputCurrency && $provider->getOutCurrency() === $outputCurrency) {
                             $price = $provider->getPrice() * pow(10, (Currency::$SCALE[$outputCurrency] - Currency::$SCALE[$inputCurrency]));
                             if($price>0) {
@@ -51,6 +55,7 @@ class ExchangePriceCommand extends ContainerAwareCommand
                             }
                         }
                         else {
+                            $output->writeln("ELSE");
                             //send email
                             $error = 1;
                             $errorBody[] = "ERROR: Bad exchange, unexpected input or output currencies:".$inputCurrency.'<->'.$outputCurrency;
@@ -58,6 +63,7 @@ class ExchangePriceCommand extends ContainerAwareCommand
 //                            throw new \LogicException("ERROR: Bad exchange, unexpected input or output currencies");
                         }
                     }catch (Exception $e) {
+                        $output->writeln("CATCH");
                         //send email
                         $error = 1;
                         $errorBody[] =  $inputCurrency.'<->'.$outputCurrency.' Error Message: '.$e->getMessage();
