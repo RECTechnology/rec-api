@@ -55,7 +55,7 @@ class CheckCryptoDepositCommand extends SyncronizedContainerAwareCommand
                 $output->writeln($receivedTransactions. ' all received');
                 $receivedTransactions = $receivedTransactions * 1e8;
                 $output->writeln($receivedTransactions. ' total amount');
-                $output->writeln($method.' transactions');
+                $output->writeln($method.' transaction');
 
                 $totalDepositedTransactions = $em->getRepository('TelepayFinancialApiBundle:CashInDeposit')->findBy(array(
                     'token'    =>  $token
