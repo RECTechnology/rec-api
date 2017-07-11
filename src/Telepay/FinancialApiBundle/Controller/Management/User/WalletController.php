@@ -737,7 +737,6 @@ class WalletController extends RestApiController{
 
         $userGroup = $this->get('security.context')->getToken()->getUser()->getActiveGroup();
 
-        //this name is the name of the group
         $parameters = array(
             'token',
             'amount',

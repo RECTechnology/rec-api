@@ -60,7 +60,8 @@ class TransactionListener
         if ($entity instanceof Transaction) {
 
             //check tier to get permissions to method only for in and out transactions
-            if($entity->getType() == 'in' || $entity->getType() == 'out'){
+            if(($entity->getType() == 'in' || $entity->getType() == 'out')
+                && $entity->getMethod() != 'wallet_to_wallet'){
                 $this->_checkMethodPermissions($entity, $documentManager);
             }
             return;
