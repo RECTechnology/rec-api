@@ -64,7 +64,7 @@ class BittrexTicker implements TickerInterface {
                 return Currency::$ETH;
             }
         }
-        if (strpos($this->direction, 'btc_') !== false) {
+        elseif (strpos($this->direction, 'btc_') !== false) {
             return Currency::$BTC;
         }
     }
@@ -73,14 +73,14 @@ class BittrexTicker implements TickerInterface {
         if (strpos($this->direction, '_btc') !== false) {
             return Currency::$BTC;
         }
-        if (strpos($this->direction, 'btc_') !== false) {
-            if (strpos($this->direction, 'fac_') !== false) {
+        elseif (strpos($this->direction, 'btc_') !== false) {
+            if (strpos($this->direction, '_fac') !== false) {
                 return Currency::$FAC;
             }
-            elseif (strpos($this->direction, 'crea_') !== false) {
+            elseif (strpos($this->direction, '_crea') !== false) {
                 return Currency::$CREA;
             }
-            elseif (strpos($this->direction, 'eth_') !== false) {
+            elseif (strpos($this->direction, '_eth') !== false) {
                 return Currency::$ETH;
             }
         }
