@@ -28,7 +28,7 @@ class BittrexTicker implements TickerInterface {
         if($resp->success != 1) throw new \LogicException("Failed getting " . $this->currency . " -> BTC price");
         $sum_btc = 0;
         $sum_other = 0;
-        if($this->direction == 'fac_btc'){
+        if (strpos($this->direction, '_btc') !== false) {
             foreach($resp->result->buy as $bid){
                 $sum_btc += $bid->Quantity * $bid->Rate;
                 $sum_other += $bid->Quantity;
@@ -39,7 +39,7 @@ class BittrexTicker implements TickerInterface {
             }
             return $sum_btc/$sum_other;
         }
-        if($this->direction == 'btc_fac'){
+        if (strpos($this->direction, 'btc_') !== false) {
             foreach($resp->result->sell as $ask){
                 $sum_btc += $ask->Quantity * $ask->Rate;
                 $sum_other += $ask->Quantity;
@@ -53,16 +53,36 @@ class BittrexTicker implements TickerInterface {
     }
 
     public function getInCurrency(){
-        if($this->direction == 'fac_btc')
-            return Currency::$FAC;
-        if($this->direction == 'btc_fac')
+        if (strpos($this->direction, '_btc') !== false) {
+            if (strpos($this->direction, 'fac_') !== false) {
+                return Currency::$FAC;
+            }
+            elseif (strpos($this->direction, 'crea_') !== false) {
+                return Currency::$CREA;
+            }
+            elseif (strpos($this->direction, 'eth_') !== false) {
+                return Currency::$ETH;
+            }
+        }
+        elseif (strpos($this->direction, 'btc_') !== false) {
             return Currency::$BTC;
+        }
     }
 
     public function getOutCurrency(){
-        if($this->direction == 'fac_btc')
+        if (strpos($this->direction, '_btc') !== false) {
             return Currency::$BTC;
-        if($this->direction == 'btc_fac')
-            return Currency::$FAC;
+        }
+        elseif (strpos($this->direction, 'btc_') !== false) {
+            if (strpos($this->direction, '_fac') !== false) {
+                return Currency::$FAC;
+            }
+            elseif (strpos($this->direction, '_crea') !== false) {
+                return Currency::$CREA;
+            }
+            elseif (strpos($this->direction, '_eth') !== false) {
+                return Currency::$ETH;
+            }
+        }
     }
 }
