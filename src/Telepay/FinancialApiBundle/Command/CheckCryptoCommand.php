@@ -64,7 +64,6 @@ class CheckCryptoCommand extends SyncronizedContainerAwareCommand
                             $transaction->setUpdated(new \DateTime);
                         }
 
-                        $dm->persist($transaction);
                         $dm->flush();
 
                         $groupId = $transaction->getGroup();
@@ -86,6 +85,10 @@ class CheckCryptoCommand extends SyncronizedContainerAwareCommand
                             $service_currency = $transaction->getCurrency();
                             $wallet = $group->getWallet($service_currency);
 
+                            //insert new line in the balance fro this group
+                            $balancer = $this->getContainer()->get('net.telepay.commons.balance_manipulator');
+                            $balancer->addBalance($group, $amount, $transaction);
+
                             //if group has
                             if (!$group->hasRole('ROLE_SUPER_ADMIN')) {
                                 $output->writeln('CHECK CRYPTO no superadmin');
@@ -94,10 +97,9 @@ class CheckCryptoCommand extends SyncronizedContainerAwareCommand
                                 $wallet->setAvailable($wallet->getAvailable() + $total);
                                 $wallet->setBalance($wallet->getBalance() + $total);
 
-                                $em->persist($wallet);
                                 $em->flush();
 
-                                //TODO recorrer el arbol aunque la fee sea 0
+                                //recorrer el arbol aunque la fee sea 0
                                 if ($total_fee != 0) {
                                     $output->writeln('CHECK CRYPTO fees');
                                     // restar las comisiones
@@ -129,24 +131,9 @@ class CheckCryptoCommand extends SyncronizedContainerAwareCommand
 
                                     $dm->persist($feeTransaction);
                                     $dm->flush();
+
+                                    $balancer->addBalance($group, -$total_fee, $feeTransaction);
                                 }
-
-
-                                $creator = $group->getGroupCreator();
-
-                                //luego a la ruleta de admins
-                                //TODO esto no tiene sentido, los in no suelen tener fees pero si las tuvieran seria con el createFees2
-//                                $dealer = $this->getContainer()->get('net.telepay.commons.fee_deal');
-//                                $dealer->deal(
-//                                    $creator,
-//                                    $amount,
-//                                    $method,
-//                                    $type,
-//                                    $service_currency,
-//                                    $total_fee,
-//                                    $transaction_id,
-//                                    $transaction->getVersion());
-
 
                                 //exchange if needed
                                 $dataIn = $transaction->getDataIn();
@@ -173,18 +160,11 @@ class CheckCryptoCommand extends SyncronizedContainerAwareCommand
                                 $wallet->setAvailable($wallet->getAvailable() + $amount);
                                 $wallet->setBalance($wallet->getBalance() + $amount);
 
-                                $em->persist($wallet);
                                 $em->flush();
                             }
 
                         } elseif ($transaction->getStatus() == Transaction::$STATUS_EXPIRED) {
                             $output->writeln('TRANSACTION EXPIRED');
-                            $groupLimitCount = $em->getRepository('TelepayFinancialApiBundle:LimitCount')->findOneBy(array(
-                                'group' =>  $group->getId(),
-                                'cname' =>  $method.'-'.$type
-                            ));
-                            $newGroupLimitCount = (new LimitAdder())->restore( $groupLimitCount, $total);
-                            $em->flush();
 
                             $output->writeln('NOTIFYING EXPIRED');
                             $transaction = $this->getContainer()->get('notificator')->notificate($transaction);

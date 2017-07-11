@@ -70,7 +70,11 @@ class MethodsController extends RestApiController {
                 'type'      =>  $method->getType()
             ));
 
-            $method->setStatus($statusMethod->getStatus());
+            if(!$statusMethod){
+                $method->setStatus('disabled');
+            }else{
+                $method->setStatus($statusMethod->getStatus());
+            }
         }
 
         return $this->restV2(
