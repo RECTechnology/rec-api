@@ -78,8 +78,7 @@ class TransactionListener
         $method = $this->container->get('net.telepay.'.$transaction->getType().'.'.$transaction->getMethod().'.v'.$transaction->getVersion());
         if($company->getGroupCreator()->getid() == $this->container->getParameter('default_company_creator_commerce_android_fair')){
             //is fairpay user
-            $allowedMethods = array('fac-in', 'fac-out');
-            if(!in_array($method->getCname(), $allowedMethods)){
+            if($method->getCname() != 'fac'){
                 throw new HttpException(403, 'You don\'t have the necessary permissions. You are fairpay user');
             }
         }
