@@ -137,11 +137,11 @@ class CashInController extends BaseApiController{
         if(!in_array($method.'-'.$type, $this->allowed_methods)) throw new HttpException(405, 'Method not allowed');
         $methodDriver = $this->get('net.telepay.in.'.$method.'.v1');
 
-        //check if company has method available
-        $company_methods = $company->getMethodsList();
-
-        if(!in_array($method.'-'.$type, $company_methods)) throw new HttpException(405, 'Method not allowed in this company.');
-
+        if($company->getGroupCreator()->getId() == $this->container->getParameter('default_company_creator_commerce_android_fair')){
+            if($method != 'fac') throw new HttpException(403, 'Method not allowed in this company');
+        }else{
+            if($methodDriver->getMinTier() > $company->getTier()) throw new HttpException(403, 'Method not allowed in this company');
+        }
 
         $tokens = $this->getRepository('TelepayFinancialApiBundle:CashInTokens')->findBy(array(
             'company'  =>  $company->getId(),
