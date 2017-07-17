@@ -72,7 +72,7 @@ class TransactionReportCommand extends ContainerAwareCommand
             foreach($result->toArray() as $transaction){
                 $method = $transaction->getMethod()!=""?$transaction->getMethod():"#";
                 if ($method == "#") $method = $transaction->getService()!=""?$transaction->getService():"#";
-                $output->writeln($transaction->getId() . " --- " . $transaction->getType() . " --- " . $method);
+                //$output->writeln($transaction->getId() . " --- " . $transaction->getType() . " --- " . $method);
                 //falten els wallet_to_wallet
                 if($method=="wallet_to_wallet" || $method=="POS-SABADELL" || $method=="POS-BTC-virtual" || $method == "POS" || $method == "POS-FAC-virtual"){
                     //todo
