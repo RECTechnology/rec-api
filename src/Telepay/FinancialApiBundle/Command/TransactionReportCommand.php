@@ -99,6 +99,7 @@ class TransactionReportCommand extends ContainerAwareCommand
                         $in_info = $transaction->getPayInInfo()['address'];
                         //$in_subinfo = $transaction->getPayInInfo()['txid'];
                         $out_info = "+" . $transaction->getPayOutInfo()['prefix'] . " " .$transaction->getPayOutInfo()['phone'];
+                        $out_subinfo = $transaction->getPayOutInfo()['halcashticket'];
                     }
                     elseif($method == "sepa-btc"){
                         $in_info = $transaction->getPayInInfo()['iban'];
@@ -133,8 +134,9 @@ class TransactionReportCommand extends ContainerAwareCommand
                         $out_info = $transaction->getPayOutInfo()['address'];
                         $out_subinfo = $transaction->getPayOutInfo()['txid'];
                     }
-                    elseif($method == "halcash_es" && $type == "out") {
+                    elseif(($method == "halcash_es" || $method == "halcash_pl") && $type == "out") {
                         $out_info = "+" . $transaction->getPayOutInfo()['prefix'] . " " .$transaction->getPayOutInfo()['phone'];
+                        $out_subinfo = $transaction->getPayOutInfo()['halcashticket'];
                     }
                     elseif($method == "sepa" && $type == "out") {
                         $out_info = $transaction->getPayOutInfo()['iban'];
