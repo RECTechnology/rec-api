@@ -453,7 +453,7 @@ class SpecialActionsController extends RestApiController {
             if($request->request->get('botc')==true){
                 $group->setPremium(true);
                 $group->setTier(10);
-                $groupFees = $em->getRepository('TelepayFinancialApiBundle:ServiceFee')->findOneBy(array(
+                $groupFees = $em->getRepository('TelepayFinancialApiBundle:ServiceFee')->findBy(array(
                     'group'    =>  $company_id
                 ));
                 foreach($groupFees as $fee){
@@ -498,13 +498,13 @@ class SpecialActionsController extends RestApiController {
                         $fee->setVariable(3);
                     }
                     $em->persist($fee);
+                    $em->flush();
                 }
-                $em->flush();
             }
             elseif($request->request->get('botc')==false){
                 $group->setPremium(false);
                 $group->setTier(1);
-                $groupFees = $em->getRepository('TelepayFinancialApiBundle:ServiceFee')->findOneBy(array(
+                $groupFees = $em->getRepository('TelepayFinancialApiBundle:ServiceFee')->findBy(array(
                     'group'    =>  $company_id
                 ));
                 foreach($groupFees as $fee){
@@ -530,7 +530,7 @@ class SpecialActionsController extends RestApiController {
                     elseif($fee->getServiceName()=="cryptocapital-out"){
                         $fee->setVariable(2);
                     }
-                    elseif($fee->getServiceName()=="sepa-out"){
+                    elseif($fee->getServiceName()=="sepa-out" || $fee->getServiceName()=="transfer-out"){
                         $fee->setVariable(1);
                     }
                     elseif($fee->getServiceName()=="easypay-in"){
@@ -543,8 +543,8 @@ class SpecialActionsController extends RestApiController {
                         $fee->setVariable(3);
                     }
                     $em->persist($fee);
+                    $em->flush();
                 }
-                $em->flush();
             }
         }
         $em->flush();
