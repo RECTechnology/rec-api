@@ -9,6 +9,7 @@ use Symfony\Component\HttpKernel\Exception\HttpException;
 use Telepay\FinancialApiBundle\Controller\RestApiController;
 use Telepay\FinancialApiBundle\Document\Transaction;
 use Telepay\FinancialApiBundle\Entity\Group;
+use Telepay\FinancialApiBundle\Entity\ServiceFee;
 use FOS\RestBundle\Controller\Annotations as Rest;
 use Symfony\Component\HttpFoundation\Request;
 use WebSocket\Exception;
@@ -452,10 +453,98 @@ class SpecialActionsController extends RestApiController {
             if($request->request->get('botc')==true){
                 $group->setPremium(true);
                 $group->setTier(10);
+                $groupFees = $em->getRepository('TelepayFinancialApiBundle:ServiceFee')->findOneBy(array(
+                    'group'    =>  $company_id
+                ));
+                foreach($groupFees as $fee){
+                    $pos = strpos($fee->getServiceName(), "exchange");
+                    if ($pos !== false) {
+                        $pos2 = strpos($fee->getServiceName(), "FAC");
+                        if ($pos2 !== false) {
+                            $fee->setVariable(0);
+                        }
+                        else{
+                            $fee->setVariable(1);
+                        }
+                    }
+                    elseif($fee->getServiceName()=="btc-in" || $fee->getServiceName()=="fac-in" || $fee->getServiceName()=="fac-out"){
+                        $fee->setVariable(0);
+                    }
+                    elseif($fee->getServiceName()=="btc-out"){
+                        $fee->setVariable(0);
+                        $fee->setFixed(100000);
+                    }
+                    elseif($fee->getServiceName()=="halcash_es-out"){
+                        $fee->setVariable(1);
+                        $fee->setFixed(200);
+                    }
+                    elseif($fee->getServiceName()=="halcash_pl-out"){
+                        $fee->setVariable(1);
+                        $fee->setFixed(2000);
+                    }
+                    elseif($fee->getServiceName()=="cryptocapital-out"){
+                        $fee->setVariable(2);
+                    }
+                    elseif($fee->getServiceName()=="sepa-in" || $fee->getServiceName()=="sepa-out" || $fee->getServiceName()=="transfer-out"){
+                        $fee->setVariable(0);
+                    }
+                    elseif($fee->getServiceName()=="easypay-in"){
+                        $fee->setVariable(3);
+                    }
+                    elseif($fee->getServiceName()=="teleingreso-in"){
+                        $fee->setVariable(6);
+                    }
+                    elseif($fee->getServiceName()=="teleingreso_usa-in"){
+                        $fee->setVariable(3);
+                    }
+                    $em->persist($fee);
+                }
+                $em->flush();
             }
             elseif($request->request->get('botc')==false){
                 $group->setPremium(false);
                 $group->setTier(1);
+                $groupFees = $em->getRepository('TelepayFinancialApiBundle:ServiceFee')->findOneBy(array(
+                    'group'    =>  $company_id
+                ));
+                foreach($groupFees as $fee){
+                    $pos = strpos($fee->getServiceName(), "exchange");
+                    if ($pos !== false) {
+                        $fee->setVariable(1);
+                    }
+                    elseif($fee->getServiceName()=="btc-in" || $fee->getServiceName()=="fac-in" || $fee->getServiceName()=="fac-out"){
+                        $fee->setVariable(0);
+                    }
+                    elseif($fee->getServiceName()=="btc-out"){
+                        $fee->setVariable(0);
+                        $fee->setFixed(100000);
+                    }
+                    elseif($fee->getServiceName()=="halcash_es-out"){
+                        $fee->setVariable(1);
+                        $fee->setFixed(200);
+                    }
+                    elseif($fee->getServiceName()=="halcash_pl-out"){
+                        $fee->setVariable(1);
+                        $fee->setFixed(2000);
+                    }
+                    elseif($fee->getServiceName()=="cryptocapital-out"){
+                        $fee->setVariable(2);
+                    }
+                    elseif($fee->getServiceName()=="sepa-out"){
+                        $fee->setVariable(1);
+                    }
+                    elseif($fee->getServiceName()=="easypay-in"){
+                        $fee->setVariable(3);
+                    }
+                    elseif($fee->getServiceName()=="teleingreso-in"){
+                        $fee->setVariable(6);
+                    }
+                    elseif($fee->getServiceName()=="teleingreso_usa-in"){
+                        $fee->setVariable(3);
+                    }
+                    $em->persist($fee);
+                }
+                $em->flush();
             }
         }
         $em->flush();

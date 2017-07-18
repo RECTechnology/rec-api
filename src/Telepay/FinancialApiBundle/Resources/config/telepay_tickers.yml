@@ -220,10 +220,11 @@ services:
 
 
     net.telepay.ticker.FAIRPxUSD:
-        class: Telepay\FinancialApiBundle\Financial\Ticker\GetFaircoinTicker
+        class: Telepay\FinancialApiBundle\Financial\Ticker\ChainedTicker
         arguments:
-            - "@net.telepay.driver.getfaircoin"
-            - "USD"
+            exchange_chain:
+                - "@net.telepay.ticker.FAIRPxEUR"
+                - "@net.telepay.ticker.EURxUSD"
 
     net.telepay.ticker.USDxFAIRP:
         class: Telepay\FinancialApiBundle\Financial\Ticker\InversedTicker
@@ -232,10 +233,12 @@ services:
 
 
     net.telepay.ticker.FAIRPxPLN:
-        class: Telepay\FinancialApiBundle\Financial\Ticker\GetFaircoinTicker
+        class: Telepay\FinancialApiBundle\Financial\Ticker\ChainedTicker
         arguments:
-            - "@net.telepay.driver.getfaircoin"
-            - "PLN"
+            exchange_chain:
+                - "@net.telepay.ticker.FAIRPxEUR"
+                - "@net.telepay.ticker.EURxPLN"
+
 
     net.telepay.ticker.PLNxFAIRP:
         class: Telepay\FinancialApiBundle\Financial\Ticker\InversedTicker
@@ -244,10 +247,11 @@ services:
 
 
     net.telepay.ticker.FAIRPxMXN:
-        class: Telepay\FinancialApiBundle\Financial\Ticker\GetFaircoinTicker
+        class: Telepay\FinancialApiBundle\Financial\Ticker\ChainedTicker
         arguments:
-            - "@net.telepay.driver.getfaircoin"
-            - "MXN"
+            exchange_chain:
+                - "@net.telepay.ticker.FAIRPxEUR"
+                - "@net.telepay.ticker.EURxMXN"
 
     net.telepay.ticker.MXNxFAIRP:
         class: Telepay\FinancialApiBundle\Financial\Ticker\InversedTicker
