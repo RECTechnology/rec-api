@@ -64,11 +64,27 @@ class ExchangePriceCommand extends ContainerAwareCommand
                         }
                     }catch (Exception $e) {
                         $output->writeln("CATCH");
-                        //send email
-                        $error = 1;
-                        $errorBody[] =  $inputCurrency.'<->'.$outputCurrency.' Error Message: '.$e->getMessage();
+                        //check the last exchange price
+                        $last_exchange = $em->getRepository('TelepayFinancialApiBundle:Exchange')->findBy(
+                            array(
+                                'src'   =>  $inputCurrency,
+                                'dst'   =>  $outputCurrency
+                            ),
+                            array(
+                                'id' =>  'DESC'
+                            ),
+                            1);
+                        //send email on if more than 5 minutes without price
+                        $now = new \DateTime();
+                        $output->writeln("CHECKING TTL");
+                        if($last_exchange[0]->getDate()->getTimestamp() + 300 < $now->getTimestamp()){
+                            $output->writeln("ERROR = 1");
+                            $error = 1;
+                            $errorBody[] =  $inputCurrency.'<->'.$outputCurrency.' Error Message: '.$e->getMessage();
 //                        $this->sendEmail('Fatal Exchange error', $inputCurrency.'<->'.$outputCurrency.' Error Message: '.$e->getMessage());
-                        $output->writeln("ERROR: " . $e->getMessage());
+                            $output->writeln("ERROR: " . $e->getMessage());
+                        }
+
                     }
                 }
 
@@ -76,9 +92,9 @@ class ExchangePriceCommand extends ContainerAwareCommand
         }
 
         if($error == 1){
+            $output->writeln("SENDING ERROR EMAIL");
             $this->sendEmail('Fatal Exchange error', $errorBody);
         }
-
 
         $output->writeln("FINISHED");
     }

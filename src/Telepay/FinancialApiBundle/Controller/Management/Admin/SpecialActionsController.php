@@ -77,12 +77,6 @@ class SpecialActionsController extends RestApiController {
             throw new HttpException(403, $e->getMessage().'. This company ( '.$token->getCompany()->getName().' ) has reached his maximun limit. This company is Tier '.$token->getCompany()->getTier().'. Please update to the next Tier.');
         }
 
-        $paymentInfo = $methodDriver->getPayInInfo($params['amount']);
-        $paymentInfo['status'] = Transaction::$STATUS_SUCCESS;
-        $paymentInfo['final'] = true;
-        $paymentInfo['reference'] = $params['reference'];
-        $paymentInfo['concept'] = $method.' deposit '.$params['reference'].' -> '.$params['hash'];
-
         //generate deposit hystory
         $deposit = new CashInDeposit();
         $deposit->setAmount($params['amount']);
@@ -92,6 +86,12 @@ class SpecialActionsController extends RestApiController {
         $deposit->setToken($token);
         $em->persist($deposit);
         $em->flush();
+
+        $paymentInfo = $methodDriver->getPayInInfo($params['amount']);
+        $paymentInfo['status'] = Transaction::$STATUS_SUCCESS;
+        $paymentInfo['final'] = true;
+        $paymentInfo['reference'] = $params['reference'];
+        $paymentInfo['concept'] = $method.' '.$params['reference'].' => '.$deposit->getId();
 
         //Create cash in transaction
         $dm = $this->get('doctrine_mongodb')->getManager();

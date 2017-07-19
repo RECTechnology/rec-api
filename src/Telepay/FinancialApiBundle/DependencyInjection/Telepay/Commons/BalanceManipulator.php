@@ -62,6 +62,8 @@ class BalanceManipulator{
             $concept = $transaction->getPayOutInfo()['concept'];
         }else if(isset($transaction->getDataIn()['concept'])){
             $concept = $transaction->getDataIn()['concept'];
+        }else if(isset($transaction->getFeeInfo()['concept'])){
+            $concept = $transaction->getFeeInfo()['concept'];
         }else{
             $concept = 'Default content';
         }
