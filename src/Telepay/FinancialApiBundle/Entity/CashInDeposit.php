@@ -82,6 +82,11 @@ class CashInDeposit {
     private $hash;
 
     /**
+     * @ORM\Column(type="string")
+     */
+    private $external_id;
+
+    /**
      * @return mixed
      */
     public function getCreated()
@@ -199,5 +204,21 @@ class CashInDeposit {
     public function getId()
     {
         return $this->id;
+    }
+
+    /**
+     * @return mixed
+     */
+    public function getExternalId()
+    {
+        return $this->external_id;
+    }
+
+    /**
+     * @param mixed $external_id
+     */
+    public function setExternalId($external_id)
+    {
+        $this->external_id = $external_id;
     }
 }
