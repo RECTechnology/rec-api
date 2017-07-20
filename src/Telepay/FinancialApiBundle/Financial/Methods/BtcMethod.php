@@ -20,16 +20,19 @@ use Telepay\FinancialApiBundle\Financial\Currency;
 class BtcMethod extends BaseMethod {
 
     private $driver;
+    private $container;
 
     public function __construct($name, $cname, $type, $currency, $email_required, $base64Image, $image, $container, $driver, $min_tier){
         parent::__construct($name, $cname, $type, $currency, $email_required, $base64Image, $image, $container, $min_tier);
         $this->driver = $driver;
+        $this->container = $container;
     }
 
     //PAY IN
     public function getPayInInfo($amount){
         $address = $this->driver->getnewaddress();
         if(!$address) throw new Exception('Service Temporally unavailable', 503);
+        $min_confirmations = $this->container->getParameter('btc_min_confirmations');
         $response = array(
             'amount'    =>  $amount,
             'currency'  =>  $this->getCurrency(),
@@ -37,7 +40,7 @@ class BtcMethod extends BaseMethod {
             'address' => $address,
             'expires_in' => intval(1200),
             'received' => 0.0,
-            'min_confirmations' => intval(3),
+            'min_confirmations' => intval($min_confirmations),
             'confirmations' => 0,
             'status'    =>  'created',
             'final'     =>  false
@@ -114,8 +117,6 @@ class BtcMethod extends BaseMethod {
         $params['scale'] = Currency::$SCALE[$this->getCurrency()];
         $params['final'] = false;
         $params['status'] = false;
-
-
         return $params;
     }
 

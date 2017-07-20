@@ -119,6 +119,8 @@ class CheckCryptoDepositCommand extends SyncronizedContainerAwareCommand
                     $depositTransaction->setService($method);
                     $depositTransaction->setMethod($method);
                     $depositTransaction->setType('in');
+
+                    $min_confirmations = $this->getContainer()->getParameter($method . '_min_confirmations');
                     $depositTransaction->setPayInInfo(array(
                         'amount'    =>  $deposit->getAmount(),
                         'currency'  =>  $token->getCurrency(),
@@ -126,7 +128,7 @@ class CheckCryptoDepositCommand extends SyncronizedContainerAwareCommand
                         'address' => $token->getToken(),
                         'expires_in' => intval(1200),
                         'received' => $depositAmount,
-                        'min_confirmations' => 3,
+                        'min_confirmations' => $min_confirmations,
                         'confirmations' => 0,
                         'status'    =>  Transaction::$STATUS_RECEIVED,
                         'final'     =>  false,
