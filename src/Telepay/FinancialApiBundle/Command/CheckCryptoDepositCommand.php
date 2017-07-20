@@ -126,7 +126,7 @@ class CheckCryptoDepositCommand extends SyncronizedContainerAwareCommand
                         'address' => $token->getToken(),
                         'expires_in' => intval(1200),
                         'received' => $depositAmount,
-                        'min_confirmations' => 1,
+                        'min_confirmations' => 6,
                         'confirmations' => 0,
                         'status'    =>  Transaction::$STATUS_RECEIVED,
                         'final'     =>  false,
