@@ -208,6 +208,18 @@ system_validate_service:
     requirements:
         _method: POST
 
+system_mailer_index:
+    pattern:  /system/v1/mailer
+    defaults: { _controller: Telepay\FinancialApiBundle\Controller\Management\System\MailingController::indexAction }
+    requirements:
+        _method: GET
+
+system_mailer_create:
+    pattern:  /system/v1/mailer
+    defaults: { _controller: Telepay\FinancialApiBundle\Controller\Management\System\MailingController::createAction }
+    requirements:
+        _method: POST
+
 ##################### SPECIAL ACTIONS ############################
 
 admin_recharge_validate:
