@@ -50,11 +50,8 @@ class BtcMethod extends BaseMethod {
         return Currency::$BTC;
     }
 
-    public function getPayInStatus($paymentInfo)
-    {
+    public function getPayInStatus($paymentInfo){
         $allReceived = $this->driver->listreceivedbyaddress(0, true);
-//        $allReceived = $cryptoProvider->getreceivedbyaddress($address, 0);
-
         $amount = $paymentInfo['amount'];
         $address = $paymentInfo['address'];
 
@@ -76,18 +73,13 @@ class BtcMethod extends BaseMethod {
                     }else{
                         $status = 'received';
                     }
-
                 }else{
                     $status = 'created';
                 }
-
                 $paymentInfo['status'] = $status;
                 return $paymentInfo;
-
             }
-
         }
-
     }
 
     //PAY OUT

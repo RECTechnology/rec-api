@@ -116,6 +116,10 @@ class CheckSwiftCommand extends SyncronizedContainerAwareCommand
                     $service_fee = round(($amount * ($methodFees->getVariable()/100) + $methodFees->getFixed()),0);
 
                     $prevStatusIn = $pay_in_info['status'];
+                    $prevConfirmationsIn = 0;
+                    if(isset($pay_in_info['confirmations'])){
+                        $prevConfirmationsIn = $pay_in_info['confirmations'];
+                    }
                     $pay_in_info = $cashInMethod->getPayInStatus($pay_in_info);
                     if($method_out == 'halcash_es'){
                         $output->writeln('HALCASH STATUS => '.$transaction->getStatus().' currentSTATUS => '.$current_transaction->getStatus().' pay_in_STATUS => '.$pay_in_info['status'].' pay_out_STATUS => '.$pay_out_info['status']);
@@ -160,6 +164,13 @@ class CheckSwiftCommand extends SyncronizedContainerAwareCommand
                             $output->writeln('Notificate init:' . $pay_in_info['status']);
                             $transaction = $this->getContainer()->get('notificator')->notificate($transaction);
                             $output->writeln('Notificate end');
+                        }
+                        if(isset($pay_in_info['confirmations']) && $pay_in_info['confirmations']>$prevConfirmationsIn){
+                            $transaction->setDataOut($pay_in_info);
+                            $transaction->setPayInInfo($pay_in_info);
+                            $transaction->setUpdated(new \DateTime());
+                            $dm->persist($transaction);
+                            $dm->flush();
                         }
                         $output->writeln('NEW STATUS => '.$transaction->getStatus());
                     }elseif($pay_in_info['status'] == Transaction::$STATUS_SUCCESS){
