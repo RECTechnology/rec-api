@@ -37,7 +37,7 @@ class BtcMethod extends BaseMethod {
             'address' => $address,
             'expires_in' => intval(1200),
             'received' => 0.0,
-            'min_confirmations' => intval(1),
+            'min_confirmations' => intval(3),
             'confirmations' => 0,
             'status'    =>  'created',
             'final'     =>  false
