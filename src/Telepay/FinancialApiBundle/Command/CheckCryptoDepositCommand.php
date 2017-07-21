@@ -83,6 +83,7 @@ class CheckCryptoDepositCommand extends SyncronizedContainerAwareCommand
                     $deposit->setAmount($depositAmount);
                     $deposit->setConfirmations(1);
                     $deposit->setHash(uniqid('hash-'));
+                    $deposit->setExternalId(uniqid('external_id-'));
 
                     $em->persist($deposit);
                     $em->flush();
