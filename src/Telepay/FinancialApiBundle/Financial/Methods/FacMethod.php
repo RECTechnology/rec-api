@@ -19,19 +19,18 @@ use Telepay\FinancialApiBundle\Financial\Currency;
 class FacMethod extends  BaseMethod {
 
     private $driver;
+    private $container;
 
     public function __construct($name, $cname, $type, $currency, $email_required, $base64Image, $image, $container, $driver, $min_tier){
         parent::__construct($name, $cname, $type, $currency, $email_required, $base64Image, $image, $container, $min_tier);
         $this->driver = $driver;
+        $this->container = $container;
     }
 
-    public function getPayInInfo($amount)
-    {
+    public function getPayInInfo($amount){
         $address = $this->driver->getnewaddress();
-//        $address = 'dfghjklñ';
-
         if(!$address) throw new Exception('Service Temporally unavailable', 404);
-
+        $min_confirmations = $this->container->getParameter('fac_min_confirmations');
         $response = array(
             'amount'    =>  $amount,
             'currency'  =>  $this->getCurrency(),
@@ -39,12 +38,11 @@ class FacMethod extends  BaseMethod {
             'address' => $address,
             'expires_in' => intval(1200),
             'received' => 0.0,
-            'min_confirmations' => intval(1),
+            'min_confirmations' => intval($min_confirmations),
             'confirmations' => 0,
             'status'    =>  'created',
             'final'     =>  false
         );
-
         return $response;
     }
 

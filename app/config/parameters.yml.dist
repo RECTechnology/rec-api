@@ -54,6 +54,9 @@ parameters:
     faircoind_host: localhost
     faircoind_port: 46393
 
+    btc_min_confirmations: 3
+    fac_min_confirmations: 1
+
     halcash_user: user
     halcash_pass: pass
     halcash_alias: alias
