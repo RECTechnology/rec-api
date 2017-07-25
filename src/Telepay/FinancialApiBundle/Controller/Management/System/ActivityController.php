@@ -328,7 +328,7 @@ class ActivityController extends RestApiController
 
             //find token
             $token = $em->getRepository('TelepayFinancialApiBundle:CashInTokens')->findOneBy(array(
-                'token' =>  $reference
+                'token' =>  'deposit '.$reference
             ));
 
             if(!$token) throw new HttpException(404, 'Reference not found');
