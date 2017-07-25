@@ -214,11 +214,23 @@ system_mailer_index:
     requirements:
         _method: GET
 
+system_mailer_show:
+    pattern:  /system/v1/mailer/{id}
+    defaults: { _controller: Telepay\FinancialApiBundle\Controller\Management\System\MailingController::showAction }
+    requirements:
+        _method: GET
+
 system_mailer_create:
     pattern:  /system/v1/mailer
     defaults: { _controller: Telepay\FinancialApiBundle\Controller\Management\System\MailingController::createAction }
     requirements:
         _method: POST
+
+system_mailer_update:
+    pattern:  /system/v1/mailer/{id}
+    defaults: { _controller: Telepay\FinancialApiBundle\Controller\Management\System\MailingController::updateAction }
+    requirements:
+        _method: PUT
 
 ##################### SPECIAL ACTIONS ############################
 

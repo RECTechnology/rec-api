@@ -106,7 +106,7 @@ class MailingController extends BaseApiController
      */
     public function updateAction(Request $request, $id){
 
-        parent::updateAction($request, $id);
+        return parent::updateAction($request, $id);
 
     }
 
