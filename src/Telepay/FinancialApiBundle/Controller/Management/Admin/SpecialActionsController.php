@@ -35,7 +35,8 @@ class SpecialActionsController extends RestApiController {
         $paramNames = array(
             'amount',
             'reference',
-            'hash'
+            'hash',
+            'external_id'
         );
 
         $params = array();
@@ -82,6 +83,7 @@ class SpecialActionsController extends RestApiController {
         $deposit->setAmount($params['amount']);
         $deposit->setConfirmations(1);
         $deposit->setHash($params['hash']);
+        $deposit->setExternalId($params['external_id']);
         $deposit->setStatus(CashInDeposit::$STATUS_DEPOSITED);
         $deposit->setToken($token);
         $em->persist($deposit);
