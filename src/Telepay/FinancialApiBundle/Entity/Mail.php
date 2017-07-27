@@ -70,6 +70,13 @@ class Mail
      */
     private $updated;
 
+    /**
+     * @var integer
+     *
+     * @ORM\Column(name="counter", type="integer")
+     */
+    private $counter = 0;
+
 
     /**
      * Get id
@@ -223,6 +230,22 @@ class Mail
     public function getUpdated()
     {
         return $this->updated;
+    }
+
+    /**
+     * @return mixed
+     */
+    public function getCounter()
+    {
+        return $this->counter;
+    }
+
+    /**
+     * @param mixed $counter
+     */
+    public function setCounter($counter)
+    {
+        $this->counter = $counter;
     }
 }
 

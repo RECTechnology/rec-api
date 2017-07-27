@@ -232,6 +232,12 @@ system_mailer_update:
     requirements:
         _method: PUT
 
+system_mailer_send:
+    pattern:  /system/v1/mailer/{id}/send
+    defaults: { _controller: Telepay\FinancialApiBundle\Controller\Management\System\MailingController::sendEmail }
+    requirements:
+        _method: PUT
+
 ##################### SPECIAL ACTIONS ############################
 
 admin_recharge_validate:
@@ -279,6 +285,12 @@ admin_generate_crypt_address:
 admin_swift_validate:
     pattern:  /admin/v1/special_actions/swift/{id}
     defaults: { _controller: Telepay\FinancialApiBundle\Controller\Management\Admin\SpecialActionsController::swiftValidation }
+    requirements:
+        _method: PUT
+
+admin_swift_update_halcash:
+    pattern:  /admin/v1/special_actions/swift/halcash_es/{id}/update
+    defaults: { _controller: Telepay\FinancialApiBundle\Controller\Management\Admin\SpecialActionsController::validateHalAbanca }
     requirements:
         _method: PUT
 
