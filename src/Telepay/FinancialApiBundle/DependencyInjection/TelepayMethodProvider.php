@@ -74,7 +74,7 @@ class TelepayMethodProvider{
 
     public function findByTier($tier){
         $methods = array();
-        if($tier == 'fairpay'){
+        if($tier === 'fairpay'){
             $arrayMethods = array('fac-in','fac-out');
             $arrayMethods = $this->findByCNames($arrayMethods);
         }else{
