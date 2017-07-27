@@ -93,9 +93,6 @@ class ExchangeManipulator{
     public function doExchange($amount, $from, $to, Group $company, User $user, $internal = false){
         $this->trans_logger->info('EXCHANGE_MANIPULATOR (doExchange)=> amount='.$amount.' from'.$from.' to='.$to);
 
-        //check exchange limits
-        $this->container->get('net.telepay.commons.limit_manipulator')->checkExchangeLimits($company, $amount, $from, $to);
-
         $dm = $this->container->get('doctrine_mongodb')->getManager();
         $em = $this->doctrine->getManager();
 
@@ -111,6 +108,10 @@ class ExchangeManipulator{
             $price = $this->getPrice($from, $to);
             $exchangeAmount = $this->exchange($amount, $from, $to);
         }
+
+        //check exchange limits
+        $this->container->get('net.telepay.commons.limit_manipulator')->checkExchangeLimits($company, $amount, $exchangeAmount, $from, $to);
+
 
         $params = array(
             'amount'    => 0,

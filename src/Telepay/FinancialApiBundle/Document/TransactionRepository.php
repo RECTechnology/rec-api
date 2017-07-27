@@ -425,6 +425,8 @@ class TransactionRepository extends DocumentRepository {
             ->field('group')->equals($group->getId())
             ->field('type')->equals('exchange')
             ->field('currency')->equals($to)
+            ->field('dataIn.to')->equals($to)
+            ->field('total')->gte(0)
             ->field('status')->in(array('created', 'received', 'success'))
             ->field('created')->gte($start_date)
             ->group(
