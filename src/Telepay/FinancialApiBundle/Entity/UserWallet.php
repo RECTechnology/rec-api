@@ -14,6 +14,10 @@ use Doctrine\ORM\Mapping as ORM;
  * @ORM\Entity
  */
 class UserWallet {
+
+    const STATUS_ENABLED = 'enabled';
+    const STATUS_DISABLED = 'disabled';
+
     /**
      * @ORM\Id
      * @ORM\Column(type="integer")
@@ -38,10 +42,10 @@ class UserWallet {
 
     private $scale;
 
-//    /**
-//     * @ORM\ManyToOne(targetEntity="Telepay\FinancialApiBundle\Entity\User")
-//     */
-//    private $user;
+    /**
+     * @ORM\Column(type="string")
+     */
+    private $status = 'enabled';
 
     /**
      * @ORM\ManyToOne(targetEntity="Telepay\FinancialApiBundle\Entity\Group")
@@ -91,14 +95,6 @@ class UserWallet {
         $this->currency = $currency;
     }
 
-//    /**
-//     * @param mixed $user
-//     */
-//    public function setUser($user)
-//    {
-//        $this->user = $user;
-//    }
-
     /**
      * Returns the user unique id.
      *
@@ -116,6 +112,7 @@ class UserWallet {
         $wallet['available'] = round($this->getAvailable(),0);
         $wallet['balance'] = round($this->getBalance(),0);
         $wallet['scale'] = $this->getScale();
+        $wallet['status'] = $this->getStatus();
 
         return $wallet;
     }
@@ -174,5 +171,21 @@ class UserWallet {
         $this->available = $this->available + $amount;
         $this->balance = $this->balance + $amount;
 
+    }
+
+    /**
+     * @return mixed
+     */
+    public function getStatus()
+    {
+        return $this->status;
+    }
+
+    /**
+     * @param mixed $status
+     */
+    public function setStatus($status)
+    {
+        $this->status = $status;
     }
 }

@@ -176,3 +176,15 @@ company_wallet_transactions:
     requirements:
         _method: GET
 
+###################   COMPANY SETTINGS #################
+company_read_settings:
+    pattern: /company/v1/{company_id}/settings
+    defaults: { _controller: Telepay\FinancialApiBundle\Controller\Management\Company\SettingsController::readSettings }
+    requirements:
+        _method: GET
+
+company_update_settings:
+    pattern: /company/v1/{company_id}/settings
+    defaults: { _controller: Telepay\FinancialApiBundle\Controller\Management\Company\SettingsController::updateSettings }
+    requirements:
+        _method: PUT
