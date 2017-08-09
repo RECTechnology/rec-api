@@ -54,6 +54,16 @@ parameters:
     faircoind_host: localhost
     faircoind_port: 46393
 
+    ethereum_user: facuser
+    ethereum_pass: facpass
+    ethereum_host: localhost
+    ethereum_port: 46393
+
+    creativecoin_user: facuser
+    creativecoin_pass: facpass
+    creativecoin_host: localhost
+    creativecoin_port: 46393
+
     btc_min_confirmations: 3
     fac_min_confirmations: 1
 

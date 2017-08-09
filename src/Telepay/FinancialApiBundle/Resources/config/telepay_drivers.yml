@@ -61,6 +61,22 @@ services:
             - "%faircoind_host%"
             - "%faircoind_port%"
 
+    net.telepay.driver.easybitcoin.eth:
+        class: Telepay\FinancialApiBundle\Financial\Driver\EasyBitcoinDriver
+        arguments:
+            - "%ethereum_user%"
+            - "%ethereum_pass%"
+            - "%ethereum_host%"
+            - "%ethereum_port%"
+
+    net.telepay.driver.easybitcoin.crea:
+        class: Telepay\FinancialApiBundle\Financial\Driver\EasyBitcoinDriver
+        arguments:
+            - "%creativecoin_user%"
+            - "%creativecoin_pass%"
+            - "%creativecoin_host%"
+            - "%creativecoin_port%"
+
     net.telepay.driver.abanca_issue_hal:
         class: Telepay\FinancialApiBundle\Financial\Driver\RobotUnionDriver
         arguments:
