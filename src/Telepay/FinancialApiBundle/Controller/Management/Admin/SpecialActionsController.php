@@ -35,7 +35,8 @@ class SpecialActionsController extends RestApiController {
         $paramNames = array(
             'amount',
             'reference',
-            'hash'
+            'hash',
+            'external_id'
         );
 
         $params = array();
@@ -82,6 +83,7 @@ class SpecialActionsController extends RestApiController {
         $deposit->setAmount($params['amount']);
         $deposit->setConfirmations(1);
         $deposit->setHash($params['hash']);
+        $deposit->setExternalId($params['external_id']);
         $deposit->setStatus(CashInDeposit::$STATUS_DEPOSITED);
         $deposit->setToken($token);
         $em->persist($deposit);
@@ -904,6 +906,27 @@ class SpecialActionsController extends RestApiController {
                 'address' => $newAddress
             )
         );
+
+
+    }
+
+    public function validateHalAbanca(Request $request, $id){
+        if(!$request->request->has('halcash_id')) throw new HttpException(404, 'Param halcash_id not found');
+        //TODO get transaction
+        $dm = $this->get('doctrine_mongodb')->getManager();
+        $transaction = $dm->getRepository('TelepayFinancialApiBundle:Transaction')->find($id);
+
+        if(!$transaction) throw new HttpException(404, 'Transaction not found');
+
+        $payment_info = $transaction->getPayOutInfo();
+
+        $payment_info['halcashticket'] = $request->request->get('halcash_id');
+
+        $transaction->setPayOutInfo($payment_info);
+
+        $dm->flush();
+
+        return $this->restV2(204, 'success', 'Updated successfully');
 
 
     }

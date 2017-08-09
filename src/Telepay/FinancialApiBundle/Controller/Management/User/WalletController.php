@@ -26,6 +26,7 @@ class WalletController extends RestApiController{
 
     /**
      * reads information about all wallets
+     * DEPRECATED
      */
     public function read(){
         $userGroup = $this->get('security.context')->getToken()->getUser()->getActiveGroup();

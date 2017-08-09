@@ -19,7 +19,7 @@ class ActivityController extends RestApiController
 {
 
     /**
-     * @Rest\View()
+     * @Rest\View
      */
     public function last50Transactions() {
 

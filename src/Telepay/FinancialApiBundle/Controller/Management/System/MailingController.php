@@ -106,6 +106,11 @@ class MailingController extends BaseApiController
      */
     public function updateAction(Request $request, $id){
 
+        $em = $this->getDoctrine()->getManager();
+        $mail = $em->getRepository('TelepayFinancialApiBundle:Mail')->find($id);
+
+        if($mail->getStatus() == 'sent') throw new HttpException(403, 'This mail can\'t be modified because was sent');
+
         return parent::updateAction($request, $id);
 
     }
@@ -115,6 +120,74 @@ class MailingController extends BaseApiController
      */
     public function deleteAction($id){
         return parent::deleteAction($id);
+
+    }
+
+    /**
+     * @Rest\View
+     */
+    public function sendEmail(Request $request, $id){
+
+        $em = $this->getDoctrine()->getManager();
+        $mail = $em->getRepository('TelepayFinancialApiBundle:Mail')->find($id);
+
+        if(!$mail) throw new HttpException(404, 'Mail not found');
+
+        $counter = 0;
+        if($mail->getDst() == 'all'){
+            $destinies = $em->getRepository('TelepayFinancialApiBundle:User')->findBy(array(
+                'enabled'   =>  true
+            ));
+            foreach ($destinies as $destiny){
+                $this->_sendEmail($mail, $destiny->getEmail());
+                $counter++;
+            }
+            $mail->setStatus('sent');
+            $mail->setCounter($counter);
+            $mail->setUpdated(new \DateTime());
+            $em->flush();
+
+        }elseif ($mail->getDst() == 'kyc_managers'){
+            throw new HttpException(403, 'Method not implemented yet');
+        }else{
+            $this->_sendEmail($mail, $mail->getDst());
+            $counter++;
+            $mail->setStatus('sent');
+            $mail->setCounter($counter);
+            $mail->setUpdated(new \DateTime());
+            $em->flush();
+        }
+
+        return $this->restV2(204, 'success', 'Email send successfully');
+
+    }
+
+    private function _sendEmail($mail, $to){
+
+        $from = $this->container->getParameter('no_reply_email');
+        $mailer = 'mailer';
+        $template = 'TelepayFinancialApiBundle:Email:empty_email.html.twig';
+
+        //TODO remove this part, only for test
+        $mail_ex = explode('@',$to);
+        $to = $mail_ex[0].'@robotunion.net';
+        $message = \Swift_Message::newInstance()
+            ->setSubject($mail->getSubject())
+            ->setFrom($from)
+            ->setTo(array(
+                $to
+            ))
+            ->setBody(
+                $this->container->get('templating')
+                    ->render($template,
+                        array(
+                            'mail'  =>  $mail
+                        )
+                    )
+            )
+            ->setContentType('text/html');
+
+        $this->container->get($mailer)->send($message);
 
     }
 
