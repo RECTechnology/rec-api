@@ -105,7 +105,6 @@ class SwiftController extends BaseApiController{
      * @Rest\View
      */
     public function updateAction(Request $request, $id = null){
-
         //todo active methods or inactive.
         //get client
         $user = $this->get('security.context')->getToken()->getUser();
@@ -133,8 +132,8 @@ class SwiftController extends BaseApiController{
 
         if($swiftMethods != null){
             if($response->getStatusCode() == 204){
-                $client->activeSwiftList($swiftMethods);
 
+                $client->activeSwiftList($swiftMethods);
                 $em->persist($client);
                 $em->flush();
             }

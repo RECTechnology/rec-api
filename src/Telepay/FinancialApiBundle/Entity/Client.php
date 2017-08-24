@@ -151,13 +151,16 @@ class Client extends BaseClient
             $actual_list[$i] = $params[0].':0';
         }
 
-        for($j = 0; $j<count($actual_list); $j++){
-            foreach($swift_list as $swift){
-                if(preg_match('/'.$swift.'/i',$actual_list[$j])){
-                    $actual_list[$j] = $swift.':1';
+        if($swift_list != 'disable_all'){
+            for($j = 0; $j<count($actual_list); $j++){
+                foreach($swift_list as $swift){
+                    if(preg_match('/'.$swift.'/i',$actual_list[$j])){
+                        $actual_list[$j] = $swift.':1';
+                    }
                 }
             }
         }
+
 
         $this->swift_list = json_encode($actual_list);
     }
