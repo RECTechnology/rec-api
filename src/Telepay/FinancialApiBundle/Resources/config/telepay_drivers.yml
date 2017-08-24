@@ -9,6 +9,8 @@ services:
                 - "@net.telepay.driver.bittrex"
                 - "@net.telepay.driver.easybitcoin.btc"
                 - "@net.telepay.driver.easybitcoin.fac"
+                - "@net.telepay.driver.ethereum.eth"
+                - "@net.telepay.driver.easybitcoin.crea"
 
     net.telepay.driver.bitso:
         class: Telepay\FinancialApiBundle\Financial\Driver\BitsoDriver
@@ -61,11 +63,9 @@ services:
             - "%faircoind_host%"
             - "%faircoind_port%"
 
-    net.telepay.driver.easybitcoin.eth:
-        class: Telepay\FinancialApiBundle\Financial\Driver\EasyBitcoinDriver
+    net.telepay.driver.ethereum.eth:
+        class: Telepay\FinancialApiBundle\Financial\Driver\EthereumDriver
         arguments:
-            - "%ethereum_user%"
-            - "%ethereum_pass%"
             - "%ethereum_host%"
             - "%ethereum_port%"
 
