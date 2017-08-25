@@ -38,10 +38,6 @@ class EasyBitcoinDriver {
         $this->CACertificate = $certificate;
     }
 
-    function getnewaddress($params){
-        return $this->personal_newAccount($params);
-    }
-
     function __call($method, $params) {
         $this->status       = null;
         $this->error        = null;
