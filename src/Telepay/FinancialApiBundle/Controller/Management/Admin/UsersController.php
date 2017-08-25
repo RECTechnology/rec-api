@@ -81,6 +81,21 @@ class UsersController extends BaseApiController
                 break;
             case 'resend_sms':
                 //Your own logic
+
+                $kyc = $em->getRepository('TelepayFinancialApiBundle:KYC')->findOneBy(array(
+                    'user' => $user
+                ));
+                $phone_json = json_decode($kyc->getPhone());
+                $prefix = $phone_json->prefix;
+                $phone = $phone_json->number;
+                //TODO est no pasa parametros por la request de momento
+                $request->request->add(array(
+                    'user'  =>  $user,
+                    'prefix'    =>  $prefix,
+                    'phone' =>  $phone
+                ));
+                $response = $this->forward('Telepay\FinancialApiBundle\Controller\KycController::validatePhone');
+                return $response;
                 break;
             default:
                 break;
