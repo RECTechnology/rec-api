@@ -64,6 +64,8 @@ parameters:
 
     btc_min_confirmations: 3
     fac_min_confirmations: 1
+    eth_min_confirmations: 1
+    crea_min_confirmations: 1
 
     halcash_user: user
     halcash_pass: pass
