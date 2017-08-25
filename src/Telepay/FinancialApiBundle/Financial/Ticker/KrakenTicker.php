@@ -50,8 +50,8 @@ class KrakenTicker implements TickerInterface {
         foreach($list as $trans){
             $sum_fiat += $trans[1] * $trans[0];
             $sum_btc += $trans[1];
-            // 100 bitcoins
-            if($sum_btc>100){
+            // 30 bitcoins
+            if($sum_btc>30){
                 if($this->type == 'bid') {
                     return $sum_fiat/$sum_btc;
                 }

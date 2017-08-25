@@ -76,6 +76,22 @@ services:
             - '["net.telepay.link.fullnode_fair.bittrex_fair"]'
             - '["net.telepay.link.bittrex_fair.fullnode_fair"]'
 
+    net.telepay.wallet.fullnode.ether:
+        class: Telepay\FinancialApiBundle\Financial\Wallet\FullNodeWallet
+        arguments:
+            - "@net.telepay.driver.ethereum.eth"
+            - "ETH"
+            - '["net.telepay.link.fullnode_fair.bittrex_eth"]'
+            - '["net.telepay.link.bittrex_fair.fullnode_eth"]'
+
+    net.telepay.wallet.fullnode.crea:
+        class: Telepay\FinancialApiBundle\Financial\Wallet\FullNodeWallet
+        arguments:
+            - "@net.telepay.driver.easybitcoin.crea"
+            - "ETH"
+            - '["net.telepay.link.fullnode_fair.bittrex_crea"]'
+            - '["net.telepay.link.bittrex_fair.fullnode_crea"]'
+
     net.telepay.wallet.caixacoves.eur:
         class: Telepay\FinancialApiBundle\Financial\Wallet\CaixaCovesWallet
         arguments:
