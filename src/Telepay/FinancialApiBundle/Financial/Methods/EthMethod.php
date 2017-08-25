@@ -39,6 +39,7 @@ class EthMethod extends BaseMethod {
             'currency'  =>  $this->getCurrency(),
             'scale' =>  Currency::$SCALE[$this->getCurrency()],
             'address' => $address,
+            'passphrase' => $passphrase,
             'expires_in' => intval(1200),
             'received' => 0.0,
             'min_confirmations' => intval($min_confirmations),
