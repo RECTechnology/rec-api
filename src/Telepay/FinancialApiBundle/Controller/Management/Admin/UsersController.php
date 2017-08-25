@@ -53,4 +53,55 @@ class UsersController extends BaseApiController
         );
     }
 
+    /**
+     * @Rest\View
+     */
+    public function updateAction(Request $request,$id){
+       return parent::updateAction($request, $id);
+    }
+
+    /**
+     * @Rest\View
+     */
+    public function userActionsAction(Request $request,$id, $action){
+
+
+        $em = $this->getDoctrine()->getmanager();
+        $user = $em->getRepository($this->getRepositoryName())->find($id);
+
+        if(!$user) throw new HttpException(404, 'User not found');
+        //posible actions: resend_email, resend_sms,
+        switch ($action){
+            case 'resend_email':
+                //Your own logic
+                $email = $user->getEmail();
+                $response = $this->forward('Telepay\FinancialApiBundle\Controller\Management\User\AccountController::sentValidationEmailAction', array('email'=>$email));
+                return $response;
+
+                break;
+            case 'resend_sms':
+                //Your own logic
+
+                $kyc = $em->getRepository('TelepayFinancialApiBundle:KYC')->findOneBy(array(
+                    'user' => $user
+                ));
+                $phone_json = json_decode($kyc->getPhone());
+                $prefix = $phone_json->prefix;
+                $phone = $phone_json->number;
+                //TODO est no pasa parametros por la request de momento
+                $request->request->add(array(
+                    'user'  =>  $user,
+                    'prefix'    =>  $prefix,
+                    'phone' =>  $phone
+                ));
+                $response = $this->forward('Telepay\FinancialApiBundle\Controller\KycController::validatePhone');
+                return $response;
+                break;
+            default:
+                break;
+        }
+
+        return $this->restV2(204, 'Success', 'Updated successfully');
+    }
+
 }

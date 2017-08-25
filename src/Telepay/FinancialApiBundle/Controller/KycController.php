@@ -206,7 +206,11 @@ class KycController extends BaseApiController{
             "number" => $phone
         );
 
-        $user = $this->get('security.context')->getToken()->getUser();
+        if($request->request->has('user')){
+            $user = $request->request->get('user');
+        }else{
+            $user = $this->get('security.context')->getToken()->getUser();
+        }
         $em = $this->getDoctrine()->getManager();
         $kyc = $em->getRepository('TelepayFinancialApiBundle:KYC')->findOneBy(array(
             'user' => $user
