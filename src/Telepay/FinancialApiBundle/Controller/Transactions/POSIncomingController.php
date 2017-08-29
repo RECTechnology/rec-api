@@ -235,7 +235,7 @@ class POSIncomingController extends RestApiController{
                 $amount = $dataIn['amount'];
             }
             else {
-                $amount = $exchanger->exchange($dataIn['amount'], $pos_config['currency'], $dataIn['currency_in']);
+                $amount = $exchanger->exchange($dataIn['amount'], $pos_config['currency'], $dataIn['currency_out']);
             }
         }else{
             $amount = $pos_amount;
