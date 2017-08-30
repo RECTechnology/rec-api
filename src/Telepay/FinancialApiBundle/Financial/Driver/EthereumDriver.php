@@ -3,7 +3,7 @@
 namespace Telepay\FinancialApiBundle\Financial\Driver;
 
 
-class EasyBitcoinDriver {
+class EthereumDriver {
     private $proto;
     private $host;
     private $port;
