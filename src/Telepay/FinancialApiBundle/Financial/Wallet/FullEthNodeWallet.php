@@ -16,7 +16,7 @@ use Telepay\FinancialApiBundle\Financial\MiniumBalanceInterface;
 use Telepay\FinancialApiBundle\Financial\MoneyBundleInterface;
 use Telepay\FinancialApiBundle\Financial\WalletInterface;
 
-class FullNodeWallet implements WalletInterface {
+class FullEthNodeWallet implements WalletInterface {
 
     private $nodeLink;
     private $currency;

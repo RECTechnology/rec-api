@@ -77,7 +77,7 @@ services:
             - '["net.telepay.link.bittrex_fair.fullnode_fair"]'
 
     net.telepay.wallet.fullnode.ether:
-        class: Telepay\FinancialApiBundle\Financial\Wallet\FullNodeWallet
+        class: Telepay\FinancialApiBundle\Financial\Wallet\FullEthNodeWallet
         arguments:
             - "@net.telepay.driver.ethereum.eth"
             - "ETH"
@@ -88,7 +88,7 @@ services:
         class: Telepay\FinancialApiBundle\Financial\Wallet\FullNodeWallet
         arguments:
             - "@net.telepay.driver.easybitcoin.crea"
-            - "ETH"
+            - "CREA"
             - '["net.telepay.link.fullnode_fair.bittrex_crea"]'
             - '["net.telepay.link.bittrex_fair.fullnode_crea"]'
 
