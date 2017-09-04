@@ -32,7 +32,7 @@ class CreaMethod extends BaseMethod {
     public function getPayInInfo($amount){
         $address = $this->driver->getnewaddress();
         if(!$address) throw new Exception('Service Temporally unavailable', 503);
-        $min_confirmations = $this->container->getParameter('btc_min_confirmations');
+        $min_confirmations = $this->container->getParameter('crea_min_confirmations');
         $response = array(
             'amount'    =>  $amount,
             'currency'  =>  $this->getCurrency(),
@@ -50,7 +50,7 @@ class CreaMethod extends BaseMethod {
 
     public function getCurrency()
     {
-        return Currency::$BTC;
+        return Currency::$CREA;
     }
 
     public function getPayInStatus($paymentInfo){
@@ -109,7 +109,7 @@ class CreaMethod extends BaseMethod {
         if($request->request->has('concept')){
             $params['concept'] = $request->request->get('concept');
         }else{
-            $params['concept'] = 'Btc out Transaction';
+            $params['concept'] = 'Crea out Transaction';
         }
 
         $params['find_token'] = $find_token = substr(Random::generateToken(), 0, 6);
@@ -142,7 +142,7 @@ class CreaMethod extends BaseMethod {
         if(array_key_exists('concept', $data)) {
             $params['concept'] = $data['concept'];
         }else{
-            $params['concept'] = 'Btc out Transaction';
+            $params['concept'] = 'Crea out Transaction';
         }
 
         $params['find_token'] = $find_token = substr(Random::generateToken(), 0, 6);

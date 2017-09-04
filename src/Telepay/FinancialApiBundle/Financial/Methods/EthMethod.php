@@ -33,7 +33,7 @@ class EthMethod extends BaseMethod {
         $passphrase = $this->getPassphrase();
         $address = $this->driver->personal_newAccount(array($passphrase));
         if(isset($address['error'])) throw new Exception('Service Temporally unavailable', 503);
-        $min_confirmations = $this->container->getParameter('btc_min_confirmations');
+        $min_confirmations = $this->container->getParameter('eth_min_confirmations');
         $response = array(
             'amount'    =>  $amount,
             'currency'  =>  $this->getCurrency(),
@@ -51,7 +51,7 @@ class EthMethod extends BaseMethod {
     }
 
     public function getCurrency(){
-        return Currency::$BTC;
+        return Currency::$ETH;
     }
 
     public function getPayInStatus($paymentInfo){
@@ -109,7 +109,7 @@ class EthMethod extends BaseMethod {
         if($request->request->has('concept')){
             $params['concept'] = $request->request->get('concept');
         }else{
-            $params['concept'] = 'Btc out Transaction';
+            $params['concept'] = 'Eth out Transaction';
         }
 
         $params['find_token'] = $find_token = substr(Random::generateToken(), 0, 6);
@@ -142,7 +142,7 @@ class EthMethod extends BaseMethod {
         if(array_key_exists('concept', $data)) {
             $params['concept'] = $data['concept'];
         }else{
-            $params['concept'] = 'Btc out Transaction';
+            $params['concept'] = 'Eth out Transaction';
         }
         $params['find_token'] = $find_token = substr(Random::generateToken(), 0, 6);
         $params['currency'] = $this->getCurrency();
