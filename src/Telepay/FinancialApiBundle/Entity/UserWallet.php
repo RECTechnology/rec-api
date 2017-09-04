@@ -137,6 +137,12 @@ class UserWallet {
             case "FAC":
                 $scale=8;
                 break;
+            case "ETH":
+                $scale=8;
+                break;
+            case "CREA":
+                $scale=8;
+                break;
             case "PLN":
                 $scale=2;
                 break;
