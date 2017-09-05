@@ -29,7 +29,7 @@ class CheckCryptoCommand extends SyncronizedContainerAwareCommand
         $init = time();
         $now = time();
         while($n<$exec_n_times && ($now - $init) < 58) {
-            $method_cname = array('fac', 'btc');
+            $method_cname = array('fac', 'btc', 'crea', 'eth');
             $type = 'in';
 
             $dm = $this->getContainer()->get('doctrine_mongodb')->getManager();
