@@ -31,7 +31,7 @@ class EthMethod extends BaseMethod {
     //PAY IN
     public function getPayInInfo($amount){
         $passphrase = $this->getPassphrase();
-        $address = $this->driver->personal_newAccount(array($passphrase));
+        $address = $this->driver->personal_newAccount($passphrase);
         if(isset($address['error'])) throw new Exception('Service Temporally unavailable', 503);
         $min_confirmations = $this->container->getParameter('eth_min_confirmations');
         $response = array(
