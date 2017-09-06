@@ -192,6 +192,6 @@ class EthMethod extends BaseMethod {
         $chars = "ABCDEFGHJKMNPQRSTUVWXYZ23456789";
         $array_chars = str_split($chars);
         shuffle($array_chars);
-        return substr(implode("", $array_chars),0,5);
+        return substr(implode("", $array_chars),0,10);
     }
 }

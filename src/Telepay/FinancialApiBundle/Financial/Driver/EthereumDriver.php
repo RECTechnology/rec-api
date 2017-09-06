@@ -90,8 +90,7 @@ class EthereumDriver {
         curl_setopt_array($curl, $options);
 
         // Execute the request and decode to an array
-        $this->raw_response = curl_exec($curl);
-        $this->response     = json_decode($this->raw_response, TRUE);
+        $this->response = curl_exec($curl);
 
         // If the status is not 200, something is wrong
         $this->status = curl_getinfo($curl, CURLINFO_HTTP_CODE);
@@ -131,6 +130,6 @@ class EthereumDriver {
             return FALSE;
         }
 
-        return $this->response['result'];
+        return $this->response;
     }
 }
