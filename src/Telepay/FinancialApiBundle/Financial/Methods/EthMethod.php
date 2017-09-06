@@ -55,9 +55,8 @@ class EthMethod extends BaseMethod {
     }
 
     public function getPayInStatus($paymentInfo){
-        $allReceived = $this->driver->listreceivedbyaddress(0, true);
+        $totalReceived = $this->driver->eth_getBalance($paymentInfo['address'], 'latest');
         $amount = $paymentInfo['amount'];
-        $address = $paymentInfo['address'];
 
         if($amount <= 100)
             $margin = 0;
@@ -65,25 +64,22 @@ class EthMethod extends BaseMethod {
             $margin = 100;
 
         $allowed_amount = $amount - $margin;
-        foreach($allReceived as $cryptoData){
-            if($cryptoData['address'] === $address){
-                $paymentInfo['received'] = doubleval($cryptoData['amount'])*1e8;
-                if(doubleval($cryptoData['amount'])*1e8 >= $allowed_amount){
-                    $paymentInfo['confirmations'] = $cryptoData['confirmations'];
-                    if($paymentInfo['confirmations'] >= $paymentInfo['min_confirmations']){
-                        $status = 'success';
-                        $final = true;
-                        $paymentInfo['final'] = $final;
-                    }else{
-                        $status = 'received';
-                    }
-                }else{
-                    $status = 'created';
-                }
-                $paymentInfo['status'] = $status;
-                return $paymentInfo;
+        $status = 'created';
+
+        if(doubleval($totalReceived) >= $allowed_amount){
+            $status = 'received';
+            $paymentInfo['received'] = doubleval($totalReceived);
+            //TODO calcular confirmaciones
+            $num_confirmaciones = 0;
+            $paymentInfo['confirmations'] = $num_confirmaciones;
+            if($paymentInfo['confirmations'] >= $paymentInfo['min_confirmations']){
+                $status = 'success';
+                $final = true;
+                $paymentInfo['final'] = $final;
             }
         }
+        $paymentInfo['status'] = $status;
+        return $paymentInfo;
     }
 
     //PAY OUT

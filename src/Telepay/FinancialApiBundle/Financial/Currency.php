@@ -38,7 +38,7 @@ class Currency {
         "FAC" => 8,
         "FAIRP" => 8,
         "MXN" => 2,
-        "ETH" => 8,
+        "ETH" => 18,
         "CREA" => 8,
         "PLN" => 2
     );
