@@ -55,7 +55,8 @@ class EthMethod extends BaseMethod {
     }
 
     public function getPayInStatus($paymentInfo){
-        $totalReceived = $this->driver->eth_getBalance($paymentInfo['address'], 'latest');
+        $totalReceivedHex = $this->driver->eth_getBalance($paymentInfo['address'], 'latest');
+        $totalReceived = hexdec($totalReceivedHex);
         $amount = $paymentInfo['amount'];
 
         if($amount <= 100)
