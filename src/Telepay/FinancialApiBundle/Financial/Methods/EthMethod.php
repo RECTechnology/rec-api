@@ -67,10 +67,12 @@ class EthMethod extends BaseMethod {
         $allowed_amount = $amount - $margin;
         $status = 'created';
 
+        if(doubleval($totalReceived)>0){
+            $paymentInfo['received'] = doubleval($totalReceived);
+        }
+
         if(doubleval($totalReceived) >= $allowed_amount){
             $status = 'received';
-            $paymentInfo['received'] = doubleval($totalReceived);
-            //TODO calcular confirmaciones
             $num_confirmaciones = 0;
             $paymentInfo['confirmations'] = $num_confirmaciones;
             if($paymentInfo['confirmations'] >= $paymentInfo['min_confirmations']){
