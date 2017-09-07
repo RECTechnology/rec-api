@@ -21,6 +21,8 @@ class CashInController extends BaseApiController{
         'easypay-in',
         'sepa-in',
         'fac-in',
+        'crea-in',
+        'eth-in',
         'btc-in'
     );
     /**

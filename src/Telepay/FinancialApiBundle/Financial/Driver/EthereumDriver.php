@@ -3,7 +3,8 @@
 namespace Telepay\FinancialApiBundle\Financial\Driver;
 
 
-class EasyBitcoinDriver {
+class EthereumDriver
+{
     private $proto;
     private $host;
     private $port;
@@ -21,32 +22,31 @@ class EasyBitcoinDriver {
      * @param string $host
      * @param int $port
      */
-    function __construct($host = 'localhost', $port = 8545) {
-        $this->host          = $host;
-        $this->port          = $port;
+    function __construct($host = 'localhost', $port = 8545)
+    {
+        $this->host = $host;
+        $this->port = $port;
 
         // Set some defaults
-        $this->proto         = 'http';
+        $this->proto = 'http';
         $this->CACertificate = null;
     }
 
     /**
      * @param string|null $certificate
      */
-    function setSSL($certificate = null) {
-        $this->proto         = 'https'; // force HTTPS
+    function setSSL($certificate = null)
+    {
+        $this->proto = 'https'; // force HTTPS
         $this->CACertificate = $certificate;
     }
 
-    function getnewaddress($params){
-        return $this->personal_newAccount($params);
-    }
-
-    function __call($method, $params) {
-        $this->status       = null;
-        $this->error        = null;
+    function __call($method, $params)
+    {
+        $this->status = null;
+        $this->error = null;
         $this->raw_response = null;
-        $this->response     = null;
+        $this->response = null;
 
         // If no parameters are passed, this will be an empty array
         $params = array_values($params);
@@ -59,18 +59,18 @@ class EasyBitcoinDriver {
             'jsonrpc' => "2.0",
             'method' => $method,
             'params' => $params,
-            'id'     => 1
+            'id' => 1
         ));
 
         // Build the cURL session
-        $curl    = curl_init("{$this->proto}://{$this->host}:{$this->port}");
+        $curl = curl_init("{$this->proto}://{$this->host}:{$this->port}");
         $options = array(
             CURLOPT_RETURNTRANSFER => TRUE,
             CURLOPT_FOLLOWLOCATION => TRUE,
-            CURLOPT_MAXREDIRS      => 10,
-            CURLOPT_HTTPHEADER     => array('Content-type: application/json'),
-            CURLOPT_POST           => TRUE,
-            CURLOPT_POSTFIELDS     => $request
+            CURLOPT_MAXREDIRS => 10,
+            CURLOPT_HTTPHEADER => array('Content-type: application/json'),
+            CURLOPT_POST => TRUE,
+            CURLOPT_POSTFIELDS => $request
         );
 
         // This prevents users from getting the following warning when open_basedir is set:
@@ -84,8 +84,7 @@ class EasyBitcoinDriver {
             if ($this->CACertificate != null) {
                 $options[CURLOPT_CAINFO] = $this->CACertificate;
                 $options[CURLOPT_CAPATH] = DIRNAME($this->CACertificate);
-            }
-            else {
+            } else {
                 // If not we need to assume the SSL cannot be verified so we set this flag to FALSE to allow the connection
                 $options[CURLOPT_SSL_VERIFYPEER] = FALSE;
             }
@@ -109,11 +108,10 @@ class EasyBitcoinDriver {
             $this->error = $curl_error;
         }
 
-        if ($this->response['error']) {
+        if (isset($this->response['error'])) {
             // If bitcoind returned an error, put that in $this->error
             $this->error = $this->response['error']['message'];
-        }
-        elseif ($this->status != 200) {
+        } elseif ($this->status != 200) {
             // If bitcoind didn't return a nice error message, we need to make our own
             switch ($this->status) {
                 case 400:
@@ -134,7 +132,6 @@ class EasyBitcoinDriver {
         if ($this->error) {
             return FALSE;
         }
-
         return $this->response['result'];
     }
 }

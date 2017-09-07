@@ -19,15 +19,17 @@ class Currency {
     public static $CREA = "CREA";
     public static $ETH = "ETH";
 
-//    public static $LISTA = array("BTC","EUR","USD","FAC","MXN","PLN","ETH","CREA");
-//    public static $ALL = array("BTC","EUR","USD","FAC","MXN","PLN","ETH","CREA");
-//    public static $TICKER_LIST = array("BTC","EUR","USD","FAC","MXN","PLN","FAIRP","ETH","CREA");
-//    public static $TICKER_FAIRCOOP = array("BTC","EUR","USD","FAIRP","MXN","PLN","ETH","CREA");
+    public static $LISTA = array("BTC","EUR","USD","FAC","MXN","PLN","ETH","CREA");
+    public static $ALL = array("BTC","EUR","USD","FAC","MXN","PLN","ETH","CREA");
+    public static $TICKER_LIST = array("BTC","EUR","USD","FAC","MXN","PLN","FAIRP","ETH","CREA");
+    public static $TICKER_FAIRCOOP = array("BTC","EUR","USD","FAIRP","MXN","PLN","ETH","CREA");
 
+    /*
     public static $LISTA = array("BTC","EUR","USD","FAC","MXN","PLN");
     public static $ALL = array("BTC","EUR","USD","FAC","MXN","PLN");
     public static $TICKER_LIST = array("BTC","EUR","USD","FAC","MXN","PLN","FAIRP");
     public static $TICKER_FAIRCOOP = array("BTC","EUR","USD","FAIRP","MXN","PLN");
+    */
 
     public static $SCALE = array(
         "BTC" => 8,
@@ -36,7 +38,7 @@ class Currency {
         "FAC" => 8,
         "FAIRP" => 8,
         "MXN" => 2,
-        "ETH" => 8,
+        "ETH" => 18,
         "CREA" => 8,
         "PLN" => 2
     );

@@ -31,14 +31,15 @@ class EthMethod extends BaseMethod {
     //PAY IN
     public function getPayInInfo($amount){
         $passphrase = $this->getPassphrase();
-        $address = $this->driver->personal_newAccount(array($passphrase));
+        $address = $this->driver->personal_newAccount($passphrase);
         if(isset($address['error'])) throw new Exception('Service Temporally unavailable', 503);
-        $min_confirmations = $this->container->getParameter('btc_min_confirmations');
+        $min_confirmations = $this->container->getParameter('eth_min_confirmations');
         $response = array(
             'amount'    =>  $amount,
             'currency'  =>  $this->getCurrency(),
             'scale' =>  Currency::$SCALE[$this->getCurrency()],
             'address' => $address,
+            'passphrase' => $passphrase,
             'expires_in' => intval(1200),
             'received' => 0.0,
             'min_confirmations' => intval($min_confirmations),
@@ -50,13 +51,13 @@ class EthMethod extends BaseMethod {
     }
 
     public function getCurrency(){
-        return Currency::$BTC;
+        return Currency::$ETH;
     }
 
     public function getPayInStatus($paymentInfo){
-        $allReceived = $this->driver->listreceivedbyaddress(0, true);
+        $totalReceivedHex = $this->driver->eth_getBalance($paymentInfo['address'], 'latest');
+        $totalReceived = hexdec($totalReceivedHex);
         $amount = $paymentInfo['amount'];
-        $address = $paymentInfo['address'];
 
         if($amount <= 100)
             $margin = 0;
@@ -64,25 +65,22 @@ class EthMethod extends BaseMethod {
             $margin = 100;
 
         $allowed_amount = $amount - $margin;
-        foreach($allReceived as $cryptoData){
-            if($cryptoData['address'] === $address){
-                $paymentInfo['received'] = doubleval($cryptoData['amount'])*1e8;
-                if(doubleval($cryptoData['amount'])*1e8 >= $allowed_amount){
-                    $paymentInfo['confirmations'] = $cryptoData['confirmations'];
-                    if($paymentInfo['confirmations'] >= $paymentInfo['min_confirmations']){
-                        $status = 'success';
-                        $final = true;
-                        $paymentInfo['final'] = $final;
-                    }else{
-                        $status = 'received';
-                    }
-                }else{
-                    $status = 'created';
-                }
-                $paymentInfo['status'] = $status;
-                return $paymentInfo;
+        $status = 'created';
+
+        if(doubleval($totalReceived) >= $allowed_amount){
+            $status = 'received';
+            $paymentInfo['received'] = doubleval($totalReceived);
+            //TODO calcular confirmaciones
+            $num_confirmaciones = 0;
+            $paymentInfo['confirmations'] = $num_confirmaciones;
+            if($paymentInfo['confirmations'] >= $paymentInfo['min_confirmations']){
+                $status = 'success';
+                $final = true;
+                $paymentInfo['final'] = $final;
             }
         }
+        $paymentInfo['status'] = $status;
+        return $paymentInfo;
     }
 
     //PAY OUT
@@ -108,7 +106,7 @@ class EthMethod extends BaseMethod {
         if($request->request->has('concept')){
             $params['concept'] = $request->request->get('concept');
         }else{
-            $params['concept'] = 'Btc out Transaction';
+            $params['concept'] = 'Eth out Transaction';
         }
 
         $params['find_token'] = $find_token = substr(Random::generateToken(), 0, 6);
@@ -141,7 +139,7 @@ class EthMethod extends BaseMethod {
         if(array_key_exists('concept', $data)) {
             $params['concept'] = $data['concept'];
         }else{
-            $params['concept'] = 'Btc out Transaction';
+            $params['concept'] = 'Eth out Transaction';
         }
         $params['find_token'] = $find_token = substr(Random::generateToken(), 0, 6);
         $params['currency'] = $this->getCurrency();
@@ -191,6 +189,6 @@ class EthMethod extends BaseMethod {
         $chars = "ABCDEFGHJKMNPQRSTUVWXYZ23456789";
         $array_chars = str_split($chars);
         shuffle($array_chars);
-        return substr(implode("", $array_chars),0,5);
+        return substr(implode("", $array_chars),0,10);
     }
 }
