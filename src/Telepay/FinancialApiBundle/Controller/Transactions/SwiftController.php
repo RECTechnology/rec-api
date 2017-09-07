@@ -507,13 +507,19 @@ class SwiftController extends RestApiController{
             }
         }elseif($option == 'refund'){
 
-            if($transaction->getStatus() == Transaction::$STATUS_FAILED || $transaction->getStatus() == Transaction::$STATUS_CANCELLED || $transaction->getPayOutInfo()['status']== Transaction::$STATUS_EXPIRED){
+            if($transaction->getStatus() == Transaction::$STATUS_FAILED || $transaction->getStatus() == Transaction::$STATUS_CANCELLED || $transaction->getStatus() == Transaction::$STATUS_EXPIRED){
                 //for refund we need different values foreach services
                 //if pay_in is with bitcoins we need btc address
                 if($request->request->has('amount')){
                     $request->request->remove('amount');
                 }
 
+                $incompleteIn = 0;
+                if($transaction->getPayInInfo()['status'] == Transaction::$STATUS_EXPIRED){
+                    //mathod in incomplete
+                    $incompleteIn = 1;
+                    if($transaction->getPayInInfo()['received'] < 10000) throw new HttpException(403, 'Received amount too small to refund');
+                }
                 $request->request->add(array(
                     'amount'    =>  $payInInfo['received']
                 ));
@@ -547,7 +553,9 @@ class SwiftController extends RestApiController{
                 }
 
                 //get fee transactions to refund.
-                $this->_returnFeesV2($transaction, $transaction->getMethodIn(), $transaction->getMethodOut());
+                if($incompleteIn == 0){
+                    $this->_returnFeesV2($transaction, $transaction->getMethodIn(), $transaction->getMethodOut());
+                }
 
             }else{
                 throw new HttpException(403, 'Transaction can\'t be refund');
