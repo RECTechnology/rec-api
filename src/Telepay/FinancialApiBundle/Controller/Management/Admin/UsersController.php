@@ -75,7 +75,10 @@ class UsersController extends BaseApiController
             case 'resend_email':
                 //Your own logic
                 $email = $user->getEmail();
-                $response = $this->forward('Telepay\FinancialApiBundle\Controller\Management\User\AccountController::sentValidationEmailAction', array('email'=>$email));
+                $request->request->add(array(
+                    'email' =>  $email
+                ));
+                $response = $this->forward('Telepay\FinancialApiBundle\Controller\Management\User\AccountController::sentValidationEmailAction', array('request'=>$request));
                 return $response;
 
                 break;
@@ -88,13 +91,13 @@ class UsersController extends BaseApiController
                 $phone_json = json_decode($kyc->getPhone());
                 $prefix = $phone_json->prefix;
                 $phone = $phone_json->number;
-                //TODO est no pasa parametros por la request de momento
+                if($prefix == "" || $phone == "") throw new HttpException(403, 'Invalid phone');
                 $request->request->add(array(
                     'user'  =>  $user,
                     'prefix'    =>  $prefix,
                     'phone' =>  $phone
                 ));
-                $response = $this->forward('Telepay\FinancialApiBundle\Controller\KycController::validatePhone');
+                $response = $this->forward('Telepay\FinancialApiBundle\Controller\KycController::validatePhone', array('request'    =>  $request));
                 return $response;
                 break;
             default:
