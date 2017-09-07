@@ -1,0 +1,40 @@
+<?php
+
+namespace Telepay\FinancialApiBundle\Financial\Ticker;
+
+use Telepay\FinancialApiBundle\Financial\Currency;
+use Telepay\FinancialApiBundle\Financial\TickerInterface;
+
+class CoinMarketCapTicker implements TickerInterface {
+
+    private $inCurrency;
+    private $outCurrency;
+
+    function __construct($inCurrency, $outCurrency){
+        $this->inCurrency= $inCurrency;
+        $this->outCurrency= $outCurrency;
+    }
+
+    public function getPrice() {
+        $names_in = array(
+            Currency::$CREA => 'creativecoin'
+        );
+
+        $names_out = array(
+            Currency::$BTC => 'btc',
+            Currency::$USD => 'usd'
+        );
+
+        $prices = json_decode(file_get_contents("https://api.coinmarketcap.com/v1/ticker/" . $names_in[$this->inCurrency]));
+        $ovars = get_object_vars($prices);
+        return $ovars['price_' . $names_out[$this->outCurrency]];
+    }
+
+    public function getInCurrency(){
+        return $this->inCurrency;
+    }
+
+    public function getOutCurrency(){
+        return $this->outCurrency;
+    }
+}
