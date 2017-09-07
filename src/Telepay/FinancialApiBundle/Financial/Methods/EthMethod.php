@@ -40,6 +40,7 @@ class EthMethod extends BaseMethod {
             'scale' =>  Currency::$SCALE[$this->getCurrency()],
             'address' => $address,
             'passphrase' => $passphrase,
+            'block' => 0,
             'expires_in' => intval(1200),
             'received' => 0.0,
             'min_confirmations' => intval($min_confirmations),
@@ -66,14 +67,16 @@ class EthMethod extends BaseMethod {
 
         $allowed_amount = $amount - $margin;
         $status = 'created';
+        $blockNumber = $this->driver->eth_blockNumber();
 
-        if(doubleval($totalReceived)>0){
+        if(doubleval($totalReceived)>$paymentInfo['received']){
             $paymentInfo['received'] = doubleval($totalReceived);
+            $paymentInfo['block'] = hexdec($blockNumber);
         }
 
         if(doubleval($totalReceived) >= $allowed_amount){
             $status = 'received';
-            $num_confirmaciones = 0;
+            $num_confirmaciones = hexdec($blockNumber) - $paymentInfo['block'];
             $paymentInfo['confirmations'] = $num_confirmaciones;
             if($paymentInfo['confirmations'] >= $paymentInfo['min_confirmations']){
                 $status = 'success';
