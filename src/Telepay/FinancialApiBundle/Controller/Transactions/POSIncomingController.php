@@ -241,6 +241,7 @@ class POSIncomingController extends RestApiController{
             $amount = $pos_amount;
         }
 
+        $logger->info('POS before transaction');
         //create transaction
         $transaction = Transaction::createFromRequest($request);
         $transaction->setService('POS-'.$posType.'-'.$mode);
@@ -335,8 +336,10 @@ class POSIncomingController extends RestApiController{
                 'url_ko'    =>  $dataIn['url_ko']
             );
         }elseif($posType == 'SAFETYPAY'){
+            $logger->info('POS type safetypay inside');
             $paymentInfo = array(
                 'amount'        =>  $dataIn['amount'],
+                'received_amount'  =>  $dataIn['amount'],
                 'scale'         =>  Currency::$SCALE[$dataIn['currency_in']],
                 'currency'      =>  $dataIn['currency_in'],
                 'expires_in'    =>  $tpvRepo->getExpiresIn(),
@@ -361,6 +364,7 @@ class POSIncomingController extends RestApiController{
                 'url_ko' => $dataIn['url_ko']
             );
         }
+        $logger->info('POS type finish');
         $transaction->setPayInInfo($paymentInfo);
         $em->flush();
         $transaction->setUpdated(new \DateTime());
