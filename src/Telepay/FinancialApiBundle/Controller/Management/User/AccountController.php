@@ -553,6 +553,7 @@ class AccountController extends BaseApiController{
         $user = $em->getRepository($this->getRepositoryName())->findOneBy(array(
             'email'  =>  $email
         ));
+
         if(!$user){
             $response = array(
                 'email'  =>  $email,
@@ -568,6 +569,7 @@ class AccountController extends BaseApiController{
         $response = array(
             'email'  =>  $email,
         );
+
         return $this->restV2(201,"ok", "Request successful", $response);
     }
 
@@ -1385,6 +1387,12 @@ class AccountController extends BaseApiController{
         }else{
             $template = 'TelepayFinancialApiBundle:Email:registerconfirm.html.twig';
         }
+
+        if($companyCreator == null){
+            $em = $this->getDoctrine()->getManager();
+            $companyCreator = $em->getRepository('TelepayFinancialApiBundle:Group')->find($this->container->getParameter('id_group_root'));
+        }
+
         $message = \Swift_Message::newInstance()
             ->setSubject($subject)
             ->setFrom($from)

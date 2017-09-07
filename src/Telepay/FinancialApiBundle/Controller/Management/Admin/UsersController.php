@@ -75,7 +75,10 @@ class UsersController extends BaseApiController
             case 'resend_email':
                 //Your own logic
                 $email = $user->getEmail();
-                $response = $this->forward('Telepay\FinancialApiBundle\Controller\Management\User\AccountController::sentValidationEmailAction', array('email'=>$email));
+                $request->request->add(array(
+                    'email' =>  $email
+                ));
+                $response = $this->forward('Telepay\FinancialApiBundle\Controller\Management\User\AccountController::sentValidationEmailAction', array('request'=>$request));
                 return $response;
 
                 break;
