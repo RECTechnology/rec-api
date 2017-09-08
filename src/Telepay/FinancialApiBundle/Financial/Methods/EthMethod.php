@@ -62,6 +62,10 @@ class EthMethod extends BaseMethod {
 
         if($amount <= 100)
             $margin = 0;
+        elseif($amount > 100000000)
+            $margin = 10000;
+        elseif($amount > 10000000000000000)
+            $margin = 100000000;
         else
             $margin = 100;
 
@@ -181,8 +185,8 @@ class EthMethod extends BaseMethod {
     }
 
     public function getReceivedByAddress($address){
-        $allReceived = $this->driver->getreceivedbyaddress($address, 0);
-        return $allReceived;
+        $allReceived = $this->driver->eth_getBalance($address, 'latest');
+        return hexdec($allReceived);
     }
 
     public function getInfo(){
