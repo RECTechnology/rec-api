@@ -348,11 +348,11 @@ class IncomingController2 extends RestApiController{
 
         $dealer = $this->container->get('net.telepay.commons.fee_deal');
 
-        $method_list = $group->getMethodsList();
-
-        if (!in_array($method_cname.'-'.$type, $method_list)) {
-            throw $this->createAccessDeniedException();
-        }
+//        $method_list = $group->getMethodsList();
+//
+//        if (!in_array($method_cname.'-'.$type, $method_list)) {
+//            throw $this->createAccessDeniedException();
+//        }
 
         $data = $request->request->all();
 
