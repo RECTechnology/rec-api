@@ -40,6 +40,7 @@ class EthMethod extends BaseMethod {
             'scale' =>  Currency::$SCALE[$this->getCurrency()],
             'address' => $address,
             'passphrase' => $passphrase,
+            'block' => 0,
             'expires_in' => intval(1200),
             'received' => 0.0,
             'min_confirmations' => intval($min_confirmations),
@@ -61,17 +62,25 @@ class EthMethod extends BaseMethod {
 
         if($amount <= 100)
             $margin = 0;
+        elseif($amount > 100000000)
+            $margin = 10000;
+        elseif($amount > 10000000000000000)
+            $margin = 100000000;
         else
             $margin = 100;
 
         $allowed_amount = $amount - $margin;
         $status = 'created';
+        $blockNumber = $this->driver->eth_blockNumber();
+
+        if(doubleval($totalReceived)>$paymentInfo['received']){
+            $paymentInfo['received'] = doubleval($totalReceived);
+            $paymentInfo['block'] = hexdec($blockNumber);
+        }
 
         if(doubleval($totalReceived) >= $allowed_amount){
             $status = 'received';
-            $paymentInfo['received'] = doubleval($totalReceived);
-            //TODO calcular confirmaciones
-            $num_confirmaciones = 0;
+            $num_confirmaciones = hexdec($blockNumber) - $paymentInfo['block'];
             $paymentInfo['confirmations'] = $num_confirmaciones;
             if($paymentInfo['confirmations'] >= $paymentInfo['min_confirmations']){
                 $status = 'success';
@@ -176,8 +185,8 @@ class EthMethod extends BaseMethod {
     }
 
     public function getReceivedByAddress($address){
-        $allReceived = $this->driver->getreceivedbyaddress($address, 0);
-        return $allReceived;
+        $allReceived = $this->driver->eth_getBalance($address, 'latest');
+        return hexdec($allReceived);
     }
 
     public function getInfo(){
