@@ -93,7 +93,7 @@ services:
 
     transaction.listener:
         class: Telepay\FinancialApiBundle\EventListener\TransactionListener
-        arguments: [@service_container]
+        arguments: [@service_container, @net.telepay.commons.permissions_checker]
         tags:
             - { name: doctrine_mongodb.odm.event_listener, event: preUpdate }
             - { name: doctrine_mongodb.odm.event_listener, event: postUpdate }

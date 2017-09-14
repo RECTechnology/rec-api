@@ -1003,7 +1003,7 @@ class AccountController extends BaseApiController{
                 $response['btc_address'] = $btcAddress;
             }
 
-
+            
             //create new fixed address for faircoin and return
             $facAddress = new CashInTokens();
             $facAddress->setCurrency(Currency::$FAC);

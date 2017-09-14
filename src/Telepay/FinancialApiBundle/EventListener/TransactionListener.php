@@ -19,11 +19,13 @@ class TransactionListener
 {
     protected $container;
     protected $logger;
+    protected $permissionsHandler;
 
-    public function __construct(ContainerInterface $container)
+    public function __construct(ContainerInterface $container, $permissionsHandler)
     {
         $this->container = $container;
         $this->logger = $this->container->get('transaction.logger');
+        $this->permissionsHandler = $permissionsHandler;
 
     }
 
@@ -62,7 +64,8 @@ class TransactionListener
             //check tier to get permissions to method only for in and out transactions
             if(($entity->getType() == 'in' || $entity->getType() == 'out')
                 && $entity->getMethod() != 'wallet_to_wallet'){
-                $this->_checkMethodPermissions($entity, $documentManager);
+//                $this->_checkMethodPermissions($entity, $documentManager);
+                $this->permissionsHandler->checkMethodPermissions($entity);
             }
             return;
         }
