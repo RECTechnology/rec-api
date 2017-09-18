@@ -19,11 +19,13 @@ class TransactionListener
 {
     protected $container;
     protected $logger;
+    protected $permissionsHandler;
 
-    public function __construct(ContainerInterface $container)
+    public function __construct(ContainerInterface $container, $permissionsHandler)
     {
         $this->container = $container;
         $this->logger = $this->container->get('transaction.logger');
+        $this->permissionsHandler = $permissionsHandler;
 
     }
 
@@ -39,6 +41,23 @@ class TransactionListener
 
     public function preUpdate(LifecycleEventArgs $args){
 
+        $entity = $args->getDocument();
+        $this->logger->info('POST-UPDATE Transaction_Listener');
+
+        $entityManager = $args->getDocumentManager();
+        $uow = $entityManager->getUnitOfWork();
+
+        if ($entity instanceof Transaction) {
+
+            //check tier to get permissions to method only for in and out transactions
+            if(($entity->getType() == 'in' || $entity->getType() == 'out')
+                && $entity->getMethod() != 'wallet_to_wallet'){
+//                $this->_checkMethodPermissions($entity, $documentManager);
+                $this->permissionsHandler->checkMethodPermissions($entity);
+            }
+            return;
+        }
+
     }
 
     public function postPersist(LifecycleEventArgs $args)
@@ -47,6 +66,8 @@ class TransactionListener
         $this->logger->info('POST-INSERT transaction');
 
         $entityManager = $args->getDocumentManager();
+
+
 
     }
 
@@ -62,7 +83,8 @@ class TransactionListener
             //check tier to get permissions to method only for in and out transactions
             if(($entity->getType() == 'in' || $entity->getType() == 'out')
                 && $entity->getMethod() != 'wallet_to_wallet'){
-                $this->_checkMethodPermissions($entity, $documentManager);
+//                $this->_checkMethodPermissions($entity, $documentManager);
+                $this->permissionsHandler->checkMethodPermissions($entity);
             }
             return;
         }

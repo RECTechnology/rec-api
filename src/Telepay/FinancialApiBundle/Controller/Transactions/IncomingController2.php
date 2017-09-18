@@ -348,11 +348,11 @@ class IncomingController2 extends RestApiController{
 
         $dealer = $this->container->get('net.telepay.commons.fee_deal');
 
-        $method_list = $group->getMethodsList();
-
-        if (!in_array($method_cname.'-'.$type, $method_list)) {
-            throw $this->createAccessDeniedException();
-        }
+//        $method_list = $group->getMethodsList();
+//
+//        if (!in_array($method_cname.'-'.$type, $method_list)) {
+//            throw $this->createAccessDeniedException();
+//        }
 
         $data = $request->request->all();
 
@@ -588,11 +588,13 @@ class IncomingController2 extends RestApiController{
         $group = $this->_getCurrentCompany($user);
         $this->_checkPermissions($user, $group);
 
-        $method_list = $group->getMethodsList();
+//        $method_list = $group->getMethodsList();
+//
+//        if (!in_array($method_cname.'-'.$type, $method_list)) {
+//            throw $this->createAccessDeniedException();
+//        }
 
-        if (!in_array($method_cname.'-'.$type, $method_list)) {
-            throw $this->createAccessDeniedException();
-        }
+
 
         $mongo = $this->get('doctrine_mongodb')->getManager();
 
@@ -604,6 +606,8 @@ class IncomingController2 extends RestApiController{
         ));
 
         if(!$transaction) throw new HttpException(404, 'Transaction not found');
+
+        $this->get('net.telepay.commons.permissions_checker')->checkMethodPermissions($transaction);
 
         if($transaction->getStatus() == Transaction::$STATUS_CREATED ||
             $transaction->getStatus() == Transaction::$STATUS_RECEIVED ||

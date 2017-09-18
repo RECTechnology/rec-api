@@ -33,3 +33,10 @@ services:
         arguments:
             - "@doctrine"
             - "@service_container"
+
+    net.telepay.commons.permissions_checker:
+        class: Telepay\FinancialApiBundle\DependencyInjection\Telepay\Commons\PermissionsHandler
+        arguments:
+            - "@service_container"
+            - "@doctrine"
+            - "@doctrine_mongodb"
