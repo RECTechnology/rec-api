@@ -26,14 +26,14 @@ class SendBtcPriceCommand extends ContainerAwareCommand
                 'mode',
                 null,
                 InputOption::VALUE_REQUIRED,
-                'Daily or monthly (daily by default).',
+                'Daily("d") or monthly("m") (monthly by default).',
                 null
             )
             ->addOption(
                 'type',
                 null,
                 InputOption::VALUE_REQUIRED,
-                'Buy or Sell (daily by default).',
+                'Buy, sell, all (all by default).',
                 null
             )
         ;
@@ -52,39 +52,53 @@ class SendBtcPriceCommand extends ContainerAwareCommand
         $today = date('d');
         $this_month = date('m');
         $this_year = date('Y');
+        if(intval($this_month) == 1) $this_year = intval($this_year)-1;
 
-        $type = 'sell';
+        $type = 'all';
         if($input->getOption('type')){
             if($input->getOption('type') == 'buy') $type = 'buy';
+            if($input->getOption('type') == 'sell') $type = 'sell';
         }
 
-        $qb = $this->getContainer()->get('doctrine')->getRepository('TelepayFinancialApiBundle:Exchange')->createQueryBuilder('w');
-
-        if($type == 'sell'){
+        if($type == 'sell' || $type == 'all') {
+            $qb = $this->getContainer()->get('doctrine')->getRepository('TelepayFinancialApiBundle:Exchange')->createQueryBuilder('w');
             $qb->Select("w.date as date, w.price as price")
-                ->where("w.src = '" . $this->currency . "' and w.dst = 'EUR' and w.id > 3000001");
-        }else{
-            $qb->Select("w.date as date, w.price as price")
-                ->where("w.src = 'EUR' and w.dst = '" . $this->currency . "' and w.id > 3000001");
-        }
+                ->where("w.src = '" . $this->currency . "' and w.dst = 'EUR' and YEAR(date) = '" . $this_year . "' and MONTH(date) = '" . $this_month . "'  and w.id > 15000000");
+            $query = $qb->getQuery()->getResult();
 
-
-        $query = $qb->getQuery()->getResult();
-
-        $output->writeln("Date,Price");
-        foreach($query as $exchange){
-            $date = $exchange['date'];
-            $day = $date->format('d');
-            $month = $date->format('m');
-            $year = $date->format('Y');
-            $ex_date = $date->format('Y-m-d H:i:s');
-            if($month == $this_month-1 && $year == $this_year) {
-                if($type == 'buy'){
-                    $output->writeln($ex_date . "," . 100000000/($exchange['price']));
-                }else{
-                    $output->writeln($ex_date . "," . ($exchange['price'] * 100000000));
-                }
+            foreach($query as $exchange){
+                $date = $exchange['date'];
+                $minute = $date->format('i');
+                $hour = $date->format('H');
+                $day = $date->format('d');
+                $month = $date->format('m');
+                $year = $date->format('Y');
+                $ex_date = $date->format('Y-m-d H:i:s');
+                $list_values[$year. $month . $day . $hour . $minute]=array(
+                    'ex_date' => $ex_date,
+                    'sell' => $exchange['price'] * 100000000
+                );
             }
+        }
+
+        if($type == 'buy' || $type == 'all') {
+            $qb->Select("w.date as date, w.price as price")
+                ->where("w.src = 'EUR' and w.dst = '" . $this->currency . "' and YEAR(date) = '" . $this_year . "' and MONTH(date) = '" . $this_month . "'  and w.id > 15000000");
+        }
+
+        if($type == 'all'){
+            $output->writeln("Date,Buy Price, Sell Price");
+        }
+        else{
+            $output->writeln("Date,Price");
+        }
+
+        $list_values = array();
+
+        if($type == 'buy'){
+            $output->writeln($ex_date . "," . 100000000/($exchange['price']));
+        }else{
+            $output->writeln($ex_date . "," . ($exchange['price'] * 100000000));
         }
     }
 }

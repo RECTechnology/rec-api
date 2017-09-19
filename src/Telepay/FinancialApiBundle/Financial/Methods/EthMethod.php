@@ -39,7 +39,6 @@ class EthMethod extends BaseMethod {
             'currency'  =>  $this->getCurrency(),
             'scale' =>  Currency::$SCALE[$this->getCurrency()],
             'address' => $address,
-            'passphrase' => $passphrase,
             'block' => 0,
             'expires_in' => intval(1200),
             'received' => 0.0,
@@ -108,7 +107,7 @@ class EthMethod extends BaseMethod {
 
         }
 
-        $address_verification = $this->driver->validateaddress($params['address']);
+        $address_verification = $this->validateaddress($params['address']);
 
         if(!$address_verification['isvalid']) throw new Exception('Invalid address.', 400);
 
@@ -141,7 +140,7 @@ class EthMethod extends BaseMethod {
 
         }
 
-        $address_verification = $this->driver->validateaddress($params['address']);
+        $address_verification = $this->validateaddress($params['address']);
 
         if(!$address_verification['isvalid']) throw new Exception('Invalid address.', 400);
 
@@ -195,9 +194,15 @@ class EthMethod extends BaseMethod {
     }
 
     private function getPassphrase(){
-        $chars = "ABCDEFGHJKMNPQRSTUVWXYZ23456789";
-        $array_chars = str_split($chars);
-        shuffle($array_chars);
-        return substr(implode("", $array_chars),0,10);
+        return $this->container->getParameter('eth_standard_passphrase');
+    }
+
+    private function validateaddress($address){
+        $address_verification = array();
+        $rest = substr($address, 0, 2);
+        if ($rest == "0x" && strlen($address)==42) {
+            return $address_verification['isvalid'] = true;
+        }
+        return $address_verification['isvalid'] = false;
     }
 }

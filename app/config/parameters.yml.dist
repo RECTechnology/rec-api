@@ -56,6 +56,8 @@ parameters:
 
     ethereum_host: http://localhost
     ethereum_port: 8545
+    eth_standard_passphrase: 7GD67NM9
+    eth_main_passphrase: EGD22NAP
 
     creativecoin_user: facuser
     creativecoin_pass: facpass
