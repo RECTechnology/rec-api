@@ -29,6 +29,9 @@ services:
                 - "teleingreso-fac"
                 - "sepa-btc"
                 - "sepa-fac"
+                - "sepa-eth"
+                - "btc-eth"
+                - "fac-eth"
 
     net.telepay.method_provider:
         class: Telepay\FinancialApiBundle\DependencyInjection\TelepayMethodProvider
