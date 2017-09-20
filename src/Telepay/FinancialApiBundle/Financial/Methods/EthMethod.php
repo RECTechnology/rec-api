@@ -210,8 +210,9 @@ class EthMethod extends BaseMethod {
         $address_verification = array();
         $rest = substr($address, 0, 2);
         if ($rest == "0x" && strlen($address)==42) {
-            return $address_verification['isvalid'] = true;
+            $address_verification['isvalid'] = true;
         }
-        return $address_verification['isvalid'] = false;
+        $address_verification['isvalid'] = false;
+        return $address_verification;
     }
 }
