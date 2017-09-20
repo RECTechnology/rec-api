@@ -209,10 +209,10 @@ class EthMethod extends BaseMethod {
     private function validateaddress($address){
         $address_verification = array();
         $rest = substr($address, 0, 2);
+        $address_verification['isvalid'] = false;
         if ($rest == "0x" && strlen($address)==42) {
             $address_verification['isvalid'] = true;
         }
-        $address_verification['isvalid'] = false;
         return $address_verification;
     }
 }
