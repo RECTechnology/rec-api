@@ -1093,7 +1093,7 @@ class WalletController extends RestApiController{
         }
 
         //return
-        return $this->restV2(200, "ok", "Exchange got successfully");
+        return $this->restV2(200, "ok", "Exchange went successfully");
 
     }
 

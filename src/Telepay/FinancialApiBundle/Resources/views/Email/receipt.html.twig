@@ -72,13 +72,13 @@
     <img src="https://chip-chap.com/images/logo-h-w.png">
 </header>
 <div class="wrapper">
-    <p class="fright"><b>{{ transaction.startDate | date('d/m/Y') }} Hora: {{ transaction.startDate | date('H:i:s') }}</b></p>
+    <p class="fright"><b>{{ transaction.created | date('d/m/Y') }} Hora: {{ transaction.created | date('H:i:s') }}</b></p>
     <p><b>Datos de la orden</b></p>
     <div class="wrapper-in">
         <div class="left">
             <ul>
                 <li><b>Id transaccion:</b> {{ transaction.id }}</li>
-                <li><b>Fecha de ejecucion:</b> {{ transaction.startDate | date('d/m/Y') }}</li>
+                <li><b>Fecha de ejecucion:</b> {{ transaction.created | date('d/m/Y') }}</li>
                 <li><b>Tipo de operacion: </b> {% if transaction.type == 'in' %}Deposit {% else %}Withdrawal {% endif %}{{ transaction.method }}</li>
                 <li><b>Usuario:</b> {{ user.name }} {{ user.surname }}</li>
                 <li><b>Ordenante: </b> {{ company.name }}</li>
