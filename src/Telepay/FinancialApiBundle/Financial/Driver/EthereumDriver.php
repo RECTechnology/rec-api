@@ -54,6 +54,15 @@ class EthereumDriver
         // The ID should be unique for each call
         $this->id++;
 
+        if($method == "eth_sendTransaction"){
+            $request_data = $params;
+            $params = array(
+                "from" => $request_data[0],
+                "to" => $request_data[1],
+                "value" => "0x" . dechex($request_data[2])
+            );
+        }
+
         // Build the request, it's ok that params might have any empty array
         $request = json_encode(array(
             'jsonrpc' => "2.0",

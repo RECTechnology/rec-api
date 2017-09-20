@@ -58,6 +58,7 @@ parameters:
     ethereum_port: 8545
     eth_standard_passphrase: 7GD67NM9
     eth_main_passphrase: EGD22NAP
+    eth_main_address: 0x9a3ced93e48d044a554fe2efd4b6c02d377bbac8
 
     creativecoin_user: facuser
     creativecoin_pass: facpass

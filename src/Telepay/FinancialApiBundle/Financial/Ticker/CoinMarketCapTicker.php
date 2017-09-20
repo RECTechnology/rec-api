@@ -26,7 +26,7 @@ class CoinMarketCapTicker implements TickerInterface {
         );
 
         $prices = json_decode(file_get_contents("https://api.coinmarketcap.com/v1/ticker/" . $names_in[$this->inCurrency]), true);
-        return $prices[0]['price_' . $names_out[$this->outCurrency]] * 100000000;
+        return $prices[0]['price_' . $names_out[$this->outCurrency]];
     }
 
     public function getInCurrency(){

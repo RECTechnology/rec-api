@@ -158,10 +158,16 @@ class EthMethod extends BaseMethod {
     }
 
     public function send($paymentInfo){
-        $address = $paymentInfo['address'];
+        $to_address = $paymentInfo['address'];
         $amount = $paymentInfo['amount'];
+        $from_address = $this->container->getParameter('eth_main_address');
+        $from_address_pass = $this->container->getParameter('eth_main_passphrase');
 
-        $crypto = $this->driver->sendtoaddress($address, $amount/1e8);
+        $unlocked = $this->driver->personal_unlockAccount($from_address, $from_address_pass, "0xe10");
+        $crypto = false;
+        if($unlocked) {
+            $crypto = $this->driver->eth_sendTransaction($from_address, $to_address, $amount);
+        }
 
         if($crypto === false){
             $paymentInfo['status'] = Transaction::$STATUS_FAILED;
@@ -176,7 +182,6 @@ class EthMethod extends BaseMethod {
     }
 
     public function getPayOutStatus($id){
-        // TODO: Implement getPayOutStatus() method.
     }
 
     public function cancel($payment_info){
@@ -189,7 +194,11 @@ class EthMethod extends BaseMethod {
     }
 
     public function getInfo(){
-        $info = $this->driver->getinfo();
+        $address = $this->container->getParameter('eth_main_address');
+        $balance = $this->driver->eth_getBalance($address, 'latest');
+        $info = array(
+            'balance' => $balance
+        );
         return $info;
     }
 
