@@ -270,13 +270,19 @@ class SwiftController extends RestApiController{
             $pay_in_info['currency'] = $safety_currency;
         }
 
-        if($type_in == 'easypay'){
+        if($type_in == 'easypay' || $type_in == 'sepa'){
             $pay_out_info['find_token'] = $pay_in_info['reference_code'];
             if($type_out == "btc"){
                 $pay_in_info['reference'] = "BUY BITCOIN " . $pay_in_info['reference_code'];
             }
             else if($type_out == "fac"){
                 $pay_in_info['reference'] = "BUY FAIRCOIN " . $pay_in_info['reference_code'];
+            }
+            else if($type_out == "eth"){
+                $pay_in_info['reference'] = "SEND ETHEREUM " . $pay_in_info['reference_code'];
+            }
+            else if($type_out == "crea"){
+                $pay_in_info['reference'] = "BUY CREATIVECOIN " . $pay_in_info['reference_code'];
             }
             else{
                 $pay_in_info['reference'] = "CHIPCHAP CODE " . $pay_in_info['reference_code'];

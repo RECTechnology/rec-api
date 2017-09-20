@@ -20,10 +20,10 @@ class SepaDriver{
 
     public function request(){
 
-        $reference = 'BUY BITCOIN '.$this->getReference();
+        $reference = $this->getReference();
 
         $response = array(
-            'reference' =>  $reference,
+            'reference_code' =>  $reference,
             'iban'      =>  $this->iban,
             'bic_swift' =>  $this->swift,
             'beneficiary' =>  $this->beneficiary,
