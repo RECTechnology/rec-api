@@ -165,11 +165,13 @@ class EthMethod extends BaseMethod {
         $from_address_pass = $this->container->getParameter('eth_main_passphrase');
 
         $unlocked = $this->driver->personal_unlockAccount($from_address, $from_address_pass, "0xe10");
-        if($unlocked) {
-            $crypto = $this->driver->eth_sendTransaction($from_address, $to_address, $amount);
+        if(!$unlocked) {
+            $paymentInfo['status'] = Transaction::$STATUS_LOCKED;
+            $paymentInfo['final'] = false;
         }
+        $crypto = $this->driver->eth_sendTransaction($from_address, $to_address, $amount);
 
-        if(!$unlocked || $crypto === false){
+        if($crypto === false){
             $paymentInfo['status'] = Transaction::$STATUS_FAILED;
             $paymentInfo['final'] = false;
         }else{
