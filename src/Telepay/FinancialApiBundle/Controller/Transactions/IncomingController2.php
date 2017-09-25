@@ -704,11 +704,13 @@ class IncomingController2 extends RestApiController{
             $user = $em->getRepository('TelepayFinancialApiBundle:User')->find($this->container->getParameter('chipchap_user_id'));
         }
 
+        /*
         $method_list = $user->getMethodsList();
 
         if (!in_array($method_cname.'-'.$type, $method_list)) {
             throw $this->createAccessDeniedException();
         }
+        */
 
         if($request->query->has('limit')) $limit = $request->query->get('limit');
         else $limit = 10;
