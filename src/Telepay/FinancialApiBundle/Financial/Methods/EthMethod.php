@@ -168,7 +168,9 @@ class EthMethod extends BaseMethod {
         if(!$unlocked) {
             $paymentInfo['status'] = Transaction::$STATUS_LOCKED;
             $paymentInfo['final'] = false;
+            return $paymentInfo;
         }
+
         $crypto = $this->driver->eth_sendTransaction($from_address, $to_address, $amount);
 
         if($crypto === false){
