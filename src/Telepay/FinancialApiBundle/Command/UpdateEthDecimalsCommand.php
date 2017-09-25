@@ -48,7 +48,7 @@ class UpdateEthDecimalsCommand extends ContainerAwareCommand
         $methodsCounter = 0;
         $output->writeln('Found '.count($methodsIn).' eth-in transactions');
         foreach ($methodsIn->toArray() as $methodIn){
-            $methodsIn->setAmount($methodIn->getAmount() / pow(10,10));
+            $methodIn->setAmount($methodIn->getAmount() / pow(10,10));
             $pay_in_info = $methodIn->getPayInInfo();
             $pay_in_info['amount'] = $pay_in_info['amount'] / pow(10,10);
             $pay_in_info['received'] = $pay_in_info['received'] / pow(10,10);
