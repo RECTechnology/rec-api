@@ -24,21 +24,21 @@ class UpdateEthDecimalsCommand extends ContainerAwareCommand
         $em = $this->getContainer()->get('doctrine')->getManager();
 
         //update wallets
-        $wallets = $em->getRepository('TelepayFinancialApiBundle:UserWallet')->findBy(array(
-            'currency'  =>  'eth'
-        ));
-
-        $walletCounter = 0;
-        $output->writeln('Found '.count($wallets). ' wallets');
-        foreach ($wallets as $wallet){
-            $wallet->setAvailable($wallet->getAvailable() / pow(10,10));
-            $wallet->setBalance($wallet->getBalance() / pow(10,10));
-
-            $em->flush();
-            $walletCounter++;
-        }
-
-        $output->writeln('Updated '.$walletCounter.' wallets');
+//        $wallets = $em->getRepository('TelepayFinancialApiBundle:UserWallet')->findBy(array(
+//            'currency'  =>  'eth'
+//        ));
+//
+//        $walletCounter = 0;
+//        $output->writeln('Found '.count($wallets). ' wallets');
+//        foreach ($wallets as $wallet){
+//            $wallet->setAvailable($wallet->getAvailable() / pow(10,10));
+//            $wallet->setBalance($wallet->getBalance() / pow(10,10));
+//
+//            $em->flush();
+//            $walletCounter++;
+//        }
+//
+//        $output->writeln('Updated '.$walletCounter.' wallets');
         //update eth-in
         $methodsIn = $dm->createQueryBuilder('TelepayFinancialApiBundle:Transaction')
             ->field('type')->in(array('in'))
@@ -48,7 +48,7 @@ class UpdateEthDecimalsCommand extends ContainerAwareCommand
         $methodsCounter = 0;
         $output->writeln('Found '.count($methodsIn).' eth-in transactions');
         foreach ($methodsIn->toArray() as $methodIn){
-            $methodsIn->setAmount($methodIn->getAmount() / pow(10,10));
+            $methodIn->setAmount($methodIn->getAmount() / pow(10,10));
             $pay_in_info = $methodIn->getPayInInfo();
             $pay_in_info['amount'] = $pay_in_info['amount'] / pow(10,10);
             $pay_in_info['received'] = $pay_in_info['received'] / pow(10,10);
