@@ -169,7 +169,7 @@ class EthMethod extends BaseMethod {
             $crypto = $this->driver->eth_sendTransaction($from_address, $to_address, $amount);
         }
 
-        if(!$unlocked && $crypto === false){
+        if(!$unlocked || $crypto === false){
             $paymentInfo['status'] = Transaction::$STATUS_FAILED;
             $paymentInfo['final'] = false;
         }else{
