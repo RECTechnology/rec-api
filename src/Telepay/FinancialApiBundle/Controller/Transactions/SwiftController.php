@@ -501,8 +501,8 @@ class SwiftController extends RestApiController{
                 $dm->persist($transaction);
                 $dm->flush();
 
-                //if previous status == failed generate fees transactions
-                if($previous_status == Transaction::$STATUS_FAILED){
+                //if previous status == failed generate fees transactions and transaction is success
+                if($previous_status == Transaction::$STATUS_FAILED && $transaction->getStatus() == Transaction::$STATUS_SUCCESS){
                     //check if exists previous fees
                     if(!$this->_existPreviousFee($transaction))
                         $this->_generateFees($transaction, $transaction->getMethodIn(), $transaction->getMethodOut());
