@@ -21,6 +21,7 @@ class EthMethod extends BaseMethod {
 
     private $driver;
     private $container;
+    private $ignored_scale = 10;
 
     public function __construct($name, $cname, $type, $currency, $email_required, $base64Image, $image, $container, $driver, $min_tier){
         parent::__construct($name, $cname, $type, $currency, $email_required, $base64Image, $image, $container, $min_tier);
@@ -56,7 +57,7 @@ class EthMethod extends BaseMethod {
 
     public function getPayInStatus($paymentInfo){
         $totalReceivedHex = $this->driver->eth_getBalance($paymentInfo['address'], 'latest');
-        $totalReceived = hexdec($totalReceivedHex);
+        $totalReceived = hexdec($totalReceivedHex)/pow(10, $this->ignored_scale);
         $amount = $paymentInfo['amount'];
 
         if($amount <= 100)
@@ -164,12 +165,11 @@ class EthMethod extends BaseMethod {
         $from_address_pass = $this->container->getParameter('eth_main_passphrase');
 
         $unlocked = $this->driver->personal_unlockAccount($from_address, $from_address_pass, "0xe10");
-        $crypto = false;
         if($unlocked) {
             $crypto = $this->driver->eth_sendTransaction($from_address, $to_address, $amount);
         }
 
-        if($crypto === false){
+        if(!$unlocked && $crypto === false){
             $paymentInfo['status'] = Transaction::$STATUS_FAILED;
             $paymentInfo['final'] = false;
         }else{
@@ -190,14 +190,14 @@ class EthMethod extends BaseMethod {
 
     public function getReceivedByAddress($address){
         $allReceived = $this->driver->eth_getBalance($address, 'latest');
-        return hexdec($allReceived);
+        return hexdec($allReceived)/pow(10, $this->ignored_scale);
     }
 
     public function getInfo(){
         $address = $this->container->getParameter('eth_main_address');
         $balance = $this->driver->eth_getBalance($address, 'latest');
         $info = array(
-            'balance' => $balance
+            'balance' => hexdec($balance)/pow(10, $this->ignored_scale)
         );
         return $info;
     }
