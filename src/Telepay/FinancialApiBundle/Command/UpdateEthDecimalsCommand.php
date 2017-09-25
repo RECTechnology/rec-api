@@ -24,21 +24,21 @@ class UpdateEthDecimalsCommand extends ContainerAwareCommand
         $em = $this->getContainer()->get('doctrine')->getManager();
 
         //update wallets
-//        $wallets = $em->getRepository('TelepayFinancialApiBundle:UserWallet')->findBy(array(
-//            'currency'  =>  'eth'
-//        ));
-//
-//        $walletCounter = 0;
-//        $output->writeln('Found '.count($wallets). ' wallets');
-//        foreach ($wallets as $wallet){
-//            $wallet->setAvailable($wallet->getAvailable() / pow(10,10));
-//            $wallet->setBalance($wallet->getBalance() / pow(10,10));
-//
-//            $em->flush();
-//            $walletCounter++;
-//        }
-//
-//        $output->writeln('Updated '.$walletCounter.' wallets');
+        $wallets = $em->getRepository('TelepayFinancialApiBundle:UserWallet')->findBy(array(
+            'currency'  =>  'eth'
+        ));
+
+        $walletCounter = 0;
+        $output->writeln('Found '.count($wallets). ' wallets');
+        foreach ($wallets as $wallet){
+            $wallet->setAvailable($wallet->getAvailable() / pow(10,10));
+            $wallet->setBalance($wallet->getBalance() / pow(10,10));
+
+            $em->flush();
+            $walletCounter++;
+        }
+
+        $output->writeln('Updated '.$walletCounter.' wallets');
         //update eth-in
         $methodsIn = $dm->createQueryBuilder('TelepayFinancialApiBundle:Transaction')
             ->field('type')->in(array('in'))
