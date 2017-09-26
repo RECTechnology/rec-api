@@ -61,16 +61,23 @@ class EthereumDriver
                 "to" => $request_data[1],
                 "value" => "0x" . dechex($request_data[2])
             );
+            // Build the request, it's ok that params might have any empty array
+            $request = json_encode(array(
+                'jsonrpc' => "2.0",
+                'method' => $method,
+                'params' => array($params),
+                'id' => 1
+            ));
         }
-
-        // Build the request, it's ok that params might have any empty array
-        $request = json_encode(array(
-            'jsonrpc' => "2.0",
-            'method' => $method,
-            'params' => $params,
-            'id' => 1
-        ));
-
+        else {
+            // Build the request, it's ok that params might have any empty array
+            $request = json_encode(array(
+                'jsonrpc' => "2.0",
+                'method' => $method,
+                'params' => $params,
+                'id' => 1
+            ));
+        }
         // Build the cURL session
         $curl = curl_init("{$this->proto}://{$this->host}:{$this->port}");
         $options = array(
@@ -79,7 +86,9 @@ class EthereumDriver
             CURLOPT_MAXREDIRS => 10,
             CURLOPT_HTTPHEADER => array('Content-type: application/json'),
             CURLOPT_POST => TRUE,
-            CURLOPT_POSTFIELDS => $request
+            CURLOPT_POSTFIELDS => $request,
+            CURLOPT_CONNECTTIMEOUT => 30,
+            CURLOPT_TIMEOUT => 60
         );
 
         // This prevents users from getting the following warning when open_basedir is set:
