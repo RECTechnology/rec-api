@@ -112,6 +112,7 @@ class SwiftController extends RestApiController{
 
         $request = $cashInMethod->checkKYC($request, "in");
         $request = $cashOutMethod->checkKYC($request, "out");
+        $request->request->remove('password');
 
         if($request->request->get('premium') != '1') {
             $request->request->remove('premium');
