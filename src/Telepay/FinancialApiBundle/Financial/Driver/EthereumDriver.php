@@ -87,8 +87,7 @@ class EthereumDriver
             CURLOPT_HTTPHEADER => array('Content-type: application/json'),
             CURLOPT_POST => TRUE,
             CURLOPT_POSTFIELDS => $request,
-            CURLOPT_CONNECTTIMEOUT => 30,
-            CURLOPT_TIMEOUT => 60
+            CURLOPT_TIMEOUT => 120
         );
 
         // This prevents users from getting the following warning when open_basedir is set:
