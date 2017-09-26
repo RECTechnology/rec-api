@@ -65,8 +65,6 @@ class EthMethod extends BaseMethod {
             $margin = 0;
         elseif($amount > 100000000)
             $margin = 10000;
-        elseif($amount > 10000000000000000)
-            $margin = 100000000;
         else
             $margin = 100;
 

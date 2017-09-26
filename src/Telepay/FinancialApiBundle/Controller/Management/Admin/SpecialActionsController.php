@@ -421,7 +421,8 @@ class SpecialActionsController extends RestApiController {
         //TODO but if we have to validate the output we have to do it better
 
         if($validate == true){
-            if($transaction->getMethodOut() == 'btc' || $transaction->getMethodOut() == 'fac'){
+            //TODO este if és un empastre :(
+            if($transaction->getMethodOut() == 'btc' || $transaction->getMethodOut() == 'eth' || $transaction->getMethodOut() == 'crea'){
                 if($transaction->getStatus() != Transaction::$STATUS_CREATED) throw new HttpException(403, 'This transaction can not be validated');
                 //money received and the cron will do the rest
                 $transaction->setStatus(Transaction::$STATUS_RECEIVED);
