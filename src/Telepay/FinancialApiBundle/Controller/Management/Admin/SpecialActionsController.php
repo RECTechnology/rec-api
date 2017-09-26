@@ -421,8 +421,14 @@ class SpecialActionsController extends RestApiController {
         //TODO but if we have to validate the output we have to do it better
 
         if($validate == true){
-            //TODO este if és un empastre :(
-            if($transaction->getMethodOut() == 'btc' || $transaction->getMethodOut() == 'eth' || $transaction->getMethodOut() == 'crea'){
+            //TODO este array és un empastre :(
+            $list_cryptos = array(
+                'btc' => 'BITCOIN',
+                'fac' => 'FAIRCOIN',
+                'eth' => 'ETHEREUM',
+                'crea' => 'CREATIVECOIN'
+            );
+            if(array_key_exists($transaction->getMethodOut(), $list_cryptos)){
                 if($transaction->getStatus() != Transaction::$STATUS_CREATED) throw new HttpException(403, 'This transaction can not be validated');
                 //money received and the cron will do the rest
                 $transaction->setStatus(Transaction::$STATUS_RECEIVED);
@@ -434,8 +440,7 @@ class SpecialActionsController extends RestApiController {
                     $email = $transaction->getEmailNotification();
                     $ticket = $transaction->getPayInInfo()['reference'];
                     $ticket = str_replace('BUY BITCOIN ', '', $ticket);
-                    if($transaction->getMethodOut() == 'btc') $currency = 'BITCOIN' ;
-                    else $currency = 'FAIRCOIN';
+                    $currency = $list_cryptos[$transaction->getMethodOut()];
                     $body = array(
                         'reference' =>  $ticket,
                         'created'   =>  $transaction->getCreated()->format('Y-m-d H:i:s'),
