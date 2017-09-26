@@ -33,7 +33,7 @@ class WalletController extends RestApiController {
         $user = $this->getUser();
         if(!$user->hasGroup($company->getName())) throw new HttpException(403, 'You don\'t have the necessary permissions in this company');
         //TODO check if is granted role worker
-        if($request->request->has('comment') && $request->request->get('comment')){
+        if($request->request->has('comment') && $request->request->get('comment') != ''){
             $comment = $trans->getComment();
             $comment[] = $request->request->get('comment');
             $trans->setComment($comment);
