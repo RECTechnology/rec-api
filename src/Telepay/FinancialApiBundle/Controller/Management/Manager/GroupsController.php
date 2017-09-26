@@ -239,6 +239,7 @@ class GroupsController extends BaseApiController
         $resp = parent::createAction($request);
 
         if($resp->getStatusCode() == 201){
+            //TODO all of this stuff could be in a listener
             $em = $this->getDoctrine()->getManager();
             $groupsRepo = $em->getRepository("TelepayFinancialApiBundle:Group");
             $group = $groupsRepo->findOneBy(array('name' => $group_name));
@@ -267,7 +268,7 @@ class GroupsController extends BaseApiController
                     $commission = new ServiceFee();
                     $commission->setGroup($group);
                     $commission->setFixed(0);
-                    $commission->setVariable(0);
+                    $commission->setVariable(1);
                     $commission->setServiceName($method->getCname().'-'.$method->getType());
                     $commission->setCurrency($method->getCurrency());
 
@@ -295,7 +296,7 @@ class GroupsController extends BaseApiController
 
                     $fee = new ServiceFee();
                     $fee->setFixed(0);
-                    $fee->setVariable(0);
+                    $fee->setVariable(1);
                     $fee->setCurrency($exchange->getCurrencyOut());
                     $fee->setServiceName('exchange_'.$exchange->getCname());
                     $fee->setGroup($group);
