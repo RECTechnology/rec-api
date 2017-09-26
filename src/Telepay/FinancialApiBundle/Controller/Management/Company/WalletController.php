@@ -117,13 +117,159 @@ class WalletController extends RestApiController {
         else $offset = 0;
 
         $dm = $this->get('doctrine_mongodb')->getManager();
+        $qb = $dm->createQueryBuilder('TelepayFinancialApiBundle:Transaction');
 
-        $transactions = $dm->getRepository('TelepayFinancialApiBundle:Transaction')->getCompanyTransactions($request, $company);
+        if($request->query->get('query')){
+            $query = $request->query->get('query');
+            $qb->field('group')->equals($company->getId());
+
+            if(isset($query['start_date'])){
+                $start_time = new \MongoDate(strtotime(date($query['start_date'].' 00:00:00')));
+            }else{
+                $fecha = new DateTime();
+                $fecha->sub(new DateInterval('P3M'));
+                $start_time = new \MongoDate($fecha->getTimestamp());
+            }
+            $qb->field('updated')->gte($start_time);
+
+            if(isset($query['finish_date'])){
+                $finish_time = new \MongoDate(strtotime(date($query['finish_date'].' 23:59:59')));
+            }else{
+                $finish_time = new \MongoDate();
+            }
+            $qb->field('updated')->lte($finish_time);
+
+            if(isset($query['status'])){
+                if(!($query['status'] == 'all')){
+                    if(count($query['status']) == 0){
+                        $qb->field('status')->in(array(), true);
+                    }
+                    else{
+                        $qb->field('status')->in($query['status']);
+                    }
+                }
+            }
+
+            if(isset($query['clients'])){
+                if(!($query['clients'] == 'all')){
+                    if(count($query['clients']) == 0){
+                        $qb->field('client')->in(array(), true);
+                    }
+                    else{
+                        $qb->field('client')->in($query['clients']);
+                    }
+                }
+            }
+
+            if(isset($query['search'])) {
+                if ($query['search'] != '') {
+                    $search = $query['search'];
+                    $qb->where("function() {
+                    if (typeof this.pay_in_info !== 'undefined') {
+                        if (typeof this.pay_in_info.address !== 'undefined') {
+                            if(String(this.pay_in_info.address).indexOf('$search') > -1){
+                                return true;
+                            }
+                        }
+                        if (typeof this.pay_in_info.concept !== 'undefined') {
+                            if(String(this.pay_in_info.concept).indexOf('$search') > -1){
+                                return true;
+                            }
+                        }
+                        if (typeof this.pay_in_info.reference !== 'undefined') {
+                            if(String(this.pay_in_info.reference).indexOf('$search') > -1){
+                                return true;
+                            }
+                        }
+                        if (typeof this.pay_in_info.txid !== 'undefined') {
+                            if(String(this.pay_in_info.txid).indexOf('$search') > -1){
+                                return true;
+                            }
+                        }
+                        if (typeof this.pay_in_info.teleingreso_id !== 'undefined') {
+                            if(String(this.pay_in_info.teleingreso_id).indexOf('$search') > -1){
+                                return true;
+                            }
+                        }
+                        if (typeof this.pay_in_info.charge_id !== 'undefined') {
+                            if(String(this.pay_in_info.charge_id).indexOf('$search') > -1){
+                                return true;
+                            }
+                        }
+                        if (typeof this.pay_in_info.track !== 'undefined') {
+                            if(String(this.pay_in_info.track).indexOf('$search') > -1){
+                                return true;
+                            }
+                        }
+                    }
+                    if (typeof this.pay_out_info !== 'undefined') {
+                        if (typeof this.pay_out_info.halcashticket !== 'undefined') {
+                            if(String(this.pay_out_info.halcashticket).indexOf('$search') > -1){
+                                return true;
+                            }
+                        }
+                        if (typeof this.pay_out_info.txid !== 'undefined') {
+                            if(String(this.pay_out_info.txid).indexOf('$search') > -1){
+                                return true;
+                            }
+                        }
+                        if (typeof this.pay_out_info.address !== 'undefined') {
+                            if(String(this.pay_out_info.address).indexOf('$search') > -1){
+                                return true;
+                            }
+                        }
+                        if (typeof this.pay_out_info.concept !== 'undefined') {
+                            if(String(this.pay_out_info.concept).indexOf('$search') > -1){
+                                return true;
+                            }
+                        }
+                        if (typeof this.pay_out_info.email !== 'undefined') {
+                            if(String(this.pay_out_info.email).indexOf('$search') > -1){
+                                return true;
+                            }
+                        }
+                        if (typeof this.pay_out_info.find_token !== 'undefined') {
+                            if(String(this.pay_out_info.find_token).indexOf('$search') > -1){
+                                return true;
+                            }
+                        }
+                        if (typeof this.pay_out_info.phone !== 'undefined') {
+                            if(String(this.pay_out_info.phone).indexOf('$search') > -1){
+                                return true;
+                            }
+                        }
+                    }
+                    if (typeof this.dataIn !== 'undefined') {
+                        if (typeof this.dataIn.previous_transaction !== 'undefined') {
+                            if(String(this.dataIn.previous_transaction).indexOf('$search') > -1){
+                                return true;
+                            }
+                        }
+                    }
+                    if ('$search') {
+                        if(String(this._id).indexOf('$search') > -1){ return true;}
+                        return false;
+                    }
+                    return true;
+                    }"
+                    );
+                }
+            }
+        }
+        else{
+            $qb->field('group')->equals($company->getId());
+        }
+
+        $transactions = $qb
+            ->field('status')->notIn(array('deleted'))
+            ->sort('updated','desc')
+            ->sort('id','desc')
+            ->getQuery()
+            ->execute();
 
         $data = array();
+        $dataCustom = array();
         $scales = array();
-        $balance = array();
-        $volume = array();
         if($request->query->get('query')){
             $all_pos = false;
             if(isset($query['pos'])){
@@ -200,7 +346,8 @@ class WalletController extends RestApiController {
             }
 
             $resArray = [];
-
+            $balance = array();
+            $volume = array();
             foreach($transactions->toArray() as $res){
                 if($res->getClient() && isset($listClients[$res->getClient()])){
                     $res->setClientData(
@@ -243,6 +390,12 @@ class WalletController extends RestApiController {
                         }
                     }
                 }
+                elseif($res->getType() == 'exchange'){
+                    if($all_exchange || in_array($res->getMethod(), $query['exchanges'])){
+                        $filtered = true;
+                    }
+
+                }
                 elseif($res->getType() == 'swift'){
                     if($all_swift_in || $all_swift_out || in_array($res->getMethodIn(), $query['swift_in']) || in_array($res->getMethodOut(), $query['swift_out'])){
                         $filtered = true;
@@ -283,7 +436,7 @@ class WalletController extends RestApiController {
 
                 if($filtered) {
                     $resArray [] = $res;
-                    if($res->getStatus() == Transaction::$STATUS_SUCCESS){
+                    if($res->getStatus() == "success"){
                         if(!array_key_exists($res->getCurrency(), $scales)){
                             $currency = $res->getCurrency();
                             $scales[$currency] = $res->getScale();
@@ -293,7 +446,7 @@ class WalletController extends RestApiController {
 
                         $volume[$currency]+=$res->getAmount();
                         $trans_type = $res->getType();
-                        if($trans_type == 'in' || $trans_type == 'out' || $trans_type == 'fee' || $trans_type == 'resta_fee') {
+                        if($trans_type == 'in' || $trans_type == 'out' || $trans_type == 'fee' || $trans_type == 'resta_fee' || $trans_type == 'exchange') {
                             $balance[$currency] += $res->getTotal();
                         }
 
@@ -302,8 +455,51 @@ class WalletController extends RestApiController {
                             $day = $updated->format('Y') . "/" . $updated->format('m') . "/" . $updated->format('d');
                             if(!array_key_exists($day, $data)){
                                 $data[$day] = array();
+                                $dataCustom[$day] = array();
                             }
-                            array_key_exists($res->getCurrency(), $data[$day])? $data[$day][$res->getCurrency()] += $res->getAmount():$data[$day][$res->getCurrency()] = $res->getAmount();
+
+                            if(array_key_exists($res->getCurrency(), $data[$day])){
+
+                                $data[$day][$res->getCurrency()] += $res->getAmount();
+                                if($res->getType() == 'in'){
+                                    $dataCustom[$day][$res->getCurrency()]['in'] += $res->getAmount();
+                                }elseif ($res->getType() == 'out'){
+                                    $dataCustom[$day][$res->getCurrency()]['out'] += $res->getAmount();
+                                }elseif($res->getType() == 'fee' || $res->getType() == 'exchange'){
+                                    if($res->getTotal() > 0){
+                                        $dataCustom[$day][$res->getCurrency()]['in'] += $res->getAmount();
+                                    }else{
+                                        $dataCustom[$day][$res->getCurrency()]['out'] += $res->getAmount();
+                                    }
+                                }else{
+
+                                }
+                                $dataCustom[$day][$res->getCurrency()]['volume'] += $res->getAmount();
+
+                            }else{
+                                $data[$day][$res->getCurrency()] = $res->getAmount();
+                                $in = 0;
+                                $out = 0;
+                                if($res->getType() == 'in'){
+                                    $in = $res->getAmount();
+                                }elseif($res->getType() == 'out'){
+                                    $out = $res->getAmount();
+                                }elseif($res->getType() == 'fee' || $res->getType() == 'exchange'){
+                                    if($res->getTotal() > 0){
+                                        $in += $res->getAmount();
+                                    }else{
+                                        $out += $res->getAmount();
+                                    }
+                                }
+
+                                $temp = array(
+                                    'in'    =>  $in,
+                                    'out'   =>  $out,
+                                    'volume'    =>  $res->getAmount()
+                                );
+                                $dataCustom[$day][$res->getCurrency()] = $temp;
+                            }
+//                            array_key_exists($res->getCurrency(), $data[$day])? $data[$day][$res->getCurrency()] += $res->getAmount():$data[$day][$res->getCurrency()] = $res->getAmount();
                         }
                     }
                 }
@@ -317,7 +513,7 @@ class WalletController extends RestApiController {
         $entities = array_slice($resArray, $offset, $limit);
         $response = array();
         foreach ($entities as $entity){
-//            $entity->setComment($entity->getComment());
+            $entity->setComment($entity->getComment());
             $response[] = $entity;
         }
 
@@ -330,6 +526,7 @@ class WalletController extends RestApiController {
                 'start' => intval($offset),
                 'end' => count($entities)+$offset,
                 'daily' => $data,
+                'daily_custom'  =>  $dataCustom,
                 'scales' => $scales,
                 'balance' => $balance,
                 'volume' => $volume,
