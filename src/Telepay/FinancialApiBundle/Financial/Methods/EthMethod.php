@@ -162,7 +162,7 @@ class EthMethod extends BaseMethod {
 
     public function send($paymentInfo){
         $to_address = $paymentInfo['address'];
-        $amount = $paymentInfo['amount'];
+        $amount = $paymentInfo['amount'] * pow(10, $this->ignored_scale);
         $from_address = $this->container->getParameter('eth_main_address');
         $from_address_pass = $this->container->getParameter('eth_main_passphrase');
 
