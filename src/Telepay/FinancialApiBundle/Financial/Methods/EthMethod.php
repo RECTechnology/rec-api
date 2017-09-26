@@ -96,7 +96,8 @@ class EthMethod extends BaseMethod {
     public function getPayOutInfo($request){
         $paramNames = array(
             'amount',
-            'address'
+            'address',
+            'email'
         );
 
         $params = array();
@@ -219,4 +220,48 @@ class EthMethod extends BaseMethod {
         }
         return $address_verification;
     }
+
+    /**
+     * @return Boolean
+     */
+    public function checkKYC(Request $request, $type){
+
+        if($type == 'in'){
+            return $request;
+        }
+
+        $em = $this->getContainer()->get('doctrine')->getManager();
+
+        $email = $request->request->get('email');
+        $pass = $request->request->get('password');
+        $factory = $this->getContainer()->get('security.encoder_factory');
+        $user = $em->getRepository('TelepayFinancialApiBundle:User')->findOneBy(array(
+            'email' => $email
+        ));
+        if(!$user){
+            throw new HttpException(400, "Email is not registred");
+        }
+        $encoder = $factory->getEncoder($user);
+        $bool = ($encoder->isPasswordValid($user->getPassword(), $pass, $user->getSalt())) ? true : false;
+        $request->request->remove('password');
+
+        if(!$bool){
+            throw new HttpException(400, "Email or Password not correct");
+        }
+
+        $kyc = $em->getRepository('TelepayFinancialApiBundle:KYC')->findOneBy(array(
+            'user' => $user
+        ));
+
+        if(!$kyc){
+            throw new Exception('User without kyc information',400);
+        }
+
+        if(!$kyc->getEmailValidated()){
+            throw new Exception('Email must be validated.',400);
+        }
+
+        return $request;
+    }
+
 }
