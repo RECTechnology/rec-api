@@ -317,7 +317,7 @@ class WalletController extends RestApiController {
         $entities = array_slice($resArray, $offset, $limit);
         $response = array();
         foreach ($entities as $entity){
-            $entity->setComment($entity->getComment());
+//            $entity->setComment($entity->getComment());
             $response[] = $entity;
         }
 
