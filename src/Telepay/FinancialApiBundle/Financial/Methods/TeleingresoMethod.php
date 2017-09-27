@@ -137,7 +137,6 @@ class TeleingresoMethod extends BaseMethod{
             }
             $encoder = $factory->getEncoder($user);
             $bool = ($encoder->isPasswordValid($user->getPassword(), $pass, $user->getSalt())) ? true : false;
-            $request->request->remove('password');
         }
 
         if(!$bool){

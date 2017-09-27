@@ -65,8 +65,6 @@ class EthMethod extends BaseMethod {
             $margin = 0;
         elseif($amount > 100000000)
             $margin = 10000;
-        elseif($amount > 10000000000000000)
-            $margin = 100000000;
         else
             $margin = 100;
 
@@ -162,18 +160,11 @@ class EthMethod extends BaseMethod {
 
     public function send($paymentInfo){
         $to_address = $paymentInfo['address'];
-        $amount = $paymentInfo['amount'];
+        $amount = $paymentInfo['amount'] * pow(10, $this->ignored_scale);
         $from_address = $this->container->getParameter('eth_main_address');
         $from_address_pass = $this->container->getParameter('eth_main_passphrase');
 
-        $unlocked = $this->driver->personal_unlockAccount($from_address, $from_address_pass, "0xe10");
-        if(!$unlocked) {
-            $paymentInfo['status'] = Transaction::$STATUS_LOCKED;
-            $paymentInfo['final'] = false;
-            return $paymentInfo;
-        }
-
-        $crypto = $this->driver->eth_sendTransaction($from_address, $to_address, $amount);
+        $crypto = $this->driver->personal_sendTransaction($from_address, $to_address, $amount, $from_address_pass);
 
         if($crypto === false){
             $paymentInfo['status'] = Transaction::$STATUS_FAILED;
@@ -244,7 +235,6 @@ class EthMethod extends BaseMethod {
         }
         $encoder = $factory->getEncoder($user);
         $bool = ($encoder->isPasswordValid($user->getPassword(), $pass, $user->getSalt())) ? true : false;
-        $request->request->remove('password');
 
         if(!$bool){
             throw new HttpException(400, "Email or Password not correct");
