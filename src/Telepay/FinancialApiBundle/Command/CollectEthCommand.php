@@ -19,22 +19,24 @@ class CollectEthCommand extends ContainerAwareCommand{
     protected function execute(InputInterface $input, OutputInterface $output){
         $em = $this->getContainer()->get('doctrine')->getManager();
 
-        $deposits = $em->getRepository('TelepayFinancialApiBundle:CashInDeposit')->findBy(array(
+        //find all tokens eth and change scale
+        $tokens = $em->getRepository('TelepayFinancialApiBundle:CashInTokens')->findBy(array(
             'currency'  =>  'eth'
         ));
-        $output->writeln('Found '.count($deposits).' deposits');
 
-        $depositCounter = 0;
-        foreach ($deposits as $token){
+        $output->writeln('Found '.count($tokens).' tokens');
+        $count = 0;
+        foreach ($tokens as $token){
             $deposits = $token->getDeposits();
             foreach ($deposits as $deposit){
-                $deposit->setAmount($deposit->getAmount() / pow(10,10));
-                $em->flush();
-                $depositCounter++;
+                //$deposit->setAmount($deposit->getAmount() / pow(10,10));
+                //$em->flush();
+                $count++;
             }
         }
 
-        $output->writeln('Updated '.$depositCounter.' deposits');
+        $output->writeln('Collected '.$count.' deposits');
+
         $output->writeln('END');
     }
 }
