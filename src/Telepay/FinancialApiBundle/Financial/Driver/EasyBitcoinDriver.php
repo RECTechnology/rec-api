@@ -130,7 +130,6 @@ class EasyBitcoinDriver {
             'id'     => $this->id
         ));
 
-        // Build the cURL session
         $curl    = curl_init("{$this->proto}://{$this->username}:{$this->password}@{$this->host}:{$this->port}/{$this->url}");
         $options = array(
             CURLOPT_RETURNTRANSFER => TRUE,
