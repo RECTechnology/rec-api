@@ -141,6 +141,9 @@ class FacMethod extends  BaseMethod {
 
         if(!$address_verification['isvalid']) throw new Exception('Invalid address.', 400);
 
+        if($this->driver->getbalance() <= $params['amount'] / 1e8) throw new HttpException(403, 'Service Temporally unavailable');
+
+
         if(array_key_exists('concept', $data)){
             $params['concept'] = $data['concept'];
         }else{
