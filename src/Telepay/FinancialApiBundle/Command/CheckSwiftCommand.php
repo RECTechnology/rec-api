@@ -245,7 +245,7 @@ class CheckSwiftCommand extends SyncronizedContainerAwareCommand
                                 $output->writeln('Status current transaction: '.$current_transaction->getStatus());
 
                                 //send ticket
-                                if($method_out == 'btc' || $method_out == 'fac' || $method_out == 'eth' || $method_out == 'crea'){
+                                if($method_out == 'btc' || $method_out == 'fac'){
                                     if( $transaction->getEmailNotification() != ""){
                                         $currency = array(
                                             'btc' => 'BITCOIN',
@@ -254,7 +254,12 @@ class CheckSwiftCommand extends SyncronizedContainerAwareCommand
                                             'crea' => 'CREATIVECOIN'
                                         );
                                         $email = $transaction->getEmailNotification();
-                                        $ticket = $transaction->getPayInInfo()['reference'];
+                                        if(isset($transaction->getPayInInfo()['reference'])) {
+                                            $ticket = $transaction->getPayInInfo()['reference'];
+                                        }
+                                        else{
+                                            $ticket = $transaction->getId();
+                                        }
                                         $ticket = str_replace('BUY BITCOIN ', '', $ticket);
                                         $ticket = str_replace('BUY FAIRCOIN ', '', $ticket);
                                         $body = array(
