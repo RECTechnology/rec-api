@@ -38,7 +38,7 @@ class SwiftController extends RestApiController{
         $client_default_id = $this->container->getParameter('swift_client_id_default');
         $rootGroupId = $this->container->getParameter('id_group_root');
 
-        if($type_in == "fac" || $type_out == "fac"){
+        if(($type_in == "fac" || $type_out == "fac") && $type_out != "eth"){
             $admin_id = $this->container->getParameter('admin_user_id_fac');
             $client_default_id = $this->container->getParameter('swift_client_id_default_fac');
         }
