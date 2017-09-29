@@ -217,6 +217,16 @@ class TransactionRepository extends DocumentRepository {
                                 result.total+=curr.total;
                             }
                             break;
+                        case "ETH":
+                            if(curr.total){
+                                result.total+=curr.total;
+                            }
+                            break;
+                        case "CREA":
+                            if(curr.total){
+                                result.total+=curr.total;
+                            }
+                            break;
                         case "":
                             if(curr.total){
                                 result.total+=curr.total;
