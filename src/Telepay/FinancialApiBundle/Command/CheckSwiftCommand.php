@@ -245,25 +245,30 @@ class CheckSwiftCommand extends SyncronizedContainerAwareCommand
                                 $output->writeln('Status current transaction: '.$current_transaction->getStatus());
 
                                 //send ticket
-                                if($method_out == 'btc' || $method_out == 'fac'){
+                                if($method_out == 'btc' || $method_out == 'fac' || $method_out == 'eth' || $method_out == 'crea'){
                                     if( $transaction->getEmailNotification() != ""){
                                         $currency = array(
                                             'btc' => 'BITCOIN',
-                                            'fac' => 'FAIRCOIN'
+                                            'fac' => 'FAIRCOIN',
+                                            'eth'   =>  'ETHEREUM',
+                                            'crea'  =>  'CREA'
                                         );
                                         $email = $transaction->getEmailNotification();
                                         $ticket = $transaction->getPayInInfo()['reference'];
                                         $ticket = str_replace('BUY BITCOIN ', '', $ticket);
                                         $ticket = str_replace('BUY FAIRCOIN ', '', $ticket);
+                                        $ticket = str_replace('SEND ETHEREUM ', '', $ticket);
                                         $body = array(
                                             'reference' =>  $ticket,
                                             'created'   =>  $transaction->getCreated()->format('Y-m-d H:i:s'),
                                             'concept'   =>  'BUY ' . $currency[$method_out] . " " . $ticket,
-                                            'amount'    =>  $transaction->getPayInInfo()['amount']/100,
-                                            'crypto_amount' => $transaction->getPayOutInfo()['amount']/1e8,
+                                            'amount'    =>  $transaction->getPayInInfo()['amount']/pow(10,$transaction->getPayInInfo()['scale']),
+                                            'crypto_amount' => $transaction->getPayOutInfo()['amount']/pow(10,$transaction->getScale()),
                                             'tx_id'        =>  $transaction->getPayOutInfo()['txid'],
                                             'id'        =>  $ticket,
-                                            'address'   =>  $transaction->getPayOutInfo()['address']
+                                            'address'   =>  $transaction->getPayOutInfo()['address'],
+                                            'currency_in'   =>  $transaction->getPayInInfo()['currency'],
+                                            'currency_out'   =>  $transaction->getPayOutInfo()['currency']
                                         );
 
                                         $this->_sendTicket($body, $email, $ticket, $method_out);
@@ -525,7 +530,9 @@ class CheckSwiftCommand extends SyncronizedContainerAwareCommand
 
         $marca = array(
             "btc" => "Chip-Chap",
-            "fac" => "Fairtoearth"
+            "fac" => "Fairtoearth",
+            "crea"  =>  "CreativeCoin",
+            "eth"   =>  "Pylon"
         );
         $dompdf = $this->getContainer()->get('slik_dompdf');
         $dompdf->getpdf($html);
