@@ -92,7 +92,7 @@ class CheckSwiftCommand extends SyncronizedContainerAwareCommand
                         'client'    =>  $client,
                         'cname' =>  $method_in.'-'.$method_out
                     ));
-                    if($method_out == 'btc' || $method_out == 'fac'){
+                    if($method_out == 'btc' || $method_out == 'fac' || $method_out == 'eth' || $method_out == 'crea'){
                         //Hay que volver a calcular el amount en btc que vamos a enviar y ponerlo en el pay_out_info
                         if($method_in == 'safetypay'){
                             $amount = round($this->_exchange($pay_in_info['amount'], $pay_in_info['currency'], $cashOutMethod->getCurrency()),0);
@@ -174,7 +174,7 @@ class CheckSwiftCommand extends SyncronizedContainerAwareCommand
                         }
                         $output->writeln('NEW STATUS => '.$transaction->getStatus());
                     }elseif($pay_in_info['status'] == Transaction::$STATUS_SUCCESS){
-                        if($method_in != 'btc' && $method_in != 'fac' ){
+                        if($method_in == 'btc' || $method_in == 'fac' || $method_in == 'eth' || $method_in == 'crea'){
                             //sumar balance to statusMethod only when cash_in is distinct to btc or fac
                             $statusMethod = $em->getRepository('TelepayFinancialApiBundle:StatusMethod')->findOneBy(array(
                                 'method'    =>  $method_in,
@@ -254,7 +254,12 @@ class CheckSwiftCommand extends SyncronizedContainerAwareCommand
                                             'crea'  =>  'CREA'
                                         );
                                         $email = $transaction->getEmailNotification();
-                                        $ticket = $transaction->getPayInInfo()['reference'];
+                                        if(isset($transaction->getPayInInfo()['reference'])) {
+                                            $ticket = $transaction->getPayInInfo()['reference'];
+                                        }
+                                        else{
+                                            $ticket = $transaction->getId();
+                                        }
                                         $ticket = str_replace('BUY BITCOIN ', '', $ticket);
                                         $ticket = str_replace('BUY FAIRCOIN ', '', $ticket);
                                         $ticket = str_replace('SEND ETHEREUM ', '', $ticket);
@@ -531,7 +536,7 @@ class CheckSwiftCommand extends SyncronizedContainerAwareCommand
         $marca = array(
             "btc" => "Chip-Chap",
             "fac" => "Fairtoearth",
-            "crea"  =>  "CreativeCoin",
+            "crea"  =>  "Chip-Chap",
             "eth"   =>  "Pylon"
         );
         $dompdf = $this->getContainer()->get('slik_dompdf');
