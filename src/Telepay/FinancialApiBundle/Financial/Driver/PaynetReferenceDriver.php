@@ -56,6 +56,7 @@ class PaynetReferenceDriver{
                 'expiration_date'   =>  $caducity,
                 'description'       =>  $this->description,
                 'barcode'           =>  $code,
+                'barcode_url'       =>  'https://api.openpay.mx/barcode/' + $code + '?width=1&height=45',
                 'error_code'    =>  0
             );
             return $resultado;
