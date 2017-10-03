@@ -131,7 +131,7 @@ class TransferMethod extends BaseMethod {
         return $params;
     }
 
-    public function sendMail(Transaction $transaction){
+    public function sendMail(Transaction $transaction, $options = array()){
         $no_reply = $this->container->getParameter('no_reply_email');
         $message = \Swift_Message::newInstance()
             ->setSubject('Transfer_out ALERT')
@@ -147,7 +147,8 @@ class TransferMethod extends BaseMethod {
                         'id'    =>  $transaction->getId(),
                         'type'  =>  $transaction->getType(),
                         'payment_infos'   =>  $transaction->getPayOutInfo(),
-                        'transaction'   => $transaction
+                        'transaction'   => $transaction,
+                        'options'   =>  $options
                     ))
             )
             ->setContentType('text/html');
