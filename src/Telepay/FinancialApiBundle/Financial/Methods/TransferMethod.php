@@ -3,12 +3,12 @@
 namespace Telepay\FinancialApiBundle\Financial\Methods;
 
 use FOS\OAuthServerBundle\Util\Random;
-use MongoDBODMProxies\__CG__\Telepay\FinancialApiBundle\Document\Transaction;
 use Symfony\Component\Config\Definition\Exception\Exception;
 use Symfony\Component\HttpKernel\Exception\HttpException;
 use Telepay\FinancialApiBundle\DependencyInjection\Transactions\Core\BaseMethod;
 use Telepay\FinancialApiBundle\DependencyInjection\Transactions\Core\CashInInterface;
 use Telepay\FinancialApiBundle\DependencyInjection\Transactions\Core\CashOutInterface;
+use Telepay\FinancialApiBundle\Document\Transaction;
 use Telepay\FinancialApiBundle\Financial\Currency;
 
 class TransferMethod extends BaseMethod {
