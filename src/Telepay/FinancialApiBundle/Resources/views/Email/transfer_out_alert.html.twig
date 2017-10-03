@@ -84,7 +84,7 @@
     <div>
         <p><b>id: </b>{{ id }}</p>
         <p><b>type:</b> {{ type }}</p>
-        <p><b>group:</b> {{ transaction.group }} - {% if options.group %}{{ options.group.name }} Tier: {{ options.group.tier }}{% endif %}</p>
+        <p><b>group:</b> {{ transaction.group }} - {% if options.company %}{{ options.company.name }} Tier: {{ options.company.tier }}{% endif %}</p>
         <table>
             {% for key, info in payment_infos %}
                 <tr>
