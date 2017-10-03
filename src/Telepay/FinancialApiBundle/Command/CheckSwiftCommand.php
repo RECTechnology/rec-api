@@ -297,7 +297,7 @@ class CheckSwiftCommand extends SyncronizedContainerAwareCommand
                                 //Generate fee transactions. One for the user and one for the root
                                 if($pay_out_info['status'] == 'sending'){
                                     //send email in sepa_out
-                                    $cashOutMethod->sendMail($transaction->getId(), $transaction->getType(), $pay_out_info);
+                                    $cashOutMethod->sendMail($transaction);
                                 }
 
                                 $output->writeln('FEE client => '.$client_fee);

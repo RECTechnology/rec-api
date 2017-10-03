@@ -131,7 +131,7 @@ class TransferMethod extends BaseMethod {
         return $params;
     }
 
-    public function sendMail($id, $type, $paymentInfo, $currency){
+    public function sendMail(Transaction $transaction){
         $no_reply = $this->container->getParameter('no_reply_email');
         $message = \Swift_Message::newInstance()
             ->setSubject('Transfer_out ALERT')
@@ -144,9 +144,10 @@ class TransferMethod extends BaseMethod {
             ->setBody(
                 $this->getContainer()->get('templating')
                     ->render('TelepayFinancialApiBundle:Email:transfer_out_alert.html.twig',array(
-                        'id'    =>  $id,
-                        'type'  =>  $type,
-                        'payment_infos'   =>  $paymentInfo
+                        'id'    =>  $transaction->getId(),
+                        'type'  =>  $transaction->getType(),
+                        'payment_infos'   =>  $transaction->getPayOutInfo(),
+                        'transaction'   => $transaction
                     ))
             )
             ->setContentType('text/html');

@@ -150,7 +150,7 @@ class SepaMethod extends BaseMethod {
         return $params;
     }
 
-    public function sendMail($id, $type, $paymentInfo){
+    public function sendMail(Transaction $transaction, $options = array()){
 
         $no_reply = $this->container->getParameter('no_reply_email');
 
@@ -165,9 +165,11 @@ class SepaMethod extends BaseMethod {
             ->setBody(
                 $this->getContainer()->get('templating')
                     ->render('TelepayFinancialApiBundle:Email:sepa_out_alert.html.twig',array(
-                        'id'    =>  $id,
-                        'type'  =>  $type,
-                        'payment_infos'   =>  $paymentInfo
+                        'id'    =>  $transaction->getId(),
+                        'type'  =>  $transaction->getType(),
+                        'payment_infos'   =>  $transaction->getPayOutInfo(),
+                        'transaction'   =>  $transaction,
+                        'options'   =>  $options
                     ))
             )
             ->setContentType('text/html');
