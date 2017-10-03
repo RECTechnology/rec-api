@@ -280,7 +280,10 @@ class IncomingController2 extends RestApiController{
                 $em->flush();
 
                 if($payment_info['status'] == 'sending'){
-                    $method->sendMail($transaction->getId(), $transaction->getType(), $payment_info);
+                    $options = array(
+                        'company'   =>  $group
+                    );
+                    $method->sendMail($transaction, $options);
                 }
 
                 //recorrer el arbol aunque la fee sea 0

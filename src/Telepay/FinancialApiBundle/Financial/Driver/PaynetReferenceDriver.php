@@ -25,12 +25,23 @@ class PaynetReferenceDriver{
         $this->description = $description;
         $caducity = $this->getCaducity();
 
+        $parameters = array(
+            'Reference' =>  $this->client_reference,
+            'Monto' =>  $this->amount/100,
+            'fechaVig'  =>  $caducity
+        );
+
+//        $params = array(
+//            'issuerCod'         =>  $this->issuer,
+//            'clientReference' 	=>  $this->client_reference,    //'000532603689',
+//            'amount' 			=>  $this->amount/100,              //'00001000',
+//            'dueDate' 			=> 	$caducity,
+//            'description' 		=> 	$this->description          //'television'
+//        );
         $params = array(
             'issuerCod'         =>  $this->issuer,
-            'clientReference' 	=>  $this->client_reference,    //'000532603689',
-            'amount' 			=>  $this->amount/100,              //'00001000',
-            'dueDate' 			=> 	$caducity,
-            'description' 		=> 	$this->description          //'television'
+            'params'    =>  $parameters,
+            'description' 		=> 	$this->description
         );
 
         $client = new nusoap_client($this->url, true);

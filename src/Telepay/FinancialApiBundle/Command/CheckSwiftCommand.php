@@ -245,13 +245,13 @@ class CheckSwiftCommand extends SyncronizedContainerAwareCommand
                                 $output->writeln('Status current transaction: '.$current_transaction->getStatus());
 
                                 //send ticket
-                                if($method_out == 'btc' || $method_out == 'fac'){
+                                if($method_out == 'btc' || $method_out == 'fac' || $method_out == 'eth' || $method_out == 'crea'){
                                     if( $transaction->getEmailNotification() != ""){
                                         $currency = array(
                                             'btc' => 'BITCOIN',
                                             'fac' => 'FAIRCOIN',
-                                            'eth' => 'ETHEREUM',
-                                            'crea' => 'CREATIVECOIN'
+                                            'eth'   =>  'ETHEREUM',
+                                            'crea'  =>  'CREA'
                                         );
                                         $email = $transaction->getEmailNotification();
                                         if(isset($transaction->getPayInInfo()['reference'])) {
@@ -262,15 +262,18 @@ class CheckSwiftCommand extends SyncronizedContainerAwareCommand
                                         }
                                         $ticket = str_replace('BUY BITCOIN ', '', $ticket);
                                         $ticket = str_replace('BUY FAIRCOIN ', '', $ticket);
+                                        $ticket = str_replace('SEND ETHEREUM ', '', $ticket);
                                         $body = array(
                                             'reference' =>  $ticket,
                                             'created'   =>  $transaction->getCreated()->format('Y-m-d H:i:s'),
                                             'concept'   =>  'BUY ' . $currency[$method_out] . " " . $ticket,
-                                            'amount'    =>  $transaction->getPayInInfo()['amount']/100,
-                                            'crypto_amount' => $transaction->getPayOutInfo()['amount']/1e8,
+                                            'amount'    =>  $transaction->getPayInInfo()['amount']/pow(10,$transaction->getPayInInfo()['scale']),
+                                            'crypto_amount' => $transaction->getPayOutInfo()['amount']/pow(10,$transaction->getScale()),
                                             'tx_id'        =>  $transaction->getPayOutInfo()['txid'],
                                             'id'        =>  $ticket,
-                                            'address'   =>  $transaction->getPayOutInfo()['address']
+                                            'address'   =>  $transaction->getPayOutInfo()['address'],
+                                            'currency_in'   =>  $transaction->getPayInInfo()['currency'],
+                                            'currency_out'   =>  $transaction->getPayOutInfo()['currency']
                                         );
 
                                         $this->_sendTicket($body, $email, $ticket, $method_out);
@@ -294,7 +297,7 @@ class CheckSwiftCommand extends SyncronizedContainerAwareCommand
                                 //Generate fee transactions. One for the user and one for the root
                                 if($pay_out_info['status'] == 'sending'){
                                     //send email in sepa_out
-                                    $cashOutMethod->sendMail($transaction->getId(), $transaction->getType(), $pay_out_info);
+                                    $cashOutMethod->sendMail($transaction);
                                 }
 
                                 $output->writeln('FEE client => '.$client_fee);
@@ -532,9 +535,9 @@ class CheckSwiftCommand extends SyncronizedContainerAwareCommand
 
         $marca = array(
             "btc" => "Chip-Chap",
-            "eth" => "Chip-Chap",
-            "crea" => "Chip-Chap",
-            "fac" => "Fairtoearth"
+            "fac" => "Fairtoearth",
+            "crea"  =>  "Chip-Chap",
+            "eth"   =>  "Pylon"
         );
         $dompdf = $this->getContainer()->get('slik_dompdf');
         $dompdf->getpdf($html);
