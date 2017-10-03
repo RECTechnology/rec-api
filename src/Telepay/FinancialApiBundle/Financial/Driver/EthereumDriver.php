@@ -59,7 +59,7 @@ class EthereumDriver
             $params = array(
                 "from" => $request_data[0],
                 "to" => $request_data[1],
-                "value" => "0x" . dechex($request_data[2])
+                "value" => "0x" . dechex($request_data[2]/256) . "00"
             );
             // Build the request, it's ok that params might have any empty array
             $request = json_encode(array(
