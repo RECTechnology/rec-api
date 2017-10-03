@@ -33,11 +33,6 @@ class PaynetReferenceDriver{
             'description' 		=> 	$this->description          //'television'
         );
 
-        //URL de Test
-        //$client = new nusoap_client('http://201.147.99.51/PaynetCE/WSPaynetCE.asmx?WSDL', true);
-        //URL de prod
-        //$client = new nusoap_client('https://www.datalogic.com.mx/PaynetCE/WSPaynetCE.asmx?WSDL', true);
-
         $client = new nusoap_client($this->url, true);
 
         $result = $client -> call('GetPaynetReference',$params);
