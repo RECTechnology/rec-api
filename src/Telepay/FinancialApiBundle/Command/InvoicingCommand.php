@@ -79,11 +79,10 @@ class InvoicingCommand extends ContainerAwareCommand
                             //TODO calculate % variable fee
                             $variableFee = round(100*($transaction->getAmount()-$fixed)/$feeInfo['previous_amount'],1);
 
-                            $amount = $transaction->getAmount();
+                            $prev_amount = $feeInfo['previous_amount'];
                             //TODO exchange
                             if($currency!='EUR'){
-                                $exchanger = $this->getContainer()->get('net.telepay.commons.exchange_manipulator');
-                                $amount = $exchanger->exchange($transaction->getAmount(), $transaction->getCurrency(), Currency::$EUR);
+                                $prev_amount = ($prev_amount/pow(10,$transaction->getScale())) * $transaction->getPrice()/100;
                             }
 
                             if(isset($fees[$transaction->getMethod()])){
@@ -94,7 +93,7 @@ class InvoicingCommand extends ContainerAwareCommand
                                     if($fees[$transaction->getMethod()][$i]['fixed'] == $fixed && $fees[$transaction->getMethod()][$i]['variable'] == $variableFee){
                                         //add information
                                         $fees[$transaction->getMethod()][$i]['counter']= $fees[$transaction->getMethod()][$i]['counter'] +1;
-                                        $fees[$transaction->getMethod()][$i]['total']   = $fees[$transaction->getMethod()][$i]['total'] + $feeInfo['previous_amount'];
+                                        $fees[$transaction->getMethod()][$i]['total']   = $fees[$transaction->getMethod()][$i]['total'] + $prev_amount;
                                         $exist = 1;
                                     }
                                 }
@@ -104,7 +103,7 @@ class InvoicingCommand extends ContainerAwareCommand
                                         'fixed' =>  $fixed,
                                         'variable' =>   $variableFee,
                                         'counter'   =>  1,
-                                        'total' =>  $feeInfo['previous_amount']
+                                        'total' =>  $prev_amount
                                     );
                                     $fees[$transaction->getMethod()][] = $information;
                                 }
@@ -114,7 +113,7 @@ class InvoicingCommand extends ContainerAwareCommand
                                     'fixed' =>  $fixed,
                                     'variable' =>   $variableFee,
                                     'counter'   =>  1,
-                                    'total' =>  $feeInfo['previous_amount']
+                                    'total' =>  $prev_amount
                                 );
                                 $fees[$transaction->getMethod()][] = $information;
 
