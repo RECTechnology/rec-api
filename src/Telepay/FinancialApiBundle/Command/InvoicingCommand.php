@@ -49,7 +49,7 @@ class InvoicingCommand extends ContainerAwareCommand
 
         $resume = array();
         foreach($companies as $company){
-            if($company->getName() == 'root'){
+            if($company->getName() != 'riit'){
                 if($company->hasRole('ROLE_COMPANY')){
                     //search all success fees transactions by group
 //                die(print_r($company->getName(),true));
@@ -83,11 +83,11 @@ class InvoicingCommand extends ContainerAwareCommand
                             if(isset($fees[$transaction->getMethod()])){
                                 // check if fixed and variable are the same
                                 $exist = 0;
-                                foreach ($fees[$transaction->getMethod()] as $feeInfo){
-                                    if($feeInfo['fixed'] == $fixed && $feeInfo['variable'] == $variableFee){
+                                foreach ($fees[$transaction->getMethod()] as $information){
+                                    if($information['fixed'] == $fixed && $information['variable'] == $variableFee){
                                         //add information
-                                        $feeInfo['counter'] = $feeInfo['counter'] +1;
-                                        $feeInfo['total']   = $feeInfo['total'] + $transaction->getAmount();
+                                        $information['counter'] = $information['counter'] +1;
+                                        $information['total']   = $information['total'] + $feeInfo['previous_amount'];
                                         $exist = 1;
                                     }
                                 }
@@ -97,7 +97,7 @@ class InvoicingCommand extends ContainerAwareCommand
                                         'fixed' =>  $fixed,
                                         'variable' =>   $variableFee,
                                         'counter'   =>  1,
-                                        'total' =>  $transaction->getAmount()
+                                        'total' =>  $feeInfo['previous_amount']
                                     );
                                     $fees[$transaction->getMethod()][] = $information;
                                 }
@@ -107,7 +107,7 @@ class InvoicingCommand extends ContainerAwareCommand
                                     'fixed' =>  $fixed,
                                     'variable' =>   $variableFee,
                                     'counter'   =>  1,
-                                    'total' =>  $transaction->getAmount()
+                                    'total' =>  $feeInfo['previous_amount']
                                 );
                                 $fees[$transaction->getMethod()][] = $information;
 
@@ -119,9 +119,8 @@ class InvoicingCommand extends ContainerAwareCommand
 
                         $resume[$company->getName()] = $fees;
 
-                        $this->_saveInvoice('polla');
-
-                        die(print_r($resume,true));
+//                        die(print_r($fees,true));
+                        $this->_saveInvoice($company->getName(), $fees);
 
                     }
                 }
@@ -131,15 +130,19 @@ class InvoicingCommand extends ContainerAwareCommand
 
     }
 
-    private function _saveInvoice($name){
-        $body = 'caca';
+    private function _saveInvoice($name, $fees){
+
+        $body = array(
+            'fees'  =>  $fees
+        );
         $html = $this->getContainer()->get('templating')->render('TelepayFinancialApiBundle:Email:invoice.html.twig', $body);
 
         $dompdf = $this->getContainer()->get('slik_dompdf');
         $dompdf->getpdf($html);
         $pdfoutput = $dompdf->output();
 
-        file_put_contents('/home/pere/Entropy/kyc_file/prod/'.$name.'.pdf', $pdfoutput);
+        $dir = $this->getContainer()->getParameter('uploads_dir');
+        file_put_contents($dir.'prod/pdf_invoices/'.$name.'.pdf', $pdfoutput);
 
 
     }
