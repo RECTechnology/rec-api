@@ -78,10 +78,10 @@ class PaynetReferenceDriver{
 
 
         // EJECUTA LLAMADO AL METODO GetPaynetReference DEL WS
-        $result = $client->GetPaynetReference(    new SoapVar($baseParams, SOAP_ENC_OBJECT) );
+        $result = $client->GetPaynetReference(new SoapVar($baseParams, SOAP_ENC_OBJECT));
 
-        if($result['GetPaynetReferenceResult']['RespCode'] == "0"){
-            $code = $result['GetPaynetReferenceResult']['PaynetReference'];
+        if($result->GetPaynetReferenceResult->RespCode == "0"){
+            $code = $result->GetPaynetReferenceResult->PaynetReference;
             $resultado = array(
                 'id'                =>  $this->client_reference,
                 'amount'            =>  $this->amount,
@@ -94,8 +94,8 @@ class PaynetReferenceDriver{
             return $resultado;
         }
         else{
-            $resultado['error_code'] = $result['GetPaynetReferenceResult']['RespCode'];
-            $resultado['error_description'] = $result['GetPaynetReferenceResult']['RespDesc'];
+            $resultado['error_code'] = $result->GetPaynetReferenceResult->RespCode;
+            $resultado['error_description'] = $result->GetPaynetReferenceResult->RespDesc;
             return $resultado;
         }
     }
@@ -138,8 +138,8 @@ class PaynetReferenceDriver{
 
         $result = $client -> call('GetPaynetReferenceStatus',$params);
 
-        if($result['GetPaynetReferenceStatusResult']['RespCode'] == "0"){
-            $resultado = $result['GetPaynetReferenceStatusResult']['Status'];
+        if($result->GetPaynetReferenceStatusResult->RespCode == "0"){
+            $resultado = $result->GetPaynetReferenceStatusResult->Status;
             $error = 0;
             $description = 0;
             $resultArray = array(
@@ -191,8 +191,8 @@ class PaynetReferenceDriver{
                     break;
             }
         }else{
-            $resultado = $result['GetPaynetReferenceStatusResult']['RespDesc'];
-            $error_code = $result['GetPaynetReferenceStatusResult']['RespCode'];
+            $resultado = $result->GetPaynetReferenceStatusResult->RespDesc;
+            $error_code = $result->GetPaynetReferenceStatusResult->RespCode;
             $resultArray = array(
                 'error_code'        =>  $error_code,
                 'error_description' =>  $resultado
