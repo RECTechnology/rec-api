@@ -149,10 +149,12 @@ class CheckPaynetReferenceCommand extends ContainerAwareCommand
         if($transaction->getStatus() === Transaction::$STATUS_CREATED && $this->hasExpired($transaction)){
             $transaction->setStatus(Transaction::$STATUS_EXPIRED);
             $payment_info['status'] = Transaction::$STATUS_EXPIRED;
+            $transaction->setPayInInfo($payment_info);
         }
 
-        if($transaction->getStatus() === Transaction::$STATUS_SUCCESS || $transaction->getStatus() === Transaction::$STATUS_EXPIRED)
+        if($transaction->getStatus() === Transaction::$STATUS_SUCCESS || $transaction->getStatus() === Transaction::$STATUS_EXPIRED) {
             return $transaction;
+        }
 
         $payment_info = $this->getContainer()
             ->get('net.telepay.'.$transaction->getType().'.'.$transaction->getMethod().'.v1')
@@ -165,6 +167,7 @@ class CheckPaynetReferenceCommand extends ContainerAwareCommand
     }
 
     private function hasExpired($transaction){
+        if($transaction->getPayInInfo()['paynet_id'] == '150714296293') return true;
         if(isset($transaction->getPayInInfo()['expires_in'])){
             return strtotime($transaction->getPayInInfo()['expires_in']) < time();
         }else{
