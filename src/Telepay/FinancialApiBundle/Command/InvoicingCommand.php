@@ -120,7 +120,7 @@ class InvoicingCommand extends ContainerAwareCommand
                         $resume[$company->getName()] = $fees;
 
 //                        die(print_r($fees,true));
-                        $this->_saveInvoice($company->getName(), $fees);
+                        $this->_saveInvoice($company->getName().$this->start_date->format('F'), $fees);
 
                     }
                 }
@@ -142,7 +142,7 @@ class InvoicingCommand extends ContainerAwareCommand
         $pdfoutput = $dompdf->output();
 
         $dir = $this->getContainer()->getParameter('uploads_dir');
-        file_put_contents($dir.'prod/pdf_invoices/'.$name.'.pdf', $pdfoutput);
+        file_put_contents($dir.'/prod/pdf_invoices/'.$name.'.pdf', $pdfoutput);
 
 
     }
