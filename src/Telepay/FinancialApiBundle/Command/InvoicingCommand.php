@@ -40,6 +40,9 @@ class InvoicingCommand extends ContainerAwareCommand
         $this->start_date = new \MongoDate(strtotime($input->getOption('start_date') .' 00:00:00'));
         $this->finish_date = new \MongoDate(strtotime($input->getOption('finish_date') .' 00:00:00'));
 
+        $monthDate = new \DateTime();
+        $month = $monthDate->format('F');
+
         $em = $this->getContainer()->get('doctrine')->getManager();
         $dm = $this->getContainer()->get('doctrine_mongodb')->getManager();
 
@@ -120,7 +123,7 @@ class InvoicingCommand extends ContainerAwareCommand
                         $resume[$company->getName()] = $fees;
 
 //                        die(print_r($fees,true));
-                        $this->_saveInvoice($company->getName().$this->start_date->format('F'), $fees);
+                        $this->_saveInvoice($company->getName().'_'.$month, $fees);
 
                     }
                 }
