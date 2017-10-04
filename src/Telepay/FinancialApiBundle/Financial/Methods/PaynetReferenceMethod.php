@@ -41,6 +41,7 @@ class PaynetReferenceMethod extends BaseMethod{
                 'expires_in' => $barcode['expiration_date'],
                 'received' => 0.0,
                 'barcode'   =>  $barcode['barcode'],
+                'barcode_url'   =>  $barcode['barcode_url'],
                 'paynet_id' =>  $barcode['id'],
                 'status'    =>  'created',
                 'final'     =>  false
