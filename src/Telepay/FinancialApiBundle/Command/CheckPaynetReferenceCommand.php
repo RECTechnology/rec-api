@@ -126,7 +126,24 @@ class CheckPaynetReferenceCommand extends ContainerAwareCommand
                             $transaction->getVersion()
                         );
                     }
-
+                    //exchange if needed
+                    $dataIn = $transaction->getDataIn();
+                    if(isset($dataIn['request_currency_out']) && $dataIn['request_currency_out'] != strtoupper($service_currency)){
+                        $cur_in = strtoupper($transaction->getCurrency());
+                        $cur_out = strtoupper($dataIn['request_currency_out']);
+                        //THIS is the service for get the limits
+                        $service = 'exchange'.'_'.$cur_in.'to'.$cur_out;
+                        $user = $em->getRepository('TelepayFinancialApiBundle:User')->find($id);
+                        $output->writeln('CHECK CRYPTO exchanger');
+                        $exchanger = $this->getContainer()->get('net.telepay.commons.exchange_manipulator');
+                        $exchangeAmount = $exchanger->exchange($total, $transaction->getCurrency(), $cur_out);
+                        $output->writeln('CHECK CRYPTO exchange->'.$total.' '.$transaction->getCurrency().' = '.$exchangeAmount.' '.$cur_out);
+                        try{
+                            $exchanger->doExchange($total, $cur_in, $cur_out, $group, $user);
+                        }catch (HttpException $e){
+                            //TODO send message alerting that this exchange has failed for some reason
+                        }
+                    }
                 }else{
                     $current_wallet->setAvailable($current_wallet->getAvailable() + $amount);
                     $current_wallet->setBalance($current_wallet->getBalance() + $amount);
@@ -135,11 +152,8 @@ class CheckPaynetReferenceCommand extends ContainerAwareCommand
                     $em->flush();
                 }
             }
-
         }
-
         $dm->flush();
-
         $output->writeln('Paynet Reference transactions checked');
     }
 
