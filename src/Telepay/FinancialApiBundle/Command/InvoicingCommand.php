@@ -77,7 +77,7 @@ class InvoicingCommand extends ContainerAwareCommand
                             $feeInfo = $transaction->getFeeInfo();
 
                             //TODO calculate % variable fee
-                            $variableFee = round(100*$transaction->getAmount()/$feeInfo['previous_amount'],1);
+                            $variableFee = round(100*$transaction->getAmount()-$fixed/$feeInfo['previous_amount'],1);
 
                             $amount = $transaction->getAmount();
                             //TODO exchange
