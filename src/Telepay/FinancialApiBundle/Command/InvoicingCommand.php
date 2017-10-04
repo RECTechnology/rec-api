@@ -49,7 +49,7 @@ class InvoicingCommand extends ContainerAwareCommand
 
         $resume = array();
         foreach($companies as $company){
-            if($company->getName() != 'root'){
+            if($company->getName() == 'root'){
                 if($company->hasRole('ROLE_COMPANY')){
                     //search all success fees transactions by group
 //                die(print_r($company->getName(),true));
@@ -77,7 +77,7 @@ class InvoicingCommand extends ContainerAwareCommand
 
                             //TODO exchange
                             if($currency!='EUR'){
-                                die(print_r($transaction,true));
+//                                die(print_r($transaction,true));
                             }
 
                             if(isset($fees[$transaction->getMethod()])){
@@ -102,8 +102,6 @@ class InvoicingCommand extends ContainerAwareCommand
                                     $fees[$transaction->getMethod()][] = $information;
                                 }
 
-
-
                             }else{
                                 $information = array(
                                     'fixed' =>  $fixed,
@@ -118,7 +116,10 @@ class InvoicingCommand extends ContainerAwareCommand
 
                         }
 
+
                         $resume[$company->getName()] = $fees;
+
+                        $this->_saveInvoice('polla');
 
                         die(print_r($resume,true));
 
@@ -127,6 +128,19 @@ class InvoicingCommand extends ContainerAwareCommand
 
             }
         }
+
+    }
+
+    private function _saveInvoice($name){
+        $body = 'caca';
+        $html = $this->getContainer()->get('templating')->render('TelepayFinancialApiBundle:Email:invoice.html.twig', $body);
+
+        $dompdf = $this->getContainer()->get('slik_dompdf');
+        $dompdf->getpdf($html);
+        $pdfoutput = $dompdf->output();
+
+        file_put_contents('/home/pere/Entropy/kyc_file/prod/'.$name.'.pdf', $pdfoutput);
+
 
     }
 }

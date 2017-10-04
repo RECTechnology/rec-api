@@ -2,6 +2,8 @@
 namespace Telepay\FinancialApiBundle\Financial\Driver;
 
 use nusoap_client;
+use soapclient;
+use SoapVar;
 
 class PaynetReferenceDriver{
 
@@ -25,11 +27,11 @@ class PaynetReferenceDriver{
         $this->description = $description;
         $caducity = $this->getCaducity();
 
-        $parameters = array(
-            'Reference' =>  $this->client_reference,
-            'Monto' =>  $this->amount/100,
-            'fechaVig'  =>  $caducity
-        );
+//        $parameters = array(
+//            'Reference' =>  $this->client_reference,
+//            'Monto' =>  $this->amount/100,
+//            'fechaVig'  =>  $caducity
+//        );
 
 //        $params = array(
 //            'issuerCod'         =>  $this->issuer,
@@ -38,15 +40,45 @@ class PaynetReferenceDriver{
 //            'dueDate' 			=> 	$caducity,
 //            'description' 		=> 	$this->description          //'television'
 //        );
-        $params = array(
-            'issuerCod'         =>  $this->issuer,
-            'params'    =>  $parameters,
-            'description' 		=> 	$this->description
-        );
+//        $params = array(
+//            'issuerCod'         =>  $this->issuer,
+//            'params'    =>  $parameters,
+//            'description' 		=> 	$this->description
+//        );
+//
+//        $client = new nusoap_client($this->url, true);
 
-        $client = new nusoap_client($this->url, true);
+//        $result = $client -> call('GetPaynetReference',$params);
 
-        $result = $client -> call('GetPaynetReference',$params);
+        //################       NEW CODE         #################
+        $client = new SoapClient($this->url, array('soap_version'   => SOAP_1_2,
+            'cache_wsdl' => WSDL_CACHE_NONE,
+            'trace'     => 1
+        ));
+
+        $XMLSchema = "http://www.w3.org/2001/XMLSchema";
+        $baseParams = array();
+        $baseParams[] = new SoapVar($this->issuer, XSD_STRING, null, null, 'ns1:issuerCod' );
+        $baseParams[] = new SoapVar($description, XSD_STRING, null, null, 'ns1:description' );
+
+        $params = array();
+        $params[] = new SoapVar(array(    new SoapVar('Reference', XSD_STRING, null, null, 'ns1:Name'),
+            new SoapVar($client_reference, XSD_STRING, "long", $XMLSchema, "ns1:Value")),
+            SOAP_ENC_OBJECT, null, null, 'ns1:Parameter');
+
+        $params[] = new SoapVar(array(    new SoapVar('Amount', XSD_STRING, null, null, 'ns1:Name'),
+            new SoapVar($this->amount/100, XSD_STRING, "string", $XMLSchema, 'ns1:Value')),
+            SOAP_ENC_OBJECT, null, null, 'ns1:Parameter');
+
+        $params[] = new SoapVar(array(    new SoapVar('DueDate', XSD_STRING, null, null, 'ns1:Name'),
+            new SoapVar($caducity, XSD_STRING, "string", $XMLSchema, 'ns1:Value')),
+            SOAP_ENC_OBJECT, null, null, 'ns1:Parameter');
+
+        $baseParams[] = new SoapVar($params, SOAP_ENC_OBJECT, null, null, 'ns1:params');
+
+
+        // EJECUTA LLAMADO AL METODO GetPaynetReference DEL WS
+        $result = $client->GetPaynetReference(    new SoapVar($baseParams, SOAP_ENC_OBJECT) );
 
         if($result['GetPaynetReferenceResult']['RespCode'] == "0"){
             $code = $result['GetPaynetReferenceResult']['PaynetReference'];
