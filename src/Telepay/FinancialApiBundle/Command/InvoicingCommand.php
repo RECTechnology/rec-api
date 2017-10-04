@@ -7,6 +7,7 @@ use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Output\OutputInterface;
 use Telepay\FinancialApiBundle\Document\Transaction;
+use Telepay\FinancialApiBundle\Financial\Currency;
 
 class InvoicingCommand extends ContainerAwareCommand
 {
@@ -39,6 +40,9 @@ class InvoicingCommand extends ContainerAwareCommand
 
         $this->start_date = new \MongoDate(strtotime($input->getOption('start_date') .' 00:00:00'));
         $this->finish_date = new \MongoDate(strtotime($input->getOption('finish_date') .' 00:00:00'));
+
+        $monthDate = new \DateTime();
+        $month = $monthDate->format('F');
 
         $em = $this->getContainer()->get('doctrine')->getManager();
         $dm = $this->getContainer()->get('doctrine_mongodb')->getManager();
@@ -73,21 +77,23 @@ class InvoicingCommand extends ContainerAwareCommand
                             $feeInfo = $transaction->getFeeInfo();
 
                             //TODO calculate % variable fee
-                            $variableFee = 100*$transaction->getAmount()/$feeInfo['previous_amount'];
+                            $variableFee = round(100*($transaction->getAmount()-$fixed)/$feeInfo['previous_amount'],1);
 
+                            $prev_amount = $feeInfo['previous_amount'];
                             //TODO exchange
                             if($currency!='EUR'){
-//                                die(print_r($transaction,true));
+                                $prev_amount = ($prev_amount/pow(10,$transaction->getScale())) * $transaction->getPrice()/100;
                             }
 
                             if(isset($fees[$transaction->getMethod()])){
                                 // check if fixed and variable are the same
                                 $exist = 0;
-                                foreach ($fees[$transaction->getMethod()] as $information){
-                                    if($information['fixed'] == $fixed && $information['variable'] == $variableFee){
+                                for ($i = 0; $i < count($fees[$transaction->getMethod()]); $i++){
+
+                                    if($fees[$transaction->getMethod()][$i]['fixed'] == $fixed && $fees[$transaction->getMethod()][$i]['variable'] == $variableFee){
                                         //add information
-                                        $information['counter'] = $information['counter'] +1;
-                                        $information['total']   = $information['total'] + $feeInfo['previous_amount'];
+                                        $fees[$transaction->getMethod()][$i]['counter']= $fees[$transaction->getMethod()][$i]['counter'] +1;
+                                        $fees[$transaction->getMethod()][$i]['total']   = $fees[$transaction->getMethod()][$i]['total'] + $prev_amount;
                                         $exist = 1;
                                     }
                                 }
@@ -97,7 +103,7 @@ class InvoicingCommand extends ContainerAwareCommand
                                         'fixed' =>  $fixed,
                                         'variable' =>   $variableFee,
                                         'counter'   =>  1,
-                                        'total' =>  $feeInfo['previous_amount']
+                                        'total' =>  $prev_amount
                                     );
                                     $fees[$transaction->getMethod()][] = $information;
                                 }
@@ -107,7 +113,7 @@ class InvoicingCommand extends ContainerAwareCommand
                                     'fixed' =>  $fixed,
                                     'variable' =>   $variableFee,
                                     'counter'   =>  1,
-                                    'total' =>  $feeInfo['previous_amount']
+                                    'total' =>  $prev_amount
                                 );
                                 $fees[$transaction->getMethod()][] = $information;
 
@@ -120,7 +126,7 @@ class InvoicingCommand extends ContainerAwareCommand
                         $resume[$company->getName()] = $fees;
 
 //                        die(print_r($fees,true));
-                        $this->_saveInvoice($company->getName(), $fees);
+                        $this->_saveInvoice($company->getName().'_'.$month, $fees);
 
                     }
                 }
@@ -142,7 +148,7 @@ class InvoicingCommand extends ContainerAwareCommand
         $pdfoutput = $dompdf->output();
 
         $dir = $this->getContainer()->getParameter('uploads_dir');
-        file_put_contents($dir.'prod/pdf_invoices/'.$name.'.pdf', $pdfoutput);
+        file_put_contents($dir.'/prod/pdf_invoices/'.$name.'.pdf', $pdfoutput);
 
 
     }
