@@ -7,6 +7,7 @@ use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Output\OutputInterface;
 use Telepay\FinancialApiBundle\Document\Transaction;
+use Telepay\FinancialApiBundle\Financial\Currency;
 
 class InvoicingCommand extends ContainerAwareCommand
 {
@@ -76,21 +77,24 @@ class InvoicingCommand extends ContainerAwareCommand
                             $feeInfo = $transaction->getFeeInfo();
 
                             //TODO calculate % variable fee
-                            $variableFee = 100*$transaction->getAmount()/$feeInfo['previous_amount'];
+                            $variableFee = round(100*$transaction->getAmount()/$feeInfo['previous_amount'],1);
 
+                            $amount = $transaction->getAmount();
                             //TODO exchange
                             if($currency!='EUR'){
-//                                die(print_r($transaction,true));
+                                $exchanger = $this->getContainer()->get('net.telepay.commons.exchange_manipulator');
+                                $amount = $exchanger->exchange($transaction->getAmount(), $transaction->getCurrency(), Currency::$EUR);
                             }
 
                             if(isset($fees[$transaction->getMethod()])){
                                 // check if fixed and variable are the same
                                 $exist = 0;
-                                foreach ($fees[$transaction->getMethod()] as $information){
-                                    if($information['fixed'] == $fixed && $information['variable'] == $variableFee){
+                                for ($i = 0; $i < count($fees[$transaction->getMethod()]); $i++){
+
+                                    if($fees[$transaction->getMethod()][$i]['fixed'] == $fixed && $fees[$transaction->getMethod()][$i]['variable'] == $variableFee){
                                         //add information
-                                        $information['counter'] = $information['counter'] +1;
-                                        $information['total']   = $information['total'] + $feeInfo['previous_amount'];
+                                        $fees[$transaction->getMethod()][$i]['counter']= $fees[$transaction->getMethod()][$i]['counter'] +1;
+                                        $fees[$transaction->getMethod()][$i]['total']   = $fees[$transaction->getMethod()][$i]['total'] + $feeInfo['previous_amount'];
                                         $exist = 1;
                                     }
                                 }
