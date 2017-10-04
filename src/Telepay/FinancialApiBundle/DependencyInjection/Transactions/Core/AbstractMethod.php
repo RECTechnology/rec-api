@@ -59,6 +59,16 @@ class AbstractMethod implements MethodInterface, CashInInterface, CashOutInterfa
      */
     private $status = 'available';
 
+    /**
+     * @var array fees
+     */
+    private $fees = 'no fees';
+
+    /**
+     * @var array limits
+     */
+    private $limits = 'unlimited';
+
     function __construct($name, $cname, $type, $currency, $email_required, $base64_image, $image, $min_tier)
     {
         $this->name = $name;
@@ -166,5 +176,21 @@ class AbstractMethod implements MethodInterface, CashInInterface, CashOutInterfa
     public function setStatus($status)
     {
         $this->status = $status;
+    }
+
+    /**
+     * @param array $fees
+     */
+    public function setFees($fees)
+    {
+        $this->fees = $fees;
+    }
+
+    /**
+     * @param array $limits
+     */
+    public function setLimits($limits)
+    {
+        $this->limits = $limits;
     }
 }

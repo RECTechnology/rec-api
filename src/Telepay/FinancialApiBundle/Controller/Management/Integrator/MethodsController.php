@@ -16,7 +16,7 @@ class MethodsController extends RestApiController {
     /**
      * @Rest\View()
      */
-    public function read($method) {
+    public function read($method, $id = null) {
 
         //check if the user has the method
 
@@ -48,9 +48,20 @@ class MethodsController extends RestApiController {
     /**
      * @Rest\View()
      */
-    public function index() {
+    public function index($id = null) {
 
-        $userGroup = $this->get('security.context')->getToken()->getUser()->getActiveGroup();
+        $em = $this->getDoctrine()->getManager();
+        if($id == null){
+            $userGroup = $this->get('security.context')->getToken()->getUser()->getActiveGroup();
+        }else{
+            $userGroup = $em->getRepository('TelepayFinancialApiBundle:Group')->find($id);
+
+        }
+
+        if(!$userGroup) throw new HttpException(404, 'Company not found');
+
+        //check if user has company
+        if(!$this->getUser()->hasGroup($userGroup->getName())) throw new HttpException(403, 'You don\'t have the necessary permissions');
 
         $tier = $userGroup->getTier();
         if($userGroup->getGroupCreator()->getId() == $this->container->getParameter('default_company_creator_commerce_android_fair')){
@@ -58,11 +69,7 @@ class MethodsController extends RestApiController {
         }
         $methodsByTier = $this->get('net.telepay.method_provider')->findByTier($tier);
 
-        //TODO check status
         //check if method is available
-
-        $em = $this->getDoctrine()->getManager();
-
         foreach ($methodsByTier as $method){
 
             $statusMethod = $em->getRepository('TelepayFinancialApiBundle:StatusMethod')->findOneBy(array(
@@ -75,6 +82,35 @@ class MethodsController extends RestApiController {
             }else{
                 $method->setStatus($statusMethod->getStatus());
             }
+
+            //add fees to methods
+            $fees = $em->getRepository('TelepayFinancialApiBundle:ServiceFee')->findOneBy(array(
+                'group' =>  $userGroup,
+                'service_name'  =>  $method->getCName()
+            ));
+
+            if($fees){
+                $method->setFees($fees);
+            }
+
+            //TODO add limits to methods
+            $limits = $em->getRepository('TelepayFinancialApiBundle:LimitDefinition')->findOneBy(array(
+                'group'=>   $userGroup,
+                'cname' =>  $method->getCName().'-'.$method->getType()
+            ));
+
+            if($limits){
+                $method->setLimits($limits);
+            }else{
+                //if has no limits defined use tier limits
+                $tierLimit = $em->getRepository('TelepayFinancialApiBundle:TierLimit')->findOneBy(array(
+                    'method'    =>  $method->getCName().'-'.$method->getType(),
+                    'tier'  =>  $userGroup->getTier()
+                ));
+                $method->setLimits($tierLimit);
+            }
+
+
         }
 
         return $this->restV2(

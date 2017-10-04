@@ -188,3 +188,16 @@ company_update_settings:
     defaults: { _controller: Telepay\FinancialApiBundle\Controller\Management\Company\SettingsController::updateSettings }
     requirements:
         _method: PUT
+
+##################     COMPANY METHODS     ###############
+company_method_read:
+    pattern:  /company/{id}/v1/methods/{method}
+    defaults: { _controller: Telepay\FinancialApiBundle\Controller\Management\Integrator\MethodsController::read }
+    requirements:
+        _method: GET
+
+company_method_index:
+    pattern:  /company/{id}/v1/methods
+    defaults: { _controller: Telepay\FinancialApiBundle\Controller\Management\Integrator\MethodsController::index }
+    requirements:
+        _method: GET
