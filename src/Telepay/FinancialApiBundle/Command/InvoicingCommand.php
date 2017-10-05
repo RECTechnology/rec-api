@@ -104,7 +104,7 @@ class InvoicingCommand extends ContainerAwareCommand
                             }
 
                             if($isResellerFee == 0 && $isSwift == 0){
-                                $this->_addRecord($transaction, $fees, $fixed, $variableFee, $prev_amount);
+                                $fees = $this->_addRecord($transaction, $fees, $fixed, $variableFee, $prev_amount);
 //                                if(isset($fees[$transaction->getMethod()])){
 //                                    // check if fixed and variable are the same
 //                                    $exist = 0;
@@ -139,9 +139,9 @@ class InvoicingCommand extends ContainerAwareCommand
 //
 //                                }
                             }elseif($isResellerFee){
-                                $this->_addRecord($transaction, $feesReseller, $fixed, $variableFee, $prev_amount);
+                                $feesReseller = $this->_addRecord($transaction, $feesReseller, $fixed, $variableFee, $prev_amount);
                             }elseif($isSwift){
-                                $this->_addRecord($transaction, $feesSwift, $fixed, $variableFee, $prev_amount);
+                                $feesSwift = $this->_addRecord($transaction, $feesSwift, $fixed, $variableFee, $prev_amount);
                             }
 
                         }
