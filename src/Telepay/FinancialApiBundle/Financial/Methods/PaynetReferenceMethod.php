@@ -24,12 +24,14 @@ class PaynetReferenceMethod extends BaseMethod{
         $this->driver = $driver;
     }
 
-    public function getPayInInfo($amount)
-    {
-
+    public function getPayInInfo($amount){
         $id = microtime(true)*100;
         $id = round($id);
         $description = 'ChipChap Payment';
+
+        if($amount > 2200000) {
+            throw new HttpException(405, 'Maximum amount exceeded.');
+        }
 
         $barcode = $this->driver->request($id, $amount, $description);
 
@@ -68,7 +70,7 @@ class PaynetReferenceMethod extends BaseMethod{
         if(isset($paymentInfo['paynet_id'])){
             $client_reference = $paymentInfo['paynet_id'];
             $result = $this->driver->status($client_reference);
-            if(isset($result['error_code'])){
+            if(isset($result['error_code']) && $result['error_code']!=0){
                 $paymentInfo['status'] = 'error';
                 $paymentInfo['paynet_status'] = 'Not paynet id found';
                 $paymentInfo['final'] = true;

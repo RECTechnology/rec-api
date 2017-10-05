@@ -181,7 +181,6 @@ class CheckPaynetReferenceCommand extends ContainerAwareCommand
     }
 
     private function hasExpired($transaction){
-        if($transaction->getPayInInfo()['paynet_id'] == '150714296293') return true;
         if(isset($transaction->getPayInInfo()['expires_in'])){
             return strtotime($transaction->getPayInInfo()['expires_in']) < time();
         }else{
