@@ -53,7 +53,7 @@ class InvoicingCommand extends ContainerAwareCommand
 
         $resume = array();
         foreach($companies as $company){
-            if($company->getName() != 'riit'){
+            if($company->getName() != 'root'){
                 if($company->hasRole('ROLE_COMPANY')){
                     //search all success fees transactions by group
 //                die(print_r($company->getName(),true));
@@ -66,6 +66,7 @@ class InvoicingCommand extends ContainerAwareCommand
                         ->getQuery()
                         ->execute();
 
+//                    die(print_r(count($result),true));
                     if(count($result) > 1){
                         $fees = array();
                         foreach($result->toArray() as $transaction){
@@ -82,7 +83,7 @@ class InvoicingCommand extends ContainerAwareCommand
                             $prev_amount = $feeInfo['previous_amount'];
                             //TODO exchange
                             if($currency!='EUR'){
-                                $prev_amount = ($prev_amount/pow(10,$transaction->getScale())) * $transaction->getPrice()/100;
+                                $prev_amount = round(($prev_amount/pow(10,$transaction->getScale())) * $transaction->getPrice(),2);
                             }
 
                             if(isset($fees[$transaction->getMethod()])){
