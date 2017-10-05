@@ -76,16 +76,18 @@
 <hr>
 
 <section>
-    <h1>Resumen facturacion de este mes</h1>
+    <h1>Resumen facturacion {{ company }}</h1>
+    <p>From: {{ from }} to: {{ to }}</p>
     <table width="100%">
         <tr style="border-bottom: 1px solid black;">
-            <td>Description</td>
-            <td>Reference</td>
-            <td>Quantity</td>
-            <td>Price</td>
-            <td>Total</td>
+            <td><b>Description</b></td>
+            <td><b>Reference</b></td>
+            <td><b>Quantity</b></td>
+            <td><b>Price</b></td>
+            <td><b>Total</b></td>
         </tr>
 
+        {% set total = 0 %}
         {% for service, value in fees %}
             <tr>
                 <td>Servicio {{ service }}</td>
@@ -116,21 +118,20 @@
                     <td></td>
                     <td>{{ fee.variable * fee.total/100/100 + fee.fixed/100 * fee.counter}} €</td>
                 </tr>
+                {% set total = total +  (fee.variable * fee.total/100/100 + fee.fixed/100 * fee.counter) %}
             {% endfor %}
         {% endfor %}
 
         <tr style="border-top: 1px solid black;">
-            <td>Total: </td>
             <td></td>
+            <td></td>
+            <td></td>
+            <td><b>Total:</b> </td>
+            <td><b>{{ total }}</b></td>
         </tr>
     </table>
 </section>
 
 <hr>
-
-<section class="footer">
-    <h5 class="text-center">Thank You for using Chip-Chap</h5>
-    <img src="https://chip-chap.com/images/logo_blue.png">
-</section>
 </body>
 </html>
