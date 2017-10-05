@@ -47,8 +47,6 @@ class InvoicingCommand extends ContainerAwareCommand
         $monthDate = new \DateTime($from);
         $month = $monthDate->format('F');
 
-        die(print_r($month,true));
-
         $em = $this->getContainer()->get('doctrine')->getManager();
         $dm = $this->getContainer()->get('doctrine_mongodb')->getManager();
 
