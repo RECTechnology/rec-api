@@ -38,10 +38,13 @@ class InvoicingCommand extends ContainerAwareCommand
 
     protected function execute(InputInterface $input, OutputInterface $output) {
 
+        $from = $input->getOption('start_date');
+        $to = $input->getOption('finish_date');
+
         $this->start_date = new \MongoDate(strtotime($input->getOption('start_date') .' 00:00:00'));
         $this->finish_date = new \MongoDate(strtotime($input->getOption('finish_date') .' 00:00:00'));
 
-        $monthDate = new \DateTime();
+        $monthDate = new \DateTime($from);
         $month = $monthDate->format('F');
 
         $em = $this->getContainer()->get('doctrine')->getManager();
@@ -51,7 +54,12 @@ class InvoicingCommand extends ContainerAwareCommand
 
         $qb = $dm->createQueryBuilder('TelepayFinancialApiBundle:Transaction');
 
+        $methods = $this->getContainer()->get('net.telepay.method_provider')->findAll();
+        $swidtMethods = $this->getContainer()->get('net.telepay.swift_provider')->findAll();;
+
         $resume = array();
+        $resumeSwift = array();
+        $resumeReseller = array();
         foreach($companies as $company){
             if($company->getName() != 'riit'){
                 if($company->hasRole('ROLE_COMPANY')){
@@ -66,9 +74,27 @@ class InvoicingCommand extends ContainerAwareCommand
                         ->getQuery()
                         ->execute();
 
+//                    die(print_r(count($result),true));
                     if(count($result) > 1){
                         $fees = array();
+                        $feesSwift = array();
+                        $feesReseller = array();
                         foreach($result->toArray() as $transaction){
+
+                            //TODO detect if is method or swift
+                            $isSwift = 0;
+                            if($this->getContainer()->get('net.telepay.swift_provider')->isValidMethod($transaction->getMethod())) $isSwift = 1;
+
+                            // is feeseller?
+                            $isResellerFee = 0;
+                            $isResta = 0;
+                            if($transaction->getData()){
+                                if($transaction->getData()['type'] == 'suma_amount'){
+                                    $isResellerFee = 1;
+                                } elseif($transaction->getData()['type'] == 'resta_amount'){
+                                    $isResta = 1;
+                                }
+                            }
                             $fixed = $transaction->getFixedFee();
                             $variable = $transaction->getVariableFee();
 
@@ -82,51 +108,36 @@ class InvoicingCommand extends ContainerAwareCommand
                             $prev_amount = $feeInfo['previous_amount'];
                             //TODO exchange
                             if($currency!='EUR'){
-                                $prev_amount = ($prev_amount/pow(10,$transaction->getScale())) * $transaction->getPrice()/100;
+                                $prev_amount = round(($prev_amount/pow(10,$transaction->getScale())) * $transaction->getPrice(),2);
                             }
 
-                            if(isset($fees[$transaction->getMethod()])){
-                                // check if fixed and variable are the same
-                                $exist = 0;
-                                for ($i = 0; $i < count($fees[$transaction->getMethod()]); $i++){
-
-                                    if($fees[$transaction->getMethod()][$i]['fixed'] == $fixed && $fees[$transaction->getMethod()][$i]['variable'] == $variableFee){
-                                        //add information
-                                        $fees[$transaction->getMethod()][$i]['counter']= $fees[$transaction->getMethod()][$i]['counter'] +1;
-                                        $fees[$transaction->getMethod()][$i]['total']   = $fees[$transaction->getMethod()][$i]['total'] + $prev_amount;
-                                        $exist = 1;
-                                    }
-                                }
-
-                                if($exist == 0){
-                                    $information = array(
-                                        'fixed' =>  $fixed,
-                                        'variable' =>   $variableFee,
-                                        'counter'   =>  1,
-                                        'total' =>  $prev_amount
-                                    );
-                                    $fees[$transaction->getMethod()][] = $information;
-                                }
+                            if($isResellerFee){
+                                $feesReseller = $this->_addRecord($transaction, $feesReseller, $fixed, $variableFee, $prev_amount);
+                            }elseif($isSwift){
+                                $feesSwift = $this->_addRecord($transaction, $feesSwift, $fixed, $variableFee, $prev_amount);
+                            }elseif($isResta){
 
                             }else{
-                                $information = array(
-                                    'fixed' =>  $fixed,
-                                    'variable' =>   $variableFee,
-                                    'counter'   =>  1,
-                                    'total' =>  $prev_amount
-                                );
-                                $fees[$transaction->getMethod()][] = $information;
+                                $fees = $this->_addRecord($transaction, $fees, $fixed, $variableFee, $prev_amount);
 
                             }
-//                            die(print_r($fees,true));
 
                         }
 
+                        if(count($feesReseller) > 0){
+                            $resumeReseller[$company->getName()] = $feesReseller;
+                            $this->_saveInvoice('Reseller_'.$company->getName().'_'.$month, $feesReseller, $company->getName(), $from, $to);
+                        }
 
-                        $resume[$company->getName()] = $fees;
+                        if(count($feesSwift) > 0){
+                            $resumeSwift[$company->getName()] = $feesSwift;
+                            $this->_saveInvoice('Swift_'.$company->getName().'_'.$month, $feesSwift, $company->getName(), $from, $to);
+                        }
 
-//                        die(print_r($fees,true));
-                        $this->_saveInvoice($company->getName().'_'.$month, $fees);
+                        if(count($fees) > 0){
+                            $resume[$company->getName()] = $fees;
+                            $this->_saveInvoice($company->getName().'_'.$month, $fees, $company->getName(), $from , $to);
+                        }
 
                     }
                 }
@@ -136,10 +147,13 @@ class InvoicingCommand extends ContainerAwareCommand
 
     }
 
-    private function _saveInvoice($name, $fees){
+    private function _saveInvoice($name, $fees, $company, $from, $to){
 
         $body = array(
-            'fees'  =>  $fees
+            'fees'  =>  $fees,
+            'company'   =>  $company,
+            'from'  =>  $from,
+            'to'  =>  $to
         );
         $html = $this->getContainer()->get('templating')->render('TelepayFinancialApiBundle:Email:invoice.html.twig', $body);
 
@@ -151,6 +165,44 @@ class InvoicingCommand extends ContainerAwareCommand
         file_put_contents($dir.'/prod/pdf_invoices/'.$name.'.pdf', $pdfoutput);
 
 
+    }
+
+    private function _addRecord(Transaction $transaction, $fees, $fixed, $variableFee, $prev_amount){
+        if(isset($fees[$transaction->getMethod()])){
+            // check if fixed and variable are the same
+            $exist = 0;
+            for ($i = 0; $i < count($fees[$transaction->getMethod()]); $i++){
+
+                if($fees[$transaction->getMethod()][$i]['fixed'] == $fixed && $fees[$transaction->getMethod()][$i]['variable'] == $variableFee){
+                    //add information
+                    $fees[$transaction->getMethod()][$i]['counter']= $fees[$transaction->getMethod()][$i]['counter'] +1;
+                    $fees[$transaction->getMethod()][$i]['total']   = $fees[$transaction->getMethod()][$i]['total'] + $prev_amount;
+                    $exist = 1;
+                }
+            }
+
+            if($exist == 0){
+                $information = array(
+                    'fixed' =>  $fixed,
+                    'variable' =>   $variableFee,
+                    'counter'   =>  1,
+                    'total' =>  $prev_amount
+                );
+                $fees[$transaction->getMethod()][] = $information;
+            }
+
+        }else{
+            $information = array(
+                'fixed' =>  $fixed,
+                'variable' =>   $variableFee,
+                'counter'   =>  1,
+                'total' =>  $prev_amount
+            );
+            $fees[$transaction->getMethod()][] = $information;
+
+        }
+
+        return $fees;
     }
 }
 
