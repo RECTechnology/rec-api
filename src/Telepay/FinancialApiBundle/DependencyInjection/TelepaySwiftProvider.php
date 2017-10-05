@@ -49,7 +49,7 @@ class TelepaySwiftProvider{
 //
     public function isValidMethod($cname){
         //this cname must be with this form method-type ex:btc-cash_in
-        if(isset($this->methods[$cname])){
+        if(in_array($cname, $this->methods)){
             return true;
         }else{
             return false;
