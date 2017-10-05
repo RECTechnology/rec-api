@@ -80,7 +80,7 @@ class InvoicingCommand extends ContainerAwareCommand
 
                             //TODO detect if is method or swift
                             $isSwift = 0;
-                            if($methods = $this->getContainer()->get('net.telepay.swift_provider')->isValidMethod($transaction->getMethod())) $isSwift = 1;
+                            if($this->getContainer()->get('net.telepay.swift_provider')->isValidMethod($transaction->getMethod())) $isSwift = 1;
 
                             // is feeseller?
                             $isResellerFee = 0;
@@ -103,8 +103,9 @@ class InvoicingCommand extends ContainerAwareCommand
                                 $prev_amount = round(($prev_amount/pow(10,$transaction->getScale())) * $transaction->getPrice(),2);
                             }
 
-                            if($isResellerFee == 0 && $isSwift == 0){
-                                $fees = $this->_addRecord($transaction, $fees, $fixed, $variableFee, $prev_amount);
+                            if($isResellerFee){
+                                $feesReseller = $this->_addRecord($transaction, $feesReseller, $fixed, $variableFee, $prev_amount);
+
 //                                if(isset($fees[$transaction->getMethod()])){
 //                                    // check if fixed and variable are the same
 //                                    $exist = 0;
@@ -138,10 +139,11 @@ class InvoicingCommand extends ContainerAwareCommand
 //                                    $fees[$transaction->getMethod()][] = $information;
 //
 //                                }
-                            }elseif($isResellerFee){
-                                $feesReseller = $this->_addRecord($transaction, $feesReseller, $fixed, $variableFee, $prev_amount);
                             }elseif($isSwift){
                                 $feesSwift = $this->_addRecord($transaction, $feesSwift, $fixed, $variableFee, $prev_amount);
+                            }else{
+                                $fees = $this->_addRecord($transaction, $fees, $fixed, $variableFee, $prev_amount);
+
                             }
 
                         }
