@@ -70,6 +70,11 @@ class InvoicingCommand extends ContainerAwareCommand
                     if(count($result) > 1){
                         $fees = array();
                         foreach($result->toArray() as $transaction){
+                            //TODO is fee reseller?
+                            $isResellerFee = 0;
+                            if($transaction->getData()){
+                                if($transaction->getData()['type'] == 'suma_fee') $isResellerFee = 1;
+                            }
                             $fixed = $transaction->getFixedFee();
                             $variable = $transaction->getVariableFee();
 
@@ -86,20 +91,31 @@ class InvoicingCommand extends ContainerAwareCommand
                                 $prev_amount = round(($prev_amount/pow(10,$transaction->getScale())) * $transaction->getPrice(),2);
                             }
 
-                            if(isset($fees[$transaction->getMethod()])){
-                                // check if fixed and variable are the same
-                                $exist = 0;
-                                for ($i = 0; $i < count($fees[$transaction->getMethod()]); $i++){
+                            if($isResellerFee == 0){
+                                if(isset($fees[$transaction->getMethod()])){
+                                    // check if fixed and variable are the same
+                                    $exist = 0;
+                                    for ($i = 0; $i < count($fees[$transaction->getMethod()]); $i++){
 
-                                    if($fees[$transaction->getMethod()][$i]['fixed'] == $fixed && $fees[$transaction->getMethod()][$i]['variable'] == $variableFee){
-                                        //add information
-                                        $fees[$transaction->getMethod()][$i]['counter']= $fees[$transaction->getMethod()][$i]['counter'] +1;
-                                        $fees[$transaction->getMethod()][$i]['total']   = $fees[$transaction->getMethod()][$i]['total'] + $prev_amount;
-                                        $exist = 1;
+                                        if($fees[$transaction->getMethod()][$i]['fixed'] == $fixed && $fees[$transaction->getMethod()][$i]['variable'] == $variableFee){
+                                            //add information
+                                            $fees[$transaction->getMethod()][$i]['counter']= $fees[$transaction->getMethod()][$i]['counter'] +1;
+                                            $fees[$transaction->getMethod()][$i]['total']   = $fees[$transaction->getMethod()][$i]['total'] + $prev_amount;
+                                            $exist = 1;
+                                        }
                                     }
-                                }
 
-                                if($exist == 0){
+                                    if($exist == 0){
+                                        $information = array(
+                                            'fixed' =>  $fixed,
+                                            'variable' =>   $variableFee,
+                                            'counter'   =>  1,
+                                            'total' =>  $prev_amount
+                                        );
+                                        $fees[$transaction->getMethod()][] = $information;
+                                    }
+
+                                }else{
                                     $information = array(
                                         'fixed' =>  $fixed,
                                         'variable' =>   $variableFee,
@@ -107,22 +123,11 @@ class InvoicingCommand extends ContainerAwareCommand
                                         'total' =>  $prev_amount
                                     );
                                     $fees[$transaction->getMethod()][] = $information;
+
                                 }
-
-                            }else{
-                                $information = array(
-                                    'fixed' =>  $fixed,
-                                    'variable' =>   $variableFee,
-                                    'counter'   =>  1,
-                                    'total' =>  $prev_amount
-                                );
-                                $fees[$transaction->getMethod()][] = $information;
-
                             }
-//                            die(print_r($fees,true));
 
                         }
-
 
                         $resume[$company->getName()] = $fees;
 
