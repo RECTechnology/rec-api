@@ -73,7 +73,7 @@ class InvoicingCommand extends ContainerAwareCommand
                             //TODO is fee reseller?
                             $isResellerFee = 0;
                             if($transaction->getData()){
-                                if($transaction->getData()['type'] == 'suma_fee') $isResellerFee = 1;
+                                if($transaction->getData()['type'] == 'suma_amount') $isResellerFee = 1;
                             }
                             $fixed = $transaction->getFixedFee();
                             $variable = $transaction->getVariableFee();
