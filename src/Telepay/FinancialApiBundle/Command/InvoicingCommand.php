@@ -44,8 +44,10 @@ class InvoicingCommand extends ContainerAwareCommand
         $this->start_date = new \MongoDate(strtotime($input->getOption('start_date') .' 00:00:00'));
         $this->finish_date = new \MongoDate(strtotime($input->getOption('finish_date') .' 00:00:00'));
 
-        $monthDate = new \DateTime();
+        $monthDate = new \DateTime($from);
         $month = $monthDate->format('F');
+
+        die(print_r($month,true));
 
         $em = $this->getContainer()->get('doctrine')->getManager();
         $dm = $this->getContainer()->get('doctrine_mongodb')->getManager();
