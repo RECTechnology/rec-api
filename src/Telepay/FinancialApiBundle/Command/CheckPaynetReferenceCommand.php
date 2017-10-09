@@ -108,6 +108,17 @@ class CheckPaynetReferenceCommand extends ContainerAwareCommand
                         $feeTransaction->setMethod($method_cname);
                         $feeTransaction->setType('fee');
 
+                        $userFeeInfo = array(
+                            'previous_transaction'  =>  $transaction->getId(),
+                            'previous_amount'   =>  $transaction->getAmount(),
+                            'amount'                =>  -$total_fee,
+                            'currency'      =>  $transaction->getCurrency(),
+                            'scale'     =>  $transaction->getScale(),
+                            'concept'           =>  'paynet_in->fee',
+                            'status'    =>  Transaction::$STATUS_SUCCESS
+                        );
+                        $feeTransaction->setFeeInfo($userFeeInfo);
+
                         $dm->persist($feeTransaction);
                         $dm->flush();
 
