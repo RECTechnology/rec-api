@@ -59,7 +59,7 @@ class ServiceFee implements Fee{
     public static function createFromController($service_cname, Group $group){
         $fee = new ServiceFee();
         $fee->setFixed(0);
-        $fee->setVariable(0);
+        $fee->setVariable(5);
         $fee->setServiceName($service_cname);
         $fee->setGroup($group);
         return $fee;

@@ -954,82 +954,6 @@ class IncomingController2 extends RestApiController{
 
     }
 
-    //TODO delete this function NOT USED DEPRECATED
-    private function _inverseDealerV2(Transaction $transaction_cancelled, UserWallet $current_wallet){
-        $logger = $this->get('transaction.logger');
-        $logger->info('Update transaction -> inversedDealer2');
-        $em = $this->getDoctrine()->getManager();
-        $mongo = $this->get('doctrine_mongodb')->getManager();
-
-        $qb = $mongo->createQueryBuilder('TelepayFinancialApiBundle:Transaction');
-        $transaction_id = $transaction_cancelled->getId();
-        $transactions = $qb
-            ->field('type')->equals('fee')
-//            ->field('group')->equals($transaction_cancelled->getGroup())
-            ->where("function() {
-                                if (typeof this.fee_info !== 'undefined') {
-                                    if (typeof this.fee_info.previous_transaction !== 'undefined') {
-                                        if(String(this.fee_info.previous_transaction).indexOf('$transaction_id') > -1){
-                                            return true;
-                                        }
-                                    }
-                                }else{
-                                    if (typeof this.dataIn !== 'undefined') {
-                                        if (typeof this.dataIn.previous_transaction !== 'undefined') {
-                                            if(String(this.dataIn.previous_transaction).indexOf('$transaction_id') > -1){
-                                                return true;
-                                            }
-                                        }
-                                    }
-                                }
-
-                                return false;
-                                }")
-            ->getQuery()
-            ->execute();
-
-        $logger->info('Update transaction -> inversedDealer2 total transactions '.count($transactions));
-        foreach($transactions->toArray() as $transaction){
-
-            //cogemos el total porque esta en negativo o positivo dependiendo de si es una fee in o out
-            //asi nos vale para sumar o restar en cada caso
-            $total_fee = $transaction->getTotal();
-
-            $group = $em->getRepository('TelepayFinancialApiBundle:Group')->find($transaction->getGroup());
-
-            $logger->info('Update transaction -> cancel fees => '.$transaction->getId());
-            $logger->info('Update transaction -> cancel fees => '.$transaction->getTotal());
-            $transaction->setAmount(0);
-            $transaction->setTotal(0);
-            $feeInfo = $transaction->getFeeInfo();
-            $feeInfo['status'] = Transaction::$STATUS_CANCELLED;
-            $transaction->setFeeInfo($feeInfo);
-
-            $transaction->setStatus(Transaction::$STATUS_CANCELLED);
-
-            $mongo->persist($transaction);
-            $mongo->flush();
-
-            $logger->info('Update transaction -> addBalance inversedDealer');
-            $balancer = $this->get('net.telepay.commons.balance_manipulator');
-            $balancer->addBalance($group, $total_fee, $transaction );
-
-            $wallets = $group->getwallets();
-            foreach($wallets as $wallet){
-                if($transaction->getCurrency() == $wallet->getCurrency()){
-                    //restamos porque si es negativa la fee se sumara y si es positiva se restara
-                    $wallet->setAvailable($wallet->getAvailable() - $total_fee);
-                    $wallet->setBalance($wallet->getBalance() - $total_fee);
-
-                    $em->persist($wallet);
-                    $em->flush();
-                }
-            }
-
-        }
-
-    }
-
     private function _getFees(Group $group, $method){
         $em = $this->getDoctrine()->getManager();
 
@@ -1051,52 +975,6 @@ class IncomingController2 extends RestApiController{
         }
 
         return $group_commission;
-    }
-
-    //TODO remove this function NOT USED DEPRECATED
-    public function _getLimitCount(Group $group, $method){
-        $em = $this->getDoctrine()->getManager();
-
-        $limits = $group->getLimitCounts();
-        $group_limit = false;
-        foreach ( $limits as $limit ){
-            if($limit->getCname() == $method->getCname().'-'.$method->getType()){
-                $group_limit = $limit;
-            }
-        }
-
-        //if user hasn't limit create it
-        if(!$group_limit){
-            $group_limit = LimitCount::createFromController($method->getCname().'-'.$method->getType(), $group);
-            $em->persist($group_limit);
-            $em->flush();
-        }
-
-        return $group_limit;
-    }
-
-    //TODO remove this function NOT USED DEPRECATED
-    public function _getLimits(Group $group, $method){
-        $em = $this->getDoctrine()->getManager();
-
-        $group_limits = $group->getLimits();
-        $group_limit = false;
-        foreach ( $group_limits as $limit ){
-            if( $limit->getCname() == $method->getCname().'-'.$method->getType()){
-                $group_limit = $limit;
-            }
-        }
-
-        //if limit doesn't exist search in tierLimit
-        if(!$group_limit){
-            $tier = $group->getTier();
-            $group_limit = $em->getRepository('TelepayFinancialApiBundle:TierLimit')->findOneBy(array(
-                'tier'  =>  $tier,
-                'method'    =>  $method->getCname().'-'.$method->getType()
-            ));
-        }
-
-        return $group_limit;
     }
 
     private function _checkPermissions(User $user, Group $group){
