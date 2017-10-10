@@ -51,7 +51,7 @@ class CompaniesController extends BaseApiController
 
         $group = $this->get('security.context')->getToken()->getUser()->getActiveGroup();
         $botc_admin = $this->container->getParameter('default_company_creator_commerce_botc');
-        if($request->request->has('botc') && $group==$botc_admin){
+        if($request->request->has('botc')){
             if($request->request->get('botc')==true){
                 $request->request->set('premium', true);
                 $request->request->set('tier', 10);
