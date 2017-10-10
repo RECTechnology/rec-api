@@ -75,7 +75,9 @@ class InvoicingCommand extends ContainerAwareCommand
                         ->execute();
 
 //                    die(print_r(count($result),true));
-                    if(count($result) > 1){
+                    $isBotc = '';
+                    if($company->getTier() == 10) $isBotc = 'BotC_';
+                    if(count($result) >= 1){
                         $fees = array();
                         $feesSwift = array();
                         $feesReseller = array();
@@ -109,6 +111,7 @@ class InvoicingCommand extends ContainerAwareCommand
                             //TODO exchange
                             if($currency!='EUR'){
                                 $prev_amount = round(($prev_amount/pow(10,$transaction->getScale())) * $transaction->getPrice(),2);
+                                $fixed = round(($fixed/pow(10,$transaction->getScale())) * $transaction->getPrice(),2);
                             }
 
                             if($isResellerFee){
@@ -126,17 +129,17 @@ class InvoicingCommand extends ContainerAwareCommand
 
                         if(count($feesReseller) > 0){
                             $resumeReseller[$company->getName()] = $feesReseller;
-                            $this->_saveInvoice('Reseller_'.$company->getName().'_'.$month, $feesReseller, $company->getName(), $from, $to);
+                            $this->_saveInvoice($isBotc.'Reseller_'.$company->getName().'_'.$month, $feesReseller, $company->getName(), $from, $to);
                         }
 
                         if(count($feesSwift) > 0){
                             $resumeSwift[$company->getName()] = $feesSwift;
-                            $this->_saveInvoice('Swift_'.$company->getName().'_'.$month, $feesSwift, $company->getName(), $from, $to);
+                            $this->_saveInvoice($isBotc.'Swift_'.$company->getName().'_'.$month, $feesSwift, $company->getName(), $from, $to);
                         }
 
                         if(count($fees) > 0){
                             $resume[$company->getName()] = $fees;
-                            $this->_saveInvoice($company->getName().'_'.$month, $fees, $company->getName(), $from , $to);
+                            $this->_saveInvoice($isBotc.$company->getName().'_'.$month, $fees, $company->getName(), $from , $to);
                         }
 
                     }
