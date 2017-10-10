@@ -36,9 +36,11 @@ class CheckPaynetReferenceCommand extends ContainerAwareCommand
             ->field('status')->in(array(Transaction::$STATUS_CREATED,Transaction::$STATUS_RECEIVED))
             ->getQuery();
 
+        $output->writeln('Total:' . count($qb->toArray()));
         foreach($qb->toArray() as $transaction){
 
             $transaction_id = $transaction->getId();
+            $output->writeln('ID:' . $transaction_id);
 
             $previous_status = $transaction->getStatus();
             $transaction = $this->check($transaction);
