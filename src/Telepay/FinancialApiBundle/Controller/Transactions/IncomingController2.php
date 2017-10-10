@@ -197,24 +197,6 @@ class IncomingController2 extends RestApiController{
 
         $limitManipulator->checkLimits($group, $method, $amount);
 
-//
-//
-//
-//        //obtain group limitsCount for this method
-//        $groupLimitCount = $this->_getLimitCount($group, $method);
-//
-//
-//
-//        //obtain group limit
-//        $group_limit = $limitManipulator->getMethodLimits($group, $method);
-//
-//        //update group limit counters
-//        $newGroupLimitCount = (new LimitAdder())->add( $groupLimitCount, $total);
-//
-//        $checker = new LimitChecker();
-//
-//        if(!$checker->leq($newGroupLimitCount, $group_limit)) throw new HttpException(405,'Limit exceeded');
-
         //obtain wallet and check founds for cash_out services for this group
         $wallet = $group->getWallet($method->getCurrency());
 
