@@ -78,57 +78,17 @@ class CheckPaynetReferenceCommand extends ContainerAwareCommand
                     $total_fee = $fixed_fee + $variable_fee;
                     $total = $amount - $total_fee;
 
-                    $current_wallet->setAvailable($current_wallet->getAvailable() + $total);
-                    $current_wallet->setBalance($current_wallet->getBalance() + $total);
+                    $current_wallet->setAvailable($current_wallet->getAvailable() + $amount);
+                    $current_wallet->setBalance($current_wallet->getBalance() + $amount);
 
                     $em->persist($current_wallet);
                     $em->flush();
 
-//                    if($total_fee != 0){
-//                        // restar las comisiones
-//                        $feeTransaction = new Transaction();
-//                        $feeTransaction->setStatus('success');
-//                        $feeTransaction->setScale($transaction->getScale());
-//                        $feeTransaction->setAmount($total_fee);
-//                        $feeTransaction->setGroup($id);
-//                        $feeTransaction->setCreated(new \MongoDate());
-//                        $feeTransaction->setUpdated(new \MongoDate());
-//                        $feeTransaction->setIp($transaction->getIp());
-//                        $feeTransaction->setFixedFee($fixed_fee);
-//                        $feeTransaction->setVariableFee($variable_fee);
-//                        $feeTransaction->setVersion($transaction->getVersion());
-//                        $feeTransaction->setDataIn(array(
-//                            'previous_transaction'  =>  $transaction->getId()
-//                        ));
-//                        $feeTransaction->setDebugData(array(
-//                            'previous_balance'  =>  $current_wallet->getBalance(),
-//                            'previous_transaction'  =>  $transaction->getId()
-//                        ));
-//                        $feeTransaction->setTotal($total_fee*-1);
-//                        $feeTransaction->setCurrency($transaction->getCurrency());
-//                        $feeTransaction->setService($method_cname);
-//                        $feeTransaction->setMethod($method_cname);
-//                        $feeTransaction->setType('fee');
-//
-//                        $dm->persist($feeTransaction);
-//                        $dm->flush();
-
-                        $creator = $group->getGroupCreator();
-
                         //luego a la ruleta de admins
                         $dealer = $this->getContainer()->get('net.telepay.commons.fee_deal');
-//                        $dealer->deal(
-//                            $creator,
-//                            $amount,
-//                            $method_cname,
-//                            $type,
-//                            $service_currency,
-//                            $total_fee,
-//                            $transaction_id,
-//                            $transaction->getVersion()
-//                        );
+
                     $dealer->createFees2($transaction, $current_wallet);
-//                    }
+
                     //exchange if needed
                     $dataIn = $transaction->getDataIn();
                     if(isset($dataIn['request_currency_out']) && $dataIn['request_currency_out'] != strtoupper($service_currency)){
