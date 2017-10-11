@@ -23,8 +23,9 @@ class PublicController extends RestApiController{
      */
     public function ticker(Request $request, $currency){
         $default_currency = strtoupper($currency);
-        $default_currency_scale = Currency::$SCALE[$default_currency];
         $currencies = Currency::$LISTA;
+        if(!in_array($default_currency, $currencies)) throw new HttpException(404, 'Currency '.$default_currency.' not found');
+        $default_currency_scale = Currency::$SCALE[$default_currency];
         $result = array();
         foreach($currencies as $currency ){
             if($currency != $default_currency ){
@@ -46,9 +47,12 @@ class PublicController extends RestApiController{
      * @Rest\View
      */
     public function tickerV2(Request $request, $currency){
+
         $default_currency = strtoupper($currency);
-        $default_currency_scale = Currency::$SCALE[$default_currency];
         $currencies = Currency::$LISTA;
+        if(!in_array($default_currency, $currencies)) throw new HttpException(404, 'Currency '.$default_currency.' not found');
+        $default_currency_scale = Currency::$SCALE[$default_currency];
+
         $result = array();
         $ask = array();
         $bid = array();
@@ -81,11 +85,14 @@ class PublicController extends RestApiController{
      */
     public function tickerVFair(Request $request, $currency){
         $default_currency = strtoupper($currency);
+        $currencies = Currency::$TICKER_FAIRCOOP;
+        if(!in_array($default_currency, $currencies)) throw new HttpException(404, 'Currency '.$default_currency.' not found');
+
         if($default_currency == Currency::$FAC){
             $default_currency = Currency::$FAIRP;
         }
         $default_currency_scale = Currency::$SCALE[$default_currency];
-        $currencies = Currency::$TICKER_FAIRCOOP;
+
         $result = array();
         $ask = array();
         $bid = array();
