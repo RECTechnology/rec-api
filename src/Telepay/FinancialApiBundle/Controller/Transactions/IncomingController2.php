@@ -256,7 +256,7 @@ class IncomingController2 extends RestApiController{
                 //restar al grupo el amount
                 $wallet->setBalance($wallet->getBalance() - $amount);
 
-                //insert new line in the balance fro this group
+                //insert new line in the balance for this group
                 $this->get('net.telepay.commons.balance_manipulator')->addBalance($group, -$amount, $transaction);
 
                 $em->flush();
