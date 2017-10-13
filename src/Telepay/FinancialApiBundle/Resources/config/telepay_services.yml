@@ -64,6 +64,7 @@ services:
 
 
 ####     METHODS     ####
+####    name, cname, type, currency, email_required, base64, image, container, driver, min_tier, default_fixed_fee, default_variable_fee
     net.telepay.in.btc.v1:
         class: Telepay\FinancialApiBundle\Financial\Methods\BtcMethod
         arguments:
@@ -76,6 +77,8 @@ services:
             - "https://files.chip-chap.com/methods/bitcoin.png"
             - "@service_container"
             - "@net.telepay.driver.easybitcoin.btc"
+            - "0"
+            - "0"
             - "0"
 
     net.telepay.in.btc.vG:
@@ -91,6 +94,8 @@ services:
             - "@service_container"
             - "@net.telepay.driver.easybitcoinGreek.btc"
             - "0"
+            - "0"
+            - "0"
 
     net.telepay.in.fac.v1:
         class: Telepay\FinancialApiBundle\Financial\Methods\FacMethod
@@ -104,6 +109,8 @@ services:
             - "https://files.chip-chap.com/methods/faircoin.png"
             - "@service_container"
             - "@net.telepay.driver.easybitcoin.fac"
+            - "0"
+            - "0"
             - "0"
 
     net.telepay.in.eth.v1:
@@ -119,6 +126,8 @@ services:
             - "@service_container"
             - "@net.telepay.driver.ethereum.eth"
             - "0"
+            - "0"
+            - "0"
 
     net.telepay.in.crea.v1:
         class: Telepay\FinancialApiBundle\Financial\Methods\CreaMethod
@@ -132,6 +141,8 @@ services:
             - "https://files.chip-chap.com/methods/creativecoin.png"
             - "@service_container"
             - "@net.telepay.driver.easybitcoin.crea"
+            - "0"
+            - "0"
             - "0"
 
     net.telepay.out.halcash_es.v1:
@@ -147,6 +158,8 @@ services:
             - "@service_container"
             - "@net.telepay.driver.halcash.telepay"
             - "1"
+            - "150"
+            - "1"
 
     net.telepay.out.halcash_pl.v1:
         class: Telepay\FinancialApiBundle\Financial\Methods\HalcashMethod
@@ -161,6 +174,8 @@ services:
             - "@service_container"
             - "@net.telepay.driver.halcash.telepay"
             - "1"
+            - "0"
+            - "0"
 
     net.telepay.in.paynet_reference.v1:
         class: Telepay\FinancialApiBundle\Financial\Methods\PaynetReferenceMethod
@@ -175,6 +190,8 @@ services:
             - "@service_container"
             - "@net.telepay.driver.paynet_reference"
             - "1"
+            - "0"
+            - "5"
 
     net.telepay.out.btc.v1:
         class: Telepay\FinancialApiBundle\Financial\Methods\BtcMethod
@@ -188,6 +205,8 @@ services:
             - "https://files.chip-chap.com/methods/bitcoin.png"
             - "@service_container"
             - "@net.telepay.driver.easybitcoin.btc"
+            - "0"
+            - "100000"
             - "0"
 
     net.telepay.out.btc.vG:
@@ -203,6 +222,8 @@ services:
             - "@service_container"
             - "@net.telepay.driver.easybitcoinGreek.btc"
             - "0"
+            - "100000"
+            - "0"
 
     net.telepay.out.fac.v1:
         class: Telepay\FinancialApiBundle\Financial\Methods\FacMethod
@@ -216,6 +237,8 @@ services:
             - "https://files.chip-chap.com/methods/faircoin.png"
             - "@service_container"
             - "@net.telepay.driver.easybitcoin.fac"
+            - "0"
+            - "0"
             - "0"
 
     net.telepay.out.eth.v1:
@@ -231,6 +254,8 @@ services:
             - "@service_container"
             - "@net.telepay.driver.ethereum.eth"
             - "0"
+            - "0"
+            - "0"
 
     net.telepay.out.crea.v1:
         class: Telepay\FinancialApiBundle\Financial\Methods\CreaMethod
@@ -244,6 +269,8 @@ services:
             - "https://files.chip-chap.com/methods/creativecoin.png"
             - "@service_container"
             - "@net.telepay.driver.easybitcoin.crea"
+            - "0"
+            - "0"
             - "0"
 
     net.telepay.out.sepa.v1:
@@ -259,6 +286,8 @@ services:
             - "@service_container"
             - "@net.telepay.driver.sepa"
             - "2"
+            - "0"
+            - "1"
 
     net.telepay.out.transfer.v1:
         class: Telepay\FinancialApiBundle\Financial\Methods\TransferMethod
@@ -273,6 +302,8 @@ services:
             - "@service_container"
             - "@net.telepay.driver.sepa"
             - "2"
+            - "0"
+            - "1"
 
     net.telepay.in.sepa.v1:
         class: Telepay\FinancialApiBundle\Financial\Methods\SepaMethod
@@ -287,6 +318,8 @@ services:
             - "@service_container"
             - "@net.telepay.driver.sepa"
             - "2"
+            - "0"
+            - "0"
 
     net.telepay.out.cryptocapital.v1:
         class: Telepay\FinancialApiBundle\Financial\Methods\CryptocapitalMethod
@@ -300,6 +333,8 @@ services:
             - "https://files.chip-chap.com/methods/cryptocapital.png"
             - "@service_container"
             - "@net.telepay.driver.cryptocapital"
+            - "1"
+            - "0"
             - "1"
 
     net.telepay.in.echo.v1:
@@ -315,6 +350,8 @@ services:
             - "@service_container"
             - "@net.telepay.driver.echo"
             - "0"
+            - "0"
+            - "0"
 
     net.telepay.in.easypay.v1:
         class: Telepay\FinancialApiBundle\Financial\Methods\EasyPayMethod
@@ -329,6 +366,8 @@ services:
             - "@service_container"
             - "@net.telepay.driver.easypay"
             - "2"
+            - "0"
+            - "3"
 
     net.telepay.in.safetypay.v1:
         class: Telepay\FinancialApiBundle\Financial\Methods\SafetyPayMethod
@@ -343,6 +382,8 @@ services:
             - "@service_container"
             - "@net.telepay.driver.safetypay"
             - "2"
+            - "0"
+            - "5.5"
 
     net.telepay.in.teleingreso.v1:
         class: Telepay\FinancialApiBundle\Financial\Methods\TeleingresoMethod
@@ -357,6 +398,8 @@ services:
             - "@service_container"
             - "@net.telepay.driver.teleingreso.telepay"
             - "2"
+            - "0"
+            - "6"
 
     net.telepay.in.teleingreso_usa.v1:
         class: Telepay\FinancialApiBundle\Financial\Methods\TeleingresoIframeMethod
@@ -371,6 +414,8 @@ services:
             - "@service_container"
             - "@net.telepay.driver.teleingreso_usa.telepay"
             - "2"
+            - "0"
+            - "3"
 
     net.telepay.in.teleingreso_pt.v1:
         class: Telepay\FinancialApiBundle\Financial\Methods\TeleingresoIframeMethod
@@ -385,3 +430,5 @@ services:
             - "@service_container"
             - "@net.telepay.driver.teleingreso_pt.telepay"
             - "2"
+            - "0"
+            - "0"

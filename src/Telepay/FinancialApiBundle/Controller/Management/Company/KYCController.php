@@ -204,6 +204,8 @@ class KYCController extends BaseApiController{
         $company = $user->getActiveGroup();
         $kycManager = $company->getKycManager();
 
+        if(!$company->getKycManager()) throw new HttpException(403, 'This company has not KYC Manager');
+
         $em = $this->getDoctrine()->getManager();
         $kyc = $em->getRepository($this->getRepositoryName())->findOneBy(array(
             'user'  =>  $kycManager
@@ -213,9 +215,7 @@ class KYCController extends BaseApiController{
 
         $tier = $request->request->get('tier');
 
-        if($kyc->getTier1Status() == 'pending' || $kyc->getTier2Status() == 'pending'){
-            throw new HttpException(403,' You has a pending validation request. Please enhance your calm');
-        }
+        if($kyc->getTier1Status() == 'pending' || $kyc->getTier2Status() == 'pending') throw new HttpException(403,' You has a pending validation request. Please enhance your calm');
         if($tier == 1){
             if($kyc->getTier1Status() == 'approved') throw new HttpException(403, 'Tier validated yet');
             $kyc->setTier1Status('pending');

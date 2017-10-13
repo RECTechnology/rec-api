@@ -37,6 +37,8 @@ class FeeManipulator{
         if(!$group_commission){
             $group_commission = ServiceFee::createFromController($method->getCname().'-'.$method->getType(), $group);
             $group_commission->setCurrency($method->getCurrency());
+            $group_commission->setFixed($method->getDefaultFixedFee());
+            $group_commission->setVariable($method->getDefaultVariableFee());
             $em->persist($group_commission);
             $em->flush();
         }

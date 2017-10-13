@@ -164,8 +164,8 @@ class IncomingController2 extends RestApiController{
         $logger->info('Incomig transaction...FEES');
 
         //TODO crear FeeManipulator
-
-        $group_commission = $this->_getFees($group, $method);
+        $fee_handler = $this->container->get('net.telepay.commons.fee_manipulator');
+        $group_commission = $fee_handler->getMethodFees($group, $method);
 
         $amount = $dataIn['amount'];
         $transaction->setAmount($amount);
@@ -970,6 +970,8 @@ class IncomingController2 extends RestApiController{
         if(!$group_commission){
             $group_commission = ServiceFee::createFromController($method->getCname().'-'.$method->getType(), $group);
             $group_commission->setCurrency($method->getCurrency());
+            $group_commission->setFixed($method->getDefaultFixedFee());
+            $group_commission->setVariable($method->getDefaultVariableFee());
             $em->persist($group_commission);
             $em->flush();
         }

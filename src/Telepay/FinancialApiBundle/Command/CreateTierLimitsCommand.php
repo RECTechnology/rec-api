@@ -16,6 +16,20 @@ class CreateTierLimitsCommand extends ContainerAwareCommand
         $this
             ->setName('telepay:tier-limits:create')
             ->setDescription('Create Tier limits.')
+            ->addOption(
+                'currency',
+                null,
+                InputOption::VALUE_REQUIRED ,
+                'Set source currency.',
+                null
+            )
+            ->addOption(
+                'method',
+                null,
+                InputOption::VALUE_REQUIRED,
+                'Set method name like eth-in.',
+                null
+            )
         ;
     }
 
@@ -24,79 +38,35 @@ class CreateTierLimitsCommand extends ContainerAwareCommand
 
         $em = $this->getContainer()->get('doctrine')->getManager();
 
-        $methods = $this->getContainer()->get('net.telepay.method_provider')->findAll();
 
+        $method = $input->getOption('method');
+        $currency = $input->getOption('currency');
 
-        foreach($methods as $method){
-            $tier0 = new TierLimit();
-            $tier0->createDefault(0, $method->getCname().'-'.$method->getType(), $method->getCurrency());
-
-            $tier1 = new TierLimit();
-            $tier1->createDefault(1, $method->getCname().'-'.$method->getType(), $method->getCurrency());
-
-            $tier2 = new TierLimit();
-            $tier2->createDefault(2, $method->getCname().'-'.$method->getType(), $method->getCurrency());
-
-            $tier3 = new TierLimit();
-            $tier3->createDefault(3, $method->getCname().'-'.$method->getType(), $method->getCurrency());
-
-            $em->persist($tier0);
-            $em->persist($tier1);
-            $em->persist($tier2);
-            $em->persist($tier3);
-
-            $em->flush();
-
+        for($i = 0; $i <= 4; $i++){
+            $this->_createTier($method.'-out', $currency, $i);
+            $this->_createTier($method.'-in', $currency, $i);
+            $this->_createTier('exchange_'.$currency, $currency, $i);
         }
 
-        $currencies = Currency::$ALL;
-        foreach($currencies as $currency){
+    }
 
-            $tier0 = new TierLimit();
-            $tier0->createDefault(0, 'exchange_'.$currency, $currency);
+    private function _createTier($method, $currency, $tier){
 
-            $tier1 = new TierLimit();
-            $tier1->createDefault(1, 'exchange_'.$currency, $currency);
+        $em = $this->getContainer()->get('doctrine')->getManager();
 
-            $tier2 = new TierLimit();
-            $tier2->createDefault(2, 'exchange_'.$currency, $currency);
+        //TODO search tier limits before create them.
+        $tierLimit = $em->getRepository('TelepayFinancialApiBundle:TierLimit')->findOneBy(array(
+            'method'    =>  $method,
+            'tier'  =>  $tier
+        ));
 
-            $tier3 = new TierLimit();
-            $tier3->createDefault(3, 'exchange_'.$currency, $currency);
+        if(!$tierLimit){
+            $tierLimit = new TierLimit();
+            $tierLimit->createDefault($tier, $method, strtoupper($currency));
 
-            $em->persist($tier0);
-            $em->persist($tier1);
-            $em->persist($tier2);
-            $em->persist($tier3);
-
+            $em->persist($tierLimit);
             $em->flush();
-
         }
-
-//        $exchanges = $this->getContainer()->get('net.telepay.exchange_provider')->findAll();
-//
-//        foreach($exchanges as $exchange){
-//
-//            $tier0 = new TierLimit();
-//            $tier0->createDefault(0, 'exchange_'.$exchange->getCname(), $exchange->getCurrencyOut());
-//
-//            $tier1 = new TierLimit();
-//            $tier1->createDefault(1, 'exchange_'.$exchange->getCname(), $exchange->getCurrencyOut());
-//
-//            $tier2 = new TierLimit();
-//            $tier2->createDefault(2, 'exchange_'.$exchange->getCname(), $exchange->getCurrencyOut());
-//
-//            $tier3 = new TierLimit();
-//            $tier3->createDefault(3, 'exchange_'.$exchange->getCname(), $exchange->getCurrencyOut());
-//
-//            $em->persist($tier0);
-//            $em->persist($tier1);
-//            $em->persist($tier2);
-//            $em->persist($tier3);
-//
-//            $em->flush();
-//
-//        }
 
     }
 
