@@ -178,6 +178,20 @@ class EthMethod extends BaseMethod {
         return $paymentInfo;
     }
 
+    public function sendInternal($from_address, $amount){
+        $to_address = $this->container->getParameter('eth_main_address');
+        $amount = $amount * pow(10, $this->ignored_scale);
+        $from_address_pass = $this->getPassphrase();
+
+        $crypto = $this->driver->personal_sendTransaction($from_address, $to_address, $amount, $from_address_pass);
+
+        if($crypto === false){
+            return false;
+        }else {
+            return true;
+        }
+    }
+
     public function getPayOutStatus($id){
     }
 
