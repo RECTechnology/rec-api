@@ -85,12 +85,13 @@ class PublicController extends RestApiController{
      */
     public function tickerVFair(Request $request, $currency){
         $default_currency = strtoupper($currency);
-        $currencies = Currency::$TICKER_FAIRCOOP;
-        if(!in_array($default_currency, $currencies)) throw new HttpException(404, 'Currency '.$default_currency.' not found');
 
         if($default_currency == Currency::$FAC){
             $default_currency = Currency::$FAIRP;
         }
+
+        $currencies = Currency::$TICKER_FAIRCOOP;
+        if(!in_array($default_currency, $currencies)) throw new HttpException(404, 'Currency '.$default_currency.' not found');
         $default_currency_scale = Currency::$SCALE[$default_currency];
 
         $result = array();
