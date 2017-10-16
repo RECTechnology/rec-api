@@ -613,4 +613,66 @@ class WalletController extends RestApiController {
         return $this->restV2(200, "ok", "Exchange got successfully", $exchange);
 
     }
+
+    /**
+     * index fees
+     */
+    public function indexFees(Request $request, $account_id){
+        //get group
+        $em = $this->getDoctrine()->getManager();
+        $company = $em->getRepository('TelepayFinancialApiBundle:Group')->find($account_id);
+
+        if(!$company) throw new HttpException(404, 'Company not found');
+
+
+        //getFees
+        $fees = $company->getCommissions();
+
+        //get methods by tier
+        $methods = $this->get('net.telepay.method_provider')->findByTier($company->getTier());
+        $activeFees = [];
+
+        foreach ( $fees as $fee){
+            //return only allowed methods
+            if(in_array($fee->getServiceName(), $methods)  || strpos($fee->getServiceName(), 'exchange') == 0){
+                $currency = $fee->getCurrency();
+                $fee->setScale($currency);
+                $activeFees [] = $fee;
+            }
+
+        }
+
+        return $this->restV2(200, "ok", "Fees info got successfully", $activeFees);
+
+    }
+
+    /**
+     * show fees
+     */
+    public function showFees(Request $request, $account_id, $method){
+        //get group
+        $em = $this->getDoctrine()->getManager();
+        $company = $em->getRepository('TelepayFinancialApiBundle:Group')->find($account_id);
+
+        if(!$company) throw new HttpException(404, 'Company not found');
+
+        //getFees
+        $fee = $em->getRepository('TelepayFinancialApiBundle:ServiceFee')->findOneBy(array(
+            'service_name'  =>  $method,
+            'group' =>  $company
+        ));
+
+        if(!$fee) throw new HttpException(404, 'Service method not found');
+
+        //get methods by tier
+        $methods = $this->get('net.telepay.method_provider')->findByTier($company->getTier());
+
+        if(!in_array($fee->getServiceName(), $methods) && strpos($fee->getServiceName(), 'exchange') != 0) throw new HttpException(403, 'Method not active for your account');
+
+        $currency = $fee->getCurrency();
+        $fee->setScale($currency);
+
+        return $this->restV2(200, "ok", "Fees info got successfully", $fee);
+
+    }
 }

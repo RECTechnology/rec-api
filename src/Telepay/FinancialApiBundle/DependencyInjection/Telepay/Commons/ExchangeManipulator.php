@@ -112,7 +112,6 @@ class ExchangeManipulator{
         //check exchange limits
         $this->container->get('net.telepay.commons.limit_manipulator')->checkExchangeLimits($company, $amount, $exchangeAmount, $from, $to);
 
-
         $params = array(
             'amount'    => 0,
             'from'  =>  $from,
