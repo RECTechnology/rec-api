@@ -38,26 +38,28 @@ class CollectEthCommand extends ContainerAwareCommand{
                 foreach($totalDepositedTransactions as $deposited){}
                 $depositAmount = $deposited->getAmount();
             }
-            $output->writeln('Total deposited: ' . $depositAmount);
 
-            $methodDriver = $this->getContainer()->get('net.telepay.in.eth.v1');
-            $sent = $methodDriver->sendInternal($token->getToken(), $depositAmount);
+            if($depositAmount > 0){
+                $output->writeln('Total deposited: ' . $depositAmount);
 
-            if($sent) {
-                //new deposit
-                $output->writeln('Creating new deposit');
-                $deposit = new CashInDeposit();
-                $deposit->setToken($token);
-                $deposit->setStatus(CashInDeposit::$STATUS_COLLECTED);
-                $deposit->setAmount(-$depositAmount);
-                $deposit->setConfirmations(1);
-                $deposit->setHash(uniqid('hash-'));
-                $deposit->setExternalId(uniqid('external_id-'));
-                $em->persist($deposit);
-                $em->flush();
+                $methodDriver = $this->getContainer()->get('net.telepay.in.eth.v1');
+                $sent = $methodDriver->sendInternal($token->getToken(), $depositAmount);
+
+                if($sent) {
+                    //new deposit
+                    $output->writeln('Creating new deposit');
+                    $deposit = new CashInDeposit();
+                    $deposit->setToken($token);
+                    $deposit->setStatus(CashInDeposit::$STATUS_COLLECTED);
+                    $deposit->setAmount(-$depositAmount);
+                    $deposit->setConfirmations(1);
+                    $deposit->setHash(uniqid('hash-'));
+                    $deposit->setExternalId(uniqid('external_id-'));
+                    $em->persist($deposit);
+                    $em->flush();
+                }
+                $count++;
             }
-
-            $count++;
         }
 
         $output->writeln('Collected '.$count.' deposits');
