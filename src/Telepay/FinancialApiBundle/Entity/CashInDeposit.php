@@ -32,6 +32,7 @@ class CashInDeposit {
      * @Exclude
      */
     public static $STATUS_DEPOSITED = "deposited";
+    public static $STATUS_COLLECTED = "collected";
 
     public function __construct(){
         $this->created = new \DateTime();
