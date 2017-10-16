@@ -201,3 +201,17 @@ company_method_index:
     defaults: { _controller: Telepay\FinancialApiBundle\Controller\Management\Integrator\MethodsController::index }
     requirements:
         _method: GET
+
+
+#################     ACCOUNT FEES    ######################
+company_index_fees:
+    pattern: /account/{account_id}/v1/fees
+    defaults: {_controller: Telepay\FinancialApiBundle\Controller\Management\Company\WalletController::indexFees }
+    requirements:
+        _method: GET
+
+company_show_fee:
+    pattern: /account/{account_id}/v1/fees/{method}
+    defaults: {_controller: Telepay\FinancialApiBundle\Controller\Management\Company\WalletController::showFees }
+    requirements:
+        _method: GET
