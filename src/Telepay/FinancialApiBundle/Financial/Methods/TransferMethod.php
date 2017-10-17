@@ -69,9 +69,14 @@ class TransferMethod extends BaseMethod {
     public function getPayOutInfo($request){
         $paramNames = array(
             'beneficiary',
-            'iban',
+            'address',
+            'city',
+            'country',
+            'bank_name',
+            'bank_city',
+            'account',
             'amount',
-            'bic_swift'
+            'swift'
         );
 
         $params = array();
@@ -102,9 +107,14 @@ class TransferMethod extends BaseMethod {
     public function getPayOutInfoData($data){
         $paramNames = array(
             'beneficiary',
-            'iban',
+            'address',
+            'city',
+            'country',
+            'bank_name',
+            'bank_city',
+            'account',
             'amount',
-            'bic_swift'
+            'swift'
         );
 
         $params = array();

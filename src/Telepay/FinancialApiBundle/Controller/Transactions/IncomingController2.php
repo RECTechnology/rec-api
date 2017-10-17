@@ -143,6 +143,7 @@ class IncomingController2 extends RestApiController{
             $transaction->setPayInInfo($payment_info);
 
         }else{
+            $logger->info('else');
             $payment_info = $method->getPayOutInfoData($data);
             $transaction->setPayOutInfo($payment_info);
             $dataIn = array(
