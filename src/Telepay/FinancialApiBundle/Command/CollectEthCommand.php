@@ -36,17 +36,18 @@ class CollectEthCommand extends ContainerAwareCommand{
             $depositAmount = 0;
             if($totalDepositedTransactions){
                 $output->writeln('Transaction exists');
-                foreach($totalDepositedTransactions as $deposited){}
-                $depositAmount = $deposited->getAmount();
+                foreach($totalDepositedTransactions as $deposited) {
+                    $depositAmount += $deposited->getAmount();
+                }
             }
 
             if($depositAmount > 0){
-                $output->writeln('Total deposited: ' . $depositAmount);
-
                 $methodDriver = $this->getContainer()->get('net.telepay.in.eth.v1');
                 $sent = $methodDriver->sendInternal($token->getToken(), $depositAmount);
 
                 if($sent) {
+                    $output->writeln('Total deposited: ' . $depositAmount);
+
                     //new deposit
                     $output->writeln('Creating new deposit');
                     $deposit = new CashInDeposit();
