@@ -20,6 +20,7 @@ class Currency {
     public static $ETH = "ETH";
 
     public static $LISTA = array("BTC","EUR","USD","FAC","MXN","PLN","ETH","CREA");
+    public static $FIAT = array("EUR","USD","MXN","PLN");
     public static $ALL = array("BTC","EUR","USD","FAC","MXN","PLN","ETH","CREA");
     public static $TICKER_LIST = array("BTC","EUR","USD","FAC","MXN","PLN","FAIRP","ETH","CREA");
     public static $TICKER_FAIRCOOP = array("BTC","EUR","USD","FAIRP","MXN","PLN","ETH","CREA");
