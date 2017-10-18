@@ -755,6 +755,19 @@ class WalletController extends RestApiController{
 
         }
 
+        $fiat_currencies = Currency::$FIAT;
+        if (in_array($currency, $fiat_currencies)) {
+            $tier = $userGroup->getTier();
+            if($tier != 10 ){
+                $sender_id = $userGroup->getId();
+                $botc_admin = $this->container->getParameter('default_company_creator_commerce_botc');
+                $botc_exchange = $this->container->getParameter('default_company_exchange_botc');
+                if($sender_id != $botc_admin && $sender_id != $botc_exchange){
+                    throw new HttpException(400,'This currency is not allowed to send by this way.');
+                }
+            }
+        }
+
         //Search receiver user
         $em = $this->getDoctrine()->getManager();
         $receiver = $em->getRepository('TelepayFinancialApiBundle:Group')

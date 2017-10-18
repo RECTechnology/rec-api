@@ -33,6 +33,7 @@ class CollectEthCommand extends ContainerAwareCommand{
                 'status'    =>  'deposited'
             ));
 
+            $depositAmount = 0;
             if($totalDepositedTransactions){
                 $output->writeln('Transaction exists');
                 foreach($totalDepositedTransactions as $deposited){}
