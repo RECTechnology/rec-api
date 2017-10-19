@@ -66,10 +66,11 @@ class CreateExchangeFeesForNewCurrencyCommand extends ContainerAwareCommand
 
                     $em->persist($exchange_gufy);
                     $em->flush();
-                    $progress->advance();
+
                 }
 
             }
+            $progress->advance();
         }
 
         $progress->finish();
