@@ -82,6 +82,12 @@ class KYC {
     private $document;
 
     /**
+     * @ORM\Column(type="string", nullable=true)
+     * @Expose
+     */
+    private $document_back;
+
+    /**
      * @ORM\Column(type="boolean")
      * @Expose
      */
@@ -643,6 +649,22 @@ class KYC {
     public function setTier1StatusRequest($tier1_status_request)
     {
         $this->tier1_status_request = $tier1_status_request;
+    }
+
+    /**
+     * @return mixed
+     */
+    public function getDocumentBack()
+    {
+        return $this->document_back;
+    }
+
+    /**
+     * @param mixed $document_back
+     */
+    public function setDocumentBack($document_back)
+    {
+        $this->document_back = $document_back;
     }
 
 

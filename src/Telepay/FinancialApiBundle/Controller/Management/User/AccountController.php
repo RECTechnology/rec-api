@@ -1299,6 +1299,27 @@ class AccountController extends BaseApiController{
             $kyc->setDocument($fileManager->getFilesPath().'/'.$filename);
         }
 
+        if($request->request->has('document_back') && $request->request->get('document_back')!=''){
+
+            $fileManager = $this->get('file_manager');
+
+            $fileSrc = $request->request->get('document_back');
+            $fileContents = $fileManager->readFileUrl($fileSrc);
+            $hash = $fileManager->getHash();
+            $explodedFileSrc = explode('.', $fileSrc);
+            $ext = $explodedFileSrc[count($explodedFileSrc) - 1];
+            $filename = $hash . '.' . $ext;
+
+            file_put_contents($fileManager->getUploadsDir() . '/' . $filename, $fileContents);
+
+            $tmpFile = new File($fileManager->getUploadsDir() . '/' . $filename);
+            if (!in_array($tmpFile->getMimeType(), UploadManager::$ALLOWED_MIMETYPES))
+                throw new HttpException(400, "Bad file type");
+
+
+            $kyc->setDocument($fileManager->getFilesPath().'/'.$filename);
+        }
+
         $em->flush();
 
         return $this->restV2(204, "ok", "KYC Info saved");
