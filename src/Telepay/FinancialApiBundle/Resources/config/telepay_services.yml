@@ -55,7 +55,6 @@ services:
                 - "@net.telepay.out.transfer.v1"
                 - "@net.telepay.in.easypay.v1"
                 - "@net.telepay.out.cryptocapital.v1"
-                - "@net.telepay.in.echo.v1"
                 - "@net.telepay.in.safetypay.v1"
                 - "@net.telepay.in.teleingreso.v1"
                 - "@net.telepay.in.teleingreso_usa.v1"
@@ -336,22 +335,6 @@ services:
             - "1"
             - "0"
             - "1"
-
-    net.telepay.in.echo.v1:
-        class: Telepay\FinancialApiBundle\Financial\Methods\EchoMethod
-        arguments:
-            - "Echo"
-            - "echo"
-            - "in"
-            - "EUR"
-            - "false"
-            - "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"
-            - "https://files.chip-chap.com/methods/echo.png"
-            - "@service_container"
-            - "@net.telepay.driver.echo"
-            - "0"
-            - "0"
-            - "0"
 
     net.telepay.in.easypay.v1:
         class: Telepay\FinancialApiBundle\Financial\Methods\EasyPayMethod

@@ -1303,7 +1303,7 @@ class AccountController extends BaseApiController{
 
             $fileManager = $this->get('file_manager');
 
-            $fileSrc = $request->request->get('document_back');
+            $fileSrc = $request->request->get('document_rear');
             $fileContents = $fileManager->readFileUrl($fileSrc);
             $hash = $fileManager->getHash();
             $explodedFileSrc = explode('.', $fileSrc);

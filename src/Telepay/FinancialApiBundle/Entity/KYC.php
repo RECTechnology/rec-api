@@ -85,7 +85,7 @@ class KYC {
      * @ORM\Column(type="string", nullable=true)
      * @Expose
      */
-    private $document_back;
+    private $document_rear;
 
     /**
      * @ORM\Column(type="boolean")
@@ -654,17 +654,17 @@ class KYC {
     /**
      * @return mixed
      */
-    public function getDocumentBack()
+    public function getDocumentRear()
     {
-        return $this->document_back;
+        return $this->document_rear;
     }
 
     /**
-     * @param mixed $document_back
+     * @param mixed $document_rear
      */
-    public function setDocumentBack($document_back)
+    public function setDocumentRear($document_rear)
     {
-        $this->document_back = $document_back;
+        $this->document_rear = $document_rear;
     }
 
 
