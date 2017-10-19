@@ -789,6 +789,13 @@ class SwiftController extends RestApiController{
             $status = $method[1];
             $service = $method[0];
 
+            //TODO check general status
+            $generalStatus = $em->getRepository('TelepayFinancialApiBundle:StatusMethod')->findOneBy(array(
+                'method'    =>  $service
+            ));
+
+            if($generalStatus->getStatus() == 'unavailable') $status = 0;
+
             $types = preg_split('/-/', $method[0], 2);
             $type_in = $types[0];
             $type_out = $types[1];
