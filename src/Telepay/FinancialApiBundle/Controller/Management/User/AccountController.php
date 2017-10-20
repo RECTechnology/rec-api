@@ -1317,7 +1317,7 @@ class AccountController extends BaseApiController{
                 throw new HttpException(400, "Bad file type");
 
 
-            $kyc->setDocument($fileManager->getFilesPath().'/'.$filename);
+            $kyc->setDocumentRear($fileManager->getFilesPath().'/'.$filename);
         }
 
         $em->flush();
