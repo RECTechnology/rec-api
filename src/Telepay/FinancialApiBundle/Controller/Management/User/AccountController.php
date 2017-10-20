@@ -1299,7 +1299,7 @@ class AccountController extends BaseApiController{
             $kyc->setDocument($fileManager->getFilesPath().'/'.$filename);
         }
 
-        if($request->request->has('document_back') && $request->request->get('document_back')!=''){
+        if($request->request->has('document_rear') && $request->request->get('document_rear')!=''){
 
             $fileManager = $this->get('file_manager');
 
