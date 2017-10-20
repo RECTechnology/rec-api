@@ -46,6 +46,9 @@ class HalcashMethod extends BaseMethod{
         $find_token = $paymentInfo['find_token'];
         if(isset($paymentInfo['pin'])){
             $pin = $paymentInfo['pin'];
+            if(strlen($pin)!=4){
+                throw new Exception('PIN must have exactly 4 numbers', 503);
+            }
         }else{
             $pin = rand(1000,9999);
             $paymentInfo['pin'] = $pin;
