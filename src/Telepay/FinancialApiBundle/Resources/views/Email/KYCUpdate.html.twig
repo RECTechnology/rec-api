@@ -93,8 +93,12 @@
         <p>User => {{ kyc.user.username }} - {{ kyc.user.email }}</p>
     {% elseif action == 'approved_single' %}
         <h2>{{ companies.name }}</h2>
-        <p>This company has been upload to <b>tier {{ tier }}</b></p>
-        <p>User => {{ kyc.username }} - {{ kyc.email }}</p>
+        {% if tier == 10 %}
+            <p>The wallet has access to Bank of the Commons services.</p>
+        {%  else %}
+            <p>This company has been upload to <b>tier {{ tier }}</b></p>
+            <p>User => {{ kyc.username }} - {{ kyc.email }}</p>
+        {% endif %}
     {% else %}
         <p>Hi, your Tier request has been denied, please check your account.</p>
     {% endif %}
