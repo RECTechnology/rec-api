@@ -109,8 +109,8 @@ class UserWallet {
         $this->scale=$this->getScale();
         $wallet['id'] = $this->getId();
         $wallet['currency'] = $this->getCurrency();
-        $wallet['available'] = round($this->getAvailable(),0);
-        $wallet['balance'] = round($this->getBalance(),0);
+        $wallet['available'] = intval($this->getAvailable());
+        $wallet['balance'] = intval($this->getBalance());
         $wallet['scale'] = $this->getScale();
         $wallet['status'] = $this->getStatus();
 
