@@ -350,7 +350,7 @@ services:
             - "@net.telepay.driver.easypay"
             - "2"
             - "0"
-            - "3"
+            - "2"
 
     net.telepay.in.safetypay.v1:
         class: Telepay\FinancialApiBundle\Financial\Methods\SafetyPayMethod
