@@ -87,7 +87,7 @@ class CheckCryptoCommand extends SyncronizedContainerAwareCommand
 
                             //insert new line in the balance fro this group
                             $balancer = $this->getContainer()->get('net.telepay.commons.balance_manipulator');
-                            $balancer->addBalance($group, $amount, $transaction);
+                            $balancer->addBalance($group, $amount, $transaction, "check crypto command");
 
                             //if group has
                             if (!$group->hasRole('ROLE_SUPER_ADMIN')) {
@@ -132,7 +132,7 @@ class CheckCryptoCommand extends SyncronizedContainerAwareCommand
                                     $dm->persist($feeTransaction);
                                     $dm->flush();
 
-                                    $balancer->addBalance($group, -$total_fee, $feeTransaction);
+                                    $balancer->addBalance($group, -$total_fee, $feeTransaction, "check crypto command fee");
                                 }
 
                                 //exchange if needed

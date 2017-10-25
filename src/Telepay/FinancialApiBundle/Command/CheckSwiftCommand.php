@@ -351,7 +351,7 @@ class CheckSwiftCommand extends SyncronizedContainerAwareCommand
                                     $em->flush();
 
                                     $userCompany = $em->getRepository('TelepayFinancialApiBundle:Group')->find($transaction->getGroup());
-                                    $balancer->addBalance($userCompany, $client_fee, $transaction);
+                                    $balancer->addBalance($userCompany, $client_fee, $transaction, "check swift command");
                                 }
 
                                 if($service_fee != 0){
@@ -403,7 +403,7 @@ class CheckSwiftCommand extends SyncronizedContainerAwareCommand
                                     $em->persist($rootWallet);
                                     $em->flush();
 
-                                    $balancer->addBalance($rootGroup, $service_fee, $transaction);
+                                    $balancer->addBalance($rootGroup, $service_fee, $transaction, "check swift command fee");
                                 }
 
                                 //quitamos saldo a los nodos de faircoop con un exchange

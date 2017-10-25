@@ -96,7 +96,7 @@ class CheckCryptoPOSv2Command extends ContainerAwareCommand
                     //TODO balancer
                     $balancer = $this->getContainer()->get('net.telepay.commons.balance_manipulator');
                     //rest balance
-                    $balancer->addBalance($group,$amount, $transaction);
+                    $balancer->addBalance($group,$amount, $transaction, "crypto pos commmand");
 
                     $em->persist($wallet);
                     $em->flush();
@@ -131,7 +131,7 @@ class CheckCryptoPOSv2Command extends ContainerAwareCommand
                         $dm->persist($feeTransaction);
                         $dm->flush();
 
-                        $balancer->addBalance($group,-$total_fee, $feeTransaction);
+                        $balancer->addBalance($group,-$total_fee, $feeTransaction, "crypto pos command fee");
 
                         $em->persist($wallet);
                         $em->flush();
