@@ -665,6 +665,8 @@ class FeeDeal{
                 'method'    =>  $method
             ));
 
+            $this->fee_logger->info('FEE_DEAL (resellerFees) => total resellers => '.count($resellers));
+
             foreach ($resellers as $reseller){
                 //generate a reseller transaction
                 $resellerFee = $total_fee * ($reseller->getFee()/100);
