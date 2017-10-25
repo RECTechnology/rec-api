@@ -12,6 +12,7 @@ use Telepay\FinancialApiBundle\Entity\ResellerDealer;
 use Telepay\FinancialApiBundle\Entity\ServiceFee;
 use FOS\RestBundle\Controller\Annotations as Rest;
 use Symfony\Component\HttpFoundation\Request;
+use Telepay\FinancialApiBundle\Financial\Currency;
 
 /**
  * Class CompaniesController
@@ -467,25 +468,63 @@ class CompaniesController extends BaseApiController
         $company_reseller = $em->getRepository($this->getRepositoryName())->find($params['company_reseller']);
         if(!$company_reseller) throw new HttpException(404, 'Company reseller not found');
 
-        //TODO check if reseller exists
-        $resellerExist = $em->getRepository('TelepayFinancialApiBundle:ResellerDealer')->findOneBy(array(
-            'method'    =>  $params['method'],
-            'company_origin'    =>  $company,
-            'company_reseller'  =>  $company_reseller
-        ));
+        $pos = strpos($params['method'], 'exchange');
+        //TODO if is exchange
+//        die(print_r(strpos($params['method'], 'exchange'),true));
+        //exchange must be sent like exchange_currency
+        if($pos!== false){
+            $explodeMethod = explode( '_',$params['method']);
+//            die(print_r($explodeMethod,true));
+            $currency = strtoupper($explodeMethod[1]);
+            $currencies = Currency::$ALL;
+            foreach ($currencies as $cur){
+                if($cur != $currency){
+                    //TODO check if reseller exists
+                    $resellerExist = $em->getRepository('TelepayFinancialApiBundle:ResellerDealer')->findOneBy(array(
+                        'method'    =>  'exchange_'.$cur.'to'.$currency,
+                        'company_origin'    =>  $company,
+                        'company_reseller'  =>  $company_reseller
+                    ));
 
-        if($resellerExist) throw new HttpException(409, 'Duplicate resource');
+                    if(!$resellerExist){
+                        //TODO check valid method
+                        //TODO create reseller
+                        $reseller = new ResellerDealer();
+                        $reseller->setMethod('exchange_'.$cur.'to'.$currency);
+                        $reseller->setFee($params['fee']);
+                        $reseller->setCompanyReseller($company_reseller);
+                        $reseller->setCompanyOrigin($company);
 
-        //TODO check valid method
-        //TODO create reseller
-        $reseller = new ResellerDealer();
-        $reseller->setMethod($params['method']);
-        $reseller->setFee($params['fee']);
-        $reseller->setCompanyReseller($company_reseller);
-        $reseller->setCompanyOrigin($company);
+                        $em->persist($reseller);
+                        $em->flush();
+                    }
+                }
+            }
 
-        $em->persist($reseller);
-        $em->flush();
+
+        }else{
+            //TODO check if reseller exists
+            $resellerExist = $em->getRepository('TelepayFinancialApiBundle:ResellerDealer')->findOneBy(array(
+                'method'    =>  $params['method'],
+                'company_origin'    =>  $company,
+                'company_reseller'  =>  $company_reseller
+            ));
+
+            if($resellerExist) throw new HttpException(409, 'Duplicate resource');
+
+            //TODO check valid method
+            //TODO create reseller
+            $reseller = new ResellerDealer();
+            $reseller->setMethod($params['method']);
+            $reseller->setFee($params['fee']);
+            $reseller->setCompanyReseller($company_reseller);
+            $reseller->setCompanyOrigin($company);
+
+            $em->persist($reseller);
+            $em->flush();
+
+        }
+
 
         return $this->restV2(201, 'success', 'Reseller created successfully', $reseller);
     }
