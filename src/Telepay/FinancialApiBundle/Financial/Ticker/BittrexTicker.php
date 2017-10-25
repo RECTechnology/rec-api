@@ -29,7 +29,7 @@ class BittrexTicker implements TickerInterface {
         $sum_btc = 0;
         $sum_other = 0;
         $amounts = array(
-            'FAIR' => 3,
+            'FAIR' => 2,
             'ETH' => 10
         );
         $btc_amount = $amounts[$this->currency];

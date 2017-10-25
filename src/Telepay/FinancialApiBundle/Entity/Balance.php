@@ -52,6 +52,12 @@ class Balance
      * @ORM\Column(type="string")
      * @Expose
      */
+    private $log = "";
+
+    /**
+     * @ORM\Column(type="string")
+     * @Expose
+     */
     private $concept;
 
     /**
@@ -124,6 +130,23 @@ class Balance
     {
         $this->date = $date;
     }
+
+    /**
+     * @return mixed
+     */
+    public function getLog()
+    {
+        return $this->log;
+    }
+
+    /**
+     * @param mixed $log
+     */
+    public function setLog($log)
+    {
+        $this->log = $log;
+    }
+
 
     /**
      * @return mixed

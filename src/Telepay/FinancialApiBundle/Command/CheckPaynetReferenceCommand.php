@@ -78,14 +78,18 @@ class CheckPaynetReferenceCommand extends ContainerAwareCommand
                     $total_fee = $fixed_fee + $variable_fee;
                     $total = $amount - $total_fee;
 
+                    //insert new line in the balance fro this group
+                    $balancer = $this->getContainer()->get('net.telepay.commons.balance_manipulator');
+                    $balancer->addBalance($group, $amount, $transaction);
+
                     $current_wallet->setAvailable($current_wallet->getAvailable() + $amount);
                     $current_wallet->setBalance($current_wallet->getBalance() + $amount);
 
                     $em->persist($current_wallet);
                     $em->flush();
 
-                        //luego a la ruleta de admins
-                        $dealer = $this->getContainer()->get('net.telepay.commons.fee_deal');
+                    //luego a la ruleta de admins
+                    $dealer = $this->getContainer()->get('net.telepay.commons.fee_deal');
 
                     $dealer->createFees2($transaction, $current_wallet);
 
@@ -95,7 +99,6 @@ class CheckPaynetReferenceCommand extends ContainerAwareCommand
                         $cur_in = strtoupper($transaction->getCurrency());
                         $cur_out = strtoupper($dataIn['request_currency_out']);
                         //THIS is the service for get the limits
-                        $service = 'exchange'.'_'.$cur_in.'to'.$cur_out;
                         $user = $em->getRepository('TelepayFinancialApiBundle:User')->find($id);
                         $output->writeln('CHECK CRYPTO exchanger');
                         $exchanger = $this->getContainer()->get('net.telepay.commons.exchange_manipulator');
@@ -107,7 +110,12 @@ class CheckPaynetReferenceCommand extends ContainerAwareCommand
                             //TODO send message alerting that this exchange has failed for some reason
                         }
                     }
-                }else{
+                }
+                else{
+                    //insert new line in the balance fro this group
+                    $balancer = $this->getContainer()->get('net.telepay.commons.balance_manipulator');
+                    $balancer->addBalance($group, $amount, $transaction);
+
                     $current_wallet->setAvailable($current_wallet->getAvailable() + $amount);
                     $current_wallet->setBalance($current_wallet->getBalance() + $amount);
 

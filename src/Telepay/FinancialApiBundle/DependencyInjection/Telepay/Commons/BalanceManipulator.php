@@ -24,9 +24,14 @@ class BalanceManipulator{
      * User
      * Transaction amount (+/-)
      * Transaction
+     * @param Group $group
+     * @param $amount
+     * @param Transaction $transaction
+     * @param string $log
+     * @return Balance
      */
 
-    public function addBalance(Group $group, $amount, Transaction $transaction){
+    public function addBalance(Group $group, $amount, Transaction $transaction, $log = 'null'){
 
         $em = $this->doctrine->getManager();
         $prev_balance = $em->getRepository('TelepayFinancialApiBundle:Balance')
@@ -75,6 +80,7 @@ class BalanceManipulator{
         $balance->setConcept($concept);
         $balance->setCurrency($transaction->getCurrency());
         $balance->setDate(new \DateTime());
+        $balance->setLog($log);
         $balance->setTransactionId($transaction->getId());
 
         $em->persist($balance);
