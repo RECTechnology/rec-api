@@ -140,7 +140,7 @@ class FeeDeal{
 
             $this->fee_logger->info('make transaction -> deal id fee => '.$transaction->getId());
             $this->fee_logger->info('Add Balance->' . $creator->getId() . " amount = " . $fee . " Trans group: " . $transaction->getGroup());
-            $this->balance_manipulator->addBalance($creator, $fee, $transaction);
+            $this->balance_manipulator->addBalance($creator, $fee, $transaction, "balancer 1");
             $id = $transaction->getId();
         }
 
@@ -191,7 +191,7 @@ class FeeDeal{
                 $dm->persist($feeTransaction);
                 $dm->flush();
                 $this->fee_logger->info('make transaction -> deal not superadmin fee id => '.$feeTransaction->getId());
-                $this->balance_manipulator->addBalance($creator, -$total, $feeTransaction);
+                $this->balance_manipulator->addBalance($creator, -$total, $feeTransaction, "balancer 2");
             }
 
             $new_creator = $creator->getGroupCreator();
@@ -294,7 +294,7 @@ class FeeDeal{
                 $dm->persist($transaction);
                 $dm->flush();
                 $logger->info('make transaction -> deal admin fee id => '.$transaction->getId());
-                $this->balance_manipulator->addBalance($creator, -$fee, $transaction);
+                $this->balance_manipulator->addBalance($creator, -$fee, $transaction, "balancer 3");
 
                 $id = $transaction->getId();
 
@@ -343,7 +343,7 @@ class FeeDeal{
             $dm->persist($feeTransaction);
             $dm->flush();
             $logger->info('make transaction -> deal not admin '.$feeTransaction->getId());
-            $this->balance_manipulator->addBalance($creator, -$total, $feeTransaction);
+            $this->balance_manipulator->addBalance($creator, -$total, $feeTransaction, "balancer 4");
 
             $new_creator = $group->getGroupCreator();
             $this->inversedDeal($new_creator, $amount, $service_cname, $type, $currency, $total, $id, $version);
@@ -415,7 +415,7 @@ class FeeDeal{
             $mongo->flush();
             $this->fee_logger->info('FEE_DEAL (createFees) => BALANCE ');
             $balancer = $this->container->get('net.telepay.commons.balance_manipulator');
-            $balancer->addBalance($userGroup, -$total_fee, $feeTransaction );
+            $balancer->addBalance($userGroup, -$total_fee, $feeTransaction, "balancer 5" );
 
         }
 
@@ -499,7 +499,7 @@ class FeeDeal{
             $mongo->flush();
             $this->fee_logger->info('FEE_DEAL (createFees) => BALANCE ');
             $balancer = $this->container->get('net.telepay.commons.balance_manipulator');
-            $balancer->addBalance($userGroup, $total_fee, $feeTransaction );
+            $balancer->addBalance($userGroup, $total_fee, $feeTransaction, "balancer 6" );
 
         }
 
@@ -656,8 +656,8 @@ class FeeDeal{
             $mongo->flush();
 
             $balancer = $this->container->get('net.telepay.commons.balance_manipulator');
-            $balancer->addBalance($userGroup, -$total_fee, $feeTransaction );
-            $balancer->addBalance($rootGroup, $total_fee, $rootTransaction );
+            $balancer->addBalance($userGroup, -$total_fee, $feeTransaction, "balancer 7" );
+            $balancer->addBalance($rootGroup, $total_fee, $rootTransaction, "balancer 8" );
 
             //get all resellerDealer and create transactions
             $resellers = $em->getRepository('TelepayFinancialApiBundle:ResellerDealer')->findBy(array(
@@ -769,8 +769,8 @@ class FeeDeal{
                     $em->flush();
                     $mongo->flush();
 
-                    $balancer->addBalance($reseller->getCompanyReseller(), $resellerFee, $resellerTransaction );
-                    $balancer->addBalance($rootGroup, -$resellerFee, $rootResellerTransaction );
+                    $balancer->addBalance($reseller->getCompanyReseller(), $resellerFee, $resellerTransaction, "balancer 9" );
+                    $balancer->addBalance($rootGroup, -$resellerFee, $rootResellerTransaction, "balancer 10" );
 
                 }
 

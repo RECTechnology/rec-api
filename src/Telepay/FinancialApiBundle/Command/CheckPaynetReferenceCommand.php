@@ -80,7 +80,7 @@ class CheckPaynetReferenceCommand extends ContainerAwareCommand
 
                     //insert new line in the balance fro this group
                     $balancer = $this->getContainer()->get('net.telepay.commons.balance_manipulator');
-                    $balancer->addBalance($group, $amount, $transaction);
+                    $balancer->addBalance($group, $amount, $transaction, "paynet command user");
 
                     $current_wallet->setAvailable($current_wallet->getAvailable() + $amount);
                     $current_wallet->setBalance($current_wallet->getBalance() + $amount);
@@ -114,7 +114,7 @@ class CheckPaynetReferenceCommand extends ContainerAwareCommand
                 else{
                     //insert new line in the balance fro this group
                     $balancer = $this->getContainer()->get('net.telepay.commons.balance_manipulator');
-                    $balancer->addBalance($group, $amount, $transaction);
+                    $balancer->addBalance($group, $amount, $transaction, "paynet command super");
 
                     $current_wallet->setAvailable($current_wallet->getAvailable() + $amount);
                     $current_wallet->setBalance($current_wallet->getBalance() + $amount);

@@ -15,13 +15,12 @@ The services API has the following *features*
 
 The available payment services
 
-- Echo service (for testing)
+- Paynet payment
 - Halcash Send
-- Halcash Pay
-- Ukash Generate
-- Ukash Redeem
 - Bitcoin payment
 - Faircoin payment
+- Ethereum payment
+- Creativecoin payment
 
 #### For the user (wallet)
 Wallet API options
@@ -29,7 +28,7 @@ Wallet API options
 - OAuth2 authentication
 - Multi-currency wallet
 - Send/Receive money to other Wallet users
-- Exchange EUR/USD/MXN and cryto-currency support BTC/FAC
+- Exchange EUR/USD/MXN and cryto-currency support BTC/FAC/ETH/CREA
 - Cash-In & Cash-Out via all the commerce methods, including crypto-crurrencies
 
 #### For admins (management)

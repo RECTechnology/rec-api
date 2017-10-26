@@ -11,7 +11,7 @@
  * @api {get} /user/v1/account Read Account
  * @apiName ReadAccount
  * @apiPermission User
- * @apiVersion 0.1.0
+ * @apiVersion 1.0.0
  * @apiGroup User
  *
  * @apiUse OAuth2Header
@@ -39,7 +39,7 @@
  * @api {put} /user/v1/account Update Account
  * @apiName UpdateAccount
  * @apiPermission User
- * @apiVersion 0.1.0
+ * @apiVersion 1.0.0
  * @apiGroup User
  *
  * @apiUse OAuth2Header
@@ -69,7 +69,7 @@
  * @api {get} /user/v1/wallet Read wallets
  * @apiName ReadWallets
  * @apiPermission User
- * @apiVersion 0.1.0
+ * @apiVersion 1.0.0
  * @apiGroup User
  *
  * @apiUse OAuth2Header
@@ -143,7 +143,7 @@
  * @api {get} /user/v1/wallet/transactions Read wallet transactions
  * @apiName ReadWalletTransactions
  * @apiPermission User
- * @apiVersion 0.1.0
+ * @apiVersion 1.0.0
  * @apiGroup User
  *
  * @apiUse OAuth2Header
@@ -152,7 +152,7 @@
  * @apiParam {Number} [offset] offset=0 Offset for get clients
  * @apiParam {String[]} [query] query[] params
  *
- * @apiSuccess {String} code Status of the request.
+ * @apiSuccess {String} status Status of the request.
  * @apiSuccess {String} message Description of the request result.
  * @apiSuccess {String} data Data of the request result.
  *
@@ -178,12 +178,12 @@
  * @api {get} /user/v1/wallet/monthearnings Month earnings
  * @apiName ReadMonthEarnings
  * @apiPermission User
- * @apiVersion 0.1.0
+ * @apiVersion 1.0.0
  * @apiGroup User
  *
  * @apiUse OAuth2Header
  *
- * @apiSuccess {String} code Status of the request.
+ * @apiSuccess {String} status Status of the request.
  * @apiSuccess {String} message Description of the request result.
  * @apiSuccess {String} data Data of the request result.
  *
@@ -191,7 +191,7 @@
  *    HTTP/1.1 200 OK
  *    {
  *          "status": "ok",
- *          "message": "MOnth earnings got successful",
+ *          "message": "Request successful",
  *          "data":
  *              {
  *              ...
@@ -210,7 +210,7 @@
  * @api {get} /user/v1/wallet/countryearnings Country earnings
  * @apiName ReadCountryEarnings
  * @apiPermission User
- * @apiVersion 0.1.0
+ * @apiVersion 1.0.0
  * @apiGroup User
  *
  * @apiUse OAuth2Header
@@ -242,7 +242,7 @@
  * @api {get} /user/v1/last Read 10 last transactions
  * @apiName Read10LastTransactions
  * @apiPermission User
- * @apiVersion 0.1.0
+ * @apiVersion 1.0.0
  * @apiGroup User
  *
  * @apiUse OAuth2Header
@@ -273,7 +273,7 @@
  * @api {post} /user/v1/wallet/send/:currency Wallet To Wallet
  * @apiName WalletToWallet
  * @apiPermission User
- * @apiVersion 0.1.0
+ * @apiVersion 1.0.0
  * @apiGroup User
  *
  * @apiUse OAuth2Header
@@ -307,7 +307,7 @@
  * @api {post} /user/v1/wallet/currency_exchange Exchange
  * @apiName Exchange
  * @apiPermission User
- * @apiVersion 0.1.0
+ * @apiVersion 1.0.0
  * @apiGroup User
  *
  * @apiUse OAuth2Header
