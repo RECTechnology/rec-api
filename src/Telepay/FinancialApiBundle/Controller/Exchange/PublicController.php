@@ -131,7 +131,9 @@ class PublicController extends RestApiController{
             Currency::$FAC,
             Currency::$MXN,
             Currency::$PLN,
-            Currency::$USD
+            Currency::$USD,
+            Currency::$CREA,
+            Currency::$ETH
         ));
     }
 
