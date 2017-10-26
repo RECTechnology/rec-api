@@ -258,7 +258,7 @@ class IncomingController2 extends RestApiController{
                 $wallet->setBalance($wallet->getBalance() - $amount);
 
                 //insert new line in the balance for this group
-                $this->get('net.telepay.commons.balance_manipulator')->addBalance($group, -$amount, $transaction);
+                $this->get('net.telepay.commons.balance_manipulator')->addBalance($group, -$amount, $transaction, "incoming2 contr 1");
 
                 $em->flush();
 
@@ -417,7 +417,7 @@ class IncomingController2 extends RestApiController{
                     $logger->info('Update transaction -> addBalance');
                     //restamos la pasta al wallet
                     $balancer = $this->get('net.telepay.commons.balance_manipulator');
-                    $balancer->addBalance($group, -$amount, $transaction);
+                    $balancer->addBalance($group, -$amount, $transaction, "incoming2 contr 2");
 
                     $current_wallet->setBalance($current_wallet->getBalance() - $amount );
                     $em->persist($current_wallet);
@@ -521,7 +521,7 @@ class IncomingController2 extends RestApiController{
                         $current_wallet->setAvailable($current_wallet->getAvailable() + $amount );
                         $current_wallet->setBalance($current_wallet->getBalance() + $amount );
                         $balancer = $this->get('net.telepay.commons.balance_manipulator');
-                        $balancer->addBalance($group, $amount, $transaction);
+                        $balancer->addBalance($group, $amount, $transaction, "incoming2 contr 3");
                         $logger->info('Update transaction -> addBalance');
 
                         $em->persist($current_wallet);
@@ -658,7 +658,7 @@ class IncomingController2 extends RestApiController{
                         $current_wallet->setAvailable($current_wallet->getAvailable() + $transaction->getAmount());
                         $current_wallet->setBalance($current_wallet->getBalance() + $transaction->getAmount());
                         $balancer = $this->get('net.telepay.commons.balance_manipulator');
-                        $balancer->addBalance($group, $transaction->getAmount(), $transaction);
+                        $balancer->addBalance($group, $transaction->getAmount(), $transaction, "incoming2 contr 4");
                         $em->persist($current_wallet);
                         $em->flush();
                     }
@@ -929,7 +929,7 @@ class IncomingController2 extends RestApiController{
                 $current_wallet->setAvailable($current_wallet->getAvailable() + $total_amount );
                 $current_wallet->setBalance($current_wallet->getBalance() + $total_amount);
                 $balancer = $this->get('net.telepay.commons.balance_manipulator');
-                $balancer->addBalance($user, $transaction->getAmount(), $transaction);
+                $balancer->addBalance($user, $transaction->getAmount(), $transaction, "incoming2 contr 5");
             }
 
             $em->persist($current_wallet);

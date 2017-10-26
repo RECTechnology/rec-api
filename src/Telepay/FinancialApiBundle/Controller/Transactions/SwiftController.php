@@ -1144,7 +1144,7 @@ class SwiftController extends RestApiController{
             $current_wallet_client->setAvailable($current_wallet_client->getAvailable() - $client_fee);
             $current_wallet_client->setBalance($current_wallet_client->getBalance() - $client_fee);
 
-            $balancer->addBalance($userGroup, -$client_fee, $transaction);
+            $balancer->addBalance($userGroup, -$client_fee, $transaction, "swift contr 1");
         }
 
 
@@ -1185,7 +1185,7 @@ class SwiftController extends RestApiController{
             $current_wallet->setAvailable($current_wallet->getAvailable() - $service_fee);
             $current_wallet->setBalance($current_wallet->getBalance() - $service_fee);
 
-            $balancer->addBalance($rootGroup, -$service_fee, $transaction);
+            $balancer->addBalance($rootGroup, -$service_fee, $transaction, "swift contr 2");
         }
 
         $dm->flush();

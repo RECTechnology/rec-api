@@ -410,7 +410,7 @@ class ActivityController extends RestApiController
             $current_wallet->addBalance($amount);
 
             $balancer = $this->get('net.telepay.commons.balance_manipulator');
-            $balancer->addBalance($token->getCompany(), $amount, $transaction);
+            $balancer->addBalance($token->getCompany(), $amount, $transaction, "activity contr 1");
 
             $em->flush();
 

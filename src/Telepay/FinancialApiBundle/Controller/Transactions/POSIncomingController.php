@@ -578,7 +578,7 @@ class POSIncomingController extends RestApiController{
                 $current_wallet->setBalance($current_wallet->getBalance() + $total);
 
                 $balancer = $this->get('net.telepay.commons.balance_manipulator');
-                $balancer->addBalance($group, $amount, $transaction);
+                $balancer->addBalance($group, $amount, $transaction, "POS contr 1");
 
                 $em->persist($current_wallet);
                 $em->flush();
@@ -639,7 +639,7 @@ class POSIncomingController extends RestApiController{
         $mongo->flush();
 
         $balancer = $this->get('net.telepay.commons.balance_manipulator');
-        $balancer->addBalance($group, -$total_fee, $feeTransaction );
+        $balancer->addBalance($group, -$total_fee, $feeTransaction, "POS contr 2");
 
         //empezamos el reparto
         $creator = $group->getCreator();

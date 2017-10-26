@@ -830,7 +830,7 @@ class WalletController extends RestApiController{
         $dm->flush();
 
         $balancer = $this->get('net.telepay.commons.balance_manipulator');
-        $balancer->addBalance($userGroup, -$params['amount'], $sender_transaction);
+        $balancer->addBalance($userGroup, -$params['amount'], $sender_transaction, "user wallet contr 1");
 
         //RECEIVER TRANSACTION
         $receiver_transaction = new Transaction();
@@ -875,7 +875,7 @@ class WalletController extends RestApiController{
         $dm->flush();
 
         $balancer = $this->get('net.telepay.commons.balance_manipulator');
-        $balancer->addBalance($receiver, $params['amount'], $receiver_transaction);
+        $balancer->addBalance($receiver, $params['amount'], $receiver_transaction, "user wallet contr 2");
 
         //update wallets
         $sender_wallet->setAvailable($sender_wallet->getAvailable() - $params['amount']);
