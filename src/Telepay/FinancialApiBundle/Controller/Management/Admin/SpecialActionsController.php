@@ -435,6 +435,7 @@ class SpecialActionsController extends RestApiController {
                 $paymentInfo = $transaction->getPayInInfo();
                 $paymentInfo['status'] = Transaction::$STATUS_RECEIVED;
                 $paymentInfo['final'] = false;
+                if($request->request->has('external_id')) $paymentInfo['external_id'] = $request->request->get('external_id');
                 $transaction->setPayInInfo($paymentInfo);
                 if( $transaction->getEmailNotification() != ""){
                     $email = $transaction->getEmailNotification();
@@ -460,6 +461,7 @@ class SpecialActionsController extends RestApiController {
                 $paymentInfo = $transaction->getPayOutInfo();
                 $paymentInfo['status'] = Transaction::$STATUS_SENT;
                 $paymentInfo['final'] = true;
+                if($request->request->has('external_id')) $paymentInfo['external_id'] = $request->request->get('external_id');
                 $transaction->setPayOutInfo($paymentInfo);
 
                 $dm->persist($transaction);
