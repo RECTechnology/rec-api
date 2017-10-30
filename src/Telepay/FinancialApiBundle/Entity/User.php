@@ -516,25 +516,8 @@ class User extends BaseUser
     }
 
     public function getAdminView(){
-//        unset($this->name);
-
+//        $this->groups = $this->getGroups();
         return $this;
-    }
-
-    /**
-     * @return mixed
-     */
-    public function getLastName()
-    {
-        return $this->lastName;
-    }
-
-    /**
-     * @param mixed $lastName
-     */
-    public function setLastName($lastName)
-    {
-        $this->lastName = $lastName;
     }
 
     /**

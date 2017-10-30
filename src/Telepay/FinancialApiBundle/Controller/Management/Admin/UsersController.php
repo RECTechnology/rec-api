@@ -34,11 +34,24 @@ class UsersController extends BaseApiController
      * @Rest\View
      */
     public function showAction($id){
-        $user = $this->get('security.context')->getToken()->getUser();
 
         $user = $this->getRepository()->find($id);
 
         if(!$user) throw new HttpException(404,'User not found');
+
+        $groups = array();
+
+        foreach ($user->getGroups() as $group){
+            $resumeView = array();
+            $resumeView['id'] = $group->getId();
+            $resumeView['name'] = $group->getName();
+            $resumeView['tier'] = $group->getTier();
+            $resumeView['roles'] = $user->getRolesCompany($group->getId());
+
+            $groups[] = $resumeView;
+        }
+
+        $user->setGroupData($groups);
 
         return $this->restV2(
             200,
@@ -48,7 +61,7 @@ class UsersController extends BaseApiController
                 'total' => 1,
                 'start' => 0,
                 'end' => 1,
-                'elements' => $user->getAdminView()
+                'elements' => $user
             )
         );
     }
