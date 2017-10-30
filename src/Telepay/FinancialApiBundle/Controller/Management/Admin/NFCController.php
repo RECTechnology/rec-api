@@ -262,7 +262,7 @@ class NFCController extends RestApiController{
         $dm->persist($sender_transaction);
 
         $balancer = $this->get('net.telepay.commons.balance_manipulator');
-        $balancer->addBalance($company, -$params['amount'], $sender_transaction);
+        $balancer->addBalance($company, -$params['amount'], $sender_transaction, "nfc contr 1");
 
         //FEE=1% al user
         $variable_fee = round($amount*0,0);
@@ -311,7 +311,7 @@ class NFCController extends RestApiController{
         $dm->flush();
 
         $balancer = $this->get('net.telepay.commons.balance_manipulator');
-        $balancer->addBalance($receiverCompany, $rec_amount, $receiver_transaction);
+        $balancer->addBalance($receiverCompany, $rec_amount, $receiver_transaction, "nfc contr 2");
 
         //update wallets
         $sender_wallet->setAvailable($sender_wallet->getAvailable() - $amount);

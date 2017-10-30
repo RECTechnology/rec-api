@@ -618,7 +618,7 @@ class UsersController extends BaseApiController
                 $dm->flush();
 
                 $balancer = $this->get('net.telepay.commons.balance_manipulator');
-                $balancer->addBalance($user, $amount, $transaction);
+                $balancer->addBalance($user, $amount, $transaction, "user contr 1");
 
                 $find_wallet = 1;
                 $em->persist($wallet);

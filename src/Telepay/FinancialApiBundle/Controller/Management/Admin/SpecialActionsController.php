@@ -130,7 +130,7 @@ class SpecialActionsController extends RestApiController {
         $current_wallet->addBalance($params['amount']);
 
         $balancer = $this->get('net.telepay.commons.balance_manipulator');
-        $balancer->addBalance($token->getCompany(), $params['amount'], $transaction);
+        $balancer->addBalance($token->getCompany(), $params['amount'], $transaction, "special act contr 1");
 
         $em->flush();
 
@@ -187,7 +187,7 @@ class SpecialActionsController extends RestApiController {
             $current_wallet->setBalance($current_wallet->getBalance()+$total);
 
             $balancer = $this->get('net.telepay.commons.balance_manipulator');
-            $balancer->addBalance($group, $transaction->getAmount(), $transaction);
+            $balancer->addBalance($group, $transaction->getAmount(), $transaction, "special act contr 2");
 
             $em->persist($current_wallet);
             $em->flush();
@@ -760,7 +760,7 @@ class SpecialActionsController extends RestApiController {
         $mongo->flush();
 
         $balancer = $this->get('net.telepay.commons.balance_manipulator');
-        $balancer->addBalance($user, -$total_fee, $feeTransaction );
+        $balancer->addBalance($user, -$total_fee, $feeTransaction, "special act contr 3");
 
         //empezamos el reparto
         $group = $user->getGroups()[0];
@@ -844,7 +844,7 @@ class SpecialActionsController extends RestApiController {
         $logger->info('make transaction -> addBalance');
         $balancer = $this->get('net.telepay.commons.balance_manipulator');
 
-        $balancer->addBalance($group, -$total_fee, $feeTransaction );
+        $balancer->addBalance($group, -$total_fee, $feeTransaction, "special act contr 4");
         //empezamos el reparto
 
         if(!$creator) throw new HttpException(404,'Creator not found');
