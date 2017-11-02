@@ -78,6 +78,7 @@ class CheckPaynetReferenceCommand extends ContainerAwareCommand
                     $total_fee = $fixed_fee + $variable_fee;
                     $total = $amount - $total_fee;
 
+                    /*
                     //insert new line in the balance fro this group
                     $balancer = $this->getContainer()->get('net.telepay.commons.balance_manipulator');
                     $balancer->addBalance($group, $amount, $transaction, "paynet command user");
@@ -87,6 +88,7 @@ class CheckPaynetReferenceCommand extends ContainerAwareCommand
 
                     $em->persist($current_wallet);
                     $em->flush();
+                    */
 
                     //luego a la ruleta de admins
                     $dealer = $this->getContainer()->get('net.telepay.commons.fee_deal');
