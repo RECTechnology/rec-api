@@ -24,7 +24,7 @@ class GetFaircoinTicker implements TickerInterface {
         $ovars = get_object_vars($prices);
         return $ovars[$this->outCurrency]->last;
         */
-        return 0.6;
+        return 0.9;
     }
 
     public function getInCurrency()
