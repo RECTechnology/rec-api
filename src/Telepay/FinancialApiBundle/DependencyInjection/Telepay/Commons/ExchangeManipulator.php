@@ -125,10 +125,7 @@ class ExchangeManipulator{
         $receiverWallet = $company->getWallet($to);
 
         if($senderWallet->getAvailable() < $amount) throw new HttpException(403, 'Insuficient funds');
-        exec('curl -X POST -d "chat_id=-145386290&text=#EXCHANGE (doExchange  ' . $company->getName() .')=> amount=' . $amount .' from ' . $from . ' to=' . $to . '" "https://api.telegram.org/bot348257911:AAG9z3cJnDi31-7MBsznurN-KZx6Ho_X4ao/sendMessage"');
-
         //getFees
-
         $fee = $company->getCommission($service);
         $exchange_fixed_fee = $fee->getFixed();
         $exchange_variable_fee = round((($fee->getVariable()/100) * $exchangeAmount), 0);
@@ -137,6 +134,7 @@ class ExchangeManipulator{
         if(!$internal && ($company->getFairtoearthAdmin() || $company->getId() == $botc_exchange) && ($from == Currency::$FAC || $to == Currency::$FAC)){
             throw new HttpException(403, 'Exchange not allowed for this company');
         }
+        exec('curl -X POST -d "chat_id=-145386290&text=#EXCHANGE (doExchange  ' . $company->getName() .')=> amount=' . $amount .' from ' . $from . ' to=' . $to . '" "https://api.telegram.org/bot348257911:AAG9z3cJnDi31-7MBsznurN-KZx6Ho_X4ao/sendMessage"');
 
         $totalExchangeFee = $exchange_fixed_fee + $exchange_variable_fee;
 

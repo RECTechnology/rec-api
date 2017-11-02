@@ -569,6 +569,10 @@ class WalletController extends RestApiController {
 
         $amount = floor($params['amount']);
 
+        if($amount<=0){
+            throw new HttpException(403, 'Amount must be greater than 0.');
+        }
+
         $from = strtoupper($params['from']);
         $to = strtoupper($params['to']);
         $method = 'exchange'.'_'.$from.'to'.$to;
@@ -578,11 +582,13 @@ class WalletController extends RestApiController {
             'method'    =>  $from.'to'.$to,
             'type'      =>  'exchange'
         ));
-
         if($statusMethod->getStatus() != 'available') throw new HttpException(403, 'Exchange temporally unavailable');
 
-        $exchanger = $this->container->get('net.telepay.commons.exchange_manipulator');
+        if($userGroup->getPremium() == true && $userGroup->getTier() < 1){
+            throw new HttpException(403, 'You must promote to BankOfTheCommons user to do it.');
+        }
 
+        $exchanger = $this->container->get('net.telepay.commons.exchange_manipulator');
         $botc_admin = $this->container->getParameter('default_company_creator_commerce_botc');
         if(($botc_admin == $userGroup->getGroupCreator()->getId() || $botc_admin == $userGroup->getId()) && $userGroup->getPremium()==true) {
             $to_data=$to==Currency::$FAC?Currency::$FAIRP:$to;
