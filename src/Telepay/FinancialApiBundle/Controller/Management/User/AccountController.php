@@ -755,15 +755,14 @@ class AccountController extends BaseApiController{
     public function registerCommerceAction(Request $request, $type){
         $paramNames = array(
             'username',
-            'email',
-            'company_name',
+            'account_name',
             'password',
-            'repassword'
+            'repassword',
+            'phone',
+            'dni'
         );
 
-        if(!$request->request->has('company_name'))$request->request->set('company_name',  $request->request->get('username'));
-
-        $valid_types = array('prestashop', 'android', 'commerce', 'android_fair', 'physical_pos', 'botc');
+        $valid_types = array('mobile');
         if(!in_array($type, $valid_types)) throw new HttpException(404, 'Type not valid');
 
         $params = array();
@@ -780,8 +779,14 @@ class AccountController extends BaseApiController{
         unset($params['password']);
         unset($params['repassword']);
 
-        if (!filter_var($params['email'], FILTER_VALIDATE_EMAIL)) {
-            throw new HttpException(400, 'Email is invalid');
+        if($request->request->has('email')){
+            $params['email'] = $request->request->get('email');
+            if (!filter_var($params['email'], FILTER_VALIDATE_EMAIL)) {
+                throw new HttpException(400, 'Email is invalid');
+            }
+        }
+        else{
+            $params['email'] = '';
         }
 
         $em = $this->getDoctrine()->getManager();
@@ -791,66 +796,28 @@ class AccountController extends BaseApiController{
         if($user){
             throw new HttpException(400, "Username already registered");
         }
+
         $user = $em->getRepository($this->getRepositoryName())->findOneBy(array(
-            'email'  =>  $params['email']
+            'dni'  =>  $params['email']
         ));
-
-        $user_kyc = false;
         if($user){
-            if(count($user->getGroups())==0){
-                $user_kyc = true;
-            }
-            else{
-                throw new HttpException(400, "Email already registered");
-            }
+            throw new HttpException(400, "Email already registered");
         }
 
-        $url = $this->container->getParameter('base_panel_url');
-        $client_name = 'Chip-Chap';
-        if($type == 'commerce' || $type == 'physical_pos'){
-            //get client if is authenticated
-            if ($this->get('security.authorization_checker')->isGranted('IS_AUTHENTICATED_FULLY')) {
-                $tokenManager = $this->container->get('fos_oauth_server.access_token_manager.default');
-                $accessToken = $tokenManager->findTokenByToken(
-                    $this->container->get('security.context')->getToken()->getToken()
-                );
-                $client = $accessToken->getClient();
-                if(!$client->getGroup()->getKycManager()) throw new HttpException(403, 'Something went wrong. Panel not enabled');
-                $user_creator_id = $client->getGroup()->getKycManager()->getId();
-                $company_creator_id = $client->getGroup()->getId();
-                $url = $client->getRedirectUris()[0];
-                $client_name = $client->getCname();
-
-            }else{
-                $user_creator_id = $this->container->getParameter('admin_user_id');
-                $company_creator_id = $this->container->getParameter('id_group_root');
-            }
-
-        }else{
-            $user_creator_id = $this->container->getParameter('default_user_creator_commerce_' . $type);
-            $company_creator_id = $this->container->getParameter('default_company_creator_commerce_' . $type);
-        }
-
-        $premium = false;
-        if($type == 'android_fair'){
-            $premium = true;
-        }
-
+        $user_creator_id = 1;
+        $account_creator_id = 1;
         $userCreator = $em->getRepository('TelepayFinancialApiBundle:User')->find($user_creator_id);
-        $companyCreator = $em->getRepository('TelepayFinancialApiBundle:Group')->find($company_creator_id);
+        $accountCreator = $em->getRepository('TelepayFinancialApiBundle:Group')->find($account_creator_id);
 
         //create company
         $company = new Group();
-        $company->setName($params['company_name']);
+        $company->setName($params['account_name']);
         $company->setActive(true);
         $company->setCreator($userCreator);
-        $company->setGroupCreator($companyCreator);
+        $company->setAccountCreator($accountCreator);
         $company->setRoles(array('ROLE_COMPANY'));
-        $company->setDefaultCurrency('EUR');
+        $company->setDefaultCurrency('REC');
         $company->setEmail($params['email']);
-        $company->setMethodsList('');
-        $company->setPremium($premium);
-
         $em->persist($company);
 
         //create wallets for this company
@@ -861,73 +828,41 @@ class AccountController extends BaseApiController{
             $userWallet->setAvailable(0);
             $userWallet->setCurrency(strtoupper($currency));
             $userWallet->setGroup($company);
-
             $em->persist($userWallet);
         }
 
-        $exchanges = $this->container->get('net.telepay.exchange_provider')->findAll();
-
-        foreach($exchanges as $exchange){
-            //create fee for this group
-            $fee = new ServiceFee();
-            $fee->setFixed(0);
-            $fee->setVariable(1);
-            $fee->setCurrency($exchange->getCurrencyOut());
-            $fee->setServiceName('exchange_'.$exchange->getCname());
-            $fee->setGroup($company);
-            $em->persist($fee);
-        }
-
-        //create user
-        if($user_kyc){
-            $user->setPlainPassword($params['plain_password']);
-            $user->setRoles(array('ROLE_USER'));
-            $user->setName($params['username']);
-            $user->setUsername($params['username']);
-            $user->setActiveGroup($company);
-            $user->setEnabled(false);
-        }
-        else{
-            $user = new User();
-            $user->setPlainPassword($params['plain_password']);
-            $user->setEmail($params['email']);
-            $user->setRoles(array('ROLE_USER'));
-            $user->setName($params['username']);
-            $user->setUsername($params['username']);
-            $user->setActiveGroup($company);
-            $user->setBase64Image('');
-            if($type == 'physical_pos'){
-                $user->setEnabled(true);
-            }else{
-                $user->setEnabled(false);
-            }
-        }
+        $user = new User();
+        $user->setPlainPassword($params['plain_password']);
+        $user->setEmail($params['email']);
+        $user->setRoles(array('ROLE_USER'));
+        $user->setName($params['username']);
+        $user->setPhone($params['phone']);
+        $user->setUsername($params['username']);
+        $user->setDNI($params['dni']);
+        $user->setActiveGroup($company);
+        $user->setBase64Image('');
+        $user->setEnabled(false);
 
         $company->setKycManager($user);
         $em->persist($company);
 
-        $tokenGenerator = $this->container->get('fos_user.util.token_generator');
-        $user->setConfirmationToken($tokenGenerator->generateToken());
-        $em->persist($user);
-        $em->flush();
-        $url_validation = $url.'/user/validation/'.$user->getConfirmationToken();
-        $this->_sendEmail($client_name.' validation e-mail', $url_validation, $user->getEmail(), 'register', $client_name, $url, $companyCreator);
+        if($params['email'] != '') {
+            $tokenGenerator = $this->container->get('fos_user.util.token_generator');
+            $user->setConfirmationToken($tokenGenerator->generateToken());
+            $em->persist($user);
+            $em->flush();
+            //$url_validation = $url . '/user/validation/' . $user->getConfirmationToken();
+            //$this->_sendEmail($client_name . ' validation e-mail', $url_validation, $user->getEmail(), 'register', $client_name, $url, $companyCreator);
+        }
+        else{
+            //send SMS
+        }
 
         //Add user to group with admin role
         $userGroup = new UserGroup();
         $userGroup->setUser($user);
         $userGroup->setGroup($company);
         $userGroup->setRoles(array('ROLE_ADMIN'));
-
-
-        if($type == 'android_fair'){
-            //Add admin to group with readonly role
-            $userRO = new UserGroup();
-            $userRO->setUser($userCreator);
-            $userRO->setGroup($company);
-            $userRO->setRoles(array('ROLE_READONLY'));
-            $em->persist($userRO);
-        }
 
         $kyc = new KYC();
         $kyc->setUser($user);
@@ -937,92 +872,44 @@ class AccountController extends BaseApiController{
         $em->persist($kyc);
         $em->flush();
 
-        if($type == 'prestashop' || $type == "physical_pos") {
-            //create POS-Btc
-            $pos = new POS();
-            $pos->setName($params['company_name']);
-            $pos->setActive(true);
-            $pos->setCurrency('BTC');
-            $pos->setExpiresIn(1200);
-            $pos->setGroup($company);
-            $pos->setType('BTC');
-            $pos->setPosId(uniqid());
-            $pos->setCname('POS-BTC');
 
-            $em->persist($pos);
-            $em->flush();
+        $methodsList = array('rec-out', 'rec-in');
+        $company->setMethodsList($methodsList);
+        $em->persist($company);
 
-            $response = array(
-                'user' => $user,
-                'company' => $company,
-                'pos' => $pos
-            );
-        }
-        elseif($type == 'android' || $type == 'commerce' || $type == 'android_fair' || $type == 'botc'){
-            if($type == 'android_fair'){
-                $methodsList = array('fac-out', 'fac-in');
-            }elseif($type == 'botc'){
-                $methodsList = array('btc-in', 'fac-in', 'btc-out', 'fac-out', "sepa-in", 'sepa-out', "halcash_es-out", "halcash_pl-out", "cryptocapital-out", "easypay-in", "teleingreso-in", "transfer-out");
-            }else{
-                $methodsList = array('btc-in', 'fac-in', 'btc-out', 'fac-out');
-            }
-            $company->setMethodsList($methodsList);
-            $em->persist($company);
+        foreach($methodsList as $method){
+            $method_ex = explode('-', $method);
+            $meth = $method_ex[0];
+            $meth_type = $method_ex[1];
 
-            foreach($methodsList as $method){
-                $method_ex = explode('-', $method);
-                $meth = $method_ex[0];
-                $meth_type = $method_ex[1];
-
-                //create new ServiceFee
-                $newFee = new ServiceFee();
-                $newFee->setGroup($company);
-                $newFee->setFixed(0);
-                $newFee->setVariable(0);
-                $newFee->setServiceName($method);
-                $newFee->setCurrency(strtoupper($meth));
-                $em->persist($newFee);
-
-            }
-
-            if($type != 'android_fair'){
-                //create new fixed address for bitcoin and return
-                $btcAddress = new CashInTokens();
-                $btcAddress->setCurrency(Currency::$BTC);
-                $btcAddress->setCompany($company);
-                $btcAddress->setLabel('BTC account');
-                $btcAddress->setMethod('btc-in');
-                $btcAddress->setExpiresIn(-1);
-                $btcAddress->setStatus(CashInTokens::$STATUS_ACTIVE);
-                $methodDriver = $this->get('net.telepay.in.btc.v1');
-                $paymentInfo = $methodDriver->getPayInInfo(0);
-                $token = $paymentInfo['address'];
-                $btcAddress->setToken($token);
-                $em->persist($btcAddress);
-
-                $response['btc_address'] = $btcAddress;
-            }
-
-            
-            //create new fixed address for faircoin and return
-            $facAddress = new CashInTokens();
-            $facAddress->setCurrency(Currency::$FAC);
-            $facAddress->setCompany($company);
-            $facAddress->setLabel('FAC account');
-            $facAddress->setMethod('fac-in');
-            $facAddress->setExpiresIn(-1);
-            $facAddress->setStatus(CashInTokens::$STATUS_ACTIVE);
-            $methodDriver = $this->get('net.telepay.in.fac.v1');
-            $paymentInfo = $methodDriver->getPayInInfo(0);
-            $token = $paymentInfo['address'];
-            $facAddress->setToken($token);
-            $em->persist($facAddress);
-
-            $response['user'] = $user;
-            $response['company'] = $company;
-            $response['fac_address'] = $facAddress;
+            //create new ServiceFee
+            $newFee = new ServiceFee();
+            $newFee->setGroup($company);
+            $newFee->setFixed(0);
+            $newFee->setVariable(0);
+            $newFee->setServiceName($method);
+            $newFee->setCurrency(strtoupper($meth));
+            $em->persist($newFee);
 
         }
+
+        //create new fixed address for rec and return
+        $recAddress = new CashInTokens();
+        $recAddress->setCurrency(Currency::$REC);
+        $recAddress->setCompany($company);
+        $recAddress->setLabel('REC account');
+        $recAddress->setMethod('rec-in');
+        $recAddress->setExpiresIn(-1);
+        $recAddress->setStatus(CashInTokens::$STATUS_ACTIVE);
+        $methodDriver = $this->get('net.telepay.in.rec.v1');
+        $paymentInfo = $methodDriver->getPayInInfo(0);
+        $token = $paymentInfo['address'];
+        $recAddress->setToken($token);
+        $em->persist($recAddress);
+
+        $response['rec_address'] = $recAddress;
+        $response['user'] = $user;
+        $response['company'] = $company;
         $em->flush();
 
         return $this->restV2(201,"ok", "Request successful", $response);
