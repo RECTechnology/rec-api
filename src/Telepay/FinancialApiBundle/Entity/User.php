@@ -32,7 +32,6 @@ class User extends BaseUser
     {
         parent::__construct();
         $this->groups = new ArrayCollection();
-        $this->btc_addresses = new ArrayCollection();
         $this->devices = new ArrayCollection();
 
         if($this->access_key == null){
@@ -74,16 +73,6 @@ class User extends BaseUser
      * @ORM\OneToMany(targetEntity="Telepay\FinancialApiBundle\Entity\AuthCode", mappedBy="user", cascade={"remove"})
      */
     private $auth_code;
-
-    /**
-     * @ORM\OneToOne(targetEntity="Telepay\FinancialApiBundle\Entity\BTCWallet", mappedBy="user", cascade={"remove"})
-     */
-    private $btc_wallet;
-
-    /**
-     * @ORM\OneToMany(targetEntity="Telepay\FinancialApiBundle\Entity\BTCAddresses", mappedBy="user", cascade={"remove"})
-     */
-    private $btc_addresses;
 
     /**
      * @ORM\OneToMany(targetEntity="Telepay\FinancialApiBundle\Entity\Device", mappedBy="user", cascade={"remove"})
@@ -289,38 +278,6 @@ class User extends BaseUser
     public function setAccessSecret($access_secret)
     {
         $this->access_secret = $access_secret;
-    }
-
-    /**
-     * @return mixed
-     */
-    public function getBtcWallet()
-    {
-        return $this->btc_wallet;
-    }
-
-    /**
-     * @param mixed $btc_wallet
-     */
-    public function setBtcWallet($btc_wallet)
-    {
-        $this->btc_wallet = $btc_wallet;
-    }
-
-    /**
-     * @return mixed
-     */
-    public function getBtcAddresses()
-    {
-        return $this->btc_addresses;
-    }
-
-    /**
-     * @param mixed $btc_addresses
-     */
-    public function setBtcAddresses($btc_addresses)
-    {
-        $this->btc_addresses = $btc_addresses;
     }
 
     /**
