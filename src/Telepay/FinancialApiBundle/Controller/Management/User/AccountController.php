@@ -810,6 +810,8 @@ class AccountController extends BaseApiController{
             $params['email'] = '';
         }
 
+        $methodsList = array('rec-out', 'rec-in');
+
         //create company
         $company = new Group();
         $company->setName($params['account_name']);
@@ -817,6 +819,7 @@ class AccountController extends BaseApiController{
         $company->setRoles(array('ROLE_COMPANY'));
         $company->setEmail($params['email']);
         $company->setRecAddress('temp');
+        $company->setMethodsList($methodsList);
         $em->persist($company);
 
         //create wallets for this company
@@ -872,11 +875,6 @@ class AccountController extends BaseApiController{
         $em->persist($userGroup);
         $em->persist($kyc);
         $em->flush();
-
-
-        $methodsList = array('rec-out', 'rec-in');
-        $company->setMethodsList($methodsList);
-        $em->persist($company);
 
         foreach($methodsList as $method){
             $method_ex = explode('-', $method);
