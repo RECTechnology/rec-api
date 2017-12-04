@@ -160,19 +160,5 @@ EOT
             );
             $input->setArgument('password', $password);
         }
-        if (!$input->getArgument('default_currency')) {
-            $defaultCurrency = $this->getHelper('dialog')->askAndValidate(
-                $output,
-                'Please choose a the default currency:',
-                function($defaultCurrency) {
-                    if (empty($defaultCurrency)) {
-                        throw new \Exception('Default currency can not be empty');
-                    }
-
-                    return $defaultCurrency;
-                }
-            );
-            $input->setArgument('default_currency', $defaultCurrency);
-        }
     }
 }
