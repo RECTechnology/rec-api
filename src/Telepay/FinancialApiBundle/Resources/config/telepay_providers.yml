@@ -1,132 +1,18 @@
 services:
 
 
-    net.telepay.provider.btc:
+    net.telepay.provider.rec:
         class: Telepay\FinancialApiBundle\DependencyInjection\Telepay\Providers\EasyBitcoin
         arguments:
-            - "%bitcoind_user%"
-            - "%bitcoind_pass%"
-            - "%bitcoind_host%"
-            - "%bitcoind_port%"
-
-    net.telepay.provider.fac:
-        class: Telepay\FinancialApiBundle\DependencyInjection\Telepay\Providers\EasyBitcoin
-        arguments:
-            - "%faircoind_user%"
-            - "%faircoind_pass%"
-            - "%faircoind_host%"
-            - "%faircoind_port%"
-
-    net.telepay.provider.halcash:
-        class: Telepay\FinancialApiBundle\DependencyInjection\Transactions\Libs\Halcash
-        arguments:
-            - "%halcash_user%"
-            - "%halcash_pass%"
-            - "%halcash_alias%"
-            - "%halcash_url%"
-
-    net.telepay.provider.halcash_abanca:
-        class: Telepay\FinancialApiBundle\DependencyInjection\Transactions\Libs\HalcashAbancaSender
-        arguments:
-            - "%halcash_user%"
-            - "%halcash_pass%"
-            - "%halcash_alias%"
-            - "%halcash_url%"
-            - "@net.telepay.driver.abanca_issue_hal"
-
-    net.telepay.provider.halcash_failover:
-        class: Telepay\FinancialApiBundle\DependencyInjection\Transactions\Libs\FailoverHalcashSender
-        arguments:
-            - "%halcash_user%"
-            - "%halcash_pass%"
-            - "%halcash_alias%"
-            - "%halcash_url%"
-            - "@net.telepay.driver.abanca_issue_hal"
-
-    net.telepay.provider.paynet_reference:
-        class: Telepay\FinancialApiBundle\DependencyInjection\Transactions\Libs\PaynetGetBarcode
-        arguments:
-            - "%paynet_reference_issuer%"
-            - "%paynet_reference_url%"
-
-    net.telepay.provider.multiva:
-        class: Telepay\FinancialApiBundle\DependencyInjection\Transactions\Libs\MultivaService
-        arguments:
-            - "%multiva_comcurrency%"
-            - "%multiva_comaddress%"
-            - "%multiva_commerchant%"
-            - "%multiva_comstore%"
-            - "%multiva_comterm%"
-            - "%base_url%"
-
-    net.telepay.provider.pademobile:
-        class: Telepay\FinancialApiBundle\DependencyInjection\Transactions\Libs\PademobileRedirect
-        arguments:
-            - "%pademobile_client%"
-            - "%pademobile_url%"
-            - "%base_url%"
-
-    net.telepay.provider.pagofacil:
-        class: Telepay\FinancialApiBundle\DependencyInjection\Transactions\Libs\PagofacilService
-        arguments:
-            - "%pagofacil_id_sucursal%"
-            - "%pagofacil_id_usuario%"
-            - "%pagofacil_id_servicio%"
-            - "%pagofacil_url_flag%"
-
-    net.telepay.provider.tc:
-        class: Telepay\FinancialApiBundle\DependencyInjection\Transactions\Libs\ToditoCash
-        arguments:
-            - "%tc_contract_id%"
-            - "%tc_branch_id%"
-            - "%tc_url_flag%"
-
-    net.telepay.provider.psc:
-        class: Telepay\FinancialApiBundle\DependencyInjection\Transactions\Libs\PaysafecardPayment
-        arguments:
-            - "%psc_username%"
-            - "%psc_password%"
-            - "%base_url%"
-
-    net.telepay.provider.spei:
-        class: Telepay\FinancialApiBundle\DependencyInjection\Transactions\Libs\SpeiPayment
-        arguments:
-            - "%spei_enterprise%"
-            - "%spei_account%"
-            - "%spei_partner%"
-            - "%spei_operant%"
-            - "%spei_passphrase%"
-
-    net.telepay.provider.easypay:
-        class: Telepay\FinancialApiBundle\DependencyInjection\Transactions\Libs\EasyPay
-        arguments:
-            - "%easypay_account%"
-
-    net.telepay.provider.cryptocapital:
-        class: Telepay\FinancialApiBundle\DependencyInjection\Transactions\Libs\Cryptocapital
-        arguments:
-            - "%cryptocapital_account_number%"
-            - "%cryptocapital_beneficiary%"
+            - "%rec_user%"
+            - "%rec_pass%"
+            - "%rec_host%"
+            - "%rec_port%"
 
     net.telepay.provider.sepa_in:
         class: Telepay\FinancialApiBundle\DependencyInjection\Transactions\Libs\SepaIn
         arguments:
-            - "%sepa_in_iban%"
-            - "%sepa_in_bic_swift%"
-            - "%sepa_in_beneficiary%"
 
     net.telepay.provider.sepa_out:
         class: Telepay\FinancialApiBundle\DependencyInjection\Transactions\Libs\SepaOut
         arguments:
-
-    net.telepay.provider.safetypay:
-        class: Telepay\FinancialApiBundle\DependencyInjection\Transactions\Libs\SafetyPayment
-        arguments:
-            - "%safetypay_api_key%"
-            - "%safetypay_signature_key%"
-            - "%safetypay_merchant_reference%"
-            - "%safetypay_language%"
-            - "%safetypay_tracking_code%"
-            - "%safetypay_expiration_time%"
-            - "%safetypay_response_format%"
-            - "%safetypay_url%"
