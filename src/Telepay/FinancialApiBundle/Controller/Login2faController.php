@@ -21,10 +21,6 @@ class Login2faController extends RestApiController{
         $pin = $request->get('pin');
         $kyc = 0;
         if($request->request->has('kyc')) $kyc = $request->get('kyc');
-        $fair = 0;
-        if($request->request->has('fair')) $fair = $request->get('fair');
-        $fair_admin = 0;
-        if($request->request->has('fair_admin')) $fair_admin = $request->get('fair_admin');
 
         $em = $this->getDoctrine()->getManager();
         $user = $em->getRepository('TelepayFinancialApiBundle:User')->findOneBy(array('email' => $username));
@@ -49,7 +45,7 @@ class Login2faController extends RestApiController{
             if((count($user[0]->getKycValidations())==0) || ((!$user[0]->getKycValidations()->getEmailValidated()) && (!$user[0]->getKycValidations()->getPhoneValidated()))){
                 $token = array(
                     "error" => "not_validated_email_phone",
-                    "error_description" => "User without email/phone validated"
+                    "error_description" => "User without email or phone validated"
                 );
                 return new Response(json_encode($token), 400, $headers);
             }
@@ -78,22 +74,7 @@ class Login2faController extends RestApiController{
             if($kyc == 0 && count($groups)<1){
                 $token = array(
                     "error" => "no_company",
-                    "error_description" => 'You are not assigned to any company. Please contact your company administrator or write us to <a href="https://support.chip-chap.com/">https://support.chip-chap.com/</a>'
-                );
-                return new Response(json_encode($token), 400, $headers);
-            }
-            if($fair == 1 && !$user[0]->getActiveGroup()->getPremium()){
-                $token = array(
-                    "error" => "no_fairpay_user",
-                    "error_description" => "Fairpay access denied"
-                );
-                return new Response(json_encode($token), 400, $headers);
-            }
-
-            if($fair_admin == 1 && !$user[0]->getActiveGroup()->getFairtoearthAdmin()){
-                $token = array(
-                    "error" => "no_fairtoearth_admin",
-                    "error_description" => "You are not fairtoearth admin"
+                    "error_description" => 'You are not assigned to any company. Please contact with the system administrators.'
                 );
                 return new Response(json_encode($token), 400, $headers);
             }
