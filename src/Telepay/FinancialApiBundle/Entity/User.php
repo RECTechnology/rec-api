@@ -26,8 +26,8 @@ use Symfony\Component\Validator\Constraints\DateTime;
  * @ORM\Table(name="fos_user")
  * @ExclusionPolicy("all")
  *
- * @AttributeOverrides({
- *     @AttributeOverride(name="emailCanonical",
+ * @ORM\AttributeOverrides({
+ *     @ORM\AttributeOverride(name="emailCanonical",
  *         column=@ORM\Column(
  *             name="emailCanonical",
  *             type="string",
