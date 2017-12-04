@@ -4,98 +4,12 @@ services:
         class: Telepay\FinancialApiBundle\Financial\ObjectRegister
         arguments:
             objects:
-                - "@net.telepay.wallet.bittrex.fair"
-                - "@net.telepay.wallet.bittrex.btc"
-                - "@net.telepay.wallet.kraken.btc"
-                - "@net.telepay.wallet.kraken.eur"
-                - "@net.telepay.wallet.fullnode.btc"
-                - "@net.telepay.wallet.fullnode.fair"
-                - "@net.telepay.wallet.caixacoves.eur"
+                - "@net.telepay.wallet.fullnode.rec"
 
-    net.telepay.wallet.bittrex.fair:
-        class: Telepay\FinancialApiBundle\Financial\Wallet\BittrexWallet
-        arguments:
-            - "@net.telepay.driver.bittrex"
-            - "FAIR"
-            - '["net.telepay.link.bittrex_fair.bittrex_btc","net.telepay.link.bittrex_fair.fullnode_fair"]'
-            - '["net.telepay.link.bittrex_btc.bittrex_fair","net.telepay.link.fullnode_fair.bittrex_fair"]'
-
-    net.telepay.wallet.bittrex.btc:
-        class: Telepay\FinancialApiBundle\Financial\Wallet\BittrexWallet
-        arguments:
-            - "@net.telepay.driver.bittrex"
-            - "BTC"
-            - '["net.telepay.link.bittrex_btc.bittrex_fair","net.telepay.link.bittrex_btc.fullnode_btc","net.telepay.link.bittrex_btc.kraken_btc"]'
-            - '["net.telepay.link.bittrex_fair.bittrex_btc","net.telepay.link.fullnode_btc.bittrex_btc","net.telepay.link.kraken_btc.bittrex_btc"]'
-
-    net.telepay.wallet.kraken.btc:
-        class: Telepay\FinancialApiBundle\Financial\Wallet\KrakenWallet
-        arguments:
-            - "@net.telepay.driver.kraken"
-            - "BTC"
-            - '["net.telepay.link.kraken_btc.kraken_eur","net.telepay.link.kraken_btc.fullnode_btc","net.telepay.link.kraken_btc.bittrex_btc"]'
-            - '["net.telepay.link.kraken_eur.kraken_btc","net.telepay.link.fullnode_btc.kraken_btc","net.telepay.link.bittrex_btc.kraken_btc"]'
-
-    net.telepay.wallet.kraken.eur:
-        class: Telepay\FinancialApiBundle\Financial\Wallet\KrakenWallet
-        arguments:
-            - "@net.telepay.driver.kraken"
-            - "EUR"
-            - '["net.telepay.link.kraken_eur.kraken_btc","net.telepay.link.kraken_eur.caixacoves_eur"]'
-            - '["net.telepay.link.kraken_btc.kraken_eur","net.telepay.link.caixacoves_eur.kraken_eur"]'
-
-    net.telepay.wallet.kraken.usd:
-        class: Telepay\FinancialApiBundle\Financial\Wallet\KrakenWallet
-        arguments:
-            - "@net.telepay.driver.kraken"
-            - "USD"
-            - '["net.telepay.link.kraken_usd.kraken_btc"]'
-            - '["net.telepay.link.kraken_btc.kraken_usd"]'
-
-    net.telepay.wallet.fullnode.btc:
+    net.telepay.wallet.fullnode.rec:
         class: Telepay\FinancialApiBundle\Financial\Wallet\FullNodeWallet
         arguments:
-            - "@net.telepay.driver.easybitcoin.btc"
-            - "BTC"
-            - '["net.telepay.link.fullnode_btc.kraken_btc","net.telepay.link.fullnode_btc.bittrex_btc"]'
-            - '["net.telepay.link.kraken_btc.fullnode_btc","net.telepay.link.bittrex_btc.fullnode_btc"]'
-
-    net.telepay.wallet.fullnodeGreek.btc:
-        class: Telepay\FinancialApiBundle\Financial\Wallet\FullNodeWallet
-        arguments:
-            - "@net.telepay.driver.easybitcoinGreek.btc"
-            - "BTC"
+            - "@net.telepay.driver.easybitcoin.rec"
+            - "REC"
             - '[]'
             - '[]'
-
-    net.telepay.wallet.fullnode.fair:
-        class: Telepay\FinancialApiBundle\Financial\Wallet\FullNodeWallet
-        arguments:
-            - "@net.telepay.driver.easybitcoin.fac"
-            - "FAIR"
-            - '["net.telepay.link.fullnode_fair.bittrex_fair"]'
-            - '["net.telepay.link.bittrex_fair.fullnode_fair"]'
-
-    net.telepay.wallet.fullnode.ether:
-        class: Telepay\FinancialApiBundle\Financial\Wallet\FullEthNodeWallet
-        arguments:
-            - "@net.telepay.driver.ethereum.eth"
-            - "ETH"
-            - '["net.telepay.link.fullnode_fair.bittrex_eth"]'
-            - '["net.telepay.link.bittrex_fair.fullnode_eth"]'
-
-    net.telepay.wallet.fullnode.crea:
-        class: Telepay\FinancialApiBundle\Financial\Wallet\FullNodeWallet
-        arguments:
-            - "@net.telepay.driver.easybitcoin.crea"
-            - "CREA"
-            - '["net.telepay.link.fullnode_fair.bittrex_crea"]'
-            - '["net.telepay.link.bittrex_fair.fullnode_crea"]'
-
-    net.telepay.wallet.caixacoves.eur:
-        class: Telepay\FinancialApiBundle\Financial\Wallet\CaixaCovesWallet
-        arguments:
-            - "@net.telepay.driver.sepa"
-            - "EUR"
-            - '["net.telepay.link.caixacoves_eur.kraken_eur"]'
-            - '["net.telepay.link.kraken_eur.caixacoves_eur"]'
