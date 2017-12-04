@@ -350,7 +350,6 @@ class AccountController extends BaseApiController{
 
         $em = $this->getDoctrine()->getManager();
 
-        $userGroup->setDefaultCurrency(strtoupper($currency));
         $em->persist($userGroup);
         $em->flush();
 
@@ -816,7 +815,6 @@ class AccountController extends BaseApiController{
         $company->setName($params['account_name']);
         $company->setActive(true);
         $company->setRoles(array('ROLE_COMPANY'));
-        $company->setDefaultCurrency('REC');
         $company->setEmail($params['email']);
         $em->persist($company);
 
