@@ -82,6 +82,12 @@ class Group extends BaseGroup
     private $company_image = "";
 
     /**
+     * @ORM\Column(type="text")
+     * @Expose
+     */
+    private $rec_address;
+
+    /**
      * @ORM\OneToMany(targetEntity="Telepay\FinancialApiBundle\Entity\LimitDefinition", mappedBy="group", cascade={"remove"})
      *
      */
@@ -947,6 +953,23 @@ class Group extends BaseGroup
     public function setCompanyImage($company_image)
     {
         $this->company_image = $company_image;
+    }
+
+
+    /**
+     * @return mixed
+     */
+    public function getRecAddress()
+    {
+        return $this->rec_address;
+    }
+
+    /**
+     * @param mixed $rec_address
+     */
+    public function setRecAddress($rec_address)
+    {
+        $this->rec_address = $rec_address;
     }
 
     /**
