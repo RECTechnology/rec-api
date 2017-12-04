@@ -25,6 +25,17 @@ use Symfony\Component\Validator\Constraints\DateTime;
  * @ORM\Entity
  * @ORM\Table(name="fos_user")
  * @ExclusionPolicy("all")
+ *
+ * @AttributeOverrides({
+ *     @AttributeOverride(name="emailCanonical",
+ *         column=@ORM\Column(
+ *             name="emailCanonical",
+ *             type="string",
+ *             length=255,
+ *             unique=false
+ *         )
+ *     )
+ * })
  */
 class User extends BaseUser
 {
@@ -59,7 +70,7 @@ class User extends BaseUser
     private $active_group = null;
 
     /**
-     * @ORM\Column(type="string")
+     * @ORM\Column(type="string", unique=true)
      * @Expose
      */
     private $dni;
@@ -105,7 +116,7 @@ class User extends BaseUser
     private $name;
 
     /**
-     * @ORM\Column(type="integer")
+     * @ORM\Column(type="string", unique=true)
      * @Expose
      */
     private $phone;

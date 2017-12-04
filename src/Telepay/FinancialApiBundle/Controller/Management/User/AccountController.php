@@ -788,6 +788,13 @@ class AccountController extends BaseApiController{
         }
 
         $user = $em->getRepository($this->getRepositoryName())->findOneBy(array(
+            'phone'  =>  $params['phone']
+        ));
+        if($user){
+            throw new HttpException(400, "phone already registered");
+        }
+
+        $user = $em->getRepository($this->getRepositoryName())->findOneBy(array(
             'dni'  =>  $params['dni']
         ));
         if($user){
