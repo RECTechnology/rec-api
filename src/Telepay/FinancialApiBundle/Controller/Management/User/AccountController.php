@@ -910,7 +910,7 @@ class AccountController extends BaseApiController{
         $company->setRecAddress($token);
         $em->persist($company);
 
-        $response['rec_address'] = $recAddress;
+        $response['rec_address'] = $token;
         $response['user'] = $user;
         $response['company'] = $company;
         $em->flush();
