@@ -120,11 +120,6 @@ class Group extends BaseGroup
     private $access_secret;
 
     /**
-     * @ORM\Column(type="string")
-     */
-    private $default_currency;
-
-    /**
      * @ORM\Column(type="string", length=1000)
      * @Exclude
      */
@@ -227,26 +222,6 @@ class Group extends BaseGroup
      * @ORM\Column(type="boolean")
      */
     private $active;
-
-    /**
-     * @ORM\Column(type="boolean")
-     */
-    private $own = false;
-
-    /**
-     * @ORM\Column(type="boolean")
-     */
-    private $premium = false;
-
-    /**
-     * @ORM\Column(type="boolean")
-     */
-    private $fairpay_vendor = false;
-
-    /**
-     * @ORM\Column(type="boolean")
-     */
-    private $fairtoearth_admin = false;
 
     /**
      * @ORM\OneToMany(targetEntity="Telepay\FinancialApiBundle\Entity\CashInTokens", mappedBy="company", cascade={"remove"})
@@ -429,22 +404,6 @@ class Group extends BaseGroup
     }
 
     /**
-     * @return mixed
-     */
-    public function getDefaultCurrency()
-    {
-        return $this->default_currency;
-    }
-
-    /**
-     * @param mixed $default_currency
-     */
-    public function setDefaultCurrency($default_currency)
-    {
-        $this->default_currency = $default_currency;
-    }
-
-    /**
      * @param mixed $allowed_methods
      */
     public function setAllowedMethods($allowed_methods)
@@ -554,7 +513,6 @@ class Group extends BaseGroup
 //        unset($this->base64_image);
 //        unset($this->access_key);
 //        unset($this->access_secret);
-//        unset ($this->default_currency);
 //        unset ($this->kyc_manager);
 //        unset ($this->limit_counts);
 //        unset ($this->cash_in_tokens);
@@ -570,8 +528,6 @@ class Group extends BaseGroup
 //        unset($this->allowed_methods);
 //        unset($this->comment);
 //        unset($this->cash_in_tokens);
-//        unset($this->fairtoearth_admin);
-//        unset($this->own);
 //        unset($this->base64_image);
 //        unset($this->cif);
 //        unset($this->prefix);
@@ -830,22 +786,6 @@ class Group extends BaseGroup
     /**
      * @return mixed
      */
-    public function getOwn()
-    {
-        return $this->own;
-    }
-
-    /**
-     * @param mixed $own
-     */
-    public function setOwn($own)
-    {
-        $this->own = $own;
-    }
-
-    /**
-     * @return mixed
-     */
     public function getKycManager()
     {
         return $this->kyc_manager;
@@ -878,22 +818,6 @@ class Group extends BaseGroup
     /**
      * @return mixed
      */
-    public function getPremium()
-    {
-        return $this->premium;
-    }
-
-    /**
-     * @param mixed $premium
-     */
-    public function setPremium($premium)
-    {
-        $this->premium = $premium;
-    }
-
-    /**
-     * @return mixed
-     */
     public function getCompanyToken()
     {
         return $this->company_token;
@@ -905,38 +829,6 @@ class Group extends BaseGroup
     public function setCompanyToken($company_token)
     {
         $this->company_token = $company_token;
-    }
-
-    /**
-     * @return mixed
-     */
-    public function getFairpayVendor()
-    {
-        return $this->fairpay_vendor;
-    }
-
-    /**
-     * @param mixed $fairpay_vendor
-     */
-    public function setFairpayVendor($fairpay_vendor)
-    {
-        $this->fairpay_vendor = $fairpay_vendor;
-    }
-
-    /**
-     * @return mixed
-     */
-    public function getFairtoearthAdmin()
-    {
-        return $this->fairtoearth_admin;
-    }
-
-    /**
-     * @param mixed $fairtoearth_admin
-     */
-    public function setFairtoearthAdmin($fairtoearth_admin)
-    {
-        $this->fairtoearth_admin = $fairtoearth_admin;
     }
 
     /**

@@ -88,7 +88,6 @@ EOT
         $user->setPrefix(34);
         $user->setPhone(666777888);
         $user->setGcmGroupKey("hello");
-        $user->setServicesList("['echo']");
         $em->persist($user);
         $em->flush();
 
