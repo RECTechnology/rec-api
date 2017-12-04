@@ -17,7 +17,7 @@ use Telepay\FinancialApiBundle\DependencyInjection\Transactions\Core\CashInInter
 use Telepay\FinancialApiBundle\DependencyInjection\Transactions\Core\CashOutInterface;
 use Telepay\FinancialApiBundle\Financial\Currency;
 
-class BtcMethod extends BaseMethod {
+class RecMethod extends BaseMethod {
 
     private $driver;
     private $container;
@@ -30,9 +30,10 @@ class BtcMethod extends BaseMethod {
 
     //PAY IN
     public function getPayInInfo($amount){
-        $address = $this->driver->getnewaddress();
+        //$address = $this->driver->getnewaddress();
+        $address = "r" . substr(Random::generateToken(), 0, 33);
         if(!$address) throw new Exception('Service Temporally unavailable', 503);
-        $min_confirmations = $this->container->getParameter('btc_min_confirmations');
+        $min_confirmations = $this->container->getParameter('rec_min_confirmations');
         $response = array(
             'amount'    =>  $amount,
             'currency'  =>  $this->getCurrency(),
@@ -50,7 +51,7 @@ class BtcMethod extends BaseMethod {
 
     public function getCurrency()
     {
-        return Currency::$BTC;
+        return Currency::$REC;
     }
 
     public function getPayInStatus($paymentInfo){
@@ -108,7 +109,7 @@ class BtcMethod extends BaseMethod {
         if($request->request->has('concept')){
             $params['concept'] = $request->request->get('concept');
         }else{
-            $params['concept'] = 'Btc out Transaction';
+            $params['concept'] = 'Rec out Transaction';
         }
 
         $params['find_token'] = $find_token = substr(Random::generateToken(), 0, 6);
@@ -143,7 +144,7 @@ class BtcMethod extends BaseMethod {
         if(array_key_exists('concept', $data)) {
             $params['concept'] = $data['concept'];
         }else{
-            $params['concept'] = 'Btc out Transaction';
+            $params['concept'] = 'Rec out Transaction';
         }
 
         $params['find_token'] = $find_token = substr(Random::generateToken(), 0, 6);
