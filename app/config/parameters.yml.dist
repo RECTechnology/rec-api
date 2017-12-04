@@ -39,67 +39,12 @@ parameters:
     base_panel_url: 'http://dev-cp.telepay.net/app_dev.php'
     web_app_url: 'https://web.chip-chap.com/'
 
-    bitcoind_user: btcuser
-    bitcoind_pass: btcpass
-    bitcoind_host: localhost
-    bitcoind_port: 8333
+    rec_user: btcuser
+    rec_pass: btcpass
+    rec_host: localhost
+    rec_port: 8333
 
-    bitcoind_user_greek: btcuser
-    bitcoind_pass_greek: btcpass
-    bitcoind_host_greek: localhost
-    bitcoind_port_greek: 8333
-
-    faircoind_user: facuser
-    faircoind_pass: facpass
-    faircoind_host: localhost
-    faircoind_port: 46393
-
-    ethereum_host: http://localhost
-    ethereum_port: 8545
-    eth_standard_passphrase: 7GD67NM9
-    eth_main_passphrase: EGD22NAP
-    eth_main_address: 0x9a3ced93e48d044a554fe2efd4b6c02d377bbac8
-
-    creativecoin_user: facuser
-    creativecoin_pass: facpass
-    creativecoin_host: localhost
-    creativecoin_port: 46393
-
-    btc_min_confirmations: 3
-    fac_min_confirmations: 1
-    eth_min_confirmations: 1
-    crea_min_confirmations: 1
-
-    halcash_user: user
-    halcash_pass: pass
-    halcash_alias: alias
-    halcash_url: url
-
-    paynet_reference_issuer: '467accc5-4051-4472-bb17-dad1f68779bf'
-    paynet_reference_url: 'http://201.147.99.51/PaynetCE/WSPaynetCE.asmx?WSDL'
-
-    multiva_comcurrency: currency number
-    multiva_comaddress: ADDRESS
-    multiva_commerchant: merchant code
-    multiva_comstore: store
-    multiva_comterm: terminal
-
-    pademobile_client: 000000
-    pademobile_url : url
-
-    pagofacil_id_sucursal: sucursal
-    pagofacil_id_usuario: usuario
-    pagofacil_id_servicio: servicio
-    pagofacil_url_flag: prod
-
-    safetypay_api_key: 247acc3167b49419634fe3b87e8623ef
-    safetypay_signature_key: 43b4da81e4a4fc2a1c1f1b45d53bf577
-    safetypay_merchant_reference: 5170
-    safetypay_language: ES
-    safetypay_tracking_code: ''
-    safetypay_expiration_time: 5
-    safetypay_response_format: CSV
-    safetypay_url: 'https://mws2.safetypay.com/Sandbox/express/post/v.2.2/CreateExpressToken.aspx'
+    rec_min_confirmations: 1
 
     tc_contract_id: xxx
     tc_branch_id: prod
@@ -108,34 +53,12 @@ parameters:
     psc_username: user
     psc_password: pass
 
-    kraken_api_key: ""
-    kraken_private_key: ""
-
-    spei_enterprise: 'TELEPAY'
-    spei_account: '846180000300000004'
-    spei_partner: '846'
-    spei_operant: '90646'
-    spei_passphrase: '12345678'
-
-    bittrex_api_url: 'https://bittrex.com/api/v1.1'
-    bittrex_api_key: ''
-    bittrex_api_secret: ''
-
     gcm_authorization_key: ''
     gcm_project_id: ''
 
     id_group_default:
     id_group_level_0:
     id_group_root: 1
-
-    easypay_account: ''
-
-    sepa_in_iban: ''
-    sepa_in_bic_swift: ''
-    sepa_in_beneficiary: ''
-
-    cryptocapital_account_number: ''
-    cryptocapital_beneficiary: ''
 
     admin_user_id: ''
     admin_user_id_fac: ''
@@ -153,16 +76,6 @@ parameters:
     chipchap_user_id : 16
     read_only_user_id : 16
 
-    default_user_creator_commerce_prestashop: 812
-    default_company_creator_commerce_prestashop: 121
-    default_user_creator_commerce_android: 825
-    default_company_creator_commerce_android: 133
-    default_user_creator_commerce_android_fair: ''
-    default_company_creator_commerce_android_fair: ''
-    default_user_creator_commerce_botc: ''
-    default_company_creator_commerce_botc: ''
-    default_company_exchange_botc: ''
-
     url_swift_default_ok: ''
     url_swift_default_ko: ''
 
@@ -170,27 +83,8 @@ parameters:
     twilio_sid: 'AC3f14d3cfd1c9e74e477f45509fa6c71c'
     twilio_authToken: 'c562189e18b41730730f3289ec55cbd0'
 
-    teleingreso_login: ''
-    teleingreso_pass: ''
-    teleingreso_certificateType: ''
-    teleingreso_currency: ''
-    teleingreso_url: ''
-    teleingreso_hash: ''
-
-    teleingreso_usa_currency: ''
-    teleingreso_usa_url: ''
-    teleingreso_usa_hash: ''
-    teleingreso_usa_merchant: ''
-
-    teleingreso_pt_url: ''
-    teleingreso_pt_merchant: ''
-
     uploads_dir: ''
     files_path: ''
-
-    fairtoearth_url: ''
-    fairtoearth_key: ''
-    fairtoearth_secret: ''
 
 
 
