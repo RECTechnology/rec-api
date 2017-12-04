@@ -816,6 +816,7 @@ class AccountController extends BaseApiController{
         $company->setActive(true);
         $company->setRoles(array('ROLE_COMPANY'));
         $company->setEmail($params['email']);
+        $company->setRecAddress('temp');
         $em->persist($company);
 
         //create wallets for this company
