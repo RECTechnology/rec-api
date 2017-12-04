@@ -38,7 +38,6 @@ class TelepayCreateUserCommand extends CreateUserCommand
                 new InputArgument('name', InputArgument::REQUIRED, 'Set user real name'),
                 new InputArgument('email', InputArgument::REQUIRED, 'The email'),
                 new InputArgument('password', InputArgument::REQUIRED, 'The password'),
-                new InputArgument('default_currency', InputArgument::REQUIRED, 'The user default currency'),
                 new InputOption('super-admin', null, InputOption::VALUE_NONE, 'Set the user as super admin'),
                 new InputOption('inactive', null, InputOption::VALUE_NONE, 'Set the user as inactive'),
             ))
@@ -74,7 +73,6 @@ EOT
         $name       = $input->getArgument('name');
         $email      = $input->getArgument('email');
         $password   = $input->getArgument('password');
-        $defaultCurrency   = $input->getArgument('default_currency');
         $inactive   = $input->getOption('inactive');
         $superadmin = $input->getOption('super-admin');
 
@@ -87,7 +85,6 @@ EOT
         $user->setName($name);
         $user->setBase64Image("");
         $user->setUsername($username);
-        $user->setDefaultCurrency($defaultCurrency);
         $user->setPrefix(34);
         $user->setPhone("666777888");
         $user->setGcmGroupKey("hello");

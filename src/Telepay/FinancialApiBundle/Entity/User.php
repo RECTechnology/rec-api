@@ -59,6 +59,12 @@ class User extends BaseUser
     private $active_group = null;
 
     /**
+     * @ORM\Column(type="string")
+     * @Expose
+     */
+    private $dni;
+
+    /**
      * @ORM\OneToMany(targetEntity="Telepay\FinancialApiBundle\Entity\AccessToken", mappedBy="user", cascade={"remove"})
      *
      */
@@ -174,6 +180,22 @@ class User extends BaseUser
 
     public function getAccessSecret(){
         return $this->access_secret;
+    }
+
+    /**
+     * @return mixed
+     */
+    public function getDNI()
+    {
+        return $this->dni;
+    }
+
+    /**
+     * @param mixed $dni
+     */
+    public function setDNI($dni)
+    {
+        $this->dni = $dni;
     }
 
     /**

@@ -779,16 +779,6 @@ class AccountController extends BaseApiController{
         unset($params['password']);
         unset($params['repassword']);
 
-        if($request->request->has('email')){
-            $params['email'] = $request->request->get('email');
-            if (!filter_var($params['email'], FILTER_VALIDATE_EMAIL)) {
-                throw new HttpException(400, 'Email is invalid');
-            }
-        }
-        else{
-            $params['email'] = '';
-        }
-
         $em = $this->getDoctrine()->getManager();
         $user = $em->getRepository($this->getRepositoryName())->findOneBy(array(
             'username'  =>  $params['username']
@@ -798,10 +788,26 @@ class AccountController extends BaseApiController{
         }
 
         $user = $em->getRepository($this->getRepositoryName())->findOneBy(array(
-            'dni'  =>  $params['email']
+            'dni'  =>  $params['dni']
         ));
         if($user){
-            throw new HttpException(400, "Email already registered");
+            throw new HttpException(400, "dni already registered");
+        }
+
+        if($request->request->has('email')){
+            $params['email'] = $request->request->get('email');
+            if (!filter_var($params['email'], FILTER_VALIDATE_EMAIL)) {
+                throw new HttpException(400, 'Email is invalid');
+            }
+            $user = $em->getRepository($this->getRepositoryName())->findOneBy(array(
+                'email'  =>  $params['email']
+            ));
+            if($user){
+                throw new HttpException(400, "Email already registered");
+            }
+        }
+        else{
+            $params['email'] = '';
         }
 
         $user_creator_id = 1;
