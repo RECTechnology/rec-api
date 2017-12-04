@@ -759,6 +759,7 @@ class AccountController extends BaseApiController{
             'password',
             'repassword',
             'phone',
+            'prefix',
             'dni'
         );
 
@@ -843,6 +844,7 @@ class AccountController extends BaseApiController{
         $user->setRoles(array('ROLE_USER'));
         $user->setName($params['username']);
         $user->setPhone($params['phone']);
+        $user->setPrefix($params['prefix']);
         $user->setUsername($params['username']);
         $user->setDNI($params['dni']);
         $user->setActiveGroup($company);

@@ -105,6 +105,18 @@ class User extends BaseUser
     private $name;
 
     /**
+     * @ORM\Column(type="integer")
+     * @Expose
+     */
+    private $phone;
+
+    /**
+     * @ORM\Column(type="integer")
+     * @Expose
+     */
+    private $prefix;
+
+    /**
      * @ORM\Column(type="text")
      * @Expose
      */
@@ -212,6 +224,38 @@ class User extends BaseUser
     public function setName($name)
     {
         $this->name = $name;
+    }
+
+    /**
+     * @return mixed
+     */
+    public function getPhone()
+    {
+        return $this->phone;
+    }
+
+    /**
+     * @param mixed $phone
+     */
+    public function setPhone($phone)
+    {
+        $this->phone = $phone;
+    }
+
+    /**
+     * @return mixed
+     */
+    public function getPrefix()
+    {
+        return $this->prefix;
+    }
+
+    /**
+     * @param mixed $prefix
+     */
+    public function setPrefix($prefix)
+    {
+        $this->prefix = $prefix;
     }
 
     /**
