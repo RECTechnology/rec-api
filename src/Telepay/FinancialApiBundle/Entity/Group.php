@@ -54,20 +54,8 @@ class Group extends BaseGroup
 
     /**
      * @ORM\ManyToOne(targetEntity="Telepay\FinancialApiBundle\Entity\User")
-     * @Exclude
-     */
-    private $creator;
-
-    /**
-     * @ORM\ManyToOne(targetEntity="Telepay\FinancialApiBundle\Entity\User")
      */
     private $kyc_manager;
-
-    /**
-     * @ORM\ManyToOne(targetEntity="Telepay\FinancialApiBundle\Entity\Group")
-     * @Exclude
-     */
-    private $group_creator;
 
     /**
      * @ORM\Column(type="text", nullable=true)
@@ -134,11 +122,6 @@ class Group extends BaseGroup
      * @Expose
      */
     private $limit_configuration = array();
-
-    /**
-     * @Expose
-     */
-    private $group_creator_data = array();
 
     /**
      * @ORM\OneToMany(targetEntity="Telepay\FinancialApiBundle\Entity\Balance", mappedBy="group", cascade={"remove"})
@@ -270,22 +253,6 @@ class Group extends BaseGroup
     public function setId($id)
     {
         $this->id = $id;
-    }
-
-    /**
-     * @return mixed
-     */
-    public function getCreator()
-    {
-        return $this->creator;
-    }
-
-    /**
-     * @param mixed $creator
-     */
-    public function setCreator($creator)
-    {
-        $this->creator = $creator;
     }
 
     /**
@@ -475,22 +442,6 @@ class Group extends BaseGroup
     public function setClients($clients)
     {
         $this->clients = $clients;
-    }
-
-    /**
-     * @return mixed
-     */
-    public function getGroupCreator()
-    {
-        return $this->group_creator;
-    }
-
-    /**
-     * @param mixed $group_creator
-     */
-    public function setGroupCreator($group_creator)
-    {
-        $this->group_creator = $group_creator;
     }
 
     /**
@@ -709,14 +660,6 @@ class Group extends BaseGroup
     public function setTown($town)
     {
         $this->town = $town;
-    }
-
-    /**
-     * @param mixed $group_creator_data
-     */
-    public function setGroupCreatorData($group_creator_data)
-    {
-        $this->group_creator_data = $group_creator_data;
     }
 
     /**

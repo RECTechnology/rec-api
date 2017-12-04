@@ -811,17 +811,10 @@ class AccountController extends BaseApiController{
             $params['email'] = '';
         }
 
-        $user_creator_id = 1;
-        $account_creator_id = 1;
-        $userCreator = $em->getRepository('TelepayFinancialApiBundle:User')->find($user_creator_id);
-        $accountCreator = $em->getRepository('TelepayFinancialApiBundle:Group')->find($account_creator_id);
-
         //create company
         $company = new Group();
         $company->setName($params['account_name']);
         $company->setActive(true);
-        $company->setCreator($userCreator);
-        $company->setAccountCreator($accountCreator);
         $company->setRoles(array('ROLE_COMPANY'));
         $company->setDefaultCurrency('REC');
         $company->setEmail($params['email']);
