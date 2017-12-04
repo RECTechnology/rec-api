@@ -841,6 +841,7 @@ class AccountController extends BaseApiController{
         $user->setActiveGroup($company);
         $user->setBase64Image('');
         $user->setEnabled(false);
+        $em->persist($user);
 
         $company->setKycManager($user);
         $em->persist($company);
