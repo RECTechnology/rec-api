@@ -7,7 +7,6 @@ imports:
     - { resource: @TelepayFinancialApiBundle/Resources/config/telepay_providers.yml }
     - { resource: @TelepayFinancialApiBundle/Resources/config/telepay_drivers.yml }
     - { resource: @TelepayFinancialApiBundle/Resources/config/telepay_tickers.yml }
-    - { resource: @TelepayFinancialApiBundle/Resources/config/telepay_traders.yml }
     - { resource: @TelepayFinancialApiBundle/Resources/config/telepay_wallets.yml }
     - { resource: @TelepayFinancialApiBundle/Resources/config/telepay_money_ways.yml }
     - { resource: @TelepayFinancialApiBundle/Resources/config/telepay_exchanges.yml }
