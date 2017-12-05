@@ -117,13 +117,6 @@ security:
             stateless: true
             security: false
 
-        wallet_notify:
-            pattern:  ^/admin/v1/wallet/notify
-            stateless: true
-            fos_oauth:  false
-            anonymous: true
-            security: false
-
         oauth:
             pattern:    ^/
             fos_oauth:  true
