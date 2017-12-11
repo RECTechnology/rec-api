@@ -262,7 +262,7 @@ class IncomingController2 extends RestApiController{
                     'address' => $address,
                     'txid' => $txid
                 );
-                $this->createTransaction($params, $version_number, 'in', $method_cname, $destination->getKycManager->getId(), $destination, $ip);
+                $this->createTransaction($params, $version_number, 'in', $method_cname, $destination->getKycManager()->getId(), $destination, $ip);
             }
             else{
                 $transaction->setStatus($payment_info['status']);
