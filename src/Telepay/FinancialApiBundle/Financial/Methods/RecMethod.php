@@ -63,7 +63,7 @@ class RecMethod extends BaseMethod {
             'txid' => $data['txid'],
             'min_confirmations' => intval($min_confirmations),
             'confirmations' => 0,
-            'status'    =>  'created',
+            'status'    =>  'received',
             'final'     =>  false
         );
         return $response;

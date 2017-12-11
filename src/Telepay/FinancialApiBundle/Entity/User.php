@@ -70,6 +70,11 @@ class User extends BaseUser
     private $active_group = null;
 
     /**
+     * @ORM\Column(type="integer")
+     */
+    private $pin;
+
+    /**
      * @ORM\Column(type="string", unique=true)
      * @Expose
      */
@@ -251,6 +256,22 @@ class User extends BaseUser
     public function setPhone($phone)
     {
         $this->phone = $phone;
+    }
+
+    /**
+     * @return mixed
+     */
+    public function getPin()
+    {
+        return $this->pin;
+    }
+
+    /**
+     * @param mixed $pin
+     */
+    public function setPin($pin)
+    {
+        $this->pin = $pin;
     }
 
     /**

@@ -168,6 +168,21 @@ class IncomingController2 extends RestApiController{
         //******    CHECK IF THE TRANSACTION IS CASH-OUT     ********
         if($type == 'out'){
             $logger->info('Incomig transaction...OUT Available = ' . $wallet->getAvailable() .  " TOTAL: " . $total);
+
+            $user = $em->getRepository('TelepayFinancialApiBundle:User')->findOneBy(array(
+                'id' => $user_id
+            ));
+
+            if(array_key_exists('pin', $data) && $data['pin']!='' && intval($data['pin'])>0){
+                $pin = $data['pin'];
+                if($user->getPIN()!=$pin){
+                    throw new HttpException(400, 'Incorrect Pin');
+                }
+            }
+            else{
+                throw new HttpException(400, 'Param pin not found or incorrect');
+            }
+
             if($wallet->getAvailable() < $total) throw new HttpException(405,'Not founds enough');
             //Bloqueamos la pasta en el wallet
             $wallet->setAvailable($wallet->getAvailable() - $amount);
@@ -181,10 +196,6 @@ class IncomingController2 extends RestApiController{
             if(!$destination){
                 throw new HttpException(405,'Destination address does not exists');
             }
-
-            $user = $em->getRepository('TelepayFinancialApiBundle:User')->findOneBy(array(
-                'id' => $user_id
-            ));
 
             $payment_info['orig_nif'] = $user->getDNI();
             $payment_info['orig_group_nif'] = $group->getCif();
