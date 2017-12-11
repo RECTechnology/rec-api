@@ -102,7 +102,10 @@ class RecMethod extends BaseMethod {
             $params[$param] = $request->request->get($param);
 
         }
-        $address_verification = $this->driver->validateaddress($params['address']);
+
+        //TODO
+        //$address_verification = $this->driver->validateaddress($params['address']);
+        $address_verification['isvalid'] = true;
 
         if(!$address_verification['isvalid']) throw new Exception('Invalid address.', 400);
 
@@ -137,7 +140,7 @@ class RecMethod extends BaseMethod {
 
         //TODO
         //$address_verification = $this->driver->validateaddress($params['address']);
-        $address_verification = true;
+        $address_verification['isvalid'] = true;
 
         if(!$address_verification['isvalid']) throw new Exception('Invalid address.', 400);
 
