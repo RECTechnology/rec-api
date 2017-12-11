@@ -258,6 +258,7 @@ class IncomingController2 extends RestApiController{
 
                 $params = array(
                     'amount' => $amount,
+                    'concept' => $concept,
                     'address' => $address,
                     'txid' => $txid
                 );
