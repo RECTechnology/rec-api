@@ -855,6 +855,7 @@ class AccountController extends BaseApiController{
         $em->persist($user);
 
         $company->setKycManager($user);
+        $company->setCif($params['dni']);
         $em->persist($company);
 
         if($params['email'] != '') {
