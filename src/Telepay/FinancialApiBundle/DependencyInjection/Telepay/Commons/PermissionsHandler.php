@@ -37,12 +37,6 @@ class PermissionsHandler{
         $tier = $company->getTier();
         $this->container->get('logger')->info('_checkMethodPermissions');
         $method = $this->container->get('net.telepay.'.$transaction->getType().'.'.$transaction->getMethod().'.v'.$transaction->getVersion());
-        if($company->getGroupCreator()->getid() == $this->container->getParameter('default_company_creator_commerce_android_fair')){
-            //is fairpay user
-            if($method->getCname() != 'fac'){
-                throw new HttpException(403, 'You don\'t have the necessary permissions. You are fairpay user');
-            }
-        }
 
         if($method->getMinTier() > $tier){
             throw new HttpException(403, 'You don\'t have the necessary permissions. You must to be Tier '.$method->getMinTier().' and your current Tier is '.$tier);
