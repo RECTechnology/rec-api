@@ -35,6 +35,7 @@ class Group extends BaseGroup
         if($this->access_key == null){
             $generator = new SecureRandom();
             $this->access_key=sha1($generator->nextBytes(32));
+            $this->key_chain=sha1($generator->nextBytes(32));
             $this->access_secret=base64_encode($generator->nextBytes(32));
         }
     }
@@ -101,6 +102,12 @@ class Group extends BaseGroup
      * @ORM\Column(type="string")
      */
     private $access_key;
+
+    /**
+     * @ORM\Column(type="string")
+     * @Exclude
+     */
+    private $key_chain;
 
     /**
      * @ORM\Column(type="string")
@@ -355,6 +362,14 @@ class Group extends BaseGroup
     }
 
     /**
+     * @return mixed
+     */
+    public function getKeyChain()
+    {
+        return $this->key_chain;
+    }
+
+    /**
      * @param mixed $access_key
      */
     public function setAccessKey($access_key)
@@ -368,6 +383,14 @@ class Group extends BaseGroup
     public function setAccessSecret($access_secret)
     {
         $this->access_secret = $access_secret;
+    }
+
+    /**
+     * @param mixed $key_chain
+     */
+    public function setKeyChain($key_chain)
+    {
+        $this->key_chain = $key_chain;
     }
 
     /**
