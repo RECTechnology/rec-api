@@ -156,23 +156,26 @@ class RecMethod extends BaseMethod {
         return $params;
     }
 
-    public function send($paymentInfo)
-    {
+    public function send($paymentInfo){
         $address = $paymentInfo['address'];
         $amount = $paymentInfo['amount'];
 
-        $crypto = $this->driver->sendtoaddress($address, $amount/1e8);
+        //$crypto = $this->driver->sendtoaddress($address, $amount/1e8);
+        $crypto = substr(Random::generateToken(), 0, 48);
+
+        $response = array();
+        $response['address'] = $paymentInfo['address'];
+        $response['amount'] = $paymentInfo['amount'];
 
         if($crypto === false){
-            $paymentInfo['status'] = Transaction::$STATUS_FAILED;
-            $paymentInfo['final'] = false;
+            $response['status'] = Transaction::$STATUS_FAILED;
+            $response['final'] = false;
         }else{
-            $paymentInfo['txid'] = $crypto;
-            $paymentInfo['status'] = 'sent';
-            $paymentInfo['final'] = true;
+            $response['txid'] = $crypto;
+            $response['status'] = 'sent';
+            $response['final'] = true;
         }
-
-        return $paymentInfo;
+        return $response;
     }
 
     public function getPayOutStatus($id)
