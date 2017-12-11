@@ -49,6 +49,27 @@ class RecMethod extends BaseMethod {
         return $response;
     }
 
+    public function getPayInInfoWithData($data){
+        $address = $data;
+        if(!$address) throw new Exception('Service Temporally unavailable', 503);
+        $min_confirmations = $this->container->getParameter('rec_min_confirmations');
+        $response = array(
+            'amount'    =>  $data['amount'],
+            'currency'  =>  $this->getCurrency(),
+            'scale' =>  Currency::$SCALE[$this->getCurrency()],
+            'address' => $data['address'],
+            'expires_in' => intval(1200),
+            'received' => $data['amount'],
+            'txid' => $data['txid'],
+            'min_confirmations' => intval($min_confirmations),
+            'confirmations' => 0,
+            'status'    =>  'created',
+            'final'     =>  false
+        );
+        return $response;
+    }
+
+
     public function getCurrency()
     {
         return Currency::$REC;

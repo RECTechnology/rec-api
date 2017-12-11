@@ -99,7 +99,12 @@ class IncomingController2 extends RestApiController{
                 'concept'   =>  $concept,
                 'url_notification'  =>  $url_notification
             );
-            $payment_info = $method->getPayInInfo($amount);
+            if(!isset($data['txid'])){
+                $payment_info = $method->getPayInInfo($amount);
+            }
+            else{
+                $payment_info = $method->getPayInInfoWithData($data);
+            }
             $payment_info['concept'] = $concept;
             if(isset($data['expires_in']) && $data['expires_in'] > 99){
                 $payment_info['expires_in'] = $data['expires_in'];
@@ -167,6 +172,7 @@ class IncomingController2 extends RestApiController{
             //Bloqueamos la pasta en el wallet
             $wallet->setAvailable($wallet->getAvailable() - $amount);
             $em->flush();
+            $address = $payment_info['address'];
 
             $destination = $em->getRepository('TelepayFinancialApiBundle:Group')->findOneBy(array(
                 'rec_address' => $payment_info['address']
@@ -209,6 +215,7 @@ class IncomingController2 extends RestApiController{
                 throw new HttpException($e->getCode(), $e->getMessage());
 
             }
+            $txid = $payment_info['txid'];
             $logger->info('Incomig transaction...PAYMENT STATUS: '.$payment_info['status']);
 
             $env = $this->container->getParameter('environment');
@@ -217,7 +224,6 @@ class IncomingController2 extends RestApiController{
 
             //pay fees and dealer always and set new balance
             if( $payment_info['status'] == 'sent' || $payment_info['status'] == 'sending'){
-
                 if($payment_info['status'] == 'sent') $transaction->setStatus(Transaction::$STATUS_SUCCESS);
                 else $transaction->setStatus('sending');
 
@@ -250,29 +256,28 @@ class IncomingController2 extends RestApiController{
                     throw $e;
                 }
 
-            }else{
+                $params = array(
+                    'amount' => $amount,
+                    'address' => $address,
+                    'txid' => $txid
+                );
+                $this->createTransaction($params, $version_number, 'in', $method_cname, $destination->getKycManager->getId(), $destination, $ip);
+            }
+            else{
                 $transaction->setStatus($payment_info['status']);
                 //desbloqueamos la pasta del wallet
                 $wallet->setAvailable($wallet->getAvailable() + $amount);
                 $em->flush();
                 $dm->flush();
-
                 $this->container->get('notificator')->notificate($transaction);
-
             }
-
-        }else{     //CASH - IN
+        }
+        else{     //CASH - IN
             $logger->info('Incomig transaction...IN');
-
-            $dm->flush();
-
             $transaction = $this->get('notificator')->notificate($transaction);
             $em->flush();
-
             $transaction->setUpdated(new \DateTime());
-
             $dm->flush();
-
         }
 
         $logger->info('Incomig transaction...FINAL');
@@ -686,99 +691,6 @@ class IncomingController2 extends RestApiController{
             $finish_time = new \MongoDate(strtotime(date($query['finish_date'].' 23:59:59')));
 
             $transactions = $dm->getRepository('TelepayFinancialApiBundle:Transaction')->findTransactions($group, $start_time, $finish_time, $search, $order, $dir);
-//            $transactions = $qb
-//                ->field('group')->equals($group->getId())
-//                //->field('method')->equals($method->getCname())
-//                //->field('type')->equals($type)
-//                ->field('created')->gte($start_time)
-//                ->field('created')->lte($finish_time)
-//                ->where("function() {
-//            if (typeof this.payInInfo !== 'undefined') {
-//                if (typeof this.payInInfo.amount !== 'undefined') {
-//                    if(String(this.payInInfo.amount).indexOf('$search') > -1){
-//                        return true;
-//                    }
-//                }
-//                if (typeof this.payInInfo.address !== 'undefined') {
-//                    if(String(this.payInInfo.address).indexOf('$search') > -1){
-//                        return true;
-//                    }
-//                }
-//                if (typeof this.payInInfo.status !== 'undefined') {
-//                    if(String(this.payInInfo.status).indexOf('$search') > -1){
-//                        return true;
-//                    }
-//                }
-//                if (typeof this.payInInfo.concept !== 'undefined') {
-//                    if(String(this.payInInfo.concept).indexOf('$search') > -1){
-//                        return true;
-//                    }
-//                }
-//
-//            }
-//            if (typeof this.payOutInfo !== 'undefined') {
-//                if (typeof this.payOutInfo.amount !== 'undefined') {
-//                    if(String(this.payOutInfo.amount).indexOf('$search') > -1){
-//                        return true;
-//                    }
-//                }
-//                if (typeof this.payOutInfo.halcashticket !== 'undefined') {
-//                    if(String(this.payOutInfo.halcashticket).indexOf('$search') > -1){
-//                        return true;
-//                    }
-//                }
-//                if (typeof this.payOutInfo.txid !== 'undefined') {
-//                    if(String(this.payOutInfo.txid).indexOf('$search') > -1){
-//                        return true;
-//                    }
-//                }
-//                if (typeof this.payOutInfo.address !== 'undefined') {
-//                    if(String(this.payOutInfo.address).indexOf('$search') > -1){
-//                        return true;
-//                    }
-//                }
-//                if (typeof this.payOutInfo.concept !== 'undefined') {
-//                    if(String(this.payOutInfo.concept).indexOf('$search') > -1){
-//                        return true;
-//                    }
-//                }
-//                if (typeof this.payOutInfo.email !== 'undefined') {
-//                    if(String(this.payOutInfo.email).indexOf('$search') > -1){
-//                        return true;
-//                    }
-//                }
-//                if (typeof this.payOutInfo.find_token !== 'undefined') {
-//                    if(String(this.payOutInfo.find_token).indexOf('$search') > -1){
-//                        return true;
-//                    }
-//                }
-//                if (typeof this.payOutInfo.phone !== 'undefined') {
-//                    if(String(this.payOutInfo.phone).indexOf('$search') > -1){
-//                        return true;
-//                    }
-//                }
-//                if (typeof this.payOutInfo.pin !== 'undefined') {
-//                    if(String(this.payOutInfo.pin).indexOf('$search') > -1){
-//                        return true;
-//                    }
-//                }
-//
-//            }
-//            if ('$search') {
-//                if(typeof this.status !== 'undefined' && String(this.status).indexOf('$search') > -1){ return true;}
-//                if(typeof this.service !== 'undefined' && String(this.service).indexOf('$search') > -1){ return true;}
-//                if(typeof this.method !== 'undefined' && String(this.method).indexOf('$search') > -1){ return true;}
-//                if(typeof this.methodIn !== 'undefined' && String(this.methodIn).indexOf('$search') > -1){ return true;}
-//                if(typeof this.methodOut !== 'undefined' && String(this.methodOut).indexOf('$search') > -1){ return true;}
-//                if(String(this._id).indexOf('$search') > -1){ return true;}
-//                return false;
-//            }
-//            return true;
-//            }")
-//                ->sort($order,$dir)
-//                ->getQuery()
-//                ->execute();
-
         }else{
             $order = "id";
             $dir = "desc";
