@@ -121,7 +121,6 @@ class IncomingController2 extends RestApiController{
 
         $logger->info('Incomig transaction...FEES');
 
-        //TODO crear FeeManipulator
         $fee_handler = $this->container->get('net.telepay.commons.fee_manipulator');
         $group_commission = $fee_handler->getMethodFees($group, $method);
 

@@ -125,26 +125,8 @@ class UserWallet {
             case "EUR":
                 $scale=2;
                 break;
-            case "MXN":
-                $scale=2;
-                break;
-            case "USD":
-                $scale=2;
-                break;
-            case "BTC":
+            case "REC":
                 $scale=8;
-                break;
-            case "FAC":
-                $scale=8;
-                break;
-            case "ETH":
-                $scale=8;
-                break;
-            case "CREA":
-                $scale=8;
-                break;
-            case "PLN":
-                $scale=2;
                 break;
             case "":
                 $scale=0;

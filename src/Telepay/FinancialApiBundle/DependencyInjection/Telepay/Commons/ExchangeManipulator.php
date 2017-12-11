@@ -34,7 +34,7 @@ class ExchangeManipulator{
 
     public function exchange($amount, $currency_in, $currency_out){
 
-        $this->trans_logger->info('EXCHANGE_MANIPULATOR (exchange)=> amount='.$amount.' cur_in='.$currency_in.' cur_out'.$currency_out);
+        $this->trans_logger->info('EXCHANGE_MANIPULATOR (exchange)=> amount='.$amount.' cur_in='.$currency_in.' cur_out='.$currency_out);
         $em = $this->doctrine->getManager();
 
         $exchange = $em->getRepository('TelepayFinancialApiBundle:Exchange')->findOneBy(

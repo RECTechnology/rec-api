@@ -75,11 +75,6 @@ class LimitManipulator{
             ));
         }
 
-//        die(print_r($group_limit->getSingle(),true));
-
-        //ya tengo el grup limit
-        //get sum last days transactions
-
         $scale = pow(10, Currency::$SCALE[$method->getCurrency()]);
 
         if($group_limit->getSingle() < $amount && $group_limit->getSingle() >= 0)
