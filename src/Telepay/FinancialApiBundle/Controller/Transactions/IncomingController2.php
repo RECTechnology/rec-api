@@ -47,7 +47,6 @@ class IncomingController2 extends RestApiController{
     }
 
     public function createTransaction($data, $version_number, $type, $method_cname, $user_id, $group, $ip){
-        //TODO inyectar driver con las credenciales correspondientes al DbWallet
         $logger = $this->get('transaction.logger');
         $logger->info('Incomig transaction...Method-> '.$method_cname.' Direction -> '.$type);
 
@@ -90,51 +89,16 @@ class IncomingController2 extends RestApiController{
             $logger->info('Incomig transaction DELETE ON EXPIRE TRUE');
         }
 
-        //get currency_in and currency_out
-        $exchange_done = false;
-        $exchange_out = false;
-        if((array_key_exists('currency_in', $data) && $data['currency_in'] != '' || array_key_exists('currency_out', $data) && $data['currency_out'] != '')
-            && ($method_cname == 'btc' || $method_cname == 'fac' || $method_cname == 'crea' || $method_cname == 'eth' || $method_cname == 'paynet_reference') && $type == 'in'){
-
-            $request_amount = $amount;
-            $cur_in = $method->getCurrency();
-            $cur_out = $method->getCurrency();
-            if($data['currency_in']) $cur_in = strtoupper($data['currency_in']);
-            if($data['currency_out']) $cur_out = strtoupper($data['currency_out']);
-
-            $logger->info('Currency IN-> '.$cur_in.' Currency OUT-> '.$cur_out.' Method cur => '.$method->getCurrency());
-            if(strtoupper($cur_in) != $method->getCurrency()){
-                $exchange_done = true;
-                $method_currency = $method->getCurrency();
-                if($method_currency == 'FAC' && $group->getPremium()){
-                    $method_currency = 'FAIRP';
-                }
-                $amount = $this->get('net.telepay.commons.exchange_manipulator')->exchangeInverse($amount, $cur_in, $method_currency);
-            }
-            if(strtoupper($cur_out) != $method->getCurrency() ){
-                $exchange_out = true;
-            }
-        }
-        unset($data['currency']);
-
         $logger->info('Incomig transaction...getPaymentInfo for company '.$group->getId());
 
         //Aqui hay que distinguir entre in i out
         //para in es getPayInInfo y para out es getPayOutInfo
         if($type == 'in'){
-
             $dataIn = array(
                 'amount'    =>  $amount,
                 'concept'   =>  $concept,
                 'url_notification'  =>  $url_notification
             );
-            if($exchange_done){
-                $dataIn['request_amount'] = $request_amount;
-                $dataIn['request_currency_in'] = $cur_in;
-            }
-            if($exchange_out){
-                $dataIn['request_currency_out'] = $cur_out;
-            }
             $payment_info = $method->getPayInInfo($amount);
             $payment_info['concept'] = $concept;
             if(isset($data['expires_in']) && $data['expires_in'] > 99){
@@ -151,13 +115,6 @@ class IncomingController2 extends RestApiController{
                 'concept'   =>  $concept,
                 'url_notification'  =>  $url_notification
             );
-            if($exchange_done){
-                $dataIn['request_amount'] = $request_amount;
-                $dataIn['request_currency_in'] = $cur_in;
-            }
-            if($exchange_out){
-                $dataIn['request_currency_out'] = $cur_out;
-            }
         }
 
         $transaction->setDataIn($dataIn);
@@ -208,9 +165,27 @@ class IncomingController2 extends RestApiController{
         if($type == 'out'){
             $logger->info('Incomig transaction...OUT Available = ' . $wallet->getAvailable() .  " TOTAL: " . $total);
             if($wallet->getAvailable() < $total) throw new HttpException(405,'Not founds enough');
-                    //Bloqueamos la pasta en el wallet
+            //Bloqueamos la pasta en el wallet
             $wallet->setAvailable($wallet->getAvailable() - $amount);
             $em->flush();
+
+            $destination = $em->getRepository('TelepayFinancialApiBundle:Group')->findOneBy(array(
+                'rec_address' => $payment_info['address']
+            ));
+
+            if(!$destination){
+                throw new HttpException(405,'Destination address does not exists');
+            }
+
+            $user = $em->getRepository('TelepayFinancialApiBundle:User')->findOneBy(array(
+                'id' => $user_id
+            ));
+
+            $payment_info['orig_nif'] = $user->getDNI();
+            $payment_info['orig_group_nif'] = $group->getCif();
+            $payment_info['orig_key'] = $group->getKeyChain();
+            $payment_info['dest_group_nif'] = $destination->getCif();
+            $payment_info['dest_key'] = $destination->getKeyChain();
 
             $logger->info('Incomig transaction...SEND');
 
@@ -227,7 +202,6 @@ class IncomingController2 extends RestApiController{
                 //desbloqueamos la pasta del wallet
                 $wallet->setAvailable($wallet->getAvailable() + $amount);
                 //descontamos del counter
-//                $newGroupLimitCount = (new LimitAdder())->restore( $groupLimitCount, $total);
                 $em->flush();
                 $dm->flush();
 
@@ -239,8 +213,6 @@ class IncomingController2 extends RestApiController{
             $logger->info('Incomig transaction...PAYMENT STATUS: '.$payment_info['status']);
 
             $env = $this->container->getParameter('environment');
-            exec('curl -X POST -d "chat_id=-145386290&text=#cashOut_'.$env.' [' . $group->getName() . '](' . $method_cname . ') Sent: ' . $amount . ' ' . $method->getCurrency() . ' status:' . $payment_info['status'] . '" "https://api.telegram.org/bot348257911:AAG9z3cJnDi31-7MBsznurN-KZx6Ho_X4ao/sendMessage"');
-
             $transaction->setPayOutInfo($payment_info);
             $dm->flush();
 
