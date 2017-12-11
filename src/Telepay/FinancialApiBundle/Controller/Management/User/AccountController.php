@@ -840,6 +840,8 @@ class AccountController extends BaseApiController{
             $em->persist($userWallet);
         }
 
+        $pin = rand(1000, 9999);
+
         $user = new User();
         $user->setPlainPassword($params['plain_password']);
         $user->setEmail($params['email']);
@@ -852,6 +854,7 @@ class AccountController extends BaseApiController{
         $user->setActiveGroup($company);
         $user->setBase64Image('');
         $user->setEnabled(false);
+        $user->setPin($pin);
         $em->persist($user);
 
         $company->setKycManager($user);
