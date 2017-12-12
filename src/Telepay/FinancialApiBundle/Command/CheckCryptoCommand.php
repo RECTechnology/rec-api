@@ -56,6 +56,7 @@ class CheckCryptoCommand extends SyncronizedContainerAwareCommand
                     $output->writeln('Notificate end');
                     $transaction->setUpdated(new \DateTime);
                 }
+                $dm->persist($transaction);
                 $dm->flush();
 
                 $groupId = $transaction->getGroup();
@@ -91,13 +92,14 @@ class CheckCryptoCommand extends SyncronizedContainerAwareCommand
                         $transaction = $this->getContainer()->get('notificator')->notificate($transaction);
                         $output->writeln('Notificate end');
                         $output->writeln('DELETE ON EXPIRE');
-                        $dm->flush();
                     }
                 }
+                $em->flush();
+                $dm->persist($transaction);
+                $dm->flush();
             }
             $output->writeln($method . ' transactions checked');
         }
-        $dm->flush();
         $output->writeln('Crypto transactions finished');
     }
 
