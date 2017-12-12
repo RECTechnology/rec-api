@@ -18,7 +18,7 @@ class CheckCryptoCommand extends SyncronizedContainerAwareCommand
     protected function configure()
     {
         $this
-            ->setName('telepay:crypto:check')
+            ->setName('rec:crypto:check')
             ->setDescription('Check crypto transactions')
         ;
     }
