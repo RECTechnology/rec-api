@@ -76,6 +76,22 @@ class RecMethod extends BaseMethod {
     }
 
     public function getPayInStatus($paymentInfo){
+
+        if(isset($paymentInfo['txid'])) {
+            //$confirmations = $this->driver->txidconfirmations($paymentInfo['txid']);
+            $confirmations = 1;
+            $paymentInfo['confirmations'] = $confirmations;
+            if ($paymentInfo['confirmations'] >= $paymentInfo['min_confirmations']) {
+                $status = 'success';
+                $final = true;
+                $paymentInfo['final'] = $final;
+            } else {
+                $status = 'received';
+            }
+            $paymentInfo['status'] = $status;
+            return $paymentInfo;
+        }
+
         $allReceived = $this->driver->listreceivedbyaddress(0, true);
         $amount = $paymentInfo['amount'];
         $address = $paymentInfo['address'];
