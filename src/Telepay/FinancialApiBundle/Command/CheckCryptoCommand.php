@@ -45,58 +45,53 @@ class CheckCryptoCommand extends SyncronizedContainerAwareCommand
                 $output->writeln('CHECK CRYPTO ID: '.$transaction->getId());
                 $data = $transaction->getPayInInfo();
                 $output->writeln('CHECK CRYPTO concept: '.$data['concept']);
-                if (isset($data['expires_in'])) {
+                $resArray [] = $transaction;
+                $previous_status = $transaction->getStatus();
 
-                    $resArray [] = $transaction;
-                    $previous_status = $transaction->getStatus();
+                $transaction = $this->check($transaction);
+                $output->writeln('CHECK CRYPTO status: ' . $transaction->getStatus());
+                if ($previous_status != $transaction->getStatus()) {
+                    $output->writeln('Notificate init:');
+                    $transaction = $this->getContainer()->get('notificator')->notificate($transaction);
+                    $output->writeln('Notificate end');
+                    $transaction->setUpdated(new \DateTime);
+                }
+                $dm->flush();
 
-                    $transaction = $this->check($transaction);
-                    $output->writeln('CHECK CRYPTO status: '.$transaction->getStatus());
-                    if ($previous_status != $transaction->getStatus()) {
-                        $output->writeln('Notificate init:');
-                        $transaction = $this->getContainer()->get('notificator')->notificate($transaction);
-                        $output->writeln('Notificate end');
-                        $transaction->setUpdated(new \DateTime);
-                    }
+                $groupId = $transaction->getGroup();
+                $group = $repoGroup->find($groupId);
+                $fixed_fee = $transaction->getFixedFee();
+                $variable_fee = $transaction->getVariableFee();
+                $total_fee = $fixed_fee + $variable_fee;
+                $amount = $data['amount'];
+                $total = $amount - $total_fee;
 
-                    $dm->flush();
+                if ($transaction->getStatus() == Transaction::$STATUS_SUCCESS) {
+                    $output->writeln('CHECK CRYPTO success');
+                    $service_currency = $transaction->getCurrency();
+                    $wallet = $group->getWallet($service_currency);
+                    $balancer = $this->getContainer()->get('net.telepay.commons.balance_manipulator');
+                    $balancer->addBalance($group, $amount, $transaction, "check crypto command");
+                    $wallet->setAvailable($wallet->getAvailable() + $amount);
+                    $wallet->setBalance($wallet->getBalance() + $amount);
+                    $em->flush();
+                }
+                elseif ($transaction->getStatus() == Transaction::$STATUS_EXPIRED) {
+                    $output->writeln('TRANSACTION EXPIRED');
 
-                    $groupId = $transaction->getGroup();
-                    $group = $repoGroup->find($groupId);
-
-                    $fixed_fee = $transaction->getFixedFee();
-                    $variable_fee = $transaction->getVariableFee();
-                    $total_fee = $fixed_fee + $variable_fee;
-                    $amount = $data['amount'];
-                    $total = $amount - $total_fee;
-
-                    if ($transaction->getStatus() == Transaction::$STATUS_SUCCESS) {
-                        $output->writeln('CHECK CRYPTO success');
-                        $service_currency = $transaction->getCurrency();
-                        $wallet = $group->getWallet($service_currency);
-                        $balancer = $this->getContainer()->get('net.telepay.commons.balance_manipulator');
-                        $balancer->addBalance($group, $amount, $transaction, "check crypto command");
-                        $wallet->setAvailable($wallet->getAvailable() + $amount);
-                        $wallet->setBalance($wallet->getBalance() + $amount);
+                    $output->writeln('NOTIFYING EXPIRED');
+                    $transaction = $this->getContainer()->get('notificator')->notificate($transaction);
+                    $output->writeln('Notificate end');
+                    //if delete_on_expire==true delete transaction
+                    $paymentInfo = $transaction->getPayInInfo();
+                    if ($transaction->getDeleteOnExpire() == true && $paymentInfo['received'] == 0) {
+                        $transaction->setStatus('deleted');
                         $em->flush();
-                    }
-                    elseif ($transaction->getStatus() == Transaction::$STATUS_EXPIRED) {
-                        $output->writeln('TRANSACTION EXPIRED');
-
-                        $output->writeln('NOTIFYING EXPIRED');
+                        $output->writeln('NOTIFYING DELETE ON EXPIRE');
                         $transaction = $this->getContainer()->get('notificator')->notificate($transaction);
                         $output->writeln('Notificate end');
-                        //if delete_on_expire==true delete transaction
-                        $paymentInfo = $transaction->getPayInInfo();
-                        if ($transaction->getDeleteOnExpire() == true && $paymentInfo['received'] == 0) {
-                            $transaction->setStatus('deleted');
-                            $em->flush();
-                            $output->writeln('NOTIFYING DELETE ON EXPIRE');
-                            $transaction = $this->getContainer()->get('notificator')->notificate($transaction);
-                            $output->writeln('Notificate end');
-                            $output->writeln('DELETE ON EXPIRE');
-                            $dm->flush();
-                        }
+                        $output->writeln('DELETE ON EXPIRE');
+                        $dm->flush();
                     }
                 }
             }
@@ -130,9 +125,10 @@ class CheckCryptoCommand extends SyncronizedContainerAwareCommand
     }
 
     private function hasExpired($transaction){
-
-        return $transaction->getCreated()->getTimestamp() + $transaction->getPayInInfo()['expires_in'] < time();
-
+        if (isset($transaction->getPayInInfo()['expires_in'])) {
+            return $transaction->getCreated()->getTimestamp() + $transaction->getPayInInfo()['expires_in'] < time();
+        }
+        return false;
     }
 
     private function sendEmail($subject, $body){
