@@ -197,9 +197,15 @@ class IncomingController2 extends RestApiController{
                 throw new HttpException(405,'Destination address does not exists');
             }
 
+            if($destination->getRecAddress() == $group->getRecAddress()){
+                throw new HttpException(405,'Error, destination address is equal than origin address');
+            }
+
+            $payment_info['orig_address'] = $group->getRecAddress();
             $payment_info['orig_nif'] = $user->getDNI();
             $payment_info['orig_group_nif'] = $group->getCif();
             $payment_info['orig_key'] = $group->getKeyChain();
+            $payment_info['dest_address'] = $destination->getRecAddress();
             $payment_info['dest_group_nif'] = $destination->getCif();
             $payment_info['dest_key'] = $destination->getKeyChain();
 
