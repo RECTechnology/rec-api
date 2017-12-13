@@ -753,12 +753,12 @@ class AccountController extends BaseApiController{
      */
     public function registerCommerceAction(Request $request, $type){
         $paramNames = array(
-            'username',
-            'account_name',
+            'name',
             'password',
             'repassword',
             'phone',
             'prefix',
+            'pin',
             'dni'
         );
 
@@ -780,6 +780,7 @@ class AccountController extends BaseApiController{
         unset($params['repassword']);
 
         $em = $this->getDoctrine()->getManager();
+        $params['username'] = $params['dni'];
         $user = $em->getRepository($this->getRepositoryName())->findOneBy(array(
             'username'  =>  $params['username']
         ));
@@ -840,13 +841,11 @@ class AccountController extends BaseApiController{
             $em->persist($userWallet);
         }
 
-        $pin = rand(1000, 9999);
-
         $user = new User();
         $user->setPlainPassword($params['plain_password']);
         $user->setEmail($params['email']);
         $user->setRoles(array('ROLE_USER'));
-        $user->setName($params['username']);
+        $user->setName($params['name']);
         $user->setPhone($params['phone']);
         $user->setPrefix($params['prefix']);
         $user->setUsername($params['username']);
@@ -854,7 +853,7 @@ class AccountController extends BaseApiController{
         $user->setActiveGroup($company);
         $user->setBase64Image('');
         $user->setEnabled(false);
-        $user->setPin($pin);
+        $user->setPin($params['pin']);
         $em->persist($user);
 
         $company->setKycManager($user);
