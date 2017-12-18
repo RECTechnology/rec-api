@@ -781,12 +781,6 @@ class AccountController extends BaseApiController{
 
         $em = $this->getDoctrine()->getManager();
         $params['username'] = $params['dni'];
-        $user = $em->getRepository($this->getRepositoryName())->findOneBy(array(
-            'username'  =>  $params['username']
-        ));
-        if($user){
-            throw new HttpException(400, "Username already registered");
-        }
 
         $user = $em->getRepository($this->getRepositoryName())->findOneBy(array(
             'phone'  =>  $params['phone']
@@ -800,6 +794,13 @@ class AccountController extends BaseApiController{
         ));
         if($user){
             throw new HttpException(400, "dni already registered");
+        }
+
+        $user = $em->getRepository($this->getRepositoryName())->findOneBy(array(
+            'username'  =>  $params['username']
+        ));
+        if($user){
+            throw new HttpException(400, "Username already registered");
         }
 
         if($request->request->has('email')){
@@ -822,7 +823,7 @@ class AccountController extends BaseApiController{
 
         //create company
         $company = new Group();
-        $company->setName($params['account_name']);
+        $company->setName($params['name']);
         $company->setActive(true);
         $company->setRoles(array('ROLE_COMPANY'));
         $company->setEmail($params['email']);
