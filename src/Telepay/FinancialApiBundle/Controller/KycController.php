@@ -236,9 +236,20 @@ class KycController extends BaseApiController{
             throw new HttpException(400, "Missing parameter 'code'");
         }
         $code = $request->get('code');
-
-        $user = $this->get('security.context')->getToken()->getUser();
         $em = $this->getDoctrine()->getManager();
+
+        if(!$request->request->has('NIF') || $request->get('NIF')=="") {
+            $user = $this->get('security.context')->getToken()->getUser();
+        }
+        else{
+            $user = $em->getRepository('TelepayFinancialApiBundle:User')->findOneBy(array(
+                'username' => $request->get('NIF')
+            ));
+            if(!$user){
+                throw new HttpException(400, "CIF not registered");
+            }
+        }
+
         $kyc = $em->getRepository('TelepayFinancialApiBundle:KYC')->findOneBy(array(
             'user' => $user
         ));
@@ -252,6 +263,9 @@ class KycController extends BaseApiController{
             elseif($code == $validation_code){
                 $kyc->setPhoneValidated(true);
                 $em->persist($kyc);
+                $em->flush();
+                $user->setEnabled(true);
+                $em->persist($user);
                 $em->flush();
             }
             else{

@@ -18,6 +18,12 @@ validate_email_code_kyc:
     requirements:
         _method: POST
 
+validate_phone_code:
+    pattern:  /kyc/validate_phone_code
+    defaults: { _controller: Telepay\FinancialApiBundle\Controller\KycController::validatePhoneCode }
+    requirements:
+        _method: POST
+
 info_kyc:
     pattern:  /auth_kyc/info
     defaults: { _controller: Telepay\FinancialApiBundle\Controller\KycController::kycInfo }
@@ -30,8 +36,4 @@ validate_phone:
     requirements:
         _method: POST
 
-validate_phone_code:
-    pattern:  /auth_kyc/validate_phone_code
-    defaults: { _controller: Telepay\FinancialApiBundle\Controller\KycController::validatePhoneCode }
-    requirements:
-        _method: POST
+
