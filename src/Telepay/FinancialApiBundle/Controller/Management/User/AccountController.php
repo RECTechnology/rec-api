@@ -841,13 +841,19 @@ class AccountController extends BaseApiController{
             $em->persist($userWallet);
         }
 
+        $phone = preg_replace("/[^0-9,.]/", "", $params['phone']);
+        $prefix = preg_replace("/[^0-9,.]/", "", $params['prefix']);
+        if(!$this->checkPhone($phone, $prefix)){
+            throw new HttpException(400, "Incorrect phone or prefix number");
+        }
+
         $user = new User();
         $user->setPlainPassword($params['plain_password']);
         $user->setEmail($params['email']);
         $user->setRoles(array('ROLE_USER'));
         $user->setName($params['name']);
-        $user->setPhone($params['phone']);
-        $user->setPrefix($params['prefix']);
+        $user->setPhone($phone);
+        $user->setPrefix($prefix);
         $user->setUsername($params['username']);
         $user->setDNI($params['dni']);
         $user->setActiveGroup($company);
@@ -859,18 +865,6 @@ class AccountController extends BaseApiController{
         $company->setKycManager($user);
         $company->setCif($params['dni']);
         $em->persist($company);
-
-        if($params['email'] != '') {
-            $tokenGenerator = $this->container->get('fos_user.util.token_generator');
-            $user->setConfirmationToken($tokenGenerator->generateToken());
-            $em->persist($user);
-            $em->flush();
-            //$url_validation = $url . '/user/validation/' . $user->getConfirmationToken();
-            //$this->_sendEmail($client_name . ' validation e-mail', $url_validation, $user->getEmail(), 'register', $client_name, $url, $companyCreator);
-        }
-        else{
-            //send SMS
-        }
 
         //Add user to group with admin role
         $userGroup = new UserGroup();
@@ -885,6 +879,31 @@ class AccountController extends BaseApiController{
         $em->persist($userGroup);
         $em->persist($kyc);
         $em->flush();
+
+        $code = substr(Random::generateToken(), 0, 6);
+        if($params['email'] != '') {
+            $tokenGenerator = $this->container->get('fos_user.util.token_generator');
+            $user->setConfirmationToken($tokenGenerator->generateToken());
+            $em->persist($user);
+            $em->flush();
+            $url = "NO";
+            $url_validation = $url . '/user/validation/' . $user->getConfirmationToken();
+            $this->_sendEmail('Validation e-mail', $url_validation, $user->getEmail(), 'register', $code);
+        }
+        else{
+            $phone_info = array(
+                "prefix" => $prefix,
+                "number" => $phone
+            );
+
+            $code = substr(Random::generateToken(), 0, 6);
+            $kyc->setPhoneValidated(false);
+            $kyc->setValidationPhoneCode(json_encode(array("code" => $code, "tries" => 0)));
+            $this->sendSMS($prefix, $phone, "Chip-chap Code " . $code);
+            $kyc->setPhone(json_encode($phone_info));
+            $em->persist($kyc);
+            $em->flush();
+        }
 
         foreach($methodsList as $method){
             $method_ex = explode('-', $method);
@@ -1238,20 +1257,6 @@ class AccountController extends BaseApiController{
         ));
 
         if(!$user) throw new HttpException(400, 'User not found');
-
-//        $tierValidation = $em->getRepository('TelepayFinancialApiBundle:TierValidations')->findOneBy(array(
-//            'user' => $user
-//        ));
-
-//        if(!$tierValidation) {
-//            $tierValidation = new TierValidations();
-//            $tierValidation->setUser($user);
-//        }
-
-//        $tierValidation->setEmail(true);
-//        $em->persist($tierValidation);
-//        $em->flush();
-
         $user->setEnabled(true);
         $em->persist($user);
         $em->flush();
@@ -1284,33 +1289,17 @@ class AccountController extends BaseApiController{
 
     }
 
-    private function _sendEmail($subject, $body, $to, $action, $client_name = 'Chip-Chap', $url = null, $companyCreator = null){
+    private function _sendEmail($subject, $body, $to, $action, $code = null){
         $from = 'no-reply@chip-chap.com';
         $mailer = 'mailer';
-        if(strtolower($client_name) == "wannapay"){
-            $mailer = 'swiftmailer.mailer.wannapay_mailer';
-        }
         if($action == 'register'){
             $template = 'TelepayFinancialApiBundle:Email:registerconfirm.html.twig';
         }elseif($action == 'recover'){
             $template = 'TelepayFinancialApiBundle:Email:recoverpassword.html.twig';
-        }elseif($action == 'recover_holy'){
-            $template = 'TelepayFinancialApiBundle:Email:recoverpasswordholy.html.twig';
-            $from = 'no-reply@holytransaction.trade';
-            $mailer = 'swiftmailer.mailer.holy_mailer';
         }elseif($action == 'register_kyc'){
             $template = 'TelepayFinancialApiBundle:Email:registerconfirmkyc.html.twig';
-        }elseif($action == 'register_kyc_holy'){
-            $template = 'TelepayFinancialApiBundle:Email:registerconfirmkycholy.html.twig';
-            $from = 'no-reply@holytransaction.trade';
-            $mailer = 'swiftmailer.mailer.holy_mailer';
         }else{
             $template = 'TelepayFinancialApiBundle:Email:registerconfirm.html.twig';
-        }
-
-        if($companyCreator == null){
-            $em = $this->getDoctrine()->getManager();
-            $companyCreator = $em->getRepository('TelepayFinancialApiBundle:Group')->find($this->container->getParameter('id_group_root'));
         }
 
         $message = \Swift_Message::newInstance()
@@ -1324,9 +1313,7 @@ class AccountController extends BaseApiController{
                     ->render($template,
                         array(
                             'message'        =>  $body,
-                            'client_name'   =>  $client_name,
-                            'url'   =>  $url,
-                            'company'   =>  $companyCreator
+                            'code'   =>  $code,
                         )
                     )
             )
@@ -1367,4 +1354,50 @@ class AccountController extends BaseApiController{
 
     }
 
+    private function checkPhone($phone, $prefix){
+        if(strlen($prefix)<1){
+            return false;
+        }
+
+        //SP xxxxxxxxx
+        if($prefix == '34'){
+            return strlen($phone)==9;
+        }
+        //PL xxxxxxxxx
+        elseif($prefix == '48'){
+            return strlen($phone)==9;
+        }
+        //GR xxxxxxxxx
+        elseif($prefix == '30'){
+            return strlen($phone)==10;
+        }
+        //GB 07xxx xxxxxx
+        elseif($prefix == '44'){
+            return strlen($phone)==11;
+        }
+        elseif(strlen($phone)>7){
+            return true;
+        }
+        return false;
+    }
+
+    private function sendSMS($prefix, $number, $text){
+        $sid = $this->container->getParameter('twilio_sid');
+        $token = $this->container->getParameter('twilio_authToken');
+        $from = $this->container->getParameter('twilio_from');
+        $http = new Services_Twilio_TinyHttp(
+            'https://api.twilio.com',
+            array('curlopts' => array(
+                CURLOPT_SSL_VERIFYPEER => false,
+                CURLOPT_SSL_VERIFYHOST => 2,
+            ))
+        );
+
+        $twilio = new Services_Twilio($sid, $token, "2010-04-01", $http);
+        $twilio->account->messages->create(array(
+            'To' => "+" . $prefix . $number,
+            'From' => $from,
+            'Body' => $text,
+        ));
+    }
 }
