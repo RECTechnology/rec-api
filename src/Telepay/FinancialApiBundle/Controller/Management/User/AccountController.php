@@ -883,6 +883,14 @@ class AccountController extends BaseApiController{
         $em->flush();
 
         $code = substr(Random::generateToken(), 0, 6);
+        $kyc->setPhoneValidated(false);
+        $kyc->setValidationPhoneCode(json_encode(array("code" => $code, "tries" => 0)));
+        $phone_info = array(
+            "prefix" => $prefix,
+            "number" => $phone
+        );
+        $kyc->setPhone(json_encode($phone_info));
+
         if($params['email'] != '') {
             $tokenGenerator = $this->container->get('fos_user.util.token_generator');
             $user->setConfirmationToken($tokenGenerator->generateToken());
@@ -893,16 +901,7 @@ class AccountController extends BaseApiController{
             $this->_sendEmail('Validation e-mail', $url_validation, $user->getEmail(), 'register', $code);
         }
         else{
-            $phone_info = array(
-                "prefix" => $prefix,
-                "number" => $phone
-            );
-
-            $code = substr(Random::generateToken(), 0, 6);
-            $kyc->setPhoneValidated(false);
-            $kyc->setValidationPhoneCode(json_encode(array("code" => $code, "tries" => 0)));
             $this->sendSMS($prefix, $phone, "Chip-chap Code " . $code);
-            $kyc->setPhone(json_encode($phone_info));
             $em->persist($kyc);
             $em->flush();
         }
