@@ -70,7 +70,7 @@ class User extends BaseUser
     private $active_group = null;
 
     /**
-     * @ORM\Column(type="integer")
+     * @ORM\Column(type="string")
      */
     private $pin;
 

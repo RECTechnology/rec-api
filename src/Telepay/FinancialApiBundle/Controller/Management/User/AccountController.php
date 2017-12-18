@@ -843,10 +843,15 @@ class AccountController extends BaseApiController{
             $em->persist($userWallet);
         }
 
-        $phone = preg_replace("/[^0-9,.]/", "", $params['phone']);
-        $prefix = preg_replace("/[^0-9,.]/", "", $params['prefix']);
+        $phone = preg_replace("/[^0-9]/", "", $params['phone']);
+        $prefix = preg_replace("/[^0-9]/", "", $params['prefix']);
         if(!$this->checkPhone($phone, $prefix)){
             throw new HttpException(400, "Incorrect phone or prefix number");
+        }
+
+        $pin = preg_replace("/[^0-9]/", "", $params['pin']);
+        if(strlen($pin)!=4){
+            throw new HttpException(400, "Pin must be a number with 4 digits");
         }
 
         $user = new User();
