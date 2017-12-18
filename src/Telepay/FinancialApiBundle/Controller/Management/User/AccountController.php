@@ -33,6 +33,7 @@ use Telepay\FinancialApiBundle\Entity\UserGroup;
 use Telepay\FinancialApiBundle\Entity\UserWallet;
 use Telepay\FinancialApiBundle\Financial\Currency;
 use Telepay\FinancialApiBundle\Controller\Google2FA;
+use FOS\OAuthServerBundle\Util\Random;
 
 class AccountController extends BaseApiController{
 
