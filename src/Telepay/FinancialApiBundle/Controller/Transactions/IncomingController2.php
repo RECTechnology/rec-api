@@ -57,6 +57,22 @@ class IncomingController2 extends RestApiController{
         $dm = $this->get('doctrine_mongodb')->getManager();
         $em = $this->getDoctrine()->getManager();
 
+        $user = $em->getRepository('TelepayFinancialApiBundle:User')->findOneBy(array(
+            'id' => $user_id
+        ));
+
+        if($type == 'out'){
+            if(array_key_exists('pin', $data) && $data['pin']!='' && intval($data['pin'])>0){
+                $pin = $data['pin'];
+                if($user->getPIN()!=$pin){
+                    throw new HttpException(400, 'Incorrect Pin');
+                }
+            }
+            else{
+                throw new HttpException(400, 'Param pin not found or incorrect');
+            }
+        }
+
         //Si viene del scheduled no hay IP
         $transaction = Transaction::createFromRequestIP($ip);
         $transaction->setService($method_cname);
@@ -168,20 +184,6 @@ class IncomingController2 extends RestApiController{
         //******    CHECK IF THE TRANSACTION IS CASH-OUT     ********
         if($type == 'out'){
             $logger->info('Incomig transaction...OUT Available = ' . $wallet->getAvailable() .  " TOTAL: " . $total);
-
-            $user = $em->getRepository('TelepayFinancialApiBundle:User')->findOneBy(array(
-                'id' => $user_id
-            ));
-
-            if(array_key_exists('pin', $data) && $data['pin']!='' && intval($data['pin'])>0){
-                $pin = $data['pin'];
-                if($user->getPIN()!=$pin){
-                    throw new HttpException(400, 'Incorrect Pin');
-                }
-            }
-            else{
-                throw new HttpException(400, 'Param pin not found or incorrect');
-            }
 
             if($wallet->getAvailable() < $total) throw new HttpException(405,'Not founds enough');
             //Bloqueamos la pasta en el wallet
