@@ -1,10 +1,4 @@
 <?php
-/**
- * Created by PhpStorm.
- * User: lluis
- * Date: 6/6/14
- * Time: 2:22 PM
- */
 
 namespace Telepay\FinancialApiBundle\Entity;
 
@@ -21,6 +15,17 @@ use Symfony\Component\Security\Core\Util\SecureRandom;
  * @ORM\Entity
  * @ORM\Table(name="fos_group")
  * @ExclusionPolicy("none")
+ *
+ * @ORM\AttributeOverrides({
+ *     @ORM\AttributeOverride(name="name",
+ *         column=@ORM\Column(
+ *             name="name",
+ *             type="string",
+ *             length=255,
+ *             unique=false
+ *         )
+ *     )
+ * })
  */
 class Group extends BaseGroup
 {
