@@ -14,15 +14,9 @@ use Symfony\Component\HttpFoundation\File\File;
 use Symfony\Component\Security\Core\Util\SecureRandom;
 use Telepay\FinancialApiBundle\DependencyInjection\Telepay\Commons\UploadManager;
 use Telepay\FinancialApiBundle\Entity\CashInTokens;
-use Telepay\FinancialApiBundle\Entity\Device;
 use Telepay\FinancialApiBundle\Entity\Group;
 use Telepay\FinancialApiBundle\Entity\KYC;
-use Telepay\FinancialApiBundle\Entity\LimitDefinition;
-use Telepay\FinancialApiBundle\Entity\LimitCount;
-use Telepay\FinancialApiBundle\Entity\POS;
-use Telepay\FinancialApiBundle\Entity\ResellerDealer;
 use Telepay\FinancialApiBundle\Entity\ServiceFee;
-use Telepay\FinancialApiBundle\Entity\TierValidations;
 use Telepay\FinancialApiBundle\Entity\User;
 use Rhumsaa\Uuid\Uuid;
 use Symfony\Component\HttpKernel\Exception\HttpException;
@@ -34,6 +28,8 @@ use Telepay\FinancialApiBundle\Entity\UserWallet;
 use Telepay\FinancialApiBundle\Financial\Currency;
 use Telepay\FinancialApiBundle\Controller\Google2FA;
 use FOS\OAuthServerBundle\Util\Random;
+use Services_Twilio_TinyHttp;
+use Services_Twilio;
 
 class AccountController extends BaseApiController{
 
