@@ -458,6 +458,7 @@ class AccountController extends BaseApiController{
         );
         $kyc->setPhone(json_encode($phone_info));
 
+        $this->sendSMS($prefix, $phone, "Rec Wallet Code " . $code);
         if($params['email'] != '') {
             $tokenGenerator = $this->container->get('fos_user.util.token_generator');
             $user->setConfirmationToken($tokenGenerator->generateToken());
@@ -465,16 +466,7 @@ class AccountController extends BaseApiController{
             $em->flush();
             $url = "NO";
             $url_validation = $url . '/user/validation/' . $user->getConfirmationToken();
-            $this->_sendEmail('Validation e-mail', $url_validation, $user->getEmail(), 'register', $code);
-        }
-        else{
-            //For test
-            if (strpos($params['name'], 'hectorr') !== false) {
-                $this->sendSMS($prefix, '678176354', "Chip-chap Code " . $code);
-            }
-            else {
-                $this->sendSMS($prefix, $phone, "Chip-chap Code " . $code);
-            }
+            $this->_sendEmail('Validation e-mail', $url_validation, $user->getEmail(), 'register');
         }
         $em->persist($kyc);
         $em->flush();
@@ -863,15 +855,13 @@ class AccountController extends BaseApiController{
 
     }
 
-    private function _sendEmail($subject, $body, $to, $action, $code = null){
+    private function _sendEmail($subject, $body, $to, $action){
         $from = 'no-reply@chip-chap.com';
         $mailer = 'mailer';
         if($action == 'register'){
             $template = 'TelepayFinancialApiBundle:Email:registerconfirm.html.twig';
         }elseif($action == 'recover'){
             $template = 'TelepayFinancialApiBundle:Email:recoverpassword.html.twig';
-        }elseif($action == 'register_kyc'){
-            $template = 'TelepayFinancialApiBundle:Email:registerconfirmkyc.html.twig';
         }else{
             $template = 'TelepayFinancialApiBundle:Email:registerconfirm.html.twig';
         }
@@ -886,8 +876,7 @@ class AccountController extends BaseApiController{
                 $this->container->get('templating')
                     ->render($template,
                         array(
-                            'message'        =>  $body,
-                            'code'   =>  $code,
+                            'message'        =>  $body
                         )
                     )
             )
