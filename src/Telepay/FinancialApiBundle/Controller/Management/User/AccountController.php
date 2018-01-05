@@ -458,7 +458,7 @@ class AccountController extends BaseApiController{
         );
         $kyc->setPhone(json_encode($phone_info));
 
-        $this->sendSMS($prefix, $phone, "Rec Wallet Code " . $code);
+        $this->sendSMS($prefix, $phone, "Chip-chap Code " . $code);
         if($params['email'] != '') {
             $tokenGenerator = $this->container->get('fos_user.util.token_generator');
             $user->setConfirmationToken($tokenGenerator->generateToken());
