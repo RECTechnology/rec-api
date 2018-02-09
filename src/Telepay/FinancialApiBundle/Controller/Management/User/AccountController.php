@@ -546,7 +546,7 @@ class AccountController extends BaseApiController{
     public function passwordRecoveryRequest(Request $request, $param, $version_number){
         $em = $this->getDoctrine()->getManager();
         $user = $em->getRepository($this->getRepositoryName())->findOneBy(array(
-            'username'  =>  $param
+            'phone'  =>  $param
         ));
 
         if(!$user) throw new HttpException(404, 'User not found');
