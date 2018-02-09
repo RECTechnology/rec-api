@@ -560,10 +560,10 @@ class AccountController extends BaseApiController{
 
 
         if (strpos($user->getName(), 'hectorr') !== false) {
-            $this->sendSMS($user->getPrefix(), '678176354', "Recover pass: " . $code);
+            $this->sendSMS($user->getPrefix(), '678176354', "Recover pass token: " . $code);
         }
         else {
-            $this->sendSMS($user->getPrefix(), $user->getPhone(), "Recover pass: " . $code);
+            $this->sendSMS($user->getPrefix(), $user->getPhone(), "Recover pass token: " . $code);
         }
         return $this->restV2(200,"ok", "Request successful");
     }
