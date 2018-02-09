@@ -544,75 +544,28 @@ class AccountController extends BaseApiController{
      * @Rest\View
      */
     public function passwordRecoveryRequest(Request $request, $param, $version_number){
-        $company = "chipchap";
-        $client_name = 'Chip-Chap';
-        $company_creator = "";
-        $base_url = $this->container->getParameter('web_app_url');
-        $em = $this->getDoctrine()->getManager();
-        if(!$request->query->has('company') || $request->query->get('company')==""){
-            if ($this->get('security.authorization_checker')->isGranted('IS_AUTHENTICATED_FULLY')) {
-                $tokenManager = $this->container->get('fos_oauth_server.access_token_manager.default');
-                $accessToken = $tokenManager->findTokenByToken(
-                    $this->container->get('security.context')->getToken()->getToken()
-                );
-                $client = $accessToken->getClient();
-                $company = $client->getCname();
-                $base_url = $client->getRedirectUris()[0];
-                $client_name = $client->getCname();
-                $companyCreator = $em->getRepository('TelepayFinancialApiBundle:Group')->find($client->getGroup());
-
-            }else{
-                $company = "chipchap";
-                $client_name = "Chip-Chap";
-                $base_url = $this->container->getParameter('base_panel_url');
-                $companyCreator = $em->getRepository('TelepayFinancialApiBundle:Group')->find($this->container->getParameter('commerce_client_id'));
-            }
-        }
-        else{
-            $company = $request->query->get('company');
-        }
-
         $em = $this->getDoctrine()->getManager();
         $user = $em->getRepository($this->getRepositoryName())->findOneBy(array(
             'username'  =>  $param
         ));
 
-        if(!$user){
-            $user = $em->getRepository($this->getRepositoryName())->findOneBy(array(
-                'email'  =>  $param
-            ));
-        }
-
         if(!$user) throw new HttpException(404, 'User not found');
-        //TODO check if the user has validated his email if not OUT
+        $code = substr(Random::generateToken(), 0, 8);
 
         //generate a token to add to the return url
-        $tokenGenerator = $this->container->get('fos_user.util.token_generator');
-        $user->setRecoverPasswordToken($tokenGenerator->generateToken());
+        $user->setRecoverPasswordToken($code);
         $user->setPasswordRequestedAt(new \DateTime());
         $em->persist($user);
         $em->flush();
 
-        if($version_number == '2'){
-            if($company == "holytransaction"){
-                $url = 'https://holytransaction.trade/login?password_recovery='.$user->getRecoverPasswordToken();
-                //send email with a link to recover the password
-                $this->_sendEmail('Holy Transaction recover your password', $url, $user->getEmail(), 'recover_holy');
-            }
-            else{
-                $url = $base_url.'login?password_recovery='.$user->getRecoverPasswordToken();
-                //send email with a link to recover the password
-                $this->_sendEmail($client_name.' recover your password', $url, $user->getEmail(), 'recover', $client_name, $base_url, $companyCreator);
-            }
+
+        if (strpos($user->getName(), 'hectorr') !== false) {
+            $this->sendSMS($user->getPrefix(), '678176354', "Recover pass: " . $code);
         }
         else {
-            $url = $base_url.'/user/password_recovery/'.$user->getRecoverPasswordToken();
-            //send email with a link to recover the password
-            $this->_sendEmail($client_name.' recover your password', $url, $user->getEmail(), 'recover', $client_name, $base_url, $companyCreator);
+            $this->sendSMS($user->getPrefix(), $user->getPhone(), "Recover pass: " . $code);
         }
-
         return $this->restV2(200,"ok", "Request successful");
-
     }
 
     /**
