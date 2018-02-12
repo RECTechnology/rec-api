@@ -575,8 +575,8 @@ class AccountController extends BaseApiController{
         $params = array();
 
         foreach($paramNames as $paramName){
-            if($request->request->has($paramName)){
-                $params[$paramName] = $request->request->get($paramName);
+            if($request->has($paramName)){
+                $params[$paramName] = $request->get($paramName);
             }else{
                 throw new HttpException(404, 'Parameter '.$paramName.' not found');
             }
