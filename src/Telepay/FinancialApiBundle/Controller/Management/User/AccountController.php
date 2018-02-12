@@ -536,10 +536,25 @@ class AccountController extends BaseApiController{
     /**
      * @Rest\View
      */
-    public function passwordRecoveryRequest(Request $request, $param, $version_number){
+    public function passwordRecoveryRequest(Request $request){
+        $paramNames = array(
+            'dni',
+            'phone'
+        );
+
+        $params = array();
+        foreach($paramNames as $param){
+            if($request->request->has($param) && $request->request->get($param)!=''){
+                $params[$param] = $request->request->get($param);
+            }else{
+                throw new HttpException(404, 'Param ' . $param . ' not found');
+            }
+        }
+
         $em = $this->getDoctrine()->getManager();
         $user = $em->getRepository($this->getRepositoryName())->findOneBy(array(
-            'phone'  =>  $param
+            'phone'  =>  $params['phone'],
+            'dni'  =>  $params['dni']
         ));
 
         if(!$user) throw new HttpException(404, 'User not found');
