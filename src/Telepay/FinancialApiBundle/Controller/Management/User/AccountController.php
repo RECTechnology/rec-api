@@ -567,7 +567,7 @@ class AccountController extends BaseApiController{
     public function passwordRecovery(Request $request){
 
         $paramNames = array(
-            'token',
+            'code',
             'password',
             'repassword'
         );
@@ -589,7 +589,7 @@ class AccountController extends BaseApiController{
         $em = $this->getDoctrine()->getManager();
 
         $user = $em->getRepository($this->getRepositoryName())->findOneBy(array(
-            'recover_password_token' => $params['token']
+            'recover_password_token' => $params['code']
         ));
 
         if(!$user) throw new HttpException(404, 'User not found');
@@ -608,7 +608,7 @@ class AccountController extends BaseApiController{
             $em->flush();
 
         }else{
-            throw new HttpException(404, 'Expired token');
+            throw new HttpException(404, 'Expired code');
         }
 
         return $this->restV2(204,"ok", "password recovered");
