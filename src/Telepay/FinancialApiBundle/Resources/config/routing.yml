@@ -83,5 +83,3 @@ recover_password_request:
 recover_password:
     pattern:  /password_recovery/v1
     defaults: { _controller: Telepay\FinancialApiBundle\Controller\Management\User\AccountController::passwordRecovery }
-    requirements:
-        _method: POST, PUT
