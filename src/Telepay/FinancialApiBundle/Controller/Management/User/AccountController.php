@@ -565,7 +565,6 @@ class AccountController extends BaseApiController{
      * @Rest\View
      */
     public function passwordRecovery(Request $request){
-
         $paramNames = array(
             'code',
             'password',
@@ -573,12 +572,11 @@ class AccountController extends BaseApiController{
         );
 
         $params = array();
-
-        foreach($paramNames as $paramName){
-            if($request->request->has($paramName)){
-                $params[$paramName] = $request->get($paramName);
+        foreach($paramNames as $param){
+            if($request->request->has($param) && $request->request->get($param)!=''){
+                $params[$param] = $request->request->get($param);
             }else{
-                throw new HttpException(404, 'Parameter '.$paramName.' not found');
+                throw new HttpException(404, 'Param ' . $param . ' not found');
             }
         }
 
