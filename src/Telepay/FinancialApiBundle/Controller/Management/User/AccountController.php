@@ -304,6 +304,12 @@ class AccountController extends BaseApiController{
         return $this->restV2(201,"ok", "Request successful", $response);
     }
 
+    public function validar_dni($dni){
+        $letra = substr($dni, -1);
+        $numeros = substr($dni, 0, -1);
+        return ( substr("TRWAGMYFPDXBNJZSQVHLCKE", $numeros%23, 1) == $letra && strlen($letra) == 1 && strlen ($numeros) == 8 );
+    }
+
     /**
      * @Rest\View
      */
@@ -315,7 +321,10 @@ class AccountController extends BaseApiController{
             'phone',
             'prefix',
             'pin',
-            'dni'
+            'dni',
+            'dni_confirmation',
+            'security_question',
+            'security_answer',
         );
 
         $valid_types = array('mobile');
@@ -336,7 +345,10 @@ class AccountController extends BaseApiController{
         unset($params['repassword']);
 
         $em = $this->getDoctrine()->getManager();
-        $params['username'] = $params['dni'];
+
+        if($params['dni'] != $params['dni_confirmation']) throw new HttpException(404, 'NIF and NIF confirmation are differents');
+        if(!$this->validar_dni($params['username'])) throw new HttpException(404, 'NIF not valid');
+        $params['username'] = strtoupper($params['dni']);
 
         $user = $em->getRepository($this->getRepositoryName())->findOneBy(array(
             'phone'  =>  $params['phone']
@@ -374,6 +386,10 @@ class AccountController extends BaseApiController{
         else{
             $params['email'] = '';
         }
+
+        if(strlen($params['security_question'])<1 || strlen($params['security_question'])>100) throw new HttpException(404, 'Security question is too large or too simple');
+        if(strlen($params['security_answer'])<1 || strlen($params['security_answer'])>20) throw new HttpException(404, 'Security answer is too large or too simple');
+        $params['security_answer'] = strtoupper($params['security_answer']);
 
         $methodsList = array('rec-out', 'rec-in');
 

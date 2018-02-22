@@ -69,6 +69,16 @@ class User extends BaseUser
     private $pin;
 
     /**
+     * @ORM\Column(type="string")
+     */
+    private $security_question;
+
+    /**
+     * @ORM\Column(type="string")
+     */
+    private $security_answer;
+
+    /**
      * @ORM\Column(type="string", unique=true)
      * @Expose
      */
@@ -266,6 +276,37 @@ class User extends BaseUser
     public function setPin($pin)
     {
         $this->pin = $pin;
+    }
+
+    /**
+     * @return mixed
+     */
+    public function getSecurityQuestion()
+    {
+        return $this->security_question;
+    }
+    /**
+     * @param mixed $security_question
+     */
+    public function setSecurityQuestion($security_question)
+    {
+        $this->security_question = $security_question;
+    }
+
+    /**
+     * @return mixed
+     */
+    public function getSecurityAnswer()
+    {
+        return $this->security_answer;
+    }
+
+    /**
+     * @param mixed $security_answer
+     */
+    public function setSecurityAnswer($security_answer)
+    {
+        $this->security_answer = $security_answer;
     }
 
     /**
