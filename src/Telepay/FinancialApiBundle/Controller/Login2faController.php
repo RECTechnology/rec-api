@@ -16,7 +16,7 @@ class Login2faController extends RestApiController{
 
         $clientId = $request->get('client_id');
         $clientSecret = $request->get('client_secret');
-        $username = $request->get('username');
+        $username = strtoupper($request->get('username'));
         $password = $request->get('password');
         $pin = $request->get('pin');
         $kyc = 0;
