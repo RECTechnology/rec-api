@@ -324,7 +324,7 @@ class AccountController extends BaseApiController{
             'dni',
             'dni_confirmation',
             'security_question',
-            'security_answer',
+            'security_answer'
         );
 
         $valid_types = array('mobile');
@@ -393,9 +393,59 @@ class AccountController extends BaseApiController{
 
         $methodsList = array('rec-out', 'rec-in');
 
+        if($request->request->has('company_name') && $request->request->get('company_name')!='') {
+            $company_name = $params['name'];
+        }
+        else{
+            $company_name = $params['name'];
+        }
+
+        if($request->request->has('company_cif') && $request->request->get('company_cif')!='') {
+            $company_cif = $params['dni'];
+        }
+        else{
+            $company_cif = $params['dni'];
+        }
+
+        $allowed_types = array('PRIVATE', 'COMPANY');
+        if($request->request->has('type') && $request->request->get('type')!='') {
+            $params['type'] = $request->request->get('type');
+            if(in_array($params['type'], $allowed_types)) {
+                $type = $params['type'];
+            }
+            else{
+                throw new HttpException(400, "Invalid type");
+            }
+        }
+        else{
+            $type = $allowed_types[0];
+        }
+
+        $list_subtypes = array(
+            'PRIVATE' => array('NORMAL', 'BMINCOME'),
+            'COMPANY' => array('RETAILER', 'WHOLESALE')
+        );
+        $allowed_subtypes = $list_subtypes[$type];
+        if($request->request->has('subtype') && $request->request->get('subtype')!='') {
+            $params['subtype'] = $request->request->get('subtype');
+            if(in_array($params['subtype'], $allowed_subtypes)) {
+                $subtype = $params['subtype'];
+            }
+            else{
+                throw new HttpException(400, "Invalid subtype");
+            }
+        }
+        else{
+            $subtype = $allowed_subtypes[0];
+        }
+
+
         //create company
         $company = new Group();
-        $company->setName($params['name']);
+        $company->setName($company_name);
+        $company->setCif($company_cif);
+        $company->setType($type);
+        $company->setSubtype($subtype);
         $company->setActive(true);
         $company->setRoles(array('ROLE_COMPANY'));
         $company->setEmail($params['email']);
@@ -441,7 +491,6 @@ class AccountController extends BaseApiController{
         $em->persist($user);
 
         $company->setKycManager($user);
-        $company->setCif($params['dni']);
         $em->persist($company);
 
         //Add user to group with admin role

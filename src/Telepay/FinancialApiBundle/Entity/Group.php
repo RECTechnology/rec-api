@@ -214,6 +214,16 @@ class Group extends BaseGroup
     private $comment = '';
 
     /**
+     * @ORM\Column(type="text")
+     */
+    private $type = '';
+
+    /**
+     * @ORM\Column(type="text")
+     */
+    private $subtype = '';
+
+    /**
      * @ORM\Column(type="boolean")
      */
     private $active;
@@ -624,6 +634,38 @@ class Group extends BaseGroup
     public function setComment($comment)
     {
         $this->comment = $comment;
+    }
+
+    /**
+     * @return mixed
+     */
+    public function getType()
+    {
+        return $this->type;
+    }
+
+    /**
+     * @param mixed $type
+     */
+    public function setType($type)
+    {
+        $this->type = $type;
+    }
+
+    /**
+     * @return mixed
+     */
+    public function getSubtype()
+    {
+        return $this->subtype;
+    }
+
+    /**
+     * @param mixed $subtype
+     */
+    public function setSubtype($subtype)
+    {
+        $this->subtype = $subtype;
     }
 
     /**
