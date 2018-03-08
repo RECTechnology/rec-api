@@ -489,6 +489,8 @@ class AccountController extends BaseApiController{
         $user->setBase64Image('');
         $user->setEnabled(false);
         $user->setPin($params['pin']);
+        $user->setSecurityQuestion($params['security_question']);
+        $user->setSecurityAnswer($params['security_answer']);
         $em->persist($user);
 
         $company->setKycManager($user);
