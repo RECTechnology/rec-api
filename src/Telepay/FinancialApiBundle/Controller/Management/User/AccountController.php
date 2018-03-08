@@ -305,6 +305,7 @@ class AccountController extends BaseApiController{
     }
 
     public function validar_dni($dni){
+
         $letra = substr($dni, -1);
         $numeros = substr($dni, 0, -1);
         return ( substr("TRWAGMYFPDXBNJZSQVHLCKE", $numeros%23, 1) == $letra && strlen($letra) == 1 && strlen ($numeros) == 8 );
@@ -347,8 +348,8 @@ class AccountController extends BaseApiController{
         $em = $this->getDoctrine()->getManager();
 
         if($params['dni'] != $params['dni_confirmation']) throw new HttpException(404, 'NIF and NIF confirmation are differents');
-        if(!$this->validar_dni($params['username'])) throw new HttpException(404, 'NIF not valid');
         $params['username'] = strtoupper($params['dni']);
+        if(!$this->validar_dni((string)$params['username'])) throw new HttpException(404, 'NIF not valid');
 
         $user = $em->getRepository($this->getRepositoryName())->findOneBy(array(
             'phone'  =>  $params['phone']
