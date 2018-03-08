@@ -150,38 +150,6 @@ class AccountController extends BaseApiController{
         return $this->rest(204, 'Profile image updated successfully');
 
     }
-    /**
-     * @Rest\View
-     */
-    public function setImageB64(Request $request){
-
-        $id = $this->get('security.context')->getToken()->getUser()->getId();
-
-        if($request->request->has('base64_image')) $base64Image = $request->request->get('base64_image');
-        else throw new HttpException(400, "Missing parameter 'base64_image'");
-
-        $repo = $this->getRepository();
-        $user = $repo->findOneBy(array('id'=>$id));
-        if(empty($user)) throw new HttpException(404, "User Not found");
-        $user->setBase64Image($base64Image);
-
-        $em = $this->getDoctrine()->getManager();
-        $em->persist($user);
-
-        try{
-            $em->flush();
-            return $this->rest(
-                204,
-                "Image changed successfully"
-            );
-        } catch(DBALException $e){
-            if(preg_match('/SQLSTATE\[23000\]/',$e->getMessage()))
-                throw new HttpException(409, "Duplicated resource");
-            else
-                throw new HttpException(500, "Unknown error occurred when save");
-        }
-    }
-
 
     /**
      * @Rest\View
@@ -322,6 +290,7 @@ class AccountController extends BaseApiController{
             'phone',
             'prefix',
             'pin',
+            'repin',
             'dni',
             'dni_confirmation',
             'security_question',
@@ -477,6 +446,7 @@ class AccountController extends BaseApiController{
         if(strlen($pin)!=4){
             throw new HttpException(400, "Pin must be a number with 4 digits");
         }
+        if($params['pin'] != $params['repin']) throw new HttpException(404, 'Pin and repin are differents');
 
         $user = new User();
         $user->setPlainPassword($params['plain_password']);
@@ -950,6 +920,59 @@ class AccountController extends BaseApiController{
             )
         );
 
+    }
+
+    /**
+     * @Rest\View
+     */
+    public function showQuestion(Request $request){
+        $user = $this->get('security.context')->getToken()->getUser();
+        return $this->restV2(
+            200,
+            "ok",
+            "Request successful",
+            array(
+                'question' => $user->getSecurityQuestion(),
+            )
+        );
+    }
+
+    /**
+     * @Rest\View
+     */
+    public function updatePin(Request $request){
+        $paramNames = array(
+            'pin',
+            'repin',
+            'security_answer'
+        );
+
+        $params = array();
+        foreach($paramNames as $param){
+            if($request->request->has($param) && $request->request->get($param)!=''){
+                $params[$param] = $request->request->get($param);
+            }else{
+                throw new HttpException(404, 'Param ' . $param . ' not found');
+            }
+        }
+
+        $pin = preg_replace("/[^0-9]/", "", $params['pin']);
+        if(strlen($pin)!=4){
+            throw new HttpException(400, "Pin must be a number with 4 digits");
+        }
+        if($params['pin'] != $params['repin']) throw new HttpException(404, 'Pin and repin are different');
+
+        $user = $this->get('security.context')->getToken()->getUser();
+
+        if(strtoupper($params['security_answer']) != $user->getSecurityAnswer()){
+            throw new HttpException(404, 'Security answer is incorrect');
+        }
+
+        $em = $this->getDoctrine()->getManager();
+        $user->setPin($pin);
+        $em->persist($user);
+        $em->flush();
+        return $this->restV2(200,"ok", "Account PIN got successfully", $user);
     }
 
     private function checkPhone($phone, $prefix){
