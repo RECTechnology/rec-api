@@ -137,12 +137,6 @@ class User extends BaseUser
     private $prefix;
 
     /**
-     * @ORM\Column(type="text")
-     * @Expose
-     */
-    private $base64_image;
-
-    /**
      * @ORM\Column(type="text", nullable=true)
      * @Expose
      */
@@ -371,22 +365,6 @@ class User extends BaseUser
     public function setAuthCode($auth_code)
     {
         $this->auth_code = $auth_code;
-    }
-
-    /**
-     * @return mixed
-     */
-    public function getBase64Image()
-    {
-        return $this->base64_image;
-    }
-
-    /**
-     * @param mixed $base64_image
-     */
-    public function setBase64Image($base64_image)
-    {
-        $this->base64_image = $base64_image;
     }
 
     /**

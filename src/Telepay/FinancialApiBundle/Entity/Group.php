@@ -64,12 +64,6 @@ class Group extends BaseGroup
     private $kyc_manager;
 
     /**
-     * @ORM\Column(type="text", nullable=true)
-     * @Expose
-     */
-    private $base64_image = "";
-
-    /**
      * @ORM\Column(type="text")
      * @Expose
      */
@@ -482,24 +476,7 @@ class Group extends BaseGroup
         $this->clients = $clients;
     }
 
-    /**
-     * @return mixed
-     */
-    public function getBase64Image()
-    {
-        return $this->base64_image;
-    }
-
-    /**
-     * @param mixed $base64_image
-     */
-    public function setBase64Image($base64_image)
-    {
-        $this->base64_image = $base64_image;
-    }
-
     public function getAdminView(){
-//        unset($this->base64_image);
 //        unset($this->access_key);
 //        unset($this->access_secret);
 //        unset ($this->kyc_manager);
