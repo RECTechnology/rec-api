@@ -394,20 +394,6 @@ class AccountController extends BaseApiController{
 
         $methodsList = array('rec-out', 'rec-in');
 
-        if($request->request->has('company_name') && $request->request->get('company_name')!='') {
-            $company_name = $params['company_name'];
-        }
-        else{
-            $company_name = $params['name'];
-        }
-
-        if($request->request->has('company_cif') && $request->request->get('company_cif')!='') {
-            $company_cif = $params['company_cif'];
-        }
-        else{
-            $company_cif = $params['dni'];
-        }
-
         $allowed_types = array('PRIVATE', 'COMPANY');
         if($request->request->has('type') && $request->request->get('type')!='') {
             $params['type'] = $request->request->get('type');
@@ -438,6 +424,22 @@ class AccountController extends BaseApiController{
         }
         else{
             $subtype = $allowed_subtypes[0];
+        }
+
+        if($request->request->has('company_name') && $request->request->get('company_name')!='') {
+            $company_name = $request->request->get('company_name');
+        }
+        else{
+            if($type == 'COMPANY'){ throw new HttpException(400, "Company name required"); }
+            $company_name = $params['name'];
+        }
+
+        if($request->request->has('company_cif') && $request->request->get('company_cif')!='') {
+            $company_cif = $request->request->get('company_cif');
+        }
+        else{
+            if($type == 'COMPANY'){ throw new HttpException(400, "Company cif required"); }
+            $company_cif = $params['dni'];
         }
 
 
