@@ -395,14 +395,14 @@ class AccountController extends BaseApiController{
         $methodsList = array('rec-out', 'rec-in');
 
         if($request->request->has('company_name') && $request->request->get('company_name')!='') {
-            $company_name = $params['name'];
+            $company_name = $params['company_name'];
         }
         else{
             $company_name = $params['name'];
         }
 
         if($request->request->has('company_cif') && $request->request->get('company_cif')!='') {
-            $company_cif = $params['dni'];
+            $company_cif = $params['company_cif'];
         }
         else{
             $company_cif = $params['dni'];
