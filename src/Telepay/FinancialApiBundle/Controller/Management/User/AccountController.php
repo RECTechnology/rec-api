@@ -185,13 +185,9 @@ class AccountController extends BaseApiController{
         $group_data = array();
         $group_data['id'] = $userGroup->getId();
         $group_data['name'] = $userGroup->getName();
-        $group_data['default_currency'] = $userGroup->getDefaultCurrency();
-        $group_data['base64_image'] = $userGroup->getBase64Image();
-        $group_data['admin'] = $userGroup->getGroupCreator()->getName();
-        $group_data['email'] = $userGroup->getGroupCreator()->getEmail();
-
+        //$group_data['default_currency'] = $userGroup->getDefaultCurrency();
+        $group_data['image'] = $userGroup->getCompanyImage();
         $user->setGroupData($group_data);
-
         return $this->restV2(200,"ok", "Active group changed successfully", $user);
     }
 
