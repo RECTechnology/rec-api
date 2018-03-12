@@ -454,7 +454,6 @@ class AccountController extends BaseApiController{
         $user->setUsername($params['username']);
         $user->setDNI($params['dni']);
         $user->setActiveGroup($company);
-        $user->setBase64Image('');
         $user->setEnabled(false);
         $user->setPin($params['pin']);
         $user->setSecurityQuestion($params['security_question']);
