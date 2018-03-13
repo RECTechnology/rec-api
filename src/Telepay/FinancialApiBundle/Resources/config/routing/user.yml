@@ -158,13 +158,13 @@ user_update_2fa_code:
 
 user_get_question:
     pattern:  /user/v1/question
-    defaults: { _controller: Telepay\FinancialApiBundle\Controller\Management\User\ExchangeController::showQuestion }
+    defaults: { _controller: Telepay\FinancialApiBundle\Controller\Management\User\AccountController::showQuestion }
     requirements:
         _method: GET
 
 user_change_pin:
     pattern:  /user/v1/pin
-    defaults: { _controller: Telepay\FinancialApiBundle\Controller\Management\User\ExchangeController::updatePin }
+    defaults: { _controller: Telepay\FinancialApiBundle\Controller\Management\User\AccountController::updatePin }
     requirements:
         _method: POST
 
