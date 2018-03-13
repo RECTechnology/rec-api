@@ -288,7 +288,6 @@ class AccountController extends BaseApiController{
             'pin',
             'repin',
             'dni',
-            'dni_confirmation',
             'security_question',
             'security_answer'
         );
