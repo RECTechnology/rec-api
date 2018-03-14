@@ -409,6 +409,15 @@ class AccountController extends BaseApiController{
 
         //create company
         $company = new Group();
+        if($request->request->has('company_email') && $request->request->get('company_email')!='') {
+            $company->setEmail($company_name);
+        }
+        if($request->request->has('company_phone') && $request->request->get('company_phone')!='') {
+            $company->setPhone($company_name);
+        }
+        if($request->request->has('company_prefix') && $request->request->get('company_prefix')!='') {
+            $company->setPrefix($company_name);
+        }
         $company->setName($company_name);
         $company->setCif($company_cif);
         $company->setType($type);
