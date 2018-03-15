@@ -311,7 +311,6 @@ class AccountController extends BaseApiController{
 
         $em = $this->getDoctrine()->getManager();
 
-        if($params['dni'] != $params['dni_confirmation']) throw new HttpException(404, 'NIF and NIF confirmation are differents');
         $params['username'] = strtoupper($params['dni']);
         if(!$this->validar_dni((string)$params['username'])) throw new HttpException(404, 'NIF not valid');
 
@@ -412,6 +411,9 @@ class AccountController extends BaseApiController{
         if($request->request->has('company_email') && $request->request->get('company_email')!='') {
             $company->setEmail($company_name);
         }
+        else{
+            $company->setEmail($params['email']);
+        }
         if($request->request->has('company_phone') && $request->request->get('company_phone')!='') {
             $company->setPhone($company_name);
         }
@@ -424,7 +426,6 @@ class AccountController extends BaseApiController{
         $company->setSubtype($subtype);
         $company->setActive(true);
         $company->setRoles(array('ROLE_COMPANY'));
-        $company->setEmail($params['email']);
         $company->setRecAddress('temp');
         $company->setMethodsList($methodsList);
         $em->persist($company);
