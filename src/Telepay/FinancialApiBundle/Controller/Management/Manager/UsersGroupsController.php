@@ -34,7 +34,7 @@ class UsersGroupsController extends RestApiController{
         $adminRoles = $this->getDoctrine()->getRepository("TelepayFinancialApiBundle:UserGroup")->findOneBy(array(
                 'user'  =>  $admin->getId(),
                 'group' =>  $id)
-            );
+        );
 
         //check if is superadmin
         if(!$admin->hasRole('ROLE_SUPER_ADMIN')){
@@ -46,18 +46,12 @@ class UsersGroupsController extends RestApiController{
         $usersRepository = $this->getDoctrine()->getRepository("TelepayFinancialApiBundle:User");
 
         //check parameters
-        if(!$request->request->has('user_id')){
-            if(!$request->request->has('email')){
-                throw new HttpException(404, 'Param user_id not found');
-            }else{
-                $user = $usersRepository->findOneBy(array(
-                    'email' =>  $request->request->get('email')
-                ));
-                if(!$user) throw new HttpException(404, "User not found");
-            }
+        if(!$request->request->has('user_dni')){
+            throw new HttpException(404, 'Param user_dni not found');
         }else{
-            $user_id = $request->request->get('user_id');
-            $user = $usersRepository->find($user_id);
+            $user = $usersRepository->findOneBy(array(
+                'dni' =>  $request->request->get('dni')
+            ));
             if(!$user) throw new HttpException(404, "User not found");
         }
 
@@ -84,10 +78,9 @@ class UsersGroupsController extends RestApiController{
         $em->persist($userGroup);
         $em->flush();
 
-        //send email
-        $url = '';
-        $this->_sendEmail('You have been added to this company', $user->getEmail(), $url, $company->getName());
-
+        //send SMS
+        //$url = '';
+        //$this->_sendEmail('You have been added to this company', $user->getEmail(), $url, $company->getName());
 
         return $this->restV2(201, "ok", "User added successfully");
     }
