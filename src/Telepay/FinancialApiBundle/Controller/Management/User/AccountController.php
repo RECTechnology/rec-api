@@ -89,6 +89,9 @@ class AccountController extends BaseApiController{
             }
 
         }
+        $request->request->remove('username');
+        $request->request->remove('phone');
+        $request->request->remove('dni');
 
         return parent::updateAction($request, $id);
 
@@ -121,9 +124,7 @@ class AccountController extends BaseApiController{
         $logger->info('CHANGINC IMAGE fileSrc = '.$fileSrc);
         $fileContents = $fileManager->readFileUrl($fileSrc);
 
-        //if has image overwrite...if not create filename
         if($user->getProfileImage() == ''){
-
             $hash = $fileManager->getHash();
             $explodedFileSrc = explode('.', $fileSrc);
             $ext = $explodedFileSrc[count($explodedFileSrc) - 1];
