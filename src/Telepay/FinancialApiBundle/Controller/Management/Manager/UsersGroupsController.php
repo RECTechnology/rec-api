@@ -50,7 +50,7 @@ class UsersGroupsController extends RestApiController{
             throw new HttpException(404, 'Param user_dni not found');
         }else{
             $user = $usersRepository->findOneBy(array(
-                'dni' =>  $request->request->get('dni')
+                'username' =>  strtoupper($request->request->get('user_dni'))
             ));
             if(!$user) throw new HttpException(404, "User not found");
         }
