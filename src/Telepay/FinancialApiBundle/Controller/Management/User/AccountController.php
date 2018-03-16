@@ -480,6 +480,7 @@ class AccountController extends BaseApiController{
 
         $kyc = new KYC();
         $kyc->setUser($user);
+        $kyc->setName($user->getName());
         $kyc->setEmail($user->getEmail());
 
         $em->persist($userGroup);
@@ -679,11 +680,6 @@ class AccountController extends BaseApiController{
         $em = $this->getDoctrine()->getManager();
         $user = $this->get('security.context')->getToken()->getUser();
 
-        if($request->request->has('name') && $request->request->get('name')!=''){
-            $user->setName($request->request->get('name'));
-            $em->persist($user);
-        }
-
         $kyc = $em->getRepository('TelepayFinancialApiBundle:KYC')->findOneBy(array(
             'user' => $user
         ));
@@ -693,42 +689,17 @@ class AccountController extends BaseApiController{
             $kyc->setUser($user);
         }
 
+        if($request->request->has('name') && $request->request->get('name')!=''){
+            $user->setName($request->request->get('name'));
+            $kyc->setName($request->request->get('name'));
+            $em->persist($user);
+        }
+
         if($request->request->has('email') && $request->request->get('email')!=''){
             $user->setEmail($request->request->get('email'));
             $em->persist($user);
             $kyc->setEmail($request->request->get('email'));
             $kyc->setEmailValidated(false);
-            $em->persist($kyc);
-            //TODO send validation email
-            $url = $this->container->getParameter('web_app_url');
-            $tokenGenerator = $this->container->get('fos_user.util.token_generator');
-            $user->setConfirmationToken($tokenGenerator->generateToken());
-            $em->persist($user);
-            $em->flush();
-            if(!$request->request->has('company') || $request->get('company')==""){
-                $company = "chipchap";
-            }
-            else{
-                $company = $request->get('company');
-            }
-            if($company == "holytransaction"){
-                $url = "https://holytransaction.trade/";
-                $url = $url.'?user_token='.$user->getConfirmationToken();
-                $this->_sendEmail('Holy Transaction validation e-mail', $url, $user->getEmail(), 'register_kyc_holy');
-            }elseif($company =="panel"){
-                $url = $this->container->getParameter('base_panel_url');
-                $url = $url.'/user/validation/'.$user->getConfirmationToken();
-                $this->_sendEmail('Chip-Chap validation e-mail', $url, $user->getEmail(), 'register');
-            }
-            else{
-                $url = $this->container->getParameter('web_app_url');
-                $url = $url.'?user_token='.$user->getConfirmationToken();
-                $this->_sendEmail('Chip-Chap validation e-mail', $url, $user->getEmail(), 'register_kyc');
-            }
-        }
-
-        if($request->request->has('last_name') && $request->request->get('last_name')!=''){
-            $kyc->setLastName($request->request->get('last_name'));
             $em->persist($kyc);
         }
 
@@ -745,71 +716,33 @@ class AccountController extends BaseApiController{
             $kyc->setAddress($request->request->get('address'));
         }
 
-        if($request->request->has('card_info') && $request->request->get('card_info')!=''){
-            $kyc->setCardInfo($request->request->get('card_info'));
-        }
-
-        if($request->request->get('phone') != '' || $request->request->get('prefix') != ''){
-            $prefix = $request->request->get('prefix');
-            $phone = $request->request->get('phone');
-            $old_phone = $kyc->getPhone();
-            if($old_phone == ''){
-                $old_phone = array(
-                    "prefix" => '',
-                    "number" => ''
-                );
-            }
-            else{
-                $old_phone = json_decode($old_phone);
-            }
-            $phone_info = array(
-                "prefix" => $prefix != ''?$prefix:$old_phone['prefix'],
-                "number" => $phone != ''?$phone:$old_phone['number']
-            );
-            $kyc->setPhone(json_encode($phone_info));
-            $kyc->setPhoneValidated(false);
-            $em->persist($kyc);
-        }
-
-        if($request->request->has('document') && $request->request->get('document')!=''){
-
+        if($request->request->has('document_front') && $request->request->get('document_front')!=''){
             $fileManager = $this->get('file_manager');
-
-            $fileSrc = $request->request->get('document');
+            $fileSrc = $request->request->get('document_front');
             $fileContents = $fileManager->readFileUrl($fileSrc);
             $hash = $fileManager->getHash();
             $explodedFileSrc = explode('.', $fileSrc);
             $ext = $explodedFileSrc[count($explodedFileSrc) - 1];
             $filename = $hash . '.' . $ext;
-
             file_put_contents($fileManager->getUploadsDir() . '/' . $filename, $fileContents);
-
             $tmpFile = new File($fileManager->getUploadsDir() . '/' . $filename);
             if (!in_array($tmpFile->getMimeType(), UploadManager::$ALLOWED_MIMETYPES))
                 throw new HttpException(400, "Bad file type");
-
-
-            $kyc->setDocument($fileManager->getFilesPath().'/'.$filename);
+            $kyc->setDocumentFront($fileManager->getFilesPath().'/'.$filename);
         }
 
         if($request->request->has('document_rear') && $request->request->get('document_rear')!=''){
-
             $fileManager = $this->get('file_manager');
-
             $fileSrc = $request->request->get('document_rear');
             $fileContents = $fileManager->readFileUrl($fileSrc);
             $hash = $fileManager->getHash();
             $explodedFileSrc = explode('.', $fileSrc);
             $ext = $explodedFileSrc[count($explodedFileSrc) - 1];
             $filename = $hash . '.' . $ext;
-
             file_put_contents($fileManager->getUploadsDir() . '/' . $filename, $fileContents);
-
             $tmpFile = new File($fileManager->getUploadsDir() . '/' . $filename);
             if (!in_array($tmpFile->getMimeType(), UploadManager::$ALLOWED_MIMETYPES))
                 throw new HttpException(400, "Bad file type");
-
-
             $kyc->setDocumentRear($fileManager->getFilesPath().'/'.$filename);
         }
 

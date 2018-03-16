@@ -26,6 +26,12 @@ class KYC {
      * @ORM\Column(type="string")
      * @Expose
      */
+    private $name = "";
+
+    /**
+     * @ORM\Column(type="string")
+     * @Expose
+     */
     private $lastName = "";
 
     /**
@@ -79,7 +85,7 @@ class KYC {
      * @ORM\Column(type="string", nullable=true)
      * @Expose
      */
-    private $document;
+    private $document_front;
 
     /**
      * @ORM\Column(type="string", nullable=true)
@@ -382,17 +388,17 @@ class KYC {
     /**
      * @return mixed
      */
-    public function getDocument()
+    public function getDocumentFront()
     {
-        return $this->document;
+        return $this->document_front;
     }
 
     /**
-     * @param mixed $document
+     * @param mixed $document_front
      */
-    public function setDocument($document)
+    public function setDocumentFront($document_front)
     {
-        $this->document = $document;
+        $this->document_front = $document_front;
     }
 
     /**
@@ -409,6 +415,22 @@ class KYC {
     public function setValidationPhoneCode($validation_phone_code)
     {
         $this->validation_phone_code = $validation_phone_code;
+    }
+
+    /**
+     * @return mixed
+     */
+    public function getName()
+    {
+        return $this->name;
+    }
+
+    /**
+     * @param mixed $name
+     */
+    public function setName($name)
+    {
+        $this->name = $name;
     }
 
     /**
