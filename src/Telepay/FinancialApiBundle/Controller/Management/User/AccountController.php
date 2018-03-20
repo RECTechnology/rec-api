@@ -233,6 +233,24 @@ class AccountController extends BaseApiController{
         return $this->restV2(200,"ok", "Account info got successfully", $user);
     }
 
+
+    /**
+     * @Rest\View
+     */
+    public function publicPhoneAction(Request $request){
+        $user = $this->get('security.context')->getToken()->getUser();
+        $em = $this->getDoctrine()->getManager();
+        if($request->request->has('activate'))
+            $user->setPublicPhone(true);
+        elseif($request->request->has('deactivate'))
+            $user->setPublicPhone(false);
+        else
+            throw new HttpException(400, "Missing parameters");
+        $em->persist($user);
+        $em->flush();
+        return $this->restV2(200,"ok", "Account info got successfully", $user);
+    }
+
     /**
      * @Rest\View
      */
@@ -460,6 +478,7 @@ class AccountController extends BaseApiController{
         $user->setRoles(array('ROLE_USER'));
         $user->setName($params['name']);
         $user->setPhone($phone);
+        $user->setPublicPhone(false);
         $user->setPrefix($prefix);
         $user->setUsername($params['username']);
         $user->setDNI($params['dni']);

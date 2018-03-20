@@ -150,6 +150,12 @@ user_deactive_2fa:
     requirements:
         _method: PUT
 
+user_update_public_phone:
+    pattern:  /user/v1/public_phone
+    defaults: { _controller: Telepay\FinancialApiBundle\Controller\Management\User\AccountController::publicPhoneAction }
+    requirements:
+        _method: PUT
+
 user_update_2fa_code:
     pattern:  /user/v1/update2fa
     defaults: { _controller: Telepay\FinancialApiBundle\Controller\Management\User\AccountController::update2faAction }

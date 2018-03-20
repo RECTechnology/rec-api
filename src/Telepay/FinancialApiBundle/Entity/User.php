@@ -131,6 +131,12 @@ class User extends BaseUser
     private $phone;
 
     /**
+     * @ORM\Column(type="boolean")
+     * @Expose
+     */
+    private $public_phone;
+
+    /**
      * @ORM\Column(type="integer")
      * @Expose
      */
@@ -254,6 +260,22 @@ class User extends BaseUser
     public function setPhone($phone)
     {
         $this->phone = $phone;
+    }
+
+    /**
+     * @return mixed
+     */
+    public function getPublicPhone()
+    {
+        return $this->public_phone;
+    }
+
+    /**
+     * @param mixed $public_phone
+     */
+    public function setPublicPhone($public_phone)
+    {
+        $this->public_phone = $public_phone;
     }
 
     /**
