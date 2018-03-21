@@ -234,6 +234,9 @@ class AccountController extends BaseApiController{
      */
     public function publicPhoneListAction(Request $request){
         $em = $this->getDoctrine()->getManager();
+        if(!$request->request->has('phone_list')){
+            throw new HttpException(400, "Missing parameters phone_list");
+        }
         $phone_list = $request->request->get('phone_list');
         $phone_list = json_decode($phone_list);
         $public_phone_list = array();
