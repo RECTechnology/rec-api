@@ -40,7 +40,6 @@ class AccountController extends BaseApiController{
      * @Rest\View
      */
     public function read(Request $request){
-
         $em = $this->getDoctrine()->getManager();
         $user = $this->get('security.context')->getToken()->getUser();
         $user->setRoles($user->getRoles());
@@ -52,7 +51,6 @@ class AccountController extends BaseApiController{
         ));
         $user->setKycData($kyc);
         $em->persist($user);
-
         return $this->restV2(200, "ok", "Account info got successfully", $user);
     }
 
@@ -60,10 +58,8 @@ class AccountController extends BaseApiController{
      * @Rest\View
      */
     public function updateAction(Request $request,$id = null){
-
         $user = $this->get('security.context')->getToken()->getUser();
         $id = $user->getId();
-
         if($request->request->has('password')){
             if($request->request->has('repassword')){
                 if($request->request->has('old_password')){
@@ -72,9 +68,7 @@ class AccountController extends BaseApiController{
                     $encoder_service = $this->get('security.encoder_factory');
                     $encoder = $encoder_service->getEncoder($user);
                     $encoded_pass = $encoder->encodePassword($request->request->get('old_password'), $user->getSalt());
-
                     if($encoded_pass != $user->getPassword()) throw new HttpException(404, 'Bad old_password');
-
                     $user->setPlainPassword($request->get('password'));
                     $userManager->updatePassword($user);
                     $request->request->remove('password');
@@ -83,18 +77,14 @@ class AccountController extends BaseApiController{
                 }else{
                     throw new HttpException(404,'Parameter old_password not found');
                 }
-
             }else{
                 throw new HttpException(404,'Parameter repassword not found');
             }
-
         }
         $request->request->remove('username');
         $request->request->remove('phone');
         $request->request->remove('dni');
-
         return parent::updateAction($request, $id);
-
     }
 
     /**
@@ -134,11 +124,8 @@ class AccountController extends BaseApiController{
             $filename = str_replace($fileManager->getFilesPath() . '/', '', $user->getProfileImage());
             $logger->info('CHANGINC IMAGE user with image = '.$filename);
         }
-
         file_put_contents($fileManager->getUploadsDir() . '/' . $filename, $fileContents);
-
         $logger->info('CHANGING IMAGE put contents '.$fileManager->getFilesPath() . '/' . $filename);
-
         $tmpFile = new File($fileManager->getUploadsDir() . '/' . $filename);
         if (!in_array($tmpFile->getMimeType(), UploadManager::$ALLOWED_MIMETYPES))
             throw new HttpException(400, "Bad file type");
@@ -147,42 +134,33 @@ class AccountController extends BaseApiController{
         $user->setProfileImage($fileManager->getFilesPath().'/'.$filename);
         $logger->info('CHANGINC IMAGE saved url = '.$fileManager->getFilesPath().'/'.$filename);
         $em->flush();
-
         return $this->rest(204, 'Profile image updated successfully');
-
     }
 
     /**
      * @Rest\View
      */
     public function changeGroup(Request $request){
-
         $user = $this->get('security.context')->getToken()->getUser();
         $user->setRoles($user->getRoles());
-
         if($request->request->has('group_id'))
             $group_id = $request->request->get('group_id');
         else
             throw new HttpException(404,'group_id not found');
-
         $userGroup = false;
         foreach($user->getGroups() as $group){
             if($group->getId() == $group_id){
                 $userGroup = $group;
             }
         }
-
         if(!$userGroup){
             throw new HttpException(404,'Group selected is not accessible for you');
         }
-
         $em = $this->getDoctrine()->getManager();
-
         $user->setActiveGroup($userGroup);
         $user->setRoles($user->getRoles());
         $em->persist($user);
         $em->flush();
-
         $group_data = array();
         $group_data['id'] = $userGroup->getId();
         $group_data['name'] = $userGroup->getName();
@@ -249,6 +227,26 @@ class AccountController extends BaseApiController{
         $em->persist($user);
         $em->flush();
         return $this->restV2(200,"ok", "Account info got successfully", $user);
+    }
+
+    /**
+     * @Rest\View
+     */
+    public function publicPhoneListAction(Request $request){
+        $em = $this->getDoctrine()->getManager();
+        $phone_list = $request->request->get('phone_list');
+        $phone_list = json_decode($phone_list);
+        $public_phone_list = array();
+        foreach ($phone_list as $phone){
+            $user = $em->getRepository($this->getRepositoryName())->findOneBy(array(
+                'phone'  =>  $phone,
+                'public_phone' => 1
+            ));
+            if($user){
+                $public_phone_list[$phone] = $user->getActiveGroup()->getRecAddress();
+            }
+        }
+        return $this->restV2(200, "ok", "List of public phones registered", $public_phone_list);
     }
 
     /**

@@ -156,6 +156,12 @@ user_update_public_phone:
     requirements:
         _method: PUT
 
+user_public_phone_list:
+    pattern:  /user/v1/public_phone_list
+    defaults: { _controller: Telepay\FinancialApiBundle\Controller\Management\User\AccountController::publicPhoneListAction }
+    requirements:
+        _method: GET
+
 user_update_2fa_code:
     pattern:  /user/v1/update2fa
     defaults: { _controller: Telepay\FinancialApiBundle\Controller\Management\User\AccountController::update2faAction }
