@@ -372,7 +372,7 @@ class AccountController extends BaseApiController{
 
         if(strlen($params['security_question'])<1 || strlen($params['security_question'])>100) throw new HttpException(404, 'Security question is too large or too simple');
         if(strlen($params['security_answer'])<1 || strlen($params['security_answer'])>20) throw new HttpException(404, 'Security answer is too large or too simple');
-        $params['security_answer'] = strtoupper($params['security_answer']);
+        $params['security_answer'] = $this->cleanString($params['security_answer']);
 
         $methodsList = array('rec-out', 'rec-in');
 
@@ -574,6 +574,19 @@ class AccountController extends BaseApiController{
         $em->flush();
 
         return $this->restV2(201,"ok", "Request successful", $response);
+    }
+
+    private function cleanString($string){
+        $string = strtoupper($string);
+        $not_letters = array(".", " ", ",", "-", "?", "!", ":", ";", "_", "(". ")");
+        $string = str_replace($not_letters, "", $string);
+        $unwanted_array = array(    'Š'=>'S', 'š'=>'s', 'Ž'=>'Z', 'ž'=>'z', 'À'=>'A', 'Á'=>'A', 'Â'=>'A', 'Ã'=>'A', 'Ä'=>'A', 'Å'=>'A', 'Æ'=>'A', 'Ç'=>'C', 'È'=>'E', 'É'=>'E',
+            'Ê'=>'E', 'Ë'=>'E', 'Ì'=>'I', 'Í'=>'I', 'Î'=>'I', 'Ï'=>'I', 'Ñ'=>'N', 'Ò'=>'O', 'Ó'=>'O', 'Ô'=>'O', 'Õ'=>'O', 'Ö'=>'O', 'Ø'=>'O', 'Ù'=>'U',
+            'Ú'=>'U', 'Û'=>'U', 'Ü'=>'U', 'Ý'=>'Y', 'Þ'=>'B', 'ß'=>'Ss', 'à'=>'a', 'á'=>'a', 'â'=>'a', 'ã'=>'a', 'ä'=>'a', 'å'=>'a', 'æ'=>'a', 'ç'=>'c',
+            'è'=>'e', 'é'=>'e', 'ê'=>'e', 'ë'=>'e', 'ì'=>'i', 'í'=>'i', 'î'=>'i', 'ï'=>'i', 'ð'=>'o', 'ñ'=>'n', 'ò'=>'o', 'ó'=>'o', 'ô'=>'o', 'õ'=>'o',
+            'ö'=>'o', 'ø'=>'o', 'ù'=>'u', 'ú'=>'u', 'û'=>'u', 'ý'=>'y', 'þ'=>'b', 'ÿ'=>'y' );
+        $string = strtr( $string, $unwanted_array );
+        return $string;
     }
 
     /**
@@ -921,6 +934,7 @@ class AccountController extends BaseApiController{
 
         $user = $this->get('security.context')->getToken()->getUser();
 
+        $params['security_answer'] = $this->cleanString($params['security_answer']);
         if(strtoupper($params['security_answer']) != $user->getSecurityAnswer()){
             throw new HttpException(404, 'Security answer is incorrect');
         }
