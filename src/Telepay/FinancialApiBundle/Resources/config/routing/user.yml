@@ -160,7 +160,7 @@ user_public_phone_list:
     pattern:  /user/v1/public_phone_list
     defaults: { _controller: Telepay\FinancialApiBundle\Controller\Management\User\AccountController::publicPhoneListAction }
     requirements:
-        _method: GET
+        _method: POST
 
 user_update_2fa_code:
     pattern:  /user/v1/update2fa
