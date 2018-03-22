@@ -138,11 +138,8 @@ class UsersGroupsController extends RestApiController{
 
         $allowed_types = array('PRIVATE', 'COMPANY');
         if($request->request->has('type') && $request->request->get('type')!='') {
-            $params['type'] = $request->request->get('type');
-            if(in_array($params['type'], $allowed_types)) {
-                $type = $params['type'];
-            }
-            else{
+            $type = $request->request->get('type');
+            if(!in_array($type, $allowed_types)) {
                 throw new HttpException(400, "Invalid type");
             }
         }
@@ -156,11 +153,8 @@ class UsersGroupsController extends RestApiController{
         );
         $allowed_subtypes = $list_subtypes[$type];
         if($request->request->has('subtype') && $request->request->get('subtype')!='') {
-            $params['subtype'] = $request->request->get('subtype');
-            if(in_array($params['subtype'], $allowed_subtypes)) {
-                $subtype = $params['subtype'];
-            }
-            else{
+            $subtype = $request->request->get('subtype');
+            if(in_array($subtype, $allowed_subtypes)) {
                 throw new HttpException(400, "Invalid subtype");
             }
         }
@@ -172,16 +166,14 @@ class UsersGroupsController extends RestApiController{
             $company_name = $request->request->get('company_name');
         }
         else{
-            if($type == 'COMPANY'){ throw new HttpException(400, "Company name required"); }
-            $company_name = $params['name'];
+            throw new HttpException(400, "Company name required");
         }
 
         if($request->request->has('company_cif') && $request->request->get('company_cif')!='') {
             $company_cif = $request->request->get('company_cif');
         }
         else{
-            if($type == 'COMPANY'){ throw new HttpException(400, "Company cif required"); }
-            $company_cif = $params['dni'];
+            throw new HttpException(400, "Company cif required");
         }
 
         $methodsList = array('rec-out', 'rec-in');
@@ -192,7 +184,7 @@ class UsersGroupsController extends RestApiController{
             $company->setEmail($request->request->get('company_email'));
         }
         else{
-            $company->setEmail($params['email']);
+            $company->setEmail($admin->getEmail());
         }
 
         if($request->request->has('company_phone') && $request->request->get('company_phone')!='') {

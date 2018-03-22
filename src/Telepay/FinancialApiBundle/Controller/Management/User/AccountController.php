@@ -429,17 +429,25 @@ class AccountController extends BaseApiController{
         //create company
         $company = new Group();
         if($request->request->has('company_email') && $request->request->get('company_email')!='') {
-            $company->setEmail($company_name);
+            $company->setEmail($request->request->get('company_email'));
         }
         else{
             $company->setEmail($params['email']);
         }
+
         if($request->request->has('company_phone') && $request->request->get('company_phone')!='') {
-            $company->setPhone($company_name);
+            $phone_com = preg_replace("/[^0-9]/", "", $request->request->get('company_phone'));
+            $company->setPhone($phone_com);
         }
         if($request->request->has('company_prefix') && $request->request->get('company_prefix')!='') {
-            $company->setPrefix($company_name);
+            $prefix_com = preg_replace("/[^0-9]/", "", $request->request->get('company_prefix'));
+            $company->setPrefix($prefix_com);
         }
+
+        if(!$this->checkPhone($phone_com, $prefix_com)){
+            throw new HttpException(400, "Incorrect phone or prefix company number");
+        }
+
         $company->setName($company_name);
         $company->setCif($company_cif);
         $company->setType($type);

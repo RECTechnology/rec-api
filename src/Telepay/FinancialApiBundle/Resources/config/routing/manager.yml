@@ -157,6 +157,13 @@ admin_groups_add_users:
         _method: POST
         user_id: "[0-9]+"
 
+user_new_group:
+    pattern:  /user/v1/new/account
+    defaults: { _controller: Telepay\FinancialApiBundle\Controller\Management\Manager\UsersGroupsController::createCompanyAction, _format: ~ }
+    requirements:
+        _method: POST
+        user_id: "[0-9]+"
+
 admin_groups_delete_users:
     pattern:  /manager/v1/groups/{group_id}/{user_id}
     defaults: { _controller: Telepay\FinancialApiBundle\Controller\Management\Manager\UsersGroupsController::deleteAction, _format: ~ }
