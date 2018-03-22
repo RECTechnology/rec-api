@@ -246,7 +246,7 @@ class AccountController extends BaseApiController{
                 'public_phone' => 1
             ));
             if($user){
-                $public_phone_list[$phone] = $user->getActiveGroup()->getRecAddress();
+                $public_phone_list[$phone] = array($user->getActiveGroup()->getRecAddress(), $user->getProfileImage());
             }
         }
         return $this->restV2(200, "ok", "List of public phones registered", $public_phone_list);
