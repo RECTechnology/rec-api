@@ -13,6 +13,7 @@ use Symfony\Component\HttpKernel\Exception\HttpException;
 use FOS\RestBundle\Controller\Annotations as Rest;
 use Telepay\FinancialApiBundle\Controller\RestApiController;
 use Telepay\FinancialApiBundle\Entity\UserGroup;
+use Telepay\FinancialApiBundle\Entity\Group;
 
 class UsersGroupsController extends RestApiController{
 
