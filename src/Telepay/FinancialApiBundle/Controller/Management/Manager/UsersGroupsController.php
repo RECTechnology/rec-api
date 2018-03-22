@@ -162,18 +162,23 @@ class UsersGroupsController extends RestApiController{
             $subtype = $allowed_subtypes[0];
         }
 
-        if($request->request->has('company_name') && $request->request->get('company_name')!='') {
-            $company_name = $request->request->get('company_name');
+        if($admin->getActiveGroup()->getSubType() == 'BMINCOME' && $type == 'PRIVATE' && $subtype != 'BMINCOME'){
+            throw new HttpException(400, "User can create a private account");
+        }
+
+        if($request->request->has('account_name') && $request->request->get('account_name')!='') {
+            $company_name = $request->request->get('account_name');
         }
         else{
-            throw new HttpException(400, "Company name required");
+            throw new HttpException(400, "Account name required");
         }
 
         if($request->request->has('company_cif') && $request->request->get('company_cif')!='') {
             $company_cif = $request->request->get('company_cif');
         }
         else{
-            throw new HttpException(400, "Company cif required");
+            if($type == 'COMPANY'){ throw new HttpException(400, "Company cif required"); }
+            $company_cif = $admin->getDNI();
         }
 
         $methodsList = array('rec-out', 'rec-in');
