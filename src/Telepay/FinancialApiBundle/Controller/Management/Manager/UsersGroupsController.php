@@ -126,6 +126,182 @@ class UsersGroupsController extends RestApiController{
 
     }
 
+
+    /**
+     * @Rest\View
+     * description: create new company
+     * permissions: all
+     */
+    public function createCompanyAction(Request $request){
+        $admin = $this->get('security.context')->getToken()->getUser();
+        $em = $this->getDoctrine()->getManager();
+
+        $allowed_types = array('PRIVATE', 'COMPANY');
+        if($request->request->has('type') && $request->request->get('type')!='') {
+            $params['type'] = $request->request->get('type');
+            if(in_array($params['type'], $allowed_types)) {
+                $type = $params['type'];
+            }
+            else{
+                throw new HttpException(400, "Invalid type");
+            }
+        }
+        else{
+            $type = $allowed_types[0];
+        }
+
+        $list_subtypes = array(
+            'PRIVATE' => array('NORMAL', 'BMINCOME'),
+            'COMPANY' => array('RETAILER', 'WHOLESALE')
+        );
+        $allowed_subtypes = $list_subtypes[$type];
+        if($request->request->has('subtype') && $request->request->get('subtype')!='') {
+            $params['subtype'] = $request->request->get('subtype');
+            if(in_array($params['subtype'], $allowed_subtypes)) {
+                $subtype = $params['subtype'];
+            }
+            else{
+                throw new HttpException(400, "Invalid subtype");
+            }
+        }
+        else{
+            $subtype = $allowed_subtypes[0];
+        }
+
+        if($request->request->has('company_name') && $request->request->get('company_name')!='') {
+            $company_name = $request->request->get('company_name');
+        }
+        else{
+            if($type == 'COMPANY'){ throw new HttpException(400, "Company name required"); }
+            $company_name = $params['name'];
+        }
+
+        if($request->request->has('company_cif') && $request->request->get('company_cif')!='') {
+            $company_cif = $request->request->get('company_cif');
+        }
+        else{
+            if($type == 'COMPANY'){ throw new HttpException(400, "Company cif required"); }
+            $company_cif = $params['dni'];
+        }
+
+        $methodsList = array('rec-out', 'rec-in');
+
+        //create company
+        $company = new Group();
+        if($request->request->has('company_email') && $request->request->get('company_email')!='') {
+            $company->setEmail($request->request->get('company_email'));
+        }
+        else{
+            $company->setEmail($params['email']);
+        }
+
+        if($request->request->has('company_phone') && $request->request->get('company_phone')!='') {
+            $phone_com = preg_replace("/[^0-9]/", "", $request->request->get('company_phone'));
+            $company->setPhone($phone_com);
+        }
+        if($request->request->has('company_prefix') && $request->request->get('company_prefix')!='') {
+            $prefix_com = preg_replace("/[^0-9]/", "", $request->request->get('company_prefix'));
+            $company->setPrefix($prefix_com);
+        }
+
+        if(!$this->checkPhone($phone_com, $prefix_com)){
+            throw new HttpException(400, "Incorrect phone or prefix company number");
+        }
+
+        $company->setName($company_name);
+        $company->setCif($company_cif);
+        $company->setType($type);
+        $company->setSubtype($subtype);
+        $company->setActive(true);
+        $company->setRoles(array('ROLE_COMPANY'));
+        $company->setRecAddress('temp');
+        $company->setMethodsList($methodsList);
+        $em->persist($company);
+
+        //create wallets for this company
+        $currencies = Currency::$ALL;
+        foreach($currencies as $currency){
+            $userWallet = new UserWallet();
+            $userWallet->setBalance(0);
+            $userWallet->setAvailable(0);
+            $userWallet->setCurrency(strtoupper($currency));
+            $userWallet->setGroup($company);
+            $em->persist($userWallet);
+        }
+
+        //Add user to group with admin role
+        $userGroup = new UserGroup();
+        $userGroup->setUser($admin);
+        $userGroup->setGroup($company);
+        $userGroup->setRoles(array('ROLE_ADMIN'));
+
+        $em->persist($userGroup);
+        $em->flush();
+
+        foreach($methodsList as $method){
+            $method_ex = explode('-', $method);
+            $meth = $method_ex[0];
+            $meth_type = $method_ex[1];
+
+            //create new ServiceFee
+            $newFee = new ServiceFee();
+            $newFee->setGroup($company);
+            $newFee->setFixed(0);
+            $newFee->setVariable(0);
+            $newFee->setServiceName($method);
+            $newFee->setCurrency(strtoupper($meth));
+            $em->persist($newFee);
+        }
+
+        //create new fixed address for rec and return
+        $recAddress = new CashInTokens();
+        $recAddress->setCurrency(Currency::$REC);
+        $recAddress->setCompany($company);
+        $recAddress->setLabel('REC account');
+        $recAddress->setMethod('rec-in');
+        $recAddress->setExpiresIn(-1);
+        $recAddress->setStatus(CashInTokens::$STATUS_ACTIVE);
+        $methodDriver = $this->get('net.telepay.in.rec.v1');
+        $paymentInfo = $methodDriver->getPayInInfo(0);
+        $token = $paymentInfo['address'];
+        $recAddress->setToken($token);
+        $em->persist($recAddress);
+
+        $company->setRecAddress($token);
+        $em->persist($company);
+
+        $response['company'] = $company;
+        $em->flush();
+        return $this->restV2(201,"ok", "Request successful", $response);
+    }
+
+    private function checkPhone($phone, $prefix){
+        if(strlen($prefix)<1){
+            return false;
+        }
+
+        //SP xxxxxxxxx
+        if($prefix == '34'){
+            return strlen($phone)==9;
+        }
+        //PL xxxxxxxxx
+        elseif($prefix == '48'){
+            return strlen($phone)==9;
+        }
+        //GR xxxxxxxxx
+        elseif($prefix == '30'){
+            return strlen($phone)==10;
+        }
+        //GB 07xxx xxxxxx
+        elseif($prefix == '44'){
+            return strlen($phone)==11;
+        }
+        elseif(strlen($phone)>7){
+            return true;
+        }
+        return false;
+    }
+
     /**
      * @Rest\View
      * description: add roles to company with array
