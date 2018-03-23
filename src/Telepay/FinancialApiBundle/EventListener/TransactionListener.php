@@ -121,6 +121,7 @@ class TransactionListener
 
 
     private function _sendEmail($subject, $to, $companies, $kyc, $tier, $action){
+        /*
         $from = 'no-reply@chip-chap.com';
         $mailer = 'mailer';
 
@@ -144,6 +145,6 @@ class TransactionListener
             ->setContentType('text/html');
 
         $this->container->get($mailer)->send($message);
+        */
     }
-
 }

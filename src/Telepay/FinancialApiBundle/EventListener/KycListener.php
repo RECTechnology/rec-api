@@ -138,16 +138,12 @@ class KycListener
                     }
                     if($changed == 0) throw new HttpException(403, 'This company is disabled, please contact support.');
                 }
-
             }
-
             return;
         }
-
     }
 
     private function _notifyKYCChanges($changeset, KYC $kyc){
-
         if(isset($changeset['tier1_status'])){
             $this->logger->info('TIER 1 from :'.$changeset['tier1_status'][0].' to '.$changeset['tier1_status'][1]);
             switch ($kyc->getTier1Status()){
@@ -164,8 +160,7 @@ class KycListener
                 case 'pending':
                     //notify admins
                     $this->logger->info('TIER 1 : notify pending request');
-                    //$this->_sendEmail('Update KYC required', 'kyc@robotunion.org', '', $kyc, 1 , 'pending');
-
+                //$this->_sendEmail('Update KYC required', 'kyc@robotunion.org', '', $kyc, 1 , 'pending');
             }
         }
 
@@ -209,30 +204,30 @@ class KycListener
     }
 
     private function _sendEmail($subject, $to, $companies, $kyc, $tier, $action){
-        return true;
-        $from = 'no-reply@chip-chap.com';
-        $mailer = 'mailer';
+        /*
+                $from = 'no-reply@chip-chap.com';
+                $mailer = 'mailer';
 
-        $template = 'TelepayFinancialApiBundle:Email:KYCUpdate.html.twig';
+                $template = 'TelepayFinancialApiBundle:Email:KYCUpdate.html.twig';
 
-        $message = \Swift_Message::newInstance()
-            ->setSubject($subject)
-            ->setFrom($from)
-            ->setTo($to)
-            ->setBody(
-                $this->container->get('templating')
-                    ->render($template,
-                        array(
-                            'companies' =>  $companies,
-                            'kyc'   =>  $kyc,
-                            'tier'  =>  $tier,
-                            'action'    =>  $action
-                        )
+                $message = \Swift_Message::newInstance()
+                    ->setSubject($subject)
+                    ->setFrom($from)
+                    ->setTo($to)
+                    ->setBody(
+                        $this->container->get('templating')
+                            ->render($template,
+                                array(
+                                    'companies' =>  $companies,
+                                    'kyc'   =>  $kyc,
+                                    'tier'  =>  $tier,
+                                    'action'    =>  $action
+                                )
+                            )
                     )
-            )
-            ->setContentType('text/html');
+                    ->setContentType('text/html');
 
-        $this->container->get($mailer)->send($message);
+                $this->container->get($mailer)->send($message);
+        */
     }
-
 }
