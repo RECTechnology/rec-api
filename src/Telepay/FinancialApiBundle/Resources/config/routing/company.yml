@@ -221,3 +221,10 @@ company_show_fee:
     defaults: {_controller: Telepay\FinancialApiBundle\Controller\Management\Company\WalletController::showFees }
     requirements:
         _method: GET
+
+
+##################### MAP ############################
+    pattern: /map/v1/list
+    defaults: {_controller: Telepay\FinancialApiBundle\Controller\Management\Company\MapController::ListAction }
+    requirements:
+        _method: GET
