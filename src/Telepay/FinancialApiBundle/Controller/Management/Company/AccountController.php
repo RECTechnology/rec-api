@@ -170,7 +170,7 @@ class AccountController extends BaseApiController{
         ));
 
         if(!$adminRoles){
-            throw new HttpException(403, 'You ara not in this account');
+            throw new HttpException(403, 'You are not in this account(' . $admin->getId() . ' - ' . $adminGroup->getId() .')');
         }
 
         if(!$adminRoles->hasRole('ROLE_ADMIN')) throw new HttpException(403, 'You don\'t have the necessary permissions');
