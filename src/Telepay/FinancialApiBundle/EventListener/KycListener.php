@@ -77,7 +77,7 @@ class KycListener
 
             if(isset($changeset['tier'])){
                 if($entity->getTier() > 0){
-                    $this->_sendEmail('Update KYC ', $entity->getKycManager()->getEmail(), $entity, $entity->getKycManager(), $entity->getTier(), 'approved_single' );
+                    //$this->_sendEmail('Update KYC ', $entity->getKycManager()->getEmail(), $entity, $entity->getKycManager(), $entity->getTier(), 'approved_single' );
                 }
             }
             return;
@@ -158,13 +158,13 @@ class KycListener
                     $this->logger->info('TIER 1 : uploadTierCompanies');
                     break;
                 case 'denied':
-                    $this->_sendEmail('Update KYC denied', $kyc->getUser()->getEmail(), '', $kyc, 0, 'denied' );
+                    //$this->_sendEmail('Update KYC denied', $kyc->getUser()->getEmail(), '', $kyc, 0, 'denied' );
                     $this->logger->info('TIER 1 : send email to user: '.$kyc->getUser()->getEmail());
                     break;
                 case 'pending':
                     //notify admins
                     $this->logger->info('TIER 1 : notify pending request');
-                    $this->_sendEmail('Update KYC required', 'kyc@robotunion.org', '', $kyc, 1 , 'pending');
+                    //$this->_sendEmail('Update KYC required', 'kyc@robotunion.org', '', $kyc, 1 , 'pending');
 
             }
         }
@@ -178,11 +178,11 @@ class KycListener
                     $this->_uploadTierCompanies($kyc, 2);
                     break;
                 case 'denied':
-                    $this->_sendEmail('Update KYC denied', $kyc->getUser()->getEmail(), '', $kyc, 1, 'denied' );
+                    //$this->_sendEmail('Update KYC denied', $kyc->getUser()->getEmail(), '', $kyc, 1, 'denied' );
                     break;
                 case 'pending':
                     //TODO notify admins
-                    $this->_sendEmail('Update KYC required', 'kyc@robotunion.org', '', $kyc, 2 , 'pending');
+                    //$this->_sendEmail('Update KYC required', 'kyc@robotunion.org', '', $kyc, 2 , 'pending');
             }
         }
 
@@ -203,9 +203,9 @@ class KycListener
         }
 
         //notify to this kyc manager all companies updated
-        $this->_sendEmail('Update KYC accepted', $kyc->getUser()->getEmail(), $companies, $kyc, $tier, 'accepted' );
+        //$this->_sendEmail('Update KYC accepted', $kyc->getUser()->getEmail(), $companies, $kyc, $tier, 'accepted' );
         //notify admin all companies updated
-        $this->_sendEmail('Update KYC accepted', 'kyc@robotunion.org', $companies, $kyc, $tier , 'accepted');
+        //$this->_sendEmail('Update KYC accepted', 'kyc@robotunion.org', $companies, $kyc, $tier , 'accepted');
     }
 
     private function _sendEmail($subject, $to, $companies, $kyc, $tier, $action){
