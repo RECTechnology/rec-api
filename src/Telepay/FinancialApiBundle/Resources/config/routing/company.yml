@@ -1,4 +1,10 @@
 ##################### COMPANY ACCOUNT ############################
+account_update:
+    pattern: /account/{account_id}/v1/profile
+    defaults: { _controller: Telepay\FinancialApiBundle\Controller\Management\Company\AccountController::updateAction }
+    requirements:
+        _method: PUT
+        account_id: "[a-z0-9_]+"
 
 company_set_comapny_image:
     pattern:  /company/v1/account/{group}/image

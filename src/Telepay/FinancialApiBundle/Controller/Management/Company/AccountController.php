@@ -111,7 +111,39 @@ class AccountController extends BaseApiController{
 
     }
 
-    
+    /**
+     * @Rest\View
+     * Permissions: ROLE_ADMIN (all)
+     */
+    public function updateAction(Request $request, $account_id){
 
+        $admin = $this->get('security.context')->getToken()->getUser();
+        $adminGroup = $this->getRepository($this->getRepositoryName())->find($account_id);
 
+        $adminRoles = $this->getDoctrine()->getRepository('TelepayFinancialApiBundle:UserGroup')->findOneBy(array(
+            'user'  =>  $admin->getId(),
+            'group' =>  $adminGroup->getId()
+        ));
+
+        if(!$adminRoles->hasRole('ROLE_ADMIN')) throw new HttpException(403, 'You don\'t have the necessary permissions');
+
+        //check some params that can't be modified from here
+        $invalid_params = array(
+            'creator_id',
+            'group_creator_id',
+            'access_key',
+            'access_secret',
+            'active',
+            'tier',
+            'company_image'
+        );
+
+        $all = $request->request->all();
+        foreach ($all as $key=>$value){
+            if(in_array($key,$invalid_params)) throw new HttpException(403, 'You don\'t have the necessary permissions to change this params. Please check documentation');
+        }
+
+        return parent::updateAction($request, $account_id);
+
+    }
 }

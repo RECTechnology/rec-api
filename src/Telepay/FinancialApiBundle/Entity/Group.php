@@ -180,6 +180,16 @@ class Group extends BaseGroup
     private $country = '';
 
     /**
+     * @ORM\Column(type="float")
+     */
+    private $latitude = '';
+
+    /**
+     * @ORM\Column(type="float")
+     */
+    private $longitude = '';
+
+    /**
      * @ORM\Column(type="string")
      */
     private $web = '';
@@ -195,12 +205,6 @@ class Group extends BaseGroup
      * @Expose
      */
     private $street = '';
-
-    /**
-     * @ORM\Column(type="string")
-     * @Expose
-     */
-    private $town = '';
 
     /**
      * @ORM\Column(type="text")
@@ -584,6 +588,38 @@ class Group extends BaseGroup
     /**
      * @return mixed
      */
+    public function getLatitude()
+    {
+        return $this->latitude;
+    }
+
+    /**
+     * @param mixed $latitude
+     */
+    public function setLatitude($latitude)
+    {
+        $this->latitude = $latitude;
+    }
+
+    /**
+     * @return mixed
+     */
+    public function getLongitude()
+    {
+        return $this->longitude;
+    }
+
+    /**
+     * @param mixed $longitude
+     */
+    public function setLongitude($longitude)
+    {
+        $this->longitude = $longitude;
+    }
+
+    /**
+     * @return mixed
+     */
     public function getWeb()
     {
         return $this->web;
@@ -691,22 +727,6 @@ class Group extends BaseGroup
     public function setStreet($street)
     {
         $this->street = $street;
-    }
-
-    /**
-     * @return mixed
-     */
-    public function getTown()
-    {
-        return $this->town;
-    }
-
-    /**
-     * @param mixed $town
-     */
-    public function setTown($town)
-    {
-        $this->town = $town;
     }
 
     /**
