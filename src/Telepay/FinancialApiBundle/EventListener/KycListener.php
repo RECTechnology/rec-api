@@ -159,7 +159,7 @@ class KycListener
                     break;
                 case 'denied':
                     //$this->_sendEmail('Update KYC denied', $kyc->getUser()->getEmail(), '', $kyc, 0, 'denied' );
-                    $this->logger->info('TIER 1 : send email to user: '.$kyc->getUser()->getEmail());
+                    //$this->logger->info('TIER 1 : send email to user: '.$kyc->getUser()->getEmail());
                     break;
                 case 'pending':
                     //notify admins
