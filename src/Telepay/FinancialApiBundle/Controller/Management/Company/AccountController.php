@@ -81,7 +81,12 @@ class AccountController extends BaseApiController{
         $company = $em->getRepository($this->getRepositoryName())->find($group);
 
         if(!$company) throw new HttpException('Company not found');
-        //TODO check if user has permissions in this company
+
+        $userGroup = $em->getRepository('TelepayFinancialApiBundle:UserGroup')->findOneBy(array(
+            'user'  =>  $user->getId(),
+            'group' =>  $company->getId()
+        ));
+        if(!$userGroup->hasRole('ROLE_ADMIN')) throw new HttpException('You don\'t have the necessary permissions');
 
         $fileManager = $this->get('file_manager');
 
@@ -108,6 +113,45 @@ class AccountController extends BaseApiController{
         $em->flush();
 
         return $this->rest(204, 'Company image updated successfully');
+    }
+
+    /**
+     * @Rest\View
+     */
+    public function setCategoriesAction(Request $request, $group){
+        $paramNames = array(
+            'list_categories'
+        );
+
+        $params = array();
+        foreach($paramNames as $paramName){
+            if($request->request->has($paramName)){
+                $params[$paramName] = $request->request->get($paramName);
+            }else{
+                throw new HttpException(404, 'Param '.$paramName.' not found');
+            }
+        }
+
+        $em = $this->getDoctrine()->getManager();
+        $user = $this->getUser();
+        $company = $em->getRepository($this->getRepositoryName())->find($group);
+
+        if(!$company) throw new HttpException('Company not found');
+        $userGroup = $em->getRepository('TelepayFinancialApiBundle:UserGroup')->findOneBy(array(
+            'user'  =>  $user->getId(),
+            'group' =>  $company->getId()
+        ));
+        if(!$userGroup->hasRole('ROLE_ADMIN')) throw new HttpException('You don\'t have the necessary permissions');
+
+        $list = json_decode($params['list_categories']);
+        foreach($list as $category){
+
+        }
+
+        $company->setCompanyImage();
+        $em->flush();
+
+        return $this->rest(204, 'Company image updated successfully');
 
     }
 
@@ -124,6 +168,10 @@ class AccountController extends BaseApiController{
             'user'  =>  $admin->getId(),
             'group' =>  $adminGroup->getId()
         ));
+
+        if(!$adminRoles){
+            throw new HttpException(403, 'You ara not in this account');
+        }
 
         if(!$adminRoles->hasRole('ROLE_ADMIN')) throw new HttpException(403, 'You don\'t have the necessary permissions');
 
