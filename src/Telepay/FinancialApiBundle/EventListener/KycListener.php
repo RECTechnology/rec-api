@@ -209,6 +209,7 @@ class KycListener
     }
 
     private function _sendEmail($subject, $to, $companies, $kyc, $tier, $action){
+        return true;
         $from = 'no-reply@chip-chap.com';
         $mailer = 'mailer';
 
