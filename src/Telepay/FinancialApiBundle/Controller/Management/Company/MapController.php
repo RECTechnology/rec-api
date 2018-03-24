@@ -69,6 +69,7 @@ class MapController extends BaseApiController{
                     'phone' => $company->getPhone(),
                     'prefix' => $company->getPrefix(),
                     'company_image' => $company->getCompanyImage(),
+                    'type' => $company->getType(),
                     'subtype' => $company->getSubtype()
                 );
             }
@@ -112,7 +113,7 @@ class MapController extends BaseApiController{
 
         foreach ($list_companies as $company){
             $name = $company->getName();
-            if (strpos($search, $name) !== false) {
+            if (strpos($name, $search) !== false) {
                 $total+=1;
                 $all[] = array(
                     'name' => $company->getName(),
@@ -126,6 +127,7 @@ class MapController extends BaseApiController{
                     'phone' => $company->getPhone(),
                     'prefix' => $company->getPrefix(),
                     'company_image' => $company->getCompanyImage(),
+                    'type' => $company->getType(),
                     'subtype' => $company->getSubtype()
                 );
             }
