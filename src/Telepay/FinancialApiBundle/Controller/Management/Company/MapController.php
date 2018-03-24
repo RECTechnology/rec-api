@@ -45,7 +45,7 @@ class MapController extends BaseApiController{
             $max_lon = $request->query->get('max_lon');
         }
 
-        $list_companies = $em->getRepository('TelepayFinancialApiBundle:Group')->findAll(array(
+        $list_companies = $em->getRepository('TelepayFinancialApiBundle:Group')->findBy(array(
             'type'  =>  'COMPANY'
         ));
 
@@ -92,7 +92,7 @@ class MapController extends BaseApiController{
         $all = array();
         $em = $this->getDoctrine()->getManager();
 
-        $list_companies = $em->getRepository('TelepayFinancialApiBundle:Group')->findAll(array(
+        $list_companies = $em->getRepository('TelepayFinancialApiBundle:Group')->findBy(array(
             'type'  =>  'COMPANY'
         ));
 
