@@ -8,7 +8,17 @@ use FOS\RestBundle\Controller\Annotations as Rest;
 use Symfony\Component\HttpFoundation\Request;
 use Telepay\FinancialApiBundle\Entity\Group;
 
-class MapController {
+class MapController extends BaseApiController{
+
+    function getRepositoryName()
+    {
+        return "TelepayFinancialApiBundle:Group";
+    }
+
+    function getNewEntity()
+    {
+        return new Group();
+    }
 
     public function ListAction(Request $request){
         $total = 0;
