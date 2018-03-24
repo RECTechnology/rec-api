@@ -197,7 +197,7 @@ class AccountController extends BaseApiController{
             $company->setCompanyImage($fileManager->getFilesPath() . '/' . $filename);
             $em->flush();
         }
-        $request->request->delete('company_image');
+        $request->request->remove('company_image');
 
         //check some params that can't be modified from here
         $invalid_params = array(
