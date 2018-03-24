@@ -10,9 +10,6 @@ use Telepay\FinancialApiBundle\Entity\Group;
 
 class MapController {
 
-    /**
-     * @Rest\View
-     */
     public function ListAction(Request $request){
         $total = 0;
         $all = array();
@@ -45,12 +42,70 @@ class MapController {
         foreach ($list_companies as $company){
             $lat = $company->getLatitude();
             $lon = $company->getLongitude();
-            if($lat > $min_lat && $lat < $max_lat && $lon > $min_lon && $lon < $max_lon){
+            if($lat == 0 && $lon == 0) {
+                //No han definido su ubicacion
+            }
+            elseif($lat > $min_lat && $lat < $max_lat && $lon > $min_lon && $lon < $max_lon){
                 $total+=1;
                 $all[] = array(
                     'name' => $company->getName(),
                     'latitude' => $lat,
                     'longitude' => $lon,
+                    'country' => $company->getCountry(),
+                    'city' => $company->getCity(),
+                    'zip' => $company->getZip(),
+                    'street' => $company->getName(),
+                    'address_number' => $company->getName(),
+                    'phone' => $company->getPhone(),
+                    'prefix' => $company->getPrefix()
+                );
+            }
+        }
+
+
+        return $this->restV2(
+            200,
+            "ok",
+            "Request successful",
+            array(
+                'total' => $total,
+                'elements' => $all
+            )
+        );
+    }
+
+    public function SearchAction(Request $request){
+        $total = 0;
+        $all = array();
+        $em = $this->getDoctrine()->getManager();
+
+        $list_companies = $em->getRepository('TelepayFinancialApiBundle:Group')->findOneBy(array(
+            'type'  =>  'COMPANY'
+        ));
+
+        if($request->request->has('search') && $request->request->get('search')!='') {
+            $search = $request->request->get('search');
+        }
+        else{
+            return $this->restV2(
+                200,
+                "ok",
+                "Request successful",
+                array(
+                    'total' => $total,
+                    'elements' => $all
+                )
+            );
+        }
+
+        foreach ($list_companies as $company){
+            $name = $company->getName();
+            if (strpos($search, $name) !== false) {
+                $total+=1;
+                $all[] = array(
+                    'name' => $company->getName(),
+                    'latitude' => $company->getLatitude(),
+                    'longitude' => $company->getLongitude(),
                     'country' => $company->getCountry(),
                     'city' => $company->getCity(),
                     'zip' => $company->getZip(),
