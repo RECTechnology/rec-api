@@ -28,7 +28,6 @@ class MapController extends BaseApiController{
         $min_lat = -90.0;
         if($request->query->has('min_lat') && $request->query->get('min_lat')!='') {
             $min_lat = $request->query->get('min_lat');
-            throw new HttpException(400, "MIN LAT " . $min_lat);
         }
 
         $max_lat = 90.0;
