@@ -26,26 +26,27 @@ class MapController extends BaseApiController{
         $em = $this->getDoctrine()->getManager();
 
         $min_lat = -90.0;
-        if($request->request->has('min_lat') && $request->request->get('min_lat')!='') {
-            $min_lat = $request->request->get('min_lat');
+        if($request->query->has('min_lat') && $request->query->get('min_lat')!='') {
+            $min_lat = $request->query->get('min_lat');
+            throw new HttpException(400, "MIN LAT " . $min_lat);
         }
 
         $max_lat = 90.0;
-        if($request->request->has('max_lat') && $request->request->get('max_lat')!='') {
-            $max_lat = $request->request->get('max_lat');
+        if($request->query->has('max_lat') && $request->query->get('max_lat')!='') {
+            $max_lat = $request->query->get('max_lat');
         }
 
         $min_lon = -90.0;
-        if($request->request->has('min_lon') && $request->request->get('min_lon')!='') {
-            $min_lon = $request->request->get('min_lon');
+        if($request->query->has('min_lon') && $request->query->get('min_lon')!='') {
+            $min_lon = $request->query->get('min_lon');
         }
 
         $max_lon = 90.0;
-        if($request->request->has('max_lon') && $request->request->get('max_lon')!='') {
-            $max_lon = $request->request->get('max_lon');
+        if($request->query->has('max_lon') && $request->query->get('max_lon')!='') {
+            $max_lon = $request->query->get('max_lon');
         }
 
-        $list_companies = $em->getRepository('TelepayFinancialApiBundle:Group')->findOneBy(array(
+        $list_companies = $em->getRepository('TelepayFinancialApiBundle:Group')->findAll(array(
             'type'  =>  'COMPANY'
         ));
 
@@ -91,12 +92,12 @@ class MapController extends BaseApiController{
         $all = array();
         $em = $this->getDoctrine()->getManager();
 
-        $list_companies = $em->getRepository('TelepayFinancialApiBundle:Group')->findOneBy(array(
+        $list_companies = $em->getRepository('TelepayFinancialApiBundle:Group')->findAll(array(
             'type'  =>  'COMPANY'
         ));
 
-        if($request->request->has('search') && $request->request->get('search')!='') {
-            $search = $request->request->get('search');
+        if($request->query->has('search') && $request->query->get('search')!='') {
+            $search = $request->query->get('search');
         }
         else{
             return $this->restV2(
