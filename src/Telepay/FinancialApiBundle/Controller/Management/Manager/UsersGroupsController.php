@@ -119,10 +119,6 @@ class UsersGroupsController extends RestApiController{
         $em->remove($entity);
         $em->flush();
 
-        //send email
-        $url = '';
-        $this->_sendEmail('You have been removed from this company', $user->getEmail(), $url, $group->getName());
-
         return $this->rest(204, "User removed successfully");
 
     }
