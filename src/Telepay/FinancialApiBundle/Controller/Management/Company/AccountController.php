@@ -170,10 +170,34 @@ class AccountController extends BaseApiController{
         ));
 
         if(!$adminRoles){
-            throw new HttpException(403, 'You are not in this account(' . $admin->getId() . ' - ' . $adminGroup->getId() .')');
+            throw new HttpException(403, 'You are not in this account');
         }
 
         if(!$adminRoles->hasRole('ROLE_ADMIN')) throw new HttpException(403, 'You don\'t have the necessary permissions');
+
+        if($request->request->has('company_image') && $request->request->get('company_image')!='') {
+            $em = $this->getDoctrine()->getManager();
+            $fileManager = $this->get('file_manager');
+            $fileSrc = $request->request->get('company_image');
+            $fileContents = $fileManager->readFileUrl($fileSrc);
+            $company = $em->getRepository($this->getRepositoryName())->find($account_id);
+            //if has image overwrite...if not create filename
+            if ($company->getCompanyImage() == '') {
+                $hash = $fileManager->getHash();
+                $explodedFileSrc = explode('.', $fileSrc);
+                $ext = $explodedFileSrc[count($explodedFileSrc) - 1];
+                $filename = $hash . '.' . $ext;
+            } else {
+                $filename = str_replace($this->container->getParameter('files_path') . '/', '', $company->getCompanyImage());
+            }
+            file_put_contents($fileManager->getUploadsDir() . '/' . $filename, $fileContents);
+            $tmpFile = new File($fileManager->getUploadsDir() . '/' . $filename);
+            if (!in_array($tmpFile->getMimeType(), UploadManager::$ALLOWED_MIMETYPES))
+                throw new HttpException(400, "Bad file type");
+            $company->setCompanyImage($fileManager->getFilesPath() . '/' . $filename);
+            $em->flush();
+        }
+        $request->request->delete('company_image');
 
         //check some params that can't be modified from here
         $invalid_params = array(
@@ -182,8 +206,7 @@ class AccountController extends BaseApiController{
             'access_key',
             'access_secret',
             'active',
-            'tier',
-            'company_image'
+            'tier'
         );
 
         $all = $request->request->all();
