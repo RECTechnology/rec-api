@@ -57,7 +57,9 @@ class MapController {
                     'street' => $company->getName(),
                     'address_number' => $company->getName(),
                     'phone' => $company->getPhone(),
-                    'prefix' => $company->getPrefix()
+                    'prefix' => $company->getPrefix(),
+                    'company_image' => $company->getCompanyImage(),
+                    'subtype' => $company->getSubtype()
                 );
             }
         }
@@ -112,7 +114,9 @@ class MapController {
                     'street' => $company->getName(),
                     'address_number' => $company->getName(),
                     'phone' => $company->getPhone(),
-                    'prefix' => $company->getPrefix()
+                    'prefix' => $company->getPrefix(),
+                    'company_image' => $company->getCompanyImage(),
+                    'subtype' => $company->getSubtype()
                 );
             }
         }
