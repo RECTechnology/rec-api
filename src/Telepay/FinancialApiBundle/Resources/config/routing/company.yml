@@ -224,11 +224,13 @@ company_show_fee:
 
 
 ##################### MAP ############################
+map_list:
     pattern: /map/v1/list
     defaults: {_controller: Telepay\FinancialApiBundle\Controller\Management\Company\MapController::ListAction }
     requirements:
         _method: GET
 
+map_search:
     pattern: /map/v1/search
     defaults: {_controller: Telepay\FinancialApiBundle\Controller\Management\Company\MapController::SearchAction }
     requirements:
