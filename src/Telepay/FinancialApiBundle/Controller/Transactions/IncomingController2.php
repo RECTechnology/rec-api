@@ -275,7 +275,7 @@ class IncomingController2 extends RestApiController{
 
             }
             $txid = $payment_info['txid'];
-            $payment_info['image_receiver'] = $destination->getProfileImage();
+            $payment_info['image_receiver'] = $destination->getCompanyImage();
             $payment_info['name_receiver'] = $destination->getName();
             $logger->info('Incomig transaction...PAYMENT STATUS: '.$payment_info['status']);
 
