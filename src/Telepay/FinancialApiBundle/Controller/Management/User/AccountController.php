@@ -299,6 +299,7 @@ class AccountController extends BaseApiController{
      * @Rest\View
      */
     public function registerCommerceAction(Request $request, $type){
+        $logger = $this->get('manager.logger');
         $paramNames = array(
             'name',
             'password',
@@ -319,6 +320,7 @@ class AccountController extends BaseApiController{
         foreach($paramNames as $param){
             if($request->request->has($param) && $request->request->get($param)!=''){
                 $params[$param] = $request->request->get($param);
+                $logger->info('Param[' . $param . '] = '. $params[$param]);
             }else{
                 throw new HttpException(404, 'Param ' . $param . ' not found');
             }
