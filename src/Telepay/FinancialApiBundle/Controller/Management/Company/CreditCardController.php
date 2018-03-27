@@ -64,7 +64,7 @@ class CreditCardController extends RestApiController{
         $user = $this->getUser();
         $company = $user->getActiveGroup();
         $em = $this->getDoctrine()->getManager();
-        $cards = $em->getRepository('TelepayFinancialApiBundle:NFCCard')->findBy(array(
+        $cards = $em->getRepository('TelepayFinancialApiBundle:CreditCard')->findBy(array(
             'company'   =>  $company,
             'user'   =>  $user
         ));
@@ -76,7 +76,7 @@ class CreditCardController extends RestApiController{
      */
     public function updateCardFromCompany(Request $request, $id){
         $em = $this->getDoctrine()->getManager();
-        $card = $em->getRepository('TelepayFinancialApiBundle:NFCCard')->find($id);
+        $card = $em->getRepository('TelepayFinancialApiBundle:CreditCard')->find($id);
 
         if($card->getCompany()->getId() != $this->getUser()->getActiveGroup()->getId() )
             throw new HttpException(403, 'You don\'t have the necessary permissions');
