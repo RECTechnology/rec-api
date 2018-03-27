@@ -49,8 +49,8 @@ class IncomingController2 extends RestApiController{
 
     public function checkReceiverData(Request $request){
         $em = $this->getDoctrine()->getManager();
-        if($request->request->has('address') && $request->request->get('address')!=''){
-            $address = $request->request->get('address');
+        if($request->query->has('address') && $request->query->get('address')!=''){
+            $address = $request->query->get('address');
             $destination = $em->getRepository('TelepayFinancialApiBundle:Group')->findOneBy(array(
                 'rec_address' => $address
             ));
@@ -65,8 +65,8 @@ class IncomingController2 extends RestApiController{
 
     public function checkSenderData(Request $request){
         $em = $this->getDoctrine()->getManager();
-        if($request->request->has('card_id') && $request->request->get('card_id')!=''){
-            $card_id = $request->request->get('card_id');
+        if($request->query->has('card_id') && $request->query->get('card_id')!=''){
+            $card_id = $request->query->get('card_id');
             $sender = $em->getRepository('TelepayFinancialApiBundle:NFCCard')->findOneBy(array(
                 'id_card' => $card_id
             ));
