@@ -208,10 +208,10 @@ class WalletController extends RestApiController{
         $userGroup = $this->get('security.context')->getToken()->getUser()->getActiveGroup();
         $qb = $dm->createQueryBuilder('TelepayFinancialApiBundle:Transaction');
 
-        $query = $request->query->get('query');
-        if(isset($query['day'])){
-            $start_time = new \MongoDate(strtotime(date($query['day'].' 00:00:00')));
-            $finish_time = new \MongoDate(strtotime(date($query['day'].' 23:59:59')));
+        if($request->query->has('day') && $request->query->get('day')!=''){
+            $day = $request->query->get('day');
+            $start_time = new \MongoDate(strtotime(date($day . ' 00:00:00')));
+            $finish_time = new \MongoDate(strtotime(date($day . ' 23:59:59')));
         }else{
             throw new HttpException(400, "Incorrect day");
         }
