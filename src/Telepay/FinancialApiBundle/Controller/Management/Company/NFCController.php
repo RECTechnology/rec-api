@@ -51,7 +51,7 @@ class NFCController extends RestApiController{
                 throw new HttpException(404, 'Param '.$paramName.' not found');
             }
         }
-        $uniq_id = $this->container->get('fos_user.util.token_generator');
+        $uniq_id = $this->_randomId();
         $em = $this->getDoctrine()->getManager();
         $card = new NFCCard();
         $card->setCompany($group);
@@ -61,6 +61,17 @@ class NFCController extends RestApiController{
         $em->persist($card);
         $em->flush();
         return $this->restV2(201,"ok", "Card registered successfully", $card);
+    }
+
+    private function _randomId() {
+        $alphabet = 'abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ1234567890';
+        $id = array();
+        $alphaLength = strlen($alphabet) - 1;
+        for ($i = 0; $i < 24; $i++) {
+            $n = rand(0, $alphaLength);
+            $id[] = $alphabet[$n];
+        }
+        return implode($id);
     }
 
 
