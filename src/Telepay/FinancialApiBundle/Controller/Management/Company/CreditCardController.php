@@ -51,6 +51,7 @@ class CreditCardController extends RestApiController{
             $card->setIban($request->request->get('iban'));
         }
         $em->persist($card);
+        $em->flush();
         return $this->restV2(201,"ok", "Card registered successfully", $card);
     }
 
