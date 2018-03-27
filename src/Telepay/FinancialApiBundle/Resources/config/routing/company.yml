@@ -163,6 +163,27 @@ update_nfc_card:
     requirements:
         _method: PUT
 
+
+######################## CREDIT CARD ########################
+
+create_credit_card:
+    pattern:  /company/v1/credit_card
+    defaults: { _controller: Telepay\FinancialApiBundle\Controller\Management\Company\CreditCardController::registerCard }
+    requirements:
+        _method: POST
+
+index_credit_card:
+    pattern:  /company/v1/credit_card
+    defaults: { _controller: Telepay\FinancialApiBundle\Controller\Management\Company\CreditCardController::indexCards }
+    requirements:
+        _method: GET
+
+update_nfc_card:
+    pattern:  /company/v1/credit_card/{id}
+    defaults: { _controller: Telepay\FinancialApiBundle\Controller\Management\Company\CreditCardController::updateCardFromCompany }
+    requirements:
+        _method: PUT
+
 ###################   COMPANY WALLET #################
 company_wallet:
     pattern:  /company/{company_id}/v1/wallets
