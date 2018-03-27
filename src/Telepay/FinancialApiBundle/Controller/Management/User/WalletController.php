@@ -221,7 +221,7 @@ class WalletController extends RestApiController{
         $out = 0;
         $total = 0;
         foreach($transactions->toArray() as $res){
-            $amount = $res->getAmount();
+            $amount = $res->getTotal();
             if($amount > 0){
                 $in += $amount;
             }
