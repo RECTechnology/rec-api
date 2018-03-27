@@ -21,6 +21,7 @@ use Telepay\FinancialApiBundle\Entity\LimitCount;
 use Telepay\FinancialApiBundle\Entity\LimitDefinition;
 use Telepay\FinancialApiBundle\Entity\ServiceFee;
 use Telepay\FinancialApiBundle\Entity\User;
+use Telepay\FinancialApiBundle\Entity\NFCCard;
 use Telepay\FinancialApiBundle\Entity\UserWallet;
 use Telepay\FinancialApiBundle\Security\Authentication\Token\SignatureToken;
 
@@ -45,6 +46,40 @@ class IncomingController2 extends RestApiController{
         $params = $request->request->all();
         return $this->createTransaction($params, $version_number, $type, $method_cname, $user->getId(), $group, $request->getClientIp());
     }
+
+    public function checkReceiverData(Request $request){
+        $em = $this->getDoctrine()->getManager();
+        if($request->request->has('address') && $request->request->get('address')!=''){
+            $address = $request->request->get('address');
+            $destination = $em->getRepository('TelepayFinancialApiBundle:Group')->findOneBy(array(
+                'rec_address' => $address
+            ));
+            $data = array(
+                $destination->getName(),
+                $destination->getCompanyImage()
+            );
+            return $this->restV2(201,"ok", "Vendor information", $data);
+        }
+        throw new HttpException(400, 'Incorrect address');
+    }
+
+    public function checkSenderData(Request $request){
+        $em = $this->getDoctrine()->getManager();
+        if($request->request->has('card_id') && $request->request->get('card_id')!=''){
+            $card_id = $request->request->get('card_id');
+            $sender = $em->getRepository('TelepayFinancialApiBundle:NFCCard')->findOneBy(array(
+                'id_card' => $card_id
+            ));
+            $customer = $sender->getUser();
+            $data = array(
+                $customer->getName(),
+                $customer->getProfileImage()
+            );
+            return $this->restV2(201,"ok", "Sender information", $data);
+        }
+        throw new HttpException(400, 'Incorrect address');
+    }
+
 
     public function createTransaction($data, $version_number, $type, $method_cname, $user_id, $group, $ip){
         $logger = $this->get('transaction.logger');
@@ -107,8 +142,6 @@ class IncomingController2 extends RestApiController{
 
         $logger->info('Incomig transaction...getPaymentInfo for company '.$group->getId());
 
-        //Aqui hay que distinguir entre in i out
-        //para in es getPayInInfo y para out es getPayOutInfo
         if($type == 'in'){
             $dataIn = array(
                 'amount'    =>  $amount,
@@ -125,6 +158,14 @@ class IncomingController2 extends RestApiController{
             if(isset($data['expires_in']) && $data['expires_in'] > 99){
                 $payment_info['expires_in'] = $data['expires_in'];
             }
+            if(isset($data['sender']) && $data['sender']!='') {
+                $sender_id = $data['sender'];
+                $sender = $em->getRepository('TelepayFinancialApiBundle:User')->findOneBy(array(
+                    'id' => $sender_id
+                ));
+                $payment_info['image_sender'] = $sender->getProfileImage();
+                $payment_info['name_sender'] = $sender->getName();
+            }
             $transaction->setPayInInfo($payment_info);
 
         }else{
@@ -137,7 +178,6 @@ class IncomingController2 extends RestApiController{
                 'url_notification'  =>  $url_notification
             );
         }
-
         $transaction->setDataIn($dataIn);
 
         $logger->info('Incomig transaction...FEES');
@@ -235,6 +275,8 @@ class IncomingController2 extends RestApiController{
 
             }
             $txid = $payment_info['txid'];
+            $payment_info['image_receiver'] = $destination->getProfileImage();
+            $payment_info['name_receiver'] = $destination->getName();
             $logger->info('Incomig transaction...PAYMENT STATUS: '.$payment_info['status']);
 
             $env = $this->container->getParameter('environment');
@@ -279,7 +321,8 @@ class IncomingController2 extends RestApiController{
                     'amount' => $amount,
                     'concept' => $concept,
                     'address' => $address,
-                    'txid' => $txid
+                    'txid' => $txid,
+                    'sender' => $user->getId()
                 );
                 $this->createTransaction($params, $version_number, 'in', $method_cname, $destination->getKycManager()->getId(), $destination, $ip);
             }

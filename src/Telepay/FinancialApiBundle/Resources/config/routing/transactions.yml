@@ -22,6 +22,19 @@ method_call_find:
         _method: GET
         service_cname: "[a-z0-9_]+"
 
+method_call_find:
+    pattern:  /transaction/v{version_number}/vendor
+    defaults: { _controller: Telepay\FinancialApiBundle\Controller\Transactions\IncomingController2::checkReceiverData, _format: ~ }
+    requirements:
+        _method: GET
+
+
+method_call_find:
+    pattern:  /transaction/v{version_number}/customer
+    defaults: { _controller: Telepay\FinancialApiBundle\Controller\Transactions\IncomingController2::checkSenderData, _format: ~ }
+    requirements:
+        _method: GET
+
 method_call_check:
     pattern:  /methods/v{version_number}/{type}/{method_cname}/{id}
     defaults: { _controller: Telepay\FinancialApiBundle\Controller\Transactions\IncomingController2::check, _format: ~ }
