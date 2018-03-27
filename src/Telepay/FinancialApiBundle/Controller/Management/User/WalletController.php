@@ -201,6 +201,49 @@ class WalletController extends RestApiController{
     }
 
     /**
+     * reads transactions by day
+     */
+    public function walletDayTransactions(Request $request){
+        $dm = $this->get('doctrine_mongodb')->getManager();
+        $userGroup = $this->get('security.context')->getToken()->getUser()->getActiveGroup();
+        $qb = $dm->createQueryBuilder('TelepayFinancialApiBundle:Transaction');
+
+        $query = $request->query->get('query');
+        if(isset($query['day'])){
+            $start_time = new \MongoDate(strtotime(date($query['day'].' 00:00:00')));
+            $finish_time = new \MongoDate(strtotime(date($query['day'].' 23:59:59')));
+        }else{
+            throw new HttpException(400, "Incorrect day");
+        }
+
+        $transactions = $dm->getRepository('TelepayFinancialApiBundle:Transaction')->findTransactions($userGroup, $start_time, $finish_time, '', 'id', 'desc');
+        $in = 0;
+        $out = 0;
+        $total = 0;
+        foreach($transactions->toArray() as $res){
+            $amount = $res->getAmount();
+            if($amount > 0){
+                $in += $amount;
+            }
+            else{
+                $out += $amount;
+            }
+            $total += $amount;
+        }
+
+        return $this->restV2(
+            200,
+            "ok",
+            "Request successful",
+            array(
+                'total' => $total,
+                'in' => $in,
+                'out' => $out
+            )
+        );
+    }
+
+    /**
      * reads transactions by wallets
      */
     public function walletTransactionsV2(Request $request){
