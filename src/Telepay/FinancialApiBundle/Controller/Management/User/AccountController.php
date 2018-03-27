@@ -437,17 +437,28 @@ class AccountController extends BaseApiController{
             $company->setEmail($params['email']);
         }
 
-        if($request->request->has('company_phone') && $request->request->get('company_phone')!='') {
-            $phone_com = preg_replace("/[^0-9]/", "", $request->request->get('company_phone'));
-            $company->setPhone($phone_com);
-        }
-        if($request->request->has('company_prefix') && $request->request->get('company_prefix')!='') {
-            $prefix_com = preg_replace("/[^0-9]/", "", $request->request->get('company_prefix'));
-            $company->setPrefix($prefix_com);
+        $phone = preg_replace("/[^0-9]/", "", $params['phone']);
+        $prefix = preg_replace("/[^0-9]/", "", $params['prefix']);
+        if(!$this->checkPhone($phone, $prefix)){
+            throw new HttpException(400, "Incorrect phone or prefix number");
         }
 
-        if(!$this->checkPhone($phone_com, $prefix_com)){
-            throw new HttpException(400, "Incorrect phone or prefix company number");
+        if($type == 'COMPANY'){
+            if($request->request->has('company_phone') && $request->request->get('company_phone')!='') {
+                $phone_com = preg_replace("/[^0-9]/", "", $request->request->get('company_phone'));
+                $company->setPhone($phone_com);
+            }
+            if($request->request->has('company_prefix') && $request->request->get('company_prefix')!='') {
+                $prefix_com = preg_replace("/[^0-9]/", "", $request->request->get('company_prefix'));
+                $company->setPrefix($prefix_com);
+            }
+            if(!$this->checkPhone($phone_com, $prefix_com)){
+                throw new HttpException(400, "Incorrect phone or prefix company number");
+            }
+        }
+        else{
+            $company->setPhone($phone);
+            $company->setPrefix($prefix);
         }
 
         $company->setName($company_name);
@@ -469,12 +480,6 @@ class AccountController extends BaseApiController{
             $userWallet->setCurrency(strtoupper($currency));
             $userWallet->setGroup($company);
             $em->persist($userWallet);
-        }
-
-        $phone = preg_replace("/[^0-9]/", "", $params['phone']);
-        $prefix = preg_replace("/[^0-9]/", "", $params['prefix']);
-        if(!$this->checkPhone($phone, $prefix)){
-            throw new HttpException(400, "Incorrect phone or prefix number");
         }
 
         $pin = preg_replace("/[^0-9]/", "", $params['pin']);
