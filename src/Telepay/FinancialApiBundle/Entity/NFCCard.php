@@ -66,7 +66,7 @@ class NFCCard{
      * @ORM\Column(type="boolean")
      * @Expose
      */
-    private $enabled;
+    private $enabled = true;
 
     /**
      * @ORM\Column(type="string", unique=true)
