@@ -7,6 +7,7 @@ use Telepay\FinancialApiBundle\Controller\BaseApiController;
 use FOS\RestBundle\Controller\Annotations as Rest;
 use Symfony\Component\HttpFoundation\Request;
 use Telepay\FinancialApiBundle\Entity\Group;
+use Telepay\FinancialApiBundle\Entity\Offer;
 
 class MapController extends BaseApiController{
 
@@ -56,6 +57,24 @@ class MapController extends BaseApiController{
                 //No han definido su ubicacion
             }
             elseif($lat > $min_lat && $lat < $max_lat && $lon > $min_lon && $lon < $max_lon){
+                //check offers
+                $list_offers = $em->getRepository('TelepayFinancialApiBundle:Offer')->findBy(array(
+                    'company'  =>  $company
+                ));
+                $now = strtotime("now");
+                $offers = array();
+                $total_offers = 0;
+                foreach($list_offers as $offer){
+                    $start = strtotime($offer->getStart() . " 00:00:01");
+                    if($start < $now){
+                        $end = strtotime($offer->getEnd() . " 23:59:59");
+                        if($now < $end){
+                            $offers[]=$offer;
+                            $total_offers+=1;
+                        }
+                    }
+                }
+
                 $total+=1;
                 $all[] = array(
                     'name' => $company->getName(),
@@ -70,7 +89,9 @@ class MapController extends BaseApiController{
                     'prefix' => $company->getPrefix(),
                     'company_image' => $company->getCompanyImage(),
                     'type' => $company->getType(),
-                    'subtype' => $company->getSubtype()
+                    'subtype' => $company->getSubtype(),
+                    'offers' => $offers,
+                    'total_offers' => $total_offers
                 );
             }
         }
@@ -114,6 +135,23 @@ class MapController extends BaseApiController{
         foreach ($list_companies as $company){
             $name = $company->getName();
             if (strpos($name, $search) !== false) {
+                //check offers
+                $list_offers = $em->getRepository('TelepayFinancialApiBundle:Offer')->findBy(array(
+                    'company'  =>  $company
+                ));
+                $now = strtotime("now");
+                $offers = array();
+                $total_offers = 0;
+                foreach($list_offers as $offer){
+                    $start = strtotime($offer->getStart() . " 00:00:01");
+                    if($start < $now){
+                        $end = strtotime($offer->getEnd() . " 23:59:59");
+                        if($now < $end){
+                            $offers[]=$offer;
+                            $total_offers+=1;
+                        }
+                    }
+                }
                 $total+=1;
                 $all[] = array(
                     'name' => $company->getName(),
@@ -128,7 +166,9 @@ class MapController extends BaseApiController{
                     'prefix' => $company->getPrefix(),
                     'company_image' => $company->getCompanyImage(),
                     'type' => $company->getType(),
-                    'subtype' => $company->getSubtype()
+                    'subtype' => $company->getSubtype(),
+                    'offers' => $offers,
+                    'total_offers' => $total_offers
                 );
             }
         }
