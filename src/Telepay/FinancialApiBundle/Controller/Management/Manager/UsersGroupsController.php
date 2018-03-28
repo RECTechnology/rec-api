@@ -187,17 +187,18 @@ class UsersGroupsController extends RestApiController{
             $company->setEmail($admin->getEmail());
         }
 
-        if($request->request->has('company_phone') && $request->request->get('company_phone')!='') {
-            $phone_com = preg_replace("/[^0-9]/", "", $request->request->get('company_phone'));
-            $company->setPhone($phone_com);
-        }
-        if($request->request->has('company_prefix') && $request->request->get('company_prefix')!='') {
-            $prefix_com = preg_replace("/[^0-9]/", "", $request->request->get('company_prefix'));
-            $company->setPrefix($prefix_com);
-        }
-
-        if(!$this->checkPhone($phone_com, $prefix_com)){
-            throw new HttpException(400, "Incorrect phone or prefix company number");
+        if($type == 'COMPANY'){
+            if($request->request->has('company_phone') && $request->request->get('company_phone')!='') {
+                $phone_com = preg_replace("/[^0-9]/", "", $request->request->get('company_phone'));
+                $company->setPhone($phone_com);
+            }
+            if($request->request->has('company_prefix') && $request->request->get('company_prefix')!='') {
+                $prefix_com = preg_replace("/[^0-9]/", "", $request->request->get('company_prefix'));
+                $company->setPrefix($prefix_com);
+            }
+            if(!$this->checkPhone($phone_com, $prefix_com)){
+                throw new HttpException(400, "Incorrect phone or prefix company number");
+            }
         }
 
         $company->setName($company_name);
