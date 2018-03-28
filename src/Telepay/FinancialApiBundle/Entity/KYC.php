@@ -151,7 +151,19 @@ class KYC {
      * @ORM\Column(type="string")
      * @Expose
      */
-    private $address = "";
+    private $street_type = "";
+
+    /**
+     * @ORM\Column(type="string")
+     * @Expose
+     */
+    private $street_number = "";
+
+    /**
+     * @ORM\Column(type="string")
+     * @Expose
+     */
+    private $street_name = "";
 
     /**
      * @ORM\Column(type="boolean")
@@ -532,18 +544,51 @@ class KYC {
     /**
      * @return mixed
      */
-    public function getAddress()
+    public function getStreetType()
     {
-        return $this->address;
+        return $this->street_type;
     }
 
     /**
-     * @param mixed $address
+     * @param mixed $street_type
      */
-    public function setAddress($address)
+    public function setStreetType($street_type)
     {
-        $this->address = $address;
+        $this->street_type = $street_type;
     }
+
+    /**
+     * @return mixed
+     */
+    public function getStreetName()
+    {
+        return $this->street_name;
+    }
+
+    /**
+     * @param mixed $street_name
+     */
+    public function setStreetName($street_name)
+    {
+        $this->street_name = $street_name;
+    }
+
+    /**
+     * @return mixed
+     */
+    public function getStreetNumber()
+    {
+        return $this->street_number;
+    }
+
+    /**
+     * @param mixed $street_number
+     */
+    public function setStreetNumber($street_number)
+    {
+        $this->street_number = $street_number;
+    }
+
 
     /**
      * @return mixed
