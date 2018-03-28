@@ -65,9 +65,9 @@ class MapController extends BaseApiController{
                 $offers = array();
                 $total_offers = 0;
                 foreach($list_offers as $offer){
-                    $start = strtotime($offer->getStart() . " 00:00:01");
+                    $start = date_timestamp_get($offer->getStart());
                     if($start < $now){
-                        $end = strtotime($offer->getEnd() . " 23:59:59");
+                        $end = date_timestamp_get($offer->getEnd());
                         if($now < $end){
                             $offers[]=$offer;
                             $total_offers+=1;
@@ -143,10 +143,10 @@ class MapController extends BaseApiController{
                 $offers = array();
                 $total_offers = 0;
                 foreach($list_offers as $offer){
-                    $start = strtotime($offer->getStart() . " 00:00:01");
-                    if($start < $now){
-                        $end = strtotime($offer->getEnd() . " 23:59:59");
-                        if($now < $end){
+                    $start = date_timestamp_get($offer->getStart());
+                    if($start <= $now){
+                        $end = date_timestamp_get($offer->getEnd());
+                        if($now <= $end){
                             $offers[]=$offer;
                             $total_offers+=1;
                         }
