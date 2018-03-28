@@ -151,7 +151,7 @@ class UsersGroupsController extends RestApiController{
         $allowed_subtypes = $list_subtypes[$type];
         if($request->request->has('subtype') && $request->request->get('subtype')!='') {
             $subtype = $request->request->get('subtype');
-            if(in_array($subtype, $allowed_subtypes)) {
+            if(!in_array($subtype, $allowed_subtypes)) {
                 throw new HttpException(400, "Invalid subtype");
             }
         }
