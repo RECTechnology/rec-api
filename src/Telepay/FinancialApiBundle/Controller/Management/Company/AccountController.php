@@ -206,22 +206,22 @@ class AccountController extends BaseApiController{
             $fileContents = $fileManager->readFileUrl($fileSrc);
             $company = $em->getRepository($this->getRepositoryName())->find($account_id);
             //if has image overwrite...if not create filename
-            if ($company->getCompanyImage() == '') {
+            if ($company->getPublicImage() == '') {
                 $hash = $fileManager->getHash();
                 $explodedFileSrc = explode('.', $fileSrc);
                 $ext = $explodedFileSrc[count($explodedFileSrc) - 1];
                 $filename = $hash . '.' . $ext;
             } else {
-                $filename = str_replace($this->container->getParameter('files_path') . '/', '', $company->get());
+                $filename = str_replace($this->container->getParameter('files_path') . '/', '', $company->getPublicImage());
             }
             file_put_contents($fileManager->getUploadsDir() . '/' . $filename, $fileContents);
             $tmpFile = new File($fileManager->getUploadsDir() . '/' . $filename);
             if (!in_array($tmpFile->getMimeType(), UploadManager::$ALLOWED_MIMETYPES))
                 throw new HttpException(400, "Bad file type");
-            $company->setCompanyImage($fileManager->getFilesPath() . '/' . $filename);
+            $company->setPublicImage($fileManager->getFilesPath() . '/' . $filename);
             $em->flush();
         }
-        $request->request->remove('company_image');
+        $request->request->remove('public_image');
 
         //check some params that can't be modified from here
         $invalid_params = array(
