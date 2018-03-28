@@ -44,26 +44,12 @@ class CompaniesController extends BaseApiController
 
         $methods = null;
         if($request->request->has('methods_list')){
-            //TODO check if sepa_in, sepa_out or transfer_out, easypay_in are in the request and company has tier 2
             $tier = $company->getTier();
             $methods = $request->get('methods_list');
             $request->request->remove('methods_list');
         }
 
         $group = $this->get('security.context')->getToken()->getUser()->getActiveGroup();
-        $botc_admin = $this->container->getParameter('default_company_creator_commerce_botc');
-        if($request->request->has('botc') && $group==$botc_admin){
-            if($request->request->get('botc')==true){
-                $request->request->set('premium', true);
-                $request->request->set('tier', 10);
-                $request->request->remove('botc');
-            }
-            elseif($request->request->get('botc')==false){
-                $request->request->set('premium', false);
-                $request->request->set('tier', 1);
-                $request->request->remove('botc');
-            }
-        }
 
         $creator_company = null;
         if($request->request->has('creator_company')){

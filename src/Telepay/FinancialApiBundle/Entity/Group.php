@@ -699,6 +699,54 @@ class Group extends BaseGroup
     /**
      * @return mixed
      */
+    public function getDescription()
+    {
+        return $this->description;
+    }
+
+    /**
+     * @param mixed $description
+     */
+    public function setDescription($description)
+    {
+        $this->description = $description;
+    }
+
+    /**
+     * @return mixed
+     */
+    public function getSchedule()
+    {
+        return $this->schedule;
+    }
+
+    /**
+     * @param mixed $schedule
+     */
+    public function setSchedule($schedule)
+    {
+        $this->schedule = $schedule;
+    }
+
+    /**
+     * @return mixed
+     */
+    public function getPublicImage()
+    {
+        return $this->public_image;
+    }
+
+    /**
+     * @param mixed $public_image
+     */
+    public function setPublicImage($public_image)
+    {
+        $this->public_image = $public_image;
+    }
+
+    /**
+     * @return mixed
+     */
     public function getPrefix()
     {
         return $this->prefix;
