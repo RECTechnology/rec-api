@@ -14,6 +14,7 @@ use FOS\RestBundle\Controller\Annotations as Rest;
 use Telepay\FinancialApiBundle\Controller\RestApiController;
 use Telepay\FinancialApiBundle\Entity\UserGroup;
 use Telepay\FinancialApiBundle\Entity\Group;
+use Telepay\FinancialApiBundle\Entity\UserWallet;
 use Telepay\FinancialApiBundle\Financial\Currency;
 
 class UsersGroupsController extends RestApiController{
