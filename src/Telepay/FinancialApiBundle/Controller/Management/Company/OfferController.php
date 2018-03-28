@@ -59,11 +59,16 @@ class OfferController extends RestApiController{
         if (!in_array($tmpFile->getMimeType(), UploadManager::$ALLOWED_MIMETYPES))
             throw new HttpException(400, "Bad file type");
 
+        $start = strtotime($params['start']);
+        $start = date('Y-m-d',$start);
+        $end = strtotime($params['end']);
+        $end = date('Y-m-d',$end);
+
         $em = $this->getDoctrine()->getManager();
         $offer = new Offer();
         $offer->setCompany($group);
-        $offer->setStart($params['start']);
-        $offer->setEnd($params['end']);
+        $offer->setStart($start);
+        $offer->setEnd($end);
         $offer->setDiscount($params['discount']);
         $offer->setDescription($params['description']);
         $offer->setImage($fileManager->getFilesPath().'/'.$filename);
