@@ -1,10 +1,4 @@
 <?php
-/**
- * Created by PhpStorm.
- * User: pere
- * Date: 2/01/15
- * Time: 23:41
- */
 
 namespace Telepay\FinancialApiBundle\Controller\Management\Manager;
 
@@ -15,6 +9,8 @@ use Telepay\FinancialApiBundle\Controller\RestApiController;
 use Telepay\FinancialApiBundle\Entity\UserGroup;
 use Telepay\FinancialApiBundle\Entity\Group;
 use Telepay\FinancialApiBundle\Entity\UserWallet;
+use Telepay\FinancialApiBundle\Entity\ServiceFee;
+use Telepay\FinancialApiBundle\Entity\CashInTokens;
 use Telepay\FinancialApiBundle\Financial\Currency;
 
 class UsersGroupsController extends RestApiController{
@@ -239,7 +235,6 @@ class UsersGroupsController extends RestApiController{
             $meth = $method_ex[0];
             $meth_type = $method_ex[1];
 
-            //create new ServiceFee
             $newFee = new ServiceFee();
             $newFee->setGroup($company);
             $newFee->setFixed(0);
