@@ -222,6 +222,22 @@ class Group extends BaseGroup
     private $subtype = '';
 
     /**
+     * @ORM\Column(type="text")
+     */
+    private $description = '';
+
+    /**
+     * @ORM\Column(type="text")
+     */
+    private $schedule = '';
+
+    /**
+     * @ORM\Column(type="text")
+     * @Expose
+     */
+    private $public_image = "";
+
+    /**
      * @ORM\Column(type="boolean")
      */
     private $active;
@@ -498,7 +514,6 @@ class Group extends BaseGroup
 //        unset($this->allowed_methods);
 //        unset($this->comment);
 //        unset($this->cash_in_tokens);
-//        unset($this->base64_image);
 //        unset($this->cif);
 //        unset($this->prefix);
 //        unset($this->address_number);
