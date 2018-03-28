@@ -2,6 +2,7 @@
 
 namespace Telepay\FinancialApiBundle\Controller\Management\Company;
 
+use Symfony\Component\HttpFoundation\File\File;
 use Doctrine\DBAL\DBALException;
 use Doctrine\DBAL\Exception\ConstraintViolationException;
 use Exception;
