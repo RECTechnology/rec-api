@@ -289,7 +289,7 @@ class AccountController extends BaseApiController{
     }
 
     public function validar_dni($dni){
-
+        return true;
         $letra = substr($dni, -1);
         $numeros = substr($dni, 0, -1);
         return ( substr("TRWAGMYFPDXBNJZSQVHLCKE", $numeros%23, 1) == $letra && strlen($letra) == 1 && strlen ($numeros) == 8 );
