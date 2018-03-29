@@ -60,13 +60,19 @@ class AccountController extends BaseApiController{
     public function updateAction(Request $request,$id = null){
         $user = $this->get('security.context')->getToken()->getUser();
         $id = $user->getId();
+        $params = array();
         if($request->request->has('password')){
+            $params['password'] = $request->request->get('password');
             if($request->request->has('repassword')){
+                $params['repassword'] = $request->request->get('repassword');
                 if($request->request->has('old_password')){
+                    $params['old_password'] = $request->request->get('old_password');
                     $userManager = $this->container->get('access_key.security.user_provider');
                     $user = $userManager->loadUserById($id);
                     $encoder_service = $this->get('security.encoder_factory');
                     $encoder = $encoder_service->getEncoder($user);
+                    if(strlen($params['password'])<6) throw new HttpException(404, 'Password must be longer than 6 characters');
+                    if($params['password'] != $params['repassword']) throw new HttpException(404, 'Password and repassword are differents');
                     $encoded_pass = $encoder->encodePassword($request->request->get('old_password'), $user->getSalt());
                     if($encoded_pass != $user->getPassword()) throw new HttpException(404, 'Bad old_password');
                     $user->setPlainPassword($request->get('password'));
@@ -702,7 +708,7 @@ class AccountController extends BaseApiController{
         if(!$user) throw new HttpException(404, 'User not found');
 
         if($user->isPasswordRequestNonExpired(1200)){
-
+            if(strlen($params['password'])<6) throw new HttpException(404, 'Password must be longer than 6 characters');
             if($params['password'] != $params['repassword']) throw new HttpException('Password and repassword are differents');
 
             $userManager = $this->container->get('access_key.security.user_provider');
