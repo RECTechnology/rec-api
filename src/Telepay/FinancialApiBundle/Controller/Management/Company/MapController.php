@@ -47,15 +47,15 @@ class MapController extends BaseApiController{
         }
 
         $offers = false;
-        if($request->query->has('offers') && $request->query->get('offers')!='') {
+        if($request->query->has('offers') && $request->query->get('offers')=='1') {
             $offers = true;
         }
 
         $where = array('type'  =>  'COMPANY');
-        if($request->query->has('retailer') && $request->query->get('retailer')!='') {
+        if($request->query->has('retailer') && $request->query->get('retailer')=='1') {
             $where['subtype'] = 'RETAILER';
         }
-        if($request->query->has('wholesale') && $request->query->get('wholesale')!='') {
+        if($request->query->has('wholesale') && $request->query->get('wholesale')=='1') {
             if(isset($where['subtype'])){
                 unset($where['subtype']);
             }
@@ -63,6 +63,19 @@ class MapController extends BaseApiController{
                 $where['subtype'] = 'WHOLESALE';
             }
         }
+
+        if($request->query->get('retailer')=='0' && $request->query->get('wholesale')=='0') {
+            return $this->restV2(
+                200,
+                "ok",
+                "Request successful",
+                array(
+                    'total' => $total,
+                    'elements' => $all
+                )
+            );
+        }
+
         $list_companies = $em->getRepository('TelepayFinancialApiBundle:Group')->findBy($where);
 
         foreach ($list_companies as $company){
@@ -133,16 +146,27 @@ class MapController extends BaseApiController{
         $em = $this->getDoctrine()->getManager();
 
         $where = array('type'  =>  'COMPANY');
-        if($request->query->has('retailer') && $request->query->get('retailer')!='') {
+        if($request->query->has('retailer') && $request->query->get('retailer')=='1') {
             $where['subtype'] = 'RETAILER';
         }
-        if($request->query->has('wholesale') && $request->query->get('wholesale')!='') {
+        if($request->query->has('wholesale') && $request->query->get('wholesale')=='1') {
             if(isset($where['subtype'])){
                 unset($where['subtype']);
             }
             else {
                 $where['subtype'] = 'WHOLESALE';
             }
+        }
+        if($request->query->get('retailer')=='0' && $request->query->get('wholesale')=='0') {
+            return $this->restV2(
+                200,
+                "ok",
+                "Request successful",
+                array(
+                    'total' => $total,
+                    'elements' => $all
+                )
+            );
         }
 
         $list_companies = $em->getRepository('TelepayFinancialApiBundle:Group')->findBy($where);
@@ -163,7 +187,7 @@ class MapController extends BaseApiController{
         }
 
         $offers = false;
-        if($request->query->has('offers') && $request->query->get('offers')!='') {
+        if($request->query->has('offers') && $request->query->get('offers')=='1') {
             $offers = true;
         }
 
