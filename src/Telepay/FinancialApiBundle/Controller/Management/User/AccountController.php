@@ -744,6 +744,26 @@ class AccountController extends BaseApiController{
             $em->persist($user);
         }
 
+        if($request->request->has('last_name') && $request->request->get('last_name')!=''){
+            $kyc->setLastName($request->request->get('last_name'));
+            $em->persist($user);
+        }
+
+        if($request->request->has('street_type') && $request->request->get('street_type')!=''){
+            $kyc->setStreetType($request->request->get('street_type'));
+            $em->persist($user);
+        }
+
+        if($request->request->has('street_number') && $request->request->get('street_number')!=''){
+            $kyc->setStreetNumber($request->request->get('street_number'));
+            $em->persist($user);
+        }
+
+        if($request->request->has('street_name') && $request->request->get('street_name')!=''){
+            $kyc->setStreetName($request->request->get('street_name'));
+            $em->persist($user);
+        }
+
         if($request->request->has('email') && $request->request->get('email')!=''){
             $user->setEmail($request->request->get('email'));
             $em->persist($user);
