@@ -546,6 +546,8 @@ class AccountController extends BaseApiController{
         }
 
         if($params['email'] != '') {
+            /*
+             * POR AHORA NO ENVIAMOS MAIL
             $tokenGenerator = $this->container->get('fos_user.util.token_generator');
             $user->setConfirmationToken($tokenGenerator->generateToken());
             $em->persist($user);
@@ -553,6 +555,7 @@ class AccountController extends BaseApiController{
             $url = "NO";
             $url_validation = $url . '/user/validation/' . $user->getConfirmationToken();
             $this->_sendEmail('Validation e-mail', $url_validation, $user->getEmail(), 'register');
+            */
         }
         $em->persist($kyc);
         $em->flush();
