@@ -78,6 +78,7 @@ class MapController extends BaseApiController{
                 $total+=1;
                 $all[] = array(
                     'name' => $company->getName(),
+                    'company_image' => $company->getCompanyImage(),
                     'latitude' => $lat,
                     'longitude' => $lon,
                     'country' => $company->getCountry(),
@@ -157,6 +158,7 @@ class MapController extends BaseApiController{
                 $total+=1;
                 $all[] = array(
                     'name' => $company->getName(),
+                    'company_image' => $company->getCompanyImage(),
                     'latitude' => $company->getLatitude(),
                     'longitude' => $company->getLongitude(),
                     'country' => $company->getCountry(),
