@@ -295,9 +295,11 @@ class AccountController extends BaseApiController{
     }
 
     public function validar_dni($dni){
-        return true;
+        $nie_letter = array('X','Y','Z');
+        $nie_letter_number = array('0','1','2');
         $letra = substr($dni, -1);
         $numeros = substr($dni, 0, -1);
+        $numeros = str_replace($nie_letter, $nie_letter_number, $numeros);
         return ( substr("TRWAGMYFPDXBNJZSQVHLCKE", $numeros%23, 1) == $letra && strlen($letra) == 1 && strlen ($numeros) == 8 );
     }
 
