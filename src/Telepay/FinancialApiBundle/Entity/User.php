@@ -172,11 +172,6 @@ class User extends BaseUser
     private $group_data = array();
 
     /**
-     * @Expose
-     */
-    private $kyc_data = array();
-
-    /**
      * @ORM\OneToOne(targetEntity="Telepay\FinancialApiBundle\Entity\TierValidations", mappedBy="user", cascade={"remove"})
      */
     private $tier_validations;

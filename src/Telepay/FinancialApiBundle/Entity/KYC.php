@@ -103,18 +103,6 @@ class KYC {
      * @ORM\Column(type="string", nullable=true)
      * @Expose
      */
-    private $image_front;
-
-    /**
-     * @ORM\Column(type="string", nullable=true)
-     * @Expose
-     */
-    private $image_back;
-
-    /**
-     * @ORM\Column(type="string", nullable=true)
-     * @Expose
-     */
     private $first_transaction;
 
     /**
@@ -251,38 +239,6 @@ class KYC {
     public function setPhone($phone)
     {
         $this->phone = $phone;
-    }
-
-    /**
-     * @return mixed
-     */
-    public function getImageFront()
-    {
-        return $this->image_front;
-    }
-
-    /**
-     * @param mixed $image_front
-     */
-    public function setImageFront($image_front)
-    {
-        $this->image_front = $image_front;
-    }
-
-    /**
-     * @return mixed
-     */
-    public function getImageBack()
-    {
-        return $this->image_back;
-    }
-
-    /**
-     * @param mixed $image_back
-     */
-    public function setImageBack($image_back)
-    {
-        $this->image_back = $image_back;
     }
 
     /**
