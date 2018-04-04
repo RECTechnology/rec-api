@@ -243,11 +243,17 @@ class AccountController extends BaseApiController{
         }
         $phone_list = $request->request->get('phone_list');
         $phone_list = json_decode($phone_list);
+        $clean_phone_list = array();
         $public_phone_list = array();
-        foreach ($phone_list as $phone){
+        foreach ($phone_list as $phone) {
             $original = $phone;
             $phone = preg_replace('/[^0-9]/', '', $phone);
             $phone = substr($phone, -9);
+            if(!in_array($clean_phone_list)) {
+                $clean_phone_list[$original] = $phone;
+            }
+        }
+        foreach ($clean_phone_list as $original=>$phone) {
             $user = $em->getRepository($this->getRepositoryName())->findOneBy(array(
                 'phone'  =>  $phone,
                 'public_phone' => 1
