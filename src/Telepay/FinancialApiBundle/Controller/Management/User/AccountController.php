@@ -248,6 +248,7 @@ class AccountController extends BaseApiController{
         $public_phone_list = array();
         fwrite($myfile, "Total " . count($phone_list));
         foreach ($phone_list as $phone){
+            $original = $phone;
             fwrite($myfile, '  ->Phone before: ' . $phone);
             $phone = preg_replace('/[^0-9]/', '', $phone);
             $phone = substr($phone, -9);
@@ -258,7 +259,7 @@ class AccountController extends BaseApiController{
             if($user){
                 fwrite($myfile, '  ->Phone public: ' . $phone);
                 $logger->info('Phone public: ' . $phone);
-                $public_phone_list[$phone] = array($user->getActiveGroup()->getRecAddress(), $user->getProfileImage());
+                $public_phone_list[$original] = array($user->getActiveGroup()->getRecAddress(), $user->getProfileImage());
             }
             else{
                 fwrite($myfile, '  ->Phone NOOOOOO public: ' . $phone);
