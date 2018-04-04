@@ -237,8 +237,6 @@ class AccountController extends BaseApiController{
      * @Rest\View
      */
     public function publicPhoneListAction(Request $request){
-        $logger = $this->get('manager.logger');
-        $myfile = fopen("log.txt", "w");
         $em = $this->getDoctrine()->getManager();
         if(!$request->request->has('phone_list')){
             throw new HttpException(400, "Missing parameters phone_list");
@@ -246,10 +244,8 @@ class AccountController extends BaseApiController{
         $phone_list = $request->request->get('phone_list');
         $phone_list = json_decode($phone_list);
         $public_phone_list = array();
-        fwrite($myfile, "Total " . count($phone_list));
         foreach ($phone_list as $phone){
             $original = $phone;
-            fwrite($myfile, '  ->Phone before: ' . $phone);
             $phone = preg_replace('/[^0-9]/', '', $phone);
             $phone = substr($phone, -9);
             $user = $em->getRepository($this->getRepositoryName())->findOneBy(array(
@@ -257,13 +253,7 @@ class AccountController extends BaseApiController{
                 'public_phone' => 1
             ));
             if($user){
-                fwrite($myfile, '  ->Phone public: ' . $phone);
-                $logger->info('Phone public: ' . $phone);
                 $public_phone_list[$original] = array($user->getActiveGroup()->getRecAddress(), $user->getProfileImage());
-            }
-            else{
-                fwrite($myfile, '  ->Phone NOOOOOO public: ' . $phone);
-                $logger->info('Phone NO: ' . $phone);
             }
         }
         return $this->restV2(200, "ok", "List of public phones registered", $public_phone_list);
