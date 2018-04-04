@@ -249,7 +249,7 @@ class AccountController extends BaseApiController{
             $original = $phone;
             $phone = preg_replace('/[^0-9]/', '', $phone);
             $phone = substr($phone, -9);
-            if(!in_array($clean_phone_list)) {
+            if(!in_array($phone, $clean_phone_list)) {
                 $clean_phone_list[$original] = $phone;
             }
         }
