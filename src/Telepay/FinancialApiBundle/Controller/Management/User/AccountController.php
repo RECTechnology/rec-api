@@ -237,6 +237,7 @@ class AccountController extends BaseApiController{
      * @Rest\View
      */
     public function publicPhoneListAction(Request $request){
+        $logger = $this->get('manager.logger');
         $em = $this->getDoctrine()->getManager();
         if(!$request->request->has('phone_list')){
             throw new HttpException(400, "Missing parameters phone_list");
@@ -250,7 +251,11 @@ class AccountController extends BaseApiController{
                 'public_phone' => 1
             ));
             if($user){
+                $logger->info('Phone public: ' . $phone);
                 $public_phone_list[$phone] = array($user->getActiveGroup()->getRecAddress(), $user->getProfileImage());
+            }
+            else{
+                $logger->info('Phone NO: ' . $phone);
             }
         }
         return $this->restV2(200, "ok", "List of public phones registered", $public_phone_list);
@@ -326,7 +331,6 @@ class AccountController extends BaseApiController{
         foreach($paramNames as $param){
             if($request->request->has($param) && $request->request->get($param)!=''){
                 $params[$param] = $request->request->get($param);
-                $logger->info('Param[' . $param . '] = '. $params[$param]);
             }else{
                 throw new HttpException(404, 'Param ' . $param . ' not found');
             }
