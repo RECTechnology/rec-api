@@ -246,6 +246,8 @@ class AccountController extends BaseApiController{
         $phone_list = json_decode($phone_list);
         $public_phone_list = array();
         foreach ($phone_list as $phone){
+            $phone = preg_replace('/[^0-9]/', '', $phone);
+            $phone = substr($phone, -9);
             $user = $em->getRepository($this->getRepositoryName())->findOneBy(array(
                 'phone'  =>  $phone,
                 'public_phone' => 1
