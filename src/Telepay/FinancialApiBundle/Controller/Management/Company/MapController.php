@@ -172,7 +172,7 @@ class MapController extends BaseApiController{
         $list_companies = $em->getRepository('TelepayFinancialApiBundle:Group')->findBy($where);
 
         if($request->query->has('search') && $request->query->get('search')!='') {
-            $search = $request->query->get('search');
+            $search = strtoupper($request->query->get('search'));
         }
         else{
             return $this->restV2(
@@ -193,20 +193,20 @@ class MapController extends BaseApiController{
 
         foreach ($list_companies as $company){
             $name = $company->getName();
-            if (strpos($name, $search) !== false) {
+            if (strpos(strtoupper($name), $search) !== false) {
                 //check offers
                 $list_offers = $em->getRepository('TelepayFinancialApiBundle:Offer')->findBy(array(
                     'company'  =>  $company
                 ));
                 $now = strtotime("now");
-                $offers = array();
+                $offers_info = array();
                 $total_offers = 0;
                 foreach($list_offers as $offer){
                     $start = date_timestamp_get($offer->getStart());
                     if($start <= $now){
                         $end = date_timestamp_get($offer->getEnd());
                         if($now <= $end){
-                            $offers[]=$offer;
+                            $offers_info[]=$offer;
                             $total_offers+=1;
                         }
                     }
@@ -230,7 +230,7 @@ class MapController extends BaseApiController{
                         'description' => $company->getDescription(),
                         'schedule' => $company->getSchedule(),
                         'public_image' => $company->getPublicImage(),
-                        'offers' => $offers,
+                        'offers' => $offers_info,
                         'total_offers' => $total_offers
                     );
                 }
