@@ -192,8 +192,8 @@ class MapController extends BaseApiController{
         }
 
         foreach ($list_companies as $company){
-            $name = $company->getName();
-            if (strpos(strtoupper($name), $search) !== false) {
+            $name = strtoupper($company->getName());
+            if (strpos($name, $search) !== false) {
                 //check offers
                 $list_offers = $em->getRepository('TelepayFinancialApiBundle:Offer')->findBy(array(
                     'company'  =>  $company
