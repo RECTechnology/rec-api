@@ -441,6 +441,12 @@ class AccountController extends BaseApiController{
             $company_cif = $params['dni'];
         }
 
+        $account = $em->getRepository('TelepayFinancialApiBundle:Group')->findOneBy(array(
+            'cif'  =>  $company_cif
+        ));
+        if($account){
+            throw new HttpException(400, "CIF already registered");
+        }
 
         //create company
         $company = new Group();

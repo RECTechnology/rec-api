@@ -142,10 +142,10 @@ class Group extends BaseGroup
     private $clients;
 
     /**
-     * @ORM\Column(type="string")
+     * @ORM\Column(type="string", unique=true))
      * @Expose
      */
-    private $cif = '';
+    private $cif;
 
     /**
      * @ORM\Column(type="string")

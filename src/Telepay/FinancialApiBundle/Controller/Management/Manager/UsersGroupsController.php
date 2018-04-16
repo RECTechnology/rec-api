@@ -176,6 +176,13 @@ class UsersGroupsController extends RestApiController{
             $company_cif = $admin->getDNI();
         }
 
+        $account = $em->getRepository('TelepayFinancialApiBundle:Group')->findOneBy(array(
+            'cif'  =>  $company_cif
+        ));
+        if($account){
+            throw new HttpException(400, "CIF already registered");
+        }
+
         $methodsList = array('rec-out', 'rec-in');
 
         //create company
