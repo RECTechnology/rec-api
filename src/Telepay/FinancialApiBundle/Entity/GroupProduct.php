@@ -1,10 +1,4 @@
 <?php
-/**
- * Created by PhpStorm.
- * User: lluis
- * Date: 6/6/14
- * Time: 2:22 PM
- */
 
 namespace Telepay\FinancialApiBundle\Entity;
 
@@ -15,7 +9,7 @@ use JMS\Serializer\Annotation\Expose;
 
 /**
  * @ORM\Entity
- * @ORM\Table(name="fos_user_user_group")
+ * @ORM\Table(name="group_product")
  * @ExclusionPolicy("all")
  */
 class GroupProduct{
