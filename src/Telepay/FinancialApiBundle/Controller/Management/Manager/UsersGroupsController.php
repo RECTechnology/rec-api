@@ -216,6 +216,7 @@ class UsersGroupsController extends RestApiController{
         $company->setRoles(array('ROLE_COMPANY'));
         $company->setRecAddress('temp');
         $company->setMethodsList($methodsList);
+        $company->setKycManager($admin);
         $em->persist($company);
 
         //create wallets for this company
