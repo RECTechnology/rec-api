@@ -43,7 +43,7 @@ class ProductController extends BaseApiController{
         return $this->restV2(200, 'ok', 'Request successfull', $procucts);
     }
 
-    public function addProductAction(Request $request){
+    public function addAction(Request $request){
         $user = $this->getUser();
         $group = $user->getActiveGroup();
         $em = $this->getDoctrine()->getManager();
@@ -75,7 +75,7 @@ class ProductController extends BaseApiController{
     }
 
 
-    public function deleteProductAction(Request $request){
+    public function deleteAction(Request $request){
         $user = $this->getUser();
         $group = $user->getActiveGroup();
         $em = $this->getDoctrine()->getManager();
