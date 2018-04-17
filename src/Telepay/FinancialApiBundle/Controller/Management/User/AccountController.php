@@ -245,6 +245,17 @@ class AccountController extends BaseApiController{
         $phone_list = json_decode($phone_list);
         $clean_phone_list = array();
         $public_phone_list = array();
+
+        $user = $this->get('security.context')->getToken()->getUser();
+        $my_accounts = $this->getDoctrine()->getRepository("TelepayFinancialApiBundle:UserGroup")->findOBy(array(
+            'user'  =>  $user
+        ));
+        foreach($my_accounts as $account){
+            if($account->getId()!=$user->getActiveGroup()->getId()) {
+                $public_phone_list[$account->getPhone()] = array($account->getRecAddress(), $account->getCompanyImage());
+            }
+        }
+
         foreach ($phone_list as $phone) {
             $original = $phone;
             $phone = preg_replace('/[^0-9]/', '', $phone);
