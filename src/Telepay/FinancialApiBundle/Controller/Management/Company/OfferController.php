@@ -17,7 +17,7 @@ use Telepay\FinancialApiBundle\Entity\Offer;
 use Telepay\FinancialApiBundle\Entity\User;
 use Telepay\FinancialApiBundle\Entity\UserGroup;
 
-class OfferController extends RestApiController{
+class OfferController extends BaseApiController{
 
     /**
      * @Rest\View

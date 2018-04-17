@@ -13,7 +13,7 @@ use Telepay\FinancialApiBundle\Controller\RestApiController;
 use Telepay\FinancialApiBundle\Entity\Group;
 use Telepay\FinancialApiBundle\Entity\CreditCard;
 
-class CreditCardController extends RestApiController{
+class CreditCardController extends BaseApiController{
 
     /**
      * @Rest\View
