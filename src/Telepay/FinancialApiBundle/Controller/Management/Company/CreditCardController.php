@@ -97,6 +97,7 @@ class CreditCardController extends BaseApiController{
         if($request->request->has('alias')){
             $card->setAlias($request->request->get('alias'));
         }
+        $em->persist($card);
         $em->flush();
         return $this->restV2(204, 'ok', 'Card updated successfully');
 
@@ -110,7 +111,7 @@ class CreditCardController extends BaseApiController{
         $user = $this->get('security.context')->getToken()->getUser();
         $offer = $em->getRepository('TelepayFinancialApiBundle:CreditCard')->findOneBy(array(
             'id'    =>  $id,
-            'group' =>  $user->getActiveGroup()
+            'company' =>  $user->getActiveGroup()
         ));
 
         if(!$offer) throw new HttpException(404, 'CreditCard not found');
