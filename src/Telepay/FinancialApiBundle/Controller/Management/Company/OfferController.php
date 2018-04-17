@@ -151,7 +151,7 @@ class OfferController extends BaseApiController{
         $user = $this->get('security.context')->getToken()->getUser();
         $offer = $em->getRepository('TelepayFinancialApiBundle:Offer')->findOneBy(array(
             'id'    =>  $id,
-            'group' =>  $user->getActiveGroup()
+            'company' =>  $user->getActiveGroup()
         ));
 
         if(!$offer) throw new HttpException(404, 'Offer not found');
