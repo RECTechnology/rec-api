@@ -168,7 +168,7 @@ class UsersGroupsController extends RestApiController{
             throw new HttpException(400, "Account name required");
         }
 
-        $allGroups = $this->getDoctrine()->getRepository('TelepayFinancialApiBundle:UserGroup')->find(array(
+        $allGroups = $this->getDoctrine()->getRepository('TelepayFinancialApiBundle:UserGroup')->findBy(array(
             'user'  =>  $admin->getId()
         ));
         foreach($allGroups as $group){
