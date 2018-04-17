@@ -168,6 +168,15 @@ class UsersGroupsController extends RestApiController{
             throw new HttpException(400, "Account name required");
         }
 
+        $allGroups = $this->getDoctrine()->getRepository('TelepayFinancialApiBundle:UserGroup')->find(array(
+            'user'  =>  $admin->getId()
+        ));
+        foreach($allGroups as $group){
+            if($group->getName() == $company_name){
+                throw new HttpException(400, "Account name duplicated");
+            }
+        }
+
         if($request->request->has('company_cif') && $request->request->get('company_cif')!='') {
             $company_cif = $request->request->get('company_cif');
         }
