@@ -12,8 +12,19 @@ use Symfony\Component\HttpFoundation\Request;
 use Telepay\FinancialApiBundle\Controller\RestApiController;
 use Telepay\FinancialApiBundle\Entity\Group;
 use Telepay\FinancialApiBundle\Entity\CreditCard;
+use Telepay\FinancialApiBundle\Controller\BaseApiController;
 
 class CreditCardController extends BaseApiController{
+
+    function getRepositoryName()
+    {
+        return "TelepayFinancialApiBundle:CreditCard";
+    }
+
+    function getNewEntity()
+    {
+        return new CreditCard();
+    }
 
     /**
      * @Rest\View
