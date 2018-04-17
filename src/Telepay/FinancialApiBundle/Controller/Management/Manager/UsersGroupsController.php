@@ -168,7 +168,7 @@ class UsersGroupsController extends RestApiController{
             throw new HttpException(400, "Account name required");
         }
 
-        $allGroups = $this->getDoctrine()->getRepository('TelepayFinancialApiBundle:UserGroup')->findBy(array(
+        $allGroups = $this->getDoctrine()->getRepository('TelepayFinancialApiBundle:UserGroup')->findBy1(array(
             'user'  =>  $admin->getId()
         ));
         foreach($allGroups as $group){
@@ -181,15 +181,8 @@ class UsersGroupsController extends RestApiController{
             $company_cif = $request->request->get('company_cif');
         }
         else{
-            if($type == 'COMPANY'){ throw new HttpException(400, "Company cif required"); }
+            if($type == 'COMPANY'){ throw new HttpException(400, "Account NIF required"); }
             $company_cif = $admin->getDNI();
-        }
-
-        $account = $em->getRepository('TelepayFinancialApiBundle:Group')->findOneBy(array(
-            'cif'  =>  $company_cif
-        ));
-        if($account){
-            throw new HttpException(400, "CIF already registered");
         }
 
         $methodsList = array('rec-out', 'rec-in');
