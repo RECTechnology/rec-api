@@ -178,14 +178,19 @@ index_credit_card:
     requirements:
         _method: GET
 
-update_nfc_card:
+update_credit_card:
     pattern:  /company/v1/credit_card/{id}
     defaults: { _controller: Telepay\FinancialApiBundle\Controller\Management\Company\CreditCardController::updateCardFromCompany }
     requirements:
         _method: PUT
 
+delete_credit_card:
+    pattern:  /company/v1/credit_card/{id}
+    defaults: { _controller: Telepay\FinancialApiBundle\Controller\Management\Company\CreditCardController::deleteAction }
+    requirements:
+        _method: DELETE
 
-######################## CREDIT OFFERS ########################
+######################## OFFERS ########################
 
 create_offer:
     pattern:  /company/v1/offer
@@ -205,6 +210,11 @@ update_offer:
     requirements:
         _method: PUT
 
+delete_offer:
+    pattern:  /company/v1/offer/{id}
+    defaults: { _controller: Telepay\FinancialApiBundle\Controller\Management\Company\OfferController::deleteAction }
+    requirements:
+        _method: DELETE
 
 
 ###################   COMPANY WALLET #################

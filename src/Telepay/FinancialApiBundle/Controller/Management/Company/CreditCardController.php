@@ -90,4 +90,21 @@ class CreditCardController extends RestApiController{
         return $this->restV2(204, 'ok', 'Card updated successfully');
 
     }
+
+    /**
+     * @Rest\View
+     */
+    public function deleteAction($id){
+        $em = $this->getDoctrine()->getManager();
+        $user = $this->get('security.context')->getToken()->getUser();
+        $offer = $em->getRepository('TelepayFinancialApiBundle:CreditCard')->findOneBy(array(
+            'id'    =>  $id,
+            'group' =>  $user->getActiveGroup()
+        ));
+
+        if(!$offer) throw new HttpException(404, 'CreditCard not found');
+
+        return parent::deleteAction($id);
+
+    }
 }
