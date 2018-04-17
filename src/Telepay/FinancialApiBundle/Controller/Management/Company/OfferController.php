@@ -121,7 +121,7 @@ class OfferController extends BaseApiController{
         if($request->request->has('image') && $request->request->get('image')!='') {
             $em = $this->getDoctrine()->getManager();
             $fileManager = $this->get('file_manager');
-            $fileSrc = $request->request->get('company_image');
+            $fileSrc = $request->request->get('image');
             $fileContents = $fileManager->readFileUrl($fileSrc);
             //if has image overwrite...if not create filename
             if ($offer->getImage() == '') {
