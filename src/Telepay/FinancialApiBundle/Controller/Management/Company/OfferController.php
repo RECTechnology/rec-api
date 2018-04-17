@@ -11,14 +11,19 @@ use Rhumsaa\Uuid\Uuid;
 use Symfony\Component\HttpKernel\Exception\HttpException;
 use FOS\RestBundle\Controller\Annotations as Rest;
 use Symfony\Component\HttpFoundation\Request;
-use Telepay\FinancialApiBundle\Controller\RestApiController;
-use Telepay\FinancialApiBundle\Entity\Group;
 use Telepay\FinancialApiBundle\Entity\Offer;
-use Telepay\FinancialApiBundle\Entity\User;
-use Telepay\FinancialApiBundle\Entity\UserGroup;
+use Telepay\FinancialApiBundle\Controller\BaseApiController;
 
 class OfferController extends BaseApiController{
+    function getRepositoryName()
+    {
+        return "TelepayFinancialApiBundle:Offer";
+    }
 
+    function getNewEntity()
+    {
+        return new Offer();
+    }
     /**
      * @Rest\View
      */

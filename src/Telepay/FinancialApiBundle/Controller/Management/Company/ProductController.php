@@ -14,8 +14,19 @@ use Symfony\Component\HttpFoundation\Request;
 use Telepay\FinancialApiBundle\Controller\RestApiController;
 use Telepay\FinancialApiBundle\Entity\Product;
 use Telepay\FinancialApiBundle\Entity\GroupProduct;
+use Telepay\FinancialApiBundle\Controller\BaseApiController;
 
 class ProductController extends BaseApiController{
+
+    function getRepositoryName()
+    {
+        return "TelepayFinancialApiBundle:GroupProduct";
+    }
+
+    function getNewEntity()
+    {
+        return new GroupProduct();
+    }
 
     /**
      * @Rest\View
