@@ -253,7 +253,7 @@ class AccountController extends BaseApiController{
         foreach($my_accounts as $account){
             $group = $account->getGroup();
             if($group->getId()!=$user->getActiveGroup()->getId()) {
-                $public_phone_list[$account->getPhone()] = array($group->getRecAddress(), $group->getCompanyImage());
+                $public_phone_list[$group->getPhone()] = array($group->getRecAddress(), $group->getCompanyImage());
             }
         }
 
