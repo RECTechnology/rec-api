@@ -108,6 +108,22 @@ class UsersGroupsController extends RestApiController{
         $user = $usersRepository->find($user_id);
         if(!$user) throw new HttpException(404, "User not found");
 
+        $user_groups = $this->getDoctrine()->getRepository('TelepayFinancialApiBundle:UserGroup')->findBy(array(
+            'user'  =>  $user->getId()
+        ));
+
+        if(count($user_groups)<2){
+            throw new HttpException(404, "User can not be expel.");
+        }
+
+        $group_users = $this->getDoctrine()->getRepository('TelepayFinancialApiBundle:UserGroup')->findBy(array(
+            'group'  =>  $group->getId()
+        ));
+
+        if(count($group_users)<2){
+            throw new HttpException(404, "User can not be expel.");
+        }
+
         if(!$admin->hasGroup($group->getName()) && !$admin->hasRole('ROLE_SUPER_ADMIN')) throw new HttpException(409, 'You don\'t have the necesary permissions');
 
         $repo = $this->getDoctrine()->getRepository("TelepayFinancialApiBundle:UserGroup");
@@ -117,8 +133,16 @@ class UsersGroupsController extends RestApiController{
         $em->remove($entity);
         $em->flush();
 
+        if($user->getActiveGroup()->getId() == $group_id){
+            foreach($user_groups as $user_group){
+                if($user_group->getGroup()->getId()!=$group_id){
+                    $user->setActiveGroup();
+                }
+            }
+        }
+        $em->persist($user);
+        $em->flush();
         return $this->rest(204, "User removed successfully");
-
     }
 
 
