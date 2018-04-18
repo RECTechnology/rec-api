@@ -117,28 +117,6 @@ class OfferController extends BaseApiController{
         if($request->request->has('description')){
             $offer->setDescription($request->request->get('description'));
         }
-
-        if($request->request->has('image') && $request->request->get('image')!='') {
-            $em = $this->getDoctrine()->getManager();
-            $fileManager = $this->get('file_manager');
-            $fileSrc = $request->request->get('image');
-            $fileContents = $fileManager->readFileUrl($fileSrc);
-            //if has image overwrite...if not create filename
-            if ($offer->getImage() == '') {
-                $hash = $fileManager->getHash();
-                $explodedFileSrc = explode('.', $fileSrc);
-                $ext = $explodedFileSrc[count($explodedFileSrc) - 1];
-                $filename = $hash . '.' . $ext;
-            } else {
-                $filename = str_replace($this->container->getParameter('files_path') . '/', '', $offer->getImage());
-            }
-            file_put_contents($fileManager->getUploadsDir() . '/' . $filename, $fileContents);
-            $tmpFile = new File($fileManager->getUploadsDir() . '/' . $filename);
-            if (!in_array($tmpFile->getMimeType(), UploadManager::$ALLOWED_MIMETYPES))
-                throw new HttpException(400, "Bad file type");
-            $offer->setImage($fileManager->getFilesPath() . '/' . $filename);
-            $em->flush();
-        }
         $em->flush();
         return $this->restV2(204, 'ok', 'Offer updated successfully');
     }
