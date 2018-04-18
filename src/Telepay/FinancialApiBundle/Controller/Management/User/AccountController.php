@@ -241,22 +241,22 @@ class AccountController extends BaseApiController{
         if(!$request->request->has('phone_list')){
             throw new HttpException(400, "Missing parameters phone_list");
         }
-        $phone_list = $request->request->get('phone_list');
-        $phone_list = json_decode($phone_list);
-        $clean_phone_list = array();
         $public_phone_list = array();
 
-        $user = $this->get('security.context')->getToken()->getUser();
+        $you = $this->get('security.context')->getToken()->getUser();
         $my_accounts = $this->getDoctrine()->getRepository("TelepayFinancialApiBundle:UserGroup")->findBy(array(
-            'user'  =>  $user
+            'user'  =>  $you
         ));
         foreach($my_accounts as $account){
             $group = $account->getGroup();
-            if($group->getId()!=$user->getActiveGroup()->getId()) {
+            if($group->getId()!=$you->getActiveGroup()->getId()) {
                 $public_phone_list[$group->getName()] = array($group->getRecAddress(), $group->getCompanyImage());
             }
         }
 
+        $phone_list = $request->request->get('phone_list');
+        $phone_list = json_decode($phone_list);
+        $clean_phone_list = array();
         foreach ($phone_list as $phone) {
             $original = $phone;
             $phone = preg_replace('/[^0-9]/', '', $phone);
