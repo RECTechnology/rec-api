@@ -246,7 +246,6 @@ class AccountController extends BaseApiController{
         $clean_phone_list = array();
         $public_phone_list = array();
 
-/*
         $user = $this->get('security.context')->getToken()->getUser();
         $my_accounts = $this->getDoctrine()->getRepository("TelepayFinancialApiBundle:UserGroup")->findBy(array(
             'user'  =>  $user
@@ -257,7 +256,6 @@ class AccountController extends BaseApiController{
                 $public_phone_list[$group->getName()] = array($group->getRecAddress(), $group->getCompanyImage());
             }
         }
-*/
 
         foreach ($phone_list as $phone) {
             $original = $phone;
