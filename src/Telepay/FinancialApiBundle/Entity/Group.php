@@ -207,6 +207,12 @@ class Group extends BaseGroup
     private $street = '';
 
     /**
+     * @ORM\Column(type="string")
+     * @Expose
+     */
+    private $street_type = "";
+
+    /**
      * @ORM\Column(type="text")
      */
     private $comment = '';
@@ -790,6 +796,22 @@ class Group extends BaseGroup
     public function setStreet($street)
     {
         $this->street = $street;
+    }
+
+    /**
+     * @return mixed
+     */
+    public function getStreetType()
+    {
+        return $this->street_type;
+    }
+
+    /**
+     * @param mixed $street_type
+     */
+    public function setStreetType($street_type)
+    {
+        $this->street_type = $street_type;
     }
 
     /**
