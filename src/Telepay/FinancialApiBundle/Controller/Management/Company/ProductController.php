@@ -41,16 +41,11 @@ class ProductController extends BaseApiController{
      * @Rest\View
      */
     public function indexAction(Request $request){
-        $em = $this->getDoctrine()->getManager();
-        $user = $this->getUser();
-        $group = $user->getActiveGroup();
-        $procucts = $em->getRepository('TelepayFinancialApiBundle:GroupProduct')->find(array(
-            'group' => $group
-        ));
-        $list = array();
-        foreach($procucts as $product){
-            $list[] = $product->getProduct();
-        }
+        $account = $this->getUser()->getActiveGroup();
+        $procucts = array(
+            'offered'=> $account->getOfferedProducts(),
+            'needed'=> $account->getNeededProducts()
+        );
         return $this->restV2(200, 'ok', 'Request successfull', $procucts);
     }
 
