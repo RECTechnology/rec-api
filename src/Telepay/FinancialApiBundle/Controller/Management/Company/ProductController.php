@@ -54,12 +54,14 @@ class ProductController extends BaseApiController{
         $group = $user->getActiveGroup();
         $em = $this->getDoctrine()->getManager();
         $saved = false;
+        $result = array();
         if($request->query->has('offered_products') && $request->query->get('offered_products')!='') {
             $offered_products = $request->query->get('offered_products');
             if(strlen($offered_products)>200){
                 throw new HttpException(400, "Offered products too large");
             }
             $group->setOfferedProducts($offered_products);
+            $result[] = $offered_products;
             $saved = true;
         }
         if($request->query->has('needed_products') && $request->query->get('needed_products')!='') {
@@ -68,12 +70,13 @@ class ProductController extends BaseApiController{
                 throw new HttpException(400, "Needed products too large");
             }
             $group->setNeededProducts($needed_products);
+            $result[] = $needed_products;
             $saved = true;
         }
         if($saved){
             $em->persist($group);
             $em->flush();
-            return $this->restV2(200, 'ok', 'Request successfull');
+            return $this->restV2(200, 'ok', 'Request successfull', $result);
         }
         else{
             throw new HttpException(400, "Product list empty");
@@ -92,7 +95,7 @@ class ProductController extends BaseApiController{
                 )
             );
             if($category){
-                $group->SetCategory($category);
+                $group->setCategory($category);
                 $em->persist($group);
                 $em->flush();
             }
@@ -103,5 +106,6 @@ class ProductController extends BaseApiController{
         else{
             throw new HttpException(400, "New category empty");
         }
+        return $this->restV2(200, 'ok', 'Request successfull', $group->getCategory());
     }
 }
