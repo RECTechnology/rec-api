@@ -76,6 +76,24 @@ class Group extends BaseGroup
     private $rec_address;
 
     /**
+     * @ORM\OneToMany(targetEntity="Telepay\FinancialApiBundle\Entity\Category", mappedBy="group", cascade={"remove"})
+     *
+     */
+    private $category;
+
+    /**
+     * @ORM\Column(type="text")
+     * @Expose
+     */
+    private $offered_products = "";
+
+    /**
+     * @ORM\Column(type="text")
+     * @Expose
+     */
+    private $needed_products = "";
+
+    /**
      * @ORM\OneToMany(targetEntity="Telepay\FinancialApiBundle\Entity\LimitDefinition", mappedBy="group", cascade={"remove"})
      *
      */
@@ -311,6 +329,54 @@ class Group extends BaseGroup
     public function setLimits($limits)
     {
         $this->limits = $limits;
+    }
+
+    /**
+     * @return mixed
+     */
+    public function getCategory()
+    {
+        return $this->category;
+    }
+
+    /**
+     * @param mixed $category
+     */
+    public function setCategory($category)
+    {
+        $this->category = $category;
+    }
+
+    /**
+     * @return mixed
+     */
+    public function getOfferedProducts()
+    {
+        return $this->offered_products;
+    }
+
+    /**
+     * @param mixed $offered_products
+     */
+    public function setOfferedProducts($offered_products)
+    {
+        $this->offered_products = $offered_products;
+    }
+
+    /**
+     * @return mixed
+     */
+    public function getNeededProducts()
+    {
+        return $this->needed_products;
+    }
+
+    /**
+     * @param mixed $needed_products
+     */
+    public function setNeededProducts($needed_products)
+    {
+        $this->needed_products = $needed_products;
     }
 
     /**
