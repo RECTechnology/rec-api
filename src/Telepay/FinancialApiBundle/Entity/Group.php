@@ -76,8 +76,7 @@ class Group extends BaseGroup
     private $rec_address;
 
     /**
-     * @ORM\OneToMany(targetEntity="Telepay\FinancialApiBundle\Entity\Category", mappedBy="group", cascade={"remove"})
-     *
+     * @ORM\ManyToOne(targetEntity="Telepay\FinancialApiBundle\Entity\Category")
      */
     private $category;
 
