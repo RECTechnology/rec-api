@@ -88,7 +88,7 @@ class ProductController extends BaseApiController{
         if($request->query->has('category') && $request->query->get('category')!='') {
             $category_id = $request->query->get('category');
             $category = $em->getRepository('TelepayFinancialApiBundle:Category')->findOneBy(array(
-                    'category' => $category_id
+                    'id' => $category_id
                 )
             );
             if($category){
