@@ -106,10 +106,12 @@ class OfferController extends BaseApiController{
         if(!$offer) throw new HttpException(404, 'Offer not found');
 
         if($request->request->has('end')){
-            $offer->setEnd($request->request->get('end'));
+            $end = date_create($request->request->get('end'));
+            $offer->setEnd($end);
         }
         if($request->request->has('start')){
-            $offer->setStart($request->request->get('start'));
+            $start = date_create($request->request->get('start'));
+            $offer->setStart($start);
         }
         if($request->request->has('discount')){
             $offer->setDiscount($request->request->get('discount'));
