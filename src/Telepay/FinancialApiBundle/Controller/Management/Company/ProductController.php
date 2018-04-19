@@ -49,31 +49,31 @@ class ProductController extends BaseApiController{
         return $this->restV2(200, 'ok', 'Request successfull', $procucts);
     }
 
-    public function addAction(Request $request){
+    public function setAction(Request $request){
         $user = $this->getUser();
         $group = $user->getActiveGroup();
         $em = $this->getDoctrine()->getManager();
-        if($request->query->has('products') && $request->query->get('products')!='') {
-            $list_ids = json_decode($request->query->get('products'));
-            foreach($list_ids as $prod_id){
-                $procuct = $em->getRepository('TelepayFinancialApiBundle:Product')->findOneBy(array(
-                        'product' => $prod_id
-                    )
-                );
-                if($procuct){
-                    $procuct_group = $em->getRepository('TelepayFinancialApiBundle:GroupProduct')->findOneBy(array(
-                        'group' => $group,
-                        'product' => $procuct
-                    ));
-                    if(!$procuct_group){
-                        $new = new GroupProduct();
-                        $new->setGroup($group);
-                        $new->setProduct($procuct);
-                        $em->persist($new);
-                        $em->flush();
-                    }
-                }
+        $saved = false;
+        if($request->query->has('offered_products') && $request->query->get('offered_products')!='') {
+            $offered_products = $request->query->get('offered_products');
+            if(strlen($offered_products)>200){
+                throw new HttpException(400, "Offered products too large");
             }
+            $group->setOfferedProducts($offered_products);
+            $saved = true;
+        }
+        if($request->query->has('needed_products') && $request->query->get('needed_products')!='') {
+            $needed_products = $request->query->get('needed_products');
+            if(strlen($needed_products)>200){
+                throw new HttpException(400, "Needed products too large");
+            }
+            $group->setNeededProducts($needed_products);
+            $saved = true;
+        }
+        if($saved){
+            $em->persist($group);
+            $em->flush();
+            return $this->restV2(200, 'ok', 'Request successfull');
         }
         else{
             throw new HttpException(400, "Product list empty");
@@ -81,31 +81,27 @@ class ProductController extends BaseApiController{
     }
 
 
-    public function deleteAction(Request $request){
+    public function setCategoryAction(Request $request){
         $user = $this->getUser();
         $group = $user->getActiveGroup();
         $em = $this->getDoctrine()->getManager();
-        if($request->query->has('products') && $request->query->get('products')!='') {
-            $list_ids = json_decode($request->query->get('products'));
-            foreach($list_ids as $prod_id){
-                $procuct = $em->getRepository('TelepayFinancialApiBundle:Product')->findOneBy(array(
-                        'product' => $prod_id
-                    )
-                );
-                if($procuct){
-                    $procuct_group = $em->getRepository('TelepayFinancialApiBundle:GroupProduct')->findOneBy(array(
-                        'group' => $group,
-                        'product' => $procuct
-                    ));
-                    if($procuct_group){
-                        $em->remove($procuct_group);
-                        $em->flush();
-                    }
-                }
+        if($request->query->has('category') && $request->query->get('category')!='') {
+            $category_id = $request->query->get('category');
+            $category = $em->getRepository('TelepayFinancialApiBundle:Category')->findOneBy(array(
+                    'category' => $category_id
+                )
+            );
+            if($category){
+                $group->SetCategory($category);
+                $em->persist($group);
+                $em->flush();
+            }
+            else{
+                throw new HttpException(400, "New category do not exists");
             }
         }
         else{
-            throw new HttpException(400, "Product list empty");
+            throw new HttpException(400, "New category empty");
         }
     }
 }

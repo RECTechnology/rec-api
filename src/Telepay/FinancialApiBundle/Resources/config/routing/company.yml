@@ -218,7 +218,7 @@ delete_offer:
 
 ######################## Products ########################
 
-list_all_products:
+list_all_categories:
     pattern:  /company/v1/list_categories
     defaults: { _controller: Telepay\FinancialApiBundle\Controller\Management\Company\ProductController::listAllAction }
     requirements:
@@ -230,17 +230,17 @@ index_products:
     requirements:
         _method: GET
 
-add_products:
+set_products:
     pattern:  /company/v1/products
-    defaults: { _controller: Telepay\FinancialApiBundle\Controller\Management\Company\ProductController::addAction }
+    defaults: { _controller: Telepay\FinancialApiBundle\Controller\Management\Company\ProductController::setAction }
     requirements:
         _method: PUT
 
-delete_products:
-    pattern:  /company/v1/products
-    defaults: { _controller: Telepay\FinancialApiBundle\Controller\Management\Company\ProductController::deleteAction }
+set_category:
+    pattern:  /company/v1/category
+    defaults: { _controller: Telepay\FinancialApiBundle\Controller\Management\Company\ProductController::setCategoryAction }
     requirements:
-        _method: DELETE
+        _method: PUT
 
 ###################   COMPANY WALLET #################
 company_wallet:
