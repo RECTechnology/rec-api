@@ -219,7 +219,7 @@ delete_offer:
 ######################## Products ########################
 
 list_all_products:
-    pattern:  /company/v1/list_products
+    pattern:  /company/v1/list_categories
     defaults: { _controller: Telepay\FinancialApiBundle\Controller\Management\Company\ProductController::listAllAction }
     requirements:
         _method: GET

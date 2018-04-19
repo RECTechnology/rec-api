@@ -33,8 +33,8 @@ class ProductController extends BaseApiController{
      */
     public function listAllAction(Request $request){
         $em = $this->getDoctrine()->getManager();
-        $procucts = $em->getRepository('TelepayFinancialApiBundle:Product')->findAll();
-        return $this->restV2(200, 'ok', 'Request successfull', $procucts);
+        $categories = $em->getRepository('TelepayFinancialApiBundle:Category')->findAll();
+        return $this->restV2(200, 'ok', 'Request successfull', $categories);
     }
 
     /**
