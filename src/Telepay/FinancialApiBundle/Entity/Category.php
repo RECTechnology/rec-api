@@ -15,7 +15,7 @@ use Symfony\Bridge\Doctrine\Validator\Constraints\UniqueEntity;
  * @ORM\Entity
  * @ExclusionPolicy("all")
  */
-class Product{
+class Category{
 
     /**
      * @ORM\Id
