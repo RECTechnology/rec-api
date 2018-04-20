@@ -122,6 +122,7 @@ class MapController extends BaseApiController{
                         'description' => $company->getDescription(),
                         'schedule' => $company->getSchedule(),
                         'public_image' => $company->getPublicImage(),
+                        'category' => $company->getCategory(),
                         'offers' => $offers,
                         'total_offers' => $total_offers
                     );
@@ -232,6 +233,7 @@ class MapController extends BaseApiController{
                         'description' => $company->getDescription(),
                         'schedule' => $company->getSchedule(),
                         'public_image' => $company->getPublicImage(),
+                        'category' => $company->getCategory(),
                         'offers' => $offers_info,
                         'total_offers' => $total_offers
                     );
