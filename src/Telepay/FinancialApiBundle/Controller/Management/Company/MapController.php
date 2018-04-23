@@ -178,53 +178,59 @@ class MapController extends BaseApiController{
         }
 
         foreach ($list_companies as $company){
-            $name = strtoupper($company->getName());
-            if (strpos($name, $search) !== false) {
-                //check offers
-                $list_offers = $em->getRepository('TelepayFinancialApiBundle:Offer')->findBy(array(
-                    'company'  =>  $company
-                ));
-                $now = strtotime("now");
-                $offers_info = array();
-                $total_offers = 0;
-                foreach($list_offers as $offer){
-                    $start = date_timestamp_get($offer->getStart());
-                    if($start <= $now){
-                        $end = date_timestamp_get($offer->getEnd());
-                        if($now <= $end){
-                            $offers_info[]=$offer;
-                            $total_offers+=1;
+            $lat = $company->getLatitude();
+            $lon = $company->getLongitude();
+            if(intval($lat) == 0 && intval($lon) == 0) {
+                //No han definido su ubicacion
+            }
+            else{
+                $name = strtoupper($company->getName());
+                if (strpos($name, $search) !== false) {
+                    //check offers
+                    $list_offers = $em->getRepository('TelepayFinancialApiBundle:Offer')->findBy(array(
+                        'company'  =>  $company
+                    ));
+                    $now = strtotime("now");
+                    $offers_info = array();
+                    $total_offers = 0;
+                    foreach($list_offers as $offer){
+                        $start = date_timestamp_get($offer->getStart());
+                        if($start <= $now){
+                            $end = date_timestamp_get($offer->getEnd());
+                            if($now <= $end){
+                                $offers_info[]=$offer;
+                                $total_offers+=1;
+                            }
                         }
                     }
-                }
-                if(!$only_offers || $total_offers>0){
-                    $total+=1;
-                    $all[] = array(
-                        'name' => $company->getName(),
-                        'company_image' => $company->getCompanyImage(),
-                        'latitude' => $company->getLatitude(),
-                        'longitude' => $company->getLongitude(),
-                        'country' => $company->getCountry(),
-                        'city' => $company->getCity(),
-                        'zip' => $company->getZip(),
-                        'street' => $company->getStreet(),
-                        'street_type' => $company->getStreetType(),
-                        'address_number' => $company->getAddressNumber(),
-                        'phone' => $company->getPhone(),
-                        'prefix' => $company->getPrefix(),
-                        'type' => $company->getType(),
-                        'subtype' => $company->getSubtype(),
-                        'description' => $company->getDescription(),
-                        'schedule' => $company->getSchedule(),
-                        'public_image' => $company->getPublicImage(),
-                        'category' => $company->getCategory(),
-                        'offers' => $offers_info,
-                        'total_offers' => $total_offers
-                    );
+                    if(!$only_offers || $total_offers>0){
+                        $total+=1;
+                        $all[] = array(
+                            'name' => $company->getName(),
+                            'company_image' => $company->getCompanyImage(),
+                            'latitude' => $company->getLatitude(),
+                            'longitude' => $company->getLongitude(),
+                            'country' => $company->getCountry(),
+                            'city' => $company->getCity(),
+                            'zip' => $company->getZip(),
+                            'street' => $company->getStreet(),
+                            'street_type' => $company->getStreetType(),
+                            'address_number' => $company->getAddressNumber(),
+                            'phone' => $company->getPhone(),
+                            'prefix' => $company->getPrefix(),
+                            'type' => $company->getType(),
+                            'subtype' => $company->getSubtype(),
+                            'description' => $company->getDescription(),
+                            'schedule' => $company->getSchedule(),
+                            'public_image' => $company->getPublicImage(),
+                            'category' => $company->getCategory(),
+                            'offers' => $offers_info,
+                            'total_offers' => $total_offers
+                        );
+                    }
                 }
             }
         }
-
 
         return $this->restV2(
             200,
