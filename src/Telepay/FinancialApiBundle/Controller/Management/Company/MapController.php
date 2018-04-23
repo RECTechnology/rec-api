@@ -46,9 +46,9 @@ class MapController extends BaseApiController{
             $max_lon = $request->query->get('max_lon');
         }
 
-        $offers = false;
-        if($request->query->has('offers') && $request->query->get('offers')=='1') {
-            $offers = true;
+        $only_offers = false;
+        if($request->query->has('only_offers') && $request->query->get('only_offers')=='1') {
+            $only_offers = true;
         }
 
         $where = array('type'  =>  'COMPANY');
@@ -65,15 +65,7 @@ class MapController extends BaseApiController{
         }
 
         if($request->query->get('retailer')=='0' && $request->query->get('wholesale')=='0') {
-            return $this->restV2(
-                200,
-                "ok",
-                "Request successful",
-                array(
-                    'total' => $total,
-                    'elements' => $all
-                )
-            );
+            throw new HttpException(400, "Filters options are incorrect");
         }
 
         $list_companies = $em->getRepository('TelepayFinancialApiBundle:Group')->findBy($where);
@@ -81,7 +73,7 @@ class MapController extends BaseApiController{
         foreach ($list_companies as $company){
             $lat = $company->getLatitude();
             $lon = $company->getLongitude();
-            if($lat == 0 && $lon == 0) {
+            if(intval($lat) == 0 && intval($lon) == 0) {
                 //No han definido su ubicacion
             }
             elseif($lat > $min_lat && $lat < $max_lat && $lon > $min_lon && $lon < $max_lon){
@@ -102,7 +94,7 @@ class MapController extends BaseApiController{
                         }
                     }
                 }
-                if(!$offers || $total_offers>0){
+                if(!$only_offers || $total_offers>0){
                     $total+=1;
                     $all[] = array(
                         'name' => $company->getName(),
@@ -160,15 +152,7 @@ class MapController extends BaseApiController{
             }
         }
         if($request->query->get('retailer')=='0' && $request->query->get('wholesale')=='0') {
-            return $this->restV2(
-                200,
-                "ok",
-                "Request successful",
-                array(
-                    'total' => $total,
-                    'elements' => $all
-                )
-            );
+            throw new HttpException(400, "Filters options are incorrect");
         }
 
         $list_companies = $em->getRepository('TelepayFinancialApiBundle:Group')->findBy($where);
@@ -188,9 +172,9 @@ class MapController extends BaseApiController{
             );
         }
 
-        $offers = false;
-        if($request->query->has('offers') && $request->query->get('offers')=='1') {
-            $offers = true;
+        $only_offers = false;
+        if($request->query->has('only_offers') && $request->query->get('only_offers')=='1') {
+            $only_offers = true;
         }
 
         foreach ($list_companies as $company){
@@ -213,7 +197,7 @@ class MapController extends BaseApiController{
                         }
                     }
                 }
-                if(!$offers || $total_offers>0){
+                if(!$only_offers || $total_offers>0){
                     $total+=1;
                     $all[] = array(
                         'name' => $company->getName(),
