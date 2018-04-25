@@ -22,17 +22,18 @@ class Notificator {
 
     public function notificate(Transaction $transaction){
         $transaction->setNotified(false);
+        $dm = $this->container->get('doctrine_mongodb')->getManager();
+        $group = $this->container->get('doctrine')->getRepository('TelepayFinancialApiBundle:Group')
+            ->find($transaction->getGroup());
+
         if(isset($transaction->getDataIn()['url_notification']))
             $url_notification = $transaction->getDataIn()['url_notification'];
+        else if($group->getType()=='PRIVATE' && $group->getSubtype()=='BMINCOME' && $transaction->getType() == 'out')
+            $this->notificate_upc($transaction);
         else
             return $transaction;
 
         if($url_notification == null) return $transaction;
-
-        $group = $this->container->get('doctrine')->getRepository('TelepayFinancialApiBundle:Group')
-            ->find($transaction->getGroup());
-
-        $dm = $this->container->get('doctrine_mongodb')->getManager();
 
         //necesitamos el id el status el amount y el secret
         $id = $transaction->getId();
@@ -60,11 +61,8 @@ class Notificator {
         }
 
         $key = $group->getAccessSecret();
-
         $data_to_sign = $id.$status.$amount;
-
         $signature = hash_hmac('sha256', $data_to_sign, $key);
-
         $params = array(
             'id'        =>  $id,
             'status'    =>  $status,
@@ -89,10 +87,8 @@ class Notificator {
         $output = curl_exec($ch);
 
         // Comprobar si ocurrió un error
-        if(!curl_errno($ch))
-        {
+        if(!curl_errno($ch)) {
             $info = curl_getinfo($ch);
-
             if( $transaction->getStatus()==Transaction::$STATUS_SUCCESS || $transaction->getStatus()==Transaction::$STATUS_CANCELLED){
                 if( $info['http_code'] >= 200 && $info['http_code'] <=299){
                     $transaction->setNotified(true);
@@ -103,20 +99,85 @@ class Notificator {
                     //no notificado
                 }
             }
-
         }
         // close curl resource to free up system resources
         curl_close($ch);
-
         $dm->persist($transaction);
         $dm->flush();
-
         return $transaction;
+    }
 
+    public function notificate_upc(Transaction $transaction){
+        $dm = $this->container->get('doctrine_mongodb')->getManager();
+        $group = $this->container->get('doctrine')->getRepository('TelepayFinancialApiBundle:Group')
+            ->find($transaction->getGroup());
+
+        $payment_info =  $transaction->getPayOutInfo();;
+        $destination = $this->container->get('doctrine')->getRepository('TelepayFinancialApiBundle:Group')->findOneBy(array(
+            'rec_address' => $payment_info['address']
+        ));
+
+        $url_notification = "http://176.31.181.225:8103/expenditures/setexpenditurecc";
+
+        //necesitamos el id el status el amount y el secret
+        $id = $transaction->getId();
+        $status = $transaction->getStatus();
+        $amount = intval($transaction->getAmount())/100000000;
+
+        $key = 'HyRJn3cQ35fbpKah';
+        $data_to_sign = $id.$status.$amount;
+        $signature = hash_hmac('sha256', $data_to_sign, $key);
+        $activity = $destination->getCategory()?$destination->getCategory()->getId():0;
+        $data = array(
+            'receiver' => $destination->getCif(),
+            'date' => time(),
+            'activity_type_code' => $activity
+        );
+
+        $params = array(
+            'account_id'=>  $group->getCif(),
+            'id'        =>  $id,
+            'status'    =>  $status,
+            'amount'    =>  $amount,
+            'signature' =>  $signature,
+            'data'      =>  json_encode($data)
+        );
+
+        // create curl resource
+        $ch = curl_init();
+        // set url
+        curl_setopt($ch, CURLOPT_URL, $url_notification);
+        //return the transfer as a string
+        curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
+        curl_setopt($ch,CURLOPT_POST,true);
+        curl_setopt($ch,CURLOPT_POSTFIELDS,$params);
+        //fix bug 417 Expectation Failed
+        curl_setopt($ch,CURLOPT_HTTPHEADER,array("Expect:  "));
+        // $output contains the output string
+        $output = curl_exec($ch);
+
+        // Comprobar si ocurrió un error
+        if(!curl_errno($ch)) {
+            $info = curl_getinfo($ch);
+            if( $transaction->getStatus()==Transaction::$STATUS_SUCCESS || $transaction->getStatus()==Transaction::$STATUS_CANCELLED){
+                if( $info['http_code'] >= 200 && $info['http_code'] <=299){
+                    $transaction->setNotified(true);
+                    $transaction->setNotificationTries($transaction->getNotificationTries()+1);
+                }else{
+                    $transaction->setNotified(false);
+                    $transaction->setNotificationTries($transaction->getNotificationTries()+1);
+                    //no notificado
+                }
+            }
+        }
+        // close curl resource to free up system resources
+        curl_close($ch);
+        $dm->persist($transaction);
+        $dm->flush();
+        return $transaction;
     }
 
     public function notificate_error($url_notification, $group_id, $amount, $post_params){
-
         $group = $this->container->get('doctrine')->getRepository('TelepayFinancialApiBundle:Group')
             ->find($group_id);
 
