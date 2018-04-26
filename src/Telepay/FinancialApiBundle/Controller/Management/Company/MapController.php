@@ -68,13 +68,23 @@ class MapController extends BaseApiController{
             throw new HttpException(400, "Filters options are incorrect");
         }
 
+        $search_defined = false;
+        if($request->query->has('search') && $request->query->get('search')!='') {
+            $search = strtoupper($request->query->get('search'));
+            $search_defined = true;
+        }
+
         $list_companies = $em->getRepository('TelepayFinancialApiBundle:Group')->findBy($where);
 
         foreach ($list_companies as $company){
             $lat = $company->getLatitude();
             $lon = $company->getLongitude();
+            $name = strtoupper($company->getName());
             if(intval($lat) == 0 && intval($lon) == 0) {
                 //No han definido su ubicacion
+            }
+            elseif ($search_defined && strpos($name, $search) !== true) {
+                //No cumple el search
             }
             elseif($lat > $min_lat && $lat < $max_lat && $lon > $min_lon && $lon < $max_lon){
                 //check offers
