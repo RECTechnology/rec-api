@@ -270,16 +270,13 @@ class IncomingController2 extends RestApiController{
                 $dm->flush();
 
                 $this->container->get('notificator')->notificate($transaction);
-
                 throw new HttpException($e->getCode(), $e->getMessage());
-
             }
             $txid = $payment_info['txid'];
             $payment_info['image_receiver'] = $destination->getCompanyImage();
             $payment_info['name_receiver'] = $destination->getName();
             $logger->info('Incomig transaction...PAYMENT STATUS: '.$payment_info['status']);
 
-            $env = $this->container->getParameter('environment');
             $transaction->setPayOutInfo($payment_info);
             $dm->flush();
 
@@ -288,34 +285,14 @@ class IncomingController2 extends RestApiController{
                 if($payment_info['status'] == 'sent') $transaction->setStatus(Transaction::$STATUS_SUCCESS);
                 else $transaction->setStatus('sending');
 
-                $dm->flush();
-
-                $this->container->get('notificator')->notificate($transaction);
-
                 //restar al grupo el amount
                 $wallet->setBalance($wallet->getBalance() - $amount);
 
                 //insert new line in the balance for this group
                 $this->get('net.telepay.commons.balance_manipulator')->addBalance($group, -$amount, $transaction, "incoming2 contr 1");
 
+                $dm->flush();
                 $em->flush();
-
-                if($payment_info['status'] == 'sending'){
-                    $options = array(
-                        'company'   =>  $group
-                    );
-                    $method->sendMail($transaction, $options);
-                }
-
-                //recorrer el arbol aunque la fee sea 0
-                //nueva transaccion restando la comision al user
-                $dealer = $this->container->get('net.telepay.commons.fee_deal');
-                try{
-                    $logger->info('Init Dealer: ' . $transaction->getAmount() . " : " . $wallet->getBalance() . " : " . $total);
-                    $dealer->createFees2($transaction, $wallet);
-                }catch (HttpException $e){
-                    throw $e;
-                }
 
                 $params = array(
                     'amount' => $amount,
@@ -332,21 +309,18 @@ class IncomingController2 extends RestApiController{
                 $wallet->setAvailable($wallet->getAvailable() + $amount);
                 $em->flush();
                 $dm->flush();
-                $this->container->get('notificator')->notificate($transaction);
             }
         }
         else{     //CASH - IN
             $logger->info('Incomig transaction...IN');
-            $transaction = $this->get('notificator')->notificate($transaction);
             $em->flush();
             $transaction->setUpdated(new \DateTime());
             $dm->flush();
         }
 
+        $this->container->get('notificator')->notificate($transaction);
         $logger->info('Incomig transaction...FINAL');
-
         if($transaction == false) throw new HttpException(500, "oOps, some error has occurred within the call");
-
         if($user_id == -1){
             return 'Transaction generate successfully';
         }else{
