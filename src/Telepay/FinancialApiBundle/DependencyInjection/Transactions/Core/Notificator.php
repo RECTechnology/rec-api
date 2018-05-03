@@ -124,7 +124,7 @@ class Notificator {
         //necesitamos el id el status el amount y el secret
         $id = $transaction->getId();
         $status = $transaction->getStatus();
-        $amount = intval($transaction->getAmount())/100000000;
+        $amount = round($transaction->getAmount()/100000000,2);
 
         $key = 'HyRJn3cQ35fbpKah';
         $data_to_sign = $id.$status.$amount;
@@ -145,35 +145,27 @@ class Notificator {
             'data'      =>  json_encode($data)
         );
 
-        // create curl resource
-        $ch = curl_init();
-        // set url
-        curl_setopt($ch, CURLOPT_URL, $url_notification);
-        //return the transfer as a string
-        curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
-        curl_setopt($ch,CURLOPT_POST,true);
-        curl_setopt($ch,CURLOPT_POSTFIELDS,$params);
-        //fix bug 417 Expectation Failed
-        curl_setopt($ch,CURLOPT_HTTPHEADER,array("Expect:  "));
-        // $output contains the output string
-        $output = curl_exec($ch);
-
-        // Comprobar si ocurrió un error
-        if(!curl_errno($ch)) {
-            $info = curl_getinfo($ch);
-            if( $transaction->getStatus()==Transaction::$STATUS_SUCCESS || $transaction->getStatus()==Transaction::$STATUS_CANCELLED){
-                if( $info['http_code'] >= 200 && $info['http_code'] <=299){
-                    $transaction->setNotified(true);
-                    $transaction->setNotificationTries($transaction->getNotificationTries()+1);
-                }else{
-                    $transaction->setNotified(false);
-                    $transaction->setNotificationTries($transaction->getNotificationTries()+1);
-                    //no notificado
-                }
+        $response =  exec('
+            curl -X POST --header "Authorization : Basic Ym1pbmNvbWU6c3BhcnNpdHk=" -d \'{
+            "account_id": "' . $params['account_id'] . '",
+            "id": "' . $params['id'] . '",
+            "status": "' . $params['status'] . '",
+            "amount": '. $params['amount'] . ',
+            "signature": "' . $params['signature'] .'",
+            "data": {
+                "receiver": "' . $data['receiver'] . '",
+                "date": ' . $data['date'] . ',
+                "activity_type_code": "' . $activity .'"
             }
+            }\' http://176.31.181.225:8103/securitybah/expenditures/setexpenditurecc
+        ');
+
+        $response_data = json_decode($response, true);
+        if(!isset($response_data['Message']['Type']) || $response_data['Message']['Type']!='SUCCESS'){
+            $transaction->setNotified(false);
+            $transaction->setNotificationTries($transaction->getNotificationTries()+1);
         }
         // close curl resource to free up system resources
-        curl_close($ch);
         $dm->persist($transaction);
         $dm->flush();
         return $transaction;
