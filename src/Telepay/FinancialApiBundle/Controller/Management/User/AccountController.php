@@ -360,6 +360,11 @@ class AccountController extends BaseApiController{
         $em = $this->getDoctrine()->getManager();
 
         $params['username'] = strtoupper($params['dni']);
+        if(strlen($params['username'])<9){
+            for($i = strlen($params['username']); $i<9; $i+=1){
+                $params['username'] = "0" . $params['username'];
+            }
+        }
         if(!$this->validar_dni((string)$params['username'])) throw new HttpException(404, 'NIF not valid');
 
         $user = $em->getRepository($this->getRepositoryName())->findOneBy(array(
