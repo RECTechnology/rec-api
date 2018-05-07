@@ -96,7 +96,18 @@ class IncomingController2 extends RestApiController{
             'id' => $user_id
         ));
 
+        //obtain wallet and check founds for cash_out services for this group
+        $wallet = $group->getWallet($method->getCurrency());
+
+        if(array_key_exists('amount', $data) && $data['amount']!='' && intval($data['amount'])>0){
+            $amount = $data['amount'];
+        }
+        else{
+            throw new HttpException(400, 'Param amount not found or incorrect');
+        }
+
         if($type == 'out'){
+            if($wallet->getAvailable() < $amount) throw new HttpException(405,'Not founds enough');
             if(array_key_exists('pin', $data) && $data['pin']!='' && intval($data['pin'])>0){
                 $pin = $data['pin'];
                 if($user->getPIN()!=$pin){
@@ -127,13 +138,6 @@ class IncomingController2 extends RestApiController{
 
         if(array_key_exists('url_notification', $data)) $url_notification = $data['url_notification'];
         else $url_notification = '';
-
-        if(array_key_exists('amount', $data) && $data['amount']!='' && intval($data['amount'])>0){
-            $amount = $data['amount'];
-        }
-        else{
-            throw new HttpException(400, 'Param amount not found or incorrect');
-        }
 
         if(array_key_exists('delete_on_expire', $data) && $data['delete_on_expire']== 1 && ($method_cname == 'btc' || $method_cname == 'fac')){
             $transaction->setDeleteOnExpire(true);
@@ -215,9 +219,6 @@ class IncomingController2 extends RestApiController{
 
         $limitManipulator->checkLimits($group, $method, $amount);
 
-        //obtain wallet and check founds for cash_out services for this group
-        $wallet = $group->getWallet($method->getCurrency());
-
         $transaction->setCurrency($method->getCurrency());
         $transaction->setScale($wallet->getScale());
 
@@ -225,7 +226,6 @@ class IncomingController2 extends RestApiController{
         if($type == 'out'){
             $logger->info('Incomig transaction...OUT Available = ' . $wallet->getAvailable() .  " TOTAL: " . $total);
 
-            if($wallet->getAvailable() < $total) throw new HttpException(405,'Not founds enough');
             //Bloqueamos la pasta en el wallet
             $wallet->setAvailable($wallet->getAvailable() - $amount);
             $em->flush();
