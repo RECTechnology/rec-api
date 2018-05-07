@@ -1021,9 +1021,10 @@ class AccountController extends BaseApiController{
         if(strlen($prefix)<1){
             return false;
         }
+        $first = substr($phone, 0, 1);
 
         //SP xxxxxxxxx
-        if($prefix == '34'){
+        if($prefix == '34' && ($first == '6' || $first == '7')){
             return strlen($phone)==9;
         }
         //PL xxxxxxxxx
