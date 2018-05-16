@@ -359,7 +359,10 @@ class AccountController extends BaseApiController{
 
         $em = $this->getDoctrine()->getManager();
 
-        $params['username'] = strtoupper($params['dni']);
+        $params['dni'] = strtoupper($params['dni']);
+        $params['dni'] = preg_replace("/[^0-9A-Z]/", "", $params['dni']);
+        $params['username'] = $params['dni'];
+
         if(strlen($params['username'])<9){
             for($i = strlen($params['username']); $i<9; $i+=1){
                 $params['username'] = "0" . $params['username'];

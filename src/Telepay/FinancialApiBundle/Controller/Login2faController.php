@@ -22,6 +22,7 @@ class Login2faController extends RestApiController{
                 $username = "0" . $username;
             }
         }
+        $username = preg_replace("/[^0-9A-Z]/", "", $username);
         $password = $request->get('password');
         $pin = $request->get('pin');
         $kyc = 0;
