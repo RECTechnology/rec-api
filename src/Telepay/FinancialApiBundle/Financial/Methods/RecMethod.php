@@ -30,8 +30,7 @@ class RecMethod extends BaseMethod {
 
     //PAY IN
     public function getPayInInfo($amount){
-        //$address = $this->driver->getnewaddress();
-        $address = "r" . substr(Random::generateToken(), 0, 33);
+        $address = $this->driver->getnewaddress();
         if(!$address) throw new Exception('Service Temporally unavailable', 503);
         $min_confirmations = $this->container->getParameter('rec_min_confirmations');
         $response = array(
