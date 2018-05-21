@@ -396,12 +396,14 @@ class AccountController extends BaseApiController{
             if (!filter_var($params['email'], FILTER_VALIDATE_EMAIL)) {
                 throw new HttpException(400, 'Email is invalid');
             }
+            /*
             $user = $em->getRepository($this->getRepositoryName())->findOneBy(array(
                 'email'  =>  $params['email']
             ));
             if($user){
                 throw new HttpException(400, "Email already registered");
             }
+            */
         }
         else{
             $params['email'] = '';
