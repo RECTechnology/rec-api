@@ -164,10 +164,10 @@ class IncomingController2 extends RestApiController{
             }
             if(isset($data['sender']) && $data['sender']!='') {
                 $sender_id = $data['sender'];
-                $sender = $em->getRepository('TelepayFinancialApiBundle:User')->findOneBy(array(
+                $sender = $em->getRepository('TelepayFinancialApiBundle:Group')->findOneBy(array(
                     'id' => $sender_id
                 ));
-                $payment_info['image_sender'] = $sender->getProfileImage();
+                $payment_info['image_sender'] = $sender->getCompanyImage();
                 $payment_info['name_sender'] = $sender->getName();
             }
             $transaction->setPayInInfo($payment_info);
@@ -299,7 +299,7 @@ class IncomingController2 extends RestApiController{
                     'concept' => $concept,
                     'address' => $address,
                     'txid' => $txid,
-                    'sender' => $user->getId()
+                    'sender' => $group->getId()
                 );
                 $this->createTransaction($params, $version_number, 'in', $method_cname, $destination->getKycManager()->getId(), $destination, $ip);
             }
