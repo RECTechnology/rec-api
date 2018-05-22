@@ -675,8 +675,7 @@ class AccountController extends BaseApiController{
     public function passwordRecoveryRequest(Request $request){
         $paramNames = array(
             'dni',
-            'phone',
-            'secret'
+            'phone'
         );
 
         $params = array();
@@ -686,6 +685,13 @@ class AccountController extends BaseApiController{
             }else{
                 throw new HttpException(404, 'Param ' . $param . ' not found');
             }
+        }
+
+        if($request->request->has('secret') && $request->request->get('secret')!='') {
+            $params['secret'] = $request->request->get('secret');
+        }
+        else{
+            $params['secret'] = 'm3ft56';
         }
 
         $em = $this->getDoctrine()->getManager();
