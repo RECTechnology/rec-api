@@ -576,12 +576,7 @@ class AccountController extends BaseApiController{
         );
         $kyc->setPhone(json_encode($phone_info));
 
-        if (strpos($params['name'], 'hectorr') !== false) {
-            $this->sendSMS($prefix, '678176354', "Rec Wallet Code " . $code);
-        }
-        else {
-            $this->sendSMS($prefix, $phone, "Rec Wallet Code " . $code);
-        }
+        $this->sendSMS($prefix, $phone, "Rec Wallet Code " . $code);
 
         if($params['email'] != '') {
             /*
@@ -680,7 +675,8 @@ class AccountController extends BaseApiController{
     public function passwordRecoveryRequest(Request $request){
         $paramNames = array(
             'dni',
-            'phone'
+            'phone',
+            'secret'
         );
 
         $params = array();
@@ -707,13 +703,7 @@ class AccountController extends BaseApiController{
         $em->persist($user);
         $em->flush();
 
-
-        if (strpos($user->getName(), 'hectorr') !== false) {
-            $this->sendSMS($user->getPrefix(), '678176354', "Recover pass token: " . $code);
-        }
-        else {
-            $this->sendSMS($user->getPrefix(), $user->getPhone(), "Recover pass token: " . $code);
-        }
+        $this->sendSMS($user->getPrefix(), $user->getPhone(), "Recover(" . $params['secret'] . ") pass token: " . $code);
         return $this->restV2(200,"ok", "Request successful");
     }
 
