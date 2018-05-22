@@ -746,7 +746,7 @@ class AccountController extends BaseApiController{
             'recover_password_token' => $params['code']
         ));
 
-        if(!$user) throw new HttpException(404, 'User not found');
+        if(!$user) throw new HttpException(404, 'Code not found');
 
         if($user->isPasswordRequestNonExpired(1200)){
             if(strlen($params['password'])<6) throw new HttpException(404, 'Password must be longer than 6 characters');
