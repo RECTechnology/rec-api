@@ -53,7 +53,7 @@ class BankAccount{
     private $owner;
 
     /**
-     * @ORM\Column(type="string", nullable=true)
+     * @ORM\Column(type="string")
      * @Expose
      */
     private $iban;
