@@ -90,12 +90,13 @@ class CreditCardController extends BaseApiController{
             throw new HttpException(403, 'You don\'t have the necessary permissions');
 
         if(!$card) throw new HttpException(404, 'Card not found');
-
+/*
         if($request->request->has('alias')){
             $card->setAlias($request->request->get('alias'));
         }
         $em->persist($card);
         $em->flush();
+*/
         return $this->restV2(204, 'ok', 'Card updated successfully');
 
     }
