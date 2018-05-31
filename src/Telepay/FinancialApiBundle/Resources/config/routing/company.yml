@@ -190,6 +190,33 @@ delete_credit_card:
     requirements:
         _method: DELETE
 
+######################## BANK ACCOUNT ########################
+
+create_bank_account:
+    pattern:  /company/v1/bank_account
+    defaults: { _controller: Telepay\FinancialApiBundle\Controller\Management\Company\BankAccountController::registerCard }
+    requirements:
+        _method: POST
+
+index_bank_account:
+    pattern:  /company/v1/bank_account
+    defaults: { _controller: Telepay\FinancialApiBundle\Controller\Management\Company\BankAccountController::indexAccounts }
+    requirements:
+        _method: GET
+
+update_bank_account:
+    pattern:  /company/v1/bank_account/{id}
+    defaults: { _controller: Telepay\FinancialApiBundle\Controller\Management\Company\BankAccountController::updateAccountFromCompany }
+    requirements:
+        _method: PUT
+
+delete_bank_account:
+    pattern:  /company/v1/bank_account/{id}
+    defaults: { _controller: Telepay\FinancialApiBundle\Controller\Management\Company\BankAccountController::deleteAction }
+    requirements:
+        _method: DELETE
+
+
 ######################## OFFERS ########################
 
 create_offer:

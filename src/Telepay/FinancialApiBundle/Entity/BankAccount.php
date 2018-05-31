@@ -15,7 +15,7 @@ use Symfony\Bridge\Doctrine\Validator\Constraints\UniqueEntity;
  * @ORM\Entity
  * @ExclusionPolicy("all")
  */
-class CreditCard{
+class BankAccount{
 
     public function __construct(){
         $this->created = new \DateTime();
@@ -53,28 +53,11 @@ class CreditCard{
     private $owner;
 
     /**
-     * @ORM\Column(type="string")
-     * @Expose
-     */
-    private $card_number;
-
-    /**
-     * @ORM\Column(type="integer")
-     * @Expose
-     */
-    private $expiration_month;
-
-    /**
-     * @ORM\Column(type="integer")
-     * @Expose
-     */
-    private $expiration_year;
-
-    /**
      * @ORM\Column(type="string", nullable=true)
      * @Expose
      */
-    private $cvc;
+    private $iban;
+
 
     /**
      * Returns the user unique id.
@@ -137,66 +120,17 @@ class CreditCard{
     /**
      * @return mixed
      */
-    public function getCardNumber()
+    public function getIban()
     {
-        return $this->card_number;
+        return $this->iban;
     }
 
     /**
-     * @param mixed $card_number
+     * @param mixed $iban
      */
-    public function setCardNumber($card_number)
+    public function setIban($iban)
     {
-        $this->card_number = $card_number;
+        $this->iban = $iban;
     }
-
-    /**
-     * @return mixed
-     */
-    public function getCvc()
-    {
-        return $this->cvc;
-    }
-
-    /**
-     * @param mixed $cvc
-     */
-    public function setCvc($cvc)
-    {
-        $this->cvc = $cvc;
-    }
-
-    /**
-     * @return mixed
-     */
-    public function getExpirationMonth()
-    {
-        return $this->expiration_month;
-    }
-
-    /**
-     * @param mixed $expiration_month
-     */
-    public function setExpirationMonth($expiration_month)
-    {
-        $this->expiration_month = $expiration_month;
-    }
-
-    /**
-     * @return mixed
-     */
-    public function getExpirationYear()
-    {
-        return $this->expiration_year;
-    }
-
-    /**
-     * @param mixed $expiration_year
-     */
-    public function setExpirationYear($expiration_year)
-    {
-        $this->expiration_year = $expiration_year;
-    }
-
 
 }

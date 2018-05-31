@@ -11,34 +11,31 @@ use FOS\RestBundle\Controller\Annotations as Rest;
 use Symfony\Component\HttpFoundation\Request;
 use Telepay\FinancialApiBundle\Controller\RestApiController;
 use Telepay\FinancialApiBundle\Entity\Group;
-use Telepay\FinancialApiBundle\Entity\CreditCard;
+use Telepay\FinancialApiBundle\Entity\BankAccount;
 use Telepay\FinancialApiBundle\Controller\BaseApiController;
 
-class CreditCardController extends BaseApiController{
+class BankAccountController extends BaseApiController{
 
     function getRepositoryName()
     {
-        return "TelepayFinancialApiBundle:CreditCard";
+        return "TelepayFinancialApiBundle:BankAccount";
     }
 
     function getNewEntity()
     {
-        return new CreditCard();
+        return new BankAccount();
     }
 
     /**
      * @Rest\View
      */
-    public function registerCard(Request $request){
+    public function registerAccount(Request $request){
         $user = $this->get('security.context')->getToken()->getUser();
         $group = $this->get('security.context')->getToken()->getUser()->getActiveGroup();
 
         $paramNames = array(
             'owner',
-            'card_number',
-            'expiration_month',
-            'expiration_year',
-            'cvc'
+            'iban'
         );
 
         $params = array();
@@ -50,54 +47,48 @@ class CreditCardController extends BaseApiController{
             }
         }
         $em = $this->getDoctrine()->getManager();
-        $card = new CreditCard();
-        $card->setCompany($group);
-        $card->setUser($user);
-        $card->setOwner($params['owner']);
-        $card->setCardNumber($params['card_number']);
-        $card->setExpirationMonth($params['expiration_month']);
-        $card->setExpirationYear($params['expiration_year']);
-        $card->setCvc($params['cvc']);
-        $em->persist($card);
+        $bank = new BankAccount();
+        $bank->setCompany($group);
+        $bank->setUser($user);
+        $bank->setOwner($params['owner']);
+        $bank->setIban($params['iban']);
+        $em->persist($bank);
         $em->flush();
-        return $this->restV2(201,"ok", "Card registered successfully", $card);
+        return $this->restV2(201,"ok", "Bank account registered successfully", $bank);
     }
-
-
 
     /**
      * @Rest\View
      */
-    public function indexCards(Request $request){
+    public function indexAccounts(Request $request){
         $user = $this->getUser();
         $company = $user->getActiveGroup();
         $em = $this->getDoctrine()->getManager();
-        $cards = $em->getRepository('TelepayFinancialApiBundle:CreditCard')->findBy(array(
+        $accounts = $em->getRepository('TelepayFinancialApiBundle:BankAccount')->findBy(array(
             'company'   =>  $company,
             'user'   =>  $user
         ));
-        return $this->restV2(200, 'ok', 'Request successfull', $cards);
+        return $this->restV2(200, 'ok', 'Request successfull', $accounts);
     }
 
     /**
      * @Rest\View
      */
-    public function updateCardFromCompany(Request $request, $id){
+    public function updateAccountFromCompany(Request $request, $id){
         $em = $this->getDoctrine()->getManager();
-        $card = $em->getRepository('TelepayFinancialApiBundle:CreditCard')->find($id);
+        $account = $em->getRepository('TelepayFinancialApiBundle:BankAccount')->find($id);
 
-        if($card->getCompany()->getId() != $this->getUser()->getActiveGroup()->getId() )
+        if($account->getCompany()->getId() != $this->getUser()->getActiveGroup()->getId() )
             throw new HttpException(403, 'You don\'t have the necessary permissions');
 
-        if(!$card) throw new HttpException(404, 'Card not found');
+        if(!$account) throw new HttpException(404, 'Bank account not found');
 
         if($request->request->has('alias')){
-            $card->setAlias($request->request->get('alias'));
+            $account->setAlias($request->request->get('alias'));
         }
-        $em->persist($card);
+        $em->persist($account);
         $em->flush();
-        return $this->restV2(204, 'ok', 'Card updated successfully');
-
+        return $this->restV2(204, 'ok', 'Bank account updated successfully');
     }
 
     /**
@@ -106,14 +97,13 @@ class CreditCardController extends BaseApiController{
     public function deleteAction($id){
         $em = $this->getDoctrine()->getManager();
         $user = $this->get('security.context')->getToken()->getUser();
-        $offer = $em->getRepository('TelepayFinancialApiBundle:CreditCard')->findOneBy(array(
+        $account = $em->getRepository('TelepayFinancialApiBundle:BankAccount')->findOneBy(array(
             'id'    =>  $id,
             'company' =>  $user->getActiveGroup()
         ));
 
-        if(!$offer) throw new HttpException(404, 'CreditCard not found');
+        if(!$account) throw new HttpException(404, 'Bank Account not found');
 
         return parent::deleteAction($id);
-
     }
 }
