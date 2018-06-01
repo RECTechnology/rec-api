@@ -194,7 +194,7 @@ delete_credit_card:
 
 create_bank_account:
     pattern:  /company/v1/bank_account
-    defaults: { _controller: Telepay\FinancialApiBundle\Controller\Management\Company\BankAccountController::registerCard }
+    defaults: { _controller: Telepay\FinancialApiBundle\Controller\Management\Company\BankAccountController::registerAccount }
     requirements:
         _method: POST
 
