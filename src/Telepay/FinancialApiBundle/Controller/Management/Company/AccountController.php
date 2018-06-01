@@ -223,6 +223,11 @@ class AccountController extends BaseApiController{
         }
         $request->request->remove('public_image');
 
+        if($adminGroup->getFixedLocation()){
+            $request->request->remove('longitude');
+            $request->request->remove('latitude');
+        }
+
         //check some params that can't be modified from here
         $invalid_params = array(
             'creator_id',
@@ -233,6 +238,7 @@ class AccountController extends BaseApiController{
             'rec_address',
             'key_chain',
             'tier',
+            'fixed_location',
             'type',
             'subtype'
         );
@@ -244,5 +250,52 @@ class AccountController extends BaseApiController{
 
         return parent::updateAction($request, $account_id);
 
+    }
+
+    /**
+     * @Rest\View
+     * Permissions: ROLE_ADMIN (all)
+     */
+    public function updateLocationAction(Request $request, $account_id){
+        $admin = $this->get('security.context')->getToken()->getUser();
+        $adminGroup = $this->getRepository($this->getRepositoryName())->find($account_id);
+
+        $em = $this->getDoctrine()->getManager();
+
+        $adminRoles = $this->getDoctrine()->getRepository('TelepayFinancialApiBundle:UserGroup')->findOneBy(array(
+            'user'  =>  $admin->getId(),
+            'group' =>  $adminGroup->getId()
+        ));
+
+        if(!$adminRoles){
+            throw new HttpException(403, 'You are not in this account');
+        }
+
+        if(!$adminRoles->hasRole('ROLE_ADMIN')) throw new HttpException(403, 'You don\'t have the necessary permissions');
+
+        if($request->request->has('latitude') && $request->request->get('latitude')!='') {
+            throw new HttpException(404, 'Param latitude not found');
+        }
+        if($request->request->has('longitude') && $request->request->get('longitude')!='') {
+            throw new HttpException(404, 'Param longitude not found');
+        }
+
+        $lat = $request->request->get('latitude');
+        $lon = $request->request->get('longitude');
+
+        if(intval($lat) > 90 ||  intval($lat) < -90){
+            throw new HttpException(404, 'Bad value in latitude');
+        }
+
+        if(intval($lon) > 90 ||  intval($lon) < -90){
+            throw new HttpException(404, 'Bad value in longitude');
+        }
+
+        $adminGroup->setLatitude($lat);
+        $adminGroup->setLongitude($lon);
+        $adminGroup->setFixedLocation(true);
+        $em->flush();
+
+        return $this->rest(204, 'Company location updated successfully');
     }
 }

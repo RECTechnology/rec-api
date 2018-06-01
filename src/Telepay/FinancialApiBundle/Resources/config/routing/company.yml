@@ -6,6 +6,13 @@ account_update:
         _method: PUT
         account_id: "[a-z0-9_]+"
 
+fixed_location_update:
+    pattern: /account/{account_id}/v1/location
+    defaults: { _controller: Telepay\FinancialApiBundle\Controller\Management\Company\AccountController::updateLocationAction }
+    requirements:
+        _method: PUT
+        account_id: "[a-z0-9_]+"
+
 company_set_comapny_image:
     pattern:  /company/v1/account/{group}/image
     defaults: { _controller: Telepay\FinancialApiBundle\Controller\Management\Company\AccountController::setImage }

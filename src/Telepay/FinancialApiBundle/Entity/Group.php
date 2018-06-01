@@ -207,6 +207,11 @@ class Group extends BaseGroup
     private $longitude = '';
 
     /**
+     * @ORM\Column(type="boolean")
+     */
+    private $fixed_location = false;
+
+    /**
      * @ORM\Column(type="string")
      */
     private $web = '';
@@ -701,6 +706,22 @@ class Group extends BaseGroup
     public function setLongitude($longitude)
     {
         $this->longitude = $longitude;
+    }
+
+    /**
+     * @return mixed
+     */
+    public function getFixedLocation()
+    {
+        return $this->fixed_location;
+    }
+
+    /**
+     * @param mixed $fixed_location
+     */
+    public function setFixedLocation($fixed_location)
+    {
+        $this->fixed_location = $fixed_location;
     }
 
     /**
