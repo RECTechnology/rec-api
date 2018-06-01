@@ -273,21 +273,21 @@ class AccountController extends BaseApiController{
 
         if(!$adminRoles->hasRole('ROLE_ADMIN')) throw new HttpException(403, 'You don\'t have the necessary permissions');
 
-        if($request->request->has('latitude') && $request->request->get('latitude')!='') {
+        if(!$request->request->has('latitude') || !$request->request->get('latitude')!='') {
             throw new HttpException(404, 'Param latitude not found');
         }
-        if($request->request->has('longitude') && $request->request->get('longitude')!='') {
+        if(!$request->request->has('longitude') || !$request->request->get('longitude')!='') {
             throw new HttpException(404, 'Param longitude not found');
         }
 
         $lat = $request->request->get('latitude');
         $lon = $request->request->get('longitude');
 
-        if(intval($lat) > 90 ||  intval($lat) < -90){
+        if(intval($lat) > 90 ||  intval($lat) < -90 || intval($lat) == 0){
             throw new HttpException(404, 'Bad value in latitude');
         }
 
-        if(intval($lon) > 90 ||  intval($lon) < -90){
+        if(intval($lon) > 90 ||  intval($lon) < -90 || intval($lon) == 0){
             throw new HttpException(404, 'Bad value in longitude');
         }
 
