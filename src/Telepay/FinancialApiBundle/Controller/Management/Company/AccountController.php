@@ -273,10 +273,10 @@ class AccountController extends BaseApiController{
 
         if(!$adminRoles->hasRole('ROLE_ADMIN')) throw new HttpException(403, 'You don\'t have the necessary permissions');
 
-        if(!$request->request->has('latitude') || !$request->request->get('latitude')!='') {
+        if(!$request->request->has('latitude')) {
             throw new HttpException(404, 'Param latitude not found');
         }
-        if(!$request->request->has('longitude') || !$request->request->get('longitude')!='') {
+        if(!$request->request->has('longitude')) {
             throw new HttpException(404, 'Param longitude not found');
         }
 
