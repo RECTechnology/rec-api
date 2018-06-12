@@ -273,6 +273,12 @@ class AccountController extends BaseApiController{
 
         if(!$adminRoles->hasRole('ROLE_ADMIN')) throw new HttpException(403, 'You don\'t have the necessary permissions');
 
+        if($request->request->has('deactivate') && $request->request->get('deactivate') == '1') {
+            $adminGroup->setFixedLocation(false);
+            $em->flush();
+            return $this->rest(204, 'Company location deactivated successfully');
+        }
+
         if(!$request->request->has('latitude')) {
             throw new HttpException(404, 'Param latitude not found');
         }
