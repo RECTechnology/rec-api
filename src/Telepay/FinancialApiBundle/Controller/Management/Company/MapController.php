@@ -88,7 +88,10 @@ class MapController extends BaseApiController{
             $lat = $company->getLatitude();
             $lon = $company->getLongitude();
             $name = strtoupper($company->getName());
-            $category_id = strtoupper($company->getCategory()->getId());
+            $category_id = 0;
+            if($company->getCategory()) {
+                $category_id = $company->getCategory()->getId();
+            }
             if(intval($lat) == 0 && intval($lon) == 0) {
                 //No han definido su ubicacion
             }
@@ -212,7 +215,10 @@ class MapController extends BaseApiController{
             }
             else{
                 $name = strtoupper($company->getName());
-                $category_id = strtoupper($company->getCategory()->getId());
+                $category_id = 0;
+                if($company->getCategory()) {
+                    $category_id = $company->getCategory()->getId();
+                }
                 if (strpos($name, $search) !== false || in_array($category_id, $list_cat_ids)) {
                     //check offers
                     $list_offers = $em->getRepository('TelepayFinancialApiBundle:Offer')->findBy(array(
