@@ -68,10 +68,18 @@ class MapController extends BaseApiController{
             throw new HttpException(400, "Filters options are incorrect");
         }
 
+        $list_cat_ids = array();
         $search_defined = false;
         if($request->query->has('search') && $request->query->get('search')!='') {
             $search = strtoupper($request->query->get('search'));
             $search_defined = true;
+
+            $list_categories = $em->getRepository('TelepayFinancialApiBundle:Category')->findAll();
+            foreach ($list_categories as $category) {
+                if (strpos($category->getCat(), $search) !== false || strpos($category->getEsp(), $search) !== false || strpos($category->getEng(), $search) !== false) {
+                    $list_cat_ids[] = $category->getId();
+                }
+            }
         }
 
         $list_companies = $em->getRepository('TelepayFinancialApiBundle:Group')->findBy($where);
@@ -80,10 +88,11 @@ class MapController extends BaseApiController{
             $lat = $company->getLatitude();
             $lon = $company->getLongitude();
             $name = strtoupper($company->getName());
+            $category_id = strtoupper($company->getCategory()->getId());
             if(intval($lat) == 0 && intval($lon) == 0) {
                 //No han definido su ubicacion
             }
-            elseif ($search_defined && strpos($name, $search) !== true) {
+            elseif ($search_defined && (strpos($name, $search) !== true || in_array($category_id, $list_cat_ids))) {
                 //No cumple el search
             }
             elseif($lat > $min_lat && $lat < $max_lat && $lon > $min_lon && $lon < $max_lon){
@@ -182,6 +191,14 @@ class MapController extends BaseApiController{
             );
         }
 
+        $list_categories = $em->getRepository('TelepayFinancialApiBundle:Category')->findAll();
+        $list_cat_ids = array();
+        foreach ($list_categories as $category) {
+            if (strpos($category->getCat(), $search) !== false || strpos($category->getEsp(), $search) !== false || strpos($category->getEng(), $search) !== false) {
+                $list_cat_ids[] = $category->getId();
+            }
+        }
+
         $only_offers = false;
         if($request->query->has('only_offers') && $request->query->get('only_offers')=='1') {
             $only_offers = true;
@@ -195,7 +212,8 @@ class MapController extends BaseApiController{
             }
             else{
                 $name = strtoupper($company->getName());
-                if (strpos($name, $search) !== false) {
+                $category_id = strtoupper($company->getCategory()->getId());
+                if (strpos($name, $search) !== false || in_array($category_id, $list_cat_ids)) {
                     //check offers
                     $list_offers = $em->getRepository('TelepayFinancialApiBundle:Offer')->findBy(array(
                         'company'  =>  $company
