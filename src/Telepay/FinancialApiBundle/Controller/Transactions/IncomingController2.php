@@ -54,6 +54,9 @@ class IncomingController2 extends RestApiController{
             $destination = $em->getRepository('TelepayFinancialApiBundle:Group')->findOneBy(array(
                 'rec_address' => $address
             ));
+            if(!$destination){
+                throw new HttpException(400, 'Incorrect address');
+            }
             $data = array(
                 $destination->getName(),
                 $destination->getCompanyImage()
@@ -225,12 +228,7 @@ class IncomingController2 extends RestApiController{
         //******    CHECK IF THE TRANSACTION IS CASH-OUT     ********
         if($type == 'out'){
             $logger->info('Incomig transaction...OUT Available = ' . $wallet->getAvailable() .  " TOTAL: " . $total);
-
-            //Bloqueamos la pasta en el wallet
-            $wallet->setAvailable($wallet->getAvailable() - $amount);
-            $em->flush();
             $address = $payment_info['address'];
-
             $destination = $em->getRepository('TelepayFinancialApiBundle:Group')->findOneBy(array(
                 'rec_address' => $payment_info['address']
             ));
@@ -252,6 +250,10 @@ class IncomingController2 extends RestApiController{
             $payment_info['dest_key'] = $destination->getKeyChain();
 
             $logger->info('Incomig transaction...SEND');
+
+            //Bloqueamos la pasta en el wallet
+            $wallet->setAvailable($wallet->getAvailable() - $amount);
+            $em->flush();
 
             try {
                 $payment_info = $method->send($payment_info);
