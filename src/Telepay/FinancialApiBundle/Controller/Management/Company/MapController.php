@@ -76,7 +76,7 @@ class MapController extends BaseApiController{
 
             $list_categories = $em->getRepository('TelepayFinancialApiBundle:Category')->findAll();
             foreach ($list_categories as $category) {
-                if (strpos($category->getCat(), $search) !== false || strpos($category->getEsp(), $search) !== false || strpos($category->getEng(), $search) !== false) {
+                if (strpos(strtoupper($category->getCat()), $search) !== false || strpos(strtoupper($category->getEsp()), $search) !== false || strpos(strtoupper($category->getEng()), $search) !== false) {
                     $list_cat_ids[] = $category->getId();
                 }
             }
@@ -197,7 +197,7 @@ class MapController extends BaseApiController{
         $list_categories = $em->getRepository('TelepayFinancialApiBundle:Category')->findAll();
         $list_cat_ids = array();
         foreach ($list_categories as $category) {
-            if (strpos($category->getCat(), $search) !== false || strpos($category->getEsp(), $search) !== false || strpos($category->getEng(), $search) !== false) {
+            if (strpos(strtoupper($category->getCat()), $search) !== false || strpos(strtoupper($category->getEsp()), $search) !== false || strpos(strtoupper($category->getEng()), $search) !== false) {
                 $list_cat_ids[] = $category->getId();
             }
         }
