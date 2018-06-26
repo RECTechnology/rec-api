@@ -68,5 +68,10 @@ parameters:
     uploads_dir: ''
     files_path: ''
 
+    lemonway_url: 'https://sandbox-api.lemonway.fr/mb/demo/dev/directkitjson2/Service.asmx'
+    lemonway_user: 'society'
+    lemonway_pass: '123456'
+    lemonway_version: '4.0'
+
 
 

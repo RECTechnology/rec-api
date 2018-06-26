@@ -13,3 +13,11 @@ services:
             - "%rec_pass%"
             - "%rec_host%"
             - "%rec_port%"
+
+    net.telepay.driver.lemonway.eur:
+        class: Telepay\FinancialApiBundle\Financial\Driver\LemonWayDriver
+        arguments:
+            - "%lemonway_url%"
+            - "%lemonway_user%"
+            - "%lemonway_pass%"
+            - "%lemonway_version%"
