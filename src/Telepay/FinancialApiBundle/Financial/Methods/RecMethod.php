@@ -28,6 +28,16 @@ class RecMethod extends BaseMethod {
         $this->container = $container;
     }
 
+    public function validateaddress($address){
+        $address_verification = $this->driver->validateaddress($address);
+        return $address_verification['isvalid'];
+    }
+
+    public function getnewaddress(){
+        $address = $this->driver->getnewaddress();
+        return $address;
+    }
+
     //PAY IN
     public function getPayInInfo($amount){
         $address = $this->driver->getnewaddress();
@@ -139,10 +149,7 @@ class RecMethod extends BaseMethod {
 
         }
 
-        //TODO
-        //$address_verification = $this->driver->validateaddress($params['address']);
-        $address_verification['isvalid'] = true;
-
+        $address_verification = $this->driver->validateaddress($params['address']);
         if(!$address_verification['isvalid']) throw new Exception('Invalid address.', 400);
 
         if($request->request->has('concept')){
@@ -174,10 +181,7 @@ class RecMethod extends BaseMethod {
 
         }
 
-        //TODO
-        //$address_verification = $this->driver->validateaddress($params['address']);
-        $address_verification['isvalid'] = true;
-
+        $address_verification = $this->driver->validateaddress($params['address']);
         if(!$address_verification['isvalid']) throw new Exception('Invalid address.', 400);
 
         //TODO

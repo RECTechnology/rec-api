@@ -148,13 +148,9 @@ class LemonWayMethod extends BaseMethod {
             if(!$request->request->has($param)) throw new HttpException(400, 'Parameter '.$param.' not found');
             if($request->request->get($param) == null) throw new Exception( 'Parameter '.$param.' can\'t be null', 404);
             $params[$param] = $request->request->get($param);
-
         }
 
-        //TODO
-        //$address_verification = $this->driver->validateaddress($params['address']);
-        $address_verification['isvalid'] = true;
-
+        $address_verification = $this->driver->validateaddress($params['address']);
         if(!$address_verification['isvalid']) throw new Exception('Invalid address.', 400);
 
         if($request->request->has('concept')){
@@ -186,10 +182,7 @@ class LemonWayMethod extends BaseMethod {
 
         }
 
-        //TODO
-        //$address_verification = $this->driver->validateaddress($params['address']);
-        $address_verification['isvalid'] = true;
-
+        $address_verification = $this->driver->validateaddress($params['address']);
         if(!$address_verification['isvalid']) throw new Exception('Invalid address.', 400);
 
         //TODO
