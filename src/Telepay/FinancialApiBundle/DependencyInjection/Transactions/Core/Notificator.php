@@ -119,7 +119,7 @@ class Notificator {
             'rec_address' => $payment_info['address']
         ));
 
-        $url_notification = "http://176.31.181.225:8103/expenditures/setexpenditurecc";
+        $url_notification = "http://176.31.181.225:8103/ws-coin/securitybah/expenditures/setexpenditurecc";
 
         //necesitamos el id el status el amount y el secret
         $id = $transaction->getId();
@@ -157,7 +157,7 @@ class Notificator {
                 "date": ' . $data['date'] . ',
                 "activity_type_code": "' . $activity .'"
             }
-            }\' http://176.31.181.225:8103/securitybah/expenditures/setexpenditurecc
+            }\' http://176.31.181.225:8103/ws-coin/securitybah/expenditures/setexpenditurecc
         ');
 
         $response_data = json_decode($response, true);
