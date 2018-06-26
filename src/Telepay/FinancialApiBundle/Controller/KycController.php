@@ -273,7 +273,7 @@ class KycController extends BaseApiController{
                 $kyc->setValidationPhoneCode(json_encode($validation_info));
                 $em->persist($kyc);
                 $em->flush();
-                throw new HttpException(400, 'Incorrrect code');
+                throw new HttpException(400, 'Incorrect code');
             }
         }
         else{
