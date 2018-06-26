@@ -409,8 +409,8 @@ class AccountController extends BaseApiController{
             $params['email'] = '';
         }
 
-        if(strlen($params['security_question'])<1 || strlen($params['security_question'])>100) throw new HttpException(404, 'Security question is too large or too simple');
-        if(strlen($params['security_answer'])<1 || strlen($params['security_answer'])>20) throw new HttpException(404, 'Security answer is too large or too simple');
+        if(strlen($params['security_question'])<1 || strlen($params['security_question'])>200) throw new HttpException(404, 'Security question is too large or too simple');
+        if(strlen($params['security_answer'])<1 || strlen($params['security_answer'])>50) throw new HttpException(404, 'Security answer is too large or too simple');
         $params['security_answer'] = $this->cleanString($params['security_answer']);
 
         $methodsList = array('rec-out', 'rec-in');
