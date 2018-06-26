@@ -5,6 +5,7 @@ services:
         arguments:
             drivers:
                 - "@net.telepay.driver.easybitcoin.rec"
+                - "@net.telepay.driver.lemonway.eur"
 
     net.telepay.driver.easybitcoin.rec:
         class: Telepay\FinancialApiBundle\Financial\Driver\EasyBitcoinDriver
