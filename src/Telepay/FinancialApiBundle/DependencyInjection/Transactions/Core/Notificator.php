@@ -129,7 +129,7 @@ class Notificator {
         $key = 'HyRJn3cQ35fbpKah';
         $data_to_sign = $id.$status.$amount;
         $signature = hash_hmac('sha256', $data_to_sign, $key);
-        $activity = $destination->getCategory()?$destination->getCategory()->getId():0;
+        $activity = $destination->getCategory()?$destination->getCategory()->getId():17;
         $data = array(
             'receiver' => $destination->getCif(),
             'date' => time(),
