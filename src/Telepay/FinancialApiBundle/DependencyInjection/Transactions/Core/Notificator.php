@@ -30,6 +30,11 @@ class Notificator {
             $this->notificate_upc($transaction);
         }
 
+        //TODO mirar si es de tipo internal
+        if($group->getType()=='PRIVATE' && $group->getSubtype()=='BMINCOME' && $transaction->getType() == 'in') {
+            $this->notificate_upc($transaction);
+        }
+
         if(isset($transaction->getDataIn()['url_notification']))
             $url_notification = $transaction->getDataIn()['url_notification'];
         else
@@ -113,28 +118,49 @@ class Notificator {
         $dm = $this->container->get('doctrine_mongodb')->getManager();
         $group = $this->container->get('doctrine')->getRepository('TelepayFinancialApiBundle:Group')
             ->find($transaction->getGroup());
-
-        $payment_info =  $transaction->getPayOutInfo();;
-        $destination = $this->container->get('doctrine')->getRepository('TelepayFinancialApiBundle:Group')->findOneBy(array(
-            'rec_address' => $payment_info['address']
-        ));
-
         $url_notification = "http://176.31.181.225:8103/ws-coin/securitybah/expenditures/setexpenditurecc";
 
         //necesitamos el id el status el amount y el secret
         $id = $transaction->getId();
         $status = $transaction->getStatus();
-        $amount = round($transaction->getAmount()/100000000,2);
-
+        $amount = round($transaction->getAmount() / 100000000, 2);
         $key = 'HyRJn3cQ35fbpKah';
-        $data_to_sign = $id.$status.$amount;
-        $signature = hash_hmac('sha256', $data_to_sign, $key);
-        $activity = $destination->getCategory()?$destination->getCategory()->getId():17;
-        $data = array(
-            'receiver' => $destination->getCif(),
-            'date' => time(),
-            'activity_type_code' => $activity
-        );
+
+        if ($transaction->getType() == 'out') {
+            $payment_info = $transaction->getPayOutInfo();;
+            $destination = $this->container->get('doctrine')->getRepository('TelepayFinancialApiBundle:Group')->findOneBy(array(
+                'rec_address' => $payment_info['address']
+            ));
+
+            if($destination->getType()=='PRIVATE') {
+                $data_to_sign = $id . $status . $amount;
+                $signature = hash_hmac('sha256', $data_to_sign, $key);
+                $data = array(
+                    'receiver' => 'PARTICULAR',
+                    'date' => time(),
+                    'activity_type_code' => 16
+                );
+            }
+            elseif($destination->getType()=='COMPANY'){
+                $data_to_sign = $id . $status . $amount;
+                $signature = hash_hmac('sha256', $data_to_sign, $key);
+                $activity = $destination->getCategory() ? $destination->getCategory()->getId() : 16;
+                $data = array(
+                    'receiver' => $destination->getCif(),
+                    'date' => time(),
+                    'activity_type_code' => $activity
+                );
+            }
+        }
+        elseif($transaction->getType() == 'in'){
+            $data_to_sign = $id . $status . $amount;
+            $signature = hash_hmac('sha256', $data_to_sign, $key);
+            $data = array(
+                'receiver' => CAMBIO,
+                'date' => time(),
+                'activity_type_code' => 16
+            );
+        }
 
         $params = array(
             'account_id'=>  $group->getCif(),
