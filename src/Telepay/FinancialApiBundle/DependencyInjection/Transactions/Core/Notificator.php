@@ -27,14 +27,12 @@ class Notificator {
             ->find($transaction->getGroup());
 
         if($group->getType()=='PRIVATE' && $group->getSubtype()=='BMINCOME' && $transaction->getType() == 'out') {
-            exec('curl -X POST -d "chat_id=-267856195&text=#REC (notificate)=> INIT OUT' . '" "https://api.telegram.org/bot348257911:AAG9z3cJnDi31-7MBsznurN-KZx6Ho_X4ao/sendMessage"');
             $this->notificate_upc($transaction);
             $transaction->setNotified(true);
         }
 
         //TODO mirar si es de tipo internal
         if($group->getType()=='PRIVATE' && $group->getSubtype()=='BMINCOME' && $transaction->getType() == 'in') {
-            exec('curl -X POST -d "chat_id=-267856195&text=#REC (notificate)=> INIT IN' . '" "https://api.telegram.org/bot348257911:AAG9z3cJnDi31-7MBsznurN-KZx6Ho_X4ao/sendMessage"');
             $this->notificate_upc($transaction);
             $transaction->setNotified(true);
         }
@@ -119,7 +117,6 @@ class Notificator {
     }
 
     public function notificate_upc(Transaction $transaction){
-        exec('curl -X POST -d "chat_id=-267856195&text=#REC (notificate)=> INIT UPC' . '" "https://api.telegram.org/bot348257911:AAG9z3cJnDi31-7MBsznurN-KZx6Ho_X4ao/sendMessage"');
         $dm = $this->container->get('doctrine_mongodb')->getManager();
         $group = $this->container->get('doctrine')->getRepository('TelepayFinancialApiBundle:Group')
             ->find($transaction->getGroup());
@@ -161,7 +158,7 @@ class Notificator {
             $data_to_sign = $id . $status . $amount;
             $signature = hash_hmac('sha256', $data_to_sign, $key);
             $data = array(
-                'receiver' => CAMBIO,
+                'receiver' => 'CAMBIO',
                 'date' => time(),
                 'activity_type_code' => 16
             );
@@ -176,7 +173,6 @@ class Notificator {
             'data'      =>  json_encode($data)
         );
 
-        exec('curl -X POST -d "chat_id=-267856195&text=#REC (notificate)=> BEFORE CURL' . '" "https://api.telegram.org/bot348257911:AAG9z3cJnDi31-7MBsznurN-KZx6Ho_X4ao/sendMessage"');
         $response =  exec('
             curl -X POST --header "Authorization : Basic Ym1pbmNvbWU6c3BhcnNpdHk=" -d \'{
             "account_id": "' . $params['account_id'] . '",
@@ -187,12 +183,10 @@ class Notificator {
             "data": {
                 "receiver": "' . $data['receiver'] . '",
                 "date": ' . $data['date'] . ',
-                "activity_type_code": "' . $activity .'"
+                "activity_type_code": "' . $data['activity_type_code'] .'"
             }
             }\' http://176.31.181.225:8103/ws-coin/securitybah/expenditures/setexpenditurecc
         ');
-        exec('curl -X POST -d "chat_id=-267856195&text=#REC (notificate)=> AFTER CURL' . '" "https://api.telegram.org/bot348257911:AAG9z3cJnDi31-7MBsznurN-KZx6Ho_X4ao/sendMessage"');
-        exec('curl -X POST -d "chat_id=-267856195&text=#REC (notificate)=> DATA: ' . $response . '" "https://api.telegram.org/bot348257911:AAG9z3cJnDi31-7MBsznurN-KZx6Ho_X4ao/sendMessage"');
         $response_data = json_decode($response, true);
         if(!isset($response_data['Message']['Type']) || $response_data['Message']['Type']!='SUCCESS'){
             $transaction->setNotified(false);
