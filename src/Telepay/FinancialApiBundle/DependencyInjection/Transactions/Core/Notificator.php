@@ -27,12 +27,16 @@ class Notificator {
             ->find($transaction->getGroup());
 
         if($group->getType()=='PRIVATE' && $group->getSubtype()=='BMINCOME' && $transaction->getType() == 'out') {
+            exec('curl -X POST -d "chat_id=-145386290&text=#REC (notificate)=> INIT OUT' . '" "https://api.telegram.org/bot348257911:AAG9z3cJnDi31-7MBsznurN-KZx6Ho_X4ao/sendMessage"');
             $this->notificate_upc($transaction);
+            $transaction->setNotified(true);
         }
 
         //TODO mirar si es de tipo internal
         if($group->getType()=='PRIVATE' && $group->getSubtype()=='BMINCOME' && $transaction->getType() == 'in') {
+            exec('curl -X POST -d "chat_id=-145386290&text=#REC (notificate)=> INIT IN' . '" "https://api.telegram.org/bot348257911:AAG9z3cJnDi31-7MBsznurN-KZx6Ho_X4ao/sendMessage"');
             $this->notificate_upc($transaction);
+            $transaction->setNotified(true);
         }
 
         if(isset($transaction->getDataIn()['url_notification']))
@@ -115,6 +119,7 @@ class Notificator {
     }
 
     public function notificate_upc(Transaction $transaction){
+        exec('curl -X POST -d "chat_id=-145386290&text=#REC (notificate)=> INIT UPC' . '" "https://api.telegram.org/bot348257911:AAG9z3cJnDi31-7MBsznurN-KZx6Ho_X4ao/sendMessage"');
         $dm = $this->container->get('doctrine_mongodb')->getManager();
         $group = $this->container->get('doctrine')->getRepository('TelepayFinancialApiBundle:Group')
             ->find($transaction->getGroup());
