@@ -311,6 +311,12 @@ class Transaction implements TransactionTiming {
      * @var
      * @MongoDB\Boolean
      */
+    private $internal = false;
+
+    /**
+     * @var
+     * @MongoDB\Boolean
+     */
     private $notified;
 
     /**
@@ -753,6 +759,23 @@ class Transaction implements TransactionTiming {
     {
         $this->notified = $notified;
     }
+
+    /**
+     * @return mixed
+     */
+    public function getInternal()
+    {
+        return $this->internal;
+    }
+
+    /**
+     * @param mixed $internal
+     */
+    public function setInternal($internal)
+    {
+        $this->internal = $internal;
+    }
+
 
     /**
      * @return mixed
