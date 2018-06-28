@@ -39,6 +39,14 @@ class LemonWayMethod extends BaseMethod {
         return $response;
     }
 
+    public function CreditCardPayment($wallet, $amount){
+        $response = $this->driver->callService("MoneyInWebInit", array(
+            "wallet" => $wallet,
+            "amountTot" => $amount
+        ));
+        return $response;
+    }
+
     //PAY IN
     public function getPayInInfo($amount){
         $address = $this->driver->getnewaddress();

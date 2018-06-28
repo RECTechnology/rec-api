@@ -28,8 +28,10 @@ class DelegatedExchangeCommand extends ContainerAwareCommand
         $em = $this->getContainer()->get('doctrine')->getManager();
         $providerName = 'net.telepay.in.lemonway.v1';
         $moneyProvider = $this->getContainer()->get($providerName);
-        $new_account = $moneyProvider->RegisterWallet('ivan001','ivan001@robotunion.org');
-        $text='result=>' . json_encode($new_account, JSON_PRETTY_PRINT);
+        //$new_account = $moneyProvider->RegisterWallet('ivan001','ivan001@robotunion.org');
+        //$text='register=>' . json_encode($new_account, JSON_PRETTY_PRINT);
+        $new_payment = $moneyProvider->CreditCardPayment('ivan001','10.50');
+        $text='payment=>' . json_encode($new_payment, JSON_PRETTY_PRINT);
         $output->writeln($text);
     }
 }
