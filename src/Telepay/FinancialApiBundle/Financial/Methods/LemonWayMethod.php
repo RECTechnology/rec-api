@@ -28,16 +28,15 @@ class LemonWayMethod extends BaseMethod {
         $this->container = $container;
     }
 
-    public function RegisterWallet(){
+    public function RegisterWallet($wallet, $email){
         $response = $this->driver->callService("RegisterWallet", array(
-            "wallet" => "ivan001",
-            "clientMail" => "ivan001@robotunion.com",
+            "wallet" => $wallet,
+            "clientMail" => $email,
             "clientFirstName" => "Ivan",
             "clientLastName" => "test1",
             "clientTitle" => "M"
         ));
-        //print the response
-        echo json_encode($response, JSON_PRETTY_PRINT);
+        return $response;
     }
 
     //PAY IN
