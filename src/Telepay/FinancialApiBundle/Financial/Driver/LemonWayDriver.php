@@ -2,7 +2,8 @@
 
 namespace Telepay\FinancialApiBundle\Financial\Driver;
 
-use Symfony\Component\HttpKernel\Exception;
+use Symfony\Component\HttpKernel\Exception\HttpException;
+
 
 class LemonWayDriver{
     /*
@@ -88,7 +89,7 @@ class LemonWayDriver{
         $network_err = curl_errno($ch);
         if ($network_err) {
             error_log('curl_err: ' . $network_err);
-            throw new Exception($network_err);
+            throw new HttpException(403, 'Error ' . $network_err);
         }
         else {
             $httpStatus = (int)curl_getinfo($ch, CURLINFO_HTTP_CODE);
@@ -98,12 +99,12 @@ class LemonWayDriver{
                 $businessErr = $unwrapResponse->E;
                 if ($businessErr) {
                     error_log($businessErr->Code." - ".$businessErr->Msg." - Technical info: ".$businessErr->Error);
-                    throw new Exception($businessErr->Code." - ".$businessErr->Msg);
+                    throw new HttpException(403, $businessErr->Code." - ".$businessErr->Msg);
                 }
                 return $unwrapResponse;
             }
             else {
-                throw new Exception("Service return HttpStatus $httpStatus");
+                throw new HttpException($httpStatus, "Service return HttpStatus" . $httpStatus);
             }
         }
     }
