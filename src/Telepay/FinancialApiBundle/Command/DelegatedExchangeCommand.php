@@ -14,33 +14,22 @@ use Symfony\Component\Filesystem\Exception\IOExceptionInterface;
 use Telepay\FinancialApiBundle\Entity\UserWallet;
 use Telepay\FinancialApiBundle\Financial\Currency;
 
-class UpdateAddressCommand extends ContainerAwareCommand
+class DelegatedExchangeCommand extends ContainerAwareCommand
 {
     protected function configure()
     {
         $this
-            ->setName('rec:update:address')
-            ->setDescription('Update rec address')
+            ->setName('rec:delegated:exchange')
+            ->setDescription('Delegated exchange')
         ;
     }
 
     protected function execute(InputInterface $input, OutputInterface $output){
         $em = $this->getContainer()->get('doctrine')->getManager();
-        $groupList = $em->getRepository('TelepayFinancialApiBundle:Group')->findAll();
-        $contador=0;
-        foreach ( $groupList as $account ){
-            $address = $account->getRecAddress();
-            $providerName = 'net.telepay.in.rec.v1';
-            $cryptoProvider = $this->getContainer()->get($providerName);
-            if(!$cryptoProvider->validateaddress($address)){
-                $new_address = $cryptoProvider->getnewaddress();
-                $account->setRecAddress($new_address);
-                $em->persist($account);
-                $contador++;
-            }
-        }
-        $em->flush();
-        $text=$contador.' updates';
+        $providerName = 'net.telepay.in.lemonway.v1';
+        $moneyProvider = $this->getContainer()->get($providerName);
+        $new_account = $moneyProvider->RegisterWallet('ivan001','ivan001@robotunion.org');
+        $text='result=>' . json_encode($new_account, JSON_PRETTY_PRINT);
         $output->writeln($text);
     }
 }
