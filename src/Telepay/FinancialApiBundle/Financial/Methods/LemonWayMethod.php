@@ -49,7 +49,7 @@ class LemonWayMethod extends BaseMethod {
     }
 
     public function SavedCreditCardPayment($wallet, $amount, $card_id){
-        $response = $this->driver->callService("MoneyInWebInit", array(
+        $response = $this->driver->callService("MoneyInWithCardId", array(
             "wallet" => $wallet,
             "amountTot" => $amount,
             "isPreAuth" => '0',
