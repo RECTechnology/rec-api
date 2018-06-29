@@ -52,16 +52,11 @@ class LemonWayMethod extends BaseMethod {
         $response = $this->driver->callService("MoneyInWebInit", array(
             "wallet" => $wallet,
             "amountTot" => $amount,
+            "isPreAuth" => '0',
             "cardId" => $card_id
         ));
         return $response;
     }
-    /*
-    "CARD": {
-    "ID": "8"
-    },
-    */
-
 
     public function getPayInStatus($paymentInfo){
     }
