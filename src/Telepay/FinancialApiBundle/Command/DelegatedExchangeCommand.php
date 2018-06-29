@@ -35,13 +35,16 @@ class DelegatedExchangeCommand extends ContainerAwareCommand
         //$new_payment = $moneyProvider->CreditCardPayment('MKP','500.50');
         //$text='payment=>' . json_encode($new_payment, JSON_PRETTY_PRINT);
 
+        $new_payment = $moneyProvider->SavedCreditCardPayment('MKP', '10.50', '8');
+        $text='payment=>' . json_encode($new_payment, JSON_PRETTY_PRINT);
+
         $payment_P2P_data = array(
-            'from' => 'ivan001',
+            'from' => 'MKP',
             'to' => 'ivan002',
             'amount' => '1.00'
         );
-        $new_p2p_payment = $moneyProvider->send($payment_P2P_data);
-        $text='payment=>' . json_encode($new_p2p_payment, JSON_PRETTY_PRINT);
+        //$new_p2p_payment = $moneyProvider->send($payment_P2P_data);
+        //$text='payment=>' . json_encode($new_p2p_payment, JSON_PRETTY_PRINT);
 
         $output->writeln($text);
     }

@@ -47,6 +47,15 @@ class LemonWayMethod extends BaseMethod {
         ));
         return $response;
     }
+
+    public function SavedCreditCardPayment($wallet, $amount, $card_id){
+        $response = $this->driver->callService("MoneyInWebInit", array(
+            "wallet" => $wallet,
+            "amountTot" => $amount,
+            "cardId" => $card_id
+        ));
+        return $response;
+    }
     /*
     "CARD": {
     "ID": "8"
@@ -70,8 +79,8 @@ class LemonWayMethod extends BaseMethod {
             "creditWallet" => $to,
             "amount" => $amount
         ));
-        $paymentInfo['status']=isset($data['TRANS_SENDPAYMENT']['HPAY']['STATUS'])?$data['TRANS_SENDPAYMENT']['HPAY']['STATUS']:$data['SENDPAYMENT']['STATUS'];
         $data = json_decode(json_encode($data), true);
+        $paymentInfo['status']=isset($data['TRANS_SENDPAYMENT']['HPAY']['STATUS'])?$data['TRANS_SENDPAYMENT']['HPAY']['STATUS']:$data['SENDPAYMENT']['STATUS'];
         if($paymentInfo['status'] == '0') {
             $paymentInfo['id'] = $data['TRANS_SENDPAYMENT']['HPAY']['ID'];
             $paymentInfo['status'] = Transaction::$STATUS_SENDING;
