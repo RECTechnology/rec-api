@@ -60,23 +60,29 @@ class LemonWayMethod extends BaseMethod {
         $to = $paymentInfo['to'];
         $amount = $paymentInfo['amount'];
 
-        $data = $this->driver->callService("SendPayment", array(
-            "debitWallet" => $from,
-            "creditWallet" => $to,
-            "amount" => $amount
-        ));
+        try {
+            $data = $this->driver->callService("SendPayment", array(
+                "debitWallet" => $from,
+                "creditWallet" => $to,
+                "amount" => $amount
+            ));
+        } catch (Exception $e) {
+            $data['SENDPAYMENT']['STATUS'] = '-1';
+            $data['SENDPAYMENT']['ID'] = '-1';
+            $paymentInfo['error'] = $e->getMessage();
+        }
 
         $paymentInfo['id'] = $data['SENDPAYMENT']['ID'];
         $paymentInfo['status'] = $data['SENDPAYMENT']['STATUS'];
-        if($paymentInfo['status'] == 0) {
+        if($paymentInfo['status'] == '0') {
             $paymentInfo['status'] = Transaction::$STATUS_SENDING;
             $paymentInfo['final'] = false;
         }
-        elseif($paymentInfo['status'] == 3){
+        elseif($paymentInfo['status'] == '3'){
             $paymentInfo['status'] = Transaction::$STATUS_SUCCESS;
             $paymentInfo['final'] = true;
         }else{
-            $paymentInfo['status'] = 'failed';
+            $paymentInfo['status'] = Transaction::$STATUS_ERROR;
             $paymentInfo['final'] = true;
         }
         return $paymentInfo;
