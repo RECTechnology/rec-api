@@ -66,6 +66,7 @@ class LemonWayMethod extends BaseMethod {
             "amount" => $amount
         ));
 
+        $data = json_decode(json_encode($data), true);
         $paymentInfo['id'] = $data['SENDPAYMENT']['ID'];
         $paymentInfo['status'] = $data['SENDPAYMENT']['STATUS'];
         if($paymentInfo['status'] == '0') {
@@ -76,6 +77,7 @@ class LemonWayMethod extends BaseMethod {
             $paymentInfo['status'] = Transaction::$STATUS_SUCCESS;
             $paymentInfo['final'] = true;
         }else{
+            //110 balance is not enough
             $paymentInfo['error'] = $data['SENDPAYMENT']['ERROR'];
             $paymentInfo['error_message'] = $data['SENDPAYMENT']['MESSAGE'];
             $paymentInfo['status'] = Transaction::$STATUS_ERROR;
