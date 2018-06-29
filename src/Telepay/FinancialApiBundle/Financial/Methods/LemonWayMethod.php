@@ -28,13 +28,13 @@ class LemonWayMethod extends BaseMethod {
         $this->container = $container;
     }
 
-    public function RegisterWallet($wallet, $email){
+    public function RegisterWallet($wallet, $email, $name, $lastName, $gender){
         $response = $this->driver->callService("RegisterWallet", array(
             "wallet" => $wallet,
             "clientMail" => $email,
-            "clientFirstName" => "Ivan",
-            "clientLastName" => "test1",
-            "clientTitle" => "M"
+            "clientFirstName" => $name,
+            "clientLastName" => $lastName,
+            "clientTitle" => $gender
         ));
         return $response;
     }
@@ -48,218 +48,45 @@ class LemonWayMethod extends BaseMethod {
         return $response;
     }
 
-    //PAY IN
-    public function getPayInInfo($amount){
-        $address = $this->driver->getnewaddress();
-        if(!$address) throw new Exception('Service Temporally unavailable', 503);
-        $min_confirmations = $this->container->getParameter('rec_min_confirmations');
-        $response = array(
-            'amount'    =>  $amount,
-            'currency'  =>  $this->getCurrency(),
-            'scale' =>  Currency::$SCALE[$this->getCurrency()],
-            'address' => $address,
-            'expires_in' => intval(1200),
-            'received' => 0.0,
-            'min_confirmations' => intval($min_confirmations),
-            'confirmations' => 0,
-            'status'    =>  'created',
-            'final'     =>  false
-        );
-        return $response;
-    }
-
-    public function getPayInInfoWithData($data){
-        $address = $data;
-        if(!$address) throw new Exception('Service Temporally unavailable', 503);
-        $min_confirmations = $this->container->getParameter('rec_min_confirmations');
-        $response = array(
-            'amount'    =>  $data['amount'],
-            'currency'  =>  $this->getCurrency(),
-            'scale' =>  Currency::$SCALE[$this->getCurrency()],
-            'address' => $data['address'],
-            'expires_in' => intval(1200),
-            'received' => $data['amount'],
-            'txid' => $data['txid'],
-            'min_confirmations' => intval($min_confirmations),
-            'confirmations' => 0,
-            'status'    =>  'received',
-            'final'     =>  false
-        );
-        return $response;
-    }
-
-
-    public function getCurrency()
-    {
-        return Currency::$REC;
-    }
 
     public function getPayInStatus($paymentInfo){
-
-        if(isset($paymentInfo['txid'])) {
-            //$confirmations = $this->driver->txidconfirmations($paymentInfo['txid']);
-            $confirmations = 1;
-            $paymentInfo['confirmations'] = $confirmations;
-            if ($paymentInfo['confirmations'] >= $paymentInfo['min_confirmations']) {
-                $status = 'success';
-                $final = true;
-                $paymentInfo['final'] = $final;
-            } else {
-                $status = 'received';
-            }
-            $paymentInfo['status'] = $status;
-            return $paymentInfo;
-        }
-
-        $allReceived = $this->driver->listreceivedbyaddress(0, true);
-        $amount = $paymentInfo['amount'];
-        $address = $paymentInfo['address'];
-
-        if($amount <= 100)
-            $margin = 0;
-        else
-            $margin = 100;
-
-        $allowed_amount = $amount - $margin;
-        foreach($allReceived as $cryptoData){
-            if($cryptoData['address'] === $address){
-                $paymentInfo['received'] = doubleval($cryptoData['amount'])*1e8;
-                if(doubleval($cryptoData['amount'])*1e8 >= $allowed_amount){
-                    $paymentInfo['confirmations'] = $cryptoData['confirmations'];
-                    if($paymentInfo['confirmations'] >= $paymentInfo['min_confirmations']){
-                        $status = 'success';
-                        $final = true;
-                        $paymentInfo['final'] = $final;
-                    }else{
-                        $status = 'received';
-                    }
-                }else{
-                    $status = 'created';
-                }
-                $paymentInfo['status'] = $status;
-                return $paymentInfo;
-            }
-        }
     }
 
-    //PAY OUT
-    public function getPayOutInfo($request)
-    {
-        $paramNames = array(
-            'amount',
-            'address'
-        );
-
-        $params = array();
-
-        foreach($paramNames as $param){
-            if(!$request->request->has($param)) throw new HttpException(400, 'Parameter '.$param.' not found');
-            if($request->request->get($param) == null) throw new Exception( 'Parameter '.$param.' can\'t be null', 404);
-            $params[$param] = $request->request->get($param);
-        }
-
-        $address_verification = $this->driver->validateaddress($params['address']);
-        if(!$address_verification['isvalid']) throw new Exception('Invalid address.', 400);
-
-        if($request->request->has('concept')){
-            $params['concept'] = $request->request->get('concept');
-        }else{
-            $params['concept'] = 'Rec out Transaction';
-        }
-
-        $params['find_token'] = $find_token = substr(Random::generateToken(), 0, 6);
-        $params['currency'] = $this->getCurrency();
-        $params['scale'] = Currency::$SCALE[$this->getCurrency()];
-        $params['final'] = false;
-        $params['status'] = false;
-        return $params;
-    }
-
-    public function getPayOutInfoData($data){
-        $paramNames = array(
-            'amount',
-            'address'
-        );
-
-        $params = array();
-
-        foreach($paramNames as $param){
-            if(!array_key_exists($param, $data)) throw new HttpException(404, 'Parameter '.$param.' not found');
-            if($data[$param] == null) throw new Exception( 'Parameter '.$param.' can\'t be null', 404);
-            $params[$param] = $data[$param];
-
-        }
-
-        $address_verification = $this->driver->validateaddress($params['address']);
-        if(!$address_verification['isvalid']) throw new Exception('Invalid address.', 400);
-
-        //TODO
-        //if($this->driver->getbalance() <= $params['amount'] / 1e8) throw new HttpException(403, 'Service Temporally unavailable');
-
-        if(array_key_exists('concept', $data)) {
-            $params['concept'] = $data['concept'];
-        }else{
-            $params['concept'] = 'Rec out Transaction';
-        }
-
-        $params['find_token'] = $find_token = substr(Random::generateToken(), 0, 6);
-        $params['currency'] = $this->getCurrency();
-        $params['scale'] = Currency::$SCALE[$this->getCurrency()];
-        $params['final'] = false;
-        $params['status'] = false;
-
-        return $params;
+    public function getPayOutStatus($id){
     }
 
     public function send($paymentInfo){
-        $address = $paymentInfo['address'];
+        $from = $paymentInfo['from'];
+        $to = $paymentInfo['to'];
         $amount = $paymentInfo['amount'];
 
-        //$crypto = $this->driver->sendtoaddress($address, $amount/1e8);
-        $crypto = substr(Random::generateToken(), 0, 48);
+        $data = $this->driver->callService("SendPayment", array(
+            "debitWallet" => $from,
+            "creditWallet" => $to,
+            "amount" => $amount
+        ));
 
-        $response = array();
-        $response['address'] = $paymentInfo['address'];
-        $response['amount'] = $paymentInfo['amount'];
-
-        if($crypto === false){
-            $response['status'] = Transaction::$STATUS_FAILED;
-            $response['final'] = false;
-        }else{
-            $response['txid'] = $crypto;
-            $response['status'] = 'sent';
-            $response['final'] = true;
+        $paymentInfo['id'] = $data['SENDPAYMENT']['ID'];
+        $paymentInfo['status'] = $data['SENDPAYMENT']['STATUS'];
+        if($paymentInfo['status'] == 0) {
+            $paymentInfo['status'] = Transaction::$STATUS_SENDING;
+            $paymentInfo['final'] = false;
         }
-        return $response;
-    }
-
-    public function getPayOutStatus($id)
-    {
-        // TODO: Implement getPayOutStatus() method.
+        elseif($paymentInfo['status'] == 3){
+            $paymentInfo['status'] = Transaction::$STATUS_SUCCESS;
+            $paymentInfo['final'] = true;
+        }else{
+            $paymentInfo['status'] = 'failed';
+            $paymentInfo['final'] = true;
+        }
+        return $paymentInfo;
     }
 
     public function cancel($payment_info){
         throw new Exception('Method not implemented', 409);
     }
 
-    public function getReceivedByAddress($address){
-        $allReceived = $this->driver->getreceivedbyaddress($address, 0);
-
-//        $receivedByAddress = array();
-//        foreach($allReceived as $received){
-//            if($received['address'] == $address){
-//                $receivedByAddress[] = $received;
-//            }
-//        }
-
-        return $allReceived;
-    }
 
     public function getInfo(){
-        $info = $this->driver->getinfo();
-
-        return $info;
     }
-
-
 }
