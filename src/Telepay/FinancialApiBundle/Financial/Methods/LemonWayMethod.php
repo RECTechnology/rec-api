@@ -47,6 +47,11 @@ class LemonWayMethod extends BaseMethod {
         ));
         return $response;
     }
+    /*
+    "CARD": {
+    "ID": "8"
+    },
+    */
 
 
     public function getPayInStatus($paymentInfo){
@@ -65,15 +70,15 @@ class LemonWayMethod extends BaseMethod {
             "creditWallet" => $to,
             "amount" => $amount
         ));
-
+        $paymentInfo['status']=isset($data['TRANS_SENDPAYMENT']['HPAY']['STATUS'])?$data['TRANS_SENDPAYMENT']['HPAY']['STATUS']:$data['SENDPAYMENT']['STATUS'];
         $data = json_decode(json_encode($data), true);
-        $paymentInfo['id'] = $data['SENDPAYMENT']['ID'];
-        $paymentInfo['status'] = $data['SENDPAYMENT']['STATUS'];
         if($paymentInfo['status'] == '0') {
+            $paymentInfo['id'] = $data['TRANS_SENDPAYMENT']['HPAY']['ID'];
             $paymentInfo['status'] = Transaction::$STATUS_SENDING;
             $paymentInfo['final'] = false;
         }
         elseif($paymentInfo['status'] == '3'){
+            $paymentInfo['id'] = $data['TRANS_SENDPAYMENT']['HPAY']['ID'];
             $paymentInfo['status'] = Transaction::$STATUS_SUCCESS;
             $paymentInfo['final'] = true;
         }else{
