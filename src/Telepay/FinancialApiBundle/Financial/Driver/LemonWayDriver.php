@@ -98,8 +98,14 @@ class LemonWayDriver{
                 $unwrapResponse = json_decode($response)->d;
                 $businessErr = $unwrapResponse->E;
                 if ($businessErr) {
-                    //error_log($businessErr->Code." - ".$businessErr->Msg." - Technical info: ".$businessErr->Error);
-                    throw new HttpException(403, $businessErr->Code." - ".$businessErr->Msg);
+                    $methodName = strtoupper($serviceName);
+                    return array(
+                        $methodName => array(
+                            'STATUS' => '-1',
+                            'ERROR' => $businessErr->Code,
+                            'MESSAGE' => $businessErr->Msg
+                        )
+                    );
                 }
                 return $unwrapResponse;
             }
