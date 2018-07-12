@@ -36,6 +36,11 @@ security:
             stateless:  true
             security:   false
 
+        public:
+            pattern:    ^/public/*
+            stateless:  true
+            security:   false
+
         POS:
             pattern:    ^/pos/v[0-9]+/transaction/*
             stateless:  true
