@@ -39,9 +39,8 @@ class LemonWayMethod extends BaseMethod {
         return $response;
     }
 
-    public function CreditCardPayment($wallet, $amount){
+    public function CreditCardPayment($amount){
         $response = $this->driver->callService("MoneyInWebInit", array(
-            "wallet" => $wallet,
             "amountTot" => $amount,
             "registerCard" => "1"
         ));
@@ -50,11 +49,43 @@ class LemonWayMethod extends BaseMethod {
 
     public function SavedCreditCardPayment($wallet, $amount, $card_id){
         $response = $this->driver->callService("MoneyInWithCardId", array(
-            "wallet" => $wallet,
             "amountTot" => $amount,
             "isPreAuth" => '0',
             "cardId" => $card_id
         ));
+        return $response;
+    }
+
+    public function getPayInInfo($amount){
+        $payment_info = $this->CreditCardPayment($amount);
+        if(!$payment_info) throw new Exception('Service Temporally unavailable', 503);
+        $response = array(
+            'amount'    =>  $amount,
+            'currency'  =>  $this->getCurrency(),
+            'scale' =>  Currency::$SCALE[$this->getCurrency()],
+            'payment_url' => $payment_info['url'],
+            'expires_in' => intval(1200),
+            'received' => 0.0,
+            'status'    =>  'created',
+            'final'     =>  false
+        );
+        return $response;
+    }
+
+    public function getPayInInfoWithCommerce($data){
+        $payment_info = $this->CreditCardPayment($data['amount']);
+        if(!$payment_info) throw new Exception('Service Temporally unavailable', 503);
+        $response = array(
+            'amount'    =>  $data['amount'],
+            'commerce_id'    =>  $data['commerce_id'],
+            'currency'  =>  $this->getCurrency(),
+            'scale' =>  Currency::$SCALE[$this->getCurrency()],
+            'payment_url' => $payment_info['url'],
+            'expires_in' => intval(1200),
+            'received' => 0.0,
+            'status'    =>  'created',
+            'final'     =>  false
+        );
         return $response;
     }
 

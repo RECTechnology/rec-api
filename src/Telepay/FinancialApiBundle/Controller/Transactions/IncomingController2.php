@@ -122,7 +122,6 @@ class IncomingController2 extends RestApiController{
             }
         }
 
-        //Si viene del scheduled no hay IP
         $transaction = Transaction::createFromRequestIP($ip);
         $transaction->setService($method_cname);
         $transaction->setMethod($method_cname);
@@ -131,6 +130,7 @@ class IncomingController2 extends RestApiController{
         $transaction->setGroup($group->getId());
         $transaction->setVersion($version_number);
         $transaction->setType($type);
+        $transaction->setInternal(false);
         $dm->persist($transaction);
 
         if(array_key_exists('concept', $data) && $data['concept']!=''){
@@ -141,12 +141,6 @@ class IncomingController2 extends RestApiController{
 
         if(array_key_exists('url_notification', $data)) $url_notification = $data['url_notification'];
         else $url_notification = '';
-
-        if(array_key_exists('delete_on_expire', $data) && $data['delete_on_expire']== 1 && ($method_cname == 'btc' || $method_cname == 'fac')){
-            $transaction->setDeleteOnExpire(true);
-            $logger->info('Incomig transaction DELETE ON EXPIRE TRUE');
-        }
-
         $logger->info('Incomig transaction...getPaymentInfo for company '.$group->getId());
 
         if($type == 'in'){
@@ -157,6 +151,10 @@ class IncomingController2 extends RestApiController{
             );
             if(!isset($data['txid'])){
                 $payment_info = $method->getPayInInfo($amount);
+            }
+            elseif(isset($data['commerce_id'])){
+                $payment_info = $method->getPayInInfoWithCommerce($data);
+                $transaction->setInternal(true);
             }
             else{
                 $payment_info = $method->getPayInInfoWithData($data);
