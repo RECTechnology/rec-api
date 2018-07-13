@@ -41,8 +41,8 @@ services:
     net.telepay.out.rec.v1:
         class: Telepay\FinancialApiBundle\Financial\Methods\RecMethod
         arguments:
-            - "Rec"
-            - "rec"
+            - "LemonWay"
+            - "lemonway"
             - "out"
             - "REC"
             - "false"
@@ -57,8 +57,8 @@ services:
     net.telepay.in.lemonway.v1:
         class: Telepay\FinancialApiBundle\Financial\Methods\LemonWayMethod
         arguments:
-            - "Eur"
-            - "eur"
+            - "LemonWay"
+            - "lemonway"
             - "in"
             - "EUR"
             - "false"
