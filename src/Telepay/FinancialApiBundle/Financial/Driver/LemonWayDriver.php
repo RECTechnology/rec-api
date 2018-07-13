@@ -6,31 +6,21 @@ use Symfony\Component\HttpKernel\Exception\HttpException;
 
 
 class LemonWayDriver{
-    /*
-    * Put the Directkit JSON2 here (your should see "json2" in your URL)
-    * Make sure your server is whitelisted, otherwise you will receive 403-forbidden
-    */
-
-
-//define('DIRECTKIT_JSON2', 'https://sandbox-api.lemonway.fr/mb/demo/dev/directkitjson2/Service.asmx');
-//define('LOGIN', 'society');
-//define('PASSWORD', '123456');
-//define('VERSION', '4.0');
-//define('LANGUAGE', 'en');
-
     private $url;
     private $login;
     private $pass;
     private $version;
+    private $admin_account;
     private $language;
     private $ua;
     private $ssl;
 
-    function __construct($url, $login, $pass, $version){
+    function __construct($url, $login, $pass, $version, $admin_account){
         $this->url = $url;
         $this->login = $login;
         $this->pass = $pass;
         $this->version = $version;
+        $this->admin_account = $admin_account;
         $this->language = 'en';
         $this->ua = isset($_SERVER['HTTP_USER_AGENT']) ? $_SERVER['HTTP_USER_AGENT'] : 'ua';
         /**
@@ -66,6 +56,9 @@ class LemonWayDriver{
         $parameters['version'] = $this->version;
         $parameters['walletIp'] = $this->getUserIP();
         $parameters['walletUa'] = $this->ua;
+        if(!isset($parameters['wallet'])){
+            $parameters['wallet'] = $this->admin_account;
+        }
         // wrap to 'p'
         $request = json_encode(array('p' => $parameters));
         $serviceUrl = $this->url . '/' . $serviceName;

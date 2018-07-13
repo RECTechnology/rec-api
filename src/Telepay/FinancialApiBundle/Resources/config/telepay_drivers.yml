@@ -22,3 +22,4 @@ services:
             - "%lemonway_user%"
             - "%lemonway_pass%"
             - "%lemonway_version%"
+            - "%lemonway_admin_account%"

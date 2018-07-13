@@ -72,6 +72,7 @@ parameters:
     lemonway_user: 'society'
     lemonway_pass: '123456'
     lemonway_version: '4.0'
+    lemonway_admin_account: 'MKP'
 
 
 
