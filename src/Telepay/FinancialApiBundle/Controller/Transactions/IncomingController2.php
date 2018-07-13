@@ -149,12 +149,12 @@ class IncomingController2 extends RestApiController{
                 'concept'   =>  $concept,
                 'url_notification'  =>  $url_notification
             );
-            if(!isset($data['txid'])){
-                $payment_info = $method->getPayInInfo($amount);
-            }
-            elseif(isset($data['commerce_id'])){
+            if(isset($data['commerce_id'])){
                 $payment_info = $method->getPayInInfoWithCommerce($data);
                 $transaction->setInternal(true);
+            }
+            elseif(!isset($data['txid'])){
+                $payment_info = $method->getPayInInfo($amount);
             }
             else{
                 $payment_info = $method->getPayInInfoWithData($data);
@@ -326,7 +326,6 @@ class IncomingController2 extends RestApiController{
         }else{
             return $this->methodTransaction(201, $transaction, "Done");
         }
-
     }
 
     /**
