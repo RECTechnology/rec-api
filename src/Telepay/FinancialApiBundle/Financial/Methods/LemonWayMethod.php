@@ -41,14 +41,16 @@ class LemonWayMethod extends BaseMethod {
 
     public function CreditCardPayment($amount){
         $response = $this->driver->callService("MoneyInWebInit", array(
+            "wallet" => 'ADMIN',
             "amountTot" => $amount,
             "registerCard" => "1"
         ));
         return $response;
     }
 
-    public function SavedCreditCardPayment($wallet, $amount, $card_id){
+    public function SavedCreditCardPayment($amount, $card_id){
         $response = $this->driver->callService("MoneyInWithCardId", array(
+            "wallet" => 'ADMIN',
             "amountTot" => $amount,
             "isPreAuth" => '0',
             "cardId" => $card_id
@@ -80,7 +82,9 @@ class LemonWayMethod extends BaseMethod {
             'commerce_id'    =>  $data['commerce_id'],
             'currency'  =>  $this->getCurrency(),
             'scale' =>  Currency::$SCALE[$this->getCurrency()],
-            'payment_url' => $payment_info['url'],
+            'payment_url' => "" . $payment_info->MONEYINWEB->TOKEN,
+            'card_id' => $payment_info->MONEYINWEB->CARD->ID,
+            'transaction_id' => $payment_info->MONEYINWEB->ID,
             'expires_in' => intval(1200),
             'received' => 0.0,
             'status'    =>  'created',
