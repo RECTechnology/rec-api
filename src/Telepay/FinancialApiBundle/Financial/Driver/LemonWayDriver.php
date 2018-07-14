@@ -56,12 +56,6 @@ class LemonWayDriver{
         $parameters['version'] = $this->version;
         $parameters['walletIp'] = $this->getUserIP();
         $parameters['walletUa'] = $this->ua;
-        if(isset($parameters['wallet']) && $parameters['wallet']=='ADMIN'){
-            $parameters['wallet'] = $this->admin_account;
-        }
-        if(isset($parameters['debitWallet']) && $parameters['debitWallet']=='ADMIN'){
-            $parameters['debitWallet'] = $this->admin_account;
-        }
         // wrap to 'p'
         $request = json_encode(array('p' => $parameters));
         $serviceUrl = $this->url . '/' . $serviceName;

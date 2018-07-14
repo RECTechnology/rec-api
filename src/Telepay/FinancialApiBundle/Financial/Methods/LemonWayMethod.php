@@ -39,18 +39,24 @@ class LemonWayMethod extends BaseMethod {
         return $response;
     }
 
-    public function CreditCardPayment($amount){
+    public function CreditCardPayment($amount, $save = false){
+        $admin = $this->container->getParameter('lemonway_admin_account');
+        $notification_url = $this->container->getParameter('lemonway_notification_url');
         $response = $this->driver->callService("MoneyInWebInit", array(
-            "wallet" => 'ADMIN',
+            "wallet" => $admin,
             "amountTot" => $amount,
-            "registerCard" => "1"
+            "returnUrl" => $notification_url . "/ok",
+            "errorUrl" => $notification_url . "/error",
+            "cancelUrl" => $notification_url . "/cancel",
+            "registerCard" => $save?"1":"0"
         ));
         return $response;
     }
 
     public function SavedCreditCardPayment($amount, $card_id){
+        $admin = $this->container->getParameter('lemonway_admin_account');
         $response = $this->driver->callService("MoneyInWithCardId", array(
-            "wallet" => 'ADMIN',
+            "wallet" => $admin,
             "amountTot" => $amount,
             "isPreAuth" => '0',
             "cardId" => $card_id
@@ -62,34 +68,37 @@ class LemonWayMethod extends BaseMethod {
         $payment_info = $this->CreditCardPayment($amount);
         if(!$payment_info) throw new Exception('Service Temporally unavailable', 503);
         $response = array(
-            'amount'    =>  $amount,
-            'currency'  =>  $this->getCurrency(),
+            'amount' => $amount,
+            'currency' => $this->getCurrency(),
             'scale' =>  Currency::$SCALE[$this->getCurrency()],
             'payment_url' => $payment_info['url'],
             'expires_in' => intval(1200),
             'received' => 0.0,
-            'status'    =>  'created',
-            'final'     =>  false
+            'status' => 'created',
+            'final' => false
         );
         return $response;
     }
 
     public function getPayInInfoWithCommerce($data){
-        $payment_info = $this->CreditCardPayment($data['amount']/Currency::$SCALE[$this->getCurrency()]);
+        $amount = $data['amount']/Currency::$SCALE[$this->getCurrency()];
+        $payment_info = $this->CreditCardPayment($amount);
         if(!$payment_info) throw new Exception('Service Temporally unavailable', 503);
+        if($payment_info->MONEYINWEB->STATUS  == '-1') throw new Exception('Service Temporally unavailable(' . $payment_info->MONEYINWEB->ERROR .')', 503);
+        $url = $this->container->getParameter('lemonway_payment_url');
         $response = array(
-            'amount'    =>  $data['amount'],
-            'commerce_id'    =>  $data['commerce_id'],
-            'currency'  =>  $this->getCurrency(),
-            'scale' =>  Currency::$SCALE[$this->getCurrency()],
-            'payment_url' => $payment_info->MONEYINWEB->TOKEN,
+            'amount' => $data['amount'],
+            'commerce_id' => $data['commerce_id'],
+            'currency' => $this->getCurrency(),
+            'scale' => Currency::$SCALE[$this->getCurrency()],
+            'token_id' => $payment_info->MONEYINWEB->TOKEN,
+            'payment_url' => $url . $payment_info->MONEYINWEB->TOKEN,
             'card_id' => $payment_info->MONEYINWEB->CARD->ID,
             'transaction_id' => $payment_info->MONEYINWEB->ID,
-            'response' => json_encode($payment_info, JSON_PRETTY_PRINT),
             'expires_in' => intval(1200),
             'received' => 0.0,
-            'status'    =>  'created',
-            'final'     =>  false
+            'status' => 'created',
+            'final' => false
         );
         return $response;
     }
@@ -101,7 +110,12 @@ class LemonWayMethod extends BaseMethod {
     }
 
     public function send($paymentInfo){
-        $from = $paymentInfo['from'];
+        if(isset($paymentInfo['from'])) {
+            $from = $paymentInfo['from'];
+        }
+        else {
+            $from = $this->container->getParameter('lemonway_admin_account');
+        }
         $to = $paymentInfo['to'];
         $amount = $paymentInfo['amount'];
 

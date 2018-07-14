@@ -40,7 +40,6 @@ class DelegatedExchangeCommand extends ContainerAwareCommand
         //$text='payment=>' . json_encode($new_payment, JSON_PRETTY_PRINT);
 
         $payment_P2P_data = array(
-            'from' => 'ADMIN',
             'to' => 'ivan002',
             'amount' => '1.00'
         );
