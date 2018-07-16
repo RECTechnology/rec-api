@@ -37,7 +37,7 @@ class LimitsGroupController extends BaseApiController
             $limit = $em->getRepository($this->getRepositoryName())->find($id);
             $limitGroup = $limit->getGroup();
 
-            if($group->getId() != $limitGroup->getGroupCreator()->getId()) throw new HttpException(409, 'You don\'t have the necessary permissions');
+            //if($group->getId() != $limitGroup->Creator()->getId()) throw new HttpException(409, 'You don\'t have the necessary permissions');
 
             if(!$user->hasRole('ROLE_ADMIN')) throw new HttpException(403, 'You don\'t have the necessary permissions');
 

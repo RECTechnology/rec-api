@@ -1129,31 +1129,7 @@ class WalletController extends RestApiController{
         }
 
         $exchanger = $this->container->get('net.telepay.commons.exchange_manipulator');
-        $botc_admin = $this->container->getParameter('default_company_creator_commerce_botc');
-        if(($botc_admin == $userGroup->getGroupCreator()->getId() || $botc_admin == $userGroup->getId()) && $userGroup->getPremium()==true) {
-            $to_data=$to==Currency::$FAC?Currency::$FAIRP:$to;
-            $from_data=$from==Currency::$FAC?Currency::$FAIRP:$from;
-            if($to_data != Currency::$FAIRP && $from_data != Currency::$FAIRP){
-                $exchanger->doExchange($amount, $from, $to, $userGroup, $user);
-            }
-            else{
-                $botc_exchange = $this->container->getParameter('default_company_exchange_botc');
-                $exchange_company = $em->getRepository('TelepayFinancialApiBundle:Group')->find($botc_exchange);
-                $receiverWallet = $exchange_company->getWallet($to);
-                if($from == Currency::$FAC){
-                    $exchangeAmount = $exchanger->exchange($amount, 'FAIRP', $to);
-                }
-                elseif($to == Currency::$FAC){
-                    $exchangeAmount = $exchanger->exchange($amount, $from, 'FAIRP');
-                }
-                if ($receiverWallet->getAvailable() < $exchangeAmount) throw new HttpException(403, 'Insuficient founds in your exchange admin node.');
-                $exchanger->doExchange($amount, $from, $to, $userGroup, $user);
-                $exchanger->doExchange($exchangeAmount, $to, $from, $exchange_company, $user, true);
-            }
-        }
-        else{
-            $exchanger->doExchange($amount, $from, $to, $userGroup, $user);
-        }
+        $exchanger->doExchange($amount, $from, $to, $userGroup, $user);
 
         //return
         return $this->restV2(200, "ok", "Exchange went successfully");

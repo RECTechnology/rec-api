@@ -50,7 +50,6 @@ class SpecialActionsController extends RestApiController {
             'group_creator' =>  $botc_id
         ));
         if(!$group) throw new HttpException(404, 'Group not allowed');
-        if($group->getGroupCreator()->getId() != $botc_id) throw new HttpException(404, 'Group not allowed');
         $group->setTier($tier);
         $em->flush();
         return $this->rest(204, 'Company tier updated successfully');

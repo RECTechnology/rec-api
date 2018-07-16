@@ -76,37 +76,15 @@ class GroupsController extends BaseApiController
             ->getQuery();
 
         $all = $companyQuery->getResult();
-
-
-        //TODO: Improve performance (two queries)
-//        $all = $this->getRepository()->findBy(
-//            array(),
-//            array('id' => 'DESC'),
-//            $limit,
-//            $offset
-//        );
-
         $filtered = $all;
-
         $total = count($filtered);
-
         foreach ($all as $group){
-            $groupCreator = $group->getGroupCreator();
-
-            $groupData = array(
-                'id'    => $groupCreator->getId(),
-                'name'  =>  $groupCreator->getName(),
-                'allowed_methods'   =>  $groupCreator->getMethodsList()
-            );
             $group = $group->getAdminView();
-
-            $group->setGroupCreatorData($groupData);
             if($group->getMethodsList()){
                 $group->setAllowedMethods($group->getMethodsList());
             }else{
                 $group->setAllowedMethods(array());
             }
-
 
             $fees = $group->getCommissions();
             foreach ( $fees as $fee ){
@@ -200,129 +178,6 @@ class GroupsController extends BaseApiController
             )
         );
 
-    }
-
-    /**
-     * @Rest\View
-     * description: create a company
-     * permissions: ROLE_RESELLER(add company behind this company)
-     */
-    public function createAction(Request $request){
-
-        //only the superadmin can access here
-        if(!$this->get('security.context')->isGranted('ROLE_ADMIN'))
-            throw new HttpException(403, 'You have not the necessary permissions');
-
-        $admin = $this->get('security.context')->getToken()->getUser();
-
-        if(!$request->request->has('name')){
-            throw new HttpException(400, "Parameter 'name' not found");
-        }
-
-        if(!$request->request->has('active')){
-            $request->request->set('active', true);
-        }
-
-        $activeGroup = $admin->getActiveGroup();
-
-        if(!$activeGroup->hasRole('ROLE_SUPER_ADMIN')){
-            if(!$activeGroup->hasRole('ROLE_RESELLER')) throw new HttpException(403, 'Your company don\'t have the necessary permissions');
-        }
-
-        $request->request->set('roles', array('ROLE_COMPANY'));
-        $request->request->set('default_currency', Currency::$EUR);
-        $request->request->set('group_creator',$activeGroup);
-        $request->request->set('methods_list', $activeGroup->getMethodsList());
-
-        $group_name = $request->request->get('name');
-
-        $resp = parent::createAction($request);
-
-        if($resp->getStatusCode() == 201){
-            //TODO all of this stuff could be in a listener
-            $em = $this->getDoctrine()->getManager();
-            $groupsRepo = $em->getRepository("TelepayFinancialApiBundle:Group");
-            $group = $groupsRepo->findOneBy(array('name' => $group_name));
-
-            $methodsRepo = $this->get('net.telepay.method_provider');
-            $methods = $methodsRepo->findAll();
-
-            //ya no se usa, ahora depende de los grupos.
-            $adminGroup = $group->getGroupCreator();
-            $groupMethodsList = $adminGroup->getMethodsList();
-            foreach($methods as $method){
-                if(in_array($method->getCname().'-'.$method->getType(), $groupMethodsList)){
-                    //don'\t create limits because we are using tier limits
-
-//                    $limit_def = new LimitDefinition();
-//                    $limit_def->setCname($method->getCname().'-'.$method->getType());
-//                    $limit_def->setSingle(0);
-//                    $limit_def->setDay(0);
-//                    $limit_def->setWeek(0);
-//                    $limit_def->setMonth(0);
-//                    $limit_def->setYear(0);
-//                    $limit_def->setTotal(0);
-//                    $limit_def->setGroup($group);
-//                    $limit_def->setCurrency($method->getCurrency());
-
-                    $commission = new ServiceFee();
-                    $commission->setGroup($group);
-                    $commission->setFixed(0);
-                    $commission->setVariable(1);
-                    $commission->setServiceName($method->getCname().'-'.$method->getType());
-                    $commission->setCurrency($method->getCurrency());
-
-                    $em->persist($commission);
-//                    $em->persist($limit_def);
-                }
-
-            }
-
-            $exchanges = $this->container->get('net.telepay.exchange_provider')->findAll();
-
-            foreach($exchanges as $exchange){
-                //create limit for this group
-                //create fee for this group
-//                    $limit = new LimitDefinition();
-//                    $limit->setDay(0);
-//                    $limit->setWeek(0);
-//                    $limit->setMonth(0);
-//                    $limit->setYear(0);
-//                    $limit->setTotal(0);
-//                    $limit->setSingle(0);
-//                    $limit->setCname('exchange_'.$exchange->getCname());
-//                    $limit->setCurrency($exchange->getCurrencyOut());
-//                    $limit->setGroup($group);
-
-                    $fee = new ServiceFee();
-                    $fee->setFixed(0);
-                    $fee->setVariable(1);
-                    $fee->setCurrency($exchange->getCurrencyOut());
-                    $fee->setServiceName('exchange_'.$exchange->getCname());
-                    $fee->setGroup($group);
-
-//                    $em->persist($limit);
-                    $em->persist($fee);
-
-            }
-
-            //create wallets for this company
-            $currencies = Currency::$ALL;
-            foreach($currencies as $currency){
-                $userWallet = new UserWallet();
-                $userWallet->setBalance(0);
-                $userWallet->setAvailable(0);
-                $userWallet->setCurrency(strtoupper($currency));
-                $userWallet->setGroup($group);
-
-                $em->persist($userWallet);
-            }
-
-            $em->flush();
-
-        }
-
-        return $resp;
     }
 
     /**
@@ -422,14 +277,6 @@ class GroupsController extends BaseApiController
             $currency = $lim->getCurrency();
             $lim->setScale($currency);
         }
-
-        $groupCreator = $group->getGroupCreator();
-        $groupData = array(
-            'id'    => $groupCreator->getId(),
-            'name'  =>  $groupCreator->getName()
-        );
-        $group->setGroupCreatorData($groupData);
-
         return $this->restV2(
             200,
             "ok",
@@ -458,16 +305,10 @@ class GroupsController extends BaseApiController
         ));
 
         $group = $this->getRepository($this->getRepositoryName())->find($id);
-        $groupCreator = $group->getGroupCreator();
-
         if(!$adminRoles->hasRole('ROLE_ADMIN')) throw new HttpException(403, 'You don\'t have the necessary permissions');
 
         $methods = null;
         if($request->request->has('methods_list')){
-            if($groupCreator->getid() != $adminGroup->getId() && !$adminRoles->hasRole('ROLE_SUPER_ADMIN'))
-                throw new HttpException(403, 'You don\'t have the necessary permissions');
-
-
             $methods = $request->get('methods_list');
             $request->request->remove('methods_list');
 

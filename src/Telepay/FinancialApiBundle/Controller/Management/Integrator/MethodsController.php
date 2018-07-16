@@ -64,9 +64,6 @@ class MethodsController extends RestApiController {
         if(!$this->getUser()->hasGroup($userGroup->getName())) throw new HttpException(403, 'You don\'t have the necessary permissions');
 
         $tier = $userGroup->getTier();
-        if($userGroup->getGroupCreator()->getId() == $this->container->getParameter('default_company_creator_commerce_android_fair')){
-            $tier = 'fairpay';
-        }
         $methodsByTier = $this->get('net.telepay.method_provider')->findByTier($tier);
 
         //check if method is available

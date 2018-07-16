@@ -18,12 +18,7 @@ use Telepay\FinancialApiBundle\Entity\CashInTokens;
 class CashInController extends BaseApiController{
 
     private $allowed_methods = array(
-        'easypay-in',
-        'sepa-in',
-        'fac-in',
-        'crea-in',
-        'eth-in',
-        'btc-in'
+        'rec-in'
     );
     /**
      * @Rest\View
@@ -75,15 +70,6 @@ class CashInController extends BaseApiController{
                         'iban'  =>  'ES15 1491 0001 2320 1444 7722',
                         'beneficiary'   =>  ' XARXA INTEGRAL DE PROFESSIONALS I USUARIES',
                         'bic_swift' =>  'TRIOESMMXXX'
-                    );
-                }
-                $botc_id = $this->container->getParameter('default_company_creator_commerce_botc');
-                if(($company->getGroupCreator()->getId() == $botc_id) || ($company->getId() == $botc_id)){
-                    $info = array(
-                        'iban'  =>  'ES43 1491 0001 2420 8685 5729',
-                        'beneficiary'   =>  'Xarxa Autogestió Social SCCL',
-                        'bic_swift' =>  'TRIOESMMXXX',
-                        'message' => 'Send sepa transfer to this account'
                     );
                 }
                 if($one != "default") {
@@ -138,13 +124,7 @@ class CashInController extends BaseApiController{
         //check if the service is allowed
         if(!in_array($method.'-'.$type, $this->allowed_methods)) throw new HttpException(405, 'Method not allowed');
         $methodDriver = $this->get('net.telepay.in.'.$method.'.v1');
-
-        if($company->getGroupCreator()->getId() == $this->container->getParameter('default_company_creator_commerce_android_fair')){
-            if($method != 'fac') throw new HttpException(403, 'Method not allowed in this company');
-        }else{
-            if($methodDriver->getMinTier() > $company->getTier()) throw new HttpException(403, 'Method not allowed in this company');
-        }
-
+        if($methodDriver->getMinTier() > $company->getTier()) throw new HttpException(403, 'Method not allowed in this company');
         $tokens = $this->getRepository('TelepayFinancialApiBundle:CashInTokens')->findBy(array(
             'company'  =>  $company->getId(),
             'method'    =>  $request->request->get('method'),

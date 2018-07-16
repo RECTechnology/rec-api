@@ -794,7 +794,6 @@ class SpecialActionsController extends RestApiController {
 
         $total_fee = $transaction->getFixedFee() + $transaction->getVariableFee();
         $group = $em->getRepository('TelepayFinancialApiBundle:Group')->find($transaction->getGroup());
-        $creator = $group->getGroupCreator();
 
         $feeTransaction = Transaction::createFromTransaction($transaction);
         $feeTransaction->setMethod($method_cname);
@@ -802,8 +801,7 @@ class SpecialActionsController extends RestApiController {
         $feeTransaction->setDataIn(array(
             'previous_transaction'  =>  $transaction->getId(),
             'amount'                =>  -$total_fee,
-            'concept'           =>  $method_cname.'->fee',
-            'admin'                 =>  $creator->getName()
+            'concept'           =>  $method_cname.'->fee'
         ));
         $feeTransaction->setData(array(
             'previous_transaction'  =>  $transaction->getId(),
@@ -818,8 +816,7 @@ class SpecialActionsController extends RestApiController {
         $feeTransaction->setPayOutInfo(array(
             'previous_transaction'  =>  $transaction->getId(),
             'amount'                =>  -$total_fee,
-            'concept'           =>  $method_cname.'->fee',
-            'admin'                 =>  $creator->getName()
+            'concept'           =>  $method_cname.'->fee'
         ));
         $feeTransaction->setFeeInfo(array(
             'previous_transaction'  =>  $transaction->getId(),
@@ -847,9 +844,8 @@ class SpecialActionsController extends RestApiController {
         $balancer->addBalance($group, -$total_fee, $feeTransaction, "special act contr 4");
         //empezamos el reparto
 
-        if(!$creator) throw new HttpException(404,'Creator not found');
-
         $transaction_id = $transaction->getId();
+        /*
         $dealer = $this->get('net.telepay.commons.fee_deal');
         $dealer->deal(
             $creator,
@@ -861,7 +857,7 @@ class SpecialActionsController extends RestApiController {
             $transaction_id,
             $transaction->getVersion()
         );
-
+        */
     }
 
     private function _sendTicket($body, $email, $ref, $currency){
