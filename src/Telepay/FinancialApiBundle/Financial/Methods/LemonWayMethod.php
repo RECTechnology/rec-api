@@ -65,19 +65,10 @@ class LemonWayMethod extends BaseMethod {
     }
 
     public function getPayInInfo($amount){
-        $payment_info = $this->CreditCardPayment($amount);
-        if(!$payment_info) throw new Exception('Service Temporally unavailable', 503);
-        $response = array(
-            'amount' => $amount,
-            'currency' => $this->getCurrency(),
-            'scale' =>  Currency::$SCALE[$this->getCurrency()],
-            'payment_url' => $payment_info['url'],
-            'expires_in' => intval(1200),
-            'received' => 0.0,
-            'status' => 'created',
-            'final' => false
-        );
-        return $response;
+        //$amount = $amount/Currency::$SCALE[$this->getCurrency()];
+        //$payment_info = $this->CreditCardPayment($amount);
+        //if(!$payment_info) throw new Exception('Service Temporally unavailable', 503);
+        throw new Exception('Service Temporally unavailable', 503);
     }
 
     public function getPayInInfoWithCommerce($data){
