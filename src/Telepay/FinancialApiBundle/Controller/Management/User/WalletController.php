@@ -72,6 +72,36 @@ class WalletController extends RestApiController{
     }
 
     /**
+     * read list of commerces with exchange available
+     */
+    public function listCommerce(Request $request){
+        $total = 0;
+        $all = array();
+        $em = $this->getDoctrine()->getManager();
+        $where = array('type'  =>  'COMPANY');
+        $list_companies = $em->getRepository('TelepayFinancialApiBundle:Group')->findBy($where);
+
+        foreach ($list_companies as $company) {
+            $total += 1;
+            $all[] = array(
+                'id' => $company->getId(),
+                'name' => $company->getName(),
+                'company_image' => $company->getCompanyImage()
+            );
+        }
+
+        return $this->restV2(
+            200,
+            "ok",
+            "Request successful",
+            array(
+                'total' => $total,
+                'elements' => $all
+            )
+        );
+    }
+
+    /**
      * read last 10 transactions
      */
     public function last(Request $request){
@@ -728,211 +758,6 @@ class WalletController extends RestApiController{
             "Request successful",
             $monthly
         );
-    }
-
-    /**
-     * return country benefits group by IP
-     */
-    public function countryBenefits(Request $request){
-        $userGroup = $this->get('security.context')->getToken()->getUser()->getActiveGroup();
-        $dm = $this->get('doctrine_mongodb')->getManager();
-        $result = $dm->getRepository('TelepayFinancialApiBundle:Transaction')->getCountryBenefits($userGroup);
-
-        $total = [];
-        foreach($result->toArray() as $res){
-
-            $json = file_get_contents('http://www.geoplugin.net/json.gp?ip='.$res['ip']);
-            $data = json_decode($json);
-
-            $changed  = false;
-            foreach($total as $t){
-                if(isset($t['name']) && $t['name'] == $data->geoplugin_countryName ){
-                    $t['value'] = $t['value'] + $res['total'];
-                    $changed = true;
-                }
-            }
-
-            if($changed == false){
-                $country['name'] = $data->geoplugin_countryName;
-                $country['code'] = $data->geoplugin_countryCode;
-                $country['flag'] = strtolower($data->geoplugin_countryCode);
-                $country['value'] = $res['total'];
-                $total[] = $country;
-            }
-
-        }
-
-        return $this->restV2(
-            200,
-            "ok",
-            "Request successful",
-            $total
-        );
-    }
-
-    /**
-     * send money between wallets
-     */
-    public function walletToWallet(Request $request, $currency){
-
-        //sender user
-        $user = $this->get('security.context')
-            ->getToken()->getUser();
-
-        $userGroup = $this->get('security.context')->getToken()->getUser()->getActiveGroup();
-
-        $parameters = array(
-            'token',
-            'amount',
-            'concept'
-        );
-
-        $params = array();
-
-        //Obtain the parameters
-        foreach ($parameters as $param){
-            if($request->request->has($param))
-                $params[$param] = $request->request->get($param);
-            else
-                throw new HttpException(400,'Parameter '.$param.' not found');
-
-        }
-
-        $fiat_currencies = Currency::$FIAT;
-        if (in_array($currency, $fiat_currencies)) {
-            $tier = $userGroup->getTier();
-            if($tier != 10 ){
-                $sender_id = $userGroup->getId();
-                $botc_admin = $this->container->getParameter('default_company_creator_commerce_botc');
-                $botc_exchange = $this->container->getParameter('default_company_exchange_botc');
-                if($sender_id != $botc_admin && $sender_id != $botc_exchange){
-                    throw new HttpException(400,'This currency is not allowed to send by this way.');
-                }
-            }
-        }
-
-        //Search receiver user
-        $em = $this->getDoctrine()->getManager();
-        $receiver = $em->getRepository('TelepayFinancialApiBundle:Group')
-            ->findOneBy(array('company_token' => $params['token']));
-
-        if (!$receiver) throw new HttpException(404,'Receiver not found');
-
-        //Check founds in sender wallet
-        $sender_wallet = $userGroup->getWallet(strtoupper($currency));
-
-        if(!$sender_wallet) throw new HttpException(400,'Sender wallet not found');
-
-        if($sender_wallet->getAvailable() < $params['amount']) throw new HttpException(401, 'Not founds enought');
-
-        //obtaining receiver wallet
-        $receiver_wallet = $receiver->getWallet(strtoupper($currency));
-
-        if(!$receiver_wallet) throw new HttpException(400,'Receiver wallet not found');
-
-        //Generate transactions and update wallets - without fees
-        //SENDER TRANSACTION
-        $sender_transaction = new Transaction();
-        $sender_transaction->setStatus(Transaction::$STATUS_SUCCESS);
-        $sender_transaction->setScale($sender_wallet->getScale());
-        $sender_transaction->setCurrency($sender_wallet->getCurrency());
-        $sender_transaction->setIp('');
-        $sender_transaction->setVersion('');
-        $sender_transaction->setService('transfer');
-        $sender_transaction->setMethod('wallet_to_wallet');
-        $sender_transaction->setType(Transaction::$TYPE_OUT);
-        $sender_transaction->setVariableFee(0);
-        $sender_transaction->setFixedFee(0);
-        $sender_transaction->setAmount($params['amount']);
-        $sender_transaction->setDataIn(array(
-            'description'   =>  'transfer->'.$currency,
-            'concept'       =>  $params['concept']
-        ));
-        $sender_transaction->setDataOut(array(
-            'sent_to'   =>  $receiver->getName(),
-            'id_to'     =>  $receiver->getId(),
-            'amount'    =>  -$params['amount'],
-            'currency'  =>  strtoupper($currency)
-        ));
-        $sender_transaction->setPayOutInfo(array(
-            'beneficiary'   =>  $receiver->getName(),
-            'beneficiary_id'     =>  $receiver->getId(),
-            'amount'    =>  -$params['amount'],
-            'currency'  =>  strtoupper($currency),
-            'scale'     =>  Currency::$SCALE[strtoupper($currency)],
-            'concept'       =>  $params['concept']
-        ));
-        $sender_transaction->setTotal(-$params['amount']);
-        $sender_transaction->setUser($user->getId());
-        $sender_transaction->setGroup($userGroup->getId());
-
-
-        $dm = $this->get('doctrine_mongodb')->getManager();
-
-        $dm->persist($sender_transaction);
-        $dm->flush();
-
-        $balancer = $this->get('net.telepay.commons.balance_manipulator');
-        $balancer->addBalance($userGroup, -$params['amount'], $sender_transaction, "user wallet contr 1");
-
-        //RECEIVER TRANSACTION
-        $receiver_transaction = new Transaction();
-        $receiver_transaction->setStatus(Transaction::$STATUS_SUCCESS);
-        $receiver_transaction->setScale($sender_wallet->getScale());
-        $receiver_transaction->setCurrency($sender_wallet->getCurrency());
-        $receiver_transaction->setIp('');
-        $receiver_transaction->setVersion('');
-        $receiver_transaction->setService('transfer');
-        $receiver_transaction->setMethod('wallet_to_wallet');
-        $receiver_transaction->setType(Transaction::$TYPE_IN);
-        $receiver_transaction->setVariableFee(0);
-        $receiver_transaction->setFixedFee(0);
-        $receiver_transaction->setAmount($params['amount']);
-        $receiver_transaction->setDataOut(array(
-            'received_from' =>  $userGroup->getName(),
-            'id_from'       =>  $user->getId(),
-            'amount'        =>  $params['amount'],
-            'currency'      =>  $receiver_wallet->getCurrency(),
-            'previous_transaction'  =>  $sender_transaction->getId()
-        ));
-        $receiver_transaction->setDataIn(array(
-            'sent_to'   =>  $receiver->getName(),
-            'id_to'     =>  $receiver->getId(),
-            'amount'    =>  -$params['amount'],
-            'currency'  =>  strtoupper($currency),
-            'description'   =>  'transfer->'.$currency,
-            'concept'   =>  $params['concept']
-        ));
-        $receiver_transaction->setPayInInfo(array(
-            'sender'   =>  $receiver->getName(),
-            'sender_id'     =>  $receiver->getId(),
-            'amount'    =>  -$params['amount'],
-            'currency'  =>  strtoupper($currency),
-            'scale'  =>  Currency::$SCALE[strtoupper($currency)],
-            'concept'   =>  $params['concept']
-        ));
-        $receiver_transaction->setTotal($params['amount']);
-        $receiver_transaction->setGroup($receiver->getId());
-
-        $dm->persist($receiver_transaction);
-        $dm->flush();
-
-        $balancer = $this->get('net.telepay.commons.balance_manipulator');
-        $balancer->addBalance($receiver, $params['amount'], $receiver_transaction, "user wallet contr 2");
-
-        //update wallets
-        $sender_wallet->setAvailable($sender_wallet->getAvailable() - $params['amount']);
-        $sender_wallet->setBalance($sender_wallet->getBalance() - $params['amount']);
-
-        $receiver_wallet->setAvailable($receiver_wallet->getAvailable() + $params['amount']);
-        $receiver_wallet->setBalance($receiver_wallet->getBalance() + $params['amount']);
-
-        $em->persist($sender_wallet);
-        $em->persist($receiver_wallet);
-        $em->flush();
-
-        return $this->restV2(200, "ok", "Transaction got successfully");
-
     }
 
     /**
