@@ -149,22 +149,54 @@ class IncomingController2 extends RestApiController{
                 'concept'   =>  $concept,
                 'url_notification'  =>  $url_notification
             );
-            if(isset($data['commerce_id'])){
-                $commerce = $em->getRepository('TelepayFinancialApiBundle:Group')->findOneBy(array(
-                    'id' => $data['commerce_id'],
-                    'type' => 'COMPANY'
-                ));
-                if(!$commerce){
-                    throw new HttpException(405,'Commerce selected is not available');
+            if($method_cname == 'lemonway'){
+                if(isset($data['commerce_id'])){
+                    $commerce = $em->getRepository('TelepayFinancialApiBundle:Group')->findOneBy(array(
+                        'id' => $data['commerce_id'],
+                        'type' => 'COMPANY'
+                    ));
+                    if(!$commerce){
+                        throw new HttpException(405,'Commerce selected is not available');
+                    }
+                }
+                else{
+                    throw new HttpException(400, 'Param commerce_id not found');
+                }
+                if(isset($data['card_id'])){
+                    if(array_key_exists('pin', $data) && $data['pin']!='' && intval($data['pin'])>0){
+                        $pin = $data['pin'];
+                        if($user->getPIN()!=$pin){
+                            throw new HttpException(400, 'Incorrect Pin');
+                        }
+                    }
+                    else{
+                        throw new HttpException(400, 'Param pin not found or incorrect');
+                    }
+                    $credit_card = $em->getRepository('TelepayFinancialApiBundle:CreditCard')->findOneBy(array(
+                        'id' => $data['card_id'],
+                        'group_id' => $group->getId(),
+                        'user_id' => $user_id
+                    ));
+                    if(!$credit_card){
+                        throw new HttpException(405,'Credit card selected is not available');
+                    }
+                }
+                if(isset($data['save_card']) && $data['save_card']=='1'){
+                    $data['save_card']=true;
+                }
+                else{
+                    $data['save_card']=false;
                 }
                 $payment_info = $method->getPayInInfoWithCommerce($data);
                 $transaction->setInternal(true);
             }
-            elseif(!isset($data['txid'])){
-                $payment_info = $method->getPayInInfo($amount);
-            }
             else{
-                $payment_info = $method->getPayInInfoWithData($data);
+                if(!isset($data['txid'])){
+                    $payment_info = $method->getPayInInfo($amount);
+                }
+                else{
+                    $payment_info = $method->getPayInInfoWithData($data);
+                }
             }
             $payment_info['concept'] = $concept;
             if(isset($data['expires_in']) && $data['expires_in'] > 99){

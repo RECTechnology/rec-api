@@ -73,7 +73,7 @@ class LemonWayMethod extends BaseMethod {
 
     public function getPayInInfoWithCommerce($data){
         $amount = $data['amount']/Currency::$SCALE[$this->getCurrency()];
-        $payment_info = $this->CreditCardPayment($amount);
+        $payment_info = $this->CreditCardPayment($amount, $data['save_card']);
         if(!$payment_info) throw new Exception('Service Temporally unavailable', 503);
         if($payment_info->MONEYINWEB->STATUS  == '-1') throw new Exception('Service Temporally unavailable(' . $payment_info->MONEYINWEB->ERROR .')', 503);
         $url = $this->container->getParameter('lemonway_payment_url');
