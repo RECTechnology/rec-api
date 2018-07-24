@@ -50,31 +50,7 @@ class CreditCard{
      * @ORM\Column(type="string")
      * @Expose
      */
-    private $owner;
-
-    /**
-     * @ORM\Column(type="string")
-     * @Expose
-     */
-    private $card_number;
-
-    /**
-     * @ORM\Column(type="integer")
-     * @Expose
-     */
-    private $expiration_month;
-
-    /**
-     * @ORM\Column(type="integer")
-     * @Expose
-     */
-    private $expiration_year;
-
-    /**
-     * @ORM\Column(type="string", nullable=true)
-     * @Expose
-     */
-    private $cvc;
+    private $alias;
 
     /**
      * Returns the user unique id.
@@ -121,82 +97,16 @@ class CreditCard{
     /**
      * @return mixed
      */
-    public function getOwner()
+    public function getAlias()
     {
-        return $this->owner;
+        return $this->alias;
     }
 
     /**
-     * @param mixed $owner
+     * @param mixed $alias
      */
-    public function setOwner($owner)
+    public function setAlias($alias)
     {
-        $this->owner = $owner;
+        $this->alias = $alias;
     }
-
-    /**
-     * @return mixed
-     */
-    public function getCardNumber()
-    {
-        return $this->card_number;
-    }
-
-    /**
-     * @param mixed $card_number
-     */
-    public function setCardNumber($card_number)
-    {
-        $this->card_number = $card_number;
-    }
-
-    /**
-     * @return mixed
-     */
-    public function getCvc()
-    {
-        return $this->cvc;
-    }
-
-    /**
-     * @param mixed $cvc
-     */
-    public function setCvc($cvc)
-    {
-        $this->cvc = $cvc;
-    }
-
-    /**
-     * @return mixed
-     */
-    public function getExpirationMonth()
-    {
-        return $this->expiration_month;
-    }
-
-    /**
-     * @param mixed $expiration_month
-     */
-    public function setExpirationMonth($expiration_month)
-    {
-        $this->expiration_month = $expiration_month;
-    }
-
-    /**
-     * @return mixed
-     */
-    public function getExpirationYear()
-    {
-        return $this->expiration_year;
-    }
-
-    /**
-     * @param mixed $expiration_year
-     */
-    public function setExpirationYear($expiration_year)
-    {
-        $this->expiration_year = $expiration_year;
-    }
-
-
 }
