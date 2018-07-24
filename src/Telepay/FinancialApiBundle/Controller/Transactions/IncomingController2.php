@@ -150,6 +150,13 @@ class IncomingController2 extends RestApiController{
                 'url_notification'  =>  $url_notification
             );
             if(isset($data['commerce_id'])){
+                $commerce = $em->getRepository('TelepayFinancialApiBundle:Group')->findOneBy(array(
+                    'id' => $data['commerce_id'],
+                    'type' => 'COMPANY'
+                ));
+                if(!$commerce){
+                    throw new HttpException(405,'Commerce selected is not available');
+                }
                 $payment_info = $method->getPayInInfoWithCommerce($data);
                 $transaction->setInternal(true);
             }
