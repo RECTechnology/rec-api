@@ -111,7 +111,7 @@ class IncomingController2 extends RestApiController{
 
         if($type == 'out'){
             if($wallet->getAvailable() < $amount) throw new HttpException(405,'Not founds enough');
-            if(array_key_exists('pin', $data) && $data['pin']!='' && intval($data['pin'])>0){
+            if(array_key_exists('pin', $data) && $data['pin']!='' && intval($data['pin'])>-1){
                 $pin = $data['pin'];
                 if($user->getPIN()!=$pin){
                     throw new HttpException(400, 'Incorrect Pin');
