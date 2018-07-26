@@ -189,6 +189,7 @@ class IncomingController2 extends RestApiController{
                 }
                 $payment_info = $method->getPayInInfoWithCommerce($data);
                 $transaction->setInternal(true);
+                $transaction->setStatus($payment_info['status']);
             }
             else{
                 if(!isset($data['txid'])){
@@ -350,7 +351,8 @@ class IncomingController2 extends RestApiController{
                 $dm->flush();
             }
         }
-        else{     //CASH - IN
+        else{
+             //CASH - IN
             $logger->info('Incomig transaction...IN');
             $em->flush();
             $transaction->setUpdated(new \DateTime());

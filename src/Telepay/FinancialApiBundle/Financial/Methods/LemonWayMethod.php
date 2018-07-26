@@ -105,7 +105,7 @@ class LemonWayMethod extends BaseMethod {
             $payment_info = $this->CreditCardPayment($amount, $data['save_card']);
             $url = $this->container->getParameter('lemonway_payment_url');
             $error = false;
-            if(isset($payment_info['MONEYINWEBINIT']['STATUS'])){
+            if(!property_exists($payment_info, 'MONEYINWEB') && isset($payment_info['MONEYINWEBINIT']) && isset($payment_info['MONEYINWEBINIT']['STATUS']) && $payment_info['MONEYINWEBINIT']['STATUS']=='-1'){
                 $error = true;
             }
             $response = array(
