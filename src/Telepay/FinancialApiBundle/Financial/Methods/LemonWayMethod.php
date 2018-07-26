@@ -45,9 +45,9 @@ class LemonWayMethod extends BaseMethod {
         $response = $this->driver->callService("MoneyInWebInit", array(
             "wallet" => $admin,
             "amountTot" => $amount,
-            "returnUrl" => $notification_url . "/ok",
-            "errorUrl" => $notification_url . "/error",
-            "cancelUrl" => $notification_url . "/cancel",
+            "returnUrl" => $notification_url . "ok",
+            "errorUrl" => $notification_url . "error",
+            "cancelUrl" => $notification_url . "cancel",
             "registerCard" => $save?"1":"0"
         ));
         return $response;
@@ -69,6 +69,10 @@ class LemonWayMethod extends BaseMethod {
         //$payment_info = $this->CreditCardPayment($amount);
         //if(!$payment_info) throw new Exception('Service Temporally unavailable', 503);
         throw new Exception('Service Temporally unavailable', 503);
+    }
+
+    public function GetWalletDetails(){
+        //GetWalletDetails
     }
 
     public function getPayInInfoWithCommerce($data){
