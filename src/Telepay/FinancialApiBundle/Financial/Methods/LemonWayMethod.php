@@ -103,7 +103,6 @@ class LemonWayMethod extends BaseMethod {
         }
         else {
             $payment_info = $this->CreditCardPayment($amount, $data['save_card']);
-            $status = 'created';
             $url = $this->container->getParameter('lemonway_payment_url');
             $response = array(
                 'amount' => $data['amount'],
@@ -119,7 +118,7 @@ class LemonWayMethod extends BaseMethod {
                 'transaction_id' => $payment_info->MONEYINWEB->ID,
                 'expires_in' => intval(1200),
                 'received' => 0.0,
-                'status' => $status,
+                'status' => 'created',
                 'final' => false
             );
             if (intval($response['error_id']) == -1){
@@ -128,10 +127,13 @@ class LemonWayMethod extends BaseMethod {
                 unset($response['card_id']);
                 unset($response['save_card']);
                 unset($response['transaction_id']);
+                $response['status'] = 'failed';
                 $response['final'] = true;
             }
-            unset($response['error_id']);
-            unset($response['payment_info']);
+            else {
+                unset($response['error_id']);
+                unset($response['payment_info']);
+            }
         }
         return $response;
     }
