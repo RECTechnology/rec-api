@@ -100,6 +100,7 @@ class LemonWayMethod extends BaseMethod {
                 'scale' => Currency::$SCALE[$this->getCurrency()],
                 'token_id' => $payment_info->MONEYINWEB->TOKEN,
                 'payment_url' => $url . $payment_info->MONEYINWEB->TOKEN,
+                'payment_info' => json_encode($payment_info),
                 'card_id' => $payment_info->MONEYINWEB->CARD->ID,
                 'transaction_id' => $payment_info->MONEYINWEB->ID,
                 'expires_in' => intval(1200),
