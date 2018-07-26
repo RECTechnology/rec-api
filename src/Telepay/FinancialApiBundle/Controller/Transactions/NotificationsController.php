@@ -38,9 +38,12 @@ class NotificationsController extends RestApiController{
         $cashInMethod = $this->container->get('net.telepay.in.lemonway.v1');
         $allParams = $request->request->all();
         $logger->info('notifications -> data => '. json_encode($allParams));
+        $params = array();
+        foreach($allParams as $key => $value){
+            $params[$key] = $value;
+        }
         $dm = $this->get('doctrine_mongodb')->getManager();
-        $tid = 10000000;
-
+        $tid = $params['response_transactionId'];
         $transaction = $dm->createQueryBuilder('TelepayFinancialApiBundle:Transaction')
             ->field('pay_in_info.transaction_id')->equals($tid)
             ->getQuery()
@@ -50,21 +53,18 @@ class NotificationsController extends RestApiController{
         $logger->info('notifications -> transaction found');
         if($transaction->getStatus() != Transaction::$STATUS_CREATED) throw new HttpException(409, 'Transaction notificated yet');
         $paymentInfo = $transaction->getPayInInfo();
-
-        if($paymentInfo['reference'] != $tid) throw new HttpException(409, 'Notification not allowed');
-        if($paymentInfo['status'] != Transaction::$STATUS_CREATED) throw new HttpException(409, 'Transaction notificated yet');
-        $params = array();
-        foreach($allParams as $key => $value){
-            $params[$key] = $value;
-        }
-
+        if($paymentInfo['transaction_id'] != $tid) throw new HttpException(409, 'Notification not allowed');
         $paymentInfo = $cashInMethod->notification($params, $paymentInfo);
         $logger->info('notifications -> status => '.$paymentInfo['status']);
-        if($paymentInfo['status'] == 'received'){
+        if($paymentInfo['status'] == 'received') {
+            $paymentInfo['received'] = $params['response_transactionAmount'];
             $transaction->setStatus('received');
             $transaction->setPayInInfo($paymentInfo);
             $dm->persist($transaction);
             $dm->flush();
+        }elseif($paymentInfo['status'] == 'failed'){
+            $transaction->setStatus('failed');
+            $paymentInfo['error'] = $params['response_code'];
         }else{
             $logger->info('notifications -> debug => '.$paymentInfo['debug']);
         }

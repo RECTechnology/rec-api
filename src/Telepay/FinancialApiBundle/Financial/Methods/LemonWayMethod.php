@@ -71,6 +71,13 @@ class LemonWayMethod extends BaseMethod {
         throw new Exception('Service Temporally unavailable', 503);
     }
 
+    public function notification($params, $paymentInfo){
+        $paymentInfo['status'] = 'received';
+        if($paymentInfo['response_code'] != "0000") $paymentInfo['status'] = 'failed';
+        if(intval($paymentInfo['amount']) != intval($params['response_transactionAmount'])) $paymentInfo['status'] = 'failed';
+        return $paymentInfo;
+    }
+
     public function GetWalletDetails(){
         //GetWalletDetails
     }
