@@ -72,7 +72,8 @@ class LemonWayMethod extends BaseMethod {
     }
 
     public function getPayInInfoWithCommerce($data){
-        $amount = $data['amount']/pow(10, Currency::$SCALE[$this->getCurrency()]);
+        $amount = round($data['amount']/pow(10, Currency::$SCALE[$this->getCurrency()]),2);
+        $amount = number_format((float)$amount, 2, '.', '');
         if(isset($data['card_id'])){
             $payment_info = $this->SavedCreditCardPayment($amount, $data['card_id']);
             if(!$payment_info) throw new Exception('Service Temporally unavailable', 503);
