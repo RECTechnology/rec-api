@@ -114,6 +114,7 @@ class LemonWayMethod extends BaseMethod {
                 'payment_url' => $url . $payment_info->MONEYINWEB->TOKEN,
                 'payment_info' => json_encode($payment_info),
                 'card_id' => $payment_info->MONEYINWEB->CARD->ID,
+                'status_error' => $payment_info->MONEYINWEBINIT->STATUS,
                 'save_card' => $data['save_card'],
                 'transaction_id' => $payment_info->MONEYINWEB->ID,
                 'expires_in' => intval(1200),
@@ -121,7 +122,7 @@ class LemonWayMethod extends BaseMethod {
                 'status' => $status,
                 'final' => false
             );
-            if ($payment_info->MONEYINWEBINIT->STATUS == '-1'){
+            if (!isset($payment_info->MONEYINWEB->TOKEN)){
                 unset($response['token_id']);
                 unset($response['payment_url']);
                 unset($response['card_id']);
