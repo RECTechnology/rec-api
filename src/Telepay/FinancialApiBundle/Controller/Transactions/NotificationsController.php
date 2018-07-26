@@ -34,9 +34,10 @@ class NotificationsController extends RestApiController{
 
     public function _lemonway(Request $request, $status){
         $logger = $this->_logger();
-        $logger->info('notifications -> lemonway notification');
+        $logger->info('notifications -> lemonway notification(' . $status . ')');
         $cashInMethod = $this->container->get('net.telepay.in.lemonway.v1');
-        $logger->info('notifications -> data => '. json_encode($request));
+        $allParams = $request->request->all();
+        $logger->info('notifications -> data => '. json_encode($allParams));
         $dm = $this->get('doctrine_mongodb')->getManager();
         $tid = 10000000;
 
@@ -52,7 +53,6 @@ class NotificationsController extends RestApiController{
 
         if($paymentInfo['reference'] != $tid) throw new HttpException(409, 'Notification not allowed');
         if($paymentInfo['status'] != Transaction::$STATUS_CREATED) throw new HttpException(409, 'Transaction notificated yet');
-        $allParams = $request->request->all();
         $params = array();
         foreach($allParams as $key => $value){
             $params[$key] = $value;
