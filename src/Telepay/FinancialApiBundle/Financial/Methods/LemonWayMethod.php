@@ -104,7 +104,6 @@ class LemonWayMethod extends BaseMethod {
         else {
             $payment_info = $this->CreditCardPayment($amount, $data['save_card']);
             $status = 'created';
-            if ($payment_info->MONEYINWEBINIT->STATUS == '-1') $status = 'failed';
             $url = $this->container->getParameter('lemonway_payment_url');
             $response = array(
                 'amount' => $data['amount'],
@@ -115,16 +114,18 @@ class LemonWayMethod extends BaseMethod {
                 'payment_url' => $url . $payment_info->MONEYINWEB->TOKEN,
                 'payment_info' => json_encode($payment_info),
                 'card_id' => $payment_info->MONEYINWEB->CARD->ID,
+                'save_card' => $data['save_card'],
                 'transaction_id' => $payment_info->MONEYINWEB->ID,
                 'expires_in' => intval(1200),
                 'received' => 0.0,
                 'status' => $status,
                 'final' => false
             );
-            if($status=='failed'){
+            if ($payment_info->MONEYINWEBINIT->STATUS == '-1'){
                 unset($response['token_id']);
                 unset($response['payment_url']);
                 unset($response['card_id']);
+                unset($response['save_card']);
                 unset($response['transaction_id']);
                 $response['final'] = true;
             }
