@@ -13,7 +13,7 @@ class NotificationsController extends RestApiController{
 
     public function notificate(Request $request, $version_number, $service_cname, $status = null){
         if($service_cname == 'lemonway'){
-            $notification = $this->_lemonway($request);
+            $notification = $this->_lemonway($request, $status);
         }else{
             $notification = false;
         }
@@ -24,9 +24,8 @@ class NotificationsController extends RestApiController{
         if($service_cname == 'lemonway'){
             $url = $this->container->getParameter('lemonway_notification_app');
             $link_app = $url . $status;
-            return new Response(
-                '<html><body><a href="' . $link_app . '">Return to rec...</a></body></html>'
-            );
+            $response = $this->redirect($link_app);
+            return $response;
         }else{
             $notification = false;
         }
