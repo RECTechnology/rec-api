@@ -53,6 +53,12 @@ class CreditCard{
     private $alias;
 
     /**
+     * @ORM\Column(type="string")
+     * @Expose
+     */
+    private $external_id;
+
+    /**
      * Returns the user unique id.
      *
      * @return mixed
@@ -108,5 +114,21 @@ class CreditCard{
     public function setAlias($alias)
     {
         $this->alias = $alias;
+    }
+
+    /**
+     * @return mixed
+     */
+    public function getExternalId()
+    {
+        return $this->external_id;
+    }
+
+    /**
+     * @param mixed $external_id
+     */
+    public function setExternalId($external_id)
+    {
+        $this->external_id = $external_id;
     }
 }

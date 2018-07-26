@@ -30,15 +30,13 @@ class CreditCardController extends BaseApiController{
      * @Rest\View
      */
     public function registerCard(Request $request){
+        throw new HttpException(404, 'Method not allowed');
+
         $user = $this->get('security.context')->getToken()->getUser();
         $group = $this->get('security.context')->getToken()->getUser()->getActiveGroup();
 
         $paramNames = array(
-            'owner',
-            'card_number',
-            'expiration_month',
-            'expiration_year',
-            'cvc'
+            'alias'
         );
 
         $params = array();
@@ -53,11 +51,6 @@ class CreditCardController extends BaseApiController{
         $card = new CreditCard();
         $card->setCompany($group);
         $card->setUser($user);
-        $card->setOwner($params['owner']);
-        $card->setCardNumber($params['card_number']);
-        $card->setExpirationMonth($params['expiration_month']);
-        $card->setExpirationYear($params['expiration_year']);
-        $card->setCvc($params['cvc']);
         $em->persist($card);
         $em->flush();
         return $this->restV2(201,"ok", "Card registered successfully", $card);
@@ -83,22 +76,14 @@ class CreditCardController extends BaseApiController{
      * @Rest\View
      */
     public function updateCardFromCompany(Request $request, $id){
+        throw new HttpException(404, 'Method not allowed');
+
         $em = $this->getDoctrine()->getManager();
         $card = $em->getRepository('TelepayFinancialApiBundle:CreditCard')->find($id);
-
         if($card->getCompany()->getId() != $this->getUser()->getActiveGroup()->getId() )
             throw new HttpException(403, 'You don\'t have the necessary permissions');
-
         if(!$card) throw new HttpException(404, 'Card not found');
-/*
-        if($request->request->has('alias')){
-            $card->setAlias($request->request->get('alias'));
-        }
-        $em->persist($card);
-        $em->flush();
-*/
         return $this->restV2(204, 'ok', 'Card updated successfully');
-
     }
 
     /**
@@ -107,13 +92,11 @@ class CreditCardController extends BaseApiController{
     public function deleteAction($id){
         $em = $this->getDoctrine()->getManager();
         $user = $this->get('security.context')->getToken()->getUser();
-        $offer = $em->getRepository('TelepayFinancialApiBundle:CreditCard')->findOneBy(array(
+        $credit_card = $em->getRepository('TelepayFinancialApiBundle:CreditCard')->findOneBy(array(
             'id'    =>  $id,
             'company' =>  $user->getActiveGroup()
         ));
-
-        if(!$offer) throw new HttpException(404, 'CreditCard not found');
-
+        if(!$credit_card) throw new HttpException(404, 'CreditCard not found');
         return parent::deleteAction($id);
 
     }
