@@ -103,7 +103,7 @@ class LemonWayMethod extends BaseMethod {
         }
         else {
             $payment_info = $this->CreditCardPayment($amount, $data['save_card']);
-            if ($payment_info->MONEYINWEB->STATUS == '-1') throw new Exception('Service Temporally unavailable(' . $payment_info->MONEYINWEB->ERROR . ')', 503);
+            if ($payment_info->MONEYINWEBINIT->STATUS == '-1') throw new Exception('Service Temporally unavailable(' . $payment_info->MONEYINWEB->ERROR . ')', 503);
             $url = $this->container->getParameter('lemonway_payment_url');
             $response = array(
                 'amount' => $data['amount'],
