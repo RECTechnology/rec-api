@@ -70,7 +70,8 @@ parameters:
 
     lemonway_url: 'https://sandbox-api.lemonway.fr/mb/demo/dev/directkitjson2/Service.asmx'
     lemonway_payment_url: 'https://sandbox-webkit.lemonway.fr/NOVACT/dev/?moneyintoken='
-    lemonway_notification_url: 'rec://notification'
+    lemonway_notification_url: 'https://preapibm.blockroot.com/notifications/v1/lemonway/'
+    lemonway_notification_app: 'https://bcn.com/re:'
     lemonway_user: 'society'
     lemonway_pass: '123456'
     lemonway_version: '4.0'

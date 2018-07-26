@@ -73,24 +73,41 @@ class LemonWayMethod extends BaseMethod {
 
     public function getPayInInfoWithCommerce($data){
         $amount = $data['amount']/Currency::$SCALE[$this->getCurrency()];
-        $payment_info = $this->CreditCardPayment($amount, $data['save_card']);
-        if(!$payment_info) throw new Exception('Service Temporally unavailable', 503);
-        if($payment_info->MONEYINWEB->STATUS  == '-1') throw new Exception('Service Temporally unavailable(' . $payment_info->MONEYINWEB->ERROR .')', 503);
-        $url = $this->container->getParameter('lemonway_payment_url');
-        $response = array(
-            'amount' => $data['amount'],
-            'commerce_id' => $data['commerce_id'],
-            'currency' => $this->getCurrency(),
-            'scale' => Currency::$SCALE[$this->getCurrency()],
-            'token_id' => $payment_info->MONEYINWEB->TOKEN,
-            'payment_url' => $url . $payment_info->MONEYINWEB->TOKEN,
-            'card_id' => $payment_info->MONEYINWEB->CARD->ID,
-            'transaction_id' => $payment_info->MONEYINWEB->ID,
-            'expires_in' => intval(1200),
-            'received' => 0.0,
-            'status' => 'created',
-            'final' => false
-        );
+        if(isset($data['card_id'])){
+            $payment_info = $this->SavedCreditCardPayment($amount, $data['card_id']);
+            if(!$payment_info) throw new Exception('Service Temporally unavailable', 503);
+            $response = array(
+                'amount' => $data['amount'],
+                'commerce_id' => $data['commerce_id'],
+                'currency' => $this->getCurrency(),
+                'scale' => Currency::$SCALE[$this->getCurrency()],
+                'card_id' => $payment_info->MONEYINWEB->CARD->ID,
+                'transaction_id' => $payment_info->MONEYINWEB->ID,
+                'expires_in' => intval(1200),
+                'received' =>  $data['amount'],
+                'status' => 'received',
+                'final' => false
+            );
+        }
+        else {
+            $payment_info = $this->CreditCardPayment($amount, $data['save_card']);
+            if ($payment_info->MONEYINWEB->STATUS == '-1') throw new Exception('Service Temporally unavailable(' . $payment_info->MONEYINWEB->ERROR . ')', 503);
+            $url = $this->container->getParameter('lemonway_payment_url');
+            $response = array(
+                'amount' => $data['amount'],
+                'commerce_id' => $data['commerce_id'],
+                'currency' => $this->getCurrency(),
+                'scale' => Currency::$SCALE[$this->getCurrency()],
+                'token_id' => $payment_info->MONEYINWEB->TOKEN,
+                'payment_url' => $url . $payment_info->MONEYINWEB->TOKEN,
+                'card_id' => $payment_info->MONEYINWEB->CARD->ID,
+                'transaction_id' => $payment_info->MONEYINWEB->ID,
+                'expires_in' => intval(1200),
+                'received' => 0.0,
+                'status' => 'created',
+                'final' => false
+            );
+        }
         return $response;
     }
 

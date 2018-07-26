@@ -44,24 +44,16 @@ method_call_check:
         id: "[a-z0-9]+"
 
 service_notificate:
-    pattern:  /notifications/v{version_number}/{service_cname}/{id}
+    pattern:  /notifications/v{version_number}/{service_cname}/{status}
     defaults: { _controller: Telepay\FinancialApiBundle\Controller\Transactions\NotificationsController::notificate, _format: ~ }
     requirements:
         _method: POST
         service_cname: "[a-z0-9_]+"
         id: "[a-z0-9]+"
 
-service_notificate_without_id:
-    pattern:  /notifications/v{version_number}/{service_cname}
-    defaults: { _controller: Telepay\FinancialApiBundle\Controller\Transactions\NotificationsController::notificate, _format: ~ }
-    requirements:
-        _method: POST
-        service_cname: "[a-z0-9_]+"
-        id: "[a-z0-9]+"
-
-service_notificate_without_id_get:
-    pattern:  /notifications/v{version_number}/{service_cname}
-    defaults: { _controller: Telepay\FinancialApiBundle\Controller\Transactions\NotificationsController::notificate, _format: ~ }
+service_notificate_get:
+    pattern:  /notifications/v{version_number}/{service_cname}/{status}
+    defaults: { _controller: Telepay\FinancialApiBundle\Controller\Transactions\NotificationsController::notificateGET, _format: ~ }
     requirements:
         _method: GET
         service_cname: "[a-z0-9_]+"
