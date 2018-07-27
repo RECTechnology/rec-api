@@ -79,7 +79,7 @@ class LemonWayMethod extends BaseMethod {
         }
         if(intval($paymentInfo['amount'])/pow(10, Currency::$SCALE[$this->getCurrency()]) != intval($params['response_transactionAmount'])) {
             $paymentInfo['status'] = 'failed';
-            $paymentInfo['concept'] = 'error amount(' . intval($params['response_transactionAmount']) . '!=' . intval($paymentInfo['amount']) .')';
+            $paymentInfo['concept'] = 'error amount(' . intval($params['response_transactionAmount']) . '!=' . intval($paymentInfo['amount'])/pow(10, Currency::$SCALE[$this->getCurrency()]) .')';
         }
         return $paymentInfo;
     }

@@ -72,11 +72,13 @@ class NotificationsController extends RestApiController{
                 $transaction->setStatus('received');
                 $transaction->setPayInInfo($paymentInfo);
             } elseif ($paymentInfo['status'] == 'failed') {
-                $transaction->setStatus('failed');
                 $paymentInfo['error'] = $params['response_code'];
+                $transaction->setStatus('failed');
+                $transaction->setPayInInfo($paymentInfo);
             } else {
                 $logger->info('notifications -> debug => ' . $paymentInfo['debug']);
             }
+            $logger->info('notifications -> status => ' . json_encode($paymentInfo));
             $dm->persist($transaction);
             $dm->flush();
         }
