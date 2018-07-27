@@ -291,6 +291,7 @@ class WalletController extends RestApiController{
         if($request->query->get('query')){
             $query = $request->query->get('query');
             $qb->field('group')->equals($userGroup->getId());
+            $qb->field('internal')->notIn(array('1'));
 
             if(isset($query['start_date'])){
                 $start_time = new \MongoDate(strtotime(date($query['start_date'].' 00:00:00')));
