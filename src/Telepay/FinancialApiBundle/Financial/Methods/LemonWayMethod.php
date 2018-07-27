@@ -75,11 +75,11 @@ class LemonWayMethod extends BaseMethod {
         $paymentInfo['status'] = 'received';
         if($paymentInfo['response_code'] != "0000"){
             $paymentInfo['status'] = 'failed';
-            $paymentInfo['concept'] = 'error resp code';
+            $paymentInfo['concept'] = 'error resp code(' . $paymentInfo['response_code'] . ')';
         }
         if(intval($paymentInfo['amount']) != intval($params['response_transactionAmount'])) {
             $paymentInfo['status'] = 'failed';
-            $paymentInfo['concept'] = 'error amount';
+            $paymentInfo['concept'] = 'error amount(' . intval($params['response_transactionAmount']) . '!=' . intval($paymentInfo['amount']) .')';
         }
         return $paymentInfo;
     }
