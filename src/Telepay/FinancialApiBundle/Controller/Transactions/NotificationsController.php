@@ -57,29 +57,30 @@ class NotificationsController extends RestApiController{
         if($status == 'cancel' || $status == 'error') {
             $transaction->setStatus('failed');
             $paymentInfo['error'] = $params['response_code'];
+            $paymentInfo['concept'] = 'error status';
         }
-        else{
-            if(!$transaction) throw new HttpException(404, 'Transaction not found');
+        else {
+            if (!$transaction) throw new HttpException(404, 'Transaction not found');
             $logger->info('notifications -> transaction found');
-            if($transaction->getStatus() != Transaction::$STATUS_CREATED) throw new HttpException(409, 'Transaction notificated yet');
+            if ($transaction->getStatus() != Transaction::$STATUS_CREATED) throw new HttpException(409, 'Transaction notificated yet');
             $paymentInfo = $transaction->getPayInInfo();
-            if($paymentInfo['transaction_id'] != $tid) throw new HttpException(409, 'Notification not allowed');
+            if ($paymentInfo['transaction_id'] != $tid) throw new HttpException(409, 'Notification not allowed');
             $paymentInfo = $cashInMethod->notification($params, $paymentInfo);
             $logger->info('notifications -> status => ' . $paymentInfo['status']);
-            if($paymentInfo['status'] == 'received') {
+            if ($paymentInfo['status'] == 'received') {
                 $paymentInfo['received'] = $params['response_transactionAmount'];
                 $transaction->setStatus('received');
                 $transaction->setPayInInfo($paymentInfo);
-                $dm->persist($transaction);
-                $dm->flush();
-            }elseif($paymentInfo['status'] == 'failed'){
+            } elseif ($paymentInfo['status'] == 'failed') {
                 $transaction->setStatus('failed');
                 $paymentInfo['error'] = $params['response_code'];
-            }else{
-                $logger->info('notifications -> debug => '.$paymentInfo['debug']);
+            } else {
+                $logger->info('notifications -> debug => ' . $paymentInfo['debug']);
             }
+            $dm->persist($transaction);
+            $dm->flush();
         }
-        return array('status' => $paymentInfo['status']);
+        return array('status' => $status, 'concept' => $paymentInfo['concept']);
     }
 
     private function _logger(){
