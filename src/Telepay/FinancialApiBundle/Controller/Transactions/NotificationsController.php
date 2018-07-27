@@ -17,7 +17,12 @@ class NotificationsController extends RestApiController{
         }else{
             $notification = false;
         }
-        return $notification;
+        return $this->restV2(
+            200,
+            "ok",
+            "Request successful",
+            $notification
+        );
     }
 
     public function notificateGET(Request $request, $version_number, $service_cname, $status = null){
@@ -49,26 +54,32 @@ class NotificationsController extends RestApiController{
             ->getQuery()
             ->getSingleResult();
 
-        if(!$transaction) throw new HttpException(404, 'Transaction not found');
-        $logger->info('notifications -> transaction found');
-        if($transaction->getStatus() != Transaction::$STATUS_CREATED) throw new HttpException(409, 'Transaction notificated yet');
-        $paymentInfo = $transaction->getPayInInfo();
-        if($paymentInfo['transaction_id'] != $tid) throw new HttpException(409, 'Notification not allowed');
-        $paymentInfo = $cashInMethod->notification($params, $paymentInfo);
-        $logger->info('notifications -> status => '.$paymentInfo['status']);
-        if($paymentInfo['status'] == 'received') {
-            $paymentInfo['received'] = $params['response_transactionAmount'];
-            $transaction->setStatus('received');
-            $transaction->setPayInInfo($paymentInfo);
-            $dm->persist($transaction);
-            $dm->flush();
-        }elseif($paymentInfo['status'] == 'failed'){
+        if($status == 'cancel' || $status == 'error') {
             $transaction->setStatus('failed');
             $paymentInfo['error'] = $params['response_code'];
-        }else{
-            $logger->info('notifications -> debug => '.$paymentInfo['debug']);
         }
-        return $paymentInfo['response'];
+        else{
+            if(!$transaction) throw new HttpException(404, 'Transaction not found');
+            $logger->info('notifications -> transaction found');
+            if($transaction->getStatus() != Transaction::$STATUS_CREATED) throw new HttpException(409, 'Transaction notificated yet');
+            $paymentInfo = $transaction->getPayInInfo();
+            if($paymentInfo['transaction_id'] != $tid) throw new HttpException(409, 'Notification not allowed');
+            $paymentInfo = $cashInMethod->notification($params, $paymentInfo);
+            $logger->info('notifications -> status => ' . $paymentInfo['status']);
+            if($paymentInfo['status'] == 'received') {
+                $paymentInfo['received'] = $params['response_transactionAmount'];
+                $transaction->setStatus('received');
+                $transaction->setPayInInfo($paymentInfo);
+                $dm->persist($transaction);
+                $dm->flush();
+            }elseif($paymentInfo['status'] == 'failed'){
+                $transaction->setStatus('failed');
+                $paymentInfo['error'] = $params['response_code'];
+            }else{
+                $logger->info('notifications -> debug => '.$paymentInfo['debug']);
+            }
+        }
+        return array('status' => $paymentInfo['status']);
     }
 
     private function _logger(){
