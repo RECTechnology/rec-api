@@ -73,9 +73,9 @@ class LemonWayMethod extends BaseMethod {
 
     public function notification($params, $paymentInfo){
         $paymentInfo['status'] = 'received';
-        if($paymentInfo['response_code'] != "0000"){
+        if($params['response_code'] != "0000"){
             $paymentInfo['status'] = 'failed';
-            $paymentInfo['concept'] = 'error resp code(' . $paymentInfo['response_code'] . ')';
+            $paymentInfo['concept'] = 'error resp code(' . $params['response_code'] . ')';
         }
         if(intval($paymentInfo['amount'])/pow(10, Currency::$SCALE[$this->getCurrency()]) != intval($params['response_transactionAmount'])) {
             $paymentInfo['status'] = 'failed';
