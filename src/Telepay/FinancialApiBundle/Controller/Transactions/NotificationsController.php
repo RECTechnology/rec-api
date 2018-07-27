@@ -54,17 +54,19 @@ class NotificationsController extends RestApiController{
             ->getQuery()
             ->getSingleResult();
 
+        if (!$transaction) throw new HttpException(404, 'Transaction not found');
+        $logger->info('notifications -> transaction found');
+        if ($transaction->getStatus() != Transaction::$STATUS_CREATED) throw new HttpException(409, 'Transaction notificated yet');
+        $paymentInfo = $transaction->getPayInInfo();
+        if ($paymentInfo['transaction_id'] != $tid) throw new HttpException(409, 'Notification not allowed');
+
         if($status == 'cancel' || $status == 'error') {
             $transaction->setStatus('failed');
             $paymentInfo['error'] = $params['response_code'];
             $paymentInfo['concept'] = 'error status';
+            $transaction->setPayInInfo($paymentInfo);
         }
         else {
-            if (!$transaction) throw new HttpException(404, 'Transaction not found');
-            $logger->info('notifications -> transaction found');
-            if ($transaction->getStatus() != Transaction::$STATUS_CREATED) throw new HttpException(409, 'Transaction notificated yet');
-            $paymentInfo = $transaction->getPayInInfo();
-            if ($paymentInfo['transaction_id'] != $tid) throw new HttpException(409, 'Notification not allowed');
             $paymentInfo = $cashInMethod->notification($params, $paymentInfo);
             $logger->info('notifications -> status => ' . $paymentInfo['status']);
             if ($paymentInfo['status'] == 'received') {
@@ -78,10 +80,11 @@ class NotificationsController extends RestApiController{
             } else {
                 $logger->info('notifications -> debug => ' . $paymentInfo['debug']);
             }
-            $logger->info('notifications -> status => ' . json_encode($paymentInfo));
-            $dm->persist($transaction);
-            $dm->flush();
         }
+        $transaction->setNotified(true);
+        $logger->info('notifications -> status => ' . json_encode($paymentInfo));
+        $dm->persist($transaction);
+        $dm->flush();
         return array('status' => $status, 'concept' => $paymentInfo['concept']);
     }
 
