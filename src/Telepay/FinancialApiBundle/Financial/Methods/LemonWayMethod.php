@@ -207,4 +207,11 @@ class LemonWayMethod extends BaseMethod {
 
     public function getInfo(){
     }
+
+    public function cardInfo($card_id){
+        return array(
+            'id' => $card_id,
+            'alias' => 'temp_' . $card_id
+        );
+    }
 }

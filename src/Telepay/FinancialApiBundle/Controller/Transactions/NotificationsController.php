@@ -70,6 +70,17 @@ class NotificationsController extends RestApiController{
             $paymentInfo = $cashInMethod->notification($params, $paymentInfo);
             $logger->info('notifications -> status => ' . $paymentInfo['status']);
             if ($paymentInfo['status'] == 'received') {
+                if($paymentInfo['save_card']){
+                    $cardInfo = $cashInMethod->cardInfo($paymentInfo['card_id']);
+                    $em = $this->getDoctrine()->getManager();
+                    $card = new CreditCard();
+                    $card->setCompany($transaction->getGroup());
+                    $card->setUser($transaction->getUser());
+                    $card->setExternalId($cardInfo['id']);
+                    $card->setAlias($cardInfo['alias']);
+                    $em->persist($card);
+                    $em->flush();
+                }
                 $paymentInfo['received'] = $params['response_transactionAmount'];
                 $transaction->setStatus('received');
                 $transaction->setPayInInfo($paymentInfo);
