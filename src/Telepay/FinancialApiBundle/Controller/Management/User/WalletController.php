@@ -427,6 +427,7 @@ class WalletController extends RestApiController{
             }
         }
         else{
+            $qb->field('internal')->equals(false);
             $qb->field('group')->equals($userGroup->getId());
         }
 
