@@ -180,6 +180,7 @@ class IncomingController2 extends RestApiController{
                     if(!$credit_card){
                         throw new HttpException(405,'Credit card selected is not available');
                     }
+                    $data['card_id'] = $credit_card->getExternalId();
                 }
                 if(isset($data['save_card']) && $data['save_card']=='1'){
                     $data['save_card']=true;
