@@ -9,6 +9,8 @@ use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpKernel\Exception\HttpException;
 use Telepay\FinancialApiBundle\Controller\RestApiController;
 use Telepay\FinancialApiBundle\Entity\CreditCard;
+use Telepay\FinancialApiBundle\Entity\Group;
+use Telepay\FinancialApiBundle\Entity\User;
 
 
 class NotificationsController extends RestApiController{
@@ -77,9 +79,18 @@ class NotificationsController extends RestApiController{
                 if($paymentInfo['save_card']){
                     $cardInfo = $cashInMethod->cardInfo($paymentInfo['card_id']);
                     $em = $this->getDoctrine()->getManager();
+
+                    $group = $em->getRepository('TelepayFinancialApiBundle:Group')->findOneBy(array(
+                        'id'    =>  $transaction->getGroup()
+                    ));
+
+                    $user = $em->getRepository('TelepayFinancialApiBundle:User')->findOneBy(array(
+                        'id'    =>  $transaction->getUser()
+                    ));
+
                     $card = new CreditCard();
-                    $card->setCompany($transaction->getGroup());
-                    $card->setUser($transaction->getUser());
+                    $card->setCompany($group);
+                    $card->setUser($user);
                     $card->setExternalId($cardInfo['id']);
                     $card->setAlias($cardInfo['alias']);
                     $em->persist($card);
