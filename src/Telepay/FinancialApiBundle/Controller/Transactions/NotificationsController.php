@@ -56,7 +56,9 @@ class NotificationsController extends RestApiController{
 
         if (!$transaction) throw new HttpException(404, 'Transaction not found');
         $logger->info('notifications -> transaction found');
-        if ($transaction->getStatus() != Transaction::$STATUS_CREATED) throw new HttpException(409, 'Transaction notificated yet');
+        if ($transaction->getStatus() != Transaction::$STATUS_CREATED) {
+            return array('status' => $status, 'message' => 'Transaction notificated yet');
+        }
         $paymentInfo = $transaction->getPayInInfo();
         if ($paymentInfo['transaction_id'] != $tid) throw new HttpException(409, 'Notification not allowed');
 
