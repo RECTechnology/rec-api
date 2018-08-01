@@ -77,7 +77,7 @@ class NotificationsController extends RestApiController{
             $logger->info('notifications -> status => ' . $paymentInfo['status']);
             if ($paymentInfo['status'] == 'received') {
                 if($paymentInfo['save_card']){
-                    $cardInfo = $cashInMethod->cardInfo($paymentInfo['card_id']);
+                    $cardInfo = $cashInMethod->cardInfo($paymentInfo['external_card_id']);
                     $em = $this->getDoctrine()->getManager();
 
                     $group = $em->getRepository('TelepayFinancialApiBundle:Group')->findOneBy(array(
