@@ -95,7 +95,7 @@ class LemonWayMethod extends BaseMethod {
             $payment_info = $this->SavedCreditCardPayment($amount, $data['card_id']);
             if(!$payment_info) throw new Exception('Service Temporally unavailable', 503);
             $error = false;
-            if(!property_exists($payment_info, 'MONEYINWEB') && isset($payment_info['MONEYINWEBINIT']) && isset($payment_info['MONEYINWEBINIT']['STATUS']) && $payment_info['MONEYINWEBINIT']['STATUS']=='-1'){
+            if(!property_exists($payment_info, 'TRANS') || ($payment_info->TRANS->HPAY->STATUS!='3' && $payment_info->TRANS->HPAY->STATUS!='16')){
                 $error = true;
             }
             $response = array(
@@ -104,8 +104,9 @@ class LemonWayMethod extends BaseMethod {
                 'currency' => $this->getCurrency(),
                 'scale' => Currency::$SCALE[$this->getCurrency()],
                 'payment_info' => json_encode($payment_info),
-                'card_id' => $payment_info->MONEYINWEB->CARD->ID,
-                'transaction_id' => $payment_info->MONEYINWEB->ID,
+                'payment_external_status' => $payment_info->TRANS->HPAY->STATUS,
+                'card_id' => $data['card_id'],
+                'transaction_id' => $payment_info->TRANS->HPAY->ID,
                 'expires_in' => intval(1200),
                 'received' =>  $data['amount'],
                 'status' => 'received',
@@ -117,6 +118,9 @@ class LemonWayMethod extends BaseMethod {
                 $response['received'] = 0;
                 $response['status'] = 'failed';
                 $response['final'] = true;
+            }
+            else {
+                unset($response['payment_info']);
             }
         }
         else {
