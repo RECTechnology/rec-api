@@ -174,7 +174,7 @@ class IncomingController2 extends RestApiController{
                     }
                     $credit_card = $em->getRepository('TelepayFinancialApiBundle:CreditCard')->findOneBy(array(
                         'id' => $data['card_id'],
-                        'group' => $group->getId(),
+                        'company' => $group->getId(),
                         'user' => $user_id
                     ));
                     if(!$credit_card){
