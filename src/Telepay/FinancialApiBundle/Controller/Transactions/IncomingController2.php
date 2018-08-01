@@ -174,8 +174,8 @@ class IncomingController2 extends RestApiController{
                     }
                     $credit_card = $em->getRepository('TelepayFinancialApiBundle:CreditCard')->findOneBy(array(
                         'id' => $data['card_id'],
-                        'group_id' => $group->getId(),
-                        'user_id' => $user_id
+                        'group' => $group->getId(),
+                        'user' => $user_id
                     ));
                     if(!$credit_card){
                         throw new HttpException(405,'Credit card selected is not available');
