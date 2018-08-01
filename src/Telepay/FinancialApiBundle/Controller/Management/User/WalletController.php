@@ -33,9 +33,7 @@ class WalletController extends RestApiController{
 
         //obtener los wallets
         $wallets = $userGroup->getWallets();
-
-        //obtenemos la default currency
-        $currency = $userGroup->getDefaultCurrency();
+        $currency = 'REC';
 
         $filtered = [];
         $available = 0;
@@ -45,13 +43,6 @@ class WalletController extends RestApiController{
 
         foreach($wallets as $wallet){
             $filtered[] = $wallet->getWalletView();
-            if($userGroup->getPremium()){
-                if($wallet->getCurrency() == Currency::$FAC){
-                    $wallet->setCurrency('FAIRP');
-                }elseif($currency == Currency::$FAC){
-                    $currency = 'FAIRP';
-                }
-            }
             $new_wallet = $exchanger->exchangeWallet($wallet, $currency);
             $available = round($available + $new_wallet['available'],0);
             $balance = round($balance + $new_wallet['balance'],0);
@@ -67,7 +58,6 @@ class WalletController extends RestApiController{
         $multidivisa['scale'] = $scale;
         $filtered[] = $multidivisa;
 
-        //return $this->rest(201, "Account info got successfully", $filtered);
         return $this->restV2(200, "ok", "Wallet info got successfully", $filtered);
     }
 
