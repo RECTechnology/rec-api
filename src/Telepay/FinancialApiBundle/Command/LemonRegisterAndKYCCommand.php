@@ -44,30 +44,29 @@ class LemonRegisterAndKYCCommand extends ContainerAwareCommand
             $company=$em->getRepository('TelepayFinancialApiBundle:Group')->findOneBy(array(
                 'id' => $this->commerce_id
             ));
-
-            $user=$em->getRepository('TelepayFinancialApiBundle:User')->findOneBy(array(
-                'id' => $company->getKycManager()
-            ));
-
-            $KYC=$em->getRepository('TelepayFinancialApiBundle:KYC')->findOneBy(array(
-                'user' => $user->getId()
-            ));
-
             if($company){
-                $user->setEmail('ivan12@robotunion.org');
+                $user=$em->getRepository('TelepayFinancialApiBundle:User')->findOneBy(array(
+                    'id' => $company->getKycManager()
+                ));
+
+                $KYC=$em->getRepository('TelepayFinancialApiBundle:KYC')->findOneBy(array(
+                    'user' => $user->getId()
+                ));
+
+                $user->setEmail('ivan14@robotunion.org');
                 $new_account = $moneyProvider->RegisterWallet('company-' . $company->getId(), $user->getEmail(), $KYC->getName(), $KYC->getLastName(), 'M');
                 $text='register=>' . json_encode($new_account, JSON_PRETTY_PRINT);
+                $output->writeln($text);
 
-                if(isset($new_account['REGISTERWALLET']) && isset($new_account['REGISTERWALLET']['STATUS']) && $new_account['REGISTERWALLET']['STATUS'] == '-1'){
+                if(!property_exists($new_account, 'WALLET') && isset($new_account['REGISTERWALLET']) && isset($new_account['REGISTERWALLET']['STATUS']) && $new_account['REGISTERWALLET']['STATUS'] == '-1'){
                     $output->writeln('Register command error: ' . $new_account['REGISTERWALLET']['MESSAGE']);
                     exit(0);
                 }
 
-                /*
+                $lemon_id = $new_account->WALLET->LWID;
                 $company->setLemonId($lemon_id);
                 $em->persist($company);
                 $em->flush();
-                */
 
                 /*
                 $filename = "";
