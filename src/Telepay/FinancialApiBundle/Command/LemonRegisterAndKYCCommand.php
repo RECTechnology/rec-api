@@ -68,16 +68,75 @@ class LemonRegisterAndKYCCommand extends ContainerAwareCommand
                 $em->persist($company);
                 $em->flush();
 */
-                //DNI
-                $filename = "id_front.jpeg";
+                //DNI front
+                $output->writeln('DNI front');
+                $filename = "id_rear.jpeg";
                 $type = 0;
-                $dni_file = $KYC->getDocumentFront();
+                $dni_file = $KYC->getDocumentRear();
                 $datos = explode("/", $dni_file);
-                $file =  $datos[3];
-                $buffer = base64_encode(file_get_contents('~/files/' . $file, true));
-                //$up_file = $moneyProvider->UploadFile($company->getLemonId(), $filename, $type, $buffer);
-                $up_file = $moneyProvider->UploadFile('19', $filename, $type, $buffer);
+                $file = $datos[3];
+                $buffer = base64_encode(file_get_contents('/home/bmoneda/files/' . $file, true));
+                $up_file = $moneyProvider->UploadFile('company-' . $company->getId(), $filename, $type, $buffer);
                 echo "\n<pre>\n".json_encode($up_file, JSON_PRETTY_PRINT)."\n</pre>\n";
+
+                //DNI rear
+                $output->writeln('DNI rear');
+                $filename = "id_back.jpeg";
+                $type = 0;
+                $dni_file = $KYC->getDocumentBack();
+                $datos = explode("/", $dni_file);
+                $file = $datos[3];
+                $buffer = base64_encode(file_get_contents('/home/bmoneda/files/' . $file, true));
+                $up_file = $moneyProvider->UploadFile('company-' . $company->getId(), $filename, $type, $buffer);
+                echo "\n<pre>\n".json_encode($up_file, JSON_PRETTY_PRINT)."\n</pre>\n";
+
+                /*
+                //Proof of residence
+                $output->writeln('Proof of residence');
+                $filename = "proof_address.jpg";
+                $type = 1;
+                $user_dni = $user->getDNI();
+                $buffer = base64_encode(file_get_contents('/home/bmoneda/files/REC/' . $user_dni . "/" . $user_dni . "-IBAN.pdf", true));
+                $up_file = $moneyProvider->UploadFile('company-' . $company->getId(), $filename, $type, $buffer);
+                echo "\n<pre>\n".json_encode($up_file, JSON_PRETTY_PRINT)."\n</pre>\n";
+
+                //IBAN
+                $output->writeln('IBAN');
+                $filename = "iban.jpg";
+                $type = 2;
+                $user_dni = $user->getDNI();
+                $buffer = base64_encode(file_get_contents('/home/bmoneda/files/REC/' . $user_dni . "/" . $user_dni . "-IBAN.pdf", true));
+                $up_file = $moneyProvider->UploadFile('company-' . $company->getId(), $filename, $type, $buffer);
+                echo "\n<pre>\n".json_encode($up_file, JSON_PRETTY_PRINT)."\n</pre>\n";
+
+                //Passport
+                //$output->writeln('Passport');
+                //$filename = "passport.jpg";
+                //$type = 3;
+                //$user_dni = $user->getDNI();
+                //$buffer = base64_encode(file_get_contents('/home/bmoneda/files/REC/' . $user_dni . "/" . $user_dni . "-.pdf", true));
+                //$up_file = $moneyProvider->UploadFile('company-' . $company->getId(), $filename, $type, $buffer);
+                //echo "\n<pre>\n".json_encode($up_file, JSON_PRETTY_PRINT)."\n</pre>\n";
+
+                //CIF
+                $output->writeln('CIF');
+                $filename = "cif.jpg";
+                $type = 7;
+                $user_dni = $user->getDNI();
+                $buffer = base64_encode(file_get_contents('/home/bmoneda/files/REC/' . $user_dni . "/" . $user_dni . "-autonomos.pdf", true));
+                $up_file = $moneyProvider->UploadFile('company-' . $company->getId(), $filename, $type, $buffer);
+                echo "\n<pre>\n".json_encode($up_file, JSON_PRETTY_PRINT)."\n</pre>\n";
+
+                //Censo
+                $output->writeln('Censo 036 o 037');
+                $filename = "censo.jpg";
+                $type = 8;
+                $user_dni = $user->getDNI();
+                $buffer = base64_encode(file_get_contents('/home/bmoneda/files/REC/' . $user_dni . "/" . $user_dni . "-censo.pdf", true));
+                $up_file = $moneyProvider->UploadFile('company-' . $company->getId(), $filename, $type, $buffer);
+                echo "\n<pre>\n".json_encode($up_file, JSON_PRETTY_PRINT)."\n</pre>\n";
+                */
+
             }
             else{
                 $output->writeln('Commerce not found');
