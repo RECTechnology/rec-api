@@ -52,13 +52,13 @@ class LemonRegisterAndKYCCommand extends ContainerAwareCommand
                 $KYC=$em->getRepository('TelepayFinancialApiBundle:KYC')->findOneBy(array(
                     'user' => $user->getId()
                 ));
-
+/*
                 $user->setEmail('ivan14@robotunion.org');
                 $new_account = $moneyProvider->RegisterWallet('company-' . $company->getId(), $user->getEmail(), $KYC->getName(), $KYC->getLastName(), 'M');
                 $text='register=>' . json_encode($new_account, JSON_PRETTY_PRINT);
                 $output->writeln($text);
 
-                if(!property_exists($new_account, 'WALLET') && isset($new_account['REGISTERWALLET']) && isset($new_account['REGISTERWALLET']['STATUS']) && $new_account['REGISTERWALLET']['STATUS'] == '-1'){
+                if(!is_object($new_account) && isset($new_account['REGISTERWALLET']) && isset($new_account['REGISTERWALLET']['STATUS']) && $new_account['REGISTERWALLET']['STATUS'] == '-1'){
                     $output->writeln('Register command error: ' . $new_account['REGISTERWALLET']['MESSAGE']);
                     exit(0);
                 }
@@ -67,15 +67,17 @@ class LemonRegisterAndKYCCommand extends ContainerAwareCommand
                 $company->setLemonId($lemon_id);
                 $em->persist($company);
                 $em->flush();
-
-                /*
-                $filename = "";
-                $buffer = base64_encode(file_get_contents('images/' . $filename, true));
-                $up_file = $moneyProvider->UploadFile($company->getLemonId(), $filename, $type, $buffer);
-
-                echo "\n<pre>\n".json_encode($response, JSON_PRETTY_PRINT)."\n</pre>\n";
-                */
-                $output->writeln($text);
+*/
+                //DNI
+                $filename = "id_front.jpeg";
+                $type = 0;
+                $dni_file = $KYC->getDocumentFront();
+                $datos = explode("/", $dni_file);
+                $file =  $datos[3];
+                $buffer = base64_encode(file_get_contents('~/files/' . $file, true));
+                //$up_file = $moneyProvider->UploadFile($company->getLemonId(), $filename, $type, $buffer);
+                $up_file = $moneyProvider->UploadFile('19', $filename, $type, $buffer);
+                echo "\n<pre>\n".json_encode($up_file, JSON_PRETTY_PRINT)."\n</pre>\n";
             }
             else{
                 $output->writeln('Commerce not found');
