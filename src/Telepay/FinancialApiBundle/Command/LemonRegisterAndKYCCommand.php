@@ -54,8 +54,14 @@ class LemonRegisterAndKYCCommand extends ContainerAwareCommand
             ));
 
             if($company){
+                $user->setEmail('ivan12@robotunion.org');
                 $new_account = $moneyProvider->RegisterWallet('company-' . $company->getId(), $user->getEmail(), $KYC->getName(), $KYC->getLastName(), 'M');
                 $text='register=>' . json_encode($new_account, JSON_PRETTY_PRINT);
+
+                if(isset($new_account['REGISTERWALLET']) && isset($new_account['REGISTERWALLET']['STATUS']) && $new_account['REGISTERWALLET']['STATUS'] == '-1'){
+                    $output->writeln('Register command error: ' . $new_account['REGISTERWALLET']['MESSAGE']);
+                    exit(0);
+                }
 
                 /*
                 $company->setLemonId($lemon_id);
@@ -70,6 +76,7 @@ class LemonRegisterAndKYCCommand extends ContainerAwareCommand
 
                 echo "\n<pre>\n".json_encode($response, JSON_PRETTY_PRINT)."\n</pre>\n";
                 */
+                $output->writeln($text);
             }
             else{
                 $output->writeln('Commerce not found');
