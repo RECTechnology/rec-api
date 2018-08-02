@@ -72,7 +72,7 @@ class LemonRegisterAndKYCCommand extends ContainerAwareCommand
                 $output->writeln('DNI front');
                 $filename = "id_rear.jpeg";
                 $type = 0;
-                $dni_file = $KYC->getDocumentRear();
+                $dni_file = $KYC->getDocumentFront();
                 $datos = explode("/", $dni_file);
                 $file = $datos[3];
                 $buffer = base64_encode(file_get_contents('/home/bmoneda/files/' . $file, true));
@@ -83,7 +83,7 @@ class LemonRegisterAndKYCCommand extends ContainerAwareCommand
                 $output->writeln('DNI rear');
                 $filename = "id_back.jpeg";
                 $type = 0;
-                $dni_file = $KYC->getDocumentBack();
+                $dni_file = $KYC->getDocumentRear();
                 $datos = explode("/", $dni_file);
                 $file = $datos[3];
                 $buffer = base64_encode(file_get_contents('/home/bmoneda/files/' . $file, true));
