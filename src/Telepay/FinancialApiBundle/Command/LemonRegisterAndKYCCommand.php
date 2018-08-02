@@ -82,7 +82,7 @@ class LemonRegisterAndKYCCommand extends ContainerAwareCommand
                 //DNI rear
                 $output->writeln('DNI rear');
                 $filename = "id_back.jpeg";
-                $type = 0;
+                $type = 10;
                 $dni_file = $KYC->getDocumentRear();
                 $datos = explode("/", $dni_file);
                 $file = $datos[3];
