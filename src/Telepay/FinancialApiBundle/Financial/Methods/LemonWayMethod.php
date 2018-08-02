@@ -95,7 +95,20 @@ class LemonWayMethod extends BaseMethod {
     }
 
     public function GetWalletDetails(){
-        //GetWalletDetails
+        $response = $this->driver->callService("GetWalletDetails", array(
+            "wallet" => "sc"
+        ));
+        return $response;
+    }
+
+    public function GetCardAlias($card_id){
+        $data = $this->GetWalletDetails();
+        foreach ($data->WALLET->CARDS as $card){
+            if($card->CARD->ID == $card_id){
+                return $card->CARD->EXTRA->NUM;
+            }
+        }
+        return "error";
     }
 
     public function getPayInInfoWithCommerce($data){
@@ -225,7 +238,7 @@ class LemonWayMethod extends BaseMethod {
     public function cardInfo($card_id){
         return array(
             'id' => $card_id,
-            'alias' => 'temp_' . $card_id
+            'alias' => $this->GetCardAlias()
         );
     }
 }
