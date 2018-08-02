@@ -39,6 +39,16 @@ class LemonWayMethod extends BaseMethod {
         return $response;
     }
 
+    public function UploadFile($wallet, $fileName, $type, $buffer){
+        $response = $this->driver->callService("UploadFile", array(
+            "wallet" => $wallet,
+            "fileName" => $fileName,
+            "type" => $type,
+            "buffer" => $buffer
+        ));
+        return $response;
+    }
+
     public function CreditCardPayment($amount, $save = false){
         $admin = $this->container->getParameter('lemonway_admin_account');
         $notification_url = $this->container->getParameter('lemonway_notification_url');

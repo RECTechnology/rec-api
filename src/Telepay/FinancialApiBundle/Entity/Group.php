@@ -247,6 +247,11 @@ class Group extends BaseGroup
     /**
      * @ORM\Column(type="text")
      */
+    private $lemon_id = '';
+
+    /**
+     * @ORM\Column(type="text")
+     */
     private $subtype = '';
 
     /**
@@ -770,6 +775,22 @@ class Group extends BaseGroup
     public function setType($type)
     {
         $this->type = $type;
+    }
+
+    /**
+     * @return mixed
+     */
+    public function getLemonId()
+    {
+        return $this->lemon_id;
+    }
+
+    /**
+     * @param mixed $lemon_id
+     */
+    public function setLemonId($lemon_id)
+    {
+        $this->lemon_id = $lemon_id;
     }
 
     /**
