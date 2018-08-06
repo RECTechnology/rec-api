@@ -96,19 +96,20 @@ class LemonWayMethod extends BaseMethod {
 
     public function GetWalletDetails(){
         $response = $this->driver->callService("GetWalletDetails", array(
-            "wallet" => "sc"
+            "wallet" => "MKP"
         ));
         return $response;
     }
 
     public function GetCardAlias($card_id){
         $data = $this->GetWalletDetails();
-        foreach ($data->WALLET->CARDS as $card){
-            if($card->CARD->ID == $card_id){
-                return $card->CARD->EXTRA->NUM;
+        $data_array = json_decode(json_encode($data), true);
+        foreach ($data_array['WALLET']['CARDS'] as $card){
+            if($card['CARD']['ID'] == $card_id){
+                return $card['CARD']['EXTRA']['NUM'];
             }
         }
-        return "error";
+        return "temp";
     }
 
     public function getPayInInfoWithCommerce($data){
@@ -238,7 +239,7 @@ class LemonWayMethod extends BaseMethod {
     public function cardInfo($card_id){
         return array(
             'id' => $card_id,
-            'alias' => $this->GetCardAlias()
+            'alias' => $this->GetCardAlias($card_id)
         );
     }
 }
