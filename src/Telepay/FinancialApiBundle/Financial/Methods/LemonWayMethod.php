@@ -95,8 +95,9 @@ class LemonWayMethod extends BaseMethod {
     }
 
     public function GetWalletDetails(){
+        $admin = $this->container->getParameter('lemonway_admin_account');
         $response = $this->driver->callService("GetWalletDetails", array(
-            "wallet" => "MKP"
+            "wallet" => $admin
         ));
         return $response;
     }
