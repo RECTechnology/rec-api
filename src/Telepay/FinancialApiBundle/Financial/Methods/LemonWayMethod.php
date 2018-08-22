@@ -106,8 +106,8 @@ class LemonWayMethod extends BaseMethod {
         $data = $this->GetWalletDetails();
         $data_array = json_decode(json_encode($data), true);
         foreach ($data_array['WALLET']['CARDS'] as $card){
-            if($card['CARD']['ID'] == $card_id){
-                return $card['CARD']['EXTRA']['NUM'];
+            if($card['ID'] == $card_id){
+                return $card['EXTRA']['NUM'];
             }
         }
         return "temp";
