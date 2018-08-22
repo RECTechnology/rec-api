@@ -82,6 +82,11 @@ class CheckFiatCommand extends SyncronizedContainerAwareCommand{
                         $response = $transactionManager->createTransaction($request, 1, 'out', 'rec', $id_user_root, $group, '127.0.0.1');
                         $output->writeln('post createTransaction');
                         $output->writeln($response);
+
+                        $status = 'success';
+                        $paymentInfo['status'] = $status;
+                        $transaction->setStatus($paymentInfo['status']);
+                        $transaction->setPayInInfo($paymentInfo);
                     }
                     else{
                         $output->writeln('ERROR: not commerce_id data');
