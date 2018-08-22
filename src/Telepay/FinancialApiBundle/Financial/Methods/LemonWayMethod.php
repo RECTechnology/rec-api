@@ -188,6 +188,7 @@ class LemonWayMethod extends BaseMethod {
     }
 
     public function getPayInStatus($paymentInfo){
+        return $paymentInfo;
     }
 
     public function getPayOutStatus($id){

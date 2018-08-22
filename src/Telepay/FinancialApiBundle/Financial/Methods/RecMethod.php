@@ -75,6 +75,9 @@ class RecMethod extends BaseMethod {
             'status'    =>  'received',
             'final'     =>  false
         );
+        if(isset($data['internal_tx']) && $data['internal_tx'] == '1' && isset($data['destionation_id'])){
+            $response['destionation_id']=$data['destionation_id'];
+        }
         return $response;
     }
 

@@ -213,8 +213,8 @@ class IncomingController2 extends RestApiController{
                 $payment_info['name_sender'] = $sender->getName();
             }
             $transaction->setPayInInfo($payment_info);
-
-        }else{
+        }
+        else{
             $logger->info('else');
             $payment_info = $method->getPayOutInfoData($data);
             $transaction->setPayOutInfo($payment_info);
@@ -245,7 +245,7 @@ class IncomingController2 extends RestApiController{
 
         //check if is cash-out
         if($type == 'out'){
-            //le cambiamos el signo para guardarla i marcarla como salida en el wallet
+            //le cambiamos el signo para guardarla y marcarla como salida en el wallet
             $transaction->setTotal(-$amount);
             $total = $amount + $variable_fee + $fixed_fee;
         }else{
@@ -264,7 +264,10 @@ class IncomingController2 extends RestApiController{
         $transaction->setCurrency($method->getCurrency());
         $transaction->setScale($wallet->getScale());
 
-        //******    CHECK IF THE TRANSACTION IS CASH-OUT     ********
+        if($data['internal_tx']=='1') {
+            $transaction->setInternal(true);
+        }
+
         if($type == 'out'){
             $logger->info('Incomig transaction...OUT Available = ' . $wallet->getAvailable() .  " TOTAL: " . $total);
             $address = $payment_info['address'];
@@ -321,7 +324,6 @@ class IncomingController2 extends RestApiController{
             $transaction->setPayOutInfo($payment_info);
             $dm->flush();
 
-            //pay fees and dealer always and set new balance
             if( $payment_info['status'] == 'sent' || $payment_info['status'] == 'sending'){
                 if($payment_info['status'] == 'sent') $transaction->setStatus(Transaction::$STATUS_SUCCESS);
                 else $transaction->setStatus('sending');
@@ -342,6 +344,10 @@ class IncomingController2 extends RestApiController{
                     'txid' => $txid,
                     'sender' => $group->getId()
                 );
+                if($data['internal_tx']=='1') {
+                    $params['internal_tx']='1';
+                    $params['destionation_id']=$data['destionation_id'];
+                }
                 $this->createTransaction($params, $version_number, 'in', $method_cname, $destination->getKycManager()->getId(), $destination, $ip);
             }
             else{
@@ -737,20 +743,6 @@ class IncomingController2 extends RestApiController{
             ->getToken()->getUser();
         //TODO change this for active group
         $group = $user->getGroups()[0];
-
-        //TODO quitar cuando haya algo mejor montado
-        if($user->getId() == $this->container->getParameter('read_only_user_id')){
-            $em = $this->getDoctrine()->getManager();
-            $user = $em->getRepository('TelepayFinancialApiBundle:User')->find($this->container->getParameter('chipchap_user_id'));
-        }
-
-        /*
-        $method_list = $user->getMethodsList();
-
-        if (!in_array($method_cname.'-'.$type, $method_list)) {
-            throw $this->createAccessDeniedException();
-        }
-        */
 
         if($request->query->has('limit')) $limit = $request->query->get('limit');
         else $limit = 10;

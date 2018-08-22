@@ -13,24 +13,24 @@ use Telepay\FinancialApiBundle\Document\Transaction;
 use Telepay\FinancialApiBundle\Entity\Exchange;
 use Telepay\FinancialApiBundle\Financial\Currency;
 
-class CheckCryptoCommand extends SyncronizedContainerAwareCommand
-{
+class CheckFiatCommand extends SyncronizedContainerAwareCommand{
     protected function configure()
     {
         $this
-            ->setName('rec:crypto:check')
-            ->setDescription('Check crypto transactions')
+            ->setName('rec:fiat:check')
+            ->setDescription('Check fiat transactions')
         ;
     }
 
     protected function executeSyncronized(InputInterface $input, OutputInterface $output){
-        $method_cname = array('rec');
+        $method_cname = array('lemon_way');
         $type = 'in';
 
         $dm = $this->getContainer()->get('doctrine_mongodb')->getManager();
         $em = $this->getContainer()->get('doctrine')->getManager();
         $repoGroup = $em->getRepository('TelepayFinancialApiBundle:Group');
-        $output->writeln('CHECK CRYPTO');
+        $repoUser = $em->getRepository('TelepayFinancialApiBundle:User');
+        $output->writeln('CHECK FIAT');
         foreach ($method_cname as $method) {
             $output->writeln($method . ' INIT');
 
@@ -40,12 +40,10 @@ class CheckCryptoCommand extends SyncronizedContainerAwareCommand
                 ->field('status')->in(array('created', 'received'))
                 ->getQuery();
 
-            $resArray = [];
             foreach ($qb->toArray() as $transaction) {
                 $output->writeln('CHECK CRYPTO ID: '.$transaction->getId());
                 $data = $transaction->getPayInInfo();
                 $output->writeln('CHECK CRYPTO concept: '.$data['concept']);
-                $resArray [] = $transaction;
                 $previous_status = $transaction->getStatus();
 
                 $transaction = $this->check($transaction);
@@ -59,39 +57,39 @@ class CheckCryptoCommand extends SyncronizedContainerAwareCommand
                 $dm->persist($transaction);
                 $dm->flush();
 
-                $groupId = $transaction->getGroup();
-                $group = $repoGroup->find($groupId);
-                $fixed_fee = $transaction->getFixedFee();
-                $variable_fee = $transaction->getVariableFee();
-                $total_fee = $fixed_fee + $variable_fee;
-                $amount = $data['amount'];
-                $total = $amount - $total_fee;
+                if ($transaction->getStatus() == Transaction::$STATUS_RECEIVED) {
+                    $output->writeln('CHECK CRYPTO received');
+                    $amount = $data['amount'];
+                    if(isset($data['commerce_id'])) {
+                        $commerce_id = $data['commerce_id'];
+                        $group_commerce = $repoGroup->find($commerce_id);
 
-                if ($transaction->getStatus() == Transaction::$STATUS_SUCCESS) {
-                    $output->writeln('CHECK CRYPTO success');
-                    $service_currency = $transaction->getCurrency();
-                    $wallet = $group->getWallet($service_currency);
-                    $balancer = $this->getContainer()->get('net.telepay.commons.balance_manipulator');
-                    $balancer->addBalance($group, $amount, $transaction, "check crypto command");
-                    $wallet->setAvailable($wallet->getAvailable() + $amount);
-                    $wallet->setBalance($wallet->getBalance() + $amount);
-                    $em->flush();
+                        $id_group_root = $this->getContainer()->getParameter('id_group_root');
+                        $group = $repoGroup->find($id_group_root);
+                        $id_user_root = $this->getContainer()->getParameter('admin_user_id');
+                        $user = $repoUser->find($id_user_root);
+
+                        $request['concept'] = 'Internal exchange';
+                        $request['amount'] = $amount * 1000000;
+                        $request['address'] = $group_commerce->getRecAddress();
+                        $request['pin'] = $user->getPIN();
+                        $request['internal_tx'] = '1';
+                        $request['destionation_id'] = $transaction->getGroup();
+
+                        $output->writeln('get app');
+                        $transactionManager = $this->getContainer()->get('app.incoming_controller');
+                        $output->writeln('createTransaction');
+                        $response = $transactionManager->createTransaction($request, 1, 'out', 'rec', $id_user_root, $group, '127.0.0.1');
+                        $output->writeln('post createTransaction');
+                        $output->writeln($response);
+                    }
+                    else{
+                        $output->writeln('ERROR: not commerce_id data');
+                    }
                 }
                 elseif ($transaction->getStatus() == Transaction::$STATUS_EXPIRED) {
                     $output->writeln('TRANSACTION EXPIRED');
-                    $output->writeln('NOTIFYING EXPIRED');
                     $transaction = $this->getContainer()->get('notificator')->notificate($transaction);
-                    $output->writeln('Notificate end');
-                    //if delete_on_expire==true delete transaction
-                    $paymentInfo = $transaction->getPayInInfo();
-                    if ($transaction->getDeleteOnExpire() == true && $paymentInfo['received'] == 0) {
-                        $transaction->setStatus('deleted');
-                        $em->flush();
-                        $output->writeln('NOTIFYING DELETE ON EXPIRE');
-                        $transaction = $this->getContainer()->get('notificator')->notificate($transaction);
-                        $output->writeln('Notificate end');
-                        $output->writeln('DELETE ON EXPIRE');
-                    }
                 }
                 $em->flush();
                 $dm->persist($transaction);
@@ -99,29 +97,22 @@ class CheckCryptoCommand extends SyncronizedContainerAwareCommand
             }
             $output->writeln($method . ' transactions checked');
         }
-        $output->writeln('Crypto transactions finished');
+        $output->writeln('Fiat transactions finished');
     }
 
     public function check(Transaction $transaction){
-
         $paymentInfo = $transaction->getPayInInfo();
-
         if($transaction->getStatus() === 'success' || $transaction->getStatus() === 'expired'){
             return $transaction;
         }
-
         $providerName = 'net.telepay.'.$transaction->getType().'.'.$transaction->getMethod().'.v1';
         $cryptoProvider = $this->getContainer()->get($providerName);
-
         $paymentInfo = $cryptoProvider->getPayInStatus($paymentInfo);
-
         $transaction->setStatus($paymentInfo['status']);
         $transaction->setPayInInfo($paymentInfo);
-
         if($transaction->getStatus() === 'created' && $this->hasExpired($transaction)){
             $transaction->setStatus('expired');
         }
-
         return $transaction;
     }
 
