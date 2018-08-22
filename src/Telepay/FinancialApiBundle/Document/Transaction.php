@@ -369,12 +369,6 @@ class Transaction implements TransactionTiming {
 
     /**
      * @var
-     * @MongoDB\Field(type="int")
-     */
-    private $faircoopNode;
-
-    /**
-     * @var
      * @MongoDB\Date
      */
     private $last_price_at;
@@ -1105,19 +1099,4 @@ class Transaction implements TransactionTiming {
         $this->comment = $comment;
     }
 
-    /**
-     * @return mixed
-     */
-    public function getFaircoopNode()
-    {
-        return $this->faircoopNode;
-    }
-
-    /**
-     * @param mixed $faircoopNode
-     */
-    public function setFaircoopNode($faircoopNode)
-    {
-        $this->faircoopNode = $faircoopNode;
-    }
 }
