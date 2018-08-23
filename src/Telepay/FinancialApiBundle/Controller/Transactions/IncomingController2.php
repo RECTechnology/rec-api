@@ -349,7 +349,7 @@ class IncomingController2 extends RestApiController{
                     $params['destionation_id']=$data['destionation_id'];
                 }
                 $logger->info('(' . $group_id . ') Incomig transaction... Create New');
-                $this->createTransaction($params, $version_number, 'in', $method_cname, $destination->getKycManager()->getId(), $destination, $ip);
+                $this->createTransaction($params, $version_number, 'in', $method_cname, $destination->getKycManager()->getId(), $destination, '127.0.0.1');
                 $logger->info('(' . $group_id . ') Incomig transaction... New created');
             }
             else{
@@ -372,13 +372,18 @@ class IncomingController2 extends RestApiController{
         }
 
         $this->container->get('notificator')->notificate($transaction);
-        $logger->info('(' . $group_id . ') Incomig transaction...FINAL');
+        $logger->info('(' . $group_id . ') Incomig transaction...DONE');
         if($transaction == false) throw new HttpException(500, "oOps, some error has occurred within the call");
-        if($user_id == -1){
-            return 'Transaction generate successfully';
+        if($user_id == -1 || $ip == '127.0.0.1'){
+            $logger->info('(' . $group_id . ') Incomig transaction... return string');
+            $logger->info('(' . $group_id . ') Incomig transaction... FINAL');
+            return 'Transaction generated successfully';
         }else{
+            $logger->info('(' . $group_id . ') Incomig transaction... return http format');
+            $logger->info('(' . $group_id . ') Incomig transaction... FINAL');
             return $this->methodTransaction(201, $transaction, "Done");
         }
+        $logger->info('(' . $group_id . ') Incomig transaction...MAL');
     }
 
     /**
