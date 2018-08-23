@@ -36,19 +36,19 @@ class CheckFiatCommand extends SyncronizedContainerAwareCommand{
 
             $qb = $dm->createQueryBuilder('TelepayFinancialApiBundle:Transaction')
                 ->field('method')->equals($method)
-                ->field('group')->equals('201')
+                ->field('group')->equals(201)
                 ->field('type')->equals($type)
                 ->field('status')->in(array('created', 'received'))
                 ->getQuery();
 
             foreach ($qb->toArray() as $transaction) {
-                $output->writeln('CHECK CRYPTO ID: '.$transaction->getId());
+                $output->writeln('CHECK FIAT ID: '.$transaction->getId());
                 $data = $transaction->getPayInInfo();
-                $output->writeln('CHECK CRYPTO concept: '.$data['concept']);
+                $output->writeln('CHECK FIAT concept: '.$data['concept']);
                 $previous_status = $transaction->getStatus();
 
                 $transaction = $this->check($transaction);
-                $output->writeln('CHECK CRYPTO status: ' . $transaction->getStatus());
+                $output->writeln('CHECK FIAT status: ' . $transaction->getStatus());
                 if ($previous_status != $transaction->getStatus()) {
                     $output->writeln('Notificate init:');
                     $transaction = $this->getContainer()->get('notificator')->notificate($transaction);
@@ -59,7 +59,7 @@ class CheckFiatCommand extends SyncronizedContainerAwareCommand{
                 $dm->flush();
 
                 if ($transaction->getStatus() == Transaction::$STATUS_RECEIVED) {
-                    $output->writeln('CHECK CRYPTO received');
+                    $output->writeln('CHECK FIAT received');
                     $amount = $data['amount'];
                     if(isset($data['commerce_id'])) {
                         $commerce_id = $data['commerce_id'];
@@ -81,17 +81,13 @@ class CheckFiatCommand extends SyncronizedContainerAwareCommand{
                         $output->writeln('get app');
                         $transactionManager = $this->getContainer()->get('app.incoming_controller');
                         $output->writeln('createTransaction');
-                        $response = $transactionManager->createTransaction($request, 1, 'out', 'rec', $id_user_root, $group, '127.0.0.1');
+                        $transactionManager->createTransaction($request, 1, 'out', 'rec', $id_user_root, $group, '127.0.0.1');
                         $output->writeln('post createTransaction');
-                        $output->writeln($response);
 
-                        $status = 'success';
-                        $paymentInfo['status'] = $status;
-                        $transaction->setStatus($paymentInfo['status']);
-                        $transaction->setPayInInfo($paymentInfo);
-                        $em->flush();
+                        $transaction->setStatus('success');
                         $dm->persist($transaction);
                         $dm->flush();
+                        $output->writeln('CHECK FIAT saved in success status');
                     }
                     else{
                         $output->writeln('ERROR: not commerce_id data');
