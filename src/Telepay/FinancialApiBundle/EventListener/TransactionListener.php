@@ -32,7 +32,7 @@ class TransactionListener
     public function postUpdate(LifecycleEventArgs $args)
     {
         $entity = $args->getDocument();
-        $this->logger->info('POST-UPDATE Transaction_Listener');
+        $this->logger->info('POST-UPDATE Transaction_Listener' . $entity->getId());
 
         $entityManager = $args->getDocumentManager();
         $uow = $entityManager->getUnitOfWork();
@@ -40,15 +40,13 @@ class TransactionListener
     }
 
     public function preUpdate(LifecycleEventArgs $args){
-
         $entity = $args->getDocument();
-        $this->logger->info('POST-UPDATE Transaction_Listener');
+        $this->logger->info('PRE-UPDATE Transaction_Listener' . $entity->getId());
 
         $entityManager = $args->getDocumentManager();
         $uow = $entityManager->getUnitOfWork();
 
         if ($entity instanceof Transaction) {
-
             //check tier to get permissions to method only for in and out transactions
             if(($entity->getType() == 'in' || $entity->getType() == 'out')
                 && $entity->getMethod() != 'wallet_to_wallet'){
@@ -60,21 +58,16 @@ class TransactionListener
 
     }
 
-    public function postPersist(LifecycleEventArgs $args)
-    {
+    public function postPersist(LifecycleEventArgs $args){
         $entity = $args->getDocument();
-        $this->logger->info('POST-INSERT transaction');
-
+        $this->logger->info('POST-INSERT transaction' . $entity->getId());
         $entityManager = $args->getDocumentManager();
-
-
-
     }
 
     public function prePersist(LifecycleEventArgs $args)
     {
         $entity = $args->getDocument();
-        $this->logger->info('PRE-INSERT transaction');
+        $this->logger->info('PRE-INSERT transaction ' . $entity->getId());
 
         $documentManager = $args->getDocumentManager();
 

@@ -30,6 +30,10 @@ class CheckFiatCommand extends SyncronizedContainerAwareCommand{
         $em = $this->getContainer()->get('doctrine')->getManager();
         $repoGroup = $em->getRepository('TelepayFinancialApiBundle:Group');
         $repoUser = $em->getRepository('TelepayFinancialApiBundle:User');
+
+        $output->writeln('get app');
+        $transactionManager = $this->getContainer()->get('app.incoming_controller');
+
         $output->writeln('CHECK FIAT');
         foreach ($method_cname as $method) {
             $output->writeln($method . ' INIT');
@@ -78,12 +82,11 @@ class CheckFiatCommand extends SyncronizedContainerAwareCommand{
                         $request['internal_tx'] = '1';
                         $request['destionation_id'] = $transaction->getGroup();
 
-                        $output->writeln('get app');
-                        $transactionManager = $this->getContainer()->get('app.incoming_controller');
                         $output->writeln('createTransaction');
+                        sleep(1);
                         $transactionManager->createTransaction($request, 1, 'out', 'rec', $id_user_root, $group, '127.0.0.1');
                         $output->writeln('post createTransaction');
-
+                        sleep(1);
                         $transaction->setStatus('success');
                         $dm->persist($transaction);
                         $dm->flush();

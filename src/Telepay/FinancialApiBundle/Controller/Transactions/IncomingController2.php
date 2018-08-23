@@ -86,11 +86,11 @@ class IncomingController2 extends RestApiController{
 
     public function createTransaction($data, $version_number, $type, $method_cname, $user_id, $group, $ip){
         $logger = $this->get('transaction.logger');
-        $logger->info('Incomig transaction...Method-> '.$method_cname.' Direction -> '.$type);
+        $logger->info('(' . $user_id . ') Incomig transaction...Method-> '.$method_cname.' Direction -> '.$type);
 
         $method = $this->get('net.telepay.'.$type.'.'.$method_cname.'.v'.$version_number);
 
-        $logger->info('Get mongo service');
+        $logger->info('(' . $user_id . ') Get mongo service');
 
         $dm = $this->get('doctrine_mongodb')->getManager();
         $em = $this->getDoctrine()->getManager();
@@ -141,7 +141,7 @@ class IncomingController2 extends RestApiController{
 
         if(array_key_exists('url_notification', $data)) $url_notification = $data['url_notification'];
         else $url_notification = '';
-        $logger->info('Incomig transaction...getPaymentInfo for company '.$group->getId());
+        $logger->info('(' . $user_id . ') Incomig transaction...getPaymentInfo for company '.$group->getId());
 
         if($type == 'in'){
             $dataIn = array(
@@ -215,7 +215,7 @@ class IncomingController2 extends RestApiController{
             $transaction->setPayInInfo($payment_info);
         }
         else{
-            $logger->info('else');
+            $logger->info('(' . $user_id . ') else');
             $payment_info = $method->getPayOutInfoData($data);
             $transaction->setPayOutInfo($payment_info);
             $dataIn = array(
@@ -226,7 +226,7 @@ class IncomingController2 extends RestApiController{
         }
         $transaction->setDataIn($dataIn);
 
-        $logger->info('Incomig transaction...FEES');
+        $logger->info('(' . $user_id . ') Incomig transaction...FEES');
 
         $fee_handler = $this->container->get('net.telepay.commons.fee_manipulator');
         $group_commission = $fee_handler->getMethodFees($group, $method);
@@ -253,7 +253,7 @@ class IncomingController2 extends RestApiController{
             $transaction->setTotal($amount);
         }
 
-        $logger->info('Incomig transaction...LIMITS');
+        $logger->info('(' . $user_id . ') Incomig transaction...LIMITS');
 
         //check limits with 30 days success/received/created transactions
         //get limit manipulator
@@ -272,7 +272,7 @@ class IncomingController2 extends RestApiController{
             if(isset($data['internal_out']) && $data['internal_out']=='1') {
                 $transaction->setInternal(true);
             }
-            $logger->info('Incomig transaction...OUT Available = ' . $wallet->getAvailable() .  " TOTAL: " . $total);
+            $logger->info('(' . $user_id . ') Incomig transaction...OUT Available = ' . $wallet->getAvailable() .  " TOTAL: " . $total);
             $address = $payment_info['address'];
             $destination = $em->getRepository('TelepayFinancialApiBundle:Group')->findOneBy(array(
                 'rec_address' => $payment_info['address']
@@ -294,7 +294,7 @@ class IncomingController2 extends RestApiController{
             $payment_info['dest_group_nif'] = $destination->getCif();
             $payment_info['dest_key'] = $destination->getKeyChain();
 
-            $logger->info('Incomig transaction...SEND');
+            $logger->info('(' . $user_id . ') Incomig transaction...SEND');
 
             //Bloqueamos la pasta en el wallet
             $wallet->setAvailable($wallet->getAvailable() - $amount);
@@ -322,7 +322,7 @@ class IncomingController2 extends RestApiController{
             $txid = $payment_info['txid'];
             $payment_info['image_receiver'] = $destination->getCompanyImage();
             $payment_info['name_receiver'] = $destination->getName();
-            $logger->info('Incomig transaction...PAYMENT STATUS: '.$payment_info['status']);
+            $logger->info('(' . $user_id . ') Incomig transaction...PAYMENT STATUS: '.$payment_info['status']);
 
             $transaction->setPayOutInfo($payment_info);
             $dm->flush();
@@ -351,7 +351,9 @@ class IncomingController2 extends RestApiController{
                     $params['internal_tx']='1';
                     $params['destionation_id']=$data['destionation_id'];
                 }
+                $logger->info('(' . $user_id . ') Incomig transaction... Create New');
                 $this->createTransaction($params, $version_number, 'in', $method_cname, $destination->getKycManager()->getId(), $destination, $ip);
+                $logger->info('(' . $user_id . ') Incomig transaction... New created');
             }
             else{
                 $transaction->setStatus($payment_info['status']);
@@ -366,14 +368,14 @@ class IncomingController2 extends RestApiController{
                 $transaction->setInternal(true);
             }
              //CASH - IN
-            $logger->info('Incomig transaction...IN');
+            $logger->info('(' . $user_id . ') Incomig transaction...IN');
             $em->flush();
             $transaction->setUpdated(new \DateTime());
             $dm->flush();
         }
 
         $this->container->get('notificator')->notificate($transaction);
-        $logger->info('Incomig transaction...FINAL');
+        $logger->info('(' . $user_id . ') Incomig transaction...FINAL');
         if($transaction == false) throw new HttpException(500, "oOps, some error has occurred within the call");
         if($user_id == -1){
             return 'Transaction generate successfully';
