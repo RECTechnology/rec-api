@@ -70,6 +70,7 @@ class CheckFiatCommand extends SyncronizedContainerAwareCommand{
                         $id_user_root = $this->getContainer()->getParameter('admin_user_id');
                         $user = $repoUser->find($id_user_root);
 
+                        $request = array();
                         $request['concept'] = 'Internal exchange';
                         $request['amount'] = $amount * 1000000;
                         $request['address'] = $group_commerce->getRecAddress();
@@ -88,6 +89,9 @@ class CheckFiatCommand extends SyncronizedContainerAwareCommand{
                         $paymentInfo['status'] = $status;
                         $transaction->setStatus($paymentInfo['status']);
                         $transaction->setPayInInfo($paymentInfo);
+                        $em->flush();
+                        $dm->persist($transaction);
+                        $dm->flush();
                     }
                     else{
                         $output->writeln('ERROR: not commerce_id data');
