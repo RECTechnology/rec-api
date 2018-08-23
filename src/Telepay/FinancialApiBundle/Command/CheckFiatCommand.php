@@ -23,7 +23,7 @@ class CheckFiatCommand extends SyncronizedContainerAwareCommand{
     }
 
     protected function executeSyncronized(InputInterface $input, OutputInterface $output){
-        $method_cname = array('lemon_way');
+        $method_cname = array('lemonway');
         $type = 'in';
 
         $dm = $this->getContainer()->get('doctrine_mongodb')->getManager();
@@ -36,6 +36,7 @@ class CheckFiatCommand extends SyncronizedContainerAwareCommand{
 
             $qb = $dm->createQueryBuilder('TelepayFinancialApiBundle:Transaction')
                 ->field('method')->equals($method)
+                ->field('group')->equals('201')
                 ->field('type')->equals($type)
                 ->field('status')->in(array('created', 'received'))
                 ->getQuery();
