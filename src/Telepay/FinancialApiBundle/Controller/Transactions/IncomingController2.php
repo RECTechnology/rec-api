@@ -269,6 +269,9 @@ class IncomingController2 extends RestApiController{
         }
 
         if($type == 'out'){
+            if($data['internal_out']=='1') {
+                $transaction->setInternal(true);
+            }
             $logger->info('Incomig transaction...OUT Available = ' . $wallet->getAvailable() .  " TOTAL: " . $total);
             $address = $payment_info['address'];
             $destination = $em->getRepository('TelepayFinancialApiBundle:Group')->findOneBy(array(
@@ -359,6 +362,9 @@ class IncomingController2 extends RestApiController{
             }
         }
         else{
+            if($data['internal_in']=='1') {
+                $transaction->setInternal(true);
+            }
              //CASH - IN
             $logger->info('Incomig transaction...IN');
             $em->flush();

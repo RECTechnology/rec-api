@@ -30,6 +30,7 @@ class CheckCryptoCommand extends SyncronizedContainerAwareCommand
         $dm = $this->getContainer()->get('doctrine_mongodb')->getManager();
         $em = $this->getContainer()->get('doctrine')->getManager();
         $repoGroup = $em->getRepository('TelepayFinancialApiBundle:Group');
+        $repoUser = $em->getRepository('TelepayFinancialApiBundle:User');
         $output->writeln('CHECK CRYPTO');
         foreach ($method_cname as $method) {
             $output->writeln($method . ' INIT');
@@ -76,6 +77,31 @@ class CheckCryptoCommand extends SyncronizedContainerAwareCommand
                     $wallet->setAvailable($wallet->getAvailable() + $amount);
                     $wallet->setBalance($wallet->getBalance() + $amount);
                     $em->flush();
+
+                    //Enviar recs si es una internal
+                    if($transaction->getInternal() && isset($data['destionation_id'])){
+                        $commerce_id = $data['destionation_id'];
+                        $group_receiver = $repoGroup->find($commerce_id);
+
+                        $id_group_intermediary = $transaction->getGroup();
+                        $group = $repoGroup->find($id_group_intermediary);
+                        $id_user_intermediary = $transaction->getUser();
+                        $user = $repoUser->find($id_user_intermediary);
+
+                        $request = array();
+                        $request['concept'] = 'Internal exchange';
+                        $request['amount'] = $amount;
+                        $request['address'] = $group_receiver->getRecAddress();
+                        $request['pin'] = $user->getPIN();
+                        $request['internal_out'] = '1';
+
+                        $output->writeln('get app');
+                        $transactionManager = $this->getContainer()->get('app.incoming_controller');
+                        $output->writeln('createTransaction');
+                        $response = $transactionManager->createTransaction($request, 1, 'out', 'rec', $id_user_intermediary, $group, '127.0.0.1');
+                        $output->writeln('post createTransaction');
+                        $output->writeln($response);
+                    }
                 }
                 elseif ($transaction->getStatus() == Transaction::$STATUS_EXPIRED) {
                     $output->writeln('TRANSACTION EXPIRED');
