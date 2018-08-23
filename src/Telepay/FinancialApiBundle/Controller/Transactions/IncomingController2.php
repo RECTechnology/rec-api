@@ -269,7 +269,7 @@ class IncomingController2 extends RestApiController{
         }
 
         if($type == 'out'){
-            if($data['internal_out']=='1') {
+            if(isset($data['internal_out']) && $data['internal_out']=='1') {
                 $transaction->setInternal(true);
             }
             $logger->info('Incomig transaction...OUT Available = ' . $wallet->getAvailable() .  " TOTAL: " . $total);
@@ -362,7 +362,7 @@ class IncomingController2 extends RestApiController{
             }
         }
         else{
-            if($data['internal_in']=='1') {
+            if(isset($data['internal_in']) && $data['internal_in']=='1') {
                 $transaction->setInternal(true);
             }
              //CASH - IN
