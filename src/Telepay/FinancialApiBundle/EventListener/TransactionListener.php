@@ -32,7 +32,7 @@ class TransactionListener
     public function postUpdate(LifecycleEventArgs $args)
     {
         $entity = $args->getDocument();
-        $this->logger->info('POST-UPDATE Transaction_Listener' . $entity->getId());
+        $this->logger->info('(' . $entity->getUser() . ') POST-UPDATE Transaction_Listener');
 
         $entityManager = $args->getDocumentManager();
         $uow = $entityManager->getUnitOfWork();
@@ -41,7 +41,7 @@ class TransactionListener
 
     public function preUpdate(LifecycleEventArgs $args){
         $entity = $args->getDocument();
-        $this->logger->info('PRE-UPDATE Transaction_Listener' . $entity->getId());
+        $this->logger->info('(' . $entity->getUser() . ') PRE-UPDATE Transaction_Listener');
 
         $entityManager = $args->getDocumentManager();
         $uow = $entityManager->getUnitOfWork();
@@ -60,14 +60,14 @@ class TransactionListener
 
     public function postPersist(LifecycleEventArgs $args){
         $entity = $args->getDocument();
-        $this->logger->info('POST-INSERT transaction' . $entity->getId());
+        $this->logger->info('(' . $entity->getUser() . ') POST-PERSIST transaction');
         $entityManager = $args->getDocumentManager();
     }
 
     public function prePersist(LifecycleEventArgs $args)
     {
         $entity = $args->getDocument();
-        $this->logger->info('PRE-INSERT transaction ' . $entity->getId());
+        $this->logger->info('(' . $entity->getUser() . ' PRE-PERSIST transaction');
 
         $documentManager = $args->getDocumentManager();
 
