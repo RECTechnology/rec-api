@@ -34,7 +34,6 @@ class DelegatedExchangeCommand extends ContainerAwareCommand
         $repoGroup = $em->getRepository('TelepayFinancialApiBundle:Group');
         $repoUser = $em->getRepository('TelepayFinancialApiBundle:User');
         $repoCard = $em->getRepository('TelepayFinancialApiBundle:CreditCard');
-        $output->writeln('get app');
         $transactionManager = $this->getContainer()->get('app.incoming_controller');
 
         $csv = $this->parseCSV();
@@ -46,7 +45,15 @@ class DelegatedExchangeCommand extends ContainerAwareCommand
                 continue;
             }
             $group = $repoGroup->findOneBy(array('cif'=>$dni_user));
+            if(!$group){
+                $output->writeln("User is not a particular: " . $dni_user);
+                continue;
+            }
             $card = $repoCard->findOneBy(array('user'=>$user->getId(), 'company' => $group->getId()));
+            if(!$card){
+                $output->writeln("User has not a card: " . $card);
+                continue;
+            }
 
             $cif_commerce = $line[1];
             $group_commerce = $repoGroup->findOneBy(array('cif'=>$cif_commerce));
@@ -64,7 +71,7 @@ class DelegatedExchangeCommand extends ContainerAwareCommand
 
             $output->writeln('createTransaction');
             sleep(1);
-            //$transactionManager->createTransaction($request, 1, 'in', 'lemon', $user->getId(), $group, '127.0.0.1');
+            //$transactionManager->createTransaction($request, 1, 'in', 'lemonway', $user->getId(), $group, '127.0.0.1');
             sleep(1);
             $output->writeln($dni_user . " Sent");
         }
