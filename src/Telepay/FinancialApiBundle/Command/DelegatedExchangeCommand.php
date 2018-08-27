@@ -17,8 +17,7 @@ use Telepay\FinancialApiBundle\Financial\Currency;
 
 class DelegatedExchangeCommand extends ContainerAwareCommand
 {
-    protected function configure()
-    {
+    protected function configure(){
         $this
             ->setName('rec:delegated:exchange')
             ->setDescription('Delegated exchange')
@@ -32,28 +31,41 @@ class DelegatedExchangeCommand extends ContainerAwareCommand
 
     protected function execute(InputInterface $input, OutputInterface $output){
         $em = $this->getContainer()->get('doctrine')->getManager();
+        $repoGroup = $em->getRepository('TelepayFinancialApiBundle:Group');
+        $repoUser = $em->getRepository('TelepayFinancialApiBundle:User');
+        $repoCard = $em->getRepository('TelepayFinancialApiBundle:CreditCard');
         $output->writeln('get app');
         $transactionManager = $this->getContainer()->get('app.incoming_controller');
 
         $csv = $this->parseCSV();
         foreach ($csv as $line) {
             $dni_user = $line[0];
-            $cif_commerce = $line[1];
-            $amount = intval($line[2])*100;
-            /*
-                        $request = array();
-                        $request['concept'] = 'Internal exchange';
-                        $request['amount'] = $amount * 1000000;
-                        $request['address'] = $group_commerce->getRecAddress();
-                        $request['pin'] = $user->getPIN();
-                        $request['internal_tx'] = '1';
-                        $request['destionation_id'] = $transaction->getGroup();
+            $user = $repoUser->findOneBy(array('dni'=>$dni_user));
+            if(!$user){
+                $output->writeln("User not found: " . $dni_user);
+                continue;
+            }
+            $group = $repoGroup->findOneBy(array('cif'=>$dni_user));
+            $card = $repoCard->findOneBy(array('user'=>$user->getId(), 'company' => $group->getId()));
 
-                        $output->writeln('createTransaction');
-                        sleep(1);
-                        $transactionManager->createTransaction($request, 1, 'out', 'rec', $id_user_root, $group, '127.0.0.1');
-                        sleep(1);
-            */
+            $cif_commerce = $line[1];
+            $group_commerce = $repoGroup->findOneBy(array('cif'=>$cif_commerce));
+            if(!$group_commerce){
+                $output->writeln("Commerce not found: " . $cif_commerce);
+                continue;
+            }
+            $amount = intval($line[2])*100;
+            $request = array();
+            $request['concept'] = 'Internal exchange';
+            $request['amount'] = $amount;
+            $request['commerce_id'] = $group_commerce->getRecAddress();
+            $request['card_id'] = $card->getId();
+            $request['pin'] = $user->getPIN();
+
+            $output->writeln('createTransaction');
+            sleep(1);
+            //$transactionManager->createTransaction($request, 1, 'in', 'lemon', $user->getId(), $group, '127.0.0.1');
+            sleep(1);
             $output->writeln($dni_user . " Sent");
         }
         $output->writeln("DONE");
