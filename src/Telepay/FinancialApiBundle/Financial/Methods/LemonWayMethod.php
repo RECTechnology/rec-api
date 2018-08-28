@@ -130,16 +130,16 @@ class LemonWayMethod extends BaseMethod {
                 'status' => 'received',
                 'final' => false
             );
-            if(!property_exists($payment_info, 'TRANS') || ($payment_info->TRANS->HPAY->STATUS!='3' && $payment_info->TRANS->HPAY->STATUS!='16')){
+            if(property_exists($payment_info, 'TRANS') && $payment_info->TRANS->HPAY->STATUS=='3' && $payment_info->TRANS->HPAY->STATUS=='16'){
+                $response['payment_external_status'] = $payment_info->TRANS->HPAY->STATUS;
+                $response['transaction_id'] = $payment_info->TRANS->HPAY->ID;
+            }
+            else {
                 $response['payment_info'] = json_encode($payment_info);
                 $response['card_id'] = $data['card_id'];
                 $response['received'] = 0;
                 $response['status'] = 'failed';
                 $response['final'] = true;
-            }
-            else {
-                $response['payment_external_status'] = $payment_info->TRANS->HPAY->STATUS;
-                $response['transaction_id'] = $payment_info->TRANS->HPAY->ID;
             }
         }
         else {
