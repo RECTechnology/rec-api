@@ -506,7 +506,7 @@ class AccountController extends BaseApiController{
         }
 
         $company->setName($company_name);
-        $company->setCif($company_cif);
+        $company->setCif(strtoupper($company_cif));
         $company->setType($type);
         $company->setSubtype($subtype);
         $company->setActive(true);
