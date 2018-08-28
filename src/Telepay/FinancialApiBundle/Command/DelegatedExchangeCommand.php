@@ -71,9 +71,9 @@ class DelegatedExchangeCommand extends ContainerAwareCommand
 
             $output->writeln('createTransaction');
             sleep(1);
-            $transactionManager->createTransaction($request, 1, 'in', 'lemonway', $user->getId(), $group, '127.0.0.1');
+            $response = $transactionManager->createTransaction($request, 1, 'in', 'lemonway', $user->getId(), $group, '127.0.0.1');
             sleep(1);
-            $output->writeln($dni_user . " Sent");
+            $output->writeln($dni_user . " => " . $response);
         }
         $output->writeln("DONE");
     }
