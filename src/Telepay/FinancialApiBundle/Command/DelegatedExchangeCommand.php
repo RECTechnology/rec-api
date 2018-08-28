@@ -51,7 +51,7 @@ class DelegatedExchangeCommand extends ContainerAwareCommand
             }
             $card = $repoCard->findOneBy(array('user'=>$user->getId(), 'company' => $group->getId()));
             if(!$card){
-                $output->writeln("User has not a card: " . $card);
+                $output->writeln("User has not a card: " . $dni_user);
                 continue;
             }
 

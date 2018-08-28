@@ -261,7 +261,7 @@ class IncomingController2 extends RestApiController{
         $transaction->setCurrency($method->getCurrency());
         $transaction->setScale($wallet->getScale());
 
-        if($data['internal_tx']=='1') {
+        if(isset($data['internal_tx']) && $data['internal_tx']=='1') {
             $transaction->setInternal(true);
         }
 
