@@ -65,7 +65,7 @@ class DelegatedExchangeCommand extends ContainerAwareCommand
             $request = array();
             $request['concept'] = 'Internal exchange';
             $request['amount'] = $amount;
-            $request['commerce_id'] = $group_commerce->getRecAddress();
+            $request['commerce_id'] = $group_commerce->getId();
             $request['card_id'] = $card->getId();
             $request['pin'] = $user->getPIN();
 
