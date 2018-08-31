@@ -80,7 +80,7 @@ class IncomingController2 extends RestApiController{
             );
             return $this->restV2(201,"ok", "Sender information", $data);
         }
-        throw new HttpException(400, 'Incorrect address');
+        throw new HttpException(400, 'Incorrect sending data');
     }
 
 
