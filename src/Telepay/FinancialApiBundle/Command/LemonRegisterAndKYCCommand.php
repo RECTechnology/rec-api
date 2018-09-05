@@ -91,17 +91,17 @@ class LemonRegisterAndKYCCommand extends ContainerAwareCommand
                         $output->writeln('KYC manager address is empty.');
                         exit(0);
                     }
-                    $zip = $KYC->getZip();
+                    $zip = $company->getZip();
                     if($zip == ''){
                         $output->writeln('KYC manager zip is empty.');
                         exit(0);
                     }
-                    $city = $KYC->getCity();
+                    $city = $company->getCity();
                     if($city == ''){
                         $output->writeln('KYC manager city is empty.');
                         exit(0);
                     }
-                    $country = $KYC->getCountry();
+                    $country = $company->getCountry();
                     if($country == ''){
                         $output->writeln('KYC manager country is empty.');
                         exit(0);
