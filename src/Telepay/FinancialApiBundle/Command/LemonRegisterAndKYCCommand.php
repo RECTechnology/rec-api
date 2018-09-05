@@ -215,7 +215,7 @@ class LemonRegisterAndKYCCommand extends ContainerAwareCommand
                 $output->writeln('IBAN');
                 $filename = "iban.jpg";
                 $type = 2;
-                $buffer = base64_encode(file_get_contents('/home/bmoneda/files/REC/' . $user_dni . "/" . $user_dni . "-IBAN.jpg", true));
+                $buffer = base64_encode(file_get_contents('/home/bmoneda/files/REC/' . $user_dni . "/" . $user_dni . "-IBAN.pdf", true));
                 $up_file = $moneyProvider->UploadFile($user_dni, $filename, $type, $buffer);
                 echo "\n<pre>\n".json_encode($up_file, JSON_PRETTY_PRINT)."\n</pre>\n";
 
@@ -246,7 +246,7 @@ class LemonRegisterAndKYCCommand extends ContainerAwareCommand
                     $filename = "modelo.jpg";
                     $type = 7;
                     $user_dni = $user->getDNI();
-                    $buffer = base64_encode(file_get_contents('/home/bmoneda/files/REC/' . $user_dni . "/" . $user_dni . "-036.pdf", true));
+                    $buffer = base64_encode(file_get_contents('/home/bmoneda/files/REC/' . $user_dni . "/" . $user_dni . "-037.pdf", true));
                     $up_file = $moneyProvider->UploadFile($user_dni, $filename, $type, $buffer);
                     echo "\n<pre>\n" . json_encode($up_file, JSON_PRETTY_PRINT) . "\n</pre>\n";
                 }
