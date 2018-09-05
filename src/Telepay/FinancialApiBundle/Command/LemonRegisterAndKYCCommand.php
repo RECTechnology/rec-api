@@ -52,11 +52,130 @@ class LemonRegisterAndKYCCommand extends ContainerAwareCommand
                 $KYC=$em->getRepository('TelepayFinancialApiBundle:KYC')->findOneBy(array(
                     'user' => $user->getId()
                 ));
-/*
-                $user->setEmail('ivan14@robotunion.org');
-                $new_account = $moneyProvider->RegisterWallet('company-' . $company->getId(), $user->getEmail(), $KYC->getName(), $KYC->getLastName(), 'M');
-                $text='register=>' . json_encode($new_account, JSON_PRETTY_PRINT);
-                $output->writeln($text);
+
+                //ls
+                //for
+
+                if(true) {
+                    $is_individual = true;
+                }
+
+                //Individual
+                if($is_individual) {
+                    $email = $user->getEmail();
+                    if($email == ''){
+                        $output->writeln('User email is empty.');
+                        exit(0);
+                    }
+                    $name = $KYC->getName();
+                    if($name == ''){
+                        $output->writeln('KYC manager name is empty.');
+                        exit(0);
+                    }
+                    $lastName = $KYC->getLastName();
+                    if($lastName == ''){
+                        $output->writeln('KYC manager lastname is empty.');
+                        exit(0);
+                    }
+                    $date_birth = $KYC->getDateBirth();
+                    if($date_birth == ''){
+                        $output->writeln('KYC manager date_birth is empty.');
+                        exit(0);
+                    }
+
+                    $nationality = 'ESP';
+                    $gender = 'M';
+
+                    $address = $company->getStreetType() . " " . $company->getStreet() . " " . $company->getAddressNumber();
+                    if(str_replace(' ', '', $address) == ''){
+                        $output->writeln('KYC manager address is empty.');
+                        exit(0);
+                    }
+                    $zip = $KYC->getZip();
+                    if($zip == ''){
+                        $output->writeln('KYC manager zip is empty.');
+                        exit(0);
+                    }
+                    $city = $KYC->getCity();
+                    if($city == ''){
+                        $output->writeln('KYC manager city is empty.');
+                        exit(0);
+                    }
+                    $country = $KYC->getCountry();
+                    if($country == ''){
+                        $output->writeln('KYC manager country is empty.');
+                        exit(0);
+                    }
+                    $new_account = $moneyProvider->RegisterWalletIndividual($user->getDNI(), $email, $name, $lastName, $date_birth, $nationality, $gender, $address, $zip, $city, $country);
+                    $text = 'register=>' . json_encode($new_account, JSON_PRETTY_PRINT);
+                    $output->writeln($text);
+                }
+                //Profesional
+                else{
+                    $email = $user->getEmail();
+                    if($email == ''){
+                        $output->writeln('User email is empty.');
+                        exit(0);
+                    }
+                    $company_name = $company->getName();
+                    if($company_name == ''){
+                        $output->writeln('KYC company name is empty.');
+                        exit(0);
+                    }
+                    $company_web = 'rec.barcelona';
+                    $company_description = $company->getDescription();
+                    if($company_description == ''){
+                        $output->writeln('KYC company description is empty.');
+                        exit(0);
+                    }
+                    $description = $company->getDescription();
+                    if($description == ''){
+                        $output->writeln('Company description is empty.');
+                        exit(0);
+                    }
+                    $name = $KYC->getName();
+                    if($name == ''){
+                        $output->writeln('KYC manager name is empty.');
+                        exit(0);
+                    }
+                    $lastName = $KYC->getLastName();
+                    if($lastName == ''){
+                        $output->writeln('KYC manager lastname is empty.');
+                        exit(0);
+                    }
+                    $date_birth = $KYC->getDateBirth();
+                    if($date_birth == ''){
+                        $output->writeln('KYC manager date_birth is empty.');
+                        exit(0);
+                    }
+
+                    $nationality = 'ESP';
+                    $gender = 'M';
+
+                    $address = $company->getStreetType() . " " . $company->getStreet() . " " . $company->getAddressNumber();
+                    if(str_replace(' ', '', $address) == ''){
+                        $output->writeln('KYC manager address is empty.');
+                        exit(0);
+                    }
+                    $zip = $KYC->getZip();
+                    if($zip == ''){
+                        $output->writeln('KYC manager zip is empty.');
+                        exit(0);
+                    }
+                    $city = $KYC->getCity();
+                    if($city == ''){
+                        $output->writeln('KYC manager city is empty.');
+                        exit(0);
+                    }
+                    $country = $KYC->getCountry();
+                    if($country == ''){
+                        $output->writeln('KYC manager country is empty.');
+                        exit(0);
+                    }
+                    $new_account = $moneyProvider->RegisterWalletCompany($company->getCIF(), $email, $company_name, $company_web, $company_description, $name, $lastName, $date_birth, $nationality, $gender, $address, $zip, $city, $country);
+                    $text = 'register=>' . json_encode($new_account, JSON_PRETTY_PRINT);
+                    $output->writeln($text);
+                }
 
                 if(!is_object($new_account) && isset($new_account['REGISTERWALLET']) && isset($new_account['REGISTERWALLET']['STATUS']) && $new_account['REGISTERWALLET']['STATUS'] == '-1'){
                     $output->writeln('Register command error: ' . $new_account['REGISTERWALLET']['MESSAGE']);
@@ -67,7 +186,9 @@ class LemonRegisterAndKYCCommand extends ContainerAwareCommand
                 $company->setLemonId($lemon_id);
                 $em->persist($company);
                 $em->flush();
-*/
+
+                $user_dni = $user->getDNI();
+
                 //DNI front
                 $output->writeln('DNI front');
                 $filename = "id_front.jpeg";
@@ -76,7 +197,7 @@ class LemonRegisterAndKYCCommand extends ContainerAwareCommand
                 $datos = explode("/", $dni_file);
                 $file = $datos[3];
                 $buffer = base64_encode(file_get_contents('/home/bmoneda/files/' . $file, true));
-                $up_file = $moneyProvider->UploadFile('company-' . $company->getId(), $filename, $type, $buffer);
+                $up_file = $moneyProvider->UploadFile($user_dni, $filename, $type, $buffer);
                 echo "\n<pre>\n".json_encode($up_file, JSON_PRETTY_PRINT)."\n</pre>\n";
 
                 //DNI rear
@@ -87,47 +208,48 @@ class LemonRegisterAndKYCCommand extends ContainerAwareCommand
                 $datos = explode("/", $dni_file);
                 $file = $datos[3];
                 $buffer = base64_encode(file_get_contents('/home/bmoneda/files/' . $file, true));
-                $up_file = $moneyProvider->UploadFile('company-' . $company->getId(), $filename, $type, $buffer);
+                $up_file = $moneyProvider->UploadFile($user_dni, $filename, $type, $buffer);
                 echo "\n<pre>\n".json_encode($up_file, JSON_PRETTY_PRINT)."\n</pre>\n";
 
-                /*
                 //IBAN
                 $output->writeln('IBAN');
                 $filename = "iban.jpg";
                 $type = 2;
-                $user_dni = $user->getDNI();
-                $buffer = base64_encode(file_get_contents('/home/bmoneda/files/REC/' . $user_dni . "/" . $user_dni . "-IBAN.pdf", true));
-                $up_file = $moneyProvider->UploadFile('company-' . $company->getId(), $filename, $type, $buffer);
+                $buffer = base64_encode(file_get_contents('/home/bmoneda/files/REC/' . $user_dni . "/" . $user_dni . "-IBAN.jpg", true));
+                $up_file = $moneyProvider->UploadFile($user_dni, $filename, $type, $buffer);
                 echo "\n<pre>\n".json_encode($up_file, JSON_PRETTY_PRINT)."\n</pre>\n";
 
+                /*
                 //Passport
-                //$output->writeln('Passport');
-                //$filename = "passport.jpg";
-                //$type = 3;
-                //$user_dni = $user->getDNI();
-                //$buffer = base64_encode(file_get_contents('/home/bmoneda/files/REC/' . $user_dni . "/" . $user_dni . "-.pdf", true));
-                //$up_file = $moneyProvider->UploadFile('company-' . $company->getId(), $filename, $type, $buffer);
-                //echo "\n<pre>\n".json_encode($up_file, JSON_PRETTY_PRINT)."\n</pre>\n";
-
-                //CIF
-                $output->writeln('CIF');
-                $filename = "cif.jpg";
-                $type = 7;
+                $output->writeln('Passport');
+                $filename = "passport.jpg";
+                $type = 3;
                 $user_dni = $user->getDNI();
-                $buffer = base64_encode(file_get_contents('/home/bmoneda/files/REC/' . $user_dni . "/" . $user_dni . "-autonomos.pdf", true));
-                $up_file = $moneyProvider->UploadFile('company-' . $company->getId(), $filename, $type, $buffer);
-                echo "\n<pre>\n".json_encode($up_file, JSON_PRETTY_PRINT)."\n</pre>\n";
-
-                //Censo
-                $output->writeln('Censo 036 o 037');
-                $filename = "censo.jpg";
-                $type = 8;
-                $user_dni = $user->getDNI();
-                $buffer = base64_encode(file_get_contents('/home/bmoneda/files/REC/' . $user_dni . "/" . $user_dni . "-censo.pdf", true));
-                $up_file = $moneyProvider->UploadFile('company-' . $company->getId(), $filename, $type, $buffer);
+                $buffer = base64_encode(file_get_contents('/home/bmoneda/files/REC/' . $user_dni . "/" . $user_dni . "-.pdf", true));
+                $up_file = $moneyProvider->UploadFile($user_dni, $filename, $type, $buffer);
                 echo "\n<pre>\n".json_encode($up_file, JSON_PRETTY_PRINT)."\n</pre>\n";
                 */
 
+                //Individual
+                if($is_individual) {
+                    //Alta autonomos
+                    $output->writeln('Alta autonomos');
+                    $filename = "autonomos.jpg";
+                    $type = 6;
+                    $user_dni = $user->getDNI();
+                    $buffer = base64_encode(file_get_contents('/home/bmoneda/files/REC/' . $user_dni . "/" . $user_dni . "-autonomos.pdf", true));
+                    $up_file = $moneyProvider->UploadFile($user_dni, $filename, $type, $buffer);
+                    echo "\n<pre>\n" . json_encode($up_file, JSON_PRETTY_PRINT) . "\n</pre>\n";
+
+                    //Modelo 036 o 037
+                    $output->writeln('Modelo 036 o 037');
+                    $filename = "modelo.jpg";
+                    $type = 7;
+                    $user_dni = $user->getDNI();
+                    $buffer = base64_encode(file_get_contents('/home/bmoneda/files/REC/' . $user_dni . "/" . $user_dni . "-036.pdf", true));
+                    $up_file = $moneyProvider->UploadFile($user_dni, $filename, $type, $buffer);
+                    echo "\n<pre>\n" . json_encode($up_file, JSON_PRETTY_PRINT) . "\n</pre>\n";
+                }
             }
             else{
                 $output->writeln('Commerce not found');

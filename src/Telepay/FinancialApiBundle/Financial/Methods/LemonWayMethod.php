@@ -39,6 +39,44 @@ class LemonWayMethod extends BaseMethod {
         return $response;
     }
 
+    public function RegisterWalletIndividual($wallet, $email, $name, $lastName, $date_birth, $nationality, $gender, $address, $zip, $city, $country){
+        $response = $this->driver->callService("RegisterWallet", array(
+            "wallet" => $wallet,
+            "clientMail" => $email,
+            "clientFirstName" => $name,
+            "clientLastName" => $lastName,
+            "birthdate" => $date_birth,
+            "nationality" => $nationality,
+            "clientTitle" => $gender,
+            "street" => $address,
+            "postCode" => $zip,
+            "city" => $city,
+            "ctry" => 'ESP'
+        ));
+        return $response;
+    }
+
+    public function RegisterWalletCompany($wallet, $email, $company_name, $company_web, $company_description, $name, $lastName, $date_birth, $nationality, $gender, $address, $zip, $city, $country){
+        $response = $this->driver->callService("RegisterWallet", array(
+            "wallet" => $wallet,
+            "clientMail" => $email,
+            "isCompany" => '1',
+            "companyName" => $company_name,
+            "companyWebsite" => $company_web,
+            "companyDescription" => $company_description,
+            "clientFirstName" => $name,
+            "clientLastName" => $lastName,
+            "birthdate" => $date_birth,
+            "nationality" => $nationality,
+            "clientTitle" => $gender,
+            "street" => $address,
+            "postCode" => $zip,
+            "city" => $city,
+            "ctry" => 'ESP'
+        ));
+        return $response;
+    }
+
     public function UploadFile($wallet, $fileName, $type, $buffer){
         $response = $this->driver->callService("UploadFile", array(
             "wallet" => $wallet,
