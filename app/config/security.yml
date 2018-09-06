@@ -61,6 +61,11 @@ security:
             stateless:  true
             security:   false
 
+        withdrawal:
+            pattern:    ^/withdrawal/*
+            stateless:  true
+            security:   false
+
         POS_notifications:
             pattern:    ^/pos/v[0-9]+/notification/*
             stateless:  true
