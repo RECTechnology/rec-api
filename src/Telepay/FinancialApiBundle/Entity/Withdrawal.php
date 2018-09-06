@@ -72,6 +72,14 @@ class Withdrawal{
     /**
      * @return mixed
      */
+    public function getCreated()
+    {
+        return $this->created;
+    }
+
+    /**
+     * @return mixed
+     */
     public function getToken()
     {
         return $this->token;
