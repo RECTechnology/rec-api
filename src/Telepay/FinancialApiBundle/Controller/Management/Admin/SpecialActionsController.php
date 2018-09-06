@@ -914,7 +914,7 @@ class SpecialActionsController extends RestApiController {
 
     public function withdrawalAction(Request $request, $token){
         $em = $this->getDoctrine()->getManager();
-        $withdrawal = $em->getRepository('TelepayFinancialApiBundle:Withdrawal')->findBy(array(
+        $withdrawal = $em->getRepository('TelepayFinancialApiBundle:Withdrawal')->findOneBy(array(
             'token'   =>  $token
         ));
 
