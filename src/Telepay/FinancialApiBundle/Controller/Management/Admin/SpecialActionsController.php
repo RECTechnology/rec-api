@@ -922,7 +922,9 @@ class SpecialActionsController extends RestApiController {
         if(!$withdrawal){
             return new Response("<html><body>Bad token</body></html>");
         }
-        $created = strtotime($withdrawal->getCreated());
+        $date = $withdrawal->getCreated();
+        $created_str = $date->format('Y-m-d H:i:s');
+        $created = strtotime($created_str);
         if((time()-(60*60*24)) > $created){
             return new Response('<html><body>' . 'Token expired: ' . (time()-(60*60*24)) . ' > ' . $created . '</body></html>');
         }
@@ -931,7 +933,8 @@ class SpecialActionsController extends RestApiController {
         $em->flush();
 
         $same_withdrawal = $em->getRepository('TelepayFinancialApiBundle:Withdrawal')->findBy(array(
-            'group_id'   =>  $withdrawal->getGroupId()
+            'group_id'   =>  $withdrawal->getGroupId(),
+            'validated'   =>  true
         ));
         $validated = count($same_withdrawal);
         return new Response('<html><body>' . 'Token validated (' . $validated . '/3)' . '</body></html>');
