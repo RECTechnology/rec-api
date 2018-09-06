@@ -12,7 +12,7 @@ use Telepay\FinancialApiBundle\Entity\WalletTransfer;
 class MoneyStoresManagerCommand extends ContainerAwareCommand{
     protected function configure(){
         $this
-            ->setName('telepay:money_store:manager')
+            ->setName('rec:money_store:manager')
             ->setDescription('Guarantees the minimum amount in each registered money storage')
             ->addOption(
                 'currency',

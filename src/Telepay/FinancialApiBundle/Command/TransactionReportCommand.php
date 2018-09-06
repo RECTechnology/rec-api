@@ -13,7 +13,7 @@ class TransactionReportCommand extends ContainerAwareCommand
     protected function configure()
     {
         $this
-            ->setName('telepay:transaction:report')
+            ->setName('rec:transaction:report')
             ->setDescription('Print all transactions details')
             ->addOption(
                 'start_date',

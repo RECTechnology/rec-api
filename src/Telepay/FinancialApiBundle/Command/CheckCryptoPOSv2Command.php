@@ -17,7 +17,7 @@ class CheckCryptoPOSv2Command extends ContainerAwareCommand
     protected function configure()
     {
         $this
-            ->setName('telepay:crypto_pos:check-V2')
+            ->setName('rec:crypto_pos:check-V2')
             ->setDescription('Check crypto POS-btc transactions')
             ->addOption(
                 'transaction-id',

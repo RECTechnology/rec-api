@@ -17,7 +17,7 @@ class StartBalanceCommand extends ContainerAwareCommand
     protected function configure()
     {
         $this
-            ->setName('telepay:balance:start')
+            ->setName('rec:balance:start')
             ->setDescription('Create start balance')
         ;
     }

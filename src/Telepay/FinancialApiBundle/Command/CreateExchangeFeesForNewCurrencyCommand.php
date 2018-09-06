@@ -19,7 +19,7 @@ class CreateExchangeFeesForNewCurrencyCommand extends ContainerAwareCommand
     protected function configure()
     {
         $this
-            ->setName('telepay:exchange:create_fees_by_currency')
+            ->setName('rec:exchange:create_fees_by_currency')
             ->setDescription('Create all fees for this currency exchange')
             ->addOption(
                 'currency',

@@ -25,7 +25,7 @@ class CreateWalletCommand extends ContainerAwareCommand
     protected function configure()
     {
         $this
-            ->setName('telepay:create:wallet')
+            ->setName('rec:create:wallet')
             ->setDescription('Generate wallets if not exists')
         ;
     }

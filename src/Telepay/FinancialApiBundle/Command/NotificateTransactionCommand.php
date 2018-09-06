@@ -19,7 +19,7 @@ class NotificateTransactionCommand extends ContainerAwareCommand
     protected function configure()
     {
         $this
-            ->setName('telepay:notificate:transaction')
+            ->setName('rec:notificate:transaction')
             ->setDescription('Notificate a transaction passind the id')
             ->addArgument(
                 'id',

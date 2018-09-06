@@ -16,7 +16,7 @@ class ExchangePriceCommand extends ContainerAwareCommand
     protected function configure()
     {
         $this
-            ->setName('telepay:exchange:price:update')
+            ->setName('rec:exchange:price:update')
             ->setDescription('Update all exchange prices')
         ;
     }

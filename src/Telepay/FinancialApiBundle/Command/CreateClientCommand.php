@@ -20,7 +20,7 @@ class CreateClientCommand extends ContainerAwareCommand
     protected function configure()
     {
         $this
-            ->setName('telepay:oauth2:client:create')
+            ->setName('rec:oauth2:client:create')
             ->setDescription('Creates a new client')
             ->addOption(
                 'redirect-uri',

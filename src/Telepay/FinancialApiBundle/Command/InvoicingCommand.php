@@ -14,7 +14,7 @@ class InvoicingCommand extends ContainerAwareCommand
     protected function configure()
     {
         $this
-            ->setName('telepay:invoice:generator')
+            ->setName('rec:invoice:generator')
             ->setDescription('Generate invoices by month')
             ->addOption(
                 'start_date',

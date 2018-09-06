@@ -14,7 +14,7 @@ class CreateTierLimitsCommand extends ContainerAwareCommand
     protected function configure()
     {
         $this
-            ->setName('telepay:tier-limits:create')
+            ->setName('rec:tier-limits:create')
             ->setDescription('Create Tier limits.')
             ->addOption(
                 'currency',

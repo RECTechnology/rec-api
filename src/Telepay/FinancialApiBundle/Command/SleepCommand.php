@@ -12,7 +12,7 @@ class SleepCommand extends SyncronizedContainerAwareCommand
     protected function configure()
     {
         $this
-            ->setName('telepay:sleep')
+            ->setName('rec:sleep')
 
         ;
     }

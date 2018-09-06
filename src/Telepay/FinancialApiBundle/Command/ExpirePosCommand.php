@@ -18,7 +18,7 @@ class ExpirePosCommand extends ContainerAwareCommand
     protected function configure()
     {
         $this
-            ->setName('telepay:pos:expire')
+            ->setName('rec:pos:expire')
             ->setDescription('Check pos expired transactions')
         ;
     }

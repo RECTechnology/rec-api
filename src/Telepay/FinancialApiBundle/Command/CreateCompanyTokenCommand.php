@@ -12,7 +12,7 @@ class CreateCompanyTokenCommand extends ContainerAwareCommand
     protected function configure()
     {
         $this
-            ->setName('telepay:company:create:tokens')
+            ->setName('rec:company:create:tokens')
             ->setDescription('Create tokens foreach company')
         ;
     }

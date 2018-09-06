@@ -13,7 +13,7 @@ class CreateExchangeCommand extends ContainerAwareCommand
     protected function configure()
     {
         $this
-            ->setName('telepay:exchange:create')
+            ->setName('rec:exchange:create')
             ->setDescription('Create exchange')
             ->addOption(
                 'src',
