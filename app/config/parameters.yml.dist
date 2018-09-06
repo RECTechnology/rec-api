@@ -65,5 +65,6 @@ parameters:
     lemonway_version: '4.0'
     lemonway_admin_account: 'MKP'
 
-
+    withdrawal_url: 'https://preapibm.blockroot.com/withdrawal/v1/'
+    list_emails: '["uno","dos","res"]'
 
