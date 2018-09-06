@@ -11,7 +11,7 @@ use Symfony\Component\Finder\Exception\ShellCommandFailureException;
 use Telepay\FinancialApiBundle\Entity\Withdrawal;
 use Telepay\FinancialApiBundle\Financial\Currency;
 
-class ExchangePriceCommand extends ContainerAwareCommand
+class CentralWithdrawalCommand extends ContainerAwareCommand
 {
     protected function configure()
     {
