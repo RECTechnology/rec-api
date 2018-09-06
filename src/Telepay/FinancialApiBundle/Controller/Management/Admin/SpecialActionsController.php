@@ -922,9 +922,9 @@ class SpecialActionsController extends RestApiController {
         if(!$withdrawal){
             return new Response("<html><body>Bad token</body></html>");
         }
-
-        if((time()-(60*60*24)) > strtotime($withdrawal->getCreated())){
-            return new Response('<html><body>' . 'Token expired: ' . (time()-(60*60*24)) . ' > ' . strtotime($withdrawal->getCreated()) . '</body></html>');
+        $created = strtotime($withdrawal->getCreated());
+        if((time()-(60*60*24)) > $created){
+            return new Response('<html><body>' . 'Token expired: ' . (time()-(60*60*24)) . ' > ' . $created . '</body></html>');
         }
 
         $withdrawal->setValidated(true);
