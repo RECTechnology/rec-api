@@ -488,6 +488,6 @@ admin_balances_delete:
 
 withdrawal_token_validation:
     pattern: /withdrawal/v1/{token}
-    defaults: { _controller: Telepay\FinancialApiBundle\Controller\Management\Admin\SpecialActions::withdrawalAction }
+    defaults: { _controller: Telepay\FinancialApiBundle\Controller\Management\Admin\SpecialActionsController::withdrawalAction }
     requirements:
         _method: GET
