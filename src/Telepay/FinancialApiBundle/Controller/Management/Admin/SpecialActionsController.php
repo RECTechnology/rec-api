@@ -10,6 +10,7 @@ use Telepay\FinancialApiBundle\Controller\RestApiController;
 use Telepay\FinancialApiBundle\Document\Transaction;
 use FOS\RestBundle\Controller\Annotations as Rest;
 use Symfony\Component\HttpFoundation\Request;
+use Symfony\Component\HttpFoundation\Response;
 use Telepay\FinancialApiBundle\Entity\CashInDeposit;
 use Telepay\FinancialApiBundle\Entity\UserWallet;
 use Telepay\FinancialApiBundle\Financial\Currency;
@@ -918,10 +919,12 @@ class SpecialActionsController extends RestApiController {
             'token'   =>  $token
         ));
 
-        if(!$withdrawal) throw new HttpException(404, 'Bad token');
+        if(!$withdrawal){
+            return new Response("<html><body>Bad token</body></html>");
+        }
 
         if((time()-(60*60*24)) > strtotime($withdrawal->getCreated())){
-            throw new HttpException(404, 'Token expired');
+            return new Response('<html><body>' . 'Token expired: ' . (time()-(60*60*24)) . ' > ' . strtotime($withdrawal->getCreated()) . '</body></html>');
         }
 
         $withdrawal->setValidated(true);
@@ -931,6 +934,6 @@ class SpecialActionsController extends RestApiController {
             'group_id'   =>  $withdrawal->getGroupId()
         ));
         $validated = count($same_withdrawal);
-        return $this->restV2(204, 'success', 'Token validated (' . $validated . '/3)');
+        return new Response('<html><body>' . 'Token validated (' . $validated . '/3)' . '</body></html>');
     }
 }
