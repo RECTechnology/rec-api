@@ -30,11 +30,11 @@ class CentralWithdrawalCommand extends ContainerAwareCommand
 
     protected function execute(InputInterface $input, OutputInterface $output) {
         if($input->getOption('amount')){
-            $amount = $input->getOption('commerce_id');
+            $amount = $input->getOption('amount');
             $amount = intval($amount) * 100000000;
             $em = $this->getContainer()->get('doctrine')->getManager();
 
-            $api_url = json_decode($this->getContainer()->getParameter('withdrawal_url'));
+            $api_url = $this->getContainer()->getParameter('withdrawal_url');
             $list_emails = json_decode($this->getContainer()->getParameter('list_emails'));
             $id = bin2hex(random_bytes(5));
             foreach($list_emails as $email){
