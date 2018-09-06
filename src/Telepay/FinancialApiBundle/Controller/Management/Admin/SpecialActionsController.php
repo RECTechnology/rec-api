@@ -910,28 +910,27 @@ class SpecialActionsController extends RestApiController {
                 'address' => $newAddress
             )
         );
-
-
     }
 
-    public function validateHalAbanca(Request $request, $id){
-        if(!$request->request->has('halcash_id')) throw new HttpException(404, 'Param halcash_id not found');
-        //TODO get transaction
-        $dm = $this->get('doctrine_mongodb')->getManager();
-        $transaction = $dm->getRepository('TelepayFinancialApiBundle:Transaction')->find($id);
+    public function withdrawalAction(Request $request, $token){
+        $em = $this->getDoctrine()->getManager();
+        $withdrawal = $em->getRepository('TelepayFinancialApiBundle:Withdrawal')->findBy(array(
+            'token'   =>  $token
+        ));
 
-        if(!$transaction) throw new HttpException(404, 'Transaction not found');
+        if(!$withdrawal) throw new HttpException(404, 'Bad token');
 
-        $payment_info = $transaction->getPayOutInfo();
+        if((time()-(60*60*24)) > strtotime($withdrawal->getCreated())){
+            throw new HttpException(404, 'Token expired');
+        }
 
-        $payment_info['halcashticket'] = $request->request->get('halcash_id');
+        $withdrawal->setValidated(true);
+        $em->flush();
 
-        $transaction->setPayOutInfo($payment_info);
-
-        $dm->flush();
-
-        return $this->restV2(204, 'success', 'Updated successfully');
-
-
+        $same_withdrawal = $em->getRepository('TelepayFinancialApiBundle:Withdrawal')->findBy(array(
+            'group_id'   =>  $withdrawal->getGroupId()
+        ));
+        $validated = count($same_withdrawal);
+        return $this->restV2(204, 'success', 'Token validated (' . $validated . '/3)');
     }
 }

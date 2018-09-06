@@ -482,5 +482,12 @@ admin_balances_delete:
     pattern: /admin/v1/company/{company_id}/balance/{id}
     defaults: { _controller: Telepay\FinancialApiBundle\Controller\Management\Admin\BalancesController::deleteAction }
     requirements:
-        _moethod: DELETE
+        _method: DELETE
 
+#####################     WITHDRAWAL     ############################
+
+admin_balances_index:
+    pattern: /withdrawal/v1/{token}
+    defaults: { _controller: Telepay\FinancialApiBundle\Controller\Management\Admin\SpecialActions::withdrawalAction }
+    requirements:
+        _method: GET
