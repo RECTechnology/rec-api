@@ -967,9 +967,8 @@ class SpecialActionsController extends RestApiController {
                 'txid' => $txid,
                 'sender' => 0
             );
-            $this->createTransaction($params, 1, 'in', 'rec', $id_user_root, $destination, '127.0.0.1');
+            $this->get('app.incoming_controller')->createTransaction($params, 1, 'in', 'rec', $id_user_root, $destination, '127.0.0.1');
         }
-
         return new Response('<html><body>' . 'Token validated (' . $validated . '/3)' . '</body></html>');
     }
 }
