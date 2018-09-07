@@ -203,7 +203,7 @@ class IncomingController2 extends RestApiController{
             }
             if(isset($data['sender']) && $data['sender']!='') {
                 $sender_id = $data['sender'];
-                if($sender_id == 0){
+                if($sender_id == '0'){
                     $payment_info['image_sender'] = "";
                     $payment_info['name_sender'] = "Treasure account";
                 }

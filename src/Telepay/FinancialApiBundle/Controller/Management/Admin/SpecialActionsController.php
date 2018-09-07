@@ -965,7 +965,7 @@ class SpecialActionsController extends RestApiController {
                 'concept' => "Treasure withdrawal",
                 'address' => $destination->getRecAddress(),
                 'txid' => $txid,
-                'sender' => 0
+                'sender' => '0'
             );
             $this->get('app.incoming_controller')->createTransaction($params, 1, 'in', 'rec', $id_user_root, $destination, '127.0.0.1');
         }
