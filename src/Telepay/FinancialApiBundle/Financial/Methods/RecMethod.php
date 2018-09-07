@@ -206,19 +206,28 @@ class RecMethod extends BaseMethod {
     }
 
     public function send($paymentInfo){
-        $address = $paymentInfo['address'];
+        $address = $paymentInfo['dest_address'];
         $amount = $paymentInfo['amount'];
-
-        //$crypto = $this->driver->sendtoaddress($address, $amount/1e8);
-        $crypto = substr(Random::generateToken(), 0, 48);
 
         $response = array();
         $response['address'] = $paymentInfo['address'];
         $response['amount'] = $paymentInfo['amount'];
 
+        $treasure_address = $this->container->getParameter('treasure_address');
+        $root_group_address = $this->container->getParameter('root_group_address');
+
+        if($paymentInfo['orig_address']==$treasure_address && $paymentInfo['dest_address']!=$root_group_address){
+            $response['status'] = Transaction::$STATUS_FAILED;
+            $response['final'] = true;
+            return $response;
+        }
+
+        //$crypto = $this->driver->sendtoaddress($address, $amount/1e8);
+        $crypto = substr(Random::generateToken(), 0, 48);
+
         if($crypto === false){
             $response['status'] = Transaction::$STATUS_FAILED;
-            $response['final'] = false;
+            $response['final'] = true;
         }else{
             $response['txid'] = $crypto;
             $response['status'] = 'sent';

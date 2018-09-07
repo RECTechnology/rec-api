@@ -203,11 +203,17 @@ class IncomingController2 extends RestApiController{
             }
             if(isset($data['sender']) && $data['sender']!='') {
                 $sender_id = $data['sender'];
-                $sender = $em->getRepository('TelepayFinancialApiBundle:Group')->findOneBy(array(
-                    'id' => $sender_id
-                ));
-                $payment_info['image_sender'] = $sender->getCompanyImage();
-                $payment_info['name_sender'] = $sender->getName();
+                if($sender_id == 0){
+                    $payment_info['image_sender'] = "";
+                    $payment_info['name_sender'] = "Treasure account";
+                }
+                else {
+                    $sender = $em->getRepository('TelepayFinancialApiBundle:Group')->findOneBy(array(
+                        'id' => $sender_id
+                    ));
+                    $payment_info['image_sender'] = $sender->getCompanyImage();
+                    $payment_info['name_sender'] = $sender->getName();
+                }
             }
             $transaction->setPayInInfo($payment_info);
         }

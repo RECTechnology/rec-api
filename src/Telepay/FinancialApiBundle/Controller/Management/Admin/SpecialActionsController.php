@@ -194,14 +194,14 @@ class SpecialActionsController extends RestApiController {
             $em->flush();
 
 //            if(!$user->hasRole('ROLE_SUPERADMIN')){
-                if($total_fee != 0){
-                    // nueva transaccion restando la comision al user
-                    try{
-                        $this->_dealer($transaction,$current_wallet);
-                    }catch (HttpException $e){
-                        throw $e;
-                    }
+            if($total_fee != 0){
+                // nueva transaccion restando la comision al user
+                try{
+                    $this->_dealer($transaction,$current_wallet);
+                }catch (HttpException $e){
+                    throw $e;
                 }
+            }
 //            }
 
 
@@ -229,7 +229,7 @@ class SpecialActionsController extends RestApiController {
         $dm = $this->get('doctrine_mongodb')->getManager();
         $em = $this->getDoctrine()->getManager();
         $transactions = $dm->getRepository('TelepayFinancialApiBundle:Transaction')
-                    ->findBy(array(
+            ->findBy(array(
                 'method'   =>  $service,
                 'status'    =>  'created',
                 'type'  =>  'in'
@@ -916,7 +916,8 @@ class SpecialActionsController extends RestApiController {
     public function withdrawalAction(Request $request, $token){
         $em = $this->getDoctrine()->getManager();
         $withdrawal = $em->getRepository('TelepayFinancialApiBundle:Withdrawal')->findOneBy(array(
-            'token'   =>  $token
+            'token'   =>  $token,
+            'validated'   =>  false
         ));
 
         if(!$withdrawal){
@@ -937,6 +938,38 @@ class SpecialActionsController extends RestApiController {
             'validated'   =>  true
         ));
         $validated = count($same_withdrawal);
+
+        if($validated == 3){
+            //send recs
+            $method = $this->get('net.telepay.out.rec.v1');
+            $treasure_address = $this->container->getParameter('treasure_address');
+
+            $id_group_root = $this->container->getParameter('id_group_root');
+            $destination = $em->getRepository('TelepayFinancialApiBundle:Group')->find($id_group_root);
+            $id_user_root = $this->container->getParameter('admin_user_id');
+            $user = $em->getRepository('TelepayFinancialApiBundle:User')->find($id_user_root);
+
+            $payment_info['amount']=$withdrawal->getAmount();
+            $payment_info['orig_address'] = $treasure_address;
+            $payment_info['orig_nif'] = 'some_admins';
+            $payment_info['orig_group_nif'] = $destination->getCif();
+            $payment_info['orig_key'] = $destination->getKeyChain();
+            $payment_info['dest_address'] = $destination->getRecAddress();
+            $payment_info['dest_group_nif'] = $destination->getCif();
+            $payment_info['dest_key'] = $destination->getKeyChain();
+            $payment_info = $method->send($payment_info);
+            $txid = $payment_info['txid'];
+
+            $params = array(
+                'amount' => $withdrawal->getAmount(),
+                'concept' => "Treasure withdrawal",
+                'address' => $destination->getRecAddress(),
+                'txid' => $txid,
+                'sender' => 0
+            );
+            $this->createTransaction($params, 1, 'in', 'rec', $id_user_root, $destination, '127.0.0.1');
+        }
+
         return new Response('<html><body>' . 'Token validated (' . $validated . '/3)' . '</body></html>');
     }
 }

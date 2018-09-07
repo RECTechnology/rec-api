@@ -43,6 +43,9 @@ parameters:
     id_group_root: 1
     admin_user_id: 1
 
+    treasure_address: 'address'
+    root_group_address: 'address'
+
     swift_client_id_default: ''
     commerce_client_id: ''
     url_swift_default_ok: ''
