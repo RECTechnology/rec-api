@@ -82,15 +82,20 @@ class RecMethod extends BaseMethod {
     }
 
 
-    public function getCurrency()
-    {
+    public function getCurrency(){
         return Currency::$REC;
     }
 
-    public function getPayInStatus($paymentInfo){
+    public function getConfirmations($txid){
+        $data = $this->driver->gettransaction($txid);
+        return $data;
+        return $data['confirmations'];
+    }
 
+    public function getPayInStatus($paymentInfo){
         if(isset($paymentInfo['txid'])) {
-            //$confirmations = $this->driver->txidconfirmations($paymentInfo['txid']);
+            $confirmations = $this->driver->txidconfirmations($paymentInfo['txid']);
+            //TODO quitar esta linea
             $confirmations = 1;
             $paymentInfo['confirmations'] = $confirmations;
             if ($paymentInfo['confirmations'] >= $paymentInfo['min_confirmations']) {
@@ -136,20 +141,17 @@ class RecMethod extends BaseMethod {
     }
 
     //PAY OUT
-    public function getPayOutInfo($request)
-    {
+    public function getPayOutInfo($request){
         $paramNames = array(
             'amount',
             'address'
         );
 
         $params = array();
-
         foreach($paramNames as $param){
             if(!$request->request->has($param)) throw new HttpException(400, 'Parameter '.$param.' not found');
             if($request->request->get($param) == null) throw new Exception( 'Parameter '.$param.' can\'t be null', 404);
             $params[$param] = $request->request->get($param);
-
         }
 
         $address_verification = $this->driver->validateaddress($params['address']);
@@ -174,14 +176,12 @@ class RecMethod extends BaseMethod {
             'amount',
             'address'
         );
-
         $params = array();
 
         foreach($paramNames as $param){
             if(!array_key_exists($param, $data)) throw new HttpException(404, 'Parameter '.$param.' not found');
             if($data[$param] == null) throw new Exception( 'Parameter '.$param.' can\'t be null', 404);
             $params[$param] = $data[$param];
-
         }
 
         $address_verification = $this->driver->validateaddress($params['address']);
@@ -236,8 +236,7 @@ class RecMethod extends BaseMethod {
         return $response;
     }
 
-    public function getPayOutStatus($id)
-    {
+    public function getPayOutStatus($id){
         // TODO: Implement getPayOutStatus() method.
     }
 
@@ -247,20 +246,11 @@ class RecMethod extends BaseMethod {
 
     public function getReceivedByAddress($address){
         $allReceived = $this->driver->getreceivedbyaddress($address, 0);
-
-//        $receivedByAddress = array();
-//        foreach($allReceived as $received){
-//            if($received['address'] == $address){
-//                $receivedByAddress[] = $received;
-//            }
-//        }
-
         return $allReceived;
     }
 
     public function getInfo(){
         $info = $this->driver->getinfo();
-
         return $info;
     }
 
