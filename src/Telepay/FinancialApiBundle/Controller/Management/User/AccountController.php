@@ -1088,7 +1088,7 @@ class AccountController extends BaseApiController{
         curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
         curl_setopt($ch, CURLOPT_HEADER, true);
         curl_setopt($ch, CURLOPT_TIMEOUT, 15);
-        //$result = curl_exec($ch);
+        $result = curl_exec($ch);
         curl_close($ch);
     }
 }
