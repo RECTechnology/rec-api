@@ -339,7 +339,7 @@ class AccountController extends BaseApiController{
             'security_question',
             'security_answer'
         );
-
+        //throw new HttpException(404, 'Must update');
         $valid_types = array('mobile');
         if(!in_array($type, $valid_types)) throw new HttpException(404, 'Type not valid');
 
@@ -1053,7 +1053,7 @@ class AccountController extends BaseApiController{
         return false;
     }
 
-    private function sendSMS($prefix, $number, $text){
+    private function sendSMS_twilio($prefix, $number, $text){
         $sid = $this->container->getParameter('twilio_sid');
         $token = $this->container->getParameter('twilio_authToken');
         $from = $this->container->getParameter('twilio_from');
@@ -1071,5 +1071,24 @@ class AccountController extends BaseApiController{
             'From' => $from,
             'Body' => $text,
         ));
+    }
+
+    private function sendSMS($prefix, $number, $text){
+        $user = $this->container->getParameter('labsmobile_user');
+        $pass = $this->container->getParameter('labsmobile_pass');
+        $text = str_replace(" ", "+", $text);
+
+        $url = 'http://api.labsmobile.com/get/send.php?';
+        $url .= 'username=' . $user . '&';
+        $url .= 'password=' . $pass . '&';
+        $url .= 'msisdn=' . $prefix . $number . '&';
+        $url .= 'message=' . $text . '&';
+
+        $ch = curl_init($url);
+        curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+        curl_setopt($ch, CURLOPT_HEADER, true);
+        curl_setopt($ch, CURLOPT_TIMEOUT, 15);
+        //$result = curl_exec($ch);
+        curl_close($ch);
     }
 }
