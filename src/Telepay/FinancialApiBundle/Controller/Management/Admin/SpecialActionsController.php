@@ -927,7 +927,7 @@ class SpecialActionsController extends RestApiController {
         $created_str = $date->format('Y-m-d H:i:s');
         $created = strtotime($created_str);
         if((time()-(60*60*24)) > $created){
-            return new Response('<html><body>' . 'Token expired: ' . (time()-(60*60*24)) . ' > ' . $created . '</body></html>');
+            return new Response('<html><body>Token expired. </body></html>');
         }
 
         $withdrawal->setValidated(true);
