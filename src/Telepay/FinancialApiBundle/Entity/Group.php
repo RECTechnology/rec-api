@@ -126,6 +126,12 @@ class Group extends BaseGroup
     private $key_chain;
 
     /**
+     * @ORM\Column(type="boolean")
+     * @Exclude
+     */
+    private $is_public_profile = false;
+
+    /**
      * @ORM\Column(type="string")
      */
     private $access_secret;
@@ -1072,6 +1078,23 @@ class Group extends BaseGroup
     public function setLimitConfiguration($limit_configuration)
     {
         $this->limit_configuration = $limit_configuration;
+    }
+
+
+    /**
+     * @return mixed
+     */
+    public function getIsPublicProfile()
+    {
+        return $this->is_public_profile;
+    }
+
+    /**
+     * @param mixed $is_public_profile
+     */
+    public function setIsPublicProfile($is_public_profile)
+    {
+        $this->is_public_profile = $is_public_profile;
     }
 
 
