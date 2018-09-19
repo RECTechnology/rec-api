@@ -311,7 +311,7 @@ class RecMethod extends BaseMethod {
         $unspent_inputs = $this->driver->listunspent($this->min_confirmations);
 
         if (!is_array($unspent_inputs)) {
-            return array('error' => 'Could not retrieve list of unspent inputs');
+            return array('error' => 'Could not retrieve list of inputs');
         }
 
         $account_unspent_inputs = array();
