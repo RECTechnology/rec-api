@@ -4,11 +4,11 @@ namespace Telepay\FinancialApiBundle\Controller;
 
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
+use Symfony\Component\HttpKernel\Exception\HttpException;
 
 
 class Login2faController extends RestApiController{
     public function loginAction(Request $request){
-
         //throw new HttpException(404, 'Must update');
 
         $headers = array(
