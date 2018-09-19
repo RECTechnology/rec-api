@@ -11,7 +11,7 @@ namespace Telepay\FinancialApiBundle\DependencyInjection\Transactions\Core;
 
 interface CashInInterface {
 
-    public function getPayInInfo($amount);
+    public function getPayInInfo($account_id, $amount);
     public function getPayInStatus($paymentInfo);
     public function getCurrency();
 }

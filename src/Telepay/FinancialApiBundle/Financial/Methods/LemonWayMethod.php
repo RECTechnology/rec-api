@@ -112,7 +112,7 @@ class LemonWayMethod extends BaseMethod {
         return $response;
     }
 
-    public function getPayInInfo($amount){
+    public function getPayInInfo($account_id, $amount){
         //$amount = $data['amount']/pow(10, Currency::$SCALE[$this->getCurrency()]);
         //$payment_info = $this->CreditCardPayment($amount);
         //if(!$payment_info) throw new Exception('Service Temporally unavailable', 503);

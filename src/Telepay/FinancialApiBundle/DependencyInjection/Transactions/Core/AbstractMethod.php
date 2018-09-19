@@ -113,7 +113,7 @@ class AbstractMethod implements MethodInterface, CashInInterface, CashOutInterfa
         return $this->email_required == "true";
     }
 
-    public function getPayInInfo($amount)
+    public function getPayInInfo($account_id, $amount)
     {
         // TODO: Implement getPayInInfo() method.
     }
