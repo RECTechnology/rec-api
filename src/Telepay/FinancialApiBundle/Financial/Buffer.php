@@ -2,7 +2,7 @@
 
 namespace Telepay\FinancialApiBundle\Financial;
 
-class OP_RETURN_buffer {
+class Buffer {
     var $data;
     var $len;
     var $ptr;

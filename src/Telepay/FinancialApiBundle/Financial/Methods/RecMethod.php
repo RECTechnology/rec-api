@@ -16,7 +16,7 @@ use Telepay\FinancialApiBundle\DependencyInjection\Transactions\Core\BaseMethod;
 use Telepay\FinancialApiBundle\DependencyInjection\Transactions\Core\CashInInterface;
 use Telepay\FinancialApiBundle\DependencyInjection\Transactions\Core\CashOutInterface;
 use Telepay\FinancialApiBundle\Financial\Currency;
-use Telepay\FinancialApiBundle\Financial\OP_RETURN_buffer;
+use Telepay\FinancialApiBundle\Financial\Buffer;
 use Telepay\FinancialApiBundle\Financial\Encoder;
 
 class RecMethod extends BaseMethod {
@@ -44,7 +44,7 @@ class RecMethod extends BaseMethod {
     }
 
     public function getnewaddress($account){
-        $address = $this->driver->getnewaddress($account);
+        $address = $this->driver->getaccountaddress((string)$account);
         return $address;
     }
 
@@ -248,7 +248,7 @@ class RecMethod extends BaseMethod {
         $em_pass = $encoder->encrypt($random_pass, $orig_key);
         $rec_pass = $encoder->encrypt($random_pass, $dest_key);
         $ad_pass = $encoder->encrypt($random_pass, $admin_key);
-        $tx_data = $encoder->encrypt($data_users, $random_pass);
+        $tx_data = $encoder->encrypt(json_encode($data_users), $random_pass);
 
         $data = $saved_data_version . "," . $saved_data_subversion . "," . $orig_group_public . "," . $dest_group_public  . "," . $em_pass . "," . $rec_pass . "," . $ad_pass . "," . $tx_data;
         $data_len = strlen($data);
@@ -378,10 +378,11 @@ class RecMethod extends BaseMethod {
     }
 
     private function unpack_txn($binary){
-        return $this->unpack_txn_buffer(new OP_RETURN_buffer($binary));
+        $buffer = new Buffer($binary);
+        return $this->unpack_txn_buffer($buffer);
     }
 
-    private function unpack_txn_buffer(OP_RETURN_buffer $buffer){
+    private function unpack_txn_buffer(Buffer $buffer){
         $txn=array();
 
         $txn['version']=$buffer->shift_unpack(4, 'V'); // small-endian 32-bits
