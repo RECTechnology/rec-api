@@ -36,6 +36,11 @@ parameters:
     rec_host: localhost
     rec_port: 8333
 
+    admin_key: "test"
+    saved_data_version: 1
+    saved_data_subversion: 1
+    OP_RETURN_BTC_FEE: "0.0001"
+
     rec_min_confirmations: 1
 
     id_group_default:
