@@ -59,8 +59,6 @@ class KycListener {
         if ($entity instanceof Group) {
             $this->logger->info('POST-UPDATE Kyc_Listener TIER');
             $changeset = $uow->getEntityChangeSet($entity);
-            $reseller = $entity->getGroupCreator();
-            $this->logger->info('_notifyKYCChanges '.$reseller->getId());
             if(isset($changeset['kyc_manager'])){
                 //update this group with this tier
                 $em = $this->container->get('doctrine')->getManager();
