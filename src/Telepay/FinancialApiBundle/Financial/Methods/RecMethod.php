@@ -16,16 +16,26 @@ use Telepay\FinancialApiBundle\DependencyInjection\Transactions\Core\BaseMethod;
 use Telepay\FinancialApiBundle\DependencyInjection\Transactions\Core\CashInInterface;
 use Telepay\FinancialApiBundle\DependencyInjection\Transactions\Core\CashOutInterface;
 use Telepay\FinancialApiBundle\Financial\Currency;
+use Telepay\FinancialApiBundle\Financial\OP_RETURN_buffer;
+use Telepay\FinancialApiBundle\Financial\Encoder;
 
 class RecMethod extends BaseMethod {
 
     private $driver;
     private $container;
 
+    private $OP_RETURN_BTC_FEE;
+    private $OP_RETURN_BTC_DUST;
+    private $OP_RETURN_MAX_BYTES;
+
     public function __construct($name, $cname, $type, $currency, $email_required, $base64Image, $image, $container, $driver, $min_tier, $default_fixed_fee, $default_variable_fee){
         parent::__construct($name, $cname, $type, $currency, $email_required, $base64Image, $image, $container, $min_tier, $default_fixed_fee, $default_variable_fee);
         $this->driver = $driver;
         $this->container = $container;
+
+        $this->OP_RETURN_BTC_FEE = floatval($this->container->getParameter('OP_RETURN_BTC_FEE')); // BTC fee to pay per transaction
+        $this->OP_RETURN_BTC_DUST = 0.00001; // omit BTC outputs smaller than this
+        $this->OP_RETURN_MAX_BYTES = 1000; // maximum bytes in an OP_RETURN (80 as of Bitcoin 0.11)(1000 for Crea forks)
     }
 
     public function validateaddress($address){
@@ -33,14 +43,14 @@ class RecMethod extends BaseMethod {
         return $address_verification['isvalid'];
     }
 
-    public function getnewaddress(){
-        $address = $this->driver->getnewaddress();
+    public function getnewaddress($account){
+        $address = $this->driver->getnewaddress($account);
         return $address;
     }
 
     //PAY IN
-    public function getPayInInfo($amount){
-        $address = $this->driver->getnewaddress();
+    public function getPayInInfo($account_id, $amount){
+        $address = $this->getnewaddress($account_id);
         if(!$address) throw new Exception('Service Temporally unavailable', 503);
         $min_confirmations = $this->container->getParameter('rec_min_confirmations');
         $response = array(
@@ -88,15 +98,12 @@ class RecMethod extends BaseMethod {
 
     public function getConfirmations($txid){
         $data = $this->driver->gettransaction($txid);
-        return $data;
         return $data['confirmations'];
     }
 
     public function getPayInStatus($paymentInfo){
         if(isset($paymentInfo['txid'])) {
-            $confirmations = $this->driver->txidconfirmations($paymentInfo['txid']);
-            //TODO quitar esta linea
-            $confirmations = 1;
+            $confirmations = $this->getConfirmations($paymentInfo['txid']);
             $paymentInfo['confirmations'] = $confirmations;
             if ($paymentInfo['confirmations'] >= $paymentInfo['min_confirmations']) {
                 $status = 'success';
@@ -187,8 +194,7 @@ class RecMethod extends BaseMethod {
         $address_verification = $this->driver->validateaddress($params['address']);
         if(!$address_verification['isvalid']) throw new Exception('Invalid address.', 400);
 
-        //TODO
-        //if($this->driver->getbalance() <= $params['amount'] / 1e8) throw new HttpException(403, 'Service Temporally unavailable');
+        if($this->getReceivedByAddress($params['address']) < $params['amount'] / 1e8) throw new HttpException(403, 'Service Temporally unavailable');
 
         if(array_key_exists('concept', $data)) {
             $params['concept'] = $data['concept'];
@@ -206,7 +212,8 @@ class RecMethod extends BaseMethod {
     }
 
     public function send($paymentInfo){
-        $address = $paymentInfo['dest_address'];
+        $orig_address= $paymentInfo['orig_address'];
+        $dest_address = $paymentInfo['dest_address'];
         $amount = $paymentInfo['amount'];
 
         $response = array();
@@ -216,24 +223,243 @@ class RecMethod extends BaseMethod {
         $treasure_address = $this->container->getParameter('treasure_address');
         $root_group_address = $this->container->getParameter('root_group_address');
 
-        if($paymentInfo['orig_address']==$treasure_address && $paymentInfo['dest_address']!=$root_group_address){
+        if($orig_address==$treasure_address && $dest_address!=$root_group_address){
             $response['status'] = Transaction::$STATUS_FAILED;
+            $response['error'] = 'Forbidden transaction';
             $response['final'] = true;
             return $response;
         }
 
-        //$crypto = $this->driver->sendtoaddress($address, $amount/1e8);
-        $crypto = substr(Random::generateToken(), 0, 48);
+        $admin_key = $this->container->getParameter('admin_key');
+        $saved_data_version = $this->container->getParameter('saved_data_version');
+        $saved_data_subversion = $this->container->getParameter('saved_data_subversion');
+        $random_pass = substr(Random::generateToken(), 0, 24);
+        $orig_nif = $paymentInfo['orig_nif'];
+        $orig_group_nif = $paymentInfo['orig_group_nif'];
+        $orig_group_public = $paymentInfo['orig_group_public']?"1":"0";
+        $orig_key = $paymentInfo['orig_key'];
+        $dest_group_nif = $paymentInfo['dest_group_nif'];
+        $dest_group_public = $paymentInfo['dest_group_public']?"1":"0";
+        $dest_key = $paymentInfo['dest_key'];
 
-        if($crypto === false){
+        $data_users = array($orig_nif, $orig_group_nif, $dest_group_nif);
+
+        $encoder = new Encoder();
+        $em_pass = $encoder->encrypt($random_pass, $orig_key);
+        $rec_pass = $encoder->encrypt($random_pass, $dest_key);
+        $ad_pass = $encoder->encrypt($random_pass, $admin_key);
+        $tx_data = $encoder->encrypt($data_users, $random_pass);
+
+        $data = $saved_data_version . "," . $saved_data_subversion . "," . $orig_group_public . "," . $dest_group_public  . "," . $em_pass . "," . $rec_pass . "," . $ad_pass . "," . $tx_data;
+        $data_len = strlen($data);
+        if ($data_len == 0){
             $response['status'] = Transaction::$STATUS_FAILED;
             $response['final'] = true;
+            $response['error'] = 'Some data is required to be stored';
+            return $response;
+        }
+
+        $metadata = md5($data);
+
+        $crypto = $this->send_with_OP_RETURN_data($orig_address, $dest_address, $amount/1e8, $metadata);
+        if(isset($crypto['error'])){
+            $response['status'] = Transaction::$STATUS_FAILED;
+            $response['final'] = true;
+            $response['error'] = $crypto['error'];
         }else{
             $response['txid'] = $crypto;
             $response['status'] = 'sent';
             $response['final'] = true;
         }
         return $response;
+    }
+
+    private function send_with_OP_RETURN_data($orig_address, $send_address, $send_amount, $metadata){
+        $result = $this->driver->validateaddress($send_address);
+        if (!$result['isvalid']) {
+            return array('error' => 'Send address could not be validated: ' . $send_address);
+        }
+
+        $metadata_len=strlen($metadata);
+
+        if ($metadata_len > 65536 || $metadata_len > $this->OP_RETURN_MAX_BYTES) {
+            return array('error' => 'Metadata too large');
+        }
+
+        $orig_account = $this->driver->getaccount($orig_address);
+
+        //	Calculate amounts and choose inputs
+        $output_amount=$send_amount+$this->OP_RETURN_BTC_FEE;
+        $inputs_spend=$this->select_inputs($orig_account, $output_amount);
+
+        if (isset($inputs_spend['error'])) {
+            return $inputs_spend;
+        }
+
+        $change_amount=$inputs_spend['total']-$output_amount;
+        $change_address = $this->driver->getrawchangeaddress($orig_address, $orig_account);
+        $outputs=array($send_address => (float)$send_amount);
+
+        if ($change_amount >= $this->OP_RETURN_BTC_DUST) {
+            $outputs[$change_address] = $change_amount;
+        }
+        $raw_txn=$this->create_txn($inputs_spend['inputs'], $outputs, $metadata, count($outputs));
+
+        //	Sign and send the transaction, return result
+        return $this->sign_send_txn($raw_txn);
+    }
+
+    private function select_inputs($total_amount, $account){
+        //	List and sort unspent inputs by priority
+        $unspent_inputs = $this->driver->listunspent(0);
+
+        if (!is_array($unspent_inputs)) {
+            return array('error' => 'Could not retrieve list of unspent inputs');
+        }
+
+        $account_unspent_inputs = array();
+        foreach ($unspent_inputs as $index => $unspent_input) {
+            if($unspent_input['account'] == $account){
+                $unspent_inputs[$index]['priority'] = $unspent_input['amount'] * $unspent_input['confirmations'];
+                $account_unspent_inputs[$index] = $unspent_inputs[$index];
+            }
+        }
+
+        if(count($unspent_inputs)<1) {
+            return array('error' => 'Could not retrieve list of unspent inputs');
+        }
+
+        if(count($unspent_inputs)>1) {
+            $this->sort_by($unspent_inputs, 'priority');
+            $unspent_inputs = array_reverse($unspent_inputs);
+        }
+
+        //	Identify which inputs should be spent
+        $inputs_spend=array();
+        $input_amount=0;
+
+        foreach ($unspent_inputs as $unspent_input) {
+            $inputs_spend[]=$unspent_input;
+            $input_amount+=$unspent_input['amount'];
+            if ($input_amount>=$total_amount)
+                break;
+        }
+
+        if ($input_amount<$total_amount)
+            return array('error' => 'Not enough funds are available to cover the amount and fee');
+
+        return array(
+            'inputs' => $inputs_spend,
+            'total' => $input_amount,
+        );
+    }
+
+    private function create_txn($inputs, $outputs, $metadata, $metadata_pos){
+        $raw_txn=$this->driver->createrawtransaction ($inputs, $outputs);
+        $txn_unpacked=$this->unpack_txn(pack('H*', $raw_txn));
+
+        $metadata_len=strlen($metadata);
+
+        if ($metadata_len<=75)
+            $payload=chr($metadata_len).$metadata; // length byte + data (https://en.bitcoin.it/wiki/Script)
+        elseif ($metadata_len<=256)
+            $payload="\x4c".chr($metadata_len).$metadata; // OP_PUSHDATA1 format
+        else
+            $payload="\x4d".chr($metadata_len%256).chr(floor($metadata_len/256)).$metadata; // OP_PUSHDATA2 format
+
+        $metadata_pos=min(max(0, $metadata_pos), count($txn_unpacked['vout'])); // constrain to valid values
+
+        array_splice($txn_unpacked['vout'], $metadata_pos, 0, array(array(
+            'value' => 0,
+            'scriptPubKey' => '6a'.reset(unpack('H*', $payload)), // here's the OP_RETURN
+        )));
+
+        return reset(unpack('H*', $this->pack_txn($txn_unpacked)));
+    }
+
+    private function unpack_txn($binary){
+        return $this->unpack_txn_buffer(new OP_RETURN_buffer($binary));
+    }
+
+    private function unpack_txn_buffer(OP_RETURN_buffer $buffer){
+        $txn=array();
+
+        $txn['version']=$buffer->shift_unpack(4, 'V'); // small-endian 32-bits
+        for ($inputs=$buffer->shift_varint(); $inputs>0; $inputs--) {
+            $input=array();
+            $input['txid']=$buffer->shift_unpack(32, 'H*', true);
+            $input['vout']=$buffer->shift_unpack(4, 'V');
+            $length=$buffer->shift_varint();
+            $input['scriptSig']=$buffer->shift_unpack($length, 'H*');
+            $input['sequence']=$buffer->shift_unpack(4, 'V');
+            $txn['vin'][]=$input;
+        }
+
+        for ($outputs=$buffer->shift_varint(); $outputs>0; $outputs--) {
+            $output=array();
+            $output['value']=$buffer->shift_uint64()/100000000;
+            $length=$buffer->shift_varint();
+            $output['scriptPubKey']=$buffer->shift_unpack($length, 'H*');
+
+            $txn['vout'][]=$output;
+        }
+
+        $txn['locktime']=$buffer->shift_unpack(4, 'V');
+
+        return $txn;
+    }
+
+    private function pack_txn($txn){
+        $binary='';
+        $binary.=pack('V', $txn['version']);
+        $binary.=$this->pack_varint(count($txn['vin']));
+        foreach ($txn['vin'] as $input) {
+            $binary.=strrev(pack('H*', $input['txid']));
+            $binary.=pack('V', $input['vout']);
+            $binary.=$this->pack_varint(strlen($input['scriptSig'])/2); // divide by 2 because it is currently in hex
+            $binary.=pack('H*', $input['scriptSig']);
+            $binary.=pack('V', $input['sequence']);
+        }
+        $binary.=$this->pack_varint(count($txn['vout']));
+        foreach ($txn['vout'] as $output) {
+            $binary.=$this->pack_uint64(round($output['value']*100000000));
+            $binary.=$this->pack_varint(strlen($output['scriptPubKey'])/2); // divide by 2 because it is currently in hex
+            $binary.=pack('H*', $output['scriptPubKey']);
+        }
+        $binary.=pack('V', $txn['locktime']);
+        return $binary;
+    }
+
+    private function pack_varint($integer){
+        if ($integer>0xFFFFFFFF)
+            $packed="\xFF".$this->pack_uint64($integer);
+        elseif ($integer>0xFFFF)
+            $packed="\xFE".pack('V', $integer);
+        elseif ($integer>0xFC)
+            $packed="\xFD".pack('v', $integer);
+        else
+            $packed=pack('C', $integer);
+        return $packed;
+    }
+
+    private function pack_uint64($integer){
+        $upper=floor($integer/4294967296);
+        $lower=$integer-$upper*4294967296;
+        return pack('V', $lower).pack('V', $upper);
+    }
+
+    private function sign_send_txn($raw_txn){
+        $signed_txn = $this->driver->signrawtransaction($raw_txn);
+        if (!$signed_txn['complete']) {
+            return array('error' => 'Could not sign the transaction');
+        }
+
+        $send_txid = $this->driver->sendrawtransaction($signed_txn['hex']);
+        if (strlen($send_txid)!=64) {
+            return array('error' => 'Could not send the transaction');
+        }
+
+        return array('txid' => $send_txid);
     }
 
     public function getPayOutStatus($id){
@@ -254,5 +480,26 @@ class RecMethod extends BaseMethod {
         return $info;
     }
 
+    //	Sort-by utility functions
+    private function sort_by(&$array, $by1, $by2=null){
+        global $sort_by_1, $sort_by_2;
+        $sort_by_1=$by1;
+        $sort_by_2=$by2;
+        uasort($array, '$this->sort_by_fn');
+    }
 
+    private function sort_by_fn($a, $b){
+        global $sort_by_1, $sort_by_2;
+        $compare=$this->sort_cmp($a[$sort_by_1], $b[$sort_by_1]);
+        if (($compare==0) && $sort_by_2)
+            $compare=$this->sort_cmp($a[$sort_by_2], $b[$sort_by_2]);
+        return $compare;
+    }
+
+    private function sort_cmp($a, $b){
+        if (is_numeric($a) && is_numeric($b)) // straight subtraction won't work for floating bits
+            return ($a==$b) ? 0 : (($a<$b) ? -1 : 1);
+        else
+            return strcasecmp($a, $b); // doesn't do UTF-8 right but it will do for now
+    }
 }
