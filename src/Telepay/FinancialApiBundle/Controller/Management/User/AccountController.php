@@ -618,7 +618,7 @@ class AccountController extends BaseApiController{
         $recAddress->setExpiresIn(-1);
         $recAddress->setStatus(CashInTokens::$STATUS_ACTIVE);
         $methodDriver = $this->get('net.telepay.in.rec.v1');
-        $paymentInfo = $methodDriver->getPayInInfo(0);
+        $paymentInfo = $methodDriver->getPayInInfo($company->getId(), 0);
         $token = $paymentInfo['address'];
         $recAddress->setToken($token);
         $em->persist($recAddress);

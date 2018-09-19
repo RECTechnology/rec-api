@@ -137,7 +137,7 @@ class CashInController extends BaseApiController{
             if(count($tokens) > 1) throw new HttpException(403, 'You has exceeded the max addresses allowed');
         }
 
-        $paymentInfo = $methodDriver->getPayInInfo(0);
+        $paymentInfo = $methodDriver->getPayInInfo($company->getId(), 0);
 
         if($method == 'easypay'){
             $token = 'deposit '.$paymentInfo['reference_code'];
