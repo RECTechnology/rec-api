@@ -962,6 +962,10 @@ class SpecialActionsController extends RestApiController {
             $payment_info = $method->send($payment_info);
             $txid = $payment_info['txid'];
 
+            if(isset($payment_info['error'])){
+                return new Response('<html><body>Error: ' . $payment_info['error'] . ' </body></html>');
+            }
+
             $params = array(
                 'amount' => $withdrawal->getAmount(),
                 'concept' => "Treasure withdrawal",

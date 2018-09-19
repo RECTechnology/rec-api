@@ -308,7 +308,7 @@ class RecMethod extends BaseMethod {
 
     private function select_inputs($total_amount, $account){
         //	List and sort unspent inputs by priority
-        $unspent_inputs = $this->driver->listunspent(0);
+        $unspent_inputs = $this->driver->listunspent();
 
         if (!is_array($unspent_inputs)) {
             return array('error' => 'Could not retrieve list of unspent inputs');
