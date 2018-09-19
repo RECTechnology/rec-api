@@ -708,10 +708,15 @@ class AccountController extends BaseApiController{
         $em = $this->getDoctrine()->getManager();
         $user = $em->getRepository($this->getRepositoryName())->findOneBy(array(
             'phone'  =>  $params['phone'],
-            'dni'  =>  $params['dni']
+            'dni'  =>  strtoupper($params['dni'])
         ));
 
-        if(!$user) throw new HttpException(404, 'User not found');
+        $logger = $this->get('manager.logger');
+        $logger->info('PASS RECOVERY REQ: '. $params['phone'] . " " . $params['dni']);
+        if(!$user){
+            $logger->info('PASS RECOVERY REQ: User not found');
+            throw new HttpException(404, 'User not found');
+        }
         $code = substr(Random::generateToken(), 0, 8);
 
         //generate a token to add to the return url
@@ -753,7 +758,12 @@ class AccountController extends BaseApiController{
             'recover_password_token' => $params['code']
         ));
 
-        if(!$user) throw new HttpException(404, 'Code not found');
+        $logger = $this->get('manager.logger');
+        $logger->info('PASS RECOVERY: '. $params['code']);
+        if(!$user) {
+            $logger->info('PASS RECOVERY: Code not found');
+            throw new HttpException(404, 'Code not found');
+        }
 
         if($user->isPasswordRequestNonExpired(1200)){
             if(strlen($params['password'])<6) throw new HttpException(404, 'Password must be longer than 6 characters');
@@ -767,13 +777,13 @@ class AccountController extends BaseApiController{
 
             $em->persist($user);
             $em->flush();
-
+            $logger->info('PASS RECOVERY: Pass updated (' . $user->getId() .')');
         }else{
             throw new HttpException(404, 'Expired code');
         }
 
+        $logger->info('PASS RECOVERY: All done');
         return $this->restV2(204,"ok", "password recovered");
-
     }
 
     /**
