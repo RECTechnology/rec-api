@@ -483,6 +483,8 @@ class UsersController extends BaseApiController
             }
         }
 
+        if(in_array(User::ROLE_SUPER_ADMIN, $roles)) throw new HttpException(403, 'Bad parameters role');
+
         if($request->request->has('password')){
             if($request->request->has('repassword')){
                 $password = $request->get('password');

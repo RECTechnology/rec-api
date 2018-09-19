@@ -88,6 +88,12 @@ class AccountController extends BaseApiController{
         $request->request->remove('username');
         $request->request->remove('phone');
         $request->request->remove('dni');
+
+        if($request->request->has('roles')){
+            $roles = $request->request->get('roles');
+            if(in_array('ROLE_SUPER_ADMIN', $roles)) throw new HttpException(403, 'Bad parameter roles');
+        }
+
         return parent::updateAction($request, $id);
     }
 

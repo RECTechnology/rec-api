@@ -10,16 +10,18 @@ namespace Telepay\FinancialApiBundle\EventListener;
 
 use Blockchain\Exception\HttpError;
 use Doctrine\ORM\Event\LifecycleEventArgs;
+use OAuth2\OAuth2;
+use OAuth2\OAuth2ServerException;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 use Symfony\Component\HttpKernel\Exception\HttpException;
+use Telepay\FinancialApiBundle\Controller\Google2FA;
 use Telepay\FinancialApiBundle\Entity\AccessToken;
 use Telepay\FinancialApiBundle\Entity\Group;
 use Telepay\FinancialApiBundle\Entity\KYC;
 use Telepay\FinancialApiBundle\Entity\KYCCompanyValidations;
 use Telepay\FinancialApiBundle\Entity\User;
 
-class KycListener
-{
+class KycListener {
     protected $container;
     protected $logger;
 
@@ -32,12 +34,13 @@ class KycListener
     public function postUpdate(LifecycleEventArgs $args)
     {
         $entity = $args->getEntity();
-        $this->logger->info('POST-UPDATE Kyc_Listener');
+
 
         $entityManager = $args->getEntityManager();
         $uow = $entityManager->getUnitOfWork();
 
         if ($entity instanceof Accesstoken) {
+            $this->logger->info('POST-UPDATE Kyc_Listener LOGIN');
             $user = $entity->getUser();
             $this->logger->info('POST-UPDATE Kyc_Listener access_token');
             $user->setLastLogin(new \DateTime);
@@ -47,13 +50,17 @@ class KycListener
         }
 
         if ($entity instanceof KYC) {
+            $this->logger->info('POST-UPDATE Kyc_Listener CHANGES');
             $changeset = $uow->getEntityChangeSet($entity);
             $this->_notifyKYCChanges($changeset, $entity);
             return;
         }
 
         if ($entity instanceof Group) {
+            $this->logger->info('POST-UPDATE Kyc_Listener TIER');
             $changeset = $uow->getEntityChangeSet($entity);
+            $reseller = $entity->getGroupCreator();
+            $this->logger->info('_notifyKYCChanges '.$reseller->getId());
             if(isset($changeset['kyc_manager'])){
                 //update this group with this tier
                 $em = $this->container->get('doctrine')->getManager();
@@ -77,7 +84,7 @@ class KycListener
 
             if(isset($changeset['tier'])){
                 if($entity->getTier() > 0){
-                    //$this->_sendEmail('Update KYC ', $entity->getKycManager()->getEmail(), $entity, $entity->getKycManager(), $entity->getTier(), 'approved_single' );
+                    //$this->_sendEmail('Update KYC ', $entity->getKycManager()->getEmail(), $entity, $entity->getKycManager(), $entity->getTier(), 'approved_single' , $reseller);
                 }
             }
             return;
@@ -92,7 +99,6 @@ class KycListener
     public function postPersist(LifecycleEventArgs $args)
     {
         $entity = $args->getEntity();
-        $this->logger->info('POST-INSERT');
 
         $entityManager = $args->getEntityManager();
 
@@ -100,12 +106,9 @@ class KycListener
             $entity->setTier(0);
             return;
         }
-
-
     }
 
-    public function prePersist(LifecycleEventArgs $args)
-    {
+    public function prePersist(LifecycleEventArgs $args){
         $entity = $args->getEntity();
         $this->logger->info('PRE-INSERT');
 
@@ -113,20 +116,29 @@ class KycListener
 
         if ($entity instanceof AccessToken) {
 
+            $user = $entity->getUser();
             //checkear que la company del client esta activa si no fuera
             if($entity->getClient()->getGroup()->getActive() == false){
                 throw new HttpException(403, 'This company is disabled, please contact support.');
             }
             //si la company esta activa y grant_type = password -> si la company del user no esta activa fuera si esta activa pa dentro
-            $user = $entity->getUser();
 
             if($user && !$user->isKYC()){
                 $this->logger->info('user id : '.$user->getId().' '.$user->getRoles()[0]);
+                $companies = $user->getGroups();
                 //if user is authenticated with password
                 $activeCompany = $user->getActiveGroup();
+                if(!$activeCompany){
+                    foreach ($companies as $company){
+                        $user->setActiveGroup($company);
+                        $entityManager->flush();
+                        break;
+                    }
+
+                }
                 $this->logger->info('pre-insert check locked company');
                 if(!$activeCompany->getActive()){
-                    $companies = $user->getGroups();
+
                     $changed = 0;
                     foreach ($companies as $company){
                         if($company->getId() != $activeCompany->getId() && $company->getActive()){
@@ -144,23 +156,37 @@ class KycListener
     }
 
     private function _notifyKYCChanges($changeset, KYC $kyc){
+/*
+        $this->logger->info('_notifyKYCChanges');
+        $user = $kyc->getUser();
+        $active_group = $user->getActiveGroup();
+        if(!$active_group){
+            $em = $this->container->get('doctrine')->getManager();
+            $reseller = $em->getRepository('TelepayFinancialApiBundle:Group')->find($this->container->getParameter('id_group_root'));
+        }else{
+            $this->logger->info('_notifyKYCChanges '.$active_group->getId());
+            $reseller = $active_group->getGroupCreator();
+            $this->logger->info('_notifyKYCChanges '.$reseller->getId());
+        }
+
         if(isset($changeset['tier1_status'])){
             $this->logger->info('TIER 1 from :'.$changeset['tier1_status'][0].' to '.$changeset['tier1_status'][1]);
             switch ($kyc->getTier1Status()){
                 case 'approved':
                     //DO something
                     //subir de tier a todas las companies
-                    $this->_uploadTierCompanies($kyc, 1);
+                    $this->_uploadTierCompanies($kyc, 1, $reseller);
                     $this->logger->info('TIER 1 : uploadTierCompanies');
                     break;
                 case 'denied':
-                    //$this->_sendEmail('Update KYC denied', $kyc->getUser()->getEmail(), '', $kyc, 0, 'denied' );
-                    //$this->logger->info('TIER 1 : send email to user: '.$kyc->getUser()->getEmail());
+                    $this->_sendEmail('Update KYC denied', $kyc->getUser()->getEmail(), '', $kyc, 0, 'denied', $reseller );
+                    $this->logger->info('TIER 1 : send email to user: '.$kyc->getUser()->getEmail());
                     break;
                 case 'pending':
                     //notify admins
                     $this->logger->info('TIER 1 : notify pending request');
-                //$this->_sendEmail('Update KYC required', 'kyc@robotunion.org', '', $kyc, 1 , 'pending');
+                    $this->_sendEmail('Update KYC required', 'kyc@robotunion.org', '', $kyc, 1 , 'pending', $reseller);
+
             }
         }
 
@@ -170,20 +196,20 @@ class KycListener
                 case 'approved':
                     //DO something
                     //subir de tier a todas las companies
-                    $this->_uploadTierCompanies($kyc, 2);
+                    $this->_uploadTierCompanies($kyc, 2, $reseller);
                     break;
                 case 'denied':
-                    //$this->_sendEmail('Update KYC denied', $kyc->getUser()->getEmail(), '', $kyc, 1, 'denied' );
+                    $this->_sendEmail('Update KYC denied', $kyc->getUser()->getEmail(), '', $kyc, 1, 'denied', $reseller );
                     break;
                 case 'pending':
                     //TODO notify admins
-                    //$this->_sendEmail('Update KYC required', 'kyc@robotunion.org', '', $kyc, 2 , 'pending');
+                    $this->_sendEmail('Update KYC required', 'kyc@robotunion.org', '', $kyc, 2 , 'pending', $reseller);
             }
         }
-
+    */
     }
 
-    private function _uploadTierCompanies(KYC $kyc, $tier){
+    private function _uploadTierCompanies(KYC $kyc, $tier, Group $reseller){
 
         //search all comanies with this kyc_manager
         $em = $this->container->get('doctrine')->getManager();
@@ -191,43 +217,15 @@ class KycListener
             'kyc_manager'   =>  $kyc->getUser()
         ));
 
-        $this->logger->info('TIER 1 : update '.count($companies).' companies');
+        $this->logger->info('TIER '.$tier.' : update '.count($companies).' companies');
         foreach($companies as $company){
             $company->setTier($tier);
             $em->flush();
         }
 
         //notify to this kyc manager all companies updated
-        //$this->_sendEmail('Update KYC accepted', $kyc->getUser()->getEmail(), $companies, $kyc, $tier, 'accepted' );
+        //$this->_sendEmail('Update KYC accepted', $kyc->getUser()->getEmail(), $companies, $kyc, $tier, 'accepted', $reseller );
         //notify admin all companies updated
-        //$this->_sendEmail('Update KYC accepted', 'kyc@robotunion.org', $companies, $kyc, $tier , 'accepted');
-    }
-
-    private function _sendEmail($subject, $to, $companies, $kyc, $tier, $action){
-        /*
-                $from = 'no-reply@chip-chap.com';
-                $mailer = 'mailer';
-
-                $template = 'TelepayFinancialApiBundle:Email:KYCUpdate.html.twig';
-
-                $message = \Swift_Message::newInstance()
-                    ->setSubject($subject)
-                    ->setFrom($from)
-                    ->setTo($to)
-                    ->setBody(
-                        $this->container->get('templating')
-                            ->render($template,
-                                array(
-                                    'companies' =>  $companies,
-                                    'kyc'   =>  $kyc,
-                                    'tier'  =>  $tier,
-                                    'action'    =>  $action
-                                )
-                            )
-                    )
-                    ->setContentType('text/html');
-
-                $this->container->get($mailer)->send($message);
-        */
+        //$this->_sendEmail('Update KYC accepted', 'kyc@robotunion.org', $companies, $kyc, $tier , 'accepted', $reseller);
     }
 }

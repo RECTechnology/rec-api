@@ -357,6 +357,7 @@ class UsersGroupsController extends RestApiController{
 
         //check if is superadmin but readonly
         if(!$admin->hasRole('ROLE_ADMIN')) throw new HttpException(403, 'You are READ ONLY. you don\'t have the necessary permissions');
+        if(in_array('ROLE_SUPER_ADMIN', $role)) throw new HttpException(403, 'Invalid role ROLE_SUPER_ADMIN');
 
         $entity->setRoles($role);
         $em = $this->getDoctrine()->getManager();
