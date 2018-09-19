@@ -33,13 +33,15 @@ class UpdateAddressCommand extends ContainerAwareCommand
             $providerName = 'net.telepay.in.rec.v1';
             $cryptoProvider = $this->getContainer()->get($providerName);
             if(!$cryptoProvider->validateaddress($address)){
+                $output->writeln($account->getId());
                 $new_address = $cryptoProvider->getnewaddress($account->getId());
+                $output->writeln($new_address);
                 $account->setRecAddress($new_address);
                 $em->persist($account);
+                $em->flush();
                 $contador++;
             }
         }
-        $em->flush();
         $text=$contador.' updates';
         $output->writeln($text);
     }
