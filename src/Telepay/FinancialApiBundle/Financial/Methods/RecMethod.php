@@ -24,6 +24,7 @@ class RecMethod extends BaseMethod {
     private $driver;
     private $container;
 
+    private $min_confirmations;
     private $OP_RETURN_BTC_FEE;
     private $OP_RETURN_BTC_DUST;
     private $OP_RETURN_MAX_BYTES;
@@ -33,6 +34,7 @@ class RecMethod extends BaseMethod {
         $this->driver = $driver;
         $this->container = $container;
 
+        $this->min_confirmations = $this->container->getParameter('rec_min_confirmations');
         $this->OP_RETURN_BTC_FEE = floatval($this->container->getParameter('OP_RETURN_BTC_FEE')); // BTC fee to pay per transaction
         $this->OP_RETURN_BTC_DUST = 0.00001; // omit BTC outputs smaller than this
         $this->OP_RETURN_MAX_BYTES = 1000; // maximum bytes in an OP_RETURN (80 as of Bitcoin 0.11)(1000 for Crea forks)
@@ -52,7 +54,6 @@ class RecMethod extends BaseMethod {
     public function getPayInInfo($account_id, $amount){
         $address = $this->getnewaddress($account_id);
         if(!$address) throw new Exception('Service Temporally unavailable', 503);
-        $min_confirmations = $this->container->getParameter('rec_min_confirmations');
         $response = array(
             'amount'    =>  $amount,
             'currency'  =>  $this->getCurrency(),
@@ -60,7 +61,7 @@ class RecMethod extends BaseMethod {
             'address' => $address,
             'expires_in' => intval(1200),
             'received' => 0.0,
-            'min_confirmations' => intval($min_confirmations),
+            'min_confirmations' => intval($this->min_confirmations),
             'confirmations' => 0,
             'status'    =>  'created',
             'final'     =>  false
@@ -71,7 +72,6 @@ class RecMethod extends BaseMethod {
     public function getPayInInfoWithData($data){
         $address = $data;
         if(!$address) throw new Exception('Service Temporally unavailable', 503);
-        $min_confirmations = $this->container->getParameter('rec_min_confirmations');
         $response = array(
             'amount'    =>  $data['amount'],
             'currency'  =>  $this->getCurrency(),
@@ -80,7 +80,7 @@ class RecMethod extends BaseMethod {
             'expires_in' => intval(1200),
             'received' => $data['amount'],
             'txid' => $data['txid'],
-            'min_confirmations' => intval($min_confirmations),
+            'min_confirmations' => intval($this->min_confirmations),
             'confirmations' => 0,
             'status'    =>  'received',
             'final'     =>  false
@@ -116,7 +116,7 @@ class RecMethod extends BaseMethod {
             return $paymentInfo;
         }
 
-        $allReceived = $this->driver->listreceivedbyaddress(0, true);
+        $allReceived = $this->driver->listreceivedbyaddress($this->min_confirmations, true);
         $amount = $paymentInfo['amount'];
         $address = $paymentInfo['address'];
 
@@ -194,7 +194,7 @@ class RecMethod extends BaseMethod {
         $address_verification = $this->driver->validateaddress($params['address']);
         if(!$address_verification['isvalid']) throw new Exception('Invalid address.', 400);
 
-        if($this->getReceivedByAddress($params['address']) < $params['amount'] / 1e8) throw new HttpException(403, 'Service Temporally unavailable');
+        if($this->getReceivedByAddress($params['address']) < $params['amount'] / 1e8) throw new HttpException(403, 'Not enough balance in your account');
 
         if(array_key_exists('concept', $data)) {
             $params['concept'] = $data['concept'];
@@ -308,7 +308,7 @@ class RecMethod extends BaseMethod {
 
     private function select_inputs($total_amount, $account){
         //	List and sort unspent inputs by priority
-        $unspent_inputs = $this->driver->listunspent();
+        $unspent_inputs = $this->driver->listunspent($this->min_confirmations);
 
         if (!is_array($unspent_inputs)) {
             return array('error' => 'Could not retrieve list of unspent inputs');
@@ -322,20 +322,20 @@ class RecMethod extends BaseMethod {
             }
         }
 
-        if(count($unspent_inputs)<1) {
+        if(count($account_unspent_inputs)<1) {
             return array('error' => 'Could not retrieve list of unspent inputs');
         }
 
-        if(count($unspent_inputs)>1) {
-            $this->sort_by($unspent_inputs, 'priority');
-            $unspent_inputs = array_reverse($unspent_inputs);
+        if(count($account_unspent_inputs)>1) {
+            $this->sort_by($account_unspent_inputs, 'priority');
+            $account_unspent_inputs = array_reverse($account_unspent_inputs);
         }
 
         //	Identify which inputs should be spent
         $inputs_spend=array();
         $input_amount=0;
 
-        foreach ($unspent_inputs as $unspent_input) {
+        foreach ($account_unspent_inputs as $unspent_input) {
             $inputs_spend[]=$unspent_input;
             $input_amount+=$unspent_input['amount'];
             if ($input_amount>=$total_amount)
@@ -469,8 +469,29 @@ class RecMethod extends BaseMethod {
     }
 
     public function getReceivedByAddress($address){
-        $allReceived = $this->driver->getreceivedbyaddress($address, 0);
-        return $allReceived;
+        $account = $this->driver->getaccount($address);
+        $unspent_inputs = $this->driver->listunspent($this->min_confirmations);
+
+        if (!is_array($unspent_inputs)) {
+            return 0;
+        }
+
+        $account_unspent_inputs = array();
+        foreach ($unspent_inputs as $index => $unspent_input) {
+            if($unspent_input['account'] == $account){
+                $account_unspent_inputs[$index] = $unspent_inputs[$index];
+            }
+        }
+
+        if(count($account_unspent_inputs)<1) {
+            return 0;
+        }
+
+        $input_amount=0;
+        foreach ($account_unspent_inputs as $unspent_input) {
+            $input_amount+=$unspent_input['amount'];
+        }
+        return $input_amount;
     }
 
     public function getInfo(){
