@@ -191,7 +191,7 @@ class IncomingController2 extends RestApiController{
             }
             else{
                 if(!isset($data['txid'])){
-                    $payment_info = $method->getPayInInfo($amount);
+                    $payment_info = $method->getPayInInfo($group->getId(), $amount);
                 }
                 else{
                     $payment_info = $method->getPayInInfoWithData($data);
@@ -292,9 +292,11 @@ class IncomingController2 extends RestApiController{
             $payment_info['orig_address'] = $group->getRecAddress();
             $payment_info['orig_nif'] = $user->getDNI();
             $payment_info['orig_group_nif'] = $group->getCif();
+            $payment_info['orig_group_public'] = $group->getIsPublicProfile();
             $payment_info['orig_key'] = $group->getKeyChain();
             $payment_info['dest_address'] = $destination->getRecAddress();
             $payment_info['dest_group_nif'] = $destination->getCif();
+            $payment_info['dest_group_public'] = $destination->getIsPublicProfile();
             $payment_info['dest_key'] = $destination->getKeyChain();
 
             $logger->info('(' . $group_id . ') Incomig transaction...SEND');
