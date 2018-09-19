@@ -953,9 +953,11 @@ class SpecialActionsController extends RestApiController {
             $payment_info['orig_address'] = $treasure_address;
             $payment_info['orig_nif'] = 'some_admins';
             $payment_info['orig_group_nif'] = $destination->getCif();
+            $payment_info['orig_group_public'] = true;
             $payment_info['orig_key'] = $destination->getKeyChain();
             $payment_info['dest_address'] = $destination->getRecAddress();
             $payment_info['dest_group_nif'] = $destination->getCif();
+            $payment_info['dest_group_public'] = false;
             $payment_info['dest_key'] = $destination->getKeyChain();
             $payment_info = $method->send($payment_info);
             $txid = $payment_info['txid'];

@@ -251,17 +251,14 @@ class RecMethod extends BaseMethod {
         $tx_data = $encoder->encrypt(json_encode($data_users), $random_pass);
 
         $data = $saved_data_version . "," . $saved_data_subversion . "," . $orig_group_public . "," . $dest_group_public  . "," . $em_pass . "," . $rec_pass . "," . $ad_pass . "," . $tx_data;
-        $data_len = strlen($data);
-        if ($data_len == 0){
+        if (strlen($data) == 0){
             $response['status'] = Transaction::$STATUS_FAILED;
             $response['final'] = true;
             $response['error'] = 'Some data is required to be stored';
             return $response;
         }
 
-        $metadata = md5($data);
-
-        $crypto = $this->send_with_OP_RETURN_data($orig_address, $dest_address, $amount/1e8, $metadata);
+        $crypto = $this->send_with_OP_RETURN_data($orig_address, $dest_address, $amount/1e8, $data);
         if(isset($crypto['error'])){
             $response['status'] = Transaction::$STATUS_FAILED;
             $response['final'] = true;
