@@ -193,7 +193,7 @@ class SpecialActionsController extends RestApiController {
             $em->persist($current_wallet);
             $em->flush();
 
-//            if(!$user->hasRole('ROLE_SUPERADMIN')){
+//            if(!$user->hasRole('ROLE_SUPER_ADMIN')){
             if($total_fee != 0){
                 // nueva transaccion restando la comision al user
                 try{

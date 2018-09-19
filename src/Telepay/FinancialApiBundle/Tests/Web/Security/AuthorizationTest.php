@@ -9,7 +9,7 @@ use Symfony\Component\HttpFoundation\Response;
  * Class AuthenticationTest
  * @package Telepay\FinancialApiBundle\Tests\Controller
  *
- * This Test should test all routes with all types of basic roles (ROLE_SUPERADMIN, ROLE_ADMIN, ROLE_USER)
+ * This Test should test all routes with all types of basic roles (ROLE_SUPER_ADMIN, ROLE_ADMIN, ROLE_USER)
  */
 class AuthorizationTest extends AbstractApiWebTestCase
 {

@@ -303,7 +303,7 @@ class UsersController extends BaseApiController
         ));
 
         if (!$request->request->has('role')) throw new HttpException(404, 'Parameter Role not found');
-        if($request->request->get('role') == 'ROLE_SUPERADMIN'){
+        if($request->request->get('role') == 'ROLE_SUPER_ADMIN'){
             throw new HttpException(404, 'Parameter role not valid');
         }
         $role_array[] = $request->request->get('role');
