@@ -363,6 +363,11 @@ class AccountController extends BaseApiController{
         unset($params['password']);
         unset($params['repassword']);
 
+        if($request->request->has('roles')){
+            $roles = $request->request->get('roles');
+            if(in_array('ROLE_SUPER_ADMIN', $roles)) throw new HttpException(403, 'Bad parameters');
+        }
+
         $em = $this->getDoctrine()->getManager();
 
         $params['dni'] = strtoupper($params['dni']);

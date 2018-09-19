@@ -64,6 +64,8 @@ class UsersGroupsController extends RestApiController{
                 'ROLE_READONLY'
             );
         }
+        if(in_array('ROLE_SUPER_ADMIN', $role_array)) throw new HttpException(403, 'Bad parameters');
+
 
         if($user->hasGroup($company->getName())) throw new HttpException(409, "User already in group");
 
@@ -352,6 +354,7 @@ class UsersGroupsController extends RestApiController{
 
         if(!$request->request->has('role')) throw new HttpException(404, 'Param role not found');
         $role[] = $request->request->get('role');
+        if(in_array('ROLE_SUPER_ADMIN', $role)) throw new HttpException(403, 'Bad parameters');
 
         if(!$this->get('security.context')->isGranted('ROLE_ADMIN')) throw new HttpException(403, 'You don\' have the necessary permissions');
 

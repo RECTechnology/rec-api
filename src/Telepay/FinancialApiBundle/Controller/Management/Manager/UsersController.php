@@ -39,6 +39,9 @@ class UsersController extends BaseApiController
         $usersRepo = $em->getRepository("TelepayFinancialApiBundle:User");
         $tokensRepo = $em->getRepository("TelepayFinancialApiBundle:AccessToken");
 
+        $securityContext = $this->get('security.context');
+        if(!$securityContext->isGranted('ROLE_SUPER_ADMIN')) throw new HttpException(403, 'You don\'t have the necessary permissions');
+
         $user = $usersRepo->findOneBy(array('id'=>$id));
 
         $token = $tokensRepo->findOneBy(
@@ -481,9 +484,8 @@ class UsersController extends BaseApiController
             if(in_array('ROLE_COMMERCE', $roles)){
                 $role_commerce = true;
             }
+            if(in_array('ROLE_SUPER_ADMIN', $roles)) throw new HttpException(403, 'Bad parameter role');
         }
-
-        if(in_array(User::ROLE_SUPER_ADMIN, $roles)) throw new HttpException(403, 'Bad parameters role');
 
         if($request->request->has('password')){
             if($request->request->has('repassword')){

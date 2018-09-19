@@ -325,6 +325,11 @@ class GroupsController extends BaseApiController
             }
         }
 
+        if($request->request->has('roles')){
+            $roles = $request->request->get('roles');
+            if(in_array('ROLE_SUPER_ADMIN', $roles)) throw new HttpException(403, 'Bad parameters');
+        }
+
         $response = parent::updateAction($request, $id);
 
         if($response->getStatusCode() == 204){
