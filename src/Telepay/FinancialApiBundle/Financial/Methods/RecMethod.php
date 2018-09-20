@@ -194,7 +194,7 @@ class RecMethod extends BaseMethod {
         $address_verification = $this->driver->validateaddress($params['address']);
         if(!$address_verification['isvalid']) throw new Exception('Invalid address.', 400);
 
-        $saldo = $this->getReceivedByAddress($params['address']);
+        $saldo = $this->getReceivedByAddress($data['orig_address']);
         if($saldo < ($params['amount'] / 1e8)) throw new HttpException(403, 'Not enough balance in your account(' . $saldo . ' < ' . $params['amount']/1e8 . ')');
 
         if(array_key_exists('concept', $data)) {

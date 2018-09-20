@@ -219,6 +219,7 @@ class IncomingController2 extends RestApiController{
         }
         else{
             $logger->info('(' . $group_id . ') else');
+            $data['orig_address'] = $group->getRecAddress();
             $payment_info = $method->getPayOutInfoData($data);
             $transaction->setPayOutInfo($payment_info);
             $dataIn = array(
