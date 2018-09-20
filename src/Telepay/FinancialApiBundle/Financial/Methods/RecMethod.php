@@ -264,7 +264,7 @@ class RecMethod extends BaseMethod {
             $response['final'] = true;
             $response['error'] = $crypto['error'];
         }else{
-            $response['txid'] = $crypto;
+            $response['txid'] = $crypto['txid'];
             $response['status'] = 'sent';
             $response['final'] = true;
         }
@@ -303,7 +303,19 @@ class RecMethod extends BaseMethod {
         $raw_txn=$this->create_txn($inputs_spend['inputs'], $outputs, $metadata, count($outputs));
 
         //	Sign and send the transaction, return result
-        return $this->sign_send_txn($raw_txn);
+        $sent_info = $this->sign_send_txn($raw_txn);
+
+        //  Set account for new addresses
+        if(isset($sent_info['txid'])) {
+            foreach ($outputs as $output_address => $output_amount) {
+                if(strcmp((string)$send_address, (string)$output_address)!=0){
+                    if(strlen($this->driver->getaccount($output_address))<1){
+                        $this->driver->setaccount($output_address, $orig_account);
+                    }
+                }
+            }
+        }
+        return $sent_info;
     }
 
     private function select_inputs($account_name, $total_amount){
