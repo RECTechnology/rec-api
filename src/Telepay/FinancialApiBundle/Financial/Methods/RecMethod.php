@@ -194,7 +194,8 @@ class RecMethod extends BaseMethod {
         $address_verification = $this->driver->validateaddress($params['address']);
         if(!$address_verification['isvalid']) throw new Exception('Invalid address.', 400);
 
-        if($this->getReceivedByAddress($params['address']) < $params['amount'] / 1e8) throw new HttpException(403, 'Not enough balance in your account');
+        $saldo = $this->getReceivedByAddress($params['address']);
+        if($saldo < ($params['amount'] / 1e8)) throw new HttpException(403, 'Not enough balance in your account(' . $saldo . ' < ' . $params['amount']/1e8 . ')');
 
         if(array_key_exists('concept', $data)) {
             $params['concept'] = $data['concept'];
@@ -488,20 +489,11 @@ class RecMethod extends BaseMethod {
             return 0;
         }
 
-        $account_unspent_inputs = array();
-        foreach ($unspent_inputs as $index => $unspent_input) {
-            if($unspent_input['account'] == $account){
-                $account_unspent_inputs[$index] = $unspent_inputs[$index];
-            }
-        }
-
-        if(count($account_unspent_inputs)<1) {
-            return 0;
-        }
-
         $input_amount=0;
-        foreach ($account_unspent_inputs as $unspent_input) {
-            $input_amount+=$unspent_input['amount'];
+        foreach ($unspent_inputs as $index => $unspent_input) {
+            if(strcmp((string)$unspent_input['account'], (string)$account)==0){
+                $input_amount+=$unspent_input['amount'];
+            }
         }
         return $input_amount;
     }
