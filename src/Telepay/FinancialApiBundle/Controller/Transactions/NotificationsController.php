@@ -111,7 +111,7 @@ class NotificationsController extends RestApiController{
 
                 $sentInfo = array(
                     'to' => $group_destination->getCIF(),
-                    'amount' => $transaction->getAmount()/100
+                    'amount' => number_format($transaction->getAmount()/100, 2)
                 );
                 $resultado = $cashInMethod->send($sentInfo);
                 $logger->info('notifications -> eur resultado => '. json_encode($resultado));
