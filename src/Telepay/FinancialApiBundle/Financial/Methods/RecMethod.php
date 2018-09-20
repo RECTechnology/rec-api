@@ -306,7 +306,7 @@ class RecMethod extends BaseMethod {
         return $this->sign_send_txn($raw_txn);
     }
 
-    private function select_inputs($total_amount, $account){
+    private function select_inputs($total_amount, $account_name){
         //	List and sort unspent inputs by priority
         $unspent_inputs = $this->driver->listunspent($this->min_confirmations);
 
@@ -315,15 +315,18 @@ class RecMethod extends BaseMethod {
         }
 
         $account_unspent_inputs = array();
+        $list = $account_name . " => ";
         foreach ($unspent_inputs as $index => $unspent_input) {
-            if($unspent_input['account'] == $account){
-                $unspent_inputs[$index]['priority'] = $unspent_input['amount'] * $unspent_input['confirmations'];
+            $list .= $unspent_input['account'] . " -.- ";
+            if(strcmp((string)$unspent_input['account'], (string)$account_name)==0){
+                $list .= " -IN- ";
                 $account_unspent_inputs[$index] = $unspent_inputs[$index];
+                $account_unspent_inputs[$index]['priority'] = $unspent_input['amount'] * $unspent_input['confirmations'];
             }
         }
 
         if(count($account_unspent_inputs)<1) {
-            return array('error' => 'Could not retrieve list of unspent inputs');
+            return array('error' => '(' . $list . ')Could not retrieve list of unspent inputs ' . count($unspent_inputs) . ' --- ' . count($account_unspent_inputs) . ' --- ' . $account_name);
         }
 
         if(count($account_unspent_inputs)>1) {
