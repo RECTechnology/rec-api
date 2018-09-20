@@ -106,11 +106,14 @@ class NotificationsController extends RestApiController{
                     'id'    =>  $commerce_id
                 ));
 
+                $logger->info('notifications -> envio euros a => '. $group_destination->getCIF());
+
                 $sentInfo = array(
                     'to' => $group_destination->getCIF(),
                     'amount' => $transaction->getAmount()/100
                 );
-                $cashInMethod->send($sentInfo);
+                $resultado = $cashInMethod->send($sentInfo);
+                $logger->info('notifications -> eur resultado => '. json_encode($resultado));
             }
             elseif ($paymentInfo['status'] == 'failed') {
                 $paymentInfo['error'] = $params['response_code'];
