@@ -99,11 +99,25 @@ class NotificationsController extends RestApiController{
                 $paymentInfo['received'] = $params['response_transactionAmount'];
                 $transaction->setStatus('received');
                 $transaction->setPayInInfo($paymentInfo);
-            } elseif ($paymentInfo['status'] == 'failed') {
+
+                //Pasar saldo de admin a commerce
+                $commerce_id = $paymentInfo['commerce_id'];
+                $group_destination = $em->getRepository('TelepayFinancialApiBundle:Group')->findOneBy(array(
+                    'id'    =>  $commerce_id
+                ));
+
+                $sentInfo = array(
+                    'to' => $group_destination->getCIF(),
+                    'amount' => $transaction->getAmount()/100
+                );
+                $cashInMethod->send($sentInfo);
+            }
+            elseif ($paymentInfo['status'] == 'failed') {
                 $paymentInfo['error'] = $params['response_code'];
                 $transaction->setStatus('failed');
                 $transaction->setPayInInfo($paymentInfo);
-            } else {
+            }
+            else {
                 $logger->info('notifications -> debug => ' . $paymentInfo['debug']);
             }
         }
