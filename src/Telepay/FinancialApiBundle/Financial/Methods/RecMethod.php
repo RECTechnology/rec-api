@@ -294,7 +294,7 @@ class RecMethod extends BaseMethod {
         }
 
         $change_amount=$inputs_spend['total']-$output_amount;
-        $change_address = $this->driver->getrawchangeaddress($orig_address, $orig_account);
+        $change_address = $this->driver->getrawchangeaddress($orig_account);
         $outputs=array($send_address => (float)$send_amount);
 
         if ($change_amount >= $this->OP_RETURN_BTC_DUST) {
@@ -306,7 +306,7 @@ class RecMethod extends BaseMethod {
         return $this->sign_send_txn($raw_txn);
     }
 
-    private function select_inputs($total_amount, $account_name){
+    private function select_inputs($account_name, $total_amount){
         //	List and sort unspent inputs by priority
         $unspent_inputs = $this->driver->listunspent($this->min_confirmations);
 
@@ -315,18 +315,15 @@ class RecMethod extends BaseMethod {
         }
 
         $account_unspent_inputs = array();
-        $list = $account_name . " => ";
         foreach ($unspent_inputs as $index => $unspent_input) {
-            $list .= $unspent_input['account'] . " -.- ";
             if(strcmp((string)$unspent_input['account'], (string)$account_name)==0){
-                $list .= " -IN- ";
                 $account_unspent_inputs[$index] = $unspent_inputs[$index];
                 $account_unspent_inputs[$index]['priority'] = $unspent_input['amount'] * $unspent_input['confirmations'];
             }
         }
 
         if(count($account_unspent_inputs)<1) {
-            return array('error' => '(' . $list . ')Could not retrieve list of unspent inputs ' . count($unspent_inputs) . ' --- ' . count($account_unspent_inputs) . ' --- ' . $account_name);
+            return array('error' => 'Could not retrieve list of unspent inputs.');
         }
 
         if(count($account_unspent_inputs)>1) {
