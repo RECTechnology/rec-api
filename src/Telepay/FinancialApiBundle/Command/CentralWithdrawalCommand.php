@@ -31,7 +31,7 @@ class CentralWithdrawalCommand extends ContainerAwareCommand
     protected function execute(InputInterface $input, OutputInterface $output) {
         if($input->getOption('amount')){
             $amount = $input->getOption('amount');
-            $amount = intval($amount) * 100000000;
+            $amount = intval($amount);
             $em = $this->getContainer()->get('doctrine')->getManager();
 
             $api_url = $this->getContainer()->getParameter('withdrawal_url');

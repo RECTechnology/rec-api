@@ -949,7 +949,7 @@ class SpecialActionsController extends RestApiController {
             $id_user_root = $this->container->getParameter('admin_user_id');
             $user = $em->getRepository('TelepayFinancialApiBundle:User')->find($id_user_root);
 
-            $payment_info['amount']=$withdrawal->getAmount();
+            $payment_info['amount']=$withdrawal->getAmount() * 100000000;
             $payment_info['orig_address'] = $treasure_address;
             $payment_info['orig_nif'] = 'some_admins';
             $payment_info['orig_group_nif'] = $destination->getCif();

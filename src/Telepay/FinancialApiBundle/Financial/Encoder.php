@@ -6,12 +6,8 @@ class Encoder {
     function encrypt(string $data, string $key, string $method = 'AES-256-CBC'){
         $ivSize = openssl_cipher_iv_length($method);
         $iv = openssl_random_pseudo_bytes($ivSize);
-
         $encrypted = openssl_encrypt($data, $method, $key, OPENSSL_RAW_DATA, $iv);
-
-        // For storage/transmission, we simply concatenate the IV and cipher text
         $encrypted = base64_encode($iv . $encrypted);
-
         return $encrypted;
     }
 
