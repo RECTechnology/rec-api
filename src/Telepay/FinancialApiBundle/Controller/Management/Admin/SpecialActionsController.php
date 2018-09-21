@@ -967,7 +967,7 @@ class SpecialActionsController extends RestApiController {
             }
 
             $params = array(
-                'amount' => $withdrawal->getAmount(),
+                'amount' => $withdrawal->getAmount() * 100000000,
                 'concept' => "Treasure withdrawal",
                 'address' => $destination->getRecAddress(),
                 'txid' => $txid,
