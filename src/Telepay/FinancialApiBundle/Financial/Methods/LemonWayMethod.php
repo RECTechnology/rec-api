@@ -87,12 +87,13 @@ class LemonWayMethod extends BaseMethod {
         return $response;
     }
 
-    public function CreditCardPayment($amount, $save = false){
+    public function CreditCardPayment($amount, $token, $save = false){
         $admin = $this->container->getParameter('lemonway_admin_account');
         $notification_url = $this->container->getParameter('lemonway_notification_url');
         $response = $this->driver->callService("MoneyInWebInit", array(
             "wallet" => $admin,
             "amountTot" => $amount,
+            "wkToken" => $token,
             "returnUrl" => $notification_url . "ok",
             "errorUrl" => $notification_url . "error",
             "cancelUrl" => $notification_url . "cancel",
@@ -181,7 +182,8 @@ class LemonWayMethod extends BaseMethod {
             }
         }
         else {
-            $payment_info = $this->CreditCardPayment($amount, $data['save_card']);
+            $token = substr(Random::generateToken(), 0, 8);
+            $payment_info = $this->CreditCardPayment($amount, $token, $data['save_card']);
             $url = $this->container->getParameter('lemonway_payment_url');
             $error = false;
             if(!property_exists($payment_info, 'MONEYINWEB') && isset($payment_info['MONEYINWEBINIT']) && isset($payment_info['MONEYINWEBINIT']['STATUS']) && $payment_info['MONEYINWEBINIT']['STATUS']=='-1'){
@@ -197,6 +199,7 @@ class LemonWayMethod extends BaseMethod {
                 'payment_info' => json_encode($payment_info),
                 'external_card_id' => $payment_info->MONEYINWEB->CARD->ID,
                 'save_card' => $data['save_card'],
+                'wl_token' => $token,
                 'transaction_id' => $payment_info->MONEYINWEB->ID,
                 'expires_in' => intval(1200),
                 'received' => 0.0,
