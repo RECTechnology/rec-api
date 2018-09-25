@@ -188,6 +188,14 @@ class IncomingController2 extends RestApiController{
                 $payment_info = $method->getPayInInfoWithCommerce($data);
                 $transaction->setInternal(true);
                 $transaction->setStatus($payment_info['status']);
+                if($transaction->getStatus() == Transaction::$STATUS_RECEIVED){
+                    $sentInfo = array(
+                        'to' => $commerce->getCIF(),
+                        'amount' => number_format($transaction->getAmount()/100, 2)
+                    );
+                    $logger->info('(' . $commerce->getCIF() . ') euros balance sent');
+                    $method->send($sentInfo);
+                }
             }
             else{
                 if(!isset($data['txid'])){
