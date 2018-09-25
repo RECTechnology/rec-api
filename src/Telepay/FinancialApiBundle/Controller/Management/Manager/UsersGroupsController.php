@@ -248,7 +248,7 @@ class UsersGroupsController extends RestApiController{
         $em->persist($company);
 
         //create wallets for this company
-        $currencies = Currency::$ALL;
+        $currencies = Currency::$ALL_COMPLETED;
         foreach($currencies as $currency){
             $userWallet = new UserWallet();
             $userWallet->setBalance(0);
