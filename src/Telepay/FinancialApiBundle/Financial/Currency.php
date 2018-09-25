@@ -7,6 +7,7 @@ class Currency {
     public static $EUR = "EUR";
 
     public static $ALL = array("REC");
+    public static $ALL_COMPLETED = array("REC", "EUR");
 
     public static $SCALE = array(
         "REC" => 8,

@@ -30,12 +30,11 @@ class CreateWalletCommand extends ContainerAwareCommand
         ;
     }
 
-    protected function execute(InputInterface $input, OutputInterface $output)
-    {
+    protected function execute(InputInterface $input, OutputInterface $output){
         $em = $this->getContainer()->get('doctrine')->getManager();
         $groupRepo = $em->getRepository('TelepayFinancialApiBundle:Group')->findAll();
         $walletsRepo = $em->getRepository('TelepayFinancialApiBundle:UserWallet');
-        $currencies=Currency::$SCALE;
+        $currencies=Currency::$ALL_COMPLETED;
         $contador=0;
         foreach ( $groupRepo as $group ){
             foreach ( $currencies as $currency ){
@@ -48,16 +47,14 @@ class CreateWalletCommand extends ContainerAwareCommand
                     $user_wallet->setCurrency($currency);
                     $user_wallet->setGroup($group);
                     $em->persist($user_wallet);
+                    $em->flush();
                     $contador++;
+                    $output->writeln($group . " created " . $currency);
                 }
             }
-
         }
-
         $em->flush();
-
         $text=$contador.' wallets creados';
-
         $output->writeln($text);
     }
 }
