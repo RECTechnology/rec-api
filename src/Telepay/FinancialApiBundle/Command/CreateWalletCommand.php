@@ -49,7 +49,7 @@ class CreateWalletCommand extends ContainerAwareCommand
                     $em->persist($user_wallet);
                     $em->flush();
                     $contador++;
-                    $output->writeln($group . " created " . $currency);
+                    $output->writeln($group->getId() . " created " . $currency);
                 }
             }
         }
