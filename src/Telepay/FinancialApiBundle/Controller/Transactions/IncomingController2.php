@@ -353,7 +353,7 @@ class IncomingController2 extends RestApiController{
                     'txid' => $txid,
                     'sender' => $group->getId()
                 );
-                if($data['internal_tx']=='1') {
+                if(isset($data['internal_tx']) && $data['internal_tx']=='1') {
                     $params['internal_tx']='1';
                     $params['destionation_id']=$data['destionation_id'];
                 }
