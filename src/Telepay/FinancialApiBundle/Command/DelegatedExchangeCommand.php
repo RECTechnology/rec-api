@@ -59,8 +59,14 @@ class DelegatedExchangeCommand extends ContainerAwareCommand
 
         $dni_user=$input->getOption('dni');
         if(isset($dni_user)){
-            $cif_commerce=$input->getOption('dni');
-            $amount=$input->getOption('dni');
+            $cif_commerce=$input->getOption('cif');
+            $amount=$input->getOption('amount');
+            if(!isset($cif_commerce)){
+                $output->writeln("Param cif empty");
+            }
+            if(!isset($amount)){
+                $output->writeln("Param amount empty");
+            }
             $user = $repoUser->findOneBy(array('dni'=>$dni_user));
             if(!$user){
                 $output->writeln("User not found: " . $dni_user);
