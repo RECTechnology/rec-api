@@ -395,7 +395,7 @@ class IncomingController2 extends RestApiController{
         if($user_id == -1 || $ip == '127.0.0.1'){
             $logger->info('(' . $group_id . ') Incomig transaction... return string');
             $logger->info('(' . $group_id . ') Incomig transaction... FINAL');
-            return 'Transaction generated: ' . $transaction->getStatus();
+            return 'Transaction|' . $transaction->getId() . '| generated: ' . $transaction->getStatus();
         }else{
             $logger->info('(' . $group_id . ') Incomig transaction... return http format');
             $logger->info('(' . $group_id . ') Incomig transaction... FINAL');
