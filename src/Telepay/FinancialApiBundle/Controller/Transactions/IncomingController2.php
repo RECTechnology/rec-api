@@ -396,7 +396,7 @@ class IncomingController2 extends RestApiController{
         if($user_id == -1 || $ip == '127.0.0.1'){
             $logger->info('(' . $group_id . ') Incomig transaction... return string');
             $logger->info('(' . $group_id . ') Incomig transaction... FINAL');
-            return 'Transaction|' . $transaction->getId() . '| generated: ' . $transaction->getStatus();
+            return 'Transaction generated: ' . $transaction->getStatus();
         }else{
             $logger->info('(' . $group_id . ') Incomig transaction... return http format');
             $logger->info('(' . $group_id . ') Incomig transaction... FINAL');
@@ -449,7 +449,7 @@ class IncomingController2 extends RestApiController{
         $request['amount'] = intval(floatval($params['amount'])*100);
         $request['commerce_id'] = $group_commerce->getId();
         $request['save_card'] = 1;
-        return $this->createTransaction($request, 1, 'in', $method_cname, $user->getId(), $group, '127.0.0.1');
+        return $this->createTransaction($request, 1, 'in', $method_cname, $user->getId(), $group, '127.0.0.2');
     }
 
 
