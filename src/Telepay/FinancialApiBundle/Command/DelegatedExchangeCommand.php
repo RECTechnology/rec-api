@@ -98,10 +98,7 @@ class DelegatedExchangeCommand extends ContainerAwareCommand
             $request['save_card'] = 1;
             $response = $transactionManager->createTransaction($request, 1, 'in', 'lemonway', $user->getId(), $group, '127.0.0.1');
             $tx_id = explode("|", $response);
-            $tx_id = $tx_id[1];
-            $tx = $repoTx->findOneBy(array('id'=>$tx_id));
-            $data = $tx->getPayInInfo();
-            $output->writeln($data['payment_url']);
+            $output->writeln($tx_id[1]);
             exit(0);
         }
 

@@ -9,6 +9,7 @@
 namespace Telepay\FinancialApiBundle\Controller\Transactions;
 
 use Symfony\Component\Config\Definition\Exception\Exception;
+use Symfony\Component\Console\Input\ArgvInput;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpKernel\Exception\HttpException;
 use Telepay\FinancialApiBundle\Controller\RestApiController;
@@ -435,7 +436,11 @@ class IncomingController2 extends RestApiController{
         );
         $output = new BufferedOutput();
         $command->run($input, $output);
-        return $this->restTransaction($output, "Done");
+        $mongo = $this->get('doctrine_mongodb')->getManager();
+        $transaction = $mongo->getRepository('TelepayFinancialApiBundle:Transaction')->findOneBy(array(
+            'id'        =>  $output
+        ));
+        return $this->restTransaction($transaction->getPayInInfo(), "Done");
     }
 
 
