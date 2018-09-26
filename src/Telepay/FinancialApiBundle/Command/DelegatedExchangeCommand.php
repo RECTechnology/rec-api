@@ -21,27 +21,6 @@ class DelegatedExchangeCommand extends ContainerAwareCommand
         $this
             ->setName('rec:delegated:exchange')
             ->setDescription('Delegated exchange')
-            ->addOption(
-                'dni',
-                null,
-                InputOption::VALUE_OPTIONAL,
-                'Define transaction user.',
-                null
-            )
-            ->addOption(
-                'cif',
-                null,
-                InputOption::VALUE_OPTIONAL,
-                'Define transaction commerce cif.',
-                null
-            )
-            ->addOption(
-                'amount',
-                null,
-                InputOption::VALUE_OPTIONAL,
-                'Define transaction amount.',
-                null
-            )
         ;
     }
 
@@ -52,55 +31,10 @@ class DelegatedExchangeCommand extends ContainerAwareCommand
 
     protected function execute(InputInterface $input, OutputInterface $output){
         $em = $this->getContainer()->get('doctrine')->getManager();
-        $dm = $this->getContainer()->get('doctrine_mongodb')->getManager();
         $repoGroup = $em->getRepository('TelepayFinancialApiBundle:Group');
         $repoUser = $em->getRepository('TelepayFinancialApiBundle:User');
         $repoCard = $em->getRepository('TelepayFinancialApiBundle:CreditCard');
-        $repoTx = $dm->getRepository('TelepayFinancialApiBundle:Transaction');
         $transactionManager = $this->getContainer()->get('app.incoming_controller');
-
-        $dni_user=$input->getOption('dni');
-        if(isset($dni_user)){
-            $cif_commerce=$input->getOption('cif');
-            $amount=$input->getOption('amount');
-            if(!isset($cif_commerce)){
-                $output->writeln("Param cif empty");
-                exit(0);
-            }
-            if(!isset($amount)){
-                $output->writeln("Param amount empty");
-                exit(0);
-            }
-            $user = $repoUser->findOneBy(array('dni'=>$dni_user));
-            if(!$user){
-                $output->writeln("User not found: " . $dni_user);
-                exit(0);
-            }
-            $group = $repoGroup->findOneBy(array('cif'=>$dni_user));
-            if(!$group){
-                $output->writeln("User is not a particular: " . $dni_user);
-                exit(0);
-            }
-            $card = $repoCard->findOneBy(array('user'=>$user->getId(), 'company' => $group->getId()));
-            if($card){
-                $output->writeln("User with card saved: " . $dni_user);
-                exit(0);
-            }
-            $group_commerce = $repoGroup->findOneBy(array('cif'=>$cif_commerce, 'type' => 'COMPANY'));
-            if(!$group_commerce){
-                $output->writeln("Commerce not found: " . $cif_commerce);
-                exit(0);
-            }
-            $request = array();
-            $request['concept'] = 'Internal exchange';
-            $request['amount'] = intval($amount)*100;
-            $request['commerce_id'] = $group_commerce->getId();
-            $request['save_card'] = 1;
-            $response = $transactionManager->createTransaction($request, 1, 'in', 'lemonway', $user->getId(), $group, '127.0.0.1');
-            $tx_id = explode("|", $response);
-            $output->writeln($tx_id[1]);
-            exit(0);
-        }
 
         $csv = $this->parseCSV();
         foreach ($csv as $line) {

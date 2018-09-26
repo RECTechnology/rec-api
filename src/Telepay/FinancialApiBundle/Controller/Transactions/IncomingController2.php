@@ -425,26 +425,31 @@ class IncomingController2 extends RestApiController{
                 throw new HttpException(400,'Missing parameter '.$paramName);
             }
         }
-        $command = $this->container->get('command.delegate.payment');
-        $input = new ArgvInput(
-            array(
-                '--env=prod',
-                '--dni=' . $params['dni'],
-                '--cif=' . $params['cif'],
-                '--amount=' . $params['amount']
-            )
-        );
-        $output = new BufferedOutput();
-        $command->run($input, $output);
-        $mongo = $this->get('doctrine_mongodb')->getManager();
-        $transaction = $mongo->getRepository('TelepayFinancialApiBundle:Transaction')->findOneBy(array(
-            'id'        =>  $output
-        ));
-        $result = array(
-            'id' => $output,
-            'url' => $transaction->getPayInInfo()
-        );
-        return $this->restV2(201,"ok", "Request successful", $result);
+        $em = $this->getDoctrine()->getManager();
+        $user = $em->getRepository('TelepayFinancialApiBundle:User')->findOneBy(array('dni'=>$params['dni']));
+        if(!$user){
+            throw new HttpException(400,'User not found: ' . $params['dni']);
+        }
+
+        $group = $em->getRepository('TelepayFinancialApiBundle:Group')->findOneBy(array('cif'=>$params['dni']));
+        if(!$group){
+            throw new HttpException(400,'User is not a particular: ' . $params['dni']);
+        }
+
+        $card = $em->getRepository('TelepayFinancialApiBundle:CreditCard')->findOneBy(array('user'=>$user->getId(), 'company' => $group->getId()));
+        if($card){
+            throw new HttpException(400,'User with card saved: ' . $params['dni']);
+        }
+        $group_commerce = $em->getRepository('TelepayFinancialApiBundle:Group')->findOneBy(array('cif'=>$params['cif'], 'type' => 'COMPANY'));
+        if(!$group_commerce){
+            throw new HttpException(400,'Commerce not found: ' . $params['cif']);
+        }
+        $request = array();
+        $request['concept'] = 'Internal exchange';
+        $request['amount'] = intval(floatval($params['amount'])*100);
+        $request['commerce_id'] = $group_commerce->getId();
+        $request['save_card'] = 1;
+        return $this->createTransaction($request, 1, 'in', $method_cname, $user->getId(), $group, '127.0.0.1');
     }
 
 
