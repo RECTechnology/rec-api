@@ -440,7 +440,11 @@ class IncomingController2 extends RestApiController{
         $transaction = $mongo->getRepository('TelepayFinancialApiBundle:Transaction')->findOneBy(array(
             'id'        =>  $output
         ));
-        return $this->restTransaction($transaction->getPayInInfo(), "Done");
+        $result = array(
+            'id' => $output,
+            'url' => $transaction->getPayInInfo()
+        );
+        return $this->restV2(201,"ok", "Request successful", $result);
     }
 
 
