@@ -13,6 +13,7 @@ use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpKernel\Exception\HttpException;
 use Telepay\FinancialApiBundle\Controller\RestApiController;
 use FOS\RestBundle\Controller\Annotations as Rest;
+use Symfony\Component\Console\Output\BufferedOutput;
 use Telepay\FinancialApiBundle\DependencyInjection\Telepay\Commons\LimitAdder;
 use Telepay\FinancialApiBundle\DependencyInjection\Telepay\Commons\LimitChecker;
 use Telepay\FinancialApiBundle\Document\Transaction;
@@ -381,7 +382,7 @@ class IncomingController2 extends RestApiController{
             if(isset($data['internal_in']) && $data['internal_in']=='1') {
                 $transaction->setInternal(true);
             }
-             //CASH - IN
+            //CASH - IN
             $logger->info('(' . $group_id . ') Incomig transaction...IN');
             $em->flush();
             $transaction->setUpdated(new \DateTime());
@@ -401,6 +402,42 @@ class IncomingController2 extends RestApiController{
             return $this->methodTransaction(201, $transaction, "Done");
         }
     }
+
+    public function remoteDelegatedTransaction(Request $request, $method_cname){
+        $user = $this->get('security.context')->getToken()->getUser();
+        if($user->getId()!=1){
+            throw new HttpException(400, 'Permission error');
+        }
+        if($method_cname != 'lemonway'){
+            throw new HttpException(400, 'Bad method');
+        }
+        $paramNames = array(
+            'dni',
+            'cif',
+            'amount'
+        );
+        $params = array();
+        foreach ( $paramNames as $paramName){
+            if($request->request->has($paramName)){
+                $params[$paramName] = $request->request->get($paramName);
+            }else{
+                throw new HttpException(400,'Missing parameter '.$paramName);
+            }
+        }
+        $command = $this->container->get('command.delegate.payment');
+        $input = new ArgvInput(
+            array(
+                '--env=prod',
+                '--dni=' . $params['dni'],
+                '--cif=' . $params['cif'],
+                '--amount=' . $params['amount']
+            )
+        );
+        $output = new BufferedOutput();
+        $command->run($input, $output);
+        return $this->restTransaction($output, "Done");
+    }
+
 
     /**
      * @Rest\View

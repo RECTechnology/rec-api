@@ -21,6 +21,27 @@ class DelegatedExchangeCommand extends ContainerAwareCommand
         $this
             ->setName('rec:delegated:exchange')
             ->setDescription('Delegated exchange')
+            ->addOption(
+                'dni',
+                null,
+                InputOption::VALUE_OPTIONAL,
+                'Define transaction user.',
+                null
+            )
+            ->addOption(
+                'cif',
+                null,
+                InputOption::VALUE_OPTIONAL,
+                'Define transaction commerce cif.',
+                null
+            )
+            ->addOption(
+                'amount',
+                null,
+                InputOption::VALUE_OPTIONAL,
+                'Define transaction amount.',
+                null
+            )
         ;
     }
 
@@ -36,8 +57,45 @@ class DelegatedExchangeCommand extends ContainerAwareCommand
         $repoCard = $em->getRepository('TelepayFinancialApiBundle:CreditCard');
         $transactionManager = $this->getContainer()->get('app.incoming_controller');
 
+        $dni_user=$input->getOption('dni');
+        if(isset($dni_user)){
+            $cif_commerce=$input->getOption('dni');
+            $amount=$input->getOption('dni');
+            $user = $repoUser->findOneBy(array('dni'=>$dni_user));
+            if(!$user){
+                $output->writeln("User not found: " . $dni_user);
+                exit(0);
+            }
+            $group = $repoGroup->findOneBy(array('cif'=>$dni_user));
+            if(!$group){
+                $output->writeln("User is not a particular: " . $dni_user);
+                exit(0);
+            }
+            $card = $repoCard->findOneBy(array('user'=>$user->getId(), 'company' => $group->getId()));
+            if($card){
+                $output->writeln("User with card saved: " . $dni_user);
+                exit(0);
+            }
+            $group_commerce = $repoGroup->findOneBy(array('cif'=>$cif_commerce));
+            if(!$group_commerce){
+                $output->writeln("Commerce not found: " . $cif_commerce);
+                exit(0);
+            }
+            $amount = intval($amount)*100;
+            $request = array();
+            $request['concept'] = 'Internal exchange';
+            $request['amount'] = $amount;
+            $request['commerce_id'] = $group_commerce->getId();
+            $request['save_card'] = 1;
+            $response = $transactionManager->createTransaction($request, 1, 'in', 'lemonway', $user->getId(), $group, '127.0.0.1');
+            $output->writeln($response['pay_in_info']['payment_url']);
+            exit(0);
+        }
+
         $csv = $this->parseCSV();
         foreach ($csv as $line) {
+            $request = array();
+
             $dni_user = $line[0];
             $user = $repoUser->findOneBy(array('dni'=>$dni_user));
             if(!$user){
@@ -52,7 +110,11 @@ class DelegatedExchangeCommand extends ContainerAwareCommand
             $card = $repoCard->findOneBy(array('user'=>$user->getId(), 'company' => $group->getId()));
             if(!$card){
                 $output->writeln("User has not a card: " . $dni_user);
-                continue;
+                $request['save_card'] = 1;
+            }
+            else{
+                $request['card_id'] = $card->getId();
+                $request['pin'] = $user->getPIN();
             }
 
             $cif_commerce = $line[1];
@@ -62,18 +124,18 @@ class DelegatedExchangeCommand extends ContainerAwareCommand
                 continue;
             }
             $amount = intval($line[2])*100;
-            $request = array();
             $request['concept'] = 'Internal exchange';
             $request['amount'] = $amount;
             $request['commerce_id'] = $group_commerce->getId();
-            $request['card_id'] = $card->getId();
-            $request['pin'] = $user->getPIN();
 
             $output->writeln('createTransaction');
             sleep(1);
             $response = $transactionManager->createTransaction($request, 1, 'in', 'lemonway', $user->getId(), $group, '127.0.0.1');
             sleep(1);
             $output->writeln($dni_user . " => " . $response);
+            if($request['save_card']==1) {
+                $output->writeln($response['pay_in_info']['payment_url'] . "," . $user->getName() . "," . $line[3] . "," . $line[4] . "," . $line[5] . "," . $line[6]);
+            }
         }
         $output->writeln("DONE");
     }

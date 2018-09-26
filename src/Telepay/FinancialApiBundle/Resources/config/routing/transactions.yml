@@ -7,6 +7,14 @@ method_call_create:
         _method: POST
         service_cname: "[a-z0-9_]+"
 
+method_delegated_create:
+    pattern:  /methods/v1/delegated/{method_cname}
+    defaults: { _controller: Telepay\FinancialApiBundle\Controller\Transactions\IncomingController2::remoteDelegatedTransaction, _format: ~ }
+    requirements:
+        _method: POST
+        service_cname: "[a-z0-9_]+"
+
+
 method_call_update:
     pattern:  /methods/v{version_number}/{type}/{method_cname}/{id}
     defaults: { _controller: Telepay\FinancialApiBundle\Controller\Transactions\IncomingController2::update, _format: ~ }

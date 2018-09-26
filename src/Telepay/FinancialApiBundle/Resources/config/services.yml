@@ -26,8 +26,8 @@ services:
         calls:
             - [setContainer, ["@service_container"] ]
 
-    command.validate.swiftSepa:
-        class: Telepay\FinancialApiBundle\Command\CheckSwiftCommand
+    command.delegate.payment:
+        class: Telepay\FinancialApiBundle\Command\DelegatedExchangeCommand
         calls:
             - [setContainer, ["@service_container"] ]
 
