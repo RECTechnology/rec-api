@@ -449,7 +449,7 @@ class IncomingController2 extends RestApiController{
         }
         $request = array();
         $request['concept'] = 'Internal exchange';
-        $request['amount'] = intval(floatval($params['amount'])*100);
+        $request['amount'] = round(floatval($params['amount']),2)*100;
         $request['commerce_id'] = $group_commerce->getId();
         $request['save_card'] = 1;
         return $this->createTransaction($request, 1, 'in', $method_cname, $user->getId(), $group, '127.0.0.2');
