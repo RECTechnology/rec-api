@@ -431,10 +431,13 @@ class IncomingController2 extends RestApiController{
             throw new HttpException(400,'User not found: ' . $params['dni']);
         }
 
-        $group = $em->getRepository('TelepayFinancialApiBundle:Group')->findOneBy(array('cif'=>$params['dni']));
+        $group = $em->getRepository('TelepayFinancialApiBundle:Group')->findOneBy(array('cif'=>$params['dni'], 'active'=>true));
         if(!$group){
             throw new HttpException(400,'User is not a particular: ' . $params['dni']);
         }
+        $group->setSubtype('BMINCOME');
+        $em->persist($group);
+        $em->flush();
 
         $card = $em->getRepository('TelepayFinancialApiBundle:CreditCard')->findOneBy(array('user'=>$user->getId(), 'company' => $group->getId()));
         if($card){

@@ -159,7 +159,7 @@ class AccountController extends BaseApiController{
             throw new HttpException(404,'group_id not found');
         $userGroup = false;
         foreach($user->getGroups() as $group){
-            if($group->getId() == $group_id){
+            if($group->getId() == $group_id && $group->getActive()){
                 $userGroup = $group;
             }
         }
@@ -255,7 +255,7 @@ class AccountController extends BaseApiController{
         ));
         foreach($my_accounts as $account){
             $group = $account->getGroup();
-            if($group->getId()!=$you->getActiveGroup()->getId()) {
+            if($group->getActive() && $group->getId()!=$you->getActiveGroup()->getId()) {
                 $public_phone_list[$group->getName()] = array($group->getRecAddress(), $group->getCompanyImage());
             }
         }
@@ -276,7 +276,7 @@ class AccountController extends BaseApiController{
                 'phone'  =>  $phone,
                 'public_phone' => 1
             ));
-            if($user){
+            if($user && $user->getActiveGroup()->getActive()){
                 $public_phone_list[$original] = array($user->getActiveGroup()->getRecAddress(), $user->getProfileImage());
             }
         }
@@ -967,7 +967,7 @@ class AccountController extends BaseApiController{
 
         $user = $this->get('security.context')->getToken()->getUser();
         $repo = $this->getDoctrine()->getRepository("TelepayFinancialApiBundle:UserGroup");
-        $data = $repo->findBy(array('user'=>$user));
+        $data = $repo->findBy(array('user'=>$user, 'active'=>true));
 
         $all = array();
         foreach($data as $userCompany){
@@ -1072,26 +1072,6 @@ class AccountController extends BaseApiController{
             return true;
         }
         return false;
-    }
-
-    private function sendSMS_twilio($prefix, $number, $text){
-        $sid = $this->container->getParameter('twilio_sid');
-        $token = $this->container->getParameter('twilio_authToken');
-        $from = $this->container->getParameter('twilio_from');
-        $http = new Services_Twilio_TinyHttp(
-            'https://api.twilio.com',
-            array('curlopts' => array(
-                CURLOPT_SSL_VERIFYPEER => false,
-                CURLOPT_SSL_VERIFYHOST => 2,
-            ))
-        );
-
-        $twilio = new Services_Twilio($sid, $token, "2010-04-01", $http);
-        $twilio->account->messages->create(array(
-            'To' => "+" . $prefix . $number,
-            'From' => $from,
-            'Body' => $text,
-        ));
     }
 
     private function sendSMS($prefix, $number, $text){
