@@ -32,6 +32,10 @@ class CentralWithdrawalCommand extends ContainerAwareCommand
         if($input->getOption('amount')){
             $amount = $input->getOption('amount');
             $amount = intval($amount);
+            if($amount>10000){
+                $output->writeln("Too big amount");
+                exit(0);
+            }
             $em = $this->getContainer()->get('doctrine')->getManager();
 
             $api_url = $this->getContainer()->getParameter('withdrawal_url');
