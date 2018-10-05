@@ -40,6 +40,11 @@ class UserWallet {
      */
     private $balance;
 
+    /**
+     * @ORM\Column(type="float")
+     */
+    private $blockchain = 0;
+
     private $scale;
 
     /**
@@ -85,6 +90,22 @@ class UserWallet {
     public function setAvailable($available)
     {
         $this->available = $available;
+    }
+
+    /**
+     * @return mixed
+     */
+    public function getBlockchain()
+    {
+        return $this->blockchain;
+    }
+
+    /**
+     * @param mixed $blockchain
+     */
+    public function setBlockchain($blockchain)
+    {
+        $this->blockchain = $blockchain;
     }
 
     /**
