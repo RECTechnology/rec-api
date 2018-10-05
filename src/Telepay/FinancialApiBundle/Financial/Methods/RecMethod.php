@@ -195,7 +195,8 @@ class RecMethod extends BaseMethod {
         if(!$address_verification['isvalid']) throw new Exception('Invalid address.', 400);
 
         $saldo = $this->getReceivedByAddress($data['orig_address']);
-        if($saldo < ($params['amount'] / 1e8)) throw new HttpException(403, 'Not enough balance in your account(' . $saldo . ' < ' . $params['amount']/1e8 . ')');
+        if(($saldo + 0.01) < ($params['amount'] / 1e8)) throw new HttpException(403, 'Not enough balance in your account(' . $saldo . ' < ' . $params['amount']/1e8 . ')');
+        if($saldo < ($params['amount'] / 1e8)) $params['amount'] = $saldo * 1e8;
 
         if(array_key_exists('concept', $data)) {
             $params['concept'] = $data['concept'];
@@ -508,7 +509,7 @@ class RecMethod extends BaseMethod {
         global $sort_by_1, $sort_by_2;
         $sort_by_1=$by1;
         $sort_by_2=$by2;
-        uasort($array, '$this->sort_by_fn');
+        uasort($array, array($this, 'sort_by_fn'));
     }
 
     private function sort_by_fn($a, $b){
