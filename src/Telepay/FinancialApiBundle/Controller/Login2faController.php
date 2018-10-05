@@ -20,11 +20,6 @@ class Login2faController extends RestApiController{
         $clientId = $request->get('client_id');
         $clientSecret = $request->get('client_secret');
         $username = strtoupper($request->get('username'));
-        if(strlen($username)<9){
-            for($i = strlen($username); $i<9; $i+=1){
-                $username = "0" . $username;
-            }
-        }
         $username = preg_replace("/[^0-9A-Z]/", "", $username);
         $password = $request->get('password');
         $pin = $request->get('pin');
