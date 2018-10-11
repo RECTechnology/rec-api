@@ -262,7 +262,7 @@ class AccountController extends BaseApiController{
         $phone_list = json_decode($phone_list);
         $clean_phone_list = array();
 
-        $public_users = $em->getRepository($this->getRepositoryName())->findOneBy(array(
+        $public_users = $em->getRepository($this->getRepositoryName())->findAll(array(
             'public_phone' => 1
         ));
 
