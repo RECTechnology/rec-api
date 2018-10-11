@@ -967,15 +967,17 @@ class AccountController extends BaseApiController{
 
         $user = $this->get('security.context')->getToken()->getUser();
         $repo = $this->getDoctrine()->getRepository("TelepayFinancialApiBundle:UserGroup");
-        $data = $repo->findBy(array('user'=>$user, 'active'=>true));
+        $data = $repo->findBy(array('user'=>$user));
 
         $all = array();
         foreach($data as $userCompany){
-            $data_company = array(
-                'company' => $userCompany->getGroup(),
-                'roles' => $userCompany->getRoles()
-            );
-            $all[] = $data_company;
+            if($userCompany->getGroup()->getActive()){
+                $data_company = array(
+                    'company' => $userCompany->getGroup(),
+                    'roles' => $userCompany->getRoles()
+                );
+                $all[] = $data_company;
+            }
         }
 
         $total = count($all);
