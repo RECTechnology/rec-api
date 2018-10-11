@@ -21,8 +21,6 @@ use Telepay\FinancialApiBundle\Entity\UserWallet;
 use Telepay\FinancialApiBundle\Financial\Currency;
 use Telepay\FinancialApiBundle\Controller\Google2FA;
 use FOS\OAuthServerBundle\Util\Random;
-use Services_Twilio_TinyHttp;
-use Services_Twilio;
 
 class AccountController extends BaseApiController{
 
