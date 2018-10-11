@@ -278,6 +278,7 @@ class AccountController extends BaseApiController{
             foreach($public_users as $user){
                 if(($user->getPhone() == $phone) && $user->getActiveGroup()->getActive()){
                     $public_phone_list[$original] = array($user->getActiveGroup()->getRecAddress(), $user->getProfileImage());
+                    continue;
                 }
             }
         }
