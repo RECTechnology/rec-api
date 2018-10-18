@@ -158,71 +158,14 @@ class UsersController extends BaseApiController
      * Permissions: ROLE_READONLY(active_group), ROLE_SUPER_ADMIN(all)
      */
     public function indexByGroup(Request $request, $id){
-
         //Only the superadmin can access here
         $admin = $this->get('security.context')->getToken()->getUser();
         $adminGroup = $admin->getActiveGroup();
 
-        if(!$this->get('security.context')->isGranted('ROLE_SUPER_ADMIN') && $adminGroup->getId() != $id)
-            throw new HttpException(403,'You don\'t have the necessary permissions');
-
-        if($request->query->has('limit')) $limit = $request->query->get('limit');
-        else $limit = 10;
-
-        if($request->query->has('offset')) $offset = $request->query->get('offset');
-        else $offset = 0;
-
-        $current_group = $this->getDoctrine()->getRepository('TelepayFinancialApiBundle:Group')->find($id);
-        if(!$current_group) throw new HttpException(404, 'Group not found');
-
-        $all = $this->getRepository()->findAll();
-
-        $filtered = [];
-        foreach($all as $user){
-            if(count($user->getGroups()) >= 1){
-                $groups = $user->getGroups();
-                foreach($groups as $group){
-                    if($group->getId() == $id){
-                        $user->setRoles($user->getRolesCompany($group->getId()));
-                        $filtered []= $user;
-                    }
-                }
-            }
+        if(!$this->get('security.context')->isGranted('ROLE_SUPER_ADMIN') && $adminGroup->getId() != $id) {
+            throw new HttpException(403, 'You don\'t have the necessary permissions');
         }
 
-        $total = count($filtered);
-
-        $entities = array_slice($filtered, $offset, $limit);
-        array_map(function($elem){
-            $elem->setAccessToken(null);
-            $elem->setRefreshToken(null);
-            $elem->setAuthCode(null);
-        }, $entities);
-
-        return $this->rest(
-            200,
-            "Request successful",
-            array(
-                'total' => $total,
-                'start' => intval($offset),
-                'end' => count($entities)+$offset,
-                'elements' => $entities
-            )
-        );
-    }
-
-    /**
-     * @Rest\View
-     * Permissions: ROLE_RESELLER
-     */
-    public function indexByCompany(Request $request, $id){
-
-        $admin = $this->get('security.context')->getToken()->getUser();
-        $adminGroup = $admin->getActiveGroup();
-
-        //check role reseller
-        if(!$adminGroup->hasRole("ROLE_RESELLER")) throw new HttpException(403, 'You don\'t have the necessary permissions');
-
         if($request->query->has('limit')) $limit = $request->query->get('limit');
         else $limit = 10;
 
@@ -232,19 +175,12 @@ class UsersController extends BaseApiController
         $current_group = $this->getDoctrine()->getRepository('TelepayFinancialApiBundle:Group')->find($id);
         if(!$current_group) throw new HttpException(404, 'Group not found');
 
-        $all = $this->getRepository()->findAll();
+        $all = $current_group->getUsers();
 
         $filtered = [];
         foreach($all as $user){
-            if(count($user->getGroups()) >= 1){
-                $groups = $user->getGroups();
-                foreach($groups as $group){
-                    if($group->getId() == $id){
-                        $user->setRoles($user->getRolesCompany($group->getId()));
-                        $filtered []= $user;
-                    }
-                }
-            }
+            $user->setRoles($user->getRolesCompany($current_group->getId()));
+            $filtered []= $user;
         }
 
         $total = count($filtered);
