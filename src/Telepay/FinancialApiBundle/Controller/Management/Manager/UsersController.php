@@ -175,10 +175,13 @@ class UsersController extends BaseApiController
         $current_group = $this->getDoctrine()->getRepository('TelepayFinancialApiBundle:Group')->find($id);
         if(!$current_group) throw new HttpException(404, 'Group not found');
 
-        $all = $current_group->getUsers();
+        $all = $this->getDoctrine()->getRepository('TelepayFinancialApiBundle:UserGroup')->findBy(
+            array('group'=>$current_group)
+        );
 
         $filtered = [];
-        foreach($all as $user){
+        foreach($all as $user_group){
+            $user = $user_group->getUser();
             $user->setRoles($user->getRolesCompany($current_group->getId()));
             $filtered []= $user;
         }
