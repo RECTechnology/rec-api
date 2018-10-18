@@ -194,16 +194,8 @@ class UsersController extends BaseApiController
                     "profile_image" => $user->getProfileImage(),
                 );
         }
-
         $total = count($filtered);
-
         $entities = array_slice($filtered, $offset, $limit);
-        array_map(function($elem){
-            $elem->setAccessToken(null);
-            $elem->setRefreshToken(null);
-            $elem->setAuthCode(null);
-        }, $entities);
-
         return $this->rest(
             200,
             "Request successful",
