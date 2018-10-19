@@ -87,13 +87,20 @@ class BankAccountController extends BaseApiController{
             throw new HttpException(403, 'You don\'t have the necessary permissions');
 
         if(!$account) throw new HttpException(404, 'Bank account not found');
-/*
-        if($request->request->has('alias')){
-            $account->setAlias($request->request->get('alias'));
+
+        if($request->request->has('iban')){
+            if(!$this->checkIBAN($request->request->get('iban'))){
+                throw new HttpException(404, 'Incorrect IBAN');
+            }
+            $account->setIban($request->request->get('iban'));
         }
+
+        if($request->request->has('owner')){
+            $account->setOwner($request->request->get('owner'));
+        }
+
         $em->persist($account);
         $em->flush();
-*/
         return $this->restV2(204, 'ok', 'Bank account updated successfully');
     }
 
@@ -131,7 +138,7 @@ class BankAccountController extends BaseApiController{
                 $NewString .= $MovedCharArray[$key];
             }
 
-            if(bcmod($NewString, '97') == 1)
+            if($this->my_bcmod($NewString, '97') == 1)
             {
                 return true;
             }
@@ -143,4 +150,20 @@ class BankAccountController extends BaseApiController{
             return false;
         }
     }
+
+    private function my_bcmod( $x, $y ){
+        // how many numbers to take at once? carefull not to exceed (int)
+        $take = 5;
+        $mod = '';
+
+        do{
+            $a = (int)$mod.substr( $x, 0, $take );
+            $x = substr( $x, $take );
+            $mod = $a % $y;
+        }
+        while ( strlen($x) );
+
+        return (int)$mod;
+    }
+
 }
