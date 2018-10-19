@@ -262,23 +262,26 @@ class AccountController extends BaseApiController{
         $phone_list = json_decode($phone_list);
         $clean_phone_list = array();
 
-        $public_users = $em->getRepository($this->getRepositoryName())->findAll(array(
-            'public_phone' => 1
-        ));
-
         foreach ($phone_list as $phone) {
             $original = $phone;
             $phone = preg_replace('/[^0-9]/', '', $phone);
             $phone = substr($phone, -9);
-            if(!in_array($phone, $clean_phone_list)) {
-                $clean_phone_list[$original] = $phone;
-            }
+            $clean_phone_list[$original] = $phone;
         }
+
+        $public_users = $em->getRepository($this->getRepositoryName())->findBy(array(
+            'public_phone' => 1
+        ));
+
+        $selected = array($you->getPhone());
+
         foreach ($clean_phone_list as $original=>$phone) {
-            foreach($public_users as $user){
-                if(($user->getPhone() == $phone) && $user->getActiveGroup()->getActive()){
-                    $public_phone_list[$original] = array($user->getActiveGroup()->getRecAddress(), $user->getProfileImage());
-                    continue;
+            if(!in_array($phone,$selected)){
+                foreach($public_users as $user){
+                    if(($user->getPhone() == $phone) && $user->getActiveGroup()->getActive()){
+                        $public_phone_list[$original] = array($user->getActiveGroup()->getRecAddress(), $user->getProfileImage());
+                        $selected[] = $phone;
+                    }
                 }
             }
         }
