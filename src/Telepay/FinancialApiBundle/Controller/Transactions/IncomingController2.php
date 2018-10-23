@@ -350,10 +350,14 @@ class IncomingController2 extends RestApiController{
                 $logger->error('Incomig transaction...ERROR '.$e->getMessage());
 
                 if(isset($payment_info['inputs'])) {
-                    $logger->error('REC_ERROR '.$payment_info['inputs']);
-                    $logger->error('REC_ERROR '.$payment_info['outputs']);
-                    $logger->error('REC_ERROR '.$payment_info['metadata_len']);
-                    $logger->error('REC_ERROR '.$payment_info['input_total']);
+                    $logger->error('REC_ERROR Inputs:'.$payment_info['inputs']);
+                    $logger->error('REC_ERROR Outputs:'.$payment_info['outputs']);
+                    $logger->error('REC_ERROR met_len:'.$payment_info['metadata_len']);
+                    $logger->error('REC_ERROR in_total'.$payment_info['input_total']);
+                    if(isset($payment_info['message'])){
+                        $logger->error('REC_ERROR response:'.$payment_info['message']);
+                        $logger->error('REC_ERROR hex_len'.$payment_info['len']);
+                    }
                 }
 
                 if($e->getCode() >= 500){

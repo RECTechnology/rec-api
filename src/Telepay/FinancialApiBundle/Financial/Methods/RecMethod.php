@@ -263,13 +263,24 @@ class RecMethod extends BaseMethod {
         $crypto = $this->send_with_OP_RETURN_data($orig_address, $dest_address, $amount/1e8, $data);
         if(isset($crypto['error'])){
             $response['status'] = Transaction::$STATUS_FAILED;
-            $response['final'] = true;
             $response['error'] = $crypto['error'];
         }else{
             $response['txid'] = $crypto['txid'];
             $response['status'] = 'sent';
-            $response['final'] = true;
         }
+
+        if(isset($crypto['inputs'])) {
+            $response['inputs'] = $crypto['inputs'];
+            $response['outputs'] = $crypto['outputs'];
+            $response['metadata_len'] = $crypto['metadata_len'];
+            $response['input_total'] = $crypto['input_total'];
+        }
+        if(isset($crypto['message'])){
+            $response['message'] = $crypto['message'];
+            $response['len'] = $crypto['len'];
+        }
+        $response['final'] = true;
+
         return $response;
     }
 
@@ -317,6 +328,10 @@ class RecMethod extends BaseMethod {
                 }
             }
         }
+        $sent_info['inputs'] = count($inputs_spend['inputs']);
+        $sent_info['outputs'] = count($outputs);
+        $sent_info['metadata_len'] = $metadata_len;
+        $sent_info['input_total'] = $inputs_spend['total'];
         return $sent_info;
     }
 
@@ -468,9 +483,12 @@ class RecMethod extends BaseMethod {
 
         $send_txid = $this->driver->sendrawtransaction($signed_txn['hex']);
         if (strlen($send_txid)!=64) {
-            return array('error' => 'Could not send the transaction');
+            return array(
+                'error' => 'Could not send the transaction.',
+                'message' => $send_txid,
+                'len' => strlen($signed_txn['hex'])
+            );
         }
-
         return array('txid' => $send_txid);
     }
 
