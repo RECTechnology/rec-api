@@ -89,6 +89,7 @@ class IncomingController2 extends RestApiController{
     public function createTransaction($data, $version_number, $type, $method_cname, $user_id, $group, $ip){
         $logger = $this->get('transaction.logger');
         $group_id = $group->getId();
+        $logger->info('(' . $group_id . ')(T) INIT');
         $logger->info('(' . $group_id . ') Incomig transaction...Method-> '.$method_cname.' Direction -> '.$type);
         $method = $this->get('net.telepay.'.$type.'.'.$method_cname.'.v'.$version_number);
         $dm = $this->get('doctrine_mongodb')->getManager();
@@ -97,6 +98,7 @@ class IncomingController2 extends RestApiController{
         $user = $em->getRepository('TelepayFinancialApiBundle:User')->findOneBy(array(
             'id' => $user_id
         ));
+        $logger->info('(' . $group_id . ')(T) FIND USER');
 
         //obtain wallet and check founds for cash_out services for this group
         $wallet = $group->getWallet($method->getCurrency());
@@ -107,6 +109,7 @@ class IncomingController2 extends RestApiController{
         else{
             throw new HttpException(400, 'Param amount not found or incorrect');
         }
+        $logger->info('(' . $group_id . ')(T) CHECK AMOUNT');
 
         if($type == 'out'){
             if($wallet->getAvailable() < $amount) throw new HttpException(405,'Not founds enough');
@@ -120,6 +123,7 @@ class IncomingController2 extends RestApiController{
                 throw new HttpException(400, 'Param pin not found or incorrect');
             }
         }
+        $logger->info('(' . $group_id . ')(T) CHECK PIN');
 
         $transaction = Transaction::createFromRequestIP($ip);
         $transaction->setService($method_cname);
@@ -131,6 +135,8 @@ class IncomingController2 extends RestApiController{
         $transaction->setType($type);
         $transaction->setInternal(false);
         $dm->persist($transaction);
+        $logger->info('(' . $group_id . ')(T) CREATE TRANSACTION');
+
 
         if(array_key_exists('concept', $data) && $data['concept']!=''){
             $concept = $data['concept'];
@@ -141,6 +147,7 @@ class IncomingController2 extends RestApiController{
         if(array_key_exists('url_notification', $data)) $url_notification = $data['url_notification'];
         else $url_notification = '';
         $logger->info('(' . $group_id . ') Incomig transaction...getPaymentInfo for company '.$group->getId());
+        $logger->info('(' . $group_id . ')(T) URL AND CONCEPT');
 
         if($type == 'in'){
             $dataIn = array(
@@ -149,6 +156,7 @@ class IncomingController2 extends RestApiController{
                 'url_notification'  =>  $url_notification
             );
             if($method_cname == 'lemonway'){
+                $logger->info('(' . $group_id . ')(T) LEMON');
                 if(isset($data['commerce_id'])){
                     $commerce = $em->getRepository('TelepayFinancialApiBundle:Group')->findOneBy(array(
                         'id' => $data['commerce_id'],
@@ -162,6 +170,7 @@ class IncomingController2 extends RestApiController{
                     throw new HttpException(400, 'Param commerce_id not found');
                 }
                 if(isset($data['card_id'])){
+                    $logger->info('(' . $group_id . ')(T) WITH CARD');
                     if(array_key_exists('pin', $data) && $data['pin']!='' && intval($data['pin'])>0){
                         $pin = $data['pin'];
                         if($user->getPIN()!=$pin){
@@ -187,19 +196,24 @@ class IncomingController2 extends RestApiController{
                 else{
                     $data['save_card']=false;
                 }
+                $logger->info('(' . $group_id . ')(T) SAVE CARD');
                 $payment_info = $method->getPayInInfoWithCommerce($data);
+                $logger->info('(' . $group_id . ')(T) GET LEMON INFO');
                 $transaction->setInternal(true);
                 $transaction->setStatus($payment_info['status']);
                 if($transaction->getStatus() == Transaction::$STATUS_RECEIVED){
+                    $logger->info('(' . $group_id . ')(T) LEMON RECEIVED');
                     $sentInfo = array(
                         'to' => $commerce->getCIF(),
                         'amount' => number_format($transaction->getAmount()/100, 2)
                     );
                     $logger->info('(' . $commerce->getCIF() . ') euros balance sent');
+                    $logger->info('(' . $group_id . ')(T) LEMON SENT');
                     $method->send($sentInfo);
                 }
             }
             else{
+                $logger->info('(' . $group_id . ')(T) GET PAY IN INFO');
                 if(!isset($data['txid'])){
                     $payment_info = $method->getPayInInfo($group->getId(), $amount);
                 }
@@ -207,11 +221,13 @@ class IncomingController2 extends RestApiController{
                     $payment_info = $method->getPayInInfoWithData($data);
                 }
             }
+            $logger->info('(' . $group_id . ')(T) CHECK CONCEPT AND EXPIRED');
             $payment_info['concept'] = $concept;
             if(isset($data['expires_in']) && $data['expires_in'] > 99){
                 $payment_info['expires_in'] = $data['expires_in'];
             }
             if(isset($data['sender']) && $data['sender']!='') {
+                $logger->info('(' . $group_id . ')(T) SENDER INFO');
                 $sender_id = $data['sender'];
                 if($sender_id == '0'){
                     $payment_info['image_sender'] = "";
@@ -225,10 +241,11 @@ class IncomingController2 extends RestApiController{
                     $payment_info['name_sender'] = $sender->getName();
                 }
             }
+            $logger->info('(' . $group_id . ')(T) SET PAY IN INFO');
             $transaction->setPayInInfo($payment_info);
         }
         else{
-            $logger->info('(' . $group_id . ') else');
+            $logger->info('(' . $group_id . ')(T) SET PAY OUT INFO');
             $data['orig_address'] = $group->getRecAddress();
             $payment_info = $method->getPayOutInfoData($data);
             $transaction->setPayOutInfo($payment_info);
@@ -240,22 +257,24 @@ class IncomingController2 extends RestApiController{
         }
         $transaction->setDataIn($dataIn);
 
-        $logger->info('(' . $group_id . ') Incomig transaction...FEES');
-
-        $fee_handler = $this->container->get('net.telepay.commons.fee_manipulator');
-        $group_commission = $fee_handler->getMethodFees($group, $method);
+        $logger->info('(' . $group_id . ')(T) FEES');
+        //$fee_handler = $this->container->get('net.telepay.commons.fee_manipulator');
+        //$group_commission = $fee_handler->getMethodFees($group, $method);
 
         $amount = $dataIn['amount'];
         $transaction->setAmount($amount);
 
         //add commissions to check
-        $fixed_fee = $group_commission->getFixed();
-        $variable_fee = round(($group_commission->getVariable()/100) * $amount, 0);
+        //$fixed_fee = $group_commission->getFixed();
+        $fixed_fee = 0;
+        //$variable_fee = round(($group_commission->getVariable()/100) * $amount, 0);
+        $variable_fee = 0;
         $total_fee = $fixed_fee + $variable_fee;
 
         //add fee to transaction
         $transaction->setVariableFee($variable_fee);
         $transaction->setFixedFee($fixed_fee);
+        $logger->info('(' . $group_id . ')(T) FEES SET');
 
         //check if is cash-out
         if($type == 'out'){
@@ -267,13 +286,15 @@ class IncomingController2 extends RestApiController{
             $transaction->setTotal($amount);
         }
 
-        $logger->info('(' . $group_id . ') Incomig transaction...LIMITS');
+        $logger->info('(' . $group_id . ')(T) LIMITS');
 
         //check limits with 30 days success/received/created transactions
         //get limit manipulator
         $limitManipulator = $this->get('net.telepay.commons.limit_manipulator');
 
+        $logger->info('(' . $group_id . ')(T) INIT LIMITS');
         $limitManipulator->checkLimits($group, $method, $amount);
+        $logger->info('(' . $group_id . ')(T) END LIMITS');
 
         $transaction->setCurrency($method->getCurrency());
         $transaction->setScale($wallet->getScale());
@@ -283,6 +304,7 @@ class IncomingController2 extends RestApiController{
         }
 
         if($type == 'out'){
+            $logger->info('(' . $group_id . ')(T) OUT');
             if(isset($data['internal_out']) && $data['internal_out']=='1') {
                 $transaction->setInternal(true);
             }
@@ -291,6 +313,7 @@ class IncomingController2 extends RestApiController{
             $destination = $em->getRepository('TelepayFinancialApiBundle:Group')->findOneBy(array(
                 'rec_address' => $payment_info['address']
             ));
+            $logger->info('(' . $group_id . ')(T) CHECK ADDRESS');
 
             if(!$destination){
                 throw new HttpException(405,'Destination address does not exists');
@@ -300,6 +323,7 @@ class IncomingController2 extends RestApiController{
                 throw new HttpException(405,'Error, destination address is equal than origin address');
             }
 
+            $logger->info('(' . $group_id . ')(T) DEFINE PAYMENT DATA');
             $payment_info['orig_address'] = $group->getRecAddress();
             $payment_info['orig_nif'] = $user->getDNI();
             $payment_info['orig_group_nif'] = $group->getCif();
@@ -312,14 +336,25 @@ class IncomingController2 extends RestApiController{
 
             $logger->info('(' . $group_id . ') Incomig transaction...SEND');
 
+            $logger->info('(' . $group_id . ')(T) BLOCK MONEY');
             //Bloqueamos la pasta en el wallet
             $wallet->setAvailable($wallet->getAvailable() - $amount);
             $em->flush();
 
             try {
+                $logger->info('(' . $group_id . ')(T) INIT SEND');
                 $payment_info = $method->send($payment_info);
+                $logger->info('(' . $group_id . ')(T) END SEND');
             }catch (Exception $e){
+                $logger->info('(' . $group_id . ')(T) SEND ERROR');
                 $logger->error('Incomig transaction...ERROR '.$e->getMessage());
+
+                if(isset($payment_info['inputs'])) {
+                    $logger->error('REC_ERROR '.$payment_info['inputs']);
+                    $logger->error('REC_ERROR '.$payment_info['outputs']);
+                    $logger->error('REC_ERROR '.$payment_info['metadata_len']);
+                    $logger->error('REC_ERROR '.$payment_info['input_total']);
+                }
 
                 if($e->getCode() >= 500){
                     $transaction->setStatus(Transaction::$STATUS_FAILED);
@@ -333,17 +368,19 @@ class IncomingController2 extends RestApiController{
                 $dm->flush();
 
                 $this->container->get('notificator')->notificate($transaction);
+                $logger->info('(' . $group_id . ')(T) END ALL');
                 throw new HttpException($e->getCode(), $e->getMessage());
             }
             $txid = $payment_info['txid'];
             $payment_info['image_receiver'] = $destination->getCompanyImage();
             $payment_info['name_receiver'] = $destination->getName();
-            $logger->info('(' . $group_id . ') Incomig transaction...PAYMENT STATUS: '.$payment_info['status']);
+            $logger->info('(' . $group_id . ')(T) STATUS => ' . $payment_info['status']);
 
             $transaction->setPayOutInfo($payment_info);
             $dm->flush();
 
             if( $payment_info['status'] == 'sent' || $payment_info['status'] == 'sending'){
+                $logger->info('(' . $group_id . ')(T) SENT OR SENDING');
                 if($payment_info['status'] == 'sent') $transaction->setStatus(Transaction::$STATUS_SUCCESS);
                 else $transaction->setStatus('sending');
 
@@ -355,6 +392,7 @@ class IncomingController2 extends RestApiController{
 
                 $dm->flush();
                 $em->flush();
+                $logger->info('(' . $group_id . ')(T) SAVE ALL');
 
                 $params = array(
                     'amount' => $amount,
@@ -367,9 +405,9 @@ class IncomingController2 extends RestApiController{
                     $params['internal_tx']='1';
                     $params['destionation_id']=$data['destionation_id'];
                 }
-                $logger->info('(' . $group_id . ') Incomig transaction... Create New');
+                $logger->info('(' . $group_id . ')(T) Incomig transaction... Create New');
                 $this->createTransaction($params, $version_number, 'in', $method_cname, $destination->getKycManager()->getId(), $destination, '127.0.0.1');
-                $logger->info('(' . $group_id . ') Incomig transaction... New created');
+                $logger->info('(' . $group_id . ')(T) Incomig transaction... New created');
             }
             else{
                 $transaction->setStatus($payment_info['status']);
@@ -377,9 +415,11 @@ class IncomingController2 extends RestApiController{
                 $wallet->setAvailable($wallet->getAvailable() + $amount);
                 $em->flush();
                 $dm->flush();
+                $logger->info('(' . $group_id . ')(T) SAVE DATA');
             }
         }
         else{
+            $logger->info('(' . $group_id . ')(T) IS INTERNAL?');
             if(isset($data['internal_in']) && $data['internal_in']=='1') {
                 $transaction->setInternal(true);
             }
@@ -390,16 +430,17 @@ class IncomingController2 extends RestApiController{
             $dm->flush();
         }
 
+        $logger->info('(' . $group_id . ')(T) INIT NOTIFICATION');
         $this->container->get('notificator')->notificate($transaction);
-        $logger->info('(' . $group_id . ') Incomig transaction...DONE');
+        $logger->info('(' . $group_id . ')(T) END NOTIFICATION');
         if($transaction == false) throw new HttpException(500, "oOps, some error has occurred within the call");
         if($user_id == -1 || $ip == '127.0.0.1'){
-            $logger->info('(' . $group_id . ') Incomig transaction... return string');
-            $logger->info('(' . $group_id . ') Incomig transaction... FINAL');
+            $logger->info('(' . $group_id . ')(T) Incomig transaction... return string');
+            $logger->info('(' . $group_id . ')(T) FINAL');
             return 'Transaction generated: ' . $transaction->getStatus();
         }else{
-            $logger->info('(' . $group_id . ') Incomig transaction... return http format');
-            $logger->info('(' . $group_id . ') Incomig transaction... FINAL');
+            $logger->info('(' . $group_id . ')(T) Incomig transaction... return http format');
+            $logger->info('(' . $group_id . ')(T) FINAL');
             return $this->methodTransaction(201, $transaction, "Done");
         }
     }
