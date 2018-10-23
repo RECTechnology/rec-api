@@ -347,16 +347,14 @@ class IncomingController2 extends RestApiController{
                 $logger->info('(' . $group_id . ')(T) END SEND');
             }catch (Exception $e){
                 $logger->info('(' . $group_id . ')(T) SEND ERROR');
-                $logger->error('Incomig transaction...ERROR '.$e->getMessage());
-
                 if(isset($payment_info['inputs'])) {
-                    $logger->error('REC_ERROR Inputs:'.$payment_info['inputs']);
-                    $logger->error('REC_ERROR Outputs:'.$payment_info['outputs']);
-                    $logger->error('REC_ERROR met_len:'.$payment_info['metadata_len']);
-                    $logger->error('REC_ERROR in_total'.$payment_info['input_total']);
+                    $logger->info('REC_INFO_ERROR Inputs:'.$payment_info['inputs']);
+                    $logger->info('REC_INFO_ERROR Outputs:'.$payment_info['outputs']);
+                    $logger->info('REC_INFO_ERROR met_len:'.$payment_info['metadata_len']);
+                    $logger->info('REC_INFO_ERROR in_total'.$payment_info['input_total']);
                     if(isset($payment_info['message'])){
-                        $logger->error('REC_ERROR response:'.$payment_info['message']);
-                        $logger->error('REC_ERROR hex_len'.$payment_info['len']);
+                        $logger->info('REC_INFO_ERROR response:'.$payment_info['message']);
+                        $logger->info('REC_INFO_ERROR hex_len'.$payment_info['len']);
                     }
                 }
 
@@ -371,9 +369,21 @@ class IncomingController2 extends RestApiController{
                 $em->flush();
                 $dm->flush();
 
+                $logger->info('(' . $group_id . ')(T) INIT ERROR NOTIFICATION');
                 $this->container->get('notificator')->notificate($transaction);
+                $logger->info('(' . $group_id . ')(T) END ERROR NOTIFICATION');
                 $logger->info('(' . $group_id . ')(T) END ALL');
                 throw new HttpException($e->getCode(), $e->getMessage());
+            }
+            if(isset($payment_info['inputs'])) {
+                $logger->info('REC_INFO Inputs:'.$payment_info['inputs']);
+                $logger->info('REC_INFO Outputs:'.$payment_info['outputs']);
+                $logger->info('REC_INFO met_len:'.$payment_info['metadata_len']);
+                $logger->info('REC_INFO in_total'.$payment_info['input_total']);
+                if(isset($payment_info['message'])){
+                    $logger->info('REC_INFO response:'.$payment_info['message']);
+                    $logger->info('REC_INFO hex_len'.$payment_info['len']);
+                }
             }
             $txid = $payment_info['txid'];
             $payment_info['image_receiver'] = $destination->getCompanyImage();
