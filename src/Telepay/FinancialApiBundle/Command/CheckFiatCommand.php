@@ -42,7 +42,7 @@ class CheckFiatCommand extends SyncronizedContainerAwareCommand{
                 ->field('method')->equals($method)
                 ->field('type')->equals($type)
                 ->field('status')->in(array('created', 'received'))
-                ->limit(3)
+                ->limit(1)
                 ->getQuery();
 
             foreach ($qb->toArray() as $transaction) {
