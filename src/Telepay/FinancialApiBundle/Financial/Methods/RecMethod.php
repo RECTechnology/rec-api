@@ -277,6 +277,8 @@ class RecMethod extends BaseMethod {
         }
         if(isset($crypto['message'])){
             $response['message'] = $crypto['message'];
+            $response['len_message'] = $crypto['len_message'];
+            $response['raw'] = $crypto['raw'];
             $response['len'] = $crypto['len'];
         }
         $response['final'] = true;
@@ -308,12 +310,26 @@ class RecMethod extends BaseMethod {
 
         $change_amount=$inputs_spend['total']-$output_amount;
         $change_address = $this->driver->getrawchangeaddress($orig_account);
-        $outputs=array($send_address => (float)$send_amount);
+        $outputs=array($send_address => round((float)$send_amount),8);
 
         if ($change_amount >= $this->OP_RETURN_BTC_DUST) {
-            $outputs[$change_address] = $change_amount;
+            $outputs[$change_address] = round($change_amount,8);
         }
         $raw_txn=$this->create_txn($inputs_spend['inputs'], $outputs, $metadata, count($outputs));
+        if($raw_txn=='00000000000000000000'){
+            $data = array($inputs_spend['inputs'], $outputs, $metadata, count($outputs));
+            return array(
+                'error' => 'Create txn error',
+                'message' => json_encode($data),
+                'len_message' => strlen(json_encode($data)),
+                'raw' => $raw_txn,
+                'len' => strlen($metadata),
+                'inputs' => count($inputs_spend['inputs']),
+                'outputs' => count($outputs),
+                'metadata_len' => $metadata_len,
+                'input_total' => $inputs_spend['total']
+            );
+        }
 
         //	Sign and send the transaction, return result
         $sent_info = $this->sign_send_txn($raw_txn);
@@ -480,12 +496,23 @@ class RecMethod extends BaseMethod {
         if (!$signed_txn['complete']) {
             return array('error' => 'Could not sign the transaction');
         }
+        elseif ($signed_txn['hex']=='00000000000000000000'){
+            return array(
+                'error' => 'Error signing the transaction',
+                'message' => json_encode($signed_txn),
+                'len_message' => strlen($signed_txn),
+                'raw' => $raw_txn,
+                'len' => strlen($signed_txn['hex'])
+            );
+        }
 
         $send_txid = $this->driver->sendrawtransaction($signed_txn['hex']);
         if (strlen($send_txid)!=64) {
             return array(
                 'error' => 'Could not send the transaction.',
                 'message' => $send_txid,
+                'len_message' => strlen($send_txid),
+                'raw' => $signed_txn['hex'],
                 'len' => strlen($signed_txn['hex'])
             );
         }
