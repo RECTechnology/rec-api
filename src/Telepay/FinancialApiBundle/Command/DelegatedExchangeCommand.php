@@ -77,9 +77,11 @@ class DelegatedExchangeCommand extends ContainerAwareCommand
             $response = $transactionManager->createTransaction($request, 1, 'in', 'lemonway', $user->getId(), $group, '127.0.0.1');
             sleep(1);
             $output->writeln($dni_user . " => " . $response);
+            /*
             if($request['save_card']==1) {
-                $output->writeln($response['pay_in_info']['payment_url'] . "," . $user->getName() . "," . $line[3] . "," . $line[4] . "," . $line[5] . "," . $line[6]);
+                $output->writeln("DONE with saved: " . $dni_user);
             }
+            */
         }
         $output->writeln("DONE");
     }
