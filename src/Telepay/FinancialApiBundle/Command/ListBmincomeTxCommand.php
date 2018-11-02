@@ -60,7 +60,7 @@ class ListBmincomeTxCommand extends ContainerAwareCommand{
             foreach ($qb->toArray() as $transaction) {
                 $created = $transaction->getCreated();
                 $data = $transaction->getPayInInfo();
-                $text = $account->getId() . $wallet->getBalance()/100000000 . "," . $account->getCIF() . "," . $transaction->getMethod() . "," . $transaction->getStatus() . "," . $transaction->getAmount()/100 . "," . $data['concept'] . "," . $created->format('Y-m-d H:i:s');
+                $text = $account->getId() . "," . $wallet->getBalance()/100000000 . "," . $account->getCIF() . "," . $transaction->getMethod() . "," . $transaction->getStatus() . "," . $transaction->getAmount()/100 . "," . $data['concept'] . "," . $created->format('Y-m-d H:i:s');
                 $output->writeln($text);
             }
         }
