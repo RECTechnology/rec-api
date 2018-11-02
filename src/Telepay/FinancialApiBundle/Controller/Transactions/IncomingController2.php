@@ -351,10 +351,11 @@ class IncomingController2 extends RestApiController{
                     $logger->info('REC_INFO_ERROR Inputs:'.$payment_info['inputs']);
                     $logger->info('REC_INFO_ERROR Outputs:'.$payment_info['outputs']);
                     $logger->info('REC_INFO_ERROR met_len:'.$payment_info['metadata_len']);
-                    $logger->info('REC_INFO_ERROR in_total'.$payment_info['input_total']);
+                    $logger->info('REC_INFO_ERROR in_total:'.$payment_info['input_total']);
                     if(isset($payment_info['message'])){
                         $logger->info('REC_INFO_ERROR response:'.$payment_info['message']);
-                        $logger->info('REC_INFO_ERROR hex_len'.$payment_info['len']);
+                        $logger->info('REC_INFO len_message:'.$payment_info['len_message']);
+                        $logger->info('REC_INFO hex_len:'.$payment_info['len']);
                     }
                 }
 
@@ -376,13 +377,17 @@ class IncomingController2 extends RestApiController{
                 throw new HttpException($e->getCode(), $e->getMessage());
             }
             if(isset($payment_info['inputs'])) {
+                if($payment_info['status']=='failed'){
+                    $logger->info('REC_INFO_ERROR');
+                }
                 $logger->info('REC_INFO Inputs:'.$payment_info['inputs']);
                 $logger->info('REC_INFO Outputs:'.$payment_info['outputs']);
                 $logger->info('REC_INFO met_len:'.$payment_info['metadata_len']);
-                $logger->info('REC_INFO in_total'.$payment_info['input_total']);
+                $logger->info('REC_INFO in_total:'.$payment_info['input_total']);
                 if(isset($payment_info['message'])){
                     $logger->info('REC_INFO response:'.$payment_info['message']);
-                    $logger->info('REC_INFO hex_len'.$payment_info['len']);
+                    $logger->info('REC_INFO len_message:'.$payment_info['len_message']);
+                    $logger->info('REC_INFO hex_len:'.$payment_info['len']);
                 }
             }
             $txid = $payment_info['txid'];
@@ -504,7 +509,7 @@ class IncomingController2 extends RestApiController{
         }
         $request = array();
         $request['concept'] = 'Internal exchange';
-        $request['amount'] = round(floatval($params['amount']),2)*100;
+        $request['amount'] = $params['amount'];
         $request['commerce_id'] = $group_commerce->getId();
         $request['save_card'] = 1;
         return $this->createTransaction($request, 1, 'in', $method_cname, $user->getId(), $group, '127.0.0.2');
