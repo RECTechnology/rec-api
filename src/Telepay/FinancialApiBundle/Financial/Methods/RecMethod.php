@@ -287,10 +287,12 @@ class RecMethod extends BaseMethod {
     }
 
     private function send_with_OP_RETURN_data($orig_address, $send_address, $send_amount, $metadata){
+        /*
         $result = $this->driver->validateaddress($send_address);
         if (!$result['isvalid']) {
             return array('error' => 'Send address could not be validated: ' . $send_address);
         }
+        */
 
         $metadata_len=strlen($metadata);
 
@@ -310,7 +312,8 @@ class RecMethod extends BaseMethod {
 
         $change_amount=$inputs_spend['total']-$output_amount;
         $change_address = $this->driver->getrawchangeaddress($orig_account);
-        $outputs=array($send_address => round((float)$send_amount),8);
+        //$outputs=array($send_address => round((float)$send_amount),8);
+        $outputs=array($send_address => (float)$send_amount);
 
         if ($change_amount >= $this->OP_RETURN_BTC_DUST) {
             $outputs[$change_address] = round($change_amount,8);
@@ -397,7 +400,9 @@ class RecMethod extends BaseMethod {
     }
 
     private function create_txn($inputs, $outputs, $metadata, $metadata_pos){
-        $raw_txn=$this->driver->createrawtransaction ($inputs, $outputs);
+        $raw_txn=$this->driver->createrawtransaction($inputs, $outputs);
+        //$fundata=$this->driver->fundrawtransaction($raw_txn, "", "", false, true, true);
+        //$txn_unpacked=$this->unpack_txn(pack('H*', $fundata));
         $txn_unpacked=$this->unpack_txn(pack('H*', $raw_txn));
 
         $metadata_len=strlen($metadata);
@@ -527,9 +532,13 @@ class RecMethod extends BaseMethod {
         throw new Exception('Method not implemented', 409);
     }
 
-    public function getReceivedByAddress($address){
+    public function getReceivedByAddress($address, $min_confirmations = -1){
+        if ($min_confirmations < 0) {
+            $min_confirmations = $this->min_confirmations;
+        }
+
         $account = $this->driver->getaccount($address);
-        $unspent_inputs = $this->driver->listunspent($this->min_confirmations);
+        $unspent_inputs = $this->driver->listunspent($min_confirmations);
 
         if (!is_array($unspent_inputs)) {
             return 0;
