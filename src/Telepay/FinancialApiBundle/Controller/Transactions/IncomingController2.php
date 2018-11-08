@@ -554,6 +554,7 @@ class IncomingController2 extends RestApiController{
 
         //retry=true y cancel=true aqui
         if( isset( $data['retry'] ) || isset ( $data ['cancel'] )){
+            $logger->info('Update transaction -> retry or cancel');
 
             if($transaction->getType() != 'out') throw new HttpException(403, 'Forbidden action for this transaction ');
 
@@ -653,6 +654,7 @@ class IncomingController2 extends RestApiController{
                 }
             }
         }elseif( isset( $data['recheck'] ) && $data['recheck'] == true ){
+            $logger->info('Update transaction -> recheck');
             /*
             $logger->info('Update transaction -> recheck');
             $transaction->setStatus(Transaction::$STATUS_CREATED);
@@ -665,13 +667,15 @@ class IncomingController2 extends RestApiController{
             $transaction->setUpdated(new \DateTime());
             */
         }else{
+            $logger->info('Update transaction -> nothing');
 //            $transaction = $service->update($transaction,$data);
         }
 
         //$mongo->persist($transaction);
         //$mongo->flush();
 
-        return $this->methodTransaction(200, $transaction, "Got ok");
+        $logger->info('Update transaction -> END');
+        return $this->methodTransaction(200, $transaction->getId(), "Got ok");
     }
 
     /**
