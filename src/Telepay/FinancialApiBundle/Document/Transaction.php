@@ -317,6 +317,12 @@ class Transaction implements TransactionTiming {
      * @var
      * @MongoDB\Boolean
      */
+    private $deleted = false;
+
+    /**
+     * @var
+     * @MongoDB\Boolean
+     */
     private $notified;
 
     /**
@@ -770,6 +776,21 @@ class Transaction implements TransactionTiming {
         $this->internal = $internal;
     }
 
+    /**
+     * @return mixed
+     */
+    public function getDeleted()
+    {
+        return $this->deleted;
+    }
+
+    /**
+     * @param mixed $deleted
+     */
+    public function setDeleted($deleted)
+    {
+        $this->deleted = $deleted;
+    }
 
     /**
      * @return mixed

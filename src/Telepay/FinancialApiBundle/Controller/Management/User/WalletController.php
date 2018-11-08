@@ -288,6 +288,7 @@ class WalletController extends RestApiController{
             $query = $request->query->get('query');
             $qb->field('group')->equals($userGroup->getId());
             $qb->field('internal')->equals(false);
+            $qb->field('deleted')->equals(false);
 
             if(isset($query['start_date'])){
                 $start_time = new \MongoDate(strtotime(date($query['start_date'].' 00:00:00')));
@@ -424,6 +425,7 @@ class WalletController extends RestApiController{
         }
         else{
             $qb->field('internal')->equals(false);
+            $qb->field('deleted')->equals(false);
             $qb->field('group')->equals($userGroup->getId());
         }
 
