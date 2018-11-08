@@ -525,6 +525,7 @@ class IncomingController2 extends RestApiController{
 
         $logger = $this->get('transaction.logger');
         $logger->info('Update transaction');
+        $message = 'NAN';
 
         $user = $this->get('security.context')->getToken()->getUser();
         $mongo = $this->get('doctrine_mongodb')->getManager();
@@ -562,8 +563,8 @@ class IncomingController2 extends RestApiController{
             $currency = $transaction->getCurrency();
 
             //Search wallet
-            $current_wallet = $group->getWallet($currency);
-            if($current_wallet == null) throw new HttpException(404,'Wallet not found');
+            //$current_wallet = $group->getWallet($currency);
+            //if($current_wallet == null) throw new HttpException(404,'Wallet not found');
 
             $amount = $transaction->getAmount();
             $payment_info = $transaction->getPayOutInfo();
@@ -574,8 +575,8 @@ class IncomingController2 extends RestApiController{
                 if( $transaction->getStatus()== Transaction::$STATUS_FAILED ){
                     $logger->info('Update transaction -> status->failed');
 
-                    $sender_account = $em->getRepository('TelepayFinancialApiBundle:Group')->findOneBy(array('id'=>$transaction->getGroup()->getId()));
-                    $sender = $em->getRepository('TelepayFinancialApiBundle:User')->findOneBy(array('id'=>$transaction->getUser()->getId()));
+                    $sender_account = $em->getRepository('TelepayFinancialApiBundle:Group')->findOneBy(array('id'=>$transaction->getGroup()));
+                    $sender = $em->getRepository('TelepayFinancialApiBundle:User')->findOneBy(array('id'=>$transaction->getUser()));
 
                     $params = array(
                         'amount' => $amount,
@@ -588,7 +589,7 @@ class IncomingController2 extends RestApiController{
                         $params['destionation_id']=$data['destionation_id'];
                     }
                     $logger->info('Update transaction -> create new transaction');
-                    $this->createTransaction($params, $version_number, 'out', $method_cname, $sender->getId(), $sender_account, '127.0.0.1');
+                    $message = $this->createTransaction($params, $version_number, 'out', $method_cname, $sender->getId(), $sender_account, '127.0.0.1');
                     $logger->info('New Transaction created');
 
                     $transaction->setDeleted(true);
@@ -675,7 +676,15 @@ class IncomingController2 extends RestApiController{
         //$mongo->flush();
 
         $logger->info('Update transaction -> END');
-        return $this->methodTransaction(200, $transaction->getId(), "Got ok");
+        return $this->restV2(
+            200,
+            "ok",
+            "Request successful",
+            array(
+                'id' => $transaction->getId(),
+                'result' => $message
+            )
+        );
     }
 
     /**
