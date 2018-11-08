@@ -45,6 +45,11 @@ class UserWallet {
      */
     private $blockchain = 0;
 
+    /**
+     * @ORM\Column(type="float")
+     */
+    private $blockchain_pending = 0;
+
     private $scale;
 
     /**
@@ -106,6 +111,22 @@ class UserWallet {
     public function setBlockchain($blockchain)
     {
         $this->blockchain = $blockchain;
+    }
+
+    /**
+     * @return mixed
+     */
+    public function getBlockchainPending()
+    {
+        return $this->blockchain_pending;
+    }
+
+    /**
+     * @param mixed $blockchain_pending
+     */
+    public function setBlockchainPending($blockchain_pending)
+    {
+        $this->blockchain_pending = $blockchain_pending;
     }
 
     /**
