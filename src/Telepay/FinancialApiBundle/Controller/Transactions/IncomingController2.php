@@ -589,6 +589,10 @@ class IncomingController2 extends RestApiController{
                     $logger->info('Update transaction -> create new transaction');
                     $this->createTransaction($params, $version_number, 'out', $method_cname, $sender->getId(), $sender_account, '127.0.0.1');
                     $logger->info('New Transaction created');
+
+                    $transaction->setDeleted(true);
+                    $mongo->persist($transaction);
+                    $mongo->flush();
                 }
                 elseif( $transaction->getStatus()== Transaction::$STATUS_CANCELLED ){
                     $logger->info('Update transaction -> status->cancelled');
