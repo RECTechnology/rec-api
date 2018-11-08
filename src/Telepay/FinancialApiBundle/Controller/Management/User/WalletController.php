@@ -274,6 +274,9 @@ class WalletController extends RestApiController{
         if($request->query->has('limit')) $limit = $request->query->get('limit');
         else $limit = 10;
 
+        $balance = array();
+        $volume = array();
+
         if($request->query->has('offset')) $offset = $request->query->get('offset');
         else $offset = 0;
 
@@ -510,8 +513,6 @@ class WalletController extends RestApiController{
             }
 
             $resArray = [];
-            $balance = array();
-            $volume = array();
             foreach($transactions->toArray() as $res){
                 if($res->getClient() && isset($listClients[$res->getClient()])){
                     $res->setClientData(

@@ -520,37 +520,37 @@ class IncomingController2 extends RestApiController{
      * @Rest\View
      */
     public function update(Request $request, $version_number, $type, $method_cname, $id){
-
         $method = $this->get('net.telepay.'.$type.'.'.$method_cname.'.v'.$version_number);
-
         if(!$this->get('security.context')->isGranted('ROLE_WORKER')) throw new HttpException(403, 'You don\' have the necessary permissions');
 
         $logger = $this->get('transaction.logger');
         $logger->info('Update transaction');
 
         $user = $this->get('security.context')->getToken()->getUser();
-        $group = $this->_getCurrentCompany($user);
-        $this->_checkPermissions($user, $group);
-
+        $mongo = $this->get('doctrine_mongodb')->getManager();
         $dealer = $this->container->get('net.telepay.commons.fee_deal');
 
-//        $method_list = $group->getMethodsList();
-//
-//        if (!in_array($method_cname.'-'.$type, $method_list)) {
-//            throw $this->createAccessDeniedException();
-//        }
+        if($user->getId()!=1){
+            $group = $this->_getCurrentCompany($user);
+            $this->_checkPermissions($user, $group);
 
-        $data = $request->request->all();
-
-        $mongo = $this->get('doctrine_mongodb')->getManager();
-        $transaction = $mongo->getRepository('TelepayFinancialApiBundle:Transaction')->findOneBy(array(
-            'id'        =>  $id,
-            'method'    =>  $method_cname,
-            'group'      =>  $group->getId(),
-            'type'      =>  $type
-        ));
-
+            $transaction = $mongo->getRepository('TelepayFinancialApiBundle:Transaction')->findOneBy(array(
+                'id'        =>  $id,
+                'method'    =>  $method_cname,
+                'group'      =>  $group->getId(),
+                'type'      =>  $type
+            ));
+        }
+        else{
+            $transaction = $mongo->getRepository('TelepayFinancialApiBundle:Transaction')->findOneBy(array(
+                'id'        =>  $id,
+                'method'    =>  $method_cname,
+                'type'      =>  $type
+            ));
+            $group = $transaction->getGroup();
+        }
         if(!$transaction) throw new HttpException(404, 'Transaction not found');
+        $data = $request->request->all();
 
         //retry=true y cancel=true aqui
         if( isset( $data['retry'] ) || isset ( $data ['cancel'] )){
@@ -558,142 +558,46 @@ class IncomingController2 extends RestApiController{
             if($transaction->getType() != 'out') throw new HttpException(403, 'Forbidden action for this transaction ');
 
             $em = $this->getDoctrine()->getManager();
-
             $currency = $transaction->getCurrency();
 
             //Search wallet
             $current_wallet = $group->getWallet($currency);
-
             if($current_wallet == null) throw new HttpException(404,'Wallet not found');
 
             $amount = $transaction->getAmount();
-            $total_fee = $transaction->getFixedFee() + $transaction->getVariableFee();
-            $total_amount = $amount + $total_fee;
-
             $payment_info = $transaction->getPayOutInfo();
 
-            //    RETRY
+            //RETRY
             if( isset( $data['retry'] ) && $data['retry'] == true ){
-
                 $logger->info('Update transaction -> retry');
                 if( $transaction->getStatus()== Transaction::$STATUS_FAILED ){
                     $logger->info('Update transaction -> status->failed');
-                    //discount available, only amount because the fees are created in createFees
-                    $current_wallet->setAvailable($current_wallet->getAvailable() - $amount);
-                    $em->persist($current_wallet);
-                    $em->flush();
-                    try {
-                        $payment_info = $method->send($payment_info);
-                    }catch (Exception $e){
 
-                        if($e->getStatusCode() >= 500){
-                            $transaction->setStatus(Transaction::$STATUS_FAILED);
-                        }else{
-                            $transaction->setStatus( Transaction::$STATUS_ERROR );
+                    $sender_account = $em->getRepository('TelepayFinancialApiBundle:Group')->findOneBy(array('id'=>$transaction->getGroup()->getId()));
+                    $sender = $em->getRepository('TelepayFinancialApiBundle:User')->findOneBy(array('id'=>$transaction->getUser()->getId()));
 
-                        }
-                        $mongo->persist($transaction);
-                        $mongo->flush();
-                        //devolver la pasta de la transaccion al wallet si es cash out (al available)
-                        $current_wallet->setAvailable($current_wallet->getAvailable() + $amount );
-
-                        $transaction = $this->get('notificator')->notificate($transaction);
-
-                        $em->persist($current_wallet);
-                        $em->flush();
-
-                        throw $e;
-
+                    $params = array(
+                        'amount' => $amount,
+                        'concept' => "Reenvio error",
+                        'address' => $payment_info['address'],
+                        'pin' => $sender->getPIN()
+                    );
+                    if(isset($data['internal_tx']) && $data['internal_tx']=='1') {
+                        $params['internal_tx']='1';
+                        $params['destionation_id']=$data['destionation_id'];
                     }
-
-                    $transaction->setPayOutInfo($payment_info);
-
-                    $transaction->setUpdated(new \DateTime());
-                    $transaction->setStatus(Transaction::$STATUS_CREATED);
-                    $transaction = $this->get('notificator')->notificate($transaction);
-                    $mongo->persist($transaction);
-                    $mongo->flush();
-
-                    $logger->info('Update transaction -> addBalance');
-                    //restamos la pasta al wallet
-                    $balancer = $this->get('net.telepay.commons.balance_manipulator');
-                    $balancer->addBalance($group, -$amount, $transaction, "incoming2 contr 2");
-
-                    $current_wallet->setBalance($current_wallet->getBalance() - $amount );
-                    $em->persist($current_wallet);
-                    $em->flush();
-
-                    $logger->info('Update transaction -> dealer');
-                    $dealer = $this->container->get('net.telepay.commons.fee_deal');
-                    try{
-                        $dealer->createFees2($transaction, $current_wallet);
-                    }catch (HttpException $e){
-                        throw $e;
-                    }
-
-                }elseif( $transaction->getStatus()== Transaction::$STATUS_CANCELLED ){
+                    $logger->info('Update transaction -> create new transaction');
+                    $this->createTransaction($params, $version_number, 'out', $method_cname, $sender->getId(), $sender_account, '127.0.0.1');
+                    $logger->info('New Transaction created');
+                }
+                elseif( $transaction->getStatus()== Transaction::$STATUS_CANCELLED ){
                     $logger->info('Update transaction -> status->cancelled');
-
-                    $current_wallet->setAvailable($current_wallet->getAvailable() - $amount );
-                    $em->persist($current_wallet);
-                    $em->flush();
-                    //send transaction
-                    try {
-                        $payment_info = $method->send($payment_info);
-                    }catch (Exception $e){
-
-                        if($e->getStatusCode() >= 500){
-                            $transaction->setStatus(Transaction::$STATUS_FAILED);
-                            $transaction = $this->get('notificator')->notificate($transaction);
-                            $current_wallet->setAvailable($current_wallet->getAvailable() + $amount );
-                            $em->persist($current_wallet);
-                            $em->flush();
-                        }else{
-                            $transaction->setStatus( Transaction::$STATUS_ERROR );
-                            $mongo->persist($transaction);
-                            $mongo->flush();
-                            //devolver la pasta de la transaccion al wallet si es cash out (al available)
-                            $current_wallet->setAvailable($current_wallet->getAvailable() + $amount );
-                            $em->persist($current_wallet);
-                            $em->flush();
-
-                            $transaction = $this->get('notificator')->notificate($transaction);
-                            $mongo->persist($transaction);
-                            $mongo->flush();
-
-                            $em->persist($current_wallet);
-                            $em->flush();
-
-                            throw $e;
-                        }
-
-                    }
-
-                    $logger->info('Update transaction -> addBalance');
-
-                    $transaction->setUpdated(new \DateTime());
-                    $transaction->setPayOutInfo($payment_info);
-                    $transaction->setStatus(Transaction::$STATUS_CREATED);
-                    $current_wallet->setBalance($current_wallet->getBalance() - $amount );
-
-                    $transaction = $this->get('notificator')->notificate($transaction);
-                    $em->persist($current_wallet);
-                    $em->flush();
-                    $mongo->persist($transaction);
-                    $mongo->flush();
-
-
-                    $logger->info('Update transaction -> dealer');
-                    try{
-                        $dealer->createFees2($transaction, $current_wallet);
-                    }catch (HttpException $e){
-                        throw $e;
-                    }
+                    //TODO hacer funcion que reactive envio
+                    $logger->info('Si está cancelada por ahora no hace nada');
 
                 }else{
                     throw new HttpException(409,"This transaction can't be retried. First has to be cancelled");
                 }
-
             }
 
             if( isset( $data['cancel'] ) && $data['cancel'] == true ){
@@ -701,6 +605,7 @@ class IncomingController2 extends RestApiController{
                 //el cash-out solo se puede cancelar si esta en created review o success
                 //el cash-in de momento no se puede cancelar
                 if($transaction->getStatus()== Transaction::$STATUS_CREATED || $transaction->getStatus() == Transaction::$STATUS_REVIEW || ( ($method_cname == "halcash_es" || $method_cname == "halcash_pl") && $transaction->getStatus() == Transaction::$STATUS_SUCCESS && $transaction->getPayOutInfo()['status'] == Transaction::$STATUS_SENT )){
+                    /*
                     if($transaction->getStatus() == Transaction::$STATUS_REVIEW){
                         throw new HttpException(405, 'Method not implemented');
                     }else{
@@ -736,15 +641,15 @@ class IncomingController2 extends RestApiController{
                         }catch (HttpException $e){
                             throw $e;
                         }
-
                     }
-
-                }else{
+                */
+                }
+                else{
                     throw new HttpException(403, "This transaction can't be cancelled.");
                 }
-
             }
         }elseif( isset( $data['recheck'] ) && $data['recheck'] == true ){
+            /*
             $logger->info('Update transaction -> recheck');
             $transaction->setStatus(Transaction::$STATUS_CREATED);
 
@@ -754,12 +659,13 @@ class IncomingController2 extends RestApiController{
 
             $transaction->setPayInInfo($payment_info);
             $transaction->setUpdated(new \DateTime());
+            */
         }else{
 //            $transaction = $service->update($transaction,$data);
         }
 
-        $mongo->persist($transaction);
-        $mongo->flush();
+        //$mongo->persist($transaction);
+        //$mongo->flush();
 
         return $this->methodTransaction(200, $transaction, "Got ok");
     }
@@ -1083,7 +989,7 @@ class IncomingController2 extends RestApiController{
             'group' =>  $group->getId()
         ));
 
-        if(!$userRoles->hasRole('ROLE_WORKER') && !$userRoles->hasRole('ROLE_ADMIN')) throw new HttpException(403, 'You don\'t have the necessary permissions in this company. Only ROLE_WORKER allowed');
+        if(!$userRoles->hasRole('ROLE_WORKER') && !$userRoles->hasRole('ROLE_ADMIN')) throw new HttpException(403, 'You don\'t have the necessary permissions in this company.');
 
 
     }
