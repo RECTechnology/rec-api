@@ -81,12 +81,6 @@ company_update_tokens:
     requirements:
         _method: PUT
 
-company_swift_easypay_validate:
-    pattern:  /company/v1/swift/easypay/{id}
-    defaults: { _controller: Telepay\FinancialApiBundle\Controller\Management\Company\SpecialActionsController::easypayValidation }
-    requirements:
-        _method: PUT
-
 company_update_tier:
     pattern:  /company/v1/tier/{company_id}/{tier}
     defaults: { _controller: Telepay\FinancialApiBundle\Controller\Management\Company\SpecialActionsController::changeTier }

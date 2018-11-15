@@ -81,12 +81,6 @@ user_wallet_transactions_sum_month:
     requirements:
         _method: GET
 
-user_wallet_transactions_sum_country:
-    pattern:  /user/v1/wallet/countryearnings
-    defaults: { _controller: Telepay\FinancialApiBundle\Controller\Management\User\WalletController::countryBenefits }
-    requirements:
-        _method: GET
-
 user_wallet_currency_exchange:
     pattern:  /user/v1/wallet/currency_exchange
     defaults: { _controller: Telepay\FinancialApiBundle\Controller\Management\User\WalletController::currencyExchange, _format: ~ }
