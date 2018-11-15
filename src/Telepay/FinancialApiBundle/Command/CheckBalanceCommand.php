@@ -32,12 +32,17 @@ class CheckBalanceCommand extends ContainerAwareCommand{
             $wallet = $account->getWallet('rec');
             $address = $account->getRecAddress();
             $cryptoProvider = $this->getContainer()->get('net.telepay.in.rec.v1');
-            $rec_balance = $cryptoProvider->getReceivedByAddress($address,0);
-            $wallet->setBlockchainPending($rec_balance*$scale);
-            $rec_balance = $cryptoProvider->getReceivedByAddress($address,1);
-            $wallet->setBlockchain($rec_balance*$scale);
+            $rec_balance_0 = $cryptoProvider->getReceivedByAddress($address,0);
+            $wallet->setBlockchainPending($rec_balance_0*$scale);
+            $rec_balance_1 = $cryptoProvider->getReceivedByAddress($address,1);
+            $wallet->setBlockchain($rec_balance_1*$scale);
+            $output->writeln($account->getId() . ': ' . $wallet->getBalance() . " " . $rec_balance_0*$scale . " " . $rec_balance_1*$scale);
+            if($wallet->getBalance() != $rec_balance_1*$scale){
+                exec('curl -X POST -d "chat_id=-250635592&text=#ERROR BALANCE ' . $account->getId() . '" ' . '"https://api.telegram.org/bot787861588:AAFWCYdIiAoltb0IoM71jlmzq3AHh8kXSMs/sendMessage"');
+            }
             $em->persist($wallet);
             $em->flush();
+            sleep(20);
         }
     }
 }
