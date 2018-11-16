@@ -244,7 +244,7 @@ class WalletController extends RestApiController{
         $out = 0;
         $total = 0;
         foreach($transactions->toArray() as $res){
-            if(!$transactions->getDeleted() && !$transactions->getInternal()) {
+            if(!$res->getDeleted() && !$res->getInternal()) {
                 $amount = $res->getTotal();
                 if ($amount > 0) {
                     $in += $amount;
