@@ -70,9 +70,9 @@ class CheckFiatCommand extends SyncronizedContainerAwareCommand{
                         $group_commerce = $repoGroup->find($commerce_id);
 
                         $id_group_root = $this->getContainer()->getParameter('id_group_root');
-                        $group = $repoGroup->findOne($id_group_root);
+                        $group = $repoGroup->findOneBy(array("id" =>$id_group_root));
                         $id_user_root = $this->getContainer()->getParameter('admin_user_id');
-                        $user = $repoUser->findOne($id_user_root);
+                        $user = $repoUser->findOneBy(array("id"=>$id_user_root));
 
                         $request = array();
                         $request['concept'] = 'Internal exchange';
