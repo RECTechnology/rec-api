@@ -42,13 +42,19 @@ class CheckBalanceCommand extends ContainerAwareCommand{
             if($account->getId() >= $first){
                 $wallet = $account->getWallet('rec');
                 $address = $account->getRecAddress();
+                $balance = $wallet->getBalance();
                 $cryptoProvider = $this->getContainer()->get('net.telepay.in.rec.v1');
                 $rec_balance = $cryptoProvider->getReceivedByAddress($address,0);
                 $rec_balance_0 = intval($rec_balance*$scale);
+                if(abs(intval($balance) - intval($rec_balance_0))==1){
+                    $rec_balance_0 = $balance;
+                }
                 $wallet->setBlockchainPending($rec_balance_0);
-                $balance = $wallet->getBalance();
                 $rec_balance = $cryptoProvider->getReceivedByAddress($address,1);
                 $rec_balance_1 = intval($rec_balance*$scale);
+                if(abs(intval($balance) - intval($rec_balance_1))==1){
+                    $rec_balance_1 = $balance;
+                }
                 $wallet->setBlockchain($rec_balance_1);
                 $output->writeln($account->getId() . ': ' . $balance . " " . $rec_balance_0 . " " . $rec_balance_1);
                 if(intval($balance) != intval($rec_balance_1)){
