@@ -381,7 +381,7 @@ class IncomingController2 extends RestApiController{
             }
             if(isset($payment_info['inputs'])) {
                 if($payment_info['status']=='failed'){
-                    exec('curl -X POST -d "chat_id=-250635592&text=#ERROR IncomingController ' . $method . ' ' . $group->getId() . '" ' . '"https://api.telegram.org/bot787861588:AAFWCYdIiAoltb0IoM71jlmzq3AHh8kXSMs/sendMessage"');
+                    exec('curl -X POST -d "chat_id=-250635592&text=#ERROR IncomingController rec: ' . $group->getId() . '" ' . '"https://api.telegram.org/bot787861588:AAFWCYdIiAoltb0IoM71jlmzq3AHh8kXSMs/sendMessage"');
                     $logger->info('REC_INFO_ERROR');
                 }
                 $logger->info('REC_INFO Inputs:'.$payment_info['inputs']);
