@@ -287,12 +287,10 @@ class RecMethod extends BaseMethod {
     }
 
     private function send_with_OP_RETURN_data($orig_address, $send_address, $send_amount, $metadata){
-        /*
         $result = $this->driver->validateaddress($send_address);
         if (!$result['isvalid']) {
             return array('error' => 'Send address could not be validated: ' . $send_address);
         }
-        */
 
         $metadata_len=strlen($metadata);
 
