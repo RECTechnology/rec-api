@@ -369,8 +369,9 @@ class RecMethod extends BaseMethod {
             if(strcmp((string)$unspent_input['account'], (string)$account_name)==0){
                 $inputs_spend[]=$unspent_input;
                 $input_amount+=$unspent_input['amount'];
-                if ($input_amount>=$total_amount)
+                if ($input_amount>=$total_amount) {
                     break;
+                }
             }
         }
 
