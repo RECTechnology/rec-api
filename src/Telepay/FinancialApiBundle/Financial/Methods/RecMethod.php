@@ -365,9 +365,9 @@ class RecMethod extends BaseMethod {
         //	Identify which inputs should be spent
         $inputs_spend=array();
         $input_amount=0;
-        foreach ($unspent_inputs as $index => $unspent_input) {
+        foreach ($unspent_inputs as $unspent_input) {
             if(strcmp((string)$unspent_input['account'], (string)$account_name)==0){
-                $inputs_spend[]=$unspent_inputs[$index];
+                $inputs_spend[]=$unspent_input;
                 $input_amount+=$unspent_input['amount'];
                 if ($input_amount>=$total_amount)
                     break;
