@@ -43,6 +43,11 @@ class UserWallet {
     /**
      * @ORM\Column(type="float")
      */
+    private $backup = 0;
+
+    /**
+     * @ORM\Column(type="float")
+     */
     private $blockchain = 0;
 
     /**
@@ -111,6 +116,22 @@ class UserWallet {
     public function setBlockchain($blockchain)
     {
         $this->blockchain = $blockchain;
+    }
+
+    /**
+     * @return mixed
+     */
+    public function getBackUp()
+    {
+        return $this->backup;
+    }
+
+    /**
+     * @param mixed $backup
+     */
+    public function setBackup($backup)
+    {
+        $this->backup = $backup;
     }
 
     /**
