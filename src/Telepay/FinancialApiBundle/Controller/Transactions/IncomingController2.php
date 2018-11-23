@@ -245,9 +245,10 @@ class IncomingController2 extends RestApiController{
             $transaction->setPayInInfo($payment_info);
         }
         else{
-            $logger->info('(' . $group_id . ')(T) SET PAY OUT INFO');
+            $logger->info('(' . $group_id . ')(T) GET PAY OUT INFO');
             $data['orig_address'] = $group->getRecAddress();
             $payment_info = $method->getPayOutInfoData($data);
+            $logger->info('(' . $group_id . ')(T) SAVE PAY OUT INFO');
             $transaction->setPayOutInfo($payment_info);
             $dataIn = array(
                 'amount'    =>  $amount,
@@ -255,6 +256,7 @@ class IncomingController2 extends RestApiController{
                 'url_notification'  =>  $url_notification
             );
         }
+        $logger->info('(' . $group_id . ')(T) SET DATA IN');
         $transaction->setDataIn($dataIn);
 
         $logger->info('(' . $group_id . ')(T) FEES');
@@ -505,10 +507,15 @@ class IncomingController2 extends RestApiController{
         if($card){
             throw new HttpException(400,'User with card saved: ' . $params['dni']);
         }
-        $group_commerce = $em->getRepository('TelepayFinancialApiBundle:Group')->findOneBy(array('cif'=>$params['cif'], 'type' => 'COMPANY'));
+        $group_commerce = $em->getRepository('TelepayFinancialApiBundle:Group')->findOneBy(array(
+                'cif'=>$params['cif'],
+                'type' => 'COMPANY'
+            )
+        );
         if(!$group_commerce){
             throw new HttpException(400,'Commerce not found: ' . $params['cif']);
         }
+
         $request = array();
         $request['concept'] = 'Internal exchange';
         $request['amount'] = $params['amount'];

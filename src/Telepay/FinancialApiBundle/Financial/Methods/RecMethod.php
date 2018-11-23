@@ -194,9 +194,9 @@ class RecMethod extends BaseMethod {
         $address_verification = $this->driver->validateaddress($params['address']);
         if(!$address_verification['isvalid']) throw new Exception('Invalid address.', 400);
 
-        $saldo = $this->getReceivedByAddress($data['orig_address']);
-        if(($saldo + 0.01) < ($params['amount'] / 1e8)) throw new HttpException(403, 'Not enough balance in your account(' . $saldo . ' < ' . $params['amount']/1e8 . ')');
-        if($saldo < ($params['amount'] / 1e8)) $params['amount'] = $saldo * 1e8;
+        //$saldo = $this->getReceivedByAddress($data['orig_address'],1);
+        //if(($saldo + 0.01) < ($params['amount'] / 1e8)) throw new HttpException(403, 'Not enough balance in your account(' . $saldo . ' < ' . $params['amount']/1e8 . ')');
+        //if($saldo < ($params['amount'] / 1e8)) $params['amount'] = $saldo * 1e8;
 
         if(array_key_exists('concept', $data)) {
             $params['concept'] = $data['concept'];
@@ -311,8 +311,8 @@ class RecMethod extends BaseMethod {
         }
 
         $change_amount=$inputs_spend['total']-$output_amount;
-        $change_address = $this->driver->getrawchangeaddress($orig_account);
-        //$outputs=array($send_address => round((float)$send_amount),8);
+        //$change_address = $this->driver->getrawchangeaddress($orig_account);
+        $change_address = $orig_address;
         $outputs=array($send_address => (float)$send_amount);
 
         if ($change_amount >= $this->OP_RETURN_BTC_DUST) {
@@ -362,36 +362,25 @@ class RecMethod extends BaseMethod {
             return array('error' => 'Could not retrieve list of inputs');
         }
 
-        $account_unspent_inputs = array();
-        foreach ($unspent_inputs as $index => $unspent_input) {
-            if(strcmp((string)$unspent_input['account'], (string)$account_name)==0){
-                $account_unspent_inputs[$index] = $unspent_inputs[$index];
-                $account_unspent_inputs[$index]['priority'] = $unspent_input['amount'] * $unspent_input['confirmations'];
-            }
-        }
-
-        if(count($account_unspent_inputs)<1) {
-            return array('error' => 'Could not retrieve list of unspent inputs.');
-        }
-
-        if(count($account_unspent_inputs)>1) {
-            $this->sort_by($account_unspent_inputs, 'priority');
-            $account_unspent_inputs = array_reverse($account_unspent_inputs);
-        }
-
         //	Identify which inputs should be spent
         $inputs_spend=array();
         $input_amount=0;
-
-        foreach ($account_unspent_inputs as $unspent_input) {
-            $inputs_spend[]=$unspent_input;
-            $input_amount+=$unspent_input['amount'];
-            if ($input_amount>=$total_amount)
-                break;
+        foreach ($unspent_inputs as $index => $unspent_input) {
+            if(strcmp((string)$unspent_input['account'], (string)$account_name)==0){
+                $inputs_spend[]=$unspent_inputs[$index];
+                $input_amount+=$unspent_input['amount'];
+                if ($input_amount>=$total_amount)
+                    break;
+            }
         }
 
-        if ($input_amount<$total_amount)
+        if(count($inputs_spend)<1) {
+            return array('error' => 'Could not retrieve list of unspent inputs.');
+        }
+
+        if ($input_amount<$total_amount) {
             return array('error' => 'Not enough funds are available to cover the amount and fee');
+        }
 
         return array(
             'inputs' => $inputs_spend,
