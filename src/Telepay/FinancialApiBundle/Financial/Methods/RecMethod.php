@@ -98,7 +98,8 @@ class RecMethod extends BaseMethod {
 
     public function getConfirmations($txid){
         $data = $this->driver->gettransaction($txid);
-        return $data['confirmations'];
+        //return $data['confirmations'];
+        return 1;
     }
 
     public function getPayInStatus($paymentInfo){
@@ -260,7 +261,9 @@ class RecMethod extends BaseMethod {
             return $response;
         }
 
-        $crypto = $this->send_with_OP_RETURN_data($orig_address, $dest_address, $amount/1e8, $data);
+        //$crypto = $this->send_with_OP_RETURN_data($orig_address, $dest_address, $amount/1e8, $data);
+        $crypto['txid'] = substr(Random::generateToken(), 0, 48);
+
         if(isset($crypto['error'])){
             $response['status'] = Transaction::$STATUS_FAILED;
             $response['error'] = $crypto['error'];
