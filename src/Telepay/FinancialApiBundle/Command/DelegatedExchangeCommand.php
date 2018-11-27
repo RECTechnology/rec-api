@@ -71,7 +71,7 @@ class DelegatedExchangeCommand extends ContainerAwareCommand
                 $output->writeln("Commerce not found: " . $cif_commerce);
                 continue;
             }
-            $amount = intval($line[2])*100;
+            $amount = intval($line[2]);
             $request['concept'] = 'Internal exchange';
             $request['amount'] = $amount;
             $request['commerce_id'] = $group_commerce->getId();
