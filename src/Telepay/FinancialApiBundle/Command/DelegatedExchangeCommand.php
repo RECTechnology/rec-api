@@ -63,7 +63,10 @@ class DelegatedExchangeCommand extends ContainerAwareCommand
             }
 
             $cif_commerce = $line[1];
-            $group_commerce = $repoGroup->findOneBy(array('cif'=>$cif_commerce));
+            $group_commerce = $repoGroup->findOneBy(array(
+                'cif'=>$cif_commerce,
+                'type' => 'COMPANY'
+            ));
             if(!$group_commerce){
                 $output->writeln("Commerce not found: " . $cif_commerce);
                 continue;
@@ -78,11 +81,6 @@ class DelegatedExchangeCommand extends ContainerAwareCommand
             $response = $transactionManager->createTransaction($request, 1, 'in', 'lemonway', $user->getId(), $group, '127.0.0.1');
             sleep(1);
             $output->writeln($dni_user . " => " . $response);
-            /*
-            if($request['save_card']==1) {
-                $output->writeln("DONE with saved: " . $dni_user);
-            }
-            */
         }
         $output->writeln("DONE");
     }
