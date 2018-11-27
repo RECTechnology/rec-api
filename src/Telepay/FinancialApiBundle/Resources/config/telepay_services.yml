@@ -73,8 +73,8 @@ services:
     net.telepay.out.lemonway.v1:
         class: Telepay\FinancialApiBundle\Financial\Methods\LemonWayMethod
         arguments:
-            - "Eur"
-            - "eur"
+            - "LemonWay"
+            - "lemonway"
             - "out"
             - "EUR"
             - "false"

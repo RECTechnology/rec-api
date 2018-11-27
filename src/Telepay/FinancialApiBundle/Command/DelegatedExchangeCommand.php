@@ -81,6 +81,18 @@ class DelegatedExchangeCommand extends ContainerAwareCommand
             $response = $transactionManager->createTransaction($request, 1, 'in', 'lemonway', $user->getId(), $group, '127.0.0.1');
             sleep(1);
             $output->writeln($dni_user . " => " . $response);
+            if (strpos($response, 'received') !== false) {
+                //send money to commerce in lemonway account
+                $output->writeln('lemonway -> envio euros a => '. $group_commerce->getCIF());
+                $sentInfo = array(
+                    'to' => $group_commerce->getCIF(),
+                    'amount' => number_format($amount/100, 2)
+                );
+                $providerName = 'net.telepay.out.lemonway.v1';
+                $lemonMethod = $this->getContainer()->get($providerName);
+                $resultado = $lemonMethod->send($sentInfo);
+                $output->writeln('lemonway -> eur resultado => '. json_encode($resultado));
+            }
         }
         $output->writeln("DONE");
     }
