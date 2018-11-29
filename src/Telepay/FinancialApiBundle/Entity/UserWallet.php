@@ -48,6 +48,11 @@ class UserWallet {
     /**
      * @ORM\Column(type="float")
      */
+    private $oldBalance = 0;
+
+    /**
+     * @ORM\Column(type="float")
+     */
     private $blockchain = 0;
 
     /**
@@ -132,6 +137,22 @@ class UserWallet {
     public function setBackup($backup)
     {
         $this->backup = $backup;
+    }
+
+    /**
+     * @return mixed
+     */
+    public function getOldBalance()
+    {
+        return $this->oldBalance;
+    }
+
+    /**
+     * @param mixed $oldBalance
+     */
+    public function setOldBalance($oldBalance)
+    {
+        $this->oldBalance = $oldBalance;
     }
 
     /**
