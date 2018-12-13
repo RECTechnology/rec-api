@@ -178,20 +178,7 @@ class Notificator {
         );
 
         $response = exec('
-		curl -X POST https://bmincome.bcn.cat/ws-coin/securitybah/expenditures/setexpenditurecc
-		 -H \'Authorization: Basic Ym1pbmNvbWU6c3BhcnNpdHk=\'
-		 -H \'Content-Type: application/json\'
-		 -d \'{
-		  "account_id": "' . $params['account_id'] . '",
-		  "id": "' . $params['id']  . '",
-		  "status": "' . $params['status']  . '",
-		  "amount": '. $params['amount'] .',
-		  "signature": "' . $params['signature'] . '",
-		  "data": {
-		   "receiver": "' . $data['receiver']  . '",
-		   "date": ' . $data['date']  . ',
-		   "activity_type_code": "' . $data['activity_type_code']  . '"  }
-		   }\'
+		curl -X POST https://bmincome.bcn.cat/ws-coin/securitybah/expenditures/setexpenditurecc -H \'Authorization: Basic Ym1pbmNvbWU6c3BhcnNpdHk=\' -H \'Content-Type: application/json\' -d \'{ "account_id": "' . $params['account_id'] . '", "id": "' . $params['id']  . '",  "status": "' . $params['status']  . '",  "amount": '. $params['amount'] .',  "signature": "' . $params['signature'] . '",  "data": {    "receiver": "' . $data['receiver']  . '",    "date": ' . $data['date']  . ',    "activity_type_code": "' . $data['activity_type_code']  . '"  }}\'
         ');
 
         /*
