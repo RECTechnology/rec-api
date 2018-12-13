@@ -97,7 +97,7 @@ class RecMethod extends BaseMethod {
     }
 
     public function getConfirmations($txid){
-        $data = $this->driver->gettransaction($txid);
+        //$data = $this->driver->gettransaction($txid);
         //return $data['confirmations'];
         return 1;
     }
