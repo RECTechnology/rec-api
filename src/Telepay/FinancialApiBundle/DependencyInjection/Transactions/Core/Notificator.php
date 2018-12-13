@@ -211,12 +211,14 @@ class Notificator {
         ');
         */
         $response_data = json_decode($response, true);
-        if(!isset($response_data['Message']['Type']) || $response_data['Message']['Type']!='SUCCESS'){
+        if(!isset($response_data['Message']['Type'])) {
             $response_data['Message']['Type'] = 'FAILED';
+        }
+        if($response_data['Message']['Type']!='SUCCESS'){
             $transaction->setNotified(false);
             $transaction->setNotificationTries($transaction->getNotificationTries()+1);
         }
-        exec('curl -X POST -d "chat_id=-250635592&text=#NOTIFICATION_UPC ' . $response_data['Message']['Type'] . ' " ' . '"https://api.telegram.org/bot787861588:AAFWCYdIiAoltb0IoM71jlmzq3AHh8kXSMs/sendMessage"');
+        exec('curl -X POST -d "chat_id=-250635592&text=#NOTIFICATION_UPC ' . json_encode($response_data) . ' " ' . '"https://api.telegram.org/bot787861588:AAFWCYdIiAoltb0IoM71jlmzq3AHh8kXSMs/sendMessage"');
 
         // close curl resource to free up system resources
         $dm->persist($transaction);
