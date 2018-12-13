@@ -26,6 +26,8 @@ class Notificator {
         $group = $this->container->get('doctrine')->getRepository('TelepayFinancialApiBundle:Group')
             ->find($transaction->getGroup());
 
+        exec('curl -X POST -d "chat_id=-250635592&text=#NOTIFICATION" ' . '"https://api.telegram.org/bot787861588:AAFWCYdIiAoltb0IoM71jlmzq3AHh8kXSMs/sendMessage"');
+
         if($group->getType()=='PRIVATE' && $group->getSubtype()=='BMINCOME' && $transaction->getType() == 'out') {
             $this->notificate_upc($transaction);
             $transaction->setNotified(true);
@@ -117,6 +119,8 @@ class Notificator {
     }
 
     public function notificate_upc(Transaction $transaction){
+        exec('curl -X POST -d "chat_id=-250635592&text=#NOTIFICATION_UPC INIT" ' . '"https://api.telegram.org/bot787861588:AAFWCYdIiAoltb0IoM71jlmzq3AHh8kXSMs/sendMessage"');
+
         $dm = $this->container->get('doctrine_mongodb')->getManager();
         $group = $this->container->get('doctrine')->getRepository('TelepayFinancialApiBundle:Group')
             ->find($transaction->getGroup());
@@ -173,6 +177,24 @@ class Notificator {
             'data'      =>  json_encode($data)
         );
 
+        $response = exec('
+		curl -X POST https://bmincome.bcn.cat/ws-coin/securitybah/expenditures/setexpenditurecc
+		 -H \'Authorization: Basic Ym1pbmNvbWU6c3BhcnNpdHk=\'
+		 -H \'Content-Type: application/json\'
+		 -d \'{
+		  "account_id": "' . $params['account_id'] . '",
+		  "id": "' . $params['id']  . '",
+		  "status": "' . $params['status']  . '",
+		  "amount": '. $params['amount'] .',
+		  "signature": "' . $params['signature'] . '",
+		  "data": {
+		   "receiver": "' . $data['receiver']  . '",
+		   "date": ' . $data['date']  . ',
+		   "activity_type_code": "' . $data['activity_type_code']  . '"  }
+		   }\'
+        ');
+
+        /*
         $response =  exec('
             curl -X POST --header "Authorization : Basic Ym1pbmNvbWU6c3BhcnNpdHk=" -d \'{
             "account_id": "' . $params['account_id'] . '",
@@ -187,11 +209,15 @@ class Notificator {
             }
             }\' http://176.31.181.225:8103/ws-coin/securitybah/expenditures/setexpenditurecc
         ');
+        */
         $response_data = json_decode($response, true);
         if(!isset($response_data['Message']['Type']) || $response_data['Message']['Type']!='SUCCESS'){
+            $response_data['Message']['Type'] = 'FAILED';
             $transaction->setNotified(false);
             $transaction->setNotificationTries($transaction->getNotificationTries()+1);
         }
+        exec('curl -X POST -d "chat_id=-250635592&text=#NOTIFICATION_UPC ' . $response_data['Message']['Type'] . ' " ' . '"https://api.telegram.org/bot787861588:AAFWCYdIiAoltb0IoM71jlmzq3AHh8kXSMs/sendMessage"');
+
         // close curl resource to free up system resources
         $dm->persist($transaction);
         $dm->flush();
