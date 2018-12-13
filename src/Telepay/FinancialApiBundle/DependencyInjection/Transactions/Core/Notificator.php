@@ -1,11 +1,4 @@
 <?php
-/**
- * Created by PhpStorm.
- * User: lluis
- * Date: 2/23/15
- * Time: 6:51 PM
- */
-
 namespace Telepay\FinancialApiBundle\DependencyInjection\Transactions\Core;
 
 use Symfony\Component\DependencyInjection\ContainerInterface;
@@ -14,10 +7,12 @@ use Telepay\FinancialApiBundle\Document\Transaction;
 class Notificator {
 
     private $container;
+    private $env;
 
-    function __construct(ContainerInterface $container)
+    function __construct(ContainerInterface $container, $env)
     {
         $this->container = $container;
+        $this->env = $env;
     }
 
     public function notificate(Transaction $transaction){
@@ -25,8 +20,6 @@ class Notificator {
         $dm = $this->container->get('doctrine_mongodb')->getManager();
         $group = $this->container->get('doctrine')->getRepository('TelepayFinancialApiBundle:Group')
             ->find($transaction->getGroup());
-
-        exec('curl -X POST -d "chat_id=-250635592&text=#NOTIFICATION" ' . '"https://api.telegram.org/bot787861588:AAFWCYdIiAoltb0IoM71jlmzq3AHh8kXSMs/sendMessage"');
 
         if($group->getType()=='PRIVATE' && $group->getSubtype()=='BMINCOME' && $transaction->getType() == 'out') {
             $this->notificate_upc($transaction);
@@ -119,12 +112,9 @@ class Notificator {
     }
 
     public function notificate_upc(Transaction $transaction){
-        exec('curl -X POST -d "chat_id=-250635592&text=#NOTIFICATION_UPC INIT" ' . '"https://api.telegram.org/bot787861588:AAFWCYdIiAoltb0IoM71jlmzq3AHh8kXSMs/sendMessage"');
-
         $dm = $this->container->get('doctrine_mongodb')->getManager();
         $group = $this->container->get('doctrine')->getRepository('TelepayFinancialApiBundle:Group')
             ->find($transaction->getGroup());
-        $url_notification = "http://176.31.181.225:8103/ws-coin/securitybah/expenditures/setexpenditurecc";
 
         //necesitamos el id el status el amount y el secret
         $id = $transaction->getId();
@@ -177,9 +167,16 @@ class Notificator {
             'data'      =>  json_encode($data)
         );
 
-        $response = exec('
-		curl -X POST https://bmincome.bcn.cat/ws-coin/securitybah/expenditures/setexpenditurecc -H \'Authorization: Basic Ym1pbmNvbWU6c3BhcnNpdHk=\' -H \'Content-Type: application/json\' -d \'{ "account_id": "' . $params['account_id'] . '", "id": "' . $params['id']  . '",  "status": "' . $params['status']  . '",  "amount": '. $params['amount'] .',  "signature": "' . $params['signature'] . '",  "data": {    "receiver": "' . $data['receiver']  . '",    "date": ' . $data['date']  . ',    "activity_type_code": "' . $data['activity_type_code']  . '"  }}\'
-        ');
+        if($this->env = 'pre') {
+            $response = exec('
+		        curl -X POST http://176.31.181.225:8103/ws-coin/securitybah/expenditures/setexpenditurecc -H \'Authorization: Basic Ym1pbmNvbWU6c3BhcnNpdHk=\' -H \'Content-Type: application/json\' -d \'{ "account_id": "' . $params['account_id'] . '", "id": "' . $params['id'] . '",  "status": "' . $params['status'] . '",  "amount": ' . $params['amount'] . ',  "signature": "' . $params['signature'] . '",  "data": {    "receiver": "' . $data['receiver'] . '",    "date": ' . $data['date'] . ',    "activity_type_code": "' . $data['activity_type_code'] . '"  }}\'
+            ');
+        }
+        else {
+            $response = exec('
+		        curl -X POST https://bmincome.bcn.cat/ws-coin/securitybah/expenditures/setexpenditurecc -H \'Authorization: Basic Ym1pbmNvbWU6c3BhcnNpdHk=\' -H \'Content-Type: application/json\' -d \'{ "account_id": "' . $params['account_id'] . '", "id": "' . $params['id'] . '",  "status": "' . $params['status'] . '",  "amount": ' . $params['amount'] . ',  "signature": "' . $params['signature'] . '",  "data": {    "receiver": "' . $data['receiver'] . '",    "date": ' . $data['date'] . ',    "activity_type_code": "' . $data['activity_type_code'] . '"  }}\'
+            ');
+        }
 
         /*
         $response =  exec('

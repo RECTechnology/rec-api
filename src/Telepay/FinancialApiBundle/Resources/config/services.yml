@@ -20,6 +20,7 @@ services:
         class: Telepay\FinancialApiBundle\DependencyInjection\Transactions\Core\Notificator
         arguments:
             - "@service_container"
+            - "%api_env%"
 
     command.check.posV2:
         class: Telepay\FinancialApiBundle\Command\CheckCryptoPOSv2Command
