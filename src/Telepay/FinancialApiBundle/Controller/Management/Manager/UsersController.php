@@ -182,13 +182,12 @@ class UsersController extends BaseApiController
         $filtered = [];
         foreach($all as $user_group){
             $user = $user_group->getUser();
-            $user->setRoles($user->getRolesCompany($current_group->getId()));
             $filtered[] =
                 array(
                     "id" => $user->getId(),
                     "username" => $user->getUsername(),
                     "email" => $user->getEmail(),
-                    "roles" => $user->getRoles(),
+                    "roles" => $user->getRolesCompany($current_group->getId()),
                     "phone" => $user->getPhone(),
                     "name" => $user->getName(),
                     "profile_image" => $user->getProfileImage(),
