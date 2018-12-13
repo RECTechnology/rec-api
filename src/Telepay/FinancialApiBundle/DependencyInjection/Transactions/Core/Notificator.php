@@ -211,6 +211,9 @@ class Notificator {
         ');
         */
         $response_data = json_decode($response, true);
+        if(!isset($response_data['Message'])){
+            $response_data['Message'] = array();
+        }
         if(!isset($response_data['Message']['Type'])) {
             $response_data['Message']['Type'] = 'FAILED';
         }
