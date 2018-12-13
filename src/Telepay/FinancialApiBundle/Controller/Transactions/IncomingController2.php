@@ -53,6 +53,9 @@ class IncomingController2 extends RestApiController{
         $em = $this->getDoctrine()->getManager();
         if($request->query->has('address') && $request->query->get('address')!=''){
             $address = $request->query->get('address');
+            if($address == 'temp'){
+                throw new HttpException(400, 'Incorrect address');
+            }
             $destination = $em->getRepository('TelepayFinancialApiBundle:Group')->findOneBy(array(
                 'rec_address' => $address
             ));
@@ -323,6 +326,11 @@ class IncomingController2 extends RestApiController{
 
             if($destination->getRecAddress() == $group->getRecAddress()){
                 throw new HttpException(405,'Error, destination address is equal than origin address');
+            }
+
+            if($destination->getRecAddress() == "temp" || $group->getRecAddress() == "temp"){
+                exec('curl -X POST -d "chat_id=-250635592&text=#ERROR TEMP ADDRESS ' . $destination->getId() . " or " . $group->getId() . '" ' . '"https://api.telegram.org/bot787861588:AAFWCYdIiAoltb0IoM71jlmzq3AHh8kXSMs/sendMessage"');
+                throw new HttpException(405, 'Destination address does not exists');
             }
 
             $logger->info('(' . $group_id . ')(T) DEFINE PAYMENT DATA');
