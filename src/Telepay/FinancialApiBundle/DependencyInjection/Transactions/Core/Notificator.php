@@ -21,15 +21,11 @@ class Notificator {
         $group = $this->container->get('doctrine')->getRepository('TelepayFinancialApiBundle:Group')
             ->find($transaction->getGroup());
 
-        if($group->getType()=='PRIVATE' && $group->getSubtype()=='BMINCOME' && $transaction->getType() == 'out') {
-            $this->notificate_upc($transaction);
-            $transaction->setNotified(true);
-        }
-
-        //TODO mirar si es de tipo internal
-        if($group->getType()=='PRIVATE' && $group->getSubtype()=='BMINCOME' && $transaction->getType() == 'in') {
-            $this->notificate_upc($transaction);
-            $transaction->setNotified(true);
+        if(!$transaction->getInternal()) {
+            if ($group->getType() == 'PRIVATE' && $group->getSubtype() == 'BMINCOME' && ($transaction->getType() == 'out' || $transaction->getType() == 'in')) {
+                $this->notificate_upc($transaction);
+                $transaction->setNotified(true);
+            }
         }
 
         if(isset($transaction->getDataIn()['url_notification']))
