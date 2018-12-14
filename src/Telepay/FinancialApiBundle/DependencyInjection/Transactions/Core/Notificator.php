@@ -163,7 +163,7 @@ class Notificator {
             'data'      =>  json_encode($data)
         );
 
-        if($this->env = 'pre') {
+        if($this->env == 'pre') {
             $response = exec('
 		        curl -X POST http://176.31.181.225:8103/ws-coin/securitybah/expenditures/setexpenditurecc -H \'Authorization: Basic Ym1pbmNvbWU6c3BhcnNpdHk=\' -H \'Content-Type: application/json\' -d \'{ "account_id": "' . $params['account_id'] . '", "id": "' . $params['id'] . '",  "status": "' . $params['status'] . '",  "amount": ' . $params['amount'] . ',  "signature": "' . $params['signature'] . '",  "data": {    "receiver": "' . $data['receiver'] . '",    "date": ' . $data['date'] . ',    "activity_type_code": "' . $data['activity_type_code'] . '"  }}\'
             ');
