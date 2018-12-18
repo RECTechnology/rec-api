@@ -3,53 +3,15 @@
   "version": "1.0.0",
   "description": "Documentation for {{ name }} API",
   "title": "REST API - {{ name }}",
-  "url" : "{{ url }}",
-  "sampleUrl" : "{{ url }}",
+  "url": "{{ url }}",
+  "sampleUrl": "{{ url }}",
   "header": {
     "title": "{{ name }} API",
-    "filename": "header.md"
+    "filename": "./public/header.md"
   },
   "footer": {
-    "filename": "footer.md"
+    "filename": "./public/footer.md"
   },
-  "order": [
-
-    "Authentication",
-    "OAuthToken",
-
-    "Public",
-    "TickerByCurrency",
-    "GetCurrencies",
-
-    "Methods",
-    "CryptoIn",
-    "CryptoInCheck",
-    "HalcashEsOut",
-    "HalcashEsOutCheck",
-    "PaynetReferenceIn",
-    "PaynetReferenceCheck",
-
-    "Swift",
-    "HelloCrypto",
-    "CryptoHalcashEs",
-    "CryptoHalcashEsCheck",
-    "CryptoCryptocapital",
-    "CryptoCryptocapitalCheck",
-    "CryptoSepa",
-    "CryptoSepaCheck",
-
-    "User",
-    "ReadAccount",
-    "UpdateAccount",
-    "ReadWallets",
-    "ReadWalletTransactions",
-    "Read10LastTransactions",
-    "ReadMonthEarnings",
-    "ReadCountryEarnings",
-    "WalletToWallet",
-    "Exchange"
-
-  ],
   "template": {
     "withCompare": true,
     "withGenerator": false

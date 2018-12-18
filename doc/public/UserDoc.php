@@ -8,8 +8,9 @@
 
 /**
  *
- * @api {get} /user/v1/account Read Account
- * @apiName ReadAccount
+ * @api {get} /user/v1/wallet/listCommerce List Commerce
+ * @apiName ListCommerce
+ * @apiDescription List all commerces wich are rec intermediaries _(exchange rec)_
  * @apiPermission User
  * @apiVersion 1.0.0
  * @apiGroup User
@@ -18,13 +19,13 @@
  *
  * @apiSuccess {String} code Status of the request.
  * @apiSuccess {String} message Description of the request result.
- * @apiSuccess {String} data Data of the request result.
+ * @apiSuccess {Array} data Data of the request result.
  *
  * @apiSuccessExample Success
  *    HTTP/1.1 200 OK
  *    {
  *          "status": "ok",
- *          "message": "Account info got successfully",
+ *          "message": "Request successful",
  *          "data":
  *              {
  *                  ...
@@ -34,6 +35,17 @@
  */
 
 
+/**
+ *
+ * @api {post} /user/v1/new/account Create Account
+ * @apiName CreateAccount
+ * @apiPermission User
+ * @apiVersion 1.0.0
+ * @apiGroup User
+ *
+ * @apiUse OAuth2Header
+ *
+ */
 /**
  *
  * @api {put} /user/v1/account Update Account
@@ -44,139 +56,11 @@
  *
  * @apiUse OAuth2Header
  *
- * @apiParam {String} [email] email Email
- * @apiParam {String} [name] name Name
- *
- * @apiSuccess {String} code Status of the request.
- * @apiSuccess {String} message Description of the request result.
- * @apiSuccess {String} data Data of the request result.
- *
- * @apiSuccessExample Success
- *    HTTP/1.1 200 OK
- *    {
- *          "status": "ok",
- *          "message": "Account info got successfully",
- *          "data":
- *              {
- *                  ...
- *              }
- *    }
- *
  */
-
 /**
  *
- * @api {get} /user/v1/wallet Read wallets
- * @apiName ReadWallets
- * @apiPermission User
- * @apiVersion 1.0.0
- * @apiGroup User
- *
- * @apiUse OAuth2Header
- *
- * @apiSuccess {String} code Status of the request.
- * @apiSuccess {String} message Description of the request result.
- * @apiSuccess {String} data Data of the request result.
- *
- * @apiSuccessExample Success
- *    HTTP/1.1 200 OK
- *    {
- *          "status": "ok",
- *          "message": "Wallet info got successful",
- *          "data":
- *              {
- *              "id": 3,
- *              "currency": "BTC",
- *              "available": 680914,
- *              "balance": 680914,
- *              "scale": 8
- *              },
- *              {
- *              "id": 4,
- *              "currency": "EUR",
- *              "available": 36997,
- *              "balance": 36997,
- *              "scale": 2
- *              },
- *              {
- *              "id": 5,
- *              "currency": "USD",
- *              "available": 1268,
- *              "balance": 1268,
- *              "scale": 2
- *              },
- *              {
- *              "id": 6,
- *              "currency": "FAC",
- *              "available": 2047,
- *              "balance": 2047,
- *              "scale": 8
- *              },
- *              {
- *              "id": 7,
- *              "currency": "MXN",
- *              "available": 20297,
- *              "balance": 20297,
- *              "scale": 2
- *              },
- *              {
- *              "id": 183,
- *              "currency": "PLN",
- *              "available": 0,
- *              "balance": 0,
- *              "scale": 2
- *              },
- *              {
- *              "id": "multidivisa",
- *              "currency": "EUR",
- *              "available": 39529,
- *              "balance": 39529,
- *              "scale": 2
- *              }
- *    }
- *
- */
-
-
-/**
- *
- * @api {get} /user/v1/wallet/transactions Read wallet transactions
- * @apiName ReadWalletTransactions
- * @apiPermission User
- * @apiVersion 1.0.0
- * @apiGroup User
- *
- * @apiUse OAuth2Header
- *
- * @apiParam {Number} [limit] limit=10 Number of Clients to get
- * @apiParam {Number} [offset] offset=0 Offset for get clients
- * @apiParam {String[]} [query] query[] params
- *
- * @apiSuccess {String} status Status of the request.
- * @apiSuccess {String} message Description of the request result.
- * @apiSuccess {String} data Data of the request result.
- *
- * @apiSuccessExample Success
- *    HTTP/1.1 200 OK
- *    {
- *          "status": "ok",
- *          "message": "Transactions info got successful",
- *          "data":
- *              {
- *              ...
- *              },
- *              {
- *              ...
- *              },
- *              ...
- *    }
- *
- */
-
-/**
- *
- * @api {get} /user/v1/wallet/monthearnings Month earnings
- * @apiName ReadMonthEarnings
+ * @api {get} /user/v1/public_phone_list Phone List
+ * @apiName PhoneList
  * @apiPermission User
  * @apiVersion 1.0.0
  * @apiGroup User
@@ -185,147 +69,124 @@
  *
  * @apiSuccess {String} status Status of the request.
  * @apiSuccess {String} message Description of the request result.
- * @apiSuccess {String} data Data of the request result.
+ * @apiSuccess {Array} data Data of the request result.
  *
- * @apiSuccessExample Success
+ * @apiErrorExample Missing Parameter
+ *    HTTP/1.1 400: Missing Parameter
+ *   {
+ *          "error": "invalid_request",
+ *          "error_description": ""Missing parameters phone_list""
+ *    }
+ */
+
+
+/**
+ *
+ * @api {post} /user/v1/upload_file Upload File
+ * @apiName UploadFile
+ * @apiPermission User
+ * @apiVersion 1.0.0
+ * @apiGroup User
+ *
+ * @apiUse OAuth2Header
+ *
+ * @apiParam {File} file File to be uploaded 
+ * 
+ * @apiSuccess {String} code Status of the request.
+ * @apiSuccess {String} message Description of the request result.
+ * @apiSuccess {Array} data Data of the request result.
+ *
+ * 
+ *  @apiSuccessExample Success
  *    HTTP/1.1 200 OK
  *    {
  *          "status": "ok",
  *          "message": "Request successful",
  *          "data":
  *              {
- *              ...
- *              },
- *              {
- *              ...
- *              },
- *              ...
+ *                "src": '',
+ *                "type": "<mime_type>",
+ *                "expires_in": 600              
+ *              }
+ *    }
+ * 
+ * @apiErrorExample Bad File
+ *    HTTP/1.1 400: Bad File Type
+ *    {
+ *          "error": "invalid_request",
+ *          "error_description": "'file' parameter required to be a file"
+ *    }
+ * @apiErrorExample Bad Mime Type
+ *    HTTP/1.1 400: Bad Mime Type
+ *    {
+ *          "error": "invalid_request",
+ *          "error_description": "Bad mime type, '<mime_type>' is not a valid file"
  *    }
  *
  */
 
-
-/**
+ /**
  *
- * @api {get} /user/v1/wallet/countryearnings Country earnings
- * @apiName ReadCountryEarnings
+ * @api {put} /user/v1/public_phone Public Phone 
+ * @apiName PublicPhone
  * @apiPermission User
  * @apiVersion 1.0.0
  * @apiGroup User
- *
- * @apiUse OAuth2Header
- *
+ * @apiParam {Number = 0, 1} activate 
+ * @apiParam {Number = 0, 1} deactivate 
+ * 
  * @apiSuccess {String} code Status of the request.
  * @apiSuccess {String} message Description of the request result.
- * @apiSuccess {String} data Data of the request result.
+ * @apiSuccess {User} data The user updated.
  *
- * @apiSuccessExample Success
+ *  @apiSuccessExample Success
  *    HTTP/1.1 200 OK
  *    {
  *          "status": "ok",
- *          "message": "Country earnings info got successful",
+ *          "message": "Request successful",
  *          "data":
  *              {
- *              ...
- *              },
- *              {
- *              ...
- *              },
- *              ...
+ *                ...            
+ *              }
  *    }
- *
+ * @apiUse OAuth2Header
+ * @apiErrorExample Invalid parameters
+ *    HTTP/1.1 400
+ *    {
+ *          "error": "invalid_request",
+ *          "error_description": "Missing parameters
+ *    }
  */
-
-
 /**
  *
- * @api {get} /user/v1/last Read 10 last transactions
- * @apiName Read10LastTransactions
+ * @api {put} /user/v1/save_kyc Save Kyc
+ * @apiName SaveKyc
  * @apiPermission User
  * @apiVersion 1.0.0
  * @apiGroup User
+ * 
+ * @apiSuccess {String} name
+ * @apiSuccess {String} last_name
+ * @apiSuccess {DateTime} date_bith
+ * @apiSuccess {String} street_type
+ * @apiSuccess {String} street_number
+ * @apiSuccess {String} street_name
  *
- * @apiUse OAuth2Header
- *
- * @apiSuccess {String} code Status of the request.
- * @apiSuccess {String} message Description of the request result.
- * @apiSuccess {String} data Data of the request result.
- *
- * @apiSuccessExample Success
+ *  @apiSuccessExample Success
  *    HTTP/1.1 200 OK
  *    {
  *          "status": "ok",
- *          "message": "Last 10 transactions got successfully",
+ *          "message": "Request successful",
  *          "data":
  *              {
- *              ...
- *              },
- *              {
- *              ...
- *              },
- *              ...
+ *                ...            
+ *              }
  *    }
- *
- */
-
-/**
- *
- * @api {post} /user/v1/wallet/send/:currency Wallet To Wallet
- * @apiName WalletToWallet
- * @apiPermission User
- * @apiVersion 1.0.0
- * @apiGroup User
- *
  * @apiUse OAuth2Header
- *
- * @apiParam {String} username Username receiver
- * @apiParam {Number} amount Amount in <code>cents</code>
- *
- * @apiSuccess {String} code Status of the request.
- * @apiSuccess {String} message Description of the request result.
- * @apiSuccess {String} data Data of the request result.
- *
- * @apiSuccessExample Success
- *    HTTP/1.1 200 OK
+ * @apiErrorExample Invalid parameters
+ *    HTTP/1.1 400
  *    {
- *          "status": "ok",
- *          "message": "Transactions info got successful",
- *          "data":
- *              {
- *              ...
- *              },
- *              {
- *              ...
- *              },
- *              ...
+ *          "error": "invalid_request",
+ *          "error_description": "Missing parameter <param>
  *    }
- *
- */
-
-/**
- *
- * @api {post} /user/v1/wallet/currency_exchange Exchange
- * @apiName Exchange
- * @apiPermission User
- * @apiVersion 1.0.0
- * @apiGroup User
- *
- * @apiUse OAuth2Header
- *
- * @apiParam {String} currency_in Currency In
- * @apiParam {String} currency_out Currency Out
- * @apiParam {Number} amount Amount in <code>cents</code> of currency in
- *
- * @apiSuccess {String} code Status of the request.
- * @apiSuccess {String} message Description of the request result.
- * @apiSuccess {String} data Data of the request result.
- *
- * @apiSuccessExample Success
- *    HTTP/1.1 200 OK
- *    {
- *          "status": "ok",
- *          "message": "Exchange got successful",
- *          "data":{}
- *    }
- *
  */
