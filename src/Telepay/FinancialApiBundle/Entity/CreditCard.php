@@ -59,6 +59,11 @@ class CreditCard{
     private $external_id;
 
     /**
+     * @ORM\Column(type="boolean")
+     */
+    private $deleted = false;
+
+    /**
      * Returns the user unique id.
      *
      * @return mixed
@@ -130,5 +135,19 @@ class CreditCard{
     public function setExternalId($external_id)
     {
         $this->external_id = $external_id;
+    }
+
+    /**
+     * @return mixed
+     */
+    public function getDeleted(){
+        return $this->deleted;
+    }
+
+    /**
+     * @param mixed $deleted
+     */
+    public function setDeleted($deleted){
+        $this->deleted = $deleted;
     }
 }

@@ -67,6 +67,7 @@ class CreditCardController extends BaseApiController{
         $em = $this->getDoctrine()->getManager();
         $cards = $em->getRepository('TelepayFinancialApiBundle:CreditCard')->findBy(array(
             'company'   =>  $company,
+            'deleted'=>false,
             'user'   =>  $user
         ));
         return $this->restV2(200, 'ok', 'Request successfull', $cards);
@@ -94,10 +95,13 @@ class CreditCardController extends BaseApiController{
         $user = $this->get('security.context')->getToken()->getUser();
         $credit_card = $em->getRepository('TelepayFinancialApiBundle:CreditCard')->findOneBy(array(
             'id'    =>  $id,
+            'deleted'=>false,
             'company' =>  $user->getActiveGroup()
         ));
         if(!$credit_card) throw new HttpException(404, 'CreditCard not found');
-        return parent::deleteAction($id);
-
+        $credit_card->setDeleted(true);
+        $em->persist($credit_card);
+        $em->flush();
+        return $this->restV2(201,"ok", "Card deleted successfully", $credit_card);
     }
 }

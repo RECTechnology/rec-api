@@ -186,6 +186,7 @@ class IncomingController2 extends RestApiController{
                     $credit_card = $em->getRepository('TelepayFinancialApiBundle:CreditCard')->findOneBy(array(
                         'id' => $data['card_id'],
                         'company' => $group->getId(),
+                        'deleted'=>false,
                         'user' => $user_id
                     ));
                     if(!$credit_card){
@@ -511,7 +512,13 @@ class IncomingController2 extends RestApiController{
         $em->persist($group);
         $em->flush();
 
-        $card = $em->getRepository('TelepayFinancialApiBundle:CreditCard')->findOneBy(array('user'=>$user->getId(), 'company' => $group->getId()));
+        $card = $em->getRepository('TelepayFinancialApiBundle:CreditCard')->findOneBy(
+            array(
+                'user'=>$user->getId(),
+                'deleted'=>false,
+                'company' => $group->getId()
+            )
+        );
         if($card){
             throw new HttpException(400,'User with card saved: ' . $params['dni']);
         }
