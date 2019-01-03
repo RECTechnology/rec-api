@@ -71,6 +71,12 @@ class Offer{
     private $image;
 
     /**
+     * @ORM\Column(type="boolean")
+     * @Expose
+     */
+    private $active = false;
+
+    /**
      * Returns the user unique id.
      *
      * @return mixed
@@ -174,5 +180,21 @@ class Offer{
     public function setImage($image)
     {
         $this->image = $image;
+    }
+
+    /**
+     * @return mixed
+     */
+    public function getActive()
+    {
+        return $this->active;
+    }
+
+    /**
+     * @param mixed $active
+     */
+    public function setActive($active)
+    {
+        $this->active = $active;
     }
 }

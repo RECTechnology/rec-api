@@ -22,6 +22,9 @@ class MapController extends BaseApiController{
     }
 
     public function ListAction(Request $request){
+        $logger = $this->get('manager.logger');
+        $logger->info('MAP 1');
+
         $total = 0;
         $all = array();
         $em = $this->getDoctrine()->getManager();
@@ -68,12 +71,12 @@ class MapController extends BaseApiController{
             throw new HttpException(400, "Filters options are incorrect");
         }
 
+        $logger->info('MAP 2');
         $list_cat_ids = array();
         $search_defined = false;
         if($request->query->has('search') && $request->query->get('search')!='') {
             $search = strtoupper($request->query->get('search'));
             $search_defined = true;
-
             $list_categories = $em->getRepository('TelepayFinancialApiBundle:Category')->findAll();
             foreach ($list_categories as $category) {
                 if (strpos(strtoupper($category->getCat()), $search) !== false || strpos(strtoupper($category->getEsp()), $search) !== false || strpos(strtoupper($category->getEng()), $search) !== false) {
@@ -83,12 +86,21 @@ class MapController extends BaseApiController{
         }
 
         $list_companies = $em->getRepository('TelepayFinancialApiBundle:Group')->findBy($where);
+        $list_offers = $em->getRepository('TelepayFinancialApiBundle:Offer')->findBy(array(
+            'active'   =>  true
+        ));
+
+        $offer_by_com = array();
+        foreach($list_offers as $offer) {
+            $offer_by_com[$offer->getCompany()->getId()][] = $offer;
+        }
 
         foreach ($list_companies as $company){
             $lat = $company->getLatitude();
             $lon = $company->getLongitude();
             $name = strtoupper($company->getName());
             $category_id = 0;
+            $com_id = $company->getId();
             if($company->getCategory()) {
                 $category_id = $company->getCategory()->getId();
             }
@@ -100,22 +112,13 @@ class MapController extends BaseApiController{
             }
             elseif($lat > $min_lat && $lat < $max_lat && $lon > $min_lon && $lon < $max_lon){
                 //check offers
-                $list_offers = $em->getRepository('TelepayFinancialApiBundle:Offer')->findBy(array(
-                    'company'  =>  $company
-                ));
-                $now = strtotime("now");
                 $offers = array();
                 $total_offers = 0;
-                foreach($list_offers as $offer){
-                    $start = date_timestamp_get($offer->getStart());
-                    if($start < $now){
-                        $end = date_timestamp_get($offer->getEnd());
-                        if($now < $end){
-                            $offers[]=$offer;
-                            $total_offers+=1;
-                        }
-                    }
+                if(isset($offer_by_com[$com_id])) {
+                    $offers=$offer_by_com[$com_id];
+                    $total_offers=count($offer_by_com[$com_id]);
                 }
+
                 if(!$only_offers || $total_offers>0){
                     $total+=1;
                     $all[] = array(
@@ -143,7 +146,7 @@ class MapController extends BaseApiController{
                 }
             }
         }
-
+        $logger->info('MAP END');
 
         return $this->restV2(
             200,
