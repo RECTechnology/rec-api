@@ -184,7 +184,7 @@ class UsersGroupsController extends RestApiController{
         }
 
         if($admin->getActiveGroup()->getSubType() == 'BMINCOME' && $type == 'PRIVATE' && $subtype != 'BMINCOME'){
-            throw new HttpException(400, "User can create a private account");
+            throw new HttpException(400, "User can't create a private account");
         }
 
         if($request->request->has('account_name') && $request->request->get('account_name')!='') {
