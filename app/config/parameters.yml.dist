@@ -76,3 +76,5 @@ parameters:
     withdrawal_url: 'https://preapibm.blockroot.com/withdrawal/v1/'
     list_emails: '["uno","dos","res"]'
 
+    authorized_admins: [1,2]
+

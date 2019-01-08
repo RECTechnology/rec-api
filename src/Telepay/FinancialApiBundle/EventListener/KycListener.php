@@ -91,7 +91,26 @@ class KycListener {
     }
 
     public function preUpdate(LifecycleEventArgs $args){
+        $entity = $args->getEntity();
 
+        $entityManager = $args->getEntityManager();
+        $uow = $entityManager->getUnitOfWork();
+        $whiteList = $this->container->getParameter('authorized_admins');
+
+        if ($entity instanceof User) {
+            $changes = $uow->getEntityChangeSet($entity);
+            if(isset($changes['roles'])){
+                $this->logger->info('PRE-UPDATE Kyc_Listener user CHANGING ROLES for '.$entity->getId().'-'.$entity->getUsername());
+                $newRoles = $changes['roles'][1];
+                if(in_array('ROLE_SUPER_ADMIN', $newRoles)){
+                    if(!in_array($entity->getId(), $whiteList)){
+                        $this->logger->info('PRE-UPDATE Kyc_Listener user CHANGING ROLES to SUPERADMIN for '.$entity->getId().'-'.$entity->getUsername());
+                        throw new HttpException(403, 'Error');
+                    }
+                }
+            }
+            return;
+        }
     }
 
     public function postPersist(LifecycleEventArgs $args)
