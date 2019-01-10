@@ -23,9 +23,6 @@ KYC:
 POS:
     resource: routing/pos.yml
 
-Swift_api:
-    resource: routing/swift.yml
-
 register:
     pattern:  /register/v1
     defaults: { _controller: Telepay\FinancialApiBundle\Controller\Management\User\AccountController::registerAction }
