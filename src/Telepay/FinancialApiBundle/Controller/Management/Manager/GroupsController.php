@@ -117,71 +117,6 @@ class GroupsController extends BaseApiController
 
     /**
      * @Rest\View
-     * description: return sub companies
-     * permissions: ROLE_RESELLER
-     */
-    public function indexByCompany(Request $request){
-
-        //todo implements reseller filter
-        //list all subcompanies
-        $admin = $this->get('security.context')->getToken()->getUser();
-        $adminGroup = $admin->getActiveGroup();
-
-        if($request->query->has('limit')) $limit = $request->query->get('limit');
-        else $limit = 10;
-
-        if($request->query->has('offset')) $offset = $request->query->get('offset');
-        else $offset = 0;
-
-        //TODO: Improve performance (two queries)
-        $all = $this->getRepository()->findBy(
-            array('group_creator' => $adminGroup->getId()),
-            array('name' => 'ASC'),
-            $limit,
-            $offset
-        );
-
-        $total = count($all);
-        //return only the limits of active services
-        foreach ($all as $group){
-            $group = $group->getAdminView();
-            $groupData = array(
-                'id'    =>  $group->getId(),
-                'name'  =>  $group->getName()
-            );
-            $group->setGroupCreatorData($groupData);
-
-            $fees = $group->getCommissions();
-            foreach ( $fees as $fee ){
-                $currency = $fee->getCurrency();
-                $fee->setScale($currency);
-            }
-            $limits = $group->getLimits();
-            foreach ( $limits as $lim ){
-                $currency = $lim->getCurrency();
-                $lim->setScale($currency);
-            }
-
-        }
-
-        $entities = array_slice($all, $offset, $limit);
-
-        return $this->restV2(
-            200,
-            "ok",
-            "Request successful",
-            array(
-                'total' => $total,
-                'start' => intval($offset),
-                'end' => count($entities)+$offset,
-                'elements' => $entities
-            )
-        );
-
-    }
-
-    /**
-     * @Rest\View
      */
     public function showAction($id){
         $user = $this->get('security.context')->getToken()->getUser();
@@ -529,29 +464,6 @@ class GroupsController extends BaseApiController
 
                 $em->persist($newFee);
             }
-
-            //don\'t create limits because we are using tier for control limits
-
-//            $limit = $em->getRepository('TelepayFinancialApiBundle:LimitDefinition')->findOneBy(array(
-//                'group'  =>  $group->getId(),
-//                'cname'  =>  $method
-//            ));
-//
-//            if(!$limit){
-//                //create new LimitDefinition
-//                $newLimit = new LimitDefinition();
-//                $newLimit->setGroup($group);
-//                $newLimit->setCurrency($methodConfig->getCurrency());
-//                $newLimit->setCname($method);
-//                $newLimit->setDay(0);
-//                $newLimit->setWeek(0);
-//                $newLimit->setMonth(0);
-//                $newLimit->setYear(0);
-//                $newLimit->setSingle(0);
-//                $newLimit->setTotal(0);
-//
-//                $em->persist($newLimit);
-//            }
 
             $limitCount = $em->getRepository('TelepayFinancialApiBundle:LimitCount')->findOneBy(array(
                 'group'  =>  $group->getId(),
