@@ -21,7 +21,7 @@ note that this method launches a new container with the code mounted, so it will
 ```
 docker-compose up
 ```
-#### Run some command like `cache:clear`
+#### Run some command in the `api` container
 to see the list of running containers use `docker ps`
 
 to run any command in the `api` container
