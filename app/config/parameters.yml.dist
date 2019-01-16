@@ -1,10 +1,10 @@
 parameters:
     database_driver:   pdo_mysql
-    database_host:     127.0.0.1
-    database_port:     ~
-    database_name:     symfony
-    database_user:     root
-    database_password: ~
+    database_host:     api
+    database_port:     3306
+    database_name:     api
+    database_user:     api
+    database_password: api
 
     mailer_transport:  smtp
     mailer_host:       127.0.0.1

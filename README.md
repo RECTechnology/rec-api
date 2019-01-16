@@ -11,7 +11,7 @@ Install **docker** and **docker-compose** using the [official documentation](htt
 ## Run API image only
 ```
 docker build . -f Dockerfile.dev -t rec-api-dev
-docker run -it -v `pwd`:/api rec-api-dev <command>
+docker run -it -v `pwd`:/api -u $UID:$UID rec-api-dev <command>
 ```
 
 ## Run API with dependencies (MySQL, Mongodb, Node)
@@ -21,7 +21,7 @@ docker-compose up
 ```
 ### Run some command like `cache:clear`
 ```
-docker run -it -v `pwd`:/api rec-api-dev <command>
+docker run -it -v `pwd`:/api -u $UID:$UID rec-api-dev <command>
 ```
 ### Admin databases and test
 `PhpMyAdmin` instance is running on `localhost:8080` and the `API` is running on `localhost:8000`.
