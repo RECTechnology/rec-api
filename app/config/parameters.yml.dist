@@ -1,6 +1,6 @@
 parameters:
     database_driver:   pdo_mysql
-    database_host:     api
+    database_host:     rdb
     database_port:     3306
     database_name:     api
     database_user:     api
