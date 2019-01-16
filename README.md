@@ -21,9 +21,13 @@ docker run -it -v `pwd`:/api -u $UID:$UID rec-api-dev <command>
 docker-compose up
 ```
 #### Run some command like `cache:clear`
+to see the list of running containers use `docker ps`
+
+to run any command in the `api` container
 ```
-docker run -it -v `pwd`:/api -u $UID:$UID rec-api-dev <command>
+docker exec -it api-api_api_1 bash
 ```
+
 #### Admin databases and test
 `PhpMyAdmin` instance is running on `localhost:8080` and the `API` is running on `localhost:8000`.
 
