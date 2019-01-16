@@ -203,14 +203,14 @@ class Group extends BaseGroup
     private $country = '';
 
     /**
-     * @ORM\Column(type="float")
+     * @ORM\Column(type="float", nullable=true)
      */
-    private $latitude = '';
+    private $latitude = null;
 
     /**
-     * @ORM\Column(type="float")
+     * @ORM\Column(type="float", nullable=true)
      */
-    private $longitude = '';
+    private $longitude = null;
 
     /**
      * @ORM\Column(type="boolean")
