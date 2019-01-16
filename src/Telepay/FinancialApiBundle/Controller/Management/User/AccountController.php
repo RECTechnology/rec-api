@@ -633,8 +633,11 @@ class AccountController extends BaseApiController{
         $recAddress->setMethod('rec-in');
         $recAddress->setExpiresIn(-1);
         $recAddress->setStatus(CashInTokens::$STATUS_ACTIVE);
+
+        //TODO: create mock for REC method
         $methodDriver = $this->get('net.telepay.in.rec.v1');
         $paymentInfo = $methodDriver->getPayInInfo($company->getId(), 0);
+        # $paymentInfo = ['address' => (new Random())->generateToken()];
         $token = $paymentInfo['address'];
         $recAddress->setToken($token);
         $em->persist($recAddress);
