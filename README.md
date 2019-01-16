@@ -30,7 +30,21 @@ docker exec -it api-api_api_1 bash
 ```
 
 #### Admin databases and test
-`PhpMyAdmin` instance is running on `localhost:8080` and the `API` is running on `localhost:8000`.
+the services started with docker-compose are available at localhost in different ports
+* `API` is running on `localhost:8000`
+* `PhpMyAdmin` instance is running on `localhost:8080`
+* `MongoAdmin` instance is running on `localhost:8081`
+
+the rest of services haven't any port exposed to outside, but available inside the containers
+* `mariadb` instance opens port `3306` to the container network
+  - empty `root` password
+  - database `api`
+  - user `api`
+  - password `api`
+* `mongodb` instance opens port `27017` to the container network
+* `rec node` instance opens port `17711` to the container network
+  - rpcuser `rec`
+  - rpcpassword `rec`
 
 # Deployment
 ## Stage Environment
