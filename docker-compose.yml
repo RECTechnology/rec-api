@@ -1,0 +1,38 @@
+version: '3'
+
+volumes:
+  rdb:
+  nrdb:
+  logs:
+
+services:
+  api:
+    build:
+      context: .
+      dockerfile: Dockerfile.dev
+    volumes:
+      - ./:/api
+    ports:
+      - 8000:8000
+
+  rdb:
+    image: mariadb
+    environment:
+      - MYSQL_DATABASE=api
+      - MYSQL_USER=api
+      - MYSQL_PASSWORD=api
+      - MYSQL_ALLOW_EMPTY_PASSWORD=yes
+
+  rdbadmin:
+    image: phpmyadmin/phpmyadmin
+    environment:
+      - PMA_HOST=rdb
+      - PMA_port=3306
+    ports:
+      - 8080:80
+
+  #nrdb:
+    #image: mongodb
+
+  #nrdbadm:
+    #image: phpmyadmin/phpmyadmin
