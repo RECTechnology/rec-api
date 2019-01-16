@@ -14,6 +14,7 @@ Install **docker** and **docker-compose** using the [official documentation](htt
 docker build . -f Dockerfile.dev -t rec-api-dev
 docker run -it -v `pwd`:/api -u $UID:$UID rec-api-dev <command>
 ```
+note that this method launches a new container with the code mounted, so it will only work if the command affects only to filesystem, if it has something to do with the database it will fail because the container cannot communicate with the database (for example command `app/console doctrine:schema:update --force` will not work)
 
 ### Run API with dependencies (MySQL, Mongodb, Node)
 #### Start services
