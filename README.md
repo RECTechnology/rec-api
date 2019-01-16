@@ -1,7 +1,7 @@
 REC Barcelona API
 ========================
-[![Website](https://img.shields.io/website-up-down-green-red/https/rec.barcelona?label=web)](https://rec.barcelona)
-[![Website](https://img.shields.io/website-up-down-green-red/https/api.rec.barcelona?label=api)](https://api.rec.barcelona)
+[![Website](https://img.shields.io/website-up-down-green-red/https/rec.barcelona.svg?label=web)](https://rec.barcelona)
+[![Website](https://img.shields.io/website-up-down-green-red/https/api.rec.barcelona/public/map/v1/list.svg?label=api)](https://api.rec.barcelona)
 
 Welcome to the REC Barcelona API [api.rec.barcelona](https://api.rec.barcelona)
 
