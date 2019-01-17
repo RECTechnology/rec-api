@@ -6,6 +6,7 @@ use Doctrine\DBAL\DBALException;
 use Doctrine\ORM\Query\Expr\Join;
 use Exception;
 use Symfony\Component\HttpKernel\Exception\HttpException;
+use Symfony\Component\Security\Core\SecurityContext;
 use Telepay\FinancialApiBundle\Controller\BaseApiController;
 use Telepay\FinancialApiBundle\Document\Transaction;
 use Telepay\FinancialApiBundle\Entity\User;
@@ -40,7 +41,8 @@ class UsersController extends BaseApiController
         $tokensRepo = $em->getRepository("TelepayFinancialApiBundle:AccessToken");
 
         $securityContext = $this->get('security.context');
-        if(!$securityContext->isGranted('ROLE_SUPER_ADMIN')) throw new HttpException(403, 'You don\'t have the necessary permissions');
+        if(!$securityContext->isGranted('ROLE_SUPER_ADMIN'))
+            throw new HttpException(403, 'You don\'t have the necessary permissions');
 
         $user = $usersRepo->findOneBy(array('id'=>$id));
 
@@ -67,13 +69,17 @@ class UsersController extends BaseApiController
     /**
      * @Rest\View
      * Permissions: ROLE_SUPER_ADMIN
+     * @param Request $request
+     * @return \Symfony\Component\HttpFoundation\Response
      */
     public function indexAction(Request $request){
 
             //TODO only superadmin can access here
+        /** @var SecurityContext $securityContext */
         $securityContext = $this->get('security.context');
 
-        if(!$securityContext->isGranted('ROLE_SUPER_ADMIN')) throw new HttpException(403, 'You don\'t have the necessary permissions');
+        if(!$securityContext->isGranted('ROLE_SUPER_ADMIN'))
+            throw new HttpException(403, 'You don\'t have the necessary permissions '. print_r($securityContext->getToken()->getUsername(), true));
 
         if($request->query->has('limit')) $limit = $request->query->get('limit');
         else $limit = 10;
