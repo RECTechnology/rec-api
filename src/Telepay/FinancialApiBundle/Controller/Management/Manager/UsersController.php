@@ -70,7 +70,7 @@ class UsersController extends BaseApiController
      */
     public function indexAction(Request $request){
 
-        //TODO only superadmin can access here
+            //TODO only superadmin can access here
         $securityContext = $this->get('security.context');
 
         if(!$securityContext->isGranted('ROLE_SUPER_ADMIN')) throw new HttpException(403, 'You don\'t have the necessary permissions');

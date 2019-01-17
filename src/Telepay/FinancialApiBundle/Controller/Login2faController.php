@@ -2,15 +2,17 @@
 
 namespace Telepay\FinancialApiBundle\Controller;
 
+use FOS\OAuthServerBundle\Controller\TokenController;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpKernel\Exception\HttpException;
 
 
 class Login2faController extends RestApiController{
-    public function loginAction(Request $request){
 
-        if(!$request->request->has('version') || $request->request->get('version')!='1') {
+
+    public function loginAction(Request $request){
+        if(!$request->request->has('version') || $request->request->get('version')!=1) {
             throw new HttpException(404, 'Must update');
         }
         $headers = array(
@@ -19,31 +21,21 @@ class Login2faController extends RestApiController{
             'Pragma' => 'no-cache',
         );
 
-        $clientId = $request->get('client_id');
-        $clientSecret = $request->get('client_secret');
         $username = strtoupper($request->get('username'));
         $username = preg_replace("/[^0-9A-Z]/", "", $username);
-        $password = $request->get('password');
-        $pin = $request->get('pin');
+        $pin = $request->get('pifos_oauth_server.controller.tokenn');
         $kyc = 0;
         if($request->request->has('kyc')) $kyc = $request->get('kyc');
 
         $em = $this->getDoctrine()->getManager();
         $user = $em->getRepository('TelepayFinancialApiBundle:User')->findOneBy(array('email' => $username));
         $username=($user)?$user->getUsername():$username;
-        $token = $this->call(
-            "https://$_SERVER[HTTP_HOST]/oauth/v2/token",
-            'POST',
-            array(),
-            array(
-                'client_id'=> $clientId,
-                'client_secret'=> $clientSecret,
-                'username'=> $username,
-                'password'=> $password,
-                'grant_type'=> 'password'
-            ),
-            array('Accept'=>'application/json')
-        );
+
+        /** @var TokenController $tokenController */
+        $tokenController = $this->get('fos_oauth_server.controller.token');
+        $token = json_decode($tokenController->tokenAction($request)->getContent());
+
+
         if(!isset($token->error)){
             $em = $this->getDoctrine()->getManager();
             $user = $em->getRepository('TelepayFinancialApiBundle:User')->findBy(array('username' => $username));
@@ -98,27 +90,17 @@ class Login2faController extends RestApiController{
             'Pragma' => 'no-cache',
         );
 
-        $clientId = $request->get('client_id');
-        $clientSecret = $request->get('client_secret');
         $username = $request->get('username');
         $password = $request->get('password');
 
         $em = $this->getDoctrine()->getManager();
         $user = $em->getRepository('TelepayFinancialApiBundle:User')->findOneBy(array('email' => $username));
         $username=($user)?$user->getUsername():$username;
-        $token = $this->call(
-            "https://$_SERVER[HTTP_HOST]/oauth/v2/token",
-            'POST',
-            array(),
-            array(
-                'client_id'=> $clientId,
-                'client_secret'=> $clientSecret,
-                'username'=> $username,
-                'password'=> $password,
-                'grant_type'=> 'password'
-            ),
-            array('Accept'=>'application/json')
-        );
+
+
+        /** @var TokenController $tokenController */
+        $tokenController = $this->get('fos_oauth_server.controller.token');
+        $token = json_decode($tokenController->tokenAction($request)->getContent());
         if(!isset($token->error)){
             $em = $this->getDoctrine()->getManager();
             $user = $em->getRepository('TelepayFinancialApiBundle:User')->findBy(array('username' => $username));
