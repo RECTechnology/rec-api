@@ -65,12 +65,7 @@ class GroupsController extends BaseApiController
             ->orderBy('p.'.$order, $dir)
             ->where($qb->expr()->orX(
                 $qb->expr()->like('p.cif', $qb->expr()->literal('%'.$search.'%')),
-                $qb->expr()->like('p.prefix', $qb->expr()->literal('%'.$search.'%')),
                 $qb->expr()->like('p.phone', $qb->expr()->literal('%'.$search.'%')),
-                $qb->expr()->like('p.zip', $qb->expr()->literal('%'.$search.'%')),
-                $qb->expr()->like('p.email', $qb->expr()->literal('%'.$search.'%')),
-                $qb->expr()->like('p.city', $qb->expr()->literal('%'.$search.'%')),
-                $qb->expr()->like('p.town', $qb->expr()->literal('%'.$search.'%')),
                 $qb->expr()->like('p.name', $qb->expr()->literal('%'.$search.'%'))
             ))
             ->getQuery();
