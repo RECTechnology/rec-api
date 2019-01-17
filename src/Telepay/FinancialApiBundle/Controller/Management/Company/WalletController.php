@@ -108,7 +108,21 @@ class WalletController extends RestApiController {
         $company = $this->getDoctrine()->getManager()->getRepository('TelepayFinancialApiBundle:Group')->find($company_id);
         $user = $this->getUser();
         if(!$company) throw new HttpException(404, 'Company not found');
-        if(!$user->hasGroup($company->getName())) throw new HttpException(403, 'You don\'t have the necessary permissions');
+        $userGroup = $user->getActiveGroup();
+
+        $adminRoles = $this->getDoctrine()->getRepository("TelepayFinancialApiBundle:UserGroup")->findOneBy(array(
+                'user'  =>  $user->getId(),
+                'group' =>  $userGroup->getId()
+            )
+        );
+
+        if($company->getId() == $userGroup->getId()){
+            if(!$adminRoles->hasRole('ROLE_ADMIN') || !$user->hasGroup($userGroup->getName()))
+                throw new HttpException(409, 'You don\'t have the necesary permissions in this company');
+        }else{
+            if(!$adminRoles->hasRole('ROLE_SUPER_ADMIN'))
+                throw new HttpException(409, 'You don\'t have the necesary permissions');
+        }
 
         if($request->query->has('limit')) $limit = $request->query->get('limit');
         else $limit = 10;
