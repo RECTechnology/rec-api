@@ -12,17 +12,17 @@ user_account_edit:
     requirements:
         _method: PUT
 
-user_method_read:
-    pattern:  /user/v1/methods/{method}
-    defaults: { _controller: Telepay\FinancialApiBundle\Controller\Management\Integrator\MethodsController::read }
-    requirements:
-        _method: GET
+##user_method_read:
+##    pattern:  /user/v1/methods/{method}
+##    defaults: { _controller: Telepay\FinancialApiBundle\Controller\Management\Integrator\MethodsController::read }
+##    requirements:
+##        _method: GET
 
-user_method_index:
-    pattern:  /user/v1/methods
-    defaults: { _controller: Telepay\FinancialApiBundle\Controller\Management\Integrator\MethodsController::index }
-    requirements:
-        _method: GET
+##user_method_index:
+##    pattern:  /user/v1/methods
+##    defaults: { _controller: Telepay\FinancialApiBundle\Controller\Management\Integrator\MethodsController::index }
+##    requirements:
+##        _method: GET
 
 user_index_companies:
     pattern:  /user/v1/companies
@@ -39,11 +39,11 @@ user_wallet:
     requirements:
         _method: GET
 
-commerce_list_exchangers:
-    pattern:  /user/v1/wallet/listCommerce
-    defaults: { _controller: Telepay\FinancialApiBundle\Controller\Management\User\WalletController::listCommerce }
-    requirements:
-        _method: GET
+##commerce_list_exchangers:
+##    pattern:  /user/v1/wallet/listCommerce
+##    defaults: { _controller: Telepay\FinancialApiBundle\Controller\Management\User\WalletController::listCommerce }
+##    requirements:
+##        _method: GET
 
 user_wallet_transactions:
     pattern:  /user/v1/wallet/transactions
@@ -69,32 +69,32 @@ user_wallet_transactions_v2:
     requirements:
         _method: GET
 
-user_wallet_transactions_sum:
-    pattern:  /user/v1/wallet/earnings
-    defaults: { _controller: Telepay\FinancialApiBundle\Controller\Management\User\WalletController::benefits }
-    requirements:
-        _method: GET
+##user_wallet_transactions_sum:
+##    pattern:  /user/v1/wallet/earnings
+##    defaults: { _controller: Telepay\FinancialApiBundle\Controller\Management\User\WalletController::benefits }
+##    requirements:
+##        _method: GET
 
-user_wallet_transactions_sum_month:
-    pattern:  /user/v1/wallet/monthearnings
-    defaults: { _controller: Telepay\FinancialApiBundle\Controller\Management\User\WalletController::monthBenefits }
-    requirements:
-        _method: GET
+##user_wallet_transactions_sum_month:
+##    pattern:  /user/v1/wallet/monthearnings
+##    defaults: { _controller: Telepay\FinancialApiBundle\Controller\Management\User\WalletController::monthBenefits }
+##    requirements:
+##        _method: GET
 
-user_wallet_currency_exchange:
-    pattern:  /user/v1/wallet/currency_exchange
-    defaults: { _controller: Telepay\FinancialApiBundle\Controller\Management\User\WalletController::currencyExchange, _format: ~ }
-    requirements:
-        _method: POST
+##user_wallet_currency_exchange:
+##    pattern:  /user/v1/wallet/currency_exchange
+##    defaults: { _controller: Telepay\FinancialApiBundle\Controller\Management\User\WalletController::currencyExchange, _format: ~ }
+##    requirements:
+##        _method: POST
 
 
 ######################## USER ANALYTICS ########################
 
-user_analytics:
-    pattern:  /user/v1/analytics
-    defaults: { _controller: Telepay\FinancialApiBundle\Controller\Management\User\AccountController::analytics }
-    requirements:
-        _method: GET
+##user_analytics:
+##    pattern:  /user/v1/analytics
+##    defaults: { _controller: Telepay\FinancialApiBundle\Controller\Management\User\AccountController::analytics }
+##    requirements:
+##        _method: GET
 
 user_set_image:
     pattern:  /user/v1/image

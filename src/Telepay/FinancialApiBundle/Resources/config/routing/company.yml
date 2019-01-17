@@ -19,109 +19,109 @@ company_set_comapny_image:
     requirements:
         _method: PUT
 
-company_set_user_manager:
+##company_set_user_manager:
 ##    pattern:  /company/v1/account/kyc/admin/{id}
-    defaults: { _controller: Telepay\FinancialApiBundle\Controller\Management\Company\AccountController::setAdmin }
-    requirements:
-        _method: PUT
+##    defaults: { _controller: Telepay\FinancialApiBundle\Controller\Management\Company\AccountController::setAdmin }
+##    requirements:
+##        _method: PUT
 
-company_kyc_upload_file:
+##company_kyc_upload_file:
 ##    pattern:  /company/v1/account/kyc/upload
-    defaults: { _controller: Telepay\FinancialApiBundle\Controller\Management\Company\KYCController::uploadFile }
-    requirements:
-        _method: POST
+##    defaults: { _controller: Telepay\FinancialApiBundle\Controller\Management\Company\KYCController::uploadFile }
+##    requirements:
+##        _method: POST
 
-company_kyc_get_uploaded_file:
+##company_kyc_get_uploaded_file:
 ##    pattern:  /company/v1/account/kyc/upload
-    defaults: { _controller: Telepay\FinancialApiBundle\Controller\Management\Company\KYCController::getUploadedFiles }
-    requirements:
-        _method: GET
+##    defaults: { _controller: Telepay\FinancialApiBundle\Controller\Management\Company\KYCController::getUploadedFiles }
+##    requirements:
+##        _method: GET
 
-company_kyc_request_validation:
+##company_kyc_request_validation:
 ##    pattern:  /company/v1/account/kyc/validation
-    defaults: { _controller: Telepay\FinancialApiBundle\Controller\Management\Company\KYCController::requestValidation }
-    requirements:
-        _method: PUT
+##    defaults: { _controller: Telepay\FinancialApiBundle\Controller\Management\Company\KYCController::requestValidation }
+##    requirements:
+##        _method: PUT
 
 ##################### COMPANY ############################
 
-company_update_tier:
+##company_update_tier:
 ##    pattern:  /company/v1/tier/{company_id}/{tier}
-    defaults: { _controller: Telepay\FinancialApiBundle\Controller\Management\Company\SpecialActionsController::changeTier }
-    requirements:
-        _method: PUT
+##    defaults: { _controller: Telepay\FinancialApiBundle\Controller\Management\Company\SpecialActionsController::changeTier }
+##    requirements:
+##        _method: PUT
 
 
-company_update_transaction:
+##company_update_transaction:
 ##    pattern:  /company/v1/wallet/transaction/{id}
-    defaults: { _controller: Telepay\FinancialApiBundle\Controller\Management\Company\WalletController::updateAction }
-    requirements:
-        _method: PUT
+##    defaults: { _controller: Telepay\FinancialApiBundle\Controller\Management\Company\WalletController::updateAction }
+##    requirements:
+##        _method: PUT
 
 
 ######################## COMPANY SCHEDULED ########################
 
-scheduled_list:
+##scheduled_list:
 ##    pattern:  /company/v1/scheduled
-    defaults: { _controller: Telepay\FinancialApiBundle\Controller\Management\Company\ScheduledController::indexAction }
-    requirements:
-        _method: GET
+##    defaults: { _controller: Telepay\FinancialApiBundle\Controller\Management\Company\ScheduledController::indexAction }
+##    requirements:
+##        _method: GET
 
-scheduled_create:
+##scheduled_create:
 ##    pattern:  /company/v1/scheduled
-    defaults: { _controller: Telepay\FinancialApiBundle\Controller\Management\Company\ScheduledController::createAction }
-    requirements:
-        _method: POST
+##    defaults: { _controller: Telepay\FinancialApiBundle\Controller\Management\Company\ScheduledController::createAction }
+##    requirements:
+##        _method: POST
 
-scheduled_update:
+##scheduled_update:
 ##    pattern:  /company/v1/scheduled/{id}
-    defaults: { _controller: Telepay\FinancialApiBundle\Controller\Management\Company\ScheduledController::updateAction }
-    requirements:
-        _method: PUT
+##    defaults: { _controller: Telepay\FinancialApiBundle\Controller\Management\Company\ScheduledController::updateAction }
+##    requirements:
+##        _method: PUT
 
-scheduled_delete:
+##scheduled_delete:
 ##    pattern:  /company/v1/scheduled/{id}
-    defaults: { _controller: Telepay\FinancialApiBundle\Controller\Management\Company\ScheduledController::deleteAction }
-    requirements:
-        _method: DELETE
+##    defaults: { _controller: Telepay\FinancialApiBundle\Controller\Management\Company\ScheduledController::deleteAction }
+##    requirements:
+##        _method: DELETE
 
 ######################## COMPANY NFC ########################
 
-create_nfc_card:
+##create_nfc_card:
 ##    pattern:  /company/v1/nfc_card
-    defaults: { _controller: Telepay\FinancialApiBundle\Controller\Management\Company\NFCController::registerCard }
-    requirements:
-        _method: POST
+##    defaults: { _controller: Telepay\FinancialApiBundle\Controller\Management\Company\NFCController::registerCard }
+##    requirements:
+##        _method: POST
 
-read_balance_nfc_card:
+##read_balance_nfc_card:
 ##    pattern:  /company/v1/nfc_card/balance
-    defaults: { _controller: Telepay\FinancialApiBundle\Controller\Management\Company\NFCController::readBalanceNFCCard }
-    requirements:
-        _method: POST
+##    defaults: { _controller: Telepay\FinancialApiBundle\Controller\Management\Company\NFCController::readBalanceNFCCard }
+##    requirements:
+##        _method: POST
 
-recharge_nfc_card:
+##recharge_nfc_card:
 ##    pattern:  /company/v1/nfc_card/{company_id}/recharge
-    defaults: { _controller: Telepay\FinancialApiBundle\Controller\Management\Company\NFCController::rechargeCard }
-    requirements:
-        _method: POST
+##    defaults: { _controller: Telepay\FinancialApiBundle\Controller\Management\Company\NFCController::rechargeCard }
+##    requirements:
+##        _method: POST
 
-update_nfc_card_from_app:
+##update_nfc_card_from_app:
 ##    pattern:  /company/v1/nfc_card
-    defaults: { _controller: Telepay\FinancialApiBundle\Controller\Management\Company\NFCController::updateCard }
-    requirements:
-        _method: PUT
+##    defaults: { _controller: Telepay\FinancialApiBundle\Controller\Management\Company\NFCController::updateCard }
+##    requirements:
+##        _method: PUT
 
-index_nfc_card:
+##index_nfc_card:
 ##    pattern:  /company/v1/nfc_cards
-    defaults: { _controller: Telepay\FinancialApiBundle\Controller\Management\Company\NFCController::indexCards }
-    requirements:
-        _method: GET
+##    defaults: { _controller: Telepay\FinancialApiBundle\Controller\Management\Company\NFCController::indexCards }
+##    requirements:
+##        _method: GET
 
-update_nfc_card:
+##update_nfc_card:
 ##    pattern:  /company/v1/nfc_card/{id}
-    defaults: { _controller: Telepay\FinancialApiBundle\Controller\Management\Company\NFCController::updateCardFromCompany }
-    requirements:
-        _method: PUT
+##    defaults: { _controller: Telepay\FinancialApiBundle\Controller\Management\Company\NFCController::updateCardFromCompany }
+##    requirements:
+##        _method: PUT
 
 
 ######################## CREDIT CARD ########################
@@ -236,11 +236,11 @@ company_wallet:
     requirements:
         _method: GET
 
-company_wallet_do_exchange:
+##company_wallet_do_exchange:
 ##    pattern:  /company/{company_id}/v1/wallet/exchange
-    defaults: { _controller: Telepay\FinancialApiBundle\Controller\Management\Company\WalletController::currencyExchange, _format: ~ }
-    requirements:
-        _method: POST
+##    defaults: { _controller: Telepay\FinancialApiBundle\Controller\Management\Company\WalletController::currencyExchange, _format: ~ }
+##    requirements:
+##        _method: POST
 
 company_wallet_transactions:
     pattern:  /company/{company_id}/v1/wallet/transactions
@@ -249,44 +249,44 @@ company_wallet_transactions:
         _method: GET
 
 ###################   COMPANY SETTINGS #################
-company_read_settings:
+##company_read_settings:
 ##    pattern: /company/v1/{company_id}/settings
-    defaults: { _controller: Telepay\FinancialApiBundle\Controller\Management\Company\SettingsController::readSettings }
-    requirements:
-        _method: GET
+##    defaults: { _controller: Telepay\FinancialApiBundle\Controller\Management\Company\SettingsController::readSettings }
+##    requirements:
+##        _method: GET
 
-company_update_settings:
+##company_update_settings:
 ##    pattern: /company/v1/{company_id}/settings
-    defaults: { _controller: Telepay\FinancialApiBundle\Controller\Management\Company\SettingsController::updateSettings }
-    requirements:
-        _method: PUT
+##    defaults: { _controller: Telepay\FinancialApiBundle\Controller\Management\Company\SettingsController::updateSettings }
+##    requirements:
+##        _method: PUT
 
 ##################     COMPANY METHODS     ###############
-company_method_read:
+##company_method_read:
 ##    pattern:  /company/{id}/v1/methods/{method}
-    defaults: { _controller: Telepay\FinancialApiBundle\Controller\Management\Integrator\MethodsController::read }
-    requirements:
-        _method: GET
+##    defaults: { _controller: Telepay\FinancialApiBundle\Controller\Management\Integrator\MethodsController::read }
+##    requirements:
+##        _method: GET
 
-company_method_index:
+##company_method_index:
 ##    pattern:  /company/{id}/v1/methods
-    defaults: { _controller: Telepay\FinancialApiBundle\Controller\Management\Integrator\MethodsController::index }
-    requirements:
-        _method: GET
+##    defaults: { _controller: Telepay\FinancialApiBundle\Controller\Management\Integrator\MethodsController::index }
+##    requirements:
+##        _method: GET
 
 
 #################     ACCOUNT FEES    ######################
-company_index_fees:
+##company_index_fees:
 ##    pattern: /account/{account_id}/v1/fees
-    defaults: {_controller: Telepay\FinancialApiBundle\Controller\Management\Company\WalletController::indexFees }
-    requirements:
-        _method: GET
+##    defaults: {_controller: Telepay\FinancialApiBundle\Controller\Management\Company\WalletController::indexFees }
+##    requirements:
+##        _method: GET
 
-company_show_fee:
+##company_show_fee:
 ##    pattern: /account/{account_id}/v1/fees/{method}
-    defaults: {_controller: Telepay\FinancialApiBundle\Controller\Management\Company\WalletController::showFees }
-    requirements:
-        _method: GET
+##    defaults: {_controller: Telepay\FinancialApiBundle\Controller\Management\Company\WalletController::showFees }
+##    requirements:
+##        _method: GET
 
 
 ##################### MAP ############################
