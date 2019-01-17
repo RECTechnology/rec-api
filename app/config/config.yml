@@ -161,7 +161,9 @@ doctrine_mongodb:
     connections:
         default:
             server: %mongodb_server%
-            options: {}
+            options:
+                username: %mongodb_user%
+                password: %mongodb_password%
     default_database: %mongodb_db%
     document_managers:
         default:
