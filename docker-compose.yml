@@ -3,6 +3,7 @@ version: '3'
 volumes:
   rdb:
   nrdb:
+  blockchain:
   logs:
 
 services:
@@ -53,3 +54,5 @@ services:
 
   node:
     image: qbitartifacts/crea-node
+    volumes:
+      - blockchain:/root/.creativecoin
