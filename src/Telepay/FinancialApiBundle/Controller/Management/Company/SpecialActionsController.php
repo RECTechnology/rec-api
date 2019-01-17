@@ -36,22 +36,19 @@ class SpecialActionsController extends RestApiController {
     }
 
     public function changeTier(Request $request, $company_id, $tier){
+        /*
         if (!$this->get('security.authorization_checker')->isGranted('ROLE_WORKER')) {
             throw $this->createAccessDeniedException();
         }
-        //Function only available for botc
-        $botc_id = $this->container->getParameter('default_company_creator_commerce_botc');
         $user = $this->get('security.context')->getToken()->getUser();
-        $activeCompany = $user->getActiveGroup();
-        if($activeCompany->getId() != $botc_id) throw new HttpException(403, 'You don\'t have the necessary permissions');
         $em = $this->getDoctrine()->getManager();
         $group = $em->getRepository('TelepayFinancialApiBundle:Group')->findOneBy(array(
-            'id'  =>  $company_id,
-            'group_creator' =>  $botc_id
+            'id'  =>  $company_id
         ));
         if(!$group) throw new HttpException(404, 'Group not allowed');
         $group->setTier($tier);
         $em->flush();
         return $this->rest(204, 'Company tier updated successfully');
+        */
     }
 }

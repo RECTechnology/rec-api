@@ -122,8 +122,7 @@ class GroupsController extends BaseApiController
         }else{
             $group = $this->getRepository()->findOneBy(
                 array(
-                    'id'        =>  $id,
-                    'group_creator'   =>  $userGroup
+                    'id'        =>  $id
                 )
             );
         }
@@ -154,44 +153,6 @@ class GroupsController extends BaseApiController
             );
 
             $limit_configuration[] = $lim;
-        }
-
-        //TODO search exchange methods by tier
-        $exchange_limits = $em->getRepository('TelepayFinancialApiBundle:TierLimit')->createQueryBuilder('e')
-            ->where('e.tier = :tier')
-            ->andWhere('e.method LIKE :method')
-            ->setParameter('tier', $group->getTier())
-            ->setParameter('method', 'exchange%')
-            ->getQuery()
-            ->getResult();
-
-        foreach ($exchange_limits as $exchange_limit){
-
-            $exchange_currency = explode('_', $exchange_limit->getMethod());
-            $exchange_method = new AbstractMethod(
-                $exchange_limit->getMethod(),
-                strtolower($exchange_limit->getMethod()),
-                'exchange',
-                $exchange_currency[1],
-                false,
-                '',
-                '',
-                $group->getTier()
-            );
-
-            $total_last_day = $dm->getRepository('TelepayFinancialApiBundle:Transaction')->sumLastDaysByExchange($group, $exchange_currency[1], 1);
-            $total_last_month = $dm->getRepository('TelepayFinancialApiBundle:Transaction')->sumLastDaysByExchange($group, $exchange_currency[1], 30);
-
-            $lim = array(
-                'method'    =>  $exchange_method,
-                'month_limit'     =>  $exchange_limit->getMonth(),
-                'month_spent'   =>  $total_last_month[0]['total'] ? $total_last_month[0]['total']:0,
-                'day_limit' =>  $exchange_limit->getDay(),
-                'day_spent' =>  $total_last_day[0]['total'] ? $total_last_day[0]['total']:0
-            );
-
-            $limit_configuration[] = $lim;
-
         }
 
         $group->setLimitConfiguration($limit_configuration);
