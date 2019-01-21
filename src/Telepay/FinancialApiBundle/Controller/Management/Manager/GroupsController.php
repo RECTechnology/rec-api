@@ -276,6 +276,62 @@ class GroupsController extends BaseApiController
 
     }
 
+    /**
+     * @Rest\View
+     */
+    public function indexByCompany(Request $request, $id){
+        $em = $this->getDoctrine()->getManager();
+
+        //only the superadmin can access here
+        if(!$this->get('security.context')->isGranted('ROLE_SUPER_ADMIN')) {
+            throw new HttpException(403, 'You have not the necessary permissions');
+        }
+
+        $listGroups = $this->getDoctrine()->getRepository('TelepayFinancialApiBundle:UserGroup')->findOneBy(array(
+            'user'  =>  $id
+        ));
+
+        $listData = array();
+        foreach($listGroups as $group) {
+            $company = $em->getRepository('TelepayFinancialApiBundle:Group')->findOneBy($group->getGroup());
+            if (!$company) throw new HttpException(404, 'Company not found');
+            $listData[] = array(
+                "id" => $company->getId(),
+                "name" => $company->getName(),
+                "email" => $company->getEmail(),
+                "active" => $company->getActive(),
+                "description" => $company->getDescription(),
+                "public_image" => $company->getPublicImage(),
+                "company_image" => $company->getCompanyImage(),
+                "longitude" => $company->getLongitude(),
+                "latitude" => $company->getLatitude(),
+                "web" => $company->getWeb(),
+                "type" => $company->getType(),
+                "subtype" => $company->getSubtype(),
+                "country" => $company->getCountry(),
+                "city" => $company->getCity(),
+                "street_type" => $company->getStreetType(),
+                "street" => $company->getStreet(),
+                "street_number" => $company->getAddressNumber(),
+                "prefix" => $company->getPrefix(),
+                "phone_number" => $company->getPhone(),
+                "cif" => $company->getCif(),
+                "rec_address" => $company->getRecAddress()
+            );
+        }
+
+        return $this->rest(
+            200,
+            "Request successful",
+            array(
+                'total' => count($listData),
+                'start' => 0,
+                'end' => count($listData)-1,
+                'elements' => $listData
+            )
+        );
+    }
+
     private function _setMethods($methods, Group $group){
 
         $em = $this->getDoctrine()->getManager();
