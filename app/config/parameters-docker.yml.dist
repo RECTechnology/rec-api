@@ -1,0 +1,82 @@
+parameters:
+    database_driver:   pdo_mysql
+    database_host:     rdb
+    database_port:     3306
+    database_name:     app
+    database_user:     app
+    database_password: $APP_SECRET
+
+    mailer_transport:  smtp
+    mailer_host:       $APP_EMAIL_HOST
+    mailer_user:       $APP_EMAIL_USERNAME
+    mailer_password:   $APP_EMAIL_PASSWORD
+
+    no_reply_email: $APP_EMAIL_USERNAME
+    volume_email: $REPORTS_EMAIL
+
+    locale:            en
+    secret:            $APP_SECRET
+
+    debug_toolbar:          false
+    debug_redirects:        false
+    use_assetic_controller: true
+
+    mongodb_server: mongodb://nrdb:27017
+    mongodb_db: app
+    mongodb_username: app
+    mongodb_password: $APP_SECRET
+    version: 1.0
+    build_id: "#1"
+    environment: 'local'
+    api_env: 'pre'
+
+    base_url: $APP_BASE_URL
+    base_panel_url: $APP_PANEL_URL
+    web_app_url: $APP_LANDING_URL
+
+    rec_user: app
+    rec_pass: app
+    rec_host: node
+    rec_port: 17711
+
+    admin_key: "test"
+    saved_data_version: 1
+    saved_data_subversion: 1
+    OP_RETURN_BTC_FEE: "0.0001"
+
+    rec_min_confirmations: 1
+
+    id_group_default:
+    id_group_level_0:
+    id_group_root: 1
+    admin_user_id: 1
+
+    treasure_address: 'address'
+    root_group_address: 'address'
+
+    swift_client_id_default: ''
+    commerce_client_id: ''
+    url_swift_default_ok: ''
+    url_swift_default_ko: ''
+
+    labsmobile_user: 'user'
+    labsmobile_pass: 'pass'
+
+    csv_dir: ''
+    uploads_dir: ''
+    files_path: ''
+
+    lemonway_url: 'https://sandbox-api.lemonway.fr/mb/demo/dev/directkitjson2/Service.asmx'
+    lemonway_payment_url: 'https://sandbox-webkit.lemonway.fr/NOVACT/dev/?moneyintoken='
+    lemonway_notification_url: 'https://preapibm.blockroot.com/notifications/v1/lemonway/'
+    lemonway_notification_app: 'https://bcn.com/re:recharge?status='
+    lemonway_user: 'society'
+    lemonway_pass: '123456'
+    lemonway_version: '4.0'
+    lemonway_admin_account: 'MKP'
+
+    withdrawal_url: 'https://preapibm.blockroot.com/withdrawal/v1/'
+    list_emails: '["uno","dos","res"]'
+
+    authorized_admins: [1,2]
+
