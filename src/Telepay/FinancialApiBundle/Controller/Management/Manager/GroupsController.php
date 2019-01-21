@@ -300,6 +300,7 @@ class GroupsController extends BaseApiController
             if (!$company) throw new HttpException(404, 'Company not found');
             $listData[] = array(
                 "id" => $company->getId(),
+                "user_roles" => $group->getRoles(),
                 "name" => $company->getName(),
                 "email" => $company->getEmail(),
                 "active" => $company->getActive(),
