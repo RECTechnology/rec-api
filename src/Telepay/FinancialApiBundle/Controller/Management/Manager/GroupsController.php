@@ -287,7 +287,7 @@ class GroupsController extends BaseApiController
             throw new HttpException(403, 'You have not the necessary permissions');
         }
 
-        $listGroups = $this->getDoctrine()->getRepository('TelepayFinancialApiBundle:UserGroup')->findOneBy(array(
+        $listGroups = $this->getDoctrine()->getRepository('TelepayFinancialApiBundle:UserGroup')->findBy(array(
             'user'  =>  $id
         ));
 
@@ -326,7 +326,7 @@ class GroupsController extends BaseApiController
             array(
                 'total' => count($listData),
                 'start' => 0,
-                'end' => count($listData)-1,
+                'end' => count($listGroups)-1,
                 'elements' => $listData
             )
         );
