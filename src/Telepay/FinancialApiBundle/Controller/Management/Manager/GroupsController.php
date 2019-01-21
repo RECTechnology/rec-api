@@ -293,7 +293,10 @@ class GroupsController extends BaseApiController
 
         $listData = array();
         foreach($listGroups as $group) {
-            $company = $em->getRepository('TelepayFinancialApiBundle:Group')->findOneBy($group->getGroup());
+            $company = $em->getRepository('TelepayFinancialApiBundle:Group')->findOneBy(array(
+                'id'  => $group->getGroup()
+            ));
+
             if (!$company) throw new HttpException(404, 'Company not found');
             $listData[] = array(
                 "id" => $company->getId(),
