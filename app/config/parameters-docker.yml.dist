@@ -23,8 +23,9 @@ parameters:
 
     mongodb_server: mongodb://nrdb:27017
     mongodb_db: app
-    mongodb_username: app
+    mongodb_user: app
     mongodb_password: $APP_SECRET
+
     version: 1.0
     build_id: "#1"
     environment: 'local'
