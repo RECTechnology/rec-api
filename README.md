@@ -1,7 +1,9 @@
 REC Barcelona API
 ========================
-[![Website](https://img.shields.io/website-up-down-green-red/https/rec.barcelona.svg?label=web)](https://rec.barcelona)
-[![Website](https://img.shields.io/website-up-down-green-red/https/api.rec.barcelona/public/map/v1/list.svg?label=api)](https://api.rec.barcelona)
+|Environment|Web|API|Monitor|Admin|Explorer|
+|------------|---|---|---|---|---|
+|Prod|[![Website](https://img.shields.io/website-up-down-green-red/https/rec.barcelona.svg?label=web)](https://rec.barcelona)|[![Website](https://img.shields.io/website-up-down-green-red/https/api.rec.barcelona/public/map/v1/list.svg?label=api)](https://api.rec.barcelona)|[![Website](https://img.shields.io/website-up-down-green-red/https/status.rec.barcelona.svg?label=monitor)](https://status.rec.barcelona)|[![Website](https://img.shields.io/website-up-down-green-red/https/admin.rec.barcelona.svg?label=admin)](https://admin.rec.barcelona)|[![Website](https://img.shields.io/website-up-down-green-red/https/explorer.rec.barcelona.svg?label=explorer)](https://explorer.rec.barcelona)|
+|Stage|[![Website](https://img.shields.io/website-up-down-green-red/https/rec.stage.qbitartifacts.com.svg?label=web)](https://rec.barcelona)|[![Website](https://img.shields.io/website-up-down-green-red/https/api.rec.stage.qbitartifacts.com/public/map/v1/list.svg?label=api)](https://api.rec.stage.qbitartifacts.com)|[![Website](https://img.shields.io/website-up-down-green-red/https/status.rec.stage.qbitartifacts.com.svg?label=monitor)](https://status.rec.stage.qbitartifacts.com)|[![Website](https://img.shields.io/website-up-down-green-red/https/admin.rec.stage.qbitartifacts.com.svg?label=admin)](https://admin.rec.stage.qbitartifacts.com)|[![Website](https://img.shields.io/website-up-down-green-red/https/explorer.rec.stage.qbitartifacts.com.svg?label=explorer)](https://explorer.rec.stage.qbitartifacts.com)|
 
 Welcome to the REC Barcelona API [api.rec.barcelona](https://api.rec.barcelona)
 
