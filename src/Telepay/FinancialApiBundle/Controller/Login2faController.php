@@ -62,7 +62,7 @@ class Login2faController extends RestApiController{
                 if (!$Google2FA->verify_key($twoFactorCode, $pin)) {
                     $token = array(
                         "error" => "invalid_grant",
-                        "error_description" => "Invalid Google authenticator code"
+                        "error_description" => "Invalid 2fa authenticator code"
                     );
                     return new Response(json_encode($token), 400, $headers);
                 }
