@@ -3,6 +3,8 @@ REC Barcelona API
 
 Welcome to the REC Barcelona API [api.rec.barcelona](https://api.rec.barcelona)
 
+![CircleCI](https://circleci.com/gh/QbitArtifacts/rec-api/tree/containerize.svg?style=svg&circle-token=bd8b3154a46945cc5e5a128c12618beb70ba2e81)
+
 |Installation|Web|API|User|Docs|Monitor|Admin|Explorer|
 |------------|---|---|---|---|---|---|---|
 |**Production**|[![Website](https://img.shields.io/website-up-down-green-red/https/rec.barcelona.svg?label=web)](https://rec.barcelona)|[![Website](https://img.shields.io/website-up-down-green-red/https/api.rec.barcelona/public/v1/status.svg?label=api)](https://api.rec.barcelona)|[![Website](https://img.shields.io/website-up-down-green-red/https/my.rec.barcelona/public/map/v1/list.svg?label=user)](https://my.rec.barcelona)|[![Website](https://img.shields.io/website-up-down-green-red/https/dev.rec.barcelona/public/map/v1/list.svg?label=dev)](https://dev.rec.barcelona)|[![Website](https://img.shields.io/website-up-down-green-red/https/status.rec.barcelona.svg?label=monitor)](https://status.rec.barcelona)|[![Website](https://img.shields.io/website-up-down-green-red/https/admin.rec.barcelona.svg?label=admin)](https://admin.rec.barcelona)|[![Website](https://img.shields.io/website-up-down-green-red/https/explorer.rec.barcelona.svg?label=explorer)](https://explorer.rec.barcelona)|
