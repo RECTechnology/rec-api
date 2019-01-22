@@ -250,14 +250,9 @@ class GroupsController extends BaseApiController
         ));
 
         if(!$adminRoles->hasRole('ROLE_SUPER_ADMIN')) throw new HttpException(403, 'You don\'t have the neecssary permissions');
-
         $groupsRepo = $this->getDoctrine()->getRepository($this->getRepositoryName());
-
-        $default_group = $this->container->getParameter('id_group_default');
-        $level0_group = $this->container->getParameter('id_group_level_0');
         $id_group_root = $this->container->getParameter('id_group_root');
-
-        if($id == $default_group || $id == $level0_group || $id == $id_group_root ) throw new HttpException(405, 'Not allowed');
+        if($id == $id_group_root ) throw new HttpException(405, 'Not allowed');
 
         $group = $groupsRepo->find($id);
 

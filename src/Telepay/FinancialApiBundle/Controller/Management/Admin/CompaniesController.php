@@ -83,14 +83,10 @@ class CompaniesController extends BaseApiController
      * @Rest\View
      */
     public function deleteAction($id){
-
         $groupsRepo = $this->getDoctrine()->getRepository($this->getRepositoryName());
-
-        $default_group = $this->container->getParameter('id_group_default');
-        $level0_group = $this->container->getParameter('id_group_level_0');
         $id_group_root = $this->container->getParameter('id_group_root');
 
-        if($id == $default_group || $id == $level0_group || $id == $id_group_root ) throw new HttpException(405, 'Not allowed');
+        if($id == $id_group_root ) throw new HttpException(405, 'Not allowed');
 
         $group = $groupsRepo->find($id);
 
