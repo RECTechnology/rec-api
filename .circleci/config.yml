@@ -15,4 +15,4 @@ jobs:
       - run: docker push reg.rallf.com:8443/rec-api
 
       # use webhook to deploy
-      - run: curl -X POST $STAGE_WEBHOOK
+      - run: curl -X POST $DEPLOY_WEBHOOK
