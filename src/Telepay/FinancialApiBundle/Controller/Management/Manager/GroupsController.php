@@ -65,12 +65,7 @@ class GroupsController extends BaseApiController
             ->orderBy('p.'.$order, $dir)
             ->where($qb->expr()->orX(
                 $qb->expr()->like('p.cif', $qb->expr()->literal('%'.$search.'%')),
-                $qb->expr()->like('p.prefix', $qb->expr()->literal('%'.$search.'%')),
                 $qb->expr()->like('p.phone', $qb->expr()->literal('%'.$search.'%')),
-                $qb->expr()->like('p.zip', $qb->expr()->literal('%'.$search.'%')),
-                $qb->expr()->like('p.email', $qb->expr()->literal('%'.$search.'%')),
-                $qb->expr()->like('p.city', $qb->expr()->literal('%'.$search.'%')),
-                $qb->expr()->like('p.town', $qb->expr()->literal('%'.$search.'%')),
                 $qb->expr()->like('p.name', $qb->expr()->literal('%'.$search.'%'))
             ))
             ->getQuery();
@@ -117,71 +112,6 @@ class GroupsController extends BaseApiController
 
     /**
      * @Rest\View
-     * description: return sub companies
-     * permissions: ROLE_RESELLER
-     */
-    public function indexByCompany(Request $request){
-
-        //todo implements reseller filter
-        //list all subcompanies
-        $admin = $this->get('security.context')->getToken()->getUser();
-        $adminGroup = $admin->getActiveGroup();
-
-        if($request->query->has('limit')) $limit = $request->query->get('limit');
-        else $limit = 10;
-
-        if($request->query->has('offset')) $offset = $request->query->get('offset');
-        else $offset = 0;
-
-        //TODO: Improve performance (two queries)
-        $all = $this->getRepository()->findBy(
-            array('group_creator' => $adminGroup->getId()),
-            array('name' => 'ASC'),
-            $limit,
-            $offset
-        );
-
-        $total = count($all);
-        //return only the limits of active services
-        foreach ($all as $group){
-            $group = $group->getAdminView();
-            $groupData = array(
-                'id'    =>  $group->getId(),
-                'name'  =>  $group->getName()
-            );
-            $group->setGroupCreatorData($groupData);
-
-            $fees = $group->getCommissions();
-            foreach ( $fees as $fee ){
-                $currency = $fee->getCurrency();
-                $fee->setScale($currency);
-            }
-            $limits = $group->getLimits();
-            foreach ( $limits as $lim ){
-                $currency = $lim->getCurrency();
-                $lim->setScale($currency);
-            }
-
-        }
-
-        $entities = array_slice($all, $offset, $limit);
-
-        return $this->restV2(
-            200,
-            "ok",
-            "Request successful",
-            array(
-                'total' => $total,
-                'start' => intval($offset),
-                'end' => count($entities)+$offset,
-                'elements' => $entities
-            )
-        );
-
-    }
-
-    /**
-     * @Rest\View
      */
     public function showAction($id){
         $user = $this->get('security.context')->getToken()->getUser();
@@ -192,8 +122,7 @@ class GroupsController extends BaseApiController
         }else{
             $group = $this->getRepository()->findOneBy(
                 array(
-                    'id'        =>  $id,
-                    'group_creator'   =>  $userGroup
+                    'id'        =>  $id
                 )
             );
         }
@@ -224,44 +153,6 @@ class GroupsController extends BaseApiController
             );
 
             $limit_configuration[] = $lim;
-        }
-
-        //TODO search exchange methods by tier
-        $exchange_limits = $em->getRepository('TelepayFinancialApiBundle:TierLimit')->createQueryBuilder('e')
-            ->where('e.tier = :tier')
-            ->andWhere('e.method LIKE :method')
-            ->setParameter('tier', $group->getTier())
-            ->setParameter('method', 'exchange%')
-            ->getQuery()
-            ->getResult();
-
-        foreach ($exchange_limits as $exchange_limit){
-
-            $exchange_currency = explode('_', $exchange_limit->getMethod());
-            $exchange_method = new AbstractMethod(
-                $exchange_limit->getMethod(),
-                strtolower($exchange_limit->getMethod()),
-                'exchange',
-                $exchange_currency[1],
-                false,
-                '',
-                '',
-                $group->getTier()
-            );
-
-            $total_last_day = $dm->getRepository('TelepayFinancialApiBundle:Transaction')->sumLastDaysByExchange($group, $exchange_currency[1], 1);
-            $total_last_month = $dm->getRepository('TelepayFinancialApiBundle:Transaction')->sumLastDaysByExchange($group, $exchange_currency[1], 30);
-
-            $lim = array(
-                'method'    =>  $exchange_method,
-                'month_limit'     =>  $exchange_limit->getMonth(),
-                'month_spent'   =>  $total_last_month[0]['total'] ? $total_last_month[0]['total']:0,
-                'day_limit' =>  $exchange_limit->getDay(),
-                'day_spent' =>  $total_last_day[0]['total'] ? $total_last_day[0]['total']:0
-            );
-
-            $limit_configuration[] = $lim;
-
         }
 
         $group->setLimitConfiguration($limit_configuration);
@@ -383,6 +274,66 @@ class GroupsController extends BaseApiController
 
         return parent::deleteAction($id);
 
+    }
+
+    /**
+     * @Rest\View
+     */
+    public function indexByCompany(Request $request, $id){
+        $em = $this->getDoctrine()->getManager();
+
+        //only the superadmin can access here
+        if(!$this->get('security.context')->isGranted('ROLE_SUPER_ADMIN')) {
+            throw new HttpException(403, 'You have not the necessary permissions');
+        }
+
+        $listGroups = $this->getDoctrine()->getRepository('TelepayFinancialApiBundle:UserGroup')->findBy(array(
+            'user'  =>  $id
+        ));
+
+        $listData = array();
+        foreach($listGroups as $group) {
+            $company = $em->getRepository('TelepayFinancialApiBundle:Group')->findOneBy(array(
+                'id'  => $group->getGroup()
+            ));
+
+            if (!$company) throw new HttpException(404, 'Company not found');
+            $listData[] = array(
+                "id" => $company->getId(),
+                "user_roles" => $group->getRoles(),
+                "name" => $company->getName(),
+                "email" => $company->getEmail(),
+                "active" => $company->getActive(),
+                "description" => $company->getDescription(),
+                "public_image" => $company->getPublicImage(),
+                "company_image" => $company->getCompanyImage(),
+                "longitude" => $company->getLongitude(),
+                "latitude" => $company->getLatitude(),
+                "web" => $company->getWeb(),
+                "type" => $company->getType(),
+                "subtype" => $company->getSubtype(),
+                "country" => $company->getCountry(),
+                "city" => $company->getCity(),
+                "street_type" => $company->getStreetType(),
+                "street" => $company->getStreet(),
+                "street_number" => $company->getAddressNumber(),
+                "prefix" => $company->getPrefix(),
+                "phone_number" => $company->getPhone(),
+                "cif" => $company->getCif(),
+                "rec_address" => $company->getRecAddress()
+            );
+        }
+
+        return $this->rest(
+            200,
+            "Request successful",
+            array(
+                'total' => count($listData),
+                'start' => 0,
+                'end' => count($listGroups)-1,
+                'elements' => $listData
+            )
+        );
     }
 
     private function _setMethods($methods, Group $group){
@@ -529,29 +480,6 @@ class GroupsController extends BaseApiController
 
                 $em->persist($newFee);
             }
-
-            //don\'t create limits because we are using tier for control limits
-
-//            $limit = $em->getRepository('TelepayFinancialApiBundle:LimitDefinition')->findOneBy(array(
-//                'group'  =>  $group->getId(),
-//                'cname'  =>  $method
-//            ));
-//
-//            if(!$limit){
-//                //create new LimitDefinition
-//                $newLimit = new LimitDefinition();
-//                $newLimit->setGroup($group);
-//                $newLimit->setCurrency($methodConfig->getCurrency());
-//                $newLimit->setCname($method);
-//                $newLimit->setDay(0);
-//                $newLimit->setWeek(0);
-//                $newLimit->setMonth(0);
-//                $newLimit->setYear(0);
-//                $newLimit->setSingle(0);
-//                $newLimit->setTotal(0);
-//
-//                $em->persist($newLimit);
-//            }
 
             $limitCount = $em->getRepository('TelepayFinancialApiBundle:LimitCount')->findOneBy(array(
                 'group'  =>  $group->getId(),

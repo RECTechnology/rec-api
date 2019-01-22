@@ -230,8 +230,6 @@ class AccountController extends BaseApiController{
 
         //check some params that can't be modified from here
         $invalid_params = array(
-            'creator_id',
-            'group_creator_id',
             'access_key',
             'access_secret',
             'active',
