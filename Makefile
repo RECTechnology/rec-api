@@ -5,6 +5,7 @@ build:
 
 deploy: build
 	docker tag rec-api reg.rallf.com:8443/rec-api
+	docker push reg.rallf.com:8443/rec-api
 
 dev:
 	docker-compose up

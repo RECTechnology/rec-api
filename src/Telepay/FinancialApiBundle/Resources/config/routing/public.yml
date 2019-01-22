@@ -1,0 +1,8 @@
+############################################### PUBLIC ENDPOINTS #######################################################
+
+public_v1_status:
+    pattern: /public/v1/status
+    defaults: {_controller: Telepay\FinancialApiBundle\Controller\Open\StatusController::status }
+    requirements:
+        _method: GET
+

@@ -23,6 +23,9 @@ parameters:
 
     mongodb_server: mongodb://localhost:27017
     mongodb_db: symfony
+    mongodb_user: root
+    mongodb_password: ~
+
     version: 1.0
     build_id: "#1"
     environment: 'local'
