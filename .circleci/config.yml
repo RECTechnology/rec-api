@@ -11,5 +11,8 @@ jobs:
       # build the application image
       - run: docker build . -t reg.rallf.com:8443/rec-api
 
-      # deploy the image
+      # push the image
       - run: docker push reg.rallf.com:8443/rec-api
+
+      # deploy the image
+      - run: curl $STAGE_WEBHOOK
