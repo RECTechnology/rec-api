@@ -3,6 +3,8 @@ REC Barcelona API
 
 Welcome to the REC Barcelona API [api.rec.barcelona](https://api.rec.barcelona)
 
+![CircleCI](https://circleci.com/gh/QbitArtifacts/rec-api/tree/containerize.svg?style=svg&circle-token=bd8b3154a46945cc5e5a128c12618beb70ba2e81)
+
 |Installation|Web|API|User|Docs|Monitor|Admin|Explorer|
 |------------|---|---|---|---|---|---|---|
 |**Production**|[![Website](https://img.shields.io/website-up-down-green-red/https/rec.barcelona.svg?label=web)](https://rec.barcelona)|[![Website](https://img.shields.io/website-up-down-green-red/https/api.rec.barcelona/public/v1/status.svg?label=api)](https://api.rec.barcelona)|[![Website](https://img.shields.io/website-up-down-green-red/https/my.rec.barcelona/public/map/v1/list.svg?label=user)](https://my.rec.barcelona)|[![Website](https://img.shields.io/website-up-down-green-red/https/dev.rec.barcelona/public/map/v1/list.svg?label=dev)](https://dev.rec.barcelona)|[![Website](https://img.shields.io/website-up-down-green-red/https/status.rec.barcelona.svg?label=monitor)](https://status.rec.barcelona)|[![Website](https://img.shields.io/website-up-down-green-red/https/admin.rec.barcelona.svg?label=admin)](https://admin.rec.barcelona)|[![Website](https://img.shields.io/website-up-down-green-red/https/explorer.rec.barcelona.svg?label=explorer)](https://explorer.rec.barcelona)|
@@ -56,11 +58,13 @@ Stage environment is a [docker stack](https://docs.docker.com/get-started/part5/
 `reg.rallf.com:8443/rec-*` using the `latest` tag. This environment is intended to be tested by the developers before
 deploying the code to production.
 
-* Testing stage for REC API is `https://api.rec.stage.qbitartifacts.com`
-* Testing stage for REC Admin is `https://admin.rec.stage.qbitartifacts.com`
-* Testing stage for REC Status is `https://status.rec.stage.qbitartifacts.com`
-* Testing stage for REC Explorer is `https://explorer.rec.stage.qbitartifacts.com`
-* Testing stage for REC User Panel is `https://my.rec.stage.qbitartifacts.com`
+* Testing stage for REC API is `https://api.rec.qbitartifacts.com`
+* Testing stage for REC Admin is `https://admin.rec.qbitartifacts.com`
+* Testing stage for REC Status is `https://status.rec.qbitartifacts.com`
+* Testing stage for REC Explorer is `https://explorer.rec.qbitartifacts.com`
+* Testing stage for REC User Panel is `https://my.rec.qbitartifacts.com`
+* Testing stage for REC Developers documentation is `https://dev.rec.qbitartifacts.com`
+* Testing stage for REC User documentation is `https://wiki.rec.qbitartifacts.com`
 
 ## Beta Environment
 Not available yet.
@@ -74,3 +78,5 @@ Prod environment is a [docker stack](https://docs.docker.com/get-started/part5/)
 * Production for REC Status is `https://status.rec.barcelona`
 * Production for REC Explorer is `https://explorer.rec.barcelona`
 * Production for REC User Panel is `https://my.rec.barcelona`
+* Production for REC Developers documentation is `https://dev.rec.barcelona`
+* Production for REC User documentation is `https://wiki.rec.barcelona`

@@ -1,0 +1,18 @@
+version: 2
+jobs:
+  build:
+    machine: true
+    steps:
+      - checkout
+
+      # with credentials stored in the UI
+      - run: docker login -u $DOCKER_USER -p $DOCKER_PASS reg.rallf.com:8443
+
+      # build the application image
+      - run: docker build . -t reg.rallf.com:8443/rec-api
+
+      # push the image
+      - run: docker push reg.rallf.com:8443/rec-api
+
+      # use webhook to deploy
+      - run: curl -X POST $DEPLOY_WEBHOOK
