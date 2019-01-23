@@ -58,11 +58,13 @@ Stage environment is a [docker stack](https://docs.docker.com/get-started/part5/
 `reg.rallf.com:8443/rec-*` using the `latest` tag. This environment is intended to be tested by the developers before
 deploying the code to production.
 
-* Testing stage for REC API is `https://api.rec.stage.qbitartifacts.com`
-* Testing stage for REC Admin is `https://admin.rec.stage.qbitartifacts.com`
-* Testing stage for REC Status is `https://status.rec.stage.qbitartifacts.com`
-* Testing stage for REC Explorer is `https://explorer.rec.stage.qbitartifacts.com`
-* Testing stage for REC User Panel is `https://my.rec.stage.qbitartifacts.com`
+* Testing stage for REC API is `https://api.rec.qbitartifacts.com`
+* Testing stage for REC Admin is `https://admin.rec.qbitartifacts.com`
+* Testing stage for REC Status is `https://status.rec.qbitartifacts.com`
+* Testing stage for REC Explorer is `https://explorer.rec.qbitartifacts.com`
+* Testing stage for REC User Panel is `https://my.rec.qbitartifacts.com`
+* Testing stage for REC Developers documentation is `https://dev.rec.qbitartifacts.com`
+* Testing stage for REC User documentation is `https://wiki.rec.qbitartifacts.com`
 
 ## Beta Environment
 Not available yet.
@@ -76,3 +78,5 @@ Prod environment is a [docker stack](https://docs.docker.com/get-started/part5/)
 * Production for REC Status is `https://status.rec.barcelona`
 * Production for REC Explorer is `https://explorer.rec.barcelona`
 * Production for REC User Panel is `https://my.rec.barcelona`
+* Production for REC Developers documentation is `https://dev.rec.barcelona`
+* Production for REC User documentation is `https://wiki.rec.barcelona`
