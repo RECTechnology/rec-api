@@ -348,7 +348,8 @@ class AccountController extends BaseApiController{
             'repin',
             'dni',
             'security_question',
-            'security_answer'
+            'security_answer',
+            'latitude'
         );
         //throw new HttpException(404, 'Must update');
         $valid_types = array('mobile');
@@ -521,6 +522,13 @@ class AccountController extends BaseApiController{
             $company->setPrefix($prefix);
         }
 
+        if($request->request->has('latitude') && $request->request->get('latitude')!='') {
+            $latitude = $request->request->get('latitude');
+        }
+        if($request->request->has('longitude') && $request->request->get('longitude')!='') {
+            $longitude = $request->request->get('longitude');
+        }
+
         $company->setName($company_name);
         $company->setCif(strtoupper($company_cif));
         $company->setType($type);
@@ -529,6 +537,9 @@ class AccountController extends BaseApiController{
         $company->setRoles(array('ROLE_COMPANY'));
         $company->setRecAddress('temp');
         $company->setMethodsList($methodsList);
+        $company->setLatitude($latitude);
+        $company->setLongitude($longitude);
+
         $em->persist($company);
 
         //create wallets for this company
