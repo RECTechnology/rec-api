@@ -30,9 +30,9 @@ parameters:
     #TODO: remove this parameter with putting here others
     api_env: 'pre'
 
-    base_url: $APP_BASE_URL
-    base_panel_url: $APP_PANEL_URL
-    web_app_url: $APP_LANDING_URL
+    base_url: https://$APP_API_DOMAIN
+    base_panel_url: https://$APP_ADMIN_DOMAIN
+    web_app_url: https://$APP_API_DOMAIN
 
     rec_user: app
     rec_pass: $APP_SECRET
@@ -74,7 +74,7 @@ parameters:
     lemonway_version: '4.0'
     lemonway_admin_account: 'MKP'
 
-    withdrawal_url: 'https://preapibm.blockroot.com/withdrawal/v1/'
+    withdrawal_url: "https://$APP_API_DOMAIN/withdrawal/v1/"
     list_emails: '["uno","dos","res"]'
 
     authorized_admins: [1,2]
