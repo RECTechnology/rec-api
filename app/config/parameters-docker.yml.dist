@@ -7,12 +7,11 @@ parameters:
     database_password: $APP_SECRET
 
     mailer_transport:  smtp
-    mailer_host:       $APP_EMAIL_HOST
-    mailer_user:       $APP_EMAIL_USERNAME
-    mailer_password:   $APP_EMAIL_PASSWORD
+    mailer_host:       $MAILER_HOST
+    mailer_user:       $MAILER_USERNAME
+    mailer_password:   $MAILER_PASSWORD
 
-    no_reply_email: $APP_EMAIL_USERNAME
-    volume_email: $REPORTS_EMAIL
+    no_reply_email: $MAILER_USERNAME
 
     locale:            en
     secret:            $APP_SECRET
@@ -35,7 +34,7 @@ parameters:
     web_app_url: $APP_LANDING_URL
 
     rec_user: app
-    rec_pass: app
+    rec_pass: $APP_SECRET
     rec_host: node
     rec_port: 17711
 
