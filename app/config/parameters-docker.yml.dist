@@ -42,40 +42,38 @@ parameters:
     admin_key: $APP_SECRET
     saved_data_version: 1
     saved_data_subversion: 1
-    OP_RETURN_BTC_FEE: "0.0001"
+    OP_RETURN_BTC_FEE: 0.01
 
     rec_min_confirmations: 1
 
-    id_group_default: 1
-    id_group_level_0: 1
     id_group_root: 1
     admin_user_id: 1
-    treasure_address: 'address'
-    root_group_address: 'address'
+    treasure_address: $APP_TREASURE_ADDRESS
+    root_group_address: $APP_ROOT_ADDRESS
 
-    swift_client_id_default: ''
-    commerce_client_id: ''
-    url_swift_default_ok: ''
-    url_swift_default_ko: ''
+    swift_client_id_default: ""
+    commerce_client_id: ""
+    url_swift_default_ok: ""
+    url_swift_default_ko: ""
 
-    labsmobile_user: 'user'
-    labsmobile_pass: 'pass'
+    labsmobile_user: "$LABSMOBILE_USER"
+    labsmobile_pass: "$LABSMOBILE_PASS"
 
     csv_dir: /csv_dir
     uploads_dir: /api/web/static
     files_path: https://$APP_API_DOMAIN/static
 
-    lemonway_url: 'https://sandbox-api.lemonway.fr/mb/demo/dev/directkitjson2/Service.asmx'
-    lemonway_payment_url: 'https://sandbox-webkit.lemonway.fr/NOVACT/dev/?moneyintoken='
-    lemonway_notification_url: 'https://preapibm.blockroot.com/notifications/v1/lemonway/'
-    lemonway_notification_app: 'https://bcn.com/re:recharge?status='
-    lemonway_user: 'society'
-    lemonway_pass: '123456'
-    lemonway_version: '4.0'
-    lemonway_admin_account: 'MKP'
+    lemonway_url: "$LEMONWAY_URL"
+    lemonway_payment_url: "$LEMONWAY_PAYMENT_URL"
+    lemonway_notification_url: "$LEMONWAY_NOTIFICATION_URL"
+    lemonway_notification_app: "$LEMONWAY_NOTIFICATION_APP"
+    lemonway_user: "$LEMONWAY_USER"
+    lemonway_pass: "$LEMONWAY_PASS"
+    lemonway_version: "$LEMONWAY_VERSION"
+    lemonway_admin_account: "$LEMONWAY_ADMIN_ACCOUNT"
 
     withdrawal_url: "https://$APP_API_DOMAIN/withdrawal/v1/"
-    list_emails: '["uno","dos","res"]'
+    list_emails: '["$APP_WITHDRAWAL_EMAIL_1","$APP_WITHDRAWAL_EMAIL_2","$APP_WITHDRAWAL_EMAIL_3"]'
 
     authorized_admins: [1,2]
 
