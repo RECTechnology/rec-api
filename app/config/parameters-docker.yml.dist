@@ -27,9 +27,8 @@ parameters:
     mongodb_password: $APP_SECRET
 
     version: 1.0
-    build_id: "#1"
     environment: 'local'
-    api_env: 'pre'
+    api_env: 'prod'
 
     base_url: $APP_BASE_URL
     base_panel_url: $APP_PANEL_URL

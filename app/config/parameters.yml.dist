@@ -34,7 +34,6 @@ parameters:
 
 #API version
     version: 1.0
-    build_id: "#1"
 
 #envirorment name and type (pre or prod)
     environment: 'local'
@@ -50,6 +49,7 @@ parameters:
     rec_pass: btcpass
     rec_host: localhost
     rec_port: 8333
+
 #minimum confirmations to accept rec transactions
     rec_min_confirmations: 1
 #fee added to every blockchain transaction
@@ -95,11 +95,13 @@ parameters:
 
 #url used to send a link to confirm the rec treasure address withdrawal
     withdrawal_url: 'https://preapibm.blockroot.com/withdrawal/v1/'
+
 #list ot three admins emails who must confirm the treasure withdrawal
     list_emails: '["uno","dos","res"]'
 
 #list of authorized admins who can log in support panel
     authorized_admins: [1,2]
+
 #Old parameter to define the admin user to execute support and super_admin functions (delete pending)
     admin_user_id: 1
 

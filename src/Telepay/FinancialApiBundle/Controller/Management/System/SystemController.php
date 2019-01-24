@@ -91,7 +91,6 @@ class SystemController extends RestApiController
             200,
             "Version information",
             array(
-                'build_id'  => $this->container->getParameter('build_id'),
                 'version'  => $this->container->getParameter('version')
             )
         );
