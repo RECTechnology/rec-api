@@ -66,6 +66,7 @@ class RecCreateRoot extends ContainerAwareCommand
 
 
         $user = new User();
+        $user->setEmail($email);
 
         $em->persist($user);
         $account = new Group();

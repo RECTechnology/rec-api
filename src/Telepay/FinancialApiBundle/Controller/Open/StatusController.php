@@ -19,7 +19,7 @@ class StatusController extends RestApiController {
      * @param Request $request
      * @return \Symfony\Component\HttpFoundation\Response
      *
-     * @brief This function will return an encoded version of system health, according with the following bitmask:
+     * This function will return an encoded version of system health, according with the following bitmask:
      *   - RELATIONAL_DB = 0x1
      *   - NOT_RELATIONAL_DB = 0x2
      *   - BLOCKCHAIN_NODE = 0x4
