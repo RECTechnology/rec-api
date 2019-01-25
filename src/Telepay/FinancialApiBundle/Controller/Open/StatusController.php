@@ -28,12 +28,14 @@ class StatusController extends RestApiController {
     public function status(Request $request){
 
         $status = 0x0;
+        $exceptions = [];
 
         try {
             /** @var EntityManagerInterface $em */
             $em = $this->getDoctrine()->getManager();
             $em->getRepository(User::class)->findAll();
         } catch (\Exception $e){
+            $exceptions []= $e;
             $status ^= 0x1;
         }
 
@@ -42,6 +44,7 @@ class StatusController extends RestApiController {
             $odm = $this->get('doctrine_mongodb')->getManager();
             $odm->getRepository(Transaction::class)->findAll();
         } catch (\Exception $e){
+            $exceptions []= $e;
             $status ^= 0x2;
         }
 
@@ -49,6 +52,7 @@ class StatusController extends RestApiController {
             $wallet = $this->get("net.telepay.driver.easybitcoin.rec");
             $wallet->getinfo();
         } catch (\Exception $e){
+            $exceptions []= $e;
             $status ^= 0x4;
         }
 
@@ -56,7 +60,7 @@ class StatusController extends RestApiController {
             200,
             "ok",
             "Request successful",
-            ["system_status" => $status]
+            ["system_status" => $status, "exceptions" => $exceptions]
         );
     }
 }
