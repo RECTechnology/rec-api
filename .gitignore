@@ -17,4 +17,6 @@
 .gitignore
 */kyc_files/
 */kyc_files
+/web/static
+!/web/static/.gitkeep
 **.swp

@@ -7,12 +7,11 @@ parameters:
     database_password: $APP_SECRET
 
     mailer_transport:  smtp
-    mailer_host:       $APP_EMAIL_HOST
-    mailer_user:       $APP_EMAIL_USERNAME
-    mailer_password:   $APP_EMAIL_PASSWORD
+    mailer_host:       $MAILER_HOST
+    mailer_user:       $MAILER_USERNAME
+    mailer_password:   $MAILER_PASSWORD
 
-    no_reply_email: $APP_EMAIL_USERNAME
-    volume_email: $REPORTS_EMAIL
+    no_reply_email: $MAILER_USERNAME
 
     locale:            en
     secret:            $APP_SECRET
@@ -27,57 +26,54 @@ parameters:
     mongodb_password: $APP_SECRET
 
     version: 1.0
-    build_id: "#1"
-    environment: 'local'
+
+    #TODO: remove this parameter with putting here others
     api_env: 'pre'
 
-    base_url: $APP_BASE_URL
-    base_panel_url: $APP_PANEL_URL
-    web_app_url: $APP_LANDING_URL
+    base_url: https://$APP_API_DOMAIN
+    base_panel_url: https://$APP_ADMIN_DOMAIN
+    web_app_url: https://$APP_API_DOMAIN
 
     rec_user: app
-    rec_pass: app
+    rec_pass: $APP_SECRET
     rec_host: node
     rec_port: 17711
 
-    admin_key: "test"
+    admin_key: $APP_SECRET
     saved_data_version: 1
     saved_data_subversion: 1
-    OP_RETURN_BTC_FEE: "0.0001"
+    OP_RETURN_BTC_FEE: 0.01
 
     rec_min_confirmations: 1
 
-    id_group_default:
-    id_group_level_0:
     id_group_root: 1
     admin_user_id: 1
+    treasure_address: $APP_TREASURE_ADDRESS
+    root_group_address: $APP_ROOT_ADDRESS
 
-    treasure_address: 'address'
-    root_group_address: 'address'
+    swift_client_id_default: ""
+    commerce_client_id: ""
+    url_swift_default_ok: ""
+    url_swift_default_ko: ""
 
-    swift_client_id_default: ''
-    commerce_client_id: ''
-    url_swift_default_ok: ''
-    url_swift_default_ko: ''
+    labsmobile_user: "$LABSMOBILE_USER"
+    labsmobile_pass: "$LABSMOBILE_PASS"
 
-    labsmobile_user: 'user'
-    labsmobile_pass: 'pass'
+    csv_dir: /csv_dir
+    uploads_dir: /api/web/static
+    files_path: https://$APP_API_DOMAIN/static
 
-    csv_dir: ''
-    uploads_dir: ''
-    files_path: ''
+    lemonway_url: "$LEMONWAY_URL"
+    lemonway_payment_url: "$LEMONWAY_PAYMENT_URL"
+    lemonway_notification_url: "$LEMONWAY_NOTIFICATION_URL"
+    lemonway_notification_app: "$LEMONWAY_NOTIFICATION_APP"
+    lemonway_user: "$LEMONWAY_USER"
+    lemonway_pass: "$LEMONWAY_PASS"
+    lemonway_version: "$LEMONWAY_VERSION"
+    lemonway_admin_account: "$LEMONWAY_ADMIN_ACCOUNT"
 
-    lemonway_url: 'https://sandbox-api.lemonway.fr/mb/demo/dev/directkitjson2/Service.asmx'
-    lemonway_payment_url: 'https://sandbox-webkit.lemonway.fr/NOVACT/dev/?moneyintoken='
-    lemonway_notification_url: 'https://preapibm.blockroot.com/notifications/v1/lemonway/'
-    lemonway_notification_app: 'https://bcn.com/re:recharge?status='
-    lemonway_user: 'society'
-    lemonway_pass: '123456'
-    lemonway_version: '4.0'
-    lemonway_admin_account: 'MKP'
-
-    withdrawal_url: 'https://preapibm.blockroot.com/withdrawal/v1/'
-    list_emails: '["uno","dos","res"]'
+    withdrawal_url: "https://$APP_API_DOMAIN/withdrawal/v1/"
+    list_emails: '["$APP_WITHDRAWAL_EMAIL_1","$APP_WITHDRAWAL_EMAIL_2","$APP_WITHDRAWAL_EMAIL_3"]'
 
     authorized_admins: [1,2]
 
