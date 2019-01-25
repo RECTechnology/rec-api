@@ -313,3 +313,9 @@ public_map_search:
     defaults: {_controller: Telepay\FinancialApiBundle\Controller\Management\Company\MapController::SearchAction }
     requirements:
         _method: GET
+
+map_search_v2:
+    pattern: /map/v2/search
+    defaults: {_controller: Telepay\FinancialApiBundle\Controller\Management\Company\MapController::Search_v2Action }
+    requirements:
+        _method: GET

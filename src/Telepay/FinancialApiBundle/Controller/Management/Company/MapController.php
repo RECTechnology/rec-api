@@ -29,25 +29,17 @@ class MapController extends BaseApiController{
         $all = array();
         $em = $this->getDoctrine()->getManager();
 
-        $min_lat = -90.0;
-        if($request->query->has('min_lat') && $request->query->get('min_lat')!='') {
-            $min_lat = $request->query->get('min_lat');
-        }
+        $min_lat = $request->query->get('min_lat', -90.0);
 
-        $max_lat = 90.0;
-        if($request->query->has('max_lat') && $request->query->get('max_lat')!='') {
-            $max_lat = $request->query->get('max_lat');
-        }
 
-        $min_lon = -90.0;
-        if($request->query->has('min_lon') && $request->query->get('min_lon')!='') {
-            $min_lon = $request->query->get('min_lon');
-        }
+        $max_lat =  $request->query->get('max_lat',  90.0);
 
-        $max_lon = 90.0;
-        if($request->query->has('max_lon') && $request->query->get('max_lon')!='') {
-            $max_lon = $request->query->get('max_lon');
-        }
+
+        $min_lon =  $request->query->get('min_lon',  -90.0);
+
+
+        $max_lon = $request->query->get('max_lon', 90.0);
+
 
         $only_offers = false;
         if($request->query->has('only_offers') && $request->query->get('only_offers')=='1') {
@@ -79,7 +71,10 @@ class MapController extends BaseApiController{
             $search_defined = true;
             $list_categories = $em->getRepository('TelepayFinancialApiBundle:Category')->findAll();
             foreach ($list_categories as $category) {
-                if (strpos(strtoupper($category->getCat()), $search) !== false || strpos(strtoupper($category->getEsp()), $search) !== false || strpos(strtoupper($category->getEng()), $search) !== false) {
+                if (strpos(strtoupper($category->getCat()), $search) !== false ||
+                    strpos(strtoupper($category->getEsp()), $search) !== false ||
+                    strpos(strtoupper($category->getEng()), $search) !== false)
+                {
                     $list_cat_ids[] = $category->getId();
                 }
             }
@@ -197,10 +192,20 @@ class MapController extends BaseApiController{
             );
         }
 
+
+
+
+
+
+
         $list_categories = $em->getRepository('TelepayFinancialApiBundle:Category')->findAll();
         $list_cat_ids = array();
         foreach ($list_categories as $category) {
-            if (strpos(strtoupper($category->getCat()), $search) !== false || strpos(strtoupper($category->getEsp()), $search) !== false || strpos(strtoupper($category->getEng()), $search) !== false) {
+
+            if (strpos(strtoupper($category->getCat()), $search) !== false ||
+                strpos(strtoupper($category->getEsp()), $search) !== false ||
+                strpos(strtoupper($category->getEng()), $search) !== false)
+            {
                 $list_cat_ids[] = $category->getId();
             }
         }
@@ -279,4 +284,135 @@ class MapController extends BaseApiController{
             )
         );
     }
+
+
+    public function Search_v2Action(Request $request){
+
+        $total = 0;
+        $all = array();
+        $em = $this->getDoctrine()->getManager();
+
+        $min_lat = $request->query->get('min_lat', -90.0);
+        $max_lat =  $request->query->get('max_lat',  90.0);
+        $min_lon =  $request->query->get('min_lon',  -90.0);
+        $max_lon = $request->query->get('max_lon', 90.0);
+
+
+        $where = array('type'  =>  'COMPANY');
+        if($request->query->has('retailer') && $request->query->get('retailer')=='1') {
+            $where['subtype'] = 'RETAILER';
+        }
+        if($request->query->has('wholesale') && $request->query->get('wholesale')=='1') {
+            if(isset($where['subtype'])){
+                unset($where['subtype']);
+            }
+            else {
+                $where['subtype'] = 'WHOLESALE';
+            }
+        }
+        if($request->query->get('retailer')=='0' && $request->query->get('wholesale')=='0') {
+            throw new HttpException(400, "Filters options are incorrect");
+        }
+
+        $list_companies = $em->getRepository('TelepayFinancialApiBundle:Group')->findBy($where);
+
+        if($request->query->has('search') && $request->query->get('search')!='') {
+            $search = strtoupper($request->query->get('search'));
+        }
+        else{
+            $search = NULL;
+        }
+
+        $list_categories = $em->getRepository('TelepayFinancialApiBundle:Category')->findAll();
+        $list_cat_ids = array();
+        foreach ($list_categories as $category) {
+
+            if (strpos(strtoupper($category->getCat()), $search) !== false ||
+                strpos(strtoupper($category->getEsp()), $search) !== false ||
+                strpos(strtoupper($category->getEng()), $search) !== false)
+            {
+                $list_cat_ids[] = $category->getId();
+            }
+        }
+
+        $only_offers = false;
+        if($request->query->has('only_offers') && $request->query->get('only_offers')=='1') {
+            $only_offers = true;
+        }
+
+        foreach ($list_companies as $company){
+            $lat = $company->getLatitude();
+            $lon = $company->getLongitude();
+            if(intval($lat) == 0 && intval($lon) == 0) {
+                //No han definido su ubicacion
+            }
+            elseif($lat > $min_lat && $lat < $max_lat && $lon > $min_lon && $lon < $max_lon){
+                $name = strtoupper($company->getName());
+                $category_id = 0;
+                if($company->getCategory()) {
+                    $category_id = $company->getCategory()->getId();
+                }
+                if ($search == NULL ||
+                    strpos($name, $search) !== false ||
+                    in_array($category_id, $list_cat_ids))
+                {
+                    //check offers
+                    $list_offers = $em->getRepository('TelepayFinancialApiBundle:Offer')->findBy(array(
+                        'company'  =>  $company
+                    ));
+                    $now = strtotime("now");
+                    $offers_info = array();
+                    $total_offers = 0;
+                    foreach($list_offers as $offer){
+                        $start = date_timestamp_get($offer->getStart());
+                        if($start <= $now){
+                            $end = date_timestamp_get($offer->getEnd());
+                            if($now <= $end){
+                                $offers_info[]=$offer;
+                                $total_offers+=1;
+                            }
+                        }
+                    }
+                    if(!$only_offers || $total_offers>0){
+                        $total+=1;
+                        $all[] = array(
+                            'name' => $company->getName(),
+                            'company_image' => $company->getCompanyImage(),
+                            'latitude' => $company->getLatitude(),
+                            'longitude' => $company->getLongitude(),
+                            'country' => $company->getCountry(),
+                            'city' => $company->getCity(),
+                            'zip' => $company->getZip(),
+                            'street' => $company->getStreet(),
+                            'street_type' => $company->getStreetType(),
+                            'address_number' => $company->getAddressNumber(),
+                            'phone' => $company->getPhone(),
+                            'prefix' => $company->getPrefix(),
+                            'type' => $company->getType(),
+                            'subtype' => $company->getSubtype(),
+                            'description' => $company->getDescription(),
+                            'schedule' => $company->getSchedule(),
+                            'public_image' => $company->getPublicImage(),
+                            'category' => $company->getCategory(),
+                            'offers' => $offers_info,
+                            'total_offers' => $total_offers
+                        );
+                    }
+                }
+            }
+        }
+
+        return $this->restV2(
+            200,
+            "ok",
+            "Request successful",
+            array(
+                'total' => $total,
+                'elements' => $all
+            )
+        );
+    }
+
+
+
 }
