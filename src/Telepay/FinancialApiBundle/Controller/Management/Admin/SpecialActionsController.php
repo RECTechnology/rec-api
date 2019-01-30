@@ -946,8 +946,7 @@ class SpecialActionsController extends RestApiController {
 
             $id_group_root = $this->container->getParameter('id_group_root');
             $destination = $em->getRepository('TelepayFinancialApiBundle:Group')->find($id_group_root);
-            $id_user_root = $this->container->getParameter('admin_user_id');
-            $user = $em->getRepository('TelepayFinancialApiBundle:User')->find($id_user_root);
+            $id_user_root = $destination->getKycManager()->getId();
 
             $payment_info['amount']=$withdrawal->getAmount() * 100000000;
             $payment_info['orig_address'] = $treasure_address;

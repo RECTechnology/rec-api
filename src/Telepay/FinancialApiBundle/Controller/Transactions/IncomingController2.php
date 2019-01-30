@@ -131,8 +131,17 @@ class IncomingController2 extends RestApiController{
         $transaction = Transaction::createFromRequestIP($ip);
         $transaction->setService($method_cname);
         $transaction->setMethod($method_cname);
-        $admin_id = $this->container->getParameter('admin_user_id');
-        $transaction->setUser($user_id==-1?$admin_id:$user_id);
+
+        if($user_id==-1){
+            $id_group_root = $this->container->getParameter('id_group_root');
+            $destination = $em->getRepository('TelepayFinancialApiBundle:Group')->find($id_group_root);
+            $id_user_root = $destination->getKycManager()->getId();
+            $transaction->setUser($id_user_root);
+        }
+        else{
+            $transaction->setUser($user_id);
+        }
+
         $transaction->setGroup($group->getId());
         $transaction->setVersion($version_number);
         $transaction->setType($type);
