@@ -35,8 +35,9 @@ class StatusController extends RestApiController {
             $em = $this->getDoctrine()->getManager();
             $em->getRepository(User::class)->findAll();
         } catch (\Exception $e){
-            $exceptions []= $e->getMessage();
-            $status ^= 0x1;
+            $errcode = 0x1;
+            $exceptions []= [$errcode => $e->getMessage()];
+            $status ^= $errcode;
         }
 
         try {
@@ -44,15 +45,17 @@ class StatusController extends RestApiController {
             $odm = $this->get('doctrine_mongodb')->getManager();
             $odm->getRepository(Transaction::class)->findAll();
         } catch (\Exception $e){
-            $exceptions []= $e->getMessage();
-            $status ^= 0x2;
+            $errcode = 0x2;
+            $exceptions []= [$errcode => $e->getMessage()];
+            $status ^= $errcode;
         }
 
         try {
             $wallet = $this->get("net.telepay.driver.easybitcoin.rec");
             $wallet->getinfo();
         } catch (\Exception $e){
-            $exceptions []= $e->getMessage();
+            $errcode = 0x4;
+            $exceptions []= [$errcode => $e->getMessage()];
             $status ^= 0x4;
         }
 
