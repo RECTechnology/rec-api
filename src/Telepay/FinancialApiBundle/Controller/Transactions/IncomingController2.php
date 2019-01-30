@@ -1044,11 +1044,9 @@ class IncomingController2 extends RestApiController{
             $accessToken = $tokenManager->findTokenByToken($token->getToken());
 
             $commerce_client = $this->container->getParameter('commerce_client_id');
-            $android_pos_client = $this->container->getParameter('android_pos_client_id');
-            $fairpay_android_pos_client = $this->container->getParameter('fairpay_android_pos_client_id');
 
             $client = $accessToken->getClient();
-            if($commerce_client == $client->getId() || $android_pos_client == $client->getId() || $fairpay_android_pos_client == $client->getId()){
+            if($commerce_client == $client->getId()){
                 $group = $user->getActiveGroup();
             }else{
                 $group = $client->getGroup();
