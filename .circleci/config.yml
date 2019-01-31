@@ -1,6 +1,11 @@
 version: 2
 jobs:
   build:
+    branches:
+      only:
+        - master
+        - containerize
+        - stable
     machine: true
     steps:
       - checkout
