@@ -102,6 +102,3 @@ parameters:
 #list of authorized admins who can log in support panel
     authorized_admins: [1,2]
 
-#Old parameter to define the admin user to execute support and super_admin functions (delete pending)
-    admin_user_id: 1
-

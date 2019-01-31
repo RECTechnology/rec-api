@@ -131,8 +131,17 @@ class IncomingController2 extends RestApiController{
         $transaction = Transaction::createFromRequestIP($ip);
         $transaction->setService($method_cname);
         $transaction->setMethod($method_cname);
-        $admin_id = $this->container->getParameter('admin_user_id');
-        $transaction->setUser($user_id==-1?$admin_id:$user_id);
+
+        if($user_id==-1){
+            $id_group_root = $this->container->getParameter('id_group_root');
+            $destination = $em->getRepository('TelepayFinancialApiBundle:Group')->find($id_group_root);
+            $id_user_root = $destination->getKycManager()->getId();
+            $transaction->setUser($id_user_root);
+        }
+        else{
+            $transaction->setUser($user_id);
+        }
+
         $transaction->setGroup($group->getId());
         $transaction->setVersion($version_number);
         $transaction->setType($type);
@@ -1044,11 +1053,9 @@ class IncomingController2 extends RestApiController{
             $accessToken = $tokenManager->findTokenByToken($token->getToken());
 
             $commerce_client = $this->container->getParameter('commerce_client_id');
-            $android_pos_client = $this->container->getParameter('android_pos_client_id');
-            $fairpay_android_pos_client = $this->container->getParameter('fairpay_android_pos_client_id');
 
             $client = $accessToken->getClient();
-            if($commerce_client == $client->getId() || $android_pos_client == $client->getId() || $fairpay_android_pos_client == $client->getId()){
+            if($commerce_client == $client->getId()){
                 $group = $user->getActiveGroup();
             }else{
                 $group = $client->getGroup();
