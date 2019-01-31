@@ -71,7 +71,7 @@ class CheckFiatCommand extends SyncronizedContainerAwareCommand{
 
                         $id_group_root = $this->getContainer()->getParameter('id_group_root');
                         $group = $repoGroup->findOneBy(array("id" =>$id_group_root));
-                        $id_user_root = $this->getContainer()->getParameter('admin_user_id');
+                        $id_user_root = $group->getKycManager()->getId();
                         $user = $repoUser->findOneBy(array("id"=>$id_user_root));
 
                         $request = array();
