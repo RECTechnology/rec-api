@@ -3,7 +3,9 @@
 namespace Telepay\FinancialApiBundle\Controller\Management\Manager;
 
 use Doctrine\DBAL\DBALException;
+use Doctrine\ORM\EntityManagerInterface;
 use Doctrine\ORM\Query\Expr\Join;
+use Doctrine\ORM\QueryBuilder;
 use Exception;
 use Symfony\Component\HttpKernel\Exception\HttpException;
 use Symfony\Component\Security\Core\SecurityContext;
@@ -66,6 +68,96 @@ class UsersController extends BaseApiController
         //update access_token -> user with id $id
     }
 
+
+    /**
+     * @Rest\View
+     * Permissions: ROLE_SUPER_ADMIN
+     * @param Request $request
+     * @return \Symfony\Component\HttpFoundation\Response
+     */
+    public function indexV2Action(Request $request){
+
+        /** @var SecurityContext $securityContext */
+        $securityContext = $this->get('security.context');
+
+        if(!$securityContext->isGranted('ROLE_SUPER_ADMIN'))
+            throw new HttpException(403, 'You don\'t have the necessary permissions '. print_r($securityContext->getToken()->getUsername(), true));
+
+        $limit = $request->query->getInt('limit', 10);
+        $offset = $request->query->getInt('offset', 0);
+
+        $search = $request->query->get('search', '');
+        $sort = $request->query->getAlnum('sort', 'id');
+        $order = $request->query->getAlpha('order', 'DESC');
+
+
+        /** @var EntityManagerInterface $em */
+        $em = $this->getDoctrine()->getManager();
+
+
+        /** @var QueryBuilder $qb */
+        $qb = $em->createQueryBuilder();
+        $qb = $qb->from(User::class, 'u')->where(
+            $qb->expr()->orX(
+                $qb->expr()->like("u.username", $qb->expr()->literal('%' . $search. '%')),
+                $qb->expr()->like("u.id", $qb->expr()->literal('%' . $search. '%')),
+                $qb->expr()->like("u.email", $qb->expr()->literal('%' . $search. '%')),
+                $qb->expr()->like("u.name", $qb->expr()->literal('%' . $search. '%'))
+            )
+        );
+
+        $total = $qb
+            ->select('count(u.id)')
+            ->getQuery()
+            ->getScalarResult();
+
+        $result = $qb
+            ->select('u')
+            ->setFirstResult($offset)
+            ->setMaxResults($limit)
+            ->orderBy('u.' . $sort, $order)
+            ->getQuery()
+            ->getResult();
+
+        array_map(
+            function(User $elem){
+                $elem->setAccessToken(null);
+                $elem->setRefreshToken(null);
+                $elem->setAuthCode(null);
+                $groups = array();
+                $list_groups = $elem->getGroups();
+                foreach($list_groups as $group){
+                    $groups[] = $group->getName();
+                }
+                $elem->setGroupData($groups);
+
+                $last_login = $this->getDoctrine()
+                    ->getRepository('TelepayFinancialApiBundle:AccessToken')
+                    ->findOneBy(['user' => $elem->getId(), 'expiresAt' => 'DESC']);
+                if($last_login){
+                    $last = new \DateTime();
+                    $last->setTimestamp($last_login->getExpiresAt() - 3600);
+                    $elem->setLastLogin($last);
+                }
+
+            },
+            $result
+        );
+
+        return $this->rest(
+            200,
+            "Request successful",
+            array(
+                'total' => intval($total[0][1]),
+                'start' => intval($offset),
+                'end' => count($result)+$offset,
+                'elements' => $result
+            )
+        );
+    }
+
+
+
     /**
      * @Rest\View
      * Permissions: ROLE_SUPER_ADMIN
@@ -74,7 +166,7 @@ class UsersController extends BaseApiController
      */
     public function indexAction(Request $request){
 
-            //TODO only superadmin can access here
+        //TODO only superadmin can access here
         /** @var SecurityContext $securityContext */
         $securityContext = $this->get('security.context');
 

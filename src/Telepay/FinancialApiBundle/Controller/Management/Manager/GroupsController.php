@@ -8,7 +8,9 @@ use Doctrine\ORM\QueryBuilder;
 use Symfony\Component\HttpKernel\Exception\HttpException;
 use Telepay\FinancialApiBundle\Controller\BaseApiController;
 use Telepay\FinancialApiBundle\DependencyInjection\Transactions\Core\AbstractMethod;
+use Telepay\FinancialApiBundle\Entity\Fee;
 use Telepay\FinancialApiBundle\Entity\Group;
+use Telepay\FinancialApiBundle\Entity\Limit;
 use Telepay\FinancialApiBundle\Entity\LimitCount;
 use Telepay\FinancialApiBundle\Entity\LimitDefinition;
 use Telepay\FinancialApiBundle\Entity\ServiceFee;
@@ -119,9 +121,9 @@ class GroupsController extends BaseApiController
         if(!$this->get('security.context')->isGranted('ROLE_SUPER_ADMIN'))
             throw new HttpException(403, 'You have not the necessary permissions');
 
-        $search = $request->query->getAlnum("search", "");
+        $search = $request->query->get("search", "");
         $sort = $request->query->getAlnum("sort", "id");
-        $order = $request->query->getAlnum("order", "DESC");
+        $order = $request->query->getAlpha("order", "DESC");
 
         /** @var EntityManagerInterface $em */
         $em = $this->getDoctrine()->getManager();
@@ -151,6 +153,7 @@ class GroupsController extends BaseApiController
             ->getResult();
 
 
+        /** @var Group $group */
         foreach ($result as $group){
             $group = $group->getAdminView();
             if($group->getMethodsList()){
@@ -160,11 +163,15 @@ class GroupsController extends BaseApiController
             }
 
             $fees = $group->getCommissions();
+
+            /** @var Fee $fee */
             foreach ( $fees as $fee ){
                 $currency = $fee->getCurrency();
                 $fee->setScale($currency);
             }
             $limits = $group->getLimits();
+
+            /** @var Limit $lim */
             foreach ( $limits as $lim ){
                 $currency = $lim->getCurrency();
                 $lim->setScale($currency);
@@ -178,7 +185,7 @@ class GroupsController extends BaseApiController
             "ok",
             "Request successful",
             array(
-                'total' => $total,
+                'total' => intval($total[0][1]),
                 'start' => intval($offset),
                 'end' => count($result)+$offset,
                 'elements' => $result
