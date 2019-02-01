@@ -28,9 +28,9 @@ parameters:
 
 #mongo database access information
     mongodb_server: mongodb://localhost:27017
-    mongodb_db: symfony
-    mongodb_user: root
-    mongodb_password: ~
+    mongodb_db: api
+    mongodb_user: api
+    mongodb_password: api
 
 #API version
     version: 1.0
@@ -45,10 +45,10 @@ parameters:
     base_panel_url: 'http://dev-cp.telepay.net/app_dev.php'
 
 #blockchain credentials
-    rec_user: btcuser
-    rec_pass: btcpass
-    rec_host: localhost
-    rec_port: 8333
+    rec_user: rec
+    rec_pass: rec
+    rec_host: node
+    rec_port: 17711
 
 #minimum confirmations to accept rec transactions
     rec_min_confirmations: 1
