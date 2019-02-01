@@ -1,5 +1,25 @@
 services:
 
+
+    com.qbitartofacts.rec.commons.notificator:
+        class: Telepay\FinancialApiBundle\DependencyInjection\Telepay\Commons\NotificatorAggregator
+        arguments:
+            notificators:
+                - '@com.qbitartofacts.rec.commons.telegram_notificator_error'
+                - '@com.qbitartofacts.rec.commons.telegram_notificator_log'
+
+    com.qbitartofacts.rec.commons.telegram_notificator_error:
+        class: Telepay\FinancialApiBundle\DependencyInjection\Telepay\Commons\TelegramNotificator
+        arguments:
+            - "%telegram_chat_error%"
+            - "%telegram_bot_token%"
+
+    com.qbitartofacts.rec.commons.telegram_notificator_log:
+        class: Telepay\FinancialApiBundle\DependencyInjection\Telepay\Commons\TelegramNotificator
+        arguments:
+            - "%telegram_chat_log%"
+            - "%telegram_bot_token%"
+
     net.telepay.commons.method_manipulator:
         class: Telepay\FinancialApiBundle\DependencyInjection\Telepay\Commons\MethodManipulator
 

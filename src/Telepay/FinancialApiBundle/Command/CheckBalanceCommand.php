@@ -58,7 +58,8 @@ class CheckBalanceCommand extends ContainerAwareCommand{
                 $wallet->setBlockchain($rec_balance_1);
                 $output->writeln($account->getId() . ': ' . $balance . " " . $rec_balance_0 . " " . $rec_balance_1);
                 if(intval($balance) != intval($rec_balance_1)){
-                    exec('curl -X POST -d "chat_id=-250635592&text=#ERROR BALANCE ' . $account->getId() . "=>" . $balance . "!=" . $rec_balance_1 . '" ' . '"https://api.telegram.org/bot787861588:AAFWCYdIiAoltb0IoM71jlmzq3AHh8kXSMs/sendMessage"');
+                    $notificator = $this->getContainer()->get('com.qbitartofacts.rec.commons.notificator');
+                    $notificator->msg('#ERROR BALANCE '. $account->getId() . "=>" . $balance . "!=" . $rec_balance_1);
                 }
                 $em->persist($wallet);
                 $em->flush();

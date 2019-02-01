@@ -77,3 +77,7 @@ parameters:
 
     authorized_admins: [1,2]
 
+    telegram_bot_token: $TELEGRAM_BOT_TOKEN
+    telegram_chat_log: $TELEGRAM_CHAT_LOG
+    telegram_chat_error: $TELEGRAM_CHAT_ERROR
+
