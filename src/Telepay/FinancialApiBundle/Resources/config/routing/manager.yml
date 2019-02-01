@@ -69,9 +69,16 @@ admin_users_delete_by_name:
 
 ##########################    MANAGER COMPANIES     ###########################
 
-admin_groups_index:
+admin_groups_index_v1:
     pattern:  /manager/v1/groups
     defaults: { _controller: Telepay\FinancialApiBundle\Controller\Management\Manager\GroupsController::indexAction, _format: ~ }
+    requirements:
+        _method: GET
+
+
+admin_groups_index_v2:
+    pattern:  /manager/v2/groups
+    defaults: { _controller: Telepay\FinancialApiBundle\Controller\Management\Manager\GroupsController::indexV2Action, _format: ~ }
     requirements:
         _method: GET
 

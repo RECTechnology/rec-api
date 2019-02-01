@@ -3,6 +3,8 @@
 namespace Telepay\FinancialApiBundle\Controller\Management\Manager;
 
 use Doctrine\DBAL\DBALException;
+use Doctrine\ORM\EntityManagerInterface;
+use Doctrine\ORM\QueryBuilder;
 use Symfony\Component\HttpKernel\Exception\HttpException;
 use Telepay\FinancialApiBundle\Controller\BaseApiController;
 use Telepay\FinancialApiBundle\DependencyInjection\Transactions\Core\AbstractMethod;
@@ -35,19 +37,17 @@ class GroupsController extends BaseApiController
      * @Rest\View
      * description: returns all groups
      * permissions: ROLE_SUPER_ADMIN ( all)
+     * @param Request $request
+     * @return \Symfony\Component\HttpFoundation\Response
      */
     public function indexAction(Request $request){
-
         if($request->query->has('limit')) $limit = $request->query->get('limit');
         else $limit = 100;
-
         if($request->query->has('offset')) $offset = $request->query->get('offset');
         else $offset = 0;
-
         //only the superadmin can access here
         if(!$this->get('security.context')->isGranted('ROLE_SUPER_ADMIN'))
             throw new HttpException(403, 'You have not the necessary permissions');
-
         if($request->query->get('query') != ''){
             $query = $request->query->get('query');
             $search = $query['search'];
@@ -58,7 +58,6 @@ class GroupsController extends BaseApiController
             $order = 'id';
             $dir = 'DESC';
         }
-
         $em = $this->getDoctrine()->getManager();
         $qb = $em->createQueryBuilder('TelepayFinancialApiBundle:Group');
         $companyQuery = $this->getRepository()->createQueryBuilder('p')
@@ -69,11 +68,90 @@ class GroupsController extends BaseApiController
                 $qb->expr()->like('p.name', $qb->expr()->literal('%'.$search.'%'))
             ))
             ->getQuery();
-
         $all = $companyQuery->getResult();
         $filtered = $all;
         $total = count($filtered);
         foreach ($all as $group){
+            $group = $group->getAdminView();
+            if($group->getMethodsList()){
+                $group->setAllowedMethods($group->getMethodsList());
+            }else{
+                $group->setAllowedMethods(array());
+            }
+            $fees = $group->getCommissions();
+            foreach ( $fees as $fee ){
+                $currency = $fee->getCurrency();
+                $fee->setScale($currency);
+            }
+            $limits = $group->getLimits();
+            foreach ( $limits as $lim ){
+                $currency = $lim->getCurrency();
+                $lim->setScale($currency);
+            }
+        }
+        $entities = array_slice($all, $offset, $limit);
+        return $this->restV2(
+            200,
+            "ok",
+            "Request successful",
+            array(
+                'total' => $total,
+                'start' => intval($offset),
+                'end' => count($entities)+$offset,
+                'elements' => $entities
+            )
+        );
+    }
+
+    /**
+     * @Rest\View
+     * description: returns all groups
+     * permissions: ROLE_SUPER_ADMIN ( all)
+     * @param Request $request
+     * @return \Symfony\Component\HttpFoundation\Response
+     */
+    public function indexV2Action(Request $request){
+
+        $limit = $request->query->getInt('limit', 10);
+        $offset = $request->query->getInt('offset', 0);
+
+        //only the superadmin can access here
+        if(!$this->get('security.context')->isGranted('ROLE_SUPER_ADMIN'))
+            throw new HttpException(403, 'You have not the necessary permissions');
+
+        $search = $request->query->getAlnum("search", "");
+        $sort = $request->query->getAlnum("sort", "id");
+        $order = $request->query->getAlnum("order", "DESC");
+
+        /** @var EntityManagerInterface $em */
+        $em = $this->getDoctrine()->getManager();
+
+
+        /** @var QueryBuilder $qb */
+        $qb = $em->createQueryBuilder();
+        $qb = $qb->from(Group::class, 'acc')->where(
+            $qb->expr()->orX(
+                $qb->expr()->like("acc.cif", $qb->expr()->literal('%' . $search. '%')),
+                $qb->expr()->like("acc.phone", $qb->expr()->literal('%' . $search. '%')),
+                $qb->expr()->like("acc.name", $qb->expr()->literal('%' . $search. '%'))
+            )
+        );
+
+        $total = $qb
+            ->select('count(acc.id)')
+            ->getQuery()
+            ->getScalarResult();
+
+        $result = $qb
+            ->select('acc')
+            ->setFirstResult($offset)
+            ->setMaxResults($limit)
+            ->orderBy('acc.' . $sort, $order)
+            ->getQuery()
+            ->getResult();
+
+
+        foreach ($result as $group){
             $group = $group->getAdminView();
             if($group->getMethodsList()){
                 $group->setAllowedMethods($group->getMethodsList());
@@ -94,7 +172,6 @@ class GroupsController extends BaseApiController
 
         }
 
-        $entities = array_slice($all, $offset, $limit);
 
         return $this->restV2(
             200,
@@ -103,8 +180,8 @@ class GroupsController extends BaseApiController
             array(
                 'total' => $total,
                 'start' => intval($offset),
-                'end' => count($entities)+$offset,
-                'elements' => $entities
+                'end' => count($result)+$offset,
+                'elements' => $result
             )
         );
 

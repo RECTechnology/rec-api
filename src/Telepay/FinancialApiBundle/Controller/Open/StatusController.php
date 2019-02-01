@@ -2,10 +2,8 @@
 
 namespace Telepay\FinancialApiBundle\Controller\Open;
 
-use Doctrine\DBAL\Driver\Mysqli\MysqliException;
 use Doctrine\ODM\MongoDB\DocumentManager;
 use Doctrine\ORM\EntityManagerInterface;
-use Doctrine\ORM\ORMException;
 use FOS\RestBundle\Controller\Annotations as Rest;
 use Symfony\Component\HttpFoundation\Request;
 use Telepay\FinancialApiBundle\Controller\RestApiController;
