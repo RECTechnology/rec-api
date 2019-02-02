@@ -31,7 +31,8 @@ class StatusController extends RestApiController {
         try {
             /** @var EntityManagerInterface $em */
             $em = $this->getDoctrine()->getManager();
-            $em->getConnection()->connect();
+            if(!$em->getConnection()->isConnected())
+                $em->getConnection()->connect();
         } catch (\Exception $e){
             $exceptions []= $e->getMessage();
             $status ^= 0x1;
@@ -40,7 +41,8 @@ class StatusController extends RestApiController {
         try {
             /** @var DocumentManager $odm */
             $odm = $this->get('doctrine_mongodb')->getManager();
-            $odm->getConnection()->connect();
+            if(!$odm->getConnection()->isConnected())
+                $odm->getConnection()->connect();
         } catch (\Exception $e){
             $exceptions []= $e->getMessage();
             $status ^= 0x2;
