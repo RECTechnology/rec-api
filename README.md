@@ -48,9 +48,19 @@ the rest of services haven't any port exposed to outside, but available inside t
   - user `api`
   - password `api`
 * `mongodb` instance opens port `27017` to the container network
+  - root user `api`
+  - root password `api`
+  - database and collections not created.
 * `rec node` instance opens port `17711` to the container network
   - rpcuser `rec`
   - rpcpassword `rec`
+
+#### Troubleshooting
+to deal with troubleshooting is possible to acces to the runningcontainer's shell using 
+`docker exec -it api-api_api_1 bash` (explained [above](#run-api-image-only)), but if the container doesn't start (ie. missing dependencies),
+the method must be to executing directly the built image using `docker run -it -v `pwd`:/api -u $UID:$UID rec-api-dev bash`
+(also explained [above](#run-some-command-in-the-api-container)).
+
 
 # Deployment
 ## Stage Environment
