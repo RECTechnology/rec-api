@@ -57,9 +57,10 @@ the rest of services haven't any port exposed to outside, but available inside t
 
 #### Troubleshooting
 to deal with troubleshooting is possible to acces to the runningcontainer's shell using 
-`docker exec -it api-api_api_1 bash` (explained [above](#run-api-image-only)), but if the container doesn't start (ie. missing dependencies),
-the method must be to executing directly the built image using `docker run -it -v `pwd`:/api -u $UID:$UID rec-api-dev bash`
-(also explained [above](#run-some-command-in-the-api-container)).
+`docker exec -it api-api_api_1 bash` (explained [above](#run-some-command-in-the-api-container)),
+but if the container doesn't start (ie. missing dependencies), the method must be to executing
+directly the built image using `docker run -it -v `pwd`:/api -u $UID:$UID rec-api-dev bash` (also
+explained [above](#run-api-image-only)).
 
 
 # Deployment
