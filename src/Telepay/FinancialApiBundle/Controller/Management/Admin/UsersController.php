@@ -75,6 +75,10 @@ class UsersController extends BaseApiController
 
     /**
      * @Rest\View
+     * @param Request $request
+     * @param $id
+     * @param $action
+     * @return \Symfony\Component\HttpFoundation\Response
      */
     public function userActionsAction(Request $request,$id, $action){
         $em = $this->getDoctrine()->getmanager();
@@ -110,7 +114,7 @@ class UsersController extends BaseApiController
                     'code' => $code,
                     'tries' => $tries
                 );
-                return $this->restV2(204,"ok", "Request successful", $response);
+                return $this->restV2(200,"ok", "Request successful", $response);
                 break;
             case 'resend_sms':
                 $kyc = $em->getRepository('TelepayFinancialApiBundle:KYC')->findOneBy(array(
