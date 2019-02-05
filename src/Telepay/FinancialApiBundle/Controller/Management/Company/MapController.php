@@ -286,7 +286,16 @@ class MapController extends BaseApiController{
     }
 
 
-    public function Search_v2Action(Request $request){
+    /**
+     * @param Request $request
+     * @return \Symfony\Component\HttpFoundation\Response
+     */
+    public function searchV2(Request $request){
+
+
+
+        $limit =  $request->query->get('limit',  10);
+        $offset = $request->query->get('offset', 0);
 
         $total = 0;
         $all = array();
@@ -314,7 +323,7 @@ class MapController extends BaseApiController{
             throw new HttpException(400, "Filters options are incorrect");
         }
 
-        $list_companies = $em->getRepository('TelepayFinancialApiBundle:Group')->findBy($where);
+        $accounts = $em->getRepository('TelepayFinancialApiBundle:Group')->findBy($where);
 
         if($request->query->has('search') && $request->query->get('search')!='') {
             $search = strtoupper($request->query->get('search'));
@@ -336,21 +345,23 @@ class MapController extends BaseApiController{
         }
 
         $only_offers = false;
+
         if($request->query->has('only_offers') && $request->query->get('only_offers')=='1') {
             $only_offers = true;
         }
 
-        foreach ($list_companies as $company){
-            $lat = $company->getLatitude();
-            $lon = $company->getLongitude();
+        /** @var Group $account */
+        foreach ($accounts as $account){
+            $lat = $account->getLatitude();
+            $lon = $account->getLongitude();
             if(intval($lat) == 0 && intval($lon) == 0) {
                 //No han definido su ubicacion
             }
             elseif($lat > $min_lat && $lat < $max_lat && $lon > $min_lon && $lon < $max_lon){
-                $name = strtoupper($company->getName());
+                $name = strtoupper($account->getName());
                 $category_id = 0;
-                if($company->getCategory()) {
-                    $category_id = $company->getCategory()->getId();
+                if($account->getCategory()) {
+                    $category_id = $account->getCategory()->getId();
                 }
                 if ($search == NULL ||
                     strpos($name, $search) !== false ||
@@ -358,7 +369,7 @@ class MapController extends BaseApiController{
                 {
                     //check offers
                     $list_offers = $em->getRepository('TelepayFinancialApiBundle:Offer')->findBy(array(
-                        'company'  =>  $company
+                        'company'  =>  $account
                     ));
                     $now = strtotime("now");
                     $offers_info = array();
@@ -374,29 +385,31 @@ class MapController extends BaseApiController{
                         }
                     }
                     if(!$only_offers || $total_offers>0){
+                        if($total >= $offset && count($all) < $limit) {
+                            $all[] = array(
+                                'name' => $account->getName(),
+                                'company_image' => $account->getCompanyImage(),
+                                'latitude' => $account->getLatitude(),
+                                'longitude' => $account->getLongitude(),
+                                'country' => $account->getCountry(),
+                                'city' => $account->getCity(),
+                                'zip' => $account->getZip(),
+                                'street' => $account->getStreet(),
+                                'street_type' => $account->getStreetType(),
+                                'address_number' => $account->getAddressNumber(),
+                                'phone' => $account->getPhone(),
+                                'prefix' => $account->getPrefix(),
+                                'type' => $account->getType(),
+                                'subtype' => $account->getSubtype(),
+                                'description' => $account->getDescription(),
+                                'schedule' => $account->getSchedule(),
+                                'public_image' => $account->getPublicImage(),
+                                'category' => $account->getCategory(),
+                                'offers' => $offers_info,
+                                'total_offers' => $total_offers
+                            );
+                        }
                         $total+=1;
-                        $all[] = array(
-                            'name' => $company->getName(),
-                            'company_image' => $company->getCompanyImage(),
-                            'latitude' => $company->getLatitude(),
-                            'longitude' => $company->getLongitude(),
-                            'country' => $company->getCountry(),
-                            'city' => $company->getCity(),
-                            'zip' => $company->getZip(),
-                            'street' => $company->getStreet(),
-                            'street_type' => $company->getStreetType(),
-                            'address_number' => $company->getAddressNumber(),
-                            'phone' => $company->getPhone(),
-                            'prefix' => $company->getPrefix(),
-                            'type' => $company->getType(),
-                            'subtype' => $company->getSubtype(),
-                            'description' => $company->getDescription(),
-                            'schedule' => $company->getSchedule(),
-                            'public_image' => $company->getPublicImage(),
-                            'category' => $company->getCategory(),
-                            'offers' => $offers_info,
-                            'total_offers' => $total_offers
-                        );
                     }
                 }
             }

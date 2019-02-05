@@ -1,7 +1,7 @@
 version: '3'
 
 volumes:
-  rdb:
+  rdb4:
   nrdb:
   blockchain:
   logs:
@@ -22,12 +22,12 @@ services:
   rdb:
     image: mariadb
     environment:
-      - MYSQL_DATABASE=api
-      - MYSQL_USER=api
-      - MYSQL_PASSWORD=api
+      - MYSQL_DATABASE=app
+      - MYSQL_USER=app
+      - MYSQL_PASSWORD=app
       - MYSQL_ALLOW_EMPTY_PASSWORD=yes
-    ports:
-      - 3307:3306
+    volumes:
+      - rdb4:/var/lib/mysql
 
   rdbadmin:
     image: phpmyadmin/phpmyadmin
@@ -40,16 +40,18 @@ services:
   nrdb:
     image: mongo
     environment:
-      - MONGO_INITDB_ROOT_USERNAME=api
-      - MONGO_INITDB_ROOT_PASSWORD=api
+      - MONGO_INITDB_ROOT_USERNAME=app
+      - MONGO_INITDB_ROOT_PASSWORD=app
+    volumes:
+      - nrdb:/var/lib/mongodb
 
   nrdbadmin:
     image: mongo-express
     ports:
       - 8081:8081
     environment:
-      - ME_CONFIG_MONGODB_ADMINUSERNAME=api
-      - ME_CONFIG_MONGODB_ADMINPASSWORD=api
+      - ME_CONFIG_MONGODB_ADMINUSERNAME=app
+      - ME_CONFIG_MONGODB_ADMINPASSWORD=app
       - ME_CONFIG_MONGODB_SERVER=nrdb
     depends_on:
       - nrdb
