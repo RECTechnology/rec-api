@@ -2,10 +2,13 @@
 
 namespace Telepay\FinancialApiBundle\Controller\Management\Company;
 
+use Doctrine\ORM\EntityManagerInterface;
+use Doctrine\ORM\QueryBuilder;
 use Symfony\Component\HttpKernel\Exception\HttpException;
 use Telepay\FinancialApiBundle\Controller\BaseApiController;
 use FOS\RestBundle\Controller\Annotations as Rest;
 use Symfony\Component\HttpFoundation\Request;
+use Telepay\FinancialApiBundle\Entity\Category;
 use Telepay\FinancialApiBundle\Entity\Group;
 use Telepay\FinancialApiBundle\Entity\Offer;
 
@@ -292,14 +295,12 @@ class MapController extends BaseApiController{
      */
     public function searchV2(Request $request){
 
+        $limit = $request->query->getInt('limit', 10);
+        $offset = $request->query->getInt('offset', 0);
 
-
-        $limit =  $request->query->get('limit',  10);
-        $offset = $request->query->get('offset', 0);
-
-        $total = 0;
-        $all = array();
-        $em = $this->getDoctrine()->getManager();
+        $search = $request->query->get('search', '');
+        $sort = $request->query->getAlnum('sort', 'id');
+        $order = $request->query->getAlpha('order', 'DESC');
 
         $min_lat = $request->query->get('min_lat', -90.0);
         $max_lat =  $request->query->get('max_lat',  90.0);
@@ -307,122 +308,81 @@ class MapController extends BaseApiController{
         $max_lon = $request->query->get('max_lon', 90.0);
 
 
-        $where = array('type'  =>  'COMPANY');
-        if($request->query->has('retailer') && $request->query->get('retailer')=='1') {
-            $where['subtype'] = 'RETAILER';
-        }
-        if($request->query->has('wholesale') && $request->query->get('wholesale')=='1') {
-            if(isset($where['subtype'])){
-                unset($where['subtype']);
-            }
-            else {
-                $where['subtype'] = 'WHOLESALE';
-            }
-        }
-        if($request->query->get('retailer')=='0' && $request->query->get('wholesale')=='0') {
-            throw new HttpException(400, "Filters options are incorrect");
+        $acc_subtype = $request->query->getAlnum('subtype', '');
+
+        /** @var EntityManagerInterface $em */
+        $em = $this->getDoctrine()->getManager();
+
+
+        /** @var QueryBuilder $qb */
+        $qb = $em->createQueryBuilder();
+
+        $and = $qb->expr()->andX();
+
+        $searchFields = [
+            'a.id',
+            'a.name',
+            'a.phone',
+            'a.cif',
+            'a.street',
+            //'c.id',
+            //'c.esp',
+            //'c.cat',
+            //'c.eng'
+        ];
+
+        $like = $qb->expr()->orX();
+        foreach ($searchFields as $field) {
+            $like->add($qb->expr()->like($field, $qb->expr()->literal('%' . $search . '%')));
         }
 
-        $accounts = $em->getRepository('TelepayFinancialApiBundle:Group')->findBy($where);
+        $and->add($like);
 
-        if($request->query->has('search') && $request->query->get('search')!='') {
-            $search = strtoupper($request->query->get('search'));
-        }
-        else{
-            $search = NULL;
-        }
+        //geo query
+        $and->add($qb->expr()->gt('a.latitude', $min_lat));
+        $and->add($qb->expr()->lt('a.latitude', $max_lat));
+        $and->add($qb->expr()->gt('a.longitude', $min_lon));
+        $and->add($qb->expr()->lt('a.longitude', $max_lon));
 
-        $list_categories = $em->getRepository('TelepayFinancialApiBundle:Category')->findAll();
-        $list_cat_ids = array();
-        foreach ($list_categories as $category) {
 
-            if (strpos(strtoupper($category->getCat()), $search) !== false ||
-                strpos(strtoupper($category->getEsp()), $search) !== false ||
-                strpos(strtoupper($category->getEng()), $search) !== false)
-            {
-                $list_cat_ids[] = $category->getId();
-            }
-        }
 
-        $only_offers = false;
+        $and->add($qb->expr()->like('a.type', $qb->expr()->literal('COMPANY')));
+        if($acc_subtype != '')
+            $and->add($qb->expr()->like('a.subtype', $qb->expr()->literal($acc_subtype)));
 
-        if($request->query->has('only_offers') && $request->query->get('only_offers')=='1') {
-            $only_offers = true;
+        //$now = strtotime("now");
+        //$and->add($qb->expr()->gt('TIMESTAMP(o.start)', $now));
+        //$and->add($qb->expr()->lt('TIMESTAMP(o.end)', $now));
+
+        if($request->query->getInt('only_offers', 0) == 1) {
+            $and->add($qb->expr()->gt('COUNT(o.id)', 0));
         }
 
-        /** @var Group $account */
-        foreach ($accounts as $account){
-            $lat = $account->getLatitude();
-            $lon = $account->getLongitude();
-            if(intval($lat) == 0 && intval($lon) == 0) {
-                //No han definido su ubicacion
-            }
-            elseif($lat > $min_lat && $lat < $max_lat && $lon > $min_lon && $lon < $max_lon){
-                $name = strtoupper($account->getName());
-                $category_id = 0;
-                if($account->getCategory()) {
-                    $category_id = $account->getCategory()->getId();
-                }
-                if ($search == NULL ||
-                    strpos($name, $search) !== false ||
-                    in_array($category_id, $list_cat_ids))
-                {
-                    //check offers
-                    $list_offers = $em->getRepository('TelepayFinancialApiBundle:Offer')->findBy(array(
-                        'company'  =>  $account
-                    ));
-                    $now = strtotime("now");
-                    $offers_info = array();
-                    $total_offers = 0;
-                    foreach($list_offers as $offer){
-                        $start = date_timestamp_get($offer->getStart());
-                        if($start <= $now){
-                            $end = date_timestamp_get($offer->getEnd());
-                            if($now <= $end){
-                                $offers_info[]=$offer;
-                                $total_offers+=1;
-                            }
-                        }
-                    }
-                    if(!$only_offers || $total_offers>0){
-                        if($total >= $offset && count($all) < $limit) {
-                            $all[] = array(
-                                'name' => $account->getName(),
-                                'company_image' => $account->getCompanyImage(),
-                                'latitude' => $account->getLatitude(),
-                                'longitude' => $account->getLongitude(),
-                                'country' => $account->getCountry(),
-                                'city' => $account->getCity(),
-                                'zip' => $account->getZip(),
-                                'street' => $account->getStreet(),
-                                'street_type' => $account->getStreetType(),
-                                'address_number' => $account->getAddressNumber(),
-                                'phone' => $account->getPhone(),
-                                'prefix' => $account->getPrefix(),
-                                'type' => $account->getType(),
-                                'subtype' => $account->getSubtype(),
-                                'description' => $account->getDescription(),
-                                'schedule' => $account->getSchedule(),
-                                'public_image' => $account->getPublicImage(),
-                                'category' => $account->getCategory(),
-                                'offers' => $offers_info,
-                                'total_offers' => $total_offers
-                            );
-                        }
-                        $total+=1;
-                    }
-                }
-            }
-        }
+        $qb = $qb
+            ->from(Group::class, 'a')
+            //->innerJoin(Category::class, 'c')
+            //->innerJoin(Offer::class, 'o')
+            ->where($and);
+
+
+        $total = $qb
+            ->select('count(a.id)')
+            ->getQuery()
+            ->getScalarResult();
+
+        $elements = $qb
+            ->select('a')
+            ->setFirstResult($offset)
+            ->setMaxResults($limit)
+            ->orderBy('a.' . $sort, $order)
+            ->getQuery()
+            ->getResult();
 
         return $this->restV2(
             200,
             "ok",
             "Request successful",
-            array(
-                'total' => $total,
-                'elements' => $all
-            )
+            ['total' => intval($total[0][1]), 'elements' => $elements]
         );
     }
 

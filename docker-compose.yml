@@ -1,7 +1,7 @@
 version: '3'
 
 volumes:
-  rdb4:
+  rdb:
   nrdb:
   blockchain:
   logs:
@@ -27,7 +27,7 @@ services:
       - MYSQL_PASSWORD=app
       - MYSQL_ALLOW_EMPTY_PASSWORD=yes
     volumes:
-      - rdb4:/var/lib/mysql
+      - rdb:/var/lib/mysql
 
   rdbadmin:
     image: phpmyadmin/phpmyadmin

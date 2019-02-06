@@ -83,41 +83,9 @@ class UsersController extends BaseApiController
         if(!$securityContext->isGranted('ROLE_SUPER_ADMIN'))
             throw new HttpException(403, 'You don\'t have the necessary permissions '. print_r($securityContext->getToken()->getUsername(), true));
 
-        $limit = $request->query->getInt('limit', 10);
-        $offset = $request->query->getInt('offset', 0);
-
-        $search = $request->query->get('search', '');
-        $sort = $request->query->getAlnum('sort', 'id');
-        $order = $request->query->getAlpha('order', 'DESC');
-
-
-        /** @var EntityManagerInterface $em */
-        $em = $this->getDoctrine()->getManager();
-
-
-        /** @var QueryBuilder $qb */
-        $qb = $em->createQueryBuilder();
-        $qb = $qb->from(User::class, 'u')->where(
-            $qb->expr()->orX(
-                $qb->expr()->like("u.username", $qb->expr()->literal('%' . $search. '%')),
-                $qb->expr()->like("u.id", $qb->expr()->literal('%' . $search. '%')),
-                $qb->expr()->like("u.email", $qb->expr()->literal('%' . $search. '%')),
-                $qb->expr()->like("u.name", $qb->expr()->literal('%' . $search. '%'))
-            )
-        );
-
-        $total = $qb
-            ->select('count(u.id)')
-            ->getQuery()
-            ->getScalarResult();
-
-        $result = $qb
-            ->select('u')
-            ->setFirstResult($offset)
-            ->setMaxResults($limit)
-            ->orderBy('u.' . $sort, $order)
-            ->getQuery()
-            ->getResult();
+        $result = $this->searchLike($request, User::class, ["id", "username", "email", "name"]);
+        $total = $result['total'];
+        $elements = $result['elements'];
 
         array_map(
             function(User $elem){
@@ -141,21 +109,61 @@ class UsersController extends BaseApiController
                 }
 
             },
-            $result
+            $elements
         );
 
         return $this->rest(
             200,
             "Request successful",
-            array(
-                'total' => intval($total[0][1]),
-                'start' => intval($offset),
-                'end' => count($result)+$offset,
-                'elements' => $result
-            )
+            ['total' => $total, 'elements' => $elements]
         );
     }
 
+    /**
+     * @param Request $request
+     * @param $class
+     * @param array $fields
+     * @return array
+     */
+    private function searchLike(Request $request, $class, array $fields){
+
+        $limit = $request->query->getInt('limit', 10);
+        $offset = $request->query->getInt('offset', 0);
+
+        $search = $request->query->get('search', '');
+        $sort = $request->query->getAlnum('sort', 'id');
+        $order = $request->query->getAlpha('order', 'DESC');
+
+
+        /** @var EntityManagerInterface $em */
+        $em = $this->getDoctrine()->getManager();
+
+
+        /** @var QueryBuilder $qb */
+        $qb = $em->createQueryBuilder();
+
+        $expr = $qb->expr()->orX();
+        foreach ($fields as $field) {
+            $expr->add($qb->expr()->like('e.' . $field, $qb->expr()->literal('%' . $search. '%')));
+        }
+
+        $qb = $qb->from($class, 'e')->where($expr);
+
+        $total = $qb
+            ->select('count(e.id)')
+            ->getQuery()
+            ->getScalarResult();
+
+        $result = $qb
+            ->select('e')
+            ->setFirstResult($offset)
+            ->setMaxResults($limit)
+            ->orderBy('e.' . $sort, $order)
+            ->getQuery()
+            ->getResult();
+
+        return ['total' => intval($total[0][1]), 'elements' => $result];
+    }
 
 
     /**
@@ -163,6 +171,7 @@ class UsersController extends BaseApiController
      * Permissions: ROLE_SUPER_ADMIN
      * @param Request $request
      * @return \Symfony\Component\HttpFoundation\Response
+     * @deprecated by indexV2
      */
     public function indexAction(Request $request){
 
@@ -254,6 +263,10 @@ class UsersController extends BaseApiController
     /**
      * @Rest\View
      * Permissions: ROLE_READONLY(active_group), ROLE_SUPER_ADMIN(all)
+     * @param Request $request
+     * @param $id
+     * @return \Symfony\Component\HttpFoundation\Response
+     * @deprecated by indexByGroupV2
      */
     public function indexByGroup(Request $request, $id){
         //Only the superadmin can access here
@@ -304,6 +317,66 @@ class UsersController extends BaseApiController
             )
         );
     }
+
+
+    /**
+     * @Rest\View
+     * Permissions: ROLE_READONLY(active_group), ROLE_SUPER_ADMIN(all)
+     * @param Request $request
+     * @param $id
+     * @return \Symfony\Component\HttpFoundation\Response
+     */
+    public function indexByGroupV2(Request $request, $id){
+        //Only the superadmin can access here
+
+        /** @var User $admin */
+        $admin = $this->get('security.context')->getToken()->getUser();
+        $adminGroup = $admin->getActiveGroup();
+
+        if(!$this->get('security.context')->isGranted('ROLE_SUPER_ADMIN') && $adminGroup->getId() != $id) {
+            throw new HttpException(403, 'You don\'t have the necessary permissions');
+        }
+
+        $result = $this->searchLike($request, UserGroup::class, ["id", "username", "email", "name"]);
+        $total = $result['total'];
+        $all = $result['elements'];
+
+
+        $current_group = $this->getDoctrine()->getRepository('TelepayFinancialApiBundle:Group')->find($id);
+        if(!$current_group) throw new HttpException(404, 'Group not found');
+
+        $all = $this->getDoctrine()
+            ->getRepository('TelepayFinancialApiBundle:UserGroup')
+            ->findBy(['group' => $current_group]);
+
+        $filtered = [];
+
+        /** @var UserGroup $user_group */
+        foreach($all as $user_group){
+            $user = $user_group->getUser();
+            $filtered[] = [
+                "id" => $user->getId(),
+                "username" => $user->getUsername(),
+                "email" => $user->getEmail(),
+                "roles" => $user->getRolesCompany($current_group->getId()),
+                "phone" => $user->getPhone(),
+                "name" => $user->getName(),
+                "profile_image" => $user->getProfileImage(),
+            ];
+        }
+        $total = count($filtered);
+        $entities = array_slice($filtered, $offset, $limit);
+        return $this->rest(
+            200,
+            "Request successful",
+            array(
+                'total' => $total,
+                'elements' => $entities
+            )
+        );
+    }
+
+
 
     /**
      * @Rest\View
