@@ -32,14 +32,12 @@
     <div class="box">
         <h3>REST APIs</h3>
         <div class="box_content">
-            <p>Apis on <a href="$API_URL">$API_DOMAIN</a></p>
+            <p>APIs on <a href="$API_URL">$API_DOMAIN</a></p>
             <ul>
-                <li><a class="api-link" href="public/#api-Authentication">How to authenticate</a></li>
                 <li><a class="api-link" href="public/#api-Public">Public API</a></li>
-                <li><a class="api-link" href="public/#api-Methods">Methods API</a></li>
-                <li><a class="api-link" href="public/#api-Swift">Swift API</a></li>
+                <li><a class="api-link" href="public/#api-Authentication">How to authenticate</a></li>
                 <li><a class="api-link" href="public/#api-User">User API</a></li>
-                <li><a class="api-link" href="$WIKI_URL">Internal API</a> [private]</li>
+                <li><a class="api-link" href="$WIKI_URL/#private-api">Internal API</a> [private]</li>
             </ul>
         </div>
     </div>
@@ -57,7 +55,7 @@
 
 
 <div id="footer">
-    <p>REC Barcelona &#169; 2019</p>
+    <p>$NAME &#169; 2019</p>
 </div>
 
 <script src="public/vendor/jquery.min.js" ></script>
