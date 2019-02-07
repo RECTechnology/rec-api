@@ -45,8 +45,12 @@
     <div class="box">
         <h3>SDKs</h3>
         <div class="box_content">
-            <p>Open Source projects on <a href="https://github.com">GitHub</a></p>
-            <p>(coming soon)</p>
+            <p>Available resources</p>
+            <ul>
+                <li><a class="api-link" href="#">JS/PY/PHP SDKs</a> (coming soon)</li>
+                <li><a class="api-link" href="#">PostMan Collection</a> (coming soon)</li>
+                <li><a class="api-link" href="#">Sandbox site</a> (coming soon)</li>
+            </ul>
         </div>
     </div>
 </div>
