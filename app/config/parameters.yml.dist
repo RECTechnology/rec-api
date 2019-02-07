@@ -3,9 +3,9 @@ parameters:
     database_driver:   pdo_mysql
     database_host:     rdb
     database_port:     3306
-    database_name:     api
-    database_user:     api
-    database_password: api
+    database_name:     app
+    database_user:     app
+    database_password: app
 
 #mailer configuration to sent emails
     mailer_transport:  smtp
@@ -28,9 +28,9 @@ parameters:
 
 #mongo database access information
     mongodb_server: mongodb://localhost:27017
-    mongodb_db: api
-    mongodb_user: api
-    mongodb_password: api
+    mongodb_db: app
+    mongodb_user: app
+    mongodb_password: app
 
 #API version
     version: 1.0
