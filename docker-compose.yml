@@ -20,14 +20,16 @@ services:
       - 8000:8000
 
   docs:
-    build:
-      context: ./docs
+    build: ./docs
     environment:
       - NAME=REC
+      - FAVICON_PATH=xxx
       - LOGO_HEADER_PATH=https://rec.barcelona/wp-content/uploads/2018/04/Group-3116@2x.png
       - BG_URL=https://rec.barcelona/wp-content/uploads/2018/04/Slide_home_REC_WEB.jpg
-    volumes:
-      - ./:/api
+      - DOMAIN=rec.local
+      - API_DOMAIN=api.rec.local
+      - API_URL=http://api.rec.local
+      - WIKI_URL=http://wiki.rec.local
     ports:
       - 8001:80
 

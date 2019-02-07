@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 
 envsubst < web/index.html.dist > web/index.html
-envsubst < web/css/style.css.dist > web/index.html
+envsubst < web/css/style.css.dist > web/css/style.css
 envsubst < public/apidoc.json.dist > public/apidoc.json
 envsubst < public/header.md.dist > public/header.md
 

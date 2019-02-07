@@ -14,7 +14,7 @@ body{
 }
 #header img{
 	float: left;
-	width: 40px;
+	height: 40px;
 	margin: 14px 16px 0 65px;
 }
 #header h3{
