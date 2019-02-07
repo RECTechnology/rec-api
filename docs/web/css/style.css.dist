@@ -28,7 +28,7 @@ body{
 ==============================*/
 
 .image_sup{
-	background: url("../img/sup2.jpg");
+	background: url("$BG_URL");
 	background-size: cover;
 	padding: 40px 0;
 }

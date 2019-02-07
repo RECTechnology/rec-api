@@ -1,0 +1,19 @@
+{
+  "name": "$NAME API Documentation",
+  "version": "2.0.0",
+  "description": "Documentation for $NAME API",
+  "title": "REST API - $NAME",
+  "url": "$NAME",
+  "sampleUrl": "$NAME",
+  "header": {
+    "title": "$NAME API",
+    "filename": "./public/header.md"
+  },
+  "footer": {
+    "filename": "./public/footer.md"
+  },
+  "template": {
+    "withCompare": true,
+    "withGenerator": false
+  }
+}

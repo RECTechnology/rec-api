@@ -1,26 +1,26 @@
 <html>
 <head>
-    <title>{{ title }}</title>
+    <title>$NAME Developers</title>
     <meta charset="utf-8">
-    <meta name="description" content="{{ name }} api developers documentation" />
+    <meta name="description" content="$NAME api developers documentation" />
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, intial-scale=1.0" />
 
     <link rel="stylesheet" href="css/style.css"/>
-    <link rel="icon" href="{{ favicon_path }}">
+    <link rel="icon" href="$FAVICON_PATH">
 </head>
 <body>
 
 <div class="row" id="header">
     <div class="container">
-        <img src="{{ logo_header_path }}">
-        <h3>{{ title }}</h3>
+        <img src="$LOGO_HEADER_PATH">
+        <h3>$NAME Developers documentation</h3>
     </div>
 </div>
 
 <div class="image_sup">
     <div class="container">
-        <h1>{{ title }} - {{ subtitle }}</h1>
+        <h1>$NAME - Developers</h1>
 
         <hr>
 
@@ -32,14 +32,14 @@
     <div class="box">
         <h3>REST APIs</h3>
         <div class="box_content">
-            <p>Apis on <a href="{{ url }}">{{ url }}</a></p>
+            <p>Apis on <a href="$API_URL">$API_DOMAIN</a></p>
             <ul>
                 <li><a class="api-link" href="public/#api-Authentication">How to authenticate</a></li>
                 <li><a class="api-link" href="public/#api-Public">Public API</a></li>
                 <li><a class="api-link" href="public/#api-Methods">Methods API</a></li>
                 <li><a class="api-link" href="public/#api-Swift">Swift API</a></li>
                 <li><a class="api-link" href="public/#api-User">User API</a></li>
-                <li><a class="api-link" href="private/#api-Management">Internal API</a> [private]</li>
+                <li><a class="api-link" href="$WIKI_URL">Internal API</a> [private]</li>
             </ul>
         </div>
     </div>
@@ -47,13 +47,8 @@
     <div class="box">
         <h3>SDKs</h3>
         <div class="box_content">
-            <p>Open Source projects on <a href="{{ github_root }}">GitHub</a></p>
-            <ul>
-                <li><a href="{{ github_php_sdk }}">PHP SDK</a></li>
-                <li><a href="{{ github_java_sdk }}">Java SDK</a></li>
-                <li><a href="{{ github_android_sdk }}">Android SDK</a> (cooming soon)</li>
-                <li><a href="{{ github_nodejs_sdk }}">NodeJS SDK</a></li>
-            </ul>
+            <p>Open Source projects on <a href="https://github.com">GitHub</a></p>
+            <p>(coming soon)</p>
         </div>
     </div>
 </div>
@@ -62,10 +57,9 @@
 
 
 <div id="footer">
-    <p>{{ name }} &#169; 2016</p>
+    <p>REC Barcelona &#169; 2019</p>
 </div>
 
 <script src="public/vendor/jquery.min.js" ></script>
-<script src="js/addAccessToken.js" ></script>
 </body>
 </html>
