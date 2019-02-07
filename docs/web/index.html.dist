@@ -37,7 +37,7 @@
                 <li><a class="api-link" href="public/#api-Public">Public API</a></li>
                 <li><a class="api-link" href="public/#api-Authentication">How to authenticate</a></li>
                 <li><a class="api-link" href="public/#api-User">User API</a></li>
-                <li><a class="api-link" href="$WIKI_URL/#private-api">Internal API</a> [private]</li>
+                <li><a class="api-link" href="$WIKI_URL/#internal-api">Internal API</a> [private]</li>
             </ul>
         </div>
     </div>
