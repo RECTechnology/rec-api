@@ -1,4 +1,4 @@
-This doc explains how to interact with the {{ name }} REST APIs, using the different authentication mechanisms and options.
+This doc explains how to interact with the $NAME REST APIs, using the different authentication mechanisms and options.
 
 
 #### Authentication
@@ -7,7 +7,7 @@ The available authentication methods are
 - Via standard OAuth2 (designed for mobile apps and web panels)
 - Via signed Request using HMAC-SHA256 (designed for interact from servers)
 
-#### For the commerce (services)
+<!-- #### For the commerce (services)
 The services API has the following *features*
 
 - Signed requests authentication (API keys)
@@ -33,10 +33,9 @@ Wallet API options
 
 #### For admins (management)
 The management API features
-
 - OAuth2 authentication
 - Client management
 - Services management
 - Servers status
 - User management
-- Data analytics
+- Data analytics -->

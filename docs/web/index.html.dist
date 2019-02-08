@@ -1,0 +1,67 @@
+<html>
+<head>
+    <title>$NAME Developers</title>
+    <meta charset="utf-8">
+    <meta name="description" content="$NAME api developers documentation" />
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, intial-scale=1.0" />
+
+    <link rel="stylesheet" href="css/style.css"/>
+    <link rel="icon" href="$FAVICON_PATH">
+</head>
+<body>
+
+<div class="row" id="header">
+    <div class="container">
+        <img src="$LOGO_HEADER_PATH">
+        <h3>$NAME Developers documentation</h3>
+    </div>
+</div>
+
+<div class="image_sup">
+    <div class="container">
+        <h1>$NAME - Developers</h1>
+
+        <hr>
+
+        <p>Science is what we understand well enough to explain to a computer. Art is everything else we do.</p>
+    </div>
+</div>
+
+<div class="wrapper">
+    <div class="box">
+        <h3>REST APIs</h3>
+        <div class="box_content">
+            <p>APIs on <a href="$API_URL">$API_DOMAIN</a></p>
+            <ul>
+                <li><a class="api-link" href="public/#api-Public">Public API</a></li>
+                <li><a class="api-link" href="public/#api-Authentication">How to authenticate</a></li>
+                <li><a class="api-link" href="public/#api-User">User API</a></li>
+                <li><a class="api-link" href="$WIKI_URL/#internal-api">Internal API</a> [private]</li>
+            </ul>
+        </div>
+    </div>
+
+    <div class="box">
+        <h3>SDKs & Tools</h3>
+        <div class="box_content">
+            <p>Available resources</p>
+            <ul>
+                <li><a class="api-link" href="#">JS/PY/PHP SDKs</a> (coming soon)</li>
+                <li><a class="api-link" href="#">PostMan Collection</a> (coming soon)</li>
+                <li><a class="api-link" href="#">Sandbox site</a> (coming soon)</li>
+            </ul>
+        </div>
+    </div>
+</div>
+
+<div class="clear"></div>
+
+
+<div id="footer">
+    <p>$NAME &#169; 2019</p>
+</div>
+
+<script src="public/vendor/jquery.min.js" ></script>
+</body>
+</html>

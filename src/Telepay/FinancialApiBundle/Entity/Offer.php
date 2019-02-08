@@ -197,4 +197,9 @@ class Offer{
     {
         $this->active = $active;
     }
+
+    public function isActive(){
+        $now = strtotime("now");
+        return date_timestamp_get($this->getStart()) > $now && date_timestamp_get($this->getEnd()) < $now;
+    }
 }

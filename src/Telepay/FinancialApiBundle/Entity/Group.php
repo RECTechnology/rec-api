@@ -158,6 +158,12 @@ class Group extends BaseGroup
      */
     private $balance;
 
+
+    /**
+     * @ORM\OneToMany(targetEntity="Telepay\FinancialApiBundle\Entity\Offer", mappedBy="company", cascade={"remove"})
+     */
+    private $offers;
+
     /**
      * @ORM\OneToMany(targetEntity="Telepay\FinancialApiBundle\Entity\Client", mappedBy="group", cascade={"remove"})
      * @Exclude
@@ -1097,6 +1103,21 @@ class Group extends BaseGroup
         $this->is_public_profile = $is_public_profile;
     }
 
+    /**
+     * @return mixed
+     */
+    public function getOffers()
+    {
+        return $this->offers;
+    }
+
+    /**
+     * @param mixed $offers
+     */
+    public function setOffers($offers)
+    {
+        $this->offers = $offers;
+    }
 
 
 }
