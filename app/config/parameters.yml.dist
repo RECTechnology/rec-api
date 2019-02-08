@@ -27,7 +27,7 @@ parameters:
     use_assetic_controller: true
 
 #mongo database access information
-    mongodb_server: mongodb://localhost:27017
+    mongodb_server: mongodb://nrdb:27017
     mongodb_db: app
     mongodb_user: app
     mongodb_password: app
@@ -109,4 +109,9 @@ parameters:
     telegram_bot_token: ~
     telegram_chat_log: ~
     telegram_chat_error: ~
+
+# Bcn setup for notificacions
+    bcn_notification_url: ~
+    bcn_notification_username: ~
+    bcn_notification_password: ~
 

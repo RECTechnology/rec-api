@@ -166,15 +166,20 @@ class Notificator {
         //TODO: change this!! urls and credentials must be in parameters.yml and not app_env
         // also using the exec function is potentially dangerous!
         // @see #28 https://github.com/QbitArtifacts/rec-api/issues/28
+
         if($this->env == 'pre') {
-            $response = exec('
-		        curl -X POST http://176.31.181.225:8103/ws-coin/securitybah/expenditures/setexpenditurecc -H \'Authorization: Basic Ym1pbmNvbWU6c3BhcnNpdHk=\' -H \'Content-Type: application/json\' -d \'{ "account_id": "' . $params['account_id'] . '", "id": "' . $params['id'] . '",  "status": "' . $params['status'] . '",  "amount": ' . $params['amount'] . ',  "signature": "' . $params['signature'] . '",  "data": {    "receiver": "' . $data['receiver'] . '",    "date": ' . $data['date'] . ',    "activity_type_code": "' . $data['activity_type_code'] . '"  }}\'
-            ');
+
+            $notificator = $this->container->get('com.qbitartofacts.rec.commons.bcn_halltown_notificator_pre');
+            $response = $notificator->msg('{ "account_id": "' . $params['account_id'] . '", "id": "' . $params['id'] . '",  "status": "' . $params['status'] . '",  "amount": ' . $params['amount'] . ',  "signature": "' . $params['signature'] . '",  "data": {    "receiver": "' . $data['receiver'] . '",    "date": ' . $data['date'] . ',    "activity_type_code": "' . $data['activity_type_code'] . '"  }}');
+
+
         }
         else {
-            $response = exec('
-		        curl -X POST https://bmincome.bcn.cat/ws-coin/securitybah/expenditures/setexpenditurecc -H \'Authorization: Basic Ym1pbmNvbWU6c3BhcnNpdHk=\' -H \'Content-Type: application/json\' -d \'{ "account_id": "' . $params['account_id'] . '", "id": "' . $params['id'] . '",  "status": "' . $params['status'] . '",  "amount": ' . $params['amount'] . ',  "signature": "' . $params['signature'] . '",  "data": {    "receiver": "' . $data['receiver'] . '",    "date": ' . $data['date'] . ',    "activity_type_code": "' . $data['activity_type_code'] . '"  }}\'
-            ');
+
+            $notificator = $this->container->get('com.qbitartofacts.rec.commons.bcn_halltown_notificator_pro');
+            $response = $notificator->msg('{ "account_id": "' . $params['account_id'] . '", "id": "' . $params['id'] . '",  "status": "' . $params['status'] . '",  "amount": ' . $params['amount'] . ',  "signature": "' . $params['signature'] . '",  "data": {    "receiver": "' . $data['receiver'] . '",    "date": ' . $data['date'] . ',    "activity_type_code": "' . $data['activity_type_code'] . '"  }}');
+
+
         }
 
         /*
@@ -206,7 +211,10 @@ class Notificator {
         }
 
         $clean_response = str_replace('"', '', $response);
-        exec('curl -X POST -d "chat_id=-250635592&text=#NOTIFICATION_UPC ' . $clean_response . ' " ' . '"https://api.telegram.org/bot787861588:AAFWCYdIiAoltb0IoM71jlmzq3AHh8kXSMs/sendMessage"');
+
+        $notificator = $this->container->get('com.qbitartofacts.rec.commons.notificator');
+        $notificator->msg('#NOTIFICATION_UPC ' . $clean_response);
+
 
         // close curl resource to free up system resources
         $dm->persist($transaction);
@@ -257,6 +265,9 @@ class Notificator {
         curl_close($ch);
         return curl_errno($ch);
     }
+
+
+
 
     public function gcm_notificate($user_id, $message){
 

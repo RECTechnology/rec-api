@@ -339,7 +339,10 @@ class IncomingController2 extends RestApiController{
             }
 
             if($destination->getRecAddress() == "temp" || $group->getRecAddress() == "temp"){
-                exec('curl -X POST -d "chat_id=-250635592&text=#ERROR TEMP ADDRESS ' . $destination->getId() . " or " . $group->getId() . '" ' . '"https://api.telegram.org/bot787861588:AAFWCYdIiAoltb0IoM71jlmzq3AHh8kXSMs/sendMessage"');
+
+                $notificator = $this->container->get('com.qbitartofacts.rec.commons.notificator');
+                $notificator->msg('#EERROR TEMP ADDRESS' . $destination->getId() . " or " . $group->getId());
+
                 throw new HttpException(405, 'Destination address does not exists');
             }
 
@@ -366,7 +369,10 @@ class IncomingController2 extends RestApiController{
                 $payment_info = $method->send($payment_info);
                 $logger->info('(' . $group_id . ')(T) END SEND');
             }catch (Exception $e){
-                exec('curl -X POST -d "chat_id=-250635592&text=#ERROR IncomingController ' . $method . ' ' . $group->getId() . '" ' . '"https://api.telegram.org/bot787861588:AAFWCYdIiAoltb0IoM71jlmzq3AHh8kXSMs/sendMessage"');
+
+                $notificator = $this->container->get('com.qbitartofacts.rec.commons.notificator');
+                $notificator->msg('#ERROR IncomingController'. $method . ' ' . $group->getId());
+
                 $logger->info('(' . $group_id . ')(T) SEND ERROR');
                 if(isset($payment_info['inputs'])) {
                     $logger->info('REC_INFO_ERROR Inputs:'.$payment_info['inputs']);
@@ -399,7 +405,10 @@ class IncomingController2 extends RestApiController{
             }
             if(isset($payment_info['inputs'])) {
                 if($payment_info['status']=='failed'){
-                    exec('curl -X POST -d "chat_id=-250635592&text=#ERROR IncomingController rec: ' . $group->getId() . '" ' . '"https://api.telegram.org/bot787861588:AAFWCYdIiAoltb0IoM71jlmzq3AHh8kXSMs/sendMessage"');
+
+                    $notificator = $this->container->get('com.qbitartofacts.rec.commons.notificator');
+                    $notificator->msg('#ERROR IncomingController rec:' . $group->getId());
+
                     $logger->info('REC_INFO_ERROR');
                 }
                 $logger->info('REC_INFO Inputs:'.$payment_info['inputs']);

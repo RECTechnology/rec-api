@@ -35,7 +35,7 @@ class TelegramNotificator implements Notificator {
             ]
         ];
 
-        file_get_contents(
+       file_get_contents(
             "https://api.telegram.org/bot" . $this->telegramToken . "/sendMessage",
             false,
             stream_context_create($ops)

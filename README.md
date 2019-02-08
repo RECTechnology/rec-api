@@ -38,6 +38,7 @@ docker exec -it api-api_api_1 bash
 #### Admin databases and test
 the services started with docker-compose are available at localhost in different ports
 * `API` is running on `localhost:8000`
+* `API Docs` is running on `localhost:8001`
 * `PhpMyAdmin` instance is running on `localhost:8080`
 * `MongoAdmin` instance is running on `localhost:8081`
 
