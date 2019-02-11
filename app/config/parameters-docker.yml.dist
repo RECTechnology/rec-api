@@ -82,8 +82,7 @@ parameters:
     telegram_chat_error: $TELEGRAM_CHAT_ERROR
 
     # Bcn setup for notificacions
-    bcn_notification_url_pre: $BCN_NOTIFICATION_URL
-    bcn_notification_url_prod: $BCN_NOTIFICATION_URL
+    bcn_notification_url: $BCN_NOTIFICATION_URL
     bcn_notification_username: $BCN_NOTIFICATION_USERNAME
     bcn_notification_password: $BCN_NOTIFICATION_PASSWORD
 
