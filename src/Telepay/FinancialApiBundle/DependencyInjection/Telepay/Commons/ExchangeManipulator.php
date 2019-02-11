@@ -90,6 +90,7 @@ class ExchangeManipulator{
         return $exchange->getPrice();
     }
 
+    //TODO check if is used
     public function doExchange($amount, $from, $to, Group $company, User $user, $internal = false){
         $this->trans_logger->info('EXCHANGE_MANIPULATOR (doExchange)=> amount='.$amount.' from'.$from.' to='.$to);
 
@@ -134,7 +135,11 @@ class ExchangeManipulator{
         if(!$internal && ($company->getFairtoearthAdmin() || $company->getId() == $botc_exchange) && ($from == Currency::$FAC || $to == Currency::$FAC)){
             throw new HttpException(403, 'Exchange not allowed for this company');
         }
-        exec('curl -X POST -d "chat_id=-145386290&text=#EXCHANGE (doExchange  ' . $company->getName() .')=> amount=' . $amount .' from ' . $from . ' to=' . $to . '" "https://api.telegram.org/bot348257911:AAG9z3cJnDi31-7MBsznurN-KZx6Ho_X4ao/sendMessage"');
+
+        $notificator = $this->getContainer()->get('com.qbitartofacts.rec.commons.notificator');
+        $response=$notificator->msg('#EXCHANGE (doExchange' .$company->getName().')=> amount='. $amount . 'from'  . $from .' to=' . $to);
+
+        $this->trans_logger->info('NOTIFICATOR  RESPONSE '.$response);
 
         $totalExchangeFee = $exchange_fixed_fee + $exchange_variable_fee;
 
@@ -246,6 +251,10 @@ class ExchangeManipulator{
         return $paymentInfo;
 
     }
+
+
+
+
 
     public function exchangeWallet(UserWallet $wallet, $currency){
         $this->trans_logger->info('EXCHANGE_MANIPULATOR (exchangeWallet)=> currency='.$currency);

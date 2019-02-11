@@ -167,20 +167,13 @@ class Notificator {
         // also using the exec function is potentially dangerous!
         // @see #28 https://github.com/QbitArtifacts/rec-api/issues/28
 
-        if($this->env == 'pre') {
-
-            $notificator = $this->container->get('com.qbitartofacts.rec.commons.bcn_halltown_notificator_pre');
-            $response = $notificator->msg('{ "account_id": "' . $params['account_id'] . '", "id": "' . $params['id'] . '",  "status": "' . $params['status'] . '",  "amount": ' . $params['amount'] . ',  "signature": "' . $params['signature'] . '",  "data": {    "receiver": "' . $data['receiver'] . '",    "date": ' . $data['date'] . ',    "activity_type_code": "' . $data['activity_type_code'] . '"  }}');
 
 
-        }
-        else {
-
-            $notificator = $this->container->get('com.qbitartofacts.rec.commons.bcn_halltown_notificator_pro');
-            $response = $notificator->msg('{ "account_id": "' . $params['account_id'] . '", "id": "' . $params['id'] . '",  "status": "' . $params['status'] . '",  "amount": ' . $params['amount'] . ',  "signature": "' . $params['signature'] . '",  "data": {    "receiver": "' . $data['receiver'] . '",    "date": ' . $data['date'] . ',    "activity_type_code": "' . $data['activity_type_code'] . '"  }}');
+        $notificator = $this->container->get('com.qbitartofacts.rec.commons.bcn_halltown_notificator');
+        $response = $notificator->msg('{ "account_id": "' . $params['account_id'] . '", "id": "' . $params['id'] . '",  "status": "' . $params['status'] . '",  "amount": ' . $params['amount'] . ',  "signature": "' . $params['signature'] . '",  "data": {    "receiver": "' . $data['receiver'] . '",    "date": ' . $data['date'] . ',    "activity_type_code": "' . $data['activity_type_code'] . '"  }}');
 
 
-        }
+
 
         /*
         $response =  exec('
