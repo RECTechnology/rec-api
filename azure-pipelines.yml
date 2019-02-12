@@ -19,7 +19,7 @@ steps:
   displayName: 'docker login'
 - script: docker build . -t $(imageName)
   displayName: 'docker build'
-- script: docker push $(imageName) .
+- script: docker push $(imageName)
   displayName: 'docker push'
 - script: curl -X POST $(DEPLOY_WEBHOOK)
   displayName: 'deploy'
