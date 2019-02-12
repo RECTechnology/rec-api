@@ -5,6 +5,7 @@
 
 trigger:
 - master
+- containerize
 
 pool:
   vmImage: 'Ubuntu-16.04'
