@@ -13,7 +13,7 @@ variables:
   imageName: 'your-container-image-name:$(build.buildId)'
 
 steps:
-- script: docker login -u -p
+- script: docker login -u $(DOCKER_USER) -p $(DOCKER_PASS) reg.rallf.com:8443
   displayName: 'docker build'
 - script: docker build -f Dockerfile -t $(imageName) .
   displayName: 'docker build'
