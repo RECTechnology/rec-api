@@ -6,7 +6,7 @@ export SYMFONY_ENV=prod
 
 composer run-script post-update-cmd
 
-chown -R www-data:www-data app/cache app/logs
+chown -R www-data:www-data app/cache app/logs web/static
 
 apache2ctl -DFOREGROUND
 

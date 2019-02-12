@@ -30,9 +30,9 @@ parameters:
     #TODO: remove this parameter with putting here others
     api_env: 'pre'
 
-    base_url: https://$APP_API_DOMAIN
-    base_panel_url: https://$APP_ADMIN_DOMAIN
-    web_app_url: https://$APP_API_DOMAIN
+    base_url: $APP_API_URL
+    base_panel_url: $APP_ADMIN_URL
+    web_app_url: $APP_API_URL
 
     rec_user: app
     rec_pass: $APP_SECRET
@@ -61,7 +61,7 @@ parameters:
 
     csv_dir: /csv_dir
     uploads_dir: /api/web/static
-    files_path: https://$APP_API_DOMAIN/static
+    files_path: $APP_API_URL/static
 
     lemonway_url: "$LEMONWAY_URL"
     lemonway_payment_url: "$LEMONWAY_PAYMENT_URL"
