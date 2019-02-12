@@ -6,17 +6,20 @@
 trigger:
 - master
 - containerize
+- stable
 
 pool:
   vmImage: 'Ubuntu-16.04'
 
 variables:
-  imageName: 'your-container-image-name:$(build.buildId)'
+  imageName: '$(build.repository.name):$(build.sourcebranchname)'
 
 steps:
 - script: docker login -u $(DOCKER_USER) -p $(DOCKER_PASS) reg.rallf.com:8443
+  displayName: 'docker login'
+- script: docker build . -t $(imageName)
   displayName: 'docker build'
-- script: docker build -f Dockerfile -t $(imageName) .
-  displayName: 'docker build'
-- script: docker build -f Dockerfile -t $(imageName) .
-  displayName: 'docker build'
+- script: docker push $(imageName) .
+  displayName: 'docker push'
+- script: curl -X POST $(DEPLOY_WEBHOOK)
+  displayName: 'deploy'
