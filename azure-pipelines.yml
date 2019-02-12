@@ -12,7 +12,7 @@ pool:
   vmImage: 'Ubuntu-16.04'
 
 variables:
-  imageName: '$rec-api:$(build.sourcebranchname)'
+  imageName: 'rec-api:$(build.sourcebranchname)'
 
 steps:
 - script: docker login -u $(DOCKER_USER) -p $(DOCKER_PASS) reg.rallf.com:8443
