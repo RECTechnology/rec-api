@@ -25,7 +25,7 @@ class StatusController extends RestApiController {
      */
     public function status(Request $request){
 
-        $status = 0x0;
+        $status = 0x7; // all online (111)
         $exceptions = [];
 
         try {
@@ -34,8 +34,8 @@ class StatusController extends RestApiController {
             if(!$em->getConnection()->isConnected())
                 $em->getConnection()->connect();
         } catch (\Exception $e){
+            $status ^= 0x1; // change lsb (001)
             $exceptions []= $e->getMessage();
-            $status ^= 0x1;
         }
 
         try {
@@ -44,16 +44,16 @@ class StatusController extends RestApiController {
             if(!$odm->getConnection()->isConnected())
                 $odm->getConnection()->connect();
         } catch (\Exception $e){
+            $status ^= 0x2; // change middle-bit (010)
             $exceptions []= $e->getMessage();
-            $status ^= 0x2;
         }
 
         try {
             $wallet = $this->get("net.telepay.driver.easybitcoin.rec");
             $wallet->getinfo();
         } catch (\Exception $e){
+            $status ^= 0x4; // change msb (100)
             $exceptions []= $e->getMessage();
-            $status ^= 0x4;
         }
 
         return $this->restV2(
