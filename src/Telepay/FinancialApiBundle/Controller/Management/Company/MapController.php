@@ -361,7 +361,7 @@ class MapController extends BaseApiController{
         $qb = $qb
             ->from(Group::class, 'a')
             //->innerJoin(Category::class, 'c')
-            //->innerJoin(Offer::class, 'o')
+            ->innerJoin(Offer::class, 'o')
             ->where($and);
 
 
