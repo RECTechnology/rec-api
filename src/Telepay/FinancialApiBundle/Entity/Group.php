@@ -238,6 +238,24 @@ class Group extends BaseGroup
      * @ORM\Column(type="string")
      * @Expose
      */
+    private $neighborhood = "";
+
+    /**
+     * @ORM\Column(type="string")
+     * @Expose
+     */
+    private $association = "";
+
+    /**
+     * @ORM\Column(type="string", length=300)
+     * @Expose
+     */
+    private $observations = "";
+
+    /**
+     * @ORM\Column(type="string")
+     * @Expose
+     */
     private $street = '';
 
     /**
@@ -899,6 +917,54 @@ class Group extends BaseGroup
     public function setZip($zip)
     {
         $this->zip = $zip;
+    }
+
+    /**
+     * @return mixed
+     */
+    public function getNeighborhood()
+    {
+        return $this->neighborhood;
+    }
+
+    /**
+     * @param mixed $neighborhood
+     */
+    public function setNeighborhood($neighborhood)
+    {
+        $this->neighborhood = $neighborhood;
+    }
+
+    /**
+     * @return mixed
+     */
+    public function getAssociation()
+    {
+        return $this->association;
+    }
+
+    /**
+     * @param mixed $association
+     */
+    public function setAssociation($association)
+    {
+        $this->association = $association;
+    }
+
+    /**
+     * @return mixed
+     */
+    public function getObservations()
+    {
+        return $this->observations;
+    }
+
+    /**
+     * @param mixed $observations
+     */
+    public function setObservations($observations)
+    {
+        $this->observations = $observations;
     }
 
     /**

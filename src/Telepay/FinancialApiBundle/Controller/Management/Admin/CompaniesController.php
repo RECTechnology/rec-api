@@ -35,48 +35,25 @@ class CompaniesController extends BaseApiController
      * Permissions: ROLE_SUPER_ADMIN (all)
      */
     public function updateAction(Request $request, $id){
-
         $em = $this->getDoctrine()->getManager();
-
         $company = $em->getRepository($this->getRepositoryName())->find($id);
-
         if(!$company) throw new HttpException(404, 'Group not found');
 
         $methods = null;
         if($request->request->has('methods_list')){
-            $tier = $company->getTier();
             $methods = $request->get('methods_list');
             $request->request->remove('methods_list');
         }
-
-        $group = $this->get('security.context')->getToken()->getUser()->getActiveGroup();
-
-        $creator_company = null;
-        if($request->request->has('creator_company')){
-            $creator_company = $request->request->get('creator_company');
-            $request->request->remove('creator_company');
-        }
-
         $response = parent::updateAction($request, $id);
 
         if($response->getStatusCode() == 204){
             if($methods !== null){
                 $this->_setMethods($methods, $company);
             }
-
-            if($creator_company != null){
-                //change creaotor company
-                $new_creator = $em->getRepository($this->getRepositoryName())->find($creator_company);
-
-                $company->setGroupCreator($new_creator);
-
-                $em->persist($company);
-                $em->flush();
-            }
+            $em->persist($company);
+            $em->flush();
         }
-
         return $response;
-
     }
 
     /**
