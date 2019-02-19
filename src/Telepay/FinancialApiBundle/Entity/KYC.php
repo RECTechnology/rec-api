@@ -139,6 +139,12 @@ class KYC {
      * @ORM\Column(type="string")
      * @Expose
      */
+    private $neighborhood = "";
+
+    /**
+     * @ORM\Column(type="string")
+     * @Expose
+     */
     private $street_type = "";
 
     /**
@@ -495,6 +501,22 @@ class KYC {
     public function setCountryValidated($country_validated)
     {
         $this->country_validated = $country_validated;
+    }
+
+    /**
+     * @return mixed
+     */
+    public function getNeighborhood()
+    {
+        return $this->neighborhood;
+    }
+
+    /**
+     * @param mixed $neighborhood
+     */
+    public function setNeighborhood($neighborhood)
+    {
+        $this->neighborhood = $neighborhood;
     }
 
     /**

@@ -832,19 +832,24 @@ class AccountController extends BaseApiController{
             $em->persist($user);
         }
 
+        if($request->request->has('neighborhood') && $request->request->get('neighborhood')!=''){
+            $kyc->setNeighborhood($request->request->get('neighborhood'));
+            $em->persist($kyc);
+        }
+
         if($request->request->has('street_type') && $request->request->get('street_type')!=''){
             $kyc->setStreetType($request->request->get('street_type'));
-            $em->persist($user);
+            $em->persist($kyc);
         }
 
         if($request->request->has('street_number') && $request->request->get('street_number')!=''){
             $kyc->setStreetNumber($request->request->get('street_number'));
-            $em->persist($user);
+            $em->persist($kyc);
         }
 
         if($request->request->has('street_name') && $request->request->get('street_name')!=''){
             $kyc->setStreetName($request->request->get('street_name'));
-            $em->persist($user);
+            $em->persist($kyc);
         }
 
         if($request->request->has('email') && $request->request->get('email')!=''){
@@ -862,10 +867,12 @@ class AccountController extends BaseApiController{
 
         if($request->request->has('country') && $request->request->get('country')!=''){
             $kyc->setCountry($request->request->get('country'));
+            $em->persist($kyc);
         }
 
         if($request->request->has('address') && $request->request->get('address')!=''){
             $kyc->setAddress($request->request->get('address'));
+            $em->persist($kyc);
         }
 
         if($request->request->has('document_front') && $request->request->get('document_front')!=''){
@@ -881,6 +888,7 @@ class AccountController extends BaseApiController{
             if (!in_array($tmpFile->getMimeType(), UploadManager::$ALLOWED_MIMETYPES))
                 throw new HttpException(400, "Bad file type: => " . $tmpFile->getMimeType());
             $kyc->setDocumentFront($fileManager->getFilesPath().'/'.$filename);
+            $em->persist($kyc);
         }
 
         if($request->request->has('document_rear') && $request->request->get('document_rear')!=''){
@@ -896,6 +904,7 @@ class AccountController extends BaseApiController{
             if (!in_array($tmpFile->getMimeType(), UploadManager::$ALLOWED_MIMETYPES))
                 throw new HttpException(400, "Bad file type");
             $kyc->setDocumentRear($fileManager->getFilesPath().'/'.$filename);
+            $em->persist($kyc);
         }
 
         $em->flush();
