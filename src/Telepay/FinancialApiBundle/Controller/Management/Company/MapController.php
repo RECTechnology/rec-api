@@ -294,31 +294,21 @@ class MapController extends BaseApiController{
      * @return \Symfony\Component\HttpFoundation\Response
      */
     public function searchV2(Request $request){
-
         $limit = $request->query->getInt('limit', 10);
         $offset = $request->query->getInt('offset', 0);
-
         $search = $request->query->get('search', '');
         $sort = $request->query->getAlnum('sort', 'id');
         $order = $request->query->getAlpha('order', 'DESC');
-
         $min_lat = $request->query->get('min_lat', -90.0);
         $max_lat =  $request->query->get('max_lat',  90.0);
         $min_lon =  $request->query->get('min_lon',  -90.0);
         $max_lon = $request->query->get('max_lon', 90.0);
-
-
         $acc_subtype = $request->query->getAlnum('subtype', '');
-
         /** @var EntityManagerInterface $em */
         $em = $this->getDoctrine()->getManager();
-
-
         /** @var QueryBuilder $qb */
         $qb = $em->createQueryBuilder();
-
         $and = $qb->expr()->andX();
-
         $searchFields = [
             'a.id',
             'a.name',
@@ -330,53 +320,44 @@ class MapController extends BaseApiController{
             //'c.cat',
             //'c.eng'
         ];
-
         $like = $qb->expr()->orX();
         foreach ($searchFields as $field) {
             $like->add($qb->expr()->like($field, $qb->expr()->literal('%' . $search . '%')));
         }
-
         $and->add($like);
-
         //geo query
         $and->add($qb->expr()->gt('a.latitude', $min_lat));
         $and->add($qb->expr()->lt('a.latitude', $max_lat));
         $and->add($qb->expr()->gt('a.longitude', $min_lon));
         $and->add($qb->expr()->lt('a.longitude', $max_lon));
-
-
-
         $and->add($qb->expr()->like('a.type', $qb->expr()->literal('COMPANY')));
         if($acc_subtype != '')
             $and->add($qb->expr()->like('a.subtype', $qb->expr()->literal($acc_subtype)));
-
         //$now = strtotime("now");
         //$and->add($qb->expr()->gt('TIMESTAMP(o.start)', $now));
         //$and->add($qb->expr()->lt('TIMESTAMP(o.end)', $now));
-
         if($request->query->getInt('only_offers', 0) == 1) {
             $and->add($qb->expr()->gt('COUNT(o.id)', 0));
         }
-
         $qb = $qb
             ->from(Group::class, 'a')
             //->innerJoin(Category::class, 'c')
             ->innerJoin(Offer::class, 'o')
             ->where($and);
-
-
         $total = $qb
             ->select('count(a.id)')
             ->getQuery()
             ->getScalarResult();
-
         $elements = $qb
             ->select('a')
+            ->distinct()
             ->setFirstResult($offset)
             ->setMaxResults($limit)
             ->orderBy('a.' . $sort, $order)
             ->getQuery()
             ->getResult();
+
+        //throw new HttpException(400, $elements);
 
         return $this->restV2(
             200,
@@ -385,7 +366,6 @@ class MapController extends BaseApiController{
             ['total' => intval($total[0][1]), 'elements' => $elements]
         );
     }
-
 
 
 }
