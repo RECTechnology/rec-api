@@ -68,9 +68,95 @@ class UsersController extends BaseApiController
 
     /**
      * @Rest\View
+     * permissions: ROLE_SUPER_ADMIN
      */
-    public function updateAction(Request $request,$id){
-        return parent::updateAction($request, $id);
+    public function updateAction(Request $request, $id){
+        $user = $this->get('security.context')->getToken()->getUser();
+        if(!$user->hasRole('ROLE_SUPER_ADMIN')) throw new HttpException(403, 'You don\'t have the necessary permissions');
+
+        $validParams = array(
+            'email',
+            'pin',
+            'roles',
+            'security_answer',
+            'name',
+            'public_phone',
+            'password',
+            'repassword',
+            '$twoFactorAuthentication'
+        );
+
+        $params = $request->request->all();
+        foreach($params as $paramName=>$value){
+            if(!in_array($paramName, $validParams)){
+                throw new HttpException(404, 'Param ' . $paramName . ' can not be updated');
+            }
+        }
+
+        if($request->request->has('roles')){
+            $roles = $request->request->get('roles');
+            if(in_array('ROLE_SUPER_ADMIN', $roles)) throw new HttpException(403, 'Bad parameter role');
+        }
+
+        if($request->request->has('password')){
+            if($request->request->has('repassword')){
+                $password = $request->request->get('password');
+                $repassword = $request->request->get('repassword');
+                if($password != $repassword) throw new HttpException(400, "Password and repassword are differents.");
+                $userManager = $this->container->get('access_key.security.user_provider');
+                $user = $userManager->loadUserById($id);
+                $user->setPlainPassword($request->request->get('password'));
+                $userManager->updatePassword($user);
+                $request->request->remove('password');
+                $request->request->remove('repassword');
+            }else{
+                throw new HttpException(400,"Missing parameter 'repassword'");
+            }
+        }
+
+        $resp = parent::updateAction($request, $id);
+        if($resp->getStatusCode() == 204){
+            $em = $this->getDoctrine()->getManager();
+            $kyc = $em->getRepository('TelepayFinancialApiBundle:KYC')->findOneBy(array(
+                'user' => $user
+            ));
+            if($request->request->has('email') && $request->request->get('email')!=''){
+                $kyc->setEmail($request->request->get('email'));
+                $kyc->setEmailValidated(false);
+                $em->persist($kyc);
+            }
+            if($request->request->has('name') && $request->request->get('name')!=''){
+                $kyc->setName($request->request->get('name'));
+                $em->persist($kyc);
+            }
+        }
+        $em->flush();
+        return $resp;
+    }
+
+    /**
+     * @Rest\View
+     */
+    public function deleteAction($id){
+        if(!$this->get('security.context')->isGranted('ROLE_SUPER_ADMIN')) throw new HttpException(403, 'You don\'t have the necessary permissions');
+        //TODO conditions to delete user
+        //no transactions, not kyc manager in any company, if unique in company without transactions,
+        //TODO a listener to control this shit
+        throw new HttpException(403, 'Pending function');
+        return parent::deleteAction($id);
+    }
+
+    /**
+     * @Rest\View
+     */
+    public function deleteByNameAction($username){
+        if(!$this->get('security.context')->isGranted('ROLE_SUPER_ADMIN')) throw new HttpException(403, 'You don\'t have the necessary permissions');
+        throw new HttpException(403, 'Pending function');
+        $repo = $this->getRepository();
+        $user = $repo->findOneBy(array('username'=>$username));
+        if(empty($user)) throw new HttpException(404, 'User not found');
+        $idUser = $user->getId();
+        return parent::deleteAction($idUser);
     }
 
     /**
