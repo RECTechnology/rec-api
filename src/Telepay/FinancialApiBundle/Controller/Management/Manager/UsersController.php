@@ -584,7 +584,25 @@ class UsersController extends BaseApiController
         $user = $this->get('security.context')->getToken()->getUser();
         if(!$user->hasRole('ROLE_SUPER_ADMIN')) throw new HttpException(403, 'You don\'t have the necessary permissions');
 
-        $role_commerce = null;
+        $validParams = array(
+            'email',
+            'pin',
+            'roles',
+            'security_answer',
+            'name',
+            'public_phone',
+            'password',
+            'repassword',
+            '$twoFactorAuthentication'
+        );
+
+        $params = $request->request->all();
+        foreach($params as $paramName=>$value){
+            if(!in_array($paramName, $validParams)){
+                throw new HttpException(404, 'Param ' . $paramName . ' can not be updated');
+            }
+        }
+
         if($request->request->has('roles')){
             $roles = $request->request->get('roles');
             if(in_array('ROLE_SUPER_ADMIN', $roles)) throw new HttpException(403, 'Bad parameter role');
@@ -592,12 +610,12 @@ class UsersController extends BaseApiController
 
         if($request->request->has('password')){
             if($request->request->has('repassword')){
-                $password = $request->get('password');
-                $repassword = $request->get('repassword');
+                $password = $request->request->get('password');
+                $repassword = $request->request->get('repassword');
                 if($password != $repassword) throw new HttpException(400, "Password and repassword are differents.");
                 $userManager = $this->container->get('access_key.security.user_provider');
                 $user = $userManager->loadUserById($id);
-                $user->setPlainPassword($request->get('password'));
+                $user->setPlainPassword($request->request->get('password'));
                 $userManager->updatePassword($user);
                 $request->request->remove('password');
                 $request->request->remove('repassword');
@@ -608,16 +626,21 @@ class UsersController extends BaseApiController
 
         $resp = parent::updateAction($request, $id);
         if($resp->getStatusCode() == 204){
+            $em = $this->getDoctrine()->getManager();
+            $kyc = $em->getRepository('TelepayFinancialApiBundle:KYC')->findOneBy(array(
+                'user' => $user
+            ));
             if($request->request->has('email') && $request->request->get('email')!=''){
-                $em = $this->getDoctrine()->getManager();
-                $kyc = $em->getRepository('TelepayFinancialApiBundle:KYC')->findOneBy(array(
-                    'user' => $user
-                ));
                 $kyc->setEmail($request->request->get('email'));
                 $kyc->setEmailValidated(false);
                 $em->persist($kyc);
             }
+            if($request->request->has('name') && $request->request->get('name')!=''){
+                $kyc->setName($request->request->get('name'));
+                $em->persist($kyc);
+            }
         }
+        $em->flush();
         return $resp;
     }
 
