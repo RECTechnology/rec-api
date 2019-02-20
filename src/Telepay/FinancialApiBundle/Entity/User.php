@@ -101,12 +101,6 @@ class User extends BaseUser
     private $auth_code;
 
     /**
-     * @ORM\OneToMany(targetEntity="Telepay\FinancialApiBundle\Entity\Device", mappedBy="user", cascade={"remove"})
-     * @Expose
-     */
-    private $devices;
-
-    /**
      * @ORM\Column(type="string")
      * @Expose
      */
@@ -147,12 +141,6 @@ class User extends BaseUser
      * @Expose
      */
     private $profile_image = '';
-
-    /**
-     * @ORM\Column(type="string", nullable=true)
-     * @Expose
-     */
-    private $gcm_group_key;
 
     /**
      * @ORM\Column(type="boolean")
@@ -406,22 +394,6 @@ class User extends BaseUser
     public function setAccessSecret($access_secret)
     {
         $this->access_secret = $access_secret;
-    }
-
-    /**
-     * @return mixed
-     */
-    public function getGcmGroupKey()
-    {
-        return $this->gcm_group_key;
-    }
-
-    /**
-     * @param mixed $gcm_group_key
-     */
-    public function setGcmGroupKey($gcm_group_key)
-    {
-        $this->gcm_group_key = $gcm_group_key;
     }
 
     /**

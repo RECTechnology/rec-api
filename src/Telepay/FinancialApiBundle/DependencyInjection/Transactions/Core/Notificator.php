@@ -237,11 +237,4 @@ class Notificator {
         curl_close($ch);
         return curl_errno($ch);
     }
-
-
-
-
-    public function gcm_notificate($user_id, $message){
-
-    }
 }

@@ -440,7 +440,6 @@ class UsersController extends BaseApiController
         $request->request->add(array('plain_password'=>$password));
         $request->request->add(array('enabled'=>1));
         $request->request->add(array('base64_image'=>''));
-        $request->request->add(array('gcm_group_key'=>''));
 
         $resp= parent::createAction($request);
         if($resp->getStatusCode() == 201){
@@ -582,18 +581,12 @@ class UsersController extends BaseApiController
      * permissions: ROLE_SUPER_ADMIN
      */
     public function updateAction(Request $request, $id){
-
-        //TODO check if this admin is admin of this user
         $user = $this->get('security.context')->getToken()->getUser();
-
         if(!$user->hasRole('ROLE_SUPER_ADMIN')) throw new HttpException(403, 'You don\'t have the necessary permissions');
 
         $role_commerce = null;
         if($request->request->has('roles')){
             $roles = $request->request->get('roles');
-            if(in_array('ROLE_COMMERCE', $roles)){
-                $role_commerce = true;
-            }
             if(in_array('ROLE_SUPER_ADMIN', $roles)) throw new HttpException(403, 'Bad parameter role');
         }
 
@@ -611,7 +604,6 @@ class UsersController extends BaseApiController
             }else{
                 throw new HttpException(400,"Missing parameter 'repassword'");
             }
-
         }
 
         $resp = parent::updateAction($request, $id);
