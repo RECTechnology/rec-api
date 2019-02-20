@@ -118,8 +118,9 @@ class GroupsController extends BaseApiController
         $offset = $request->query->getInt('offset', 0);
 
         //only the superadmin can access here
-        if(!$this->get('security.context')->isGranted('ROLE_SUPER_ADMIN'))
+        if(!$this->get('security.context')->isGranted('ROLE_SUPER_ADMIN')) {
             throw new HttpException(403, 'You have not the necessary permissions');
+        }
 
         $search = $request->query->get("search", "");
         $sort = $request->query->getAlnum("sort", "id");
@@ -164,21 +165,20 @@ class GroupsController extends BaseApiController
 
             $fees = $group->getCommissions();
 
+            $fees = $group->getCommissions();
             /** @var Fee $fee */
             foreach ( $fees as $fee ){
                 $currency = $fee->getCurrency();
                 $fee->setScale($currency);
             }
-            $limits = $group->getLimits();
 
+            $limits = $group->getLimits();
             /** @var Limit $lim */
             foreach ( $limits as $lim ){
                 $currency = $lim->getCurrency();
                 $lim->setScale($currency);
             }
-
         }
-
 
         return $this->restV2(
             200,
