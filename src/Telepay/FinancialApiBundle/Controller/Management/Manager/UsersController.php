@@ -482,18 +482,14 @@ class UsersController extends BaseApiController
     public function showAction($id){
         //check if the user is admin f this group or pertence to this group
         $user = $this->get('security.context')->getToken()->getUser();
-
         $activeGroup = $user->getActiveGroup();
 
-        if(empty($id)) throw new HttpException(400, "Missing parameter 'id'");
-
-        $repo = $this->getRepository();
-
-        $entities = $repo->findOneBy(array('id'=>$id));
-
-        if(empty($entities)) throw new HttpException(404, "Not found");
-
         if(!$this->get('security.authorization_checker')->isGranted('ROLE_SUPER_ADMIN') && $activeGroup->getId() != $id) throw new HttpException(403, 'You don\'t have the necessary permissions');
+
+        if(empty($id)) throw new HttpException(400, "Missing parameter 'id'");
+        $repo = $this->getRepository();
+        $entities = $repo->findOneBy(array('id'=>$id));
+        if(empty($entities)) throw new HttpException(404, "Not found");
 
         $entities->setAccessToken(null);
         $entities->setRefreshToken(null);
@@ -652,6 +648,7 @@ class UsersController extends BaseApiController
         //TODO conditions to delete user
         //no transactions, not kyc manager in any company, if unique in company without transactions,
         //TODO a listener to control this shit
+        throw new HttpException(403, 'Pending function');
         return parent::deleteAction($id);
     }
 
@@ -660,6 +657,7 @@ class UsersController extends BaseApiController
      */
     public function deleteByNameAction($username){
         if(!$this->get('security.context')->isGranted('ROLE_SUPER_ADMIN')) throw new HttpException(403, 'You don\'t have the necessary permissions');
+        throw new HttpException(403, 'Pending function');
         $repo = $this->getRepository();
         $user = $repo->findOneBy(array('username'=>$username));
         if(empty($user)) throw new HttpException(404, 'User not found');
