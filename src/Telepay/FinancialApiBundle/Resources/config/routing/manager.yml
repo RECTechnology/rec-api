@@ -34,45 +34,12 @@ manager_users_index_by_group_v2:
 ##        _method: PUT
 
 
-admin_users_read:
+manager_users_read:
     pattern:  /manager/v1/users/{id}
     defaults: { _controller: Telepay\FinancialApiBundle\Controller\Management\Manager\UsersController::showAction, _format: ~ }
     requirements:
         _method: GET
         id: "[0-9]+"
-
-##admin_users_add:
-##    pattern:  /manager/v1/users
-##    defaults: { _controller: Telepay\FinancialApiBundle\Controller\Management\Manager\UsersController::createAction, _format: ~ }
-##    requirements:
-##        _method: POST
-##        name: "string"
-##        email: "email"
-##        password: "string"
-
-admin_users_update:
-    pattern:  /admin/v1/users/{id}
-    defaults: { _controller: Telepay\FinancialApiBundle\Controller\Management\Manager\UsersController::updateAction, _format: ~ }
-    requirements:
-        _method: PUT
-        id: "[0-9]+"
-        name: "string"
-        email: "email"
-        password: "string"
-
-admin_users_delete:
-    pattern:  /admin/v1/users/{id}
-    defaults: { _controller: Telepay\FinancialApiBundle\Controller\Management\Manager\UsersController::deleteAction, _format: ~ }
-    requirements:
-        _method: DELETE
-        id: "[0-9]+"
-
-admin_users_delete_by_name:
-    pattern:  /admin/v1/users/name/{username}
-    defaults: { _controller: Telepay\FinancialApiBundle\Controller\Management\Manager\UsersController::deleteByNameAction, _format: ~ }
-    requirements:
-        _method: DELETE
-        username: "string"
 
 ##manager_su:
 ##    pattern:  /manager/v1/su/{id}
