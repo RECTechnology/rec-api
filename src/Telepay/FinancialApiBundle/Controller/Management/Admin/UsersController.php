@@ -136,6 +136,70 @@ class UsersController extends BaseApiController
 
     /**
      * @Rest\View
+     * permissions: ROLE_SUPER_ADMIN
+     */
+    public function updateKYCAction(Request $request, $id){
+        if(empty($id)) throw new HttpException(400, "Missing parameter 'id'");
+        $user = $this->get('security.context')->getToken()->getUser();
+        if (!$user->hasRole('ROLE_SUPER_ADMIN')) throw new HttpException(403, 'You don\'t have the necessary permissions');
+
+        $validParams = array(
+            'lastName',
+            'dateBirth',
+            'country',
+            'neighborhood',
+            'street_type',
+            'street_number',
+            'street_name',
+            'nationality',
+            'gender'
+        );
+
+        $params = $request->request->all();
+        foreach ($params as $paramName => $value) {
+            if (!in_array($paramName, $validParams)) {
+                throw new HttpException(404, 'Param ' . $paramName . ' can not be updated');
+            }
+        }
+
+        $params = $request->request->all();
+        $repo = $this->getDoctrine()->getManager()->getRepository("TelepayFinancialApiBundle:KYC");
+        $entity = $repo->findOneBy(array('id'=>$id));
+        if(empty($entity)) throw new HttpException(404, "Not found");
+
+        foreach ($params as $name => $value) {
+            if ($name != 'id') {
+                $setter = $this->attributeToSetter($name);
+                if (method_exists($entity, $setter)) {
+                    call_user_func(array($entity, $setter), $value);
+                }
+                else{
+                    throw new HttpException(400, "Bad request, parameter '$name' is not allowed");
+                }
+            }
+        }
+
+        $em = $this->getDoctrine()->getManager();
+        $em->persist($entity);
+        try{
+            $em->flush();
+        } catch(DBALException $e){
+            if(preg_match('/1062 Duplicate entry/i',$e->getMessage()))
+                throw new HttpException(409, "Duplicated resource");
+            else if(preg_match('/1048 Column/i',$e->getMessage()))
+                throw new HttpException(400, "Bad parameters");
+            throw new HttpException(500, "Unknown error occurred when save");
+        }
+        return $this->restV2(204,"ok", "Updated successfully");
+    }
+
+    private function attributeToSetter($str) {
+        $func = create_function('$c', 'return strtoupper($c[1]);');
+        return preg_replace_callback('/_([a-z])/', $func, "set_".$str);
+    }
+
+    /**
+     * @Rest\View
      */
     public function deleteAction($id){
         if(!$this->get('security.context')->isGranted('ROLE_SUPER_ADMIN')) throw new HttpException(403, 'You don\'t have the necessary permissions');

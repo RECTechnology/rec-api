@@ -287,7 +287,7 @@ admin_user_actions:
 
 admin_user_update_kyc:
     pattern:  /admin/v1/user/kyc/{id}
-    defaults: { _controller: Telepay\FinancialApiBundle\Controller\Management\Admin\UsersController::userActionsAction }
+    defaults: { _controller: Telepay\FinancialApiBundle\Controller\Management\Admin\UsersController::updateKYCAction }
     requirements:
         _method: PUT
 
