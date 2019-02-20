@@ -83,8 +83,8 @@ class LemonRegisterAndKYCCommand extends ContainerAwareCommand
                         exit(0);
                     }
 
-                    $nationality = 'ESP';
-                    $gender = 'M';
+                    $nationality = $KYC->getNationality();;
+                    $gender = $KYC->getGender();;
 
                     $address = $company->getStreetType() . " " . $company->getStreet() . " " . $company->getAddressNumber();
                     if(str_replace(' ', '', $address) == ''){

@@ -172,6 +172,18 @@ class KYC {
     private $proof_of_residence = false;
 
     /**
+     * @ORM\Column(type="string")
+     * @Expose
+     */
+    private $gender = "M";
+
+    /**
+     * @ORM\Column(type="string")
+     * @Expose
+     */
+    private $nationality = "ESP";
+
+    /**
      * @ORM\Column(type="string", nullable = true)
      * @Expose
      */
@@ -598,6 +610,38 @@ class KYC {
     public function setProofOfResidence($proof_of_residence)
     {
         $this->proof_of_residence = $proof_of_residence;
+    }
+
+    /**
+     * @return mixed
+     */
+    public function getNationality()
+    {
+        return $this->nationality;
+    }
+
+    /**
+     * @param mixed $nationality
+     */
+    public function setNationality($nationality)
+    {
+        $this->nationality = $nationality;
+    }
+
+    /**
+     * @return mixed
+     */
+    public function getGender()
+    {
+        return $this->gender;
+    }
+
+    /**
+     * @param mixed $gender
+     */
+    public function setGender($gender)
+    {
+        $this->gender = $gender;
     }
 
     /**
