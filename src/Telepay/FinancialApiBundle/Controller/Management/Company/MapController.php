@@ -336,28 +336,32 @@ class MapController extends BaseApiController{
         //$now = strtotime("now");
         //$and->add($qb->expr()->gt('TIMESTAMP(o.start)', $now));
         //$and->add($qb->expr()->lt('TIMESTAMP(o.end)', $now));
+
         if($request->query->getInt('only_offers', 0) == 1) {
-            $and->add($qb->expr()->gt('COUNT(o.id)', 0));
+            $and->add($qb->expr()->eq('a.id', 'o.company'));
         }
+        #TODO no se deben mostrar todos los datos (secret key....)
         $qb = $qb
+            ->distinct()
             ->from(Group::class, 'a')
             //->innerJoin(Category::class, 'c')
-            ->innerJoin(Offer::class, 'o')
+            ->join(Offer::class, 'o')
             ->where($and);
+
+
         $total = $qb
-            ->select('count(a.id)')
+            ->select('count(a)')
             ->getQuery()
-            ->getScalarResult();
+            ->getResult();
+
+
         $elements = $qb
             ->select('a')
-            ->distinct()
             ->setFirstResult($offset)
             ->setMaxResults($limit)
             ->orderBy('a.' . $sort, $order)
             ->getQuery()
             ->getResult();
-
-        //throw new HttpException(400, $elements);
 
         return $this->restV2(
             200,
