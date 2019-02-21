@@ -13,6 +13,7 @@ use Telepay\FinancialApiBundle\Entity\ServiceFee;
 use FOS\RestBundle\Controller\Annotations as Rest;
 use Symfony\Component\HttpFoundation\Request;
 use Telepay\FinancialApiBundle\Entity\User;
+use FOS\OAuthServerBundle\Util\Random;
 
 /**
  * Class UsersController
