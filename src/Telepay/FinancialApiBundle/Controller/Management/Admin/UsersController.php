@@ -164,7 +164,7 @@ class UsersController extends BaseApiController
 
         $params = $request->request->all();
         $repo = $this->getDoctrine()->getManager()->getRepository("TelepayFinancialApiBundle:KYC");
-        $entity = $repo->findOneBy(array('id'=>$id));
+        $entity = $repo->findOneBy(array('user'=>$id));
         if(empty($entity)) throw new HttpException(404, "Not found");
 
         foreach ($params as $name => $value) {
