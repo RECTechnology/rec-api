@@ -219,8 +219,25 @@ class UsersController extends BaseApiController
                 throw new HttpException(404, 'Param ' . $paramName . ' can not be updated');
             }
         }
-        $phone = $request->request->get('phone');
-        $prefix = $request->request->get('prefix');
+        $new = false;
+        if($request->request->get('phone')!=''){
+            $new = true;
+            $phone = $request->request->get('phone');
+        }
+        else{
+            $phone = $user->getPhone();
+        }
+        if($request->request->get('prefix')!='') {
+            $new = true;
+            $prefix = $request->request->get('prefix');
+        }
+        else{
+            $prefix = $user->getPrefix();
+        }
+
+        if(!$new){
+            throw new HttpException(404, 'Not new phone');
+        }
 
         //Table User
         $em = $this->getDoctrine()->getManager();
