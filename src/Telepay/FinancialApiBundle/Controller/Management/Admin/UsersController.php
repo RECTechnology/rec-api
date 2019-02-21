@@ -200,6 +200,68 @@ class UsersController extends BaseApiController
 
     /**
      * @Rest\View
+     * permissions: ROLE_SUPER_ADMIN
+     */
+    public function updatePhoneAction(Request $request, $id){
+        if(empty($id)) throw new HttpException(400, "Missing parameter 'id'");
+        $user = $this->get('security.context')->getToken()->getUser();
+        if (!$user->hasRole('ROLE_SUPER_ADMIN')) throw new HttpException(403, 'You don\'t have the necessary permissions');
+
+        $validParams = array(
+            'phone',
+            'prefix'
+        );
+
+        $params = $request->request->all();
+        foreach ($params as $paramName => $value) {
+            if (!in_array($paramName, $validParams)) {
+                throw new HttpException(404, 'Param ' . $paramName . ' can not be updated');
+            }
+        }
+        $phone = $request->request->get('phone');
+        $prefix = $request->request->get('prefix');
+
+        //Table User
+        $em = $this->getDoctrine()->getManager();
+        $user = $em->getRepository('TelepayFinancialApiBundle:User')->findOneBy(array(
+            'id' => $id
+        ));
+        $old_phone = $user->getPhone();
+        $user->setPhone($phone);
+        $user->setPrefix($prefix);
+        $em->persist($user);
+
+        //Table KYC
+        $kyc = $em->getRepository('TelepayFinancialApiBundle:KYC')->findOneBy(array(
+            'user' => $user
+        ));
+        $code = substr(Random::generateToken(), 0, 6);
+        $kyc->setPhoneValidated(false);
+        $kyc->setValidationPhoneCode(json_encode(array("code" => $code, "tries" => 0)));
+        $phone_info = array(
+            "prefix" => $prefix,
+            "number" => $phone
+        );
+        $kyc->setPhone(json_encode($phone_info));
+        $this->sendSMS($prefix, $phone, "Rec Wallet Code " . $code);
+        $em->persist($kyc);
+
+        //Table Group
+        $em = $this->getDoctrine()->getManager();
+        $group = $em->getRepository('TelepayFinancialApiBundle:Group')->findOneBy(array(
+            'kyc_manager' => $id
+        ));
+        if(strcmp($old_phone,$phone) == 0){
+            $group->setPhone($phone);
+            $group->setPrefix($prefix);
+            $em->persist($group);
+        }
+        $em->flush();
+        return $this->restV2(204, 'Success', 'Updated successfully');
+    }
+
+    /**
+     * @Rest\View
      */
     public function deleteAction($id){
         if(!$this->get('security.context')->isGranted('ROLE_SUPER_ADMIN')) throw new HttpException(403, 'You don\'t have the necessary permissions');
