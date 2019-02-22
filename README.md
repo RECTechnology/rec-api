@@ -13,7 +13,8 @@ Welcome to the REC Barcelona API [api.rec.barcelona](https://api.rec.barcelona)
 # Development
 ## Setup
 ### Install Docker
-Install **docker** and **docker-compose** using the [official documentation](https://docker.com)
+Install **docker** and **docker-compose** using the [official documentation](https://docs.docker.com/install/).
+Make sure having added your user to the `docker` group to avoid trouble with permissions, see [docs](https://docs.docker.com/install/linux/linux-postinstall/)
 
 ### Run API image only
 ```
