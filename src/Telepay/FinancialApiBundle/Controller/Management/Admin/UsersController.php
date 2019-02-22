@@ -254,7 +254,7 @@ class UsersController extends BaseApiController
         }
 
         if(!$this->checkPhone($phone, $prefix)){
-            throw new HttpException(400, "Incorrect phone or prefix company number");
+            throw new HttpException(400, "Incorrect phone or prefix number");
         }
 
         //Table User
