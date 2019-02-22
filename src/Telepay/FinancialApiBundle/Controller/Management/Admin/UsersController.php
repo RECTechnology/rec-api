@@ -219,10 +219,24 @@ class UsersController extends BaseApiController
                 throw new HttpException(404, 'Param ' . $paramName . ' can not be updated');
             }
         }
+
+        $em = $this->getDoctrine()->getManager();
         $new = false;
         if($request->request->get('phone')!=''){
             $new = true;
             $phone = $request->request->get('phone');
+            $duplicated_phone = $em->getRepository('TelepayFinancialApiBundle:User')->findOneBy(array(
+                'phone' => $phone
+            ));
+            if($duplicated_phone){
+                if($duplicated_phone->isEnabled()) {
+                    throw new HttpException(404, 'Phone already registered');
+                }
+                else{
+                    throw new HttpException(404, 'Phone used by an old user');
+                }
+            }
+
         }
         else{
             $phone = $user->getPhone();
@@ -240,7 +254,6 @@ class UsersController extends BaseApiController
         }
 
         //Table User
-        $em = $this->getDoctrine()->getManager();
         $user = $em->getRepository('TelepayFinancialApiBundle:User')->findOneBy(array(
             'id' => $id
         ));
