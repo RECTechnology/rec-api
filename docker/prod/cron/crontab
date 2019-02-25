@@ -1,3 +1,3 @@
-*    *   * * * www-data cd /api &&  timeout 300 php api/app/console rec:crypto:check --env=prod
-*    *   * * * www-data cd /api &&  timeout 300 php api/app/console rec:fiat:check --env=prod
-*    *   * * * www-data cd /api &&  timeout 300 php api/app/console rec:check:offers --env=prod
+*    *   * * * www-data cd /api &&  timeout 300 php app/console rec:crypto:check --env=prod
+*    *   * * * www-data cd /api &&  timeout 300 php app/console rec:fiat:check --env=prod
+*    *   * * * www-data cd /api &&  timeout 300 php app/console rec:check:offers --env=prod
