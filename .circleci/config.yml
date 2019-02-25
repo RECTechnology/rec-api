@@ -10,17 +10,16 @@ jobs:
     steps:
       - checkout
 
-      # with credentials stored in the UI
+      # Docker Registry Login
       - run: docker login -u $DOCKER_USER -p $DOCKER_PASS reg.rallf.com:8443
 
-      # build the application image
-      - run: docker build . -t reg.rallf.com:8443/$CIRCLE_PROJECT_REPONAME:$CIRCLE_BRANCH
+      # Build the application images
+      - run: make
       - run: docker build docs -t reg.rallf.com:8443/rec-dev:$CIRCLE_BRANCH
 
-      # push the API image
-      - run: docker push reg.rallf.com:8443/$CIRCLE_PROJECT_REPONAME:$CIRCLE_BRANCH
+      # Push the API image to the Registry
+      - run: make deploy
       - run: docker push reg.rallf.com:8443/rec-dev:$CIRCLE_BRANCH
 
       # use webhook to deploy
-      - run: curl -X POST $API_DEPLOY_WEBHOOK
-      - run: curl -X POST $DEV_DEPLOY_WEBHOOK
+      - run: tr ',' '\n' <<<$DEPLOY_WEBHOOK | while read url;do curl -X POST "$url";done
