@@ -82,6 +82,12 @@
 ##    requirements:
 ##        _method: DELETE
 
+super_admin_transaction_list:
+    pattern:  /admin/v1/transaction/list
+    defaults: { _controller: Telepay\FinancialApiBundle\Controller\Management\Admin\TransactionsController::listAction }
+    requirements:
+        _method: GET
+
 super_admin_transaction_search:
     pattern:  /admin/v1/transaction/{id}
     defaults: { _controller: Telepay\FinancialApiBundle\Controller\Management\Admin\TransactionsController::findAction }

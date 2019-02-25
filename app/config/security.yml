@@ -139,9 +139,7 @@ security:
             anonymous: ~
 
     access_control:
-        - { path: ^/admin/v[0-9]+/services, role: ROLE_ADMIN }
-        - { path: ^/admin/v[0-9]+/methods, role: ROLE_ADMIN }
-        - { path: ^/admin/v[0-9]+/clients, role: ROLE_ADMIN }
+        - { path: ^/system/v[0-9]+/*, role: ROLE_SUPER_ADMIN }
         - { path: ^/admin/v[0-9]+/*, role: ROLE_SUPER_ADMIN }
         - { path: ^/manager/v[0-9]+/*, role: ROLE_ADMIN, methods: [POST,PUT,DELETE] }
         - { path: ^/company/v[0-9]+/*, role: ROLE_USER, methods: [GET] }
@@ -149,12 +147,7 @@ security:
         - { path: ^/services/v[0-9]+/*, role: ROLE_ADMIN }
         - { path: ^/methods/v[0-9]+/*, role: ROLE_WORKER }
 
-        - { path: ^/system/v[0-9]+/balance/*, role: ROLE_SUPER_ADMIN }
-        - { path: ^/system/v[0-9]+/version, role: ROLE_USER }
-        - { path: ^/system/v[0-9]+/*, role: ROLE_SUPER_ADMIN }
-
         - { path: ^/pos/v[0-9]+/transaction/*, role: IS_AUTHENTICATED_ANONYMOUSLY, ip: ["127.0.0.1"] }
-
         - { path: ^/pos/v[0-9]+/check/*, role: IS_AUTHENTICATED_ANONYMOUSLY }
         - { path: ^/pos/v[0-9]+/cancel/*, role: IS_AUTHENTICATED_ANONYMOUSLY, ip: ["127.0.0.1"]  }
 

@@ -5,6 +5,8 @@ namespace Telepay\FinancialApiBundle\Controller\Management\Admin;
 use Symfony\Component\HttpKernel\Exception\HttpException;
 use Telepay\FinancialApiBundle\Controller\RestApiController;
 use FOS\RestBundle\Controller\Annotations as Rest;
+use Symfony\Component\HttpFoundation\Request;
+
 
 /**
  * Class TransactionsController
@@ -50,6 +52,58 @@ class TransactionsController extends RestApiController {
         );
 
         return $this->restV2(200,"ok", "Transaction ffound successfully", $response);
+    }
+
+    /**
+     * @Rest\View
+     */
+    public function listAction(Request $request){
+        $dm = $this->get('doctrine_mongodb')->getManager();
+        $em = $this->getDoctrine()->getManager();
+
+        $limit = $request->query->getInt('limit', 10);
+        $offset = $request->query->getInt('offset', 0);
+        $search = $request->query->get("search", "");
+        $sort = $request->query->getAlnum("sort", "id");
+        $order = $request->query->getAlpha("order", "desc");
+
+        $qb = $dm->createQueryBuilder('TelepayFinancialApiBundle:Transaction')
+            ->field('service')->equals('rec')
+            ->field('type')->equals('out')
+            ->sort($sort, $order)
+            ->limit($limit)
+            ->skip($offset)
+            ->getQuery();
+
+        $result = array();
+        foreach ($qb->toArray() as $transaction) {
+            $sender = $em->getRepository('TelepayFinancialApiBundle:Group')->findOneBy(array(
+                'id' => $transaction->getGroup()
+            ));
+
+            $payment_info = $transaction->getPayOutInfo();
+            $address = $payment_info['address'];
+            $receiver = $em->getRepository('TelepayFinancialApiBundle:Group')->findOneBy(array(
+                'rec_address' => $address
+            ));
+
+            $created = $transaction->getCreated();
+            $result[]=array(
+                $transaction->getId(),
+                $sender->getId(),
+                $sender->getType(),
+                $sender->getSubtype(),
+                $receiver->getId(),
+                $receiver->getType(),
+                $receiver->getSubtype(),
+                $transaction->getMethod(),
+                $transaction->getInternal(),
+                $transaction->getStatus(),
+                $transaction->getAmount(),
+                $created->format('Y-m-d H:i:s')
+            );
+        }
+        return $this->restV2(200,"ok", "List transactions generated", $result);
     }
 
 
