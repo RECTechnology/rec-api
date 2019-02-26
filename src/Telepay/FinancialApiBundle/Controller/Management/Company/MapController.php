@@ -325,6 +325,7 @@ class MapController extends BaseApiController{
             $like->add($qb->expr()->like($field, $qb->expr()->literal('%' . $search . '%')));
         }
         $and->add($like);
+        $and->add($qb->expr()->eq('a.on_map', 1));
         //geo query
         $and->add($qb->expr()->gt('a.latitude', $min_lat));
         $and->add($qb->expr()->lt('a.latitude', $max_lat));
@@ -370,6 +371,33 @@ class MapController extends BaseApiController{
             ['total' => intval($total[0][1]), 'elements' => $elements]
         );
     }
-
+    /**
+     * @param Request $request, int $id
+     * @return \Symfony\Component\HttpFoundation\Response
+     */
+    public function setVisibility(Request $request){
+        if(!$this->get('security.context')->isGranted('ROLE_SUPER_ADMIN')) throw new HttpException(403, 'You don\'t have the necessary permissions');
+        /** @var EntityManagerInterface $em */
+        $em = $this->getDoctrine()->getManager();
+        $id = $request->get('id');
+        $on_map = $request->get('on_map');
+        $group = $em->getRepository('TelepayFinancialApiBundle:Group')->findOneBy(array(
+            'id' => $id
+        ));
+        if(!$group){
+            throw new HttpException(400, 'Incorrect ID');
+        }
+        $group->setOn_map($on_map);
+        $em->persist($group);
+        try{
+            $em->flush();
+            return $this->rest(
+                200,
+                "Visibility changed successfully"
+            );
+        } catch(DBALException $ex){
+            throw new HttpException(409, $ex->getMessage());
+        }
+    }
 
 }

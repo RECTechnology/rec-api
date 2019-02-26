@@ -36,6 +36,7 @@ class Group extends BaseGroup
         $this->wallets = new ArrayCollection();
         $this->clients = new ArrayCollection();
         $this->company_token = uniqid();
+        $this->on_map = 1;
 
         if($this->access_key == null){
             $generator = new SecureRandom();
@@ -1184,6 +1185,23 @@ class Group extends BaseGroup
     {
         $this->offers = $offers;
     }
-
+    /**
+     * @ORM\Column(type="boolean")
+     */
+    private $on_map;
+    /**
+     * @param mixed $on_map
+     */
+    public function setOn_map($on_map)
+    {
+        $this->on_map = $on_map;
+    }
+    /**
+     * @return mixed
+     */
+    public function getOn_map()
+    {
+        return $this->on_map;
+    }
 
 }
