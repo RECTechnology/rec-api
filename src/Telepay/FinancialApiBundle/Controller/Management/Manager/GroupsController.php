@@ -125,6 +125,8 @@ class GroupsController extends BaseApiController
         $search = $request->query->get("search", "");
         $sort = $request->query->getAlnum("sort", "id");
         $order = $request->query->getAlpha("order", "DESC");
+        $active = $request->query->getAlnum("active", "");
+        $type = $request->query->getAlpha("type", "");
 
         /** @var EntityManagerInterface $em */
         $em = $this->getDoctrine()->getManager();
@@ -132,13 +134,23 @@ class GroupsController extends BaseApiController
 
         /** @var QueryBuilder $qb */
         $qb = $em->createQueryBuilder();
-        $qb = $qb->from(Group::class, 'acc')->where(
-            $qb->expr()->orX(
-                $qb->expr()->like("acc.cif", $qb->expr()->literal('%' . $search. '%')),
-                $qb->expr()->like("acc.phone", $qb->expr()->literal('%' . $search. '%')),
-                $qb->expr()->like("acc.name", $qb->expr()->literal('%' . $search. '%'))
-            )
+
+        $like = $qb->expr()->orX(
+            $qb->expr()->like("acc.cif", $qb->expr()->literal('%' . $search. '%')),
+            $qb->expr()->like("acc.phone", $qb->expr()->literal('%' . $search. '%')),
+            $qb->expr()->like("acc.name", $qb->expr()->literal('%' . $search. '%'))
         );
+
+        $and = $qb->expr()->andX();
+        $and->add($like);
+        $and->add($qb->expr()->like("acc.active", $qb->expr()->literal('%' . $active. '%')));
+        $and->add($qb->expr()->like("acc.type", $qb->expr()->literal('%' . $type. '%')));
+
+
+        $qb = $qb->from(Group::class, 'acc')->where($and);
+
+
+
 
         $total = $qb
             ->select('count(acc.id)')
@@ -193,6 +205,10 @@ class GroupsController extends BaseApiController
         );
 
     }
+
+
+
+
 
     /**
      * @Rest\View
