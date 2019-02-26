@@ -67,13 +67,51 @@ class TransactionsController extends RestApiController {
         $sort = $request->query->getAlnum("sort", "id");
         $order = $request->query->getAlpha("order", "desc");
 
-        $qb = $dm->createQueryBuilder('TelepayFinancialApiBundle:Transaction')
-            ->field('service')->equals('rec')
-            ->field('type')->equals('out')
-            ->sort($sort, $order)
-            ->limit($limit)
-            ->skip($offset)
-            ->getQuery();
+        if($search!=''){
+            $qa = $dm->createQueryBuilder('TelepayFinancialApiBundle:Transaction')
+                ->field('service')->equals('rec')
+                ->field('id')->equals($search)
+                ->getQuery();
+            foreach ($qa->toArray() as $transaction) {
+                $payment_info = $transaction->getPayInInfo();
+                $txid = $payment_info['txid'];
+                if($transaction->getType()=='in'){
+                    $qb = $dm->createQueryBuilder('TelepayFinancialApiBundle:Transaction')
+                        ->field('service')->equals('rec')
+                        ->field('pay_out_info.txid')->equals($txid)
+                        ->getQuery();
+                }
+                else{
+                    $qb = $qa;
+                }
+            }
+        }
+        else {
+            $query = $request->query->get('query');
+            if(isset($query['start_date'])){
+                $start_time = new \MongoDate(strtotime(date($query['start_date'].' 00:00:00')));
+            }else{
+                $fecha = new DateTime();
+                $fecha->sub(new DateInterval('P3M'));
+                $start_time = new \MongoDate($fecha->getTimestamp());
+            }
+
+            if(isset($query['finish_date'])){
+                $finish_time = new \MongoDate(strtotime(date($query['finish_date'].' 23:59:59')));
+            }else{
+                $finish_time = new \MongoDate();
+            }
+
+            $qb = $dm->createQueryBuilder('TelepayFinancialApiBundle:Transaction')
+                ->field('service')->equals('rec')
+                ->field('created')->gte($start_time)
+                ->field('created')->lte($finish_time)
+                ->field('type')->equals('out')
+                ->sort($sort, $order)
+                ->limit($limit)
+                ->skip($offset)
+                ->getQuery();
+        }
 
         $result = array();
         foreach ($qb->toArray() as $transaction) {
@@ -86,16 +124,25 @@ class TransactionsController extends RestApiController {
             $receiver = $em->getRepository('TelepayFinancialApiBundle:Group')->findOneBy(array(
                 'rec_address' => $address
             ));
+            if($receiver){
+                $re_id = $receiver->getId();
+                $re_type = $receiver->getType();
+                $re_subtype = $receiver->getSubtype();
+            }
+            else{
+                $re_id = '-';
+                $re_type = '-';
+                $re_subtype = '-';
+            }
 
             $created = $transaction->getCreated();
             $result[]=array(
-                $transaction->getId(),
                 $sender->getId(),
                 $sender->getType(),
                 $sender->getSubtype(),
-                $receiver->getId(),
-                $receiver->getType(),
-                $receiver->getSubtype(),
+                $re_id,
+                $re_type,
+                $re_subtype,
                 $transaction->getMethod(),
                 $transaction->getInternal(),
                 $transaction->getStatus(),
