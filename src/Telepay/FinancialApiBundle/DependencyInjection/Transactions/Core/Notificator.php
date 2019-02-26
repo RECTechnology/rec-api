@@ -22,7 +22,15 @@ class Notificator {
             ->find($transaction->getGroup());
 
         if(!$transaction->getInternal()) {
-            if ($group->getType() == 'PRIVATE' && $group->getSubtype() == 'BMINCOME' && ($transaction->getType() == 'out' || $transaction->getType() == 'in')) {
+            if (
+                $group->getType() == 'PRIVATE'
+                &&
+                $transaction->getStatus()==Transaction::$STATUS_SUCCESS
+                &&
+                $group->getSubtype() == 'BMINCOME'
+                &&
+                ($transaction->getType() == 'out' || $transaction->getType() == 'in')
+            ) {
                 $this->notificate_upc($transaction);
                 $transaction->setNotified(true);
             }
@@ -163,12 +171,8 @@ class Notificator {
             'data'      =>  json_encode($data)
         );
 
-
-
         $notificator = $this->container->get('com.qbitartofacts.rec.commons.bcn_halltown_notificator');
         $response = $notificator->msg('{ "account_id": "' . $params['account_id'] . '", "id": "' . $params['id'] . '",  "status": "' . $params['status'] . '",  "amount": ' . $params['amount'] . ',  "signature": "' . $params['signature'] . '",  "data": {    "receiver": "' . $data['receiver'] . '",    "date": ' . $data['date'] . ',    "activity_type_code": "' . $data['activity_type_code'] . '"  }}');
-
-
 
         $response_data = json_decode($response, true);
         if(!isset($response_data['Message'])){
