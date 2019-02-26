@@ -8,7 +8,6 @@ use Telepay\FinancialApiBundle\DependencyInjection\Transactions\Core\AbstractMet
 use Telepay\FinancialApiBundle\Entity\Group;
 use Telepay\FinancialApiBundle\Entity\LimitCount;
 use Telepay\FinancialApiBundle\Entity\LimitDefinition;
-use Telepay\FinancialApiBundle\Entity\ResellerDealer;
 use Telepay\FinancialApiBundle\Entity\ServiceFee;
 use FOS\RestBundle\Controller\Annotations as Rest;
 use Symfony\Component\HttpFoundation\Request;
@@ -35,21 +34,17 @@ class CompaniesController extends BaseApiController
      * Permissions: ROLE_SUPER_ADMIN (all)
      */
     public function updateAction(Request $request, $id){
+        //only the superadmin can access here
+        if(!$this->get('security.context')->isGranted('ROLE_SUPER_ADMIN')) {
+            throw new HttpException(403, 'You have not the necessary permissions');
+        }
+
         $em = $this->getDoctrine()->getManager();
         $company = $em->getRepository($this->getRepositoryName())->find($id);
         if(!$company) throw new HttpException(404, 'Group not found');
 
-        $methods = null;
-        if($request->request->has('methods_list')){
-            $methods = $request->get('methods_list');
-            $request->request->remove('methods_list');
-        }
         $response = parent::updateAction($request, $id);
-
         if($response->getStatusCode() == 204){
-            if($methods !== null){
-                $this->_setMethods($methods, $company);
-            }
             $em->persist($company);
             $em->flush();
         }
@@ -270,26 +265,6 @@ class CompaniesController extends BaseApiController
 
     /**
      * @Rest\View
-     * Permissions: ROLE_SUPER_ADMIN (all)
-     */
-    public function showResellerFees(Request $request, $id){
-
-        //search company
-        $em = $this->getDoctrine()->getManager();
-        $company = $em->getRepository($this->getRepositoryName())->find($id);
-
-
-        //get all Resellers
-        $resellers = $em->getRepository('TelepayFinancialApiBundle:ResellerDealer')->findBy(array(
-            'company_origin'    =>  $company
-        ));
-
-        return $this->restV2(200, 'success', 'reseller info got sucessfully', $resellers);
-
-    }
-
-    /**
-     * @Rest\View
      */
     public function showAction($id){
         $user = $this->get('security.context')->getToken()->getUser();
@@ -393,111 +368,4 @@ class CompaniesController extends BaseApiController
             )
         );
     }
-
-    /**
-     * @Rest\View
-     */
-    public function addReseller(Request $request, $id){
-
-        $em = $this->getDoctrine()->getManager();
-        $company = $em->getRepository('TelepayFinancialApiBundle:Group')->find($id);
-
-        if(!$company) throw new HttpException(404, 'Company not found');
-
-        $paramNames = array(
-            'company_reseller',
-            'fee',
-            'method'
-        );
-
-        $params = array();
-        foreach ($paramNames as $paramName){
-            if(!$request->request->has($paramName)) throw new HttpException(404, 'Param '.$paramName.' not found');
-            $params[$paramName] = $request->request->get($paramName);
-        }
-
-        $company_reseller = $em->getRepository($this->getRepositoryName())->find($params['company_reseller']);
-        if(!$company_reseller) throw new HttpException(404, 'Company reseller not found');
-
-        $pos = strpos($params['method'], 'exchange');
-        //TODO if is exchange
-//        die(print_r(strpos($params['method'], 'exchange'),true));
-        //exchange must be sent like exchange_currency
-        if($pos!== false){
-            $explodeMethod = explode( '_',$params['method']);
-//            die(print_r($explodeMethod,true));
-            $currency = strtoupper($explodeMethod[1]);
-            $currencies = Currency::$ALL;
-            foreach ($currencies as $cur){
-                if($cur != $currency){
-                    //TODO check if reseller exists
-                    $resellerExist = $em->getRepository('TelepayFinancialApiBundle:ResellerDealer')->findOneBy(array(
-                        'method'    =>  'exchange_'.$cur.'to'.$currency,
-                        'company_origin'    =>  $company,
-                        'company_reseller'  =>  $company_reseller
-                    ));
-
-                    if(!$resellerExist){
-                        //TODO check valid method
-                        //TODO create reseller
-                        $reseller = new ResellerDealer();
-                        $reseller->setMethod('exchange_'.$cur.'to'.$currency);
-                        $reseller->setFee($params['fee']);
-                        $reseller->setCompanyReseller($company_reseller);
-                        $reseller->setCompanyOrigin($company);
-
-                        $em->persist($reseller);
-                        $em->flush();
-                    }
-                }
-            }
-
-
-        }else{
-            //TODO check if reseller exists
-            $resellerExist = $em->getRepository('TelepayFinancialApiBundle:ResellerDealer')->findOneBy(array(
-                'method'    =>  $params['method'],
-                'company_origin'    =>  $company,
-                'company_reseller'  =>  $company_reseller
-            ));
-
-            if($resellerExist) throw new HttpException(409, 'Duplicate resource');
-
-            //TODO check valid method
-            //TODO create reseller
-            $reseller = new ResellerDealer();
-            $reseller->setMethod($params['method']);
-            $reseller->setFee($params['fee']);
-            $reseller->setCompanyReseller($company_reseller);
-            $reseller->setCompanyOrigin($company);
-
-            $em->persist($reseller);
-            $em->flush();
-
-        }
-
-
-        return $this->restV2(201, 'success', 'Reseller created successfully', $reseller);
-    }
-
-    /**
-     * @Rest\View
-     */
-    public function editReseller(Request $request, $id, $reseller_dealer){
-
-        $em = $this->getDoctrine()->getManager();
-        $reseller = $em->getRepository('TelepayFinancialApiBundle:ResellerDealer')->find($reseller_dealer);
-
-        if(!$reseller) throw new HttpException(404, 'Reseller dealer not found');
-        if(!$request->request->has('fee')){
-            throw new HttpException(404, 'Param fee not found');
-        }else{
-            $reseller->setFee($request->request->get('fee'));
-            $em->flush();
-        }
-
-        return $this->restV2(204, 'success', 'Reseller fee updated successfully', $reseller);
-
-    }
-
 }

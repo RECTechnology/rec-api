@@ -16,8 +16,6 @@ use Telepay\FinancialApiBundle\Entity\LimitDefinition;
 use Telepay\FinancialApiBundle\Entity\ServiceFee;
 use FOS\RestBundle\Controller\Annotations as Rest;
 use Symfony\Component\HttpFoundation\Request;
-use Telepay\FinancialApiBundle\Entity\UserWallet;
-use Telepay\FinancialApiBundle\Financial\Currency;
 
 /**
  * Class GroupsController
