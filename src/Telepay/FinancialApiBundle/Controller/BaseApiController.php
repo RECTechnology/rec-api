@@ -24,7 +24,8 @@ abstract class BaseApiController extends RestApiController implements Repository
     }
 
     protected function indexAction(Request $request){
-
+        //TODO: test if is used
+        //throw new HttpException(400, "_pass_");
         if($request->query->has('limit')) $limit = $request->query->get('limit');
         else $limit = 10;
 

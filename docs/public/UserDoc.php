@@ -37,6 +37,115 @@
 
 /**
  *
+ * @api {get} /user/v1/companies List companies
+ * @apiName ListCompanies
+ * @apiDescription List all user accounts
+ * @apiPermission User
+ * @apiVersion 1.0.0
+ * @apiGroup User
+ *
+ * @apiUse OAuth2Header
+ *
+ * @apiSuccess {String} code Status of the request.
+ * @apiSuccess {String} message Description of the request result.
+ * @apiSuccess {Array} data Data of the request result.
+ *
+ * @apiSuccessExample Success
+ *    HTTP/1.1 200 OK
+ *    {
+ *          "status": "ok",
+ *          "message": "Request successful",
+ *          "data":
+ *              {
+ *                  ...
+ *              }
+ *    }
+ *
+ */
+
+
+
+/**
+ *
+ * @api {get} /user/v2/wallet/transactions List Wallet Transactions
+ * @apiName List Wallet Transactions
+ * @apiDescription List all user transactions
+ * @apiPermission User
+ * @apiVersion 1.0.0
+ * @apiGroup User
+ *
+ * @apiUse OAuth2Header
+ *
+ * @apiSuccess {String} code Status of the request.
+ * @apiSuccess {String} message Description of the request result.
+ * @apiSuccess {Array} data Data of the request result.
+ *
+ * @apiSuccessExample Success
+ *    HTTP/1.1 200 OK
+ *    {
+ *          "status": "ok",
+ *          "message": "Request successful",
+ *          "data":
+ *              {
+ *                  ...
+ *              }
+ *    }
+ *
+ */
+
+/**
+ *
+ * @api {get} /user/v2/wallet/transactions List Wallet Transactions
+ * @apiName List Wallet Transactions
+ * @apiDescription List all user transactions
+ * @apiPermission User
+ * @apiVersion 1.0.0
+ * @apiGroup User
+ *
+ * @apiUse OAuth2Header
+ *
+ * @apiSuccess {String} code Status of the request.
+ * @apiSuccess {String} message Description of the request result.
+ * @apiSuccess {Array} data Data of the request result.
+ *
+ * @apiSuccessExample Success
+ *    HTTP/1.1 200 OK
+ *    {
+ *          "status": "ok",
+ *          "message": "Request successful",
+ *          "data":
+ *              {
+ *                  ...
+ *              }
+ *    }
+ *
+ */
+
+
+
+
+
+/**
+ *
+ * @api {put} /user/v1/activegroup Set user active group
+ * @apiName Set user active group
+ * @apiPermission User
+ * @apiVersion 1.0.0
+ * @apiGroup User
+ *
+ * @apiParam {Number} id group to set
+ *
+ * @apiUse OAuth2Header
+ *
+ */
+
+
+
+
+
+
+/**
+ *
  * @api {post} /user/v1/new/account Create Account
  * @apiName CreateAccount
  * @apiPermission User

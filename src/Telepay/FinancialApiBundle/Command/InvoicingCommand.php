@@ -54,8 +54,8 @@ class InvoicingCommand extends ContainerAwareCommand
 
         $qb = $dm->createQueryBuilder('TelepayFinancialApiBundle:Transaction');
 
-        $methods = $this->getContainer()->get('net.telepay.method_provider')->findAll();
-        $swidtMethods = $this->getContainer()->get('net.telepay.swift_provider')->findAll();;
+        //$methods = $this->getContainer()->get('net.telepay.method_provider')->findAll();
+        //$swidtMethods = $this->getContainer()->get('net.telepay.swift_provider')->findAll();
 
         $resume = array();
         $resumeSwift = array();

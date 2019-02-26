@@ -125,7 +125,7 @@ class GroupsController extends BaseApiController
         $search = $request->query->get("search", "");
         $sort = $request->query->getAlnum("sort", "id");
         $order = $request->query->getAlpha("order", "DESC");
-        $active = $request->query->getAlnum("active", "");
+        $active = $request->query->getAlnum("active", 1);
         $type = $request->query->getAlpha("type", "");
 
         /** @var EntityManagerInterface $em */

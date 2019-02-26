@@ -1,6 +1,6 @@
 <?php
 /**
- * @api {get} /map/v1/search List
+ * @api {get} /map/v1/list List
  * @apiName ListMap
  * @apiDescription List Map Commerces  
  * @apiPermission User
