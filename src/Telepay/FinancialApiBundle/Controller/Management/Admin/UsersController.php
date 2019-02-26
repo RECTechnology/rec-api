@@ -84,7 +84,7 @@ class UsersController extends BaseApiController
             'public_phone',
             'password',
             'repassword',
-            '$twoFactorAuthentication'
+            'twoFactorAuthentication'
         );
 
         $params = $request->request->all();

@@ -12,6 +12,7 @@ use Telepay\FinancialApiBundle\Entity\ServiceFee;
 use FOS\RestBundle\Controller\Annotations as Rest;
 use Symfony\Component\HttpFoundation\Request;
 use Telepay\FinancialApiBundle\Financial\Currency;
+use Telepay\FinancialApiBundle\Entity\Category;
 
 /**
  * Class CompaniesController
@@ -39,9 +40,90 @@ class CompaniesController extends BaseApiController
             throw new HttpException(403, 'You have not the necessary permissions');
         }
 
+        $validParams = array(
+            'email',
+            'category',
+            'type',
+            'subtype',
+            'offered_products',
+            'needed_products',
+            'description',
+            'schedule',
+            'prefix',
+            'phone',
+            'zip',
+            'city',
+            'country',
+            'latitude',
+            'longitude',
+            'fixed_location',
+            'address_number',
+            'street',
+            'street_type',
+            'web',
+            'neighborhood',
+            'observations',
+            'association'
+        );
+
+        $params = $request->request->all();
+        foreach($params as $paramName=>$value){
+            if(!in_array($paramName, $validParams)){
+                throw new HttpException(404, 'Param ' . $paramName . ' can not be updated');
+            }
+        }
+
         $em = $this->getDoctrine()->getManager();
         $company = $em->getRepository($this->getRepositoryName())->find($id);
         if(!$company) throw new HttpException(404, 'Group not found');
+
+
+        $allowed_types = array('PRIVATE', 'COMPANY');
+        if($request->request->has('type') && $request->request->get('type')!='') {
+            $params['type'] = $request->request->get('type');
+            if(in_array($params['type'], $allowed_types)) {
+                $type = $params['type'];
+            }
+            else{
+                throw new HttpException(400, "Invalid type");
+            }
+        }
+        else{
+            $type = $allowed_types[0];
+        }
+
+        $list_subtypes = array(
+            'PRIVATE' => array('NORMAL', 'BMINCOME'),
+            'COMPANY' => array('RETAILER', 'WHOLESALE')
+        );
+        $allowed_subtypes = $list_subtypes[$type];
+        if($request->request->has('subtype') && $request->request->get('subtype')!='') {
+            $params['subtype'] = $request->request->get('subtype');
+            if(in_array($params['subtype'], $allowed_subtypes)) {
+                $subtype = $params['subtype'];
+            }
+            else{
+                throw new HttpException(400, "Invalid subtype");
+            }
+        }
+        else{
+            $subtype = $allowed_subtypes[0];
+        }
+
+        $category = $params['category'];
+        $category_exists = $em->getRepository('TelepayFinancialApiBundle:Category')->findOneBy(array(
+                "id" => $category
+            )
+        );
+        if(!$category_exists) {
+            throw new HttpException(404, 'Category not found');
+        }
+        else{
+            $company->setCategory($category_exists);
+            $em->persist($company);
+            $em->flush();
+            $request->request->remove('category');
+        }
 
         $response = parent::updateAction($request, $id);
         if($response->getStatusCode() == 204){
