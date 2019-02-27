@@ -302,6 +302,23 @@ admin_user_actions:
         _method: PUT
 
 
+
+##################### MAP ############################
+
+map_visibility:
+    pattern:  /admin/v1/map/visibility/{account_id}
+    defaults: {_controller: Telepay\FinancialApiBundle\Controller\Management\Company\MapController::setVisibility }
+    requirements:
+        _method: PUT
+
+
+admin_map_search:
+    pattern: /admin/v1/map/search
+    defaults: {_controller: Telepay\FinancialApiBundle\Controller\Management\Company\MapController::adminSearchV2 }
+    requirements:
+        _method: GET
+
+
 ##################### KYC ############################
 
 ##admin_KYC_list:
