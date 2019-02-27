@@ -83,7 +83,7 @@ class UsersController extends BaseApiController
         if(!$securityContext->isGranted('ROLE_SUPER_ADMIN'))
             throw new HttpException(403, 'You don\'t have the necessary permissions '. print_r($securityContext->getToken()->getUsername(), true));
 
-        $result = $this->searchLike($request, User::class, ["id", "username", "email", "name"]);
+        $result = $this->searchLike($request, User::class, ["id", "username", "email", "name", "phone"]);
         $total = $result['total'];
         $elements = $result['elements'];
 
