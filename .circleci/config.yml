@@ -18,8 +18,8 @@ jobs:
       - run: docker build docs -t reg.rallf.com:8443/rec-dev:$CIRCLE_BRANCH
 
       # Push the API image to the Registry
-      - run: make deploy
+      - run: make push
       - run: docker push reg.rallf.com:8443/rec-dev:$CIRCLE_BRANCH
 
       # use webhook to deploy
-      - run: tr ',' '\n' <<<$DEPLOY_WEBHOOK | while read url;do curl -X POST "$url";done
+      - run: make deploy WEBHOOK=$(DEPLOY_WEBHOOK)
