@@ -43,17 +43,14 @@ class TransactionsController extends RestApiController {
 
         $em = $this->getDoctrine()->getManager();
         $company = $em->getRepository('TelepayFinancialApiBundle:Group')->find($trans->getGroup());
-
-        //TODO get Method
-        $methods = $this->get('net.telepay.method_provider')->findByCNames(array($trans->getMethod().'-'.$trans->getType()));
+        $company = $company->getAdminView();
 
         $response = array(
             'transaction'   =>  $trans,
-            'company'   =>  $company,
-            'method'    =>  $methods[0]
+            'company'   =>  $company
         );
 
-        return $this->restV2(200,"ok", "Transaction ffound successfully", $response);
+        return $this->restV2(200,"ok", "Transaction found successfully", $response);
     }
 
     /**
@@ -66,25 +63,23 @@ class TransactionsController extends RestApiController {
         $limit = $request->query->getInt('limit', 10);
         $offset = $request->query->getInt('offset', 0);
         $search = $request->query->get("search", "");
-        $sort = $request->query->getAlnum("sort", "id");
+        $sort = $request->query->getAlnum("sort", "created");
         $order = $request->query->getAlpha("order", "desc");
 
-        if($search!=''){
-            $qa = $dm->createQueryBuilder('TelepayFinancialApiBundle:Transaction')
-                ->field('service')->equals('rec')
-                ->field('id')->equals($search)
-                ->getQuery();
-            foreach ($qa->toArray() as $transaction) {
-                $payment_info = $transaction->getPayInInfo();
+        if($search!=""){
+            $qb = array();
+            $trans = $dm->getRepository('TelepayFinancialApiBundle:Transaction')->find($search);
+            if($trans){
+                $payment_info = $trans->getPayInInfo();
                 $txid = $payment_info['txid'];
-                if($transaction->getType()=='in'){
+                if($trans->getType()=='in'){
                     $qb = $dm->createQueryBuilder('TelepayFinancialApiBundle:Transaction')
                         ->field('service')->equals('rec')
                         ->field('pay_out_info.txid')->equals($txid)
                         ->getQuery();
                 }
                 else{
-                    $qb = $qa;
+                    $qb[] = $trans;
                 }
             }
         }
@@ -106,8 +101,8 @@ class TransactionsController extends RestApiController {
 
             $qb = $dm->createQueryBuilder('TelepayFinancialApiBundle:Transaction')
                 ->field('service')->equals('rec')
-                ->field('created')->gte($start_time)
-                ->field('created')->lte($finish_time)
+                //->field('created')->gte($start_time)
+                //->field('created')->lte($finish_time)
                 ->field('type')->equals('out')
                 ->sort($sort, $order)
                 ->limit($limit)
@@ -116,7 +111,7 @@ class TransactionsController extends RestApiController {
         }
 
         $result = array();
-        foreach ($qb->toArray() as $transaction) {
+        foreach ($qb as $transaction) {
             $sender = $em->getRepository('TelepayFinancialApiBundle:Group')->findOneBy(array(
                 'id' => $transaction->getGroup()
             ));
