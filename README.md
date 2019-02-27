@@ -43,7 +43,7 @@ the services started with docker-compose are available at localhost in different
 * `PhpMyAdmin` instance is running on `localhost:8080`
 * `MongoAdmin` instance is running on `localhost:8081`
 
-the rest of services haven't any port exposed to outside, but available inside the containers
+the rest of services haven't got any port exposed to outside, but available inside the containers
 * `mariadb` instance opens port `3306` to the container network
   - empty `root` password
   - database `api`
