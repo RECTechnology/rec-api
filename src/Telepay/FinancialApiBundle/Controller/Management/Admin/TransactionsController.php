@@ -63,7 +63,7 @@ class TransactionsController extends RestApiController {
         $limit = $request->query->getInt('limit', 10);
         $offset = $request->query->getInt('offset', 0);
         $search = $request->query->get("search", "");
-        $sort = $request->query->getAlnum("sort", "created");
+        $sort = $request->query->getAlnum("sort", "updated");
         $order = $request->query->getAlpha("order", "desc");
 
         if($search!=""){
@@ -101,8 +101,8 @@ class TransactionsController extends RestApiController {
 
             $qb = $dm->createQueryBuilder('TelepayFinancialApiBundle:Transaction')
                 ->field('service')->equals('rec')
-                //->field('created')->gte($start_time)
-                //->field('created')->lte($finish_time)
+                //->field('updated')->gte($start_time)
+                //->field('updated')->lte($finish_time)
                 ->field('type')->equals('out')
                 ->sort($sort, $order)
                 ->limit($limit)
@@ -132,8 +132,9 @@ class TransactionsController extends RestApiController {
                 $re_subtype = '-';
             }
 
-            $created = $transaction->getCreated();
+            $updated = $transaction->getUpdated();
             $result[]=array(
+                $transaction->getId(),
                 $sender->getId(),
                 $sender->getType(),
                 $sender->getSubtype(),
@@ -144,7 +145,7 @@ class TransactionsController extends RestApiController {
                 $transaction->getInternal(),
                 $transaction->getStatus(),
                 $transaction->getAmount(),
-                $created->format('Y-m-d H:i:s')
+                $updated->format('Y-m-d H:i:s')
             );
         }
         return $this->restV2(200,"ok", "List transactions generated", $result);
