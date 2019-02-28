@@ -22,11 +22,13 @@ class SepaMethod extends BaseMethod {
 
     private $driver;
     private $container;
+    private $minimum;
 
-    public function __construct($name, $cname, $type, $currency, $email_required, $base64Image, $image, $container, $driver, $min_tier, $default_fixed_fee, $default_variable_fee){
+    public function __construct($name, $cname, $type, $currency, $email_required, $base64Image, $image, $container, $driver, $min_tier, $default_fixed_fee, $default_variable_fee, $minimum){
         parent::__construct($name, $cname, $type, $currency, $email_required, $base64Image, $image, $container, $min_tier, $default_fixed_fee, $default_variable_fee);
         $this->driver = $driver;
         $this->container = $container;
+        $this->minimum = $minimum;
     }
 
     public function getPayInInfo($amount)
@@ -41,6 +43,10 @@ class SepaMethod extends BaseMethod {
 
         return $paymentInfo;
 
+    }
+
+    public function getMinimumAmount(){
+        return $this->minimum;
     }
 
     public function send($paymentInfo)

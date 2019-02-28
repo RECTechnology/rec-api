@@ -14,4 +14,5 @@ interface CashInInterface {
     public function getPayInInfo($account_id, $amount);
     public function getPayInStatus($paymentInfo);
     public function getCurrency();
+    public function getMinimumAmount();
 }

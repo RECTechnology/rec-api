@@ -37,6 +37,7 @@ services:
             - "0"
             - "0"
             - "0"
+            - "1000000"
 
     net.telepay.out.rec.v1:
         class: Telepay\FinancialApiBundle\Financial\Methods\RecMethod
@@ -53,6 +54,7 @@ services:
             - "0"
             - "0"
             - "0"
+            - "1000000"
 
     net.telepay.in.lemonway.v1:
         class: Telepay\FinancialApiBundle\Financial\Methods\LemonWayMethod
@@ -69,6 +71,7 @@ services:
             - "0"
             - "0"
             - "0"
+            - "100"
 
     net.telepay.out.lemonway.v1:
         class: Telepay\FinancialApiBundle\Financial\Methods\LemonWayMethod
@@ -85,3 +88,4 @@ services:
             - "0"
             - "0"
             - "0"
+            - "100"

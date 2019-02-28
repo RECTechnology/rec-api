@@ -138,6 +138,11 @@ class AbstractMethod implements MethodInterface, CashInInterface, CashOutInterfa
         // TODO: Implement getPayOutInfo() method.
     }
 
+    public function getMinimumAmount()
+    {
+        // TODO: Implement getPayOutInfo() method.
+    }
+
     /**
      * @return string
      */

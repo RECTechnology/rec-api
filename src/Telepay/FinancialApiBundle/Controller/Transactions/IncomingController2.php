@@ -115,7 +115,14 @@ class IncomingController2 extends RestApiController{
         $logger->info('(' . $group_id . ')(T) CHECK AMOUNT');
 
         if($type == 'out'){
-            if($wallet->getAvailable() < $amount) throw new HttpException(405,'Not founds enough');
+            if($wallet->getAvailable() < $amount) {
+                throw new HttpException(405, 'Not founds enough');
+            }
+
+            if($amount < $method->getMinimumAmount()){
+                throw new HttpException(400, 'Amount under minimum');
+            }
+
             if(array_key_exists('pin', $data) && $data['pin']!='' && intval($data['pin'])>-1){
                 $pin = $data['pin'];
                 if($user->getPIN()!=$pin){

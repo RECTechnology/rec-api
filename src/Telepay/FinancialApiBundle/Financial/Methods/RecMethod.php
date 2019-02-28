@@ -29,10 +29,11 @@ class RecMethod extends BaseMethod {
     private $OP_RETURN_BTC_DUST;
     private $OP_RETURN_MAX_BYTES;
 
-    public function __construct($name, $cname, $type, $currency, $email_required, $base64Image, $image, $container, $driver, $min_tier, $default_fixed_fee, $default_variable_fee){
+    public function __construct($name, $cname, $type, $currency, $email_required, $base64Image, $image, $container, $driver, $min_tier, $default_fixed_fee, $default_variable_fee, $minimum){
         parent::__construct($name, $cname, $type, $currency, $email_required, $base64Image, $image, $container, $min_tier, $default_fixed_fee, $default_variable_fee);
         $this->driver = $driver;
         $this->container = $container;
+        $this->minimum = $minimum;
 
         $this->min_confirmations = $this->container->getParameter('rec_min_confirmations');
         $this->OP_RETURN_BTC_FEE = floatval($this->container->getParameter('OP_RETURN_BTC_FEE')); // BTC fee to pay per transaction
@@ -212,6 +213,10 @@ class RecMethod extends BaseMethod {
         $params['status'] = false;
 
         return $params;
+    }
+
+    public function getMinimumAmount(){
+        return $this->minimum;
     }
 
     public function send($paymentInfo){
