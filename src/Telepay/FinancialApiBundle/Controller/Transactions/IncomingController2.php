@@ -620,14 +620,11 @@ class IncomingController2 extends RestApiController{
                     $sender_account = $em->getRepository('TelepayFinancialApiBundle:Group')->findOneBy(array('id'=>$transaction->getGroup()));
                     $sender = $em->getRepository('TelepayFinancialApiBundle:User')->findOneBy(array('id'=>$transaction->getUser()));
 
-                    $pin = $sender->getPIN();
-                    if(intval($pin)<1)$pin = '0000';
-
                     $params = array(
                         'amount' => $amount,
                         'concept' => "Reenvio error",
                         'address' => $payment_info['address'],
-                        'pin' => $pin
+                        'pin' => $sender->getPIN()
                     );
                     if(isset($data['internal_tx']) && $data['internal_tx']=='1') {
                         $params['internal_tx']='1';

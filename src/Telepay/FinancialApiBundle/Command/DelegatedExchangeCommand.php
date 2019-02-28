@@ -63,7 +63,9 @@ class DelegatedExchangeCommand extends ContainerAwareCommand
             }
             else{
                 $request['card_id'] = $card->getId();
-                $request['pin'] = $user->getPIN();
+                $pin = $user->getPIN();
+                if(intval($pin)<1)$pin = '0000';
+                $request['pin'] = $pin;
             }
 
             $cif_commerce = $line[1];
