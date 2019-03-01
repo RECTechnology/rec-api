@@ -71,7 +71,7 @@ services:
             - "0"
             - "0"
             - "0"
-            - "100"
+            - "1"
 
     net.telepay.out.lemonway.v1:
         class: Telepay\FinancialApiBundle\Financial\Methods\LemonWayMethod
@@ -88,4 +88,4 @@ services:
             - "0"
             - "0"
             - "0"
-            - "100"
+            - "1"
