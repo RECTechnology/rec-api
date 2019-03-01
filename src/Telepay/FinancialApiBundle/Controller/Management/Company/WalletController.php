@@ -537,8 +537,6 @@ class WalletController extends RestApiController {
             "Request successful",
             array(
                 'total' => $total,
-                'start' => intval($offset),
-                'end' => count($entities)+$offset,
                 'daily' => $data,
                 'daily_custom'  =>  $dataCustom,
                 'scales' => $scales,

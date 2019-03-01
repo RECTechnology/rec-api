@@ -96,8 +96,6 @@ class GroupsController extends BaseApiController
             "Request successful",
             array(
                 'total' => $total,
-                'start' => intval($offset),
-                'end' => count($entities)+$offset,
                 'elements' => $entities
             )
         );
@@ -196,8 +194,6 @@ class GroupsController extends BaseApiController
             "Request successful",
             array(
                 'total' => intval($total[0][1]),
-                'start' => intval($offset),
-                'end' => count($result)+$offset,
                 'elements' => $result
             )
         );
