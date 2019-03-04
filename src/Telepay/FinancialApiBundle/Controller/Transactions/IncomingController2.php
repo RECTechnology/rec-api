@@ -567,6 +567,7 @@ class IncomingController2 extends RestApiController{
     public function adminThirdTransaction(Request $request, $method_cname){
         $user = $this->get('security.context')->getToken()->getUser();
         if (!$user->hasRole('ROLE_SUPER_ADMIN')) throw new HttpException(403, 'Permission error');
+        if (!$user->getTwoFactorAuthentication()) throw new HttpException(403, '2FA must be active');
 
         if($method_cname != 'rec'){
             throw new HttpException(400, 'Bad method');
@@ -607,7 +608,7 @@ class IncomingController2 extends RestApiController{
         $request = array();
         $request['concept'] = $params['concept'];
         $request['amount'] = $params['amount'];
-        $request['pin'] = $group_sender->getPin();
+        $request['pin'] = $user->getPin();
         $request['address'] = $group_receiver->getRecAddress();
         return $this->createTransaction($request, 1, 'out', $method_cname, $user->getId(), $group_sender, '127.0.0.2');
     }
