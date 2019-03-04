@@ -23,9 +23,9 @@ use Telepay\FinancialApiBundle\Entity\LimitCount;
 use Telepay\FinancialApiBundle\Entity\LimitDefinition;
 use Telepay\FinancialApiBundle\Entity\ServiceFee;
 use Telepay\FinancialApiBundle\Entity\User;
-use Telepay\FinancialApiBundle\Entity\NFCCard;
 use Telepay\FinancialApiBundle\Entity\UserWallet;
 use Telepay\FinancialApiBundle\Security\Authentication\Token\SignatureToken;
+use Telepay\FinancialApiBundle\Controller\Google2FA;
 
 class IncomingController2 extends RestApiController{
 
@@ -504,9 +504,8 @@ class IncomingController2 extends RestApiController{
 
     public function remoteDelegatedTransaction(Request $request, $method_cname){
         $user = $this->get('security.context')->getToken()->getUser();
-        if($user->getId()!=1){
-            throw new HttpException(400, 'Permission error');
-        }
+        if (!$user->hasRole('ROLE_SUPER_ADMIN')) throw new HttpException(403, 'Permission error');
+
         if($method_cname != 'lemonway'){
             throw new HttpException(400, 'Bad method');
         }
@@ -562,6 +561,55 @@ class IncomingController2 extends RestApiController{
         $request['commerce_id'] = $group_commerce->getId();
         $request['save_card'] = 1;
         return $this->createTransaction($request, 1, 'in', $method_cname, $user->getId(), $group, '127.0.0.2');
+    }
+
+
+    public function adminThirdTransaction(Request $request, $method_cname){
+        $user = $this->get('security.context')->getToken()->getUser();
+        if (!$user->hasRole('ROLE_SUPER_ADMIN')) throw new HttpException(403, 'Permission error');
+
+        if($method_cname != 'rec'){
+            throw new HttpException(400, 'Bad method');
+        }
+        $paramNames = array(
+            'sender',
+            'receiver',
+            'sec_code',
+            'concept',
+            'amount'
+        );
+        $params = array();
+        foreach ( $paramNames as $paramName){
+            if($request->request->has($paramName)){
+                $params[$paramName] = $request->request->get($paramName);
+            }else{
+                throw new HttpException(400,'Missing parameter '.$paramName);
+            }
+        }
+        $code = $params['sec_code'];
+        $Google2FA = new Google2FA();
+        $twoFactorCode = $user->getTwoFactorCode();
+        if (!$Google2FA->verify_key($twoFactorCode, $code)) {
+            throw new HttpException(400,'The security code is incorrect.');
+        }
+
+
+        $em = $this->getDoctrine()->getManager();
+        $group_sender = $em->getRepository('TelepayFinancialApiBundle:Group')->findOneBy(array('id'=>$params['sender'], 'active'=>true));
+        if(!$group_sender){
+            throw new HttpException(400,'Sender not found: ' . $params['sender']);
+        }
+        $group_receiver = $em->getRepository('TelepayFinancialApiBundle:Group')->findOneBy(array('id'=>$params['receiver'], 'active'=>true));
+        if(!$group_receiver){
+            throw new HttpException(400,'Receiver not found: ' . $params['receiver']);
+        }
+
+        $request = array();
+        $request['concept'] = $params['concept'];
+        $request['amount'] = $params['amount'];
+        $request['pin'] = $group_sender->getPin();
+        $request['address'] = $group_receiver->getRecAddress();
+        return $this->createTransaction($request, 1, 'out', $method_cname, $user->getId(), $group_sender, '127.0.0.2');
     }
 
 

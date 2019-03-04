@@ -14,6 +14,12 @@ method_delegated_create:
         _method: POST
         service_cname: "[a-z0-9_]+"
 
+method_admin_third_create:
+    pattern:  /admin/v{version_number}/third/{method_cname}
+    defaults: { _controller: Telepay\FinancialApiBundle\Controller\Transactions\IncomingController2::adminThirdTransaction, _format: ~ }
+    requirements:
+        _method: POST
+        service_cname: "[a-z0-9_]+"
 
 method_call_update:
     pattern:  /methods/v{version_number}/{type}/{method_cname}/{id}
