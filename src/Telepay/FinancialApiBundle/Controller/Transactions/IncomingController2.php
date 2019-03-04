@@ -974,8 +974,6 @@ class IncomingController2 extends RestApiController{
             "Request successful",
             array(
                 'total' => $total,
-                'start' => intval($offset),
-                'end' => count($entities)+$offset,
                 'elements' => $entities,
                 'page_amount' => $page_amount,
                 'total_amount' => $total_amount,

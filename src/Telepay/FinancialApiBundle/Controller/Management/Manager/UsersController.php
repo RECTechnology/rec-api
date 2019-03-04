@@ -253,8 +253,6 @@ class UsersController extends BaseApiController
             "Request successful",
             array(
                 'total' => $total,
-                'start' => intval($offset),
-                'end' => count($entities)+$offset,
                 'elements' => $entities
             )
         );
@@ -311,8 +309,6 @@ class UsersController extends BaseApiController
             "Request successful",
             array(
                 'total' => $total,
-                'start' => intval($offset),
-                'end' => count($entities)+$offset,
                 'elements' => $entities
             )
         );

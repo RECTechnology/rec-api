@@ -58,8 +58,6 @@ class MailingController extends BaseApiController
             "Request successful",
             array(
                 'total' => $total,
-                'start' => intval($offset),
-                'end' => count($mails)+$offset,
                 'elements' => $mails
             )
         );
