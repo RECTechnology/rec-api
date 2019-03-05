@@ -86,23 +86,23 @@ class TransactionsController extends RestApiController {
         else {
             $query = $request->query->get('query');
             if(isset($query['start_date'])){
-                $start_time = new \MongoDate(strtotime(date($query['start_date'].' 00:00:00')));
-            }else{
-                $fecha = new DateTime();
-                $fecha->sub(new DateInterval('P3M'));
-                $start_time = new \MongoDate($fecha->getTimestamp());
+                $start_date = new \MongoDate(strtotime($query['start_date'] .' 00:00:00'));
+            }
+            else{
+                $start_date = new \MongoDate(strtotime('-1 month 00:00:00'));
             }
 
             if(isset($query['finish_date'])){
-                $finish_time = new \MongoDate(strtotime(date($query['finish_date'].' 23:59:59')));
-            }else{
-                $finish_time = new \MongoDate();
+                $finish_date = new \MongoDate(strtotime($query['finish_date'] .' 23:59:59'));
+            }
+            else{
+                $finish_date = new \MongoDate(strtotime('now'));
             }
 
             $qb = $dm->createQueryBuilder('TelepayFinancialApiBundle:Transaction')
                 ->field('service')->equals('rec')
-                //->field('updated')->gte($start_time)
-                //->field('updated')->lte($finish_time)
+                ->field('updated')->gte($start_date)
+                ->field('updated')->lte($finish_date)
                 ->field('type')->equals('out')
                 ->sort($sort, $order)
                 ->limit($limit)
