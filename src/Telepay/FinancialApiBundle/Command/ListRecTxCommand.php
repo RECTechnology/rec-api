@@ -3,15 +3,9 @@
 namespace Telepay\FinancialApiBundle\Command;
 
 use Symfony\Bundle\FrameworkBundle\Command\ContainerAwareCommand;
-use Symfony\Component\Console\Input\InputArgument;
-use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
-use Symfony\Component\Validator\Constraints\DateTime;
-use Symfony\Component\Filesystem\Filesystem;
-use Symfony\Component\Filesystem\Exception\IOExceptionInterface;
-use Telepay\FinancialApiBundle\Entity\UserWallet;
-use Telepay\FinancialApiBundle\Financial\Currency;
+
 
 class ListRecTxCommand extends ContainerAwareCommand{
     protected function configure(){
@@ -24,11 +18,13 @@ class ListRecTxCommand extends ContainerAwareCommand{
     protected function execute(InputInterface $input, OutputInterface $output){
         $em = $this->getContainer()->get('doctrine')->getManager();
         $dm = $this->getContainer()->get('doctrine_mongodb')->getManager();
+        $start_date = new \MongoDate(strtotime('-10 day 00:00:00'));
 
         $output->writeln("sender_id,s_type,s_subtype,receiver_id,r_type,r_subtype,coin,internal,status,amount,date");
         $qb = $dm->createQueryBuilder('TelepayFinancialApiBundle:Transaction')
             ->field('service')->equals('rec')
             ->field('type')->equals('out')
+            ->field('updated')->gte($start_date)
             ->getQuery();
         foreach ($qb->toArray() as $transaction) {
             $sender = $em->getRepository('TelepayFinancialApiBundle:Group')->findOneBy(array(
