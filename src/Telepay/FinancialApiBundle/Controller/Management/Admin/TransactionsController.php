@@ -84,16 +84,17 @@ class TransactionsController extends RestApiController {
             }
         }
         else {
-            $query = $request->query->get('query');
-            if(isset($query['start_date'])){
-                $start_date = new \MongoDate(strtotime($query['start_date'] .' 00:00:00'));
+            $start = $request->query->get("start_date", "0");
+            if($start!="0"){
+                $start_date = new \MongoDate(strtotime($start .' 00:00:00'));
             }
             else{
                 $start_date = new \MongoDate(strtotime('-1 month 00:00:00'));
             }
 
-            if(isset($query['finish_date'])){
-                $finish_date = new \MongoDate(strtotime($query['finish_date'] .' 23:59:59'));
+            $finish = $request->query->get("finish_date", "0");
+            if($finish!="0"){
+                $finish_date = new \MongoDate(strtotime($finish .' 23:59:59'));
             }
             else{
                 $finish_date = new \MongoDate(strtotime('now'));
