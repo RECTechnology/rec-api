@@ -337,6 +337,23 @@ class UsersController extends BaseApiController{
         return $this->restV2(204, 'Success', 'Deactivated successfully');
     }
 
+    /**
+     * @Rest\View
+     */
+    public function activateAction($id){
+        if(!$this->get('security.context')->isGranted('ROLE_SUPER_ADMIN')) throw new HttpException(403, 'You don\'t have the necessary permissions');
+        $em = $this->getDoctrine()->getManager();
+        $user = $em->getRepository('TelepayFinancialApiBundle:User')->findOneBy(array(
+                'id'=>$id
+            )
+        );
+        if(empty($user)) throw new HttpException(404, 'User not found');
+        $user->setEnabled(true);
+        $em->persist($user);
+        $em->flush();
+        return $this->restV2(204, 'Success', 'Activated successfully');
+    }
+
 
     /**
      * @Rest\View
