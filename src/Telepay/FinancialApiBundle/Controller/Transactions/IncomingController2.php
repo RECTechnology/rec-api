@@ -1115,7 +1115,7 @@ class IncomingController2 extends RestApiController{
             if($token instanceof SignatureToken) return $user->getActiveGroup();
             $accessToken = $tokenManager->findTokenByToken($token->getToken());
 
-            $commerce_client = $this->container->getParameter('commerce_client_id');
+            $commerce_client = $this->container->getParameter('admin_client_id');
 
             $client = $accessToken->getClient();
             if($commerce_client == $client->getId()){
