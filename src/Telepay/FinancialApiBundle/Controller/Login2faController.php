@@ -23,7 +23,7 @@ class Login2faController extends RestApiController{
 
         $username = strtoupper($request->get('username'));
         $username = preg_replace("/[^0-9A-Z]/", "", $username);
-        $pin = $request->get('pifos_oauth_server.controller.tokenn');
+        $pin = $request->request->get('pin');
         $kyc = 0;
         if($request->request->has('kyc')) $kyc = $request->get('kyc');
 
@@ -39,6 +39,25 @@ class Login2faController extends RestApiController{
         if(!isset($token->error)){
             $em = $this->getDoctrine()->getManager();
             $user = $em->getRepository('TelepayFinancialApiBundle:User')->findBy(array('username' => $username));
+
+            $admin_client = $this->container->getParameter('admin_client_id');
+            $client_info = explode("_", $request->get('client_id'));
+            if(count($client_info)!=2){
+                $token = array(
+                    "error" => "not_validated_client",
+                    "error_description" => "The client format is not valid"
+                );
+                return new Response(json_encode($token), 400, $headers);
+            }
+            $client_id = $client_info[0];
+            $client = $em->getRepository('TelepayFinancialApiBundle:Client')->findOneBy(array('id' => $client_id));
+            if(!$client){
+                $token = array(
+                    "error" => "not_validated_client",
+                    "error_description" => "The client is not valid"
+                );
+                return new Response(json_encode($token), 400, $headers);
+            }
 
             if((count($user[0]->getKycValidations())==0) || (!$user[0]->getKycValidations()->getPhoneValidated())){
                 $token = array(
@@ -56,13 +75,30 @@ class Login2faController extends RestApiController{
                 return new Response(json_encode($token), 400, $headers);
             }
 
-            if($user[0]->getTwoFactorAuthentication() == 1) {
-                $Google2FA = new Google2FA();
-                $twoFactorCode = $user[0]->getTwoFactorCode();
-                if (!$Google2FA->verify_key($twoFactorCode, $pin)) {
+            if($admin_client == $client->getId()){
+                if(!$user[0]->hasRole('ROLE_SUPER_ADMIN')) {
                     $token = array(
-                        "error" => "invalid_grant",
-                        "error_description" => "Invalid 2fa authenticator code"
+                        "error" => "not_permisssions",
+                        "error_description" => "You do not have the necessary permissions"
+                    );
+                    return new Response(json_encode($token), 400, $headers);
+                }
+
+                if($user[0]->getTwoFactorAuthentication() == 1) {
+                    $Google2FA = new Google2FA();
+                    $twoFactorCode = $user[0]->getTwoFactorCode();
+                    if (!$Google2FA->verify_key($twoFactorCode, $pin)) {
+                        $token = array(
+                            "error" => "invalid_2fa",
+                            "error_description" => "Invalid 2fa authenticator code"
+                        );
+                        return new Response(json_encode($token), 400, $headers);
+                    }
+                }
+                else{
+                    $token = array(
+                        "error" => "inactive_2fa",
+                        "error_description" => "The 2fa authenticator must be active"
                     );
                     return new Response(json_encode($token), 400, $headers);
                 }

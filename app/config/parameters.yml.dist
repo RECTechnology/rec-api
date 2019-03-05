@@ -70,7 +70,7 @@ parameters:
     id_group_root: 1
 
 #client id to check if petions are from admin pamel
-    commerce_client_id: '1'
+    admin_client_id: 2
 
 #SMS provider API access data
     labsmobile_user: 'user'
@@ -101,9 +101,6 @@ parameters:
 
 #list of authorized admins who can log in support panel
     authorized_admins: [1,2]
-
-#Old parameter to define the admin user to execute support and super_admin functions (delete pending)
-    admin_user_id: 1
 
 # Telegram setup for notifications
     telegram_bot_token: ~
