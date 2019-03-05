@@ -270,6 +270,14 @@ admin_users_update:
         password: "string"
 
 admin_users_delete:
+    pattern:  /admin/v1/deactiveuser/{id}
+    defaults: { _controller: Telepay\FinancialApiBundle\Controller\Management\Admin\UsersController::deactivateAction, _format: ~ }
+    requirements:
+        _method: POST
+        id: "[0-9]+"
+
+
+admin_users_delete:
     pattern:  /admin/v1/users/{id}
     defaults: { _controller: Telepay\FinancialApiBundle\Controller\Management\Admin\UsersController::deleteAction, _format: ~ }
     requirements:

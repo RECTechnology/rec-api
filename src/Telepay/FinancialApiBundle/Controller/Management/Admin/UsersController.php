@@ -19,15 +19,12 @@ use FOS\OAuthServerBundle\Util\Random;
  * Class UsersController
  * @package Telepay\FinancialApiBundle\Controller\Manager
  */
-class UsersController extends BaseApiController
-{
-    function getRepositoryName()
-    {
+class UsersController extends BaseApiController{
+    function getRepositoryName(){
         return "TelepayFinancialApiBundle:User";
     }
 
-    function getNewEntity()
-    {
+    function getNewEntity(){
         return new User();
     }
 
@@ -322,6 +319,24 @@ class UsersController extends BaseApiController
         }
         return false;
     }
+
+    /**
+     * @Rest\View
+     */
+    public function deactivateAction($id){
+        if(!$this->get('security.context')->isGranted('ROLE_SUPER_ADMIN')) throw new HttpException(403, 'You don\'t have the necessary permissions');
+        $em = $this->getDoctrine()->getManager();
+        $user = $em->getRepository('TelepayFinancialApiBundle:User')->findOneBy(array(
+                'id'=>$id
+            )
+        );
+        if(empty($user)) throw new HttpException(404, 'User not found');
+        $user->setEnabled(false);
+        $em->persist($user);
+        $em->flush();
+        return $this->restV2(204, 'Success', 'Deactivated successfully');
+    }
+
 
     /**
      * @Rest\View
