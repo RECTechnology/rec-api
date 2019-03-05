@@ -331,7 +331,7 @@ class UsersController extends BaseApiController{
             )
         );
         if(empty($user)) throw new HttpException(404, 'User not found');
-        $user->setEnabled(false);
+        $user->setLocked(true);
         $em->persist($user);
         $em->flush();
         return $this->restV2(204, 'Success', 'Deactivated successfully');
@@ -348,7 +348,7 @@ class UsersController extends BaseApiController{
             )
         );
         if(empty($user)) throw new HttpException(404, 'User not found');
-        $user->setEnabled(true);
+        $user->setLocked(false);
         $em->persist($user);
         $em->flush();
         return $this->restV2(204, 'Success', 'Activated successfully');
