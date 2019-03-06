@@ -1108,8 +1108,9 @@ class IncomingController2 extends RestApiController{
     }
 
     private function _getCurrentCompany(User $user){
+        //Old code to do delegated functions
+        /*
         $tokenManager = $this->container->get('fos_oauth_server.access_token_manager.default');
-
         try{
             $token = $this->get('security.context')->getToken();
             if($token instanceof SignatureToken) return $user->getActiveGroup();
@@ -1126,7 +1127,9 @@ class IncomingController2 extends RestApiController{
         }catch (Exception $e){
             $group = $user->getActiveGroup();
         }
+        */
 
+        $group = $user->getActiveGroup();
         return $group;
     }
 
