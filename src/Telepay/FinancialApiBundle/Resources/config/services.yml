@@ -111,3 +111,10 @@ services:
     slik_dompdf:
           class: Slik\DompdfBundle\Wrapper\DompdfWrapper
           arguments: [%kernel.root_dir%]
+
+    upload_controller:
+        class:  Telepay\FinancialApiBundle\Controller\Management\User\UploadController
+        calls:
+            - [setContainer, [@service_container]]
+
+

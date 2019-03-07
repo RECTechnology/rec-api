@@ -142,8 +142,72 @@ class AccountController extends BaseApiController{
         $user->setProfileImage($fileManager->getFilesPath().'/'.$filename);
         $logger->info('CHANGINC IMAGE saved url = '.$fileManager->getFilesPath().'/'.$filename);
         $em->flush();
-        return $this->rest(204, 'Profile image updated successfully');
+        return $this->rest(200, 'Profile image updated successfully');
     }
+
+    /**
+     * @Rest\View
+     */
+    public function setImage_V2(Request $request){
+        $logger = $this->get('manager.logger');
+        $paramNames = array(
+            'profile_image',
+            'document_front',
+            'document_rear'
+        );
+
+        $changes='';
+        $fileManager = $this->get('file_manager');
+
+
+        $user = $this->getUser();
+        $em = $this->getDoctrine()->getManager();
+        $kyc = $em->getRepository('TelepayFinancialApiBundle:KYC')->findOneBy(array(
+            'user' => $user
+        ));
+        //throw new HttpException(400, $user);
+        foreach($paramNames as $paramName){
+            if($request->request->has($paramName)) {
+                $params[$paramName] = $request->request->get($paramName);
+                $fileSrc = $request->request->get($paramName);
+                $logger->info('CHANGINC ' . $paramName . $user->getUsername());
+                $logger->info('CHANGINC ' . $paramName . ' fileSrc = ' . $fileSrc);
+                $fileContents = $fileManager->readFileUrl($fileSrc);
+                $hash = $fileManager->getHash();
+                $explodedFileSrc = explode('.', $fileSrc);
+                $ext = $explodedFileSrc[count($explodedFileSrc) - 1];
+                $filename = $hash . '.' . $ext;
+                file_put_contents($fileManager->getUploadsDir() . '/' . $filename, $fileContents);
+                $tmpFile = new File($fileManager->getUploadsDir() . '/' . $filename);
+
+                if (!in_array($tmpFile->getMimeType(), UploadManager::$ALLOWED_MIMETYPES))
+                throw new HttpException(400, "Bad file type");
+
+
+                if ($paramName == 'profile_image') {
+                    $user->setProfileImage($fileManager->getFilesPath().'/'. $filename);
+                }
+
+                if ($paramName == 'document_front') {
+                    $kyc->setDocumentFront($fileManager->getFilesPath().'/'. $filename);
+                }
+
+                if ($paramName == 'document_rear') {
+                    $kyc->setDocumentRear($fileManager->getFilesPath().'/'. $filename);
+                }
+
+
+                $em->flush();
+            }
+
+
+        }
+        return $this->rest(200, 'Image/s updated successfully');
+
+    }
+
+
+
 
     /**
      * @Rest\View

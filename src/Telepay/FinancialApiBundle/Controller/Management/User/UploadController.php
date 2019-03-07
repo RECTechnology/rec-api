@@ -8,6 +8,7 @@
 
 namespace Telepay\FinancialApiBundle\Controller\Management\User;
 
+use http\Exception;
 use Symfony\Component\Filesystem\Filesystem;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpKernel\Exception\HttpException;
@@ -21,29 +22,18 @@ use Telepay\FinancialApiBundle\DependencyInjection\Telepay\Commons\UploadManager
 class UploadController extends RestApiController{
 
     public function uploadFile(Request $request){
-        $fileManager = $this->get('file_manager');
-
         if(!$request->files->has('file'))
             throw new HttpException(400, "'file' parameter required to be a file");
 
         $file = $request->files->get('file');
-        if(!$file->isValid()) throw new HttpException(400, "Invalid file");
 
-        $mimeType = $file->getMimeType();
-        if(!in_array($mimeType, UploadManager::$ALLOWED_MIMETYPES))
-            throw new HttpException(400, "Bad mime type, '" . $mimeType . "' is not a valid file");
-
-        $hash = $fileManager->getHash();
-        $ext = $file->guessExtension();
-        $fileName = $hash . '.tmp.' . $ext;
-        $file->move($fileManager->getUploadsDir(), $fileName);
-
+        $fileData = $this->file_uploader($file);
         return $this->rest(
             201,
             "Temporal file uploaded",
             [
-                'src' => $fileManager->getFilesPath() . '/' . $fileName,
-                'type' => $mimeType,
+                'src' => $fileData['path'] . '/' . $fileData['name'],
+                'type' => $fileData['mime'],
                 'expires_in' => 600
             ]
         );
@@ -83,4 +73,21 @@ class UploadController extends RestApiController{
             ]
         );
     }
+    public function file_uploader($file){
+
+        if(!$file->isValid()) throw new HttpException(400, "Invalid file");
+
+        $mimeType = $file->getMimeType();
+        if(!in_array($mimeType, UploadManager::$ALLOWED_MIMETYPES))
+            throw new HttpException(400, "Bad mime type, '" . $mimeType . "' is not a valid file");
+
+
+        $fileManager = $this->get('file_manager');
+        $hash = $fileManager->getHash();
+        $ext = $file->guessExtension();
+        $fileName = $hash . '.tmp.' . $ext;
+        $file->move($fileManager->getUploadsDir(), $fileName);
+
+        return  ['path'=>$fileManager->getFilesPath(), 'name'=>$fileName, 'mime'=>$mimeType];
+}
 }
