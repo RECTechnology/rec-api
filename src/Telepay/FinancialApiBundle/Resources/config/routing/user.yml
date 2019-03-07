@@ -39,6 +39,12 @@ user_wallet:
     requirements:
         _method: GET
 
+commerce_list_exchangers_old:
+    pattern:  /user/v1/wallet/listCommerce
+    defaults: { _controller: Telepay\FinancialApiBundle\Controller\Management\User\WalletController::listCommerce }
+    requirements:
+        _method: GET
+
 commerce_list_exchangers:
     pattern:  /user/v1/wallet/exchangers
     defaults: { _controller: Telepay\FinancialApiBundle\Controller\Management\User\WalletController::listCommerce }

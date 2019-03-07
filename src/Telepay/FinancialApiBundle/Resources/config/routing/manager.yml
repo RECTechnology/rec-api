@@ -7,10 +7,15 @@ admin_users_index:
     requirements:
         _method: GET
 
-
 admin_users_index_v2:
     pattern:  /manager/v2/users
     defaults: { _controller: Telepay\FinancialApiBundle\Controller\Management\Manager\UsersController::indexV2Action, _format: ~ }
+    requirements:
+        _method: GET
+
+admin_users_index_by_group_old:
+    pattern:  /users/v1/usersbygroup/{id}
+    defaults: { _controller: Telepay\FinancialApiBundle\Controller\Management\Manager\UsersController::indexByGroup, _format: ~ }
     requirements:
         _method: GET
 
@@ -19,7 +24,6 @@ manager_users_index_by_group:
     defaults: { _controller: Telepay\FinancialApiBundle\Controller\Management\Manager\UsersController::indexByGroup, _format: ~ }
     requirements:
         _method: GET
-
 
 manager_users_index_by_group_v2:
     pattern:  /manager/v2/usersbygroup/{id}
