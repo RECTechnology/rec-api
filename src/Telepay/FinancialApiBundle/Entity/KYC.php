@@ -184,18 +184,6 @@ class KYC {
     private $nationality = "ESP";
 
     /**
-     * @ORM\Column(type="string", nullable = true)
-     * @Expose
-     */
-    private $tier_2_file;
-
-    /**
-     * @ORM\Column(type="string", nullable=true)
-     * @Expose
-     */
-    private $tier_2_file_description;
-
-    /**
      * @ORM\Column(type="string", nullable=true)
      * @Expose
      */
@@ -642,38 +630,6 @@ class KYC {
     public function setGender($gender)
     {
         $this->gender = $gender;
-    }
-
-    /**
-     * @return mixed
-     */
-    public function getTier2File()
-    {
-        return $this->tier_2_file;
-    }
-
-    /**
-     * @param mixed $tier_2_file
-     */
-    public function setTier2File($tier_2_file)
-    {
-        $this->tier_2_file = $tier_2_file;
-    }
-
-    /**
-     * @return mixed
-     */
-    public function getTier2FileDescription()
-    {
-        return $this->tier_2_file_description;
-    }
-
-    /**
-     * @param mixed $tier_2_file_description
-     */
-    public function setTier2FileDescription($tier_2_file_description)
-    {
-        $this->tier_2_file_description = $tier_2_file_description;
     }
 
     /**

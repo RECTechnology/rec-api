@@ -1,10 +1,4 @@
 <?php
-/**
- * Created by PhpStorm.
- * User: lluis
- * Date: 2/13/15
- * Time: 6:50 PM
- */
 
 namespace Telepay\FinancialApiBundle\Entity;
 
@@ -13,6 +7,7 @@ use JMS\Serializer\Annotation\Expose;
 use JMS\Serializer\Annotation\Exclude;
 
 use Doctrine\ORM\Mapping as ORM;
+use Symfony\Component\Config\Definition\Exception\Exception;
 
 
 /**
@@ -32,6 +27,10 @@ class UserFiles{
      * @Expose
      */
     protected $id;
+
+    protected $list_tags = array(
+        "banco", "autonomo", "cif", "censo", "titularidad","pasaporte"
+    );
 
     /**
      * @ORM\Column(type="datetime")
@@ -60,13 +59,28 @@ class UserFiles{
      * @ORM\Column(type="string")
      * @Expose
      */
-    private $description;
+    private $tag;
+
+    /**
+     * @ORM\Column(type="string")
+     * @Expose
+     */
+    private $description = "";
 
     /**
      * @ORM\Column(type="string")
      * @Expose
      */
     private $status;
+
+    /**
+     * Check the tag inserted
+     *
+     * @return bool
+     */
+    public function checkTag($tag){
+        return in_array($tag, $this->list_tags);
+    }
 
     /**
      * Returns the user unique id.
@@ -174,4 +188,22 @@ class UserFiles{
         $this->status = $status;
     }
 
+    /**
+     * @return mixed
+     */
+    public function getTag(){
+        return $this->tag;
+    }
+
+    /**
+     * @param mixed $tag
+     */
+    public function setTag($tag){
+        if($this->checkTag($tag)) {
+            $this->tag = $tag;
+        }
+        else{
+            throw new Exception('Tag is not valid');
+        }
+    }
 }
