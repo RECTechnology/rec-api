@@ -15,7 +15,6 @@ class UploadManager {
     private $container;
 
     public static $ALLOWED_MIMETYPES = array('image/png', 'image/jpeg', 'application/pdf');
-//    const ALLOWED_MIMETYPES = array('image/png', 'image/jpeg', 'application/pdf');
 
     /**
      * FileUtils constructor.

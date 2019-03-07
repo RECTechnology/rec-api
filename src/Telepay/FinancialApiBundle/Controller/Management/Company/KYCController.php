@@ -1,12 +1,5 @@
 <?php
 
-/**
- * Created by PhpStorm.
- * User: lluis
- * Date: 8/19/14
- * Time: 6:33 PM
- */
-
 namespace Telepay\FinancialApiBundle\Controller\Management\Company;
 
 use Symfony\Component\HttpFoundation\File\File;
@@ -28,15 +21,14 @@ class KYCController extends BaseApiController{
     public function getNewEntity(){
         new KYC();
     }
+
     /**
      * @Rest\View
      */
     public function uploadFile(Request $request){
-
         $paramNames = array(
             'url',
-            'description',
-            'tier'
+            'tag'
         );
 
         $params = array();
@@ -61,8 +53,9 @@ class KYCController extends BaseApiController{
         file_put_contents($fileManager->getUploadsDir() . '/' . $filename, $fileContents);
 
         $tmpFile = new File($fileManager->getUploadsDir() . '/' . $filename);
-        if (!in_array($tmpFile->getMimeType(), UploadManager::$ALLOWED_MIMETYPES))
+        if (!in_array($tmpFile->getMimeType(), UploadManager::$ALLOWED_MIMETYPES)) {
             throw new HttpException(400, "Bad file type");
+        }
 
         $em = $this->getDoctrine()->getManager();
         $tier = $em->getRepository('TelepayFinancialApiBundle:TierValidations')->findOneBy(array(
@@ -86,34 +79,16 @@ class KYCController extends BaseApiController{
         }
 
         //get tier
-        if($params['tier'] == 1){
-            $file = new UserFiles();
-            $file->setUrl($fileManager->getFilesPath().'/'.$filename);
-            $file->setStatus('pending');
-            $file->setUser($company->getKycManager());
-            $file->setDescription($params['description']);
-            $file->setExtension($ext);
-
-            $em->persist($file);
-            $em->flush();
-        }elseif($params['tier'] == 2){
-
-            $file = new UserFiles();
-            $file->setUrl($fileManager->getFilesPath().'/'.$filename);
-            $file->setStatus('pending');
-            $file->setUser($company->getKycManager());
-            $file->setDescription($params['description']);
-            $file->setExtension($ext);
-
-            $em->persist($file);
-            $em->flush();
-
-        }else{
-            throw new HttpException(404, 'Bad value for tier');
-        }
+        $file = new UserFiles();
+        $file->setUrl($fileManager->getFilesPath().'/'.$filename);
+        $file->setStatus('pending');
+        $file->setUser($company->getKycManager());
+        $file->setExtension($ext);
+        $file->setTag($params['tag']);
+        $em->persist($file);
+        $em->flush();
 
         return $this->rest(204, 'Tier updated successfully');
-
     }
 
     /**

@@ -34,6 +34,12 @@ class TierValidations
     private $user;
 
     /**
+     * @ORM\Column(type="int")
+     * @Expose
+     */
+    private $tier;
+
+    /**
      * @ORM\Column(type="boolean" ,nullable=true)
      * @Expose
      */
@@ -101,5 +107,20 @@ class TierValidations
         $this->phone = $phone;
     }
 
+    /**
+     * @return mixed
+     */
+    public function getTier()
+    {
+        return $this->tier;
+    }
+
+    /**
+     * @param mixed $tier
+     */
+    public function setTier($tier)
+    {
+        $this->tier = $tier;
+    }
 
 }
