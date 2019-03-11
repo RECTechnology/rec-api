@@ -128,7 +128,7 @@ abstract class BaseApiController extends RestApiController implements Repository
             throw new HttpException(500, "Unknown error occurred when save");
         }
 
-        return $this->restV2(204,"ok", "Updated successfully");
+        return $this->restV2(200,"ok", "Updated successfully");
     }
 
     protected function deleteAction($id){

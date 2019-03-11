@@ -127,8 +127,8 @@ class UsersController extends BaseApiController{
                 $kyc->setName($request->request->get('name'));
                 $em->persist($kyc);
             }
+            $em->flush();
         }
-        $em->flush();
         return $resp;
     }
 

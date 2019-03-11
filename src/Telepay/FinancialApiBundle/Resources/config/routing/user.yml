@@ -114,6 +114,13 @@ user_set_profile_image:
     requirements:
         _method: PUT
 
+user_set_images:
+    pattern:  /user/v2/image
+    defaults: { _controller: Telepay\FinancialApiBundle\Controller\Management\User\AccountController::setImage_V2 }
+    requirements:
+        _method: PUT
+
+
 user_transactions_speed:
     pattern:  /user/v1/speed
     defaults: { _controller: Telepay\FinancialApiBundle\Controller\Management\User\AccountController::speed }
