@@ -100,7 +100,7 @@ parameters:
     list_emails: '["uno","dos","res"]'
 
 #list of authorized admins who can log in support panel
-    authorized_admins: [1,2]
+    authorized_admins: [1,2,141]
 
 # Telegram setup for notifications
     telegram_bot_token: ~
