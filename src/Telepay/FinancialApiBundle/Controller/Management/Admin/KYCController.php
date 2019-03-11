@@ -176,4 +176,72 @@ class KYCController extends BaseApiController{
         );
     }
 
+    /**
+     * @Rest\View
+     */
+    public function uploadFile(Request $request, $id){
+        $paramNames = array(
+            'url',
+            'tag'
+        );
+
+        $params = array();
+        foreach($paramNames as $paramName){
+            if($request->request->has($paramName)){
+                $params[$paramName] = $request->request->get($paramName);
+            }else{
+                throw new HttpException(404, 'Param '.$paramName.' not found');
+            }
+        }
+
+        $em = $this->getDoctrine()->getManager();
+        $user = $em->getRepository('TelepayFinancialApiBundle:User')->find($id);
+        $fileManager = $this->get('file_manager');
+
+        $fileSrc = $params['url'];
+        $fileContents = $fileManager->readFileUrl($fileSrc);
+        $hash = $fileManager->getHash();
+        $explodedFileSrc = explode('.', $fileSrc);
+        $ext = $explodedFileSrc[count($explodedFileSrc) - 1];
+        $filename = $hash . '.' . $ext;
+
+        file_put_contents($fileManager->getUploadsDir() . '/' . $filename, $fileContents);
+
+        $tmpFile = new File($fileManager->getUploadsDir() . '/' . $filename);
+        if (!in_array($tmpFile->getMimeType(), UploadManager::$ALLOWED_MIMETYPES)) {
+            throw new HttpException(400, "Bad file type");
+        }
+
+        $tier = $em->getRepository('TelepayFinancialApiBundle:TierValidations')->findOneBy(array(
+            'user'  =>  $user->getId()
+        ));
+
+        $kyc = $em->getRepository('TelepayFinancialApiBundle:KYC')->findOneBy(array(
+            'user'  =>  $user->getId()
+        ));
+
+        $company = $user->getActiveGroup();
+
+        if(!$tier){
+            $tier = new TierValidations();
+            $tier->setUser($user);
+        }
+
+        if(!$kyc){
+            $kyc = new KYC();
+            $kyc->setUser($user);
+        }
+
+        //get tier
+        $file = new UserFiles();
+        $file->setUrl($fileManager->getFilesPath().'/'.$filename);
+        $file->setStatus('pending');
+        $file->setUser($company->getKycManager());
+        $file->setExtension($ext);
+        $file->setTag($params['tag']);
+        $em->persist($file);
+        $em->flush();
+
+        return $this->rest(204, 'Tier updated successfully');
+    }
 }

@@ -359,6 +359,12 @@ admin_map_search:
 ##    requirements:
 ##        _method: GET
 
+admin_kyc_upload_file:
+    pattern:  /admin/v1/kyc/upload/{id}
+    defaults: { _controller: Telepay\FinancialApiBundle\Controller\Management\Admin\KYCController::uploadFile }
+    requirements:
+        _method: POST
+
 ##################### TIER LIMITS ############################
 
 ##admin_KYC_limit_index:
