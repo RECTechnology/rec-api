@@ -34,7 +34,7 @@ class TierValidations
     private $user;
 
     /**
-     * @ORM\Column(type="int")
+     * @ORM\Column(type="integer")
      * @Expose
      */
     private $tier;
