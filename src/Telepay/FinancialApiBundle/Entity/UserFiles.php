@@ -29,7 +29,7 @@ class UserFiles{
     protected $id;
 
     protected $list_tags = array(
-        "banco", "autonomo", "cif", "censo", "titularidad","pasaporte"
+        "banco", "autonomo", "cif", "censo", "titularidad","pasaporte","modelo03x","modelo200","otroDNI_front","otroDNI_rear"
     );
 
     /**
