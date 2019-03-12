@@ -91,7 +91,7 @@ class KYC {
      * @ORM\Column(type="string", nullable=true)
      * @Expose
      */
-    private $document_front_status;
+    private $document_front_status='pending';
 
     /**
      * @ORM\Column(type="string", nullable=true)
@@ -103,7 +103,7 @@ class KYC {
      * @ORM\Column(type="string", nullable=true)
      * @Expose
      */
-    private $document_rear_status;
+    private $document_rear_status='pending';
 
     /**
      * @ORM\Column(type="boolean")
