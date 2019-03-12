@@ -253,13 +253,13 @@ class KYCController extends BaseApiController{
         $company=$em->getRepository('TelepayFinancialApiBundle:Group')->findOneBy(array(
             'id' => $id
         ));
+
         $individual = false;
         $enterprise = false;
-
         if($request->request->has('independent') && $request->request->get('independent')=='1') {
             $individual = true;
         }
-        elseif ($request->request->has('company') && $request->request->get('company')=='1'){
+        elseif($request->request->has('company') && $request->request->get('company')=='1'){
             $enterprise = true;
         }
         else{
@@ -339,7 +339,7 @@ class KYCController extends BaseApiController{
             $moneyProvider = $this->getContainer()->get($providerName);
             $new_account = array();
             if($individual){
-                $new_account = $moneyProvider->RegisterWalletIndividual($user->getDNI(), $email, $name, $lastName, $date_birth, $nationality, $gender, $address, $zip, $city, $country);
+                $new_account = $moneyProvider->RegisterWalletIndividual($company->getCIF(), $email, $name, $lastName, $date_birth, $nationality, $gender, $address, $zip, $city, $country);
             }
             elseif($enterprise) {
                 $new_account = $moneyProvider->RegisterWalletCompany($company->getCIF(), $email, $company_name, $company_web, $description, $name, $lastName, $date_birth, $nationality, $gender, $address, $zip, $city, $country);
@@ -362,10 +362,105 @@ class KYCController extends BaseApiController{
         }
     }
 
-    public function createLemonDocumentationAction(Request $request, $id){
-        if($request->request->has('create') && $request->request->get('create')=='1'){
-            $providerName = 'net.telepay.in.lemonway.v1';
-            $moneyProvider = $this->getContainer()->get($providerName);
+    public function uploadLemonDocumentationAction(Request $request, $id){
+        $em = $this->getDoctrine()->getManager();
+        $providerName = 'net.telepay.in.lemonway.v1';
+        $moneyProvider = $this->getContainer()->get($providerName);
+        $uploads_dir = $this->container->getParameter('uploads_dir');
+
+        $upload = false;
+        if($request->request->has('upload') && $request->request->get('upload')=='1'){
+            $upload = true;
+        }
+
+        $company=$em->getRepository('TelepayFinancialApiBundle:Group')->findOneBy(array(
+            'id' => $id
+        ));
+        $lemon_username = $company->getCIF();
+
+        $individual = false;
+        $enterprise = false;
+        if($request->request->has('independent') && $request->request->get('independent')=='1') {
+            $individual = true;
+        }
+        elseif($request->request->has('company') && $request->request->get('company')=='1'){
+            $enterprise = true;
+        }
+        else{
+            throw new HttpException(400, "Account type must be defined");
+        }
+
+        if(!($individual xor $enterprise)){
+            throw new HttpException(400, "Only one account type must be defined");
+        }
+
+        $user=$em->getRepository('TelepayFinancialApiBundle:User')->findOneBy(array(
+            'id' => $company->getKycManager()
+        ));
+
+        $KYC=$em->getRepository('TelepayFinancialApiBundle:KYC')->findOneBy(array(
+            'user' => $user->getId()
+        ));
+
+        $doc_front_status = $KYC->getDocumentFrontStatus();
+        if($doc_front_status!='upload'){
+            $doc_front = $KYC->getDocumentFront();
+            if($doc_front ==''){
+                throw new HttpException(400, "Document front not upload");
+            }
+            if($upload) {
+                $type = 0;
+                $file_name = $KYC->getDocumentFront();
+                $datos = explode("/", $file_name);
+                $file = $datos[3];
+                $details = explode(".", $file);
+                $lemon_filename = "id_front." . $details[1];
+                $buffer = base64_encode(file_get_contents($uploads_dir . $file, true));
+                $up_file = $moneyProvider->UploadFile($lemon_username, $lemon_filename, $type, $buffer);
+                if($up_file['']['']){
+                    $KYC->setDocumentFrontStatus('upload');
+                    $em->persist($KYC);
+                    $em->flush();
+                }
+                else{
+                    throw new HttpException(400, "Error uploading document front file");
+                }
+            }
+        }
+
+        $doc_rear_status = $KYC->getDocumentRearStatus();
+        if($doc_rear_status!='upload'){
+            $doc_rear = $KYC->getDocumentRear();
+            if($doc_rear ==''){
+                throw new HttpException(400, "Document rear not upload");
+            }
+            if($upload) {
+                $type = 1;
+                $file_name = $KYC->getDocumentRear();
+                $datos = explode("/", $file_name);
+                $file = $datos[3];
+                $details = explode(".", $file);
+                $lemon_filename = "id_back." . $details[1];
+                $buffer = base64_encode(file_get_contents($uploads_dir . $file, true));
+                $up_file = $moneyProvider->UploadFile($lemon_username, $lemon_filename, $type, $buffer);
+                if($up_file['']['']){
+                    $KYC->setDocumentRearStatus('upload');
+                    $em->persist($KYC);
+                    $em->flush();
+                }
+                else{
+                    throw new HttpException(400, "Error uploading document rear file");
+                }
+            }
+        }
+
+        $file=$em->getRepository('TelepayFinancialApiBundle:UserFiles')->findOneBy(array(
+            'user' => $user->getId(),
+            'tag' => 'banco'
+        ));
+
+        if($upload){
+            return $this->rest(204, 'All data upload properly');
         }
         else{
             return $this->rest(204, 'All data checked properly');
