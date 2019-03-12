@@ -91,7 +91,19 @@ class KYC {
      * @ORM\Column(type="string", nullable=true)
      * @Expose
      */
+    private $document_front_status;
+
+    /**
+     * @ORM\Column(type="string", nullable=true)
+     * @Expose
+     */
     private $document_rear;
+
+    /**
+     * @ORM\Column(type="string", nullable=true)
+     * @Expose
+     */
+    private $document_rear_status;
 
     /**
      * @ORM\Column(type="boolean")
@@ -373,6 +385,22 @@ class KYC {
     public function setDocumentFront($document_front)
     {
         $this->document_front = $document_front;
+    }
+
+    /**
+     * @return mixed
+     */
+    public function getDocumentFrontStatus()
+    {
+        return $this->document_front_status;
+    }
+
+    /**
+     * @param mixed $document_front_status
+     */
+    public function setDocumentFrontStatus($document_front_status)
+    {
+        $this->document_front_status = $document_front_status;
     }
 
     /**
@@ -712,5 +740,20 @@ class KYC {
         $this->document_rear = $document_rear;
     }
 
+    /**
+     * @return mixed
+     */
+    public function getDocumentRearStatus()
+    {
+        return $this->document_rear_status;
+    }
+
+    /**
+     * @param mixed $document_rear_status
+     */
+    public function setDocumentRearStatus($document_rear_status)
+    {
+        $this->document_rear_status = $document_rear_status;
+    }
 
 }

@@ -190,10 +190,12 @@ class AccountController extends BaseApiController{
 
                 if ($paramName == 'document_front') {
                     $kyc->setDocumentFront($fileManager->getFilesPath().'/'. $filename);
+                    $kyc->setDocumentFrontStatus('pending');
                 }
 
                 if ($paramName == 'document_rear') {
                     $kyc->setDocumentRear($fileManager->getFilesPath().'/'. $filename);
+                    $kyc->setDocumentRearStatus('pending');
                 }
 
 
@@ -952,6 +954,7 @@ class AccountController extends BaseApiController{
             if (!in_array($tmpFile->getMimeType(), UploadManager::$ALLOWED_MIMETYPES))
                 throw new HttpException(400, "Bad file type: => " . $tmpFile->getMimeType());
             $kyc->setDocumentFront($fileManager->getFilesPath().'/'.$filename);
+            $kyc->setDocumentFrontStatus('pending');
             $em->persist($kyc);
         }
 
@@ -968,6 +971,7 @@ class AccountController extends BaseApiController{
             if (!in_array($tmpFile->getMimeType(), UploadManager::$ALLOWED_MIMETYPES))
                 throw new HttpException(400, "Bad file type");
             $kyc->setDocumentRear($fileManager->getFilesPath().'/'.$filename);
+            $kyc->setDocumentRearStatus('pending');
             $em->persist($kyc);
         }
 
