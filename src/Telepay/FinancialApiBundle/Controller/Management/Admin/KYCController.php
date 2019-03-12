@@ -334,12 +334,25 @@ class KYCController extends BaseApiController{
         if($request->request->has('create') && $request->request->get('create')=='1'){
             $providerName = 'net.telepay.in.lemonway.v1';
             $moneyProvider = $this->getContainer()->get($providerName);
-            if($enterprise) {
-                $new_account = $moneyProvider->RegisterWalletCompany($company->getCIF(), $email, $company_name, $company_web, $description, $name, $lastName, $date_birth, $nationality, $gender, $address, $zip, $city, $country);
-            }
+            $new_account = array();
             if($individual){
                 $new_account = $moneyProvider->RegisterWalletIndividual($user->getDNI(), $email, $name, $lastName, $date_birth, $nationality, $gender, $address, $zip, $city, $country);
             }
+            elseif($enterprise) {
+                $new_account = $moneyProvider->RegisterWalletCompany($company->getCIF(), $email, $company_name, $company_web, $description, $name, $lastName, $date_birth, $nationality, $gender, $address, $zip, $city, $country);
+            }
+
+            if(!is_object($new_account) && isset($new_account['REGISTERWALLET']) && isset($new_account['REGISTERWALLET']['STATUS']) && $new_account['REGISTERWALLET']['STATUS'] == '-1'){
+                $logger = $this->get('manager.logger');
+                $logger->info('Lemon error: '. $new_account['REGISTERWALLET']['MESSAGE']);
+                throw new HttpException(400, "Error creating the account");
+            }
+
+            $lemon_id = $new_account->WALLET->LWID;
+            $company->setLemonId($lemon_id);
+            $em->persist($company);
+            $em->flush();
+            return $this->rest(204, 'Account created properly');
         }
         else{
             return $this->rest(204, 'All data checked properly');
