@@ -365,6 +365,13 @@ admin_kyc_upload_file:
     requirements:
         _method: POST
 
+admin_kyc_lemon_create_account:
+    pattern:  /admin/v1/kyc/lemon/{id}
+    defaults: { _controller: Telepay\FinancialApiBundle\Controller\Management\Admin\KYCController::createLemonAccountAction }
+    requirements:
+        _method: POST
+
+
 ##################### TIER LIMITS ############################
 
 ##admin_KYC_limit_index:

@@ -244,4 +244,116 @@ class KYCController extends BaseApiController{
 
         return $this->rest(204, 'Tier updated successfully');
     }
+
+    /**
+     * @Rest\View
+     */
+    public function createLemonAccountAction(Request $request, $id){
+        $em = $this->getDoctrine()->getManager();
+        $company=$em->getRepository('TelepayFinancialApiBundle:Group')->findOneBy(array(
+            'id' => $id
+        ));
+        $individual = false;
+        $enterprise = false;
+
+        if($request->request->has('independent') && $request->request->get('independent')=='1') {
+            $individual = true;
+        }
+        elseif ($request->request->has('company') && $request->request->get('company')=='1'){
+            $enterprise = true;
+        }
+        else{
+            throw new HttpException(400, "Account type must be defined");
+        }
+
+        if(!($individual xor $enterprise)){
+            throw new HttpException(400, "Only one account type must be defined");
+        }
+
+        $user=$em->getRepository('TelepayFinancialApiBundle:User')->findOneBy(array(
+            'id' => $company->getKycManager()
+        ));
+
+        $KYC=$em->getRepository('TelepayFinancialApiBundle:KYC')->findOneBy(array(
+            'user' => $user->getId()
+        ));
+
+        $email = $user->getEmail();
+        if($email == ''){
+            throw new HttpException(400, "User email is empty");
+        }
+        if($enterprise) {
+            $company_name = $company->getName();
+            if ($company_name == '') {
+                throw new HttpException(400, "Company name is empty");
+            }
+        }
+        if($enterprise) {
+            $company_web = 'rec.barcelona';
+            $description = $company->getDescription();
+            if($description == ''){
+                throw new HttpException(400, "Company description is empty");
+            }
+        }
+        $name = $KYC->getName();
+        if($name == ''){
+            throw new HttpException(400, "User name is empty");
+        }
+        $lastName = $KYC->getLastName();
+        if($lastName == ''){
+            throw new HttpException(400, "User lastname is empty");
+        }
+        $date_birth = $KYC->getDateBirth();
+        if($date_birth == ''){
+            throw new HttpException(400, "User birthdate is empty");
+        }
+        $nationality = $KYC->getNationality();
+        if($nationality == ''){
+            throw new HttpException(400, "User nationality is empty");
+        }
+        $gender = $KYC->getGender();
+        if($gender == ''){
+            throw new HttpException(400, "User gender is empty");
+        }
+        $address = $company->getStreetType() . " " . $company->getStreet() . " " . $company->getAddressNumber();
+        if(str_replace(' ', '', $address) == ''){
+            throw new HttpException(400, "Account address is empty.");
+        }
+        $zip = $company->getZip();
+        if($zip == ''){
+            throw new HttpException(400, "Account zip is empty");
+        }
+        $city = $company->getCity();
+        if($city == ''){
+            throw new HttpException(400, "Account city is empty");
+        }
+        $country = $company->getCountry();
+        if($country == ''){
+            throw new HttpException(400, "Account country is empty");
+        }
+        if($request->request->has('create') && $request->request->get('create')=='1'){
+            $providerName = 'net.telepay.in.lemonway.v1';
+            $moneyProvider = $this->getContainer()->get($providerName);
+            if($enterprise) {
+                $new_account = $moneyProvider->RegisterWalletCompany($company->getCIF(), $email, $company_name, $company_web, $description, $name, $lastName, $date_birth, $nationality, $gender, $address, $zip, $city, $country);
+            }
+            if($individual){
+                $new_account = $moneyProvider->RegisterWalletIndividual($user->getDNI(), $email, $name, $lastName, $date_birth, $nationality, $gender, $address, $zip, $city, $country);
+            }
+        }
+        else{
+            return $this->rest(204, 'All data checked properly');
+        }
+    }
+
+    public function createLemonDocumentationAction(Request $request, $id){
+        if($request->request->has('create') && $request->request->get('create')=='1'){
+            $providerName = 'net.telepay.in.lemonway.v1';
+            $moneyProvider = $this->getContainer()->get($providerName);
+        }
+        else{
+            return $this->rest(204, 'All data checked properly');
+        }
+    }
+
 }

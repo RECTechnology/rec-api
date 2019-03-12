@@ -83,8 +83,8 @@ class LemonRegisterAndKYCCommand extends ContainerAwareCommand
                         exit(0);
                     }
 
-                    $nationality = $KYC->getNationality();;
-                    $gender = $KYC->getGender();;
+                    $nationality = $KYC->getNationality();
+                    $gender = $KYC->getGender();
 
                     $address = $company->getStreetType() . " " . $company->getStreet() . " " . $company->getAddressNumber();
                     if(str_replace(' ', '', $address) == ''){
@@ -126,11 +126,6 @@ class LemonRegisterAndKYCCommand extends ContainerAwareCommand
                     $company_description = $company->getDescription();
                     if($company_description == ''){
                         $output->writeln('KYC company description is empty.');
-                        exit(0);
-                    }
-                    $description = $company->getDescription();
-                    if($description == ''){
-                        $output->writeln('Company description is empty.');
                         exit(0);
                     }
                     $name = $KYC->getName();
