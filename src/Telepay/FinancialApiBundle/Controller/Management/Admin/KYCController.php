@@ -332,6 +332,9 @@ class KYCController extends BaseApiController{
             throw new HttpException(400, "Account country is empty");
         }
         if($request->request->has('create') && $request->request->get('create')=='1'){
+            if($company->getLemonId()=='' || $company->getLemonId()<1){
+                throw new HttpException(400, "Error, account already registered ");
+            }
             $providerName = 'net.telepay.in.lemonway.v1';
             $moneyProvider = $this->getContainer()->get($providerName);
             $new_account = array();
