@@ -89,6 +89,8 @@ admin_groups_update:
         id: "[0-9]+"
         name: "string"
 
+
+## The method  'GroupsController::setImage' do not exist ???
 admin_groups_set_image:
     pattern:  /manager/v1/groups/{id}/image
     defaults: { _controller: Telepay\FinancialApiBundle\Controller\Management\Manager\GroupsController::setImage, _format: ~ }
