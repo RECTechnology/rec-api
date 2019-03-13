@@ -17,6 +17,7 @@ use Symfony\Component\HttpFoundation\Request;
 use Telepay\FinancialApiBundle\Controller\BaseApiController;
 use Telepay\FinancialApiBundle\DependencyInjection\Telepay\Commons\UploadManager;
 use Telepay\FinancialApiBundle\Entity\KYC;
+use Telepay\FinancialApiBundle\Entity\TierValidations;
 
 class KYCController extends BaseApiController{
 
