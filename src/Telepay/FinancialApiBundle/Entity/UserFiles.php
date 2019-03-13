@@ -16,6 +16,22 @@ use Symfony\Component\Config\Definition\Exception\Exception;
  */
 class UserFiles{
 
+    protected $list_tags = array(
+        "banco" => 2,
+        "autonomo" => 6,
+        "cif" => 6,
+        "titularidad" => 7,
+        "modelo03x" => 7,
+        "modelo200" => 7,
+        "estatutos" => 12,
+        "pasaporte" => 14,
+        "otroDNI_front" => 15,
+        "otroDNI2_front" => 17,
+        "otroDNI_rear" => 16,
+        "otroDNI2_rear" => 18,
+        "poderes" => 19
+    );
+
     public function __construct(){
         $this->created = new \DateTime();
     }
@@ -27,10 +43,6 @@ class UserFiles{
      * @Expose
      */
     protected $id;
-
-    protected $list_tags = array(
-        "banco", "autonomo", "cif", "censo", "titularidad","pasaporte","modelo03x","modelo200","otroDNI_front","otroDNI_rear"
-    );
 
     /**
      * @ORM\Column(type="datetime")
@@ -79,7 +91,7 @@ class UserFiles{
      * @return bool
      */
     public function checkTag($tag){
-        return in_array($tag, $this->list_tags);
+        return array_key_exists($tag, $this->list_tags);
     }
 
     /**
