@@ -353,11 +353,11 @@ admin_map_search:
 ##    requirements:
 ##        _method: PUT
 
-##admin_kyc_get_uploaded_files_by_user:
-##    pattern:  /admin/v1/kyc/uploads/{id}
-##    defaults: { _controller: Telepay\FinancialApiBundle\Controller\Management\Admin\KYCController::getUploadedFiles }
-##    requirements:
-##        _method: GET
+admin_kyc_get_uploaded_files_by_user:
+    pattern:  /admin/v1/kyc/uploads/{id}
+    defaults: { _controller: Telepay\FinancialApiBundle\Controller\Management\Admin\KYCController::getUploadedFiles }
+    requirements:
+        _method: GET
 
 admin_kyc_upload_file:
     pattern:  /admin/v1/kyc/upload/{id}
