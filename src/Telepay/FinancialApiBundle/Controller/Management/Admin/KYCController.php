@@ -156,9 +156,16 @@ class KYCController extends BaseApiController{
      */
     public function getUploadedFiles($id){
         $em = $this->getDoctrine()->getManager();
-        $user = $em->getRepository('TelepayFinancialApiBundle:User')->find($id);
+        $user=$em->getRepository('TelepayFinancialApiBundle:User')->findOneBy(array(
+            'id' => $id
+        ));
+
+        if(!$user){
+            throw new HttpException(404, 'User not found');
+        }
+
         $user_files = $em->getRepository('TelepayFinancialApiBundle:UserFiles')->findBy(array(
-            'user'  =>  $user
+            'user'  =>  $user->getId()
         ));
         $kyc = $em->getRepository('TelepayFinancialApiBundle:KYC')->findOneBy(array(
             'user'  =>  $user->getId()
