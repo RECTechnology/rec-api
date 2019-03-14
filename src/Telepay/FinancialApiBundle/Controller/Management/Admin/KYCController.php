@@ -246,10 +246,12 @@ class KYCController extends BaseApiController{
         if($params['tag']==='document_front'){
             $kyc->setDocumentFront($fileManager->getFilesPath() . '/' . $filename);
             $kyc->setDocumentFrontStatus('pending');
+            $em->persist($kyc);
         }
         elseif($params['tag']==='document_rear'){
             $kyc->setDocumentRear($fileManager->getFilesPath() . '/' . $filename);
             $kyc->setDocumentRearStatus('pending');
+            $em->persist($kyc);
         }
         else{
             $file = new UserFiles();
@@ -258,8 +260,8 @@ class KYCController extends BaseApiController{
             $file->setUser($company->getKycManager());
             $file->setExtension($ext);
             $file->setTag($params['tag']);
+            $em->persist($file);
         }
-        $em->persist($file);
         $em->flush();
         return $this->rest(204, 'Tier updated successfully');
     }
