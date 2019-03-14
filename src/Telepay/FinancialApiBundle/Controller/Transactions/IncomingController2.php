@@ -1,10 +1,4 @@
 <?php
-/**
- * Created by PhpStorm.
- * User: lluis
- * Date: 2/22/15
- * Time: 8:16 PM
- */
 
 namespace Telepay\FinancialApiBundle\Controller\Transactions;
 
