@@ -346,8 +346,7 @@ class KYCController extends BaseApiController{
             if($company->getLemonId()!='' && $company->getLemonId()>0){
                 throw new HttpException(400, "Error, account already registered ");
             }
-            $providerName = 'net.telepay.in.lemonway.v1';
-            $moneyProvider = $this->getContainer()->get($providerName);
+            $moneyProvider = $this->get('net.telepay.in.lemonway.v1');
             $new_account = array();
             if($individual){
                 $new_account = $moneyProvider->RegisterWalletIndividual($company->getCIF(), $email, $name, $lastName, $date_birth, $nationality, $gender, $address, $zip, $city, $country);
