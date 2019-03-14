@@ -377,8 +377,7 @@ class KYCController extends BaseApiController{
 
     public function uploadLemonDocumentationAction(Request $request, $id){
         $em = $this->getDoctrine()->getManager();
-        $providerName = 'net.telepay.in.lemonway.v1';
-        $moneyProvider = $this->getContainer()->get($providerName);
+        $moneyProvider = $this->get('net.telepay.in.lemonway.v1');
         $uploads_dir = $this->container->getParameter('uploads_dir');
 
         $upload = false;
