@@ -642,12 +642,12 @@ class GroupsController extends BaseApiController
                     throw new HttpException(400, "Bad file type");
 
                 if($request->request->has('company_image')){
-                    $group->setCompanyImage($request->request->get('company_image'));
+                    $group->setCompanyImage($fileManager->getUploadsDir() . '/' . $filename);
                     $changes =' company_image ';
                 }
 
                 if($request->request->has('public_image')){
-                    $group->setPublicImage($request->request->get('public_image'));
+                    $group->setPublicImage($fileManager->getUploadsDir() . '/' . $filename);
                     $changes = $changes." public_image ";
                 }
 
