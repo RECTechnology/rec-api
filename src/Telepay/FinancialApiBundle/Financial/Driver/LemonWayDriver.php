@@ -79,7 +79,7 @@ class LemonWayDriver{
         $network_err = curl_errno($ch);
         if ($network_err) {
             error_log('curl_err: ' . $network_err);
-            throw new HttpException(403, 'Error ' . $network_err);
+            throw new HttpException(403, 'LemonError code: ' . $network_err);
         }
         else {
             $httpStatus = (int)curl_getinfo($ch, CURLINFO_HTTP_CODE);
