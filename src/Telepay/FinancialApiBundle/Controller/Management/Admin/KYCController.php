@@ -243,16 +243,24 @@ class KYCController extends BaseApiController{
             $kyc->setUser($user);
         }
 
-        //get tier
-        $file = new UserFiles();
-        $file->setUrl($fileManager->getFilesPath().'/'.$filename);
-        $file->setStatus('pending');
-        $file->setUser($company->getKycManager());
-        $file->setExtension($ext);
-        $file->setTag($params['tag']);
+        if($params['tag']==='document_front'){
+            $kyc->setDocumentFront($fileManager->getFilesPath() . '/' . $filename);
+            $kyc->setDocumentFrontStatus('pending');
+        }
+        elseif($params['tag']==='document_rear'){
+            $kyc->setDocumentRear($fileManager->getFilesPath() . '/' . $filename);
+            $kyc->setDocumentRearStatus('pending');
+        }
+        else{
+            $file = new UserFiles();
+            $file->setUrl($fileManager->getFilesPath() . '/' . $filename);
+            $file->setStatus('pending');
+            $file->setUser($company->getKycManager());
+            $file->setExtension($ext);
+            $file->setTag($params['tag']);
+        }
         $em->persist($file);
         $em->flush();
-
         return $this->rest(204, 'Tier updated successfully');
     }
 
