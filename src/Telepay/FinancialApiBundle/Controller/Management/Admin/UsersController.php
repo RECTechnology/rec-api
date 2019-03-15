@@ -14,6 +14,8 @@ use FOS\RestBundle\Controller\Annotations as Rest;
 use Symfony\Component\HttpFoundation\Request;
 use Telepay\FinancialApiBundle\Entity\User;
 use FOS\OAuthServerBundle\Util\Random;
+use Symfony\Component\HttpFoundation\File\File;
+use Telepay\FinancialApiBundle\DependencyInjection\Telepay\Commons\UploadManager;
 
 /**
  * Class UsersController
@@ -81,7 +83,10 @@ class UsersController extends BaseApiController{
             'public_phone',
             'password',
             'repassword',
-            'twoFactorAuthentication'
+            'twoFactorAuthentication',
+            'profile_image',
+            'document_front',
+            'document_rear'
         );
 
         $params = $request->request->all();
@@ -111,13 +116,35 @@ class UsersController extends BaseApiController{
                 throw new HttpException(400,"Missing parameter 'repassword'");
             }
         }
+        if($request->request->has('profile_image') ){
+            $fileName = $this->createImageFile('profile_image',$request);
+            $request->request->set('profile_image', $fileName);
+        }
+
+        $em = $this->getDoctrine()->getManager();
+        $kyc = $em->getRepository('TelepayFinancialApiBundle:KYC')->findOneBy(array(
+            'user' => $user
+        ));
+
+        if($request->request->has('document_front') ){
+            $fileName = $this->createImageFile('document_front',$request);
+            $request->request->remove('document_front');
+            $kyc->setDocumentFront($fileName);
+            $kyc->setDocumentFrontStatus('pending');
+            $em->persist($kyc);
+        }
+
+        if($request->request->has('document_rear') ){
+            $fileName = $this->createImageFile('document_rear',$request);
+            $request->request->remove('document_rear');
+            $kyc->setDocumentRear($fileName);
+            $kyc->setDocumentRearStatus('pending');
+            $em->persist($kyc);
+        }
 
         $resp = parent::updateAction($request, $id);
         if($resp->getStatusCode() == 204){
-            $em = $this->getDoctrine()->getManager();
-            $kyc = $em->getRepository('TelepayFinancialApiBundle:KYC')->findOneBy(array(
-                'user' => $user
-            ));
+
             if($request->request->has('email') && $request->request->get('email')!=''){
                 $kyc->setEmail($request->request->get('email'));
                 $kyc->setEmailValidated(false);
@@ -127,9 +154,36 @@ class UsersController extends BaseApiController{
                 $kyc->setName($request->request->get('name'));
                 $em->persist($kyc);
             }
+
+
+
+
+
             $em->flush();
         }
         return $resp;
+    }
+
+
+    public function createImageFile($paramName,Request $request){
+        $logger = $this->get('manager.logger');
+        $fileManager = $this->get('file_manager');
+        $params[$paramName] = $request->request->get($paramName);
+        $fileSrc = $request->request->get($paramName);
+
+        $logger->info('CHANGINC ' . $paramName . ' fileSrc = ' . $fileSrc);
+        $fileContents = $fileManager->readFileUrl($fileSrc);
+        $hash = $fileManager->getHash();
+        $explodedFileSrc = explode('.', $fileSrc);
+        $ext = $explodedFileSrc[count($explodedFileSrc) - 1];
+        $filename = $hash . '.' . $ext;
+        file_put_contents($fileManager->getUploadsDir() . '/' . $filename, $fileContents);
+        $tmpFile = new File($fileManager->getUploadsDir() . '/' . $filename);
+
+        if (!in_array($tmpFile->getMimeType(), UploadManager::$ALLOWED_MIMETYPES))
+            throw new HttpException(400, "Bad file type");
+
+        return $fileManager->getUploadsDir() . '/' . $filename;
     }
 
     /**
