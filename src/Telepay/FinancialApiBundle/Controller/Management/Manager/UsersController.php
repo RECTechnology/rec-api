@@ -76,7 +76,7 @@ class UsersController extends BaseApiController
      * @return \Symfony\Component\HttpFoundation\Response
      */
     public function indexV2Action(Request $request){
-
+        //throw new HttpException(400,   $this->container->getParameter('base_url'));
         /** @var SecurityContext $securityContext */
         $securityContext = $this->get('security.context');
 
@@ -92,6 +92,7 @@ class UsersController extends BaseApiController
                 $elem->setAccessToken(null);
                 $elem->setRefreshToken(null);
                 $elem->setAuthCode(null);
+                $elem->setProfileImage($this->container->getParameter('base_url').'/'.$elem->getProfileImage());
                 $groups = array();
                 $list_groups = $elem->getGroups();
                 foreach($list_groups as $group){
