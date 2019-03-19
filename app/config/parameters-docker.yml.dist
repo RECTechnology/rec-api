@@ -73,9 +73,9 @@ parameters:
     lemonway_admin_account: "$LEMONWAY_ADMIN_ACCOUNT"
 
     withdrawal_url: "https://$APP_API_DOMAIN/withdrawal/v1/"
-    list_emails: '["$APP_WITHDRAWAL_EMAIL_1","$APP_WITHDRAWAL_EMAIL_2","$APP_WITHDRAWAL_EMAIL_3"]'
+    list_emails: '["$WITHDRAWAL_EMAIL_1","$WITHDRAWAL_EMAIL_2","$WITHDRAWAL_EMAIL_3"]'
 
-    authorized_admins: [1,2]
+    authorized_admins: $AUTHORIZED_ADMINS_ARRAY
 
     telegram_bot_token: $TELEGRAM_BOT_TOKEN
     telegram_chat_log: $TELEGRAM_CHAT_LOG

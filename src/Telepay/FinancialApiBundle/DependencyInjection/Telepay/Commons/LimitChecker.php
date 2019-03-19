@@ -22,17 +22,17 @@ class LimitChecker {
      */
     public function leq(Limit $status, Limit $configured){
         if($configured->getSingle()<0 or $status->getSingle() <= $configured->getSingle());
-            else throw new HttpException(509,'Single Limit exceeded.');
+            else throw new HttpException(412,'Single Limit exceeded.');
         if($configured->getDay()<0 or  $status->getDay() <= $configured->getDay());
-            else throw new HttpException(509,'Day Limit exceeded.');
+            else throw new HttpException(412,'Day Limit exceeded.');
         if($configured->getWeek()<0 or $status->getWeek() <= $configured->getWeek());
-            else throw new HttpException(509,'Week Limit exceeded.');
+            else throw new HttpException(412,'Week Limit exceeded.');
         if($configured->getMonth()<0 or $status->getMonth() <= $configured->getMonth());
-            else throw new HttpException(509,'Month Limit exceeded.');
+            else throw new HttpException(412,'Month Limit exceeded.');
         if($configured->getYear()<0 or $status->getYear() <= $configured->getYear());
-            else throw new HttpException(509,'Year Limit exceeded.');
+            else throw new HttpException(412,'Year Limit exceeded.');
         if($configured->getTotal()<0 or $status->getTotal() <= $configured->getTotal());
-            else throw new HttpException(509,'Total Limit exceeded.');
+            else throw new HttpException(412,'Total Limit exceeded.');
         return true;
     }
 }
