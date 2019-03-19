@@ -3,6 +3,7 @@
 namespace Telepay\FinancialApiBundle\Entity;
 
 use Doctrine\Common\Collections\ArrayCollection;
+use Doctrine\ORM\EntityManagerInterface;
 use FOS\UserBundle\Model\Group as BaseGroup;
 use Doctrine\ORM\Mapping as ORM;
 
@@ -10,6 +11,7 @@ use JMS\Serializer\Annotation\ExclusionPolicy;
 use JMS\Serializer\Annotation\Exclude;
 use JMS\Serializer\Annotation\Expose;
 use Symfony\Component\Security\Core\Util\SecureRandom;
+use Telepay\FinancialApiBundle\DependencyInjection\Telepay\Commons\UploadManager;
 
 /**
  * @ORM\Entity
@@ -27,7 +29,7 @@ use Symfony\Component\Security\Core\Util\SecureRandom;
  *     )
  * })
  */
-class Group extends BaseGroup
+class Group extends BaseGroup implements EntityWithUploadableFields
 {
 
     public function __construct() {
@@ -1204,4 +1206,11 @@ class Group extends BaseGroup
         return $this->on_map;
     }
 
+    function getUploadableFields()
+    {
+        return [
+            'company_image' => UploadManager::$FILTER_IMAGES,
+            'public_image' => UploadManager::$FILTER_IMAGES
+        ];
+    }
 }

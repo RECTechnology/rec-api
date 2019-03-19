@@ -10,12 +10,10 @@
 namespace Telepay\FinancialApiBundle\Controller\Management\Admin;
 
 use FOS\OAuthServerBundle\Propel\RefreshTokenQuery;
-use Symfony\Component\HttpFoundation\File\File;
 use Symfony\Component\HttpKernel\Exception\HttpException;
 use FOS\RestBundle\Controller\Annotations as Rest;
 use Symfony\Component\HttpFoundation\Request;
 use Telepay\FinancialApiBundle\Controller\BaseApiController;
-use Telepay\FinancialApiBundle\DependencyInjection\Telepay\Commons\UploadManager;
 use Telepay\FinancialApiBundle\Entity\KYC;
 use Telepay\FinancialApiBundle\Entity\TierValidations;
 use Telepay\FinancialApiBundle\Entity\UserFiles;
@@ -195,9 +193,7 @@ class KYCController extends BaseApiController{
 
         $params = array();
         foreach($paramNames as $paramName){
-            if($request->request->has($paramName)){
-                $params[$paramName] = $request->request->get($paramName);
-            }else{
+            if(!$request->request->has($paramName)){
                 throw new HttpException(404, 'Param '.$paramName.' not found');
             }
         }
@@ -206,21 +202,6 @@ class KYCController extends BaseApiController{
         $user = $em->getRepository('TelepayFinancialApiBundle:User')->find($id);
         if(!$user){
             throw new HttpException(404, 'User not found');
-        }
-
-        $fileManager = $this->get('file_manager');
-        $fileSrc = $params['url'];
-        $fileContents = $fileManager->readFileUrl($fileSrc);
-        $hash = $fileManager->getHash();
-        $explodedFileSrc = explode('.', $fileSrc);
-        $ext = $explodedFileSrc[count($explodedFileSrc) - 1];
-        $filename = $hash . '.' . $ext;
-
-        file_put_contents($fileManager->getUploadsDir() . '/' . $filename, $fileContents);
-
-        $tmpFile = new File($fileManager->getUploadsDir() . '/' . $filename);
-        if (!in_array($tmpFile->getMimeType(), UploadManager::$FILTER_DOCUMENTS)) {
-            throw new HttpException(400, "Bad file type");
         }
 
         $tier = $em->getRepository('TelepayFinancialApiBundle:TierValidations')->findOneBy(array(
@@ -244,26 +225,27 @@ class KYCController extends BaseApiController{
         }
 
         if($params['tag']==='document_front'){
-            $kyc->setDocumentFront($fileManager->getFilesPath() . '/' . $filename);
+            $kyc->setDocumentFront($request->request->get('url'));
             $kyc->setDocumentFrontStatus('pending');
             $em->persist($kyc);
         }
         elseif($params['tag']==='document_rear'){
-            $kyc->setDocumentRear($fileManager->getFilesPath() . '/' . $filename);
+            $kyc->setDocumentRear($request->request->get('url'));
             $kyc->setDocumentRearStatus('pending');
             $em->persist($kyc);
         }
         else{
             $file = new UserFiles();
-            $file->setUrl($fileManager->getFilesPath() . '/' . $filename);
+            $file->setUrl($request->request->get('url'));
             $file->setStatus('pending');
             $file->setUser($company->getKycManager());
-            $file->setExtension($ext);
+            $exploded = explode('.', $request->request->get('url'));
+            $file->setExtension($exploded[count($exploded) - 1]);
             $file->setTag($params['tag']);
             $em->persist($file);
         }
         $em->flush();
-        return $this->rest(204, 'Tier updated successfully');
+        return $this->rest(200, 'Tier updated successfully');
     }
 
     /**

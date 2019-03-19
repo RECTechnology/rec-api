@@ -6,13 +6,14 @@ use Doctrine\ORM\Mapping as ORM;
 
 use JMS\Serializer\Annotation\ExclusionPolicy;
 use JMS\Serializer\Annotation\Expose;
+use Telepay\FinancialApiBundle\DependencyInjection\Telepay\Commons\UploadManager;
 
 /**
  * @ORM\Entity
  * @ORM\Table(name="KYC")
  * @ExclusionPolicy("all")
  */
-class KYC {
+class KYC implements EntityWithUploadableFields {
 
     /**
      * @ORM\Id
@@ -756,4 +757,11 @@ class KYC {
         $this->document_rear_status = $document_rear_status;
     }
 
+    function getUploadableFields()
+    {
+        return [
+            'document_front' => UploadManager::$FILTER_DOCUMENTS,
+            'document_rear' => UploadManager::$FILTER_DOCUMENTS,
+        ];
+    }
 }

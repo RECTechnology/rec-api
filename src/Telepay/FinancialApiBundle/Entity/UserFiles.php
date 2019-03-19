@@ -8,13 +8,14 @@ use JMS\Serializer\Annotation\Exclude;
 
 use Doctrine\ORM\Mapping as ORM;
 use Symfony\Component\Config\Definition\Exception\Exception;
+use Telepay\FinancialApiBundle\DependencyInjection\Telepay\Commons\UploadManager;
 
 
 /**
  * @ORM\Entity
  * @ExclusionPolicy("all")
  */
-class UserFiles{
+class UserFiles implements EntityWithUploadableFields {
 
     protected $list_tags = array(
         "banco" => 2,
@@ -217,5 +218,10 @@ class UserFiles{
         else{
             throw new Exception('Tag is not valid');
         }
+    }
+
+    function getUploadableFields()
+    {
+        return ['url' => UploadManager::$FILTER_DOCUMENTS];
     }
 }

@@ -3,9 +3,7 @@
 namespace Telepay\FinancialApiBundle\Controller\Management\User;
 
 use Doctrine\DBAL\DBALException;
-use Symfony\Component\HttpFoundation\File\File;
 use Symfony\Component\Security\Core\Util\SecureRandom;
-use Telepay\FinancialApiBundle\DependencyInjection\Telepay\Commons\UploadManager;
 use Telepay\FinancialApiBundle\Entity\CashInTokens;
 use Telepay\FinancialApiBundle\Entity\Group;
 use Telepay\FinancialApiBundle\Entity\KYC;
@@ -94,110 +92,6 @@ class AccountController extends BaseApiController{
 
         return parent::updateAction($request, $id);
     }
-
-    /**
-     * @Rest\View
-     * @param Request $request
-     * @return \Symfony\Component\HttpFoundation\Response
-     */
-    public function setImage(Request $request){
-
-        $logger = $this->get('manager.logger');
-        $paramNames = array(
-            'profile_image'
-        );
-
-        $params = array();
-        foreach($paramNames as $paramName){
-            if($request->request->has($paramName)){
-                $params[$paramName] = $request->request->get($paramName);
-            }else{
-                throw new HttpException(404, 'Param '.$paramName.' not found');
-            }
-        }
-
-        $user = $this->getUser();
-        $fileManager = $this->get('file_manager');
-
-        $fileSrc = $params['profile_image'];
-        $logger->info('CHANGING IMAGE '.$user->getUsername());
-        $logger->info('CHANGING IMAGE fileSrc = '.$fileSrc);
-        $fileContents = $fileManager->readFileUrl($fileSrc);
-
-        $filename = $fileManager->saveFile($fileContents, UploadManager::$FILTER_IMAGES);
-
-        $user->setProfileImage($filename);
-        $em = $this->getDoctrine()->getManager();
-        $logger->info('CHANGING IMAGE saved url = ' . $filename);
-        $em->flush();
-
-        return $this->rest(200, 'Profile image updated successfully');
-    }
-
-    /**
-     * @Rest\View
-     */
-    public function setImage_V2(Request $request){
-        $logger = $this->get('manager.logger');
-        $paramNames = array(
-            'profile_image',
-            'document_front',
-            'document_rear'
-        );
-
-        $changes='';
-        $fileManager = $this->get('file_manager');
-
-
-        $user = $this->getUser();
-        $em = $this->getDoctrine()->getManager();
-        $kyc = $em->getRepository('TelepayFinancialApiBundle:KYC')->findOneBy(array(
-            'user' => $user
-        ));
-        //throw new HttpException(400, $user);
-        foreach($paramNames as $paramName){
-            if($request->request->has($paramName)) {
-                $params[$paramName] = $request->request->get($paramName);
-                $fileSrc = $request->request->get($paramName);
-                $logger->info('CHANGINC ' . $paramName . $user->getUsername());
-                $logger->info('CHANGINC ' . $paramName . ' fileSrc = ' . $fileSrc);
-                $fileContents = $fileManager->readFileUrl($fileSrc);
-                $hash = $fileManager->getHash();
-                $explodedFileSrc = explode('.', $fileSrc);
-                $ext = $explodedFileSrc[count($explodedFileSrc) - 1];
-                $filename = $hash . '.' . $ext;
-                file_put_contents($fileManager->getUploadsDir() . '/' . $filename, $fileContents);
-                $tmpFile = new File($fileManager->getUploadsDir() . '/' . $filename);
-
-                if (!in_array($tmpFile->getMimeType(), UploadManager::$FILTER_IMAGES))
-                throw new HttpException(400, "Bad file type");
-
-
-                if ($paramName == 'profile_image') {
-                    $user->setProfileImage($fileManager->getFilesPath().'/'. $filename);
-                }
-
-                if ($paramName == 'document_front') {
-                    $kyc->setDocumentFront($fileManager->getFilesPath().'/'. $filename);
-                    $kyc->setDocumentFrontStatus('pending');
-                }
-
-                if ($paramName == 'document_rear') {
-                    $kyc->setDocumentRear($fileManager->getFilesPath().'/'. $filename);
-                    $kyc->setDocumentRearStatus('pending');
-                }
-
-
-                $em->flush();
-            }
-
-
-        }
-        return $this->rest(200, 'Image/s updated successfully');
-
-    }
-
-
 
 
     /**
@@ -931,35 +825,13 @@ class AccountController extends BaseApiController{
         }
 
         if($request->request->has('document_front') && $request->request->get('document_front')!=''){
-            $fileManager = $this->get('file_manager');
-            $fileSrc = $request->request->get('document_front');
-            $fileContents = $fileManager->readFileUrl($fileSrc);
-            $hash = $fileManager->getHash();
-            $explodedFileSrc = explode('.', $fileSrc);
-            $ext = $explodedFileSrc[count($explodedFileSrc) - 1];
-            $filename = $hash . '.' . $ext;
-            file_put_contents($fileManager->getUploadsDir() . '/' . $filename, $fileContents);
-            $tmpFile = new File($fileManager->getUploadsDir() . '/' . $filename);
-            if (!in_array($tmpFile->getMimeType(), UploadManager::$FILTER_DOCUMENTS))
-                throw new HttpException(400, "Bad file type: => " . $tmpFile->getMimeType());
-            $kyc->setDocumentFront($fileManager->getFilesPath().'/'.$filename);
+            $kyc->setDocumentFront($request->request->get('document_front'));
             $kyc->setDocumentFrontStatus('pending');
             $em->persist($kyc);
         }
 
         if($request->request->has('document_rear') && $request->request->get('document_rear')!=''){
-            $fileManager = $this->get('file_manager');
-            $fileSrc = $request->request->get('document_rear');
-            $fileContents = $fileManager->readFileUrl($fileSrc);
-            $hash = $fileManager->getHash();
-            $explodedFileSrc = explode('.', $fileSrc);
-            $ext = $explodedFileSrc[count($explodedFileSrc) - 1];
-            $filename = $hash . '.' . $ext;
-            file_put_contents($fileManager->getUploadsDir() . '/' . $filename, $fileContents);
-            $tmpFile = new File($fileManager->getUploadsDir() . '/' . $filename);
-            if (!in_array($tmpFile->getMimeType(), UploadManager::$FILTER_DOCUMENTS))
-                throw new HttpException(400, "Bad file type");
-            $kyc->setDocumentRear($fileManager->getFilesPath().'/'.$filename);
+            $kyc->setDocumentRear($request->request->get('document_rear'));
             $kyc->setDocumentRearStatus('pending');
             $em->persist($kyc);
         }

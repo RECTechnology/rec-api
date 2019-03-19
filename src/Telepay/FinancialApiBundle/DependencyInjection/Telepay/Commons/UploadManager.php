@@ -18,8 +18,8 @@ use Symfony\Component\Validator\Validator\ValidatorInterface;
 
 class UploadManager {
 
-    public static $FILTER_IMAGES = ["image/png", "image/jpg", "image/svg", "image/gif"];
-    public static $FILTER_DOCUMENTS = ["image/png", "image/jpg", "image/svg", "image/gif", 'application/pdf'];
+    public static $FILTER_IMAGES = ["image/png", "image/jpg", "image/jpeg", "image/svg", "image/gif"];
+    public static $FILTER_DOCUMENTS = ["image/png", "image/jpg", "image/jpeg", "image/svg", "image/gif", 'application/pdf'];
 
     private $container;
 

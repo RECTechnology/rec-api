@@ -3,8 +3,6 @@
 namespace Telepay\FinancialApiBundle\Controller\Management\Manager;
 
 use Doctrine\DBAL\DBALException;
-use Symfony\Component\HttpFoundation\File\File;
-use Telepay\FinancialApiBundle\DependencyInjection\Telepay\Commons\UploadManager;
 use Doctrine\ORM\EntityManagerInterface;
 use Doctrine\ORM\QueryBuilder;
 use Symfony\Component\HttpKernel\Exception\HttpException;
@@ -597,66 +595,6 @@ class GroupsController extends BaseApiController
         $em->flush();
 
         return $this->rest(204, "Edited");
-    }
-
-
-
-    /**
-     * @Rest\View
-     * permissions: ROLE_SUPER_ADMIN
-     */
-    public function setImage(Request $request, $id){
-
-        if (!$this->get('security.context')->isGranted('ROLE_SUPER_ADMIN')) throw new HttpException(403, 'You don\'t have the necessary permissions');
-
-        if($id == "") throw new HttpException(400, "Missing parameter 'id'");
-
-
-
-        $logger = $this->get('manager.logger');
-        $paramNames = array(
-            'company_image',
-            'public_image'
-        );
-        $changes='';
-        $fileManager = $this->get('file_manager');
-        $em = $this->getDoctrine()->getManager();
-        $group = $em->getRepository('TelepayFinancialApiBundle:Group')->findOneBy(array(
-            'id'  =>  $id
-        ));
-
-        foreach($paramNames as $paramName){
-            if($request->request->has($paramName)) {
-                $params[$paramName] = $request->request->get($paramName);
-                $fileSrc = $request->request->get($paramName);
-                $logger->info('CHANGINC ' . $paramName ."of group ". $id);
-                $logger->info('CHANGINC ' . $paramName . ' fileSrc = ' . $fileSrc);
-                $fileContents = $fileManager->readFileUrl($fileSrc);
-                $hash = $fileManager->getHash();
-                $explodedFileSrc = explode('.', $fileSrc);
-                $ext = $explodedFileSrc[count($explodedFileSrc) - 1];
-                $filename = $hash . '.' . $ext;
-                file_put_contents($fileManager->getUploadsDir() . '/' . $filename, $fileContents);
-                $tmpFile = new File($fileManager->getUploadsDir() . '/' . $filename);
-                if (!in_array($tmpFile->getMimeType(), UploadManager::$FILTER_IMAGES))
-                    throw new HttpException(400, "Bad file type");
-
-                if($request->request->has('company_image')){
-                    $group->setCompanyImage($fileManager->getUploadsDir() . '/' . $filename);
-                    $changes =' company_image ';
-                }
-
-                if($request->request->has('public_image')){
-                    $group->setPublicImage($fileManager->getUploadsDir() . '/' . $filename);
-                    $changes = $changes." public_image ";
-                }
-
-                $em->flush();
-            }
-        }
-        if($changes=='') throw new HttpException(400, "Missing parameter 'company_image' and/or 'public_image'");
-
-        return $this->rest(200, 'Image/s updated successfully');
     }
 
 

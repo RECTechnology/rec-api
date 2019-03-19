@@ -31,12 +31,6 @@ manager_users_index_by_group_v2:
     requirements:
         _method: GET
 
-##admin_users_set_image:
-##    pattern:  /manager/v1/users/{id}/image
-##    defaults: { _controller: Telepay\FinancialApiBundle\Controller\Management\Manager\UsersController::setImage, _format: ~ }
-##    requirements:
-##        _method: PUT
-
 
 manager_users_read:
     pattern:  /manager/v1/users/{id}
@@ -89,14 +83,6 @@ admin_groups_update:
         id: "[0-9]+"
         name: "string"
 
-
-## The method  'GroupsController::setImage' do not exist ???
-admin_groups_set_image:
-    pattern:  /manager/v1/groups/{id}/image
-    defaults: { _controller: Telepay\FinancialApiBundle\Controller\Management\Manager\GroupsController::setImage, _format: ~ }
-    requirements:
-        _method: PUT
-        id: "[0-9]+"
 
 admin_groups_update_limit:
     pattern:  /manager/v1/groups/limit/{id}

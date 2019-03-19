@@ -83,6 +83,12 @@ services:
         class: Telepay\FinancialApiBundle\DependencyInjection\Telepay\Commons\UploadManager
         arguments: ['@service_container']
 
+    file_setter.listener:
+        class: Telepay\FinancialApiBundle\EventListener\FileSetterListener
+        arguments: [@service_container]
+        tags:
+            - { name: doctrine.event_listener, event: onFlush }
+
     kyc.listener:
         class: Telepay\FinancialApiBundle\EventListener\KycListener
         arguments: [@service_container]

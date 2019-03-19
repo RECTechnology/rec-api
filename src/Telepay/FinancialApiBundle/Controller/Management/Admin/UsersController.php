@@ -14,8 +14,6 @@ use FOS\RestBundle\Controller\Annotations as Rest;
 use Symfony\Component\HttpFoundation\Request;
 use Telepay\FinancialApiBundle\Entity\User;
 use FOS\OAuthServerBundle\Util\Random;
-use Symfony\Component\HttpFoundation\File\File;
-use Telepay\FinancialApiBundle\DependencyInjection\Telepay\Commons\UploadManager;
 
 /**
  * Class UsersController
@@ -116,10 +114,6 @@ class UsersController extends BaseApiController{
                 throw new HttpException(400,"Missing parameter 'repassword'");
             }
         }
-        if($request->request->has('profile_image') ){
-            $fileName = $this->createImageFile('profile_image',$request);
-            $request->request->set('profile_image', $fileName);
-        }
 
         $em = $this->getDoctrine()->getManager();
         $kyc = $em->getRepository('TelepayFinancialApiBundle:KYC')->findOneBy(array(
@@ -127,17 +121,13 @@ class UsersController extends BaseApiController{
         ));
 
         if($request->request->has('document_front') ){
-            $fileName = $this->createImageFile('document_front',$request);
-            $request->request->remove('document_front');
-            $kyc->setDocumentFront($fileName);
+            $kyc->setDocumentFront($request->request->get('document_front'));
             $kyc->setDocumentFrontStatus('pending');
             $em->persist($kyc);
         }
 
         if($request->request->has('document_rear') ){
-            $fileName = $this->createImageFile('document_rear',$request);
-            $request->request->remove('document_rear');
-            $kyc->setDocumentRear($fileName);
+            $kyc->setDocumentRear($request->request->get('document_front'));
             $kyc->setDocumentRearStatus('pending');
             $em->persist($kyc);
         }
@@ -162,28 +152,6 @@ class UsersController extends BaseApiController{
             $em->flush();
         }
         return $resp;
-    }
-
-
-    public function createImageFile($paramName,Request $request){
-        $logger = $this->get('manager.logger');
-        $fileManager = $this->get('file_manager');
-        $params[$paramName] = $request->request->get($paramName);
-        $fileSrc = $request->request->get($paramName);
-
-        $logger->info('CHANGINC ' . $paramName . ' fileSrc = ' . $fileSrc);
-        $fileContents = $fileManager->readFileUrl($fileSrc);
-        $hash = $fileManager->getHash();
-        $explodedFileSrc = explode('.', $fileSrc);
-        $ext = $explodedFileSrc[count($explodedFileSrc) - 1];
-        $filename = $hash . '.' . $ext;
-        file_put_contents($fileManager->getUploadsDir() . '/' . $filename, $fileContents);
-        $tmpFile = new File($fileManager->getUploadsDir() . '/' . $filename);
-
-        if (!in_array($tmpFile->getMimeType(), array_merge(UploadManager::$FILTER_DOCUMENTS, UploadManager::$FILTER_IMAGES)))
-            throw new HttpException(400, "Bad file type");
-
-        return $fileManager->getUploadsDir() . '/' . $filename;
     }
 
     /**
