@@ -42,7 +42,7 @@ class UploadManager {
     /**
      * @return string
      */
-    public function getFilesUrl(){
+    public function getFilesPath(){
         return $this->container->getParameter('files_path');
     }
 
