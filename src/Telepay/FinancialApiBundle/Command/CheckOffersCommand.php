@@ -39,10 +39,16 @@ class CheckOffersCommand extends ContainerAwareCommand{
                     $output->writeln("BONA");
                     $total_offers_actives++;
                     $offer->setActive(true);
-                    $em->persist($offer);
-                    $em->flush();
+                }
+                else{
+                    $offer->setActive(false);
                 }
             }
+            else{
+                $offer->setActive(false);
+            }
+            $em->persist($offer);
+            $em->flush();
         }
         $output->writeln("END -> Total active: " . $total_offers_actives);
     }

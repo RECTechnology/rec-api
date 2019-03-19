@@ -86,7 +86,7 @@ parameters:
 #lemonway API access data
     lemonway_url: 'https://sandbox-api.lemonway.fr/mb/demo/dev/directkitjson2/Service.asmx'
     lemonway_payment_url: 'https://sandbox-webkit.lemonway.fr/NOVACT/dev/?moneyintoken='
-    lemonway_notification_url: 'https://preapibm.blockroot.com/notifications/v1/lemonway/'
+    lemonway_notification_url: 'https://api.rec.qbitartifacts.com/notifications/v1/lemonway/'
     lemonway_notification_app: 'https://app.rec.barcelona/re:recharge?status='
     lemonway_user: 'society'
     lemonway_pass: '123456'
@@ -100,7 +100,10 @@ parameters:
     list_emails: '["uno","dos","res"]'
 
 #list of authorized admins who can log in support panel
-    authorized_admins: [1,2,141]
+    authorized_admins:
+        - 1
+        - 2
+        - 141
 
 # Telegram setup for notifications
     telegram_bot_token: ~
