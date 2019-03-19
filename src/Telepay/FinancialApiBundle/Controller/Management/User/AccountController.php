@@ -169,7 +169,7 @@ class AccountController extends BaseApiController{
                 file_put_contents($fileManager->getUploadsDir() . '/' . $filename, $fileContents);
                 $tmpFile = new File($fileManager->getUploadsDir() . '/' . $filename);
 
-                if (!in_array($tmpFile->getMimeType(), UploadManager::$ALLOWED_MIMETYPES))
+                if (!in_array($tmpFile->getMimeType(), UploadManager::$FILTER_IMAGES))
                 throw new HttpException(400, "Bad file type");
 
 
@@ -940,7 +940,7 @@ class AccountController extends BaseApiController{
             $filename = $hash . '.' . $ext;
             file_put_contents($fileManager->getUploadsDir() . '/' . $filename, $fileContents);
             $tmpFile = new File($fileManager->getUploadsDir() . '/' . $filename);
-            if (!in_array($tmpFile->getMimeType(), UploadManager::$ALLOWED_MIMETYPES))
+            if (!in_array($tmpFile->getMimeType(), UploadManager::$FILTER_DOCUMENTS))
                 throw new HttpException(400, "Bad file type: => " . $tmpFile->getMimeType());
             $kyc->setDocumentFront($fileManager->getFilesPath().'/'.$filename);
             $kyc->setDocumentFrontStatus('pending');
@@ -957,7 +957,7 @@ class AccountController extends BaseApiController{
             $filename = $hash . '.' . $ext;
             file_put_contents($fileManager->getUploadsDir() . '/' . $filename, $fileContents);
             $tmpFile = new File($fileManager->getUploadsDir() . '/' . $filename);
-            if (!in_array($tmpFile->getMimeType(), UploadManager::$ALLOWED_MIMETYPES))
+            if (!in_array($tmpFile->getMimeType(), UploadManager::$FILTER_DOCUMENTS))
                 throw new HttpException(400, "Bad file type");
             $kyc->setDocumentRear($fileManager->getFilesPath().'/'.$filename);
             $kyc->setDocumentRearStatus('pending');
