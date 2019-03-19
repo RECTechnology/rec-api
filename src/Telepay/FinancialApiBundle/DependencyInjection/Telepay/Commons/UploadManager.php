@@ -70,7 +70,7 @@ class UploadManager {
         if (in_array($tmpFile->getMimeType(), $mime_types)) {
             $newFileName = $this->getHash() . "." . $tmpFile->guessExtension();
             $tmpFile->move($this->getUploadsDir(), $newFileName);
-            return $this->getFilesUrl() . "/" . $newFileName;
+            return $this->getFilesPath() . "/" . $newFileName;
         }
         unlink($tmpFileName);
         throw new LogicException("FileType not allowed");
