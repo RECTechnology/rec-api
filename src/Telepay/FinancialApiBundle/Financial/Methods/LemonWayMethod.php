@@ -53,7 +53,8 @@ class LemonWayMethod extends BaseMethod {
             "street" => $address,
             "postCode" => $zip,
             "city" => $city,
-            "ctry" => $country
+            "ctry" => $country,
+            "payerOrBeneficiary" => 2
         ));
         return $response;
     }
@@ -74,7 +75,8 @@ class LemonWayMethod extends BaseMethod {
             "street" => $address,
             "postCode" => $zip,
             "city" => $city,
-            "ctry" => $country
+            "ctry" => $country,
+            "payerOrBeneficiary" => 2
         ));
         return $response;
     }
