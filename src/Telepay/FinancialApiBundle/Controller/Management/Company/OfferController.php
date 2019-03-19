@@ -61,7 +61,7 @@ class OfferController extends BaseApiController{
         file_put_contents($fileManager->getUploadsDir() . '/' . $filename, $fileContents);
 
         $tmpFile = new File($fileManager->getUploadsDir() . '/' . $filename);
-        if (!in_array($tmpFile->getMimeType(), UploadManager::$ALLOWED_MIMETYPES))
+        if (!in_array($tmpFile->getMimeType(), UploadManager::$FILTER_IMAGES))
             throw new HttpException(400, "Bad file type");
 
         $start = date_create($params['start']);

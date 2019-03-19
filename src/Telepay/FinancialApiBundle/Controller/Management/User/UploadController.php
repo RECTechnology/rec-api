@@ -78,7 +78,7 @@ class UploadController extends RestApiController{
         if(!$file->isValid()) throw new HttpException(400, "Invalid file");
 
         $mimeType = $file->getMimeType();
-        if(!in_array($mimeType, UploadManager::$ALLOWED_MIMETYPES))
+        if(!in_array($mimeType, array_merge(UploadManager::$FILTER_DOCUMENTS, UploadManager::$FILTER_IMAGES)))
             throw new HttpException(400, "Bad mime type, '" . $mimeType . "' is not a valid file");
 
 

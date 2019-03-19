@@ -97,6 +97,8 @@ class AccountController extends BaseApiController{
 
     /**
      * @Rest\View
+     * @param Request $request
+     * @return \Symfony\Component\HttpFoundation\Response
      */
     public function setImage(Request $request){
 
@@ -118,30 +120,17 @@ class AccountController extends BaseApiController{
         $fileManager = $this->get('file_manager');
 
         $fileSrc = $params['profile_image'];
-        $logger->info('CHANGINC IMAGE '.$user->getUsername());
-        $logger->info('CHANGINC IMAGE fileSrc = '.$fileSrc);
+        $logger->info('CHANGING IMAGE '.$user->getUsername());
+        $logger->info('CHANGING IMAGE fileSrc = '.$fileSrc);
         $fileContents = $fileManager->readFileUrl($fileSrc);
 
-        if($user->getProfileImage() == ''){
-            $hash = $fileManager->getHash();
-            $explodedFileSrc = explode('.', $fileSrc);
-            $ext = $explodedFileSrc[count($explodedFileSrc) - 1];
-            $filename = $hash . '.' . $ext;
-            $logger->info('CHANGINC IMAGE user withOUT image = '.$filename);
-        }else{
-            $filename = str_replace($fileManager->getFilesPath() . '/', '', $user->getProfileImage());
-            $logger->info('CHANGINC IMAGE user with image = '.$filename);
-        }
-        file_put_contents($fileManager->getUploadsDir() . '/' . $filename, $fileContents);
-        $logger->info('CHANGING IMAGE put contents '.$fileManager->getFilesPath() . '/' . $filename);
-        $tmpFile = new File($fileManager->getUploadsDir() . '/' . $filename);
-        if (!in_array($tmpFile->getMimeType(), UploadManager::$ALLOWED_MIMETYPES))
-            throw new HttpException(400, "Bad file type");
+        $filename = $fileManager->saveFile($fileContents, UploadManager::$FILTER_IMAGES);
 
+        $user->setProfileImage($filename);
         $em = $this->getDoctrine()->getManager();
-        $user->setProfileImage($fileManager->getFilesPath().'/'.$filename);
-        $logger->info('CHANGINC IMAGE saved url = '.$fileManager->getFilesPath().'/'.$filename);
+        $logger->info('CHANGING IMAGE saved url = ' . $filename);
         $em->flush();
+
         return $this->rest(200, 'Profile image updated successfully');
     }
 
@@ -180,7 +169,7 @@ class AccountController extends BaseApiController{
                 file_put_contents($fileManager->getUploadsDir() . '/' . $filename, $fileContents);
                 $tmpFile = new File($fileManager->getUploadsDir() . '/' . $filename);
 
-                if (!in_array($tmpFile->getMimeType(), UploadManager::$ALLOWED_MIMETYPES))
+                if (!in_array($tmpFile->getMimeType(), UploadManager::$FILTER_IMAGES))
                 throw new HttpException(400, "Bad file type");
 
 
@@ -951,7 +940,7 @@ class AccountController extends BaseApiController{
             $filename = $hash . '.' . $ext;
             file_put_contents($fileManager->getUploadsDir() . '/' . $filename, $fileContents);
             $tmpFile = new File($fileManager->getUploadsDir() . '/' . $filename);
-            if (!in_array($tmpFile->getMimeType(), UploadManager::$ALLOWED_MIMETYPES))
+            if (!in_array($tmpFile->getMimeType(), UploadManager::$FILTER_DOCUMENTS))
                 throw new HttpException(400, "Bad file type: => " . $tmpFile->getMimeType());
             $kyc->setDocumentFront($fileManager->getFilesPath().'/'.$filename);
             $kyc->setDocumentFrontStatus('pending');
@@ -968,7 +957,7 @@ class AccountController extends BaseApiController{
             $filename = $hash . '.' . $ext;
             file_put_contents($fileManager->getUploadsDir() . '/' . $filename, $fileContents);
             $tmpFile = new File($fileManager->getUploadsDir() . '/' . $filename);
-            if (!in_array($tmpFile->getMimeType(), UploadManager::$ALLOWED_MIMETYPES))
+            if (!in_array($tmpFile->getMimeType(), UploadManager::$FILTER_DOCUMENTS))
                 throw new HttpException(400, "Bad file type");
             $kyc->setDocumentRear($fileManager->getFilesPath().'/'.$filename);
             $kyc->setDocumentRearStatus('pending');
