@@ -86,6 +86,12 @@ class UserFiles{
     private $status;
 
     /**
+     * @ORM\Column(type="boolean")
+     * @Expose
+     */
+    private $deleted = false;
+
+    /**
      * Check the tag inserted
      *
      * @return bool
@@ -203,6 +209,22 @@ class UserFiles{
     /**
      * @return mixed
      */
+    public function getDeleted()
+    {
+        return $this->deleted;
+    }
+
+    /**
+     * @param mixed $deleted
+     */
+    public function setDeleted($deleted)
+    {
+        $this->deleted = $deleted;
+    }
+
+    /**
+     * @return mixed
+     */
     public function getTag(){
         return $this->tag;
     }
@@ -217,5 +239,12 @@ class UserFiles{
         else{
             throw new Exception('Tag is not valid');
         }
+    }
+
+    /**
+     * @return mixed
+     */
+    public function getType(){
+        return $this->list_tags[$this->tag];
     }
 }

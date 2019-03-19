@@ -166,7 +166,8 @@ class KYCController extends BaseApiController{
         }
 
         $user_files = $em->getRepository('TelepayFinancialApiBundle:UserFiles')->findBy(array(
-            'user'  =>  $user->getId()
+            'user'  =>  $user->getId(),
+            'deleted'  =>  false
         ));
         $kyc = $em->getRepository('TelepayFinancialApiBundle:KYC')->findOneBy(array(
             'user'  =>  $user->getId()
@@ -425,7 +426,7 @@ class KYCController extends BaseApiController{
         ));
 
         $doc_front_status = $KYC->getDocumentFrontStatus();
-        if($doc_front_status!='upload'){
+        if($doc_front_status!=='upload'){
             $doc_front = $KYC->getDocumentFront();
             if($doc_front ==''){
                 throw new HttpException(400, "Document front not upload");
@@ -451,7 +452,7 @@ class KYCController extends BaseApiController{
         }
 
         $doc_rear_status = $KYC->getDocumentRearStatus();
-        if($doc_rear_status!='upload'){
+        if($doc_rear_status!=='upload'){
             $doc_rear = $KYC->getDocumentRear();
             if($doc_rear ==''){
                 throw new HttpException(400, "Document rear not upload");
@@ -476,10 +477,30 @@ class KYCController extends BaseApiController{
             }
         }
 
-        $file=$em->getRepository('TelepayFinancialApiBundle:UserFiles')->findOneBy(array(
+        $files=$em->getRepository('TelepayFinancialApiBundle:UserFiles')->findBy(array(
             'user' => $user->getId(),
-            'tag' => 'banco'
+            'deleted' => false
         ));
+
+        if($individual){
+            $list_tags = array("banco","autonomo","modelo03x");
+        }
+        else{
+            $list_tags = array("banco","cif","modelo200","titularidad","estatutos");
+        }
+
+        $list_files = array();
+        foreach($files as $file){
+            $list_files[]=$file->getTag();
+        }
+        foreach($list_tags as $tag){
+            if(!in_array($tag, $list_files)){
+                throw new HttpException(400, "Document " . $tag . " not upload");
+            }
+            //si uno está repetido?
+            //el 200 y la titularidad es uno o el otro?
+            //estatutos es obligatorio?
+        }
 
         if($upload){
             return $this->rest(204, 'All data upload properly');
