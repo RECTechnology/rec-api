@@ -171,6 +171,9 @@ class AccountController extends BaseApiController{
     /**
      * @Rest\View
      * Permissions: ROLE_ADMIN (all)
+     * @param Request $request
+     * @param $account_id
+     * @return \Symfony\Component\HttpFoundation\Response
      */
     public function updateAction(Request $request, $account_id){
 
@@ -229,7 +232,7 @@ class AccountController extends BaseApiController{
             }
             file_put_contents($fileManager->getUploadsDir() . '/' . $filename, $fileContents);
             $tmpFile = new File($fileManager->getUploadsDir() . '/' . $filename);
-            if (!in_array($tmpFile->getMimeType(), UploadManager::$ALLOWED_MIMETYPES))
+            if (!in_array($tmpFile->getMimeType(), UploadManager::$FILTER_IMAGES))
                 throw new HttpException(400, "Bad file type");
             $company->setPublicImage($fileManager->getFilesPath() . '/' . $filename);
             $em->flush();
