@@ -8,13 +8,20 @@
 
 namespace Telepay\FinancialApiBundle\DependencyInjection\Telepay\Commons;
 
+use JMS\Serializer\Exception\ValidationFailedException;
+use LogicException;
 use Symfony\Component\DependencyInjection\ContainerInterface;
+use Symfony\Component\HttpFoundation\File\File;
+use Symfony\Component\Validator\Constraints\Url;
+use Symfony\Component\Validator\Constraints\UrlValidator;
+use Symfony\Component\Validator\Validator\ValidatorInterface;
 
 class UploadManager {
 
-    private $container;
+    public static $FILTER_IMAGES = ["image/png", "image/jpg", "image/svg", "image/gif"];
+    public static $FILTER_DOCUMENTS = ["image/png", "image/jpg", "image/svg", "image/gif", 'application/pdf'];
 
-    public static $ALLOWED_MIMETYPES = array('image/png', 'image/jpeg', 'application/pdf');
+    private $container;
 
     /**
      * FileUtils constructor.
@@ -25,28 +32,65 @@ class UploadManager {
         $this->container = $container;
     }
 
+    /**
+     * @return string
+     */
     public function getUploadsDir(){
         return $this->container->getParameter('uploads_dir');
     }
 
-    public function getFilesPath(){
+    /**
+     * @return string
+     */
+    public function getFilesUrl(){
         return $this->container->getParameter('files_path');
     }
 
+    /**
+     * @return string
+     */
     public function getHash(){
         return uniqid();
     }
 
-    public function readFileUrl($path){
-        $ctxOptions=array(
-            "ssl"=>array(
-                "cafile" => $this->container->get('kernel')->getRootDir() . "/Resources/config/curl/cacert.pem",
-                "verify_peer"=> false, //TODO: check security implications
-                //"verify_peer_name"=> true,
-            )
+    /**
+     * @param $contents
+     * @param array $mime_types
+     * @return string
+     */
+    public function saveFile($contents, $mime_types = []) {
+        if ($mime_types == []) $mime_types = array_merge(
+            UploadManager::$FILTER_IMAGES,
+            UploadManager::$FILTER_DOCUMENTS
         );
-        return file_get_contents($path, null, stream_context_create($ctxOptions));
 
+        $tmpFileName = $this->getUploadsDir() . "/" . $this->getHash();
+        file_put_contents($tmpFileName, $contents);
+        $tmpFile = new File($tmpFileName);
+        if (in_array($tmpFile->getMimeType(), $mime_types)) {
+            $newFileName = $this->getHash() . "." . $tmpFile->guessExtension();
+            $tmpFile->move($this->getUploadsDir(), $newFileName);
+            return $this->getFilesUrl() . "/" . $newFileName;
+        }
+        unlink($tmpFileName);
+        throw new LogicException("FileType not allowed");
+    }
+
+    /**
+     * @param $path
+     * @return mixed
+     */
+    public function readFileUrl($path){
+
+        $validator = new UrlValidator();
+        $constraint = new Url();
+        $constraint->protocols = ["http", "https"];
+        try {
+            $validator->validate($path, $constraint);
+        } catch (\Throwable $t){
+            throw new LogicException("Invalid url");
+        }
+        return file_get_contents($path);
     }
 
 }
