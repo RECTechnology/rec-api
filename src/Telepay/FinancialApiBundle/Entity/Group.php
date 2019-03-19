@@ -10,6 +10,8 @@ use JMS\Serializer\Annotation\ExclusionPolicy;
 use JMS\Serializer\Annotation\Exclude;
 use JMS\Serializer\Annotation\Expose;
 use Symfony\Component\Security\Core\Util\SecureRandom;
+use Symfony\Component\Config\Definition\Exception\Exception;
+
 
 /**
  * @ORM\Entity
@@ -707,8 +709,10 @@ class Group extends BaseGroup
     /**
      * @param mixed $country
      */
-    public function setCountry($country)
-    {
+    public function setCountry($country){
+        if(count($country)!=3){
+            throw new Exception('Country must be ISO-3');
+        }
         $this->country = $country;
     }
 

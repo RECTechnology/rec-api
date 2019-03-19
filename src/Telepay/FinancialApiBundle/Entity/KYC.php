@@ -6,6 +6,8 @@ use Doctrine\ORM\Mapping as ORM;
 
 use JMS\Serializer\Annotation\ExclusionPolicy;
 use JMS\Serializer\Annotation\Expose;
+use Symfony\Component\Config\Definition\Exception\Exception;
+
 
 /**
  * @ORM\Entity
@@ -639,8 +641,10 @@ class KYC {
     /**
      * @param mixed $nationality
      */
-    public function setNationality($nationality)
-    {
+    public function setNationality($nationality){
+        if(count($nationality)!=3){
+            throw new Exception('Country must be ISO-3');
+        }
         $this->nationality = $nationality;
     }
 
