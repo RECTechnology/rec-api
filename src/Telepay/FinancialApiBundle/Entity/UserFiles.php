@@ -87,6 +87,12 @@ class UserFiles implements EntityWithUploadableFields {
     private $status;
 
     /**
+     * @ORM\Column(type="boolean")
+     * @Expose
+     */
+    private $deleted = false;
+
+    /**
      * Check the tag inserted
      *
      * @return bool
@@ -204,6 +210,22 @@ class UserFiles implements EntityWithUploadableFields {
     /**
      * @return mixed
      */
+    public function getDeleted()
+    {
+        return $this->deleted;
+    }
+
+    /**
+     * @param mixed $deleted
+     */
+    public function setDeleted($deleted)
+    {
+        $this->deleted = $deleted;
+    }
+
+    /**
+     * @return mixed
+     */
     public function getTag(){
         return $this->tag;
     }
@@ -220,8 +242,16 @@ class UserFiles implements EntityWithUploadableFields {
         }
     }
 
+    /**
+     * @return mixed
+     */
+    public function getType(){
+        return $this->list_tags[$this->tag];
+    }
+
     function getUploadableFields()
     {
         return ['url' => UploadManager::$FILTER_DOCUMENTS];
     }
+
 }

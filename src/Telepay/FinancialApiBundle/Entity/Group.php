@@ -3,7 +3,6 @@
 namespace Telepay\FinancialApiBundle\Entity;
 
 use Doctrine\Common\Collections\ArrayCollection;
-use Doctrine\ORM\EntityManagerInterface;
 use FOS\UserBundle\Model\Group as BaseGroup;
 use Doctrine\ORM\Mapping as ORM;
 
@@ -709,8 +708,10 @@ class Group extends BaseGroup implements EntityWithUploadableFields
     /**
      * @param mixed $country
      */
-    public function setCountry($country)
-    {
+    public function setCountry($country){
+        if(count($country)!=3){
+            throw new \LogicException('Country must be ISO-3');
+        }
         $this->country = $country;
     }
 
