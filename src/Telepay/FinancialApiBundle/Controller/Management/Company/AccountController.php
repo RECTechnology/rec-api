@@ -78,13 +78,13 @@ class AccountController extends BaseApiController{
 
         $em = $this->getDoctrine()->getManager();
         $user = $this->getUser();
-        $company = $em->getRepository($this->getRepositoryName())->find($group);
+        $account = $em->getRepository($this->getRepositoryName())->find($group);
 
-        if(!$company) throw new HttpException('Company not found');
+        if(!$account) throw new HttpException('Account not found');
 
         $userGroup = $em->getRepository('TelepayFinancialApiBundle:UserGroup')->findOneBy(array(
             'user'  =>  $user->getId(),
-            'group' =>  $company->getId()
+            'group' =>  $account->getId()
         ));
         if(!$userGroup->hasRole('ROLE_ADMIN')) throw new HttpException('You don\'t have the necessary permissions');
 
@@ -94,13 +94,13 @@ class AccountController extends BaseApiController{
         $fileContents = $fileManager->readFileUrl($fileSrc);
 
         //if has image overwrite...if not create filename
-        if($company->getCompanyImage() == ''){
+        if($account->getCompanyImage() == ''){
             $hash = $fileManager->getHash();
             $explodedFileSrc = explode('.', $fileSrc);
             $ext = $explodedFileSrc[count($explodedFileSrc) - 1];
             $filename = $hash . '.' . $ext;
         }else{
-            $filename = str_replace($this->container->getParameter('files_path') . '/', '', $company->getCompanyImage());
+            $filename = str_replace($this->container->getParameter('files_path') . '/', '', $account->getCompanyImage());
         }
 
         file_put_contents($fileManager->getUploadsDir() . '/' . $filename, $fileContents);
@@ -109,7 +109,7 @@ class AccountController extends BaseApiController{
         if (!in_array($tmpFile->getMimeType(), UploadManager::$ALLOWED_MIMETYPES))
             throw new HttpException(400, "Bad file type");
 
-        $company->setCompanyImage($fileManager->getFilesPath().'/'.$filename);
+        $account->setCompanyImage($fileManager->getFilesPath().'/'.$filename);
         $em->flush();
 
         return $this->rest(204, 'Company image updated successfully');
