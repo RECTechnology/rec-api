@@ -92,7 +92,6 @@ class UsersController extends BaseApiController
                 $elem->setAccessToken(null);
                 $elem->setRefreshToken(null);
                 $elem->setAuthCode(null);
-                $elem->setProfileImage($this->container->getParameter('base_url').'/'.$elem->getProfileImage());
                 $groups = array();
                 $list_groups = $elem->getGroups();
                 foreach($list_groups as $group){
