@@ -186,27 +186,13 @@ class KYCController extends BaseApiController{
     /**
      * @Rest\View
      */
-    public function deleteFile(Request $request, $id){
-        $paramNames = array(
-            'tag'
-        );
-
-        $params = array();
-        foreach($paramNames as $paramName){
-            if($request->request->has($paramName)){
-                $params[$paramName] = $request->request->get($paramName);
-            }else{
-                throw new HttpException(404, 'Param '.$paramName.' not found');
-            }
-        }
-
+    public function deleteFile($tag, $id){
         $em = $this->getDoctrine()->getManager();
         $user = $em->getRepository('TelepayFinancialApiBundle:User')->find($id);
         if(!$user){
             throw new HttpException(404, 'User not found');
         }
 
-        $tag = $params['tag'];
         $file=$em->getRepository('TelepayFinancialApiBundle:UserFiles')->findOneBy(array(
             'user' => $user->getId(),
             'deleted' => false,
@@ -230,10 +216,9 @@ class KYCController extends BaseApiController{
     /**
      * @Rest\View
      */
-    public function uploadFile(Request $request, $id){
+    public function uploadFile(Request $request, $tag, $id){
         $paramNames = array(
-            'url',
-            'tag'
+            'url'
         );
 
         foreach($paramNames as $paramName){
@@ -248,7 +233,6 @@ class KYCController extends BaseApiController{
             throw new HttpException(404, 'User not found');
         }
 
-        $tag = $request->request->get('tag');
         $file=$em->getRepository('TelepayFinancialApiBundle:UserFiles')->findOneBy(array(
             'user' => $user->getId(),
             'deleted' => false,

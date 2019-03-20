@@ -360,13 +360,13 @@ admin_kyc_get_uploaded_files_by_user:
         _method: GET
 
 admin_kyc_upload_file:
-    pattern:  /admin/v1/kyc/file/{id}
+    pattern:  /admin/v1/kyc/file/{tag}/{id}
     defaults: { _controller: Telepay\FinancialApiBundle\Controller\Management\Admin\KYCController::uploadFile }
     requirements:
         _method: POST
 
 admin_kyc_delete_file:
-    pattern:  /admin/v1/kyc/file/{id}
+    pattern:  /admin/v1/kyc/file/{tag}/{id}
     defaults: { _controller: Telepay\FinancialApiBundle\Controller\Management\Admin\KYCController::deleteFile }
     requirements:
         _method: DELETE
