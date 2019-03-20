@@ -475,7 +475,7 @@ class KYCController extends BaseApiController{
                 $lemon_filename = "id_front." . $details[1];
                 $buffer = base64_encode(file_get_contents($uploads_dir . $file, true));
                 $up_file = $moneyProvider->UploadFile($lemon_username, $lemon_filename, $type, $buffer);
-                if($up_file['']['']){
+                if($this->checkLemonUpload($up_file)){
                     $KYC->setDocumentFrontStatus('upload');
                     $em->persist($KYC);
                     $em->flush();
@@ -501,7 +501,7 @@ class KYCController extends BaseApiController{
                 $lemon_filename = "id_back." . $details[1];
                 $buffer = base64_encode(file_get_contents($uploads_dir . $file, true));
                 $up_file = $moneyProvider->UploadFile($lemon_username, $lemon_filename, $type, $buffer);
-                if($up_file['']['']){
+                if($this->checkLemonUpload($up_file)){
                     $KYC->setDocumentRearStatus('upload');
                     $em->persist($KYC);
                     $em->flush();
@@ -526,13 +526,30 @@ class KYCController extends BaseApiController{
 
         $list_files = array();
         foreach($files as $file){
-            $list_files[]=$file->getTag();
+            $list_files[$file->getTag()]=$file;
         }
         foreach($list_tags as $tag){
-            if(!in_array($tag, $list_files)){
+            if(!array_key_exists($tag, $list_files)){
                 throw new HttpException(400, "Document " . $tag . " not upload");
             }
-            //estatutos es obligatorio?
+            else{
+                $file=$list_files[$tag];
+                $type = $file->getType();
+                $file_name = $file->getUrl();
+                $datos = explode("/", $file_name);
+                $file = $datos[3];
+                $lemon_filename = $tag . "." . $file->getExtension();
+                $buffer = base64_encode(file_get_contents($uploads_dir . $file, true));
+                $up_file = $moneyProvider->UploadFile($lemon_username, $lemon_filename, $type, $buffer);
+                if($this->checkLemonUpload($up_file)){
+                    $file->setStatus('upload');
+                    $em->persist($file);
+                    $em->flush();
+                }
+                else{
+                    throw new HttpException(400, "Error uploading " . $tag . " file");
+                }
+            }
         }
 
         if($upload){
@@ -541,6 +558,26 @@ class KYCController extends BaseApiController{
         else{
             return $this->rest(204, 'All data checked properly');
         }
+    }
+
+    private function checkLemonUpload($data){
+        $logger = $this->get('manager.logger');
+        $logger->info('Lemon update log: '. json_encode($data));
+        if(!is_object($data)){
+            if(isset($data['UPDATE']['MESSAGE'])){
+                $logger->info('Lemon update error 1: '. $data['UPDATE']['MESSAGE']);
+                return false;
+            }
+            else{
+                $logger->info('Lemon update error 2: message is not defined');
+                return false;
+            }
+        }
+        if(!isset($data->UPDATE->ID)){
+            $logger->info("Lemon update error 3: Id is not defined");
+            return false;
+        }
+        return true;
     }
 
 }
