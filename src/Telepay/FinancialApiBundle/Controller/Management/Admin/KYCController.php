@@ -188,6 +188,50 @@ class KYCController extends BaseApiController{
     /**
      * @Rest\View
      */
+    public function deleteFile(Request $request, $id){
+        $paramNames = array(
+            'tag'
+        );
+
+        $params = array();
+        foreach($paramNames as $paramName){
+            if($request->request->has($paramName)){
+                $params[$paramName] = $request->request->get($paramName);
+            }else{
+                throw new HttpException(404, 'Param '.$paramName.' not found');
+            }
+        }
+
+        $em = $this->getDoctrine()->getManager();
+        $user = $em->getRepository('TelepayFinancialApiBundle:User')->find($id);
+        if(!$user){
+            throw new HttpException(404, 'User not found');
+        }
+
+        $tag = $params['tag'];
+        $file=$em->getRepository('TelepayFinancialApiBundle:UserFiles')->findOneBy(array(
+            'user' => $user->getId(),
+            'deleted' => false,
+            'tag' => $tag
+        ));
+
+        if($file){
+            $file->setStatus('deleted');
+            $file->setDeleted(true);
+            $em->persist($file);
+            $em->flush();
+            return $this->rest(204, 'File deleted successfully');
+        }
+        else{
+            throw new HttpException(404, 'File not found');
+        }
+
+    }
+
+
+    /**
+     * @Rest\View
+     */
     public function uploadFile(Request $request, $id){
         $paramNames = array(
             'url',
@@ -207,6 +251,16 @@ class KYCController extends BaseApiController{
         $user = $em->getRepository('TelepayFinancialApiBundle:User')->find($id);
         if(!$user){
             throw new HttpException(404, 'User not found');
+        }
+
+        $tag = $params['tag'];
+        $file=$em->getRepository('TelepayFinancialApiBundle:UserFiles')->findOneBy(array(
+            'user' => $user->getId(),
+            'deleted' => false,
+            'tag' => $tag
+        ));
+        if($file){
+            throw new HttpException(404, 'One file is saved already with this tag');
         }
 
         $fileManager = $this->get('file_manager');
@@ -264,7 +318,7 @@ class KYCController extends BaseApiController{
             $em->persist($file);
         }
         $em->flush();
-        return $this->rest(204, 'Tier updated successfully');
+        return $this->rest(204, 'File updated successfully');
     }
 
     /**
@@ -486,7 +540,7 @@ class KYCController extends BaseApiController{
             $list_tags = array("banco","autonomo","modelo03x");
         }
         else{
-            $list_tags = array("banco","cif","modelo200","titularidad","estatutos");
+            $list_tags = array("banco","cif","modelo200_o_titularidad","estatutos");
         }
 
         $list_files = array();
@@ -497,8 +551,6 @@ class KYCController extends BaseApiController{
             if(!in_array($tag, $list_files)){
                 throw new HttpException(400, "Document " . $tag . " not upload");
             }
-            //si uno está repetido?
-            //el 200 y la titularidad es uno o el otro?
             //estatutos es obligatorio?
         }
 
