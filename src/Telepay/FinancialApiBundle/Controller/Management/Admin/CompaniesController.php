@@ -63,6 +63,8 @@ class CompaniesController extends BaseApiController
             'web',
             'neighborhood',
             'observations',
+            'company_image',
+            'public_image',
             'association'
         );
 

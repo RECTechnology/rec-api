@@ -36,15 +36,11 @@ class AccountController extends BaseApiController{
      * @Rest\View
      */
     public function read(Request $request){
-        $em = $this->getDoctrine()->getManager();
         $user = $this->get('security.context')->getToken()->getUser();
         $user->setRoles($user->getRoles());
         $group = $this->get('security.context')->getToken()->getUser()->getActiveGroup();
         $group_data = $group->getUserView();
         $user->setGroupData($group_data);
-        $kyc = $em->getRepository('TelepayFinancialApiBundle:KYC')->findOneBy(array(
-            'user' => $user
-        ));
         return $this->restV2(200, "ok", "Account info got successfully", $user);
     }
 
