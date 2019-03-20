@@ -518,36 +518,42 @@ class KYCController extends BaseApiController{
         ));
 
         if($individual){
-            $list_tags = array("banco","autonomo","modelo03x");
+            $list_must_tags = array("banco","autonomo","modelo03x");
+            $list_optional_tags = array("pasaporte");
+            $all_tags = array_merge($list_must_tags, $list_optional_tags);
         }
         else{
-            $list_tags = array("banco","cif","modelo200_o_titularidad","estatutos");
+            $list_must_tags = array("banco","cif","modelo200_o_titularidad","estatutos");
+            $list_optional_tags = array("pasaporte", "otroDNI_front", "otroDNI2_front", "otroDNI_rear", "otroDNI2_rear", "poderes");
+            $all_tags = array_merge($list_must_tags, $list_optional_tags);
         }
 
         $list_files = array();
         foreach($files as $file){
             $list_files[$file->getTag()]=$file;
         }
-        foreach($list_tags as $tag){
-            if(!array_key_exists($tag, $list_files)){
-                throw new HttpException(400, "Document " . $tag . " not upload");
+        foreach($all_tags as $tag){
+            if(in_array($tag, $list_must_tags) && !array_key_exists($tag, $list_files)){
+                throw new HttpException(400, "Document " . $tag . " not uploaded");
             }
             else{
                 $file=$list_files[$tag];
-                $type = $file->getType();
-                $file_name = $file->getUrl();
-                $datos = explode("/", $file_name);
-                $file = $datos[3];
-                $lemon_filename = $tag . "." . $file->getExtension();
-                $buffer = base64_encode(file_get_contents($uploads_dir . $file, true));
-                $up_file = $moneyProvider->UploadFile($lemon_username, $lemon_filename, $type, $buffer);
-                if($this->checkLemonUpload($up_file)){
-                    $file->setStatus('upload');
-                    $em->persist($file);
-                    $em->flush();
-                }
-                else{
-                    throw new HttpException(400, "Error uploading " . $tag . " file");
+                if($file->getStatus() === 'pending'){
+                    $type = $file->getType();
+                    $file_name = $file->getUrl();
+                    $datos = explode("/", $file_name);
+                    $file = $datos[3];
+                    $lemon_filename = $tag . "." . $file->getExtension();
+                    $buffer = base64_encode(file_get_contents($uploads_dir . $file, true));
+                    $up_file = $moneyProvider->UploadFile($lemon_username, $lemon_filename, $type, $buffer);
+                    if($this->checkLemonUpload($up_file)){
+                        $file->setStatus('upload');
+                        $em->persist($file);
+                        $em->flush();
+                    }
+                    else{
+                        throw new HttpException(400, "Error uploading " . $tag . " file");
+                    }
                 }
             }
         }
