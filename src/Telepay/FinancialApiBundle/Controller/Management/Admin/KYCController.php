@@ -236,7 +236,6 @@ class KYCController extends BaseApiController{
             'tag'
         );
 
-        $params = array();
         foreach($paramNames as $paramName){
             if(!$request->request->has($paramName)){
                 throw new HttpException(404, 'Param '.$paramName.' not found');
@@ -249,7 +248,7 @@ class KYCController extends BaseApiController{
             throw new HttpException(404, 'User not found');
         }
 
-        $tag = $params['tag'];
+        $tag = $request->request->get('tag');
         $file=$em->getRepository('TelepayFinancialApiBundle:UserFiles')->findOneBy(array(
             'user' => $user->getId(),
             'deleted' => false,
@@ -279,12 +278,12 @@ class KYCController extends BaseApiController{
             $kyc->setUser($user);
         }
 
-        if($params['tag']==='document_front'){
+        if($tag==='document_front'){
             $kyc->setDocumentFront($request->request->get('url'));
             $kyc->setDocumentFrontStatus('pending');
             $em->persist($kyc);
         }
-        elseif($params['tag']==='document_rear'){
+        elseif($tag==='document_rear'){
             $kyc->setDocumentRear($request->request->get('url'));
             $kyc->setDocumentRearStatus('pending');
             $em->persist($kyc);
@@ -296,7 +295,7 @@ class KYCController extends BaseApiController{
             $file->setUser($company->getKycManager());
             $exploded = explode('.', $request->request->get('url'));
             $file->setExtension($exploded[count($exploded) - 1]);
-            $file->setTag($params['tag']);
+            $file->setTag($tag);
             $em->persist($file);
         }
         $em->flush();
