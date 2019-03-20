@@ -341,7 +341,6 @@ class MapController extends BaseApiController{
         if($request->query->getInt('only_offers', 0) == 1) {
             $and->add($qb->expr()->eq('a.id', 'o.company'));
         }
-        #TODO no se deben mostrar todos los datos (secret key....)
         $qb = $qb
             ->distinct()
             ->from(Group::class, 'a')
@@ -357,7 +356,8 @@ class MapController extends BaseApiController{
 
 
         $elements = $qb
-            ->select('a')
+            ->select('a.name, a.company_image, a.latitude,a.longitude, a.country, a.city, a.zip, a.street,
+             a.street_type, a.address_number,a.prefix,a.type,a.subtype,a.description,a.schedule,a.public_image')
             ->setFirstResult($offset)
             ->setMaxResults($limit)
             ->orderBy('a.' . $sort, $order)
