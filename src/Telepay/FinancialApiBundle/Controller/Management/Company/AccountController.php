@@ -10,8 +10,6 @@
 namespace Telepay\FinancialApiBundle\Controller\Management\Company;
 
 use Doctrine\ORM\EntityManagerInterface;
-use Symfony\Component\HttpFoundation\File\File;
-use Telepay\FinancialApiBundle\DependencyInjection\Telepay\Commons\UploadManager;
 use Telepay\FinancialApiBundle\Entity\Group;
 use Symfony\Component\HttpKernel\Exception\HttpException;
 use Telepay\FinancialApiBundle\Controller\BaseApiController;
@@ -35,6 +33,9 @@ class AccountController extends BaseApiController{
 
     /**
      * @Rest\View
+     * @param Request $request
+     * @param $id
+     * @return \Symfony\Component\HttpFoundation\Response
      */
     public function setAdmin(Request $request, $id){
 
@@ -61,112 +62,6 @@ class AccountController extends BaseApiController{
 
     }
 
-    /**
-     * @Rest\View
-     * @param Request $request
-     * @param $account_id
-     * @return \Symfony\Component\HttpFoundation\Response
-     */
-    public function setImage(Request $request, $account_id){
-
-        $allowedParams = ['company_image'];
-
-        $params = [];
-        foreach($allowedParams as $paramName){
-            if($request->request->has($paramName)){
-                $params[$paramName] = $request->request->get($paramName);
-            }else{
-                throw new HttpException(400, 'Param '.$paramName.' not found');
-            }
-        }
-
-        /** @var User $user */
-        $user = $this->getUser();
-
-
-        /** @var EntityManagerInterface $em */
-        $em = $this->getDoctrine()->getManager();
-
-
-        $account = new Group();
-        $account->setId($account_id);
-
-        /** @var UserGroup $userAccount */
-        $userAccount = $em->getRepository(UserGroup::class)->findOneBy(
-            [
-                "user" => $user,
-                "group" => $account
-            ]
-        );
-
-        //Checking for permissions
-        if(!$userAccount)
-            throw new HttpException(403,'No permissions for this account');
-
-        if(!in_array("ROLE_ADMIN", $userAccount->getRoles()))
-            throw new HttpException(403,"Only Account admins can change the Account's properties");
-
-        /** @var Group $account */
-        $account = $userAccount->getGroup();
-
-        /** @var UploadManager $fileManager */
-        $fileManager = $this->get('file_manager');
-
-        $fileSrc = $params['company_image'];
-
-        //download the file
-        $fileContents = $fileManager->readFileUrl($fileSrc);
-
-        $filename = $fileManager->saveFile($fileContents, UploadManager::$FILTER_IMAGES);
-
-        $account->setCompanyImage($filename);
-        $em->flush();
-
-        return $this->rest(200, 'Account image updated successfully');
-    }
-
-    /**
-     * @Rest\View
-     * @param Request $request
-     * @param $group
-     * @return \Symfony\Component\HttpFoundation\Response
-     */
-    public function setCategoriesAction(Request $request, $group){
-        $paramNames = array(
-            'list_categories'
-        );
-
-        $params = array();
-        foreach($paramNames as $paramName){
-            if($request->request->has($paramName)){
-                $params[$paramName] = $request->request->get($paramName);
-            }else{
-                throw new HttpException(404, 'Param '.$paramName.' not found');
-            }
-        }
-
-        $em = $this->getDoctrine()->getManager();
-        $user = $this->getUser();
-        $company = $em->getRepository($this->getRepositoryName())->find($group);
-
-        if(!$company) throw new HttpException('Company not found');
-        $userGroup = $em->getRepository('TelepayFinancialApiBundle:UserGroup')->findOneBy(array(
-            'user'  =>  $user->getId(),
-            'group' =>  $company->getId()
-        ));
-        if(!$userGroup->hasRole('ROLE_ADMIN')) throw new HttpException('You don\'t have the necessary permissions');
-
-        $list = json_decode($params['list_categories']);
-        foreach($list as $category){
-
-        }
-
-        $company->setCompanyImage();
-        $em->flush();
-
-        return $this->rest(204, 'Company image updated successfully');
-
-    }
 
     /**
      * @Rest\View
@@ -190,54 +85,6 @@ class AccountController extends BaseApiController{
         }
 
         if(!$adminRoles->hasRole('ROLE_ADMIN')) throw new HttpException(403, 'You don\'t have the necessary permissions');
-
-        if($request->request->has('company_image') && $request->request->get('company_image')!='') {
-            $em = $this->getDoctrine()->getManager();
-            $fileManager = $this->get('file_manager');
-            $fileSrc = $request->request->get('company_image');
-            $fileContents = $fileManager->readFileUrl($fileSrc);
-            $company = $em->getRepository($this->getRepositoryName())->find($account_id);
-            //if has image overwrite...if not create filename
-            if ($company->getCompanyImage() == '') {
-                $hash = $fileManager->getHash();
-                $explodedFileSrc = explode('.', $fileSrc);
-                $ext = $explodedFileSrc[count($explodedFileSrc) - 1];
-                $filename = $hash . '.' . $ext;
-            } else {
-                $filename = str_replace($this->container->getParameter('files_path') . '/', '', $company->getCompanyImage());
-            }
-            file_put_contents($fileManager->getUploadsDir() . '/' . $filename, $fileContents);
-            $tmpFile = new File($fileManager->getUploadsDir() . '/' . $filename);
-            if (!in_array($tmpFile->getMimeType(), UploadManager::$FILTER_IMAGES))
-                throw new HttpException(400, "Bad file type");
-            $company->setCompanyImage($fileManager->getFilesPath() . '/' . $filename);
-            $em->flush();
-        }
-        $request->request->remove('company_image');
-
-        if($request->request->has('public_image') && $request->request->get('public_image')!='') {
-            $em = $this->getDoctrine()->getManager();
-            $fileManager = $this->get('file_manager');
-            $fileSrc = $request->request->get('public_image');
-            $fileContents = $fileManager->readFileUrl($fileSrc);
-            $company = $em->getRepository($this->getRepositoryName())->find($account_id);
-            //if has image overwrite...if not create filename
-            if ($company->getPublicImage() == '') {
-                $hash = $fileManager->getHash();
-                $explodedFileSrc = explode('.', $fileSrc);
-                $ext = $explodedFileSrc[count($explodedFileSrc) - 1];
-                $filename = $hash . '.' . $ext;
-            } else {
-                $filename = str_replace($this->container->getParameter('files_path') . '/', '', $company->getPublicImage());
-            }
-            file_put_contents($fileManager->getUploadsDir() . '/' . $filename, $fileContents);
-            $tmpFile = new File($fileManager->getUploadsDir() . '/' . $filename);
-            if (!in_array($tmpFile->getMimeType(), UploadManager::$FILTER_IMAGES))
-                throw new HttpException(400, "Bad file type");
-            $company->setPublicImage($fileManager->getFilesPath() . '/' . $filename);
-            $em->flush();
-        }
-        $request->request->remove('public_image');
 
         if($adminGroup->getFixedLocation()){
             $request->request->remove('longitude');

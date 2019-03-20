@@ -6,15 +6,14 @@ use Doctrine\ORM\Mapping as ORM;
 
 use JMS\Serializer\Annotation\ExclusionPolicy;
 use JMS\Serializer\Annotation\Expose;
-use Symfony\Component\Config\Definition\Exception\Exception;
-
+use Telepay\FinancialApiBundle\DependencyInjection\Telepay\Commons\UploadManager;
 
 /**
  * @ORM\Entity
  * @ORM\Table(name="KYC")
  * @ExclusionPolicy("all")
  */
-class KYC {
+class KYC implements EntityWithUploadableFields {
 
     /**
      * @ORM\Id
@@ -643,7 +642,7 @@ class KYC {
      */
     public function setNationality($nationality){
         if(count($nationality)!=3){
-            throw new Exception('Country must be ISO-3');
+            throw new \LogicException('Country must be ISO-3');
         }
         $this->nationality = $nationality;
     }
@@ -760,4 +759,11 @@ class KYC {
         $this->document_rear_status = $document_rear_status;
     }
 
+    function getUploadableFields()
+    {
+        return [
+            'document_front' => UploadManager::$FILTER_DOCUMENTS,
+            'document_rear' => UploadManager::$FILTER_DOCUMENTS,
+        ];
+    }
 }

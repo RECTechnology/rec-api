@@ -96,31 +96,6 @@ user_wallet_transactions_v2:
 
 ######################## USER ANALYTICS ########################
 
-##user_analytics:
-##    pattern:  /user/v1/analytics
-##    defaults: { _controller: Telepay\FinancialApiBundle\Controller\Management\User\AccountController::analytics }
-##    requirements:
-##        _method: GET
-
-user_set_image:
-    pattern:  /user/v1/image
-    defaults: { _controller: Telepay\FinancialApiBundle\Controller\Management\User\AccountController::setImageB64 }
-    requirements:
-        _method: PUT
-
-user_set_profile_image:
-    pattern:  /user/v1/profile_image
-    defaults: { _controller: Telepay\FinancialApiBundle\Controller\Management\User\AccountController::setImage }
-    requirements:
-        _method: PUT
-
-user_set_images:
-    pattern:  /user/v2/image
-    defaults: { _controller: Telepay\FinancialApiBundle\Controller\Management\User\AccountController::setImage_V2 }
-    requirements:
-        _method: PUT
-
-
 user_transactions_speed:
     pattern:  /user/v1/speed
     defaults: { _controller: Telepay\FinancialApiBundle\Controller\Management\User\AccountController::speed }

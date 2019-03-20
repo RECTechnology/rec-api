@@ -10,8 +10,7 @@ use JMS\Serializer\Annotation\ExclusionPolicy;
 use JMS\Serializer\Annotation\Exclude;
 use JMS\Serializer\Annotation\Expose;
 use Symfony\Component\Security\Core\Util\SecureRandom;
-use Symfony\Component\Config\Definition\Exception\Exception;
-
+use Telepay\FinancialApiBundle\DependencyInjection\Telepay\Commons\UploadManager;
 
 /**
  * @ORM\Entity
@@ -29,7 +28,7 @@ use Symfony\Component\Config\Definition\Exception\Exception;
  *     )
  * })
  */
-class Group extends BaseGroup
+class Group extends BaseGroup implements EntityWithUploadableFields
 {
 
     public function __construct() {
@@ -711,7 +710,7 @@ class Group extends BaseGroup
      */
     public function setCountry($country){
         if(count($country)!=3){
-            throw new Exception('Country must be ISO-3');
+            throw new \LogicException('Country must be ISO-3');
         }
         $this->country = $country;
     }
@@ -1208,4 +1207,11 @@ class Group extends BaseGroup
         return $this->on_map;
     }
 
+    function getUploadableFields()
+    {
+        return [
+            'company_image' => UploadManager::$FILTER_IMAGES,
+            'public_image' => UploadManager::$FILTER_IMAGES
+        ];
+    }
 }

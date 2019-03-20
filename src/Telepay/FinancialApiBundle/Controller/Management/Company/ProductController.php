@@ -2,8 +2,6 @@
 
 namespace Telepay\FinancialApiBundle\Controller\Management\Company;
 
-use Symfony\Component\HttpFoundation\File\File;
-use Telepay\FinancialApiBundle\DependencyInjection\Telepay\Commons\UploadManager;
 use Doctrine\DBAL\DBALException;
 use Doctrine\DBAL\Exception\ConstraintViolationException;
 use Exception;

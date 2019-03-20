@@ -14,6 +14,7 @@ use JMS\Serializer\Annotation\ExclusionPolicy;
 use JMS\Serializer\Annotation\Expose;
 use JMS\Serializer\Annotation\Exclude;
 use Symfony\Component\Validator\Constraints\DateTime;
+use Telepay\FinancialApiBundle\DependencyInjection\Telepay\Commons\UploadManager;
 
 /**
  * @ORM\Entity
@@ -31,7 +32,7 @@ use Symfony\Component\Validator\Constraints\DateTime;
  *     )
  * })
  */
-class User extends BaseUser
+class User extends BaseUser implements EntityWithUploadableFields
 {
     public function __construct()
     {
@@ -623,5 +624,10 @@ class User extends BaseUser
     public function setProfileImage($profile_image)
     {
         $this->profile_image = $profile_image;
+    }
+
+    function getUploadableFields()
+    {
+        return ['profile_image' => UploadManager::$FILTER_IMAGES];
     }
 }
