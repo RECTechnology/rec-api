@@ -337,7 +337,7 @@ class KYCController extends BaseApiController{
             'user' => $user->getId()
         ));
 
-        $email = $user->getEmail();
+        $email = $company->getEmail();
         if($email == ''){
             throw new HttpException(400, "User email is empty");
         }
