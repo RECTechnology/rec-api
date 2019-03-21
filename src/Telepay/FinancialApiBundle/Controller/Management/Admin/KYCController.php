@@ -170,6 +170,24 @@ class KYCController extends BaseApiController{
         $kyc = $em->getRepository('TelepayFinancialApiBundle:KYC')->findOneBy(array(
             'user'  =>  $user->getId()
         ));
+
+        if($kyc->getDocumentFront()){
+            $user_files[] = array(
+                'tag' => 'document_front',
+                'url'=> $kyc->getDocumentFront(),
+                'status' => $kyc->getDocumentFrontStatus(),
+                'deleted' => false
+            );
+        }
+        if($kyc->getDocumentRear()){
+            $user_files[] = array(
+                'tag' => 'document_rear',
+                'url'=> $kyc->getDocumentRear(),
+                'status' => $kyc->getDocumentRearStatus(),
+                'deleted' => false
+            );
+        }
+
         return $this->rest(
             200,
             "Request successful",
