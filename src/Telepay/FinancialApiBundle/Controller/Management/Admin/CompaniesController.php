@@ -112,19 +112,20 @@ class CompaniesController extends BaseApiController
             $subtype = $allowed_subtypes[0];
         }
 
-        $category = $params['category'];
-        $category_exists = $em->getRepository('TelepayFinancialApiBundle:Category')->findOneBy(array(
-                "id" => $category
-            )
-        );
-        if(!$category_exists) {
-            throw new HttpException(404, 'Category not found');
-        }
-        else{
-            $company->setCategory($category_exists);
-            $em->persist($company);
-            $em->flush();
-            $request->request->remove('category');
+        if(isset($params['category'])) {
+            $category = $params['category'];
+            $category_exists = $em->getRepository('TelepayFinancialApiBundle:Category')->findOneBy(array(
+                    "id" => $category
+                )
+            );
+            if (!$category_exists) {
+                throw new HttpException(404, 'Category not found');
+            } else {
+                $company->setCategory($category_exists);
+                $em->persist($company);
+                $em->flush();
+                $request->request->remove('category');
+            }
         }
 
         $response = parent::updateAction($request, $id);
