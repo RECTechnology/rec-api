@@ -292,7 +292,7 @@ class KYCController extends BaseApiController{
     public function createLemonAccountAction(Request $request, $id){
         $em = $this->getDoctrine()->getManager();
         $company=$em->getRepository('TelepayFinancialApiBundle:Group')->findOneBy(array(
-            'id' => $id
+            'kyc_manager' => $id
         ));
 
         $individual = false;
@@ -416,7 +416,7 @@ class KYCController extends BaseApiController{
         }
 
         $company=$em->getRepository('TelepayFinancialApiBundle:Group')->findOneBy(array(
-            'id' => $id
+            'kyc_manager' => $id
         ));
         $lemon_username = $company->getCIF();
 
