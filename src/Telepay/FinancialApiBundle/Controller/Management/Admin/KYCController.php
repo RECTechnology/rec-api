@@ -154,6 +154,10 @@ class KYCController extends BaseApiController{
      * @Rest\View
      */
     public function getUploadedFiles($id){
+        if(!$this->get('security.context')->isGranted('ROLE_SUPER_ADMIN')) {
+            throw new HttpException(403, 'You have not the necessary permissions');
+        }
+
         $em = $this->getDoctrine()->getManager();
         $user=$em->getRepository('TelepayFinancialApiBundle:User')->findOneBy(array(
             'id' => $id
@@ -205,6 +209,10 @@ class KYCController extends BaseApiController{
      * @Rest\View
      */
     public function deleteFile($tag, $id){
+        if(!$this->get('security.context')->isGranted('ROLE_SUPER_ADMIN')) {
+            throw new HttpException(403, 'You have not the necessary permissions');
+        }
+
         $em = $this->getDoctrine()->getManager();
         $user = $em->getRepository('TelepayFinancialApiBundle:User')->find($id);
         if(!$user){
@@ -235,6 +243,10 @@ class KYCController extends BaseApiController{
      * @Rest\View
      */
     public function uploadFile(Request $request, $tag, $id){
+        if(!$this->get('security.context')->isGranted('ROLE_SUPER_ADMIN')) {
+            throw new HttpException(403, 'You have not the necessary permissions');
+        }
+
         $paramNames = array(
             'url'
         );
@@ -308,6 +320,11 @@ class KYCController extends BaseApiController{
      * @Rest\View
      */
     public function createLemonAccountAction(Request $request, $id){
+
+        if(!$this->get('security.context')->isGranted('ROLE_SUPER_ADMIN')) {
+            throw new HttpException(403, 'You have not the necessary permissions');
+        }
+
         $em = $this->getDoctrine()->getManager();
         $company=$em->getRepository('TelepayFinancialApiBundle:Group')->findOneBy(array(
             'kyc_manager' => $id
@@ -424,6 +441,11 @@ class KYCController extends BaseApiController{
     }
 
     public function uploadLemonDocumentationAction(Request $request, $id){
+
+        if(!$this->get('security.context')->isGranted('ROLE_SUPER_ADMIN')) {
+            throw new HttpException(403, 'You have not the necessary permissions');
+        }
+
         $em = $this->getDoctrine()->getManager();
         $moneyProvider = $this->get('net.telepay.in.lemonway.v1');
         $uploads_dir = $this->container->getParameter('uploads_dir');
@@ -566,6 +588,27 @@ class KYCController extends BaseApiController{
         else{
             return $this->rest(204, 'All data checked properly');
         }
+    }
+
+    public function newLemonIdAction(Request $request){
+        if(!$this->get('security.context')->isGranted('ROLE_SUPER_ADMIN')) {
+            throw new HttpException(403, 'You have not the necessary permissions');
+        }
+
+        $paramNames = array(
+            'old_id',
+            'new_id'
+        );
+
+        foreach($paramNames as $paramName){
+            if(!$request->request->has($paramName)){
+                throw new HttpException(404, 'Param '.$paramName.' not found');
+            }
+        }
+
+        $moneyProvider = $this->get('net.telepay.in.lemonway.v1');
+        $response = $moneyProvider->UpdateIdentification($request->request->get('old_id'), $request->request->get('old_id'));
+        return $this->rest(204, "Done", $response);
     }
 
     private function checkLemonUpload($data){

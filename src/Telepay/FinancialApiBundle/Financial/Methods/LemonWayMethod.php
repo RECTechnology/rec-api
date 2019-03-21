@@ -91,6 +91,14 @@ class LemonWayMethod extends BaseMethod {
         return $response;
     }
 
+    public function UpdateIdentification($old_id, $new_id){
+        $response = $this->driver->callService("UpdateWalletDetails", array(
+            "wallet" => $old_id,
+            "newCompanyIdentificationNumber" => $new_id
+        ));
+        return $response;
+    }
+
     public function CreditCardPayment($amount, $token, $save = false){
         $admin = $this->container->getParameter('lemonway_admin_account');
         $notification_url = $this->container->getParameter('lemonway_notification_url');
