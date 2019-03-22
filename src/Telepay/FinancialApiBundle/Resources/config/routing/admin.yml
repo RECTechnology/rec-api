@@ -315,7 +315,13 @@ admin_user_actions:
     requirements:
         _method: PUT
 
-
+admin_groups_delete_users:
+    pattern:  /admin/v1/groups/{group_id}/{user_id}
+    defaults: { _controller: Telepay\FinancialApiBundle\Controller\Management\Admin\UsersController::deleteFromGroupAction, _format: ~ }
+    requirements:
+        _method: DELETE
+        group_id: "[0-9]+"
+        user_id: "[0-9]+"
 
 ##################### MAP ############################
 

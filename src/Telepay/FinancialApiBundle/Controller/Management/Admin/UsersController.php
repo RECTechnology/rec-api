@@ -404,6 +404,55 @@ class UsersController extends BaseApiController{
 
     /**
      * @Rest\View
+     */
+    public function deleteFromGroupAction(Request $request, $user_id, $group_id){
+        if (!$this->get('security.context')->isGranted('ROLE_SUPER_ADMIN')) throw new HttpException(403, 'You don\'t have the necessary permissions');
+
+        $groupsRepository = $this->getDoctrine()->getRepository("TelepayFinancialApiBundle:Group");
+        $group = $groupsRepository->find($group_id);
+        if(!$group) throw new HttpException(404, "Group not found");
+
+        $usersRepository = $this->getDoctrine()->getRepository("TelepayFinancialApiBundle:User");
+        $user = $usersRepository->find($user_id);
+        if(!$user) throw new HttpException(404, "User not found");
+
+        $user_groups = $this->getDoctrine()->getRepository('TelepayFinancialApiBundle:UserGroup')->findBy(array(
+            'user'  =>  $user->getId()
+        ));
+
+        if(count($user_groups)<2){
+            throw new HttpException(404, "User can not be expel.");
+        }
+
+        $group_users = $this->getDoctrine()->getRepository('TelepayFinancialApiBundle:UserGroup')->findBy(array(
+            'group'  =>  $group->getId()
+        ));
+
+        if(count($group_users)<2){
+            throw new HttpException(404, "User can not be expel.");
+        }
+
+        $repo = $this->getDoctrine()->getRepository("TelepayFinancialApiBundle:UserGroup");
+        $entity = $repo->findOneBy(array('user'=>$user_id, 'group'=>$group_id));
+        if(empty($entity)) throw new HttpException(404, "Not found");
+        $em = $this->getDoctrine()->getManager();
+        $em->remove($entity);
+        $em->flush();
+
+        if($user->getActiveGroup()->getId() == $group_id){
+            foreach($user_groups as $user_group){
+                if($user_group->getGroup()->getId()!=$group_id){
+                    $user->setActiveGroup($user_group->getGroup()->getId());
+                }
+            }
+        }
+        $em->persist($user);
+        $em->flush();
+        return $this->rest(204, "User removed successfully");
+    }
+
+        /**
+     * @Rest\View
      * @param Request $request
      * @param $id
      * @param $action

@@ -138,7 +138,7 @@ class UsersGroupsController extends RestApiController{
         if($user->getActiveGroup()->getId() == $group_id){
             foreach($user_groups as $user_group){
                 if($user_group->getGroup()->getId()!=$group_id){
-                    $user->setActiveGroup();
+                    $user->setActiveGroup($user_group->getGroup()->getId());
                 }
             }
         }
