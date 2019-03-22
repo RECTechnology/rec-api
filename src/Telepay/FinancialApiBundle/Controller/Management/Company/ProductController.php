@@ -59,7 +59,7 @@ class ProductController extends BaseApiController{
                 throw new HttpException(400, "Offered products too large");
             }
             $group->setOfferedProducts($offered_products);
-            $result[] = $offered_products;
+            $result['offered_products'] = $offered_products;
             $saved = true;
         }
         if($request->query->has('needed_products') && $request->query->get('needed_products')!='') {
@@ -68,7 +68,7 @@ class ProductController extends BaseApiController{
                 throw new HttpException(400, "Needed products too large");
             }
             $group->setNeededProducts($needed_products);
-            $result[] = $needed_products;
+            $result['needed_products'] = $needed_products;
             $saved = true;
         }
         if($saved){

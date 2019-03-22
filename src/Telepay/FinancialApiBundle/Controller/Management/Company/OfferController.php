@@ -59,7 +59,6 @@ class OfferController extends BaseApiController{
         $filename = $hash . '.' . $ext;
 
         file_put_contents($fileManager->getUploadsDir() . '/' . $filename, $fileContents);
-
         $tmpFile = new File($fileManager->getUploadsDir() . '/' . $filename);
         if (!in_array($tmpFile->getMimeType(), UploadManager::$FILTER_IMAGES))
             throw new HttpException(400, "Bad file type");
@@ -120,7 +119,7 @@ class OfferController extends BaseApiController{
             $offer->setDescription($request->request->get('description'));
         }
         $em->flush();
-        return $this->restV2(204, 'ok', 'Offer updated successfully');
+        return $this->restV2(200, 'ok', 'Offer updated successfully');
     }
 
     /**

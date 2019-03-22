@@ -144,7 +144,7 @@ abstract class BaseApiController extends RestApiController implements Repository
         $em->remove($entity);
         $em->flush();
 
-        return $this->restV2(204,"ok", "Deleted successfully", array());
+        return $this->restV2(200,"ok", "Deleted successfully", array());
     }
 
     private function attributeToSetter($str) {
