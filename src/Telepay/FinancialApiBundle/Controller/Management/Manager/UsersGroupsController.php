@@ -110,6 +110,10 @@ class UsersGroupsController extends RestApiController{
         $user = $usersRepository->find($user_id);
         if(!$user) throw new HttpException(404, "User not found");
 
+        if($group->getKycManager()==$user_id){
+            throw new HttpException(404, "KYC manager can not be expel");
+        }
+
         $user_groups = $this->getDoctrine()->getRepository('TelepayFinancialApiBundle:UserGroup')->findBy(array(
             'user'  =>  $user->getId()
         ));
