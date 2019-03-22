@@ -709,7 +709,7 @@ class Group extends BaseGroup implements EntityWithUploadableFields
      * @param mixed $country
      */
     public function setCountry($country){
-        if(count($country)!=3){
+        if(strlen($country)!=3){
             throw new \LogicException('Country must be ISO-3');
         }
         $this->country = $country;
