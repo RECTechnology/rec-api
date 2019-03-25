@@ -185,7 +185,7 @@ class IncomingController2 extends RestApiController{
                 }
                 if(isset($data['card_id'])){
                     $logger->info('(' . $group_id . ')(T) WITH CARD');
-                    if(array_key_exists('pin', $data) && $data['pin']!='' && intval($data['pin'])>0){
+                    if(array_key_exists('pin', $data) && $data['pin']!='' && intval($data['pin'])>=0){
                         $pin = $data['pin'];
                         if($user->getPIN()!=$pin){
                             throw new HttpException(400, 'Incorrect Pin');
