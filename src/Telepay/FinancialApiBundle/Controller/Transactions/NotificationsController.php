@@ -62,14 +62,21 @@ class NotificationsController extends RestApiController{
 
         if (!$transaction) throw new HttpException(404, 'Transaction not found');
         $logger->info('notifications -> transaction found');
-        if ($transaction->getStatus() != Transaction::$STATUS_CREATED) {
+        if ($transaction->getNotified()) {
+            $logger->info('notifications -> TX NOTIFIED ' . $transaction->getStatus());
             return array('status' => $status, 'message' => 'Transaction notificated yet');
         }
         $paymentInfo = $transaction->getPayInInfo();
         if ($paymentInfo['transaction_id'] != $tid) throw new HttpException(409, 'Notification not allowed');
 
-        if($status == 'cancel' || $status == 'error') {
+        $logger->info('notifications -> LEMON STATUS CHECK ' . $status);
+        if($status === 'cancel' || $status === 'error') {
+            $logger->info('notifications -> ERROR');
             $transaction->setStatus('failed');
+            $paymentInfo['payment_info'] = json_encode($allParams);
+            $paymentInfo['received'] = 0;
+            $paymentInfo['status'] = 'failed';
+            $paymentInfo['final'] = true;
             $paymentInfo['error'] = $params['response_code'];
             $paymentInfo['concept'] = 'error status';
             $transaction->setPayInInfo($paymentInfo);
@@ -116,8 +123,10 @@ class NotificationsController extends RestApiController{
                 $resultado = $cashInMethod->send($sentInfo);
                 $logger->info('notifications -> eur resultado => '. json_encode($resultado));
             }
-            elseif ($paymentInfo['status'] == 'failed') {
+            elseif ($paymentInfo['status'] === 'failed') {
+                $logger->info('notifications -> FAILED');
                 $paymentInfo['error'] = $params['response_code'];
+                $paymentInfo['payment_info'] = json_encode($allParams);
                 $transaction->setStatus('failed');
                 $transaction->setPayInInfo($paymentInfo);
             }
