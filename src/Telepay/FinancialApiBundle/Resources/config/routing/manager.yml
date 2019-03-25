@@ -1,19 +1,19 @@
 
 ##################### manager/users ############################
 
-admin_users_index:
+manager_users_index:
     pattern:  /manager/v1/users
     defaults: { _controller: Telepay\FinancialApiBundle\Controller\Management\Manager\UsersController::indexAction, _format: ~ }
     requirements:
         _method: GET
 
-admin_users_index_v2:
+manager_users_index_v2:
     pattern:  /manager/v2/users
     defaults: { _controller: Telepay\FinancialApiBundle\Controller\Management\Manager\UsersController::indexV2Action, _format: ~ }
     requirements:
         _method: GET
 
-admin_users_index_by_group_old:
+manager_users_index_by_group_old:
     pattern:  /users/v1/usersbygroup/{id}
     defaults: { _controller: Telepay\FinancialApiBundle\Controller\Management\Manager\UsersController::indexByGroup, _format: ~ }
     requirements:
@@ -48,34 +48,34 @@ manager_users_read:
 
 ##########################    MANAGER COMPANIES     ###########################
 
-admin_groups_index_v1:
+manager_groups_index_v1:
     pattern:  /manager/v1/groups
     defaults: { _controller: Telepay\FinancialApiBundle\Controller\Management\Manager\GroupsController::indexAction, _format: ~ }
     requirements:
         _method: GET
 
 
-admin_groups_index_v2:
+manager_groups_index_v2:
     pattern:  /manager/v2/groups
     defaults: { _controller: Telepay\FinancialApiBundle\Controller\Management\Manager\GroupsController::indexV2Action, _format: ~ }
     requirements:
         _method: GET
 
-admin_groups_read:
+manager_groups_read:
     pattern:  /groups/v1/show/{id}
     defaults: { _controller: Telepay\FinancialApiBundle\Controller\Management\Manager\GroupsController::showAction, _format: ~ }
     requirements:
         _method: GET
         id: "[0-9]+"
 
-##admin_groups_add:
+##manager_groups_add:
 ##    pattern:  /manager/v1/groups
 ##    defaults: { _controller: Telepay\FinancialApiBundle\Controller\Management\Manager\GroupsController::createAction, _format: ~ }
 ##    requirements:
 ##        _method: POST
 ##        name: "string"
 
-admin_groups_update:
+manager_groups_update:
     pattern:  /manager/v1/groups/{id}
     defaults: { _controller: Telepay\FinancialApiBundle\Controller\Management\Manager\GroupsController::updateAction, _format: ~ }
     requirements:
@@ -84,7 +84,7 @@ admin_groups_update:
         name: "string"
 
 
-admin_groups_update_limit:
+manager_groups_update_limit:
     pattern:  /manager/v1/groups/limit/{id}
     defaults: { _controller: Telepay\FinancialApiBundle\Controller\Management\Manager\LimitsGroupController::updateAction, _format: ~ }
     requirements:
@@ -92,21 +92,21 @@ admin_groups_update_limit:
         id: "[0-9]+"
 
 
-admin_groups_delete:
+manager_groups_delete:
     pattern:  /manager/v1/groups/{id}
     defaults: { _controller: Telepay\FinancialApiBundle\Controller\Management\Manager\GroupsController::deleteAction, _format: ~ }
     requirements:
         _method: DELETE
         id: "[0-9]+"
 
-admin_groups_add_users:
+manager_groups_add_users:
     pattern:  /manager/v1/groups/{id}
     defaults: { _controller: Telepay\FinancialApiBundle\Controller\Management\Manager\UsersGroupsController::createAction, _format: ~ }
     requirements:
         _method: POST
         user_id: "[0-9]+"
 
-admin_groups_index_by_user:
+manager_groups_index_by_user:
     pattern:  /manager/v1/groupsbyuser/{id}
     defaults: { _controller: Telepay\FinancialApiBundle\Controller\Management\Manager\GroupsController::indexByCompany, _format: ~ }
     requirements:
@@ -119,7 +119,7 @@ admin_groups_index_by_user:
 ##        _method: POST
 ##        user_id: "[0-9]+"
 
-admin_groups_delete_users:
+manager_groups_delete_users:
     pattern:  /manager/v1/groups/{group_id}/{user_id}
     defaults: { _controller: Telepay\FinancialApiBundle\Controller\Management\Manager\UsersGroupsController::deleteAction, _format: ~ }
     requirements:
@@ -127,7 +127,7 @@ admin_groups_delete_users:
         group_id: "[0-9]+"
         user_id: "[0-9]+"
 
-admin_groups_add_users_role:
+manager_groups_add_users_role:
     pattern:  /manager/v1/groupsrole/{group_id}/{user_id}
     defaults: { _controller: Telepay\FinancialApiBundle\Controller\Management\Manager\UsersGroupsController::addRoleAction, _format: ~ }
     requirements:
@@ -135,7 +135,7 @@ admin_groups_add_users_role:
         group_id: "[0-9]+"
         user_id: "[0-9]+"
 
-admin_groups_delete_users_role:
+manager_groups_delete_users_role:
     pattern:  /manager/v1/groupsrole/{group_id}/{user_id}
     defaults: { _controller: Telepay\FinancialApiBundle\Controller\Management\Manager\UsersGroupsController::deleteRoleAction, _format: ~ }
     requirements:
