@@ -111,7 +111,7 @@ class UsersGroupsController extends RestApiController{
         if(!$user) throw new HttpException(404, "User not found");
 
         if($group->getKycManager()==$user_id){
-            throw new HttpException(404, "KYC manager can not be expel");
+            throw new HttpException(404, "KYC manager can not be expelled");
         }
 
         $user_groups = $this->getDoctrine()->getRepository('TelepayFinancialApiBundle:UserGroup')->findBy(array(
@@ -119,7 +119,7 @@ class UsersGroupsController extends RestApiController{
         ));
 
         if(count($user_groups)<2){
-            throw new HttpException(404, "User can not be expel.");
+            throw new HttpException(404, "The user can not be expelled");
         }
 
         $group_users = $this->getDoctrine()->getRepository('TelepayFinancialApiBundle:UserGroup')->findBy(array(
@@ -127,7 +127,7 @@ class UsersGroupsController extends RestApiController{
         ));
 
         if(count($group_users)<2){
-            throw new HttpException(404, "User can not be expel.");
+            throw new HttpException(404, "User can not be expelled");
         }
 
         if(!$admin->hasGroup($group->getName()) && !$admin->hasRole('ROLE_SUPER_ADMIN')) throw new HttpException(409, 'You don\'t have the necesary permissions');
