@@ -176,6 +176,7 @@ class IncomingController2 extends RestApiController{
                         'type' => 'COMPANY'
                     ));
                     if(!$commerce){
+                        $logger->info('(' . $data['commerce_id'] . ')(T) LEMON_COMMERCE');
                         throw new HttpException(405,'Commerce selected is not available');
                     }
                 }
