@@ -36,8 +36,8 @@ parameters:
 
     rec_user: app
     rec_pass: $APP_SECRET
-    rec_host: node
-    rec_port: 17711
+    rec_host: $NODE_HOST
+    rec_port: $NODE_PORT
 
     admin_key: $APP_SECRET
     saved_data_version: 1
