@@ -378,8 +378,24 @@ class MapController extends BaseApiController{
      * @return \Symfony\Component\HttpFoundation\Response
      */
     public function adminSearchV2(Request $request){
-
         if(!$this->get('security.context')->isGranted('ROLE_SUPER_ADMIN')) throw new HttpException(403, 'You don\'t have the necessary permissions');
+        $wholesale = $request->query->getInt('wholesale', 0);
+        $retailer = $request->query->getInt('retailer', 0);
+        $all = false;
+        $subtype = '';
+        if($retailer==1 && $wholesale==1) {
+            $all = true;
+        }
+        elseif($retailer==1) {
+            $subtype = 'RETAILER';
+        }
+        elseif($wholesale==1) {
+            $subtype = 'WHOLESALE';
+        }
+        else{
+            throw new HttpException(400, "Filters options are incorrect");
+        }
+
         $limit = $request->query->getInt('limit', 10);
         $offset = $request->query->getInt('offset', 0);
         $search = $request->query->get('search', '');
@@ -389,7 +405,6 @@ class MapController extends BaseApiController{
         $max_lat =  $request->query->get('max_lat',  90.0);
         $min_lon =  $request->query->get('min_lon',  -90.0);
         $max_lon = $request->query->get('max_lon', 90.0);
-        $acc_subtype = $request->query->getAlnum('subtype', '');
         /** @var EntityManagerInterface $em */
         $em = $this->getDoctrine()->getManager();
         /** @var QueryBuilder $qb */
@@ -417,8 +432,10 @@ class MapController extends BaseApiController{
         $and->add($qb->expr()->gt('a.longitude', $min_lon));
         $and->add($qb->expr()->lt('a.longitude', $max_lon));
         $and->add($qb->expr()->like('a.type', $qb->expr()->literal('COMPANY')));
-        if($acc_subtype != '')
-            $and->add($qb->expr()->like('a.subtype', $qb->expr()->literal($acc_subtype)));
+        if(!$all) {
+            $and->add($qb->expr()->like('a.subtype', $qb->expr()->literal($subtype)));
+        }
+
         //$now = strtotime("now");
         //$and->add($qb->expr()->gt('TIMESTAMP(o.start)', $now));
         //$and->add($qb->expr()->lt('TIMESTAMP(o.end)', $now));
