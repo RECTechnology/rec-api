@@ -58,14 +58,19 @@ class FileSetterListener
             $prop = $class->getProperty($field);
             $prop->setAccessible(true);
             $fileSrc = $prop->getValue($entity);
-            $logger->info("[FileSetterListener] Changing '$field' for class '" . ClassUtils::getClass($entity) . "', orig=" . $fileSrc);
+            if($fileSrc){
+                $logger->info("[FileSetterListener] Changing '$field' for class '" . ClassUtils::getClass($entity) . "', orig=" . $fileSrc);
 
-            //download the file
-            $fileContents = $fileManager->readFileUrl($fileSrc);
-            $filename = $fileManager->saveFile($fileContents, $filter);
+                //download the file
+                $fileContents = $fileManager->readFileUrl($fileSrc);
+                $filename = $fileManager->saveFile($fileContents, $filter);
 
-            $prop->setValue($entity, $filename);
-            $logger->info("[FileSetterListener] Set '$field' for class '" . ClassUtils::getClass($entity) . "', new=" . $filename);
+                $prop->setValue($entity, $filename);
+                $logger->info("[FileSetterListener] Set '$field' for class '" . ClassUtils::getClass($entity) . "', new=" . $filename);
+            }
+            else{
+                $logger->info("[FileSetterListener] Changing '$field' for class '" . ClassUtils::getClass($entity) . "', new=null");
+            }
         }
         $em->persist($entity);
         $uow->recomputeSingleEntityChangeSet($em->getClassMetadata(ClassUtils::getClass($entity)), $entity);
