@@ -65,11 +65,13 @@ class TransactionsController extends RestApiController {
         $search = $request->query->get("search", "");
         $sort = $request->query->getAlnum("sort", "updated");
         $order = $request->query->getAlpha("order", "desc");
+        $total = 0;
 
         if($search!=""){
             $qb = array();
             $trans = $dm->getRepository('TelepayFinancialApiBundle:Transaction')->find($search);
             if($trans){
+                $total = 1;
                 $payment_info = $trans->getPayInInfo();
                 $txid = $payment_info['txid'];
                 if($trans->getType()=='in'){
@@ -99,6 +101,13 @@ class TransactionsController extends RestApiController {
             else{
                 $finish_date = new \MongoDate(strtotime('now'));
             }
+
+            $total = $dm->createQueryBuilder('TelepayFinancialApiBundle:Transaction')
+                ->field('service')->equals('rec')
+                ->field('updated')->gte($start_date)
+                ->field('updated')->lte($finish_date)
+                ->field('type')->equals('out')
+                ->getQuery()->getSingleScalarResult();
 
             $qb = $dm->createQueryBuilder('TelepayFinancialApiBundle:Transaction')
                 ->field('service')->equals('rec')
@@ -149,7 +158,13 @@ class TransactionsController extends RestApiController {
                 $updated->format('Y-m-d H:i:s')
             );
         }
-        return $this->restV2(200,"ok", "List transactions generated", $result);
+        $data = array(
+            'list' => $result,
+            'total' => $total,
+            'limit' => $limit,
+            'offset' => $offset
+        );
+        return $this->restV2(200,"ok", "List transactions generated", $data);
     }
 
 
