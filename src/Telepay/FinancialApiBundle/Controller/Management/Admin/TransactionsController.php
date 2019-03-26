@@ -107,8 +107,9 @@ class TransactionsController extends RestApiController {
                 ->field('updated')->gte($start_date)
                 ->field('updated')->lte($finish_date)
                 ->field('type')->equals('out')
-                ->select('count(*)')
-                ->getQuery()->getSingleScalarResult();
+                ->getQuery();
+
+            $total = count($total);
 
             $qb = $dm->createQueryBuilder('TelepayFinancialApiBundle:Transaction')
                 ->field('service')->equals('rec')
