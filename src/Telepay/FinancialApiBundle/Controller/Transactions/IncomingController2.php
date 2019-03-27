@@ -539,8 +539,11 @@ class IncomingController2 extends RestApiController{
             )
         );
         if($card){
-            throw new HttpException(400,'User with card saved: ' . $params['dni']);
+            $card->setDeleted(true);
+            $em->persist($card);
+            $em->flush();
         }
+
         $group_commerce = $em->getRepository('TelepayFinancialApiBundle:Group')->findOneBy(array(
                 'cif'=>$params['cif'],
                 'type' => 'COMPANY'
