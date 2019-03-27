@@ -54,9 +54,10 @@ class NotificationsController extends RestApiController{
         $dm = $this->get('doctrine_mongodb')->getManager();
         $em = $this->getDoctrine()->getManager();
 
-        $tid = $params['response_transactionId'];
+        $tid = $params['response_wkToken'];
+        $logger->info('notifications -> ID = ' . $tid);
         $transaction = $dm->createQueryBuilder('TelepayFinancialApiBundle:Transaction')
-            ->field('pay_in_info.transaction_id')->equals($tid)
+            ->field('pay_in_info.wl_token')->equals($tid)
             ->getQuery()
             ->getSingleResult();
 
