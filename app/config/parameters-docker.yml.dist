@@ -46,8 +46,9 @@ parameters:
 
     rec_min_confirmations: 1
 
-    id_group_root: 1
-    admin_user_id: 1
+    id_group_root: $APP_ROOT_GROUP
+    admin_user_id: $APP_ROOT_USER
+
     treasure_address: $APP_TREASURE_ADDRESS
     root_group_address: $APP_ROOT_ADDRESS
 
