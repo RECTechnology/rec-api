@@ -66,8 +66,11 @@ parameters:
     treasure_address: 'address'
 #Root rec address from all the recs are distributed to users
     root_group_address: 'address'
-#root group to manage recs and manual and delegated changes
+
+    #root group to manage recs and manual and delegated changes
     id_group_root: 1
+    #root group to manage recs and manual and delegated changes
+    admin_user_id: 1
 
 #client id to check if petions are from admin pamel
     admin_client_id: 2
