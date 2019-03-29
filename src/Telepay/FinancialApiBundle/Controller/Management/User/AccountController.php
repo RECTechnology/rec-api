@@ -293,8 +293,7 @@ class AccountController extends BaseApiController{
             'repin',
             'dni',
             'security_question',
-            'security_answer',
-            'latitude'
+            'security_answer'
         );
         //throw new HttpException(404, 'Must update');
         $valid_types = array('mobile');
@@ -467,6 +466,8 @@ class AccountController extends BaseApiController{
             $company->setPrefix($prefix);
         }
 
+        $latitude=0;
+        $longitude=0;
         if($request->request->has('latitude') && $request->request->get('latitude')!='') {
             $latitude = $request->request->get('latitude');
         }
