@@ -153,6 +153,14 @@ class LemonWayMethod extends BaseMethod {
         return $response;
     }
 
+    public function GetBalances(){
+        $now = time();
+        $response = $this->driver->callService("GetBalances", array(
+            "updateDate" => $now
+        ));
+        return $response;
+    }
+
     public function getMinimumAmount(){
         return $this->minimum;
     }
