@@ -190,38 +190,13 @@ class WalletController extends RestApiController {
                                 return true;
                             }
                         }
-                        if (typeof this.pay_in_info.reference !== 'undefined') {
-                            if(String(this.pay_in_info.reference).indexOf('$search') > -1){
-                                return true;
-                            }
-                        }
                         if (typeof this.pay_in_info.txid !== 'undefined') {
                             if(String(this.pay_in_info.txid).indexOf('$search') > -1){
                                 return true;
                             }
                         }
-                        if (typeof this.pay_in_info.teleingreso_id !== 'undefined') {
-                            if(String(this.pay_in_info.teleingreso_id).indexOf('$search') > -1){
-                                return true;
-                            }
-                        }
-                        if (typeof this.pay_in_info.charge_id !== 'undefined') {
-                            if(String(this.pay_in_info.charge_id).indexOf('$search') > -1){
-                                return true;
-                            }
-                        }
-                        if (typeof this.pay_in_info.track !== 'undefined') {
-                            if(String(this.pay_in_info.track).indexOf('$search') > -1){
-                                return true;
-                            }
-                        }
                     }
                     if (typeof this.pay_out_info !== 'undefined') {
-                        if (typeof this.pay_out_info.halcashticket !== 'undefined') {
-                            if(String(this.pay_out_info.halcashticket).indexOf('$search') > -1){
-                                return true;
-                            }
-                        }
                         if (typeof this.pay_out_info.txid !== 'undefined') {
                             if(String(this.pay_out_info.txid).indexOf('$search') > -1){
                                 return true;
@@ -234,21 +209,6 @@ class WalletController extends RestApiController {
                         }
                         if (typeof this.pay_out_info.concept !== 'undefined') {
                             if(String(this.pay_out_info.concept).indexOf('$search') > -1){
-                                return true;
-                            }
-                        }
-                        if (typeof this.pay_out_info.email !== 'undefined') {
-                            if(String(this.pay_out_info.email).indexOf('$search') > -1){
-                                return true;
-                            }
-                        }
-                        if (typeof this.pay_out_info.find_token !== 'undefined') {
-                            if(String(this.pay_out_info.find_token).indexOf('$search') > -1){
-                                return true;
-                            }
-                        }
-                        if (typeof this.pay_out_info.phone !== 'undefined') {
-                            if(String(this.pay_out_info.phone).indexOf('$search') > -1){
                                 return true;
                             }
                         }
@@ -276,6 +236,7 @@ class WalletController extends RestApiController {
 
         $transactions = $qb
             ->field('status')->notIn(array('deleted'))
+            ->field('internal')->equals(0)
             ->sort('updated','desc')
             ->sort('id','desc')
             ->getQuery()
