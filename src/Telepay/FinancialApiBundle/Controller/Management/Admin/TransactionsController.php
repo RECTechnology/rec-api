@@ -144,7 +144,6 @@ class TransactionsController extends RestApiController {
                 $re_subtype = '-';
             }
 
-            $updated = $transaction->getUpdated();
             $result[]=array(
                 $transaction->getId(),
                 $sender->getId(),
@@ -157,7 +156,7 @@ class TransactionsController extends RestApiController {
                 $transaction->getInternal(),
                 $transaction->getStatus(),
                 $transaction->getAmount(),
-                $updated->format('Y-m-d H:i:s')
+                $transaction->getUpdated()
             );
         }
         $data = array(
