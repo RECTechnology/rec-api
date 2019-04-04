@@ -24,7 +24,7 @@ class UpdateLemonBalanceCommand extends ContainerAwareCommand{
         $list_balances = $lemonProvider->GetBalances();
         $output->writeln(json_encode($list_balances));
 
-        foreach ( $list_balances["WALLETS"] as $balance ){
+        foreach ( $list_balances["WALLETS"]["WALLET"] as $balance ){
             $output->writeln(json_encode($balance));
             $lemon_id = $balance["WALLET"]["ID"];
             $lemon_balance = $balance["BAL"];
