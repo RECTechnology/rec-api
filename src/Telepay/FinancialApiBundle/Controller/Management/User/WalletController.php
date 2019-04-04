@@ -70,7 +70,7 @@ class WalletController extends RestApiController{
         $em = $this->getDoctrine()->getManager();
         $where = array(
             'type'  =>  'COMPANY',
-            'tier'  =>  1
+            'tier'  =>  2
         );
         $list_companies = $em->getRepository('TelepayFinancialApiBundle:Group')->findBy($where);
 
