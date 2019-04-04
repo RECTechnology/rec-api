@@ -19,8 +19,8 @@ class DelegatedExchangeCommand extends ContainerAwareCommand
 {
     protected function configure(){
         $this
-            ->setName('rec:delegated:exchange')
-            ->setDescription('Delegated exchange')
+            ->setName('rec:delegated:changes')
+            ->setDescription('Delegated change')
         ;
     }
 

@@ -32,6 +32,8 @@ class UsersController extends BaseApiController{
      * @Rest\View
      */
     public function showAction($id){
+        $admin_user = $this->get('security.context')->getToken()->getUser();
+        if(!$admin_user->hasRole('ROLE_SUPER_ADMIN')) throw new HttpException(403, 'You don\'t have the necessary permissions');
 
         $user = $this->getRepository()->find($id);
 
@@ -144,11 +146,6 @@ class UsersController extends BaseApiController{
                 $kyc->setName($request->request->get('name'));
                 $em->persist($kyc);
             }
-
-
-
-
-
             $em->flush();
         }
         return $resp;

@@ -22,6 +22,7 @@ class UpdateLemonBalanceCommand extends ContainerAwareCommand{
         $em = $this->getContainer()->get('doctrine')->getManager();
         $lemonProvider = $this->getContainer()->get('net.telepay.in.lemonway.v1');
         $list_balances = $lemonProvider->GetBalances();
+        $output->writeln(json_encode($list_balances));
 
         foreach ( $list_balances["WALLETS"] as $balance ){
             $output->writeln(json_encode($balance));
@@ -30,9 +31,8 @@ class UpdateLemonBalanceCommand extends ContainerAwareCommand{
             $lemon_status = $balance["WALLET"]["S"];
             $output->writeln($lemon_id . "-" . $lemon_balance . "-" . $lemon_status);
             //$em->
-            //$wallet = $account->getWallet('rec');
-            //$address = $account->getRecAddress();
-            //$balance = $wallet->getBalance();
+            //$wallet = $account->getWallet('eur');
+            //$wallet->setBalance(intval($lemon_balance*100));
             //$em->persist($wallet);
             //$em->flush();
         }
