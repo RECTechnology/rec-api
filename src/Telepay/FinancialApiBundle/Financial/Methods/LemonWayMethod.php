@@ -154,10 +154,7 @@ class LemonWayMethod extends BaseMethod {
     }
 
     public function GetBalances(){
-        $now = time();
-        $response = $this->driver->callService("GetBalances", array(
-            "updateDate" => $now
-        ));
+        $response = $this->driver->callService("GetBalances", array());
         $response = json_decode(json_encode($response), true);
         return $response;
     }
