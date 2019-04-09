@@ -154,7 +154,8 @@ class LemonWayMethod extends BaseMethod {
     }
 
     public function GetBalances(){
-        $now = time()-63072000;
+        //miramos solo los que se han modificado el último día (con 10 minutos de margen)
+        $now = time()-86400-600;
         $response = $this->driver->callService("GetBalances", array(
             "updateDate" => $now
         ));

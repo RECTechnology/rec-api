@@ -393,7 +393,7 @@ class MapController extends BaseApiController{
             $subtype = 'WHOLESALE';
         }
         else{
-            throw new HttpException(400, "Filters options are incorrect");
+            $all = true;
         }
 
         $limit = $request->query->getInt('limit', 10);
