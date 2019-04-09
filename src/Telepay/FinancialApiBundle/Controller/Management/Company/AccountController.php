@@ -106,7 +106,14 @@ class AccountController extends BaseApiController{
 
         $all = $request->request->all();
         foreach ($all as $key=>$value){
-            if(in_array($key,$invalid_params)) throw new HttpException(403, 'You don\'t have the necessary permissions to change this params. Please check documentation');
+            if(in_array($key,$invalid_params))
+                throw new HttpException(403, 'You don\'t have the necessary permissions to change this params. Please check documentation');
+        }
+
+        if($request->request->has('country')){
+            $userCountry = $request->request->has('country');
+            if(strlen($userCountry) != 3)
+                throw new HttpException(400, "Country code must be ISO_3166-1_alpha-3 compliant, (Spain: ESP, France: FRA, more info https://en.wikipedia.org/wiki/ISO_3166-1_alpha-3)");
         }
 
         return parent::updateAction($request, $account_id);
