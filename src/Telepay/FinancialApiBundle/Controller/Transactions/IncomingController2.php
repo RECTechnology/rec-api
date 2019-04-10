@@ -98,6 +98,7 @@ class IncomingController2 extends RestApiController{
         $logger->info('(' . $group_id . ')(T) FIND USER');
 
         //obtain wallet and check founds for cash_out services for this group
+        /** @var UserWallet $wallet */
         $wallet = $group->getWallet($method->getCurrency());
 
         if(array_key_exists('amount', $data) && $data['amount']!='' && intval($data['amount'])>0){
@@ -110,7 +111,7 @@ class IncomingController2 extends RestApiController{
 
         if($type == 'out'){
             if($wallet->getAvailable() < $amount) {
-                throw new HttpException(405, 'Not founds enough');
+                throw new HttpException(400, 'Not funds enough');
             }
 
             if($amount < $method->getMinimumAmount()){

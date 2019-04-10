@@ -170,6 +170,6 @@ class AccountController extends BaseApiController{
         $adminGroup->setFixedLocation(true);
         $em->flush();
 
-        return $this->rest(204, 'Company location updated successfully');
+        return $this->rest(200, 'Company location updated successfully');
     }
 }
