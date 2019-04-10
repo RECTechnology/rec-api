@@ -148,21 +148,21 @@ class AccountController extends BaseApiController{
         }
 
         if(!$request->request->has('latitude')) {
-            throw new HttpException(404, 'Param latitude not found');
+            throw new HttpException(400, 'latitude is required');
         }
         if(!$request->request->has('longitude')) {
-            throw new HttpException(404, 'Param longitude not found');
+            throw new HttpException(400, 'longitude is required');
         }
 
         $lat = $request->request->get('latitude');
         $lon = $request->request->get('longitude');
 
         if(intval($lat) > 90 ||  intval($lat) < -90 || intval($lat) == 0){
-            throw new HttpException(404, 'Bad value in latitude');
+            throw new HttpException(400, 'Bad value for latitude (allowed float [-90, 90])');
         }
 
         if(intval($lon) > 90 ||  intval($lon) < -90 || intval($lon) == 0){
-            throw new HttpException(404, 'Bad value in longitude');
+            throw new HttpException(400, 'Bad value for longitude (allowed float [-90, 90])');
         }
 
         $adminGroup->setLatitude($lat);
