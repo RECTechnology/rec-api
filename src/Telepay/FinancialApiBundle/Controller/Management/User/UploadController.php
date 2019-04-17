@@ -8,8 +8,8 @@
 
 namespace Telepay\FinancialApiBundle\Controller\Management\User;
 
-use http\Exception;
 use Symfony\Component\Filesystem\Filesystem;
+use Symfony\Component\HttpFoundation\File\UploadedFile;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpKernel\Exception\HttpException;
 use Telepay\FinancialApiBundle\Controller\RestApiController;
@@ -25,6 +25,8 @@ class UploadController extends RestApiController{
         if(!$request->files->has('file'))
             throw new HttpException(400, "'file' parameter required to be a file");
 
+
+        /** @var UploadedFile $file */
         $file = $request->files->get('file');
 
         $fileData = $this->file_uploader($file);
@@ -73,12 +75,17 @@ class UploadController extends RestApiController{
             ]
         );
     }
+
+    /**
+     * @param UploadedFile $file
+     * @return array
+     */
     public function file_uploader($file){
 
         if(!$file->isValid()) throw new HttpException(400, "Invalid file");
 
         $mimeType = $file->getMimeType();
-        if(!in_array($mimeType, array_merge(UploadManager::$FILTER_DOCUMENTS, UploadManager::$FILTER_IMAGES)))
+        if(!in_array($mimeType, UploadManager::allMimeTypes()))
             throw new HttpException(400, "Bad mime type, '" . $mimeType . "' is not a valid file");
 
 

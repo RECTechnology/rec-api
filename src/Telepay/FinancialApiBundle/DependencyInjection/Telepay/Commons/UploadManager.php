@@ -18,8 +18,28 @@ use Symfony\Component\Validator\Validator\ValidatorInterface;
 
 class UploadManager {
 
-    public static $FILTER_IMAGES = ["image/png", "image/jpg", "image/jpeg", "image/svg", "image/gif"];
-    public static $FILTER_DOCUMENTS = ["image/png", "image/jpg", "image/jpeg", "image/svg", "image/gif", 'application/pdf'];
+    public static $FILTER_IMAGES = [
+        "image/png",
+        "image/jpg",
+        "image/jpeg",
+        "image/svg",
+        "image/gif"
+    ];
+    public static $FILTER_DOCUMENTS = [
+        "image/png",
+        "image/jpg",
+        "image/jpeg",
+        "image/svg",
+        "image/gif",
+        'application/pdf',
+        "text/plain",
+        "text/csv",
+        "application/xml",
+    ];
+
+    public static function allMimeTypes(){
+        return array_merge(static::$FILTER_IMAGES, static::$FILTER_DOCUMENTS);
+    }
 
     private $container;
 
@@ -59,10 +79,7 @@ class UploadManager {
      * @return string
      */
     public function saveFile($contents, $mime_types = []) {
-        if ($mime_types == []) $mime_types = array_merge(
-            UploadManager::$FILTER_IMAGES,
-            UploadManager::$FILTER_DOCUMENTS
-        );
+        if ($mime_types == []) $mime_types = static::allMimeTypes();
 
         $tmpFileName = $this->getUploadsDir() . "/" . $this->getHash();
         file_put_contents($tmpFileName, $contents);

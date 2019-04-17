@@ -238,8 +238,11 @@ class KYCController extends BaseApiController{
 
     }
 
-
     /**
+     * @param Request $request
+     * @param $tag
+     * @param $id
+     * @return \Symfony\Component\HttpFoundation\Response
      * @Rest\View
      */
     public function uploadFile(Request $request, $tag, $id){
@@ -247,9 +250,7 @@ class KYCController extends BaseApiController{
             throw new HttpException(403, 'You have not the necessary permissions');
         }
 
-        $paramNames = array(
-            'url'
-        );
+        $paramNames = ['url'];
 
         foreach($paramNames as $paramName){
             if(!$request->request->has($paramName)){
