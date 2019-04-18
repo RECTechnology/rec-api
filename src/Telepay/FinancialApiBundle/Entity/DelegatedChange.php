@@ -21,6 +21,7 @@ class DelegatedChange {
     {
         $this->created = $this->updated = new DateTime();
         $this->data = new ArrayCollection();
+        $this->status = "draft";
     }
 
 
@@ -36,6 +37,13 @@ class DelegatedChange {
      * @ORM\OneToMany(targetEntity="Telepay\FinancialApiBundle\Entity\DelegatedChangeData", mappedBy="delegated_change", cascade={"remove"})
      */
     protected $data;
+
+
+    /**
+     * @ORM\Column(type="string")
+     * @Expose
+     */
+    protected $status;
 
     /**
      * @return mixed
@@ -122,17 +130,21 @@ class DelegatedChange {
         $this->updated = $updated;
     }
 
+    /**
+     * @return mixed
+     */
+    public function getStatus()
+    {
+        return $this->status;
+    }
 
-
-
-
-
-
-
-
-
-
-
+    /**
+     * @param mixed $status
+     */
+    public function setStatus($status)
+    {
+        $this->status = $status;
+    }
 
 
 }

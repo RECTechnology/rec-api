@@ -189,3 +189,36 @@ admin_delete_delegate_change:
     defaults: { _controller: Telepay\FinancialApiBundle\Controller\Management\Admin\DelegatedChangeController::deleteAction }
     requirements:
         _method: DELETE
+
+
+##################### ADMIN / DELEGATE CHANGE DATA ############################
+
+admin_index_delegate_change_data:
+    pattern:  /admin/v1/delegated_change_data
+    defaults: { _controller: Telepay\FinancialApiBundle\Controller\Management\Admin\DelegatedChangeDataController::indexAction }
+    requirements:
+        _method: GET
+
+admin_create_delegate_change_data:
+    pattern:  /admin/v1/delegated_change_data
+    defaults: { _controller: Telepay\FinancialApiBundle\Controller\Management\Admin\DelegatedChangeDataController::createAction }
+    requirements:
+        _method: POST
+
+admin_show_delegate_change_data:
+    pattern:  /admin/v1/delegated_change_data/{id}
+    defaults: { _controller: Telepay\FinancialApiBundle\Controller\Management\Admin\DelegatedChangeDataController::showAction }
+    requirements:
+        _method: GET
+
+admin_update_delegate_change_data:
+    pattern:  /admin/v1/delegated_change_data/{id}
+    defaults: { _controller: Telepay\FinancialApiBundle\Controller\Management\Admin\DelegatedChangeDataController::updateAction }
+    requirements:
+        _method: PUT
+
+admin_delete_delegate_change_data:
+    pattern:  /admin/v1/delegated_change_data/{id}
+    defaults: { _controller: Telepay\FinancialApiBundle\Controller\Management\Admin\DelegatedChangeDataController::deleteAction }
+    requirements:
+        _method: DELETE
