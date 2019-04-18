@@ -82,28 +82,33 @@ class DelegatedChangeData{
 
     /**
      * @ORM\Column(type="string", nullable=true)
+     * @Expose
      */
     private $pan;
 
     /**
      * @ORM\Column(type="datetime", nullable=true)
+     * @Expose
      */
     private $expiry_date;
 
 
     /**
      * @ORM\Column(type="integer", nullable=true)
+     * @Expose
      */
     private $cvv2;
 
     /**
      * @ORM\Column(type="float", nullable=true)
+     * @Expose
      */
     private $amount;
 
 
     /**
      * @ORM\Column(type="string")
+     * @Expose
      */
     private $status;
 
