@@ -2,6 +2,7 @@
 
 namespace Telepay\FinancialApiBundle\Entity;
 
+use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\ORM\Mapping as ORM;
 
 use JMS\Serializer\Annotation\ExclusionPolicy;
@@ -10,14 +11,13 @@ use JMS\Serializer\Annotation\Expose;
 
 /**
  * @ORM\Entity
- * @ORM\Table(name="Delegated_change")
+ * @ORM\Table(name="delegated_change")
  * @ExclusionPolicy("all")
  */
 class DelegatedChange {
 
     public function __construct()
     {
-        //$this->scheduled_time = new DateTime();
         $this->data = new ArrayCollection();
     }
 
@@ -28,7 +28,7 @@ class DelegatedChange {
      * @ORM\GeneratedValue(strategy="AUTO")
      * @Expose
      */
-    private $id;
+    protected $id;
 
     /**
      * @ORM\OneToMany(targetEntity="Telepay\FinancialApiBundle\Entity\DelegatedChangeData", mappedBy="delegated_change", cascade={"remove"})
@@ -51,13 +51,6 @@ class DelegatedChange {
         $this->data = $data;
     }
 
-
-
-    /**
-     * @ORM\Column(type="datetime")
-     * @Expose
-     */
-
     /**
      * @ORM\Column(type="datetime")
      * @Expose
@@ -72,6 +65,10 @@ class DelegatedChange {
     protected $updated;
 
 
+    /**
+     * @ORM\Column(type="datetime")
+     * @Expose
+     */
     private $scheduled_time;
 
     /**

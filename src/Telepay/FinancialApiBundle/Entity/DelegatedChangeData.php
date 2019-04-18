@@ -15,8 +15,8 @@ use JMS\Serializer\Annotation\Expose;
 
 /**
  * @ORM\Entity
- * @ORM\Table(name="Delegated_change_data",uniqueConstraints={@ORM\UniqueConstraint(name="fk_idx", columns={"delegated_change_id", "user_id", "commerce_id"})})
- * @ExclusionPolicy("none")
+ * @ORM\Table(name="delegated_change_data",uniqueConstraints={@ORM\UniqueConstraint(name="fk_idx", columns={"delegated_change_id", "account_id", "exchanger_id"})})
+ * @ExclusionPolicy("all")
  */
 class DelegatedChangeData{
 
@@ -31,10 +31,7 @@ class DelegatedChangeData{
      * @ORM\GeneratedValue(strategy="AUTO")
      * @Expose
      */
-    private $id;
-
-
-
+    protected $id;
 
     /**
      * @ORM\Column(type="datetime")
@@ -52,19 +49,22 @@ class DelegatedChangeData{
 
     /**
      * @ORM\ManyToOne(targetEntity="Telepay\FinancialApiBundle\Entity\DelegatedChange")
+     * @Expose
      */
     private $delegated_change;
 
 
     /**
      * @ORM\ManyToOne(targetEntity="Telepay\FinancialApiBundle\Entity\Group")
+     * @Expose
      */
-    private $user;
+    private $account;
 
     /**
      * @ORM\ManyToOne(targetEntity="Telepay\FinancialApiBundle\Entity\Group")
+     * @Expose
      */
-    private $commerce;
+    private $exchanger;
 
     /**
      * @return mixed
@@ -82,47 +82,42 @@ class DelegatedChangeData{
         $this->delegated_change = $delegated_change;
     }
 
-
-
-
-
     /**
      * @return mixed
      */
-    public function getUser()
+    public function getAccount()
     {
-        return $this->user;
+        return $this->account;
     }
 
 
-
     /**
-     * @param mixed $user
+     * @param mixed $account
      */
-    public function setUser($user)
+    public function setAccount($account)
     {
-        if($user->hasRole('ROLE_COMPANY')){
+        if($account->hasRole('ROLE_COMPANY')){
             throw new Exception("Expect a user not a commerce!");
         }else{
-            $this->user = $user;
+            $this->account = $account;
         }
     }
 
     /**
      * @return mixed
      */
-    public function getCommerce()
+    public function getExchanger()
     {
-        return $this->commerce;
+        return $this->exchanger;
     }
 
     /**
-     * @param mixed $commerce
+     * @param mixed $exchanger
      */
-    public function setCommerce($commerce)
+    public function setExchanger($exchanger)
     {
-        if($commerce->hasRole('ROLE_COMPANY')){
-            $this->commerce = $commerce;
+        if($exchanger->hasRole('ROLE_COMPANY')){
+            $this->exchanger = $exchanger;
         }else{
             throw new Exception("Expect a commerce not a user!");
 
