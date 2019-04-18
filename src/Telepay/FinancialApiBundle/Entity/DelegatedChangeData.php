@@ -8,6 +8,7 @@
 
 namespace Telepay\FinancialApiBundle\Entity;
 
+use DateTime;
 use Doctrine\ORM\Mapping as ORM;
 
 use JMS\Serializer\Annotation\ExclusionPolicy;
@@ -15,7 +16,16 @@ use JMS\Serializer\Annotation\Expose;
 
 /**
  * @ORM\Entity
- * @ORM\Table(name="delegated_change_data",uniqueConstraints={@ORM\UniqueConstraint(name="fk_idx", columns={"delegated_change_id", "account_id", "exchanger_id"})})
+ * @ORM\Table(name="delegated_change_data",uniqueConstraints={
+ *     @ORM\UniqueConstraint(
+ *          name="fk_idx",
+ *          columns={
+ *              "delegated_change_id",
+ *              "account_id",
+ *              "exchanger_id"
+ *          }
+ *     )
+ * })
  * @ExclusionPolicy("all")
  */
 class DelegatedChangeData{
