@@ -33,6 +33,7 @@ class DelegatedChangeData{
     public function __construct()
     {
         $this->created = $this->updated = new DateTime();
+        $this->status = "new";
     }
 
     /**
@@ -58,7 +59,7 @@ class DelegatedChangeData{
 
 
     /**
-     * @ORM\ManyToOne(targetEntity="Telepay\FinancialApiBundle\Entity\DelegatedChange")
+     * @ORM\ManyToOne(targetEntity="Telepay\FinancialApiBundle\Entity\DelegatedChange", inversedBy="data")
      * @Expose
      */
     private $delegated_change;
@@ -80,7 +81,7 @@ class DelegatedChangeData{
     /**
      * @ORM\Column(type="string", nullable=true)
      */
-    private $pan = '';
+    private $pan;
 
     /**
      * @ORM\Column(type="datetime", nullable=true)
@@ -102,7 +103,7 @@ class DelegatedChangeData{
     /**
      * @ORM\Column(type="string")
      */
-    private $status = '';
+    private $status;
 
     /**
      * @return mixed

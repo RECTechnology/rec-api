@@ -34,31 +34,23 @@ class DelegatedChange {
     protected $id;
 
     /**
-     * @ORM\OneToMany(targetEntity="Telepay\FinancialApiBundle\Entity\DelegatedChangeData", mappedBy="delegated_change", cascade={"remove"})
-     */
-    protected $data;
-
-
-    /**
      * @ORM\Column(type="string")
      * @Expose
      */
     protected $status;
 
     /**
-     * @return mixed
+     * @ORM\OneToMany(targetEntity="Telepay\FinancialApiBundle\Entity\DelegatedChangeData", mappedBy="delegated_change")
+     * @Expose
+     */
+    protected $data;
+
+    /**
+     * @return ArrayCollection
      */
     public function getData()
     {
         return $this->data;
-    }
-
-    /**
-     * @param mixed $data
-     */
-    public function setData($data)
-    {
-        $this->data = $data;
     }
 
     /**
