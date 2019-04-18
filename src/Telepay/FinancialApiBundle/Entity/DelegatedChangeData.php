@@ -76,6 +76,34 @@ class DelegatedChangeData{
      */
     private $exchanger;
 
+
+    /**
+     * @ORM\Column(type="string", nullable=true)
+     */
+    private $pan = '';
+
+    /**
+     * @ORM\Column(type="datetime", nullable=true)
+     */
+    private $expiry_date;
+
+
+    /**
+     * @ORM\Column(type="integer", nullable=true)
+     */
+    private $cvv2;
+
+    /**
+     * @ORM\Column(type="float", nullable=true)
+     */
+    private $amount;
+
+
+    /**
+     * @ORM\Column(type="string")
+     */
+    private $status = '';
+
     /**
      * @return mixed
      */
@@ -92,6 +120,7 @@ class DelegatedChangeData{
         $this->delegated_change = $delegated_change;
     }
 
+
     /**
      * @return mixed
      */
@@ -99,7 +128,6 @@ class DelegatedChangeData{
     {
         return $this->account;
     }
-
 
     /**
      * @param mixed $account
@@ -120,7 +148,6 @@ class DelegatedChangeData{
     {
         return $this->exchanger;
     }
-
     /**
      * @param mixed $exchanger
      */
@@ -135,48 +162,21 @@ class DelegatedChangeData{
 
     }
 
-    /**
-     * @ORM\Column(type="string")
-     */
-    private $PAN = '';
-
-    /**
-     * @ORM\Column(type="datetime")
-     */
-    private $expiry_date;
-
-
-    /**
-     * @ORM\Column(type="integer")
-     */
-    private $cvv2 = 0;
-
-    /**
-     * @ORM\Column(type="float", nullable=true)
-     */
-    private $ammount = null;
-
-
-    /**
-     * @ORM\Column(type="string")
-     */
-    private $state = '';
-
 
     /**
      * @return mixed
      */
-    public function getPAN()
+    public function getPan()
     {
-        return $this->PAN;
+        return $this->pan;
     }
 
     /**
-     * @param mixed $PAN
+     * @param mixed $pan
      */
-    public function setPAN($PAN)
+    public function setPan($pan)
     {
-        $this->PAN = $PAN;
+        $this->pan = $pan;
     }
 
     /**
@@ -214,33 +214,33 @@ class DelegatedChangeData{
     /**
      * @return mixed
      */
-    public function getAmmount()
+    public function getAmount()
     {
-        return $this->ammount;
+        return $this->amount;
     }
 
     /**
-     * @param mixed $ammount
+     * @param mixed $amount
      */
-    public function setAmmount($ammount)
+    public function setAmount($amount)
     {
-        $this->ammount = $ammount;
+        $this->amount = $amount;
     }
 
     /**
      * @return mixed
      */
-    public function getState()
+    public function getStatus()
     {
-        return $this->state;
+        return $this->status;
     }
 
     /**
-     * @param mixed $state
+     * @param mixed $status
      */
-    public function setState($state)
+    public function setStatus($status)
     {
-        $this->state = $state;
+        $this->status = $status;
     }
 
     /**
