@@ -2,6 +2,7 @@
 
 namespace Telepay\FinancialApiBundle\Entity;
 
+use DateTime;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\ORM\Mapping as ORM;
 
@@ -18,6 +19,7 @@ class DelegatedChange {
 
     public function __construct()
     {
+        $this->created = $this->updated = new DateTime();
         $this->data = new ArrayCollection();
     }
 

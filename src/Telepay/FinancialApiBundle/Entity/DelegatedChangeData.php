@@ -32,7 +32,7 @@ class DelegatedChangeData{
 
     public function __construct()
     {
-        $this->created = new DateTime();
+        $this->created = $this->updated = new DateTime();
     }
 
     /**
