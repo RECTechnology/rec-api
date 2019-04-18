@@ -66,7 +66,7 @@ class DelegatedChange {
 
 
     /**
-     * @ORM\Column(type="datetime")
+     * @ORM\Column(type="datetime", nullable=true)
      * @Expose
      */
     private $scheduled_time;
