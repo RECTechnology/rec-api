@@ -15,26 +15,53 @@ use JMS\Serializer\Annotation\Expose;
 
 /**
  * @ORM\Entity
- * @ORM\Table(name="Delegated_change_data")
- * @ExclusionPolicy("all")
+ * @ORM\Table(name="Delegated_change_data",uniqueConstraints={@ORM\UniqueConstraint(name="fk_idx", columns={"delegated_change_id", "user_id", "commerce_id"})})
+ * @ExclusionPolicy("none")
  */
-class Delegated_change_data{
+class DelegatedChangeData{
 
+    public function __construct()
+    {
+        $this->created = new DateTime();
+    }
 
     /**
      * @ORM\Id
-     * @ORM\ManyToOne(targetEntity="Telepay\FinancialApiBundle\Entity\Delegated_change")
+     * @ORM\Column(type="integer")
+     * @ORM\GeneratedValue(strategy="AUTO")
+     * @Expose
+     */
+    private $id;
+
+
+
+
+    /**
+     * @ORM\Column(type="datetime")
+     * @Expose
+     */
+    protected $created;
+
+
+    /**
+     * @ORM\Column(type="datetime")
+     * @Expose
+     */
+    protected $updated;
+
+
+    /**
+     * @ORM\ManyToOne(targetEntity="Telepay\FinancialApiBundle\Entity\DelegatedChange")
      */
     private $delegated_change;
 
+
     /**
-     * @ORM\Id
      * @ORM\ManyToOne(targetEntity="Telepay\FinancialApiBundle\Entity\Group")
      */
     private $user;
 
     /**
-     * @ORM\Id
      * @ORM\ManyToOne(targetEntity="Telepay\FinancialApiBundle\Entity\Group")
      */
     private $commerce;
@@ -58,15 +85,6 @@ class Delegated_change_data{
 
 
 
-    /**
-     * @param mixed $delegated_change
-     */
-    public function setGroup($delegated_change)
-    {
-        $this->delegated_change = $delegated_change;
-    }
-
-
 
     /**
      * @return mixed
@@ -75,6 +93,8 @@ class Delegated_change_data{
     {
         return $this->user;
     }
+
+
 
     /**
      * @param mixed $user
@@ -115,17 +135,16 @@ class Delegated_change_data{
      */
     private $PAN = '';
 
-
     /**
      * @ORM\Column(type="datetime")
      */
     private $expiry_date;
 
+
     /**
      * @ORM\Column(type="integer")
      */
     private $cvv2 = 0;
-
 
     /**
      * @ORM\Column(type="float", nullable=true)
@@ -137,6 +156,7 @@ class Delegated_change_data{
      * @ORM\Column(type="string")
      */
     private $state = '';
+
 
     /**
      * @return mixed
@@ -216,6 +236,38 @@ class Delegated_change_data{
     public function setState($state)
     {
         $this->state = $state;
+    }
+
+    /**
+     * @return mixed
+     */
+    public function getCreated()
+    {
+        return $this->created;
+    }
+
+    /**
+     * @param mixed $created
+     */
+    public function setCreated($created)
+    {
+        $this->created = $created;
+    }
+
+    /**
+     * @return mixed
+     */
+    public function getUpdated()
+    {
+        return $this->updated;
+    }
+
+    /**
+     * @param mixed $updated
+     */
+    public function setUpdated($updated)
+    {
+        $this->updated = $updated;
     }
 
 
