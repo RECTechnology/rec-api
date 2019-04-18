@@ -14,6 +14,8 @@ use Doctrine\ORM\Mapping as ORM;
 use JMS\Serializer\Annotation\ExclusionPolicy;
 use JMS\Serializer\Annotation\Expose;
 
+use Symfony\Component\HttpKernel\Exception\HttpException;
+
 /**
  * @ORM\Entity
  * @ORM\Table(name="delegated_change_data",uniqueConstraints={
@@ -135,11 +137,7 @@ class DelegatedChangeData{
      */
     public function setAccount($account)
     {
-        if($account->hasRole('ROLE_COMPANY')){
-            throw new Exception("Expect a user not a commerce!");
-        }else{
-            $this->account = $account;
-        }
+        $this->account = $account;
     }
 
     /**
@@ -154,12 +152,7 @@ class DelegatedChangeData{
      */
     public function setExchanger($exchanger)
     {
-        if($exchanger->hasRole('ROLE_COMPANY')){
             $this->exchanger = $exchanger;
-        }else{
-            throw new Exception("Expect a commerce not a user!");
-
-        }
 
     }
 
