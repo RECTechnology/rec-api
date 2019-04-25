@@ -38,10 +38,7 @@
         "twilio/sdk": "4.11.0",
         "knplabs/knp-snappy-bundle": "~1.4",
         "chip-chap/php-curl-lowlevel-api": "dev-master",
-        "alcaeus/mongo-php-adapter": "~1.1",
-        "behat/behat": "^3.5",
-        "behat/mink-extension": "^2.3",
-        "behat/mink-goutte-driver": "^1.2"
+        "alcaeus/mongo-php-adapter": "~1.1"
     },
     "require-dev": {
         "sensio/generator-bundle": "~2.3"
