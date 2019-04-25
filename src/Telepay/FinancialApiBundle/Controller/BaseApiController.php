@@ -8,14 +8,19 @@
 
 namespace Telepay\FinancialApiBundle\Controller;
 
+use Doctrine\Common\Annotations\AnnotationException;
 use Doctrine\Common\Annotations\AnnotationReader;
 use Doctrine\DBAL\DBALException;
 use Doctrine\ORM\Mapping\ManyToMany;
 use Doctrine\ORM\Mapping\ManyToOne;
+use Doctrine\ORM\Mapping\OneToOne;
 use ReflectionClass;
+use ReflectionException;
 use ReflectionProperty;
 use Symfony\Component\HttpFoundation\Request;
+use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpKernel\Exception\HttpException;
+use Symfony\Component\Validator\ConstraintViolation;
 
 abstract class BaseApiController extends RestApiController implements RepositoryController {
 
@@ -69,9 +74,9 @@ abstract class BaseApiController extends RestApiController implements Repository
      * @param $entity
      * @param $params
      * @param $httpCode
-     * @return \Symfony\Component\HttpFoundation\Response
-     * @throws \Doctrine\Common\Annotations\AnnotationException
-     * @throws \ReflectionException
+     * @return Response
+     * @throws AnnotationException
+     * @throws ReflectionException
      */
     private function setAction($entity, $params, $httpCode){
 
@@ -89,10 +94,19 @@ abstract class BaseApiController extends RestApiController implements Repository
                 $reflectionProperty = new ReflectionProperty($this->getRepository()->getClassName(), $name);
                 $propertyAnnotations = $ar->getPropertyAnnotations($reflectionProperty);
 
-                /** @var ManyToOne|ManyToMany $rel */
-                $rel = $propertyAnnotations[0];
+                $rel = false;
+                foreach ($propertyAnnotations as $an){
+                    if($an instanceof ManyToMany or $an instanceof ManyToOne or $an instanceof OneToOne){
+                        $rel = $an;
+                        break;
+                    }
+                }
 
-                $value = $this->getDoctrine()->getRepository($rel->targetEntity)->find($value);
+                if(!$rel) throw new HttpException(400, "unrelated parameter");
+
+                $sent_value = $value;
+                $value = $this->getDoctrine()->getRepository($rel->targetEntity)->find($sent_value);
+                if(!$value) throw new HttpException(400, "Object $name with id '$sent_value' does not exist.");
             }
 
             $setter = $this->attributeToSetter($name);
@@ -101,11 +115,15 @@ abstract class BaseApiController extends RestApiController implements Repository
                 call_user_func_array(array($entity, $setter), array($value));
             }
             else{
-                throw new HttpException(400, "Bad request, parameter '$name' is wrong");
+                throw new HttpException(400, "Bad request, parameter '$name' is invalid.");
             }
 
         }
         $em = $this->getDoctrine()->getManager();
+        $errors = $this->get('validator')->validate($entity);
+
+        if(count($errors) > 0)  return $this->restV2(400, "error", "Validation error", $errors);
+
         $em->persist($entity);
         try{
             $em->flush();
@@ -122,9 +140,9 @@ abstract class BaseApiController extends RestApiController implements Repository
 
     /**
      * @param Request $request
-     * @return \Symfony\Component\HttpFoundation\Response
-     * @throws \Doctrine\Common\Annotations\AnnotationException
-     * @throws \ReflectionException
+     * @return Response
+     * @throws AnnotationException
+     * @throws ReflectionException
      */
     protected function createAction(Request $request){
         $entity = $this->getNewEntity();
@@ -135,9 +153,9 @@ abstract class BaseApiController extends RestApiController implements Repository
     /**
      * @param Request $request
      * @param $id
-     * @return \Symfony\Component\HttpFoundation\Response
-     * @throws \Doctrine\Common\Annotations\AnnotationException
-     * @throws \ReflectionException
+     * @return Response
+     * @throws AnnotationException
+     * @throws ReflectionException
      */
     protected function updateAction(Request $request, $id){
 

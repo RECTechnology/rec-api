@@ -14,7 +14,8 @@ use Doctrine\ORM\Mapping as ORM;
 use JMS\Serializer\Annotation\ExclusionPolicy;
 use JMS\Serializer\Annotation\Expose;
 
-use Symfony\Component\HttpKernel\Exception\HttpException;
+use Symfony\Component\Validator\Constraints as Assert;
+use Telepay\FinancialApiBundle\Validator\Constraint as RECAssert;
 
 /**
  * @ORM\Entity
@@ -74,6 +75,7 @@ class DelegatedChangeData{
     private $account;
 
     /**
+     * @RECAssert\IsCommerce
      * @ORM\ManyToOne(targetEntity="Telepay\FinancialApiBundle\Entity\Group")
      * @Expose
      */
@@ -81,6 +83,7 @@ class DelegatedChangeData{
 
 
     /**
+     * @Assert\CardScheme(schemes={"VISA", "MASTERCARD"})
      * @ORM\Column(type="string", nullable=true)
      * @Expose
      */
@@ -107,6 +110,7 @@ class DelegatedChangeData{
 
 
     /**
+     * @Assert\NotNull
      * @ORM\Column(type="string")
      * @Expose
      */
