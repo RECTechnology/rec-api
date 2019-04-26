@@ -3,3 +3,13 @@ services:
         class: Telepay\FinancialApiBundle\Validator\Constraint\IsCommerceValidator
         tags:
             - { name: validator.constraint_validator}
+
+    app.is_user_validator:
+        class: Telepay\FinancialApiBundle\Validator\Constraint\IsUserValidator
+        tags:
+            - { name: validator.constraint_validator}
+
+    app.is_not_expired_validator:
+        class: Telepay\FinancialApiBundle\Validator\Constraint\IsNotExpiredValidator
+        tags:
+            - { name: validator.constraint_validator}

@@ -69,6 +69,7 @@ class DelegatedChangeData{
 
 
     /**
+     * @RECAssert\IsUser
      * @ORM\ManyToOne(targetEntity="Telepay\FinancialApiBundle\Entity\Group")
      * @Expose
      */
@@ -90,7 +91,8 @@ class DelegatedChangeData{
     private $pan;
 
     /**
-     * @ORM\Column(type="datetime", nullable=true)
+     * @RECAssert\IsNotExpired
+     * @ORM\Column(type="string", nullable=true)
      * @Expose
      */
     private $expiry_date;
@@ -195,6 +197,8 @@ class DelegatedChangeData{
      */
     public function setExpiryDate($expiry_date)
     {
+        //$expiry_date = DateTime::createFromFormat('d-m-y', '1-'.$expiry_date);
+        //$expiry_date->setTime(00, 00, 00);
         $this->expiry_date = $expiry_date;
     }
 
