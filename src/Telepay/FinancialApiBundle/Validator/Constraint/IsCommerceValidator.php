@@ -24,8 +24,8 @@ class IsCommerceValidator extends ConstraintValidator {
      */
     public function validate($value, Constraint $constraint)
     {
+        assert($value instanceof Group);
 
-        /** @var Group $value */
         if(!$value->hasRole("ROLE_COMPANY")) {
             $this->context->addViolation(
                 $constraint->message,

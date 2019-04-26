@@ -15,6 +15,7 @@ use JMS\Serializer\Annotation\ExclusionPolicy;
 use JMS\Serializer\Annotation\Expose;
 
 use Symfony\Component\Validator\Constraints as Assert;
+use Telepay\FinancialApiBundle\Document\Transaction;
 use Telepay\FinancialApiBundle\Validator\Constraint as RECAssert;
 
 /**
@@ -31,7 +32,7 @@ use Telepay\FinancialApiBundle\Validator\Constraint as RECAssert;
  * })
  * @ExclusionPolicy("all")
  */
-class DelegatedChangeData{
+class DelegatedChangeData {
 
     public function __construct()
     {
@@ -97,7 +98,6 @@ class DelegatedChangeData{
      */
     private $expiry_date;
 
-
     /**
      * @ORM\Column(type="integer", nullable=true)
      * @Expose
@@ -110,13 +110,22 @@ class DelegatedChangeData{
      */
     private $amount;
 
-
     /**
      * @Assert\NotNull
      * @ORM\Column(type="string")
      * @Expose
      */
     private $status;
+
+    /**
+     * @ORM\Column(type="string", nullable=true)
+     */
+    private $transaction_ref;
+
+
+
+    private $transaction;
+
 
     /**
      * @return mixed
@@ -197,8 +206,6 @@ class DelegatedChangeData{
      */
     public function setExpiryDate($expiry_date)
     {
-        //$expiry_date = DateTime::createFromFormat('d-m-y', '1-'.$expiry_date);
-        //$expiry_date->setTime(00, 00, 00);
         $this->expiry_date = $expiry_date;
     }
 
@@ -282,6 +289,20 @@ class DelegatedChangeData{
         $this->updated = $updated;
     }
 
+    /**
+     * @return mixed
+     */
+    public function getTransaction()
+    {
+        return $this->transaction;
+    }
 
+    /**
+     * @param Transaction $transaction
+     */
+    public function setTransaction($transaction)
+    {
+        $this->transaction_ref = $transaction->getId();
+    }
 
 }
