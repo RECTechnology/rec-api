@@ -11,5 +11,4 @@ use Symfony\Component\Validator\Constraint;
  */
 class IsCommerce extends Constraint {
     public $message = 'The account "{{ string }}" is not a commerce: account is required to be a commerce.';
-
 }

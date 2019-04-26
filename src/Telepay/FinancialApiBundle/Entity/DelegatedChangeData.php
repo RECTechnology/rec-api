@@ -15,6 +15,7 @@ use JMS\Serializer\Annotation\ExclusionPolicy;
 use JMS\Serializer\Annotation\Expose;
 
 use Symfony\Component\Validator\Constraints as Assert;
+use Telepay\FinancialApiBundle\Document\Transaction;
 use Telepay\FinancialApiBundle\Validator\Constraint as RECAssert;
 
 /**
@@ -31,7 +32,7 @@ use Telepay\FinancialApiBundle\Validator\Constraint as RECAssert;
  * })
  * @ExclusionPolicy("all")
  */
-class DelegatedChangeData{
+class DelegatedChangeData {
 
     public function __construct()
     {
@@ -90,11 +91,10 @@ class DelegatedChangeData{
     private $pan;
 
     /**
-     * @ORM\Column(type="datetime", nullable=true)
+     * @ORM\Column(type="string", nullable=true)
      * @Expose
      */
     private $expiry_date;
-
 
     /**
      * @ORM\Column(type="integer", nullable=true)
@@ -108,13 +108,22 @@ class DelegatedChangeData{
      */
     private $amount;
 
-
     /**
      * @Assert\NotNull
      * @ORM\Column(type="string")
      * @Expose
      */
     private $status;
+
+    /**
+     * @ORM\Column(type="string", nullable=true)
+     */
+    private $transaction_ref;
+
+
+
+    private $transaction;
+
 
     /**
      * @return mixed
@@ -278,6 +287,20 @@ class DelegatedChangeData{
         $this->updated = $updated;
     }
 
+    /**
+     * @return mixed
+     */
+    public function getTransaction()
+    {
+        return $this->transaction;
+    }
 
+    /**
+     * @param Transaction $transaction
+     */
+    public function setTransaction($transaction)
+    {
+        $this->transaction_ref = $transaction->getId();
+    }
 
 }
