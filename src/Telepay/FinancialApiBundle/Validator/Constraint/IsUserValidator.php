@@ -7,6 +7,7 @@ use Symfony\Component\HttpKernel\Exception\HttpException;
 use Symfony\Component\Validator\Constraint;
 use Symfony\Component\Validator\ConstraintValidator;
 use Telepay\FinancialApiBundle\Entity\Group;
+use Telepay\FinancialApiBundle\Entity\User;
 
 /**
  * Class IsUserValidator
@@ -24,8 +25,8 @@ class IsUserValidator extends ConstraintValidator {
      */
     public function validate($value, Constraint $constraint)
     {
+        assert($value instanceof User);
 
-        /** @var Group $value */
         if($value->hasRole("ROLE_COMPANY")) {
             $this->context->addViolation(
                 $constraint->message,
