@@ -92,6 +92,10 @@ class DelegatedChangeData {
     private $pan;
 
     /**
+     * @Assert\Regex(
+     *     pattern="#^(0[1-9]|1[0-2])[/-]([2][01])?[1-9][0-9]$#",
+     *     message="Invalid expiry format: must be mm/yy or mm/yyyy using values 01 to 12 for months and 2010 to 2100 values for years."
+     * )
      * @RECAssert\IsNotExpired
      * @ORM\Column(type="string", nullable=true)
      * @Expose

@@ -10,6 +10,6 @@ use Symfony\Component\Validator\Constraint;
  * @Annotation
  */
 class IsNotExpired extends Constraint {
-    public $message = 'The card is expired!.';
+    public $message = 'Card is expired: card cannot be expired at this time.';
 
 }

@@ -21,14 +21,21 @@ class IsNotExpiredValidator extends ConstraintValidator {
      * @param mixed $value The value that should be validated
      * @param Constraint $constraint The constraint for the validation
      *
+     * @throws \Exception
      * @api
      */
     public function validate($value, Constraint $constraint)
     {
-        $expiry_date = DateTime::createFromFormat('d-m-y', '1-'.$value);
-        $expiry_date->setTime(00, 00, 00);
-        /** @var Group $value */
-        if($expiry_date < new DateTime()) {
+        $expiry_date = explode("/", $value);
+        if(count($expiry_date) !== 2)
+            $expiry_date = explode("-", $value);
+
+        assert(count($expiry_date) === 2);
+
+        $expiry_month = intval($expiry_date[0]);
+        $expiry_year = intval(strlen($expiry_date[1]) == 2? "20" . $expiry_date[1]: $expiry_date[1]);
+        if($expiry_year > intval(date('Y'))) return;
+        if($expiry_year < intval(date('Y')) or $expiry_month < intval(date('m'))) {
             $this->context->addViolation(
                 $constraint->message
             );
