@@ -103,7 +103,11 @@ class DelegatedChangeData {
     private $expiry_date;
 
     /**
-     * @ORM\Column(type="integer", nullable=true)
+     * @Assert\Regex(
+     *     pattern="#^\d\d\d$#",
+     *     message="Invalid cvv2 format: must contain exactly three digits."
+     * )
+     * @ORM\Column(type="string", nullable=true)
      * @Expose
      */
     private $cvv2;
