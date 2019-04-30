@@ -24,6 +24,8 @@ use Symfony\Component\Validator\ConstraintViolation;
 
 abstract class BaseApiController extends RestApiController implements RepositoryController {
 
+    const HTTP_STATUS_CODE_CREATED = 201;
+
     protected function getRepository(){
         return $this->getDoctrine()
             ->getManager()
@@ -158,7 +160,7 @@ abstract class BaseApiController extends RestApiController implements Repository
     protected function createAction(Request $request){
         $entity = $this->getNewEntity();
         $params = $request->request->all();
-        return $this->setAction($entity, $params, 201);
+        return $this->setAction($entity, $params, static::HTTP_STATUS_CODE_CREATED);
     }
 
     /**

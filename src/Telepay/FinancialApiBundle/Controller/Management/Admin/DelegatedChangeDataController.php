@@ -9,6 +9,7 @@
 
 namespace Telepay\FinancialApiBundle\Controller\Management\Admin;
 
+use AssertionError;
 use DateTime;
 use Doctrine\Common\Annotations\AnnotationException;
 use FOS\RestBundle\Controller\Annotations as Rest;
@@ -16,7 +17,9 @@ use ReflectionException;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpKernel\Exception\HttpException;
+use Symfony\Component\Serializer\Serializer;
 use Telepay\FinancialApiBundle\Controller\BaseApiController;
+use Telepay\FinancialApiBundle\DependencyInjection\Telepay\Commons\UploadManager;
 use Telepay\FinancialApiBundle\Entity\DelegatedChangeData;
 
 /**
@@ -89,41 +92,104 @@ class DelegatedChangeDataController extends BaseApiController{
      * @Rest\View
      */
     public function loadCsvAction(Request $request){
-        $user = $this->get('security.context')->getToken()->getUser();
-        if(!$user->hasRole('ROLE_SUPER_ADMIN')) throw new HttpException(403, 'You don\'t have the necessary permissions');
 
-        $row = 0;
-        if($request->request->has('path')){
-            $fileSrc=$request->request->get('path');
-            $request->request->remove('path');
-            $row = 1;
-            if (($handle = fopen("".$fileSrc, "r")) !== FALSE) {
-                while (($data = fgetcsv($handle, 1000, ",")) !== FALSE) {
+        if(!$request->request->has('path'))
+            throw new HttpException(400, "path is required");
 
-                    $request->request->set('delegated_change', $data[0]);
-                    $request->request->set('account', $data[1]);
-                    $request->request->set('exchanger', $data[2]);
-                    $request->request->set('pan', $data[3]);
-                    $request->request->set('expiry_date', $data[4]);
-                    $request->request->set('cvv2', $data[5]);
-                    $request->request->set('amount', $data[6]);
+        $fileSrc = $request->request->get('path');
+        $request->request->remove('path');
 
-                    try{
-                        $this->createAction($request);
-                    } catch (HttpException $e){
-                        throw new HttpException(403,"Error on the row ".$row.": ".$e->getMessage());
-                    }
+        /** @var UploadManager $fileManager */
+        $fileManager = $this->get("file_manager");
 
+        $csvContents = $fileManager->readFileUrl($fileSrc);
 
-                    $row++;
-                }
-                fclose($handle);
+        $contents = $this->csvToArray($csvContents);
+
+        $csvHeaders = ["account", "exchanger", "amount", "pan", "expiry_year", "expiry_month", "cvv2"];
+        foreach($csvHeaders as $hdr){
+            if(!array_key_exists($hdr, $contents)){
+                throw new HttpException(
+                    400,
+                    "CSV file format error: csv must contain the following headers: " . implode(", ", $csvHeaders)
+                );
             }
-
         }
-        return $this->restV2(200,"ok", "Added ".$row." rows successfuly");
+
+        $accRepo = $this->getDoctrine()->getRepository("TelepayFinancialApiBundle:Group");
+
+        try{
+            $rowCount = 1;
+            foreach ($contents as $dcdArray){
+                $account = $accRepo->findOneBy(["cif" => $dcdArray['account']]);
+                if(!$account) throw new HttpException(
+                    400,
+                    "Invalid account ID: the csv 'account' value must be the 'cif' of the user account."
+                );
+
+                $exchanger = $accRepo->findOneBy(["cif" => $dcdArray['exchanger']]);
+                if(!$exchanger) throw new HttpException(
+                    400,
+                    "Invalid exchanger ID: the csv 'exchanger' value must be the 'cif' of the exchanger account."
+                );
+
+                $request->request->set('account_id', $account->getId());
+                $request->request->set('exchanger_id', $exchanger->getId());
+                $request->request->set('amount', $dcdArray["amount"]);
+                $request->request->set('pan', $dcdArray["pan"]);
+                $request->request->set('expiry_date', $dcdArray["expiry_month"] . "/" . $dcdArray["expiry_year"]);
+                $request->request->set('cvv2', $dcdArray["cvv2"]);
+
+                $resp = $this->createAction($request);
+                assert($resp->getStatusCode() === BaseApiController::HTTP_STATUS_CODE_CREATED);
+                $rowCount++;
+            }
+        } catch (HttpException $e){
+            return $this->restV2(
+                $e->getStatusCode(),
+                "Error in row " . $rowCount . ": " . $e->getMessage()
+            );
+        } catch (AssertionError $e2){
+            assert(isset($resp));
+            $respContent = json_decode($resp->getContent());
+            return $this->restV2(
+                $resp->getStatusCode(),
+                "Error in row " . $rowCount . ": " . $respContent['message'], $respContent['data']
+            );
+        }
+
+        return $this->restV2(200,"success", "Added " . $rowCount . " rows successfully");
     }
 
+
+    /**
+     * @param $csvContents
+     * @return array
+     */
+    private function csvToArray($csvContents){
+
+        $tmpLocation = '/tmp/' . uniqid("upload_") . ".tmp.csv";
+        file_put_contents($tmpLocation, $csvContents);
+
+        $headers = [];
+        $contents = [];
+        if (($handle = fopen($tmpLocation, "r")) !== FALSE) {
+            if(($row = fgetcsv($handle)) !== FALSE) {
+                $headers = $row;
+            }
+            while(($row = fgetcsv($handle)) !== FALSE) {
+                $rowArr = [];
+                for($i=0; $i<count($row); $i++){
+                    $rowArr[$headers[$i]] = $row[$i];
+                }
+
+                $contents []= $rowArr;
+            }
+        }
+        fclose($handle);
+        unlink($tmpLocation);
+        return $contents;
+    }
 
 
     function getRepositoryName() {
