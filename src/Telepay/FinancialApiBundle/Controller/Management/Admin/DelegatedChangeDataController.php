@@ -28,6 +28,8 @@ use Telepay\FinancialApiBundle\Entity\DelegatedChangeData;
  */
 class DelegatedChangeDataController extends BaseApiController{
 
+    const DELEGATED_CHANGE_CSV_HEADERS = ["account", "exchanger", "amount", "pan", "expiry_year", "expiry_month", "cvv2"];
+
     /**
      * @param Request $request
      * @return Response
@@ -106,12 +108,12 @@ class DelegatedChangeDataController extends BaseApiController{
 
         $contents = $this->csvToArray($csvContents);
 
-        $csvHeaders = ["account", "exchanger", "amount", "pan", "expiry_year", "expiry_month", "cvv2"];
-        foreach($csvHeaders as $hdr){
+        foreach(static::DELEGATED_CHANGE_CSV_HEADERS as $hdr){
             if(!array_key_exists($hdr, $contents)){
+                $hdrStr = implode(", ", static::DELEGATED_CHANGE_CSV_HEADERS);
                 throw new HttpException(
                     400,
-                    "CSV file format error: csv must contain the following headers: " . implode(", ", $csvHeaders)
+                    "CSV file format error: csv must contain the following headers: $hdrStr"
                 );
             }
         }
@@ -173,11 +175,11 @@ class DelegatedChangeDataController extends BaseApiController{
 
         $headers = [];
         $contents = [];
-        if (($handle = fopen($tmpLocation, "r")) !== FALSE) {
-            if(($row = fgetcsv($handle)) !== FALSE) {
+        if (($handle = fopen($tmpLocation, "r")) !== false) {
+            if(($row = fgetcsv($handle)) !== false) {
                 $headers = $row;
             }
-            while(($row = fgetcsv($handle)) !== FALSE) {
+            while(($row = fgetcsv($handle)) !== false) {
                 $rowArr = [];
                 for($i=0; $i<count($row); $i++){
                     $rowArr[$headers[$i]] = $row[$i];
