@@ -25,8 +25,7 @@ use Telepay\FinancialApiBundle\Validator\Constraint as RECAssert;
  *          name="fk_idx",
  *          columns={
  *              "delegated_change_id",
- *              "account_id",
- *              "exchanger_id"
+ *              "account_id"
  *          }
  *     )
  * })
