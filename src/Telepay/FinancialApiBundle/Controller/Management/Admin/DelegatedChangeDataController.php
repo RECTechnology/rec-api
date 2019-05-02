@@ -109,11 +109,11 @@ class DelegatedChangeDataController extends BaseApiController{
         $contents = $this->csvToArray($csvContents);
 
         foreach(static::DELEGATED_CHANGE_CSV_HEADERS as $hdr){
-            if(!array_key_exists($hdr, $contents)){
+            if(!array_key_exists($hdr, $contents[0])){
                 $hdrStr = implode(", ", static::DELEGATED_CHANGE_CSV_HEADERS);
                 throw new HttpException(
                     400,
-                    "CSV file format error: csv must contain the following headers: $hdrStr"
+                    "CSV format error: header '$hdr' not found: CSV file must contain the following headers: $hdrStr"
                 );
             }
         }
@@ -149,13 +149,15 @@ class DelegatedChangeDataController extends BaseApiController{
         } catch (HttpException $e){
             return $this->restV2(
                 $e->getStatusCode(),
+                "error",
                 "Error in row " . $rowCount . ": " . $e->getMessage()
             );
         } catch (AssertionError $e2){
             assert(isset($resp));
             $respContent = json_decode($resp->getContent());
             return $this->restV2(
-                $resp->getStatusCode(),
+                400,
+                "error",
                 "Error in row " . $rowCount . ": " . $respContent['message'], $respContent['data']
             );
         }
@@ -172,12 +174,16 @@ class DelegatedChangeDataController extends BaseApiController{
         $tmpLocation = '/tmp/' . uniqid("upload_") . ".tmp.csv";
         file_put_contents($tmpLocation, $csvContents);
 
-        $headers = [];
         $contents = [];
         if (($handle = fopen($tmpLocation, "r")) !== false) {
             if(($row = fgetcsv($handle)) !== false) {
-                $headers = $row;
+                $headers = [];
+                foreach ($row as $hdr) {
+                    $headers []= trim($hdr);
+                }
             }
+            else throw new HttpException(400, "Invalid CSV: csv file must contain at least the headers row");
+
             while(($row = fgetcsv($handle)) !== false) {
                 $rowArr = [];
                 for($i=0; $i<count($row); $i++){
