@@ -135,15 +135,26 @@ class DelegatedChangeDataController extends BaseApiController{
                     "Invalid exchanger ID: the csv 'exchanger' value must be the 'cif' of the exchanger account."
                 );
 
-                $request->request->set('account_id', $account->getId());
-                $request->request->set('exchanger_id', $exchanger->getId());
-                $request->request->set('amount', $dcdArray["amount"]);
-                $request->request->set('pan', $dcdArray["pan"]);
-                $request->request->set('expiry_date', $dcdArray["expiry_month"] . "/" . $dcdArray["expiry_year"]);
-                $request->request->set('cvv2', $dcdArray["cvv2"]);
+                $req = new Request();
+                $req->setMethod("POST");
+                $req->request->set('account_id', $account->getId());
+                $req->request->set('exchanger_id', $exchanger->getId());
+                $req->request->set('amount', $dcdArray["amount"]);
+                $req->request->set('pan', $dcdArray["pan"]);
+                $req->request->set('expiry_date', $dcdArray["expiry_month"] . "/" . $dcdArray["expiry_year"]);
+                $req->request->set('cvv2', $dcdArray["cvv2"]);
 
-                $resp = $this->createAction($request);
-                assert($resp->getStatusCode() === BaseApiController::HTTP_STATUS_CODE_CREATED);
+                /** @var Response $resp */
+                $resp = $this->createAction($req);
+                if($resp->getStatusCode() !== BaseApiController::HTTP_STATUS_CODE_CREATED){
+                    $respContent = json_decode($resp->getContent(), JSON_OBJECT_AS_ARRAY);
+                    return $this->restV2(
+                        400,
+                        "error",
+                        "Error in row " . $rowCount . ": " . $respContent['message'], $respContent['data']
+                    );
+
+                }
                 $rowCount++;
             }
         } catch (HttpException $e){
@@ -151,14 +162,6 @@ class DelegatedChangeDataController extends BaseApiController{
                 $e->getStatusCode(),
                 "error",
                 "Error in row " . $rowCount . ": " . $e->getMessage()
-            );
-        } catch (AssertionError $e2){
-            assert(isset($resp));
-            $respContent = json_decode($resp->getContent());
-            return $this->restV2(
-                400,
-                "error",
-                "Error in row " . $rowCount . ": " . $respContent['message'], $respContent['data']
             );
         }
 
