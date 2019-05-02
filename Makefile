@@ -1,29 +1,31 @@
-PROJECT_NAME := rec-api
-BRANCH_NAME  := $(shell git rev-parse --abbrev-ref HEAD)
+DOCKER_REGISTRY := reg.rallf.com:8443
+DOCKER_IMAGE := rec-api
+DOCKER_TAG := master
+BUILD_DIR := .
 
-all: build-all
-push: push-all
+all: login build push deploy
+dev: run
 
-build-all: build-cron build-api
-push-all: push-api push-cron
+login:
+	docker login -u $(DOCKER_USERNAME) -p $(DOCKER_PASSWORD) $(DOCKER_REGISTRY)
 
-build-api:
-	docker build . -f docker/prod/api/Dockerfile -t reg.rallf.com:8443/$(PROJECT_NAME):$(BRANCH_NAME)
-build-cron:
-	docker build . -f docker/prod/cron/Dockerfile -t reg.rallf.com:8443/rec-cron:$(BRANCH_NAME)
+build:
+	docker build . -f $(BUILD_DIR)/Dockerfile -t $(DOCKER_REGISTRY)/$(DOCKER_IMAGE):$(DOCKER_TAG)
 
+push:
+	docker push $(DOCKER_REGISTRY)/$(DOCKER_IMAGE):$(DOCKER_TAG)
 
-push-api: build-api
-	docker push reg.rallf.com:8443/$(PROJECT_NAME):$(BRANCH_NAME)
-push-cron: build-cron
-	docker push reg.rallf.com:8443/rec-cron:$(BRANCH_NAME)
+deploy:
+	WEBHOOK=$(WEBHOOK) ./deploy.sh
 
-dev:
-	docker-compose up --build
-status:
-	docker-compose ps
+run:
+	docker-compose -f docker/dev/docker-compose.yml up --build
+
+ps:
+	docker-compose -f docker/dev/docker-compose.yml ps
+
 stop:
-	docker-compose stop
+	docker-compose -f docker/dev/docker-compose.yml stop
 
-deploy: push-all
-	./deployer.sh
+down:
+	docker-compose -f docker/dev/docker-compose.yml down
