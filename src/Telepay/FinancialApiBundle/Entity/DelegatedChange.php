@@ -71,23 +71,24 @@ class DelegatedChange {
      * @ORM\Column(type="datetime", nullable=true)
      * @Expose
      */
-    private $scheduled_time;
+    private $scheduled_at;
 
     /**
      * @return mixed
      */
-    public function getScheduledTime()
+    public function getScheduledAt()
     {
-        return $this->scheduled_time;
+        return $this->scheduled_at;
     }
 
 
     /**
-     * @param mixed $scheduled_time
+     * @param mixed $scheduled_at
+     * @throws \Exception
      */
-    public function setScheduledTime($scheduled_time)
+    public function setScheduledAt($scheduled_at)
     {
-        $this->scheduled_time = $scheduled_time;
+        $this->scheduled_at = new DateTime($scheduled_at);
     }
 
     /**
