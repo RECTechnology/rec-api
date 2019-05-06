@@ -480,7 +480,7 @@ class AccountController extends BaseApiController{
         $company->setType($type);
         $company->setSubtype($subtype);
         $company->setActive(true);
-        $company->setRoles(array('ROLE_COMPANY'));
+        $company->setRoles(['ROLE_COMPANY']);
         $company->setRecAddress('temp');
         $company->setMethodsList($methodsList);
         $company->setLatitude($latitude);

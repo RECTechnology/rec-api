@@ -26,7 +26,7 @@ class IsCommerceValidator extends ConstraintValidator {
     {
         assert($value instanceof Group);
 
-        if(!$value->hasRole("ROLE_COMPANY")) {
+        if($value->getType() !== "COMPANY") {
             $this->context->addViolation(
                 $constraint->message,
                 ['{{ string }}' => $value->getId()]

@@ -25,9 +25,9 @@ class IsUserValidator extends ConstraintValidator {
      */
     public function validate($value, Constraint $constraint)
     {
-        assert($value instanceof User);
+        assert($value instanceof Group);
 
-        if($value->hasRole("ROLE_COMPANY")) {
+        if($value->getType() !== "PRIVATE") {
             $this->context->addViolation(
                 $constraint->message,
                 ['{{ string }}' => $value->getId()]
