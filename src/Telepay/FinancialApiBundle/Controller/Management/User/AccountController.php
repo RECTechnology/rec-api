@@ -3,6 +3,7 @@
 namespace Telepay\FinancialApiBundle\Controller\Management\User;
 
 use Doctrine\DBAL\DBALException;
+use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Security\Core\Util\SecureRandom;
 use Telepay\FinancialApiBundle\Entity\CashInTokens;
 use Telepay\FinancialApiBundle\Entity\Group;
@@ -125,30 +126,37 @@ class AccountController extends BaseApiController{
 
     /**
      * @Rest\View
+     * @param Request $request
+     * @return Response
      */
     public function active2faAction(Request $request){
+
+        /** @var User $user */
         $user = $this->get('security.context')->getToken()->getUser();
         $em = $this->getDoctrine()->getManager();
         $user->setTwoFactorAuthentication(true);
-        if($user->getTwoFactorCode() == ""){
+        if($user->getTwoFactorCode() === ""){
             $Google2FA = new Google2FA();
             $user->setTwoFactorCode($Google2FA->generate_secret_key());
         }
         $em->persist($user);
         $em->flush();
-        return $this->restV2(200,"ok", "Account info got successfully", $user);
+        return $this->restV2(200,"ok", "2FA activated successfully", $user);
     }
 
     /**
      * @Rest\View
+     * @param Request $request
+     * @return Response
      */
     public function deactive2faAction(Request $request){
+        /** @var User $user */
         $user = $this->get('security.context')->getToken()->getUser();
         $em = $this->getDoctrine()->getManager();
         $user->setTwoFactorAuthentication(false);
         $em->persist($user);
         $em->flush();
-        return $this->restV2(200,"ok", "Account info got successfully", $user);
+        return $this->restV2(200,"ok", "2FA deactivated successfully", $user);
     }
 
     /**

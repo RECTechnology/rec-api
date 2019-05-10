@@ -40,7 +40,7 @@ class DelegatedChange {
     protected $status;
 
     /**
-     * @ORM\OneToMany(targetEntity="Telepay\FinancialApiBundle\Entity\DelegatedChangeData", mappedBy="delegated_change")
+     * @ORM\OneToMany(targetEntity="Telepay\FinancialApiBundle\Entity\DelegatedChangeData", mappedBy="delegated_change", cascade={"remove"})
      * @Expose
      */
     protected $data;
