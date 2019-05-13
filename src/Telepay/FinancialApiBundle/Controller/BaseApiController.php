@@ -13,6 +13,7 @@ use Doctrine\Common\Annotations\AnnotationReader;
 use Doctrine\Common\Collections\Criteria;
 use Doctrine\Common\Persistence\ObjectRepository;
 use Doctrine\DBAL\DBALException;
+use Doctrine\ORM\Query\QueryException;
 use Doctrine\ORM\EntityManagerInterface;
 use Doctrine\ORM\Mapping\ManyToMany;
 use Doctrine\ORM\Mapping\ManyToOne;
@@ -21,6 +22,7 @@ use Doctrine\ORM\NonUniqueResultException;
 use Doctrine\ORM\NoResultException;
 use Doctrine\ORM\Query;
 use Doctrine\ORM\QueryBuilder;
+use Exception;
 use ReflectionClass;
 use ReflectionException;
 use ReflectionProperty;
@@ -73,10 +75,13 @@ abstract class BaseApiController extends RestApiController implements Repository
 
     protected function indexAction(Request $request){
         $limit = $request->query->get('limit', 10);
+        if($limit < 0 or $limit > 100) throw new HttpException(400, "Invalid limit: must be between 1 and 100");
         $offset = $request->query->get('offset', 0);
+        if($offset < 0) throw new HttpException(400, "Invalid offset: must positive or zero");
 
         $sort = $request->query->get('sort', "id");
         $order = $request->query->get('order', "DESC");
+
 
         /** @var EntityManagerInterface $em */
         $em = $this->getDoctrine()->getManager();
@@ -122,6 +127,8 @@ abstract class BaseApiController extends RestApiController implements Repository
 
         } catch (NoResultException $e) {
         } catch (NonUniqueResultException $e) {
+        } catch (QueryException $e) {
+            throw new HttpException(400, "Invalid params, please check query");
         }
 
     }
