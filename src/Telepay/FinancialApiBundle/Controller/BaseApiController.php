@@ -10,10 +10,17 @@ namespace Telepay\FinancialApiBundle\Controller;
 
 use Doctrine\Common\Annotations\AnnotationException;
 use Doctrine\Common\Annotations\AnnotationReader;
+use Doctrine\Common\Collections\Criteria;
+use Doctrine\Common\Persistence\ObjectRepository;
 use Doctrine\DBAL\DBALException;
+use Doctrine\ORM\EntityManagerInterface;
 use Doctrine\ORM\Mapping\ManyToMany;
 use Doctrine\ORM\Mapping\ManyToOne;
 use Doctrine\ORM\Mapping\OneToOne;
+use Doctrine\ORM\NonUniqueResultException;
+use Doctrine\ORM\NoResultException;
+use Doctrine\ORM\Query;
+use Doctrine\ORM\QueryBuilder;
 use ReflectionClass;
 use ReflectionException;
 use ReflectionProperty;
@@ -32,31 +39,91 @@ abstract class BaseApiController extends RestApiController implements Repository
             ->getRepository($this->getRepositoryName());
     }
 
+    /**
+     * @param $key
+     * @param $sent_value
+     * @return object|null
+     * @throws AnnotationException
+     * @throws ReflectionException
+     */
+    private function findForeignObject($key, $sent_value){
+
+        $className = $this->getRepository()->getClassName();
+        $name = substr($key, 0, strlen($key) - 3);
+        if(!property_exists($className, $name))
+            throw new HttpException(400, "Bad request, parameter '$key' is invalid.");
+        $reflectionProperty = new ReflectionProperty($className, $name);
+        $ar = new AnnotationReader();
+        $propertyAnnotations = $ar->getPropertyAnnotations($reflectionProperty);
+
+        $rel = false;
+        foreach ($propertyAnnotations as $an){
+            if($an instanceof ManyToMany or $an instanceof ManyToOne or $an instanceof OneToOne){
+                $rel = $an;
+                break;
+            }
+        }
+
+        if(!$rel) throw new HttpException(400, "Unrelated parameter");
+
+        $value = $this->getDoctrine()->getRepository($rel->targetEntity)->find($sent_value);
+        if(!$value) throw new HttpException(400, "Object $name with id '$sent_value' does not exist.");
+        return $value;
+    }
+
     protected function indexAction(Request $request){
-        //TODO: test if is used
-        //throw new HttpException(400, "_pass_");
-        if($request->query->has('limit')) $limit = $request->query->get('limit');
-        else $limit = 10;
+        $limit = $request->query->get('limit', 10);
+        $offset = $request->query->get('offset', 0);
 
-        if($request->query->has('offset')) $offset = $request->query->get('offset');
-        else $offset = 0;
+        $sort = $request->query->get('sort', "id");
+        $order = $request->query->get('order', "DESC");
 
-        //TODO: Improve performance (two queries)
-        $all = $this->getRepository()->findAll();
+        /** @var EntityManagerInterface $em */
+        $em = $this->getDoctrine()->getManager();
 
-        $total = count($all);
+        /** @var QueryBuilder $qb */
+        $qb = $em->createQueryBuilder();
 
-        $entities = array_slice($all, $offset, $limit);
+        $className = $this->getRepository()->getClassName();
+        $filter = $qb->expr()->andX();
+        $filter_is_empty = true;
+        foreach ($request->query->keys() as $key){
+            if(substr($key, -3) === "_id") {
+                $name = substr($key, 0, strlen($key) - 3);
+                $filter_is_empty = false;
+                $filter->add($qb->expr()->eq('IDENTITY(e.' . $name . ')', $request->query->get($key)));
+            }
+            elseif(property_exists($className, $key)){
+                $filter_is_empty = false;
+                $filter->add($qb->expr()->eq('e.' . $key, "'" . $request->query->get($key) . "'"));
+            }
+        }
 
-        return $this->restV2(
-            200,
-            "ok",
-            "Request successful",
-            array(
-                'total' => $total,
-                'elements' => $entities
-            )
-        );
+        $qb = $qb->from($className, 'e');
+        if(!$filter_is_empty) $qb = $qb->where($filter);
+        $qb = $qb->orderBy('e.' . $sort, $order);
+
+        try {
+            $total = $qb->select('count(e.id)')
+                ->getQuery()->getSingleScalarResult();
+            $elems = $qb->select('e')
+                ->setFirstResult($offset)->setMaxResults($limit)
+                ->getQuery()->getResult();
+
+            return $this->restV2(
+                200,
+                "ok",
+                "Request successful",
+                array(
+                    'total' => $total,
+                    'elements' => $elems
+                )
+            );
+
+        } catch (NoResultException $e) {
+        } catch (NonUniqueResultException $e) {
+        }
+
     }
 
     protected function showAction($id){
@@ -93,26 +160,8 @@ abstract class BaseApiController extends RestApiController implements Repository
 
             // user is trying to set foreign key
             elseif(substr($name, -3) === "_id"){
-                $name = substr($name, 0, strlen($name) - 3);
-                if(!property_exists($entity, $name)) throw new HttpException(400, "Bad request, parameter '$name' is invalid.");
-                $reflectionProperty = new ReflectionProperty($this->getRepository()->getClassName(), $name);
-                $propertyAnnotations = $ar->getPropertyAnnotations($reflectionProperty);
-
-                $rel = false;
-                foreach ($propertyAnnotations as $an){
-                    if($an instanceof ManyToMany or $an instanceof ManyToOne or $an instanceof OneToOne){
-                        $rel = $an;
-                        break;
-                    }
-                }
-
-                if(!$rel) throw new HttpException(400, "unrelated parameter");
-
-                $sent_value = $value;
-                $value = $this->getDoctrine()->getRepository($rel->targetEntity)->find($sent_value);
-                if(!$value) throw new HttpException(400, "Object $name with id '$sent_value' does not exist.");
+                $value = $this->findForeignObject($name, $value);
             }
-
             else {
                 $reflectionProperty = new ReflectionProperty($this->getRepository()->getClassName(), $name);
                 $propertyAnnotations = $ar->getPropertyAnnotations($reflectionProperty);

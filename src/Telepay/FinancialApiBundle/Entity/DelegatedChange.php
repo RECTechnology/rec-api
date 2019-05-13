@@ -41,7 +41,6 @@ class DelegatedChange {
 
     /**
      * @ORM\OneToMany(targetEntity="Telepay\FinancialApiBundle\Entity\DelegatedChangeData", mappedBy="delegated_change", cascade={"remove"})
-     * @Expose
      */
     protected $data;
 
@@ -137,6 +136,14 @@ class DelegatedChange {
     public function setStatus($status)
     {
         $this->status = $status;
+    }
+
+    /**
+     * @return mixed
+     */
+    public function getId()
+    {
+        return $this->id;
     }
 
 

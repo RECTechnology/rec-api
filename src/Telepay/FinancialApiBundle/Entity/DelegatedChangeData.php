@@ -31,7 +31,7 @@ use Telepay\FinancialApiBundle\Validator\Constraint as RECAssert;
  * })
  * @ExclusionPolicy("all")
  */
-class DelegatedChangeData {
+class DelegatedChangeData{
 
     public function __construct()
     {
@@ -310,6 +310,14 @@ class DelegatedChangeData {
     public function setTransaction($transaction)
     {
         $this->transaction_ref = $transaction->getId();
+    }
+
+    /**
+     * @return mixed
+     */
+    public function getId()
+    {
+        return $this->id;
     }
 
 }
