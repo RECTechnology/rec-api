@@ -68,14 +68,11 @@ expiryyear = sys.argv[5]
 cvv2 = sys.argv[6]
 
 try:
-  #sys.stdout.write(",".join([url, cardholder, pan, expirymonth, expiryyear, cvv2]))
   driver = webdriver.Firefox(headless=true)
-  result = pay(driver, url, cardholder, pan, expirymonth, expiryyear, cvv2)
-  #sys.stdout.write(",success,%s\n" % ",".join(result))
+  pay(driver, url, cardholder, pan, expirymonth, expiryyear, cvv2)
   driver.close()
   sys.exit(0)
 except (RuntimeError, TimeoutException):
-  sys.stdout.write(",error,,,,,,,,\n")
   driver.close()
   sys.exit(1)
 
