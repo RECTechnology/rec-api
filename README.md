@@ -24,7 +24,7 @@ make dev
 ```
 Using docker directly
 ```
-docker-compose -f docker/dev/Dockerfile up --build
+docker-compose -f docker/dev/docker-compose.yml up --build
 ```
 #### Stop/Down services
 Using **GNU Make**
@@ -33,7 +33,7 @@ make down
 ```
 Using docker directly
 ```
-docker-compose -f docker/dev/Dockerfile down
+docker-compose -f docker/dev/docker-compose.yml down
 ```
 
 #### Run some command in the `api` container
