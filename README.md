@@ -16,25 +16,40 @@ Welcome to the REC Barcelona API [api.rec.barcelona](https://api.rec.barcelona)
 Install **docker** and **docker-compose** using the [official documentation](https://docs.docker.com/install/).
 Make sure having added your user to the `docker` group to avoid trouble with permissions, see [docs](https://docs.docker.com/install/linux/linux-postinstall/)
 
-### Run API image only
-```
-docker build . -f Dockerfile.dev -t rec-api-dev
-docker run -it -v `pwd`:/api -u $UID:$UID rec-api-dev <command>
-```
-note that this method launches a new container with the code mounted, so it will only work if the command affects only to filesystem, if it has something to do with the database it will fail because the container cannot communicate with the database (for example command `app/console doctrine:schema:update --force` will not work)
-
 ### Run API with dependencies (MySQL, Mongodb, Node)
 #### Start services
+Using **GNU Make** (need `autotools` installed)
 ```
-docker-compose up
+make dev
 ```
+Using docker directly
+```
+docker-compose -f docker/dev/Dockerfile up --build
+```
+#### Stop/Down services
+Using **GNU Make**
+```
+make down
+```
+Using docker directly
+```
+docker-compose -f docker/dev/Dockerfile down
+```
+
 #### Run some command in the `api` container
 to see the list of running containers use `docker ps`
 
 to run any command in the `api` container
 ```
-docker exec -it api-api_api_1 bash
+docker exec -it dev_api_1 bash
 ```
+
+### Run API image only (troubleshoot only)
+```
+docker build . -f docker/dev/Dockerfile -t rec-api-dev
+docker run -it -v `pwd`:/api -u $UID:$UID rec-api-dev <command>
+```
+note that this method launches a new container with the code mounted, so it will only work if the command affects only to filesystem, if it has something to do with the database it will fail because the container cannot communicate with the database (for example command `app/console doctrine:schema:update --force` will not work)
 
 #### Admin databases and test
 the services started with docker-compose are available at localhost in different ports
@@ -59,7 +74,7 @@ the rest of services haven't got any port exposed to outside, but available insi
 
 #### Troubleshooting
 to deal with troubleshooting is possible to acces to the runningcontainer's shell using 
-`docker exec -it api-api_api_1 bash` (explained [above](#run-some-command-in-the-api-container)),
+`docker exec -it dev_api_1 bash` (explained [above](#run-some-command-in-the-api-container)),
 but if the container doesn't start (ie. missing dependencies), the method must be to executing
 directly the built image using `docker run -it -v `pwd`:/api -u $UID:$UID rec-api-dev bash` (also
 explained [above](#run-api-image-only)).
