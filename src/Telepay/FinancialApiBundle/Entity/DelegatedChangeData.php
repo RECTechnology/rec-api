@@ -33,6 +33,9 @@ use Telepay\FinancialApiBundle\Validator\Constraint as RECAssert;
  */
 class DelegatedChangeData{
 
+    const STATUS_SUCCESS = "success";
+    const STATUS_ERROR = "error";
+
     public function __construct()
     {
         $this->created = $this->updated = new DateTime();
@@ -62,6 +65,7 @@ class DelegatedChangeData{
 
 
     /**
+     * @Assert\NotNull
      * @ORM\ManyToOne(targetEntity="Telepay\FinancialApiBundle\Entity\DelegatedChange", inversedBy="data")
      * @Expose
      */
@@ -69,6 +73,7 @@ class DelegatedChangeData{
 
 
     /**
+     * @Assert\NotNull
      * @RECAssert\IsUser
      * @ORM\ManyToOne(targetEntity="Telepay\FinancialApiBundle\Entity\Group")
      * @Expose
@@ -76,6 +81,7 @@ class DelegatedChangeData{
     private $account;
 
     /**
+     * @Assert\NotNull
      * @RECAssert\IsCommerce
      * @ORM\ManyToOne(targetEntity="Telepay\FinancialApiBundle\Entity\Group")
      * @Expose
@@ -112,6 +118,7 @@ class DelegatedChangeData{
     private $cvv2;
 
     /**
+     * @Assert\NotNull
      * @ORM\Column(type="float", nullable=true)
      * @Expose
      */

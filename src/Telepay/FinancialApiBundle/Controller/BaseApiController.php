@@ -168,6 +168,7 @@ abstract class BaseApiController extends RestApiController implements Repository
             // user is trying to set foreign key
             elseif(substr($name, -3) === "_id"){
                 $value = $this->findForeignObject($name, $value);
+                $name = substr($name, 0, strlen($name) - 3);
             }
             else {
                 $reflectionProperty = new ReflectionProperty($this->getRepository()->getClassName(), $name);
@@ -186,7 +187,7 @@ abstract class BaseApiController extends RestApiController implements Repository
                 call_user_func_array(array($entity, $setter), array($value));
             }
             else{
-                throw new HttpException(400, "Bad request, parameter '$name' is invalid.");
+                throw new HttpException(400, "Bad request, parameter '$name' is invalid. ");
             }
 
         }

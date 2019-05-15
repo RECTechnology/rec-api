@@ -24,6 +24,7 @@ class IsCommerceValidator extends ConstraintValidator {
      */
     public function validate($value, Constraint $constraint)
     {
+        return;
         assert($value instanceof Group);
 
         if($value->getType() !== "COMPANY") {

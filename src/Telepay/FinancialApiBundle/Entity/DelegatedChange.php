@@ -8,6 +8,9 @@ use Doctrine\ORM\Mapping as ORM;
 
 use JMS\Serializer\Annotation\ExclusionPolicy;
 use JMS\Serializer\Annotation\Expose;
+use JMS\Serializer\Annotation\VirtualProperty;
+use JMS\Serializer\Annotation\SerializedName;
+use LogicException;
 
 
 /**
@@ -22,6 +25,16 @@ class DelegatedChange {
         $this->created = $this->updated = new DateTime();
         $this->data = new ArrayCollection();
         $this->status = "draft";
+        $this->statistics = [
+            "scheduled" => [
+                "rec_to_be_issued" => 0.
+            ],
+            "result" => [
+                "success_tx" => 0,
+                "failed_tx" => 0,
+                "issued_rec" => 0.,
+            ]
+        ];
     }
 
 
@@ -65,6 +78,12 @@ class DelegatedChange {
      */
     protected $updated;
 
+
+    /**
+     * @ORM\Column(type="json_array")
+     * @Expose
+     */
+    private $statistics;
 
     /**
      * @ORM\Column(type="datetime", nullable=true)
@@ -144,6 +163,33 @@ class DelegatedChange {
     public function getId()
     {
         return $this->id;
+    }
+
+    /**
+     * @return mixed
+     */
+    public function getStatistics()
+    {
+        return $this->statistics;
+    }
+
+    /**
+     * @param mixed $key
+     * @param mixed $value
+     */
+    public function setResult($key, $value)
+    {
+        if(!array_key_exists($key, $this->statistics['result']))
+            throw new LogicException("Key '$key' not found in result");
+        $this->statistics['result'][$key] = $value;
+    }
+
+    /**
+     * @param mixed $value
+     */
+    public function setRecToBeIssued($value)
+    {
+        $this->statistics['scheduled']['rec_to_be_issued'] = $value;
     }
 
 
