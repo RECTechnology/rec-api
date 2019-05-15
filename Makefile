@@ -2,6 +2,7 @@ DOCKER_REGISTRY := reg.rallf.com:8443
 DOCKER_IMAGE := rec-api
 DOCKER_TAG := master
 BUILD_DIR := .
+DOCKERFILE_DIR := .
 
 all: login build push deploy
 dev: run
@@ -10,7 +11,7 @@ login:
 	docker login -u $(DOCKER_USERNAME) -p $(DOCKER_PASSWORD) $(DOCKER_REGISTRY)
 
 build:
-	docker build . -f $(BUILD_DIR)/Dockerfile -t $(DOCKER_REGISTRY)/$(DOCKER_IMAGE):$(DOCKER_TAG)
+	cd $(BUILD_DIR) && docker build . -f $(DOCKERFILE_DIR)/Dockerfile -t $(DOCKER_REGISTRY)/$(DOCKER_IMAGE):$(DOCKER_TAG)
 
 push:
 	docker push $(DOCKER_REGISTRY)/$(DOCKER_IMAGE):$(DOCKER_TAG)

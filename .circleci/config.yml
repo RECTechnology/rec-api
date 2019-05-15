@@ -4,22 +4,23 @@ jobs:
     branches:
       only:
         - master
-        - containerize
         - stable
     machine: true
     steps:
       - checkout
 
-      # Docker Registry Login
-      - run: docker login -u $DOCKER_USER -p $DOCKER_PASS reg.rallf.com:8443
+      # docker login with credentials stored in the CI
+      - run: make login DOCKER_REGISTRY=$REGISTRY DOCKER_USERNAME=$USERNAME DOCKER_PASSWORD=$PASSWORD
 
-      # Build the application images
-      - run: make
-      - run: docker build docs -t reg.rallf.com:8443/rec-dev:$CIRCLE_BRANCH
+      # build the application image
+      - run: make build DOCKER_REGISTRY=$REGISTRY DOCKER_IMAGE=rec-api DOCKER_TAG=$CIRCLE_BRANCH DOCKERFILE_DIR=docker/prod/api
+      - run: make build DOCKER_REGISTRY=$REGISTRY DOCKER_IMAGE=rec-cron DOCKER_TAG=$CIRCLE_BRANCH DOCKERFILE_DIR=docker/prod/cron
+      - run: make build DOCKER_REGISTRY=$REGISTRY DOCKER_IMAGE=rec-dev DOCKER_TAG=$CIRCLE_BRANCH BUILD_DIR=docs
 
-      # Push the API image to the Registry
-      - run: make push
-      - run: docker push reg.rallf.com:8443/rec-dev:$CIRCLE_BRANCH
+      # push the application image to registry
+      - run: make push DOCKER_REGISTRY=$REGISTRY DOCKER_IMAGE=rec-api DOCKER_TAG=$CIRCLE_BRANCH
+      - run: make push DOCKER_REGISTRY=$REGISTRY DOCKER_IMAGE=rec-cron DOCKER_TAG=$CIRCLE_BRANCH
+      - run: make push DOCKER_REGISTRY=$REGISTRY DOCKER_IMAGE=rec-dev DOCKER_TAG=$CIRCLE_BRANCH
 
-      # use webhook to deploy
-      - run: make deploy WEBHOOK=$DEPLOY_WEBHOOK
+      # deploy with webhook (put every url separated by comma)
+      - run: make deploy WEBHOOK=$WEBHOOK
