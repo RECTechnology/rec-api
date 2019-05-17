@@ -2,6 +2,8 @@
 
 namespace Telepay\FinancialApiBundle\Controller\Management\Admin;
 
+use Doctrine\DBAL\DBALException;
+use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpKernel\Exception\HttpException;
 use Telepay\FinancialApiBundle\Controller\BaseApiController;
 use Telepay\FinancialApiBundle\DependencyInjection\Transactions\Core\AbstractMethod;
@@ -154,6 +156,9 @@ class UsersController extends BaseApiController{
     /**
      * @Rest\View
      * permissions: ROLE_SUPER_ADMIN
+     * @param Request $request
+     * @param $id
+     * @return Response
      */
     public function updateKYCAction(Request $request, $id){
         if(empty($id)) throw new HttpException(400, "Missing parameter 'id'");
@@ -181,23 +186,27 @@ class UsersController extends BaseApiController{
 
         $params = $request->request->all();
         $repo = $this->getDoctrine()->getManager()->getRepository("TelepayFinancialApiBundle:KYC");
-        $entity = $repo->findOneBy(array('user'=>$id));
-        if(empty($entity)) throw new HttpException(404, "Not found");
+        $kycEntry = $repo->findOneBy(['user' => $id]);
+        if(empty($kycEntry)) throw new HttpException(404, "Not found");
 
-        foreach ($params as $name => $value) {
-            if ($name != 'id') {
-                $setter = $this->attributeToSetter($name);
-                if (method_exists($entity, $setter)) {
-                    call_user_func(array($entity, $setter), $value);
-                }
-                else{
-                    throw new HttpException(400, "Bad request, parameter '$name' is not allowed");
+        try{
+            foreach ($params as $name => $value) {
+                if ($name != 'id') {
+                    $setter = $this->attributeToSetter($name);
+                    if (method_exists($kycEntry, $setter)) {
+                        call_user_func(array($kycEntry, $setter), $value);
+                    }
+                    else{
+                        throw new HttpException(400, "Bad request, parameter '$name' is not allowed");
+                    }
                 }
             }
+        } catch(\LogicException $e){
+            throw new HttpException(400, $e->getMessage());
         }
 
         $em = $this->getDoctrine()->getManager();
-        $em->persist($entity);
+        $em->persist($kycEntry);
         try{
             $em->flush();
         } catch(DBALException $e){
@@ -448,12 +457,12 @@ class UsersController extends BaseApiController{
         return $this->rest(204, "User removed successfully");
     }
 
-        /**
+    /**
      * @Rest\View
      * @param Request $request
      * @param $id
      * @param $action
-     * @return \Symfony\Component\HttpFoundation\Response
+     * @return Response
      */
     public function userActionsAction(Request $request,$id, $action){
         $em = $this->getDoctrine()->getmanager();
