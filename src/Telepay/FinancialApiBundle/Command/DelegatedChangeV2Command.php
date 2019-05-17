@@ -109,8 +109,8 @@ class DelegatedChangeV2Command extends SynchronizedContainerAwareCommand{
                     }
                 }
             }
+            $dc->setStatus(DelegatedChange::STATUS_FINISHED);
+            $em->persist($dc); $em->flush();
         }
-        $dc->setStatus(DelegatedChange::STATUS_FINISHED);
-        $em->persist($dc); $em->flush();
     }
 }
