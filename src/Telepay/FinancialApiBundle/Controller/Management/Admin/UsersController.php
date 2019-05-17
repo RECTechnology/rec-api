@@ -2,6 +2,7 @@
 
 namespace Telepay\FinancialApiBundle\Controller\Management\Admin;
 
+use Doctrine\DBAL\DBALException;
 use Symfony\Component\HttpKernel\Exception\HttpException;
 use Telepay\FinancialApiBundle\Controller\BaseApiController;
 use Telepay\FinancialApiBundle\DependencyInjection\Transactions\Core\AbstractMethod;
