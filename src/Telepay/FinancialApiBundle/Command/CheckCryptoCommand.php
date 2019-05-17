@@ -13,7 +13,7 @@ use Telepay\FinancialApiBundle\Document\Transaction;
 use Telepay\FinancialApiBundle\Entity\Exchange;
 use Telepay\FinancialApiBundle\Financial\Currency;
 
-class CheckCryptoCommand extends SyncronizedContainerAwareCommand
+class CheckCryptoCommand extends SynchronizedContainerAwareCommand
 {
     protected function configure()
     {
@@ -23,7 +23,7 @@ class CheckCryptoCommand extends SyncronizedContainerAwareCommand
         ;
     }
 
-    protected function executeSyncronized(InputInterface $input, OutputInterface $output){
+    protected function executeSynchronized(InputInterface $input, OutputInterface $output){
         $method_cname = array('rec');
         $type = 'in';
 

@@ -13,7 +13,7 @@ use Telepay\FinancialApiBundle\Document\Transaction;
 use Telepay\FinancialApiBundle\Entity\Exchange;
 use Telepay\FinancialApiBundle\Financial\Currency;
 
-class CheckFiatCommand extends SyncronizedContainerAwareCommand{
+class CheckFiatCommand extends SynchronizedContainerAwareCommand{
     protected function configure()
     {
         $this
@@ -22,7 +22,7 @@ class CheckFiatCommand extends SyncronizedContainerAwareCommand{
         ;
     }
 
-    protected function executeSyncronized(InputInterface $input, OutputInterface $output){
+    protected function executeSynchronized(InputInterface $input, OutputInterface $output){
         $method_cname = array('lemonway');
         $type = 'in';
 

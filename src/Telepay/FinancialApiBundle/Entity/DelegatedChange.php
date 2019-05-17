@@ -20,11 +20,16 @@ use LogicException;
  */
 class DelegatedChange {
 
+    const STATUS_DRAFT = "draft";
+    const STATUS_SCHEDULED = "scheduled";
+    const STATUS_IN_PROGRESS = "in_progress";
+    const STATUS_FINISHED = "finished";
+
     public function __construct()
     {
         $this->created = $this->updated = new DateTime();
         $this->data = new ArrayCollection();
-        $this->status = "draft";
+        $this->status = DelegatedChange::STATUS_DRAFT;
         $this->statistics = [
             "scheduled" => [
                 "rec_to_be_issued" => 0.

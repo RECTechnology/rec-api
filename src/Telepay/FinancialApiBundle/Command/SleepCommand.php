@@ -7,7 +7,7 @@ use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Component\HttpKernel\Exception\HttpException;
 
-class SleepCommand extends SyncronizedContainerAwareCommand
+class SleepCommand extends SynchronizedContainerAwareCommand
 {
     protected function configure()
     {
@@ -17,7 +17,7 @@ class SleepCommand extends SyncronizedContainerAwareCommand
         ;
     }
 
-    protected function executeSyncronized(InputInterface $input, OutputInterface $output)
+    protected function executeSynchronized(InputInterface $input, OutputInterface $output)
     {
         $output->writeln('Init command');
         sleep(20);

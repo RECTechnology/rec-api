@@ -8,9 +8,9 @@ use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Component\Filesystem\LockHandler;
 
-abstract class SyncronizedContainerAwareCommand extends ContainerAwareCommand {
+abstract class SynchronizedContainerAwareCommand extends ContainerAwareCommand {
 
-    abstract protected function executeSyncronized(InputInterface $input, OutputInterface $output);
+    abstract protected function executeSynchronized(InputInterface $input, OutputInterface $output);
 
     protected function execute(InputInterface $input, OutputInterface $output){
         $lock = new LockHandler($this->getName() . '.lock');
@@ -19,7 +19,7 @@ abstract class SyncronizedContainerAwareCommand extends ContainerAwareCommand {
             exit(-1);
         }
         try{
-            $this->executeSyncronized($input, $output);
+            $this->executeSynchronized($input, $output);
         }catch (\Exception $e){
 
             $output->writeln("Command exited with exception: " . $e->getMessage());
