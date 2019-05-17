@@ -79,6 +79,9 @@ but if the container doesn't start (ie. missing dependencies), the method must b
 directly the built image using `docker run -it -v `pwd`:/api -u $UID:$UID rec-api-dev bash` (also
 explained [above](#run-api-image-only)).
 
+##### Known Issues
+* mongodb-odm fail to composer install/update: solution here https://stackoverflow.com/a/36987971
+
 
 # Deployment
 ## Stage Environment
