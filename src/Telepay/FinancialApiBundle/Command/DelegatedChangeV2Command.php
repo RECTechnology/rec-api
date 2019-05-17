@@ -60,7 +60,7 @@ class DelegatedChangeV2Command extends SynchronizedContainerAwareCommand{
         $em = $this->getContainer()->get('doctrine.orm.entity_manager');
 
         /** @var DocumentManager $odm */
-        $odm = $this->getContainer()->get('doctrine.odm.document_manager');
+        $odm = $this->getContainer()->get('doctrine_mongodb.odm.document_manager');
 
         $dcRepo = $em->getRepository('TelepayFinancialApiBundle:DelegatedChange');
 
@@ -76,7 +76,7 @@ class DelegatedChangeV2Command extends SynchronizedContainerAwareCommand{
             foreach ($dc->getData() as $dcd) {
                 # Card is not saved
                 if($dcd->getPan() !== null){
-                    # launch bot with all params
+                    # launch selenium bot with all params
                 }
                 # Card is saved, launch lemonway
                 else{
@@ -90,7 +90,7 @@ class DelegatedChangeV2Command extends SynchronizedContainerAwareCommand{
                         $dcd->setTransaction($tx);
                         $em->persist($dcd); $em->flush();
                     } catch (HttpException $e){
-                        $output->writeln("Transaction creation failed");
+                        $output->writeln("Transaction creation failed: " . $e->getMessage());
                     }
                     # if received is ok
                     if(200 <= $resp->getStatusCode() and $resp->getStatusCode() < 300){
@@ -103,6 +103,9 @@ class DelegatedChangeV2Command extends SynchronizedContainerAwareCommand{
 
                         # send the money to the exchanger's LemonWay account
                         $lemonMethod->send($sendParams);
+                    }
+                    else {
+                        $output->writeln("Transaction creation failed: status_code=" . $resp->getStatusCode());
                     }
                 }
             }
