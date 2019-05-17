@@ -1,10 +1,10 @@
 version: '3'
 
 volumes:
-  rdb:
-  nrdb:
-  blockchain:
-  logs:
+  rec-rdb:
+  rec-nrdb:
+  rec-blockchain:
+  rec-logs:
 
 services:
   api:
@@ -41,7 +41,7 @@ services:
       - MYSQL_PASSWORD=app
       - MYSQL_ALLOW_EMPTY_PASSWORD=yes
     volumes:
-      - rdb:/var/lib/mysql
+      - rec-rdb:/var/lib/mysql
 
   rdbadmin:
     image: phpmyadmin/phpmyadmin
@@ -57,7 +57,7 @@ services:
       - MONGO_INITDB_ROOT_USERNAME=app
       - MONGO_INITDB_ROOT_PASSWORD=app
     volumes:
-      - nrdb:/var/lib/mongodb
+      - rec-nrdb:/var/lib/mongodb
 
   nrdbadmin:
     image: mongo-express
@@ -73,4 +73,4 @@ services:
   node:
     image: qbitartifacts/crea-node
     volumes:
-      - blockchain:/root/.creativecoin
+      - rec-blockchain:/root/.creativecoin
