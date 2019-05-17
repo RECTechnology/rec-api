@@ -641,7 +641,7 @@ class KYC implements EntityWithUploadableFields {
      * @param mixed $nationality
      */
     public function setNationality($nationality){
-        if(strlen($nationality)!=3){
+        if(strlen($nationality) != 3){
             throw new \LogicException("Invalid ISO-3 country code: '$nationality' is not ISO-3 compliant");
         }
         $this->nationality = $nationality;
