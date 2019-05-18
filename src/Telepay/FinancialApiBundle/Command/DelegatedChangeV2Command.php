@@ -1,6 +1,7 @@
 <?php
 namespace Telepay\FinancialApiBundle\Command;
 
+use DateTime;
 use Doctrine\ODM\MongoDB\DocumentManager;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Component\Console\Input\InputInterface;
@@ -16,6 +17,14 @@ use Telepay\FinancialApiBundle\Entity\User;
 use Telepay\FinancialApiBundle\Financial\Methods\LemonWayMethod;
 
 class DelegatedChangeV2Command extends SynchronizedContainerAwareCommand{
+    const SEVERITY_DEBUG = "DEBUG";
+    const SEVERITY_INFO = "INFO";
+    const SEVERITY_WARN = "WARN";
+    const SEVERITY_ERROR = "ERROR";
+    const SEVERITY_CRITICAL = "CRITICAL";
+    const SEVERITY_ALERT = "ALERT";
+    const SEVERITY_EMERGENCY = "EMERG";
+
     protected function configure()
     {
         $this
@@ -47,6 +56,10 @@ class DelegatedChangeV2Command extends SynchronizedContainerAwareCommand{
 
     }
 
+    private function log(OutputInterface $output, $message, $severity = DelegatedChangeV2Command::SEVERITY_DEBUG){
+        $output->writeln(implode(" - ", [new DateTime(), $severity, $message]));
+    }
+
     protected function executeSynchronized(InputInterface $input, OutputInterface $output){
         # Summary steps:
         # for each exchange with status = scheduled:
@@ -68,18 +81,23 @@ class DelegatedChangeV2Command extends SynchronizedContainerAwareCommand{
 
         $changes = $dcRepo->findBy(['status' => DelegatedChange::STATUS_SCHEDULED]);
 
+        $this->log($output, "Found " . count($changes) . " delegated changes to process");
         /** @var DelegatedChange $dc */
         foreach ($changes as $dc){
+            $this->log($output, "Processing delegated change: " . $dc->getId() . " with " . count($dc->getData()) . " entries");
             $dc->setStatus(DelegatedChange::STATUS_IN_PROGRESS);
             $em->persist($dc); $em->flush();
             /** @var DelegatedChangeData $dcd */
             foreach ($dc->getData() as $dcd) {
+                $this->log($output, "Processing entry: " . $dcd->getId());
                 # Card is not saved
                 if($dcd->getPan() !== null){
+                    $this->log($output, "Card is NOT saved, processing lw bot");
                     # launch selenium bot with all params
                 }
                 # Card is saved, launch lemonway
                 else{
+                    $this->log($output, "Card is saved, creating lw API tx");
                     try {
                         /** @var Response $resp */
                         $resp = $this->createLemonwayTx($dcd->getAmount(), $dcd->getAccount(), $dcd->getExchanger());
@@ -90,7 +108,11 @@ class DelegatedChangeV2Command extends SynchronizedContainerAwareCommand{
                         $dcd->setTransaction($tx);
                         $em->persist($dcd); $em->flush();
                     } catch (HttpException $e){
-                        $output->writeln("Transaction creation failed: " . $e->getMessage());
+                        $this->log(
+                            $output,
+                            "Transaction creation failed: " . $e->getMessage(),
+                            DelegatedChangeV2Command::SEVERITY_CRITICAL
+                        );
                     }
                     # if received is ok
                     if(200 <= $resp->getStatusCode() and $resp->getStatusCode() < 300){
@@ -105,12 +127,19 @@ class DelegatedChangeV2Command extends SynchronizedContainerAwareCommand{
                         $lemonMethod->send($sendParams);
                     }
                     else {
-                        $output->writeln("Transaction creation failed: status_code=" . $resp->getStatusCode());
+                        $this->log(
+                            $output,
+                            "Transaction creation failed: status_code=" . $resp->getStatusCode(),
+                            DelegatedChangeV2Command::SEVERITY_CRITICAL
+                        );
                     }
                 }
+                $this->log($output, "Done entry: " . $dcd->getId());
             }
             $dc->setStatus(DelegatedChange::STATUS_FINISHED);
             $em->persist($dc); $em->flush();
+            $this->log($output, "Done delegated change: " . $dc->getId());
         }
+        $this->log($output, "Finish");
     }
 }
