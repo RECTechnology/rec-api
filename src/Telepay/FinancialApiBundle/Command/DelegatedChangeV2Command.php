@@ -57,7 +57,7 @@ class DelegatedChangeV2Command extends SynchronizedContainerAwareCommand{
     }
 
     private function log(OutputInterface $output, $message, $severity = DelegatedChangeV2Command::SEVERITY_DEBUG){
-        $output->writeln(implode(" - ", [new DateTime(), $severity, $message]));
+        $output->writeln(implode(" - ", [(new DateTime())->format('Y-m-d H:i:s Z'), $severity, $message]));
     }
 
     protected function executeSynchronized(InputInterface $input, OutputInterface $output){
