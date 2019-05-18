@@ -66,8 +66,15 @@ class DelegatedChangeController extends BaseApiController{
      */
     public function updateAction(Request $request, $id)
     {
-        if($request->request->has("status"))
+        if($request->request->has("status")){
+            $newStatus = $request->request->get("status");
+            /** @var DelegatedChange $dc */
+            $dc = $this->findObject($id);
+            if($dc->getStatus() === DelegatedChange::STATUS_DRAFT and $newStatus === DelegatedChange::STATUS_SCHEDULED){
+                return parent::updateAction($request, $id);
+            }
             throw new HttpException(400, "status attribute is readonly");
+        }
         return parent::updateAction($request, $id);
     }
 

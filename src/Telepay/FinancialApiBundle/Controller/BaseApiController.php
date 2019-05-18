@@ -133,16 +133,16 @@ abstract class BaseApiController extends RestApiController implements Repository
 
     }
 
+    protected function findObject($id){
+        $repo = $this->getRepository();
+        $entity = $repo->find($id);
+        if(empty($entity)) throw new HttpException(404, "Not found");
+        return $entity;
+    }
+
     protected function showAction($id){
         if(empty($id)) throw new HttpException(400, "Missing parameter 'id'");
-
-        $repo = $this->getRepository();
-
-        $entities = $repo->findOneBy(array('id'=>$id));
-
-        if(empty($entities)) throw new HttpException(404, "Not found");
-
-        return $this->restV2(200,"ok", "Request successful", $entities);
+        return $this->restV2(200,"ok", "Request successful", $this->findObject($id));
     }
 
 
