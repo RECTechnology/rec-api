@@ -2,6 +2,7 @@
 
 namespace Telepay\FinancialApiBundle\Controller\Management\Admin;
 
+use LogicException;
 use Symfony\Component\HttpKernel\Exception\HttpException;
 use Telepay\FinancialApiBundle\Controller\BaseApiController;
 use Telepay\FinancialApiBundle\DependencyInjection\Transactions\Core\AbstractMethod;
@@ -127,11 +128,14 @@ class CompaniesController extends BaseApiController
                 $request->request->remove('category');
             }
         }
-
-        $response = parent::updateAction($request, $id);
-        if($response->getStatusCode() == 204){
-            $em->persist($company);
-            $em->flush();
+        try {
+            $response = parent::updateAction($request, $id);
+            if ($response->getStatusCode() == 204) {
+                $em->persist($company);
+                $em->flush();
+            }
+        } catch(LogicException $e){
+            throw new HttpException(400, "Invalid params: " . $e->getMessage());
         }
         return $response;
     }
