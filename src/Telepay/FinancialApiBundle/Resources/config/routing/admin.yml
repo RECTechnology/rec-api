@@ -149,8 +149,13 @@ admin_kyc_lemon_create_account:
     requirements:
         _method: POST
 
+admin_kyc_lemon_upload_files:
+    pattern:  /admin/v1/kyc/{account_id}/lemon/upload
+    defaults: { _controller: Telepay\FinancialApiBundle\Controller\Management\Admin\KYCController::uploadLemonDocumentationAction }
+    requirements:
+        _method: POST
 
-admin_kyc_lemon_newId_account:
+admin_kyc_lemon_new_id_account:
     pattern:  /admin/v1/kyc/lemon_id
     defaults: { _controller: Telepay\FinancialApiBundle\Controller\Management\Admin\KYCController::newLemonIdAction }
     requirements:

@@ -486,9 +486,9 @@ class KYCController extends BaseApiController{
         ));
 
         $doc_front_status = $KYC->getDocumentFrontStatus();
-        if($doc_front_status!=='upload'){
+        if($doc_front_status !== 'upload'){
             $doc_front = $KYC->getDocumentFront();
-            if($doc_front ==''){
+            if($doc_front === ''){
                 throw new HttpException(400, "Document front not upload");
             }
             if($upload) {
@@ -512,9 +512,9 @@ class KYCController extends BaseApiController{
         }
 
         $doc_rear_status = $KYC->getDocumentRearStatus();
-        if($doc_rear_status!=='upload'){
+        if($doc_rear_status !== 'upload'){
             $doc_rear = $KYC->getDocumentRear();
-            if($doc_rear ==''){
+            if($doc_rear == ''){
                 throw new HttpException(400, "Document rear not upload");
             }
             if($upload) {
