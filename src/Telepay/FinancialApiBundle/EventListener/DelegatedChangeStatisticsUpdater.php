@@ -42,8 +42,10 @@ class DelegatedChangeStatisticsUpdater
         }
 
         foreach ($uow->getScheduledEntityDeletions() as $dcd) {
-            $dc = $this->getDelegatedChangeUpdated($dcd, 2 *  $dcd->getAmount());
-            $this->save($dc, $em, $uow);
+            if($dcd instanceof DelegatedChangeData) {
+                $dc = $this->getDelegatedChangeUpdated($dcd, 2 *  $dcd->getAmount());
+                $this->save($dc, $em, $uow);
+            }
         }
 
         foreach ($uow->getScheduledEntityUpdates() as $dcd) {

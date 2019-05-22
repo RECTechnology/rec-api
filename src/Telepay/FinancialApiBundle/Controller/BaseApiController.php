@@ -249,7 +249,7 @@ abstract class BaseApiController extends RestApiController implements Repository
 
         $repo = $this->getRepository();
 
-        $entity = $repo->findOneBy(['id' => $id]);
+        $entity = $repo->find($id);
 
         if(empty($entity)) throw new HttpException(404, "Not found");
 
@@ -257,7 +257,7 @@ abstract class BaseApiController extends RestApiController implements Repository
         $em->remove($entity);
         $em->flush();
 
-        return $this->restV2(200,"ok", "Deleted successfully", array());
+        return $this->restV2(200,"ok", "Deleted successfully");
     }
 
 

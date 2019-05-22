@@ -25,6 +25,11 @@ class DelegatedChange {
     const STATUS_IN_PROGRESS = "in_progress";
     const STATUS_FINISHED = "finished";
 
+    const ALLOWED_STATUS_CHANGES = [
+        ["old" => self::STATUS_DRAFT, "new" => self::STATUS_SCHEDULED],
+        ["old" => self::STATUS_SCHEDULED, "new" => self::STATUS_DRAFT]
+    ];
+
     public function __construct()
     {
         $this->created = $this->updated = new DateTime();
