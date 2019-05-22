@@ -81,10 +81,10 @@ class DelegatedChange {
                     $account = $dcd->getAccount();
                     /** @var User $user */
                     $user = $account->getKycManager();
-                    if($user->hasSavedCards()) return true;
+                    if(!$user->hasSavedCards()) return false;
                 }
             }
-            return false;
+            return true;
         }
         return true;
     }
