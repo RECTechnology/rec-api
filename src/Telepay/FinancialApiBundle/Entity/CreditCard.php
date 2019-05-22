@@ -41,7 +41,7 @@ class CreditCard{
     private $company;
 
     /**
-     * @ORM\ManyToOne(targetEntity="Telepay\FinancialApiBundle\Entity\User")
+     * @ORM\ManyToOne(targetEntity="Telepay\FinancialApiBundle\Entity\User", inversedBy="bank_cards")
      * @Expose
      */
     private $user;
@@ -142,6 +142,13 @@ class CreditCard{
      */
     public function getDeleted(){
         return $this->deleted;
+    }
+
+    /**
+     * @return boolean
+     */
+    public function isDeleted(){
+        return $this->getDeleted();
     }
 
     /**

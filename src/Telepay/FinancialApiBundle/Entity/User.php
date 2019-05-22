@@ -13,6 +13,9 @@ use Symfony\Component\Security\Core\Util\SecureRandom;
 use JMS\Serializer\Annotation\ExclusionPolicy;
 use JMS\Serializer\Annotation\Expose;
 use JMS\Serializer\Annotation\Exclude;
+use JMS\Serializer\Annotation\VirtualProperty;
+use JMS\Serializer\Annotation\Type;
+use JMS\Serializer\Annotation\SerializedName;
 use Symfony\Component\Validator\Constraints\DateTime;
 use Telepay\FinancialApiBundle\DependencyInjection\Telepay\Commons\UploadManager;
 
@@ -46,6 +49,7 @@ class User extends BaseUser implements EntityWithUploadableFields
             $this->access_secret=base64_encode($generator->nextBytes(32));
         }
         $this->created = new \DateTime();
+        $this->bank_cards = new ArrayCollection();
     }
     /**
      * @ORM\Id
@@ -172,6 +176,11 @@ class User extends BaseUser implements EntityWithUploadableFields
     private $kyc_validations;
 
     /**
+     * @ORM\OneToMany(targetEntity="Telepay\FinancialApiBundle\Entity\CreditCard", mappedBy="user", cascade={"remove"})
+     */
+    private $bank_cards;
+
+    /**
      * Random string sent to the user email address in order to recover the password
      *
      * @ORM\Column(type="string", nullable=true)
@@ -196,6 +205,22 @@ class User extends BaseUser implements EntityWithUploadableFields
 
     public function getAccessSecret(){
         return $this->access_secret;
+    }
+
+    /**
+     * @return bool
+     * @VirtualProperty()
+     * @SerializedName("has_saved_cards")
+     * @Type("boolean")
+     */
+    public function hasSavedCards(){
+
+        /** @var CreditCard $card */
+        foreach ($this->getBankCards() as $card) {
+            if(!$card->isDeleted()) return true;
+        }
+
+        return false;
     }
 
     /**
@@ -629,5 +654,13 @@ class User extends BaseUser implements EntityWithUploadableFields
     function getUploadableFields()
     {
         return ['profile_image' => UploadManager::$FILTER_IMAGES];
+    }
+
+    /**
+     * @return mixed
+     */
+    public function getBankCards()
+    {
+        return $this->bank_cards;
     }
 }

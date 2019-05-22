@@ -43,7 +43,7 @@ class DelegatedChangeStatisticsUpdater
 
         foreach ($uow->getScheduledEntityDeletions() as $dcd) {
             if($dcd instanceof DelegatedChangeData) {
-                $dc = $this->getDelegatedChangeUpdated($dcd, 2 *  $dcd->getAmount());
+                $dc = $this->getDelegatedChangeUpdated($dcd, 2 *  $dcd->getAmount(), -1);
                 $this->save($dc, $em, $uow);
             }
         }
@@ -76,12 +76,14 @@ class DelegatedChangeStatisticsUpdater
     /**
      * @param DelegatedChangeData $dcd
      * @param int $oldAmount
+     * @param int $newEntries
      * @return DelegatedChange
      */
-    private function getDelegatedChangeUpdated(DelegatedChangeData $dcd, $oldAmount = 0){
+    private function getDelegatedChangeUpdated(DelegatedChangeData $dcd, $oldAmount = 0, $newEntries = 1){
         /** @var DelegatedChange $dc */
         $dc = $dcd->getDelegatedChange();
         $stats = $dc->getStatistics();
+        $dc->setTxToExecute($stats['scheduled']['tx_to_execute'] + $newEntries);
         $dc->setRecToBeIssued($stats['scheduled']['rec_to_be_issued'] - $oldAmount * 1e6 + $dcd->getAmount() * 1e6);
         return $dc;
     }

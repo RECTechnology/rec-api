@@ -10,7 +10,10 @@ use JMS\Serializer\Annotation\ExclusionPolicy;
 use JMS\Serializer\Annotation\Expose;
 use JMS\Serializer\Annotation\VirtualProperty;
 use JMS\Serializer\Annotation\SerializedName;
+use JMS\Serializer\Annotation\Type;
 use LogicException;
+use Symfony\Component\Validator\Constraints as Assert;
+use Telepay\FinancialApiBundle\Validator\Constraint as RECAssert;
 
 
 /**
@@ -37,6 +40,7 @@ class DelegatedChange {
         $this->status = DelegatedChange::STATUS_DRAFT;
         $this->statistics = [
             "scheduled" => [
+                "tx_to_execute" => 0,
                 "rec_to_be_issued" => 0.
             ],
             "result" => [
@@ -58,9 +62,32 @@ class DelegatedChange {
 
     /**
      * @ORM\Column(type="string")
+     * @Assert\Choice({"draft", "scheduled", "in_progress", "finished"})
      * @Expose
      */
     protected $status;
+
+
+    /**
+     * @Assert\IsTrue(message = "Delegated Change is not ready for schedule: maybe missing amounts? bank card data?")
+     */
+    public function isReadyForSchedule(){
+        if($this->status === static::STATUS_SCHEDULED){
+            /** @var DelegatedChangeData $dcd */
+            foreach($this->getData() as $dcd){
+                if($dcd->getAmount() === null) return false;
+                if($dcd->getPan() === null){
+                    /** @var Group $account */
+                    $account = $dcd->getAccount();
+                    /** @var User $user */
+                    $user = $account->getKycManager();
+                    if($user->hasSavedCards()) return true;
+                }
+            }
+            return false;
+        }
+        return true;
+    }
 
     /**
      * @ORM\OneToMany(targetEntity="Telepay\FinancialApiBundle\Entity\DelegatedChangeData", mappedBy="delegated_change", cascade={"remove"})
@@ -200,6 +227,14 @@ class DelegatedChange {
     public function setRecToBeIssued($value)
     {
         $this->statistics['scheduled']['rec_to_be_issued'] = $value;
+    }
+
+    /**
+     * @param mixed $value
+     */
+    public function setTxToExecute($value)
+    {
+        $this->statistics['scheduled']['tx_to_execute'] = $value;
     }
 
 

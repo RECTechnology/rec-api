@@ -101,12 +101,34 @@ class DelegatedChangeV2Command extends SynchronizedContainerAwareCommand{
                     try {
                         /** @var Response $resp */
                         $resp = $this->createLemonwayTx($dcd->getAmount(), $dcd->getAccount(), $dcd->getExchanger());
+                        $output->writeln("RESP: " . print_r($resp, true));
+
                         $content = json_decode($resp->getContent());
                         $output->writeln("TX(id): " . $content->data->id);
                         /** @var Transaction $tx */
                         $tx = $txRepo->find($content->data->id);
                         $dcd->setTransaction($tx);
                         $em->persist($dcd); $em->flush();
+
+                        # if received is ok
+                        if(200 <= $resp->getStatusCode() and $resp->getStatusCode() < 300){
+                            $sendParams = [
+                                'to' => $dcd->getExchanger()->getCIF(),
+                                'amount' => number_format($dcd->getAmount()/100, 2)
+                            ];
+                            /** @var LemonWayMethod $lemonMethod */
+                            $lemonMethod = $this->getContainer()->get('net.telepay.out.lemonway.v1');
+
+                            # send the money to the exchanger's LemonWay account
+                            $lemonMethod->send($sendParams);
+                        }
+                        else {
+                            $this->log(
+                                $output,
+                                "Transaction creation failed: status_code=" . $resp->getStatusCode(),
+                                DelegatedChangeV2Command::SEVERITY_CRITICAL
+                            );
+                        }
                     } catch (HttpException $e){
                         $this->log(
                             $output,
@@ -114,25 +136,7 @@ class DelegatedChangeV2Command extends SynchronizedContainerAwareCommand{
                             DelegatedChangeV2Command::SEVERITY_CRITICAL
                         );
                     }
-                    # if received is ok
-                    if(200 <= $resp->getStatusCode() and $resp->getStatusCode() < 300){
-                        $sendParams = [
-                            'to' => $dcd->getExchanger()->getCIF(),
-                            'amount' => number_format($dcd->getAmount()/100, 2)
-                        ];
-                        /** @var LemonWayMethod $lemonMethod */
-                        $lemonMethod = $this->getContainer()->get('net.telepay.out.lemonway.v1');
 
-                        # send the money to the exchanger's LemonWay account
-                        $lemonMethod->send($sendParams);
-                    }
-                    else {
-                        $this->log(
-                            $output,
-                            "Transaction creation failed: status_code=" . $resp->getStatusCode(),
-                            DelegatedChangeV2Command::SEVERITY_CRITICAL
-                        );
-                    }
                 }
                 $this->log($output, "Done entry: " . $dcd->getId());
             }
