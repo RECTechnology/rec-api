@@ -92,7 +92,7 @@ class DelegatedChangeV2Command extends SynchronizedContainerAwareCommand{
                 $this->log($output, "Processing entry: " . $dcd->getId());
                 # Card is not saved
                 if($dcd->getPan() !== null){
-                    $this->log($output, "Card is NOT saved, processing lw bot");
+                    $this->log($output, "Card is NOT saved, launching lw bot");
                     # launch selenium bot with all params
                 }
                 # Card is saved, launch lemonway

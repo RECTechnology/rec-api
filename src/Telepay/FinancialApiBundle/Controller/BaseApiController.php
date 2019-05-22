@@ -33,6 +33,7 @@ use Symfony\Component\Validator\ConstraintViolation;
 
 abstract class BaseApiController extends RestApiController implements RepositoryController {
 
+    const HTTP_STATUS_CODE_OK = 200;
     const HTTP_STATUS_CODE_CREATED = 201;
 
     protected function getRepository(){
