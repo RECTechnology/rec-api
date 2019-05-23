@@ -130,8 +130,16 @@ class DelegatedChangeV2Command extends SynchronizedContainerAwareCommand{
                             $expDate[1],
                             $dcd->getCvv2()
                         );
-                        if($botResult) $output->writeln("Bot payment success");
-                        else $output->writeln("Bot payment error");
+                        if($botResult) {
+                            $output->writeln("Bot payment success");
+                            $dcd->setStatus(DelegatedChangeData::STATUS_SUCCESS);
+                            $em->persist($dcd); $em->flush();
+                        }
+                        else {
+                            $output->writeln("Bot payment error");
+                            $dcd->setStatus(DelegatedChangeData::STATUS_ERROR);
+                            $em->persist($dcd); $em->flush();
+                        }
                     }
                 }
                 # Card is saved, launch lemonway
@@ -151,6 +159,8 @@ class DelegatedChangeV2Command extends SynchronizedContainerAwareCommand{
 
                         # if received is ok
                         if(200 <= $resp->getStatusCode() and $resp->getStatusCode() < 300){
+                            $dcd->setStatus(DelegatedChangeData::STATUS_SUCCESS);
+                            $em->persist($dcd); $em->flush();
                             $sendParams = [
                                 'to' => $dcd->getExchanger()->getCIF(),
                                 'amount' => number_format($dcd->getAmount()/100, 2)
@@ -162,6 +172,8 @@ class DelegatedChangeV2Command extends SynchronizedContainerAwareCommand{
                             $lemonMethod->send($sendParams);
                         }
                         else {
+                            $dcd->setStatus(DelegatedChangeData::STATUS_ERROR);
+                            $em->persist($dcd); $em->flush();
                             $this->log(
                                 $output,
                                 "Transaction creation failed: status_code=" . $resp->getStatusCode(),
