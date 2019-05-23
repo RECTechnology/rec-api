@@ -6,8 +6,10 @@ use Doctrine\ODM\MongoDB\DocumentManager;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
+use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpKernel\Exception\HttpException;
+use Symfony\Component\Process\Process;
 use Telepay\FinancialApiBundle\Controller\Transactions\IncomingController2;
 use Telepay\FinancialApiBundle\Document\Transaction;
 use Telepay\FinancialApiBundle\Entity\DelegatedChange;
@@ -93,7 +95,44 @@ class DelegatedChangeV2Command extends SynchronizedContainerAwareCommand{
                 # Card is not saved
                 if($dcd->getPan() !== null){
                     $this->log($output, "Card is NOT saved, launching lw bot");
-                    # launch selenium bot with all params
+                    /** @var IncomingController2 $txm */
+                    $txm = $this->getContainer()->get('app.incoming_controller');
+                    $req = new Request(
+                        [],
+                        [
+                            "dni" => $dcd->getAccount()->getKycManager()->getDni(),
+                            "cif" => $dcd->getAccount()->getCIF(),
+                            "amount" => $dcd->getAmount()
+                        ]
+                    );
+                    $resp = $txm->remoteDelegatedTransaction($req, "lemonway");
+                    if($resp->isSuccessful()) {
+                        $content = json_decode($resp->getContent());
+                        $expDate = explode("/", $dcd->getExpiryDate());
+
+                        $this->log($output, "launching bot with params: " . implode(" ",
+                                [
+                                    $content->pay_in_info->payment_url,
+                                    $dcd->getAccount()->getKycManager()->getName(),
+                                    $dcd->getPan(),
+                                    $expDate[0],
+                                    $expDate[1],
+                                    $dcd->getCvv2()
+                                ]
+                            )
+                        );
+
+                        $botResult = $this->launchBot(
+                            $content->pay_in_info->payment_url,
+                            $dcd->getAccount()->getKycManager()->getName(),
+                            $dcd->getPan(),
+                            $expDate[0],
+                            $expDate[1],
+                            $dcd->getCvv2()
+                        );
+                        if($botResult) $output->writeln("Bot payment success");
+                        else $output->writeln("Bot payment error");
+                    }
                 }
                 # Card is saved, launch lemonway
                 else{
@@ -145,5 +184,22 @@ class DelegatedChangeV2Command extends SynchronizedContainerAwareCommand{
             $this->log($output, "Done delegated change: " . $dc->getId());
         }
         $this->log($output, "Finish");
+    }
+
+    /**
+     * @param $url
+     * @param $cardHolder
+     * @param $pan
+     * @param $expiryMonth
+     * @param $expiryYear
+     * @param $cvv2
+     * @return bool
+     */
+    private function launchBot($url, $cardHolder, $pan, $expiryMonth, $expiryYear, $cvv2){
+        $args = "$url $cardHolder $pan $expiryMonth $expiryYear $cvv2";
+        $botScript = $this->get('kernel')->getRootDir() . "/../docker/prod/cron/pay-cli.py";
+        $botProcess = new Process("python3 " . $botScript . " " . $args);
+        $botProcess->run();
+        return $botProcess->isSuccessful();
     }
 }

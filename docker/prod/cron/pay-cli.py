@@ -1,18 +1,19 @@
 #!/usr/bin/env python3
 
 from selenium import webdriver
+from selenium.webdriver.firefox.webdriver import WebDriver as FirefoxDriver
+from selenium.webdriver.firefox.options import Options
+
 from selenium.webdriver.common.by import By
 from selenium.webdriver.support import expected_conditions as EC
 from selenium.webdriver.support.ui import WebDriverWait
-from selenium.webdriver.chrome.options import Options
 from selenium.common.exceptions import TimeoutException
 from time import sleep
 import sys, re
 
 def pay(driver, url, cardholder, pan, expirymonth, expiryyear, cvv2):
   ''' This function launches a chromium browser, pays and returns a tuple with the result or raises exception '''
-  #options = Options()
-  #options.add_argument("--start-maximized")
+  
   #driver = webdriver.Chrome("/home/lluis/bin/chromedriver", chrome_options=options)
 
   driver.maximize_window()
@@ -68,7 +69,9 @@ expiryyear = sys.argv[5]
 cvv2 = sys.argv[6]
 
 try:
-  driver = webdriver.Firefox(headless=true)
+  options = Options()
+  options.headless = True
+  driver = FirefoxDriver(firefox_options=options)
   pay(driver, url, cardholder, pan, expirymonth, expiryyear, cvv2)
   driver.close()
   sys.exit(0)
