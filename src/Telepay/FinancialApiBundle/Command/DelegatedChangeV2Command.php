@@ -97,15 +97,13 @@ class DelegatedChangeV2Command extends SynchronizedContainerAwareCommand{
                     $this->log($output, "Card is NOT saved, launching lw bot");
                     /** @var IncomingController2 $txm */
                     $txm = $this->getContainer()->get('app.incoming_controller');
-                    $req = new Request(
-                        [],
+                    $resp = $txm->remoteDelegatedTransactionPlain(
                         [
                             "dni" => $dcd->getAccount()->getKycManager()->getDni(),
                             "cif" => $dcd->getAccount()->getCIF(),
                             "amount" => $dcd->getAmount()
                         ]
                     );
-                    $resp = $txm->remoteDelegatedTransaction($req, "lemonway");
                     if($resp->isSuccessful()) {
                         $content = json_decode($resp->getContent());
                         $expDate = explode("/", $dcd->getExpiryDate());

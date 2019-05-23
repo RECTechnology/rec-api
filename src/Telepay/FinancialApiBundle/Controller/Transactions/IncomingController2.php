@@ -498,26 +498,8 @@ class IncomingController2 extends RestApiController{
         }
     }
 
-    public function remoteDelegatedTransaction(Request $request, $method_cname){
-        $user = $this->get('security.context')->getToken()->getUser();
-        if (!$user->hasRole('ROLE_SUPER_ADMIN')) throw new HttpException(403, 'Permission error');
+    public function remoteDelegatedTransactionPlain($params){
 
-        if($method_cname != 'lemonway'){
-            throw new HttpException(400, 'Bad method');
-        }
-        $paramNames = array(
-            'dni',
-            'cif',
-            'amount'
-        );
-        $params = array();
-        foreach ( $paramNames as $paramName){
-            if($request->request->has($paramName)){
-                $params[$paramName] = $request->request->get($paramName);
-            }else{
-                throw new HttpException(400,'Missing parameter '.$paramName);
-            }
-        }
         $em = $this->getDoctrine()->getManager();
         $user = $em->getRepository('TelepayFinancialApiBundle:User')->findOneBy(array('dni'=>$params['dni']));
         if(!$user){
@@ -610,6 +592,30 @@ class IncomingController2 extends RestApiController{
         $request['pin'] = $user->getPin();
         $request['address'] = $group_receiver->getRecAddress();
         return $this->createTransaction($request, 1, 'out', $method_cname, $user->getId(), $group_sender, '127.0.0.2');
+    }
+
+    public function remoteDelegatedTransaction(Request $request, $method_cname){
+        $user = $this->get('security.context')->getToken()->getUser();
+        if (!$user->hasRole('ROLE_SUPER_ADMIN')) throw new HttpException(403, 'Permission error');
+
+        if($method_cname != 'lemonway'){
+            throw new HttpException(400, 'Bad method');
+        }
+        $paramNames = array(
+            'dni',
+            'cif',
+            'amount'
+        );
+        $params = array();
+        foreach ( $paramNames as $paramName){
+            if($request->request->has($paramName)){
+                $params[$paramName] = $request->request->get($paramName);
+            }else{
+                throw new HttpException(400,'Missing parameter '.$paramName);
+            }
+        }
+
+        return $this->remoteDelegatedTransactionPlain($params);
     }
 
 
