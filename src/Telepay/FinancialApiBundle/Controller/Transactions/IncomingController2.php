@@ -498,51 +498,6 @@ class IncomingController2 extends RestApiController{
         }
     }
 
-    public function remoteDelegatedTransactionPlain($params){
-
-        $em = $this->getDoctrine()->getManager();
-        $user = $em->getRepository('TelepayFinancialApiBundle:User')->findOneBy(array('dni'=>$params['dni']));
-        if(!$user){
-            throw new HttpException(400,'User not found: ' . $params['dni']);
-        }
-
-        $group = $em->getRepository('TelepayFinancialApiBundle:Group')->findOneBy(array('cif'=>$params['dni'], 'active'=>true));
-        if(!$group){
-            throw new HttpException(400,'User is not a particular: ' . $params['dni']);
-        }
-        $group->setSubtype('BMINCOME');
-        $em->persist($group);
-        $em->flush();
-
-        $card = $em->getRepository('TelepayFinancialApiBundle:CreditCard')->findOneBy(
-            array(
-                'user'=>$user->getId(),
-                'deleted'=>false,
-                'company' => $group->getId()
-            )
-        );
-        if($card){
-            $card->setDeleted(true);
-            $em->persist($card);
-            $em->flush();
-        }
-
-        $group_commerce = $em->getRepository('TelepayFinancialApiBundle:Group')->findOneBy(array(
-                'cif'=>$params['cif'],
-                'type' => 'COMPANY'
-            )
-        );
-        if(!$group_commerce){
-            throw new HttpException(400,'Commerce not found: ' . $params['cif']);
-        }
-
-        $request = array();
-        $request['concept'] = 'Internal exchange';
-        $request['amount'] = $params['amount'];
-        $request['commerce_id'] = $group_commerce->getId();
-        $request['save_card'] = 1;
-        return $this->createTransaction($request, 1, 'in', $method_cname, $user->getId(), $group, '127.0.0.2');
-    }
 
 
     public function adminThirdTransaction(Request $request, $method_cname){
@@ -592,6 +547,52 @@ class IncomingController2 extends RestApiController{
         $request['pin'] = $user->getPin();
         $request['address'] = $group_receiver->getRecAddress();
         return $this->createTransaction($request, 1, 'out', $method_cname, $user->getId(), $group_sender, '127.0.0.2');
+    }
+
+    public function remoteDelegatedTransactionPlain($params){
+
+        $em = $this->getDoctrine()->getManager();
+        $user = $em->getRepository('TelepayFinancialApiBundle:User')->findOneBy(array('dni'=>$params['dni']));
+        if(!$user){
+            throw new HttpException(400,'User not found: ' . $params['dni']);
+        }
+
+        $group = $em->getRepository('TelepayFinancialApiBundle:Group')->findOneBy(array('cif'=>$params['dni'], 'active'=>true));
+        if(!$group){
+            throw new HttpException(400,'User is not a particular: ' . $params['dni']);
+        }
+        $group->setSubtype('BMINCOME');
+        $em->persist($group);
+        $em->flush();
+
+        $card = $em->getRepository('TelepayFinancialApiBundle:CreditCard')->findOneBy(
+            array(
+                'user'=>$user->getId(),
+                'deleted'=>false,
+                'company' => $group->getId()
+            )
+        );
+        if($card){
+            $card->setDeleted(true);
+            $em->persist($card);
+            $em->flush();
+        }
+
+        $group_commerce = $em->getRepository('TelepayFinancialApiBundle:Group')->findOneBy(array(
+                'cif'=>$params['cif'],
+                'type' => 'COMPANY'
+            )
+        );
+        if(!$group_commerce){
+            throw new HttpException(400,'Commerce not found: ' . $params['cif']);
+        }
+
+        $request = array();
+        $request['concept'] = 'Internal exchange';
+        $request['amount'] = $params['amount'];
+        $request['commerce_id'] = $group_commerce->getId();
+        $request['save_card'] = 1;
+        return $this->createTransaction($request, 1, 'in', "lemonway", $user->getId(), $group, '127.0.0.2');
     }
 
     public function remoteDelegatedTransaction(Request $request, $method_cname){
