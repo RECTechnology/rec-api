@@ -95,7 +95,7 @@ class DelegatedChangeV2Command extends SynchronizedContainerAwareCommand{
                 # Card is not saved
                 if(!$dcd->getAccount()->getKycManager()->hasSavedCards()){
                     $this->log($output, "Card is NOT saved, launching lw bot");
-                    $this->log($output,"script: " . $this->get('kernel')->getRootDir() . "/../docker/prod/cron/pay-cli.py");
+                    $this->log($output,"script: " . $this->getContainer()->get('kernel')->getRootDir() . "/../docker/prod/cron/pay-cli.py");
                     /** @var IncomingController2 $txm */
                     $txm = $this->getContainer()->get('app.incoming_controller');
                     $resp = $txm->remoteDelegatedTransactionPlain(
@@ -233,7 +233,7 @@ class DelegatedChangeV2Command extends SynchronizedContainerAwareCommand{
      */
     private function launchBot($url, $cardHolder, $pan, $expiryMonth, $expiryYear, $cvv2){
         $args = "$url $cardHolder $pan $expiryMonth $expiryYear $cvv2";
-        $botScript = $this->get('kernel')->getRootDir() . "/../docker/prod/cron/pay-cli.py";
+        $botScript = $this->getContainer()->get('kernel')->getRootDir() . "/../docker/prod/cron/pay-cli.py";
         $botProcess = new Process("python3 " . $botScript . " " . $args);
         $botProcess->run();
         return $botProcess->isSuccessful();
