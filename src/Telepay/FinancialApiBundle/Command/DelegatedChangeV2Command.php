@@ -148,26 +148,36 @@ class DelegatedChangeV2Command extends SynchronizedContainerAwareCommand{
                         $resp = $this->createLemonwayTx($dcd->getAmount(), $dcd->getAccount(), $dcd->getExchanger());
                         $output->writeln("RESP: " . print_r($resp, true));
 
-                        $content = json_decode($resp->getContent());
-                        $output->writeln("TX(id): " . $content->data->id);
-                        /** @var Transaction $tx */
-                        $tx = $txRepo->find($content->data->id);
-                        $dcd->setTransaction($tx);
-                        $em->persist($dcd); $em->flush();
-
                         # if received is ok
-                        if(200 <= $resp->getStatusCode() and $resp->getStatusCode() < 300){
-                            $dcd->setStatus(DelegatedChangeData::STATUS_SUCCESS);
-                            $em->persist($dcd); $em->flush();
-                            $sendParams = [
-                                'to' => $dcd->getExchanger()->getCIF(),
-                                'amount' => number_format($dcd->getAmount()/100, 2)
-                            ];
-                            /** @var LemonWayMethod $lemonMethod */
-                            $lemonMethod = $this->getContainer()->get('net.telepay.out.lemonway.v1');
+                        if (strpos($resp, 'received') !== false) {
 
-                            # send the money to the exchanger's LemonWay account
-                            $lemonMethod->send($sendParams);
+                            if(preg_match("/ID: ([a-zA-Z0-9]+)/", $resp, $matches)) {
+                                $txId = $matches[1];
+
+                                /** @var Transaction $tx */
+                                $tx = $txRepo->find($txId);
+                                $output->writeln("TX(id): " . $tx->getId());
+                                $dcd->setTransaction($tx);
+                                $em->persist($dcd); $em->flush();
+
+
+                                $dcd->setStatus(DelegatedChangeData::STATUS_SUCCESS);
+                                $em->persist($dcd); $em->flush();
+                                $sendParams = [
+                                    'to' => $dcd->getExchanger()->getCIF(),
+                                    'amount' => number_format($dcd->getAmount()/100, 2)
+                                ];
+                                /** @var LemonWayMethod $lemonMethod */
+                                $lemonMethod = $this->getContainer()->get('net.telepay.out.lemonway.v1');
+
+                                # send the money to the exchanger's LemonWay account
+                                $lemonMethod->send($sendParams);
+                            }
+                            else {
+                                $this->log($output, "Failed to fetch txid");
+                                $dcd->setStatus(DelegatedChangeData::STATUS_ERROR);
+                                $em->persist($dcd); $em->flush();
+                            }
                         }
                         else {
                             $dcd->setStatus(DelegatedChangeData::STATUS_ERROR);

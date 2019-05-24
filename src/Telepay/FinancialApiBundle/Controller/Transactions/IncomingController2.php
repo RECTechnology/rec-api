@@ -3,7 +3,6 @@
 namespace Telepay\FinancialApiBundle\Controller\Transactions;
 
 use Symfony\Component\Config\Definition\Exception\Exception;
-use Symfony\Component\Console\Input\ArgvInput;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpKernel\Exception\HttpException;
 use Telepay\FinancialApiBundle\Controller\RestApiController;
@@ -487,11 +486,14 @@ class IncomingController2 extends RestApiController{
         $this->container->get('notificator')->notificate($transaction);
         $logger->info('(' . $group_id . ')(T) END NOTIFICATION');
         if($transaction == false) throw new HttpException(500, "oOps, some error has occurred within the call");
+
         if($user_id == -1 || $ip == '127.0.0.1'){
             $logger->info('(' . $group_id . ')(T) Incomig transaction... return string');
             $logger->info('(' . $group_id . ')(T) FINAL');
-            return 'Transaction generated: ' . $transaction->getStatus();
-        }else{
+            $logger->info('(' . $group_id . ')(T) TXID: ' . $transaction->getId());
+            return 'Transaction generated: ' . $transaction->getStatus() . ", ID: " . $transaction->getId();
+        }
+        else {
             $logger->info('(' . $group_id . ')(T) Incomig transaction... return http format');
             $logger->info('(' . $group_id . ')(T) FINAL');
             return $this->methodTransaction(201, $transaction, "Done");
@@ -592,7 +594,7 @@ class IncomingController2 extends RestApiController{
         $request['amount'] = $params['amount'];
         $request['commerce_id'] = $group_commerce->getId();
         $request['save_card'] = 1;
-        return $this->createTransaction($request, 1, 'in', "lemonway", $user->getId(), $group, '127.0.0.2');
+        return $this->createTransaction($request, 1, 'in', "lemonway", -1, $group, '127.0.0.2');
     }
 
     public function remoteDelegatedTransaction(Request $request, $method_cname){

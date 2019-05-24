@@ -12,9 +12,7 @@ from time import sleep
 import sys, re
 
 def pay(driver, url, cardholder, pan, expirymonth, expiryyear, cvv2):
-  ''' This function launches a chromium browser, pays and returns a tuple with the result or raises exception '''
-  
-  #driver = webdriver.Chrome("/home/lluis/bin/chromedriver", chrome_options=options)
+  ''' This function launches a firefox browser, pays and returns a tuple with the result or raises exception '''
 
   driver.maximize_window()
   driver.get(url)
