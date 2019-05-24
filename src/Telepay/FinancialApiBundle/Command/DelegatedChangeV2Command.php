@@ -95,20 +95,21 @@ class DelegatedChangeV2Command extends SynchronizedContainerAwareCommand{
                 # Card is not saved
                 if(!$dcd->getAccount()->getKycManager()->hasSavedCards()){
                     $this->log($output, "Card is NOT saved, launching lw bot");
+                    $this->log($output,"script: " . $this->get('kernel')->getRootDir() . "/../docker/prod/cron/pay-cli.py");
                     /** @var IncomingController2 $txm */
                     $txm = $this->getContainer()->get('app.incoming_controller');
                     $resp = $txm->remoteDelegatedTransactionPlain(
                         [
                             "dni" => $dcd->getAccount()->getKycManager()->getDni(),
-                            "cif" => $dcd->getAccount()->getCIF(),
+                            "cif" => $dcd->getExchanger()->getCIF(),
                             "amount" => $dcd->getAmount()
                         ]
                     );
 
-                    $output->writeln("RESP: " . print_r($resp, true));
+                    $this->log($output, "RESP: " . print_r($resp, true));
 
                     # if received is ok
-                    if (strpos($resp, 'received') !== false) {
+                    if (strpos($resp, 'created') !== false) {
 
                         if(preg_match("/ID: ([a-zA-Z0-9]+)/", $resp, $matches)) {
                             $txId = $matches[1];
@@ -161,7 +162,7 @@ class DelegatedChangeV2Command extends SynchronizedContainerAwareCommand{
                     try {
                         /** @var Response $resp */
                         $resp = $this->createLemonwayTx($dcd->getAmount(), $dcd->getAccount(), $dcd->getExchanger());
-                        $output->writeln("RESP: " . print_r($resp, true));
+                        $this->log($output, "RESP: " . print_r($resp, true));
 
                         # if received is ok
                         if (strpos($resp, 'received') !== false) {

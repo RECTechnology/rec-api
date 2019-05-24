@@ -554,25 +554,25 @@ class IncomingController2 extends RestApiController{
     public function remoteDelegatedTransactionPlain($params){
 
         $em = $this->getDoctrine()->getManager();
-        $user = $em->getRepository('TelepayFinancialApiBundle:User')->findOneBy(array('dni'=>$params['dni']));
+        $user = $em->getRepository('TelepayFinancialApiBundle:User')->findOneBy(['dni'=>$params['dni']]);
         if(!$user){
             throw new HttpException(400,'User not found: ' . $params['dni']);
         }
 
-        $group = $em->getRepository('TelepayFinancialApiBundle:Group')->findOneBy(array('cif'=>$params['dni'], 'active'=>true));
-        if(!$group){
+        $account = $em->getRepository('TelepayFinancialApiBundle:Group')->findOneBy(['cif'=>$params['dni'], 'active'=>true]);
+        if(!$account){
             throw new HttpException(400,'User is not a particular: ' . $params['dni']);
         }
-        $group->setSubtype('BMINCOME');
-        $em->persist($group);
+        $account->setSubtype('BMINCOME');
+        $em->persist($account);
         $em->flush();
 
         $card = $em->getRepository('TelepayFinancialApiBundle:CreditCard')->findOneBy(
-            array(
+            [
                 'user'=>$user->getId(),
                 'deleted'=>false,
-                'company' => $group->getId()
-            )
+                'company' => $account->getId()
+            ]
         );
         if($card){
             $card->setDeleted(true);
@@ -580,21 +580,22 @@ class IncomingController2 extends RestApiController{
             $em->flush();
         }
 
-        $group_commerce = $em->getRepository('TelepayFinancialApiBundle:Group')->findOneBy(array(
-                'cif'=>$params['cif'],
+        $group_commerce = $em->getRepository('TelepayFinancialApiBundle:Group')->findOneBy(
+            [
+                'cif' => $params['cif'],
                 'type' => 'COMPANY'
-            )
+            ]
         );
         if(!$group_commerce){
             throw new HttpException(400,'Commerce not found: ' . $params['cif']);
         }
 
-        $request = array();
+        $request = [];
         $request['concept'] = 'Internal exchange';
         $request['amount'] = $params['amount'];
         $request['commerce_id'] = $group_commerce->getId();
         $request['save_card'] = 1;
-        return $this->createTransaction($request, 1, 'in', "lemonway", -1, $group, '127.0.0.2');
+        return $this->createTransaction($request, 1, 'in', "lemonway", -1, $account, '127.0.0.2');
     }
 
     public function remoteDelegatedTransaction(Request $request, $method_cname){
