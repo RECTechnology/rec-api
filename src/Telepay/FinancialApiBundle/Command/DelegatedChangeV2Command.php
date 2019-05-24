@@ -93,7 +93,7 @@ class DelegatedChangeV2Command extends SynchronizedContainerAwareCommand{
             foreach ($dc->getData() as $dcd) {
                 $this->log($output, "Processing entry: " . $dcd->getId());
                 # Card is not saved
-                if($dcd->getPan() !== null){
+                if(!$dcd->getAccount()->getKycManager()->hasSavedCards()){
                     $this->log($output, "Card is NOT saved, launching lw bot");
                     /** @var IncomingController2 $txm */
                     $txm = $this->getContainer()->get('app.incoming_controller');
@@ -104,44 +104,59 @@ class DelegatedChangeV2Command extends SynchronizedContainerAwareCommand{
                             "amount" => $dcd->getAmount()
                         ]
                     );
-                    if($resp->isSuccessful()) {
-                        $content = json_decode($resp->getContent());
-                        $expDate = explode("/", $dcd->getExpiryDate());
 
-                        $this->log($output, "launching bot with params: " . implode(" ",
-                                [
-                                    $content->pay_in_info->payment_url,
-                                    $dcd->getAccount()->getKycManager()->getName(),
-                                    $dcd->getPan(),
-                                    $expDate[0],
-                                    $expDate[1],
-                                    $dcd->getCvv2()
-                                ]
-                            )
-                        );
+                    $output->writeln("RESP: " . print_r($resp, true));
 
-                        $botResult = $this->launchBot(
-                            $content->pay_in_info->payment_url,
-                            $dcd->getAccount()->getKycManager()->getName(),
-                            $dcd->getPan(),
-                            $expDate[0],
-                            $expDate[1],
-                            $dcd->getCvv2()
-                        );
-                        if($botResult) {
-                            $output->writeln("Bot payment success");
-                            $dcd->setStatus(DelegatedChangeData::STATUS_SUCCESS);
-                            $em->persist($dcd); $em->flush();
+                    # if received is ok
+                    if (strpos($resp, 'received') !== false) {
+
+                        if(preg_match("/ID: ([a-zA-Z0-9]+)/", $resp, $matches)) {
+                            $txId = $matches[1];
+
+                            /** @var Transaction $tx */
+                            $tx = $txRepo->find($txId);
+                            $expDate = explode("/", $dcd->getExpiryDate());
+
+                            $this->log($output, "launching bot with params: " . implode(" ",
+                                    [
+                                        $tx->getPayInInfo()["payment_url"],
+                                        $dcd->getAccount()->getKycManager()->getName(),
+                                        $dcd->getPan(),
+                                        $expDate[0],
+                                        $expDate[1],
+                                        $dcd->getCvv2()
+                                    ]
+                                )
+                            );
+
+                            $botResult = $this->launchBot(
+                                $tx->getPayInInfo()["payment_url"],
+                                $dcd->getAccount()->getKycManager()->getName(),
+                                $dcd->getPan(),
+                                $expDate[0],
+                                $expDate[1],
+                                $dcd->getCvv2()
+                            );
+                            if($botResult) {
+                                $output->writeln("Bot payment success");
+                                $dcd->setStatus(DelegatedChangeData::STATUS_SUCCESS);
+                                $em->persist($dcd); $em->flush();
+                            }
+                            else {
+                                $output->writeln("Bot payment error");
+                                $dcd->setStatus(DelegatedChangeData::STATUS_ERROR);
+                                $em->persist($dcd); $em->flush();
+                            }
                         }
                         else {
-                            $output->writeln("Bot payment error");
+                            $this->log($output, "Failed to fetch txid");
                             $dcd->setStatus(DelegatedChangeData::STATUS_ERROR);
                             $em->persist($dcd); $em->flush();
                         }
                     }
                 }
                 # Card is saved, launch lemonway
-                else{
+                else {
                     $this->log($output, "Card is saved, creating lw API tx");
                     try {
                         /** @var Response $resp */
