@@ -11,6 +11,7 @@ use Symfony\Component\Console\Output\BufferedOutput;
 use Telepay\FinancialApiBundle\DependencyInjection\Telepay\Commons\LimitAdder;
 use Telepay\FinancialApiBundle\DependencyInjection\Telepay\Commons\LimitChecker;
 use Telepay\FinancialApiBundle\Document\Transaction;
+use Telepay\FinancialApiBundle\Entity\CreditCard;
 use Telepay\FinancialApiBundle\Entity\Group;
 use Telepay\FinancialApiBundle\Entity\LimitCount;
 use Telepay\FinancialApiBundle\Entity\LimitDefinition;
@@ -91,10 +92,8 @@ class IncomingController2 extends RestApiController{
         $dm = $this->get('doctrine_mongodb')->getManager();
         $em = $this->getDoctrine()->getManager();
 
-        $user = $em->getRepository('TelepayFinancialApiBundle:User')->findOneBy(array(
-            'id' => $user_id
-        ));
-        $logger->info('(' . $group_id . ')(T) FIND USER');
+        $user = $em->getRepository('TelepayFinancialApiBundle:User')->find($user_id);
+        $logger->info('(' . $user_id . ')(T) FIND USER');
 
         //obtain wallet and check founds for cash_out services for this group
 
@@ -560,12 +559,19 @@ class IncomingController2 extends RestApiController{
     public function remoteDelegatedTransactionPlain($params, $ip = "127.0.0.1"){
 
         $em = $this->getDoctrine()->getManager();
-        $user = $em->getRepository('TelepayFinancialApiBundle:User')->findOneBy(['dni'=>$params['dni']]);
+
+        /** @var User $user */
+        $user = $em->getRepository('TelepayFinancialApiBundle:User')
+            ->findOneBy(['dni' => $params['dni']]);
+
         if(!$user){
             throw new HttpException(400,'User not found: ' . $params['dni']);
         }
 
-        $account = $em->getRepository('TelepayFinancialApiBundle:Group')->findOneBy(['cif'=>$params['dni'], 'active'=>true]);
+        /** @var Group $account */
+        $account = $em->getRepository('TelepayFinancialApiBundle:Group')
+            ->findOneBy(['cif' => $params['dni'], 'active' => true, 'type' => 'PRIVATE']);
+
         if(!$account){
             throw new HttpException(400,'User is not a particular: ' . $params['dni']);
         }
@@ -573,6 +579,7 @@ class IncomingController2 extends RestApiController{
         $em->persist($account);
         $em->flush();
 
+        /** @var CreditCard $card */
         $card = $em->getRepository('TelepayFinancialApiBundle:CreditCard')->findOneBy(
             [
                 'user' => $user->getId(),
