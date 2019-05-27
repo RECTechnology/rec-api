@@ -569,8 +569,8 @@ class IncomingController2 extends RestApiController{
 
         $card = $em->getRepository('TelepayFinancialApiBundle:CreditCard')->findOneBy(
             [
-                'user'=>$user->getId(),
-                'deleted'=>false,
+                'user' => $user->getId(),
+                'deleted' => false,
                 'company' => $account->getId()
             ]
         );
@@ -580,22 +580,23 @@ class IncomingController2 extends RestApiController{
             $em->flush();
         }
 
-        $group_commerce = $em->getRepository('TelepayFinancialApiBundle:Group')->findOneBy(
+        /** @var Group $exchanger */
+        $exchanger = $em->getRepository('TelepayFinancialApiBundle:Group')->findOneBy(
             [
                 'cif' => $params['cif'],
                 'type' => 'COMPANY'
             ]
         );
-        if(!$group_commerce){
+        if(!$exchanger){
             throw new HttpException(400,'Commerce not found: ' . $params['cif']);
         }
 
         $request = [];
         $request['concept'] = 'Internal exchange';
         $request['amount'] = $params['amount'];
-        $request['commerce_id'] = $group_commerce->getId();
+        $request['commerce_id'] = $exchanger->getId();
         $request['save_card'] = 1;
-        return $this->createTransaction($request, 1, 'in', "lemonway", -1, $account, '127.0.0.2');
+        return $this->createTransaction($request, 1, 'in', "lemonway", $user->getId(), $account, '127.0.0.2');
     }
 
     public function remoteDelegatedTransaction(Request $request, $method_cname){
