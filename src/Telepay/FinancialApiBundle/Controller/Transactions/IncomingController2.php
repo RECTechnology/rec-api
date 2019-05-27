@@ -98,7 +98,7 @@ class IncomingController2 extends RestApiController{
 
         //obtain wallet and check founds for cash_out services for this group
 
-        $logger->info("getting account wallet for {$user->getId()}, currency {$method->getCurrency()}");
+        $logger->info("getting account wallet for {$group->getId()}, currency {$method->getCurrency()}");
         /** @var UserWallet $wallet */
         $wallet = $group->getWallet($method->getCurrency());
         if(!$wallet)

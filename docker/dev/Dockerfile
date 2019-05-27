@@ -1,6 +1,21 @@
 FROM debian
 ENV DEBIAN_FRONTEND noninteractive
-RUN apt update && apt install -y php-mysql php-xml php-mongodb php-curl php-bcmath php-cli php-mbstring php-zip composer
+RUN apt update && apt install -y \
+    php-mysql \
+    php-xml \
+    php-mongodb \
+    php-curl \
+    php-bcmath \
+    php-cli \
+    php-mbstring \
+    php-zip \
+    composer \
+    wget \
+    python3 \
+    python3-pip \
+    firefox-esr \
+    jq
+
 
 # To have composer cache
 RUN mkdir /.composer && chmod -R 777 /.composer
