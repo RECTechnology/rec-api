@@ -551,7 +551,7 @@ class IncomingController2 extends RestApiController{
         return $this->createTransaction($request, 1, 'out', $method_cname, $user->getId(), $group_sender, '127.0.0.2');
     }
 
-    public function remoteDelegatedTransactionPlain($params){
+    public function remoteDelegatedTransactionPlain($params, $ip = "127.0.0.1"){
 
         $em = $this->getDoctrine()->getManager();
         $user = $em->getRepository('TelepayFinancialApiBundle:User')->findOneBy(['dni'=>$params['dni']]);
@@ -596,7 +596,7 @@ class IncomingController2 extends RestApiController{
         $request['amount'] = $params['amount'];
         $request['commerce_id'] = $exchanger->getId();
         $request['save_card'] = 1;
-        return $this->createTransaction($request, 1, 'in', "lemonway", $user->getId(), $account, '127.0.0.2');
+        return $this->createTransaction($request, 1, 'in', "lemonway", $user->getId(), $account, $ip);
     }
 
     public function remoteDelegatedTransaction(Request $request, $method_cname){
@@ -620,7 +620,7 @@ class IncomingController2 extends RestApiController{
             }
         }
 
-        return $this->remoteDelegatedTransactionPlain($params);
+        return $this->remoteDelegatedTransactionPlain($params, '127.0.0.2');
     }
 
 
