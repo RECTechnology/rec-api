@@ -110,8 +110,8 @@ abstract class BaseApiController extends RestApiController implements Repository
         $qb = $qb->orderBy('e.' . $sort, $order);
 
         try {
-            $total = $qb->select('count(e.id)')
-                ->getQuery()->getSingleScalarResult();
+            $total = intval($qb->select('count(e.id)')
+                ->getQuery()->getSingleScalarResult());
             $elems = $qb->select('e')
                 ->setFirstResult($offset)->setMaxResults($limit)
                 ->getQuery()->getResult();
