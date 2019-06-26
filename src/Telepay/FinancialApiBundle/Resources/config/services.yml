@@ -94,6 +94,19 @@ services:
         tags:
             - { name: doctrine.event_listener, event: onFlush }
 
+    treasure_withdrawal_validation.listener:
+        class: Telepay\FinancialApiBundle\EventListener\TreasureWithdrawalValidationListener
+        arguments: [@service_container]
+        tags:
+            - { name: doctrine.event_listener, event: onFlush }
+
+
+    treasure_withdrawal_creation.listener:
+        class: Telepay\FinancialApiBundle\EventListener\TreasureWithdrawalCreationListener
+        arguments: [@service_container]
+        tags:
+            - { name: doctrine.event_listener, event: onFlush }
+
     kyc.listener:
         class: Telepay\FinancialApiBundle\EventListener\KycListener
         arguments: [@service_container]

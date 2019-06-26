@@ -42,6 +42,7 @@ class User extends BaseUser implements EntityWithUploadableFields
         parent::__construct();
         $this->groups = new ArrayCollection();
         $this->devices = new ArrayCollection();
+        $this->treasure_validations = new ArrayCollection();
 
         if($this->access_key == null){
             $generator = new SecureRandom();
@@ -104,6 +105,12 @@ class User extends BaseUser implements EntityWithUploadableFields
      * @ORM\OneToMany(targetEntity="Telepay\FinancialApiBundle\Entity\AuthCode", mappedBy="user", cascade={"remove"})
      */
     private $auth_code;
+
+    /**
+     * @ORM\OneToMany(targetEntity="Telepay\FinancialApiBundle\Entity\TreasureWithdrawalValidation", mappedBy="validator", cascade={"remove"})
+     * @Expose
+     */
+    private $treasure_validations;
 
     /**
      * @ORM\Column(type="string")

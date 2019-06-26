@@ -17,12 +17,13 @@ use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpKernel\Exception\HttpException;
 use Telepay\FinancialApiBundle\Controller\BaseApiController;
 use Telepay\FinancialApiBundle\Entity\DelegatedChange;
+use Telepay\FinancialApiBundle\Entity\TreasureWithdrawalAttempt;
 
 /**
- * Class DelegatedChangeController
+ * Class TreasureWithdrawalController
  * @package Telepay\FinancialApiBundle\Controller\Management\Admin
  */
-class DelegatedChangeController extends BaseApiController {
+class TreasureWithdrawalController extends BaseApiController {
 
     /**
      * @param Request $request
@@ -66,18 +67,6 @@ class DelegatedChangeController extends BaseApiController {
      */
     public function updateAction(Request $request, $id)
     {
-        if($request->request->has("status")){
-            $newStatus = $request->request->get("status");
-            /** @var DelegatedChange $dc */
-            $dc = $this->findObject($id);
-            foreach (DelegatedChange::ALLOWED_STATUS_CHANGES as $statusPack){
-                if($dc->getStatus() === $statusPack['old'] and $newStatus === $statusPack['new']){
-                    return parent::updateAction($request, $id);
-                }
-            }
-            // if status is going to be changed, throw error
-            throw new HttpException(400, "status attribute is readonly");
-        }
         return parent::updateAction($request, $id);
     }
 
@@ -88,21 +77,17 @@ class DelegatedChangeController extends BaseApiController {
      */
     public function deleteAction($id)
     {
-        /** @var DelegatedChange $dc */
-        $dc = $this->getRepository()->find($id);
-        if($dc->getStatus() === "draft")
-            return parent::deleteAction($id);
-        throw new HttpException(412, "Delete delegated changes only allowed when status is 'draft'");
+        return parent::deleteAction($id);
     }
 
 
     function getRepositoryName()
     {
-        return "TelepayFinancialApiBundle:DelegatedChange";
+        return "TelepayFinancialApiBundle:TreasureWithdrawalAttempt";
     }
 
     function getNewEntity()
     {
-        return new DelegatedChange();
+        return new TreasureWithdrawalAttempt();
     }
 }

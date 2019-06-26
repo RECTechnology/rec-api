@@ -913,6 +913,7 @@ class SpecialActionsController extends RestApiController {
         );
     }
 
+
     public function withdrawalAction(Request $request, $token){
         $em = $this->getDoctrine()->getManager();
         $withdrawal = $em->getRepository('TelepayFinancialApiBundle:Withdrawal')->findOneBy(array(
@@ -948,7 +949,7 @@ class SpecialActionsController extends RestApiController {
             $destination = $em->getRepository('TelepayFinancialApiBundle:Group')->find($id_group_root);
             $id_user_root = $destination->getKycManager()->getId();
 
-            $payment_info['amount']=$withdrawal->getAmount() * 100000000;
+            $payment_info['amount'] = $withdrawal->getAmount() * 100000000;
             $payment_info['orig_address'] = $treasure_address;
             $payment_info['orig_nif'] = 'some_admins';
             $payment_info['orig_group_nif'] = $destination->getCif();
