@@ -44,7 +44,7 @@ class TreasureWithdrawalValidationListener {
             if($validation instanceof TreasureWithdrawalValidation) {
 
                 $changes = $uow->getEntityChangeSet($validation);
-                if(isset($changes['approved'])) {
+                if(isset($changes['accepted'])) {
                     /** @var TreasureWithdrawalAttempt $attempt */
                     $attempt = $validation->getAttempt();
                     if ($attempt->isApproved() and !$attempt->isSent()) {
