@@ -31,6 +31,8 @@ use Telepay\FinancialApiBundle\DependencyInjection\Telepay\Commons\UploadManager
 class Group extends BaseGroup implements EntityWithUploadableFields
 {
 
+    const UPC_ACTIVITY_TYPE_CODE_DEFAULT = 16;
+
     public function __construct() {
         $this->groups = new ArrayCollection();
         $this->limit_counts = new ArrayCollection();
