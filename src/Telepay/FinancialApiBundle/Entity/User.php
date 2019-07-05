@@ -34,6 +34,8 @@ use Telepay\FinancialApiBundle\DependencyInjection\Telepay\Commons\UploadManager
  */
 class User extends BaseUser implements EntityWithUploadableFields
 {
+    const USER_MIN_PASSWORD_LENGTH = 6;
+
     public function __construct()
     {
         parent::__construct();
