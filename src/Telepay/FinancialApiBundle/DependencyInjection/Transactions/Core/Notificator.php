@@ -171,7 +171,6 @@ class Notificator {
             'data'      =>  json_encode($data)
         );
 
-        $notificator = $this->container->get('com.qbitartofacts.rec.commons.bcn_halltown_notificator');
 
         $payload = [
             "account_id" => $params['account_id'],
@@ -188,9 +187,10 @@ class Notificator {
 
         $msg = json_encode($payload, JSON_NUMERIC_CHECK);
 
-        $notificator = $this->container->get('com.qbitartofacts.rec.commons.notificator');
-        $notificator->msg('#NOTIFICATION_UPC_REQUEST: ' . $msg);
+        $logger = $this->container->get('com.qbitartofacts.rec.commons.notificator');
+        $logger->msg('#NOTIFICATION_UPC_REQUEST: ' . $msg);
 
+        $notificator = $this->container->get('com.qbitartofacts.rec.commons.bcn_halltown_notificator');
         $response = $notificator->msg($msg);
 
         $response_data = json_decode($response, true);
@@ -207,8 +207,7 @@ class Notificator {
 
         $clean_response = str_replace('"', '', $response);
 
-        //$notificator = $this->container->get('com.qbitartofacts.rec.commons.notificator');
-        $notificator->msg('#NOTIFICATION_UPC_RESPONSE: ' . $clean_response);
+        $logger->msg('#NOTIFICATION_UPC_RESPONSE: ' . $clean_response);
 
 
         // close curl resource to free up system resources
