@@ -190,7 +190,7 @@ class Notificator {
         $logger = $this->container->get('com.qbitartofacts.rec.commons.notificator');
         $logger->msg('#NOTIFICATION_UPC_REQUEST: ' . $msg);
 
-        $notificator = $this->container->get('com.qbitartofacts.rec.commons.bcn_halltown_notificator');
+        $notificator = $this->container->get('com.qbitartofacts.rec.commons.upc_notificator');
         $response = $notificator->msg($msg);
 
         $response_data = json_decode($response, true);
