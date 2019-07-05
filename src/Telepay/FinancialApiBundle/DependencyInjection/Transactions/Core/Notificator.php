@@ -172,7 +172,26 @@ class Notificator {
         );
 
         $notificator = $this->container->get('com.qbitartofacts.rec.commons.bcn_halltown_notificator');
-        $response = $notificator->msg('{ "account_id": "' . $params['account_id'] . '", "id": "' . $params['id'] . '",  "status": "' . $params['status'] . '",  "amount": ' . $params['amount'] . ',  "signature": "' . $params['signature'] . '",  "data": {    "receiver": "' . $data['receiver'] . '",    "date": ' . $data['date'] . ',    "activity_type_code": "' . $data['activity_type_code'] . '"  }}');
+
+        $payload = [
+            "account_id" => $params['account_id'],
+            "id" => $params['account_id'],
+            "status" => $params['status'],
+            "amount" => $params['amount'],
+            "signature" => $params['signature'],
+            "data" => [
+                "receiver" => $data['receiver'],
+                "date" => $data['date'],
+                "activity_type_code" => $data['activity_type_code']
+            ],
+        ];
+
+        $msg = json_encode($payload, JSON_NUMERIC_CHECK);
+
+        $notificator = $this->container->get('com.qbitartofacts.rec.commons.notificator');
+        $notificator->msg('#NOTIFICATION_UPC_REQUEST: ' . $msg);
+
+        $response = $notificator->msg($msg);
 
         $response_data = json_decode($response, true);
         if(!isset($response_data['Message'])){
@@ -188,8 +207,8 @@ class Notificator {
 
         $clean_response = str_replace('"', '', $response);
 
-        $notificator = $this->container->get('com.qbitartofacts.rec.commons.notificator');
-        $notificator->msg('#NOTIFICATION_UPC ' . $clean_response);
+        //$notificator = $this->container->get('com.qbitartofacts.rec.commons.notificator');
+        $notificator->msg('#NOTIFICATION_UPC_RESPONSE: ' . $clean_response);
 
 
         // close curl resource to free up system resources
