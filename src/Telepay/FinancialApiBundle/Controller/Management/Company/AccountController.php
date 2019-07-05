@@ -111,7 +111,7 @@ class AccountController extends BaseApiController{
         }
 
         if($request->request->has('country')){
-            $userCountry = $request->request->has('country');
+            $userCountry = $request->request->get('country');
             if(strlen($userCountry) != 3)
                 throw new HttpException(400, "Country code must be ISO_3166-1_alpha-3 compliant, (Spain: ESP, France: FRA, more info https://en.wikipedia.org/wiki/ISO_3166-1_alpha-3)");
         }
