@@ -34,6 +34,11 @@ class CompaniesController extends BaseApiController
     /**
      * @Rest\View
      * Permissions: ROLE_SUPER_ADMIN (all)
+     * @param Request $request
+     * @param $id
+     * @return \Symfony\Component\HttpFoundation\Response
+     * @throws \Doctrine\Common\Annotations\AnnotationException
+     * @throws \ReflectionException
      */
     public function updateAction(Request $request, $id){
         //only the superadmin can access here
@@ -42,6 +47,7 @@ class CompaniesController extends BaseApiController
         }
 
         $validParams = array(
+            'cif',
             'email',
             'category',
             'type',
@@ -72,7 +78,7 @@ class CompaniesController extends BaseApiController
         $params = $request->request->all();
         foreach($params as $paramName=>$value){
             if(!in_array($paramName, $validParams)){
-                throw new HttpException(404, 'Param ' . $paramName . ' can not be updated');
+                throw new HttpException(400, 'Param ' . $paramName . ' can not be updated');
             }
         }
 
@@ -153,7 +159,7 @@ class CompaniesController extends BaseApiController
 
         if(!$group) throw new HttpException(404,'Group not found');
 
-        if(count($group->getusers()) > 0) throw new HttpException(403, 'Not allowed. Comapny with users');
+        if(count($group->getusers()) > 0) throw new HttpException(405, 'Not allowed. Comapny with users');
 
         return parent::deleteAction($id);
 
@@ -380,7 +386,7 @@ class CompaniesController extends BaseApiController
                 'tier'  =>  $tier
             ));
 
-            if(!$tier_limit) throw new HttpException('403', $method->getCname().'-'.$method->getType());
+            if(!$tier_limit) throw new HttpException(403, $method->getCname().'-'.$method->getType());
             $total_last_day = $dm->getRepository('TelepayFinancialApiBundle:Transaction')->sumLastDaysByMethod($group, $method, 1);
             $total_last_month = $dm->getRepository('TelepayFinancialApiBundle:Transaction')->sumLastDaysByMethod($group, $method, 30);
 
