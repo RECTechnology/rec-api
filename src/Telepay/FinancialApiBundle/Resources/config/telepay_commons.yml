@@ -15,8 +15,6 @@ services:
             - "%bcn_notification_username%"
             - "%bcn_notification_password%"
 
-
-
     com.qbitartofacts.rec.commons.telegram_notificator_error:
         class: Telepay\FinancialApiBundle\DependencyInjection\Telepay\Commons\TelegramNotificator
         arguments:
