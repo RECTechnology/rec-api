@@ -314,8 +314,8 @@ public_map_search:
     requirements:
         _method: GET
 
-public_map_search_v2:
-    pattern: /map/v2/search
+public_v2_map:
+    pattern: /public/v2/map
     defaults: {_controller: Telepay\FinancialApiBundle\Controller\Management\Company\MapController::searchV2 }
     requirements:
         _method: GET

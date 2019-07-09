@@ -3,7 +3,13 @@
 namespace Telepay\FinancialApiBundle\Controller\Management\Company;
 
 use Doctrine\ORM\EntityManagerInterface;
+use Doctrine\ORM\NonUniqueResultException;
+use Doctrine\ORM\NoResultException;
+use Doctrine\ORM\Query\Expr\Join;
 use Doctrine\ORM\QueryBuilder;
+use JMS\Serializer\SerializationContext;
+use JMS\Serializer\Serializer;
+use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpKernel\Exception\HttpException;
 use Telepay\FinancialApiBundle\Controller\BaseApiController;
 use FOS\RestBundle\Controller\Annotations as Rest;
@@ -11,6 +17,7 @@ use Symfony\Component\HttpFoundation\Request;
 use Telepay\FinancialApiBundle\Entity\Category;
 use Telepay\FinancialApiBundle\Entity\Group;
 use Telepay\FinancialApiBundle\Entity\Offer;
+use Telepay\FinancialApiBundle\Entity\User;
 
 class MapController extends BaseApiController{
 
@@ -24,6 +31,10 @@ class MapController extends BaseApiController{
         return new Group();
     }
 
+    /**
+     * @param Request $request
+     * @return Response
+     */
     public function ListAction(Request $request){
         $logger = $this->get('manager.logger');
         $logger->info('MAP 1');
@@ -157,6 +168,10 @@ class MapController extends BaseApiController{
         );
     }
 
+    /**
+     * @param Request $request
+     * @return Response
+     */
     public function SearchAction(Request $request){
         $total = 0;
         $all = array();
@@ -291,19 +306,27 @@ class MapController extends BaseApiController{
 
     /**
      * @param Request $request
-     * @return \Symfony\Component\HttpFoundation\Response
+     * @return Response
+     * @throws NoResultException
+     * @throws NonUniqueResultException
      */
     public function searchV2(Request $request){
         $limit = $request->query->getInt('limit', 10);
         $offset = $request->query->getInt('offset', 0);
-        $search = $request->query->get('search', '');
+        $query = json_decode($request->query->get('query', '{}'));
         $sort = $request->query->getAlnum('sort', 'id');
         $order = $request->query->getAlpha('order', 'DESC');
-        $min_lat = $request->query->get('min_lat', -90.0);
-        $max_lat =  $request->query->get('max_lat',  90.0);
-        $min_lon =  $request->query->get('min_lon',  -90.0);
-        $max_lon = $request->query->get('max_lon', 90.0);
-        $acc_subtype = $request->query->getAlnum('subtype', '');
+
+        $rect_box = isset($query->rect_box)?$query->rect_box: [-90.0, -90.0, 90.0, 90.0];
+        $search = isset($query->search)?$query->search: '';
+
+        $account_subtype = strtoupper($request->query->getAlnum('subtype', ''));
+
+        if(!in_array($account_subtype, ["RETAILER", "WHOLESALE", ""])){
+            throw new HttpException(400, "Invalid subtype '$account_subtype', valid options: 'retailer', 'wholesale'");
+        }
+
+
         /** @var EntityManagerInterface $em */
         $em = $this->getDoctrine()->getManager();
         /** @var QueryBuilder $qb */
@@ -314,11 +337,10 @@ class MapController extends BaseApiController{
             'a.name',
             'a.phone',
             'a.cif',
+            'a.city',
             'a.street',
-            //'c.id',
-            //'c.esp',
-            //'c.cat',
-            //'c.eng'
+            'a.description',
+            'o.description'
         ];
         $like = $qb->expr()->orX();
         foreach ($searchFields as $field) {
@@ -327,55 +349,75 @@ class MapController extends BaseApiController{
         $and->add($like);
         $and->add($qb->expr()->eq('a.on_map', 1));
         //geo query
-        $and->add($qb->expr()->gt('a.latitude', $min_lat));
-        $and->add($qb->expr()->lt('a.latitude', $max_lat));
-        $and->add($qb->expr()->gt('a.longitude', $min_lon));
-        $and->add($qb->expr()->lt('a.longitude', $max_lon));
+        $and->add($qb->expr()->gt('a.latitude', $rect_box[0]));
+        $and->add($qb->expr()->lt('a.latitude', $rect_box[2]));
+        $and->add($qb->expr()->gt('a.longitude', $rect_box[1]));
+        $and->add($qb->expr()->lt('a.longitude', $rect_box[3]));
         $and->add($qb->expr()->like('a.type', $qb->expr()->literal('COMPANY')));
-        if($acc_subtype != '')
-            $and->add($qb->expr()->like('a.subtype', $qb->expr()->literal($acc_subtype)));
-        //$now = strtotime("now");
-        //$and->add($qb->expr()->gt('TIMESTAMP(o.start)', $now));
-        //$and->add($qb->expr()->lt('TIMESTAMP(o.end)', $now));
+
+        if($account_subtype != '')
+            $and->add($qb->expr()->like('a.subtype', $qb->expr()->literal($account_subtype)));
 
         if($request->query->getInt('only_offers', 0) == 1) {
-            $and->add($qb->expr()->eq('a.id', 'o.company'));
+            //$and->add($qb->expr()->gt('offer_count', '0'));
         }
         $qb = $qb
             ->distinct()
             ->from(Group::class, 'a')
-            //->innerJoin(Category::class, 'c')
-            ->join(Offer::class, 'o')
+            ->leftJoin(Offer::class, 'o', Join::WITH, "a.id = o.company")
             ->where($and);
 
 
         $total = $qb
-            ->select('count(a)')
+            ->select('count(distinct(a))')
             ->getQuery()
-            ->getResult();
+            ->getSingleScalarResult();
 
 
-        $elements = $qb
-            ->select('a.name, a.company_image, a.latitude,a.longitude, a.country, a.city, a.zip, a.street,
-             a.street_type, a.address_number,a.prefix,a.type,a.subtype,a.description,a.schedule,a.public_image')
+        $result = $qb
+            ->select('a')
             ->setFirstResult($offset)
             ->setMaxResults($limit)
             ->orderBy('a.' . $sort, $order)
             ->getQuery()
             ->getResult();
 
+
+        /** @var Serializer $serializer */
+        $serializer = $this->get('jms_serializer');
+        $ctx = new SerializationContext();
+        $ctx->setGroups(Group::SERIALIZATION_GROUPS_PUBLIC);
+        $elements = $serializer->toArray($result, $ctx);
+
+        //TODO: implement this in the query because total are not showing properly (only removing from $total the current page)
+        if($request->query->getInt('only_offers', 0) == 1) {
+            $valid_elements = [];
+            foreach ($elements as $element) {
+                if(count($element['offers']) > 0) {
+                    $valid_elements [] = $element;
+                }
+                else {
+                    $total -= 1;
+                }
+            }
+        }
+        else {
+            $valid_elements = $elements;
+        }
+
+
         return $this->restV2(
             200,
             "ok",
             "Request successful",
-            ['total' => intval($total[0][1]), 'elements' => $elements]
+            ['total' => intval($total), 'elements' => $valid_elements]
         );
     }
 
 
     /**
      * @param Request $request
-     * @return \Symfony\Component\HttpFoundation\Response
+     * @return Response
      */
     public function adminSearchV2(Request $request){
         if(!$this->get('security.context')->isGranted('ROLE_SUPER_ADMIN')) throw new HttpException(403, 'You don\'t have the necessary permissions');
@@ -477,16 +519,16 @@ class MapController extends BaseApiController{
 
     /**
      * @param Request $request, int $id
-     * @return \Symfony\Component\HttpFoundation\Response
+     * @return Response
      */
-    public function setVisibility(Request $request, $account_id){
+    public function setVisibility(Request $request, $aount_id){
         if(!$this->get('security.context')->isGranted('ROLE_SUPER_ADMIN')) throw new HttpException(403, 'You don\'t have the necessary permissions');
         /** @var EntityManagerInterface $em */
         $em = $this->getDoctrine()->getManager();
         //$id = $request->get('id');
         $on_map = $request->get('on_map');
         $group = $em->getRepository('TelepayFinancialApiBundle:Group')->findOneBy(array(
-            'id' => $account_id
+            'id' => $aount_id
         ));
         if(!$group){
             throw new HttpException(400, 'Incorrect ID');
