@@ -185,7 +185,7 @@ class Notificator {
             ],
         ];
 
-        $msg = json_encode($payload, JSON_NUMERIC_CHECK);
+        $msg = json_encode($payload);
 
         $logger = $this->container->get('com.qbitartofacts.rec.commons.notificator');
         $logger->msg('#NOTIFICATION_UPC_REQUEST: ' . $msg);

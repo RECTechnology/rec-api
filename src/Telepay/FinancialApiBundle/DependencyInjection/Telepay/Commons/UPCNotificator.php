@@ -9,14 +9,14 @@
 namespace Telepay\FinancialApiBundle\DependencyInjection\Telepay\Commons;
 
 
-class BcnNotificator implements Notificator {
+class UPCNotificator implements Notificator {
 
     private $url;
     private $username;
     private $password;
 
     /**
-     * BcnNotificator constructor.
+     * UPCNotificator constructor.
      * @param $url
      * @param $username
      * @param $password
