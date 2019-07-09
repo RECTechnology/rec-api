@@ -181,11 +181,11 @@ class Notificator {
             "data" => [
                 "receiver" => $data['receiver'],
                 "date" => $data['date'],
-                "activity_type_code" => $data['activity_type_code']
+                "activity_type_code" => "" . $data['activity_type_code']
             ],
         ];
 
-        $msg = json_encode($payload);
+        $msg = json_encode($payload, JSON_BIGINT_AS_STRING);
 
         $logger = $this->container->get('com.qbitartofacts.rec.commons.notificator');
         $logger->msg('#NOTIFICATION_UPC_REQUEST: ' . $msg);
