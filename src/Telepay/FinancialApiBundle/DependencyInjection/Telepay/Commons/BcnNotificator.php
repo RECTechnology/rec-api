@@ -34,7 +34,7 @@ class BcnNotificator implements Notificator {
             'http' => [
                 'method' => 'POST',
                 'header' => ['Content-Type: application/json','Authorization: Basic ' . base64_encode("$this->username:$this->password")],
-                'content' => '&text=' . $msg
+                'content' => $msg
             ]
         ];
 
