@@ -314,7 +314,7 @@ class MapController extends BaseApiController{
         $limit = $request->query->getInt('limit', 10);
         $offset = $request->query->getInt('offset', 0);
         $query = json_decode($request->query->get('query', '{}'));
-        $sort = $request->query->getAlnum('sort', 'id');
+        $sort = $request->query->get('sort', 'id');
         $order = $request->query->getAlpha('order', 'DESC');
 
         $rect_box = isset($query->rect_box)?$query->rect_box: [-90.0, -90.0, 90.0, 90.0];
@@ -364,11 +364,11 @@ class MapController extends BaseApiController{
             $and->add($qb->expr()->like('a.subtype', $qb->expr()->literal($account_subtype)));
 
 
+        $qbAux = $em->createQueryBuilder()
+            ->select('count(o2)')
+            ->from(Offer::class, 'o2')
+            ->where($qb->expr()->eq('o2.company', 'a.id'));
         if($request->query->getInt('only_with_offers', 0) == 1) {
-            $qbAux = $em->createQueryBuilder()
-                ->select('count(o2)')
-                ->from(Offer::class, 'o2')
-                ->where($qb->expr()->eq('o2.company', 'a.id'));
             $and->add($qb->expr()->gt("(" . $qbAux->getDQL() . ")", $qb->expr()->literal(0)));
         }
 
@@ -386,10 +386,11 @@ class MapController extends BaseApiController{
 
 
         $result = $qb
-            ->select('a')
+            ->select('a as account')
+            ->addSelect('(' . $qbAux->getDQL() . ') as offer_count')
             ->setFirstResult($offset)
             ->setMaxResults($limit)
-            ->orderBy('a.' . $sort, $order)
+            ->orderBy($sort == 'offer_count'? $sort: 'a.' . $sort, $order)
             ->getQuery()
             ->getResult();
 
@@ -400,11 +401,18 @@ class MapController extends BaseApiController{
         $ctx = $this->getSerializationContext();
         $elements = $serializer->toArray($result, $ctx);
 
+        $processed_elements = [];
+        foreach ($elements as $element){
+            $account = $element['account'];
+            $account['offer_count'] = intval($element['offer_count']);
+            $processed_elements []= $account;
+        }
+
         return $this->restV2(
             200,
             "ok",
             "Request successful",
-            ['total' => intval($total), 'elements' => $elements]
+            ['total' => intval($total), 'elements' => $processed_elements]
         );
     }
 
