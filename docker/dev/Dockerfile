@@ -1,4 +1,4 @@
-FROM debian
+FROM debian:stretch
 ENV DEBIAN_FRONTEND noninteractive
 RUN apt update && apt install -y php-mysql php-xml php-mongodb php-curl php-bcmath php-cli php-mbstring php-zip composer
 
