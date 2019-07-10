@@ -1,6 +1,6 @@
 <?php
 
-namespace Telepay\FinancialApiBundle\Controller\Management\Company;
+namespace Telepay\FinancialApiBundle\Controller\Open;
 
 use Doctrine\ORM\EntityManagerInterface;
 use Doctrine\ORM\NonUniqueResultException;
@@ -340,6 +340,7 @@ class MapController extends BaseApiController{
             'a.city',
             'a.street',
             'a.description',
+            'o.discount',
             'o.description',
             'c.cat',
             'c.esp',
@@ -395,8 +396,8 @@ class MapController extends BaseApiController{
 
         /** @var Serializer $serializer */
         $serializer = $this->get('jms_serializer');
-        $ctx = new SerializationContext();
-        $ctx->setGroups(Group::SERIALIZATION_GROUPS_PUBLIC);
+
+        $ctx = $this->getSerializationContext();
         $elements = $serializer->toArray($result, $ctx);
 
         return $this->restV2(
@@ -405,138 +406,6 @@ class MapController extends BaseApiController{
             "Request successful",
             ['total' => intval($total), 'elements' => $elements]
         );
-    }
-
-
-    /**
-     * @param Request $request
-     * @return Response
-     */
-    public function adminSearchV2(Request $request){
-        if(!$this->get('security.context')->isGranted('ROLE_SUPER_ADMIN')) throw new HttpException(403, 'You don\'t have the necessary permissions');
-        $wholesale = $request->query->getInt('wholesale', 0);
-        $retailer = $request->query->getInt('retailer', 0);
-        $all = false;
-        $subtype = '';
-        if($retailer==1 && $wholesale==1) {
-            $all = true;
-        }
-        elseif($retailer==1) {
-            $subtype = 'RETAILER';
-        }
-        elseif($wholesale==1) {
-            $subtype = 'WHOLESALE';
-        }
-        else{
-            $all = true;
-        }
-
-        $limit = $request->query->getInt('limit', 10);
-        $offset = $request->query->getInt('offset', 0);
-        $search = $request->query->get('search', '');
-        $sort = $request->query->getAlnum('sort', 'id');
-        $order = $request->query->getAlpha('order', 'DESC');
-        $min_lat = $request->query->get('min_lat', -90.0);
-        $max_lat =  $request->query->get('max_lat',  90.0);
-        $min_lon =  $request->query->get('min_lon',  -90.0);
-        $max_lon = $request->query->get('max_lon', 90.0);
-        /** @var EntityManagerInterface $em */
-        $em = $this->getDoctrine()->getManager();
-        /** @var QueryBuilder $qb */
-        $qb = $em->createQueryBuilder();
-        $and = $qb->expr()->andX();
-        $searchFields = [
-            'a.id',
-            'a.name',
-            'a.phone',
-            'a.cif',
-            'a.street',
-            //'c.id',
-            //'c.esp',
-            //'c.cat',
-            //'c.eng'
-        ];
-        $like = $qb->expr()->orX();
-        foreach ($searchFields as $field) {
-            $like->add($qb->expr()->like($field, $qb->expr()->literal('%' . $search . '%')));
-        }
-        $and->add($like);
-        //geo query
-        $and->add($qb->expr()->gt('a.latitude', $min_lat));
-        $and->add($qb->expr()->lt('a.latitude', $max_lat));
-        $and->add($qb->expr()->gt('a.longitude', $min_lon));
-        $and->add($qb->expr()->lt('a.longitude', $max_lon));
-        $and->add($qb->expr()->like('a.type', $qb->expr()->literal('COMPANY')));
-        if(!$all) {
-            $and->add($qb->expr()->like('a.subtype', $qb->expr()->literal($subtype)));
-        }
-
-        //$now = strtotime("now");
-        //$and->add($qb->expr()->gt('TIMESTAMP(o.start)', $now));
-        //$and->add($qb->expr()->lt('TIMESTAMP(o.end)', $now));
-
-        if($request->query->getInt('only_offers', 0) == 1) {
-            $and->add($qb->expr()->eq('a.id', 'o.company'));
-        }
-        $qb = $qb
-            ->distinct()
-            ->from(Group::class, 'a')
-            //->innerJoin(Category::class, 'c')
-            ->join(Offer::class, 'o')
-            ->where($and);
-
-
-        $total = $qb
-            ->select('count(a)')
-            ->getQuery()
-            ->getResult();
-
-
-        $elements = $qb
-            ->select('a')
-            ->setFirstResult($offset)
-            ->setMaxResults($limit)
-            ->orderBy('a.' . $sort, $order)
-            ->getQuery()
-            ->getResult();
-
-        return $this->restV2(
-            200,
-            "ok",
-            "Request successful",
-            ['total' => intval($total[0][1]), 'elements' => $elements]
-        );
-    }
-
-
-
-    /**
-     * @param Request $request, int $id
-     * @return Response
-     */
-    public function setVisibility(Request $request, $aount_id){
-        if(!$this->get('security.context')->isGranted('ROLE_SUPER_ADMIN')) throw new HttpException(403, 'You don\'t have the necessary permissions');
-        /** @var EntityManagerInterface $em */
-        $em = $this->getDoctrine()->getManager();
-        //$id = $request->get('id');
-        $on_map = $request->get('on_map');
-        $group = $em->getRepository('TelepayFinancialApiBundle:Group')->findOneBy(array(
-            'id' => $aount_id
-        ));
-        if(!$group){
-            throw new HttpException(400, 'Incorrect ID');
-        }
-        $group->setOn_map($on_map);
-        $em->persist($group);
-        try{
-            $em->flush();
-            return $this->rest(
-                200,
-                "Visibility changed successfully"
-            );
-        } catch(DBALException $ex){
-            throw new HttpException(409, $ex->getMessage());
-        }
     }
 
 }

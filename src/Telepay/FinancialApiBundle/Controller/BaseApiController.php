@@ -23,13 +23,16 @@ use Doctrine\ORM\NoResultException;
 use Doctrine\ORM\Query;
 use Doctrine\ORM\QueryBuilder;
 use Exception;
+use JMS\Serializer\SerializationContext;
 use ReflectionClass;
 use ReflectionException;
 use ReflectionProperty;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpKernel\Exception\HttpException;
+use Symfony\Component\Security\Core\SecurityContextInterface;
 use Symfony\Component\Validator\ConstraintViolation;
+use Telepay\FinancialApiBundle\Entity\Group;
 
 abstract class BaseApiController extends RestApiController implements RepositoryController {
 
@@ -42,6 +45,28 @@ abstract class BaseApiController extends RestApiController implements Repository
             ->getRepository($this->getRepositoryName());
     }
 
+    /**
+     * @return SerializationContext
+     */
+    protected function getSerializationContext() {
+        $ctx = new SerializationContext();
+
+        /** @var SecurityContextInterface $sec */
+        $sec = $this->get('security.context');
+
+        if(!$sec->getToken())
+            $ctx->setGroups(Group::SERIALIZATION_GROUPS_PUBLIC);
+        elseif($sec->isGranted('ROLE_SUPER_ADMIN'))
+            $ctx->setGroups(Group::SERIALIZATION_GROUPS_ADMIN);
+        elseif ($sec->isGranted('ROLE_MANAGER'))
+            $ctx->setGroups(Group::SERIALIZATION_GROUPS_MANAGER);
+        elseif ($sec->isGranted('ROLE_USER'))
+            $ctx->setGroups(Group::SERIALIZATION_GROUPS_USER);
+        else
+            $ctx->setGroups(Group::SERIALIZATION_GROUPS_PUBLIC);
+
+        return $ctx;
+    }
     /**
      * @param $key
      * @param $sent_value

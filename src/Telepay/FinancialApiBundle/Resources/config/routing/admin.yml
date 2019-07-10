@@ -112,17 +112,9 @@ admin_groups_delete_users:
 
 map_visibility:
     pattern:  /admin/v1/map/visibility/{account_id}
-    defaults: {_controller: Telepay\FinancialApiBundle\Controller\Management\Company\MapController::setVisibility }
+    defaults: {_controller: Telepay\FinancialApiBundle\Controller\Management\Admin\MapController::setVisibility }
     requirements:
         _method: PUT
-
-
-admin_map_search:
-    pattern: /admin/v1/map/search
-    defaults: {_controller: Telepay\FinancialApiBundle\Controller\Management\Company\MapController::adminSearchV2 }
-    requirements:
-        _method: GET
-
 
 admin_kyc_get_uploaded_files_by_user:
     pattern:  /admin/v1/kyc/uploads/{id}

@@ -6,3 +6,20 @@ public_v1_status:
     requirements:
         _method: GET
 
+public_map_list:
+    pattern: /public/map/v1/list
+    defaults: {_controller: Telepay\FinancialApiBundle\Controller\Open\MapController::ListAction }
+    requirements:
+        _method: GET
+
+public_map_search:
+    pattern: /public/map/v1/search
+    defaults: {_controller: Telepay\FinancialApiBundle\Controller\Open\MapController::SearchAction }
+    requirements:
+        _method: GET
+
+public_v2_map:
+    pattern: /public/v2/map
+    defaults: {_controller: Telepay\FinancialApiBundle\Controller\Open\MapController::searchV2 }
+    requirements:
+        _method: GET
