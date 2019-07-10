@@ -340,7 +340,10 @@ class MapController extends BaseApiController{
             'a.city',
             'a.street',
             'a.description',
-            'o.description'
+            'o.description',
+            'c.cat',
+            'c.esp',
+            'c.eng'
         ];
         $like = $qb->expr()->orX();
         foreach ($searchFields as $field) {
@@ -353,20 +356,27 @@ class MapController extends BaseApiController{
         $and->add($qb->expr()->lt('a.latitude', $rect_box[2]));
         $and->add($qb->expr()->gt('a.longitude', $rect_box[1]));
         $and->add($qb->expr()->lt('a.longitude', $rect_box[3]));
-        $and->add($qb->expr()->like('a.type', $qb->expr()->literal('COMPANY')));
+
+        $and->add($qb->expr()->eq('a.type', $qb->expr()->literal('COMPANY')));
 
         if($account_subtype != '')
             $and->add($qb->expr()->like('a.subtype', $qb->expr()->literal($account_subtype)));
 
-        if($request->query->getInt('only_offers', 0) == 1) {
-            //$and->add($qb->expr()->gt('offer_count', '0'));
+
+        if($request->query->getInt('only_with_offers', 0) == 1) {
+            $qbAux = $em->createQueryBuilder()
+                ->select('count(o2)')
+                ->from(Offer::class, 'o2')
+                ->where($qb->expr()->eq('o2.company', 'a.id'));
+            $and->add($qb->expr()->gt("(" . $qbAux->getDQL() . ")", $qb->expr()->literal(0)));
         }
+
         $qb = $qb
             ->distinct()
             ->from(Group::class, 'a')
-            ->leftJoin(Offer::class, 'o', Join::WITH, "a.id = o.company")
+            ->leftJoin('a.offers', 'o')
+            ->leftJoin('a.category', 'c')
             ->where($and);
-
 
         $total = $qb
             ->select('count(distinct(a))')
@@ -389,28 +399,11 @@ class MapController extends BaseApiController{
         $ctx->setGroups(Group::SERIALIZATION_GROUPS_PUBLIC);
         $elements = $serializer->toArray($result, $ctx);
 
-        //TODO: implement this in the query because total are not showing properly (only removing from $total the current page)
-        if($request->query->getInt('only_offers', 0) == 1) {
-            $valid_elements = [];
-            foreach ($elements as $element) {
-                if(count($element['offers']) > 0) {
-                    $valid_elements [] = $element;
-                }
-                else {
-                    $total -= 1;
-                }
-            }
-        }
-        else {
-            $valid_elements = $elements;
-        }
-
-
         return $this->restV2(
             200,
             "ok",
             "Request successful",
-            ['total' => intval($total), 'elements' => $valid_elements]
+            ['total' => intval($total), 'elements' => $elements]
         );
     }
 
