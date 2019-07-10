@@ -138,13 +138,13 @@ class Notificator {
                 $data = array(
                     'receiver' => 'PARTICULAR',
                     'date' => time(),
-                    'activity_type_code' => 16
+                    'activity_type_code' => "16"
                 );
             }
             elseif($destination->getType()=='COMPANY'){
                 $data_to_sign = $id . $status . $amount;
                 $signature = hash_hmac('sha256', $data_to_sign, $key);
-                $activity = $destination->getCategory() ? $destination->getCategory()->getId() : 16;
+                $activity = $destination->getCategory() ? $destination->getCategory()->getId() : "16";
                 $data = array(
                     'receiver' => $destination->getCif(),
                     'date' => time(),
@@ -158,7 +158,7 @@ class Notificator {
             $data = array(
                 'receiver' => 'CAMBIO',
                 'date' => time(),
-                'activity_type_code' => 16
+                'activity_type_code' => "16"
             );
         }
 
@@ -176,16 +176,16 @@ class Notificator {
             "account_id" => $params['account_id'],
             "id" => $params['account_id'],
             "status" => $params['status'],
-            "amount" => $params['amount'],
+            "amount" => strval($params['amount']),
             "signature" => $params['signature'],
             "data" => [
                 "receiver" => $data['receiver'],
-                "date" => $data['date'],
-                "activity_type_code" => $data['activity_type_code']
+                "date" => strval($data['date']),
+                "activity_type_code" => strval($data['activity_type_code'])
             ],
         ];
 
-        $msg = json_encode($payload);
+        $msg = json_encode($payload, JSON_BIGINT_AS_STRING);
 
         $logger = $this->container->get('com.qbitartofacts.rec.commons.notificator');
         $logger->msg('#NOTIFICATION_UPC_REQUEST: ' . $msg);
