@@ -8,6 +8,7 @@
 
 namespace Telepay\FinancialApiBundle\Entity;
 use Doctrine\ORM\Mapping as ORM;
+use JMS\Serializer\Annotation\Groups;
 
 
 /**
@@ -22,21 +23,25 @@ class UserWallet {
      * @ORM\Id
      * @ORM\Column(type="integer")
      * @ORM\GeneratedValue(strategy="AUTO")
+     * @Groups({"self"})
      */
     protected $id;
 
     /**
      * @ORM\Column(type="string")
+     * @Groups({"self"})
      */
     private $currency;
 
     /**
      * @ORM\Column(type="float")
+     * @Groups({"self"})
      */
     private $available;
 
     /**
      * @ORM\Column(type="float")
+     * @Groups({"self"})
      */
     private $balance;
 
@@ -69,6 +74,7 @@ class UserWallet {
 
     /**
      * @ORM\ManyToOne(targetEntity="Telepay\FinancialApiBundle\Entity\Group")
+     * @Groups({"admin"})
      */
     private $group;
 

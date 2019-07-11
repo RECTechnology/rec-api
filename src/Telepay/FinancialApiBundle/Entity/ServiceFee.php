@@ -11,6 +11,7 @@ namespace Telepay\FinancialApiBundle\Entity;
 use Doctrine\ORM\Mapping as ORM;
 use JMS\Serializer\Annotation\ExclusionPolicy;
 use JMS\Serializer\Annotation\Exclude;
+use JMS\Serializer\Annotation\Groups;
 
 /**
  * @ORM\Entity
@@ -23,28 +24,33 @@ class ServiceFee implements Fee{
      * @ORM\Id
      * @ORM\Column(type="integer")
      * @ORM\GeneratedValue(strategy="AUTO")
+     * @Groups({"self"})
      */
     private $id;
 
 
     /**
      * @ORM\Column(type="bigint")
+     * @Groups({"self"})
      */
     private $fixed;
 
     /**
      * @ORM\Column(type="float")
+     * @Groups({"self"})
      */
     private $variable;
 
     /**
      * @ORM\Column(type="string")
+     * @Groups({"self"})
      */
     private $service_name;
 
     /**
      * @ORM\ManyToOne(targetEntity="Telepay\FinancialApiBundle\Entity\Group")
      * @Exclude
+     * @Groups({"admin"})
      */
     private $group;
 
@@ -52,6 +58,7 @@ class ServiceFee implements Fee{
 
     /**
      * @ORM\Column(type="string")
+     * @Groups({"self"})
      */
     private $currency;
 
