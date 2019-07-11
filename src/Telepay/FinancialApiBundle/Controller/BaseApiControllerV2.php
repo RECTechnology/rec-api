@@ -24,6 +24,7 @@ use Doctrine\ORM\Query;
 use Doctrine\ORM\QueryBuilder;
 use Exception;
 use JMS\Serializer\SerializationContext;
+use JMS\Serializer\Serializer;
 use ReflectionClass;
 use ReflectionException;
 use ReflectionProperty;
@@ -105,7 +106,7 @@ abstract class BaseApiControllerV2 extends RestApiController implements Reposito
     /**
      * @return SerializationContext
      */
-    protected function getSerializationContext() {
+    private function getSerializationContext() {
         $ctx = new SerializationContext();
 
         /** @var SecurityContextInterface $sec */
@@ -123,6 +124,14 @@ abstract class BaseApiControllerV2 extends RestApiController implements Reposito
             $ctx->setGroups(Group::SERIALIZATION_GROUPS_PUBLIC);
 
         return $ctx;
+    }
+
+    protected function securizeOutput($result){
+        /** @var Serializer $serializer */
+        $serializer = $this->get('jms_serializer');
+
+        $ctx = $this->getSerializationContext();
+        return $serializer->toArray($result, $ctx);
     }
 
     /**
@@ -202,9 +211,11 @@ abstract class BaseApiControllerV2 extends RestApiController implements Reposito
         try {
             $total = intval($qb->select('count(e.id)')
                 ->getQuery()->getSingleScalarResult());
-            $elems = $qb->select('e')
+            $result = $qb->select('e')
                 ->setFirstResult($offset)->setMaxResults($limit)
                 ->getQuery()->getResult();
+
+            $elems = $this->securizeOutput($result);
 
             return $this->restV2(
                 200,

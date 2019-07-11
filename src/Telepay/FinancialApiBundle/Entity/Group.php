@@ -10,6 +10,8 @@ use JMS\Serializer\Annotation\ExclusionPolicy;
 use JMS\Serializer\Annotation\Exclude;
 use JMS\Serializer\Annotation\Expose;
 use JMS\Serializer\Annotation\Groups;
+use JMS\Serializer\Annotation\VirtualProperty;
+use JMS\Serializer\Annotation\Type;
 use Symfony\Component\Security\Core\Util\SecureRandom;
 use Telepay\FinancialApiBundle\DependencyInjection\Telepay\Commons\UploadManager;
 
@@ -380,6 +382,18 @@ class Group extends BaseGroup implements EntityWithUploadableFields {
      * @Expose
      */
     private $company_token;
+
+
+    /**
+     * @return string
+     * @VirtualProperty("name")
+     * @Type("string")
+     * @Groups({"public"})
+     */
+    public function getName()
+    {
+        return parent::getName();
+    }
 
     /**
      * @return mixed

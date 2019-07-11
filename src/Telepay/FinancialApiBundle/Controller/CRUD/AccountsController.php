@@ -145,11 +145,8 @@ class AccountsController extends BaseApiControllerV2 {
             ->getResult();
 
 
-        /** @var Serializer $serializer */
-        $serializer = $this->get('jms_serializer');
 
-        $ctx = $this->getSerializationContext();
-        $elements = $serializer->toArray($result, $ctx);
+        $elements = $this->securizeOutput($result);
 
         $processed_elements = [];
         foreach ($elements as $element){
