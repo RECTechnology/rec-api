@@ -8,6 +8,8 @@ security:
         ROLE_WORKER:          ROLE_READONLY
         ROLE_COMMERCE:        ROLE_USER
         ROLE_INTEGRATOR:      ROLE_COMMERCE
+        ROLE_MANAGER:         ROLE_USER
+        ROLE_SELF:            ROLE_MANAGER
         ROLE_ADMIN:           ROLE_WORKER
         ROLE_SUPER_ADMIN:     ROLE_ADMIN
 

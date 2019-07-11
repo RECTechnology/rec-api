@@ -40,7 +40,6 @@ abstract class BaseApiControllerV2 extends RestApiController implements Reposito
     const HTTP_STATUS_CODE_OK = 200;
     const HTTP_STATUS_CODE_CREATED = 201;
 
-
     const CRUD_METHOD_SEARCH = "SEARCH";
     const CRUD_METHOD_INDEX = 'INDEX';
     const CRUD_METHOD_SHOW = 'SHOW';
@@ -114,12 +113,16 @@ abstract class BaseApiControllerV2 extends RestApiController implements Reposito
 
         if(!$sec->getToken())
             $ctx->setGroups(Group::SERIALIZATION_GROUPS_PUBLIC);
-        elseif($sec->isGranted('ROLE_SUPER_ADMIN'))
-            $ctx->setGroups(Group::SERIALIZATION_GROUPS_ADMIN);
-        elseif ($sec->isGranted('ROLE_MANAGER'))
-            $ctx->setGroups(Group::SERIALIZATION_GROUPS_MANAGER);
         elseif ($sec->isGranted('ROLE_USER'))
             $ctx->setGroups(Group::SERIALIZATION_GROUPS_USER);
+        elseif ($sec->isGranted('ROLE_MANAGER'))
+            $ctx->setGroups(Group::SERIALIZATION_GROUPS_MANAGER);
+        elseif($sec->isGranted('ROLE_SELF'))
+            $ctx->setGroups(Group::SERIALIZATION_GROUPS_SELF);
+        elseif($sec->isGranted('ROLE_ADMIN'))
+            $ctx->setGroups(Group::SERIALIZATION_GROUPS_ADMIN);
+        elseif($sec->isGranted('ROLE_SUPER_ADMIN'))
+            $ctx->setGroups(Group::SERIALIZATION_GROUPS_SUPER_ADMIN);
         else
             $ctx->setGroups(Group::SERIALIZATION_GROUPS_PUBLIC);
 

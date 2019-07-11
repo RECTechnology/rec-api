@@ -38,6 +38,7 @@ class Group extends BaseGroup implements EntityWithUploadableFields {
     const SERIALIZATION_GROUPS_MANAGER = ['manager', 'user', 'public'];
     const SERIALIZATION_GROUPS_SELF = ['self', 'manager', 'user', 'public'];
     const SERIALIZATION_GROUPS_ADMIN = ['admin', 'self', 'manager', 'user', 'public'];
+    const SERIALIZATION_GROUPS_SUPER_ADMIN = ['super_admin', 'admin', 'self', 'manager', 'user', 'public'];
 
     public function __construct() {
         $this->groups = new ArrayCollection();
