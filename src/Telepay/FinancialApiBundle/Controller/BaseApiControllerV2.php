@@ -34,11 +34,95 @@ use Symfony\Component\Security\Core\SecurityContextInterface;
 use Symfony\Component\Validator\ConstraintViolation;
 use Telepay\FinancialApiBundle\Entity\Group;
 
-abstract class BaseApiController extends RestApiController implements RepositoryController {
+abstract class BaseApiControllerV2 extends RestApiController implements RepositoryController {
 
     const HTTP_STATUS_CODE_OK = 200;
     const HTTP_STATUS_CODE_CREATED = 201;
 
+
+    const CRUD_METHOD_INDEX = 'INDEX';
+    const CRUD_METHOD_SHOW = 'SHOW';
+    const CRUD_METHOD_CREATE = 'CREATE';
+    const CRUD_METHOD_UPDATE = 'UPDATE';
+    const CRUD_METHOD_DELETE = 'DELETE';
+
+    const ROLE_SUPER_ADMIN = "ROLE_SUPER_ADMIN";
+    const ROLE_MANAGER = "ROLE_MANAGER";
+    const ROLE_ADMIN = "ROLE_ADMIN";
+    const ROLE_USER = "ROLE_USER";
+    const ROLE_SELF = "ROLE_SELF";
+    const ROLE_PUBLIC = "ROLE_PUBLIC";
+
+    const ROLE_PATH_MAPPINGS = [
+        'public' => self::ROLE_PUBLIC,
+        'user' => self::ROLE_USER,
+        'manager' => self::ROLE_MANAGER,
+        'self' => self::ROLE_SELF,
+        'admin' => self::ROLE_ADMIN,
+        'sadmin' => self::ROLE_SUPER_ADMIN,
+    ];
+
+    protected function getRepository(){
+        return $this->getDoctrine()
+            ->getManager()
+            ->getRepository($this->getRepositoryName());
+    }
+
+    /**
+     * @return array
+     */
+    abstract function getCRUDGrants();
+
+    /**
+     * @param $role
+     * @param $method
+     */
+    protected function checkPermissions($role, $method){
+        if(!in_array($role, array_keys(self::ROLE_PATH_MAPPINGS)))
+            throw new HttpException(404, "Path not found");
+
+        /** @var SecurityContextInterface $sec */
+        $sec = $this->get('security.context');
+        if($sec->getToken()) {
+            if (!$sec->isGranted(self::ROLE_PATH_MAPPINGS[$role]))
+                throw new HttpException(403, "Insufficient permissions for $role");
+        }
+        $grants = $this->getCRUDGrants();
+        if(isset($grants[$method])) {
+            if(!$sec->getToken() and $grants[$method] === self::ROLE_PUBLIC)
+                return;
+            if (!$sec->isGranted($grants[$method]))
+                throw new HttpException(403, "Insufficient permissions to $method this resource");
+        }
+        elseif(!$sec->getToken())
+            throw new HttpException(401, "You are not authenticated");
+        else
+            throw new HttpException(403, "Insufficient permissions to $method this resource");
+
+    }
+
+    /**
+     * @return SerializationContext
+     */
+    protected function getSerializationContext() {
+        $ctx = new SerializationContext();
+
+        /** @var SecurityContextInterface $sec */
+        $sec = $this->get('security.context');
+
+        if(!$sec->getToken())
+            $ctx->setGroups(Group::SERIALIZATION_GROUPS_PUBLIC);
+        elseif($sec->isGranted('ROLE_SUPER_ADMIN'))
+            $ctx->setGroups(Group::SERIALIZATION_GROUPS_ADMIN);
+        elseif ($sec->isGranted('ROLE_MANAGER'))
+            $ctx->setGroups(Group::SERIALIZATION_GROUPS_MANAGER);
+        elseif ($sec->isGranted('ROLE_USER'))
+            $ctx->setGroups(Group::SERIALIZATION_GROUPS_USER);
+        else
+            $ctx->setGroups(Group::SERIALIZATION_GROUPS_PUBLIC);
+
+        return $ctx;
+    }
 
     /**
      * @param $key
@@ -72,7 +156,13 @@ abstract class BaseApiController extends RestApiController implements Repository
         return $value;
     }
 
-    protected function indexAction(Request $request){
+    /**
+     * @param Request $request
+     * @param $role
+     * @return Response
+     */
+    protected function indexAction(Request $request, $role){
+        $this->checkPermissions($role, self::CRUD_METHOD_INDEX);
 
         $limit = $request->query->get('limit', 10);
         if($limit < 0 or $limit > 100) throw new HttpException(400, "Invalid limit: must be between 1 and 100");
@@ -140,7 +230,13 @@ abstract class BaseApiController extends RestApiController implements Repository
         return $entity;
     }
 
-    protected function showAction($id){
+    /**
+     * @param $role
+     * @param $id
+     * @return Response
+     */
+    protected function showAction($role, $id){
+        $this->checkPermissions($role, self::CRUD_METHOD_SHOW);
         if(empty($id)) throw new HttpException(400, "Missing parameter 'id'");
         return $this->restV2(200,"ok", "Request successful", $this->findObject($id));
     }
@@ -216,7 +312,8 @@ abstract class BaseApiController extends RestApiController implements Repository
      * @throws AnnotationException
      * @throws ReflectionException
      */
-    protected function createAction(Request $request){
+    protected function createAction(Request $request, $role){
+        $this->checkPermissions($role, self::CRUD_METHOD_CREATE);
 
         $entity = $this->getNewEntity();
         $params = $request->request->all();
@@ -225,12 +322,14 @@ abstract class BaseApiController extends RestApiController implements Repository
 
     /**
      * @param Request $request
+     * @param $role
      * @param $id
      * @return Response
      * @throws AnnotationException
      * @throws ReflectionException
      */
-    protected function updateAction(Request $request, $id){
+    protected function updateAction(Request $request, $role, $id){
+        $this->checkPermissions($role, self::CRUD_METHOD_UPDATE);
 
         if(empty($id)) throw new HttpException(400, "Missing parameter 'id'");
 
@@ -244,7 +343,13 @@ abstract class BaseApiController extends RestApiController implements Repository
         return $this->setAction($entity, $params, 200);
     }
 
-    protected function deleteAction($id){
+    /**
+     * @param $role
+     * @param $id
+     * @return Response
+     */
+    protected function deleteAction($role, $id){
+        $this->checkPermissions($role, self::CRUD_METHOD_DELETE);
 
         if(empty($id)) throw new HttpException(400, "Missing parameter 'id'");
 

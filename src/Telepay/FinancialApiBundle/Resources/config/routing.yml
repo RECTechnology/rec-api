@@ -26,6 +26,9 @@ POS:
 Public:
     resource: routing/public.yml
 
+CRUD:
+    resource: routing/crud.yml
+
 register:
     pattern:  /register/v1
     defaults: { _controller: Telepay\FinancialApiBundle\Controller\Management\User\AccountController::registerAction }

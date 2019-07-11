@@ -249,7 +249,7 @@ admin_show_treasure_withdrawal:
         _method: GET
 
 
-##################### ADMIN / TREASURE WITHDRAWAL VALIDATIONS ############################
+##################### ADMIN / V2 / TREASURE WITHDRAWAL VALIDATIONS ############################
 
 
 admin_index_treasure_withdrawal_validations:
@@ -269,3 +269,4 @@ admin_update_treasure_withdrawal_validations:
     defaults: { _controller: Telepay\FinancialApiBundle\Controller\Management\Admin\TreasureWithdrawalValidationController::updateAction }
     requirements:
         _method: PUT
+

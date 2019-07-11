@@ -1,0 +1,28 @@
+
+
+##################### ADMIN / V3 / ACCOUNTS ############################
+
+
+accounts_v3_list:
+    pattern:  /{role}/v3/accounts
+    defaults: { _controller: Telepay\FinancialApiBundle\Controller\CRUD\AccountsController::indexAction }
+    requirements:
+        _method: GET
+
+accounts_v3_show:
+    pattern:  /{role}/v3/accounts/{id}
+    defaults: { _controller: Telepay\FinancialApiBundle\Controller\CRUD\AccountsController::showAction }
+    requirements:
+        _method: GET
+
+accounts_v3_update:
+    pattern:  /{role}/v3/accounts/{id}
+    defaults: { _controller: Telepay\FinancialApiBundle\Controller\CRUD\AccountsController::updateAction }
+    requirements:
+        _method: PUT
+
+accounts_v3_delete:
+    pattern:  /{role}/v3/accounts/{id}
+    defaults: { _controller: Telepay\FinancialApiBundle\Controller\CRUD\AccountsController::deleteAction }
+    requirements:
+        _method: DELETE
