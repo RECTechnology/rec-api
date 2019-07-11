@@ -40,7 +40,7 @@ class AccountsController extends BaseApiControllerV2 {
     {
         return [
             self::CRUD_METHOD_INDEX => self::ROLE_PUBLIC,
-            self::CRUD_METHOD_SHOW => self::ROLE_USER,
+            self::CRUD_METHOD_SHOW => self::ROLE_PUBLIC,
             self::CRUD_METHOD_UPDATE => self::ROLE_SUPER_ADMIN,
             self::CRUD_METHOD_DELETE => self::ROLE_SUPER_ADMIN,
         ];
@@ -48,6 +48,7 @@ class AccountsController extends BaseApiControllerV2 {
 
     /**
      * @param Request $request
+     * @param $role
      * @return Response
      * @throws NoResultException
      * @throws NonUniqueResultException
@@ -107,11 +108,12 @@ class AccountsController extends BaseApiControllerV2 {
             $and->add($qb->expr()->like('a.subtype', $qb->expr()->literal($account_subtype)));
 
 
-        $qbAux = $em->createQueryBuilder()
-            ->select('count(o2)')
-            ->from(Offer::class, 'o2')
-            ->where($qb->expr()->eq('o2.company', 'a.id'));
         if($request->query->getInt('only_with_offers', 0) == 1) {
+
+            $qbAux = $em->createQueryBuilder()
+                ->select('count(o2)')
+                ->from(Offer::class, 'o2')
+                ->where($qb->expr()->eq('o2.company', 'a.id'));
             $and->add($qb->expr()->gt("(" . $qbAux->getDQL() . ")", $qb->expr()->literal(0)));
         }
 
@@ -127,6 +129,10 @@ class AccountsController extends BaseApiControllerV2 {
             ->getQuery()
             ->getSingleScalarResult();
 
+        $qbAux = $em->createQueryBuilder()
+            ->select('count(o3)')
+            ->from(Offer::class, 'o3')
+            ->where($qb->expr()->eq('o3.company', 'a.id'));
 
         $result = $qb
             ->select('a as account')
@@ -160,18 +166,7 @@ class AccountsController extends BaseApiControllerV2 {
     }
 
     /**
-     * @param Request $request
-     * @return Response
-     * @throws AnnotationException
-     * @throws ReflectionException
-     * @Rest\View
-     */
-    public function createAction(Request $request, $role)
-    {
-        return parent::createAction($request, $role);
-    }
-
-    /**
+     * @param $role
      * @param $id
      * @return Response
      * @Rest\View
@@ -183,6 +178,7 @@ class AccountsController extends BaseApiControllerV2 {
 
     /**
      * @param Request $request
+     * @param $role
      * @param $id
      * @return Response
      * @throws AnnotationException
@@ -195,6 +191,7 @@ class AccountsController extends BaseApiControllerV2 {
     }
 
     /**
+     * @param $role
      * @param $id
      * @return Response
      * @Rest\View
