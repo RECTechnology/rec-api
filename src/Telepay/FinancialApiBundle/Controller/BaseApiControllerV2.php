@@ -40,6 +40,7 @@ abstract class BaseApiControllerV2 extends RestApiController implements Reposito
     const HTTP_STATUS_CODE_CREATED = 201;
 
 
+    const CRUD_METHOD_SEARCH = "SEARCH";
     const CRUD_METHOD_INDEX = 'INDEX';
     const CRUD_METHOD_SHOW = 'SHOW';
     const CRUD_METHOD_CREATE = 'CREATE';

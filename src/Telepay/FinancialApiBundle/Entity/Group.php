@@ -324,7 +324,7 @@ class Group extends BaseGroup implements EntityWithUploadableFields {
 
     /**
      * @ORM\Column(type="text")
-     * @Groups({"public"})
+     * @Groups({"user"})
      */
     private $type = '';
 

@@ -23,6 +23,7 @@ use Telepay\FinancialApiBundle\Entity\Offer;
  */
 class AccountsController extends BaseApiControllerV2 {
 
+
     function getRepositoryName()
     {
         return "TelepayFinancialApiBundle:Group";
@@ -39,8 +40,9 @@ class AccountsController extends BaseApiControllerV2 {
     function getCRUDGrants()
     {
         return [
-            self::CRUD_METHOD_INDEX => self::ROLE_PUBLIC,
-            self::CRUD_METHOD_SHOW => self::ROLE_PUBLIC,
+            self::CRUD_METHOD_SEARCH => self::ROLE_PUBLIC,
+            self::CRUD_METHOD_INDEX => self::ROLE_USER,
+            self::CRUD_METHOD_SHOW => self::ROLE_USER,
             self::CRUD_METHOD_UPDATE => self::ROLE_SUPER_ADMIN,
             self::CRUD_METHOD_DELETE => self::ROLE_SUPER_ADMIN,
         ];
@@ -53,8 +55,8 @@ class AccountsController extends BaseApiControllerV2 {
      * @throws NoResultException
      * @throws NonUniqueResultException
      */
-    public function indexAction(Request $request, $role){
-        $this->checkPermissions($role, self::CRUD_METHOD_INDEX);
+    public function searchAction(Request $request, $role){
+        $this->checkPermissions($role, self::CRUD_METHOD_SEARCH);
         $limit = $request->query->getInt('limit', 10);
         $offset = $request->query->getInt('offset', 0);
         $query = json_decode($request->query->get('query', '{}'));
@@ -64,12 +66,11 @@ class AccountsController extends BaseApiControllerV2 {
         $rect_box = isset($query->rect_box)?$query->rect_box: [-90.0, -90.0, 90.0, 90.0];
         $search = isset($query->search)?$query->search: '';
 
-        $account_subtype = strtoupper($request->query->getAlnum('subtype', ''));
+        $account_subtype = strtoupper($query->subtype);
 
         if(!in_array($account_subtype, ["RETAILER", "WHOLESALE", ""])){
             throw new HttpException(400, "Invalid subtype '$account_subtype', valid options: 'retailer', 'wholesale'");
         }
-
 
         /** @var EntityManagerInterface $em */
         $em = $this->getDoctrine()->getManager();
@@ -108,7 +109,7 @@ class AccountsController extends BaseApiControllerV2 {
             $and->add($qb->expr()->like('a.subtype', $qb->expr()->literal($account_subtype)));
 
 
-        if($request->query->getInt('only_with_offers', 0) == 1) {
+        if($query->only_with_offers == 1) {
 
             $qbAux = $em->createQueryBuilder()
                 ->select('count(o2)')
@@ -163,6 +164,15 @@ class AccountsController extends BaseApiControllerV2 {
             "Request successful",
             ['total' => intval($total), 'elements' => $processed_elements]
         );
+    }
+
+    /**
+     * @param Request $request
+     * @param $role
+     * @return Response
+     */
+    public function indexAction(Request $request, $role){
+        return parent::indexAction($request, $role);
     }
 
     /**

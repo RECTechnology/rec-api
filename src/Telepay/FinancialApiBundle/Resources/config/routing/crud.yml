@@ -2,8 +2,13 @@
 
 ##################### CRUD / V3 / ACCOUNTS ############################
 
+accounts_v3_search:
+    pattern:  /{role}/v3/accounts/search
+    defaults: { _controller: Telepay\FinancialApiBundle\Controller\CRUD\AccountsController::searchAction }
+    requirements:
+        _method: GET
 
-accounts_v3_list:
+accounts_v3_index:
     pattern:  /{role}/v3/accounts
     defaults: { _controller: Telepay\FinancialApiBundle\Controller\CRUD\AccountsController::indexAction }
     requirements:
