@@ -66,7 +66,7 @@ class AccountsController extends BaseApiControllerV2 {
         $rect_box = isset($query->rect_box)?$query->rect_box: [-90.0, -90.0, 90.0, 90.0];
         $search = isset($query->search)?$query->search: '';
 
-        $account_subtype = strtoupper($query->subtype);
+        $account_subtype = isset($query->subtype)? strtoupper($query->subtype): '';
 
         if(!in_array($account_subtype, ["RETAILER", "WHOLESALE", ""])){
             throw new HttpException(400, "Invalid subtype '$account_subtype', valid options: 'retailer', 'wholesale'");
@@ -109,7 +109,9 @@ class AccountsController extends BaseApiControllerV2 {
             $and->add($qb->expr()->like('a.subtype', $qb->expr()->literal($account_subtype)));
 
 
-        if($query->only_with_offers == 1) {
+        $only_with_offers = isset($query->only_with_offers)? $query->only_with_offers: 0;
+
+        if($only_with_offers == 1) {
 
             $qbAux = $em->createQueryBuilder()
                 ->select('count(o2)')
@@ -130,21 +132,19 @@ class AccountsController extends BaseApiControllerV2 {
             ->getQuery()
             ->getSingleScalarResult();
 
-        $qbAux = $em->createQueryBuilder()
+        $qbAux2 = $em->createQueryBuilder()
             ->select('count(o3)')
             ->from(Offer::class, 'o3')
             ->where($qb->expr()->eq('o3.company', 'a.id'));
 
         $result = $qb
             ->select('a as account')
-            ->addSelect('(' . $qbAux->getDQL() . ') as offer_count')
+            ->addSelect('(' . $qbAux2->getDQL() . ') as offer_count')
             ->setFirstResult($offset)
             ->setMaxResults($limit)
             ->orderBy($sort == 'offer_count'? $sort: 'a.' . $sort, $order)
             ->getQuery()
             ->getResult();
-
-
 
         $elements = $this->securizeOutput($result);
 

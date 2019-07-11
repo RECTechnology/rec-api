@@ -39,10 +39,6 @@ class Group extends BaseGroup implements EntityWithUploadableFields {
     const SERIALIZATION_GROUPS_SELF = ['self', 'manager', 'user', 'public'];
     const SERIALIZATION_GROUPS_ADMIN = ['admin', 'self', 'manager', 'user', 'public'];
 
-    static function getVisibilityGroups($role){
-
-    }
-
     public function __construct() {
         $this->groups = new ArrayCollection();
         $this->limit_counts = new ArrayCollection();
