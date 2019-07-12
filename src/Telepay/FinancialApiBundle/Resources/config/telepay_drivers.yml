@@ -8,7 +8,7 @@ services:
                 - "@net.telepay.driver.lemonway.eur"
 
     net.telepay.driver.easybitcoin.rec:
-        class: Telepay\FinancialApiBundle\Financial\Driver\FakeEasyBitcoinDriverDriver
+        class: Telepay\FinancialApiBundle\Financial\Driver\FakeEasyBitcoinDriver
         arguments:
             - '@doctrine.orm.entity_manager'
             - '%blockchain_address_prefix%'
