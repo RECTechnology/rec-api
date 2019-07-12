@@ -87,7 +87,7 @@ class FakeEasyBitcoinDriver {
 
     function getnewaddress() {
         $base58 = new Base58();
-        return $this->prefix . $base58->encode((new SecureRandom())->nextBytes(32));
+        return $this->prefix . $base58->encode((new SecureRandom())->nextBytes(16));
     }
 
     function getaccountaddress($account){
