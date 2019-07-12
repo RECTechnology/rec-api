@@ -1,5 +1,5 @@
 {
-    "name": "symfony/framework-standard-edition",
+    "name": "qbitartifacts/rec-api",
     "license": "Propietary",
     "type": "project",
     "description": "REC Barcelona API",
@@ -38,7 +38,8 @@
         "twilio/sdk": "4.11.0",
         "knplabs/knp-snappy-bundle": "~1.4",
         "chip-chap/php-curl-lowlevel-api": "dev-master",
-        "alcaeus/mongo-php-adapter": "~1.1"
+        "alcaeus/mongo-php-adapter": "~1.1",
+        "stephenhill/base58": "^1.1"
     },
     "require-dev": {
         "sensio/generator-bundle": "~2.3"

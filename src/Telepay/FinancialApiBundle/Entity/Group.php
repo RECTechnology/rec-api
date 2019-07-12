@@ -1090,22 +1090,6 @@ class Group extends BaseGroup implements EntityWithUploadableFields {
     /**
      * @return mixed
      */
-    public function getAdresses()
-    {
-        return $this->adresses;
-    }
-
-    /**
-     * @param mixed $adresses
-     */
-    public function setAdresses($adresses)
-    {
-        $this->adresses = $adresses;
-    }
-
-    /**
-     * @return mixed
-     */
     public function getCashInTokens()
     {
         return $this->cash_in_tokens;

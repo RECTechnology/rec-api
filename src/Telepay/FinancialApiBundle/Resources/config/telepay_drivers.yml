@@ -8,12 +8,10 @@ services:
                 - "@net.telepay.driver.lemonway.eur"
 
     net.telepay.driver.easybitcoin.rec:
-        class: Telepay\FinancialApiBundle\Financial\Driver\EasyBitcoinDriver
+        class: Telepay\FinancialApiBundle\Financial\Driver\FakeEasyBitcoinDriverDriver
         arguments:
-            - "%rec_user%"
-            - "%rec_pass%"
-            - "%rec_host%"
-            - "%rec_port%"
+            - '@doctrine.orm.entity_manager'
+            - '%blockchain_address_prefix%'
 
     net.telepay.driver.lemonway.eur:
         class: Telepay\FinancialApiBundle\Financial\Driver\LemonWayDriver

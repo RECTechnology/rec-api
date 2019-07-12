@@ -87,3 +87,5 @@ parameters:
     bcn_notification_username: $BCN_NOTIFICATION_USERNAME
     bcn_notification_password: $BCN_NOTIFICATION_PASSWORD
 
+    blockchain_address_prefix: $BLOCKCHAIN_ADDRESS_PREFIX
+

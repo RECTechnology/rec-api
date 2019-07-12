@@ -118,3 +118,5 @@ parameters:
     bcn_notification_username: ~
     bcn_notification_password: ~
 
+    blockchain_address_prefix: 'R'
+
