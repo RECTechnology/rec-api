@@ -50,7 +50,9 @@ class StatusController extends RestApiController {
 
         try {
             $wallet = $this->get("net.telepay.driver.easybitcoin.rec");
-            $wallet->getinfo();
+            $info = $wallet->getinfo();
+            if(!isset($info['balance']))
+                throw new \LogicException("Node info not working");
         } catch (\Exception $e){
             $status ^= 0x4; // change msb (100)
             $exceptions []= $e->getMessage();
