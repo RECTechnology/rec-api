@@ -104,9 +104,11 @@ fos_user:
     db_driver: orm # other valid values are 'mongodb', 'couchdb' and 'propel'
     firewall_name: main
     user_class: Telepay\FinancialApiBundle\Entity\User
-
     group:
       group_class: Telepay\FinancialApiBundle\Entity\Group
+    from_email:
+        address: '%no_reply_email%'
+        sender_name: 'No Reply'
 
 nelmio_cors:
    defaults:

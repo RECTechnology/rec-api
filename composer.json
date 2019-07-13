@@ -4,13 +4,17 @@
     "type": "project",
     "description": "REC Barcelona API",
     "autoload": {
-        "psr-0": { "": "src/", "SymfonyStandard": "app/" }
+        "psr-4": {
+            "REC\\FinancialApiBundle\\Test\\": "test/",
+            "": "src/",
+            "SymfonyStandard\\": "app/"
+        }
     },
     "require": {
         "php": ">=7.0",
         "ext-curl": "*",
         "ext-json": "*",
-        "symfony/symfony": "2.6.*",
+        "symfony/symfony": "2.8.*",
         "doctrine/orm": "~2.2,>=2.2.3",
         "doctrine/doctrine-bundle": "~1.2",
         "twig/extensions": "~1.0",
@@ -39,10 +43,12 @@
         "knplabs/knp-snappy-bundle": "~1.4",
         "chip-chap/php-curl-lowlevel-api": "dev-master",
         "alcaeus/mongo-php-adapter": "~1.1",
-        "stephenhill/base58": "^1.1"
+        "stephenhill/base58": "^1.1",
+        "symfony/polyfill-iconv": "~1.0"
     },
     "require-dev": {
-        "sensio/generator-bundle": "~2.3"
+        "sensio/generator-bundle": "~2.3",
+        "symfony/phpunit-bridge": "^4.3"
     },
     "scripts": {
         "post-root-package-install": [

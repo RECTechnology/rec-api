@@ -1,97 +1,81 @@
 ######################## USER POS ########################
 
 ##user_POS_index:
-##    pattern:  /user/v1/pos
+##    path:  /user/v1/pos
 ##    defaults: { _controller: Telepay\FinancialApiBundle\Controller\Management\Commerce\POSController::indexAction }
-##    requirements:
-##        _method: GET
+##    methods: [GET]
 
 ##user_POS_show:
-##    pattern:  /user/v1/pos/{id}
+##    path:  /user/v1/pos/{id}
 ##    defaults: { _controller: Telepay\FinancialApiBundle\Controller\Management\Commerce\POSController::showAction }
-##    requirements:
-##        _method: GET
+##    methods: [GET]
 
 ##user_POS_link:
-##    pattern:  /user/v1/pos/link/{id}
+##    path:  /user/v1/pos/link/{id}
 ##    defaults: { _controller: Telepay\FinancialApiBundle\Controller\Management\Commerce\POSController::linkPOS }
-##    requirements:
-##        _method: GET
+##    methods: [GET]
 
 ##user_POS_create:
-    ##    pattern:  /user/v1/pos
+    ##    path:  /user/v1/pos
 ##    defaults: { _controller: Telepay\FinancialApiBundle\Controller\Management\Commerce\POSController::createAction }
-##    requirements:
-##        _method: POST
+##    methods: [POST]
 
 ##user_POS_update:
-    ##    pattern:  /user/v1/pos/{id}
+    ##    path:  /user/v1/pos/{id}
 ##    defaults: { _controller: Telepay\FinancialApiBundle\Controller\Management\Commerce\POSController::updateAction }
-##    requirements:
-##        _method: PUT
+##    methods: [PUT]
 
 ##user_POS_delete:
-    ##    pattern:  /user/v1/pos/{id}
+    ##    path:  /user/v1/pos/{id}
 ##    defaults: { _controller: Telepay\FinancialApiBundle\Controller\Management\Commerce\POSController::deleteAction }
-##    requirements:
-##        _method: DELETE
+##    methods: [DELETE]
 
 ##user_POS_transaction_test:
-    ##    pattern:  /pos/v2/transaction/{id}
+    ##    path:  /pos/v2/transaction/{id}
 ##    defaults: { _controller: Telepay\FinancialApiBundle\Controller\Transactions\POSIncomingController::createTransactionV2 }
-##    requirements:
-##        _method: POST
+##    methods: [POST]
 
 ##user_POS_transaction:
-    ##    pattern:  /pos/v{version_number}/transaction/{id}
+    ##    path:  /pos/v{version_number}/transaction/{id}
 ##    defaults: { _controller: Telepay\FinancialApiBundle\Controller\Transactions\POSIncomingController::createTransaction }
-##    requirements:
-##        _method: POST
+##    methods: [POST]
 
 ##user_POS_find_transactions:
-    ##    pattern:  /pos/v{version_number}/{pos_id}
+    ##    path:  /pos/v{version_number}/{pos_id}
 ##    defaults: { _controller: Telepay\FinancialApiBundle\Controller\Transactions\POSIncomingController::find }
-##    requirements:
-##        _method: GET
+##    methods: [GET]
 
 ##user_POS_check:
-    ##    pattern:  /pos/v1/check/{id}
+    ##    path:  /pos/v1/check/{id}
 ##    defaults: { _controller: Telepay\FinancialApiBundle\Controller\Transactions\POSIncomingController::checkTransaction }
-##    requirements:
-##        _method: GET
+##    methods: [GET]
 
 ##user_POS_check_v2:
-    ##    pattern:  /pos/v2/check/{id}
+    ##    path:  /pos/v2/check/{id}
 ##    defaults: { _controller: Telepay\FinancialApiBundle\Controller\Transactions\POSIncomingController::checkTransaction2 }
-##    requirements:
-##        _method: GET
+##    methods: [GET]
 
 ##user_POS_cancel_v2:
-    ##    pattern:  /pos/v2/cancel/{id}
+    ##    path:  /pos/v2/cancel/{id}
 ##    defaults: { _controller: Telepay\FinancialApiBundle\Controller\Transactions\POSIncomingController::cancelTransaction2 }
-##    requirements:
-##        _method: PUT
+##    methods: [PUT]
 
 ##new_btc_address:
-    ##    pattern:  /pos/v{version_number}/address
+    ##    path:  /pos/v{version_number}/address
 ##    defaults: { _controller: Telepay\FinancialApiBundle\Controller\Transactions\POSIncomingController::generateAddress }
-##    requirements:
-##        _method: POST
+##    methods: [POST]
 
 ##pos_notifications:
-    ##    pattern:  /pos/v{version_number}/notification/{id}
+    ##    path:  /pos/v{version_number}/notification/{id}
 ##    defaults: { _controller: Telepay\FinancialApiBundle\Controller\Transactions\POSIncomingController::notificate }
-##    requirements:
-##        _method: POST
+##    methods: [POST]
 
 ##pos_nfc_fac:
-    ##    pattern:  /pos/v1/{id_company}/nfc/fac
+    ##    path:  /pos/v1/{id_company}/nfc/fac
 ##    defaults: { _controller: Telepay\FinancialApiBundle\Controller\Management\Company\NFCController::NFCPayment }
-##    requirements:
-##        _method: POST
+##    methods: [POST]
 
 ##pos_nfc_fac_check:
-    ##    pattern:  /pos/v1/{id_company}/nfc/fac/{id}
+    ##    path:  /pos/v1/{id_company}/nfc/fac/{id}
 ##    defaults: { _controller: Telepay\FinancialApiBundle\Controller\Management\Company\NFCController::checkNFCPayment }
-##    requirements:
-##        _method: GET
+##    methods: [GET]

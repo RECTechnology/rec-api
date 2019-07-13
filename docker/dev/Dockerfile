@@ -14,7 +14,8 @@ RUN apt update && apt install -y \
     python3 \
     python3-pip \
     firefox-esr \
-    jq
+    jq \
+    phpunit
 
 
 # To have composer cache

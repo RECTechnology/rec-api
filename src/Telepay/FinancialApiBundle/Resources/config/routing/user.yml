@@ -1,320 +1,269 @@
 ######################## USER ACCOUNT ########################
 
 user_account:
-    pattern:  /user/v1/account
+    path:  /user/v1/account
     defaults: { _controller: Telepay\FinancialApiBundle\Controller\Management\User\AccountController::read }
-    requirements:
-        _method: GET
+    methods: [GET]
 
 user_account_edit:
-    pattern:  /user/v1/account
+    path:  /user/v1/account
     defaults: { _controller: Telepay\FinancialApiBundle\Controller\Management\User\AccountController::updateAction }
-    requirements:
-        _method: PUT
+    methods: [PUT]
 
-##user_method_read:
-##    pattern:  /user/v1/methods/{method}
+##usermethod_read:
+##    path:  /user/v1/methods/{method}
 ##    defaults: { _controller: Telepay\FinancialApiBundle\Controller\Management\Integrator\MethodsController::read }
-##    requirements:
-##        _method: GET
+##    methods: [GET]
 
-##user_method_index:
-##    pattern:  /user/v1/methods
+##usermethod_index:
+##    path:  /user/v1/methods
 ##    defaults: { _controller: Telepay\FinancialApiBundle\Controller\Management\Integrator\MethodsController::index }
-##    requirements:
-##        _method: GET
+##    methods: [GET]
 
 user_index_companies:
-    pattern:  /user/v1/companies
+    path:  /user/v1/companies
     defaults: { _controller: Telepay\FinancialApiBundle\Controller\Management\User\AccountController::indexCompanies, _format: ~ }
-    requirements:
-        _method: GET
+    methods: [GET]
 
 
 ######################## USER WALLET ########################
 
 user_wallet:
-    pattern:  /user/v1/wallet
+    path:  /user/v1/wallet
     defaults: { _controller: Telepay\FinancialApiBundle\Controller\Management\User\WalletController::read }
-    requirements:
-        _method: GET
+    methods: [GET]
 
 commerce_list_exchangers_old:
-    pattern:  /user/v1/wallet/listCommerce
+    path:  /user/v1/wallet/listCommerce
     defaults: { _controller: Telepay\FinancialApiBundle\Controller\Management\User\WalletController::listCommerce }
-    requirements:
-        _method: GET
+    methods: [GET]
 
 commerce_list_exchangers:
-    pattern:  /user/v1/wallet/exchangers
+    path:  /user/v1/wallet/exchangers
     defaults: { _controller: Telepay\FinancialApiBundle\Controller\Management\User\WalletController::listCommerce }
-    requirements:
-        _method: GET
+    methods: [GET]
 
 user_wallet_transactions:
-    pattern:  /user/v1/wallet/transactions
+    path:  /user/v1/wallet/transactions
     defaults: { _controller: Telepay\FinancialApiBundle\Controller\Management\User\WalletController::walletTransactions }
-    requirements:
-        _method: GET
+    methods: [GET]
 
 company_wallet_day_transactions:
-    pattern:  /user/v1/wallet/day/transactions
+    path:  /user/v1/wallet/day/transactions
     defaults: { _controller: Telepay\FinancialApiBundle\Controller\Management\User\WalletController::walletDayTransactions }
-    requirements:
-        _method: GET
+    methods: [GET]
 
 user_wallet_transactions_daily_group:
-    pattern:  /user/v1/wallet/dailytransactions
+    path:  /user/v1/wallet/dailytransactions
     defaults: { _controller: Telepay\FinancialApiBundle\Controller\Management\User\WalletController::walletDailySumTransactions }
-    requirements:
-        _method: GET
+    methods: [GET]
 
 user_wallet_transactions_v2:
-    pattern:  /user/v2/wallet/transactions
+    path:  /user/v2/wallet/transactions
     defaults: { _controller: Telepay\FinancialApiBundle\Controller\Management\User\WalletController::walletTransactionsV2 }
-    requirements:
-        _method: GET
+    methods: [GET]
 
 ##user_wallet_transactions_sum:
-##    pattern:  /user/v1/wallet/earnings
+##    path:  /user/v1/wallet/earnings
 ##    defaults: { _controller: Telepay\FinancialApiBundle\Controller\Management\User\WalletController::benefits }
-##    requirements:
-##        _method: GET
+##    methods: [GET]
 
 ##user_wallet_transactions_sum_month:
-##    pattern:  /user/v1/wallet/monthearnings
+##    path:  /user/v1/wallet/monthearnings
 ##    defaults: { _controller: Telepay\FinancialApiBundle\Controller\Management\User\WalletController::monthBenefits }
-##    requirements:
-##        _method: GET
+##    methods: [GET]
 
 ##user_wallet_currency_exchange:
-##    pattern:  /user/v1/wallet/currency_exchange
+##    path:  /user/v1/wallet/currency_exchange
 ##    defaults: { _controller: Telepay\FinancialApiBundle\Controller\Management\User\WalletController::currencyExchange, _format: ~ }
-##    requirements:
-##        _method: POST
+##    methods: [POST]
 
 
 ######################## USER ANALYTICS ########################
 
 user_transactions_speed:
-    pattern:  /user/v1/speed
+    path:  /user/v1/speed
     defaults: { _controller: Telepay\FinancialApiBundle\Controller\Management\User\AccountController::speed }
-    requirements:
-        _method: GET
+    methods: [GET]
 
 user_transactions_last10:
-    pattern:  /user/v1/last
+    path:  /user/v1/last
     defaults: { _controller: Telepay\FinancialApiBundle\Controller\Management\User\WalletController::last }
-    requirements:
-        _method: GET
+    methods: [GET]
 
 user_transactions_day_sum:
-    pattern:  /user/v1/day
+    path:  /user/v1/day
     defaults: { _controller: Telepay\FinancialApiBundle\Controller\Management\User\WalletController::day }
-    requirements:
-        _method: GET
+    methods: [GET]
 
 user_transaction_single:
-    pattern:  /user/v1/single/{id}
+    path:  /user/v1/single/{id}
     defaults: { _controller: Telepay\FinancialApiBundle\Controller\Management\User\WalletController::single }
-    requirements:
-        _method: GET
+    methods: [GET]
 
 user_change_active_group:
-    pattern:  /user/v1/activegroup
+    path:  /user/v1/activegroup
     defaults: { _controller: Telepay\FinancialApiBundle\Controller\Management\User\AccountController::changeGroup }
-    requirements:
-        _method: PUT
+    methods: [PUT]
 
 user_set_default_currency:
-    pattern:  /user/v1/currency
+    path:  /user/v1/currency
     defaults: { _controller: Telepay\FinancialApiBundle\Controller\Management\User\AccountController::updateCurrency }
-    requirements:
-        _method: PUT
+    methods: [PUT]
 
 user_active_2fa:
-    pattern:  /user/v1/active2fa
+    path:  /user/v1/active2fa
     defaults: { _controller: Telepay\FinancialApiBundle\Controller\Management\User\AccountController::active2faAction }
-    requirements:
-        _method: PUT
+    methods: [PUT]
 
 user_deactive_2fa:
-    pattern:  /user/v1/deactive2fa
+    path:  /user/v1/deactive2fa
     defaults: { _controller: Telepay\FinancialApiBundle\Controller\Management\User\AccountController::deactive2faAction }
-    requirements:
-        _method: PUT
+    methods: [PUT]
 
 user_update_public_phone:
-    pattern:  /user/v1/public_phone
+    path:  /user/v1/public_phone
     defaults: { _controller: Telepay\FinancialApiBundle\Controller\Management\User\AccountController::publicPhoneAction }
-    requirements:
-        _method: PUT
+    methods: [PUT]
 
 user_public_phone_list:
-    pattern:  /user/v1/public_phone_list
+    path:  /user/v1/public_phone_list
     defaults: { _controller: Telepay\FinancialApiBundle\Controller\Management\User\AccountController::publicPhoneListAction }
-    requirements:
-        _method: POST
+    methods: [POST]
 
 user_update_2fa_code:
-    pattern:  /user/v1/update2fa
+    path:  /user/v1/update2fa
     defaults: { _controller: Telepay\FinancialApiBundle\Controller\Management\User\AccountController::update2faAction }
-    requirements:
-        _method: PUT
+    methods: [PUT]
 
 user_get_question:
-    pattern:  /user/v1/question
+    path:  /user/v1/question
     defaults: { _controller: Telepay\FinancialApiBundle\Controller\Management\User\AccountController::showQuestion }
-    requirements:
-        _method: GET
+    methods: [GET]
 
 user_change_pin:
-    pattern:  /user/v1/pin
+    path:  /user/v1/pin
     defaults: { _controller: Telepay\FinancialApiBundle\Controller\Management\User\AccountController::updatePin }
-    requirements:
-        _method: POST
+    methods: [POST]
 
 user_get_exchange:
-    pattern:  /user/v1/exchange
+    path:  /user/v1/exchange
     defaults: { _controller: Telepay\FinancialApiBundle\Controller\Management\User\ExchangeController::read }
-    requirements:
-        _method: GET
+    methods: [GET]
 
 user_transfer_wallet_to_wallet:
-    pattern:  /user/v1/wallet/send/{currency}
+    path:  /user/v1/wallet/send/{currency}
     defaults: { _controller: Telepay\FinancialApiBundle\Controller\Management\User\WalletController::walletToWallet }
-    requirements:
-        _method: POST
+    methods: [POST]
 
 user_reset_client_credentials:
-    pattern:  /user/v1/reset_credentials
+    path:  /user/v1/reset_credentials
     defaults: { _controller: Telepay\FinancialApiBundle\Controller\Management\User\AccountController::resetCredentials }
-    requirements:
-        _method: PUT
+    methods: [PUT]
 
 user_save_kyc:
-    pattern:  /user/v1/save_kyc
+    path:  /user/v1/save_kyc
     defaults: { _controller: Telepay\FinancialApiBundle\Controller\Management\User\AccountController::kycSave }
-    requirements:
-        _method: POST
+    methods: [POST]
 
 
 ######################## USER BTCWALLET ########################
 
 user_btc_wallet_read:
-    pattern:  /user/v1/btc_wallet
+    path:  /user/v1/btc_wallet
     defaults: { _controller: Telepay\FinancialApiBundle\Controller\Management\User\BTCWalletController::read }
-    requirements:
-        _method: GET
+    methods: [GET]
 
 user_btc_wallet_create:
-    pattern:  /user/v1/btc_wallet
+    path:  /user/v1/btc_wallet
     defaults: { _controller: Telepay\FinancialApiBundle\Controller\Management\User\BTCWalletController::createBTCWallet }
-    requirements:
-        _method: POST
+    methods: [POST]
 
 user_btc_wallet_update:
-    pattern:  /user/v1/btc_wallet
+    path:  /user/v1/btc_wallet
     defaults: { _controller: Telepay\FinancialApiBundle\Controller\Management\User\BTCWalletController::updateBTCWallet }
-    requirements:
-        _method: PUT
+    methods: [PUT]
 
 user_btc_adresses_read:
-    pattern:  /user/v1/btc_addresses
+    path:  /user/v1/btc_addresses
     defaults: { _controller: Telepay\FinancialApiBundle\Controller\Management\User\BTCWalletController::indexAction }
-    requirements:
-        _method: GET
+    methods: [GET]
 
 user_btc_adresses_create:
-    pattern:  /user/v1/btc_addresses
+    path:  /user/v1/btc_addresses
     defaults: { _controller: Telepay\FinancialApiBundle\Controller\Management\User\BTCWalletController::addAddress }
-    requirements:
-        _method: POST
+    methods: [POST]
 
 user_btc_adresses_update:
-    pattern:  /user/v1/btc_addresses/{id}
+    path:  /user/v1/btc_addresses/{id}
     defaults: { _controller: Telepay\FinancialApiBundle\Controller\Management\User\BTCWalletController::updateAddress }
-    requirements:
-        _method: PUT
+    methods: [PUT]
 
 user_devices_index:
-    pattern:  /user/v1/devices
+    path:  /user/v1/devices
     defaults: { _controller: Telepay\FinancialApiBundle\Controller\Management\User\BTCWalletController::indexDevices }
-    requirements:
-        _method: GET
+    methods: [GET]
 
 user_devices_create:
-    pattern:  /user/v1/devices
+    path:  /user/v1/devices
     defaults: { _controller: Telepay\FinancialApiBundle\Controller\Management\User\BTCWalletController::addDevice }
-    requirements:
-        _method: POST
+    methods: [POST]
 
 user_devices_update:
-    pattern:  /user/v1/devices/{id}
+    path:  /user/v1/devices/{id}
     defaults: { _controller: Telepay\FinancialApiBundle\Controller\Management\User\BTCWalletController::updateDevice }
-    requirements:
-        _method: PUT
+    methods: [PUT]
 
 user_devices_delete:
-    pattern:  /user/v1/devices/{id}
+    path:  /user/v1/devices/{id}
     defaults: { _controller: Telepay\FinancialApiBundle\Controller\Management\User\BTCWalletController::deleteDevice }
-    requirements:
-        _method: DELETE
+    methods: [DELETE]
 
 ######################## USER FEES ########################
 
 user_fees:
-    pattern:  /user/v1/fees
+    path:  /user/v1/fees
     defaults: { _controller: Telepay\FinancialApiBundle\Controller\Management\User\WalletController::userFees }
-    requirements:
-        _method: GET
+    methods: [GET]
 
 user_limits:
-    pattern:  /user/v1/limits
+    path:  /user/v1/limits
     defaults: { _controller: Telepay\FinancialApiBundle\Controller\Management\User\WalletController::userLimits }
-    requirements:
-        _method: GET
+    methods: [GET]
 
 ######################## USER SWIFT ########################
 
 user_swift_clients:
-    pattern:  /user/v1/swift
+    path:  /user/v1/swift
     defaults: { _controller: Telepay\FinancialApiBundle\Controller\Management\User\SwiftController::read }
-    requirements:
-        _method: GET
+    methods: [GET]
 
 user_swift_list:
-    pattern:  /user/v1/swift_list
+    path:  /user/v1/swift_list
     defaults: { _controller: Telepay\FinancialApiBundle\Controller\Management\User\SwiftController::listNames }
-    requirements:
-        _method: GET
+    methods: [GET]
 
 user_swift_edit_client:
-    pattern:  /user/v1/swift/{id}
+    path:  /user/v1/swift/{id}
     defaults: { _controller: Telepay\FinancialApiBundle\Controller\Management\User\SwiftController::updateAction }
-    requirements:
-        _method: PUT
+    methods: [PUT]
 
 user_swift_update_fees:
-    pattern:  /user/v1/swift/fees/{id}
+    path:  /user/v1/swift/fees/{id}
     defaults: { _controller: Telepay\FinancialApiBundle\Controller\Management\User\SwiftController::updateFees }
-    requirements:
-        _method: PUT
+    methods: [PUT]
 
 user_swift_update_transaction:
-    pattern:  /user/v1/swift/transaction/{id}
+    path:  /user/v1/swift/transaction/{id}
     defaults: { _controller: Telepay\FinancialApiBundle\Controller\Management\User\SwiftController::updateTransaction }
-    requirements:
-        _method: PUT
+    methods: [PUT]
 
 user_upload_file:
-    pattern:  /user/v1/upload_file
+    path:  /user/v1/upload_file
     defaults: { _controller: Telepay\FinancialApiBundle\Controller\Management\User\UploadController::uploadFile }
-    requirements:
-        _method: POST
+    methods: [POST]
 
 user_upload_base64:
-    pattern:  /user/v1/upload_bas64
+    path:  /user/v1/upload_bas64
     defaults: { _controller: Telepay\FinancialApiBundle\Controller\Management\User\UploadController::uploadFileBase64 }
-    requirements:
-        _method: POST
+    methods: [POST]
