@@ -17,8 +17,6 @@
         "symfony/symfony": "2.8.*",
         "doctrine/orm": "~2.2,>=2.2.3",
         "doctrine/doctrine-bundle": "~1.2",
-        "twig/extensions": "~1.0",
-        "symfony/assetic-bundle": "~2.3",
         "symfony/swiftmailer-bundle": "~2.3",
         "symfony/monolog-bundle": "~2.4",
         "sensio/distribution-bundle": "~3.0",
@@ -44,7 +42,8 @@
         "chip-chap/php-curl-lowlevel-api": "dev-master",
         "alcaeus/mongo-php-adapter": "~1.1",
         "stephenhill/base58": "^1.1",
-        "symfony/polyfill-iconv": "~1.0"
+        "symfony/polyfill-iconv": "~1.0",
+        "symfony/webpack-encore-pack": "^1.0"
     },
     "require-dev": {
         "sensio/generator-bundle": "~2.3",

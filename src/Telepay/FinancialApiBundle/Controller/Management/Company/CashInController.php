@@ -107,7 +107,7 @@ class CashInController extends BaseApiController{
      */
     public function createAction(Request $request){
 
-        $user = $this->get('security.context')->getToken()->getUser();
+        $user = $this->get('security.token_storage')->getToken()->getUser();
 
         $company = $user->getActiveGroup();
 
@@ -166,7 +166,7 @@ class CashInController extends BaseApiController{
      */
     public function updateAction(Request $request, $id){
 
-        $user = $this->get('security.context')->getToken()->getUser();
+        $user = $this->get('security.token_storage')->getToken()->getUser();
 
         $company = $user->getActiveGroup();
 
@@ -201,7 +201,7 @@ class CashInController extends BaseApiController{
      */
     public function reactiveToken(Request $request){
 
-        $user = $this->get('security.context')->getToken()->getUser();
+        $user = $this->get('security.token_storage')->getToken()->getUser();
 
         $company = $user->getActiveGroup();
 

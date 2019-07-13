@@ -10,8 +10,8 @@
 namespace Telepay\FinancialApiBundle\Security\Firewall;
 
 use Symfony\Component\HttpKernel\Exception\HttpException;
+use Symfony\Component\Security\Core\Authentication\Token\Storage\TokenStorageInterface;
 use Symfony\Component\Security\Core\Exception\AccessDeniedException;
-use Symfony\Component\Security\Core\SecurityContextInterface;
 use Symfony\Component\Security\Core\User\UserProviderInterface;
 use Symfony\Component\Security\Core\User\UserCheckerInterface;
 use Symfony\Component\Security\Core\Authorization\AccessDecisionManagerInterface;
@@ -36,7 +36,7 @@ use Symfony\Component\EventDispatcher\EventDispatcherInterface;
  * @author Fabien Potencier <fabien@symfony.com>
  */
 class SwitchUserListener implements ListenerInterface {
-    private $securityContext;
+    private $tokenStorage;
     private $provider;
     private $userChecker;
     private $providerKey;
@@ -48,14 +48,23 @@ class SwitchUserListener implements ListenerInterface {
 
     /**
      * Constructor.
+     * @param TokenStorageInterface $tokenStorage
+     * @param UserProviderInterface $provider
+     * @param UserCheckerInterface $userChecker
+     * @param $providerKey
+     * @param AccessDecisionManagerInterface $accessDecisionManager
+     * @param LoggerInterface|null $logger
+     * @param string $usernameParameter
+     * @param string $role
+     * @param EventDispatcherInterface|null $dispatcher
      */
-    public function __construct(SecurityContextInterface $securityContext, UserProviderInterface $provider, UserCheckerInterface $userChecker, $providerKey, AccessDecisionManagerInterface $accessDecisionManager, LoggerInterface $logger = null, $usernameParameter = '_switch_user', $role = 'ROLE_ALLOWED_TO_SWITCH', EventDispatcherInterface $dispatcher = null)
+    public function __construct(TokenStorageInterface $tokenStorage, UserProviderInterface $provider, UserCheckerInterface $userChecker, $providerKey, AccessDecisionManagerInterface $accessDecisionManager, LoggerInterface $logger = null, $usernameParameter = '_switch_user', $role = 'ROLE_ALLOWED_TO_SWITCH', EventDispatcherInterface $dispatcher = null)
     {
         if (empty($providerKey)) {
             throw new \InvalidArgumentException('$providerKey must not be empty.');
         }
 
-        $this->securityContext = $securityContext;
+        $this->tokenStorage = $tokenStorage;
         $this->provider = $provider;
         $this->userChecker = $userChecker;
         $this->providerKey = $providerKey;
@@ -82,10 +91,10 @@ class SwitchUserListener implements ListenerInterface {
         }
 
         if ('_exit' === $request->get($this->usernameParameter)) {
-            $this->securityContext->setToken($this->attemptExitUser($request));
+            $this->tokenStorage->setToken($this->attemptExitUser($request));
         } else {
             try {
-                $this->securityContext->setToken($this->attemptSwitchUser($request));
+                $this->tokenStorage->setToken($this->attemptSwitchUser($request));
             } catch (AuthenticationException $e) {
                 throw new \LogicException(sprintf('Switch User failed: "%s"', $e->getMessage()));
             }
@@ -105,7 +114,7 @@ class SwitchUserListener implements ListenerInterface {
      */
     private function attemptSwitchUser(Request $request)
     {
-        $token = $this->securityContext->getToken();
+        $token = $this->tokenStorage->getToken();
         $originalToken = $this->getOriginalToken($token);
 
         if (false !== $originalToken) {
@@ -133,7 +142,7 @@ class SwitchUserListener implements ListenerInterface {
         $this->userChecker->checkPostAuth($user);
 
         $roles = $user->getRoles();
-        $roles[] = new SwitchUserRole('ROLE_PREVIOUS_ADMIN', $this->securityContext->getToken());
+        $roles[] = new SwitchUserRole('ROLE_PREVIOUS_ADMIN', $this->tokenStorage->getToken());
 
         $token = new UsernamePasswordToken($user, $user->getPassword(), $this->providerKey, $roles);
 
@@ -156,7 +165,7 @@ class SwitchUserListener implements ListenerInterface {
      */
     private function attemptExitUser(Request $request)
     {
-        if (false === $original = $this->getOriginalToken($this->securityContext->getToken())) {
+        if (false === $original = $this->getOriginalToken($this->tokenStorage->getToken())) {
             throw new AuthenticationCredentialsNotFoundException('Could not find original Token object.');
         }
 

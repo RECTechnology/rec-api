@@ -217,7 +217,7 @@ class SepaMethod extends BaseMethod {
         else{
             $email = $request->request->get('email');
             $pass = $request->request->get('password');
-            $factory = $this->getContainer()->get('security.encoder_factory');
+            $factory = $this->getContainer()->get('security.password_encoder');
             $user = $em->getRepository('TelepayFinancialApiBundle:User')->findOneBy(array(
                 'email' => $email
             ));

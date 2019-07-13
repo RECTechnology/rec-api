@@ -22,7 +22,7 @@ class POSController extends BaseApiController{
      */
     public function indexAction(Request $request){
 
-        $userGroup = $this->get('security.context')->getToken()->getUser()->getActiveGroup();
+        $userGroup = $this->get('security.token_storage')->getToken()->getUser()->getActiveGroup();
 
         $all = $this->getRepository()->findBy(array(
             'group'  =>  $userGroup
@@ -50,7 +50,7 @@ class POSController extends BaseApiController{
      * @Rest\View
      */
     public function showAction($id){
-        $userGroup = $this->get('security.context')->getToken()->getUser()->getActiveGroup();
+        $userGroup = $this->get('security.token_storage')->getToken()->getUser()->getActiveGroup();
         $pos = $this->getRepository()->findOneBy(array(
             'id'  =>  $id,
             'group'  =>  $userGroup
@@ -87,10 +87,10 @@ class POSController extends BaseApiController{
      * @Rest\View
      */
     public function createAction(Request $request){
-        $user = $this->get('security.context')->getToken()->getUser();
+        $user = $this->get('security.token_storage')->getToken()->getUser();
         $userGroup = $user->getActiveGroup();
 
-        if(!$this->get('security.context')->isGranted('ROLE_ADMIN')) throw new HttpException(403, 'You don\' have the necessary permissions');
+        if(!$this->get('security.authorization_checker')->isGranted('ROLE_ADMIN')) throw new HttpException(403, 'You don\' have the necessary permissions');
 
         $request->request->add(array(
             'group'   =>  $userGroup
@@ -132,9 +132,9 @@ class POSController extends BaseApiController{
      * @Rest\View
      */
     public function updateAction(Request $request, $id=null){
-        $user = $this->get('security.context')->getToken()->getUser();
+        $user = $this->get('security.token_storage')->getToken()->getUser();
         $userGroup = $user->getActiveGroup();
-        if(!$this->get('security.context')->isGranted('ROLE_ADMIN')) throw new HttpException(403, 'You don\' have the necessary permissions');
+        if(!$this->get('security.authorization_checker')->isGranted('ROLE_ADMIN')) throw new HttpException(403, 'You don\' have the necessary permissions');
         $pos = $this->getRepository()->findOneBy(array(
             'id'  =>  $id,
             'group'  =>  $userGroup
@@ -148,9 +148,9 @@ class POSController extends BaseApiController{
      * @Rest\View
      */
     public function deleteAction($id){
-        $user = $this->get('security.context')->getToken()->getUser();
+        $user = $this->get('security.token_storage')->getToken()->getUser();
         $userGroup = $user->getActiveGroup();
-        if(!$this->get('security.context')->isGranted('ROLE_ADMIN')) throw new HttpException(403, 'You don\' have the necessary permissions');
+        if(!$this->get('security.authorization_checker')->isGranted('ROLE_ADMIN')) throw new HttpException(403, 'You don\' have the necessary permissions');
         $pos = $this->getRepository()->findOneBy(array(
             'id'  =>  $id,
             'group'  =>  $userGroup

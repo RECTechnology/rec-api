@@ -22,7 +22,7 @@ class UsersGroupsController extends RestApiController{
      */
     public function createAction(Request $request, $id){
 
-        $admin = $this->get('security.context')->getToken()->getUser();
+        $admin = $this->get('security.token_storage')->getToken()->getUser();
 
         //search company
         $groupsRepository = $this->getDoctrine()->getRepository("TelepayFinancialApiBundle:Group");
@@ -93,7 +93,7 @@ class UsersGroupsController extends RestApiController{
      */
     public function deleteAction(Request $request, $user_id, $group_id){
 
-        $admin = $this->get('security.context')->getToken()->getUser();
+        $admin = $this->get('security.token_storage')->getToken()->getUser();
 
         $adminRoles = $this->getDoctrine()->getRepository('TelepayFinancialApiBundle:UserGroup')->findOneBy(array(
             'user'  =>  $admin->getId(),
@@ -158,7 +158,7 @@ class UsersGroupsController extends RestApiController{
      * permissions: all
      */
     public function createCompanyAction(Request $request){
-        $admin = $this->get('security.context')->getToken()->getUser();
+        $admin = $this->get('security.token_storage')->getToken()->getUser();
         $em = $this->getDoctrine()->getManager();
 
         $allowed_types = array('PRIVATE', 'COMPANY');
@@ -340,7 +340,7 @@ class UsersGroupsController extends RestApiController{
      * permissions: ROLE_ADMIN (active company)
      */
     public function addRoleAction(Request $request, $user_id, $group_id){
-        $admin = $this->get('security.context')->getToken()->getUser();
+        $admin = $this->get('security.token_storage')->getToken()->getUser();
         $groupsRepository = $this->getDoctrine()->getRepository("TelepayFinancialApiBundle:Group");
         $group = $groupsRepository->find($group_id);
         if(!$group) throw new HttpException(404, "Group not found");
@@ -360,7 +360,7 @@ class UsersGroupsController extends RestApiController{
         $role[] = $request->request->get('role');
         if(in_array('ROLE_SUPER_ADMIN', $role)) throw new HttpException(403, 'Bad parameters');
 
-        if(!$this->get('security.context')->isGranted('ROLE_ADMIN')) throw new HttpException(403, 'You don\' have the necessary permissions');
+        if(!$this->get('security.authorization_checker')->isGranted('ROLE_ADMIN')) throw new HttpException(403, 'You don\' have the necessary permissions');
 
         //check if is superadmin but readonly
         if(!$admin->hasRole('ROLE_ADMIN')) throw new HttpException(403, 'You are READ ONLY. you don\'t have the necessary permissions');
@@ -379,7 +379,7 @@ class UsersGroupsController extends RestApiController{
     public function deleteRoleAction(Request $request, $user_id, $group_id){
 
         //TODO this function is used now??? check and delete
-        $admin = $this->get('security.context')->getToken()->getUser();
+        $admin = $this->get('security.token_storage')->getToken()->getUser();
 
         $groupsRepository = $this->getDoctrine()->getRepository("TelepayFinancialApiBundle:Group");
         $group = $groupsRepository->find($group_id);

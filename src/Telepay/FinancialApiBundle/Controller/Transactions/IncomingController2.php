@@ -27,8 +27,8 @@ class IncomingController2 extends RestApiController{
      * @Rest\View
      */
     public function make(Request $request, $version_number, $type, $method_cname){
-        $user = $this->get('security.context')->getToken()->getUser();
-        if (!$this->get('security.context')->isGranted('ROLE_WORKER')) throw new HttpException(403, 'You don\' have the necessary permissions');
+        $user = $this->get('security.token_storage')->getToken()->getUser();
+        if (!$this->get('security.authorization_checker')->isGranted('ROLE_WORKER')) throw new HttpException(403, 'You don\' have the necessary permissions');
         if($request->request->has('company_id')){
             $group = $this->getDoctrine()->getManager()
                 ->getRepository('TelepayFinancialApiBundle:Group')
@@ -508,7 +508,7 @@ class IncomingController2 extends RestApiController{
 
 
     public function adminThirdTransaction(Request $request, $method_cname){
-        $user = $this->get('security.context')->getToken()->getUser();
+        $user = $this->get('security.token_storage')->getToken()->getUser();
         if (!$user->hasRole('ROLE_SUPER_ADMIN')) throw new HttpException(403, 'Permission error');
         if (!$user->getTwoFactorAuthentication()) throw new HttpException(403, '2FA must be active');
 
@@ -613,7 +613,7 @@ class IncomingController2 extends RestApiController{
     }
 
     public function remoteDelegatedTransaction(Request $request, $method_cname){
-        $user = $this->get('security.context')->getToken()->getUser();
+        $user = $this->get('security.token_storage')->getToken()->getUser();
         if (!$user->hasRole('ROLE_SUPER_ADMIN')) throw new HttpException(403, 'Permission error');
 
         if($method_cname != 'lemonway'){
@@ -642,13 +642,13 @@ class IncomingController2 extends RestApiController{
      */
     public function update(Request $request, $version_number, $type, $method_cname, $id){
         $method = $this->get('net.telepay.'.$type.'.'.$method_cname.'.v'.$version_number);
-        if(!$this->get('security.context')->isGranted('ROLE_WORKER')) throw new HttpException(403, 'You don\' have the necessary permissions');
+        if(!$this->get('security.authorization_checker')->isGranted('ROLE_WORKER')) throw new HttpException(403, 'You don\' have the necessary permissions');
 
         $logger = $this->get('transaction.logger');
         $logger->info('Update transaction');
         $message = 'NAN';
 
-        $user = $this->get('security.context')->getToken()->getUser();
+        $user = $this->get('security.token_storage')->getToken()->getUser();
         $mongo = $this->get('doctrine_mongodb')->getManager();
         $dealer = $this->container->get('net.telepay.commons.fee_deal');
 
@@ -814,7 +814,7 @@ class IncomingController2 extends RestApiController{
     public function check(Request $request, $version_number, $type, $method_cname, $id){
         $method = $this->get('net.telepay.'.$type.'.'.$method_cname.'.v'.$version_number);
 
-        $user = $this->get('security.context')->getToken()->getUser();
+        $user = $this->get('security.token_storage')->getToken()->getUser();
         $group = $this->_getCurrentCompany($user);
         $this->_checkPermissions($user, $group);
 
@@ -923,7 +923,7 @@ class IncomingController2 extends RestApiController{
         $method = $this->get('net.telepay.'.$type.'.'.$method_cname.'.v'.$version_number);
 
         $dm = $this->get('doctrine_mongodb')->getManager();
-        $user = $this->get('security.context')
+        $user = $this->get('security.token_storage')
             ->getToken()->getUser();
         //TODO change this for active group
         $group = $user->getGroups()[0];
@@ -1135,7 +1135,7 @@ class IncomingController2 extends RestApiController{
         /*
         $tokenManager = $this->container->get('fos_oauth_server.access_token_manager.default');
         try{
-            $token = $this->get('security.context')->getToken();
+            $token = $this->get('security.token_storage')->getToken();
             if($token instanceof SignatureToken) return $user->getActiveGroup();
             $accessToken = $tokenManager->findTokenByToken($token->getToken());
 

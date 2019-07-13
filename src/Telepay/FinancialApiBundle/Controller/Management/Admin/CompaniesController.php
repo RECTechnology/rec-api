@@ -42,7 +42,7 @@ class CompaniesController extends BaseApiController
      */
     public function updateAction(Request $request, $id){
         //only the superadmin can access here
-        if(!$this->get('security.context')->isGranted('ROLE_SUPER_ADMIN')) {
+        if(!$this->get('security.authorization_checker')->isGranted('ROLE_SUPER_ADMIN')) {
             throw new HttpException(403, 'You have not the necessary permissions');
         }
 
@@ -362,7 +362,7 @@ class CompaniesController extends BaseApiController
      * @Rest\View
      */
     public function showAction($id){
-        $user = $this->get('security.context')->getToken()->getUser();
+        $user = $this->get('security.token_storage')->getToken()->getUser();
 
         $group = $this->getRepository()->find($id);
 

@@ -11,24 +11,24 @@ namespace Telepay\FinancialApiBundle\Security\Firewall;
 
 
 use Symfony\Component\DependencyInjection\ContainerInterface;
+use Symfony\Component\Security\Core\Authentication\Token\Storage\TokenStorageInterface;
 use Telepay\FinancialApiBundle\Security\Authentication\Token\SignatureToken;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpKernel\Event\GetResponseEvent;
 use Symfony\Component\Security\Core\Authentication\AuthenticationManagerInterface;
 use Symfony\Component\Security\Core\Exception\AuthenticationException;
-use Symfony\Component\Security\Core\SecurityContextInterface;
 use Symfony\Component\Security\Http\Firewall\ListenerInterface;
 use Telepay\FinancialApiBundle\Entity\User;
 
 
 class SignatureListener implements ListenerInterface {
 
-    protected $securityContext;
+    protected $tokenStorage;
     protected $authenticationManager;
     protected $container;
 
-    public function __construct(SecurityContextInterface $securityContext, AuthenticationManagerInterface $authenticationManager, ContainerInterface $container){
-        $this->securityContext = $securityContext;
+    public function __construct(TokenStorageInterface $tokenStorage, AuthenticationManagerInterface $authenticationManager, ContainerInterface $container){
+        $this->tokenStorage = $tokenStorage;
         $this->authenticationManager = $authenticationManager;
         $this->container = $container;
     }
@@ -80,7 +80,7 @@ class SignatureListener implements ListenerInterface {
                 if($user->isLocked()) throw new AuthenticationException('User is locked');
                 if(!$user->isEnabled()) throw new AuthenticationException('User is disabled');
                 $logger->info('SIGNATURE_LISTENER token ' . $authToken);
-                $this->securityContext->setToken($authToken);
+                $this->tokenStorage->setToken($authToken);
                 $logger->info('SIGNATURE_LISTENER OK');
                 return;
             } catch(AuthenticationException $failed){
@@ -107,7 +107,7 @@ class SignatureListener implements ListenerInterface {
             $logger->info('SIGNATURE_LISTENER try');
             $authToken = $this->authenticationManager->authenticate($token);
             $logger->info('SIGNATURE_LISTENER token ' . $authToken);
-            $this->securityContext->setToken($authToken);
+            $this->tokenStorage->setToken($authToken);
             $logger->info('SIGNATURE_LISTENER OK');
             return;
         } catch(AuthenticationException $failed){

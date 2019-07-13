@@ -82,7 +82,7 @@ class KYCController extends BaseApiController{
     public function getKyc(){
 
         //TODO get company
-        $user = $this->get('security.context')->getToken()->getUser();
+        $user = $this->get('security.token_storage')->getToken()->getUser();
         $company = $user->getActiveGroup();
         $current_tier = $company->getTier();
         //TODO return all kyc data

@@ -36,7 +36,7 @@ class MapController extends BaseApiController{
      * @return Response
      */
     public function setVisibility(Request $request, $aount_id){
-        if(!$this->get('security.context')->isGranted('ROLE_SUPER_ADMIN')) throw new HttpException(403, 'You don\'t have the necessary permissions');
+        if(!$this->get('security.authorization_checker')->isGranted('ROLE_SUPER_ADMIN')) throw new HttpException(403, 'You don\'t have the necessary permissions');
         /** @var EntityManagerInterface $em */
         $em = $this->getDoctrine()->getManager();
         //$id = $request->get('id');

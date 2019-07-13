@@ -30,8 +30,8 @@ class BankAccountController extends BaseApiController{
      * @Rest\View
      */
     public function registerAccount(Request $request){
-        $user = $this->get('security.context')->getToken()->getUser();
-        $group = $this->get('security.context')->getToken()->getUser()->getActiveGroup();
+        $user = $this->get('security.token_storage')->getToken()->getUser();
+        $group = $this->get('security.token_storage')->getToken()->getUser()->getActiveGroup();
 
         $paramNames = array(
             'owner',
@@ -109,7 +109,7 @@ class BankAccountController extends BaseApiController{
      */
     public function deleteAction($id){
         $em = $this->getDoctrine()->getManager();
-        $user = $this->get('security.context')->getToken()->getUser();
+        $user = $this->get('security.token_storage')->getToken()->getUser();
         $account = $em->getRepository('TelepayFinancialApiBundle:BankAccount')->findOneBy(array(
             'id'    =>  $id,
             'company' =>  $user->getActiveGroup()

@@ -39,7 +39,7 @@ class AccountController extends BaseApiController{
      */
     public function setAdmin(Request $request, $id){
 
-        $user = $this->get('security.context')->getToken()->getUser();
+        $user = $this->get('security.token_storage')->getToken()->getUser();
 
         $em = $this->getDoctrine()->getManager();
         $company = $em->getRepository($this->getRepositoryName())->find($id);
@@ -72,7 +72,7 @@ class AccountController extends BaseApiController{
      */
     public function updateAction(Request $request, $account_id){
 
-        $admin = $this->get('security.context')->getToken()->getUser();
+        $admin = $this->get('security.token_storage')->getToken()->getUser();
         $adminGroup = $this->getRepository($this->getRepositoryName())->find($account_id);
 
         $adminRoles = $this->getDoctrine()->getRepository('TelepayFinancialApiBundle:UserGroup')->findOneBy(array(
@@ -125,7 +125,7 @@ class AccountController extends BaseApiController{
      * Permissions: ROLE_ADMIN (all)
      */
     public function updateLocationAction(Request $request, $account_id){
-        $admin = $this->get('security.context')->getToken()->getUser();
+        $admin = $this->get('security.token_storage')->getToken()->getUser();
         $adminGroup = $this->getRepository($this->getRepositoryName())->find($account_id);
 
         $em = $this->getDoctrine()->getManager();

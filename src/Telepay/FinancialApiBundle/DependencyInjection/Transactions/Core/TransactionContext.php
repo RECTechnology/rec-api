@@ -22,7 +22,7 @@ class TransactionContext implements TransactionContextInterface {
             $transaction = $this->getODM()->getRepository('TelepayFinancialApiBundle:Transaction')->find($transaction_id);
             $this->user = $this->getORM()->getRepository('TelepayFinancialApiBundle:User')->find($transaction->getUser());
         }else{
-            $this->user = $this->container->get('security.context')->getToken()->getUser();
+            $this->user = $this->container->get('security.token_storage')->getToken()->getUser();
         }
     }
 

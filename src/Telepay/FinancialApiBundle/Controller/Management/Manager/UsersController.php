@@ -8,6 +8,7 @@ use Doctrine\ORM\Query\Expr\Join;
 use Doctrine\ORM\QueryBuilder;
 use Exception;
 use Symfony\Component\HttpKernel\Exception\HttpException;
+use Symfony\Component\Security\Core\Authorization\AuthorizationCheckerInterface;
 use Symfony\Component\Security\Core\SecurityContext;
 use Telepay\FinancialApiBundle\Controller\BaseApiController;
 use Telepay\FinancialApiBundle\Document\Transaction;
@@ -42,14 +43,15 @@ class UsersController extends BaseApiController
         $usersRepo = $em->getRepository("TelepayFinancialApiBundle:User");
         $tokensRepo = $em->getRepository("TelepayFinancialApiBundle:AccessToken");
 
-        $securityContext = $this->get('security.context');
+        /** @var AuthorizationCheckerInterface $securityContext */
+        $securityContext = $this->get('security.authorization_checker');
         if(!$securityContext->isGranted('ROLE_SUPER_ADMIN'))
             throw new HttpException(403, 'You don\'t have the necessary permissions');
 
         $user = $usersRepo->findOneBy(array('id'=>$id));
 
         $token = $tokensRepo->findOneBy(
-            array('token'=>$this->get('security.context')->getToken()->getToken())
+            array('token'=>$this->get('security.token_storage')->getToken()->getToken())
         );
 
         $token->setUser($user);
@@ -57,7 +59,7 @@ class UsersController extends BaseApiController
 
         $em->persist($token);
         $token2 = $tokensRepo->findOneBy(
-            array('token'=>$this->get('security.context')->getToken()->getToken())
+            array('token'=>$this->get('security.token_storage')->getToken()->getToken())
         );
 
         return $this->rest(
@@ -77,8 +79,8 @@ class UsersController extends BaseApiController
      */
     public function indexV2Action(Request $request){
         //throw new HttpException(400,   $this->container->getParameter('base_url'));
-        /** @var SecurityContext $securityContext */
-        $securityContext = $this->get('security.context');
+        /** @var AuthorizationCheckerInterface $securityContext */
+        $securityContext = $this->get('security.authorization_checker');
 
         if(!$securityContext->isGranted('ROLE_SUPER_ADMIN'))
             throw new HttpException(403, 'You don\'t have the necessary permissions '. print_r($securityContext->getToken()->getUsername(), true));
@@ -175,9 +177,8 @@ class UsersController extends BaseApiController
      */
     public function indexAction(Request $request){
 
-        //TODO only superadmin can access here
-        /** @var SecurityContext $securityContext */
-        $securityContext = $this->get('security.context');
+        /** @var AuthorizationCheckerInterface $securityContext */
+        $securityContext = $this->get('security.authorization_checker');
 
         if(!$securityContext->isGranted('ROLE_SUPER_ADMIN'))
             throw new HttpException(403, 'You don\'t have the necessary permissions '. print_r($securityContext->getToken()->getUsername(), true));
@@ -268,10 +269,10 @@ class UsersController extends BaseApiController
      */
     public function indexByGroup(Request $request, $id){
         //Only the superadmin can access here
-        $admin = $this->get('security.context')->getToken()->getUser();
+        $admin = $this->get('security.token_storage')->getToken()->getUser();
         $adminGroup = $admin->getActiveGroup();
 
-        if(!$this->get('security.context')->isGranted('ROLE_SUPER_ADMIN') && $adminGroup->getId() != $id) {
+        if(!$this->get('security.authorization_checker')->isGranted('ROLE_SUPER_ADMIN') && $adminGroup->getId() != $id) {
             throw new HttpException(403, 'You don\'t have the necessary permissions');
         }
 
@@ -326,10 +327,10 @@ class UsersController extends BaseApiController
         //Only the superadmin can access here
 
         /** @var User $admin */
-        $admin = $this->get('security.context')->getToken()->getUser();
+        $admin = $this->get('security.token_storage')->getToken()->getUser();
         $adminGroup = $admin->getActiveGroup();
 
-        if(!$this->get('security.context')->isGranted('ROLE_SUPER_ADMIN') && $adminGroup->getId() != $id) {
+        if(!$this->get('security.authorization_checker')->isGranted('ROLE_SUPER_ADMIN') && $adminGroup->getId() != $id) {
             throw new HttpException(403, 'You don\'t have the necessary permissions');
         }
 
@@ -382,7 +383,7 @@ class UsersController extends BaseApiController
      * ROLE_READONLY: can't create users
      */
     public function createAction(Request $request){
-        $admin = $this->get('security.context')->getToken()->getUser();
+        $admin = $this->get('security.token_storage')->getToken()->getUser();
         $em = $this->getDoctrine()->getManager();
         $usersRepo = $em->getRepository("TelepayFinancialApiBundle:User");
         $groupsRepo = $em->getRepository("TelepayFinancialApiBundle:Group");
@@ -477,7 +478,7 @@ class UsersController extends BaseApiController
      */
     public function showAction($id){
         //check if the user is admin f this group or pertence to this group
-        $user = $this->get('security.context')->getToken()->getUser();
+        $user = $this->get('security.token_storage')->getToken()->getUser();
         $activeGroup = $user->getActiveGroup();
 
         if(!$this->get('security.authorization_checker')->isGranted('ROLE_SUPER_ADMIN') && $activeGroup->getId() != $id) throw new HttpException(403, 'You don\'t have the necessary permissions');
@@ -507,9 +508,9 @@ class UsersController extends BaseApiController
      * permissions: ROLE_SUPER_ADMIN
      */
     public function setImage(Request $request, $id){
-        $admin = $this->get('security.context')->getToken()->getUser();
+        $admin = $this->get('security.token_storage')->getToken()->getUser();
 
-        if(!$this->get('security.context')->isGranted('ROLE_SUPER_ADMIN')) throw new HttpException(403, 'You don\'t have the necessary permissions');
+        if(!$this->get('security.authorization_checker')->isGranted('ROLE_SUPER_ADMIN')) throw new HttpException(403, 'You don\'t have the necessary permissions');
         $activeGroup = $admin->getActiveGroup();
 
         if($id == "") throw new HttpException(400, "Missing parameter 'id'");
@@ -517,7 +518,7 @@ class UsersController extends BaseApiController
         if($id == 0){
             $username = $request->get('username');
             if($username==""){
-                $id = $this->get('security.context')->getToken()->getUser()->getId();
+                $id = $this->get('security.token_storage')->getToken()->getUser()->getId();
             }
             else {
                 $repo = $this->getRepository();

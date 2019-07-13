@@ -31,7 +31,8 @@ use ReflectionProperty;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpKernel\Exception\HttpException;
-use Symfony\Component\Security\Core\SecurityContextInterface;
+use Symfony\Component\Security\Core\Authentication\Token\Storage\TokenStorageInterface;
+use Symfony\Component\Security\Core\Authorization\AuthorizationCheckerInterface;
 use Symfony\Component\Validator\ConstraintViolation;
 use Telepay\FinancialApiBundle\Entity\Group;
 
@@ -82,20 +83,26 @@ abstract class BaseApiControllerV2 extends RestApiController implements Reposito
         if(!in_array($role, array_keys(self::ROLE_PATH_MAPPINGS)))
             throw new HttpException(404, "Path not found");
 
-        /** @var SecurityContextInterface $sec */
-        $sec = $this->get('security.context');
-        if($sec->getToken()) {
-            if (!$sec->isGranted(self::ROLE_PATH_MAPPINGS[$role]))
+        /** @var TokenStorageInterface $tokenStorage */
+        $tokenStorage = $this->get('security.token_storage');
+
+        /** @var AuthorizationCheckerInterface $auth */
+        $auth = $this->get('security.authorization_checker');
+
+
+
+        if($tokenStorage->getToken()) {
+            if (!$auth->isGranted(self::ROLE_PATH_MAPPINGS[$role]))
                 throw new HttpException(403, "Insufficient permissions for $role");
         }
         $grants = $this->getCRUDGrants();
         if(isset($grants[$method])) {
-            if(!$sec->getToken() and $grants[$method] === self::ROLE_PUBLIC)
+            if(!$tokenStorage->getToken() and $grants[$method] === self::ROLE_PUBLIC)
                 return;
-            if (!$sec->isGranted($grants[$method]))
+            if (!$auth->isGranted($grants[$method]))
                 throw new HttpException(403, "Insufficient permissions to $method this resource");
         }
-        elseif(!$sec->getToken())
+        elseif(!$tokenStorage->getToken())
             throw new HttpException(401, "You are not authenticated");
         else
             throw new HttpException(403, "Insufficient permissions to $method this resource");
@@ -108,20 +115,23 @@ abstract class BaseApiControllerV2 extends RestApiController implements Reposito
     private function getSerializationContext() {
         $ctx = new SerializationContext();
 
-        /** @var SecurityContextInterface $sec */
-        $sec = $this->get('security.context');
+        /** @var TokenStorageInterface $tokenStorage */
+        $tokenStorage = $this->get('security.token_storage');
 
-        if(!$sec->getToken())
+        /** @var AuthorizationCheckerInterface $auth */
+        $auth = $this->get('security.authorization_checker');
+
+        if(!$tokenStorage->getToken())
             $ctx->setGroups(Group::SERIALIZATION_GROUPS_PUBLIC);
-        elseif ($sec->isGranted('ROLE_USER'))
+        elseif ($auth->isGranted('ROLE_USER'))
             $ctx->setGroups(Group::SERIALIZATION_GROUPS_USER);
-        elseif ($sec->isGranted('ROLE_MANAGER'))
+        elseif ($auth->isGranted('ROLE_MANAGER'))
             $ctx->setGroups(Group::SERIALIZATION_GROUPS_MANAGER);
-        elseif($sec->isGranted('ROLE_SELF'))
+        elseif($auth->isGranted('ROLE_SELF'))
             $ctx->setGroups(Group::SERIALIZATION_GROUPS_SELF);
-        elseif($sec->isGranted('ROLE_ADMIN'))
+        elseif($auth->isGranted('ROLE_ADMIN'))
             $ctx->setGroups(Group::SERIALIZATION_GROUPS_ADMIN);
-        elseif($sec->isGranted('ROLE_SUPER_ADMIN'))
+        elseif($auth->isGranted('ROLE_SUPER_ADMIN'))
             $ctx->setGroups(Group::SERIALIZATION_GROUPS_SUPER_ADMIN);
         else
             $ctx->setGroups(Group::SERIALIZATION_GROUPS_PUBLIC);
