@@ -36,7 +36,7 @@ class StatusCodesTest extends WebTestCase {
             $parts = explode("/", $route->getPath());
             if($parts[1] === "public" and ! preg_match("/{[a-z0-9_]+}/", $route->getPath()))
                 foreach($route->getMethods() as $method){
-                    self::assertEquals("GET", $method);
+                    self::assertEquals("GET", $method, "Route {$route->getPath()} is $method");
                     $client->request($method, $route->getPath());
                     $response = $client->getResponse();
                     self::assertEquals(
@@ -62,7 +62,7 @@ class StatusCodesTest extends WebTestCase {
                     self::assertEquals(
                         401,
                         $response->getStatusCode(),
-                        "Problem with  --> {$method} {$route->getPath()} <--"
+                        "Problem with --> {$method} {$route->getPath()} <--"
                     );
                 }
         }

@@ -15,30 +15,22 @@
         "ext-curl": "*",
         "ext-json": "*",
         "symfony/symfony": "2.8.*",
-        "doctrine/orm": "~2.2,>=2.2.3",
-        "doctrine/doctrine-bundle": "~1.2",
+        "doctrine/orm": "~2.0,>=2.2.3",
+        "doctrine/doctrine-bundle": "~1.0",
         "symfony/swiftmailer-bundle": "~2.3",
         "symfony/monolog-bundle": "~2.4",
         "sensio/distribution-bundle": "~3.0",
         "sensio/framework-extra-bundle": "~3.0",
         "incenteev/composer-parameter-handler": "~2.0",
-        "friendsofsymfony/user-bundle": "~2.0@dev",
-        "friendsofsymfony/rest-bundle": "1.3.1",
+        "friendsofsymfony/user-bundle": "~2.0",
+        "friendsofsymfony/rest-bundle": "~1.0,>=1.3.1",
         "jms/serializer-bundle": "^2.0",
         "friendsofsymfony/oauth-server-bundle": "^1.0",
         "doctrine/mongodb-odm": "~1.0",
         "doctrine/mongodb-odm-bundle": "~3.0",
         "nelmio/cors-bundle": "~1.0",
-        "payward/kraken-api-client": "dev-master",
-        "rickmoreno/getfaircoin-api": "dev-master",
         "telepay/php-sdk": "dev-master",
         "ramsey/uuid": "~2.8",
-        "blockchain/blockchain": "dev-master",
-        "textalk/websocket": "1.0.*",
-        "fergusean/nusoap": "^0.9.5",
-        "slik/dompdf-bundle" : "dev-master",
-        "twilio/sdk": "4.11.0",
-        "knplabs/knp-snappy-bundle": "~1.4",
         "chip-chap/php-curl-lowlevel-api": "dev-master",
         "alcaeus/mongo-php-adapter": "~1.1",
         "stephenhill/base58": "^1.1",
@@ -76,11 +68,13 @@
     "extra": {
         "symfony-app-dir": "app",
         "symfony-web-dir": "web",
+        "symfony-var-dir": "var",
+        "symfony-bin-dir": "app",
         "incenteev-parameters": {
             "file": "app/config/parameters.yml"
         },
         "branch-alias": {
-            "dev-master": "2.6-dev"
+            "dev-master": "2.8-dev"
         }
     }
 }

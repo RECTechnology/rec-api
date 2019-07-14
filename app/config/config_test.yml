@@ -17,7 +17,6 @@ swiftmailer:
 
 doctrine:
     dbal:
-        host:     localhost
-        dbname:   api_arbaf_test
-        user:     arbaf
-        password: arbaf
+        driver: pdo_sqlite
+        path: '%kernel.root_dir%/var/test.db'
+        charset: UTF8
