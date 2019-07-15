@@ -1,4 +1,7 @@
 /web/bundles/
+/web/static
+!/web/static/.gitkeep
+
 /app/bootstrap.php.cache
 /app/cache/*
 /app/config/parameters.yml
@@ -8,6 +11,14 @@
 !app/cache/.gitkeep
 !app/logs/.gitkeep
 /app/phpunit.xml
+
+/var/bootstrap.php.cache
+/var/logs/*
+/var/cache/*
+!var/cache/.gitkeep
+!var/logs/.gitkeep
+/var/phpunit.xml
+
 /build/
 /vendor/
 /bin/
@@ -17,6 +28,5 @@
 .gitignore
 */kyc_files/
 */kyc_files
-/web/static
-!/web/static/.gitkeep
+
 **.swp

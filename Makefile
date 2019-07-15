@@ -6,6 +6,7 @@ DOCKERFILE_DIR := .
 
 all: login build push deploy
 dev: run
+shell: exec
 
 login:
 	docker login -u $(DOCKER_USERNAME) -p $(DOCKER_PASSWORD) $(DOCKER_REGISTRY)

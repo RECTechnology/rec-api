@@ -10,7 +10,7 @@ class BaseApiTest extends WebTestCase {
     /**
      * @return \Symfony\Bundle\FrameworkBundle\Client
      */
-    protected function createApiClient(){
+    protected function getPublicClient(){
         $client = static::createClient();
         $client->setServerParameters(
             [
@@ -24,4 +24,27 @@ class BaseApiTest extends WebTestCase {
     public function testDummy(){
         static::assertTrue(true);
     }
+
+    protected function getUserClient(){
+
+    }
+
+    protected function getManagerClient(){
+
+    }
+
+    protected function getAdminClient(){
+
+    }
+
+    protected function initializeDB(){
+        //TODO: initialize fresh db for test
+        // * Drop database
+        // * Create database
+        // * Create user admin, user, manager and its accounts
+    }
+
+    protected function setUp(){
+    }
+
 }
