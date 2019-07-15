@@ -6,6 +6,7 @@ use FOS\OAuthServerBundle\Controller\TokenController;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpKernel\Exception\HttpException;
+use Telepay\FinancialApiBundle\Entity\User;
 
 
 class Login2faController extends RestApiController{
@@ -38,7 +39,9 @@ class Login2faController extends RestApiController{
 
         if(!isset($token->error)){
             $em = $this->getDoctrine()->getManager();
-            $user = $em->getRepository('TelepayFinancialApiBundle:User')->findBy(array('username' => $username));
+            /** @var User $user */
+            $user = $em->getRepository('TelepayFinancialApiBundle:User')
+                ->findOneBy(['username' => $username]);
 
             $admin_client = $this->container->getParameter('admin_client_id');
             $client_info = explode("_", $request->get('client_id'));
@@ -59,7 +62,7 @@ class Login2faController extends RestApiController{
                 return new Response(json_encode($token), 400, $headers);
             }
 
-            if((count($user[0]->getKycValidations())==0) || (!$user[0]->getKycValidations()->getPhoneValidated())){
+            if((count($user->getKycValidations())==0) || (!$user->getKycValidations()->getPhoneValidated())){
                 $token = array(
                     "error" => "not_validated_phone",
                     "error_description" => "User without phone validated"
@@ -67,7 +70,7 @@ class Login2faController extends RestApiController{
                 return new Response(json_encode($token), 400, $headers);
             }
 
-            if($user[0]->isEnabled()==false || $user[0]->isLocked()){
+            if(!$user->isEnabled() or !$user->isAccountNonLocked()){
                 $token = array(
                     "error" => "not_enabled",
                     "error_description" => "User not enabled to log in"
@@ -76,7 +79,7 @@ class Login2faController extends RestApiController{
             }
 
             if($admin_client == $client->getId()){
-                if(!$user[0]->hasRole('ROLE_SUPER_ADMIN')) {
+                if(!$user->hasRole('ROLE_SUPER_ADMIN')) {
                     $token = array(
                         "error" => "not_permisssions",
                         "error_description" => "You do not have the necessary permissions"
@@ -84,9 +87,9 @@ class Login2faController extends RestApiController{
                     return new Response(json_encode($token), 400, $headers);
                 }
 
-                if($user[0]->getTwoFactorAuthentication() == 1) {
+                if($user->getTwoFactorAuthentication() == 1) {
                     $Google2FA = new Google2FA();
-                    $twoFactorCode = $user[0]->getTwoFactorCode();
+                    $twoFactorCode = $user->getTwoFactorCode();
                     if (!$Google2FA->verify_key($twoFactorCode, $pin)) {
                         $token = array(
                             "error" => "invalid_2fa",
@@ -104,7 +107,7 @@ class Login2faController extends RestApiController{
                 }
             }
 
-            $groups = $em->getRepository('TelepayFinancialApiBundle:UserGroup')->findBy(array('user' => $user[0]->getId()));
+            $groups = $em->getRepository('TelepayFinancialApiBundle:UserGroup')->findBy(array('user' => $user->getId()));
             if($kyc == 0 && count($groups)<1){
                 $token = array(
                     "error" => "no_company",
@@ -139,9 +142,10 @@ class Login2faController extends RestApiController{
         $token = json_decode($tokenController->tokenAction($request)->getContent());
         if(!isset($token->error)){
             $em = $this->getDoctrine()->getManager();
-            $user = $em->getRepository('TelepayFinancialApiBundle:User')->findBy(array('username' => $username));
+            $user = $em->getRepository('TelepayFinancialApiBundle:User')
+                ->findOneBy(['username' => $username]);
 
-            if((count($user[0]->getKycValidations())==0) || (!$user[0]->getKycValidations()->getEmailValidated())){
+            if((count($user->getKycValidations())==0) || (!$user->getKycValidations()->getEmailValidated())){
                 $token = array(
                     "error" => "not_validated_email",
                     "error_description" => "User without email validated"
@@ -149,7 +153,7 @@ class Login2faController extends RestApiController{
                 return new Response(json_encode($token), 400, $headers);
             }
 
-            if($user[0]->isEnabled()==false){
+            if($user->isEnabled()==false){
                 $token = array(
                     "error" => "not_enabled",
                     "error_description" => "User not enabled to log in"
@@ -162,8 +166,8 @@ class Login2faController extends RestApiController{
         }
         $data = array(
             'username' => $username,
-            'access_secret' => substr($user[0]->getAccessSecret(), 0, 10),
-            'access_key' => substr($user[0]->getId() .  "A" . rand(10,1000) . "C"  . rand(10,1000) . "E" . rand(10,1000), 0, 10)
+            'access_secret' => substr($user->getAccessSecret(), 0, 10),
+            'access_key' => substr($user->getId() .  "A" . rand(10,1000) . "C"  . rand(10,1000) . "E" . rand(10,1000), 0, 10)
         );
         return new Response(json_encode($data), 200, $headers);
     }
