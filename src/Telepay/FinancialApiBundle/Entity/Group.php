@@ -380,6 +380,11 @@ class Group extends BaseGroup implements EntityWithUploadableFields {
      */
     private $company_token;
 
+    /**
+     * @ORM\Column(type="boolean")
+     * @Groups({"admin"})
+     */
+    private $on_map;
 
     /**
      * @return string
@@ -1252,21 +1257,19 @@ class Group extends BaseGroup implements EntityWithUploadableFields {
     {
         $this->offers = $offers;
     }
-    /**
-     * @ORM\Column(type="boolean")
-     */
-    private $on_map;
+
     /**
      * @param mixed $on_map
      */
-    public function setOn_map($on_map)
+    public function setOnMap($on_map)
     {
         $this->on_map = $on_map;
     }
+
     /**
      * @return mixed
      */
-    public function getOn_map()
+    public function getOnMap()
     {
         return $this->on_map;
     }
