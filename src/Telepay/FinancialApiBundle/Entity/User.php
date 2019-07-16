@@ -37,6 +37,7 @@ use Telepay\FinancialApiBundle\DependencyInjection\Telepay\Commons\UploadManager
  */
 class User extends BaseUser implements EntityWithUploadableFields
 {
+
     public function __construct()
     {
         parent::__construct();
@@ -172,6 +173,12 @@ class User extends BaseUser implements EntityWithUploadableFields
      * @Expose
      */
     private $locked = 0;
+
+    /**
+     * @ORM\Column(type="boolean", nullable=true)
+     * @Expose
+     */
+    private $expired = 0;
 
     /**
      * @Expose
@@ -684,5 +691,13 @@ class User extends BaseUser implements EntityWithUploadableFields
     public function isAccountNonLocked()
     {
         return ! $this->locked;
+    }
+
+    /**
+     * @return bool
+     */
+    public function isAccountNonExpired()
+    {
+        return ! $this->expired;
     }
 }
