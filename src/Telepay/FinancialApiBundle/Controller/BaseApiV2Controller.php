@@ -37,7 +37,7 @@ use Symfony\Component\Security\Core\Authorization\AuthorizationCheckerInterface;
 use Symfony\Component\Validator\ConstraintViolation;
 use Telepay\FinancialApiBundle\Entity\Group;
 
-abstract class BaseApiControllerV2 extends RestApiController implements RepositoryController {
+abstract class BaseApiV2Controller extends RestApiController implements RepositoryController {
 
     const HTTP_STATUS_CODE_OK = 200;
     const HTTP_STATUS_CODE_CREATED = 201;
@@ -93,8 +93,6 @@ abstract class BaseApiControllerV2 extends RestApiController implements Reposito
         /** @var AuthorizationCheckerInterface $auth */
         $auth = $this->get('security.authorization_checker');
 
-
-
         if($tokenStorage->getToken()) {
             if (!$auth->isGranted(self::ROLE_PATH_MAPPINGS[$role]))
                 throw new HttpException(403, "Insufficient permissions for $role");
@@ -125,23 +123,27 @@ abstract class BaseApiControllerV2 extends RestApiController implements Reposito
         /** @var AuthorizationCheckerInterface $auth */
         $auth = $this->get('security.authorization_checker');
 
+        $grantsMap = [
+            'IS_AUTHENTICATED_ANONYMOUSLY' => Group::SERIALIZATION_GROUPS_PUBLIC,
+            'ROLE_USER' => Group::SERIALIZATION_GROUPS_USER,
+            'ROLE_MANAGER' => Group::SERIALIZATION_GROUPS_MANAGER,
+            'ROLE_SELF' => Group::SERIALIZATION_GROUPS_SELF,
+            'ROLE_ADMIN' => Group::SERIALIZATION_GROUPS_ADMIN,
+            'ROLE_SUPER_ADMIN' => Group::SERIALIZATION_GROUPS_SUPER_ADMIN,
+        ];
+
         if(!$tokenStorage->getToken())
             $ctx->setGroups(Group::SERIALIZATION_GROUPS_PUBLIC);
-        elseif ($auth->isGranted('IS_AUTHENTICATED_ANONYMOUSLY'))
-            $ctx->setGroups(Group::SERIALIZATION_GROUPS_PUBLIC);
-        elseif ($auth->isGranted('ROLE_USER'))
-            $ctx->setGroups(Group::SERIALIZATION_GROUPS_USER);
-        elseif ($auth->isGranted('ROLE_MANAGER'))
-            $ctx->setGroups(Group::SERIALIZATION_GROUPS_MANAGER);
-        elseif($auth->isGranted('ROLE_SELF'))
-            $ctx->setGroups(Group::SERIALIZATION_GROUPS_SELF);
-        elseif($auth->isGranted('ROLE_ADMIN'))
-            $ctx->setGroups(Group::SERIALIZATION_GROUPS_ADMIN);
-        elseif($auth->isGranted('ROLE_SUPER_ADMIN'))
-            $ctx->setGroups(Group::SERIALIZATION_GROUPS_SUPER_ADMIN);
-        else
-            $ctx->setGroups(Group::SERIALIZATION_GROUPS_PUBLIC);
+        else {
+            foreach($grantsMap as $grant => $serializationGroup){
+                if($auth->isGranted($grant)) {
+                    $ctx->setGroups($serializationGroup);
+                    return $ctx;
+                }
+            }
+        }
 
+        $ctx->setGroups(Group::SERIALIZATION_GROUPS_PUBLIC);
         return $ctx;
     }
 
@@ -489,7 +491,19 @@ abstract class BaseApiControllerV2 extends RestApiController implements Reposito
      * @return mixed
      */
     protected function searchAction(Request $request, $role) {
-        return $this->search($request);
+        $this->checkPermissions($role, self::CRUD_METHOD_SEARCH);
+        list($total, $result) = $this->search($request);
+        $elems = $this->securizeOutput($result);
+
+        return $this->restV2(
+            self::HTTP_STATUS_CODE_OK,
+            "ok",
+            "Request successful",
+            array(
+                'total' => $total,
+                'elements' => $elems
+            )
+        );
     }
 
 

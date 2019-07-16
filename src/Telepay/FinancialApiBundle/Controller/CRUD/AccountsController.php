@@ -2,18 +2,12 @@
 
 namespace Telepay\FinancialApiBundle\Controller\CRUD;
 
-use Doctrine\Common\Annotations\AnnotationException;
 use Doctrine\ORM\EntityManagerInterface;
 use Doctrine\ORM\NonUniqueResultException;
 use Doctrine\ORM\NoResultException;
 use Doctrine\ORM\QueryBuilder;
-use JMS\Serializer\Serializer;
-use ReflectionException;
-use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpKernel\Exception\HttpException;
-use Telepay\FinancialApiBundle\Controller\BaseApiControllerV2;
 use Telepay\FinancialApiBundle\Entity\Group;
-use FOS\RestBundle\Controller\Annotations as Rest;
 use Symfony\Component\HttpFoundation\Request;
 use Telepay\FinancialApiBundle\Entity\Offer;
 
@@ -21,18 +15,7 @@ use Telepay\FinancialApiBundle\Entity\Offer;
  * Class AccountsController
  * @package Telepay\FinancialApiBundle\Controller\CRUD
  */
-class AccountsController extends BaseApiControllerV2 {
-
-
-    function getRepositoryName()
-    {
-        return "TelepayFinancialApiBundle:Group";
-    }
-
-    function getNewEntity()
-    {
-        return new Group();
-    }
+class AccountsController extends CRUDController {
 
     /**
      * @return array
@@ -40,22 +23,13 @@ class AccountsController extends BaseApiControllerV2 {
     function getCRUDGrants()
     {
         return [
-            self::CRUD_METHOD_SEARCH => self::ROLE_PUBLIC,
-            self::CRUD_METHOD_INDEX => self::ROLE_USER,
-            self::CRUD_METHOD_SHOW => self::ROLE_USER,
-            self::CRUD_METHOD_UPDATE => self::ROLE_SUPER_ADMIN,
-            self::CRUD_METHOD_DELETE => self::ROLE_SUPER_ADMIN,
+            self::CRUD_METHOD_SEARCH => self::ROLE_PUBLIC
         ];
     }
 
-
-
-
-
     /**
      * @param Request $request
-     * @param $role
-     * @return Response
+     * @return array
      * @throws NoResultException
      * @throws NonUniqueResultException
      */
@@ -149,7 +123,7 @@ class AccountsController extends BaseApiControllerV2 {
             ->getQuery()
             ->getResult();
 
-        return [$total, $elements];
+        return [intval($total), $elements];
     }
 
 }
