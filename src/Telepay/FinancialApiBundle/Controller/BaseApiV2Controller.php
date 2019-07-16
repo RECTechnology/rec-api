@@ -138,12 +138,14 @@ abstract class BaseApiV2Controller extends RestApiController implements Reposito
             foreach($grantsMap as $grant => $serializationGroup){
                 if($auth->isGranted($grant)) {
                     $ctx->setGroups($serializationGroup);
+        die(print_r($ctx, true));
                     return $ctx;
                 }
             }
         }
 
         $ctx->setGroups(Group::SERIALIZATION_GROUPS_PUBLIC);
+        die(print_r($ctx, true));
         return $ctx;
     }
 

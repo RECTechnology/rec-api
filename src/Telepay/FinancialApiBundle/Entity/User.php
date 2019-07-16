@@ -52,6 +52,7 @@ class User extends BaseUser implements EntityWithUploadableFields
         $this->created = new \DateTime();
         $this->bank_cards = new ArrayCollection();
     }
+
     /**
      * @ORM\Id
      * @ORM\Column(type="integer")
@@ -165,6 +166,12 @@ class User extends BaseUser implements EntityWithUploadableFields
      * @Expose
      */
     private $twoFactorCode;
+
+    /**
+     * @ORM\Column(type="boolean", nullable=true)
+     * @Expose
+     */
+    private $locked = 0;
 
     /**
      * @Expose
@@ -669,5 +676,13 @@ class User extends BaseUser implements EntityWithUploadableFields
     public function getBankCards()
     {
         return $this->bank_cards;
+    }
+
+    /**
+     * @return bool
+     */
+    public function isAccountNonLocked()
+    {
+        return ! $this->locked;
     }
 }
