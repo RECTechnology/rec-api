@@ -64,10 +64,13 @@ abstract class BaseApiControllerV2 extends RestApiController implements Reposito
         'sadmin' => self::ROLE_SUPER_ADMIN,
     ];
 
+    /**
+     * @return ObjectRepository
+     */
     protected function getRepository(){
-        return $this->getDoctrine()
-            ->getManager()
-            ->getRepository($this->getRepositoryName());
+        /** @var EntityManagerInterface $em */
+        $em = $this->container->get('doctrine.orm.entity_manager');
+        return $em->getRepository($this->getRepositoryName());
     }
 
     /**

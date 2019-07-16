@@ -39,6 +39,14 @@ abstract class BaseApiController extends RestApiController implements Repository
     const HTTP_STATUS_CODE_OK = 200;
     const HTTP_STATUS_CODE_CREATED = 201;
 
+    /**
+     * @return ObjectRepository
+     */
+    protected function getRepository(){
+        /** @var EntityManagerInterface $em */
+        $em = $this->container->get('doctrine.orm.entity_manager');
+        return $em->getRepository($this->getRepositoryName());
+    }
 
     /**
      * @param $key
