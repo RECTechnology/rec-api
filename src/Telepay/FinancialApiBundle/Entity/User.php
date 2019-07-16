@@ -221,7 +221,6 @@ class User extends BaseUser implements EntityWithUploadableFields
 
     /**
      * @ORM\OneToMany(targetEntity="Telepay\FinancialApiBundle\Entity\CreditCard", mappedBy="user", cascade={"remove"})
-     * @Expose
      * @Groups({"self"})
      */
     private $bank_cards;
@@ -259,12 +258,24 @@ class User extends BaseUser implements EntityWithUploadableFields
      * @VirtualProperty()
      * @SerializedName("has_saved_cards")
      * @Type("boolean")
+     * @Groups({"self"})
      */
     public function hasSavedCards(){
+        return (bool) $this->getActiveCard();
+    }
+
+
+    /**
+     * @VirtualProperty()
+     * @SerializedName("active_card")
+     * @Type("Telepay\FinancialApiBundle\Entity\CreditCard")
+     * @Groups({"self"})
+     */
+    public function getActiveCard(){
 
         /** @var CreditCard $card */
         foreach ($this->getBankCards() as $card) {
-            if(!$card->isDeleted()) return true;
+            if(!$card->isDeleted()) return $card;
         }
 
         return false;
