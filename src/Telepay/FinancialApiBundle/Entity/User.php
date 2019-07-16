@@ -43,7 +43,6 @@ class User extends BaseUser implements EntityWithUploadableFields
     {
         parent::__construct();
         $this->groups = new ArrayCollection();
-        $this->devices = new ArrayCollection();
         $this->treasure_validations = new ArrayCollection();
 
         if($this->access_key == null){
@@ -120,7 +119,7 @@ class User extends BaseUser implements EntityWithUploadableFields
     /**
      * @ORM\OneToMany(targetEntity="Telepay\FinancialApiBundle\Entity\TreasureWithdrawalValidation", mappedBy="validator", cascade={"remove"})
      * @Expose
-     * @Groups({"super_admin"})
+     * @Groups({"admin"})
      */
     private $treasure_validations;
 
@@ -222,6 +221,7 @@ class User extends BaseUser implements EntityWithUploadableFields
 
     /**
      * @ORM\OneToMany(targetEntity="Telepay\FinancialApiBundle\Entity\CreditCard", mappedBy="user", cascade={"remove"})
+     * @Expose
      * @Groups({"self"})
      */
     private $bank_cards;

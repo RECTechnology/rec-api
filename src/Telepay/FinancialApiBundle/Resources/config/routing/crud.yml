@@ -14,7 +14,7 @@ crud_v3_search:
     methods: [GET]
     requirements:
         role: "[a-z]+"
-        object: "[a-z]+"
+        object: "[a-z_]+"
 
 crud_v3_index:
     path:  /{role}/v3/{object}
@@ -22,7 +22,7 @@ crud_v3_index:
     methods: [GET]
     requirements:
         role: "[a-z]+"
-        object: "[a-z]+"
+        object: "[a-z_]+"
 
 crud_v3_show:
     path:  /{role}/v3/{object}/{id}
@@ -30,7 +30,7 @@ crud_v3_show:
     methods: [GET]
     requirements:
         role: "[a-z]+"
-        object: "[a-z]+"
+        object: "[a-z_]+"
         id: "[0-9]+"
 
 crud_v3_update:
@@ -39,7 +39,7 @@ crud_v3_update:
     methods: [PUT]
     requirements:
         role: "[a-z]+"
-        object: "[a-z]+"
+        object: "[a-z_]+"
         id: "[0-9]+"
 
 crud_v3_delete:
@@ -48,5 +48,5 @@ crud_v3_delete:
     methods: [DELETE]
     requirements:
         role: "[a-z]+"
-        object: "[a-z]+"
+        object: "[a-z_]+"
         id: "[0-9]+"

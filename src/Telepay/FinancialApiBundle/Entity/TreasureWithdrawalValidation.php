@@ -3,9 +3,7 @@
 namespace Telepay\FinancialApiBundle\Entity;
 use Symfony\Component\HttpKernel\Exception\HttpException;
 
-use JMS\Serializer\Annotation\ExclusionPolicy;
-use JMS\Serializer\Annotation\Expose;
-use JMS\Serializer\Annotation\Exclude;
+use JMS\Serializer\Annotation\Groups;
 use Doctrine\ORM\Mapping as ORM;
 
 use Symfony\Bridge\Doctrine\Validator\Constraints\UniqueEntity;
@@ -14,25 +12,24 @@ use Telepay\FinancialApiBundle\Document\Transaction;
 
 /**
  * @ORM\Entity
- * @ExclusionPolicy("all")
  */
 class TreasureWithdrawalValidation extends AppObject {
 
     /**
-     * @ORM\ManyToOne(targetEntity="Telepay\FinancialApiBundle\Entity\User")
-     * @Expose
+     * @ORM\ManyToOne(targetEntity="Telepay\FinancialApiBundle\Entity\User", inversedBy="treasure_validations")
+     * @Groups({"admin"})
      */
     private $validator;
 
     /**
      * @ORM\ManyToOne(targetEntity="Telepay\FinancialApiBundle\Entity\TreasureWithdrawalAttempt", inversedBy="validations")
-     * @Expose
+     * @Groups({"admin"})
      */
     private $attempt;
 
     /**
      * @ORM\Column(type="boolean", nullable=true)
-     * @Expose
+     * @Groups({"admin"})
      */
     private $accepted;
 

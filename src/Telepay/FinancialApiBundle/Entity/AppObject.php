@@ -2,6 +2,7 @@
 
 namespace Telepay\FinancialApiBundle\Entity;
 use Doctrine\ORM\Mapping as ORM;
+use JMS\Serializer\Annotation\Groups;
 
 
 /**
@@ -18,16 +19,19 @@ class AppObject {
      * @ORM\Id
      * @ORM\Column(type="integer")
      * @ORM\GeneratedValue(strategy="AUTO")
+     * @Groups({"public"})
      */
     protected $id;
 
     /**
      * @ORM\Column(type="datetime")
+     * @Groups({"user"})
      */
     private $created;
 
     /**
      * @ORM\Column(type="datetime")
+     * @Groups({"user"})
      */
     private $updated;
 

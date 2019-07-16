@@ -147,10 +147,12 @@ abstract class BaseApiV2Controller extends RestApiController implements Reposito
     }
 
     protected function securizeOutput($result){
-        /** @var Serializer $serializer */
-        $serializer = $this->get('jms_serializer');
 
         $ctx = $this->getSerializationContext();
+
+
+        /** @var Serializer $serializer */
+        $serializer = $this->get('jms_serializer');
         return $serializer->toArray($result, $ctx);
     }
 
