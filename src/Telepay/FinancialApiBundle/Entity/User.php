@@ -16,6 +16,7 @@ use JMS\Serializer\Annotation\Exclude;
 use JMS\Serializer\Annotation\VirtualProperty;
 use JMS\Serializer\Annotation\Type;
 use JMS\Serializer\Annotation\SerializedName;
+use JMS\Serializer\Annotation\Groups;
 use Symfony\Component\Validator\Constraints\DateTime;
 use Telepay\FinancialApiBundle\DependencyInjection\Telepay\Commons\UploadManager;
 
@@ -58,37 +59,45 @@ class User extends BaseUser implements EntityWithUploadableFields
      * @ORM\Id
      * @ORM\Column(type="integer")
      * @ORM\GeneratedValue(strategy="AUTO")
+     * @Expose
+     * @Groups({"user"})
      */
     protected $id;
 
     /**
      * @ORM\OneToMany(targetEntity="Telepay\FinancialApiBundle\Entity\UserGroup", mappedBy="user", cascade={"remove"})
+     * @Groups({"self"})
      */
     protected $groups;
 
     /**
      * @ORM\ManyToOne(targetEntity="Telepay\FinancialApiBundle\Entity\Group")
+     * @Groups({"self"})
      */
     private $active_group = null;
 
     /**
      * @ORM\Column(type="string")
+     * @Groups({"super_admin"})
      */
     private $pin;
 
     /**
      * @ORM\Column(type="string")
+     * @Groups({"super_admin"})
      */
     private $security_question;
 
     /**
      * @ORM\Column(type="string")
+     * @Groups({"super_admin"})
      */
     private $security_answer;
 
     /**
      * @ORM\Column(type="string", unique=true)
      * @Expose
+     * @Groups({"public"})
      */
     private $dni;
 
@@ -111,93 +120,109 @@ class User extends BaseUser implements EntityWithUploadableFields
     /**
      * @ORM\OneToMany(targetEntity="Telepay\FinancialApiBundle\Entity\TreasureWithdrawalValidation", mappedBy="validator", cascade={"remove"})
      * @Expose
+     * @Groups({"super_admin"})
      */
     private $treasure_validations;
 
     /**
      * @ORM\Column(type="string")
      * @Expose
+     * @Groups({"self"})
      */
     private $access_key;
 
     /**
      * @ORM\Column(type="string")
      * @Expose
+     * @Groups({"self"})
      */
     private $access_secret;
 
     /**
      * @ORM\Column(type="string")
      * @Expose
+     * @Groups({"user"})
      */
     private $name;
 
     /**
      * @ORM\Column(type="string", unique=true)
      * @Expose
+     * @Groups({"self"})
      */
     private $phone;
 
     /**
      * @ORM\Column(type="boolean")
      * @Expose
+     * @Groups({"self"})
      */
     private $public_phone;
 
     /**
      * @ORM\Column(type="integer")
      * @Expose
+     * @Groups({"self"})
      */
     private $prefix;
 
     /**
      * @ORM\Column(type="text", nullable=true)
      * @Expose
+     * @Groups({"self"})
      */
     private $profile_image = '';
 
     /**
      * @ORM\Column(type="boolean")
      * @Expose
+     * @Groups({"self"})
      */
     private $twoFactorAuthentication = false;
 
     /**
      * @ORM\Column(type="string", nullable=true)
      * @Expose
+     * @Groups({"self"})
      */
     private $twoFactorCode;
 
     /**
      * @ORM\Column(type="boolean", nullable=true)
      * @Expose
+     * @Groups({"admin"})
      */
     private $locked = 0;
 
     /**
      * @ORM\Column(type="boolean", nullable=true)
      * @Expose
+     * @Groups({"admin"})
      */
     private $expired = 0;
 
     /**
      * @Expose
+     * @Groups({"self"})
      */
     private $group_data = array();
 
     /**
      * @ORM\OneToOne(targetEntity="Telepay\FinancialApiBundle\Entity\TierValidations", mappedBy="user", cascade={"remove"})
+     * @Groups({"self"})
      */
     private $tier_validations;
 
     /**
      * @ORM\OneToOne(targetEntity="Telepay\FinancialApiBundle\Entity\KYC", mappedBy="user", cascade={"remove"})
      * @Expose
+     * @Groups({"self"})
      */
     private $kyc_validations;
 
     /**
      * @ORM\OneToMany(targetEntity="Telepay\FinancialApiBundle\Entity\CreditCard", mappedBy="user", cascade={"remove"})
+     * @Groups({"self"})
      */
     private $bank_cards;
 
@@ -212,6 +237,7 @@ class User extends BaseUser implements EntityWithUploadableFields
     /**
      * @ORM\Column(type="datetime")
      * @Expose
+     * @Groups({"self"})
      */
     private $created;
 

@@ -23,10 +23,9 @@ class AccountsController extends CRUDController {
     function getCRUDGrants()
     {
         return [
-            self::CRUD_METHOD_SEARCH => self::ROLE_PUBLIC
+            self::CRUD_METHOD_SEARCH => self::ROLE_PUBLIC,
         ];
     }
-
     /**
      * @param Request $request
      * @return array

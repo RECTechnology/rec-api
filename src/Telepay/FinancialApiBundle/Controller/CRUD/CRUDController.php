@@ -12,6 +12,7 @@ use ReflectionException;
 use Symfony\Component\HttpFoundation\RequestStack;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpKernel\Exception\HttpException;
+use Symfony\Component\Serializer\NameConverter\CamelCaseToSnakeCaseNameConverter;
 use Telepay\FinancialApiBundle\Controller\BaseApiV2Controller;
 use Telepay\FinancialApiBundle\Entity\Group;
 use FOS\RestBundle\Controller\Annotations as Rest;
@@ -26,8 +27,7 @@ class CRUDController extends BaseApiV2Controller {
 
     const BASE_REPOSITORY_NAME = "TelepayFinancialApiBundle";
     const PATH_ENTITY_MAPPINGS = [
-        'accounts' => 'Group',
-        'users' => 'User',
+        'accounts' => 'Group'
     ];
 
     function getRepositoryName()
@@ -44,11 +44,9 @@ class CRUDController extends BaseApiV2Controller {
             return self::PATH_ENTITY_MAPPINGS[$lowercase_pluralized_name];
         }
         else {
-            return strtoupper(
-                    $lowercase_pluralized_name[0]) . substr($lowercase_pluralized_name,
-                    1,
-                    strlen($lowercase_pluralized_name) - 2
-                );
+            $nameConverter = new CamelCaseToSnakeCaseNameConverter(null, false);
+            $camelCasedName = $nameConverter->denormalize($lowercase_pluralized_name);
+            return substr($camelCasedName, 0, strlen($camelCasedName) - 1);
         }
 
     }
