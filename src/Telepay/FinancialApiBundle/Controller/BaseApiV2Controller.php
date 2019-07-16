@@ -26,6 +26,7 @@ use Doctrine\ORM\QueryBuilder;
 use Exception;
 use JMS\Serializer\SerializationContext;
 use JMS\Serializer\Serializer;
+use Psr\Log\LoggerInterface;
 use ReflectionClass;
 use ReflectionException;
 use ReflectionProperty;
@@ -115,7 +116,6 @@ abstract class BaseApiV2Controller extends RestApiController implements Reposito
      * @return SerializationContext
      */
     private function getSerializationContext() {
-        $ctx = new SerializationContext();
 
         /** @var TokenStorageInterface $tokenStorage */
         $tokenStorage = $this->get('security.token_storage');
@@ -132,7 +132,7 @@ abstract class BaseApiV2Controller extends RestApiController implements Reposito
             'IS_AUTHENTICATED_ANONYMOUSLY' => Group::SERIALIZATION_GROUPS_PUBLIC,
         ];
 
-        $ctx->setGroups(Group::SERIALIZATION_GROUPS_PUBLIC);
+        $ctx = new SerializationContext();
         if($tokenStorage->getToken()){
             foreach($grantsMap as $grant => $serializationGroup){
                 if($auth->isGranted($grant)) {
@@ -141,6 +141,8 @@ abstract class BaseApiV2Controller extends RestApiController implements Reposito
                 }
             }
         }
+
+        $ctx->setGroups(Group::SERIALIZATION_GROUPS_PUBLIC);
         return $ctx;
     }
 

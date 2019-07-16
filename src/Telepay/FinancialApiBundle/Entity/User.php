@@ -700,4 +700,5 @@ class User extends BaseUser implements EntityWithUploadableFields
     {
         return ! $this->expired;
     }
+
 }

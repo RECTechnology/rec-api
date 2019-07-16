@@ -8,7 +8,6 @@ accounts_v3_search:
 
 ##################### CRUD / V3 ############################
 
-
 crud_v3_search:
     path:  /{role}/v3/{object}/search
     defaults: { _controller: Telepay\FinancialApiBundle\Controller\CRUD\CRUDController::searchAction }
