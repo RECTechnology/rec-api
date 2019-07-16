@@ -124,28 +124,23 @@ abstract class BaseApiV2Controller extends RestApiController implements Reposito
         $auth = $this->get('security.authorization_checker');
 
         $grantsMap = [
-            'IS_AUTHENTICATED_ANONYMOUSLY' => Group::SERIALIZATION_GROUPS_PUBLIC,
-            'ROLE_USER' => Group::SERIALIZATION_GROUPS_USER,
-            'ROLE_MANAGER' => Group::SERIALIZATION_GROUPS_MANAGER,
-            'ROLE_SELF' => Group::SERIALIZATION_GROUPS_SELF,
-            'ROLE_ADMIN' => Group::SERIALIZATION_GROUPS_ADMIN,
             'ROLE_SUPER_ADMIN' => Group::SERIALIZATION_GROUPS_SUPER_ADMIN,
+            'ROLE_ADMIN' => Group::SERIALIZATION_GROUPS_ADMIN,
+            'ROLE_SELF' => Group::SERIALIZATION_GROUPS_SELF,
+            'ROLE_MANAGER' => Group::SERIALIZATION_GROUPS_MANAGER,
+            'ROLE_USER' => Group::SERIALIZATION_GROUPS_USER,
+            'IS_AUTHENTICATED_ANONYMOUSLY' => Group::SERIALIZATION_GROUPS_PUBLIC,
         ];
 
-        if(!$tokenStorage->getToken())
-            $ctx->setGroups(Group::SERIALIZATION_GROUPS_PUBLIC);
-        else {
+        $ctx->setGroups(Group::SERIALIZATION_GROUPS_PUBLIC);
+        if($tokenStorage->getToken()){
             foreach($grantsMap as $grant => $serializationGroup){
                 if($auth->isGranted($grant)) {
                     $ctx->setGroups($serializationGroup);
-        die(print_r($ctx, true));
                     return $ctx;
                 }
             }
         }
-
-        $ctx->setGroups(Group::SERIALIZATION_GROUPS_PUBLIC);
-        die(print_r($ctx, true));
         return $ctx;
     }
 

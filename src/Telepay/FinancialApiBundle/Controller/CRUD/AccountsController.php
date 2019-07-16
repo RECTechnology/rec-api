@@ -115,8 +115,7 @@ class AccountsController extends CRUDController {
             ->where($qb->expr()->eq('o3.company', 'a.id'));
 
         $elements = $qb
-            ->select('a as account')
-            ->addSelect('(' . $qbAux2->getDQL() . ') as offer_count')
+            ->select('a')
             ->setFirstResult($offset)
             ->setMaxResults($limit)
             ->orderBy($sort == 'offer_count'? $sort: 'a.' . $sort, $order)

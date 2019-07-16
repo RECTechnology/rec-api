@@ -395,7 +395,7 @@ class Group extends BaseGroup implements EntityWithUploadableFields {
     /**
      * @return string
      * @VirtualProperty("offer_count")
-     * @Type("string")
+     * @Type("integer")
      * @Groups({"public"})
      */
     public function getOfferCount()
