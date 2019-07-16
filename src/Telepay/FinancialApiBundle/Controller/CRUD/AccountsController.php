@@ -48,6 +48,10 @@ class AccountsController extends BaseApiControllerV2 {
         ];
     }
 
+
+
+
+
     /**
      * @param Request $request
      * @param $role
@@ -55,8 +59,7 @@ class AccountsController extends BaseApiControllerV2 {
      * @throws NoResultException
      * @throws NonUniqueResultException
      */
-    public function searchAction(Request $request, $role){
-        $this->checkPermissions($role, self::CRUD_METHOD_SEARCH);
+    public function search(Request $request){
         $limit = $request->query->getInt('limit', 10);
         $offset = $request->query->getInt('offset', 0);
         $query = json_decode($request->query->get('query', '{}'));
@@ -137,7 +140,7 @@ class AccountsController extends BaseApiControllerV2 {
             ->from(Offer::class, 'o3')
             ->where($qb->expr()->eq('o3.company', 'a.id'));
 
-        $result = $qb
+        $elements = $qb
             ->select('a as account')
             ->addSelect('(' . $qbAux2->getDQL() . ') as offer_count')
             ->setFirstResult($offset)
@@ -146,66 +149,7 @@ class AccountsController extends BaseApiControllerV2 {
             ->getQuery()
             ->getResult();
 
-        $elements = $this->securizeOutput($result);
-
-        $processed_elements = [];
-        foreach ($elements as $element){
-            $account = $element['account'];
-            $account['offer_count'] = intval($element['offer_count']);
-            $processed_elements []= $account;
-        }
-
-        return $this->restV2(
-            200,
-            "ok",
-            "Request successful",
-            ['total' => intval($total), 'elements' => $processed_elements]
-        );
-    }
-
-    /**
-     * @param Request $request
-     * @param $role
-     * @return Response
-     */
-    public function indexAction(Request $request, $role){
-        return parent::indexAction($request, $role);
-    }
-
-    /**
-     * @param $role
-     * @param $id
-     * @return Response
-     * @Rest\View
-     */
-    public function showAction($role, $id)
-    {
-        return parent::showAction($role, $id);
-    }
-
-    /**
-     * @param Request $request
-     * @param $role
-     * @param $id
-     * @return Response
-     * @throws AnnotationException
-     * @throws ReflectionException
-     * @Rest\View
-     */
-    public function updateAction(Request $request, $role, $id)
-    {
-        return parent::updateAction($request, $role, $id);
-    }
-
-    /**
-     * @param $role
-     * @param $id
-     * @return Response
-     * @Rest\View
-     */
-    public function deleteAction($role, $id)
-    {
-        return parent::deleteAction($role, $id);
+        return [$total, $elements];
     }
 
 }

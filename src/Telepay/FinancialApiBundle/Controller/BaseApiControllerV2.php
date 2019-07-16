@@ -13,6 +13,7 @@ use Doctrine\Common\Annotations\AnnotationReader;
 use Doctrine\Common\Collections\Criteria;
 use Doctrine\Common\Persistence\ObjectRepository;
 use Doctrine\DBAL\DBALException;
+use Doctrine\DBAL\Platforms\Keywords\OracleKeywords;
 use Doctrine\ORM\Query\QueryException;
 use Doctrine\ORM\EntityManagerInterface;
 use Doctrine\ORM\Mapping\ManyToMany;
@@ -126,6 +127,8 @@ abstract class BaseApiControllerV2 extends RestApiController implements Reposito
 
         if(!$tokenStorage->getToken())
             $ctx->setGroups(Group::SERIALIZATION_GROUPS_PUBLIC);
+        elseif ($auth->isGranted('IS_AUTHENTICATED_ANONYMOUSLY'))
+            $ctx->setGroups(Group::SERIALIZATION_GROUPS_PUBLIC);
         elseif ($auth->isGranted('ROLE_USER'))
             $ctx->setGroups(Group::SERIALIZATION_GROUPS_USER);
         elseif ($auth->isGranted('ROLE_MANAGER'))
@@ -190,6 +193,22 @@ abstract class BaseApiControllerV2 extends RestApiController implements Reposito
     protected function indexAction(Request $request, $role){
         $this->checkPermissions($role, self::CRUD_METHOD_INDEX);
 
+        list($total, $result) = $this->index($request);
+        $elems = $this->securizeOutput($result);
+
+        return $this->restV2(
+            self::HTTP_STATUS_CODE_OK,
+            "ok",
+            "Request successful",
+            array(
+                'total' => $total,
+                'elements' => $elems
+            )
+        );
+    }
+
+
+    public function index(Request $request){
         $limit = $request->query->get('limit', 10);
         if($limit < 0 or $limit > 100) throw new HttpException(400, "Invalid limit: must be between 1 and 100");
         $offset = $request->query->get('offset', 0);
@@ -231,25 +250,18 @@ abstract class BaseApiControllerV2 extends RestApiController implements Reposito
                 ->setFirstResult($offset)->setMaxResults($limit)
                 ->getQuery()->getResult();
 
-            $elems = $this->securizeOutput($result);
-
-            return $this->restV2(
-                200,
-                "ok",
-                "Request successful",
-                array(
-                    'total' => $total,
-                    'elements' => $elems
-                )
-            );
+            return [$total, $result];
 
         } catch (NoResultException $e) {
+            return [0, []];
         } catch (NonUniqueResultException $e) {
+            throw new HttpException(400, "Invalid params, please check query");
         } catch (QueryException $e) {
             throw new HttpException(400, "Invalid params, please check query");
         }
 
     }
+
 
     protected function findObject($id){
         $repo = $this->getRepository();
@@ -265,20 +277,33 @@ abstract class BaseApiControllerV2 extends RestApiController implements Reposito
      */
     protected function showAction($role, $id){
         $this->checkPermissions($role, self::CRUD_METHOD_SHOW);
-        if(empty($id)) throw new HttpException(400, "Missing parameter 'id'");
-        return $this->restV2(200,"ok", "Request successful", $this->findObject($id));
+        $entity = $this->show($id);
+        $output = $this->securizeOutput($entity);
+        return $this->restV2(self::HTTP_STATUS_CODE_OK,
+            "ok",
+            "Request successful",
+            $output
+        );
     }
 
+    /**
+     * @param $id
+     * @return object|null
+     */
+    public function show($id){
+        if(empty($id)) throw new HttpException(400, "Missing parameter 'id'");
+        return $this->findObject($id);
+
+    }
 
     /**
      * @param $entity
      * @param $params
-     * @param $httpCode
      * @return Response
      * @throws AnnotationException
      * @throws ReflectionException
      */
-    private function setAction($entity, $params, $httpCode){
+    private function setAction($entity, $params){
 
         $ar = new AnnotationReader();
         foreach ($params as $name => $value) {
@@ -331,7 +356,26 @@ abstract class BaseApiControllerV2 extends RestApiController implements Reposito
             throw new HttpException(500, "Unknown error occurred when save: " . $e->getMessage());
         }
 
-        return $this->restV2($httpCode,"ok", "Created successfully", $entity);
+        return $entity;
+    }
+
+    /**
+     * @param Request $request
+     * @param $role
+     * @return Response
+     * @throws AnnotationException
+     * @throws ReflectionException
+     */
+    protected function createAction(Request $request, $role){
+        $this->checkPermissions($role, self::CRUD_METHOD_CREATE);
+        $entity = $this->create($request);
+        $output = $this->securizeOutput($entity);
+        return $this->restV2(
+            static::HTTP_STATUS_CODE_CREATED,
+            "ok",
+            "Created successfully",
+            $output
+        );
     }
 
     /**
@@ -340,13 +384,13 @@ abstract class BaseApiControllerV2 extends RestApiController implements Reposito
      * @throws AnnotationException
      * @throws ReflectionException
      */
-    protected function createAction(Request $request, $role){
-        $this->checkPermissions($role, self::CRUD_METHOD_CREATE);
-
+    public function create(Request $request){
         $entity = $this->getNewEntity();
         $params = $request->request->all();
-        return $this->setAction($entity, $params, static::HTTP_STATUS_CODE_CREATED);
+        return $this->setAction($entity, $params);
     }
+
+
 
     /**
      * @param Request $request
@@ -358,7 +402,25 @@ abstract class BaseApiControllerV2 extends RestApiController implements Reposito
      */
     protected function updateAction(Request $request, $role, $id){
         $this->checkPermissions($role, self::CRUD_METHOD_UPDATE);
+        $entity = $this->update($request, $id);
+        $output = $this->securizeOutput($entity);
+        return $this->restV2(
+            static::HTTP_STATUS_CODE_OK,
+            "ok",
+            "Updated successfully",
+            $output
+        );
 
+    }
+
+    /**
+     * @param Request $request
+     * @param $id
+     * @return object|null
+     * @throws AnnotationException
+     * @throws ReflectionException
+     */
+    public function update(Request $request, $id){
         if(empty($id)) throw new HttpException(400, "Missing parameter 'id'");
 
         $params = $request->request->all();
@@ -368,7 +430,8 @@ abstract class BaseApiControllerV2 extends RestApiController implements Reposito
         $entity = $repo->findOneBy(['id' => $id]);
 
         if(empty($entity)) throw new HttpException(404, "Not found");
-        return $this->setAction($entity, $params, 200);
+
+        return $this->setAction($entity, $params);
     }
 
     /**
@@ -378,7 +441,14 @@ abstract class BaseApiControllerV2 extends RestApiController implements Reposito
      */
     protected function deleteAction($role, $id){
         $this->checkPermissions($role, self::CRUD_METHOD_DELETE);
+        return $this->delete($id);
+    }
 
+    /**
+     * @param $id
+     * @return Response
+     */
+    public function delete($id){
         if(empty($id)) throw new HttpException(400, "Missing parameter 'id'");
 
         $repo = $this->getRepository();
@@ -404,4 +474,23 @@ abstract class BaseApiControllerV2 extends RestApiController implements Reposito
     private function attributeToSetter($str) {
         return $this->toCamelCase("set_" . $str);
     }
+
+    /**
+     * @param Request $request
+     * @return mixed
+     */
+    public function search(Request $request) {
+        return $this->index($request);
+    }
+
+    /**
+     * @param Request $request
+     * @param $role
+     * @return mixed
+     */
+    protected function searchAction(Request $request, $role) {
+        return $this->search($request);
+    }
+
+
 }
