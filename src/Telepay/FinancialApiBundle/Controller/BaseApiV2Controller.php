@@ -254,35 +254,31 @@ abstract class BaseApiV2Controller extends RestApiController implements Reposito
         $searchFilter = $qb->expr()->orX();
         if($search !== "") {
             $ar = new AnnotationReader();
-            $rc = new ReflectionClass($this->getRepository()->getClassName());
-            foreach ($rc->getProperties() as $property) {
-                $annotations = $ar->getPropertyAnnotations($property);
-                # Check if any of the annotations is a doctrine Column
-                if(in_array(true, array_map(function($el){return $el instanceof Column;}, $annotations))){
-                    $searchFilter->add(
-                        $qb->expr()->like(
-                            'e.' . $property->getName(),
-                            $qb->expr()->literal('%' . $search . '%')
+            $iterClass = $this->getRepository()->getClassName();
+            $ancestorDepth = 0;
+            do {
+                $rc = new ReflectionClass($iterClass);
+                foreach ($rc->getProperties() as $property) {
+                    $annotations = $ar->getPropertyAnnotations($property);
+                    # Check if any of the annotations is a doctrine Column
+                    $isColumn = in_array(
+                        true,
+                        array_map(
+                            function($el){return $el instanceof Column;},
+                            $annotations
                         )
                     );
-                }
-            }
-            $classAnnotations = $ar->getClassAnnotations($rc);
-            foreach ($classAnnotations as $annotation){
-                if($annotation instanceof AttributeOverrides){
-                    foreach($annotation->value as $value){
-                        if($value instanceof AttributeOverride){
-                            if($value->column instanceof Column)
-                                $searchFilter->add(
-                                    $qb->expr()->like(
-                                        'e.' . $value->name,
-                                        $qb->expr()->literal('%' . $search . '%')
-                                    )
-                                );
-                        }
+                    if($ancestorDepth > 0 or $isColumn){
+                        $searchFilter->add(
+                            $qb->expr()->like(
+                                'e.' . $property->getName(),
+                                $qb->expr()->literal('%' . $search . '%')
+                            )
+                        );
                     }
                 }
-            }
+                $ancestorDepth += 1;
+            } while ($rc->getParentClass() && $iterClass = $rc->getParentClass()->getName());
         }
         # Adding always-true expression to avoid searchFilter to be empty
         if($kvFilter->count() <= 0) $searchFilter->add($trueExpr);
@@ -293,6 +289,7 @@ abstract class BaseApiV2Controller extends RestApiController implements Reposito
 
         $qb = $qb->from($className, 'e');
         $qb = $qb->where($where);
+        //die($qb->getDQL());
         try {
             $total = $qb
                 ->select('count(e.id)')
