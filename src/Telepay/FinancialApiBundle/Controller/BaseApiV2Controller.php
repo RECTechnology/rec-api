@@ -253,32 +253,15 @@ abstract class BaseApiV2Controller extends RestApiController implements Reposito
         # Search filter
         $searchFilter = $qb->expr()->orX();
         if($search !== "") {
-            $ar = new AnnotationReader();
-            $iterClass = $this->getRepository()->getClassName();
-            $ancestorDepth = 0;
-            do {
-                $rc = new ReflectionClass($iterClass);
-                foreach ($rc->getProperties() as $property) {
-                    $annotations = $ar->getPropertyAnnotations($property);
-                    # Check if any of the annotations is a doctrine Column
-                    $isColumn = in_array(
-                        true,
-                        array_map(
-                            function($el){return $el instanceof Column;},
-                            $annotations
-                        )
-                    );
-                    if($ancestorDepth > 0 or $isColumn){
-                        $searchFilter->add(
-                            $qb->expr()->like(
-                                'e.' . $property->getName(),
-                                $qb->expr()->literal('%' . $search . '%')
-                            )
-                        );
-                    }
-                }
-                $ancestorDepth += 1;
-            } while ($rc->getParentClass() && $iterClass = $rc->getParentClass()->getName());
+            $properties = $em->getClassMetadata($this->getRepository()->getClassName())->getColumnNames();
+            foreach ($properties as $property) {
+                $searchFilter->add(
+                    $qb->expr()->like(
+                        'e.' . $property,
+                        $qb->expr()->literal('%' . $search . '%')
+                    )
+                );
+            }
         }
         # Adding always-true expression to avoid searchFilter to be empty
         if($kvFilter->count() <= 0) $searchFilter->add($trueExpr);
