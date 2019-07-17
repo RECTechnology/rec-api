@@ -63,7 +63,7 @@ class CRUDController extends BaseApiV2Controller {
     {
         return [
             self::CRUD_METHOD_SEARCH => self::ROLE_PUBLIC,
-            self::CRUD_METHOD_EXPORT => self::ROLE_USER,
+            self::CRUD_METHOD_EXPORT => self::ROLE_SUPER_ADMIN,
             self::CRUD_METHOD_INDEX => self::ROLE_USER,
             self::CRUD_METHOD_SHOW => self::ROLE_USER,
             self::CRUD_METHOD_CREATE => self::ROLE_SUPER_ADMIN,
@@ -75,6 +75,11 @@ class CRUDController extends BaseApiV2Controller {
     public function searchAction(Request $request, $role)
     {
         return parent::searchAction($request, $role);
+    }
+
+    public function exportAction(Request $request, $role)
+    {
+        return parent::exportAction($request, $role);
     }
 
     public function indexAction(Request $request, $role)

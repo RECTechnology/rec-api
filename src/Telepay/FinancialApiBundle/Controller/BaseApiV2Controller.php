@@ -26,6 +26,8 @@ use Doctrine\ORM\QueryBuilder;
 use Exception;
 use JMS\Serializer\SerializationContext;
 use JMS\Serializer\Serializer;
+use JsonPath\InvalidJsonException;
+use JsonPath\JsonObject;
 use Psr\Log\LoggerInterface;
 use ReflectionClass;
 use ReflectionException;
@@ -216,12 +218,10 @@ abstract class BaseApiV2Controller extends RestApiController implements Reposito
      * @param Request $request
      * @return array
      */
-    public function index(Request $request){
+    public function indexUnlimited(Request $request) {
         $limit = $request->query->get('limit', 10);
-        if($limit < 0 or $limit > 100) throw new HttpException(400, "Invalid limit: must be between 1 and 100");
         $offset = $request->query->get('offset', 0);
         if($offset < 0) throw new HttpException(400, "Invalid offset: must positive or zero");
-
         $sort = $request->query->get('sort', "id");
         $order = $request->query->get('order', "DESC");
         $search = $request->query->get('search', "");
@@ -295,6 +295,16 @@ abstract class BaseApiV2Controller extends RestApiController implements Reposito
             throw new HttpException(400, "Invalid params, please check query");
         }
 
+    }
+
+    /**
+     * @param Request $request
+     * @return array
+     */
+    public function index(Request $request) {
+        $limit = $request->query->get('limit', 10);
+        if($limit < 0 or $limit > 100) throw new HttpException(400, "Invalid limit: must be between 1 and 100");
+        return $this->indexUnlimited($request);
     }
 
 
@@ -523,7 +533,7 @@ abstract class BaseApiV2Controller extends RestApiController implements Reposito
      * @return mixed
      */
     public function export(Request $request) {
-        return $this->index($request);
+        return $this->indexUnlimited($request);
     }
 
     /**
@@ -554,19 +564,51 @@ abstract class BaseApiV2Controller extends RestApiController implements Reposito
      */
     protected function exportAction(Request $request, $role) {
         $this->checkPermissions($role, self::CRUD_METHOD_SEARCH);
+        $request->query->set("limit", 2**31);
+        $fieldMap = json_decode($request->query->get("field_map", "{}"), true);
+        if(json_last_error()) throw new HttpException(400, "Bad field_map, it must be a valid JSON");
         list($total, $result) = $this->export($request);
         $elems = $this->securizeOutput($result);
 
-        return $this->restV2(
-            self::HTTP_STATUS_CODE_OK,
-            "ok",
-            "Request successful",
-            array(
-                'total' => $total,
-                'elements' => $elems
-            )
-        );
+        $fp = fopen('php://output', 'w');
+        $export = [array_keys($fieldMap)];
+        foreach($elems as $el){
+            try {
+                $obj = new JsonObject($el);
+            } catch (InvalidJsonException $e) {
+                throw new HttpException(400, "Invalid JSON: " . $e->getMessage());
+            }
+            $exportRow = [];
+            foreach($fieldMap as $jsonPath){
+                try {
+                    $found = $obj->get($jsonPath);
+                } catch (Exception $e) {
+                    throw new HttpException(400, "Invalid JsonPath: " . $e->getMessage());
+                }
+                if(count($found) == 0)
+                    $exportRow []= null;
+                elseif(count($found) == 1) {
+                    if(is_array($found[0]))
+                        throw new HttpException(
+                            400,
+                            "Error with JSONPath '$jsonPath': every field must return single value, it returns " . json_encode($found[0])
+                        );
+                    $exportRow [] = $found[0];
+                }
+                else throw new HttpException(400, "Invalid JsonPath query: every field must return only one field");
+            }
+            $export []= $exportRow;
+        }
+
+        foreach($export as $row){
+            fputcsv($fp, $row);
+        }
+
+
+        $response = new Response();
+        $response->headers->set('Content-Type', 'text/csv');
+
+        $response->headers->set('Content-Disposition', 'attachment; filename="export.csv"');
+        return $response;
     }
-
-
 }
