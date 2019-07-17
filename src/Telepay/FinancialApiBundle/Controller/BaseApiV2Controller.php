@@ -44,6 +44,7 @@ abstract class BaseApiV2Controller extends RestApiController implements Reposito
     const HTTP_STATUS_CODE_CREATED = 201;
 
     const CRUD_METHOD_SEARCH = "SEARCH";
+    const CRUD_METHOD_EXPORT = "EXPORT";
     const CRUD_METHOD_INDEX = 'INDEX';
     const CRUD_METHOD_SHOW = 'SHOW';
     const CRUD_METHOD_CREATE = 'CREATE';
@@ -519,12 +520,41 @@ abstract class BaseApiV2Controller extends RestApiController implements Reposito
 
     /**
      * @param Request $request
+     * @return mixed
+     */
+    public function export(Request $request) {
+        return $this->index($request);
+    }
+
+    /**
+     * @param Request $request
      * @param $role
      * @return mixed
      */
     protected function searchAction(Request $request, $role) {
         $this->checkPermissions($role, self::CRUD_METHOD_SEARCH);
         list($total, $result) = $this->search($request);
+        $elems = $this->securizeOutput($result);
+
+        return $this->restV2(
+            self::HTTP_STATUS_CODE_OK,
+            "ok",
+            "Request successful",
+            array(
+                'total' => $total,
+                'elements' => $elems
+            )
+        );
+    }
+
+    /**
+     * @param Request $request
+     * @param $role
+     * @return mixed
+     */
+    protected function exportAction(Request $request, $role) {
+        $this->checkPermissions($role, self::CRUD_METHOD_SEARCH);
+        list($total, $result) = $this->export($request);
         $elems = $this->securizeOutput($result);
 
         return $this->restV2(

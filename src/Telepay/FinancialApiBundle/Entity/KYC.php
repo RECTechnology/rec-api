@@ -6,6 +6,7 @@ use Doctrine\ORM\Mapping as ORM;
 
 use JMS\Serializer\Annotation\ExclusionPolicy;
 use JMS\Serializer\Annotation\Expose;
+use JMS\Serializer\Annotation\Groups;
 use Telepay\FinancialApiBundle\DependencyInjection\Telepay\Commons\UploadManager;
 
 /**
@@ -20,203 +21,237 @@ class KYC implements EntityWithUploadableFields {
      * @ORM\Column(type="integer")
      * @ORM\GeneratedValue(strategy="AUTO")
      * @Expose
+     * @Groups({"self"})
      */
     private $id;
 
     /**
      * @ORM\Column(type="string")
      * @Expose
+     * @Groups({"self"})
      */
     private $name = "";
 
     /**
      * @ORM\Column(type="string")
      * @Expose
+     * @Groups({"self"})
      */
     private $lastName = "";
 
     /**
      * @ORM\Column(type="boolean")
      * @Expose
+     * @Groups({"self"})
      */
     private $full_name_validated = false;
 
     /**
      * @ORM\Column(type="string")
      * @Expose
+     * @Groups({"self"})
      */
     private $email = "";
 
     /**
      * @ORM\Column(type="boolean")
      * @Expose
+     * @Groups({"self"})
      */
     private $email_validated = false;
 
     /**
      * @ORM\Column(type="string")
      * @Expose
+     * @Groups({"self"})
      */
     private $phone = "";
 
     /**
      * @ORM\Column(type="string", nullable=true)
+     * @Groups({"self"})
      */
     private $validation_phone_code;
 
     /**
      * @ORM\Column(type="boolean")
      * @Expose
+     * @Groups({"self"})
      */
     private $phone_validated = false;
 
     /**
      * @ORM\Column(type="string")
      * @Expose
+     * @Groups({"self"})
      */
     private $dateBirth = "";
 
     /**
      * @ORM\Column(type="boolean")
      * @Expose
+     * @Groups({"self"})
      */
     private $dateBirth_validated = false;
 
     /**
      * @ORM\Column(type="string", nullable=true)
      * @Expose
+     * @Groups({"self"})
      */
     private $document_front;
 
     /**
      * @ORM\Column(type="string", nullable=true)
      * @Expose
+     * @Groups({"self"})
      */
     private $document_front_status='pending';
 
     /**
      * @ORM\Column(type="string", nullable=true)
      * @Expose
+     * @Groups({"self"})
      */
     private $document_rear;
 
     /**
      * @ORM\Column(type="string", nullable=true)
      * @Expose
+     * @Groups({"self"})
      */
     private $document_rear_status='pending';
 
     /**
      * @ORM\Column(type="boolean")
      * @Expose
+     * @Groups({"self"})
      */
     private $document_validated = false;
 
     /**
      * @ORM\Column(type="string", nullable=true)
      * @Expose
+     * @Groups({"self"})
      */
     private $first_transaction;
 
     /**
      * @ORM\Column(type="string", nullable=true)
      * @Expose
+     * @Groups({"self"})
      */
     private $card_info;
 
     /**
      * @ORM\Column(type="string", nullable=true)
      * @Expose
+     * @Groups({"self"})
      */
     private $other_info;
 
     /**
      * @ORM\ManyToOne(targetEntity="Telepay\FinancialApiBundle\Entity\User")
      * @Expose
+     * @Groups({"self"})
      */
     private $user;
 
     /**
      * @ORM\Column(type="string")
      * @Expose
+     * @Groups({"self"})
      */
     private $country = "";
 
     /**
      * @ORM\Column(type="boolean")
      * @Expose
+     * @Groups({"self"})
      */
     private $country_validated = false;
 
     /**
      * @ORM\Column(type="string")
      * @Expose
+     * @Groups({"self"})
      */
     private $neighborhood = "";
 
     /**
      * @ORM\Column(type="string")
      * @Expose
+     * @Groups({"self"})
      */
     private $street_type = "";
 
     /**
      * @ORM\Column(type="string")
      * @Expose
+     * @Groups({"self"})
      */
     private $street_number = "";
 
     /**
      * @ORM\Column(type="string")
      * @Expose
+     * @Groups({"self"})
      */
     private $street_name = "";
 
     /**
      * @ORM\Column(type="boolean")
      * @Expose
+     * @Groups({"self"})
      */
     private $address_validated = false;
 
     /**
      * @ORM\Column(type="boolean")
      * @Expose
+     * @Groups({"self"})
      */
     private $proof_of_residence = false;
 
     /**
      * @ORM\Column(type="string")
      * @Expose
+     * @Groups({"self"})
      */
     private $gender = "M";
 
     /**
      * @ORM\Column(type="string")
      * @Expose
+     * @Groups({"self"})
      */
     private $nationality = "ESP";
 
     /**
      * @ORM\Column(type="string", nullable=true)
      * @Expose
+     * @Groups({"self"})
      */
     private $tier1_status;
 
     /**
      * @ORM\Column(type="string", nullable=true)
      * @Expose
+     * @Groups({"self"})
      */
     private $tier2_status;
 
     /**
      * @ORM\Column(type="datetime", nullable=true)
      * @Expose
+     * @Groups({"self"})
      */
     private $tier1_status_request;
 
     /**
      * @ORM\Column(type="datetime", nullable=true)
      * @Expose
+     * @Groups({"self"})
      */
     private $tier2_status_request;
 
