@@ -278,7 +278,7 @@ class User extends BaseUser implements EntityWithUploadableFields
             if(!$card->isDeleted()) return $card;
         }
 
-        return false;
+        return null;
     }
 
     /**

@@ -1,19 +1,19 @@
 ######################## KYC ########################
 
-register_kyc:
-    path:  /kyc/register
-    defaults: { _controller: Telepay\FinancialApiBundle\Controller\KycController::registerAction }
-    methods: [POST]
+#register_kyc:
+#    path:  /kyc/register
+#    defaults: { _controller: Telepay\FinancialApiBundle\Controller\KycController::registerAction }
+#    methods: [POST]
 
 validate_email_kyc:
     path:  /auth_kyc/validate_email
     defaults: { _controller: Telepay\FinancialApiBundle\Controller\KycController::validateEmail }
     methods: [POST]
 
-validate_email_code_kyc:
-    path:  /kyc/validate_email_code
-    defaults: { _controller: Telepay\FinancialApiBundle\Controller\KycController::validateEmailCode }
-    methods: [POST]
+#validate_email_code_kyc:
+#    path:  /kyc/validate_email_code
+#    defaults: { _controller: Telepay\FinancialApiBundle\Controller\KycController::validateEmailCode }
+#    methods: [POST]
 
 validate_phone_code:
     path:  /kyc/validate_phone_code

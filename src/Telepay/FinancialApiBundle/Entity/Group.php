@@ -360,23 +360,27 @@ class Group extends BaseGroup implements EntityWithUploadableFields {
 
     /**
      * @ORM\Column(type="boolean")
+     * @Groups({"admin"})
      */
     private $active;
 
     /**
      * @ORM\OneToMany(targetEntity="Telepay\FinancialApiBundle\Entity\CashInTokens", mappedBy="company", cascade={"remove"})
+     * @Groups({"admin"})
      */
     private $cash_in_tokens;
 
     /**
      * @ORM\Column(type="integer")
      * @Expose
+     * @Groups({"admin"})
      */
     private $tier = 0;
 
     /**
      * @ORM\Column(type="string")
      * @Expose
+     * @Groups({"admin"})
      */
     private $company_token;
 

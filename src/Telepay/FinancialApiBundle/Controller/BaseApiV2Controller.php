@@ -14,11 +14,11 @@ use Doctrine\Common\Collections\Criteria;
 use Doctrine\Common\Persistence\ObjectRepository;
 use Doctrine\DBAL\DBALException;
 use Doctrine\DBAL\Platforms\Keywords\OracleKeywords;
+use Doctrine\ORM\Mapping\AttributeOverride;
+use Doctrine\ORM\Mapping\AttributeOverrides;
+use Doctrine\ORM\Mapping\Column;
 use Doctrine\ORM\Query\QueryException;
 use Doctrine\ORM\EntityManagerInterface;
-use Doctrine\ORM\Mapping\ManyToMany;
-use Doctrine\ORM\Mapping\ManyToOne;
-use Doctrine\ORM\Mapping\OneToOne;
 use Doctrine\ORM\NonUniqueResultException;
 use Doctrine\ORM\NoResultException;
 use Doctrine\ORM\Query;
@@ -211,6 +211,10 @@ abstract class BaseApiV2Controller extends RestApiController implements Reposito
     }
 
 
+    /**
+     * @param Request $request
+     * @return array
+     */
     public function index(Request $request){
         $limit = $request->query->get('limit', 10);
         if($limit < 0 or $limit > 100) throw new HttpException(400, "Invalid limit: must be between 1 and 100");
@@ -219,6 +223,7 @@ abstract class BaseApiV2Controller extends RestApiController implements Reposito
 
         $sort = $request->query->get('sort', "id");
         $order = $request->query->get('order', "DESC");
+        $search = $request->query->get('search', "");
 
 
         /** @var EntityManagerInterface $em */
@@ -228,38 +233,84 @@ abstract class BaseApiV2Controller extends RestApiController implements Reposito
         $qb = $em->createQueryBuilder();
 
         $className = $this->getRepository()->getClassName();
-        $filter = $qb->expr()->andX();
-        $filter_is_empty = true;
+
+        $trueExpr = $qb->expr()->eq($qb->expr()->literal(1), $qb->expr()->literal(1));
+
+        # Key-Value filter
+        $kvFilter = $qb->expr()->andX();
         foreach ($request->query->keys() as $key){
             if(substr($key, -3) === "_id") {
                 $name = substr($key, 0, strlen($key) - 3);
-                $filter_is_empty = false;
-                $filter->add($qb->expr()->eq('IDENTITY(e.' . $name . ')', $request->query->get($key)));
+                $kvFilter->add($qb->expr()->eq('IDENTITY(e.' . $name . ')', $request->query->get($key)));
             }
             elseif(property_exists($className, $key)){
-                $filter_is_empty = false;
-                $filter->add($qb->expr()->eq('e.' . $key, "'" . $request->query->get($key) . "'"));
+                $kvFilter->add($qb->expr()->eq('e.' . $key, "'" . $request->query->get($key) . "'"));
             }
         }
+        # Adding always-true expression to avoid kvFilter to be empty
+        if($kvFilter->count() <= 0) $kvFilter->add($trueExpr);
+
+        # Search filter
+        $searchFilter = $qb->expr()->orX();
+        if($search !== "") {
+            $ar = new AnnotationReader();
+            $rc = new ReflectionClass($this->getRepository()->getClassName());
+            foreach ($rc->getProperties() as $property) {
+                $annotations = $ar->getPropertyAnnotations($property);
+                # Check if any of the annotations is a doctrine Column
+                if(in_array(true, array_map(function($el){return $el instanceof Column;}, $annotations))){
+                    $searchFilter->add(
+                        $qb->expr()->like(
+                            'e.' . $property->getName(),
+                            $qb->expr()->literal('%' . $search . '%')
+                        )
+                    );
+                }
+            }
+            $classAnnotations = $ar->getClassAnnotations($rc);
+            foreach ($classAnnotations as $annotation){
+                if($annotation instanceof AttributeOverrides){
+                    foreach($annotation->value as $value){
+                        if($value instanceof AttributeOverride){
+                            if($value->column instanceof Column)
+                                $searchFilter->add(
+                                    $qb->expr()->like(
+                                        'e.' . $value->name,
+                                        $qb->expr()->literal('%' . $search . '%')
+                                    )
+                                );
+                        }
+                    }
+                }
+            }
+        }
+        # Adding always-true expression to avoid searchFilter to be empty
+        if($kvFilter->count() <= 0) $searchFilter->add($trueExpr);
+
+        $where = $qb->expr()->andX();
+        $where->add($kvFilter);
+        $where->add($searchFilter);
 
         $qb = $qb->from($className, 'e');
-        if(!$filter_is_empty) $qb = $qb->where($filter);
-        $qb = $qb->orderBy('e.' . $sort, $order);
-
+        $qb = $qb->where($where);
         try {
-            $total = intval($qb->select('count(e.id)')
-                ->getQuery()->getSingleScalarResult());
-            $result = $qb->select('e')
-                ->setFirstResult($offset)->setMaxResults($limit)
-                ->getQuery()->getResult();
+            $total = $qb
+                ->select('count(e.id)')
+                ->getQuery()
+                ->getSingleScalarResult();
+            $result = $qb
+                ->select('e')
+                ->orderBy('e.' . $sort, $order)
+                ->setFirstResult($offset)
+                ->setMaxResults($limit)
+                ->getQuery()
+                ->getResult();
 
-            return [$total, $result];
+            return [intval($total), $result];
 
         } catch (NoResultException $e) {
             return [0, []];
         } catch (NonUniqueResultException $e) {
-            throw new HttpException(400, "Invalid params, please check query");
-        } catch (QueryException $e) {
             throw new HttpException(400, "Invalid params, please check query");
         }
 
