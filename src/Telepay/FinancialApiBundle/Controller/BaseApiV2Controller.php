@@ -253,7 +253,7 @@ abstract class BaseApiV2Controller extends RestApiController implements Reposito
         # Search filter
         $searchFilter = $qb->expr()->orX();
         if($search !== "") {
-            $properties = $em->getClassMetadata($this->getRepository()->getClassName())->getColumnNames();
+            $properties = $em->getClassMetadata($this->getRepository()->getClassName())->getFieldNames();
             foreach ($properties as $property) {
                 $searchFilter->add(
                     $qb->expr()->like(

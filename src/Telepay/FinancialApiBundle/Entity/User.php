@@ -36,11 +36,9 @@ use Telepay\FinancialApiBundle\DependencyInjection\Telepay\Commons\UploadManager
  *     )
  * })
  */
-class User extends BaseUser implements EntityWithUploadableFields
-{
+class User extends BaseUser implements EntityWithUploadableFields {
 
-    public function __construct()
-    {
+    public function __construct() {
         parent::__construct();
         $this->groups = new ArrayCollection();
         $this->treasure_validations = new ArrayCollection();
@@ -240,10 +238,6 @@ class User extends BaseUser implements EntityWithUploadableFields
      */
     private $created;
 
-    /**
-     * @Expose
-     */
-    protected $lastLogin;
 
     public function getAccessKey(){
         return $this->access_key;
