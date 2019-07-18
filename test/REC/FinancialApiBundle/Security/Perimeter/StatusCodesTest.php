@@ -2,14 +2,14 @@
 
 namespace REC\FinancialApiBundle\Test\Security\Perimeter;
 
-use Symfony\Bundle\FrameworkBundle\Test\WebTestCase;
+use REC\FinancialApiBundle\Test\BaseApiTest;
 use Symfony\Component\Routing\RouterInterface;
 
 /**
  * Class StatusCodesTest
  * @package REC\FinancialApiBundle\Test\Security\Perimeter
  */
-class StatusCodesTest extends WebTestCase {
+class StatusCodesTest extends BaseApiTest {
 
     public function testSlashShouldReturn404(){
         $client = static::createClient();

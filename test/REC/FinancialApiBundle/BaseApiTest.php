@@ -2,15 +2,23 @@
 
 namespace REC\FinancialApiBundle\Test;
 
+use Doctrine\ORM\EntityManagerInterface;
+use Doctrine\ORM\Tools\SchemaTool;
+use Doctrine\ORM\Tools\ToolsException;
+use Symfony\Bundle\FrameworkBundle\Client;
+use Symfony\Bundle\FrameworkBundle\Console\Application;
 use Symfony\Bundle\FrameworkBundle\Test\WebTestCase;
+use Symfony\Component\Console\Input\ArrayInput;
+use Symfony\Component\Console\Output\NullOutput;
+use Symfony\Component\Filesystem\Filesystem;
 
 class BaseApiTest extends WebTestCase {
 
 
     /**
-     * @return \Symfony\Bundle\FrameworkBundle\Client
+     * @return Client
      */
-    protected function getPublicClient(){
+    protected function getApiClient(){
         $client = static::createClient();
         $client->setServerParameters(
             [
@@ -37,14 +45,33 @@ class BaseApiTest extends WebTestCase {
 
     }
 
-    protected function initializeDB(){
-        //TODO: initialize fresh db for test
-        // * Drop database
-        // * Create database
-        // * Create user admin, user, manager and its accounts
+    /**
+     * @throws ToolsException
+     * @throws \Exception
+     */
+    protected function clear_database(){
+
+        $client = $this->getApiClient();
+        $application = new Application($client->getKernel());
+        $application->setAutoExit(false);
+
+        $application->run(
+            new ArrayInput(['command' => 'doctrine:database:create', '--if-not-exists']),
+            new NullOutput()
+        );
+
+        /** @var EntityManagerInterface $em */
+        $em = $client->getContainer()->get('doctrine.orm.entity_manager');
+        $metaData = $em->getMetadataFactory()->getAllMetadata();
+        $tool = new SchemaTool($em);
+        $tool->dropSchema($metaData);
+        $tool->createSchema($metaData);
     }
 
+    /**
+     * @throws ToolsException
+     */
     protected function setUp(){
+        $this->clear_database();
     }
-
 }

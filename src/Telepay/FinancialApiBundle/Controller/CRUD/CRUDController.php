@@ -27,7 +27,9 @@ class CRUDController extends BaseApiV2Controller {
 
     const BASE_REPOSITORY_NAME = "TelepayFinancialApiBundle";
     const PATH_ENTITY_MAPPINGS = [
-        'accounts' => 'Group'
+        'accounts' => 'Group',
+        'treasure_withdrawals' => 'TreasureWithdrawalAttempt',
+        'treasure_validations' => 'TreasureWithdrawalValidation',
     ];
 
     function getRepositoryName()

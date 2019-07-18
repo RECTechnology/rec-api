@@ -151,7 +151,7 @@ class KYC implements EntityWithUploadableFields {
     private $other_info;
 
     /**
-     * @ORM\ManyToOne(targetEntity="Telepay\FinancialApiBundle\Entity\User")
+     * @ORM\OneToOne(targetEntity="Telepay\FinancialApiBundle\Entity\User")
      * @Expose
      * @Groups({"self"})
      */

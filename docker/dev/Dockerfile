@@ -2,6 +2,7 @@ FROM debian:stretch
 ENV DEBIAN_FRONTEND noninteractive
 RUN apt update && apt install -y \
     php-mysql \
+    php-sqlite3 \
     php-xml \
     php-mongodb \
     php-curl \

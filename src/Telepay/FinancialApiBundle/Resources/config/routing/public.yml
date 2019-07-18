@@ -15,7 +15,3 @@ public_map_search:
     defaults: {_controller: Telepay\FinancialApiBundle\Controller\Open\MapController::SearchAction }
     methods: [GET]
 
-public_v2_map:
-    path: /public/v2/map
-    defaults: {_controller: Telepay\FinancialApiBundle\Controller\Open\MapController::searchV2 }
-    methods: [GET]
