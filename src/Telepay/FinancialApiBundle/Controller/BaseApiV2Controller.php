@@ -8,6 +8,7 @@
 
 namespace Telepay\FinancialApiBundle\Controller;
 
+use DateTimeZone;
 use Doctrine\Common\Annotations\AnnotationException;
 use Doctrine\Common\Annotations\AnnotationReader;
 use Doctrine\Common\Collections\Criteria;
@@ -37,6 +38,7 @@ use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpKernel\Exception\HttpException;
 use Symfony\Component\Security\Core\Authentication\Token\Storage\TokenStorageInterface;
 use Symfony\Component\Security\Core\Authorization\AuthorizationCheckerInterface;
+use Symfony\Component\Serializer\NameConverter\CamelCaseToSnakeCaseNameConverter;
 use Symfony\Component\Validator\ConstraintViolation;
 use Telepay\FinancialApiBundle\Entity\Group;
 
@@ -608,7 +610,14 @@ abstract class BaseApiV2Controller extends RestApiController implements Reposito
         $response = new Response();
         $response->headers->set('Content-Type', 'text/csv');
 
-        $response->headers->set('Content-Disposition', 'attachment; filename="export.csv"');
+        $namer = new CamelCaseToSnakeCaseNameConverter(null, false);
+
+        $fullClassNameParts = explode("\\", $this->getRepository()->getClassName());
+        $className = $fullClassNameParts[count($fullClassNameParts) - 1];
+        $underscoreName = $namer->normalize($className);
+        $now = new \DateTime("now", new DateTimeZone('Europe/Madrid'));
+        $dwFilename = "export-" .  $underscoreName . "s-" . $now->format('Y-m-d\TH-i-sO') . ".csv";
+        $response->headers->set('Content-Disposition', 'attachment; filename="' . $dwFilename . '"');
         return $response;
     }
 }
