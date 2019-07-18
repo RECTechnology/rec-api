@@ -619,7 +619,7 @@ abstract class BaseApiV2Controller extends RestApiController implements Reposito
         }
 
         foreach($export as $row){
-            fputcsv($fp, $row);
+            fputcsv($fp, $row, ";");
         }
 
 
