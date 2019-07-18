@@ -33,6 +33,7 @@ use Psr\Log\LoggerInterface;
 use ReflectionClass;
 use ReflectionException;
 use ReflectionProperty;
+use Symfony\Component\Filesystem\Filesystem;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpKernel\Exception\HttpException;
@@ -563,6 +564,7 @@ abstract class BaseApiV2Controller extends RestApiController implements Reposito
      * @param Request $request
      * @param $role
      * @return mixed
+     * @throws Exception
      */
     protected function exportAction(Request $request, $role) {
         $this->checkPermissions($role, self::CRUD_METHOD_SEARCH);
@@ -572,7 +574,21 @@ abstract class BaseApiV2Controller extends RestApiController implements Reposito
         list($total, $result) = $this->export($request);
         $elems = $this->securizeOutput($result);
 
-        $fp = fopen('php://output', 'w');
+        //$fp = fopen('php://output', 'w');
+
+        $namer = new CamelCaseToSnakeCaseNameConverter(null, false);
+
+        $fullClassNameParts = explode("\\", $this->getRepository()->getClassName());
+        $className = $fullClassNameParts[count($fullClassNameParts) - 1];
+        $underscoreName = $namer->normalize($className);
+        $now = new \DateTime("now", new DateTimeZone('Europe/Madrid'));
+        $dwFilename = "export-" .  $underscoreName . "s-" . $now->format('Y-m-d\TH-i-sO') . ".csv";
+
+        $fs = new Filesystem();
+        $tmpFilename = "/tmp/$dwFilename";
+        $fs->touch($tmpFilename);
+        $fp = fopen($tmpFilename, 'w');
+
         $export = [array_keys($fieldMap)];
         foreach($elems as $el){
             try {
@@ -609,15 +625,11 @@ abstract class BaseApiV2Controller extends RestApiController implements Reposito
 
         $response = new Response();
         $response->headers->set('Content-Type', 'text/csv');
-
-        $namer = new CamelCaseToSnakeCaseNameConverter(null, false);
-
-        $fullClassNameParts = explode("\\", $this->getRepository()->getClassName());
-        $className = $fullClassNameParts[count($fullClassNameParts) - 1];
-        $underscoreName = $namer->normalize($className);
-        $now = new \DateTime("now", new DateTimeZone('Europe/Madrid'));
-        $dwFilename = "export-" .  $underscoreName . "s-" . $now->format('Y-m-d\TH-i-sO') . ".csv";
         $response->headers->set('Content-Disposition', 'attachment; filename="' . $dwFilename . '"');
+        $response->headers->set('Content-Length', filesize($tmpFilename));
+
+        $response->setContent(file_get_contents($tmpFilename));
+        $fs->remove($tmpFilename);
         return $response;
     }
 }
