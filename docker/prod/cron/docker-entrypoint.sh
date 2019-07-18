@@ -17,7 +17,7 @@ if ! test -d web/static;then
     mkdir -p web/static
 fi
 
-chown -R $HTTPD_USER:$HTTPD_USER app/cache app/logs web/static var/spool
+chown -R $HTTPD_USER:$HTTPD_USER app/cache app/logs web/static var/spool var/cache var/logs
 
 cron -f
 

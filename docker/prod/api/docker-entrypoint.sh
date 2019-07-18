@@ -9,6 +9,6 @@ envsubst < app/config/parameters-docker.yml.dist > app/config/parameters.yml
 composer run-script post-update-cmd
 
 
-chown -R www-data:www-data app/cache app/logs web/static
+chown -R www-data:www-data app/cache app/logs web/static var/cache var/logs
 
 apache2ctl -DFOREGROUND

@@ -10,6 +10,12 @@ namespace Telepay\FinancialApiBundle\Controller;
 
 use FOS\RestBundle\Controller\FOSRestController;
 use Telepay\FinancialApiBundle\Document\Transaction;
+use Telepay\FinancialApiBundle\Response\ApiResponse;
+use Telepay\FinancialApiBundle\Response\ApiResponseV2;
+use Telepay\FinancialApiBundle\Response\ApiResponseV3;
+use Telepay\FinancialApiBundle\Response\MethodResponse;
+use Telepay\FinancialApiBundle\Response\POSResponse;
+use Telepay\FinancialApiBundle\Response\SwiftResponse;
 
 class RestApiController extends FosRestController{
 

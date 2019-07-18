@@ -169,5 +169,23 @@ doctrine_mongodb:
             auto_mapping: true
 
 services:
+    _defaults:
+        autowire: true # Automatically injects dependencies in your services
+        autoconfigure: true
+        public: false
+        bind:
+        # Nice feature here. Local Binding. Read about it at documentation.
+
+    # makes classes in AppBundle available to be used as services
+    Telepay\FinancialApiBundle\:
+        resource: '../../src/Telepay/FinancialApiBundle/*'
+        # exclude directories || files (if service is unused, it will be removed anyway)
+        exclude: '../../src/Telepay/FinancialApiBundle/{Entity,Repository,Tests}'
+
+    Telepay\FinancialApiBundle\Controller\:
+        resource: '../../src/Telepay/FinancialApiBundle/Controller'
+        public: true
+        tags: ['controller.service_arguments']
+
     fos_user.doctrine_registry:
         alias: doctrine

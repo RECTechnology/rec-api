@@ -6,7 +6,7 @@
  * Time: 8:59 PM
  */
 
-namespace Telepay\FinancialApiBundle\Controller;
+namespace Telepay\FinancialApiBundle\Response;
 
 use JMS\Serializer\Annotation\XmlKeyValuePairs;
 

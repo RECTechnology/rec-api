@@ -2,5 +2,3 @@ services:
 
     net.telepay.ways:
         class: Telepay\FinancialApiBundle\Financial\ObjectRegister
-        arguments:
-            objects:

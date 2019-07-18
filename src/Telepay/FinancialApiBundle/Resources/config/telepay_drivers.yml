@@ -3,9 +3,8 @@ services:
     net.telepay.driver.provider:
         class: Telepay\FinancialApiBundle\Financial\ObjectRegister
         arguments:
-            drivers:
-                - "@net.telepay.driver.easybitcoin.rec"
-                - "@net.telepay.driver.lemonway.eur"
+            - "@net.telepay.driver.easybitcoin.rec"
+            - "@net.telepay.driver.lemonway.eur"
 
     net.telepay.driver.easybitcoin.rec:
         class: Telepay\FinancialApiBundle\Financial\Driver\FakeEasyBitcoinDriver

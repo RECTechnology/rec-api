@@ -1,4 +1,5 @@
 services:
+
     signature.security.authentication.provider:
         class: Telepay\FinancialApiBundle\Security\Authentication\Provider\SignatureAuthenticationProvider
         arguments: ["", "%kernel.cache_dir%/security/nonces"]
@@ -31,23 +32,6 @@ services:
         class: Telepay\FinancialApiBundle\Command\DelegatedExchangeCommand
         calls:
             - [setContainer, ["@service_container"] ]
-
-    security.authentication.switchuser_listener:
-        class: Telepay\FinancialApiBundle\Security\Firewall\SwitchUserListener
-        public: false
-        abstract: true
-        tags:
-            - { name: monolog.logger, channel: security }
-        arguments:
-           - "@security.token_storage"
-           - null
-           - "@security.user_checker"
-           - null
-           - "@security.access.decision_manager"
-           - "@logger"
-           - su
-           - ROLE_ALLOWED_TO_SWITCH
-           - "@event_dispatcher"
 
     auth.logger:
         class:     Symfony\Bridge\Monolog\Logger

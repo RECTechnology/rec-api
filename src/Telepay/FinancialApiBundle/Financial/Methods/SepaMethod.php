@@ -31,7 +31,7 @@ class SepaMethod extends BaseMethod {
         $this->minimum = $minimum;
     }
 
-    public function getPayInInfo($amount)
+    public function getPayInInfo($account_id, $amount)
     {
         $paymentInfo = $this->driver->request();
 

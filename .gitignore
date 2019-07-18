@@ -2,15 +2,9 @@
 /web/static
 !/web/static/.gitkeep
 
-/app/bootstrap.php.cache
-/app/cache/*
+/var/bootstrap.php.cache
+/var/cache/*
 /app/config/parameters.yml
-/doc/parameters.yml
-/app/config/parameters_sandbox.yml
-/app/logs/*
-!app/cache/.gitkeep
-!app/logs/.gitkeep
-/app/phpunit.xml
 
 /var/bootstrap.php.cache
 /var/logs/*

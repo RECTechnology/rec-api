@@ -6,12 +6,13 @@
  * Time: 8:59 PM
  */
 
-namespace Telepay\FinancialApiBundle\Controller;
+namespace Telepay\FinancialApiBundle\Response;
 
-class MethodResponse{
+class SwiftResponse{
     private $status;
     private $message;
     private $id;
+    private $method;
     private $amount;
     private $scale;
     private $currency;
@@ -21,10 +22,11 @@ class MethodResponse{
     private $pay_out_info;
 
 
-    public function __construct($status, $message, $id, $amount, $scale, $currency, $created, $updated, $pay_in_info = null, $pay_out_info = null){
+    public function __construct($status, $message, $id, $method, $amount, $scale, $currency, $created, $updated, $pay_in_info, $pay_out_info){
         $this->status = $status;
         $this->message = $message;
         $this->id = $id;
+        $this->method = $method;
         $this->amount = $amount;
         $this->scale = $scale;
         $this->currency = $currency;
