@@ -14,8 +14,7 @@ class StatusCodesTest extends BaseApiTest {
     public function testSlashShouldReturn404(){
         $client = static::createClient();
         $client->request(
-            'GET',
-            '/'
+            'GET', '/'
         );
         $response = $client->getResponse();
         self::assertEquals(404, $response->getStatusCode());
@@ -42,7 +41,7 @@ class StatusCodesTest extends BaseApiTest {
                     self::assertEquals(
                         200,
                         $response->getStatusCode(),
-                        "Problem with  --> {$method} {$route->getPath()} <--"
+                        "Problem with  --> {$method} {$route->getPath()} <-- RESP: {$response->getContent()}"
                     );
                 }
         }

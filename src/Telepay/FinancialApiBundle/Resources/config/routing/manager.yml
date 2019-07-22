@@ -97,12 +97,14 @@ manager_groups_add_users:
     defaults: { _controller: Telepay\FinancialApiBundle\Controller\Management\Manager\UsersGroupsController::createAction, _format: ~ }
     methods: [POST]
     requirements:
-        user_id: "[0-9]+"
+        id: "[0-9]+"
 
 manager_groups_index_by_user:
     path:  /manager/v1/groupsbyuser/{id}
     defaults: { _controller: Telepay\FinancialApiBundle\Controller\Management\Manager\GroupsController::indexByCompany, _format: ~ }
     methods: [GET]
+    requirements:
+        id: "[0-9]+"
 
 user_new_group:
     path:  /user/v1/new/account

@@ -12,6 +12,7 @@
 !var/cache/.gitkeep
 !var/logs/.gitkeep
 /var/phpunit.xml
+**.phpunit.result.cache
 
 /build/
 /vendor/
