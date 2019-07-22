@@ -1,4 +1,4 @@
-FROM debian:stretch
+FROM debian:buster
 ENV DEBIAN_FRONTEND noninteractive
 RUN apt update && apt install -y \
     php \
