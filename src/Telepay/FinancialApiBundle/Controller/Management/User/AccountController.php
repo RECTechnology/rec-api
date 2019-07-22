@@ -2,15 +2,14 @@
 
 namespace Telepay\FinancialApiBundle\Controller\Management\User;
 
+use Doctrine\Common\Annotations\AnnotationException;
 use Doctrine\DBAL\DBALException;
 use Symfony\Component\HttpFoundation\Response;
-use Symfony\Component\Security\Core\Util\SecureRandom;
 use Telepay\FinancialApiBundle\Entity\CashInTokens;
 use Telepay\FinancialApiBundle\Entity\Group;
 use Telepay\FinancialApiBundle\Entity\KYC;
 use Telepay\FinancialApiBundle\Entity\ServiceFee;
 use Telepay\FinancialApiBundle\Entity\User;
-use Rhumsaa\Uuid\Uuid;
 use Symfony\Component\HttpKernel\Exception\HttpException;
 use Telepay\FinancialApiBundle\Controller\BaseApiController;
 use FOS\RestBundle\Controller\Annotations as Rest;
@@ -37,6 +36,7 @@ class AccountController extends BaseApiController{
      * @Rest\View
      */
     public function read(Request $request){
+        /** @var User $user */
         $user = $this->get('security.token_storage')->getToken()->getUser();
         $user->setRoles($user->getRoles());
         $group = $this->get('security.token_storage')->getToken()->getUser()->getActiveGroup();
@@ -47,8 +47,14 @@ class AccountController extends BaseApiController{
 
     /**
      * @Rest\View
+     * @param Request $request
+     * @param null $id
+     * @return Response
+     * @throws AnnotationException
+     * @throws \ReflectionException
      */
     public function updateAction(Request $request,$id = null){
+        /** @var User $user */
         $user = $this->get('security.token_storage')->getToken()->getUser();
         $id = $user->getId();
         $params = array();
@@ -633,14 +639,14 @@ class AccountController extends BaseApiController{
 
     /**
      * @Rest\View
+     * @throws \Exception
      */
     public function resetCredentials(Request $request){
 
         $user = $this->get('security.token_storage')->getToken()->getUser();
 
-        $generator = new SecureRandom();
-        $access_key = sha1($generator->nextBytes(32));
-        $access_secret = base64_encode($generator->nextBytes(32));
+        $access_key = sha1(random_bytes(32));
+        $access_secret = base64_encode(random_bytes(32));
 
         $user->setAccessSecret($access_secret);
         $user->setAccessKey($access_key);

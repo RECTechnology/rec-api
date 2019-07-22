@@ -68,7 +68,6 @@ namespace Telepay\FinancialApiBundle\Financial\Driver;
 
 use Doctrine\ORM\EntityManagerInterface;
 use StephenHill\Base58;
-use Symfony\Component\Security\Core\Util\SecureRandom;
 
 class FakeEasyBitcoinDriver {
 
@@ -85,9 +84,13 @@ class FakeEasyBitcoinDriver {
         $this->prefix = $prefix;
     }
 
+    /**
+     * @return string
+     * @throws \Exception
+     */
     function getnewaddress() {
         $base58 = new Base58();
-        return $this->prefix . $base58->encode((new SecureRandom())->nextBytes(16));
+        return $this->prefix . $base58->encode(random_bytes(16));
     }
 
     function getaccountaddress($account){

@@ -12,7 +12,6 @@ use JMS\Serializer\Annotation\Expose;
 use JMS\Serializer\Annotation\Groups;
 use JMS\Serializer\Annotation\VirtualProperty;
 use JMS\Serializer\Annotation\Type;
-use Symfony\Component\Security\Core\Util\SecureRandom;
 use Telepay\FinancialApiBundle\DependencyInjection\Telepay\Commons\UploadManager;
 
 /**
@@ -40,6 +39,10 @@ class Group extends BaseGroup implements EntityWithUploadableFields {
     const SERIALIZATION_GROUPS_ADMIN = ['admin', 'self', 'manager', 'user', 'public'];
     const SERIALIZATION_GROUPS_SUPER_ADMIN = ['super_admin', 'admin', 'self', 'manager', 'user', 'public'];
 
+    /**
+     * Group constructor.
+     * @throws \Exception
+     */
     public function __construct() {
         $this->groups = new ArrayCollection();
         $this->limit_counts = new ArrayCollection();
@@ -50,10 +53,9 @@ class Group extends BaseGroup implements EntityWithUploadableFields {
         $this->on_map = 1;
 
         if($this->access_key == null){
-            $generator = new SecureRandom();
-            $this->access_key=sha1($generator->nextBytes(32));
-            $this->key_chain=sha1($generator->nextBytes(32));
-            $this->access_secret=base64_encode($generator->nextBytes(32));
+            $this->access_key=sha1(random_bytes(32));
+            $this->key_chain=sha1(random_bytes(32));
+            $this->access_secret=base64_encode(random_bytes(32));
         }
     }
 

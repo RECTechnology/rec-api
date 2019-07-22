@@ -8,7 +8,6 @@ use FOS\UserBundle\Model\GroupInterface;
 use FOS\UserBundle\Model\User as BaseUser;
 use Doctrine\ORM\Mapping as ORM;
 use Symfony\Component\HttpKernel\Exception\HttpException;
-use Symfony\Component\Security\Core\Util\SecureRandom;
 
 use JMS\Serializer\Annotation\ExclusionPolicy;
 use JMS\Serializer\Annotation\Expose;
@@ -38,15 +37,18 @@ use Telepay\FinancialApiBundle\DependencyInjection\Telepay\Commons\UploadManager
  */
 class User extends BaseUser implements EntityWithUploadableFields {
 
+    /**
+     * User constructor.
+     * @throws \Exception
+     */
     public function __construct() {
         parent::__construct();
         $this->groups = new ArrayCollection();
         $this->treasure_validations = new ArrayCollection();
 
         if($this->access_key == null){
-            $generator = new SecureRandom();
-            $this->access_key=sha1($generator->nextBytes(32));
-            $this->access_secret=base64_encode($generator->nextBytes(32));
+            $this->access_key=sha1(random_bytes(32));
+            $this->access_secret=base64_encode(random_bytes(32));
         }
         $this->created = new \DateTime();
         $this->bank_cards = new ArrayCollection();
