@@ -607,14 +607,25 @@ abstract class BaseApiV2Controller extends RestApiController implements Reposito
                 if(count($found) == 0)
                     $exportRow []= null;
                 elseif(count($found) == 1) {
-                    if(is_array($found[0]))
+                    if(is_array($found[0])) {
                         throw new HttpException(
                             400,
                             "Error with JSONPath '$jsonPath': every field must return single value, it returns " . json_encode($found[0])
                         );
-                    $exportRow [] = $found[0];
+                    }
+                    $exportRow []= $found[0];
                 }
-                else throw new HttpException(400, "Invalid JsonPath query: every field must return only one field");
+                else {
+                    foreach($found as $v){
+                        if(is_array($v)){
+                            throw new HttpException(
+                                400,
+                                "Error with JSONPath '$jsonPath': every field must return single value, it returns " . json_encode($v)
+                            );
+                        }
+                    }
+                    $exportRow []= implode("|", $found);
+                }
             }
             $export []= $exportRow;
         }

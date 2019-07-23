@@ -21,7 +21,3 @@ FOS\UserBundle\Model\User:
             expose: true
             groups:
                 - self
-        active_group:
-            expose: true
-            groups:
-                - self
