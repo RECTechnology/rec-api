@@ -64,7 +64,7 @@ doctrine:
         user:     "%database_user%"
         password: "%database_password%"
         charset:  UTF8
-        server_version:        '5.7'
+        server_version: 'mariadb-10.1.26'
         # if using pdo_sqlite as your database driver, add the path in parameters.yml
         # e.g. database_path: "%kernel.root_dir%/data/data.db3"
         # path:     "%database_path%"
@@ -74,8 +74,8 @@ doctrine:
         auto_mapping: true
 
 doctrine_migrations:
-    dir_name: "%kernel.root_dir%/../src/AppMigrations"
-    namespace: AppMigrations
+    dir_name: "%kernel.root_dir%/../src/Migrations"
+    namespace: Telepay\Migrations
     table_name: migration_versions
     name: App Migrations
     organize_migrations: false # Version >=1.2 Possible values are: "BY_YEAR", "BY_YEAR_AND_MONTH", false
@@ -176,11 +176,12 @@ services:
         bind:
         # Nice feature here. Local Binding. Read about it at documentation.
 
-    # makes classes in AppBundle available to be used as services
-    Telepay\FinancialApiBundle\:
-        resource: '../../src/Telepay/FinancialApiBundle/*'
+    # makes classes available to be used as services
+    Telepay\:
+        resource: '../../src/Telepay/*'
         # exclude directories || files (if service is unused, it will be removed anyway)
         exclude: '../../src/Telepay/FinancialApiBundle/{Entity,Repository,Tests}'
+
 
     Telepay\FinancialApiBundle\Controller\:
         resource: '../../src/Telepay/FinancialApiBundle/Controller'

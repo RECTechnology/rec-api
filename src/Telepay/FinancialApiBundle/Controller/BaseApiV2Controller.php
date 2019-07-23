@@ -149,6 +149,7 @@ abstract class BaseApiV2Controller extends RestApiController implements Reposito
         }
 
         $ctx->setGroups(Group::SERIALIZATION_GROUPS_PUBLIC);
+        $ctx->enableMaxDepthChecks();
         return $ctx;
     }
 

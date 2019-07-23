@@ -93,6 +93,11 @@ class FakeEasyBitcoinDriver {
         return $this->prefix . $base58->encode(random_bytes(16));
     }
 
+    /**
+     * @param $account
+     * @return string
+     * @throws \Exception
+     */
     function getaccountaddress($account){
         return $this->getnewaddress();
     }

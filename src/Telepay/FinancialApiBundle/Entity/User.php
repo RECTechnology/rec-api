@@ -16,6 +16,7 @@ use JMS\Serializer\Annotation\VirtualProperty;
 use JMS\Serializer\Annotation\Type;
 use JMS\Serializer\Annotation\SerializedName;
 use JMS\Serializer\Annotation\Groups;
+use JMS\Serializer\Annotation\MaxDepth;
 use Symfony\Component\Validator\Constraints\DateTime;
 use Telepay\FinancialApiBundle\DependencyInjection\Telepay\Commons\UploadManager;
 
@@ -71,7 +72,9 @@ class User extends BaseUser implements EntityWithUploadableFields {
 
     /**
      * @ORM\ManyToOne(targetEntity="Telepay\FinancialApiBundle\Entity\Group")
+     * @Expose
      * @Groups({"self"})
+     * @MaxDepth(1)
      */
     private $active_group = null;
 
@@ -96,13 +99,12 @@ class User extends BaseUser implements EntityWithUploadableFields {
     /**
      * @ORM\Column(type="string", unique=true)
      * @Expose
-     * @Groups({"public"})
+     * @Groups({"user"})
      */
     private $dni;
 
     /**
      * @ORM\OneToMany(targetEntity="Telepay\FinancialApiBundle\Entity\AccessToken", mappedBy="user", cascade={"remove"})
-     *
      */
     private $access_token;
 
