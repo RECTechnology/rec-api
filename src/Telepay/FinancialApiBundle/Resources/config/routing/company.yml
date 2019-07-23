@@ -252,11 +252,11 @@ company_wallet_transactions:
 ##################### MAP ############################
 map_list:
     path: /map/v1/list
-    defaults: {_controller: Telepay\FinancialApiBundle\Controller\Management\Company\MapController::ListAction }
+    defaults: {_controller: Telepay\FinancialApiBundle\Controller\Open\MapController::ListAction }
     methods: [GET]
 
 map_search:
     path: /map/v1/search
-    defaults: {_controller: Telepay\FinancialApiBundle\Controller\Management\Company\MapController::SearchAction }
+    defaults: {_controller: Telepay\FinancialApiBundle\Controller\Open\MapController::SearchAction }
     methods: [GET]
 
