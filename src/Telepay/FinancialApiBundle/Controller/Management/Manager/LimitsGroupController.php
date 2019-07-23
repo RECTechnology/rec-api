@@ -30,7 +30,7 @@ class LimitsGroupController extends BaseApiController
     public function updateAction(Request $request, $id){
 
         //check if this user pertenece al group de la fee
-        $user = $this->get('security.context')->getToken()->getUser();
+        $user = $this->get('security.token_storage')->getToken()->getUser();
         if(!$user->hasRole('ROLE_SUPER_ADMIN')){
             $group = $user->getActiveGroup();
             $em = $this->getDoctrine()->getManager();

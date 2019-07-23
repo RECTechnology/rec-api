@@ -3,8 +3,7 @@ services:
     net.telepay.wallets:
         class: Telepay\FinancialApiBundle\Financial\ObjectRegister
         arguments:
-            objects:
-                - "@net.telepay.wallet.fullnode.rec"
+            - "@net.telepay.wallet.fullnode.rec"
 
     net.telepay.wallet.fullnode.rec:
         class: Telepay\FinancialApiBundle\Financial\Wallet\FullNodeWallet

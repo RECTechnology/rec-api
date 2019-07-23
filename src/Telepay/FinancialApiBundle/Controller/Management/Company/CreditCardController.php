@@ -32,8 +32,8 @@ class CreditCardController extends BaseApiController{
     public function registerCard(Request $request){
         throw new HttpException(404, 'Method not allowed');
 
-        $user = $this->get('security.context')->getToken()->getUser();
-        $group = $this->get('security.context')->getToken()->getUser()->getActiveGroup();
+        $user = $this->get('security.token_storage')->getToken()->getUser();
+        $group = $this->get('security.token_storage')->getToken()->getUser()->getActiveGroup();
 
         $paramNames = array(
             'alias'
@@ -92,7 +92,7 @@ class CreditCardController extends BaseApiController{
      */
     public function deleteAction($id){
         $em = $this->getDoctrine()->getManager();
-        $user = $this->get('security.context')->getToken()->getUser();
+        $user = $this->get('security.token_storage')->getToken()->getUser();
         $credit_card = $em->getRepository('TelepayFinancialApiBundle:CreditCard')->findOneBy(array(
             'id'    =>  $id,
             'deleted'=>false,

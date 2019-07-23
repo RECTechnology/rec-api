@@ -113,7 +113,7 @@ class KycController extends BaseApiController{
     }
 
     public function kycInfo(Request $request){
-        $user = $this->get('security.context')->getToken()->getUser();
+        $user = $this->get('security.token_storage')->getToken()->getUser();
         $em = $this->getDoctrine()->getManager();
         $kyc = $em->getRepository('TelepayFinancialApiBundle:KYC')->findOneBy(array(
             'user' => $user
@@ -125,7 +125,7 @@ class KycController extends BaseApiController{
     }
 
     public function validateEmail(Request $request){
-        $user = $this->get('security.context')->getToken()->getUser();
+        $user = $this->get('security.token_storage')->getToken()->getUser();
         $em = $this->getDoctrine()->getManager();
         $url = $this->container->getParameter('web_app_url');
         $tokenGenerator = $this->container->get('fos_user.util.token_generator');
@@ -208,7 +208,7 @@ class KycController extends BaseApiController{
         if($request->request->has('user')){
             $user = $request->request->get('user');
         }else{
-            $user = $this->get('security.context')->getToken()->getUser();
+            $user = $this->get('security.token_storage')->getToken()->getUser();
         }
         $em = $this->getDoctrine()->getManager();
         $kyc = $em->getRepository('TelepayFinancialApiBundle:KYC')->findOneBy(array(
@@ -238,7 +238,7 @@ class KycController extends BaseApiController{
         $em = $this->getDoctrine()->getManager();
 
         if(!$request->request->has('NIF') || $request->get('NIF')=="") {
-            $user = $this->get('security.context')->getToken()->getUser();
+            $user = $this->get('security.token_storage')->getToken()->getUser();
         }
         else{
             $user = $em->getRepository('TelepayFinancialApiBundle:User')->findOneBy(array(

@@ -9,7 +9,9 @@ use Doctrine\ORM\Mapping as ORM;
 use JMS\Serializer\Annotation\ExclusionPolicy;
 use JMS\Serializer\Annotation\Exclude;
 use JMS\Serializer\Annotation\Expose;
-use Symfony\Component\Security\Core\Util\SecureRandom;
+use JMS\Serializer\Annotation\Groups;
+use JMS\Serializer\Annotation\VirtualProperty;
+use JMS\Serializer\Annotation\Type;
 use Telepay\FinancialApiBundle\DependencyInjection\Telepay\Commons\UploadManager;
 
 /**
@@ -28,24 +30,32 @@ use Telepay\FinancialApiBundle\DependencyInjection\Telepay\Commons\UploadManager
  *     )
  * })
  */
-class Group extends BaseGroup implements EntityWithUploadableFields
-{
+class Group extends BaseGroup implements EntityWithUploadableFields {
 
-    const UPC_ACTIVITY_TYPE_CODE_DEFAULT = 16;
+    const SERIALIZATION_GROUPS_PUBLIC = ['public'];
+    const SERIALIZATION_GROUPS_USER = ['user', 'public'];
+    const SERIALIZATION_GROUPS_MANAGER = ['manager', 'user', 'public'];
+    const SERIALIZATION_GROUPS_SELF = ['self', 'manager', 'user', 'public'];
+    const SERIALIZATION_GROUPS_ADMIN = ['admin', 'self', 'manager', 'user', 'public'];
+    const SERIALIZATION_GROUPS_SUPER_ADMIN = ['super_admin', 'admin', 'self', 'manager', 'user', 'public'];
 
+    /**
+     * Group constructor.
+     * @throws \Exception
+     */
     public function __construct() {
         $this->groups = new ArrayCollection();
         $this->limit_counts = new ArrayCollection();
         $this->wallets = new ArrayCollection();
         $this->clients = new ArrayCollection();
+        $this->offers = new ArrayCollection();
         $this->company_token = uniqid();
         $this->on_map = 1;
 
         if($this->access_key == null){
-            $generator = new SecureRandom();
-            $this->access_key=sha1($generator->nextBytes(32));
-            $this->key_chain=sha1($generator->nextBytes(32));
-            $this->access_secret=base64_encode($generator->nextBytes(32));
+            $this->access_key=sha1(random_bytes(32));
+            $this->key_chain=sha1(random_bytes(32));
+            $this->access_secret=base64_encode(random_bytes(32));
         }
     }
 
@@ -53,278 +63,357 @@ class Group extends BaseGroup implements EntityWithUploadableFields
      * @ORM\Id
      * @ORM\Column(type="integer")
      * @ORM\GeneratedValue(strategy="AUTO")
+     * @Groups({"public"})
      */
     protected $id;
 
     /**
      * @ORM\OneToMany(targetEntity="Telepay\FinancialApiBundle\Entity\UserGroup", mappedBy="group", cascade={"remove"})
      * @Exclude
+     * @Groups({"manager"})
      */
     protected $users;
 
     /**
      * @ORM\ManyToOne(targetEntity="Telepay\FinancialApiBundle\Entity\User")
+     * @Groups({"manager"})
      */
     private $kyc_manager;
 
     /**
      * @ORM\Column(type="text")
      * @Expose
+     * @Groups({"manager"})
      */
     private $company_image = "";
 
     /**
      * @ORM\Column(type="text")
      * @Expose
+     * @Groups({"user"})
      */
     private $rec_address;
 
     /**
      * @ORM\ManyToOne(targetEntity="Telepay\FinancialApiBundle\Entity\Category")
+     * @Groups({"public"})
      */
     private $category;
 
     /**
      * @ORM\Column(type="text")
      * @Expose
+     * @Groups({"public"})
      */
     private $offered_products = "";
 
     /**
      * @ORM\Column(type="text")
      * @Expose
+     * @Groups({"public"})
      */
     private $needed_products = "";
 
     /**
      * @ORM\OneToMany(targetEntity="Telepay\FinancialApiBundle\Entity\LimitDefinition", mappedBy="group", cascade={"remove"})
+     * @Groups({"self"})
      *
      */
     private $limits;
 
     /**
      * @ORM\OneToMany(targetEntity="Telepay\FinancialApiBundle\Entity\ServiceFee", mappedBy="group", cascade={"remove"})
+     * @Groups({"self"})
      *
      */
     private $commissions;
 
     /**
      * @ORM\OneToMany(targetEntity="Telepay\FinancialApiBundle\Entity\UserWallet", mappedBy="group", cascade={"remove"})
+     * @Groups({"self"})
      */
     private $wallets;
 
     /**
      * @ORM\OneToMany(targetEntity="Telepay\FinancialApiBundle\Entity\LimitCount", mappedBy="group", cascade={"remove"})
+     * @Groups({"self"})
      */
     private $limit_counts;
 
     /**
      * @ORM\Column(type="string")
+     * @Groups({"self"})
      */
     private $access_key;
 
     /**
      * @ORM\Column(type="string")
      * @Exclude
+     * @Groups({"self"})
      */
     private $key_chain;
 
     /**
      * @ORM\Column(type="boolean")
      * @Exclude
+     * @Groups({"self"})
      */
     private $is_public_profile = false;
 
     /**
      * @ORM\Column(type="string")
+     * @Groups({"self"})
      */
     private $access_secret;
 
     /**
      * @ORM\Column(type="string", length=1000)
      * @Exclude
+     * @Groups({"self"})
      */
     private $methods_list;
 
     /**
      * @Expose
+     * @Groups({"self"})
      */
     private $allowed_methods = array();
 
     /**
      * @Expose
+     * @Groups({"self"})
      */
     private $limit_configuration = array();
 
     /**
      * @ORM\OneToMany(targetEntity="Telepay\FinancialApiBundle\Entity\Balance", mappedBy="group", cascade={"remove"})
      * @Exclude
+     * @Groups({"self"})
      */
     private $balance;
 
 
     /**
      * @ORM\OneToMany(targetEntity="Telepay\FinancialApiBundle\Entity\Offer", mappedBy="company", cascade={"remove"})
+     * @Groups({"public"})
      */
     private $offers;
 
     /**
      * @ORM\OneToMany(targetEntity="Telepay\FinancialApiBundle\Entity\Client", mappedBy="group", cascade={"remove"})
      * @Exclude
+     * @Groups({"self"})
      */
     private $clients;
 
     /**
      * @ORM\Column(type="string")
      * @Expose
+     * @Groups({"public"})
      */
     private $cif;
 
     /**
      * @ORM\Column(type="string")
      * @Expose
+     * @Groups({"public"})
      */
     private $prefix = '';
 
     /**
      * @ORM\Column(type="string")
      * @Expose
+     * @Groups({"public"})
      */
     private $phone = '';
 
     /**
      * @ORM\Column(type="string")
+     * @Groups({"public"})
      */
     private $zip = '';
 
     /**
      * @ORM\Column(type="string")
+     * @Groups({"manager"})
      */
     private $email = '';
 
     /**
      * @ORM\Column(type="string")
+     * @Groups({"public"})
      */
     private $city = '';
 
     /**
      * @ORM\Column(type="string")
+     * @Groups({"public"})
      */
     private $country = '';
 
     /**
      * @ORM\Column(type="float", nullable=true)
+     * @Groups({"public"})
      */
     private $latitude = null;
 
     /**
      * @ORM\Column(type="float", nullable=true)
+     * @Groups({"public"})
      */
     private $longitude = null;
 
     /**
      * @ORM\Column(type="boolean")
+     * @Groups({"public"})
      */
     private $fixed_location = false;
 
     /**
      * @ORM\Column(type="string")
+     * @Groups({"public"})
      */
     private $web = '';
 
     /**
      * @ORM\Column(type="string")
      * @Expose
+     * @Groups({"public"})
      */
     private $address_number = '';
 
     /**
      * @ORM\Column(type="string")
      * @Expose
+     * @Groups({"public"})
      */
     private $neighborhood = "";
 
     /**
      * @ORM\Column(type="string")
      * @Expose
+     * @Groups({"public"})
      */
     private $association = "";
 
     /**
      * @ORM\Column(type="string", length=300)
      * @Expose
+     * @Groups({"public"})
      */
     private $observations = "";
 
     /**
      * @ORM\Column(type="string")
      * @Expose
+     * @Groups({"public"})
      */
     private $street = '';
 
     /**
      * @ORM\Column(type="string")
      * @Expose
+     * @Groups({"public"})
      */
     private $street_type = "";
 
     /**
      * @ORM\Column(type="text")
+     * @Groups({"public"})
      */
     private $comment = '';
 
     /**
      * @ORM\Column(type="text")
+     * @Groups({"user"})
      */
     private $type = '';
 
     /**
      * @ORM\Column(type="text")
+     * @Groups({"admin"})
      */
     private $lemon_id = '';
 
     /**
      * @ORM\Column(type="text")
+     * @Groups({"public"})
      */
     private $subtype = '';
 
     /**
      * @ORM\Column(type="text")
+     * @Groups({"public"})
      */
     private $description = '';
 
     /**
      * @ORM\Column(type="text")
+     * @Groups({"public"})
      */
     private $schedule = '';
 
     /**
      * @ORM\Column(type="text")
      * @Expose
+     * @Groups({"public"})
      */
     private $public_image = "";
 
     /**
      * @ORM\Column(type="boolean")
+     * @Groups({"admin"})
      */
     private $active;
 
     /**
      * @ORM\OneToMany(targetEntity="Telepay\FinancialApiBundle\Entity\CashInTokens", mappedBy="company", cascade={"remove"})
+     * @Groups({"admin"})
      */
     private $cash_in_tokens;
 
     /**
      * @ORM\Column(type="integer")
      * @Expose
+     * @Groups({"admin"})
      */
     private $tier = 0;
 
     /**
      * @ORM\Column(type="string")
      * @Expose
+     * @Groups({"admin"})
      */
     private $company_token;
+
+    /**
+     * @ORM\Column(type="boolean")
+     * @Groups({"admin"})
+     */
+    private $on_map;
+
+    /**
+     * @return string
+     * @VirtualProperty("name")
+     * @Type("string")
+     * @Groups({"public"})
+     */
+    public function getName()
+    {
+        return parent::getName();
+    }
+
+    /**
+     * @return string
+     * @VirtualProperty("offer_count")
+     * @Type("integer")
+     * @Groups({"public"})
+     */
+    public function getOfferCount()
+    {
+        return count($this->getOffers());
+    }
+
 
     /**
      * @return mixed
@@ -1024,22 +1113,6 @@ class Group extends BaseGroup implements EntityWithUploadableFields
     /**
      * @return mixed
      */
-    public function getAdresses()
-    {
-        return $this->adresses;
-    }
-
-    /**
-     * @param mixed $adresses
-     */
-    public function setAdresses($adresses)
-    {
-        $this->adresses = $adresses;
-    }
-
-    /**
-     * @return mixed
-     */
     public function getCashInTokens()
     {
         return $this->cash_in_tokens;
@@ -1190,21 +1263,19 @@ class Group extends BaseGroup implements EntityWithUploadableFields
     {
         $this->offers = $offers;
     }
-    /**
-     * @ORM\Column(type="boolean")
-     */
-    private $on_map;
+
     /**
      * @param mixed $on_map
      */
-    public function setOn_map($on_map)
+    public function setOnMap($on_map)
     {
         $this->on_map = $on_map;
     }
+
     /**
      * @return mixed
      */
-    public function getOn_map()
+    public function getOnMap()
     {
         return $this->on_map;
     }

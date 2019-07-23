@@ -29,7 +29,7 @@ class WalletController extends RestApiController{
      * DEPRECATED
      */
     public function read(){
-        $userGroup = $this->get('security.context')->getToken()->getUser()->getActiveGroup();
+        $userGroup = $this->get('security.token_storage')->getToken()->getUser()->getActiveGroup();
 
         //obtener los wallets
         $wallets = $userGroup->getWallets();
@@ -99,7 +99,7 @@ class WalletController extends RestApiController{
      */
     public function last(Request $request){
         $dm = $this->get('doctrine_mongodb')->getManager();
-        $userGroup = $this->get('security.context')->getToken()->getUser()->getActiveGroup();
+        $userGroup = $this->get('security.token_storage')->getToken()->getUser()->getActiveGroup();
         $last10Trans = $dm->getRepository('TelepayFinancialApiBundle:Transaction')->last10Transactions($userGroup);
 
         $resArray = [];
@@ -115,7 +115,7 @@ class WalletController extends RestApiController{
      */
     public function single(Request $request, $id){
         $dm = $this->get('doctrine_mongodb')->getManager();
-        $userGroup = $this->get('security.context')->getToken()->getUser()->getActiveGroup();
+        $userGroup = $this->get('security.token_storage')->getToken()->getUser()->getActiveGroup();
         $last10Trans = $dm->createQueryBuilder('TelepayFinancialApiBundle:Transaction')
             ->field('group')->equals($userGroup->getId())
             ->field('id')->equals($id)
@@ -143,7 +143,7 @@ class WalletController extends RestApiController{
         else $offset = 0;
 
         $dm = $this->get('doctrine_mongodb')->getManager();
-        $userGroup = $this->get('security.context')->getToken()->getUser()->getActiveGroup();
+        $userGroup = $this->get('security.token_storage')->getToken()->getUser()->getActiveGroup();
         $qb = $dm->createQueryBuilder('TelepayFinancialApiBundle:Transaction');
 
         if($request->query->get('query') != ''){
@@ -226,7 +226,7 @@ class WalletController extends RestApiController{
      */
     public function walletDayTransactions(Request $request){
         $dm = $this->get('doctrine_mongodb')->getManager();
-        $userGroup = $this->get('security.context')->getToken()->getUser()->getActiveGroup();
+        $userGroup = $this->get('security.token_storage')->getToken()->getUser()->getActiveGroup();
         $qb = $dm->createQueryBuilder('TelepayFinancialApiBundle:Transaction');
 
         if($request->query->has('day') && $request->query->get('day')!=''){
@@ -280,7 +280,7 @@ class WalletController extends RestApiController{
         else $offset = 0;
 
         $dm = $this->get('doctrine_mongodb')->getManager();
-        $userGroup = $this->get('security.context')->getToken()->getUser()->getActiveGroup();
+        $userGroup = $this->get('security.token_storage')->getToken()->getUser()->getActiveGroup();
         $qb = $dm->createQueryBuilder('TelepayFinancialApiBundle:Transaction');
 
         if($request->query->get('query')){
@@ -703,7 +703,7 @@ class WalletController extends RestApiController{
      * return transaction sum by day. week and month
      */
     public function benefits(Request $request){
-        $userGroup = $this->get('security.context')->getToken()->getUser()->getActiveGroup();
+        $userGroup = $this->get('security.token_storage')->getToken()->getUser()->getActiveGroup();
         $default_currency = $userGroup->getDefaultCurrency();
         $day = $this->_getBenefits('day');
         $week = $this->_getBenefits('week');
@@ -727,7 +727,7 @@ class WalletController extends RestApiController{
      * return transaction sum by month (last 12 months)
      */
     public function monthBenefits(Request $request){
-        $userGroup = $this->get('security.context')->getToken()->getUser()->getActiveGroup();
+        $userGroup = $this->get('security.token_storage')->getToken()->getUser()->getActiveGroup();
         $default_currency = $userGroup->getDefaultCurrency();
         $day1 = date('Y-m-1 00:00:00');
         $monthly = [];
@@ -760,7 +760,7 @@ class WalletController extends RestApiController{
      */
     public function userFees(Request $request){
         //get group
-        $group = $this->get('security.context')->getToken()->getUser()->getActiveGroup();
+        $group = $this->get('security.token_storage')->getToken()->getUser()->getActiveGroup();
         //getFees
         $fees = $group->getCommissions();
 
@@ -787,7 +787,7 @@ class WalletController extends RestApiController{
      */
     public function userLimits(Request $request){
         //get group
-        $group = $this->get('security.context')->getToken()->getUser()->getActiveGroup();
+        $group = $this->get('security.token_storage')->getToken()->getUser()->getActiveGroup();
         //getLimits
         $limits = $group->getLimits();
 
@@ -809,7 +809,7 @@ class WalletController extends RestApiController{
     }
 
     public function _getBenefits($interval, $start = null, $end =null){
-        $userGroup = $this->get('security.context')->getToken()->getUser()->getActiveGroup();
+        $userGroup = $this->get('security.token_storage')->getToken()->getUser()->getActiveGroup();
         $default_currency = $userGroup->getDefaultCurrency();
 
         switch($interval){
@@ -902,9 +902,9 @@ class WalletController extends RestApiController{
      */
     public function currencyExchange(Request $request){
         $em = $this->getDoctrine()->getManager();
-        if(!$this->get('security.context')->isGranted('ROLE_WORKER')) throw new HttpException(403, 'You don\' have the necessary permissions');
+        if(!$this->get('security.authorization_checker')->isGranted('ROLE_WORKER')) throw new HttpException(403, 'You don\' have the necessary permissions');
 
-        $user = $this->get('security.context')->getToken()->getUser();
+        $user = $this->get('security.token_storage')->getToken()->getUser();
         //TODO check client to find the group for control from api
         $userGroup = $user->getActiveGroup();
 
@@ -959,7 +959,7 @@ class WalletController extends RestApiController{
     public function getPdfReceipt(Request $request, $id){
 
         $dm = $this->get('doctrine_mongodb')->getManager();
-        $userGroup = $this->get('security.context')->getToken()->getUser()->getActiveGroup();
+        $userGroup = $this->get('security.token_storage')->getToken()->getUser()->getActiveGroup();
 
         $transaction = $dm->getRepository('TelepayFinancialApiBundle:Transaction')->find($id);
 

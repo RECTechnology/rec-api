@@ -1,4 +1,4 @@
-*    *   * * * www-data cd /api &&  timeout 300 php app/console rec:crypto:check --env=prod
-*    *   * * * www-data cd /api &&  timeout 300 php app/console rec:fiat:check --env=prod
-*    *   * * * www-data cd /api &&  timeout 300 php app/console rec:check:offers --env=prod
+*    *   * * * www-data timeout 300 /usr/bin/rec rec:crypto:check
+*    *   * * * www-data timeout 300 /usr/bin/rec rec:fiat:check
+*    *   * * * www-data timeout 300 /usr/bin/rec rec:check:offers
 #*    *   * * * www-data find /api/web/static -name *.tmp.* -type f -mmin +10 -delete

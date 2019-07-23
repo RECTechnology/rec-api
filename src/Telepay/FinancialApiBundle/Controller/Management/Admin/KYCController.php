@@ -154,7 +154,7 @@ class KYCController extends BaseApiController{
      * @Rest\View
      */
     public function getUploadedFiles($id){
-        if(!$this->get('security.context')->isGranted('ROLE_SUPER_ADMIN')) {
+        if(!$this->get('security.authorization_checker')->isGranted('ROLE_SUPER_ADMIN')) {
             throw new HttpException(403, 'You have not the necessary permissions');
         }
 
@@ -209,7 +209,7 @@ class KYCController extends BaseApiController{
      * @Rest\View
      */
     public function deleteFile($tag, $id){
-        if(!$this->get('security.context')->isGranted('ROLE_SUPER_ADMIN')) {
+        if(!$this->get('security.authorization_checker')->isGranted('ROLE_SUPER_ADMIN')) {
             throw new HttpException(403, 'You have not the necessary permissions');
         }
 
@@ -238,18 +238,19 @@ class KYCController extends BaseApiController{
 
     }
 
-
     /**
+     * @param Request $request
+     * @param $tag
+     * @param $id
+     * @return \Symfony\Component\HttpFoundation\Response
      * @Rest\View
      */
     public function uploadFile(Request $request, $tag, $id){
-        if(!$this->get('security.context')->isGranted('ROLE_SUPER_ADMIN')) {
+        if(!$this->get('security.authorization_checker')->isGranted('ROLE_SUPER_ADMIN')) {
             throw new HttpException(403, 'You have not the necessary permissions');
         }
 
-        $paramNames = array(
-            'url'
-        );
+        $paramNames = ['url'];
 
         foreach($paramNames as $paramName){
             if(!$request->request->has($paramName)){
@@ -321,7 +322,7 @@ class KYCController extends BaseApiController{
      */
     public function createLemonAccountAction(Request $request, $id){
 
-        if(!$this->get('security.context')->isGranted('ROLE_SUPER_ADMIN')) {
+        if(!$this->get('security.authorization_checker')->isGranted('ROLE_SUPER_ADMIN')) {
             throw new HttpException(403, 'You have not the necessary permissions');
         }
 
@@ -442,7 +443,7 @@ class KYCController extends BaseApiController{
 
     public function uploadLemonDocumentationAction(Request $request, $id){
 
-        if(!$this->get('security.context')->isGranted('ROLE_SUPER_ADMIN')) {
+        if(!$this->get('security.authorization_checker')->isGranted('ROLE_SUPER_ADMIN')) {
             throw new HttpException(403, 'You have not the necessary permissions');
         }
 
@@ -485,9 +486,9 @@ class KYCController extends BaseApiController{
         ));
 
         $doc_front_status = $KYC->getDocumentFrontStatus();
-        if($doc_front_status!=='upload'){
+        if($doc_front_status !== 'upload'){
             $doc_front = $KYC->getDocumentFront();
-            if($doc_front ==''){
+            if($doc_front === ''){
                 throw new HttpException(400, "Document front not upload");
             }
             if($upload) {
@@ -511,9 +512,9 @@ class KYCController extends BaseApiController{
         }
 
         $doc_rear_status = $KYC->getDocumentRearStatus();
-        if($doc_rear_status!=='upload'){
+        if($doc_rear_status !== 'upload'){
             $doc_rear = $KYC->getDocumentRear();
-            if($doc_rear ==''){
+            if($doc_rear == ''){
                 throw new HttpException(400, "Document rear not upload");
             }
             if($upload) {
@@ -591,7 +592,7 @@ class KYCController extends BaseApiController{
     }
 
     public function newLemonIdAction(Request $request){
-        if(!$this->get('security.context')->isGranted('ROLE_SUPER_ADMIN')) {
+        if(!$this->get('security.authorization_checker')->isGranted('ROLE_SUPER_ADMIN')) {
             throw new HttpException(403, 'You have not the necessary permissions');
         }
 

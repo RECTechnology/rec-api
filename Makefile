@@ -6,6 +6,7 @@ DOCKERFILE_DIR := .
 
 all: login build push deploy
 dev: run
+shell: exec
 
 login:
 	docker login -u $(DOCKER_USERNAME) -p $(DOCKER_PASSWORD) $(DOCKER_REGISTRY)
@@ -27,6 +28,9 @@ ps:
 
 stop:
 	docker-compose -f docker/dev/docker-compose.yml stop
+
+exec:
+	docker exec -it `docker-compose -f docker/dev/docker-compose.yml ps | grep "api" | awk '{print $$1}'` bash
 
 down:
 	docker-compose -f docker/dev/docker-compose.yml down

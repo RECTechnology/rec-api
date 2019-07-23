@@ -45,7 +45,7 @@ class MailingController extends BaseApiController
         else $offset = 0;
 
         //only the superadmin can access here
-        if(!$this->get('security.context')->isGranted('ROLE_SUPER_ADMIN'))
+        if(!$this->get('security.authorization_checker')->isGranted('ROLE_SUPER_ADMIN'))
             throw new HttpException(403, 'You have not the necessary permissions');
 
         $em = $this->getDoctrine()->getManager();
@@ -71,7 +71,7 @@ class MailingController extends BaseApiController
     public function createAction(Request $request){
 
         //only the superadmin can access here
-        if(!$this->get('security.context')->isGranted('ROLE_SUPER_ADMIN'))
+        if(!$this->get('security.authorization_checker')->isGranted('ROLE_SUPER_ADMIN'))
             throw new HttpException(403, 'You have not the necessary permissions');
 
         return parent::createAction($request);

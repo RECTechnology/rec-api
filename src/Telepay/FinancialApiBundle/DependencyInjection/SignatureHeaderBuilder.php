@@ -8,13 +8,17 @@
 
 namespace Telepay\FinancialApiBundle\DependencyInjection;
 
-use Symfony\Component\Security\Core\Util\SecureRandom;
 
 class SignatureHeaderBuilder {
+    /**
+     * @param $access_key
+     * @param $access_secret_b64
+     * @return string
+     * @throws \Exception
+     */
     public static function build($access_key, $access_secret_b64){
         $access_secret = base64_decode($access_secret_b64);
-        $generator = new SecureRandom();
-        $nonce = md5($generator->nextBytes(32));
+        $nonce = md5(random_bytes(32));
         $timestamp = time();
         $version = 1;
         $algorithm = "SHA256";

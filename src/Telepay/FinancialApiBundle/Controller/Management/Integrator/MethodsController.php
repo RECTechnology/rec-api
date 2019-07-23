@@ -20,7 +20,7 @@ class MethodsController extends RestApiController {
 
         //check if the user has the method
 
-        $userGroup = $this->get('security.context')->getToken()->getUser()->getActiveGroup();
+        $userGroup = $this->get('security.token_storage')->getToken()->getUser()->getActiveGroup();
 
         $methods = $userGroup->getMethodsList();
 
@@ -52,7 +52,7 @@ class MethodsController extends RestApiController {
 
         $em = $this->getDoctrine()->getManager();
         if($id == null){
-            $userGroup = $this->get('security.context')->getToken()->getUser()->getActiveGroup();
+            $userGroup = $this->get('security.token_storage')->getToken()->getUser()->getActiveGroup();
         }else{
             $userGroup = $em->getRepository('TelepayFinancialApiBundle:Group')->find($id);
 

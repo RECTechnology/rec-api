@@ -3,8 +3,6 @@ version: '3'
 volumes:
   rec-rdb:
   rec-nrdb:
-  rec-blockchain:
-  rec-logs:
 
 services:
   api:
@@ -69,8 +67,3 @@ services:
       - ME_CONFIG_MONGODB_SERVER=nrdb
     depends_on:
       - nrdb
-
-  node:
-    image: qbitartifacts/crea-node
-    volumes:
-      - rec-blockchain:/root/.creativecoin

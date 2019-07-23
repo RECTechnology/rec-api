@@ -112,13 +112,13 @@ class Transaction implements TransactionTiming {
 
     /**
      * @var
-     * @MongoDB\Date
+     * @MongoDB\Field(type="date")
      */
     private $created;
 
     /**
      * @var
-     * @MongoDB\Date
+     * @MongoDB\Field(type="date")
      */
     private $updated;
 
@@ -237,25 +237,25 @@ class Transaction implements TransactionTiming {
 
     /**
      * @var
-     * @MongoDB\Hash
+     * @MongoDB\Field(type="boolean")
      */
     private $dataIn;
 
     /**
      * @var
-     * @MongoDB\Hash
+     * @MongoDB\Field(type="boolean")
      */
     private $data;
 
     /**
      * @var
-     * @MongoDB\Hash
+     * @MongoDB\Field(type="hash")
      */
     private $dataOut;
 
     /**
      * @var
-     * @MongoDB\Hash
+     * @MongoDB\Field(type="hash")
      */
     private $debugData;
 
@@ -309,37 +309,37 @@ class Transaction implements TransactionTiming {
 
     /**
      * @var
-     * @MongoDB\Boolean
+     * @MongoDB\Field(type="boolean")
      */
     private $internal = false;
 
     /**
      * @var
-     * @MongoDB\Boolean
+     * @MongoDB\Field(type="boolean")
      */
     private $deleted = false;
 
     /**
      * @var
-     * @MongoDB\Boolean
+     * @MongoDB\Field(type="boolean")
      */
     private $notified;
 
     /**
      * @var
-     * @MongoDB\Hash
+     * @MongoDB\Field(type="hash")
      */
     private $pay_in_info;
 
     /**
      * @var
-     * @MongoDB\Hash
+     * @MongoDB\Field(type="hash")
      */
     private $pay_out_info;
 
     /**
      * @var
-     * @MongoDB\Hash
+     * @MongoDB\Field(type="hash")
      */
     private $fee_info;
 
@@ -375,13 +375,13 @@ class Transaction implements TransactionTiming {
 
     /**
      * @var
-     * @MongoDB\Date
+     * @MongoDB\Field(type="date")
      */
     private $last_price_at;
 
     /**
      * @var
-     * @MongoDB\Date
+     * @MongoDB\Field(type="date")
      */
     private $last_check;
 
@@ -414,7 +414,7 @@ class Transaction implements TransactionTiming {
 
     /**
      * @var
-     * @MongoDB\Hash
+     * @MongoDB\Field(type="hash")
      */
     private $comment;
 

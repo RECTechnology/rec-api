@@ -1,74 +1,72 @@
 #################################################### REAL SERVICE CALLS ##############################################
 
 method_call_create:
-    pattern:  /methods/v{version_number}/{type}/{method_cname}
+    path:  /methods/v{version_number}/{type}/{method_cname}
     defaults: { _controller: Telepay\FinancialApiBundle\Controller\Transactions\IncomingController2::make, _format: ~ }
+    methods: [POST]
     requirements:
-        _method: POST
         service_cname: "[a-z0-9_]+"
 
 method_delegated_create:
-    pattern:  /delegated/{method_cname}
+    path:  /delegated/{method_cname}
     defaults: { _controller: Telepay\FinancialApiBundle\Controller\Transactions\IncomingController2::remoteDelegatedTransaction, _format: ~ }
+    methods: [POST]
     requirements:
-        _method: POST
         service_cname: "[a-z0-9_]+"
 
 method_admin_third_create:
-    pattern:  /admin/v{version_number}/third/{method_cname}
+    path:  /admin/v{version_number}/third/{method_cname}
     defaults: { _controller: Telepay\FinancialApiBundle\Controller\Transactions\IncomingController2::adminThirdTransaction, _format: ~ }
+    methods: [POST]
     requirements:
-        _method: POST
         service_cname: "[a-z0-9_]+"
 
 method_call_update:
-    pattern:  /methods/v{version_number}/{type}/{method_cname}/{id}
+    path:  /methods/v{version_number}/{type}/{method_cname}/{id}
     defaults: { _controller: Telepay\FinancialApiBundle\Controller\Transactions\IncomingController2::update, _format: ~ }
+    methods: [PUT]
     requirements:
-        _method: PUT
         service_cname: "[a-z0-9_]+"
         id: "[a-z0-9]+"
 
 method_call_find:
-    pattern:  /methods/v{version_number}/{type}/{method_cname}
+    path:  /methods/v{version_number}/{type}/{method_cname}
     defaults: { _controller: Telepay\FinancialApiBundle\Controller\Transactions\IncomingController2::find, _format: ~ }
+    methods: [GET]
     requirements:
-        _method: GET
         service_cname: "[a-z0-9_]+"
 
 vendor_data_get:
-    pattern:  /transaction/v{version_number}/vendor
+    path:  /transaction/v{version_number}/vendor
     defaults: { _controller: Telepay\FinancialApiBundle\Controller\Transactions\IncomingController2::checkReceiverData, _format: ~ }
-    requirements:
-        _method: GET
+    methods: [GET]
 
 
 sender_data_get:
-    pattern:  /transaction/v{version_number}/customer
+    path:  /transaction/v{version_number}/customer
     defaults: { _controller: Telepay\FinancialApiBundle\Controller\Transactions\IncomingController2::checkSenderData, _format: ~ }
-    requirements:
-        _method: GET
+    methods: [GET]
 
 method_call_check:
-    pattern:  /methods/v{version_number}/{type}/{method_cname}/{id}
+    path:  /methods/v{version_number}/{type}/{method_cname}/{id}
     defaults: { _controller: Telepay\FinancialApiBundle\Controller\Transactions\IncomingController2::check, _format: ~ }
+    methods: [GET]
     requirements:
-        _method: GET
         service_cname: "[a-z0-9_]+"
         id: "[a-z0-9]+"
 
 service_notificate:
-    pattern:  /notifications/v{version_number}/{service_cname}/{status}
+    path:  /notifications/v{version_number}/{service_cname}/{status}
     defaults: { _controller: Telepay\FinancialApiBundle\Controller\Transactions\NotificationsController::notificate, _format: ~ }
+    methods: [POST]
     requirements:
-        _method: POST
         service_cname: "[a-z0-9_]+"
         id: "[a-z0-9]+"
 
 service_notificate_get:
-    pattern:  /notifications/v{version_number}/{service_cname}/{status}
-    defaults: { _controller: Telepay\FinancialApiBundle\Controller\Transactions\NotificationsController::notificateGET, _format: ~ }
+    path:  /notifications/v{version_number}/{service_cname}/{status}
+    defaults: { _controller: Telepay\FinancialApiBundle\Controller\Transactions\NotificationsController::notificate[GET], _format: ~ }
+    methods: [GET]
     requirements:
-        _method: GET
         service_cname: "[a-z0-9_]+"
         id: "[a-z0-9]+"

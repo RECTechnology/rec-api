@@ -1,11 +1,12 @@
 services:
+
     signature.security.authentication.provider:
         class: Telepay\FinancialApiBundle\Security\Authentication\Provider\SignatureAuthenticationProvider
         arguments: ["", "%kernel.cache_dir%/security/nonces"]
 
     signature.security.authentication.listener:
         class: Telepay\FinancialApiBundle\Security\Firewall\SignatureListener
-        arguments: ["@security.context", "@security.authentication.manager","@service_container"]
+        arguments: ["@security.token_storage", "@security.authentication.manager","@service_container"]
 
     access_key.security.user_provider:
         class: Telepay\FinancialApiBundle\Security\AccessKeyUserProvider
@@ -32,28 +33,11 @@ services:
         calls:
             - [setContainer, ["@service_container"] ]
 
-    security.authentication.switchuser_listener:
-        class: Telepay\FinancialApiBundle\Security\Firewall\SwitchUserListener
-        public: false
-        abstract: true
-        tags:
-            - { name: monolog.logger, channel: security }
-        arguments:
-           - @security.context
-           - null
-           - @security.user_checker
-           - null
-           - @security.access.decision_manager
-           - @logger
-           - su
-           - ROLE_ALLOWED_TO_SWITCH
-           - @event_dispatcher
-
     auth.logger:
         class:     Symfony\Bridge\Monolog\Logger
         arguments: [auth]
         calls:
-            - [pushHandler, [@auth.logger_handler]]
+            - [pushHandler, ["@auth.logger_handler"]]
 
     auth.logger_handler:
         class:     Monolog\Handler\StreamHandler
@@ -63,7 +47,7 @@ services:
         class:     Symfony\Bridge\Monolog\Logger
         arguments: [transaction]
         calls:
-            - [pushHandler, [@transaction.logger_handler]]
+            - [pushHandler, ["@transaction.logger_handler"]]
 
     transaction.logger_handler:
         class:     Monolog\Handler\StreamHandler
@@ -73,7 +57,7 @@ services:
         class:     Symfony\Bridge\Monolog\Logger
         arguments: [manager]
         calls:
-            - [pushHandler, [@manager.logger_handler]]
+            - [pushHandler, ["@manager.logger_handler"]]
 
     manager.logger_handler:
         class:     Monolog\Handler\StreamHandler
@@ -85,13 +69,31 @@ services:
 
     file_setter.listener:
         class: Telepay\FinancialApiBundle\EventListener\FileSetterListener
-        arguments: [@service_container]
+        arguments: ["@service_container"]
+        tags:
+            - { name: doctrine.event_listener, event: onFlush }
+
+    delegated_change.statistics_updater:
+        class: Telepay\FinancialApiBundle\EventListener\DelegatedChangeStatisticsUpdater
+        tags:
+            - { name: doctrine.event_listener, event: onFlush }
+
+    treasure_withdrawal_validation.listener:
+        class: Telepay\FinancialApiBundle\EventListener\TreasureWithdrawalValidationListener
+        arguments: ["@service_container"]
+        tags:
+            - { name: doctrine.event_listener, event: onFlush }
+
+
+    treasure_withdrawal_creation.listener:
+        class: Telepay\FinancialApiBundle\EventListener\TreasureWithdrawalCreationListener
+        arguments: ["@service_container"]
         tags:
             - { name: doctrine.event_listener, event: onFlush }
 
     kyc.listener:
         class: Telepay\FinancialApiBundle\EventListener\KycListener
-        arguments: [@service_container]
+        arguments: ["@service_container"]
         tags:
             - { name: doctrine.event_listener, event: preUpdate }
             - { name: doctrine.event_listener, event: postUpdate }
@@ -100,7 +102,7 @@ services:
 
     transaction.listener:
         class: Telepay\FinancialApiBundle\EventListener\TransactionListener
-        arguments: [@service_container, @net.telepay.commons.permissions_checker]
+        arguments: ["@service_container", "@net.telepay.commons.permissions_checker"]
         tags:
             - { name: doctrine_mongodb.odm.event_listener, event: preUpdate }
             - { name: doctrine_mongodb.odm.event_listener, event: postUpdate }
@@ -109,7 +111,7 @@ services:
 
     oauth_event_listener:
           class:  Telepay\FinancialApiBundle\EventListener\OAuthEventListener
-          arguments: [@service_container]
+          arguments: ["@service_container"]
           tags:
               - { name: kernel.event_listener, event: fos_oauth_server.pre_authorization_process, method: onPreAuthorizationProcess }
               - { name: kernel.event_listener, event: fos_oauth_server.post_authorization_process, method: onPostAuthorizationProcess }
@@ -121,6 +123,6 @@ services:
     upload_controller:
         class:  Telepay\FinancialApiBundle\Controller\Management\User\UploadController
         calls:
-            - [setContainer, [@service_container]]
+            - [setContainer, ["@service_container"]]
 
 

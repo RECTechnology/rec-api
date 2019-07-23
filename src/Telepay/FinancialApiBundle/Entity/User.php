@@ -8,11 +8,15 @@ use FOS\UserBundle\Model\GroupInterface;
 use FOS\UserBundle\Model\User as BaseUser;
 use Doctrine\ORM\Mapping as ORM;
 use Symfony\Component\HttpKernel\Exception\HttpException;
-use Symfony\Component\Security\Core\Util\SecureRandom;
 
 use JMS\Serializer\Annotation\ExclusionPolicy;
 use JMS\Serializer\Annotation\Expose;
 use JMS\Serializer\Annotation\Exclude;
+use JMS\Serializer\Annotation\VirtualProperty;
+use JMS\Serializer\Annotation\Type;
+use JMS\Serializer\Annotation\SerializedName;
+use JMS\Serializer\Annotation\Groups;
+use JMS\Serializer\Annotation\MaxDepth;
 use Symfony\Component\Validator\Constraints\DateTime;
 use Telepay\FinancialApiBundle\DependencyInjection\Telepay\Commons\UploadManager;
 
@@ -32,64 +36,75 @@ use Telepay\FinancialApiBundle\DependencyInjection\Telepay\Commons\UploadManager
  *     )
  * })
  */
-class User extends BaseUser implements EntityWithUploadableFields
-{
-    const USER_MIN_PASSWORD_LENGTH = 6;
+class User extends BaseUser implements EntityWithUploadableFields {
 
-    public function __construct()
-    {
+    /**
+     * User constructor.
+     * @throws \Exception
+     */
+    public function __construct() {
         parent::__construct();
         $this->groups = new ArrayCollection();
-        $this->devices = new ArrayCollection();
+        $this->treasure_validations = new ArrayCollection();
 
         if($this->access_key == null){
-            $generator = new SecureRandom();
-            $this->access_key=sha1($generator->nextBytes(32));
-            $this->access_secret=base64_encode($generator->nextBytes(32));
+            $this->access_key=sha1(random_bytes(32));
+            $this->access_secret=base64_encode(random_bytes(32));
         }
         $this->created = new \DateTime();
+        $this->bank_cards = new ArrayCollection();
     }
+
     /**
      * @ORM\Id
      * @ORM\Column(type="integer")
      * @ORM\GeneratedValue(strategy="AUTO")
+     * @Expose
+     * @Groups({"user"})
      */
     protected $id;
 
     /**
      * @ORM\OneToMany(targetEntity="Telepay\FinancialApiBundle\Entity\UserGroup", mappedBy="user", cascade={"remove"})
+     * @Groups({"self"})
      */
     protected $groups;
 
     /**
      * @ORM\ManyToOne(targetEntity="Telepay\FinancialApiBundle\Entity\Group")
+     * @Expose
+     * @Groups({"self"})
+     * @MaxDepth(1)
      */
     private $active_group = null;
 
     /**
      * @ORM\Column(type="string")
+     * @Groups({"super_admin"})
      */
     private $pin;
 
     /**
      * @ORM\Column(type="string")
+     * @Groups({"super_admin"})
      */
     private $security_question;
 
     /**
      * @ORM\Column(type="string")
+     * @Groups({"super_admin"})
      */
     private $security_answer;
 
     /**
      * @ORM\Column(type="string", unique=true)
      * @Expose
+     * @Groups({"user"})
      */
     private $dni;
 
     /**
      * @ORM\OneToMany(targetEntity="Telepay\FinancialApiBundle\Entity\AccessToken", mappedBy="user", cascade={"remove"})
-     *
      */
     private $access_token;
 
@@ -104,74 +119,113 @@ class User extends BaseUser implements EntityWithUploadableFields
     private $auth_code;
 
     /**
+     * @ORM\OneToMany(targetEntity="Telepay\FinancialApiBundle\Entity\TreasureWithdrawalValidation", mappedBy="validator", cascade={"remove"})
+     * @Expose
+     * @Groups({"admin"})
+     */
+    private $treasure_validations;
+
+    /**
      * @ORM\Column(type="string")
      * @Expose
+     * @Groups({"self"})
      */
     private $access_key;
 
     /**
      * @ORM\Column(type="string")
      * @Expose
+     * @Groups({"self"})
      */
     private $access_secret;
 
     /**
      * @ORM\Column(type="string")
      * @Expose
+     * @Groups({"user"})
      */
     private $name;
 
     /**
      * @ORM\Column(type="string", unique=true)
      * @Expose
+     * @Groups({"self"})
      */
     private $phone;
 
     /**
      * @ORM\Column(type="boolean")
      * @Expose
+     * @Groups({"self"})
      */
     private $public_phone;
 
     /**
      * @ORM\Column(type="integer")
      * @Expose
+     * @Groups({"self"})
      */
     private $prefix;
 
     /**
      * @ORM\Column(type="text", nullable=true)
      * @Expose
+     * @Groups({"self"})
      */
     private $profile_image = '';
 
     /**
      * @ORM\Column(type="boolean")
      * @Expose
+     * @Groups({"self"})
      */
     private $twoFactorAuthentication = false;
 
     /**
      * @ORM\Column(type="string", nullable=true)
      * @Expose
+     * @Groups({"self"})
      */
     private $twoFactorCode;
 
     /**
+     * @ORM\Column(type="boolean", nullable=true)
      * @Expose
+     * @Groups({"admin"})
+     */
+    private $locked = 0;
+
+    /**
+     * @ORM\Column(type="boolean", nullable=true)
+     * @Expose
+     * @Groups({"admin"})
+     */
+    private $expired = 0;
+
+    /**
+     * @Expose
+     * @Groups({"self"})
      */
     private $group_data = array();
 
     /**
      * @ORM\OneToOne(targetEntity="Telepay\FinancialApiBundle\Entity\TierValidations", mappedBy="user", cascade={"remove"})
+     * @Groups({"self"})
      */
     private $tier_validations;
 
     /**
      * @ORM\OneToOne(targetEntity="Telepay\FinancialApiBundle\Entity\KYC", mappedBy="user", cascade={"remove"})
      * @Expose
+     * @Groups({"self"})
      */
     private $kyc_validations;
+
+    /**
+     * @ORM\OneToMany(targetEntity="Telepay\FinancialApiBundle\Entity\CreditCard", mappedBy="user", cascade={"remove"})
+     * @Groups({"self"})
+     */
+    private $bank_cards;
 
     /**
      * Random string sent to the user email address in order to recover the password
@@ -184,13 +238,10 @@ class User extends BaseUser implements EntityWithUploadableFields
     /**
      * @ORM\Column(type="datetime")
      * @Expose
+     * @Groups({"self"})
      */
     private $created;
 
-    /**
-     * @Expose
-     */
-    protected $lastLogin;
 
     public function getAccessKey(){
         return $this->access_key;
@@ -198,6 +249,34 @@ class User extends BaseUser implements EntityWithUploadableFields
 
     public function getAccessSecret(){
         return $this->access_secret;
+    }
+
+    /**
+     * @return bool
+     * @VirtualProperty()
+     * @SerializedName("has_saved_cards")
+     * @Type("boolean")
+     * @Groups({"self"})
+     */
+    public function hasSavedCards(){
+        return (bool) $this->getActiveCard();
+    }
+
+
+    /**
+     * @VirtualProperty()
+     * @SerializedName("active_card")
+     * @Type("Telepay\FinancialApiBundle\Entity\CreditCard")
+     * @Groups({"self"})
+     */
+    public function getActiveCard(){
+
+        /** @var CreditCard $card */
+        foreach ($this->getBankCards() as $card) {
+            if(!$card->isDeleted()) return $card;
+        }
+
+        return null;
     }
 
     /**
@@ -632,4 +711,29 @@ class User extends BaseUser implements EntityWithUploadableFields
     {
         return ['profile_image' => UploadManager::$FILTER_IMAGES];
     }
+
+    /**
+     * @return mixed
+     */
+    public function getBankCards()
+    {
+        return $this->bank_cards;
+    }
+
+    /**
+     * @return bool
+     */
+    public function isAccountNonLocked()
+    {
+        return ! $this->locked;
+    }
+
+    /**
+     * @return bool
+     */
+    public function isAccountNonExpired()
+    {
+        return ! $this->expired;
+    }
+
 }

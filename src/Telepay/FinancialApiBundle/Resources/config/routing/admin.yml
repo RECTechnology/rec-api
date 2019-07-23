@@ -1,499 +1,238 @@
 
-##################### CLIENTS ############################
-
-##admin_clients_index:
-##    pattern:  /admin/v1/clients
-##    defaults: { _controller: Telepay\FinancialApiBundle\Controller\Management\Admin\ClientsController::indexAction }
-##    requirements:
-##        _method: GET
-
-##admin_clients_index_by_company:
-##    pattern:  /admin/v1/clients_by_company/{id}
-##    defaults: { _controller: Telepay\FinancialApiBundle\Controller\Management\Admin\ClientsController::indexByCompany }
-##    requirements:
-##        _method: GET
-
-##admin_clients_create:
-##    pattern:  /admin/v1/clients
-##    defaults: { _controller: Telepay\FinancialApiBundle\Controller\Management\Admin\ClientsController::createAction }
-##    requirements:
-##        _method: POST
-
-##admin_clients_show_by_id:
-##    pattern:  /admin/v1/clients/{id}
-##    defaults: { _controller: Telepay\FinancialApiBundle\Controller\Management\Admin\ClientsController::showAction }
-##    requirements:
-##        _method: GET
-
-##admin_clients_update:
-##    pattern:  /admin/v1/clients/{id}
-##    defaults: { _controller: Telepay\FinancialApiBundle\Controller\Management\Admin\ClientsController::updateAction }
-##    requirements:
-##        _method: PUT
-
-##admin_clients_delete:
-##    pattern:  /admin/v1/clients/{id}
-##    defaults: { _controller: Telepay\FinancialApiBundle\Controller\Management\Admin\ClientsController::deleteAction }
-##    requirements:
-##        _method: DELETE
-
-##admin_clients_update_limit:
-##    pattern:  /admin/v1/clients/limit/{id}
-##    defaults: { _controller: Telepay\FinancialApiBundle\Controller\Management\Admin\ClientsController::updateLimits }
-##    requirements:
-##        _method: PUT
-
-############################## SERVICES MNGMNT ##########################################
-
-##admin_services_index:
-##    pattern:  /admin/v1/methods
-##    defaults: { _controller: Telepay\FinancialApiBundle\Controller\Management\Admin\MethodsController::index }
-##    requirements:
-##        _method: GET
-
-##admin_services_create:
-##    pattern:  /admin/v1/methods
-##    defaults: { _controller: Telepay\FinancialApiBundle\Controller\Management\Admin\MethodsController::createMethod }
-##    requirements:
-##        _method: POST
-
-##admin_services_update:
-##    pattern:  /admin/v1/methods/{id}
-##    defaults: { _controller: Telepay\FinancialApiBundle\Controller\Management\Admin\MethodsController::updateMethod }
-##    requirements:
-##        _method: PUT
-
-##admin_services_delete:
-##    pattern:  /admin/v1/methods/{id}
-##    defaults: { _controller: Telepay\FinancialApiBundle\Controller\Management\Admin\MethodsController::deleteMethod }
-##    requirements:
-##        _method: DELETE
-
-##admin_exchanges_index:
-##    pattern:  /admin/v1/exchanges
-##    defaults: { _controller: Telepay\FinancialApiBundle\Controller\Management\Admin\MethodsController::indexExchanges }
-##    requirements:
-##        _method: GET
-
-############################## TRANSACTIONS MNGMNT ##########################################
-##super_admin_transaction_delete:
-##    pattern:  /admin/v1/transaction/{id}
-##    defaults: { _controller: Telepay\FinancialApiBundle\Controller\Management\Admin\TransactionsController::deleteAction }
-##    requirements:
-##        _method: DELETE
 
 super_admin_transaction_list:
-    pattern:  /admin/v1/transaction/list
+    path:  /admin/v1/transaction/list
     defaults: { _controller: Telepay\FinancialApiBundle\Controller\Management\Admin\TransactionsController::listAction }
-    requirements:
-        _method: GET
+    methods: [GET]
 
 super_admin_transaction_search:
-    pattern:  /admin/v1/transaction/{id}
+    path:  /admin/v1/transaction/{id}
     defaults: { _controller: Telepay\FinancialApiBundle\Controller\Management\Admin\TransactionsController::findAction }
-    requirements:
-        _method: GET
-
-##admin_update_status_transaction:
-##    pattern:  /admin/v1/transaction/status/{id}
-##    defaults: { _controller: Telepay\FinancialApiBundle\Controller\Management\Admin\SpecialActionsController::updateTransactionStatus }
-##    requirements:
-##        _method: PUT
-
-##admin_change_trans_amount:
-##    pattern:  /admin/v1/transaction/amount/{id}
-##    defaults: { _controller: Telepay\FinancialApiBundle\Controller\Management\Admin\SpecialActionsController::changeTransactionAmount }
-##    requirements:
-##        _method: PUT
-
-
-############################## SYSTEM MNGMNT ##########################################
-##system_load:
-##    pattern:  /system/v1/load
-##    defaults: { _controller: Telepay\FinancialApiBundle\Controller\Management\System\SystemController::load }
-##    requirements:
-##        _method: GET
-
-##system_cores:
-##    pattern:  /system/v1/cores
-##    defaults: { _controller: Telepay\FinancialApiBundle\Controller\Management\System\SystemController::cores }
-##    requirements:
-##        _method: GET
-
-##system_mem:
-##    pattern:  /system/v1/mem
-##    defaults: { _controller: Telepay\FinancialApiBundle\Controller\Management\System\SystemController::mem }
-##    requirements:
-##        _method: GET
-
-##system_net:
-##    pattern:  /system/v1/net
-##    defaults: { _controller: Telepay\FinancialApiBundle\Controller\Management\System\SystemController::net }
-##    requirements:
-##        _method: GET
-
-
-##system_api_version:
-##    pattern:  /system/v1/version
-##    defaults: { _controller: Telepay\FinancialApiBundle\Controller\Management\System\SystemController::version }
-##    requirements:
-##        _method: GET
-
-
-##system_api_financial:
-##    pattern:  /system/v1/financial
-##    defaults: { _controller: Telepay\FinancialApiBundle\Controller\Management\System\SystemController::financial }
-##    requirements:
-##        _method: GET
+    methods: [GET]
 
 system_last50transactions_index:
-    pattern:  /system/v1/last50
+    path:  /system/v1/last50
     defaults: { _controller: Telepay\FinancialApiBundle\Controller\Management\System\ActivityController::last50Transactions }
-    requirements:
-        _method: GET
+    methods: [GET]
 
-##system_totalWallets_index:
-##    pattern:  /system/v1/total_wallets
-##    defaults: { _controller: Telepay\FinancialApiBundle\Controller\Management\System\ActivityController::totalWallets }
-##    requirements:
-##        _method: GET
-
-##system_balances_by_company_index:
-##    pattern:  /system/v1/balances/{id}
-##    defaults: { _controller: Telepay\FinancialApiBundle\Controller\Management\System\ActivityController::searchBalanceByCompany }
-##    requirements:
-##        _method: GET
-
-##system_wallets_by_company:
-##    pattern:  /system/v1/wallets/{id}
-##    defaults: { _controller: Telepay\FinancialApiBundle\Controller\Management\System\ActivityController::walletByCompany }
-##    requirements:
-##        _method: GET
-
-##system_mailer_index:
-##    pattern:  /system/v1/mailer
-##    defaults: { _controller: Telepay\FinancialApiBundle\Controller\Management\System\MailingController::indexAction }
-##    requirements:
-##        _method: GET
-
-##system_mailer_show:
-##    pattern:  /system/v1/mailer/{id}
-##    defaults: { _controller: Telepay\FinancialApiBundle\Controller\Management\System\MailingController::showAction }
-##    requirements:
-##        _method: GET
-
-##system_mailer_create:
-##    pattern:  /system/v1/mailer
-##    defaults: { _controller: Telepay\FinancialApiBundle\Controller\Management\System\MailingController::createAction }
-##    requirements:
-##        _method: POST
-
-##system_mailer_update:
-##    pattern:  /system/v1/mailer/{id}
-##    defaults: { _controller: Telepay\FinancialApiBundle\Controller\Management\System\MailingController::updateAction }
-##    requirements:
-##        _method: PUT
-
-##system_mailer_send:
-##    pattern:  /system/v1/mailer/{id}/send
-##    defaults: { _controller: Telepay\FinancialApiBundle\Controller\Management\System\MailingController::sendEmail }
-##    requirements:
-##        _method: PUT
-
-##################### SPECIAL ACTIONS ############################
-
-##admin_recharge_validate:
-##    pattern:  /admin/v1/recharge/validate
-##    defaults: { _controller: Telepay\FinancialApiBundle\Controller\Management\Admin\SpecialActionsController::rechargeValidation }
-##    requirements:
-##        _method: POST
-
-##admin_cash_in_list:
-##    pattern:  /admin/v1/cash_in/{service}
-##    defaults: { _controller: Telepay\FinancialApiBundle\Controller\Management\Admin\SpecialActionsController::cashInList }
-##    requirements:
-##        _method: GET
-
-##admin_cash_in_validate:
-##    pattern:  /admin/v1/cash_in/{id}
-##    defaults: { _controller: Telepay\FinancialApiBundle\Controller\Management\Admin\SpecialActionsController::cashInValidation }
-##    requirements:
-##        _method: POST
-
-##admin_cash_out_list:
-##    pattern:  /admin/v1/cash_out/{method}
-##    defaults: { _controller: Telepay\FinancialApiBundle\Controller\Management\Admin\SpecialActionsController::cashOutList }
-##    requirements:
-##        _method: GET
-
-##admin_generate_crypt_address:
-##    pattern:  /admin/v1/special_actions/{currency}/address
-##    defaults: { _controller: Telepay\FinancialApiBundle\Controller\Management\Admin\SpecialActionsController::getNewAddress }
-##    requirements:
-##        _method: GET
-
-##################### COMPANIES ############################
 
 admin_companies_super_update:
-    pattern:  /admin/v1/companies/{id}
+    path:  /admin/v1/companies/{id}
     defaults: { _controller: Telepay\FinancialApiBundle\Controller\Management\Admin\CompaniesController::updateAction }
-    requirements:
-        _method: PUT
+    methods: [PUT]
 
 admin_companies_super_delete:
-    pattern:  /admin/v1/companies/{id}
+    path:  /admin/v1/companies/{id}
     defaults: { _controller: Telepay\FinancialApiBundle\Controller\Management\Admin\CompaniesController::deleteAction }
-    requirements:
-        _method: DELETE
+    methods: [DELETE]
 
 admin_company_read:
-    pattern:  /admin/v1/company/{id}/read
+    path:  /admin/v1/company/{id}/read
     defaults: { _controller: Telepay\FinancialApiBundle\Controller\Management\Admin\CompaniesController::showAction }
-    requirements:
-        _method: GET
+    methods: [GET]
 
 ####################  USER  ########################
 admin_user_read:
-    pattern:  /admin/v1/user/{id}
+    path:  /admin/v1/user/{id}
     defaults: { _controller: Telepay\FinancialApiBundle\Controller\Management\Admin\UsersController::showAction }
-    requirements:
-        _method: GET
+    methods: [GET]
 
 admin_users_update:
-    pattern:  /admin/v1/users/{id}
+    path:  /admin/v1/users/{id}
     defaults: { _controller: Telepay\FinancialApiBundle\Controller\Management\Admin\UsersController::updateAction }
+    methods: [PUT]
     requirements:
-        _method: PUT
         id: "[0-9]+"
         name: "string"
         email: "email"
         password: "string"
 
 admin_user_active:
-    pattern:  /admin/v1/activeuser/{id}
+    path:  /admin/v1/activeuser/{id}
     defaults: { _controller: Telepay\FinancialApiBundle\Controller\Management\Admin\UsersController::activateAction, _format: ~ }
+    methods: [POST]
     requirements:
-        _method: POST
         id: "[0-9]+"
 
 admin_user_deactive:
-    pattern:  /admin/v1/deactiveuser/{id}
+    path:  /admin/v1/deactiveuser/{id}
     defaults: { _controller: Telepay\FinancialApiBundle\Controller\Management\Admin\UsersController::deactivateAction, _format: ~ }
+    methods: [POST]
     requirements:
-        _method: POST
         id: "[0-9]+"
 
 admin_users_delete:
-    pattern:  /admin/v1/users/{id}
+    path:  /admin/v1/users/{id}
     defaults: { _controller: Telepay\FinancialApiBundle\Controller\Management\Admin\UsersController::deleteAction, _format: ~ }
+    methods: [DELETE]
     requirements:
-        _method: DELETE
         id: "[0-9]+"
 
 admin_users_delete_by_name:
-    pattern:  /admin/v1/users/name/{username}
+    path:  /admin/v1/users/name/{username}
     defaults: { _controller: Telepay\FinancialApiBundle\Controller\Management\Admin\UsersController::deleteByNameAction, _format: ~ }
+    methods: [DELETE]
     requirements:
-        _method: DELETE
         username: "string"
 
 admin_user_update_kyc:
-    pattern:  /admin/v1/user/{id}/kyc
+    path:  /admin/v1/user/{id}/kyc
     defaults: { _controller: Telepay\FinancialApiBundle\Controller\Management\Admin\UsersController::updateKYCAction }
-    requirements:
-        _method: PUT
+    methods: [PUT]
 
 admin_user_update_phone:
-    pattern:  /admin/v1/user/{id}/phone
+    path:  /admin/v1/user/{id}/phone
     defaults: { _controller: Telepay\FinancialApiBundle\Controller\Management\Admin\UsersController::updatePhoneAction }
-    requirements:
-        _method: PUT
+    methods: [PUT]
 
 admin_user_actions:
-    pattern:  /admin/v1/user/{id}/{action}
+    path:  /admin/v1/user/{id}/{action}
     defaults: { _controller: Telepay\FinancialApiBundle\Controller\Management\Admin\UsersController::userActionsAction }
-    requirements:
-        _method: PUT
+    methods: [PUT]
 
 admin_groups_delete_users:
-    pattern:  /admin/v1/groups/{group_id}/{user_id}
+    path:  /admin/v1/groups/{group_id}/{user_id}
     defaults: { _controller: Telepay\FinancialApiBundle\Controller\Management\Admin\UsersController::deleteFromGroupAction, _format: ~ }
+    methods: [DELETE]
     requirements:
-        _method: DELETE
         group_id: "[0-9]+"
         user_id: "[0-9]+"
 
 ##################### MAP ############################
 
 map_visibility:
-    pattern:  /admin/v1/map/visibility/{account_id}
-    defaults: {_controller: Telepay\FinancialApiBundle\Controller\Management\Company\MapController::setVisibility }
-    requirements:
-        _method: PUT
-
-
-admin_map_search:
-    pattern: /admin/v1/map/search
-    defaults: {_controller: Telepay\FinancialApiBundle\Controller\Management\Company\MapController::adminSearchV2 }
-    requirements:
-        _method: GET
-
-
-##################### KYC ############################
-
-##admin_KYC_list:
-##    pattern:  /admin/v1/kyc
-##    defaults: { _controller: Telepay\FinancialApiBundle\Controller\Management\Admin\KYCController::listPendingIssues }
-##    requirements:
-##        _method: GET
-
-##admin_KYC_update:
-##    pattern:  /admin/v1/kyc/{id}
-##    defaults: { _controller: Telepay\FinancialApiBundle\Controller\Management\Admin\KYCController::updateAction }
-##    requirements:
-##        _method: PUT
-
-##admin_KYC_update_request:
-##    pattern:  /admin/v1/kyc/{id}/{action}
-##    defaults: { _controller: Telepay\FinancialApiBundle\Controller\Management\Admin\KYCController::updateKYCRequest }
-##    requirements:
-##        _method: PUT
+    path:  /admin/v1/map/visibility/{account_id}
+    defaults: {_controller: Telepay\FinancialApiBundle\Controller\Management\Admin\MapController::setVisibility }
+    methods: [PUT]
 
 admin_kyc_get_uploaded_files_by_user:
-    pattern:  /admin/v1/kyc/uploads/{id}
+    path:  /admin/v1/kyc/uploads/{id}
     defaults: { _controller: Telepay\FinancialApiBundle\Controller\Management\Admin\KYCController::getUploadedFiles }
-    requirements:
-        _method: GET
+    methods: [GET]
 
 admin_kyc_upload_file:
-    pattern:  /admin/v1/kyc/file/{tag}/{id}
+    path:  /admin/v1/kyc/file/{tag}/{id}
     defaults: { _controller: Telepay\FinancialApiBundle\Controller\Management\Admin\KYCController::uploadFile }
-    requirements:
-        _method: POST
+    methods: [POST]
 
 admin_kyc_delete_file:
-    pattern:  /admin/v1/kyc/file/{tag}/{id}
+    path:  /admin/v1/kyc/file/{tag}/{id}
     defaults: { _controller: Telepay\FinancialApiBundle\Controller\Management\Admin\KYCController::deleteFile }
-    requirements:
-        _method: DELETE
+    methods: [DELETE]
 
 
 admin_kyc_lemon_create_account:
-    pattern:  /admin/v1/kyc/lemon/{id}
+    path:  /admin/v1/kyc/lemon/{id}
     defaults: { _controller: Telepay\FinancialApiBundle\Controller\Management\Admin\KYCController::createLemonAccountAction }
-    requirements:
-        _method: POST
+    methods: [POST]
 
+admin_kyc_lemon_upload_files:
+    path:  /admin/v1/kyc/{account_id}/lemon/upload
+    defaults: { _controller: Telepay\FinancialApiBundle\Controller\Management\Admin\KYCController::uploadLemonDocumentationAction }
+    methods: [POST]
 
-admin_kyc_lemon_newId_account:
-    pattern:  /admin/v1/kyc/lemon_id
+admin_kyc_lemon_new_id_account:
+    path:  /admin/v1/kyc/lemon_id
     defaults: { _controller: Telepay\FinancialApiBundle\Controller\Management\Admin\KYCController::newLemonIdAction }
-    requirements:
-        _method: POST
+    methods: [POST]
 
-##################### TIER LIMITS ############################
 
-##admin_KYC_limit_index:
-##    pattern: /admin/v1/tier/limit
-##    defaults: { _controller: Telepay\FinancialApiBundle\Controller\Management\Admin\TierLimitController::indexAction }
-##    requirements:
-##        _method: GET
 
-##admin_KYC_limit_create:
-##    pattern: /admin/v1/tier/limit
-##    defaults: { _controller: Telepay\FinancialApiBundle\Controller\Management\Admin\TierLimitController::createAction }
-##    requirements:
-##        _method: POST
+##################### ADMIN / DELEGATE CHANGE ############################
 
-##admin_kyc_limit_update:
-##    pattern: /admin/v1/tier/limit/{id}
-##    defaults: { _controller: Telepay\FinancialApiBundle\Controller\Management\Admin\TierLimitController::updateAction }
-##    requirements:
-##        _method: PUT
+admin_index_delegate_change:
+    path:  /admin/v1/delegated_changes
+    defaults: { _controller: Telepay\FinancialApiBundle\Controller\Management\Admin\DelegatedChangeController::indexAction }
+    methods: [GET]
 
-##admin_kyc_limit_delete:
-##    pattern: /admin/v1/tier/limit/{id}
-##    defaults: { _controller: Telepay\FinancialApiBundle\Controller\Management\Admin\TierLimitController::deleteAction }
-##    requirements:
-##        _moethod: DELETE
+admin_create_delegate_change:
+    path:  /admin/v1/delegated_changes
+    defaults: { _controller: Telepay\FinancialApiBundle\Controller\Management\Admin\DelegatedChangeController::createAction }
+    methods: [POST]
 
-##################### LIMITS ############################
+admin_show_delegate_change:
+    path:  /admin/v1/delegated_changes/{id}
+    defaults: { _controller: Telepay\FinancialApiBundle\Controller\Management\Admin\DelegatedChangeController::showAction }
+    methods: [GET]
 
-##admin_specific_limit_index:
-##    pattern: /admin/v1/limit
-##    defaults: { _controller: Telepay\FinancialApiBundle\Controller\Management\Admin\CompanyLimitController::indexAction }
-##    requirements:
-##        _method: GET
+admin_update_delegate_change:
+    path:  /admin/v1/delegated_changes/{id}
+    defaults: { _controller: Telepay\FinancialApiBundle\Controller\Management\Admin\DelegatedChangeController::updateAction }
+    methods: [PUT]
 
-##admin_specific_limit_create:
-##    pattern: /admin/v1/limit
-##    defaults: { _controller: Telepay\FinancialApiBundle\Controller\Management\Admin\CompanyLimitController::createAction }
-##    requirements:
-##        _method: POST
+admin_delete_delegate_change:
+    path:  /admin/v1/delegated_changes/{id}
+    defaults: { _controller: Telepay\FinancialApiBundle\Controller\Management\Admin\DelegatedChangeController::deleteAction }
+    methods: [DELETE]
 
-##admin_specific_limit_update:
-##    pattern: /admin/v1/limit/{id}
-##    defaults: { _controller: Telepay\FinancialApiBundle\Controller\Management\Admin\CompanyLimitController::updateAction }
-##    requirements:
-##        _method: PUT
 
-##admin_specific_limit_delete:
-##    pattern: /admin/v1/limit/{id}
-##    defaults: { _controller: Telepay\FinancialApiBundle\Controller\Management\Admin\CompanyLimitController::deleteAction }
-##    requirements:
-##        _moethod: DELETE
+##################### ADMIN / DELEGATE CHANGE DATA ############################
 
-##################### FEES ############################
+admin_index_delegate_change_data:
+    path:  /admin/v1/delegated_change_data
+    defaults: { _controller: Telepay\FinancialApiBundle\Controller\Management\Admin\DelegatedChangeDataController::indexAction }
+    methods: [GET]
 
-##admin_fee_update:
-##    pattern: /admin/v1/fee/{id}
-##    defaults: { _controller: Telepay\FinancialApiBundle\Controller\Management\Admin\CompanyFeesController::updateAction }
-##    requirements:
-##        _method: PUT
+admin_create_delegate_change_data:
+    path:  /admin/v1/delegated_change_data
+    defaults: { _controller: Telepay\FinancialApiBundle\Controller\Management\Admin\DelegatedChangeDataController::createAction }
+    methods: [POST]
 
-####################  NFC CARDS  ##########################
-##admin_index_nfc_cards:
-##    pattern: /admin/v1/nfc_cards
-##    defaults: { _controller: Telepay\FinancialApiBundle\Controller\Management\Admin\NFCController::index }
-##    requirements:
-##        _method: GET
+admin_show_delegate_change_data:
+    path:  /admin/v1/delegated_change_data/{id}
+    defaults: { _controller: Telepay\FinancialApiBundle\Controller\Management\Admin\DelegatedChangeDataController::showAction }
+    methods: [GET]
 
-####################   WALLET NOTIFIES     #####################
-##admin_wallet_notifiy:
-##    pattern:  /admin/v1/wallet/notify
-##    defaults: { _controller: Telepay\FinancialApiBundle\Controller\Management\Admin\WalletNotifyController::notifyAction }
-##    requirements:
-##        _method: POST
+admin_update_delegate_change_data:
+    path:  /admin/v1/delegated_change_data/{id}
+    defaults: { _controller: Telepay\FinancialApiBundle\Controller\Management\Admin\DelegatedChangeDataController::updateAction }
+    methods: [PUT]
 
-#####################     BALANCES     ############################
-##admin_balances_index:
-##    pattern: /admin/v1/company/{company_id}/balance
-##    defaults: { _controller: Telepay\FinancialApiBundle\Controller\Management\Admin\BalancesController::indexAction }
-##    requirements:
-##        _method: GET
+admin_delete_delegate_change_data:
+    path:  /admin/v1/delegated_change_data/{id}
+    defaults: { _controller: Telepay\FinancialApiBundle\Controller\Management\Admin\DelegatedChangeDataController::deleteAction }
+    methods: [DELETE]
 
-##admin_balances_update_hard_reset:
-##    pattern: /admin/v1/company/{company_id}/balance/reset
-##    defaults: { _controller: Telepay\FinancialApiBundle\Controller\Management\Admin\BalancesController::resetBalances }
-##    requirements:
-##        _method: PUT
+admin_create_delegate_change_data_from_csv:
+    path:  /admin/v1/delegated_change_data/csv
+    defaults: { _controller: Telepay\FinancialApiBundle\Controller\Management\Admin\DelegatedChangeDataController::loadCsvAction }
+    methods: [POST]
 
-##admin_balances_update:
-##    pattern: /admin/v1/company/{company_id}/balance/{id}
-##    defaults: { _controller: Telepay\FinancialApiBundle\Controller\Management\Admin\BalancesController::updateAction }
-##    requirements:
-##        _method: PUT
 
-##admin_balances_delete:
-##    pattern: /admin/v1/company/{company_id}/balance/{id}
-##    defaults: { _controller: Telepay\FinancialApiBundle\Controller\Management\Admin\BalancesController::deleteAction }
-##    requirements:
-##        _method: DELETE
+##################### ADMIN / TREASURE WITHDRAWAL ATTEMPTS ############################
 
-#####################     WITHDRAWAL     ############################
 
-##withdrawal_token_validation:
-##    pattern: /withdrawal/v1/{token}
-##    defaults: { _controller: Telepay\FinancialApiBundle\Controller\Management\Admin\SpecialActionsController::withdrawalAction }
-##    requirements:
-##        _method: GET
+admin_index_treasure_withdrawal:
+    path:  /admin/v1/treasure_withdrawals
+    defaults: { _controller: Telepay\FinancialApiBundle\Controller\Management\Admin\TreasureWithdrawalController::indexAction }
+    methods: [GET]
+
+admin_create_treasure_withdrawal:
+    path:  /admin/v1/treasure_withdrawals
+    defaults: { _controller: Telepay\FinancialApiBundle\Controller\Management\Admin\TreasureWithdrawalController::createAction }
+    methods: [POST]
+
+admin_show_treasure_withdrawal:
+    path:  /admin/v1/treasure_withdrawals/{id}
+    defaults: { _controller: Telepay\FinancialApiBundle\Controller\Management\Admin\TreasureWithdrawalController::showAction }
+    methods: [GET]
+
+
+##################### ADMIN / V2 / TREASURE WITHDRAWAL VALIDATIONS ############################
+
+
+admin_index_treasure_withdrawal_validations:
+    path:  /admin/v1/treasure_withdrawal_validations
+    defaults: { _controller: Telepay\FinancialApiBundle\Controller\Management\Admin\TreasureWithdrawalValidationController::indexAction }
+    methods: [GET]
+
+admin_show_treasure_withdrawal_validations:
+    path:  /admin/v1/treasure_withdrawal_validations/{id}
+    defaults: { _controller: Telepay\FinancialApiBundle\Controller\Management\Admin\TreasureWithdrawalValidationController::showAction }
+    methods: [GET]
+
+admin_update_treasure_withdrawal_validations:
+    path:  /admin/v1/treasure_withdrawal_validations/{id}
+    defaults: { _controller: Telepay\FinancialApiBundle\Controller\Management\Admin\TreasureWithdrawalValidationController::updateAction }
+    methods: [PUT]
+

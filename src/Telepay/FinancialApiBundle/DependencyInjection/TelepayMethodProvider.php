@@ -10,11 +10,11 @@ namespace Telepay\FinancialApiBundle\DependencyInjection;
 
 use Telepay\FinancialApiBundle\DependencyInjection\Transactions\Core\AbstractMethod;
 
-class TelepayMethodProvider{
+class TelepayMethodProvider {
 
     private $methodsByCName;
 
-    public function __construct($methods){
+    public function __construct(array $methods){
         $this->methodsByCName = array();
         foreach($methods as $method){
             $this->methodsByCName[$method->getCName().'-'.$method->getType()] = $method;

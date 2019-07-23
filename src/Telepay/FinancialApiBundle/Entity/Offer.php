@@ -6,6 +6,7 @@ use Symfony\Component\HttpKernel\Exception\HttpException;
 use JMS\Serializer\Annotation\ExclusionPolicy;
 use JMS\Serializer\Annotation\Expose;
 use JMS\Serializer\Annotation\Exclude;
+use JMS\Serializer\Annotation\Groups;
 use Doctrine\ORM\Mapping as ORM;
 
 use Symfony\Bridge\Doctrine\Validator\Constraints\UniqueEntity;
@@ -26,53 +27,62 @@ class Offer{
      * @ORM\Column(type="integer")
      * @ORM\GeneratedValue(strategy="AUTO")
      * @Expose
+     * @Groups({"public"})
      */
     protected $id;
 
     /**
      * @ORM\Column(type="datetime")
      * @Expose
+     * @Groups({"public"})
      */
     private $created;
 
     /**
      * @ORM\Column(type="datetime")
      * @Expose
+     * @Groups({"public"})
      */
     private $start;
 
     /**
      * @ORM\Column(type="datetime")
      * @Expose
+     * @Groups({"public"})
      */
     private $end;
 
     /**
      * @ORM\ManyToOne(targetEntity="Telepay\FinancialApiBundle\Entity\Group")
+     * @Groups({"public"})
      */
     private $company;
 
     /**
      * @ORM\Column(type="string")
      * @Expose
+     * @Groups({"public"})
      */
     private $discount;
 
     /**
      * @ORM\Column(type="string", nullable=true)
      * @Expose
+     * @Groups({"public"})
      */
     private $description;
 
     /**
      * @ORM\Column(type="string", nullable=true)
      * @Expose
+     * @Groups({"public"})
      */
     private $image;
 
     /**
      * @ORM\Column(type="boolean")
      * @Expose
+     * @Groups({"public"})
      */
     private $active = false;
 

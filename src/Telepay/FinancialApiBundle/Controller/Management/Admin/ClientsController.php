@@ -119,7 +119,7 @@ class ClientsController extends BaseApiController {
     public function createAction(Request $request){
         $em = $this->getDoctrine()->getManager();
 
-        $user = $this->get('security.context')->getToken()->getUser();
+        $user = $this->get('security.token_storage')->getToken()->getUser();
         $userGroup = $user->getActiveGroup();
 
         $adminRoles = $this->getDoctrine()->getRepository("TelepayFinancialApiBundle:UserGroup")->findOneBy(array(

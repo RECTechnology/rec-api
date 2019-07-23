@@ -36,8 +36,8 @@ class NFCController extends RestApiController{
      * @Rest\View
      */
     public function registerCard(Request $request){
-        $user = $this->get('security.context')->getToken()->getUser();
-        $group = $this->get('security.context')->getToken()->getUser()->getActiveGroup();
+        $user = $this->get('security.token_storage')->getToken()->getUser();
+        $group = $this->get('security.token_storage')->getToken()->getUser()->getActiveGroup();
 
         $paramNames = array(
             'alias'

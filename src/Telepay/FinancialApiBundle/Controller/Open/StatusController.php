@@ -20,7 +20,7 @@ class StatusController extends RestApiController {
      * This function will return an encoded version of system health, according with the following bitmask:
      *   - RELATIONAL_DB = 0x1
      *   - NOT_RELATIONAL_DB = 0x2
-     *   - BLOCKCHAIN_NODE = 0x4
+     *   - BLOCKCHAIN_NODE = 0x4 # Deprecated, returns always WORKING
      * so, a fully working system will return "system_status": 7, and a fully down "system_status": 0
      */
     public function status(Request $request){
@@ -45,14 +45,6 @@ class StatusController extends RestApiController {
                 $odm->getConnection()->connect();
         } catch (\Exception $e){
             $status ^= 0x2; // change middle-bit (010)
-            $exceptions []= $e->getMessage();
-        }
-
-        try {
-            $wallet = $this->get("net.telepay.driver.easybitcoin.rec");
-            $wallet->getinfo();
-        } catch (\Exception $e){
-            $status ^= 0x4; // change msb (100)
             $exceptions []= $e->getMessage();
         }
 

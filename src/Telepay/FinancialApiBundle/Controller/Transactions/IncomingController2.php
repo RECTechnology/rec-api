@@ -3,7 +3,6 @@
 namespace Telepay\FinancialApiBundle\Controller\Transactions;
 
 use Symfony\Component\Config\Definition\Exception\Exception;
-use Symfony\Component\Console\Input\ArgvInput;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpKernel\Exception\HttpException;
 use Telepay\FinancialApiBundle\Controller\RestApiController;
@@ -12,6 +11,7 @@ use Symfony\Component\Console\Output\BufferedOutput;
 use Telepay\FinancialApiBundle\DependencyInjection\Telepay\Commons\LimitAdder;
 use Telepay\FinancialApiBundle\DependencyInjection\Telepay\Commons\LimitChecker;
 use Telepay\FinancialApiBundle\Document\Transaction;
+use Telepay\FinancialApiBundle\Entity\CreditCard;
 use Telepay\FinancialApiBundle\Entity\Group;
 use Telepay\FinancialApiBundle\Entity\LimitCount;
 use Telepay\FinancialApiBundle\Entity\LimitDefinition;
@@ -27,8 +27,8 @@ class IncomingController2 extends RestApiController{
      * @Rest\View
      */
     public function make(Request $request, $version_number, $type, $method_cname){
-        $user = $this->get('security.context')->getToken()->getUser();
-        if (!$this->get('security.context')->isGranted('ROLE_WORKER')) throw new HttpException(403, 'You don\' have the necessary permissions');
+        $user = $this->get('security.token_storage')->getToken()->getUser();
+        if (!$this->get('security.authorization_checker')->isGranted('ROLE_WORKER')) throw new HttpException(403, 'You don\' have the necessary permissions');
         if($request->request->has('company_id')){
             $group = $this->getDoctrine()->getManager()
                 ->getRepository('TelepayFinancialApiBundle:Group')
@@ -92,14 +92,18 @@ class IncomingController2 extends RestApiController{
         $dm = $this->get('doctrine_mongodb')->getManager();
         $em = $this->getDoctrine()->getManager();
 
-        $user = $em->getRepository('TelepayFinancialApiBundle:User')->findOneBy(array(
-            'id' => $user_id
-        ));
-        $logger->info('(' . $group_id . ')(T) FIND USER');
+        $user = $em->getRepository('TelepayFinancialApiBundle:User')->find($user_id);
+        $logger->info('(' . $user_id . ')(T) FIND USER');
 
         //obtain wallet and check founds for cash_out services for this group
+
+        $logger->info("getting account wallet for {$group->getId()}, currency {$method->getCurrency()}");
         /** @var UserWallet $wallet */
         $wallet = $group->getWallet($method->getCurrency());
+        if(!$wallet)
+            throw new \LogicException(
+                "Error: wallet for account {$group->getId()} and currency {$method->getCurrency()} doesn't exist"
+            );
 
         if(array_key_exists('amount', $data) && $data['amount']!='' && intval($data['amount'])>0){
             $amount = $data['amount'];
@@ -487,84 +491,24 @@ class IncomingController2 extends RestApiController{
         $this->container->get('notificator')->notificate($transaction);
         $logger->info('(' . $group_id . ')(T) END NOTIFICATION');
         if($transaction == false) throw new HttpException(500, "oOps, some error has occurred within the call");
+
         if($user_id == -1 || $ip == '127.0.0.1'){
             $logger->info('(' . $group_id . ')(T) Incomig transaction... return string');
             $logger->info('(' . $group_id . ')(T) FINAL');
-            return 'Transaction generated: ' . $transaction->getStatus();
-        }else{
+            $logger->info('(' . $group_id . ')(T) TXID: ' . $transaction->getId());
+            return 'Transaction generated: ' . $transaction->getStatus() . ", ID: " . $transaction->getId();
+        }
+        else {
             $logger->info('(' . $group_id . ')(T) Incomig transaction... return http format');
             $logger->info('(' . $group_id . ')(T) FINAL');
             return $this->methodTransaction(201, $transaction, "Done");
         }
     }
 
-    public function remoteDelegatedTransaction(Request $request, $method_cname){
-        $user = $this->get('security.context')->getToken()->getUser();
-        if (!$user->hasRole('ROLE_SUPER_ADMIN')) throw new HttpException(403, 'Permission error');
-
-        if($method_cname != 'lemonway'){
-            throw new HttpException(400, 'Bad method');
-        }
-        $paramNames = array(
-            'dni',
-            'cif',
-            'amount'
-        );
-        $params = array();
-        foreach ( $paramNames as $paramName){
-            if($request->request->has($paramName)){
-                $params[$paramName] = $request->request->get($paramName);
-            }else{
-                throw new HttpException(400,'Missing parameter '.$paramName);
-            }
-        }
-        $em = $this->getDoctrine()->getManager();
-        $user = $em->getRepository('TelepayFinancialApiBundle:User')->findOneBy(array('dni'=>$params['dni']));
-        if(!$user){
-            throw new HttpException(400,'User not found: ' . $params['dni']);
-        }
-
-        $group = $em->getRepository('TelepayFinancialApiBundle:Group')->findOneBy(array('cif'=>$params['dni'], 'active'=>true));
-        if(!$group){
-            throw new HttpException(400,'User is not a particular: ' . $params['dni']);
-        }
-        $group->setSubtype('BMINCOME');
-        $em->persist($group);
-        $em->flush();
-
-        $card = $em->getRepository('TelepayFinancialApiBundle:CreditCard')->findOneBy(
-            array(
-                'user'=>$user->getId(),
-                'deleted'=>false,
-                'company' => $group->getId()
-            )
-        );
-        if($card){
-            $card->setDeleted(true);
-            $em->persist($card);
-            $em->flush();
-        }
-
-        $group_commerce = $em->getRepository('TelepayFinancialApiBundle:Group')->findOneBy(array(
-                'cif'=>$params['cif'],
-                'type' => 'COMPANY'
-            )
-        );
-        if(!$group_commerce){
-            throw new HttpException(400,'Commerce not found: ' . $params['cif']);
-        }
-
-        $request = array();
-        $request['concept'] = 'Internal exchange';
-        $request['amount'] = $params['amount'];
-        $request['commerce_id'] = $group_commerce->getId();
-        $request['save_card'] = 1;
-        return $this->createTransaction($request, 1, 'in', $method_cname, $user->getId(), $group, '127.0.0.2');
-    }
 
 
     public function adminThirdTransaction(Request $request, $method_cname){
-        $user = $this->get('security.context')->getToken()->getUser();
+        $user = $this->get('security.token_storage')->getToken()->getUser();
         if (!$user->hasRole('ROLE_SUPER_ADMIN')) throw new HttpException(403, 'Permission error');
         if (!$user->getTwoFactorAuthentication()) throw new HttpException(403, '2FA must be active');
 
@@ -612,19 +556,99 @@ class IncomingController2 extends RestApiController{
         return $this->createTransaction($request, 1, 'out', $method_cname, $user->getId(), $group_sender, '127.0.0.2');
     }
 
+    public function remoteDelegatedTransactionPlain($params, $ip = "127.0.0.1"){
+
+        $em = $this->getDoctrine()->getManager();
+
+        /** @var User $user */
+        $user = $em->getRepository('TelepayFinancialApiBundle:User')
+            ->findOneBy(['dni' => $params['dni']]);
+
+        if(!$user){
+            throw new HttpException(400,'User not found: ' . $params['dni']);
+        }
+
+        /** @var Group $account */
+        $account = $em->getRepository('TelepayFinancialApiBundle:Group')
+            ->findOneBy(['cif' => $params['dni'], 'active' => true, 'type' => 'PRIVATE']);
+
+        if(!$account){
+            throw new HttpException(400,'User is not a particular: ' . $params['dni']);
+        }
+        $account->setSubtype('BMINCOME');
+        $em->persist($account);
+        $em->flush();
+
+        /** @var CreditCard $card */
+        $card = $em->getRepository('TelepayFinancialApiBundle:CreditCard')->findOneBy(
+            [
+                'user' => $user->getId(),
+                'deleted' => false,
+                'company' => $account->getId()
+            ]
+        );
+        if($card){
+            $card->setDeleted(true);
+            $em->persist($card);
+            $em->flush();
+        }
+
+        /** @var Group $exchanger */
+        $exchanger = $em->getRepository('TelepayFinancialApiBundle:Group')->findOneBy(
+            [
+                'cif' => $params['cif'],
+                'type' => 'COMPANY'
+            ]
+        );
+        if(!$exchanger){
+            throw new HttpException(400,'Commerce not found: ' . $params['cif']);
+        }
+
+        $request = [];
+        $request['concept'] = 'Internal exchange';
+        $request['amount'] = $params['amount'];
+        $request['commerce_id'] = $exchanger->getId();
+        $request['save_card'] = 1;
+        return $this->createTransaction($request, 1, 'in', "lemonway", $user->getId(), $account, $ip);
+    }
+
+    public function remoteDelegatedTransaction(Request $request, $method_cname){
+        $user = $this->get('security.token_storage')->getToken()->getUser();
+        if (!$user->hasRole('ROLE_SUPER_ADMIN')) throw new HttpException(403, 'Permission error');
+
+        if($method_cname != 'lemonway'){
+            throw new HttpException(400, 'Bad method');
+        }
+        $paramNames = array(
+            'dni',
+            'cif',
+            'amount'
+        );
+        $params = array();
+        foreach ( $paramNames as $paramName){
+            if($request->request->has($paramName)){
+                $params[$paramName] = $request->request->get($paramName);
+            }else{
+                throw new HttpException(400,'Missing parameter '.$paramName);
+            }
+        }
+
+        return $this->remoteDelegatedTransactionPlain($params, '127.0.0.2');
+    }
+
 
     /**
      * @Rest\View
      */
     public function update(Request $request, $version_number, $type, $method_cname, $id){
         $method = $this->get('net.telepay.'.$type.'.'.$method_cname.'.v'.$version_number);
-        if(!$this->get('security.context')->isGranted('ROLE_WORKER')) throw new HttpException(403, 'You don\' have the necessary permissions');
+        if(!$this->get('security.authorization_checker')->isGranted('ROLE_WORKER')) throw new HttpException(403, 'You don\' have the necessary permissions');
 
         $logger = $this->get('transaction.logger');
         $logger->info('Update transaction');
         $message = 'NAN';
 
-        $user = $this->get('security.context')->getToken()->getUser();
+        $user = $this->get('security.token_storage')->getToken()->getUser();
         $mongo = $this->get('doctrine_mongodb')->getManager();
         $dealer = $this->container->get('net.telepay.commons.fee_deal');
 
@@ -790,7 +814,7 @@ class IncomingController2 extends RestApiController{
     public function check(Request $request, $version_number, $type, $method_cname, $id){
         $method = $this->get('net.telepay.'.$type.'.'.$method_cname.'.v'.$version_number);
 
-        $user = $this->get('security.context')->getToken()->getUser();
+        $user = $this->get('security.token_storage')->getToken()->getUser();
         $group = $this->_getCurrentCompany($user);
         $this->_checkPermissions($user, $group);
 
@@ -899,7 +923,7 @@ class IncomingController2 extends RestApiController{
         $method = $this->get('net.telepay.'.$type.'.'.$method_cname.'.v'.$version_number);
 
         $dm = $this->get('doctrine_mongodb')->getManager();
-        $user = $this->get('security.context')
+        $user = $this->get('security.token_storage')
             ->getToken()->getUser();
         //TODO change this for active group
         $group = $user->getGroups()[0];
@@ -1111,7 +1135,7 @@ class IncomingController2 extends RestApiController{
         /*
         $tokenManager = $this->container->get('fos_oauth_server.access_token_manager.default');
         try{
-            $token = $this->get('security.context')->getToken();
+            $token = $this->get('security.token_storage')->getToken();
             if($token instanceof SignatureToken) return $user->getActiveGroup();
             $accessToken = $tokenManager->findTokenByToken($token->getToken());
 

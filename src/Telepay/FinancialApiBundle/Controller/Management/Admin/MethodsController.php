@@ -79,7 +79,7 @@ class MethodsController extends BaseApiController
                 $allowed_services[] = $resp;
             }
         }else{
-            $userGroup = $this->get('security.context')->getToken()->getUser()->getActiveGroup();
+            $userGroup = $this->get('security.token_storage')->getToken()->getUser()->getActiveGroup();
             $group_services = $userGroup->getMethodsList();
 
             foreach($services as $method){

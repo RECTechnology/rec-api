@@ -34,7 +34,7 @@ class UsersController extends BaseApiController{
      * @Rest\View
      */
     public function showAction($id){
-        $admin_user = $this->get('security.context')->getToken()->getUser();
+        $admin_user = $this->get('security.token_storage')->getToken()->getUser();
         if(!$admin_user->hasRole('ROLE_SUPER_ADMIN')) throw new HttpException(403, 'You don\'t have the necessary permissions');
 
         $user = $this->getRepository()->find($id);
@@ -73,7 +73,7 @@ class UsersController extends BaseApiController{
      * permissions: ROLE_SUPER_ADMIN
      */
     public function updateAction(Request $request, $id){
-        $user = $this->get('security.context')->getToken()->getUser();
+        $user = $this->get('security.token_storage')->getToken()->getUser();
         if(!$user->hasRole('ROLE_SUPER_ADMIN')) throw new HttpException(403, 'You don\'t have the necessary permissions');
 
         $validParams = array(
@@ -162,7 +162,7 @@ class UsersController extends BaseApiController{
      */
     public function updateKYCAction(Request $request, $id){
         if(empty($id)) throw new HttpException(400, "Missing parameter 'id'");
-        $user = $this->get('security.context')->getToken()->getUser();
+        $user = $this->get('security.token_storage')->getToken()->getUser();
         if (!$user->hasRole('ROLE_SUPER_ADMIN')) throw new HttpException(403, 'You don\'t have the necessary permissions');
 
         $validParams = array(
@@ -230,7 +230,7 @@ class UsersController extends BaseApiController{
      */
     public function updatePhoneAction(Request $request, $id){
         if(empty($id)) throw new HttpException(400, "Missing parameter 'id'");
-        $user = $this->get('security.context')->getToken()->getUser();
+        $user = $this->get('security.token_storage')->getToken()->getUser();
         if (!$user->hasRole('ROLE_SUPER_ADMIN')) throw new HttpException(403, 'You don\'t have the necessary permissions');
 
         $validParams = array(
@@ -352,7 +352,7 @@ class UsersController extends BaseApiController{
      * @Rest\View
      */
     public function deactivateAction($id){
-        if(!$this->get('security.context')->isGranted('ROLE_SUPER_ADMIN')) throw new HttpException(403, 'You don\'t have the necessary permissions');
+        if(!$this->get('security.authorization_checker')->isGranted('ROLE_SUPER_ADMIN')) throw new HttpException(403, 'You don\'t have the necessary permissions');
         $em = $this->getDoctrine()->getManager();
         $user = $em->getRepository('TelepayFinancialApiBundle:User')->findOneBy(array(
                 'id'=>$id
@@ -369,7 +369,7 @@ class UsersController extends BaseApiController{
      * @Rest\View
      */
     public function activateAction($id){
-        if(!$this->get('security.context')->isGranted('ROLE_SUPER_ADMIN')) throw new HttpException(403, 'You don\'t have the necessary permissions');
+        if(!$this->get('security.authorization_checker')->isGranted('ROLE_SUPER_ADMIN')) throw new HttpException(403, 'You don\'t have the necessary permissions');
         $em = $this->getDoctrine()->getManager();
         $user = $em->getRepository('TelepayFinancialApiBundle:User')->findOneBy(array(
                 'id'=>$id
@@ -387,7 +387,7 @@ class UsersController extends BaseApiController{
      * @Rest\View
      */
     public function deleteAction($id){
-        if(!$this->get('security.context')->isGranted('ROLE_SUPER_ADMIN')) throw new HttpException(403, 'You don\'t have the necessary permissions');
+        if(!$this->get('security.authorization_checker')->isGranted('ROLE_SUPER_ADMIN')) throw new HttpException(403, 'You don\'t have the necessary permissions');
         //TODO conditions to delete user
         //no transactions, not kyc manager in any company, if unique in company without transactions,
         //TODO a listener to control this shit
@@ -399,7 +399,7 @@ class UsersController extends BaseApiController{
      * @Rest\View
      */
     public function deleteByNameAction($username){
-        if(!$this->get('security.context')->isGranted('ROLE_SUPER_ADMIN')) throw new HttpException(403, 'You don\'t have the necessary permissions');
+        if(!$this->get('security.authorization_checker')->isGranted('ROLE_SUPER_ADMIN')) throw new HttpException(403, 'You don\'t have the necessary permissions');
         throw new HttpException(403, 'Pending function');
         $repo = $this->getRepository();
         $user = $repo->findOneBy(array('username'=>$username));
@@ -412,7 +412,7 @@ class UsersController extends BaseApiController{
      * @Rest\View
      */
     public function deleteFromGroupAction(Request $request, $user_id, $group_id){
-        if (!$this->get('security.context')->isGranted('ROLE_SUPER_ADMIN')) throw new HttpException(403, 'You don\'t have the necessary permissions');
+        if (!$this->get('security.authorization_checker')->isGranted('ROLE_SUPER_ADMIN')) throw new HttpException(403, 'You don\'t have the necessary permissions');
 
         $groupsRepository = $this->getDoctrine()->getRepository("TelepayFinancialApiBundle:Group");
         $group = $groupsRepository->find($group_id);

@@ -2,22 +2,16 @@ services:
 
     net.telepay.service_provider:
         class: Telepay\FinancialApiBundle\DependencyInjection\TelepayServiceProvider
-        arguments:
-            services:
 
     net.telepay.swift_provider:
         class: Telepay\FinancialApiBundle\DependencyInjection\TelepaySwiftProvider
         arguments:
-            services:
-                - "rec-sepa"
-                - "sepa-rec"
+            - ["rec-sepa", "sepa-rec"]
 
     net.telepay.method_provider:
         class: Telepay\FinancialApiBundle\DependencyInjection\TelepayMethodProvider
         arguments:
-            services:
-                - "@net.telepay.out.rec.v1"
-                - "@net.telepay.in.rec.v1"
+            - ["@net.telepay.out.rec.v1", "@net.telepay.in.rec.v1"]
 
 
 ####     METHODS     ####
@@ -42,8 +36,8 @@ services:
     net.telepay.out.rec.v1:
         class: Telepay\FinancialApiBundle\Financial\Methods\RecMethod
         arguments:
-            - "LemonWay"
-            - "lemonway"
+            - "Rec"
+            - "rec"
             - "out"
             - "REC"
             - "false"

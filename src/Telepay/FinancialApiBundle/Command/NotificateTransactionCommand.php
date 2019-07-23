@@ -10,6 +10,7 @@ use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Component\HttpKernel\Exception\HttpException;
 use Telepay\FinancialApiBundle\DependencyInjection\Telepay\Commons\FeeDeal;
 use Telepay\FinancialApiBundle\DependencyInjection\Telepay\Commons\LimitAdder;
+use Telepay\FinancialApiBundle\DependencyInjection\Telepay\Commons\Notificator;
 use Telepay\FinancialApiBundle\Document\Transaction;
 use Telepay\FinancialApiBundle\Entity\Exchange;
 use Telepay\FinancialApiBundle\Financial\Currency;
@@ -35,7 +36,6 @@ class NotificateTransactionCommand extends ContainerAwareCommand
         $id = $input->getArgument('id');
 
         $dm = $this->getContainer()->get('doctrine_mongodb')->getManager();
-        $em = $this->getContainer()->get('doctrine')->getManager();
 
         $transaction = $dm->getRepository('TelepayFinancialApiBundle:Transaction')->find($id);
 
@@ -45,7 +45,9 @@ class NotificateTransactionCommand extends ContainerAwareCommand
 
             $output->writeln('Sending notification');
 
-            $transaction = $this->getContainer()->get('notificator')->notificate($transaction);
+            /** @var Notificator $notificator */
+            $notificator = $this->getContainer()->get('notificator');
+            $transaction = $notificator->notificate($transaction);
 
             if($transaction->getNotified()){
                 $output->writeln('NOTIFICATED TRANSACTION');

@@ -172,7 +172,7 @@ class NFCController extends RestApiController{
         $company = $em->getRepository('TelepayFinancialApiBundle:Group')->find($company_id);
         if(!$company) throw new HttpException(404, 'Group not found');
 
-        $user = $this->get('security.context')->getToken()->getUser();
+        $user = $this->get('security.token_storage')->getToken()->getUser();
 
         $userGroup = $em->getRepository('TelepayFinancialApiBundle:UserGroup')->findOneBy(array(
             'user'  =>  $user->getId(),

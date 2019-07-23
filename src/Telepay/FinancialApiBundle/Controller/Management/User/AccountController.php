@@ -2,14 +2,14 @@
 
 namespace Telepay\FinancialApiBundle\Controller\Management\User;
 
+use Doctrine\Common\Annotations\AnnotationException;
 use Doctrine\DBAL\DBALException;
-use Symfony\Component\Security\Core\Util\SecureRandom;
+use Symfony\Component\HttpFoundation\Response;
 use Telepay\FinancialApiBundle\Entity\CashInTokens;
 use Telepay\FinancialApiBundle\Entity\Group;
 use Telepay\FinancialApiBundle\Entity\KYC;
 use Telepay\FinancialApiBundle\Entity\ServiceFee;
 use Telepay\FinancialApiBundle\Entity\User;
-use Rhumsaa\Uuid\Uuid;
 use Symfony\Component\HttpKernel\Exception\HttpException;
 use Telepay\FinancialApiBundle\Controller\BaseApiController;
 use FOS\RestBundle\Controller\Annotations as Rest;
@@ -36,9 +36,10 @@ class AccountController extends BaseApiController{
      * @Rest\View
      */
     public function read(Request $request){
-        $user = $this->get('security.context')->getToken()->getUser();
+        /** @var User $user */
+        $user = $this->get('security.token_storage')->getToken()->getUser();
         $user->setRoles($user->getRoles());
-        $group = $this->get('security.context')->getToken()->getUser()->getActiveGroup();
+        $group = $this->get('security.token_storage')->getToken()->getUser()->getActiveGroup();
         $group_data = $group->getUserView();
         $user->setGroupData($group_data);
         return $this->restV2(200, "ok", "Account info got successfully", $user);
@@ -46,9 +47,15 @@ class AccountController extends BaseApiController{
 
     /**
      * @Rest\View
+     * @param Request $request
+     * @param null $id
+     * @return Response
+     * @throws AnnotationException
+     * @throws \ReflectionException
      */
     public function updateAction(Request $request,$id = null){
-        $user = $this->get('security.context')->getToken()->getUser();
+        /** @var User $user */
+        $user = $this->get('security.token_storage')->getToken()->getUser();
         $id = $user->getId();
         $params = array();
         if($request->request->has('password')){
@@ -59,7 +66,7 @@ class AccountController extends BaseApiController{
                     $params['old_password'] = $request->request->get('old_password');
                     $userManager = $this->container->get('access_key.security.user_provider');
                     $user = $userManager->loadUserById($id);
-                    $encoder_service = $this->get('security.encoder_factory');
+                    $encoder_service = $this->get('security.password_encoder');
                     $encoder = $encoder_service->getEncoder($user);
                     if(strlen($params['password']) < User::USER_MIN_PASSWORD_LENGTH) throw new HttpException(404, 'Password must be longer than 6 characters');
                     if($params['password'] != $params['repassword']) throw new HttpException(404, "Passwords doesn't match");
@@ -94,7 +101,7 @@ class AccountController extends BaseApiController{
      * @Rest\View
      */
     public function changeGroup(Request $request){
-        $user = $this->get('security.context')->getToken()->getUser();
+        $user = $this->get('security.token_storage')->getToken()->getUser();
         $user->setRoles($user->getRoles());
         if($request->request->has('group_id'))
             $group_id = $request->request->get('group_id');
@@ -125,37 +132,44 @@ class AccountController extends BaseApiController{
 
     /**
      * @Rest\View
+     * @param Request $request
+     * @return Response
      */
     public function active2faAction(Request $request){
-        $user = $this->get('security.context')->getToken()->getUser();
+
+        /** @var User $user */
+        $user = $this->get('security.token_storage')->getToken()->getUser();
         $em = $this->getDoctrine()->getManager();
         $user->setTwoFactorAuthentication(true);
-        if($user->getTwoFactorCode() == ""){
+        if($user->getTwoFactorCode() === ""){
             $Google2FA = new Google2FA();
             $user->setTwoFactorCode($Google2FA->generate_secret_key());
         }
         $em->persist($user);
         $em->flush();
-        return $this->restV2(200,"ok", "Account info got successfully", $user);
+        return $this->restV2(200,"ok", "2FA activated successfully", $user);
     }
 
     /**
      * @Rest\View
+     * @param Request $request
+     * @return Response
      */
     public function deactive2faAction(Request $request){
-        $user = $this->get('security.context')->getToken()->getUser();
+        /** @var User $user */
+        $user = $this->get('security.token_storage')->getToken()->getUser();
         $em = $this->getDoctrine()->getManager();
         $user->setTwoFactorAuthentication(false);
         $em->persist($user);
         $em->flush();
-        return $this->restV2(200,"ok", "Account info got successfully", $user);
+        return $this->restV2(200,"ok", "2FA deactivated successfully", $user);
     }
 
     /**
      * @Rest\View
      */
     public function update2faAction(Request $request){
-        $user = $this->get('security.context')->getToken()->getUser();
+        $user = $this->get('security.token_storage')->getToken()->getUser();
         $em = $this->getDoctrine()->getManager();
         $Google2FA = new Google2FA();
         $user->setTwoFactorCode($Google2FA->generate_secret_key());
@@ -169,7 +183,7 @@ class AccountController extends BaseApiController{
      * @Rest\View
      */
     public function publicPhoneAction(Request $request){
-        $user = $this->get('security.context')->getToken()->getUser();
+        $user = $this->get('security.token_storage')->getToken()->getUser();
         $em = $this->getDoctrine()->getManager();
         if($request->request->has('activate'))
             $user->setPublicPhone(true);
@@ -192,7 +206,7 @@ class AccountController extends BaseApiController{
         }
         $public_phone_list = array();
 
-        $you = $this->get('security.context')->getToken()->getUser();
+        $you = $this->get('security.token_storage')->getToken()->getUser();
         $my_accounts = $this->getDoctrine()->getRepository("TelepayFinancialApiBundle:UserGroup")->findBy(array(
             'user'  =>  $you
         ));
@@ -480,7 +494,7 @@ class AccountController extends BaseApiController{
         $company->setType($type);
         $company->setSubtype($subtype);
         $company->setActive(true);
-        $company->setRoles(array('ROLE_COMPANY'));
+        $company->setRoles(['ROLE_COMPANY']);
         $company->setRecAddress('temp');
         $company->setMethodsList($methodsList);
         $company->setLatitude($latitude);
@@ -625,14 +639,14 @@ class AccountController extends BaseApiController{
 
     /**
      * @Rest\View
+     * @throws \Exception
      */
     public function resetCredentials(Request $request){
 
-        $user = $this->get('security.context')->getToken()->getUser();
+        $user = $this->get('security.token_storage')->getToken()->getUser();
 
-        $generator = new SecureRandom();
-        $access_key = sha1($generator->nextBytes(32));
-        $access_secret = base64_encode($generator->nextBytes(32));
+        $access_key = sha1(random_bytes(32));
+        $access_secret = base64_encode(random_bytes(32));
 
         $user->setAccessSecret($access_secret);
         $user->setAccessKey($access_key);
@@ -756,7 +770,7 @@ class AccountController extends BaseApiController{
      */
     public function kycSave(Request $request){
         $em = $this->getDoctrine()->getManager();
-        $user = $this->get('security.context')->getToken()->getUser();
+        $user = $this->get('security.token_storage')->getToken()->getUser();
 
         $kyc = $em->getRepository('TelepayFinancialApiBundle:KYC')->findOneBy(array(
             'user' => $user
@@ -919,7 +933,7 @@ class AccountController extends BaseApiController{
      */
     public function indexCompanies(Request $request){
 
-        $user = $this->get('security.context')->getToken()->getUser();
+        $user = $this->get('security.token_storage')->getToken()->getUser();
         $repo = $this->getDoctrine()->getRepository("TelepayFinancialApiBundle:UserGroup");
         $data = $repo->findBy(array('user'=>$user));
 
@@ -952,7 +966,7 @@ class AccountController extends BaseApiController{
      * @Rest\View
      */
     public function showQuestion(Request $request){
-        $user = $this->get('security.context')->getToken()->getUser();
+        $user = $this->get('security.token_storage')->getToken()->getUser();
         return $this->restV2(
             200,
             "ok",
@@ -988,7 +1002,7 @@ class AccountController extends BaseApiController{
         }
         if($params['pin'] != $params['repin']) throw new HttpException(404, 'Pin and repin are different');
 
-        $user = $this->get('security.context')->getToken()->getUser();
+        $user = $this->get('security.token_storage')->getToken()->getUser();
 
         $params['security_answer'] = $this->cleanString($params['security_answer']);
         if(strtoupper($params['security_answer']) != $user->getSecurityAnswer()){

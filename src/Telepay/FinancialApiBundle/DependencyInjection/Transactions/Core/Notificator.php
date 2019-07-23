@@ -3,7 +3,6 @@ namespace Telepay\FinancialApiBundle\DependencyInjection\Transactions\Core;
 
 use Symfony\Component\DependencyInjection\ContainerInterface;
 use Telepay\FinancialApiBundle\Document\Transaction;
-use Telepay\FinancialApiBundle\Entity\Group;
 
 class Notificator {
 
@@ -33,8 +32,6 @@ class Notificator {
                 ($transaction->getType() == 'out' || $transaction->getType() == 'in')
             ) {
                 $this->notificate_upc($transaction);
-
-                //TODO: figure out WTF is this
                 $transaction->setNotified(true);
             }
         }
@@ -124,7 +121,6 @@ class Notificator {
             ->find($transaction->getGroup());
 
         //necesitamos el id el status el amount y el secret
-        /** @var string $id */
         $id = $transaction->getId();
         $status = $transaction->getStatus();
         $amount = round($transaction->getAmount() / 100000000, 2);
@@ -132,27 +128,23 @@ class Notificator {
 
         if ($transaction->getType() == 'out') {
             $payment_info = $transaction->getPayOutInfo();;
-            /** @var Group $destination */
-            $destination = $this->container
-                ->get('doctrine')
-                ->getRepository('TelepayFinancialApiBundle:Group')
-                ->findOneBy(
-                    ['rec_address' => $payment_info['address']]
-                );
+            $destination = $this->container->get('doctrine')->getRepository('TelepayFinancialApiBundle:Group')->findOneBy(array(
+                'rec_address' => $payment_info['address']
+            ));
 
-            if($destination->getType() === 'PRIVATE') {
+            if($destination->getType()=='PRIVATE') {
                 $data_to_sign = $id . $status . $amount;
                 $signature = hash_hmac('sha256', $data_to_sign, $key);
                 $data = array(
                     'receiver' => 'PARTICULAR',
                     'date' => time(),
-                    'activity_type_code' => Group::UPC_ACTIVITY_TYPE_CODE_DEFAULT
+                    'activity_type_code' => 16
                 );
             }
             elseif($destination->getType()=='COMPANY'){
                 $data_to_sign = $id . $status . $amount;
                 $signature = hash_hmac('sha256', $data_to_sign, $key);
-                $activity = $destination->getCategory() ? $destination->getCategory()->getId() : Group::UPC_ACTIVITY_TYPE_CODE_DEFAULT;
+                $activity = $destination->getCategory() ? $destination->getCategory()->getId() : 16;
                 $data = array(
                     'receiver' => $destination->getCif(),
                     'date' => time(),
@@ -166,7 +158,7 @@ class Notificator {
             $data = array(
                 'receiver' => 'CAMBIO',
                 'date' => time(),
-                'activity_type_code' => Group::UPC_ACTIVITY_TYPE_CODE_DEFAULT
+                'activity_type_code' => 16
             );
         }
 
@@ -179,23 +171,27 @@ class Notificator {
             'data'      =>  json_encode($data)
         );
 
-        $notificator = $this->container->get('com.qbitartofacts.rec.commons.bcn_halltown_notificator');
 
         $payload = [
             "account_id" => $params['account_id'],
-            "id" => $params['id'],
+            "id" => $params['account_id'],
             "status" => $params['status'],
             "amount" => $params['amount'],
             "signature" => $params['signature'],
             "data" => [
                 "receiver" => $data['receiver'],
                 "date" => $data['date'],
-                "activity_type_code" => $data['activity_type_code']
+                "activity_type_code" => strval($data['activity_type_code'])
             ],
         ];
 
+        $msg = json_encode($payload);
 
-        $response = $notificator->msg(json_encode($payload, JSON_NUMERIC_CHECK));
+        $logger = $this->container->get('com.qbitartofacts.rec.commons.notificator');
+        $logger->msg('#NOTIFICATION_UPC_REQUEST: ' . $msg);
+
+        $notificator = $this->container->get('com.qbitartofacts.rec.commons.upc_notificator');
+        $response = $notificator->msg($msg);
 
         $response_data = json_decode($response, true);
         if(!isset($response_data['Message'])){
@@ -206,13 +202,13 @@ class Notificator {
         }
         if($response_data['Message']['Type']!='SUCCESS'){
             $transaction->setNotified(false);
-            $transaction->setNotificationTries($transaction->getNotificationTries() + 1);
+            $transaction->setNotificationTries($transaction->getNotificationTries()+1);
         }
 
         $clean_response = str_replace('"', '', $response);
 
-        $notificator = $this->container->get('com.qbitartofacts.rec.commons.notificator');
-        $notificator->msg('#NOTIFICATION_UPC ' . $clean_response);
+        $logger->msg('#NOTIFICATION_UPC_RESPONSE: ' . $clean_response);
+
 
         // close curl resource to free up system resources
         $dm->persist($transaction);

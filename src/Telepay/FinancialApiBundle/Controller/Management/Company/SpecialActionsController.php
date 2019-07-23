@@ -40,7 +40,7 @@ class SpecialActionsController extends RestApiController {
         if (!$this->get('security.authorization_checker')->isGranted('ROLE_WORKER')) {
             throw $this->createAccessDeniedException();
         }
-        $user = $this->get('security.context')->getToken()->getUser();
+        $user = $this->get('security.token_storage')->getToken()->getUser();
         $em = $this->getDoctrine()->getManager();
         $group = $em->getRepository('TelepayFinancialApiBundle:Group')->findOneBy(array(
             'id'  =>  $company_id

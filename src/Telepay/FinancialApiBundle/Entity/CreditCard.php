@@ -6,9 +6,8 @@ use Symfony\Component\HttpKernel\Exception\HttpException;
 use JMS\Serializer\Annotation\ExclusionPolicy;
 use JMS\Serializer\Annotation\Expose;
 use JMS\Serializer\Annotation\Exclude;
+use JMS\Serializer\Annotation\Groups;
 use Doctrine\ORM\Mapping as ORM;
-
-use Symfony\Bridge\Doctrine\Validator\Constraints\UniqueEntity;
 
 
 /**
@@ -26,40 +25,47 @@ class CreditCard{
      * @ORM\Column(type="integer")
      * @ORM\GeneratedValue(strategy="AUTO")
      * @Expose
+     * @Groups({"self"})
      */
     protected $id;
 
     /**
      * @ORM\Column(type="datetime")
      * @Expose
+     * @Groups({"self"})
      */
     private $created;
 
     /**
      * @ORM\ManyToOne(targetEntity="Telepay\FinancialApiBundle\Entity\Group")
+     * @Groups({"self"})
      */
     private $company;
 
     /**
-     * @ORM\ManyToOne(targetEntity="Telepay\FinancialApiBundle\Entity\User")
+     * @ORM\ManyToOne(targetEntity="Telepay\FinancialApiBundle\Entity\User", inversedBy="bank_cards")
      * @Expose
+     * @Groups({"self"})
      */
     private $user;
 
     /**
      * @ORM\Column(type="string")
      * @Expose
+     * @Groups({"self"})
      */
     private $alias;
 
     /**
      * @ORM\Column(type="string")
      * @Expose
+     * @Groups({"self"})
      */
     private $external_id;
 
     /**
      * @ORM\Column(type="boolean")
+     * @Groups({"self"})
      */
     private $deleted = false;
 
@@ -142,6 +148,13 @@ class CreditCard{
      */
     public function getDeleted(){
         return $this->deleted;
+    }
+
+    /**
+     * @return boolean
+     */
+    public function isDeleted(){
+        return $this->getDeleted();
     }
 
     /**

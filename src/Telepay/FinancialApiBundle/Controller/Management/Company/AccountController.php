@@ -39,7 +39,7 @@ class AccountController extends BaseApiController{
      */
     public function setAdmin(Request $request, $id){
 
-        $user = $this->get('security.context')->getToken()->getUser();
+        $user = $this->get('security.token_storage')->getToken()->getUser();
 
         $em = $this->getDoctrine()->getManager();
         $company = $em->getRepository($this->getRepositoryName())->find($id);
@@ -72,7 +72,7 @@ class AccountController extends BaseApiController{
      */
     public function updateAction(Request $request, $account_id){
 
-        $admin = $this->get('security.context')->getToken()->getUser();
+        $admin = $this->get('security.token_storage')->getToken()->getUser();
         $adminGroup = $this->getRepository($this->getRepositoryName())->find($account_id);
 
         $adminRoles = $this->getDoctrine()->getRepository('TelepayFinancialApiBundle:UserGroup')->findOneBy(array(
@@ -128,7 +128,7 @@ class AccountController extends BaseApiController{
      * Permissions: ROLE_ADMIN (all)
      */
     public function updateLocationAction(Request $request, $account_id){
-        $admin = $this->get('security.context')->getToken()->getUser();
+        $admin = $this->get('security.token_storage')->getToken()->getUser();
         $adminGroup = $this->getRepository($this->getRepositoryName())->find($account_id);
 
         $em = $this->getDoctrine()->getManager();
@@ -151,21 +151,21 @@ class AccountController extends BaseApiController{
         }
 
         if(!$request->request->has('latitude')) {
-            throw new HttpException(404, 'Param latitude not found');
+            throw new HttpException(400, 'latitude is required');
         }
         if(!$request->request->has('longitude')) {
-            throw new HttpException(404, 'Param longitude not found');
+            throw new HttpException(400, 'longitude is required');
         }
 
         $lat = $request->request->get('latitude');
         $lon = $request->request->get('longitude');
 
         if(intval($lat) > 90 ||  intval($lat) < -90 || intval($lat) == 0){
-            throw new HttpException(404, 'Bad value in latitude');
+            throw new HttpException(400, 'Bad value for latitude (allowed float [-90, 90])');
         }
 
         if(intval($lon) > 90 ||  intval($lon) < -90 || intval($lon) == 0){
-            throw new HttpException(404, 'Bad value in longitude');
+            throw new HttpException(400, 'Bad value for longitude (allowed float [-90, 90])');
         }
 
         $adminGroup->setLatitude($lat);

@@ -255,6 +255,9 @@ class LemonWayMethod extends BaseMethod {
     public function getPayOutStatus($id){
     }
 
+    /**
+     * @param $paymentInfo
+     */
     public function send($paymentInfo){
         if(isset($paymentInfo['from'])) {
             $from = $paymentInfo['from'];

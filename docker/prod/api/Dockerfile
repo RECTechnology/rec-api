@@ -1,8 +1,7 @@
-FROM debian:stretch
+FROM debian:buster
 ENV DEBIAN_FRONTEND noninteractive
 RUN apt update && apt install -y \
     php \
-    apache2 \
     php-mysql \
     php-xml \
     php-mongodb \
@@ -12,13 +11,13 @@ RUN apt update && apt install -y \
     php-mbstring \
     php-zip \
     php-redis \
-    gettext-base \
     composer \
+    gettext-base \
+    apache2 \
     wget
 
-
 COPY docker/prod/api/vhost.conf /etc/apache2/sites-available/000-default.conf
-RUN a2enmod rewrite php7.0
+RUN a2enmod rewrite php7.3
 RUN sed 's/^ServerTokens OS/ServerTokens Prod/' -i /etc/apache2/conf-available/security.conf
 RUN sed 's/^ServerSignature On/ServerSignature Off/' -i /etc/apache2/conf-available/security.conf
 

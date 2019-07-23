@@ -3,11 +3,21 @@ FOS\UserBundle\Model\User:
     properties :
         id:
             expose: true
+            groups:
+                - self
         username:
             expose: true
+            groups:
+                - self
         roles:
             expose: true
+            groups:
+                - self
         email:
             expose: true
+            groups:
+                - self
         locked:
             expose: true
+            groups:
+                - self

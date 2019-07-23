@@ -3,10 +3,13 @@ security:
         FOS\UserBundle\Model\UserInterface: sha512
 
     role_hierarchy:
+        ROLE_USER:            ROLE_PUBLIC
         ROLE_READONLY:        ROLE_USER
         ROLE_WORKER:          ROLE_READONLY
         ROLE_COMMERCE:        ROLE_USER
         ROLE_INTEGRATOR:      ROLE_COMMERCE
+        ROLE_MANAGER:         ROLE_USER
+        ROLE_SELF:            ROLE_MANAGER
         ROLE_ADMIN:           ROLE_WORKER
         ROLE_SUPER_ADMIN:     ROLE_ADMIN
 
@@ -139,21 +142,29 @@ security:
             anonymous: ~
 
     access_control:
-        - { path: ^/system/v[0-9]+/*, role: ROLE_SUPER_ADMIN }
-        - { path: ^/admin/v[0-9]+/*, role: ROLE_SUPER_ADMIN }
-        - { path: ^/manager/v[0-9]+/*, role: ROLE_ADMIN, methods: [POST,PUT,DELETE] }
-        - { path: ^/company/v[0-9]+/*, role: ROLE_USER, methods: [GET] }
-        - { path: ^/company/v[0-9]+/*, role: ROLE_WORKER, methods: [POST,PUT,DELETE] }
-        - { path: ^/services/v[0-9]+/*, role: ROLE_ADMIN }
-        - { path: ^/methods/v[0-9]+/*, role: ROLE_WORKER }
+        - { path: ^/system/v[0-2]+/*, role: ROLE_SUPER_ADMIN }
+        - { path: ^/admin/v[0-2]+/*, role: ROLE_SUPER_ADMIN }
+        - { path: ^/manager/v[0-2]+/*, role: ROLE_ADMIN, methods: [POST,PUT,DELETE] }
+        - { path: ^/company/v[0-2]+/*, role: ROLE_USER, methods: [GET] }
+        - { path: ^/company/v[0-2]+/*, role: ROLE_WORKER, methods: [POST,PUT,DELETE] }
+        - { path: ^/services/v[0-2]+/*, role: ROLE_ADMIN }
+        - { path: ^/methods/v[0-2]+/*, role: ROLE_WORKER }
 
-        - { path: ^/pos/v[0-9]+/transaction/*, role: IS_AUTHENTICATED_ANONYMOUSLY, ip: ["127.0.0.1"] }
-        - { path: ^/pos/v[0-9]+/check/*, role: IS_AUTHENTICATED_ANONYMOUSLY }
-        - { path: ^/pos/v[0-9]+/cancel/*, role: IS_AUTHENTICATED_ANONYMOUSLY, ip: ["127.0.0.1"]  }
+        - { path: ^/pos/v[0-2]+/transaction/*, role: IS_AUTHENTICATED_ANONYMOUSLY, ip: ["127.0.0.1"] }
+        - { path: ^/pos/v[0-2]+/check/*, role: IS_AUTHENTICATED_ANONYMOUSLY }
+        - { path: ^/pos/v[0-2]+/cancel/*, role: IS_AUTHENTICATED_ANONYMOUSLY, ip: ["127.0.0.1"]  }
 
-        - { path: ^/user/v[0-9]+/pos/link/*, role: IS_AUTHENTICATED_ANONYMOUSLY }
-        - { path: ^/user/v[0-9]+/*, role: ROLE_USER }
-        - { path: ^/register/v[0-9]+, roles: IS_AUTHENTICATED_ANONYMOUSLY }
-        - { path: ^/password_recovery/v[0-9]+, role: IS_AUTHENTICATED_ANONYMOUSLY }
+        - { path: ^/user/v[0-2]+/pos/link/*, role: IS_AUTHENTICATED_ANONYMOUSLY }
+        - { path: ^/user/v[0-2]+/*, role: ROLE_USER }
+        - { path: ^/self/v[0-2]+/*, role: ROLE_USER }
+        - { path: ^/register/v[0-2]+, roles: IS_AUTHENTICATED_ANONYMOUSLY }
+        - { path: ^/password_recovery/v[0-2]+, role: IS_AUTHENTICATED_ANONYMOUSLY }
 
+        # V3+ access_control
+        - { path: ^/public/v[3-9]+/*, role: ROLE_PUBLIC}
+        - { path: ^/user/v[3-9]+/*, role: ROLE_USER }
+        - { path: ^/manager/v[3-9]+/*, role: ROLE_MANAGER }
+        - { path: ^/self/v[3-9]+/*, role: ROLE_SELF }
+        - { path: ^/admin/v[3-9]+/*, role: ROLE_ADMIN }
+        - { path: ^/sadmin/v[3-9]+/*, role: ROLE_SUPER_ADMIN }
 

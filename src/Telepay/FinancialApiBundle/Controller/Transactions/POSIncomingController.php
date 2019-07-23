@@ -434,7 +434,7 @@ class POSIncomingController extends RestApiController{
         if($request->query->has('offset')) $offset = $request->query->get('offset');
         else $offset = 0;
 
-        $userGroup = $this->get('security.context')->getToken()->getUser()->getActiveGroup();
+        $userGroup = $this->get('security.token_storage')->getToken()->getUser()->getActiveGroup();
         $em = $this->getDoctrine()->getManager();
         $pos = $em->getRepository('TelepayFinancialApiBundle:POS')->findOneBy(array(
             'pos_id'  =>  $pos_id,

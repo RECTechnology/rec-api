@@ -24,10 +24,10 @@ class ScheduledController extends BaseApiController{
      * @Rest\View
      */
     public function createAction(Request $request){
-        $user = $this->get('security.context')->getToken()->getUser();
+        $user = $this->get('security.token_storage')->getToken()->getUser();
         $userGroup = $user->getActiveGroup();
 
-        if(!$this->get('security.context')->isGranted('ROLE_ADMIN')) throw new HttpException(403, 'You don\' have the necessary permissions');
+        if(!$this->get('security.authorization_checker')->isGranted('ROLE_ADMIN')) throw new HttpException(403, 'You don\' have the necessary permissions');
 
         $request->request->add(array(
             'group'   =>  $userGroup
@@ -103,7 +103,7 @@ class ScheduledController extends BaseApiController{
      * @Rest\View
      */
     public function indexAction(Request $request){
-        $user = $this->get('security.context')->getToken()->getUser();
+        $user = $this->get('security.token_storage')->getToken()->getUser();
 
         $all = $this->getRepository()->findBy(array(
             'group'  =>  $user->getActiveGroup()
@@ -127,7 +127,7 @@ class ScheduledController extends BaseApiController{
      */
     public function updateAction(Request $request, $id){
 
-        $user = $this->get('security.context')->getToken()->getUser();
+        $user = $this->get('security.token_storage')->getToken()->getUser();
 
         $scheduled = $this->getRepository()->findOneBy(array(
             'group'  =>  $user->getActiveGroup(),
@@ -210,7 +210,7 @@ class ScheduledController extends BaseApiController{
      * @Rest\View
      */
     public function deleteAction($id){
-        $user = $this->get('security.context')->getToken()->getUser();
+        $user = $this->get('security.token_storage')->getToken()->getUser();
 
         $scheduled = $this->getRepository()->findOneBy(array(
             'id'    =>  $id,

@@ -26,67 +26,60 @@ POS:
 Public:
     resource: routing/public.yml
 
+CRUD:
+    resource: routing/crud.yml
+
 register:
-    pattern:  /register/v1
+    path:  /register/v1
     defaults: { _controller: Telepay\FinancialApiBundle\Controller\Management\User\AccountController::registerAction }
-    requirements:
-        _method: POST
+    methods: [POST]
 
 validate_email:
-    pattern:  /register/v1/validate_email
+    path:  /register/v1/validate_email
     defaults: { _controller: Telepay\FinancialApiBundle\Controller\Management\User\AccountController::validateEmail }
-    requirements:
-        _method: POST
+    methods: [POST]
 
 validate_nfc_card_email:
-    pattern:  /register/v1/nfc_card
+    path:  /register/v1/nfc_card
     defaults: { _controller: Telepay\FinancialApiBundle\Controller\Management\Company\NFCController::validateEmailCard }
-    requirements:
-        _method: POST
+    methods: [POST]
 
 disable_nfc_card:
-    pattern:  /register/v1/nfc_card/disable_card
+    path:  /register/v1/nfc_card/disable_card
     defaults: { _controller: Telepay\FinancialApiBundle\Controller\Management\Company\NFCController::disableCard }
-    requirements:
-        _method: PUT
+    methods: [PUT]
 
 refresh_pin_nfc_card:
-    pattern:  /register/v1/nfc_card/refresh_pin
+    path:  /register/v1/nfc_card/refresh_pin
     defaults: { _controller: Telepay\FinancialApiBundle\Controller\Management\Company\NFCController::refreshPin }
-    requirements:
-        _method: PUT
+    methods: [PUT]
 
 validate_nfc_card:
-    pattern:  /register/v1/nfc_card/{company_id}
+    path:  /register/v1/nfc_card/{company_id}
     defaults: { _controller: Telepay\FinancialApiBundle\Controller\Management\Company\NFCController::validateCard }
-    requirements:
-        _method: POST
+    methods: [POST]
 
 user_sent_validation_email:
-    pattern:  /register/v1/sent_validation_email
+    path:  /register/v1/sent_validation_email
     defaults: { _controller: Telepay\FinancialApiBundle\Controller\Management\User\AccountController::sentValidationEmailAction }
-    requirements:
-        _method: POST
+    methods: [POST]
 
 register_from_shop:
-    pattern:  /register/v1/commerce/{type}
+    path:  /register/v1/commerce/{type}
     defaults: { _controller: Telepay\FinancialApiBundle\Controller\Management\User\AccountController::registerCommerceAction }
-    requirements:
-        _method: POST
+    methods: [POST]
 
 recover_password_request:
-    pattern:  /password_recovery/v1/request
+    path:  /password_recovery/v1/request
     defaults: { _controller: Telepay\FinancialApiBundle\Controller\Management\User\AccountController::passwordRecoveryRequest }
-    requirements:
-        _method: POST
+    methods: [POST]
 
 recover_password:
-    pattern:  /password_recovery/v1
+    path:  /password_recovery/v1
     defaults: { _controller: Telepay\FinancialApiBundle\Controller\Management\User\AccountController::passwordRecovery }
-
+    methods: [POST]
 
 show_conditions:
-    pattern:  /public/{lang}
+    path:  /public/{lang}
     defaults: { _controller: Telepay\FinancialApiBundle\Controller\Management\User\AccountController::passwordRecovery }
-    requirements:
-        _method: GET
+    methods: [GET]

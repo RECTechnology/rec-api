@@ -46,7 +46,7 @@ class GroupsController extends BaseApiController
         if($request->query->has('offset')) $offset = $request->query->get('offset');
         else $offset = 0;
         //only the superadmin can access here
-        if(!$this->get('security.context')->isGranted('ROLE_SUPER_ADMIN'))
+        if(!$this->get('security.authorization_checker')->isGranted('ROLE_SUPER_ADMIN'))
             throw new HttpException(403, 'You have not the necessary permissions');
         if($request->query->get('query') != ''){
             $query = $request->query->get('query');
@@ -114,7 +114,7 @@ class GroupsController extends BaseApiController
         $offset = $request->query->getInt('offset', 0);
 
         //only the superadmin can access here
-        if(!$this->get('security.context')->isGranted('ROLE_SUPER_ADMIN')) {
+        if(!$this->get('security.authorization_checker')->isGranted('ROLE_SUPER_ADMIN')) {
             throw new HttpException(403, 'You have not the necessary permissions');
         }
 
@@ -208,7 +208,7 @@ class GroupsController extends BaseApiController
      * @Rest\View
      */
     public function showAction($id){
-        $user = $this->get('security.context')->getToken()->getUser();
+        $user = $this->get('security.token_storage')->getToken()->getUser();
         $userGroup = $user->getActiveGroup();
 
         if($userGroup->hasRole('ROLE_SUPER_ADMIN') || $userGroup->getId() == $id){
@@ -281,7 +281,7 @@ class GroupsController extends BaseApiController
      */
     public function updateAction(Request $request, $id){
 
-        $admin = $this->get('security.context')->getToken()->getUser();
+        $admin = $this->get('security.token_storage')->getToken()->getUser();
         $adminGroup = $admin->getActiveGroup();
 
         $adminRoles = $this->getDoctrine()->getRepository('TelepayFinancialApiBundle:UserGroup')->findOneBy(array(
@@ -333,10 +333,10 @@ class GroupsController extends BaseApiController
     public function deleteAction($id){
 
         //only the superadmin can access here
-//        if(!$this->get('security.context')->isGranted('ROLE_SUPER_ADMIN'))
+//        if(!$this->get('security.authorization_checker')->isGranted('ROLE_SUPER_ADMIN'))
 //            throw new HttpException(403, 'You have not the necessary permissions');
 
-        $admin = $this->get('security.context')->getToken()->getUser();
+        $admin = $this->get('security.token_storage')->getToken()->getUser();
         $activeGroup = $admin->getActiveGroup();
         $adminRoles = $this->getDoctrine()->getRepository('TelepayFinancialApiBundle:UserGroup')->findOneBy(array(
             'user'  =>  $admin->getId(),
@@ -372,7 +372,7 @@ class GroupsController extends BaseApiController
         $em = $this->getDoctrine()->getManager();
 
         //only the superadmin can access here
-        if(!$this->get('security.context')->isGranted('ROLE_SUPER_ADMIN')) {
+        if(!$this->get('security.authorization_checker')->isGranted('ROLE_SUPER_ADMIN')) {
             throw new HttpException(403, 'You have not the necessary permissions');
         }
 

@@ -24,7 +24,7 @@ class ExchangeController extends RestApiController{
      */
     public function read(){
 
-        $user = $this->get('security.context')->getToken()->getUser();
+        $user = $this->get('security.token_storage')->getToken()->getUser();
         $userGroup = $user->getActiveGroup();
 
         $default_currency = $userGroup->getDefaultCurrency();

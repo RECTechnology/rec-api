@@ -1,6 +1,8 @@
 <?php
 namespace Telepay\FinancialApiBundle\Command;
 
+use Doctrine\ORM\EntityManagerInterface;
+use Stubs\DocumentManager;
 use Symfony\Bundle\FrameworkBundle\Command\ContainerAwareCommand;
 use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Input\InputOption;
@@ -13,7 +15,7 @@ use Telepay\FinancialApiBundle\Document\Transaction;
 use Telepay\FinancialApiBundle\Entity\Exchange;
 use Telepay\FinancialApiBundle\Financial\Currency;
 
-class CheckCryptoCommand extends SyncronizedContainerAwareCommand
+class CheckCryptoCommand extends SynchronizedContainerAwareCommand
 {
     protected function configure()
     {
@@ -23,14 +25,18 @@ class CheckCryptoCommand extends SyncronizedContainerAwareCommand
         ;
     }
 
-    protected function executeSyncronized(InputInterface $input, OutputInterface $output){
-        $method_cname = array('rec');
+    protected function executeSynchronized(InputInterface $input, OutputInterface $output){
+        $method_cname = ['rec'];
         $type = 'in';
 
+        /** @var DocumentManager $dm */
         $dm = $this->getContainer()->get('doctrine_mongodb')->getManager();
+
+        /** @var EntityManagerInterface $em */
         $em = $this->getContainer()->get('doctrine')->getManager();
         $repoGroup = $em->getRepository('TelepayFinancialApiBundle:Group');
         $repoUser = $em->getRepository('TelepayFinancialApiBundle:User');
+
         $output->writeln('CHECK CRYPTO');
         foreach ($method_cname as $method) {
             $output->writeln($method . ' INIT');
@@ -38,10 +44,12 @@ class CheckCryptoCommand extends SyncronizedContainerAwareCommand
             $qb = $dm->createQueryBuilder('TelepayFinancialApiBundle:Transaction')
                 ->field('method')->equals($method)
                 ->field('type')->equals($type)
-                ->field('status')->in(array('created', 'received'))
+                ->field('status')->in(['created', 'received'])
                 ->getQuery();
 
             $resArray = [];
+
+            /** @var Transaction $transaction */
             foreach ($qb->toArray() as $transaction) {
                 $output->writeln('CHECK CRYPTO ID: '.$transaction->getId());
                 $data = $transaction->getPayInInfo();

@@ -8,7 +8,7 @@ use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Component\Finder\Exception\ShellCommandFailureException;
-use Telepay\FinancialApiBundle\Entity\Withdrawal;
+use Telepay\FinancialApiBundle\Entity\TreasureWithdrawalValidation;
 use Telepay\FinancialApiBundle\Financial\Currency;
 
 class CentralWithdrawalCommand extends ContainerAwareCommand
@@ -22,7 +22,7 @@ class CentralWithdrawalCommand extends ContainerAwareCommand
                 'amount',
                 null,
                 InputOption::VALUE_REQUIRED,
-                'Rec amount to sent',
+                'REC amount to send',
                 null
             )
         ;
@@ -42,11 +42,11 @@ class CentralWithdrawalCommand extends ContainerAwareCommand
             $list_emails = json_decode($this->getContainer()->getParameter('list_emails'));
             $id = bin2hex(random_bytes(5));
             foreach($list_emails as $email){
-                $withdrawal = new Withdrawal();
+                $withdrawal = new TreasureWithdrawalValidation();
                 $token = bin2hex(random_bytes(20));
                 $withdrawal->setAmount($amount);
                 $withdrawal->setToken($token);
-                $withdrawal->setGroupId($id);
+                $withdrawal->setTransaction($id);
                 $em->persist($withdrawal);
                 $em->flush();
                 $output->writeln("Withdrawal saved.");
