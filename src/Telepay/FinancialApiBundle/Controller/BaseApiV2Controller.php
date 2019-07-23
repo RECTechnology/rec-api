@@ -227,12 +227,19 @@ abstract class BaseApiV2Controller extends RestApiController implements Reposito
         $offset = $request->query->get('offset', 0);
         if($offset < 0) throw new HttpException(400, "Invalid offset: must positive or zero");
         $sort = $request->query->get('sort', "id");
-        $order = $request->query->get('order', "DESC");
+        $order = strtoupper($request->query->get('order', "DESC"));
         $search = $request->query->get('search', "");
 
+        if(!in_array($order, ["ASC", "DESC"]))
+            throw new HttpException(400, "Invalid order: it must be ASC or DESC");
 
         /** @var EntityManagerInterface $em */
         $em = $this->getDoctrine()->getManager();
+
+        $properties = $em->getClassMetadata($this->getRepository()->getClassName())->getFieldNames();
+        if(!in_array($sort, $properties))
+            throw new HttpException(400, "Invalid sort: it must be a valid property");
+
 
         /** @var QueryBuilder $qb */
         $qb = $em->createQueryBuilder();
@@ -258,7 +265,6 @@ abstract class BaseApiV2Controller extends RestApiController implements Reposito
         # Search filter
         $searchFilter = $qb->expr()->orX();
         if($search !== "") {
-            $properties = $em->getClassMetadata($this->getRepository()->getClassName())->getFieldNames();
             foreach ($properties as $property) {
                 $searchFilter->add(
                     $qb->expr()->like(
