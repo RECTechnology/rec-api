@@ -2,7 +2,6 @@ FROM debian:buster
 ENV DEBIAN_FRONTEND noninteractive
 RUN apt update && apt install -y \
     php \
-    apache2 \
     php-mysql \
     php-xml \
     php-mongodb \
@@ -12,8 +11,9 @@ RUN apt update && apt install -y \
     php-mbstring \
     php-zip \
     php-redis \
-    gettext-base \
     composer \
+    gettext-base \
+    apache2 \
     wget
 
 COPY docker/prod/api/vhost.conf /etc/apache2/sites-available/000-default.conf

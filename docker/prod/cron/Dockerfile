@@ -11,12 +11,11 @@ RUN apt update && apt install -y \
     php-mbstring \
     php-zip \
     php-redis \
+    composer \
     gettext-base \
-    unzip \
     wget \
     python3 \
     python3-pip \
-    composer \
     jq \
     cron
 
