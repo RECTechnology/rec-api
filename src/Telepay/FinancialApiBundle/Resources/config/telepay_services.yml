@@ -6,14 +6,12 @@ services:
     net.telepay.swift_provider:
         class: Telepay\FinancialApiBundle\DependencyInjection\TelepaySwiftProvider
         arguments:
-            - "rec-sepa"
-            - "sepa-rec"
+            - ["rec-sepa", "sepa-rec"]
 
     net.telepay.method_provider:
         class: Telepay\FinancialApiBundle\DependencyInjection\TelepayMethodProvider
         arguments:
-            - "@net.telepay.out.rec.v1"
-            - "@net.telepay.in.rec.v1"
+            - ["@net.telepay.out.rec.v1", "@net.telepay.in.rec.v1"]
 
 
 ####     METHODS     ####
