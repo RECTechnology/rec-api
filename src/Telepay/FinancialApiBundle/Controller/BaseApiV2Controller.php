@@ -238,7 +238,7 @@ abstract class BaseApiV2Controller extends RestApiController implements Reposito
 
         $properties = $em->getClassMetadata($this->getRepository()->getClassName())->getFieldNames();
         if(!in_array($sort, $properties))
-            throw new HttpException(400, "Invalid sort: it must be a valid property");
+            throw new HttpException(400, "Invalid sort: it must be a valid property (counters and virtual properties are not allowed)");
 
 
         /** @var QueryBuilder $qb */
