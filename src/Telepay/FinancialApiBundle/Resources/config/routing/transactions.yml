@@ -65,7 +65,7 @@ service_notificate:
 
 service_notificate_get:
     path:  /notifications/v{version_number}/{service_cname}/{status}
-    defaults: { _controller: Telepay\FinancialApiBundle\Controller\Transactions\NotificationsController::notificate[GET], _format: ~ }
+    defaults: { _controller: Telepay\FinancialApiBundle\Controller\Transactions\NotificationsController::notificateGET, _format: ~ }
     methods: [GET]
     requirements:
         service_cname: "[a-z0-9_]+"

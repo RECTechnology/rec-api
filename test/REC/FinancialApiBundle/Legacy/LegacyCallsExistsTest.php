@@ -2,14 +2,14 @@
 
 namespace REC\FinancialApiBundle\Test\Legacy;
 
-use Symfony\Bundle\FrameworkBundle\Test\WebTestCase;
+use REC\FinancialApiBundle\Test\BaseApiTest;
 use Symfony\Component\Routing\RouterInterface;
 
 /**
  * Class StatusCodesTest
  * @package REC\FinancialApiBundle\Test\Security\Perimeter
  */
-class LegacyCallsExistsTest extends WebTestCase {
+class LegacyCallsExistsTest extends BaseApiTest {
 
     const API_LEGACY_ROUTES = [
         "/admin/v1/activeuser/{id}" => ["POST"],
