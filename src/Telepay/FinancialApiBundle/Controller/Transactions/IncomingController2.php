@@ -10,6 +10,7 @@ use FOS\RestBundle\Controller\Annotations as Rest;
 use Symfony\Component\Console\Output\BufferedOutput;
 use Telepay\FinancialApiBundle\DependencyInjection\Telepay\Commons\LimitAdder;
 use Telepay\FinancialApiBundle\DependencyInjection\Telepay\Commons\LimitChecker;
+use Telepay\FinancialApiBundle\DependencyInjection\Telepay\Commons\LimitManipulator;
 use Telepay\FinancialApiBundle\Document\Transaction;
 use Telepay\FinancialApiBundle\Entity\CreditCard;
 use Telepay\FinancialApiBundle\Entity\Group;
@@ -28,7 +29,8 @@ class IncomingController2 extends RestApiController{
      */
     public function make(Request $request, $version_number, $type, $method_cname){
         $user = $this->get('security.token_storage')->getToken()->getUser();
-        if (!$this->get('security.authorization_checker')->isGranted('ROLE_WORKER')) throw new HttpException(403, 'You don\' have the necessary permissions');
+        if (!$this->get('security.authorization_checker')->isGranted('ROLE_WORKER'))
+            throw new HttpException(403, 'You don\'t have the necessary permissions');
         if($request->request->has('company_id')){
             $group = $this->getDoctrine()->getManager()
                 ->getRepository('TelepayFinancialApiBundle:Group')
@@ -312,6 +314,8 @@ class IncomingController2 extends RestApiController{
 
         //check limits with 30 days success/received/created transactions
         //get limit manipulator
+
+        /** @var LimitManipulator $limitManipulator */
         $limitManipulator = $this->get('net.telepay.commons.limit_manipulator');
 
         $logger->info('(' . $group_id . ')(T) INIT LIMITS');

@@ -28,7 +28,15 @@ use Telepay\FinancialApiBundle\Entity\DelegatedChangeData;
  */
 class DelegatedChangeDataController extends BaseApiController{
 
-    const DELEGATED_CHANGE_CSV_HEADERS = ["account", "exchanger", "amount", "pan", "expiry_year", "expiry_month", "cvv2"];
+    const DELEGATED_CHANGE_CSV_HEADERS = [
+        "account",
+        "exchanger",
+        "amount",
+        "pan",
+        "expiry_year",
+        "expiry_month",
+        "cvv2"
+    ];
 
     /**
      * @param Request $request
@@ -137,6 +145,7 @@ class DelegatedChangeDataController extends BaseApiController{
 
                 $req = new Request();
                 $req->setMethod("POST");
+                $req->request->set('delegated_change_id', $request->request->get('delegated_change_id'));
                 $req->request->set('account_id', $account->getId());
                 $req->request->set('exchanger_id', $exchanger->getId());
                 $req->request->set('amount', $dcdArray["amount"]);
@@ -179,7 +188,10 @@ class DelegatedChangeDataController extends BaseApiController{
 
         $contents = [];
         if (($handle = fopen($tmpLocation, "r")) !== false) {
-            if(($row = fgetcsv($handle)) !== false) {
+            if(($row = fgetcsv($handle, 0, ';')) !== false) {
+                if(count($row) == 1){
+                    $row = fgetcsv($handle);
+                }
                 $headers = [];
                 foreach ($row as $hdr) {
                     $headers []= trim($hdr);
@@ -189,7 +201,8 @@ class DelegatedChangeDataController extends BaseApiController{
 
             while(($row = fgetcsv($handle)) !== false) {
                 $rowArr = [];
-                for($i=0; $i<count($row); $i++){
+                $rowLen = count($row);
+                for($i=0; $i<$rowLen; $i++){
                     $rowArr[$headers[$i]] = $row[$i];
                 }
 
@@ -202,7 +215,7 @@ class DelegatedChangeDataController extends BaseApiController{
     }
 
 
-    function getRepositoryName() {
+    public function getRepositoryName() {
         return "TelepayFinancialApiBundle:DelegatedChangeData";
     }
 
