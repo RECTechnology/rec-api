@@ -21,6 +21,7 @@ use Symfony\Component\Serializer\Serializer;
 use Telepay\FinancialApiBundle\Controller\BaseApiController;
 use Telepay\FinancialApiBundle\DependencyInjection\Telepay\Commons\UploadManager;
 use Telepay\FinancialApiBundle\Entity\DelegatedChangeData;
+use Telepay\FinancialApiBundle\Entity\Group;
 
 /**
  * Class DelegatedChangeDataController
@@ -101,7 +102,7 @@ class DelegatedChangeDataController extends BaseApiController{
      * @throws ReflectionException
      * @Rest\View
      */
-    public function loadCsvAction(Request $request){
+    public function importAction(Request $request){
 
         if(!$request->request->has('path'))
             throw new HttpException(400, "path is required");
@@ -116,17 +117,17 @@ class DelegatedChangeDataController extends BaseApiController{
 
         $contents = $this->csvToArray($csvContents);
 
-        foreach(static::DELEGATED_CHANGE_CSV_HEADERS as $hdr){
-            if(!array_key_exists($hdr, $contents[0])){
-                $hdrStr = implode(", ", static::DELEGATED_CHANGE_CSV_HEADERS);
+        $hdrStr = implode(", ", static::DELEGATED_CHANGE_CSV_HEADERS);
+        foreach(static::DELEGATED_CHANGE_CSV_HEADERS as $csvHeader){
+            if(!array_key_exists($csvHeader, $contents[0])){
                 throw new HttpException(
                     400,
-                    "CSV format error: header '$hdr' not found: CSV file must contain the following headers: $hdrStr"
+                    "CSV format error: header '$csvHeader' not found: CSV file must contain the following headers: $hdrStr"
                 );
             }
         }
 
-        $accRepo = $this->getDoctrine()->getRepository("TelepayFinancialApiBundle:Group");
+        $accRepo = $this->getDoctrine()->getRepository(Group::class);
 
         try{
             $rowCount = 1;
@@ -134,13 +135,13 @@ class DelegatedChangeDataController extends BaseApiController{
                 $account = $accRepo->findOneBy(["cif" => $dcdArray['account']]);
                 if(!$account) throw new HttpException(
                     400,
-                    "Invalid account ID: the csv 'account' value must be the 'cif' of the user account."
+                    "Invalid account ID: the csv 'account' value must be the 'cif' of the user account (was not found in accounts)."
                 );
 
                 $exchanger = $accRepo->findOneBy(["cif" => $dcdArray['exchanger']]);
                 if(!$exchanger) throw new HttpException(
                     400,
-                    "Invalid exchanger ID: the csv 'exchanger' value must be the 'cif' of the exchanger account."
+                    "Invalid exchanger ID: the csv 'exchanger' value must be the 'cif' of the exchanger account (was not found in exchangers)."
                 );
 
                 $req = new Request();
@@ -187,10 +188,13 @@ class DelegatedChangeDataController extends BaseApiController{
         file_put_contents($tmpLocation, $csvContents);
 
         $contents = [];
+        $delimiter = ';';
         if (($handle = fopen($tmpLocation, "r")) !== false) {
-            if(($row = fgetcsv($handle, 0, ';')) !== false) {
+            if(($row = fgetcsv($handle, 0, $delimiter)) !== false) {
                 if(count($row) == 1){
-                    $row = fgetcsv($handle);
+                    fseek($handle, 0);
+                    $delimiter = ',';
+                    $row = fgetcsv($handle, 0, $delimiter);
                 }
                 $headers = [];
                 foreach ($row as $hdr) {
@@ -199,7 +203,7 @@ class DelegatedChangeDataController extends BaseApiController{
             }
             else throw new HttpException(400, "Invalid CSV: csv file must contain at least the headers row");
 
-            while(($row = fgetcsv($handle)) !== false) {
+            while(($row = fgetcsv($handle, 0 ,$delimiter)) !== false) {
                 $rowArr = [];
                 $rowLen = count($row);
                 for($i=0; $i<$rowLen; $i++){
