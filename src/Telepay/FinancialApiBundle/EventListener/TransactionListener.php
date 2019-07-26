@@ -99,33 +99,4 @@ class TransactionListener
         ));
         if($statusMethod->getStatus() != 'available') throw new HttpException(403, 'Method temporally unavailable.');
     }
-
-
-    private function _sendEmail($subject, $to, $companies, $kyc, $tier, $action){
-        /*
-        $from = 'no-reply@chip-chap.com';
-        $mailer = 'mailer';
-
-        $template = 'TelepayFinancialApiBundle:Email:KYCUpdate.html.twig';
-
-        $message = \Swift_Message::newInstance()
-            ->setSubject($subject)
-            ->setFrom($from)
-            ->setTo($to)
-            ->setBody(
-                $this->container->get('templating')
-                    ->render($template,
-                        array(
-                            'companies' =>  $companies,
-                            'kyc'   =>  $kyc,
-                            'tier'  =>  $tier,
-                            'action'    =>  $action
-                        )
-                    )
-            )
-            ->setContentType('text/html');
-
-        $this->container->get($mailer)->send($message);
-        */
-    }
 }
