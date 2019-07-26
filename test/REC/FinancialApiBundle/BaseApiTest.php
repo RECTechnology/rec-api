@@ -6,6 +6,7 @@ use Doctrine\ORM\EntityManagerInterface;
 use Doctrine\ORM\Tools\SchemaTool;
 use Doctrine\ORM\Tools\ToolsException;
 use FOS\OAuthServerBundle\Controller\TokenController;
+use FOS\OAuthServerBundle\Model\AccessTokenManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Client;
 use Symfony\Bundle\FrameworkBundle\Console\Application;
 use Symfony\Bundle\FrameworkBundle\Test\WebTestCase;
@@ -50,11 +51,6 @@ class BaseApiTest extends WebTestCase {
      * @param Client $client
      */
     protected function logIn(Client $client, $userCredentials){
-
-        /** @var TokenController $tokenController */
-        $tokenController = $client->getKernel()->getContainer()->get('fos_oauth_server.controller.token');
-
-        $tokenController->tokenAction();
         $client->request('POST', '/oauth/v2/token', null, null, null, []);
     }
 
