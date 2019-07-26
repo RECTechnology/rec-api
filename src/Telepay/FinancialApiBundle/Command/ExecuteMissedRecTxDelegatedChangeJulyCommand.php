@@ -29,46 +29,46 @@ final class ExecuteMissedRecTxDelegatedChangeJulyCommand extends SynchronizedCon
     protected function executeSynchronized(InputInterface $input, OutputInterface $output) {
 
         $novactToCommerceTxIds = [
-            "5d39e9834a0e534ef11de058",
-            "5d39e9574a0e534ef11de04e",
-            "5d39e91c4a0e534ef11de040",
-            "5d39e9144a0e534ef11de03e",
-            "5d39e8c14a0e534ef11de02b",
-            "5d39e8bd4a0e534ef11de02a",
-            "5d39e81f4a0e534ef11de006",
-            "5d39e7c44a0e534ef11ddff1",
-            "5d39e7904a0e534ef11ddfe5",
-            "5d39e7474a0e534ef11ddfd4",
-            "5d39e6f94a0e534ef11ddfc2",
-            "5d39e6db4a0e534ef11ddfbb",
-            "5d39e69c4a0e534ef11ddfac",
-            "5d39e6834a0e534ef11ddfa6",
-            "5d39e67b4a0e534ef11ddfa4",
-            "5d39e5f34a0e534ef11ddf84",
-            "5d39e5e74a0e534ef11ddf81",
-            "5d39e5e04a0e534ef11ddf80",
-            "5d39e5d84a0e534ef11ddf7e",
-            "5d39e5cf4a0e534ef11ddf7c",
-            "5d39e5cb4a0e534ef11ddf7b",
-            "5d39e5bf4a0e534ef11ddf78",
-            "5d39e5b14a0e534ef11ddf75",
-            "5d39e59d4a0e534ef11ddf70",
-            "5d39e5684a0e534ef11ddf64",
-            "5d39e54b4a0e534ef11ddf5d",
-            "5d39e5474a0e534ef11ddf5c",
-            "5d39e5324a0e534ef11ddf57",
-            "5d39e5064a0e534ef11ddf4d",
-            "5d39e4fa4a0e534ef11ddf4a",
-            "5d39e48f4a0e534ef11ddf31",
-            "5d39e47d4a0e534ef11ddf2d",
-            "5d39e4754a0e534ef11ddf2b",
-            "5d39e4714a0e534ef11ddf2a",
-            "5d39e4374a0e534ef11ddf1d",
-            "5d39e4324a0e534ef11ddf1c",
-            "5d39e4104a0e534ef11ddf14",
-            "5d39e3fe4a0e534ef11ddf10",
-            "5d39e10a4a0e534ca84251b5",
-            "5d39db0b4a0e5348453a3da3",
+            "5d39f0cd4a0e535cad08a0dc",
+            "5d39f0844a0e535c831992e6",
+            "5d39f00c4a0e535c050f76f6",
+            "5d39f0034a0e535c050f76f2",
+            "5d39ef4e4a0e535b876fac32",
+            "5d39ef2a4a0e535b5d473f2c",
+            "5d39edc34a0e535a4c119a1c",
+            "5d39ecff4a0e5359ce32d506",
+            "5d39ec8c4a0e5359777e5658",
+            "5d39ebdc4a0e5358f56c2eda",
+            "5d39eb294a0e53587877e0da",
+            "5d39eae74a0e53584d2fe2d8",
+            "5d39ea624a0e5357f86fd4d2",
+            "5d39ea264a0e5357cf62fef2",
+            "5d39e9fb4a0e5357a50248ca",
+            "5d39e8c74a0e5355e144cbd6",
+            "5d39ed324a0e5359f8525ce2",
+            "5d39e8944a0e53559331419a",
+            "5d39e88c4a0e535593314196",
+            "5d39e8834a0e535593314192",
+            "5d39e85c4a0e53553d12b59c",
+            "5d39e84f4a0e53553d12b596",
+            "5d39e8214a0e5354eb612f4c",
+            "5d39e80b4a0e5354eb612f42",
+            "5d39e7924a0e535444230252",
+            "5d39e7314a0e53539e4e38dc",
+            "5d39e72d4a0e53539e4e38da",
+            "5d39e6f44a0e53534a247c8c",
+            "5d39e6ab4a0e5352f4225116",
+            "5d39e67d4a0e5352a27d5c3c",
+            "5d39e58b4a0e53514f40ed7c",
+            "5d39e57a4a0e53514f40ed74",
+            "5d39e54f4a0e5350fc1484ec",
+            "5d39e54b4a0e5350fc1484ea",
+            "5d39e4d74a0e53505734b6fc",
+            "5d39e4d24a0e53505734b6fa",
+            "5d39e4904a0e5350033f0736",
+            "5d39e4614a0e534fb55cf35c",
+            "5d39e1464a0e534d01328316",
+            "5d39db2b4a0e534875256784",
         ];
 
         /** @var DocumentManager $dm */
@@ -79,23 +79,23 @@ final class ExecuteMissedRecTxDelegatedChangeJulyCommand extends SynchronizedCon
             $tx = $txRepo->find($txId);
             if(!$tx) print("TX not found");
             else print_r($tx);
+            print("\n----------------------------------\n");
+            $params = [
+                'amount' => $tx->getAmount(),
+                'concept' => $tx->getDataOut()['concept'],
+                'address' => $tx->getDataOut()['address'],
+                'txid' => $tx->getDataOut()['txid'],
+                'sender' => $tx->getGroup()->getId(),
+                'internal_tx' => '1',
+                'destination_id' => $tx->getDataOut()['destination_id']
+            ];
+            print("PARAMS TXin:\n");
+            print_r($params);
             print("\n");
+
         }
 
-        /*
-        $params = array(
-            'amount' => $amount,
-            'concept' => $concept,
-            'address' => $address,
-            'txid' => $txid,
-            'sender' => $group->getId()
-        );
-        if(isset($data['internal_tx']) && $data['internal_tx']=='1') {
-            $params['internal_tx']='1';
-            $params['destionation_id']=$data['destionation_id'];
-        }
-        $logger->info('(' . $group_id . ')(T) Incomig transaction... Create New');
-        $this->createTransaction($params, $version_number, 'in', $method_cname, $destination->getKycManager()->getId(), $destination, '127.0.0.1');
-*/
+        //$logger->info('(' . $group_id . ')(T) Incomig transaction... Create New');
+        //$this->createTransaction($params, $version_number, 'in', $method_cname, $destination->getKycManager()->getId(), $destination, '127.0.0.1');
     }
 }
