@@ -21,6 +21,7 @@ use Symfony\Component\Serializer\Serializer;
 use Telepay\FinancialApiBundle\Controller\BaseApiController;
 use Telepay\FinancialApiBundle\DependencyInjection\Telepay\Commons\UploadManager;
 use Telepay\FinancialApiBundle\Entity\DelegatedChangeData;
+use Telepay\FinancialApiBundle\Entity\Group;
 
 /**
  * Class DelegatedChangeDataController
@@ -28,7 +29,15 @@ use Telepay\FinancialApiBundle\Entity\DelegatedChangeData;
  */
 class DelegatedChangeDataController extends BaseApiController{
 
-    const DELEGATED_CHANGE_CSV_HEADERS = ["account", "exchanger", "amount", "pan", "expiry_year", "expiry_month", "cvv2"];
+    const DELEGATED_CHANGE_CSV_HEADERS = [
+        "account",
+        "exchanger",
+        "amount",
+        "pan",
+        "expiry_year",
+        "expiry_month",
+        "cvv2"
+    ];
 
     /**
      * @param Request $request
@@ -93,7 +102,7 @@ class DelegatedChangeDataController extends BaseApiController{
      * @throws ReflectionException
      * @Rest\View
      */
-    public function loadCsvAction(Request $request){
+    public function importAction(Request $request){
 
         if(!$request->request->has('path'))
             throw new HttpException(400, "path is required");
@@ -108,17 +117,17 @@ class DelegatedChangeDataController extends BaseApiController{
 
         $contents = $this->csvToArray($csvContents);
 
-        foreach(static::DELEGATED_CHANGE_CSV_HEADERS as $hdr){
-            if(!array_key_exists($hdr, $contents[0])){
-                $hdrStr = implode(", ", static::DELEGATED_CHANGE_CSV_HEADERS);
+        $hdrStr = implode(", ", static::DELEGATED_CHANGE_CSV_HEADERS);
+        foreach(static::DELEGATED_CHANGE_CSV_HEADERS as $csvHeader){
+            if(!array_key_exists($csvHeader, $contents[0])){
                 throw new HttpException(
                     400,
-                    "CSV format error: header '$hdr' not found: CSV file must contain the following headers: $hdrStr"
+                    "CSV format error: header '$csvHeader' not found: CSV file must contain the following headers: $hdrStr"
                 );
             }
         }
 
-        $accRepo = $this->getDoctrine()->getRepository("TelepayFinancialApiBundle:Group");
+        $accRepo = $this->getDoctrine()->getRepository(Group::class);
 
         try{
             $rowCount = 1;
@@ -126,17 +135,18 @@ class DelegatedChangeDataController extends BaseApiController{
                 $account = $accRepo->findOneBy(["cif" => $dcdArray['account']]);
                 if(!$account) throw new HttpException(
                     400,
-                    "Invalid account ID: the csv 'account' value must be the 'cif' of the user account."
+                    "Invalid account ID: the csv 'account' value must be the 'cif' of the user account (was not found in accounts)."
                 );
 
                 $exchanger = $accRepo->findOneBy(["cif" => $dcdArray['exchanger']]);
                 if(!$exchanger) throw new HttpException(
                     400,
-                    "Invalid exchanger ID: the csv 'exchanger' value must be the 'cif' of the exchanger account."
+                    "Invalid exchanger ID: the csv 'exchanger' value must be the 'cif' of the exchanger account (was not found in exchangers)."
                 );
 
                 $req = new Request();
                 $req->setMethod("POST");
+                $req->request->set('delegated_change_id', $request->request->get('delegated_change_id'));
                 $req->request->set('account_id', $account->getId());
                 $req->request->set('exchanger_id', $exchanger->getId());
                 $req->request->set('amount', $dcdArray["amount"]);
@@ -178,8 +188,14 @@ class DelegatedChangeDataController extends BaseApiController{
         file_put_contents($tmpLocation, $csvContents);
 
         $contents = [];
+        $delimiter = ';';
         if (($handle = fopen($tmpLocation, "r")) !== false) {
-            if(($row = fgetcsv($handle)) !== false) {
+            if(($row = fgetcsv($handle, 0, $delimiter)) !== false) {
+                if(count($row) == 1){
+                    fseek($handle, 0);
+                    $delimiter = ',';
+                    $row = fgetcsv($handle, 0, $delimiter);
+                }
                 $headers = [];
                 foreach ($row as $hdr) {
                     $headers []= trim($hdr);
@@ -187,9 +203,10 @@ class DelegatedChangeDataController extends BaseApiController{
             }
             else throw new HttpException(400, "Invalid CSV: csv file must contain at least the headers row");
 
-            while(($row = fgetcsv($handle)) !== false) {
+            while(($row = fgetcsv($handle, 0 ,$delimiter)) !== false) {
                 $rowArr = [];
-                for($i=0; $i<count($row); $i++){
+                $rowLen = count($row);
+                for($i=0; $i<$rowLen; $i++){
                     $rowArr[$headers[$i]] = $row[$i];
                 }
 
@@ -202,7 +219,7 @@ class DelegatedChangeDataController extends BaseApiController{
     }
 
 
-    function getRepositoryName() {
+    public function getRepositoryName() {
         return "TelepayFinancialApiBundle:DelegatedChangeData";
     }
 

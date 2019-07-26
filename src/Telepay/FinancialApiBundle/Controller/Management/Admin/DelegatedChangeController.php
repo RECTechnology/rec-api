@@ -71,7 +71,7 @@ class DelegatedChangeController extends BaseApiController {
             /** @var DelegatedChange $dc */
             $dc = $this->findObject($id);
             foreach (DelegatedChange::ALLOWED_STATUS_CHANGES as $statusPack){
-                if($dc->getStatus() === $statusPack['old'] and $newStatus === $statusPack['new']){
+                if(($dc->getStatus() === $statusPack['old']) && ($newStatus === $statusPack['new'])){
                     return parent::updateAction($request, $id);
                 }
             }
@@ -96,7 +96,7 @@ class DelegatedChangeController extends BaseApiController {
     }
 
 
-    function getRepositoryName()
+    public function getRepositoryName()
     {
         return "TelepayFinancialApiBundle:DelegatedChange";
     }

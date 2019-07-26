@@ -9,9 +9,9 @@ use Symfony\Component\Routing\RouterInterface;
  * Class TreasureWithdrawalTest
  * @package REC\FinancialApiBundle\Test\Security\Perimeter
  */
-class TreasureWithdrawalTest extends BaseApiTest {
+class DelegatedChangeTest extends BaseApiTest {
 
-    public function testCRUDWithdrawalAttempt(){
+    public function testCRUDDelegatedChange(){
         $admin = $this->getAdminClient();
 
 

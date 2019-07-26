@@ -195,7 +195,7 @@ admin_delete_delegate_change_data:
 
 admin_create_delegate_change_data_from_csv:
     path:  /admin/v1/delegated_change_data/csv
-    defaults: { _controller: Telepay\FinancialApiBundle\Controller\Management\Admin\DelegatedChangeDataController::loadCsvAction }
+    defaults: { _controller: Telepay\FinancialApiBundle\Controller\Management\Admin\DelegatedChangeDataController::importAction }
     methods: [POST]
 
 

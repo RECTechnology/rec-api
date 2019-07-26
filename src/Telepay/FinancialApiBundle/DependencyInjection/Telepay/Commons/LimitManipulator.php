@@ -8,7 +8,9 @@
 
 namespace Telepay\FinancialApiBundle\DependencyInjection\Telepay\Commons;
 
+use Psr\Log\LoggerInterface;
 use Symfony\Component\HttpKernel\Exception\HttpException;
+use Telepay\FinancialApiBundle\DependencyInjection\Transactions\Core\MethodInterface;
 use Telepay\FinancialApiBundle\Entity\Group;
 use Telepay\FinancialApiBundle\Entity\LimitCount;
 use Telepay\FinancialApiBundle\Financial\Currency;
@@ -53,7 +55,17 @@ class LimitManipulator{
 
     }
 
+    /**
+     * @param Group $group
+     * @param MethodInterface $method
+     * @param $amount
+     */
     public function checkLimits(Group $group, $method, $amount){
+
+        /** @var LoggerInterface $txLogger */
+        $txLogger = $this->container->get('transaction.logger');
+
+        $funcInfo = self::class . "::checkLimits({$group->getId()}, {$method->getCname()}, {$amount})";
 
         $em = $this->doctrine->getManager();
         $dm = $this->doctrine_mongo->getManager();
@@ -75,6 +87,7 @@ class LimitManipulator{
             ));
         }
 
+
         $scale = pow(10, Currency::$SCALE[$method->getCurrency()]);
 
         if($group_limit->getSingle() < $amount && $group_limit->getSingle() >= 0)
@@ -92,9 +105,10 @@ class LimitManipulator{
             throw new HttpException(403, 'Week Limit Exceeded.');
 
         $total_last_month = $dm->getRepository('TelepayFinancialApiBundle:Transaction')->sumLastDaysByMethod($group, $method, 30);
-        if($group_limit->getMonth() < ($total_last_month[0]['total'] + $amount) && $group_limit->getMonth() >= 0)
-            //throw new HttpException(403, 'Month Limit Exceeded. '.($total_last_month[0]['total'] + $amount)/$scale.' > '.$group_limit->getMonth()/$scale);
+        if($group_limit->getMonth() < ($total_last_month[0]['total'] + $amount) && $group_limit->getMonth() >= 0) {
+            $txLogger->info($funcInfo . "Monthly sum for method {$method->getCname()}: $total_last_month, max: {$group_limit->getMonth()}");
             throw new HttpException(403, 'Month Limit Exceeded.');
+        }
 
         $total_last_year = $dm->getRepository('TelepayFinancialApiBundle:Transaction')->sumLastDaysByMethod($group, $method, 360);
         if($group_limit->getYear() < ($total_last_year[0]['total'] + $amount) && $group_limit->getYear() >= 0)
