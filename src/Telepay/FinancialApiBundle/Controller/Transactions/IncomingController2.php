@@ -1135,27 +1135,6 @@ class IncomingController2 extends RestApiController{
     }
 
     private function _getCurrentCompany(User $user){
-        //Old code to do delegated functions
-        /*
-        $tokenManager = $this->container->get('fos_oauth_server.access_token_manager.default');
-        try{
-            $token = $this->get('security.token_storage')->getToken();
-            if($token instanceof SignatureToken) return $user->getActiveGroup();
-            $accessToken = $tokenManager->findTokenByToken($token->getToken());
-
-            $commerce_client = $this->container->getParameter('admin_client_id');
-
-            $client = $accessToken->getClient();
-            if($commerce_client == $client->getId()){
-                $group = $user->getActiveGroup();
-            }else{
-                $group = $client->getGroup();
-            }
-        }catch (Exception $e){
-            $group = $user->getActiveGroup();
-        }
-        */
-
         $group = $user->getActiveGroup();
         return $group;
     }
