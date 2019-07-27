@@ -17,13 +17,13 @@ class AppKernel extends Kernel
             new Doctrine\Bundle\DoctrineBundle\DoctrineBundle(),
             new Sensio\Bundle\FrameworkExtraBundle\SensioFrameworkExtraBundle(),
             new FOS\UserBundle\FOSUserBundle(),
-            new Telepay\FinancialApiBundle\TelepayFinancialApiBundle(),
             new FOS\RestBundle\FOSRestBundle(),
+            new App\FinancialApiBundle\FinancialApiBundle(),
             new JMS\SerializerBundle\JMSSerializerBundle(),
             new FOS\OAuthServerBundle\FOSOAuthServerBundle(),
             new Doctrine\Bundle\MongoDBBundle\DoctrineMongoDBBundle(),
             new Nelmio\CorsBundle\NelmioCorsBundle(),
-            new Doctrine\Bundle\MigrationsBundle\DoctrineMigrationsBundle()
+            new Doctrine\Bundle\MigrationsBundle\DoctrineMigrationsBundle(),
         ];
 
         if (in_array($this->getEnvironment(), ['dev', 'test'], true)) {

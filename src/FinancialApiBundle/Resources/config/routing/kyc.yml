@@ -1,0 +1,33 @@
+######################## KYC ########################
+
+#register_kyc:
+#    path:  /kyc/register
+#    defaults: { _controller: App\FinancialApiBundle\Controller\KycController::registerAction }
+#    methods: [POST]
+
+validate_email_kyc:
+    path:  /auth_kyc/validate_email
+    defaults: { _controller: App\FinancialApiBundle\Controller\KycController::validateEmail }
+    methods: [POST]
+
+#validate_email_code_kyc:
+#    path:  /kyc/validate_email_code
+#    defaults: { _controller: App\FinancialApiBundle\Controller\KycController::validateEmailCode }
+#    methods: [POST]
+
+validate_phone_code:
+    path:  /kyc/validate_phone_code
+    defaults: { _controller: App\FinancialApiBundle\Controller\KycController::validatePhoneCode }
+    methods: [POST]
+
+info_kyc:
+    path:  /auth_kyc/info
+    defaults: { _controller: App\FinancialApiBundle\Controller\KycController::kycInfo }
+    methods: [GET]
+
+validate_phone:
+    path:  /auth_kyc/validate_phone
+    defaults: { _controller: App\FinancialApiBundle\Controller\KycController::validatePhone }
+    methods: [POST]
+
+

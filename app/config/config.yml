@@ -1,17 +1,17 @@
 imports:
     - { resource: parameters.yml }
     - { resource: security.yml }
-    - { resource: "@TelepayFinancialApiBundle/Resources/config/services.yml" }
-    - { resource: "@TelepayFinancialApiBundle/Resources/config/validators.yml" }
-    - { resource: "@TelepayFinancialApiBundle/Resources/config/telepay_services.yml" }
-    - { resource: "@TelepayFinancialApiBundle/Resources/config/telepay_commons.yml" }
-    - { resource: "@TelepayFinancialApiBundle/Resources/config/telepay_providers.yml" }
-    - { resource: "@TelepayFinancialApiBundle/Resources/config/telepay_drivers.yml" }
-    - { resource: "@TelepayFinancialApiBundle/Resources/config/telepay_tickers.yml" }
-    - { resource: "@TelepayFinancialApiBundle/Resources/config/telepay_wallets.yml" }
-    - { resource: "@TelepayFinancialApiBundle/Resources/config/telepay_money_ways.yml" }
-    - { resource: "@TelepayFinancialApiBundle/Resources/config/telepay_exchanges.yml" }
-    - { resource: "@TelepayFinancialApiBundle/Resources/config/telepay_config.yml" }
+    - { resource: "@FinancialApiBundle/Resources/config/services.yml" }
+    - { resource: "@FinancialApiBundle/Resources/config/validators.yml" }
+    - { resource: "@FinancialApiBundle/Resources/config/app_services.yml" }
+    - { resource: "@FinancialApiBundle/Resources/config/app_commons.yml" }
+    - { resource: "@FinancialApiBundle/Resources/config/app_providers.yml" }
+    - { resource: "@FinancialApiBundle/Resources/config/app_drivers.yml" }
+    - { resource: "@FinancialApiBundle/Resources/config/app_tickers.yml" }
+    - { resource: "@FinancialApiBundle/Resources/config/app_wallets.yml" }
+    - { resource: "@FinancialApiBundle/Resources/config/app_money_ways.yml" }
+    - { resource: "@FinancialApiBundle/Resources/config/app_exchanges.yml" }
+    - { resource: "@FinancialApiBundle/Resources/config/app_config.yml" }
 
 
 framework:
@@ -41,7 +41,7 @@ twig:
     debug:            "%kernel.debug%"
     strict_variables: "%kernel.debug%"
     #exception_controller: FOS\RestBundle\Controller\ExceptionController::showAction
-    exception_controller: Telepay\FinancialApiBundle\Controller\ApiExceptionController::showAction
+    exception_controller: App\FinancialApiBundle\Controller\ApiExceptionController::showAction
 
 monolog:
     handlers:
@@ -74,8 +74,8 @@ doctrine:
         auto_mapping: true
 
 doctrine_migrations:
-    dir_name: "%kernel.root_dir%/../src/Migrations"
-    namespace: Telepay\Migrations
+    dir_name: "%kernel.root_dir%/../src/FinancialApiBundle/Migrations"
+    namespace: App\FinancialApiBundle\Migrations
     table_name: migration_versions
     name: App Migrations
     organize_migrations: false # Version >=1.2 Possible values are: "BY_YEAR", "BY_YEAR_AND_MONTH", false
@@ -98,9 +98,9 @@ swiftmailer:
 fos_user:
     db_driver: orm # other valid values are 'mongodb', 'couchdb' and 'propel'
     firewall_name: main
-    user_class: Telepay\FinancialApiBundle\Entity\User
+    user_class: App\FinancialApiBundle\Entity\User
     group:
-      group_class: Telepay\FinancialApiBundle\Entity\Group
+      group_class: App\FinancialApiBundle\Entity\Group
     from_email:
         address: '%no_reply_email%'
         sender_name: 'No Reply'
@@ -143,10 +143,10 @@ jms_serializer:
 
 fos_oauth_server:
     db_driver:           orm
-    client_class:        Telepay\FinancialApiBundle\Entity\Client
-    access_token_class:  Telepay\FinancialApiBundle\Entity\AccessToken
-    refresh_token_class: Telepay\FinancialApiBundle\Entity\RefreshToken
-    auth_code_class:     Telepay\FinancialApiBundle\Entity\AuthCode
+    client_class:        App\FinancialApiBundle\Entity\Client
+    access_token_class:  App\FinancialApiBundle\Entity\AccessToken
+    refresh_token_class: App\FinancialApiBundle\Entity\RefreshToken
+    auth_code_class:     App\FinancialApiBundle\Entity\AuthCode
     service:
         user_provider: access_key.security.user_provider
         options:
@@ -159,11 +159,11 @@ sensio_framework_extra:
 doctrine_mongodb:
     connections:
         default:
-            server: %mongodb_server%
+            server: '%mongodb_server%'
             options:
-                username: %mongodb_user%
-                password: %mongodb_password%
-    default_database: %mongodb_db%
+                username: '%mongodb_user%'
+                password: '%mongodb_password%'
+    default_database: '%mongodb_db%'
     document_managers:
         default:
             auto_mapping: true
@@ -177,14 +177,14 @@ services:
         # Nice feature here. Local Binding. Read about it at documentation.
 
     # makes classes available to be used as services
-    Telepay\:
-        resource: '../../src/Telepay/*'
+    App\:
+        resource: '../../src/*'
         # exclude directories || files (if service is unused, it will be removed anyway)
-        exclude: '../../src/Telepay/FinancialApiBundle/{Entity,Repository,Tests}'
+        exclude: '../../src/FinancialApiBundle/{Entity,Document,Repository}'
 
 
-    Telepay\FinancialApiBundle\Controller\:
-        resource: '../../src/Telepay/FinancialApiBundle/Controller'
+    App\FinancialApiBundle\Controller\:
+        resource: '../../src/FinancialApiBundle/Controller'
         public: true
         tags: ['controller.service_arguments']
 

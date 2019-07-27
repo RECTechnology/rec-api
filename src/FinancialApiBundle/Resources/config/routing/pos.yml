@@ -1,0 +1,81 @@
+######################## USER POS ########################
+
+##user_POS_index:
+##    path:  /user/v1/pos
+##    defaults: { _controller: App\FinancialApiBundle\Controller\Management\Commerce\POSController::indexAction }
+##    methods: [GET]
+
+##user_POS_show:
+##    path:  /user/v1/pos/{id}
+##    defaults: { _controller: App\FinancialApiBundle\Controller\Management\Commerce\POSController::showAction }
+##    methods: [GET]
+
+##user_POS_link:
+##    path:  /user/v1/pos/link/{id}
+##    defaults: { _controller: App\FinancialApiBundle\Controller\Management\Commerce\POSController::linkPOS }
+##    methods: [GET]
+
+##user_POS_create:
+    ##    path:  /user/v1/pos
+##    defaults: { _controller: App\FinancialApiBundle\Controller\Management\Commerce\POSController::createAction }
+##    methods: [POST]
+
+##user_POS_update:
+    ##    path:  /user/v1/pos/{id}
+##    defaults: { _controller: App\FinancialApiBundle\Controller\Management\Commerce\POSController::updateAction }
+##    methods: [PUT]
+
+##user_POS_delete:
+    ##    path:  /user/v1/pos/{id}
+##    defaults: { _controller: App\FinancialApiBundle\Controller\Management\Commerce\POSController::deleteAction }
+##    methods: [DELETE]
+
+##user_POS_transaction_test:
+    ##    path:  /pos/v2/transaction/{id}
+##    defaults: { _controller: App\FinancialApiBundle\Controller\Transactions\POSIncomingController::createTransactionV2 }
+##    methods: [POST]
+
+##user_POS_transaction:
+    ##    path:  /pos/v{version_number}/transaction/{id}
+##    defaults: { _controller: App\FinancialApiBundle\Controller\Transactions\POSIncomingController::createTransaction }
+##    methods: [POST]
+
+##user_POS_find_transactions:
+    ##    path:  /pos/v{version_number}/{pos_id}
+##    defaults: { _controller: App\FinancialApiBundle\Controller\Transactions\POSIncomingController::find }
+##    methods: [GET]
+
+##user_POS_check:
+    ##    path:  /pos/v1/check/{id}
+##    defaults: { _controller: App\FinancialApiBundle\Controller\Transactions\POSIncomingController::checkTransaction }
+##    methods: [GET]
+
+##user_POS_check_v2:
+    ##    path:  /pos/v2/check/{id}
+##    defaults: { _controller: App\FinancialApiBundle\Controller\Transactions\POSIncomingController::checkTransaction2 }
+##    methods: [GET]
+
+##user_POS_cancel_v2:
+    ##    path:  /pos/v2/cancel/{id}
+##    defaults: { _controller: App\FinancialApiBundle\Controller\Transactions\POSIncomingController::cancelTransaction2 }
+##    methods: [PUT]
+
+##new_btc_address:
+    ##    path:  /pos/v{version_number}/address
+##    defaults: { _controller: App\FinancialApiBundle\Controller\Transactions\POSIncomingController::generateAddress }
+##    methods: [POST]
+
+##pos_notifications:
+    ##    path:  /pos/v{version_number}/notification/{id}
+##    defaults: { _controller: App\FinancialApiBundle\Controller\Transactions\POSIncomingController::notificate }
+##    methods: [POST]
+
+##pos_nfc_fac:
+    ##    path:  /pos/v1/{id_company}/nfc/fac
+##    defaults: { _controller: App\FinancialApiBundle\Controller\Management\Company\NFCController::NFCPayment }
+##    methods: [POST]
+
+##pos_nfc_fac_check:
+    ##    path:  /pos/v1/{id_company}/nfc/fac/{id}
+##    defaults: { _controller: App\FinancialApiBundle\Controller\Management\Company\NFCController::checkNFCPayment }
+##    methods: [GET]

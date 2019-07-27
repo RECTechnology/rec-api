@@ -1,16 +1,16 @@
 
-telepay_financial_api:
-    resource: "@TelepayFinancialApiBundle/Resources/config/routing.yml"
+app_financial_api:
+    resource: "@FinancialApiBundle/Resources/config/routing.yml"
     prefix:   /
 
-telepay_login_2FA:
+app_login_2FA:
     path:  /oauth/v3/token
-    defaults: { _controller: Telepay\FinancialApiBundle\Controller\Login2faController::loginAction }
+    defaults: { _controller: App\FinancialApiBundle\Controller\Login2faController::loginAction }
     methods: [POST]
 
-telepay_login_public:
+app_login_public:
     path:  /oauth/v1/public
-    defaults: { _controller: Telepay\FinancialApiBundle\Controller\Login2faController::publicAction }
+    defaults: { _controller: App\FinancialApiBundle\Controller\Login2faController::publicAction }
     methods: [POST]
 
 fos_oauth_server_token:

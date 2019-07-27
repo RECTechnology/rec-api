@@ -1,0 +1,262 @@
+##################### COMPANY ACCOUNT ############################
+account_update:
+    path: /account/{account_id}/v1/profile
+    defaults: { _controller: App\FinancialApiBundle\Controller\Management\Company\AccountController::updateAction }
+    methods: [PUT]
+    requirements:
+        account_id: "[a-z0-9_]+"
+
+fixed_location_update:
+    path: /account/{account_id}/v1/location
+    defaults: { _controller: App\FinancialApiBundle\Controller\Management\Company\AccountController::updateLocationAction }
+    methods: [PUT]
+    requirements:
+        account_id: "[a-z0-9_]+"
+
+company_set_comapny_image:
+    path:  /company/v1/account/{account_id}/image
+    defaults: { _controller: App\FinancialApiBundle\Controller\Management\Company\AccountController::setImage }
+    methods: [PUT]
+
+##company_set_user_manager:
+##    path:  /company/v1/account/kyc/admin/{id}
+##    defaults: { _controller: App\FinancialApiBundle\Controller\Management\Company\AccountController::setAdmin }
+##    methods: [PUT]
+
+##company_kyc_upload_file:
+##    path:  /company/v1/account/kyc/upload
+##    defaults: { _controller: App\FinancialApiBundle\Controller\Management\Company\KYCController::uploadFile }
+##    methods: [POST]
+
+##company_kyc_get_uploaded_file:
+##    path:  /company/v1/account/kyc/upload
+##    defaults: { _controller: App\FinancialApiBundle\Controller\Management\Company\KYCController::getUploadedFiles }
+##    methods: [GET]
+
+##company_kyc_request_validation:
+##    path:  /company/v1/account/kyc/validation
+##    defaults: { _controller: App\FinancialApiBundle\Controller\Management\Company\KYCController::requestValidation }
+##    methods: [PUT]
+
+##################### COMPANY ############################
+
+##company_update_tier:
+##    path:  /company/v1/tier/{company_id}/{tier}
+##    defaults: { _controller: App\FinancialApiBundle\Controller\Management\Company\SpecialActionsController::changeTier }
+##    methods: [PUT]
+
+
+##company_update_transaction:
+##    path:  /company/v1/wallet/transaction/{id}
+##    defaults: { _controller: App\FinancialApiBundle\Controller\Management\Company\WalletController::updateAction }
+##    methods: [PUT]
+
+
+######################## COMPANY SCHEDULED ########################
+
+##scheduled_list:
+##    path:  /company/v1/scheduled
+##    defaults: { _controller: App\FinancialApiBundle\Controller\Management\Company\ScheduledController::indexAction }
+##    methods: [GET]
+
+##scheduled_create:
+##    path:  /company/v1/scheduled
+##    defaults: { _controller: App\FinancialApiBundle\Controller\Management\Company\ScheduledController::createAction }
+##    methods: [POST]
+
+##scheduled_update:
+##    path:  /company/v1/scheduled/{id}
+##    defaults: { _controller: App\FinancialApiBundle\Controller\Management\Company\ScheduledController::updateAction }
+##    methods: [PUT]
+
+##scheduled_delete:
+##    path:  /company/v1/scheduled/{id}
+##    defaults: { _controller: App\FinancialApiBundle\Controller\Management\Company\ScheduledController::deleteAction }
+##    methods: [DELETE]
+
+######################## COMPANY NFC ########################
+
+##create_nfc_card:
+##    path:  /company/v1/nfc_card
+##    defaults: { _controller: App\FinancialApiBundle\Controller\Management\Company\NFCController::registerCard }
+##    methods: [POST]
+
+##read_balance_nfc_card:
+##    path:  /company/v1/nfc_card/balance
+##    defaults: { _controller: App\FinancialApiBundle\Controller\Management\Company\NFCController::readBalanceNFCCard }
+##    methods: [POST]
+
+##recharge_nfc_card:
+##    path:  /company/v1/nfc_card/{company_id}/recharge
+##    defaults: { _controller: App\FinancialApiBundle\Controller\Management\Company\NFCController::rechargeCard }
+##    methods: [POST]
+
+##update_nfc_card_from_app:
+##    path:  /company/v1/nfc_card
+##    defaults: { _controller: App\FinancialApiBundle\Controller\Management\Company\NFCController::updateCard }
+##    methods: [PUT]
+
+##index_nfc_card:
+##    path:  /company/v1/nfc_cards
+##    defaults: { _controller: App\FinancialApiBundle\Controller\Management\Company\NFCController::indexCards }
+##    methods: [GET]
+
+##update_nfc_card:
+##    path:  /company/v1/nfc_card/{id}
+##    defaults: { _controller: App\FinancialApiBundle\Controller\Management\Company\NFCController::updateCardFromCompany }
+##    methods: [PUT]
+
+
+######################## CREDIT CARD ########################
+
+create_credit_card:
+    path:  /company/v1/credit_card
+    defaults: { _controller: App\FinancialApiBundle\Controller\Management\Company\CreditCardController::registerCard }
+    methods: [POST]
+
+index_credit_card:
+    path:  /company/v1/credit_card
+    defaults: { _controller: App\FinancialApiBundle\Controller\Management\Company\CreditCardController::indexCards }
+    methods: [GET]
+
+update_credit_card:
+    path:  /company/v1/credit_card/{id}
+    defaults: { _controller: App\FinancialApiBundle\Controller\Management\Company\CreditCardController::updateCardFromCompany }
+    methods: [PUT]
+
+delete_credit_card:
+    path:  /company/v1/credit_card/{id}
+    defaults: { _controller: App\FinancialApiBundle\Controller\Management\Company\CreditCardController::deleteAction }
+    methods: [DELETE]
+
+######################## BANK ACCOUNT ########################
+
+create_bank_account:
+    path:  /company/v1/bank_account
+    defaults: { _controller: App\FinancialApiBundle\Controller\Management\Company\BankAccountController::registerAccount }
+    methods: [POST]
+
+index_bank_account:
+    path:  /company/v1/bank_account
+    defaults: { _controller: App\FinancialApiBundle\Controller\Management\Company\BankAccountController::indexAccounts }
+    methods: [GET]
+
+update_bank_account:
+    path:  /company/v1/bank_account/{id}
+    defaults: { _controller: App\FinancialApiBundle\Controller\Management\Company\BankAccountController::updateAccountFromCompany }
+    methods: [PUT]
+
+delete_bank_account:
+    path:  /company/v1/bank_account/{id}
+    defaults: { _controller: App\FinancialApiBundle\Controller\Management\Company\BankAccountController::deleteAction }
+    methods: [DELETE]
+
+
+######################## OFFERS ########################
+
+create_offer:
+    path:  /company/v1/offer
+    defaults: { _controller: App\FinancialApiBundle\Controller\Management\Company\OfferController::registerOffer }
+    methods: [POST]
+
+index_offer:
+    path:  /company/v1/offer
+    defaults: { _controller: App\FinancialApiBundle\Controller\Management\Company\OfferController::indexOffers }
+    methods: [GET]
+
+update_offer:
+    path:  /company/v1/offer/{id}
+    defaults: { _controller: App\FinancialApiBundle\Controller\Management\Company\OfferController::updateOfferFromCompany }
+    methods: [PUT]
+
+delete_offer:
+    path:  /company/v1/offer/{id}
+    defaults: { _controller: App\FinancialApiBundle\Controller\Management\Company\OfferController::deleteAction }
+    methods: [DELETE]
+
+######################## Products ########################
+
+list_all_categories:
+    path:  /company/v1/list_categories
+    defaults: { _controller: App\FinancialApiBundle\Controller\Management\Company\ProductController::listAllAction }
+    methods: [GET]
+
+index_products:
+    path:  /company/v1/products
+    defaults: { _controller: App\FinancialApiBundle\Controller\Management\Company\ProductController::indexAction }
+    methods: [GET]
+
+set_products:
+    path:  /company/v1/products
+    defaults: { _controller: App\FinancialApiBundle\Controller\Management\Company\ProductController::setAction }
+    methods: [PUT]
+
+set_category:
+    path:  /company/v1/category
+    defaults: { _controller: App\FinancialApiBundle\Controller\Management\Company\ProductController::setCategoryAction }
+    methods: [PUT]
+
+###################   COMPANY WALLET #################
+company_wallet:
+    path:  /company/{company_id}/v1/wallets
+    defaults: { _controller: App\FinancialApiBundle\Controller\Management\Company\WalletController::read }
+    methods: [GET]
+
+##company_wallet_do_exchange:
+##    path:  /company/{company_id}/v1/wallet/exchange
+##    defaults: { _controller: App\FinancialApiBundle\Controller\Management\Company\WalletController::currencyExchange, _format: ~ }
+##    methods: [POST]
+
+company_wallet_transactions:
+    path:  /company/{company_id}/v1/wallet/transactions
+    defaults: { _controller: App\FinancialApiBundle\Controller\Management\Company\WalletController::walletTransactions }
+    methods: [GET]
+
+###################   COMPANY SETTINGS #################
+##company_read_settings:
+##    path: /company/v1/{company_id}/settings
+##    defaults: { _controller: App\FinancialApiBundle\Controller\Management\Company\SettingsController::readSettings }
+##    methods: [GET]
+
+##company_update_settings:
+##    path: /company/v1/{company_id}/settings
+##    defaults: { _controller: App\FinancialApiBundle\Controller\Management\Company\SettingsController::updateSettings }
+##    methods: [PUT]
+
+##################     COMPANY METHODS     ###############
+##companymethod_read:
+##    path:  /company/{id}/v1/methods/{method}
+##    defaults: { _controller: App\FinancialApiBundle\Controller\Management\Integrator\MethodsController::read }
+##    methods: [GET]
+
+##companymethod_index:
+##    path:  /company/{id}/v1/methods
+##    defaults: { _controller: App\FinancialApiBundle\Controller\Management\Integrator\MethodsController::index }
+##    methods: [GET]
+
+
+#################     ACCOUNT FEES    ######################
+##company_index_fees:
+##    path: /account/{account_id}/v1/fees
+##    defaults: {_controller: App\FinancialApiBundle\Controller\Management\Company\WalletController::indexFees }
+##    requirements:
+##    methods: [GET]
+
+##company_show_fee:
+##    path: /account/{account_id}/v1/fees/{method}
+##    defaults: {_controller: App\FinancialApiBundle\Controller\Management\Company\WalletController::showFees }
+##    requirements:
+##    methods: [GET]
+
+
+##################### MAP ############################
+map_list:
+    path: /map/v1/list
+    defaults: {_controller: App\FinancialApiBundle\Controller\Open\MapController::ListAction }
+    methods: [GET]
+
+map_search:
+    path: /map/v1/search
+    defaults: {_controller: App\FinancialApiBundle\Controller\Open\MapController::SearchAction }
+    methods: [GET]
+

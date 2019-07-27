@@ -1,0 +1,4 @@
+services:
+
+    net.app.ways:
+        class: App\FinancialApiBundle\Financial\ObjectRegister

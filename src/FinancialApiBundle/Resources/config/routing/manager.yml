@@ -1,0 +1,138 @@
+
+##################### manager/users ############################
+
+manager_users_index:
+    path:  /manager/v1/users
+    defaults: { _controller: App\FinancialApiBundle\Controller\Management\Manager\UsersController::indexAction, _format: ~ }
+    methods: [GET]
+
+manager_users_index_v2:
+    path:  /manager/v2/users
+    defaults: { _controller: App\FinancialApiBundle\Controller\Management\Manager\UsersController::indexV2Action, _format: ~ }
+    methods: [GET]
+
+manager_users_index_by_group_old:
+    path:  /users/v1/usersbygroup/{id}
+    defaults: { _controller: App\FinancialApiBundle\Controller\Management\Manager\UsersController::indexByGroup, _format: ~ }
+    methods: [GET]
+
+manager_users_index_by_group:
+    path:  /manager/v1/usersbygroup/{id}
+    defaults: { _controller: App\FinancialApiBundle\Controller\Management\Manager\UsersController::indexByGroup, _format: ~ }
+    methods: [GET]
+
+manager_users_index_by_group_v2:
+    path:  /manager/v2/usersbygroup/{id}
+    defaults: { _controller: App\FinancialApiBundle\Controller\Management\Manager\UsersController::indexByGroupV2, _format: ~ }
+    methods: [GET]
+
+
+manager_users_read:
+    path:  /manager/v1/users/{id}
+    defaults: { _controller: App\FinancialApiBundle\Controller\Management\Manager\UsersController::showAction, _format: ~ }
+    methods: [GET]
+    requirements:
+        id: "[0-9]+"
+
+##manager_su:
+##    path:  /manager/v1/su/{id}
+##    defaults: { _controller: App\FinancialApiBundle\Controller\Management\Manager\UsersController::su }
+##    methods: [GET]
+##    requirements:
+##        id: "[0-9]+"
+
+##########################    MANAGER COMPANIES     ###########################
+
+manager_groups_index_v1:
+    path:  /manager/v1/groups
+    defaults: { _controller: App\FinancialApiBundle\Controller\Management\Manager\GroupsController::indexAction, _format: ~ }
+    methods: [GET]
+
+
+manager_groups_index_v2:
+    path:  /manager/v2/groups
+    defaults: { _controller: App\FinancialApiBundle\Controller\Management\Manager\GroupsController::indexV2Action, _format: ~ }
+    methods: [GET]
+
+manager_groups_read:
+    path:  /groups/v1/show/{id}
+    defaults: { _controller: App\FinancialApiBundle\Controller\Management\Manager\GroupsController::showAction, _format: ~ }
+    methods: [GET]
+    requirements:
+        id: "[0-9]+"
+
+##manager_groups_add:
+##    path:  /manager/v1/groups
+##    defaults: { _controller: App\FinancialApiBundle\Controller\Management\Manager\GroupsController::createAction, _format: ~ }
+##    methods: [POST]
+##    requirements:
+##        name: "string"
+
+manager_groups_update:
+    path:  /manager/v1/groups/{id}
+    defaults: { _controller: App\FinancialApiBundle\Controller\Management\Manager\GroupsController::updateAction, _format: ~ }
+    methods: [PUT]
+    requirements:
+        id: "[0-9]+"
+        name: "string"
+
+
+manager_groups_update_limit:
+    path:  /manager/v1/groups/limit/{id}
+    defaults: { _controller: App\FinancialApiBundle\Controller\Management\Manager\LimitsGroupController::updateAction, _format: ~ }
+    methods: [PUT]
+    requirements:
+        id: "[0-9]+"
+
+
+manager_groups_delete:
+    path:  /manager/v1/groups/{id}
+    defaults: { _controller: App\FinancialApiBundle\Controller\Management\Manager\GroupsController::deleteAction, _format: ~ }
+    methods: [DELETE]
+    requirements:
+        id: "[0-9]+"
+
+manager_groups_add_users:
+    path:  /manager/v1/groups/{id}
+    defaults: { _controller: App\FinancialApiBundle\Controller\Management\Manager\UsersGroupsController::createAction, _format: ~ }
+    methods: [POST]
+    requirements:
+        id: "[0-9]+"
+
+manager_groups_index_by_user:
+    path:  /manager/v1/groupsbyuser/{id}
+    defaults: { _controller: App\FinancialApiBundle\Controller\Management\Manager\GroupsController::indexByCompany, _format: ~ }
+    methods: [GET]
+    requirements:
+        id: "[0-9]+"
+
+user_new_group:
+    path:  /user/v1/new/account
+    defaults: { _controller: App\FinancialApiBundle\Controller\Management\Manager\UsersGroupsController::createCompanyAction, _format: ~ }
+    methods: [POST]
+    requirements:
+        user_id: "[0-9]+"
+
+manager_groups_delete_users:
+    path:  /manager/v1/groups/{group_id}/{user_id}
+    defaults: { _controller: App\FinancialApiBundle\Controller\Management\Manager\UsersGroupsController::deleteAction, _format: ~ }
+    methods: [DELETE]
+    requirements:
+        group_id: "[0-9]+"
+        user_id: "[0-9]+"
+
+manager_groups_add_users_role:
+    path:  /manager/v1/groupsrole/{group_id}/{user_id}
+    defaults: { _controller: App\FinancialApiBundle\Controller\Management\Manager\UsersGroupsController::addRoleAction, _format: ~ }
+    methods: [POST]
+    requirements:
+        group_id: "[0-9]+"
+        user_id: "[0-9]+"
+
+manager_groups_delete_users_role:
+    path:  /manager/v1/groupsrole/{group_id}/{user_id}
+    defaults: { _controller: App\FinancialApiBundle\Controller\Management\Manager\UsersGroupsController::deleteRoleAction, _format: ~ }
+    methods: [DELETE]
+    requirements:
+        group_id: "[0-9]+"
+        user_id: "[0-9]+"

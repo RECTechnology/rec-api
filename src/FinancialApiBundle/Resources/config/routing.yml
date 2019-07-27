@@ -1,0 +1,85 @@
+
+Admin:
+    resource: routing/admin.yml
+
+Manager:
+    resource: routing/manager.yml
+
+Company:
+    resource: routing/company.yml
+
+User:
+    resource: routing/user.yml
+
+Transactions:
+    resource: routing/transactions.yml
+
+Exchange:
+    resource: routing/exchange.yml
+
+KYC:
+    resource: routing/kyc.yml
+
+POS:
+    resource: routing/pos.yml
+
+Public:
+    resource: routing/public.yml
+
+CRUD:
+    resource: routing/crud.yml
+
+register:
+    path:  /register/v1
+    defaults: { _controller: App\FinancialApiBundle\Controller\Management\User\AccountController::registerAction }
+    methods: [POST]
+
+validate_email:
+    path:  /register/v1/validate_email
+    defaults: { _controller: App\FinancialApiBundle\Controller\Management\User\AccountController::validateEmail }
+    methods: [POST]
+
+validate_nfc_card_email:
+    path:  /register/v1/nfc_card
+    defaults: { _controller: App\FinancialApiBundle\Controller\Management\Company\NFCController::validateEmailCard }
+    methods: [POST]
+
+disable_nfc_card:
+    path:  /register/v1/nfc_card/disable_card
+    defaults: { _controller: App\FinancialApiBundle\Controller\Management\Company\NFCController::disableCard }
+    methods: [PUT]
+
+refresh_pin_nfc_card:
+    path:  /register/v1/nfc_card/refresh_pin
+    defaults: { _controller: App\FinancialApiBundle\Controller\Management\Company\NFCController::refreshPin }
+    methods: [PUT]
+
+validate_nfc_card:
+    path:  /register/v1/nfc_card/{company_id}
+    defaults: { _controller: App\FinancialApiBundle\Controller\Management\Company\NFCController::validateCard }
+    methods: [POST]
+
+user_sent_validation_email:
+    path:  /register/v1/sent_validation_email
+    defaults: { _controller: App\FinancialApiBundle\Controller\Management\User\AccountController::sentValidationEmailAction }
+    methods: [POST]
+
+register_from_shop:
+    path:  /register/v1/commerce/{type}
+    defaults: { _controller: App\FinancialApiBundle\Controller\Management\User\AccountController::registerCommerceAction }
+    methods: [POST]
+
+recover_password_request:
+    path:  /password_recovery/v1/request
+    defaults: { _controller: App\FinancialApiBundle\Controller\Management\User\AccountController::passwordRecoveryRequest }
+    methods: [POST]
+
+recover_password:
+    path:  /password_recovery/v1
+    defaults: { _controller: App\FinancialApiBundle\Controller\Management\User\AccountController::passwordRecovery }
+    methods: [POST]
+
+show_conditions:
+    path:  /public/{lang}
+    defaults: { _controller: App\FinancialApiBundle\Controller\Management\User\AccountController::passwordRecovery }
+    methods: [GET]
