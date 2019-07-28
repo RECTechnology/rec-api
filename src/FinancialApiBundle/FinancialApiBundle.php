@@ -8,11 +8,6 @@ use App\FinancialApiBundle\Security\Factory\SignatureSecurityFactory;
 
 class FinancialApiBundle extends Bundle {
 
-    public function getParent()
-    {
-        return 'FOSUserBundle';
-    }
-
     public function build(ContainerBuilder $container)
     {
         parent::build($container);

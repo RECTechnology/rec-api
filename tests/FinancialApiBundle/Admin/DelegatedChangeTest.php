@@ -10,13 +10,4 @@ use Test\FinancialApiBundle\BaseApiTest;
  */
 class DelegatedChangeTest extends BaseApiTest {
 
-    public function testCRUDDelegatedChange(){
-        #$admin = $this->getAdminClient();
-
-
-    }
-
-    public function testCRUDWithdrawalValidation(){
-    }
-
 }

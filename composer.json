@@ -52,6 +52,7 @@
     "require-dev": {
         "doctrine/doctrine-fixtures-bundle": "^3.2",
         "friendsofphp/php-cs-fixer": "^2.15",
+        "fzaninotto/faker": "^1.8",
         "phpunit/phpunit": "^8.2",
         "sensio/generator-bundle": "^3.0",
         "symfony/phpunit-bridge": "^4.3"
@@ -89,6 +90,5 @@
             "file": "app/config/parameters.yml"
         },
         "branch-alias": null
-
     }
 }

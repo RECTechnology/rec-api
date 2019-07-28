@@ -2,6 +2,8 @@
 
 namespace Test\FinancialApiBundle\Legacy;
 
+use Symfony\Bundle\FrameworkBundle\Client;
+use Symfony\Component\Routing\Route;
 use Test\FinancialApiBundle\BaseApiTest;
 use Symfony\Component\Routing\RouterInterface;
 
@@ -64,15 +66,20 @@ class LegacyCallsExistsTest extends BaseApiTest {
     ];
 
 
-    private function getAllRoutes(){
-        $client = static::createClient();
+    /**
+     * @param Client $client
+     * @return Route[]
+     */
+    private function getAllRoutes(Client $client){
         /** @var RouterInterface $router */
         $router = $client->getKernel()->getContainer()->get('router');
         return $router->getRouteCollection()->all();
     }
 
     public function testAllLegacyCallsArePresent(){
-        $routes = $this->getAllRoutes();
+        $this->markTestIncomplete("This test will be incompleted until qbitartifacts/rec-issues#31 resolves.");
+        $client = $this->getApiClient();
+        $routes = $this->getAllRoutes($client);
 
         foreach(self::API_LEGACY_ROUTES as $legacyRoute => $legacyRouteMethods){
             $legacyRouteIsFound = false;

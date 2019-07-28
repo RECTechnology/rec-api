@@ -2,6 +2,8 @@
 
 namespace Test\FinancialApiBundle;
 
+use Doctrine\Bundle\DoctrineBundle\Command\CreateDatabaseDoctrineCommand;
+use Doctrine\Bundle\FixturesBundle\Command\LoadDataFixturesDoctrineCommand;
 use Doctrine\ORM\EntityManagerInterface;
 use Doctrine\ORM\Tools\SchemaTool;
 use Doctrine\ORM\Tools\ToolsException;
@@ -11,7 +13,9 @@ use Symfony\Bundle\FrameworkBundle\Client;
 use Symfony\Bundle\FrameworkBundle\Console\Application;
 use Symfony\Bundle\FrameworkBundle\Test\WebTestCase;
 use Symfony\Component\Console\Input\ArrayInput;
+use Symfony\Component\Console\Output\BufferedOutput;
 use Symfony\Component\Console\Output\NullOutput;
+use Symfony\Component\Console\Output\StreamOutput;
 
 class BaseApiTest extends WebTestCase {
 
@@ -32,6 +36,7 @@ class BaseApiTest extends WebTestCase {
     public function testDummy(){
         static::assertTrue(true);
     }
+
 
     protected function getUserClient(){
 
@@ -60,21 +65,36 @@ class BaseApiTest extends WebTestCase {
      * @throws \Exception
      */
     protected function clearDatabase(Client $client){
+        $this->createDatabase($client);
+    }
 
+
+    /**
+     * @param Client $client
+     * @throws \Exception
+     */
+    protected function createDatabase(Client $client){
+        $this->runCommand($client, 'doctrine:database:create', ['--if-not-exists']);
+        $r = $this->runCommand($client, 'doctrine:schema:create');
+        //die($r);
+    }
+
+    /**
+     * @param Client $client
+     * @param string $command
+     * @param array $args
+     * @return string
+     * @throws \Exception
+     */
+    protected function runCommand(Client $client, string $command, array $args = []){
         $application = new Application($client->getKernel());
         $application->setAutoExit(false);
+        $fullCommand = array_merge(['command' => $command], $args);
+        $output = new BufferedOutput();
+        $application->run(new ArrayInput($fullCommand), $output);
 
-        $application->run(
-            new ArrayInput(['command' => 'doctrine:database:create', '--if-not-exists']),
-            new NullOutput()
-        );
-
-        /** @var EntityManagerInterface $em */
-        $em = $client->getContainer()->get('doctrine.orm.entity_manager');
-        $metaData = $em->getMetadataFactory()->getAllMetadata();
-        $tool = new SchemaTool($em);
-        $tool->dropSchema($metaData);
-        $tool->createSchema($metaData);
+        $application->setCatchExceptions(false);
+        return $output->fetch();
     }
 
     /**
@@ -82,13 +102,7 @@ class BaseApiTest extends WebTestCase {
      * @throws \Exception
      */
     protected function loadFixtures(Client $client){
-        $application = new Application($client->getKernel());
-        $application->setAutoExit(false);
-
-        $application->run(
-            new ArrayInput(['command' => 'doctrine:fixtures:load']),
-            new NullOutput()
-        );
+        $this->runCommand($client, 'doctrine:fixtures:load', ['--no-interaction']);
     }
 
     /**

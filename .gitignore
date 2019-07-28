@@ -11,9 +11,11 @@
 /var/cache/*
 /var/logs/*
 /var/sessions/*
+/var/db/*
 !var/cache/.gitkeep
 !var/logs/.gitkeep
 !var/sessions/.gitkeep
+!var/db/.gitkeep
 
 # Logs (Symfony4)
 /var/log/*
