@@ -40,20 +40,21 @@ class NotificateTransactionCommand extends ContainerAwareCommand {
         /** @var TransactionRepository $txRepo */
         $txRepo = $dm->getRepository(Transaction::class);
 
-        /** @var Transaction $transaction */
-        $transaction = $txRepo->find($id);
+        /** @var Transaction $tx */
+        $tx = $txRepo->find($id);
 
-        if($transaction) {
-            $output->writeln('Transaction => '.$transaction->getId());
-            $output->writeln('Url notification => '.$transaction->getDataIn()['url_notification']);
+        if($tx) {
+            $output->writeln('Transaction => ' . $tx->getId());
+            $url = ($tx->getDataIn()? $tx->getDataIn(): $tx->getDataOut())['url_notification'];
+            $output->writeln('Url notification => ' . $url);
 
             $output->writeln('Sending notification');
 
             /** @var Notificator $notificator */
             $notificator = $this->getContainer()->get('notificator');
-            $transaction = $notificator->notificate($transaction);
+            $tx = $notificator->notificate($tx);
 
-            if($transaction->getNotified()){
+            if($tx->getNotified()){
                 $output->writeln('NOTIFICATED TRANSACTION');
             }else{
                 $output->writeln('Notification FAILED');

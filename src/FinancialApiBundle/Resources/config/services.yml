@@ -22,6 +22,7 @@ services:
         arguments:
             - "@service_container"
             - "@logger"
+            - "@doctrine.orm.entity_manager"
 
     command.check.posV2:
         class: App\FinancialApiBundle\Command\CheckCryptoPOSv2Command

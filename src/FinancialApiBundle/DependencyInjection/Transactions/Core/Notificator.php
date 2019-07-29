@@ -3,6 +3,7 @@ namespace App\FinancialApiBundle\DependencyInjection\Transactions\Core;
 
 use App\FinancialApiBundle\Entity\Group;
 use Doctrine\ODM\MongoDB\DocumentManager;
+use Doctrine\ORM\EntityManagerInterface;
 use Psr\Log\LoggerInterface;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 use App\FinancialApiBundle\Document\Transaction;
@@ -13,31 +14,33 @@ class Notificator {
     private $container;
     /** @var LoggerInterface */
     private $logger;
+    /** @var EntityManagerInterface */
+    private $em;
 
-    function __construct(ContainerInterface $container, LoggerInterface $logger)
+    function __construct(ContainerInterface $container, LoggerInterface $logger, EntityManagerInterface $em)
     {
         $this->container = $container;
         $this->logger = $logger;
+        $this->em = $em;
     }
 
     public function notificate(Transaction $transaction){
         $this->logger->debug("START Notificator::notificate({$transaction->getId()})");
+        $this->container->get('logger')->debug("[logger2] START Notificator::notificate({$transaction->getId()})");
         $transaction->setNotified(false);
         $dm = $this->container->get('doctrine_mongodb')->getManager();
         /** @var Group $group */
-        $group = $this->container->get('doctrine')
-            ->getRepository(Group::class)
-            ->find($transaction->getGroup());
+        $group = $this->em->getRepository(Group::class)->find($transaction->getGroup());
 
         if(!$transaction->getInternal()) {
             if (
                 $group->getType() == 'PRIVATE'
                 &&
-                $transaction->getStatus()==Transaction::$STATUS_SUCCESS
+                $transaction->getStatus() == Transaction::$STATUS_SUCCESS
                 &&
                 $group->getSubtype() == 'BMINCOME'
                 &&
-                ($transaction->getType() == 'out' || $transaction->getType() == 'in')
+                in_array($transaction->getType(), ['in', 'out'])
             ) {
                 $this->logger->debug("UPC Notification started");
                 $this->notificate_upc($transaction);
@@ -45,7 +48,11 @@ class Notificator {
             }
             else {
                 $this->logger->debug(
-                    "NOT upc_notificate: id: {$transaction->getId()}, type: {$transaction->getType()}, status: {$transaction->getStatus()}, gtoup_subtype: {$group->getSubtype()}"
+                    "NOT upc_notificate: id:
+                     {$transaction->getId()},
+                     group_type: {$group->getType()},
+                     status: {$transaction->getStatus()},
+                     group_subtype: {$group->getSubtype()}"
                 );
             }
         }
