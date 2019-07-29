@@ -10,5 +10,5 @@ namespace App\FinancialApiBundle\DependencyInjection\App\Commons;
 
 
 interface Notificator {
-    function msg($msg);
+    function send($msg);
 }

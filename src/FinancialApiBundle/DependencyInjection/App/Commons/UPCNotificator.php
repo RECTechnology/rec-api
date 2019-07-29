@@ -9,39 +9,49 @@
 namespace App\FinancialApiBundle\DependencyInjection\App\Commons;
 
 
+use Psr\Log\LoggerInterface;
+use Symfony\Component\DependencyInjection\ParameterBag\ParameterBagInterface;
+
 class UPCNotificator implements Notificator {
 
-    private $url;
-    private $username;
-    private $password;
+    /** @var ParameterBagInterface */
+    private $bag;
+
+    /** @var LoggerInterface */
+    private $logger;
 
     /**
      * UPCNotificator constructor.
-     * @param $url
-     * @param $username
-     * @param $password
+     * @param ParameterBagInterface $bag
+     * @param LoggerInterface $logger
      */
-    public function __construct($url , $username, $password)
+    public function __construct(ParameterBagInterface $bag, LoggerInterface $logger)
     {
-        $this->url = $url;
-        $this->username = $username;
-        $this->password = $password;
+        $this->bag = $bag;
+        $this->logger = $logger;
     }
 
-    function msg($msg)
-    {
+    function send($msg) {
+        $url = $this->bag->get('bcn_notification_url');
+        $us = $this->bag->get('bcn_notification_username');
+        $pw = $this->bag->get('bcn_notification_password');
+
+        $auth = base64_encode($us . ":" . $pw);
         $ops = [
             'http' => [
                 'method' => 'POST',
-                'header' => ['Content-Type: application/json','Authorization: Basic ' . base64_encode("$this->username:$this->password")],
+                'header' => ['Content-Type: application/json','Authorization: Basic ' . $auth],
                 'content' => $msg
             ]
         ];
 
-        return file_get_contents(
-            $this->url,
+        $this->logger->debug("UPC REQUEST: " . $msg);
+        $resp = file_get_contents(
+            $url,
             false,
             stream_context_create($ops)
         );
+        $this->logger->debug("UPC RESPONSE: $resp");
+        return $resp;
     }
 }

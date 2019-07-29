@@ -24,11 +24,11 @@ class NotificatorAggregator implements Notificator
         $this->notificators = $notificators;
     }
 
-    function msg($msg)
+    function send($msg)
     {
         /** @var Notificator $notificator */
         foreach ($this->notificators as $notificator) {
-            $notificator->msg($msg);
+            $notificator->send($msg);
         }
     }
 }

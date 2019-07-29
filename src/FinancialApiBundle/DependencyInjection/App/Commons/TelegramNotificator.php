@@ -25,7 +25,7 @@ class TelegramNotificator implements Notificator {
         $this->telegramToken = $telegramToken;
     }
 
-    function msg($msg)
+    function send($msg)
     {
         $ops = [
             'http' => [

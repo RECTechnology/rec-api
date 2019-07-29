@@ -17,9 +17,20 @@ use App\FinancialApiBundle\Entity\Group;
 
 /**
  * Class TransactionRepository
+ * @package App\FinancialApiBundle\Repository
  */
 class TransactionRepository extends DocumentRepository {
 
+    /**
+     * @param Group $group
+     * @param $start_time
+     * @param $finish_time
+     * @param $search
+     * @param $order
+     * @param $dir
+     * @return mixed
+     * @throws \Doctrine\ODM\MongoDB\MongoDBException
+     */
     public function findTransactions(Group $group, $start_time, $finish_time, $search, $order, $dir){
         return $this->createQueryBuilder('t')
             ->field('group')->equals($group->getId())

@@ -352,7 +352,7 @@ class IncomingController2 extends RestApiController{
             if($destination->getRecAddress() == "temp" || $group->getRecAddress() == "temp"){
 
                 $notificator = $this->container->get('com.qbitartifacts.rec.commons.notificator');
-                $notificator->msg('#EERROR TEMP ADDRESS' . $destination->getId() . " or " . $group->getId());
+                $notificator->send('#EERROR TEMP ADDRESS' . $destination->getId() . " or " . $group->getId());
 
                 throw new HttpException(405, 'Destination address does not exists');
             }
@@ -382,7 +382,7 @@ class IncomingController2 extends RestApiController{
             }catch (Exception $e){
 
                 $notificator = $this->container->get('com.qbitartifacts.rec.commons.notificator');
-                $notificator->msg('#ERROR IncomingController'. $method . ' ' . $group->getId());
+                $notificator->send('#ERROR IncomingController'. $method . ' ' . $group->getId());
 
                 $logger->info('(' . $group_id . ')(T) SEND ERROR');
                 if(isset($payment_info['inputs'])) {
@@ -418,7 +418,7 @@ class IncomingController2 extends RestApiController{
                 if($payment_info['status']=='failed'){
 
                     $notificator = $this->container->get('com.qbitartifacts.rec.commons.notificator');
-                    $notificator->msg('#ERROR IncomingController rec:' . $group->getId());
+                    $notificator->send('#ERROR IncomingController rec:' . $group->getId());
 
                     $logger->info('REC_INFO_ERROR');
                 }

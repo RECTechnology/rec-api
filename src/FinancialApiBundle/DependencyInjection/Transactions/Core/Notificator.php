@@ -1,6 +1,7 @@
 <?php
 namespace App\FinancialApiBundle\DependencyInjection\Transactions\Core;
 
+use Doctrine\ODM\MongoDB\DocumentManager;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 use App\FinancialApiBundle\Document\Transaction;
 
@@ -116,8 +117,10 @@ class Notificator {
     }
 
     public function notificate_upc(Transaction $transaction){
+        /** @var DocumentManager $dm */
         $dm = $this->container->get('doctrine_mongodb')->getManager();
-        $group = $this->container->get('doctrine')->getRepository('FinancialApiBundle:Group')
+        $group = $this->container->get('doctrine')
+            ->getRepository('FinancialApiBundle:Group')
             ->find($transaction->getGroup());
 
         //necesitamos el id el status el amount y el secret
@@ -128,9 +131,11 @@ class Notificator {
 
         if ($transaction->getType() == 'out') {
             $payment_info = $transaction->getPayOutInfo();;
-            $destination = $this->container->get('doctrine')->getRepository('FinancialApiBundle:Group')->findOneBy(array(
-                'rec_address' => $payment_info['address']
-            ));
+            $destination = $this->container->get('doctrine')
+                ->getRepository('FinancialApiBundle:Group')
+                ->findOneBy(array(
+                    'rec_address' => $payment_info['address']
+                ));
 
             if($destination->getType()=='PRIVATE') {
                 $data_to_sign = $id . $status . $amount;
@@ -188,10 +193,10 @@ class Notificator {
         $msg = json_encode($payload);
 
         $logger = $this->container->get('com.qbitartifacts.rec.commons.notificator');
-        $logger->msg('#NOTIFICATION_UPC_REQUEST: ' . $msg);
+        $logger->send('#NOTIFICATION_UPC_REQUEST: ' . $msg);
 
-        $notificator = $this->container->get('com.qbitartifacts.rec.commons.upc_notificator');
-        $response = $notificator->msg($msg);
+        $notificator = $this->container->get('App\FinancialApiBundle\DependencyInjection\App\Commons\UPCNotificator');
+        $response = $notificator->send($msg);
 
         $response_data = json_decode($response, true);
         if(!isset($response_data['Message'])){
@@ -207,7 +212,7 @@ class Notificator {
 
         $clean_response = str_replace('"', '', $response);
 
-        $logger->msg('#NOTIFICATION_UPC_RESPONSE: ' . $clean_response);
+        $logger->send('#NOTIFICATION_UPC_RESPONSE: ' . $clean_response);
 
 
         // close curl resource to free up system resources

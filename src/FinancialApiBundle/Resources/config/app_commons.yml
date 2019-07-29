@@ -5,13 +5,6 @@ services:
             - '@com.qbitartifacts.rec.commons.telegram_notificator_error'
             - '@com.qbitartifacts.rec.commons.telegram_notificator_log'
 
-    com.qbitartifacts.rec.commons.upc_notificator:
-        class: App\FinancialApiBundle\DependencyInjection\App\Commons\UPCNotificator
-        arguments:
-            - "%bcn_notification_url%"
-            - "%bcn_notification_username%"
-            - "%bcn_notification_password%"
-
     com.qbitartifacts.rec.commons.telegram_notificator_error:
         class: App\FinancialApiBundle\DependencyInjection\App\Commons\TelegramNotificator
         arguments:
