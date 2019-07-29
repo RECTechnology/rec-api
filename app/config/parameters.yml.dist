@@ -120,3 +120,5 @@ parameters:
 
     blockchain_address_prefix: 'R'
 
+    sentry_dsn: ~
+

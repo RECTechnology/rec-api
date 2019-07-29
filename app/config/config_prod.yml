@@ -11,6 +11,9 @@ imports:
 #        result_cache_driver: apc
 #        query_cache_driver: apc
 
+sentry:
+    dsn: "%sentry_dsn%"
+
 monolog:
     handlers:
         main:
