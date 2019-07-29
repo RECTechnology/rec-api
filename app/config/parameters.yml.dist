@@ -114,9 +114,9 @@ parameters:
     telegram_chat_error: ~
 
 # Bcn setup for notificacions
-    bcn_notification_url: ~
-    bcn_notification_username: ~
-    bcn_notification_password: ~
+    upc_notification_url: ~
+    upc_notification_username: ~
+    upc_notification_password: ~
 
     blockchain_address_prefix: 'R'
 

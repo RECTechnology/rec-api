@@ -10,6 +10,7 @@ namespace App\FinancialApiBundle\DependencyInjection\App\Commons;
 
 
 use Psr\Log\LoggerInterface;
+use Symfony\Component\DependencyInjection\ContainerInterface;
 use Symfony\Component\DependencyInjection\ParameterBag\ParameterBagInterface;
 
 
@@ -19,27 +20,27 @@ use Symfony\Component\DependencyInjection\ParameterBag\ParameterBagInterface;
  */
 class UPCNotificator implements Notificator {
 
-    /** @var ParameterBagInterface */
-    private $parameters;
+    /** @var ContainerInterface */
+    private $container;
 
     /** @var LoggerInterface */
     private $logger;
 
     /**
      * UPCNotificator constructor.
-     * @param ParameterBagInterface $parameters
+     * @param ContainerInterface $container
      * @param LoggerInterface $logger
      */
-    public function __construct(ParameterBagInterface $parameters, LoggerInterface $logger)
+    public function __construct(ContainerInterface $container, LoggerInterface $logger)
     {
-        $this->parameters = $parameters;
+        $this->container = $container;
         $this->logger = $logger;
     }
 
     function send($msg) {
-        $url = $this->parameters->get('bcn_notification_url');
-        $us = $this->parameters->get('bcn_notification_username');
-        $pw = $this->parameters->get('bcn_notification_password');
+        $url = $this->container->getParameter('upc_notification_url');
+        $us = $this->container->getParameter('upc_notification_username');
+        $pw = $this->container->getParameter('upc_notification_password');
         $this->logger->debug("UPC REQUEST URL: " . $url);
 
         $auth = base64_encode($us . ":" . $pw);
