@@ -1,6 +1,10 @@
 <?php
 namespace App\FinancialApiBundle\Command;
 
+use App\FinancialApiBundle\DependencyInjection\Transactions\Core\Notificator;
+use App\FinancialApiBundle\Document\TransactionRepository;
+use Doctrine\ODM\MongoDB\DocumentManager;
+use Psr\Log\LoggerInterface;
 use Symfony\Bundle\FrameworkBundle\Command\ContainerAwareCommand;
 use Symfony\Component\Config\Definition\Exception\Exception;
 use Symfony\Component\Console\Input\InputArgument;
@@ -10,13 +14,12 @@ use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Component\HttpKernel\Exception\HttpException;
 use App\FinancialApiBundle\DependencyInjection\App\Commons\FeeDeal;
 use App\FinancialApiBundle\DependencyInjection\App\Commons\LimitAdder;
-use App\FinancialApiBundle\DependencyInjection\App\Commons\Notificator;
 use App\FinancialApiBundle\Document\Transaction;
 use App\FinancialApiBundle\Entity\Exchange;
 use App\FinancialApiBundle\Financial\Currency;
 
-class NotificateTransactionCommand extends ContainerAwareCommand
-{
+class NotificateTransactionCommand extends ContainerAwareCommand {
+
     protected function configure()
     {
         $this
@@ -35,9 +38,12 @@ class NotificateTransactionCommand extends ContainerAwareCommand
         $output->writeln('Searching transaction');
         $id = $input->getArgument('id');
 
+        /** @var DocumentManager $dm */
         $dm = $this->getContainer()->get('doctrine_mongodb')->getManager();
 
-        $transaction = $dm->getRepository('FinancialApiBundle:Transaction')->find($id);
+        /** @var TransactionRepository $txRepo */
+        $txRepo = $dm->getRepository(Transaction::class);
+        $transaction = $txRepo->find($id);
 
         if($transaction) {
             $output->writeln('Transaction => '.$transaction->getId());

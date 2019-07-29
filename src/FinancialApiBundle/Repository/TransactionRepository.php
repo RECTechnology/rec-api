@@ -6,7 +6,7 @@
  * Time: 2:22 PM
  */
 
-namespace App\FinancialApiBundle\Document;
+namespace App\FinancialApiBundle\Repository;
 
 use DateInterval;
 use DateTime;

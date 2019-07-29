@@ -20,7 +20,7 @@ use JMS\Serializer\Annotation\Exclude;
 /**
  * Class Transaction
  * @package App\FinancialApiBundle\Document
- * @MongoDB\Document(repositoryClass="App\FinancialApiBundle\Document\TransactionRepository")
+ * @MongoDB\Document(repositoryClass="App\FinancialApiBundle\Repository\TransactionRepository")
  * @ExclusionPolicy("none")
  */
 class Transaction implements TransactionTiming {
