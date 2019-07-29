@@ -136,7 +136,7 @@ class ExchangeManipulator{
             throw new HttpException(403, 'Exchange not allowed for this company');
         }
 
-        $notificator = $this->getContainer()->get('com.qbitartofacts.rec.commons.notificator');
+        $notificator = $this->getContainer()->get('com.qbitartifacts.rec.commons.notificator');
         $response=$notificator->msg('#EXCHANGE (doExchange' .$company->getName().')=> amount='. $amount . 'from'  . $from .' to=' . $to);
 
         $this->trans_logger->info('NOTIFICATOR  RESPONSE '.$response);

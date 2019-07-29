@@ -30,17 +30,6 @@ class StatusCodesTest extends BaseApiTest {
         return $router->getRouteCollection()->all();
     }
 
-    public function testMapReturns200(){
-        $client = $this->getApiClient();
-
-        $client->request('GET', '/public/map/v1/list');
-        $response = $client->getResponse();
-        self::assertEquals(200,
-            $response->getStatusCode(),
-            "Problem with  --> GET /public/map/v1/list <-- RESP: {$response->getContent()}"
-        );
-    }
-
     public function testPublicAndNotParametrizedRoutesAreGetAndReturns200(){
         $client = $this->getApiClient();
         $routes = $this->getAllRoutes($client);

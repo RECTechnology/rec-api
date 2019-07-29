@@ -17,7 +17,7 @@ use Symfony\Component\Console\Output\BufferedOutput;
 use Symfony\Component\Console\Output\NullOutput;
 use Symfony\Component\Console\Output\StreamOutput;
 
-class BaseApiTest extends WebTestCase {
+abstract class BaseApiTest extends WebTestCase {
 
     /**
      * @return Client
@@ -32,11 +32,6 @@ class BaseApiTest extends WebTestCase {
         );
         return $client;
     }
-
-    public function testDummy(){
-        static::assertTrue(true);
-    }
-
 
     protected function getUserClient(){
 
@@ -75,8 +70,7 @@ class BaseApiTest extends WebTestCase {
      */
     protected function createDatabase(Client $client){
         $this->runCommand($client, 'doctrine:database:create', ['--if-not-exists']);
-        $r = $this->runCommand($client, 'doctrine:schema:create');
-        //die($r);
+        $this->runCommand($client, 'doctrine:schema:create');
     }
 
     /**

@@ -1,24 +1,24 @@
 services:
-    com.qbitartofacts.rec.commons.notificator:
+    com.qbitartifacts.rec.commons.notificator:
         class: App\FinancialApiBundle\DependencyInjection\App\Commons\NotificatorAggregator
         arguments:
-            - '@com.qbitartofacts.rec.commons.telegram_notificator_error'
-            - '@com.qbitartofacts.rec.commons.telegram_notificator_log'
+            - '@com.qbitartifacts.rec.commons.telegram_notificator_error'
+            - '@com.qbitartifacts.rec.commons.telegram_notificator_log'
 
-    com.qbitartofacts.rec.commons.upc_notificator:
+    com.qbitartifacts.rec.commons.upc_notificator:
         class: App\FinancialApiBundle\DependencyInjection\App\Commons\UPCNotificator
         arguments:
             - "%bcn_notification_url%"
             - "%bcn_notification_username%"
             - "%bcn_notification_password%"
 
-    com.qbitartofacts.rec.commons.telegram_notificator_error:
+    com.qbitartifacts.rec.commons.telegram_notificator_error:
         class: App\FinancialApiBundle\DependencyInjection\App\Commons\TelegramNotificator
         arguments:
             - "%telegram_chat_error%"
             - "%telegram_bot_token%"
 
-    com.qbitartofacts.rec.commons.telegram_notificator_log:
+    com.qbitartifacts.rec.commons.telegram_notificator_log:
         class: App\FinancialApiBundle\DependencyInjection\App\Commons\TelegramNotificator
         arguments:
             - "%telegram_chat_log%"

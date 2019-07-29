@@ -21,9 +21,9 @@ class UserFixture extends Fixture {
         $faker = Factory::create();
         $user = new User();
         $user->setName($faker->name);
-        $user->setUsername($faker->userName);
+        $user->setUsername("user_user");
         $user->setEmail($faker->email);
-        $user->setPlainPassword($faker->password);
+        $user->setPlainPassword("user_user");
         $user->setPin($faker->shuffle('1234'));
         $user->setSecurityQuestion($faker->sentence);
         $user->setSecurityAnswer($faker->sentence);

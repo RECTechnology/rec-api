@@ -3,6 +3,7 @@
 
 namespace App\FinancialApiBundle\DataFixture;
 
+use App\FinancialApiBundle\Entity\User;
 use Doctrine\Bundle\FixturesBundle\Fixture;
 use Doctrine\Common\Persistence\ObjectManager;
 use App\FinancialApiBundle\Entity\Group as Account;
@@ -26,6 +27,9 @@ class AccountFixture extends Fixture {
         $account->setCif('B' . $faker->shuffle('01234567'));
         $account->setActive(true);
 
+        /** @var User $user */
+        $user = $manager->getRepository(User::class)->findOneBy(['username' => 'user_user']);
+        $account->setKycManager($user);
         $manager->persist($account);
         $manager->flush();
     }

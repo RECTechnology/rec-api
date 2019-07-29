@@ -58,7 +58,7 @@ class CheckBalanceCommand extends ContainerAwareCommand{
                 $wallet->setBlockchain($rec_balance_1);
                 $output->writeln($account->getId() . ': ' . $balance . " " . $rec_balance_0 . " " . $rec_balance_1);
                 if(intval($balance) != intval($rec_balance_1)){
-                    $notificator = $this->getContainer()->get('com.qbitartofacts.rec.commons.notificator');
+                    $notificator = $this->getContainer()->get('com.qbitartifacts.rec.commons.notificator');
                     $notificator->msg('#ERROR BALANCE '. $account->getId() . "=>" . $balance . "!=" . $rec_balance_1);
                 }
                 $em->persist($wallet);

@@ -187,10 +187,10 @@ class Notificator {
 
         $msg = json_encode($payload);
 
-        $logger = $this->container->get('com.qbitartofacts.rec.commons.notificator');
+        $logger = $this->container->get('com.qbitartifacts.rec.commons.notificator');
         $logger->msg('#NOTIFICATION_UPC_REQUEST: ' . $msg);
 
-        $notificator = $this->container->get('com.qbitartofacts.rec.commons.upc_notificator');
+        $notificator = $this->container->get('com.qbitartifacts.rec.commons.upc_notificator');
         $response = $notificator->msg($msg);
 
         $response_data = json_decode($response, true);
