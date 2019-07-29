@@ -2,21 +2,17 @@
 namespace App\FinancialApiBundle\Command;
 
 use App\FinancialApiBundle\DependencyInjection\Transactions\Core\Notificator;
-use App\FinancialApiBundle\Document\TransactionRepository;
+use App\FinancialApiBundle\Repository\TransactionRepository;
 use Doctrine\ODM\MongoDB\DocumentManager;
+use Doctrine\ODM\MongoDB\LockException;
+use Doctrine\ODM\MongoDB\Mapping\MappingException;
 use Psr\Log\LoggerInterface;
 use Symfony\Bundle\FrameworkBundle\Command\ContainerAwareCommand;
-use Symfony\Component\Config\Definition\Exception\Exception;
 use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
-use Symfony\Component\HttpKernel\Exception\HttpException;
-use App\FinancialApiBundle\DependencyInjection\App\Commons\FeeDeal;
-use App\FinancialApiBundle\DependencyInjection\App\Commons\LimitAdder;
 use App\FinancialApiBundle\Document\Transaction;
-use App\FinancialApiBundle\Entity\Exchange;
-use App\FinancialApiBundle\Financial\Currency;
 
 class NotificateTransactionCommand extends ContainerAwareCommand {
 
@@ -28,7 +24,7 @@ class NotificateTransactionCommand extends ContainerAwareCommand {
             ->addArgument(
                 'id',
                 InputArgument::REQUIRED,
-                'What trnsaction do you want to notificate?'
+                'What transaction do you want to notificate?'
             )
         ;
     }
@@ -43,6 +39,8 @@ class NotificateTransactionCommand extends ContainerAwareCommand {
 
         /** @var TransactionRepository $txRepo */
         $txRepo = $dm->getRepository(Transaction::class);
+
+        /** @var Transaction $transaction */
         $transaction = $txRepo->find($id);
 
         if($transaction) {

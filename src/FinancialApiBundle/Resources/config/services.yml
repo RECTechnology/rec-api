@@ -21,7 +21,7 @@ services:
         class: App\FinancialApiBundle\DependencyInjection\Transactions\Core\Notificator
         arguments:
             - "@service_container"
-            - "%api_env%"
+            - "@logger"
 
     command.check.posV2:
         class: App\FinancialApiBundle\Command\CheckCryptoPOSv2Command

@@ -1,25 +1,32 @@
 <?php
 namespace App\FinancialApiBundle\DependencyInjection\Transactions\Core;
 
+use App\FinancialApiBundle\Entity\Group;
 use Doctrine\ODM\MongoDB\DocumentManager;
+use Psr\Log\LoggerInterface;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 use App\FinancialApiBundle\Document\Transaction;
 
 class Notificator {
 
+    /** @var ContainerInterface $container */
     private $container;
-    private $env;
+    /** @var LoggerInterface */
+    private $logger;
 
-    function __construct(ContainerInterface $container, $env)
+    function __construct(ContainerInterface $container, LoggerInterface $logger)
     {
         $this->container = $container;
-        $this->env = $env;
+        $this->logger = $logger;
     }
 
     public function notificate(Transaction $transaction){
+        $this->logger->debug("START Notificator::notificate({$transaction->getId()})");
         $transaction->setNotified(false);
         $dm = $this->container->get('doctrine_mongodb')->getManager();
-        $group = $this->container->get('doctrine')->getRepository('FinancialApiBundle:Group')
+        /** @var Group $group */
+        $group = $this->container->get('doctrine')
+            ->getRepository(Group::class)
             ->find($transaction->getGroup());
 
         if(!$transaction->getInternal()) {
@@ -32,9 +39,18 @@ class Notificator {
                 &&
                 ($transaction->getType() == 'out' || $transaction->getType() == 'in')
             ) {
+                $this->logger->debug("UPC Notification started");
                 $this->notificate_upc($transaction);
                 $transaction->setNotified(true);
             }
+            else {
+                $this->logger->debug(
+                    "NOT upc_notificate: id: {$transaction->getId()}, type: {$transaction->getType()}, status: {$transaction->getStatus()}, gtoup_subtype: {$group->getSubtype()}"
+                );
+            }
+        }
+        else {
+            $this->logger->debug("tx is internal");
         }
 
         if(isset($transaction->getDataIn()['url_notification']))
