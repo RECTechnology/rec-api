@@ -12,29 +12,35 @@ namespace App\FinancialApiBundle\DependencyInjection\App\Commons;
 use Psr\Log\LoggerInterface;
 use Symfony\Component\DependencyInjection\ParameterBag\ParameterBagInterface;
 
+
+/**
+ * Class UPCNotificator
+ * @package App\FinancialApiBundle\DependencyInjection\App\Commons
+ */
 class UPCNotificator implements Notificator {
 
     /** @var ParameterBagInterface */
-    private $bag;
+    private $parameters;
 
     /** @var LoggerInterface */
     private $logger;
 
     /**
      * UPCNotificator constructor.
-     * @param ParameterBagInterface $bag
+     * @param ParameterBagInterface $parameters
      * @param LoggerInterface $logger
      */
-    public function __construct(ParameterBagInterface $bag, LoggerInterface $logger)
+    public function __construct(ParameterBagInterface $parameters, LoggerInterface $logger)
     {
-        $this->bag = $bag;
+        $this->parameters = $parameters;
         $this->logger = $logger;
     }
 
     function send($msg) {
-        $url = $this->bag->get('bcn_notification_url');
-        $us = $this->bag->get('bcn_notification_username');
-        $pw = $this->bag->get('bcn_notification_password');
+        $url = $this->parameters->get('bcn_notification_url');
+        $us = $this->parameters->get('bcn_notification_username');
+        $pw = $this->parameters->get('bcn_notification_password');
+        $this->logger->debug("UPC REQUEST URL: " . $url);
 
         $auth = base64_encode($us . ":" . $pw);
         $ops = [

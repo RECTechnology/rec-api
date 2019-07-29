@@ -137,7 +137,7 @@ class Notificator {
                     'rec_address' => $payment_info['address']
                 ));
 
-            if($destination->getType()=='PRIVATE') {
+            if($destination->getType() == 'PRIVATE') {
                 $data_to_sign = $id . $status . $amount;
                 $signature = hash_hmac('sha256', $data_to_sign, $key);
                 $data = array(
@@ -146,7 +146,7 @@ class Notificator {
                     'activity_type_code' => 16
                 );
             }
-            elseif($destination->getType()=='COMPANY'){
+            elseif($destination->getType() == 'COMPANY'){
                 $data_to_sign = $id . $status . $amount;
                 $signature = hash_hmac('sha256', $data_to_sign, $key);
                 $activity = $destination->getCategory() ? $destination->getCategory()->getId() : 16;
