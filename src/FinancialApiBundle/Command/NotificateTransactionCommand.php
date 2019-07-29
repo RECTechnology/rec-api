@@ -1,6 +1,7 @@
 <?php
 namespace App\FinancialApiBundle\Command;
 
+use App\FinancialApiBundle\DependencyInjection\App\Commons\UPCNotificator;
 use App\FinancialApiBundle\DependencyInjection\Transactions\Core\Notificator;
 use App\FinancialApiBundle\Repository\TransactionRepository;
 use Doctrine\ODM\MongoDB\DocumentManager;
@@ -16,6 +17,9 @@ use App\FinancialApiBundle\Document\Transaction;
 
 class NotificateTransactionCommand extends ContainerAwareCommand {
 
+    /** @var UPCNotificator $notificator */
+    private $notificator;
+
     protected function configure()
     {
         $this
@@ -27,6 +31,14 @@ class NotificateTransactionCommand extends ContainerAwareCommand {
                 'What transaction do you want to notificate?'
             )
         ;
+    }
+
+    /**
+     * @required
+     * @param UPCNotificator $notificator
+     */
+    public function setNotificator(UPCNotificator $notificator){
+        $this->notificator = $notificator;
     }
 
     protected function execute(InputInterface $input, OutputInterface $output)
@@ -50,9 +62,7 @@ class NotificateTransactionCommand extends ContainerAwareCommand {
 
             $output->writeln('Sending notification');
 
-            /** @var Notificator $notificator */
-            $notificator = $this->getContainer()->get('notificator');
-            $tx = $notificator->notificate($tx);
+            $tx = $this->notificator->notificate($tx);
 
             if($tx->getNotified()){
                 $output->writeln('NOTIFICATED TRANSACTION');

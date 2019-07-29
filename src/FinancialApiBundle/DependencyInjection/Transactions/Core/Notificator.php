@@ -26,7 +26,6 @@ class Notificator {
 
     public function notificate(Transaction $transaction){
         $this->logger->debug("START Notificator::notificate({$transaction->getId()})");
-        $this->container->get('logger')->debug("[logger2] START Notificator::notificate({$transaction->getId()})");
         $transaction->setNotified(false);
         $dm = $this->container->get('doctrine_mongodb')->getManager();
         /** @var Group $group */
