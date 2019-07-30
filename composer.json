@@ -75,10 +75,7 @@
         ]
     },
     "config": {
-        "sort-packages": true,
-        "platform": {
-            "ext-mongo": "1.6.16"
-        }
+        "sort-packages": true
     },
     "extra": {
         "symfony-app-dir": "app",
