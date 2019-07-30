@@ -23,6 +23,7 @@ services:
             - "@service_container"
             - "@logger"
             - "@doctrine.orm.entity_manager"
+            - "@App\FinancialApiBundle\DependencyInjection\App\Commons\UPCNotificator"
 
     command.check.posV2:
         class: App\FinancialApiBundle\Command\CheckCryptoPOSv2Command

@@ -1,6 +1,7 @@
 <?php
 namespace App\FinancialApiBundle\DependencyInjection\Transactions\Core;
 
+use App\FinancialApiBundle\DependencyInjection\App\Commons\UPCNotificator;
 use App\FinancialApiBundle\Entity\Group;
 use Doctrine\ODM\MongoDB\DocumentManager;
 use Doctrine\ORM\EntityManagerInterface;
@@ -16,12 +17,17 @@ class Notificator {
     private $logger;
     /** @var EntityManagerInterface */
     private $em;
+    /**
+     * @var UPCNotificator
+     */
+    private $upcNotificator;
 
-    function __construct(ContainerInterface $container, LoggerInterface $logger, EntityManagerInterface $em)
+    function __construct(ContainerInterface $container, LoggerInterface $logger, EntityManagerInterface $em, UPCNotificator $upcNotificator)
     {
         $this->container = $container;
         $this->logger = $logger;
         $this->em = $em;
+        $this->upcNotificator = $upcNotificator;
     }
 
     public function notificate(Transaction $transaction){
@@ -217,8 +223,7 @@ class Notificator {
         $logger = $this->container->get('com.qbitartifacts.rec.commons.notificator');
         $logger->send('#NOTIFICATION_UPC_REQUEST: ' . $msg);
 
-        $notificator = $this->container->get('App\FinancialApiBundle\DependencyInjection\App\Commons\UPCNotificator');
-        $response = $notificator->send($msg);
+        $response = $this->upcNotificator->send($msg);
 
         $response_data = json_decode($response, true);
         if(!isset($response_data['Message'])){
