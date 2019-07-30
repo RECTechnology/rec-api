@@ -23,7 +23,7 @@ services:
             - "@service_container"
             - "@logger"
             - "@doctrine.orm.entity_manager"
-            - "@App\FinancialApiBundle\DependencyInjection\App\Commons\UPCNotificator"
+            - "@App\\FinancialApiBundle\\DependencyInjection\\App\\Commons\\UPCNotificator"
 
     command.check.posV2:
         class: App\FinancialApiBundle\Command\CheckCryptoPOSv2Command
@@ -43,7 +43,7 @@ services:
 
     auth.logger_handler:
         class:     Monolog\Handler\StreamHandler
-        arguments: [%kernel.logs_dir%/%kernel.environment%.auth.log, 200]
+        arguments: ['%kernel.logs_dir%/%kernel.environment%.auth.log', 200]
 
     transaction.logger:
         class:     Symfony\Bridge\Monolog\Logger
@@ -53,7 +53,7 @@ services:
 
     transaction.logger_handler:
         class:     Monolog\Handler\StreamHandler
-        arguments: [%kernel.logs_dir%/%kernel.environment%.transaction.log, 200]
+        arguments: ['%kernel.logs_dir%/%kernel.environment%.transaction.log', 200]
 
     manager.logger:
         class:     Symfony\Bridge\Monolog\Logger
@@ -63,7 +63,7 @@ services:
 
     manager.logger_handler:
         class:     Monolog\Handler\StreamHandler
-        arguments: [%kernel.logs_dir%/%kernel.environment%.manager.log, 200]
+        arguments: ['%kernel.logs_dir%/%kernel.environment%.manager.log', 200]
 
     file_manager:
         class: App\FinancialApiBundle\DependencyInjection\App\Commons\UploadManager
