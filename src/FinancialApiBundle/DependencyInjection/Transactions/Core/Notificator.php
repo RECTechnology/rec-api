@@ -220,8 +220,8 @@ class Notificator {
 
         $msg = json_encode($payload);
 
-        $logger = $this->container->get('com.qbitartifacts.rec.commons.notificator');
-        $logger->send('#NOTIFICATION_UPC_REQUEST: ' . $msg);
+        $notificatorAggregator = $this->container->get('com.qbitartifacts.rec.commons.notificator');
+        $notificatorAggregator->send('#NOTIFICATION_UPC_REQUEST: ' . $msg);
 
         $response = $this->upcNotificator->send($msg);
 
@@ -239,9 +239,9 @@ class Notificator {
 
         $clean_response = str_replace('"', '', $response);
 
-        $logger->send('#NOTIFICATION_UPC_RESPONSE: ' . $clean_response);
+        $notificatorAggregator->send('#NOTIFICATION_UPC_RESPONSE: ' . $clean_response);
 
-
+        $this->logger->debug("TX notificated: {$transaction->getId()}, notified: {$transaction->getNotified()}, tries: {$transaction->getNotificationTries()}\n");
         // close curl resource to free up system resources
         $dm->persist($transaction);
         $dm->flush();

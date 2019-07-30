@@ -8,11 +8,14 @@
 
 namespace App\FinancialApiBundle\DependencyInjection\App\Commons;
 
-
+/**
+ * Class NotificatorAggregator
+ * @package App\FinancialApiBundle\DependencyInjection\App\Commons
+ */
 class NotificatorAggregator implements Notificator
 {
 
-    /** @var Notificator[] */
+    /** @var Notificator[] $notificators */
     private $notificators;
 
     /**
