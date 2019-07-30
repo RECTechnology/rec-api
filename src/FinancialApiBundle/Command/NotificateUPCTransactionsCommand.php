@@ -123,6 +123,7 @@ class NotificateUPCTransactionsCommand extends ContainerAwareCommand {
         $isoSince = $since->format('c');
 
         $q = $txRepo->createQueryBuilder()
+            ->field('internal')->equals(false)
             ->field('status')->equals(Transaction::$STATUS_SUCCESS)
             ->field('group')->in($bmincomers)
             //This is done like this because half of database is in string and the other half is in ISODate
