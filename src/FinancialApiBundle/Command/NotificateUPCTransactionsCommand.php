@@ -100,7 +100,7 @@ class NotificateUPCTransactionsCommand extends ContainerAwareCommand {
             $output->writeln("ERROR: --since parameter must be in the past");
             exit(-2);
         }
-        $output->writeln("Searching transaction since " . $since->format('Y-m-d\TH-i-sO') );
+        $output->writeln("Searching transaction since " . $since->format('c') );
 
         /** @var DocumentManager $dm */
         $dm = $this->getContainer()->get('doctrine_mongodb')->getManager();
@@ -121,7 +121,7 @@ class NotificateUPCTransactionsCommand extends ContainerAwareCommand {
         $output->writeln("Found {$countBmincomers} Total BMIncomers ");
 
         $q = $txRepo->createQueryBuilder()
-            ->field('updated')->gte($since)
+            ->field('updated')->gte($since->format('c'))
             ->field('status')->equals(Transaction::$STATUS_SUCCESS)
             ->field('group')->in($bmincomers)
             ->getQuery();
