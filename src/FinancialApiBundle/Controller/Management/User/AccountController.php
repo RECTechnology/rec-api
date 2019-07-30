@@ -19,6 +19,7 @@ use App\FinancialApiBundle\Entity\UserWallet;
 use App\FinancialApiBundle\Financial\Currency;
 use App\FinancialApiBundle\Controller\Google2FA;
 use FOS\OAuthServerBundle\Util\Random;
+use Symfony\Component\Security\Core\Encoder\UserPasswordEncoder;
 
 class AccountController extends BaseApiController{
 
@@ -65,12 +66,14 @@ class AccountController extends BaseApiController{
                 if($request->request->has('old_password')){
                     $params['old_password'] = $request->request->get('old_password');
                     $userManager = $this->container->get('access_key.security.user_provider');
+                    /** @var User $user */
                     $user = $userManager->loadUserById($id);
-                    $encoder_service = $this->get('security.password_encoder');
-                    $encoder = $encoder_service->getEncoder($user);
-                    if(strlen($params['password'])<6) throw new HttpException(404, 'Password must be longer than 6 characters');
+
+                    /** @var UserPasswordEncoder $encoder_service */
+                    $encoder = $this->get('security.password_encoder');
+                    if(strlen($params['password']) < 6) throw new HttpException(404, 'Password must be longer than 6 characters');
                     if($params['password'] != $params['repassword']) throw new HttpException(404, 'Password and repassword are differents');
-                    $encoded_pass = $encoder->encodePassword($request->request->get('old_password'), $user->getSalt());
+                    $encoded_pass = $encoder->encodePassword($user, $request->request->get('old_password'));
                     if($encoded_pass != $user->getPassword()) throw new HttpException(404, 'Bad old_password');
                     $user->setPlainPassword($request->get('password'));
                     $userManager->updatePassword($user);
