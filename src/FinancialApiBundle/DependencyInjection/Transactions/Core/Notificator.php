@@ -232,9 +232,13 @@ class Notificator {
         if(!isset($response_data['Message']['Type'])) {
             $response_data['Message']['Type'] = 'FAILED';
         }
-        if($response_data['Message']['Type']!='SUCCESS'){
+        if($response_data['Message']['Type'] != 'SUCCESS'){
+            $this->logger->debug("TX failed to notify to UPC\n");
             $transaction->setNotified(false);
             $transaction->setNotificationTries($transaction->getNotificationTries()+1);
+        }
+        else {
+            $transaction->setNotified(true);
         }
 
         $clean_response = str_replace('"', '', $response);
