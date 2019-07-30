@@ -120,10 +120,17 @@ class NotificateUPCTransactionsCommand extends ContainerAwareCommand {
         $countBmincomers = count($bmincomers);
         $output->writeln("Found {$countBmincomers} Total BMIncomers ");
 
+        $isoSince = $since->format('c');
+
         $q = $txRepo->createQueryBuilder()
-            ->field('updated')->gte($since->format('c'))
             ->field('status')->equals(Transaction::$STATUS_SUCCESS)
             ->field('group')->in($bmincomers)
+            //This is done like this because half of database is in string and the other half is in ISODate
+            ->where("function(){
+                if(this.updated instanceof Date)
+                    return (this.updated > ISODate('$isoSince'));
+                return (this.updated > '$isoSince');
+            }")
             ->getQuery();
 
         $txs = $q->execute();
