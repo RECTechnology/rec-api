@@ -28,10 +28,18 @@ class NotificateTransactionCommand extends ContainerAwareCommand {
         $this
             ->setName('rec:notificate:transaction')
             ->setDescription('Notificate a transaction passind the id')
-            ->addArgument(
-                'id',
-                InputArgument::REQUIRED,
-                'What transaction do you want to notificate?'
+            ->addOption(
+                'tx',
+                null,
+                InputOption::VALUE_REQUIRED,
+                'What transaction do you want to notificate? (provide transaction id)'
+            )
+            ->addOption(
+                'force',
+                null,
+                InputOption::VALUE_OPTIONAL,
+                'Force transaction to be notified?',
+                'no'
             )
         ;
     }
@@ -47,7 +55,15 @@ class NotificateTransactionCommand extends ContainerAwareCommand {
     protected function execute(InputInterface $input, OutputInterface $output)
     {
         $output->writeln('Searching transaction');
-        $id = $input->getArgument('id');
+        $id = $input->getOption('tx');
+        $force = false;
+        if($input->getOption('force') === 'yes'){
+            $output->writeln("Forcing notificate");
+        }
+        elseif($input->getOption('force') !== 'no'){
+            $output->writeln("ERROR: --force option must be 'yes' or 'no'");
+            exit(-1);
+        }
 
         /** @var DocumentManager $dm */
         $dm = $this->getContainer()->get('doctrine_mongodb')->getManager();
@@ -65,7 +81,7 @@ class NotificateTransactionCommand extends ContainerAwareCommand {
 
             $output->writeln('Sending notification');
 
-            $tx = $this->notificator->notificate($tx);
+            $tx = $this->notificator->notificate($tx, $force);
 
             if($tx->getNotified()){
                 $output->writeln('NOTIFICATED TRANSACTION');
@@ -74,7 +90,7 @@ class NotificateTransactionCommand extends ContainerAwareCommand {
             }
 
         }else{
-            $output->writeln('Transaction not found');
+            $output->writeln("Transaction {$id} not found");
         }
 
     }

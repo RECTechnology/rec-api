@@ -30,9 +30,18 @@ class Notificator {
         $this->upcNotificator = $upcNotificator;
     }
 
-    public function notificate(Transaction $transaction){
+    public function notificate(Transaction $transaction, $force = false){
         $this->logger->debug("START Notificator::notificate({$transaction->getId()})");
-        $transaction->setNotified(false);
+        if($transaction->getNotified()) {
+            if($force)
+                $this->logger->warning("Transaction {$transaction->getId()} notification forced, notifying anyway...");
+            else{
+                $this->logger->warning("Transaction {$transaction->getId()} is already notified, skipping...");
+                return $transaction;
+            }
+        }
+
+        /** @var DocumentManager $dm */
         $dm = $this->container->get('doctrine_mongodb')->getManager();
         /** @var Group $group */
         $group = $this->em->getRepository(Group::class)->find($transaction->getGroup());
@@ -72,7 +81,7 @@ class Notificator {
 
         if($url_notification == null) return $transaction;
 
-        //necesitamos el id el status el amount y el secret
+//necesitamos el id el status el amount y el secret
         $id = $transaction->getId();
         $status = $transaction->getStatus();
         $amount = $transaction->getAmount();
@@ -110,20 +119,20 @@ class Notificator {
 
         if(isset($transaction->getPayInInfo()['order_id'])) $params['order_id'] = $transaction->getPayInInfo()['order_id'];
 
-        // create curl resource
+// create curl resource
         $ch = curl_init();
-        // set url
+// set url
         curl_setopt($ch, CURLOPT_URL, $url_notification);
-        //return the transfer as a string
+//return the transfer as a string
         curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
         curl_setopt($ch,CURLOPT_POST,true);
         curl_setopt($ch,CURLOPT_POSTFIELDS,$params);
-        //fix bug 417 Expectation Failed
+//fix bug 417 Expectation Failed
         curl_setopt($ch,CURLOPT_HTTPHEADER,array("Expect:  "));
-        // $output contains the output string
+// $output contains the output string
         $output = curl_exec($ch);
 
-        // Comprobar si ocurrió un error
+// Comprobar si ocurrió un error
         if(!curl_errno($ch)) {
             $info = curl_getinfo($ch);
             if( $transaction->getStatus()==Transaction::$STATUS_SUCCESS || $transaction->getStatus()==Transaction::$STATUS_CANCELLED){
@@ -137,7 +146,7 @@ class Notificator {
                 }
             }
         }
-        // close curl resource to free up system resources
+// close curl resource to free up system resources
         curl_close($ch);
         $dm->persist($transaction);
         $dm->flush();
