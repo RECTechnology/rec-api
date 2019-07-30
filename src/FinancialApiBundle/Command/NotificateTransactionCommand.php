@@ -1,7 +1,6 @@
 <?php
 namespace App\FinancialApiBundle\Command;
 
-use App\FinancialApiBundle\DependencyInjection\App\Commons\UPCNotificator;
 use App\FinancialApiBundle\DependencyInjection\Transactions\Core\Notificator;
 use App\FinancialApiBundle\Repository\TransactionRepository;
 use Doctrine\ODM\MongoDB\DocumentManager;
@@ -15,9 +14,13 @@ use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
 use App\FinancialApiBundle\Document\Transaction;
 
+/**
+ * Class NotificateTransactionCommand
+ * @package App\FinancialApiBundle\Command
+ */
 class NotificateTransactionCommand extends ContainerAwareCommand {
 
-    /** @var UPCNotificator $notificator */
+    /** @var Notificator $notificator */
     private $notificator;
 
     protected function configure()
@@ -35,9 +38,9 @@ class NotificateTransactionCommand extends ContainerAwareCommand {
 
     /**
      * @required
-     * @param UPCNotificator $notificator
+     * @param Notificator $notificator
      */
-    public function setNotificator(UPCNotificator $notificator){
+    public function setNotificator(Notificator $notificator){
         $this->notificator = $notificator;
     }
 
