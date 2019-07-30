@@ -71,10 +71,13 @@ class AccountController extends BaseApiController{
 
                     /** @var UserPasswordEncoder $encoder_service */
                     $encoder = $this->get('security.password_encoder');
-                    if(strlen($params['password']) < 6) throw new HttpException(404, 'Password must be longer than 6 characters');
-                    if($params['password'] != $params['repassword']) throw new HttpException(404, 'Password and repassword are differents');
+                    if(strlen($params['password']) < 6)
+                        throw new HttpException(404, 'Password must be longer than 6 characters');
+                    if($params['password'] != $params['repassword'])
+                        throw new HttpException(404, 'Password and repassword are differents');
                     $encoded_pass = $encoder->encodePassword($user, $request->request->get('old_password'));
-                    if($encoded_pass != $user->getPassword()) throw new HttpException(404, 'Bad old_password');
+                    if($encoded_pass != $user->getPassword())
+                        throw new HttpException(404, 'Bad old_password');
                     $user->setPlainPassword($request->get('password'));
                     $userManager->updatePassword($user);
                     $request->request->remove('password');
