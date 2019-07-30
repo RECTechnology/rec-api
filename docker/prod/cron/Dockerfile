@@ -40,6 +40,6 @@ COPY . /api
 
 RUN composer dump-autoload --no-ansi --no-interaction --no-scripts --no-dev --optimize
 
-RUN echo "#!/usr/bin/env bash\n cd /api\n bin/console --env=prod \$@\n cd - > /dev/null" > /usr/bin/rec && chmod +x /usr/bin/rec
+RUN echo "#!/usr/bin/env bash\n cd /api\n bin/console --env=prod \"\$@\"\n cd - > /dev/null" > /usr/bin/rec && chmod +x /usr/bin/rec
 
 CMD docker/prod/cron/docker-entrypoint.sh
