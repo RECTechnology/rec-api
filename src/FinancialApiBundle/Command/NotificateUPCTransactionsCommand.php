@@ -126,7 +126,7 @@ class NotificateUPCTransactionsCommand extends ContainerAwareCommand {
             ->field('internal')->equals(false)
             ->field('status')->equals(Transaction::$STATUS_SUCCESS)
             ->field('group')->in($bmincomers)
-            //This is done like this because half of database is in string and the other half is in ISODate
+            //TODO: convert mongo Txs dates from string to ISODate and remove this code
             ->where("function(){
                 if(this.updated instanceof Date)
                     return (this.updated > ISODate('$isoSince'));
