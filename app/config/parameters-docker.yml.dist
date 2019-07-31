@@ -83,9 +83,11 @@ parameters:
     telegram_chat_error: $TELEGRAM_CHAT_ERROR
 
     # Bcn setup for notificacions
-    bcn_notification_url: $BCN_NOTIFICATION_URL
-    bcn_notification_username: $BCN_NOTIFICATION_USERNAME
-    bcn_notification_password: $BCN_NOTIFICATION_PASSWORD
+    upc_notification_url: $UPC_NOTIFICATION_URL
+    upc_notification_username: $UPC_NOTIFICATION_USERNAME
+    upc_notification_password: $UPC_NOTIFICATION_PASSWORD
 
     blockchain_address_prefix: $BLOCKCHAIN_ADDRESS_PREFIX
+
+    sentry_dsn: $SENTRY_DSN
 

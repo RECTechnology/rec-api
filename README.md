@@ -37,6 +37,15 @@ docker-compose -f docker/dev/docker-compose.yml down
 ```
 
 #### Run some command in the `api` container
+to see the list of running containers use `make ps`
+
+to run any command in the `api` container
+```
+make shell
+```
+
+Or using docker
+
 to see the list of running containers use `docker ps`
 
 to run any command in the `api` container

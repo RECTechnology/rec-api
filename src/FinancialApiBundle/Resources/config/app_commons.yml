@@ -1,0 +1,59 @@
+services:
+    com.qbitartifacts.rec.commons.notificator:
+        class: App\FinancialApiBundle\DependencyInjection\App\Commons\NotificatorAggregator
+        arguments:
+            - '@com.qbitartifacts.rec.commons.telegram_notificator_error'
+            - '@com.qbitartifacts.rec.commons.telegram_notificator_log'
+
+    com.qbitartifacts.rec.commons.telegram_notificator_error:
+        class: App\FinancialApiBundle\DependencyInjection\App\Commons\TelegramNotificator
+        arguments:
+            - "%telegram_chat_error%"
+            - "%telegram_bot_token%"
+
+    com.qbitartifacts.rec.commons.telegram_notificator_log:
+        class: App\FinancialApiBundle\DependencyInjection\App\Commons\TelegramNotificator
+        arguments:
+            - "%telegram_chat_log%"
+            - "%telegram_bot_token%"
+
+    net.app.commons.method_manipulator:
+        class: App\FinancialApiBundle\DependencyInjection\App\Commons\MethodManipulator
+
+    net.app.commons.fee_deal:
+        class: App\FinancialApiBundle\DependencyInjection\App\Commons\FeeDeal
+        arguments:
+            - "@doctrine"
+            - "@doctrine_mongodb"
+            - "@net.app.commons.balance_manipulator"
+            - "@service_container"
+
+    net.app.commons.balance_manipulator:
+        class: App\FinancialApiBundle\DependencyInjection\App\Commons\BalanceManipulator
+        arguments:
+            - "@doctrine"
+
+    net.app.commons.fee_manipulator:
+        class: App\FinancialApiBundle\DependencyInjection\App\Commons\FeeManipulator
+        arguments:
+            - "@doctrine"
+
+    net.app.commons.limit_manipulator:
+        class: App\FinancialApiBundle\DependencyInjection\App\Commons\LimitManipulator
+        arguments:
+            - "@doctrine"
+            - "@service_container"
+            - "@doctrine_mongodb"
+
+    net.app.commons.exchange_manipulator:
+        class: App\FinancialApiBundle\DependencyInjection\App\Commons\ExchangeManipulator
+        arguments:
+            - "@doctrine"
+            - "@service_container"
+
+    net.app.commons.permissions_checker:
+        class: App\FinancialApiBundle\DependencyInjection\App\Commons\PermissionsHandler
+        arguments:
+            - "@service_container"
+            - "@doctrine"
+            - "@doctrine_mongodb"

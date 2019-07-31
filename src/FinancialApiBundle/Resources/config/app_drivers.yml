@@ -1,0 +1,22 @@
+services:
+
+    net.app.driver.provider:
+        class: App\FinancialApiBundle\Financial\ObjectRegister
+        arguments:
+            - "@net.app.driver.easybitcoin.rec"
+            - "@net.app.driver.lemonway.eur"
+
+    net.app.driver.easybitcoin.rec:
+        class: App\FinancialApiBundle\Financial\Driver\FakeEasyBitcoinDriver
+        arguments:
+            - '@doctrine.orm.entity_manager'
+            - '%blockchain_address_prefix%'
+
+    net.app.driver.lemonway.eur:
+        class: App\FinancialApiBundle\Financial\Driver\LemonWayDriver
+        arguments:
+            - "%lemonway_url%"
+            - "%lemonway_user%"
+            - "%lemonway_pass%"
+            - "%lemonway_version%"
+            - "%lemonway_admin_account%"

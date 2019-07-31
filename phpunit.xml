@@ -14,7 +14,7 @@
 
     <testsuites>
         <testsuite name="REC Test Suite">
-            <directory>test</directory>
+            <directory>tests</directory>
         </testsuite>
     </testsuites>
 

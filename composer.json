@@ -5,7 +5,7 @@
     "description": "REC Barcelona API",
     "autoload": {
         "psr-4": {
-            "Telepay\\": "src/Telepay"
+            "App\\": "src/"
         },
         "classmap": [
             "app/AppKernel.php",
@@ -14,40 +14,46 @@
     },
     "autoload-dev": {
         "psr-4": {
-            "REC\\FinancialApiBundle\\Test\\": "test/"
+            "Test\\": "tests/"
         }
     },
     "require": {
         "php": "^7.3",
+        "ext-bcmath": "*",
         "ext-curl": "*",
         "ext-json": "*",
-        "symfony/symfony": "3.4.*",
-        "doctrine/orm": "^2.5",
-        "doctrine/doctrine-bundle": "~1.0",
-        "symfony/swiftmailer-bundle": "~2.3",
-        "symfony/monolog-bundle": "^3.1.10",
-        "incenteev/composer-parameter-handler": "~2.0",
-        "friendsofsymfony/user-bundle": "~2.0",
-        "friendsofsymfony/rest-bundle": "~1.0,>=1.3.1",
-        "jms/serializer-bundle": "^2.0",
-        "friendsofsymfony/oauth-server-bundle": "^1.0",
+        "ext-mongodb": "*",
+        "ext-xml": "*",
+        "ext-zip": "*",
+        "alcaeus/mongo-php-adapter": "~1.1",
+        "doctrine/doctrine-bundle": "^1.6",
+        "doctrine/doctrine-migrations-bundle": "^2.0",
         "doctrine/mongodb-odm": "~1.0",
         "doctrine/mongodb-odm-bundle": "~3.0",
+        "doctrine/orm": "^2.5",
+        "friendsofsymfony/oauth-server-bundle": "^1.0",
+        "friendsofsymfony/rest-bundle": "^1.7",
+        "friendsofsymfony/user-bundle": "~2.0",
+        "galbar/jsonpath": "^1.0",
+        "incenteev/composer-parameter-handler": "~2.0",
+        "jms/serializer-bundle": "^2.0",
         "nelmio/cors-bundle": "~1.0",
-        "telepay/php-sdk": "dev-master",
         "ramsey/uuid": "~3.0",
-        "alcaeus/mongo-php-adapter": "~1.1",
-        "stephenhill/base58": "^1.1",
-        "symfony/polyfill-iconv": "~1.0",
         "sensio/distribution-bundle": "^5.0.19",
         "sensio/framework-extra-bundle": "^3.0.0",
-        "doctrine/doctrine-migrations-bundle": "^2.0",
-        "galbar/jsonpath": "^1.0",
+        "sentry/sentry-symfony": "^3.0",
+        "stephenhill/base58": "^1.1",
+        "symfony/monolog-bundle": "^3.1.10",
+        "symfony/polyfill-iconv": "~1.0",
+        "symfony/swiftmailer-bundle": "~2.3",
+        "symfony/symfony": "3.4.*",
+        "telepay/php-sdk": "dev-master",
         "twig/twig": "^1.0||^2.0"
     },
     "require-dev": {
         "doctrine/doctrine-fixtures-bundle": "^3.2",
         "friendsofphp/php-cs-fixer": "^2.15",
+        "fzaninotto/faker": "^1.8",
         "phpunit/phpunit": "^8.2",
         "sensio/generator-bundle": "^3.0",
         "symfony/phpunit-bridge": "^4.3"
@@ -69,10 +75,7 @@
         ]
     },
     "config": {
-        "sort-packages": true,
-        "platform": {
-            "ext-mongo": "1.6.16"
-        }
+        "sort-packages": true
     },
     "extra": {
         "symfony-app-dir": "app",
@@ -85,6 +88,5 @@
             "file": "app/config/parameters.yml"
         },
         "branch-alias": null
-
     }
 }

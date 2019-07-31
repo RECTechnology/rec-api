@@ -1,0 +1,17 @@
+############################################### PUBLIC ENDPOINTS #######################################################
+
+public_v1_status:
+    path: /public/v1/status
+    defaults: {_controller: App\FinancialApiBundle\Controller\Open\StatusController::status }
+    methods: [GET]
+
+public_map_list:
+    path: /public/map/v1/list
+    defaults: {_controller: App\FinancialApiBundle\Controller\Open\MapController::ListAction }
+    methods: [GET]
+
+public_map_search:
+    path: /public/map/v1/search
+    defaults: {_controller: App\FinancialApiBundle\Controller\Open\MapController::SearchAction }
+    methods: [GET]
+

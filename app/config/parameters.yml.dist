@@ -40,9 +40,9 @@ parameters:
     api_env: 'pre'
 
 #API url
-    base_url: 'http://dev-api.telepay.net/test'
+    base_url: 'http://dev-api.app.net/test'
 #Admin panel url
-    base_panel_url: 'http://dev-cp.telepay.net/app_dev.php'
+    base_panel_url: 'http://dev-cp.app.net/app_dev.php'
 
 #blockchain credentials
     rec_user: rec
@@ -114,9 +114,11 @@ parameters:
     telegram_chat_error: ~
 
 # Bcn setup for notificacions
-    bcn_notification_url: ~
-    bcn_notification_username: ~
-    bcn_notification_password: ~
+    upc_notification_url: ~
+    upc_notification_username: ~
+    upc_notification_password: ~
 
     blockchain_address_prefix: 'R'
+
+    sentry_dsn: ~
 
