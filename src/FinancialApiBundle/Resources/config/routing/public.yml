@@ -14,8 +14,3 @@ public_map_search:
     path: /public/map/v1/search
     defaults: {_controller: App\FinancialApiBundle\Controller\Open\MapController::SearchAction }
     methods: [GET]
-
-show_conditions:
-    path:  /public/{lang}
-    defaults: { _controller: App\FinancialApiBundle\Controller\Management\User\AccountController::passwordRecovery }
-    methods: [GET]
