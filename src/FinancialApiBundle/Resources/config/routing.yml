@@ -39,26 +39,6 @@ validate_email:
     defaults: { _controller: App\FinancialApiBundle\Controller\Management\User\AccountController::validateEmail }
     methods: [POST]
 
-validate_nfc_card_email:
-    path:  /register/v1/nfc_card
-    defaults: { _controller: App\FinancialApiBundle\Controller\Management\Company\NFCController::validateEmailCard }
-    methods: [POST]
-
-disable_nfc_card:
-    path:  /register/v1/nfc_card/disable_card
-    defaults: { _controller: App\FinancialApiBundle\Controller\Management\Company\NFCController::disableCard }
-    methods: [PUT]
-
-refresh_pin_nfc_card:
-    path:  /register/v1/nfc_card/refresh_pin
-    defaults: { _controller: App\FinancialApiBundle\Controller\Management\Company\NFCController::refreshPin }
-    methods: [PUT]
-
-validate_nfc_card:
-    path:  /register/v1/nfc_card/{company_id}
-    defaults: { _controller: App\FinancialApiBundle\Controller\Management\Company\NFCController::validateCard }
-    methods: [POST]
-
 user_sent_validation_email:
     path:  /register/v1/sent_validation_email
     defaults: { _controller: App\FinancialApiBundle\Controller\Management\User\AccountController::sentValidationEmailAction }
@@ -78,8 +58,3 @@ recover_password:
     path:  /password_recovery/v1
     defaults: { _controller: App\FinancialApiBundle\Controller\Management\User\AccountController::passwordRecovery }
     methods: [POST]
-
-show_conditions:
-    path:  /public/{lang}
-    defaults: { _controller: App\FinancialApiBundle\Controller\Management\User\AccountController::passwordRecovery }
-    methods: [GET]
