@@ -10,4 +10,7 @@ use Test\FinancialApiBundle\BaseApiTest;
  */
 class DelegatedChangeTest extends BaseApiTest {
 
+    function testDummy(){
+        self::assertTrue(true);
+    }
 }

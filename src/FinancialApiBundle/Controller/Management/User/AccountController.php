@@ -300,6 +300,10 @@ class AccountController extends BaseApiController{
 
     /**
      * @Rest\View
+     * @param Request $request
+     * @param $type
+     * @return Response
+     * @throws \Exception
      */
     public function registerCommerceAction(Request $request, $type){
         $logger = $this->get('manager.logger');
@@ -321,14 +325,16 @@ class AccountController extends BaseApiController{
 
         $params = array();
         foreach($paramNames as $param){
-            if($request->request->has($param) && $request->request->get($param)!=''){
+            if($request->request->has($param) && $request->request->get($param) != ''){
                 $params[$param] = $request->request->get($param);
             }else{
-                throw new HttpException(400, 'Param ' . $param . ' not found');
+                throw new HttpException(400, "Bad request: param '$param' is required");
             }
         }
-        if(strlen($params['password'])<6) throw new HttpException(400, 'Password must be longer than 6 characters');
-        if($params['password'] != $params['repassword']) throw new HttpException(400, 'Password and repassword are differents');
+        if(strlen($params['password'])<6)
+            throw new HttpException(400, 'Password must be longer than 6 characters');
+        if($params['password'] != $params['repassword'])
+            throw new HttpException(400, 'Password and repassword are differents');
         $params['plain_password'] = $params['password'];
         unset($params['password']);
         unset($params['repassword']);
@@ -349,7 +355,8 @@ class AccountController extends BaseApiController{
                 $params['username'] = "0" . $params['username'];
             }
         }
-        if(!$this->validar_dni((string)$params['username'])) throw new HttpException(400, 'NIF not valid');
+        if(!$this->validar_dni((string)$params['username']))
+            throw new HttpException(400, 'NIF not valid');
 
         $user = $em->getRepository($this->getRepositoryName())->findOneBy(array(
             'phone'  =>  $params['phone']

@@ -14,7 +14,7 @@ use Symfony\Component\Routing\RouterInterface;
 class StatusCodesTest extends BaseApiTest {
 
     public function testSlashShouldReturn404(){
-        $client = $this->getApiClient();
+        $client = self::createClient();
         $client->request('GET', '/');
         $response = $client->getResponse();
         self::assertEquals(404, $response->getStatusCode());
@@ -31,16 +31,14 @@ class StatusCodesTest extends BaseApiTest {
     }
 
     public function testPublicAndNotParametrizedRoutesAreGetAndReturns200(){
-        $client = $this->getApiClient();
-        $routes = $this->getAllRoutes($client);
+        $routes = $this->getAllRoutes(static::createClient());
 
         foreach($routes as $route){
             $parts = explode("/", $route->getPath());
             if($parts[1] === "public" and ! preg_match("/{[a-z0-9_]+}/", $route->getPath()))
                 foreach($route->getMethods() as $method){
                     self::assertEquals("GET", $method, "Route {$route->getPath()} is $method");
-                    $client->request($method, $route->getPath());
-                    $response = $client->getResponse();
+                    $response = $this->request($method, $route->getPath());
                     self::assertEquals(
                         200,
                         $response->getStatusCode(),
@@ -53,7 +51,7 @@ class StatusCodesTest extends BaseApiTest {
     public function testNotPublicAndNotParametrizedRoutesReturns401(){
         $this->markTestIncomplete("Routes are still not homogeneous, so this test doesn't make sense yet.");
 
-        $client = $this->getApiClient();
+        $client = $this->request();
         $routes = $this->getAllRoutes();
 
         foreach($routes as $route){

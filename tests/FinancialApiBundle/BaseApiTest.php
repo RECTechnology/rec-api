@@ -16,21 +16,28 @@ use Symfony\Component\Console\Input\ArrayInput;
 use Symfony\Component\Console\Output\BufferedOutput;
 use Symfony\Component\Console\Output\NullOutput;
 use Symfony\Component\Console\Output\StreamOutput;
+use Symfony\Component\DomCrawler\Crawler;
+use Symfony\Component\HttpFoundation\Response;
 
 abstract class BaseApiTest extends WebTestCase {
 
     /**
-     * @return Client
+     * @param string $method
+     * @param string $url
+     * @param array|null $content
+     * @return Response
      */
-    protected function getApiClient(){
+    protected function request(string $method, string $url, array $content = null){
         $client = static::createClient();
-        $client->setServerParameters(
-            [
-                'HTTP_Content-Type' => 'application/json',
-                'HTTP_Accept' => 'application/json'
-            ]
-        );
-        return $client;
+        $headers = [
+            'CONTENT_TYPE' => 'application/json',
+            'HTTP_ACCEPT' => 'application/json'
+        ];
+        if($content !== null) $content = json_encode($content);
+        $client->request($method, $url, [], [], $headers, $content);
+        $resp = $client->getResponse();
+        self::assertJson($resp->getContent());
+        return $resp;
     }
 
     protected function getUserClient(){
@@ -42,7 +49,7 @@ abstract class BaseApiTest extends WebTestCase {
     }
 
     protected function getAdminClient(){
-        $client = $this->getApiClient();
+        $client = $this->request();
         self::assertContains(1, []);
         return $client;
     }
@@ -106,7 +113,7 @@ abstract class BaseApiTest extends WebTestCase {
     protected function setUp(): void
     {
         parent::setUp();
-        $client = $this->getApiClient();
+        $client = static::createClient();
         $this->clearDatabase($client);
         $this->loadFixtures($client);
     }
