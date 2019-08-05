@@ -7,6 +7,8 @@ use Doctrine\Bundle\FixturesBundle\Command\LoadDataFixturesDoctrineCommand;
 use Doctrine\ORM\EntityManagerInterface;
 use Doctrine\ORM\Tools\SchemaTool;
 use Doctrine\ORM\Tools\ToolsException;
+use Faker\Factory;
+use Faker\Generator;
 use FOS\OAuthServerBundle\Controller\TokenController;
 use FOS\OAuthServerBundle\Model\AccessTokenManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Client;
@@ -20,6 +22,9 @@ use Symfony\Component\DomCrawler\Crawler;
 use Symfony\Component\HttpFoundation\Response;
 
 abstract class BaseApiTest extends WebTestCase {
+
+    /** @var Generator $faker */
+    protected $faker;
 
     /**
      * @param string $method
@@ -113,6 +118,7 @@ abstract class BaseApiTest extends WebTestCase {
     protected function setUp(): void
     {
         parent::setUp();
+        $this->faker = Factory::create();
         $client = static::createClient();
         $this->clearDatabase($client);
         $this->loadFixtures($client);

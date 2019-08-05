@@ -24,24 +24,6 @@ services:
             - "All over the world"
 
 
-    net.app.config.pos_pnp:
-        class: App\FinancialApiBundle\Financial\Methods\POSConfiguration
-        arguments:
-            - "pos_pnp"
-            - "EUR"
-            - "EUR"
-            - "EUR"
-            - "EUR/REC"
-
-    net.app.config.pos_btc:
-        class: App\FinancialApiBundle\Financial\Methods\POSConfiguration
-        arguments:
-            - "pos_btc"
-            - "BTC"
-            - "BTC"
-            - "EUR/MXN/USD/PLN/FAC/BTC"
-            - "EUR/MXN/USD/PLN/FAC/BTC"
-
 #POS CONFIGURATIONS
 #$type, $currency, $default_currency, $allowed_currencies_in, $allowed_currencies_out
 
