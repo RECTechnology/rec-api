@@ -29,11 +29,6 @@ Public:
 CRUD:
     resource: routing/crud.yml
 
-register:
-    path:  /register/v1
-    defaults: { _controller: App\FinancialApiBundle\Controller\Management\User\AccountController::registerAction }
-    methods: [POST]
-
 validate_email:
     path:  /register/v1/validate_email
     defaults: { _controller: App\FinancialApiBundle\Controller\Management\User\AccountController::validateEmail }
