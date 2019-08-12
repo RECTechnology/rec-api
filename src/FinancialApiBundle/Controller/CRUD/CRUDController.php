@@ -28,6 +28,7 @@ class CRUDController extends BaseApiV2Controller {
     const BASE_REPOSITORY_NAME = "FinancialApiBundle";
     const PATH_ENTITY_MAPPINGS = [
         'accounts' => 'Group',
+        'activities' => 'Activity',
         'treasure_withdrawals' => 'TreasureWithdrawalAttempt',
         'treasure_validations' => 'TreasureWithdrawalValidation',
     ];
