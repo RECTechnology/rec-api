@@ -7,22 +7,26 @@
 namespace App\FinancialApiBundle\Entity;
 
 use Doctrine\ORM\Mapping as ORM;
+use Gedmo\Translatable\Translatable;
 use JMS\Serializer\Annotation\Groups;
+use Gedmo\Mapping\Annotation as Gedmo;
 
 /**
  * Class Neighbourhood
  * @package App\FinancialApiBundle\Entity
  * @ORM\Entity
  */
-class Neighbourhood extends AppObject {
+class Neighbourhood extends AppObject implements Translatable {
 
     /**
+     * @Gedmo\Translatable
      * @ORM\Column(type="string")
      * @Groups({"public"})
      */
     private $name;
 
     /**
+     * @Gedmo\Translatable
      * @ORM\Column(type="text")
      * @Groups({"public"})
      */
