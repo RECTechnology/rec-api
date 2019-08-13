@@ -41,6 +41,14 @@ crud_v3_show:
         object: "[a-z_]+"
         id: "[0-9]+"
 
+crud_v3_create:
+    path:  /{role}/v3/{object}
+    defaults: { _controller: App\FinancialApiBundle\Controller\CRUD\CRUDController::createAction }
+    methods: [POST]
+    requirements:
+        role: "[a-z]+"
+        object: "[a-z_]+"
+
 crud_v3_update:
     path:  /{role}/v3/{object}/{id}
     defaults: { _controller: App\FinancialApiBundle\Controller\CRUD\CRUDController::updateAction }

@@ -18,6 +18,9 @@ use Doctrine\DBAL\Platforms\Keywords\OracleKeywords;
 use Doctrine\ORM\Mapping\AttributeOverride;
 use Doctrine\ORM\Mapping\AttributeOverrides;
 use Doctrine\ORM\Mapping\Column;
+use Doctrine\ORM\Mapping\ManyToMany;
+use Doctrine\ORM\Mapping\ManyToOne;
+use Doctrine\ORM\Mapping\OneToOne;
 use Doctrine\ORM\Query\QueryException;
 use Doctrine\ORM\EntityManagerInterface;
 use Doctrine\ORM\NonUniqueResultException;
@@ -102,19 +105,31 @@ abstract class BaseApiV2Controller extends RestApiController implements Reposito
 
         if($tokenStorage->getToken()) {
             if (!$auth->isGranted(self::ROLE_PATH_MAPPINGS[$role]))
-                throw new HttpException(403, "Insufficient permissions for $role");
+                throw new HttpException(
+                    Response::HTTP_FORBIDDEN,
+                    "Insufficient permissions for $role"
+                );
         }
         $grants = $this->getCRUDGrants();
         if(isset($grants[$method])) {
             if(!$tokenStorage->getToken() and $grants[$method] === self::ROLE_PUBLIC)
                 return;
             if (!$auth->isGranted($grants[$method]))
-                throw new HttpException(403, "Insufficient permissions to $method this resource");
+                throw new HttpException(
+                    Response::HTTP_FORBIDDEN,
+                    "Insufficient permissions to $method this resource"
+                );
         }
         elseif(!$tokenStorage->getToken())
-            throw new HttpException(401, "You are not authenticated");
+            throw new HttpException(
+                Response::HTTP_UNAUTHORIZED,
+                "You are not authenticated"
+            );
         else
-            throw new HttpException(403, "Insufficient permissions to $method this resource");
+            throw new HttpException(
+                Response::HTTP_FORBIDDEN,
+                "Insufficient permissions to $method this resource"
+            );
 
     }
 
@@ -188,10 +203,16 @@ abstract class BaseApiV2Controller extends RestApiController implements Reposito
             }
         }
 
-        if(!$rel) throw new HttpException(400, "Unrelated parameter");
+        if(!$rel) throw new HttpException(
+            Response::HTTP_BAD_REQUEST,
+            "Unrelated parameter"
+        );
 
         $value = $this->getDoctrine()->getRepository($rel->targetEntity)->find($sent_value);
-        if(!$value) throw new HttpException(400, "Object $name with id '$sent_value' does not exist.");
+        if(!$value) throw new HttpException(
+            Response::HTTP_BAD_REQUEST,
+            "Object $name with id '$sent_value' does not exist."
+        );
         return $value;
     }
 

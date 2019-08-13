@@ -33,7 +33,7 @@ class Neighbourhood extends AppObject implements Translatable {
     private $description;
 
     /**
-     * @ORM\Column(type="json_array")
+     * @ORM\Column(type="json_array", nullable=true)
      */
     private $bounds;
 

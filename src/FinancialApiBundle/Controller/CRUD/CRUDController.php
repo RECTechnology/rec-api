@@ -8,6 +8,7 @@ use Doctrine\ORM\NonUniqueResultException;
 use Doctrine\ORM\NoResultException;
 use Doctrine\ORM\QueryBuilder;
 use JMS\Serializer\Serializer;
+use ReflectionClass;
 use ReflectionException;
 use Symfony\Component\HttpFoundation\RequestStack;
 use Symfony\Component\HttpFoundation\Response;
@@ -35,11 +36,15 @@ class CRUDController extends BaseApiV2Controller {
 
     function getRepositoryName()
     {
+        $entityName = $this->getEntityName();
+        return self::BASE_REPOSITORY_NAME . ":" . $entityName;
+    }
+
+    private function getEntityName(){
         /** @var RequestStack $request */
         $request = $this->get("request_stack");
         $parts = explode("/", $request->getCurrentRequest()->getPathInfo());
-        $entityName = $this->transformPathToEntityName($parts[3]);
-        return self::BASE_REPOSITORY_NAME . ":" . $entityName;
+        return $this->transformPathToEntityName($parts[3]);
     }
 
     private function transformPathToEntityName($lowercase_pluralized_name){
@@ -54,9 +59,14 @@ class CRUDController extends BaseApiV2Controller {
 
     }
 
-    function getNewEntity()
-    {
-        return new Group();
+    function getNewEntity() {
+        $entityName = $this->getEntityName();
+        try {
+            $rc = new ReflectionClass('App\\FinancialApiBundle\\Entity\\' . $entityName);
+        } catch (ReflectionException $e) {
+            throw new HttpException(404, "Route not found");
+        }
+        return $rc->newInstance();
     }
 
     /**
