@@ -19,7 +19,6 @@ RUN apt update && apt install -y \
     jq \
     cron
 
-
 # INSTALL GECKODRIVER
 RUN wget https://github.com/mozilla/geckodriver/releases/download/v0.24.0/geckodriver-v0.24.0-linux64.tar.gz -O geckodriver.tgz
 RUN tar xzf geckodriver.tgz && mv geckodriver /usr/local/bin/geckodriver && rm geckodriver.tgz
