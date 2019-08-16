@@ -4,7 +4,7 @@ accounts_v3_search:
     defaults: { _controller: App\FinancialApiBundle\Controller\CRUD\AccountsController::searchAction }
     methods: [GET]
     requirements:
-        role: "[a-z]+"
+        role: "(public|user|manager|self|admin|sadmin)"
 
 ##################### CRUD / V3 ############################
 
@@ -13,7 +13,7 @@ crud_v3_search:
     defaults: { _controller: App\FinancialApiBundle\Controller\CRUD\CRUDController::searchAction }
     methods: [GET]
     requirements:
-        role: "[a-z]+"
+        role: "(public|user|manager|self|admin|sadmin)"
         object: "[a-z_]+"
 
 crud_v3_export:
@@ -21,7 +21,7 @@ crud_v3_export:
     defaults: { _controller: App\FinancialApiBundle\Controller\CRUD\CRUDController::exportAction }
     methods: [GET]
     requirements:
-        role: "[a-z]+"
+        role: "(public|user|manager|self|admin|sadmin)"
         object: "[a-z_]+"
 
 crud_v3_index:
@@ -29,7 +29,7 @@ crud_v3_index:
     defaults: { _controller: App\FinancialApiBundle\Controller\CRUD\CRUDController::indexAction }
     methods: [GET]
     requirements:
-        role: "[a-z]+"
+        role: "(public|user|manager|self|admin|sadmin)"
         object: "[a-z_]+"
 
 crud_v3_show:
@@ -37,7 +37,7 @@ crud_v3_show:
     defaults: { _controller: App\FinancialApiBundle\Controller\CRUD\CRUDController::showAction }
     methods: [GET]
     requirements:
-        role: "[a-z]+"
+        role: "(public|user|manager|self|admin|sadmin)"
         object: "[a-z_]+"
         id: "[0-9]+"
 
@@ -46,7 +46,7 @@ crud_v3_create:
     defaults: { _controller: App\FinancialApiBundle\Controller\CRUD\CRUDController::createAction }
     methods: [POST]
     requirements:
-        role: "[a-z]+"
+        role: "(public|user|manager|self|admin|sadmin)"
         object: "[a-z_]+"
 
 crud_v3_update:
@@ -54,7 +54,7 @@ crud_v3_update:
     defaults: { _controller: App\FinancialApiBundle\Controller\CRUD\CRUDController::updateAction }
     methods: [PUT]
     requirements:
-        role: "[a-z]+"
+        role: "(public|user|manager|self|admin|sadmin)"
         object: "[a-z_]+"
         id: "[0-9]+"
 
@@ -63,6 +63,6 @@ crud_v3_delete:
     defaults: { _controller: App\FinancialApiBundle\Controller\CRUD\CRUDController::deleteAction }
     methods: [DELETE]
     requirements:
-        role: "[a-z]+"
+        role: "(public|user|manager|self|admin|sadmin)"
         object: "[a-z_]+"
         id: "[0-9]+"
