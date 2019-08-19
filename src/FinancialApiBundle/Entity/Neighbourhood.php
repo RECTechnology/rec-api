@@ -33,6 +33,11 @@ class Neighbourhood extends AppObject implements Translatable {
     private $description;
 
     /**
+     * @ORM\Column(type="string", nullable=true)
+     */
+    private $townhall_code;
+
+    /**
      * @ORM\Column(type="json_array", nullable=true)
      */
     private $bounds;
@@ -96,6 +101,24 @@ class Neighbourhood extends AppObject implements Translatable {
     public function setBounds($bounds)
     {
         $this->bounds = $bounds;
+        return $this;
+    }
+
+    /**
+     * @return mixed
+     */
+    public function getTownhallCode()
+    {
+        return $this->townhall_code;
+    }
+
+    /**
+     * @param mixed $townhall_code
+     * @return Neighbourhood
+     */
+    public function setTownhallCode($townhall_code)
+    {
+        $this->townhall_code = $townhall_code;
         return $this;
     }
 
