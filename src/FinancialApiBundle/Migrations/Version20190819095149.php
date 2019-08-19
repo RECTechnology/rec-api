@@ -10,11 +10,11 @@ use Doctrine\Migrations\AbstractMigration;
 /**
  * Auto-generated Migration: Please modify to your needs!
  */
-final class Version20190819084527 extends AbstractMigration
+final class Version20190819095149 extends AbstractMigration
 {
     public function getDescription() : string
     {
-        return 'Adds townhall_code to Neighbourhoods';
+        return 'sets description nullable';
     }
 
     public function up(Schema $schema) : void
@@ -22,7 +22,9 @@ final class Version20190819084527 extends AbstractMigration
         // this up() migration is auto-generated, please modify it to your needs
         $this->abortIf($this->connection->getDatabasePlatform()->getName() !== 'mysql', 'Migration can only be executed safely on \'mysql\'.');
 
-        $this->addSql('ALTER TABLE Neighbourhood ADD townhall_code VARCHAR(255) DEFAULT NULL');
+        $this->addSql('ALTER TABLE Neighbourhood CHANGE description description LONGTEXT DEFAULT NULL');
+        $this->addSql('ALTER TABLE Product CHANGE description description LONGTEXT DEFAULT NULL');
+        $this->addSql('ALTER TABLE Activity CHANGE description description LONGTEXT DEFAULT NULL');
     }
 
     public function down(Schema $schema) : void
@@ -30,6 +32,8 @@ final class Version20190819084527 extends AbstractMigration
         // this down() migration is auto-generated, please modify it to your needs
         $this->abortIf($this->connection->getDatabasePlatform()->getName() !== 'mysql', 'Migration can only be executed safely on \'mysql\'.');
 
-        $this->addSql('ALTER TABLE Neighbourhood DROP townhall_code');
+        $this->addSql('ALTER TABLE Activity CHANGE description description LONGTEXT NOT NULL COLLATE utf8_unicode_ci');
+        $this->addSql('ALTER TABLE Neighbourhood CHANGE description description LONGTEXT NOT NULL COLLATE utf8_unicode_ci');
+        $this->addSql('ALTER TABLE Product CHANGE description description LONGTEXT NOT NULL COLLATE utf8_unicode_ci');
     }
 }

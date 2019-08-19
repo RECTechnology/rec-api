@@ -18,6 +18,8 @@ use Gedmo\Mapping\Annotation as Gedmo;
  */
 class Product extends AppObject implements Translatable {
 
+    use LocalizableTrait;
+
     /**
      * @Gedmo\Translatable
      * @ORM\Column(type="string")
@@ -27,7 +29,7 @@ class Product extends AppObject implements Translatable {
 
     /**
      * @Gedmo\Translatable
-     * @ORM\Column(type="text")
+     * @ORM\Column(type="text", nullable=true)
      * @Groups({"public"})
      */
     private $description;

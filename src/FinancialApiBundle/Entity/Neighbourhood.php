@@ -18,6 +18,8 @@ use Gedmo\Mapping\Annotation as Gedmo;
  */
 class Neighbourhood extends AppObject implements Translatable {
 
+    use LocalizableTrait;
+
     /**
      * @Gedmo\Translatable
      * @ORM\Column(type="string")
@@ -27,7 +29,7 @@ class Neighbourhood extends AppObject implements Translatable {
 
     /**
      * @Gedmo\Translatable
-     * @ORM\Column(type="text")
+     * @ORM\Column(type="text", nullable=true)
      * @Groups({"public"})
      */
     private $description;
@@ -41,6 +43,7 @@ class Neighbourhood extends AppObject implements Translatable {
      * @ORM\Column(type="json_array", nullable=true)
      */
     private $bounds;
+
 
     /**
      * @return mixed
