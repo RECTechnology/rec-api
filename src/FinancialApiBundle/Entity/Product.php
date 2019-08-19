@@ -16,7 +16,7 @@ use Gedmo\Mapping\Annotation as Gedmo;
  * @package App\FinancialApiBundle\Entity
  * @ORM\Entity
  */
-class Product extends AppObject implements Translatable {
+class Product extends AppObject implements Translatable, Localizable {
 
     use LocalizableTrait;
 

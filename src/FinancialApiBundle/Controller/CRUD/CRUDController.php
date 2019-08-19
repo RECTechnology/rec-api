@@ -2,6 +2,7 @@
 
 namespace App\FinancialApiBundle\Controller\CRUD;
 
+use App\FinancialApiBundle\Entity\Localizable;
 use Doctrine\Common\Annotations\AnnotationException;
 use Doctrine\ORM\EntityManagerInterface;
 use Doctrine\ORM\NonUniqueResultException;
@@ -66,7 +67,11 @@ class CRUDController extends BaseApiV2Controller {
         } catch (ReflectionException $e) {
             throw new HttpException(404, "Route not found");
         }
-        return $rc->newInstance();
+        $instance = $rc->newInstance();
+        if($instance instanceof Localizable){
+            $instance->setTranslatableLocale($this->getRequestLocale());
+        }
+        return $instance;
     }
 
     /**
