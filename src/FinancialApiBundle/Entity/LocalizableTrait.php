@@ -3,6 +3,7 @@
 namespace App\FinancialApiBundle\Entity;
 
 use Gedmo\Mapping\Annotation as Gedmo;
+use JMS\Serializer\Annotation as Serializer;
 
 /**
  * Trait LocalizableTrait
@@ -17,6 +18,8 @@ trait LocalizableTrait {
      */
     private $locale;
 
+    private $translations;
+
     function getTranslatableLocale(){
         return $this->locale;
     }
@@ -26,4 +29,14 @@ trait LocalizableTrait {
     }
 
 
+    public function setTranslations(array $translations){
+        $this->translations = $translations;
+    }
+
+    /**
+     * @return mixed
+     */
+    public function getTranslations(){
+        return $this->translations;
+    }
 }

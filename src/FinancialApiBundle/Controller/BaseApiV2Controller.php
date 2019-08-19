@@ -29,6 +29,7 @@ use Doctrine\ORM\NoResultException;
 use Doctrine\ORM\Query;
 use Doctrine\ORM\QueryBuilder;
 use Exception;
+use Gedmo\Translatable\Entity\Translation;
 use Gedmo\Translatable\Translatable;
 use JMS\Serializer\SerializationContext;
 use JMS\Serializer\Serializer;
@@ -174,10 +175,7 @@ abstract class BaseApiV2Controller extends RestApiController implements Reposito
     }
 
     protected function securizeOutput($result){
-
         $ctx = $this->getSerializationContext();
-
-
         /** @var Serializer $serializer */
         $serializer = $this->get('jms_serializer');
         return $serializer->toArray($result, $ctx);
@@ -246,8 +244,18 @@ abstract class BaseApiV2Controller extends RestApiController implements Reposito
         $this->checkPermissions($role, self::CRUD_METHOD_INDEX);
 
         list($total, $result) = $this->index($request);
-        $result = $this->translatedCollection($result, $this->getRequestLocale());
-        $elems = $this->securizeOutput($result);
+        if($this->getRequestLocale() !== 'all') {
+            $result = $this->translatedCollection($result, $this->getRequestLocale());
+        }
+
+        $result = $this->securizeOutput($result);
+        if($this->getRequestLocale() === 'all') {
+            $repository = $this->getDoctrine()->getManager()->getRepository(Translation::class);
+            foreach ($result as $index => $elem){
+                $result[$index]['translations'] = $repository->findTranslationsByObjectId($elem['id']);
+            }
+        }
+
 
         return $this->restV2(
             self::HTTP_STATUS_CODE_OK,
@@ -255,7 +263,7 @@ abstract class BaseApiV2Controller extends RestApiController implements Reposito
             "Request successful",
             array(
                 'total' => $total,
-                'elements' => $elems
+                'elements' => $result
             )
         );
     }
