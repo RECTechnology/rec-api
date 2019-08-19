@@ -68,9 +68,6 @@ class CRUDController extends BaseApiV2Controller {
             throw new HttpException(404, "Route not found");
         }
         $instance = $rc->newInstance();
-        if($instance instanceof Localizable){
-            $instance->setTranslatableLocale($this->getRequestLocale());
-        }
         return $instance;
     }
 

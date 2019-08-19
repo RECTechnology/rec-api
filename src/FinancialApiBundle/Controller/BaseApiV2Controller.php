@@ -444,6 +444,10 @@ abstract class BaseApiV2Controller extends RestApiController implements Reposito
 
         if(count($errors) > 0)  return $this->restV2(400, "error", "Validation error", $errors);
 
+
+        if($entity instanceof Localizable){
+            $entity->setTranslatableLocale($this->getRequestLocale());
+        }
         $em->persist($entity);
         try{
             $em->flush();
