@@ -9,16 +9,15 @@ namespace App\FinancialApiBundle\Entity;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\ORM\Mapping as ORM;
 use Gedmo\Translatable\Translatable;
-use JMS\Serializer\Annotation as Serializer;
 use JMS\Serializer\Annotation\Groups;
 use Gedmo\Mapping\Annotation as Gedmo;
 
 /**
- * Class Activity
+ * Class ProductKind
  * @package App\FinancialApiBundle\Entity
  * @ORM\Entity
  */
-class Activity extends AppObject implements Translatable, Localizable {
+class ProductKind extends AppObject implements Translatable, Localizable {
 
     use LocalizableTrait;
 
@@ -37,30 +36,41 @@ class Activity extends AppObject implements Translatable, Localizable {
     private $description;
 
     /**
-     * @ORM\ManyToMany(targetEntity="App\FinancialApiBundle\Entity\Group", inversedBy="activities")
+     * @ORM\ManyToMany(targetEntity="App\FinancialApiBundle\Entity\Group", inversedBy="producing_products")
+     * @ORM\JoinTable(name="accounts_products_producing")
      * @Groups({"public"})
      */
-    private $accounts;
+    private $producing_by;
 
     /**
-     * @ORM\ManyToMany(targetEntity="App\FinancialApiBundle\Entity\ProductKind", mappedBy="default_producing_by")
+     * @ORM\ManyToMany(targetEntity="App\FinancialApiBundle\Entity\Group", inversedBy="consuming_products")
+     * @ORM\JoinTable(name="accounts_products_consuming")
      * @Groups({"public"})
      */
-    private $default_producing_products;
+    private $consuming_by;
 
     /**
-     * @ORM\ManyToMany(targetEntity="App\FinancialApiBundle\Entity\ProductKind", mappedBy="default_consuming_by")
+     * @ORM\ManyToMany(targetEntity="App\FinancialApiBundle\Entity\Activity", inversedBy="default_producing_products")
+     * @ORM\JoinTable(name="activities_products_producing")
      * @Groups({"public"})
      */
-    private $default_consuming_products;
+    private $default_producing_by;
 
     /**
-     * Activity constructor.
+     * @ORM\ManyToMany(targetEntity="App\FinancialApiBundle\Entity\Activity", inversedBy="default_consuming_products")
+     * @ORM\JoinTable(name="activities_products_consuming")
+     * @Groups({"public"})
+     */
+    private $default_consuming_by;
+
+    /**
+     * ProductKind constructor.
      */
     public function __construct() {
-        $this->accounts = new ArrayCollection();
-        $this->default_consuming_products = new ArrayCollection();
-        $this->default_producing_products = new ArrayCollection();
+        $this->producing_by = new ArrayCollection();
+        $this->consuming_by = new ArrayCollection();
+        $this->default_consuming_by = new ArrayCollection();
+        $this->default_producing_by = new ArrayCollection();
     }
 
     /**
@@ -73,7 +83,7 @@ class Activity extends AppObject implements Translatable, Localizable {
 
     /**
      * @param mixed $name
-     * @return Activity
+     * @return ProductKind
      */
     public function setName($name)
     {
@@ -91,7 +101,7 @@ class Activity extends AppObject implements Translatable, Localizable {
 
     /**
      * @param mixed $description
-     * @return Activity
+     * @return ProductKind
      */
     public function setDescription($description)
     {

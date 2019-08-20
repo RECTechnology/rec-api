@@ -47,6 +47,11 @@ class Neighbourhood extends AppObject implements Translatable, Localizable {
      */
     private $bounds;
 
+    /**
+     * @ORM\OneToMany(targetEntity="App\FinancialApiBundle\Entity\Group", mappedBy="neighbourhood")
+     * @Groups({"self"})
+     */
+    private $accounts;
 
     /**
      * @return mixed

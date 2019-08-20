@@ -49,6 +49,9 @@ class Group extends BaseGroup implements EntityWithUploadableFields {
         $this->wallets = new ArrayCollection();
         $this->clients = new ArrayCollection();
         $this->offers = new ArrayCollection();
+        $this->activities = new ArrayCollection();
+        $this->consuming_products = new ArrayCollection();
+        $this->producing_products = new ArrayCollection();
         $this->company_token = uniqid();
         $this->on_map = 1;
 
@@ -207,6 +210,24 @@ class Group extends BaseGroup implements EntityWithUploadableFields {
     private $clients;
 
     /**
+     * @ORM\ManyToMany(targetEntity="App\FinancialApiBundle\Entity\Activity", mappedBy="accounts")
+     * @Groups({"public"})
+     */
+    private $activities;
+
+    /**
+     * @ORM\ManyToMany(targetEntity="App\FinancialApiBundle\Entity\ProductKind", mappedBy="producing_by")
+     * @Groups({"public"})
+     */
+    private $producing_products;
+
+    /**
+     * @ORM\ManyToMany(targetEntity="App\FinancialApiBundle\Entity\ProductKind", mappedBy="consuming_by")
+     * @Groups({"public"})
+     */
+    private $consuming_products;
+
+    /**
      * @ORM\Column(type="string")
      * @Expose
      * @Groups({"public"})
@@ -288,6 +309,12 @@ class Group extends BaseGroup implements EntityWithUploadableFields {
      * @Groups({"public"})
      */
     private $neighborhood = "";
+
+    /**
+     * @ORM\ManyToOne(targetEntity="App\FinancialApiBundle\Entity\Neighbourhood", inversedBy="accounts")
+     * @Groups({"public"})
+     */
+    private $neighbourhood;
 
     /**
      * @ORM\Column(type="string")
@@ -1286,5 +1313,21 @@ class Group extends BaseGroup implements EntityWithUploadableFields {
             'company_image' => UploadManager::$FILTER_IMAGES,
             'public_image' => UploadManager::$FILTER_IMAGES
         ];
+    }
+
+    /**
+     * @return mixed
+     */
+    public function getNeighbourhood()
+    {
+        return $this->neighbourhood;
+    }
+
+    /**
+     * @param mixed $neighbourhood
+     */
+    public function setNeighbourhood($neighbourhood): void
+    {
+        $this->neighbourhood = $neighbourhood;
     }
 }
