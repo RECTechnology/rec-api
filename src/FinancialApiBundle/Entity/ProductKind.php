@@ -141,4 +141,36 @@ class ProductKind extends AppObject implements Translatable, Localizable {
         $this->consuming_by []= $consumer;
     }
 
+    /**
+     * @return mixed
+     */
+    public function getDefaultProducingBy()
+    {
+        return $this->default_producing_by;
+    }
+
+    /**
+     * @param mixed $activity
+     */
+    public function addDefaultProducingBy(Activity $activity): void
+    {
+        $this->default_producing_by []= $activity;
+    }
+
+    /**
+     * @return mixed
+     */
+    public function getDefaultConsumingBy()
+    {
+        return $this->default_consuming_by;
+    }
+
+    /**
+     * @param mixed $activity
+     */
+    public function addDefaultConsumingBy(Activity $activity): void
+    {
+        $this->default_consuming_by []= $activity;
+    }
+
 }

@@ -99,4 +99,54 @@ class Activity extends AppObject implements Translatable, Localizable {
         return $this;
     }
 
+    /**
+     * @return mixed
+     */
+    public function getAccounts()
+    {
+        return $this->accounts;
+    }
+
+    /**
+     * @param Group $account
+     */
+    public function addAccount(Group $account): void
+    {
+        $this->accounts []= $account;
+    }
+
+    /**
+     * @return mixed
+     */
+    public function getDefaultProducingProducts()
+    {
+        return $this->default_producing_products;
+    }
+
+    /**
+     * @param mixed $product
+     */
+    public function addDefaultProducingProduct(ProductKind $product): void
+    {
+        $this->default_producing_products []= $product;
+        $product->addDefaultProducingBy($this);
+    }
+
+    /**
+     * @return mixed
+     */
+    public function getDefaultConsumingProducts()
+    {
+        return $this->default_consuming_products;
+    }
+
+    /**
+     * @param mixed $product
+     */
+    public function addDefaultConsumingProducts(ProductKind $product): void
+    {
+        $this->default_consuming_products []= $product;
+        $product->addDefaultConsumingBy($this);
+    }
+
 }

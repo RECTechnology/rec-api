@@ -1366,4 +1366,21 @@ class Group extends BaseGroup implements EntityWithUploadableFields {
         $this->consuming_products []= $product;
         $product->addConsumingBy($this);
     }
+
+    /**
+     * @return mixed
+     */
+    public function getActivities()
+    {
+        return $this->activities;
+    }
+
+    /**
+     * @param Activity $activity
+     */
+    public function addActivity(Activity $activity): void
+    {
+        $this->activities = $activity;
+        $activity->addAccount($this);
+    }
 }

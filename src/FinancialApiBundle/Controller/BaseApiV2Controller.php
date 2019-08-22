@@ -619,7 +619,7 @@ abstract class BaseApiV2Controller extends RestApiController implements Reposito
         $adder = $this->attributeToAdder($relationship);
 
         if (!method_exists($entity, $adder)) {
-            throw new HttpException(400, "Bad request, parameter '$relationship' is invalids.");
+            throw new HttpException(400, "Bad request, parameter '$relationship' is invalid.");
         }
         call_user_func_array([$entity, $adder], [$relatedEntity]);
         $em = $this->getDoctrine()->getManager();
@@ -676,6 +676,8 @@ abstract class BaseApiV2Controller extends RestApiController implements Reposito
 
     private function attributeToAdder($str) {
         $adder = $this->toCamelCase("add_" . $str);
+        if(substr($adder,strlen($adder) - 3) === 'ies')
+            return substr($adder, 0, strlen($adder) - 3) . 'y';
         return substr($adder, 0, strlen($adder) - 1);
     }
 
