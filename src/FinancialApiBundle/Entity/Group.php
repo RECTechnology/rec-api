@@ -217,12 +217,14 @@ class Group extends BaseGroup implements EntityWithUploadableFields {
 
     /**
      * @ORM\ManyToMany(targetEntity="App\FinancialApiBundle\Entity\ProductKind", mappedBy="producing_by")
+     * @Expose
      * @Groups({"public"})
      */
     private $producing_products;
 
     /**
      * @ORM\ManyToMany(targetEntity="App\FinancialApiBundle\Entity\ProductKind", mappedBy="consuming_by")
+     * @Expose
      * @Groups({"public"})
      */
     private $consuming_products;
@@ -1329,5 +1331,39 @@ class Group extends BaseGroup implements EntityWithUploadableFields {
     public function setNeighbourhood($neighbourhood): void
     {
         $this->neighbourhood = $neighbourhood;
+    }
+
+    /**
+     * @return mixed
+     */
+    public function getProducingProducts()
+    {
+        return $this->producing_products;
+    }
+
+    /**
+     * @param $product
+     */
+    public function addProducingProduct(ProductKind $product): void
+    {
+        $this->producing_products []= $product;
+        $product->addProducingBy($this);
+    }
+
+    /**
+     * @return mixed
+     */
+    public function getConsumingProducts()
+    {
+        return $this->consuming_products;
+    }
+
+    /**
+     * @param mixed $product
+     */
+    public function addConsumingProduct(ProductKind $product): void
+    {
+        $this->consuming_products []= $product;
+        $product->addConsumingBy($this);
     }
 }

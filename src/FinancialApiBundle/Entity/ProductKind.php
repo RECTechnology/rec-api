@@ -109,4 +109,36 @@ class ProductKind extends AppObject implements Translatable, Localizable {
         return $this;
     }
 
+    /**
+     * @return mixed
+     */
+    public function getProducingBy()
+    {
+        return $this->producing_by;
+    }
+
+    /**
+     * @param Group $productor
+     */
+    public function addProducingBy(Group $productor): void
+    {
+        $this->producing_by []= $productor;
+    }
+
+    /**
+     * @return mixed
+     */
+    public function getConsumingBy()
+    {
+        return $this->consuming_by;
+    }
+
+    /**
+     * @param Group $consumer
+     */
+    public function addConsumingBy(Group $consumer): void
+    {
+        $this->consuming_by []= $consumer;
+    }
+
 }

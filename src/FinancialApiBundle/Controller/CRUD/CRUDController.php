@@ -82,7 +82,7 @@ class CRUDController extends BaseApiV2Controller {
             self::CRUD_METHOD_INDEX => self::ROLE_USER,
             self::CRUD_METHOD_SHOW => self::ROLE_USER,
             self::CRUD_METHOD_CREATE => self::ROLE_SUPER_ADMIN,
-            self::CRUD_METHOD_UPDATE => self::ROLE_SUPER_ADMIN,
+            self::CRUD_UPDATE => self::ROLE_SUPER_ADMIN,
             self::CRUD_METHOD_DELETE => self::ROLE_SUPER_ADMIN,
         ];
     }
@@ -110,6 +110,11 @@ class CRUDController extends BaseApiV2Controller {
     public function createAction(Request $request, $role)
     {
         return parent::createAction($request, $role);
+    }
+
+    public function addAction(Request $request, $role, $id, $relationship)
+    {
+        return parent::addAction($request, $role, $id, $relationship);
     }
 
     public function updateAction(Request $request, $role, $id)

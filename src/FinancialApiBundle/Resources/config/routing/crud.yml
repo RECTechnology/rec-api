@@ -49,6 +49,27 @@ crud_v3_create:
         role: "(public|user|manager|self|admin|sadmin)"
         object: "[a-z_]+"
 
+crud_v3_add_relationship:
+    path:  /{role}/v3/{object}/{id}/{relationship}
+    defaults: { _controller: App\FinancialApiBundle\Controller\CRUD\CRUDController::addAction }
+    methods: [POST]
+    requirements:
+        role: "(public|user|manager|self|admin|sadmin)"
+        object: "[a-z_]+"
+        id: "[0-9]+"
+        relationship: "[a-z_]+"
+
+crud_v3_delete_relationship:
+    path:  /{role}/v3/{object}/{id1}/{relationship}/{id2}
+    defaults: { _controller: App\FinancialApiBundle\Controller\CRUD\CRUDController::deleteRelAction }
+    methods: [POST]
+    requirements:
+        role: "(public|user|manager|self|admin|sadmin)"
+        object: "[a-z_]+"
+        id1: "[0-9]+"
+        relationship: "[a-z_]+"
+        id2: "[0-9]+"
+
 crud_v3_update:
     path:  /{role}/v3/{object}/{id}
     defaults: { _controller: App\FinancialApiBundle\Controller\CRUD\CRUDController::updateAction }

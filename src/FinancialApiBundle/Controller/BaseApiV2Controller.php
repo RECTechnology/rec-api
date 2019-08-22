@@ -21,6 +21,7 @@ use Doctrine\ORM\Mapping\AttributeOverrides;
 use Doctrine\ORM\Mapping\Column;
 use Doctrine\ORM\Mapping\ManyToMany;
 use Doctrine\ORM\Mapping\ManyToOne;
+use Doctrine\ORM\Mapping\OneToMany;
 use Doctrine\ORM\Mapping\OneToOne;
 use Doctrine\ORM\Query\QueryException;
 use Doctrine\ORM\EntityManagerInterface;
@@ -60,7 +61,7 @@ abstract class BaseApiV2Controller extends RestApiController implements Reposito
     const CRUD_METHOD_INDEX = 'INDEX';
     const CRUD_METHOD_SHOW = 'SHOW';
     const CRUD_METHOD_CREATE = 'CREATE';
-    const CRUD_METHOD_UPDATE = 'UPDATE';
+    const CRUD_UPDATE = 'UPDATE';
     const CRUD_METHOD_DELETE = 'DELETE';
 
     const ROLE_SUPER_ADMIN = "ROLE_SUPER_ADMIN";
@@ -198,25 +199,43 @@ abstract class BaseApiV2Controller extends RestApiController implements Reposito
     }
 
     /**
-     * @param $key
-     * @param $sent_value
+     * @param $relationshipNameWithId
+     * @param $targetId
      * @return object|null
      * @throws AnnotationException
      * @throws ReflectionException
      */
-    private function findForeignObject($key, $sent_value){
+    private function findRelatedObjectWithRelId($relationshipNameWithId, $targetId){
+
+        $name = substr($relationshipNameWithId, 0, strlen($relationshipNameWithId) - 3);
+        $relatedEntity = $this->getRelatedEntity($name);
+
+        $value = $this->getDoctrine()->getRepository($relatedEntity)->find($targetId);
+        if(!$value) throw new HttpException(
+            Response::HTTP_BAD_REQUEST,
+            "Object $name with id '$targetId' does not exist."
+        );
+        return $value;
+    }
+
+    /**
+     * @param $propertyName
+     * @return object|null
+     * @throws AnnotationException
+     * @throws ReflectionException
+     */
+    private function getRelatedEntity($propertyName){
 
         $className = $this->getRepository()->getClassName();
-        $name = substr($key, 0, strlen($key) - 3);
-        if(!property_exists($className, $name))
-            throw new HttpException(400, "Bad request, parameter '$key' is invalid.");
-        $reflectionProperty = new ReflectionProperty($className, $name);
+        if(!property_exists($className, $propertyName))
+            throw new HttpException(400, "Bad request, parameter '$propertyName' is invalid.");
+        $reflectionProperty = new ReflectionProperty($className, $propertyName);
         $ar = new AnnotationReader();
         $propertyAnnotations = $ar->getPropertyAnnotations($reflectionProperty);
 
         $rel = false;
         foreach ($propertyAnnotations as $an){
-            if($an instanceof ManyToMany or $an instanceof ManyToOne or $an instanceof OneToOne){
+            if($an instanceof ManyToMany or $an instanceof ManyToOne or $an instanceof OneToOne or $an instanceof OneToMany){
                 $rel = $an;
                 break;
             }
@@ -227,12 +246,7 @@ abstract class BaseApiV2Controller extends RestApiController implements Reposito
             "Unrelated parameter"
         );
 
-        $value = $this->getDoctrine()->getRepository($rel->targetEntity)->find($sent_value);
-        if(!$value) throw new HttpException(
-            Response::HTTP_BAD_REQUEST,
-            "Object $name with id '$sent_value' does not exist."
-        );
-        return $value;
+        return $rel->targetEntity;
     }
 
     /**
@@ -423,7 +437,7 @@ abstract class BaseApiV2Controller extends RestApiController implements Reposito
 
             // user is trying to set foreign key
             elseif(substr($name, -3) === "_id"){
-                $value = $this->findForeignObject($name, $value);
+                $value = $this->findRelatedObjectWithRelId($name, $value);
                 $name = substr($name, 0, strlen($name) - 3);
             }
             else {
@@ -457,6 +471,15 @@ abstract class BaseApiV2Controller extends RestApiController implements Reposito
             $entity->setTranslatableLocale($this->getRequestLocale());
         }
         $em->persist($entity);
+
+
+        $this->flush();
+
+        return $entity;
+    }
+
+    protected function flush(){
+        $em = $this->getDoctrine()->getManager();
         try{
             $em->flush();
         } catch(DBALException $e){
@@ -466,8 +489,6 @@ abstract class BaseApiV2Controller extends RestApiController implements Reposito
                 throw new HttpException(400, "Bad parameters: " . $e->getMessage());
             throw new HttpException(500, "Unknown error occurred when save: " . $e->getMessage());
         }
-
-        return $entity;
     }
 
     /**
@@ -512,7 +533,7 @@ abstract class BaseApiV2Controller extends RestApiController implements Reposito
      * @throws ReflectionException
      */
     protected function updateAction(Request $request, $role, $id){
-        $this->checkPermissions($role, self::CRUD_METHOD_UPDATE);
+        $this->checkPermissions($role, self::CRUD_UPDATE);
         $entity = $this->update($request, $id);
         $output = $this->securizeOutput($entity);
         return $this->restV2(
@@ -543,6 +564,69 @@ abstract class BaseApiV2Controller extends RestApiController implements Reposito
         if(empty($entity)) throw new HttpException(404, "Not found");
 
         return $this->setAction($entity, $params);
+    }
+
+
+    /**
+     * @param Request $request
+     * @param $role
+     * @param $id
+     * @param $relationship
+     * @return Response
+     * @throws AnnotationException
+     * @throws ReflectionException
+     */
+    protected function addAction(Request $request, $role, $id, $relationship){
+        $this->checkPermissions($role, self::CRUD_UPDATE);
+        $entity = $this->add($request, $id, $relationship);
+        $output = $this->securizeOutput($entity);
+        return $this->restV2(
+            static::HTTP_STATUS_CODE_OK,
+            "ok",
+            "Added successfully",
+            $output
+        );
+
+    }
+
+    /**
+     * @param Request $request
+     * @param $id
+     * @param $relationship
+     * @return object|null
+     * @throws AnnotationException
+     * @throws ReflectionException
+     */
+    public function add(Request $request, $id, $relationship){
+        if(empty($id)) throw new HttpException(400, "Missing URL parameter 'id'");
+        if(empty($relationship)) throw new HttpException(400, "Missing URL parameter 'relationship'");
+        if(!$request->request->has('id')) throw new HttpException(400, "Missing POST parameter 'id'");
+
+        $repo = $this->getRepository();
+
+        $entity = $repo->find($id);
+        if(empty($entity)) throw new HttpException(404, "Not found");
+
+        $targetEntityName = $this->getRelatedEntity($relationship);
+
+        $targetEntityId = $request->request->get('id', -1);
+        $relatedEntity = $this
+            ->getDoctrine()
+            ->getRepository($targetEntityName)
+            ->find($targetEntityId);
+        if(empty($relatedEntity)) throw new HttpException(404, "Not found");
+
+        $adder = $this->attributeToAdder($relationship);
+
+        if (!method_exists($entity, $adder)) {
+            throw new HttpException(400, "Bad request, parameter '$relationship' is invalids.");
+        }
+        call_user_func_array([$entity, $adder], [$relatedEntity]);
+        $em = $this->getDoctrine()->getManager();
+        $em->persist($entity);
+        $em->persist($relatedEntity);
+        $this->flush();
+        return $entity;
     }
 
     /**
@@ -584,6 +668,15 @@ abstract class BaseApiV2Controller extends RestApiController implements Reposito
 
     private function attributeToSetter($str) {
         return $this->toCamelCase("set_" . $str);
+    }
+
+    private function attributeToGetter($str) {
+        return $this->toCamelCase("get_" . $str);
+    }
+
+    private function attributeToAdder($str) {
+        $adder = $this->toCamelCase("add_" . $str);
+        return substr($adder, 0, strlen($adder) - 1);
     }
 
     /**
