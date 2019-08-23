@@ -118,11 +118,13 @@ class ProductKind extends AppObject implements Translatable, Localizable {
     }
 
     /**
-     * @param Group $productor
+     * @param Group $producer
+     * @param bool $recursive
      */
-    public function addProducingBy(Group $productor): void
+    public function addProducingBy(Group $producer, $recursive = true): void
     {
-        $this->producing_by []= $productor;
+        $this->producing_by []= $producer;
+        if($recursive) $producer->addProducingProduct($this, false);
     }
 
     /**
@@ -135,10 +137,12 @@ class ProductKind extends AppObject implements Translatable, Localizable {
 
     /**
      * @param Group $consumer
+     * @param bool $recursive
      */
-    public function addConsumingBy(Group $consumer): void
+    public function addConsumingBy(Group $consumer, $recursive = true): void
     {
         $this->consuming_by []= $consumer;
+        if($recursive) $consumer->addConsumingProduct($this, false);
     }
 
     /**
@@ -151,10 +155,12 @@ class ProductKind extends AppObject implements Translatable, Localizable {
 
     /**
      * @param mixed $activity
+     * @param bool $recursive
      */
-    public function addDefaultProducingBy(Activity $activity): void
+    public function addDefaultProducingBy(Activity $activity, $recursive = true): void
     {
         $this->default_producing_by []= $activity;
+        if($recursive) $activity->addDefaultProducingProduct($this, false);
     }
 
     /**
@@ -167,10 +173,12 @@ class ProductKind extends AppObject implements Translatable, Localizable {
 
     /**
      * @param mixed $activity
+     * @param bool $recursive
      */
-    public function addDefaultConsumingBy(Activity $activity): void
+    public function addDefaultConsumingBy(Activity $activity, $recursive = true): void
     {
         $this->default_consuming_by []= $activity;
+        if($recursive) $activity->addDefaultConsumingProducts($this, false);
     }
 
 }

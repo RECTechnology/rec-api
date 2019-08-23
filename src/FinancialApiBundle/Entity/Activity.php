@@ -109,10 +109,12 @@ class Activity extends AppObject implements Translatable, Localizable {
 
     /**
      * @param Group $account
+     * @param bool $recursive
      */
-    public function addAccount(Group $account): void
+    public function addAccount(Group $account, $recursive = true): void
     {
         $this->accounts []= $account;
+        if($recursive) $account->addActivity($this, false);
     }
 
     /**
@@ -125,11 +127,12 @@ class Activity extends AppObject implements Translatable, Localizable {
 
     /**
      * @param mixed $product
+     * @param bool $recursive
      */
-    public function addDefaultProducingProduct(ProductKind $product): void
+    public function addDefaultProducingProduct(ProductKind $product, $recursive = true): void
     {
         $this->default_producing_products []= $product;
-        $product->addDefaultProducingBy($this);
+        if($recursive) $product->addDefaultProducingBy($this, false);
     }
 
     /**
@@ -142,11 +145,12 @@ class Activity extends AppObject implements Translatable, Localizable {
 
     /**
      * @param mixed $product
+     * @param bool $recursive
      */
-    public function addDefaultConsumingProducts(ProductKind $product): void
+    public function addDefaultConsumingProducts(ProductKind $product, $recursive = true): void
     {
         $this->default_consuming_products []= $product;
-        $product->addDefaultConsumingBy($this);
+        if($recursive) $product->addDefaultConsumingBy($this, false);
     }
 
 }

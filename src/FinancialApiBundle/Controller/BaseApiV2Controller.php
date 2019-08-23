@@ -678,7 +678,9 @@ abstract class BaseApiV2Controller extends RestApiController implements Reposito
         $adder = $this->toCamelCase("add_" . $str);
         if(substr($adder,strlen($adder) - 3) === 'ies')
             return substr($adder, 0, strlen($adder) - 3) . 'y';
-        return substr($adder, 0, strlen($adder) - 1);
+        if(substr($adder,strlen($adder) - 1) === 's')
+            return substr($adder, 0, strlen($adder) - 1);
+        return $adder;
     }
 
     /**

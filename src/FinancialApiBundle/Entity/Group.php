@@ -1344,10 +1344,10 @@ class Group extends BaseGroup implements EntityWithUploadableFields {
     /**
      * @param $product
      */
-    public function addProducingProduct(ProductKind $product): void
+    public function addProducingProduct(ProductKind $product, $recursive = true): void
     {
         $this->producing_products []= $product;
-        $product->addProducingBy($this);
+        if($recursive) $product->addProducingBy($this, false);
     }
 
     /**
@@ -1360,11 +1360,12 @@ class Group extends BaseGroup implements EntityWithUploadableFields {
 
     /**
      * @param mixed $product
+     * @param bool $recursive
      */
-    public function addConsumingProduct(ProductKind $product): void
+    public function addConsumingProduct(ProductKind $product, $recursive = true): void
     {
         $this->consuming_products []= $product;
-        $product->addConsumingBy($this);
+        if($recursive) $product->addConsumingBy($this, false);
     }
 
     /**
@@ -1377,10 +1378,11 @@ class Group extends BaseGroup implements EntityWithUploadableFields {
 
     /**
      * @param Activity $activity
+     * @param bool $recursive
      */
-    public function addActivity(Activity $activity): void
+    public function addActivity(Activity $activity, $recursive = true): void
     {
         $this->activities = $activity;
-        $activity->addAccount($this);
+        if($recursive) $activity->addAccount($this, false);
     }
 }
