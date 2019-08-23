@@ -1351,6 +1351,19 @@ class Group extends BaseGroup implements EntityWithUploadableFields {
     }
 
     /**
+     * @param mixed $product
+     * @param bool $recursive
+     */
+    public function delProducingProduct(ProductKind $product, $recursive = true): void
+    {
+        if(!$this->producing_products->contains($product)){
+            throw new \LogicException("Product not related to this Account");
+        }
+        $this->producing_products->removeElement($product);
+        if($recursive) $product->delProducingBy($this, false);
+    }
+
+    /**
      * @return mixed
      */
     public function getConsumingProducts()
@@ -1369,6 +1382,19 @@ class Group extends BaseGroup implements EntityWithUploadableFields {
     }
 
     /**
+     * @param mixed $product
+     * @param bool $recursive
+     */
+    public function delConsumingProduct(ProductKind $product, $recursive = true): void
+    {
+        if(!$this->consuming_products->contains($product)){
+            throw new \LogicException("Product not related to this Account");
+        }
+        $this->consuming_products->removeElement($product);
+        if($recursive) $product->delConsumingBy($this, false);
+    }
+
+    /**
      * @return mixed
      */
     public function getActivities()
@@ -1384,5 +1410,17 @@ class Group extends BaseGroup implements EntityWithUploadableFields {
     {
         $this->activities = $activity;
         if($recursive) $activity->addAccount($this, false);
+    }
+
+    /**
+     * @param Activity $activity
+     * @param bool $recursive
+     */
+    public function delActivity(Activity $activity, $recursive = true) {
+        if(!$this->activities->contains($activity)){
+            throw new \LogicException("Activity not related to this Account");
+        }
+        $this->activities->removeElement($activity);
+        if($recursive) $activity->delAccount($this, false);
     }
 }

@@ -128,6 +128,19 @@ class ProductKind extends AppObject implements Translatable, Localizable {
     }
 
     /**
+     * @param mixed $producer
+     * @param bool $recursive
+     */
+    public function delProducingBy(Group $producer, $recursive = true): void
+    {
+        if(!$this->producing_by->contains($producer)){
+            throw new \LogicException("Account not related to this ProductKind");
+        }
+        $this->producing_by->removeElement($producer);
+        if($recursive) $producer->delProducingProduct($this, false);
+    }
+
+    /**
      * @return mixed
      */
     public function getConsumingBy()
@@ -143,6 +156,19 @@ class ProductKind extends AppObject implements Translatable, Localizable {
     {
         $this->consuming_by []= $consumer;
         if($recursive) $consumer->addConsumingProduct($this, false);
+    }
+
+    /**
+     * @param mixed $consumer
+     * @param bool $recursive
+     */
+    public function delConsumingBy(Group $consumer, $recursive = true): void
+    {
+        if(!$this->consuming_by->contains($consumer)){
+            throw new \LogicException("Account not related to this ProductKind");
+        }
+        $this->consuming_by->removeElement($consumer);
+        if($recursive) $consumer->delConsumingProduct($this, false);
     }
 
     /**
@@ -164,6 +190,19 @@ class ProductKind extends AppObject implements Translatable, Localizable {
     }
 
     /**
+     * @param mixed $activity
+     * @param bool $recursive
+     */
+    public function delDefaultProducingBy(Activity $activity, $recursive = true): void
+    {
+        if(!$this->default_producing_by->contains($activity)){
+            throw new \LogicException("Activity not related to this ProductKind");
+        }
+        $this->default_producing_by->removeElement($activity);
+        if($recursive) $activity->delDefaultProducingProduct($this, false);
+    }
+
+    /**
      * @return mixed
      */
     public function getDefaultConsumingBy()
@@ -181,4 +220,16 @@ class ProductKind extends AppObject implements Translatable, Localizable {
         if($recursive) $activity->addDefaultConsumingProducts($this, false);
     }
 
+    /**
+     * @param mixed $activity
+     * @param bool $recursive
+     */
+    public function delDefaultConsumingBy(Activity $activity, $recursive = true): void
+    {
+        if(!$this->default_consuming_by->contains($activity)){
+            throw new \LogicException("Activity not related to this ProductKind");
+        }
+        $this->default_consuming_by->removeElement($activity);
+        if($recursive) $activity->delDefaultConsumingProduct($this, false);
+    }
 }

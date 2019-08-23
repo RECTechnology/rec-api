@@ -62,7 +62,7 @@ abstract class BaseApiV2Controller extends RestApiController implements Reposito
     const CRUD_METHOD_SHOW = 'SHOW';
     const CRUD_METHOD_CREATE = 'CREATE';
     const CRUD_UPDATE = 'UPDATE';
-    const CRUD_METHOD_DELETE = 'DELETE';
+    const CRUD_DELETE = 'DELETE';
 
     const ROLE_SUPER_ADMIN = "ROLE_SUPER_ADMIN";
     const ROLE_MANAGER = "ROLE_MANAGER";
@@ -576,9 +576,9 @@ abstract class BaseApiV2Controller extends RestApiController implements Reposito
      * @throws AnnotationException
      * @throws ReflectionException
      */
-    protected function addAction(Request $request, $role, $id, $relationship){
+    protected function addRelationshipAction(Request $request, $role, $id, $relationship){
         $this->checkPermissions($role, self::CRUD_UPDATE);
-        $entity = $this->add($request, $id, $relationship);
+        $entity = $this->addRelationship($request, $id, $relationship);
         $output = $this->securizeOutput($entity);
         return $this->restV2(
             static::HTTP_STATUS_CODE_OK,
@@ -597,7 +597,7 @@ abstract class BaseApiV2Controller extends RestApiController implements Reposito
      * @throws AnnotationException
      * @throws ReflectionException
      */
-    public function add(Request $request, $id, $relationship){
+    public function addRelationship(Request $request, $id, $relationship){
         if(empty($id)) throw new HttpException(400, "Missing URL parameter 'id'");
         if(empty($relationship)) throw new HttpException(400, "Missing URL parameter 'relationship'");
         if(!$request->request->has('id')) throw new HttpException(400, "Missing POST parameter 'id'");
@@ -629,13 +629,81 @@ abstract class BaseApiV2Controller extends RestApiController implements Reposito
         return $entity;
     }
 
+
+    /**
+     * @param Request $request
+     * @param $role
+     * @param $id
+     * @param $relationship
+     * @return Response
+     * @throws AnnotationException
+     * @throws ReflectionException
+     */
+    protected function deleteRelationshipAction(Request $request, $role, $id1, $relationship, $id2){
+        $this->checkPermissions($role, self::CRUD_DELETE);
+        $entity = $this->deleteRelationship($request, $id1, $relationship, $id2);
+        $output = $this->securizeOutput($entity);
+        return $this->restV2(
+            static::HTTP_STATUS_CODE_OK,
+            "ok",
+            "Deleted successfully",
+            $output
+        );
+
+    }
+
+    /**
+     * @param Request $request
+     * @param $id1
+     * @param $relationship
+     * @param $id2
+     * @return object|null
+     * @throws AnnotationException
+     * @throws ReflectionException
+     */
+    public function deleteRelationship(Request $request, $id1, $relationship, $id2){
+        if(empty($id1)) throw new HttpException(400, "Missing URL parameter 'id1'");
+        if(empty($relationship)) throw new HttpException(400, "Missing URL parameter 'relationship'");
+        if(empty($id2)) throw new HttpException(400, "Missing URL parameter 'id2'");
+
+        $repo = $this->getRepository();
+
+        $entity = $repo->find($id1);
+        if(empty($entity)) throw new HttpException(404, "Not found");
+
+        $targetEntityName = $this->getRelatedEntity($relationship);
+
+        $targetEntityId = $id2;
+        $relatedEntity = $this
+            ->getDoctrine()
+            ->getRepository($targetEntityName)
+            ->find($targetEntityId);
+        if(empty($relatedEntity)) throw new HttpException(404, "Not found");
+
+        $deleter = $this->attributeToDeleter($relationship);
+
+        if (!method_exists($entity, $deleter)) {
+            throw new HttpException(400, "Bad request, parameter '$relationship' is invalid. (method $deleter)");
+        }
+        call_user_func_array([$entity, $deleter], [$relatedEntity]);
+        $em = $this->getDoctrine()->getManager();
+        $em->persist($entity);
+        $em->persist($relatedEntity);
+        $this->flush();
+        return $entity;
+    }
+
+
+
+
+
     /**
      * @param $role
      * @param $id
      * @return Response
      */
     protected function deleteAction($role, $id){
-        $this->checkPermissions($role, self::CRUD_METHOD_DELETE);
+        $this->checkPermissions($role, self::CRUD_DELETE);
         return $this->delete($id);
     }
 
@@ -674,6 +742,7 @@ abstract class BaseApiV2Controller extends RestApiController implements Reposito
         return $this->toCamelCase("get_" . $str);
     }
 
+
     private function attributeToAdder($str) {
         $adder = $this->toCamelCase("add_" . $str);
         if(substr($adder,strlen($adder) - 3) === 'ies')
@@ -681,6 +750,15 @@ abstract class BaseApiV2Controller extends RestApiController implements Reposito
         if(substr($adder,strlen($adder) - 1) === 's')
             return substr($adder, 0, strlen($adder) - 1);
         return $adder;
+    }
+
+    private function attributeToDeleter($str) {
+        $deleter = $this->toCamelCase("del_" . $str);
+        if(substr($deleter,strlen($deleter) - 3) === 'ies')
+            return substr($deleter, 0, strlen($deleter) - 3) . 'y';
+        if(substr($deleter,strlen($deleter) - 1) === 's')
+            return substr($deleter, 0, strlen($deleter) - 1);
+        return $deleter;
     }
 
     /**
