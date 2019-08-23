@@ -39,11 +39,13 @@ class Neighbourhood extends AppObject implements Translatable, Localizable {
 
     /**
      * @ORM\Column(type="string", nullable=true)
+     * @Groups({"public"})
      */
     private $townhall_code;
 
     /**
      * @ORM\Column(type="json_array", nullable=true)
+     * @Groups({"public"})
      */
     private $bounds;
 
