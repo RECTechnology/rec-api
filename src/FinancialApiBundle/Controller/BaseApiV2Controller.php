@@ -451,7 +451,7 @@ abstract class BaseApiV2Controller extends RestApiController implements Reposito
                 }
             }
 
-            $setter = $this->attributeToSetter($name);
+            $setter = $this->getSetter($name);
 
             if (method_exists($entity, $setter)) {
                 call_user_func_array(array($entity, $setter), array($value));
@@ -616,7 +616,7 @@ abstract class BaseApiV2Controller extends RestApiController implements Reposito
             ->find($targetEntityId);
         if(empty($relatedEntity)) throw new HttpException(404, "Not found");
 
-        $adder = $this->attributeToAdder($relationship);
+        $adder = $this->getAdder($relationship);
 
         if (!method_exists($entity, $adder)) {
             throw new HttpException(400, "Bad request, parameter '$relationship' is invalid.");
@@ -680,7 +680,7 @@ abstract class BaseApiV2Controller extends RestApiController implements Reposito
             ->find($targetEntityId);
         if(empty($relatedEntity)) throw new HttpException(404, "Not found");
 
-        $deleter = $this->attributeToDeleter($relationship);
+        $deleter = $this->getDeleter($relationship);
 
         if (!method_exists($entity, $deleter)) {
             throw new HttpException(400, "Bad request, parameter '$relationship' is invalid. (method $deleter)");
@@ -734,26 +734,24 @@ abstract class BaseApiV2Controller extends RestApiController implements Reposito
     }
 
 
-    private function attributeToSetter($str) {
-        return $this->toCamelCase("set_" . $str);
+    private function getSetter($attribute) {
+        return $this->getModifier('set', $attribute);
     }
 
-    private function attributeToGetter($str) {
-        return $this->toCamelCase("get_" . $str);
+    private function getGetter($attribute) {
+        return $this->getModifier('get', $attribute);
     }
 
-
-    private function attributeToAdder($str) {
-        $adder = $this->toCamelCase("add_" . $str);
-        if(substr($adder,strlen($adder) - 3) === 'ies')
-            return substr($adder, 0, strlen($adder) - 3) . 'y';
-        if(substr($adder,strlen($adder) - 1) === 's')
-            return substr($adder, 0, strlen($adder) - 1);
-        return $adder;
+    private function getAdder($attribute) {
+        return $this->getModifier('add', $attribute);
     }
 
-    private function attributeToDeleter($str) {
-        $deleter = $this->toCamelCase("del_" . $str);
+    private function getDeleter($attribute) {
+        return $this->getModifier('del', $attribute);
+    }
+
+    private function getModifier($prefix, $attribute) {
+        $deleter = $this->toCamelCase($prefix . "_" . $attribute);
         if(substr($deleter,strlen($deleter) - 3) === 'ies')
             return substr($deleter, 0, strlen($deleter) - 3) . 'y';
         if(substr($deleter,strlen($deleter) - 1) === 's')
@@ -903,7 +901,7 @@ abstract class BaseApiV2Controller extends RestApiController implements Reposito
     }
 
     /**
-     * @param $result
+     * @param $element
      * @param null $locale
      * @return array
      */

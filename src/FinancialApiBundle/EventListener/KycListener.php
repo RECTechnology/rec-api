@@ -5,7 +5,6 @@
  * Date: 9/11/16
  * Time: 12:33
  */
-// src/AppBundle/EventListener/SearchIndexer.php
 namespace App\FinancialApiBundle\EventListener;
 
 use Blockchain\Exception\HttpError;
