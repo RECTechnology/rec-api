@@ -186,16 +186,18 @@ abstract class BaseApiV2Controller extends RestApiController implements Reposito
      * @return string|null
      */
     protected function getRequestLocale(){
-        /** @var RequestStack $request */
-        $request = $this->get("request_stack");
-        $method = $request->getCurrentRequest()->getMethod();
-        $headers = $request->getCurrentRequest()->headers;
+        /** @var RequestStack $stack */
+        $stack = $this->get("request_stack");
+        $request = $stack->getCurrentRequest();
+        $method = $request->getMethod();
+        $headers = $request->headers;
         if(in_array($method, ['POST', 'PUT']) && $headers->has('content-language')){
             return $headers->get('content-language');
         }
         elseif ($method === 'GET' && $headers->has('accept-language')){
             return $headers->get('accept-language');
         }
+        return $request->getDefaultLocale();
     }
 
     /**
