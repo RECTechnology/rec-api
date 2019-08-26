@@ -30,14 +30,14 @@ class CRUDController extends BaseApiV2Controller {
     const BASE_REPOSITORY_NAME = "FinancialApiBundle";
     const PATH_ENTITY_MAPPINGS = [
         'accounts' => 'Group',
-        'activities' => 'Activity',
         'treasure_withdrawals' => 'TreasureWithdrawalAttempt',
         'treasure_validations' => 'TreasureWithdrawalValidation',
     ];
 
-    function getRepositoryName()
-    {
+    function getRepositoryName() {
         $entityName = $this->getEntityName();
+        if(!class_exists('App\\FinancialApiBundle\\Entity\\' . $entityName))
+            throw new HttpException(404, "Route not found");
         return self::BASE_REPOSITORY_NAME . ":" . $entityName;
     }
 
@@ -55,7 +55,11 @@ class CRUDController extends BaseApiV2Controller {
         else {
             $nameConverter = new CamelCaseToSnakeCaseNameConverter(null, false);
             $camelCasedName = $nameConverter->denormalize($lowercase_pluralized_name);
-            return substr($camelCasedName, 0, strlen($camelCasedName) - 1);
+            if(substr($camelCasedName, strlen($camelCasedName) - 3) == 'ies')
+                return substr($camelCasedName, 0, strlen($camelCasedName) - 3) . 'y';
+            if(substr($camelCasedName, strlen($camelCasedName) - 1) == 's')
+                return substr($camelCasedName, 0, strlen($camelCasedName) - 1);
+            return $camelCasedName;
         }
 
     }

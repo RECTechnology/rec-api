@@ -44,7 +44,7 @@ class Mailing extends AppObject implements Translatable, Localizable {
     private $attachments;
 
     /**
-     * @ORM\ManyToMany(targetEntity="App\FinancialApiBundle\Entity\MailingDelivery", inversedBy="mailing")
+     * @ORM\OneToMany(targetEntity="App\FinancialApiBundle\Entity\MailingDelivery", mappedBy="mailing")
      * @Groups({"admin"})
      */
     private $deliveries;

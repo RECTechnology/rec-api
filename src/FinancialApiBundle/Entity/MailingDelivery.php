@@ -10,11 +10,13 @@ use Doctrine\ORM\Mapping as ORM;
 use Gedmo\Translatable\Translatable;
 use JMS\Serializer\Annotation as Serializer;
 use JMS\Serializer\Annotation\Groups;
+use Symfony\Bridge\Doctrine\Validator\Constraints\UniqueEntity;
 use Symfony\Component\Validator\Constraints as Assert;
 
 /**
  * Class Mailing
  * @package App\FinancialApiBundle\Entity
+ * @ORM\Table(uniqueConstraints={@ORM\UniqueConstraint(columns={"account_id", "mailing_id"})})
  * @ORM\Entity
  */
 class MailingDelivery extends AppObject {
@@ -27,7 +29,7 @@ class MailingDelivery extends AppObject {
 
     /**
      * @ORM\Column(type="string")
-     * @Assert\Regex(pattern="^(created|scheduled|sent|cancelled|errored)$")
+     * @Assert\Regex(pattern="(created|scheduled|sent|cancelled|errored)")
      * @Groups({"admin"})
      */
     private $status;
