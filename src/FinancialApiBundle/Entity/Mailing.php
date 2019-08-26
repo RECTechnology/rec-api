@@ -37,6 +37,12 @@ class Mailing extends AppObject implements Translatable, Localizable {
     private $content;
 
     /**
+     * @ORM\Column(type="boolean")
+     * @Groups({"admin"})
+     */
+    private $processed;
+
+    /**
      * @Gedmo\Translatable
      * @ORM\Column(type="json_array", nullable=true)
      * @Groups({"admin"})
@@ -58,6 +64,7 @@ class Mailing extends AppObject implements Translatable, Localizable {
      * Activity constructor.
      */
     public function __construct() {
+        $this->processed = false;
         $this->deliveries = new ArrayCollection();
     }
 
@@ -131,6 +138,22 @@ class Mailing extends AppObject implements Translatable, Localizable {
     public function setScheduledAt($scheduled_at): void
     {
         $this->scheduled_at = $scheduled_at;
+    }
+
+    /**
+     * @return mixed
+     */
+    public function getProcessed()
+    {
+        return $this->processed;
+    }
+
+    /**
+     * @param mixed $processed
+     */
+    public function setProcessed($processed): void
+    {
+        $this->processed = $processed;
     }
 
 }
