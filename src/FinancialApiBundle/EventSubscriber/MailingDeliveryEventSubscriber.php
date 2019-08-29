@@ -9,24 +9,24 @@ use App\FinancialApiBundle\Entity\Group;
 use App\FinancialApiBundle\Entity\Mailing;
 use App\FinancialApiBundle\Entity\MailingDelivery;
 use Doctrine\Common\EventSubscriber;
+use Doctrine\ORM\Event\LifecycleEventArgs;
 use Doctrine\ORM\Event\PreUpdateEventArgs;
 use Doctrine\ORM\Events;
+use Swift_Mailer;
 
 class MailingDeliveryEventSubscriber implements EventSubscriber {
 
-
-    /** @var MailgunWrapper */
-    private $mailgun;
+    /** @var Swift_Mailer */
+    private $mailer;
 
     /**
      * MailingDeliveryEventSubscriber constructor.
-     * @param MailgunWrapper $mailgun
+     * @param Swift_Mailer $mailer
      */
-    public function __construct(MailgunWrapper $mailgun)
+    public function __construct(Swift_Mailer $mailer)
     {
-        $this->mailgun = $mailgun;
+        $this->mailer = $mailer;
     }
-
 
     /**
      * Returns an array of events this subscriber wants to listen to.
@@ -37,25 +37,30 @@ class MailingDeliveryEventSubscriber implements EventSubscriber {
         return [Events::preUpdate];
     }
 
-    public function preUpdate(PreUpdateEventArgs $event){
-        $entity = $event->getEntity();
+    public function preUpdate(PreUpdateEventArgs $args){
+
+        $entity = $args->getEntity();
         if($entity instanceof MailingDelivery)
-            die("test");
-            if ($event->hasChangedField('status') && $event->getNewValue('status') == MailingDelivery::STATUS_SCHEDULED) {
+            if ($args->hasChangedField('status') && $args->getNewValue('status') == MailingDelivery::STATUS_SCHEDULED) {
                 /** @var Group $account */
                 $account = $entity->getAccount();
                 /** @var Mailing $mailing */
                 $mailing = $entity->getMailing();
 
-                $this->mailgun->send(
-                    null,
-                    $account->getEmail(),
+                $message = new \Swift_Message(
                     $mailing->getSubject(),
                     $mailing->getContent(),
-                    $mailing->getAttachments()
+                    'text/plain'
                 );
+
+                //$message->setTo($account->getEmail());
+                $message->setTo('lluis@qbitartifacts.com');
+                $message->setFrom('postmaster@sandbox45b8322153cb4d8898da8ad6e384be0b.mailgun.org');
+
+                $this->mailer->send($message);
+
                 $entity->setStatus(MailingDelivery::STATUS_SENT);
-                $event->getEntityManager()->persist($entity);
+                $args->getEntityManager()->persist($entity);
             }
     }
 

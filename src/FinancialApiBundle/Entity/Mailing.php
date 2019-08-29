@@ -57,6 +57,7 @@ class Mailing extends AppObject implements Translatable, Localizable {
 
     /**
      * @ORM\Column(type="datetime", nullable=true)
+     * @Groups({"admin"})
      */
     private $scheduled_at;
 
@@ -66,6 +67,7 @@ class Mailing extends AppObject implements Translatable, Localizable {
     public function __construct() {
         $this->processed = false;
         $this->deliveries = new ArrayCollection();
+        $this->attachments = [];
     }
 
     /**

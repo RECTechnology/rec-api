@@ -221,6 +221,11 @@ services:
         public: true
         tags: ['controller.service_arguments']
 
+    App\FinancialApiBundle\EventSubscriber\:
+      resource: '../../src/FinancialApiBundle/EventSubscriber'
+      public: true
+      tags: ['doctrine.event_subscriber']
+
     fos_user.doctrine_registry:
         alias: doctrine
 
