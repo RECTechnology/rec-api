@@ -12,20 +12,31 @@ use Doctrine\Common\EventSubscriber;
 use Doctrine\ORM\Event\LifecycleEventArgs;
 use Doctrine\ORM\Event\PreUpdateEventArgs;
 use Doctrine\ORM\Events;
+use Spipu\Html2Pdf\Exception\Html2PdfException;
+use Spipu\Html2Pdf\Html2Pdf;
+use Swift_Attachment;
 use Swift_Mailer;
+use Symfony\Component\HttpKernel\Exception\HttpException;
+use Symfony\Component\Templating\EngineInterface;
 
 class MailingDeliveryEventSubscriber implements EventSubscriber {
 
     /** @var Swift_Mailer */
     private $mailer;
+    /**
+     * @var EngineInterface
+     */
+    private $templating;
 
     /**
      * MailingDeliveryEventSubscriber constructor.
      * @param Swift_Mailer $mailer
+     * @param EngineInterface $templating
      */
-    public function __construct(Swift_Mailer $mailer)
+    public function __construct(Swift_Mailer $mailer, EngineInterface $templating)
     {
         $this->mailer = $mailer;
+        $this->templating = $templating;
     }
 
     /**
@@ -47,11 +58,32 @@ class MailingDeliveryEventSubscriber implements EventSubscriber {
                 /** @var Mailing $mailing */
                 $mailing = $entity->getMailing();
 
+                $content = $this->templating->render(
+                    'FinancialApiBundle:Email:rec_empty_email.html.twig',
+                    [
+                        'mail' => [
+                            'subject' => $mailing->getSubject(),
+                            'body' => $mailing->getContent(),
+                            'lang' => 'es'
+                        ],
+                        'app' => [
+                            'landing' => 'rec.barcelona'
+                        ]
+                    ]
+                );
+
                 $message = new \Swift_Message(
                     $mailing->getSubject(),
-                    $mailing->getContent(),
-                    'text/plain'
+                    $content,
+                    'text/html'
                 );
+
+
+                $message->attach(Swift_Attachment::newInstance(
+                    $pdf->output(null, 'S'),
+                    'rec_clients_and_providers_aug2019.pdf',
+                    'application/pdf'
+                ));
 
                 //$message->setTo($account->getEmail());
                 $message->setTo('lluis@qbitartifacts.com');

@@ -1,10 +1,20 @@
 
+##################### ACCOUNT / V3 / (OVERRIDES CRUD) ############################
 accounts_v3_search:
     path:  /{role}/v3/accounts/search
     defaults: { _controller: App\FinancialApiBundle\Controller\CRUD\AccountsController::searchAction }
     methods: [GET]
     requirements:
         role: "(public|user|manager|self|admin|sadmin)"
+
+accounts_v3_report_clients_providers:
+    path:  /{role}/v3/accounts/{id}/report_clients_providers
+    defaults: { _controller: App\FinancialApiBundle\Controller\CRUD\AccountsController::reportClientsAndProvidersAction }
+    methods: [GET]
+    requirements:
+        role: "(public|user|manager|self|admin|sadmin)"
+        id: "[0-9]+"
+
 
 ##################### CRUD / V3 ############################
 

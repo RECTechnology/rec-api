@@ -1,0 +1,87 @@
+<!DOCTYPE html>
+<html lang="{{ mail.lang }}">
+<head>
+    <title>{{ mail.subject }}</title>
+    <meta charset="UTF-8">
+
+    <style>
+
+        @import url(https://fonts.googleapis.com/css?family=Roboto:400,300,100);
+        h1,h2,h3,h4,h5,h6,p,a{
+            font-family: 'Roboto', sans-serif;
+        }
+        body{
+            margin: 0;
+            padding: 0;
+        }
+        header{
+            width: 700px;
+            margin: 0 auto;
+            /* Permalink - use to edit and share this gradient: http://colorzilla.com/gradient-editor/#218fec+48,1976cb+100 */
+            background: radial-gradient(ellipse at center,  #218fec 48%,#1976cb 100%); /* W3C, IE10+, FF16+, Chrome26+, Opera12+, Safari7+ */
+            filter: progid:DXImageTransform.Microsoft.gradient( startColorstr='#218fec', endColorstr='#1976cb',GradientType=1 ); /* IE6-9 fallback on horizontal gradient */
+        }
+        header img{
+            width: 200px;
+            padding: 20px 0 10px;
+            display: block;
+            margin: 0 auto;
+        }
+        h2{
+            font-weight: lighter;
+            text-align: center;
+            color: #fff;
+            background-color: #204d74;
+            margin: 10px 0 10px;
+        }
+        article{
+            width: 650px;
+            margin: 0 auto;
+            padding: 15px 0;
+        }
+        article p{
+            color: #4D4D4D;
+            font-size: 13px;
+            text-align: justify;
+        }
+        article div{
+            text-align: center;
+            margin: 40px 0;
+        }
+        article div p{
+            text-align: center;
+        }
+        article a{
+            color: #218FEC;
+        }
+
+        footer{
+            background: #4D4D4D;
+            width: 700px;
+            margin: 0 auto;
+            padding: 20px 0;
+        }
+        footer a{
+            color: #fff;
+            text-decoration: none;
+            text-align: center;
+            display: block;
+            font-weight: lighter;
+        }
+
+    </style>
+
+</head>
+<body>
+<header>
+    <img src="https://rec.barcelona/wp-content/uploads/2018/04/logog_REC_Blanc-300x72.png" alt="REC Logo">
+    <h2>{{ mail.subject }}</h2>
+</header>
+<article>
+    {{ mail.body | raw }}
+</article>
+<footer>
+    <a href="https://{{ app.landing }}/">{{ app.landing }}</a>
+</footer>
+</body>
+</html>

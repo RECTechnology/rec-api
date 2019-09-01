@@ -2,6 +2,8 @@
 
 namespace Test\FinancialApiBundle;
 
+use App\FinancialApiBundle\Entity\User;
+use App\FinancialApiBundle\Entity\Client as OAuthClient;
 use Doctrine\Bundle\DoctrineBundle\Command\CreateDatabaseDoctrineCommand;
 use Doctrine\Bundle\FixturesBundle\Command\LoadDataFixturesDoctrineCommand;
 use Doctrine\ORM\EntityManagerInterface;
@@ -26,6 +28,12 @@ abstract class BaseApiTest extends WebTestCase {
     /** @var Generator $faker */
     protected $faker;
 
+    /** @var array $token */
+    protected $token;
+
+    /** @var TestDataFactory $testFactory */
+    protected $testFactory;
+
     /**
      * @param string $method
      * @param string $url
@@ -38,6 +46,8 @@ abstract class BaseApiTest extends WebTestCase {
             'CONTENT_TYPE' => 'application/json',
             'HTTP_ACCEPT' => 'application/json'
         ];
+        if($this->token) $headers['HTTP_AUTHORIZATION'] = "Bearer {$this->token['access_token']}";
+
         if($content !== null) $content = json_encode($content);
         $client->request($method, $url, [], [], $headers, $content);
         $resp = $client->getResponse();
@@ -45,30 +55,40 @@ abstract class BaseApiTest extends WebTestCase {
         return $resp;
     }
 
-    protected function getUserClient(){
-
-    }
-
-    protected function getManagerClient(){
-
-    }
-
-    protected function getAdminClient(){
-        $client = $this->request();
-        self::assertContains(1, []);
-        return $client;
-    }
-
     /**
-     * @param Client $client
+     * @param $credentials
      */
-    protected function logIn(Client $client, $oauthCredentials){
-        $client->request('POST', '/oauth/v2/token', null, null, null, []);
+    protected function logIn($credentials){
+        $oauthClient = $this->testFactory->getOAuthClient();
+        $content = [
+            'client_id' => $oauthClient->getPublicId(),
+            'client_secret' => $oauthClient->getSecret(),
+            'grant_type' => 'password',
+            'username' => $credentials['username'],
+            'password' => $credentials['password']
+        ];
+
+        $resp = $this->request('POST', '/oauth/v2/token', $content);
+        self::assertEquals(
+            200,
+            $resp->getStatusCode(),
+            "status_code: {$resp->getStatusCode()} content: {$resp->getContent()}"
+        );
+        self::assertEquals('application/json', $resp->headers->get('Content-Type'));
+        $this->token = json_decode($resp->getContent(), true);
+    }
+
+
+    protected static function debug($stuff){
+        die(print_r($stuff, true));
+    }
+
+    protected function logOut(){
+        $this->token = null;
     }
 
     /**
      * @param Client $client
-     * @throws ToolsException
      * @throws \Exception
      */
     protected function clearDatabase(Client $client){
@@ -112,7 +132,6 @@ abstract class BaseApiTest extends WebTestCase {
     }
 
     /**
-     * @throws ToolsException
      * @throws \Exception
      */
     protected function setUp(): void
@@ -120,6 +139,7 @@ abstract class BaseApiTest extends WebTestCase {
         parent::setUp();
         $this->faker = Factory::create();
         $client = static::createClient();
+        $this->testFactory = new TestDataFactory($client);
         $this->clearDatabase($client);
         $this->loadFixtures($client);
     }

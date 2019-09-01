@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>REC Clients and Providers by Product</title>
+</head>
+<body>
+    <h1>REC Clients and Providers by Product</h1>
+    <h2>Account Details:</h2>
+    <p>
+        {% with {'account': account} %}
+            {{ block('show_account', 'FinancialApiBundle:Pdf:show_account.html.twig') }}
+        {% endwith %}
+    </p>
+    <h3>Clients found ({{ account.producingProducts | length }})</h3>
+        <ul>
+            {% for product in account.producingProducts %}
+                <li>
+                    <strong>{{ product.name | trans }}</strong> ~ <em>{{ product.description }}</em>
+                    <ul>
+                        {% for client in product.consumingBy %}
+                            <li>
+                                {% with {'account': client} %}
+                                    {{ block('show_account', 'FinancialApiBundle:Pdf:show_account.html.twig') }}
+                                {% endwith %}
+                            </li>
+                        {% endfor %}
+                    </ul>
+                </li>
+            {% endfor %}
+        </ul>
+    <h3>Providers found ({{ account.consumingProducts | length }})</h3>
+    <ul>
+        {% for product in account.consumingProducts %}
+            <li>
+                <b>{{ product.name }}:</b>
+                <ul>
+                    {% for provider in product.producingBy %}
+                        <li>
+                            {% with {'account': provider} %}
+                                {{ block('show_account', 'FinancialApiBundle:Pdf:show_account.html.twig') }}
+                            {% endwith %}
+                        </li>
+                    {% endfor %}
+                </ul>
+            </li>
+        {% endfor %}
+    </ul>
+</body>
+</html>

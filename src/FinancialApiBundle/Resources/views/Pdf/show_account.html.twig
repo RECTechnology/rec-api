@@ -1,0 +1,8 @@
+{% block show_account %}
+    <strong>Name:</strong> <em>{{ account.name }}</em><br />
+    <strong>Phone:</strong> <em>+{{ account.prefix }} {{ account.phone }}</em><br />
+    <strong>Email:</strong> <em>{{ account.email }}</em><br />
+    {% if account.neighbourhood %}
+        <strong>Neighbourhood:</strong> <em>{{ account.neighbourhood.name }}</em>
+    {% endif %}
+{% endblock %}

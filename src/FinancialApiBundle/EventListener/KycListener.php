@@ -7,6 +7,8 @@
  */
 namespace App\FinancialApiBundle\EventListener;
 
+use App\FinancialApiBundle\Entity\Client;
+use App\FinancialApiBundle\Entity\UserGroup;
 use Blockchain\Exception\HttpError;
 use Doctrine\ORM\Event\LifecycleEventArgs;
 use OAuth2\OAuth2;
@@ -51,7 +53,6 @@ class KycListener {
         if ($entity instanceof KYC) {
             $this->logger->info('POST-UPDATE Kyc_Listener CHANGES');
             $changeset = $uow->getEntityChangeSet($entity);
-            $this->_notifyKYCChanges($changeset, $entity);
             return;
         }
 
@@ -132,101 +133,51 @@ class KycListener {
 
         if ($entity instanceof AccessToken) {
 
-            $user = $entity->getUser();
-            //checkear que la company del client esta activa si no fuera
-            if($entity->getClient()->getGroup()->getActive() == false){
-                throw new HttpException(403, 'This company is disabled, please contact support.');
+            //chequear que la company del client esta activa si no fuera
+            /** @var Client $client */
+            $client = $entity->getClient();
+            if($client->getGroup()->getActive() === false){
+                throw new HttpException(403, 'This account is disabled, please contact support.');
             }
             //si la company esta activa y grant_type = password -> si la company del user no esta activa fuera si esta activa pa dentro
 
+            /** @var User $user */
+            $user = $entity->getUser();
+
             if($user && !$user->isKYC()){
                 $this->logger->info('user id : '.$user->getId().' '.$user->getRoles()[0]);
-                $companies = $user->getGroups();
+                $accounts = $user->getGroups();
                 //if user is authenticated with password
-                $activeCompany = $user->getActiveGroup();
-                if(!$activeCompany){
-                    foreach ($companies as $company){
-                        $user->setActiveGroup($company);
+                $activeAccount = $user->getActiveGroup();
+                if(!$activeAccount){
+                    $this->logger->warn('No active account, setting active groups to all accounts... ' . count($accounts));
+                    foreach ($accounts as $account){
+                        $user->setActiveGroup($account);
                         $entityManager->flush();
                         break;
                     }
 
                 }
-                $this->logger->info('pre-insert check locked company');
-                if(!$activeCompany->getActive()){
+                $this->logger->info('pre-insert check locked account');
+                if(!$activeAccount->getActive()){
 
-                    $changed = 0;
-                    foreach ($companies as $company){
-                        if($company->getId() != $activeCompany->getId() && $company->getActive()){
-                            $user->setActiveGroup($company);
+                    $changed = false;
+                    foreach ($accounts as $account){
+                        if($account->getId() != $activeAccount->getId() && $account->getActive()){
+                            $user->setActiveGroup($account);
                             $entityManager->flush();
-                            $changed = 1;
+                            $changed = true;
                             break;
                         }
                     }
-                    if($changed == 0) throw new HttpException(403, 'This company is disabled, please contact support.');
+                    if($changed) throw new HttpException(403, 'This account is disabled, please contact support.');
                 }
             }
             return;
         }
     }
 
-    private function _notifyKYCChanges($changeset, KYC $kyc){
-/*
-        $this->logger->info('_notifyKYCChanges');
-        $user = $kyc->getUser();
-        $active_group = $user->getActiveGroup();
-        if(!$active_group){
-            $em = $this->container->get('doctrine')->getManager();
-            $reseller = $em->getRepository('FinancialApiBundle:Group')->find($this->container->getParameter('id_group_root'));
-        }else{
-            $this->logger->info('_notifyKYCChanges '.$active_group->getId());
-            $reseller = $active_group->getGroupCreator();
-            $this->logger->info('_notifyKYCChanges '.$reseller->getId());
-        }
-
-        if(isset($changeset['tier1_status'])){
-            $this->logger->info('TIER 1 from :'.$changeset['tier1_status'][0].' to '.$changeset['tier1_status'][1]);
-            switch ($kyc->getTier1Status()){
-                case 'approved':
-                    //DO something
-                    //subir de tier a todas las companies
-                    $this->_uploadTierCompanies($kyc, 1, $reseller);
-                    $this->logger->info('TIER 1 : uploadTierCompanies');
-                    break;
-                case 'denied':
-                    $this->_sendEmail('Update KYC denied', $kyc->getUser()->getEmail(), '', $kyc, 0, 'denied', $reseller );
-                    $this->logger->info('TIER 1 : send email to user: '.$kyc->getUser()->getEmail());
-                    break;
-                case 'pending':
-                    //notify admins
-                    $this->logger->info('TIER 1 : notify pending request');
-                    $this->_sendEmail('Update KYC required', 'kyc@robotunion.org', '', $kyc, 1 , 'pending', $reseller);
-
-            }
-        }
-
-        if(isset($changeset['tier2_status'])){
-            $this->logger->info('TIER 2 FROM :'.$changeset['tier2_status'][0].' TO '.$changeset['tier2_status'][0]);
-            switch ($kyc->getTier2Status()){
-                case 'approved':
-                    //DO something
-                    //subir de tier a todas las companies
-                    $this->_uploadTierCompanies($kyc, 2, $reseller);
-                    break;
-                case 'denied':
-                    $this->_sendEmail('Update KYC denied', $kyc->getUser()->getEmail(), '', $kyc, 1, 'denied', $reseller );
-                    break;
-                case 'pending':
-                    //TODO notify admins
-                    $this->_sendEmail('Update KYC required', 'kyc@robotunion.org', '', $kyc, 2 , 'pending', $reseller);
-            }
-        }
-    */
-    }
-
     private function _uploadTierCompanies(KYC $kyc, $tier, Group $reseller){
-
         //search all comanies with this kyc_manager
         $em = $this->container->get('doctrine')->getManager();
         $companies = $em->getRepository('FinancialApiBundle:Group')->findBy(array(
@@ -238,10 +189,5 @@ class KycListener {
             $company->setTier($tier);
             $em->flush();
         }
-
-        //notify to this kyc manager all companies updated
-        //$this->_sendEmail('Update KYC accepted', $kyc->getUser()->getEmail(), $companies, $kyc, $tier, 'accepted', $reseller );
-        //notify admin all companies updated
-        //$this->_sendEmail('Update KYC accepted', 'kyc@robotunion.org', $companies, $kyc, $tier , 'accepted', $reseller);
     }
 }

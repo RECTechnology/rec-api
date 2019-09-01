@@ -6,10 +6,15 @@ use Doctrine\ORM\EntityManagerInterface;
 use Doctrine\ORM\NonUniqueResultException;
 use Doctrine\ORM\NoResultException;
 use Doctrine\ORM\QueryBuilder;
+use Spipu\Html2Pdf\Exception\Html2PdfException;
+use Spipu\Html2Pdf\Html2Pdf;
+use Symfony\Component\HttpFoundation\Response;
+use Symfony\Component\HttpFoundation\ResponseHeaderBag;
 use Symfony\Component\HttpKernel\Exception\HttpException;
 use App\FinancialApiBundle\Entity\Group;
 use Symfony\Component\HttpFoundation\Request;
 use App\FinancialApiBundle\Entity\Offer;
+use Symfony\Component\Templating\EngineInterface;
 
 /**
  * Class AccountsController
@@ -29,7 +34,6 @@ class AccountsController extends CRUDController {
     /**
      * @param Request $request
      * @return array
-     * @throws NoResultException
      * @throws NonUniqueResultException
      */
     public function search(Request $request){
@@ -124,4 +128,42 @@ class AccountsController extends CRUDController {
         return [intval($total), $elements];
     }
 
+
+    /**
+     * @param Request $request
+     * @param $role
+     * @param $id
+     * @param EngineInterface $templating
+     * @return Response
+     */
+    public function reportClientsAndProvidersAction(Request $request, $role, $id, EngineInterface $templating){
+        $this->checkPermissions($role, self::CRUD_METHOD_SHOW);
+
+        $lang = $this->getRequestLocale();
+
+        /** @var Group $account */
+        $account = $this->getRepository()->find($id);
+
+        $pdfContent = $templating->render(
+            'FinancialApiBundle:Pdf:product_clients_and_providers.html.twig',
+            ['account' => $account]
+        );
+
+        $pdf = new Html2Pdf();
+        $pdf->writeHTML($pdfContent);
+
+        try {
+            return new Response(
+                $pdf->output(null, 'S'),
+                200,
+                [
+                    'Content-Type' => 'application/pdf',
+                    'Content-Disposition' => ResponseHeaderBag::DISPOSITION_INLINE
+                ]
+            );
+        } catch (Html2PdfException $e) {
+            throw new HttpException(400, "Invalid pdf requested: ".  $e->getMessage(), $e);
+        }
+
+    }
 }

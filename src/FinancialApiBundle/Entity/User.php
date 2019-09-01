@@ -626,12 +626,12 @@ class User extends BaseUser implements EntityWithUploadableFields {
      */
     public function getGroups()
     {
-        $groups = new ArrayCollection();
+        $accounts = new ArrayCollection();
 
-        foreach($this->groups as $Usergroup){
-            $groups->add($Usergroup->getGroup());
+        foreach($this->groups as $accountsRelationship){
+            $accounts->add($accountsRelationship->getGroup());
         }
-        return $groups;
+        return $accounts;
     }
 
     public function getGroupNames()

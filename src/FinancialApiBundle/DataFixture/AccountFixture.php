@@ -3,13 +3,16 @@
 
 namespace App\FinancialApiBundle\DataFixture;
 
+use App\FinancialApiBundle\Entity\KYC;
 use App\FinancialApiBundle\Entity\User;
+use App\FinancialApiBundle\Entity\UserGroup;
 use Doctrine\Bundle\FixturesBundle\Fixture;
+use Doctrine\Common\DataFixtures\DependentFixtureInterface;
 use Doctrine\Common\Persistence\ObjectManager;
 use App\FinancialApiBundle\Entity\Group as Account;
 use Faker\Factory;
 
-class AccountFixture extends Fixture {
+class AccountFixture extends Fixture implements DependentFixtureInterface {
 
     /**
      * Load data fixtures with the passed EntityManager
@@ -26,11 +29,28 @@ class AccountFixture extends Fixture {
         $account->setMethodsList(['rec']);
         $account->setCif('B' . $faker->shuffle('01234567'));
         $account->setActive(true);
+        $account->setRoles([]);
+
+        $users = $manager->getRepository(User::class)->findAll();
+        $account->setKycManager($users[0]);
 
         /** @var User $user */
-        $user = $manager->getRepository(User::class)->findOneBy(['username' => 'user_user']);
-        $account->setKycManager($user);
-        $manager->persist($account);
+        foreach ($users as $user) {
+            $userGroup = new UserGroup();
+            $userGroup->setGroup($account);
+            $userGroup->setUser($user);
+            $userGroup->setRoles(['ROLE_ADMIN']);
+
+            $kyc = new KYC();
+            $kyc->setUser($user);
+            $kyc->setName($user->getName());
+            $kyc->setEmail($user->getEmail());
+
+            $manager->persist($kyc);
+            $manager->persist($account);
+            $manager->persist($user);
+            $manager->persist($userGroup);
+        }
         $manager->flush();
     }
 
