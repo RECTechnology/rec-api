@@ -125,7 +125,7 @@ abstract class BaseApiV2Controller extends RestApiController implements Reposito
             if (!$auth->isGranted($grants[$method]))
                 throw new HttpException(
                     Response::HTTP_FORBIDDEN,
-                    "Insufficient permissions to $method this resource"
+                    "Insufficient permissions to $method this resource."
                 );
         }
         elseif(!$tokenStorage->getToken())
@@ -735,8 +735,8 @@ abstract class BaseApiV2Controller extends RestApiController implements Reposito
 
 
     private function toCamelCase($str) {
-        $func = create_function('$c', 'return strtoupper($c[1]);');
-        return preg_replace_callback('/_([a-z])/', $func, $str);
+        $nameConverter = new CamelCaseToSnakeCaseNameConverter(null, false);
+        return $nameConverter->denormalize($str);
     }
 
 

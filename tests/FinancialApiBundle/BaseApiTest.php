@@ -40,7 +40,7 @@ abstract class BaseApiTest extends WebTestCase {
      * @param array|null $content
      * @return Response
      */
-    protected function request(string $method, string $url, array $content = null){
+    protected function request(string $method, string $url, array $content = null) {
         $client = static::createClient();
         $headers = [
             'CONTENT_TYPE' => 'application/json',
@@ -50,7 +50,17 @@ abstract class BaseApiTest extends WebTestCase {
 
         if($content !== null) $content = json_encode($content);
         $client->request($method, $url, [], [], $headers, $content);
-        $resp = $client->getResponse();
+        return $client->getResponse();
+    }
+
+    /**
+     * @param string $method
+     * @param string $url
+     * @param array|null $content
+     * @return Response
+     */
+    protected function requestJson(string $method, string $url, array $content = null) {
+        $resp = $this->request($method, $url, $content);
         self::assertJson($resp->getContent());
         return $resp;
     }

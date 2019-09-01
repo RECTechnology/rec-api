@@ -29,7 +29,7 @@ class AccountFixture extends Fixture implements DependentFixtureInterface {
         $account->setMethodsList(['rec']);
         $account->setCif('B' . $faker->shuffle('01234567'));
         $account->setActive(true);
-        $account->setRoles([]);
+        $account->setRoles(['ROLE_SUPER_ADMIN', 'ROLE_ADMIN']);
 
         $users = $manager->getRepository(User::class)->findAll();
         $account->setKycManager($users[0]);

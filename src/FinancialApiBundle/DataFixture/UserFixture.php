@@ -52,9 +52,7 @@ class UserFixture extends Fixture {
         $user->setPrefix('34');
         $user->setPublicPhone(true);
         $user->setEnabled(true);
-        foreach ($roles as $role) {
-            $user->addRole($role);
-        }
+        $user->setRoles($roles);
         return $user;
     }
 }

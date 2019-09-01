@@ -20,7 +20,7 @@ class NeighbourhoodTest extends BaseApiTest implements CrudV3TestInterface {
 
     function testIndex()
     {
-        $resp = $this->request('GET', '/admin/v3/neighbourhoods');
+        $resp = $this->requestJson('GET', '/admin/v3/neighbourhoods');
         self::assertEquals(
             200,
             $resp->getStatusCode(),
@@ -30,22 +30,46 @@ class NeighbourhoodTest extends BaseApiTest implements CrudV3TestInterface {
 
     function testExport()
     {
-        // TODO: Implement testExport() method.
+        $resp = $this->request('GET', '/admin/v3/neighbourhoods/export');
+        self::assertEquals(
+            200,
+            $resp->getStatusCode(),
+            "status_code: {$resp->getStatusCode()} content: {$resp->getContent()}"
+        );
     }
 
     function testSearch()
     {
-        // TODO: Implement testSearch() method.
+        $resp = $this->request('GET', '/admin/v3/neighbourhoods/search');
+        self::assertEquals(
+            200,
+            $resp->getStatusCode(),
+            "status_code: {$resp->getStatusCode()} content: {$resp->getContent()}"
+        );
     }
 
     function testShow()
     {
-        // TODO: Implement testShow() method.
+        $resp = $this->request('GET', '/admin/v3/neighbourhoods/1');
+        self::assertEquals(
+            404,
+            $resp->getStatusCode(),
+            "status_code: {$resp->getStatusCode()} content: {$resp->getContent()}"
+        );
     }
 
     function testCreate()
     {
-        // TODO: Implement testCreate() method.
+        $resp = $this->request(
+            'POST',
+            '/admin/v3/neighbourhoods',
+            ['name' => 'test neighbourhood']
+        );
+        self::assertEquals(
+            201,
+            $resp->getStatusCode(),
+            "status_code: {$resp->getStatusCode()} content: {$resp->getContent()}"
+        );
     }
 
     function testUpdate()
