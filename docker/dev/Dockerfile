@@ -16,7 +16,8 @@ RUN apt update && apt install -y \
     python3-pip \
     composer \
     jq \
-    phpunit
+    phpunit \
+    php-xdebug
 
 # To have composer cache
 RUN mkdir /.composer && chmod -R 777 /.composer

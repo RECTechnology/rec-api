@@ -60,25 +60,56 @@ class NeighbourhoodTest extends BaseApiTest implements CrudV3TestInterface {
 
     function testCreate()
     {
-        $resp = $this->request(
-            'POST',
-            '/admin/v3/neighbourhoods',
-            ['name' => 'test neighbourhood']
-        );
+        $name = 'test neighbourhood';
+        $resp = $this->createNeighbourhood($name);
         self::assertEquals(
             201,
             $resp->getStatusCode(),
             "status_code: {$resp->getStatusCode()} content: {$resp->getContent()}"
         );
+        self::assertEquals($name, json_decode($resp->getContent())->data->name);
+    }
+
+    function createNeighbourhood($name){
+        return $this->requestJson(
+            'POST',
+            '/admin/v3/neighbourhoods',
+            ['name' => $name]
+        );
     }
 
     function testUpdate()
     {
-        // TODO: Implement testUpdate() method.
+        $resp = $this->createNeighbourhood("initial name");
+        $nhId = json_decode($resp->getContent())->data->id;
+
+        $name = "changed name";
+        $resp = $this->requestJson(
+            'PUT',
+            '/admin/v3/neighbourhoods/' . $nhId,
+            ['name' => $name]
+        );
+        self::assertEquals(
+            200,
+            $resp->getStatusCode(),
+            "status_code: {$resp->getStatusCode()} content: {$resp->getContent()}"
+        );
+        self::assertEquals($name, json_decode($resp->getContent())->data->name);
     }
 
     function testDelete()
     {
-        // TODO: Implement testDelete() method.
+        $resp = $this->createNeighbourhood("test name");
+        $nhId = json_decode($resp->getContent())->data->id;
+
+        $resp = $this->request(
+            'DELETE',
+            '/admin/v3/neighbourhoods/' . $nhId
+        );
+        self::assertEquals(
+            200,
+            $resp->getStatusCode(),
+            "status_code: {$resp->getStatusCode()} content: {$resp->getContent()}"
+        );
     }
 }
