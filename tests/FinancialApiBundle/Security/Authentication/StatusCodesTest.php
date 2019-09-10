@@ -1,6 +1,6 @@
 <?php
 
-namespace Test\FinancialApiBundle\Security\Perimeter;
+namespace Test\FinancialApiBundle\Security\Authentication;
 
 use Symfony\Bundle\FrameworkBundle\Client;
 use Symfony\Component\Routing\Route;
@@ -9,7 +9,7 @@ use Symfony\Component\Routing\RouterInterface;
 
 /**
  * Class StatusCodesTest
- * @package Test\FinancialApiBundle\Security\Perimeter
+ * @package Test\FinancialApiBundle\Security\Authentication
  */
 class StatusCodesTest extends BaseApiTest {
 

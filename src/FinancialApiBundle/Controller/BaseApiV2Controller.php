@@ -57,6 +57,8 @@ abstract class BaseApiV2Controller extends RestApiController implements Reposito
     const HTTP_STATUS_CODE_OK = 200;
     const HTTP_STATUS_CODE_CREATED = 201;
 
+    const GET_MAX_LIMIT = 500;
+
     const CRUD_METHOD_SEARCH = "SEARCH";
     const CRUD_METHOD_EXPORT = "EXPORT";
     const CRUD_METHOD_INDEX = 'INDEX';
@@ -69,19 +71,16 @@ abstract class BaseApiV2Controller extends RestApiController implements Reposito
     const ROLE_MANAGER = "ROLE_MANAGER";
     const ROLE_ADMIN = "ROLE_ADMIN";
     const ROLE_USER = "ROLE_USER";
-    const ROLE_SELF = "ROLE_SELF";
     const ROLE_PUBLIC = "ROLE_PUBLIC";
 
     const ROLE_PATH_MAPPINGS = [
         'public' => self::ROLE_PUBLIC,
         'user' => self::ROLE_USER,
         'manager' => self::ROLE_MANAGER,
-        'self' => self::ROLE_SELF,
         'admin' => self::ROLE_ADMIN,
         'sadmin' => self::ROLE_SUPER_ADMIN,
     ];
 
-    const GET_MAX_LIMIT = 500;
 
     /**
      * @return ObjectRepository
@@ -206,7 +205,6 @@ abstract class BaseApiV2Controller extends RestApiController implements Reposito
      * @param $targetId
      * @return object|null
      * @throws AnnotationException
-     * @throws ReflectionException
      */
     private function findRelatedObjectWithRelId($relationshipNameWithId, $targetId){
 
@@ -225,31 +223,34 @@ abstract class BaseApiV2Controller extends RestApiController implements Reposito
      * @param $propertyName
      * @return object|null
      * @throws AnnotationException
-     * @throws ReflectionException
      */
     private function getRelatedEntity($propertyName){
 
         $className = $this->getRepository()->getClassName();
         if(!property_exists($className, $propertyName))
             throw new HttpException(400, "Bad request, parameter '$propertyName' is invalid.");
-        $reflectionProperty = new ReflectionProperty($className, $propertyName);
-        $ar = new AnnotationReader();
-        $propertyAnnotations = $ar->getPropertyAnnotations($reflectionProperty);
+        try {
+            $reflectionProperty = new ReflectionProperty($className, $propertyName);
+            $ar = new AnnotationReader();
+            $propertyAnnotations = $ar->getPropertyAnnotations($reflectionProperty);
 
-        $rel = false;
-        foreach ($propertyAnnotations as $an){
-            if($an instanceof ManyToMany or $an instanceof ManyToOne or $an instanceof OneToOne or $an instanceof OneToMany){
-                $rel = $an;
-                break;
+            $rel = false;
+            foreach ($propertyAnnotations as $an){
+                if($an instanceof ManyToMany or $an instanceof ManyToOne or $an instanceof OneToOne or $an instanceof OneToMany){
+                    $rel = $an;
+                    break;
+                }
             }
+
+            if(!$rel) throw new HttpException(
+                Response::HTTP_BAD_REQUEST,
+                "Unrelated parameter"
+            );
+            return $rel->targetEntity;
+
+        } catch (ReflectionException $e) {
+            throw new HttpException(400, "Bad request, parameter '$propertyName' is invalid.");
         }
-
-        if(!$rel) throw new HttpException(
-            Response::HTTP_BAD_REQUEST,
-            "Unrelated parameter"
-        );
-
-        return $rel->targetEntity;
     }
 
     /**
@@ -427,7 +428,6 @@ abstract class BaseApiV2Controller extends RestApiController implements Reposito
      * @param $params
      * @return Response
      * @throws AnnotationException
-     * @throws ReflectionException
      */
     private function setAction($entity, $params){
 
@@ -444,16 +444,20 @@ abstract class BaseApiV2Controller extends RestApiController implements Reposito
                 $name = substr($name, 0, strlen($name) - 3);
             }
             else {
-                $reflectionProperty = new ReflectionProperty($this->getRepository()->getClassName(), $name);
-                $propertyAnnotations = $ar->getPropertyAnnotations($reflectionProperty);
+                try {
+                    $reflectionProperty = new ReflectionProperty($this->getRepository()->getClassName(), $name);
+                    $propertyAnnotations = $ar->getPropertyAnnotations($reflectionProperty);
 
-                foreach ($propertyAnnotations as $an){
-                    if($an instanceof ManyToMany || $an instanceof ManyToOne || $an instanceof OneToOne){
-                        throw new HttpException(400, "Use suffix '_id' to set related properties: '${name}_id': $value");
+                    foreach ($propertyAnnotations as $an){
+                        if($an instanceof ManyToMany || $an instanceof ManyToOne || $an instanceof OneToOne){
+                            throw new HttpException(400, "Use suffix '_id' to set related properties: '${name}_id': $value");
+                        }
+                        elseif($an instanceof Column && $an->type == 'datetime'){
+                            $value = DateTime::createFromFormat(DateTime::ISO8601 , $value);
+                        }
                     }
-                    elseif($an instanceof Column && $an->type == 'datetime'){
-                        $value = DateTime::createFromFormat(DateTime::ISO8601 , $value);
-                    }
+                } catch (ReflectionException $e) {
+                    throw new HttpException(400, "Invalid parameter '$name'");
                 }
             }
 
@@ -492,7 +496,9 @@ abstract class BaseApiV2Controller extends RestApiController implements Reposito
             if(preg_match('/1062 Duplicate entry/i',$e->getMessage()))
                 throw new HttpException(409, "Duplicated resource");
             else if(preg_match('/1048 Column/i',$e->getMessage()))
-                throw new HttpException(400, "Bad parameters: " . $e->getMessage());
+                throw new HttpException(400, "Parameter(s) not allowed");
+            else if(preg_match('/NOT NULL constraint failed/i', $e->getMessage()))
+                throw new HttpException(400, "Missed parameter(s)");
             throw new HttpException(500, "Unknown error occurred when save: " . $e->getMessage());
         }
     }
@@ -502,7 +508,6 @@ abstract class BaseApiV2Controller extends RestApiController implements Reposito
      * @param $role
      * @return Response
      * @throws AnnotationException
-     * @throws ReflectionException
      */
     protected function createAction(Request $request, $role){
         $this->checkPermissions($role, self::CRUD_METHOD_CREATE);
@@ -520,7 +525,6 @@ abstract class BaseApiV2Controller extends RestApiController implements Reposito
      * @param Request $request
      * @return Response
      * @throws AnnotationException
-     * @throws ReflectionException
      */
     public function create(Request $request){
         $entity = $this->getNewEntity();
@@ -536,7 +540,6 @@ abstract class BaseApiV2Controller extends RestApiController implements Reposito
      * @param $id
      * @return Response
      * @throws AnnotationException
-     * @throws ReflectionException
      */
     protected function updateAction(Request $request, $role, $id){
         $this->checkPermissions($role, self::CRUD_UPDATE);
@@ -556,7 +559,6 @@ abstract class BaseApiV2Controller extends RestApiController implements Reposito
      * @param $id
      * @return object|null
      * @throws AnnotationException
-     * @throws ReflectionException
      */
     public function update(Request $request, $id){
         if(empty($id)) throw new HttpException(400, "Missing parameter 'id'");
@@ -580,7 +582,6 @@ abstract class BaseApiV2Controller extends RestApiController implements Reposito
      * @param $relationship
      * @return Response
      * @throws AnnotationException
-     * @throws ReflectionException
      */
     protected function addRelationshipAction(Request $request, $role, $id, $relationship){
         $this->checkPermissions($role, self::CRUD_UPDATE);
@@ -601,7 +602,6 @@ abstract class BaseApiV2Controller extends RestApiController implements Reposito
      * @param $relationship
      * @return object|null
      * @throws AnnotationException
-     * @throws ReflectionException
      */
     public function addRelationship(Request $request, $id, $relationship){
         if(empty($id)) throw new HttpException(400, "Missing URL parameter 'id'");
@@ -639,11 +639,11 @@ abstract class BaseApiV2Controller extends RestApiController implements Reposito
     /**
      * @param Request $request
      * @param $role
-     * @param $id
+     * @param $id1
      * @param $relationship
+     * @param $id2
      * @return Response
      * @throws AnnotationException
-     * @throws ReflectionException
      */
     protected function deleteRelationshipAction(Request $request, $role, $id1, $relationship, $id2){
         $this->checkPermissions($role, self::CRUD_DELETE);
@@ -665,7 +665,6 @@ abstract class BaseApiV2Controller extends RestApiController implements Reposito
      * @param $id2
      * @return object|null
      * @throws AnnotationException
-     * @throws ReflectionException
      */
     public function deleteRelationship(Request $request, $id1, $relationship, $id2){
         if(empty($id1)) throw new HttpException(400, "Missing URL parameter 'id1'");

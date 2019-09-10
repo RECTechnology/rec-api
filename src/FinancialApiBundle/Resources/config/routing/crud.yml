@@ -15,7 +15,6 @@ accounts_v3_report_clients_providers:
         role: "(public|user|manager|self|admin|sadmin)"
         id: "[0-9]+"
 
-
 ##################### CRUD / V3 ############################
 
 crud_v3_search:

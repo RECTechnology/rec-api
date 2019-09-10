@@ -25,6 +25,27 @@ use Symfony\Component\HttpFoundation\Response;
 
 abstract class BaseApiTest extends WebTestCase {
 
+    const CRUD_V3_ROUTES = [
+        'neighbourhoods',
+        'activities',
+        'product_kinds',
+        'users',
+        'accounts',
+        'categories',
+        'delegated_changes',
+        'delegated_change_data',
+        'treasure_withdrawals',
+        'treasure_validations',
+        'access_tokens',
+        'clients',
+        'cash_in_deposits',
+        'user_wallets',
+        'limit_counts',
+        'limit_definitions',
+        'mailings',
+        'mailing_deliveries',
+    ];
+
     /** @var Generator $faker */
     protected $faker;
 
@@ -68,7 +89,7 @@ abstract class BaseApiTest extends WebTestCase {
     /**
      * @param $credentials
      */
-    protected function logIn($credentials){
+    protected function signIn($credentials){
         $oauthClient = $this->testFactory->getOAuthClient();
         $content = [
             'client_id' => $oauthClient->getPublicId(),

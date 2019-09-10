@@ -36,10 +36,9 @@ class TreasureWithdrawalAttempt extends AppObject {
      */
     public function __construct()
     {
-        parent::__construct();
         $this->validations = new ArrayCollection();
-        $expirationInterval = DateInterval::createfromdatestring(self::TREASURE_WITHDRAWAL_EXPIRATION_INTERVAL);
-        $this->expires_at = $this->getCreated()->add($expirationInterval);
+        //$expirationInterval = DateInterval::createfromdatestring(self::TREASURE_WITHDRAWAL_EXPIRATION_INTERVAL);
+        //$this->expires_at = $this->getCreated()->add($expirationInterval);
     }
 
     /**
@@ -54,7 +53,7 @@ class TreasureWithdrawalAttempt extends AppObject {
     private $amount;
 
     /**
-     * @ORM\Column(type="datetime")
+     * @ORM\Column(type="datetime", nullable=true)
      * @Expose()
      */
     private $expires_at;
