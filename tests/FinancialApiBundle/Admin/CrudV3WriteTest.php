@@ -25,24 +25,26 @@ class CrudV3WriteTest extends BaseApiTest implements CrudV3WriteTestInterface {
         $this->signIn(UserFixture::TEST_ADMIN_CREDENTIALS);
     }
 
-    private function createObject($path, $name){
-        return $this->requestJson(
+    private function createNamedObjectAsAdmin($path, $name){
+        $route = '/admin/v3/' . $path;
+        $resp = $this->requestJson(
             'POST',
-            '/admin/v3/' . $path,
+            $route,
             ['name' => $name]
         );
+        self::assertEquals(
+            201,
+            $resp->getStatusCode(),
+            "route: $route, status_code: {$resp->getStatusCode()}, content: {$resp->getContent()}"
+        );
+        return $resp;
     }
 
     function testCreate()
     {
         foreach (self::ROUTES_TO_TEST as $route) {
             $name = 'test object';
-            $resp = $this->createObject($route, $name);
-            self::assertEquals(
-                201,
-                $resp->getStatusCode(),
-                "route: $route, status_code: {$resp->getStatusCode()}, content: {$resp->getContent()}"
-            );
+            $resp = $this->createNamedObjectAsAdmin($route, $name);
             self::assertEquals($name, json_decode($resp->getContent())->data->name);
         }
     }
@@ -51,7 +53,7 @@ class CrudV3WriteTest extends BaseApiTest implements CrudV3WriteTestInterface {
     function testUpdate()
     {
         foreach (self::ROUTES_TO_TEST as $route) {
-            $resp = $this->createObject($route, "initial name");
+            $resp = $this->createNamedObjectAsAdmin($route, "initial name");
             $nhId = json_decode($resp->getContent())->data->id;
 
             $name = "changed name";
@@ -72,7 +74,7 @@ class CrudV3WriteTest extends BaseApiTest implements CrudV3WriteTestInterface {
     function testDelete()
     {
         foreach (self::ROUTES_TO_TEST as $route) {
-            $resp = $this->createObject($route, "test name");
+            $resp = $this->createNamedObjectAsAdmin($route, "test name");
             $nhId = json_decode($resp->getContent())->data->id;
 
             $resp = $this->request(

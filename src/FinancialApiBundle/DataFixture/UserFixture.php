@@ -23,10 +23,10 @@ class UserFixture extends Fixture {
     public function load(ObjectManager $manager)
     {
         $faker = Factory::create();
+        $admin = $this->generateUser($faker, self::TEST_ADMIN_CREDENTIALS['username']);
         $user = $this->generateUser($faker, self::TEST_USER_CREDENTIALS['username']);
-        $admin = $this->generateUser($faker, self::TEST_ADMIN_CREDENTIALS['username'], ['ROLE_SUPER_ADMIN']);
-        $manager->persist($user);
         $manager->persist($admin);
+        $manager->persist($user);
         $manager->flush();
     }
 
@@ -37,7 +37,7 @@ class UserFixture extends Fixture {
      * @return User
      * @throws \Exception
      */
-    protected function generateUser(Generator $faker, $identifier, array $roles = ['ROLE_USER']): User
+    protected function generateUser(Generator $faker, $identifier): User
     {
         $user = new User();
         $user->setName($faker->name);
@@ -52,7 +52,6 @@ class UserFixture extends Fixture {
         $user->setPrefix('34');
         $user->setPublicPhone(true);
         $user->setEnabled(true);
-        $user->setRoles($roles);
         return $user;
     }
 }

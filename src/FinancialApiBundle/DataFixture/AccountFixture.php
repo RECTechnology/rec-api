@@ -37,7 +37,7 @@ class AccountFixture extends Fixture implements DependentFixtureInterface {
             ->getRepository(User::class)
             ->findOneBy(['username' => UserFixture::TEST_ADMIN_CREDENTIALS['username']]);
 
-        $this->createAccount($manager, $faker, $admin, [BaseApiV2Controller::ROLE_ADMIN]);
+        $this->createAccount($manager, $faker, $admin, [BaseApiV2Controller::ROLE_SUPER_ADMIN]);
 
         $manager->flush();
     }

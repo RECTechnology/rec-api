@@ -564,14 +564,14 @@ class User extends BaseUser implements EntityWithUploadableFields {
      * @return array The roles
      */
     public function getRoles(){
-        foreach($this->groups as $Usergroup){
-            if($this->getActiveGroup()->getId() == $Usergroup->getGroup()->getId()){
-                $roles = $Usergroup->getRoles();
-                $roles = array_merge($roles, $Usergroup->getGroup()->getRoles());
+        foreach($this->groups as $user_group){
+            if($this->getActiveGroup()->getId() == $user_group->getGroup()->getId()){
+                $roles = $user_group->getRoles();
+                $roles = array_merge($roles, $user_group->getGroup()->getRoles());
             }
         }
         // we need to make sure to have at least one role
-        $roles[] = static::ROLE_DEFAULT;
+        $roles []= static::ROLE_DEFAULT;
         return array_unique($roles);
     }
 
