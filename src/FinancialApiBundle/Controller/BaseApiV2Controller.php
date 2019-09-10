@@ -249,7 +249,7 @@ abstract class BaseApiV2Controller extends RestApiController implements Reposito
             return $rel->targetEntity;
 
         } catch (ReflectionException $e) {
-            throw new HttpException(400, "Bad request, parameter '$propertyName' is invalid.");
+            throw new HttpException(400, "Bad request, parameter '$propertyName' is invalid.", $e);
         }
     }
 
@@ -368,10 +368,8 @@ abstract class BaseApiV2Controller extends RestApiController implements Reposito
 
             return [intval($total), $result];
 
-        } catch (NoResultException $e) {
-            return [0, []];
         } catch (NonUniqueResultException $e) {
-            throw new HttpException(400, "Invalid params, please check query");
+            throw new HttpException(400, "Invalid params, please check query", $e);
         }
 
     }
@@ -457,7 +455,7 @@ abstract class BaseApiV2Controller extends RestApiController implements Reposito
                         }
                     }
                 } catch (ReflectionException $e) {
-                    throw new HttpException(400, "Invalid parameter '$name'");
+                    throw new HttpException(400, "Invalid parameter '$name'", $e);
                 }
             }
 
@@ -494,12 +492,12 @@ abstract class BaseApiV2Controller extends RestApiController implements Reposito
             $em->flush();
         } catch(DBALException $e){
             if(preg_match('/1062 Duplicate entry/i',$e->getMessage()))
-                throw new HttpException(409, "Duplicated resource");
+                throw new HttpException(409, "Duplicated resource", $e);
             else if(preg_match('/1048 Column/i',$e->getMessage()))
-                throw new HttpException(400, "Parameter(s) not allowed");
+                throw new HttpException(400, "Parameter(s) not allowed", $e);
             else if(preg_match('/NOT NULL constraint failed/i', $e->getMessage()))
                 throw new HttpException(400, "Missed parameter(s)");
-            throw new HttpException(500, "Unknown error occurred when save: " . $e->getMessage());
+            throw new HttpException(500, "Unknown error occurred when save", $e);
         }
     }
 
@@ -837,14 +835,14 @@ abstract class BaseApiV2Controller extends RestApiController implements Reposito
             try {
                 $obj = new JsonObject($el);
             } catch (InvalidJsonException $e) {
-                throw new HttpException(400, "Invalid JSON: " . $e->getMessage());
+                throw new HttpException(400, "Invalid JSON: " . $e->getMessage(), $e);
             }
             $exportRow = [];
             foreach($fieldMap as $jsonPath){
                 try {
                     $found = $obj->get($jsonPath);
                 } catch (Exception $e) {
-                    throw new HttpException(400, "Invalid JsonPath: " . $e->getMessage());
+                    throw new HttpException(400, "Invalid JsonPath: " . $e->getMessage(), $e);
                 }
                 if(count($found) == 0)
                     $exportRow []= null;
