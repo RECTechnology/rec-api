@@ -274,7 +274,6 @@ abstract class BaseApiV2Controller extends RestApiController implements Reposito
             }
         }
 
-
         return $this->restV2(
             self::HTTP_STATUS_CODE_OK,
             "ok",

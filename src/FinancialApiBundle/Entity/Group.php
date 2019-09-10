@@ -1408,7 +1408,7 @@ class Group extends BaseGroup implements EntityWithUploadableFields {
      */
     public function addActivity(Activity $activity, $recursive = true): void
     {
-        $this->activities = $activity;
+        $this->activities []= $activity;
         if($recursive) $activity->addAccount($this, false);
     }
 
