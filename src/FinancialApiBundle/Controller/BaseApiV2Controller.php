@@ -111,11 +111,12 @@ abstract class BaseApiV2Controller extends RestApiController implements Reposito
         $auth = $this->get('security.authorization_checker');
 
         if($tokenStorage->getToken()) {
-            if (!$auth->isGranted(self::ROLE_PATH_MAPPINGS[$role]))
+            if (!$auth->isGranted(self::ROLE_PATH_MAPPINGS[$role])){
                 throw new HttpException(
                     Response::HTTP_FORBIDDEN,
                     "Insufficient permissions for $role"
                 );
+            }
         }
         $grants = $this->getCRUDGrants();
         if(isset($grants[$method])) {
@@ -450,7 +451,14 @@ abstract class BaseApiV2Controller extends RestApiController implements Reposito
                             throw new HttpException(400, "Use suffix '_id' to set related properties: '${name}_id': $value");
                         }
                         elseif($an instanceof Column && $an->type == 'datetime'){
-                            $value = DateTime::createFromFormat(DateTime::ISO8601 , $value);
+                            $sentValue = $value;
+                            $value = DateTime::createFromFormat(DateTime::ISO8601 , $sentValue);
+                            if(!$value){
+                                $value = DateTime::createFromFormat(DateTime::RFC3339_EXTENDED , $sentValue);
+                                if(!$value) throw new HttpException(
+                                    400, "Invalid datetime parameter, value must be ISO8601 or RFC3339 compliant"
+                                );
+                            }
                         }
                     }
                 } catch (ReflectionException $e) {
