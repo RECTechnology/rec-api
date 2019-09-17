@@ -25,7 +25,7 @@ class RegisterTest extends BaseApiTest {
             'security_question' => $this->faker->text(200),
             'security_answer' => $this->faker->text(50),
         ];
-        $response = $this->request('POST', '/register/v1/commerce/mobile', $content);
+        $response = $this->requestJson('POST', '/register/v1/commerce/mobile', $content);
         self::assertEquals(
             201,
             $response->getStatusCode(),

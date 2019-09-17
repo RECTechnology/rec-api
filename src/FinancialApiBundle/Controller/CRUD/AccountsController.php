@@ -27,10 +27,11 @@ class AccountsController extends CRUDController {
      */
     function getCRUDGrants()
     {
-        return [
-            self::CRUD_METHOD_SEARCH => self::ROLE_PUBLIC,
-        ];
+        $grants = parent::getCRUDGrants();
+        $grants[self::CRUD_SEARCH] = self::ROLE_PUBLIC;
+        return $grants;
     }
+
     /**
      * @param Request $request
      * @return array
@@ -130,40 +131,52 @@ class AccountsController extends CRUDController {
 
 
     /**
+     * @param EngineInterface $templating
      * @param Request $request
      * @param $role
      * @param $id
-     * @param EngineInterface $templating
      * @return Response
      */
-    public function reportClientsAndProvidersAction(Request $request, $role, $id, EngineInterface $templating){
-        $this->checkPermissions($role, self::CRUD_METHOD_SHOW);
+    public function reportClientsAndProvidersAction(EngineInterface $templating, Request $request, $role, $id){
+        $this->checkPermissions($role, self::CRUD_SHOW);
 
         $lang = $this->getRequestLocale();
 
         /** @var Group $account */
-        $account = $this->getRepository()->find($id);
+        $account = $this->findObject($id);
 
-        $pdfContent = $templating->render(
+
+        $html = $templating->render(
             'FinancialApiBundle:Pdf:product_clients_and_providers.html.twig',
             ['account' => $account]
         );
-
-        $pdf = new Html2Pdf();
-        $pdf->writeHTML($pdfContent);
-
-        try {
+        $format = $request->headers->get('Accept');
+        if($format == 'text/html') {
             return new Response(
-                $pdf->output(null, 'S'),
+                $html,
                 200,
-                [
-                    'Content-Type' => 'application/pdf',
-                    'Content-Disposition' => ResponseHeaderBag::DISPOSITION_INLINE
-                ]
+                ['Content-Type' => 'text/html']
             );
-        } catch (Html2PdfException $e) {
-            throw new HttpException(400, "Invalid pdf requested: ".  $e->getMessage(), $e);
         }
+        elseif ($format == 'application/pdf'){
 
+            $pdf = new Html2Pdf();
+            $pdf->writeHTML($html);
+
+            try {
+                return new Response(
+                    $pdf->output(null, 'S'),
+                    200,
+                    [
+                        'Content-Type' => 'application/pdf',
+                        'Content-Disposition' => ResponseHeaderBag::DISPOSITION_INLINE
+                    ]
+                );
+            } catch (Html2PdfException $e) {
+                throw new HttpException(400, "Invalid pdf requested: ".  $e->getMessage(), $e);
+            }
+
+        }
+        throw new HttpException(400, "Invalid accept format " . $request->headers->get('Accept'));
     }
 }

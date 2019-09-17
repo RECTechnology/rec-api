@@ -59,11 +59,11 @@ abstract class BaseApiV2Controller extends RestApiController implements Reposito
 
     const GET_MAX_LIMIT = 500;
 
-    const CRUD_METHOD_SEARCH = "SEARCH";
-    const CRUD_METHOD_EXPORT = "EXPORT";
-    const CRUD_METHOD_INDEX = 'INDEX';
-    const CRUD_METHOD_SHOW = 'SHOW';
-    const CRUD_METHOD_CREATE = 'CREATE';
+    const CRUD_SEARCH = "SEARCH";
+    const CRUD_EXPORT = "EXPORT";
+    const CRUD_INDEX = 'INDEX';
+    const CRUD_SHOW = 'SHOW';
+    const CRUD_CREATE = 'CREATE';
     const CRUD_UPDATE = 'UPDATE';
     const CRUD_DELETE = 'DELETE';
 
@@ -136,7 +136,7 @@ abstract class BaseApiV2Controller extends RestApiController implements Reposito
         else
             throw new HttpException(
                 Response::HTTP_FORBIDDEN,
-                "Insufficient permissions to $method this resource"
+                "Insufficient permissions to $method this resource."
             );
 
     }
@@ -259,7 +259,7 @@ abstract class BaseApiV2Controller extends RestApiController implements Reposito
      * @return Response
      */
     protected function indexAction(Request $request, $role){
-        $this->checkPermissions($role, self::CRUD_METHOD_INDEX);
+        $this->checkPermissions($role, self::CRUD_INDEX);
 
         list($total, $result) = $this->index($request);
         if($this->getRequestLocale() !== 'all') {
@@ -388,7 +388,9 @@ abstract class BaseApiV2Controller extends RestApiController implements Reposito
     protected function findObject($id){
         $repo = $this->getRepository();
         $entity = $repo->find($id);
-        if(empty($entity)) throw new HttpException(404, "Not found");
+        $explodedEntityName = explode("\\", $repo->getClassName());
+        $entityName = $explodedEntityName[count($explodedEntityName) - 1];
+        if(empty($entity)) throw new HttpException(404, $entityName . " not found");
         return $entity;
     }
 
@@ -398,7 +400,7 @@ abstract class BaseApiV2Controller extends RestApiController implements Reposito
      * @return Response
      */
     protected function showAction($role, $id){
-        $this->checkPermissions($role, self::CRUD_METHOD_SHOW);
+        $this->checkPermissions($role, self::CRUD_SHOW);
         $entity = $this->show($id);
 
         $entity = $this->translatedElement($entity, $this->getRequestLocale());
@@ -514,7 +516,7 @@ abstract class BaseApiV2Controller extends RestApiController implements Reposito
      * @throws AnnotationException
      */
     protected function createAction(Request $request, $role){
-        $this->checkPermissions($role, self::CRUD_METHOD_CREATE);
+        $this->checkPermissions($role, self::CRUD_CREATE);
         $entity = $this->create($request);
         $output = $this->securizeOutput($entity);
         return $this->restV2(
@@ -790,7 +792,7 @@ abstract class BaseApiV2Controller extends RestApiController implements Reposito
      * @return mixed
      */
     protected function searchAction(Request $request, $role) {
-        $this->checkPermissions($role, self::CRUD_METHOD_SEARCH);
+        $this->checkPermissions($role, self::CRUD_SEARCH);
         list($total, $result) = $this->search($request);
         $result = $this->translatedCollection($result, $this->getRequestLocale());
         $elems = $this->securizeOutput($result);
@@ -813,7 +815,7 @@ abstract class BaseApiV2Controller extends RestApiController implements Reposito
      * @throws Exception
      */
     protected function exportAction(Request $request, $role) {
-        $this->checkPermissions($role, self::CRUD_METHOD_SEARCH);
+        $this->checkPermissions($role, self::CRUD_SEARCH);
         $request->query->set("limit", 2**31);
         $fieldMap = json_decode($request->query->get("field_map", "{}"), true);
         if(json_last_error()) throw new HttpException(400, "Bad field_map, it must be a valid JSON");

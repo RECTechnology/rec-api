@@ -6,6 +6,7 @@ use App\FinancialApiBundle\Entity\User;
 use App\FinancialApiBundle\Entity\Client as OAuthClient;
 use Doctrine\Bundle\DoctrineBundle\Command\CreateDatabaseDoctrineCommand;
 use Doctrine\Bundle\FixturesBundle\Command\LoadDataFixturesDoctrineCommand;
+use Doctrine\Common\DataFixtures\Purger\ORMPurger;
 use Doctrine\ORM\EntityManagerInterface;
 use Doctrine\ORM\Tools\SchemaTool;
 use Doctrine\ORM\Tools\ToolsException;
@@ -46,6 +47,11 @@ abstract class BaseApiTest extends WebTestCase {
         'mailing_deliveries',
     ];
 
+    const HEADERS_JSON = [
+        'CONTENT_TYPE' => 'application/json',
+        'HTTP_ACCEPT' => 'application/json'
+    ];
+
     /** @var Generator $faker */
     protected $faker;
 
@@ -58,18 +64,14 @@ abstract class BaseApiTest extends WebTestCase {
     /**
      * @param string $method
      * @param string $url
-     * @param array|null $content
+     * @param string $content
+     * @param array $headers
      * @return Response
      */
-    protected function request(string $method, string $url, array $content = null) {
+    protected function request(string $method, string $url, string $content = null, array $headers = []) {
         $client = static::createClient();
-        $headers = [
-            'CONTENT_TYPE' => 'application/json',
-            'HTTP_ACCEPT' => 'application/json'
-        ];
         if($this->token) $headers['HTTP_AUTHORIZATION'] = "Bearer {$this->token['access_token']}";
 
-        if($content !== null) $content = json_encode($content);
         $client->request($method, $url, [], [], $headers, $content);
         return $client->getResponse();
     }
@@ -81,7 +83,8 @@ abstract class BaseApiTest extends WebTestCase {
      * @return Response
      */
     protected function requestJson(string $method, string $url, array $content = null) {
-        $resp = $this->request($method, $url, $content);
+        if($content !== null) $content = json_encode($content);
+        $resp = $this->request($method, $url, $content, self::HEADERS_JSON);
         self::assertJson($resp->getContent());
         return $resp;
     }
@@ -99,7 +102,7 @@ abstract class BaseApiTest extends WebTestCase {
             'password' => $credentials['password']
         ];
 
-        $resp = $this->request('POST', '/oauth/v2/token', $content);
+        $resp = $this->requestJson('POST', '/oauth/v2/token', $content);
         self::assertEquals(
             200,
             $resp->getStatusCode(),
@@ -114,7 +117,7 @@ abstract class BaseApiTest extends WebTestCase {
         die(print_r($stuff, true));
     }
 
-    protected function logOut(){
+    protected function signOut(){
         $this->token = null;
     }
 
@@ -124,6 +127,7 @@ abstract class BaseApiTest extends WebTestCase {
      */
     protected function clearDatabase(Client $client){
         $this->createDatabase($client);
+        $this->runCommand($client, 'doctrine:schema:create');
     }
 
 
@@ -133,7 +137,6 @@ abstract class BaseApiTest extends WebTestCase {
      */
     protected function createDatabase(Client $client){
         $this->runCommand($client, 'doctrine:database:create', ['--if-not-exists']);
-        $this->runCommand($client, 'doctrine:schema:create');
     }
 
     /**

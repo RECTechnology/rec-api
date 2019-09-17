@@ -20,36 +20,36 @@ class AccountFixture extends Fixture implements DependentFixtureInterface {
     /**
      * Load data fixtures with the passed EntityManager
      *
-     * @param ObjectManager $manager
+     * @param ObjectManager $orm
      * @throws \Exception
      */
-    public function load(ObjectManager $manager)
+    public function load(ObjectManager $orm)
     {
         $faker = Factory::create();
 
-        $user = $manager
+        $user = $orm
             ->getRepository(User::class)
             ->findOneBy(['username' => UserFixture::TEST_USER_CREDENTIALS['username']]);
 
-        $this->createAccount($manager, $faker, $user, [BaseApiV2Controller::ROLE_SUPER_USER]);
+        $this->createAccount($orm, $faker, $user, [BaseApiV2Controller::ROLE_SUPER_USER]);
 
-        $admin = $manager
+        $admin = $orm
             ->getRepository(User::class)
             ->findOneBy(['username' => UserFixture::TEST_ADMIN_CREDENTIALS['username']]);
 
-        $this->createAccount($manager, $faker, $admin, [BaseApiV2Controller::ROLE_SUPER_ADMIN]);
+        $this->createAccount($orm, $faker, $admin, [BaseApiV2Controller::ROLE_SUPER_ADMIN]);
 
-        $manager->flush();
+        $orm->flush();
     }
 
     /**
-     * @param ObjectManager $manager
+     * @param ObjectManager $orm
      * @param Generator $faker
      * @param User $user
      * @param array $roles
      * @throws \Exception
      */
-    private function createAccount(ObjectManager $manager, Generator $faker, User $user, array $roles){
+    private function createAccount(ObjectManager $orm, Generator $faker, User $user, array $roles){
 
         $account = new Account();
         $account->setName($faker->name);
@@ -70,10 +70,10 @@ class AccountFixture extends Fixture implements DependentFixtureInterface {
         $kyc->setName($user->getName());
         $kyc->setEmail($user->getEmail());
 
-        $manager->persist($kyc);
-        $manager->persist($account);
-        $manager->persist($user);
-        $manager->persist($userGroup);
+        $orm->persist($kyc);
+        $orm->persist($account);
+        $orm->persist($user);
+        $orm->persist($userGroup);
     }
 
     public function getDependencies(){

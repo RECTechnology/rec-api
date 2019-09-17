@@ -41,7 +41,7 @@ class CrudV3ReadTest extends BaseApiTest implements CrudV3ReadTestInterface {
 
     function testIndex()
     {
-        foreach (self::ROUTES_TO_TEST as $route) {
+        foreach (self::CRUD_V3_ROUTES as $route) {
             $resp = $this->requestJson('GET', '/admin/v3/' . $route);
             self::assertEquals(
                 200,
@@ -53,7 +53,7 @@ class CrudV3ReadTest extends BaseApiTest implements CrudV3ReadTestInterface {
 
     function testExport()
     {
-        foreach (self::ROUTES_TO_TEST as $route) {
+        foreach (self::CRUD_V3_ROUTES as $route) {
             $resp = $this->request('GET', '/admin/v3/' . $route . '/export');
             self::assertEquals(
                 200,
@@ -65,7 +65,7 @@ class CrudV3ReadTest extends BaseApiTest implements CrudV3ReadTestInterface {
 
     function testSearch()
     {
-        foreach (self::ROUTES_TO_TEST as $route) {
+        foreach (self::CRUD_V3_ROUTES as $route) {
             $resp = $this->request('GET', '/admin/v3/' . $route . '/search');
             self::assertEquals(
                 200,
@@ -77,7 +77,7 @@ class CrudV3ReadTest extends BaseApiTest implements CrudV3ReadTestInterface {
 
     function testShow()
     {
-        foreach (self::ROUTES_TO_TEST as $route) {
+        foreach (self::CRUD_V3_ROUTES as $route) {
             $resp = $this->request('GET', '/admin/v3/' . $route . '/1');
             self::assertEquals(
                 404,
@@ -86,4 +86,5 @@ class CrudV3ReadTest extends BaseApiTest implements CrudV3ReadTestInterface {
             );
         }
     }
+
 }
