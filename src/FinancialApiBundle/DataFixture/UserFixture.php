@@ -33,7 +33,6 @@ class UserFixture extends Fixture {
     /**
      * @param Generator $faker
      * @param string $identifier
-     * @param array $roles
      * @return User
      * @throws \Exception
      */
