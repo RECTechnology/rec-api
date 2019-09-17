@@ -32,12 +32,11 @@ use App\FinancialApiBundle\DependencyInjection\App\Commons\UploadManager;
  */
 class Group extends BaseGroup implements EntityWithUploadableFields {
 
-    const SERIALIZATION_GROUPS_PUBLIC = ['public'];
-    const SERIALIZATION_GROUPS_USER = ['user', 'public'];
-    const SERIALIZATION_GROUPS_MANAGER = ['manager', 'user', 'public'];
-    const SERIALIZATION_GROUPS_SELF = ['self', 'manager', 'user', 'public'];
-    const SERIALIZATION_GROUPS_ADMIN = ['admin', 'self', 'manager', 'user', 'public'];
-    const SERIALIZATION_GROUPS_SUPER_ADMIN = ['super_admin', 'admin', 'self', 'manager', 'user', 'public'];
+    const SERIALIZATION_GROUPS_PUBLIC  =                                     ['public'];
+    const SERIALIZATION_GROUPS_USER    =                             ['user', 'public'];
+    const SERIALIZATION_GROUPS_MANAGER =                  ['manager', 'user', 'public'];
+    const SERIALIZATION_GROUPS_ADMIN   =         ['admin', 'manager', 'user', 'public'];
+    const SERIALIZATION_GROUPS_ROOT    = ['root', 'admin', 'manager', 'user', 'public'];
 
     /**
      * Group constructor.

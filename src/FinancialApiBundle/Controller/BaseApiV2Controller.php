@@ -67,18 +67,18 @@ abstract class BaseApiV2Controller extends RestApiController implements Reposito
     const CRUD_UPDATE = 'UPDATE';
     const CRUD_DELETE = 'DELETE';
 
+    const ROLE_ROOT = "ROLE_ROOT";
+    const ROLE_SUPER_MANAGER = "ROLE_SUPER_MANAGER";
     const ROLE_SUPER_ADMIN = "ROLE_SUPER_ADMIN";
-    const ROLE_MANAGER = "ROLE_MANAGER";
-    const ROLE_ADMIN = "ROLE_ADMIN";
-    const ROLE_USER = "ROLE_USER";
+    const ROLE_SUPER_USER = "ROLE_SUPER_USER";
     const ROLE_PUBLIC = "ROLE_PUBLIC";
 
     const ROLE_PATH_MAPPINGS = [
         'public' => self::ROLE_PUBLIC,
-        'user' => self::ROLE_USER,
-        'manager' => self::ROLE_MANAGER,
-        'admin' => self::ROLE_ADMIN,
-        'sadmin' => self::ROLE_SUPER_ADMIN,
+        'user' => self::ROLE_SUPER_USER,
+        'manager' => self::ROLE_SUPER_MANAGER,
+        'admin' => self::ROLE_SUPER_ADMIN,
+        'root' => self::ROLE_ROOT,
     ];
 
 
@@ -153,11 +153,10 @@ abstract class BaseApiV2Controller extends RestApiController implements Reposito
         $auth = $this->get('security.authorization_checker');
 
         $grantsMap = [
-            'ROLE_SUPER_ADMIN' => Group::SERIALIZATION_GROUPS_SUPER_ADMIN,
-            'ROLE_ADMIN' => Group::SERIALIZATION_GROUPS_ADMIN,
-            'ROLE_SELF' => Group::SERIALIZATION_GROUPS_SELF,
-            'ROLE_MANAGER' => Group::SERIALIZATION_GROUPS_MANAGER,
-            'ROLE_USER' => Group::SERIALIZATION_GROUPS_USER,
+            self::ROLE_ROOT => Group::SERIALIZATION_GROUPS_ROOT,
+            self::ROLE_SUPER_ADMIN => Group::SERIALIZATION_GROUPS_ADMIN,
+            self::ROLE_SUPER_MANAGER => Group::SERIALIZATION_GROUPS_MANAGER,
+            self::ROLE_SUPER_USER => Group::SERIALIZATION_GROUPS_USER,
             'IS_AUTHENTICATED_ANONYMOUSLY' => Group::SERIALIZATION_GROUPS_PUBLIC,
         ];
 

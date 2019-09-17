@@ -83,8 +83,8 @@ class CRUDController extends BaseApiV2Controller {
         return [
             self::CRUD_METHOD_SEARCH => self::ROLE_PUBLIC,
             self::CRUD_METHOD_EXPORT => self::ROLE_SUPER_ADMIN,
-            self::CRUD_METHOD_INDEX => self::ROLE_USER,
-            self::CRUD_METHOD_SHOW => self::ROLE_USER,
+            self::CRUD_METHOD_INDEX => self::ROLE_SUPER_USER,
+            self::CRUD_METHOD_SHOW => self::ROLE_SUPER_USER,
             self::CRUD_METHOD_CREATE => self::ROLE_SUPER_ADMIN,
             self::CRUD_UPDATE => self::ROLE_SUPER_ADMIN,
             self::CRUD_DELETE => self::ROLE_SUPER_ADMIN,

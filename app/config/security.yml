@@ -2,15 +2,27 @@ security:
     encoders:
         FOS\UserBundle\Model\UserInterface: sha512
 
+    # ROLES EXPLAINATION:
+    #  USER-ACCOUNT ROLES:
+    #    - ROLE_ADMIN
+    #    - ROLE_USER
+    #    - ROLE_READONLY
+    #  GLOBAL ROLES (ACCOUNT):
+    #    - ROLE_ROOT (OVERALL PERMISSIONS)
+    #    - ROLE_SUPER_ADMIN (ACCESS ALL ADMIN STUFF AND MANAGES MONEY AND MAKES DECISIONS)
+    #    - ROLE_SUPER_MANAGER (ACCESS ALL ADMIN STUFF BUT NOT MANAGING MONEY NOR MAKES DECISIONS)
+    #    - ROLE_SUPER_USER (DEFAULT for admins, access admin but readonly)
+
+
     role_hierarchy:
         ROLE_USER:            ROLE_PUBLIC
         ROLE_READONLY:        ROLE_USER
         ROLE_WORKER:          ROLE_READONLY
         ROLE_COMMERCE:        ROLE_USER
-        ROLE_INTEGRATOR:      ROLE_COMMERCE
-        ROLE_MANAGER:         ROLE_USER
-        ROLE_ADMIN:           ROLE_WORKER
-        ROLE_SUPER_ADMIN:     ROLE_ADMIN
+        ROLE_SUPER_USER:      ROLE_COMMERCE
+        ROLE_SUPER_MANAGER:   ROLE_SUPER_USER
+        ROLE_SUPER_ADMIN:     ROLE_SUPER_MANAGER
+        ROLE_ROOT:            ROLE_SUPER_ADMIN
 
     providers:
         by_access_key:
