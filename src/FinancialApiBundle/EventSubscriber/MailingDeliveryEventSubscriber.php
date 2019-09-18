@@ -23,6 +23,7 @@ class MailingDeliveryEventSubscriber implements EventSubscriber {
 
     /** @var Swift_Mailer */
     private $mailer;
+
     /**
      * @var EngineInterface
      */
@@ -55,6 +56,7 @@ class MailingDeliveryEventSubscriber implements EventSubscriber {
             if ($args->hasChangedField('status') && $args->getNewValue('status') == MailingDelivery::STATUS_SCHEDULED) {
                 /** @var Group $account */
                 $account = $entity->getAccount();
+
                 /** @var Mailing $mailing */
                 $mailing = $entity->getMailing();
 
