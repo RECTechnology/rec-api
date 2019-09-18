@@ -2,9 +2,10 @@
 set -e
 
 case $1 in
-  dev)
+  test)
     composer install --no-interaction
-    bin/console server:run 0.0.0.0:8000
+    bin/console --env=test cache:clear
+    vendor/bin/phpunit
     ;;
   *)
     exec "$@"
