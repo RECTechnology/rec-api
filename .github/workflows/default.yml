@@ -9,11 +9,22 @@ on:
 jobs:
   build:
     runs-on: ubuntu-latest
+    env:
+      - REGISTRY: reg.rallf.com:8443
     steps:
-    - uses: actions/checkout@v1
-    - name: Run a one-line script
-      run: echo Hello, world!
-    - name: Run a multi-line script
-      run: |
-        echo Add other actions to build,
-        echo test, and deploy your project.
+      - uses: actions/checkout@v1
+      - name: Build API
+        run: make build DOCKER_REGISTRY=${REGISTRY} DOCKER_IMAGE=rec-api DOCKER_TAG=${GITHUB_REF} DOCKERFILE_DIR=docker/prod/api
+      - name: Build Cron
+        run: make build DOCKER_REGISTRY=${REGISTRY} DOCKER_IMAGE=rec-cron DOCKER_TAG=${GITHUB_REF} DOCKERFILE_DIR=docker/prod/cron
+      - name: Build Dev
+        run: make build DOCKER_REGISTRY=${REGISTRY} DOCKER_IMAGE=rec-dev DOCKER_TAG=${GITHUB_REF} BUILD_DIR=docs
+      
+      - name: Registry Login
+        run: make login DOCKER_REGISTRY=${REGISTRY} DOCKER_USERNAME=${{ secrets.registry-username }} DOCKER_PASSWORD=${{ secrets.registry-password }}
+      - name: Push API
+        run: make push DOCKER_REGISTRY=${REGISTRY} DOCKER_IMAGE=rec-api DOCKER_TAG=${GITHUB_REF}
+      - name: Push Cron
+        run: make push DOCKER_REGISTRY=${REGISTRY} DOCKER_IMAGE=rec-cron DOCKER_TAG=${GITHUB_REF}
+      - name: Push Dev
+        run: make push DOCKER_REGISTRY=${REGISTRY} DOCKER_IMAGE=rec-dev DOCKER_TAG=${GITHUB_REF}
