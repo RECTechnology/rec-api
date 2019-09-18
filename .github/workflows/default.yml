@@ -11,6 +11,13 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v1
+      
+      - name: Registry Login
+        env:
+          DOCKER_REGISTRY_URL: reg.rallf.com:8443
+        uses: actions/docker/login@master
+        # run: make login DOCKER_REGISTRY=${REGISTRY} DOCKER_USERNAME=${USERNAME} DOCKER_PASSWORD=${PASSWORD}
+        
       - name: Build All
         env:
           REGISTRY: reg.rallf.com:8443
@@ -18,13 +25,6 @@ jobs:
           make build DOCKER_REGISTRY=${REGISTRY} DOCKER_IMAGE=rec-api DOCKER_TAG=`cut -d/ -f3 <<<${GITHUB_REF}` DOCKERFILE_DIR=docker/prod/api
           make build DOCKER_REGISTRY=${REGISTRY} DOCKER_IMAGE=rec-cron DOCKER_TAG=`cut -d/ -f3 <<<${GITHUB_REF}` DOCKERFILE_DIR=docker/prod/cron
           make build DOCKER_REGISTRY=${REGISTRY} DOCKER_IMAGE=rec-dev DOCKER_TAG=`cut -d/ -f3 <<<${GITHUB_REF}` BUILD_DIR=docs
-      
-      - name: Registry Login
-        env:
-          REGISTRY: reg.rallf.com:8443
-          USERNAME: ${{ secrets.registry_username }}
-          PASSWORD: ${{ secrets.registry_password }}
-        run: make login DOCKER_REGISTRY=${REGISTRY} DOCKER_USERNAME=${USERNAME} DOCKER_PASSWORD=${PASSWORD}
         
       - name: Push All
         env:
