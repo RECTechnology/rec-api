@@ -1,50 +1,62 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <title>REC Clients and Providers by Product</title>
 </head>
+
 <body>
-    <h1>REC Clients and Providers by Product</h1>
-    <h2>Account Details:</h2>
-    <p>
+    <h1 class="text-big">REC Clients and Providers by Product</h1>
+    <h2 class="text-medium">Account Details:</h2>
+    <p style="padding-left: 15px">
         {% with {'account': account} %}
-            {{ block('show_account', 'FinancialApiBundle:Pdf:show_account.html.twig') }}
+        {{ block('show_account', 'FinancialApiBundle:Pdf:show_account.html.twig') }}
         {% endwith %}
     </p>
-    <h3>Clients found ({{ account.producingProducts | length }})</h3>
-        <ul>
-            {% for product in account.producingProducts %}
+    <div class="report group-row-left space-between" style="margin-top: 15px">
+        <div class="report-list">
+            <h3 class="list-title">Clients found ({{ account.producingProducts | length }})</h3>
+            <ul>
+                {% for product in account.producingProducts %}
                 <li>
-                    <strong>{{ product.name | trans }}</strong> ~ <em>{{ product.description }}</em>
+                    <span class="list-item"><strong>{{ product.name | trans }}</strong> ~
+                        <em>{{ product.description }}</em></span>
                     <ul>
                         {% for client in product.consumingBy %}
-                            <li>
-                                {% with {'account': client} %}
-                                    {{ block('show_account', 'FinancialApiBundle:Pdf:show_account.html.twig') }}
-                                {% endwith %}
-                            </li>
+                        <li>
+                            {% with {'account': client} %}
+                            {{ block('show_account', 'FinancialApiBundle:Pdf:show_account.html.twig') }}
+                            {% endwith %}
+                        </li>
                         {% endfor %}
                     </ul>
                 </li>
-            {% endfor %}
-        </ul>
-    <h3>Providers found ({{ account.consumingProducts | length }})</h3>
-    <ul>
-        {% for product in account.consumingProducts %}
-            <li>
-                <b>{{ product.name }}:</b>
-                <ul>
-                    {% for provider in product.producingBy %}
+                {% endfor %}
+            </ul>
+        </div>
+
+        <div class="report-list">
+            <h3>Providers found ({{ account.consumingProducts | length }})</h3>
+            <ul>
+                {% for product in account.consumingProducts %}
+                <li>
+                    <span class="list-item"><b>{{ product.name }}:</b></span>
+                    <ul>
+                        {% for provider in product.producingBy %}
                         <li>
                             {% with {'account': provider} %}
-                                {{ block('show_account', 'FinancialApiBundle:Pdf:show_account.html.twig') }}
+                            {{ block('show_account', 'FinancialApiBundle:Pdf:show_account.html.twig') }}
                             {% endwith %}
                         </li>
-                    {% endfor %}
-                </ul>
-            </li>
-        {% endfor %}
-    </ul>
+                        {% endfor %}
+                    </ul>
+                </li>
+                {% endfor %}
+            </ul>
+        </div>
+    </div>
+
 </body>
+
 </html>
