@@ -38,3 +38,8 @@ jobs:
           make push DOCKER_REGISTRY=${DOCKER_REGISTRY_URL} DOCKER_IMAGE=rec-api DOCKER_TAG=`cut -d/ -f3 <<<${GITHUB_REF}`
           make push DOCKER_REGISTRY=${DOCKER_REGISTRY_URL} DOCKER_IMAGE=rec-cron DOCKER_TAG=`cut -d/ -f3 <<<${GITHUB_REF}`
           make push DOCKER_REGISTRY=${DOCKER_REGISTRY_URL} DOCKER_IMAGE=rec-dev DOCKER_TAG=`cut -d/ -f3 <<<${GITHUB_REF}`
+
+      - name: Deploying to staging server
+        env:
+          WEBHOOK: ${{secrets.WEBHOOK}}
+        run: make deploy WEBHOOK=${WEBHOOK}
