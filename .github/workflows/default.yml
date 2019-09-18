@@ -22,7 +22,9 @@ jobs:
       - name: Registry Login
         env:
           REGISTRY: reg.rallf.com:8443
-        run: make login DOCKER_REGISTRY=${REGISTRY} DOCKER_USERNAME=${{ secrets.registry_username }} DOCKER_PASSWORD=${{ secrets.registry_password }}
+          USERNAME: ${{ secrets.registry_username }}
+          PASSWORD: ${{ secrets.registry_password }}
+        run: make login DOCKER_REGISTRY=${REGISTRY} DOCKER_USERNAME=$USERNAME DOCKER_PASSWORD=$PASSWORD
         
       - name: Push All
         env:
