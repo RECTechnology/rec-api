@@ -23,10 +23,10 @@ jobs:
         
       - name: Login into the registry
         env:
-          DOCKER_REGISTRY_URL: reg.rallf.com:8443
-          DOCKER_USERNAME: ${{secrets.DOCKER_USERNAME}}
-          DOCKER_PASSWORD: ${{secrets.DOCKER_PASSWORD}}
-        uses: actions/docker/login@master
+          REGISTRY: reg.rallf.com:8443
+          USER: ${{secrets.DOCKER_USERNAME}}
+          PASS: ${{secrets.DOCKER_PASSWORD}}
+        run: make login DOCKER_REGISTRY=${REGISTRY} DOCKER_USERNAME=${USER} DOCKER_PASSWORD=${PASS}
         
       - name: Pushing images to the registry
         env:
