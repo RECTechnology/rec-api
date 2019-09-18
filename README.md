@@ -18,7 +18,7 @@ Make sure having added your user to the `docker` group to avoid trouble with per
 
 ### Run API with dependencies (MySQL, Mongodb, Node)
 #### Start services
-Using **GNU Make** (need `autotools` installed)
+Using **GNU Make** (need `autotools` installed, recommended)
 ```
 make dev
 ```
@@ -27,10 +27,11 @@ Using docker directly
 docker-compose -f docker/dev/docker-compose.yml up --build
 ```
 #### Stop/Down services
-Using **GNU Make**
+Using **GNU Make** (recommended)
 ```
 make down
 ```
+
 Using docker directly
 ```
 docker-compose -f docker/dev/docker-compose.yml down
@@ -39,7 +40,7 @@ docker-compose -f docker/dev/docker-compose.yml down
 #### Run some command in the `api` container
 to see the list of running containers use `make ps`
 
-to run any command in the `api` container
+to run any command in the `api` container (recommended)
 ```
 make shell
 ```
@@ -50,10 +51,16 @@ to see the list of running containers use `docker ps`
 
 to run any command in the `api` container
 ```
-docker exec -it dev_api_1 bash
+docker exec -it rec-api_api_1 bash
 ```
 
-### Run API image only (troubleshoot only)
+### Run API image only (troubleshooting)
+Using **GNU Make** (recommended)
+```
+make debug 
+```
+
+Using docker directly
 ```
 docker build . -f docker/dev/Dockerfile -t rec-api-dev
 docker run -it -v `pwd`:/api -u $UID:$UID rec-api-dev <command>

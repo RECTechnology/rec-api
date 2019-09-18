@@ -16,7 +16,10 @@ build:
 	cd $(BUILD_DIR) && docker build . -f $(DOCKERFILE_DIR)/Dockerfile -t $(DOCKER_REGISTRY)/$(DOCKER_IMAGE):$(DOCKER_TAG)
 
 test:
-	docker-compose -f docker/dev/docker-compose.yml -p $(STACK_NAME) run api bin/simple-phpunit
+	docker-compose -f docker/dev/docker-compose.yml -p $(STACK_NAME) run api test
+
+debug:
+	docker-compose -f docker/dev/docker-compose.yml -p $(STACK_NAME) run api bash
 
 push:
 	docker push $(DOCKER_REGISTRY)/$(DOCKER_IMAGE):$(DOCKER_TAG)

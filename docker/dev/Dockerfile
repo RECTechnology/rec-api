@@ -24,5 +24,6 @@ RUN mkdir /.composer && chmod -R 777 /.composer
 RUN echo "#!/usr/bin/env bash\n cd /api\n bin/console \"\$@\"\n cd -" > /usr/bin/rec && chmod +x /usr/bin/rec
 
 WORKDIR /api
-CMD ["bin/console", "server:run", "0.0.0.0:8000"]
+ENTRYPOINT ["docker/dev/docker-entrypoint.sh"]
+CMD ["dev"]
 
