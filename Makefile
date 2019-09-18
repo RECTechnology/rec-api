@@ -16,8 +16,7 @@ build:
 	cd $(BUILD_DIR) && docker build . -f $(DOCKERFILE_DIR)/Dockerfile -t $(DOCKER_REGISTRY)/$(DOCKER_IMAGE):$(DOCKER_TAG)
 
 test:
-	docker build . -f docker/test/Dockerfile -t $(STACK_NAME):test
-	docker run $(STACK_NAME):test test
+	docker run --rm `docker build -q . -f docker/test/Dockerfile`
 
 debug:
 	docker-compose -f docker/dev/docker-compose.yml -p $(STACK_NAME) run api bash
