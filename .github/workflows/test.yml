@@ -21,5 +21,8 @@ jobs:
         
       - name: Test config is OK
         run: |
-          ls -l ${HOME}
-          cat ${HOME}/.github/config.json
+          pwd
+          ls -la /github/home
+          cat /github/home/.docker/config.json
+          ls -la ${HOME}
+          cat ${HOME}/.docker/config.json
