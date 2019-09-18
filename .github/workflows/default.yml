@@ -10,10 +10,24 @@ jobs:
   build:
     runs-on: ubuntu-latest
     steps:
-    - uses: actions/checkout@v1
-    - name: Run a one-line script
-      run: echo Hello, world!
-    - name: Run a multi-line script
-      run: |
-        echo Add other actions to build,
-        echo test, and deploy your project.
+      - uses: actions/checkout@v1
+      - name: Build All
+        env:
+          - REGISTRY: reg.rallf.com:8443
+        run: |
+          make build DOCKER_REGISTRY=${REGISTRY} DOCKER_IMAGE=rec-api DOCKER_TAG=${GITHUB_REF} DOCKERFILE_DIR=docker/prod/api
+          make build DOCKER_REGISTRY=${REGISTRY} DOCKER_IMAGE=rec-cron DOCKER_TAG=${GITHUB_REF} DOCKERFILE_DIR=docker/prod/cron
+          make build DOCKER_REGISTRY=${REGISTRY} DOCKER_IMAGE=rec-dev DOCKER_TAG=${GITHUB_REF} BUILD_DIR=docs
+      
+      - name: Registry Login
+        env:
+          - REGISTRY: reg.rallf.com:8443
+        run: make login DOCKER_REGISTRY=${REGISTRY} DOCKER_USERNAME=${{ secrets.registry_username }} DOCKER_PASSWORD=${{ secrets.registry_password }}
+        
+      - name: Push All
+        env:
+          - REGISTRY: reg.rallf.com:8443
+        run: |
+          make push DOCKER_REGISTRY=${REGISTRY} DOCKER_IMAGE=rec-api DOCKER_TAG=${GITHUB_REF}
+          make push DOCKER_REGISTRY=${REGISTRY} DOCKER_IMAGE=rec-cron DOCKER_TAG=${GITHUB_REF}
+          make push DOCKER_REGISTRY=${REGISTRY} DOCKER_IMAGE=rec-dev DOCKER_TAG=${GITHUB_REF}
