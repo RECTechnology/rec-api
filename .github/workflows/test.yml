@@ -10,15 +10,15 @@ jobs:
   build:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v1
+      #- uses: actions/checkout@v1
 
       - name: Login into the registry
         env:
           DOCKER_REGISTRY_URL: reg.rallf.com:8443
           DOCKER_USERNAME: ${{secrets.DOCKER_USERNAME}}
           DOCKER_PASSWORD: ${{secrets.DOCKER_PASSWORD}}
-        uses: actions/docker/login@master
-        
+        run: echo "${DOCKER_PASSWORD}" | docker login -u ${DOCKER_USERNAME} --password-stdin ${DOCKER_REGISTRY_URL}
+
       - name: Test config is OK
         run: |
           pwd
