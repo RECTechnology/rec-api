@@ -216,7 +216,7 @@ class Notificator {
 
         $payload = [
             "account_id" => $params['account_id'],
-            "id" => $params['account_id'],
+            "id" => $params['id'],
             "status" => $params['status'],
             "amount" => $params['amount'],
             "signature" => $params['signature'],
