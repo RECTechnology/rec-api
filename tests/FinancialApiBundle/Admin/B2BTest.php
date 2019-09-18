@@ -19,7 +19,8 @@ class B2BTest extends BaseApiTest {
 
     function testReportClientsAndProviders()
     {
-        $routeListAccounts = '/admin/v3/accounts?limit=1';
+        $limit = 1;
+        $routeListAccounts = '/admin/v3/accounts?limit=' . $limit;
         $resp = $this->requestJson('GET', $routeListAccounts);
         self::assertEquals(
             200,
@@ -27,9 +28,9 @@ class B2BTest extends BaseApiTest {
             "route: $routeListAccounts, status_code: {$resp->getStatusCode()}, content: {$resp->getContent()}"
         );
         $jsonResp = json_decode($resp->getContent());
-        self::assertGreaterThan(
-            0,
-            $jsonResp->data->total,
+        self::assertEquals(
+            $limit,
+            count($jsonResp->data->elements),
             "route: $routeListAccounts, status_code: {$resp->getStatusCode()}, content: {$resp->getContent()}"
         );
 
