@@ -24,12 +24,12 @@ jobs:
           REGISTRY: reg.rallf.com:8443
           USERNAME: ${{ secrets.registry_username }}
           PASSWORD: ${{ secrets.registry_password }}
-        run: make login DOCKER_REGISTRY=${REGISTRY} DOCKER_USERNAME=$USERNAME DOCKER_PASSWORD=$PASSWORD
+        run: make login DOCKER_REGISTRY=${REGISTRY} DOCKER_USERNAME=${USERNAME} DOCKER_PASSWORD=${PASSWORD}
         
       - name: Push All
         env:
           REGISTRY: reg.rallf.com:8443
         run: |
-          make push DOCKER_REGISTRY=${REGISTRY} DOCKER_IMAGE=rec-api DOCKER_TAG=${GITHUB_REF}
-          make push DOCKER_REGISTRY=${REGISTRY} DOCKER_IMAGE=rec-cron DOCKER_TAG=${GITHUB_REF}
-          make push DOCKER_REGISTRY=${REGISTRY} DOCKER_IMAGE=rec-dev DOCKER_TAG=${GITHUB_REF}
+          make push DOCKER_REGISTRY=${REGISTRY} DOCKER_IMAGE=rec-api DOCKER_TAG=`cut -d/ -f3 <<<${GITHUB_REF}`
+          make push DOCKER_REGISTRY=${REGISTRY} DOCKER_IMAGE=rec-cron DOCKER_TAG=`cut -d/ -f3 <<<${GITHUB_REF}`
+          make push DOCKER_REGISTRY=${REGISTRY} DOCKER_IMAGE=rec-dev DOCKER_TAG=`cut -d/ -f3 <<<${GITHUB_REF}`
