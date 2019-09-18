@@ -21,12 +21,12 @@ jobs:
       
       - name: Registry Login
         env:
-          - REGISTRY: reg.rallf.com:8443
+          REGISTRY: reg.rallf.com:8443
         run: make login DOCKER_REGISTRY=${REGISTRY} DOCKER_USERNAME=${{ secrets.registry_username }} DOCKER_PASSWORD=${{ secrets.registry_password }}
         
       - name: Push All
         env:
-          - REGISTRY: reg.rallf.com:8443
+          REGISTRY: reg.rallf.com:8443
         run: |
           make push DOCKER_REGISTRY=${REGISTRY} DOCKER_IMAGE=rec-api DOCKER_TAG=${GITHUB_REF}
           make push DOCKER_REGISTRY=${REGISTRY} DOCKER_IMAGE=rec-cron DOCKER_TAG=${GITHUB_REF}
