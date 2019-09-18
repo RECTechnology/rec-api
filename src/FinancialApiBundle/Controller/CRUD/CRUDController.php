@@ -69,7 +69,7 @@ class CRUDController extends BaseApiV2Controller {
         try {
             $rc = new ReflectionClass('App\\FinancialApiBundle\\Entity\\' . $entityName);
         } catch (ReflectionException $e) {
-            throw new HttpException(404, "Route not found");
+            throw new HttpException(404, "Route not found", $e);
         }
         $instance = $rc->newInstance();
         return $instance;
