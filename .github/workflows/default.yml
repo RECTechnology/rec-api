@@ -15,6 +15,8 @@ jobs:
       - name: Registry Login
         env:
           DOCKER_REGISTRY_URL: reg.rallf.com:8443
+          DOCKER_USERNAME: ${{secrets.DOCKER_USERNAME}}
+          DOCKER_PASSWORD: ${{secrets.DOCKER_PASSWORD}}
         uses: actions/docker/login@master
         # run: make login DOCKER_REGISTRY=${REGISTRY} DOCKER_USERNAME=${USERNAME} DOCKER_PASSWORD=${PASSWORD}
         
