@@ -1,16 +1,16 @@
 <?php
 
-namespace Test\FinancialApiBundle\Admin;
+namespace Test\FinancialApiBundle\Admin\Generic;
 
 use App\FinancialApiBundle\DataFixture\UserFixture;
 use Test\FinancialApiBundle\BaseApiTest;
 use Test\FinancialApiBundle\CrudV3ReadTestInterface;
 
 /**
- * Class CrudV3ReadTest
- * @package Test\FinancialApiBundle\Admin
+ * Class CrudV3ReadAllObjectsTest
+ * @package Test\FinancialApiBundle\Admin\Generic
  */
-class CrudV3ReadTest extends BaseApiTest implements CrudV3ReadTestInterface {
+class CrudV3ReadAllObjectsTest extends BaseApiTest implements CrudV3ReadTestInterface {
 
     const ROUTES_TO_TEST = [
         'neighbourhoods',
