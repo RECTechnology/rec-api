@@ -498,7 +498,6 @@ abstract class BaseApiV2Controller extends RestApiController implements Reposito
         $em = $this->getDoctrine()->getManager();
         try{
             $em->flush();
-            return $entity;
         } catch(DBALException $e){
             if(preg_match('/1062 Duplicate entry/i',$e->getMessage()))
                 throw new HttpException(409, "Duplicated resource", $e);
