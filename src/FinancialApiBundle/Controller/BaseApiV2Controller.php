@@ -18,6 +18,9 @@ use Doctrine\DBAL\Platforms\Keywords\OracleKeywords;
 use Doctrine\ORM\Mapping\AttributeOverride;
 use Doctrine\ORM\Mapping\AttributeOverrides;
 use Doctrine\ORM\Mapping\Column;
+use Doctrine\ORM\Mapping\ManyToMany;
+use Doctrine\ORM\Mapping\ManyToOne;
+use Doctrine\ORM\Mapping\OneToOne;
 use Doctrine\ORM\Query\QueryException;
 use Doctrine\ORM\EntityManagerInterface;
 use Doctrine\ORM\NonUniqueResultException;
@@ -188,7 +191,7 @@ abstract class BaseApiV2Controller extends RestApiController implements Reposito
             }
         }
 
-        if(!$rel) throw new HttpException(400, "Unrelated parameter");
+        if(!$rel) throw new HttpException(400, "Unrelated parameter '$name'");
 
         $value = $this->getDoctrine()->getRepository($rel->targetEntity)->find($sent_value);
         if(!$value) throw new HttpException(400, "Object $name with id '$sent_value' does not exist.");
@@ -403,15 +406,16 @@ abstract class BaseApiV2Controller extends RestApiController implements Reposito
         $em->persist($entity);
         try{
             $em->flush();
+            return $entity;
         } catch(DBALException $e){
             if(preg_match('/1062 Duplicate entry/i',$e->getMessage()))
                 throw new HttpException(409, "Duplicated resource");
             else if(preg_match('/1048 Column/i',$e->getMessage()))
                 throw new HttpException(400, "Bad parameters: " . $e->getMessage());
-            throw new HttpException(500, "Unknown error occurred when save: " . $e->getMessage());
+            throw new HttpException(500, "Unknown error occurred when save: " . $e->getMessage(), $e);
+        } catch (Exception $e){
+            throw new HttpException(500, "Unknown error occurred when save: " . $e->getMessage(), $e);
         }
-
-        return $entity;
     }
 
     /**
