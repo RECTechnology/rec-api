@@ -3,7 +3,6 @@ jobs:
   build:
     branches:
       only:
-        - master
         - stable
     machine: true
     steps:
