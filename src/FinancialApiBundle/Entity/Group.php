@@ -505,6 +505,7 @@ class Group extends BaseGroup implements EntityWithUploadableFields {
     public function setCategory($category)
     {
         $this->category = $category;
+        $category->addAccount($this);
     }
 
     /**

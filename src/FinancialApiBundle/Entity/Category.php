@@ -1,6 +1,7 @@
 <?php
 
 namespace App\FinancialApiBundle\Entity;
+use Doctrine\Common\Collections\ArrayCollection;
 use Symfony\Component\HttpKernel\Exception\HttpException;
 
 use JMS\Serializer\Annotation\ExclusionPolicy;
@@ -16,7 +17,7 @@ use Symfony\Bridge\Doctrine\Validator\Constraints\UniqueEntity;
  * @ORM\Entity
  * @ExclusionPolicy("all")
  */
-class Category{
+class Category {
 
     /**
      * @ORM\Id
@@ -47,6 +48,20 @@ class Category{
      * @Groups({"public"})
      */
     private $esp;
+
+    /**
+     * @ORM\OneToMany(targetEntity="App\FinancialApiBundle\Entity\Group", mappedBy="category")
+     * @Groups({"admin"})
+     */
+    private $accounts;
+
+    /**
+     * Category constructor.
+     */
+    public function __construct()
+    {
+        $this->accounts = new ArrayCollection();
+    }
 
 
     /**
@@ -105,5 +120,21 @@ class Category{
     public function setEng($eng)
     {
         $this->eng = $eng;
+    }
+
+    /**
+     * @return mixed
+     */
+    public function getAccounts()
+    {
+        return $this->accounts;
+    }
+
+    /**
+     * @param mixed $account
+     */
+    public function addAccount($account): void
+    {
+        $this->accounts []= $account;
     }
 }
