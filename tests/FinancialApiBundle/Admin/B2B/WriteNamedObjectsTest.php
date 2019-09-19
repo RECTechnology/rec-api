@@ -1,6 +1,6 @@
 <?php
 
-namespace Test\FinancialApiBundle\Admin;
+namespace Test\FinancialApiBundle\Admin\B2B;
 
 use App\FinancialApiBundle\DataFixture\UserFixture;
 use Test\FinancialApiBundle\BaseApiTest;
@@ -8,10 +8,10 @@ use Test\FinancialApiBundle\CrudV3ReadTestInterface;
 use Test\FinancialApiBundle\CrudV3WriteTestInterface;
 
 /**
- * Class CrudV3WriteTest
- * @package Test\FinancialApiBundle\Admin
+ * Class WriteNamedObjectsTest
+ * @package Test\FinancialApiBundle\Admin\B2B
  */
-class CrudV3WriteTest extends BaseApiTest implements CrudV3WriteTestInterface {
+class WriteNamedObjectsTest extends BaseApiTest implements CrudV3WriteTestInterface {
 
     const ROUTES_TO_TEST = [
         'neighbourhoods',

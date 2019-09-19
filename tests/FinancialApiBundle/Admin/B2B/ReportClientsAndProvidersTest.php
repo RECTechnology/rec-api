@@ -1,15 +1,15 @@
 <?php
 
-namespace Test\FinancialApiBundle\Admin;
+namespace Test\FinancialApiBundle\Admin\B2B;
 
 use App\FinancialApiBundle\DataFixture\UserFixture;
 use Test\FinancialApiBundle\BaseApiTest;
 
 /**
- * Class B2BTest
- * @package Test\FinancialApiBundle\Admin
+ * Class ReportClientsAndProvidersTest
+ * @package Test\FinancialApiBundle\Admin\B2B
  */
-class B2BTest extends BaseApiTest {
+class ReportClientsAndProvidersTest extends BaseApiTest {
 
     function setUp(): void
     {
