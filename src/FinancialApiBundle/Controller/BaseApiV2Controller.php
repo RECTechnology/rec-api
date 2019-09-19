@@ -244,7 +244,7 @@ abstract class BaseApiV2Controller extends RestApiController implements Reposito
 
             if(!$rel) throw new HttpException(
                 Response::HTTP_BAD_REQUEST,
-                "Unrelated parameter"
+                "Unrelated parameter '$propertyName'"
             );
             return $rel->targetEntity;
 
@@ -498,6 +498,7 @@ abstract class BaseApiV2Controller extends RestApiController implements Reposito
         $em = $this->getDoctrine()->getManager();
         try{
             $em->flush();
+            return $entity;
         } catch(DBALException $e){
             if(preg_match('/1062 Duplicate entry/i',$e->getMessage()))
                 throw new HttpException(409, "Duplicated resource", $e);
@@ -505,7 +506,9 @@ abstract class BaseApiV2Controller extends RestApiController implements Reposito
                 throw new HttpException(400, "Parameter(s) not allowed", $e);
             else if(preg_match('/NOT NULL constraint failed/i', $e->getMessage()))
                 throw new HttpException(400, "Missed parameter(s)");
-            throw new HttpException(500, "Unknown error occurred when save", $e);
+            throw new HttpException(500, "Database error occurred when save", $e);
+        } catch (Exception $e){
+            throw new HttpException(500, "Unknown error occurred when save: " . $e->getMessage(), $e);
         }
     }
 
