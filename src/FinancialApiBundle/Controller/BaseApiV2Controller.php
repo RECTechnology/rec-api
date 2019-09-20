@@ -34,6 +34,7 @@ use Doctrine\ORM\Query;
 use Doctrine\ORM\QueryBuilder;
 use Exception;
 use Gedmo\Translatable\Entity\Translation;
+use Gedmo\Translatable\Query\TreeWalker\TranslationWalker;
 use Gedmo\Translatable\Translatable;
 use JMS\Serializer\Exception\ValidationFailedException;
 use JMS\Serializer\SerializationContext;
@@ -356,19 +357,23 @@ abstract class BaseApiV2Controller extends RestApiController implements Reposito
         $qb = $qb->where($where);
         //die($qb->getDQL());
         try {
-            $total = $qb
+            $qTotal = $qb
                 ->select('count(e.id)')
-                ->getQuery()
-                ->getSingleScalarResult();
-            $result = $qb
+                ->getQuery();
+            $qResult = $qb
                 ->select('e')
                 ->orderBy('e.' . $sort, $order)
                 ->setFirstResult($offset)
                 ->setMaxResults($limit)
-                ->getQuery()
-                ->getResult();
+                ->getQuery();
+                //->getResult();
 
-            return [intval($total), $result];
+            $qResult->setHint(
+                Query::HINT_CUSTOM_OUTPUT_WALKER,
+                TranslationWalker::class
+            );
+
+            return [intval($qTotal->getSingleScalarResult()), $qResult->getResult()];
 
         } catch (NonUniqueResultException $e) {
             throw new HttpException(400, "Invalid params, please check query", $e);
