@@ -8,11 +8,8 @@ namespace App\FinancialApiBundle\Entity;
 
 use Doctrine\ORM\Mapping as ORM;
 use Gedmo\Translatable\Translatable;
-use JMS\Serializer\Annotation as Serializer;
 use JMS\Serializer\Annotation\Groups;
 use Gedmo\Mapping\Annotation as Gedmo;
-use JMS\Serializer\Annotation\SerializedName;
-use JMS\Serializer\Annotation\VirtualProperty;
 
 /**
  * Class Neighbourhood
@@ -51,7 +48,7 @@ class Neighbourhood extends AppObject implements Translatable, Localizable {
 
     /**
      * @ORM\OneToMany(targetEntity="App\FinancialApiBundle\Entity\Group", mappedBy="neighbourhood")
-     * @Groups({"self"})
+     * @Groups({"manager"})
      */
     private $accounts;
 
@@ -135,12 +132,5 @@ class Neighbourhood extends AppObject implements Translatable, Localizable {
         return $this;
     }
 
-    /**
-     * @VirtualProperty(name="translations")
-     * @Groups({"public"})
-     */
-    public function getTranslations(){
-        return $this->translations;
-    }
 
 }

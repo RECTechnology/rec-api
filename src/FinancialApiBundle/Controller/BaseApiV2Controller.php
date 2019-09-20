@@ -9,6 +9,7 @@
 namespace App\FinancialApiBundle\Controller;
 
 use App\FinancialApiBundle\Entity\Localizable;
+use App\FinancialApiBundle\Entity\LocalizableTrait;
 use App\FinancialApiBundle\Exception\AppException;
 use DateTime;
 use DateTimeZone;
@@ -267,15 +268,15 @@ abstract class BaseApiV2Controller extends RestApiController implements Reposito
         if($this->getRequestLocale() !== 'all') {
             $result = $this->translatedCollection($result, $this->getRequestLocale());
         }
-
-        $result = $this->securizeOutput($result);
-        if($this->getRequestLocale() === 'all') {
+        elseif($this->getRequestLocale() === 'all') {
             $repository = $this->getDoctrine()->getManager()->getRepository(Translation::class);
-            foreach ($result as $index => $elem){
-                $result[$index]['translations'] = $repository->findTranslationsByObjectId($elem['id']);
+            /** @var LocalizableTrait $elem */
+            foreach ($result as $elem){
+                $elem->setTranslations($repository->findTranslations($elem));
             }
         }
 
+        $result = $this->securizeOutput($result);
         return $this->restV2(
             self::HTTP_STATUS_CODE_OK,
             "ok",
@@ -708,10 +709,6 @@ abstract class BaseApiV2Controller extends RestApiController implements Reposito
         $this->flush();
         return $entity;
     }
-
-
-
-
 
     /**
      * @param $role

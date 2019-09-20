@@ -4,6 +4,8 @@ namespace App\FinancialApiBundle\Entity;
 
 use Gedmo\Mapping\Annotation as Gedmo;
 use JMS\Serializer\Annotation as Serializer;
+use JMS\Serializer\Annotation\Groups;
+use JMS\Serializer\Annotation\VirtualProperty;
 
 /**
  * Trait LocalizableTrait
@@ -18,6 +20,9 @@ trait LocalizableTrait {
      */
     private $locale;
 
+    /**
+     * @Groups({"manager"})
+     */
     private $translations;
 
     function getTranslatableLocale(){
@@ -34,9 +39,12 @@ trait LocalizableTrait {
     }
 
     /**
-     * @return mixed
+     * @VirtualProperty(name="translations")
+     * @Serializer\Type(name="array")
+     * @Groups({"manager"})
      */
     public function getTranslations(){
         return $this->translations;
     }
+
 }
