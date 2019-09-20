@@ -14,19 +14,19 @@ class TranslationsTest extends BaseApiTest implements CrudV3WriteTestInterface {
 
     const ROUTES_TO_TEST = [
         'product_kinds' => [
-            'es' => ['name' => 'test es'],
-            'en' => ['name' => 'test en'],
-            'ca' => ['name' => 'test ca']
+            'es' => ['name' => 'product_kinds es'],
+            'en' => ['name' => 'product_kinds en'],
+            'ca' => ['name' => 'product_kinds ca']
         ],
         'activities' => [
-            'es' => ['name' => 'test es'],
-            'en' => ['name' => 'test en'],
-            'ca' => ['name' => 'test ca']
+            'es' => ['name' => 'activities es'],
+            'en' => ['name' => 'activities en'],
+            'ca' => ['name' => 'activities ca']
         ],
         'neighbourhoods' => [
-            'es' => ['name' => 'test es'],
-            'en' => ['name' => 'test en'],
-            'ca' => ['name' => 'test ca']
+            'es' => ['name' => 'neighbourhoods es'],
+            'en' => ['name' => 'neighbourhoods en'],
+            'ca' => ['name' => 'neighbourhoods ca']
         ],
     ];
 

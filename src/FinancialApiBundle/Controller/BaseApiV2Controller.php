@@ -61,7 +61,7 @@ abstract class BaseApiV2Controller extends RestApiController implements Reposito
     const HTTP_STATUS_CODE_OK = 200;
     const HTTP_STATUS_CODE_CREATED = 201;
 
-    const GET_MAX_LIMIT = 500;
+    const MAX_ELEMENTS_IN_GET = 500;
 
     const CRUD_SEARCH = "SEARCH";
     const CRUD_EXPORT = "EXPORT";
@@ -387,8 +387,8 @@ abstract class BaseApiV2Controller extends RestApiController implements Reposito
      */
     public function index(Request $request) {
         $limit = $request->query->get('limit', 10);
-        if($limit < 0 or $limit > static::GET_MAX_LIMIT)
-            throw new HttpException(400, "Invalid limit: must be between 1 and " . static::GET_MAX_LIMIT);
+        if($limit < 0 or $limit > static::MAX_ELEMENTS_IN_GET)
+            throw new HttpException(400, "Invalid limit: must be between 1 and " . static::MAX_ELEMENTS_IN_GET);
         return $this->indexUnlimited($request);
     }
 
