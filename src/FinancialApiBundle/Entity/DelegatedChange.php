@@ -18,10 +18,9 @@ use App\FinancialApiBundle\Validator\Constraint as RECAssert;
 
 /**
  * @ORM\Entity
- * @ORM\Table(name="delegated_change")
- * @ExclusionPolicy("all")
+ * @ORM\Table(name="delegated_changes")
  */
-class DelegatedChange {
+class DelegatedChange extends AppObject {
 
     const STATUS_DRAFT = "draft";
     const STATUS_SCHEDULED = "scheduled";
@@ -35,7 +34,6 @@ class DelegatedChange {
 
     public function __construct()
     {
-        $this->created = $this->updated = new DateTime();
         $this->data = new ArrayCollection();
         $this->status = DelegatedChange::STATUS_DRAFT;
         $this->statistics = [
@@ -53,20 +51,10 @@ class DelegatedChange {
 
 
     /**
-     * @ORM\Id
-     * @ORM\Column(type="integer")
-     * @ORM\GeneratedValue(strategy="AUTO")
-     * @Expose
-     */
-    protected $id;
-
-    /**
      * @ORM\Column(type="string")
      * @Assert\Choice({"draft", "scheduled", "in_progress", "finished"})
-     * @Expose
      */
     protected $status;
-
 
     /**
      * @Assert\IsTrue(message = "Delegated Change is not ready for schedule: maybe missing amounts? bank card data?")
@@ -103,20 +91,6 @@ class DelegatedChange {
     }
 
     /**
-     * @ORM\Column(type="datetime")
-     * @Expose
-     */
-    protected $created;
-
-
-    /**
-     * @ORM\Column(type="datetime")
-     * @Expose
-     */
-    protected $updated;
-
-
-    /**
      * @ORM\Column(type="json_array")
      * @Expose
      */
@@ -124,7 +98,6 @@ class DelegatedChange {
 
     /**
      * @ORM\Column(type="datetime", nullable=true)
-     * @Expose
      */
     private $scheduled_at;
 
@@ -139,43 +112,10 @@ class DelegatedChange {
 
     /**
      * @param mixed $scheduled_at
-     * @throws \Exception
      */
     public function setScheduledAt($scheduled_at)
     {
-        $this->scheduled_at = new DateTime($scheduled_at);
-    }
-
-    /**
-     * @return mixed
-     */
-    public function getCreated()
-    {
-        return $this->created;
-    }
-
-    /**
-     * @param mixed $created
-     */
-    public function setCreated($created)
-    {
-        $this->created = $created;
-    }
-
-    /**
-     * @return mixed
-     */
-    public function getUpdated()
-    {
-        return $this->updated;
-    }
-
-    /**
-     * @param mixed $updated
-     */
-    public function setUpdated($updated)
-    {
-        $this->updated = $updated;
+        $this->scheduled_at = $scheduled_at;
     }
 
     /**

@@ -33,7 +33,7 @@
         "doctrine/orm": "^2.5",
         "friendsofsymfony/oauth-server-bundle": "^1.0",
         "friendsofsymfony/rest-bundle": "^1.7",
-        "friendsofsymfony/user-bundle": "~2.0",
+        "friendsofsymfony/user-bundle": "^2.0",
         "galbar/jsonpath": "^1.0",
         "incenteev/composer-parameter-handler": "~2.0",
         "jms/serializer-bundle": "^2.0",

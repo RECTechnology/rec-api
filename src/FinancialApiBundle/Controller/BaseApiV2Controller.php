@@ -9,6 +9,7 @@
 namespace App\FinancialApiBundle\Controller;
 
 use App\FinancialApiBundle\Entity\Localizable;
+use App\FinancialApiBundle\Exception\AppException;
 use DateTime;
 use DateTimeZone;
 use Doctrine\Common\Annotations\AnnotationException;
@@ -33,6 +34,7 @@ use Doctrine\ORM\QueryBuilder;
 use Exception;
 use Gedmo\Translatable\Entity\Translation;
 use Gedmo\Translatable\Translatable;
+use JMS\Serializer\Exception\ValidationFailedException;
 use JMS\Serializer\SerializationContext;
 use JMS\Serializer\Serializer;
 use JsonPath\InvalidJsonException;
@@ -425,10 +427,10 @@ abstract class BaseApiV2Controller extends RestApiController implements Reposito
     /**
      * @param $entity
      * @param $params
-     * @return Response
+     * @return array
      * @throws AnnotationException
      */
-    private function setAction($entity, $params){
+    private function updateEntity($entity, $params) {
 
         $ar = new AnnotationReader();
         foreach ($params as $name => $value) {
@@ -480,7 +482,8 @@ abstract class BaseApiV2Controller extends RestApiController implements Reposito
         $em = $this->getDoctrine()->getManager();
         $errors = $this->get('validator')->validate($entity);
 
-        if(count($errors) > 0)  return $this->restV2(400, "error", "Validation error", $errors);
+        if(count($errors) > 0)
+            throw new AppException(400, "Validation error", $errors);
 
 
         if($entity instanceof Localizable){
@@ -505,7 +508,7 @@ abstract class BaseApiV2Controller extends RestApiController implements Reposito
                 throw new HttpException(400, "Parameter(s) not allowed", $e);
             else if(preg_match('/NOT NULL constraint failed/i', $e->getMessage()))
                 throw new HttpException(400, "Missed parameter(s)");
-            throw new HttpException(500, "Database error occurred when save", $e);
+            throw new HttpException(500, "Database error occurred when save: " . $e->getMessage(), $e);
         } catch (Exception $e){
             throw new HttpException(500, "Unknown error occurred when save: " . $e->getMessage(), $e);
         }
@@ -531,13 +534,13 @@ abstract class BaseApiV2Controller extends RestApiController implements Reposito
 
     /**
      * @param Request $request
-     * @return Response
+     * @return array
      * @throws AnnotationException
      */
     public function create(Request $request){
         $entity = $this->getNewEntity();
         $params = $request->request->all();
-        return $this->setAction($entity, $params);
+        return $this->updateEntity($entity, $params);
     }
 
 
@@ -579,7 +582,7 @@ abstract class BaseApiV2Controller extends RestApiController implements Reposito
 
         if(empty($entity)) throw new HttpException(404, "Not found");
 
-        return $this->setAction($entity, $params);
+        return $this->updateEntity($entity, $params);
     }
 
 

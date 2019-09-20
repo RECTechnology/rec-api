@@ -8,11 +8,9 @@
 
 namespace App\FinancialApiBundle\Entity;
 
-use DateTime;
 use Doctrine\ORM\Mapping as ORM;
 
-use JMS\Serializer\Annotation\ExclusionPolicy;
-use JMS\Serializer\Annotation\Expose;
+use JMS\Serializer\Annotation as Serializer;
 
 use Symfony\Component\Validator\Constraints as Assert;
 use App\FinancialApiBundle\Document\Transaction;
@@ -29,62 +27,41 @@ use App\FinancialApiBundle\Validator\Constraint as RECAssert;
  *          }
  *     )
  * })
- * @ExclusionPolicy("all")
  */
-class DelegatedChangeData{
+class DelegatedChangeData extends AppObject {
 
     const STATUS_SUCCESS = "success";
     const STATUS_ERROR = "error";
 
     public function __construct()
     {
-        $this->created = $this->updated = new DateTime();
         $this->status = "new";
     }
 
     /**
-     * @ORM\Id
-     * @ORM\Column(type="integer")
-     * @ORM\GeneratedValue(strategy="AUTO")
-     * @Expose
-     */
-    protected $id;
-
-    /**
-     * @ORM\Column(type="datetime")
-     * @Expose
-     */
-    protected $created;
-
-
-    /**
-     * @ORM\Column(type="datetime")
-     * @Expose
-     */
-    protected $updated;
-
-
-    /**
-     * @Assert\NotNull
+     * @Assert\NotNull()
+     * @Assert\NotBlank()
      * @ORM\ManyToOne(targetEntity="App\FinancialApiBundle\Entity\DelegatedChange", inversedBy="data")
-     * @Expose
+     * @Serializer\Groups({"admin"})
      */
     private $delegated_change;
 
 
     /**
-     * @Assert\NotNull
-     * @RECAssert\IsUser
+     * @Assert\NotNull()
+     * @Assert\NotBlank()
+     * @RECAssert\IsUser()
      * @ORM\ManyToOne(targetEntity="App\FinancialApiBundle\Entity\Group")
-     * @Expose
+     * @Serializer\Groups({"admin"})
      */
     private $account;
 
     /**
-     * @Assert\NotNull
-     * @RECAssert\IsCommerce
+     * @Assert\NotNull()
+     * @Assert\NotBlank()
+     * @RECAssert\IsCommerce()
      * @ORM\ManyToOne(targetEntity="App\FinancialApiBundle\Entity\Group")
-     * @Expose
+     * @Serializer\Groups({"admin"})
      */
     private $exchanger;
 
@@ -92,7 +69,7 @@ class DelegatedChangeData{
     /**
      * @Assert\CardScheme(schemes={"VISA", "MASTERCARD"})
      * @ORM\Column(type="string", nullable=true)
-     * @Expose
+     * @Serializer\Groups({"admin"})
      */
     private $pan;
 
@@ -103,7 +80,7 @@ class DelegatedChangeData{
      * )
      * @RECAssert\IsNotExpired
      * @ORM\Column(type="string", nullable=true)
-     * @Expose
+     * @Serializer\Groups({"admin"})
      */
     private $expiry_date;
 
@@ -113,29 +90,29 @@ class DelegatedChangeData{
      *     message="Invalid cvv2 format: must contain exactly three digits."
      * )
      * @ORM\Column(type="string", nullable=true)
-     * @Expose
+     * @Serializer\Groups({"admin"})
      */
     private $cvv2;
 
     /**
      * @Assert\NotNull
      * @ORM\Column(type="float", nullable=true)
-     * @Expose
+     * @Serializer\Groups({"admin"})
      */
     private $amount;
 
     /**
      * @Assert\NotNull
      * @ORM\Column(type="string")
-     * @Expose
+     * @Serializer\Groups({"admin"})
      */
     private $status;
 
     /**
      * @ORM\Column(type="string", nullable=true)
+     * @Serializer\Groups({"admin"})
      */
     private $transaction_ref;
-
 
 
     private $transaction;
@@ -181,15 +158,15 @@ class DelegatedChangeData{
     {
         return $this->exchanger;
     }
+
     /**
      * @param mixed $exchanger
      */
     public function setExchanger($exchanger)
     {
-            $this->exchanger = $exchanger;
+        $this->exchanger = $exchanger;
 
     }
-
 
     /**
      * @return mixed
@@ -274,38 +251,6 @@ class DelegatedChangeData{
     /**
      * @return mixed
      */
-    public function getCreated()
-    {
-        return $this->created;
-    }
-
-    /**
-     * @param mixed $created
-     */
-    public function setCreated($created)
-    {
-        $this->created = $created;
-    }
-
-    /**
-     * @return mixed
-     */
-    public function getUpdated()
-    {
-        return $this->updated;
-    }
-
-    /**
-     * @param mixed $updated
-     */
-    public function setUpdated($updated)
-    {
-        $this->updated = $updated;
-    }
-
-    /**
-     * @return mixed
-     */
     public function getTransaction()
     {
         return $this->transaction;
@@ -318,13 +263,4 @@ class DelegatedChangeData{
     {
         $this->transaction_ref = $transaction->getId();
     }
-
-    /**
-     * @return mixed
-     */
-    public function getId()
-    {
-        return $this->id;
-    }
-
 }
