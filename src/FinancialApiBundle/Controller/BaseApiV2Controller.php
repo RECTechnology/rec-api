@@ -507,7 +507,7 @@ abstract class BaseApiV2Controller extends RestApiController implements Reposito
             else if(preg_match('/1048 Column/i',$e->getMessage()))
                 throw new HttpException(400, "Parameter(s) not allowed", $e);
             else if(preg_match('/NOT NULL constraint failed/i', $e->getMessage()))
-                throw new HttpException(400, "Missed parameter(s)");
+                throw new HttpException(400, "Missed parameter(s)", $e);
             throw new HttpException(500, "Database error occurred when save: " . $e->getMessage(), $e);
         } catch (Exception $e){
             throw new HttpException(500, "Unknown error occurred when save: " . $e->getMessage(), $e);
