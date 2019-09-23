@@ -266,14 +266,16 @@ abstract class BaseApiV2Controller extends RestApiController implements Reposito
         $this->checkPermissions($role, self::CRUD_INDEX);
 
         list($total, $result) = $this->index($request);
-        if($this->getRequestLocale() !== 'all') {
-            $result = $this->translatedCollection($result, $this->getRequestLocale());
-        }
-        elseif($this->getRequestLocale() === 'all') {
-            $repository = $this->getDoctrine()->getManager()->getRepository(Translation::class);
-            /** @var LocalizableTrait $elem */
-            foreach ($result as $elem){
-                $elem->setTranslations($repository->findTranslations($elem));
+        if(count($result) > 0 && $result[0] instanceof Translatable){
+            if($this->getRequestLocale() !== 'all') {
+                $result = $this->translatedCollection($result, $this->getRequestLocale());
+            }
+            elseif($this->getRequestLocale() === 'all') {
+                $repository = $this->getDoctrine()->getManager()->getRepository(Translation::class);
+                /** @var LocalizableTrait $elem */
+                foreach ($result as $elem){
+                    $elem->setTranslations($repository->findTranslations($elem));
+                }
             }
         }
 
@@ -366,7 +368,7 @@ abstract class BaseApiV2Controller extends RestApiController implements Reposito
                 ->setFirstResult($offset)
                 ->setMaxResults($limit)
                 ->getQuery();
-                //->getResult();
+            //->getResult();
 
             $qResult->setHint(
                 Query::HINT_CUSTOM_OUTPUT_WALKER,
