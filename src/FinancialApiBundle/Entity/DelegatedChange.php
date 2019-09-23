@@ -6,6 +6,7 @@ use DateTime;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\ORM\Mapping as ORM;
 
+use JMS\Serializer\Annotation as Serializer;
 use JMS\Serializer\Annotation\ExclusionPolicy;
 use JMS\Serializer\Annotation\Expose;
 use JMS\Serializer\Annotation\VirtualProperty;
@@ -53,6 +54,7 @@ class DelegatedChange extends AppObject {
     /**
      * @ORM\Column(type="string")
      * @Assert\Choice({"draft", "scheduled", "in_progress", "finished"})
+     * @Serializer\Groups({"admin"})
      */
     protected $status;
 
@@ -79,6 +81,7 @@ class DelegatedChange extends AppObject {
 
     /**
      * @ORM\OneToMany(targetEntity="App\FinancialApiBundle\Entity\DelegatedChangeData", mappedBy="delegated_change", cascade={"remove"})
+     * @Serializer\Groups({"admin"})
      */
     protected $data;
 
@@ -92,12 +95,13 @@ class DelegatedChange extends AppObject {
 
     /**
      * @ORM\Column(type="json_array")
-     * @Expose
+     * @Serializer\Groups({"admin"})
      */
     private $statistics;
 
     /**
      * @ORM\Column(type="datetime", nullable=true)
+     * @Serializer\Groups({"admin"})
      */
     private $scheduled_at;
 
