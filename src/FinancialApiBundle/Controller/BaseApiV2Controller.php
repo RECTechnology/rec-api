@@ -165,6 +165,7 @@ abstract class BaseApiV2Controller extends RestApiController implements Reposito
         ];
 
         $ctx = new SerializationContext();
+        $ctx->enableMaxDepthChecks();
         if($tokenStorage->getToken()){
             foreach($grantsMap as $grant => $serializationGroup){
                 if($auth->isGranted($grant)) {
@@ -175,7 +176,6 @@ abstract class BaseApiV2Controller extends RestApiController implements Reposito
         }
 
         $ctx->setGroups(Group::SERIALIZATION_GROUPS_PUBLIC);
-        $ctx->enableMaxDepthChecks();
         return $ctx;
     }
 
