@@ -9,6 +9,7 @@ namespace App\FinancialApiBundle\Entity;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\ORM\Mapping as ORM;
 use Gedmo\Translatable\Translatable;
+use JMS\Serializer\Annotation as Serializer;
 use JMS\Serializer\Annotation\Groups;
 use Gedmo\Mapping\Annotation as Gedmo;
 
@@ -39,6 +40,7 @@ class ProductKind extends AppObject implements Translatable, Localizable {
      * @ORM\ManyToMany(targetEntity="App\FinancialApiBundle\Entity\Group", inversedBy="producing_products")
      * @ORM\JoinTable(name="accounts_products_producing")
      * @Groups({"public"})
+     * @Serializer\MaxDepth(2)
      */
     private $producing_by;
 
@@ -46,6 +48,7 @@ class ProductKind extends AppObject implements Translatable, Localizable {
      * @ORM\ManyToMany(targetEntity="App\FinancialApiBundle\Entity\Group", inversedBy="consuming_products")
      * @ORM\JoinTable(name="accounts_products_consuming")
      * @Groups({"public"})
+     * @Serializer\MaxDepth(2)
      */
     private $consuming_by;
 
@@ -53,6 +56,7 @@ class ProductKind extends AppObject implements Translatable, Localizable {
      * @ORM\ManyToMany(targetEntity="App\FinancialApiBundle\Entity\Activity", inversedBy="default_producing_products")
      * @ORM\JoinTable(name="activities_products_producing")
      * @Groups({"public"})
+     * @Serializer\MaxDepth(2)
      */
     private $default_producing_by;
 
@@ -60,6 +64,7 @@ class ProductKind extends AppObject implements Translatable, Localizable {
      * @ORM\ManyToMany(targetEntity="App\FinancialApiBundle\Entity\Activity", inversedBy="default_consuming_products")
      * @ORM\JoinTable(name="activities_products_consuming")
      * @Groups({"public"})
+     * @Serializer\MaxDepth(2)
      */
     private $default_consuming_by;
 

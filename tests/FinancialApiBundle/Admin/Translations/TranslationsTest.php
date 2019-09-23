@@ -40,6 +40,25 @@ class TranslationsTest extends BaseApiTest implements CrudV3WriteTestInterface {
         $this->signIn(UserFixture::TEST_ADMIN_CREDENTIALS);
     }
 
+    function testBothTranslatableAndNoTranslatableEnitiesShouldSuccessToIndex()
+    {
+        $route = '/admin/v3/accounts';
+        $resp = $this->requestJson('GET', $route, null, ['Accept-Language' => 'all']);
+        self::assertEquals(
+            200,
+            $resp->getStatusCode(),
+            "route: $route, status_code: {$resp->getStatusCode()}, content: {$resp->getContent()}"
+        );
+
+        $route = '/admin/v3/product_kinds';
+        $resp = $this->requestJson('GET', $route, null, ['Accept-Language' => 'all']);
+        self::assertEquals(
+            200,
+            $resp->getStatusCode(),
+            "route: $route, status_code: {$resp->getStatusCode()}, content: {$resp->getContent()}"
+        );
+    }
+
     function testCreate() {
         foreach (self::LANGUAGES_TO_TEST as $lang) {
             foreach (self::ROUTES_TO_TEST as $name => $params) {

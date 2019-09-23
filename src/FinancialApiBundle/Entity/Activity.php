@@ -39,18 +39,21 @@ class Activity extends AppObject implements Translatable, Localizable {
     /**
      * @ORM\ManyToMany(targetEntity="App\FinancialApiBundle\Entity\Group", inversedBy="activities")
      * @Groups({"public"})
+     * @Serializer\MaxDepth(2)
      */
     private $accounts;
 
     /**
      * @ORM\ManyToMany(targetEntity="App\FinancialApiBundle\Entity\ProductKind", mappedBy="default_producing_by")
      * @Groups({"public"})
+     * @Serializer\MaxDepth(2)
      */
     private $default_producing_products;
 
     /**
      * @ORM\ManyToMany(targetEntity="App\FinancialApiBundle\Entity\ProductKind", mappedBy="default_consuming_by")
      * @Groups({"public"})
+     * @Serializer\MaxDepth(2)
      */
     private $default_consuming_products;
 
