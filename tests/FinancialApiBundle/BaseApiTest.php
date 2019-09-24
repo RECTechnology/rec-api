@@ -128,7 +128,7 @@ abstract class BaseApiTest extends WebTestCase {
      */
     protected function clearDatabase(Client $client){
         $this->createDatabase($client);
-        $this->runCommand($client, 'doctrine:schema:create');
+        $this->runCommand($client, 'doctrine:schema:update', ['--force']);
     }
 
 
