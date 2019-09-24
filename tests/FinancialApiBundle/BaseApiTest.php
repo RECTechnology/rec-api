@@ -128,8 +128,7 @@ abstract class BaseApiTest extends WebTestCase {
      */
     protected function clearDatabase(Client $client){
         $this->createDatabase($client);
-        $purger = new ORMPurger($client->getContainer()->get('doctrine.orm.entity_manager'));
-        $purger->purge();
+        $this->runCommand($client, 'doctrine:schema:create');
     }
 
 
