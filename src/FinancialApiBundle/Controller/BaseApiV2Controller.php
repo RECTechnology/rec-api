@@ -515,12 +515,14 @@ abstract class BaseApiV2Controller extends RestApiController implements Reposito
         try{
             $em->flush();
         } catch(DBALException $e){
-            if(preg_match('/1062 Duplicate entry/i',$e->getMessage()))
-                throw new HttpException(409, "Duplicated resource", $e);
+            if(preg_match('/1062 Duplicate entry/i', $e->getMessage()))
+                throw new HttpException(409, "Duplicated resource (duplicated entry)", $e);
             else if(preg_match('/1048 Column/i',$e->getMessage()))
                 throw new HttpException(400, "Parameter(s) not allowed", $e);
             else if(preg_match('/NOT NULL constraint failed/i', $e->getMessage()))
                 throw new HttpException(400, "Missed parameter(s)", $e);
+            else if(preg_match('/UNIQUE constraint failed/i', $e->getMessage()))
+                throw new HttpException(409, "Duplicated resource (multiple parameters duplicated)", $e);
             throw new HttpException(500, "Database error occurred when save: " . $e->getMessage(), $e);
         } catch (Exception $e){
             throw new HttpException(500, "Unknown error occurred when save: " . $e->getMessage(), $e);

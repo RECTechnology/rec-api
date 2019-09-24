@@ -34,12 +34,11 @@ class AccountFixture extends Fixture implements DependentFixtureInterface {
     {
         $faker = Factory::create();
 
-        $user = $orm
-            ->getRepository(User::class)
+        $user = $orm->getRepository(User::class)
             ->findOneBy(['username' => UserFixture::TEST_USER_CREDENTIALS['username']]);
 
-        //This user has an USER account, and a bmincomer account
-        $this->createAccount($orm, $faker, $user);
+        //This user has a private USER account, and a bmincomer account
+        $this->createAccount($orm, $faker, $user, [BaseApiV2Controller::ROLE_SUPER_USER]);
         $this->createAccount(
             $orm,
             $faker,
@@ -50,11 +49,10 @@ class AccountFixture extends Fixture implements DependentFixtureInterface {
             1
         );
 
-        $admin = $orm
-            ->getRepository(User::class)
+        $admin = $orm->getRepository(User::class)
             ->findOneBy(['username' => UserFixture::TEST_ADMIN_CREDENTIALS['username']]);
 
-        //This user has an ADMIN account, and a RETAILER account
+        //This user has an ADMIN account, a RETAILER and WHOLESALE accounts
         $this->createAccount($orm, $faker, $admin, [BaseApiV2Controller::ROLE_SUPER_ADMIN]);
         $this->createAccount(
             $orm,
@@ -63,6 +61,15 @@ class AccountFixture extends Fixture implements DependentFixtureInterface {
             [BaseApiV2Controller::ROLE_ORGANIZATION],
             self::ACCOUNT_TYPE_ORGANIZATION,
             self::ACCOUNT_SUBTYPE_RETAILER,
+            2
+        );
+        $this->createAccount(
+            $orm,
+            $faker,
+            $admin,
+            [BaseApiV2Controller::ROLE_ORGANIZATION],
+            self::ACCOUNT_TYPE_ORGANIZATION,
+            self::ACCOUNT_SUBTYPE_WHOLESALE,
             2
         );
 
@@ -76,6 +83,7 @@ class AccountFixture extends Fixture implements DependentFixtureInterface {
      * @param User $user
      * @param array $roles
      * @param string $type
+     * @param string $subtype
      * @param int $tier
      * @throws \Exception
      */
@@ -90,6 +98,7 @@ class AccountFixture extends Fixture implements DependentFixtureInterface {
         $account->setRoles($roles);
         $account->setKycManager($user);
         $account->setType($type);
+        $account->setSubtype($subtype);
         $account->setTier($tier);
 
         $userAccount = new UserGroup();
