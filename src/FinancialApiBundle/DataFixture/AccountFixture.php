@@ -17,6 +17,13 @@ use Faker\Generator;
 
 class AccountFixture extends Fixture implements DependentFixtureInterface {
 
+    const ACCOUNT_TYPE_PRIVATE = 'PRIVATE';
+    const ACCOUNT_TYPE_ORGANIZATION = 'COMPANY';
+    const ACCOUNT_SUBTYPE_NORMAL = 'NORMAL';
+    const ACCOUNT_SUBTYPE_BMINCOME = 'BMINCOME';
+    const ACCOUNT_SUBTYPE_WHOLESALE = 'WHOLESALE';
+    const ACCOUNT_SUBTYPE_RETAILER = 'RETAILER';
+
     /**
      * Load data fixtures with the passed EntityManager
      *
@@ -31,13 +38,34 @@ class AccountFixture extends Fixture implements DependentFixtureInterface {
             ->getRepository(User::class)
             ->findOneBy(['username' => UserFixture::TEST_USER_CREDENTIALS['username']]);
 
-        $this->createAccount($orm, $faker, $user, [BaseApiV2Controller::ROLE_SUPER_USER]);
+        //This user has an USER account, and a bmincomer account
+        $this->createAccount($orm, $faker, $user);
+        $this->createAccount(
+            $orm,
+            $faker,
+            $user,
+            [],
+            self::ACCOUNT_TYPE_PRIVATE,
+            self::ACCOUNT_SUBTYPE_BMINCOME,
+            1
+        );
 
         $admin = $orm
             ->getRepository(User::class)
             ->findOneBy(['username' => UserFixture::TEST_ADMIN_CREDENTIALS['username']]);
 
+        //This user has an ADMIN account, and a RETAILER account
         $this->createAccount($orm, $faker, $admin, [BaseApiV2Controller::ROLE_SUPER_ADMIN]);
+        $this->createAccount(
+            $orm,
+            $faker,
+            $admin,
+            [BaseApiV2Controller::ROLE_ORGANIZATION],
+            self::ACCOUNT_TYPE_ORGANIZATION,
+            self::ACCOUNT_SUBTYPE_RETAILER,
+            2
+        );
+
 
         $orm->flush();
     }
@@ -47,9 +75,11 @@ class AccountFixture extends Fixture implements DependentFixtureInterface {
      * @param Generator $faker
      * @param User $user
      * @param array $roles
+     * @param string $type
+     * @param int $tier
      * @throws \Exception
      */
-    private function createAccount(ObjectManager $orm, Generator $faker, User $user, array $roles){
+    private function createAccount(ObjectManager $orm, Generator $faker, User $user, array $roles = [], string $type = self::ACCOUNT_TYPE_PRIVATE, string $subtype = self::ACCOUNT_SUBTYPE_NORMAL, int $tier = 1){
 
         $account = new Account();
         $account->setName($faker->name);
@@ -59,21 +89,25 @@ class AccountFixture extends Fixture implements DependentFixtureInterface {
         $account->setActive(true);
         $account->setRoles($roles);
         $account->setKycManager($user);
+        $account->setType($type);
+        $account->setTier($tier);
 
-        $userGroup = new UserGroup();
-        $userGroup->setGroup($account);
-        $userGroup->setUser($user);
-        $userGroup->setRoles(['ROLE_ADMIN']); //User is admin in the account
+        $userAccount = new UserGroup();
+        $userAccount->setGroup($account);
+        $userAccount->setUser($user);
+        $userAccount->setRoles(['ROLE_ADMIN']); //User is admin in the account
 
-        $kyc = new KYC();
-        $kyc->setUser($user);
-        $kyc->setName($user->getName());
-        $kyc->setEmail($user->getEmail());
+        if($user->getKycValidations()) {
+            $kyc = new KYC();
+            $kyc->setUser($user);
+            $kyc->setName($user->getName());
+            $kyc->setEmail($user->getEmail());
+            $orm->persist($kyc);
+        }
 
-        $orm->persist($kyc);
         $orm->persist($account);
         $orm->persist($user);
-        $orm->persist($userGroup);
+        $orm->persist($userAccount);
     }
 
     public function getDependencies(){

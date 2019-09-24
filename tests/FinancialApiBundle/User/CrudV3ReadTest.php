@@ -57,7 +57,7 @@ class CrudV3ReadTest extends BaseApiTest implements CrudV3ReadTestInterface {
     function testShow()
     {
         foreach (self::CRUD_V3_ROUTES as $route) {
-            $resp = $this->request('GET', '/user/v3/' . $route . '/1');
+            $resp = $this->request('GET', '/user/v3/' . $route . '/9999999999');
             self::assertEquals(
                 404,
                 $resp->getStatusCode(),

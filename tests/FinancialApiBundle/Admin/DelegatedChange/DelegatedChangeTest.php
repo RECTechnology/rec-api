@@ -36,23 +36,41 @@ class DelegatedChangeTest extends BaseApiTest implements CrudV3WriteTestInterfac
 
     function testCreate()
     {
-        $this->markTestIncomplete("Need more fixtures.");
         $dcContent = $this->createEmptyDelegatedChange();
         self::assertGreaterThan(0, $dcContent->data->id);
 
-        $resp = $this->requestJson('GET', '/admin/v3/accounts');
-        $accounts = json_decode($resp->getContent())->data->elements;
-        foreach ($accounts as $account){
-            $resp = $this->requestJson(
-                'POST',
-                '/admin/v3/delegated_change_data',
-                [
-                    'account_id' => $account->id,
-                    'exchanger_id' => $account->id,
-                    'delegated_change_id' => $dcContent->data->id
-                ]
-            );
-            self::assertEquals(201, $resp->getStatusCode(), $resp->getContent());
+        $resp = $this->requestJson('GET', '/admin/v3/accounts?type=PRIVATE');
+        $users = json_decode($resp->getContent())->data->elements;
+        self::assertGreaterThan(0, count($users));
+        $resp = $this->requestJson('GET', '/admin/v3/accounts?type=COMPANY&tier=2');
+        $exchangers = json_decode($resp->getContent())->data->elements;
+        self::assertGreaterThan(0, count($exchangers));
+        foreach ($users as $user){
+            foreach ($exchangers as $exchanger){
+                $resp = $this->requestJson(
+                    'POST',
+                    '/admin/v3/delegated_change_data',
+                    [
+                        'account_id' => $user->id,
+                        'exchanger_id' => $exchanger->id,
+                        'delegated_change_id' => $dcContent->data->id,
+                        'amount' => 200
+                    ]
+                );
+                self::assertEquals(201, $resp->getStatusCode(), $resp->getContent());
+
+                $resp = $this->requestJson(
+                    'GET',
+                    '/admin/v3/delegated_change_data?delegated_change_id=' . $dcContent->data->id
+                );
+                self::assertEquals(200, $resp->getStatusCode(), $resp->getContent());
+
+                $resp = $this->requestJson(
+                    'GET',
+                    '/admin/v3/delegated_change_data?delegate_change_id=' . $dcContent->data->id
+                );
+                self::assertEquals(400, $resp->getStatusCode(), $resp->getContent());
+            }
         }
 
     }

@@ -128,7 +128,8 @@ abstract class BaseApiTest extends WebTestCase {
      */
     protected function clearDatabase(Client $client){
         $this->createDatabase($client);
-        $this->runCommand($client, 'doctrine:schema:create');
+        $purger = new ORMPurger($client->getContainer()->get('doctrine.orm.entity_manager'));
+        $purger->purge();
     }
 
 
@@ -152,9 +153,8 @@ abstract class BaseApiTest extends WebTestCase {
         $application->setAutoExit(false);
         $fullCommand = array_merge(['command' => $command], $args);
         $output = new BufferedOutput();
-        $application->run(new ArrayInput($fullCommand), $output);
-
         $application->setCatchExceptions(false);
+        $application->run(new ArrayInput($fullCommand), $output);
         return $output->fetch();
     }
 

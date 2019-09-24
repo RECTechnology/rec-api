@@ -71,6 +71,8 @@ abstract class BaseApiV2Controller extends RestApiController implements Reposito
     const CRUD_UPDATE = 'UPDATE';
     const CRUD_DELETE = 'DELETE';
 
+    const ROLE_ORGANIZATION = "ROLE_COMPANY";
+
     const ROLE_ROOT = "ROLE_ROOT";
     const ROLE_SUPER_MANAGER = "ROLE_SUPER_MANAGER";
     const ROLE_SUPER_ADMIN = "ROLE_SUPER_ADMIN";
@@ -327,6 +329,9 @@ abstract class BaseApiV2Controller extends RestApiController implements Reposito
         foreach ($request->query->keys() as $key){
             if(substr($key, -3) === "_id") {
                 $name = substr($key, 0, strlen($key) - 3);
+                if(!property_exists($className, $name)) {
+                    throw new HttpException(400, "Bad parameter '$key'");
+                }
                 $kvFilter->add($qb->expr()->eq('IDENTITY(e.' . $name . ')', $request->query->get($key)));
             }
             elseif(property_exists($className, $key)){
