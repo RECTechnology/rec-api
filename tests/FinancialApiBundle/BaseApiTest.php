@@ -24,6 +24,7 @@ use Symfony\Component\Console\Output\StreamOutput;
 use Symfony\Component\DomCrawler\Crawler;
 use Symfony\Component\Filesystem\Filesystem;
 use Symfony\Component\HttpFoundation\Response;
+use Symfony\Component\Yaml\Yaml;
 
 abstract class BaseApiTest extends WebTestCase {
 
@@ -133,10 +134,29 @@ abstract class BaseApiTest extends WebTestCase {
         $this->runCommand($client, 'doctrine:schema:create');
     }
 
+    /**
+     * @param string $string
+     * @param Client $client
+     * @return string|string[]|null
+     */
+    protected function resolveString(string $string, Client $client){
+        preg_match_all('/%([^%]+)%/', $string, $matches);
+        if(count($matches) > 1){
+            for($i = 0; $i < count($matches[0]); $i++){
+                $paramName = $matches[1][$i];
+                $match = $matches[0][$i];
+                $param = $client->getContainer()->getParameter($paramName);
+                $string = preg_replace("/$match/", $param, $string);
+            }
+        }
+        return $string;
+    }
 
     protected function removeDatabase(Client $client) {
+        $config = Yaml::parseFile($client->getKernel()->getRootDir() . '/../app/config/config_test.yml');
         $fs = new Filesystem();
-        $dbFile = $client->getKernel()->getRootDir() . '/../var/db/test.sqlite';
+        $dbUrl = $config['doctrine']['dbal']['url'];
+        $dbFile = $this->resolveString(explode('::', $dbUrl)[1], $client);
         if($fs->exists($dbFile)) $fs->remove($dbFile);
     }
 
