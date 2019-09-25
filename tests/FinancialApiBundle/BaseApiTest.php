@@ -22,6 +22,7 @@ use Symfony\Component\Console\Output\BufferedOutput;
 use Symfony\Component\Console\Output\NullOutput;
 use Symfony\Component\Console\Output\StreamOutput;
 use Symfony\Component\DomCrawler\Crawler;
+use Symfony\Component\Filesystem\Filesystem;
 use Symfony\Component\HttpFoundation\Response;
 
 abstract class BaseApiTest extends WebTestCase {
@@ -127,18 +128,13 @@ abstract class BaseApiTest extends WebTestCase {
      * @throws \Exception
      */
     protected function clearDatabase(Client $client){
-        $this->createDatabase($client);
-        $this->runCommand($client, 'doctrine:schema:update', ['--force']);
-    }
-
-
-    /**
-     * @param Client $client
-     * @throws \Exception
-     */
-    protected function createDatabase(Client $client){
+        $fs = new Filesystem();
+        $dbFile = $client->getKernel()->getRootDir() . '/../var/db/test.sqlite';
+        if($fs->exists($dbFile)) $fs->remove($dbFile);
         $this->runCommand($client, 'doctrine:database:create', ['--if-not-exists']);
+        $this->runCommand($client, 'doctrine:schema:create');
     }
+
 
     /**
      * @param Client $client

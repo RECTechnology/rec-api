@@ -76,7 +76,6 @@ class DelegatedChangeTest extends BaseApiTest implements CrudV3WriteTestInterfac
 
     function testUpdate()
     {
-        $this->markTestIncomplete("Need more fixtures.");
         $nextWeek = new \DateTime("next week");
         $content = $this->createEmptyDelegatedChange();
         $route = '/admin/v3/delegated_changes/' . $content->data->id;
@@ -96,7 +95,6 @@ class DelegatedChangeTest extends BaseApiTest implements CrudV3WriteTestInterfac
 
     function testDelete()
     {
-        $this->markTestIncomplete("Need more fixtures.");
         $content = $this->createEmptyDelegatedChange();
         $route = '/admin/v3/delegated_changes/' . $content->data->id;
         $resp = $this->requestJson('DELETE', $route);
