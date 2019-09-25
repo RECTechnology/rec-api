@@ -128,13 +128,17 @@ abstract class BaseApiTest extends WebTestCase {
      * @throws \Exception
      */
     protected function clearDatabase(Client $client){
-        $fs = new Filesystem();
-        $dbFile = $client->getKernel()->getRootDir() . '/../var/db/test.sqlite';
-        if($fs->exists($dbFile)) $fs->remove($dbFile);
+        $this->removeDatabase($client);
         $this->runCommand($client, 'doctrine:database:create', ['--if-not-exists']);
         $this->runCommand($client, 'doctrine:schema:create');
     }
 
+
+    protected function removeDatabase(Client $client) {
+        $fs = new Filesystem();
+        $dbFile = $client->getKernel()->getRootDir() . '/../var/db/test.sqlite';
+        if($fs->exists($dbFile)) $fs->remove($dbFile);
+    }
 
     /**
      * @param Client $client
@@ -172,5 +176,11 @@ abstract class BaseApiTest extends WebTestCase {
         $this->testFactory = new TestDataFactory($client);
         $this->clearDatabase($client);
         $this->loadFixtures($client);
+    }
+
+    protected function tearDown(): void {
+        parent::tearDown();
+        $client = static::createClient();
+        $this->removeDatabase($client);
     }
 }
