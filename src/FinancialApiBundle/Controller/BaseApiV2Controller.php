@@ -418,7 +418,16 @@ abstract class BaseApiV2Controller extends RestApiController implements Reposito
         $this->checkPermissions($role, self::CRUD_SHOW);
         $entity = $this->show($id);
 
-        $entity = $this->translatedElement($entity, $this->getRequestLocale());
+        if($entity instanceof Translatable){
+            if($this->getRequestLocale() !== 'all') {
+                $entity = $this->translatedElement($entity, $this->getRequestLocale());
+            }
+            elseif($this->getRequestLocale() === 'all') {
+                $repository = $this->getDoctrine()->getManager()->getRepository(Translation::class);
+                $entity->setTranslations($repository->findTranslations($entity));
+            }
+        }
+
         $output = $this->securizeOutput($entity);
         return $this->restV2(self::HTTP_STATUS_CODE_OK,
             "ok",
