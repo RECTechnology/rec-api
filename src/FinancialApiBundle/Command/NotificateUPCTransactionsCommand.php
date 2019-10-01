@@ -35,6 +35,13 @@ class NotificateUPCTransactionsCommand extends ContainerAwareCommand {
                 'midnight'
             )
             ->addOption(
+                'stop',
+                null,
+                InputOption::VALUE_OPTIONAL,
+                'When you want to stop notifying transactions to UPC? (default: now) in relative format (see https://www.php.net/manual/en/datetime.formats.relative.php)',
+                'now'
+            )
+            ->addOption(
                 'force',
                 null,
                 InputOption::VALUE_OPTIONAL,
@@ -102,6 +109,21 @@ class NotificateUPCTransactionsCommand extends ContainerAwareCommand {
         }
         $output->writeln("Searching transaction since " . $since->format('c') );
 
+
+        $stopOption = $input->getOption("stop");
+        try {
+            $stop = new \DateTime($stopOption);
+            $stop->setTimezone(new \DateTimeZone("Europe/Madrid"));
+        } catch (\Exception $e) {
+            $output->writeln("ERROR: invalid --stop parameter, see https://www.php.net/manual/en/datetime.formats.relative.php");
+            exit(-2);
+        }
+        if(new \DateTime('now') < $stop) {
+            $output->writeln("ERROR: --stop parameter must be in the past");
+            exit(-2);
+        }
+        $output->writeln("Searching transaction stop " . $stop->format('c') );
+
         /** @var DocumentManager $dm */
         $dm = $this->getContainer()->get('doctrine_mongodb')->getManager();
         /** @var TransactionRepository $txRepo */
@@ -121,6 +143,7 @@ class NotificateUPCTransactionsCommand extends ContainerAwareCommand {
         $output->writeln("Found {$countBmincomers} Total BMIncomers ");
 
         $isoSince = $since->format('c');
+        $isoStop = $stop->format('c');
 
         $q = $txRepo->createQueryBuilder()
             ->field('internal')->equals(false)
@@ -129,8 +152,8 @@ class NotificateUPCTransactionsCommand extends ContainerAwareCommand {
             //TODO: convert mongo Txs dates from string to ISODate and remove this code
             ->where("function(){
                 if(this.updated instanceof Date)
-                    return (this.updated > ISODate('$isoSince'));
-                return (this.updated > '$isoSince');
+                    return (this.updated > ISODate('$isoSince') && this.updated < ISODate('$isoStop'));
+                return (this.updated > '$isoSince' && this.updated < '$isoStop');
             }")
             ->getQuery();
 
@@ -142,7 +165,16 @@ class NotificateUPCTransactionsCommand extends ContainerAwareCommand {
         if($numTx > 0) {
             /** @var Transaction $tx */
             foreach($txs as $tx){
-                $output->writeln('Transaction => ' . $tx->getId());
+                /** @var Group $account */
+                $account = $accRepo->find($tx->getGroup());
+                $logData = [
+                    'id' => $tx->getId(),
+                    'account' => $account->getCif(),
+                    'time' => $tx->getUpdated(),
+                    'notified' => $tx->getNotified(),
+                    'notification_tries' => $tx->getNotificationTries(),
+                ];
+                $output->writeln('Transaction => ' . json_encode($logData));
                 if($dryRun){
                     $output->writeln('Started Notify [Simulated]');
                     $tx->setNotified(true);
