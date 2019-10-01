@@ -4,20 +4,20 @@ FOS\UserBundle\Model\User:
         id:
             expose: true
             groups:
-                - self
+                - manager
         username:
             expose: true
             groups:
-                - self
+                - manager
         roles:
             expose: true
             groups:
-                - self
+                - manager
         email:
             expose: true
             groups:
-                - self
+                - manager
         locked:
             expose: true
             groups:
-                - self
+                - manager

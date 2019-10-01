@@ -66,14 +66,14 @@ class User extends BaseUser implements EntityWithUploadableFields {
 
     /**
      * @ORM\OneToMany(targetEntity="App\FinancialApiBundle\Entity\UserGroup", mappedBy="user", cascade={"remove"})
-     * @Groups({"self"})
+     * @Groups({"manager"})
      */
     protected $groups;
 
     /**
      * @ORM\ManyToOne(targetEntity="App\FinancialApiBundle\Entity\Group")
      * @Expose
-     * @Groups({"self"})
+     * @Groups({"manager"})
      * @MaxDepth(1)
      */
     private $active_group = null;
@@ -128,14 +128,14 @@ class User extends BaseUser implements EntityWithUploadableFields {
     /**
      * @ORM\Column(type="string")
      * @Expose
-     * @Groups({"self"})
+     * @Groups({"manager"})
      */
     private $access_key;
 
     /**
      * @ORM\Column(type="string")
      * @Expose
-     * @Groups({"self"})
+     * @Groups({"manager"})
      */
     private $access_secret;
 
@@ -149,42 +149,42 @@ class User extends BaseUser implements EntityWithUploadableFields {
     /**
      * @ORM\Column(type="string", unique=true)
      * @Expose
-     * @Groups({"self"})
+     * @Groups({"manager"})
      */
     private $phone;
 
     /**
      * @ORM\Column(type="boolean")
      * @Expose
-     * @Groups({"self"})
+     * @Groups({"manager"})
      */
     private $public_phone;
 
     /**
      * @ORM\Column(type="integer")
      * @Expose
-     * @Groups({"self"})
+     * @Groups({"manager"})
      */
     private $prefix;
 
     /**
      * @ORM\Column(type="text", nullable=true)
      * @Expose
-     * @Groups({"self"})
+     * @Groups({"manager"})
      */
     private $profile_image = '';
 
     /**
      * @ORM\Column(type="boolean")
      * @Expose
-     * @Groups({"self"})
+     * @Groups({"manager"})
      */
     private $twoFactorAuthentication = false;
 
     /**
      * @ORM\Column(type="string", nullable=true)
      * @Expose
-     * @Groups({"self"})
+     * @Groups({"manager"})
      */
     private $twoFactorCode;
 
@@ -204,26 +204,26 @@ class User extends BaseUser implements EntityWithUploadableFields {
 
     /**
      * @Expose
-     * @Groups({"self"})
+     * @Groups({"manager"})
      */
     private $group_data = array();
 
     /**
      * @ORM\OneToOne(targetEntity="App\FinancialApiBundle\Entity\TierValidations", mappedBy="user", cascade={"remove"})
-     * @Groups({"self"})
+     * @Groups({"manager"})
      */
     private $tier_validations;
 
     /**
      * @ORM\OneToOne(targetEntity="App\FinancialApiBundle\Entity\KYC", mappedBy="user", cascade={"remove"})
      * @Expose
-     * @Groups({"self"})
+     * @Groups({"manager"})
      */
     private $kyc_validations;
 
     /**
      * @ORM\OneToMany(targetEntity="App\FinancialApiBundle\Entity\CreditCard", mappedBy="user", cascade={"remove"})
-     * @Groups({"self"})
+     * @Groups({"manager"})
      */
     private $bank_cards;
 
@@ -238,7 +238,7 @@ class User extends BaseUser implements EntityWithUploadableFields {
     /**
      * @ORM\Column(type="datetime")
      * @Expose
-     * @Groups({"self"})
+     * @Groups({"manager"})
      */
     private $created;
 
@@ -256,7 +256,7 @@ class User extends BaseUser implements EntityWithUploadableFields {
      * @VirtualProperty()
      * @SerializedName("has_saved_cards")
      * @Type("boolean")
-     * @Groups({"self"})
+     * @Groups({"manager"})
      */
     public function hasSavedCards(){
         return (bool) $this->getActiveCard();
@@ -267,7 +267,7 @@ class User extends BaseUser implements EntityWithUploadableFields {
      * @VirtualProperty()
      * @SerializedName("active_card")
      * @Type("App\FinancialApiBundle\Entity\CreditCard")
-     * @Groups({"self"})
+     * @Groups({"manager"})
      */
     public function getActiveCard(){
 

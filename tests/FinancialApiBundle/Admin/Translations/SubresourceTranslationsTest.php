@@ -84,7 +84,8 @@ class SubresourceTranslationsTest extends BaseApiTest {
 
 
     function testSubresourceShouldBeTranslatedInAllLanguages() {
-        self::markTestSkipped("this is temporal, should be fixed");
+        self::markAsRisky();
+
         self::assertIsNumeric($this->account->id);
 
         foreach (self::LANG_PARAMS as $lang => $params) {
