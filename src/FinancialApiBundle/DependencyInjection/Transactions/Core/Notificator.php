@@ -188,7 +188,7 @@ class Notificator {
                 $signature = hash_hmac('sha256', $data_to_sign, $key);
                 $data = array(
                     'receiver' => 'PARTICULAR',
-                    'date' => $transaction->getUpdated()->format('U'),
+                    'date' => intval($transaction->getUpdated()->format('U')),
                     'activity_type_code' => 16
                 );
             }
@@ -198,7 +198,7 @@ class Notificator {
                 $activity = $destination->getCategory() ? $destination->getCategory()->getId() : 16;
                 $data = array(
                     'receiver' => $destination->getCif(),
-                    'date' => $transaction->getUpdated()->format('U'),
+                    'date' => intval($transaction->getUpdated()->format('U')),
                     'activity_type_code' => $activity
                 );
             }
@@ -208,7 +208,7 @@ class Notificator {
             $signature = hash_hmac('sha256', $data_to_sign, $key);
             $data = array(
                 'receiver' => 'CAMBIO',
-                'date' => $transaction->getUpdated()->format('U'),
+                'date' => intval($transaction->getUpdated()->format('U')),
                 'activity_type_code' => 16
             );
         }
