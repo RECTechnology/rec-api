@@ -8,6 +8,7 @@ use Doctrine\ORM\EntityManagerInterface;
 use Psr\Log\LoggerInterface;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 use App\FinancialApiBundle\Document\Transaction;
+use Throwable;
 
 class Notificator {
 
@@ -57,8 +58,12 @@ class Notificator {
                 in_array($transaction->getType(), ['in', 'out'])
             ) {
                 $this->logger->debug("UPC Notification started");
-                $this->notificate_upc($transaction);
-                $transaction->setNotified(true);
+                try {
+                    $this->notificate_upc($transaction);
+                    $transaction->setNotified(true);
+                } catch (Throwable $e){
+                    $this->logger->debug("UPC Notification FAILED: " . $e->getMessage());
+                }
             }
             else {
                 $this->logger->debug(
@@ -153,6 +158,10 @@ class Notificator {
         return $transaction;
     }
 
+    /**
+     * @param Transaction $transaction
+     * @return Transaction
+     */
     public function notificate_upc(Transaction $transaction){
         /** @var DocumentManager $dm */
         $dm = $this->container->get('doctrine_mongodb')->getManager();
@@ -179,7 +188,7 @@ class Notificator {
                 $signature = hash_hmac('sha256', $data_to_sign, $key);
                 $data = array(
                     'receiver' => 'PARTICULAR',
-                    'date' => time(),
+                    'date' => strtotime($transaction->getUpdated()),
                     'activity_type_code' => 16
                 );
             }
@@ -189,7 +198,7 @@ class Notificator {
                 $activity = $destination->getCategory() ? $destination->getCategory()->getId() : 16;
                 $data = array(
                     'receiver' => $destination->getCif(),
-                    'date' => time(),
+                    'date' => strtotime($transaction->getUpdated()),
                     'activity_type_code' => $activity
                 );
             }
@@ -199,7 +208,7 @@ class Notificator {
             $signature = hash_hmac('sha256', $data_to_sign, $key);
             $data = array(
                 'receiver' => 'CAMBIO',
-                'date' => time(),
+                'date' => strtotime($transaction->getUpdated()),
                 'activity_type_code' => 16
             );
         }
@@ -296,7 +305,7 @@ class Notificator {
         curl_setopt($ch,CURLOPT_POST,true);
         curl_setopt($ch,CURLOPT_POSTFIELDS,$params);
         //fix bug 417 Expectation Failed
-        curl_setopt($ch,CURLOPT_HTTPHEADER,array("Expect:  "));
+        curl_setopt($ch,CURLOPT_HTTPHEADER, ["Expect:  "]);
         // $output contains the output string
         $output = curl_exec($ch);
 
