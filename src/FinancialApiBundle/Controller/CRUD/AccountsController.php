@@ -145,7 +145,6 @@ class AccountsController extends CRUDController {
         /** @var Group $account */
         $account = $this->findObject($id);
 
-
         $html = $templating->render(
             'FinancialApiBundle:Pdf:product_clients_and_providers.html.twig',
             ['account' => $account]
@@ -175,7 +174,6 @@ class AccountsController extends CRUDController {
             } catch (Html2PdfException $e) {
                 throw new HttpException(400, "Invalid pdf requested: ".  $e->getMessage(), $e);
             }
-
         }
         throw new HttpException(400, "Invalid accept format " . $request->headers->get('Accept'));
     }

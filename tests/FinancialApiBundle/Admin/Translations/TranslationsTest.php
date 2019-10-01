@@ -152,6 +152,11 @@ class TranslationsTest extends BaseApiTest implements CrudV3WriteTestInterface {
         }
     }
 
+    function testSubResourcesShouldBeTranslated(){
+
+    }
+
+
     function testDelete()
     {
         // TODO: Implement testDelete() method.

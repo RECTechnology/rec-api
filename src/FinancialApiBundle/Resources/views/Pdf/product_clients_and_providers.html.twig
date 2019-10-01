@@ -7,55 +7,67 @@
 </head>
 
 <body>
-    <h1 class="text-big">REC Clients and Providers by Product</h1>
-    <h2 class="text-medium">Account Details:</h2>
-    <p style="padding-left: 15px">
-        {% with {'account': account} %}
+<h1 class="text-big">REC Clients and Providers by Product</h1>
+<h2 class="text-medium">Account Details:</h2>
+<p style="padding-left: 15px">
+    {% with {'account': account} %}
         {{ block('show_account', 'FinancialApiBundle:Pdf:show_account.html.twig') }}
-        {% endwith %}
-    </p>
-    <div class="report group-row-left space-between" style="margin-top: 15px">
-        <div class="report-list">
-            <h3 class="list-title">Clients found ({{ account.producingProducts | length }})</h3>
-            <ul>
-                {% for product in account.producingProducts %}
+    {% endwith %}
+</p>
+<div class="report group-row-left space-between" style="margin-top: 15px">
+    <div class="report-list">
+        <h3 class="list-title">Clients found ({{ account.producingProducts | length }})</h3>
+        <ul>
+            {% for product in account.producingProducts %}
                 <li>
                     <span class="list-item"><strong>{{ product.name | trans }}</strong> ~
                         <em>{{ product.description }}</em></span>
-                    <ul>
-                        {% for client in product.consumingBy %}
-                        <li>
-                            {% with {'account': client} %}
-                            {{ block('show_account', 'FinancialApiBundle:Pdf:show_account.html.twig') }}
-                            {% endwith %}
-                        </li>
-                        {% endfor %}
-                    </ul>
+                    {% if (product.consumingBy | length) > 0 %}
+                        <ul>
+                            {% for client in product.consumingBy %}
+                                {% if client.id != account.id %}
+                                    <li>
+                                        {% with {'account': client} %}
+                                            {{ block('show_account', 'FinancialApiBundle:Pdf:show_account.html.twig') }}
+                                        {% endwith %}
+                                    </li>
+                                {% endif %}
+                            {% endfor %}
+                        </ul>
+                    {% else %}
+                        <p>Aún no tenemos empresas que consuman este producto ¿Quieres sugerir alguna? <a href="https://rec.barcelona/es/contacto">rec.barcelona/es/contacto</a></p>
+                    {% endif %}
                 </li>
-                {% endfor %}
-            </ul>
-        </div>
+            {% endfor %}
+        </ul>
+    </div>
 
-        <div class="report-list">
-            <h3 class="list-title">Providers found ({{ account.consumingProducts | length }})</h3>
-            <ul>
-                {% for product in account.consumingProducts %}
+    <div class="report-list">
+        <h3 class="list-title">Providers found ({{ account.consumingProducts | length }})</h3>
+        <ul>
+            {% for product in account.consumingProducts %}
                 <li>
                     <span class="list-item"><b>{{ product.name }}:</b></span>
-                    <ul>
-                        {% for provider in product.producingBy %}
-                        <li>
-                            {% with {'account': provider} %}
-                            {{ block('show_account', 'FinancialApiBundle:Pdf:show_account.html.twig') }}
-                            {% endwith %}
-                        </li>
-                        {% endfor %}
-                    </ul>
+                    {% if (product.consumingBy | length) > 0 %}
+                        <ul>
+                            {% for provider in product.producingBy %}
+                                {% if provider.id != account.id %}
+                                    <li>
+                                        {% with {'account': provider} %}
+                                            {{ block('show_account', 'FinancialApiBundle:Pdf:show_account.html.twig') }}
+                                        {% endwith %}
+                                    </li>
+                                {% endif %}
+                            {% endfor %}
+                        </ul>
+                    {% else %}
+                        <p>Aún no tenemos empresas que produzcan este producto ¿Quieres sugerir alguna? <a href="https://rec.barcelona/es/contacto">rec.barcelona/es/contacto</a></p>
+                    {% endif %}
                 </li>
-                {% endfor %}
-            </ul>
-        </div>
+            {% endfor %}
+        </ul>
     </div>
+</div>
 
 </body>
 

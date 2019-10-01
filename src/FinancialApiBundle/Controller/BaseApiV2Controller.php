@@ -15,6 +15,7 @@ use DateTime;
 use DateTimeZone;
 use Doctrine\Common\Annotations\AnnotationException;
 use Doctrine\Common\Annotations\AnnotationReader;
+use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Criteria;
 use Doctrine\Common\Persistence\ObjectRepository;
 use Doctrine\DBAL\DBALException;
@@ -623,7 +624,7 @@ abstract class BaseApiV2Controller extends RestApiController implements Reposito
         $entity = $this->addRelationship($request, $id, $relationship);
         $output = $this->securizeOutput($entity);
         return $this->restV2(
-            static::HTTP_STATUS_CODE_OK,
+            static::HTTP_STATUS_CODE_CREATED,
             "ok",
             "Added successfully",
             $output
@@ -921,7 +922,8 @@ abstract class BaseApiV2Controller extends RestApiController implements Reposito
     /**
      * @param $result
      * @param null $locale
-     * @return array
+     * @return ArrayCollection
+     * @throws ReflectionException
      */
     private function translatedCollection($result, $locale = null)
     {
@@ -931,7 +933,7 @@ abstract class BaseApiV2Controller extends RestApiController implements Reposito
             foreach ($result as $elem){
                 $translated []= $this->translatedElement($elem, $locale);
             }
-            return $translated;
+            return new ArrayCollection($translated);
         }
         return $result;
     }
@@ -939,7 +941,8 @@ abstract class BaseApiV2Controller extends RestApiController implements Reposito
     /**
      * @param $element
      * @param null $locale
-     * @return array
+     * @return Localizable|array
+     * @throws ReflectionException
      */
     private function translatedElement($element, $locale = null)
     {
@@ -947,6 +950,16 @@ abstract class BaseApiV2Controller extends RestApiController implements Reposito
             if($locale){
                 $element->setTranslatableLocale($locale);
                 $this->getDoctrine()->getManager()->refresh($element);
+            }
+        }
+
+        $api = new ReflectionClass($element);
+        foreach($api->getProperties() as $property){
+            if($property->class instanceof ArrayCollection){
+                $property->setValue($this->translatedCollection($property->getValue(), $locale));
+            }
+            elseif($property->class instanceof Localizable) {
+                $property->setValue($this->translatedElement($property->getValue(), $locale));
             }
         }
         return $element;
