@@ -12,6 +12,7 @@ RUN apt update && apt install -y \
     php-mbstring \
     php-zip \
     php-redis \
+    php-gd \
     php-xdebug \
     composer \
     gettext-base \

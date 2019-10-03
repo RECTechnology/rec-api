@@ -170,16 +170,16 @@
         },
         {
             "name": "doctrine/annotations",
-            "version": "v1.7.0",
+            "version": "v1.8.0",
             "source": {
                 "type": "git",
                 "url": "https://github.com/doctrine/annotations.git",
-                "reference": "fa4c4e861e809d6a1103bd620cce63ed91aedfeb"
+                "reference": "904dca4eb10715b92569fbcd79e201d5c349b6bc"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/doctrine/annotations/zipball/fa4c4e861e809d6a1103bd620cce63ed91aedfeb",
-                "reference": "fa4c4e861e809d6a1103bd620cce63ed91aedfeb",
+                "url": "https://api.github.com/repos/doctrine/annotations/zipball/904dca4eb10715b92569fbcd79e201d5c349b6bc",
+                "reference": "904dca4eb10715b92569fbcd79e201d5c349b6bc",
                 "shasum": ""
             },
             "require": {
@@ -188,7 +188,7 @@
             },
             "require-dev": {
                 "doctrine/cache": "1.*",
-                "phpunit/phpunit": "^7.5@dev"
+                "phpunit/phpunit": "^7.5"
             },
             "type": "library",
             "extra": {
@@ -234,7 +234,7 @@
                 "docblock",
                 "parser"
             ],
-            "time": "2019-08-08T18:11:40+00:00"
+            "time": "2019-10-01T18:55:10+00:00"
         },
         {
             "name": "doctrine/cache",
@@ -1211,16 +1211,16 @@
         },
         {
             "name": "doctrine/mongodb-odm",
-            "version": "1.3.0",
+            "version": "1.3.2",
             "source": {
                 "type": "git",
                 "url": "https://github.com/doctrine/mongodb-odm.git",
-                "reference": "acfc6db213311e883aafec7e5d69e9d138f182f1"
+                "reference": "083c3fe85ac811b902e6eb1536df5429518d9729"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/doctrine/mongodb-odm/zipball/acfc6db213311e883aafec7e5d69e9d138f182f1",
-                "reference": "acfc6db213311e883aafec7e5d69e9d138f182f1",
+                "url": "https://api.github.com/repos/doctrine/mongodb-odm/zipball/083c3fe85ac811b902e6eb1536df5429518d9729",
+                "reference": "083c3fe85ac811b902e6eb1536df5429518d9729",
                 "shasum": ""
             },
             "require": {
@@ -1292,20 +1292,20 @@
                 "odm",
                 "persistence"
             ],
-            "time": "2019-09-24T18:06:22+00:00"
+            "time": "2019-10-02T13:47:51+00:00"
         },
         {
             "name": "doctrine/mongodb-odm-bundle",
-            "version": "3.6.0",
+            "version": "3.6.1",
             "source": {
                 "type": "git",
                 "url": "https://github.com/doctrine/DoctrineMongoDBBundle.git",
-                "reference": "46e07b1bf20fbc708bca1a1d18875eeb9efddd6f"
+                "reference": "b490da041a2cd7191bbadbedb25b91038dd7a019"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/doctrine/DoctrineMongoDBBundle/zipball/46e07b1bf20fbc708bca1a1d18875eeb9efddd6f",
-                "reference": "46e07b1bf20fbc708bca1a1d18875eeb9efddd6f",
+                "url": "https://api.github.com/repos/doctrine/DoctrineMongoDBBundle/zipball/b490da041a2cd7191bbadbedb25b91038dd7a019",
+                "reference": "b490da041a2cd7191bbadbedb25b91038dd7a019",
                 "shasum": ""
             },
             "require": {
@@ -1367,7 +1367,7 @@
                 "persistence",
                 "symfony"
             ],
-            "time": "2019-09-24T13:44:24+00:00"
+            "time": "2019-10-02T14:12:11+00:00"
         },
         {
             "name": "doctrine/orm",
@@ -6853,22 +6853,22 @@
         },
         {
             "name": "phpspec/prophecy",
-            "version": "1.8.1",
+            "version": "1.9.0",
             "source": {
                 "type": "git",
                 "url": "https://github.com/phpspec/prophecy.git",
-                "reference": "1927e75f4ed19131ec9bcc3b002e07fb1173ee76"
+                "reference": "f6811d96d97bdf400077a0cc100ae56aa32b9203"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/phpspec/prophecy/zipball/1927e75f4ed19131ec9bcc3b002e07fb1173ee76",
-                "reference": "1927e75f4ed19131ec9bcc3b002e07fb1173ee76",
+                "url": "https://api.github.com/repos/phpspec/prophecy/zipball/f6811d96d97bdf400077a0cc100ae56aa32b9203",
+                "reference": "f6811d96d97bdf400077a0cc100ae56aa32b9203",
                 "shasum": ""
             },
             "require": {
                 "doctrine/instantiator": "^1.0.2",
                 "php": "^5.3|^7.0",
-                "phpdocumentor/reflection-docblock": "^2.0|^3.0.2|^4.0",
+                "phpdocumentor/reflection-docblock": "^2.0|^3.0.2|^4.0|^5.0",
                 "sebastian/comparator": "^1.1|^2.0|^3.0",
                 "sebastian/recursion-context": "^1.0|^2.0|^3.0"
             },
@@ -6912,7 +6912,7 @@
                 "spy",
                 "stub"
             ],
-            "time": "2019-06-13T12:50:23+00:00"
+            "time": "2019-10-03T11:07:50+00:00"
         },
         {
             "name": "phpunit/php-code-coverage",

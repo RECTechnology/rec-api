@@ -11,6 +11,7 @@ RUN apt update && apt install -y \
     php-mbstring \
     php-zip \
     php-redis \
+    php-gd \
     composer \
     gettext-base \
     apache2 \

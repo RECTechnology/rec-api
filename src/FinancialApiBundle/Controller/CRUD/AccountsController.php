@@ -15,6 +15,7 @@ use App\FinancialApiBundle\Entity\Group;
 use Symfony\Component\HttpFoundation\Request;
 use App\FinancialApiBundle\Entity\Offer;
 use Symfony\Component\Templating\EngineInterface;
+use Symfony\Component\Translation\TranslatorInterface;
 
 /**
  * Class AccountsController
@@ -132,17 +133,19 @@ class AccountsController extends CRUDController {
 
     /**
      * @param EngineInterface $templating
+     * @param TranslatorInterface $translator
      * @param Request $request
      * @param $role
      * @param $id
      * @return Response
      */
-    public function reportClientsAndProvidersAction(EngineInterface $templating, Request $request, $role, $id){
+    public function reportClientsAndProvidersAction(EngineInterface $templating, TranslatorInterface $translator, Request $request, $role, $id){
         $this->checkPermissions($role, self::CRUD_SHOW);
 
         /** @var Group $account */
         $account = $this->findObject($id);
 
+        //$translator->setLocale($request->getLocale());
         $html = $templating->render(
             'FinancialApiBundle:Pdf:product_clients_and_providers.html.twig',
             ['account' => $account]
