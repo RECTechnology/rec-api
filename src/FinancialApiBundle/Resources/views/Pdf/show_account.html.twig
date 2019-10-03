@@ -5,4 +5,5 @@
     {% if account.neighbourhood %}
         <strong>Neighbourhood:</strong> <em>{{ account.neighbourhood.name }}</em>
     {% endif %}
+    {{ account.street }} {{ account.address_number }} {{ account.country }} {{ account.city }} {{ account.zip }}
 {% endblock %}
