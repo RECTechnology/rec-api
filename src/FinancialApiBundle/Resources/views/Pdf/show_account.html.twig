@@ -3,7 +3,7 @@
     <strong>Phone:</strong> <em>+{{ account.prefix }} {{ account.phone }}</em><br />
     <strong>Email:</strong> <em>{{ account.email }}</em><br />
     {% if account.neighbourhood %}
-        <strong>Neighbourhood:</strong> <em>{{ account.neighbourhood.name }}</em>
+        <strong>Neighbourhood:</strong> <em>{{ account.neighbourhood.name }}</em><br />
     {% endif %}
     {{ account.street }} {{ account.addressNumber }} {{ account.country }} {{ account.city }} {{ account.zip }}
 {% endblock %}
