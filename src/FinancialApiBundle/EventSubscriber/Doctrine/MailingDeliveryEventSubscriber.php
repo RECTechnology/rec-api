@@ -1,10 +1,9 @@
 <?php
 
 
-namespace App\FinancialApiBundle\EventSubscriber;
+namespace App\FinancialApiBundle\EventSubscriber\Doctrine;
 
 
-use App\FinancialApiBundle\DependencyInjection\Drivers\MailgunWrapper;
 use App\FinancialApiBundle\Entity\Group;
 use App\FinancialApiBundle\Entity\Mailing;
 use App\FinancialApiBundle\Entity\MailingDelivery;

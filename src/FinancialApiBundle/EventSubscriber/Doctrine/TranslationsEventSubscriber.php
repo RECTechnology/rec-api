@@ -1,6 +1,6 @@
 <?php
 
-namespace App\FinancialApiBundle\EventSubscriber;
+namespace App\FinancialApiBundle\EventSubscriber\Doctrine;
 
 use App\FinancialApiBundle\Entity\Localizable;
 use Doctrine\Common\EventSubscriber;
