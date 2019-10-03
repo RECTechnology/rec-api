@@ -81,7 +81,7 @@ class ReportClientsAndProvidersTest extends BaseApiTest {
             ]
         );
         self::assertStringContainsStringIgnoringCase(
-            "CLIENTS AND SUPPLIERS OF YOUR PRODUCTS",
+            "CLIENTS AND PROVIDERS FOR YOUR PRODUCTS",
             $resp->getContent()
         );
     }
