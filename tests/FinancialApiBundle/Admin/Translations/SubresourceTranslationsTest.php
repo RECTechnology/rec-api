@@ -36,7 +36,7 @@ class SubresourceTranslationsTest extends BaseApiTest {
             'POST',
             $route,
             self::LANG_PARAMS[$lang],
-            ['Content-Language' => $lang]
+            ['HTTP_Content-Language' => $lang]
         );
 
         self::assertEquals(
@@ -52,7 +52,7 @@ class SubresourceTranslationsTest extends BaseApiTest {
                 'PUT',
                 $route . '/' . $activity->id,
                 $param,
-                ['Content-Language' => $lang]
+                ['HTTP_Content-Language' => $lang]
             );
 
             self::assertEquals(
@@ -62,7 +62,13 @@ class SubresourceTranslationsTest extends BaseApiTest {
             );
         }
 
-        $content = json_decode($this->requestJson('GET', '/admin/v3/accounts')->getContent());
+        $resp = $this->requestJson('GET', '/admin/v3/accounts');
+        self::assertEquals(
+            200,
+            $resp->getStatusCode(),
+            "route: /admin/v3/accounts, status_code: {$resp->getStatusCode()}, content: {$resp->getContent()}"
+        );
+        $content = json_decode($resp->getContent());
         self::assertGreaterThan(0, count($content->data->elements));
 
         $account = $content->data->elements[0];
@@ -83,15 +89,18 @@ class SubresourceTranslationsTest extends BaseApiTest {
     }
 
 
-    function testSubresourceShouldBeTranslatedInAllLanguages() {
-        self::markTestSkipped("this is temporal, should be fixed");
-
+    function testSubresourceShouldBeTranslatedInEveryLanguage() {
         self::assertIsNumeric($this->account->id);
 
         foreach (self::LANG_PARAMS as $lang => $params) {
             $content = json_decode(
                 $this
-                    ->requestJson('GET', '/admin/v3/accounts/' . $this->account->id)
+                    ->requestJson(
+                        'GET',
+                        '/admin/v3/accounts/' . $this->account->id,
+                        null,
+                        ['HTTP_Accept-Language' => $lang]
+                    )
                     ->getContent()
             );
             self::assertEquals($content->data->id, $this->account->id);

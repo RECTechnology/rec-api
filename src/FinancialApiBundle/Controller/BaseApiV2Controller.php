@@ -8,20 +8,13 @@
 
 namespace App\FinancialApiBundle\Controller;
 
-use App\FinancialApiBundle\Entity\Localizable;
-use App\FinancialApiBundle\Entity\LocalizableTrait;
 use App\FinancialApiBundle\Exception\AppException;
 use DateTime;
 use DateTimeZone;
 use Doctrine\Common\Annotations\AnnotationException;
 use Doctrine\Common\Annotations\AnnotationReader;
-use Doctrine\Common\Collections\ArrayCollection;
-use Doctrine\Common\Collections\Criteria;
 use Doctrine\Common\Persistence\ObjectRepository;
 use Doctrine\DBAL\DBALException;
-use Doctrine\DBAL\Platforms\Keywords\OracleKeywords;
-use Doctrine\ORM\Mapping\AttributeOverride;
-use Doctrine\ORM\Mapping\AttributeOverrides;
 use Doctrine\ORM\Mapping\Column;
 use Doctrine\ORM\Mapping\ManyToMany;
 use Doctrine\ORM\Mapping\ManyToOne;
@@ -34,9 +27,7 @@ use Doctrine\ORM\NoResultException;
 use Doctrine\ORM\Query;
 use Doctrine\ORM\QueryBuilder;
 use Exception;
-use Gedmo\Translatable\Entity\Translation;
-use Gedmo\Translatable\Query\TreeWalker\TranslationWalker;
-use Gedmo\Translatable\Translatable;
+use JMS\Serializer\Annotation\MaxDepth;
 use JMS\Serializer\Exception\ValidationFailedException;
 use JMS\Serializer\SerializationContext;
 use JMS\Serializer\Serializer;
@@ -190,24 +181,6 @@ abstract class BaseApiV2Controller extends RestApiController implements Reposito
     }
 
     /**
-     * @return string|null
-     */
-    protected function getRequestLocale(){
-        /** @var RequestStack $stack */
-        $stack = $this->get("request_stack");
-        $request = $stack->getCurrentRequest();
-        $method = $request->getMethod();
-        $headers = $request->headers;
-        if(in_array($method, ['POST', 'PUT']) && $headers->has('content-language')){
-            return $headers->get('content-language');
-        }
-        elseif ($method === 'GET' && $headers->has('accept-language')){
-            return $headers->get('accept-language');
-        }
-        return $request->getDefaultLocale();
-    }
-
-    /**
      * @param $relationshipNameWithId
      * @param $targetId
      * @return object|null
@@ -218,7 +191,7 @@ abstract class BaseApiV2Controller extends RestApiController implements Reposito
         $name = substr($relationshipNameWithId, 0, strlen($relationshipNameWithId) - 3);
         $relatedEntity = $this->getRelatedEntity($name);
 
-        $value = $this->getDoctrine()->getRepository($relatedEntity)->find($targetId);
+        $value = $this->getDoctrine()->getRepository($relatedEntity)->show($targetId);
         if(!$value) throw new HttpException(
             Response::HTTP_BAD_REQUEST,
             "Object $name with id '$targetId' does not exist."
@@ -267,21 +240,7 @@ abstract class BaseApiV2Controller extends RestApiController implements Reposito
      */
     protected function indexAction(Request $request, $role){
         $this->checkPermissions($role, self::CRUD_INDEX);
-
         list($total, $result) = $this->index($request);
-        if(count($result) > 0 && $result[0] instanceof Translatable){
-            if($this->getRequestLocale() !== 'all') {
-                $result = $this->translatedCollection($result, $this->getRequestLocale());
-            }
-            elseif($this->getRequestLocale() === 'all') {
-                $repository = $this->getDoctrine()->getManager()->getRepository(Translation::class);
-                /** @var LocalizableTrait $elem */
-                foreach ($result as $elem){
-                    $elem->setTranslations($repository->findTranslations($elem));
-                }
-            }
-        }
-
         $result = $this->securizeOutput($result);
         return $this->restV2(
             self::HTTP_STATUS_CODE_OK,
@@ -310,83 +269,11 @@ abstract class BaseApiV2Controller extends RestApiController implements Reposito
         if(!in_array($order, ["ASC", "DESC"]))
             throw new HttpException(400, "Invalid order: it must be ASC or DESC");
 
-        /** @var EntityManagerInterface $em */
-        $em = $this->getDoctrine()->getManager();
-
-        $properties = $em->getClassMetadata($this->getRepository()->getClassName())->getFieldNames();
-        if(!in_array($sort, $properties))
-            throw new HttpException(400, "Invalid sort: it must be a valid property (counters and virtual properties are not allowed)");
-
-
-        /** @var QueryBuilder $qb */
-        $qb = $em->createQueryBuilder();
-
-        $className = $this->getRepository()->getClassName();
-
-        $trueExpr = $qb->expr()->eq($qb->expr()->literal(1), $qb->expr()->literal(1));
-
-        # Key-Value filter
-        $kvFilter = $qb->expr()->andX();
-        foreach ($request->query->keys() as $key){
-            if(substr($key, -3) === "_id") {
-                $name = substr($key, 0, strlen($key) - 3);
-                if(!property_exists($className, $name)) {
-                    throw new HttpException(400, "Bad parameter '$key'");
-                }
-                $kvFilter->add($qb->expr()->eq('IDENTITY(e.' . $name . ')', $request->query->get($key)));
-            }
-            elseif(property_exists($className, $key)){
-                $kvFilter->add($qb->expr()->eq('e.' . $key, "'" . $request->query->get($key) . "'"));
-            }
-        }
-        # Adding always-true expression to avoid kvFilter to be empty
-        if($kvFilter->count() <= 0) $kvFilter->add($trueExpr);
-
-        # Search filter
-        $searchFilter = $qb->expr()->orX();
-        if($search !== "") {
-            foreach ($properties as $property) {
-                $searchFilter->add(
-                    $qb->expr()->like(
-                        'e.' . $property,
-                        $qb->expr()->literal('%' . $search . '%')
-                    )
-                );
-            }
-        }
-        # Adding always-true expression to avoid searchFilter to be empty
-        if($kvFilter->count() <= 0) $searchFilter->add($trueExpr);
-
-        $where = $qb->expr()->andX();
-        $where->add($kvFilter);
-        $where->add($searchFilter);
-
-        $qb = $qb->from($className, 'e');
-        $qb = $qb->where($where);
-        //die($qb->getDQL());
-        try {
-            $qTotal = $qb
-                ->select('count(e.id)')
-                ->getQuery();
-            $qResult = $qb
-                ->select('e')
-                ->orderBy('e.' . $sort, $order)
-                ->setFirstResult($offset)
-                ->setMaxResults($limit)
-                ->getQuery();
-            //->getResult();
-
-            $qResult->setHint(
-                Query::HINT_CUSTOM_OUTPUT_WALKER,
-                TranslationWalker::class
-            );
-
-            return [intval($qTotal->getSingleScalarResult()), $qResult->getResult()];
-
+        try{
+            return $this->getRepository()->index($request, $search, $limit, $offset, $order, $sort);
         } catch (NonUniqueResultException $e) {
             throw new HttpException(400, "Invalid params, please check query", $e);
         }
-
     }
 
     /**
@@ -403,7 +290,7 @@ abstract class BaseApiV2Controller extends RestApiController implements Reposito
 
     protected function findObject($id){
         $repo = $this->getRepository();
-        $entity = $repo->find($id);
+        $entity = $repo->show($id);
         $explodedEntityName = explode("\\", $repo->getClassName());
         $entityName = $explodedEntityName[count($explodedEntityName) - 1];
         if(empty($entity)) throw new HttpException(404, $entityName . " not found");
@@ -418,17 +305,6 @@ abstract class BaseApiV2Controller extends RestApiController implements Reposito
     protected function showAction($role, $id){
         $this->checkPermissions($role, self::CRUD_SHOW);
         $entity = $this->show($id);
-
-        if($entity instanceof Translatable){
-            if($this->getRequestLocale() !== 'all') {
-                $entity = $this->translatedElement($entity, $this->getRequestLocale());
-            }
-            elseif($this->getRequestLocale() === 'all') {
-                $repository = $this->getDoctrine()->getManager()->getRepository(Translation::class);
-                $entity->setTranslations($repository->findTranslations($entity));
-            }
-        }
-
         $output = $this->securizeOutput($entity);
         return $this->restV2(self::HTTP_STATUS_CODE_OK,
             "ok",
@@ -444,7 +320,6 @@ abstract class BaseApiV2Controller extends RestApiController implements Reposito
     public function show($id){
         if(empty($id)) throw new HttpException(400, "Missing parameter 'id'");
         return $this->findObject($id);
-
     }
 
     /**
@@ -508,12 +383,7 @@ abstract class BaseApiV2Controller extends RestApiController implements Reposito
         if(count($errors) > 0)
             throw new AppException(400, "Validation error", $errors);
 
-
-        if($entity instanceof Localizable){
-            $entity->setTranslatableLocale($this->getRequestLocale());
-        }
         $em->persist($entity);
-
 
         $this->flush();
 
@@ -568,8 +438,6 @@ abstract class BaseApiV2Controller extends RestApiController implements Reposito
         return $this->updateEntity($entity, $params);
     }
 
-
-
     /**
      * @param Request $request
      * @param $role
@@ -593,7 +461,7 @@ abstract class BaseApiV2Controller extends RestApiController implements Reposito
     /**
      * @param Request $request
      * @param $id
-     * @return object|null
+     * @return array
      * @throws AnnotationException
      */
     public function update(Request $request, $id){
@@ -603,7 +471,7 @@ abstract class BaseApiV2Controller extends RestApiController implements Reposito
 
         $repo = $this->getRepository();
 
-        $entity = $repo->findOneBy(['id' => $id]);
+        $entity = $repo->find($id);
 
         if(empty($entity)) throw new HttpException(404, "Not found");
 
@@ -646,7 +514,7 @@ abstract class BaseApiV2Controller extends RestApiController implements Reposito
 
         $repo = $this->getRepository();
 
-        $entity = $repo->find($id);
+        $entity = $repo->show($id);
         if(empty($entity)) throw new HttpException(404, "Not found");
 
         $targetEntityName = $this->getRelatedEntity($relationship);
@@ -655,7 +523,7 @@ abstract class BaseApiV2Controller extends RestApiController implements Reposito
         $relatedEntity = $this
             ->getDoctrine()
             ->getRepository($targetEntityName)
-            ->find($targetEntityId);
+            ->show($targetEntityId);
         if(empty($relatedEntity)) throw new HttpException(404, "Not found");
 
         $adder = $this->getAdder($relationship);
@@ -709,7 +577,7 @@ abstract class BaseApiV2Controller extends RestApiController implements Reposito
 
         $repo = $this->getRepository();
 
-        $entity = $repo->find($id1);
+        $entity = $repo->show($id1);
         if(empty($entity)) throw new HttpException(404, "Not found");
 
         $targetEntityName = $this->getRelatedEntity($relationship);
@@ -718,7 +586,7 @@ abstract class BaseApiV2Controller extends RestApiController implements Reposito
         $relatedEntity = $this
             ->getDoctrine()
             ->getRepository($targetEntityName)
-            ->find($targetEntityId);
+            ->show($targetEntityId);
         if(empty($relatedEntity)) throw new HttpException(404, "Not found");
 
         $deleter = $this->getDeleter($relationship);
@@ -820,7 +688,6 @@ abstract class BaseApiV2Controller extends RestApiController implements Reposito
     protected function searchAction(Request $request, $role) {
         $this->checkPermissions($role, self::CRUD_SEARCH);
         list($total, $result) = $this->search($request);
-        $result = $this->translatedCollection($result, $this->getRequestLocale());
         $elems = $this->securizeOutput($result);
 
         return $this->restV2(
@@ -846,10 +713,7 @@ abstract class BaseApiV2Controller extends RestApiController implements Reposito
         $fieldMap = json_decode($request->query->get("field_map", "{}"), true);
         if(json_last_error()) throw new HttpException(400, "Bad field_map, it must be a valid JSON");
         list($total, $result) = $this->export($request);
-        $result = $this->translatedCollection($result, $this->getRequestLocale());
         $elems = $this->securizeOutput($result);
-
-        //$fp = fopen('php://output', 'w');
 
         $namer = new CamelCaseToSnakeCaseNameConverter(null, false);
 
@@ -919,49 +783,4 @@ abstract class BaseApiV2Controller extends RestApiController implements Reposito
         return $response;
     }
 
-    /**
-     * @param $result
-     * @param null $locale
-     * @return ArrayCollection
-     * @throws ReflectionException
-     */
-    private function translatedCollection($result, $locale = null)
-    {
-        if(count($result) > 0){
-            $translated = [];
-            /** @var Localizable $elem */
-            foreach ($result as $elem){
-                $translated []= $this->translatedElement($elem, $locale);
-            }
-            return new ArrayCollection($translated);
-        }
-        return $result;
-    }
-
-    /**
-     * @param $element
-     * @param null $locale
-     * @return Localizable|array
-     * @throws ReflectionException
-     */
-    private function translatedElement($element, $locale = null)
-    {
-        if($element instanceof Localizable){
-            if($locale){
-                $element->setTranslatableLocale($locale);
-                $this->getDoctrine()->getManager()->refresh($element);
-            }
-        }
-
-        $api = new ReflectionClass($element);
-        foreach($api->getProperties() as $property){
-            if($property->class instanceof ArrayCollection){
-                $property->setValue($this->translatedCollection($property->getValue(), $locale));
-            }
-            elseif($property->class instanceof Localizable) {
-                $property->setValue($this->translatedElement($property->getValue(), $locale));
-            }
-        }
-        return $element;
-    }
 }

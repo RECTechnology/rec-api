@@ -140,8 +140,6 @@ class AccountsController extends CRUDController {
     public function reportClientsAndProvidersAction(EngineInterface $templating, Request $request, $role, $id){
         $this->checkPermissions($role, self::CRUD_SHOW);
 
-        $lang = $this->getRequestLocale();
-
         /** @var Group $account */
         $account = $this->findObject($id);
 

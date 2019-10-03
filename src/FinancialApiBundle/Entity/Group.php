@@ -432,14 +432,14 @@ class Group extends BaseGroup implements EntityWithUploadableFields {
     }
 
     /**
-     * @return string
+     * @return integer
      * @VirtualProperty("offer_count")
      * @Type("integer")
      * @Groups({"public"})
      */
     public function getOfferCount()
     {
-        return count($this->getOffers());
+        return $this->getOffers()->count();
     }
 
 
