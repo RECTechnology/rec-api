@@ -24,7 +24,7 @@
                     <span class="list-item"><strong>{{ product.name | trans }}</strong> ~
                         <em>{{ product.description }}</em></span>
                     {% if (product.consumingBy | length) > 0 %}
-                        <ul>
+                        <ul style="list-style=none">
                             {% for client in product.consumingBy %}
                                 {% if client.id != account.id %}
                                     <li style="padding-bottom: 10px">
@@ -45,9 +45,9 @@
         <ul>
             {% for product in account.consumingProducts %}
                 <li style="padding-bottom: 10px">
-                    <span class="list-item"><b>{{ product.name }}:</b></span> ~
+                    <span class="list-item"><b>{{ product.name | trans}}</b></span> ~
                     {% if (product.consumingBy | length) > 0 %}
-                        <ul>
+                        <ul style="list-style=none">
                             {% for provider in product.producingBy %}
                                 {% if provider.id != account.id %}
                                     <li style="padding-bottom: 10px">
@@ -64,12 +64,12 @@
     </div>
 </div>
 
-<div style="display: flex; align-items: center; justify-content: center;flex-direction: column">
+<div style="width: 100%; display: flex; align-items: center; justify-content: center;flex-direction: column">
     <p>
       If you know any supplier and want to pay in recs, contact us!
     </p>
-    <a href="mailto:inf0@rec.barcelona"><h4>info(@)rec.barcelona</h4></a>
-    <h4>651 34 14 06</h4>
+    <a href="mailto:inf0@rec.barcelona"><h3>info(@)rec.barcelona</h3></a>
+    <h3>651 34 14 06</h3>
 </div>
 
 </body>
