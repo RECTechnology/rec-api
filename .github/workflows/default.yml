@@ -1,4 +1,4 @@
-name: CI
+name: Test and Deploy to STAGE
 
 on:
   push:
