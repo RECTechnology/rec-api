@@ -7,26 +7,18 @@ namespace App\FinancialApiBundle\Migrations;
 use App\FinancialApiBundle\Entity\User;
 use Doctrine\DBAL\Schema\Schema;
 use Doctrine\Migrations\AbstractMigration;
-use Doctrine\Migrations\Version\Version;
 use Doctrine\ORM\EntityManagerInterface;
+use Symfony\Component\DependencyInjection\ContainerAwareInterface;
+use Symfony\Component\DependencyInjection\ContainerAwareTrait;
 
 /**
  * Class Version20191004100248
  * @package App\FinancialApiBundle\Migrations
  */
-final class Version20191004100248 extends AbstractMigration
+final class Version20191004100248 extends AbstractMigration implements ContainerAwareInterface
 {
 
-    /**
-     * @var EntityManagerInterface
-     */
-    private $em;
-
-    public function __construct(Version $version, EntityManagerInterface $em)
-    {
-        parent::__construct($version);
-        $this->em = $em;
-    }
+    use ContainerAwareTrait;
 
     public function getDescription() : string
     {
@@ -43,13 +35,15 @@ final class Version20191004100248 extends AbstractMigration
 
     public function postUp(Schema $schema): void {
         parent::postUp($schema);
-        $repo = $this->em->getRepository(User::class);
+        /** @var EntityManagerInterface $em */
+        $em = $this->container->get('doctrine.orm.entity_manager');
+        $repo = $em->getRepository(User::class);
 
         foreach ($repo->findAll() as $user) {
             $user->setLocale('es');
-            $this->em->persist($user);
+            $em->persist($user);
         }
-        $this->em->flush();
+        $em->flush();
     }
 
     public function down(Schema $schema) : void
