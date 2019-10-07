@@ -16,7 +16,7 @@
             {{ account.addressNumber }},
             {{ account.city | capitalize}}
             {{ account.zip }}
-            {% if account.neighbourhood and account.neighbourhood.name !== null %}
+            {% if account.neighbourhood and account.neighbourhood.name != null %}
                 ({{ account.neighbourhood.name }})
             {% endif %}
         </em>
