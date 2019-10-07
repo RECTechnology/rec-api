@@ -6,13 +6,12 @@
         {{ account.phone }}</em><br/>
     <strong>{{ "Email" | trans }}:</strong>
     <em>{{ account.email }}</em><br/>
-    <strong>{{"Address" | trans}}:</strong>
     <em>{{ account.street }}
         {{ account.addressNumber }}
         {{ account.country }}
         {{ account.city }}
         {% if account.neighbourhood %}
             ({{ account.neighbourhood.name }})
-        {% endif %}}
+        {% endif %}
         {{ account.zip }}</em>
 {% endblock %}
