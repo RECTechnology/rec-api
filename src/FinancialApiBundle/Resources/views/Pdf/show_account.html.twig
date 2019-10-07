@@ -11,6 +11,7 @@
     {% if account.street || account.addressNumber || account.city ||  account.zip %}
         <strong>{{ "Address" | trans }}:</strong>
         <em>
+            {{ account.streetType }}
             {{ account.street }}
             {{ account.addressNumber }},
             {{ account.city }}
