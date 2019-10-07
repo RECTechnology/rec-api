@@ -68,7 +68,7 @@ class ReportClientsAndProvidersTest extends BaseApiTest {
             "route: $route, status_code: {$resp->getStatusCode()}, headers: {$resp->headers}"
         );
         self::assertStringContainsStringIgnoringCase(
-            "CLIENTES Y PROVEEDORES DE SUS PRODUCTOS",
+            "CLIENTES Y PROVEEDORES DE TUS PRODUCTOS",
             $resp->getContent()
         );
         $resp = $this->request(
