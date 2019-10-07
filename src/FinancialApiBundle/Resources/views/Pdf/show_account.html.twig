@@ -4,14 +4,20 @@
     <strong>{{ "Phone" | trans }}:</strong>
     <em>+{{ account.prefix }}
         {{ account.phone }}</em><br/>
-    <strong>{{ "Email" | trans }}:</strong>
-    <em>{{ account.email }}</em><br/>
-    <em>{{ account.street }}
-        {{ account.addressNumber }}
-        {{ account.country }}
-        {{ account.city }}
-        {% if account.neighbourhood %}
-            {{ account.neighbourhood.name }}
-        {% endif %}
-        {{ account.zip }}</em>
+    {% if account.email %}
+        <strong>{{ "Email" | trans }}:</strong>
+        <em>{{ account.email }}</em><br/>
+    {% endif %}
+    {% if account.street || account.addressNumber || account.city ||  account.zip %}
+        <strong>{{ "Address" | trans }}:</strong>
+        <em>
+            {{ account.street }}
+            {{ account.addressNumber }},
+            {{ account.city }}
+            {{ account.zip }}
+            {% if account.neighbourhood %}
+                ({{ account.neighbourhood.name }})
+            {% endif %}
+        </em>
+    {% endif %}
 {% endblock %}
