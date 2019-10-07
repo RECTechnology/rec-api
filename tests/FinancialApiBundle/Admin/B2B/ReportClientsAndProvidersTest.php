@@ -48,7 +48,15 @@ class ReportClientsAndProvidersTest extends BaseApiTest {
             $resp->headers->get('Content-Type'),
             "route: $route, status_code: {$resp->getStatusCode()}, headers: {$resp->headers}"
         );
-        $resp = $this->request('GET', $route, null, ['HTTP_ACCEPT' => 'text/html']);
+        $resp = $this->request(
+            'GET',
+            $route,
+            null,
+            [
+                'HTTP_ACCEPT' => 'text/html',
+                'HTTP_Accept-Language' => 'es'
+            ]
+        );
         self::assertEquals(
             200,
             $resp->getStatusCode(),
@@ -58,6 +66,23 @@ class ReportClientsAndProvidersTest extends BaseApiTest {
             "text/html",
             $resp->headers->get('Content-Type'),
             "route: $route, status_code: {$resp->getStatusCode()}, headers: {$resp->headers}"
+        );
+        self::assertStringContainsStringIgnoringCase(
+            "CLIENTES Y PROVEEDORES DE SUS PRODUCTOS",
+            $resp->getContent()
+        );
+        $resp = $this->request(
+            'GET',
+            $route,
+            null,
+            [
+                'HTTP_ACCEPT' => 'text/html',
+                'HTTP_Accept-Language' => 'en'
+            ]
+        );
+        self::assertStringContainsStringIgnoringCase(
+            "CLIENTS AND PROVIDERS FOR YOUR PRODUCTS",
+            $resp->getContent()
         );
     }
 }

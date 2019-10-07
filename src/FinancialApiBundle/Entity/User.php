@@ -203,6 +203,13 @@ class User extends BaseUser implements EntityWithUploadableFields {
     private $expired = 0;
 
     /**
+     * @ORM\Column(type="string", nullable=true)
+     * @Expose
+     * @Groups({"manager"})
+     */
+    private $locale;
+
+    /**
      * @Expose
      * @Groups({"manager"})
      */
@@ -734,6 +741,22 @@ class User extends BaseUser implements EntityWithUploadableFields {
     public function isAccountNonExpired()
     {
         return ! $this->expired;
+    }
+
+    /**
+     * @return mixed
+     */
+    public function getLocale()
+    {
+        return $this->locale;
+    }
+
+    /**
+     * @param mixed $locale
+     */
+    public function setLocale($locale): void
+    {
+        $this->locale = $locale;
     }
 
 }

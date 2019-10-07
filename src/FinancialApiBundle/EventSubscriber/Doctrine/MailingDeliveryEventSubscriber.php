@@ -1,22 +1,17 @@
 <?php
 
 
-namespace App\FinancialApiBundle\EventSubscriber;
+namespace App\FinancialApiBundle\EventSubscriber\Doctrine;
 
 
-use App\FinancialApiBundle\DependencyInjection\Drivers\MailgunWrapper;
 use App\FinancialApiBundle\Entity\Group;
 use App\FinancialApiBundle\Entity\Mailing;
 use App\FinancialApiBundle\Entity\MailingDelivery;
 use Doctrine\Common\EventSubscriber;
-use Doctrine\ORM\Event\LifecycleEventArgs;
 use Doctrine\ORM\Event\PreUpdateEventArgs;
 use Doctrine\ORM\Events;
-use Spipu\Html2Pdf\Exception\Html2PdfException;
-use Spipu\Html2Pdf\Html2Pdf;
 use Swift_Attachment;
 use Swift_Mailer;
-use Symfony\Component\HttpKernel\Exception\HttpException;
 use Symfony\Component\Templating\EngineInterface;
 
 class MailingDeliveryEventSubscriber implements EventSubscriber {
