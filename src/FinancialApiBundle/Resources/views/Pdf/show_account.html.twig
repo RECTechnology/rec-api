@@ -11,7 +11,7 @@
         {{ account.country }}
         {{ account.city }}
         {% if account.neighbourhood %}
-            ({{ account.neighbourhood.name }})
+            {{ account.neighbourhood.name }}
         {% endif %}
         {{ account.zip }}</em>
 {% endblock %}
