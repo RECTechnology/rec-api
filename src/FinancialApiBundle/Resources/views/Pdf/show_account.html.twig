@@ -8,7 +8,7 @@
         <strong>{{ "Email" | trans }}:</strong>
         <em>{{ account.email }}</em><br/>
     {% endif %}
-    {% if account.street || account.addressNumber || account.city ||  account.zip %}
+    {% if (account.street != null) or (account.addressNumber != null) or (account.city != null) or ( account.zip != null) %}
         <strong>{{ "Address" | trans }}:</strong>
         <em>
             {{ account.streetType }}
