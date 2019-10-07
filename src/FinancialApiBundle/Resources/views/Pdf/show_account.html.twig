@@ -8,13 +8,13 @@
         <strong>{{ "Email" | trans }}:</strong>
         <em>{{ account.email }}</em><br/>
     {% endif %}
-    {% if (account.street != null) or (account.addressNumber != null) or (account.city != null) or ( account.zip != null) %}
+    {% if (account.street != null) and (account.addressNumber != null) %}
         <strong>{{ "Address" | trans }}:</strong>
         <em>
-            {{ account.streetType }}
-            {{ account.street }}
+            {{ account.streetType | capitalize }}
+            {{ account.street | capitalize}}
             {{ account.addressNumber }},
-            {{ account.city }}
+            {{ account.city | capitalize}}
             {{ account.zip }}
             {% if account.neighbourhood %}
                 ({{ account.neighbourhood.name }})
