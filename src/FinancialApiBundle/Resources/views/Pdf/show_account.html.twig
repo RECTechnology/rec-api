@@ -1,9 +1,24 @@
 {% block show_account %}
-    <strong>{{ "Name" | trans }}:</strong> <em>{{ account.name }}</em><br />
-    <strong>{{ "Phone" | trans }}:</strong> <em>+{{ account.prefix }} {{ account.phone }}</em><br />
-    <strong>{{ "Email" | trans }}:</strong> <em>{{ account.email }}</em><br />
-    {% if account.neighbourhood %}
-        <strong>{{ "Neighbourhood" | trans }}:</strong> <em>{{ account.neighbourhood.name }}</em><br />
+    <strong>{{ "Name" | trans }}:</strong>
+    <em>{{ account.name }}</em><br/>
+    <strong>{{ "Phone" | trans }}:</strong>
+    <em>+{{ account.prefix }}
+        {{ account.phone }}</em><br/>
+    {% if account.email %}
+        <strong>{{ "Email" | trans }}:</strong>
+        <em>{{ account.email }}</em><br/>
     {% endif %}
-    {{ account.street }} {{ account.addressNumber }} {{ account.country }} {{ account.city }} {{ account.zip }}
+    {% if (account.street != null) and (account.addressNumber != null) %}
+        <strong>{{ "Address" | trans }}:</strong>
+        <em>
+            {{ account.streetType | capitalize }}
+            {{ account.street | capitalize}}
+            {{ account.addressNumber }},
+            {{ account.city | capitalize}}
+            {{ account.zip }}
+            {% if account.neighbourhood and account.neighbourhood.name != null %}
+                ({{ account.neighbourhood.name }})
+            {% endif %}
+        </em>
+    {% endif %}
 {% endblock %}
