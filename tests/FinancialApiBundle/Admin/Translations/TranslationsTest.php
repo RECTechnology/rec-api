@@ -67,7 +67,7 @@ class TranslationsTest extends BaseApiTest implements CrudV3WriteTestInterface {
                     'POST',
                     $route,
                     $params[$lang],
-                    ['Content-Language' => $lang]
+                    ['HTTP_Content-Language' => $lang]
                 );
                 self::assertEquals(
                     201,
@@ -117,7 +117,7 @@ class TranslationsTest extends BaseApiTest implements CrudV3WriteTestInterface {
                     'GET',
                     $route,
                     null,
-                    ['Accept-Language' => $lang]
+                    ['HTTP_Accept-Language' => $lang]
                 );
                 self::assertEquals(
                     $params[$lang],
@@ -152,7 +152,56 @@ class TranslationsTest extends BaseApiTest implements CrudV3WriteTestInterface {
         }
     }
 
-    function testSubResourcesShouldBeTranslated(){
+    function testFallback(){
+        $lang = 'en';
+        foreach (self::ROUTES_TO_TEST as $name => $params) {
+            $route = '/admin/v3/' . $name;
+            $resp = $this->requestJson(
+                'POST',
+                $route,
+                $params[$lang],
+                ['HTTP_Content-Language' => $lang]
+            );
+            self::assertEquals(
+                201,
+                $resp->getStatusCode(),
+                "route: $route, status_code: {$resp->getStatusCode()}, content: {$resp->getContent()}"
+            );
+            $object = json_decode($resp->getContent());
+
+            $resp = $this->requestJson(
+                'GET',
+                $route . '/' . $object->data->id,
+                null,
+                ['HTTP_Accept-Language' => 'ca']
+            );
+            $updateContent = json_decode($resp->getContent());
+
+            self::assertEquals(
+                $params['en'],
+                array_intersect_assoc($params['en'], (array) $updateContent->data),
+                "route: $route, status_code: {$resp->getStatusCode()}, content: {$resp->getContent()}"
+            );
+
+            $resp = $this->requestJson(
+                'GET',
+                $route,
+                null,
+                ['HTTP_Accept-Language' => 'ca']
+            );
+            $content = json_decode($resp->getContent());
+
+            foreach ($content->data->elements as $element){
+
+                self::assertEquals(
+                    $params['en'],
+                    array_intersect_assoc($params['en'], (array) $element),
+                    "route: $route, status_code: {$resp->getStatusCode()}, content: {$resp->getContent()}"
+                );
+            }
+
+        }
+
 
     }
 

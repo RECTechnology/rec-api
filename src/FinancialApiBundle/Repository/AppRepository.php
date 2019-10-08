@@ -9,10 +9,12 @@ use Doctrine\ORM\EntityManagerInterface;
 use Doctrine\ORM\EntityRepository;
 use Doctrine\ORM\Mapping;
 use Doctrine\ORM\NonUniqueResultException;
+use Doctrine\ORM\NoResultException;
 use Doctrine\ORM\Query;
 use Doctrine\ORM\QueryBuilder;
 use Gedmo\Translatable\Query\TreeWalker\TranslationWalker;
 use Gedmo\Translatable\TranslatableListener;
+use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\RequestStack;
 use Symfony\Component\HttpKernel\Exception\HttpException;
 
@@ -30,7 +32,7 @@ class AppRepository extends EntityRepository {
      * @return string|null
      */
     protected function getRequestLocale(){
-        $request = $this->stack->getCurrentRequest();
+        $request = $this->getRequest();
         $method = $request->getMethod();
         $headers = $request->headers;
         if(in_array($method, ['POST', 'PUT']) && $headers->has('content-language')){
@@ -41,11 +43,39 @@ class AppRepository extends EntityRepository {
 
 
     /**
+     * @return Request
+     */
+    protected function getRequest(){
+        return $this->stack->getCurrentRequest();
+    }
+
+
+    /**
      * @param $id
-     * @return mixed
+     * @return mixed|null
      */
     public function show($id) {
         return $this->find($id);
+    }
+
+    /**
+     * @param mixed $id
+     * @param null $lockMode
+     * @param null $lockVersion
+     * @return mixed|object|null
+     */
+    public function find($id, $lockMode = null, $lockVersion = null) {
+        $q = $this->createQueryBuilder('e')
+            ->where('e.id = :id')
+            ->setParameter('id', $id)
+            ->getQuery();
+        $q = $this->setTranslatableHints($q);
+        try {
+            return $q->getSingleResult();
+        } catch (NoResultException $ignored) {
+        } catch (NonUniqueResultException $ignored) {
+        }
+        return null;
     }
 
     /**
@@ -60,12 +90,12 @@ class AppRepository extends EntityRepository {
 
         $q->setHint(
             TranslatableListener::HINT_TRANSLATABLE_LOCALE,
-            $this->getRequestLocale() // take locale from session or request etc.
+            $this->getRequest()->getLocale() // take locale from session or request etc.
         );
 
         $q->setHint(
             TranslatableListener::HINT_FALLBACK,
-            1 // fallback to default values in case if record is not translated
+            true
         );
 
         return $q;
