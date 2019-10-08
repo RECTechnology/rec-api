@@ -7,6 +7,7 @@ use Doctrine\Common\Collections\ArrayCollection;
 use FOS\UserBundle\Model\GroupInterface;
 use FOS\UserBundle\Model\User as BaseUser;
 use Doctrine\ORM\Mapping as ORM;
+use JMS\Serializer\Annotation as Serializer;
 use Symfony\Component\HttpKernel\Exception\HttpException;
 
 use JMS\Serializer\Annotation\ExclusionPolicy;
@@ -67,6 +68,7 @@ class User extends BaseUser implements EntityWithUploadableFields {
     /**
      * @ORM\OneToMany(targetEntity="App\FinancialApiBundle\Entity\UserGroup", mappedBy="user", cascade={"remove"})
      * @Groups({"manager"})
+     * @MaxDepth(2)
      */
     protected $groups;
 
@@ -640,6 +642,16 @@ class User extends BaseUser implements EntityWithUploadableFields {
         }
         return $accounts;
     }
+
+    /**
+     * @return Collection
+     */
+    public function getUserGroups()
+    {
+        return $this->groups;
+    }
+
+
 
     public function getGroupNames()
     {

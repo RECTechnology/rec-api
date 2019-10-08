@@ -945,36 +945,32 @@ class AccountController extends BaseApiController{
 
     /**
      * @Rest\View
+     * @return Response
      */
-    public function indexCompanies(Request $request){
-
+    public function indexCompanies(){
+        /** @var User $user */
         $user = $this->get('security.token_storage')->getToken()->getUser();
-        $repo = $this->getDoctrine()->getRepository("FinancialApiBundle:UserGroup");
-        $data = $repo->findBy(array('user'=>$user));
 
-        $all = array();
-        foreach($data as $userCompany){
-            if($userCompany->getGroup()->getActive()){
-                $data_company = array(
-                    'company' => $userCompany->getGroup(),
-                    'roles' => $userCompany->getRoles()
-                );
-                $all[] = $data_company;
+        $all = [];
+        /** @var UserGroup $permission */
+        foreach ($user->getUserGroups() as $permission){
+            if($permission->getGroup()->getActive()) {
+                $all [] = [
+                    'company' => $permission->getGroup(),
+                    'roles' => $permission->getRoles()
+                ];
             }
         }
-
-        $total = count($all);
 
         return $this->restV2(
             200,
             "ok",
             "Request successful",
             array(
-                'total' => $total,
+                'total' => count($all),
                 'elements' => $all
             )
         );
-
     }
 
     /**
