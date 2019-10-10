@@ -9,8 +9,10 @@
 
 namespace App\FinancialApiBundle\Controller\Management\Company;
 
+use Doctrine\Common\Annotations\AnnotationException;
 use Doctrine\ORM\EntityManagerInterface;
 use App\FinancialApiBundle\Entity\Group;
+use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpKernel\Exception\HttpException;
 use App\FinancialApiBundle\Controller\BaseApiController;
 use FOS\RestBundle\Controller\Annotations as Rest;
@@ -35,7 +37,7 @@ class AccountController extends BaseApiController{
      * @Rest\View
      * @param Request $request
      * @param $id
-     * @return \Symfony\Component\HttpFoundation\Response
+     * @return Response
      */
     public function setAdmin(Request $request, $id){
 
@@ -68,23 +70,27 @@ class AccountController extends BaseApiController{
      * Permissions: ROLE_ADMIN (all)
      * @param Request $request
      * @param $account_id
-     * @return \Symfony\Component\HttpFoundation\Response
+     * @return Response
+     * @throws AnnotationException
+     * @throws \ReflectionException
      */
     public function updateAction(Request $request, $account_id){
 
         $admin = $this->get('security.token_storage')->getToken()->getUser();
-        $adminGroup = $this->getRepository($this->getRepositoryName())->find($account_id);
+        $adminGroup = $this->getRepository()->find($account_id);
 
-        $adminRoles = $this->getDoctrine()->getRepository('FinancialApiBundle:UserGroup')->findOneBy(array(
-            'user'  =>  $admin->getId(),
-            'group' =>  $adminGroup->getId()
-        ));
+        $permission = $this->getDoctrine()->getRepository(UserGroup::class)
+            ->findOneBy(array(
+                'user'  =>  $admin->getId(),
+                'group' =>  $adminGroup->getId()
+            ));
 
-        if(!$adminRoles){
+        if(!$permission){
             throw new HttpException(403, 'You are not in this account');
         }
 
-        if(!$adminRoles->hasRole('ROLE_ADMIN')) throw new HttpException(403, 'You don\'t have the necessary permissions');
+        if(!$permission->hasRole('ROLE_ADMIN'))
+            throw new HttpException(403, 'You don\'t have the necessary permissions');
 
         if($adminGroup->getFixedLocation()){
             $request->request->remove('longitude');

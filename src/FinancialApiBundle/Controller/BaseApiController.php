@@ -215,7 +215,11 @@ abstract class BaseApiController extends RestApiController implements Repository
             throw new HttpException(500, "Unknown error occurred when save: " . $e->getMessage());
         }
 
-        return $this->restV2($httpCode,"ok", "Created successfully", $entity);
+        $ctx = new SerializationContext();
+        $ctx->enableMaxDepthChecks();
+        $resp = $this->get('jms_serializer')->toArray($entity, $ctx);
+
+        return $this->restV2($httpCode,"ok", "Created successfully", $resp);
     }
 
     /**
@@ -228,6 +232,7 @@ abstract class BaseApiController extends RestApiController implements Repository
 
         $entity = $this->getNewEntity();
         $params = $request->request->all();
+
         return $this->setAction($entity, $params, static::HTTP_STATUS_CODE_CREATED);
     }
 
@@ -249,7 +254,12 @@ abstract class BaseApiController extends RestApiController implements Repository
         $entity = $repo->findOneBy(['id' => $id]);
 
         if(empty($entity)) throw new HttpException(404, "Not found");
-        return $this->setAction($entity, $params, 200);
+
+        $ctx = new SerializationContext();
+        $ctx->enableMaxDepthChecks();
+        $resp = $this->get('jms_serializer')->toArray($entity, $ctx);
+
+        return $this->setAction($resp, $params, 200);
     }
 
     protected function deleteAction($id){
