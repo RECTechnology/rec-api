@@ -686,7 +686,10 @@ abstract class BaseApiV2Controller extends RestApiController implements Reposito
      * @return mixed
      */
     protected function searchAction(Request $request, $role) {
-        $this->checkPermissions($role, self::CRUD_SEARCH);
+
+        // TODO: remove @rel: security.yml
+        if($request->getPathInfo() != '/admin/v3/accounts/search')
+            $this->checkPermissions($role, self::CRUD_SEARCH);
         list($total, $result) = $this->search($request);
         $elems = $this->securizeOutput($result);
 
