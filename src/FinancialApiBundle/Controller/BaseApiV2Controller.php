@@ -640,28 +640,28 @@ abstract class BaseApiV2Controller extends RestApiController implements Reposito
 
 
     private function getSetter($attribute) {
-        return $this->getModifier('set', $attribute);
+        return $this->getAccessor('set', $attribute);
     }
 
     private function getGetter($attribute) {
-        return $this->getModifier('get', $attribute);
+        return $this->getAccessor('get', $attribute);
     }
 
     private function getAdder($attribute) {
-        return $this->getModifier('add', $attribute);
+        return $this->getAccessor('add', $attribute);
     }
 
     private function getDeleter($attribute) {
-        return $this->getModifier('del', $attribute);
+        return $this->getAccessor('del', $attribute);
     }
 
-    private function getModifier($prefix, $attribute) {
-        $deleter = $this->toCamelCase($prefix . "_" . $attribute);
-        if(substr($deleter,strlen($deleter) - 3) === 'ies')
-            return substr($deleter, 0, strlen($deleter) - 3) . 'y';
-        if(substr($deleter,strlen($deleter) - 1) === 's')
-            return substr($deleter, 0, strlen($deleter) - 1);
-        return $deleter;
+    private function getAccessor($prefix, $attribute) {
+        $accessor = $this->toCamelCase($prefix . "_" . $attribute);
+        if(substr($accessor,strlen($accessor) - 3) === 'ies')
+            return substr($accessor, 0, strlen($accessor) - 3) . 'y';
+        if(substr($accessor,strlen($accessor) - 1) === 's')
+            return substr($accessor, 0, strlen($accessor) - 1);
+        return $accessor;
     }
 
     /**
