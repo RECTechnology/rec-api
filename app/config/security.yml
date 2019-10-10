@@ -3,9 +3,11 @@ security:
         FOS\UserBundle\Model\UserInterface: sha512
 
     # ROLES EXPLAINATION:
+    #  DEFAULT USER ROLES:
+    #    - ROLE_USER
     #  USER-ACCOUNT ROLES:
     #    - ROLE_ADMIN
-    #    - ROLE_USER
+    #    - ROLE_WORKER
     #    - ROLE_READONLY
     #  GLOBAL ROLES (ACCOUNT):
     #    - ROLE_ROOT (OVERALL PERMISSIONS)
@@ -16,10 +18,10 @@ security:
 
     role_hierarchy:
         ROLE_USER:            ROLE_PUBLIC
-        ROLE_READONLY:        ROLE_USER
+
         ROLE_WORKER:          ROLE_READONLY
-        ROLE_COMMERCE:        ROLE_USER
-        ROLE_SUPER_USER:      ROLE_COMMERCE
+        ROLE_ADMIN:           ROLE_WORKER
+
         ROLE_SUPER_MANAGER:   ROLE_SUPER_USER
         ROLE_SUPER_ADMIN:     ROLE_SUPER_MANAGER
         ROLE_ROOT:            ROLE_SUPER_ADMIN
@@ -45,18 +47,8 @@ security:
                 login_path: fos_user_security_login
             anonymous: true
 
-        exchange_ticker:
-            pattern:    ^/exchange/v[0-9]+/(currencies|ticker)*
-            stateless:  true
-            security:   false
-
         public:
             pattern:    ^/public/*
-            stateless:  true
-            security:   false
-
-        POS:
-            pattern:    ^/pos/v[0-9]+/transaction/*
             stateless:  true
             security:   false
 
@@ -77,21 +69,6 @@ security:
 
         withdrawal:
             pattern:    ^/withdrawal/*
-            stateless:  true
-            security:   false
-
-        POS_notifications:
-            pattern:    ^/pos/v[0-9]+/notification/*
-            stateless:  true
-            security:   false
-
-        POS_check:
-            pattern:    ^/pos/v[0-9]+/check/*
-            stateless:  true
-            security:   false
-
-        POS_cancel:
-            pattern:    ^/pos/v[0-9]+/cancel/*
             stateless:  true
             security:   false
 
@@ -116,20 +93,6 @@ security:
             signature_auth: true
             switch_user:  { role: ROLE_ADMIN, parameter: su }
 
-        swift_api:
-            pattern:  ^/swift
-            stateless: true
-            fos_oauth:  true
-            signature_auth: true
-            anonymous: true
-
-        old_api:
-            pattern:  ^/api
-            stateless: true
-            fos_oauth:  true
-            signature_auth: true
-            anonymous: true
-
         commerce_register:
             pattern:  ^/register/v1/commerce
             stateless: true
@@ -147,7 +110,7 @@ security:
             stateless:  true
             anonymous:  false
             signature_auth: true
-            switch_user:  { role: ROLE_ADMIN, parameter: su }
+            switch_user:  { role: ROLE_SUPER_ADMIN, parameter: su }
 
         default:
             anonymous: ~
@@ -156,26 +119,24 @@ security:
         - { path: ^/system/v[0-2]+/*, role: ROLE_SUPER_ADMIN }
         - { path: ^/admin/v[0-2]+/*, role: ROLE_SUPER_ADMIN }
         - { path: ^/manager/v[0-2]+/*, role: ROLE_ADMIN, methods: [POST,PUT,DELETE] }
-        - { path: ^/company/v[0-2]+/*, role: ROLE_USER, methods: [GET] }
+        - { path: ^/company/v[0-2]+/*, role: ROLE_READONLY, methods: [GET] }
         - { path: ^/company/v[0-2]+/*, role: ROLE_WORKER, methods: [POST,PUT,DELETE] }
-        - { path: ^/services/v[0-2]+/*, role: ROLE_ADMIN }
         - { path: ^/methods/v[0-2]+/*, role: ROLE_WORKER }
 
-        - { path: ^/pos/v[0-2]+/transaction/*, role: IS_AUTHENTICATED_ANONYMOUSLY, ip: ["127.0.0.1"] }
-        - { path: ^/pos/v[0-2]+/check/*, role: IS_AUTHENTICATED_ANONYMOUSLY }
-        - { path: ^/pos/v[0-2]+/cancel/*, role: IS_AUTHENTICATED_ANONYMOUSLY, ip: ["127.0.0.1"]  }
-
-        - { path: ^/user/v[0-2]+/pos/link/*, role: IS_AUTHENTICATED_ANONYMOUSLY }
         - { path: ^/user/v[0-2]+/*, role: ROLE_USER }
-        - { path: ^/self/v[0-2]+/*, role: ROLE_USER }
         - { path: ^/register/v[0-2]+, roles: IS_AUTHENTICATED_ANONYMOUSLY }
         - { path: ^/password_recovery/v[0-2]+, role: IS_AUTHENTICATED_ANONYMOUSLY }
 
-        # V3+ access_control
-        - { path: ^/public/v[3-9]+/*, role: ROLE_PUBLIC}
-        - { path: ^/user/v[3-9]+/*, role: ROLE_USER }
-        - { path: ^/manager/v[3-9]+/*, role: ROLE_MANAGER }
-        - { path: ^/self/v[3-9]+/*, role: ROLE_SELF }
-        - { path: ^/admin/v[3-9]+/*, role: ROLE_ADMIN }
-        - { path: ^/sadmin/v[3-9]+/*, role: ROLE_SUPER_ADMIN }
+        # V3+ User management
+        - { path: ^/user/v[3-9]+/profile, role: ROLE_USER }
+
+        # V3+ Account management
+        - { path: ^/user/v[3-9]+/accounts/[0-9]+/permissions, role: ROLE_ADMIN }
+        - { path: ^/user/v[3-9]+/accounts, role: ROLE_WORKER, methods: [POST, PUT, DELETE] }
+        - { path: ^/user/v[3-9]+/accounts, role: ROLE_READONLY, methods: [GET] }
+
+        # V3+ Admin Panel routes
+        - { path: ^/manager/v[3-9]+/*, role: ROLE_SUPER_MANAGER }
+        - { path: ^/admin/v[3-9]+/*, role: ROLE_SUPER_ADMIN }
+        - { path: ^/sadmin/v[3-9]+/*, role: ROLE_ROOT }
 
