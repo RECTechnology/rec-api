@@ -25,7 +25,6 @@ user_index_companies:
     defaults: { _controller: App\FinancialApiBundle\Controller\Management\User\AccountController::indexCompanies, _format: ~ }
     methods: [GET]
 
-
 ######################## USER WALLET ########################
 
 user_wallet:

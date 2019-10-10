@@ -10,6 +10,7 @@ namespace App\FinancialApiBundle\Entity;
 
 use Doctrine\ORM\Mapping as ORM;
 
+use JMS\Serializer\Annotation as Serializer;
 use JMS\Serializer\Annotation\ExclusionPolicy;
 use JMS\Serializer\Annotation\Expose;
 
@@ -25,12 +26,14 @@ class UserGroup{
     /**
      * @ORM\Id
      * @ORM\ManyToOne(targetEntity="App\FinancialApiBundle\Entity\User")
+     * @Serializer\MaxDepth(1)
      */
     private $user;
 
     /**
      * @ORM\Id
      * @ORM\ManyToOne(targetEntity="App\FinancialApiBundle\Entity\Group")
+     * @Serializer\MaxDepth(1)
      */
     private $group;
 

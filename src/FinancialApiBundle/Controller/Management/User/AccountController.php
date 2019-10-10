@@ -4,6 +4,7 @@ namespace App\FinancialApiBundle\Controller\Management\User;
 
 use Doctrine\Common\Annotations\AnnotationException;
 use Doctrine\DBAL\DBALException;
+use JMS\Serializer\SerializationContext;
 use Symfony\Component\HttpFoundation\Response;
 use App\FinancialApiBundle\Entity\CashInTokens;
 use App\FinancialApiBundle\Entity\Group;
@@ -962,13 +963,17 @@ class AccountController extends BaseApiController{
             }
         }
 
+        $ctx = new SerializationContext();
+        $ctx->enableMaxDepthChecks();
+        $resp = $this->get('jms_serializer')->toArray($all, $ctx);
+
         return $this->restV2(
             200,
             "ok",
             "Request successful",
             array(
                 'total' => count($all),
-                'elements' => $all
+                'elements' => $resp
             )
         );
     }
