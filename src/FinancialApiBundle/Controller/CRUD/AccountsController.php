@@ -160,12 +160,6 @@ class AccountsController extends CRUDController {
         }
         elseif ($format == 'application/pdf'){
 
-            //$pdf = new Html2Pdf();
-            //$pdf->writeHTML($html);
-
-            //$this->get('knp_snappy.pdf')->generateFromHtml($html);
-
-
             try {
                 return new Response(
                     $this->get('knp_snappy.pdf')->getOutputFromHtml($html),

@@ -48,6 +48,9 @@ class ReportClientsAndProvidersTest extends BaseApiTest {
             $resp->headers->get('Content-Type'),
             "route: $route, status_code: {$resp->getStatusCode()}, headers: {$resp->headers}"
         );
+
+        $this->dump('report.pdf', $resp->getContent());
+
         $resp = $this->request(
             'GET',
             $route,

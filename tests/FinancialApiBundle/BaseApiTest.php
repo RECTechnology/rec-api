@@ -203,4 +203,31 @@ abstract class BaseApiTest extends WebTestCase {
         $client = static::createClient();
         $this->removeDatabase($client);
     }
+
+    private function getDebugDir(){
+        $cli = static::createClient();
+        $cacheDir = $cli->getContainer()->getParameter('kernel.cache_dir');
+        $debugDir = $cacheDir . '/debug';
+        if(!file_exists($debugDir)) mkdir($debugDir);
+        return $debugDir;
+    }
+
+    /**
+     * @param $filename
+     * @param $content
+     */
+    protected function dump($filename, $content){
+        $debugDir = $this->getDebugDir();
+        file_put_contents("$debugDir/$filename", $content);
+    }
+
+    /**
+     * @param $filename
+     * @return false|string
+     */
+    protected function load($filename){
+        $debugDir = $this->getDebugDir();
+        return file_get_contents("$debugDir/$filename");
+    }
+
 }
