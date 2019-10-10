@@ -106,6 +106,8 @@ class AccountController extends BaseApiController{
 
     /**
      * @Rest\View
+     * @param Request $request
+     * @return Response
      */
     public function changeGroup(Request $request){
         $user = $this->get('security.token_storage')->getToken()->getUser();
@@ -114,27 +116,33 @@ class AccountController extends BaseApiController{
             $group_id = $request->request->get('group_id');
         else
             throw new HttpException(404,'group_id not found');
-        $userGroup = false;
+        /** @var Group $account */
+        $account = false;
         foreach($user->getGroups() as $group){
             if($group->getId() == $group_id && $group->getActive()){
-                $userGroup = $group;
+                $account = $group;
             }
         }
-        if(!$userGroup){
+        if(!$account){
             throw new HttpException(404,'Group selected is not accessible for you');
         }
         $em = $this->getDoctrine()->getManager();
-        $user->setActiveGroup($userGroup);
+        $user->setActiveGroup($account);
         $user->setRoles($user->getRoles());
         $em->persist($user);
         $em->flush();
-        $group_data = array();
-        $group_data['id'] = $userGroup->getId();
-        $group_data['name'] = $userGroup->getName();
-        //$group_data['default_currency'] = $userGroup->getDefaultCurrency();
-        $group_data['image'] = $userGroup->getCompanyImage();
-        $user->setGroupData($group_data);
-        return $this->restV2(200,"ok", "Active group changed successfully", $user);
+
+        $ctx = new SerializationContext();
+        $ctx->enableMaxDepthChecks();
+        $resp = $this->get('jms_serializer')->toArray($user, $ctx);
+
+        $resp['group_data'] = [
+            'id' => $account->getId(),
+            'name' => $account->getName(),
+            'image' => $account->getCompanyImage()
+        ];
+
+        return $this->restV2(200,"ok", "Active group changed successfully", $resp);
     }
 
     /**

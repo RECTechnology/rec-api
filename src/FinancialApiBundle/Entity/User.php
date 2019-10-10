@@ -630,6 +630,9 @@ class User extends BaseUser implements EntityWithUploadableFields {
 
     /**
      * Gets the groups granted to the user.
+     * @VirtualProperty()
+     * @SerializedName("accounts")
+     * @Type("App\FinancialApiBundle\Entity\Group[]")
      *
      * @return Collection
      */
