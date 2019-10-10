@@ -36,6 +36,8 @@ class AccountController extends BaseApiController{
 
     /**
      * @Rest\View
+     * @param Request $request
+     * @return Response
      */
     public function read(Request $request){
         /** @var User $user */
@@ -44,7 +46,12 @@ class AccountController extends BaseApiController{
         $group = $this->get('security.token_storage')->getToken()->getUser()->getActiveGroup();
         $group_data = $group->getUserView();
         $user->setGroupData($group_data);
-        return $this->restV2(200, "ok", "Account info got successfully", $user);
+
+        $ctx = new SerializationContext();
+        $ctx->enableMaxDepthChecks();
+        $resp = $this->get('jms_serializer')->toArray($user, $ctx);
+
+        return $this->restV2(200, "ok", "Account info got successfully", $resp);
     }
 
     /**

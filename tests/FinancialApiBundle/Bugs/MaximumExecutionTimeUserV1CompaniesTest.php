@@ -36,5 +36,4 @@ class MaximumExecutionTimeUserV1CompaniesTest extends BaseApiTest {
             "route: $route, status_code: {$resp->getStatusCode()}, time: " . ($end - $start)
         );
     }
-
 }
