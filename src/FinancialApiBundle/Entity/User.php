@@ -633,6 +633,9 @@ class User extends BaseUser implements EntityWithUploadableFields {
      * @VirtualProperty()
      * @SerializedName("accounts")
      * @Type("array<App\FinancialApiBundle\Entity\Group>")
+     * @MaxDepth(1)
+     * @Expose()
+     * @Groups({"user"})
      *
      * @return Collection
      */
