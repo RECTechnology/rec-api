@@ -12,6 +12,7 @@ RUN apt update && apt install -y \
     php-zip \
     php-redis \
     php-gd \
+    libxrender1 \
     unzip \
     wget \
     python3 \
