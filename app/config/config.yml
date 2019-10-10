@@ -204,6 +204,16 @@ doctrine_mongodb:
         default:
             auto_mapping: true
 
+knp_snappy:
+    pdf:
+        enabled:    true
+        binary:     '%kernel.root_dir%/../vendor/bin/wkhtmltopdf-amd64'
+        options:    []
+    image:
+        enabled:    true
+        binary:     '%kernel.root_dir%/../vendor/bin/wkhtmltoimage-amd64'
+        options:    []
+
 services:
     _defaults:
         autowire: true # Automatically injects dependencies in your services

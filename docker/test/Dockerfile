@@ -14,6 +14,7 @@ RUN apt update && apt install -y \
     php-redis \
     php-gd \
     php-xdebug \
+    libxrender1 \
     composer \
     gettext-base \
     apache2 \
