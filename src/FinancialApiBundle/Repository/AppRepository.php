@@ -14,11 +14,15 @@ use Doctrine\ORM\Query;
 use Doctrine\ORM\QueryBuilder;
 use Gedmo\Translatable\Query\TreeWalker\TranslationWalker;
 use Gedmo\Translatable\TranslatableListener;
+use Symfony\Component\DependencyInjection\ContainerAwareInterface;
+use Symfony\Component\DependencyInjection\ContainerAwareTrait;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\RequestStack;
 use Symfony\Component\HttpKernel\Exception\HttpException;
 
-class AppRepository extends EntityRepository {
+class AppRepository extends EntityRepository implements ContainerAwareInterface {
+
+    use ContainerAwareTrait;
 
     /** @var RequestStack $stack */
     private $stack;
@@ -88,9 +92,11 @@ class AppRepository extends EntityRepository {
             TranslationWalker::class
         );
 
+        if($this->getRequest()) $locale = $this->getRequest()->getLocale();
+        else $locale = $this->container->getParameter('locale');
         $q->setHint(
             TranslatableListener::HINT_TRANSLATABLE_LOCALE,
-            $this->getRequest()->getLocale() // take locale from session or request etc.
+            $locale // take locale from session or request etc.
         );
 
         $q->setHint(
