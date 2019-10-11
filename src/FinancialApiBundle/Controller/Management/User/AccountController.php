@@ -47,9 +47,7 @@ class AccountController extends BaseApiController{
         $group_data = $group->getUserView();
         $user->setGroupData($group_data);
 
-        $ctx = new SerializationContext();
-        $ctx->enableMaxDepthChecks();
-        $resp = $this->get('jms_serializer')->toArray($user, $ctx);
+        $resp = $this->securizeOutput($user);
 
         return $this->restV2(200, "ok", "Account info got successfully", $resp);
     }
@@ -139,9 +137,7 @@ class AccountController extends BaseApiController{
         $em->persist($user);
         $em->flush();
 
-        $ctx = new SerializationContext();
-        $ctx->enableMaxDepthChecks();
-        $resp = $this->get('jms_serializer')->toArray($user, $ctx);
+        $resp = $this->securizeOutput($user);
 
         $resp['group_data'] = [
             'id' => $account->getId(),
@@ -203,6 +199,8 @@ class AccountController extends BaseApiController{
 
     /**
      * @Rest\View
+     * @param Request $request
+     * @return Response
      */
     public function publicPhoneAction(Request $request){
         $user = $this->get('security.token_storage')->getToken()->getUser();
@@ -215,7 +213,10 @@ class AccountController extends BaseApiController{
             throw new HttpException(400, "Missing parameters");
         $em->persist($user);
         $em->flush();
-        return $this->restV2(200,"ok", "Account info got successfully", $user);
+
+        $resp = $this->securizeOutput($user);
+
+        return $this->restV2(200,"ok", "Account info got successfully", $resp);
     }
 
     /**
@@ -978,9 +979,7 @@ class AccountController extends BaseApiController{
             }
         }
 
-        $ctx = new SerializationContext();
-        $ctx->enableMaxDepthChecks();
-        $resp = $this->get('jms_serializer')->toArray($all, $ctx);
+        $resp = $this->securizeOutput($all);
 
         return $this->restV2(
             200,

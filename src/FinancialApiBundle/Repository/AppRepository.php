@@ -107,7 +107,6 @@ class AppRepository extends EntityRepository implements ContainerAwareInterface 
         return $q;
     }
 
-
     /**
      * @param $request
      * @param $search
@@ -124,7 +123,6 @@ class AppRepository extends EntityRepository implements ContainerAwareInterface 
         $properties = $em->getClassMetadata($this->getClassName())->getFieldNames();
         if(!in_array($sort, $properties))
             throw new HttpException(400, "Invalid sort: it must be a valid property (counters and virtual properties are not allowed)");
-
 
         /** @var QueryBuilder $qb */
         $qb = $em->createQueryBuilder();

@@ -50,6 +50,16 @@ abstract class BaseApiController extends RestApiController implements Repository
     }
 
     /**
+     * @param $resp
+     * @return array|mixed
+     */
+    protected function securizeOutput($resp){
+        $ctx = new SerializationContext();
+        $ctx->enableMaxDepthChecks();
+        return $this->get('jms_serializer')->toArray($resp, $ctx);
+    }
+
+    /**
      * @param $key
      * @param $sent_value
      * @return object|null
