@@ -121,7 +121,9 @@ class KycController extends BaseApiController{
         if(!$kyc){
             throw new HttpException(400, 'User without kyc information');
         }
-        return $this->restV2(201,"ok", "Request successful", $kyc);
+
+        $resp = $this->securizeOutput($kyc);
+        return $this->restV2(201,"ok", "Request successful", $resp);
     }
 
     public function validateEmail(Request $request){
@@ -227,7 +229,10 @@ class KycController extends BaseApiController{
         else{
             throw new HttpException(400, 'User without kyc information');
         }
-        return $this->restV2(201,"ok", "Request successful", $kyc);
+
+        $resp = $this->securizeOutput($kyc);
+
+        return $this->restV2(201,"ok", "Request successful", $resp);
     }
 
     public function validatePhoneCode(Request $request){
@@ -278,7 +283,10 @@ class KycController extends BaseApiController{
         else{
             throw new HttpException(400, 'User without kyc information');
         }
-        return $this->restV2(201,"ok", "Request successful", $kyc);
+
+        $resp = $this->securizeOutput($kyc);
+
+        return $this->restV2(201,"ok", "Request successful", $resp);
     }
 
     private function sendSMS($prefix, $number, $text){
