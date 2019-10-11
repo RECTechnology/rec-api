@@ -118,79 +118,79 @@ class Group extends BaseGroup implements EntityWithUploadableFields {
 
     /**
      * @ORM\OneToMany(targetEntity="App\FinancialApiBundle\Entity\LimitDefinition", mappedBy="group", cascade={"remove"})
-     * @Groups({"self"})
+     * @Groups({"user"})
      *
      */
     private $limits;
 
     /**
      * @ORM\OneToMany(targetEntity="App\FinancialApiBundle\Entity\ServiceFee", mappedBy="group", cascade={"remove"})
-     * @Groups({"self"})
+     * @Groups({"user"})
      *
      */
     private $commissions;
 
     /**
      * @ORM\OneToMany(targetEntity="App\FinancialApiBundle\Entity\UserWallet", mappedBy="group", cascade={"remove"})
-     * @Groups({"self"})
+     * @Groups({"user"})
      */
     private $wallets;
 
     /**
      * @ORM\OneToMany(targetEntity="App\FinancialApiBundle\Entity\LimitCount", mappedBy="group", cascade={"remove"})
-     * @Groups({"self"})
+     * @Groups({"user"})
      */
     private $limit_counts;
 
     /**
      * @ORM\Column(type="string")
-     * @Groups({"self"})
+     * @Groups({"user"})
      */
     private $access_key;
 
     /**
      * @ORM\Column(type="string")
      * @Exclude
-     * @Groups({"self"})
+     * @Groups({"user"})
      */
     private $key_chain;
 
     /**
      * @ORM\Column(type="boolean")
      * @Exclude
-     * @Groups({"self"})
+     * @Groups({"user"})
      */
     private $is_public_profile = false;
 
     /**
      * @ORM\Column(type="string")
-     * @Groups({"self"})
+     * @Groups({"user"})
      */
     private $access_secret;
 
     /**
      * @ORM\Column(type="string", length=1000)
      * @Exclude
-     * @Groups({"self"})
+     * @Groups({"user"})
      */
     private $methods_list;
 
     /**
      * @Expose
-     * @Groups({"self"})
+     * @Groups({"user"})
      */
     private $allowed_methods = array();
 
     /**
      * @Expose
-     * @Groups({"self"})
+     * @Groups({"user"})
      */
     private $limit_configuration = array();
 
     /**
      * @ORM\OneToMany(targetEntity="App\FinancialApiBundle\Entity\Balance", mappedBy="group", cascade={"remove"})
      * @Exclude
-     * @Groups({"self"})
+     * @Groups({"user"})
      */
     private $balance;
 
@@ -204,7 +204,7 @@ class Group extends BaseGroup implements EntityWithUploadableFields {
     /**
      * @ORM\OneToMany(targetEntity="App\FinancialApiBundle\Entity\Client", mappedBy="group", cascade={"remove"})
      * @Exclude
-     * @Groups({"self"})
+     * @Groups({"user"})
      */
     private $clients;
 

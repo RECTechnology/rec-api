@@ -43,6 +43,7 @@ class AccountController extends BaseApiController{
         /** @var User $user */
         $user = $this->get('security.token_storage')->getToken()->getUser();
         $user->setRoles($user->getRoles());
+        /** @var Group $group */
         $group = $this->get('security.token_storage')->getToken()->getUser()->getActiveGroup();
         $group_data = $group->getUserView();
         $user->setGroupData($group_data);

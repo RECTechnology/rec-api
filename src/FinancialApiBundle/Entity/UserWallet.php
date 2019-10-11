@@ -23,25 +23,25 @@ class UserWallet {
      * @ORM\Id
      * @ORM\Column(type="integer")
      * @ORM\GeneratedValue(strategy="AUTO")
-     * @Groups({"self"})
+     * @Groups({"user"})
      */
     protected $id;
 
     /**
      * @ORM\Column(type="string")
-     * @Groups({"self"})
+     * @Groups({"user"})
      */
     private $currency;
 
     /**
      * @ORM\Column(type="float")
-     * @Groups({"self"})
+     * @Groups({"user"})
      */
     private $available;
 
     /**
      * @ORM\Column(type="float")
-     * @Groups({"self"})
+     * @Groups({"user"})
      */
     private $balance;
 
