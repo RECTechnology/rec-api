@@ -88,7 +88,6 @@ class SubresourceTranslationsTest extends BaseApiTest {
         $this->account = $account;
     }
 
-
     function testSubresourceShouldBeTranslatedInEveryLanguage() {
         self::assertIsNumeric($this->account->id);
 
