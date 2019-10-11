@@ -86,7 +86,6 @@ services:
         tags:
             - { name: doctrine.event_listener, event: onFlush }
 
-
     treasure_withdrawal_creation.listener:
         class: App\FinancialApiBundle\EventListener\TreasureWithdrawalCreationListener
         arguments: ["@service_container"]

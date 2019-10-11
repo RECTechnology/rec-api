@@ -11,6 +11,8 @@ RUN apt update && apt install -y \
     php-mbstring \
     php-zip \
     php-redis \
+    php-gd \
+    libxrender1 \
     composer \
     gettext-base \
     wget \
@@ -18,7 +20,6 @@ RUN apt update && apt install -y \
     python3-pip \
     jq \
     cron
-
 
 # INSTALL GECKODRIVER
 RUN wget https://github.com/mozilla/geckodriver/releases/download/v0.24.0/geckodriver-v0.24.0-linux64.tar.gz -O geckodriver.tgz

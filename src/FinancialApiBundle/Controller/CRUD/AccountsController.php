@@ -6,10 +6,16 @@ use Doctrine\ORM\EntityManagerInterface;
 use Doctrine\ORM\NonUniqueResultException;
 use Doctrine\ORM\NoResultException;
 use Doctrine\ORM\QueryBuilder;
+use Spipu\Html2Pdf\Exception\Html2PdfException;
+use Spipu\Html2Pdf\Html2Pdf;
+use Symfony\Component\HttpFoundation\Response;
+use Symfony\Component\HttpFoundation\ResponseHeaderBag;
 use Symfony\Component\HttpKernel\Exception\HttpException;
 use App\FinancialApiBundle\Entity\Group;
 use Symfony\Component\HttpFoundation\Request;
 use App\FinancialApiBundle\Entity\Offer;
+use Symfony\Component\Templating\EngineInterface;
+use Symfony\Component\Translation\TranslatorInterface;
 
 /**
  * Class AccountsController
@@ -22,14 +28,14 @@ class AccountsController extends CRUDController {
      */
     function getCRUDGrants()
     {
-        return [
-            self::CRUD_METHOD_SEARCH => self::ROLE_PUBLIC,
-        ];
+        $grants = parent::getCRUDGrants();
+        $grants[self::CRUD_SEARCH] = self::ROLE_PUBLIC;
+        return $grants;
     }
+
     /**
      * @param Request $request
      * @return array
-     * @throws NoResultException
      * @throws NonUniqueResultException
      */
     public function search(Request $request){
@@ -124,4 +130,49 @@ class AccountsController extends CRUDController {
         return [intval($total), $elements];
     }
 
+
+    /**
+     * @param EngineInterface $templating
+     * @param TranslatorInterface $translator
+     * @param Request $request
+     * @param $role
+     * @param $id
+     * @return Response
+     */
+    public function reportClientsAndProvidersAction(EngineInterface $templating, TranslatorInterface $translator, Request $request, $role, $id){
+        $this->checkPermissions($role, self::CRUD_SHOW);
+
+        /** @var Group $account */
+        $account = $this->findObject($id);
+
+        //$translator->setLocale($request->getLocale());
+        $html = $templating->render(
+            'FinancialApiBundle:Pdf:product_clients_and_providers.html.twig',
+            ['account' => $account]
+        );
+        $format = $request->headers->get('Accept');
+        if($format == 'text/html') {
+            return new Response(
+                $html,
+                200,
+                ['Content-Type' => 'text/html']
+            );
+        }
+        elseif ($format == 'application/pdf'){
+
+            try {
+                return new Response(
+                    $this->get('knp_snappy.pdf')->getOutputFromHtml($html),
+                    200,
+                    [
+                        'Content-Type' => 'application/pdf',
+                        'Content-Disposition' => ResponseHeaderBag::DISPOSITION_INLINE
+                    ]
+                );
+            } catch (Html2PdfException $e) {
+                throw new HttpException(400, "Invalid pdf requested: ".  $e->getMessage(), $e);
+            }
+        }
+        throw new HttpException(400, "Invalid accept format " . $request->headers->get('Accept'));
+    }
 }

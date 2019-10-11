@@ -1,8 +1,8 @@
 version: '3'
 
 volumes:
-  rec-rdb:
-  rec-nrdb:
+  rdb:
+  nrdb:
 
 services:
   api:
@@ -10,6 +10,7 @@ services:
     build:
       context: ../..
       dockerfile: docker/dev/Dockerfile
+    command: dev
     environment:
       - APP_API_DOMAIN=http://localhost:8000
     volumes:
@@ -32,17 +33,17 @@ services:
       - 8001:80
 
   rdb:
-    image: mariadb
+    image: mariadb:10.4
     environment:
       - MYSQL_DATABASE=app
       - MYSQL_USER=app
       - MYSQL_PASSWORD=app
       - MYSQL_ALLOW_EMPTY_PASSWORD=yes
     volumes:
-      - rec-rdb:/var/lib/mysql
+      - rdb:/var/lib/mysql
 
   rdbadmin:
-    image: phpmyadmin/phpmyadmin
+    image: phpmyadmin/phpmyadmin:4.8
     environment:
       - PMA_HOST=rdb
       - PMA_port=3306
@@ -50,12 +51,12 @@ services:
       - 8080:80
 
   nrdb:
-    image: mongo
+    image: mongo:4.0
     environment:
       - MONGO_INITDB_ROOT_USERNAME=app
       - MONGO_INITDB_ROOT_PASSWORD=app
     volumes:
-      - rec-nrdb:/var/lib/mongodb
+      - nrdb:/var/lib/mongodb
 
   nrdbadmin:
     image: mongo-express

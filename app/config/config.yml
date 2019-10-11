@@ -16,7 +16,7 @@ imports:
 
 framework:
     #esi:             ~
-    #translator:      { fallback: "%locale%" }
+    translator:      { fallbacks: ["%locale%"] }
     secret:          "%secret%"
     router:
         resource: "%kernel.root_dir%/config/routing.yml"
@@ -40,7 +40,7 @@ twig:
     debug:            "%kernel.debug%"
     strict_variables: "%kernel.debug%"
     #exception_controller: FOS\RestBundle\Controller\ExceptionController::showAction
-    exception_controller: App\FinancialApiBundle\Controller\ApiExceptionController::showAction
+    exception_controller: App\FinancialApiBundle\Exception\ExceptionController::showAction
 
 monolog:
     handlers:
@@ -63,14 +63,52 @@ doctrine:
         user:     "%database_user%"
         password: "%database_password%"
         charset:  UTF8
-        server_version: 'mariadb-10.3.12'
+        server_version: 'mariadb-10.4.8'
         # if using pdo_sqlite as your database driver, add the path in parameters.yml
         # e.g. database_path: "%kernel.root_dir%/data/data.db3"
         # path:     "%database_path%"
 
     orm:
         auto_generate_proxy_classes: "%kernel.debug%"
-        auto_mapping: true
+        entity_managers:
+            default:
+                auto_mapping: true
+                repository_factory: App\FinancialApiBundle\DependencyInjection\App\Factories\AppRepositoryFactory
+                default_repository_class: App\FinancialApiBundle\Repository\AppRepository
+                mappings:
+                    gedmo_translatable:
+                        type: annotation
+                        prefix: Gedmo\Translatable\Entity
+                        dir: "%kernel.root_dir%/../vendor/gedmo/doctrine-extensions/lib/Gedmo/Translatable/Entity"
+                        alias: GedmoTranslatable # (optional) it will default to the name set for the mapping
+                        is_bundle: false
+                    gedmo_translator:
+                        type: annotation
+                        prefix: Gedmo\Translator\Entity
+                        dir: "%kernel.root_dir%/../vendor/gedmo/doctrine-extensions/lib/Gedmo/Translator/Entity"
+                        alias: GedmoTranslator # (optional) it will default to the name set for the mapping
+                        is_bundle: false
+                    gedmo_loggable:
+                        type: annotation
+                        prefix: Gedmo\Loggable\Entity
+                        dir: "%kernel.root_dir%/../vendor/gedmo/doctrine-extensions/lib/Gedmo/Loggable/Entity"
+                        alias: GedmoLoggable # (optional) it will default to the name set for the mapping
+                        is_bundle: false
+                    gedmo_tree:
+                        type: annotation
+                        prefix: Gedmo\Tree\Entity
+                        dir: "%kernel.root_dir%/../vendor/gedmo/doctrine-extensions/lib/Gedmo/Tree/Entity"
+                        alias: GedmoTree # (optional) it will default to the name set for the mapping
+                        is_bundle: false
+
+stof_doctrine_extensions:
+  default_locale: en_US
+  orm:
+      default:
+          tree: true
+          timestampable: true
+          translatable: true
+          uploadable: false # not needed: listeners are not enabled by default
 
 doctrine_migrations:
     dir_name: "%kernel.root_dir%/../src/FinancialApiBundle/Migrations"
@@ -78,7 +116,6 @@ doctrine_migrations:
     table_name: migration_versions
     name: App Migrations
     organize_migrations: false # Version >=1.2 Possible values are: "BY_YEAR", "BY_YEAR_AND_MONTH", false
-
 
 
 # Swiftmailer Configuration
@@ -167,6 +204,16 @@ doctrine_mongodb:
         default:
             auto_mapping: true
 
+knp_snappy:
+    pdf:
+        enabled:    true
+        binary:     '%kernel.root_dir%/../vendor/bin/wkhtmltopdf-amd64'
+        options:    []
+    image:
+        enabled:    true
+        binary:     '%kernel.root_dir%/../vendor/bin/wkhtmltoimage-amd64'
+        options:    []
+
 services:
     _defaults:
         autowire: true # Automatically injects dependencies in your services
@@ -181,11 +228,20 @@ services:
         # exclude directories || files (if service is unused, it will be removed anyway)
         exclude: '../../src/FinancialApiBundle/{Entity,Document,Repository}'
 
-
     App\FinancialApiBundle\Controller\:
         resource: '../../src/FinancialApiBundle/Controller'
         public: true
         tags: ['controller.service_arguments']
+
+    App\FinancialApiBundle\EventSubscriber\Doctrine\:
+      resource: '../../src/FinancialApiBundle/EventSubscriber/Doctrine'
+      public: true
+      tags: ['doctrine.event_subscriber']
+
+    App\FinancialApiBundle\EventSubscriber\Kernel\:
+      resource: '../../src/FinancialApiBundle/EventSubscriber/Kernel'
+      public: true
+      tags: ['kernel.event_subscriber']
 
     fos_user.doctrine_registry:
         alias: doctrine

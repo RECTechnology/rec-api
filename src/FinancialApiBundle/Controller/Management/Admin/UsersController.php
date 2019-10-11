@@ -16,6 +16,7 @@ use FOS\RestBundle\Controller\Annotations as Rest;
 use Symfony\Component\HttpFoundation\Request;
 use App\FinancialApiBundle\Entity\User;
 use FOS\OAuthServerBundle\Util\Random;
+use Symfony\Component\Serializer\NameConverter\CamelCaseToSnakeCaseNameConverter;
 
 /**
  * Class UsersController
@@ -217,11 +218,6 @@ class UsersController extends BaseApiController{
             throw new HttpException(500, "Unknown error occurred when save");
         }
         return $this->restV2(204,"ok", "Updated successfully");
-    }
-
-    private function attributeToSetter($str) {
-        $func = create_function('$c', 'return strtoupper($c[1]);');
-        return preg_replace_callback('/_([a-z])/', $func, "set_".$str);
     }
 
     /**

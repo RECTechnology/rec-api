@@ -7,6 +7,7 @@ use Doctrine\Common\Collections\ArrayCollection;
 use FOS\UserBundle\Model\GroupInterface;
 use FOS\UserBundle\Model\User as BaseUser;
 use Doctrine\ORM\Mapping as ORM;
+use JMS\Serializer\Annotation as Serializer;
 use Symfony\Component\HttpKernel\Exception\HttpException;
 
 use JMS\Serializer\Annotation\ExclusionPolicy;
@@ -66,14 +67,15 @@ class User extends BaseUser implements EntityWithUploadableFields {
 
     /**
      * @ORM\OneToMany(targetEntity="App\FinancialApiBundle\Entity\UserGroup", mappedBy="user", cascade={"remove"})
-     * @Groups({"self"})
+     * @Groups({"manager"})
+     * @MaxDepth(2)
      */
     protected $groups;
 
     /**
      * @ORM\ManyToOne(targetEntity="App\FinancialApiBundle\Entity\Group")
      * @Expose
-     * @Groups({"self"})
+     * @Groups({"manager"})
      * @MaxDepth(1)
      */
     private $active_group = null;
@@ -128,14 +130,14 @@ class User extends BaseUser implements EntityWithUploadableFields {
     /**
      * @ORM\Column(type="string")
      * @Expose
-     * @Groups({"self"})
+     * @Groups({"manager"})
      */
     private $access_key;
 
     /**
      * @ORM\Column(type="string")
      * @Expose
-     * @Groups({"self"})
+     * @Groups({"manager"})
      */
     private $access_secret;
 
@@ -149,42 +151,42 @@ class User extends BaseUser implements EntityWithUploadableFields {
     /**
      * @ORM\Column(type="string", unique=true)
      * @Expose
-     * @Groups({"self"})
+     * @Groups({"manager"})
      */
     private $phone;
 
     /**
      * @ORM\Column(type="boolean")
      * @Expose
-     * @Groups({"self"})
+     * @Groups({"manager"})
      */
     private $public_phone;
 
     /**
      * @ORM\Column(type="integer")
      * @Expose
-     * @Groups({"self"})
+     * @Groups({"manager"})
      */
     private $prefix;
 
     /**
      * @ORM\Column(type="text", nullable=true)
      * @Expose
-     * @Groups({"self"})
+     * @Groups({"manager"})
      */
     private $profile_image = '';
 
     /**
      * @ORM\Column(type="boolean")
      * @Expose
-     * @Groups({"self"})
+     * @Groups({"manager"})
      */
     private $twoFactorAuthentication = false;
 
     /**
      * @ORM\Column(type="string", nullable=true)
      * @Expose
-     * @Groups({"self"})
+     * @Groups({"manager"})
      */
     private $twoFactorCode;
 
@@ -203,27 +205,34 @@ class User extends BaseUser implements EntityWithUploadableFields {
     private $expired = 0;
 
     /**
+     * @ORM\Column(type="string", nullable=true)
      * @Expose
-     * @Groups({"self"})
+     * @Groups({"manager"})
+     */
+    private $locale;
+
+    /**
+     * @Expose
+     * @Groups({"manager"})
      */
     private $group_data = array();
 
     /**
      * @ORM\OneToOne(targetEntity="App\FinancialApiBundle\Entity\TierValidations", mappedBy="user", cascade={"remove"})
-     * @Groups({"self"})
+     * @Groups({"manager"})
      */
     private $tier_validations;
 
     /**
      * @ORM\OneToOne(targetEntity="App\FinancialApiBundle\Entity\KYC", mappedBy="user", cascade={"remove"})
      * @Expose
-     * @Groups({"self"})
+     * @Groups({"manager"})
      */
     private $kyc_validations;
 
     /**
      * @ORM\OneToMany(targetEntity="App\FinancialApiBundle\Entity\CreditCard", mappedBy="user", cascade={"remove"})
-     * @Groups({"self"})
+     * @Groups({"manager"})
      */
     private $bank_cards;
 
@@ -238,7 +247,7 @@ class User extends BaseUser implements EntityWithUploadableFields {
     /**
      * @ORM\Column(type="datetime")
      * @Expose
-     * @Groups({"self"})
+     * @Groups({"manager"})
      */
     private $created;
 
@@ -256,7 +265,7 @@ class User extends BaseUser implements EntityWithUploadableFields {
      * @VirtualProperty()
      * @SerializedName("has_saved_cards")
      * @Type("boolean")
-     * @Groups({"self"})
+     * @Groups({"manager"})
      */
     public function hasSavedCards(){
         return (bool) $this->getActiveCard();
@@ -267,7 +276,7 @@ class User extends BaseUser implements EntityWithUploadableFields {
      * @VirtualProperty()
      * @SerializedName("active_card")
      * @Type("App\FinancialApiBundle\Entity\CreditCard")
-     * @Groups({"self"})
+     * @Groups({"manager"})
      */
     public function getActiveCard(){
 
@@ -564,14 +573,14 @@ class User extends BaseUser implements EntityWithUploadableFields {
      * @return array The roles
      */
     public function getRoles(){
-        foreach($this->groups as $Usergroup){
-            if($this->getActiveGroup()->getId() == $Usergroup->getGroup()->getId()){
-                $roles = $Usergroup->getRoles();
-                $roles = array_merge($roles, $Usergroup->getGroup()->getRoles());
+        foreach($this->groups as $user_group){
+            if($this->getActiveGroup()->getId() == $user_group->getGroup()->getId()){
+                $roles = $user_group->getRoles();
+                $roles = array_merge($roles, $user_group->getGroup()->getRoles());
             }
         }
         // we need to make sure to have at least one role
-        $roles[] = static::ROLE_DEFAULT;
+        $roles []= static::ROLE_DEFAULT;
         return array_unique($roles);
     }
 
@@ -621,18 +630,34 @@ class User extends BaseUser implements EntityWithUploadableFields {
 
     /**
      * Gets the groups granted to the user.
+     * @VirtualProperty()
+     * @SerializedName("accounts")
+     * @Type("array<App\FinancialApiBundle\Entity\Group>")
+     * @MaxDepth(1)
+     * @Expose()
+     * @Groups({"user"})
      *
      * @return Collection
      */
     public function getGroups()
     {
-        $groups = new ArrayCollection();
+        $accounts = new ArrayCollection();
 
-        foreach($this->groups as $Usergroup){
-            $groups->add($Usergroup->getGroup());
+        foreach($this->groups as $accountsRelationship){
+            $accounts->add($accountsRelationship->getGroup());
         }
-        return $groups;
+        return $accounts;
     }
+
+    /**
+     * @return Collection
+     */
+    public function getUserGroups()
+    {
+        return $this->groups;
+    }
+
+
 
     public function getGroupNames()
     {
@@ -734,6 +759,22 @@ class User extends BaseUser implements EntityWithUploadableFields {
     public function isAccountNonExpired()
     {
         return ! $this->expired;
+    }
+
+    /**
+     * @return mixed
+     */
+    public function getLocale()
+    {
+        return $this->locale;
+    }
+
+    /**
+     * @param mixed $locale
+     */
+    public function setLocale($locale): void
+    {
+        $this->locale = $locale;
     }
 
 }

@@ -31,6 +31,7 @@ use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpKernel\Exception\HttpException;
 use Symfony\Component\Security\Core\SecurityContextInterface;
+use Symfony\Component\Serializer\NameConverter\CamelCaseToSnakeCaseNameConverter;
 use Symfony\Component\Validator\ConstraintViolation;
 use App\FinancialApiBundle\Entity\Group;
 
@@ -46,6 +47,16 @@ abstract class BaseApiController extends RestApiController implements Repository
         /** @var EntityManagerInterface $em */
         $em = $this->container->get('doctrine.orm.entity_manager');
         return $em->getRepository($this->getRepositoryName());
+    }
+
+    /**
+     * @param $resp
+     * @return array|mixed
+     */
+    protected function securizeOutput($resp){
+        $ctx = new SerializationContext();
+        $ctx->enableMaxDepthChecks();
+        return $this->get('jms_serializer')->toArray($resp, $ctx);
     }
 
     /**
@@ -215,7 +226,11 @@ abstract class BaseApiController extends RestApiController implements Repository
             throw new HttpException(500, "Unknown error occurred when save: " . $e->getMessage());
         }
 
-        return $this->restV2($httpCode,"ok", "Created successfully", $entity);
+        $ctx = new SerializationContext();
+        $ctx->enableMaxDepthChecks();
+        $resp = $this->get('jms_serializer')->toArray($entity, $ctx);
+
+        return $this->restV2($httpCode,"ok", "Created successfully", $resp);
     }
 
     /**
@@ -228,6 +243,7 @@ abstract class BaseApiController extends RestApiController implements Repository
 
         $entity = $this->getNewEntity();
         $params = $request->request->all();
+
         return $this->setAction($entity, $params, static::HTTP_STATUS_CODE_CREATED);
     }
 
@@ -249,6 +265,7 @@ abstract class BaseApiController extends RestApiController implements Repository
         $entity = $repo->findOneBy(['id' => $id]);
 
         if(empty($entity)) throw new HttpException(404, "Not found");
+
         return $this->setAction($entity, $params, 200);
     }
 
@@ -270,13 +287,37 @@ abstract class BaseApiController extends RestApiController implements Repository
     }
 
 
-    private function toCamelCase($str) {
-        $func = create_function('$c', 'return strtoupper($c[1]);');
-        return preg_replace_callback('/_([a-z])/', $func, $str);
+    protected function getSetter($attribute) {
+        return $this->getAccessor('set', $attribute);
     }
 
+    protected function getGetter($attribute) {
+        return $this->getAccessor('get', $attribute);
+    }
 
-    private function attributeToSetter($str) {
-        return $this->toCamelCase("set_" . $str);
+    protected function getAdder($attribute) {
+        return $this->getAccessor('add', $attribute);
+    }
+
+    protected function getDeleter($attribute) {
+        return $this->getAccessor('del', $attribute);
+    }
+
+    protected function getAccessor($prefix, $attribute) {
+        $accessor = $this->toCamelCase($prefix . "_" . $attribute);
+        if(substr($accessor,strlen($accessor) - 3) === 'ies')
+            return substr($accessor, 0, strlen($accessor) - 3) . 'y';
+        if(substr($accessor,strlen($accessor) - 1) === 's')
+            return substr($accessor, 0, strlen($accessor) - 1);
+        return $accessor;
+    }
+
+    protected function toCamelCase($str) {
+        $nameConverter = new CamelCaseToSnakeCaseNameConverter(null, false);
+        return $nameConverter->denormalize($str);
+    }
+
+    protected function attributeToSetter($str) {
+        return $this->getSetter($str);
     }
 }

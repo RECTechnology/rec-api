@@ -4,6 +4,7 @@ namespace App\FinancialApiBundle\Controller\Management\User;
 
 use Doctrine\Common\Annotations\AnnotationException;
 use Doctrine\DBAL\DBALException;
+use JMS\Serializer\SerializationContext;
 use Symfony\Component\HttpFoundation\Response;
 use App\FinancialApiBundle\Entity\CashInTokens;
 use App\FinancialApiBundle\Entity\Group;
@@ -35,6 +36,8 @@ class AccountController extends BaseApiController{
 
     /**
      * @Rest\View
+     * @param Request $request
+     * @return Response
      */
     public function read(Request $request){
         /** @var User $user */
@@ -43,7 +46,10 @@ class AccountController extends BaseApiController{
         $group = $this->get('security.token_storage')->getToken()->getUser()->getActiveGroup();
         $group_data = $group->getUserView();
         $user->setGroupData($group_data);
-        return $this->restV2(200, "ok", "Account info got successfully", $user);
+
+        $resp = $this->securizeOutput($user);
+
+        return $this->restV2(200, "ok", "Account info got successfully", $resp);
     }
 
     /**
@@ -105,6 +111,8 @@ class AccountController extends BaseApiController{
 
     /**
      * @Rest\View
+     * @param Request $request
+     * @return Response
      */
     public function changeGroup(Request $request){
         $user = $this->get('security.token_storage')->getToken()->getUser();
@@ -113,27 +121,31 @@ class AccountController extends BaseApiController{
             $group_id = $request->request->get('group_id');
         else
             throw new HttpException(404,'group_id not found');
-        $userGroup = false;
+        /** @var Group $account */
+        $account = false;
         foreach($user->getGroups() as $group){
             if($group->getId() == $group_id && $group->getActive()){
-                $userGroup = $group;
+                $account = $group;
             }
         }
-        if(!$userGroup){
+        if(!$account){
             throw new HttpException(404,'Group selected is not accessible for you');
         }
         $em = $this->getDoctrine()->getManager();
-        $user->setActiveGroup($userGroup);
+        $user->setActiveGroup($account);
         $user->setRoles($user->getRoles());
         $em->persist($user);
         $em->flush();
-        $group_data = array();
-        $group_data['id'] = $userGroup->getId();
-        $group_data['name'] = $userGroup->getName();
-        //$group_data['default_currency'] = $userGroup->getDefaultCurrency();
-        $group_data['image'] = $userGroup->getCompanyImage();
-        $user->setGroupData($group_data);
-        return $this->restV2(200,"ok", "Active group changed successfully", $user);
+
+        $resp = $this->securizeOutput($user);
+
+        $resp['group_data'] = [
+            'id' => $account->getId(),
+            'name' => $account->getName(),
+            'image' => $account->getCompanyImage()
+        ];
+
+        return $this->restV2(200,"ok", "Active group changed successfully", $resp);
     }
 
     /**
@@ -187,6 +199,8 @@ class AccountController extends BaseApiController{
 
     /**
      * @Rest\View
+     * @param Request $request
+     * @return Response
      */
     public function publicPhoneAction(Request $request){
         $user = $this->get('security.token_storage')->getToken()->getUser();
@@ -199,7 +213,10 @@ class AccountController extends BaseApiController{
             throw new HttpException(400, "Missing parameters");
         $em->persist($user);
         $em->flush();
-        return $this->restV2(200,"ok", "Account info got successfully", $user);
+
+        $resp = $this->securizeOutput($user);
+
+        return $this->restV2(200,"ok", "Account info got successfully", $resp);
     }
 
     /**
@@ -300,6 +317,10 @@ class AccountController extends BaseApiController{
 
     /**
      * @Rest\View
+     * @param Request $request
+     * @param $type
+     * @return Response
+     * @throws \Exception
      */
     public function registerCommerceAction(Request $request, $type){
         $logger = $this->get('manager.logger');
@@ -317,18 +338,20 @@ class AccountController extends BaseApiController{
         );
         //throw new HttpException(404, 'Must update');
         $valid_types = array('mobile');
-        if(!in_array($type, $valid_types)) throw new HttpException(404, 'Type not valid');
+        if(!in_array($type, $valid_types)) throw new HttpException(400, 'Type not valid, valid types: mobile');
 
         $params = array();
         foreach($paramNames as $param){
-            if($request->request->has($param) && $request->request->get($param)!=''){
+            if($request->request->has($param) && $request->request->get($param) != ''){
                 $params[$param] = $request->request->get($param);
             }else{
-                throw new HttpException(404, 'Param ' . $param . ' not found');
+                throw new HttpException(400, "Bad request: param '$param' is required");
             }
         }
-        if(strlen($params['password'])<6) throw new HttpException(404, 'Password must be longer than 6 characters');
-        if($params['password'] != $params['repassword']) throw new HttpException(404, 'Password and repassword are differents');
+        if(strlen($params['password'])<6)
+            throw new HttpException(400, 'Password must be longer than 6 characters');
+        if($params['password'] != $params['repassword'])
+            throw new HttpException(400, 'Password and repassword are differents');
         $params['plain_password'] = $params['password'];
         unset($params['password']);
         unset($params['repassword']);
@@ -349,7 +372,8 @@ class AccountController extends BaseApiController{
                 $params['username'] = "0" . $params['username'];
             }
         }
-        if(!$this->validar_dni((string)$params['username'])) throw new HttpException(404, 'NIF not valid');
+        if(!$this->validar_dni((string)$params['username']))
+            throw new HttpException(400, 'NIF not valid');
 
         $user = $em->getRepository($this->getRepositoryName())->findOneBy(array(
             'phone'  =>  $params['phone']
@@ -390,8 +414,10 @@ class AccountController extends BaseApiController{
             $params['email'] = '';
         }
 
-        if(strlen($params['security_question'])<1 || strlen($params['security_question'])>200) throw new HttpException(404, 'Security question is too large or too simple');
-        if(strlen($params['security_answer'])<1 || strlen($params['security_answer'])>50) throw new HttpException(404, 'Security answer is too large or too simple');
+        if(strlen($params['security_question'])<1 || strlen($params['security_question'])>200)
+            throw new HttpException(400, 'Security question is too large or too simple');
+        if(strlen($params['security_answer'])<1 || strlen($params['security_answer'])>50)
+            throw new HttpException(400, 'Security answer is too large or too simple');
         $params['security_answer'] = $this->cleanString($params['security_answer']);
 
         $methodsList = array('rec-out', 'rec-in');
@@ -523,7 +549,7 @@ class AccountController extends BaseApiController{
         if(strlen($pin)!=4){
             throw new HttpException(400, "Pin must be a number with 4 digits");
         }
-        if($params['pin'] != $params['repin']) throw new HttpException(404, 'Pin and repin are differents');
+        if($params['pin'] != $params['repin']) throw new HttpException(400, 'Pin and repin are differents');
 
         $user = new User();
         $user->setPlainPassword($params['plain_password']);
@@ -936,36 +962,34 @@ class AccountController extends BaseApiController{
 
     /**
      * @Rest\View
+     * @return Response
      */
-    public function indexCompanies(Request $request){
-
+    public function indexCompanies(){
+        /** @var User $user */
         $user = $this->get('security.token_storage')->getToken()->getUser();
-        $repo = $this->getDoctrine()->getRepository("FinancialApiBundle:UserGroup");
-        $data = $repo->findBy(array('user'=>$user));
 
-        $all = array();
-        foreach($data as $userCompany){
-            if($userCompany->getGroup()->getActive()){
-                $data_company = array(
-                    'company' => $userCompany->getGroup(),
-                    'roles' => $userCompany->getRoles()
-                );
-                $all[] = $data_company;
+        $all = [];
+        /** @var UserGroup $permission */
+        foreach ($user->getUserGroups() as $permission){
+            if($permission->getGroup()->getActive()) {
+                $all [] = [
+                    'company' => $permission->getGroup(),
+                    'roles' => $permission->getRoles()
+                ];
             }
         }
 
-        $total = count($all);
+        $resp = $this->securizeOutput($all);
 
         return $this->restV2(
             200,
             "ok",
             "Request successful",
             array(
-                'total' => $total,
-                'elements' => $all
+                'total' => count($all),
+                'elements' => $resp
             )
         );
-
     }
 
     /**

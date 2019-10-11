@@ -4,16 +4,13 @@ namespace App\FinancialApiBundle\Entity;
 use Doctrine\ORM\Mapping as ORM;
 use JMS\Serializer\Annotation\Groups;
 
+use Gedmo\Mapping\Annotation as Gedmo;
+
 
 /**
  * @ORM\MappedSuperclass
  */
 class AppObject {
-
-    public function __construct(){
-        $this->created = new \DateTime();
-        $this->updated = new \DateTime();
-    }
 
     /**
      * @ORM\Id
@@ -25,12 +22,14 @@ class AppObject {
 
     /**
      * @ORM\Column(type="datetime")
+     * @Gedmo\Timestampable(on="create")
      * @Groups({"user"})
      */
     private $created;
 
     /**
      * @ORM\Column(type="datetime")
+     * @Gedmo\Timestampable(on="update")
      * @Groups({"user"})
      */
     private $updated;
@@ -59,14 +58,4 @@ class AppObject {
     {
         return $this->updated;
     }
-
-    /**
-     * @param mixed $updated
-     */
-    public function setUpdated($updated)
-    {
-        $this->updated = $updated;
-    }
-
-
 }

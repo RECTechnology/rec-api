@@ -2,6 +2,7 @@
 
 namespace App\FinancialApiBundle\Controller\Management\Manager;
 
+use App\FinancialApiBundle\Entity\User;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpKernel\Exception\HttpException;
 use FOS\RestBundle\Controller\Annotations as Rest;
@@ -42,7 +43,7 @@ class UsersGroupsController extends RestApiController{
                 throw new HttpException(409, 'You don\'t have the necesary permissions');
         }
 
-        $usersRepository = $this->getDoctrine()->getRepository("FinancialApiBundle:User");
+        $usersRepository = $this->getDoctrine()->getRepository(User::class);
 
         //check parameters
         if(!$request->request->has('user_dni')){

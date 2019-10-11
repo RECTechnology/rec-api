@@ -10,6 +10,7 @@
 namespace App\FinancialApiBundle\Controller\Management\Admin;
 
 use FOS\OAuthServerBundle\Propel\RefreshTokenQuery;
+use JMS\Serializer\SerializationContext;
 use Symfony\Component\HttpKernel\Exception\HttpException;
 use FOS\RestBundle\Controller\Annotations as Rest;
 use Symfony\Component\HttpFoundation\Request;
@@ -192,16 +193,22 @@ class KYCController extends BaseApiController{
             );
         }
 
+        $data =  [
+            'total' => count($user_files),
+            'start' => 0,
+            'end' => count($user_files),
+            'files' => $user_files,
+            'kyc' => $kyc
+        ];
+
+        $ctx = new SerializationContext();
+        $ctx->enableMaxDepthChecks();
+        $resp = $this->get('jms_serializer')->toArray($data, $ctx);
+
         return $this->rest(
             200,
             "Request successful",
-            array(
-                'total' => count($user_files),
-                'start' => 0,
-                'end' => count($user_files),
-                'files' => $user_files,
-                'kyc' => $kyc
-            )
+            $resp
         );
     }
 

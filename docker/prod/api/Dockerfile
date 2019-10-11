@@ -11,6 +11,8 @@ RUN apt update && apt install -y \
     php-mbstring \
     php-zip \
     php-redis \
+    php-gd \
+    libxrender1 \
     composer \
     gettext-base \
     apache2 \
@@ -20,6 +22,7 @@ COPY docker/prod/api/vhost.conf /etc/apache2/sites-available/000-default.conf
 RUN a2enmod rewrite php7.3
 RUN sed 's/^ServerTokens OS/ServerTokens Prod/' -i /etc/apache2/conf-available/security.conf
 RUN sed 's/^ServerSignature On/ServerSignature Off/' -i /etc/apache2/conf-available/security.conf
+RUN sed 's/^memory_limit = 128M$/memory_limit = 1G/g' -i /etc/php/7.3/apache2/php.ini
 
 COPY composer.lock /api/composer.lock
 COPY composer.json /api/composer.json

@@ -32,12 +32,11 @@ use App\FinancialApiBundle\DependencyInjection\App\Commons\UploadManager;
  */
 class Group extends BaseGroup implements EntityWithUploadableFields {
 
-    const SERIALIZATION_GROUPS_PUBLIC = ['public'];
-    const SERIALIZATION_GROUPS_USER = ['user', 'public'];
-    const SERIALIZATION_GROUPS_MANAGER = ['manager', 'user', 'public'];
-    const SERIALIZATION_GROUPS_SELF = ['self', 'manager', 'user', 'public'];
-    const SERIALIZATION_GROUPS_ADMIN = ['admin', 'self', 'manager', 'user', 'public'];
-    const SERIALIZATION_GROUPS_SUPER_ADMIN = ['super_admin', 'admin', 'self', 'manager', 'user', 'public'];
+    const SERIALIZATION_GROUPS_PUBLIC  =                                     ['public'];
+    const SERIALIZATION_GROUPS_USER    =                             ['user', 'public'];
+    const SERIALIZATION_GROUPS_MANAGER =                  ['manager', 'user', 'public'];
+    const SERIALIZATION_GROUPS_ADMIN   =         ['admin', 'manager', 'user', 'public'];
+    const SERIALIZATION_GROUPS_ROOT    = ['root', 'admin', 'manager', 'user', 'public'];
 
     /**
      * Group constructor.
@@ -49,6 +48,9 @@ class Group extends BaseGroup implements EntityWithUploadableFields {
         $this->wallets = new ArrayCollection();
         $this->clients = new ArrayCollection();
         $this->offers = new ArrayCollection();
+        $this->activities = new ArrayCollection();
+        $this->consuming_products = new ArrayCollection();
+        $this->producing_products = new ArrayCollection();
         $this->company_token = uniqid();
         $this->on_map = 1;
 
@@ -207,6 +209,26 @@ class Group extends BaseGroup implements EntityWithUploadableFields {
     private $clients;
 
     /**
+     * @ORM\ManyToMany(targetEntity="App\FinancialApiBundle\Entity\Activity", mappedBy="accounts")
+     * @Groups({"public"})
+     */
+    private $activities;
+
+    /**
+     * @ORM\ManyToMany(targetEntity="App\FinancialApiBundle\Entity\ProductKind", mappedBy="producing_by")
+     * @Expose
+     * @Groups({"public"})
+     */
+    private $producing_products;
+
+    /**
+     * @ORM\ManyToMany(targetEntity="App\FinancialApiBundle\Entity\ProductKind", mappedBy="consuming_by")
+     * @Expose
+     * @Groups({"public"})
+     */
+    private $consuming_products;
+
+    /**
      * @ORM\Column(type="string")
      * @Expose
      * @Groups({"public"})
@@ -288,6 +310,12 @@ class Group extends BaseGroup implements EntityWithUploadableFields {
      * @Groups({"public"})
      */
     private $neighborhood = "";
+
+    /**
+     * @ORM\ManyToOne(targetEntity="App\FinancialApiBundle\Entity\Neighbourhood", inversedBy="accounts")
+     * @Groups({"public"})
+     */
+    private $neighbourhood;
 
     /**
      * @ORM\Column(type="string")
@@ -404,14 +432,14 @@ class Group extends BaseGroup implements EntityWithUploadableFields {
     }
 
     /**
-     * @return string
+     * @return integer
      * @VirtualProperty("offer_count")
      * @Type("integer")
      * @Groups({"public"})
      */
     public function getOfferCount()
     {
-        return count($this->getOffers());
+        return $this->getOffers()->count();
     }
 
 
@@ -1287,5 +1315,112 @@ class Group extends BaseGroup implements EntityWithUploadableFields {
             'company_image' => UploadManager::$FILTER_IMAGES,
             'public_image' => UploadManager::$FILTER_IMAGES
         ];
+    }
+
+    /**
+     * @return mixed
+     */
+    public function getNeighbourhood()
+    {
+        return $this->neighbourhood;
+    }
+
+    /**
+     * @param mixed $neighbourhood
+     */
+    public function setNeighbourhood($neighbourhood): void
+    {
+        $this->neighbourhood = $neighbourhood;
+    }
+
+    /**
+     * @return mixed
+     */
+    public function getProducingProducts()
+    {
+        return $this->producing_products;
+    }
+
+    /**
+     * @param $product
+     */
+    public function addProducingProduct(ProductKind $product, $recursive = true): void
+    {
+        $this->producing_products []= $product;
+        if($recursive) $product->addProducingBy($this, false);
+    }
+
+    /**
+     * @param mixed $product
+     * @param bool $recursive
+     */
+    public function delProducingProduct(ProductKind $product, $recursive = true): void
+    {
+        if(!$this->producing_products->contains($product)){
+            throw new \LogicException("Product not related to this Account");
+        }
+        $this->producing_products->removeElement($product);
+        if($recursive) $product->delProducingBy($this, false);
+    }
+
+    /**
+     * @return mixed
+     */
+    public function getConsumingProducts()
+    {
+        return $this->consuming_products;
+    }
+
+    /**
+     * @param mixed $product
+     * @param bool $recursive
+     */
+    public function addConsumingProduct(ProductKind $product, $recursive = true): void
+    {
+        $this->consuming_products []= $product;
+        if($recursive) $product->addConsumingBy($this, false);
+    }
+
+    /**
+     * @param mixed $product
+     * @param bool $recursive
+     */
+    public function delConsumingProduct(ProductKind $product, $recursive = true): void
+    {
+        if(!$this->consuming_products->contains($product)){
+            throw new \LogicException("Product not related to this Account");
+        }
+        $this->consuming_products->removeElement($product);
+        if($recursive) $product->delConsumingBy($this, false);
+    }
+
+    /**
+     * @return mixed
+     */
+    public function getActivities()
+    {
+        return $this->activities;
+    }
+
+    /**
+     * @param Activity $activity
+     * @param bool $recursive
+     */
+    public function addActivity(Activity $activity, $recursive = true): void
+    {
+        $this->activities []= $activity;
+        if($recursive) $activity->addAccount($this, false);
+    }
+
+    /**
+     * @param Activity $activity
+     * @param bool $recursive
+     */
+    public function delActivity(Activity $activity, $recursive = true) {
+        if(!$this->activities->contains($activity)){
+            throw new \LogicException("Activity not related to this Account");
+        }
+        $this->activities->removeElement($activity);
+        if($recursive) $activity->delAccount($this, false);
     }
 }

@@ -2,11 +2,16 @@
 
 namespace Test\FinancialApiBundle;
 
+use App\FinancialApiBundle\Entity\User;
+use App\FinancialApiBundle\Entity\Client as OAuthClient;
 use Doctrine\Bundle\DoctrineBundle\Command\CreateDatabaseDoctrineCommand;
 use Doctrine\Bundle\FixturesBundle\Command\LoadDataFixturesDoctrineCommand;
+use Doctrine\Common\DataFixtures\Purger\ORMPurger;
 use Doctrine\ORM\EntityManagerInterface;
 use Doctrine\ORM\Tools\SchemaTool;
 use Doctrine\ORM\Tools\ToolsException;
+use Faker\Factory;
+use Faker\Generator;
 use FOS\OAuthServerBundle\Controller\TokenController;
 use FOS\OAuthServerBundle\Model\AccessTokenManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Client;
@@ -16,61 +21,143 @@ use Symfony\Component\Console\Input\ArrayInput;
 use Symfony\Component\Console\Output\BufferedOutput;
 use Symfony\Component\Console\Output\NullOutput;
 use Symfony\Component\Console\Output\StreamOutput;
+use Symfony\Component\DomCrawler\Crawler;
+use Symfony\Component\Filesystem\Filesystem;
+use Symfony\Component\HttpFoundation\Response;
+use Symfony\Component\Yaml\Yaml;
 
 abstract class BaseApiTest extends WebTestCase {
 
+    const CRUD_V3_ROUTES = [
+        'neighbourhoods',
+        'activities',
+        'product_kinds',
+        'users',
+        'accounts',
+        'categories',
+        'delegated_changes',
+        'delegated_change_data',
+        'treasure_withdrawals',
+        'treasure_validations',
+        'access_tokens',
+        'clients',
+        'cash_in_deposits',
+        'user_wallets',
+        'limit_counts',
+        'limit_definitions',
+        'mailings',
+        'mailing_deliveries',
+    ];
+
+    const HEADERS_JSON = [
+        'CONTENT_TYPE' => 'application/json',
+        'HTTP_ACCEPT' => 'application/json'
+    ];
+
+    /** @var Generator $faker */
+    protected $faker;
+
+    /** @var array $token */
+    protected $token;
+
+    /** @var TestDataFactory $testFactory */
+    protected $testFactory;
+
     /**
-     * @return Client
+     * @param string $method
+     * @param string $url
+     * @param string $content
+     * @param array $headers
+     * @return Response
      */
-    protected function getApiClient(){
+    protected function request(string $method, string $url, string $content = null, array $headers = []) {
         $client = static::createClient();
-        $client->setServerParameters(
-            [
-                'HTTP_Content-Type' => 'application/json',
-                'HTTP_Accept' => 'application/json'
-            ]
-        );
-        return $client;
-    }
+        if($this->token) $headers['HTTP_AUTHORIZATION'] = "Bearer {$this->token['access_token']}";
 
-    protected function getUserClient(){
-
-    }
-
-    protected function getManagerClient(){
-
-    }
-
-    protected function getAdminClient(){
-        $client = $this->getApiClient();
-        self::assertContains(1, []);
-        return $client;
+        $client->request($method, $url, [], [], $headers, $content);
+        return $client->getResponse();
     }
 
     /**
-     * @param Client $client
+     * @param string $method
+     * @param string $url
+     * @param array|null $content
+     * @param array $headers
+     * @return Response
      */
-    protected function logIn(Client $client, $oauthCredentials){
-        $client->request('POST', '/oauth/v2/token', null, null, null, []);
+    protected function requestJson(string $method, string $url, array $content = null, array $headers = []) {
+        if($content !== null) $content = json_encode($content);
+        $resp = $this->request($method, $url, $content, array_merge($headers, self::HEADERS_JSON));
+        self::assertJson($resp->getContent());
+        return $resp;
+    }
+
+    /**
+     * @param $credentials
+     */
+    protected function signIn($credentials){
+        $oauthClient = $this->testFactory->getOAuthClient();
+        $content = [
+            'client_id' => $oauthClient->getPublicId(),
+            'client_secret' => $oauthClient->getSecret(),
+            'grant_type' => 'password',
+            'username' => $credentials['username'],
+            'password' => $credentials['password']
+        ];
+
+        $resp = $this->requestJson('POST', '/oauth/v2/token', $content);
+        self::assertEquals(
+            200,
+            $resp->getStatusCode(),
+            "status_code: {$resp->getStatusCode()} content: {$resp->getContent()}"
+        );
+        self::assertEquals('application/json', $resp->headers->get('Content-Type'));
+        $this->token = json_decode($resp->getContent(), true);
+    }
+
+
+    protected static function debug($stuff){
+        die(print_r($stuff, true));
+    }
+
+    protected function signOut(){
+        $this->token = null;
     }
 
     /**
      * @param Client $client
-     * @throws ToolsException
      * @throws \Exception
      */
     protected function clearDatabase(Client $client){
-        $this->createDatabase($client);
-    }
-
-
-    /**
-     * @param Client $client
-     * @throws \Exception
-     */
-    protected function createDatabase(Client $client){
+        $this->removeDatabase($client);
         $this->runCommand($client, 'doctrine:database:create', ['--if-not-exists']);
         $this->runCommand($client, 'doctrine:schema:create');
+    }
+
+    /**
+     * @param string $string
+     * @param Client $client
+     * @return string|string[]|null
+     */
+    protected function resolveString(string $string, Client $client){
+        preg_match_all('/%([^%]+)%/', $string, $matches);
+        if(count($matches) > 1){
+            for($i = 0; $i < count($matches[0]); $i++){
+                $paramName = $matches[1][$i];
+                $match = $matches[0][$i];
+                $param = $client->getContainer()->getParameter($paramName);
+                $string = preg_replace("/$match/", $param, $string);
+            }
+        }
+        return $string;
+    }
+
+    protected function removeDatabase(Client $client) {
+        $config = Yaml::parseFile($client->getKernel()->getRootDir() . '/../app/config/config_test.yml');
+        $fs = new Filesystem();
+        $dbUrl = $config['doctrine']['dbal']['url'];
+        $dbFile = $this->resolveString(explode('::', $dbUrl)[1], $client);
+        if($fs->exists($dbFile)) $fs->remove($dbFile);
     }
 
     /**
@@ -85,9 +172,8 @@ abstract class BaseApiTest extends WebTestCase {
         $application->setAutoExit(false);
         $fullCommand = array_merge(['command' => $command], $args);
         $output = new BufferedOutput();
-        $application->run(new ArrayInput($fullCommand), $output);
-
         $application->setCatchExceptions(false);
+        $application->run(new ArrayInput($fullCommand), $output);
         return $output->fetch();
     }
 
@@ -100,14 +186,48 @@ abstract class BaseApiTest extends WebTestCase {
     }
 
     /**
-     * @throws ToolsException
      * @throws \Exception
      */
     protected function setUp(): void
     {
         parent::setUp();
-        $client = $this->getApiClient();
+        $this->faker = Factory::create();
+        $client = static::createClient();
+        $this->testFactory = new TestDataFactory($client);
         $this->clearDatabase($client);
         $this->loadFixtures($client);
     }
+
+    protected function tearDown(): void {
+        parent::tearDown();
+        $client = static::createClient();
+        $this->removeDatabase($client);
+    }
+
+    private function getDebugDir(){
+        $cli = static::createClient();
+        $cacheDir = $cli->getContainer()->getParameter('kernel.cache_dir');
+        $debugDir = $cacheDir . '/debug';
+        if(!file_exists($debugDir)) mkdir($debugDir);
+        return $debugDir;
+    }
+
+    /**
+     * @param $filename
+     * @param $content
+     */
+    protected function dump($filename, $content){
+        $debugDir = $this->getDebugDir();
+        file_put_contents("$debugDir/$filename", $content);
+    }
+
+    /**
+     * @param $filename
+     * @return false|string
+     */
+    protected function load($filename){
+        $debugDir = $this->getDebugDir();
+        return file_get_contents("$debugDir/$filename");
+    }
+
 }

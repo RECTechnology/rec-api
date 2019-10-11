@@ -10,7 +10,7 @@ use Symfony\Component\HttpKernel\Exception\HttpException;
 use FOS\RestBundle\Controller\Annotations as Rest;
 use Symfony\Component\HttpFoundation\Request;
 use App\FinancialApiBundle\Controller\RestApiController;
-use App\FinancialApiBundle\Entity\Product;
+use App\FinancialApiBundle\Entity\ProductKind;
 use App\FinancialApiBundle\Entity\GroupProduct;
 use App\FinancialApiBundle\Controller\BaseApiController;
 
@@ -77,7 +77,7 @@ class ProductController extends BaseApiController{
             return $this->restV2(200, 'ok', 'Request successfull', $result);
         }
         else{
-            throw new HttpException(400, "Product list empty");
+            throw new HttpException(400, "ProductKind list empty");
         }
     }
 

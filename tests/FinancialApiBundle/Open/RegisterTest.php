@@ -7,20 +7,29 @@ use Test\FinancialApiBundle\BaseApiTest;
 
 class RegisterTest extends BaseApiTest {
 
-    public function testRegisterResponds201(){
-        $client = $this->getApiClient();
-        $faker = Factory::create();
+    public function testGoodRegisterResponds201(){
 
-        $content = json_encode([
-            'username' => $faker->userName
-        ]);
-
-        $client->request(
-            'POST', '/register/v1', [], [], [],
-            $content
+        $pw = $this->faker->password(6);
+        $pin = $this->faker->randomNumber(4, true);
+        $dni = '38305314X'; //got from https://generadordni.es/#dni
+        $content = [
+            'username' => $this->faker->userName,
+            'name' => $this->faker->name,
+            'password' => $pw,
+            'repassword' => $pw,
+            'phone' => $this->faker->randomNumber(9, true),
+            'prefix' => '34',
+            'pin' => $pin,
+            'repin' => $pin,
+            'dni' => $dni,
+            'security_question' => $this->faker->text(200),
+            'security_answer' => $this->faker->text(50),
+        ];
+        $response = $this->requestJson('POST', '/register/v1/commerce/mobile', $content);
+        self::assertEquals(
+            201,
+            $response->getStatusCode(),
+            "status_code: {$response->getStatusCode()} content: {$response->getContent()}"
         );
-
-        $response = $client->getResponse();
-        self::assertEquals(201, $response->getStatusCode());
     }
 }
