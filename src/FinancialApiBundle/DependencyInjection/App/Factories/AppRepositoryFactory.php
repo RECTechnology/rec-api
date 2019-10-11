@@ -9,6 +9,7 @@ use Doctrine\Common\Persistence\ObjectRepository;
 use Doctrine\ORM\EntityManagerInterface;
 use Doctrine\ORM\Mapping\ClassMetadata;
 use Doctrine\ORM\Repository\RepositoryFactory;
+use Symfony\Component\DependencyInjection\ContainerAwareInterface;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 use Symfony\Component\HttpFoundation\RequestStack;
 use RuntimeException;
@@ -79,6 +80,9 @@ class AppRepositoryFactory implements RepositoryFactory {
 
         $repositoryClassName = $metadata->customRepositoryClassName ?: $entityManager->getConfiguration()->getDefaultRepositoryClassName();
 
-        return $this->managedRepositories[$repositoryHash] = new $repositoryClassName($entityManager, $metadata, $stack);
+        $repo = new $repositoryClassName($entityManager, $metadata, $stack);
+        if($repo instanceof ContainerAwareInterface)
+            $repo->setContainer($this->container);
+        return $this->managedRepositories[$repositoryHash] = $repo;
     }
 }
