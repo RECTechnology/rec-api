@@ -6,6 +6,7 @@
 
 namespace App\FinancialApiBundle\Entity;
 
+use App\FinancialApiBundle\Exception\PreconditionFailedException;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\ORM\Mapping as ORM;
 use Gedmo\Translatable\Translatable;
@@ -18,7 +19,7 @@ use Gedmo\Mapping\Annotation as Gedmo;
  * @package App\FinancialApiBundle\Entity
  * @ORM\Entity
  */
-class ProductKind extends AppObject implements Translatable, Localizable {
+class ProductKind extends AppObject implements Translatable, Localizable, PreDeleteChecks {
 
     use LocalizableTrait;
 
@@ -236,5 +237,24 @@ class ProductKind extends AppObject implements Translatable, Localizable {
         }
         $this->default_consuming_by->removeElement($activity);
         if($recursive) $activity->delDefaultConsumingProduct($this, false);
+    }
+
+    /**
+     * @throws PreconditionFailedException
+     */
+    function isDeleteAllowed()
+    {
+        $count = $this->producing_by->count();
+        if($count > 0)
+            throw new PreconditionFailedException("Deletion forbidden, product produced by ($count) accounts");
+        $count = $this->consuming_by->count();
+        if($count > 0)
+            throw new PreconditionFailedException("Deletion forbidden, product consumed by ($count) accounts");
+        $count = $this->default_producing_by->count();
+        if($count > 0)
+            throw new PreconditionFailedException("Deletion forbidden, product produced by ($count) activities");
+        $count = $this->default_consuming_by->count();
+        if($count > 0)
+            throw new PreconditionFailedException("Deletion forbidden, product consumed by ($count) activities");
     }
 }
