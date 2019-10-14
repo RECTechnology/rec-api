@@ -13,6 +13,7 @@ use Gedmo\Translatable\Translatable;
 use JMS\Serializer\Annotation as Serializer;
 use JMS\Serializer\Annotation\Groups;
 use Gedmo\Mapping\Annotation as Gedmo;
+use Symfony\Component\Validator\Constraints as Assert;
 
 /**
  * Class Activity
@@ -21,7 +22,17 @@ use Gedmo\Mapping\Annotation as Gedmo;
  */
 class Activity extends AppObject implements Translatable, Localizable, PreDeleteChecks {
 
+    public const STATUS_CREATED = "created";
+    public const STATUS_REVIEWED = "reviewed";
+
     use LocalizableTrait;
+
+    /**
+     * @ORM\Column(type="string")
+     * @Assert\Choice({"created", "reviewed"})
+     * @Groups({"public"})
+     */
+    private $status;
 
     /**
      * @Gedmo\Translatable
@@ -65,6 +76,7 @@ class Activity extends AppObject implements Translatable, Localizable, PreDelete
         $this->accounts = new ArrayCollection();
         $this->default_consuming_products = new ArrayCollection();
         $this->default_producing_products = new ArrayCollection();
+        $this->status = self::STATUS_CREATED;
     }
 
     /**
@@ -210,5 +222,21 @@ class Activity extends AppObject implements Translatable, Localizable, PreDelete
         $count = $this->default_consuming_products->count();
         if($count > 0)
             throw new PreconditionFailedException("Delete forbidden: activity has ($count) consuming products");
+    }
+
+    /**
+     * @return string
+     */
+    public function getStatus(): string
+    {
+        return $this->status;
+    }
+
+    /**
+     * @param string $status
+     */
+    public function setStatus(string $status): void
+    {
+        $this->status = $status;
     }
 }
