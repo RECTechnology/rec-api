@@ -6,6 +6,7 @@
 
 namespace App\FinancialApiBundle\Entity;
 
+use App\FinancialApiBundle\Exception\PreconditionFailedException;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\ORM\Mapping as ORM;
 use Gedmo\Translatable\Translatable;
@@ -18,7 +19,7 @@ use Gedmo\Mapping\Annotation as Gedmo;
  * @package App\FinancialApiBundle\Entity
  * @ORM\Entity
  */
-class Activity extends AppObject implements Translatable, Localizable {
+class Activity extends AppObject implements Translatable, Localizable, PreDeleteChecks {
 
     use LocalizableTrait;
 
@@ -193,5 +194,21 @@ class Activity extends AppObject implements Translatable, Localizable {
         }
         $this->default_consuming_products->removeElement($product);
         if($recursive) $product->delDefaultConsumingBy($this, false);
+    }
+
+    /**
+     * @throws PreconditionFailedException
+     */
+    function isDeleteAllowed()
+    {
+        $count = $this->accounts->count();
+        if($count > 0)
+            throw new PreconditionFailedException("Delete forbidden: activity is assigned to ($count) accounts");
+        $count = $this->default_consuming_products->count();
+        if($count > 0)
+            throw new PreconditionFailedException("Delete forbidden: activity has ($count) consuming products");
+        $count = $this->default_consuming_products->count();
+        if($count > 0)
+            throw new PreconditionFailedException("Delete forbidden: activity has ($count) consuming products");
     }
 }
