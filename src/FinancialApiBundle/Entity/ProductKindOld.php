@@ -19,8 +19,11 @@ use Symfony\Component\Validator\Constraints as Assert;
  * Class ProductKindOld
  * @package App\FinancialApiBundle\Entity
  * @ORM\Entity
+ * @ORM\Table(name="ProductKind")
  */
 class ProductKindOld extends AppObject implements Translatable, Localizable, PreDeleteChecks {
+
+    use LocalizableTrait;
 
     /**
      * @Gedmo\Translatable
