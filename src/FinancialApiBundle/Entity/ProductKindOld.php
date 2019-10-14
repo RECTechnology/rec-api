@@ -16,23 +16,11 @@ use Gedmo\Mapping\Annotation as Gedmo;
 use Symfony\Component\Validator\Constraints as Assert;
 
 /**
- * Class ProductKind
+ * Class ProductKindOld
  * @package App\FinancialApiBundle\Entity
  * @ORM\Entity
  */
-class ProductKind extends AppObject implements Translatable, Localizable, PreDeleteChecks, MigratingEntity {
-
-    public const STATUS_CREATED = "created";
-    public const STATUS_REVIEWED = "reviewed";
-
-    use LocalizableTrait;
-
-    /**
-     * @ORM\Column(type="string")
-     * @Assert\Choice({"created", "reviewed"})
-     * @Groups({"public"})
-     */
-    private $status;
+class ProductKindOld extends AppObject implements Translatable, Localizable, PreDeleteChecks {
 
     /**
      * @Gedmo\Translatable
@@ -270,29 +258,4 @@ class ProductKind extends AppObject implements Translatable, Localizable, PreDel
             throw new PreconditionFailedException("Deletion forbidden, product consumed by ($count) activities");
     }
 
-    /**
-     * @return mixed
-     */
-    public function getStatus()
-    {
-        return $this->status;
-    }
-
-    /**
-     * @param mixed $status
-     */
-    public function setStatus($status): void
-    {
-        $this->status = $status;
-    }
-
-    static function getMigrationVersion()
-    {
-        return "20191014113926";
-    }
-
-    static function getOldEntity()
-    {
-        return ProductKindOld::class;
-    }
 }
