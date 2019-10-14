@@ -19,7 +19,6 @@ use Symfony\Component\Validator\Constraints as Assert;
  * Class ActivityOld
  * @package App\FinancialApiBundle\Entity
  * @ORM\Entity
- * @ORM\Table(name="Activity")
  */
 class ActivityOld extends AppObject implements Translatable, Localizable, PreDeleteChecks {
 
