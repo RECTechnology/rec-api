@@ -74,7 +74,7 @@ doctrine:
             default:
                 auto_mapping: true
                 repository_factory: App\FinancialApiBundle\DependencyInjection\App\Factories\AppRepositoryFactory
-                default_repository_class: App\FinancialApiBundle\Repository\AppMigrationRepository
+                default_repository_class: App\FinancialApiBundle\Repository\AppRepository
                 mappings:
                     gedmo_translatable:
                         type: annotation

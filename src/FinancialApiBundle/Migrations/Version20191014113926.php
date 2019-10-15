@@ -6,8 +6,6 @@ namespace App\FinancialApiBundle\Migrations;
 
 use App\FinancialApiBundle\Entity\Activity;
 use App\FinancialApiBundle\Entity\ProductKind;
-use App\FinancialApiBundle\Entity\User;
-use Doctrine\Common\Persistence\ObjectRepository;
 use Doctrine\DBAL\Schema\Schema;
 use Doctrine\Migrations\AbstractMigration;
 use Doctrine\ORM\EntityManagerInterface;
@@ -15,7 +13,8 @@ use Symfony\Component\DependencyInjection\ContainerAwareInterface;
 use Symfony\Component\DependencyInjection\ContainerAwareTrait;
 
 /**
- * Auto-generated Migration: Please modify to your needs!
+ * Class Version20191014113926
+ * @package App\FinancialApiBundle\Migrations
  */
 final class Version20191014113926 extends AbstractMigration implements ContainerAwareInterface{
 
@@ -44,21 +43,22 @@ final class Version20191014113926 extends AbstractMigration implements Container
         $this->addSql('ALTER TABLE ProductKind DROP status');
     }
 
+
     public function postUp(Schema $schema): void {
         parent::postUp($schema);
-
-        /** @var EntityManagerInterface $em */
         $em = $this->container->get('doctrine.orm.entity_manager');
-        $this->setAllCreated($em, Activity::class);
-        $this->setAllCreated($em, ProductKind::class);
-        $em->flush();
-    }
-
-    private function setAllCreated(EntityManagerInterface $em, string $className){
-        $repo = $em->getRepository($className);
-        foreach ($repo->findAll() as $entity) {
+        $repo = $em->getRepository(Activity::class);
+        /** @var Activity $entity */
+        foreach ($repo->findAll() as $entity){
             $entity->setStatus(Activity::STATUS_CREATED);
             $em->persist($entity);
         }
+        $repo = $em->getRepository(ProductKind::class);
+        /** @var ProductKind $activity */
+        foreach ($repo->findAll() as $entity){
+            $entity->setStatus(Activity::STATUS_CREATED);
+            $em->persist($entity);
+        }
+        $em->flush();
     }
 }

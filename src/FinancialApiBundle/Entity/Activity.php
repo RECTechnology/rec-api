@@ -20,19 +20,13 @@ use Symfony\Component\Validator\Constraints as Assert;
  * @package App\FinancialApiBundle\Entity
  * @ORM\Entity
  */
-class Activity extends AppObject implements Translatable, Localizable, PreDeleteChecks, MigratingEntity {
+class Activity extends AppObject implements Translatable, Localizable, PreDeleteChecks {
 
     public const STATUS_CREATED = "created";
     public const STATUS_REVIEWED = "reviewed";
 
     use LocalizableTrait;
 
-    /**
-     * @ORM\Column(type="string")
-     * @Assert\Choice({"created", "reviewed"})
-     * @Groups({"public"})
-     */
-    private $status;
 
     /**
      * @Gedmo\Translatable
@@ -76,7 +70,6 @@ class Activity extends AppObject implements Translatable, Localizable, PreDelete
         $this->accounts = new ArrayCollection();
         $this->default_consuming_products = new ArrayCollection();
         $this->default_producing_products = new ArrayCollection();
-        $this->status = self::STATUS_CREATED;
     }
 
     /**
@@ -225,28 +218,14 @@ class Activity extends AppObject implements Translatable, Localizable, PreDelete
     }
 
     /**
-     * @return string
+     * @Serializer\Groups({"public"})
+     * @Serializer\VirtualProperty()
+     * @Serializer\SerializedName("status")
+     * @Serializer\Type("string")
      */
     public function getStatus(): string
     {
-        return $this->status;
+        return self::STATUS_CREATED;
     }
 
-    /**
-     * @param string $status
-     */
-    public function setStatus(string $status): void
-    {
-        $this->status = $status;
-    }
-
-    static function getMigrationVersion()
-    {
-        return "20191014113926";
-    }
-
-    static function getOldEntity()
-    {
-        return ActivityOld::class;
-    }
 }

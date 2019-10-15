@@ -20,19 +20,12 @@ use Symfony\Component\Validator\Constraints as Assert;
  * @package App\FinancialApiBundle\Entity
  * @ORM\Entity
  */
-class ProductKind extends AppObject implements Translatable, Localizable, PreDeleteChecks, MigratingEntity {
+class ProductKind extends AppObject implements Translatable, Localizable, PreDeleteChecks {
 
     public const STATUS_CREATED = "created";
     public const STATUS_REVIEWED = "reviewed";
 
     use LocalizableTrait;
-
-    /**
-     * @ORM\Column(type="string")
-     * @Assert\Choice({"created", "reviewed"})
-     * @Groups({"public"})
-     */
-    private $status;
 
     /**
      * @Gedmo\Translatable
@@ -81,7 +74,7 @@ class ProductKind extends AppObject implements Translatable, Localizable, PreDel
     private $default_consuming_by;
 
     /**
-     * ProductKind constructor.
+     * ProductKindOld constructor.
      */
     public function __construct() {
         $this->producing_by = new ArrayCollection();
@@ -101,12 +94,10 @@ class ProductKind extends AppObject implements Translatable, Localizable, PreDel
 
     /**
      * @param mixed $name
-     * @return ProductKind
      */
     public function setName($name)
     {
         $this->name = $name;
-        return $this;
     }
 
     /**
@@ -119,12 +110,10 @@ class ProductKind extends AppObject implements Translatable, Localizable, PreDel
 
     /**
      * @param mixed $description
-     * @return ProductKind
      */
     public function setDescription($description)
     {
         $this->description = $description;
-        return $this;
     }
 
     /**
@@ -256,43 +245,25 @@ class ProductKind extends AppObject implements Translatable, Localizable, PreDel
      */
     function isDeleteAllowed()
     {
-        $count = $this->producing_by->count();
-        if($count > 0)
-            throw new PreconditionFailedException("Deletion forbidden, product produced by ($count) accounts");
-        $count = $this->consuming_by->count();
-        if($count > 0)
-            throw new PreconditionFailedException("Deletion forbidden, product consumed by ($count) accounts");
-        $count = $this->default_producing_by->count();
-        if($count > 0)
-            throw new PreconditionFailedException("Deletion forbidden, product produced by ($count) activities");
-        $count = $this->default_consuming_by->count();
-        if($count > 0)
-            throw new PreconditionFailedException("Deletion forbidden, product consumed by ($count) activities");
+        if($this->producing_by->isEmpty())
+            throw new PreconditionFailedException("Deletion forbidden, product produced by (1+) accounts");
+        if($this->consuming_by->isEmpty())
+            throw new PreconditionFailedException("Deletion forbidden, product consumed by (1+) accounts");
+        if($this->default_producing_by->isEmpty())
+            throw new PreconditionFailedException("Deletion forbidden, product produced by (1+) activities");
+        if($this->default_consuming_by->isEmpty())
+            throw new PreconditionFailedException("Deletion forbidden, product consumed by (1+) activities");
     }
 
     /**
-     * @return mixed
+     * @Groups({"public"})
+     * @Serializer\VirtualProperty()
+     * @Serializer\SerializedName("status")
+     * @Serializer\Type("string")
      */
-    public function getStatus()
+    public function getStatus(): string
     {
-        return $this->status;
+        return self::STATUS_CREATED;
     }
 
-    /**
-     * @param mixed $status
-     */
-    public function setStatus($status): void
-    {
-        $this->status = $status;
-    }
-
-    static function getMigrationVersion()
-    {
-        return "20191014113926";
-    }
-
-    static function getOldEntity()
-    {
-        return ProductKindOld::class;
-    }
 }
