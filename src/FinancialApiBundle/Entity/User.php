@@ -698,6 +698,8 @@ class User extends BaseUser implements EntityWithUploadableFields {
     public function setKycValidations($kyc_validations)
     {
         $this->kyc_validations = $kyc_validations;
+        if($kyc_validations->getUser() != $this)
+            $kyc_validations->setUser($this);
     }
 
     /**

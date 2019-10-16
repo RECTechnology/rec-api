@@ -10,6 +10,7 @@ namespace App\FinancialApiBundle\DependencyInjection;
 
 
 class SignatureHeaderBuilder {
+
     /**
      * @param $access_key
      * @param $access_secret_b64

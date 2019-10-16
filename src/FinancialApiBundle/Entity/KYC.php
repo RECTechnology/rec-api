@@ -338,9 +338,11 @@ class KYC implements EntityWithUploadableFields {
     /**
      * @param mixed $user
      */
-    public function setUser($user)
+    public function setUser(User $user)
     {
         $this->user = $user;
+        if($user->getKycValidations() != $this)
+            $user->setKycValidations($this);
     }
 
     /**
