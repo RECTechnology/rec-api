@@ -245,14 +245,14 @@ class ProductKind extends AppObject implements Translatable, Localizable, PreDel
      */
     function isDeleteAllowed()
     {
-        if($this->producing_by->isEmpty())
-            throw new PreconditionFailedException("Deletion forbidden, product produced by (1+) accounts");
-        if($this->consuming_by->isEmpty())
-            throw new PreconditionFailedException("Deletion forbidden, product consumed by (1+) accounts");
-        if($this->default_producing_by->isEmpty())
-            throw new PreconditionFailedException("Deletion forbidden, product produced by (1+) activities");
-        if($this->default_consuming_by->isEmpty())
-            throw new PreconditionFailedException("Deletion forbidden, product consumed by (1+) activities");
+        if(!$this->producing_by->isEmpty())
+            throw new PreconditionFailedException("Deletion forbidden: product produced by (1+) accounts");
+        if(!$this->consuming_by->isEmpty())
+            throw new PreconditionFailedException("Deletion forbidden: product consumed by (1+) accounts");
+        if(!$this->default_producing_by->isEmpty())
+            throw new PreconditionFailedException("Deletion forbidden: product produced by (1+) activities");
+        if(!$this->default_consuming_by->isEmpty())
+            throw new PreconditionFailedException("Deletion forbidden: product consumed by (1+) activities");
     }
 
     /**

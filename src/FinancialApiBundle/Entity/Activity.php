@@ -206,15 +206,12 @@ class Activity extends AppObject implements Translatable, Localizable, PreDelete
      */
     function isDeleteAllowed()
     {
-        $count = $this->accounts->count();
-        if($count > 0)
-            throw new PreconditionFailedException("Delete forbidden: activity is assigned to ($count) accounts");
-        $count = $this->default_consuming_products->count();
-        if($count > 0)
-            throw new PreconditionFailedException("Delete forbidden: activity has ($count) consuming products");
-        $count = $this->default_consuming_products->count();
-        if($count > 0)
-            throw new PreconditionFailedException("Delete forbidden: activity has ($count) consuming products");
+        if(!$this->accounts->isEmpty())
+            throw new PreconditionFailedException("Delete forbidden: activity is assigned to (1+) accounts");
+        if(!$this->default_consuming_products->isEmpty())
+            throw new PreconditionFailedException("Delete forbidden: activity has (1+) consuming products");
+        if(!$this->default_consuming_products->isEmpty())
+            throw new PreconditionFailedException("Delete forbidden: activity has (1+) consuming products");
     }
 
     /**
