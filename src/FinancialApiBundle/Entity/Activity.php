@@ -77,6 +77,7 @@ class Activity extends AppObject implements Translatable, Localizable, PreDelete
         $this->accounts = new ArrayCollection();
         $this->default_consuming_products = new ArrayCollection();
         $this->default_producing_products = new ArrayCollection();
+        $this->status = self::STATUS_CREATED;
     }
 
     /**
@@ -226,7 +227,7 @@ class Activity extends AppObject implements Translatable, Localizable, PreDelete
      */
     public function setStatus($status): void
     {
-        return $this->status = $status;
+        $this->status = $status;
     }
 
     /**

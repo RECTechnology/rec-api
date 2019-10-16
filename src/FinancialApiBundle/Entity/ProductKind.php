@@ -267,7 +267,7 @@ class ProductKind extends AppObject implements Translatable, Localizable, PreDel
      */
     public function setStatus($status): void
     {
-        return $this->status = $status;
+        $this->status = $status;
     }
 
     /**
