@@ -43,6 +43,13 @@ class Activity extends AppObject implements Translatable, Localizable, PreDelete
     private $description;
 
     /**
+     * @ORM\Column(type="string")
+     * @Assert\Choice({"created", "reviewed"})
+     * @Groups({"public"})
+     */
+    private $status;
+
+    /**
      * @ORM\ManyToMany(targetEntity="App\FinancialApiBundle\Entity\Group", inversedBy="activities")
      * @Groups({"public"})
      * @Serializer\MaxDepth(2)
@@ -215,14 +222,19 @@ class Activity extends AppObject implements Translatable, Localizable, PreDelete
     }
 
     /**
-     * @Serializer\Groups({"public"})
-     * @Serializer\VirtualProperty()
-     * @Serializer\SerializedName("status")
-     * @Serializer\Type("string")
+     * @param $status
+     */
+    public function setStatus($status): void
+    {
+        return $this->status = $status;
+    }
+
+    /**
+     * @return string
      */
     public function getStatus(): string
     {
-        return self::STATUS_CREATED;
+        return $this->status;
     }
 
 }
