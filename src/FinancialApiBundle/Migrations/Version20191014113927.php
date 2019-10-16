@@ -37,7 +37,6 @@ final class Version20191014113927 extends AbstractMigration implements Container
         $this->abortIf($this->connection->getDatabasePlatform()->getName() !== 'mysql', 'Migration can only be executed safely on \'mysql\'.');
     }
 
-
     public function postUp(Schema $schema): void {
         parent::postUp($schema);
         /** @var EntityManagerInterface $em */
