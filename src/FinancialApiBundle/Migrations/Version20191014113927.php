@@ -40,6 +40,7 @@ final class Version20191014113927 extends AbstractMigration implements Container
 
     public function postUp(Schema $schema): void {
         parent::postUp($schema);
+        /** @var EntityManagerInterface $em */
         $em = $this->container->get('doctrine.orm.entity_manager');
         $repo = $em->getRepository(Activity::class);
         /** @var Activity $entity */
