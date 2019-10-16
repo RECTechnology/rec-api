@@ -6,21 +6,27 @@
 
 namespace App\FinancialApiBundle\Entity;
 
+use App\FinancialApiBundle\Exception\PreconditionFailedException;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\ORM\Mapping as ORM;
 use Gedmo\Translatable\Translatable;
 use JMS\Serializer\Annotation as Serializer;
 use JMS\Serializer\Annotation\Groups;
 use Gedmo\Mapping\Annotation as Gedmo;
+use Symfony\Component\Validator\Constraints as Assert;
 
 /**
  * Class Activity
  * @package App\FinancialApiBundle\Entity
  * @ORM\Entity
  */
-class Activity extends AppObject implements Translatable, Localizable {
+class Activity extends AppObject implements Translatable, Localizable, PreDeleteChecks {
+
+    public const STATUS_CREATED = "created";
+    public const STATUS_REVIEWED = "reviewed";
 
     use LocalizableTrait;
+
 
     /**
      * @Gedmo\Translatable
@@ -194,4 +200,29 @@ class Activity extends AppObject implements Translatable, Localizable {
         $this->default_consuming_products->removeElement($product);
         if($recursive) $product->delDefaultConsumingBy($this, false);
     }
+
+    /**
+     * @throws PreconditionFailedException
+     */
+    function isDeleteAllowed()
+    {
+        if(!$this->accounts->isEmpty())
+            throw new PreconditionFailedException("Delete forbidden: activity is assigned to (1+) accounts");
+        if(!$this->default_consuming_products->isEmpty())
+            throw new PreconditionFailedException("Delete forbidden: activity has (1+) consuming products");
+        if(!$this->default_consuming_products->isEmpty())
+            throw new PreconditionFailedException("Delete forbidden: activity has (1+) consuming products");
+    }
+
+    /**
+     * @Serializer\Groups({"public"})
+     * @Serializer\VirtualProperty()
+     * @Serializer\SerializedName("status")
+     * @Serializer\Type("string")
+     */
+    public function getStatus(): string
+    {
+        return self::STATUS_CREATED;
+    }
+
 }
