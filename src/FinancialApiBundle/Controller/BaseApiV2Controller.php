@@ -9,6 +9,7 @@
 namespace App\FinancialApiBundle\Controller;
 
 use App\FinancialApiBundle\Exception\AppException;
+use App\FinancialApiBundle\Exception\PreconditionFailedException;
 use DateTime;
 use DateTimeZone;
 use Doctrine\Common\Annotations\AnnotationException;
@@ -404,6 +405,8 @@ abstract class BaseApiV2Controller extends RestApiController implements Reposito
             else if(preg_match('/UNIQUE constraint failed/i', $e->getMessage()))
                 throw new HttpException(409, "Duplicated resource (multiple parameters duplicated)", $e);
             throw new HttpException(500, "Database error occurred when save: " . $e->getMessage(), $e);
+        } catch (PreconditionFailedException $e){
+            throw new HttpException(412, $e->getMessage(), $e);
         } catch (Exception $e){
             throw new HttpException(500, "Unknown error occurred when save: " . $e->getMessage(), $e);
         }
@@ -626,8 +629,12 @@ abstract class BaseApiV2Controller extends RestApiController implements Reposito
         if(empty($entity)) throw new HttpException(404, "Not found");
 
         $em = $this->getDoctrine()->getManager();
-        $em->remove($entity);
-        $em->flush();
+        try {
+            $em->remove($entity);
+        } catch (PreconditionFailedException $e){
+            throw new HttpException(412, $e->getMessage(), $e);
+        }
+        $this->flush();
 
         return $this->restV2(200,"ok", "Deleted successfully");
     }

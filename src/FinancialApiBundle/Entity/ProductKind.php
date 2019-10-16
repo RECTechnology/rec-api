@@ -6,19 +6,24 @@
 
 namespace App\FinancialApiBundle\Entity;
 
+use App\FinancialApiBundle\Exception\PreconditionFailedException;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\ORM\Mapping as ORM;
 use Gedmo\Translatable\Translatable;
 use JMS\Serializer\Annotation as Serializer;
 use JMS\Serializer\Annotation\Groups;
 use Gedmo\Mapping\Annotation as Gedmo;
+use Symfony\Component\Validator\Constraints as Assert;
 
 /**
  * Class ProductKind
  * @package App\FinancialApiBundle\Entity
  * @ORM\Entity
  */
-class ProductKind extends AppObject implements Translatable, Localizable {
+class ProductKind extends AppObject implements Translatable, Localizable, PreDeleteChecks {
+
+    public const STATUS_CREATED = "created";
+    public const STATUS_REVIEWED = "reviewed";
 
     use LocalizableTrait;
 
@@ -69,13 +74,14 @@ class ProductKind extends AppObject implements Translatable, Localizable {
     private $default_consuming_by;
 
     /**
-     * ProductKind constructor.
+     * ProductKindOld constructor.
      */
     public function __construct() {
         $this->producing_by = new ArrayCollection();
         $this->consuming_by = new ArrayCollection();
         $this->default_consuming_by = new ArrayCollection();
         $this->default_producing_by = new ArrayCollection();
+        $this->status = self::STATUS_CREATED;
     }
 
     /**
@@ -88,12 +94,10 @@ class ProductKind extends AppObject implements Translatable, Localizable {
 
     /**
      * @param mixed $name
-     * @return ProductKind
      */
     public function setName($name)
     {
         $this->name = $name;
-        return $this;
     }
 
     /**
@@ -106,12 +110,10 @@ class ProductKind extends AppObject implements Translatable, Localizable {
 
     /**
      * @param mixed $description
-     * @return ProductKind
      */
     public function setDescription($description)
     {
         $this->description = $description;
-        return $this;
     }
 
     /**
@@ -237,4 +239,31 @@ class ProductKind extends AppObject implements Translatable, Localizable {
         $this->default_consuming_by->removeElement($activity);
         if($recursive) $activity->delDefaultConsumingProduct($this, false);
     }
+
+    /**
+     * @throws PreconditionFailedException
+     */
+    function isDeleteAllowed()
+    {
+        if(!$this->producing_by->isEmpty())
+            throw new PreconditionFailedException("Deletion forbidden: product produced by (1+) accounts");
+        if(!$this->consuming_by->isEmpty())
+            throw new PreconditionFailedException("Deletion forbidden: product consumed by (1+) accounts");
+        if(!$this->default_producing_by->isEmpty())
+            throw new PreconditionFailedException("Deletion forbidden: product produced by (1+) activities");
+        if(!$this->default_consuming_by->isEmpty())
+            throw new PreconditionFailedException("Deletion forbidden: product consumed by (1+) activities");
+    }
+
+    /**
+     * @Groups({"public"})
+     * @Serializer\VirtualProperty()
+     * @Serializer\SerializedName("status")
+     * @Serializer\Type("string")
+     */
+    public function getStatus(): string
+    {
+        return self::STATUS_CREATED;
+    }
+
 }
