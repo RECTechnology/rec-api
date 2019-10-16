@@ -10,6 +10,7 @@ dev: run
 shell: exec
 
 login:
+	echo '{"max-concurrent-uploads": 1}' > $$HOME/.docker/config.json
 	echo "$(DOCKER_PASSWORD)" | docker login -u $(DOCKER_USERNAME) --password-stdin $(DOCKER_REGISTRY)
 
 build:
