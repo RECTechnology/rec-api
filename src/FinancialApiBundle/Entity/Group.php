@@ -5,19 +5,14 @@ namespace App\FinancialApiBundle\Entity;
 use Doctrine\Common\Collections\ArrayCollection;
 use FOS\UserBundle\Model\Group as BaseGroup;
 use Doctrine\ORM\Mapping as ORM;
+use JMS\Serializer\Annotation as Serializer;
 
-use JMS\Serializer\Annotation\ExclusionPolicy;
-use JMS\Serializer\Annotation\Exclude;
-use JMS\Serializer\Annotation\Expose;
-use JMS\Serializer\Annotation\Groups;
-use JMS\Serializer\Annotation\VirtualProperty;
-use JMS\Serializer\Annotation\Type;
 use App\FinancialApiBundle\DependencyInjection\App\Commons\UploadManager;
 
 /**
  * @ORM\Entity
  * @ORM\Table(name="fos_group")
- * @ExclusionPolicy("none")
+ * @Serializer\ExclusionPolicy("none")
  *
  * @ORM\AttributeOverrides({
  *     @ORM\AttributeOverride(name="name",
@@ -65,366 +60,373 @@ class Group extends BaseGroup implements EntityWithUploadableFields {
      * @ORM\Id
      * @ORM\Column(type="integer")
      * @ORM\GeneratedValue(strategy="AUTO")
-     * @Groups({"public"})
+     * @Serializer\Groups({"public"})
      */
     protected $id;
 
     /**
      * @ORM\OneToMany(targetEntity="App\FinancialApiBundle\Entity\UserGroup", mappedBy="group", cascade={"remove"})
-     * @Exclude
-     * @Groups({"manager"})
+     * @Serializer\Exclude
+     * @Serializer\Groups({"manager"})
      */
     protected $users;
 
     /**
      * @ORM\ManyToOne(targetEntity="App\FinancialApiBundle\Entity\User")
-     * @Groups({"manager"})
+     * @Serializer\Groups({"manager"})
      */
     private $kyc_manager;
 
     /**
      * @ORM\Column(type="text")
-     * @Expose
-     * @Groups({"manager"})
+     * @Serializer\Expose
+     * @Serializer\Groups({"manager"})
      */
     private $company_image = "";
 
     /**
      * @ORM\Column(type="text")
-     * @Expose
-     * @Groups({"user"})
+     * @Serializer\Expose
+     * @Serializer\Groups({"user"})
      */
     private $rec_address;
 
     /**
      * @ORM\ManyToOne(targetEntity="App\FinancialApiBundle\Entity\Category")
-     * @Groups({"public"})
+     * @Serializer\Groups({"public"})
      */
     private $category;
 
     /**
      * @ORM\Column(type="text")
-     * @Expose
-     * @Groups({"public"})
+     * @Serializer\Expose
+     * @Serializer\Groups({"public"})
      */
     private $offered_products = "";
 
     /**
      * @ORM\Column(type="text")
-     * @Expose
-     * @Groups({"public"})
+     * @Serializer\Expose
+     * @Serializer\Groups({"public"})
      */
     private $needed_products = "";
 
     /**
      * @ORM\OneToMany(targetEntity="App\FinancialApiBundle\Entity\LimitDefinition", mappedBy="group", cascade={"remove"})
-     * @Groups({"user"})
+     * @Serializer\Groups({"user"})
      *
      */
     private $limits;
 
     /**
      * @ORM\OneToMany(targetEntity="App\FinancialApiBundle\Entity\ServiceFee", mappedBy="group", cascade={"remove"})
-     * @Groups({"user"})
+     * @Serializer\Groups({"user"})
      *
      */
     private $commissions;
 
     /**
      * @ORM\OneToMany(targetEntity="App\FinancialApiBundle\Entity\UserWallet", mappedBy="group", cascade={"remove"})
-     * @Groups({"user"})
+     * @Serializer\Groups({"user"})
      */
     private $wallets;
 
     /**
      * @ORM\OneToMany(targetEntity="App\FinancialApiBundle\Entity\LimitCount", mappedBy="group", cascade={"remove"})
-     * @Groups({"user"})
+     * @Serializer\Groups({"user"})
      */
     private $limit_counts;
 
     /**
      * @ORM\Column(type="string")
-     * @Groups({"user"})
+     * @Serializer\Groups({"user"})
      */
     private $access_key;
 
     /**
      * @ORM\Column(type="string")
-     * @Exclude
-     * @Groups({"user"})
+     * @Serializer\Exclude
+     * @Serializer\Groups({"user"})
      */
     private $key_chain;
 
     /**
      * @ORM\Column(type="boolean")
-     * @Exclude
-     * @Groups({"user"})
+     * @Serializer\Exclude
+     * @Serializer\Groups({"user"})
      */
     private $is_public_profile = false;
 
     /**
      * @ORM\Column(type="string")
-     * @Groups({"user"})
+     * @Serializer\Groups({"user"})
      */
     private $access_secret;
 
     /**
      * @ORM\Column(type="string", length=1000)
-     * @Exclude
-     * @Groups({"user"})
+     * @Serializer\Exclude
+     * @Serializer\Groups({"user"})
      */
     private $methods_list;
 
     /**
-     * @Expose
-     * @Groups({"user"})
+     * @Serializer\Expose
+     * @Serializer\Groups({"user"})
      */
     private $allowed_methods = array();
 
     /**
-     * @Expose
-     * @Groups({"user"})
+     * @Serializer\Expose
+     * @Serializer\Groups({"user"})
      */
     private $limit_configuration = array();
 
     /**
      * @ORM\OneToMany(targetEntity="App\FinancialApiBundle\Entity\Balance", mappedBy="group", cascade={"remove"})
-     * @Exclude
-     * @Groups({"user"})
+     * @Serializer\Exclude
+     * @Serializer\Groups({"user"})
      */
     private $balance;
 
 
     /**
      * @ORM\OneToMany(targetEntity="App\FinancialApiBundle\Entity\Offer", mappedBy="company", cascade={"remove"})
-     * @Groups({"public"})
+     * @Serializer\Groups({"public"})
      */
     private $offers;
 
     /**
      * @ORM\OneToMany(targetEntity="App\FinancialApiBundle\Entity\Client", mappedBy="group", cascade={"remove"})
-     * @Exclude
-     * @Groups({"user"})
+     * @Serializer\Exclude
+     * @Serializer\Groups({"user"})
      */
     private $clients;
 
     /**
      * @ORM\ManyToMany(targetEntity="App\FinancialApiBundle\Entity\Activity", mappedBy="accounts")
-     * @Groups({"public"})
+     * @Serializer\Groups({"public"})
      */
     private $activities;
 
+
+    /**
+     * @ORM\OneToOne(targetEntity="App\FinancialApiBundle\Entity\Activity")
+     * @Serializer\Groups({"public"})
+     */
+    private $activity_main;
+
     /**
      * @ORM\ManyToMany(targetEntity="App\FinancialApiBundle\Entity\ProductKind", mappedBy="producing_by")
-     * @Expose
-     * @Groups({"public"})
+     * @Serializer\Expose
+     * @Serializer\Groups({"public"})
      */
     private $producing_products;
 
     /**
      * @ORM\ManyToMany(targetEntity="App\FinancialApiBundle\Entity\ProductKind", mappedBy="consuming_by")
-     * @Expose
-     * @Groups({"public"})
+     * @Serializer\Expose
+     * @Serializer\Groups({"public"})
      */
     private $consuming_products;
 
     /**
      * @ORM\Column(type="string")
-     * @Expose
-     * @Groups({"public"})
+     * @Serializer\Expose
+     * @Serializer\Groups({"public"})
      */
     private $cif;
 
     /**
      * @ORM\Column(type="string")
-     * @Expose
-     * @Groups({"public"})
+     * @Serializer\Expose
+     * @Serializer\Groups({"public"})
      */
     private $prefix = '';
 
     /**
      * @ORM\Column(type="string")
-     * @Expose
-     * @Groups({"public"})
+     * @Serializer\Expose
+     * @Serializer\Groups({"public"})
      */
     private $phone = '';
 
     /**
      * @ORM\Column(type="string")
-     * @Groups({"public"})
+     * @Serializer\Groups({"public"})
      */
     private $zip = '';
 
     /**
      * @ORM\Column(type="string")
-     * @Groups({"manager"})
+     * @Serializer\Groups({"manager"})
      */
     private $email = '';
 
     /**
      * @ORM\Column(type="string")
-     * @Groups({"public"})
+     * @Serializer\Groups({"public"})
      */
     private $city = '';
 
     /**
      * @ORM\Column(type="string")
-     * @Groups({"public"})
+     * @Serializer\Groups({"public"})
      */
     private $country = '';
 
     /**
      * @ORM\Column(type="float", nullable=true)
-     * @Groups({"public"})
+     * @Serializer\Groups({"public"})
      */
     private $latitude = null;
 
     /**
      * @ORM\Column(type="float", nullable=true)
-     * @Groups({"public"})
+     * @Serializer\Groups({"public"})
      */
     private $longitude = null;
 
     /**
      * @ORM\Column(type="boolean")
-     * @Groups({"public"})
+     * @Serializer\Groups({"public"})
      */
     private $fixed_location = false;
 
     /**
      * @ORM\Column(type="string")
-     * @Groups({"public"})
+     * @Serializer\Groups({"public"})
      */
     private $web = '';
 
     /**
      * @ORM\Column(type="string")
-     * @Expose
-     * @Groups({"public"})
+     * @Serializer\Expose
+     * @Serializer\Groups({"public"})
      */
     private $address_number = '';
 
     /**
      * @ORM\Column(type="string")
-     * @Expose
-     * @Groups({"public"})
+     * @Serializer\Expose
+     * @Serializer\Groups({"public"})
      */
     private $neighborhood = "";
 
     /**
      * @ORM\ManyToOne(targetEntity="App\FinancialApiBundle\Entity\Neighbourhood", inversedBy="accounts")
-     * @Groups({"public"})
+     * @Serializer\Groups({"public"})
      */
     private $neighbourhood;
 
     /**
      * @ORM\Column(type="string")
-     * @Expose
-     * @Groups({"public"})
+     * @Serializer\Expose
+     * @Serializer\Groups({"public"})
      */
     private $association = "";
 
     /**
      * @ORM\Column(type="string", length=300)
-     * @Expose
-     * @Groups({"public"})
+     * @Serializer\Expose
+     * @Serializer\Groups({"public"})
      */
     private $observations = "";
 
     /**
      * @ORM\Column(type="string")
-     * @Expose
-     * @Groups({"public"})
+     * @Serializer\Expose
+     * @Serializer\Groups({"public"})
      */
     private $street = '';
 
     /**
      * @ORM\Column(type="string")
-     * @Expose
-     * @Groups({"public"})
+     * @Serializer\Expose
+     * @Serializer\Groups({"public"})
      */
     private $street_type = "";
 
     /**
      * @ORM\Column(type="text")
-     * @Groups({"public"})
+     * @Serializer\Groups({"public"})
      */
     private $comment = '';
 
     /**
      * @ORM\Column(type="text")
-     * @Groups({"user"})
+     * @Serializer\Groups({"user"})
      */
     private $type = '';
 
     /**
      * @ORM\Column(type="text")
-     * @Groups({"admin"})
+     * @Serializer\Groups({"admin"})
      */
     private $lemon_id = '';
 
     /**
      * @ORM\Column(type="text")
-     * @Groups({"public"})
+     * @Serializer\Groups({"public"})
      */
     private $subtype = '';
 
     /**
      * @ORM\Column(type="text")
-     * @Groups({"public"})
+     * @Serializer\Groups({"public"})
      */
     private $description = '';
 
     /**
      * @ORM\Column(type="text")
-     * @Groups({"public"})
+     * @Serializer\Groups({"public"})
      */
     private $schedule = '';
 
     /**
      * @ORM\Column(type="text")
-     * @Expose
-     * @Groups({"public"})
+     * @Serializer\Expose
+     * @Serializer\Groups({"public"})
      */
     private $public_image = "";
 
     /**
      * @ORM\Column(type="boolean")
-     * @Groups({"admin"})
+     * @Serializer\Groups({"admin"})
      */
     private $active;
 
     /**
      * @ORM\OneToMany(targetEntity="App\FinancialApiBundle\Entity\CashInTokens", mappedBy="company", cascade={"remove"})
-     * @Groups({"admin"})
+     * @Serializer\Groups({"admin"})
      */
     private $cash_in_tokens;
 
     /**
      * @ORM\Column(type="integer")
-     * @Expose
-     * @Groups({"admin"})
+     * @Serializer\Expose
+     * @Serializer\Groups({"admin"})
      */
     private $tier = 0;
 
     /**
      * @ORM\Column(type="string")
-     * @Expose
-     * @Groups({"admin"})
+     * @Serializer\Expose
+     * @Serializer\Groups({"admin"})
      */
     private $company_token;
 
     /**
      * @ORM\Column(type="boolean")
-     * @Groups({"admin"})
+     * @Serializer\Groups({"admin"})
      */
     private $on_map;
 
     /**
      * @return string
-     * @VirtualProperty("name")
-     * @Type("string")
-     * @Groups({"public"})
+     * @Serializer\VirtualProperty("name")
+     * @Serializer\Type("string")
+     * @Serializer\Groups({"public"})
      */
     public function getName()
     {
@@ -433,9 +435,9 @@ class Group extends BaseGroup implements EntityWithUploadableFields {
 
     /**
      * @return integer
-     * @VirtualProperty("offer_count")
-     * @Type("integer")
-     * @Groups({"public"})
+     * @Serializer\VirtualProperty("offer_count")
+     * @Serializer\Type("integer")
+     * @Serializer\Groups({"public"})
      */
     public function getOfferCount()
     {
@@ -1422,5 +1424,21 @@ class Group extends BaseGroup implements EntityWithUploadableFields {
         }
         $this->activities->removeElement($activity);
         if($recursive) $activity->delAccount($this, false);
+    }
+
+    /**
+     * @return mixed
+     */
+    public function getActivityMain()
+    {
+        return $this->activity_main;
+    }
+
+    /**
+     * @param mixed $activity_main
+     */
+    public function setActivityMain($activity_main): void
+    {
+        $this->activity_main = $activity_main;
     }
 }
