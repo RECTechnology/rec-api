@@ -211,7 +211,7 @@ class Group extends BaseGroup implements EntityWithUploadableFields {
 
 
     /**
-     * @ORM\OneToOne(targetEntity="App\FinancialApiBundle\Entity\Activity")
+     * @ORM\ManyToOne(targetEntity="App\FinancialApiBundle\Entity\Activity")
      * @Serializer\Groups({"public"})
      */
     private $activity_main;
