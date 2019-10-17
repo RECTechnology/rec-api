@@ -2,7 +2,7 @@
 
 namespace App\FinancialApiBundle\Controller\CRUD;
 
-use App\FinancialApiBundle\Entity\Localizable;
+use App\FinancialApiBundle\Entity\Translatable;
 use Doctrine\Common\Annotations\AnnotationException;
 use Doctrine\ORM\EntityManagerInterface;
 use Doctrine\ORM\NonUniqueResultException;

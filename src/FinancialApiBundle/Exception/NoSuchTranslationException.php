@@ -3,7 +3,7 @@
 namespace App\FinancialApiBundle\Exception;
 
 /**
- * Class PreconditionFailedException
+ * Class NoSuchTranslationException
  * @package App\FinancialApiBundle\Exception
  */
-class PreconditionFailedException extends \Exception { }
+class NoSuchTranslationException extends \Exception { }

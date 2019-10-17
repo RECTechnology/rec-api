@@ -202,7 +202,7 @@ abstract class BaseApiV2Controller extends RestApiController implements Reposito
 
     /**
      * @param $propertyName
-     * @return object|null
+     * @return string
      * @throws AnnotationException
      */
     private function getRelatedEntity($propertyName){

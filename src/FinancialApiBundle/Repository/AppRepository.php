@@ -12,8 +12,6 @@ use Doctrine\ORM\NonUniqueResultException;
 use Doctrine\ORM\NoResultException;
 use Doctrine\ORM\Query;
 use Doctrine\ORM\QueryBuilder;
-use Gedmo\Translatable\Query\TreeWalker\TranslationWalker;
-use Gedmo\Translatable\TranslatableListener;
 use Symfony\Component\DependencyInjection\ContainerAwareInterface;
 use Symfony\Component\DependencyInjection\ContainerAwareTrait;
 use Symfony\Component\HttpFoundation\Request;
@@ -45,7 +43,6 @@ class AppRepository extends EntityRepository implements ContainerAwareInterface 
         return $headers->get('accept-language', $request->getLocale());
     }
 
-
     /**
      * @return Request
      */
@@ -53,58 +50,12 @@ class AppRepository extends EntityRepository implements ContainerAwareInterface 
         return $this->stack->getCurrentRequest();
     }
 
-
     /**
      * @param $id
      * @return mixed|null
      */
     public function show($id) {
         return $this->find($id);
-    }
-
-    /**
-     * @param mixed $id
-     * @param null $lockMode
-     * @param null $lockVersion
-     * @return mixed|object|null
-     */
-    public function find($id, $lockMode = null, $lockVersion = null) {
-        $q = $this->createQueryBuilder('e')
-            ->where('e.id = :id')
-            ->setParameter('id', $id)
-            ->getQuery();
-        $q = $this->setTranslatableHints($q);
-        try {
-            return $q->getSingleResult();
-        } catch (NoResultException $ignored) {
-        } catch (NonUniqueResultException $ignored) {
-        }
-        return null;
-    }
-
-    /**
-     * @param Query $q
-     * @return Query
-     */
-    private function setTranslatableHints(Query $q){
-        $q->setHint(
-            Query::HINT_CUSTOM_OUTPUT_WALKER,
-            TranslationWalker::class
-        );
-
-        if($this->getRequest()) $locale = $this->getRequest()->getLocale();
-        else $locale = $this->container->getParameter('locale');
-        $q->setHint(
-            TranslatableListener::HINT_TRANSLATABLE_LOCALE,
-            $locale // take locale from session or request etc.
-        );
-
-        $q->setHint(
-            TranslatableListener::HINT_FALLBACK,
-            true
-        );
-
-        return $q;
     }
 
     /**
@@ -180,8 +131,6 @@ class AppRepository extends EntityRepository implements ContainerAwareInterface 
             ->setMaxResults($limit)
             ->getQuery();
         //->getResult();
-
-        $qResult = $this->setTranslatableHints($qResult);
 
         return [intval($qTotal->getSingleScalarResult()), $qResult->getResult()];
     }

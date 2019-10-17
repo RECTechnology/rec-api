@@ -8,56 +8,90 @@ namespace App\FinancialApiBundle\Entity;
 
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\ORM\Mapping as ORM;
-use Gedmo\Translatable\Translatable;
+use App\FinancialApiBundle\Annotations as REC;
 use JMS\Serializer\Annotation as Serializer;
-use JMS\Serializer\Annotation\Groups;
-use Gedmo\Mapping\Annotation as Gedmo;
 
 /**
  * Class Mailing
  * @package App\FinancialApiBundle\Entity
  * @ORM\Entity
  */
-class Mailing extends AppObject implements Translatable, Localizable {
+class Mailing extends AppObject implements Translatable {
 
-    use LocalizableTrait;
+    use TranslatableTrait;
 
     /**
-     * @Gedmo\Translatable
+     * @REC\TranslatedProperty
      * @ORM\Column(type="string")
-     * @Groups({"admin"})
+     * @Serializer\Groups({"admin"})
      */
     private $subject;
+    
+    /**
+     * @ORM\Column(type="string", nullable=true)
+     * @Serializer\Groups({"admin"})
+     */
+    private $subject_es;
+    
+    /**
+     * @ORM\Column(type="string", nullable=true)
+     * @Serializer\Groups({"admin"})
+     */
+    private $subject_ca;
 
     /**
-     * @Gedmo\Translatable
+     * @REC\TranslatedProperty
      * @ORM\Column(type="text", nullable=true)
-     * @Groups({"admin"})
+     * @Serializer\Groups({"admin"})
      */
     private $content;
+    
+    /**
+     * @ORM\Column(type="text", nullable=true)
+     * @Serializer\Groups({"admin"})
+     */
+    private $content_es;
+    
+    /**
+     * @ORM\Column(type="text", nullable=false)
+     * @Serializer\Groups({"admin"})
+     */
+    private $content_ca;
 
     /**
      * @ORM\Column(type="boolean")
-     * @Groups({"admin"})
+     * @Serializer\Groups({"admin"})
      */
     private $processed;
 
     /**
-     * @Gedmo\Translatable
+     * @REC\TranslatedProperty
      * @ORM\Column(type="json_array", nullable=true)
-     * @Groups({"admin"})
+     * @Serializer\Groups({"admin"})
      */
     private $attachments;
 
     /**
+     * @ORM\Column(type="text", nullable=false)
+     * @Serializer\Groups({"admin"})
+     */
+    private $attachments_es;
+
+    /**
+     * @ORM\Column(type="text", nullable=false)
+     * @Serializer\Groups({"admin"})
+     */
+    private $attachments_ca;
+
+    /**
      * @ORM\OneToMany(targetEntity="App\FinancialApiBundle\Entity\MailingDelivery", mappedBy="mailing")
-     * @Groups({"admin"})
+     * @Serializer\Groups({"admin"})
      */
     private $deliveries;
 
     /**
      * @ORM\Column(type="datetime", nullable=true)
-     * @Groups({"admin"})
+     * @Serializer\Groups({"admin"})
      */
     private $scheduled_at;
 

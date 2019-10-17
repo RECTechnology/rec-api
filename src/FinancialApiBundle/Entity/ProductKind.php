@@ -6,13 +6,12 @@
 
 namespace App\FinancialApiBundle\Entity;
 
+use App\FinancialApiBundle\Annotations as REC;
 use App\FinancialApiBundle\Exception\PreconditionFailedException;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\ORM\Mapping as ORM;
-use Gedmo\Translatable\Translatable;
 use JMS\Serializer\Annotation as Serializer;
 use JMS\Serializer\Annotation\Groups;
-use Gedmo\Mapping\Annotation as Gedmo;
 use Symfony\Component\Validator\Constraints as Assert;
 
 /**
@@ -20,26 +19,50 @@ use Symfony\Component\Validator\Constraints as Assert;
  * @package App\FinancialApiBundle\Entity
  * @ORM\Entity
  */
-class ProductKind extends AppObject implements Translatable, Localizable, PreDeleteChecks {
+class ProductKind extends AppObject implements Translatable, PreDeleteChecks {
 
     public const STATUS_CREATED = "created";
     public const STATUS_REVIEWED = "reviewed";
 
-    use LocalizableTrait;
+    use TranslatableTrait;
 
     /**
-     * @Gedmo\Translatable
-     * @ORM\Column(type="string")
+     * @REC\TranslatedProperty
+     * @ORM\Column(type="string", nullable=true)
      * @Groups({"public"})
      */
     private $name;
 
     /**
-     * @Gedmo\Translatable
+     * @ORM\Column(type="string", nullable=true)
+     * @Groups({"manager"})
+     */
+    private $name_es;
+
+    /**
+     * @ORM\Column(type="string", nullable=true)
+     * @Groups({"manager"})
+     */
+    private $name_ca;
+
+    /**
+     * @REC\TranslatedProperty
      * @ORM\Column(type="text", nullable=true)
      * @Groups({"public"})
      */
     private $description;
+
+    /**
+     * @ORM\Column(type="string", nullable=true)
+     * @Groups({"manager"})
+     */
+    private $description_es;
+
+    /**
+     * @ORM\Column(type="string", nullable=true)
+     * @Groups({"manager"})
+     */
+    private $description_ca;
 
     /**
      * @ORM\Column(type="string")

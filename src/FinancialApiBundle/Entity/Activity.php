@@ -6,12 +6,12 @@
 
 namespace App\FinancialApiBundle\Entity;
 
-use App\FinancialApiBundle\Exception\NoSuchTranslationException;
 use App\FinancialApiBundle\Exception\PreconditionFailedException;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\ORM\Mapping as ORM;
 use JMS\Serializer\Annotation as Serializer;
 use Symfony\Component\Validator\Constraints as Assert;
+use App\FinancialApiBundle\Annotations as REC;
 
 /**
  * Class Activity
@@ -26,78 +26,50 @@ class Activity extends AppObject implements Translatable, PreDeleteChecks {
     use TranslatableTrait;
 
     /**
-     * @Serializer\Accessor(setter="setName")
+     * @REC\TranslatedProperty
+     * @ORM\Column(type="string", nullable=true)
+     * @Serializer\Groups({"public"})
+     */
+    private $name;
+
+    /**
      * @ORM\Column(type="string", nullable=true)
      * @Serializer\Groups({"manager"})
      */
     private $name_en;
 
     /**
-     * @Serializer\Accessor(setter="setName")
      * @ORM\Column(type="string", nullable=true)
      * @Serializer\Groups({"manager"})
      */
     private $name_es;
 
     /**
-     * @REC\TranslatedProperty()
      * @ORM\Column(type="string", nullable=true)
      * @Serializer\Groups({"manager"})
      */
     private $name_ca;
 
     /**
-     * @Serializer\VirtualProperty(name="name")
-     * @Serializer\Type("string")
+     * @REC\TranslatedProperty
+     * @ORM\Column(type="text", nullable=true)
      * @Serializer\Groups({"public"})
-     * @throws NoSuchTranslationException
      */
-    function getName(){
-        return $this->getTranslation('name');
-    }
+    private $description;
 
     /**
-     * @param $name
-     * @throws NoSuchTranslationException
-     */
-    function setName($name){
-        $this->setTranslation('name', $name);
-    }
-
-    /**
-     * @param $name
-     * @throws NoSuchTranslationException
-     */
-    function setDescription($name){
-        $this->setTranslation('description', $name);
-    }
-
-    /**
-     * @Serializer\VirtualProperty(name="description")
-     * @Serializer\Type("string")
-     * @Serializer\Groups({"public"})
-     * @throws NoSuchTranslationException
-     */
-    function getDescription(){
-        return $this->getTranslation('description');
-    }
-
-    /**
-     * @Serializer\Accessor(setter="setDescription")
      * @ORM\Column(type="text", nullable=true)
      * @Serializer\Groups({"manager"})
      */
     private $description_en;
 
     /**
-     * @Serializer\Accessor(setter="setDescription")
      * @ORM\Column(type="text", nullable=true)
      * @Serializer\Groups({"manager"})
      */
     private $description_es;
 
     /**
-     * @Serializer\Accessor(setter="setDescription")
      * @ORM\Column(type="text", nullable=true)
      * @Serializer\Groups({"manager"})
      */
@@ -261,6 +233,38 @@ class Activity extends AppObject implements Translatable, PreDeleteChecks {
     public function getStatus(): string
     {
         return $this->status;
+    }
+
+    /**
+     * @return mixed
+     */
+    public function getName()
+    {
+        return $this->name;
+    }
+
+    /**
+     * @param mixed $name
+     */
+    public function setName($name): void
+    {
+        $this->name = $name;
+    }
+
+    /**
+     * @return mixed
+     */
+    public function getDescription()
+    {
+        return $this->description;
+    }
+
+    /**
+     * @param mixed $description
+     */
+    public function setDescription($description): void
+    {
+        $this->description = $description;
     }
 
 }

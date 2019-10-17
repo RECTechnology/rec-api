@@ -7,48 +7,42 @@
 namespace App\FinancialApiBundle\Entity;
 
 use Doctrine\ORM\Mapping as ORM;
-use Gedmo\Translatable\Translatable;
-use JMS\Serializer\Annotation\Groups;
-use Gedmo\Mapping\Annotation as Gedmo;
+use JMS\Serializer\Annotation as Serializer;
 
 /**
  * Class Neighbourhood
  * @package App\FinancialApiBundle\Entity
  * @ORM\Entity
  */
-class Neighbourhood extends AppObject implements Translatable, Localizable {
-
-    use LocalizableTrait;
+class Neighbourhood extends AppObject {
 
     /**
-     * @Gedmo\Translatable
      * @ORM\Column(type="string")
-     * @Groups({"public"})
+     * @Serializer\Groups({"public"})
      */
     private $name;
 
     /**
-     * @Gedmo\Translatable
      * @ORM\Column(type="text", nullable=true)
-     * @Groups({"public"})
+     * @Serializer\Groups({"public"})
      */
     private $description;
 
     /**
      * @ORM\Column(type="string", nullable=true)
-     * @Groups({"public"})
+     * @Serializer\Groups({"public"})
      */
     private $townhall_code;
 
     /**
      * @ORM\Column(type="json_array", nullable=true)
-     * @Groups({"public"})
+     * @Serializer\Groups({"public"})
      */
     private $bounds;
 
     /**
      * @ORM\OneToMany(targetEntity="App\FinancialApiBundle\Entity\Group", mappedBy="neighbourhood")
-     * @Groups({"manager"})
+     * @Serializer\Groups({"manager"})
      */
     private $accounts;
 
