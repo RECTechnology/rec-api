@@ -71,6 +71,12 @@ class Activity extends AppObject implements Translatable, PreDeleteChecks {
     private $status;
 
     /**
+     * @ORM\Column(type="string")
+     * @Serializer\Groups({"manager"})
+     */
+    private $upc_code;
+
+    /**
      * @ORM\ManyToMany(targetEntity="App\FinancialApiBundle\Entity\Group", inversedBy="activities")
      * @Serializer\Groups({"public"})
      * @Serializer\MaxDepth(2)
@@ -253,6 +259,22 @@ class Activity extends AppObject implements Translatable, PreDeleteChecks {
     public function setDescription($description): void
     {
         $this->description = $description;
+    }
+
+    /**
+     * @return mixed
+     */
+    public function getUpcCode()
+    {
+        return $this->upc_code;
+    }
+
+    /**
+     * @param mixed $upc_code
+     */
+    public function setUpcCode($upc_code): void
+    {
+        $this->upc_code = $upc_code;
     }
 
 }
