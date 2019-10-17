@@ -6,13 +6,11 @@
 
 namespace App\FinancialApiBundle\Entity;
 
+use App\FinancialApiBundle\Exception\NoSuchTranslationException;
 use App\FinancialApiBundle\Exception\PreconditionFailedException;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\ORM\Mapping as ORM;
-use Gedmo\Translatable\Translatable;
 use JMS\Serializer\Annotation as Serializer;
-use JMS\Serializer\Annotation\Groups;
-use Gedmo\Mapping\Annotation as Gedmo;
 use Symfony\Component\Validator\Constraints as Assert;
 
 /**
@@ -20,45 +18,115 @@ use Symfony\Component\Validator\Constraints as Assert;
  * @package App\FinancialApiBundle\Entity
  * @ORM\Entity
  */
-class Activity extends AppObject implements Translatable, Localizable, PreDeleteChecks {
+class Activity extends AppObject implements Translatable, PreDeleteChecks {
 
     public const STATUS_CREATED = "created";
     public const STATUS_REVIEWED = "reviewed";
 
-    use LocalizableTrait;
-
+    use TranslatableTrait;
 
     /**
-     * @Gedmo\Translatable
-     * @ORM\Column(type="string")
-     * @Groups({"public"})
+     * @Serializer\Accessor(setter="setName")
+     * @ORM\Column(type="string", nullable=true)
+     * @Serializer\Groups({"manager"})
      */
-    private $name;
+    private $name_en;
 
     /**
-     * @Gedmo\Translatable
+     * @Serializer\Accessor(setter="setName")
+     * @ORM\Column(type="string", nullable=true)
+     * @Serializer\Groups({"manager"})
+     */
+    private $name_es;
+
+    /**
+     * @REC\TranslatedProperty()
+     * @ORM\Column(type="string", nullable=true)
+     * @Serializer\Groups({"manager"})
+     */
+    private $name_ca;
+
+    /**
+     * @Serializer\VirtualProperty(name="name")
+     * @Serializer\Type("string")
+     * @Serializer\Groups({"public"})
+     * @throws NoSuchTranslationException
+     */
+    function getName(){
+        return $this->getTranslation('name');
+    }
+
+    /**
+     * @param $name
+     * @throws NoSuchTranslationException
+     */
+    function setName($name){
+        $this->setTranslation('name', $name);
+    }
+
+    /**
+     * @param $name
+     * @throws NoSuchTranslationException
+     */
+    function setDescription($name){
+        $this->setTranslation('description', $name);
+    }
+
+    /**
+     * @Serializer\VirtualProperty(name="description")
+     * @Serializer\Type("string")
+     * @Serializer\Groups({"public"})
+     * @throws NoSuchTranslationException
+     */
+    function getDescription(){
+        return $this->getTranslation('description');
+    }
+
+    /**
+     * @Serializer\Accessor(setter="setDescription")
      * @ORM\Column(type="text", nullable=true)
-     * @Groups({"public"})
+     * @Serializer\Groups({"manager"})
      */
-    private $description;
+    private $description_en;
+
+    /**
+     * @Serializer\Accessor(setter="setDescription")
+     * @ORM\Column(type="text", nullable=true)
+     * @Serializer\Groups({"manager"})
+     */
+    private $description_es;
+
+    /**
+     * @Serializer\Accessor(setter="setDescription")
+     * @ORM\Column(type="text", nullable=true)
+     * @Serializer\Groups({"manager"})
+     */
+    private $description_ca;
+
+    /**
+     * @ORM\Column(type="string")
+     * @Assert\Choice({"created", "reviewed"})
+     * @Serializer\Groups({"public"})
+     */
+    private $status;
 
     /**
      * @ORM\ManyToMany(targetEntity="App\FinancialApiBundle\Entity\Group", inversedBy="activities")
-     * @Groups({"public"})
+     * @Serializer\Groups({"public"})
      * @Serializer\MaxDepth(2)
      */
     private $accounts;
 
     /**
      * @ORM\ManyToMany(targetEntity="App\FinancialApiBundle\Entity\ProductKind", mappedBy="default_producing_by")
-     * @Groups({"public"})
+     * @Serializer\Groups({"public"})
      * @Serializer\MaxDepth(2)
      */
     private $default_producing_products;
 
     /**
      * @ORM\ManyToMany(targetEntity="App\FinancialApiBundle\Entity\ProductKind", mappedBy="default_consuming_by")
-     * @Groups({"public"})
+     * @Serializer\Groups({"public"})
      * @Serializer\MaxDepth(2)
      */
     private $default_consuming_products;
@@ -70,42 +138,7 @@ class Activity extends AppObject implements Translatable, Localizable, PreDelete
         $this->accounts = new ArrayCollection();
         $this->default_consuming_products = new ArrayCollection();
         $this->default_producing_products = new ArrayCollection();
-    }
-
-    /**
-     * @return mixed
-     */
-    public function getName()
-    {
-        return $this->name;
-    }
-
-    /**
-     * @param mixed $name
-     * @return Activity
-     */
-    public function setName($name)
-    {
-        $this->name = $name;
-        return $this;
-    }
-
-    /**
-     * @return mixed
-     */
-    public function getDescription()
-    {
-        return $this->description;
-    }
-
-    /**
-     * @param mixed $description
-     * @return Activity
-     */
-    public function setDescription($description)
-    {
-        $this->description = $description;
-        return $this;
+        $this->status = self::STATUS_CREATED;
     }
 
     /**
@@ -215,14 +248,19 @@ class Activity extends AppObject implements Translatable, Localizable, PreDelete
     }
 
     /**
-     * @Serializer\Groups({"public"})
-     * @Serializer\VirtualProperty()
-     * @Serializer\SerializedName("status")
-     * @Serializer\Type("string")
+     * @param $status
+     */
+    public function setStatus($status): void
+    {
+        $this->status = $status;
+    }
+
+    /**
+     * @return string
      */
     public function getStatus(): string
     {
-        return self::STATUS_CREATED;
+        return $this->status;
     }
 
 }

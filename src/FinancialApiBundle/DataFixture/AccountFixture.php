@@ -106,7 +106,7 @@ class AccountFixture extends Fixture implements DependentFixtureInterface {
         $userAccount->setUser($user);
         $userAccount->setRoles(['ROLE_ADMIN']); //User is admin in the account
 
-        if($user->getKycValidations()) {
+        if(!$user->getKycValidations()) {
             $kyc = new KYC();
             $kyc->setUser($user);
             $kyc->setName($user->getName());

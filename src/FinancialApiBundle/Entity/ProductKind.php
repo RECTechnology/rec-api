@@ -42,6 +42,13 @@ class ProductKind extends AppObject implements Translatable, Localizable, PreDel
     private $description;
 
     /**
+     * @ORM\Column(type="string")
+     * @Assert\Choice({"created", "reviewed"})
+     * @Groups({"public"})
+     */
+    private $status;
+
+    /**
      * @ORM\ManyToMany(targetEntity="App\FinancialApiBundle\Entity\Group", inversedBy="producing_products")
      * @ORM\JoinTable(name="accounts_products_producing")
      * @Groups({"public"})
@@ -256,14 +263,18 @@ class ProductKind extends AppObject implements Translatable, Localizable, PreDel
     }
 
     /**
-     * @Groups({"public"})
-     * @Serializer\VirtualProperty()
-     * @Serializer\SerializedName("status")
-     * @Serializer\Type("string")
+     * @param $status
+     */
+    public function setStatus($status): void
+    {
+        $this->status = $status;
+    }
+
+    /**
+     * @return string
      */
     public function getStatus(): string
     {
-        return self::STATUS_CREATED;
+        return $this->status;
     }
-
 }
