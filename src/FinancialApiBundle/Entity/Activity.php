@@ -71,7 +71,7 @@ class Activity extends AppObject implements Translatable, PreDeleteChecks {
     private $status;
 
     /**
-     * @ORM\Column(type="string")
+     * @ORM\Column(type="string", nullable=true)
      * @Serializer\Groups({"manager"})
      */
     private $upc_code;
