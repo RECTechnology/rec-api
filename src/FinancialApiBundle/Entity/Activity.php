@@ -36,12 +36,6 @@ class Activity extends AppObject implements Translatable, PreDeleteChecks {
      * @ORM\Column(type="string", nullable=true)
      * @Serializer\Groups({"manager"})
      */
-    private $name_en;
-
-    /**
-     * @ORM\Column(type="string", nullable=true)
-     * @Serializer\Groups({"manager"})
-     */
     private $name_es;
 
     /**
@@ -56,12 +50,6 @@ class Activity extends AppObject implements Translatable, PreDeleteChecks {
      * @Serializer\Groups({"public"})
      */
     private $description;
-
-    /**
-     * @ORM\Column(type="text", nullable=true)
-     * @Serializer\Groups({"manager"})
-     */
-    private $description_en;
 
     /**
      * @ORM\Column(type="text", nullable=true)
