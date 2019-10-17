@@ -174,8 +174,9 @@ class TranslationsTest extends BaseApiTest implements CrudV3WriteTestInterface {
     }
 
     function testFallback(){
-        $lang = 'en';
         foreach (self::ROUTES_TO_TEST as $name => $params) {
+            $lang = 'en';
+            # Creating a object with lang=en
             $route = '/admin/v3/' . $name;
             $resp = $this->requestJson(
                 'POST',
@@ -190,6 +191,7 @@ class TranslationsTest extends BaseApiTest implements CrudV3WriteTestInterface {
             );
             $object = json_decode($resp->getContent());
 
+            # fetching the object with lang=ca
             $resp = $this->requestJson(
                 'GET',
                 $route . '/' . $object->data->id,

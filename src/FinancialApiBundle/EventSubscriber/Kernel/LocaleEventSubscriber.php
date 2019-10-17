@@ -39,8 +39,8 @@ class LocaleEventSubscriber implements EventSubscriberInterface {
      */
     private function getRequestLocale(Request $request){
         $headers = $request->headers;
-        if(in_array($request->getMethod(), ['POST', 'PUT']) && $headers->has('content-language')){
-            return $headers->get('content-language');
+        if(in_array($request->getMethod(), ['POST', 'PUT'])){
+            return $headers->get('content-language', $request->getDefaultLocale());
         }
         return $headers->get('accept-language', $request->getDefaultLocale());
     }
