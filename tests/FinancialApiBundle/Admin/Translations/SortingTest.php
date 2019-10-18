@@ -47,7 +47,6 @@ class SortingTest extends BaseApiTest {
     }
 
     function testOrderByShouldWorkForEnAndEs() {
-        $this->markTestSkipped("skipping to allow push");
         $params = [
             [
                 ['lang' => 'en', 'name' => 'aa'],
@@ -63,8 +62,26 @@ class SortingTest extends BaseApiTest {
             $this->updateProduct($product->id, $param[1]['lang'], $param[1]['name']);
         }
 
-        $route = '/admin/v3/product_kinds';
+        $route = '/admin/v3/product_kinds?sort=name&order=asc';
+
         $lang = 'en';
+        $resp = $this->requestJson(
+            'GET',
+            $route,
+            null,
+            ['HTTP_Accept-Language' => $lang]
+        );
+        self::assertEquals(
+            200,
+            $resp->getStatusCode(),
+            "route: $route, status_code: {$resp->getStatusCode()}, content: {$resp->getContent()}"
+        );
+        $products = json_decode($resp->getContent())->data->elements;
+        self::assertEquals(count($params), count($products));
+        self::assertEquals($params[0][0]['name'], $products[0]->name);
+        self::assertEquals($params[1][0]['name'], $products[1]->name);
+
+        $lang = 'es';
         $resp = $this->requestJson(
             'GET',
             $route,
@@ -73,20 +90,8 @@ class SortingTest extends BaseApiTest {
         );
         $products = json_decode($resp->getContent())->data->elements;
         self::assertEquals(count($params), count($products));
-        //self::assertEquals($params[0][0]['name'], $products[0]->name);
-        //self::assertEquals($params[1][0]['name'], $products[1]->name);
-
-        $lang = 'es';
-        $resp = $this->requestJson(
-            'GET',
-            $route,
-            null,
-            ['Accept-Language' => $lang]
-        );
-        $products = json_decode($resp->getContent())->data->elements;
-        self::assertEquals(count($params), count($products));
-        self::assertEquals($params[0][1]['name'], $products[0]->name);
-        self::assertEquals($params[1][1]['name'], $products[1]->name);
+        self::assertEquals($params[1][1]['name'], $products[0]->name);
+        self::assertEquals($params[0][1]['name'], $products[1]->name);
 
     }
 

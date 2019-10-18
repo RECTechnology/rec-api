@@ -4,7 +4,10 @@
 namespace App\FinancialApiBundle\Repository;
 
 
+use App\FinancialApiBundle\Annotations\TranslatedProperty;
 use App\FinancialApiBundle\Entity\Group;
+use Doctrine\Common\Annotations\AnnotationException;
+use Doctrine\Common\Annotations\AnnotationReader;
 use Doctrine\ORM\EntityManagerInterface;
 use Doctrine\ORM\EntityRepository;
 use Doctrine\ORM\Mapping;
@@ -59,7 +62,7 @@ class AppRepository extends EntityRepository implements ContainerAwareInterface 
     }
 
     /**
-     * @param $request
+     * @param Request $request
      * @param $search
      * @param $limit
      * @param $offset
@@ -67,11 +70,31 @@ class AppRepository extends EntityRepository implements ContainerAwareInterface 
      * @param $sort
      * @return array
      * @throws NonUniqueResultException
+     * @throws AnnotationException
+     * @throws \ReflectionException
      */
-    public function index($request, $search, $limit, $offset, $order, $sort){
+    public function index(Request $request, $search, $limit, $offset, $order, $sort){
+
         /** @var EntityManagerInterface $em */
         $em = $this->getEntityManager();
-        $properties = $em->getClassMetadata($this->getClassName())->getFieldNames();
+        $metadata = $em->getClassMetadata($this->getClassName());
+        $properties = $metadata->getFieldNames();
+
+        $rc = new \ReflectionClass($this->getClassName());
+        foreach($rc->getProperties() as $rp){
+            $ar = new AnnotationReader();
+            foreach ($ar->getPropertyAnnotations($rp) as $an){
+                if($an instanceof TranslatedProperty){
+                    if($sort == $rp->name){
+                        $translatedProperty = $rp->name . '_' . $request->getLocale();
+                        if(in_array($translatedProperty, $properties)){
+                            $sort = $translatedProperty;
+                        }
+                    }
+                }
+            }
+        }
+
         if(!in_array($sort, $properties))
             throw new HttpException(400, "Invalid sort: it must be a valid property (counters and virtual properties are not allowed)");
 
@@ -124,6 +147,7 @@ class AppRepository extends EntityRepository implements ContainerAwareInterface 
         $qTotal = $qb
             ->select('count(e.id)')
             ->getQuery();
+
         $qResult = $qb
             ->select('e')
             ->orderBy('e.' . $sort, $order)
