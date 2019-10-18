@@ -65,7 +65,10 @@ class Activity extends AppObject implements Translatable, PreDeleteChecks {
 
     /**
      * @ORM\Column(type="string")
-     * @Assert\Choice({"created", "reviewed"})
+     * @Assert\Choice(
+     *     choices={"created", "reviewed"},
+     *     message="Invalid parameter status, valid options: created, reviewed"
+     * )
      * @Serializer\Groups({"public"})
      */
     private $status;
@@ -275,6 +278,70 @@ class Activity extends AppObject implements Translatable, PreDeleteChecks {
     public function setUpcCode($upc_code): void
     {
         $this->upc_code = $upc_code;
+    }
+
+    /**
+     * @return mixed
+     */
+    public function getNameEs()
+    {
+        return $this->name_es;
+    }
+
+    /**
+     * @param mixed $name_es
+     */
+    public function setNameEs($name_es): void
+    {
+        $this->name_es = $name_es;
+    }
+
+    /**
+     * @return mixed
+     */
+    public function getNameCa()
+    {
+        return $this->name_ca;
+    }
+
+    /**
+     * @param mixed $name_ca
+     */
+    public function setNameCa($name_ca): void
+    {
+        $this->name_ca = $name_ca;
+    }
+
+    /**
+     * @return mixed
+     */
+    public function getDescriptionEs()
+    {
+        return $this->description_es;
+    }
+
+    /**
+     * @param mixed $description_es
+     */
+    public function setDescriptionEs($description_es): void
+    {
+        $this->description_es = $description_es;
+    }
+
+    /**
+     * @return mixed
+     */
+    public function getDescriptionCa()
+    {
+        return $this->description_ca;
+    }
+
+    /**
+     * @param mixed $description_ca
+     */
+    public function setDescriptionCa($description_ca): void
+    {
+        $this->description_ca = $description_ca;
     }
 
 }
