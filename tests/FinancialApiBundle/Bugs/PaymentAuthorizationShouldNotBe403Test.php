@@ -8,10 +8,10 @@ use Test\FinancialApiBundle\CrudV3ReadTestInterface;
 use Test\FinancialApiBundle\CrudV3WriteTestInterface;
 
 /**
- * Class PaymentAuthorizationShouldNotBe403
+ * Class PaymentAuthorizationShouldNotBe403Test
  * @package Test\FinancialApiBundle\Bugs
  */
-class PaymentAuthorizationShouldNotBe403 extends BaseApiTest {
+class PaymentAuthorizationShouldNotBe403Test extends BaseApiTest {
 
     function setUp(): void
     {

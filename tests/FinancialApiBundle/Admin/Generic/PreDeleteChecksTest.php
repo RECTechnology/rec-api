@@ -11,7 +11,7 @@ use Test\FinancialApiBundle\CrudV3WriteTestInterface;
  * Class TestPreDeleteChecks
  * @package Test\FinancialApiBundle\Admin\Generic
  */
-class TestPreDeleteChecks extends BaseApiTest {
+class PreDeleteChecksTest extends BaseApiTest {
 
     private $product;
 

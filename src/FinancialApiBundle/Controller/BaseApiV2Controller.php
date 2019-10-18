@@ -374,7 +374,7 @@ abstract class BaseApiV2Controller extends RestApiController implements Reposito
                 call_user_func_array([$entity, $setter], [$value]);
             }
             else{
-                throw new HttpException(400, "Bad request, parameter '$name' is invalid. ");
+                throw new HttpException(400, "Bad request, parameter '$name' is invalid.");
             }
 
         }
@@ -655,19 +655,21 @@ abstract class BaseApiV2Controller extends RestApiController implements Reposito
     }
 
     private function getAdder($attribute) {
-        return $this->getAccessor('add', $attribute);
+        return $this->getAccessor('add', $attribute, true);
     }
 
     private function getDeleter($attribute) {
-        return $this->getAccessor('del', $attribute);
+        return $this->getAccessor('del', $attribute, true);
     }
 
-    private function getAccessor($prefix, $attribute) {
-        $accessor = $this->toCamelCase($prefix . "_" . $attribute);
-        if(substr($accessor,strlen($accessor) - 3) === 'ies')
-            return substr($accessor, 0, strlen($accessor) - 3) . 'y';
-        if(substr($accessor,strlen($accessor) - 1) === 's')
-            return substr($accessor, 0, strlen($accessor) - 1);
+    private function getAccessor($prefix, $attribute, $singularize = false) {
+        $accessor = $prefix . $this->toCamelCase($attribute);
+        if($singularize) {
+            if (substr($accessor, strlen($accessor) - 3) === 'ies')
+                return substr($accessor, 0, strlen($accessor) - 3) . 'y';
+            if (substr($accessor, strlen($accessor) - 1) === 's')
+                return substr($accessor, 0, strlen($accessor) - 1);
+        }
         return $accessor;
     }
 

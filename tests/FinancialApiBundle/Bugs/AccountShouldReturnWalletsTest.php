@@ -8,10 +8,10 @@ use Test\FinancialApiBundle\CrudV3ReadTestInterface;
 use Test\FinancialApiBundle\CrudV3WriteTestInterface;
 
 /**
- * Class TestUserShouldReturnAccounts
+ * Class AccountShouldReturnWalletsTest
  * @package Test\FinancialApiBundle\Bugs
  */
-class TestUserShouldReturnAccounts extends BaseApiTest {
+class AccountShouldReturnWalletsTest extends BaseApiTest {
 
     function setUp(): void
     {
@@ -21,7 +21,7 @@ class TestUserShouldReturnAccounts extends BaseApiTest {
 
     function testIndexUsersShouldReturn200AndHaveAccounts()
     {
-        $route = '/admin/v3/users';
+        $route = '/admin/v3/accounts';
         $resp = $this->requestJson('GET', $route);
 
         self::assertEquals(
@@ -30,10 +30,10 @@ class TestUserShouldReturnAccounts extends BaseApiTest {
             "route: $route, status_code: {$resp->getStatusCode()}, content: {$resp->getContent()}"
         );
         $content = json_decode($resp->getContent())->data->elements;
-        foreach ($content as $user){
+        foreach ($content as $account){
             self::assertObjectHasAttribute(
-                "accounts",
-                $user,
+                "wallets",
+                $account,
                 "route: $route, status_code: {$resp->getStatusCode()}"
             );
         }
