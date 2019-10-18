@@ -12,7 +12,6 @@ use Doctrine\ORM\EntityManagerInterface;
 use Doctrine\ORM\Event\LifecycleEventArgs;
 use Doctrine\ORM\Event\PreUpdateEventArgs;
 use Doctrine\ORM\Events;
-use Symfony\Component\DependencyInjection\ContainerInterface;
 use Symfony\Component\HttpFoundation\RequestStack;
 
 /**
@@ -73,7 +72,7 @@ class TranslationsEventSubscriber implements EventSubscriber {
 
     /**
      * @param $entity
-     * @param null $changeSet
+     * @param array $changeSet
      * @throws AnnotationException
      * @throws NoSuchTranslationException
      * @throws \ReflectionException
