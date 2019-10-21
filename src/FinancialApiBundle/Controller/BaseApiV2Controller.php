@@ -555,7 +555,7 @@ abstract class BaseApiV2Controller extends RestApiController implements Reposito
      * @throws AnnotationException
      */
     protected function deleteRelationshipAction(Request $request, $role, $id1, $relationship, $id2){
-        $this->checkPermissions($role, self::CRUD_DELETE);
+        $this->checkPermissions($role, self::CRUD_UPDATE);
         $entity = $this->deleteRelationship($request, $id1, $relationship, $id2);
         $output = $this->securizeOutput($entity);
         return $this->restV2(
