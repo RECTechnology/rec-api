@@ -39,8 +39,8 @@ class UserShouldBeAllowedToEditOwnedAccounts  extends BaseApiTest {
                 $route,
                 ['name' => 'my name 69']
             );
-            self::assertEquals(
-                200,
+            self::assertNotEquals(
+                403,
                 $resp->getStatusCode(),
                 "route: $route, status_code: {$resp->getStatusCode()}, content: {$resp->getContent()}"
             );
