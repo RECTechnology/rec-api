@@ -143,7 +143,7 @@ class AccountsController extends CRUDController {
      */
     public function updateAction(Request $request, $role, $id)
     {
-        if($role == self::ROLE_USER) {
+        if(self::ROLE_PATH_MAPPINGS[$role] == self::ROLE_USER) {
             /** @var Group $account */
             $account = $this->findObject($id);
             /** @var User $user */
@@ -158,7 +158,7 @@ class AccountsController extends CRUDController {
 
     public function addRelationshipAction(Request $request, $role, $id, $relationship)
     {
-        if($role == self::ROLE_USER) {
+        if(self::ROLE_PATH_MAPPINGS[$role] == self::ROLE_USER) {
             /** @var Group $account */
             $account = $this->findObject($id);
             /** @var User $user */
@@ -172,7 +172,7 @@ class AccountsController extends CRUDController {
 
     public function deleteRelationshipAction(Request $request, $role, $id1, $relationship, $id2)
     {
-        if($role == self::ROLE_USER) {
+        if(self::ROLE_PATH_MAPPINGS[$role] == self::ROLE_USER) {
             /** @var Group $account */
             $account = $this->findObject($id1);
             /** @var User $user */
