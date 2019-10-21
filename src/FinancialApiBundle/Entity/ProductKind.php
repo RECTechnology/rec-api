@@ -28,19 +28,19 @@ class ProductKind extends AppObject implements Translatable, PreDeleteChecks {
 
     /**
      * @REC\TranslatedProperty
-     * @ORM\Column(type="string", nullable=true)
+     * @ORM\Column(type="string", nullable=true, unique=true)
      * @Groups({"public"})
      */
     private $name;
 
     /**
-     * @ORM\Column(type="string", nullable=true)
+     * @ORM\Column(type="string", nullable=true, unique=true)
      * @Groups({"manager"})
      */
     private $name_es;
 
     /**
-     * @ORM\Column(type="string", nullable=true)
+     * @ORM\Column(type="string", nullable=true, unique=true)
      * @Groups({"manager"})
      */
     private $name_ca;

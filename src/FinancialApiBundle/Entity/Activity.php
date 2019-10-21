@@ -27,19 +27,19 @@ class Activity extends AppObject implements Translatable, PreDeleteChecks {
 
     /**
      * @REC\TranslatedProperty
-     * @ORM\Column(type="string", nullable=true)
+     * @ORM\Column(type="string", nullable=true, unique=true)
      * @Serializer\Groups({"public"})
      */
     private $name;
 
     /**
-     * @ORM\Column(type="string", nullable=true)
+     * @ORM\Column(type="string", nullable=true, unique=true)
      * @Serializer\Groups({"manager"})
      */
     private $name_es;
 
     /**
-     * @ORM\Column(type="string", nullable=true)
+     * @ORM\Column(type="string", nullable=true, unique=true)
      * @Serializer\Groups({"manager"})
      */
     private $name_ca;
@@ -74,7 +74,7 @@ class Activity extends AppObject implements Translatable, PreDeleteChecks {
     private $status;
 
     /**
-     * @ORM\Column(type="string", nullable=true)
+     * @ORM\Column(type="string", nullable=true, unique=true)
      * @Serializer\Groups({"manager"})
      */
     private $upc_code;

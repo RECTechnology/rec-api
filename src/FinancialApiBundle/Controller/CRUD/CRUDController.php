@@ -28,7 +28,7 @@ use App\FinancialApiBundle\Entity\Offer;
 class CRUDController extends BaseApiV2Controller {
 
     const BASE_REPOSITORY_NAME = "FinancialApiBundle";
-    const PATH_ENTITY_MAPPINGS = [
+    const PATH_ENTITY_OVERRIDES = [
         'accounts' => 'Group',
         'treasure_withdrawals' => 'TreasureWithdrawalAttempt',
         'treasure_validations' => 'TreasureWithdrawalValidation',
@@ -49,8 +49,8 @@ class CRUDController extends BaseApiV2Controller {
     }
 
     private function transformPathToEntityName($lowercase_pluralized_name){
-        if(key_exists($lowercase_pluralized_name, self::PATH_ENTITY_MAPPINGS)) {
-            return self::PATH_ENTITY_MAPPINGS[$lowercase_pluralized_name];
+        if(key_exists($lowercase_pluralized_name, self::PATH_ENTITY_OVERRIDES)) {
+            return self::PATH_ENTITY_OVERRIDES[$lowercase_pluralized_name];
         }
         else {
             $nameConverter = new CamelCaseToSnakeCaseNameConverter(null, false);
@@ -81,10 +81,10 @@ class CRUDController extends BaseApiV2Controller {
     function getCRUDGrants()
     {
         return [
-            self::CRUD_SEARCH => self::ROLE_PUBLIC,
+            self::CRUD_SEARCH => self::ROLE_USER,
+            self::CRUD_INDEX => self::ROLE_USER,
+            self::CRUD_SHOW => self::ROLE_USER,
             self::CRUD_EXPORT => self::ROLE_SUPER_ADMIN,
-            self::CRUD_INDEX => self::ROLE_SUPER_USER,
-            self::CRUD_SHOW => self::ROLE_SUPER_USER,
             self::CRUD_CREATE => self::ROLE_SUPER_ADMIN,
             self::CRUD_UPDATE => self::ROLE_SUPER_ADMIN,
             self::CRUD_DELETE => self::ROLE_SUPER_ADMIN,

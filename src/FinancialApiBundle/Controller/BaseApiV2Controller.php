@@ -72,9 +72,11 @@ abstract class BaseApiV2Controller extends RestApiController implements Reposito
     const ROLE_SUPER_USER = "ROLE_SUPER_USER";
     const ROLE_PUBLIC = "ROLE_PUBLIC";
 
+    const ROLE_USER = "ROLE_USER";
+
     const ROLE_PATH_MAPPINGS = [
         'public' => self::ROLE_PUBLIC,
-        'user' => self::ROLE_SUPER_USER,
+        'user' => self::ROLE_USER,
         'manager' => self::ROLE_SUPER_MANAGER,
         'admin' => self::ROLE_SUPER_ADMIN,
         'root' => self::ROLE_ROOT,
