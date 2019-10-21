@@ -11,7 +11,7 @@ use Test\FinancialApiBundle\BaseApiTest;
  * Class UserStatusCodesTest
  * @package Test\FinancialApiBundle\Security\Authorization
  */
-class UserStatusCodesTest  extends BaseApiTest {
+class UserShouldBeForbiddenToAdminRoutes  extends BaseApiTest {
 
     const ADMIN_PREFIX_PATH = '/admin/v3';
 

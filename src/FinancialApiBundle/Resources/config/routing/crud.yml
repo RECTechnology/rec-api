@@ -15,6 +15,39 @@ accounts_v3_report_clients_providers:
         role: "(public|user|manager|self|admin|sadmin)"
         id: "[0-9]+"
 
+
+accounts_v3_add_relationship:
+    path:  /{role}/v3/accounts/{id}/{relationship}
+    defaults: { _controller: App\FinancialApiBundle\Controller\CRUD\AccountsController::addRelationshipAction }
+    methods: [POST]
+    requirements:
+        role: "(public|user|manager|self|admin|sadmin)"
+        object: "[a-z_]+"
+        id: "[0-9]+"
+        relationship: "[a-z_]+"
+
+accounts_v3_delete_relationship:
+    path:  /{role}/v3/accounts/{id1}/{relationship}/{id2}
+    defaults: { _controller: App\FinancialApiBundle\Controller\CRUD\AccountsController::deleteRelationshipAction }
+    methods: [DELETE]
+    requirements:
+        role: "(public|user|manager|self|admin|sadmin)"
+        object: "[a-z_]+"
+        id1: "[0-9]+"
+        relationship: "[a-z_]+"
+        id2: "[0-9]+"
+
+accounts_v3_update:
+    path:  /{role}/v3/accounts/{id}
+    defaults: { _controller: App\FinancialApiBundle\Controller\CRUD\AccountsController::updateAction }
+    methods: [PUT]
+    requirements:
+        role: "(public|user|manager|self|admin|sadmin)"
+        object: "[a-z_]+"
+        id: "[0-9]+"
+
+
+
 ##################### CRUD / V3 ############################
 
 crud_v3_search:
