@@ -2,6 +2,9 @@
 
 namespace App\FinancialApiBundle\Controller\CRUD;
 
+use App\FinancialApiBundle\Entity\User;
+use App\FinancialApiBundle\Entity\UserGroup;
+use Doctrine\Common\Annotations\AnnotationException;
 use Doctrine\ORM\EntityManagerInterface;
 use Doctrine\ORM\NonUniqueResultException;
 use Doctrine\ORM\NoResultException;
@@ -30,6 +33,7 @@ class AccountsController extends CRUDController {
     {
         $grants = parent::getCRUDGrants();
         $grants[self::CRUD_SEARCH] = self::ROLE_PUBLIC;
+        $grants[self::CRUD_UPDATE] = self::ROLE_USER;
         return $grants;
     }
 
@@ -130,6 +134,68 @@ class AccountsController extends CRUDController {
         return [intval($total), $elements];
     }
 
+    /**
+     * @param Request $request
+     * @param $role
+     * @param $id
+     * @return Response
+     * @throws AnnotationException
+     */
+    public function updateAction(Request $request, $role, $id)
+    {
+        if($role == self::ROLE_USER) {
+            /** @var Group $account */
+            $account = $this->findObject($id);
+            /** @var User $user */
+            $user = $this->getUser();
+            if($this->userCanUpdateAccount($user, $account))
+                return parent::updateAction($request, $role, $id);
+            throw new HttpException(403, "Insufficient permissions for account");
+        }
+        return parent::updateAction($request, $role, $id);
+    }
+
+
+    public function addRelationshipAction(Request $request, $role, $id, $relationship)
+    {
+        if($role == self::ROLE_USER) {
+            /** @var Group $account */
+            $account = $this->findObject($id);
+            /** @var User $user */
+            $user = $this->getUser();
+            if($this->userCanUpdateAccount($user, $account))
+                return parent::addRelationshipAction($request, $role, $id, $relationship);
+            throw new HttpException(403, "Insufficient permissions for account");
+        }
+        return parent::addRelationshipAction($request, $role, $id, $relationship);
+    }
+
+    public function deleteRelationshipAction(Request $request, $role, $id1, $relationship, $id2)
+    {
+        if($role == self::ROLE_USER) {
+            /** @var Group $account */
+            $account = $this->findObject($id1);
+            /** @var User $user */
+            $user = $this->getUser();
+            if($this->userCanUpdateAccount($user, $account))
+                return parent::deleteRelationshipAction($request, $role, $id1, $relationship, $id2);
+            throw new HttpException(403, "Insufficient permissions for account");
+        }
+        return parent::deleteRelationshipAction($request, $role, $id1, $relationship, $id2);
+    }
+
+    private function userCanUpdateAccount(User $user, Group $account){
+        /** @var UserGroup $permission */
+        foreach ($user->getUserGroups() as $permission){
+            if($permission->getGroup()->getId() == $account->getId()){
+                if(in_array('ROLE_ADMIN', $permission->getRoles()))
+                    return true;
+                else
+                    return false;
+            }
+        }
+        return false;
+    }
 
     /**
      * @param EngineInterface $templating
