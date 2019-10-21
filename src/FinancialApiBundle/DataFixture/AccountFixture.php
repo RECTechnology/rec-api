@@ -38,7 +38,7 @@ class AccountFixture extends Fixture implements DependentFixtureInterface {
             ->findOneBy(['username' => UserFixture::TEST_USER_CREDENTIALS['username']]);
 
         //This user has a private USER account, and a bmincomer account
-        $this->createAccount($orm, $faker, $user, [BaseApiV2Controller::ROLE_SUPER_USER]);
+        $this->createAccount($orm, $faker, $user);
         $this->createAccount(
             $orm,
             $faker,
