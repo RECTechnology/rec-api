@@ -88,7 +88,8 @@ abstract class BaseApiTest extends WebTestCase {
     protected function requestJson(string $method, string $url, array $content = null, array $headers = []) {
         if($content !== null) $content = json_encode($content);
         $resp = $this->request($method, $url, $content, array_merge($headers, self::HEADERS_JSON));
-        self::assertJson($resp->getContent());
+        if($resp->getStatusCode() != Response::HTTP_NO_CONTENT)
+            self::assertJson($resp->getContent());
         return $resp;
     }
 

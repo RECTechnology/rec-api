@@ -53,6 +53,7 @@ abstract class BaseApiV2Controller extends RestApiController implements Reposito
 
     const HTTP_STATUS_CODE_OK = 200;
     const HTTP_STATUS_CODE_CREATED = 201;
+    const HTTP_STATUS_CODE_NO_CONTENT = 204;
 
     const MAX_ELEMENTS_IN_GET = 500;
 
@@ -559,7 +560,7 @@ abstract class BaseApiV2Controller extends RestApiController implements Reposito
         $entity = $this->deleteRelationship($request, $id1, $relationship, $id2);
         $output = $this->securizeOutput($entity);
         return $this->restV2(
-            static::HTTP_STATUS_CODE_OK,
+            self::HTTP_STATUS_CODE_NO_CONTENT,
             "ok",
             "Deleted successfully",
             $output

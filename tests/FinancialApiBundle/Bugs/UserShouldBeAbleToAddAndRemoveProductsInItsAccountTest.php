@@ -28,7 +28,7 @@ class UserShouldBeAbleToAddAndRemoveProductsInItsAccountTest extends BaseApiTest
         $this->product = json_decode($resp->getContent())->data;
     }
 
-    function test()
+    function testAddAndRemoveProducts()
     {
         $route = "/user/v3/accounts/{$this->account->id}/producing_products";
         $resp = $this->requestJson(
@@ -38,6 +38,17 @@ class UserShouldBeAbleToAddAndRemoveProductsInItsAccountTest extends BaseApiTest
         );
         self::assertEquals(
             201,
+            $resp->getStatusCode(),
+            "route: $route, status_code: {$resp->getStatusCode()}, content: {$resp->getContent()}"
+        );
+
+        $route = "/user/v3/accounts/{$this->account->id}/producing_products/{$this->product->id}";
+        $resp = $this->requestJson(
+            'DELETE',
+            $route
+        );
+        self::assertEquals(
+            204,
             $resp->getStatusCode(),
             "route: $route, status_code: {$resp->getStatusCode()}, content: {$resp->getContent()}"
         );
