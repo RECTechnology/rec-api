@@ -100,6 +100,16 @@ crud_v3_create:
         role: "(public|user|manager|self|admin|sadmin)"
         object: "[a-z_]+"
 
+crud_v3_index_relationship:
+    path:  /{role}/v3/{object}/{id}/{relationship}
+    defaults: { _controller: App\FinancialApiBundle\Controller\CRUD\CRUDController::indexRelationshipAction }
+    methods: [GET]
+    requirements:
+        role: "(public|user|manager|self|admin|sadmin)"
+        object: "[a-z_]+"
+        id: "[0-9]+"
+        relationship: "[a-z_]+"
+
 crud_v3_add_relationship:
     path:  /{role}/v3/{object}/{id}/{relationship}
     defaults: { _controller: App\FinancialApiBundle\Controller\CRUD\CRUDController::addRelationshipAction }

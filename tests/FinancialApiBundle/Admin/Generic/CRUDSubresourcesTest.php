@@ -1,16 +1,16 @@
 <?php
 
-namespace Test\FinancialApiBundle\Bugs;
+namespace Test\FinancialApiBundle\Admin\Generic;
 
 use App\FinancialApiBundle\DataFixture\UserFixture;
 use Symfony\Component\HttpFoundation\Response;
 use Test\FinancialApiBundle\BaseApiTest;
 
 /**
- * Class UserShouldBeAbleToAddAndRemoveProductsInItsAccountTest
- * @package Test\FinancialApiBundle\Bugs
+ * Class CRUDSubresourcesTest
+ * @package Test\FinancialApiBundle\Admin\Generic
  */
-class UserShouldBeAbleToAddAndRemoveProductsInItsAccountTest extends BaseApiTest {
+class CRUDSubresourcesTest extends BaseApiTest {
 
     private $account;
     private $product;
@@ -37,6 +37,17 @@ class UserShouldBeAbleToAddAndRemoveProductsInItsAccountTest extends BaseApiTest
         );
         self::assertEquals(
             201,
+            $resp->getStatusCode(),
+            "route: $route, status_code: {$resp->getStatusCode()}, content: {$resp->getContent()}"
+        );
+
+        $route = "/user/v3/accounts/{$this->account->id}/producing_products";
+        $resp = $this->requestJson(
+            'GET',
+            $route
+        );
+        self::assertEquals(
+            200,
             $resp->getStatusCode(),
             "route: $route, status_code: {$resp->getStatusCode()}, content: {$resp->getContent()}"
         );

@@ -116,6 +116,11 @@ class CRUDController extends BaseApiV2Controller {
         return parent::createAction($request, $role);
     }
 
+    public function indexRelationshipAction(Request $request, $role, $id, $relationship)
+    {
+        return parent::indexRelationshipAction($request, $role, $id, $relationship);
+    }
+
     public function addRelationshipAction(Request $request, $role, $id, $relationship)
     {
         return parent::addRelationshipAction($request, $role, $id, $relationship);

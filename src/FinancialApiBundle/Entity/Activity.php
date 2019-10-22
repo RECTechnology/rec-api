@@ -80,21 +80,33 @@ class Activity extends AppObject implements Translatable, PreDeleteChecks {
     private $upc_code;
 
     /**
-     * @ORM\ManyToMany(targetEntity="App\FinancialApiBundle\Entity\Group", inversedBy="activities")
+     * @ORM\ManyToMany(
+     *     targetEntity="App\FinancialApiBundle\Entity\Group",
+     *     inversedBy="activities",
+     *     fetch="EXTRA_LAZY"
+     * )
      * @Serializer\Groups({"public"})
      * @Serializer\MaxDepth(2)
      */
     private $accounts;
 
     /**
-     * @ORM\ManyToMany(targetEntity="App\FinancialApiBundle\Entity\ProductKind", mappedBy="default_producing_by")
+     * @ORM\ManyToMany(
+     *     targetEntity="App\FinancialApiBundle\Entity\ProductKind",
+     *     mappedBy="default_producing_by",
+     *     fetch="EXTRA_LAZY"
+     * )
      * @Serializer\Groups({"public"})
      * @Serializer\MaxDepth(2)
      */
     private $default_producing_products;
 
     /**
-     * @ORM\ManyToMany(targetEntity="App\FinancialApiBundle\Entity\ProductKind", mappedBy="default_consuming_by")
+     * @ORM\ManyToMany(
+     *     targetEntity="App\FinancialApiBundle\Entity\ProductKind",
+     *     mappedBy="default_consuming_by",
+     *     fetch="EXTRA_LAZY"
+     * )
      * @Serializer\Groups({"public"})
      * @Serializer\MaxDepth(2)
      */

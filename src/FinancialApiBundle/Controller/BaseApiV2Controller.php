@@ -14,6 +14,7 @@ use DateTime;
 use DateTimeZone;
 use Doctrine\Common\Annotations\AnnotationException;
 use Doctrine\Common\Annotations\AnnotationReader;
+use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Persistence\ObjectRepository;
 use Doctrine\DBAL\DBALException;
 use Doctrine\ORM\Mapping\Column;
@@ -491,6 +492,37 @@ abstract class BaseApiV2Controller extends RestApiController implements Reposito
      * @param $id
      * @param $relationship
      * @return Response
+     */
+    protected function indexRelationshipAction(Request $request, $role, $id, $relationship){
+        $this->checkPermissions($role, self::CRUD_SHOW);
+
+        $offset = $request->query->get('offset', 0);
+        $limit = $request->query->get('limit', 10);
+        if($limit < 0 or $limit > static::MAX_ELEMENTS_IN_GET)
+            throw new HttpException(400, "Invalid limit: must be between 1 and " . static::MAX_ELEMENTS_IN_GET);
+
+        $entities = $this->indexRelationship($id, $relationship);
+
+        $result = [
+            'total' => $entities->count(),
+            'elements' => $entities->slice($offset, $limit)
+        ];
+
+        $output = $this->securizeOutput($result);
+        return $this->restV2(
+            static::HTTP_STATUS_CODE_OK,
+            "ok",
+            "Index success",
+            $output
+        );
+    }
+
+    /**
+     * @param Request $request
+     * @param $role
+     * @param $id
+     * @param $relationship
+     * @return Response
      * @throws AnnotationException
      */
     protected function addRelationshipAction(Request $request, $role, $id, $relationship){
@@ -503,6 +535,26 @@ abstract class BaseApiV2Controller extends RestApiController implements Reposito
             "Added successfully",
             $output
         );
+
+    }
+
+    /**
+     * @param $id
+     * @param $relationship
+     * @return ArrayCollection
+     */
+    public function indexRelationship($id, $relationship){
+        if(empty($id)) throw new HttpException(400, "Missing URL parameter 'id'");
+        if(empty($relationship)) throw new HttpException(400, "Missing URL parameter 'relationship'");
+
+        $repo = $this->getRepository();
+
+        $entity = $repo->find($id);
+        if(empty($entity)) throw new HttpException(404, "Not found");
+
+        $getter = $this->getGetter($relationship);
+
+        return $entity->$getter();
 
     }
 
