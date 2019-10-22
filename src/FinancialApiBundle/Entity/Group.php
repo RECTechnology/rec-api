@@ -8,6 +8,7 @@ use Doctrine\ORM\Mapping as ORM;
 use JMS\Serializer\Annotation as Serializer;
 
 use App\FinancialApiBundle\DependencyInjection\App\Commons\UploadManager;
+use Symfony\Component\Validator\Constraints as Assert;
 
 /**
  * @ORM\Entity
@@ -209,6 +210,7 @@ class Group extends BaseGroup implements EntityWithUploadableFields {
      *     mappedBy="accounts",
      *     fetch="EXTRA_LAZY"
      * )
+     * @Assert\Count(max="10")
      * @Serializer\Groups({"public"})
      */
     private $activities;
