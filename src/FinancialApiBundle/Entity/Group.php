@@ -204,7 +204,11 @@ class Group extends BaseGroup implements EntityWithUploadableFields {
     private $clients;
 
     /**
-     * @ORM\ManyToMany(targetEntity="App\FinancialApiBundle\Entity\Activity", mappedBy="accounts")
+     * @ORM\ManyToMany(
+     *     targetEntity="App\FinancialApiBundle\Entity\Activity",
+     *     mappedBy="accounts",
+     *     fetch="EXTRA_LAZY"
+     * )
      * @Serializer\Groups({"public"})
      */
     private $activities;
@@ -217,14 +221,22 @@ class Group extends BaseGroup implements EntityWithUploadableFields {
     private $activity_main;
 
     /**
-     * @ORM\ManyToMany(targetEntity="App\FinancialApiBundle\Entity\ProductKind", mappedBy="producing_by")
+     * @ORM\ManyToMany(
+     *     targetEntity="App\FinancialApiBundle\Entity\ProductKind",
+     *     mappedBy="producing_by",
+     *     fetch="EXTRA_LAZY"
+     * )
      * @Serializer\Expose
      * @Serializer\Groups({"public"})
      */
     private $producing_products;
 
     /**
-     * @ORM\ManyToMany(targetEntity="App\FinancialApiBundle\Entity\ProductKind", mappedBy="consuming_by")
+     * @ORM\ManyToMany(
+     *     targetEntity="App\FinancialApiBundle\Entity\ProductKind",
+     *     mappedBy="consuming_by",
+     *     fetch="EXTRA_LAZY"
+     * )
      * @Serializer\Expose
      * @Serializer\Groups({"public"})
      */

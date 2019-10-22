@@ -75,7 +75,11 @@ class ProductKind extends AppObject implements Translatable, PreDeleteChecks {
     private $status;
 
     /**
-     * @ORM\ManyToMany(targetEntity="App\FinancialApiBundle\Entity\Group", inversedBy="producing_products")
+     * @ORM\ManyToMany(
+     *     targetEntity="App\FinancialApiBundle\Entity\Group",
+     *     inversedBy="producing_products",
+     *     fetch="EXTRA_LAZY"
+     * )
      * @ORM\JoinTable(name="accounts_products_producing")
      * @Groups({"public"})
      * @Serializer\MaxDepth(2)
@@ -83,7 +87,11 @@ class ProductKind extends AppObject implements Translatable, PreDeleteChecks {
     private $producing_by;
 
     /**
-     * @ORM\ManyToMany(targetEntity="App\FinancialApiBundle\Entity\Group", inversedBy="consuming_products")
+     * @ORM\ManyToMany(
+     *     targetEntity="App\FinancialApiBundle\Entity\Group",
+     *     inversedBy="consuming_products",
+     *     fetch="EXTRA_LAZY"
+     * )
      * @ORM\JoinTable(name="accounts_products_consuming")
      * @Groups({"public"})
      * @Serializer\MaxDepth(2)
@@ -91,7 +99,11 @@ class ProductKind extends AppObject implements Translatable, PreDeleteChecks {
     private $consuming_by;
 
     /**
-     * @ORM\ManyToMany(targetEntity="App\FinancialApiBundle\Entity\Activity", inversedBy="default_producing_products")
+     * @ORM\ManyToMany(
+     *     targetEntity="App\FinancialApiBundle\Entity\Activity",
+     *     inversedBy="default_producing_products",
+     *     fetch="EXTRA_LAZY"
+     * )
      * @ORM\JoinTable(name="activities_products_producing")
      * @Groups({"public"})
      * @Serializer\MaxDepth(2)
@@ -99,7 +111,11 @@ class ProductKind extends AppObject implements Translatable, PreDeleteChecks {
     private $default_producing_by;
 
     /**
-     * @ORM\ManyToMany(targetEntity="App\FinancialApiBundle\Entity\Activity", inversedBy="default_consuming_products")
+     * @ORM\ManyToMany(
+     *     targetEntity="App\FinancialApiBundle\Entity\Activity",
+     *     inversedBy="default_consuming_products",
+     *     fetch="EXTRA_LAZY"
+     * )
      * @ORM\JoinTable(name="activities_products_consuming")
      * @Groups({"public"})
      * @Serializer\MaxDepth(2)
