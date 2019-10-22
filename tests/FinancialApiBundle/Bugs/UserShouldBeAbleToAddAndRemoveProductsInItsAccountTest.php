@@ -3,9 +3,8 @@
 namespace Test\FinancialApiBundle\Bugs;
 
 use App\FinancialApiBundle\DataFixture\UserFixture;
+use Symfony\Component\HttpFoundation\Response;
 use Test\FinancialApiBundle\BaseApiTest;
-use Test\FinancialApiBundle\CrudV3ReadTestInterface;
-use Test\FinancialApiBundle\CrudV3WriteTestInterface;
 
 /**
  * Class UserShouldBeAbleToAddAndRemoveProductsInItsAccountTest
@@ -53,6 +52,18 @@ class UserShouldBeAbleToAddAndRemoveProductsInItsAccountTest extends BaseApiTest
             "route: $route, status_code: {$resp->getStatusCode()}, content: {$resp->getContent()}"
         );
 
+    }
+
+    function tearDown(): void
+    {
+        $route = "/user/v3/product_kinds/{$this->product->id}";
+        $resp = $this->requestJson('DELETE', $route);
+        self::assertEquals(
+            Response::HTTP_FORBIDDEN,
+            $resp->getStatusCode(),
+            "route: $route, status_code: {$resp->getStatusCode()}, content: {$resp->getContent()}"
+        );
+        parent::tearDown();
     }
 
 }
