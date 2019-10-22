@@ -1,5 +1,6 @@
 
-##################### ACCOUNT / V3 / (OVERRIDES CRUD) ############################
+##################### ACCOUNTS / V3 / (OVERRIDES CRUD) ############################
+
 accounts_v3_search:
     path:  /{role}/v3/accounts/search
     defaults: { _controller: App\FinancialApiBundle\Controller\CRUD\AccountsController::searchAction }
@@ -46,7 +47,15 @@ accounts_v3_update:
         object: "[a-z_]+"
         id: "[0-9]+"
 
+##################### PRODUCTS & ACTIVITIES / V3 / (OVERRIDES CRUD) ############################
 
+products_and_activities_v3_create:
+    path:  /{role}/v3/{object}
+    defaults: { _controller: App\FinancialApiBundle\Controller\CRUD\ProductsAndActivitiesController::createAction }
+    methods: [POST]
+    requirements:
+        role: "(public|user|manager|self|admin|sadmin)"
+        object: "(product_kinds|activities)"
 
 ##################### CRUD / V3 ############################
 

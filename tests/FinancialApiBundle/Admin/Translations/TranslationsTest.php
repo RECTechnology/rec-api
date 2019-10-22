@@ -19,8 +19,8 @@ class TranslationsTest extends BaseApiTest {
             'ca' => ['name' => 'product_kinds ca']
         ],
         'activities' => [
-            'es' => ['name' => 'activities es'],
             'en' => ['name' => 'activities en'],
+            'es' => ['name' => 'activities es'],
             'ca' => ['name' => 'activities ca']
         ],
     ];
@@ -98,7 +98,7 @@ class TranslationsTest extends BaseApiTest {
     }
 
     function testUpdate() {
-        $this->markTestSkipped("to allow push");
+        $this->markTestIncomplete("not working yet :(2");
         foreach (self::ROUTES_TO_TEST as $name => $params) {
             $route = '/admin/v3/' . $name;
             $lang = self::LANGUAGES_TO_TEST[0];
@@ -129,11 +129,13 @@ class TranslationsTest extends BaseApiTest {
                     "route: $route, status_code: {$resp->getStatusCode()}, content: {$resp->getContent()}"
                 );
                 $updateContent = json_decode($resp->getContent());
+
                 self::assertEquals(
                     $params[$lang],
                     array_intersect_assoc($params[$lang], (array) $updateContent->data),
                     "route: $route, status_code: {$resp->getStatusCode()}, content: {$resp->getContent()}"
                 );
+
                 $resp = $this->requestJson(
                     'GET',
                     $route,
