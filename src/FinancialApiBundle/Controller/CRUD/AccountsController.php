@@ -184,6 +184,20 @@ class AccountsController extends CRUDController {
         return parent::deleteRelationshipAction($request, $role, $id1, $relationship, $id2);
     }
 
+    public function indexRelationshipAction(Request $request, $role, $id, $relationship)
+    {
+        if(self::ROLE_PATH_MAPPINGS[$role] == self::ROLE_USER) {
+            /** @var Group $account */
+            $account = $this->findObject($id);
+            /** @var User $user */
+            $user = $this->getUser();
+            if($this->userCanUpdateAccount($user, $account))
+                return parent::indexRelationshipAction($request, $role, $id, $relationship);
+            throw new HttpException(403, "Insufficient permissions for account");
+        }
+        return parent::indexRelationshipAction($request, $role, $id, $relationship);
+    }
+
     private function userCanUpdateAccount(User $user, Group $account){
         /** @var UserGroup $permission */
         foreach ($user->getUserGroups() as $permission){
