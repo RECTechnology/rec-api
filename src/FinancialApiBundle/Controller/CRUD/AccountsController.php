@@ -2,6 +2,9 @@
 
 namespace App\FinancialApiBundle\Controller\CRUD;
 
+use App\FinancialApiBundle\Entity\User;
+use App\FinancialApiBundle\Entity\UserGroup;
+use Doctrine\Common\Annotations\AnnotationException;
 use Doctrine\ORM\EntityManagerInterface;
 use Doctrine\ORM\NonUniqueResultException;
 use Doctrine\ORM\NoResultException;
@@ -30,6 +33,7 @@ class AccountsController extends CRUDController {
     {
         $grants = parent::getCRUDGrants();
         $grants[self::CRUD_SEARCH] = self::ROLE_PUBLIC;
+        $grants[self::CRUD_UPDATE] = self::ROLE_USER;
         return $grants;
     }
 
@@ -130,22 +134,118 @@ class AccountsController extends CRUDController {
         return [intval($total), $elements];
     }
 
+    /**
+     * @param Request $request
+     * @param $role
+     * @param $id
+     * @return Response
+     * @throws AnnotationException
+     */
+    public function updateAction(Request $request, $role, $id)
+    {
+        if(self::ROLE_PATH_MAPPINGS[$role] == self::ROLE_USER) {
+            /** @var Group $account */
+            $account = $this->findObject($id);
+            /** @var User $user */
+            $user = $this->getUser();
+            if($this->userCanUpdateAccount($user, $account))
+                return parent::updateAction($request, $role, $id);
+            throw new HttpException(403, "Insufficient permissions for account");
+        }
+        return parent::updateAction($request, $role, $id);
+    }
+
+
+    public function addRelationshipAction(Request $request, $role, $id, $relationship)
+    {
+        if(self::ROLE_PATH_MAPPINGS[$role] == self::ROLE_USER) {
+            /** @var Group $account */
+            $account = $this->findObject($id);
+            /** @var User $user */
+            $user = $this->getUser();
+            if($this->userCanUpdateAccount($user, $account))
+                return parent::addRelationshipAction($request, $role, $id, $relationship);
+            throw new HttpException(403, "Insufficient permissions for account");
+        }
+        return parent::addRelationshipAction($request, $role, $id, $relationship);
+    }
+
+    public function deleteRelationshipAction(Request $request, $role, $id1, $relationship, $id2)
+    {
+        if(self::ROLE_PATH_MAPPINGS[$role] == self::ROLE_USER) {
+            /** @var Group $account */
+            $account = $this->findObject($id1);
+            /** @var User $user */
+            $user = $this->getUser();
+            if($this->userCanUpdateAccount($user, $account))
+                return parent::deleteRelationshipAction($request, $role, $id1, $relationship, $id2);
+            throw new HttpException(403, "Insufficient permissions for account");
+        }
+        return parent::deleteRelationshipAction($request, $role, $id1, $relationship, $id2);
+    }
+
+    public function indexRelationshipAction(Request $request, $role, $id, $relationship)
+    {
+        if(self::ROLE_PATH_MAPPINGS[$role] == self::ROLE_USER) {
+            /** @var Group $account */
+            $account = $this->findObject($id);
+            /** @var User $user */
+            $user = $this->getUser();
+            if($this->userCanUpdateAccount($user, $account))
+                return parent::indexRelationshipAction($request, $role, $id, $relationship);
+            throw new HttpException(403, "Insufficient permissions for account");
+        }
+        return parent::indexRelationshipAction($request, $role, $id, $relationship);
+    }
+
+    private function userCanUpdateAccount(User $user, Group $account){
+        /** @var UserGroup $permission */
+        foreach ($user->getUserGroups() as $permission){
+            if($permission->getGroup()->getId() == $account->getId()){
+                if(in_array('ROLE_ADMIN', $permission->getRoles()))
+                    return true;
+                else
+                    return false;
+            }
+        }
+        return false;
+    }
+
 
     /**
      * @param EngineInterface $templating
-     * @param TranslatorInterface $translator
+     * @param Group $account
+     * @return string
+     */
+    public function generateClientsAndProvidersReportHtml(EngineInterface $templating, Group $account){
+        return $templating->render(
+            'FinancialApiBundle:Pdf:product_clients_and_providers.html.twig',
+            ['account' => $account]
+        );
+    }
+
+    /**
+     * @param EngineInterface $templating
+     * @param Group $account
+     * @return string
+     */
+    public function generateClientsAndProvidersReportPdf(EngineInterface $templating, Group $account){
+        return $this->get('knp_snappy.pdf')->getOutputFromHtml($this->generateClientsAndProvidersReportHtml($templating, $account));
+    }
+
+    /**
+     * @param EngineInterface $templating
      * @param Request $request
      * @param $role
      * @param $id
      * @return Response
      */
-    public function reportClientsAndProvidersAction(EngineInterface $templating, TranslatorInterface $translator, Request $request, $role, $id){
+    public function reportClientsAndProvidersAction(EngineInterface $templating, Request $request, $role, $id){
         $this->checkPermissions($role, self::CRUD_SHOW);
 
         /** @var Group $account */
         $account = $this->findObject($id);
 
-        //$translator->setLocale($request->getLocale());
         $html = $templating->render(
             'FinancialApiBundle:Pdf:product_clients_and_providers.html.twig',
             ['account' => $account]
@@ -153,25 +253,20 @@ class AccountsController extends CRUDController {
         $format = $request->headers->get('Accept');
         if($format == 'text/html') {
             return new Response(
-                $html,
+                $this->generateClientsAndProvidersReportHtml($templating, $account),
                 200,
                 ['Content-Type' => 'text/html']
             );
         }
         elseif ($format == 'application/pdf'){
-
-            try {
-                return new Response(
-                    $this->get('knp_snappy.pdf')->getOutputFromHtml($html),
-                    200,
-                    [
-                        'Content-Type' => 'application/pdf',
-                        'Content-Disposition' => ResponseHeaderBag::DISPOSITION_INLINE
-                    ]
-                );
-            } catch (Html2PdfException $e) {
-                throw new HttpException(400, "Invalid pdf requested: ".  $e->getMessage(), $e);
-            }
+            return new Response(
+                $this->generateClientsAndProvidersReportPdf($templating, $account),
+                200,
+                [
+                    'Content-Type' => 'application/pdf',
+                    'Content-Disposition' => ResponseHeaderBag::DISPOSITION_INLINE
+                ]
+            );
         }
         throw new HttpException(400, "Invalid accept format " . $request->headers->get('Accept'));
     }

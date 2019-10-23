@@ -8,10 +8,10 @@ use Test\FinancialApiBundle\CrudV3ReadTestInterface;
 use Test\FinancialApiBundle\CrudV3WriteTestInterface;
 
 /**
- * Class TestPUTUserV1AccountShouldAllowChangeName
+ * Class PUTUserV1AccountShouldAllowChangeNameTest
  * @package Test\FinancialApiBundle\Bugs
  */
-class TestPUTUserV1AccountShouldAllowChangeName extends BaseApiTest {
+class PUTUserV1AccountShouldAllowChangeNameTest extends BaseApiTest {
 
     function setUp(): void
     {

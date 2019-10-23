@@ -9,11 +9,13 @@
 namespace App\FinancialApiBundle\Controller;
 
 use App\FinancialApiBundle\Exception\AppException;
+use App\FinancialApiBundle\Exception\AppLogicException;
 use App\FinancialApiBundle\Exception\PreconditionFailedException;
 use DateTime;
 use DateTimeZone;
 use Doctrine\Common\Annotations\AnnotationException;
 use Doctrine\Common\Annotations\AnnotationReader;
+use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Persistence\ObjectRepository;
 use Doctrine\DBAL\DBALException;
 use Doctrine\ORM\Mapping\Column;
@@ -53,6 +55,7 @@ abstract class BaseApiV2Controller extends RestApiController implements Reposito
 
     const HTTP_STATUS_CODE_OK = 200;
     const HTTP_STATUS_CODE_CREATED = 201;
+    const HTTP_STATUS_CODE_NO_CONTENT = 204;
 
     const MAX_ELEMENTS_IN_GET = 500;
 
@@ -72,9 +75,11 @@ abstract class BaseApiV2Controller extends RestApiController implements Reposito
     const ROLE_SUPER_USER = "ROLE_SUPER_USER";
     const ROLE_PUBLIC = "ROLE_PUBLIC";
 
+    const ROLE_USER = "ROLE_USER";
+
     const ROLE_PATH_MAPPINGS = [
         'public' => self::ROLE_PUBLIC,
-        'user' => self::ROLE_SUPER_USER,
+        'user' => self::ROLE_USER,
         'manager' => self::ROLE_SUPER_MANAGER,
         'admin' => self::ROLE_SUPER_ADMIN,
         'root' => self::ROLE_ROOT,
@@ -202,7 +207,7 @@ abstract class BaseApiV2Controller extends RestApiController implements Reposito
 
     /**
      * @param $propertyName
-     * @return object|null
+     * @return string
      * @throws AnnotationException
      */
     private function getRelatedEntity($propertyName){
@@ -374,7 +379,7 @@ abstract class BaseApiV2Controller extends RestApiController implements Reposito
                 call_user_func_array([$entity, $setter], [$value]);
             }
             else{
-                throw new HttpException(400, "Bad request, parameter '$name' is invalid. ");
+                throw new HttpException(400, "Bad request, parameter '$name' is invalid.");
             }
 
         }
@@ -405,10 +410,6 @@ abstract class BaseApiV2Controller extends RestApiController implements Reposito
             else if(preg_match('/UNIQUE constraint failed/i', $e->getMessage()))
                 throw new HttpException(409, "Duplicated resource (multiple parameters duplicated)", $e);
             throw new HttpException(500, "Database error occurred when save: " . $e->getMessage(), $e);
-        } catch (PreconditionFailedException $e){
-            throw new HttpException(412, $e->getMessage(), $e);
-        } catch (Exception $e){
-            throw new HttpException(500, "Unknown error occurred when save: " . $e->getMessage(), $e);
         }
     }
 
@@ -488,6 +489,37 @@ abstract class BaseApiV2Controller extends RestApiController implements Reposito
      * @param $id
      * @param $relationship
      * @return Response
+     */
+    protected function indexRelationshipAction(Request $request, $role, $id, $relationship){
+        $this->checkPermissions($role, self::CRUD_SHOW);
+
+        $offset = $request->query->get('offset', 0);
+        $limit = $request->query->get('limit', 10);
+        if($limit < 0 or $limit > static::MAX_ELEMENTS_IN_GET)
+            throw new HttpException(400, "Invalid limit: must be between 1 and " . static::MAX_ELEMENTS_IN_GET);
+
+        $entities = $this->indexRelationship($id, $relationship);
+
+        $result = [
+            'total' => $entities->count(),
+            'elements' => $entities->slice($offset, $limit)
+        ];
+
+        $output = $this->securizeOutput($result);
+        return $this->restV2(
+            static::HTTP_STATUS_CODE_OK,
+            "ok",
+            "Index success",
+            $output
+        );
+    }
+
+    /**
+     * @param Request $request
+     * @param $role
+     * @param $id
+     * @param $relationship
+     * @return Response
      * @throws AnnotationException
      */
     protected function addRelationshipAction(Request $request, $role, $id, $relationship){
@@ -500,6 +532,26 @@ abstract class BaseApiV2Controller extends RestApiController implements Reposito
             "Added successfully",
             $output
         );
+
+    }
+
+    /**
+     * @param $id
+     * @param $relationship
+     * @return ArrayCollection
+     */
+    public function indexRelationship($id, $relationship){
+        if(empty($id)) throw new HttpException(400, "Missing URL parameter 'id'");
+        if(empty($relationship)) throw new HttpException(400, "Missing URL parameter 'relationship'");
+
+        $repo = $this->getRepository();
+
+        $entity = $repo->find($id);
+        if(empty($entity)) throw new HttpException(404, "Not found");
+
+        $getter = $this->getGetter($relationship);
+
+        return $entity->$getter();
 
     }
 
@@ -553,11 +605,11 @@ abstract class BaseApiV2Controller extends RestApiController implements Reposito
      * @throws AnnotationException
      */
     protected function deleteRelationshipAction(Request $request, $role, $id1, $relationship, $id2){
-        $this->checkPermissions($role, self::CRUD_DELETE);
+        $this->checkPermissions($role, self::CRUD_UPDATE);
         $entity = $this->deleteRelationship($request, $id1, $relationship, $id2);
         $output = $this->securizeOutput($entity);
         return $this->restV2(
-            static::HTTP_STATUS_CODE_OK,
+            self::HTTP_STATUS_CODE_NO_CONTENT,
             "ok",
             "Deleted successfully",
             $output
@@ -655,19 +707,21 @@ abstract class BaseApiV2Controller extends RestApiController implements Reposito
     }
 
     private function getAdder($attribute) {
-        return $this->getAccessor('add', $attribute);
+        return $this->getAccessor('add', $attribute, true);
     }
 
     private function getDeleter($attribute) {
-        return $this->getAccessor('del', $attribute);
+        return $this->getAccessor('del', $attribute, true);
     }
 
-    private function getAccessor($prefix, $attribute) {
-        $accessor = $this->toCamelCase($prefix . "_" . $attribute);
-        if(substr($accessor,strlen($accessor) - 3) === 'ies')
-            return substr($accessor, 0, strlen($accessor) - 3) . 'y';
-        if(substr($accessor,strlen($accessor) - 1) === 's')
-            return substr($accessor, 0, strlen($accessor) - 1);
+    private function getAccessor($prefix, $attribute, $singularize = false) {
+        $accessor = $prefix . $this->toCamelCase($attribute);
+        if($singularize) {
+            if (substr($accessor, strlen($accessor) - 3) === 'ies')
+                return substr($accessor, 0, strlen($accessor) - 3) . 'y';
+            if (substr($accessor, strlen($accessor) - 1) === 's')
+                return substr($accessor, 0, strlen($accessor) - 1);
+        }
         return $accessor;
     }
 

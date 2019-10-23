@@ -10,7 +10,7 @@ use Test\FinancialApiBundle\CrudV3WriteTestInterface;
  * Class TranslationsTest
  * @package Test\FinancialApiBundle\Admin\Translations
  */
-class TranslationsTest extends BaseApiTest implements CrudV3WriteTestInterface {
+class TranslationsTest extends BaseApiTest {
 
     const ROUTES_TO_TEST = [
         'product_kinds' => [
@@ -19,14 +19,9 @@ class TranslationsTest extends BaseApiTest implements CrudV3WriteTestInterface {
             'ca' => ['name' => 'product_kinds ca']
         ],
         'activities' => [
-            'es' => ['name' => 'activities es'],
             'en' => ['name' => 'activities en'],
+            'es' => ['name' => 'activities es'],
             'ca' => ['name' => 'activities ca']
-        ],
-        'neighbourhoods' => [
-            'es' => ['name' => 'neighbourhoods es'],
-            'en' => ['name' => 'neighbourhoods en'],
-            'ca' => ['name' => 'neighbourhoods ca']
         ],
     ];
 
@@ -59,7 +54,7 @@ class TranslationsTest extends BaseApiTest implements CrudV3WriteTestInterface {
         );
     }
 
-    function testCreate() {
+    function testCreateInEveryLanguageIndividually() {
         foreach (self::LANGUAGES_TO_TEST as $lang) {
             foreach (self::ROUTES_TO_TEST as $name => $params) {
                 $route = '/admin/v3/' . $name;
@@ -78,8 +73,32 @@ class TranslationsTest extends BaseApiTest implements CrudV3WriteTestInterface {
         }
     }
 
+    function testCreateInEveryLanguageAtSameTime() {
+
+        foreach (self::ROUTES_TO_TEST as $name => $params) {
+            $createParams = [];
+            foreach (self::LANGUAGES_TO_TEST as $lang) {
+                if($lang == 'en') $createParams ['name'] = $params[$lang]['name'];
+                else $createParams ['name_' . $lang] = $params[$lang]['name'];
+            }
+            $route = '/admin/v3/' . $name;
+            $resp = $this->requestJson(
+                'POST',
+                $route,
+                $createParams,
+                ['HTTP_Content-Language' => 'en']
+            );
+            self::assertEquals(
+                201,
+                $resp->getStatusCode(),
+                "route: $route, status_code: {$resp->getStatusCode()}, content: {$resp->getContent()}"
+            );
+        }
+
+    }
+
     function testUpdate() {
-        $this->markTestSkipped("to allow push");
+        $this->markTestIncomplete("not working yet :(2");
         foreach (self::ROUTES_TO_TEST as $name => $params) {
             $route = '/admin/v3/' . $name;
             $lang = self::LANGUAGES_TO_TEST[0];
@@ -110,11 +129,13 @@ class TranslationsTest extends BaseApiTest implements CrudV3WriteTestInterface {
                     "route: $route, status_code: {$resp->getStatusCode()}, content: {$resp->getContent()}"
                 );
                 $updateContent = json_decode($resp->getContent());
+
                 self::assertEquals(
                     $params[$lang],
                     array_intersect_assoc($params[$lang], (array) $updateContent->data),
                     "route: $route, status_code: {$resp->getStatusCode()}, content: {$resp->getContent()}"
                 );
+
                 $resp = $this->requestJson(
                     'GET',
                     $route,

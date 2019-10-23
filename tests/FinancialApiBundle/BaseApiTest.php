@@ -64,6 +64,11 @@ abstract class BaseApiTest extends WebTestCase {
     protected $testFactory;
 
     /**
+     * @var Client
+     */
+    protected $client;
+
+    /**
      * @param string $method
      * @param string $url
      * @param string $content
@@ -71,11 +76,10 @@ abstract class BaseApiTest extends WebTestCase {
      * @return Response
      */
     protected function request(string $method, string $url, string $content = null, array $headers = []) {
-        $client = static::createClient();
         if($this->token) $headers['HTTP_AUTHORIZATION'] = "Bearer {$this->token['access_token']}";
 
-        $client->request($method, $url, [], [], $headers, $content);
-        return $client->getResponse();
+        $this->client->request($method, $url, [], [], $headers, $content);
+        return $this->client->getResponse();
     }
 
     /**
@@ -88,7 +92,8 @@ abstract class BaseApiTest extends WebTestCase {
     protected function requestJson(string $method, string $url, array $content = null, array $headers = []) {
         if($content !== null) $content = json_encode($content);
         $resp = $this->request($method, $url, $content, array_merge($headers, self::HEADERS_JSON));
-        self::assertJson($resp->getContent());
+        if($resp->getStatusCode() != Response::HTTP_NO_CONTENT)
+            self::assertJson($resp->getContent());
         return $resp;
     }
 
@@ -125,50 +130,47 @@ abstract class BaseApiTest extends WebTestCase {
     }
 
     /**
-     * @param Client $client
      * @throws \Exception
      */
-    protected function clearDatabase(Client $client){
-        $this->removeDatabase($client);
-        $this->runCommand($client, 'doctrine:database:create', ['--if-not-exists']);
-        $this->runCommand($client, 'doctrine:schema:create');
+    protected function clearDatabase(){
+        $this->removeDatabase();
+        $this->runCommand('doctrine:database:create', ['--if-not-exists']);
+        $this->runCommand('doctrine:schema:create');
     }
 
     /**
      * @param string $string
-     * @param Client $client
      * @return string|string[]|null
      */
-    protected function resolveString(string $string, Client $client){
+    protected function resolveString(string $string){
         preg_match_all('/%([^%]+)%/', $string, $matches);
         if(count($matches) > 1){
             for($i = 0; $i < count($matches[0]); $i++){
                 $paramName = $matches[1][$i];
                 $match = $matches[0][$i];
-                $param = $client->getContainer()->getParameter($paramName);
+                $param = $this->client->getContainer()->getParameter($paramName);
                 $string = preg_replace("/$match/", $param, $string);
             }
         }
         return $string;
     }
 
-    protected function removeDatabase(Client $client) {
-        $config = Yaml::parseFile($client->getKernel()->getRootDir() . '/../app/config/config_test.yml');
+    protected function removeDatabase() {
+        $config = Yaml::parseFile($this->client->getKernel()->getRootDir() . '/../app/config/config_test.yml');
         $fs = new Filesystem();
         $dbUrl = $config['doctrine']['dbal']['url'];
-        $dbFile = $this->resolveString(explode('::', $dbUrl)[1], $client);
+        $dbFile = $this->resolveString(explode('::', $dbUrl)[1]);
         if($fs->exists($dbFile)) $fs->remove($dbFile);
     }
 
     /**
-     * @param Client $client
      * @param string $command
      * @param array $args
      * @return string
      * @throws \Exception
      */
-    protected function runCommand(Client $client, string $command, array $args = []){
-        $application = new Application($client->getKernel());
+    protected function runCommand(string $command, array $args = []){
+        $application = new Application($this->client->getKernel());
         $application->setAutoExit(false);
         $fullCommand = array_merge(['command' => $command], $args);
         $output = new BufferedOutput();
@@ -178,11 +180,10 @@ abstract class BaseApiTest extends WebTestCase {
     }
 
     /**
-     * @param Client $client
      * @throws \Exception
      */
-    protected function loadFixtures(Client $client){
-        $this->runCommand($client, 'doctrine:fixtures:load', ['--no-interaction']);
+    protected function loadFixtures(){
+        $this->runCommand('doctrine:fixtures:load', ['--no-interaction']);
     }
 
     /**
@@ -192,21 +193,20 @@ abstract class BaseApiTest extends WebTestCase {
     {
         parent::setUp();
         $this->faker = Factory::create();
-        $client = static::createClient();
-        $this->testFactory = new TestDataFactory($client);
-        $this->clearDatabase($client);
-        $this->loadFixtures($client);
+        $this->client = static::createClient();
+        $this->testFactory = new TestDataFactory($this->client);
+        $this->clearDatabase();
+        $this->loadFixtures();
     }
 
     protected function tearDown(): void {
         parent::tearDown();
-        $client = static::createClient();
-        $this->removeDatabase($client);
+        $this->client = static::createClient();
+        $this->removeDatabase();
     }
 
     private function getDebugDir(){
-        $cli = static::createClient();
-        $cacheDir = $cli->getContainer()->getParameter('kernel.cache_dir');
+        $cacheDir = $this->client->getContainer()->getParameter('kernel.cache_dir');
         $debugDir = $cacheDir . '/debug';
         if(!file_exists($debugDir)) mkdir($debugDir);
         return $debugDir;

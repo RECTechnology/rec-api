@@ -8,56 +8,96 @@ namespace App\FinancialApiBundle\Entity;
 
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\ORM\Mapping as ORM;
-use Gedmo\Translatable\Translatable;
+use App\FinancialApiBundle\Annotations as REC;
 use JMS\Serializer\Annotation as Serializer;
-use JMS\Serializer\Annotation\Groups;
-use Gedmo\Mapping\Annotation as Gedmo;
+use Symfony\Component\Validator\Constraints as Assert;
 
 /**
  * Class Mailing
  * @package App\FinancialApiBundle\Entity
  * @ORM\Entity
  */
-class Mailing extends AppObject implements Translatable, Localizable {
+class Mailing extends AppObject implements Translatable {
 
-    use LocalizableTrait;
+    const STATUS_CREATED = "created";
+    const STATUS_SCHEDULED = "scheduled";
+    const STATUS_PROCESSED = "processed";
+
+    use TranslatableTrait;
 
     /**
-     * @Gedmo\Translatable
      * @ORM\Column(type="string")
-     * @Groups({"admin"})
+     * @Assert\Choice({"created", "scheduled", "processed"})
+     * @Serializer\Groups({"admin"})
+     */
+    private $status;
+
+    /**
+     * @REC\TranslatedProperty
+     * @ORM\Column(type="string", nullable=true)
+     * @Serializer\Groups({"admin"})
      */
     private $subject;
+    
+    /**
+     * @ORM\Column(type="string", nullable=true)
+     * @Serializer\Groups({"admin"})
+     */
+    private $subject_es;
+    
+    /**
+     * @ORM\Column(type="string", nullable=true)
+     * @Serializer\Groups({"admin"})
+     */
+    private $subject_ca;
 
     /**
-     * @Gedmo\Translatable
+     * @REC\TranslatedProperty
      * @ORM\Column(type="text", nullable=true)
-     * @Groups({"admin"})
+     * @Serializer\Groups({"admin"})
      */
     private $content;
-
+    
     /**
-     * @ORM\Column(type="boolean")
-     * @Groups({"admin"})
+     * @ORM\Column(type="text", nullable=true)
+     * @Serializer\Groups({"admin"})
      */
-    private $processed;
+    private $content_es;
+    
+    /**
+     * @ORM\Column(type="text", nullable=true)
+     * @Serializer\Groups({"admin"})
+     */
+    private $content_ca;
 
     /**
-     * @Gedmo\Translatable
+     * @REC\TranslatedProperty
      * @ORM\Column(type="json_array", nullable=true)
-     * @Groups({"admin"})
+     * @Serializer\Groups({"admin"})
      */
     private $attachments;
 
     /**
+     * @ORM\Column(type="text", nullable=true)
+     * @Serializer\Groups({"admin"})
+     */
+    private $attachments_es;
+
+    /**
+     * @ORM\Column(type="text", nullable=true)
+     * @Serializer\Groups({"admin"})
+     */
+    private $attachments_ca;
+
+    /**
      * @ORM\OneToMany(targetEntity="App\FinancialApiBundle\Entity\MailingDelivery", mappedBy="mailing")
-     * @Groups({"admin"})
+     * @Serializer\Groups({"admin"})
      */
     private $deliveries;
 
     /**
      * @ORM\Column(type="datetime", nullable=true)
-     * @Groups({"admin"})
+     * @Serializer\Groups({"admin"})
      */
     private $scheduled_at;
 
@@ -65,7 +105,7 @@ class Mailing extends AppObject implements Translatable, Localizable {
      * Activity constructor.
      */
     public function __construct() {
-        $this->processed = false;
+        $this->status = self::STATUS_CREATED;
         $this->deliveries = new ArrayCollection();
         $this->attachments = [];
     }
@@ -145,17 +185,17 @@ class Mailing extends AppObject implements Translatable, Localizable {
     /**
      * @return mixed
      */
-    public function getProcessed()
+    public function getStatus()
     {
-        return $this->processed;
+        return $this->status;
     }
 
     /**
-     * @param mixed $processed
+     * @param mixed $status
      */
-    public function setProcessed($processed): void
+    public function setStatus($status): void
     {
-        $this->processed = $processed;
+        $this->status = $status;
     }
 
 }

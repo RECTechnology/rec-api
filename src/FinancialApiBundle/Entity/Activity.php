@@ -6,12 +6,12 @@
 
 namespace App\FinancialApiBundle\Entity;
 
-use App\FinancialApiBundle\Exception\NoSuchTranslationException;
 use App\FinancialApiBundle\Exception\PreconditionFailedException;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\ORM\Mapping as ORM;
 use JMS\Serializer\Annotation as Serializer;
 use Symfony\Component\Validator\Constraints as Assert;
+use App\FinancialApiBundle\Annotations as REC;
 
 /**
  * Class Activity
@@ -26,78 +26,38 @@ class Activity extends AppObject implements Translatable, PreDeleteChecks {
     use TranslatableTrait;
 
     /**
-     * @Serializer\Accessor(setter="setName")
-     * @ORM\Column(type="string", nullable=true)
-     * @Serializer\Groups({"manager"})
+     * @REC\TranslatedProperty
+     * @ORM\Column(type="string", nullable=true, unique=true)
+     * @Serializer\Groups({"public"})
      */
-    private $name_en;
+    private $name;
 
     /**
-     * @Serializer\Accessor(setter="setName")
-     * @ORM\Column(type="string", nullable=true)
+     * @ORM\Column(type="string", nullable=true, unique=true)
      * @Serializer\Groups({"manager"})
      */
     private $name_es;
 
     /**
-     * @REC\TranslatedProperty()
-     * @ORM\Column(type="string", nullable=true)
+     * @ORM\Column(type="string", nullable=true, unique=true)
      * @Serializer\Groups({"manager"})
      */
     private $name_ca;
 
     /**
-     * @Serializer\VirtualProperty(name="name")
-     * @Serializer\Type("string")
-     * @Serializer\Groups({"public"})
-     * @throws NoSuchTranslationException
-     */
-    function getName(){
-        return $this->getTranslation('name');
-    }
-
-    /**
-     * @param $name
-     * @throws NoSuchTranslationException
-     */
-    function setName($name){
-        $this->setTranslation('name', $name);
-    }
-
-    /**
-     * @param $name
-     * @throws NoSuchTranslationException
-     */
-    function setDescription($name){
-        $this->setTranslation('description', $name);
-    }
-
-    /**
-     * @Serializer\VirtualProperty(name="description")
-     * @Serializer\Type("string")
-     * @Serializer\Groups({"public"})
-     * @throws NoSuchTranslationException
-     */
-    function getDescription(){
-        return $this->getTranslation('description');
-    }
-
-    /**
-     * @Serializer\Accessor(setter="setDescription")
+     * @REC\TranslatedProperty
      * @ORM\Column(type="text", nullable=true)
-     * @Serializer\Groups({"manager"})
+     * @Serializer\Groups({"public"})
      */
-    private $description_en;
+    private $description;
 
     /**
-     * @Serializer\Accessor(setter="setDescription")
      * @ORM\Column(type="text", nullable=true)
      * @Serializer\Groups({"manager"})
      */
     private $description_es;
 
     /**
-     * @Serializer\Accessor(setter="setDescription")
      * @ORM\Column(type="text", nullable=true)
      * @Serializer\Groups({"manager"})
      */
@@ -105,27 +65,48 @@ class Activity extends AppObject implements Translatable, PreDeleteChecks {
 
     /**
      * @ORM\Column(type="string")
-     * @Assert\Choice({"created", "reviewed"})
+     * @Assert\Choice(
+     *     choices={"created", "reviewed"},
+     *     message="Invalid parameter status, valid options: created, reviewed"
+     * )
      * @Serializer\Groups({"public"})
      */
     private $status;
 
     /**
-     * @ORM\ManyToMany(targetEntity="App\FinancialApiBundle\Entity\Group", inversedBy="activities")
+     * @ORM\Column(type="string", nullable=true, unique=true)
+     * @Serializer\Groups({"manager"})
+     */
+    private $upc_code;
+
+    /**
+     * @ORM\ManyToMany(
+     *     targetEntity="App\FinancialApiBundle\Entity\Group",
+     *     inversedBy="activities",
+     *     fetch="EXTRA_LAZY"
+     * )
      * @Serializer\Groups({"public"})
      * @Serializer\MaxDepth(2)
      */
     private $accounts;
 
     /**
-     * @ORM\ManyToMany(targetEntity="App\FinancialApiBundle\Entity\ProductKind", mappedBy="default_producing_by")
+     * @ORM\ManyToMany(
+     *     targetEntity="App\FinancialApiBundle\Entity\ProductKind",
+     *     mappedBy="default_producing_by",
+     *     fetch="EXTRA_LAZY"
+     * )
      * @Serializer\Groups({"public"})
      * @Serializer\MaxDepth(2)
      */
     private $default_producing_products;
 
     /**
-     * @ORM\ManyToMany(targetEntity="App\FinancialApiBundle\Entity\ProductKind", mappedBy="default_consuming_by")
+     * @ORM\ManyToMany(
+     *     targetEntity="App\FinancialApiBundle\Entity\ProductKind",
+     *     mappedBy="default_consuming_by",
+     *     fetch="EXTRA_LAZY"
+     * )
      * @Serializer\Groups({"public"})
      * @Serializer\MaxDepth(2)
      */
@@ -152,24 +133,27 @@ class Activity extends AppObject implements Translatable, PreDeleteChecks {
     /**
      * @param Group $account
      * @param bool $recursive
+     * @throws PreconditionFailedException
      */
     public function addAccount(Group $account, $recursive = true): void
     {
+        if($this->accounts->contains($account)){
+            throw new PreconditionFailedException("Account already related to this Activity");
+        }
         $this->accounts []= $account;
         if($recursive) $account->addActivity($this, false);
     }
 
     /**
      * @param Group $account
-     * @param bool $recursive
+     * @throws PreconditionFailedException
      */
-    public function delAccount(Group $account, $recursive = true): void
+    public function delAccount(Group $account): void
     {
         if(!$this->accounts->contains($account)){
-            throw new \LogicException("Account not related to this Activity");
+            throw new PreconditionFailedException("Account not related to this Activity");
         }
         $this->accounts->removeElement($account);
-        if($recursive) $account->delActivity($this, false);
     }
 
     /**
@@ -183,9 +167,13 @@ class Activity extends AppObject implements Translatable, PreDeleteChecks {
     /**
      * @param mixed $product
      * @param bool $recursive
+     * @throws PreconditionFailedException
      */
     public function addDefaultProducingProduct(ProductKind $product, $recursive = true): void
     {
+        if(!$this->default_producing_products->contains($product)){
+            throw new PreconditionFailedException("ProductKind already related to this Activity");
+        }
         $this->default_producing_products []= $product;
         if($recursive) $product->addDefaultProducingBy($this, false);
     }
@@ -193,14 +181,15 @@ class Activity extends AppObject implements Translatable, PreDeleteChecks {
     /**
      * @param mixed $product
      * @param bool $recursive
+     * @throws PreconditionFailedException
      */
     public function delDefaultProducingProduct(ProductKind $product, $recursive = true): void
     {
         if(!$this->default_producing_products->contains($product)){
-            throw new \LogicException("ProductKind not related to this Activity");
+            throw new PreconditionFailedException("ProductKind not related to this Activity");
         }
         $this->default_producing_products->removeElement($product);
-        if($recursive) $product->delDefaultProducingBy($this, false);
+        //if($recursive) $product->delDefaultProducingBy($this, false);
     }
 
     /**
@@ -214,9 +203,13 @@ class Activity extends AppObject implements Translatable, PreDeleteChecks {
     /**
      * @param mixed $product
      * @param bool $recursive
+     * @throws PreconditionFailedException
      */
     public function addDefaultConsumingProducts(ProductKind $product, $recursive = true): void
     {
+        if($this->default_consuming_products->contains($product)){
+            throw new PreconditionFailedException("ProductKind already related to this Activity");
+        }
         $this->default_consuming_products []= $product;
         if($recursive) $product->addDefaultConsumingBy($this, false);
     }
@@ -224,14 +217,15 @@ class Activity extends AppObject implements Translatable, PreDeleteChecks {
     /**
      * @param mixed $product
      * @param bool $recursive
+     * @throws PreconditionFailedException
      */
     public function delDefaultConsumingProduct(ProductKind $product, $recursive = true): void
     {
         if(!$this->default_consuming_products->contains($product)){
-            throw new \LogicException("ProductKind not related to this Activity");
+            throw new PreconditionFailedException("ProductKind not related to this Activity");
         }
         $this->default_consuming_products->removeElement($product);
-        if($recursive) $product->delDefaultConsumingBy($this, false);
+        //if($recursive) $product->delDefaultConsumingBy($this, false);
     }
 
     /**
@@ -261,6 +255,118 @@ class Activity extends AppObject implements Translatable, PreDeleteChecks {
     public function getStatus(): string
     {
         return $this->status;
+    }
+
+    /**
+     * @return mixed
+     */
+    public function getName()
+    {
+        return $this->name;
+    }
+
+    /**
+     * @param mixed $name
+     */
+    public function setName($name): void
+    {
+        $this->name = $name;
+    }
+
+    /**
+     * @return mixed
+     */
+    public function getDescription()
+    {
+        return $this->description;
+    }
+
+    /**
+     * @param mixed $description
+     */
+    public function setDescription($description): void
+    {
+        $this->description = $description;
+    }
+
+    /**
+     * @return mixed
+     */
+    public function getUpcCode()
+    {
+        return $this->upc_code;
+    }
+
+    /**
+     * @param mixed $upc_code
+     */
+    public function setUpcCode($upc_code): void
+    {
+        $this->upc_code = $upc_code;
+    }
+
+    /**
+     * @return mixed
+     */
+    public function getNameEs()
+    {
+        return $this->name_es;
+    }
+
+    /**
+     * @param mixed $name_es
+     */
+    public function setNameEs($name_es): void
+    {
+        $this->name_es = $name_es;
+    }
+
+    /**
+     * @return mixed
+     */
+    public function getNameCa()
+    {
+        return $this->name_ca;
+    }
+
+    /**
+     * @param mixed $name_ca
+     */
+    public function setNameCa($name_ca): void
+    {
+        $this->name_ca = $name_ca;
+    }
+
+    /**
+     * @return mixed
+     */
+    public function getDescriptionEs()
+    {
+        return $this->description_es;
+    }
+
+    /**
+     * @param mixed $description_es
+     */
+    public function setDescriptionEs($description_es): void
+    {
+        $this->description_es = $description_es;
+    }
+
+    /**
+     * @return mixed
+     */
+    public function getDescriptionCa()
+    {
+        return $this->description_ca;
+    }
+
+    /**
+     * @param mixed $description_ca
+     */
+    public function setDescriptionCa($description_ca): void
+    {
+        $this->description_ca = $description_ca;
     }
 
 }

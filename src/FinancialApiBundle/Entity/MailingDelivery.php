@@ -6,11 +6,9 @@
 
 namespace App\FinancialApiBundle\Entity;
 
+use App\FinancialApiBundle\Validator\Constraint as RECAssert;
 use Doctrine\ORM\Mapping as ORM;
-use Gedmo\Translatable\Translatable;
 use JMS\Serializer\Annotation as Serializer;
-use JMS\Serializer\Annotation\Groups;
-use Symfony\Bridge\Doctrine\Validator\Constraints\UniqueEntity;
 use Symfony\Component\Validator\Constraints as Assert;
 
 /**
@@ -30,19 +28,20 @@ class MailingDelivery extends AppObject {
     /**
      * @ORM\Column(type="string")
      * @Assert\Regex(pattern="(created|scheduled|sent|cancelled|errored)")
-     * @Groups({"admin"})
+     * @Serializer\Groups({"admin"})
      */
     private $status;
 
     /**
      * @ORM\ManyToOne(targetEntity="App\FinancialApiBundle\Entity\Group")
-     * @Groups({"admin"})
+     * @RECAssert\HasValidEmail()
+     * @Serializer\Groups({"admin"})
      */
     private $account;
 
     /**
      * @ORM\ManyToOne(targetEntity="App\FinancialApiBundle\Entity\Mailing", inversedBy="deliveries")
-     * @Groups({"admin"})
+     * @Serializer\Groups({"admin"})
      */
     private $mailing;
 

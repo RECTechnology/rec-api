@@ -11,7 +11,7 @@ class ExceptionWrapper {
     private $message;
     private $errors;
 
-    public function __construct($status = 'error', $status_text = 'error', $message = 'Undefined', $errors = null){
+    public function __construct($status = 'error', $status_text = 'error', $message = 'Undefined error happened', $errors = null){
         $this->status = $status;
         $this->status_text = $status_text;
         $this->message = $message;

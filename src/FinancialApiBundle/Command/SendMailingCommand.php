@@ -21,7 +21,7 @@ class SendMailingCommand extends SynchronizedContainerAwareCommand
         /** @var EntityManagerInterface $em */
         $em = $this->getContainer()->get('doctrine.orm.entity_manager');
         $repo = $em->getRepository(Mailing::class);
-        $mailings = $repo->findBy(['processed' => false], null, 10);
+        $mailings = $repo->findBy(['status' => Mailing::STATUS_SCHEDULED], null, 10);
         $output->writeln("Processing " . count($mailings) . " mailings");
         foreach ($mailings as $mailing){
             $output->writeln("Mailing: " . $mailing->getId());
@@ -37,7 +37,7 @@ class SendMailingCommand extends SynchronizedContainerAwareCommand
                     if($delivery->getStatus() == MailingDelivery::STATUS_CREATED)
                         $delivery->setStatus(MailingDelivery::STATUS_SCHEDULED);
                 }
-                $mailing->setProcessed(true);
+                $mailing->setStatus(Mailing::STATUS_PROCESSED);
             }
         }
         $em->flush();
