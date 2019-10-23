@@ -51,6 +51,8 @@ class CRUDSubresourcesTest extends BaseApiTest {
             $resp->getStatusCode(),
             "route: $route, status_code: {$resp->getStatusCode()}, content: {$resp->getContent()}"
         );
+        $products = json_decode($resp->getContent())->data->elements;
+        self::assertGreaterThan(0, count($products), "Expected more than 0 products in account");
 
         $route = "/user/v3/accounts/{$this->account->id}/producing_products/{$this->product->id}";
         $resp = $this->requestJson(

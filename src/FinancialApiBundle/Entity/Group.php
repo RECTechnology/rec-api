@@ -2,6 +2,7 @@
 
 namespace App\FinancialApiBundle\Entity;
 
+use App\FinancialApiBundle\Exception\PreconditionFailedException;
 use Doctrine\Common\Collections\ArrayCollection;
 use FOS\UserBundle\Model\Group as BaseGroup;
 use Doctrine\ORM\Mapping as ORM;
@@ -827,7 +828,7 @@ class Group extends BaseGroup implements EntityWithUploadableFields {
      */
     public function setCountry($country){
         if(strlen($country)!=3){
-            throw new \LogicException('Country must be ISO-3');
+            throw new AppLogicException('Country must be ISO-3');
         }
         $this->country = $country;
     }
@@ -1339,10 +1340,15 @@ class Group extends BaseGroup implements EntityWithUploadableFields {
     }
 
     /**
-     * @param $product
+     * @param ProductKind $product
+     * @param bool $recursive
+     * @throws PreconditionFailedException
      */
     public function addProducingProduct(ProductKind $product, $recursive = true): void
     {
+        if($this->producing_products->contains($product)){
+            throw new PreconditionFailedException("Product already related to this Account");
+        }
         $this->producing_products []= $product;
         if($recursive) $product->addProducingBy($this, false);
     }
@@ -1350,14 +1356,15 @@ class Group extends BaseGroup implements EntityWithUploadableFields {
     /**
      * @param mixed $product
      * @param bool $recursive
+     * @throws PreconditionFailedException
      */
     public function delProducingProduct(ProductKind $product, $recursive = true): void
     {
         if(!$this->producing_products->contains($product)){
-            throw new \LogicException("Product not related to this Account");
+            throw new PreconditionFailedException("Product not related to this Account");
         }
         $this->producing_products->removeElement($product);
-        if($recursive) $product->delProducingBy($this, false);
+        //if($recursive) $product->delProducingBy($this, false);
     }
 
     /**
@@ -1371,9 +1378,13 @@ class Group extends BaseGroup implements EntityWithUploadableFields {
     /**
      * @param mixed $product
      * @param bool $recursive
+     * @throws PreconditionFailedException
      */
     public function addConsumingProduct(ProductKind $product, $recursive = true): void
     {
+        if($this->consuming_products->contains($product)){
+            throw new PreconditionFailedException("Product already related to this Account");
+        }
         $this->consuming_products []= $product;
         if($recursive) $product->addConsumingBy($this, false);
     }
@@ -1381,14 +1392,15 @@ class Group extends BaseGroup implements EntityWithUploadableFields {
     /**
      * @param mixed $product
      * @param bool $recursive
+     * @throws PreconditionFailedException
      */
     public function delConsumingProduct(ProductKind $product, $recursive = true): void
     {
         if(!$this->consuming_products->contains($product)){
-            throw new \LogicException("Product not related to this Account");
+            throw new PreconditionFailedException("Product not related to this Account");
         }
         $this->consuming_products->removeElement($product);
-        if($recursive) $product->delConsumingBy($this, false);
+        //if($recursive) $product->delConsumingBy($this, false);
     }
 
     /**
@@ -1402,9 +1414,13 @@ class Group extends BaseGroup implements EntityWithUploadableFields {
     /**
      * @param Activity $activity
      * @param bool $recursive
+     * @throws PreconditionFailedException
      */
     public function addActivity(Activity $activity, $recursive = true): void
     {
+        if($this->activities->contains($activity)){
+            throw new PreconditionFailedException("Activity already related to this Account");
+        }
         $this->activities []= $activity;
         if($recursive) $activity->addAccount($this, false);
     }
@@ -1412,13 +1428,14 @@ class Group extends BaseGroup implements EntityWithUploadableFields {
     /**
      * @param Activity $activity
      * @param bool $recursive
+     * @throws PreconditionFailedException
      */
     public function delActivity(Activity $activity, $recursive = true) {
         if(!$this->activities->contains($activity)){
-            throw new \LogicException("Activity not related to this Account");
+            throw new PreconditionFailedException("Activity not related to this Account");
         }
         $this->activities->removeElement($activity);
-        if($recursive) $activity->delAccount($this, false);
+        //if($recursive) $activity->delAccount($this, false);
     }
 
     /**

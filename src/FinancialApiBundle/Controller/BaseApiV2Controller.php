@@ -9,6 +9,7 @@
 namespace App\FinancialApiBundle\Controller;
 
 use App\FinancialApiBundle\Exception\AppException;
+use App\FinancialApiBundle\Exception\AppLogicException;
 use App\FinancialApiBundle\Exception\PreconditionFailedException;
 use DateTime;
 use DateTimeZone;
@@ -411,6 +412,8 @@ abstract class BaseApiV2Controller extends RestApiController implements Reposito
             throw new HttpException(500, "Database error occurred when save: " . $e->getMessage(), $e);
         } catch (PreconditionFailedException $e){
             throw new HttpException(412, $e->getMessage(), $e);
+        } catch (AppLogicException $e){
+            throw new HttpException(400, $e->getMessage(), $e);
         } catch (Exception $e){
             throw new HttpException(500, "Unknown error occurred when save: " . $e->getMessage(), $e);
         }
