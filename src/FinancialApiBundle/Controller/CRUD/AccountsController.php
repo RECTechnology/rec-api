@@ -211,21 +211,41 @@ class AccountsController extends CRUDController {
         return false;
     }
 
+
     /**
      * @param EngineInterface $templating
-     * @param TranslatorInterface $translator
+     * @param Group $account
+     * @return string
+     */
+    public function generateClientsAndProvidersReportHtml(EngineInterface $templating, Group $account){
+        return $templating->render(
+            'FinancialApiBundle:Pdf:product_clients_and_providers.html.twig',
+            ['account' => $account]
+        );
+    }
+
+    /**
+     * @param EngineInterface $templating
+     * @param Group $account
+     * @return string
+     */
+    public function generateClientsAndProvidersReportPdf(EngineInterface $templating, Group $account){
+        return $this->get('knp_snappy.pdf')->getOutputFromHtml($this->generateClientsAndProvidersReportHtml($templating, $account));
+    }
+
+    /**
+     * @param EngineInterface $templating
      * @param Request $request
      * @param $role
      * @param $id
      * @return Response
      */
-    public function reportClientsAndProvidersAction(EngineInterface $templating, TranslatorInterface $translator, Request $request, $role, $id){
+    public function reportClientsAndProvidersAction(EngineInterface $templating, Request $request, $role, $id){
         $this->checkPermissions($role, self::CRUD_SHOW);
 
         /** @var Group $account */
         $account = $this->findObject($id);
 
-        //$translator->setLocale($request->getLocale());
         $html = $templating->render(
             'FinancialApiBundle:Pdf:product_clients_and_providers.html.twig',
             ['account' => $account]
@@ -233,25 +253,20 @@ class AccountsController extends CRUDController {
         $format = $request->headers->get('Accept');
         if($format == 'text/html') {
             return new Response(
-                $html,
+                $this->generateClientsAndProvidersReportHtml($templating, $account),
                 200,
                 ['Content-Type' => 'text/html']
             );
         }
         elseif ($format == 'application/pdf'){
-
-            try {
-                return new Response(
-                    $this->get('knp_snappy.pdf')->getOutputFromHtml($html),
-                    200,
-                    [
-                        'Content-Type' => 'application/pdf',
-                        'Content-Disposition' => ResponseHeaderBag::DISPOSITION_INLINE
-                    ]
-                );
-            } catch (Html2PdfException $e) {
-                throw new HttpException(400, "Invalid pdf requested: ".  $e->getMessage(), $e);
-            }
+            return new Response(
+                $this->generateClientsAndProvidersReportPdf($templating, $account),
+                200,
+                [
+                    'Content-Type' => 'application/pdf',
+                    'Content-Disposition' => ResponseHeaderBag::DISPOSITION_INLINE
+                ]
+            );
         }
         throw new HttpException(400, "Invalid accept format " . $request->headers->get('Accept'));
     }

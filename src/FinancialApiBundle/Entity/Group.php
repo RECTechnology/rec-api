@@ -80,14 +80,12 @@ class Group extends BaseGroup implements EntityWithUploadableFields {
 
     /**
      * @ORM\Column(type="text")
-     * @Serializer\Expose
      * @Serializer\Groups({"manager"})
      */
     private $company_image = "";
 
     /**
      * @ORM\Column(type="text")
-     * @Serializer\Expose
      * @Serializer\Groups({"user"})
      */
     private $rec_address;
@@ -100,14 +98,12 @@ class Group extends BaseGroup implements EntityWithUploadableFields {
 
     /**
      * @ORM\Column(type="text")
-     * @Serializer\Expose
      * @Serializer\Groups({"public"})
      */
     private $offered_products = "";
 
     /**
      * @ORM\Column(type="text")
-     * @Serializer\Expose
      * @Serializer\Groups({"public"})
      */
     private $needed_products = "";
@@ -172,13 +168,11 @@ class Group extends BaseGroup implements EntityWithUploadableFields {
     private $methods_list;
 
     /**
-     * @Serializer\Expose
      * @Serializer\Groups({"user"})
      */
     private $allowed_methods = array();
 
     /**
-     * @Serializer\Expose
      * @Serializer\Groups({"user"})
      */
     private $limit_configuration = array();
@@ -228,7 +222,6 @@ class Group extends BaseGroup implements EntityWithUploadableFields {
      *     mappedBy="producing_by",
      *     fetch="EXTRA_LAZY"
      * )
-     * @Serializer\Expose
      * @Serializer\Groups({"public"})
      */
     private $producing_products;
@@ -239,28 +232,24 @@ class Group extends BaseGroup implements EntityWithUploadableFields {
      *     mappedBy="consuming_by",
      *     fetch="EXTRA_LAZY"
      * )
-     * @Serializer\Expose
      * @Serializer\Groups({"public"})
      */
     private $consuming_products;
 
     /**
      * @ORM\Column(type="string")
-     * @Serializer\Expose
      * @Serializer\Groups({"public"})
      */
     private $cif;
 
     /**
      * @ORM\Column(type="string")
-     * @Serializer\Expose
      * @Serializer\Groups({"public"})
      */
     private $prefix = '';
 
     /**
      * @ORM\Column(type="string")
-     * @Serializer\Expose
      * @Serializer\Groups({"public"})
      */
     private $phone = '';
@@ -273,6 +262,7 @@ class Group extends BaseGroup implements EntityWithUploadableFields {
 
     /**
      * @ORM\Column(type="string")
+     * @Assert\Email()
      * @Serializer\Groups({"manager"})
      */
     private $email = '';
@@ -315,14 +305,12 @@ class Group extends BaseGroup implements EntityWithUploadableFields {
 
     /**
      * @ORM\Column(type="string")
-     * @Serializer\Expose
      * @Serializer\Groups({"public"})
      */
     private $address_number = '';
 
     /**
      * @ORM\Column(type="string")
-     * @Serializer\Expose
      * @Serializer\Groups({"public"})
      */
     private $neighborhood = "";
@@ -335,28 +323,24 @@ class Group extends BaseGroup implements EntityWithUploadableFields {
 
     /**
      * @ORM\Column(type="string")
-     * @Serializer\Expose
      * @Serializer\Groups({"public"})
      */
     private $association = "";
 
     /**
      * @ORM\Column(type="string", length=300)
-     * @Serializer\Expose
      * @Serializer\Groups({"public"})
      */
     private $observations = "";
 
     /**
      * @ORM\Column(type="string")
-     * @Serializer\Expose
      * @Serializer\Groups({"public"})
      */
     private $street = '';
 
     /**
      * @ORM\Column(type="string")
-     * @Serializer\Expose
      * @Serializer\Groups({"public"})
      */
     private $street_type = "";
@@ -399,7 +383,6 @@ class Group extends BaseGroup implements EntityWithUploadableFields {
 
     /**
      * @ORM\Column(type="text")
-     * @Serializer\Expose
      * @Serializer\Groups({"public"})
      */
     private $public_image = "";
@@ -418,14 +401,12 @@ class Group extends BaseGroup implements EntityWithUploadableFields {
 
     /**
      * @ORM\Column(type="integer")
-     * @Serializer\Expose
      * @Serializer\Groups({"admin"})
      */
     private $tier = 0;
 
     /**
      * @ORM\Column(type="string")
-     * @Serializer\Expose
      * @Serializer\Groups({"admin"})
      */
     private $company_token;

@@ -10,6 +10,7 @@ use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\ORM\Mapping as ORM;
 use App\FinancialApiBundle\Annotations as REC;
 use JMS\Serializer\Annotation as Serializer;
+use Symfony\Component\Validator\Constraints as Assert;
 
 /**
  * Class Mailing
@@ -18,11 +19,22 @@ use JMS\Serializer\Annotation as Serializer;
  */
 class Mailing extends AppObject implements Translatable {
 
+    const STATUS_CREATED = "created";
+    const STATUS_SCHEDULED = "scheduled";
+    const STATUS_PROCESSED = "processed";
+
     use TranslatableTrait;
 
     /**
-     * @REC\TranslatedProperty
      * @ORM\Column(type="string")
+     * @Assert\Choice({"created", "scheduled", "processed"})
+     * @Serializer\Groups({"admin"})
+     */
+    private $status;
+
+    /**
+     * @REC\TranslatedProperty
+     * @ORM\Column(type="string", nullable=true)
      * @Serializer\Groups({"admin"})
      */
     private $subject;
@@ -53,16 +65,10 @@ class Mailing extends AppObject implements Translatable {
     private $content_es;
     
     /**
-     * @ORM\Column(type="text", nullable=false)
+     * @ORM\Column(type="text", nullable=true)
      * @Serializer\Groups({"admin"})
      */
     private $content_ca;
-
-    /**
-     * @ORM\Column(type="boolean")
-     * @Serializer\Groups({"admin"})
-     */
-    private $processed;
 
     /**
      * @REC\TranslatedProperty
@@ -72,13 +78,13 @@ class Mailing extends AppObject implements Translatable {
     private $attachments;
 
     /**
-     * @ORM\Column(type="text", nullable=false)
+     * @ORM\Column(type="text", nullable=true)
      * @Serializer\Groups({"admin"})
      */
     private $attachments_es;
 
     /**
-     * @ORM\Column(type="text", nullable=false)
+     * @ORM\Column(type="text", nullable=true)
      * @Serializer\Groups({"admin"})
      */
     private $attachments_ca;
@@ -99,7 +105,7 @@ class Mailing extends AppObject implements Translatable {
      * Activity constructor.
      */
     public function __construct() {
-        $this->processed = false;
+        $this->status = self::STATUS_CREATED;
         $this->deliveries = new ArrayCollection();
         $this->attachments = [];
     }
@@ -179,17 +185,17 @@ class Mailing extends AppObject implements Translatable {
     /**
      * @return mixed
      */
-    public function getProcessed()
+    public function getStatus()
     {
-        return $this->processed;
+        return $this->status;
     }
 
     /**
-     * @param mixed $processed
+     * @param mixed $status
      */
-    public function setProcessed($processed): void
+    public function setStatus($status): void
     {
-        $this->processed = $processed;
+        $this->status = $status;
     }
 
 }
