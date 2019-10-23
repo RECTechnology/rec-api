@@ -410,12 +410,6 @@ abstract class BaseApiV2Controller extends RestApiController implements Reposito
             else if(preg_match('/UNIQUE constraint failed/i', $e->getMessage()))
                 throw new HttpException(409, "Duplicated resource (multiple parameters duplicated)", $e);
             throw new HttpException(500, "Database error occurred when save: " . $e->getMessage(), $e);
-        } catch (PreconditionFailedException $e){
-            throw new HttpException(412, $e->getMessage(), $e);
-        } catch (AppLogicException $e){
-            throw new HttpException(400, $e->getMessage(), $e);
-        } catch (Exception $e){
-            throw new HttpException(500, "Unknown error occurred when save: " . $e->getMessage(), $e);
         }
     }
 

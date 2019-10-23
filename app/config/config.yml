@@ -154,6 +154,13 @@ fos_rest:
         rules:
             - { priorities: [json, xml], fallback_format: json }
 
+    exception:
+        codes:
+            App\FinancialApiBundle\Exception\PreconditionFailedException: 412
+            App\FinancialApiBundle\Exception\AppLogicException: 400
+        messages:
+            Symfony\Component\HttpKernel\Exception\HttpException: true
+
 jms_serializer:
     metadata:
         directories:
