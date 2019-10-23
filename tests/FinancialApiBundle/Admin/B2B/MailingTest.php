@@ -34,7 +34,6 @@ class MailingTest extends BaseApiTest {
      * @throws \Exception
      */
     function testCreateAttachAndSendMailing(){
-        $now = new \DateTime();
         $route = '/admin/v3/mailings';
         $resp = $this->requestJson(
             'POST',
@@ -42,7 +41,6 @@ class MailingTest extends BaseApiTest {
             [
                 'subject' => 'test subject',
                 'content' => 'test content',
-                'scheduled_at' => $now->format('c'),
                 'attachments' => [
                     "b2b_report.pdf" => "b2b_report",
                     "sapo.jpg" => "http://static.malaga.es/malaga/subidas/imagenes/8/0/arc_312408_v2_g.jpg"
@@ -77,11 +75,13 @@ class MailingTest extends BaseApiTest {
         self::assertRegExp("/Processing 0 mailings/", $output);
 
         $route = '/admin/v3/mailings/' . $mailing->id;
+        $now = new \DateTime();
         $resp = $this->requestJson(
             'PUT',
             $route,
             [
-                'status' => 'scheduled'
+                'status' => 'scheduled',
+                'scheduled_at' => $now->format('c')
             ]
         );
         self::assertEquals(

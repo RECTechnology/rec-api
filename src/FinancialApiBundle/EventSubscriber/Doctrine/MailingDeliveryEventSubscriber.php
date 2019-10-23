@@ -116,7 +116,7 @@ class MailingDeliveryEventSubscriber implements EventSubscriber {
 
                 if($account->getEmail() == null || $account->getEmail() != '') {
                     $message->setTo($account->getEmail());
-                    $message->setFrom('postmaster@sandbox45b8322153cb4d8898da8ad6e384be0b.mailgun.org');
+                    $message->setFrom($this->container->getParameter('no_reply_email'));
                     $accepted = $this->mailer->send($message);
                     if($accepted > 0)
                         $entity->setStatus(MailingDelivery::STATUS_SENT);
