@@ -160,6 +160,8 @@ fos_rest:
             App\FinancialApiBundle\Exception\AppLogicException: 400
         messages:
             Symfony\Component\HttpKernel\Exception\HttpException: true
+            App\FinancialApiBundle\Exception\AppLogicException: true
+            App\FinancialApiBundle\Exception\AppException: true
 
 jms_serializer:
     metadata:
