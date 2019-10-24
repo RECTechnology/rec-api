@@ -24,18 +24,13 @@ class MailingDeliveryEventSubscriber implements EventSubscriber {
     /** @var Swift_Mailer */
     private $mailer;
 
-    /**
-     * @var EngineInterface
-     */
+    /** @var EngineInterface */
     private $templating;
 
-    /**
-     * @var ContainerInterface
-     */
+    /** @var ContainerInterface */
     private $container;
-    /**
-     * @var TranslatorInterface
-     */
+
+    /** @var TranslatorInterface */
     private $translator;
 
     /**
@@ -117,6 +112,10 @@ class MailingDeliveryEventSubscriber implements EventSubscriber {
                 if($account->getEmail() == null || $account->getEmail() != '') {
                     $message->setTo($account->getEmail());
                     $message->setFrom($this->container->getParameter('no_reply_email'));
+
+                    $headers = $message->getHeaders();
+                    $headers->addParameterizedHeader('mailing-delivery-id', $mailing->getId());
+
                     $accepted = $this->mailer->send($message);
                     if($accepted > 0)
                         $entity->setStatus(MailingDelivery::STATUS_SENT);

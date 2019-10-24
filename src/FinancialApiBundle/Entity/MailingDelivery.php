@@ -22,12 +22,15 @@ class MailingDelivery extends AppObject {
     const STATUS_CREATED = "created";
     const STATUS_SCHEDULED = "scheduled";
     const STATUS_SENT = "sent";
+    const STATUS_DELIVERED = "delivered";
+    const STATUS_OPENED = "opened";
+    const STATUS_UNSUBSCRIBED = "unsubscribed";
     const STATUS_CANCELLED = "cancelled";
     const STATUS_ERRORED = "errored";
 
     /**
      * @ORM\Column(type="string")
-     * @Assert\Regex(pattern="(created|scheduled|sent|cancelled|errored)")
+     * @Assert\Regex(pattern="(created|scheduled|sent|delivered|opened|unsubscribed|cancelled|errored)")
      * @Serializer\Groups({"admin"})
      */
     private $status;

@@ -40,7 +40,7 @@ twig:
     debug:            "%kernel.debug%"
     strict_variables: "%kernel.debug%"
     #exception_controller: FOS\RestBundle\Controller\ExceptionController::showAction
-    exception_controller: App\FinancialApiBundle\Exception\ExceptionController::showAction
+    #exception_controller: App\FinancialApiBundle\Exception\ExceptionController::showAction
 
 monolog:
     handlers:
@@ -155,13 +155,14 @@ fos_rest:
             - { priorities: [json, xml], fallback_format: json }
 
     exception:
+        enabled: true
+        exception_controller: App\FinancialApiBundle\Exception\ExceptionController::showAction
         codes:
             App\FinancialApiBundle\Exception\PreconditionFailedException: 412
             App\FinancialApiBundle\Exception\AppLogicException: 400
         messages:
             Symfony\Component\HttpKernel\Exception\HttpException: true
             App\FinancialApiBundle\Exception\AppLogicException: true
-            App\FinancialApiBundle\Exception\AppException: true
 
 jms_serializer:
     metadata:
