@@ -20,8 +20,18 @@ class MailgunController extends RestApiController {
         $signature = $request->get('signature');
         $event = $request->get('event-data');
         $delivery = $repo->find($event['message']['headers']['mailing-delivery-id']);
-        if($event['event'] == 'delivered')
-            $delivery->setStatus(MailingDelivery::STATUS_DELIVERED);
+        switch ($event['event']){
+            case 'delivered':
+                $delivery->setStatus(MailingDelivery::STATUS_DELIVERED);
+                break;
+            case 'opened':
+                $delivery->setStatus(MailingDelivery::STATUS_OPENED);
+                break;
+            case 'unsubscribed':
+                $delivery->setStatus(MailingDelivery::STATUS_UNSUBSCRIBED);
+                break;
+            default:
+        }
         $em->persist($delivery);
         $em->flush();
     }
