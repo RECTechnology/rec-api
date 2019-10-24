@@ -27,10 +27,12 @@ class MailingDelivery extends AppObject {
     const STATUS_UNSUBSCRIBED = "unsubscribed";
     const STATUS_CANCELLED = "cancelled";
     const STATUS_ERRORED = "errored";
+    const STATUS_FAILED = "failed";
+    const STATUS_COMPLAINED = "complained";
 
     /**
      * @ORM\Column(type="string")
-     * @Assert\Regex(pattern="(created|scheduled|sent|delivered|opened|unsubscribed|cancelled|errored)")
+     * @Assert\Regex(pattern="(created|scheduled|sent|delivered|opened|failed|complained|unsubscribed|cancelled|errored)")
      * @Serializer\Groups({"admin"})
      */
     private $status;
@@ -40,6 +42,13 @@ class MailingDelivery extends AppObject {
      * @Serializer\Groups({"admin"})
      */
     private $message_ref;
+
+
+    /**
+     * @ORM\Column(type="string", nullable=true)
+     * @Serializer\Groups({"admin"})
+     */
+    private $failure_reason;
 
     /**
      * @ORM\ManyToOne(targetEntity="App\FinancialApiBundle\Entity\Group")
@@ -123,6 +132,22 @@ class MailingDelivery extends AppObject {
     public function setMessageRef($message_ref): void
     {
         $this->message_ref = $message_ref;
+    }
+
+    /**
+     * @return mixed
+     */
+    public function getFailureReason()
+    {
+        return $this->failure_reason;
+    }
+
+    /**
+     * @param mixed $failure_reason
+     */
+    public function setFailureReason($failure_reason): void
+    {
+        $this->failure_reason = $failure_reason;
     }
 
 }
