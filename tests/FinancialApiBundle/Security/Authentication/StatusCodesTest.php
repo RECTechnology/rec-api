@@ -37,13 +37,14 @@ class StatusCodesTest extends BaseApiTest {
             $parts = explode("/", $route->getPath());
             if($parts[1] === "public" and ! preg_match("/{[a-z0-9_]+}/", $route->getPath()))
                 foreach($route->getMethods() as $method){
-                    self::assertEquals("GET", $method, "Route {$route->getPath()} is $method");
-                    $response = $this->request($method, $route->getPath());
-                    self::assertEquals(
-                        200,
-                        $response->getStatusCode(),
-                        "Problem with  --> {$method} {$route->getPath()} <-- RESP: {$response->getContent()}"
-                    );
+                    if($method == 'GET'){
+                        $response = $this->request($method, $route->getPath());
+                        self::assertEquals(
+                            200,
+                            $response->getStatusCode(),
+                            "Problem with  --> {$method} {$route->getPath()} <-- RESP: {$response->getContent()}"
+                        );
+                    }
                 }
         }
     }

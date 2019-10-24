@@ -113,9 +113,7 @@ class MailingDeliveryEventSubscriber implements EventSubscriber {
                     $message->setTo($account->getEmail());
                     $message->setFrom($this->container->getParameter('no_reply_email'));
 
-                    $headers = $message->getHeaders();
-                    $headers->addParameterizedHeader('mailing-delivery-id', $mailing->getId());
-
+                    $entity->setMessageRef($message->getId());
                     $accepted = $this->mailer->send($message);
                     if($accepted > 0)
                         $entity->setStatus(MailingDelivery::STATUS_SENT);

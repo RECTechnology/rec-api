@@ -171,7 +171,7 @@ class Activity extends AppObject implements Translatable, PreDeleteChecks {
      */
     public function addDefaultProducingProduct(ProductKind $product, $recursive = true): void
     {
-        if(!$this->default_producing_products->contains($product)){
+        if($this->default_producing_products->contains($product)){
             throw new PreconditionFailedException("ProductKind already related to this Activity");
         }
         $this->default_producing_products []= $product;

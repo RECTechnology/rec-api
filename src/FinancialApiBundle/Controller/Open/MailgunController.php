@@ -7,32 +7,28 @@ use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Component\HttpFoundation\Request;
 use App\FinancialApiBundle\Controller\RestApiController;
 use Symfony\Component\HttpFoundation\Response;
+use Symfony\Component\HttpKernel\Exception\HttpException;
 
 class MailgunController extends RestApiController {
 
     /**
      * @param Request $request
      * @param EntityManagerInterface $em
-     * @return void
+     * @return Response
      */
     public function webhookAction(Request $request, EntityManagerInterface $em) {
         $repo = $em->getRepository(MailingDelivery::class);
-        $signature = $request->get('signature');
+        $signature = $request->get('signature'); //TODO: check webhook signature
         $event = $request->get('event-data');
-        $delivery = $repo->find($event['message']['headers']['mailing-delivery-id']);
-        switch ($event['event']){
-            case 'delivered':
-                $delivery->setStatus(MailingDelivery::STATUS_DELIVERED);
-                break;
-            case 'opened':
-                $delivery->setStatus(MailingDelivery::STATUS_OPENED);
-                break;
-            case 'unsubscribed':
-                $delivery->setStatus(MailingDelivery::STATUS_UNSUBSCRIBED);
-                break;
-            default:
+        $delivery = $repo->findOneBy(['message_ref' => $event['message']['headers']['message-id']]);
+        if(!$delivery)
+            throw new HttpException(Response::HTTP_NOT_FOUND, "Message not found");
+        $delivery->setStatus($event['event']);
+        if ($event['event'] == MailingDelivery::STATUS_FAILED){
+            $delivery->setFailureReason($event['delivery-status']['description'] . $event['delivery-status']['message']);
         }
         $em->persist($delivery);
         $em->flush();
+        return $this->restV2(200, "success", "Webhook processed successfully");
     }
 }
