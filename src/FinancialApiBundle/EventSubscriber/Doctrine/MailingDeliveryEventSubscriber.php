@@ -24,18 +24,13 @@ class MailingDeliveryEventSubscriber implements EventSubscriber {
     /** @var Swift_Mailer */
     private $mailer;
 
-    /**
-     * @var EngineInterface
-     */
+    /** @var EngineInterface */
     private $templating;
 
-    /**
-     * @var ContainerInterface
-     */
+    /** @var ContainerInterface */
     private $container;
-    /**
-     * @var TranslatorInterface
-     */
+
+    /** @var TranslatorInterface */
     private $translator;
 
     /**
