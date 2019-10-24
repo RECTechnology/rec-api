@@ -36,6 +36,12 @@ class MailingDelivery extends AppObject {
     private $status;
 
     /**
+     * @ORM\Column(type="string", nullable=true, unique=true)
+     * @Serializer\Groups({"admin"})
+     */
+    private $message_ref;
+
+    /**
      * @ORM\ManyToOne(targetEntity="App\FinancialApiBundle\Entity\Group")
      * @RECAssert\HasValidEmail()
      * @Serializer\Groups({"admin"})
@@ -101,6 +107,22 @@ class MailingDelivery extends AppObject {
     public function setMailing($mailing): void
     {
         $this->mailing = $mailing;
+    }
+
+    /**
+     * @return mixed
+     */
+    public function getMessageRef()
+    {
+        return $this->message_ref;
+    }
+
+    /**
+     * @param mixed $message_ref
+     */
+    public function setMessageRef($message_ref): void
+    {
+        $this->message_ref = $message_ref;
     }
 
 }
