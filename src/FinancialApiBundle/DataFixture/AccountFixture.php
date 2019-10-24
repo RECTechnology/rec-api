@@ -95,7 +95,7 @@ class AccountFixture extends Fixture implements DependentFixtureInterface {
         $account->setMethodsList(['rec']);
         $account->setCif('B' . $faker->shuffle('01234567'));
         $account->setActive(true);
-        //$account->setEmail($user->getEmail());
+        $account->setEmail($user->getEmail());
         $account->setRoles($roles);
         $account->setKycManager($user);
         $account->setType($type);
