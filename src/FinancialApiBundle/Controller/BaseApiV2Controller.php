@@ -403,7 +403,7 @@ abstract class BaseApiV2Controller extends RestApiController implements Reposito
             $em->flush();
         } catch(DBALException $e){
             if($e instanceof ForeignKeyConstraintViolationException)
-                throw new HttpException(400, "Bad parameter(s)", $e);
+                throw new HttpException(400, "Bad relationship parameter(s)", $e);
             else if(preg_match('/1062 Duplicate entry/i', $e->getMessage()))
                 throw new HttpException(409, "Duplicated resource (duplicated entry)", $e);
             else if(preg_match('/1048 Column/i',$e->getMessage()))
