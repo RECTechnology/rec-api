@@ -97,7 +97,7 @@ class Mailing extends AppObject implements Translatable, Stateful {
     private $attachments_ca;
 
     /**
-     * @ORM\OneToMany(targetEntity="App\FinancialApiBundle\Entity\MailingDelivery", mappedBy="mailing")
+     * @ORM\OneToMany(targetEntity="App\FinancialApiBundle\Entity\MailingDelivery", mappedBy="mailing", cascade={"remove"})
      * @Serializer\Groups({"admin"})
      */
     private $deliveries;
