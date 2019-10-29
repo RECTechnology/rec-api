@@ -161,7 +161,12 @@ class AppRepository extends EntityRepository implements ContainerAwareInterface 
                                         $em = $this->getEntityManager();
                                         $targetRepo = $em->getRepository($an->targetEntity);
                                         $rel = $targetRepo->find($request->query->get($key));
-                                        if($rel) $kvFilter->add($qb->expr()->isMemberOf($rel, 'e.' . $key));
+                                        if($rel) {
+                                            $explodedTargetEntity = explode("\\", $an->targetEntity);
+                                            $paramName = $explodedTargetEntity[count($explodedTargetEntity) - 1];
+                                            $kvFilter->add($qb->expr()->isMemberOf(":{$paramName}Id", 'e.' . $key));
+                                            $qb->setParameter("{$paramName}Id", $rel);
+                                        }
                                         break;
                                 }
                                 $isRelationship = true;
