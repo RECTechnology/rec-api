@@ -18,6 +18,7 @@ use Doctrine\Common\Annotations\AnnotationReader;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Persistence\ObjectRepository;
 use Doctrine\DBAL\DBALException;
+use Doctrine\DBAL\Exception\ForeignKeyConstraintViolationException;
 use Doctrine\ORM\Mapping\Column;
 use Doctrine\ORM\Mapping\ManyToMany;
 use Doctrine\ORM\Mapping\ManyToOne;
@@ -401,7 +402,9 @@ abstract class BaseApiV2Controller extends RestApiController implements Reposito
         try{
             $em->flush();
         } catch(DBALException $e){
-            if(preg_match('/1062 Duplicate entry/i', $e->getMessage()))
+            if($e instanceof ForeignKeyConstraintViolationException)
+                throw new HttpException(400, "Bad parameter(s)", $e);
+            else if(preg_match('/1062 Duplicate entry/i', $e->getMessage()))
                 throw new HttpException(409, "Duplicated resource (duplicated entry)", $e);
             else if(preg_match('/1048 Column/i',$e->getMessage()))
                 throw new HttpException(400, "Parameter(s) not allowed", $e);
@@ -409,7 +412,7 @@ abstract class BaseApiV2Controller extends RestApiController implements Reposito
                 throw new HttpException(400, "Missed parameter(s)", $e);
             else if(preg_match('/UNIQUE constraint failed/i', $e->getMessage()))
                 throw new HttpException(409, "Duplicated resource (multiple parameters duplicated)", $e);
-            throw new HttpException(500, "Database error occurred when save: " . $e->getMessage(), $e);
+            throw new HttpException(500, "Database error occurred when save", $e);
         }
     }
 
