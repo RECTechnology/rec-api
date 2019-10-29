@@ -19,6 +19,7 @@ use Symfony\Component\DependencyInjection\ContainerAwareInterface;
 use Symfony\Component\DependencyInjection\ContainerAwareTrait;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\RequestStack;
+use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpKernel\Exception\HttpException;
 
 class AppRepository extends EntityRepository implements ContainerAwareInterface {
@@ -140,22 +141,37 @@ class AppRepository extends EntityRepository implements ContainerAwareInterface 
                     $rc = new \ReflectionClass($className);
                     $rp = $rc->getProperty($key);
                     $ar = new AnnotationReader();
-                    if($ar->getPropertyAnnotation($rp, ORM\ManyToOne::class)) {
-                        $kvFilter->add($qb->expr()->eq('IDENTITY(e.' . $key . ')', $request->query->get($key)));
-                    }
-                    else if($ar->getPropertyAnnotation($rp, ORM\OneToOne::class)) {
-                        $kvFilter->add($qb->expr()->eq('IDENTITY(e.' . $key . ')', $request->query->get($key)));
-                    }
-                    else if($ar->getPropertyAnnotation($rp, ORM\OneToMany::class)) {
-                        $kvFilter->add($qb->expr()->isMemberOf($request->query->get($key), 'e.' . $key));
-                    }
-                    else if($ar->getPropertyAnnotation($rp, ORM\ManyToMany::class)) {
-                        $kvFilter->add($qb->expr()->isMemberOf($request->query->get($key), 'e.' . $key));
-                    }
-                    else {
-                        $kvFilter->add($qb->expr()->eq('e.' . $key, "'" . $request->query->get($key) . "'"));
-                    }
+                    $relationships = [
+                        'single' => [ORM\ManyToOne::class, ORM\OneToOne::class],
+                        'multiple' => [ORM\ManyToMany::class, ORM\OneToMany::class]
+                    ];
 
+                    $isRelationship = false;
+                    foreach ($relationships as $type => $rels){
+                        foreach ($rels as $relationship){
+                            $an = $ar->getPropertyAnnotation($rp, $relationship);
+                            if($an){
+                                if(!is_integer($request->query->get($key)))
+                                    throw new HttpException(400, "Invalid parameter '$key', it must be an ID");
+                                switch ($type){
+                                    case 'single':
+                                        $kvFilter->add($qb->expr()->eq('IDENTITY(e.' . $key . ')', $request->query->get($key)));
+                                        break;
+                                    case 'multiple':
+                                        $em = $this->getEntityManager();
+                                        $targetRepo = $em->getRepository($an->targetEntity);
+                                        $rel = $targetRepo->find($request->query->get($key));
+                                        if($rel) $kvFilter->add($qb->expr()->isMemberOf($rel, 'e.' . $key));
+                                        break;
+                                }
+                                $isRelationship = true;
+                                break;
+                            }
+                        }
+                        if($isRelationship) break;
+                    }
+                    if(!$isRelationship)
+                        $kvFilter->add($qb->expr()->eq('e.' . $key, "'" . $request->query->get($key) . "'"));
                 } catch (\ReflectionException $e) {
                     throw new HttpException(400, "Invalid parameter '$key'");
                 } catch (AnnotationException $e) {
