@@ -130,9 +130,9 @@ class AppRepository extends EntityRepository implements ContainerAwareInterface 
                         );
                     }
                 } catch (\ReflectionException $e) {
-                    throw new HttpException(400, "Invalid parameter '$key'");
+                    throw new HttpException(400, "Invalid parameter '$key'", $e);
                 } catch (AnnotationException $e) {
-                    throw new HttpException(400, "Invalid parameter '$key'");
+                    throw new HttpException(400, "Invalid parameter '$key'", $e);
                 }
                 $kvFilter->add($qb->expr()->eq('IDENTITY(e.' . $name . ')', $request->query->get($key)));
             }
@@ -151,7 +151,7 @@ class AppRepository extends EntityRepository implements ContainerAwareInterface 
                         foreach ($rels as $relationship){
                             $an = $ar->getPropertyAnnotation($rp, $relationship);
                             if($an){
-                                if(!is_integer($request->query->get($key)))
+                                if(!is_numeric($request->query->get($key)))
                                     throw new HttpException(400, "Invalid parameter '$key', it must be an ID");
                                 switch ($type){
                                     case 'single':
@@ -173,9 +173,9 @@ class AppRepository extends EntityRepository implements ContainerAwareInterface 
                     if(!$isRelationship)
                         $kvFilter->add($qb->expr()->eq('e.' . $key, "'" . $request->query->get($key) . "'"));
                 } catch (\ReflectionException $e) {
-                    throw new HttpException(400, "Invalid parameter '$key'");
+                    throw new HttpException(400, "Invalid parameter '$key'", $e);
                 } catch (AnnotationException $e) {
-                    throw new HttpException(400, "Invalid parameter '$key'");
+                    throw new HttpException(400, "Invalid parameter '$key'", $e);
                 }
             }
         }
