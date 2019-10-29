@@ -7,6 +7,7 @@ namespace App\FinancialApiBundle\Exception;
 use RuntimeException;
 
 class AppLogicException extends RuntimeException {
+
     /**
      * AppLogicException constructor.
      * @param string $message

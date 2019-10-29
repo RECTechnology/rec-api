@@ -17,7 +17,7 @@ use Symfony\Component\Validator\Constraints as Assert;
  * @package App\FinancialApiBundle\Entity
  * @ORM\Entity
  */
-class Mailing extends AppObject implements Translatable {
+class Mailing extends AppObject implements Translatable, Stateful {
 
     const STATUS_CREATED = "created";
     const STATUS_SCHEDULED = "scheduled";
@@ -27,7 +27,14 @@ class Mailing extends AppObject implements Translatable {
 
     /**
      * @ORM\Column(type="string")
-     * @Assert\Choice({"created", "scheduled", "processed"})
+     * @REC\StatusProperty(choices={
+     *          "created"={"to"={"scheduled", "cancelled"}},
+     *          "scheduled"={"to"={"processed"}},
+     *          "processed"={"final"=true},
+     *          "cancelled"={"final"=true}
+     *      },
+     *      initial="created"
+     * )
      * @Serializer\Groups({"admin"})
      */
     private $status;
