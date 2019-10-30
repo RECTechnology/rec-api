@@ -25,47 +25,47 @@ class CreditCard{
      * @ORM\Column(type="integer")
      * @ORM\GeneratedValue(strategy="AUTO")
      * @Expose
-     * @Groups({"self"})
+     * @Groups({"manager"})
      */
     protected $id;
 
     /**
      * @ORM\Column(type="datetime")
      * @Expose
-     * @Groups({"self"})
+     * @Groups({"manager"})
      */
     private $created;
 
     /**
      * @ORM\ManyToOne(targetEntity="App\FinancialApiBundle\Entity\Group")
-     * @Groups({"self"})
+     * @Groups({"manager"})
      */
     private $company;
 
     /**
      * @ORM\ManyToOne(targetEntity="App\FinancialApiBundle\Entity\User", inversedBy="bank_cards")
      * @Expose
-     * @Groups({"self"})
+     * @Groups({"manager"})
      */
     private $user;
 
     /**
      * @ORM\Column(type="string")
      * @Expose
-     * @Groups({"self"})
+     * @Groups({"manager"})
      */
     private $alias;
 
     /**
      * @ORM\Column(type="string")
      * @Expose
-     * @Groups({"self"})
+     * @Groups({"manager"})
      */
     private $external_id;
 
     /**
      * @ORM\Column(type="boolean")
-     * @Groups({"self"})
+     * @Groups({"manager"})
      */
     private $deleted = false;
 
