@@ -1,0 +1,105 @@
+name: Test, Build and Deploy
+
+on:
+  push:
+    branches:
+      - stable
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Obtaining the code
+        uses: actions/checkout@v1
+
+      - name: Running test suite
+        run: make test
+
+  build-api:
+    needs: test
+    runs-on: ubuntu-latest
+    steps:
+      - name: Obtaining the code
+        uses: actions/checkout@v1
+
+      - name: Building the docker images
+        env:
+          REGISTRY: reg.rallf.com:8443
+        run: make build DOCKER_REGISTRY=${REGISTRY} DOCKER_IMAGE=rec-api DOCKER_TAG=stable DOCKERFILE_DIR=docker/prod/api
+
+      - name: Login into the registry
+        env:
+          REGISTRY: reg.rallf.com:8443
+          USER: ${{secrets.DOCKER_USERNAME}}
+          PASS: ${{secrets.DOCKER_PASSWORD}}
+        run: make login DOCKER_REGISTRY=${REGISTRY} DOCKER_USERNAME=${USER} DOCKER_PASSWORD=${PASS}
+
+      - name: Pushing images to the registry
+        env:
+          DOCKER_REGISTRY_URL: reg.rallf.com:8443
+        run: make push DOCKER_REGISTRY=${DOCKER_REGISTRY_URL} DOCKER_IMAGE=rec-api DOCKER_TAG=stable
+
+      - name: Deploy
+        uses: joelwmale/webhook-action@stable
+        env:
+          WEBHOOK_URL: ${{ secrets.WEBHOOK_API_STABLE }}
+          data: "Hello from github actions!"
+
+  build-cron:
+    needs: test
+    runs-on: ubuntu-latest
+    steps:
+      - name: Obtaining the code
+        uses: actions/checkout@v1
+
+      - name: Building the docker images
+        env:
+          REGISTRY: reg.rallf.com:8443
+        run: make build DOCKER_REGISTRY=${REGISTRY} DOCKER_IMAGE=rec-cron DOCKER_TAG=stable DOCKERFILE_DIR=docker/prod/cron
+
+      - name: Login into the registry
+        env:
+          REGISTRY: reg.rallf.com:8443
+          USER: ${{secrets.DOCKER_USERNAME}}
+          PASS: ${{secrets.DOCKER_PASSWORD}}
+        run: make login DOCKER_REGISTRY=${REGISTRY} DOCKER_USERNAME=${USER} DOCKER_PASSWORD=${PASS}
+
+      - name: Pushing images to the registry
+        env:
+          DOCKER_REGISTRY_URL: reg.rallf.com:8443
+        run: make push DOCKER_REGISTRY=${DOCKER_REGISTRY_URL} DOCKER_IMAGE=rec-cron DOCKER_TAG=stable
+
+      - name: Deploy
+        uses: joelwmale/webhook-action@master
+        env:
+          WEBHOOK_URL: ${{ secrets.WEBHOOK_CRON_STABLE }}
+          data: "Hello from github actions!"
+
+  build-dev:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Obtaining the code
+        uses: actions/checkout@v1
+
+      - name: Building the docker images
+        env:
+          REGISTRY: reg.rallf.com:8443
+        run: make build DOCKER_REGISTRY=${REGISTRY} DOCKER_IMAGE=rec-dev DOCKER_TAG=stable BUILD_DIR=docs
+
+      - name: Login into the registry
+        env:
+          REGISTRY: reg.rallf.com:8443
+          USER: ${{secrets.DOCKER_USERNAME}}
+          PASS: ${{secrets.DOCKER_PASSWORD}}
+        run: make login DOCKER_REGISTRY=${REGISTRY} DOCKER_USERNAME=${USER} DOCKER_PASSWORD=${PASS}
+
+      - name: Pushing images to the registry
+        env:
+          DOCKER_REGISTRY_URL: reg.rallf.com:8443
+        run: make push DOCKER_REGISTRY=${DOCKER_REGISTRY_URL} DOCKER_IMAGE=rec-dev DOCKER_TAG=stable
+
+      - name: Deploy
+        uses: joelwmale/webhook-action@stable
+        env:
+          WEBHOOK_URL: ${{ secrets.WEBHOOK_DEV_STABLE }}
+          data: "Hello from github actions!"
