@@ -24,26 +24,26 @@ class ServiceFee implements Fee{
      * @ORM\Id
      * @ORM\Column(type="integer")
      * @ORM\GeneratedValue(strategy="AUTO")
-     * @Groups({"self"})
+     * @Groups({"manager"})
      */
     private $id;
 
 
     /**
      * @ORM\Column(type="bigint")
-     * @Groups({"self"})
+     * @Groups({"manager"})
      */
     private $fixed;
 
     /**
      * @ORM\Column(type="float")
-     * @Groups({"self"})
+     * @Groups({"manager"})
      */
     private $variable;
 
     /**
      * @ORM\Column(type="string")
-     * @Groups({"self"})
+     * @Groups({"manager"})
      */
     private $service_name;
 
@@ -58,7 +58,7 @@ class ServiceFee implements Fee{
 
     /**
      * @ORM\Column(type="string")
-     * @Groups({"self"})
+     * @Groups({"manager"})
      */
     private $currency;
 
