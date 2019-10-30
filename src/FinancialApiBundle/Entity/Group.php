@@ -207,6 +207,7 @@ class Group extends BaseGroup implements EntityWithUploadableFields {
      *     fetch="EXTRA_LAZY"
      * )
      * @Assert\Count(max="10")
+     * @Serializer\MaxDepth(2)
      * @Serializer\Groups({"public"})
      */
     private $activities;
@@ -214,6 +215,7 @@ class Group extends BaseGroup implements EntityWithUploadableFields {
 
     /**
      * @ORM\ManyToOne(targetEntity="App\FinancialApiBundle\Entity\Activity")
+     * @Serializer\MaxDepth(2)
      * @Serializer\Groups({"public"})
      */
     private $activity_main;
@@ -224,6 +226,7 @@ class Group extends BaseGroup implements EntityWithUploadableFields {
      *     mappedBy="producing_by",
      *     fetch="EXTRA_LAZY"
      * )
+     * @Serializer\MaxDepth(2)
      * @Serializer\Groups({"public"})
      */
     private $producing_products;
@@ -234,6 +237,7 @@ class Group extends BaseGroup implements EntityWithUploadableFields {
      *     mappedBy="consuming_by",
      *     fetch="EXTRA_LAZY"
      * )
+     * @Serializer\MaxDepth(2)
      * @Serializer\Groups({"public"})
      */
     private $consuming_products;
