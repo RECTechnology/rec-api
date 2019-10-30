@@ -326,6 +326,7 @@ class Group extends BaseGroup implements EntityWithUploadableFields {
 
     /**
      * @ORM\ManyToOne(targetEntity="App\FinancialApiBundle\Entity\Neighbourhood", inversedBy="accounts")
+     * @Serializer\MaxDepth(1)
      * @Serializer\Groups({"public"})
      */
     private $neighbourhood;
