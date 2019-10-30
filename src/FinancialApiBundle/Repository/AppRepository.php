@@ -10,7 +10,7 @@ use Doctrine\Common\Annotations\AnnotationException;
 use Doctrine\Common\Annotations\AnnotationReader;
 use Doctrine\ORM\EntityManagerInterface;
 use Doctrine\ORM\EntityRepository;
-use Doctrine\ORM\Mapping;
+use Doctrine\ORM\Mapping as ORM;
 use Doctrine\ORM\NonUniqueResultException;
 use Doctrine\ORM\NoResultException;
 use Doctrine\ORM\Query;
@@ -19,6 +19,7 @@ use Symfony\Component\DependencyInjection\ContainerAwareInterface;
 use Symfony\Component\DependencyInjection\ContainerAwareTrait;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\RequestStack;
+use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpKernel\Exception\HttpException;
 
 class AppRepository extends EntityRepository implements ContainerAwareInterface {
@@ -28,7 +29,7 @@ class AppRepository extends EntityRepository implements ContainerAwareInterface 
     /** @var RequestStack $stack */
     private $stack;
 
-    public function __construct(EntityManagerInterface $em, Mapping\ClassMetadata $class, RequestStack $stack) {
+    public function __construct(EntityManagerInterface $em, ORM\ClassMetadata $class, RequestStack $stack) {
         parent::__construct($em, $class);
         $this->stack = $stack;
     }
@@ -70,8 +71,6 @@ class AppRepository extends EntityRepository implements ContainerAwareInterface 
      * @param $sort
      * @return array
      * @throws NonUniqueResultException
-     * @throws AnnotationException
-     * @throws \ReflectionException
      */
     public function index(Request $request, $search, $limit, $offset, $order, $sort){
 
@@ -80,19 +79,25 @@ class AppRepository extends EntityRepository implements ContainerAwareInterface 
         $metadata = $em->getClassMetadata($this->getClassName());
         $properties = $metadata->getFieldNames();
 
-        $rc = new \ReflectionClass($this->getClassName());
-        foreach($rc->getProperties() as $rp){
-            $ar = new AnnotationReader();
-            foreach ($ar->getPropertyAnnotations($rp) as $an){
-                if($an instanceof TranslatedProperty){
-                    if($sort == $rp->name){
-                        $translatedProperty = $rp->name . '_' . $request->getLocale();
-                        if(in_array($translatedProperty, $properties)){
-                            $sort = $translatedProperty;
+        try {
+            $rc = new \ReflectionClass($this->getClassName());
+            foreach($rc->getProperties() as $rp){
+                $ar = new AnnotationReader();
+                foreach ($ar->getPropertyAnnotations($rp) as $an){
+                    if($an instanceof TranslatedProperty){
+                        if($sort == $rp->name){
+                            $translatedProperty = $rp->name . '_' . $request->getLocale();
+                            if(in_array($translatedProperty, $properties)){
+                                $sort = $translatedProperty;
+                            }
                         }
                     }
                 }
             }
+        } catch (\ReflectionException $e) {
+            throw new HttpException(400, "Invalid parameters");
+        } catch (AnnotationException $e) {
+            throw new HttpException(400, "Invalid parameters");
         }
 
         if(!in_array($sort, $properties))
@@ -111,12 +116,72 @@ class AppRepository extends EntityRepository implements ContainerAwareInterface 
             if(substr($key, -3) === "_id") {
                 $name = substr($key, 0, strlen($key) - 3);
                 if(!property_exists($className, $name)) {
-                    throw new HttpException(400, "Bad parameter '$key'");
+                    throw new HttpException(400, "Invalid parameter '$key'");
+                }
+                try {
+                    $rc = new \ReflectionClass($className);
+                    $rp = $rc->getProperty($name);
+                    $ar = new AnnotationReader();
+                    if(!$ar->getPropertyAnnotation($rp, ORM\ManyToOne::class) &&
+                        !$ar->getPropertyAnnotation($rp, ORM\OneToOne::class)) {
+                        throw new HttpException(
+                            400,
+                            "Invalid parameter '$key', _id endings is for related entities only"
+                        );
+                    }
+                } catch (\ReflectionException $e) {
+                    throw new HttpException(400, "Invalid parameter '$key'", $e);
+                } catch (AnnotationException $e) {
+                    throw new HttpException(400, "Invalid parameter '$key'", $e);
                 }
                 $kvFilter->add($qb->expr()->eq('IDENTITY(e.' . $name . ')', $request->query->get($key)));
             }
             elseif(property_exists($className, $key)){
-                $kvFilter->add($qb->expr()->eq('e.' . $key, "'" . $request->query->get($key) . "'"));
+                try {
+                    $rc = new \ReflectionClass($className);
+                    $rp = $rc->getProperty($key);
+                    $ar = new AnnotationReader();
+                    $relationships = [
+                        'single' => [ORM\ManyToOne::class, ORM\OneToOne::class],
+                        'multiple' => [ORM\ManyToMany::class, ORM\OneToMany::class]
+                    ];
+
+                    $isRelationship = false;
+                    foreach ($relationships as $type => $rels){
+                        foreach ($rels as $relationship){
+                            $an = $ar->getPropertyAnnotation($rp, $relationship);
+                            if($an){
+                                if(!is_numeric($request->query->get($key)))
+                                    throw new HttpException(400, "Invalid parameter '$key', it must be an ID");
+                                switch ($type){
+                                    case 'single':
+                                        $kvFilter->add($qb->expr()->eq('IDENTITY(e.' . $key . ')', $request->query->get($key)));
+                                        break;
+                                    case 'multiple':
+                                        $em = $this->getEntityManager();
+                                        $targetRepo = $em->getRepository($an->targetEntity);
+                                        $rel = $targetRepo->find($request->query->get($key));
+                                        if($rel) {
+                                            $explodedTargetEntity = explode("\\", $an->targetEntity);
+                                            $paramName = $explodedTargetEntity[count($explodedTargetEntity) - 1];
+                                            $kvFilter->add($qb->expr()->isMemberOf(":{$paramName}Id", 'e.' . $key));
+                                            $qb->setParameter("{$paramName}Id", $rel);
+                                        }
+                                        break;
+                                }
+                                $isRelationship = true;
+                                break;
+                            }
+                        }
+                        if($isRelationship) break;
+                    }
+                    if(!$isRelationship)
+                        $kvFilter->add($qb->expr()->eq('e.' . $key, "'" . $request->query->get($key) . "'"));
+                } catch (\ReflectionException $e) {
+                    throw new HttpException(400, "Invalid parameter '$key'", $e);
+                } catch (AnnotationException $e) {
+                    throw new HttpException(400, "Invalid parameter '$key'", $e);
+                }
             }
         }
         # Adding always-true expression to avoid kvFilter to be empty

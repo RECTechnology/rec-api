@@ -6,6 +6,7 @@
 
 namespace App\FinancialApiBundle\Entity;
 
+use App\FinancialApiBundle\Annotations as REC;
 use App\FinancialApiBundle\Validator\Constraint as RECAssert;
 use Doctrine\ORM\Mapping as ORM;
 use JMS\Serializer\Annotation as Serializer;
@@ -32,7 +33,21 @@ class MailingDelivery extends AppObject {
 
     /**
      * @ORM\Column(type="string")
-     * @Assert\Regex(pattern="(created|scheduled|sent|delivered|opened|failed|complained|unsubscribed|cancelled|errored)")
+     * @REC\StatusProperty(
+     *     choices={
+     *          "created"={"to"={"scheduled", "cancelled"}},
+     *          "scheduled"={"to"={"sent", "errored", "cancelled", "created"}},
+     *          "sent"={"to"={"delivered", "failed", "errored"}},
+     *          "delivered"={"to"={"opened", "complained", "unsubscribed"}},
+     *          "opened"={"to"={"complained", "unsubscribed"}},
+     *          "failed"={"final"=true},
+     *          "complained"={"to"={"unsubscribed"}},
+     *          "unsubscribed"={"to"={"complained"}},
+     *          "cancelled"={"final"=true},
+     *          "errored"={"final"=true}
+     *     },
+     *     initial="created"
+     * )
      * @Serializer\Groups({"admin"})
      */
     private $status;

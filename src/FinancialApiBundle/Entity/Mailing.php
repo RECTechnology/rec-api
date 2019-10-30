@@ -17,17 +17,25 @@ use Symfony\Component\Validator\Constraints as Assert;
  * @package App\FinancialApiBundle\Entity
  * @ORM\Entity
  */
-class Mailing extends AppObject implements Translatable {
+class Mailing extends AppObject implements Translatable, Stateful {
 
     const STATUS_CREATED = "created";
     const STATUS_SCHEDULED = "scheduled";
     const STATUS_PROCESSED = "processed";
+    const STATUS_CANCELLED = "cancelled";
 
     use TranslatableTrait;
 
     /**
      * @ORM\Column(type="string")
-     * @Assert\Choice({"created", "scheduled", "processed"})
+     * @REC\StatusProperty(choices={
+     *          "created"={"to"={"scheduled", "cancelled"}},
+     *          "scheduled"={"to"={"processed"}},
+     *          "processed"={"final"=true},
+     *          "cancelled"={"final"=true}
+     *      },
+     *      initial="created"
+     * )
      * @Serializer\Groups({"admin"})
      */
     private $status;
@@ -90,7 +98,7 @@ class Mailing extends AppObject implements Translatable {
     private $attachments_ca;
 
     /**
-     * @ORM\OneToMany(targetEntity="App\FinancialApiBundle\Entity\MailingDelivery", mappedBy="mailing")
+     * @ORM\OneToMany(targetEntity="App\FinancialApiBundle\Entity\MailingDelivery", mappedBy="mailing", cascade={"remove"})
      * @Serializer\Groups({"admin"})
      */
     private $deliveries;
