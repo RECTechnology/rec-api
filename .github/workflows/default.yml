@@ -39,7 +39,20 @@ jobs:
           make push DOCKER_REGISTRY=${DOCKER_REGISTRY_URL} DOCKER_IMAGE=rec-cron DOCKER_TAG=`cut -d/ -f3 <<<${GITHUB_REF}`
           make push DOCKER_REGISTRY=${DOCKER_REGISTRY_URL} DOCKER_IMAGE=rec-dev DOCKER_TAG=`cut -d/ -f3 <<<${GITHUB_REF}`
 
-      - name: Deploying to staging server
+      - name: Deploying API
+        uses: joelwmale/webhook-action@v1.0.1
         env:
-          WEBHOOK: ${{secrets.WEBHOOK}}
-        run: make deploy WEBHOOK=${WEBHOOK}
+          WEBHOOK_URL: ${{secrets.WEBHOOK_API_`cut -d/ -f3 <<<${GITHUB_REF}`}}
+          data: "Deploying API"
+
+      - name: Deploying CRON
+        uses: joelwmale/webhook-action@v1.0.1
+        env:
+          WEBHOOK_URL: ${{secrets.WEBHOOK_CRON_`cut -d/ -f3 <<<${GITHUB_REF}`}}
+          data: "Deploying CRON"
+
+      - name: Deploying DOCS
+        uses: joelwmale/webhook-action@v1.0.1
+        env:
+          WEBHOOK_URL: ${{secrets.WEBHOOK_DEV_`cut -d/ -f3 <<<${GITHUB_REF}`}}
+          data: "Deploying DEV"
