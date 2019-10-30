@@ -40,7 +40,7 @@ jobs:
         run: make push DOCKER_REGISTRY=${DOCKER_REGISTRY_URL} DOCKER_IMAGE=rec-api DOCKER_TAG=master
 
       - name: Deploy
-        uses: joelwmale/webhook-action@v1.0.1
+        uses: joelwmale/webhook-action@1.0.1
         env:
           WEBHOOK_URL: ${{ secrets.WEBHOOK_API_MASTER }}
           data: "Hello from github actions!"
@@ -70,7 +70,7 @@ jobs:
         run: make push DOCKER_REGISTRY=${DOCKER_REGISTRY_URL} DOCKER_IMAGE=rec-cron DOCKER_TAG=master
 
       - name: Deploy
-        uses: joelwmale/webhook-action@v1.0.1
+        uses: joelwmale/webhook-action@1.0.1
         env:
           WEBHOOK_URL: ${{ secrets.WEBHOOK_CRON_MASTER }}
           data: "Hello from github actions!"
@@ -99,7 +99,7 @@ jobs:
         run: make push DOCKER_REGISTRY=${DOCKER_REGISTRY_URL} DOCKER_IMAGE=rec-dev DOCKER_TAG=master
 
       - name: Deploy
-        uses: joelwmale/webhook-action@v1.0.1
+        uses: joelwmale/webhook-action@1.0.1
         env:
           WEBHOOK_URL: ${{ secrets.WEBHOOK_DEV_MASTER }}
           data: "Hello from github actions!"
