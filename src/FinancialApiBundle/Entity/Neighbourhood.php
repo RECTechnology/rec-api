@@ -6,6 +6,8 @@
 
 namespace App\FinancialApiBundle\Entity;
 
+use App\FinancialApiBundle\Exception\PreconditionFailedException;
+use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\ORM\Mapping as ORM;
 use JMS\Serializer\Annotation as Serializer;
 
@@ -14,7 +16,7 @@ use JMS\Serializer\Annotation as Serializer;
  * @package App\FinancialApiBundle\Entity
  * @ORM\Entity
  */
-class Neighbourhood extends AppObject {
+class Neighbourhood extends AppObject implements PreDeleteChecks {
 
     /**
      * @ORM\Column(type="string")
@@ -45,6 +47,13 @@ class Neighbourhood extends AppObject {
      * @Serializer\Groups({"manager"})
      */
     private $accounts;
+
+    /**
+     * Neighbourhood constructor.
+     */
+    public function __construct() {
+        $this->accounts = new ArrayCollection();
+    }
 
     /**
      * @return mixed
@@ -127,4 +136,12 @@ class Neighbourhood extends AppObject {
     }
 
 
+    /**
+     * @inheritDoc
+     */
+    function isDeleteAllowed()
+    {
+        if(!$this->accounts->isEmpty())
+            throw new PreconditionFailedException("Delete forbidden: neighbourhood is assigned to (1+) accounts");
+    }
 }
