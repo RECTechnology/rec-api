@@ -2,6 +2,7 @@
 
 namespace App\FinancialApiBundle\Entity;
 
+use App\FinancialApiBundle\Exception\AppLogicException;
 use App\FinancialApiBundle\Exception\PreconditionFailedException;
 use Doctrine\Common\Collections\ArrayCollection;
 use FOS\UserBundle\Model\Group as BaseGroup;
@@ -276,18 +277,21 @@ class Group extends BaseGroup implements EntityWithUploadableFields {
 
     /**
      * @ORM\Column(type="string")
+     * @Assert\Length(min="3", max="3", exactMessage="Country must be ISO-3")
      * @Serializer\Groups({"public"})
      */
     private $country = '';
 
     /**
      * @ORM\Column(type="float", nullable=true)
+     * @Assert\Type(type="double", message="Invalid latitude {{value}}")
      * @Serializer\Groups({"public"})
      */
     private $latitude = null;
 
     /**
      * @ORM\Column(type="float", nullable=true)
+     * @Assert\Type(type="double", message="Invalid longitude {{value}}")
      * @Serializer\Groups({"public"})
      */
     private $longitude = null;
