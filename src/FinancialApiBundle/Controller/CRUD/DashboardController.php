@@ -123,16 +123,16 @@ class DashboardController extends CRUDController {
 
     const GROUPING_FUNCTIONS = [
         'year' => [
-            'seconds' => 3600 * 24 * 365,
+            'since' => 'a year ago',
             'date_expr' => "YEAR(u.created), '-', MONTH(u.created), '-00 00:00:00'",
         ],
         'month' => [
-            'seconds' => 3600 * 24,
+            'since' => 'a month ago',
             'date_expr' => "YEAR(u.created), '-', MONTH(u.created), '-', DAY(u.created), ' 00:00:00'"
 
         ],
         'day' => [
-            'seconds' => 3600,
+            'since' => 'a day ago',
             'date_expr' => "YEAR(u.created), '-', MONTH(u.created), '-', DAY(u.created), ' ', HOUR(u.created), ':00:00'"
         ],
     ];
@@ -140,6 +140,7 @@ class DashboardController extends CRUDController {
     /**
      * @param $interval
      * @return Response
+     * @throws \Exception
      */
     function timeSeriesRegisters($interval){
         /** @var EntityManagerInterface $em */
@@ -183,15 +184,18 @@ class DashboardController extends CRUDController {
      * @param $type
      * @param $interval
      * @return mixed
+     * @throws \Exception
      */
     private function getTimeSeriesForAccountType($repo, $type, $interval){
         $dateExpr = static::GROUPING_FUNCTIONS[$interval]['date_expr'];
         $select = "CONCAT($dateExpr) as time, count(a) as " . strtolower($type);
+        $since = new \DateTime(static::GROUPING_FUNCTIONS[$interval]['since']);
+        $since->setTimezone(new \DateTimeZone("UTC"));
         return $repo->createQueryBuilder('a')
             ->select($select)
             ->innerJoin(User::class, 'u', Join::WITH, 'a.kyc_manager = u.id')
-            ->where('u.created > DATE(:oneIntervalAgo)')
-            ->setParameter('oneIntervalAgo', time() - static::GROUPING_FUNCTIONS[$interval]['seconds'])
+            ->where('u.created > :oneIntervalAgo')
+            ->setParameter('oneIntervalAgo', $since->format('c'))
             ->groupBy('time')
             ->andWhere("a.type = '$type'")
             ->getQuery()
