@@ -35,5 +35,24 @@ class DashboardTest extends BaseApiTest {
             $resp->getStatusCode(),
             "route: $route, status_code: {$resp->getStatusCode()}, content: {$resp->getContent()}"
         );
+        $route = "/admin/v3/dashboard/total/balance";
+        $resp = $this->requestJson('GET', $route);
+        self::assertEquals(
+            200,
+            $resp->getStatusCode(),
+            "route: $route, status_code: {$resp->getStatusCode()}, content: {$resp->getContent()}"
+        );
     }
+
+    function testNeighbourhoods()
+    {
+        $route = "/admin/v3/dashboard/neighbourhoods";
+        $resp = $this->requestJson('GET', $route);
+        self::assertEquals(
+            200,
+            $resp->getStatusCode(),
+            "route: $route, status_code: {$resp->getStatusCode()}, content: {$resp->getContent()}"
+        );
+    }
+
 }

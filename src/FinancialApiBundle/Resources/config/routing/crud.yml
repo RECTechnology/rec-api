@@ -1,13 +1,28 @@
 
 ##################### DASHBOARD / V3 / (OVERRIDES CRUD) ############################
 
-dashboard_v3_total:
-    path:  /{role}/v3/dashboard/total/{subject}
-    defaults: { _controller: App\FinancialApiBundle\Controller\CRUD\DashboardController::totalAction }
+
+dashboard_v3_total_odm:
+    path:  /{role}/v3/dashboard/total/transaction
+    defaults: { _controller: App\FinancialApiBundle\Controller\CRUD\DashboardController::totalODMAction }
     methods: [GET]
     requirements:
         role: "(admin|manager)"
-        subject: "(private|company|transactions)"
+
+dashboard_v3_total_orm:
+    path:  /{role}/v3/dashboard/total/{subject}
+    defaults: { _controller: App\FinancialApiBundle\Controller\CRUD\DashboardController::totalORMAction }
+    methods: [GET]
+    requirements:
+        role: "(admin|manager)"
+        subject: "(private|company|balance)"
+
+dashboard_v3_neighbourhoods:
+    path:  /{role}/v3/dashboard/neighbourhoods
+    defaults: { _controller: App\FinancialApiBundle\Controller\CRUD\DashboardController::neighbourhoodTotalsAction }
+    methods: [GET]
+    requirements:
+        role: "(admin|manager)"
 
 
 ##################### ACCOUNTS / V3 / (OVERRIDES CRUD) ############################
