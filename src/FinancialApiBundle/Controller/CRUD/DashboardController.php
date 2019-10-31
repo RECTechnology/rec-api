@@ -12,11 +12,13 @@ use App\FinancialApiBundle\Repository\AppRepository;
 use App\FinancialApiBundle\Repository\TransactionRepository;
 use Doctrine\ODM\MongoDB\DocumentManager;
 use Doctrine\ORM\EntityManagerInterface;
+use Doctrine\ORM\Query\Expr\Join;
 use DoctrineExtensions\Query\Sqlite\Day;
 use DoctrineExtensions\Query\Sqlite\Month;
 use DoctrineExtensions\Query\Sqlite\Year;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpKernel\Exception\HttpException;
+use function foo\func;
 
 /**
  * Class DashboardController
@@ -119,10 +121,20 @@ class DashboardController extends CRUDController {
         );
     }
 
-    const INTERVAL_GROUPING_FUNCTIONS = [
-        'year' => ['seconds' => 3600 * 24 * 365, 'grouping' => 'MONTH'],
-        'month' => ['seconds' => 3600 * 24, 'grouping' => 'DAY'],
-        'day' => ['seconds' => 3600, 'grouping' => 'HOUR'],
+    const GROUPING_FUNCTIONS = [
+        'year' => [
+            'seconds' => 3600 * 24 * 365,
+            'date_expr' => "YEAR(u.created), '-', MONTH(u.created), '-00 00:00:00'",
+        ],
+        'month' => [
+            'seconds' => 3600 * 24,
+            'date_expr' => "YEAR(u.created), '-', MONTH(u.created), '-', DAY(u.created), ' 00:00:00'"
+
+        ],
+        'day' => [
+            'seconds' => 3600,
+            'date_expr' => "YEAR(u.created), '-', MONTH(u.created), '-', DAY(u.created), ' ', HOUR(u.created), ':00:00'"
+        ],
     ];
 
     /**
@@ -136,20 +148,47 @@ class DashboardController extends CRUDController {
         /** @var AppRepository $repo */
         $repo = $em->getRepository(Group::class);
 
-        $qb = $repo->createQueryBuilder('a');
-        $select = "count(a) as count, {$this::INTERVAL_GROUPING_FUNCTIONS[$interval]['grouping']}(u.created) as interval";
-        $result = $qb->select($select)
-            ->join(User::class, 'u')
-            ->where($qb->expr()->gt('u.created', ':oneYearAgo'))
-            ->setParameter('oneYearAgo', time() - $this::INTERVAL_GROUPING_FUNCTIONS[$interval]['seconds'])
-            ->groupBy('interval')
-            ->getQuery()
-            ->getResult();
+        $privateSerie = $this->getTimeSeriesForAccountType($repo, 'PRIVATE', $interval);
+        $companiesSerie = $this->getTimeSeriesForAccountType($repo, 'COMPANY', $interval);
+        //$result = array_merge($privates, $companies);
+        $result = $privateSerie;
+        foreach ($companiesSerie as $cItem){
+            $found = false;
+            foreach ($result as &$rItem){
+                if($rItem['interval'] == $cItem['interval']){
+                    $rItem['company'] = $cItem['company'];
+                    $found = true;
+                    break;
+                }
+            }
+            if(!$found) $result []= $cItem;
+        }
+
         return $this->restV2(
             Response::HTTP_OK,
             "ok",
             "Total obtained successfully",
-            ["months" => $result]
+            $result
         );
+    }
+
+    /**
+     * @param AppRepository $repo
+     * @param $type
+     * @param $interval
+     * @return mixed
+     */
+    private function getTimeSeriesForAccountType($repo, $type, $interval){
+        $dateExpr = static::GROUPING_FUNCTIONS[$interval]['date_expr'];
+        $select = "CONCAT($dateExpr) as interval, count(a) as " . strtolower($type);
+        return $repo->createQueryBuilder('a')
+            ->select($select)
+            ->innerJoin(User::class, 'u', Join::WITH, 'a.kyc_manager = u.id')
+            ->where('u.created > :oneIntervalAgo')
+            ->setParameter('oneIntervalAgo', time() - static::GROUPING_FUNCTIONS[$interval]['seconds'])
+            ->groupBy('interval')
+            ->andWhere("a.type = '$type'")
+            ->getQuery()
+            ->getResult();
     }
 }
