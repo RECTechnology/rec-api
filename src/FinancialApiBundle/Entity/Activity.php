@@ -180,16 +180,14 @@ class Activity extends AppObject implements Translatable, PreDeleteChecks {
 
     /**
      * @param mixed $product
-     * @param bool $recursive
      * @throws PreconditionFailedException
      */
-    public function delDefaultProducingProduct(ProductKind $product, $recursive = true): void
+    public function delDefaultProducingProduct(ProductKind $product): void
     {
         if(!$this->default_producing_products->contains($product)){
             throw new PreconditionFailedException("ProductKind not related to this Activity");
         }
         $this->default_producing_products->removeElement($product);
-        //if($recursive) $product->delDefaultProducingBy($this, false);
     }
 
     /**
@@ -216,16 +214,14 @@ class Activity extends AppObject implements Translatable, PreDeleteChecks {
 
     /**
      * @param mixed $product
-     * @param bool $recursive
      * @throws PreconditionFailedException
      */
-    public function delDefaultConsumingProduct(ProductKind $product, $recursive = true): void
+    public function delDefaultConsumingProduct(ProductKind $product): void
     {
         if(!$this->default_consuming_products->contains($product)){
             throw new PreconditionFailedException("ProductKind not related to this Activity");
         }
         $this->default_consuming_products->removeElement($product);
-        //if($recursive) $product->delDefaultConsumingBy($this, false);
     }
 
     /**
