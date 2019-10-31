@@ -164,6 +164,12 @@ class DashboardController extends CRUDController {
             if(!$found) $result []= $cItem;
         }
 
+        $result = array_map(function ($el){
+            $el['private'] = isset($el['private'])?intval($el['private']):0;
+            $el['company'] = isset($el['company'])?intval($el['company']):0;
+            return $el;
+        }, $result);
+
         return $this->restV2(
             Response::HTTP_OK,
             "ok",
