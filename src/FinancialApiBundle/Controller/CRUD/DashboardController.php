@@ -155,7 +155,7 @@ class DashboardController extends CRUDController {
         foreach ($companiesSerie as $cItem){
             $found = false;
             foreach ($result as &$rItem){
-                if($rItem['interval'] == $cItem['interval']){
+                if($rItem['time'] == $cItem['time']){
                     $rItem['company'] = $cItem['company'];
                     $found = true;
                     break;
@@ -186,13 +186,13 @@ class DashboardController extends CRUDController {
      */
     private function getTimeSeriesForAccountType($repo, $type, $interval){
         $dateExpr = static::GROUPING_FUNCTIONS[$interval]['date_expr'];
-        $select = "CONCAT($dateExpr) as interval, count(a) as " . strtolower($type);
+        $select = "CONCAT($dateExpr) as time, count(a) as " . strtolower($type);
         return $repo->createQueryBuilder('a')
             ->select($select)
             ->innerJoin(User::class, 'u', Join::WITH, 'a.kyc_manager = u.id')
-            ->where('u.created > :oneIntervalAgo')
+            ->where('u.created > DATE(:oneIntervalAgo)')
             ->setParameter('oneIntervalAgo', time() - static::GROUPING_FUNCTIONS[$interval]['seconds'])
-            ->groupBy('interval')
+            ->groupBy('time')
             ->andWhere("a.type = '$type'")
             ->getQuery()
             ->getResult();
