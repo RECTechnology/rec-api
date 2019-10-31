@@ -6,12 +6,15 @@ use App\FinancialApiBundle\Document\Transaction;
 use App\FinancialApiBundle\Entity\Balance;
 use App\FinancialApiBundle\Entity\Group;
 use App\FinancialApiBundle\Entity\Neighbourhood;
+use App\FinancialApiBundle\Entity\User;
 use App\FinancialApiBundle\Entity\UserWallet;
 use App\FinancialApiBundle\Repository\AppRepository;
 use App\FinancialApiBundle\Repository\TransactionRepository;
 use Doctrine\ODM\MongoDB\DocumentManager;
 use Doctrine\ORM\EntityManagerInterface;
-use Documents\Account;
+use DoctrineExtensions\Query\Sqlite\Day;
+use DoctrineExtensions\Query\Sqlite\Month;
+use DoctrineExtensions\Query\Sqlite\Year;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpKernel\Exception\HttpException;
 
@@ -116,4 +119,31 @@ class DashboardController extends CRUDController {
         );
     }
 
+    /**
+     * @param $interval
+     * @return Response
+     */
+    function timeSeriesRegisters($interval){
+        /** @var EntityManagerInterface $em */
+        $em = $this->getDoctrine()->getManager();
+
+        /** @var AppRepository $repo */
+        $repo = $em->getRepository(Group::class);
+
+        $oneYearSeconds = 3600 * 24 * 365;
+        $qb = $repo->createQueryBuilder('a');
+        $result = $qb->select('count(a) as count, MONTH(u.created) as month')
+            ->join(User::class, 'u')
+            ->where($qb->expr()->gt('u.created', ':oneYearAgo'))
+            ->setParameter('oneYearAgo', time() - $oneYearSeconds)
+            ->groupBy('month')
+            ->getQuery()
+            ->getResult();
+        return $this->restV2(
+            Response::HTTP_OK,
+            "ok",
+            "Total obtained successfully",
+            ["months" => $result]
+        );
+    }
 }

@@ -20,3 +20,15 @@ doctrine:
         driver: pdo_sqlite
         url: 'sqlite::%kernel.root_dir%/../var/db/test.sqlite'
         charset: UTF8
+
+    orm:
+        entity_managers:
+            default:
+                dql:
+                    datetime_functions:
+                        DAY: DoctrineExtensions\Query\Sqlite\Day
+                        MONTH: DoctrineExtensions\Query\Sqlite\Month
+                        YEAR: DoctrineExtensions\Query\Sqlite\Year
+                        DATE: DoctrineExtensions\Query\Sqlite\Date
+                        MINUTE: DoctrineExtensions\Query\Sqlite\Minute
+                        HOUR: DoctrineExtensions\Query\Sqlite\Hour

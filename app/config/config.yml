@@ -69,6 +69,7 @@ doctrine:
         # path:     "%database_path%"
 
     orm:
+
         auto_generate_proxy_classes: "%kernel.debug%"
         entity_managers:
             default:
@@ -88,6 +89,14 @@ doctrine:
                         dir: "%kernel.root_dir%/../vendor/gedmo/doctrine-extensions/lib/Gedmo/Tree/Entity"
                         alias: GedmoTree # (optional) it will default to the name set for the mapping
                         is_bundle: false
+                dql:
+                    datetime_functions:
+                        DAY: DoctrineExtensions\Query\Mysql\Day
+                        MONTH: DoctrineExtensions\Query\Mysql\Month
+                        YEAR: DoctrineExtensions\Query\Mysql\Year
+                        DATE: DoctrineExtensions\Query\Mysql\Date
+                        MINUTE: DoctrineExtensions\Query\Mysql\Minute
+                        HOUR: DoctrineExtensions\Query\Mysql\Hour
 
 stof_doctrine_extensions:
   default_locale: en_US

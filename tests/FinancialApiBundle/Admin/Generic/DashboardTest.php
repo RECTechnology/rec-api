@@ -55,4 +55,15 @@ class DashboardTest extends BaseApiTest {
         );
     }
 
+    function testTimeseries()
+    {
+        $route = "/admin/v3/dashboard/timeseries/registers/year";
+        $resp = $this->requestJson('GET', $route);
+        self::assertEquals(
+            200,
+            $resp->getStatusCode(),
+            "route: $route, status_code: {$resp->getStatusCode()}, content: {$resp->getContent()}"
+        );
+    }
+
 }

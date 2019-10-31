@@ -26,6 +26,7 @@
         "ext-xml": "*",
         "ext-zip": "*",
         "alcaeus/mongo-php-adapter": "~1.1",
+        "beberlei/doctrineextensions": "^1.2",
         "doctrine/doctrine-bundle": "^1.6",
         "doctrine/doctrine-migrations-bundle": "^2.0",
         "doctrine/mongodb-odm": "~1.0",
