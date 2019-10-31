@@ -55,15 +55,18 @@ class DashboardTest extends BaseApiTest {
         );
     }
 
-    function testTimeseries()
+    const INTERVALS = ['year', 'month', 'day'];
+    function testTimeSeries()
     {
-        $route = "/admin/v3/dashboard/timeseries/registers/year";
-        $resp = $this->requestJson('GET', $route);
-        self::assertEquals(
-            200,
-            $resp->getStatusCode(),
-            "route: $route, status_code: {$resp->getStatusCode()}, content: {$resp->getContent()}"
-        );
+        foreach (self::INTERVALS as $interval){
+            $route = "/admin/v3/dashboard/timeseries/registers/$interval";
+            $resp = $this->requestJson('GET', $route);
+            self::assertEquals(
+                200,
+                $resp->getStatusCode(),
+                "route: $route, status_code: {$resp->getStatusCode()}, content: {$resp->getContent()}"
+            );
+        }
     }
 
 }

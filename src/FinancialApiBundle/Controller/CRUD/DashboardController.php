@@ -119,6 +119,12 @@ class DashboardController extends CRUDController {
         );
     }
 
+    const INTERVAL_GROUPING_FUNCTIONS = [
+        'year' => ['seconds' => 3600 * 24 * 365, 'grouping' => 'MONTH'],
+        'month' => ['seconds' => 3600 * 24, 'grouping' => 'DAY'],
+        'day' => ['seconds' => 3600, 'grouping' => 'HOUR'],
+    ];
+
     /**
      * @param $interval
      * @return Response
@@ -130,13 +136,13 @@ class DashboardController extends CRUDController {
         /** @var AppRepository $repo */
         $repo = $em->getRepository(Group::class);
 
-        $oneYearSeconds = 3600 * 24 * 365;
         $qb = $repo->createQueryBuilder('a');
-        $result = $qb->select('count(a) as count, MONTH(u.created) as month')
+        $select = "count(a) as count, {$this::INTERVAL_GROUPING_FUNCTIONS[$interval]['grouping']}(u.created) as interval";
+        $result = $qb->select($select)
             ->join(User::class, 'u')
             ->where($qb->expr()->gt('u.created', ':oneYearAgo'))
-            ->setParameter('oneYearAgo', time() - $oneYearSeconds)
-            ->groupBy('month')
+            ->setParameter('oneYearAgo', time() - $this::INTERVAL_GROUPING_FUNCTIONS[$interval]['seconds'])
+            ->groupBy('interval')
             ->getQuery()
             ->getResult();
         return $this->restV2(
