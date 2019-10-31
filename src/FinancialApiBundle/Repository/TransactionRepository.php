@@ -22,6 +22,13 @@ use App\FinancialApiBundle\Entity\Group;
 class TransactionRepository extends DocumentRepository {
 
     /**
+     * @return array|object|null
+     */
+    public function count(){
+        return $this->createQueryBuilder()->count()->getQuery()->getSingleResult();
+    }
+
+    /**
      * @param Group $group
      * @param $start_time
      * @param $finish_time

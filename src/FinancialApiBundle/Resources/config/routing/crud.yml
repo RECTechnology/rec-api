@@ -1,4 +1,15 @@
 
+##################### DASHBOARD / V3 / (OVERRIDES CRUD) ############################
+
+dashboard_v3_total:
+    path:  /{role}/v3/dashboard/total/{subject}
+    defaults: { _controller: App\FinancialApiBundle\Controller\CRUD\DashboardController::totalAction }
+    methods: [GET]
+    requirements:
+        role: "(admin|manager)"
+        subject: "(private|company|transactions)"
+
+
 ##################### ACCOUNTS / V3 / (OVERRIDES CRUD) ############################
 
 accounts_v3_search:
