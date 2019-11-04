@@ -12,6 +12,7 @@ use DateInterval;
 use DateTime;
 use Doctrine\ODM\MongoDB\DocumentRepository;
 use Doctrine\ODM\MongoDB\Mapping\Annotations as MongoDB;
+use Doctrine\ODM\MongoDB\MongoDBException;
 use Symfony\Component\HttpFoundation\Request;
 use App\FinancialApiBundle\Entity\Group;
 
@@ -22,10 +23,11 @@ use App\FinancialApiBundle\Entity\Group;
 class TransactionRepository extends DocumentRepository {
 
     /**
-     * @return array|object|null
+     * @return mixed
+     * @throws MongoDBException
      */
     public function count(){
-        return $this->createQueryBuilder()->count()->getQuery()->getSingleResult();
+        return $this->createQueryBuilder()->count()->getQuery()->execute();
     }
 
     /**
@@ -36,7 +38,7 @@ class TransactionRepository extends DocumentRepository {
      * @param $order
      * @param $dir
      * @return mixed
-     * @throws \Doctrine\ODM\MongoDB\MongoDBException
+     * @throws MongoDBException
      */
     public function findTransactions(Group $group, $start_time, $finish_time, $search, $order, $dir){
         return $this->createQueryBuilder('t')
