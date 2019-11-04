@@ -72,6 +72,7 @@ class DashboardController extends CRUDController {
                 $repo = $em->getRepository(Group::class);
                 return $this->restV2(
                     Response::HTTP_OK,
+                    "success",
                     "Total obtained successfully",
                     ["total" => intval($repo->count(['type' => $subject]))]
                 );
@@ -87,7 +88,7 @@ class DashboardController extends CRUDController {
 
                 return $this->restV2(
                     Response::HTTP_OK,
-                    "ok",
+                    "success",
                     "Total obtained successfully",
                     ["total" => intval($result)]
                 );
