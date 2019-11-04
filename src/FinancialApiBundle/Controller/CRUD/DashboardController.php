@@ -122,21 +122,6 @@ class DashboardController extends CRUDController {
         );
     }
 
-    const GROUPING_FUNCTIONS = [
-        'year' => [
-            'since' => '-1 years',
-            'date_expr' => "YEAR(u.created), '-', MONTH(u.created), '-00 00:00:00'",
-        ],
-        'month' => [
-            'since' => '-1 months',
-            'date_expr' => "YEAR(u.created), '-', MONTH(u.created), '-', DAY(u.created), ' 00:00:00'"
-
-        ],
-        'day' => [
-            'since' => '-1 days',
-            'date_expr' => "YEAR(u.created), '-', MONTH(u.created), '-', DAY(u.created), ' ', HOUR(u.created), ':00:00'"
-        ],
-    ];
 
     /**
      * @param $interval
@@ -178,6 +163,22 @@ class DashboardController extends CRUDController {
             $result
         );
     }
+
+    const GROUPING_FUNCTIONS = [
+        'year' => [
+            'since' => "first day of this month last year 00:00",
+            'date_expr' => "YEAR(u.created), '-', MONTH(u.created), '-01 00:00:00'",
+        ],
+        'month' => [
+            'since' => "-1 month 00:00",
+            'date_expr' => "YEAR(u.created), '-', MONTH(u.created), '-', DAY(u.created), ' 00:00:00'"
+
+        ],
+        'day' => [
+            'since' => "-1 day",
+            'date_expr' => "YEAR(u.created), '-', MONTH(u.created), '-', DAY(u.created), ' ', HOUR(u.created), ':00:00'"
+        ],
+    ];
 
     /**
      * @param AppRepository $repo
