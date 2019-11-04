@@ -123,16 +123,16 @@ class DashboardController extends CRUDController {
 
     const GROUPING_FUNCTIONS = [
         'year' => [
-            'since' => 'a year ago',
+            'since' => '-1 years',
             'date_expr' => "YEAR(u.created), '-', MONTH(u.created), '-00 00:00:00'",
         ],
         'month' => [
-            'since' => 'a month ago',
+            'since' => '-1 months',
             'date_expr' => "YEAR(u.created), '-', MONTH(u.created), '-', DAY(u.created), ' 00:00:00'"
 
         ],
         'day' => [
-            'since' => 'a day ago',
+            'since' => '-1 days',
             'date_expr' => "YEAR(u.created), '-', MONTH(u.created), '-', DAY(u.created), ' ', HOUR(u.created), ':00:00'"
         ],
     ];
@@ -151,7 +151,6 @@ class DashboardController extends CRUDController {
 
         $privateSerie = $this->getTimeSeriesForAccountType($repo, 'PRIVATE', $interval);
         $companiesSerie = $this->getTimeSeriesForAccountType($repo, 'COMPANY', $interval);
-        //$result = array_merge($privates, $companies);
         $result = $privateSerie;
         foreach ($companiesSerie as $cItem){
             $found = false;
@@ -191,14 +190,14 @@ class DashboardController extends CRUDController {
         $select = "CONCAT($dateExpr) as time, count(a) as " . strtolower($type);
         $since = new \DateTime(static::GROUPING_FUNCTIONS[$interval]['since']);
         $since->setTimezone(new \DateTimeZone("UTC"));
-        return $repo->createQueryBuilder('a')
+        $query = $repo->createQueryBuilder('a')
             ->select($select)
             ->innerJoin(User::class, 'u', Join::WITH, 'a.kyc_manager = u.id')
             ->where('u.created > :oneIntervalAgo')
             ->setParameter('oneIntervalAgo', $since->format('c'))
             ->groupBy('time')
             ->andWhere("a.type = '$type'")
-            ->getQuery()
-            ->getResult();
+            ->getQuery();
+        return $query->getResult();
     }
 }
