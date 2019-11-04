@@ -108,7 +108,7 @@ class DashboardController extends CRUDController {
 
         $result = $repo->createQueryBuilder('n')
             ->select('n.id, n.name, n.description, count(a) as accounts_total')
-            ->innerJoin(Group::class, 'a', Join::WITH, 'a.neighbourhood_id = n.id')
+            ->innerJoin(Group::class, 'a', Join::WITH, 'a.neighbourhood = n.id')
             ->groupBy('n')
             ->getQuery()
             ->getResult();
