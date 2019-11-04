@@ -107,7 +107,7 @@ class DashboardController extends CRUDController {
         $repo = $em->getRepository(Neighbourhood::class);
 
         $result = $repo->createQueryBuilder('n')
-            ->select('n, count(a) as accounts_total')
+            ->select('n.id, n.name, n.description, count(a) as accounts_total')
             ->join(Group::class, 'a')
             ->groupBy('n')
             ->getQuery()
@@ -118,7 +118,7 @@ class DashboardController extends CRUDController {
             Response::HTTP_OK,
             "ok",
             "Total obtained successfully",
-            ["total" => $result]
+            $result
         );
     }
 
