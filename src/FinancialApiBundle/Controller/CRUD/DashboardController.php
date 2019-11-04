@@ -40,7 +40,7 @@ class DashboardController extends CRUDController {
     /**
      * @return Response
      */
-    public function totalODMActionAction()
+    public function totalODMAction()
     {
         /** @var DocumentManager $em */
         $dm = $this->get('doctrine.odm.mongodb.document_manager');
