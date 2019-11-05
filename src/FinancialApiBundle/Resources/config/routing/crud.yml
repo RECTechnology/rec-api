@@ -33,6 +33,14 @@ dashboard_v3_timeseries_registers:
         role: "(admin|manager)"
         interval: "(year|month|day)"
 
+dashboard_v3_timeseries_transactions:
+    path:  /{role}/v3/dashboard/timeseries/transactions/{interval}
+    defaults: { _controller: App\FinancialApiBundle\Controller\CRUD\DashboardController::timeSeriesTransactions }
+    methods: [GET]
+    requirements:
+        role: "(admin|manager)"
+        interval: "(year|month|day)"
+
 ##################### ACCOUNTS / V3 / (OVERRIDES CRUD) ############################
 
 accounts_v3_search:

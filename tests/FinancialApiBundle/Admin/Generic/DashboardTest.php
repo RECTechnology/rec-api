@@ -73,7 +73,7 @@ class DashboardTest extends BaseApiTest {
     }
 
     const INTERVALS = ['year', 'month', 'day'];
-    function testTimeSeries()
+    function testRegisterTimeSeries()
     {
         foreach (self::INTERVALS as $interval){
             $route = "/admin/v3/dashboard/timeseries/registers/$interval";

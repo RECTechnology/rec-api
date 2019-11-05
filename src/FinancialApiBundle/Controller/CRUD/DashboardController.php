@@ -213,4 +213,33 @@ class DashboardController extends CRUDController {
             ->getQuery();
         return $query->getResult();
     }
+
+
+    /**
+     * @param $interval
+     * @return Response
+     * @throws \Exception
+     */
+    function timeSeriesTransactions($interval){
+
+        /** @var DocumentManager $em */
+        $dm = $this->get('doctrine.odm.mongodb.document_manager');
+        /** @var TransactionRepository $repo */
+        $repo = $dm->getRepository(Transaction::class);
+
+        $now = (new \DateTime())->format('c');
+        $after = (new \DateTime('-1 year'))->format('c');
+        $result = $repo->statistics($after, $now, 'month');
+
+        return $this->restV2(
+            Response::HTTP_OK,
+            "ok",
+            "Total obtained successfully",
+            $result
+        );
+    }
+
+
+
+
 }

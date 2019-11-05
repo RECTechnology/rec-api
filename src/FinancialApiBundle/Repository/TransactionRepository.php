@@ -27,7 +27,47 @@ class TransactionRepository extends DocumentRepository {
      * @throws MongoDBException
      */
     public function count(){
-        return $this->createQueryBuilder()->count()->getQuery()->execute();
+        return $this->createQueryBuilder()
+            ->field('internal')->equals(false)
+            ->field('deleted')->equals(false)
+            ->field('status')->equals('success')
+            ->field('currency')->equals('REC')
+            ->field('type')->equals('in')
+            ->count()
+            ->getQuery()
+            ->execute();
+    }
+
+    /**
+     * @param $start_time
+     * @param $end_time
+     * @param $interval
+     * @return mixed
+     */
+    public function statistics($start_time, $end_time, $interval){
+        $builder = $this->createAggregationBuilder();
+        $builder->match()
+                ->field('internal')->equals(false)
+                ->field('deleted')->equals(false)
+                ->field('status')->equals('success')
+                ->field('currency')->equals('REC')
+                ->field('type')->equals('in')
+                ->field('created')
+                    ->gte($start_time)
+                    ->lt($end_time)
+            ->group()
+                ->field('id')
+                ->expression(
+                    $builder->expr()
+                        ->field('month')->month('$created')
+                        ->field('year')->month('$created')
+                )
+                ->field('number')
+                ->sum(1)
+                ->field('volume')
+                ->sum('$amount');
+
+        return $builder->execute();
     }
 
     /**
