@@ -160,7 +160,7 @@ class AccountController extends BaseApiController{
         $user = $this->get('security.token_storage')->getToken()->getUser();
         $em = $this->getDoctrine()->getManager();
         $user->setTwoFactorAuthentication(true);
-        if($user->getTwoFactorCode() === ""){
+        if(!$user->getTwoFactorCode()){
             $Google2FA = new Google2FA();
             $user->setTwoFactorCode($Google2FA->generate_secret_key());
         }
@@ -182,7 +182,8 @@ class AccountController extends BaseApiController{
         $user->setTwoFactorAuthentication(false);
         $em->persist($user);
         $em->flush();
-        return $this->restV2(200,"ok", "2FA deactivated successfully", $user);
+        $result = $this->securizeOutput($user);
+        return $this->restV2(200,"ok", "2FA deactivated successfully", $result);
     }
 
     /**
@@ -195,7 +196,8 @@ class AccountController extends BaseApiController{
         $user->setTwoFactorCode($Google2FA->generate_secret_key());
         $em->persist($user);
         $em->flush();
-        return $this->restV2(200,"ok", "Account info got successfully", $user);
+        $result = $this->securizeOutput($user);
+        return $this->restV2(200,"ok", "Account info got successfully", $result);
     }
 
 
