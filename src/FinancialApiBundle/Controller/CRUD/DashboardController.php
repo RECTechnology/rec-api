@@ -11,6 +11,7 @@ use App\FinancialApiBundle\Entity\UserWallet;
 use App\FinancialApiBundle\Repository\AppRepository;
 use App\FinancialApiBundle\Repository\TransactionRepository;
 use Doctrine\ODM\MongoDB\DocumentManager;
+use Doctrine\ODM\MongoDB\MongoDBException;
 use Doctrine\ORM\EntityManagerInterface;
 use Doctrine\ORM\Query\Expr\Join;
 use DoctrineExtensions\Query\Sqlite\Day;
@@ -39,6 +40,7 @@ class DashboardController extends CRUDController {
 
     /**
      * @return Response
+     * @throws MongoDBException
      */
     public function totalODMAction()
     {
@@ -82,7 +84,7 @@ class DashboardController extends CRUDController {
 
                 $result = $repo->createQueryBuilder('a')
                     ->select('sum(w.available)')
-                    ->join(UserWallet::class, 'w')
+                    ->join(UserWallet::class, 'w', Join::WITH, 'w.group = a.id')
                     ->getQuery()
                     ->getSingleResult();
 
