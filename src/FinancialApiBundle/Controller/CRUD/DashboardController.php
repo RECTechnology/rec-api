@@ -129,12 +129,12 @@ class DashboardController extends CRUDController {
      * @throws \Exception
      */
     function timeSeriesRegisters($interval){
-
         $xLabels = [
             'year' => ['Jan', 'Feb', 'Mar', 'May', 'Apr', 'Jun', 'Jul', 'Ago', 'Sep', 'Oct', 'Nov', 'Dec'],
             'month' => range(1, 30),
             'day' => range(0, 23)
         ];
+
         /** @var EntityManagerInterface $em */
         $em = $this->getDoctrine()->getManager();
 
