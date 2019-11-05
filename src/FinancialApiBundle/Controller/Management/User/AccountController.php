@@ -166,7 +166,8 @@ class AccountController extends BaseApiController{
         }
         $em->persist($user);
         $em->flush();
-        return $this->restV2(200,"ok", "2FA activated successfully", $user);
+        $result = $this->securizeOutput($user);
+        return $this->restV2(200,"ok", "2FA activated successfully", $result);
     }
 
     /**
