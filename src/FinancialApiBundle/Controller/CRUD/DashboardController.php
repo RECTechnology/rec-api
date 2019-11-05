@@ -222,6 +222,12 @@ class DashboardController extends CRUDController {
      */
     function timeSeriesTransactions($interval){
 
+        $xLabels = [
+            'year' => ['Jan', 'Feb', 'Mar', 'May', 'Apr', 'Jun', 'Jul', 'Ago', 'Sep', 'Oct', 'Nov', 'Dec'],
+            'month' => range(1, 30),
+            'day' => range(0, 23)
+        ];
+
         /** @var DocumentManager $em */
         $dm = $this->get('doctrine.odm.mongodb.document_manager');
         /** @var TransactionRepository $repo */
@@ -229,7 +235,20 @@ class DashboardController extends CRUDController {
 
         $now = new \DateTime();
         $since = new \DateTime(static::GROUPING_FUNCTIONS[$interval]['since']);
-        $result = $repo->statistics($since, $now, $interval);
+        $dbResult = $repo->statistics($since, $now, $interval);
+
+        $result = [];
+        foreach ($xLabels[$interval] as $index => $label){
+            $item = ['label' => $label, 'count' => 0, 'volume' => 0];
+            foreach ($dbResult as $dbItem){
+                if($dbItem['_id'][static::GROUPING_FUNCTIONS[$interval]['interval_func']] == $index){
+                    $item['count'] = $dbItem['number'];
+                    $item['volume'] = $dbItem['volume'];
+                    break;
+                }
+            }
+            $result []= $item;
+        }
 
         return $this->restV2(
             Response::HTTP_OK,
