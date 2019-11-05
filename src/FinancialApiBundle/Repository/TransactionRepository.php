@@ -45,8 +45,28 @@ class TransactionRepository extends DocumentRepository {
      * @return mixed
      */
     public function statistics($start_time, $end_time, $interval){
+        /*
+         * before nothing we have to execute the following command on the mongodb node:
+         *      use app
+         *      db.Transaction.find().forEach(function(el){el.created = new Date(el.created);el.updated = new Date(el.updated);db.Transaction.save(el);})
+         */
+
         $builder = $this->createAggregationBuilder();
-        $builder->match()
+        $timeExpr = $builder->expr();
+        switch ($interval) {
+            case 'day':
+                $timeExpr
+                    ->field('hour')->hour('$created');
+            case 'month':
+                $timeExpr
+                    ->field('day')->dayOfMonth('$created');
+            case 'year':
+                $timeExpr
+                    ->field('year')->year('$created')
+                    ->field('month')->month('$created');
+        }
+        $builder
+            ->match()
                 ->field('internal')->equals(false)
                 ->field('deleted')->equals(false)
                 ->field('status')->equals('success')
@@ -57,17 +77,13 @@ class TransactionRepository extends DocumentRepository {
                     ->lt($end_time)
             ->group()
                 ->field('id')
-                ->expression(
-                    $builder->expr()
-                        ->field('month')->month('$created')
-                        ->field('year')->month('$created')
-                )
+                ->expression($timeExpr)
                 ->field('number')
                 ->sum(1)
                 ->field('volume')
                 ->sum('$amount');
 
-        return $builder->execute();
+        return $builder->execute()->toArray();
     }
 
     /**

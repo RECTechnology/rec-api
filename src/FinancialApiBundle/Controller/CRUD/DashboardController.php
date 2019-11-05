@@ -216,20 +216,20 @@ class DashboardController extends CRUDController {
 
 
     /**
-     * @param $interval
+     * @param $intervalName
      * @return Response
      * @throws \Exception
      */
-    function timeSeriesTransactions($interval){
+    function timeSeriesTransactions($intervalName){
 
         /** @var DocumentManager $em */
         $dm = $this->get('doctrine.odm.mongodb.document_manager');
         /** @var TransactionRepository $repo */
         $repo = $dm->getRepository(Transaction::class);
 
-        $now = (new \DateTime())->format('c');
-        $after = (new \DateTime('-1 year'))->format('c');
-        $result = $repo->statistics($after, $now, 'month');
+        $now = new \DateTime();
+        $since = new \DateTime(static::GROUPING_FUNCTIONS[$intervalName]['since']);
+        $result = $repo->statistics($since, $now, 'month');
 
         return $this->restV2(
             Response::HTTP_OK,
