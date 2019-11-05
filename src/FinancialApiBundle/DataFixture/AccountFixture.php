@@ -7,6 +7,7 @@ use App\FinancialApiBundle\Controller\BaseApiV2Controller;
 use App\FinancialApiBundle\Entity\KYC;
 use App\FinancialApiBundle\Entity\User;
 use App\FinancialApiBundle\Entity\UserGroup;
+use App\FinancialApiBundle\Entity\UserWallet;
 use Doctrine\Bundle\FixturesBundle\Fixture;
 use Doctrine\Common\DataFixtures\DependentFixtureInterface;
 use Doctrine\Common\Persistence\ObjectManager;
@@ -114,7 +115,13 @@ class AccountFixture extends Fixture implements DependentFixtureInterface {
             $kyc->setEmail($user->getEmail());
             $orm->persist($kyc);
         }
+        $wallet = new UserWallet();
+        $wallet->setCurrency('REC');
+        $wallet->setAvailable(100e8);
+        $wallet->setBalance(100e8);
+        $wallet->setGroup($account);
 
+        $orm->persist($wallet);
         $orm->persist($account);
         $orm->persist($user);
         $orm->persist($userAccount);

@@ -82,17 +82,17 @@ class DashboardController extends CRUDController {
                 /** @var AppRepository $repo */
                 $repo = $em->getRepository(Group::class);
 
-                $result = $repo->createQueryBuilder('a')
-                    ->select('sum(w.available)')
-                    ->join(UserWallet::class, 'w', Join::WITH, 'w.group = a.id')
-                    ->getQuery()
-                    ->getSingleResult();
+                $query = $repo->createQueryBuilder('a')
+                    ->select('sum(w.available) as total')
+                    ->leftJoin(UserWallet::class, 'w', Join::WITH, 'w.group = a.id')
+                    ->getQuery();
+                $result = $query->getSingleResult();
 
                 return $this->restV2(
                     Response::HTTP_OK,
                     "success",
                     "Total obtained successfully",
-                    ["total" => intval($result)]
+                    ['total' => intval($result['total'])]
                 );
         }
         throw new HttpException(Response::HTTP_BAD_REQUEST, "Bad request: invalid total subject");
