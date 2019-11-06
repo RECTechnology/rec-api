@@ -78,6 +78,7 @@ class DashboardTest extends BaseApiTest {
         foreach (self::INTERVALS as $interval){
             $route = "/admin/v3/dashboard/timeseries/registers/$interval";
             $resp = $this->requestJson('GET', $route);
+            $content = json_decode($resp->getContent())->data;
             self::assertEquals(
                 200,
                 $resp->getStatusCode(),

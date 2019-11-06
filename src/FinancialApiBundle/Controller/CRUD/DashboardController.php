@@ -163,6 +163,7 @@ class DashboardController extends CRUDController {
             $result []= $item;
         }
 
+        $result = $this->shiftResult($result, $interval);
         return $this->restV2(
             Response::HTTP_OK,
             "ok",
@@ -173,19 +174,25 @@ class DashboardController extends CRUDController {
 
     const GROUPING_FUNCTIONS = [
         'year' => [
-            'since' => "first day of this month last year 00:00",
+            'since' => "first day of next month -1 year 00:00",
             'interval_func' => 'MONTH',
+            'interval_format' => 'n',
+            'interval_offset' => 0,
             'date_expr' => "YEAR(u.created), '-', MONTH(u.created), '-01 00:00:00'",
         ],
         'month' => [
-            'since' => "-1 month 00:00",
+            'since' => "-1 month +1 day 00:00",
             'interval_func' => 'DAY',
+            'interval_format' => 'j',
+            'interval_offset' => 0,
             'date_expr' => "YEAR(u.created), '-', MONTH(u.created), '-', DAY(u.created), ' 00:00:00'"
 
         ],
         'day' => [
-            'since' => "-1 day",
+            'since' => "-23 hours",
             'interval_func' => 'HOUR',
+            'interval_format' => 'G',
+            'interval_offset' => -1,
             'date_expr' => "YEAR(u.created), '-', MONTH(u.created), '-', DAY(u.created), ' ', HOUR(u.created), ':00:00'"
         ],
     ];
@@ -249,7 +256,7 @@ class DashboardController extends CRUDController {
             }
             $result []= $item;
         }
-
+        $result = $this->shiftResult($result, $interval);
         return $this->restV2(
             Response::HTTP_OK,
             "ok",
@@ -258,7 +265,12 @@ class DashboardController extends CRUDController {
         );
     }
 
-
-
-
+    private function shiftResult($result, $interval){
+        $format = static::GROUPING_FUNCTIONS[$interval]['interval_format'];
+        $offset = static::GROUPING_FUNCTIONS[$interval]['interval_offset'];
+        $middle = intval((new \DateTime())->format($format)) - $offset;
+        $secondPart = array_slice($result, 0, $middle);
+        $firstPart = array_slice($result, $middle);
+        return array_merge($firstPart, $secondPart);
+    }
 }
