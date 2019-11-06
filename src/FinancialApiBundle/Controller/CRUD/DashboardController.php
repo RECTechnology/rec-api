@@ -142,6 +142,7 @@ class DashboardController extends CRUDController {
 
         /** @var AppRepository $repo */
         $repo = $em->getRepository(Group::class);
+        $offset = static::GROUPING_FUNCTIONS[$interval]['interval_offset'];
 
         $privateSerie = $this->getTimeSeriesForAccountType($repo, 'PRIVATE', $interval);
         $companiesSerie = $this->getTimeSeriesForAccountType($repo, 'COMPANY', $interval);
@@ -149,13 +150,13 @@ class DashboardController extends CRUDController {
         foreach ($xLabels[$interval] as $index => $label){
             $item = ['label' => $label, 'private' => 0, 'company' => 0];
             foreach ($privateSerie as $serieItem){
-                if($serieItem['interval'] == $index){
+                if($serieItem['interval'] == ($index + $offset)){
                     $item['private'] = intval($serieItem['total']);
                     break;
                 }
             }
             foreach ($companiesSerie as $serieItem){
-                if($serieItem['interval'] == $index){
+                if($serieItem['interval'] == ($index + $offset)){
                     $item['company'] = intval($serieItem['total']);
                     break;
                 }
@@ -178,14 +179,14 @@ class DashboardController extends CRUDController {
             'interval_func' => 'MONTH',
             'interval_format' => 'n',
             'interval_offset' => 1,
-            'date_expr' => "YEAR(u.created), '-', MONTH(u.created), '-01 00:00:00'",
+            'date_expr' => "YEAR(u.created), '-', MONTH(u.created)",
         ],
         'month' => [
             'since' => "-1 month +1 day 00:00",
             'interval_func' => 'DAY',
             'interval_format' => 'j',
             'interval_offset' => 1,
-            'date_expr' => "YEAR(u.created), '-', MONTH(u.created), '-', DAY(u.created), ' 00:00:00'"
+            'date_expr' => "YEAR(u.created), '-', MONTH(u.created), '-', DAY(u.created)"
 
         ],
         'day' => [
@@ -193,7 +194,7 @@ class DashboardController extends CRUDController {
             'interval_func' => 'HOUR',
             'interval_format' => 'G',
             'interval_offset' => 0,
-            'date_expr' => "YEAR(u.created), '-', MONTH(u.created), '-', DAY(u.created), ' ', HOUR(u.created), ':00:00'"
+            'date_expr' => "YEAR(u.created), '-', MONTH(u.created), '-', DAY(u.created), ' ', HOUR(u.created)"
         ],
     ];
 
