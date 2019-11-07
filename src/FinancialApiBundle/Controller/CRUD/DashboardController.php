@@ -185,7 +185,7 @@ class DashboardController extends CRUDController {
             'interval_func' => 'HOUR',
             'interval_format' => 'G',
             'interval_offset' => 0,
-            'date_expr' => "YEAR(u.created), '-', MONTH(u.created), '-', DAY(u.created), ' ', HOUR(u.created), '00:00'"
+            'date_expr' => "YEAR(u.created), '-', MONTH(u.created), '-', DAY(u.created), ' ', HOUR(u.created), ':00:00'"
         ],
     ];
 
