@@ -131,11 +131,6 @@ class DashboardController extends CRUDController {
      * @throws \Exception
      */
     function timeSeriesRegisters($interval){
-        $xLabels = [
-            'year' => ['Jan', 'Feb', 'Mar', 'May', 'Apr', 'Jun', 'Jul', 'Ago', 'Sep', 'Oct', 'Nov', 'Dec'],
-            'month' => range(1, 31),
-            'day' => range(0, 23)
-        ];
 
         /** @var EntityManagerInterface $em */
         $em = $this->getDoctrine()->getManager();
@@ -147,24 +142,20 @@ class DashboardController extends CRUDController {
         $privateSerie = $this->getTimeSeriesForAccountType($repo, 'PRIVATE', $interval);
         $companiesSerie = $this->getTimeSeriesForAccountType($repo, 'COMPANY', $interval);
         $result = [];
-        foreach ($xLabels[$interval] as $index => $label){
-            $item = ['label' => $label, 'private' => 0, 'company' => 0];
-            foreach ($privateSerie as $serieItem){
-                if($serieItem['interval'] == ($index + $offset)){
-                    $item['private'] = intval($serieItem['total']);
-                    break;
-                }
-            }
-            foreach ($companiesSerie as $serieItem){
-                if($serieItem['interval'] == ($index + $offset)){
-                    $item['company'] = intval($serieItem['total']);
-                    break;
-                }
-            }
-            $result []= $item;
+        foreach ($privateSerie as $item) {
+            $result[$item['time']] = ['time' => $item['time'], 'private' => $item['total']];
         }
 
-        $result = $this->shiftResult($result, $interval);
+        foreach ($companiesSerie as $item) {
+            if(!array_key_exists($item['time'], $result)){
+                $result[$item['time']] = ['time' => $item['time'], 'company' => $item['total']];
+            }
+            else {
+                $result[$item['time']]['company'] = $item['total'];
+            }
+        }
+
+        $result = array_values($result);
         return $this->restV2(
             Response::HTTP_OK,
             "ok",
@@ -179,14 +170,14 @@ class DashboardController extends CRUDController {
             'interval_func' => 'MONTH',
             'interval_format' => 'n',
             'interval_offset' => 1,
-            'date_expr' => "YEAR(u.created), '-', MONTH(u.created)",
+            'date_expr' => "YEAR(u.created), '-', MONTH(u.created), '-01 00:00:00'",
         ],
         'month' => [
             'since' => "-1 month +1 day 00:00",
             'interval_func' => 'DAY',
             'interval_format' => 'j',
             'interval_offset' => 1,
-            'date_expr' => "YEAR(u.created), '-', MONTH(u.created), '-', DAY(u.created)"
+            'date_expr' => "YEAR(u.created), '-', MONTH(u.created), '-', DAY(u.created), ' 00:00:00'"
 
         ],
         'day' => [
@@ -194,7 +185,7 @@ class DashboardController extends CRUDController {
             'interval_func' => 'HOUR',
             'interval_format' => 'G',
             'interval_offset' => 0,
-            'date_expr' => "YEAR(u.created), '-', MONTH(u.created), '-', DAY(u.created), ' ', HOUR(u.created)"
+            'date_expr' => "YEAR(u.created), '-', MONTH(u.created), '-', DAY(u.created), ' ', HOUR(u.created), '00:00'"
         ],
     ];
 
@@ -207,8 +198,7 @@ class DashboardController extends CRUDController {
      */
     private function getTimeSeriesForAccountType($repo, $type, $intervalName){
         $dateExpr = static::GROUPING_FUNCTIONS[$intervalName]['date_expr'];
-        $intervalFunc = static::GROUPING_FUNCTIONS[$intervalName]['interval_func'];
-        $select = "CONCAT($dateExpr) as time, $intervalFunc(u.created) as interval, count(a) as total";
+        $select = "CONCAT($dateExpr) as time, count(a) as total";
         $since = new \DateTime(static::GROUPING_FUNCTIONS[$intervalName]['since']);
         $since->setTimezone(new \DateTimeZone("UTC"));
         $query = $repo->createQueryBuilder('a')
