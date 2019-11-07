@@ -11,7 +11,7 @@ parameters:
     mailer_user:       $MAILER_USERNAME
     mailer_password:   $MAILER_PASSWORD
 
-    no_reply_email: $MAILER_USERNAME
+    no_reply_email:    $MAILER_FROM
 
     locale:            en
     secret:            $APP_SECRET
