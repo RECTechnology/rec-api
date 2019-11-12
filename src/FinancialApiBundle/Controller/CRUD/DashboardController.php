@@ -181,7 +181,7 @@ class DashboardController extends CRUDController {
 
         ],
         'day' => [
-            'since' => "-23 hours",
+            'since' => "-1 day",
             'interval' => 'HOUR',
             'interval_format' => 'G',
             'interval_offset' => 0,
@@ -200,6 +200,11 @@ class DashboardController extends CRUDController {
         $dateExpr = static::GROUPING_FUNCTIONS[$intervalName]['date_expr'];
         $select = "CONCAT($dateExpr) as time, count(a) as total";
         $since = new \DateTime(static::GROUPING_FUNCTIONS[$intervalName]['since']);
+        $now = new \DateTime();
+        if($intervalName == 'day') {
+            $since->setTime($now->format('H'),0,0,0);
+            $since->modify("+1 hour");
+        }
         $since->setTimezone(new \DateTimeZone("UTC"));
         $query = $repo->createQueryBuilder('a')
             ->select($select)
@@ -212,7 +217,6 @@ class DashboardController extends CRUDController {
         $qResult = $query->getResult();
 
         $interval = "+1" . static::GROUPING_FUNCTIONS[$intervalName]['interval'];
-        $now = new \DateTime();
         $result = [];
         /** @var \DateTime $time */
         for($time = $since; $time < $now; $time->modify($interval)){
@@ -235,7 +239,7 @@ class DashboardController extends CRUDController {
         $date = new \DateTime("{$mongoResult['year']}-01-01");
         foreach (self::MONGO_ITEMS as $item => $offset){
             if(array_key_exists($item, $mongoResult)){
-                $sum = $mongoResult[$item] + $offset;
+                $sum = $mongoResult[$item] - $offset;
                 $date->modify("+$sum $item");
             }
             else return $date;
@@ -257,11 +261,13 @@ class DashboardController extends CRUDController {
 
         $now = new \DateTime();
         $since = new \DateTime(static::GROUPING_FUNCTIONS[$intervalName]['since']);
+        if($intervalName == 'day') {
+            $since->setTime($now->format('H'),0,0,0);
+            $since->modify("+1 hour");
+        }
         $qResult = $repo->statistics($since, $now, $intervalName);
 
-
         $interval = "+1" . static::GROUPING_FUNCTIONS[$intervalName]['interval'];
-        $now = new \DateTime();
         $result = [];
         /** @var \DateTime $time */
         for($time = $since; $time < $now; $time->modify($interval)){
