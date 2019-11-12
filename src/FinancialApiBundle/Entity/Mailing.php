@@ -29,10 +29,9 @@ class Mailing extends AppObject implements Translatable, Stateful {
     /**
      * @ORM\Column(type="string")
      * @REC\StatusProperty(choices={
-     *          "created"={"to"={"scheduled", "cancelled"}},
-     *          "scheduled"={"to"={"processed"}},
-     *          "processed"={"final"=true},
-     *          "cancelled"={"final"=true}
+     *          "created"={"to"={"scheduled"}},
+     *          "scheduled"={"to"={"processed", "created"}},
+     *          "processed"={"final"=true}
      *      },
      *      initial="created"
      * )
