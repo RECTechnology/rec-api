@@ -9,6 +9,7 @@ use App\FinancialApiBundle\Entity\Group;
 use App\FinancialApiBundle\Entity\Mailing;
 use App\FinancialApiBundle\Entity\MailingDelivery;
 use Doctrine\Common\EventSubscriber;
+use Doctrine\ORM\EntityManagerInterface;
 use Doctrine\ORM\Event\PreUpdateEventArgs;
 use Doctrine\ORM\Events;
 use Doctrine\ORM\ORMException;
@@ -72,8 +73,14 @@ class MailingDeliveryEventSubscriber implements EventSubscriber {
                 /** @var Group $account */
                 $account = $entity->getAccount();
 
+                $locale = $account->getKycManager()->getLocale();
+                $this->container->setParameter('locale', $locale);
+
                 /** @var Mailing $mailing */
                 $mailing = $entity->getMailing();
+                /** @var EntityManagerInterface $em */
+                $em = $this->container->get('doctrine.orm.entity_manager');
+                $em->refresh($mailing);
 
                 $content = $this->templating->render(
                     'FinancialApiBundle:Email:rec_empty_email.html.twig',
@@ -81,7 +88,7 @@ class MailingDeliveryEventSubscriber implements EventSubscriber {
                         'mail' => [
                             'subject' => $mailing->getSubject(),
                             'body' => $mailing->getContent(),
-                            'lang' => 'es'
+                            'lang' => $locale
                         ],
                         'app' => [
                             'landing' => 'rec.barcelona'

@@ -230,7 +230,9 @@ class AccountsController extends CRUDController {
      * @return string
      */
     public function generateClientsAndProvidersReportPdf(EngineInterface $templating, Group $account){
-        return $this->get('knp_snappy.pdf')->getOutputFromHtml($this->generateClientsAndProvidersReportHtml($templating, $account));
+        return $this->get('knp_snappy.pdf')->getOutputFromHtml(
+            $this->generateClientsAndProvidersReportHtml($templating, $account)
+        );
     }
 
     /**
