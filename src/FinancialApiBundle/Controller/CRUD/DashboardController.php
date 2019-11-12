@@ -230,12 +230,13 @@ class DashboardController extends CRUDController {
         return $result;
     }
 
-    const MONGO_ITEMS = ['month', 'day', 'hour'];
+    const MONGO_ITEMS = ['month' => 1, 'day' => 1, 'hour' => 0];
     function getIntervalStart($mongoResult){
         $date = new \DateTime("{$mongoResult['year']}-01-01");
-        foreach (self::MONGO_ITEMS as $item){
+        foreach (self::MONGO_ITEMS as $item => $offset){
             if(array_key_exists($item, $mongoResult)){
-                $date->modify("+{$mongoResult[$item]} $item");
+                $sum = $mongoResult[$item] + $offset;
+                $date->modify("+$sum $item");
             }
             else return $date;
         }
@@ -268,7 +269,7 @@ class DashboardController extends CRUDController {
             $item['count'] = 0;
             $item['volume'] = 0;
             foreach ($qResult as $qItem){
-                if($this->getIntervalStart($qItem['_id']) == $item['time']){
+                if($this->getIntervalStart($qItem['_id']) == $time){
                     $item['count'] = intval($qItem['number']);
                     $item['volume'] = intval($qItem['volume']);
                     break;
