@@ -45,11 +45,6 @@ class TransactionRepository extends DocumentRepository {
      * @return mixed
      */
     public function statistics($start_time, $end_time, $interval){
-        /*
-         * before nothing we have to execute the following command on the mongodb node:
-         *      use app
-         *      db.Transaction.find().forEach(function(el){el.created = new Date(el.created);el.updated = new Date(el.updated);db.Transaction.save(el);})
-         */
 
         $builder = $this->createAggregationBuilder();
         $timeExpr = $builder->expr();

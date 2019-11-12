@@ -230,19 +230,24 @@ class DashboardController extends CRUDController {
         return $result;
     }
 
+    const MONGO_ITEMS = ['month', 'day', 'hour'];
+    function getIntervalStart($mongoResult){
+        $date = new \DateTime("{$mongoResult['year']}-01-01");
+        foreach (self::MONGO_ITEMS as $item){
+            if(array_key_exists($item, $mongoResult)){
+                $date->modify("+{$mongoResult[$item]} $item");
+            }
+            else return $date;
+        }
+        return $date;
+    }
 
     /**
-     * @param $interval
+     * @param $intervalName
      * @return Response
      * @throws \Exception
      */
-    function timeSeriesTransactions($interval){
-
-        $xLabels = [
-            'year' => ['Jan', 'Feb', 'Mar', 'May', 'Apr', 'Jun', 'Jul', 'Ago', 'Sep', 'Oct', 'Nov', 'Dec'],
-            'month' => range(1, 31),
-            'day' => range(0, 23)
-        ];
+    function timeSeriesTransactions($intervalName){
 
         /** @var DocumentManager $em */
         $dm = $this->get('doctrine.odm.mongodb.document_manager');
@@ -250,23 +255,29 @@ class DashboardController extends CRUDController {
         $repo = $dm->getRepository(Transaction::class);
 
         $now = new \DateTime();
-        $since = new \DateTime(static::GROUPING_FUNCTIONS[$interval]['since']);
-        $dbResult = $repo->statistics($since, $now, $interval);
+        $since = new \DateTime(static::GROUPING_FUNCTIONS[$intervalName]['since']);
+        $qResult = $repo->statistics($since, $now, $intervalName);
 
+
+        $interval = "+1" . static::GROUPING_FUNCTIONS[$intervalName]['interval'];
+        $now = new \DateTime();
         $result = [];
-        $offset = static::GROUPING_FUNCTIONS[$interval]['interval_offset'];
-        foreach ($xLabels[$interval] as $index => $label){
-            $item = ['label' => $label, 'count' => 0, 'volume' => 0];
-            foreach ($dbResult as $dbItem){
-                if($dbItem['_id'][strtolower(static::GROUPING_FUNCTIONS[$interval]['interval'])] == ($index + $offset)){
-                    $item['count'] = $dbItem['number'];
-                    $item['volume'] = $dbItem['volume'];
+        /** @var \DateTime $time */
+        for($time = $since; $time < $now; $time->modify($interval)){
+            $item = ['time' => $time->format('c')];
+            $item['count'] = 0;
+            $item['volume'] = 0;
+            foreach ($qResult as $qItem){
+                if($this->getIntervalStart($qItem['_id']) == $item['time']){
+                    $item['count'] = intval($qItem['number']);
+                    $item['volume'] = intval($qItem['volume']);
                     break;
                 }
             }
             $result []= $item;
         }
-        $result = $this->shiftResult($result, $interval);
+
+        //$result = $this->shiftResult($result, $intervalName);
         return $this->restV2(
             Response::HTTP_OK,
             "ok",
