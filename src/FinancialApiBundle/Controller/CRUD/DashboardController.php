@@ -167,25 +167,25 @@ class DashboardController extends CRUDController {
     const GROUPING_FUNCTIONS = [
         'year' => [
             'since' => "first day of next month -1 year 00:00",
-            'interval_func' => 'MONTH',
+            'interval' => 'MONTH',
             'interval_format' => 'n',
             'interval_offset' => 1,
-            'date_expr' => "YEAR(u.created), '-', MONTH(u.created), '-01 00:00:00'",
+            'date_expr' => "YEAR(u.created), '-', MONTH(u.created), '-01T00:00:00+00:00'",
         ],
         'month' => [
             'since' => "-1 month +1 day 00:00",
-            'interval_func' => 'DAY',
+            'interval' => 'DAY',
             'interval_format' => 'j',
             'interval_offset' => 1,
-            'date_expr' => "YEAR(u.created), '-', MONTH(u.created), '-', DAY(u.created), ' 00:00:00'"
+            'date_expr' => "YEAR(u.created), '-', MONTH(u.created), '-', DAY(u.created), 'T00:00:00+00:00'"
 
         ],
         'day' => [
             'since' => "-23 hours",
-            'interval_func' => 'HOUR',
+            'interval' => 'HOUR',
             'interval_format' => 'G',
             'interval_offset' => 0,
-            'date_expr' => "YEAR(u.created), '-', MONTH(u.created), '-', DAY(u.created), ' ', HOUR(u.created), ':00:00'"
+            'date_expr' => "YEAR(u.created), '-', MONTH(u.created), '-', DAY(u.created), 'T', HOUR(u.created), ':00:00+00:00'"
         ],
     ];
 
@@ -209,7 +209,25 @@ class DashboardController extends CRUDController {
             ->groupBy('time')
             ->andWhere("a.type = '$type'")
             ->getQuery();
-        return $query->getResult();
+        $qResult = $query->getResult();
+
+        $interval = "+1" . static::GROUPING_FUNCTIONS[$intervalName]['interval'];
+        $now = new \DateTime();
+        $result = [];
+        /** @var \DateTime $time */
+        for($time = $since; $time < $now; $time->modify($interval)){
+            $item = ['time' => $time->format('c')];
+            $item['total'] = 0;
+            foreach ($qResult as $qItem){
+                if($qItem['time'] == $item['time']){
+                    $item['total'] = intval($qItem['total']);
+                    break;
+                }
+            }
+            $result []= $item;
+        }
+
+        return $result;
     }
 
 
@@ -240,7 +258,7 @@ class DashboardController extends CRUDController {
         foreach ($xLabels[$interval] as $index => $label){
             $item = ['label' => $label, 'count' => 0, 'volume' => 0];
             foreach ($dbResult as $dbItem){
-                if($dbItem['_id'][strtolower(static::GROUPING_FUNCTIONS[$interval]['interval_func'])] == ($index + $offset)){
+                if($dbItem['_id'][strtolower(static::GROUPING_FUNCTIONS[$interval]['interval'])] == ($index + $offset)){
                     $item['count'] = $dbItem['number'];
                     $item['volume'] = $dbItem['volume'];
                     break;

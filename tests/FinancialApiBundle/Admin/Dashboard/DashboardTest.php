@@ -1,11 +1,9 @@
 <?php
 
-namespace Test\FinancialApiBundle\Admin\Generic;
+namespace Test\FinancialApiBundle\Admin\Dashboard;
 
 use App\FinancialApiBundle\DataFixture\UserFixture;
 use Test\FinancialApiBundle\BaseApiTest;
-use Test\FinancialApiBundle\CrudV3ReadTestInterface;
-use Test\FinancialApiBundle\CrudV3WriteTestInterface;
 
 /**
  * Class DashboardTest
@@ -73,12 +71,11 @@ class DashboardTest extends BaseApiTest {
     }
 
     const INTERVALS = ['year', 'month', 'day'];
-    function testRegisterTimeSeries()
+    function testRegisterTimeSeriesReturnsOK()
     {
         foreach (self::INTERVALS as $interval){
             $route = "/admin/v3/dashboard/timeseries/registers/$interval";
             $resp = $this->requestJson('GET', $route);
-            $content = json_decode($resp->getContent())->data;
             self::assertEquals(
                 200,
                 $resp->getStatusCode(),
@@ -87,4 +84,11 @@ class DashboardTest extends BaseApiTest {
         }
     }
 
+    function testYearRegisterTimeSeriesReturn12Elements()
+    {
+        $route = "/admin/v3/dashboard/timeseries/registers/year";
+        $resp = $this->requestJson('GET', $route);
+        $content = json_decode($resp->getContent())->data;
+        self::assertEquals(12, count($content));
+    }
 }
