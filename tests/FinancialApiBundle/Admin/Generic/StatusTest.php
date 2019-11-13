@@ -51,26 +51,6 @@ class StatusTest extends BaseApiTest {
         );
     }
 
-    function testChangeFinalStatusMustReturn412()
-    {
-        $route = "/admin/v3/mailings";
-        $resp = $this->requestJson('POST', $route);
-        $mailing = json_decode($resp->getContent())->data;
-        $route = "/admin/v3/mailings/{$mailing->id}";
-        $resp = $this->requestJson('PUT', $route, ['status' => 'cancelled']);
-        self::assertEquals(
-            200,
-            $resp->getStatusCode(),
-            "route: $route, status_code: {$resp->getStatusCode()}, content: {$resp->getContent()}"
-        );
-        $resp = $this->requestJson('PUT', $route, ['status' => 'created']);
-        self::assertEquals(
-            412,
-            $resp->getStatusCode(),
-            "route: $route, status_code: {$resp->getStatusCode()}, content: {$resp->getContent()}"
-        );
-    }
-
     function testNotAllowedStatusChangeMustReturn412()
     {
         $route = "/admin/v3/mailings";
