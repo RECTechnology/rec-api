@@ -75,13 +75,16 @@ class MailingDeliveryEventSubscriber implements EventSubscriber {
                 /** @var Group $account */
                 $account = $entity->getAccount();
 
-                /** @var Mailing $mailing */
-                $mailing = $entity->getMailing();
                 /** @var EntityManagerInterface $em */
                 $em = $this->container->get('doctrine.orm.entity_manager');
+
+                /** @var Mailing $mailing */
+                $mailing = $entity->getMailing();
                 $locale = $account->getKycManager()->getLocale();
-                $mailing->setLocale($locale);
-                $em->refresh($mailing);
+                if($locale) {
+                    $mailing->setLocale($locale);
+                    $em->refresh($mailing);
+                }
 
                 $content = $this->templating->render(
                     'FinancialApiBundle:Email:rec_empty_email.html.twig',
