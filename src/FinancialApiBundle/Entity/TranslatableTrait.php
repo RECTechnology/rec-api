@@ -14,9 +14,9 @@ trait TranslatableTrait {
     private $locale;
 
     /**
-     * @return string
+     * @return string|null
      */
-    function getLocale(): string {
+    function getLocale() {
         return $this->locale;
     }
 

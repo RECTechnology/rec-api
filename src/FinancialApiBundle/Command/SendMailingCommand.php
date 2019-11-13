@@ -27,17 +27,21 @@ class SendMailingCommand extends SynchronizedContainerAwareCommand
             $output->writeln("Mailing: " . $mailing->getId());
             $now = (new DateTime())->getTimestamp();
             $scheduledAt = $mailing->getScheduledAt()->getTimestamp();
-            $output->writeln("Now: $now, scheduledAt: $scheduledAt, send: " . (($now > $scheduledAt)? "true": "false"));
-            if($now > $scheduledAt){
+            $shouldBeSent = $now > $scheduledAt;
+            $output->writeln("Now: $now, scheduledAt: $scheduledAt, send: " . ($shouldBeSent? "true": "false"));
+            if($shouldBeSent){
                 /** @var MailingDelivery $delivery */
                 foreach($mailing->getDeliveries() as $delivery){
                     /** @var Group $account */
                     $account = $delivery->getAccount();
                     $output->writeln("Delivering to: " . $account->getEmail());
-                    if($delivery->getStatus() == MailingDelivery::STATUS_CREATED)
+                    if($delivery->getStatus() == MailingDelivery::STATUS_CREATED) {
                         $delivery->setStatus(MailingDelivery::STATUS_SCHEDULED);
+                        $em->persist($delivery);
+                    }
                 }
                 $mailing->setStatus(Mailing::STATUS_PROCESSED);
+                $em->persist($mailing);
             }
         }
         $em->flush();

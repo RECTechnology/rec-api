@@ -75,6 +75,14 @@ class MailingTest extends BaseApiTest {
         self::assertRegExp("/Processing 0 mailings/", $output);
 
         $route = '/admin/v3/mailings/' . $mailing->id;
+        $resp = $this->requestJson('GET', $route);
+        self::assertEquals(
+            Response::HTTP_OK,
+            $resp->getStatusCode(),
+            "route: $route, status_code: {$resp->getStatusCode()}, content: {$resp->getContent()}"
+        );
+        $mailing = json_decode($resp->getContent())->data;
+        $route = '/admin/v3/mailings/' . $mailing->id;
         $now = new \DateTime();
         $resp = $this->requestJson(
             'PUT',

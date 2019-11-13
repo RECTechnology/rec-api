@@ -12,6 +12,9 @@ use Doctrine\ORM\EntityManagerInterface;
 use Doctrine\ORM\Event\LifecycleEventArgs;
 use Doctrine\ORM\Event\PreUpdateEventArgs;
 use Doctrine\ORM\Events;
+use Symfony\Component\DependencyInjection\ContainerAwareInterface;
+use Symfony\Component\DependencyInjection\ContainerAwareTrait;
+use Symfony\Component\DependencyInjection\ContainerInterface;
 use Symfony\Component\HttpFoundation\RequestStack;
 
 /**
@@ -26,15 +29,20 @@ class TranslationsEventSubscriber implements EventSubscriber {
     /** @var EntityManagerInterface $em */
     private $em;
 
+    /** @var ContainerInterface $container */
+    private $container;
+
     /**
      * MailingDeliveryEventSubscriber constructor.
      * @param RequestStack $stack
      * @param EntityManagerInterface $em
+     * @param ContainerInterface $container
      */
-    public function __construct(RequestStack $stack, EntityManagerInterface $em)
+    public function __construct(RequestStack $stack, EntityManagerInterface $em, ContainerInterface $container)
     {
         $this->stack = $stack;
         $this->em = $em;
+        $this->container = $container;
     }
 
     /**
@@ -80,8 +88,10 @@ class TranslationsEventSubscriber implements EventSubscriber {
     function saveTranslations($entity, $changeSet = []){
         if($entity instanceof Translatable){
             if($this->stack->getCurrentRequest()){
-                $locale = $this->stack->getCurrentRequest()->getLocale();
-                $defaultLocale = $this->stack->getCurrentRequest()->getDefaultLocale();
+                if(!$entity->getLocale())
+                    $entity->setLocale($this->stack->getCurrentRequest()->getLocale());
+                $locale = $entity->getLocale();
+                $defaultLocale = $this->container->getParameter('locale');
                 if($locale != $defaultLocale){
                     $rc = new \ReflectionClass($entity);
                     foreach($rc->getProperties() as $rp){
@@ -107,6 +117,35 @@ class TranslationsEventSubscriber implements EventSubscriber {
         }
     }
 
+    /**
+     * @param Translatable $entity
+     * @throws AnnotationException
+     * @throws \ReflectionException
+     */
+    private function translate(Translatable $entity){
+        $locale = $entity->getLocale();
+        $defaultLocale = $this->container->getParameter('locale');
+        if($locale != $defaultLocale){
+            $rc = new \ReflectionClass($entity);
+            foreach($rc->getProperties() as $rp){
+                $ar = new AnnotationReader();
+                foreach ($ar->getPropertyAnnotations($rp) as $an){
+                    if($an instanceof TranslatedProperty){
+                        $rp->setAccessible(true);
+                        $translatedFieldName = implode("_", [$rp->name, $locale]);
+                        if($rc->hasProperty($translatedFieldName)){
+                            $translationProperty = $rc->getProperty($translatedFieldName);
+                            $translationProperty->setAccessible(true);
+                            $value = $translationProperty->getValue($entity);
+                            if($value) $rp->setValue($entity, $value);
+                        }
+                    }
+                }
+            }
+
+        }
+
+    }
 
     /**
      * @param LifecycleEventArgs $args
@@ -117,26 +156,9 @@ class TranslationsEventSubscriber implements EventSubscriber {
         $entity = $args->getEntity();
         if($entity instanceof Translatable){
             if($this->stack->getCurrentRequest()){
-                $locale = $this->stack->getCurrentRequest()->getLocale();
-                $defaultLocale = $this->stack->getCurrentRequest()->getDefaultLocale();
-                if($locale != $defaultLocale){
-                    $rc = new \ReflectionClass($entity);
-                    foreach($rc->getProperties() as $rp){
-                        $ar = new AnnotationReader();
-                        foreach ($ar->getPropertyAnnotations($rp) as $an){
-                            if($an instanceof TranslatedProperty){
-                                $rp->setAccessible(true);
-                                $translatedFieldName = implode("_", [$rp->name, $locale]);
-                                if($rc->hasProperty($translatedFieldName)){
-                                    $translationProperty = $rc->getProperty($translatedFieldName);
-                                    $translationProperty->setAccessible(true);
-                                    $value = $translationProperty->getValue($entity);
-                                    if($value) $rp->setValue($entity, $value);
-                                }
-                            }
-                        }
-                    }
-                }
+                if(!$entity->getLocale())
+                    $entity->setLocale($this->stack->getCurrentRequest()->getLocale());
+                $this->translate($entity);
             }
         }
     }

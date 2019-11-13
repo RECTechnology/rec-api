@@ -7,6 +7,6 @@ namespace App\FinancialApiBundle\Entity;
  * @package App\FinancialApiBundle\Entity
  */
 interface Translatable {
-    function getLocale(): string;
+    function getLocale();
     function setLocale(string $locale);
 }

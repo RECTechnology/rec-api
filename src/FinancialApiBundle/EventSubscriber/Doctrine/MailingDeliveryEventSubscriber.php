@@ -62,24 +62,25 @@ class MailingDeliveryEventSubscriber implements EventSubscriber {
 
         $entity = $args->getEntity();
         if($entity instanceof Mailing){
-            if($args->hasChangedField('status') && $args->getNewValue('status') == Mailing::STATUS_SCHEDULED){
+            $changedStatus = $args->hasChangedField('status');
+            if($changedStatus && $args->getNewValue('status') == Mailing::STATUS_SCHEDULED){
                 if($entity->getScheduledAt() == null){
-                    throw new \LogicException("Cannot schedule Mailing without scheduled_at");
+                    throw new \LogicException("Cannot schedule Mailing without date (property: scheduled_at)");
                 }
             }
         }
-        elseif($entity instanceof MailingDelivery)
-            if ($args->hasChangedField('status') && $args->getNewValue('status') == MailingDelivery::STATUS_SCHEDULED) {
+        elseif($entity instanceof MailingDelivery){
+            $changedStatus = $args->hasChangedField('status');
+            if ($changedStatus && $args->getNewValue('status') == MailingDelivery::STATUS_SCHEDULED) {
                 /** @var Group $account */
                 $account = $entity->getAccount();
-
-                $locale = $account->getKycManager()->getLocale();
-                $this->container->setParameter('locale', $locale);
 
                 /** @var Mailing $mailing */
                 $mailing = $entity->getMailing();
                 /** @var EntityManagerInterface $em */
                 $em = $this->container->get('doctrine.orm.entity_manager');
+                $locale = $account->getKycManager()->getLocale();
+                $mailing->setLocale($locale);
                 $em->refresh($mailing);
 
                 $content = $this->templating->render(
@@ -138,6 +139,7 @@ class MailingDeliveryEventSubscriber implements EventSubscriber {
                 }
 
             }
+        }
     }
 
 }

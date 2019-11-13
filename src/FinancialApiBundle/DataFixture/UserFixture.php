@@ -51,6 +51,7 @@ class UserFixture extends Fixture {
         $user->setPrefix('34');
         $user->setPublicPhone(true);
         $user->setEnabled(true);
+        $user->setLocale('es');
         return $user;
     }
 }
