@@ -52,7 +52,25 @@ class MailingTest extends BaseApiTest {
             $resp->getStatusCode(),
             "route: $route, status_code: {$resp->getStatusCode()}, content: {$resp->getContent()}"
         );
+
         $mailing = json_decode($resp->getContent())->data;
+
+        $route = '/admin/v3/mailings/' . $mailing->id;
+        $resp = $this->requestJson(
+            'PUT',
+            $route,
+            [
+                'subject' => 'test subject ES',
+                'content' => 'test content ES',
+            ],
+            ['HTTP_Content-Language' => 'es']
+        );
+
+        self::assertEquals(
+            Response::HTTP_OK,
+            $resp->getStatusCode(),
+            "route: $route, status_code: {$resp->getStatusCode()}, content: {$resp->getContent()}"
+        );
 
         foreach ($this->accounts as $account) {
             $route = '/admin/v3/mailing_deliveries';

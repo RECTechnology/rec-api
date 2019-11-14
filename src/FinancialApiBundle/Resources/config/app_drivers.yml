@@ -15,8 +15,8 @@ services:
     net.app.driver.lemonway.eur:
         class: App\FinancialApiBundle\Financial\Driver\LemonWayDriver
         arguments:
-            - "%lemonway_url%"
-            - "%lemonway_user%"
-            - "%lemonway_pass%"
-            - "%lemonway_version%"
-            - "%lemonway_admin_account%"
+            $url: "%lemonway_url%"
+            $login: "%lemonway_user%"
+            $pass: "%lemonway_pass%"
+            $version: "%lemonway_version%"
+            $admin_account: "%lemonway_admin_account%"

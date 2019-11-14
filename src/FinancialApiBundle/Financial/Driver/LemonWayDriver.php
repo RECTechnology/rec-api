@@ -4,8 +4,12 @@ namespace App\FinancialApiBundle\Financial\Driver;
 
 use Symfony\Component\HttpKernel\Exception\HttpException;
 
+/**
+ * Class LemonWayDriver
+ * @package App\FinancialApiBundle\Financial\Driver
+ */
+class LemonWayDriver implements LemonWayInterface {
 
-class LemonWayDriver{
     private $url;
     private $login;
     private $pass;
@@ -15,6 +19,14 @@ class LemonWayDriver{
     private $ua;
     private $ssl;
 
+    /**
+     * LemonWayDriver constructor.
+     * @param $url
+     * @param $login
+     * @param $pass
+     * @param $version
+     * @param $admin_account
+     */
     function __construct($url, $login, $pass, $version, $admin_account){
         $this->url = $url;
         $this->login = $login;

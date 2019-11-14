@@ -58,6 +58,15 @@ accounts_v3_report_clients_providers:
         role: "(public|user|manager|self|admin|sadmin)"
         id: "[0-9]+"
 
+accounts_v3_read_lemonway:
+    path:  /{role}/v3/accounts/{id}/lemonway
+    defaults: { _controller: App\FinancialApiBundle\Controller\CRUD\AccountsController::lemonwayReadAction }
+    methods: [GET]
+    requirements:
+        role: "(public|user|manager|self|admin|sadmin)"
+        id: "[0-9]+"
+
+
 accounts_v3_index_relationship:
     path:  /{role}/v3/accounts/{id}/{relationship}
     defaults: { _controller: App\FinancialApiBundle\Controller\CRUD\AccountsController::indexRelationshipAction }

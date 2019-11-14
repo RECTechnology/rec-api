@@ -4,6 +4,7 @@ namespace App\FinancialApiBundle\Controller\CRUD;
 
 use App\FinancialApiBundle\Entity\User;
 use App\FinancialApiBundle\Entity\UserGroup;
+use App\FinancialApiBundle\Exception\AppException;
 use Doctrine\Common\Annotations\AnnotationException;
 use Doctrine\ORM\EntityManagerInterface;
 use Doctrine\ORM\NonUniqueResultException;
@@ -182,6 +183,26 @@ class AccountsController extends CRUDController {
             throw new HttpException(403, "Insufficient permissions for account");
         }
         return parent::deleteRelationshipAction($request, $role, $id1, $relationship, $id2);
+    }
+
+    public function lemonwayReadAction(Request $request, $role, $id) {
+        $this->checkPermissions($role, self::CRUD_SHOW);
+        /** @var Group $account */
+        $account = $this->findObject($id);
+        $lw = $this->container->get('net.app.driver.lemonway.eur');
+
+        $resp = $lw->callService(
+            'GetWalletDetails',
+            ["wallet" => $account->getCif()]
+        );
+        if($resp->E != null) throw new AppException(503, "LW wallet not found");
+        $wallet = $resp->WALLET;
+        return $this->restV2(
+            200,
+            "ok",
+            "LW info fetched successfully",
+            $wallet
+        );
     }
 
     public function indexRelationshipAction(Request $request, $role, $id, $relationship)
