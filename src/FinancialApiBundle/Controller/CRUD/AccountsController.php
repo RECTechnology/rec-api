@@ -197,7 +197,7 @@ class AccountsController extends CRUDController {
         );
         if(is_array($resp) || $resp->E != null)
             throw new AppException(404, "LW wallet not found");
-        $wallet = (array) $resp->WALLET;
+        $wallet = json_decode(json_encode($resp->WALLET), true);
         return $this->restV2(
             200,
             "ok",
