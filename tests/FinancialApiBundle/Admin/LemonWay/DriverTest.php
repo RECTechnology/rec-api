@@ -40,5 +40,4 @@ class DriverTest extends BaseApiTest {
         $wallet = $resp->WALLET;
         self::assertEquals($walletName, $wallet->ID);
     }
-
 }

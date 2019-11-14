@@ -195,9 +195,9 @@ class AccountsController extends CRUDController {
             'GetWalletDetails',
             ["wallet" => $account->getCif()]
         );
-        if($resp['GETWALLETDETAILS']['ERROR'] != null)
+        if(is_array($resp) || $resp->E != null)
             throw new AppException(404, "LW wallet not found");
-        $wallet = $this->securizeOutput($resp['WALLET']);
+        $wallet = (array) $resp->WALLET;
         return $this->restV2(
             200,
             "ok",
