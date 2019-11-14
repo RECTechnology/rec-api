@@ -59,7 +59,7 @@ accounts_v3_report_clients_providers:
         id: "[0-9]+"
 
 accounts_v3_read_lemonway:
-    path:  /{role}/v3/accounts/{id}/lemonway
+    path:  /{role}/v3/accounts/{id}/integrations/lemonway
     defaults: { _controller: App\FinancialApiBundle\Controller\CRUD\AccountsController::lemonwayReadAction }
     methods: [GET]
     requirements:
