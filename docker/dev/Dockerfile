@@ -20,10 +20,15 @@ RUN apt update && apt install -y \
     composer \
     jq \
     phpunit \
-    php-xdebug
+    php-xdebug \
+    curl
 
-# To have composer cache
-RUN mkdir /.composer && chmod -R 777 /.composer
+RUN curl -sL https://deb.nodesource.com/setup_12.x | bash -
+RUN apt install -y nodejs
+RUN npm i -g standard-version
+
+# To have composer and npm cache
+RUN mkdir /.composer /.npm && chmod -R 777 /.composer /.npm
 RUN echo "#!/usr/bin/env bash\n cd /api\n bin/console \"\$@\"\n cd -" > /usr/bin/rec && chmod +x /usr/bin/rec
 
 WORKDIR /api
