@@ -3,7 +3,8 @@ REC Barcelona API
 
 Welcome to the REC Barcelona API [api.rec.barcelona](https://api.rec.barcelona)
 
-![CircleCI](https://circleci.com/gh/QbitArtifacts/rec-api/tree/containerize.svg?style=svg&circle-token=bd8b3154a46945cc5e5a128c12618beb70ba2e81)
+[![Conventional Commits](https://img.shields.io/badge/Conventional%20Commits-1.0.0-yellow.svg)](https://conventionalcommits.org)
+
 
 |Installation|Web|API|User|Docs|WIki|Monitor|Admin|Explorer|
 |------------|---|---|---|---|---|---|---|---|
