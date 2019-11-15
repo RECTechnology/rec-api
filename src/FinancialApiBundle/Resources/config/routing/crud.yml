@@ -60,7 +60,7 @@ accounts_v3_report_clients_providers:
 
 accounts_v3_read_lemonway:
     path:  /{role}/v3/accounts/{id}/integrations/lemonway
-    defaults: { _controller: App\FinancialApiBundle\Controller\CRUD\AccountsController::lemonwayReadAction }
+    defaults: { _controller: App\FinancialApiBundle\Controller\CRUD\LemonWayAccountsController::lemonwayReadAction }
     methods: [GET]
     requirements:
         role: "(public|user|manager|self|admin|sadmin)"

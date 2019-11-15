@@ -185,27 +185,6 @@ class AccountsController extends CRUDController {
         return parent::deleteRelationshipAction($request, $role, $id1, $relationship, $id2);
     }
 
-    public function lemonwayReadAction(Request $request, $role, $id) {
-        $this->checkPermissions($role, self::CRUD_SHOW);
-        /** @var Group $account */
-        $account = $this->findObject($id);
-        $lw = $this->container->get('net.app.driver.lemonway.eur');
-
-        $resp = $lw->callService(
-            'GetWalletDetails',
-            ["wallet" => $account->getCif()]
-        );
-        if(is_array($resp) || $resp->E != null)
-            throw new AppException(404, "LW wallet not found");
-        $wallet = json_decode(json_encode($resp->WALLET), true);
-        return $this->restV2(
-            200,
-            "ok",
-            "LW info fetched successfully",
-            $wallet
-        );
-    }
-
     public function indexRelationshipAction(Request $request, $role, $id, $relationship)
     {
         if(self::ROLE_PATH_MAPPINGS[$role] == self::ROLE_USER) {
