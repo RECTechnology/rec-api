@@ -3,7 +3,7 @@
     "license": "Propietary",
     "type": "project",
     "description": "REC Barcelona API",
-    "version": "1.4.0",
+    "version": "1.4.1",
     "autoload": {
         "psr-4": {
             "App\\": "src/"
