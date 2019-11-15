@@ -47,4 +47,46 @@ class LemonWayAccountsController extends AccountsController {
             $wallet
         );
     }
+
+    public function lemonwaySendToAccountAction(Request $request, $role, $id) {
+        $amount = $request->request->get('amount');
+        $to = $request->request->get('to');
+        $from = $id;
+        return $this->sendBetweenWallets($role, $from, $to, $amount);
+    }
+
+    public function lemonwaySendFromAccountAction(Request $request, $role, $id) {
+        $amount = $request->request->get('amount');
+        $from = $request->request->get('from');
+        $to = $id;
+        return $this->sendBetweenWallets($role, $from, $to, $amount);
+    }
+
+
+    private function sendBetweenWallets($role, $from, $to, $amount) {
+        $this->checkPermissions($role, self::CRUD_UPDATE);
+        /** @var Group $src */
+        $src = $this->findObject($from);
+        /** @var Group $src */
+        $dst = $this->findObject($to);
+        $lw = $this->container->get('net.app.driver.lemonway.eur');
+
+        $resp = $lw->callService(
+            'SendPayment',
+            [
+                "debitWallet" => $src->getCif(),
+                "creditWallet" => $dst->getCif(),
+                "amount" => $amount/100.0
+            ]
+        );
+        if(is_array($resp) || $resp->E != null)
+            throw new AppException(404, "LW wallet not found");
+        $wallet = json_decode(json_encode($resp->WALLET), true);
+        return $this->restV2(
+            200,
+            "ok",
+            "LW tx success",
+            $wallet
+        );
+    }
 }

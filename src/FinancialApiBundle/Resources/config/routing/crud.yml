@@ -58,10 +58,26 @@ accounts_v3_report_clients_providers:
         role: "(public|user|manager|self|admin|sadmin)"
         id: "[0-9]+"
 
-accounts_v3_read_lemonway:
+accounts_v3_lemonway_read:
     path:  /{role}/v3/accounts/{id}/integrations/lemonway
     defaults: { _controller: App\FinancialApiBundle\Controller\CRUD\LemonWayAccountsController::lemonwayReadAction }
     methods: [GET]
+    requirements:
+        role: "(public|user|manager|self|admin|sadmin)"
+        id: "[0-9]+"
+
+accounts_v3_lemonway_send_to_account:
+    path:  /{role}/v3/accounts/{id}/integrations/lemonway
+    defaults: { _controller: App\FinancialApiBundle\Controller\CRUD\LemonWayAccountsController::lemonwaySendToAccountAction }
+    methods: [POST]
+    requirements:
+        role: "(public|user|manager|self|admin|sadmin)"
+        id: "[0-9]+"
+
+accounts_v3_lemonway_send_from_account:
+    path:  /{role}/v3/accounts/{id}/integrations/lemonway
+    defaults: { _controller: App\FinancialApiBundle\Controller\CRUD\LemonWayAccountsController::lemonwaySendFromAccountAction }
+    methods: [POST]
     requirements:
         role: "(public|user|manager|self|admin|sadmin)"
         id: "[0-9]+"
