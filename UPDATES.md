@@ -13,7 +13,14 @@ updating the code, so we have to deal with the existing production data.
 In order to resolve this, there is a list of things to take into account
 
 ### Adding new fields to entities
-#### Deploy compatible code
+
+### Deploy the database changes
+Database changes must be introduced before any database-code, so it will cause failures
+if the code requires some database field and it doesn't exist yet.
+
+It may require a small code update to get it work.
+ 
+#### Deploying compatible code
 create new fields as a functions with `@Serializer\VirtualProperty` annotations.
 This will return the values but it wont require any field to be present in the
 database yet (push 1).
