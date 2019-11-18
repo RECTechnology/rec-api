@@ -20,6 +20,7 @@ use Symfony\Component\HttpFoundation\Request;
 use App\FinancialApiBundle\Entity\Offer;
 use Symfony\Component\Templating\EngineInterface;
 use Symfony\Component\Translation\TranslatorInterface;
+use Symfony\Component\Validator\ConstraintViolationList;
 
 /**
  * Class LemonWayAccountsController
@@ -38,7 +39,7 @@ class LemonWayAccountsController extends AccountsController {
             ["wallet" => $account->getCif()]
         );
         if(is_array($resp) || $resp->E != null)
-            throw new AppException(404, "LW wallet not found");
+            throw new AppException(404, "LW error", (array) $resp);
         $wallet = json_decode(json_encode($resp->WALLET), true);
         return $this->restV2(
             200,
@@ -72,7 +73,7 @@ class LemonWayAccountsController extends AccountsController {
         $this->checkPermissions($role, self::CRUD_UPDATE);
         /** @var Group $src */
         $src = $this->findObject($from);
-        /** @var Group $src */
+        /** @var Group $dst */
         $dst = $this->findObject($to);
 
         if(!$src || !$dst) throw new HttpException(404, "Source or Destination accounts not found");
@@ -88,7 +89,7 @@ class LemonWayAccountsController extends AccountsController {
             ]
         );
         if(is_array($resp) || $resp->E != null)
-            throw new AppException(404, "LW wallet not found: " . print_r($resp, true));
+            throw new AppException(404, "LW error", (array) $resp);
         $wallet = json_decode(json_encode($resp->WALLET), true);
         return $this->restV2(
             200,
