@@ -88,7 +88,7 @@ class LemonWayAccountsController extends AccountsController {
             ]
         );
         if(is_array($resp) || $resp->E != null)
-            throw new AppException(404, "LW wallet not found");
+            throw new AppException(404, "LW wallet not found: " . print_r($resp, true));
         $wallet = json_decode(json_encode($resp->WALLET), true);
         return $this->restV2(
             200,
