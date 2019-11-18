@@ -64,11 +64,19 @@ class LemonWayAccountsController extends AccountsController {
 
 
     private function sendBetweenWallets($role, $from, $to, $amount) {
+
+        if(!$amount) throw new HttpException(400, "Param 'amount' is required");
+        if(!$to) throw new HttpException(400, "Param 'to' is required");
+        if(!$from) throw new HttpException(400, "Param 'from' is required");
+
         $this->checkPermissions($role, self::CRUD_UPDATE);
         /** @var Group $src */
         $src = $this->findObject($from);
         /** @var Group $src */
         $dst = $this->findObject($to);
+
+        if(!$src || !$dst) throw new HttpException(404, "Source or Destination accounts not found");
+
         $lw = $this->container->get('net.app.driver.lemonway.eur');
 
         $resp = $lw->callService(
