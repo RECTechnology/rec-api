@@ -39,7 +39,7 @@ class LemonWayAccountsController extends AccountsController {
             ["wallet" => $account->getCif()]
         );
         if(is_array($resp) || $resp->E != null)
-            throw new AppException(404, "LW error", (array) $resp);
+            throw new AppException(503, "LW error", (array) $resp);
         $wallet = json_decode(json_encode($resp->WALLET), true);
         return $this->restV2(
             200,
@@ -89,7 +89,7 @@ class LemonWayAccountsController extends AccountsController {
             ]
         );
         if(is_array($resp) || $resp->E != null)
-            throw new AppException(404, "LW error", (array) $resp);
+            throw new AppException(503, "LW error", (array) $resp);
         $wallet = json_decode(json_encode($resp->WALLET), true);
         return $this->restV2(
             200,
