@@ -28,6 +28,7 @@ use Symfony\Component\Validator\ConstraintViolationList;
  */
 class LemonWayAccountsController extends AccountsController {
 
+
     public function lemonwayReadAction(Request $request, $role, $id) {
         $this->checkPermissions($role, self::CRUD_SHOW);
         /** @var Group $account */
@@ -85,7 +86,7 @@ class LemonWayAccountsController extends AccountsController {
             [
                 "debitWallet" => $src->getCif(),
                 "creditWallet" => $dst->getCif(),
-                "amount" => $amount/100.0
+                "amount" => $amount
             ]
         );
         if(is_array($resp) || $resp->E != null)
