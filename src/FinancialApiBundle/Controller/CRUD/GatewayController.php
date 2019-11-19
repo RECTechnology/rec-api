@@ -37,7 +37,7 @@ class GatewayController extends CRUDController {
         return $this->$provider($function, $request->request->all());
     }
 
-    public function lemonway($function, $parameters, $filter){
+    public function lemonway($function, $parameters){
         $lw = $this->container->get('net.app.driver.lemonway.eur');
         $resp = $lw->callService($function, $parameters);
 
