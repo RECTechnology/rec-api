@@ -32,7 +32,7 @@ class GatewayController extends CRUDController {
 
     public function gatewayAction(Request $request, $role, $provider, $function){
         $this->checkPermissions($role, self::CRUD_UPDATE);
-        if(!isset(self::PROVIDER_MAP[$provider]))
+        if(!in_array($provider, self::PROVIDER_MAP))
             throw new HttpException(400, "Invalid provider");
         return $this->$provider($function, $request->request->all());
     }
