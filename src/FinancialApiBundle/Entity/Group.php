@@ -93,6 +93,12 @@ class Group extends BaseGroup implements EntityWithUploadableFields {
     private $rec_address;
 
     /**
+     * @ORM\Column(type="integer", nullable=true)
+     * @Serializer\Groups({"admin"})
+     */
+    private $lw_balance;
+
+    /**
      * @ORM\ManyToOne(targetEntity="App\FinancialApiBundle\Entity\Category")
      * @Serializer\Groups({"public"})
      */
@@ -1461,5 +1467,21 @@ class Group extends BaseGroup implements EntityWithUploadableFields {
     public function setActivityMain($activity_main): void
     {
         $this->activity_main = $activity_main;
+    }
+
+    /**
+     * @return mixed
+     */
+    public function getLwBalance()
+    {
+        return $this->lw_balance;
+    }
+
+    /**
+     * @param mixed $lw_balance
+     */
+    public function setLwBalance($lw_balance): void
+    {
+        $this->lw_balance = $lw_balance;
     }
 }
