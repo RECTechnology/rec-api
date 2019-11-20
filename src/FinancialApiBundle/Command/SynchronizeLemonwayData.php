@@ -46,7 +46,7 @@ class SynchronizeLemonwayData extends SynchronizedContainerAwareCommand
         foreach ($resp->wallets as $walletInfo){
             if($walletInfo->WALLET != null){
                 $account = $index[$walletInfo->WALLET->ID];
-                $account->setLwBalance($walletInfo->WALLET->BAL);
+                $account->setLwBalance(intval($walletInfo->WALLET->BAL / 100.0));
                 $em->persist($account);
             }
             else {
