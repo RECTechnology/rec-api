@@ -20,7 +20,6 @@ use Symfony\Component\Validator\Constraints as Assert;
  */
 class MailingDelivery extends AppObject implements Stateful {
 
-    const STATUS_CREATED = "created";
     const STATUS_SCHEDULED = "scheduled";
     const STATUS_SENT = "sent";
     const STATUS_DELIVERED = "delivered";

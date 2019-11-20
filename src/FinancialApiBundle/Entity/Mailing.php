@@ -19,7 +19,6 @@ use Symfony\Component\Validator\Constraints as Assert;
  */
 class Mailing extends AppObject implements Translatable, Stateful {
 
-    const STATUS_CREATED = "created";
     const STATUS_SCHEDULED = "scheduled";
     const STATUS_PROCESSED = "processed";
 
