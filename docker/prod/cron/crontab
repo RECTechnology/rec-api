@@ -2,4 +2,5 @@
 *    *   * * * www-data timeout 300 /usr/bin/rec rec:fiat:check
 *    *   * * * www-data timeout 300 /usr/bin/rec rec:check:offers
 *    *   * * * www-data timeout 300 /usr/bin/rec rec:mailing:send
+*    *   * * * www-data timeout 300 /usr/bin/rec rec:sync:lemonway
 #*    *   * * * www-data find /api/web/static -name *.tmp.* -type f -mmin +10 -delete
