@@ -15,9 +15,9 @@ class AppException extends HttpException {
      * AppException constructor.
      * @param int $statusCode
      * @param string $message
-     * @param ConstraintViolationListInterface|array|null $data
+     * @param mixed $data
      */
-    public function __construct(int $statusCode, string $message, ConstraintViolationListInterface $data = null)
+    public function __construct(int $statusCode, string $message, $data = null)
     {
         $message = ['message' => $message];
         if($data){
