@@ -155,11 +155,13 @@ class TranslationsEventSubscriber implements EventSubscriber {
     public function postLoad(LifecycleEventArgs $args){
         $entity = $args->getEntity();
         if($entity instanceof Translatable){
-            if($this->stack->getCurrentRequest()){
-                if(!$entity->getLocale())
+            if(!$entity->getLocale()) {
+                if ($this->stack->getCurrentRequest())
                     $entity->setLocale($this->stack->getCurrentRequest()->getLocale());
-                $this->translate($entity);
+                else
+                    $entity->setLocale($this->container->getParameter('kernel.default_locale'));
             }
+            $this->translate($entity);
         }
     }
 }

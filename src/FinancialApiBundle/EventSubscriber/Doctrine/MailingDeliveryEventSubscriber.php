@@ -61,15 +61,7 @@ class MailingDeliveryEventSubscriber implements EventSubscriber {
     public function preUpdate(PreUpdateEventArgs $args){
 
         $entity = $args->getEntity();
-        if($entity instanceof Mailing){
-            $changedStatus = $args->hasChangedField('status');
-            if($changedStatus && $args->getNewValue('status') == Mailing::STATUS_SCHEDULED){
-                if($entity->getScheduledAt() == null){
-                    throw new \LogicException("Cannot schedule Mailing without date (property: scheduled_at)");
-                }
-            }
-        }
-        elseif($entity instanceof MailingDelivery){
+        if($entity instanceof MailingDelivery){
             $changedStatus = $args->hasChangedField('status');
             if ($changedStatus && $args->getNewValue('status') == MailingDelivery::STATUS_SCHEDULED) {
                 /** @var Group $account */

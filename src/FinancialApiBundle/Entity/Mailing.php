@@ -108,6 +108,15 @@ class Mailing extends AppObject implements Translatable, Stateful {
     private $scheduled_at;
 
     /**
+     * @Assert\IsTrue(message="Cannot schedule Mailing without date (property: scheduled_at)")
+     */
+    public function isValidToSchedule(){
+        if($this->status == self::STATUS_SCHEDULED && $this->scheduled_at == null)
+            return false;
+        return true;
+    }
+
+    /**
      * Activity constructor.
      */
     public function __construct() {
