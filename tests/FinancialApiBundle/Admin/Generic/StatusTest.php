@@ -31,7 +31,7 @@ class StatusTest extends BaseApiTest {
         $resp = $this->requestJson('POST', $route, ['status' => 'scheduled']);
 
         self::assertEquals(
-            412,
+            400,
             $resp->getStatusCode(),
             "route: $route, status_code: {$resp->getStatusCode()}, content: {$resp->getContent()}"
         );
