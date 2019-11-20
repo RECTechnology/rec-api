@@ -219,6 +219,7 @@ class AccountsController extends CRUDController {
      * @return string
      */
     public function generateClientsAndProvidersReportHtml(EngineInterface $templating, Group $account){
+        $this->get('translator')->setLocale($account->getKycManager()->getLocale());
         return $templating->render(
             'FinancialApiBundle:Pdf:product_clients_and_providers.html.twig',
             ['account' => $account]
