@@ -76,8 +76,8 @@ class MailingDeliveryEventSubscriber implements EventSubscriber {
                 if($locale) {
                     $mailing->setLocale($locale);
                     $em->refresh($mailing);
+                    $this->translator->setLocale($locale);
                 }
-
                 $content = $this->templating->render(
                     'FinancialApiBundle:Email:rec_empty_email.html.twig',
                     [
