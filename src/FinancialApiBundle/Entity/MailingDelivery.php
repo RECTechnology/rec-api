@@ -18,7 +18,7 @@ use Symfony\Component\Validator\Constraints as Assert;
  * @ORM\Table(uniqueConstraints={@ORM\UniqueConstraint(columns={"account_id", "mailing_id"})})
  * @ORM\Entity
  */
-class MailingDelivery extends AppObject {
+class MailingDelivery extends AppObject implements Stateful {
 
     const STATUS_CREATED = "created";
     const STATUS_SCHEDULED = "scheduled";
