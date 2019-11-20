@@ -18,6 +18,7 @@ use JMS\Serializer\Annotation\Type;
 use JMS\Serializer\Annotation\SerializedName;
 use JMS\Serializer\Annotation\Groups;
 use JMS\Serializer\Annotation\MaxDepth;
+use Symfony\Component\Validator\Constraints as Assert;
 use Symfony\Component\Validator\Constraints\DateTime;
 use App\FinancialApiBundle\DependencyInjection\App\Commons\UploadManager;
 
@@ -206,6 +207,10 @@ class User extends BaseUser implements EntityWithUploadableFields {
 
     /**
      * @ORM\Column(type="string", nullable=true)
+     * @Assert\Choice(
+     *     choices={"en", "es", "ca"},
+     *     message="Invalid parameter locale, valid options are: en, es, ca"
+     * )
      * @Expose
      * @Groups({"manager"})
      */
