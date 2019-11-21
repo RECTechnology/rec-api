@@ -119,7 +119,7 @@ class Mailing extends AppObject implements Translatable, Stateful {
      * @Assert\IsTrue(message="Cannot schedule Mailing without any recipient")
      */
     public function hasRecipients(){
-        if($this->deliveries->count() <= 0)
+        if($this->status == self::STATUS_SCHEDULED && $this->deliveries->count() <= 0)
             return false;
         return true;
     }
