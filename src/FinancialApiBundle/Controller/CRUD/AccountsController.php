@@ -250,10 +250,6 @@ class AccountsController extends CRUDController {
         /** @var Group $account */
         $account = $this->findObject($id);
 
-        $html = $templating->render(
-            'FinancialApiBundle:Pdf:product_clients_and_providers.html.twig',
-            ['account' => $account]
-        );
         $format = $request->headers->get('Accept');
         if($format == 'text/html') {
             return new Response(
