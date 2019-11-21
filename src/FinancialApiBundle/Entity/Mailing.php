@@ -109,9 +109,16 @@ class Mailing extends AppObject implements Translatable, Stateful {
     /**
      * @Assert\IsTrue(message="Cannot schedule Mailing without date (property: scheduled_at)")
      */
-    public function isValidToSchedule(){
+    public function hasScheduledTime(){
         if($this->status == self::STATUS_SCHEDULED && $this->scheduled_at == null)
             return false;
+        return true;
+    }
+
+    /**
+     * @Assert\IsTrue(message="Cannot schedule Mailing without any recipient")
+     */
+    public function hasRecipients(){
         if($this->deliveries->count() <= 0)
             return false;
         return true;
