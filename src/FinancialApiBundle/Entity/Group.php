@@ -49,6 +49,7 @@ class Group extends BaseGroup implements EntityWithUploadableFields {
         $this->activities = new ArrayCollection();
         $this->consuming_products = new ArrayCollection();
         $this->producing_products = new ArrayCollection();
+        $this->documents = new ArrayCollection();
         $this->company_token = uniqid();
         $this->on_map = 1;
 
@@ -191,7 +192,6 @@ class Group extends BaseGroup implements EntityWithUploadableFields {
      * @Serializer\Groups({"user"})
      */
     private $balance;
-
 
     /**
      * @ORM\OneToMany(targetEntity="App\FinancialApiBundle\Entity\Offer", mappedBy="company", cascade={"remove"})
@@ -414,6 +414,12 @@ class Group extends BaseGroup implements EntityWithUploadableFields {
      * @Serializer\Groups({"admin"})
      */
     private $cash_in_tokens;
+
+    /**
+     * @ORM\OneToMany(targetEntity="App\FinancialApiBundle\Entity\Document", mappedBy="account", cascade={"remove"})
+     * @Serializer\Groups({"user"})
+     */
+    private $documents;
 
     /**
      * @ORM\Column(type="integer")
@@ -1483,5 +1489,21 @@ class Group extends BaseGroup implements EntityWithUploadableFields {
     public function setLwBalance($lw_balance): void
     {
         $this->lw_balance = $lw_balance;
+    }
+
+    /**
+     * @return mixed
+     */
+    public function getDocuments()
+    {
+        return $this->documents;
+    }
+
+    /**
+     * @param mixed $documents
+     */
+    public function setDocuments($documents): void
+    {
+        $this->documents = $documents;
     }
 }
