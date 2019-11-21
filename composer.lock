@@ -8428,5 +8428,6 @@
         "ext-xml": "*",
         "ext-zip": "*"
     },
-    "platform-dev": []
+    "platform-dev": [],
+    "version": "1.7.0"
 }
