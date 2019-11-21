@@ -26,8 +26,7 @@
         </p>
         <div class="report group-row-left space-between" style="margin-top: 15px">
             <div class="report-list">
-                <h3 class="list-title">{{ "Clients Found" | trans }}
-                    ({{ account.producingProducts | length }})</h3>
+                <h3 class="list-title">{{ "Clients Found" | trans }}</h3>
                 <ul>
                     {% for product in account.producingProducts %}
                         <li style="padding-bottom: 10px">
@@ -55,8 +54,7 @@
             </div>
 
             <div class="report-list">
-                <h3 class="list-title">{{ "Providers Found" | trans }}
-                    ({{ account.consumingProducts | length }})</h3>
+                <h3 class="list-title">{{ "Providers Found" | trans }}</h3>
                 <ul>
                     {% for product in account.consumingProducts %}
                         <li style="padding-bottom: 10px">
