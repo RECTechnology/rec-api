@@ -112,6 +112,8 @@ class Mailing extends AppObject implements Translatable, Stateful {
     public function isValidToSchedule(){
         if($this->status == self::STATUS_SCHEDULED && $this->scheduled_at == null)
             return false;
+        if($this->deliveries->count() <= 0)
+            return false;
         return true;
     }
 
