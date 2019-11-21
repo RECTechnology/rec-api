@@ -59,6 +59,7 @@ class ReportClientsAndProvidersTest extends BaseApiTest {
                     'HTTP_Accept-Language' => $account->kyc_manager->locale
                 ]
             );
+
             self::assertEquals(
                 200,
                 $resp->getStatusCode(),
