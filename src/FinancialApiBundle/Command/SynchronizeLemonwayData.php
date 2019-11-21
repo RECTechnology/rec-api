@@ -34,7 +34,10 @@ class SynchronizeLemonwayData extends SynchronizedContainerAwareCommand
         $callParams = ['wallets' => []];
         /** @var Group $account */
         foreach ($accounts as $account){
+            $output->writeln("[INFO] Processing account {$account->getId()}");
             $wid = $account->getCif();
+            if(!$wid || strlen($wid) == 0)
+                $output->writeln("[WARN] CIF for account {$account->getId()} is null or empty");
             $index[$wid] = $account;
             $callParams['wallets'] []= ['wallet' => $wid];
             $account->setLwBalance(null);
@@ -45,6 +48,7 @@ class SynchronizeLemonwayData extends SynchronizedContainerAwareCommand
 
         foreach ($resp->wallets as $walletInfo){
             if($walletInfo->WALLET != null){
+                $output->writeln("[INFO] Found LW ID {$walletInfo->WALLET->ID}");
                 $account = $index[$walletInfo->WALLET->ID];
                 $account->setLwBalance(intval($walletInfo->WALLET->BAL / 100.0));
                 $em->persist($account);
