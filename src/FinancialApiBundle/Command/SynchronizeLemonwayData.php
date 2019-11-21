@@ -50,7 +50,7 @@ class SynchronizeLemonwayData extends SynchronizedContainerAwareCommand
             if($walletInfo->WALLET != null){
                 $output->writeln("[INFO] Found LW ID {$walletInfo->WALLET->ID}");
                 $account = $index[strtoupper($walletInfo->WALLET->ID)];
-                $account->setLwBalance(intval($walletInfo->WALLET->BAL / 100.0));
+                $account->setLwBalance(intval($walletInfo->WALLET->BAL * 100.0));
                 $em->persist($account);
             }
             else {
