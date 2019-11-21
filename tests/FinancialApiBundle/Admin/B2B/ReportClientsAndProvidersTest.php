@@ -11,6 +11,11 @@ use Test\FinancialApiBundle\BaseApiTest;
  */
 class ReportClientsAndProvidersTest extends BaseApiTest {
 
+    const REPORT_HEADER = [
+        'es' => 'CLIENTES Y PROVEEDORES DE TUS PRODUCTOS',
+        'en' => 'CLIENTS AND PROVIDERS FOR YOUR PRODUCTS',
+    ];
+
     function setUp(): void
     {
         parent::setUp();
@@ -19,73 +24,55 @@ class ReportClientsAndProvidersTest extends BaseApiTest {
 
     function testReportClientsAndProviders()
     {
-        $limit = 1;
-        $routeListAccounts = '/admin/v3/accounts?limit=' . $limit;
+        $routeListAccounts = '/admin/v3/accounts';
         $resp = $this->requestJson('GET', $routeListAccounts);
         self::assertEquals(
             200,
             $resp->getStatusCode(),
             "route: $routeListAccounts, status_code: {$resp->getStatusCode()}, content: {$resp->getContent()}"
         );
-        $jsonResp = json_decode($resp->getContent());
-        self::assertEquals(
-            $limit,
-            count($jsonResp->data->elements),
-            "route: $routeListAccounts, status_code: {$resp->getStatusCode()}, content: {$resp->getContent()}"
-        );
+        $accounts = json_decode($resp->getContent())->data->elements;
 
-        $account = $jsonResp->data->elements[0]->id;
+        foreach ($accounts as $account){
 
-        $route = "/admin/v3/accounts/$account/report_clients_providers";
-        $resp = $this->request('GET', $route, null, ['HTTP_ACCEPT' => 'application/pdf']);
-        self::assertEquals(
-            200,
-            $resp->getStatusCode(),
-            "route: $route, status_code: {$resp->getStatusCode()}, content: {$resp->getContent()}"
-        );
-        self::assertStringContainsStringIgnoringCase(
-            "application/pdf",
-            $resp->headers->get('Content-Type'),
-            "route: $route, status_code: {$resp->getStatusCode()}, headers: {$resp->headers}"
-        );
+            $route = "/admin/v3/accounts/{$account->id}/report_clients_providers";
+            $resp = $this->request('GET', $route, null, ['HTTP_ACCEPT' => 'application/pdf']);
+            self::assertEquals(
+                200,
+                $resp->getStatusCode(),
+                "route: $route, status_code: {$resp->getStatusCode()}, content: {$resp->getContent()}"
+            );
+            self::assertStringContainsStringIgnoringCase(
+                "application/pdf",
+                $resp->headers->get('Content-Type'),
+                "route: $route, status_code: {$resp->getStatusCode()}, headers: {$resp->headers}"
+            );
 
-        $this->dump('report.pdf', $resp->getContent());
+            $this->dump('report.pdf', $resp->getContent());
 
-        $resp = $this->request(
-            'GET',
-            $route,
-            null,
-            [
-                'HTTP_ACCEPT' => 'text/html',
-                'HTTP_Accept-Language' => 'es'
-            ]
-        );
-        self::assertEquals(
-            200,
-            $resp->getStatusCode(),
-            "route: $route, status_code: {$resp->getStatusCode()}, content: {$resp->getContent()}"
-        );
-        self::assertStringContainsStringIgnoringCase(
-            "text/html",
-            $resp->headers->get('Content-Type'),
-            "route: $route, status_code: {$resp->getStatusCode()}, headers: {$resp->headers}"
-        );
-        self::assertStringContainsStringIgnoringCase(
-            "CLIENTES Y PROVEEDORES DE TUS PRODUCTOS",
-            $resp->getContent()
-        );
-        $resp = $this->request(
-            'GET',
-            $route,
-            null,
-            [
-                'HTTP_ACCEPT' => 'text/html',
-                'HTTP_Accept-Language' => 'en'
-            ]
-        );
-        self::assertStringContainsStringIgnoringCase(
-            "CLIENTS AND PROVIDERS FOR YOUR PRODUCTS",
-            $resp->getContent()
-        );
+            $resp = $this->request(
+                'GET',
+                $route,
+                null,
+                [
+                    'HTTP_ACCEPT' => 'text/html',
+                    'HTTP_Accept-Language' => $account->kyc_manager->locale
+                ]
+            );
+            self::assertEquals(
+                200,
+                $resp->getStatusCode(),
+                "route: $route, status_code: {$resp->getStatusCode()}, content: {$resp->getContent()}"
+            );
+            self::assertStringContainsStringIgnoringCase(
+                "text/html",
+                $resp->headers->get('Content-Type'),
+                "route: $route, status_code: {$resp->getStatusCode()}, headers: {$resp->headers}"
+            );
+            self::assertStringContainsStringIgnoringCase(
+                self::REPORT_HEADER[$account->kyc_manager->locale],
+                $resp->getContent()
+            );
+        }
     }
 }
