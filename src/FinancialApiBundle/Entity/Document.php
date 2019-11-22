@@ -22,8 +22,8 @@ class Document extends AppObject implements EntityWithUploadableFields, Stateful
      * @var string $status
      * @ORM\Column(type="string")
      * @StatusProperty(choices={
-     *     "created"={"to"={"pending_upload"}},
-     *     "pending_upload"={"to"={"pending_approve"}},
+     *     "created"={"to"={"uploaded"}},
+     *     "uploaded"={"to"={"submitted"}},
      *     "submitted"={"to"={"approved", "declined"}},
      *     "declined"={"to"={"submitted"}},
      *     "approved"={"to"={"submitted"}},
@@ -57,7 +57,6 @@ class Document extends AppObject implements EntityWithUploadableFields, Stateful
      * @Serializer\Groups({"manager"})
      */
     private $kind;
-
 
     function getUploadableFields()
     {
