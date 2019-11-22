@@ -5,6 +5,7 @@ namespace App\FinancialApiBundle\Entity;
 
 use App\FinancialApiBundle\Annotations\StatusProperty;
 use App\FinancialApiBundle\DependencyInjection\App\Commons\UploadManager;
+use App\FinancialApiBundle\Exception\AppLogicException;
 use Doctrine\ORM\Mapping as ORM;
 use JMS\Serializer\Annotation as Serializer;
 
@@ -25,8 +26,9 @@ class Document extends AppObject implements Uploadable, Stateful {
      *     "created"={"to"={"uploaded"}},
      *     "uploaded"={"to"={"submitted"}},
      *     "submitted"={"to"={"approved", "declined"}},
-     *     "declined"={"to"={"submitted"}},
-     *     "approved"={"to"={"submitted"}},
+     *     "declined"={"to"={"archived"}},
+     *     "approved"={"final"=true},
+     *     "archived"={"final"=true},
      * }, initial="created")
      * @Serializer\Groups({"manager"})
      */
@@ -57,6 +59,7 @@ class Document extends AppObject implements Uploadable, Stateful {
      * @Serializer\Groups({"manager"})
      */
     private $kind;
+
 
     function getUploadableFields()
     {
@@ -108,7 +111,10 @@ class Document extends AppObject implements Uploadable, Stateful {
      */
     public function setContent(string $content): void
     {
+        if($this->status != self::STATUS_CREATED || $this->status != null)
+            throw new AppLogicException("Setting content is only available when status is 'created'");
         $this->content = $content;
+        $this->status = self::STATUS_UPLOADED;
     }
 
     /**
