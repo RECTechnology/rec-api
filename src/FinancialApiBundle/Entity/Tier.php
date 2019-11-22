@@ -36,6 +36,12 @@ class Tier extends AppObject {
      */
     private $document_kinds;
 
+    /**
+     * @ORM\OneToOne(targetEntity="App\FinancialApiBundle\Entity\Tier")
+     * @Serializer\Groups({"user"})
+     */
+    private $previous;
+
     public function __construct(){
         $this->document_kinds = new ArrayCollection();
     }
@@ -86,6 +92,22 @@ class Tier extends AppObject {
     public function setDocumentKinds($document_kinds): void
     {
         $this->document_kinds = $document_kinds;
+    }
+
+    /**
+     * @return mixed
+     */
+    public function getPrevious()
+    {
+        return $this->previous;
+    }
+
+    /**
+     * @param mixed $previous
+     */
+    public function setPrevious($previous): void
+    {
+        $this->previous = $previous;
     }
 
 
