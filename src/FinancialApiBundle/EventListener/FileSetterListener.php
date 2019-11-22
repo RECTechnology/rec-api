@@ -17,7 +17,7 @@ use Psr\Log\LoggerInterface;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 use Symfony\Component\HttpKernel\Exception\HttpException;
 use App\FinancialApiBundle\DependencyInjection\App\Commons\UploadManager;
-use App\FinancialApiBundle\Entity\EntityWithUploadableFields;
+use App\FinancialApiBundle\Entity\Uploadable;
 use App\FinancialApiBundle\Entity\Group;
 use App\FinancialApiBundle\Entity\KYC;
 use App\FinancialApiBundle\Entity\User;
@@ -37,13 +37,13 @@ class FileSetterListener
     }
 
     /**
-     * @param EntityWithUploadableFields $entity
+     * @param Uploadable $entity
      * @param $file_fields_changed
      * @param EntityManagerInterface $em
      * @param UnitOfWork $uow
      * @throws \ReflectionException
      */
-    private function save(EntityWithUploadableFields $entity, $file_fields_changed, EntityManagerInterface $em, UnitOfWork $uow){
+    private function save(Uploadable $entity, $file_fields_changed, EntityManagerInterface $em, UnitOfWork $uow){
 
         /** @var UploadManager $fileManager */
         $fileManager = $this->container->get('file_manager');
@@ -86,13 +86,13 @@ class FileSetterListener
         $uow = $em->getUnitOfWork();
 
         foreach ($uow->getScheduledEntityInsertions() as $entity) {
-            if($entity instanceof EntityWithUploadableFields) {
+            if($entity instanceof Uploadable) {
                 $this->save($entity, $entity->getUploadableFields(), $em, $uow);
             }
         }
 
         foreach ($uow->getScheduledEntityUpdates() as $entity) {
-            if($entity instanceof EntityWithUploadableFields) {
+            if($entity instanceof Uploadable) {
                 $file_fields_changed = array_intersect_key($entity->getUploadableFields(), $uow->getEntityChangeSet($entity));
                 $this->save($entity, $file_fields_changed, $em, $uow);
             }

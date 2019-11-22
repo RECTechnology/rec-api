@@ -13,7 +13,7 @@ use JMS\Serializer\Annotation as Serializer;
  * @package App\FinancialApiBundle\Entity
  * @ORM\Entity()
  */
-class Document extends AppObject implements EntityWithUploadableFields, Stateful {
+class Document extends AppObject implements Uploadable, Stateful {
 
     const DOCTYPE_LW_ID = 0;
     const DOCTYPE_LW_PROOF_OF_ADDRESS = 1;

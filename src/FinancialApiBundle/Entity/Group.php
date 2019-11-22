@@ -28,7 +28,7 @@ use Symfony\Component\Validator\Constraints as Assert;
  *     )
  * })
  */
-class Group extends BaseGroup implements EntityWithUploadableFields {
+class Group extends BaseGroup implements Uploadable {
 
     const SERIALIZATION_GROUPS_PUBLIC  =                                     ['public'];
     const SERIALIZATION_GROUPS_USER    =                             ['user', 'public'];

@@ -14,7 +14,7 @@ use App\FinancialApiBundle\DependencyInjection\App\Commons\UploadManager;
  * @ORM\Table(name="KYC")
  * @ExclusionPolicy("all")
  */
-class KYC implements EntityWithUploadableFields {
+class KYC implements Uploadable {
 
     /**
      * @ORM\Id

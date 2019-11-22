@@ -9,7 +9,7 @@
 namespace App\FinancialApiBundle\Entity;
 
 
-interface EntityWithUploadableFields
+interface Uploadable
 {
     function getUploadableFields();
 }

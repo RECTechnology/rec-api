@@ -38,7 +38,7 @@ use App\FinancialApiBundle\DependencyInjection\App\Commons\UploadManager;
  *     )
  * })
  */
-class User extends BaseUser implements EntityWithUploadableFields {
+class User extends BaseUser implements Uploadable {
 
     /**
      * User constructor.

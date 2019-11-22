@@ -19,7 +19,7 @@ use Symfony\Component\HttpKernel\Exception\HttpException;
 use App\FinancialApiBundle\DependencyInjection\App\Commons\UploadManager;
 use App\FinancialApiBundle\Entity\DelegatedChange;
 use App\FinancialApiBundle\Entity\DelegatedChangeData;
-use App\FinancialApiBundle\Entity\EntityWithUploadableFields;
+use App\FinancialApiBundle\Entity\Uploadable;
 use App\FinancialApiBundle\Entity\Group;
 use App\FinancialApiBundle\Entity\KYC;
 use App\FinancialApiBundle\Entity\User;

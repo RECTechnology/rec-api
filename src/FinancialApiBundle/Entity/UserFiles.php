@@ -15,7 +15,7 @@ use App\FinancialApiBundle\DependencyInjection\App\Commons\UploadManager;
  * @ORM\Entity
  * @ExclusionPolicy("all")
  */
-class UserFiles implements EntityWithUploadableFields {
+class UserFiles implements Uploadable {
 
     protected $list_tags = array(
         "banco" => 2,
