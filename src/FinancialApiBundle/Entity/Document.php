@@ -6,6 +6,7 @@ namespace App\FinancialApiBundle\Entity;
 use App\FinancialApiBundle\Annotations\StatusProperty;
 use App\FinancialApiBundle\DependencyInjection\App\Commons\UploadManager;
 use Doctrine\ORM\Mapping as ORM;
+use JMS\Serializer\Annotation as Serializer;
 
 /**
  * Class Document
@@ -27,28 +28,33 @@ class Document extends AppObject implements EntityWithUploadableFields, Stateful
      *     "declined"={"to"={"submitted"}},
      *     "approved"={"to"={"submitted"}},
      * }, initial="created")
+     * @Serializer\Groups({"manager"})
      */
     private $status;
 
     /**
      * @var string $name
      * @ORM\Column(type="string")
+     * @Serializer\Groups({"manager"})
      */
     private $name;
 
     /**
      * @var string $type
      * @ORM\Column(type="string", nullable=true)
+     * @Serializer\Groups({"manager"})
      */
     private $content;
 
     /**
      * @ORM\ManyToOne(targetEntity="App\FinancialApiBundle\Entity\Group", inversedBy="documents")
+     * @Serializer\Groups({"manager"})
      */
     private $account;
 
     /**
      * @ORM\ManyToOne(targetEntity="App\FinancialApiBundle\Entity\DocumentKind", inversedBy="documents")
+     * @Serializer\Groups({"manager"})
      */
     private $kind;
 
