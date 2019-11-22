@@ -24,7 +24,7 @@ class Tier extends AppObject {
     private $code;
 
     /**
-     * @var string $code
+     * @var string $description
      * @ORM\Column(type="string", nullable=true)
      * @Serializer\Groups({"user"})
      */
