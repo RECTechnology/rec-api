@@ -36,6 +36,12 @@ class DocumentKind extends AppObject {
      */
     private $documents;
 
+    /**
+     * @ORM\ManyToOne(targetEntity="App\FinancialApiBundle\Entity\Tier", inversedBy="document_kinds")
+     * @Serializer\Groups({"admin"})
+     */
+    private $tier;
+
 
     public function __construct()
     {
@@ -88,6 +94,22 @@ class DocumentKind extends AppObject {
     public function setDocuments($documents): void
     {
         $this->documents = $documents;
+    }
+
+    /**
+     * @return mixed
+     */
+    public function getTier()
+    {
+        return $this->tier;
+    }
+
+    /**
+     * @param mixed $tier
+     */
+    public function setTier($tier): void
+    {
+        $this->tier = $tier;
     }
 
 }

@@ -31,6 +31,9 @@ class CrudV3ReadAllObjectsTest extends BaseApiTest implements CrudV3ReadTestInte
         'limit_definitions',
         'mailings',
         'mailing_deliveries',
+        'tiers',
+        'document_kinds',
+        'documents',
     ];
 
     function setUp(): void
