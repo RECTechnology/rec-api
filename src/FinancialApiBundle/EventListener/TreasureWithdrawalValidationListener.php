@@ -60,7 +60,7 @@ class TreasureWithdrawalValidationListener {
                                 $txId = $matches[1];
 
                                 /** @var DocumentManager $odm */
-                                $odm = $this->container->get('doctrine_mongodb.odm.document_manager');
+                                $odm = $this->container->get('doctrine.odm.mongodb.document_manager');
                                 $txRepo = $odm->getRepository("FinancialApiBundle:Transaction");
                                 /** @var Transaction $tx */
                                 $tx = $txRepo->find($txId);

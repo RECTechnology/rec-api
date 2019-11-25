@@ -38,7 +38,7 @@ final class ExecuteMissedRecTxDelegatedChangeJulyCommand extends SynchronizedCon
         /** @var EntityManagerInterface $em */
         $em = $this->getContainer()->get('doctrine.orm.entity_manager');
         /** @var DocumentManager $dm */
-        $dm = $this->getContainer()->get('doctrine_mongodb.odm.document_manager');
+        $dm = $this->getContainer()->get('doctrine.odm.mongodb.document_manager');
         $txRepo = $dm->getRepository(Transaction::class);
         $accRepo = $em->getRepository(Group::class);
         $usRepo = $em->getRepository(User::class);
