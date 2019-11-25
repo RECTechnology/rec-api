@@ -8,6 +8,7 @@
 
 namespace App\FinancialApiBundle\DependencyInjection\App\Commons;
 
+use App\FinancialApiBundle\Exception\AppLogicException;
 use Symfony\Component\HttpKernel\Exception\HttpException;
 use App\FinancialApiBundle\Document\Transaction;
 use App\FinancialApiBundle\Entity\Balance;
@@ -47,6 +48,8 @@ class PermissionsHandler{
             'method'    =>  $transaction->getMethod(),
             'type'      =>  $transaction->getType()
         ));
+
+        if(!$statusMethod) throw new \LogicException("Attempted to call an undefined method '{$transaction->getMethod()}'");
 
         if($statusMethod->getStatus() != 'available') throw new HttpException(403, 'Method temporally unavailable.');
 

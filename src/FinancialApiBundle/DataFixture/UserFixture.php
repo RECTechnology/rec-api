@@ -11,8 +11,8 @@ use Faker\Generator;
 
 class UserFixture extends Fixture {
 
-    const TEST_USER_CREDENTIALS = ['username' => 'user_user', 'password' => 'user_user'];
-    const TEST_ADMIN_CREDENTIALS = ['username' => 'admin_user', 'password' => 'admin_user'];
+    const TEST_USER_CREDENTIALS = ['username' => 'user_user', 'password' => 'user_user', 'pin' => '0123'];
+    const TEST_ADMIN_CREDENTIALS = ['username' => 'admin_user', 'password' => 'admin_user', 'pin' => '3210'];
 
     /**
      * Load data fixtures with the passed EntityManager
@@ -23,8 +23,8 @@ class UserFixture extends Fixture {
     public function load(ObjectManager $manager)
     {
         $faker = Factory::create();
-        $admin = $this->generateUser($faker, self::TEST_ADMIN_CREDENTIALS['username']);
-        $user = $this->generateUser($faker, self::TEST_USER_CREDENTIALS['username']);
+        $admin = $this->generateUser($faker, self::TEST_ADMIN_CREDENTIALS);
+        $user = $this->generateUser($faker, self::TEST_USER_CREDENTIALS);
         $manager->persist($admin);
         $manager->persist($user);
         $manager->flush();
@@ -32,18 +32,18 @@ class UserFixture extends Fixture {
 
     /**
      * @param Generator $faker
-     * @param string $identifier
+     * @param $credentials
      * @return User
      * @throws \Exception
      */
-    protected function generateUser(Generator $faker, $identifier): User
+    protected function generateUser(Generator $faker, $credentials): User
     {
         $user = new User();
         $user->setName($faker->name);
-        $user->setUsername($identifier);
+        $user->setUsername($credentials['username']);
         $user->setEmail($faker->email);
-        $user->setPlainPassword($identifier);
-        $user->setPin($faker->shuffle('1234'));
+        $user->setPlainPassword($credentials['password']);
+        $user->setPin($credentials['pin']);
         $user->setSecurityQuestion($faker->sentence);
         $user->setSecurityAnswer($faker->sentence);
         $user->setDNI($faker->shuffle('01234567') . 'A');

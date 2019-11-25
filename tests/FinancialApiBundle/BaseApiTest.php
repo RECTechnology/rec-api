@@ -63,10 +63,22 @@ abstract class BaseApiTest extends WebTestCase {
     /** @var TestDataFactory $testFactory */
     protected $testFactory;
 
-    /**
-     * @var Client
-     */
-    protected $client;
+
+    private $overrides = [];
+
+    private $ip = '127.0.0.1';
+
+    protected function setClientIp($ip){
+        $this->ip = $ip;
+    }
+
+    protected function override($service_id, $mock){
+        $this->overrides[$service_id] = $mock;
+    }
+
+    protected function enforce($service_id){
+        unset($this->overrides[$service_id]);
+    }
 
     /**
      * @param string $method
@@ -78,8 +90,12 @@ abstract class BaseApiTest extends WebTestCase {
     protected function request(string $method, string $url, string $content = null, array $headers = []) {
         if($this->token) $headers['HTTP_AUTHORIZATION'] = "Bearer {$this->token['access_token']}";
 
-        $this->client->request($method, $url, [], [], $headers, $content);
-        return $this->client->getResponse();
+        $client = static::createClient([], ['REMOTE_ADDR' => $this->ip]);
+        foreach ($this->overrides as $service => $mock) $client->getContainer()->set($service, $mock);
+        //$client->setServerParameter('REMOTE_ADDR', '1.1.1.1');
+
+        $client->request($method, $url, [], [], $headers, $content);
+        return $client->getResponse();
     }
 
     /**
@@ -148,7 +164,7 @@ abstract class BaseApiTest extends WebTestCase {
             for($i = 0; $i < count($matches[0]); $i++){
                 $paramName = $matches[1][$i];
                 $match = $matches[0][$i];
-                $param = $this->client->getContainer()->getParameter($paramName);
+                $param = self::createClient()->getContainer()->getParameter($paramName);
                 $string = preg_replace("/$match/", $param, $string);
             }
         }

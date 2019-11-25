@@ -15,7 +15,7 @@ use App\FinancialApiBundle\Entity\Group;
 use App\FinancialApiBundle\Entity\LimitCount;
 use App\FinancialApiBundle\Financial\Currency;
 
-class LimitManipulator{
+class LimitManipulator {
     private $doctrine;
     private $doctrine_mongo;
     private $container;
