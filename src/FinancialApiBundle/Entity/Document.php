@@ -111,7 +111,7 @@ class Document extends AppObject implements Uploadable, Stateful {
      */
     public function setContent(string $content): void
     {
-        if($this->status != self::STATUS_CREATED || $this->status != null)
+        if($this->status == self::STATUS_CREATED || $this->status != null)
             throw new AppLogicException("Setting content is only available when status is 'created'");
         $this->content = $content;
         $this->status = self::STATUS_UPLOADED;
