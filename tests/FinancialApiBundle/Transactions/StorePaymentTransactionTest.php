@@ -4,7 +4,6 @@ namespace Test\FinancialApiBundle\Transactions;
 
 use App\FinancialApiBundle\DataFixture\UserFixture;
 use App\FinancialApiBundle\DependencyInjection\App\Commons\BalanceManipulator;
-use App\FinancialApiBundle\DependencyInjection\App\Commons\LimitManipulator;
 use App\FinancialApiBundle\Repository\TransactionRepository;
 use Doctrine\Common\Persistence\ManagerRegistry;
 use Doctrine\ODM\MongoDB\DocumentManager;
@@ -71,6 +70,6 @@ class StorePaymentTransactionTest extends BaseApiTest {
             $resp->getStatusCode(),
             "route: $route, status_code: {$resp->getStatusCode()}, content: {$resp->getContent()}"
         );
-
     }
+
 }

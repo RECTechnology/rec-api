@@ -92,7 +92,6 @@ abstract class BaseApiTest extends WebTestCase {
 
         $client = static::createClient([], ['REMOTE_ADDR' => $this->ip]);
         foreach ($this->overrides as $service => $mock) $client->getContainer()->set($service, $mock);
-        //$client->setServerParameter('REMOTE_ADDR', '1.1.1.1');
 
         $client->request($method, $url, [], [], $headers, $content);
         return $client->getResponse();

@@ -650,7 +650,7 @@ abstract class BaseApiV2Controller extends RestApiController implements Reposito
         $deleter = $this->getDeleter($relationship);
 
         if (!method_exists($entity, $deleter)) {
-            throw new HttpException(400, "Bad request, parameter '$relationship' is invalid. (method $deleter)");
+            throw new HttpException(400, "Bad request, parameter '$relationship' is invalid. (undefined method $deleter)");
         }
         call_user_func_array([$entity, $deleter], [$relatedEntity]);
         $em = $this->getDoctrine()->getManager();

@@ -1,6 +1,8 @@
 <?php
 namespace App\FinancialApiBundle\Command;
 
+use App\FinancialApiBundle\Entity\Group;
+use App\FinancialApiBundle\Entity\User;
 use Doctrine\ORM\EntityManagerInterface;
 use Stubs\DocumentManager;
 use Symfony\Bundle\FrameworkBundle\Command\ContainerAwareCommand;
@@ -34,8 +36,8 @@ class CheckCryptoCommand extends SynchronizedContainerAwareCommand
 
         /** @var EntityManagerInterface $em */
         $em = $this->getContainer()->get('doctrine')->getManager();
-        $repoGroup = $em->getRepository('FinancialApiBundle:Group');
-        $repoUser = $em->getRepository('FinancialApiBundle:User');
+        $repoGroup = $em->getRepository(Group::class);
+        $repoUser = $em->getRepository(User::class);
 
         $output->writeln('CHECK CRYPTO');
         foreach ($method_cname as $method) {
