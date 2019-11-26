@@ -428,6 +428,12 @@ class Group extends BaseGroup implements Uploadable {
     private $tier = 0;
 
     /**
+     * @ORM\ManyToOne(targetEntity="App\FinancialApiBundle\Entity\Tier")
+     * @Serializer\Groups({"user"})
+     */
+    private $level;
+
+    /**
      * @ORM\Column(type="string")
      * @Serializer\Groups({"admin"})
      */
@@ -1505,5 +1511,21 @@ class Group extends BaseGroup implements Uploadable {
     public function setDocuments($documents): void
     {
         $this->documents = $documents;
+    }
+
+    /**
+     * @return mixed
+     */
+    public function getLevel()
+    {
+        return $this->level;
+    }
+
+    /**
+     * @param mixed $level
+     */
+    public function setLevel($level): void
+    {
+        $this->level = $level;
     }
 }
