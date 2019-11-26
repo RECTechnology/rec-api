@@ -16,6 +16,7 @@ use DateTimeZone;
 use Doctrine\Common\Annotations\AnnotationException;
 use Doctrine\Common\Annotations\AnnotationReader;
 use Doctrine\Common\Collections\ArrayCollection;
+use Doctrine\Common\Collections\Collection;
 use Doctrine\Common\Persistence\ObjectRepository;
 use Doctrine\DBAL\DBALException;
 use Doctrine\DBAL\Exception\ForeignKeyConstraintViolationException;
@@ -196,7 +197,7 @@ abstract class BaseApiV2Controller extends RestApiController implements Reposito
     private function findRelatedObjectWithRelId($relationshipNameWithId, $targetId){
 
         $name = substr($relationshipNameWithId, 0, strlen($relationshipNameWithId) - 3);
-        $relatedEntity = $this->getRelatedEntity($name);
+        [$ignored1, $ignored2, $relatedEntity] = $this->getRelationship($name);
 
         $value = $this->getDoctrine()->getRepository($relatedEntity)->show($targetId);
         if(!$value) throw new HttpException(
@@ -208,10 +209,10 @@ abstract class BaseApiV2Controller extends RestApiController implements Reposito
 
     /**
      * @param $propertyName
-     * @return string
+     * @return array
      * @throws AnnotationException
      */
-    private function getRelatedEntity($propertyName){
+    private function getRelationship($propertyName){
 
         $className = $this->getRepository()->getClassName();
         if(!property_exists($className, $propertyName))
@@ -221,19 +222,17 @@ abstract class BaseApiV2Controller extends RestApiController implements Reposito
             $ar = new AnnotationReader();
             $propertyAnnotations = $ar->getPropertyAnnotations($reflectionProperty);
 
-            $rel = false;
             foreach ($propertyAnnotations as $an){
-                if($an instanceof ManyToMany or $an instanceof ManyToOne or $an instanceof OneToOne or $an instanceof OneToMany){
-                    $rel = $an;
-                    break;
-                }
+                if($an instanceof ManyToMany or $an instanceof ManyToOne)
+                    return ['Many', $an->inversedBy, $an->targetEntity];
+                if($an instanceof OneToMany or $an instanceof OneToOne)
+                    return ['One', $an->mappedBy, $an->targetEntity];
             }
 
-            if(!$rel) throw new HttpException(
+            throw new HttpException(
                 Response::HTTP_BAD_REQUEST,
                 "Unrelated parameter '$propertyName'"
             );
-            return $rel->targetEntity;
 
         } catch (ReflectionException $e) {
             throw new HttpException(400, "Bad request, parameter '$propertyName' is invalid.", $e);
@@ -247,7 +246,7 @@ abstract class BaseApiV2Controller extends RestApiController implements Reposito
      */
     protected function indexAction(Request $request, $role){
         $this->checkPermissions($role, self::CRUD_INDEX);
-        list($total, $result) = $this->index($request);
+        [$total, $result] = $this->index($request);
         $result = $this->securizeOutput($result);
         return $this->restV2(
             self::HTTP_STATUS_CODE_OK,
@@ -377,7 +376,7 @@ abstract class BaseApiV2Controller extends RestApiController implements Reposito
             $setter = $this->getSetter($name);
 
             if (method_exists($entity, $setter)) {
-                call_user_func_array([$entity, $setter], [$value]);
+                $entity->$setter($value);
             }
             else{
                 throw new HttpException(400, "Bad request, parameter '$name' is invalid.");
@@ -575,7 +574,7 @@ abstract class BaseApiV2Controller extends RestApiController implements Reposito
         $entity = $repo->show($id);
         if(empty($entity)) throw new HttpException(404, "Not found");
 
-        $targetEntityName = $this->getRelatedEntity($relationship);
+        [$source, $inverseField, $targetEntityName] = $this->getRelationship($relationship);
 
         $targetEntityId = $request->request->get('id', -1);
         $relatedEntity = $this
@@ -584,15 +583,26 @@ abstract class BaseApiV2Controller extends RestApiController implements Reposito
             ->show($targetEntityId);
         if(empty($relatedEntity)) throw new HttpException(404, "Not found");
 
-        $adder = $this->getAdder($relationship);
 
-        if (!method_exists($entity, $adder)) {
-            throw new HttpException(400, "Bad request, parameter '$relationship' is invalid.");
+        $getter = $this->getGetter($relationship);
+        /** @var Collection $collection */
+        $collection = $entity->$getter();
+        $collection->add($relatedEntity);
+
+        if($source == 'Many') {
+            $inverseGetter = $this->getGetter($inverseField);
+            /** @var Collection $inversedCollection */
+            $inversedCollection = $relatedEntity->$inverseGetter();
+            $inversedCollection->add($entity);
         }
-        call_user_func_array([$entity, $adder], [$relatedEntity]);
+        elseif ($source == 'One'){
+            $inverseSetter = $this->getSetter($inverseField);
+            $relatedEntity->$inverseSetter($entity);
+        }
+
         $em = $this->getDoctrine()->getManager();
-        $em->persist($entity);
         $em->persist($relatedEntity);
+        $em->persist($entity);
         $this->flush();
         return $entity;
     }
@@ -638,7 +648,7 @@ abstract class BaseApiV2Controller extends RestApiController implements Reposito
         $entity = $repo->show($id1);
         if(empty($entity)) throw new HttpException(404, "Not found");
 
-        $targetEntityName = $this->getRelatedEntity($relationship);
+        [$source, $inverseField, $targetEntityName] = $this->getRelationship($relationship);
 
         $targetEntityId = $id2;
         $relatedEntity = $this
@@ -647,12 +657,17 @@ abstract class BaseApiV2Controller extends RestApiController implements Reposito
             ->show($targetEntityId);
         if(empty($relatedEntity)) throw new HttpException(404, "Not found");
 
-        $deleter = $this->getDeleter($relationship);
+        $getter = $this->getGetter($relationship);
 
-        if (!method_exists($entity, $deleter)) {
-            throw new HttpException(400, "Bad request, parameter '$relationship' is invalid. (undefined method $deleter)");
+        /** @var Collection $collection */
+        $collection = $entity->$getter();
+        $collection->removeElement($relatedEntity);
+
+        if($source == 'One'){
+            $inverseSetter = $this->getSetter($inverseField);
+            $relatedEntity->$inverseSetter(null);
         }
-        call_user_func_array([$entity, $deleter], [$relatedEntity]);
+
         $em = $this->getDoctrine()->getManager();
         $em->persist($entity);
         $em->persist($relatedEntity);
@@ -754,7 +769,7 @@ abstract class BaseApiV2Controller extends RestApiController implements Reposito
         // TODO: remove @rel: security.yml
         if($request->getPathInfo() != '/admin/v3/accounts/search')
             $this->checkPermissions($role, self::CRUD_SEARCH);
-        list($total, $result) = $this->search($request);
+        [$total, $result] = $this->search($request);
         $elems = $this->securizeOutput($result);
 
         return $this->restV2(
@@ -779,7 +794,7 @@ abstract class BaseApiV2Controller extends RestApiController implements Reposito
         $request->query->set("limit", 2**31);
         $fieldMap = json_decode($request->query->get("field_map", "{}"), true);
         if(json_last_error()) throw new HttpException(400, "Bad field_map, it must be a valid JSON");
-        list($total, $result) = $this->export($request);
+        [$total, $result] = $this->export($request);
         $elems = $this->securizeOutput($result);
 
         $namer = new CamelCaseToSnakeCaseNameConverter(null, false);

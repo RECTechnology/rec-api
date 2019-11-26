@@ -112,6 +112,39 @@ abstract class BaseApiTest extends WebTestCase {
         return $resp;
     }
 
+    const HTTP_REST_RESPONSE_CODES = [
+        'GET' => [Response::HTTP_OK],
+        'POST' => [Response::HTTP_CREATED],
+        'PUT' => [Response::HTTP_OK],
+        'DELETE' => [Response::HTTP_NO_CONTENT],
+    ];
+
+    /**
+     * @param string $method
+     * @param string $url
+     * @param array|null $content
+     * @param array $headers
+     * @return \stdClass
+     */
+    protected function rest(string $method, string $url, array $content = null, array $headers = []) {
+        $resp = $this->requestJson($method, $url, $content, $headers);
+        self::assertContains(
+            $resp->getStatusCode(),
+            self::HTTP_REST_RESPONSE_CODES[$method],
+            "Path: {$url}, Content: {$resp->getContent()}"
+        );
+        $content = json_decode($resp->getContent());
+        if (isset($content->data)) {
+            $content = $content->data;
+            if (property_exists($content, 'elements')) {
+                return $content->elements;
+            }
+            return $content;
+        }
+        return $content;
+    }
+
+
     /**
      * @param $credentials
      */
