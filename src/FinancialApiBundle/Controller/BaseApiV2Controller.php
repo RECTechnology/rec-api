@@ -230,7 +230,7 @@ abstract class BaseApiV2Controller extends RestApiController implements Reposito
                     $source = 'One';
                 }
                 if(isset($source)){
-                    if($an->mappedBy)
+                    if(isset($an->mappedBy))
                         $inverseField = $an->mappedBy;
                     else
                         $inverseField = $an->inversedBy;
