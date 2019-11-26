@@ -37,10 +37,16 @@ class Tier extends AppObject {
     private $document_kinds;
 
     /**
-     * @ORM\OneToOne(targetEntity="App\FinancialApiBundle\Entity\Tier")
+     * @ORM\OneToOne(targetEntity="App\FinancialApiBundle\Entity\Tier", inversedBy="next")
      * @Serializer\Groups({"user"})
      */
     private $previous;
+
+    /**
+     * @ORM\OneToOne(targetEntity="App\FinancialApiBundle\Entity\Tier", inversedBy="previous")
+     * @Serializer\Groups({"user"})
+     */
+    private $next;
 
     public function __construct(){
         $this->document_kinds = new ArrayCollection();
@@ -108,6 +114,22 @@ class Tier extends AppObject {
     public function setPrevious($previous): void
     {
         $this->previous = $previous;
+    }
+
+    /**
+     * @return mixed
+     */
+    public function getNext()
+    {
+        return $this->next;
+    }
+
+    /**
+     * @param mixed $next
+     */
+    public function setNext($next): void
+    {
+        $this->next = $next;
     }
 
 
