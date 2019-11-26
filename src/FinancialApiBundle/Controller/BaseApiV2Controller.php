@@ -223,10 +223,20 @@ abstract class BaseApiV2Controller extends RestApiController implements Reposito
             $propertyAnnotations = $ar->getPropertyAnnotations($reflectionProperty);
 
             foreach ($propertyAnnotations as $an){
-                if($an instanceof ManyToMany or $an instanceof ManyToOne)
-                    return ['Many', $an->inversedBy, $an->targetEntity];
-                if($an instanceof OneToMany or $an instanceof OneToOne)
-                    return ['One', $an->mappedBy, $an->targetEntity];
+                if($an instanceof ManyToMany or $an instanceof ManyToOne){
+                    $source = 'Many';
+                }
+                if($an instanceof OneToMany or $an instanceof OneToOne){
+                    $source = 'One';
+                }
+                if(isset($source)){
+                    if($an->mappedBy)
+                        $inverseField = $an->mappedBy;
+                    else
+                        $inverseField = $an->inversedBy;
+                    return [$source, $inverseField, $an->targetEntity];
+
+                }
             }
 
             throw new HttpException(

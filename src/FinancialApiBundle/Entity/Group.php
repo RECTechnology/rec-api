@@ -229,7 +229,7 @@ class Group extends BaseGroup implements Uploadable {
     /**
      * @ORM\ManyToMany(
      *     targetEntity="App\FinancialApiBundle\Entity\ProductKind",
-     *     inversedBy="producing_by",
+     *     mappedBy="producing_by",
      *     fetch="EXTRA_LAZY"
      * )
      * @Serializer\MaxDepth(2)
@@ -240,7 +240,7 @@ class Group extends BaseGroup implements Uploadable {
     /**
      * @ORM\ManyToMany(
      *     targetEntity="App\FinancialApiBundle\Entity\ProductKind",
-     *     inversedBy="consuming_by",
+     *     mappedBy="consuming_by",
      *     fetch="EXTRA_LAZY"
      * )
      * @Serializer\MaxDepth(2)
