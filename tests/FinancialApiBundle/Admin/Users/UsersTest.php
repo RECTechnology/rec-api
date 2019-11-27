@@ -19,7 +19,6 @@ class UsersTest extends BaseApiTest {
         'dni',
         'expired',
         'name',
-        'treasure_validations',
         'locked'
     ];
 
