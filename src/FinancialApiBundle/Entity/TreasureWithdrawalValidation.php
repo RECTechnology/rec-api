@@ -15,11 +15,6 @@ use App\FinancialApiBundle\Document\Transaction;
  */
 class TreasureWithdrawalValidation extends AppObject {
 
-    /**
-     * @ORM\ManyToOne(targetEntity="App\FinancialApiBundle\Entity\User", inversedBy="treasure_validations")
-     * @Groups({"admin"})
-     */
-    private $validator;
 
     /**
      * @ORM\ManyToOne(targetEntity="App\FinancialApiBundle\Entity\TreasureWithdrawalAttempt", inversedBy="validations")
@@ -48,22 +43,6 @@ class TreasureWithdrawalValidation extends AppObject {
     public function setAccepted($accepted)
     {
         $this->accepted = $accepted;
-    }
-
-    /**
-     * @return mixed
-     */
-    public function getValidator()
-    {
-        return $this->validator;
-    }
-
-    /**
-     * @param mixed $validator
-     */
-    public function setValidator($validator)
-    {
-        $this->validator = $validator;
     }
 
     /**
