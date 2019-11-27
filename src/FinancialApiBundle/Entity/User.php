@@ -47,7 +47,6 @@ class User extends BaseUser implements Uploadable {
     public function __construct() {
         parent::__construct();
         $this->groups = new ArrayCollection();
-        $this->treasure_validations = new ArrayCollection();
 
         if($this->access_key == null){
             $this->access_key=sha1(random_bytes(32));
@@ -120,13 +119,6 @@ class User extends BaseUser implements Uploadable {
      * @ORM\OneToMany(targetEntity="App\FinancialApiBundle\Entity\AuthCode", mappedBy="user", cascade={"remove"})
      */
     private $auth_code;
-
-    /**
-     * @ORM\OneToMany(targetEntity="App\FinancialApiBundle\Entity\TreasureWithdrawalValidation", mappedBy="validator", cascade={"remove"})
-     * @Expose
-     * @Groups({"admin"})
-     */
-    private $treasure_validations;
 
     /**
      * @ORM\Column(type="string")
