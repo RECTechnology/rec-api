@@ -6,17 +6,7 @@ on:
       - master
 
 jobs:
-  test:
-    runs-on: ubuntu-latest
-    steps:
-      - name: Obtaining the code
-        uses: actions/checkout@v1
-
-      - name: Running test suite
-        run: make test
-
   build-api:
-    needs: test
     runs-on: ubuntu-latest
     steps:
       - name: Obtaining the code
@@ -46,7 +36,6 @@ jobs:
           data: "Hello from github actions!"
 
   build-cron:
-    needs: test
     runs-on: ubuntu-latest
     steps:
       - name: Obtaining the code
