@@ -1,0 +1,13 @@
+name: Test Pull Requests
+
+on: pull_request
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Obtaining the code
+        uses: actions/checkout@v1
+
+      - name: Running test suite
+        run: test `make coverage` -ge 10
