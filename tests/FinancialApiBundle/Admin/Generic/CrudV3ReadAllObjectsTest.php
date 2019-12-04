@@ -45,24 +45,14 @@ class CrudV3ReadAllObjectsTest extends BaseApiTest implements CrudV3ReadTestInte
     function testIndex()
     {
         foreach (self::CRUD_V3_ROUTES as $route) {
-            $resp = $this->requestJson('GET', '/admin/v3/' . $route);
-            self::assertEquals(
-                200,
-                $resp->getStatusCode(),
-                "route: $route, status_code: {$resp->getStatusCode()}, content: {$resp->getContent()}"
-            );
+            $this->rest('GET', '/admin/v3/' . $route);
         }
     }
 
     function testExport()
     {
         foreach (self::CRUD_V3_ROUTES as $route) {
-            $resp = $this->request('GET', '/admin/v3/' . $route . '/export');
-            self::assertEquals(
-                200,
-                $resp->getStatusCode(),
-                "route: $route, status_code: {$resp->getStatusCode()}, content: {$resp->getContent()}"
-            );
+            $this->rest('GET', '/admin/v3/' . $route . '/export');
         }
     }
 
