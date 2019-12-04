@@ -161,8 +161,7 @@ class AccountController extends BaseApiController{
         $em = $this->getDoctrine()->getManager();
         $user->setTwoFactorAuthentication(true);
         if(!$user->getTwoFactorCode()){
-            $Google2FA = new Google2FA();
-            $user->setTwoFactorCode($Google2FA->generate_secret_key());
+            $user->setTwoFactorCode(Google2FA::generate_secret_key());
         }
         $em->persist($user);
         $em->flush();
@@ -192,8 +191,7 @@ class AccountController extends BaseApiController{
     public function update2faAction(Request $request){
         $user = $this->get('security.token_storage')->getToken()->getUser();
         $em = $this->getDoctrine()->getManager();
-        $Google2FA = new Google2FA();
-        $user->setTwoFactorCode($Google2FA->generate_secret_key());
+        $user->setTwoFactorCode(Google2FA::generate_secret_key());
         $em->persist($user);
         $em->flush();
         $result = $this->securizeOutput($user);

@@ -1,28 +1,20 @@
 <?php
 
 namespace App\FinancialApiBundle\Entity;
-use DateInterval;
+
+use App\FinancialApiBundle\Annotations\HybridPropery;
+use App\FinancialApiBundle\Annotations\StatusProperty;
 use Doctrine\Common\Collections\ArrayCollection;
-use function Sodium\add;
-use Symfony\Component\HttpKernel\Exception\HttpException;
-
-use JMS\Serializer\Annotation\ExclusionPolicy;
-use JMS\Serializer\Annotation\Expose;
-use JMS\Serializer\Annotation\Exclude;
-use JMS\Serializer\Annotation\VirtualProperty;
-use JMS\Serializer\Annotation\Type;
-use JMS\Serializer\Annotation\SerializedName;
+use JMS\Serializer\Annotation as Serializer;
 use Doctrine\ORM\Mapping as ORM;
-
-use Symfony\Bridge\Doctrine\Validator\Constraints\UniqueEntity;
 use App\FinancialApiBundle\Document\Transaction;
 
-
 /**
- * @ORM\Entity
- * @ExclusionPolicy("all")
+ * Class TreasureWithdrawal
+ * @package App\FinancialApiBundle\Entity
+ * @ORM\Entity()
  */
-class TreasureWithdrawalAttempt extends AppObject {
+class TreasureWithdrawal extends AppObject implements Stateful, HybridPersistent {
 
     const MINIMUM_TREASURE_WITHDRAWAL_VALIDATIONS_RATE = 0.5;
     const TREASURE_WITHDRAWAL_EXPIRATION_INTERVAL = "+1 day";
@@ -31,7 +23,62 @@ class TreasureWithdrawalAttempt extends AppObject {
     const TREASURE_WITHDRAWAL_STATUS_REJECTED = "rejected";
 
     /**
-     * TreasureWithdrawalAttempt constructor.
+     * @ORM\Column(type="string")
+     * @StatusProperty(
+     *     initial="created",
+     *     choices={
+     *          "created"={"to"={"pending"}},
+     *          "pending"={"to"={"approved", "expired"}},
+     *          "approved"={"final"=true},
+     *          "expired"={"final"=true}
+     *      }
+     * )
+     * @Serializer\Groups({"admin"})
+     */
+    private $status;
+
+    /**
+     * @ORM\Column(type="string", nullable=true)
+     * @Serializer\Exclude()
+     */
+    private $transaction_id;
+
+    /**
+     * @ORM\Column(type="integer")
+     * @Serializer\Groups({"admin"})
+     */
+    private $amount;
+
+    /**
+     * @ORM\Column(type="datetime", nullable=true)
+     * @Serializer\Groups({"admin"})
+     */
+    private $expires_at;
+
+    /**
+     * @ORM\Column(type="string")
+     * @Serializer\Groups({"admin"})
+     */
+    private $description;
+
+    /**
+     * @var Transaction $transaction
+     * @HybridPropery(
+     *     targetEntity="App\FinancialApiBundle\Document\Transaction",
+     *     identifier="transaction_id",
+     *     manager="doctrine.odm.mongodb.document_manager"
+     * )
+     */
+    private $transaction;
+
+    /**
+     * @ORM\OneToMany(targetEntity="App\FinancialApiBundle\Entity\TreasureWithdrawalValidation", mappedBy="withdrawal")
+     * @Serializer\Groups({"admin"})
+     */
+    private $validations;
+
+    /**
+     * TreasureWithdrawal constructor.
      * @throws \Exception
      */
     public function __construct()
@@ -42,44 +89,9 @@ class TreasureWithdrawalAttempt extends AppObject {
     }
 
     /**
-     * @ORM\Column(type="string", nullable=true)
-     */
-    private $transaction_id;
-
-    /**
-     * @ORM\Column(type="integer")
-     * @Expose()
-     */
-    private $amount;
-
-    /**
-     * @ORM\Column(type="datetime", nullable=true)
-     * @Expose()
-     */
-    private $expires_at;
-
-    /**
-     * @ORM\Column(type="string")
-     * @Expose()
-     */
-    private $description;
-
-    /**
-     * @var Transaction $transaction
-     * @Expose
-     */
-    private $transaction;
-
-    /**
-     * @ORM\OneToMany(targetEntity="App\FinancialApiBundle\Entity\TreasureWithdrawalValidation", mappedBy="attempt")
-     * @Expose()
-     */
-    private $validations;
-
-    /**
-     * @VirtualProperty()
-     * @Type("string")
-     * @SerializedName("status")
+     * @Serializer\VirtualProperty(name="status")
+     * @Serializer\Type("string")
+     * @Serializer\Groups({"admin"})
      */
     public function getStatus(){
         if($this->isApproved()) return self::TREASURE_WITHDRAWAL_STATUS_APPROVED;
@@ -88,9 +100,9 @@ class TreasureWithdrawalAttempt extends AppObject {
     }
 
     /**
-     * @VirtualProperty()
-     * @Type("boolean")
-     * @SerializedName("approved")
+     * @Serializer\VirtualProperty(name="approved")
+     * @Serializer\Type("boolean")
+     * @Serializer\Groups({"admin"})
      */
     public function isApproved(){
         $minimum_validations = floor($this->validations->count() * self::MINIMUM_TREASURE_WITHDRAWAL_VALIDATIONS_RATE);
@@ -107,9 +119,9 @@ class TreasureWithdrawalAttempt extends AppObject {
 
 
     /**
-     * @VirtualProperty()
-     * @Type("boolean")
-     * @SerializedName("sent")
+     * @Serializer\VirtualProperty(name="sent")
+     * @Serializer\Type("boolean")
+     * @Serializer\Groups({"admin"})
      */
     public function isSent(){
         return $this->getTransaction() != null and $this->getTransaction()->getStatus() !== "failed";
@@ -177,5 +189,13 @@ class TreasureWithdrawalAttempt extends AppObject {
     public function addValidation($validation)
     {
         $this->validations []= $validation;
+    }
+
+    /**
+     * @param mixed $status
+     */
+    public function setStatus($status): void
+    {
+        $this->status = $status;
     }
 }

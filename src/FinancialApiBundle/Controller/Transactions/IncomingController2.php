@@ -26,6 +26,11 @@ class IncomingController2 extends RestApiController{
 
     /**
      * @Rest\View
+     * @param Request $request
+     * @param $version_number
+     * @param $type
+     * @param $method_cname
+     * @return string|\Symfony\Component\HttpFoundation\Response
      */
     public function make(Request $request, $version_number, $type, $method_cname){
         $user = $this->get('security.token_storage')->getToken()->getUser();

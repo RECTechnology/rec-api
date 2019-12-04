@@ -10,11 +10,10 @@ use JMS\Serializer\Annotation as Serializer;
  * Class DocumentKind
  * @package App\FinancialApiBundle\Entity
  * @ORM\Entity()
+ * @ORM\InheritanceType("SINGLE_TABLE")
+ * @ORM\DiscriminatorColumn(name="discr", type="string")
  */
 class DocumentKind extends AppObject {
-
-    const DOCTYPE_LW_ID = 0;
-    const DOCTYPE_LW_PROOF_OF_ADDRESS = 1;
 
     /**
      * @var string $name

@@ -131,7 +131,7 @@ security:
         - { path: ^/register/v[0-2]+, roles: IS_AUTHENTICATED_ANONYMOUSLY }
         - { path: ^/password_recovery/v[0-2]+, role: IS_AUTHENTICATED_ANONYMOUSLY }
 
-        # V3+ User management
+        # V3+ User profile management
         - { path: ^/user/v[3-9]+/profile, role: ROLE_USER }
 
         # V3+ Account management
