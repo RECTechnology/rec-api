@@ -1,4 +1,4 @@
-name: Test Pull Requests
+name: Code Coverage > 10%
 
 on: pull_request
 
