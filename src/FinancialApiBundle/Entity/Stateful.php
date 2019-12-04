@@ -12,4 +12,5 @@ interface Stateful {
     const STATUS_APPROVED = "approved";
     const STATUS_DECLINED = "declined";
     const STATUS_ARCHIVED = "archived";
+    const STATUS_SUBMITTED = "submitted";
 }

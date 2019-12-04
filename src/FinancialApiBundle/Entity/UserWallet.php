@@ -73,7 +73,7 @@ class UserWallet {
     private $status = 'enabled';
 
     /**
-     * @ORM\ManyToOne(targetEntity="App\FinancialApiBundle\Entity\Group")
+     * @ORM\ManyToOne(targetEntity="App\FinancialApiBundle\Entity\Group", inversedBy="wallets")
      * @Groups({"admin"})
      */
     private $group;

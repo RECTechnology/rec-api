@@ -13,11 +13,10 @@ use JMS\Serializer\Annotation as Serializer;
  * Class Document
  * @package App\FinancialApiBundle\Entity
  * @ORM\Entity()
+ * @ORM\InheritanceType("SINGLE_TABLE")
+ * @ORM\DiscriminatorColumn(name="discr", type="string")
  */
 class Document extends AppObject implements Uploadable, Stateful {
-
-    const DOCTYPE_LW_ID = 0;
-    const DOCTYPE_LW_PROOF_OF_ADDRESS = 1;
 
     /**
      * @var string $status

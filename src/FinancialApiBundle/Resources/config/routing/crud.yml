@@ -41,7 +41,15 @@ dashboard_v3_timeseries_transactions:
         role: "(admin|manager)"
         intervalName: "(year|month|day)"
 
-##################### ACCOUNTS / V3 / (OVERRIDES CRUD) ############################
+##################### ACCOUNTS/WITHDRAWALS / V3 / (OVERRIDES ACCOUNTS) ############################
+
+accounts_v3_withdrawals:
+    path:  /{role}/v3/accounts/{id}/withdrawals
+    defaults: { _controller: App\FinancialApiBundle\Controller\CRUD\AccountsController::createWithdrawalAction }
+    methods: [POST]
+    requirements:
+        role: "(manager|admin|sadmin)"
+        id: "[0-9]+"
 
 accounts_v3_search:
     path:  /{role}/v3/accounts/search
