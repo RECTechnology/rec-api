@@ -7,6 +7,11 @@ case $1 in
     bin/console --env=test cache:clear
     vendor/bin/phpunit
     ;;
+  coverage)
+    composer install --no-interaction
+    bin/console --env=test cache:clear
+    vendor/bin/phpunit --coverage-text
+    ;;
   *)
     exec "$@"
     ;;
