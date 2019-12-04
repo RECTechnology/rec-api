@@ -1,6 +1,6 @@
-name: Test Pull Requests
+name: Functional Tests
 
-on: pull_request
+on: check_suite
 
 jobs:
   test:
