@@ -52,7 +52,12 @@ class CrudV3ReadAllObjectsTest extends BaseApiTest implements CrudV3ReadTestInte
     function testExport()
     {
         foreach (self::CRUD_V3_ROUTES as $route) {
-            $this->rest('GET', '/admin/v3/' . $route . '/export');
+            $resp = $this->request('GET', '/admin/v3/' . $route . '/export');
+            self::assertEquals(
+                200,
+                $resp->getStatusCode(),
+                "route: $route, status_code: {$resp->getStatusCode()}, content: {$resp->getContent()}"
+            );
         }
     }
 
