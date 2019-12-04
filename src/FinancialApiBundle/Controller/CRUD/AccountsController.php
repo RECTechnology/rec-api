@@ -279,6 +279,9 @@ class AccountsController extends CRUDController {
      */
     public function withdrawal(Request $request, $accountId){
 
+        $otp = $request->request->get('otp', 0);
+        $request->request->remove('otp');
+
         /** @var IncomingController2 $tc */
         $tc = $this->get('app.incoming_controller');
 
@@ -291,6 +294,7 @@ class AccountsController extends CRUDController {
 
         $request->request->set('sender', $sender->getId());
         $request->request->set('receiver', $receiver->getId());
+        $request->request->set('sec_code', $otp);
 
         /** @var Response $resp */
         $resp =  $tc->adminThirdTransaction($request, 'rec');

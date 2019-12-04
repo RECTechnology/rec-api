@@ -96,7 +96,7 @@ class TransactionsTest extends BaseApiTest {
             [
                 'amount' => 1e8,
                 'concept' => 'Testing withdrawal',
-                'sec_code' => $otp
+                'otp' => $otp
             ],
             [],
             503
