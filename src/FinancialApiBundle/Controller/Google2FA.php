@@ -125,6 +125,19 @@ class Google2FA {
 	}
 
 	/**
+	 * @Author: Lluis Santos <lluis@qbitartifacts.com>
+	 *
+	 * @param $b32seed
+	 * @return string
+	 */
+	public static function oath_totp($b32seed){
+		$timeStamp = self::get_timestamp();
+		$binarySeed = self::base32_decode($b32seed);
+		return self::oath_hotp($binarySeed, $timeStamp);
+	}
+
+
+	/**
 	 * Extracts the OTP from the SHA1 hash.
 	 * @param binary $hash
 	 * @return integer

@@ -2,9 +2,11 @@
 
 namespace App\FinancialApiBundle\Controller\CRUD;
 
+use App\FinancialApiBundle\Controller\Transactions\IncomingController2;
 use App\FinancialApiBundle\Entity\User;
 use App\FinancialApiBundle\Entity\UserGroup;
 use App\FinancialApiBundle\Exception\AppException;
+use App\FinancialApiBundle\Financial\Driver\LemonWayInterface;
 use Doctrine\Common\Annotations\AnnotationException;
 use Doctrine\ORM\EntityManagerInterface;
 use Doctrine\ORM\NonUniqueResultException;
@@ -268,5 +270,73 @@ class AccountsController extends CRUDController {
             );
         }
         throw new HttpException(400, "Invalid accept format " . $request->headers->get('Accept'));
+    }
+
+    /**
+     * @param Request $request
+     * @param $accountId
+     * @return array
+     */
+    public function withdrawal(Request $request, $accountId){
+
+        $otp = $request->request->get('otp', 0);
+        $request->request->remove('otp');
+
+        /** @var IncomingController2 $tc */
+        $tc = $this->get('app.incoming_controller');
+
+        $repo = $this->getDoctrine()->getRepository(Group::class);
+        /** @var Group $receiver */
+        $receiver = $repo->find($this->getParameter('id_group_root'));
+        /** @var Group $sender */
+        $sender = $repo->find($accountId);
+        if(!$sender) throw new AppException(404, "Invalid account_id: not found");
+
+        $request->request->set('sender', $sender->getId());
+        $request->request->set('receiver', $receiver->getId());
+        $request->request->set('sec_code', $otp);
+
+        /** @var Response $resp */
+        $resp =  $tc->adminThirdTransaction($request, 'rec');
+
+        $result = json_decode($resp->getContent());
+        if($result->status == 'success'){
+            /** @var LemonWayInterface $lw */
+            $lw = $this->get('net.app.driver.lemonway.eur');
+
+            $amount = sprintf("%.2f", $request->request->get('amount') / 1e8);
+            $lwResp = $lw->callService(
+                'MoneyOut',
+                [
+                    'wallet' => $sender->getCif(),
+                    'amountTot' => $amount,
+                    'message' => "MoneyOut from account {$sender->getName()}",
+                    'autoComission' => 0
+                ]
+            );
+            if(is_array($lwResp)) throw new AppException(503, "Provider error", [$lwResp]);
+            return ['tx' => $result, 'lemonway' => $lwResp];
+        }
+
+        throw new AppException($resp->getStatusCode(), "Withdrawal failed: {$result->message}");
+    }
+
+    /**
+     * @param Request $request
+     * @param $role
+     * @param $id
+     * @return Response
+     */
+    public function createWithdrawalAction(Request $request, $role, $id)
+    {
+        $this->checkPermissions($role, self::CRUD_CREATE);
+        $entity = $this->withdrawal($request, $id);
+        $output = $this->securizeOutput($entity);
+        return $this->restV2(
+            static::HTTP_STATUS_CODE_CREATED,
+            "ok",
+            "Created successfully",
+            $output
+        );
     }
 }

@@ -17,7 +17,7 @@ use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpKernel\Exception\HttpException;
 use App\FinancialApiBundle\Controller\BaseApiController;
 use App\FinancialApiBundle\Entity\DelegatedChange;
-use App\FinancialApiBundle\Entity\TreasureWithdrawalAttempt;
+use App\FinancialApiBundle\Entity\TreasureWithdrawal;
 use App\FinancialApiBundle\Entity\TreasureWithdrawalValidation;
 
 /**

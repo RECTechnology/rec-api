@@ -1,4 +1,4 @@
-name: Test, Build and Deploy [STAGE]
+name: Build and Deploy [STAGE]
 
 on:
   push:

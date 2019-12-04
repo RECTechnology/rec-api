@@ -1,6 +1,8 @@
-name: Functional Tests
+name: Code Coverage
 
-on: check_suite
+on:
+  release:
+    types: [published]
 
 jobs:
   test:
@@ -10,4 +12,4 @@ jobs:
         uses: actions/checkout@v1
 
       - name: Running test suite
-        run: make test
+        run: test `make coverage` -ge 10

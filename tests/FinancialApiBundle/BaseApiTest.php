@@ -23,6 +23,8 @@ use Symfony\Component\Console\Output\NullOutput;
 use Symfony\Component\Console\Output\StreamOutput;
 use Symfony\Component\DomCrawler\Crawler;
 use Symfony\Component\Filesystem\Filesystem;
+use Symfony\Component\HttpFoundation\File\File;
+use Symfony\Component\HttpFoundation\File\UploadedFile;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Yaml\Yaml;
 
@@ -85,15 +87,15 @@ abstract class BaseApiTest extends WebTestCase {
      * @param string $url
      * @param string $content
      * @param array $headers
+     * @param array $parameters
+     * @param array $files
      * @return Response
      */
-    protected function request(string $method, string $url, string $content = null, array $headers = []) {
+    protected function request(string $method, string $url, string $content = null, array $headers = [], array $parameters = [], array $files = []) {
         if($this->token) $headers['HTTP_AUTHORIZATION'] = "Bearer {$this->token['access_token']}";
-
         $client = static::createClient([], ['REMOTE_ADDR' => $this->ip]);
         foreach ($this->overrides as $service => $mock) $client->getContainer()->set($service, $mock);
-
-        $client->request($method, $url, [], [], $headers, $content);
+        $client->request($method, $url, $parameters, $files, $headers, $content);
         return $client->getResponse();
     }
 
@@ -124,15 +126,26 @@ abstract class BaseApiTest extends WebTestCase {
      * @param string $url
      * @param array|null $content
      * @param array $headers
+     * @param string $expectedStatusCode
      * @return \stdClass
      */
-    protected function rest(string $method, string $url, array $content = null, array $headers = []) {
+    protected function rest(string $method, string $url, array $content = null, array $headers = [], $expectedStatusCode = 'success_http') {
         $resp = $this->requestJson($method, $url, $content, $headers);
-        self::assertContains(
-            $resp->getStatusCode(),
-            self::HTTP_REST_RESPONSE_CODES[$method],
-            "Path: {$url}, Content: {$resp->getContent()}"
-        );
+        if($expectedStatusCode == 'success_http') {
+            self::assertContains(
+                $resp->getStatusCode(),
+                self::HTTP_REST_RESPONSE_CODES[$method],
+                "Path: {$url}, Content: {$resp->getContent()}"
+            );
+        }
+        else {
+            self::assertEquals(
+                $expectedStatusCode,
+                $resp->getStatusCode(),
+                "Path: {$url}, Content: {$resp->getContent()}"
+            );
+
+        }
         $content = json_decode($resp->getContent());
         if (isset($content->data)) {
             $content = $content->data;
@@ -166,6 +179,10 @@ abstract class BaseApiTest extends WebTestCase {
         );
         self::assertEquals('application/json', $resp->headers->get('Content-Type'));
         $this->token = json_decode($resp->getContent(), true);
+    }
+
+    protected function getSignedInUser(){
+        return $this->rest('GET', '/user/v1/account');
     }
 
 

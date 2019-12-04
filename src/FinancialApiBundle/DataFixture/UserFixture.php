@@ -3,6 +3,7 @@
 
 namespace App\FinancialApiBundle\DataFixture;
 
+use App\FinancialApiBundle\Controller\Google2FA;
 use Doctrine\Bundle\FixturesBundle\Fixture;
 use Doctrine\Common\Persistence\ObjectManager;
 use App\FinancialApiBundle\Entity\User;
@@ -52,6 +53,8 @@ class UserFixture extends Fixture {
         $user->setPublicPhone(true);
         $user->setEnabled(true);
         $user->setLocale('es');
+        $user->setTwoFactorAuthentication(true);
+        $user->setTwoFactorCode(Google2FA::generate_secret_key());
         return $user;
     }
 }
