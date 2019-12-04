@@ -32,6 +32,7 @@ class UploadDocumentTest extends AdminApiTest {
     }
 
     function testUploadLWDocument(){
+        self::markTestIncomplete("not done yet");
         $doc = $this->createDocument();
 
     }
