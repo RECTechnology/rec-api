@@ -10,7 +10,7 @@ case $1 in
   coverage)
     composer install --no-interaction
     bin/console --env=test cache:clear
-    vendor/bin/phpunit --coverage-text
+    vendor/bin/phpunit --coverage-text | grep -B 3 "^Statistics:" | grep Lines | awk '{print $2}'
     ;;
   *)
     exec "$@"
