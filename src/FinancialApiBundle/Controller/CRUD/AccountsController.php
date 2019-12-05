@@ -282,6 +282,13 @@ class AccountsController extends CRUDController {
         $otp = $request->request->get('otp', 0);
         $request->request->remove('otp');
 
+        $currency = $request->request->get('currency', "");
+        if($currency != 'EUR')
+            throw new AppException(400, "Param 'currency' is required to be 'EUR' for withdrawals");
+
+        $eurAmount = $request->request->get('amount', 0);
+        $request->request->set('amount', $eurAmount * 1e8);
+
         /** @var IncomingController2 $tc */
         $tc = $this->get('app.incoming_controller');
 
@@ -304,7 +311,7 @@ class AccountsController extends CRUDController {
             /** @var LemonWayInterface $lw */
             $lw = $this->get('net.app.driver.lemonway.eur');
 
-            $amount = sprintf("%.2f", $request->request->get('amount') / 1e8);
+            $amount = sprintf("%.2f", $eurAmount);
             $lwResp = $lw->callService(
                 'MoneyOut',
                 [
@@ -314,7 +321,20 @@ class AccountsController extends CRUDController {
                     'autoComission' => 0
                 ]
             );
-            if(is_array($lwResp)) throw new AppException(503, "Provider error", [$lwResp]);
+            if(is_array($lwResp)){
+
+                $request->request->set('sender', $receiver);
+                $request->request->set('receiver', $sender);
+
+                /** @var Response $resp */
+                $resp =  $tc->adminThirdTransaction($request, 'rec');
+
+                $result = json_decode($resp->getContent());
+                if($result->status != 'success'){
+                    throw new AppException(500, "FATAL: Withdrawal rollback failed: {$result->message}");
+                }
+                throw new AppException(503, "Provider error", [$lwResp]);
+            }
             return ['tx' => $result, 'lemonway' => $lwResp];
         }
 
