@@ -283,11 +283,11 @@ class AccountsController extends CRUDController {
         $request->request->remove('otp');
 
         $currency = $request->request->get('currency', "");
-        if($currency != 'EUR')
+        if(strtoupper($currency) != 'EUR')
             throw new AppException(400, "Param 'currency' is required to be 'EUR' for withdrawals");
 
         $eurAmount = $request->request->get('amount', 0);
-        $request->request->set('amount', $eurAmount * 1e8);
+        $request->request->set('amount', $eurAmount * 1e6);
 
         /** @var IncomingController2 $tc */
         $tc = $this->get('app.incoming_controller');
@@ -311,7 +311,7 @@ class AccountsController extends CRUDController {
             /** @var LemonWayInterface $lw */
             $lw = $this->get('net.app.driver.lemonway.eur');
 
-            $amount = sprintf("%.2f", $eurAmount);
+            $amount = sprintf("%.2f", $eurAmount / 1e2);
             $lwResp = $lw->callService(
                 'MoneyOut',
                 [

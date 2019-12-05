@@ -94,7 +94,7 @@ class TransactionsTest extends BaseApiTest {
             'POST',
             $route,
             [
-                'amount' => 1,
+                'amount' => 100,
                 'currency' => 'EUR',
                 'concept' => 'Testing withdrawal',
                 'otp' => $otp
