@@ -1,6 +1,6 @@
 name: Functional Tests
 
-on: check_suite
+on: pull_request
 
 jobs:
   test:
