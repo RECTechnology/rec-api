@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+### [2.0.3](https://github.com/qbitartifacts/rec-api/compare/v2.0.2...v2.0.3) (2019-12-10)
+
+
+### Bug Fixes
+
+* **dashboard:** dashboard neighbourhoods ([#151](https://github.com/qbitartifacts/rec-api/issues/151)) ([b98ae63](https://github.com/qbitartifacts/rec-api/commit/b98ae63383b0d4376ce531ed804d297ee280a5e0))
+
 ### [2.0.2](https://github.com/qbitartifacts/rec-api/compare/v2.0.1...v2.0.2) (2019-12-10)
 
 
