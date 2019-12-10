@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+### [2.0.1](https://github.com/qbitartifacts/rec-api/compare/v2.0.0...v2.0.1) (2019-12-10)
+
+
+### Bug Fixes
+
+* **ci:** set build prod on create tags ([299c5d2](https://github.com/qbitartifacts/rec-api/commit/299c5d235bc447436e299baa2cd34895d37f97d8))
+
 ## [2.0.0](https://github.com/qbitartifacts/rec-api/compare/v1.7.0...v2.0.0) (2019-12-10)
 
 
