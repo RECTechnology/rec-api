@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+### [2.0.2](https://github.com/qbitartifacts/rec-api/compare/v2.0.1...v2.0.2) (2019-12-10)
+
+
+### Bug Fixes
+
+* **ci:** changed webhooks for releases ([7b03b41](https://github.com/qbitartifacts/rec-api/commit/7b03b41010edfa9567063996c0cbbb545f4e2855))
+
 ### [2.0.1](https://github.com/qbitartifacts/rec-api/compare/v2.0.0...v2.0.1) (2019-12-10)
 
 
