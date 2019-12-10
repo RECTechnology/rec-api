@@ -19,7 +19,7 @@ class UploadDocumentTest extends AdminApiTest {
     }
 
 
-    function createDocument() {
+    function createLemonDocumentKind() {
         return $this->rest(
             'POST',
             '/admin/v3/lemon_document_kinds',
@@ -32,8 +32,11 @@ class UploadDocumentTest extends AdminApiTest {
     }
 
     function testUploadLWDocument(){
-        self::markTestIncomplete("not done yet");
-        $doc = $this->createDocument();
+        $doc = $this->createLemonDocumentKind();
+
+        $user = $this->getSignedInUser();
+
+        print $doc;
 
     }
 }
