@@ -2,6 +2,48 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+## [2.0.0](https://github.com/qbitartifacts/rec-api/compare/v1.7.0...v2.0.0) (2019-12-10)
+
+
+### ⚠ BREAKING CHANGES
+
+* **newline:** this blank line breaks the code
+
+### Features
+
+* **ci:** removed testing in master branch, only pull requests ([78db575](https://github.com/qbitartifacts/rec-api/commit/78db575f4b7f6d3c49b04d70cf50f70d48e8e9c9))
+* **migrations:** fixed migrations ([38720a3](https://github.com/qbitartifacts/rec-api/commit/38720a38c60b633c93f30604ffc6622c14f2be8d))
+* implemented moneyout, needs test ([5f4e229](https://github.com/qbitartifacts/rec-api/commit/5f4e229fc564b2dee4f7bb3d735efe1607a51388))
+* **migrations:** added migrations to refactor treasurewithdrawals and changed User code to support it (can run migrations safely) ([bbed1fc](https://github.com/qbitartifacts/rec-api/commit/bbed1fcb436e6fd81c21c91774cd043e367d7791))
+* **migrations:** adds self-referencing tier migration ([eac2e34](https://github.com/qbitartifacts/rec-api/commit/eac2e3452db82d2f4db1f6bc15fbb57f6449c893))
+* **migrations:** implemented migration to add next tier ([e331312](https://github.com/qbitartifacts/rec-api/commit/e331312c0cbebcfc14a0076679337ac581e1120e))
+* **migrations:** implemented migration to relate tiers with accounts ([bbfede5](https://github.com/qbitartifacts/rec-api/commit/bbfede5bcc7c1b42314674dac6a2edd4fb3ad114))
+* **migrations:** removed validator, needed to run safely migrations ([2879051](https://github.com/qbitartifacts/rec-api/commit/2879051317b570b358a1a82a377271ed6f1554b1))
+* **migrations:** Renaming table for treasure withdrawals and adding lemonway stuff to documents ([b9d2e4b](https://github.com/qbitartifacts/rec-api/commit/b9d2e4b861395d72df9ea0857648163a208d867a))
+* added more statuses to documents ([aa8a60b](https://github.com/qbitartifacts/rec-api/commit/aa8a60bffec2ab1f0bd3cced6e22d30913dc77c1))
+* added next field to tiers ([491a6aa](https://github.com/qbitartifacts/rec-api/commit/491a6aa2ce8c864bd971bb8dd30a1ec2f254a39d))
+* added previous tier to tiers ([b6667b9](https://github.com/qbitartifacts/rec-api/commit/b6667b92c669dd376d4f057beba10bcef67bfde2))
+* related tiers with accounts ([82c1013](https://github.com/qbitartifacts/rec-api/commit/82c1013d63c1c2f209a7a0139f14c98eae511610))
+* **refactor:** renamed odm service to have all with the same name ([66ce11c](https://github.com/qbitartifacts/rec-api/commit/66ce11c857cc7907e4fb58a993be56397f1ef9cb))
+* **testing:** created first test for transactions (giant step for mankind) ([d1ea438](https://github.com/qbitartifacts/rec-api/commit/d1ea438dfaf7398c7a70f38c0a02f72e23688d82))
+
+
+### Bug Fixes
+
+* **dashboard:** filtered neihgbourhoods by company only ([bbb881d](https://github.com/qbitartifacts/rec-api/commit/bbb881d2fd87eced02f79233afe7b2ce4a2fefbd))
+* added migration to relate tiers and accounts ([589e339](https://github.com/qbitartifacts/rec-api/commit/589e3398adb7534c1e1abc5c8f826e06a3f5e4ce))
+* fixed relationship management from API ([3b2f80f](https://github.com/qbitartifacts/rec-api/commit/3b2f80f8a3e551f45daa71f0456cb0eb61377210))
+* fixed test requiring treasure validations to user ([4e8085c](https://github.com/qbitartifacts/rec-api/commit/4e8085cfd5bdc3ff353caa5338bbe9d2c5652295))
+* fixes qbitartifacts/rec-api[#142](https://github.com/qbitartifacts/rec-api/issues/142) ([809b1e2](https://github.com/qbitartifacts/rec-api/commit/809b1e2c44e94aaf8414372d8ea2d603e85b4c8c))
+* returned contents in documents ([5f98403](https://github.com/qbitartifacts/rec-api/commit/5f984036ca704cd24cb2fa545dad7d93fca3864a))
+* tests ([187fb07](https://github.com/qbitartifacts/rec-api/commit/187fb07cc716fa2909c47e98baa4d97a79adb399))
+* **dependencies:** removed unused dependency (old html2pdf lib) ([a0c4996](https://github.com/qbitartifacts/rec-api/commit/a0c4996ca8a84b6b01ecd4b28b56479cdb71632b))
+* **Entity:Document:** Fixed entity .setContent, false checking  ([b8899f6](https://github.com/qbitartifacts/rec-api/commit/b8899f64bb88bfe12925798718a9de823f564474))
+* **migrations:** added missed relationship between tiers and documentkinds ([5d3ed4a](https://github.com/qbitartifacts/rec-api/commit/5d3ed4af53b4ae5c4733f751d5f8c3e68f0ee672))
+* **refactor:** renamed Uploadable interface ([846a2f6](https://github.com/qbitartifacts/rec-api/commit/846a2f6c1aa4d037722180663d9d3730c4b7c3ab))
+* updated status changes in documents ([7bd2db2](https://github.com/qbitartifacts/rec-api/commit/7bd2db2cbb2db9d1ccb21cdb6543489ba1476bff))
+* **newline:** test breaking change ([082fd7d](https://github.com/qbitartifacts/rec-api/commit/082fd7d0f8ea39de82efa1b55ce20036fce00708))
+
 ## [1.7.0](https://github.com/qbitartifacts/rec-api/compare/v1.6.0...v1.7.0) (2019-11-21)
 
 

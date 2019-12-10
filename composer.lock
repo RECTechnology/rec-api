@@ -8312,5 +8312,6 @@
         "ext-xml": "*",
         "ext-zip": "*"
     },
-    "platform-dev": []
+    "platform-dev": [],
+    "version": "2.0.0"
 }
