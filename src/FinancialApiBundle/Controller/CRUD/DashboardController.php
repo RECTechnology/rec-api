@@ -19,6 +19,7 @@ use DoctrineExtensions\Query\Sqlite\Month;
 use DoctrineExtensions\Query\Sqlite\Year;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpKernel\Exception\HttpException;
+use function Doctrine\ORM\QueryBuilder;
 use function foo\func;
 
 /**
@@ -108,8 +109,10 @@ class DashboardController extends CRUDController {
         /** @var AppRepository $repo */
         $repo = $em->getRepository(Neighbourhood::class);
 
-        $result = $repo->createQueryBuilder('n')
+        $qb = $repo->createQueryBuilder('n');
+        $result = $qb
             ->select('n.id, n.name, n.description, count(a) as accounts_total')
+            ->where($qb->expr()->eq('a.type', 'COMPANY'))
             ->innerJoin(Group::class, 'a', Join::WITH, 'a.neighbourhood = n.id')
             ->groupBy('n')
             ->getQuery()
