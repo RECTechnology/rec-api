@@ -4,7 +4,7 @@ REC Barcelona API
 Welcome to the REC Barcelona API [api.rec.barcelona](https://api.rec.barcelona)
 
 [![Conventional Commits](https://img.shields.io/badge/Conventional%20Commits-1.0.0-yellow.svg)](https://conventionalcommits.org)
-
+![Functional Tests](https://github.com/QbitArtifacts/rec-api/workflows/Functional%20Tests/badge.svg)
 
 |Installation|Web|API|User|Docs|WIki|Monitor|Admin|Explorer|
 |------------|---|---|---|---|---|---|---|---|
