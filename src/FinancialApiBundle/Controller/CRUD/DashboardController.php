@@ -112,7 +112,7 @@ class DashboardController extends CRUDController {
         $qb = $repo->createQueryBuilder('n');
         $result = $qb
             ->select('n.id, n.name, n.description, count(a) as accounts_total')
-            ->where($qb->expr()->eq('a.type', 'COMPANY'))
+            ->where("a.type = 'COMPANY'")
             ->innerJoin(Group::class, 'a', Join::WITH, 'a.neighbourhood = n.id')
             ->groupBy('n')
             ->getQuery()
