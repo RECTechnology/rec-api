@@ -4,11 +4,11 @@ declare(strict_types=1);
 
 namespace App\FinancialApiBundle\Migrations;
 
-use App\FinancialApiBundle\DependencyInjection\Transactions\Core\ContainerAwareInterface;
 use App\FinancialApiBundle\Entity\Document;
 use Doctrine\DBAL\Schema\Schema;
 use Doctrine\Migrations\AbstractMigration;
 use Doctrine\ORM\EntityManagerInterface;
+use Symfony\Component\DependencyInjection\ContainerAwareInterface;
 use Symfony\Component\DependencyInjection\ContainerAwareTrait;
 
 /**
@@ -58,8 +58,4 @@ final class Version20191211104723 extends AbstractMigration implements Container
         $this->addSql('ALTER TABLE Document CHANGE content content VARCHAR(255) CHARACTER SET utf8 DEFAULT NULL COLLATE `utf8_unicode_ci`');
     }
 
-    public function getContainer()
-    {
-        return $this->container;
-    }
 }
