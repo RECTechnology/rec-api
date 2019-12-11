@@ -4,14 +4,10 @@ declare(strict_types=1);
 
 namespace App\FinancialApiBundle\Command;
 
-use Doctrine\DBAL\Schema\Schema;
-use Doctrine\Migrations\AbstractMigration;
 use Doctrine\ODM\MongoDB\DocumentManager;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
-use Symfony\Component\DependencyInjection\ContainerAwareTrait;
-use App\FinancialApiBundle\DependencyInjection\Transactions\Core\ContainerAwareInterface;
 use App\FinancialApiBundle\Document\Transaction;
 use App\FinancialApiBundle\Entity\Group;
 use App\FinancialApiBundle\Entity\User;
