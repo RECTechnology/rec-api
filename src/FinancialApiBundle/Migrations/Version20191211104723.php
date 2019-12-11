@@ -4,17 +4,42 @@ declare(strict_types=1);
 
 namespace App\FinancialApiBundle\Migrations;
 
+use App\FinancialApiBundle\DependencyInjection\Transactions\Core\ContainerAwareInterface;
+use App\FinancialApiBundle\Entity\Document;
 use Doctrine\DBAL\Schema\Schema;
 use Doctrine\Migrations\AbstractMigration;
+use Doctrine\ORM\EntityManagerInterface;
+use Symfony\Component\DependencyInjection\ContainerAwareTrait;
 
 /**
- * Auto-generated Migration: Please modify to your needs!
+ * Class Version20191211104723
+ * @package App\FinancialApiBundle\Migrations
  */
-final class Version20191211104723 extends AbstractMigration
-{
+final class Version20191211104723 extends AbstractMigration implements ContainerAwareInterface {
+
+    use ContainerAwareTrait;
+
     public function getDescription() : string
     {
         return 'Removes nullable from Document.content';
+    }
+
+    public function preUp(Schema $schema): void
+    {
+        parent::preUp($schema);
+
+        /** @var EntityManagerInterface $em */
+        $em = $this->container->get('doctrine.orm.entity_manager');
+
+        $repo = $em->getRepository(Document::class);
+
+        /** @var Document $document */
+        foreach ($repo->findAll() as $document) {
+            if($document->getContent() == null) {
+                $em->remove($document);
+            }
+        }
+        $em->flush();
     }
 
     public function up(Schema $schema) : void
@@ -31,5 +56,10 @@ final class Version20191211104723 extends AbstractMigration
         $this->abortIf($this->connection->getDatabasePlatform()->getName() !== 'mysql', 'Migration can only be executed safely on \'mysql\'.');
 
         $this->addSql('ALTER TABLE Document CHANGE content content VARCHAR(255) CHARACTER SET utf8 DEFAULT NULL COLLATE `utf8_unicode_ci`');
+    }
+
+    public function getContainer()
+    {
+        return $this->container;
     }
 }
