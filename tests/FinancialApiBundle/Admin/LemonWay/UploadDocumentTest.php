@@ -31,12 +31,31 @@ class UploadDocumentTest extends AdminApiTest {
         );
     }
 
+    function getUserAccount($user) {
+        return $user->group_data;
+    }
+
+    function createDocument($account, $kind){
+        return $this->rest(
+            'POST',
+            "/admin/v3/documents",
+            [
+                'name' => 'uploaded dni',
+                'content' => $this->faker->imageUrl(),
+                'kind_id' => $kind->id,
+                'account_id' => $account->id
+            ],
+            [],
+            400
+        );
+    }
+
     function testUploadLWDocument(){
-        $doc = $this->createLemonDocumentKind();
+        $kind = $this->createLemonDocumentKind();
 
         $user = $this->getSignedInUser();
+        $account = $this->getUserAccount($user);
 
-        print $doc;
-
+        $this->createDocument($account, $kind);
     }
 }

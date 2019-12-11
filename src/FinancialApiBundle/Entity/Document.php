@@ -8,6 +8,7 @@ use App\FinancialApiBundle\DependencyInjection\App\Commons\UploadManager;
 use App\FinancialApiBundle\Exception\AppLogicException;
 use Doctrine\ORM\Mapping as ORM;
 use JMS\Serializer\Annotation as Serializer;
+use Symfony\Component\Validator\Constraints as Assert;
 
 /**
  * Class Document
@@ -22,13 +23,12 @@ class Document extends AppObject implements Uploadable, Stateful {
      * @var string $status
      * @ORM\Column(type="string")
      * @StatusProperty(choices={
-     *     "created"={"to"={"uploaded"}},
      *     "uploaded"={"to"={"submitted"}},
      *     "submitted"={"to"={"approved", "declined"}},
      *     "declined"={"to"={"archived"}},
      *     "approved"={"final"=true},
      *     "archived"={"final"=true},
-     * }, initial="created")
+     * }, initial="uploaded")
      * @Serializer\Groups({"manager"})
      */
     private $status;
@@ -42,7 +42,10 @@ class Document extends AppObject implements Uploadable, Stateful {
 
     /**
      * @var string $type
-     * @ORM\Column(type="string", nullable=true)
+     * @ORM\Column(type="string")
+     * @Assert\Url()
+     * @Assert\NotBlank()
+     * @Assert\NotNull()
      * @Serializer\Groups({"manager"})
      */
     private $content;
@@ -110,10 +113,7 @@ class Document extends AppObject implements Uploadable, Stateful {
      */
     public function setContent(string $content): void
     {
-        if($this->status == self::STATUS_CREATED || $this->status != null)
-            throw new AppLogicException("Setting content is only available when status is 'created'");
         $this->content = $content;
-        $this->status = self::STATUS_UPLOADED;
     }
 
     /**
