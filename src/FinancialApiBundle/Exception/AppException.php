@@ -31,7 +31,7 @@ class AppException extends HttpException {
                 }
             }
             elseif (is_array($data)){
-                $message['errors'] = $data;
+                $message['errors'] = [$data];
             }
         }
 

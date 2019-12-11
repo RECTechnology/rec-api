@@ -63,31 +63,28 @@ class LemonUploadEventSubscriber implements EventSubscriber {
      */
     public function prePersist(LifecycleEventArgs $args){
         $document = $args->getEntity();
-        if($document instanceof Document){
+        if($document instanceof LemonDocument){
             $kind = $document->getKind();
-            /** @var LemonDocument $document */
-            if($kind instanceof LemonDocumentKind){
-                /** @var LemonWayInterface $lemon */
-                $lemon = $this->container->get('net.app.driver.lemonway.eur');
 
-                $resp = $lemon->callService(
-                    'UploadFile',
-                    [
-                        'wallet' => $document->getAccount()->getCif(),
-                        'fileName' => $document->getName(),
-                        'type' => $kind->getLemonDoctype(),
-                        'buffer' => base64_encode(file_get_contents($document->getContent()))
-                    ]
-                );
+            /** @var LemonWayInterface $lemon */
+            $lemon = $this->container->get('net.app.driver.lemonway.eur');
 
-                if(is_array($resp))
-                    throw new AppException(400, "LW error", $resp);
-                if($resp->E != null)
-                    throw new AppException(400, "LW error: {$resp->E}");
+            $resp = $lemon->callService(
+                'UploadFile',
+                [
+                    'wallet' => $document->getAccount()->getCif(),
+                    'fileName' => sprintf("doctype_%d.jpg", $kind->getLemonDoctype()),
+                    'type' => sprintf("%d", $kind->getLemonDoctype()),
+                    'buffer' => base64_encode(file_get_contents($document->getContent()))
+                ]
+            );
 
-                $document->setLemonReference($resp->UPLOAD->ID);
-                $document->setStatus(Stateful::STATUS_SUBMITTED);
-            }
+            if(is_array($resp))
+                throw new AppException(400, "LW error", $resp);
+            if($resp->E != null)
+                throw new AppException(400, "LW error: {$resp->E}");
+
+            $document->setLemonReference($resp->UPLOAD->ID);
         }
     }
 

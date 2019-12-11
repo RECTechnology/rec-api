@@ -23,22 +23,21 @@ class Document extends AppObject implements Uploadable, Stateful {
      * @var string $status
      * @ORM\Column(type="string")
      * @StatusProperty(choices={
-     *     "uploaded"={"to"={"submitted"}},
      *     "submitted"={"to"={"approved", "declined"}},
      *     "declined"={"to"={"archived"}},
      *     "approved"={"final"=true},
      *     "archived"={"final"=true},
-     * }, initial="uploaded")
+     * }, initial="submitted")
      * @Serializer\Groups({"manager"})
      */
-    private $status;
+    protected $status;
 
     /**
      * @var string $name
      * @ORM\Column(type="string")
      * @Serializer\Groups({"manager"})
      */
-    private $name;
+    protected $name;
 
     /**
      * @var string $type
@@ -48,19 +47,19 @@ class Document extends AppObject implements Uploadable, Stateful {
      * @Assert\NotNull()
      * @Serializer\Groups({"manager"})
      */
-    private $content;
+    protected $content;
 
     /**
      * @ORM\ManyToOne(targetEntity="App\FinancialApiBundle\Entity\Group", inversedBy="documents")
      * @Serializer\Groups({"manager"})
      */
-    private $account;
+    protected $account;
 
     /**
      * @ORM\ManyToOne(targetEntity="App\FinancialApiBundle\Entity\DocumentKind", inversedBy="documents")
      * @Serializer\Groups({"manager"})
      */
-    private $kind;
+    protected $kind;
 
 
     function getUploadableFields()

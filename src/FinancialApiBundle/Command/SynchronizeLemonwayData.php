@@ -28,7 +28,7 @@ class SynchronizeLemonwayData extends SynchronizedContainerAwareCommand
         $em = $this->getContainer()->get('doctrine.orm.entity_manager');
 
         $repo = $em->getRepository(Group::class);
-        $accounts = $repo->findBy(['type' => 'COMPANY', 'tier' => 2]);
+        $accounts = $repo->findBy(['type' => 'COMPANY']);
 
         $index = [];
         $callParams = ['wallets' => []];
