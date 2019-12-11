@@ -2,8 +2,7 @@ name: Build and Deploy [PROD]
 
 on:
   release:
-    types:
-      - completed
+    types: [published]
 
 jobs:
   build-api:

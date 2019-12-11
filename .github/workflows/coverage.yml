@@ -1,4 +1,4 @@
-name: Code Coverage
+name: Coverage > 10%
 
 on:
   release:

@@ -14,6 +14,8 @@ use Symfony\Component\Validator\Constraints as Assert;
  */
 class LemonDocumentKind extends DocumentKind {
 
+    public const LW_DOCTYPES = [0,1,2,3,4,5,7,11,12,13,21];
+
     public const DOCTYPE_LW_ID = 0;
     public const DOCTYPE_LW_PROOF_OF_ADDRESS = 1;
     public const DOCTYPE_LW_PROOF_OF_IBAN = 2;
@@ -30,7 +32,7 @@ class LemonDocumentKind extends DocumentKind {
      * @var int $lemon_doctype
      * @ORM\Column(type="integer")
      * @Assert\Choice(
-     *     choices="{0,1,2,3,4,5,6,7,11,12,13,21}",
+     *     choices=LemonDocumentKind::LW_DOCTYPES,
      *     message="doctype must be specified in http://documentation.lemonway.fr/api-en/directkit/manage-wallets/uploadfile-document-upload-for-kyc"
      * )
      * @Serializer\Groups({"user"})
