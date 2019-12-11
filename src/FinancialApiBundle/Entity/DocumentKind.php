@@ -20,26 +20,26 @@ class DocumentKind extends AppObject {
      * @ORM\Column(type="string")
      * @Serializer\Groups({"user"})
      */
-    private $name;
+    protected $name;
 
     /**
      * @var string $type
      * @ORM\Column(type="string", nullable=true)
      * @Serializer\Groups({"user"})
      */
-    private $description;
+    protected $description;
 
     /**
      * @ORM\OneToMany(targetEntity="App\FinancialApiBundle\Entity\Document", mappedBy="kind")
      * @Serializer\Groups({"admin"})
      */
-    private $documents;
+    protected $documents;
 
     /**
      * @ORM\ManyToOne(targetEntity="App\FinancialApiBundle\Entity\Tier", inversedBy="document_kinds")
      * @Serializer\Groups({"admin"})
      */
-    private $tier;
+    protected $tier;
 
 
     public function __construct()
