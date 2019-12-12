@@ -3,9 +3,9 @@ REC Barcelona API
 
 Welcome to the REC Barcelona API [api.rec.barcelona](https://api.rec.barcelona)
 
-[![Conventional Commits](https://img.shields.io/badge/Conventional%20Commits-1.0.0-yellow.svg)](https://conventionalcommits.org)
 ![Functional Tests](https://github.com/QbitArtifacts/rec-api/workflows/Functional%20Tests/badge.svg)
-![Code Coverage](https://github.com/QbitArtifacts/rec-api/workflows/Coverage%20>%2010%/badge.svg)
+![Code Coverage](https://github.com/QbitArtifacts/rec-api/workflows/Coverage%20%3E%2010%25/badge.svg)
+
 
 |Installation|Web|API|Docs|Admin|Backups|
 |------------|---|---|----|-----|-------|
@@ -13,6 +13,9 @@ Welcome to the REC Barcelona API [api.rec.barcelona](https://api.rec.barcelona)
 |**Stage**|[![Website](https://img.shields.io/website-up-down-green-red/https/rec.qbitartifacts.com.svg?label=web)](https://rec.barcelona)|[![Website](https://img.shields.io/website-up-down-green-red/https/api.rec.qbitartifacts.com/public/v1/status.svg?label=api)](https://api.rec.qbitartifacts.com)|[![Website](https://img.shields.io/website-up-down-green-red/https/dev.rec.qbitartifacts.com.svg?label=dev)](https://dev.rec.qbitartifacts.com)|[![Website](https://img.shields.io/website-up-down-green-red/https/admin.rec.qbitartifacts.com.svg?label=admin)](https://admin.rec.qbitartifacts.com)|[![Website](https://img.shields.io/website-up-down-green-red/https/backups.rec.qbitartifacts.com.svg?label=backups)](https://backups.rec.qbitartifacts.com)|
 
 # Development
+
+[![Conventional Commits](https://img.shields.io/badge/Conventional%20Commits-1.0.0-yellow.svg)](https://conventionalcommits.org)
+
 ## Setup
 ### Install Docker
 Install **docker** and **docker-compose** using the [official documentation](https://docs.docker.com/install/).
