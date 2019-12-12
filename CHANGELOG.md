@@ -2,6 +2,29 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+## [2.3.0](https://github.com/qbitartifacts/rec-api/compare/v2.1.0...v2.3.0) (2019-12-12)
+
+
+### Features
+
+* **ci/cd:** changed coverage name ([16a2baf](https://github.com/qbitartifacts/rec-api/commit/16a2bafb008e48b8d88e15455e272a98027cb82c))
+* **tiers:**  now documents are uploaded to lemonway  ([#155](https://github.com/qbitartifacts/rec-api/issues/155)) ([02c9680](https://github.com/qbitartifacts/rec-api/commit/02c9680ddc4aea3cd5c9ad03959d5554bc8e4ecd))
+
+
+### Bug Fixes
+
+* **ci:** fixed coverage tests ([cd8a096](https://github.com/qbitartifacts/rec-api/commit/cd8a0967549a26035b68942a4657779cff34316e))
+* lw uploads ([#158](https://github.com/qbitartifacts/rec-api/issues/158)) ([531b244](https://github.com/qbitartifacts/rec-api/commit/531b244188e82b117b9394ee21641f50a664ea06))
+* **ci/cd:** set deploy to prod env on published release ([30c826f](https://github.com/qbitartifacts/rec-api/commit/30c826f42e362be6f39d6b1872124003de944832))
+* **dependencies:** updated composer dependencies ([ee9ee24](https://github.com/qbitartifacts/rec-api/commit/ee9ee2414156aaa1dd34fb745c0d6925b0f23c67))
+* **lemonway:** cron update lemon ([#159](https://github.com/qbitartifacts/rec-api/issues/159)) ([0ef69a2](https://github.com/qbitartifacts/rec-api/commit/0ef69a2fc7f662db2fc88e3a625eb711a07ef704))
+* :bug: extending from wrong interface ([615ae34](https://github.com/qbitartifacts/rec-api/commit/615ae34e2058b48e8751fa2b2df5fd4745bca618))
+* **lemonway:** fixed 500 error when creating lemonway document ([abfc6fd](https://github.com/qbitartifacts/rec-api/commit/abfc6fd5eda11d96cdf17bf7319271b479e198dd))
+* **lemonway:** fixes lemonway document upload ([f2ad2b8](https://github.com/qbitartifacts/rec-api/commit/f2ad2b8331a8b0124bf6c2d2dca8fd6c9d61e72f))
+* **migrations:** removes documents without content before migrate ([721a1d8](https://github.com/qbitartifacts/rec-api/commit/721a1d8269b1d5e6aed78e4b55ae9832e42ae32d))
+* **refactor:** removed old migrations ([f52e07b](https://github.com/qbitartifacts/rec-api/commit/f52e07bba3c701fed794ec4fb2972fea17774bca))
+* **refactor:** removed unused code ([348e78e](https://github.com/qbitartifacts/rec-api/commit/348e78e55c7259b01d4b860038cfdc5700d0d80f))
+
 ## [2.2.0](https://github.com/qbitartifacts/rec-api/compare/v2.1.0...v2.2.0) (2019-12-12)
 
 
