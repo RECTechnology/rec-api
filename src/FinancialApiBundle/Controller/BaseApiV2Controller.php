@@ -563,6 +563,9 @@ abstract class BaseApiV2Controller extends RestApiController implements Reposito
 
         $getter = $this->getGetter($relationship);
 
+        if(!method_exists($entity, $getter))
+            throw new AppException(404, "Method not found");
+
         return $entity->$getter();
 
     }
