@@ -84,6 +84,8 @@ class LemonUploadEventSubscriber implements EventSubscriber {
             if($resp->E != null)
                 throw new AppException(400, "LW error: {$resp->E}");
 
+            if($resp->UPLOAD->ID == null)
+                throw new AppException(503, "Bad LW response: " . json_encode($resp));
             $document->setLemonReference($resp->UPLOAD->ID);
         }
     }
