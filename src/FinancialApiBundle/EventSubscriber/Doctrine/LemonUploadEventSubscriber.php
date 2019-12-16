@@ -63,31 +63,37 @@ class LemonUploadEventSubscriber implements EventSubscriber {
      */
     public function prePersist(LifecycleEventArgs $args){
         $document = $args->getEntity();
-        if($document instanceof LemonDocument){
+        if($document instanceof Document){
             $kind = $document->getKind();
+            if($document instanceof LemonDocument){
 
-            /** @var LemonWayInterface $lemon */
-            $lemon = $this->container->get('net.app.driver.lemonway.eur');
+                /** @var LemonWayInterface $lemon */
+                $lemon = $this->container->get('net.app.driver.lemonway.eur');
 
-            $resp = $lemon->callService(
-                'UploadFile',
-                [
-                    'wallet' => $document->getAccount()->getCif(),
-                    'fileName' => sprintf("doctype_%d.jpg", $kind->getLemonDoctype()),
-                    'type' => sprintf("%d", $kind->getLemonDoctype()),
-                    'buffer' => base64_encode(file_get_contents($document->getContent()))
-                ]
-            );
+                $resp = $lemon->callService(
+                    'UploadFile',
+                    [
+                        'wallet' => $document->getAccount()->getCif(),
+                        'fileName' => sprintf("doctype_%d.jpg", $kind->getLemonDoctype()),
+                        'type' => sprintf("%d", $kind->getLemonDoctype()),
+                        'buffer' => base64_encode(file_get_contents($document->getContent()))
+                    ]
+                );
 
-            if(is_array($resp))
-                throw new AppException(400, "LW error", $resp);
-            if($resp->E != null)
-                throw new AppException(400, "LW error: {$resp->E}");
+                if(is_array($resp))
+                    throw new AppException(400, "LW error", $resp);
+                if($resp->E != null)
+                    throw new AppException(400, "LW error: {$resp->E}");
 
-            if($resp->UPLOAD->ID == null)
-                throw new AppException(503, "Bad LW response: " . json_encode($resp));
-            $document->setLemonReference($resp->UPLOAD->ID);
+                if($resp->UPLOAD->ID == null)
+                    throw new AppException(503, "Bad LW response: " . json_encode($resp));
+                $document->setLemonReference($resp->UPLOAD->ID);
+            }
+            elseif ($kind instanceof LemonDocumentKind) {
+                throw new AppException(400, "Cannot assign a LemonDocumentKind to Document.kind, use lemon_documents instead");
+            }
         }
     }
+
 
 }
