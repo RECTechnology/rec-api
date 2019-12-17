@@ -4,7 +4,7 @@ REC Barcelona API
 Welcome to the REC Barcelona API [api.rec.barcelona](https://api.rec.barcelona)
 
 ![Functional Tests](https://github.com/QbitArtifacts/rec-api/workflows/Functional%20Tests/badge.svg)
-![Code Coverage](https://github.com/QbitArtifacts/rec-api/workflows/Coverage%20%3E%2010%25/badge.svg)
+![Code Coverage](https://github.com/QbitArtifacts/rec-api/workflows/Coverage%20%3E%2020%25/badge.svg)
 
 
 |Installation|Web|API|Docs|Admin|Backups|
