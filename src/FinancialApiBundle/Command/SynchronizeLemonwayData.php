@@ -18,28 +18,7 @@ class SynchronizeLemonwayData extends SynchronizedContainerAwareCommand
     protected function configure()
     {
         $this->setName('rec:sync:lemonway')
-            ->setDescription('Synchronizes data with LemonWay')
-            ->addOption(
-                'balances',
-                null,
-                InputOption::VALUE_OPTIONAL,
-                'Synchronize lemonway balances',
-                null
-            )
-            ->addOption(
-                'kyc',
-                null,
-                InputOption::VALUE_OPTIONAL,
-                'Synchronize lemonway documents',
-                null
-            )
-            ->addOption(
-                'all',
-                null,
-                InputOption::VALUE_OPTIONAL,
-                'Synchronize everything',
-                null
-            );
+            ->setDescription('Synchronizes data with LemonWay');
     }
 
     protected function executeSynchronized(InputInterface $input, OutputInterface $output)
@@ -51,13 +30,10 @@ class SynchronizeLemonwayData extends SynchronizedContainerAwareCommand
 
         /** @var EntityManagerInterface $em */
         $em = $this->getContainer()->get('doctrine.orm.entity_manager');
-        $synchronizers = [];
-        if($input->getOption('balances') || $input->getOption('all')){
-            $synchronizers []= new BalancesSynchronizer($em, $lw, $output);
-        }
-        if($input->getOption('kyc') || $input->getOption('all')){
-            $synchronizers []= new KycSynchronizer($em, $lw, $output);
-        }
+        $synchronizers = [
+            new BalancesSynchronizer($em, $lw, $output),
+            new KycSynchronizer($em, $lw, $output)
+        ];
         /** @var Synchronizer $sync */
         foreach($synchronizers as $sync) $sync->sync();
         $output->writeln('Finish command');
