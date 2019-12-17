@@ -15,13 +15,22 @@ use JMS\Serializer\Annotation as Serializer;
  * @ORM\Entity()
  */
 class LemonDocument extends Document {
+    const LW_STATUS_APPROVED = [2];
+    const LW_STATUS_DECLINED = [3, 4, 5, 6, 7];
 
     /**
      * @var string $lemon_reference
-     * @ORM\Column(type="string", nullable=true)
+     * @ORM\Column(type="string")
      * @Serializer\Groups({"user"})
      */
     private $lemon_reference;
+
+    /**
+     * @var integer $lemon_status
+     * @ORM\Column(type="integer")
+     * @Serializer\Groups({"user"})
+     */
+    private $lemon_status;
 
     /**
      * @return string
@@ -37,5 +46,21 @@ class LemonDocument extends Document {
     public function setLemonReference(string $lemon_reference): void
     {
         $this->lemon_reference = $lemon_reference;
+    }
+
+    /**
+     * @param $lemon_status
+     */
+    public function setLemonStatus($lemon_status)
+    {
+        $this->lemon_status = $lemon_status;
+    }
+
+    /**
+     * @return integer
+     */
+    public function getLemonStatus(): int
+    {
+        return $this->lemon_status;
     }
 }

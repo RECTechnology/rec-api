@@ -62,10 +62,16 @@ class UploadDocumentTest extends AdminApiTest {
         );
     }
 
-    function testUploadLWDocument(){
+    function syncLemon(){
+        $this->runCommand('rec:sync:lemonway', ['--kyc']);
+    }
+
+    function testUploadLWDocumentAndCheckCron(){
         $kind = $this->createLemonDocumentKind();
         $user = $this->getSignedInUser();
         $account = $this->getUserAccount($user);
         $this->createDocument($account, $kind);
+        $this->syncLemon();
     }
+
 }

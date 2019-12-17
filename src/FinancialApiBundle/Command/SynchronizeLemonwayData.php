@@ -1,6 +1,9 @@
 <?php
 namespace App\FinancialApiBundle\Command;
 
+use App\FinancialApiBundle\Command\LemonwaySynchronizer\BalancesSynchronizer;
+use App\FinancialApiBundle\Command\LemonwaySynchronizer\KycSynchronizer;
+use App\FinancialApiBundle\Command\LemonwaySynchronizer\Synchronizer;
 use App\FinancialApiBundle\Entity\Group;
 use App\FinancialApiBundle\Financial\Driver\LemonWayInterface;
 use Doctrine\ORM\EntityManagerInterface;
@@ -14,7 +17,29 @@ class SynchronizeLemonwayData extends SynchronizedContainerAwareCommand
 {
     protected function configure()
     {
-        $this->setName('rec:sync:lemonway');
+        $this->setName('rec:sync:lemonway')
+            ->setDescription('Synchronizes data with LemonWay')
+            ->addOption(
+                'balances',
+                null,
+                InputOption::VALUE_OPTIONAL,
+                'Synchronize lemonway balances',
+                null
+            )
+            ->addOption(
+                'kyc',
+                null,
+                InputOption::VALUE_OPTIONAL,
+                'Synchronize lemonway documents',
+                null
+            )
+            ->addOption(
+                'all',
+                null,
+                InputOption::VALUE_OPTIONAL,
+                'Synchronize everything',
+                null
+            );
     }
 
     protected function executeSynchronized(InputInterface $input, OutputInterface $output)
@@ -26,40 +51,15 @@ class SynchronizeLemonwayData extends SynchronizedContainerAwareCommand
 
         /** @var EntityManagerInterface $em */
         $em = $this->getContainer()->get('doctrine.orm.entity_manager');
-
-        $repo = $em->getRepository(Group::class);
-        $accounts = $repo->findBy(['type' => 'COMPANY']);
-
-        $index = [];
-        $callParams = ['wallets' => []];
-        /** @var Group $account */
-        foreach ($accounts as $account){
-            $output->writeln("[INFO] Processing account {$account->getId()}");
-            $wid = strtoupper($account->getCif());
-            if(!$wid || strlen($wid) == 0)
-                $output->writeln("[WARN] CIF for account {$account->getId()} is null or empty");
-            $index[$wid] = $account;
-            $callParams['wallets'] []= ['wallet' => $wid];
-            $account->setLwBalance(null);
-            $em->persist($account);
+        $synchronizers = [];
+        if($input->getOption('balances') || $input->getOption('all')){
+            $synchronizers []= new BalancesSynchronizer($em, $lw, $output);
         }
-
-        $resp = $lw->callService('GetWalletDetailsBatch', $callParams);
-
-        foreach ($resp->wallets as $walletInfo){
-            if($walletInfo->WALLET != null){
-                $output->writeln("[INFO] Found LW ID {$walletInfo->WALLET->ID}");
-                $account = $index[strtoupper($walletInfo->WALLET->ID)];
-                $account->setLwBalance(intval($walletInfo->WALLET->BAL * 100.0));
-                $em->persist($account);
-            }
-            else {
-                $output->writeln("[WARN] LW error: {$walletInfo->E->Msg}");
-            }
+        if($input->getOption('kyc') || $input->getOption('all')){
+            $synchronizers []= new KycSynchronizer($em, $lw, $output);
         }
-
-        $em->flush();
-
+        /** @var Synchronizer $sync */
+        foreach($synchronizers as $sync) $sync->sync();
         $output->writeln('Finish command');
     }
 }
