@@ -1,9 +1,6 @@
 name: Functional Tests
 
-on:
-  pull_request:
-    paths:
-      - '!**.md'
+on: pull_request
 
 jobs:
   test:
