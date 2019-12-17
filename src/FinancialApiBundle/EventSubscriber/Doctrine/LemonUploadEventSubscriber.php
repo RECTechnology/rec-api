@@ -81,7 +81,14 @@ class LemonUploadEventSubscriber implements EventSubscriber {
                 );
 
                 if(is_array($resp))
-                    throw new AppException(400, "LW error", $resp);
+                    throw new AppException(
+                        400,
+                        "LW error",
+                        [
+                            'property' => 'lemonway_error - UPLOADFILE - ' . $resp['UPLOADFILE']['ERROR'],
+                            'message' => $resp['UPLOADFILE']['MESSAGE']
+                        ]
+                    );
                 if($resp->E != null)
                     throw new AppException(400, "LW error: {$resp->E}");
 
