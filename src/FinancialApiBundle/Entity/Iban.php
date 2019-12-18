@@ -42,6 +42,34 @@ class Iban extends AppObject implements Stateful, LemonObject {
     protected $name;
 
     /**
+     * @var string $holder
+     * @ORM\Column(type="string")
+     * @Serializer\Groups({"manager"})
+     */
+    protected $holder;
+
+    /**
+     * @var string $bic
+     * @ORM\Column(type="string")
+     * @Serializer\Groups({"manager"})
+     */
+    protected $bic;
+
+    /**
+     * @var string $bank_name
+     * @ORM\Column(type="string")
+     * @Serializer\Groups({"manager"})
+     */
+    protected $bank_name;
+
+    /**
+     * @var string $bank_address
+     * @ORM\Column(type="string")
+     * @Serializer\Groups({"manager"})
+     */
+    protected $bank_address;
+
+    /**
      * @var string $number
      * @ORM\Column(type="string")
      * @Assert\NotBlank()
@@ -119,5 +147,69 @@ class Iban extends AppObject implements Stateful, LemonObject {
     public function setAccount($account): void
     {
         $this->account = $account;
+    }
+
+    /**
+     * @return string
+     */
+    public function getHolder(): string
+    {
+        return $this->holder;
+    }
+
+    /**
+     * @param string $holder
+     */
+    public function setHolder(string $holder): void
+    {
+        $this->holder = $holder;
+    }
+
+    /**
+     * @return string
+     */
+    public function getBic(): string
+    {
+        return $this->bic;
+    }
+
+    /**
+     * @param string $bic
+     */
+    public function setBic(string $bic): void
+    {
+        $this->bic = $bic;
+    }
+
+    /**
+     * @return string
+     */
+    public function getBankName(): string
+    {
+        return $this->bank_name;
+    }
+
+    /**
+     * @param string $bank_name
+     */
+    public function setBankName(string $bank_name): void
+    {
+        $this->bank_name = $bank_name;
+    }
+
+    /**
+     * @return string
+     */
+    public function getBankAddress(): string
+    {
+        return $this->bank_address;
+    }
+
+    /**
+     * @param string $bank_address
+     */
+    public function setBankAddress(string $bank_address): void
+    {
+        $this->bank_address = $bank_address;
     }
 }
