@@ -15,7 +15,9 @@ use Symfony\Component\Validator\Constraints as Assert;
  * @package App\FinancialApiBundle\Entity
  * @ORM\Entity()
  */
-class Iban extends AppObject implements Stateful {
+class Iban extends AppObject implements Stateful, LemonObject {
+
+    use LemonObjectTrait;
 
     /**
      * @var string $status
