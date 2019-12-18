@@ -2,6 +2,7 @@
 namespace App\FinancialApiBundle\Command;
 
 use App\FinancialApiBundle\Command\LemonwaySynchronizer\BalancesSynchronizer;
+use App\FinancialApiBundle\Command\LemonwaySynchronizer\IbanSynchronizer;
 use App\FinancialApiBundle\Command\LemonwaySynchronizer\KycSynchronizer;
 use App\FinancialApiBundle\Command\LemonwaySynchronizer\Synchronizer;
 use App\FinancialApiBundle\Entity\Group;
@@ -32,7 +33,8 @@ class SynchronizeLemonwayData extends SynchronizedContainerAwareCommand
         $em = $this->getContainer()->get('doctrine.orm.entity_manager');
         $synchronizers = [
             new BalancesSynchronizer($em, $lw, $output),
-            new KycSynchronizer($em, $lw, $output)
+            new KycSynchronizer($em, $lw, $output),
+            new IbanSynchronizer($em, $lw, $output),
         ];
         /** @var Synchronizer $sync */
         foreach($synchronizers as $sync) $sync->sync();
