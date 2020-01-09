@@ -2,6 +2,7 @@
 
 namespace App\FinancialApiBundle\Controller\Management\Manager;
 
+use App\FinancialApiBundle\Entity\UserGroup;
 use Doctrine\DBAL\DBALException;
 use Doctrine\ORM\EntityManagerInterface;
 use Doctrine\ORM\QueryBuilder;
@@ -173,7 +174,6 @@ class GroupsController extends BaseApiController
 
             $fees = $group->getCommissions();
 
-            $fees = $group->getCommissions();
             /** @var Fee $fee */
             foreach ( $fees as $fee ){
                 $currency = $fee->getCurrency();
@@ -199,10 +199,6 @@ class GroupsController extends BaseApiController
         );
 
     }
-
-
-
-
 
     /**
      * @Rest\View
@@ -376,15 +372,11 @@ class GroupsController extends BaseApiController
             throw new HttpException(403, 'You have not the necessary permissions');
         }
 
-        $listGroups = $this->getDoctrine()->getRepository('FinancialApiBundle:UserGroup')->findBy(array(
-            'user'  =>  $id
-        ));
+        $listGroups = $em->getRepository(UserGroup::class)->findBy(['user'  =>  $id]);
 
-        $listData = array();
+        $listData = [];
         foreach($listGroups as $group) {
-            $company = $em->getRepository('FinancialApiBundle:Group')->findOneBy(array(
-                'id'  => $group->getGroup()
-            ));
+            $company = $em->getRepository(Group::class)->findOneBy(['id'  => $group->getGroup()]);
 
             if (!$company) throw new HttpException(404, 'Company not found');
             $listData[] = array(

@@ -2,6 +2,7 @@
 
 namespace App\FinancialApiBundle\Controller\Management\User;
 
+use App\FinancialApiBundle\Exception\AppException;
 use Doctrine\Common\Annotations\AnnotationException;
 use Doctrine\DBAL\DBALException;
 use JMS\Serializer\SerializationContext;
@@ -45,6 +46,7 @@ class AccountController extends BaseApiController{
         $user->setRoles($user->getRoles());
         /** @var Group $group */
         $group = $this->get('security.token_storage')->getToken()->getUser()->getActiveGroup();
+        if(!$group->getActive()) throw new AppException(412, "Default account is not active");
         $group_data = $group->getUserView();
         $user->setGroupData($group_data);
 
@@ -973,7 +975,10 @@ class AccountController extends BaseApiController{
         $all = [];
         /** @var UserGroup $permission */
         foreach ($user->getUserGroups() as $permission){
-            if($permission->getGroup()->getActive()) {
+
+            /** @var Group $account */
+            $account = $permission->getGroup();
+            if($account->getActive()) {
                 $all [] = [
                     'company' => $permission->getGroup(),
                     'roles' => $permission->getRoles()
