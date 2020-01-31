@@ -57,7 +57,6 @@ class CreditCardController extends BaseApiController{
     }
 
 
-
     /**
      * @Rest\View
      */
@@ -65,11 +64,8 @@ class CreditCardController extends BaseApiController{
         $user = $this->getUser();
         $company = $user->getActiveGroup();
         $em = $this->getDoctrine()->getManager();
-        $cards = $em->getRepository('FinancialApiBundle:CreditCard')->findBy(array(
-            'company'   =>  $company,
-            'deleted'=>false,
-            'user'   =>  $user
-        ));
+        $cards = $em->getRepository(CreditCard::class)
+            ->findBy(['company'   =>  $company, 'deleted'=>false, 'user' => $user]);
         return $this->restV2(200, 'ok', 'Request successfull', $cards);
     }
 
