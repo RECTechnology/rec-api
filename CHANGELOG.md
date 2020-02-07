@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+### [2.9.1](https://github.com/qbitartifacts/rec-api/compare/v2.9.0...v2.9.1) (2020-02-07)
+
+
+### Bug Fixes
+
+* **credit_cards:** fixed credit cards listing error ([c30593a](https://github.com/qbitartifacts/rec-api/commit/c30593a98f29d54f5762602e6c77d8e07e354c08))
+
 ## [2.9.0](https://github.com/qbitartifacts/rec-api/compare/v2.1.0...v2.9.0) (2020-01-09)
 
 
