@@ -64,9 +64,12 @@ class CreditCardController extends BaseApiController{
         $user = $this->getUser();
         $company = $user->getActiveGroup();
         $em = $this->getDoctrine()->getManager();
-        $cards = $em->getRepository(CreditCard::class)
-            ->findBy(['company'   =>  $company, 'deleted'=>false, 'user' => $user]);
-        return $this->restV2(200, 'ok', 'Request successfull', $cards);
+        $cards = $em->getRepository(CreditCard::class)->findBy(
+            ['company'   =>  $company, 'deleted'=>false, 'user' => $user]
+        );
+
+        $resp = $this->securizeOutput($cards);
+        return $this->restV2(200, 'ok', 'Request successfull', $resp);
     }
 
     /**
