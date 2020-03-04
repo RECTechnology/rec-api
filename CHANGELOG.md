@@ -2,6 +2,18 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+## [2.10.0](https://github.com/qbitartifacts/rec-api/compare/v2.9.1...v2.10.0) (2020-03-04)
+
+
+### Features
+
+* adding issue templates ([ba3f051](https://github.com/qbitartifacts/rec-api/commit/ba3f0510a1656bc1d6f99dff30aab73924dc924b))
+
+
+### Bug Fixes
+
+* **dependencies:** updated dependencies ([32ca5fe](https://github.com/qbitartifacts/rec-api/commit/32ca5fe02e8e38f8f6cb709f8e4d3c0ab103e00d))
+
 ### [2.9.1](https://github.com/qbitartifacts/rec-api/compare/v2.9.0...v2.9.1) (2020-02-07)
 
 
