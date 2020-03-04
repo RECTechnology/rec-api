@@ -50,6 +50,7 @@ class Group extends BaseGroup implements Uploadable {
         $this->consuming_products = new ArrayCollection();
         $this->producing_products = new ArrayCollection();
         $this->documents = new ArrayCollection();
+        $this->ibans = new ArrayCollection();
         $this->company_token = uniqid();
         $this->on_map = 1;
 
@@ -420,6 +421,12 @@ class Group extends BaseGroup implements Uploadable {
      * @Serializer\Groups({"user"})
      */
     private $documents;
+
+    /**
+     * @ORM\OneToMany(targetEntity="App\FinancialApiBundle\Entity\Iban", mappedBy="account", cascade={"remove"})
+     * @Serializer\Groups({"user"})
+     */
+    private $ibans;
 
     /**
      * @ORM\Column(type="integer")
@@ -1527,5 +1534,21 @@ class Group extends BaseGroup implements Uploadable {
     public function setLevel($level): void
     {
         $this->level = $level;
+    }
+
+    /**
+     * @return mixed
+     */
+    public function getIbans()
+    {
+        return $this->ibans;
+    }
+
+    /**
+     * @param mixed $ibans
+     */
+    public function setIbans($ibans): void
+    {
+        $this->ibans = $ibans;
     }
 }

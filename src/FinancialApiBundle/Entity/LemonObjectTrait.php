@@ -8,14 +8,14 @@ trait LemonObjectTrait {
 
     /**
      * @var string $lemon_reference
-     * @ORM\Column(type="string")
+     * @ORM\Column(type="string", nullable=true)
      * @Serializer\Groups({"user"})
      */
     private $lemon_reference;
 
     /**
      * @var integer $lemon_status
-     * @ORM\Column(type="integer")
+     * @ORM\Column(type="integer", nullable=true)
      * @Serializer\Groups({"user"})
      */
     private $lemon_status;
