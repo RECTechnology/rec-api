@@ -112,11 +112,7 @@ deploying the code to production.
 
 * Testing stage for REC API is `https://api.rec.qbitartifacts.com`
 * Testing stage for REC Admin is `https://admin.rec.qbitartifacts.com`
-* Testing stage for REC Status is `https://status.rec.qbitartifacts.com`
-* Testing stage for REC Explorer is `https://explorer.rec.qbitartifacts.com`
-* Testing stage for REC User Panel is `https://my.rec.qbitartifacts.com`
 * Testing stage for REC Developers documentation is `https://dev.rec.qbitartifacts.com`
-* Testing stage for REC User documentation is `https://wiki.rec.qbitartifacts.com`
 
 ## Beta Environment
 Not available yet.
@@ -127,8 +123,4 @@ Prod environment is a [docker stack](https://docs.docker.com/get-started/part5/)
 
 * Production for REC API is `https://api.rec.barcelona`
 * Production for REC Admin is `https://admin.rec.barcelona`
-* Production for REC Status is `https://status.rec.barcelona`
-* Production for REC Explorer is `https://explorer.rec.barcelona`
-* Production for REC User Panel is `https://my.rec.barcelona`
 * Production for REC Developers documentation is `https://dev.rec.barcelona`
-* Production for REC User documentation is `https://wiki.rec.barcelona`
