@@ -13,3 +13,4 @@
 ##    path:  /exchange/v1/currencies
 ##    defaults: { _controller: App\FinancialApiBundle\Controller\Exchange\PublicController::currencies }
 ##    methods: [GET]
+
