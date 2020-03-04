@@ -80,7 +80,7 @@ class Iban extends AppObject implements Stateful, LemonObject {
     protected $number;
 
     /**
-     * @ORM\ManyToOne(targetEntity="App\FinancialApiBundle\Entity\Group", inversedBy="documents")
+     * @ORM\ManyToOne(targetEntity="App\FinancialApiBundle\Entity\Group", inversedBy="ibans")
      * @Serializer\Groups({"manager"})
      */
     protected $account;
