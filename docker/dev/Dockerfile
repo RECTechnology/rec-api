@@ -25,14 +25,17 @@ RUN apt update && apt install -y \
     libboost-program-options-dev \
     libboost-system-dev
 
+
 # Install mongodb server 4.0 for running the tests
 RUN wget https://fastdl.mongodb.org/src/mongodb-src-r4.0.16.tar.gz
 RUN tar xzf mongodb-src-r4.0.16.tar.gz
 WORKDIR mongodb-src-r4.0.16
 RUN pip install -r buildscripts/requirements.txt
+
+RUN apt install -y libcurl4-openssl-dev
+
 RUN python buildscripts/scons.py mongod
 RUN python buildscripts/scons.py --prefix=/usr install
-
 
 # Install standard-version
 WORKDIR /
