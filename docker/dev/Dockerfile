@@ -12,17 +12,30 @@ RUN apt update && apt install -y \
     php-zip \
     php-redis \
     php-gd \
-    libxrender1 \
     unzip \
     wget \
-    python3 \
-    python3-pip \
+    python-pip \
     composer \
     jq \
     phpunit \
     php-xdebug \
-    curl
+    curl \
+    build-essential \
+    libboost-filesystem-dev \
+    libboost-program-options-dev \
+    libboost-system-dev
 
+# Install mongodb server 4.0 for running the tests
+RUN wget https://fastdl.mongodb.org/src/mongodb-src-r4.0.16.tar.gz
+RUN tar xzf mongodb-src-r4.0.16.tar.gz
+WORKDIR mongodb-src-r4.0.16
+RUN pip install -r buildscripts/requirements.txt
+RUN python buildscripts/scons.py mongod
+RUN python buildscripts/scons.py --prefix=/usr install
+
+
+# Install standard-version
+WORKDIR /
 RUN curl -sL https://deb.nodesource.com/setup_12.x | bash -
 RUN apt install -y nodejs
 RUN npm i -g standard-version

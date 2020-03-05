@@ -10,12 +10,15 @@ use Doctrine\Common\Persistence\ManagerRegistry;
 use Doctrine\ODM\MongoDB\DocumentManager;
 use Symfony\Component\HttpFoundation\Response;
 use Test\FinancialApiBundle\BaseApiTest;
+use Test\FinancialApiBundle\Utils\MongoDBTrait;
 
 /**
  * Class TransactionsTest
  * @package Test\FinancialApiBundle\Transactions
  */
 class TransactionsTest extends BaseApiTest {
+
+    use MongoDBTrait;
 
     private $store;
 
@@ -31,11 +34,11 @@ class TransactionsTest extends BaseApiTest {
         $dm->method('persist');
         $dm->method('flush');
         $dm->method('getRepository')->willReturn($repo);
-        $this->override('doctrine.odm.mongodb.document_manager', $dm);
+        //$this->override('doctrine.odm.mongodb.document_manager', $dm);
 
         $odm = $this->createMock(ManagerRegistry::class);
         $odm->method('getManager')->willReturn($dm);
-        $this->override('doctrine_mongodb', $odm);
+        //$this->override('doctrine_mongodb', $odm);
 
         $bm = $this->createMock(BalanceManipulator::class);
         $bm->method('addBalance');
