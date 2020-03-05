@@ -32,12 +32,14 @@ class DocumentKind extends AppObject {
     /**
      * @ORM\OneToMany(targetEntity="App\FinancialApiBundle\Entity\Document", mappedBy="kind")
      * @Serializer\Groups({"admin"})
+     * @Serializer\MaxDepth(1)
      */
     protected $documents;
 
     /**
      * @ORM\ManyToOne(targetEntity="App\FinancialApiBundle\Entity\Tier", inversedBy="document_kinds")
      * @Serializer\Groups({"admin"})
+     * @Serializer\MaxDepth(1)
      */
     protected $tier;
 
