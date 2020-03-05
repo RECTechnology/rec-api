@@ -28,7 +28,9 @@ class KycSynchronizer extends AbstractSynchronizer {
                     // if document is in lemonway but not in our API, create it
                     if(!$document) {
                         $document = new LemonDocument();
+                        $document->setExternalInfo($lwdoc);
                         $document->setLemonReference($lwdoc->ID);
+                        $document->setName("Lemonway auto-fetched document " . $lwdoc->ID);
                         $accRepo = $this->em->getRepository(Group::class);
                         $account = $accRepo->findOneBy(['cif' => strtolower($walletInfo->WALLET->ID)]);
                         if(!$account) $account = $accRepo->findOneBy(['cif' => strtoupper($walletInfo->WALLET->ID)]);
