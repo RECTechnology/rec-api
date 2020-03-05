@@ -23,7 +23,7 @@ class KycSynchronizer extends AbstractSynchronizer {
                 $this->output->writeln("[INFO] Found LW ID {$walletInfo->WALLET->ID}");
                 foreach ($walletInfo->WALLET->DOCS as $lwdoc){
                     /** @var LemonDocument $document */
-                    $document = $repo->findOneBy(['lemon_reference' => $lwdoc->ID]);
+                    $document = $repo->findOneBy(['external_reference' => $lwdoc->ID]);
 
                     // if document is in lemonway but not in our API, create it
                     if(!$document) {

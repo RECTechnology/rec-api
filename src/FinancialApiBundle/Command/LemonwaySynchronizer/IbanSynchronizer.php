@@ -24,7 +24,7 @@ class IbanSynchronizer extends AbstractSynchronizer {
                 $this->output->writeln("[INFO] Found LW ID {$walletInfo->WALLET->ID}");
                 foreach ($walletInfo->WALLET->IBANS as $lwiban){
                     /** @var Iban $document */
-                    $document = $repo->findOneBy(['lemon_reference' => $lwiban->ID]);
+                    $document = $repo->findOneBy(['external_reference' => $lwiban->ID]);
                     if(in_array($lwiban->S, Iban::LW_STATUS_APPROVED))
                         $document->setStatus(Iban::STATUS_APPROVED);
                     elseif (in_array($lwiban->S, Iban::LW_STATUS_DECLINED))
