@@ -6,12 +6,7 @@ namespace App\FinancialApiBundle\Entity;
 
 trait LemonObjectTrait {
 
-    /**
-     * @var string $lemon_reference
-     * @ORM\Column(type="string", nullable=true)
-     * @Serializer\Groups({"user"})
-     */
-    private $lemon_reference;
+    use ExternalObjectTrait;
 
     /**
      * @var integer $lemon_status
@@ -25,7 +20,7 @@ trait LemonObjectTrait {
      */
     public function getLemonReference(): string
     {
-        return $this->lemon_reference;
+        return $this->getExternalReference();
     }
 
     /**
@@ -33,7 +28,7 @@ trait LemonObjectTrait {
      */
     public function setLemonReference(string $lemon_reference): void
     {
-        $this->lemon_reference = $lemon_reference;
+        $this->setExternalReference($lemon_reference);
     }
 
     /**
