@@ -1,7 +1,6 @@
 FROM debian:buster
 ENV DEBIAN_FRONTEND noninteractive
 RUN apt update && apt install -y \
-    php \
     php-mysql \
     php-sqlite3 \
     php-xml \
@@ -14,24 +13,18 @@ RUN apt update && apt install -y \
     php-redis \
     php-gd \
     php-xdebug \
-    libxrender1 \
     composer \
-    gettext-base \
-    apache2 \
+    phpunit \
+    curl \
     wget \
-    python-pip \
-    build-essential \
-    libboost-filesystem-dev \
-    libboost-program-options-dev \
-    libboost-system-dev
+    unzip \
+    jq
 
-# Install mongodb server 4.0 for running the tests
-RUN wget https://fastdl.mongodb.org/src/mongodb-src-r4.0.16.tar.gz
-RUN tar xzf mongodb-src-r4.0.16.tar.gz
-RUN cd mongodb-src-r4.0.16 && cwd && \
-    pip install -r buildscripts/requirements.txt && \
-    python buildscripts/scons.py mongod && \
-    python buildscripts/scons.py --prefix=/usr install
+# Install mongodb server 4.2 for running the tests
+RUN apt install -y gnupg
+RUN wget -qO - https://www.mongodb.org/static/pgp/server-4.2.asc | apt-key add -
+RUN echo "deb http://repo.mongodb.org/apt/debian buster/mongodb-org/4.2 main" > /etc/apt/sources.list.d/mongodb-org-4.2.list
+RUN apt update && apt install -y mongodb-org
 
 COPY composer.lock /api/composer.lock
 COPY composer.json /api/composer.json

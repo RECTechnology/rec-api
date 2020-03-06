@@ -347,7 +347,7 @@ class IncomingController2 extends RestApiController{
             $logger->info('(' . $group_id . ')(T) CHECK ADDRESS');
 
             if(!$destination){
-                throw new HttpException(405,'Destination address does not exists');
+                throw new HttpException(404,'Destination address does not exists');
             }
 
             if($destination->getRecAddress() == $group->getRecAddress()){
@@ -359,7 +359,7 @@ class IncomingController2 extends RestApiController{
                 $notificator = $this->container->get('com.qbitartifacts.rec.commons.notificator');
                 $notificator->send('#EERROR TEMP ADDRESS' . $destination->getId() . " or " . $group->getId());
 
-                throw new HttpException(405, 'Destination address does not exists');
+                throw new HttpException(404, 'Destination address does not exists');
             }
 
             $logger->info('(' . $group_id . ')(T) DEFINE PAYMENT DATA');

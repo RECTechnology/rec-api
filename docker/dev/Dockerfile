@@ -12,36 +12,27 @@ RUN apt update && apt install -y \
     php-zip \
     php-redis \
     php-gd \
-    unzip \
-    wget \
-    python-pip \
-    composer \
-    jq \
-    phpunit \
     php-xdebug \
+    composer \
+    phpunit \
     curl \
-    build-essential \
-    libboost-filesystem-dev \
-    libboost-program-options-dev \
-    libboost-system-dev
+    wget \
+    unzip \
+    jq
 
+# Install mongodb server 4.2 for running the tests
+RUN apt install -y gnupg
+RUN wget -qO - https://www.mongodb.org/static/pgp/server-4.2.asc | apt-key add -
+RUN echo "deb http://repo.mongodb.org/apt/debian buster/mongodb-org/4.2 main" > /etc/apt/sources.list.d/mongodb-org-4.2.list
+RUN apt update && apt install -y mongodb-org
 
-# Install mongodb server 4.0 for running the tests
-RUN wget https://fastdl.mongodb.org/src/mongodb-src-r4.0.16.tar.gz
-RUN tar xzf mongodb-src-r4.0.16.tar.gz
-WORKDIR mongodb-src-r4.0.16
-RUN pip install -r buildscripts/requirements.txt
-
-RUN apt install -y libcurl4-openssl-dev
-
-RUN python buildscripts/scons.py mongod
-RUN python buildscripts/scons.py --prefix=/usr install
 
 # Install standard-version
-WORKDIR /
 RUN curl -sL https://deb.nodesource.com/setup_12.x | bash -
 RUN apt install -y nodejs
 RUN npm i -g standard-version
+
+RUN apt clean
 
 # To have composer and npm cache
 RUN mkdir /.composer /.npm && chmod -R 777 /.composer /.npm

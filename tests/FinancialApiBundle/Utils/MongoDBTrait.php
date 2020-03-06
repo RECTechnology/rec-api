@@ -2,6 +2,8 @@
 
 namespace Test\FinancialApiBundle\Utils;
 
+use App\FinancialApiBundle\Exception\MongoTimeoutException;
+use Symfony\Component\Filesystem\Filesystem;
 use Symfony\Component\Process\Process;
 
 trait MongoDBTrait {
@@ -9,45 +11,51 @@ trait MongoDBTrait {
     /** @var Process $mongoProcess */
     protected static $mongoProcess;
     protected static $dbPath = 'var/db/mongo';
+    protected static $connectionTimeout = 10;
 
     /**
-     * @param array $options
-     * @return \Symfony\Component\HttpKernel\KernelInterface
+     * @throws \Exception
      */
-    protected static function bootKernel(array $options = [])
-    {
-        $kernel = parent::bootKernel($options);
-        $gracePeriod = 1;
+    protected function setUp(): void {
+        parent::setUp();
+
         $absolutePath = self::getDBPath();
         if(!file_exists($absolutePath)) mkdir($absolutePath);
-        static::$mongoProcess = new Process("mongod --dbpath $absolutePath");
-        static::$mongoProcess->start();
-        sleep($gracePeriod);
-        return $kernel;
+        self::$mongoProcess = new Process("mongod --dbpath $absolutePath");
+        self::$mongoProcess->start();
+        $dm = self::$kernel->getContainer()->get('doctrine.odm.mongodb.document_manager');
+        $connected = false;
+        $startConnectTime = time();
+        while(!$connected) {
+            if (time() - $startConnectTime > self::$connectionTimeout)
+                throw new MongoTimeoutException("Mongodb server lasted too much to connect");
+            try {
+                $dm->getConnection()->connect();
+                if($dm->getConnection()->isConnected()) $connected = true;
+            } catch (\MongoConnectionException $ignored) { }
+        }
+    }
+
+    protected function tearDown(): void {
+
+        $absolutePath = self::getDBPath();
+        if (self::$mongoProcess != null && !self::$mongoProcess->isRunning()) {
+            self::$mongoProcess->stop();
+        }
+        $fs = new Filesystem();
+        if ($fs->exists($absolutePath)) $fs->remove($absolutePath);
+
+        parent::tearDown();
     }
 
     /**
      * @return string
      */
     private static function getDBPath(){
-        return self::$kernel->getContainer()->getParameter('kernel.project_dir') . '/' . self::$dbPath;
+        return self::createClient()
+                ->getContainer()
+                ->getParameter('kernel.project_dir') . '/' . self::$dbPath;
     }
-
-    /**
-     * Shuts the kernel down if it was used in the test - called by the tearDown method by default.
-     */
-    protected static function ensureKernelShutdown()
-    {
-        $absolutePath = self::getDBPath();
-        parent::ensureKernelShutdown();
-
-        if(self::$mongoProcess != null && !self::$mongoProcess->isRunning()) {
-            self::$mongoProcess->stop();
-        }
-        if(!file_exists($absolutePath)) unlink($absolutePath);
-    }
-
-
 
 
 }

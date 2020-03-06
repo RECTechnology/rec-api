@@ -8,6 +8,7 @@
 
 namespace App\FinancialApiBundle\Repository;
 
+use App\FinancialApiBundle\Document\Transaction;
 use DateInterval;
 use DateTime;
 use Doctrine\ODM\MongoDB\DocumentRepository;
@@ -263,41 +264,6 @@ class TransactionRepository extends DocumentRepository {
                                 result.total+=curr.total;
                             }
                             break;
-                        case "MXN":
-                            if(curr.total){
-                                result.total+=curr.total;
-                            }
-                            break;
-                        case "USD":
-                            if(curr.total){
-                                result.total+=curr.total;
-                            }
-                            break;
-                        case "BTC":
-                            if(curr.total){
-                                result.total+=curr.total;
-                            }
-                            break;
-                        case "FAC":
-                            if(curr.total){
-                                result.total+=curr.total;
-                            }
-                            break;
-                        case "PLN":
-                            if(curr.total){
-                                result.total+=curr.total;
-                            }
-                            break;
-                        case "ETH":
-                            if(curr.total){
-                                result.total+=curr.total;
-                            }
-                            break;
-                        case "CREA":
-                            if(curr.total){
-                                result.total+=curr.total;
-                            }
-                            break;
                         case "":
                             if(curr.total){
                                 result.total+=curr.total;
@@ -467,6 +433,24 @@ class TransactionRepository extends DocumentRepository {
         $start_date = new \DateTime();
         $start_date->modify("-".$days." days");
 
+        $builder = $this->createAggregationBuilder();
+        $builder
+            ->match()
+                ->field('group')->equals($group->getId())
+                ->field('type')->equals($method->getType())
+                ->field('method')->equals($method->getCname())
+                ->field('status')->in(['created', 'received', 'success'])
+                ->field('created')->gte($start_date)
+            ->group()
+                ->field('id')
+                ->expression('$group')
+                ->field('total')
+                ->sum('$amount');
+
+        $cursor = $builder->execute();
+        return $cursor->toArray();
+
+        /*
         return $this->createQueryBuilder('t')
             ->select('SUM(t.amount) as last')
             ->field('group')->equals($group->getId())
@@ -493,6 +477,7 @@ class TransactionRepository extends DocumentRepository {
             ')
             ->getQuery()
             ->execute();
+        */
 
     }
 
