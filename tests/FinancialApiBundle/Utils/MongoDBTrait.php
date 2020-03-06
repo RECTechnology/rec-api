@@ -13,12 +13,7 @@ trait MongoDBTrait {
     protected static $dbPath = 'var/db/mongo';
     protected static $connectionTimeout = 10;
 
-    /**
-     * @throws \Exception
-     */
-    protected function setUp(): void {
-        parent::setUp();
-
+    public function startMongo(): void {
         $absolutePath = self::getDBPath();
         if(!file_exists($absolutePath)) mkdir($absolutePath);
         self::$mongoProcess = new Process("mongod --dbpath $absolutePath");
@@ -36,16 +31,13 @@ trait MongoDBTrait {
         }
     }
 
-    protected function tearDown(): void {
-
+    public function stopMongo(): void {
         $absolutePath = self::getDBPath();
         if (self::$mongoProcess != null && !self::$mongoProcess->isRunning()) {
             self::$mongoProcess->stop();
         }
         $fs = new Filesystem();
         if ($fs->exists($absolutePath)) $fs->remove($absolutePath);
-
-        parent::tearDown();
     }
 
     /**

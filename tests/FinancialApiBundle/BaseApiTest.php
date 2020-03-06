@@ -2,31 +2,17 @@
 
 namespace Test\FinancialApiBundle;
 
-use App\FinancialApiBundle\Entity\User;
-use App\FinancialApiBundle\Entity\Client as OAuthClient;
-use Doctrine\Bundle\DoctrineBundle\Command\CreateDatabaseDoctrineCommand;
-use Doctrine\Bundle\FixturesBundle\Command\LoadDataFixturesDoctrineCommand;
-use Doctrine\Common\DataFixtures\Purger\ORMPurger;
-use Doctrine\ORM\EntityManagerInterface;
-use Doctrine\ORM\Tools\SchemaTool;
-use Doctrine\ORM\Tools\ToolsException;
 use Faker\Factory;
 use Faker\Generator;
-use FOS\OAuthServerBundle\Controller\TokenController;
-use FOS\OAuthServerBundle\Model\AccessTokenManagerInterface;
-use Symfony\Bundle\FrameworkBundle\Client;
 use Symfony\Bundle\FrameworkBundle\Console\Application;
 use Symfony\Bundle\FrameworkBundle\Test\WebTestCase;
 use Symfony\Component\Console\Input\ArrayInput;
 use Symfony\Component\Console\Output\BufferedOutput;
-use Symfony\Component\Console\Output\NullOutput;
-use Symfony\Component\Console\Output\StreamOutput;
-use Symfony\Component\DomCrawler\Crawler;
 use Symfony\Component\Filesystem\Filesystem;
-use Symfony\Component\HttpFoundation\File\File;
-use Symfony\Component\HttpFoundation\File\UploadedFile;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Yaml\Yaml;
+use Test\FinancialApiBundle\Utils\MongoDBTestInterface;
+use Test\FinancialApiBundle\Utils\MongoDBTrait;
 
 abstract class BaseApiTest extends WebTestCase {
 
@@ -262,9 +248,11 @@ abstract class BaseApiTest extends WebTestCase {
         $this->testFactory = new TestDataFactory($this->client);
         $this->clearDatabase();
         $this->loadFixtures();
+        if($this instanceof MongoDBTestInterface) $this->startMongo();
     }
 
     protected function tearDown(): void {
+        if($this instanceof MongoDBTestInterface) $this->stopMongo();
         parent::tearDown();
         $this->client = static::createClient();
         $this->removeDatabase();

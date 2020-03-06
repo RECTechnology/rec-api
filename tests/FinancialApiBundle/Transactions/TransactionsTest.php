@@ -11,23 +11,21 @@ use Doctrine\Common\Persistence\ManagerRegistry;
 use Doctrine\ODM\MongoDB\DocumentManager;
 use Symfony\Component\HttpFoundation\Response;
 use Test\FinancialApiBundle\BaseApiTest;
+use Test\FinancialApiBundle\Utils\MongoDBTestInterface;
 use Test\FinancialApiBundle\Utils\MongoDBTrait;
 
 /**
  * Class TransactionsTest
  * @package Test\FinancialApiBundle\Transactions
  */
-class TransactionsTest extends BaseApiTest {
+class TransactionsTest extends BaseApiTest implements MongoDBTestInterface {
 
-    use MongoDBTrait {
-        MongoDBTrait::setUp as mongoSetUp;
-    }
+    use MongoDBTrait;
 
     private $store;
 
     function setUp(): void
     {
-        $this->mongoSetUp();
         parent::setUp();
         $this->store = $this->getSingleStore();
 
@@ -56,6 +54,7 @@ class TransactionsTest extends BaseApiTest {
         $this->setClientIp($this->faker->ipv4);
 
     }
+
 
     private function getSingleStore(){
         $this->signIn(UserFixture::TEST_ADMIN_CREDENTIALS);
