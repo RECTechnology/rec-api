@@ -2,6 +2,14 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+### [2.11.3](https://github.com/qbitartifacts/rec-api/compare/v2.11.2...v2.11.3) (2020-03-09)
+
+
+### Bug Fixes
+
+* **lemonway:** added nullability to lemon data and external data ([1b52c32](https://github.com/qbitartifacts/rec-api/commit/1b52c32d6fe1a2c0143323b6d2f8e0d7ae2ac29a))
+* **lemonway:** auto-fetched documents can't be uploaded again ([2aa3b49](https://github.com/qbitartifacts/rec-api/commit/2aa3b490c82e8bf3b2440d17256932f6ba427036))
+
 ### [2.11.2](https://github.com/qbitartifacts/rec-api/compare/v2.11.1...v2.11.2) (2020-03-09)
 
 
