@@ -2,6 +2,30 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+## [2.11.0](https://github.com/qbitartifacts/rec-api/compare/v2.10.0...v2.11.0) (2020-03-09)
+
+
+### Features
+
+* **testing:** implemented mongodb testing ([956e00e](https://github.com/qbitartifacts/rec-api/commit/956e00eadcdc63f86aa4b236a3b0970d5de60708))
+
+
+### Bug Fixes
+
+* **dependencies:** changed abandoned package sensio/generator-bundle to symfony/maker-bundle ([9ccc331](https://github.com/qbitartifacts/rec-api/commit/9ccc3318b0718be741101eec021ffe6a4854385b))
+* **dummy:** added max depth checks ([3ec709a](https://github.com/qbitartifacts/rec-api/commit/3ec709a8360e7ce118c3b80b238d0b23a7030fb7))
+* **gitignore:** ignored core dumps ([2d7d028](https://github.com/qbitartifacts/rec-api/commit/2d7d0286de8de3029ac21a0a09f2d9acf346653c))
+* **ibans:** minor change in error message from LW ([f4163ca](https://github.com/qbitartifacts/rec-api/commit/f4163cafaeb6e517e850120581eb1df776e373a6))
+* **lemonway:** added auto-naming for lw documentation ([1552a44](https://github.com/qbitartifacts/rec-api/commit/1552a443f0400e6e1a2e8afd8da36e09fcfbf3e8))
+* **lemonway:** fixed lemonway documents synchronization ([027a277](https://github.com/qbitartifacts/rec-api/commit/027a277281d501790f9fe769f37dba894491aa8d))
+* **lemonway:** fixes [#190](https://github.com/qbitartifacts/rec-api/issues/190) ([1224398](https://github.com/qbitartifacts/rec-api/commit/1224398ddc13db0bdd173f57312f08c9611bc8b4))
+* **lemonway:** renamed findby ([8dce8e3](https://github.com/qbitartifacts/rec-api/commit/8dce8e3e422b9fa13a1c98d78f8f3e64cd45446f))
+* **testing:** refactored tests ([63ec34e](https://github.com/qbitartifacts/rec-api/commit/63ec34ea7f5e2c35ed1278fb2425774d08054268))
+* **testing:** working mongodb tests ([f086682](https://github.com/qbitartifacts/rec-api/commit/f08668284d5969a2fbc89a29cced8894a72a7dca))
+* **tests:** added .gitkeep to var/db folder to ensure directory exists when running the tests ([e2cb9e5](https://github.com/qbitartifacts/rec-api/commit/e2cb9e51711572fb8f275f5c4364af2149a15d6b))
+* **tests:** added missed deps to render PDFs in Dockerfiles ([59af43f](https://github.com/qbitartifacts/rec-api/commit/59af43fc11e53e82570c87e7069c2bd8533c2b87))
+* **tests:** removed --rm to run tests from docker to allow debugging better ([8cc7daf](https://github.com/qbitartifacts/rec-api/commit/8cc7daf2f0cd3c448103cf4fc054d65d84413d8c))
+
 ## [2.10.0](https://github.com/qbitartifacts/rec-api/compare/v2.9.1...v2.10.0) (2020-03-04)
 
 
