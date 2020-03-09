@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+### [2.11.2](https://github.com/qbitartifacts/rec-api/compare/v2.11.1...v2.11.2) (2020-03-09)
+
+
+### Bug Fixes
+
+* **lemonway:** changed type for setExternalInfo to allow objects and not only arrays ([a34fecd](https://github.com/qbitartifacts/rec-api/commit/a34fecdcf0feb68d783e0da5e2e542d420fc35e5))
+
 ### [2.11.1](https://github.com/qbitartifacts/rec-api/compare/v2.11.0...v2.11.1) (2020-03-09)
 
 
