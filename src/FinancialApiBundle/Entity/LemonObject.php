@@ -9,7 +9,7 @@ interface LemonObject extends ExternalObject {
     /**
      * @return string
      */
-    public function getLemonReference(): string;
+    public function getLemonReference(): ?string;
 
     /**
      * @return integer

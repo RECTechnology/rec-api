@@ -25,7 +25,7 @@ class KycSynchronizer extends AbstractSynchronizer {
                     /** @var LemonDocument $document */
                     $document = $repo->findOneBy(['external_reference' => $lwdoc->ID]);
 
-                    // if document is in lemonway but not in our API, create it
+                    // if document is in lemonway but not in our API, create it with null doctype
                     if(!$document) {
                         $document = new LemonDocument();
                         $document->setExternalInfo($lwdoc);

@@ -65,7 +65,7 @@ class LemonUploadEventSubscriber implements EventSubscriber {
         $document = $args->getEntity();
         if($document instanceof Document){
             $kind = $document->getKind();
-            if($document instanceof LemonDocument){
+            if($document instanceof LemonDocument and $document->getLemonReference() == null){
 
                 /** @var LemonWayInterface $lemon */
                 $lemon = $this->container->get('net.app.driver.lemonway.eur');
