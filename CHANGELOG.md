@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+### [2.11.1](https://github.com/qbitartifacts/rec-api/compare/v2.11.0...v2.11.1) (2020-03-09)
+
+
+### Bug Fixes
+
+* **ibans:** missed iban in lemonway call ([058cd7c](https://github.com/qbitartifacts/rec-api/commit/058cd7cdfef8cc523a2da45b7e13d398531ae0c2))
+
 ## [2.11.0](https://github.com/qbitartifacts/rec-api/compare/v2.10.0...v2.11.0) (2020-03-09)
 
 
