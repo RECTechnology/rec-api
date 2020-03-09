@@ -89,7 +89,7 @@ class LemonIbanEventSubscriber implements EventSubscriber {
                     400,
                     "LW error",
                     [
-                        'property' => 'lemonway_error - UPLOADFILE - ' . $resp['REGISTERIBAN']['ERROR'],
+                        'property' => 'lemonway_error - REGISTERIBAN - ' . $resp['REGISTERIBAN']['ERROR'],
                         'message' => $resp['REGISTERIBAN']['MESSAGE']
                     ]
                 );
