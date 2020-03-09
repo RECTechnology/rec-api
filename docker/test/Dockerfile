@@ -1,7 +1,7 @@
 FROM debian:buster
 ENV DEBIAN_FRONTEND noninteractive
+# PHP and deps
 RUN apt update && apt install -y \
-    php \
     php-mysql \
     php-sqlite3 \
     php-xml \
@@ -14,11 +14,27 @@ RUN apt update && apt install -y \
     php-redis \
     php-gd \
     php-xdebug \
-    libxrender1 \
     composer \
-    gettext-base \
-    apache2 \
-    wget
+    phpunit
+
+# System utils
+RUN apt update && apt install -y \
+    curl \
+    wget \
+    unzip \
+    jq \
+    gnupg
+
+# required to render PDFs
+RUN apt update && apt install -y \
+    libxrender1 \
+    libfontconfig
+
+# Install mongodb server 4.2 for running the tests
+RUN wget -qO - https://www.mongodb.org/static/pgp/server-4.2.asc | apt-key add -
+RUN echo "deb http://repo.mongodb.org/apt/debian buster/mongodb-org/4.2 main" > /etc/apt/sources.list.d/mongodb-org-4.2.list
+RUN apt update && apt install -y \
+    mongodb-org
 
 COPY composer.lock /api/composer.lock
 COPY composer.json /api/composer.json

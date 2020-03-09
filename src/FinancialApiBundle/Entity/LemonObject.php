@@ -4,7 +4,7 @@
 namespace App\FinancialApiBundle\Entity;
 
 
-interface LemonObject {
+interface LemonObject extends ExternalObject {
 
     /**
      * @return string
@@ -15,4 +15,5 @@ interface LemonObject {
      * @return integer
      */
     public function getLemonStatus(): int;
+
 }

@@ -5,17 +5,22 @@ namespace Test\FinancialApiBundle\Transactions;
 use App\FinancialApiBundle\Controller\Google2FA;
 use App\FinancialApiBundle\DataFixture\UserFixture;
 use App\FinancialApiBundle\DependencyInjection\App\Commons\BalanceManipulator;
+use App\FinancialApiBundle\DependencyInjection\App\Commons\LimitManipulator;
 use App\FinancialApiBundle\Repository\TransactionRepository;
 use Doctrine\Common\Persistence\ManagerRegistry;
 use Doctrine\ODM\MongoDB\DocumentManager;
 use Symfony\Component\HttpFoundation\Response;
 use Test\FinancialApiBundle\BaseApiTest;
+use Test\FinancialApiBundle\Utils\MongoDBTestInterface;
+use Test\FinancialApiBundle\Utils\MongoDBTrait;
 
 /**
  * Class TransactionsTest
  * @package Test\FinancialApiBundle\Transactions
  */
-class TransactionsTest extends BaseApiTest {
+class TransactionsTest extends BaseApiTest implements MongoDBTestInterface {
+
+    use MongoDBTrait;
 
     private $store;
 
@@ -31,18 +36,25 @@ class TransactionsTest extends BaseApiTest {
         $dm->method('persist');
         $dm->method('flush');
         $dm->method('getRepository')->willReturn($repo);
-        $this->override('doctrine.odm.mongodb.document_manager', $dm);
+        //$this->override('doctrine.odm.mongodb.document_manager', $dm);
 
         $odm = $this->createMock(ManagerRegistry::class);
         $odm->method('getManager')->willReturn($dm);
-        $this->override('doctrine_mongodb', $odm);
+        //$this->override('doctrine_mongodb', $odm);
+
+
+        $lm = $this->createMock(LimitManipulator::class);
+        $lm->method('checkLimits');
+        $this->override('net.app.commons.limit_manipulator', $lm);
 
         $bm = $this->createMock(BalanceManipulator::class);
         $bm->method('addBalance');
         $this->override('net.app.commons.balance_manipulator', $bm);
 
         $this->setClientIp($this->faker->ipv4);
+
     }
+
 
     private function getSingleStore(){
         $this->signIn(UserFixture::TEST_ADMIN_CREDENTIALS);

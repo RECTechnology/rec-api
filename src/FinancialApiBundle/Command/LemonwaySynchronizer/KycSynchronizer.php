@@ -1,14 +1,9 @@
 <?php
 
-
 namespace App\FinancialApiBundle\Command\LemonwaySynchronizer;
-
 
 use App\FinancialApiBundle\Entity\Group;
 use App\FinancialApiBundle\Entity\LemonDocument;
-use App\FinancialApiBundle\Financial\Driver\LemonWayInterface;
-use Doctrine\ORM\EntityManagerInterface;
-use Symfony\Component\Console\Output\OutputInterface;
 
 class KycSynchronizer extends AbstractSynchronizer {
 
@@ -28,7 +23,25 @@ class KycSynchronizer extends AbstractSynchronizer {
                 $this->output->writeln("[INFO] Found LW ID {$walletInfo->WALLET->ID}");
                 foreach ($walletInfo->WALLET->DOCS as $lwdoc){
                     /** @var LemonDocument $document */
-                    $document = $repo->findOneBy(['lemon_reference' => $lwdoc->ID]);
+                    $document = $repo->findOneBy(['external_reference' => $lwdoc->ID]);
+
+                    // if document is in lemonway but not in our API, create it
+                    if(!$document) {
+                        $document = new LemonDocument();
+                        $document->setExternalInfo($lwdoc);
+                        $document->setLemonReference($lwdoc->ID);
+                        $document->setName("Lemonway auto-fetched document " . $lwdoc->ID);
+                        $accRepo = $this->em->getRepository(Group::class);
+                        $account = $accRepo->findOneBy(['cif' => strtolower($walletInfo->WALLET->ID)]);
+                        if(!$account) $account = $accRepo->findOneBy(['cif' => strtoupper($walletInfo->WALLET->ID)]);
+                        if(!$account)
+                            $this->output->writeln("[WARN] LW wallet not found in database, ignoring document, lw_wallet: " . json_encode($walletInfo));
+                        else {
+                            $document->setAccount($account);
+                            $this->em->persist($document);
+                            $this->em->persist($account);
+                        }
+                    }
                     if(in_array($lwdoc->S, LemonDocument::LW_STATUS_APPROVED))
                         $document->setStatus(LemonDocument::STATUS_APPROVED);
                     elseif (in_array($lwdoc->S, LemonDocument::LW_STATUS_DECLINED))

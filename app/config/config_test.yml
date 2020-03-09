@@ -32,3 +32,12 @@ doctrine:
                         DATE: DoctrineExtensions\Query\Sqlite\Date
                         MINUTE: DoctrineExtensions\Query\Sqlite\Minute
                         HOUR: DoctrineExtensions\Query\Sqlite\Hour
+
+doctrine_mongodb:
+    connections:
+        default:
+            server: 'localhost'
+    default_database: 'app'
+    document_managers:
+        default:
+            auto_mapping: true
