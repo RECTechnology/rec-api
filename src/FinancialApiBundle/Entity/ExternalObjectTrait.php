@@ -30,9 +30,9 @@ trait ExternalObjectTrait {
     }
 
     /**
-     * @param array $external_info
+     * @param $external_info
      */
-    public function setExternalInfo(array $external_info): void
+    public function setExternalInfo($external_info): void
     {
         $this->external_info = $external_info;
     }
