@@ -58,6 +58,7 @@ class Document extends AppObject implements Uploadable, Stateful {
     /**
      * @ORM\ManyToOne(targetEntity="App\FinancialApiBundle\Entity\DocumentKind", inversedBy="documents")
      * @Serializer\Groups({"manager"})
+     * @Assert\NotNull()
      */
     protected $kind;
 

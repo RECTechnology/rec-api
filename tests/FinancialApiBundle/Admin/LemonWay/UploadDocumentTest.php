@@ -55,7 +55,7 @@ class UploadDocumentTest extends AdminApiTest {
             "/admin/v3/lemon_documents",
             [
                 'name' => 'uploaded dni',
-                'content' => $this->faker->imageUrl(),
+                'content' => 'https://loremflickr.com/320/240?random=' . $this->faker->randomNumber(),
                 'kind_id' => $kind->id,
                 'account_id' => $account->id
             ]
@@ -67,7 +67,6 @@ class UploadDocumentTest extends AdminApiTest {
     }
 
     function testUploadLWDocumentAndCheckCron(){
-        $this->markTestIncomplete("need to do mock for lemon");
         $kind = $this->createLemonDocumentKind();
         $user = $this->getSignedInUser();
         $account = $this->getUserAccount($user);
