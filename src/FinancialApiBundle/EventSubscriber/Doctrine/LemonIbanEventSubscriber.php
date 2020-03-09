@@ -79,6 +79,7 @@ class LemonIbanEventSubscriber implements EventSubscriber {
                     'wallet' => $owner->getCif(),
                     'holder' => $iban->getHolder(),
                     'bic' => $iban->getBic(),
+                    'iban' => $iban->getNumber(),
                     'dom1' => $iban->getBankName(),
                     'dom2' => $iban->getBankAddress()
                 ]
