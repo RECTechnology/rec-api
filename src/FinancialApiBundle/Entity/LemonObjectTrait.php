@@ -18,7 +18,7 @@ trait LemonObjectTrait {
     /**
      * @return string
      */
-    public function getLemonReference(): string
+    public function getLemonReference(): ?string
     {
         return $this->getExternalReference();
     }

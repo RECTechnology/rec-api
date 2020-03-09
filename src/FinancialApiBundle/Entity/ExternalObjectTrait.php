@@ -24,7 +24,7 @@ trait ExternalObjectTrait {
     /**
      * @return array
      */
-    public function getExternalInfo(): array
+    public function getExternalInfo(): ?array
     {
         return $this->external_info;
     }
@@ -40,7 +40,7 @@ trait ExternalObjectTrait {
     /**
      * @return string
      */
-    public function getExternalReference(): string
+    public function getExternalReference(): ?string
     {
         return $this->external_reference;
     }
