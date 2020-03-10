@@ -24,7 +24,7 @@ class Issue201Test extends BaseApiTest {
         $lw = $this->createMock(LemonWayInterface::class);
         $lw->method('callService')
             ->willReturn(json_decode(
-                '{"__type":"WonderLib.RegisterIban","UPLOAD":{"ID":"54478","S":null,"MSG":null,"CHECKED":null},"E":null}'
+                '{"__type":"WonderLib.RegisterIBANResult","IBAN_REGISTER":{"ID":"171","S":"4"},"E":null}'
             ));
 
         $fm = $this->createMock(UploadManager::class);
