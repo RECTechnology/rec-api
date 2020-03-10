@@ -97,9 +97,9 @@ class LemonIbanEventSubscriber implements EventSubscriber {
             if($resp->E != null)
                 throw new AppException(400, "LW error: {$resp->E}");
 
-            if($resp->UPLOAD->ID == null)
+            if($resp->IBAN_REGISTER->ID == null)
                 throw new AppException(503, "Bad LW response: " . json_encode($resp));
-            $iban->setLemonReference($resp->UPLOAD->ID);
+            $iban->setLemonReference($resp->IBAN_REGISTER->ID);
         }
     }
 }
