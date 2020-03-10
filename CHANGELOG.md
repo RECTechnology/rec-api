@@ -2,6 +2,14 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+### [2.11.4](https://github.com/qbitartifacts/rec-api/compare/v2.11.3...v2.11.4) (2020-03-10)
+
+
+### Bug Fixes
+
+* **ibans:** fixed lemon iban parse response ([b905846](https://github.com/qbitartifacts/rec-api/commit/b905846edc42c6d1d15eb22517c73d03f5fb43d4))
+* **tests:** fixed tests for lemon iban parse response ([5d95484](https://github.com/qbitartifacts/rec-api/commit/5d95484946b2474f5455eb1c4911a5cf8685f21e))
+
 ### [2.11.3](https://github.com/qbitartifacts/rec-api/compare/v2.11.2...v2.11.3) (2020-03-09)
 
 
