@@ -23,7 +23,7 @@ use App\FinancialApiBundle\Controller\Google2FA;
 use FOS\OAuthServerBundle\Util\Random;
 use Symfony\Component\Security\Core\Encoder\UserPasswordEncoder;
 
-class AccountController extends BaseApiController{
+class AccountController extends BaseApiController {
 
     function getRepositoryName()
     {
