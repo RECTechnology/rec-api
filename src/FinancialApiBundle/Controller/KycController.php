@@ -122,7 +122,7 @@ class KycController extends BaseApiController{
             throw new HttpException(400, 'User without kyc information');
         }
 
-        $resp = $this->securizeOutput($kyc);
+        $resp = $this->secureOutput($kyc);
         return $this->restV2(201,"ok", "Request successful", $resp);
     }
 
@@ -230,7 +230,7 @@ class KycController extends BaseApiController{
             throw new HttpException(400, 'User without kyc information');
         }
 
-        $resp = $this->securizeOutput($kyc);
+        $resp = $this->secureOutput($kyc);
 
         return $this->restV2(201,"ok", "Request successful", $resp);
     }
@@ -284,7 +284,7 @@ class KycController extends BaseApiController{
             throw new HttpException(400, 'User without kyc information');
         }
 
-        $resp = $this->securizeOutput($kyc);
+        $resp = $this->secureOutput($kyc);
 
         return $this->restV2(201,"ok", "Request successful", $resp);
     }

@@ -10,8 +10,6 @@ namespace App\FinancialApiBundle\Controller;
 
 use Doctrine\Common\Annotations\AnnotationException;
 use Doctrine\Common\Annotations\AnnotationReader;
-use Doctrine\Common\Collections\Criteria;
-use Doctrine\Common\Persistence\ObjectRepository;
 use Doctrine\DBAL\DBALException;
 use Doctrine\ORM\Query\QueryException;
 use Doctrine\ORM\EntityManagerInterface;
@@ -20,25 +18,22 @@ use Doctrine\ORM\Mapping\ManyToOne;
 use Doctrine\ORM\Mapping\OneToOne;
 use Doctrine\ORM\NonUniqueResultException;
 use Doctrine\ORM\NoResultException;
-use Doctrine\ORM\Query;
 use Doctrine\ORM\QueryBuilder;
-use Exception;
+use Doctrine\Persistence\ObjectRepository;
 use JMS\Serializer\SerializationContext;
-use ReflectionClass;
 use ReflectionException;
 use ReflectionProperty;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpKernel\Exception\HttpException;
-use Symfony\Component\Security\Core\SecurityContextInterface;
 use Symfony\Component\Serializer\NameConverter\CamelCaseToSnakeCaseNameConverter;
-use Symfony\Component\Validator\ConstraintViolation;
-use App\FinancialApiBundle\Entity\Group;
 
 abstract class BaseApiController extends RestApiController implements RepositoryController {
 
     const HTTP_STATUS_CODE_OK = 200;
     const HTTP_STATUS_CODE_CREATED = 201;
+
+    use OutputSecurerTrait;
 
     /**
      * @return ObjectRepository
@@ -49,15 +44,6 @@ abstract class BaseApiController extends RestApiController implements Repository
         return $em->getRepository($this->getRepositoryName());
     }
 
-    /**
-     * @param $resp
-     * @return array|mixed
-     */
-    protected function securizeOutput($resp){
-        $ctx = new SerializationContext();
-        $ctx->enableMaxDepthChecks();
-        return $this->get('jms_serializer')->toArray($resp, $ctx);
-    }
 
     /**
      * @param $key

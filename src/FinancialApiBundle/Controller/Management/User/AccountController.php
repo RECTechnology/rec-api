@@ -23,7 +23,7 @@ use App\FinancialApiBundle\Controller\Google2FA;
 use FOS\OAuthServerBundle\Util\Random;
 use Symfony\Component\Security\Core\Encoder\UserPasswordEncoder;
 
-class AccountController extends BaseApiController{
+class AccountController extends BaseApiController {
 
     function getRepositoryName()
     {
@@ -50,7 +50,7 @@ class AccountController extends BaseApiController{
         $group_data = $group->getUserView();
         $user->setGroupData($group_data);
 
-        $resp = $this->securizeOutput($user);
+        $resp = $this->secureOutput($user);
 
         return $this->restV2(200, "ok", "Account info got successfully", $resp);
     }
@@ -140,7 +140,7 @@ class AccountController extends BaseApiController{
         $em->persist($user);
         $em->flush();
 
-        $resp = $this->securizeOutput($user);
+        $resp = $this->secureOutput($user);
 
         $resp['group_data'] = [
             'id' => $account->getId(),
@@ -167,7 +167,7 @@ class AccountController extends BaseApiController{
         }
         $em->persist($user);
         $em->flush();
-        $result = $this->securizeOutput($user);
+        $result = $this->secureOutput($user);
         return $this->restV2(200,"ok", "2FA activated successfully", $result);
     }
 
@@ -183,7 +183,7 @@ class AccountController extends BaseApiController{
         $user->setTwoFactorAuthentication(false);
         $em->persist($user);
         $em->flush();
-        $result = $this->securizeOutput($user);
+        $result = $this->secureOutput($user);
         return $this->restV2(200,"ok", "2FA deactivated successfully", $result);
     }
 
@@ -196,7 +196,7 @@ class AccountController extends BaseApiController{
         $user->setTwoFactorCode(Google2FA::generate_secret_key());
         $em->persist($user);
         $em->flush();
-        $result = $this->securizeOutput($user);
+        $result = $this->secureOutput($user);
         return $this->restV2(200,"ok", "Account info got successfully", $result);
     }
 
@@ -218,7 +218,7 @@ class AccountController extends BaseApiController{
         $em->persist($user);
         $em->flush();
 
-        $resp = $this->securizeOutput($user);
+        $resp = $this->secureOutput($user);
 
         return $this->restV2(200,"ok", "Account info got successfully", $resp);
     }
@@ -986,7 +986,7 @@ class AccountController extends BaseApiController{
             }
         }
 
-        $resp = $this->securizeOutput($all);
+        $resp = $this->secureOutput($all);
 
         return $this->restV2(
             200,

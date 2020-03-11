@@ -2,6 +2,7 @@
 
 namespace App\FinancialApiBundle\Controller\Management\Manager;
 
+use App\FinancialApiBundle\Controller\OutputSecurerTrait;
 use App\FinancialApiBundle\Entity\User;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpKernel\Exception\HttpException;
@@ -15,6 +16,8 @@ use App\FinancialApiBundle\Entity\CashInTokens;
 use App\FinancialApiBundle\Financial\Currency;
 
 class UsersGroupsController extends RestApiController{
+
+    use OutputSecurerTrait;
 
     /**
      * @Rest\View
@@ -303,6 +306,7 @@ class UsersGroupsController extends RestApiController{
         $company->setRecAddress($token);
         $em->persist($company);
 
+        $company = $this->secureOutput($company);
         $response['company'] = $company;
         $em->flush();
         return $this->restV2(201,"ok", "Request successful", $response);

@@ -351,7 +351,7 @@ class AccountsController extends CRUDController {
     {
         $this->checkPermissions($role, self::CRUD_CREATE);
         $entity = $this->withdrawal($request, $id);
-        $output = $this->securizeOutput($entity);
+        $output = $this->secureOutput($entity);
         return $this->restV2(
             static::HTTP_STATUS_CODE_CREATED,
             "ok",

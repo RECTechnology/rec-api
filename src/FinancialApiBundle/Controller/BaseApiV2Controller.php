@@ -9,7 +9,6 @@
 namespace App\FinancialApiBundle\Controller;
 
 use App\FinancialApiBundle\Exception\AppException;
-use App\FinancialApiBundle\Exception\AppLogicException;
 use App\FinancialApiBundle\Exception\PreconditionFailedException;
 use DateTime;
 use DateTimeZone;
@@ -17,7 +16,6 @@ use Doctrine\Common\Annotations\AnnotationException;
 use Doctrine\Common\Annotations\AnnotationReader;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
-use Doctrine\Common\Persistence\ObjectRepository;
 use Doctrine\DBAL\DBALException;
 use Doctrine\DBAL\Exception\ForeignKeyConstraintViolationException;
 use Doctrine\ORM\Mapping\Column;
@@ -25,32 +23,23 @@ use Doctrine\ORM\Mapping\ManyToMany;
 use Doctrine\ORM\Mapping\ManyToOne;
 use Doctrine\ORM\Mapping\OneToMany;
 use Doctrine\ORM\Mapping\OneToOne;
-use Doctrine\ORM\Query\QueryException;
 use Doctrine\ORM\EntityManagerInterface;
 use Doctrine\ORM\NonUniqueResultException;
-use Doctrine\ORM\NoResultException;
-use Doctrine\ORM\Query;
-use Doctrine\ORM\QueryBuilder;
+use Doctrine\Persistence\ObjectRepository;
 use Exception;
-use JMS\Serializer\Annotation\MaxDepth;
-use JMS\Serializer\Exception\ValidationFailedException;
 use JMS\Serializer\SerializationContext;
 use JMS\Serializer\Serializer;
 use JsonPath\InvalidJsonException;
 use JsonPath\JsonObject;
-use Psr\Log\LoggerInterface;
-use ReflectionClass;
 use ReflectionException;
 use ReflectionProperty;
 use Symfony\Component\Filesystem\Filesystem;
 use Symfony\Component\HttpFoundation\Request;
-use Symfony\Component\HttpFoundation\RequestStack;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpKernel\Exception\HttpException;
 use Symfony\Component\Security\Core\Authentication\Token\Storage\TokenStorageInterface;
 use Symfony\Component\Security\Core\Authorization\AuthorizationCheckerInterface;
 use Symfony\Component\Serializer\NameConverter\CamelCaseToSnakeCaseNameConverter;
-use Symfony\Component\Validator\ConstraintViolation;
 use App\FinancialApiBundle\Entity\Group;
 
 abstract class BaseApiV2Controller extends RestApiController implements RepositoryController {
@@ -87,6 +76,7 @@ abstract class BaseApiV2Controller extends RestApiController implements Reposito
         'root' => self::ROLE_ROOT,
     ];
 
+    use OutputSecurerTrait;
 
     /**
      * @return ObjectRepository
@@ -181,13 +171,6 @@ abstract class BaseApiV2Controller extends RestApiController implements Reposito
         return $ctx;
     }
 
-    protected function securizeOutput($result){
-        $ctx = $this->getSerializationContext();
-        /** @var Serializer $serializer */
-        $serializer = $this->get('jms_serializer');
-        return $serializer->toArray($result, $ctx);
-    }
-
     /**
      * @param $relationshipNameWithId
      * @param $targetId
@@ -257,7 +240,7 @@ abstract class BaseApiV2Controller extends RestApiController implements Reposito
     protected function indexAction(Request $request, $role){
         $this->checkPermissions($role, self::CRUD_INDEX);
         [$total, $result] = $this->index($request);
-        $result = $this->securizeOutput($result);
+        $result = $this->secureOutput($result);
         return $this->restV2(
             self::HTTP_STATUS_CODE_OK,
             "ok",
@@ -321,7 +304,7 @@ abstract class BaseApiV2Controller extends RestApiController implements Reposito
     protected function showAction($role, $id){
         $this->checkPermissions($role, self::CRUD_SHOW);
         $entity = $this->show($id);
-        $output = $this->securizeOutput($entity);
+        $output = $this->secureOutput($entity);
         return $this->restV2(self::HTTP_STATUS_CODE_OK,
             "ok",
             "Request successful",
@@ -434,7 +417,7 @@ abstract class BaseApiV2Controller extends RestApiController implements Reposito
     protected function createAction(Request $request, $role){
         $this->checkPermissions($role, self::CRUD_CREATE);
         $entity = $this->create($request);
-        $output = $this->securizeOutput($entity);
+        $output = $this->secureOutput($entity);
         return $this->restV2(
             static::HTTP_STATUS_CODE_CREATED,
             "ok",
@@ -464,7 +447,7 @@ abstract class BaseApiV2Controller extends RestApiController implements Reposito
     protected function updateAction(Request $request, $role, $id){
         $this->checkPermissions($role, self::CRUD_UPDATE);
         $entity = $this->update($request, $id);
-        $output = $this->securizeOutput($entity);
+        $output = $this->secureOutput($entity);
         return $this->restV2(
             static::HTTP_STATUS_CODE_OK,
             "ok",
@@ -517,7 +500,7 @@ abstract class BaseApiV2Controller extends RestApiController implements Reposito
             'elements' => $entities->slice($offset, $limit)
         ];
 
-        $output = $this->securizeOutput($result);
+        $output = $this->secureOutput($result);
         return $this->restV2(
             static::HTTP_STATUS_CODE_OK,
             "ok",
@@ -537,7 +520,7 @@ abstract class BaseApiV2Controller extends RestApiController implements Reposito
     protected function addRelationshipAction(Request $request, $role, $id, $relationship){
         $this->checkPermissions($role, self::CRUD_UPDATE);
         $entity = $this->addRelationship($request, $id, $relationship);
-        $output = $this->securizeOutput($entity);
+        $output = $this->secureOutput($entity);
         return $this->restV2(
             static::HTTP_STATUS_CODE_CREATED,
             "ok",
@@ -633,7 +616,7 @@ abstract class BaseApiV2Controller extends RestApiController implements Reposito
     protected function deleteRelationshipAction(Request $request, $role, $id1, $relationship, $id2){
         $this->checkPermissions($role, self::CRUD_UPDATE);
         $entity = $this->deleteRelationship($request, $id1, $relationship, $id2);
-        $output = $this->securizeOutput($entity);
+        $output = $this->secureOutput($entity);
         return $this->restV2(
             self::HTTP_STATUS_CODE_NO_CONTENT,
             "ok",
@@ -783,7 +766,7 @@ abstract class BaseApiV2Controller extends RestApiController implements Reposito
         if($request->getPathInfo() != '/admin/v3/accounts/search')
             $this->checkPermissions($role, self::CRUD_SEARCH);
         [$total, $result] = $this->search($request);
-        $elems = $this->securizeOutput($result);
+        $elems = $this->secureOutput($result);
 
         return $this->restV2(
             self::HTTP_STATUS_CODE_OK,
@@ -808,7 +791,7 @@ abstract class BaseApiV2Controller extends RestApiController implements Reposito
         $fieldMap = json_decode($request->query->get("field_map", "{}"), true);
         if(json_last_error()) throw new HttpException(400, "Bad field_map, it must be a valid JSON");
         [$total, $result] = $this->export($request);
-        $elems = $this->securizeOutput($result);
+        $elems = $this->secureOutput($result);
 
         $namer = new CamelCaseToSnakeCaseNameConverter(null, false);
 

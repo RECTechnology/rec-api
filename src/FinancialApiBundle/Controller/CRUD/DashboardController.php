@@ -118,7 +118,7 @@ class DashboardController extends CRUDController {
             ->getQuery()
             ->getResult();
 
-        $result = $this->securizeOutput($result);
+        $result = $this->secureOutput($result);
         return $this->restV2(
             Response::HTTP_OK,
             "ok",

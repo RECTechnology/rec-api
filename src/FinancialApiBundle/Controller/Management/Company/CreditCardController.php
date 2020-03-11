@@ -68,7 +68,7 @@ class CreditCardController extends BaseApiController{
             ['company'   =>  $company, 'deleted'=>false, 'user' => $user]
         );
 
-        $resp = $this->securizeOutput($cards);
+        $resp = $this->secureOutput($cards);
         return $this->restV2(200, 'ok', 'Request successfull', $resp);
     }
 
