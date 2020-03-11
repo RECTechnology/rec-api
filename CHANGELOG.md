@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+### [2.11.5](https://github.com/qbitartifacts/rec-api/compare/v2.11.4...v2.11.5) (2020-03-11)
+
+
+### Bug Fixes
+
+* **issue:** fixes [#221](https://github.com/qbitartifacts/rec-api/issues/221) ([985bc09](https://github.com/qbitartifacts/rec-api/commit/985bc09b4216302596cdf0346fe0c39d9a580e84))
+
 ### [2.11.4](https://github.com/qbitartifacts/rec-api/compare/v2.11.3...v2.11.4) (2020-03-10)
 
 
