@@ -206,6 +206,7 @@ class Group extends BaseGroup implements Uploadable {
      * @ORM\OneToMany(targetEntity="App\FinancialApiBundle\Entity\Client", mappedBy="group", cascade={"remove"})
      * @Serializer\Exclude
      * @Serializer\Groups({"user"})
+     * @Serializer\MaxDepth(1)
      */
     private $clients;
 
