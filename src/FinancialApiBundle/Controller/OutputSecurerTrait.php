@@ -15,10 +15,13 @@ trait OutputSecurerTrait
      * @return array|null
      */
     protected function secureOutput($result) {
-        if (method_exists($this, 'getSerializationContext'))
+        if (method_exists($this, 'getSerializationContext')) {
             $ctx = $this->getSerializationContext();
-        else
+        }
+        else {
             $ctx = new SerializationContext();
+            $ctx->enableMaxDepthChecks();
+        }
         /** @var Serializer $serializer */
         $serializer = $this->get('jms_serializer');
         return $serializer->toArray($result, $ctx);
