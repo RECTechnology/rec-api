@@ -4,8 +4,6 @@ namespace App\FinancialApiBundle\Controller\Management\User;
 
 use App\FinancialApiBundle\Exception\AppException;
 use Doctrine\Common\Annotations\AnnotationException;
-use Doctrine\DBAL\DBALException;
-use JMS\Serializer\SerializationContext;
 use Symfony\Component\HttpFoundation\Response;
 use App\FinancialApiBundle\Entity\CashInTokens;
 use App\FinancialApiBundle\Entity\Group;
@@ -27,7 +25,7 @@ class AccountController extends BaseApiController {
 
     function getRepositoryName()
     {
-        return "FinancialApiBundle:User";
+        return User::class;
     }
 
     function getNewEntity()
