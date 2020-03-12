@@ -73,12 +73,14 @@ class Group extends BaseGroup implements Uploadable {
      * @ORM\OneToMany(targetEntity="App\FinancialApiBundle\Entity\UserGroup", mappedBy="group", cascade={"remove"})
      * @Serializer\Exclude
      * @Serializer\Groups({"manager"})
+     * @Serializer\MaxDepth(1)
      */
     protected $users;
 
     /**
      * @ORM\ManyToOne(targetEntity="App\FinancialApiBundle\Entity\User")
      * @Serializer\Groups({"manager"})
+     * @Serializer\MaxDepth(1)
      */
     private $kyc_manager;
 
@@ -204,6 +206,7 @@ class Group extends BaseGroup implements Uploadable {
      * @ORM\OneToMany(targetEntity="App\FinancialApiBundle\Entity\Client", mappedBy="group", cascade={"remove"})
      * @Serializer\Exclude
      * @Serializer\Groups({"user"})
+     * @Serializer\MaxDepth(1)
      */
     private $clients;
 

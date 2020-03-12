@@ -4,11 +4,8 @@
 namespace App\FinancialApiBundle\Controller;
 
 
-use App\FinancialApiBundle\Entity\Group;
 use JMS\Serializer\SerializationContext;
 use JMS\Serializer\Serializer;
-use Symfony\Component\Security\Core\Authentication\Token\Storage\TokenStorageInterface;
-use Symfony\Component\Security\Core\Authorization\AuthorizationCheckerInterface;
 
 trait OutputSecurerTrait
 {
