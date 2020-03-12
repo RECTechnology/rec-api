@@ -2,6 +2,15 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+### [2.11.6](https://github.com/qbitartifacts/rec-api/compare/v2.11.4-1...v2.11.6) (2020-03-12)
+
+
+### Bug Fixes
+
+* **max_depth:** added more max depth checks to Group.php ([e2f348b](https://github.com/qbitartifacts/rec-api/commit/e2f348bfd0a098b59202d449838142f61be00d7c))
+* **max_depth:** added more max depth checks to Group.php ([a4254d8](https://github.com/qbitartifacts/rec-api/commit/a4254d80e55324b7dc27a633f4c8d2b837bbffd4))
+* **max_depth:** fixed bug when creating context ([b40bffb](https://github.com/qbitartifacts/rec-api/commit/b40bffb8d8e98696ff44a1aaf6c9080d0d555ad8))
+
 ### [2.11.5](https://github.com/qbitartifacts/rec-api/compare/v2.11.4...v2.11.5) (2020-03-11)
 
 
