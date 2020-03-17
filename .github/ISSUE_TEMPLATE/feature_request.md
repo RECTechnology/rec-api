@@ -1,6 +1,9 @@
 ---
 name: Feature request
 about: Suggest an idea for this project
+Estimated timing: h, m, s
+#From 1 (easy) to 5 (hard)
+Difficulty: (1 - 5)
 ---
 
 **Is your feature request related to a problem? Please describe.**  
