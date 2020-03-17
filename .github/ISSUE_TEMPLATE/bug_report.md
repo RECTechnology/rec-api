@@ -1,6 +1,9 @@
 ---
 name: Bug report
 about: Create a report to help us improve
+Estimated time: h, m, s 
+#From 1(easy) to 5(hard)
+Difficulty: (1 - 5)
 ---
 
 ### Information
@@ -11,6 +14,11 @@ about: Create a report to help us improve
 **Endpoint**: `[e.g. /admin/v1/users]`  
 **Params**: `[e.g. { "name": "test" }]`  
 **Result/Error**: `error or response returned by api`  
+
+For developers:
+
+**Estimated time**: `d, h, m`  
+**Difficulty**:  `int btw 1(easy) and 5(hard)`
 
 ### Description
 **Describe the bug**  
