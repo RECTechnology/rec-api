@@ -52,7 +52,7 @@ class Document extends AppObject implements Uploadable, Stateful {
 
     /**
      * @var string $type
-     * @ORM\Column(type="datetime")
+     * @ORM\Column(type="datetime", nullable=true)
      * @Assert\DateTime()
      * @Serializer\Groups({"manager"})
      */
