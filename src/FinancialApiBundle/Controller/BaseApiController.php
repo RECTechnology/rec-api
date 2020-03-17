@@ -33,7 +33,7 @@ abstract class BaseApiController extends RestApiController implements Repository
     const HTTP_STATUS_CODE_OK = 200;
     const HTTP_STATUS_CODE_CREATED = 201;
 
-    use OutputSecurerTrait;
+    use SecurityTrait;
 
     /**
      * @return ObjectRepository

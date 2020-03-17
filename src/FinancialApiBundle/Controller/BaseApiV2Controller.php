@@ -76,7 +76,7 @@ abstract class BaseApiV2Controller extends RestApiController implements Reposito
         'root' => self::ROLE_ROOT,
     ];
 
-    use OutputSecurerTrait;
+    use SecurityTrait;
 
     /**
      * @return ObjectRepository

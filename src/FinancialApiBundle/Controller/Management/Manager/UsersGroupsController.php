@@ -2,7 +2,7 @@
 
 namespace App\FinancialApiBundle\Controller\Management\Manager;
 
-use App\FinancialApiBundle\Controller\OutputSecurerTrait;
+use App\FinancialApiBundle\Controller\SecurityTrait;
 use App\FinancialApiBundle\Entity\User;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpKernel\Exception\HttpException;
@@ -17,7 +17,7 @@ use App\FinancialApiBundle\Financial\Currency;
 
 class UsersGroupsController extends RestApiController{
 
-    use OutputSecurerTrait;
+    use SecurityTrait;
 
     /**
      * @Rest\View
