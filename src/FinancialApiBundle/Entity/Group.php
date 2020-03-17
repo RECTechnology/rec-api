@@ -299,6 +299,7 @@ class Group extends BaseGroup implements Uploadable {
     /**
      * @ORM\Column(type="float", nullable=true)
      * @Assert\Type(type="double", message="Invalid latitude {{value}}")
+     * @Assert\Range(max="90", min="-90", invalidMessage="Bad value for latitude (allowed float [-90, 90])")
      * @Serializer\Groups({"public"})
      */
     private $latitude = null;
@@ -306,6 +307,7 @@ class Group extends BaseGroup implements Uploadable {
     /**
      * @ORM\Column(type="float", nullable=true)
      * @Assert\Type(type="double", message="Invalid longitude {{value}}")
+     * @Assert\Range(max="90", min="-90", invalidMessage="Bad value for longitude (allowed float [-90, 90])")
      * @Serializer\Groups({"public"})
      */
     private $longitude = null;

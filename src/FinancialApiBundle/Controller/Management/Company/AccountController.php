@@ -10,14 +10,12 @@
 namespace App\FinancialApiBundle\Controller\Management\Company;
 
 use Doctrine\Common\Annotations\AnnotationException;
-use Doctrine\ORM\EntityManagerInterface;
 use App\FinancialApiBundle\Entity\Group;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpKernel\Exception\HttpException;
 use App\FinancialApiBundle\Controller\BaseApiController;
 use FOS\RestBundle\Controller\Annotations as Rest;
 use Symfony\Component\HttpFoundation\Request;
-use App\FinancialApiBundle\Entity\User;
 use App\FinancialApiBundle\Entity\UserGroup;
 
 class AccountController extends BaseApiController{
@@ -79,11 +77,13 @@ class AccountController extends BaseApiController{
         $admin = $this->get('security.token_storage')->getToken()->getUser();
         $adminGroup = $this->getRepository()->find($account_id);
 
-        $permission = $this->getDoctrine()->getRepository(UserGroup::class)
-            ->findOneBy(array(
+        $permission = $this
+            ->getDoctrine()
+            ->getRepository(UserGroup::class)
+            ->findOneBy([
                 'user'  =>  $admin->getId(),
                 'group' =>  $adminGroup->getId()
-            ));
+            ]);
 
         if(!$permission){
             throw new HttpException(403, 'You are not in this account');
@@ -139,10 +139,13 @@ class AccountController extends BaseApiController{
 
         $em = $this->getDoctrine()->getManager();
 
-        $adminRoles = $this->getDoctrine()->getRepository('FinancialApiBundle:UserGroup')->findOneBy(array(
+        $adminRoles = $this
+            ->getDoctrine()
+            ->getRepository(UserGroup::class)
+            ->findOneBy([
             'user'  =>  $admin->getId(),
             'group' =>  $adminGroup->getId()
-        ));
+        ]);
 
         if(!$adminRoles){
             throw new HttpException(403, 'You are not in this account');
@@ -166,17 +169,11 @@ class AccountController extends BaseApiController{
         $lat = $request->request->get('latitude');
         $lon = $request->request->get('longitude');
 
-        if(intval($lat) > 90 ||  intval($lat) < -90 || intval($lat) == 0){
-            throw new HttpException(400, 'Bad value for latitude (allowed float [-90, 90])');
-        }
-
-        if(intval($lon) > 90 ||  intval($lon) < -90 || intval($lon) == 0){
-            throw new HttpException(400, 'Bad value for longitude (allowed float [-90, 90])');
-        }
-
         $adminGroup->setLatitude($lat);
         $adminGroup->setLongitude($lon);
         $adminGroup->setFixedLocation(true);
+
+        $this->validate($adminGroup);
         $em->flush();
 
         return $this->rest(200, 'Company location updated successfully');
