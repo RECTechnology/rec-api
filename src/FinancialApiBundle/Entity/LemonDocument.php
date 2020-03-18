@@ -19,4 +19,17 @@ class LemonDocument extends Document implements LemonObject {
     const LW_STATUS_DECLINED = [3, 4, 5, 6, 7];
 
     use LemonObjectTrait;
+
+    /**
+     * @var string $status
+     * @ORM\Column(type="string")
+     * @StatusProperty(choices={
+     *     "submitted"={"to"={"approved", "declined"}},
+     *     "declined"={"to"={"archived"}},
+     *     "approved"={"final"=true},
+     *     "archived"={"final"=true},
+     * }, initial="submitted")
+     * @Serializer\Groups({"manager"})
+     */
+    protected $status;
 }
