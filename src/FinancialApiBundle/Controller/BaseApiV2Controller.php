@@ -404,6 +404,8 @@ abstract class BaseApiV2Controller extends RestApiController implements Reposito
                 throw new HttpException(400, "Missed parameter(s)", $e);
             else if(preg_match('/UNIQUE constraint failed/i', $e->getMessage()))
                 throw new HttpException(409, "Duplicated resource (relationship duplicated)", $e);
+            else if(preg_match('/1451 Cannot delete or update a parent row/i', $e->getMessage()))
+                throw new HttpException(412, "This entity has one or more children, delete or update first them", $e);
             throw new HttpException(500, "Database error occurred when save", $e);
         }
     }

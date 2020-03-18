@@ -44,6 +44,7 @@ class Tier extends AppObject {
 
     /**
      * @ORM\OneToOne(targetEntity="App\FinancialApiBundle\Entity\Tier")
+     * @ORM\JoinColumn(onDelete="SET NULL")
      * @Serializer\MaxDepth(1)
      * @Serializer\Groups({"user"})
      */
@@ -132,12 +133,10 @@ class Tier extends AppObject {
 
     /**
      * @param mixed $previous
-     * @param bool $recursive
      */
-    public function setPrevious($previous, $recursive = true): void
+    public function setPrevious($previous): void
     {
         $this->previous = $previous;
-        if($recursive) $previous->setNext($this, false);
     }
 
 }

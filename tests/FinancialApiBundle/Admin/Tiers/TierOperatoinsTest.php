@@ -1,18 +1,17 @@
 <?php
 
 
-namespace Test\FinancialApiBundle\Bugs;
+namespace Test\FinancialApiBundle\Admin\Tiers;
 
 
 use App\FinancialApiBundle\DataFixture\UserFixture;
 use Test\FinancialApiBundle\BaseApiTest;
 
 /**
- * Class Issue144Test
- * @package Test\FinancialApiBundle\Bugs
- * @see https://github.com/QbitArtifacts/rec-api/issues/144
+ * Class TierOperatoinsTest
+ * @package Test\FinancialApiBundle\Admin\Tiers
  */
-class Issue144Test extends BaseApiTest {
+class TierOperatoinsTest extends BaseApiTest {
 
     function setUp(): void
     {
@@ -20,7 +19,7 @@ class Issue144Test extends BaseApiTest {
         $this->signIn(UserFixture::TEST_ADMIN_CREDENTIALS);
     }
 
-    function testIssue144IsSolved(){
+    function testAllOperations(){
 
         $tier = $this->createTier();
         $docType = $this->createDoctype();
