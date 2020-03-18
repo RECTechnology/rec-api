@@ -44,6 +44,7 @@ class Tier extends AppObject {
 
     /**
      * @ORM\ManyToOne(targetEntity="App\FinancialApiBundle\Entity\Tier", inversedBy="children")
+     * @ORM\JoinColumn(onDelete="SET NULL")
      * @Serializer\MaxDepth(1)
      * @Serializer\Groups({"user"})
      */

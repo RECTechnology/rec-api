@@ -22,7 +22,7 @@ class TierOperatoinsTest extends BaseApiTest {
     function testAllOperations(){
 
         $tier1 = $this->createTier();
-        $tier2 = $this->createTier($tier1);
+        $this->createTier($tier1);
         $docType = $this->createDoctype();
         $this->addDoctypeToTier($tier1, $docType);
         $this->delDoctypeFromTier($tier1, $docType);
