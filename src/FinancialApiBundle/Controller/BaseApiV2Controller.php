@@ -403,7 +403,7 @@ abstract class BaseApiV2Controller extends RestApiController implements Reposito
             else if(preg_match('/NOT NULL constraint failed/i', $e->getMessage()))
                 throw new HttpException(400, "Missed parameter(s)", $e);
             else if(preg_match('/UNIQUE constraint failed/i', $e->getMessage()))
-                throw new HttpException(409, "Duplicated resource (multiple parameters duplicated)", $e);
+                throw new HttpException(409, "Duplicated resource (relationship duplicated)", $e);
             throw new HttpException(500, "Database error occurred when save", $e);
         }
     }
@@ -653,11 +653,8 @@ abstract class BaseApiV2Controller extends RestApiController implements Reposito
             ->show($targetEntityId);
         if(empty($relatedEntity)) throw new HttpException(404, "Not found");
 
-        $getter = $this->getGetter($relationship);
-
-        /** @var Collection $collection */
-        $collection = $entity->$getter();
-        $collection->removeElement($relatedEntity);
+        $deleter = $this->getDeleter($relationship);
+        $entity->$deleter($relatedEntity);
 
         if($source == 'One'){
             $inverseSetter = $this->getSetter($inverseField);
@@ -702,7 +699,7 @@ abstract class BaseApiV2Controller extends RestApiController implements Reposito
         }
         $this->flush();
 
-        return $this->restV2(200,"ok", "Deleted successfully");
+        return $this->restV2(Response::HTTP_NO_CONTENT,"ok", "Deleted successfully");
     }
 
 

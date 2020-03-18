@@ -5,6 +5,7 @@ namespace App\FinancialApiBundle\Entity;
 
 use App\FinancialApiBundle\Annotations\StatusProperty;
 use App\FinancialApiBundle\DependencyInjection\App\Commons\UploadManager;
+use App\FinancialApiBundle\Exception\PreconditionFailedException;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\ORM\Mapping as ORM;
 use JMS\Serializer\Annotation as Serializer;
@@ -31,7 +32,11 @@ class Tier extends AppObject {
     private $description;
 
     /**
-     * @ORM\OneToMany(targetEntity="App\FinancialApiBundle\Entity\DocumentKind", mappedBy="tier")
+     * @ORM\ManyToMany(
+     *     targetEntity="App\FinancialApiBundle\Entity\DocumentKind",
+     *     mappedBy="tiers",
+     *     fetch="EXTRA_LAZY"
+     * )
      * @Serializer\Groups({"user"})
      */
     private $document_kinds;
@@ -93,11 +98,30 @@ class Tier extends AppObject {
     }
 
     /**
-     * @param mixed $document_kinds
+     * @param DocumentKind $documentKind
+     * @param bool $recursive
+     * @throws PreconditionFailedException
      */
-    public function setDocumentKinds($document_kinds): void
+    public function addDocumentKind(DocumentKind $documentKind, $recursive = true): void
     {
-        $this->document_kinds = $document_kinds;
+        if($this->document_kinds->contains($documentKind)){
+            throw new PreconditionFailedException("DocumentKind already related to this Tier");
+        }
+        $this->document_kinds []= $documentKind;
+        if($recursive) $documentKind->addTier($this, false);
+    }
+
+    /**
+     * @param DocumentKind $documentKind
+     * @param bool $recursive
+     */
+    public function delDocumentKind(DocumentKind $documentKind, $recursive = true): void
+    {
+        if(!$this->document_kinds->contains($documentKind)){
+            throw new PreconditionFailedException("DocumentKind not related to this Tier");
+        }
+        $this->document_kinds->removeElement($documentKind);
+        if($recursive) $documentKind->delTier($this, false);
     }
 
     /**

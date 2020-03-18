@@ -2,6 +2,7 @@
 
 namespace App\FinancialApiBundle\Entity;
 
+use App\FinancialApiBundle\Exception\PreconditionFailedException;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\ORM\Mapping as ORM;
 use JMS\Serializer\Annotation as Serializer;
@@ -37,11 +38,15 @@ class DocumentKind extends AppObject {
     protected $documents;
 
     /**
-     * @ORM\ManyToOne(targetEntity="App\FinancialApiBundle\Entity\Tier", inversedBy="document_kinds")
+     * @ORM\ManyToMany(
+     *     targetEntity="App\FinancialApiBundle\Entity\Tier",
+     *     inversedBy="document_kinds",
+     *     fetch="EXTRA_LAZY"
+     * )
      * @Serializer\Groups({"admin"})
      * @Serializer\MaxDepth(1)
      */
-    protected $tier;
+    protected $tiers;
 
 
     public function __construct()
@@ -100,17 +105,36 @@ class DocumentKind extends AppObject {
     /**
      * @return mixed
      */
-    public function getTier()
+    public function getTiers()
     {
-        return $this->tier;
+        return $this->tiers;
     }
 
     /**
-     * @param mixed $tier
+     * @param Tier $tier
+     * @param bool $recursive
+     * @throws PreconditionFailedException
      */
-    public function setTier($tier): void
+    public function addTier(Tier $tier, $recursive = true): void
     {
-        $this->tier = $tier;
+        if($this->tiers->contains($tier)){
+            throw new PreconditionFailedException("Tier already related to this DocumentKind");
+        }
+        $this->tiers []= $tier;
+        if($recursive) $tier->addDocumentKind($this, false);
+    }
+
+    /**
+     * @param Tier $tier
+     * @param bool $recursive
+     */
+    public function delTier(Tier $tier, $recursive = true): void
+    {
+        if(!$this->tiers->contains($tier)){
+            throw new PreconditionFailedException("Tier not related to this DocumentKind");
+        }
+        $this->tiers->removeElement($tier);
+        if($recursive) $tier->delDocumentKind($this, false);
     }
 
 }
