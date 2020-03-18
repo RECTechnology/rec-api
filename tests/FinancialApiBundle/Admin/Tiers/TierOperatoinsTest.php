@@ -1,18 +1,17 @@
 <?php
 
 
-namespace Test\FinancialApiBundle\Bugs;
+namespace Test\FinancialApiBundle\Admin\Tiers;
 
 
 use App\FinancialApiBundle\DataFixture\UserFixture;
 use Test\FinancialApiBundle\BaseApiTest;
 
 /**
- * Class Issue144Test
- * @package Test\FinancialApiBundle\Bugs
- * @see https://github.com/QbitArtifacts/rec-api/issues/144
+ * Class TierOperatoinsTest
+ * @package Test\FinancialApiBundle\Admin\Tiers
  */
-class Issue144Test extends BaseApiTest {
+class TierOperatoinsTest extends BaseApiTest {
 
     function setUp(): void
     {
@@ -20,19 +19,22 @@ class Issue144Test extends BaseApiTest {
         $this->signIn(UserFixture::TEST_ADMIN_CREDENTIALS);
     }
 
-    function testIssue144IsSolved(){
+    function testAllOperations(){
 
-        $tier = $this->createTier();
+        $tier1 = $this->createTier();
+        $tier2 = $this->createTier($tier1);
         $docType = $this->createDoctype();
-        $this->addDoctypeToTier($tier, $docType);
-        $this->delDoctypeFromTier($tier, $docType);
-        $this->addDoctypeToTier($tier, $docType);
-        $this->delTier($tier);
+        $this->addDoctypeToTier($tier1, $docType);
+        $this->delDoctypeFromTier($tier1, $docType);
+        $this->addDoctypeToTier($tier1, $docType);
+        $this->delTier($tier1);
     }
 
-    private function createTier() {
+    private function createTier($parent = null) {
         $route = "/admin/v3/tiers";
-        return $this->rest('POST', $route, ['code' => "test"]);
+        $params = ['code' => $this->faker->randomNumber(4)];
+        if($parent) $params['parent_id'] = $parent->id;
+        return $this->rest('POST', $route, $params);
     }
 
     private function createDoctype() {

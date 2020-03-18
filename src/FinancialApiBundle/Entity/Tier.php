@@ -43,16 +43,25 @@ class Tier extends AppObject {
     private $document_kinds;
 
     /**
-     * @ORM\OneToOne(targetEntity="App\FinancialApiBundle\Entity\Tier")
+     * @ORM\ManyToOne(targetEntity="App\FinancialApiBundle\Entity\Tier", inversedBy="children")
      * @Serializer\MaxDepth(1)
      * @Serializer\Groups({"user"})
      */
-    private $previous;
+    private $parent;
+
+
+    /**
+     * @ORM\OneToMany(targetEntity="App\FinancialApiBundle\Entity\Tier", mappedBy="parent")
+     * @Serializer\MaxDepth(1)
+     * @Serializer\Groups({"user"})
+     */
+    private $children;
 
 
     public function __construct(){
         $this->document_kinds = new ArrayCollection();
-        $this->previous = $this;
+        $this->children = new ArrayCollection();
+        $this->parent = $this;
     }
 
     /**
@@ -125,19 +134,33 @@ class Tier extends AppObject {
     /**
      * @return mixed
      */
-    public function getPrevious()
+    public function getParent()
     {
-        return $this->previous;
+        return $this->parent;
     }
 
     /**
-     * @param mixed $previous
-     * @param bool $recursive
+     * @param mixed $parent
      */
-    public function setPrevious($previous, $recursive = true): void
+    public function setParent($parent): void
     {
-        $this->previous = $previous;
-        if($recursive) $previous->setNext($this, false);
+        $this->parent = $parent;
+    }
+
+    /**
+     * @return mixed
+     */
+    public function getChildren()
+    {
+        return $this->children;
+    }
+
+    /**
+     * @param mixed $children
+     */
+    public function setChildren($children): void
+    {
+        $this->children = $children;
     }
 
 }
