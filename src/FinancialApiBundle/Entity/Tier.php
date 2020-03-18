@@ -113,14 +113,15 @@ class Tier extends AppObject {
 
     /**
      * @param DocumentKind $documentKind
-     * @throws PreconditionFailedException
+     * @param bool $recursive
      */
-    public function delDocumentKind(DocumentKind $documentKind): void
+    public function delDocumentKind(DocumentKind $documentKind, $recursive = true): void
     {
         if(!$this->document_kinds->contains($documentKind)){
             throw new PreconditionFailedException("DocumentKind not related to this Tier");
         }
         $this->document_kinds->removeElement($documentKind);
+        if($recursive) $documentKind->delTier($this, false);
     }
 
     /**

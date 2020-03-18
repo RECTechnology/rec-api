@@ -126,14 +126,15 @@ class DocumentKind extends AppObject {
 
     /**
      * @param Tier $tier
-     * @throws PreconditionFailedException
+     * @param bool $recursive
      */
-    public function delTier(Tier $tier): void
+    public function delTier(Tier $tier, $recursive = true): void
     {
         if(!$this->tiers->contains($tier)){
             throw new PreconditionFailedException("Tier not related to this DocumentKind");
         }
         $this->tiers->removeElement($tier);
+        if($recursive) $tier->delDocumentKind($this, false);
     }
 
 }
