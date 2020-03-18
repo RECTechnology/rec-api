@@ -1,19 +1,25 @@
 ---
 name: Feature request
 about: Suggest an idea for this project
-Estimated timing: h, m, s
-#From 1 (easy) to 5 (hard)
-Difficulty: (1 - 5)
 ---
+### Timing  
+*Please dev. fill in this details*  
+<!-- In h, m, s  -->
+**Estimated time**:  
+<!-- From 1 (easy) to 5 (hard) -->
+**Difficulty**:  
+
+
+### Form 
 
 **Is your feature request related to a problem? Please describe.**  
-A clear and concise description of what the problem is. Ex. I'm always frustrated when [...]
+<!-- A clear and concise description of what the problem is. Ex. I'm always frustrated when [...] -->
 
 **Describe the solution you'd like**  
-A clear and concise description of what you want to happen.
+<!-- A clear and concise description of what you want to happen. -->
 
 **Describe alternatives you've considered**  
-A clear and concise description of any alternative solutions or features you've considered.
+<!-- A clear and concise description of any alternative solutions or features you've considered. -->
 
 **Additional context**  
-Add any other context or screenshots about the feature request here.
+<!-- Add any other context or screenshots about the feature request here. --
