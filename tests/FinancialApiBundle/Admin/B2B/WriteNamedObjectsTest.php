@@ -77,15 +77,7 @@ class WriteNamedObjectsTest extends BaseApiTest implements CrudV3WriteTestInterf
             $resp = $this->createNamedObjectAsAdmin($route, "test name");
             $nhId = json_decode($resp->getContent())->data->id;
 
-            $resp = $this->request(
-                'DELETE',
-                '/admin/v3/' . $route . '/' . $nhId,
-            );
-            self::assertEquals(
-                200,
-                $resp->getStatusCode(),
-                "route: $route, status_code: {$resp->getStatusCode()}, content: {$resp->getContent()}"
-            );
+            $this->rest('DELETE', '/admin/v3/' . $route . '/' . $nhId);
         }
     }
 }

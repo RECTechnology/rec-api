@@ -97,11 +97,6 @@ class DelegatedChangeTest extends BaseApiTest implements CrudV3WriteTestInterfac
     {
         $content = $this->createEmptyDelegatedChange();
         $route = '/admin/v3/delegated_changes/' . $content->data->id;
-        $resp = $this->requestJson('DELETE', $route);
-        self::assertEquals(
-            200,
-            $resp->getStatusCode(),
-            "route: $route, status_code: {$resp->getStatusCode()}, content: {$resp->getContent()}"
-        );
+        $this->rest('DELETE', $route);
     }
 }
