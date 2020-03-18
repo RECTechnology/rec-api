@@ -7,6 +7,7 @@ use App\FinancialApiBundle\Annotations\StatusProperty;
 use App\FinancialApiBundle\DependencyInjection\App\Commons\UploadManager;
 use App\FinancialApiBundle\Exception\AppLogicException;
 use Doctrine\ORM\Mapping as ORM;
+use DoctrineExtensions\Query\Mysql\Date;
 use JMS\Serializer\Annotation as Serializer;
 use Symfony\Component\Validator\Constraints as Assert;
 
@@ -51,7 +52,7 @@ class Document extends AppObject implements Uploadable, Stateful {
 
 
     /**
-     * @var string $type
+     * @var \DateTime $type
      * @ORM\Column(type="datetime", nullable=true)
      * @Assert\DateTime()
      * @Serializer\Groups({"manager"})
@@ -158,17 +159,17 @@ class Document extends AppObject implements Uploadable, Stateful {
     }
 
     /**
-     * @return string
+     * @return \DateTime
      */
-    public function getValidUntil(): string
+    public function getValidUntil()
     {
         return $this->valid_until;
     }
 
     /**
-     * @param string $valid_until
+     * @param \DateTime $valid_until
      */
-    public function setValidUntil(string $valid_until): void
+    public function setValidUntil($valid_until): void
     {
         $this->valid_until = $valid_until;
     }

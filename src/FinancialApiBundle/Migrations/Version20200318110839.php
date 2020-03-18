@@ -8,13 +8,14 @@ use Doctrine\DBAL\Schema\Schema;
 use Doctrine\Migrations\AbstractMigration;
 
 /**
- * Auto-generated Migration: Please modify to your needs!
+ * Class Version20200318110839
+ * @package App\FinancialApiBundle\Migrations
  */
 final class Version20200318110839 extends AbstractMigration
 {
     public function getDescription() : string
     {
-        return '';
+        return 'Changes relationship tier-documentkind from 1-n to n-n';
     }
 
     public function up(Schema $schema) : void
