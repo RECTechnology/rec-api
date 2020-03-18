@@ -146,14 +146,15 @@ class Activity extends AppObject implements Translatable, PreDeleteChecks {
 
     /**
      * @param Group $account
-     * @throws PreconditionFailedException
+     * @param bool $recursive
      */
-    public function delAccount(Group $account): void
+    public function delAccount(Group $account, $recursive = true): void
     {
         if(!$this->accounts->contains($account)){
             throw new PreconditionFailedException("Account not related to this Activity");
         }
         $this->accounts->removeElement($account);
+        if($recursive) $account->delActivity($this, false);
     }
 
     /**
@@ -180,14 +181,15 @@ class Activity extends AppObject implements Translatable, PreDeleteChecks {
 
     /**
      * @param mixed $product
-     * @throws PreconditionFailedException
+     * @param bool $recursive
      */
-    public function delDefaultProducingProduct(ProductKind $product): void
+    public function delDefaultProducingProduct(ProductKind $product, $recursive = true): void
     {
         if(!$this->default_producing_products->contains($product)){
             throw new PreconditionFailedException("ProductKind not related to this Activity");
         }
         $this->default_producing_products->removeElement($product);
+        if($recursive) $product->delDefaultProducingBy($this, false);
     }
 
     /**
@@ -214,14 +216,15 @@ class Activity extends AppObject implements Translatable, PreDeleteChecks {
 
     /**
      * @param mixed $product
-     * @throws PreconditionFailedException
+     * @param bool $recursive
      */
-    public function delDefaultConsumingProduct(ProductKind $product): void
+    public function delDefaultConsumingProduct(ProductKind $product, $recursive = true): void
     {
         if(!$this->default_consuming_products->contains($product)){
             throw new PreconditionFailedException("ProductKind not related to this Activity");
         }
         $this->default_consuming_products->removeElement($product);
+        if($recursive) $product->delDefaultConsumingBy($this, false);
     }
 
     /**
