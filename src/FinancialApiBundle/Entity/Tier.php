@@ -62,7 +62,6 @@ class Tier extends AppObject {
     public function __construct(){
         $this->document_kinds = new ArrayCollection();
         $this->children = new ArrayCollection();
-        $this->parent = $this;
     }
 
     /**
