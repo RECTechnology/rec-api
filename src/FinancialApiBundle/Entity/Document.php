@@ -49,6 +49,15 @@ class Document extends AppObject implements Uploadable, Stateful {
      */
     protected $content;
 
+
+    /**
+     * @var string $type
+     * @ORM\Column(type="datetime", nullable=true)
+     * @Assert\DateTime()
+     * @Serializer\Groups({"manager"})
+     */
+    protected $valid_until;
+
     /**
      * @ORM\ManyToOne(targetEntity="App\FinancialApiBundle\Entity\Group", inversedBy="documents")
      * @Serializer\Groups({"manager"})
@@ -146,5 +155,21 @@ class Document extends AppObject implements Uploadable, Stateful {
     public function setKind($kind): void
     {
         $this->kind = $kind;
+    }
+
+    /**
+     * @return string
+     */
+    public function getValidUntil(): string
+    {
+        return $this->valid_until;
+    }
+
+    /**
+     * @param string $valid_until
+     */
+    public function setValidUntil(string $valid_until): void
+    {
+        $this->valid_until = $valid_until;
     }
 }
