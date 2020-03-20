@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+### [2.13.1](https://github.com/qbitartifacts/rec-api/compare/v2.13.0...v2.13.1) (2020-03-20)
+
+
+### Bug Fixes
+
+* **lemonway:** only set iban status if exists in our database, to avoid errors ([7066348](https://github.com/qbitartifacts/rec-api/commit/7066348d92d7f423c8aebda68b1d35ac42ef05d3))
+
 ## [2.13.0](https://github.com/qbitartifacts/rec-api/compare/v2.12.1...v2.13.0) (2020-03-20)
 
 
