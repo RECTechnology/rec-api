@@ -2,6 +2,31 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+## [2.12.0](https://github.com/qbitartifacts/rec-api/compare/v2.11.6...v2.12.0) (2020-03-20)
+
+
+### Features
+
+* **documents:** set accepted status for non-lemonway documents ([38188b5](https://github.com/qbitartifacts/rec-api/commit/38188b55816c1c55996e404977cb7cbd0205108f))
+* **migrations:** added migration for valid_until date in documents ([d0e322d](https://github.com/qbitartifacts/rec-api/commit/d0e322d97a553f166d5655d5514e3a78af743587))
+
+
+### Bug Fixes
+
+* **crud:** refactored more deleters ([987027f](https://github.com/qbitartifacts/rec-api/commit/987027fd08b66df15543282e79b7a2c59ed893ab))
+* **db_relationship:** changed db relationship tier <-> documentkind to ManyToMany, fixes [#195](https://github.com/qbitartifacts/rec-api/issues/195) ([e71603a](https://github.com/qbitartifacts/rec-api/commit/e71603a77c9af106d49abc263214e99304591c14))
+* **issue:** added valid_until date to documents, fixes [#194](https://github.com/qbitartifacts/rec-api/issues/194) ([0e43d3d](https://github.com/qbitartifacts/rec-api/commit/0e43d3d17aa27450c63d7058579317b670688798))
+* **issue:** fixes [#230](https://github.com/qbitartifacts/rec-api/issues/230) ([3f9da13](https://github.com/qbitartifacts/rec-api/commit/3f9da13a00d419875adc15e865ee59a9ff3ffb1a))
+* **migrations:** added migration to set all accounts to country=ESP, fixes [#237](https://github.com/qbitartifacts/rec-api/issues/237) ([7e81af9](https://github.com/qbitartifacts/rec-api/commit/7e81af99b27d6ca6a58a87b12bcd4f0d85c2a6c5))
+* **migrations:** added ondelete set null to allow tier deletions ([16815e2](https://github.com/qbitartifacts/rec-api/commit/16815e2e89f8ab327febf29fc1a506237fdd0f90))
+* **testing:** refactored tests and fixed delete status codes ([0c06314](https://github.com/qbitartifacts/rec-api/commit/0c0631480616759a60730639410a4abbd5535509))
+* **tests:** refactored more tests ([c7b0887](https://github.com/qbitartifacts/rec-api/commit/c7b0887c9b72ac2ab38679e3873dda0f79ddba70))
+* **tiers:** added ondelete set null to allow tier deletions ([eef61ec](https://github.com/qbitartifacts/rec-api/commit/eef61ecdca80ac9b50db22040e023da473e6d4dd))
+* **tiers:** changed tier-tier relationship to 1-n ([50e1a9c](https://github.com/qbitartifacts/rec-api/commit/50e1a9c05f38d3c1edb98f6a82f055c7fd7312c4))
+* **tiers:** introduced migration to allow delete self-referencing tiers ([7ce07b2](https://github.com/qbitartifacts/rec-api/commit/7ce07b2f6f4495776728a3271f9fe43ac115dcc8))
+* **tiers:** removed next from tiers, use previous instead ([cf107c8](https://github.com/qbitartifacts/rec-api/commit/cf107c833d96373d4e48bd2760c10f5f4f1566ac))
+* **valid_until:** fixed setter ([08e8eea](https://github.com/qbitartifacts/rec-api/commit/08e8eea664306b859e33d40946e28f70e9eaf5be))
+
 ### [2.11.6](https://github.com/qbitartifacts/rec-api/compare/v2.11.4-1...v2.11.6) (2020-03-12)
 
 
