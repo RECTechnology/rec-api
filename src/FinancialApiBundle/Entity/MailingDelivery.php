@@ -45,7 +45,7 @@ class MailingDelivery extends AppObject implements Stateful {
      *          "cancelled"={"final"=true},
      *          "errored"={"final"=true}
      *     },
-     *     initial="created"
+     *     initial_statuses={"created"}
      * )
      * @Serializer\Groups({"admin"})
      */

@@ -3,13 +3,13 @@
 namespace App\FinancialApiBundle\Exception;
 
 /**
- * Class AttemptToSetAutomaticFieldException
+ * Class InvalidInitialValueException
  * @package App\FinancialApiBundle\Exception
  */
-class AttemptToSetAutomaticFieldException extends PreconditionFailedException {
+class InvalidInitialValueException extends PreconditionFailedException {
 
     /**
-     * AttemptToSetAutomaticFieldException constructor.
+     * InvalidInitialValueException constructor.
      * @param string $message
      */
     public function __construct(string $message) {

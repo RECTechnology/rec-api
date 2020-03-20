@@ -15,8 +15,8 @@ class StatusProperty {
     /** @var array $choices */
     private $choices;
 
-    /** string $initial */
-    private $initial;
+    /** @var array $initial_statuses */
+    private $initial_statuses;
 
     /**
      * Status constructor.
@@ -24,7 +24,8 @@ class StatusProperty {
      */
     public function __construct(array $args) {
         $this->choices = $args['choices'];
-        $this->initial = $args['initial'];
+        if(in_array('initial_statuses', array_keys($args)))
+            $this->initial_statuses = $args['initial_statuses'];
     }
 
     /**
@@ -36,11 +37,11 @@ class StatusProperty {
     }
 
     /**
-     * @return string
+     * @return array
      */
-    public function getInitialStatus(){
-        if($this->initial != null) return $this->initial;
-        return array_keys($this->choices)[0];
+    public function getInitialStatuses(){
+        if($this->initial_statuses != null) return $this->initial_statuses;
+        return array_keys($this->choices);
     }
 
     /**
@@ -55,12 +56,13 @@ class StatusProperty {
     /**
      * example annotation
      * Status(choices={
-     *          "created" = {"to" = {"ready"}},
-     *          "ready"= {"final"=false, "to" = {"created", "cancelled"}},
-     *          "processed"= {"final"=true, "to" = {}},
-     *          "cancelled"= {"final"=true},
+     *          "created"={"to"={"ready"}},
+     *          "ready"={"final"=false, "to"={"created", "cancelled"}},
+     *          "processed"={"final"=true, "to"={}},
+     *          "cancelled"={"final"=true},
      *          "failed"={"final"=true},
-     *      }, initial = "created"
+     *      },
+     *      initial_statuses={"created"}
      * )
      */
 

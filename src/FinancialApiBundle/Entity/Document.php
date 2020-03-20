@@ -25,7 +25,7 @@ class Document extends AppObject implements Uploadable, Stateful {
      * @ORM\Column(type="string")
      * @StatusProperty(choices={
      *     "approved"={"final"=true}
-     * }, initial="approved")
+     * }, initial_statuses={"approved"})
      * @Serializer\Groups({"manager"})
      */
     protected $status;

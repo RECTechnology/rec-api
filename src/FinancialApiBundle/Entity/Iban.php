@@ -29,7 +29,7 @@ class Iban extends AppObject implements Stateful, LemonObject {
      *     "declined"={"to"={"archived"}},
      *     "approved"={"final"=true},
      *     "archived"={"final"=true},
-     * }, initial="created")
+     * }, initial_statuses={"created"})
      * @Serializer\Groups({"manager"})
      */
     protected $status;
