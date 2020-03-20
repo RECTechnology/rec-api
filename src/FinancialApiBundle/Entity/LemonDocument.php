@@ -17,6 +17,7 @@ use JMS\Serializer\Annotation as Serializer;
 class LemonDocument extends Document implements LemonObject {
     const LW_STATUS_APPROVED = [2];
     const LW_STATUS_DECLINED = [3, 4, 5, 6, 7];
+    const STATUS_AUTO_FETCHED = "auto_fetched";
 
     use LemonObjectTrait;
 

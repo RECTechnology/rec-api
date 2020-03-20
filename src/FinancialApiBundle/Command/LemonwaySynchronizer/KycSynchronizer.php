@@ -43,6 +43,7 @@ class KycSynchronizer extends AbstractSynchronizer {
                         $document->setKind($kind);
                         $document->setExternalInfo($lwdoc);
                         $document->setLemonReference($lwdoc->ID);
+                        $document->setStatus(LemonDocument::STATUS_AUTO_FETCHED);
                         $document->setName("Lemonway auto-fetched document " . $lwdoc->ID);
                         $accRepo = $this->em->getRepository(Group::class);
                         $account = $accRepo->findOneBy(['cif' => strtolower($walletInfo->WALLET->ID)]);
