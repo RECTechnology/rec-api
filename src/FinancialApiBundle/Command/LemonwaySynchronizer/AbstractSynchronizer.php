@@ -39,7 +39,7 @@ abstract class AbstractSynchronizer implements Synchronizer {
         $index = [];
         /** @var Group $account */
         foreach ($accounts as $account){
-            $this->output->writeln("[INFO] Processing account {$account->getId()}");
+            $this->output->writeln("[INFO] Indexing account {$account->getId()}");
             $wid = strtoupper($account->getCif());
             if(!$wid || strlen($wid) == 0)
                 $this->output->writeln("[WARN] CIF for account {$account->getId()} is null or empty");
