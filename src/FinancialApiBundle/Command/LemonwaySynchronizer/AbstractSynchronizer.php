@@ -44,8 +44,6 @@ abstract class AbstractSynchronizer implements Synchronizer {
             if(!$wid || strlen($wid) == 0)
                 $this->output->writeln("[WARN] CIF for account {$account->getId()} is null or empty");
             $index[$wid] = $account;
-            $account->setLwBalance(null);
-            $this->em->persist($account);
         }
         return $index;
     }
