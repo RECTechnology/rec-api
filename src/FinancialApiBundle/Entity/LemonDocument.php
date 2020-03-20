@@ -24,11 +24,13 @@ class LemonDocument extends Document implements LemonObject {
      * @var string $status
      * @ORM\Column(type="string")
      * @StatusProperty(choices={
+     *     "created"={"to"={"submitted", "auto_fetched"}},
      *     "submitted"={"to"={"approved", "declined"}},
      *     "declined"={"to"={"archived"}},
+     *     "auto_fetched"={"to"={"approved"}},
      *     "approved"={"final"=true},
      *     "archived"={"final"=true},
-     * }, initial="submitted")
+     * }, initial_statuses={"submitted", "auto_fetched"})
      * @Serializer\Groups({"manager"})
      */
     protected $status;

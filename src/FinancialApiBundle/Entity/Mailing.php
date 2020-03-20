@@ -31,7 +31,7 @@ class Mailing extends AppObject implements Translatable, Stateful {
      *          "scheduled"={"to"={"processed", "created"}},
      *          "processed"={"final"=true}
      *      },
-     *      initial="created"
+     *      initial_statuses={"created"}
      * )
      * @Serializer\Groups({"admin"})
      */

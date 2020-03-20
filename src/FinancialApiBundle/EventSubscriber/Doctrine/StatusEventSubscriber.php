@@ -4,15 +4,11 @@ namespace App\FinancialApiBundle\EventSubscriber\Doctrine;
 
 use App\FinancialApiBundle\Annotations\StatusProperty;
 use App\FinancialApiBundle\Entity\Stateful;
-use App\FinancialApiBundle\Entity\Translatable;
-use App\FinancialApiBundle\Entity\PreDeleteChecks;
-use App\FinancialApiBundle\Entity\ProductKind;
 use App\FinancialApiBundle\Exception\AttemptToChangeFinalObjectException;
 use App\FinancialApiBundle\Exception\AttemptToChangeStatusException;
-use App\FinancialApiBundle\Exception\AttemptToSetAutomaticFieldException;
+use App\FinancialApiBundle\Exception\InvalidInitialValueException;
 use Doctrine\Common\Annotations\AnnotationReader;
 use Doctrine\Common\EventSubscriber;
-use Doctrine\DBAL\Exception\ForeignKeyConstraintViolationException;
 use Doctrine\ORM\EntityManagerInterface;
 use Doctrine\ORM\Event\LifecycleEventArgs;
 use Doctrine\ORM\Event\PreUpdateEventArgs;
@@ -58,11 +54,12 @@ class StatusEventSubscriber implements EventSubscriber {
                     if($an instanceof StatusProperty){
                         $rp->setAccessible(true);
                         $value = $rp->getValue($entity);
-                        if($value != null && $value != $an->getInitialStatus())
-                            throw new AttemptToSetAutomaticFieldException(
-                                "Cannot specify '{$rp->name}', initial value is auto-managed"
-                            );
-                        $rp->setValue($entity, $an->getInitialStatus());
+                        if($value == null){
+                            $rp->setValue($entity, $an->getInitialStatuses()[0]);
+                        }
+                        elseif(!in_array($value, $an->getInitialStatuses())) {
+                            throw new InvalidInitialValueException("Invalid initial value for '{$rp->name}'");
+                        }
                     }
                 }
             }
