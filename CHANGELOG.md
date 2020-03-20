@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+### [2.13.3](https://github.com/qbitartifacts/rec-api/compare/v2.13.2...v2.13.3) (2020-03-20)
+
+
+### Bug Fixes
+
+* **lemonway:** fixed bug in lemon uploader ([61bce3d](https://github.com/qbitartifacts/rec-api/commit/61bce3d53bc4f9f3a6422ba4f5b29b37dd0721b3))
+
 ### [2.13.2](https://github.com/qbitartifacts/rec-api/compare/v2.13.1...v2.13.2) (2020-03-20)
 
 
