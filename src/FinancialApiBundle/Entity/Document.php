@@ -39,10 +39,8 @@ class Document extends AppObject implements Uploadable, Stateful {
 
     /**
      * @var string $type
-     * @ORM\Column(type="string")
+     * @ORM\Column(type="string", nullable=true)
      * @Assert\Url()
-     * @Assert\NotBlank()
-     * @Assert\NotNull()
      * @Serializer\Groups({"manager"})
      */
     protected $content;
