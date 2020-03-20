@@ -34,6 +34,7 @@ class KycSynchronizer extends AbstractSynchronizer {
                         $kind->setLemonDoctype($lwdoc->TYPE);
                         $kind->setName("Lemonway auto-fetched doctype {$lwdoc->TYPE}");
                         $this->em->persist($kind);
+                        $this->em->flush();  // needed to update doctypeRepo and avoid create duplicates
                     }
 
                     // if document is in lemonway but not in our API, create it with null doctype

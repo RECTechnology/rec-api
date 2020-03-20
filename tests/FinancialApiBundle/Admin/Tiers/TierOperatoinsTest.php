@@ -64,8 +64,7 @@ class TierOperatoinsTest extends BaseApiTest {
     private function fetchTier($tier)
     {
         $route = "/admin/v3/tiers/{$tier->id}";
-        $resp = $this->rest('GET', $route);
-        print($resp);
+        $this->rest('GET', $route);
     }
 
 
