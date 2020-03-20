@@ -2,6 +2,19 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+## [2.14.0](https://github.com/qbitartifacts/rec-api/compare/v2.13.4...v2.14.0) (2020-03-20)
+
+
+### Features
+
+* **lw_docs:** if status is auto_fetched and conent is modified, set automatically status based on lemon_status ([e2b7743](https://github.com/qbitartifacts/rec-api/commit/e2b774300424ab6062af9097cc524ef5ced62aff))
+* **stateful:** added multiple initial statuses ([b170964](https://github.com/qbitartifacts/rec-api/commit/b1709645f3e8addffb5b010707121e2e35836ff7))
+
+
+### Bug Fixes
+
+* **lw_docs:** set initial status auto_fetched ([bd8af70](https://github.com/qbitartifacts/rec-api/commit/bd8af7078ff3707b5a32e40205d4e3351d0723bb))
+
 ### [2.13.4](https://github.com/qbitartifacts/rec-api/compare/v2.13.3...v2.13.4) (2020-03-20)
 
 
