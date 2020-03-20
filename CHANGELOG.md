@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+## [2.13.0](https://github.com/qbitartifacts/rec-api/compare/v2.12.1...v2.13.0) (2020-03-20)
+
+
+### Features
+
+* **lemonway:** implemented auto-fetch for lemon doctypes ([b3018c3](https://github.com/qbitartifacts/rec-api/commit/b3018c3130683f25527f70a9568b4330cf8da126))
+
 ### [2.12.1](https://github.com/qbitartifacts/rec-api/compare/v2.12.0...v2.12.1) (2020-03-20)
 
 
