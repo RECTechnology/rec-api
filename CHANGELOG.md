@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+### [2.12.1](https://github.com/qbitartifacts/rec-api/compare/v2.12.0...v2.12.1) (2020-03-20)
+
+
+### Bug Fixes
+
+* **documents:** sets document.content nullable to allow auto-fetch docs from lemon ([4dfe462](https://github.com/qbitartifacts/rec-api/commit/4dfe46200a3f3ad57ba9edbd11971fc039362489))
+
 ## [2.12.0](https://github.com/qbitartifacts/rec-api/compare/v2.11.6...v2.12.0) (2020-03-20)
 
 
