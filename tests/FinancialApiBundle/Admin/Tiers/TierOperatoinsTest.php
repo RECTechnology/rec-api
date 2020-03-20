@@ -25,6 +25,7 @@ class TierOperatoinsTest extends BaseApiTest {
         $this->createTier($tier1);
         $docType = $this->createDoctype();
         $this->addDoctypeToTier($tier1, $docType);
+        $this->fetchTier($tier1);
         $this->delDoctypeFromTier($tier1, $docType);
         $this->addDoctypeToTier($tier1, $docType);
         $this->delTier($tier1);
@@ -58,6 +59,13 @@ class TierOperatoinsTest extends BaseApiTest {
     {
         $route = "/admin/v3/tiers/{$tier->id}";
         $this->rest('DELETE', $route);
+    }
+
+    private function fetchTier($tier)
+    {
+        $route = "/admin/v3/tiers/{$tier->id}";
+        $resp = $this->rest('GET', $route);
+        print($resp);
     }
 
 

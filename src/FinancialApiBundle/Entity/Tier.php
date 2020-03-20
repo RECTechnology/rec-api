@@ -37,7 +37,7 @@ class Tier extends AppObject {
      *     mappedBy="tiers",
      *     fetch="EXTRA_LAZY"
      * )
-     * @Serializer\MaxDepth(1)
+     * @Serializer\MaxDepth(2)
      * @Serializer\Groups({"user"})
      */
     private $document_kinds;
@@ -45,7 +45,7 @@ class Tier extends AppObject {
     /**
      * @ORM\ManyToOne(targetEntity="App\FinancialApiBundle\Entity\Tier", inversedBy="children")
      * @ORM\JoinColumn(onDelete="SET NULL")
-     * @Serializer\MaxDepth(1)
+     * @Serializer\MaxDepth(2)
      * @Serializer\Groups({"user"})
      */
     private $parent;
@@ -53,7 +53,7 @@ class Tier extends AppObject {
 
     /**
      * @ORM\OneToMany(targetEntity="App\FinancialApiBundle\Entity\Tier", mappedBy="parent")
-     * @Serializer\MaxDepth(1)
+     * @Serializer\MaxDepth(2)
      * @Serializer\Groups({"user"})
      */
     private $children;
