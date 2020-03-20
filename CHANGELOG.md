@@ -2,6 +2,14 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+### [2.13.4](https://github.com/qbitartifacts/rec-api/compare/v2.13.3...v2.13.4) (2020-03-20)
+
+
+### Bug Fixes
+
+* **lemon_doctypes:** flushed db for every lemon doctype created to avoid duplicates ([e44f730](https://github.com/qbitartifacts/rec-api/commit/e44f730540f3f68e6265308820e9bacce6f937db))
+* **tiers:** fixed document_kinds was empty, fixes [#248](https://github.com/qbitartifacts/rec-api/issues/248) ([81e084f](https://github.com/qbitartifacts/rec-api/commit/81e084f86813085ad129e5bdca30cf2b476baa19))
+
 ### [2.13.3](https://github.com/qbitartifacts/rec-api/compare/v2.13.2...v2.13.3) (2020-03-20)
 
 
