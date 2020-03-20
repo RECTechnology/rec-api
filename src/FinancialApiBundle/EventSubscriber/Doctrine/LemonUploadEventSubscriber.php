@@ -54,6 +54,7 @@ class LemonUploadEventSubscriber implements EventSubscriber {
     public function getSubscribedEvents() {
         return [
             Events::prePersist,
+            Events::preUpdate,
         ];
     }
 
@@ -104,5 +105,19 @@ class LemonUploadEventSubscriber implements EventSubscriber {
         }
     }
 
-
+    /**
+     * @param PreUpdateEventArgs $args
+     * @throws NoSuchTranslationException
+     */
+    public function preUpdate(PreUpdateEventArgs $args){
+        $document = $args->getEntity();
+        if($document instanceof LemonDocument){
+            if($document->getStatus() == LemonDocument::STATUS_AUTO_FETCHED && $args->hasChangedField('content')){
+                if (in_array($document->getLemonStatus(), LemonDocument::LW_STATUS_APPROVED))
+                    $document->setStatus(LemonDocument::STATUS_APPROVED);
+                elseif (in_array($document->getLemonStatus(), LemonDocument::LW_STATUS_DECLINED))
+                    $document->setStatus(LemonDocument::STATUS_DECLINED);
+            }
+        }
+    }
 }
