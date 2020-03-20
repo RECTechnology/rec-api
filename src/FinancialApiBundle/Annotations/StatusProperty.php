@@ -24,7 +24,8 @@ class StatusProperty {
      */
     public function __construct(array $args) {
         $this->choices = $args['choices'];
-        $this->initial_statuses = $args['initial_statuses'];
+        if(in_array('initial_statuses', array_keys($args)))
+            $this->initial_statuses = $args['initial_statuses'];
     }
 
     /**
@@ -36,7 +37,7 @@ class StatusProperty {
     }
 
     /**
-     * @return string
+     * @return array
      */
     public function getInitialStatuses(){
         if($this->initial_statuses != null) return $this->initial_statuses;
@@ -61,7 +62,7 @@ class StatusProperty {
      *          "cancelled"={"final"=true},
      *          "failed"={"final"=true},
      *      },
-     *      initials={"created"}
+     *      initial_statuses={"created"}
      * )
      */
 
