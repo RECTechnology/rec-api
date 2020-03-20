@@ -4,6 +4,7 @@ namespace App\FinancialApiBundle\Command\LemonwaySynchronizer;
 
 use App\FinancialApiBundle\Entity\Group;
 use App\FinancialApiBundle\Entity\LemonDocument;
+use App\FinancialApiBundle\Entity\LemonDocumentKind;
 
 class KycSynchronizer extends AbstractSynchronizer {
 
@@ -16,6 +17,7 @@ class KycSynchronizer extends AbstractSynchronizer {
             $callParams['wallets'] []= ['wallet' => $wid];
         }
         $repo = $this->em->getRepository(LemonDocument::class);
+        $doctypeRepo = $this->em->getRepository(LemonDocumentKind::class);
         $resp = $this->lw->callService('GetWalletDetailsBatch', $callParams);
 
         foreach ($resp->wallets as $walletInfo){
@@ -25,9 +27,19 @@ class KycSynchronizer extends AbstractSynchronizer {
                     /** @var LemonDocument $document */
                     $document = $repo->findOneBy(['external_reference' => $lwdoc->ID]);
 
+                    /** @var LemonDocumentKind $kind */
+                    $kind = $repo->findOneBy(['lemon_doctype' => $lwdoc->TYPE]);
+                    if(!$kind) {
+                        $kind = new LemonDocumentKind();
+                        $kind->setLemonDoctype($lwdoc->TYPE);
+                        $kind->setName("Lemonway auto-fetched doctype {$lwdoc->TYPE}");
+                        $this->em->persist($kind);
+                    }
+
                     // if document is in lemonway but not in our API, create it with null doctype
                     if(!$document) {
                         $document = new LemonDocument();
+                        $document->setKind($kind);
                         $document->setExternalInfo($lwdoc);
                         $document->setLemonReference($lwdoc->ID);
                         $document->setName("Lemonway auto-fetched document " . $lwdoc->ID);
@@ -39,6 +51,7 @@ class KycSynchronizer extends AbstractSynchronizer {
                         else {
                             $document->setAccount($account);
                             $this->em->persist($document);
+                            $this->em->persist($kind);
                             $this->em->persist($account);
                         }
                     }
