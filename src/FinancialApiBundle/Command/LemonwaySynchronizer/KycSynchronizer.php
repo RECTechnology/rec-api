@@ -28,7 +28,7 @@ class KycSynchronizer extends AbstractSynchronizer {
                     $document = $repo->findOneBy(['external_reference' => $lwdoc->ID]);
 
                     /** @var LemonDocumentKind $kind */
-                    $kind = $repo->findOneBy(['lemon_doctype' => $lwdoc->TYPE]);
+                    $kind = $doctypeRepo->findOneBy(['lemon_doctype' => $lwdoc->TYPE]);
                     if(!$kind) {
                         $kind = new LemonDocumentKind();
                         $kind->setLemonDoctype($lwdoc->TYPE);
