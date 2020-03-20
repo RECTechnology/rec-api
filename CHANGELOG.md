@@ -2,6 +2,14 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+### [2.14.1](https://github.com/qbitartifacts/rec-api/compare/v2.14.0...v2.14.1) (2020-03-20)
+
+
+### Bug Fixes
+
+* **dependencies:** updated dependencies and removed deprecated bundle ([b0846d5](https://github.com/qbitartifacts/rec-api/commit/b0846d5fb6bcf8cbf0408fa179665e57b6727e91))
+* **documents:** fixes [#250](https://github.com/qbitartifacts/rec-api/issues/250) ([e309ebb](https://github.com/qbitartifacts/rec-api/commit/e309ebbeb384f6aeaffd36fe98292628bb2fcb18))
+
 ## [2.14.0](https://github.com/qbitartifacts/rec-api/compare/v2.13.4...v2.14.0) (2020-03-20)
 
 
