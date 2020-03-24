@@ -11,9 +11,4 @@ interface LemonObject extends ExternalObject {
      */
     public function getLemonReference(): ?string;
 
-    /**
-     * @return integer
-     */
-    public function getLemonStatus(): int;
-
 }
