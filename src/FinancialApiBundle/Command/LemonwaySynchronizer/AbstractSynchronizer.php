@@ -43,8 +43,10 @@ abstract class AbstractSynchronizer implements Synchronizer {
             $wid = strtoupper($account->getCif());
             if(!$wid || strlen($wid) == 0)
                 $this->output->writeln("[WARN] CIF for account {$account->getId()} is null or empty");
-            else
-                $index[$wid] = $account;
+            else {
+                if (!key_exists($wid, $index)) $index[$wid] = [];
+                $index[$wid] []= $account;
+            }
         }
         return $index;
     }

@@ -45,20 +45,15 @@ class KycSynchronizer extends AbstractSynchronizer {
                         $document->setLemonReference($lwdoc->ID);
                         $document->setAutoFetched(true);
                         $document->setName("Lemonway auto-fetched document " . $lwdoc->ID);
-                        $accRepo = $this->em->getRepository(Group::class);
-                        $account = $accRepo->findOneBy(['cif' => strtolower($walletInfo->WALLET->ID)]);
-                        if(!$account) $account = $accRepo->findOneBy(['cif' => strtoupper($walletInfo->WALLET->ID)]);
-                        if(!$account)
-                            $this->output->writeln("[WARN] LW wallet not found in database, ignoring document, lw_wallet: " . json_encode($walletInfo));
-                        else {
-                            $document->setAccount($account);
-                            $this->em->persist($document);
-                            $this->em->persist($kind);
-                            $this->em->persist($account);
-                        }
-                        $document->setStatus(LemonDocument::LW_STATUSES[$lwdoc->S]);
+                        $account = $this->findAccountByCifIgnorecase($walletInfo->WALLET->ID);
+                        $document->setAccount($account);
+
                         $this->em->persist($document);
+                        $this->em->persist($kind);
+                        $this->em->persist($account);
                     }
+                    $document->setStatus(LemonDocument::LW_STATUSES[$lwdoc->S]);
+                    $this->em->persist($document);
                 }
             }
             else {
@@ -68,6 +63,15 @@ class KycSynchronizer extends AbstractSynchronizer {
 
         $this->em->flush();
 
+    }
+
+    private function findAccountByCifIgnorecase($cif){
+        $accRepo = $this->em->getRepository(Group::class);
+        $account = $accRepo->findOneBy(['cif' => strtolower($cif)]);
+        if(!$account) $account = $accRepo->findOneBy(['cif' => strtoupper($cif)]);
+        if(!$account)
+            $this->output->writeln("[WARN] LW wallet not found in database, ignoring document, lw_wallet: " . json_encode($walletInfo));
+        return $account;
     }
 
 }

@@ -16,7 +16,7 @@ class BalancesSynchronizer extends AbstractSynchronizer {
         $index = $this->getWalletsIndexedByLemonId();
 
         $callParams = ['wallets' => []];
-        foreach ($index as $wid => $account){
+        foreach ($index as $wid => $accounts){
             $callParams['wallets'] []= ['wallet' => $wid];
         }
 
@@ -25,9 +25,11 @@ class BalancesSynchronizer extends AbstractSynchronizer {
         foreach ($resp->wallets as $walletInfo){
             if($walletInfo->WALLET != null){
                 $this->output->writeln("[INFO] Found LW ID {$walletInfo->WALLET->ID}");
-                $account = $index[strtoupper($walletInfo->WALLET->ID)];
-                $account->setLwBalance(intval($walletInfo->WALLET->BAL * 100.0));
-                $this->em->persist($account);
+                $accounts = $index[strtoupper($walletInfo->WALLET->ID)];
+                foreach ($accounts as $account) {
+                    $account->setLwBalance(intval($walletInfo->WALLET->BAL * 100.0));
+                    $this->em->persist($account);
+                }
             }
             else {
                 $this->output->writeln("[WARN] LW error: {$walletInfo->E->Msg}");

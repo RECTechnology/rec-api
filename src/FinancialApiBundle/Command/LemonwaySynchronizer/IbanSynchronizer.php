@@ -30,7 +30,6 @@ class IbanSynchronizer extends AbstractSynchronizer {
                             $iban->setStatus(Iban::STATUS_APPROVED);
                         elseif (in_array($lwiban->S, Iban::LW_STATUS_DECLINED))
                             $iban->setStatus(Iban::STATUS_DECLINED);
-                        $iban->setLemonStatus($lwiban->S);
                         $this->em->persist($iban);
                     }
                 }
