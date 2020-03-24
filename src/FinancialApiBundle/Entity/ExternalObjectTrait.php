@@ -26,7 +26,7 @@ trait ExternalObjectTrait {
      * @ORM\Column(type="boolean")
      * @Serializer\Groups({"user"})
      */
-    private $auto_fetched;
+    private $auto_fetched = false;
 
     /**
      * @return array
