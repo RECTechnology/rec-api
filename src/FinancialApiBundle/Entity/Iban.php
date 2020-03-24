@@ -18,6 +18,7 @@ use Symfony\Component\Validator\Constraints as Assert;
 class Iban extends AppObject implements Stateful, LemonObject {
 
     use LemonObjectTrait;
+    use StatefulTrait;
     const LW_STATUS_APPROVED = [5];
     const LW_STATUS_DECLINED = [1, 2, 3, 6, 7, 8, 9];
 
