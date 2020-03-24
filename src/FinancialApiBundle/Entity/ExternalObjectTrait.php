@@ -22,6 +22,13 @@ trait ExternalObjectTrait {
     private $external_info;
 
     /**
+     * @var boolean $auto_fetched
+     * @ORM\Column(type="boolean")
+     * @Serializer\Groups({"user"})
+     */
+    private $auto_fetched;
+
+    /**
      * @return array
      */
     public function getExternalInfo(): ?array
@@ -51,6 +58,22 @@ trait ExternalObjectTrait {
     public function setExternalReference(string $external_reference): void
     {
         $this->external_reference = $external_reference;
+    }
+
+    /**
+     * @return bool
+     * Returns if the object is auto-fetched from the provider
+     */
+    public function isAutoFetched(): bool {
+        if($this->auto_fetched == null) return false;
+        return $this->auto_fetched;
+    }
+
+    /**
+     * @param $auto_fetched
+     */
+    public function setAutoFetched($auto_fetched) {
+        $this->auto_fetched = $auto_fetched;
     }
 
 

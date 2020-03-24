@@ -17,4 +17,10 @@ interface ExternalObject {
      */
     public function getExternalInfo(): ?array;
 
+    /**
+     * @return bool
+     * Returns if the object is auto-fetched from the provider
+     */
+    public function isAutoFetched(): bool;
+
 }
