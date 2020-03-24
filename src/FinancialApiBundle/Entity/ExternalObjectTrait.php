@@ -74,6 +74,4 @@ trait ExternalObjectTrait {
     public function setAutoFetched($auto_fetched) {
         $this->auto_fetched = $auto_fetched;
     }
-
-
 }
