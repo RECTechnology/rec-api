@@ -54,7 +54,6 @@ class LemonUploadEventSubscriber implements EventSubscriber {
     public function getSubscribedEvents() {
         return [
             Events::prePersist,
-            Events::preUpdate,
         ];
     }
 
@@ -101,22 +100,6 @@ class LemonUploadEventSubscriber implements EventSubscriber {
             }
             elseif ($kind instanceof LemonDocumentKind) {
                 throw new AppException(400, "Cannot assign a LemonDocumentKind to Document.kind, use lemon_documents instead");
-            }
-        }
-    }
-
-    /**
-     * @param PreUpdateEventArgs $args
-     * @throws NoSuchTranslationException
-     */
-    public function preUpdate(PreUpdateEventArgs $args){
-        $document = $args->getEntity();
-        if($document instanceof LemonDocument){
-            if($document->getStatus() == LemonDocument::STATUS_AUTO_FETCHED && $args->hasChangedField('content')){
-                if (in_array($document->getLemonStatus(), LemonDocument::LW_STATUS_APPROVED))
-                    $document->setStatus(LemonDocument::STATUS_APPROVED);
-                elseif (in_array($document->getLemonStatus(), LemonDocument::LW_STATUS_DECLINED))
-                    $document->setStatus(LemonDocument::STATUS_DECLINED);
             }
         }
     }
