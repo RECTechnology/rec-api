@@ -2,6 +2,22 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+## [2.16.0](https://github.com/qbitartifacts/rec-api/compare/v2.15.0...v2.16.0) (2020-03-24)
+
+
+### Features
+
+* **stateful:** added ability for skip status checks on stateful objects ([387fe06](https://github.com/qbitartifacts/rec-api/commit/387fe063ac48a0c05285b3831c79f4548914fb84))
+
+
+### Bug Fixes
+
+* **ibans:** missed use statefultrait ([6d9ca88](https://github.com/qbitartifacts/rec-api/commit/6d9ca882fe792918b0966617cb7e2fefaca1f0b2))
+* **ibans:** missed use statefultrait (again) ([552120c](https://github.com/qbitartifacts/rec-api/commit/552120c4fd2404825238a4acc03b571815188008))
+* **migrations:** changed object accessor to array accessor ([1b926f3](https://github.com/qbitartifacts/rec-api/commit/1b926f3f097e847bf559a6d2618d7af184718026))
+* **migrations:** set the corresponding lemon status ([ee4e3d9](https://github.com/qbitartifacts/rec-api/commit/ee4e3d92b928d2c3fdc5fc60762640b0d19e9d1c))
+* **sync:** improved lemonway synchronization to allow multi-account sync to lemon ([e87ffc5](https://github.com/qbitartifacts/rec-api/commit/e87ffc592cda9111745bb67df12c1f5139b677c9))
+
 ## [2.15.0](https://github.com/qbitartifacts/rec-api/compare/v2.14.1...v2.15.0) (2020-03-24)
 
 
