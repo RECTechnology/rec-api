@@ -2,6 +2,25 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+## [2.15.0](https://github.com/qbitartifacts/rec-api/compare/v2.14.1...v2.15.0) (2020-03-24)
+
+
+### Features
+
+* **documents:** added auto_fetched field to ibans and documents ([d02a845](https://github.com/qbitartifacts/rec-api/commit/d02a845bdb791db0cd50b55ee60029a03398ef2b))
+* **documents:** added lw docs list of statuses to our documents ([840d3cf](https://github.com/qbitartifacts/rec-api/commit/840d3cf7f9f500df14b0f0b66b122e3ce71bb50f))
+* **documents:** added migration to pass auto_fetched from status to flag ([092676a](https://github.com/qbitartifacts/rec-api/commit/092676a55c9ea90f9a0cba7f1a10d8a47978e315))
+* **documents:** removed lemon_status from documents ([055ce2f](https://github.com/qbitartifacts/rec-api/commit/055ce2fd26f2cf29f78d3b947c98152b17e326b7))
+
+
+### Bug Fixes
+
+* **dependencies:** updated dependencies ([e1c6249](https://github.com/qbitartifacts/rec-api/commit/e1c62498531d33f320f97130320e9908baefbc8b))
+* **documents:** fixed bug with auto-fetched, was not initialized ([0a4bfe7](https://github.com/qbitartifacts/rec-api/commit/0a4bfe7acfa1671e5ba507d5cea5f2ee410ed168))
+* **documents:** removed auto-fetched status logic from event subscriber ([f4f8321](https://github.com/qbitartifacts/rec-api/commit/f4f83213ceb2ba2b4265d21013b1b2770528223e))
+* **documents:** removed null check from document.auto_fetched ([4b107ac](https://github.com/qbitartifacts/rec-api/commit/4b107ac854c3130f79e9580387dbdb91a8397312))
+* **lw_sync:** improved synchronizer ([60c0afd](https://github.com/qbitartifacts/rec-api/commit/60c0afdaa67d74e30a518fb0328b9a298acdad8c))
+
 ### [2.14.1](https://github.com/qbitartifacts/rec-api/compare/v2.14.0...v2.14.1) (2020-03-20)
 
 
