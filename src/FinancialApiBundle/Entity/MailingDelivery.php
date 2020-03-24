@@ -30,6 +30,8 @@ class MailingDelivery extends AppObject implements Stateful {
     const STATUS_FAILED = "failed";
     const STATUS_COMPLAINED = "complained";
 
+    use StatefulTrait;
+
     /**
      * @ORM\Column(type="string")
      * @REC\StatusProperty(

@@ -23,6 +23,7 @@ class Mailing extends AppObject implements Translatable, Stateful {
     const STATUS_PROCESSED = "processed";
 
     use TranslatableTrait;
+    use StatefulTrait;
 
     /**
      * @ORM\Column(type="string")

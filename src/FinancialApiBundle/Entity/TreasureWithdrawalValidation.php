@@ -18,6 +18,8 @@ class TreasureWithdrawalValidation extends AppObject implements Stateful {
 
     const DEFAULT_TOKEN_BYTES = 40;
 
+    use StatefulTrait;
+
     /**
      * @ORM\Column(type="string")
      * @StatusProperty(

@@ -22,6 +22,8 @@ class TreasureWithdrawal extends AppObject implements Stateful, HybridPersistent
     const TREASURE_WITHDRAWAL_STATUS_PENDING = "pending";
     const TREASURE_WITHDRAWAL_STATUS_REJECTED = "rejected";
 
+    use StatefulTrait;
+
     /**
      * @ORM\Column(type="string")
      * @StatusProperty(
