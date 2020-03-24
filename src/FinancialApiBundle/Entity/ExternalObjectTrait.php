@@ -65,7 +65,6 @@ trait ExternalObjectTrait {
      * Returns if the object is auto-fetched from the provider
      */
     public function isAutoFetched(): bool {
-        if($this->auto_fetched == null) return false;
         return $this->auto_fetched;
     }
 
