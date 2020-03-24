@@ -8537,5 +8537,6 @@
         "ext-xml": "*",
         "ext-zip": "*"
     },
-    "platform-dev": []
+    "platform-dev": [],
+    "version": "2.15.0"
 }
