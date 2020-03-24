@@ -68,7 +68,7 @@ class StatusEventSubscriber implements EventSubscriber {
 
     public function preUpdate(PreUpdateEventArgs $args){
         $entity = $args->getEntity();
-        if($entity instanceof Stateful){
+        if($entity instanceof Stateful && !$entity->statusChecksSkipped()){
             $rc = new \ReflectionClass($entity);
             foreach($rc->getProperties() as $rp){
                 if(array_key_exists($rp->name, $args->getEntityChangeSet())){

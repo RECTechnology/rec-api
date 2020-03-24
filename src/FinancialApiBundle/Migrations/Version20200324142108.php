@@ -43,6 +43,7 @@ final class Version20200324142108 extends AbstractMigration implements Container
         foreach ($repo->findAll() as $document) {
             if ($document->isAutoFetched()){
                 $externalInfo = $document->getExternalInfo();
+                $document->skipStatusChecks();
                 $document->setStatus(LemonDocument::LW_STATUSES[$externalInfo['S']]);
                 $em->persist($document);
             }

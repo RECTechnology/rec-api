@@ -20,6 +20,8 @@ use Symfony\Component\Validator\Constraints as Assert;
  */
 class Document extends AppObject implements Uploadable, Stateful {
 
+    use StatefulTrait;
+
     /**
      * @var string $status
      * @ORM\Column(type="string")
