@@ -24,10 +24,9 @@ class MailingTest extends BaseApiTest {
             ->withAnyParameters()
             ->willReturn(1);
 
-        $this->client->getContainer()->set('mailer', $mailer);
+        $this->override('mailer', $mailer);
 
-        $resp = $this->requestJson('GET', '/admin/v3/accounts');
-        $this->accounts = json_decode($resp->getContent())->data->elements;
+        $this->accounts = $this->rest('GET', '/admin/v3/accounts');
     }
 
     /**

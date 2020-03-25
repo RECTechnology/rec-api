@@ -113,7 +113,7 @@ abstract class BaseApiTest extends WebTestCase {
      * @param array|null $content
      * @param array $headers
      * @param string $expectedStatusCode
-     * @return \stdClass
+     * @return \stdClass|array
      */
     protected function rest(string $method, string $url, array $content = null, array $headers = [], $expectedStatusCode = 'success_http') {
         $resp = $this->requestJson($method, $url, $content, $headers);
@@ -135,7 +135,7 @@ abstract class BaseApiTest extends WebTestCase {
         $content = json_decode($resp->getContent());
         if (isset($content->data)) {
             $content = $content->data;
-            if (property_exists($content, 'elements')) {
+            if (!is_array($content) && property_exists($content, 'elements')) {
                 return $content->elements;
             }
             return $content;
