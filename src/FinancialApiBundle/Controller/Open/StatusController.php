@@ -9,13 +9,14 @@ use Symfony\Component\HttpFoundation\Request;
 use App\FinancialApiBundle\Controller\RestApiController;
 use App\FinancialApiBundle\Document\Transaction;
 use App\FinancialApiBundle\Entity\User;
+use Symfony\Component\HttpFoundation\Response;
 
 class StatusController extends RestApiController {
 
     /**
      * @Rest\View
      * @param Request $request
-     * @return \Symfony\Component\HttpFoundation\Response
+     * @return Response
      *
      * This function will return an encoded version of system health, according with the following bitmask:
      *   - RELATIONAL_DB = 0x1
@@ -55,4 +56,28 @@ class StatusController extends RestApiController {
             ["system_status" => $status, "exceptions" => $exceptions]
         );
     }
+
+    /**
+     * @param Request $request
+     * @return Response
+     */
+    public function info(Request $request){
+
+        $path = $this->getParameter('kernel.project_dir') . "/composer.json";
+        $composer_json = json_decode(file_get_contents($path));
+        $projectInfo = [
+            'name' => $composer_json->name,
+            'license' => $composer_json->license,
+            'description' => $composer_json->description,
+            'version' => $composer_json->version,
+        ];
+
+        return $this->restV2(
+            200,
+            "ok",
+            "Request successful",
+            $projectInfo
+        );
+    }
+
 }
