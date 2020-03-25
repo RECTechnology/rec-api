@@ -312,12 +312,13 @@ class AccountsController extends CRUDController {
             $lw = $this->get('net.app.driver.lemonway.eur');
 
             $amount = sprintf("%.2f", $eurAmount / 1e2);
+            $concept = $request->request->get('concept', "MoneyOut from account {$sender->getName()}");
             $lwResp = $lw->callService(
                 'MoneyOut',
                 [
                     'wallet' => $sender->getCif(),
                     'amountTot' => $amount,
-                    'message' => "MoneyOut from account {$sender->getName()}",
+                    'message' => $concept,
                     'autoComission' => 0
                 ]
             );
