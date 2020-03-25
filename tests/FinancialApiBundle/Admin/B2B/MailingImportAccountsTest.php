@@ -13,8 +13,6 @@ use Test\FinancialApiBundle\BaseApiTest;
  */
 class MailingImportAccountsTest extends BaseApiTest {
 
-    private $accounts;
-
     function setUp(): void
     {
         parent::setUp();
