@@ -100,6 +100,11 @@ class CRUDController extends BaseApiV2Controller {
         return parent::exportAction($request, $role);
     }
 
+    public function importAction(Request $request, $role)
+    {
+        return parent::importAction($request, $role);
+    }
+
     public function indexAction(Request $request, $role)
     {
         return parent::indexAction($request, $role);

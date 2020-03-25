@@ -168,6 +168,14 @@ crud_v3_export:
         role: "(public|user|manager|self|admin|sadmin)"
         object: "[a-z_]+"
 
+crud_v3_import:
+    path:  /{role}/v3/{object}/import
+    defaults: { _controller: App\FinancialApiBundle\Controller\CRUD\CRUDController::importAction }
+    methods: [POST]
+    requirements:
+        role: "(public|user|manager|self|admin|sadmin)"
+        object: "[a-z_]+"
+
 crud_v3_index:
     path:  /{role}/v3/{object}
     defaults: { _controller: App\FinancialApiBundle\Controller\CRUD\CRUDController::indexAction }
