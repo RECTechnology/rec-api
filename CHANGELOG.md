@@ -2,6 +2,21 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+## [2.17.0](https://github.com/qbitartifacts/rec-api/compare/v2.16.0...v2.17.0) (2020-03-25)
+
+
+### Features
+
+* **importing:** implemented importing for all entities ([9b3163d](https://github.com/qbitartifacts/rec-api/commit/9b3163dd82fb4b4eb922873f896e94360d1d129b))
+* **importing:** implemented tests for importing ([63adb9c](https://github.com/qbitartifacts/rec-api/commit/63adb9c19b655dc8de8c8f5bd5b6502c6cc597be))
+* **versioning:** created call for get the API version at /public/v1/info, fixes [#180](https://github.com/qbitartifacts/rec-api/issues/180) ([a25a368](https://github.com/qbitartifacts/rec-api/commit/a25a3683a701bfbc1aec901ff2ee41c9ca86e753))
+
+
+### Bug Fixes
+
+* **lemon_integration:** concept submitted to lemon is now the concept from the request ([40ba3e1](https://github.com/qbitartifacts/rec-api/commit/40ba3e11a6ae9fec42cb9dd4767dd3a923d4672a))
+* **tests:** added test to change my user's locale ([739e911](https://github.com/qbitartifacts/rec-api/commit/739e911030cc09ccb92b307e557763ad30d11dd8))
+
 ## [2.16.0](https://github.com/qbitartifacts/rec-api/compare/v2.15.0...v2.16.0) (2020-03-24)
 
 
