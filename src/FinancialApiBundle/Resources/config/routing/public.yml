@@ -5,6 +5,11 @@ public_v1_status:
     defaults: {_controller: App\FinancialApiBundle\Controller\Open\StatusController::status }
     methods: [GET]
 
+public_v1_info:
+    path: /public/v1/info
+    defaults: {_controller: App\FinancialApiBundle\Controller\Open\StatusController::info }
+    methods: [GET]
+
 public_v1_webhook_mailgun:
     path: /public/v3/webhooks/mailgun
     defaults: {_controller: App\FinancialApiBundle\Controller\Open\MailgunController::webhookAction }
