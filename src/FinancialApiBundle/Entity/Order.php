@@ -2,7 +2,7 @@
 
 namespace App\FinancialApiBundle\Entity;
 
-use JMS\Serializer\Serializer;
+use JMS\Serializer\Annotation as Serializer;
 use Doctrine\ORM\Mapping as ORM;
 use App\FinancialApiBundle\Entity\AppObject;
 use App\FinancialApiBundle\Annotations\StatusProperty;
@@ -41,7 +41,6 @@ class Order extends AppObject
     /**
      * @ORM\Column(type="string")
      * @Serializer\Groups({"user"})
-     * @Serializer\Required()
      */
     public $url_ko;
 
