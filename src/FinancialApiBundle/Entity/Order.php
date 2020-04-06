@@ -2,6 +2,7 @@
 
 namespace App\FinancialApiBundle\Entity;
 
+use JMS\Serializer\Serializer;
 use Doctrine\ORM\Mapping as ORM;
 use App\FinancialApiBundle\Entity\AppObject;
 
@@ -35,6 +36,19 @@ class Order extends AppObject
      * @Serializer\Groups({"user"})
      */
     public $amount;
+
+    /**
+     * @ORM\Column(type="string")
+     * @Serializer\Groups({"user"})
+     * @Serializer\Required()
+     */
+    public $url_ko;
+
+    /**
+     * @ORM\Column(type="string")
+     * @Serializer\Groups({"user"})
+     */
+    public $url_ok;
 
     /**
      * @ORM\ManyToOne(targetEntity="App\FinancialApiBundle\Entity\POS", inversedBy="orders")
