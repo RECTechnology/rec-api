@@ -10,6 +10,12 @@ use App\FinancialApiBundle\Entity\AppObject;
  */
 class Order extends AppObject
 {
+    static $STATUS_CREATED = 'created';
+    static $STATUS_IN_PROGRESS = 'in-progress';
+    static $STATUS_EXPIRED = 'expired';
+    static $STATUS_DONE = 'done';
+    static $STATUS_REFUNDED = 'refunded';
+
     /**
      * @var string $status
      * @ORM\Column(type="string")
