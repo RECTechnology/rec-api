@@ -2,7 +2,7 @@
 
 namespace App\FinancialApiBundle\Entity;
 
-use JMS\Serializer\Serializer;
+use JMS\Serializer\Annotation as Serializer;
 use Doctrine\ORM\Mapping as ORM;
 use App\FinancialApiBundle\Entity\Order;
 use App\FinancialApiBundle\Entity\AppObject;
