@@ -5,6 +5,7 @@ namespace App\FinancialApiBundle\Entity;
 use JMS\Serializer\Serializer;
 use Doctrine\ORM\Mapping as ORM;
 use App\FinancialApiBundle\Entity\AppObject;
+use App\FinancialApiBundle\Annotations\StatusProperty;
 
 /**
  * @ORM\Entity
