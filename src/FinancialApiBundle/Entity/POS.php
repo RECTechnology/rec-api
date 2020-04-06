@@ -1,202 +1,56 @@
 <?php
-/**
- * Created by PhpStorm.
- * User: lluis
- * Date: 6/6/14
- * Time: 2:22 PM
- */
 
 namespace App\FinancialApiBundle\Entity;
 
 use Doctrine\ORM\Mapping as ORM;
+use App\FinancialApiBundle\Entity\Order;
+use App\FinancialApiBundle\Entity\AppObject;
+use Doctrine\Common\Collections\ArrayCollection;
 
-use JMS\Serializer\Annotation\ExclusionPolicy;
-use JMS\Serializer\Annotation\Expose;
 
 /**
  * @ORM\Entity
- * @ORM\Table(name="POS")
- * @ExclusionPolicy("all")
  */
-class POS {
-
+class POS extends AppObject
+{
     public function __construct()
     {
-        $this->linking_code = $this->generateCode(6);
+        $this->orders = new ArrayCollection();
     }
 
-    /**
-     * @ORM\Id
-     * @ORM\Column(type="integer")
-     * @ORM\GeneratedValue(strategy="AUTO")
-     * @Expose
-     */
-    private $id;
-
-
-    /**
-     * @ORM\Column(type="string", unique=true)
-     * @Expose
-     */
-    private $name;
-
-    /**
-     * @ORM\ManyToOne(targetEntity="App\FinancialApiBundle\Entity\Group")
-     */
-    private $group;
-
-    /**
-     * @ORM\Column(type="string")
-     * @Expose
-     */
-    private $cname;
-
-    /**
-     * @ORM\Column(type="string")
-     * @Expose
-     */
-    private $currency;
-
-    /**
-     * @ORM\Column(type="string")
-     * @Expose
-     */
-    private $type;
-
-    /**
-     * @ORM\Column(type="string")
-     * @Expose
-     */
-    private $pos_id;
-
-    /**
-     * @ORM\Column(type="integer")
-     * @Expose
-     */
-    private $expires_in;
 
     /**
      * @ORM\Column(type="boolean")
-     * @Expose
+     * @Serializer\Groups({"user"})
      */
-    private $active;
+    public $active;
 
     /**
-     * @Expose
+     * @ORM\Column(type="string")
+     * @Serializer\Groups({"user"})
      */
-    private $url;
+    public $notification_url;
 
     /**
-     * @ORM\Column (type="string")
-     * @Expose
+     * @ORM\Column(type="string")
+     * @Serializer\Groups({"user"})
      */
-    private $linking_code;
+    public $access_secret;
 
     /**
-     * @ORM\Column (type="boolean")
-     * @Expose
+     * @ORM\Column(type="string")
+     * @Serializer\Groups({"user"})
      */
-    private $linked = false;
+    public $access_key;
 
     /**
-     * @return mixed
+     * @ORM\OneToMany(targetEntity="App\FinancialApiBundle\Entity\Order", mappedBy="pos")
+     * @Serializer\Groups({"user"})
      */
-    public function getId()
-    {
-        return $this->id;
-    }
+    public $orders;
 
     /**
-     * @return mixed
-     */
-    public function getName()
-    {
-        return $this->name;
-    }
-
-    /**
-     * @param mixed $name
-     */
-    public function setName($name)
-    {
-        $this->name = $name;
-    }
-
-    /**
-     * @return mixed
-     */
-    public function getCname()
-    {
-        return $this->cname;
-    }
-
-    /**
-     * @param mixed $cname
-     */
-    public function setCname($cname)
-    {
-        $this->cname = $cname;
-    }
-
-    /**
-     * @return mixed
-     */
-    public function getTpvView()
-    {
-        $this->url = 'https://pos.chip-chap.com/'.$this->getPosId();
-        return $this;
-    }
-
-    /**
-     * @return mixed
-     */
-    public function getCurrency()
-    {
-        return $this->currency;
-    }
-
-    /**
-     * @param mixed $currency
-     */
-    public function setCurrency($currency)
-    {
-        $this->currency = $currency;
-    }
-
-    /**
-     * @return mixed
-     */
-    public function getPosId()
-    {
-        return $this->pos_id;
-    }
-
-    /**
-     * @param mixed $pos_id
-     */
-    public function setPosId($pos_id)
-    {
-        $this->pos_id = $pos_id;
-    }
-
-    /**
-     * @return mixed
-     */
-    public function getExpiresIn()
-    {
-        return $this->expires_in;
-    }
-
-    /**
-     * @param mixed $expires_in
-     */
-    public function setExpiresIn($expires_in)
-    {
-        $this->expires_in = $expires_in;
-    }
-
-    /**
-     * @return mixed
+     * Get the value of active
      */
     public function getActive()
     {
@@ -204,83 +58,62 @@ class POS {
     }
 
     /**
-     * @param mixed $active
+     * Set the value of active
+     *
+     * @return  self
      */
     public function setActive($active)
     {
         $this->active = $active;
+
+        return $this;
     }
 
     /**
-     * @return mixed
+     * Get the value of notification_url
      */
-    public function getType()
+    public function getNotification_url()
     {
-        return $this->type;
+        return $this->notification_url;
     }
 
     /**
-     * @param mixed $type
+     * Set the value of notification_url
+     *
+     * @return  self
      */
-    public function setType($type)
+    public function setNotification_url($notification_url)
     {
-        $this->type = $type;
+        $this->notification_url = $notification_url;
+
+        return $this;
     }
 
     /**
-     * @return mixed
+     * Get the value of orders
      */
-    public function getGroup()
+    public function getOrders()
     {
-        return $this->group;
+        return $this->orders;
     }
 
     /**
-     * @param mixed $group
+     * Get the value of orders
      */
-    public function setGroup($group)
+    public function addOrder(Order $order)
     {
-        $this->group = $group;
+        $this->orders->add($order);
     }
 
     /**
-     * @return mixed
+     * Set the value of orders
+     *
+     * @return  self
      */
-    public function getLinkingCode()
+    public function setOrders($orders)
     {
-        return $this->linking_code;
-    }
+        $this->orders = $orders;
 
-    public function generateCode($longitud) {
-        $key = '';
-        $pattern = '1234567890';
-        $max = strlen($pattern)-1;
-        for($i=0;$i < $longitud;$i++) $key .= $pattern{mt_rand(0,$max)};
-        return $key;
+        return $this;
     }
-
-    /**
-     * @param mixed $linking_code
-     */
-    public function setLinkingCode($linking_code)
-    {
-        $this->linking_code = $linking_code;
-    }
-
-    /**
-     * @return mixed
-     */
-    public function getLinked()
-    {
-        return $this->linked;
-    }
-
-    /**
-     * @param mixed $linked
-     */
-    public function setLinked($linked)
-    {
-        $this->linked = $linked;
-    }
-
 }
