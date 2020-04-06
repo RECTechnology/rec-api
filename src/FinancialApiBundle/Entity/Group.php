@@ -28,7 +28,8 @@ use Symfony\Component\Validator\Constraints as Assert;
  *     )
  * })
  */
-class Group extends BaseGroup implements Uploadable {
+class Group extends BaseGroup implements Uploadable
+{
 
     const SERIALIZATION_GROUPS_PUBLIC  =                                     ['public'];
     const SERIALIZATION_GROUPS_USER    =                             ['user', 'public'];
@@ -40,7 +41,8 @@ class Group extends BaseGroup implements Uploadable {
      * Group constructor.
      * @throws \Exception
      */
-    public function __construct() {
+    public function __construct()
+    {
         $this->groups = new ArrayCollection();
         $this->limit_counts = new ArrayCollection();
         $this->wallets = new ArrayCollection();
@@ -54,10 +56,10 @@ class Group extends BaseGroup implements Uploadable {
         $this->company_token = uniqid();
         $this->on_map = 1;
 
-        if($this->access_key == null){
-            $this->access_key=sha1(random_bytes(32));
-            $this->key_chain=sha1(random_bytes(32));
-            $this->access_secret=base64_encode(random_bytes(32));
+        if ($this->access_key == null) {
+            $this->access_key = sha1(random_bytes(32));
+            $this->key_chain = sha1(random_bytes(32));
+            $this->access_secret = base64_encode(random_bytes(32));
         }
     }
 
@@ -446,6 +448,12 @@ class Group extends BaseGroup implements Uploadable {
     private $level;
 
     /**
+     * @ORM\ManyToOne(targetEntity="App\FinancialApiBundle\Entity\POS")
+     * @Serializer\Groups({"user"})
+     */
+    private $pos;
+
+    /**
      * @ORM\Column(type="string")
      * @Serializer\Groups({"admin"})
      */
@@ -585,10 +593,11 @@ class Group extends BaseGroup implements Uploadable {
         return $this->commissions;
     }
 
-    public function getCommission($service){
+    public function getCommission($service)
+    {
         $commissions = $this->getCommissions();
-        foreach($commissions as $fee){
-            if($fee->getServiceName() == $service){
+        foreach ($commissions as $fee) {
+            if ($fee->getServiceName() == $service) {
                 return $fee;
             }
         }
@@ -613,8 +622,8 @@ class Group extends BaseGroup implements Uploadable {
     public function getWallet($currency)
     {
         $wallets = $this->getWallets();
-        foreach($wallets as $wallet){
-            if($wallet->getCurrency() == strtoupper($currency)){
+        foreach ($wallets as $wallet) {
+            if ($wallet->getCurrency() == strtoupper($currency)) {
                 return $wallet;
             }
         }
@@ -719,7 +728,8 @@ class Group extends BaseGroup implements Uploadable {
     /**
      * @param mixed $cname
      */
-    public function addMethod($cname){
+    public function addMethod($cname)
+    {
         $new = array($cname);
         $merge = array_merge($this->methods_list, $new);
         $result = array_unique($merge, SORT_REGULAR);
@@ -729,7 +739,8 @@ class Group extends BaseGroup implements Uploadable {
     /**
      * @param mixed $cname
      */
-    public function removeMethod($cname){
+    public function removeMethod($cname)
+    {
         $result = array_diff(json_decode($this->methods_list), array($cname));
         $this->methods_list = json_encode(array_values($result));
     }
@@ -766,27 +777,29 @@ class Group extends BaseGroup implements Uploadable {
         $this->clients = $clients;
     }
 
-    public function getAdminView(){
-//        unset($this->access_key);
-//        unset($this->access_secret);
-//        unset ($this->kyc_manager);
-//        unset ($this->limit_counts);
-//        unset ($this->cash_in_tokens);
+    public function getAdminView()
+    {
+        //        unset($this->access_key);
+        //        unset($this->access_secret);
+        //        unset ($this->kyc_manager);
+        //        unset ($this->limit_counts);
+        //        unset ($this->cash_in_tokens);
         return $this;
     }
 
-    public function getUserView(){
-//        unset($this->limits);
-//        unset($this->commissions);
-//        unset($this->wallets);
-//        unset($this->limit_counts);
-//        unset($this->methods_list);
-//        unset($this->allowed_methods);
-//        unset($this->comment);
-//        unset($this->cash_in_tokens);
-//        unset($this->cif);
-//        unset($this->prefix);
-//        unset($this->address_number);
+    public function getUserView()
+    {
+        //        unset($this->limits);
+        //        unset($this->commissions);
+        //        unset($this->wallets);
+        //        unset($this->limit_counts);
+        //        unset($this->methods_list);
+        //        unset($this->allowed_methods);
+        //        unset($this->comment);
+        //        unset($this->cash_in_tokens);
+        //        unset($this->cif);
+        //        unset($this->prefix);
+        //        unset($this->address_number);
         return $this;
     }
 
@@ -865,8 +878,9 @@ class Group extends BaseGroup implements Uploadable {
     /**
      * @param mixed $country
      */
-    public function setCountry($country){
-        if(strlen($country)!=3){
+    public function setCountry($country)
+    {
+        if (strlen($country) != 3) {
             throw new AppLogicException('Country must be ISO-3');
         }
         $this->country = $country;
@@ -1385,11 +1399,11 @@ class Group extends BaseGroup implements Uploadable {
      */
     public function addProducingProduct(ProductKind $product, $recursive = true): void
     {
-        if($this->producing_products->contains($product)){
+        if ($this->producing_products->contains($product)) {
             throw new PreconditionFailedException("Product already related to this Account");
         }
-        $this->producing_products []= $product;
-        if($recursive) $product->addProducingBy($this, false);
+        $this->producing_products[] = $product;
+        if ($recursive) $product->addProducingBy($this, false);
     }
 
     /**
@@ -1399,7 +1413,7 @@ class Group extends BaseGroup implements Uploadable {
      */
     public function delProducingProduct(ProductKind $product, $recursive = true): void
     {
-        if(!$this->producing_products->contains($product)){
+        if (!$this->producing_products->contains($product)) {
             throw new PreconditionFailedException("Product not related to this Account");
         }
         $this->producing_products->removeElement($product);
@@ -1421,11 +1435,11 @@ class Group extends BaseGroup implements Uploadable {
      */
     public function addConsumingProduct(ProductKind $product, $recursive = true): void
     {
-        if($this->consuming_products->contains($product)){
+        if ($this->consuming_products->contains($product)) {
             throw new PreconditionFailedException("Product already related to this Account");
         }
-        $this->consuming_products []= $product;
-        if($recursive) $product->addConsumingBy($this, false);
+        $this->consuming_products[] = $product;
+        if ($recursive) $product->addConsumingBy($this, false);
     }
 
     /**
@@ -1435,7 +1449,7 @@ class Group extends BaseGroup implements Uploadable {
      */
     public function delConsumingProduct(ProductKind $product, $recursive = true): void
     {
-        if(!$this->consuming_products->contains($product)){
+        if (!$this->consuming_products->contains($product)) {
             throw new PreconditionFailedException("Product not related to this Account");
         }
         $this->consuming_products->removeElement($product);
@@ -1457,11 +1471,11 @@ class Group extends BaseGroup implements Uploadable {
      */
     public function addActivity(Activity $activity, $recursive = true): void
     {
-        if($this->activities->contains($activity)){
+        if ($this->activities->contains($activity)) {
             throw new PreconditionFailedException("Activity already related to this Account");
         }
-        $this->activities []= $activity;
-        if($recursive) $activity->addAccount($this, false);
+        $this->activities[] = $activity;
+        if ($recursive) $activity->addAccount($this, false);
     }
 
     /**
@@ -1469,8 +1483,9 @@ class Group extends BaseGroup implements Uploadable {
      * @param bool $recursive
      * @throws PreconditionFailedException
      */
-    public function delActivity(Activity $activity, $recursive = true) {
-        if(!$this->activities->contains($activity)){
+    public function delActivity(Activity $activity, $recursive = true)
+    {
+        if (!$this->activities->contains($activity)) {
             throw new PreconditionFailedException("Activity not related to this Account");
         }
         $this->activities->removeElement($activity);
@@ -1555,5 +1570,25 @@ class Group extends BaseGroup implements Uploadable {
     public function setIbans($ibans): void
     {
         $this->ibans = $ibans;
+    }
+
+    /**
+     * Get the value of pos
+     */ 
+    public function getPos()
+    {
+        return $this->pos;
+    }
+
+    /**
+     * Set the value of pos
+     *
+     * @return  self
+     */ 
+    public function setPos($pos)
+    {
+        $this->pos = $pos;
+
+        return $this;
     }
 }
