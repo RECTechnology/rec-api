@@ -20,9 +20,6 @@ Exchange:
 KYC:
     resource: routing/kyc.yml
 
-POS:
-    resource: routing/pos.yml
-
 Public:
     resource: routing/public.yml
 

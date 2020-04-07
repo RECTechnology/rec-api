@@ -12,30 +12,6 @@ use Test\FinancialApiBundle\CrudV3ReadTestInterface;
  */
 class CrudV3ReadAllObjectsTest extends BaseApiTest implements CrudV3ReadTestInterface {
 
-    const ROUTES_TO_TEST = [
-        'neighbourhoods',
-        'activities',
-        'product_kinds',
-        'users',
-        'accounts',
-        'categories',
-        'delegated_changes',
-        'delegated_change_data',
-        'treasure_withdrawals',
-        'treasure_validations',
-        'access_tokens',
-        'clients',
-        'cash_in_deposits',
-        'user_wallets',
-        'limit_counts',
-        'limit_definitions',
-        'mailings',
-        'mailing_deliveries',
-        'tiers',
-        'document_kinds',
-        'documents',
-    ];
-
     function setUp(): void
     {
         parent::setUp();

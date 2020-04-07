@@ -17,6 +17,8 @@ use Test\FinancialApiBundle\Utils\MongoDBTrait;
 abstract class BaseApiTest extends WebTestCase {
 
     const CRUD_V3_ROUTES = [
+        'pos',
+        'payment_orders',
         'neighbourhoods',
         'activities',
         'product_kinds',
