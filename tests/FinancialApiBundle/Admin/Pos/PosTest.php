@@ -24,7 +24,7 @@ class PosTest extends AdminApiTest implements CrudV3WriteTestInterface {
         $account = $this->getOneAccount();
         $pos = $this->createPos($account);
         $this->updatePos($pos, ['active' => true]);
-        $this->updatePos($pos, ['notification_url' => "https://rec.barcelona"]);
+        $this->updatePos($pos, ['notification_url' => "https://admin.rec.qbitartifacts.com"]);
     }
 
     function testDelete()
@@ -43,8 +43,7 @@ class PosTest extends AdminApiTest implements CrudV3WriteTestInterface {
     private function createPos($account)
     {
         return $this->rest('POST', self::ROUTE, [
-            'account_id' => $account->id,
-            'notification_url' => "https://rec.barcelona"
+            'account_id' => $account->id
         ]);
     }
 

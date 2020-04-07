@@ -30,13 +30,11 @@ class Pos extends AppObject
     private $active;
 
     /**
-     * @ORM\Column(type="string")
+     * @ORM\Column(type="string", nullable=true)
      * @Serializer\Groups({"user"})
      * @Assert\Url(
      *     protocols={"https"},
-     *     message="Provided value is Invalid, https is required",
-     *     checkDNS=true,
-     *     dnsMessage="Provided Url does not resolve to any IP address"
+     *     message="Provided value is not valid, https is required"
      * )
      */
     private $notification_url;
