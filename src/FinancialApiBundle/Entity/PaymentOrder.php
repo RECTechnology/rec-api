@@ -37,6 +37,19 @@ class PaymentOrder extends AppObject implements Stateful
     /**
      * @ORM\Column(type="string")
      * @Serializer\Groups({"user"})
+     * @Assert\Ip()
+     */
+    private $ip_address;
+
+    /**
+     * @ORM\Column(type="string")
+     * @Serializer\Groups({"user"})
+     */
+    private $payment_address;
+
+    /**
+     * @ORM\Column(type="string")
+     * @Serializer\Groups({"user"})
      */
     private $amount;
 
@@ -59,6 +72,7 @@ class PaymentOrder extends AppObject implements Stateful
      * @Serializer\Groups({"user"})
      */
     private $pos;
+
 
     /**
      * @return mixed
@@ -122,5 +136,37 @@ class PaymentOrder extends AppObject implements Stateful
     public function setPos($pos)
     {
         $this->pos = $pos;
+    }
+
+    /**
+     * @return mixed
+     */
+    public function getIpAddress()
+    {
+        return $this->ip_address;
+    }
+
+    /**
+     * @param mixed $ip_address
+     */
+    public function setIpAddress($ip_address): void
+    {
+        $this->ip_address = $ip_address;
+    }
+
+    /**
+     * @return mixed
+     */
+    public function getPaymentAddress()
+    {
+        return $this->payment_address;
+    }
+
+    /**
+     * @param mixed $payment_address
+     */
+    public function setPaymentAddress($payment_address): void
+    {
+        $this->payment_address = $payment_address;
     }
 }
