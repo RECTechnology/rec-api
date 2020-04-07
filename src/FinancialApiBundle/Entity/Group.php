@@ -448,7 +448,7 @@ class Group extends BaseGroup implements Uploadable
     private $level;
 
     /**
-     * @ORM\ManyToOne(targetEntity="App\FinancialApiBundle\Entity\POS")
+     * @ORM\OneToOne(targetEntity="App\FinancialApiBundle\Entity\Pos", mappedBy="account")
      * @Serializer\Groups({"user"})
      */
     private $pos;

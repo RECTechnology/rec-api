@@ -4,50 +4,66 @@ namespace App\FinancialApiBundle\Entity;
 
 use JMS\Serializer\Annotation as Serializer;
 use Doctrine\ORM\Mapping as ORM;
-use App\FinancialApiBundle\Entity\Order;
+use App\FinancialApiBundle\Entity\PaymentOrder;
 use App\FinancialApiBundle\Entity\AppObject;
 use Doctrine\Common\Collections\ArrayCollection;
+use Symfony\Component\Validator\Constraints as Assert;
 
 
 /**
  * @ORM\Entity
  */
-class POS extends AppObject
+class Pos extends AppObject
 {
     public function __construct()
     {
         $this->orders = new ArrayCollection();
+        $this->active = false;
+        $this->access_key = sha1(random_bytes(32));
+        $this->access_secret = base64_encode(random_bytes(32));
     }
 
     /**
      * @ORM\Column(type="boolean")
      * @Serializer\Groups({"user"})
      */
-    public $active;
+    private $active;
+
+    /**
+     * @ORM\Column(type="string")
+     * @Serializer\Groups({"user"})
+     * @Assert\Url(
+     *     protocols={"https"},
+     *     message="Provided value is Invalid, https is required",
+     *     checkDNS=true,
+     *     dnsMessage="Provided Url does not resolve to any IP address"
+     * )
+     */
+    private $notification_url;
 
     /**
      * @ORM\Column(type="string")
      * @Serializer\Groups({"user"})
      */
-    public $notification_url;
+    private $access_secret;
 
     /**
      * @ORM\Column(type="string")
      * @Serializer\Groups({"user"})
      */
-    public $access_secret;
+    private $access_key;
 
     /**
-     * @ORM\Column(type="string")
+     * @ORM\OneToMany(targetEntity="App\FinancialApiBundle\Entity\PaymentOrder", mappedBy="pos")
      * @Serializer\Groups({"user"})
      */
-    public $access_key;
+    private $orders;
 
     /**
-     * @ORM\OneToMany(targetEntity="App\FinancialApiBundle\Entity\Order", mappedBy="pos")
+     * @ORM\OneToOne(targetEntity="App\FinancialApiBundle\Entity\Group", inversedBy="pos")
      * @Serializer\Groups({"user"})
      */
-    public $orders;
+    private $account;
 
     /**
      * Get the value of active
@@ -72,7 +88,7 @@ class POS extends AppObject
     /**
      * Get the value of notification_url
      */
-    public function getNotification_url()
+    public function getNotificationUrl()
     {
         return $this->notification_url;
     }
@@ -80,11 +96,12 @@ class POS extends AppObject
     /**
      * Set the value of notification_url
      *
+     * @param $notificationUrl
      * @return  self
      */
-    public function setNotification_url($notification_url)
+    public function setNotificationUrl($notificationUrl)
     {
-        $this->notification_url = $notification_url;
+        $this->notification_url = $notificationUrl;
 
         return $this;
     }
@@ -100,7 +117,7 @@ class POS extends AppObject
     /**
      * Get the value of orders
      */
-    public function addOrder(Order $order)
+    public function addOrder(PaymentOrder $order)
     {
         $this->orders->add($order);
     }
@@ -114,6 +131,40 @@ class POS extends AppObject
     {
         $this->orders = $orders;
 
+        return $this;
+    }
+
+    /**
+     * @return mixed
+     */
+    public function getAccessSecret()
+    {
+        return $this->access_secret;
+    }
+
+    /**
+     * @return mixed
+     */
+    public function getAccessKey()
+    {
+        return $this->access_key;
+    }
+
+    /**
+     * @return mixed
+     */
+    public function getAccount()
+    {
+        return $this->account;
+    }
+
+    /**
+     * @param mixed $account
+     * @return Pos
+     */
+    public function setAccount($account)
+    {
+        $this->account = $account;
         return $this;
     }
 }

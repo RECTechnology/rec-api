@@ -31,6 +31,7 @@ class CRUDController extends BaseApiV2Controller {
     const PATH_ENTITY_OVERRIDES = [
         'accounts' => 'Group',
         'treasure_validations' => 'TreasureWithdrawalValidation',
+        'pos' => 'Pos',
     ];
 
     function getRepositoryName() {
