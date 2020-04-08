@@ -55,16 +55,11 @@ class PaymentOrderSubscriber implements EventSubscriber {
     public function prePersist(LifecycleEventArgs $args){
         $order = $args->getEntity();
         if($order instanceof PaymentOrder){
-            /**
-             * TODO:
-             *  - check signature against pos
-             */
 
+            $repo = $this->em->getRepository(PaymentOrder::class);
             /** @var Pos $pos */
-            $pos = $order->getPos();
-            if(!$pos->getActive()){
-                throw new AppException(400, "Related POS is not active, please contact administrator");
-            }
+            $pos = $repo->findOneBy(['access_key' => $order->getAccessKey()]);
+            $order->setPos($pos);
 
             $ip = $this->requestStack->getCurrentRequest()->getClientIp();
             $order->setIpAddress($ip);
