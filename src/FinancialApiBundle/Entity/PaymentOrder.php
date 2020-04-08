@@ -4,12 +4,13 @@ namespace App\FinancialApiBundle\Entity;
 
 use JMS\Serializer\Annotation as Serializer;
 use Doctrine\ORM\Mapping as ORM;
-use App\FinancialApiBundle\Entity\AppObject;
 use App\FinancialApiBundle\Annotations\StatusProperty;
 use Symfony\Component\Validator\Constraints as Assert;
+use App\FinancialApiBundle\Validator\Constraint as RECAssert;
 
 /**
  * @ORM\Entity
+ * @RECAssert\ValidPaymentOrder()
  */
 class PaymentOrder extends AppObject implements Stateful
 {
@@ -19,6 +20,15 @@ class PaymentOrder extends AppObject implements Stateful
     const STATUS_REFUNDED = 'refunded';
 
     use StatefulTrait;
+
+
+    /**
+     * @ORM\Id
+     * @ORM\Column(type="guid")
+     * @ORM\GeneratedValue(strategy="UUID")
+     * @Serializer\Groups({"public"})
+     */
+    protected $id;
 
     /**
      * @var string $status
@@ -43,29 +53,64 @@ class PaymentOrder extends AppObject implements Stateful
 
     /**
      * @ORM\Column(type="string")
-     * @Serializer\Groups({"user"})
+     * @Serializer\Groups({"public"})
      */
     private $payment_address;
 
     /**
      * @ORM\Column(type="string")
-     * @Serializer\Groups({"user"})
+     * @Serializer\Groups({"public"})
+     * @Assert\NotBlank()
      */
     private $amount;
 
     /**
      * @ORM\Column(type="string")
-     * @Serializer\Groups({"user"})
+     * @Serializer\Groups({"public"})
      * @Assert\Url()
      */
     private $ko_url;
 
     /**
      * @ORM\Column(type="string")
-     * @Serializer\Groups({"user"})
+     * @Serializer\Groups({"public"})
      * @Assert\Url()
      */
     private $ok_url;
+
+    /**
+     * @ORM\Column(type="string")
+     * @Serializer\Groups({"admin"})
+     * @Assert\NotBlank()
+     */
+    private $access_key;
+
+    /**
+     * @ORM\Column(type="string")
+     * @Serializer\Groups({"admin"})
+     * @Assert\NotBlank()
+     */
+    private $signature;
+
+    /**
+     * @ORM\Column(type="string")
+     * @Serializer\Groups({"admin"})
+     * @Assert\Choice({"hmac_sha256_v1"})
+     * @Assert\NotBlank()
+     */
+    private $signature_version;
+
+    /**
+     * @ORM\Column(type="string", nullable=true)
+     * @Serializer\Groups({"public"})
+     */
+    private $reference;
+
+    /**
+     * @ORM\Column(type="string", nullable=true)
+     * @Serializer\Groups({"public"})
+     */
+    private $concept;
 
     /**
      * @ORM\ManyToOne(targetEntity="App\FinancialApiBundle\Entity\Pos", inversedBy="orders")
@@ -169,4 +214,93 @@ class PaymentOrder extends AppObject implements Stateful
     {
         $this->payment_address = $payment_address;
     }
+
+    /**
+     * @return mixed
+     */
+    public function getAccessKey()
+    {
+        return $this->access_key;
+    }
+
+    /**
+     * @param mixed $access_key
+     */
+    public function setAccessKey($access_key): void
+    {
+        $this->access_key = $access_key;
+    }
+
+    /**
+     * @return mixed
+     */
+    public function getSignature()
+    {
+        return $this->signature;
+    }
+
+    /**
+     * @param mixed $signature
+     * @return PaymentOrder
+     */
+    public function setSignature($signature)
+    {
+        $this->signature = $signature;
+        return $this;
+    }
+
+    /**
+     * @return mixed
+     */
+    public function getSignatureVersion()
+    {
+        return $this->signature_version;
+    }
+
+    /**
+     * @param mixed $signature_version
+     * @return PaymentOrder
+     */
+    public function setSignatureVersion($signature_version)
+    {
+        $this->signature_version = $signature_version;
+        return $this;
+    }
+
+    /**
+     * @return mixed
+     */
+    public function getReference()
+    {
+        return $this->reference;
+    }
+
+    /**
+     * @param mixed $reference
+     * @return PaymentOrder
+     */
+    public function setReference($reference)
+    {
+        $this->reference = $reference;
+        return $this;
+    }
+
+    /**
+     * @return mixed
+     */
+    public function getConcept()
+    {
+        return $this->concept;
+    }
+
+    /**
+     * @param mixed $concept
+     * @return PaymentOrder
+     */
+    public function setConcept($concept)
+    {
+        $this->concept = $concept;
+        return $this;
+    }
+
 }

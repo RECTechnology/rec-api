@@ -150,6 +150,25 @@ products_and_activities_v3_create:
         role: "(public|user|manager|self|admin|sadmin)"
         object: "(product_kinds|activities)"
 
+##################### PAYMENT_ORDERS / V3 / (OVERRIDES CRUD) ############################
+
+payment_orders_v3_show:
+    path:  /{role}/v3/{object}/{id}
+    defaults: { _controller: App\FinancialApiBundle\Controller\CRUD\PaymentOrdersController::showAction }
+    methods: [GET]
+    requirements:
+        role: "(public|user|manager|self|admin|sadmin)"
+        object: "payment_orders"
+        id: "[0-9A-Fa-f_-]+"
+
+payment_orders_v3_create:
+    path:  /{role}/v3/{object}
+    defaults: { _controller: App\FinancialApiBundle\Controller\CRUD\PaymentOrdersController::createAction }
+    methods: [POST]
+    requirements:
+        role: "(public|user|manager|self|admin|sadmin)"
+        object: "payment_orders"
+
 ##################### CRUD / V3 ############################
 
 crud_v3_search:
