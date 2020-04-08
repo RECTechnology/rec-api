@@ -7,10 +7,10 @@ Welcome to the REC Barcelona API [api.rec.barcelona](https://api.rec.barcelona)
 ![Code Coverage](https://github.com/QbitArtifacts/rec-api/workflows/Coverage%20%3E%2020%25/badge.svg)
 
 
-|Installation|Web|API|Docs|Admin|Backups|
-|------------|---|---|----|-----|-------|
-|**Production**|[![Website](https://img.shields.io/website-up-down-green-red/https/rec.barcelona.svg?label=web)](https://rec.barcelona)|[![Website](https://img.shields.io/website-up-down-green-red/https/api.rec.barcelona/public/v1/status.svg?label=api)](https://api.rec.barcelona)|[![Website](https://img.shields.io/website-up-down-green-red/https/dev.rec.barcelona.svg?label=dev)](https://dev.rec.barcelona)|[![Website](https://img.shields.io/website-up-down-green-red/https/admin.rec.barcelona.svg?label=admin)](https://admin.rec.barcelona)|[![Website](https://img.shields.io/website-up-down-green-red/https/backups.rec.barcelona.svg?label=backups)](https://backups.rec.barcelona)|
-|**Stage**|[![Website](https://img.shields.io/website-up-down-green-red/https/rec.qbitartifacts.com.svg?label=web)](https://rec.barcelona)|[![Website](https://img.shields.io/website-up-down-green-red/https/api.rec.qbitartifacts.com/public/v1/status.svg?label=api)](https://api.rec.qbitartifacts.com)|[![Website](https://img.shields.io/website-up-down-green-red/https/dev.rec.qbitartifacts.com.svg?label=dev)](https://dev.rec.qbitartifacts.com)|[![Website](https://img.shields.io/website-up-down-green-red/https/admin.rec.qbitartifacts.com.svg?label=admin)](https://admin.rec.qbitartifacts.com)|[![Website](https://img.shields.io/website-up-down-green-red/https/backups.rec.qbitartifacts.com.svg?label=backups)](https://backups.rec.qbitartifacts.com)|
+|Installation|Web|API|POS|Docs|Admin|Backups|
+|------------|---|---|---|----|-----|-------|
+|**Production**|[![Website](https://img.shields.io/website-up-down-green-red/https/rec.barcelona.svg?label=web)](https://rec.barcelona)|[![Website](https://img.shields.io/website-up-down-green-red/https/api.rec.barcelona/public/v1/status.svg?label=api)](https://api.rec.barcelona)|[![Website](https://img.shields.io/website-up-down-green-red/https/pos.rec.barcelona.svg?label=pos)](https://pos.rec.barcelona)|[![Website](https://img.shields.io/website-up-down-green-red/https/dev.rec.barcelona.svg?label=dev)](https://dev.rec.barcelona)|[![Website](https://img.shields.io/website-up-down-green-red/https/admin.rec.barcelona.svg?label=admin)](https://admin.rec.barcelona)|[![Website](https://img.shields.io/website-up-down-green-red/https/backups.rec.barcelona.svg?label=backups)](https://backups.rec.barcelona)|
+|**Stage**|[![Website](https://img.shields.io/website-up-down-green-red/https/rec.qbitartifacts.com.svg?label=web)](https://rec.barcelona)|[![Website](https://img.shields.io/website-up-down-green-red/https/api.rec.qbitartifacts.com/public/v1/status.svg?label=api)](https://api.rec.qbitartifacts.com)|[![Website](https://img.shields.io/website-up-down-green-red/https/pos.rec.qbitartifacts.com.svg?label=pos)](https://pos.rec.barcelona.qbitartifacts.com)|[![Website](https://img.shields.io/website-up-down-green-red/https/dev.rec.qbitartifacts.com.svg?label=dev)](https://dev.rec.qbitartifacts.com)|[![Website](https://img.shields.io/website-up-down-green-red/https/admin.rec.qbitartifacts.com.svg?label=admin)](https://admin.rec.qbitartifacts.com)|[![Website](https://img.shields.io/website-up-down-green-red/https/backups.rec.qbitartifacts.com.svg?label=backups)](https://backups.rec.qbitartifacts.com)|
 
 # Development
 
@@ -112,6 +112,7 @@ deploying the code to production.
 
 * Testing stage for REC API is `https://api.rec.qbitartifacts.com`
 * Testing stage for REC Admin is `https://admin.rec.qbitartifacts.com`
+* Production for REC POS is `https://pos.rec.qbitartifacts.com`
 * Testing stage for REC Developers documentation is `https://dev.rec.qbitartifacts.com`
 
 ## Beta Environment
@@ -123,4 +124,5 @@ Prod environment is a [docker stack](https://docs.docker.com/get-started/part5/)
 
 * Production for REC API is `https://api.rec.barcelona`
 * Production for REC Admin is `https://admin.rec.barcelona`
+* Production for REC POS is `https://pos.rec.barcelona`
 * Production for REC Developers documentation is `https://dev.rec.barcelona`
