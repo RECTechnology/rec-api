@@ -28,17 +28,6 @@ use function foo\func;
  */
 class DashboardController extends CRUDController {
 
-    /*
-     * - total private accounts [OK]
-     * - total company accounts [OK]
-     * - total balances rec [OK]
-     * - total rec transactions [OK]
-     * - timeserie registers year, 30d, 7d, 1d (private and company)
-     * - timeserie transactions year, 30d, 7d, 1d (count and volume)
-     * - per neighbourhood account count [OK]
-     */
-
-
     /**
      * @return Response
      * @throws MongoDBException
