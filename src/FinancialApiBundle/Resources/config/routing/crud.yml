@@ -159,7 +159,7 @@ payment_orders_v3_show:
     requirements:
         role: "(public|user|manager|self|admin|sadmin)"
         object: "payment_orders"
-        id: "[0-9]+"
+        id: "[0-9A-Za-z_-]+"
 
 payment_orders_v3_create:
     path:  /{role}/v3/{object}

@@ -21,6 +21,15 @@ class PaymentOrder extends AppObject implements Stateful
 
     use StatefulTrait;
 
+
+    /**
+     * @ORM\Id
+     * @ORM\Column(type="guid")
+     * @ORM\GeneratedValue(strategy="UUID")
+     * @Serializer\Groups({"public"})
+     */
+    protected $id;
+
     /**
      * @var string $status
      * @ORM\Column(type="string")

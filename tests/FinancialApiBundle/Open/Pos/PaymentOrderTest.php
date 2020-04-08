@@ -3,17 +3,15 @@
 namespace Test\FinancialApiBundle\Open\Pos;
 
 use App\FinancialApiBundle\DataFixture\UserFixture;
-use Test\FinancialApiBundle\Admin\AdminApiTest;
 use Test\FinancialApiBundle\BaseApiTest;
-use Test\FinancialApiBundle\CrudV3WriteTestInterface;
 
 /**
  * Class PaymentOrderTest
  * @package Test\FinancialApiBundle\Open\Pos
  */
-class PaymentOrderTest extends BaseApiTest implements CrudV3WriteTestInterface {
+class PaymentOrderTest extends BaseApiTest {
 
-    function testCreate()
+    function testPayAndPoll()
     {
         $this->signIn(UserFixture::TEST_ADMIN_CREDENTIALS);
         $account = $this->getOneAccount();
@@ -22,16 +20,7 @@ class PaymentOrderTest extends BaseApiTest implements CrudV3WriteTestInterface {
         $this->signOut();
         $sample_url = "https://rec.barcelona";
         $order = $this->createPaymentOrder($pos, 1, $sample_url, $sample_url);
-        print($order);
-    }
-
-    function testUpdate()
-    {
-    }
-
-    function testDelete()
-    {
-
+        $this->readPaymentOrder($order);
     }
 
     private function getOneAccount()
@@ -76,6 +65,11 @@ class PaymentOrderTest extends BaseApiTest implements CrudV3WriteTestInterface {
             'signature_version' => 'hmac_sha256_v1',
             'signature' => $signature,
         ]);
+    }
+
+    private function readPaymentOrder($order)
+    {
+        return $this->rest('GET', "/public/v3/payment_orders/{$order->id}");
     }
 
 }
