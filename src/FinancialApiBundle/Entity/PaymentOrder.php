@@ -40,7 +40,7 @@ class PaymentOrder extends AppObject implements Stateful
      *     "expired"={"final"=true},
      *     "refunded"={"final"=true},
      * }, initial_statuses={"created"})
-     * @Serializer\Groups({"user"})
+     * @Serializer\Groups({"public"})
      */
     protected $status;
 
