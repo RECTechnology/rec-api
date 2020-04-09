@@ -68,7 +68,7 @@ class ValidPaymentOrderValidator extends ConstraintValidator {
         ksort($dataToSign);
         $signaturePack = json_encode($dataToSign, JSON_UNESCAPED_SLASHES);
 
-        $calculated_signature = hash_hmac('sha256', $signaturePack, $pos->getAccessSecret());
+        $calculated_signature = hash_hmac('sha256', $signaturePack, base64_decode($pos->getAccessSecret()));
 
         if($order->getSignature() !== $calculated_signature) {
             $this->context->buildViolation("signature is not valid")

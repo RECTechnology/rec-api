@@ -16,6 +16,7 @@ class PaymentOrderTest extends BaseApiTest {
         $this->signIn(UserFixture::TEST_ADMIN_CREDENTIALS);
         $account = $this->getOneAccount();
         $pos = $this->createPos($account);
+        $this->activatePos($pos);
 
         $this->signOut();
         $sample_url = "https://rec.barcelona";
@@ -34,8 +35,7 @@ class PaymentOrderTest extends BaseApiTest {
         $route = "/admin/v3/pos";
         return $this->rest('POST', $route, [
             'account_id' => $account->id,
-            'notification_url' => "https://rec.barcelona",
-            'active' => true
+            'notification_url' => "https://rec.barcelona"
         ]);
     }
 
@@ -54,7 +54,7 @@ class PaymentOrderTest extends BaseApiTest {
         ];
         ksort($signatureParams);
         $signatureData = json_encode($signatureParams, JSON_UNESCAPED_SLASHES);
-        $signature = hash_hmac('sha256', $signatureData, $pos->access_secret);
+        $signature = hash_hmac('sha256', $signatureData, base64_decode($pos->access_secret));
         return $this->rest('POST', $route, [
             'access_key' => $pos->access_key,
             'amount' => $amount,
@@ -70,6 +70,12 @@ class PaymentOrderTest extends BaseApiTest {
     private function readPaymentOrder($order)
     {
         return $this->rest('GET', "/public/v3/payment_orders/{$order->id}");
+    }
+
+    private function activatePos($pos)
+    {
+        $route = "/admin/v3/pos/{$pos->id}";
+        return $this->rest('PUT', $route, ['active' => true]);
     }
 
 }
