@@ -56,7 +56,7 @@ class PaymentOrderSubscriber implements EventSubscriber {
         $order = $args->getEntity();
         if($order instanceof PaymentOrder){
 
-            $repo = $this->em->getRepository(PaymentOrder::class);
+            $repo = $this->em->getRepository(Pos::class);
             /** @var Pos $pos */
             $pos = $repo->findOneBy(['access_key' => $order->getAccessKey()]);
             $order->setPos($pos);
