@@ -12,7 +12,7 @@ use Test\FinancialApiBundle\Utils\MongoDBTrait;
  */
 class PaymentOrderTest extends BaseApiTest {
 
-    #use MongoDBTrait;
+    use MongoDBTrait;
 
     function testPayAndPoll()
     {

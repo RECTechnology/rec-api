@@ -250,11 +250,11 @@ abstract class BaseApiTest extends WebTestCase {
         $this->testFactory = new TestDataFactory($this->client);
         $this->clearDatabase();
         $this->loadFixtures();
-        if($this instanceof MongoDBTestInterface) $this->startMongo();
+        if(method_exists($this, 'startMongo')) $this->startMongo();
     }
 
     protected function tearDown(): void {
-        if($this instanceof MongoDBTestInterface) $this->stopMongo();
+        if(method_exists($this, 'stopMongo')) $this->stopMongo();
         parent::tearDown();
         $this->client = static::createClient();
         $this->removeDatabase();

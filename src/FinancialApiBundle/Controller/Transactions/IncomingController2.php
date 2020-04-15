@@ -4,22 +4,17 @@ namespace App\FinancialApiBundle\Controller\Transactions;
 
 use Symfony\Component\Config\Definition\Exception\Exception;
 use Symfony\Component\HttpFoundation\Request;
+use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpKernel\Exception\HttpException;
 use App\FinancialApiBundle\Controller\RestApiController;
 use FOS\RestBundle\Controller\Annotations as Rest;
-use Symfony\Component\Console\Output\BufferedOutput;
-use App\FinancialApiBundle\DependencyInjection\App\Commons\LimitAdder;
-use App\FinancialApiBundle\DependencyInjection\App\Commons\LimitChecker;
 use App\FinancialApiBundle\DependencyInjection\App\Commons\LimitManipulator;
 use App\FinancialApiBundle\Document\Transaction;
 use App\FinancialApiBundle\Entity\CreditCard;
 use App\FinancialApiBundle\Entity\Group;
-use App\FinancialApiBundle\Entity\LimitCount;
-use App\FinancialApiBundle\Entity\LimitDefinition;
 use App\FinancialApiBundle\Entity\ServiceFee;
 use App\FinancialApiBundle\Entity\User;
 use App\FinancialApiBundle\Entity\UserWallet;
-use App\FinancialApiBundle\Security\Authentication\Token\SignatureToken;
 use App\FinancialApiBundle\Controller\Google2FA;
 
 class IncomingController2 extends RestApiController{
@@ -30,7 +25,7 @@ class IncomingController2 extends RestApiController{
      * @param $version_number
      * @param $type
      * @param $method_cname
-     * @return string|\Symfony\Component\HttpFoundation\Response
+     * @return string|Response
      */
     public function make(Request $request, $version_number, $type, $method_cname){
         $user = $this->get('security.token_storage')->getToken()->getUser();
@@ -341,7 +336,7 @@ class IncomingController2 extends RestApiController{
             }
             $logger->info('(' . $group_id . ') Incomig transaction...OUT Available = ' . $wallet->getAvailable() .  " TOTAL: " . $total);
             $address = $payment_info['address'];
-            $destination = $em->getRepository('FinancialApiBundle:Group')->findOneBy(array(
+            $destination = $em->getRepository(Group::class)->findOneBy(array(
                 'rec_address' => $payment_info['address']
             ));
             $logger->info('(' . $group_id . ')(T) CHECK ADDRESS');
