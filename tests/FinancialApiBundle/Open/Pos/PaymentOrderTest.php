@@ -70,51 +70,6 @@ class PaymentOrderTest extends BaseApiTest {
         ]);
     }
 
-    public function testDiego(){
-
-        /** @var EntityManagerInterface $em */
-        $em = $this->createClient()->getContainer()->get('doctrine.orm.entity_manager');
-        $access_key = "e3aa1c9afdf77d18957c965d705299ccc136c8ce";
-        $access_secret = "HfAZaF6KDXb+xOlreWEn9rAy0+jdtyUlKNWnHbN37Jo=";
-        $pos = new Pos($access_key, $access_secret);
-        $pos->setActive(true);
-        $em->persist($pos);
-        $em->flush();
-
-        $route = "/public/v3/payment_orders";
-
-        $amount = 1;
-        $reference = "1234123412341234";
-        $concept = "Mercat do castelo 1234123412341234";
-
-        $okUrl = 'https://twitter.com';
-        $koUrl = 'https://facebook.com';
-
-        $signatureParams = [
-            'access_key' => $access_key,
-            'reference' => $reference,
-            'ok_url' => $okUrl,
-            'ko_url' => $koUrl,
-            'amount' => $amount,
-            'concept' => $concept
-        ];
-        ksort($signatureParams);
-        $signatureData = json_encode($signatureParams, JSON_UNESCAPED_SLASHES);
-        $signature = hash_hmac('sha256', $signatureData, base64_decode($access_secret));
-
-        return $this->rest('POST', $route, [
-            'access_key' => $access_key,
-            'amount' => $amount,
-            'ok_url' => $okUrl,
-            'ko_url' => $koUrl,
-            'concept' => $concept,
-            'reference' => $reference,
-            'signature_version' => 'hmac_sha256_v1',
-            'signature' => $signature,
-        ]);
-
-    }
-
     private function readPaymentOrder($order)
     {
         return $this->rest('GET', "/public/v3/payment_orders/{$order->id}");
