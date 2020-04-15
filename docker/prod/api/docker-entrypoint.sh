@@ -4,6 +4,9 @@ set -e
 export SYMFONY_ENV=prod
 export APP_ENV=prod
 
+APP_VERSION=$(git describe --tags)
+export APP_VERSION
+
 envsubst < app/config/parameters-docker.yml.dist > app/config/parameters.yml
 
 composer run-script post-update-cmd

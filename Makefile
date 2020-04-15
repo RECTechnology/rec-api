@@ -44,5 +44,8 @@ stop:
 exec:
 	docker exec -it `docker-compose -f docker/dev/docker-compose.yml -p $(STACK_NAME) ps | grep "$(STACK_NAME)_api" | awk '{print $$1}'` bash
 
+version:
+	docker-compose -f docker/dev/docker-compose.yml -p $(STACK_NAME) run api standard-version
+
 down:
 	docker-compose -f docker/dev/docker-compose.yml -p $(STACK_NAME) down
