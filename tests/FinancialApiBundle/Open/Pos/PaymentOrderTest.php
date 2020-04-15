@@ -3,8 +3,6 @@
 namespace Test\FinancialApiBundle\Open\Pos;
 
 use App\FinancialApiBundle\DataFixture\UserFixture;
-use App\FinancialApiBundle\Entity\Pos;
-use Doctrine\ORM\EntityManagerInterface;
 use Test\FinancialApiBundle\BaseApiTest;
 
 /**
