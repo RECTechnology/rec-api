@@ -3,6 +3,8 @@
 namespace Test\FinancialApiBundle\Open\Pos;
 
 use App\FinancialApiBundle\DataFixture\UserFixture;
+use App\FinancialApiBundle\Entity\Pos;
+use Doctrine\ORM\EntityManagerInterface;
 use Test\FinancialApiBundle\BaseApiTest;
 
 /**
@@ -42,8 +44,8 @@ class PaymentOrderTest extends BaseApiTest {
     private function createPaymentOrder($pos, int $amount, string $okUrl, string $koUrl)
     {
         $route = "/public/v3/payment_orders";
-        $reference = "1234";
-        $concept = "1234";
+        $reference = "1234123412341234";
+        $concept = "Mercat do castelo 1234123412341234";
         $signatureParams = [
             'access_key' => $pos->access_key,
             'reference' => $reference,
@@ -65,6 +67,51 @@ class PaymentOrderTest extends BaseApiTest {
             'signature_version' => 'hmac_sha256_v1',
             'signature' => $signature,
         ]);
+    }
+
+    public function testDiego(){
+
+        /** @var EntityManagerInterface $em */
+        $em = $this->createClient()->getContainer()->get('doctrine.orm.entity_manager');
+        $access_key = "e3aa1c9afdf77d18957c965d705299ccc136c8ce";
+        $access_secret = "HfAZaF6KDXb+xOlreWEn9rAy0+jdtyUlKNWnHbN37Jo=";
+        $pos = new Pos($access_key, $access_secret);
+        $pos->setActive(true);
+        $em->persist($pos);
+        $em->flush();
+
+        $route = "/public/v3/payment_orders";
+
+        $amount = 1;
+        $reference = "1234123412341234";
+        $concept = "Mercat do castelo 1234123412341234";
+
+        $okUrl = 'https://twitter.com';
+        $koUrl = 'https://facebook.com';
+
+        $signatureParams = [
+            'access_key' => $access_key,
+            'reference' => $reference,
+            'ok_url' => $okUrl,
+            'ko_url' => $koUrl,
+            'amount' => $amount,
+            'concept' => $concept
+        ];
+        ksort($signatureParams);
+        $signatureData = json_encode($signatureParams, JSON_UNESCAPED_SLASHES);
+        $signature = hash_hmac('sha256', $signatureData, base64_decode($access_secret));
+
+        return $this->rest('POST', $route, [
+            'access_key' => $access_key,
+            'amount' => $amount,
+            'ok_url' => $okUrl,
+            'ko_url' => $koUrl,
+            'concept' => $concept,
+            'reference' => $reference,
+            'signature_version' => 'hmac_sha256_v1',
+            'signature' => $signature,
+        ]);
+
     }
 
     private function readPaymentOrder($order)
