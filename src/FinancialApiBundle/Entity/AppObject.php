@@ -23,14 +23,14 @@ class AppObject {
     /**
      * @ORM\Column(type="datetime")
      * @Gedmo\Timestampable(on="create")
-     * @Groups({"user"})
+     * @Groups({"public"})
      */
     private $created;
 
     /**
      * @ORM\Column(type="datetime")
      * @Gedmo\Timestampable(on="update")
-     * @Groups({"user"})
+     * @Groups({"public"})
      */
     private $updated;
 

@@ -21,7 +21,6 @@ class PaymentOrder extends AppObject implements Stateful
 
     use StatefulTrait;
 
-
     /**
      * @ORM\Id
      * @ORM\Column(type="guid")
