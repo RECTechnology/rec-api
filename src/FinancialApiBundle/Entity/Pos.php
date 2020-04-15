@@ -18,7 +18,7 @@ class Pos extends AppObject
     public function __construct()
     {
         $this->orders = new ArrayCollection();
-        $this->active = false;
+        $this->active = true;
         $this->access_key = sha1(random_bytes(32));
         $this->access_secret = base64_encode(random_bytes(32));
     }
