@@ -118,7 +118,7 @@ class PaymentOrder extends AppObject implements Stateful
     private $concept;
 
     /**
-     * @ORM\ManyToOne(targetEntity="App\FinancialApiBundle\Entity\Pos", inversedBy="orders")
+     * @ORM\ManyToOne(targetEntity="App\FinancialApiBundle\Entity\Pos", inversedBy="payment_orders")
      * @Serializer\Groups({"user"})
      */
     private $pos;
