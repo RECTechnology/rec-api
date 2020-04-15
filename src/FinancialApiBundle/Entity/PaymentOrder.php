@@ -65,6 +65,12 @@ class PaymentOrder extends AppObject implements Stateful
     private $amount;
 
     /**
+     * @Serializer\Groups({"public"})
+     * @Assert\Url()
+     */
+    private $payment_url;
+
+    /**
      * @ORM\Column(type="string")
      * @Serializer\Groups({"public"})
      * @Assert\Url()
@@ -301,6 +307,22 @@ class PaymentOrder extends AppObject implements Stateful
     {
         $this->concept = $concept;
         return $this;
+    }
+
+    /**
+     * @return mixed
+     */
+    public function getPaymentUrl()
+    {
+        return $this->payment_url;
+    }
+
+    /**
+     * @param mixed $payment_url
+     */
+    public function setPaymentUrl($payment_url): void
+    {
+        $this->payment_url = $payment_url;
     }
 
 }

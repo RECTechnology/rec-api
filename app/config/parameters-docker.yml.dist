@@ -90,3 +90,4 @@ parameters:
     blockchain_address_prefix: $BLOCKCHAIN_ADDRESS_PREFIX
 
     sentry_dsn: $SENTRY_DSN
+    pos_url: $POS_URL

@@ -24,6 +24,7 @@ class PaymentOrderTest extends BaseApiTest {
         $sample_url = "https://rec.barcelona";
         $order = $this->createPaymentOrder($pos, 1, $sample_url, $sample_url);
         $this->readPaymentOrder($order);
+        $this->paymentOrderHasAddressAndUrl($order);
     }
 
     private function getOneAccount()
@@ -123,6 +124,12 @@ class PaymentOrderTest extends BaseApiTest {
     {
         $route = "/admin/v3/pos/{$pos->id}";
         return $this->rest('PUT', $route, ['active' => true]);
+    }
+
+    private function paymentOrderHasAddressAndUrl($order)
+    {
+        self::assertObjectHasAttribute("payment_address", $order);
+        self::assertObjectHasAttribute("payment_url", $order);
     }
 
 }

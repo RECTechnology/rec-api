@@ -4,14 +4,14 @@ namespace App\FinancialApiBundle\EventSubscriber\Doctrine;
 
 use App\FinancialApiBundle\Entity\PaymentOrder;
 use App\FinancialApiBundle\Entity\Pos;
-use App\FinancialApiBundle\Exception\AppException;
 use App\FinancialApiBundle\Financial\Driver\FakeEasyBitcoinDriver;
 use Doctrine\Common\EventSubscriber;
 use Doctrine\ORM\EntityManagerInterface;
 use Doctrine\ORM\Event\LifecycleEventArgs;
 use Doctrine\ORM\Events;
-use Psr\Container\ContainerInterface;
+use Symfony\Component\DependencyInjection\ContainerInterface;
 use Symfony\Component\HttpFoundation\RequestStack;
+use Symfony\Component\HttpKernel\KernelInterface;
 
 /**
  * Class PaymentOrderSubscriber
@@ -49,7 +49,22 @@ class PaymentOrderSubscriber implements EventSubscriber {
     public function getSubscribedEvents() {
         return [
             Events::prePersist,
+            Events::postLoad,
+            Events::postPersist,
+
         ];
+    }
+
+    public function postPersist(LifecycleEventArgs $args){
+        $order = $args->getEntity();
+        if($order instanceof PaymentOrder){
+            $paymentUrl = $this->container->getParameter('pos_url');
+            $order->setPaymentUrl($paymentUrl . "/{$order->getId()}");
+        }
+    }
+
+    public function postLoad(LifecycleEventArgs $args){
+        $this->postPersist($args);
     }
 
     public function prePersist(LifecycleEventArgs $args){
