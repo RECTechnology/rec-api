@@ -418,6 +418,12 @@ class TransactionRepository extends DocumentRepository {
             ->execute();
     }
 
+    /**
+     * @param Group $group
+     * @param $method
+     * @param $days
+     * @return array[]
+     */
     public function sumLastDaysByMethod(Group $group, $method, $days){
 
         $start_date = new \DateTime();
@@ -438,37 +444,11 @@ class TransactionRepository extends DocumentRepository {
                 ->sum('$amount');
 
         $cursor = $builder->execute();
-        return $cursor->toArray();
+        $result = $cursor->toArray();
 
-        /*
-        return $this->createQueryBuilder('t')
-            ->select('SUM(t.amount) as last')
-            ->field('group')->equals($group->getId())
-            ->field('type')->equals($method->getType())
-            ->field('method')->equals($method->getCname())
-            ->field('status')->in(array('created', 'received', 'success'))
-            ->field('created')->gte($start_date)
-            ->group(
-                new \MongoCode('
-                    function(trans){
-                        return {
-                            group : trans.group
-                        };
-                    }
-                '),
-                array(
-                    'total'=>0
-                )
-            )
-            ->reduce('
-                function(trans, result){
-                    result.total+=trans.amount;
-                }
-            ')
-            ->getQuery()
-            ->execute();
-        */
-
+        // this return format is to be backwards compatible with the previous version
+        if(!$result) return [['group' => $group->getId(), 'total' => 0]];
+        return [['group' => $result[0]['_id'], 'total' => $result[0]['total']]];
     }
 
     public function sumLastDaysByExchange(Group $group, $to, $days){
