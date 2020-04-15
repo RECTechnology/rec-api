@@ -65,11 +65,12 @@ class StatusController extends RestApiController {
 
         $path = $this->getParameter('kernel.project_dir') . "/composer.json";
         $composer_json = json_decode(file_get_contents($path));
+        $version = $this->getParameter('version');
         $projectInfo = [
             'name' => $composer_json->name,
             'license' => $composer_json->license,
             'description' => $composer_json->description,
-            'version' => $composer_json->version,
+            'version' => $version,
         ];
 
         return $this->restV2(

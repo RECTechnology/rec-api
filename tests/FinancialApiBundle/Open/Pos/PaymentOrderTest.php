@@ -22,6 +22,7 @@ class PaymentOrderTest extends BaseApiTest {
         $sample_url = "https://rec.barcelona";
         $order = $this->createPaymentOrder($pos, 1, $sample_url, $sample_url);
         $this->readPaymentOrder($order);
+        $this->paymentOrderHasAddressAndUrl($order);
     }
 
     private function getOneAccount()
@@ -42,8 +43,8 @@ class PaymentOrderTest extends BaseApiTest {
     private function createPaymentOrder($pos, int $amount, string $okUrl, string $koUrl)
     {
         $route = "/public/v3/payment_orders";
-        $reference = "1234";
-        $concept = "1234";
+        $reference = "1234123412341234";
+        $concept = "Mercat do castelo 1234123412341234";
         $signatureParams = [
             'access_key' => $pos->access_key,
             'reference' => $reference,
@@ -76,6 +77,12 @@ class PaymentOrderTest extends BaseApiTest {
     {
         $route = "/admin/v3/pos/{$pos->id}";
         return $this->rest('PUT', $route, ['active' => true]);
+    }
+
+    private function paymentOrderHasAddressAndUrl($order)
+    {
+        self::assertObjectHasAttribute("payment_address", $order);
+        self::assertObjectHasAttribute("payment_url", $order);
     }
 
 }

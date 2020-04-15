@@ -25,7 +25,7 @@ parameters:
     mongodb_user: app
     mongodb_password: $APP_SECRET
 
-    version: 1.0
+    version: $APP_VERSION
 
     #TODO: remove this parameter with putting here others
     api_env: 'pre'
@@ -90,3 +90,4 @@ parameters:
     blockchain_address_prefix: $BLOCKCHAIN_ADDRESS_PREFIX
 
     sentry_dsn: $SENTRY_DSN
+    pos_url: $POS_URL

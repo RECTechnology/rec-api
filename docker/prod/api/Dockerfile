@@ -16,7 +16,8 @@ RUN apt update && apt install -y \
     composer \
     gettext-base \
     apache2 \
-    wget
+    wget \
+    git
 
 COPY docker/prod/api/vhost.conf /etc/apache2/sites-available/000-default.conf
 RUN a2enmod rewrite php7.3

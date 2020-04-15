@@ -122,3 +122,6 @@ parameters:
     blockchain_address_prefix: 'R'
 
     sentry_dsn: ~
+
+# POS settings
+    pos_url: https://pos.rec.barcelona

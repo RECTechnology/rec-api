@@ -6,7 +6,7 @@ use Test\FinancialApiBundle\BaseApiTest;
 
 class InfoTest extends BaseApiTest {
 
-    public function testInfoIsCorrect(){
+    public function testInfoIsWellFormed(){
         $route = "/public/v1/info";
         $info = $this->rest('GET', $route);
         self::assertObjectHasAttribute("name", $info);

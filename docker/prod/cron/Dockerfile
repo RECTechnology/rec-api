@@ -19,7 +19,8 @@ RUN apt update && apt install -y \
     python3 \
     python3-pip \
     jq \
-    cron
+    cron \
+    git
 
 # INSTALL GECKODRIVER
 RUN wget https://github.com/mozilla/geckodriver/releases/download/v0.24.0/geckodriver-v0.24.0-linux64.tar.gz -O geckodriver.tgz

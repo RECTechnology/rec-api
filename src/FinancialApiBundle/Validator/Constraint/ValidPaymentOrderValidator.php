@@ -55,10 +55,10 @@ class ValidPaymentOrderValidator extends ConstraintValidator {
                 ->atPath('access_key')
                 ->addViolation();
         }
-
+        $amount = intval($order->getAmount());
         $dataToSign = [
             'access_key' => $order->getAccessKey(),
-            'amount' => $order->getAmount(),
+            'amount' => $amount,
             'concept' => $order->getConcept(),
             'ko_url' => $order->getKoUrl(),
             'ok_url' => $order->getOkUrl(),
