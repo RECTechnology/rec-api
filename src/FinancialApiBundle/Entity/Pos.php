@@ -17,7 +17,7 @@ class Pos extends AppObject
 {
     public function __construct()
     {
-        $this->orders = new ArrayCollection();
+        $this->payment_orders = new ArrayCollection();
         $this->active = true;
         $this->access_key = sha1(random_bytes(32));
         $this->access_secret = base64_encode(random_bytes(32));
@@ -55,7 +55,7 @@ class Pos extends AppObject
      * @ORM\OneToMany(targetEntity="App\FinancialApiBundle\Entity\PaymentOrder", mappedBy="pos")
      * @Serializer\Groups({"user"})
      */
-    private $orders;
+    private $payment_orders;
 
     /**
      * @ORM\OneToOne(targetEntity="App\FinancialApiBundle\Entity\Group", inversedBy="pos")
@@ -107,17 +107,9 @@ class Pos extends AppObject
     /**
      * Get the value of orders
      */
-    public function getOrders()
+    public function getPaymentOrders()
     {
-        return $this->orders;
-    }
-
-    /**
-     * Get the value of orders
-     */
-    public function addOrder(PaymentOrder $order)
-    {
-        $this->orders->add($order);
+        return $this->payment_orders;
     }
 
     /**
@@ -125,9 +117,9 @@ class Pos extends AppObject
      *
      * @return  self
      */
-    public function setOrders($orders)
+    public function setPaymentOrders($payment_orders)
     {
-        $this->orders = $orders;
+        $this->payment_orders = $payment_orders;
 
         return $this;
     }

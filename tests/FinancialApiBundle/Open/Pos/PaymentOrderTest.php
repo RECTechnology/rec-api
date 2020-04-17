@@ -3,7 +3,9 @@
 namespace Test\FinancialApiBundle\Open\Pos;
 
 use App\FinancialApiBundle\DataFixture\UserFixture;
+use App\FinancialApiBundle\Entity\PaymentOrder;
 use Test\FinancialApiBundle\BaseApiTest;
+use Test\FinancialApiBundle\Utils\MongoDBTrait;
 
 /**
  * Class PaymentOrderTest
@@ -11,18 +13,29 @@ use Test\FinancialApiBundle\BaseApiTest;
  */
 class PaymentOrderTest extends BaseApiTest {
 
+    use MongoDBTrait;
+
     function testPayAndPoll()
     {
         $this->signIn(UserFixture::TEST_ADMIN_CREDENTIALS);
         $account = $this->getOneAccount();
         $pos = $this->createPos($account);
         $this->activatePos($pos);
+        $this->listPosOrders($pos);
 
         $this->signOut();
         $sample_url = "https://rec.barcelona";
-        $order = $this->createPaymentOrder($pos, 1, $sample_url, $sample_url);
-        $this->readPaymentOrder($order);
+        $order = $this->createPaymentOrder($pos, 1e8, $sample_url, $sample_url);
         $this->paymentOrderHasAddressDateAndUrl($order);
+        $order = $this->readPaymentOrder($order);
+        $this->paymentOrderHasAddressDateAndUrl($order);
+        $this->setClientIp($this->faker->ipv4);
+        $tx = $this->payOrder($order);
+        self::assertEquals("success", $tx->status);
+        $order = $this->readPaymentOrder($order);
+        self::assertEquals(PaymentOrder::STATUS_DONE, $order->status);
+        $order = $this->readPaymentOrderAdmin($order);
+        self::assertNotEmpty($order->transaction);
     }
 
     private function getOneAccount()
@@ -73,6 +86,12 @@ class PaymentOrderTest extends BaseApiTest {
         return $this->rest('GET', "/public/v3/payment_orders/{$order->id}");
     }
 
+    private function readPaymentOrderAdmin($order)
+    {
+        $this->signIn(UserFixture::TEST_ADMIN_CREDENTIALS);
+        return $this->rest('GET', "/admin/v3/payment_orders/{$order->id}");
+    }
+
     private function activatePos($pos)
     {
         $route = "/admin/v3/pos/{$pos->id}";
@@ -81,10 +100,33 @@ class PaymentOrderTest extends BaseApiTest {
 
     private function paymentOrderHasAddressDateAndUrl($order)
     {
-        self::assertObjectHasAttribute("created", $order);
-        self::assertObjectHasAttribute("updated", $order);
-        self::assertObjectHasAttribute("payment_address", $order);
-        self::assertObjectHasAttribute("payment_url", $order);
+        $requiredFields = ['created', 'updated', 'payment_address', 'payment_url'];
+        foreach ($requiredFields as $field){
+            self::assertObjectHasAttribute($field, $order);
+        }
+    }
+
+    private function payOrder($order)
+    {
+        $this->signIn(UserFixture::TEST_USER_CREDENTIALS);
+        $route = "/methods/v1/out/rec";
+        $resp = $this->rest(
+            'POST',
+            $route,
+            [
+                'address' => $order->payment_address,
+                'amount' => $order->amount,
+                'concept' => 'Testing pay',
+                'pin' => UserFixture::TEST_USER_CREDENTIALS['pin']
+            ]
+        );
+        $this->signOut();
+        return $resp;
+    }
+
+    private function listPosOrders($pos)
+    {
+        return $this->rest('GET', "/admin/v3/pos/{$pos->id}/payment_orders");
     }
 
 }

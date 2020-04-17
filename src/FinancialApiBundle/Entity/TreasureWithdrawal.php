@@ -2,7 +2,7 @@
 
 namespace App\FinancialApiBundle\Entity;
 
-use App\FinancialApiBundle\Annotations\HybridPropery;
+use App\FinancialApiBundle\Annotations\HybridProperty;
 use App\FinancialApiBundle\Annotations\StatusProperty;
 use Doctrine\Common\Collections\ArrayCollection;
 use JMS\Serializer\Annotation as Serializer;
@@ -40,6 +40,16 @@ class TreasureWithdrawal extends AppObject implements Stateful, HybridPersistent
     private $status;
 
     /**
+     * @var Transaction $transaction
+     * @HybridProperty(
+     *     targetEntity="App\FinancialApiBundle\Document\Transaction",
+     *     identifier="transaction_id",
+     *     manager="doctrine.odm.mongodb.document_manager"
+     * )
+     */
+    private $transaction;
+
+    /**
      * @ORM\Column(type="string", nullable=true)
      * @Serializer\Exclude()
      */
@@ -63,15 +73,6 @@ class TreasureWithdrawal extends AppObject implements Stateful, HybridPersistent
      */
     private $description;
 
-    /**
-     * @var Transaction $transaction
-     * @HybridPropery(
-     *     targetEntity="App\FinancialApiBundle\Document\Transaction",
-     *     identifier="transaction_id",
-     *     manager="doctrine.odm.mongodb.document_manager"
-     * )
-     */
-    private $transaction;
 
     /**
      * @ORM\OneToMany(targetEntity="App\FinancialApiBundle\Entity\TreasureWithdrawalValidation", mappedBy="withdrawal")

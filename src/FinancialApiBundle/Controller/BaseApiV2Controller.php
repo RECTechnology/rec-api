@@ -561,7 +561,6 @@ abstract class BaseApiV2Controller extends RestApiController implements Reposito
      * @param $id
      * @param $relationship
      * @return object|null
-     * @throws AnnotationException
      */
     public function addRelationship(Request $request, $id, $relationship){
         if(empty($id)) throw new HttpException(400, "Missing URL parameter 'id'");
@@ -635,7 +634,6 @@ abstract class BaseApiV2Controller extends RestApiController implements Reposito
      * @param $relationship
      * @param $id2
      * @return object|null
-     * @throws AnnotationException
      */
     public function deleteRelationship(Request $request, $id1, $relationship, $id2){
         if(empty($id1)) throw new HttpException(400, "Missing URL parameter 'id1'");
