@@ -3,6 +3,7 @@
 namespace Test\FinancialApiBundle\Open\Pos;
 
 use App\FinancialApiBundle\DataFixture\UserFixture;
+use App\FinancialApiBundle\Entity\PaymentOrder;
 use Test\FinancialApiBundle\BaseApiTest;
 use Test\FinancialApiBundle\Utils\MongoDBTrait;
 
@@ -28,7 +29,13 @@ class PaymentOrderTest extends BaseApiTest {
         $this->paymentOrderHasAddressDateAndUrl($order);
         $order = $this->readPaymentOrder($order);
         $this->paymentOrderHasAddressDateAndUrl($order);
-        #$this->payOrder($order);
+        $this->setClientIp($this->faker->ipv4);
+        $tx = $this->payOrder($order);
+        self::assertEquals("success", $tx->status);
+        $order = $this->readPaymentOrder($order);
+        self::assertEquals(PaymentOrder::STATUS_DONE, $order->status);
+        $order = $this->readPaymentOrderAdmin($order);
+        self::assertNotEmpty($order->transaction);
     }
 
     private function getOneAccount()
@@ -79,6 +86,12 @@ class PaymentOrderTest extends BaseApiTest {
         return $this->rest('GET', "/public/v3/payment_orders/{$order->id}");
     }
 
+    private function readPaymentOrderAdmin($order)
+    {
+        $this->signIn(UserFixture::TEST_ADMIN_CREDENTIALS);
+        return $this->rest('GET', "/admin/v3/payment_orders/{$order->id}");
+    }
+
     private function activatePos($pos)
     {
         $route = "/admin/v3/pos/{$pos->id}";
@@ -97,7 +110,7 @@ class PaymentOrderTest extends BaseApiTest {
     {
         $this->signIn(UserFixture::TEST_USER_CREDENTIALS);
         $route = "/methods/v1/out/rec";
-        $this->rest(
+        $resp = $this->rest(
             'POST',
             $route,
             [
@@ -107,6 +120,8 @@ class PaymentOrderTest extends BaseApiTest {
                 'pin' => UserFixture::TEST_USER_CREDENTIALS['pin']
             ]
         );
+        $this->signOut();
+        return $resp;
     }
 
     private function listPosOrders($pos)

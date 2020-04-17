@@ -2,7 +2,7 @@
 
 namespace App\FinancialApiBundle\EventSubscriber\Doctrine;
 
-use App\FinancialApiBundle\Annotations\HybridPropery;
+use App\FinancialApiBundle\Annotations\HybridProperty;
 use App\FinancialApiBundle\Annotations\TranslatedProperty;
 use App\FinancialApiBundle\Document\Transaction;
 use App\FinancialApiBundle\Entity\Document;

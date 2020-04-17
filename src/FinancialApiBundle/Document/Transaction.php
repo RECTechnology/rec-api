@@ -11,8 +11,7 @@ namespace App\FinancialApiBundle\Document;
 use Doctrine\ODM\MongoDB\Mapping\Annotations as MongoDB;
 use Symfony\Component\HttpFoundation\Request;
 use App\FinancialApiBundle\DependencyInjection\App\Interfaces\TransactionTiming;
-use App\FinancialApiBundle\DependencyInjection\Transactions\Core\TransactionContext;
-use App\FinancialApiBundle\DependencyInjection\Transactions\Core\TransactionContextInterface;
+use JMS\Serializer\Annotation as Serializer;
 
 use JMS\Serializer\Annotation\ExclusionPolicy;
 use JMS\Serializer\Annotation\Exclude;
@@ -113,12 +112,14 @@ class Transaction implements TransactionTiming {
     /**
      * @var
      * @MongoDB\Field(type="date")
+     * @Serializer\Groups({"public"})
      */
     private $created;
 
     /**
      * @var
      * @MongoDB\Field(type="date")
+     * @Serializer\Groups({"public"})
      */
     private $updated;
 
@@ -171,30 +172,35 @@ class Transaction implements TransactionTiming {
     /**
      * @var
      * @MongoDB\Id
+     * @Serializer\Groups({"public"})
      */
     private $id;
 
     /**
      * @var
      * @MongoDB\Field(type="int")
+     * @Serializer\Groups({"admin"})
      */
     private $user;
 
     /**
      * @var
      * @MongoDB\Field(type="int")
+     * @Serializer\Groups({"admin"})
      */
     private $group;
 
     /**
      * @var
      * @MongoDB\Field(type="string")
+     * @Serializer\Groups({"public"})
      */
     private $service;
 
     /**
      * @var
      * @MongoDB\Field(type="string")
+     * @Serializer\Groups({"public"})
      */
     private $method;
 
@@ -207,30 +213,35 @@ class Transaction implements TransactionTiming {
     /**
      * @var
      * @MongoDB\Field(type="string")
+     * @Serializer\Groups({"public"})
      */
     private $ip;
 
     /**
      * @var
      * @MongoDB\Field(type="string")
+     * @Serializer\Groups({"public"})
      */
     private $country;
 
     /**
      * @var
      * @MongoDB\Field(type="string")
+     * @Serializer\Groups({"public"})
      */
     private $country_code;
 
     /**
      * @var
      * @MongoDB\Field(type="string")
+     * @Serializer\Groups({"public"})
      */
     private $status;
 
     /**
      * @var
      * @MongoDB\Field(type="int")
+     * @Serializer\Groups({"public"})
      */
     private $version;
 
@@ -262,12 +273,14 @@ class Transaction implements TransactionTiming {
     /**
      * @var
      * @MongoDB\Field(type="string")
+     * @Serializer\Groups({"public"})
      */
     private $currency;
 
     /**
      * @var
      * @MongoDB\Field(type="float")
+     * @Serializer\Groups({"public"})
      */
     private $amount;
 
@@ -292,48 +305,56 @@ class Transaction implements TransactionTiming {
     /**
      * @var
      * @MongoDB\Field(type="int")
+     * @Serializer\Groups({"public"})
      */
     private $scale;
 
     /**
      * @var
      * @MongoDB\Field(type="int")
+     * @Serializer\Groups({"admin"})
      */
     private $max_notification_tries;
 
     /**
      * @var
      * @MongoDB\Field(type="int")
+     * @Serializer\Groups({"admin"})
      */
     private $notification_tries;
 
     /**
      * @var
      * @MongoDB\Field(type="boolean")
+     * @Serializer\Groups({"admin"})
      */
     private $internal = false;
 
     /**
      * @var
      * @MongoDB\Field(type="boolean")
+     * @Serializer\Groups({"admin"})
      */
     private $deleted = false;
 
     /**
      * @var
      * @MongoDB\Field(type="boolean")
+     * @Serializer\Groups({"admin"})
      */
     private $notified;
 
     /**
      * @var
      * @MongoDB\Field(type="hash")
+     * @Serializer\Groups({"admin"})
      */
     private $pay_in_info;
 
     /**
      * @var
      * @MongoDB\Field(type="hash")
+     * @Serializer\Groups({"admin"})
      */
     private $pay_out_info;
 
@@ -346,18 +367,21 @@ class Transaction implements TransactionTiming {
     /**
      * @var
      * @MongoDB\Field(type="string")
+     * @Serializer\Groups({"admin"})
      */
     private $method_in;
 
     /**
      * @var
      * @MongoDB\Field(type="string")
+     * @Serializer\Groups({"admin"})
      */
     private $method_out;
 
     /**
      * @var
      * @MongoDB\Field(type="string")
+     * @Serializer\Groups({"public"})
      */
     private $type;
 
@@ -370,6 +394,7 @@ class Transaction implements TransactionTiming {
     /**
      * @var
      * @MongoDB\Field(type="int")
+     * @Serializer\Groups({"admin"})
      */
     private $client;
 
@@ -396,6 +421,7 @@ class Transaction implements TransactionTiming {
     private $client_data = array();
 
     /**
+     * @Serializer\Groups({"public"})
      */
     private $group_data = '';
 
@@ -415,6 +441,7 @@ class Transaction implements TransactionTiming {
     /**
      * @var
      * @MongoDB\Field(type="hash")
+     * @Serializer\Groups({"public"})
      */
     private $comment;
 

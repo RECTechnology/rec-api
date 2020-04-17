@@ -2,14 +2,9 @@
 
 namespace App\FinancialApiBundle\EventSubscriber\Doctrine;
 
-use App\FinancialApiBundle\Annotations\HybridPropery;
-use App\FinancialApiBundle\Annotations\TranslatedProperty;
-use App\FinancialApiBundle\Document\Transaction;
+use App\FinancialApiBundle\Annotations\HybridProperty;
 use App\FinancialApiBundle\Entity\HybridPersistent;
-use App\FinancialApiBundle\Entity\Translatable;
 use App\FinancialApiBundle\Exception\AppLogicException;
-use App\FinancialApiBundle\Exception\NoSuchTranslationException;
-use Doctrine\Common\Annotations\AnnotationException;
 use Doctrine\Common\Annotations\AnnotationReader;
 use Doctrine\Common\EventSubscriber;
 use Doctrine\Common\Persistence\ObjectManager;
@@ -17,10 +12,7 @@ use Doctrine\ORM\EntityManagerInterface;
 use Doctrine\ORM\Event\LifecycleEventArgs;
 use Doctrine\ORM\Event\PreUpdateEventArgs;
 use Doctrine\ORM\Events;
-use Symfony\Component\DependencyInjection\ContainerAwareInterface;
-use Symfony\Component\DependencyInjection\ContainerAwareTrait;
 use Symfony\Component\DependencyInjection\ContainerInterface;
-use Symfony\Component\HttpFoundation\RequestStack;
 
 /**
  * Class HybridPersistenceEventSubscriber
@@ -60,9 +52,6 @@ class HybridPersistenceEventSubscriber implements EventSubscriber {
 
     /**
      * @param PreUpdateEventArgs $args
-     * @throws AnnotationException
-     * @throws \ReflectionException
-     * @throws NoSuchTranslationException
      */
     public function preUpdate(PreUpdateEventArgs $args){
         $this->saveHybridIdentifier($args->getEntity(), $args->getEntityChangeSet());
@@ -70,7 +59,6 @@ class HybridPersistenceEventSubscriber implements EventSubscriber {
 
     /**
      * @param LifecycleEventArgs $args
-     * @throws NoSuchTranslationException
      */
     public function prePersist(LifecycleEventArgs $args){
         $this->saveHybridIdentifier($args->getEntity());
@@ -79,42 +67,66 @@ class HybridPersistenceEventSubscriber implements EventSubscriber {
     /**
      * @param $entity
      * @param array $changeSet
-     * @throws NoSuchTranslationException
      */
     function saveHybridIdentifier($entity, $changeSet = []){
+        $this->forEachHybridProperty(
+            $entity,
+            function (\ReflectionProperty $property, HybridProperty $hybridProperty) use ($entity) {
+                $class = $property->getDeclaringClass();
+                $identifierField = $hybridProperty->getIdentifier();
+                $property->setAccessible(true);
+                if(!$class->hasProperty($identifierField))
+                    throw new AppLogicException("Invalid identifier '$identifierField', not found in object");
+                $identifierProperty = $class->getProperty($identifierField);
+                $identifierProperty->setAccessible(true);
+                $object = $property->getValue($entity);
+                if($object) $identifierProperty->setValue($entity, $object->getId());
+            });
+    }
+
+
+    /**
+     * @param $entity
+     * @param $func
+     * @throws \ReflectionException
+     */
+    protected function forEachHybridProperty($entity, $func){
         if($entity instanceof HybridPersistent){
+            $rc = new \ReflectionClass($entity);
+            foreach($rc->getProperties() as $rp){
+                $ar = new AnnotationReader();
+                foreach ($ar->getPropertyAnnotations($rp) as $an){
+                    if($an instanceof HybridProperty){
+                        $func($rp, $an);
+                    }
+                }
+            }
         }
     }
 
     /**
      * @param LifecycleEventArgs $args
      * @throws \ReflectionException
-     * @throws AnnotationException
      */
     public function postLoad(LifecycleEventArgs $args){
         $entity = $args->getEntity();
-        if($entity instanceof HybridPersistent){
-            $rc = new \ReflectionClass($entity);
-            foreach($rc->getProperties() as $rp){
-                $ar = new AnnotationReader();
-                foreach ($ar->getPropertyAnnotations($rp) as $an){
-                    if($an instanceof HybridPropery){
-                        $identifierField = $an->getIdentifier();
-                        $rp->setAccessible(true);
-                        if(!$rc->hasProperty($identifierField))
-                            throw new AppLogicException("Invalid identifier '$identifierField', not found in object");
-                        $identifierProperty = $rc->getProperty($identifierField);
-                        $identifierProperty->setAccessible(true);
-                        /** @var ObjectManager $om */
-                        $om = $this->container->get($an->getManager());
-                        $id = $identifierProperty->getValue($entity);
-                        if($id != null) {
-                            $object = $om->getRepository($an->getTargetEntity())->find($id);
-                            $rp->setValue($entity, $identifierProperty->getValue($object->getId()));
-                        }
-                    }
+        $this->forEachHybridProperty(
+            $entity,
+            function (\ReflectionProperty $property, HybridProperty $hybridProperty) use ($entity) {
+                $class = $property->getDeclaringClass();
+                $identifierField = $hybridProperty->getIdentifier();
+                $property->setAccessible(true);
+                if(!$class->hasProperty($identifierField))
+                    throw new AppLogicException("Invalid identifier '$identifierField', not found in object");
+                $identifierProperty = $class->getProperty($identifierField);
+                $identifierProperty->setAccessible(true);
+                /** @var ObjectManager $om */
+                $om = $this->container->get($hybridProperty->getManager());
+                $id = $identifierProperty->getValue($entity);
+                if($id) {
+                    $object = $om->getRepository($hybridProperty->getTargetEntity())->find($id);
+                    $property->setValue($entity, $object);
                 }
-            }
-        }
+            });
     }
 }

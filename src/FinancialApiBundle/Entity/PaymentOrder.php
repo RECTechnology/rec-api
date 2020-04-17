@@ -2,6 +2,8 @@
 
 namespace App\FinancialApiBundle\Entity;
 
+use App\FinancialApiBundle\Annotations\HybridProperty;
+use App\FinancialApiBundle\Document\Transaction;
 use JMS\Serializer\Annotation as Serializer;
 use Doctrine\ORM\Mapping as ORM;
 use App\FinancialApiBundle\Annotations\StatusProperty;
@@ -12,7 +14,7 @@ use App\FinancialApiBundle\Validator\Constraint as RECAssert;
  * @ORM\Entity
  * @RECAssert\ValidPaymentOrder()
  */
-class PaymentOrder extends AppObject implements Stateful
+class PaymentOrder extends AppObject implements Stateful, HybridPersistent
 {
     const STATUS_IN_PROGRESS = 'in-progress';
     const STATUS_EXPIRED = 'expired';
@@ -33,12 +35,11 @@ class PaymentOrder extends AppObject implements Stateful
      * @var string $status
      * @ORM\Column(type="string")
      * @StatusProperty(choices={
-     *     "created"={"to"={"in-progress", "expired"}},
      *     "in-progress"={"to"={"done", "expired"}},
      *     "done"={"to"={"refunded"}},
      *     "expired"={"final"=true},
      *     "refunded"={"final"=true},
-     * }, initial_statuses={"created"})
+     * }, initial_statuses={"in-progress"})
      * @Serializer\Groups({"public"})
      */
     protected $status;
@@ -122,6 +123,23 @@ class PaymentOrder extends AppObject implements Stateful
      * @Serializer\Groups({"user"})
      */
     private $pos;
+
+    /**
+     * @var Transaction $transaction
+     * @HybridProperty(
+     *     targetEntity="App\FinancialApiBundle\Document\Transaction",
+     *     identifier="transaction_id",
+     *     manager="doctrine.odm.mongodb.document_manager"
+     * )
+     * @Serializer\Groups({"admin"})
+     */
+    private $transaction;
+
+    /**
+     * @ORM\Column(type="string", nullable=true)
+     * @Serializer\Groups({"sadmin"})
+     */
+    private $transaction_id;
 
 
     /**
@@ -322,6 +340,38 @@ class PaymentOrder extends AppObject implements Stateful
     public function setPaymentUrl($payment_url): void
     {
         $this->payment_url = $payment_url;
+    }
+
+    /**
+     * @return Transaction
+     */
+    public function getTransaction(): ?Transaction
+    {
+        return $this->transaction;
+    }
+
+    /**
+     * @param Transaction $transaction
+     */
+    public function setTransaction(Transaction $transaction): void
+    {
+        $this->transaction = $transaction;
+    }
+
+    /**
+     * @return string
+     */
+    public function getStatus(): string
+    {
+        return $this->status;
+    }
+
+    /**
+     * @param string $status
+     */
+    public function setStatus(string $status): void
+    {
+        $this->status = $status;
     }
 
 }

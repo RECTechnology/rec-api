@@ -83,6 +83,7 @@ class PaymentOrderSubscriber implements EventSubscriber {
             $recDriver = $this->container->get('net.app.driver.easybitcoin.rec');
             $address = $recDriver->getnewaddress();
             $order->setPaymentAddress($address);
+            $order->setStatus(PaymentOrder::STATUS_IN_PROGRESS);
         }
     }
 

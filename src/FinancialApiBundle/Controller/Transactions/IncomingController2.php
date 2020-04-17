@@ -2,6 +2,8 @@
 
 namespace App\FinancialApiBundle\Controller\Transactions;
 
+use App\FinancialApiBundle\Entity\PaymentOrder;
+use App\FinancialApiBundle\Exception\AppException;
 use Symfony\Component\Config\Definition\Exception\Exception;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
@@ -85,7 +87,7 @@ class IncomingController2 extends RestApiController{
     }
 
 
-    public function createTransaction($data, $version_number, $type, $method_cname, $user_id, $group, $ip){
+    public function createTransaction($data, $version_number, $type, $method_cname, $user_id, $group, $ip, $order = null){
         $logger = $this->get('transaction.logger');
         $group_id = $group->getId();
         $logger->info('(' . $group_id . ')(T) INIT');
@@ -336,17 +338,31 @@ class IncomingController2 extends RestApiController{
             }
             $logger->info('(' . $group_id . ') Incomig transaction...OUT Available = ' . $wallet->getAvailable() .  " TOTAL: " . $total);
             $address = $payment_info['address'];
-            $destination = $em->getRepository(Group::class)->findOneBy(array(
-                'rec_address' => $payment_info['address']
-            ));
+            $destination = $em->getRepository(Group::class)
+                ->findOneBy(['rec_address' => $payment_info['address']]);
             $logger->info('(' . $group_id . ')(T) CHECK ADDRESS');
 
             if(!$destination){
-                throw new HttpException(404,'Destination address does not exists');
+                // checking if the address belongs to an order
+                $orderRepo = $em->getRepository(PaymentOrder::class);
+                /** @var PaymentOrder $order */
+                $order = $orderRepo->findOneBy(['payment_address' => $payment_info['address']]);
+                if($order){
+                    if($payment_info['amount'] != $order->getAmount()) {
+                        throw new AppException(
+                            400,
+                            "Amount sent and order mismatch, (sent: {$payment_info['amount']}, order: {$order->getAmount()})"
+                        );
+                    }
+                    $destination = $order->getPos()->getAccount();
+                }
+                else {
+                    throw new HttpException(400,'Destination address does not exists');
+                }
             }
 
             if($destination->getRecAddress() == $group->getRecAddress()){
-                throw new HttpException(405,'Error, destination address is equal than origin address');
+                throw new HttpException(400,'Error, cannot send money to the same origin address');
             }
 
             if($destination->getRecAddress() == "temp" || $group->getRecAddress() == "temp"){
@@ -467,7 +483,7 @@ class IncomingController2 extends RestApiController{
                     $params['destionation_id']=$data['destionation_id'];
                 }
                 $logger->info('(' . $group_id . ')(T) Incomig transaction... Create New');
-                $this->createTransaction($params, $version_number, 'in', $method_cname, $destination->getKycManager()->getId(), $destination, '127.0.0.1');
+                $this->createTransaction($params, $version_number, 'in', $method_cname, $destination->getKycManager()->getId(), $destination, '127.0.0.1', $order);
                 $logger->info('(' . $group_id . ')(T) Incomig transaction... New created');
             }
             else{
@@ -496,15 +512,26 @@ class IncomingController2 extends RestApiController{
         $logger->info('(' . $group_id . ')(T) END NOTIFICATION');
         if($transaction == false) throw new HttpException(500, "oOps, some error has occurred within the call");
 
-        if($user_id == -1 || $ip == '127.0.0.1'){
+
+        if($user_id == -1 || $ip == '127.0.0.1'){ // this is executed in the recursive call
             $logger->info('(' . $group_id . ')(T) Incomig transaction... return string');
             $logger->info('(' . $group_id . ')(T) FINAL');
             $logger->info('(' . $group_id . ')(T) TXID: ' . $transaction->getId());
+
+            if(isset($order) && $order instanceof PaymentOrder){
+                $order->setTransaction($transaction);
+                $order->setStatus(PaymentOrder::STATUS_DONE);
+                $em = $this->getDoctrine()->getManager();
+                $em->persist($order);
+                $em->flush();
+            }
+
             return 'Transaction generated: ' . $transaction->getStatus() . ", ID: " . $transaction->getId();
         }
-        else {
+        else { // this is executed in the normal call (non recursive)
             $logger->info('(' . $group_id . ')(T) Incomig transaction... return http format');
             $logger->info('(' . $group_id . ')(T) FINAL');
+
             return $this->methodTransaction(201, $transaction, "Done");
         }
     }

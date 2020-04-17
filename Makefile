@@ -33,6 +33,7 @@ deploy:
 	WEBHOOK=$(WEBHOOK) ./deploy.sh
 
 run:
+	find . -name core -delete # removing core dumps that crashes the start (mongodb generates core dumps sometimes)
 	docker-compose -f docker/dev/docker-compose.yml -p $(STACK_NAME) up --build
 
 ps:
