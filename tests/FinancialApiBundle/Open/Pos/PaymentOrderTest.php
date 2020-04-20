@@ -109,6 +109,9 @@ class PaymentOrderTest extends BaseApiTest {
     private function payOrder($order)
     {
         $this->signIn(UserFixture::TEST_USER_CREDENTIALS);
+        $route = "/transaction/v1/vendor?address={$order->payment_address}";
+        $commerce = $this->rest('GET', $route);
+        self::assertCount(2, $commerce);
         $route = "/methods/v1/out/rec";
         $resp = $this->rest(
             'POST',
