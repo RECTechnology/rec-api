@@ -7,6 +7,7 @@ use App\FinancialApiBundle\Document\Transaction;
 use App\FinancialApiBundle\Entity\Group;
 use App\FinancialApiBundle\Entity\PaymentOrder;
 use App\FinancialApiBundle\Entity\Pos;
+use App\FinancialApiBundle\Entity\User;
 use App\FinancialApiBundle\Exception\AppException;
 use App\FinancialApiBundle\Financial\Driver\FakeEasyBitcoinDriver;
 use Doctrine\Common\EventSubscriber;
@@ -19,6 +20,7 @@ use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\RequestStack;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpKernel\KernelInterface;
+use Symfony\Component\Security\Core\Authentication\Token\Storage\TokenStorageInterface;
 
 /**
  * Class PaymentOrderSubscriber
@@ -32,15 +34,20 @@ class PaymentOrderSubscriber implements EventSubscriber {
     /** @var ContainerInterface $container */
     private $container;
 
+    /** @var TokenStorageInterface $tokenStorage */
+    private $tokenStorage;
+
     /**
      * MailingDeliveryEventSubscriber constructor.
      * @param RequestStack $requestStack
+     * @param TokenStorageInterface $tokenStorage
      * @param ContainerInterface $container
      */
-    public function __construct(RequestStack $requestStack, ContainerInterface $container)
+    public function __construct(RequestStack $requestStack, TokenStorageInterface $tokenStorage, ContainerInterface $container)
     {
         $this->requestStack = $requestStack;
         $this->container = $container;
+        $this->tokenStorage = $tokenStorage;
     }
 
     /**
@@ -62,6 +69,8 @@ class PaymentOrderSubscriber implements EventSubscriber {
         if($order instanceof PaymentOrder){
             if ($args->hasChangedField("status")){
                 if($args->getNewValue("status") == PaymentOrder::STATUS_REFUNDED){
+                    $this->checkPinMatchesWithCurrentUser();
+
                     /*
                      *  This STATUS_REFUNDING status is to prevent recursivity when using IncomingController2
                      *  that does too many flush()
@@ -86,11 +95,14 @@ class PaymentOrderSubscriber implements EventSubscriber {
 
                     /** @var IncomingController2 $tc */
                     $tc = $this->container->get('app.incoming_controller');
+
+                    /** @var User $refunder */
+                    $refunder = $order->getPos()->getAccount()->getKycManager();
                     $refundData = [
                         "address" => $sender->getRecAddress(),
                         "amount" => $refundAmount,
                         "concept" => "Refund for order {$order->getId()}",
-                        "pin" => $currentRequest->request->get("pin")
+                        "pin" => $refunder->getPin()
                     ];
 
                     $response = $tc->createTransaction(
@@ -98,7 +110,7 @@ class PaymentOrderSubscriber implements EventSubscriber {
                         1,
                         "out",
                         "rec",
-                        $order->getPos()->getAccount()->getKycManager()->getId(),
+                        $refunder->getId(),
                         $order->getPos()->getAccount(),
                         $currentRequest->getClientIp()
                     );
@@ -158,4 +170,12 @@ class PaymentOrderSubscriber implements EventSubscriber {
         }
     }
 
+    private function checkPinMatchesWithCurrentUser() {
+        /* check pin matches with current user */
+        $currentRequest = $this->requestStack->getCurrentRequest();
+        /** @var User $user */
+        $user = $this->tokenStorage->getToken()->getUser();
+        if($user->getPin() != $currentRequest->request->get('pin'))
+            throw new AppException(403, "Invalid pin");
+    }
 }
