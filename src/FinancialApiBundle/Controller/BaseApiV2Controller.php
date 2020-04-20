@@ -362,18 +362,13 @@ abstract class BaseApiV2Controller extends RestApiController implements Reposito
                             }
                         }
                     }
-                } catch (ReflectionException $e) {
-                    throw new HttpException(400, "Invalid parameter '$name'", $e);
-                }
+                } catch (ReflectionException $ignored) { }
             }
 
             $setter = $this->getSetter($name);
 
             if (method_exists($entity, $setter)) {
                 $entity->$setter($value);
-            }
-            else{
-                throw new HttpException(400, "Bad request, parameter '$name' is invalid.");
             }
 
         }

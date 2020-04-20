@@ -528,7 +528,7 @@ class IncomingController2 extends RestApiController{
             $logger->info('(' . $group_id . ')(T) TXID: ' . $transaction->getId());
 
             if(isset($order) && $order instanceof PaymentOrder){
-                $order->setTransaction($transaction);
+                $order->setPaymentTransaction($transaction);
                 $order->setStatus(PaymentOrder::STATUS_DONE);
                 $em = $this->getDoctrine()->getManager();
                 $em->persist($order);

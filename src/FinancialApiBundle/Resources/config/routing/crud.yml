@@ -161,6 +161,15 @@ payment_orders_v3_show:
         object: "payment_orders"
         id: "[0-9A-Fa-f_-]+"
 
+payment_orders_v3_update:
+    path:  /{role}/v3/{object}/{id}
+    defaults: { _controller: App\FinancialApiBundle\Controller\CRUD\PaymentOrdersController::updateAction }
+    methods: [PUT]
+    requirements:
+        role: "(public|user|manager|self|admin|sadmin)"
+        object: "payment_orders"
+        id: "[0-9A-Fa-f_-]+"
+
 payment_orders_v3_create:
     path:  /{role}/v3/{object}
     defaults: { _controller: App\FinancialApiBundle\Controller\CRUD\PaymentOrdersController::createAction }
