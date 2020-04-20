@@ -120,7 +120,7 @@ class PaymentOrder extends AppObject implements Stateful, HybridPersistent
 
     /**
      * @ORM\ManyToOne(targetEntity="App\FinancialApiBundle\Entity\Pos", inversedBy="payment_orders")
-     * @Serializer\Groups({"user"})
+     * @Serializer\Groups({"public"})
      */
     private $pos;
 

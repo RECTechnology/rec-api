@@ -26,9 +26,9 @@ class PaymentOrderTest extends BaseApiTest {
         $this->signOut();
         $sample_url = "https://rec.barcelona";
         $order = $this->createPaymentOrder($pos, 1e8, $sample_url, $sample_url);
-        $this->paymentOrderHasAddressDateAndUrl($order);
+        $this->paymentOrderHasRequiredData($order);
         $order = $this->readPaymentOrder($order);
-        $this->paymentOrderHasAddressDateAndUrl($order);
+        $this->paymentOrderHasRequiredData($order);
         $this->setClientIp($this->faker->ipv4);
         $tx = $this->payOrder($order);
         self::assertEquals("success", $tx->status);
@@ -98,9 +98,9 @@ class PaymentOrderTest extends BaseApiTest {
         return $this->rest('PUT', $route, ['active' => true]);
     }
 
-    private function paymentOrderHasAddressDateAndUrl($order)
+    private function paymentOrderHasRequiredData($order)
     {
-        $requiredFields = ['created', 'updated', 'payment_address', 'payment_url'];
+        $requiredFields = ['created', 'updated', 'payment_address', 'payment_url', 'pos'];
         foreach ($requiredFields as $field){
             self::assertObjectHasAttribute($field, $order);
         }
@@ -109,6 +109,9 @@ class PaymentOrderTest extends BaseApiTest {
     private function payOrder($order)
     {
         $this->signIn(UserFixture::TEST_USER_CREDENTIALS);
+        $route = "/transaction/v1/vendor?address={$order->payment_address}";
+        $commerce = $this->rest('GET', $route);
+        self::assertCount(2, $commerce);
         $route = "/methods/v1/out/rec";
         $resp = $this->rest(
             'POST',

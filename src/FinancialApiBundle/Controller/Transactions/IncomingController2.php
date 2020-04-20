@@ -4,6 +4,7 @@ namespace App\FinancialApiBundle\Controller\Transactions;
 
 use App\FinancialApiBundle\Entity\PaymentOrder;
 use App\FinancialApiBundle\Exception\AppException;
+use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Component\Config\Definition\Exception\Exception;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
@@ -48,6 +49,7 @@ class IncomingController2 extends RestApiController{
     }
 
     public function checkReceiverData(Request $request){
+        /** @var EntityManagerInterface $em */
         $em = $this->getDoctrine()->getManager();
         if($request->query->has('address') && $request->query->get('address')!=''){
             $address = $request->query->get('address');
@@ -58,13 +60,18 @@ class IncomingController2 extends RestApiController{
                 'rec_address' => $address
             ));
             if(!$destination){
-                throw new HttpException(400, 'Incorrect address');
+                /** @var PaymentOrder $order */
+                $order = $em->getRepository(PaymentOrder::class)->findOneBy(
+                    ['payment_address' => $address, 'status' => PaymentOrder::STATUS_IN_PROGRESS]
+                );
+                if($order) $destination = $order->getPos()->getAccount();
+                else throw new HttpException(400, 'Incorrect address');
             }
             $data = array(
                 $destination->getName(),
                 $destination->getCompanyImage()
             );
-            return $this->restV2(201,"ok", "Vendor information", $data);
+            return $this->restV2(200,"ok", "Vendor information", $data);
         }
         throw new HttpException(400, 'Incorrect address');
     }
@@ -346,7 +353,9 @@ class IncomingController2 extends RestApiController{
                 // checking if the address belongs to an order
                 $orderRepo = $em->getRepository(PaymentOrder::class);
                 /** @var PaymentOrder $order */
-                $order = $orderRepo->findOneBy(['payment_address' => $payment_info['address']]);
+                $order = $orderRepo->findOneBy(
+                    ['payment_address' => $payment_info['address'], 'status' => PaymentOrder::STATUS_IN_PROGRESS]
+                );
                 if($order){
                     if($payment_info['amount'] != $order->getAmount()) {
                         throw new AppException(
