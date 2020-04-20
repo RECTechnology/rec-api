@@ -20,6 +20,7 @@ class PaymentOrder extends AppObject implements Stateful, HybridPersistent
     const STATUS_EXPIRED = 'expired';
     const STATUS_DONE = 'done';
     const STATUS_REFUNDED = 'refunded';
+    const STATUS_REFUNDING = 'refunding';
 
     use StatefulTrait;
 
@@ -125,21 +126,39 @@ class PaymentOrder extends AppObject implements Stateful, HybridPersistent
     private $pos;
 
     /**
-     * @var Transaction $transaction
+     * @var Transaction $payment_transaction
      * @HybridProperty(
      *     targetEntity="App\FinancialApiBundle\Document\Transaction",
-     *     identifier="transaction_id",
+     *     identifier="payment_transaction_id",
      *     manager="doctrine.odm.mongodb.document_manager"
      * )
      * @Serializer\Groups({"admin"})
      */
-    private $transaction;
+    private $payment_transaction;
 
     /**
      * @ORM\Column(type="string", nullable=true)
      * @Serializer\Groups({"sadmin"})
      */
-    private $transaction_id;
+    private $payment_transaction_id;
+
+
+    /**
+     * @var Transaction $refund_transaction
+     * @HybridProperty(
+     *     targetEntity="App\FinancialApiBundle\Document\Transaction",
+     *     identifier="refund_transaction_id",
+     *     manager="doctrine.odm.mongodb.document_manager"
+     * )
+     * @Serializer\Groups({"admin"})
+     */
+    private $refund_transaction;
+
+    /**
+     * @ORM\Column(type="string", nullable=true)
+     * @Serializer\Groups({"sadmin"})
+     */
+    private $refund_transaction_id;
 
 
     /**
@@ -345,17 +364,17 @@ class PaymentOrder extends AppObject implements Stateful, HybridPersistent
     /**
      * @return Transaction
      */
-    public function getTransaction(): ?Transaction
+    public function getPaymentTransaction(): ?Transaction
     {
-        return $this->transaction;
+        return $this->payment_transaction;
     }
 
     /**
-     * @param Transaction $transaction
+     * @param Transaction $payment_transaction
      */
-    public function setTransaction(Transaction $transaction): void
+    public function setPaymentTransaction(Transaction $payment_transaction): void
     {
-        $this->transaction = $transaction;
+        $this->payment_transaction = $payment_transaction;
     }
 
     /**
@@ -372,6 +391,22 @@ class PaymentOrder extends AppObject implements Stateful, HybridPersistent
     public function setStatus(string $status): void
     {
         $this->status = $status;
+    }
+
+    /**
+     * @return Transaction
+     */
+    public function getRefundTransaction(): Transaction
+    {
+        return $this->refund_transaction;
+    }
+
+    /**
+     * @param Transaction $refund_transaction
+     */
+    public function setRefundTransaction(Transaction $refund_transaction): void
+    {
+        $this->refund_transaction = $refund_transaction;
     }
 
 }

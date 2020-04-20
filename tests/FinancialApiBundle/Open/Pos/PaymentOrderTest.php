@@ -15,7 +15,7 @@ class PaymentOrderTest extends BaseApiTest {
 
     use MongoDBTrait;
 
-    function testPayAndPoll()
+    function testPayPollRefund()
     {
         $this->signIn(UserFixture::TEST_ADMIN_CREDENTIALS);
         $account = $this->getOneAccount();
@@ -35,7 +35,12 @@ class PaymentOrderTest extends BaseApiTest {
         $order = $this->readPaymentOrder($order);
         self::assertEquals(PaymentOrder::STATUS_DONE, $order->status);
         $order = $this->readPaymentOrderAdmin($order);
-        self::assertNotEmpty($order->transaction);
+        self::assertNotEmpty($order->payment_transaction);
+
+        $order = $this->refundOrder($order);
+        self::assertEquals(PaymentOrder::STATUS_REFUNDED, $order->status);
+        self::assertObjectHasAttribute("refund_transaction", $order);
+        self::assertNotEmpty($order->refund_transaction);
     }
 
     private function getOneAccount()
@@ -130,6 +135,19 @@ class PaymentOrderTest extends BaseApiTest {
     private function listPosOrders($pos)
     {
         return $this->rest('GET', "/admin/v3/pos/{$pos->id}/payment_orders");
+    }
+
+    private function refundOrder($order)
+    {
+        $this->signIn(UserFixture::TEST_ADMIN_CREDENTIALS);
+        return $this->rest(
+            'PUT',
+            "/admin/v3/payment_orders/{$order->id}",
+            [
+                'status' => PaymentOrder::STATUS_REFUNDED,
+                'pin' => UserFixture::TEST_ADMIN_CREDENTIALS['pin']
+            ]
+        );
     }
 
 }
