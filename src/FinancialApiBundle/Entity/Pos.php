@@ -59,7 +59,7 @@ class Pos extends AppObject
 
     /**
      * @ORM\OneToOne(targetEntity="App\FinancialApiBundle\Entity\Group", inversedBy="pos")
-     * @Serializer\Groups({"user"})
+     * @Serializer\Groups({"public"})
      */
     private $account;
 
