@@ -1,87 +1,51 @@
 <?php
 namespace App\FinancialApiBundle\Command;
 
-use Doctrine\ODM\MongoDB\Mapping\Annotations\Timestamp;
-use Symfony\Bundle\FrameworkBundle\Command\ContainerAwareCommand;
-use Symfony\Component\Console\Input\InputArgument;
-use Symfony\Component\Console\Input\InputOption;
+use App\FinancialApiBundle\Entity\PaymentOrder;
+use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
-use Symfony\Component\HttpKernel\Exception\HttpException;
-use Symfony\Component\Validator\Constraints\DateTime;
-use App\FinancialApiBundle\DependencyInjection\App\Commons\FeeDeal;
-use App\FinancialApiBundle\Document\Transaction;
-use App\FinancialApiBundle\Entity\Exchange;
+use Symfony\Component\DependencyInjection\ContainerAwareInterface;
+use Symfony\Component\DependencyInjection\ContainerAwareTrait;
 
-class ExpirePosCommand extends ContainerAwareCommand
+class ExpirePosCommand extends SynchronizedContainerAwareCommand implements ContainerAwareInterface
 {
+    /** Do not process more than MAX_RESULTS per execution */
+    const MAX_RESULTS = 1000;
+
+    use ContainerAwareTrait;
+
     protected function configure()
     {
-        $this
-            ->setName('rec:pos:expire')
-            ->setDescription('Check pos expired transactions')
-        ;
+        $this->setName('rec:pos:expire');
     }
 
-    protected function execute(InputInterface $input, OutputInterface $output)
+    protected function executeSynchronized(InputInterface $input, OutputInterface $output)
     {
+        $output->writeln('Start POS expire command');
 
-        $service_cname = array('POS-PNP', 'POS-SAFETYPAY', 'POS-SABADELL');
+        /** @var EntityManagerInterface $em */
+        $em = $this->getContainer()->get('doctrine.orm.entity_manager');
+        $repo = $em->getRepository(PaymentOrder::class);
+        $orders = $repo->findBy(['status' => PaymentOrder::STATUS_IN_PROGRESS], null, self::MAX_RESULTS);
 
-        $dm = $this->getContainer()->get('doctrine_mongodb')->getManager();
-        $em = $this->getContainer()->get('doctrine')->getManager();
-
-        $qb = $dm->createQueryBuilder('FinancialApiBundle:Transaction')
-            ->field('method')->in($service_cname)
-            ->field('status')->equals('created')
-            ->field('currency')->equals('EUR')
-            ->getQuery();
-
-        $contador = 0;
-        foreach($qb->toArray() as $transaction){
-
-            $pos_id = $transaction->getPosId();
-            $posRepo = $em->getRepository('FinancialApiBundle:POS')->findBy(array(
-                'pos_id' =>  $pos_id
-            ));
-
-            $expired = false;
-
-            if(!$posRepo){
-                $expired = true;
-            }else{
-                $expires_in = $posRepo[0]->getExpiresIn();
-                $created = $transaction->getCreated();
-                $created = $created->getTimestamp();
-
-                $actual = new \MongoDate();
-                $actual = $actual->sec;
-
-                $expires = $created + $expires_in;
-
-                if($expires < $actual){
-                    $expired = true;
-                }
+        $output->writeln("Found " . count($orders) . " in-progress orders");
+        /** @var PaymentOrder $order */
+        foreach($orders as $order){
+            $output->write("Checking order {$order->getId()}... ");
+            $now = new \DateTime();
+            $diff = $now->diff($order->getUpdated());
+            if($diff->s > PaymentOrder::EXPIRE_TIME){
+                $output->writeln("expired");
+                $order->setStatus(PaymentOrder::STATUS_EXPIRED);
             }
-
-            if($expired == true){
-                $transaction->setStatus(Transaction::$STATUS_EXPIRED);
-                $paymentInfo = $transaction->getPayInInfo();
-                $paymentInfo['status'] = Transaction::$STATUS_EXPIRED;
-//                $transaction = $this->getContainer()->get('notificator')->notificate($transaction);
-                $transaction->setUpdated(new \MongoDate());
-                $contador ++;
+            else {
+                $output->writeln("not expired, {$diff->s} seconds elapsed");
             }
-
-            $dm->persist($transaction);
-            $em->flush();
-
-            $dm->flush();
-
         }
+        $em->flush();
 
-        $output->writeln('Expired: '.$contador.' pos transactions');
+        $output->writeln('Finish command');
+
     }
-
-
 }
