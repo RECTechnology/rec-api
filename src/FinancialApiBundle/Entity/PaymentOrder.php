@@ -22,6 +22,8 @@ class PaymentOrder extends AppObject implements Stateful, HybridPersistent
     const STATUS_REFUNDED = 'refunded';
     const STATUS_REFUNDING = 'refunding';
 
+    const EXPIRE_TIME = 300;
+
     use StatefulTrait;
 
     /**

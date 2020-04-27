@@ -41,6 +41,8 @@ class PaymentOrderTest extends BaseApiTest {
         self::assertEquals(PaymentOrder::STATUS_REFUNDED, $order->status);
         self::assertObjectHasAttribute("refund_transaction", $order);
         self::assertNotEmpty($order->refund_transaction);
+
+        $this->runCommand('rec:pos:expire');
     }
 
     private function getOneAccount()
