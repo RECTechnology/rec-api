@@ -34,13 +34,13 @@ class ExpirePosCommand extends SynchronizedContainerAwareCommand implements Cont
         foreach($orders as $order){
             $output->write("Checking order {$order->getId()}... ");
             $now = new \DateTime();
-            $diff = $now->diff($order->getUpdated());
-            if($diff->s > PaymentOrder::EXPIRE_TIME){
+            $diff = $now->getTimestamp() - $order->getUpdated()->getTimestamp();
+            if($diff > PaymentOrder::EXPIRE_TIME){
                 $output->writeln("expired");
                 $order->setStatus(PaymentOrder::STATUS_EXPIRED);
             }
             else {
-                $output->writeln("not expired, {$diff->s} seconds elapsed");
+                $output->writeln("not expired, {$diff} seconds elapsed");
             }
         }
         $em->flush();
