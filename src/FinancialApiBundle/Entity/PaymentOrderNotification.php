@@ -13,7 +13,7 @@ use Symfony\Component\Validator\Constraints as Assert;
  * @package App\FinancialApiBundle\Entity
  * @ORM\Entity()
  */
-class PaymentOrderNotification extends AppObject implements Stateful {
+class PaymentOrderNotification extends AppObject implements Notification, Stateful {
 
     use StatefulTrait;
 

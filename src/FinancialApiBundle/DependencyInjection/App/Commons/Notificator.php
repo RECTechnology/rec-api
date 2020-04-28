@@ -8,7 +8,12 @@
 
 namespace App\FinancialApiBundle\DependencyInjection\App\Commons;
 
+use App\FinancialApiBundle\Entity\Notification;
 
+/**
+ * Interface Notificator
+ * @package App\FinancialApiBundle\DependencyInjection\App\Commons
+ */
 interface Notificator {
-    function send($msg);
+    function send(Notification $notification, $success, $failure);
 }

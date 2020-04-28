@@ -12,7 +12,7 @@ namespace App\FinancialApiBundle\DependencyInjection\App\Commons;
  * Class NotificatorAggregator
  * @package App\FinancialApiBundle\DependencyInjection\App\Commons
  */
-class NotificatorAggregator implements Notificator
+class NotificatorAggregator implements Messenger
 {
 
     /** @var Notificator[] $notificators */

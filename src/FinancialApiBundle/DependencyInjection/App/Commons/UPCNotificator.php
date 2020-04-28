@@ -18,7 +18,7 @@ use Symfony\Component\DependencyInjection\ParameterBag\ParameterBagInterface;
  * Class UPCNotificator
  * @package App\FinancialApiBundle\DependencyInjection\App\Commons
  */
-class UPCNotificator implements Notificator {
+class UPCNotificator implements Messenger {
 
     /** @var ContainerInterface */
     private $container;
