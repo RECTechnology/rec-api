@@ -2,6 +2,7 @@
 
 namespace Test\FinancialApiBundle\Open\Pos;
 
+use App\FinancialApiBundle\Controller\Google2FA;
 use App\FinancialApiBundle\DataFixture\UserFixture;
 use App\FinancialApiBundle\DependencyInjection\App\Commons\HTTPNotifier;
 use App\FinancialApiBundle\DependencyInjection\App\Commons\Notifier;
@@ -166,12 +167,14 @@ class PaymentOrderTest extends BaseApiTest {
     private function refundOrder($order)
     {
         $this->signIn(UserFixture::TEST_ADMIN_CREDENTIALS);
+        $user = $this->getSignedInUser();
+        $otp = Google2FA::oath_totp($user->two_factor_code);
         return $this->rest(
             'PUT',
             "/admin/v3/payment_orders/{$order->id}",
             [
                 'status' => PaymentOrder::STATUS_REFUNDED,
-                'pin' => UserFixture::TEST_ADMIN_CREDENTIALS['pin']
+                'otp' => $otp
             ]
         );
     }

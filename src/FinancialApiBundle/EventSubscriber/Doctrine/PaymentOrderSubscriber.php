@@ -2,6 +2,7 @@
 
 namespace App\FinancialApiBundle\EventSubscriber\Doctrine;
 
+use App\FinancialApiBundle\Controller\Google2FA;
 use App\FinancialApiBundle\Controller\Transactions\IncomingController2;
 use App\FinancialApiBundle\Document\Transaction;
 use App\FinancialApiBundle\Entity\Group;
@@ -69,7 +70,7 @@ class PaymentOrderSubscriber implements EventSubscriber {
         if($order instanceof PaymentOrder){
             if ($args->hasChangedField("status")){
                 if($args->getNewValue("status") == PaymentOrder::STATUS_REFUNDED){
-                    $this->checkPinMatchesWithCurrentUser();
+                    $this->checkOTP();
 
                     /*
                      *  This STATUS_REFUNDING status is to prevent recursivity when using IncomingController2
@@ -170,12 +171,13 @@ class PaymentOrderSubscriber implements EventSubscriber {
         }
     }
 
-    private function checkPinMatchesWithCurrentUser() {
-        /* check pin matches with current user */
+    private function checkOTP() {
+        /* check otp matches with current user */
         $currentRequest = $this->requestStack->getCurrentRequest();
         /** @var User $user */
         $user = $this->tokenStorage->getToken()->getUser();
-        if($user->getPin() != $currentRequest->request->get('pin'))
-            throw new AppException(403, "Invalid pin");
+        $otp = Google2FA::oath_totp($user->getTwoFactorCode());
+        if($otp !== $currentRequest->request->get('otp'))
+            throw new AppException(403, "Invalid otp");
     }
 }
