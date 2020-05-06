@@ -434,7 +434,7 @@ class IncomingController2 extends RestApiController{
                 $dm->flush();
 
                 $logger->info('(' . $group_id . ')(T) INIT ERROR NOTIFICATION');
-                $this->container->get('notificator')->notificate($transaction);
+                $this->container->get('messenger')->notificate($transaction);
                 $logger->info('(' . $group_id . ')(T) END ERROR NOTIFICATION');
                 $logger->info('(' . $group_id . ')(T) END ALL');
                 throw new HttpException($e->getCode(), $e->getMessage());
@@ -517,7 +517,7 @@ class IncomingController2 extends RestApiController{
         }
 
         $logger->info('(' . $group_id . ')(T) INIT NOTIFICATION');
-        $this->container->get('notificator')->notificate($transaction);
+        $this->container->get('messenger')->notificate($transaction);
         $logger->info('(' . $group_id . ')(T) END NOTIFICATION');
         if($transaction == false) throw new HttpException(500, "oOps, some error has occurred within the call");
 
@@ -799,7 +799,7 @@ class IncomingController2 extends RestApiController{
                         $em->persist($current_wallet);
                         $em->flush();
 
-                        $transaction = $this->get('notificator')->notificate($transaction);
+                        $transaction = $this->get('messenger')->notificate($transaction);
 
                         //return fees
                         $logger->info('Update transaction -> returnFees');
@@ -907,7 +907,7 @@ class IncomingController2 extends RestApiController{
                 $mongo->persist($transaction);
                 $mongo->flush();
 
-                $transaction = $this->get('notificator')->notificate($transaction);
+                $transaction = $this->get('messenger')->notificate($transaction);
 
                 $em = $this->getDoctrine()->getManager();
 
@@ -1124,7 +1124,7 @@ class IncomingController2 extends RestApiController{
         }
 
         //notificar al cliente
-        $transaction = $this->get('notificator')->notificate($transaction);
+        $transaction = $this->get('messenger')->notificate($transaction);
 
         return $this->restV2(200, "ok", "Notification successful");
 

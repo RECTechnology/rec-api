@@ -15,7 +15,7 @@ namespace App\FinancialApiBundle\DependencyInjection\App\Commons;
 class NotificatorAggregator implements Messenger
 {
 
-    /** @var Notificator[] $notificators */
+    /** @var Notifier[] $notificators */
     private $notificators;
 
     /**
@@ -29,7 +29,7 @@ class NotificatorAggregator implements Messenger
 
     function send($msg)
     {
-        /** @var Notificator $notificator */
+        /** @var Notifier $notificator */
         foreach ($this->notificators as $notificator) {
             $notificator->send($msg);
         }

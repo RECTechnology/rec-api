@@ -59,7 +59,7 @@ class PaymentOrderNotification extends AppObject implements Notification, Statef
      * @ORM\Column(type="integer")
      * @Serializer\Groups({"admin"})
      */
-    private $tries;
+    private $tries = 0;
 
     /**
      * @return mixed
@@ -123,6 +123,22 @@ class PaymentOrderNotification extends AppObject implements Notification, Statef
     public function setTries($tries): void
     {
         $this->tries = $tries;
+    }
+
+    /**
+     * @return string
+     */
+    public function getStatus(): string
+    {
+        return $this->status;
+    }
+
+    /**
+     * @param string $status
+     */
+    public function setStatus(string $status): void
+    {
+        $this->status = $status;
     }
 
 }

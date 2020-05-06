@@ -58,7 +58,7 @@ class CheckFiatCommand extends SynchronizedContainerAwareCommand{
                 $output->writeln('CHECK FIAT status: ' . $transaction->getStatus());
                 if ($previous_status != $transaction->getStatus()) {
                     $output->writeln('Notificate init:');
-                    $transaction = $this->getContainer()->get('notificator')->notificate($transaction);
+                    $transaction = $this->getContainer()->get('messenger')->notificate($transaction);
                     $output->writeln('Notificate end');
                     $transaction->setUpdated(new \DateTime);
                 }
@@ -101,7 +101,7 @@ class CheckFiatCommand extends SynchronizedContainerAwareCommand{
                 }
                 elseif ($transaction->getStatus() == Transaction::$STATUS_EXPIRED) {
                     $output->writeln('TRANSACTION EXPIRED');
-                    $transaction = $this->getContainer()->get('notificator')->notificate($transaction);
+                    $transaction = $this->getContainer()->get('messenger')->notificate($transaction);
                 }
                 $em->flush();
                 $dm->persist($transaction);

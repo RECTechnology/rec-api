@@ -2,11 +2,12 @@
 
 namespace App\FinancialApiBundle\EventSubscriber\Doctrine;
 
-use App\FinancialApiBundle\DependencyInjection\App\Commons\Notificator;
+use App\FinancialApiBundle\DependencyInjection\App\Commons\Notifier;
 use App\FinancialApiBundle\Entity\PaymentOrderNotification;
 use Doctrine\Common\EventSubscriber;
 use Doctrine\ORM\Event\LifecycleEventArgs;
 use Doctrine\ORM\Events;
+use Symfony\Component\DependencyInjection\ContainerInterface;
 
 /**
  * Class NotificationsSubscriber
@@ -14,16 +15,18 @@ use Doctrine\ORM\Events;
  */
 class NotificationsSubscriber implements EventSubscriber {
 
-    /** @var Notificator $notificator */
-    private $notificator;
+    /**
+     * @var ContainerInterface
+     */
+    private $container;
 
     /**
      * NotificationsSubscriber constructor.
-     * @param Notificator $notificator
+     * @param ContainerInterface $container
      */
-    public function __construct(Notificator $notificator)
+    public function __construct(ContainerInterface $container)
     {
-        $this->notificator = $notificator;
+        $this->container = $container;
     }
 
 
@@ -41,14 +44,19 @@ class NotificationsSubscriber implements EventSubscriber {
     public function postPersist(LifecycleEventArgs $args){
         $notification = $args->getEntity();
         if($notification instanceof PaymentOrderNotification){
-            $this->notificator->send(
+            $notifier = $this->container->get(Notifier::class);
+            $em = $this->container->get('doctrine.orm.entity_manager');
+            $notifier->send(
                 $notification,
                 function ($ignored) use ($notification) {
                     $notification->setStatus(PaymentOrderNotification::STATUS_NOTIFIED);
                 },
                 function ($ignored) use ($notification) {
-                    $notification->setStatue(PaymentOrderNotification::STATUS_RETRYING);
+                    $notification->setStatus(PaymentOrderNotification::STATUS_RETRYING);
                     $notification->setTries($notification->getTries() + 1);
+                },
+                function () use ($notification, $em) {
+                    $em->flush($notification);
                 }
             );
         }

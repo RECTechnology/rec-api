@@ -6,12 +6,18 @@ namespace App\FinancialApiBundle\DependencyInjection\App\Commons;
 use App\FinancialApiBundle\Entity\Notification;
 
 /**
- * Class PaymentOrderNotificator
+ * Class HTTPNotifier
  * @package App\FinancialApiBundle\DependencyInjection\App\Commons
  */
-class HTTPNotificator implements Notificator {
+class HTTPNotifier implements Notifier {
 
-    function send(Notification $notification, $success, $failure) {
+    /**
+     * @param Notification $notification
+     * @param callable $on_success
+     * @param callable $on_failure
+     * @param callable $on_finally
+     */
+    function send(Notification $notification, $on_success, $on_failure, $on_finally): void {
         $ops = [
             'http' => [
                 'method' => 'POST',
@@ -25,7 +31,8 @@ class HTTPNotificator implements Notificator {
             false,
             stream_context_create($ops)
         );
-        if($response) $success($response);
-        else $failure($response);
+        if($response) $on_success($response);
+        else $on_failure($response);
+        $on_finally($response);
     }
 }
