@@ -9,7 +9,7 @@
 namespace App\FinancialApiBundle\DependencyInjection\App\Commons;
 
 
-class TelegramNotificator implements Notificator {
+class TelegramNotificator implements Messenger {
 
     private $chatId;
     private $telegramToken;

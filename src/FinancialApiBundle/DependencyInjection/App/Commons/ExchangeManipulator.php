@@ -237,7 +237,7 @@ class ExchangeManipulator{
         }
 
         //notification
-        $this->container->get('notificator')->notificate($cashIn);
+        $this->container->get('messenger')->notificate($cashIn);
 
         $paymentInfo = array(
             'from'  =>  $from,

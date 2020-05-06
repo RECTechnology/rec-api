@@ -17,18 +17,15 @@ services:
         calls:
             - [setContainer, ["@service_container"] ]
 
-    notificator:
+    App\FinancialApiBundle\DependencyInjection\App\Commons\HTTPNotifier:
+
+    messenger:
         class: App\FinancialApiBundle\DependencyInjection\Transactions\Core\Notificator
         arguments:
             - "@service_container"
             - "@logger"
             - "@doctrine.orm.entity_manager"
             - "@App\\FinancialApiBundle\\DependencyInjection\\App\\Commons\\UPCNotificator"
-
-    command.check.posV2:
-        class: App\FinancialApiBundle\Command\CheckCryptoPOSv2Command
-        calls:
-            - [setContainer, ["@service_container"] ]
 
     command.delegate.payment:
         class: App\FinancialApiBundle\Command\DelegatedExchangeCommand

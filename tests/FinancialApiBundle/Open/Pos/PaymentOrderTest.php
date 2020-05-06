@@ -3,6 +3,10 @@
 namespace Test\FinancialApiBundle\Open\Pos;
 
 use App\FinancialApiBundle\DataFixture\UserFixture;
+use App\FinancialApiBundle\DependencyInjection\App\Commons\HTTPNotifier;
+use App\FinancialApiBundle\DependencyInjection\App\Commons\Notifier;
+use App\FinancialApiBundle\DependencyInjection\Transactions\Core\Notificator;
+use App\FinancialApiBundle\Entity\Notification;
 use App\FinancialApiBundle\Entity\PaymentOrder;
 use Test\FinancialApiBundle\BaseApiTest;
 use Test\FinancialApiBundle\Utils\MongoDBTrait;
@@ -15,6 +19,23 @@ class PaymentOrderTest extends BaseApiTest {
 
     use MongoDBTrait;
 
+    const SUCCESS_RESULT = true;
+    const FAILURE_RESULT = false;
+
+    function injectNotifier($result){
+        $notifier = $this->createMock(HTTPNotifier::class);
+        $notifier->method('send')
+            ->will($this->returnCallback(
+                function (Notification $ignored, $on_success, $on_failure, $on_finally) use ($result) {
+                    if ($result) $on_success("success response");
+                    else $on_failure("error response");
+                    $on_finally();
+                }
+            ));
+        $this->override(Notifier::class, $notifier);
+    }
+
+
     function testPayPollRefund()
     {
         $this->signIn(UserFixture::TEST_ADMIN_CREDENTIALS);
@@ -23,6 +44,8 @@ class PaymentOrderTest extends BaseApiTest {
         $this->activatePos($pos);
         $this->listPosOrders($pos);
 
+        $this->injectNotifier(self::FAILURE_RESULT);
+
         $this->signOut();
         $sample_url = "https://rec.barcelona";
         $order = $this->createPaymentOrder($pos, 1e8, $sample_url, $sample_url);
@@ -30,6 +53,7 @@ class PaymentOrderTest extends BaseApiTest {
         $order = $this->readPaymentOrder($order);
         $this->paymentOrderHasRequiredData($order);
         $this->setClientIp($this->faker->ipv4);
+
         $tx = $this->payOrder($order);
         self::assertEquals("success", $tx->status);
         $order = $this->readPaymentOrder($order);

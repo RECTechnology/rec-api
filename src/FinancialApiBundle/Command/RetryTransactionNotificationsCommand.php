@@ -52,11 +52,11 @@ class RetryTransactionNotificationsCommand extends ContainerAwareCommand
                 $output->writeln('Sending notification');
 
                 /** @var Notificator $notificator */
-                $notificator = $this->getContainer()->get('notificator');
+                $notificator = $this->getContainer()->get('messenger');
                 $transaction = $notificator->notificate($transaction);
 
                 if($transaction->getNotified()){
-                    $output->writeln('NOTIFICATED TRANSACTION');
+                    $output->writeln('NOTIFIED TRANSACTION');
                 }else{
                     $output->writeln('Notification FAILED');
                 }

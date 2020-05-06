@@ -9,6 +9,6 @@
 namespace App\FinancialApiBundle\DependencyInjection\App\Commons;
 
 
-interface Notificator {
+interface Messenger {
     function send($msg);
 }

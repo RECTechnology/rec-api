@@ -145,7 +145,7 @@ class SpecialActionsController extends RestApiController {
             }
         }
 
-        $transaction = $this->get('notificator')->notificate($transaction);
+        $transaction = $this->get('messenger')->notificate($transaction);
 
         $dm->persist($transaction);
         $dm->flush();
@@ -205,7 +205,7 @@ class SpecialActionsController extends RestApiController {
 //            }
 
 
-            $transaction = $this->get('notificator')->notificate($transaction);
+            $transaction = $this->get('messenger')->notificate($transaction);
 
             $dm->persist($transaction);
             $dm->flush();
@@ -484,7 +484,7 @@ class SpecialActionsController extends RestApiController {
 
             }
 
-            $transaction = $this->get('notificator')->notificate($transaction);
+            $transaction = $this->get('messenger')->notificate($transaction);
 
             $dm->persist($transaction);
             $dm->flush();
@@ -520,7 +520,7 @@ class SpecialActionsController extends RestApiController {
             $transaction->setPayOutInfo($paymentInfo);
             $transaction->setUpdated(new \DateTime());
 
-            $transaction = $this->get('notificator')->notificate($transaction);
+            $transaction = $this->get('messenger')->notificate($transaction);
 
             $dm->persist($transaction);
             $dm->flush();
