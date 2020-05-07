@@ -4,9 +4,7 @@ namespace Test\FinancialApiBundle\Open\Pos;
 
 use App\FinancialApiBundle\Controller\Google2FA;
 use App\FinancialApiBundle\DataFixture\UserFixture;
-use App\FinancialApiBundle\DependencyInjection\App\Commons\HTTPNotifier;
 use App\FinancialApiBundle\DependencyInjection\App\Commons\Notifier;
-use App\FinancialApiBundle\DependencyInjection\Transactions\Core\Notificator;
 use App\FinancialApiBundle\Entity\Notification;
 use App\FinancialApiBundle\Entity\PaymentOrder;
 use Test\FinancialApiBundle\BaseApiTest;
@@ -24,7 +22,7 @@ class PaymentOrderTest extends BaseApiTest {
     const FAILURE_RESULT = false;
 
     function injectNotifier($result){
-        $notifier = $this->createMock(HTTPNotifier::class);
+        $notifier = $this->createMock(Notifier::class);
         $notifier->method('send')
             ->will($this->returnCallback(
                 function (Notification $ignored, $on_success, $on_failure, $on_finally) use ($result) {
@@ -68,6 +66,9 @@ class PaymentOrderTest extends BaseApiTest {
         self::assertNotEmpty($order->refund_transaction);
 
         $this->runCommand('rec:pos:expire');
+
+        $this->injectNotifier(self::SUCCESS_RESULT);
+        $this->runCommand('rec:pos:notifications:retry');
     }
 
     private function getOneAccount()

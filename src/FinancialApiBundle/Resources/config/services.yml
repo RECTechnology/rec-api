@@ -17,8 +17,6 @@ services:
         calls:
             - [setContainer, ["@service_container"] ]
 
-    App\FinancialApiBundle\DependencyInjection\App\Commons\HTTPNotifier:
-
     messenger:
         class: App\FinancialApiBundle\DependencyInjection\Transactions\Core\Notificator
         arguments:

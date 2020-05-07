@@ -5,6 +5,7 @@ namespace App\FinancialApiBundle\EventSubscriber\Doctrine;
 use App\FinancialApiBundle\DependencyInjection\App\Commons\Notifier;
 use App\FinancialApiBundle\Entity\PaymentOrderNotification;
 use Doctrine\Common\EventSubscriber;
+use Doctrine\ORM\EntityManagerInterface;
 use Doctrine\ORM\Event\LifecycleEventArgs;
 use Doctrine\ORM\Events;
 use Symfony\Component\DependencyInjection\ContainerInterface;
@@ -16,17 +17,24 @@ use Symfony\Component\DependencyInjection\ContainerInterface;
 class NotificationsSubscriber implements EventSubscriber {
 
     /**
-     * @var ContainerInterface
+     * @var EntityManagerInterface
      */
-    private $container;
+    private $em;
+
+    /**
+     * @var Notifier
+     */
+    private $notifier;
 
     /**
      * NotificationsSubscriber constructor.
-     * @param ContainerInterface $container
+     * @param EntityManagerInterface $em
+     * @param Notifier $notifier
      */
-    public function __construct(ContainerInterface $container)
+    public function __construct(EntityManagerInterface $em, Notifier $notifier)
     {
-        $this->container = $container;
+        $this->em = $em;
+        $this->notifier = $notifier;
     }
 
 
@@ -44,9 +52,8 @@ class NotificationsSubscriber implements EventSubscriber {
     public function postPersist(LifecycleEventArgs $args){
         $notification = $args->getEntity();
         if($notification instanceof PaymentOrderNotification){
-            $notifier = $this->container->get(Notifier::class);
-            $em = $this->container->get('doctrine.orm.entity_manager');
-            $notifier->send(
+            $em = $this->em;
+            $this->notifier->send(
                 $notification,
                 function ($ignored) use ($notification) {
                     $notification->setStatus(PaymentOrderNotification::STATUS_NOTIFIED);
@@ -56,7 +63,7 @@ class NotificationsSubscriber implements EventSubscriber {
                     $notification->setTries($notification->getTries() + 1);
                 },
                 function () use ($notification, $em) {
-                    $em->flush($notification);
+                    $em->flush();
                 }
             );
         }

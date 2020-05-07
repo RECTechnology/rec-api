@@ -56,12 +56,23 @@ class PaymentOrderNotificationsSubscriber implements EventSubscriber {
             $pos = $order->getPos();
             $notification->setUrl($pos->getNotificationUrl());
 
-            $notification->setContent([
+            $amount = intval($order->getAmount());
+            $signature_version = "hmac_sha256_v1";
+            $dataToSign = [
                 "payment_order" => $order->getId(),
+                'reference' => $order->getReference(),
+                "amount" => $amount,
+                "time" => $order->getUpdated()->format('c'),
                 "status" => $order->getStatus(),
-                "amount" => $order->getAmount(),
-                "signature" => "todo_implement_signature",
-            ]);
+                "signature_version" => $signature_version
+            ];
+
+            ksort($dataToSign);
+            $signaturePack = json_encode($dataToSign, JSON_UNESCAPED_SLASHES);
+
+            $signature = hash_hmac('sha256', $signaturePack, base64_decode($pos->getAccessSecret()));
+
+            $notification->setContent($dataToSign + ["signature" => $signature]);
             $em = $args->getEntityManager();
             $em->persist($notification);
             $em->persist($order);

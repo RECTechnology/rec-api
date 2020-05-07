@@ -36,6 +36,14 @@ class RetryPaymentOrderNotificationsCommand extends SynchronizedContainerAwareCo
         ;
     }
 
+    /**
+     * @required
+     * @param Notifier $notifier
+     */
+    public function setNotifier(Notifier $notifier){
+        $this->notifier = $notifier;
+    }
+
     protected function executeSynchronized(InputInterface $input, OutputInterface $output)
     {
         $output->writeln('Listing order notifications ...');
@@ -53,11 +61,9 @@ class RetryPaymentOrderNotificationsCommand extends SynchronizedContainerAwareCo
             $limit
         );
 
-        $notifier = $this->getContainer()->get(Notifier::class);
-
         /** @var PaymentOrderNotification $notification */
         foreach($notifications as $notification){
-            $notifier->send(
+            $this->notifier->send(
                 $notification,
                 function($ignored) use ($notification) {
                     $notification->setStatus(PaymentOrderNotification::STATUS_NOTIFIED);
