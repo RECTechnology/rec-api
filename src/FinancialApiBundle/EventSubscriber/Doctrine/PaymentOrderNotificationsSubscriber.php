@@ -48,7 +48,7 @@ class PaymentOrderNotificationsSubscriber implements EventSubscriber {
 
     public function postUpdate(LifecycleEventArgs $args){
         $order = $args->getEntity();
-        if($order instanceof PaymentOrder){
+        if($order instanceof PaymentOrder && $order->getPos()->getNotificationUrl() != null){
             $notification = new PaymentOrderNotification();
             $notification->setPaymentOrder($order);
 
