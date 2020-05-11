@@ -31,7 +31,7 @@ class RetryPaymentOrderNotificationsCommand extends SynchronizedContainerAwareCo
             ->addArgument(
                 'limit',
                 InputArgument::OPTIONAL,
-                'limit the notifications to send (default: 10)'
+                'limit the notifications to send (default: 1000)'
             )
         ;
     }
@@ -56,8 +56,8 @@ class RetryPaymentOrderNotificationsCommand extends SynchronizedContainerAwareCo
         $repo = $em->getRepository(PaymentOrderNotification::class);
 
         $notifications = $repo->findBy(
-            ["status" => 'retrying'],
-            ['created' => 'ASC'], # older goes first
+            ["status" => PaymentOrderNotification::STATUS_RETRYING],
+            ['tries' => 'ASC'], # less notified goes first
             $limit
         );
 
@@ -69,7 +69,13 @@ class RetryPaymentOrderNotificationsCommand extends SynchronizedContainerAwareCo
                     $notification->setStatus(PaymentOrderNotification::STATUS_NOTIFIED);
                 },
                 function($ignored) use ($notification) {
-                    $notification->setTries($notification->getTries() + 1);
+                    $tries = $notification->getTries() + 1;
+                    $notification->setTries($tries);
+                    $now = new \DateTime();
+                    $diff = $now->getTimestamp() - $notification->getCreated()->getTimestamp();
+                    if($diff > PaymentOrderNotification::EXPIRE_TIME)
+                        $notification->setStatus(PaymentOrderNotification::STATUS_EXPIRED);
+
                 },
                 function() use ($notification, $em) {
                     $em->flush();
