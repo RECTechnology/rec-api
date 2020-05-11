@@ -34,6 +34,12 @@ class PaymentOrderTest extends BaseApiTest {
         $this->override(Notifier::class, $notifier);
     }
 
+    function setUp(): void
+    {
+        parent::setUp();
+        $this->injectNotifier(self::FAILURE_RESULT);
+    }
+
 
     function testPayPollRefund()
     {
@@ -42,8 +48,6 @@ class PaymentOrderTest extends BaseApiTest {
         $pos = $this->createPos($account);
         $this->activatePos($pos);
         $this->listPosOrders($pos);
-
-        $this->injectNotifier(self::FAILURE_RESULT);
 
         $this->signOut();
         $sample_url = "https://rec.barcelona";
