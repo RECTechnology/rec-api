@@ -33,7 +33,7 @@ class PaymentOrdersController extends CRUDController {
     {
         $grants = parent::getCRUDGrants();
         $grants[self::CRUD_SEARCH] = self::ROLE_SUPER_USER;
-        $grants[self::CRUD_INDEX] = self::ROLE_USER;
+        $grants[self::CRUD_INDEX] = self::ROLE_SUPER_USER;
         $grants[self::CRUD_SHOW] = self::ROLE_PUBLIC;
         $grants[self::CRUD_CREATE] = self::ROLE_PUBLIC;
         $grants[self::CRUD_UPDATE] = self::ROLE_SUPER_USER;
