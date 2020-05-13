@@ -57,30 +57,37 @@ class RetryPaymentOrderNotificationsCommand extends SynchronizedContainerAwareCo
 
         $notifications = $repo->findBy(
             ["status" => PaymentOrderNotification::STATUS_RETRYING],
-            ['tries' => 'ASC'], # less notified goes first
+            ['updated' => 'ASC'], # older goes first
             $limit
         );
 
+        $orderNotificationsFailed = [];
+
         /** @var PaymentOrderNotification $notification */
         foreach($notifications as $notification){
-            $this->notifier->send(
-                $notification,
-                function($ignored) use ($notification) {
-                    $notification->setStatus(PaymentOrderNotification::STATUS_NOTIFIED);
-                },
-                function($ignored) use ($notification) {
-                    $tries = $notification->getTries() + 1;
-                    $notification->setTries($tries);
-                    $now = new \DateTime();
-                    $diff = $now->getTimestamp() - $notification->getCreated()->getTimestamp();
-                    if($diff > PaymentOrderNotification::EXPIRE_TIME)
-                        $notification->setStatus(PaymentOrderNotification::STATUS_EXPIRED);
+            $order = $notification->getPaymentOrder();
+            //each order can have many notifications, and if one fails, the rest should not be tried
+            if(!in_array($order, $orderNotificationsFailed)){
+                $this->notifier->send(
+                    $notification,
+                    function($ignored) use ($notification) {
+                        $notification->setStatus(PaymentOrderNotification::STATUS_NOTIFIED);
+                    },
+                    function($ignored) use ($notification, $order) {
+                        $orderNotificationsFailed []= $order;
+                        $tries = $notification->getTries() + 1;
+                        $notification->setTries($tries);
+                        $now = new \DateTime();
+                        $diff = $now->getTimestamp() - $notification->getCreated()->getTimestamp();
+                        if($diff > PaymentOrderNotification::EXPIRE_TIME)
+                            $notification->setStatus(PaymentOrderNotification::STATUS_EXPIRED);
 
-                },
-                function() use ($notification, $em) {
-                    $em->flush();
-                }
-            );
+                    },
+                    function() use ($notification, $em) {
+                        $em->flush();
+                    }
+                );
+            }
         }
 
     }

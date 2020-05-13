@@ -27,7 +27,8 @@ class PaymentOrderNotification extends AppObject implements Notification, Statef
      * @var string $status
      * @ORM\Column(type="string")
      * @StatusProperty(choices={
-     *     "created"={"to"={"retrying", "notified"}},
+     *     "created"={"to"={"retrying", "notified", "stuck"}},
+     *     "stuck"={"to"={"retrying", "expired", "notified"}},
      *     "retrying"={"to"={"notified", "expired"}},
      *     "expired"={"final"=true},
      *     "notified"={"final"=true}

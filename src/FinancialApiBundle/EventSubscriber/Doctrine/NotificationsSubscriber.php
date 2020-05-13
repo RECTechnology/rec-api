@@ -53,19 +53,27 @@ class NotificationsSubscriber implements EventSubscriber {
         $notification = $args->getEntity();
         if($notification instanceof PaymentOrderNotification){
             $em = $this->em;
-            $this->notifier->send(
-                $notification,
-                function ($ignored) use ($notification) {
-                    $notification->setStatus(PaymentOrderNotification::STATUS_NOTIFIED);
-                },
-                function ($ignored) use ($notification) {
-                    $notification->setStatus(PaymentOrderNotification::STATUS_RETRYING);
-                    $notification->setTries($notification->getTries() + 1);
-                },
-                function () use ($notification, $em) {
-                    $em->flush();
-                }
-            );
+            $repo = $em->getRepository(PaymentOrderNotification::class);
+            if($repo->findBy(['status' => PaymentOrderNotification::STATUS_RETRYING])){
+                $notification->setStatus(PaymentOrderNotification::STATUS_RETRYING);
+                $notification->setTries(0);
+                $em->flush();
+            }
+            else {
+                $this->notifier->send(
+                    $notification,
+                    function ($ignored) use ($notification) {
+                        $notification->setStatus(PaymentOrderNotification::STATUS_NOTIFIED);
+                    },
+                    function ($ignored) use ($notification) {
+                        $notification->setStatus(PaymentOrderNotification::STATUS_RETRYING);
+                        $notification->setTries($notification->getTries() + 1);
+                    },
+                    function () use ($notification, $em) {
+                        $em->flush();
+                    }
+                );
+            }
         }
     }
 
