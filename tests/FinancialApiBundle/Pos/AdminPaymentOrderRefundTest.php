@@ -1,6 +1,6 @@
 <?php
 
-namespace Test\FinancialApiBundle\Open\Pos;
+namespace Test\FinancialApiBundle\Pos;
 
 use App\FinancialApiBundle\Controller\Google2FA;
 use App\FinancialApiBundle\DataFixture\UserFixture;
@@ -11,35 +11,12 @@ use Test\FinancialApiBundle\BaseApiTest;
 use Test\FinancialApiBundle\Utils\MongoDBTrait;
 
 /**
- * Class PaymentOrderTest
- * @package Test\FinancialApiBundle\Open\Pos
+ * Class AdminPaymentOrderRefundTest
+ * @package Test\FinancialApiBundle\Pos
  */
-class PaymentOrderTest extends BaseApiTest {
+class AdminPaymentOrderRefundTest extends BaseApiTest {
 
     use MongoDBTrait;
-
-    const SUCCESS_RESULT = true;
-    const FAILURE_RESULT = false;
-
-    function injectNotifier($result){
-        $notifier = $this->createMock(Notifier::class);
-        $notifier->method('send')
-            ->will($this->returnCallback(
-                function (Notification $ignored, $on_success, $on_failure, $on_finally) use ($result) {
-                    if ($result) $on_success("success response");
-                    else $on_failure("error response");
-                    $on_finally();
-                }
-            ));
-        $this->override(Notifier::class, $notifier);
-    }
-
-    function setUp(): void
-    {
-        parent::setUp();
-        $this->injectNotifier(self::FAILURE_RESULT);
-    }
-
 
     function testPayPollRefund()
     {
@@ -69,10 +46,6 @@ class PaymentOrderTest extends BaseApiTest {
         self::assertObjectHasAttribute("refund_transaction", $order);
         self::assertNotEmpty($order->refund_transaction);
 
-        $this->runCommand('rec:pos:expire');
-
-        $this->injectNotifier(self::SUCCESS_RESULT);
-        $this->runCommand('rec:pos:notifications:retry');
     }
 
     private function getOneAccount()
@@ -100,6 +73,7 @@ class PaymentOrderTest extends BaseApiTest {
             'reference' => $reference,
             'ok_url' => $okUrl,
             'ko_url' => $koUrl,
+            'signature_version' => 'hmac_sha256_v1',
             'amount' => $amount,
             'concept' => $concept
         ];

@@ -2,7 +2,6 @@
 
 namespace App\FinancialApiBundle\EventSubscriber\Doctrine;
 
-use App\FinancialApiBundle\Controller\Google2FA;
 use App\FinancialApiBundle\Controller\Transactions\IncomingController2;
 use App\FinancialApiBundle\Document\Transaction;
 use App\FinancialApiBundle\Entity\Group;
@@ -17,13 +16,8 @@ use Doctrine\ORM\Event\LifecycleEventArgs;
 use Doctrine\ORM\Event\PreUpdateEventArgs;
 use Doctrine\ORM\Events;
 use Symfony\Component\DependencyInjection\ContainerInterface;
-use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\RequestStack;
 use Symfony\Component\HttpFoundation\Response;
-use Symfony\Component\HttpKernel\KernelInterface;
-use Symfony\Component\Security\Core\Authentication\Token\Storage\TokenStorageInterface;
-use Symfony\Component\Security\Core\Authorization\AuthorizationChecker;
-use Symfony\Component\Security\Core\Authorization\AuthorizationCheckerInterface;
 
 /**
  * Class PaymentOrderSubscriber
@@ -37,26 +31,15 @@ class PaymentOrderSubscriber implements EventSubscriber {
     /** @var ContainerInterface $container */
     private $container;
 
-    /** @var TokenStorageInterface $tokenStorage */
-    private $tokenStorage;
-    /**
-     * @var AuthorizationCheckerInterface
-     */
-    private $auth;
-
     /**
      * MailingDeliveryEventSubscriber constructor.
      * @param RequestStack $requestStack
-     * @param TokenStorageInterface $tokenStorage
-     * @param AuthorizationCheckerInterface $auth
      * @param ContainerInterface $container
      */
-    public function __construct(RequestStack $requestStack, TokenStorageInterface $tokenStorage, AuthorizationCheckerInterface $auth, ContainerInterface $container)
+    public function __construct(RequestStack $requestStack, ContainerInterface $container)
     {
         $this->requestStack = $requestStack;
         $this->container = $container;
-        $this->tokenStorage = $tokenStorage;
-        $this->auth = $auth;
     }
 
     /**
@@ -83,42 +66,6 @@ class PaymentOrderSubscriber implements EventSubscriber {
                     $refundAmount = $currentRequest->request->get("refund_amount", $order->getAmount());
                     if($refundAmount > $order->getAmount())
                         throw new AppException(400, "Refund cannot exceed order amount");
-
-                    // if admin check otp else check signature
-                    if($this->tokenStorage->getToken()->isAuthenticated()) {
-                        if(!$this->auth->isGranted("ROLE_ADMIN"))
-                            throw new AppException(403, "User must be admin");
-                        $this->checkOTP();
-                    }
-                    else {
-                        $signature_version = $currentRequest->request->get("signature_version", "");
-                        $sent_signature = $currentRequest->request->get("signature", "");
-                        if($signature_version !== "hmac_sha256_v1")
-                            throw new AppException(400, "Invalid or not present signature version");
-                        /** @var Pos $pos */
-                        $pos = $order->getPos();
-
-                        $dataToSign = [
-                            "status" => PaymentOrder::STATUS_REFUNDED,
-                            "signature_version" => $signature_version
-                        ];
-
-                        if($currentRequest->request->has("refund_amount"))
-                            $dataToSign ["refund_amount"] = $refundAmount;
-
-                        ksort($dataToSign);
-                        $signaturePack = json_encode($dataToSign, JSON_UNESCAPED_SLASHES);
-
-                        $calculated_signature = hash_hmac(
-                            'sha256',
-                            $signaturePack,
-                            base64_decode($pos->getAccessSecret())
-                        );
-
-                        if($sent_signature !== $calculated_signature) {
-                           throw new AppException(400, "Invalid or not present signature");
-                        }
-                    }
 
                     /*
                      *  This STATUS_REFUNDING status is to prevent recursivity when using IncomingController2
@@ -215,13 +162,4 @@ class PaymentOrderSubscriber implements EventSubscriber {
         }
     }
 
-    private function checkOTP() {
-        /* check otp matches with current user */
-        $currentRequest = $this->requestStack->getCurrentRequest();
-        /** @var User $user */
-        $user = $this->tokenStorage->getToken()->getUser();
-        $otp = Google2FA::oath_totp($user->getTwoFactorCode());
-        if($otp != $currentRequest->request->get('otp'))
-            throw new AppException(403, "Invalid otp");
-    }
 }
