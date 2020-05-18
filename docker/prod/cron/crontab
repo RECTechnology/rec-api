@@ -2,7 +2,7 @@
 *    *   * * * www-data timeout 300 /usr/bin/rec rec:fiat:check
 *    *   * * * www-data timeout 300 /usr/bin/rec rec:check:offers
 *    *   * * * www-data timeout 300 /usr/bin/rec rec:mailing:send
-*    *   * * * www-data timeout 300 /usr/bin/rec rec:sync:lemonway
+*/5  *   * * * www-data timeout 300 /usr/bin/rec rec:sync:lemonway
 *    *   * * * www-data timeout 300 /usr/bin/rec rec:pos:expire
 *    *   * * * www-data timeout 300 /usr/bin/rec rec:pos:notifications:retry
 
