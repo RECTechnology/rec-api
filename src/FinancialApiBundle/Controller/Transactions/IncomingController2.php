@@ -352,6 +352,15 @@ class IncomingController2 extends RestApiController{
             if(!$destination){
                 // checking if the address belongs to an order
                 $orderRepo = $em->getRepository(PaymentOrder::class);
+
+                /** @var PaymentOrder $order */
+                $order = $orderRepo->findOneBy(
+                    ['payment_address' => $payment_info['address'], 'status' => PaymentOrder::STATUS_EXPIRED]
+                );
+                if($order) {
+                    throw new AppException(400, "Payment order has expired");
+                }
+
                 /** @var PaymentOrder $order */
                 $order = $orderRepo->findOneBy(
                     ['payment_address' => $payment_info['address'], 'status' => PaymentOrder::STATUS_IN_PROGRESS]
