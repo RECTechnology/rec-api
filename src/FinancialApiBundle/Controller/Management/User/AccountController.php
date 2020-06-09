@@ -223,28 +223,28 @@ class AccountController extends BaseApiController {
 
     /**
      * @Rest\View
+     * @param Request $request
+     * @return Response
      */
     public function publicPhoneListAction(Request $request){
         $em = $this->getDoctrine()->getManager();
         if(!$request->request->has('phone_list')){
             throw new HttpException(400, "Missing parameters phone_list");
         }
-        $public_phone_list = array();
+        $public_phone_list = [];
 
-        $you = $this->get('security.token_storage')->getToken()->getUser();
-        $my_accounts = $this->getDoctrine()->getRepository("FinancialApiBundle:UserGroup")->findBy(array(
-            'user'  =>  $you
-        ));
+        $user = $this->get('security.token_storage')->getToken()->getUser();
+        $my_accounts = $em->getRepository(UserGroup::class)->findBy(['user'  =>  $user]);
         foreach($my_accounts as $account){
+            /** @var Group $group */
             $group = $account->getGroup();
-            if($group->getActive() && $group->getId()!=$you->getActiveGroup()->getId()) {
-                $public_phone_list[$group->getName()] = array($group->getRecAddress(), $group->getCompanyImage());
+            if($group->getActive() && $group->getId() != $user->getActiveGroup()->getId()) {
+                $public_phone_list[$group->getName()] = [$group->getRecAddress(), $group->getCompanyImage()];
             }
         }
 
         $phone_list = $request->request->get('phone_list');
-        $phone_list = json_decode($phone_list);
-        $clean_phone_list = array();
+        $clean_phone_list = [];
 
         foreach ($phone_list as $phone) {
             $original = $phone;
@@ -253,17 +253,15 @@ class AccountController extends BaseApiController {
             $clean_phone_list[$original] = $phone;
         }
 
-        $public_users = $em->getRepository($this->getRepositoryName())->findBy(array(
-            'public_phone' => 1
-        ));
+        $public_users = $this->getRepository()->findBy(['public_phone' => 1]);
 
-        $selected = array($you->getPhone());
+        $selected = [$user->getPhone()];
 
-        foreach ($clean_phone_list as $original=>$phone) {
-            if(!in_array($phone,$selected)){
+        foreach ($clean_phone_list as $original => $phone) {
+            if(!in_array($phone, $selected)){
                 foreach($public_users as $user){
                     if(($user->getPhone() == $phone) && $user->getActiveGroup()->getActive()){
-                        $public_phone_list[$original] = array($user->getActiveGroup()->getRecAddress(), $user->getProfileImage());
+                        $public_phone_list[$original] = [$user->getActiveGroup()->getRecAddress(), $user->getProfileImage()];
                         $selected[] = $phone;
                     }
                 }
