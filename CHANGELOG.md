@@ -2,6 +2,71 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+## [2.18.0](https://github.com/qbitartifacts/rec-api/compare/v2.17.0...v2.18.0) (2020-06-11)
+
+
+### Features
+
+* **cron:** added missed cron ([5970443](https://github.com/qbitartifacts/rec-api/commit/5970443170f4f2e3010f93118afc6316abcd50f6))
+* **documentation:** added POS urls to documentation ,fixes QbitArtifacts/rec-pos[#1](https://github.com/qbitartifacts/rec-api/issues/1) ([03d6155](https://github.com/qbitartifacts/rec-api/commit/03d6155c1362649ecbb79701f5f53983dda9d577))
+* **migrations:** added migration for save the refunded tx in the paymentorder ([1ff0699](https://github.com/qbitartifacts/rec-api/commit/1ff069948150e223e60c0077e0e01690d1c43f3b))
+* **pos:** added ip address and payment address to payment orders ([60327e6](https://github.com/qbitartifacts/rec-api/commit/60327e64b878e385360caba2b0a2846929963dd5))
+* **pos:** added migration to save transaction_id into PaymentOrder ([766dd3e](https://github.com/qbitartifacts/rec-api/commit/766dd3eef3d79a5029de376bdab9777f4fc02fcb))
+* **pos:** added missed configurations to POS module ([263f797](https://github.com/qbitartifacts/rec-api/commit/263f797ccff1a990f805e91b5108db290db3fd6e))
+* **pos:** added payment url to payment orders ([66e8a42](https://github.com/qbitartifacts/rec-api/commit/66e8a4229ed1a709271c7629f920b6103f23a176))
+* **pos:** implemented migration for the POS and Payment Orders ([8361a53](https://github.com/qbitartifacts/rec-api/commit/8361a5322782aec2f2639aee42f73cc8f58e355f))
+* **pos:** implemented pos expire pos expire command ([8129548](https://github.com/qbitartifacts/rec-api/commit/812954843488a1a84fb73c18e98e8ff16d37898f)), closes [#294](https://github.com/qbitartifacts/rec-api/issues/294)
+* **pos:** implemented pos notifications entities ([dc8b187](https://github.com/qbitartifacts/rec-api/commit/dc8b1875cf31fd90319660e68d7c4428cb1353c9)), closes [#280](https://github.com/qbitartifacts/rec-api/issues/280)
+* **pos:** implemented public endpoint for payment_orders ([6bb74ef](https://github.com/qbitartifacts/rec-api/commit/6bb74ef6f76c5108c6f6591773c40e4fc6fe8f4e))
+* **pos:** implemented receive payment order, closes [#276](https://github.com/qbitartifacts/rec-api/issues/276) ([1a2b8d7](https://github.com/qbitartifacts/rec-api/commit/1a2b8d72ff140ab3ad38b75f2eac0ce786dd16f6))
+* **pos:** implemented refund payment orders ([8add24c](https://github.com/qbitartifacts/rec-api/commit/8add24c70e0ed5e808ed7370a4e32184b87ff7fb)), closes [#279](https://github.com/qbitartifacts/rec-api/issues/279)
+* **security:** changed int ids to guid in payments to avoid bruteforce listing ([c0c127a](https://github.com/qbitartifacts/rec-api/commit/c0c127ae21d3a784ac5d8c4d06a4d222f882d917))
+* added Order entity ([2744d12](https://github.com/qbitartifacts/rec-api/commit/2744d12c3bb75c700de99a71f390720b8b91ee44))
+* added POS entity ([57500df](https://github.com/qbitartifacts/rec-api/commit/57500df926860dc70ef6529787ebcece93758241))
+* added pos relation to Group ([f39e660](https://github.com/qbitartifacts/rec-api/commit/f39e660171f5dc90dcc885871dfd4443fdd5733c))
+
+
+### Bug Fixes
+
+* **cron_retries:** fixed bug in cron for retries ([3234dce](https://github.com/qbitartifacts/rec-api/commit/3234dce749bdc5284f5d44af8f62341d8e8f600f))
+* **dependencies:** updated dependencies ([c9ae684](https://github.com/qbitartifacts/rec-api/commit/c9ae6845319eb167d8b966f8605f755cccda24a2))
+* **dependencies:** updated dependencies ([18ac42c](https://github.com/qbitartifacts/rec-api/commit/18ac42c54a51a519a4450eaa8e8663664ed298dd))
+* **lemonway:** added check for existing lw_balance before querying to lw ([d429faa](https://github.com/qbitartifacts/rec-api/commit/d429faab7aa8d3bd813fa0af9ceb47a94291f471)), closes [#305](https://github.com/qbitartifacts/rec-api/issues/305)
+* **migrations:** fixed migrations error ([b68cf1a](https://github.com/qbitartifacts/rec-api/commit/b68cf1aadf4db45eaa8331347cec8aabc8360a38))
+* **migrations:** fixed migrations error (by second time) ([28db095](https://github.com/qbitartifacts/rec-api/commit/28db0957a0285f6016fc4f751fc1feaecad989aa))
+* **notifications:** added check to not notify when notification url is not present ([846e926](https://github.com/qbitartifacts/rec-api/commit/846e926b5100aee777e1f5c203b62d131baf705c)), closes [#300](https://github.com/qbitartifacts/rec-api/issues/300)
+* **notifications:** added expire check to notifications after 24h ([ebebf7d](https://github.com/qbitartifacts/rec-api/commit/ebebf7dc1cfa98e34dadb13cea6c3c09a3487c47))
+* **notifications:** fixed bug in http notifier ([2e11eaa](https://github.com/qbitartifacts/rec-api/commit/2e11eaa8c8d96676dac3dbf4a178c7d8e69d321f))
+* **notifications:** fixed notification order ([b574f25](https://github.com/qbitartifacts/rec-api/commit/b574f25bc208a55d423284459e87612c8035936c)), closes [#281](https://github.com/qbitartifacts/rec-api/issues/281)
+* **notifications:** fixes notifications issues ([#299](https://github.com/qbitartifacts/rec-api/issues/299)) ([a315de1](https://github.com/qbitartifacts/rec-api/commit/a315de132a8e79415abf4936078f782d2f3d9684))
+* **pos:** added public account information to payment order ([75b723e](https://github.com/qbitartifacts/rec-api/commit/75b723e49f1c5053cd507ca719e6538a4c789a61)), closes [#289](https://github.com/qbitartifacts/rec-api/issues/289)
+* **pos:** added signature_version to signing parameters ([#304](https://github.com/qbitartifacts/rec-api/issues/304)) ([3a3d654](https://github.com/qbitartifacts/rec-api/commit/3a3d654c1755863b5f5b42109f3ef92b23bb663f))
+* **pos:** allowed order payment addresses into legacy call /transaction/v1/vendor ([af710ff](https://github.com/qbitartifacts/rec-api/commit/af710ff09d39a80854574642df9618812d10ca25)), closes [#288](https://github.com/qbitartifacts/rec-api/issues/288)
+* **pos:** checking pin against logged-in user instead of sender (works only for admin) ([ac9673d](https://github.com/qbitartifacts/rec-api/commit/ac9673d838c27627e6c72820757a01dc7321bf5d))
+* **pos:** extended POS expire time to 10min and added check for order expired addresses ([#308](https://github.com/qbitartifacts/rec-api/issues/308)) ([6d80512](https://github.com/qbitartifacts/rec-api/commit/6d805129f9865b0946255793280a95a1b947df46))
+* **pos:** fixed bug with base64_decode ([d615201](https://github.com/qbitartifacts/rec-api/commit/d61520190a8c12917ef60f015d704ab6692addf3))
+* **pos:** fixed error when creating paymentorder, fixes [#283](https://github.com/qbitartifacts/rec-api/issues/283) ([27a24c7](https://github.com/qbitartifacts/rec-api/commit/27a24c7ae3530ca22b15e28cf8349023fa61acb6))
+* **pos:** fixed index payment orders of a pos and added testing ([27c2387](https://github.com/qbitartifacts/rec-api/commit/27c23870ed6439ce0f7729c4183f1f82d0a86ff1))
+* **pos:** fixed pos expire command ([d0b8b30](https://github.com/qbitartifacts/rec-api/commit/d0b8b305be6f8ffae2219c11637446be06444df9))
+* **pos:** implemented test and command to retry ([d279014](https://github.com/qbitartifacts/rec-api/commit/d2790142caaeee9122027c09cbf4301f21024e66)), closes [#281](https://github.com/qbitartifacts/rec-api/issues/281)
+* **pos:** now payment orders validates either the amount is sent between quotes or not ([8f8da18](https://github.com/qbitartifacts/rec-api/commit/8f8da1856217e8e75f7e7af8ffe48d6078b8dd1d))
+* **pos:** restricted only to admins index pos transactions ([a29850d](https://github.com/qbitartifacts/rec-api/commit/a29850d4da9b4173a1788a74745ba890d5f47667))
+* **pos:** set notification_url not required ([02b8d95](https://github.com/qbitartifacts/rec-api/commit/02b8d950211193f44b4c2aa9fbb976b70bbab5c0))
+* **pos:** set pos active by default at creation ([79fb1f7](https://github.com/qbitartifacts/rec-api/commit/79fb1f74057f9b2a257b63bc2c8738423821c019))
+* **public_phone_list:** public phones and dependency updates ([#310](https://github.com/qbitartifacts/rec-api/issues/310)) ([0f54268](https://github.com/qbitartifacts/rec-api/commit/0f542686d02b2d1d3a58e4868ba9e4e4db220962))
+* **refactor:** refactored tx tests ([5e240a5](https://github.com/qbitartifacts/rec-api/commit/5e240a5e6adc4e467fd4869c33709753b3ffcf54))
+* **refactor:** removed unused code ([727a8e1](https://github.com/qbitartifacts/rec-api/commit/727a8e1d8155e4972c0afdc705b8d2fd17fad5c5))
+* **refund:** changed pin to otp code ([44cf2fe](https://github.com/qbitartifacts/rec-api/commit/44cf2fe64dd6272334255fd66c00558126456a68)), closes [#297](https://github.com/qbitartifacts/rec-api/issues/297)
+* **rest:** set created and updated public for all entities ([fc7c577](https://github.com/qbitartifacts/rec-api/commit/fc7c5770986fbf3b2fc78a03e2786a4875cf83f2))
+* **rest:** set created and updated public for all entities, fixes [#277](https://github.com/qbitartifacts/rec-api/issues/277) ([fa431a4](https://github.com/qbitartifacts/rec-api/commit/fa431a4da5968a479ae12a4e0aa892898dce4e87))
+* **routing:** fix order id pattern ([9203c34](https://github.com/qbitartifacts/rec-api/commit/9203c34327ef37f706938d713e4e290371bd6e6b))
+* **tests:** removed old test for create payment orders ([0626dab](https://github.com/qbitartifacts/rec-api/commit/0626dabb8adb303313592971aa849c7c0a51b41e))
+* **tests:** removed unused test ([e898e1a](https://github.com/qbitartifacts/rec-api/commit/e898e1a414f0a46f112ceecaaf24a8814eb87f61))
+* **transactions:** fixed bug with checking limits in creating transactions ([46d27b0](https://github.com/qbitartifacts/rec-api/commit/46d27b0802ad7efc9a5acc2848481f5ab575798b))
+* **version:** returned exact git abbreviated version instead of only the last tag ([71f32a9](https://github.com/qbitartifacts/rec-api/commit/71f32a99548777bf801942d0e85405ee0ac9152e))
+* added status consts to Order entity ([9e93a13](https://github.com/qbitartifacts/rec-api/commit/9e93a13dd9464202381c972a933580b409f06b2a))
+* added url_ok and url_ko to order ([98586a0](https://github.com/qbitartifacts/rec-api/commit/98586a0143a4a978d88a764d38d275b6473dd9ad))
+
 ## [2.17.0](https://github.com/qbitartifacts/rec-api/compare/v2.16.0...v2.17.0) (2020-03-25)
 
 
