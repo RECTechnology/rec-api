@@ -103,6 +103,13 @@ class PaymentOrder extends AppObject implements Stateful, HybridPersistent
 
     /**
      * @ORM\Column(type="string")
+     * @Serializer\Groups({"public"})
+     * @Assert\Choice({"app", "desktop_browser", "mobile_browser"})
+     */
+    private $payment_type = 'desktop_browser';
+
+    /**
+     * @ORM\Column(type="string")
      * @Serializer\Groups({"admin"})
      * @Assert\Choice({"hmac_sha256_v1"})
      * @Assert\NotBlank()
@@ -411,4 +418,24 @@ class PaymentOrder extends AppObject implements Stateful, HybridPersistent
         $this->refund_transaction = $refund_transaction;
     }
 
+
+    /**
+     * Get the value of payment_type
+     */ 
+    public function getPaymentType()
+    {
+        return $this->payment_type;
+    }
+
+    /**
+     * Set the value of payment_type
+     *
+     * @return  self
+     */ 
+    public function setPaymentType($payment_type)
+    {
+        $this->payment_type = $payment_type;
+
+        return $this;
+    }
 }

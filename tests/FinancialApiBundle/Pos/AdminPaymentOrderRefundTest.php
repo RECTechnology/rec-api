@@ -75,7 +75,8 @@ class AdminPaymentOrderRefundTest extends BaseApiTest {
             'ko_url' => $koUrl,
             'signature_version' => 'hmac_sha256_v1',
             'amount' => $amount,
-            'concept' => $concept
+            'concept' => $concept,
+            'payment_type' => 'desktop_browser'
         ];
         ksort($signatureParams);
         $signatureData = json_encode($signatureParams, JSON_UNESCAPED_SLASHES);
@@ -89,6 +90,7 @@ class AdminPaymentOrderRefundTest extends BaseApiTest {
             'reference' => $reference,
             'signature_version' => 'hmac_sha256_v1',
             'signature' => $signature,
+            'payment_type' => 'desktop_browser'
         ]);
     }
 
