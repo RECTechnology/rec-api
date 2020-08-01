@@ -104,9 +104,10 @@ class PaymentOrder extends AppObject implements Stateful, HybridPersistent
     /**
      * @ORM\Column(type="string")
      * @Serializer\Groups({"public"})
-     * @Assert\Choice({"app", "desktop_browser", "mobile_browser"})
+     * @Assert\Choice({"mobile", "desktop"})
+     * @Assert\NotBlank()
      */
-    private $payment_type = 'desktop_browser';
+    private $payment_type;
 
     /**
      * @ORM\Column(type="string")
