@@ -101,6 +101,6 @@ class CreditCardController extends BaseApiController{
         $credit_card->setDeleted(true);
         $em->persist($credit_card);
         $em->flush();
-        return $this->restV2(201,"ok", "Card deleted successfully", $credit_card);
+        return $this->restV2(204,"ok", "Card deleted successfully");
     }
 }
