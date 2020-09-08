@@ -4,6 +4,7 @@ namespace App\FinancialApiBundle\Controller\Transactions;
 
 use App\FinancialApiBundle\Entity\PaymentOrder;
 use App\FinancialApiBundle\Exception\AppException;
+use Doctrine\ODM\MongoDB\DocumentManager;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Component\Config\Definition\Exception\Exception;
 use Symfony\Component\HttpFoundation\Request;
@@ -100,8 +101,15 @@ class IncomingController2 extends RestApiController{
         $logger->info('(' . $group_id . ')(T) INIT');
         $logger->info('(' . $group_id . ') Incomig transaction...Method-> '.$method_cname.' Direction -> '.$type);
         $method = $this->get('net.app.'.$type.'.'.$method_cname.'.v'.$version_number);
+
+        /** @var DocumentManager $dm */
         $dm = $this->get('doctrine_mongodb')->getManager();
+
+        /** @var EntityManagerInterface $em */
         $em = $this->getDoctrine()->getManager();
+
+        // Starting RDB transaction to avoid tx duplicates
+        $em->getConnection()->beginTransaction();
 
         $user = $em->getRepository('FinancialApiBundle:User')->find($user_id);
         $logger->info('(' . $user_id . ')(T) FIND USER');
@@ -489,6 +497,8 @@ class IncomingController2 extends RestApiController{
                 $em->flush();
                 $logger->info('(' . $group_id . ')(T) SAVE ALL');
 
+                $em->getConnection()->commit();
+
                 $params = array(
                     'amount' => $amount,
                     'concept' => $concept,
@@ -511,9 +521,15 @@ class IncomingController2 extends RestApiController{
                 $em->flush();
                 $dm->flush();
                 $logger->info('(' . $group_id . ')(T) SAVE DATA');
+
+                $em->getConnection()->commit();
             }
         }
         else{
+
+            //Checking if there is an out transaction for this in tx
+
+
             $logger->info('(' . $group_id . ')(T) IS INTERNAL?');
             if(isset($data['internal_in']) && $data['internal_in']=='1') {
                 $transaction->setInternal(true);
@@ -523,6 +539,8 @@ class IncomingController2 extends RestApiController{
             $em->flush();
             $transaction->setUpdated(new \DateTime());
             $dm->flush();
+
+            $em->getConnection()->commit();
         }
 
         $logger->info('(' . $group_id . ')(T) INIT NOTIFICATION');
