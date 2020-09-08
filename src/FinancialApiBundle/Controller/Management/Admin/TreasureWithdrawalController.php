@@ -83,7 +83,7 @@ class TreasureWithdrawalController extends BaseApiController {
 
     function getRepositoryName()
     {
-        return "FinancialApiBundle:TreasureWithdrawalAttempt";
+        return "FinancialApiBundle:TreasureWithdrawal";
     }
 
     function getNewEntity()
