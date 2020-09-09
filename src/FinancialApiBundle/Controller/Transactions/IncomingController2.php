@@ -271,6 +271,7 @@ class IncomingController2 extends RestApiController{
                 if($sender_id == '0'){
                     $payment_info['image_sender'] = "";
                     $payment_info['name_sender'] = "Treasure account";
+                    $payment_info['txid'] = '0000000000000000000000000000000000000000000000000000000000000000'; # 64 zeros
                 }
                 else {
                     $sender = $em->getRepository('FinancialApiBundle:Group')->findOneBy(array(

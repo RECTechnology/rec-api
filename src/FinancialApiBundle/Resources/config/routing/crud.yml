@@ -41,6 +41,7 @@ dashboard_v3_timeseries_transactions:
         role: "(admin|manager)"
         intervalName: "(year|month|day)"
 
+
 ##################### ACCOUNTS/WITHDRAWALS / V3 / (OVERRIDES ACCOUNTS) ############################
 
 accounts_v3_withdrawals:
@@ -149,6 +150,17 @@ products_and_activities_v3_create:
     requirements:
         role: "(public|user|manager|self|admin|sadmin)"
         object: "(product_kinds|activities)"
+
+##################### PAYMENT_ORDERS / V3 / (OVERRIDES CRUD) ############################
+
+treasure_withdrawal_validations_v3_update:
+    path:  /{role}/v3/{object}/{id}
+    defaults: { _controller: App\FinancialApiBundle\Controller\CRUD\TreasureWithdrawalValidationsController::updateAction }
+    methods: [PUT]
+    requirements:
+        role: "(public|user|manager|self|admin|sadmin)"
+        object: "treasure_withdrawal_validations"
+        id: "[0-9A-Fa-f_-]+"
 
 ##################### PAYMENT_ORDERS / V3 / (OVERRIDES CRUD) ############################
 

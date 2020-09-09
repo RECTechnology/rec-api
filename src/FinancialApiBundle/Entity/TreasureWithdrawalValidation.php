@@ -17,6 +17,7 @@ use Symfony\Component\Validator\Constraints as Assert;
 class TreasureWithdrawalValidation extends AppObject implements Stateful {
 
     const DEFAULT_TOKEN_BYTES = 40;
+    const STATUS_SENT = "sent";
 
     use StatefulTrait;
 
@@ -30,7 +31,7 @@ class TreasureWithdrawalValidation extends AppObject implements Stateful {
      *          "approved"={"final"=true}
      *      }
      * )
-     * @Serializer\Groups({"admin"})
+     * @Serializer\Groups({"public"})
      */
     private $status;
 
@@ -41,7 +42,7 @@ class TreasureWithdrawalValidation extends AppObject implements Stateful {
     private $withdrawal;
 
     /**
-     * @ORM\ManyToOne(targetEntity="App\FinancialApiBundle\Entity\TreasureWithdrawalAuthorizedEmail", inversedBy="withdrawals")
+     * @ORM\Column(type="string")
      * @Serializer\Groups({"admin"})
      */
     private $email;
@@ -59,6 +60,13 @@ class TreasureWithdrawalValidation extends AppObject implements Stateful {
     public function __construct()
     {
         $this->token = sha1(random_bytes(self::DEFAULT_TOKEN_BYTES));
+    }
+
+    /**
+     * @return bool
+     */
+    public function isApproved(){
+        return $this->status === self::STATUS_APPROVED;
     }
 
     /**

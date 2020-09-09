@@ -30,7 +30,6 @@ class CRUDController extends BaseApiV2Controller {
     const BASE_REPOSITORY_NAME = "FinancialApiBundle";
     const PATH_ENTITY_OVERRIDES = [
         'accounts' => 'Group',
-        'treasure_validations' => 'TreasureWithdrawalValidation',
         'pos' => 'Pos',
     ];
 

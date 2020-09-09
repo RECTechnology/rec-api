@@ -28,7 +28,7 @@ abstract class BaseApiTest extends WebTestCase {
         'delegated_changes',
         'delegated_change_data',
         'treasure_withdrawals',
-        'treasure_validations',
+        'treasure_withdrawal_validations',
         'access_tokens',
         'clients',
         'cash_in_deposits',

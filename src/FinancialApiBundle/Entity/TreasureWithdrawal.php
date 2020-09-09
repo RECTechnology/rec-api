@@ -16,10 +16,10 @@ use App\FinancialApiBundle\Document\Transaction;
  */
 class TreasureWithdrawal extends AppObject implements Stateful, HybridPersistent {
 
-    const MINIMUM_TREASURE_WITHDRAWAL_VALIDATIONS_RATE = 0.5;
+    const MINIMUM_TREASURE_WITHDRAWAL_VALIDATIONS_RATE = 1.0;
     const TREASURE_WITHDRAWAL_EXPIRATION_INTERVAL = "+1 day";
     const TREASURE_WITHDRAWAL_STATUS_APPROVED = "approved";
-    const TREASURE_WITHDRAWAL_STATUS_PENDING = "pending";
+    const STATUS_PENDING = "pending";
     const TREASURE_WITHDRAWAL_STATUS_REJECTED = "rejected";
 
     use StatefulTrait;
@@ -73,7 +73,6 @@ class TreasureWithdrawal extends AppObject implements Stateful, HybridPersistent
      */
     private $description;
 
-
     /**
      * @ORM\OneToMany(targetEntity="App\FinancialApiBundle\Entity\TreasureWithdrawalValidation", mappedBy="withdrawal")
      * @Serializer\Groups({"admin"})
@@ -98,7 +97,7 @@ class TreasureWithdrawal extends AppObject implements Stateful, HybridPersistent
      */
     public function getStatus(){
         if($this->isApproved()) return self::TREASURE_WITHDRAWAL_STATUS_APPROVED;
-        elseif($this->getExpiresAt() < new \DateTime()) return self::TREASURE_WITHDRAWAL_STATUS_PENDING;
+        elseif($this->getExpiresAt() < new \DateTime()) return self::STATUS_PENDING;
         return self::TREASURE_WITHDRAWAL_STATUS_REJECTED;
     }
 
@@ -112,8 +111,8 @@ class TreasureWithdrawal extends AppObject implements Stateful, HybridPersistent
         $validation_count = 0;
         /** @var TreasureWithdrawalValidation $validation */
         foreach ($this->validations as $validation) {
-            if($validation->isAccepted()) {
-                if(++$validation_count > $minimum_validations)
+            if($validation->isApproved()) {
+                if(++$validation_count >= $minimum_validations)
                     return true;
             }
         }

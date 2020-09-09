@@ -19,12 +19,17 @@ use Doctrine\Common\EventSubscriber;
 use Doctrine\Common\Persistence\ObjectManager;
 use Doctrine\ORM\EntityManagerInterface;
 use Doctrine\ORM\Event\LifecycleEventArgs;
+use Doctrine\ORM\Event\OnFlushEventArgs;
 use Doctrine\ORM\Event\PreUpdateEventArgs;
 use Doctrine\ORM\Events;
+use Doctrine\ORM\OptimisticLockException;
+use Doctrine\ORM\ORMException;
+use Swift_Mailer;
 use Symfony\Component\DependencyInjection\ContainerAwareInterface;
 use Symfony\Component\DependencyInjection\ContainerAwareTrait;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 use Symfony\Component\HttpFoundation\RequestStack;
+use Symfony\Component\Templating\EngineInterface;
 
 /**
  * Class TreasureWithdrawalSubscriber
@@ -32,16 +37,16 @@ use Symfony\Component\HttpFoundation\RequestStack;
  */
 class TreasureWithdrawalSubscriber implements EventSubscriber {
 
-    /** @var EntityManagerInterface $em */
-    private $em;
+    /** @var ContainerInterface */
+    private $container;
 
     /**
      * TreasureWithdrawalSubscriber constructor.
-     * @param EntityManagerInterface $em
+     * @param ContainerInterface $container
      */
-    public function __construct(EntityManagerInterface $em)
+    public function __construct(ContainerInterface $container)
     {
-        $this->em = $em;
+        $this->container = $container;
     }
 
     /**
@@ -51,35 +56,41 @@ class TreasureWithdrawalSubscriber implements EventSubscriber {
      */
     public function getSubscribedEvents() {
         return [
-            Events::prePersist,
+            Events::onFlush,
         ];
     }
 
     /**
-     * @param LifecycleEventArgs $args
-     * @throws NoSuchTranslationException
+     * @param OnFlushEventArgs $args
+     * @throws ORMException
      */
-    public function prePersist(LifecycleEventArgs $args){
-        $withdrawal = $args->getEntity();
-        /*
-        if($withdrawal instanceof TreasureWithdrawal){
-            $emails = $this->em->getRepository(TreasureWithdrawalAuthorizedEmail::class)->findAll();
-            if(!$emails)
-                throw new AppLogicException("Cannot create Treasure withdrawal without any validator email");
-        */
-            /** @var TreasureWithdrawalAuthorizedEmail $email */
-        /*
-            foreach ($emails as $email){
-                $validation = new TreasureWithdrawalValidation();
-                $validation->setWithdrawal($withdrawal);
-                $validation->setEmail($email);
-                $this->em->persist($validation);
-                $this->em->persist($email);
-                $this->em->persist($withdrawal);
+    public function onFlush(OnFlushEventArgs $args){
+        $em = $args->getEntityManager();
+        $uow = $em->getUnitOfWork();
+        $entities = $uow->getScheduledEntityInsertions();
+        foreach ($entities as $withdrawal){
+            if($withdrawal instanceof TreasureWithdrawal){
+                $mails = json_decode($this->container->getParameter('list_emails'));
+                foreach ($mails as $mail){
+                    $validation = new TreasureWithdrawalValidation();
+                    $validation->setWithdrawal($withdrawal);
+                    $validation->setEmail($mail);
+                    $validation->setStatus(TreasureWithdrawalValidation::STATUS_CREATED);
+                    $em->persist($validation);
+                    $uow->computeChangeSet(
+                        $em->getClassMetadata(TreasureWithdrawalValidation::class),
+                        $validation
+                    );
+                    $withdrawal->addValidation($validation);
+                }
+                $withdrawal->setStatus(TreasureWithdrawal::STATUS_PENDING);
+                $em->persist($withdrawal);
+                $uow->recomputeSingleEntityChangeSet(
+                    $em->getClassMetadata(TreasureWithdrawal::class),
+                    $withdrawal
+                );
             }
         }
-        $this->em->flush();
-    */
     }
 
 }
